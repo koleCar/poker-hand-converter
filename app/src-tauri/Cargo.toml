@@ -33,6 +33,7 @@ tauri-plugin = "=2.6.3"
 rail-core = { path = "../../core/rail-core" }
 rail-config = { path = "../../core/rail-config" }
 rail-store = { path = "../../core/rail-store" }
+rail-watch = { path = "../../core/rail-watch" }
 tauri = { version = "=2.11.5", features = ["tray-icon"] }
 tauri-plugin-log = "=2.9.1"
 # Only the debug build registers it: the dev-only "convert a file" panel

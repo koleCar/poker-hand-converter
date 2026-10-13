@@ -105,7 +105,7 @@ impl Reader {
         self.with(|conn| {
             Ok(conn
                 .query_row(
-                    "SELECT id, read_offset, size, mtime FROM files WHERE path = ?1",
+                    "SELECT id, read_offset, size, mtime, encoding FROM files WHERE path = ?1",
                     [path],
                     |row| {
                         Ok(StoredFile {
@@ -113,6 +113,7 @@ impl Reader {
                             read_offset: row.get(1)?,
                             size: row.get(2)?,
                             mtime_ms: row.get(3)?,
+                            encoding: row.get(4)?,
                         })
                     },
                 )
@@ -155,7 +156,7 @@ impl Reader {
         self.with(|conn| {
             let mut stmt = conn.prepare_cached(&format!(
                 "SELECT s.id, s.path, s.site_override, s.enabled, s.recursive, s.status,
-                        s.last_error,
+                        s.last_error, s.poll_only,
                         (SELECT count(*) FROM files f WHERE f.source_id = s.id),
                         (SELECT count(*) FROM hands h JOIN files f ON f.id = h.file_id
                           WHERE f.source_id = s.id),
@@ -176,11 +177,12 @@ impl Reader {
                     recursive: row.get(4)?,
                     status: row.get(5)?,
                     last_error: row.get(6)?,
-                    files: row.get(7)?,
-                    hands: row.get(8)?,
-                    hands_today: row.get(9)?,
-                    quarantined: row.get(10)?,
-                    last_import_at: row.get(11)?,
+                    poll_only: row.get(7)?,
+                    files: row.get(8)?,
+                    hands: row.get(9)?,
+                    hands_today: row.get(10)?,
+                    quarantined: row.get(11)?,
+                    last_import_at: row.get(12)?,
                 })
             })?;
             Ok(rows.collect::<Result<_, _>>()?)
@@ -353,12 +355,14 @@ pub struct StoreStatus {
 }
 
 /// Where a file stands.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StoredFile {
     pub id: i64,
     pub read_offset: i64,
     pub size: i64,
     pub mtime_ms: Option<i64>,
+    /// The decoder's label of the last read (R1.3 resumes with it).
+    pub encoding: Option<String>,
 }
 
 /// A file and its counts. `hands` counts the hands this file was the first
@@ -388,6 +392,8 @@ pub struct SourceSummary {
     pub recursive: bool,
     pub status: String,
     pub last_error: Option<String>,
+    /// Read by polling, without change notifications (a network share).
+    pub poll_only: bool,
     pub files: i64,
     pub hands: i64,
     pub hands_today: i64,

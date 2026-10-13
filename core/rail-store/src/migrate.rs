@@ -25,10 +25,16 @@ pub struct Migration {
 }
 
 /// Every migration, in order. Index 0 is version 1.
-pub const MIGRATIONS: &[Migration] = &[Migration {
-    name: "0001_initial.sql",
-    sql: include_str!("../migrations/0001_initial.sql"),
-}];
+pub const MIGRATIONS: &[Migration] = &[
+    Migration {
+        name: "0001_initial.sql",
+        sql: include_str!("../migrations/0001_initial.sql"),
+    },
+    Migration {
+        name: "0002_source_poll_only.sql",
+        sql: include_str!("../migrations/0002_source_poll_only.sql"),
+    },
+];
 
 /// The schema version this build writes.
 pub const LATEST: u32 = {

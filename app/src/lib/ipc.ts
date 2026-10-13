@@ -45,6 +45,37 @@ export interface StoreStatus {
   outbox: number;
 }
 
+/** `watch::WatchSource`: one watched folder (R1.3). */
+export interface WatchSource {
+  id: number;
+  path: string;
+  state: "watching" | "polling" | "unavailable" | "error" | "disabled";
+  /** Why the folder cannot be read or watched. */
+  error: string | null;
+  recursive: boolean;
+  /** Read by polling only (a network folder). */
+  pollOnly: boolean;
+  files: number;
+  hands: number;
+  handsToday: number;
+  quarantined: number;
+  /** Files whose last read failed. */
+  fileErrors: number;
+  /** Files ending in a hand that is not complete yet. */
+  pending: number;
+  /** ms since the epoch. */
+  lastImportAt: number | null;
+}
+
+/** `watch::WatchStatus`: the watcher (R1.3). */
+export interface WatchStatus {
+  running: boolean;
+  paused: boolean;
+  /** Set when the watcher is not running, and why. */
+  error: string | null;
+  sources: WatchSource[];
+}
+
 /** `dev::ConvertSummary`; debug builds only. */
 export interface ConvertSummary {
   fileName: string;
@@ -71,9 +102,13 @@ export const ipc = {
   setTheme: (theme: Theme) => invoke<Settings>("set_theme", { theme }),
   setStartAtLogin: (enabled: boolean) => invoke<Settings>("set_start_at_login", { enabled }),
   storeStatus: () => invoke<StoreStatus>("store_status"),
+  watcherStatus: () => invoke<WatchStatus>("watcher_status"),
+  setImportPaused: (paused: boolean) => invoke<null>("set_import_paused", { paused }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
+    /** Pick a folder and watch it; its id, or `null` when cancelled. */
+    addFolder: () => invoke<number | null>("dev_add_folder"),
   },
 };
 

@@ -2164,6 +2164,190 @@ exactly once, and the same files imported twice change nothing.
   us), unplugged drives.
 - **Done when** a test that appends a corpus file to a watched file byte by byte
   in random chunks imports exactly the hands of that file, once.
+- *As built* (§15):
+  - **Crate** `core/rail-watch` (`#![forbid(unsafe_code)]`, workspace lints,
+    native only - not in any wasm32 build): `notify` **=8.2.0** (FSEvents
+    with latency 0 and `NoDefer` on macOS, ReadDirectoryChangesW on
+    Windows, inotify on Linux), `rail-store`, `rail-core`, `log`. Modules:
+    `codec` (piecewise decoding), `reader` (one file, offset to last
+    complete hand), `scan` (which files, network volumes), `watcher` (the
+    service). `rail-store` gained migration **0002** (`sources.poll_only`),
+    the source writes on `WriterHandle` (`add_source` with `poll_only`,
+    `remove_source`, `set_source_enabled`, `set_source_poll_only`,
+    `set_source_status`) and `StoredFile.encoding`.
+  - **Completeness rule** (`reader.rs` docs). A read decodes the bytes from
+    the stored offset, takes the best parser for that text (or the folder's
+    `site_override`) and its `split_hands`, and locates every chunk in the
+    text in order. (1) **The next hand has started**: every chunk but the
+    last converts (`convert_any` on the text up to the last chunk's start)
+    and the offset moves to the **byte where the last chunk starts**, so the
+    next read starts exactly at a header. Measured before building on it:
+    for all 517 files with hands whose chunks are verbatim in the text, converting
+    each chunk's own slice (from its start to the next one's) gives exactly
+    the whole-file hands and refusals (canonical PHF, fingerprint, reason,
+    message, site, per-mille). (2) **The file is quiet**: the last chunk is
+    complete after `quiet_ms` (500 ms) without a change **and** it validates
+    **and** the file does not end inside a code unit **and** the text ends
+    with a line end (else after `settle_ms`, 5 s). (3) A last chunk that
+    never validates (a refused game, a broken hand) is committed with its
+    refusal after `give_up_ms` (30 s); then the file counts as finished, so
+    a half code unit at its end is the core's U+FFFD, as in a whole-file
+    read. Quiet counts from the mtime when it has milliseconds, else (whole
+    seconds: FAT, HFS+, some shares) from when the reader saw the change.
+    The assumption: a room writes a hand within the quiet period; a writer
+    stopping mid-hand for longer, at a line end, with a valid-looking prefix
+    would get that prefix stored (none in the corpus or in any room's
+    behaviour seen).
+  - **Pieces that cannot stand alone.** Chunks not found verbatim (iPoker
+    assembles each hand from the session's `<general>` and one `<game>`: 14
+    of its 15 corpus files), or a piece from a non-zero offset that no
+    parser claims or that splits into nothing: the file is read **whole**
+    every time it changes and has been quiet (from offset 0, which the store
+    always accepts; dedupe keeps hands once). A file nothing claims is
+    committed from 0 as the core's file-level refusal after the give-up
+    time; its registry record only on the file's first read (or after a
+    truncation), so `unsupported.count` does not climb.
+  - **Encodings** (`codec.rs`). The decision is the core's
+    (`decode_source`) on the bytes from offset 0, minus an unfinished tail
+    (half a UTF-16 unit or pair, a cut UTF-8 sequence - which would make the
+    core say Windows-1252, or binary for a short UTF-16 file); remembered in
+    memory once something is stored and as `files.encoding` for the next
+    start. Pieces decode to exactly the core's text: BOM bytes (and up to two
+    U+FEFF after them, as `decode_source` strips) **only at offset 0** - a
+    file with a UTF-8 BOM that the core reads as Windows-1252 loses those
+    three bytes too; CR / CRLF to LF; UTF-16 on **code-unit boundaries**
+    (an odd byte or a lone lead surrogate at the end is left for the next
+    read); WHATWG replacement for lossy UTF-8. `byte_offset_of` maps a text
+    position back to the file byte (through CRLF and BOMs). Strict UTF-8
+    meeting an invalid byte is decided again on the whole file: Windows-1252
+    after an all-ASCII stored prefix, or lossy UTF-8, keep the offset;
+    anything else (non-ASCII UTF-8 already stored, then a 1252 byte) is read
+    again from 0 - the stored hands keep their correct text, the keys are
+    the core's. Checked on all 556 corpus files: the decision equals the
+    golden's, the text from 0 equals `decode_source`'s, and two pieces split
+    at hand starts (1 464 sampled) join to it.
+  - **Truncation, rotation, rename, deletion.** A file smaller than its
+    offset, or whose first 256 bytes differ from those seen at the last
+    commit (replaced by another at least as long), gets its row reset to 0
+    first (so a read that stores nothing still restarts next time), then is
+    read from 0 (dedupe keeps hands once). A file gone while its folder is
+    there is forgotten (row to offset 0, hands kept), so a new file at that
+    path starts from its beginning; a rename is a gone file plus a new one
+    (read from 0, duplicates only). A file gone with its folder (a drive
+    pulled out) keeps its offset.
+  - **Service** (`watcher.rs`): one coordinator thread owns the notifier,
+    the folders (from `sources`) and what is known of each file; it turns
+    notifications, walks and recheck times into dirty files and hands them
+    to **2 workers** (`WatchConfig::workers`) - never one file to two. A
+    worker runs `FileReader::poll` (read, convert, compress, commit through
+    the store's writer). Back-pressure: the writer's bounded queue blocks
+    the workers, the job queue (2 per worker) fills, the coordinator keeps
+    the files marked. **Rescan** of every folder every 60 s (a file whose
+    size or mtime changed since the last walk). A folder's OS watch is set
+    before its walk, and the folder is walked again 1 s later: FSEvents
+    starts delivering a moment after the watch is set, and a file written
+    in that moment is in no notification (a test caught it). A new subfolder of a
+    recursive folder is walked at once (its files may predate its OS
+    watch); a notifier error or overflow walks everything. **Poll only**:
+    `sources.poll_only`, set on `add_source` when the folder is on a network
+    volume (UNC paths on Windows; `smbfs`, `nfs`, `afpfs`, `webdav`, `cifs`,
+    ... in `mount` on macOS and `/proc/self/mounts` on Linux; a network
+    share mapped to a drive letter is not detected - R1.5's checkbox), or by
+    the user; such folders are walked every 3 s and never registered with
+    the notifier. A folder that is not there is `unavailable`, one that
+    cannot be read `error` (the reason in `sources.last_error`); both are
+    retried only at the next rescan. Files: `.txt`, `.xml`, `.log`, not
+    hidden, not in hidden folders, links to folders not followed. Events
+    on macOS name `/private/var/...` for `/var/...`: paths are mapped back
+    to the folder's own spelling. API: `Watcher::start(store_path, writer,
+    config, on_event)`, `stop`, `pause` / `resume` / `is_paused` (paused:
+    notifications are noted, nothing is read; resuming walks every folder),
+    `add_source` / `remove_source` / `set_source_enabled` /
+    `set_source_poll_only` (each writes `sources` and reloads), `rescan`,
+    `status()` (per folder: state, error, files, hands, hands today,
+    quarantined, last import from the store; files with read errors and
+    files waiting for their last hand from the watcher), and events
+    `Imported`, `Source`, `FileError`, `Paused`. **Stop the watcher before
+    the store closes**: `Store` waits for every writer handle (a test that
+    dropped the store first hung).
+  - **Exit check** (`tests/random_append.rs`, in `cargo test` on Linux,
+    macOS and Windows): per (parser, encoding) the corpus file with most
+    hands and refusals under 40 KB, plus a no-hands file - **31 files, all
+    19 parsers, UTF-8, UTF-8 with BOM, UTF-16 LE, Windows-1252** - each as
+    it is and with the other line ends (CRLF <-> LF re-encoded, same decoded
+    text, same golden): 62 runs. Each is appended to an empty watched file
+    in random chunks (a third of the runs **one byte at a time**, the rest
+    1 byte / 2-16 / 17-256 / 257-4096), the clock moving 0-249 ms between
+    writes (less than the quiet period), the reader looking at random
+    moments (about 250 looks per file) and, half the time, after a pause of
+    quiet + 0-5 s at a hand's end; at the end the clock passes the give-up
+    time. On the test's own clock (the file's mtime set to it): nothing
+    sleeps, seeded per file (`RAIL_WATCH_SEED`). Then the store must hold
+    exactly the golden's hands (sha-256 of each canonical PHF; a hand id
+    that the file holds twice once, as its first copy), refusals and
+    registry record, equal to a whole-file import of the same bytes, the
+    file read to its last byte, every hand delivered once (inserted =
+    stored; duplicate deliveries equal the whole file's own), and no commit
+    of a UTF-16 file ending inside a code unit. **All pass**, ~10 s in a
+    debug build. `RAIL_WATCH_FILES=all` runs **all 556 files x 2** (a soak:
+    passed twice, seeds default and 7, ~6 min debug; no file needed a
+    re-read from 0; 28 runs whole-file, the iPoker ones). Found on the way:
+    UTF-16 files that end in a stray byte (5 ACR files) - the core puts a
+    U+FFFD into their last hand, hence rule (2)'s "not inside a code unit".
+  - **Other tests**: `reader_edges.rs` on the manual clock - the rule step
+    by step, a hand without a line end (settle), a refused tail (give-up),
+    truncation (to fewer bytes, to empty then other hands), a file replaced
+    by a longer one, rename and deletion, ASCII then Windows-1252 (offset
+    kept), UTF-8 then Windows-1252 (read again), a file nothing claims (one
+    registry count); `watcher.rs` on the real clock and the OS's
+    notifications - new file, appends, a second file in a new subfolder,
+    pause / resume, a folder that is not there and comes back (and goes
+    again: offsets kept), poll-only, disable / enable / remove (hands
+    stay); `codec_corpus.rs` (above); unit tests of the codec, the walk and
+    the mount tables.
+  - **Latency** (`watcher.rs::latency_from_append_to_commit`, M2 Pro,
+    debug build, default timing): append to committed batch, median of 5,
+    over four runs - **15-24 ms** for a hand the next hand's header
+    completes, **513-522 ms** for the last hand (the 500 ms quiet period +
+    13-22 ms). §3.3's budget (< 1 s,
+    aim < 250 ms) holds for the first; for the last hand of a table - the
+    usual case while playing - the quiet period is the floor: it can go
+    down once real rooms' write patterns are seen (P6, R1.4).
+  - **App** (`app/src-tauri/src/watch.rs`): `setup` starts the watcher
+    right after the store (`WatcherState`, managed; without a store it does
+    not start and says why) and stops it first on `RunEvent::Exit`. The
+    tray's status line follows it ("Watching 2 folders · 37 hands today",
+    "Import paused", "1 folder cannot be read", "Import is not running"),
+    redrawn at most once a second by a small thread when something changed;
+    "Pause import" / "Resume import" toggles it, enabled when there is a
+    folder. Commands `watcher_status`, `set_import_paused`; Today shows an
+    **Import** section (state, pause / resume, a table of folders: status,
+    hands today, hands, last import, refused / unreadable / waiting).
+    Debug builds only: `dev_add_folder` and an "Add a folder to watch..."
+    button there (recursive; poll-only when on a network volume). Strings
+    in `app/src/i18n/` (`en`, `hr`) and `strings.rs`.
+  - **For R1.4**: discovery should call `Watcher::add_source(path,
+    recursive, None)` per confirmed folder (`None` = poll-only when on a
+    network volume). "Only new hands" needs a way to mark a folder's
+    existing files as read without importing them (a batch per file with
+    `to_offset = size` and no hands is enough; worth a `Watcher` method).
+    Narrow `scan::EXTENSIONS` per room with `sites.json`'s `files.glob`
+    once verified, and use `site_override` where a room's files are
+    ambiguous. Note the real write pattern of each client (whole hand at
+    once? trailing blank lines?) - it decides how far `quiet_ms` can drop.
+  - **For R1.5**: the folder list and its counts are `Watcher::status()`;
+    edits are `add_source` / `remove_source` / `set_source_enabled` /
+    `set_source_poll_only` (each reloads the watcher); editing a path or
+    the room override needs two more `sources` writes (`UPDATE path`,
+    `site_override`) and a reload. Quarantine with reasons per folder:
+    `Reader::quarantine` joined through `files.source_id`.
+  - **For R1.6**: the reader converts on the worker that read the file;
+    the backfill of a large folder is one batch per file, 2 workers. Tune
+    `WatchConfig::workers`, split a very large first read into several
+    batches (each with its own offset), add progress events (bytes read of
+    bytes to read) and rayon if per-file parallelism is not enough. The
+    coordinator recomputes per-folder counters on every message (fine for
+    thousands of files, revisit for a 100k-file backlog).
 
 ### R1.4 Folder discovery — M
 - Fill `sites.json` paths per room and OS **from real installs** (P6), not from
@@ -2546,3 +2730,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.13 done**: `rail-core-wasm` with wasm-bindgen 0.2.129 - `convert(bytes, filename, optionsJson)` (`rail-convert/1`: decode, detection, hands as PHF with optional Rust-side canonical sha-256, refusals with raw text, warnings, standard text per hand and per file, stats, the R0.11 `unrecognized` record; `parsedAt` required from the caller), `detect`, `serialize` (one hand or a file), `anonymise`, `formats`; JSON text both ways; typed wrapper `core/rail-core-wasm/js/index.ts` over `types/phf.d.ts`; `forbid(unsafe_code)` kept. `npm run wasm:build` (cargo profile `wasm-release`: `opt-level = "s"`, fat LTO, 1 CGU, abort; pinned wasm-bindgen-cli, name section removed, no wasm-opt; output gitignored): **2.28 MB raw, 0.77 MB gzipped** (budget 1.5 MB, enforced). **Shadow mode** (`npm run wasm:shadow`): the WASM core equals the TypeScript pipeline on **556 / 556** corpus files - **8 422** hands byte-identical in canonical PHF (Rust's own canonical hash = the golden's), **196** refusals with stage, reason, message and fingerprint, warnings, standard text per hand and per file; registry record on all 24 unclaimed files. Throughput: TypeScript ~3 150 hands/s, WASM ~2 600 (with `JSON.parse`). CI job `wasm` (build, budget, shadow). **Phase 0 exit, all but R0.14**: the golden diff is 100 % natively on Linux, macOS and Windows (`core` job, `every_corpus_file_matches_its_golden`) and under WASM (`wasm` job); the registry's record comes out of the core on the web path (WASM) for every unclaimed file - its write to `unparsed_hands` from the web stays the TypeScript one until R4.1, and from the desktop arrives with R1.2. Phase 0 left: R0.14 layout and rename. |
 | 2026-10-13 | **R1.1 done**: Tauri 2 app shell in `app/` (crate `rail-app` in the workspace; Vite + React + TypeScript with its own lockfile). Single instance, tray with a status menu (Open Rail, Pause import as a disabled placeholder, Quit Rail; closing the window hides it to the tray), start at login (off by default, a setting, `--minimized` at login), log files in the OS log directory (5 MB x 5), crash-safe versioned `settings.json` (temp file, fsync, rename; 8 tests). Six screens as hash routes with a sidebar, English strings through `app/src/i18n/` (`hr` prepared), CSS Modules over a copy of the web's token layer (A3), dark/light/system theme. Settings, About calls `core_info`: 19 parsers, `phf/1`, 22 `sites.json` entries via `rail_config::load_shipped`; a debug-only `convert_file` runs `rail_core::convert` on a picked file. Pinned: tauri 2.11.5 (its sub-crates held on the 2.11 line, see *As built*), CLI 2.11.4, api 2.11.1, React 19.2.8, Vite 7.3.6. CI job `app`: TS/CSS lint and typecheck plus clippy and tests on Linux (WebKitGTK installed); clippy, tests and an unsigned bundle on macOS (`.dmg`, arm64, ad-hoc signed; not universal, see *As built*) and Windows (NSIS), artifacts kept 7 days; the `core` job excludes `rail-app`. |
 | 2026-10-13 | **R1.2 done**: `core/rail-store` - SQLite bundled (`rusqlite` =0.40.2) in WAL with `synchronous=NORMAL`, foreign keys, busy timeout, 16 KiB pages; embedded forward-only migrations on `user_version` (tested from empty and from every earlier version); `STRICT` schema `kv`, `sources`, `files`, `hands` (PHF canonical JSON, zstd =0.14.2), `quarantine`, `unsupported` (R0.11's registry with count and consent state), `outbox`, documented in `core/rail-store/SCHEMA.md` (Phase 2/3 tables reserved). One writer thread on a bounded channel commits each `ImportBatch` - a file's hands, refusals, registry record **and its new read offset** - in one transaction, dedupes by `hand_key` and queues every new hand in `outbox`; a read pool serves the queries (counts, today, files, folders, quarantine, outbox batches, registry). `import_file` converts a whole file with `rail_core` (R1.3's reader sends the same batches). **Exit check** (`tests/crash.rs`, Linux/macOS/Windows CI): a child importing the corpus is killed 12 times at random moments and inside an open transaction; after each kill `integrity_check` is ok and the stored hands are exactly those of the files whose offset moved; the import resumes at the next file and ends equal to a clean single import (7 496 distinct hands from 8 422). Corpus import into an empty store (M2 Pro): 2.7 s on one thread (~3 150 hands/s), 0.72 s with 8 converting threads (~11 700 hands/s; the writer itself ~59 000 hands/s); 23.1 MB, ~3.2 KB per hand. The app opens the store in `setup` under the local data directory; `store_status` feeds the Today screen. |
+| 2026-10-13 | **R1.3 done**: `core/rail-watch` - `notify` =8.2.0 (FSEvents, ReadDirectoryChangesW, inotify) plus a rescan of every folder every 60 s, network folders polled only (`sources.poll_only`, migration 0002, detected from the mount table / UNC paths), one coordinator and 2 workers committing through the store's writer (bounded queue as back-pressure); start / stop / pause / resume, folders in `sources`, status per folder and events. The incremental reader stores the offset at the **first byte of the last chunk** once the next hand has started (each chunk's own slice converts exactly as the whole file: 517 / 517 files with hands whose chunks are verbatim), or at the end after 500 ms of quiet when the last hand validates, ends with a line end and the file does not end inside a code unit (5 s without the line end, 30 s for a refused tail); iPoker-like files (chunks not verbatim) are read whole. Decoding piece by piece equals `decode_source` (BOM only at 0, UTF-16 on code units, strict UTF-8 that meets a 1252 byte re-decided; 556 / 556 files). Truncation, a replaced file (first 256 bytes), rename, deletion, unplugged folders handled. **Exit check**: 31 corpus files (all 19 parsers, UTF-8 / BOM / UTF-16 LE / Windows-1252) x LF and CRLF appended in random chunks (a third byte by byte) on a test clock import exactly their golden hands, refusals and registry record, once; all 556 x 2 in a soak. Latency append to commit: 15-24 ms when the next hand completes it, 513-522 ms for a table's last hand (the quiet period). The app starts it after the store, stops it first on exit, shows it in the tray ("Pause import" works) and on Today; a debug-only "Add a folder" button. |

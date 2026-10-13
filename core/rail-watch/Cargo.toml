@@ -1,15 +1,28 @@
 [package]
 name = "rail-watch"
-description = "Hand-history folder discovery, watching and incremental reading"
+description = "Hand-history folder watching and incremental reading"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
 repository.workspace = true
+# Native only (the app): never built for wasm32. CI's WebAssembly build names
+# its packages with `-p` and this is not one of them; it needs a file system,
+# threads and OS notifications, and its store is C (SQLite).
+
+[lints]
+workspace = true
 
 [dependencies]
 rail-core = { path = "../rail-core" }
 rail-config = { path = "../rail-config" }
+rail-store = { path = "../rail-store" }
+# OS change notifications: FSEvents on macOS, ReadDirectoryChangesW on
+# Windows, inotify on Linux. Pinned exactly (R1.3): the backends' event
+# shapes and latencies are part of the watcher's behaviour.
+notify = { version = "=8.2.0", default-features = false, features = ["macos_fsevent"] }
+log = "0.4.34"
 
-[lints]
-workspace = true
+[dev-dependencies]
+serde_json = "1.0.154"
+sha2 = "0.11.0"
