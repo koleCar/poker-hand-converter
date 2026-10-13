@@ -3127,6 +3127,185 @@ exactly once, and the same files imported twice change nothing.
   same hands.
 - **Done when** the Phase 1 exit check passes, including after a network cut
   mid-batch.
+- *As built* (§15):
+  - **Worker** (`rail_sync::worker`, `SyncWorker` + `SyncTask::run` on the
+    app's async runtime). One pass: the account, the store's owner, push,
+    pull. **Send order** (`Reader::outbox_next`, store migration 0005): the
+    hands queued in the last 15 minutes first, **newest played first**
+    (`outbox.played_at`, copied at enqueue; covering index
+    `outbox_recent_idx`) - so a hand just played goes out before a backfill
+    queued in the same minutes (its hands were played earlier) and is never
+    behind a backlog; then the rest, oldest due first (`outbox_due_idx`).
+    A round sends up to 500 hands of the first hand's folder (one
+    `hand_sources` row per watched folder and account, registered on first
+    use - device id a random v4 UUID in `kv` `sync.device`, device name from
+    the OS (`scutil --get ComputerName`, `COMPUTERNAME`), label room plus the
+    folder's last component, never a path; `unfiled` for hands whose file is
+    in no folder - and remembered in `kv` `sync.source.<user>.<folder>`).
+  - **Outcomes.** `inserted` / `duplicate`: out of the outbox, `synced_at`
+    set. `rejected`: out of the outbox into the new table `sync_rejected`
+    with reason and field (resending cannot help); counted per reason in
+    Settings → Account, queued again only by "Try again" (after an update).
+    A hand that cannot be sent at all (unreadable, over 256 KiB) the same,
+    reason `unreadable` / `too-large`. **Transient** (no network, timeout,
+    5xx, unreadable answer): the batch's hands count an attempt and wait
+    (`outbox.attempts`, `next_attempt_at`), the worker waits too - 5 s
+    doubling to 10 min with equal jitter; the phase is `offline`, not an
+    error. **RateLimited**: `IngestError::RateLimited { window }` now says
+    which budget from the server's message (`desktop_ingest:` 10 minutes,
+    `desktop_ingest_day:` a day); no attempt counted (a refused call costs
+    nothing, it rolls back); wait 1 min doubling to 10 min (an hour for the
+    day), then one hand as a probe before full batches. **401**: one refresh
+    and retry (R1.8's `with_token`); still 401 is `failed` with backoff.
+    `UnknownSource`: forget the id, register again (twice, then backoff).
+    `Refused` (a bug): the hands wait an hour, the rest goes on, logged -
+    never a loop. **Resumable**: everything that matters is in the store;
+    the worker can be killed anywhere. **Idempotent**: a resent batch is
+    duplicates; a crash between the server's commit and ours costs one
+    resend.
+  - **Bandwidth.** While more than 2 000 hands wait (a backfill), uploads are
+    paced (`Pacer`: after b bytes the next send waits b / cap) to the user's
+    cap - Settings → Account "Upload speed while a large backlog syncs",
+    256 KB/s, **1 MB/s (default)**, 4 MB/s or none, in `kv` `sync.cap`. The
+    Phase 3 hook `SyncWorker::set_tables_open(true)` lowers it to at most
+    256 KiB/s. Hands queued in the last minutes wait at most one pacing
+    interval (~3.5 s for a full batch at 1 MB/s). **Measured** (end to end
+    below, local stack, debug build of the client on a loaded M2 Pro, no
+    cap): **~270 hands/s, ~2 MB/s, 7 541 B of JSON a hand on the wire**
+    (the canonical PHF keeps every action's `rawLine`). The server's budget
+    (150 000 / 10 min = 250 hands/s sustained) binds before the client; a
+    500k backfill needs ~35 min at the budget and ~1 h at the default 1 MB/s
+    cap (~3.7 GB). PostgREST refuses gzip (R1.8): if the volume is too much,
+    the next step is an Edge Function that takes a gzip body and calls
+    `ingest_hands` as the user (not built).
+  - **Accounts.** The store's hands belong to one account, `kv`
+    `sync.owner` (`{userId, email}`): the first that signs in (a store
+    filled offline syncs to it, Q3). Every call takes its token from
+    `Account::access_token_for(owner)` (new): `None` unless that account is
+    the one signed in, checked under the session's lock, so an outbox can
+    never reach another account - not even if the account changes between
+    two calls. **Signed out: nothing is sent** (`signedOut`). **Signed in as
+    another account**: nothing is sent *or pulled*; the phase is
+    `accountMismatch {ownerEmail, email, localHands}` and Settings asks
+    "Upload them to <new> too?" - *Upload*: the new account becomes the
+    owner and every hand from this computer's files is queued again
+    (`sync_set_owner(.., requeue)`: in import order, synced marks cleared,
+    refused hands retried; pulled hands - the old account's library - are
+    not uploaded); *Keep them apart*: `declined` (`kv` `sync.declined`),
+    nothing syncs while that account is signed in, with "Upload them
+    instead" to change the answer. Signing back in as the owner continues.
+    Source ids and pull cursors are per account.
+  - **Pull - decided: every row of the account the store lacks, not only
+    `origin = 'web'`.** "The app and the web show the same hands" means the
+    account's library: hands saved on the web *and* hands synced from the
+    account's other computers (a HUD on the laptop should know the hands
+    played on the desktop). Which device sent a row is not recorded per hand
+    (R1.8 kept `hand_sources` to counters), so the pull reads the whole
+    account, **keys first**: `hands_since(p_after_created, p_after_id,
+    p_limit)` (migration `20270505090000_desktop_pull.sql`, invoker, the
+    caller's rows by keyset `(created_at, id)`, `id, created_at, hand_key,
+    origin` only, ~150 B a row, index `hands_owner_created_idx`), then
+    `GET /rest/v1/hands?select=hand_key,phf&id=in.(..)` (plain RLS, 100 ids a
+    call) for the keys the store lacks; each PHF is read into `PhfHand`,
+    canonicalised and stored with `hands.pulled_at` (store migration 0005),
+    `synced_at` set, no file, **no outbox entry**; the local `hand_key`
+    dedupe applies. Page and cursor (`kv` `sync.pull.<user>`) commit in one
+    transaction, so a crash re-reads at most a page. A device's own uploads
+    cost it ~150 B each to recognise. Rows younger than **one minute** are
+    not returned: `created_at` is the inserting transaction's start, a later
+    starter can commit first, and every client write runs under PostgREST's
+    8 s `statement_timeout`, so a settled cursor cannot skip a row. Every 5
+    minutes and on "Sync now". A hand whose PHF this build cannot read is
+    skipped and counted (`pullSkipped`).
+  - **App.** `app/src-tauri/src/sync.rs`: the worker starts in `setup` after
+    the store and the account (none without an account configuration:
+    "sync off"); every import with new hands wakes it (the watcher's
+    callback through a `OnceLock` slot), every account change wakes it
+    (`account::changed`); on exit it stops first with the watcher and lets
+    go of the store's writer. Commands `sync_status` (`null` when off),
+    `sync_now`, `sync_set_paused` (in `kv` `sync.paused`, survives a
+    restart), `sync_set_cap`, `sync_answer_account`, `sync_retry_rejected`;
+    event `sync-changed` (at most once a second). Window: Settings → Account
+    gets a Sync part (`SyncPanel`: signed out / syncing N of M with speed
+    and the cap in force / up to date with the last sync / offline / paused
+    / rate limited / failed; the account question; refused hands per
+    reason with Try again; Sync now, Pause sync, the cap), Today a line
+    under the account line, the tray a third line ("Syncing 120 of 4000
+    hands", "Synced: up to date", "Offline · 12 hands wait to sync", ...).
+    Strings `en` + `hr`.
+  - **Tests.** `rail-store` (`tests/sync.rs`, 5 + 1 ignored measurement):
+    send order across both tiers, retries, refused hands and Try again, an
+    account change (requeue, pulled hands left out), pulled hands stored
+    once with their cursor and never queued, migration 5 from a version-4
+    store with queued hands; the migration test from every version covers
+    5. Measured with 1 000 000 queued hands, half in the window (release, a
+    loaded machine, cold pages): the recent tier 0.3-0.7 s, the backlog tier
+    and the counts 0.25-0.5 s; an ordinary outbox takes milliseconds.
+    `rail-sync` (63 tests): 13 new worker tests against a scripted PostgREST
+    (batching under one registered source, newest played first, offline
+    backoff and resume, a 503 and a lost answer - each hand once on the
+    server, a spent budget then a one-hand probe, 401 then refresh, refused
+    hands kept and not resent then Try again, account change (signed out,
+    another account asked, keep apart, back to the owner, upload), pause
+    across a restart, an unknown source registered again, the pull (missing
+    PHF only, no outbox, cursor resumed)), plus the pacer, backoff, labels,
+    device ids, the status JSON, `access_token_for`, the rate-limit windows.
+    pgTAP `desktop_pull.test.sql` (17): invoker and grants, columns (no
+    PHF), refusals, keyset pages visit every settled row once in order (a
+    tie on `created_at` included), desktop and web rows, never another
+    account's, a fresh row hidden then found after the cursor once it
+    settles, the page size clamped; full suite 30 files / 997 tests on a
+    fresh stack; `database.types.ts` regenerated. App: tray lines, device
+    name.
+  - **End to end** (`cargo run -p rail-sync --example sync_e2e`, an
+    isolated local stack `rail-r19-sync` on ports 5592x, two fresh users;
+    run 2026-10-13, all passed):
+    1. *Kill and resume*: the corpus (522 files, 7 469 hands) imported; a
+       child process running the real worker was **killed (SIGKILL) with
+       1 500 hands on the server**; a new worker on the same store sent the
+       other 5 969 in 22 s (269 hands/s, ~2 MB/s; ~500 resent as
+       duplicates); **server = store, 7 469 hands, each once**.
+    2. **The Phase 1 exit check**: a watched folder, `rail-watch` and the
+       worker for B behind a TCP proxy; a session of 58 hands (file 28, hand
+       ids rewritten - generated) written into a file one hand every 0.5 s;
+       after hand 20 the network was **cut mid-batch** (requests forwarded,
+       answers dropped: 4 answers lost after the server committed) and
+       restored after hand 32. **Append to visible through PostgREST as B:
+       min 541 ms, median 703 ms, max 5.9 s** (the hands written during the
+       cut; the rest under a second - most of it the reader's 500 ms quiet
+       period); **58 hands on the server, each once**; the same file copied
+       again changed nothing, locally or on the server.
+    3. *Pull*: a hand saved on the web as A (`save_hands`) reached an empty
+       second store with all 7 470 of A's hands in 15 s, nothing queued; the
+       first store fetched only that hand's PHF.
+  - **Phase 1's exit criterion is met** on a local stack: hands from a new
+    session reach Supabase with no manual step, each within a minute
+    (seconds), exactly once, through a network cut mid-batch and a killed
+    process, and the same file imported twice changes nothing. What
+    remains of Phase 1: **R1.10** (the web refreshes live through Realtime;
+    today a reload shows the hands), and the production steps below (no
+    app has synced to production yet). Not done here: a bundled app synced
+    against production; a 500k-hand backfill end to end (the store's send
+    order is measured at 1M; the budget arithmetic is above).
+  - **Needs the owner (production, not done here):**
+    1. Everything still open under R1.7 and R1.8 *As built* (the R1.8
+       migration, the `desktop-handoff` function, the web's
+       `storedStandardText` promoted **before** any app syncs, the anon key
+       in the build).
+    2. Apply `20270505090000_desktop_pull.sql` through the Management API
+       (`docs/DATABASE.md`, "Applying a migration"); it builds
+       `hands_owner_created_idx` on `hands` (a few thousand rows today: a
+       moment's write lock). The client types in this PR already have
+       `hands_since`.
+    3. Check (as two users): `hands_since()` returns only the caller's rows
+       and nothing from the anon key (401 / 42501).
+- **For R1.10**: the web's `/library` and `/stats` should subscribe to the
+  user's own `hands` inserts (Realtime under RLS); desktop rows arrive in
+  bursts of up to 500 per `ingest_hands` call, so debounce the refresh
+  (say 1-2 s) rather than refetching per row, and remember a desktop row
+  has no `standard_text` (`storedStandardText`). `hand_sources` (counters,
+  `last_ingest_at`) is a cheap "a device is syncing" signal for the web.
+  The pull's settle minute does not apply to Realtime.
 
 ### R1.10 Live arrival on the web — S
 - `/library` and `/stats` subscribe through Realtime to the user's own new rows
@@ -3464,3 +3643,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.7 done**: desktop sign-in through the system browser (A6). The app makes an X25519 key pair and a state per sign-in (memory only, ten minutes) and opens `/auth/desktop`; after the user signs in and confirms there, the Edge Function `desktop-handoff` (Deno, WebCrypto) verifies the caller's JWT with GoTrue, refuses unconfirmed / anonymous accounts, spends the per-account budget `claim_desktop_sign_in()` (migration `20270421090000`, 10 an hour, as the user), mints a one-time magic-link token with the service role and returns it encrypted to the app's key; the page redirects to `rail://auth/callback`, the app decrypts and redeems it at `/verify` for a session of its own. Refresh token in the OS keychain (`keyring` =3.6.3), access token in memory, background refresh with backoff, sign-out ends only the app's session. `tauri-plugin-deep-link` =2.4.10, single-instance with `deep-link`. `rail-sync::auth` (handoff, GoTrue client on reqwest + rustls/*ring*, the manager). Settings → Account, first-run step 1 with "Use offline" (Q3 open), Today and tray lines; `en` + `hr`. Tests: Rust 32 + app, Deno 17 (new CI job `functions`), pgTAP 14; end to end against a local stack (interception, replay, independence of the two sessions, sign-out, budget) and the page in a browser. Production untouched: the owner's checklist is under R1.7 *As built*. |
 | 2026-10-13 | Owner decisions: **Q3** - the app works offline without an account, an account is needed only for sync (guideline §6); **Q4** - a desktop hand is PHF + per-seat stats only, no `standard_text`, no `source_text`, originals stay on the user's disk (guideline §4; A5 decided). |
 | 2026-10-13 | **R1.8 done**: Supabase for desktop ingest (migration `20270428090000_desktop_ingest.sql`). `hands.origin` (`web` / `desktop`); `standard_text` nullable for desktop rows only, with a CHECK for every writer (no standard text, no source text, empty `meta.rawText`, PHF <= 256 KiB); the direct insert path writes web rows only. `hand_sources` (watched folder per device, counters, no paths; RLS select-own) and `register_hand_source`. `ingest_hands(p_source, p_rows)` (definer): `{hand_key, phf}` rows, every search column derived on the server by `hand_row_from_phf` (the SQL twin of `handInsertFromPhf`; parity over the corpus, 7 496 distinct hands, 0 differences), per-row `inserted` / `duplicate` / `rejected` + reason, at most 500 hands / 8 MiB a call. Budget per account: 150 000 rows / 10 min and 2 000 000 / day; desktop rows no longer spend the web's global `hands_insert`. Web readers derive the text from the PHF (`storedStandardText`: `getHand`, both share readers); stats rebuild and `save_hand_stats` work on desktop rows unchanged. `rail_sync::ingest`: rows from the outbox (rawText emptied), batches (500 / 4 MiB), `IngestClient` with a fresh token per call and one refresh on 401. Tests: pgTAP 51 + 40 (generated parity), Rust 14, vitest, end to end on a local stack (7 469 hands, 16 calls, 18 s). PostgREST refuses gzip bodies (~7.5 KB JSON a hand on the wire; noted for R1.9). Production untouched: the owner's checklist is under R1.8 *As built*. |
+| 2026-10-13 | **R1.9 done, Phase 1's exit criterion met on a local stack**: the sync worker (`rail_sync::worker`). Outbox in send order - hands queued in the last 15 min newest played first, then the backlog oldest due first (store migration 0005: `outbox.played_at` + covering index) - in batches of 500 per watched folder (`hand_sources` registered once, device id random in `kv`) to `ingest_hands`; inserted / duplicate leave the outbox, rejected go to `sync_rejected` with the reason (UI counts per reason, Try again); offline = backoff 5 s to 10 min with jitter and per-hand attempts; the rate limit waited out by window then probed with one hand; 401 refresh once; resumable and idempotent. Upload cap while > 2 000 hands wait (default 1 MB/s, user setting; tables-open hook). Account safety: the store's owner in `kv`, every token from `Account::access_token_for(owner)`, signed out = nothing sent, another account = nothing sent or pulled until the user uploads this computer's hands to it or keeps them apart. Pull of every row of the account the store lacks (web and other computers): `hands_since` keyset (migration `20270505090000_desktop_pull.sql`, invoker, keys only, rows a minute old) then PHF for missing keys; pulled hands never queued. App: Settings → Account Sync panel, Today line, tray line, Sync now / Pause / cap, `en` + `hr`. Tests: store 5, sync 13 worker tests on a scripted server, pgTAP 17 (suite 997). End to end: killed mid-sync and resumed, server = store (7 469, once each; ~270 hands/s, 7.5 KB a hand); 58 live hands through the watcher visible as the user in 0.5-5.9 s through a network cut mid-batch, once each; a web hand pulled into a second store. Remaining for Phase 1: R1.10; production checklist under R1.9 *As built*. |

@@ -167,7 +167,32 @@ fn errors_map_to_what_the_worker_does_next() {
     );
     assert_eq!(
         error_of(500, body("53400").as_bytes()),
-        IngestError::RateLimited
+        IngestError::RateLimited {
+            window: RateWindow::Unknown
+        }
+    );
+    let limited = |bucket: &str| {
+        format!(
+            r#"{{"code":"53400","message":"Write rate limit exceeded for bucket \"{bucket}:00000000-0000-0000-0000-000000000001\" (150000 per 00:10:00). Try again later."}}"#
+        )
+    };
+    assert_eq!(
+        error_of(500, limited("desktop_ingest").as_bytes()),
+        IngestError::RateLimited {
+            window: RateWindow::Minutes
+        }
+    );
+    assert_eq!(
+        error_of(500, limited("desktop_ingest_day").as_bytes()),
+        IngestError::RateLimited {
+            window: RateWindow::Day
+        }
+    );
+    assert_eq!(
+        error_of(500, limited("hand_source").as_bytes()),
+        IngestError::RateLimited {
+            window: RateWindow::Minutes
+        }
     );
     assert_eq!(
         error_of(409, body("23503").as_bytes()),
@@ -365,7 +390,9 @@ async fn rate_limits_and_unknown_sources_are_not_retried() {
     let ingest = client(&url);
     assert_eq!(
         ingest.ingest_as(&account, &source(), &two_rows()).await,
-        Err(IngestError::RateLimited)
+        Err(IngestError::RateLimited {
+            window: RateWindow::Unknown
+        })
     );
     assert_eq!(
         ingest.ingest_as(&account, &source(), &two_rows()).await,

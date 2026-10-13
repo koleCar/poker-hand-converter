@@ -19,6 +19,12 @@
   font-size: var(--font-size-lg);
 }
 
+.subheading {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
 .row {
   display: flex;
   align-items: center;

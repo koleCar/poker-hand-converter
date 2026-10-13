@@ -256,6 +256,47 @@ export type AccountNotice =
   | "signedOutLocally"
   | "browserFailed";
 
+/** `rail_sync::worker::SyncPhase`: what sync is doing (R1.9). */
+export type SyncPhase =
+  | { state: "starting" }
+  /** No account signed in: hands stay on this computer. */
+  | { state: "signedOut" }
+  | { state: "paused" }
+  /** Signed in as another account than the one this computer's hands sync to. */
+  | { state: "accountMismatch"; ownerEmail: string | null; email: string; localHands: number }
+  /** The user kept this computer's hands apart from the signed-in account. */
+  | { state: "declined"; ownerEmail: string | null; email: string; localHands: number }
+  | { state: "syncing" }
+  | { state: "upToDate" }
+  /** Not an error: the server cannot be reached; retried by itself. */
+  | { state: "offline"; retryAtMs: number }
+  | { state: "rateLimited"; retryAtMs: number }
+  | { state: "failed"; message: string; retryAtMs: number };
+
+/** `rail_sync::worker::SyncStatus`. */
+export interface SyncStatus {
+  phase: SyncPhase;
+  paused: boolean;
+  /** Hands waiting to be sent; `live` of them queued in the last minutes. */
+  outbox: number;
+  live: number;
+  retrying: number;
+  /** "Syncing `sent` of `total`", since the outbox was last empty. */
+  sent: number;
+  total: number;
+  /** Hands the server refused, per reason code. */
+  rejected: { reason: string; count: number }[];
+  pulled: number;
+  pullSkipped: number;
+  lastSyncAt: number | null;
+  handsPerSecond: number | null;
+  bytesPerSecond: number | null;
+  /** The cap chosen for a large backlog, and the one in force now (bytes/s). */
+  cap: number | null;
+  capNow: number | null;
+  tablesOpen: boolean;
+}
+
 /** `rail_sync::auth::AccountStatus`: the desktop account (R1.7). */
 export type AccountStatus =
   /** This build has no account service: Rail works on this computer only. */
@@ -311,6 +352,15 @@ export const ipc = {
   accountOpenSignInPage: () => invoke<AccountStatus>("account_open_sign_in_page"),
   accountCancelSignIn: () => invoke<AccountStatus>("account_cancel_sign_in"),
   accountSignOut: () => invoke<AccountStatus>("account_sign_out"),
+  /** Sync with the web (R1.9). `null`: sync is off in this build. */
+  syncStatus: () => invoke<SyncStatus | null>("sync_status"),
+  syncNow: () => invoke<SyncStatus>("sync_now"),
+  syncSetPaused: (paused: boolean) => invoke<SyncStatus>("sync_set_paused", { paused }),
+  /** Bytes a second while a large backlog syncs; `null`: no limit. */
+  syncSetCap: (cap: number | null) => invoke<SyncStatus>("sync_set_cap", { cap }),
+  /** Upload this computer's hands to the account signed in now, or keep them apart. */
+  syncAnswerAccount: (upload: boolean) => invoke<SyncStatus>("sync_answer_account", { upload }),
+  syncRetryRejected: () => invoke<SyncStatus>("sync_retry_rejected"),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
@@ -324,6 +374,11 @@ export const ipc = {
  */
 export function onWatcherChanged(onChange: () => void): () => void {
   return onAppEvent("watcher-changed", onChange);
+}
+
+/** Call `onChange` whenever the sync status changed (R1.9; at most once a second). */
+export function onSyncChanged(onChange: () => void): () => void {
+  return onAppEvent("sync-changed", onChange);
 }
 
 /** Call `onChange` whenever the account's status changed (R1.7). */

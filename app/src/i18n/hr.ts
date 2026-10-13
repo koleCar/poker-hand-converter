@@ -190,6 +190,78 @@ export const hr: Dict = {
     },
   },
 
+  sync: {
+    heading: "Sinkronizacija",
+    loading: "Učitavanje…",
+    off: "Ova verzija Raila nema sinkronizaciju. Ruke ostaju na ovom računalu.",
+    starting: "Pokretanje…",
+    signedOut: (waiting) =>
+      waiting === 0
+        ? "Prijavite se za sinkronizaciju. Do tada ruke ostaju na ovom računalu."
+        : `Prijavite se za sinkronizaciju. Do tada na ovom računalu čeka ruku: ${waiting}.`,
+    paused: (waiting) =>
+      waiting === 0 ? "Sinkronizacija je pauzirana." : `Sinkronizacija je pauzirana. Ruku za slanje: ${waiting}.`,
+    mismatch: (owner, email, hands) =>
+      `Ruke s ovog računala (${hands}) sinkronizirane su na ${owner}. Sada ste prijavljeni kao ${email}.`,
+    mismatchQuestion: (email) => `Prenijeti ih i na ${email}?`,
+    mismatchHint:
+      "Prijenos ih kopira u knjižnicu ovog računa; ništa se nigdje ne briše. Dok ne odaberete, ništa se ne šalje ni ne preuzima.",
+    upload: (email) => `Prenesi na ${email}`,
+    keepApart: "Drži ih odvojeno",
+    declined: (email) =>
+      `Bez sinkronizacije: ruke s ovog računala ostaju odvojene od ${email}. Prijavite se drugim računom za nastavak.`,
+    uploadInstead: (email) => `Ipak ih prenesi na ${email}`,
+    anotherAccount: "drugi račun",
+    syncing: (sent, total) => `Sinkronizacija: ${sent} od ${total} ruku.`,
+    speed: (hands, kb) => `Oko ${hands} ruku u sekundi (${kb} KB/s).`,
+    capped: (limit) => `Slanje je ograničeno na ${limit} dok se sinkronizira velik zaostatak.`,
+    upToDate: "Sve je sinkronizirano.",
+    lastSync: (time) => `Zadnja sinkronizacija: ${time}.`,
+    offline: (waiting) =>
+      waiting === 0
+        ? "Izvan mreže. Rail sam nastavlja kad se veza vrati."
+        : `Izvan mreže. Ruku na čekanju: ${waiting}; Rail ih sam šalje kad se veza vrati.`,
+    rateLimited: (time) => `Ograničenje sinkronizacije računa trenutno je dosegnuto. Rail nastavlja u ${time}.`,
+    failed: (reason, time) => `Problem sa sinkronizacijom: ${reason}. Rail pokušava ponovno u ${time}.`,
+    retrying: (count) => `Ruke koje se uskoro ponovno šalju: ${count}.`,
+    pulled: (count) => `S weba i drugih računala dodano je ruku: ${count}.`,
+    pullSkipped: (count) => `Ruke s weba za koje treba novija verzija Raila: ${count}.`,
+    rejectedHeading: (count) => `Poslužitelj je odbio ruku: ${count}`,
+    rejectedHint: "Ponovno slanje ne pomaže. Nakon nadogradnje Raila pokušajte ponovno.",
+    reasons: {
+      shape: "Nedostaju dijelovi ruke",
+      schema: "Nepoznata verzija formata",
+      "hand-key": "ID ruke se ne podudara",
+      "raw-text": "Sadržavala je izvorni tekst",
+      "too-large": "Prevelika",
+      invalid: "Vrijednost koju poslužitelj ne prihvaća",
+      unreadable: "Ovdje se ne može pročitati",
+    },
+    otherReason: (code) => `Ostalo (${code})`,
+    tryAgain: "Pokušaj ponovno",
+    syncNow: "Sinkroniziraj sada",
+    pause: "Pauziraj sinkronizaciju",
+    resume: "Nastavi sinkronizaciju",
+    capLabel: "Brzina slanja dok se sinkronizira velik zaostatak",
+    caps: {
+      slow: "256 KB/s",
+      normal: "1 MB/s (zadano)",
+      fast: "4 MB/s",
+      none: "Bez ograničenja",
+    },
+    today: {
+      upToDate: "Sinkronizirano s webom.",
+      syncing: (sent, total) => `Sinkronizacija s webom: ${sent} od ${total} ruku.`,
+      waiting: (count) => `Ruku koje čekaju sinkronizaciju: ${count}.`,
+      offline: "Izvan mreže: ruke se sinkroniziraju kad se veza vrati.",
+      paused: "Sinkronizacija je pauzirana.",
+      question: "Sinkronizacija čeka vaš odgovor.",
+      problem: "Sinkronizacija ima problem.",
+      details: "Postavke sinkronizacije",
+    },
+    failedAction: (reason) => `Nije uspjelo: ${reason}`,
+  },
+
   settings: {
     loading: "Učitavanje…",
     saveFailed: (reason) => `Promjena nije spremljena: ${reason}`,

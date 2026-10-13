@@ -23,7 +23,8 @@
 //!   memory.
 //! - **All Supabase calls are made from Rust**, never from the window: no
 //!   token ever enters the webview, the refresh runs while the window is
-//!   hidden in the tray, and the sync worker (R1.9) lives on this side.
+//!   hidden in the tray, and the sync worker (R1.9, `sync.rs`) lives on
+//!   this side; every account change wakes it.
 
 use std::sync::Arc;
 
@@ -218,6 +219,10 @@ fn changed<R: Runtime>(app: &AppHandle<R>) {
         log::debug!("{CHANGED_EVENT}: {error}");
     }
     refresh_tray(app);
+    // Signed in, out, or as someone else: the sync worker looks now (R1.9).
+    if let Some(sync) = app.try_state::<crate::sync::SyncState>() {
+        sync.account_changed();
+    }
 }
 
 /// The tray's account line.

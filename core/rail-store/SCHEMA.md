@@ -33,6 +33,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 2 | `0002_source_poll_only.sql` | `sources.poll_only` (R1.3) |
 | 3 | `0003_source_site.sql` | `sources.site` (R1.4) |
 | 4 | `0004_folder_rollups.sql` | `files.hands`, `files.quarantined`, `source_totals`, `source_days`, their triggers; `files_source_idx` on `(source_id, last_import_at)` (R1.6) |
+| 5 | `0005_sync.sql` | `outbox.played_at` (filled from `hands`) and `outbox_recent_idx`, `outbox_retry_idx`; `hands.pulled_at` and `hands_pulled_idx`; `sync_rejected` (R1.9) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -50,6 +51,18 @@ Small settings and cursors: sync cursors (R1.9), the answer to the
 "share unsupported formats" question (R0.11), and the like. Not the schema
 version (that is `user_version`) and not the window settings (those are
 `settings.json`, R1.1).
+
+The sync worker's keys (R1.9, `rail_sync::worker`):
+
+| Key | Value |
+| --- | --- |
+| `sync.owner` | `{"userId":..,"email":..}`: the account this store's hands sync to - the first one that signed in, or the one the user chose to upload to |
+| `sync.device` | this installation's random UUID (v4), the `device_id` of its `hand_sources` rows |
+| `sync.source.<user id>.<sources.id>` | the `hand_sources` id of a watched folder on that account (`unfiled` for hands whose file is in no folder) |
+| `sync.pull.<user id>` | the pull's cursor, `{"createdAt":..,"id":..}` (the last row read, as the server wrote it); written in the transaction that stores the page |
+| `sync.paused` | `1` while the user paused sync |
+| `sync.cap` | the upload cap while a large backlog syncs, bytes a second, or `none` (default 1 MiB/s) |
+| `sync.declined` | the user id whose account the user chose not to upload this computer's hands to |
 
 | Column | Type | |
 | --- | --- | --- |
@@ -180,8 +193,10 @@ truth; the other columns are projections of it for lists, the HUD and sync.
 | `file_id` | INTEGER NULL → `files` | the file that delivered it first |
 | `imported_at` | INTEGER | ms; "hands today" counts from local midnight |
 | `synced_at` | INTEGER NULL | ms; when the server confirmed it (R1.9) |
+| `pulled_at` | INTEGER NULL | (version 5) ms; the hand came from the server (the pull, R1.9), not from a file here: never queued for upload, `synced_at` set, `file_id` NULL. An account change uploads only hands without it |
 
-Indexes: `file_id`, `imported_at`, `played_at`.
+Indexes: `file_id`, `imported_at`, `played_at`; `hands_pulled_idx` on
+`pulled_at` where it is set (version 5).
 
 ### `quarantine`
 
@@ -242,5 +257,36 @@ stores it and leaves when the server has it (`Store::outbox_mark_sent`).
 | `attempts` | INTEGER | failed sends so far |
 | `last_error` | TEXT NULL | |
 | `next_attempt_at` | INTEGER | ms; the backoff is the sync worker's (R1.9) |
+| `played_at` | TEXT NULL | (version 5) the hand's `played_at`, copied when it is queued: the send order reads the outbox only |
 
-Index: `(next_attempt_at, enqueued_at)`.
+Indexes: `outbox_due_idx (next_attempt_at, enqueued_at)` - the backlog,
+oldest due first; `outbox_recent_idx (enqueued_at, next_attempt_at,
+played_at, hand_key)` (version 5) - the hands queued in the last minutes,
+newest played first, from the index alone; `outbox_retry_idx
+(next_attempt_at) WHERE attempts > 0` (version 5) - the hands waiting for a
+retry, counted.
+
+**Send order** (`Reader::outbox_next`, R1.9): first the hands queued in the
+last 15 minutes, newest played first - a hand just played goes out before a
+backfill queued at the same time (its hands were played earlier) - then the
+rest, oldest due first. Measured with a million queued hands, half of them
+in the window (`tests/sync.rs`, ignored test, release build on a loaded M2
+Pro): the recent tier 0.3-0.7 s, the backlog tier and the status counts
+0.25-0.5 s (cold pages); with an ordinary outbox both are a few ms.
+
+### `sync_rejected` (version 5)
+
+Hands the server refused (`ingest_hands`' `rejected`, with its reason) or
+that cannot be sent at all (`unreadable`, `too-large`). They leave the
+outbox - resending cannot help - and wait here, counted per reason in
+Settings → Account, until the user chooses "Try again" (after an update:
+`WriterHandle::rejected_requeue`). Cascades with the hand.
+
+| Column | Type | |
+| --- | --- | --- |
+| `hand_key` | TEXT PK → `hands` | cascades |
+| `reason` | TEXT | the server's code (`shape`, `schema`, `hand-key`, `raw-text`, `too-large`, `invalid`) or a local one (`unreadable`, `too-large`) |
+| `field` | TEXT NULL | for `invalid`: the column whose rule the derived row broke |
+| `rejected_at` | INTEGER | ms |
+
+Index: `sync_rejected_reason_idx (reason)`.

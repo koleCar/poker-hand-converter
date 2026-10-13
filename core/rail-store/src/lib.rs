@@ -33,6 +33,7 @@ pub mod import;
 pub mod migrate;
 pub mod read;
 pub mod sources;
+pub mod sync;
 pub mod time;
 pub mod writer;
 
@@ -41,6 +42,7 @@ pub use error::{Error, Result};
 pub use import::{FileImport, ImportOptions, import_file};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
+pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};
 pub use writer::{PendingImport, WriterHandle};
 
 /// How long a connection waits for a lock before `SQLITE_BUSY`. Only
@@ -164,33 +166,13 @@ impl Store {
 
     /// Set a `kv` value.
     pub fn set_kv(&self, key: &str, value: &str) -> Result<()> {
-        let (key, value) = (key.to_owned(), value.to_owned());
-        self.writer.handle()?.write(move |tx| {
-            tx.execute(
-                "INSERT INTO kv (key, value, updated_at) VALUES (?1, ?2, ?3)
-                 ON CONFLICT (key) DO UPDATE SET value = excluded.value,
-                                                 updated_at = excluded.updated_at",
-                params![key, value, time::now_ms()],
-            )?;
-            Ok(())
-        })
+        self.writer.handle()?.set_kv(key, value)
     }
 
     /// The server has these hands: they leave the outbox and are marked
     /// synced. Returns how many left.
     pub fn outbox_mark_sent(&self, hand_keys: Vec<String>, at_ms: i64) -> Result<u64> {
-        self.writer.handle()?.write(move |tx| {
-            let mut delete = tx.prepare_cached("DELETE FROM outbox WHERE hand_key = ?1")?;
-            let mut mark = tx.prepare_cached(
-                "UPDATE hands SET synced_at = ?2 WHERE hand_key = ?1 AND synced_at IS NULL",
-            )?;
-            let mut removed = 0;
-            for key in &hand_keys {
-                removed += u64::try_from(delete.execute([key])?).unwrap_or(0);
-                mark.execute(params![key, at_ms])?;
-            }
-            Ok(removed)
-        })
+        self.writer.handle()?.outbox_mark_sent(hand_keys, at_ms)
     }
 
     /// A send failed: count the attempt, keep the error, and wait until
@@ -201,18 +183,9 @@ impl Store {
         error: &str,
         next_attempt_at_ms: i64,
     ) -> Result<()> {
-        let error = error.to_owned();
-        self.writer.handle()?.write(move |tx| {
-            let mut update = tx.prepare_cached(
-                "UPDATE outbox SET attempts = attempts + 1, last_error = ?2,
-                                   next_attempt_at = ?3
-                 WHERE hand_key = ?1",
-            )?;
-            for key in &hand_keys {
-                update.execute(params![key, error, next_attempt_at_ms])?;
-            }
-            Ok(())
-        })
+        self.writer
+            .handle()?
+            .outbox_mark_failed(hand_keys, error, next_attempt_at_ms)
     }
 
     /// The user agreed to share a registry entry's anonymised sample.

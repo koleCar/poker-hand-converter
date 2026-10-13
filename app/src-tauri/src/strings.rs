@@ -29,6 +29,23 @@ pub struct Tray {
     pub account_signed_out: &'static str,
     /// A build without Supabase: no account at all.
     pub account_offline_only: &'static str,
+    /// The sync line (R1.9): no sync in this build (or no store).
+    pub sync_off: &'static str,
+    pub sync_starting: &'static str,
+    /// Not signed in: hands stay here.
+    pub sync_signed_out: &'static str,
+    pub sync_paused: &'static str,
+    /// Signed in as another account: the window asks.
+    pub sync_question: &'static str,
+    /// The user kept this computer's hands apart from the signed-in account.
+    pub sync_declined: &'static str,
+    /// Sending: hands sent of hands to send.
+    pub sync_syncing: fn(u64, u64) -> String,
+    pub sync_up_to_date: &'static str,
+    /// Offline: hands waiting.
+    pub sync_offline: fn(u64) -> String,
+    pub sync_rate_limited: &'static str,
+    pub sync_failed: &'static str,
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
@@ -85,6 +102,26 @@ fn offline_hr(email: &str) -> String {
     format!("{email} · izvan mreže")
 }
 
+fn syncing_en(sent: u64, total: u64) -> String {
+    format!("Syncing {sent} of {total} hands")
+}
+
+fn syncing_hr(sent: u64, total: u64) -> String {
+    format!("Sinkronizacija: {sent} od {total} ruku")
+}
+
+fn sync_offline_en(waiting: u64) -> String {
+    if waiting == 1 {
+        "Offline · 1 hand waits to sync".to_owned()
+    } else {
+        format!("Offline · {waiting} hands wait to sync")
+    }
+}
+
+fn sync_offline_hr(waiting: u64) -> String {
+    format!("Izvan mreže · ruke koje čekaju: {waiting}")
+}
+
 fn watching_hr(folders: usize, hands_today: u64) -> String {
     format!("Mape: {folders} · ruke danas: {hands_today}")
 }
@@ -106,6 +143,17 @@ pub const TRAY_EN: Tray = Tray {
     account_signing_in: "Signing in in your browser…",
     account_signed_out: "Not signed in",
     account_offline_only: "Working offline",
+    sync_off: "Sync off",
+    sync_starting: "Sync starting…",
+    sync_signed_out: "Sync: sign in to sync",
+    sync_paused: "Sync paused",
+    sync_question: "Sync waits for your answer",
+    sync_declined: "Not syncing with this account",
+    sync_syncing: syncing_en,
+    sync_up_to_date: "Synced: up to date",
+    sync_offline: sync_offline_en,
+    sync_rate_limited: "Sync waits: the account's limit for now",
+    sync_failed: "Sync problem: see Settings",
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
@@ -125,6 +173,17 @@ pub const TRAY_HR: Tray = Tray {
     account_signing_in: "Prijava u pregledniku…",
     account_signed_out: "Nisi prijavljen",
     account_offline_only: "Rad bez mreže",
+    sync_off: "Sinkronizacija isključena",
+    sync_starting: "Sinkronizacija se pokreće…",
+    sync_signed_out: "Sinkronizacija: prijavi se",
+    sync_paused: "Sinkronizacija pauzirana",
+    sync_question: "Sinkronizacija čeka tvoj odgovor",
+    sync_declined: "Bez sinkronizacije s ovim računom",
+    sync_syncing: syncing_hr,
+    sync_up_to_date: "Sinkronizirano",
+    sync_offline: sync_offline_hr,
+    sync_rate_limited: "Sinkronizacija čeka: ograničenje računa",
+    sync_failed: "Problem sa sinkronizacijom: vidi Postavke",
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",
@@ -165,5 +224,8 @@ mod tests {
             (TRAY_EN.account_offline)("p@example.test"),
             "p@example.test · offline"
         );
+        assert_eq!((TRAY_EN.sync_syncing)(1, 2), "Syncing 1 of 2 hands");
+        assert_eq!((TRAY_EN.sync_offline)(1), "Offline · 1 hand waits to sync");
+        assert_eq!((TRAY_HR.sync_syncing)(1, 2), "Sinkronizacija: 1 od 2 ruku");
     }
 }

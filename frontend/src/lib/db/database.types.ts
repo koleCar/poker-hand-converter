@@ -2750,6 +2750,19 @@ export type Database = {
           phf: Json
         }[]
       }
+      hands_since: {
+        Args: {
+          p_after_created?: string
+          p_after_id?: string
+          p_limit?: number
+        }
+        Returns: {
+          created_at: string
+          hand_key: string
+          id: string
+          origin: Database["public"]["Enums"]["hand_origin"]
+        }[]
+      }
       ingest_hands: { Args: { p_rows: Json; p_source: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_board_moderator: { Args: { p_board_id: string }; Returns: boolean }
