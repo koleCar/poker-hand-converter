@@ -1,0 +1,73 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "352028090",
+      "index": 0,
+      "phf": "97937e2e022a6a69d4fa61717be023132ed2a79a2f25dcc135804dcd70049ae6",
+      "rows": "37b6546c01e7dd4c72ea2c66358d071c46786eee01f7610755ae7921ffdff678",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1477,
+    "path": "fixtures/samples/coinpoker/09-cash-fullhouse-over-wording.txt",
+    "sha256": "ec91df2be4dd28e0b0c71c66f2fb6e3a4f32a5fa45e61fff4b1956862f1e14d4"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 2,
+    "check_turn": 1,
+    "cold_call": 1,
+    "cold_call_opp": 3,
+    "contributed": 248,
+    "donk_flop_opp": 1,
+    "donk_river_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 7,
+    "limp_opp": 2,
+    "net": -12,
+    "net_bb_milli": -6000,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 12,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "three_bet_opp": 5,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 7,
+    "won": 236,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

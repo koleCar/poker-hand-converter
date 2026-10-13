@@ -1,0 +1,42 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-5512058461",
+      "index": 0,
+      "phf": "a9b8943ad67b3dec5b64541d194a4e292a69ed8d409c28a909757efd32a1d23c",
+      "rows": "7bcbd06125aebdab3f70c6c4a69394487e13d5c60ea32bc36e5cfc5890a0eca5",
+      "seats": [
+        1,
+        2,
+        4,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 580,
+    "path": "fixtures/samples/888poker/07-luckyacepoker-skin-dealt-cards.txt",
+    "sha256": "2f2652388d520aaa74cb3bb2e8af3e359b764b0f5bc12414493b8db1881515d3"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 1000,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 5,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "vpip": 1,
+    "vpip_opp": 5,
+    "won": 1000
+  }
+}

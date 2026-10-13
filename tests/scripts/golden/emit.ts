@@ -42,12 +42,17 @@ import { toStandardText, toStandardTextFile } from "../../../frontend/src/lib/ph
 import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
 import { validateHand } from "../../../frontend/src/lib/phf/validate.js";
 import { canonicalJson, compareUtf8 } from "./canonical.js";
+import { statsGoldenFor, type GoldenHandInput } from "./stats.js";
 
 export const ROOT = join(import.meta.dirname, "../../..");
 /** Committed: PHF bodies as hashes. */
 export const GOLDEN_DIR = join(ROOT, "testdata/golden");
 /** Gitignored: PHF bodies in full. */
 export const GOLDEN_FULL_DIR = join(ROOT, "testdata/golden-full");
+/** Committed: the stats engine's rows per hand as hashes (R2.1, `stats.ts`). */
+export const STATS_GOLDEN_DIR = join(ROOT, "testdata/golden-stats");
+/** Gitignored: the same with every row written out. */
+export const STATS_GOLDEN_FULL_DIR = join(ROOT, "testdata/golden-stats-full");
 
 /** Bumped whenever the shape of a golden file changes. */
 export const GOLDEN_FORMAT = "rail-golden/1";
@@ -123,6 +128,8 @@ export interface GoldenFile {
    * compares what the documents leave out, such as a refusal's `rawText`.
    */
   result: ConversionResult | null;
+  /** Every accepted hand with its canonical PHF, for the stats goldens. */
+  statsInput: GoldenHandInput[];
 }
 
 /** Canonical text with the input path on any error, so a float is easy to find. */
@@ -157,7 +164,7 @@ export async function goldenFor(path: string): Promise<GoldenFile> {
       standardTextFile: null,
       stats: null,
     };
-    return { summary: doc, full: doc, hands: 0, refusals: 0, result: null };
+    return { summary: doc, full: doc, hands: 0, refusals: 0, result: null, statsInput: [] };
   }
 
   const text = decoded.text;
@@ -212,6 +219,7 @@ export async function goldenFor(path: string): Promise<GoldenFile> {
 
   const fullHands: Record<string, unknown>[] = [];
   const summaryHands: Record<string, unknown>[] = [];
+  const statsInput: GoldenHandInput[] = [];
   result.hands.forEach((hand, i) => {
     const phf = storedPhf(hand);
     const common = {
@@ -229,8 +237,10 @@ export async function goldenFor(path: string): Promise<GoldenFile> {
         message: w.message,
       })),
     };
+    const phfText = canonical(path, phf);
     fullHands.push({ ...common, phf });
-    summaryHands.push({ ...common, phf: sha256(canonical(path, phf)) });
+    summaryHands.push({ ...common, phf: sha256(phfText) });
+    statsInput.push({ index: handIndex[i], handId: hand.meta.handId, phfText });
   });
 
   const refusals = result.failures.map((failure: ConversionFailure, i) => ({
@@ -261,6 +271,7 @@ export async function goldenFor(path: string): Promise<GoldenFile> {
     hands: result.hands.length,
     refusals: refusals.length,
     result,
+    statsInput,
   };
 }
 
@@ -288,14 +299,29 @@ export interface EmitReport {
   summaryBytes: number;
   fullBytes: number;
   removed: number;
+  statsRows: number;
+  statsSummaryBytes: number;
+  statsFullBytes: number;
+  statsNegativeZeros: number;
 }
 
 /** Regenerates both trees, and removes goldens whose input is gone. */
 export async function emitAll(): Promise<EmitReport> {
   const inputs = listInputs();
-  const report: EmitReport = { files: 0, hands: 0, refusals: 0, summaryBytes: 0, fullBytes: 0, removed: 0 };
+  const report: EmitReport = {
+    files: 0,
+    hands: 0,
+    refusals: 0,
+    summaryBytes: 0,
+    fullBytes: 0,
+    removed: 0,
+    statsRows: 0,
+    statsSummaryBytes: 0,
+    statsFullBytes: 0,
+    statsNegativeZeros: 0,
+  };
 
-  for (const dir of [GOLDEN_DIR, GOLDEN_FULL_DIR]) {
+  for (const dir of [GOLDEN_DIR, GOLDEN_FULL_DIR, STATS_GOLDEN_DIR, STATS_GOLDEN_FULL_DIR]) {
     const wanted = new Set(inputs.map((input) => join(dir, `${input}.json`)));
     for (const stale of existingJson(dir)) {
       if (!wanted.has(stale)) {
@@ -309,9 +335,14 @@ export async function emitAll(): Promise<EmitReport> {
     const golden = await goldenFor(input);
     const summary = canonical(input, golden.summary);
     const full = canonical(input, golden.full);
+    const stats = statsGoldenFor(input, golden.summary.input as Record<string, unknown>, golden.statsInput);
+    const statsSummary = canonical(input, stats.summary);
+    const statsFull = canonical(input, stats.full);
     for (const [dir, text] of [
       [GOLDEN_DIR, summary],
       [GOLDEN_FULL_DIR, full],
+      [STATS_GOLDEN_DIR, statsSummary],
+      [STATS_GOLDEN_FULL_DIR, statsFull],
     ] as const) {
       const out = join(dir, `${input}.json`);
       mkdirSync(dirname(out), { recursive: true });
@@ -322,6 +353,10 @@ export async function emitAll(): Promise<EmitReport> {
     report.refusals += golden.refusals;
     report.summaryBytes += Buffer.byteLength(summary);
     report.fullBytes += Buffer.byteLength(full);
+    report.statsRows += stats.rows;
+    report.statsSummaryBytes += Buffer.byteLength(statsSummary);
+    report.statsFullBytes += Buffer.byteLength(statsFull);
+    report.statsNegativeZeros += stats.negativeZeros;
   }
   return report;
 }

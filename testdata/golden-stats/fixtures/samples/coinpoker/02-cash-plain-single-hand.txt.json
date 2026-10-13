@@ -1,0 +1,57 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "191700538",
+      "index": 0,
+      "phf": "dbf4e48cc8f375f350f4ba32e93c2ab0dafecaf6180753d6e97b40fb52673424",
+      "rows": "9602dbe907254eb72071300db4e38e546cd5327da41c1b6c5ea3a4ae2a5301eb",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1040,
+    "path": "fixtures/samples/coinpoker/02-cash-plain-single-hand.txt",
+    "sha256": "afec26a57d45b5aa5a3d7d96eb4a283789ae62f2dbe0e91d9c0f64f800af209f"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_steal": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "cold_call_opp": 1,
+    "contributed": 11,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 1,
+    "hands": 5,
+    "limp_opp": 2,
+    "net": -1,
+    "net_bb_milli": -500,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 1,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 10,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

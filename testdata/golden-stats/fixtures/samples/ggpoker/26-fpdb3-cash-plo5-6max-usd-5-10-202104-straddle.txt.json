@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OM812126",
+      "index": 0,
+      "phf": "c74aab046a1e8176af303163724f9e2d956f2c19a2e0863ccb714c3d6eefa52b",
+      "rows": "01fa47581c9a977adb948096afa5dcaeb390d0781caeb301c0a3c911bd2ec748",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1051,
+    "path": "fixtures/samples/ggpoker/26-fpdb3-cash-plo5-6max-usd-5-10-202104-straddle.txt",
+    "sha256": "57fb0e4615eac53e3df9f9b46b4d25bb38764043b9b228ee5ec5555d0b1fac59"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 2500,
+    "hands": 6,
+    "limp_opp": 5,
+    "pfr_opp": 5,
+    "rfi_opp": 5,
+    "vpip_opp": 5,
+    "won": 2500
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "406051551",
+      "index": 0,
+      "phf": "f21a20bf13c8966144204789ea71c6438eec9e4a7e21443110d02545f7a96ba4",
+      "rows": "747e9b2a8934913e9ce3641a4b515fced3b1d7d693bfb85b08985dede5142794",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2022,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO-6max-USD-5.00-10.00-201504.capped.HH00000000 G0.txt",
+    "sha256": "4db46d4a3f4436499aa70fdc5d254b3f1748738cf44140d3e15e5f021d024bca"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cold_call": 1,
+    "cold_call_opp": 1,
+    "contributed": 61500,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "net": -300,
+    "net_bb_milli": -300,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "raise_cbet_flop": 1,
+    "raise_flop": 2,
+    "rake_paid": 300,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "squeeze_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 61200,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

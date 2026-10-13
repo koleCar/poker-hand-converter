@@ -1,0 +1,36 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2949203894",
+      "index": 0,
+      "phf": "8f74ec00f02d4344c10d04044d3f1a3506699719fe7eb6daaf289bc37279faa6",
+      "rows": "15c5e53b1a71a5e0261f66a483a1518e5daad30537c0d9f0c66bbd4c72fdf2f8",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1347,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-ZONE - $0.02-$0.05 - 201411.Allin.blind.txt",
+    "sha256": "530bcf31a12de57a70a839d45d74277c6a93f05e8fb0105b5b234232ad4cc93c"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 4,
+    "hands": 6,
+    "limp_opp": 5,
+    "pfr_opp": 5,
+    "rfi_opp": 5,
+    "steal_opp": 3,
+    "vpip_opp": 5,
+    "won": 4
+  }
+}

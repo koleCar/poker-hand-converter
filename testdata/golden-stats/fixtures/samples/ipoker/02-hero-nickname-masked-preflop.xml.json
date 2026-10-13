@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383708755",
+      "index": 0,
+      "phf": "40add6dd3cd11574fdf6886c3af74419299ea03f527cd29bad62e8fbf0a0c829",
+      "rows": "bfc982c8785f929ec77e294c0f9be4eccf27d1b35ae5545007706afd7f27a8e6",
+      "seats": [
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1498,
+    "path": "fixtures/samples/ipoker/02-hero-nickname-masked-preflop.xml",
+    "sha256": "09d981c28b4b49b407bd23705973f434589be6e24fc3c77a1d23654f2bfcbf49"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 500,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 500
+  }
+}

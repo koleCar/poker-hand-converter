@@ -1,0 +1,47 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "10005881",
+      "index": 0,
+      "phf": "bd078adc53c94cfd3755fb407bb8a8eef443e8d58c9f2c5de58df1e93a88dc9c",
+      "rows": "1f6fff41da1d9642c181e101ae21d31105af8e969fb193dd898e922fd815d7a2",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2569,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO-USD-2.50-5.00-201505.no.hero.HH00000000 G0.txt",
+    "sha256": "3e3743006afe37d2d0acb94d060bb67f0ce749c7f6b691b415271abd1b0010a2"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "check_flop": 2,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "contributed": 1000,
+    "flop_seen": 2,
+    "fold_turn": 1,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "net": -30,
+    "net_bb_milli": -60,
+    "pfr_opp": 2,
+    "rake_paid": 30,
+    "rfi_opp": 1,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 970,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

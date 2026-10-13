@@ -1,0 +1,65 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2607518885",
+      "index": 0,
+      "phf": "c3e1163d67029ae9f9a74063f81c116091fa8f4fccf2df97c100aa5ee08feaed",
+      "rows": "38f54958479b24e3170576eef67ff390ec40b4ab9d134330388df3055df20c06",
+      "seats": [
+        1,
+        3,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1014,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__LHE-USD-2-4-201205.Bodog.txt",
+    "sha256": "3946a608404b1c25fdd0fca1e478ff31c15b12797cc9399417389a7fb1255b77"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 2,
+    "check_turn": 1,
+    "contributed": 2000,
+    "donk_river_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 3,
+    "limp_opp": 2,
+    "net": -50,
+    "net_bb_milli": -250,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rake_paid": 50,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 1950,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

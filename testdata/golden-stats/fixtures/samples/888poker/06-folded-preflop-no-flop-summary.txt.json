@@ -1,0 +1,41 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-301639730",
+      "index": 0,
+      "phf": "d98ff162325446f37e3f68b63fa81820ff6ff73513f0cd06c0f92106bd7c7ba5",
+      "rows": "8e667019f7109901c79f3949e02272763d06f13f6f1f78e9188c962cf3c3b72f",
+      "seats": [
+        1,
+        2,
+        4,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 521,
+    "path": "fixtures/samples/888poker/06-folded-preflop-no-flop-summary.txt",
+    "sha256": "c7f1610cd25096c0971caf05e03afe0a7a8dcbab12ca5848f3565fe9f0ab8de9"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 250,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "vpip": 1,
+    "vpip_opp": 4,
+    "won": 250
+  }
+}

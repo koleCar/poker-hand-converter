@@ -1,0 +1,42 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "261721281",
+      "index": 0,
+      "phf": "ca2494eaaab39762e95944820100ee2294af71b81623e4dbba46f2736b9d88f2",
+      "rows": "2a8d90963a18ad291c635f5cfaca9be2f01c14c6fca428e8ba7cb1d6b58ef389",
+      "seats": [
+        1,
+        2,
+        4,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1219,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_HandActionTests_PlayerNameWithParanthesis.txt",
+    "sha256": "fd50d50ff67cbe36cd3b5cab806825486fec3326c149f0ad5848a10d49abb0f6"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 1000,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 4,
+    "won": 1000
+  }
+}

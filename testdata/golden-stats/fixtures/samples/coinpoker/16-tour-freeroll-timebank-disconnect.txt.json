@@ -1,0 +1,106 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "177956038",
+      "index": 0,
+      "phf": "36f4757be5b751eec4ff5b52d28ba67fb2570106aba13205c3d3ea37483603ee",
+      "rows": "557cce947d8c5f78c72973cc3ccb35deea705d3f2295398db5b50a39fe25c534",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "177958604",
+      "index": 1,
+      "phf": "9aa1c75b402edb0e798aabb34bc77181e6bf6ed2147d966fbf17ed70b34dccc0",
+      "rows": "14f9f38649debfcfc787a1750274110b14b923c6bd880375b068dc4f9af380b0",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ]
+    },
+    {
+      "handId": "177958730",
+      "index": 2,
+      "phf": "c5cfe0e3d25ad6273e4847d73294036161408c4a5aa6f4d43cd1b1cf2f97a2c7",
+      "rows": "a3d0eab1ad55d5cdc90ec9c362b90a54298e5a1f5674b0ea56ec5347981027e6",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "177959001",
+      "index": 3,
+      "phf": "c071d10c4abde20d6bc63fdbba85a69619e7e4d6d983a81d6b4e745568c6b4c7",
+      "rows": "5a1e2471c1ff0c94d36745c3ba4e51648a1c840f6f49c7fbb8bd574b3c4adee1",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 5722,
+    "path": "fixtures/samples/coinpoker/16-tour-freeroll-timebank-disconnect.txt",
+    "sha256": "ef3c3aacb0855c87b8b7763ce992347e13d4db58798a7803db4b6af735695a48"
+  },
+  "rows": 27,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 2,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_raise_flop_opp": 3,
+    "cold_call": 1,
+    "cold_call_opp": 4,
+    "contributed": 11675,
+    "donk_flop_opp": 1,
+    "flop_seen": 7,
+    "fold_flop": 3,
+    "hands": 27,
+    "iso": 1,
+    "iso_opp": 7,
+    "limp": 3,
+    "limp_opp": 18,
+    "pfr": 3,
+    "pfr_opp": 27,
+    "rfi": 2,
+    "rfi_opp": 12,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "steal_opp": 3,
+    "three_bet_opp": 10,
+    "turn_seen": 2,
+    "vpip": 7,
+    "vpip_opp": 27,
+    "won": 11675,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 7,
+    "wwsf": 3,
+    "wwsf_opp": 7
+  }
+}

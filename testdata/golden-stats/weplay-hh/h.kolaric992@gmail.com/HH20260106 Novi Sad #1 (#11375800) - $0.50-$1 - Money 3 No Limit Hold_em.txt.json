@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD71749253",
+      "index": 0,
+      "phf": "4ae0dc1620ebb584e62a73fc028ad15cf6340cdf509aee3d209bce4e3510fec2",
+      "rows": "c4fe14460311098e3333e61e154924af48d4ac38541390360a18be370d9f4fb2",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1457,
+    "path": "weplay-hh/h.kolaric992@gmail.com/HH20260106 Novi Sad #1 (#11375800) - $0.50-$1 - Money 3 No Limit Hold_em.txt",
+    "sha256": "c2bc7cd85e0ca8f4d97c818318b6e03d50665e7b3eea984f0884dc7c4703f82e"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_raise_turn_opp": 1,
+    "check_river": 2,
+    "check_turn": 1,
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 900,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_turn": 1,
+    "hands": 6,
+    "limp_opp": 2,
+    "net": -45,
+    "net_bb_milli": -450,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 45,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "three_bet_opp": 4,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 855,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

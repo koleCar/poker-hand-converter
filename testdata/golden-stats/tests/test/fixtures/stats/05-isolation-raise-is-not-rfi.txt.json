@@ -1,0 +1,42 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST05",
+      "index": 0,
+      "phf": "86112d8a22e166bc617241b322e2ac5e93bee7e6e1a004e650a5f2aac8c4259d",
+      "rows": "8bda335d6047d99dd666dd23a3716c5172a7d0ab0d00b3ce5833b7bfd3793573",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 836,
+    "path": "tests/test/fixtures/stats/05-isolation-raise-is-not-rfi.txt",
+    "sha256": "c0e2b0441c55dcef3684373b6a8a04d116bc8450b94230fef20ed1bcacb989af"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 350,
+    "hands": 6,
+    "iso": 1,
+    "iso_opp": 2,
+    "limp": 1,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi_opp": 1,
+    "three_bet_opp": 4,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 350
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "68217212777",
+      "index": 0,
+      "phf": "f5adf40766456fb4b061c0e91332ad6b5df58c1788bf9899896a09718f99e6ec",
+      "rows": "d4e395c3b3c05c68bff6045e7c8c1d9354fa2cc892d648e13f9ed91dfe56df16",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        9,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1334,
+    "path": "fixtures/samples/pokerstars/41-tour-stt-no-bom-folds-showing-card.txt",
+    "sha256": "fc2742611063f98ecf61e46196ac3b4b5095c064f6301b21378ed5b0341f6d96"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 200,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 8,
+    "limp_opp": 7,
+    "pfr": 1,
+    "pfr_opp": 8,
+    "rfi": 1,
+    "rfi_opp": 7,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 8,
+    "won": 200,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

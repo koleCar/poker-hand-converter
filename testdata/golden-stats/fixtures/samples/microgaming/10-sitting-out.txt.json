@@ -1,0 +1,39 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049094146",
+      "index": 0,
+      "phf": "2b5b5dbd8be6d0140265bcbdc755aa8546658867e2fc1ea2d1928a6c26b1ba00",
+      "rows": "3c3c9fbe4fdb11ad9ded5c7beee6859e30e2f65b513ba896a342b968d520e95e",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1897,
+    "path": "fixtures/samples/microgaming/10-sitting-out.txt",
+    "sha256": "6e03174617fc2dbe7e765842f449d90f367d64c53cc42ec4d13bf06325b6f232"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 35,
+    "hands": 5,
+    "iso_opp": 4,
+    "limp": 2,
+    "limp_opp": 5,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rfi_opp": 1,
+    "three_bet_opp": 2,
+    "vpip": 3,
+    "vpip_opp": 5,
+    "won": 35
+  }
+}

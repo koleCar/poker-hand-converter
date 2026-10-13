@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "UB-1558006027",
+      "index": 0,
+      "phf": "9e51d0df6db2b149081c7ace93a0407ae9392ec777be00dc4c0f25a6c6c3c4a6",
+      "rows": "e6abd503b97a4f1f1970a9ad136c6ebd7509a9027df34a3ed46d14faa6e80b7d",
+      "seats": [
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2050,
+    "path": "fixtures/samples/unibet/03-cash-plo-2026-two-hands-anonymised.txt",
+    "sha256": "46cc2119978a80ebc674caadb5550e53ba68f0ebee06d81d915d5ab4dda9f2f9"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 3,
+    "check_river": 3,
+    "check_turn": 3,
+    "contributed": 15,
+    "flop_seen": 3,
+    "hands": 3,
+    "iso_opp": 2,
+    "limp": 2,
+    "limp_opp": 2,
+    "net": -1,
+    "net_bb_milli": -200,
+    "pfr_opp": 3,
+    "rake_paid": 1,
+    "rfi_opp": 1,
+    "river_seen": 3,
+    "steal_opp": 1,
+    "turn_seen": 3,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 14,
+    "wsd": 1,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

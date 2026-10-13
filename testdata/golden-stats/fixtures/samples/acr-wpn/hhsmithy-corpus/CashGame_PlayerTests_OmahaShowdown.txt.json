@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "261402183",
+      "index": 0,
+      "phf": "501bc5391cbc7c5c4a0ec58d1dc8daba6822e06686439c48017f56d00cd83d00",
+      "rows": "152d52857bb0a9be9c2d390907a567fd0322ab907a27fe6d1775bec6d9400723",
+      "seats": [
+        1,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1051,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_PlayerTests_OmahaShowdown.txt",
+    "sha256": "f451b63a7d95dd73684a9c3cc5b9c0c4c41139284a39837da816fedd1688eb07"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 32000,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -100,
+    "net_bb_milli": -250,
+    "pfr": 2,
+    "pfr_opp": 2,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 100,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 31900,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

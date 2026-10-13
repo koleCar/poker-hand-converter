@@ -1,0 +1,101 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "4328077653",
+      "index": 0,
+      "phf": "3c717f6b3553b2e7a01a8734402228d4fecc69f2b678feed96522a3271947f66",
+      "rows": "ca6c0b9d76689e2ef19e903e83c40e1508deaa40f6b73d420904cdb41f9a8fdd",
+      "seats": [
+        94,
+        177,
+        360,
+        534,
+        743,
+        891,
+        1227,
+        1243,
+        1468
+      ]
+    },
+    {
+      "handId": "4328078333",
+      "index": 1,
+      "phf": "c125534c120f6e7e7677926492e56d9bb237b0964040df38361aa0aa4763f1db",
+      "rows": "3e3bcc1220115f2a0d9ff6237dffa8b27bec91ef65c429fa4a48ee73ca3dda41",
+      "seats": [
+        94,
+        177,
+        360,
+        534,
+        743,
+        891,
+        1227,
+        1243,
+        1468
+      ]
+    },
+    {
+      "handId": "4328078947",
+      "index": 2,
+      "phf": "6bd5bb0dd193a7d8293c6a719df3e967edd15bddc9bd996d54107eb9a3329c0b",
+      "rows": "6457aa1d3ff5fda3c035448d16424505b8982f0a5f4675a4e5dfc8120545e0eb",
+      "seats": [
+        94,
+        177,
+        360,
+        534,
+        743,
+        891,
+        1227,
+        1243,
+        1468
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 5785,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - Monthly Milly - $1.000.000 Guaranteed - TT$500-$35 - 202106.txt",
+    "sha256": "a5a6bca514178fdc7e567d9527c02ec16e87dd7c62ebf641302ad02d62e004f2"
+  },
+  "rows": 27,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_steal": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "cold_call": 1,
+    "cold_call_opp": 7,
+    "contributed": 36372,
+    "donk_flop_opp": 1,
+    "flop_seen": 5,
+    "fold_to_steal_opp": 1,
+    "fold_turn": 1,
+    "hands": 27,
+    "limp_opp": 15,
+    "pfr": 3,
+    "pfr_opp": 27,
+    "raise_river": 1,
+    "rfi": 3,
+    "rfi_opp": 15,
+    "river_seen": 4,
+    "squeeze_opp": 4,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet_opp": 12,
+    "turn_seen": 5,
+    "vpip": 6,
+    "vpip_opp": 27,
+    "won": 36372,
+    "wsd": 2,
+    "wsd_opp": 4,
+    "wtsd": 4,
+    "wtsd_opp": 5,
+    "wwsf": 2,
+    "wwsf_opp": 5
+  }
+}

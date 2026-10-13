@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2656154797",
+      "index": 0,
+      "phf": "5ea70a8f162c9a09bc484d5ed364ffce2a7d1cde81c6ae635416fc27291ba761",
+      "rows": "30286e9a2f6f98dbcd55581ffa1b2845396da53e1174f9138ca29914f651847c",
+      "seats": [
+        2,
+        3,
+        4,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1234,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-USD-1.00-STT-201208. - $1-$0.10 - .txt",
+    "sha256": "ff46ef9612318d08c6dbd9c73bc3557879c5f51b34f24ead62fbd5c4203451d7"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_steal": 1,
+    "cold_call_opp": 1,
+    "contributed": 3460,
+    "flop_seen": 2,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 3460,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

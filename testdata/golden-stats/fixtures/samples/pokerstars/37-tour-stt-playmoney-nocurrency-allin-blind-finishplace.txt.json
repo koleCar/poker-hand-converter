@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "75726253875",
+      "index": 0,
+      "phf": "d366af62d03dad9bf1ddc27acba79406c73c7874bc6814007535cbd19836cd79",
+      "rows": "011bf382d268107df3b239064fc170b0fac28ddaa922d76f77d94d40ea9c0fe3",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1682,
+    "path": "fixtures/samples/pokerstars/37-tour-stt-playmoney-nocurrency-allin-blind-finishplace.txt",
+    "sha256": "d03b4ffa9609255d9ea84fe6fb112ab87a3bf8b5e7a252c46a48d6bc3cd4614d"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 2690,
+    "donk_flop": 1,
+    "donk_flop_opp": 2,
+    "flop_seen": 4,
+    "fold_flop": 2,
+    "hands": 7,
+    "iso": 1,
+    "iso_opp": 4,
+    "limp": 2,
+    "limp_opp": 5,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "raise_flop": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 4,
+    "vpip_opp": 7,
+    "won": 2690,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 4,
+    "wwsf": 1,
+    "wwsf_opp": 4
+  }
+}

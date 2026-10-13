@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "TM2697462",
+      "index": 0,
+      "phf": "071ae2dbb586ce7c849264e12f3bf03ccae0236e33faa28f0589dd41fb9a0470",
+      "rows": "78ba15d882f4e3dca0b618e094ae4bd03eaa0716d288365c593357093df7b84a",
+      "seats": [
+        1,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1280,
+    "path": "fixtures/samples/ggpoker/32-fpdb3-tour-plo-nlo-6max-mtt-usd-8-40-202104-ko.txt",
+    "sha256": "ad18245f75db84dbb4e229ec71e47d62270d4d8f8d57560a26d44ee19daf203a"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_three_bet": 1,
+    "contributed": 51316,
+    "flop_seen": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 2,
+    "hands": 4,
+    "iso": 1,
+    "iso_opp": 2,
+    "limp": 2,
+    "limp_opp": 4,
+    "pfr": 2,
+    "pfr_opp": 4,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 4,
+    "won": 51316,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

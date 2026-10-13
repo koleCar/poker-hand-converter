@@ -1,0 +1,43 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361850810-471",
+      "index": 0,
+      "phf": "b9ab3cfd9ef4ea2be6c5bd629e53ff6243d378bb82c8086dd62d6a0455ca241d",
+      "rows": "01f87aae9dfe91df83c7e22d34c3a126f9e36b522f9dec70bbbd8de7e39696d3",
+      "seats": [
+        1,
+        2,
+        7,
+        8,
+        9,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 945,
+    "path": "fixtures/samples/ongame/07-name-with-dashes.txt",
+    "sha256": "9562e01a4771bb48f18955f6f499385347470ce2e9c3902478f69011ab6d9f9b"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 250,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 4,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 4,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 250
+  }
+}

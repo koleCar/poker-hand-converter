@@ -1,0 +1,48 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST07",
+      "index": 0,
+      "phf": "cbb7d7433561a9505f6dcafd221f3af6cd6da8ffd8e449082b5c1a19adce4685",
+      "rows": "4a90887aa04fd12c3751251ed5caee74036bd7dc335b91996b3c97fac078da0b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 872,
+    "path": "tests/test/fixtures/stats/07-four-bet-war.txt",
+    "sha256": "dd2bfed20d6e6933b723345ac9dab323bd9c0f1dd50354748a041b826ccb7242"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 3,
+    "contributed": 1950,
+    "five_bet_opp": 1,
+    "fold_to_four_bet": 1,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 4,
+    "hands": 6,
+    "limp_opp": 1,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "raise_vs_three_bet": 1,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 1950
+  }
+}

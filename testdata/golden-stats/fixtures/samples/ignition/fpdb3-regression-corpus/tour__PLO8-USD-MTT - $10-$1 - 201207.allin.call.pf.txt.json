@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2641146259",
+      "index": 0,
+      "phf": "c79d26244112292d4016c536e90067ba973b5f96a327fda4e71c4cfa4c207db5",
+      "rows": "c3705f9042538cbca64453fe2dafea9f8787d64cb5081e605bb815a70ab5fa50",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2060,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-USD-MTT - $10-$1 - 201207.allin.call.pf.txt",
+    "sha256": "5c94bfd62fbc2ceba4020f6043b07ba30114fb198cad675ab0f134e8c6cdfe9a"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "contributed": 4740,
+    "donk_river": 1,
+    "donk_river_opp": 1,
+    "donk_turn": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 4,
+    "fold_flop": 1,
+    "hands": 8,
+    "iso_opp": 6,
+    "limp": 3,
+    "limp_opp": 7,
+    "pfr_opp": 8,
+    "raise_flop": 1,
+    "raise_river": 1,
+    "raise_turn": 3,
+    "rfi_opp": 2,
+    "river_seen": 3,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 8,
+    "won": 4740,
+    "wsd": 2,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 4,
+    "wwsf": 2,
+    "wwsf_opp": 4
+  }
+}

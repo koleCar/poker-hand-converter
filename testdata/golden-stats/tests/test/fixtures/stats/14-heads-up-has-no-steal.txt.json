@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST14",
+      "index": 0,
+      "phf": "0addd6565b73226e215cc22784d23f41b67f85ee0ede7bc9f571cefa49467bc6",
+      "rows": "c09212871bf67085d5d001bad5b325daa5f91c5a30046f337677638f36a29ce4",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 516,
+    "path": "tests/test/fixtures/stats/14-heads-up-has-no-steal.txt",
+    "sha256": "447f5ca6992b7e69802bc6148a169259042337d4962c6133c2811dbee29ba4e9"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 200,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 200
+  }
+}

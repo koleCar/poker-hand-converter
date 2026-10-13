@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2605762685",
+      "index": 0,
+      "phf": "6c5af5e2b2b2dab013528e02a1e6a6e732775fe84deb7fb40147537e50358c49",
+      "rows": "7caa3ffd4f795c160fb09677e7ba76bacb1085acebe0ab290c7ed866fb8c5a8f",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1508,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO-USD-2.00-4.00-201205.multiway.allin.txt",
+    "sha256": "96a51ffceca6c0eed1e73ee1d2bc639c42934c41f8e0d19a6e5ba9e350e4a1ed"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 93000,
+    "five_bet": 1,
+    "five_bet_opp": 1,
+    "flop_seen": 3,
+    "four_bet": 1,
+    "four_bet_opp": 2,
+    "hands": 6,
+    "iso": 1,
+    "iso_opp": 5,
+    "limp": 3,
+    "limp_opp": 6,
+    "net": -300,
+    "net_bb_milli": -750,
+    "pfr": 3,
+    "pfr_opp": 6,
+    "rake_paid": 300,
+    "rfi_opp": 1,
+    "river_seen": 3,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 3,
+    "vpip": 4,
+    "vpip_opp": 6,
+    "won": 92700,
+    "wsd": 2,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 3,
+    "wwsf": 2,
+    "wwsf_opp": 3
+  }
+}

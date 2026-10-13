@@ -1,0 +1,201 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-362037295-54",
+      "index": 0,
+      "phf": "0e93ba23baed836c480d922c009b5e41cd85d5e044cfc9d4f2bf6b08387b61b7",
+      "rows": "7ec59af69eee7f30a0891b3c44fae1fad1e5a084e419705188b858cf22e738e4",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-55",
+      "index": 1,
+      "phf": "56b73b1b5a46f1ac419d0b96064dd43ecab66595aee946ce833a6a103c83d291",
+      "rows": "b2ead1b6ef1a8e124573f4c16e82c86980ac49a2f0946b17d4bc1047236fab52",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-56",
+      "index": 2,
+      "phf": "b2f5705e46da277b27f6fd135bd669924faef02eaa1de9d6051d6964980fc2d3",
+      "rows": "d1c2d16a093ff9d2f861a19b8b685ac1f219ef7d79c313b983bb0e88ff8ae3bf",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-57",
+      "index": 3,
+      "phf": "3f4d7d0a6bd19149eb1463faabbcb33af5dbe2b55510da1c36411be1f900a57f",
+      "rows": "37d51e4f8b159926a8ad9a7a9bcacc13633732d260f2cfd3bcd20acad6d59bcd",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-58",
+      "index": 4,
+      "phf": "383027dfcdbc1c7bd1eedba64fa663fc45869776d05b76a638522500c75b0048",
+      "rows": "a40d4e2a64d3785b5f8e760241ab32fb9cc00706ce1a30559f6d9a0584a60f15",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-59",
+      "index": 5,
+      "phf": "42b7df14a9b82ecac81c85a542320e4b07816552b214e957bdf5c2851cd175cf",
+      "rows": "8ba0aa8519008c715854816e06bcebcbbf456973dbd87b080dc9fe32a5ab4300",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-60",
+      "index": 6,
+      "phf": "82ec29ed51dc593bd0ac0b61cc757b045b15820d1c4a418cd3376758514f0105",
+      "rows": "c954cc76d0090e1fe2ca8dabc5753834b912841fb7582a74e2331d10a10c7a53",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-61",
+      "index": 7,
+      "phf": "ccba470145677450f24dcfa51d23a89330d7fd16db6cb8312ad7d80112575e11",
+      "rows": "0320430d9bfba7f1478d8ab79c6dc79d7831ab6c2bc9491bfc5971d3c977ba8e",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-62",
+      "index": 8,
+      "phf": "b83bc9545e513a4ee5dc54e45b64b44ff70663b7c49282500b658a4e3bc9c18c",
+      "rows": "400b776f171903216c0862489fb730a51b92ac0e86317fd86436c22c58234736",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "handId": "OG-R5-362037295-63",
+      "index": 9,
+      "phf": "332a157ab508788e16112f2d24ccea5abc0291628af84f9dbe1ea2a37883818c",
+      "rows": "b699e122df76bca0e9e7afb1225d8244cd0b387d06c9a8f1db74540dae019bb2",
+      "seats": [
+        3,
+        4,
+        6,
+        8,
+        9,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 9972,
+    "path": "fixtures/samples/ongame/12-multiple-hands-concatenated.txt",
+    "sha256": "2dbe1e632b4a07eef69d8ef7d1e0330f1e4b4eb0569a462c5c9f716421b4363b"
+  },
+  "rows": 60,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 2,
+    "bet_turn": 1,
+    "call_steal": 1,
+    "cbet_flop": 2,
+    "cbet_flop_opp": 3,
+    "check_flop": 4,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 2,
+    "cold_call": 1,
+    "cold_call_opp": 8,
+    "contributed": 7100,
+    "donk_flop_opp": 3,
+    "flop_seen": 6,
+    "fold_flop": 2,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 2,
+    "fold_to_steal": 8,
+    "fold_to_steal_opp": 10,
+    "fold_to_three_bet": 2,
+    "fold_to_three_bet_opp": 2,
+    "fold_turn": 1,
+    "four_bet_opp": 4,
+    "hands": 60,
+    "limp_opp": 35,
+    "net": -259,
+    "net_bb_milli": -2590,
+    "pfr": 11,
+    "pfr_opp": 59,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 259,
+    "rfi": 9,
+    "rfi_opp": 35,
+    "squeeze": 1,
+    "squeeze_opp": 3,
+    "steal": 6,
+    "steal_opp": 16,
+    "three_bet": 2,
+    "three_bet_opp": 24,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 15,
+    "vpip_opp": 59,
+    "won": 6841,
+    "wtsd_opp": 6,
+    "wwsf": 3,
+    "wwsf_opp": 6
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 4211,
+    "path": "fixtures/samples/bossmedia/03-no-limit-holdem-malformed-root.txt",
+    "sha256": "8dfa9a1d3711d0cb87de873f628ea3a850d95f7f3385e7da1a080851474182d4"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

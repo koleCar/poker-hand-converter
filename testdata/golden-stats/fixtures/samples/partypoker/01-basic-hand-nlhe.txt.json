@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13550420797",
+      "index": 0,
+      "phf": "c85e6381b4557286f8eb122f3e150311321874ddc5d9c42c5ddd56c902bc06ea",
+      "rows": "ed34b5f756888aab0038b3aef63282ba9f48a198c4c7aa01802054e996646d26",
+      "seats": [
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 790,
+    "path": "fixtures/samples/partypoker/01-basic-hand-nlhe.txt",
+    "sha256": "68c9b4c186b3d889dca24261eca84bdcd321ba98916bb4d46e9f2b7855823c82"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 20,
+    "flop_seen": 2,
+    "hands": 3,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "net": -1,
+    "net_bb_milli": -100,
+    "pfr_opp": 3,
+    "rake_paid": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 3,
+    "won": 19,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

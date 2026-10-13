@@ -1,0 +1,105 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "4101241030",
+      "index": 0,
+      "phf": "e087988e7e8742bb17b671f958c82d205cf045579c41cea2795409c96c28edad",
+      "rows": "ffcec08e1848c04014d40b2410a23d61327fbffd43ce2997f9916636fdfcd8a1",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "4101241126",
+      "index": 1,
+      "phf": "11f4d3f6831aab53df9720c66d4db2696bd579a68d2a2e00aa018a8ae7d80fcf",
+      "rows": "9b0a47e1d35ba5c599d80c28071039b3f46a15cb56a7845e25053c24d389142d",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "4101241231",
+      "index": 2,
+      "phf": "0b54429fbb29dd373c38637b54a4b2cc4b1bc3b8cb02d135292e612c9c89d73f",
+      "rows": "876696c5806aaaa6837714f553b97e1176f0f7d01a728065113a34c4f5f4c06a",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 3831,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-6max-USD - $0.10-$0.25 - 202104.ZonePoker.txt",
+    "sha256": "420c8df6dfba137663da5810c8b23413585f48c0684d9133ac1c56aa7d56a647"
+  },
+  "rows": 18,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "call_steal": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 2,
+    "cbet_turn_opp": 1,
+    "check_flop": 3,
+    "check_raise_flop_opp": 1,
+    "check_raise_river_opp": 1,
+    "check_river": 3,
+    "check_turn": 4,
+    "cold_call_opp": 2,
+    "contributed": 1751,
+    "donk_flop_opp": 2,
+    "donk_turn_opp": 1,
+    "flop_seen": 4,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 3,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 3,
+    "hands": 18,
+    "limp_opp": 11,
+    "net": -85,
+    "net_bb_milli": -3400,
+    "pfr": 4,
+    "pfr_opp": 18,
+    "rake_paid": 85,
+    "rfi": 3,
+    "rfi_opp": 11,
+    "river_seen": 4,
+    "steal": 3,
+    "steal_opp": 5,
+    "three_bet": 1,
+    "three_bet_opp": 5,
+    "turn_seen": 4,
+    "vpip": 5,
+    "vpip_opp": 18,
+    "won": 1666,
+    "wsd": 3,
+    "wsd_opp": 4,
+    "wtsd": 4,
+    "wtsd_opp": 4,
+    "wwsf": 3,
+    "wwsf_opp": 4
+  }
+}

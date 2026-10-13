@@ -103,7 +103,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly; **R1.8**: `ingest_hands` / `hand_sources` for desktop rows (PHF only, Q4); **R1.9**: the desktop sync worker (`rail_sync::worker`) - the outbox in batches of 500 to `ingest_hands`, hands just played first, backoff while offline, the account's rate limit waited out, refused hands kept with their reason, a bandwidth cap while a large backlog syncs, resumable after a kill, never sent to another account than the store's; and the pull (`hands_since`) of the account's hands from the web and its other computers. Settings → Account, Today and the tray show it; **R1.10**: the web's `/library` and `/stats` show synced hands live (Realtime on a one-row-per-account signal, `hand_arrivals`; debounced, nothing while the tab is hidden; statistics derived without a click). Phase 1 is complete on `staging`; production needs the owner's checklist ([`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.10) | gzip uploads if bandwidth needs it | 1 |
 | Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
-| Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats` | Ported to Rust, computed at import; display stats defined in `config/stats/` | 2 |
+| Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats`; **R2.1**: ported to Rust (`core/rail-stats`, `rows_for(&PhfHand)`), its rows equal to the TypeScript's for all 8 422 corpus hands (51 464 rows) and 4 000 seeded mutations of them; the TypeScript stays the oracle (`testdata/golden-stats/`); not yet run at import | Computed at import with rollups (R2.3); display stats defined in `config/stats/` (R2.4) | 2 |
 | Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 1–2 |
 | HUD | — | Separate native process, Windows first, then macOS | 3 |
 | Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
@@ -293,6 +293,16 @@ Starting set (~30): VPIP, PFR, 3-bet, fold to 3-bet, 4-bet, steal, fold to
 steal, limp; c-bet flop/turn, fold to c-bet, check-raise, donk bet, aggression
 frequency; WTSD, W$SD, WWSF; bb/100, all-in EV bb/100, rake per 100.
 
+*As built (R2.1):* `core/rail-stats` is `lib/stats` ported counter for
+counter - `hand_facts(&PhfHand) -> HandFacts`, `rows_for(&PhfHand) ->
+Vec<StatsRow>` (one row per dealt-in seat, hero and villains), `StatsRow::to_json`
+in the `hand_stats` column shape. Integers only; the three divisions the
+TypeScript does in doubles go through `rail_core::js::JsNumber`. The
+TypeScript engine stays the reference until the web moves to the Rust core
+(R4.x): `npm run golden:emit` also writes its rows for every corpus hand
+(`testdata/golden-stats/`, hashes; `testdata/golden-stats-full/`, gitignored,
+in full), and `cargo test -p rail-stats` requires the same bytes.
+
 ### 5.5 Desktop app (`app/`, Tauri 2 + React + TypeScript, Phases 1–2)
 
 Six screens:
@@ -474,13 +484,18 @@ What CI runs on Linux, macOS and Windows:
 cargo fmt --all --check
 cargo clippy --workspace --exclude rail-app --all-targets --locked -- -D warnings
 cargo test --workspace --exclude rail-app --locked     # the app crate has its own job (below)
-cargo build -p rail-core -p rail-core-wasm -p rail-config --target wasm32-unknown-unknown --locked
+cargo build -p rail-core -p rail-core-wasm -p rail-config -p rail-stats --target wasm32-unknown-unknown --locked
 (cd tests && npm run phf:dts-check)           # Rust-generated PHF declarations = types.ts
 (cd tests && npm run wasm:build && npm run wasm:shadow)   # Linux only, CI job `wasm` (below)
 ```
 
 `cargo test` round-trips every golden hand through the Rust PHF model and
-fails, rather than skips, without the full goldens. After changing the model,
+fails, rather than skips, without the full goldens; it also derives every
+golden hand's statistics rows with `rail-stats` and compares them with the
+TypeScript engine's (`testdata/golden-stats/`, R2.1). After a change to
+`frontend/src/lib/stats`, commit the regenerated `testdata/golden-stats/`
+and regenerate the stats mutation vectors with
+`node core/rail-stats/tests/data/stats-vectors.mjs`. After changing the model,
 regenerate its TypeScript declarations with
 `RAIL_UPDATE_DTS=1 cargo test -p rail-core --lib phf::dts`.
 

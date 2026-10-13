@@ -1,0 +1,69 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-280083902",
+      "index": 0,
+      "phf": "46c59b606b3f55fd9717c2c33c67981e6374307c89c6c81b87e719eb349a759c",
+      "rows": "f38ced691f9b868060fe738732d8b9da1b28b19079c9a746a80d5e9a84360b57",
+      "seats": [
+        1,
+        2,
+        4,
+        6,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 955,
+    "path": "fixtures/samples/888poker/03-threebet-did-not-show-hand.txt",
+    "sha256": "fc6ad9c34c5fe5ff3f269771ec90517517381390404c4be9b4897a46e398681b"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_turn": 2,
+    "cold_call_opp": 2,
+    "contributed": 3610,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 5,
+    "hands": 6,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "net": -180,
+    "net_bb_milli": -1800,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "rake_paid": 180,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 3430,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

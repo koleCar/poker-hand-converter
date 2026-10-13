@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "4300979169",
+      "index": 0,
+      "phf": "601f2a6dc53d747b8237dc22c943d72b9f283b22a4d76b63684e9c73dea91ee0",
+      "rows": "59bbc874a30fb8b71ba27947d76360f27b25f8efe44223fa72f725e3e11ec486",
+      "seats": [
+        17,
+        39,
+        51,
+        61,
+        63,
+        64,
+        65,
+        66,
+        146
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2218,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $25-$2.50 - 202104.Ignititon.MVS.txt",
+    "sha256": "f5204b16d4fe807e9c01e6bbcedba24f8efe4999546a106189c282a8e0351b05"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_four_bet": 1,
+    "contributed": 22270,
+    "five_bet_opp": 1,
+    "flop_seen": 2,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 9,
+    "limp_opp": 7,
+    "pfr": 2,
+    "pfr_opp": 9,
+    "raise_vs_three_bet": 1,
+    "rfi": 1,
+    "rfi_opp": 7,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 9,
+    "won": 22270,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

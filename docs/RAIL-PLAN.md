@@ -3493,6 +3493,80 @@ database, on the development Mac and on a mid-range Windows laptop.
   to `rail-stats`; goldens of `StatsRow[]` per hand from the TS engine; the
   invariants in `tests/test/support/statsInvariants.ts` as Rust property tests.
 - **Done when** the rows are identical to TS for every corpus hand.
+- *As built* (§15): **done** - 8 422 of 8 422 corpus hands, 51 464 of 51 464
+  rows (every dealt-in seat, hero and villains) equal to the TypeScript's,
+  byte for byte in canonical JSON.
+  - **Oracle.** `npm run golden:emit` also writes the stats goldens
+    (`tests/scripts/golden/stats.ts`, format `rail-stats-golden/1`,
+    [`testdata/golden/README.md`](../testdata/golden/README.md) "Stats
+    goldens"): per corpus file, per hand the sha-256 of the canonical JSON of
+    `statsRows(handFacts(phf))` and its seats, per file every counter and
+    money column summed (zeros left out) so a change of meaning reads in
+    review as "this counter moved here". Derived from the PHF as the golden
+    stores it (canonical JSON parsed back), which is what the Rust test reads
+    from `testdata/golden-full/`. Committed `testdata/golden-stats/` 3.3 MB;
+    the rows in full, `testdata/golden-stats-full/` (gitignored), 206 MB - the
+    R0.3 size decision again. `golden-fresh` checks both committed trees; the
+    emitter run is still ~22 s (the canonical writer's key sort got an ASCII
+    fast path: the same order without encoding UTF-8 for strings that hold no
+    surrogate). **No float in any row**: the canonical writer refuses one and
+    none was found; the engine divides in doubles in three places
+    (`net_bb_milli`, `starting_stack_bb_tenths`, the largest-remainder fee
+    split) and always lands on integers. `-0` (a loss under half a thousandth
+    of a big blind; a fee share of a negative fee total) is written as 0:
+    none in the corpus.
+  - **`core/rail-stats`**, module for module (`counters`, `context`,
+    `preflop`, `postflop`, `showdown`, `money`, `derive`, `mapping`):
+    `rows_for(&PhfHand) -> Vec<StatsRow>`, `hand_facts(&PhfHand) ->
+    HandFacts`, `stats_rows`, `StatsRow::to_json` (exactly the 133 columns of
+    `STATS_COLUMNS`), `Counter` (the 90 counters as an enum, column order =
+    `ZERO_COUNTERS`), `SeatCounters` (`[u32; 90]` indexed by `Counter`, what a
+    rollup sums), `SeatMoney` (`i64` minor units), `OPPORTUNITY_PAIRS` /
+    `LEG_SETS` / `STREET_CHAINS`, `STATS_VERSION` (`stats/2`), `hand_class`,
+    `to_bb_milli`. Integer arithmetic; the three divisions in
+    `rail_core::js::JsNumber`, the fee split's sort in `js::sort::sort_by`
+    with the TypeScript's comparator. `BTreeMap`s only (no hasher; builds for
+    `wasm32`, now in CI's WebAssembly build). Nothing is wired into the app.
+  - **Tests**: the golden diff (`tests/corpus.rs`; names the differing
+    columns when `testdata/golden-stats-full/` is present); the eight
+    invariants of `statsInvariants.ts` over every corpus hand, the round trip
+    through `to_standard_text` / `parse_standard_hand` included; the 17 spot
+    fixtures with every expectation of `statsSpots.test.ts`, its four corpus
+    spots (gross collects, run it twice, EV cashout, bomb pot), the short-deck
+    spots of `shortDeck.test.ts` and `statsPotType.test.ts` (`tests/spots.rs`);
+    4 000 seeded mutations of golden hands through both engines
+    (`tests/data/stats-vectors.mjs` - dropped, swapped, duplicated and
+    retyped actions, nulled positions so the engine runs `assignPositions`,
+    re-seated and removed players, odd and zero blinds, other variants,
+    unreconciled fees and pots, cut and doubled runouts, button-blind verbs,
+    off-pot chips, cashouts; `tests/vectors.rs`), all equal, and a 50 000-case
+    soak (`STATS_STRESS`) equal too; the column lists and `STATS_VERSION`
+    read from `types.ts` / `mapping.ts` (`tests/columns.rs`).
+  - **Oddities reproduced, not fixed** (`docs/STATS-SPEC.md` §12): the
+    TypeScript's `assignPositions` mutates the caller's hand (the port works
+    on a copy, same rows); two players on one seat number give two rows for
+    that seat, both the last player's; `leg` counts a `bet` as the raise leg;
+    `limp_opp` is any first unraised decision that is not a check (a fold or
+    a raise included); `flop_seen` and the street chain read the board and
+    every action's street, so a stray action on a street makes it "dealt";
+    `dealtInSeats` falls back to every seated player when fewer than two
+    acted; `hand_key` lower-cases and trims the site id while `site_id` keeps
+    it as is; `cashed_out` is set by any non-zero cashout risk, negative
+    included; the fee split ranks fractional parts as doubles, so two parts a
+    double cannot tell apart tie to the lower index. `docs/STATS-SPEC.md` said
+    `stats/1` in its title; now `stats/2`, with the version table.
+  - **For R2.3 (rollups)**: sum `SeatCounters.0` and the `SeatMoney` columns
+    per player and segment; `HandDimensions` carries every filter column
+    (`is_bomb_pot`, `has_cashout` for `aggregate`'s default exclusions in
+    `rates.ts`, `pot_type`, `position` on the seat). `rates.ts` (`aggregate`,
+    `rates`, `addCounters`) is not ported yet. Which rows a writer keeps (the web
+    writes hero rows only unless villain rows are on, never villains of a
+    positionally anonymised room - `lib/db/statsRows.ts`) is the writer's
+    decision, not the engine's. **For R2.4**: a display definition's formula
+    names counters by column name - `Counter::from_name` and `COUNTER_KEYS`.
+    **For R2.2**: `hand_stats` has no EV column; `handEvRow` falls back to
+    `net` / `net_bb_milli` for a hand without an all-in and computes
+    `ev_net_bb_milli` with `toBbMilli` - `rail_stats::to_bb_milli`, exact.
 
 ### R2.2 All-in EV in Rust — M
 - Port `lib/equity`; same seeds, same results; the Monte Carlo path must match
@@ -3815,3 +3889,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **Import benchmark gate: a ratio, not hands/s** (R1.6 "As built"). The absolute gate (best of three >= 3 500 hands/s on the 3-core M1 runner) failed R1.7's PR, which does not touch the import path, at 3 436 hands/s: the runner's speed moves between jobs (best of three 3 436 - 5 264 on the same code) and within one (2 954 - 4 666). `import_bench` now measures a reference on the same runner - one thread converting the corpus (7 321 hands) from memory with `rail_core`, before the first import and after each one - and gates on the pipeline efficiency, hands stored/s / (reference x threads), best of three, **>= 45 %** (`--min-efficiency`); measured 59 / 62 / 67 % on jobs whose absolute rate was 3 339 - 4 071; plus a floor of **1 500 hands/s** (`--min-rate`) for a catastrophic slowdown, `rail_core`'s own included, which the ratio cannot see. Job renamed; the guideline's >= 5 000 stays measured on the owner's M2 Pro (10 300). No change to importing or parsing. |
 | 2026-10-13 | **R1.9 done, Phase 1's exit criterion met on a local stack**: the sync worker (`rail_sync::worker`). Outbox in send order - hands queued in the last 15 min newest played first, then the backlog oldest due first (store migration 0005: `outbox.played_at` + covering index) - in batches of 500 per watched folder (`hand_sources` registered once, device id random in `kv`) to `ingest_hands`; inserted / duplicate leave the outbox, rejected go to `sync_rejected` with the reason (UI counts per reason, Try again); offline = backoff 5 s to 10 min with jitter and per-hand attempts; the rate limit waited out by window then probed with one hand; 401 refresh once; resumable and idempotent. Upload cap while > 2 000 hands wait (default 1 MB/s, user setting; tables-open hook). Account safety: the store's owner in `kv`, every token from `Account::access_token_for(owner)`, signed out = nothing sent, another account = nothing sent or pulled until the user uploads this computer's hands to it or keeps them apart. Pull of every row of the account the store lacks (web and other computers): `hands_since` keyset (migration `20270505090000_desktop_pull.sql`, invoker, keys only, rows a minute old) then PHF for missing keys; pulled hands never queued. App: Settings → Account Sync panel, Today line, tray line, Sync now / Pause / cap, `en` + `hr`. Tests: store 5, sync 13 worker tests on a scripted server, pgTAP 17 (suite 997). End to end: killed mid-sync and resumed, server = store (7 469, once each; ~270 hands/s, 7.5 KB a hand); 58 live hands through the watcher visible as the user in 0.5-5.9 s through a network cut mid-batch, once each; a web hand pulled into a second store. Remaining for Phase 1: R1.10; production checklist under R1.9 *As built*. |
 | 2026-10-13 | **R1.10 done, Phase 1 complete on `staging`**: live arrival on the web. Migration `20270512090000_hand_arrivals.sql`: `hand_arrivals`, one row per account bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival` (count, origin, time; no hand content; ~320 bytes a change), select-own RLS, in `supabase_realtime`; `hands` deliberately not published (whole-row payloads with the PHF, per-row RLS on every backfill). Measured: a role without SELECT gets a content-free 401 notice per change, so `anon` has SELECT and no policy (`notifications` has the same exposure, noted, not changed); DELETE (account removal only) shows a random id. Web: `lib/live/arrivals.ts` (debounce 1.5 s, max wait 5 s backing off to 30 s, nothing while hidden, resync on reconnect), `useHandArrivals` (token before join, INSERT + UPDATE filtered to the owner, removed on unmount / sign-out), `AppFrame live` on `/library` and `/stats` only; the library re-reads page 1 in place or offers "N new hands - show", "Hands arriving from <device>" from `hand_sources`; stats re-read quietly and rebuild for new hands without a click. Tests: pgTAP 29 (suite 31 files / 1 026), vitest 12, `npm run realtime:arrivals` 15 / 15 on an isolated stack (A sees its own; a forged or missing filter and anon see nothing of others), browser end to end. The consolidated production checklist for R1.7-R1.10 is under R1.10. |
+| 2026-10-13 | **R2.1 done**: the stats engine in Rust (`core/rail-stats`), `lib/stats` ported module for module (90 counters, money, the rulebook; every STATS-SPEC call as the TypeScript has it). Oracle: `npm run golden:emit` also writes `testdata/golden-stats/` (per hand the sha-256 of the canonical `statsRows(handFacts(phf))` and its seats, per file the column totals; 3.3 MB committed, 206 MB in full in the gitignored `testdata/golden-stats-full/`), checked by `golden-fresh`; no float in any row, `-0` written as 0 (none in the corpus). **8 422 / 8 422 hands, 51 464 / 51 464 rows equal to the TypeScript's**; the eight invariants of `statsInvariants.ts` on every corpus hand; the 17 spot fixtures and the corpus, short-deck and pot-type spots; 4 000 seeded mutations through both engines (50 000 in a soak) equal. Three divisions in doubles reproduced with `JsNumber`. `rows_for(&PhfHand)` is the API for R2.3; nothing wired into the app. rail-stats joins CI's wasm32 build. STATS-SPEC §12 (the port, oddities); its title now says `stats/2`. |

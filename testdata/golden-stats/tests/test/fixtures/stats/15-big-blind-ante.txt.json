@@ -1,0 +1,44 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST15",
+      "index": 0,
+      "phf": "b16d80bf4033903fc71b529e93389ac87287a029ff9c1f58b0e5bb2832134ed9",
+      "rows": "43ad0c18a8c032894eb3f29aab0dfc070d5999c7c41bc59e083f9f2b753f0b25",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 863,
+    "path": "tests/test/fixtures/stats/15-big-blind-ante.txt",
+    "sha256": "395035b3edf4fd19673a27a7c61020cafbb05793dc9c3fc8a872522f1e9b69c3"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 850,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 850
+  }
+}

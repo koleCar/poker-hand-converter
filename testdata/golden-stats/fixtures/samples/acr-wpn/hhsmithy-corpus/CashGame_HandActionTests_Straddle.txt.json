@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "266899075",
+      "index": 0,
+      "phf": "543e26abce808cba7b27cdf451951db855e52515d3585407de636ff9f60842f5",
+      "rows": "8534975989053ffc48318c14d10394b0d6a73e9b6e1e8d7f4238c0b1f32ae34d",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1663,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_HandActionTests_Straddle.txt",
+    "sha256": "4c4c4cdd446ccb30e4e42cbecd0c72d0a1a408b1240386846765ef068c6d6c66"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 110,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 6,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 5,
+    "net": -30,
+    "net_bb_milli": -1200,
+    "pfr_opp": 6,
+    "rake_paid": 30,
+    "rfi_opp": 5,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 80,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST12",
+      "index": 0,
+      "phf": "069364cbd532d38ebac2a6713523209cb964d67b706d56240cf15d3af37393e7",
+      "rows": "437282b34c65ad6bb931fe097f03bd294921b7886ef39055d3df0e07ad1ab7f4",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 906,
+    "path": "tests/test/fixtures/stats/12-limped-pot-has-no-cbet.txt",
+    "sha256": "9f781c9613672d8cee88cf3aa56ff53bc8221ae38825acc9fc695b67af0219be"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 350,
+    "flop_seen": 3,
+    "fold_flop": 2,
+    "hands": 6,
+    "iso_opp": 5,
+    "limp": 2,
+    "limp_opp": 5,
+    "pfr_opp": 6,
+    "rfi_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 350,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

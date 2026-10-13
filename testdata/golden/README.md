@@ -23,6 +23,11 @@ missing, or left over for an input that is gone).
 | --- | --- | --- | --- |
 | `testdata/golden/` | yes | 2.9 MB, 556 files | everything, with each hand's PHF reduced to the sha-256 of its canonical JSON |
 | `testdata/golden-full/` | no (`.gitignore`) | 137 MB, 556 files | the same documents with every PHF written out |
+| `testdata/golden-stats/` | yes | 3.3 MB, 556 files | the stats engine's rows per hand as a sha-256, and per-file column totals ([below](#stats-goldens-r21)) |
+| `testdata/golden-stats-full/` | no (`.gitignore`) | 206 MB, 556 files | the same with every row written out |
+
+The same command writes all four; CI's `golden-fresh` job checks both
+committed trees.
 
 **Size decision.** Written out in full the goldens are 137 MB of pretty JSON
 (76 MB compact; 7.3 MB gzipped per file). A PHF hand is ~8.8 KB of JSON, and
@@ -189,6 +194,60 @@ byte for byte. It is the output of `serde_json::to_string_pretty` on a
 PHF object serialized on its own as a top-level document by the rules above
 (indentation starting at zero, trailing `\n`), not the indented slice of the
 full-tree file it appears in.
+
+## Stats goldens (R2.1)
+
+What the TypeScript stats engine (`frontend/src/lib/stats`, docs/STATS-SPEC.md)
+derives from every accepted hand: `statsRows(handFacts(hand))`, one row per
+dealt-in seat, hero and villains alike, in the canonical JSON above.
+`core/rail-stats` is correct for a hand when its rows are the same bytes
+(`core/rail-stats/tests/corpus.rs`). Written by `tests/scripts/golden/stats.ts`
+in the same `npm run golden:emit` run, at `testdata/golden-stats/<input path>.json`.
+
+```jsonc
+{
+  "format": "rail-stats-golden/1",
+  "hands": [                          // the PHF golden's hands, in the same order
+    {
+      "handId": "ST01",
+      "index": 0,                     // chunk index, as in the PHF golden
+      "phf": "b3a3…",                 // sha256 of the canonical PHF the rows were derived from
+      "rows": "365e…",                // committed tree: sha256 of canonicalJson(rows); full tree: the rows
+      "seats": [1, 2, 3, 4, 5, 6]     // the seat of each row, in row order
+    }
+  ],
+  "input": { "bytes": 824, "path": "…", "sha256": "…" },   // as in the PHF golden
+  "rows": 6,                          // rows in the file
+  "statsVersion": "stats/2",          // STATS_VERSION
+  "totals": { "hands": 6, "vpip_opp": 5, … }   // every counter and money column summed over the file's rows; zeros left out
+}
+```
+
+- **Input.** The rows are derived from the PHF exactly as the golden stores it
+  (its canonical JSON, parsed back), which is the document the Rust test reads
+  from `testdata/golden-full/`. `handFacts` may call `assignPositions`, which
+  mutates its argument; deriving from a parsed copy keeps the pipeline's own
+  hands untouched.
+- **Totals** make a change of meaning reviewable: a PR that redefines a
+  counter shows which counter moved in which files, where the hashes alone
+  only say which hands changed.
+- **No floats.** Every row value is an integer, a boolean, a string, `null` or
+  the array of hole cards; the emitter would throw on anything else. The
+  engine divides in doubles in three places (`net_bb_milli`,
+  `starting_stack_bb_tenths`, the fee split) and always lands on integers.
+- **`-0` is written as `0`.** `net_bb_milli` rounds half away from zero as
+  `-Math.round(-x)`, so a loss under half a thousandth of a big blind is `-0`
+  (and a negative fee total can make a fee share `-0`). Every consumer reads
+  that as 0 (`JSON.stringify`, the Postgres integer column), and canonical JSON
+  refuses `-0`. None occurs in the corpus today; the emitter prints the count.
+- **Size.** 51 464 rows of ~180 columns are 206 MB of pretty JSON, so the
+  committed tree pins each hand's rows by hash (3.3 MB) - the same decision as
+  for the PHF bodies.
+
+`core/rail-stats/tests/data/stats-vectors.json` (written by
+`stats-vectors.mjs` next to it) adds seeded mutations of golden hands run
+through both engines; regenerate it after a change to `lib/stats` or to the
+goldens.
 
 ## Notes for the Rust port
 

@@ -1,0 +1,128 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "256459677",
+      "index": 0,
+      "phf": "46d9c5eabbf1749d7b4af8d3b2e65c34d143e91b8da9739f2affea7ff3557628",
+      "rows": "828c69fede38d6831c222ef2028c2b0fa7a00692aa419c62f8d13ce2e77b8153",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "256460002",
+      "index": 1,
+      "phf": "97f29ec17382660bb0307ccbba619d55d9bb5940507d897c93c49a5bf555d193",
+      "rows": "b0251e07ed719cc3d192f9d5321585de506219dbf8c6563f7d7139e9a7170abb",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "352695201",
+      "index": 2,
+      "phf": "e13901892ec8ea552697ba50e4e584001a4d10bca8966ba596ab75024b328f4b",
+      "rows": "0d5bc7449a0a63a24a771a4355b6ab4c4ecbfec8fd3616d17615f5ec0b054fcc",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "352675127",
+      "index": 3,
+      "phf": "07c04bb03acb6ca211c51592430e75d239a9f26993ddb659ed1db815edcf8f1e",
+      "rows": "740078f5acf7c31237866a8bc75f782552a23e14cbcd50d77e0ba17056884fa7",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 5406,
+    "path": "fixtures/samples/coinpoker/01-cash-multi-hand-baseline.txt",
+    "sha256": "3472a8cc97c235296f4cf0cd703e0062c89decdfd9b743c625305fd09f5f847f"
+  },
+  "rows": 25,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 3,
+    "call_cbet_flop": 1,
+    "call_cbet_turn": 1,
+    "call_flop": 1,
+    "call_four_bet": 1,
+    "call_three_bet": 2,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 3,
+    "cbet_river_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 4,
+    "check_raise_river_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 1,
+    "check_turn": 1,
+    "cold_call": 2,
+    "cold_call_opp": 10,
+    "contributed": 582,
+    "five_bet_opp": 2,
+    "flop_seen": 8,
+    "fold_river": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_three_bet_opp": 3,
+    "fold_turn": 2,
+    "four_bet": 1,
+    "four_bet_opp": 4,
+    "hands": 25,
+    "limp_opp": 7,
+    "net": -29,
+    "net_bb_milli": -14500,
+    "pfr": 7,
+    "pfr_opp": 25,
+    "raise_vs_three_bet": 1,
+    "rake_paid": 29,
+    "rfi": 4,
+    "rfi_opp": 7,
+    "river_seen": 4,
+    "squeeze": 1,
+    "squeeze_opp": 5,
+    "three_bet": 3,
+    "three_bet_opp": 17,
+    "turn_seen": 8,
+    "vpip": 9,
+    "vpip_opp": 25,
+    "won": 553,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 8,
+    "wwsf": 5,
+    "wwsf_opp": 8
+  }
+}

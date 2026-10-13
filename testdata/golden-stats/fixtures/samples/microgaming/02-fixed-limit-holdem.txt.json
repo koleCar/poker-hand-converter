@@ -1,0 +1,59 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049104353",
+      "index": 0,
+      "phf": "d0c814af95f9079068acfc6677451fc5c53077465c993cc13e13472efe5db861",
+      "rows": "49a3f06e333b11ee365847517cedbc81a317db35762aff1af227c35e6da15b44",
+      "seats": [
+        3,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1981,
+    "path": "fixtures/samples/microgaming/02-fixed-limit-holdem.txt",
+    "sha256": "c8f51946c7a8d3cf578fc03727d9732e1b27782f6e2473af4f48ca1890fc7221"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 12000,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -100,
+    "net_bb_milli": -100,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 100,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 11900,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -28,6 +28,12 @@ describe("golden oracle", () => {
         `testdata/golden-full ${(report.fullBytes / 1e6).toFixed(1)} MB, ` +
         `${report.removed} stale removed, ${seconds} s`,
     );
+    console.log(
+      `golden stats: ${report.statsRows} rows, ` +
+        `testdata/golden-stats ${(report.statsSummaryBytes / 1e6).toFixed(1)} MB, ` +
+        `testdata/golden-stats-full ${(report.statsFullBytes / 1e6).toFixed(1)} MB, ` +
+        `${report.statsNegativeZeros} -0 written as 0`,
+    );
     expect(report.files).toBeGreaterThan(500);
   });
 });

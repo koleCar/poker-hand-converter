@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "352024761",
+      "index": 0,
+      "phf": "8ef04048e4b81ccf27ea52c0b6310dd717d8941c7b931caf658049f41b10f8bd",
+      "rows": "496c7a76223d75a5dd759f41df2ca4c798e0adc92e395a2d86e4ef16c0c3d828",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1388,
+    "path": "fixtures/samples/coinpoker/05-cash-allin-raises-no-to.txt",
+    "sha256": "6328f2047d5b6521010320df9deafc5c15a310bfa7e469dc80b8dec5d39b7508"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 130,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 7,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 6,
+    "net": -7,
+    "net_bb_milli": -3500,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 7,
+    "rfi_opp": 5,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 7,
+    "won": 123,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

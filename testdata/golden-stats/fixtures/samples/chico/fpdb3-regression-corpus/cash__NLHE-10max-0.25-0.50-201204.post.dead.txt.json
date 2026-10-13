@@ -1,0 +1,66 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1002134798",
+      "index": 0,
+      "phf": "0dcb7a32ca2269413f7c08925cef170c9e5f33ac2ae530ed714e42409984f532",
+      "rows": "3947ff3f1d663cf2202e46851b83cde059d90a00cd6b2e48b2a52255cd38f3b6",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1479,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.25-0.50-201204.post.dead.txt",
+    "sha256": "bd374f4b6d8462758c443f3748f75b63a1fb2aae7dfb7834ec047cb3c120669a"
+  },
+  "rows": 10,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_steal": 2,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call_opp": 1,
+    "contributed": 1561,
+    "donk_flop": 1,
+    "donk_flop_opp": 2,
+    "flop_seen": 4,
+    "fold_flop": 2,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 1,
+    "hands": 10,
+    "limp_opp": 6,
+    "net": -78,
+    "net_bb_milli": -1560,
+    "pfr": 1,
+    "pfr_opp": 10,
+    "rake_paid": 78,
+    "rfi": 1,
+    "rfi_opp": 7,
+    "squeeze_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 4,
+    "vpip_opp": 10,
+    "won": 1483,
+    "wtsd_opp": 4,
+    "wwsf": 1,
+    "wwsf_opp": 4
+  }
+}

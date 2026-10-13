@@ -1,0 +1,46 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "80586589",
+      "index": 0,
+      "phf": "de87e360527be892e45234f918cf137fbd9ff68840fc7a52d9eddf0fbcad8a56",
+      "rows": "b30d3a26b06ae466df6d23c2a78aac05af7e7d55c55e3095d9bd92a0a0726586",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1462,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-9max-NA-0-0-201907.SCHEDULEDID-TN-The Venom - $5,000,000 GTD - Day 1C GAMETYPE.txt",
+    "sha256": "36f36f6adae47fbfaedc6185692d4370a4bdc042f9693895efc659fab98e37c2"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 1585,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 9,
+    "limp_opp": 8,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "rfi": 1,
+    "rfi_opp": 8,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 9,
+    "won": 1585
+  }
+}

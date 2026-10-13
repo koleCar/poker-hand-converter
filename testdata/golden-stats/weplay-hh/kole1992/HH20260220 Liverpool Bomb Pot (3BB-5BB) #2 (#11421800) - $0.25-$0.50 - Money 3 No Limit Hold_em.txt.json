@@ -1,0 +1,202 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD76256818",
+      "index": 0,
+      "phf": "df46988f92c46c51d889cf05c6ffadacdd6c34148f4b55d4d0d21ee4f7bf9579",
+      "rows": "cc7612ebda31ec6da8004f9537e99c349e001cb617c92d65ae29c04280f6443c",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76256873",
+      "index": 1,
+      "phf": "65a920cb31ba21309b98fecff724ee651e54cb0d4e0d9213de50590949ab6f9f",
+      "rows": "95b00e1d9ddfb6283034fbca7453fcc804f378ad45ed8eda5c311da11eabaf5a",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76256907",
+      "index": 2,
+      "phf": "92d77416545529ad42d6bab250a27126dccba1cdc1a577f1ee7531b53d8bbe3c",
+      "rows": "4fadd449e8433795a270fb21a5c5c680a522d825fd8f766c93cd0cc7b162a33c",
+      "seats": [
+        1,
+        2,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76256951",
+      "index": 3,
+      "phf": "b217911478d8dd61df0c56764bf3844e8a6a059214790875e1027ab6a945a693",
+      "rows": "0ae96cf85270e738a4d67123568ec20fc27a0bcf90613cef553215d035b83279",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76256992",
+      "index": 4,
+      "phf": "e4689ad577d8ba4b376361cedff9f21074d25cd328572a2f63bd325e5cd1066b",
+      "rows": "0c36c17b74b86b437b1dd567a133e2636a447fc70d2ecb757c36b85d8bdb5210",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76257020",
+      "index": 5,
+      "phf": "7a21b923d29100b3b962ed683b8eea89e3be8c46a595ebba3f670d6db656ca12",
+      "rows": "c51080b3f7d821742b554c315154741bc2e77c15fc7bb4082d343f59bf9f5e0b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76257050",
+      "index": 6,
+      "phf": "76ade6c133e827b825c72636ef5355fbb2f7d3c499b9b9984070a32571ea82b1",
+      "rows": "20bdc6ace4d763210818a5ef7494672c057f0ecaa5593177bf53d2c3636a66a2",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76257075",
+      "index": 7,
+      "phf": "7b512d9dd14e8c1a1d362daa50e1050949a87a55bdab9e97917e42028d8f46e5",
+      "rows": "6b91682e3caf2c8885e0b4e890479ecc0848377f52f172bd2f03cc8295cd500b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        8
+      ]
+    },
+    {
+      "handId": "HD76257103",
+      "index": 8,
+      "phf": "1aa2d77bd4d3fd7ad41e97062e68c61ffa0b40b25fa393ea5a52ee2ad3e1bbee",
+      "rows": "ae1451a45795a1415988f5efa8396d6199c02f6530079da2f5522c295df4457e",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 12416,
+    "path": "weplay-hh/kole1992/HH20260220 Liverpool Bomb Pot (3BB-5BB) #2 (#11421800) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "4ed4493cc403ea1bc8a823dba88fccf6fb42a9096261d6ae47571fd79b8d66db"
+  },
+  "rows": 56,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 5,
+    "bet_river": 4,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 2,
+    "call_river": 2,
+    "call_steal": 2,
+    "call_three_bet": 1,
+    "call_turn": 1,
+    "cbet_flop": 3,
+    "cbet_flop_opp": 5,
+    "cbet_turn_opp": 1,
+    "check_flop": 13,
+    "check_raise_flop_opp": 6,
+    "check_raise_river_opp": 1,
+    "check_river": 1,
+    "check_turn": 6,
+    "cold_call": 1,
+    "cold_call_opp": 5,
+    "contributed": 6738,
+    "donk_flop_opp": 4,
+    "donk_turn_opp": 1,
+    "flop_seen": 26,
+    "fold_flop": 11,
+    "fold_river": 2,
+    "fold_to_cbet_flop": 3,
+    "fold_to_cbet_flop_opp": 4,
+    "fold_to_steal_opp": 2,
+    "fold_to_three_bet_opp": 1,
+    "fold_turn": 1,
+    "four_bet_opp": 3,
+    "hands": 56,
+    "iso": 4,
+    "iso_opp": 14,
+    "limp": 10,
+    "limp_opp": 32,
+    "net": -333,
+    "net_bb_milli": -6660,
+    "pfr": 7,
+    "pfr_opp": 50,
+    "raise_flop": 1,
+    "rake_paid": 333,
+    "rfi": 2,
+    "rfi_opp": 21,
+    "river_seen": 10,
+    "squeeze_opp": 7,
+    "steal": 1,
+    "steal_opp": 6,
+    "three_bet": 1,
+    "three_bet_opp": 19,
+    "turn_seen": 11,
+    "vpip": 22,
+    "vpip_opp": 50,
+    "won": 6405,
+    "wsd": 4,
+    "wsd_opp": 6,
+    "wtsd": 6,
+    "wtsd_opp": 26,
+    "wwsf": 10,
+    "wwsf_opp": 26
+  }
+}

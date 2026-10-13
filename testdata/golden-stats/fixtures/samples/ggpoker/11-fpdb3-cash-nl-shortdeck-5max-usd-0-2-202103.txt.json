@@ -1,0 +1,100 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "SD27208848",
+      "index": 0,
+      "phf": "0f12a6850263f85691059b07ba8971735554de2f0fb1365673ea837937126928",
+      "rows": "f116e7e9567dbb3135c85e31dd5da1f1f105146895441830bc771bf7937304d6",
+      "seats": [
+        1,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "handId": "SD27208838",
+      "index": 1,
+      "phf": "c7dcf0f974166f5723af1a7e72d9a6818d92c5c0b074a5a6d0f7e9d829923862",
+      "rows": "e610ef3109ad4275944e872a0a1de3187da97ea061301505bcfb103a2e79e5b6",
+      "seats": [
+        1,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "handId": "SD27208832",
+      "index": 2,
+      "phf": "3eef167bcbe6e45b0827c4173b13ef5b55172bc40b3e4db046a5338d8d3b6d39",
+      "rows": "aa97cb0beb2d0e931e7dfea2370979a91a4817bcb83306074a32e0eafa95d59a",
+      "seats": [
+        1,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "handId": "SD27208824",
+      "index": 3,
+      "phf": "61fddb74c3c6d53d5c698d1788baaecb0949daf3e1c3c8f8c67ff9fd618d8940",
+      "rows": "635c0e8ee99a70ad7fd6336193b5a4df6b9dfc18a8226223db39e27f110fa5fb",
+      "seats": [
+        1,
+        2,
+        3,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 4199,
+    "path": "fixtures/samples/ggpoker/11-fpdb3-cash-nl-shortdeck-5max-usd-0-2-202103.txt",
+    "sha256": "7c27a290221010c24b7e1d09d7b8a278644d0dbe8602d4c9a030f2c31e190967"
+  },
+  "rows": 16,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 2,
+    "bet_turn": 1,
+    "call_flop": 2,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 2,
+    "check_turn": 3,
+    "contributed": 152,
+    "donk_flop": 1,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 5,
+    "fold_flop": 1,
+    "fold_turn": 1,
+    "hands": 16,
+    "iso": 1,
+    "iso_opp": 4,
+    "limp": 3,
+    "limp_opp": 13,
+    "net": -9,
+    "net_bb_milli": -4500,
+    "pfr": 1,
+    "pfr_opp": 14,
+    "rake_paid": 9,
+    "rfi_opp": 10,
+    "river_seen": 2,
+    "three_bet_opp": 1,
+    "turn_seen": 4,
+    "vpip": 4,
+    "vpip_opp": 14,
+    "won": 143,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 5,
+    "wwsf": 2,
+    "wwsf_opp": 5
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "33727950903",
+      "index": 0,
+      "phf": "fa1e7829cdf5f6384f9d7f2a00fe0dd2464afefd3218712cecc90f250db44928",
+      "rows": "b85184254933bff50136c1d4b7d5502830cf13b0ff85141ff14615dc2cdde0a1",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 689,
+    "path": "fixtures/samples/full-tilt/01-cash-nlhe-headsup-basic.txt",
+    "sha256": "94b91a03e7408c89656fbd471c7fc93206722c49a3cbabb73c94d3892b6c8d69"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 4000,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -50,
+    "net_bb_milli": -50,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 50,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 3950,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

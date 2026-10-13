@@ -1,0 +1,155 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD75426051",
+      "index": 0,
+      "phf": "68da333ddaa1c43367c5f37a74b8480c6105264a1280220f766f194c7fb0c241",
+      "rows": "01260931880c22f0d6ef5ee06a7338a2307fcca953f8f2d9b8c94ac752324f8b",
+      "seats": [
+        2,
+        4,
+        5,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75426056",
+      "index": 1,
+      "phf": "bbd4aa3df8e84887332ee1ab91fa35c7da0742f51be1987889f8b43631231ae1",
+      "rows": "6e2015c1607c6a06bb653e0577888e27f8fa670d5ca9804eb13987b7d4f0f667",
+      "seats": [
+        2,
+        4,
+        5,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75426076",
+      "index": 2,
+      "phf": "8cb1090b5c2a971302a580c7d644fb297f92352db1a48f23f270eb98af3f6942",
+      "rows": "f09c098fc00ace1e21490ac38dc141724dcd2f73475139b1740ce730bc749d56",
+      "seats": [
+        2,
+        4,
+        5,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75426106",
+      "index": 3,
+      "phf": "168c75f660b7d3b22d5c9e78be20e17df80dba45de29464bf1efacbc2b5871cb",
+      "rows": "652b2b198bf4c2e11832cecea431da6b810259e4e7bb6a820db089d805aafb9a",
+      "seats": [
+        2,
+        4,
+        5,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75426140",
+      "index": 4,
+      "phf": "6ad560d793ee431ffd7c26e14d8231b2481e252f51cf8bbcd8fbb23c28a4a89a",
+      "rows": "37889fb25adbb3cd4bbe3debd3239fde3506400e2b400589c1a404af36623bed",
+      "seats": [
+        2,
+        4,
+        5,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75426173",
+      "index": 5,
+      "phf": "0225b29653e4a7006067d1e1c2f145cdf3c0b2b1e9d05e9f7e80ae2fd4a1cddd",
+      "rows": "61ddb54752680538fb611ab7da9f41e861513ff6fed9baf6d5c8fca6233b4c80",
+      "seats": [
+        4,
+        5,
+        8
+      ]
+    },
+    {
+      "handId": "HD75426180",
+      "index": 6,
+      "phf": "c0be3175442dfab2fece480cec00f63c97801be94073e54348b34fd693f06e44",
+      "rows": "3a4e92ba9ae1f01ceec5b07ac64f2ca9b3c0ae1156e7078897904e739f20ea5a",
+      "seats": [
+        5,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 7070,
+    "path": "weplay-hh/kole1992/HH20260211 Niš Bomb Pot (3BB-5BB) #2 (#11620802) - $0.50-$1 - Money 3 No Limit Hold_em.txt",
+    "sha256": "a682027f92f6f50f0bf5a1851b46244a479b59c21a46d0e76162c74e68f224a9"
+  },
+  "rows": 30,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 2,
+    "bet_river": 1,
+    "bet_turn": 3,
+    "call_flop": 1,
+    "call_steal": 2,
+    "call_turn": 2,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 3,
+    "check_flop": 9,
+    "check_raise_flop_opp": 4,
+    "check_raise_turn_opp": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "cold_call": 2,
+    "cold_call_opp": 7,
+    "contributed": 9625,
+    "donk_flop_opp": 3,
+    "donk_river_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 13,
+    "fold_flop": 5,
+    "fold_river": 1,
+    "fold_to_cbet_flop": 2,
+    "fold_to_cbet_flop_opp": 2,
+    "fold_to_steal_opp": 2,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "fold_turn": 2,
+    "four_bet_opp": 3,
+    "hands": 30,
+    "limp_opp": 8,
+    "net": -458,
+    "net_bb_milli": -4580,
+    "pfr": 5,
+    "pfr_opp": 23,
+    "rake_paid": 458,
+    "rfi": 4,
+    "rfi_opp": 8,
+    "river_seen": 4,
+    "squeeze": 1,
+    "squeeze_opp": 5,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet": 1,
+    "three_bet_opp": 14,
+    "turn_seen": 7,
+    "vpip": 10,
+    "vpip_opp": 23,
+    "won": 9167,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 13,
+    "wwsf": 4,
+    "wwsf_opp": 13
+  }
+}

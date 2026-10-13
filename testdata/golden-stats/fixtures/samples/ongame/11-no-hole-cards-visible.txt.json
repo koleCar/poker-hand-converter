@@ -1,0 +1,52 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361920831-66",
+      "index": 0,
+      "phf": "b9e2ed8f674f95f6e6419b619035f94b78afeaffdfd00ccad3756eab25d085a7",
+      "rows": "6504b49ea3d7cd9b295b966c00ce912c65ce169ac402e532051ebce3eed66ee8",
+      "seats": [
+        2,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 766,
+    "path": "fixtures/samples/ongame/11-no-hole-cards-visible.txt",
+    "sha256": "5d47aba15e33293fe7d7e0f638970522fa351b5c977e7e4dda0dacc1f9b9568e"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 600,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 3,
+    "limp_opp": 2,
+    "net": -30,
+    "net_bb_milli": -300,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rake_paid": 30,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 570,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

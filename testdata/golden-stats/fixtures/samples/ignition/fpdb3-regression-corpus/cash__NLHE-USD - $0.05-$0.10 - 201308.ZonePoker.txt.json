@@ -1,0 +1,42 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2731348653",
+      "index": 0,
+      "phf": "02ced73dcce65ea3e220d9630f20ebaf6ec11ebcf5e1ccdd2537a14407a33fd0",
+      "rows": "8ccf3713958bc00dc12e109596cdb3844739af42d8761206e2ca6baa54349611",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1357,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD - $0.05-$0.10 - 201308.ZonePoker.txt",
+    "sha256": "e0efbbc75d90c3943c9415d82deb8c7cc3cf5098f58c03a541a7b87e7b405335"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 35,
+    "hands": 6,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi_opp": 2,
+    "three_bet_opp": 4,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 35
+  }
+}

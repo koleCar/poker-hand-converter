@@ -1,0 +1,44 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "255722012",
+      "index": 0,
+      "phf": "86b19c3584299127e2fa36dfb392ec1935c2ea3921eedd1578234be2a9068ef4",
+      "rows": "447aa9751957a4793a5984d875933b3b29ce0de7faf335aeeaada26581ffd622",
+      "seats": [
+        1,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1176,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_Tables_Table4.txt",
+    "sha256": "354026808b7578a37fc2b625cfe8472bd419daae54b74ce32af0c110096f9d58"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 7500,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 3,
+    "hands": 4,
+    "limp_opp": 1,
+    "pfr": 2,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 7500
+  }
+}

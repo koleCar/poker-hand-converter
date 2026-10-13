@@ -1,0 +1,110 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "4370494854",
+      "index": 0,
+      "phf": "aab320ac3027900a5808cea134c37ea6f1d735780a8354ab6fa0db661a755a23",
+      "rows": "009a6a4b0b5e6d3da5bd32a826e8cfffdf6053d8c42c967bafc7dfdba07f5fc6",
+      "seats": [
+        25,
+        43,
+        53,
+        56,
+        181,
+        208,
+        225,
+        242
+      ]
+    },
+    {
+      "handId": "4370495444",
+      "index": 1,
+      "phf": "bb1851209f986a33449512124ac21c7d0752eef8b839ed43ba117172c949c004",
+      "rows": "4601ab57ed7bdca0a025a0ae032ddbdf7ec6eda50dd06fe93582689cfe5ae48b",
+      "seats": [
+        25,
+        43,
+        53,
+        56,
+        181,
+        208,
+        225,
+        242
+      ]
+    },
+    {
+      "handId": "4370495877",
+      "index": 2,
+      "phf": "51bf157bc6898e75e1e881442cd35ed13198c58e6b14ac03a025ed5af5db39aa",
+      "rows": "28d2bc824b045ff188f0a856bc961d094e503a59aa3c1c11c2a809d986e2ecf9",
+      "seats": [
+        25,
+        43,
+        53,
+        56,
+        181,
+        208,
+        225,
+        232,
+        242
+      ]
+    },
+    {
+      "handId": "4370496336",
+      "index": 3,
+      "phf": "fb9ce39837f7a803f40488a8eee7a1653a80649d1a23b98a51c15926bdd32d63",
+      "rows": "e401fca7af8d97c56cf8d3152adb44fad108aea27206e61c85b17830bb959aa9",
+      "seats": [
+        25,
+        43,
+        53,
+        56,
+        181,
+        208,
+        225,
+        232,
+        242
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 6911,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - SMPO Super Duper High Roller No.145 - $150.000 Gtd - $1,000-$55 - 202108.txt",
+    "sha256": "aced36c11fa6135f97b721c95b5cfefd77cd7f2c149b64a8e93b1751e8efb3d2"
+  },
+  "rows": 34,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 8,
+    "contributed": 71400,
+    "flop_seen": 2,
+    "fold_to_steal": 4,
+    "fold_to_steal_opp": 4,
+    "four_bet_opp": 1,
+    "hands": 34,
+    "iso": 1,
+    "iso_opp": 8,
+    "limp": 2,
+    "limp_opp": 20,
+    "pfr": 5,
+    "pfr_opp": 34,
+    "rfi": 3,
+    "rfi_opp": 12,
+    "river_seen": 2,
+    "steal": 2,
+    "steal_opp": 4,
+    "three_bet": 1,
+    "three_bet_opp": 15,
+    "turn_seen": 2,
+    "vpip": 6,
+    "vpip_opp": 34,
+    "won": 71400,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

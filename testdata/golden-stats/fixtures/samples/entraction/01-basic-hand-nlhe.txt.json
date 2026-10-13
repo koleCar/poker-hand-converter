@@ -1,0 +1,55 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646539198",
+      "index": 0,
+      "phf": "39dbadda2e71b4ac4d93cad60f56efa662ce1e59187a19c4a9d91e2aa144e51c",
+      "rows": "95396a092ff429c889daf0b9859339e42d9a8bb89b502460680195ad01bc35ef",
+      "seats": [
+        3,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1129,
+    "path": "fixtures/samples/entraction/01-basic-hand-nlhe.txt",
+    "sha256": "9a93a7c8bb26871cfb7ee324d5e6277659e88f0b9fe9b01de4cefb5cb36e2b2f"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_turn": 2,
+    "contributed": 2800,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "net": -75,
+    "net_bb_milli": -1500,
+    "pfr_opp": 2,
+    "raise_river": 2,
+    "rake_paid": 75,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 2725,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

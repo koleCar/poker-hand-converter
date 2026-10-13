@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383708755",
+      "index": 0,
+      "phf": "449a114aff3ff9f603be63d407e4b638cf7fc50341a929d9efeb4dea8c33bcd1",
+      "rows": "4ff97a60c52acf90e5c6af01ac111b7efa48fe7d4f35b208cabe479825a97ebc",
+      "seats": [
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1524,
+    "path": "fixtures/samples/ipoker/13-fixed-limit-holdem.xml",
+    "sha256": "fa16d2ff331c2bec7e1d5d8c9834163f01ba9db93f480ddbf65b54ef7e5f4a4a"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 500,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 500
+  }
+}

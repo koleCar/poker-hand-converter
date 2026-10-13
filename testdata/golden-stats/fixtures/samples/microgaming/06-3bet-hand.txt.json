@@ -1,0 +1,47 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049092880",
+      "index": 0,
+      "phf": "17ea51f3a2a99fb1fa7e2b6ac70e2744c6cdd71f9e9a4d7129c7333b56a218f1",
+      "rows": "aed14953af99e3ce033c3f466b9860b31abe41ff6156de83cd14fff91e3b32f5",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1823,
+    "path": "fixtures/samples/microgaming/06-3bet-hand.txt",
+    "sha256": "56b97867d547df4837c2e32e72b95d8f31d34ca8a877efb3b464e2701fc6c5d7"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 14,
+    "fold_to_steal_opp": 1,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 6,
+    "limp_opp": 5,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "three_bet_vs_steal": 1,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 14
+  }
+}

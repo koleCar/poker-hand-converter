@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-987654",
+      "index": 0,
+      "phf": "9d97fcd3f8bd51d0c58ff90975b38344e8aed932405f19da246ff03a17f8e95f",
+      "rows": "bf681ef0d3ed03254078d3a871d13db207b6247fd15f1b4d9ab43ceb49e04be2",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1945,
+    "path": "fixtures/samples/ipoker/05-dataminer-format-variant.xml",
+    "sha256": "7f603834294cb2d3a18ed1f2c0215c7584acda4e24b6434200b74830975ea9ba"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_steal": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 4500,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 5,
+    "limp_opp": 3,
+    "net": -225,
+    "net_bb_milli": -225,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 225,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 4275,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

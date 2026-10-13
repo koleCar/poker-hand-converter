@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2635,
+    "path": "fixtures/samples/merge/03-pot-limit-omaha.txt",
+    "sha256": "83955a7f9ab0438cbe91c0eee20ab7268f5310be3677bb07975031fc85af1874"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

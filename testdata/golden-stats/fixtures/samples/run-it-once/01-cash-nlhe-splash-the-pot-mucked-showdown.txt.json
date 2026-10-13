@@ -1,0 +1,46 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "30266126",
+      "index": 0,
+      "phf": "de833678aece9b0b9eb5a33b7c0c99fc58100751f6c29e6b34a10d0e2d0dc269",
+      "rows": "4b3b5e0597a10da9331359b09833d79a53115f411535aab13567cd906736d08b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1203,
+    "path": "fixtures/samples/run-it-once/01-cash-nlhe-splash-the-pot-mucked-showdown.txt",
+    "sha256": "872c2af3c75baa63bc86f6c689be312294d70ec7c4017d90f3219e7d1bcf0dba"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "contributed": 25,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 5,
+    "iso_opp": 4,
+    "limp": 1,
+    "limp_opp": 4,
+    "net": 46,
+    "net_bb_milli": 4600,
+    "pfr_opp": 5,
+    "rake_paid": 4,
+    "rfi_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 5,
+    "won": 71,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

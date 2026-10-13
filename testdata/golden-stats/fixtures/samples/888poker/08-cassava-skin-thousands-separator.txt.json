@@ -1,0 +1,39 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-184089742",
+      "index": 0,
+      "phf": "4965a5cff6e1f99a4352a4585b235393807788381243bec438f60365eaeaba0e",
+      "rows": "4d35f682ece0d95c985fe63240de79173084b154f7ae94e96f5bd16afc94dc5d",
+      "seats": [
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 511,
+    "path": "fixtures/samples/888poker/08-cassava-skin-thousands-separator.txt",
+    "sha256": "c4347fab54811781819f7b720c39889d2444ef5f0b9da9913e7037e3d4d1b146"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 20000,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 2,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 20000
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2703545521",
+      "index": 0,
+      "phf": "2dc2bb6e992710db25d8fc5f173622d7a439562843e41bd44f5e52d95ecedee9",
+      "rows": "3b3bbbea80b71ce4a2e9a6ce20cd3180b1788ca0fbf3be4b47f97f6bdd9e2b1c",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1402,
+    "path": "fixtures/samples/entraction/05-five-card-pot-limit-omaha.txt",
+    "sha256": "f91e8cca6fb3a39aed820dde487fdd72e57a7f7d95f2c2603df42c3857788979"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_river": 2,
+    "check_turn": 2,
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 1265,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 4,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -63,
+    "net_bb_milli": -3150,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "rake_paid": 63,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 5,
+    "won": 1202,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

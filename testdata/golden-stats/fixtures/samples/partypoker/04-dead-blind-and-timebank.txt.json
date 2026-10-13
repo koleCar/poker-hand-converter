@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-14507003662",
+      "index": 0,
+      "phf": "a52ef4566c2173c6903379a3449c66cbf1ed269c753f19f45e0bf5f48159867b",
+      "rows": "5565fc2532adc9ad4c2b9186ff14a2bb61c22a3b76c3e6fc0f6992cf7d459b4b",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1306,
+    "path": "fixtures/samples/partypoker/04-dead-blind-and-timebank.txt",
+    "sha256": "5bc95feb6d588c4f29773511b24509b97e273f3d76293bbd77d6a4f259a3122f"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "call_turn": 1,
+    "check_river": 2,
+    "cold_call_opp": 1,
+    "contributed": 5224,
+    "donk_flop": 1,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 5,
+    "limp_opp": 2,
+    "net": -261,
+    "net_bb_milli": -1305,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 261,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 4963,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

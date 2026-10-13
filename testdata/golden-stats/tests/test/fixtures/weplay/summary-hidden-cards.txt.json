@@ -1,0 +1,57 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD83820277",
+      "index": 0,
+      "phf": "2d31185b33beeaeb558c910bcad2068fcc31e51dfcd9ed17bae67ff3fca93ac8",
+      "rows": "b89185543329a4744e5eca3e1ebf438a9fec1c8ba2bd06f8d26342c1d22df614",
+      "seats": [
+        2,
+        3,
+        4,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1319,
+    "path": "tests/test/fixtures/weplay/summary-hidden-cards.txt",
+    "sha256": "5c3f8113bff6e9d8ec5c346946300ceaa9484c9c4508d062d925867d1b1f5285"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_steal": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 764,
+    "flop_seen": 2,
+    "fold_to_steal_opp": 1,
+    "hands": 4,
+    "limp_opp": 3,
+    "net": -38,
+    "net_bb_milli": -380,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rake_paid": 38,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 726,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

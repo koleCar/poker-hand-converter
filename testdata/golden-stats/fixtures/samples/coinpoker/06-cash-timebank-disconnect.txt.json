@@ -1,0 +1,70 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "352025868",
+      "index": 0,
+      "phf": "eca8d561c8fdb415061fa198ea2a9642c61f562ed6f4164f259d43f96d3491b5",
+      "rows": "1fd34af821ef14562206db9da656979dbe20e6adb5f7d902be988841c52f34a3",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1443,
+    "path": "fixtures/samples/coinpoker/06-cash-timebank-disconnect.txt",
+    "sha256": "e4cf693e216a746c6e361b4be661ba3b30cdc6346d1b84058409b3578d4398ba"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 48,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "net": -2,
+    "net_bb_milli": -1000,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 2,
+    "rfi": 1,
+    "rfi_opp": 4,
+    "river_seen": 2,
+    "squeeze_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 46,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

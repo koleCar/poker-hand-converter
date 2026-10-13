@@ -1,0 +1,67 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OM1171200",
+      "index": 0,
+      "phf": "bebe1e9364205063dd2c3eb8cab64c71368a6ba9d19f7443f1e1c5dc877f57d0",
+      "rows": "77a2abcf65f43c3b1f141742b2a10b7fc15d66642185c71a268e0f9fa4be1d19",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1358,
+    "path": "fixtures/samples/ggpoker/25-fpdb3-cash-plo5-6max-usd-25-50-20210411.txt",
+    "sha256": "9bf434cede216869a6ac7fcfab05d476174228dd8f7d0068acb3eceff5551f42"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_flop": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_turn": 2,
+    "cold_call_opp": 3,
+    "contributed": 279660,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 3,
+    "hands": 6,
+    "limp_opp": 1,
+    "net": -5000,
+    "net_bb_milli": -1000,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 5000,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 274660,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

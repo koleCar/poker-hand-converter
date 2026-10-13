@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049160112",
+      "index": 0,
+      "phf": "d7135d0831601406cc04360710a3f2090c82c9e0d8511ba4501b720fc4b27250",
+      "rows": "660bfe73abe141ede1d8d4fe597f352ae14746e33f6df9be92c42226c01d6aae",
+      "seats": [
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2953,
+    "path": "fixtures/samples/microgaming/04-pot-limit-omaha-hilo.txt",
+    "sha256": "a99ee14bc9e3932846696fca16612c11c834c4e1ba011a37f8161d3c9d49a5cf"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "check_flop": 3,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 3,
+    "contributed": 356,
+    "flop_seen": 4,
+    "fold_flop": 2,
+    "hands": 4,
+    "iso_opp": 3,
+    "limp": 3,
+    "limp_opp": 3,
+    "net": -10,
+    "net_bb_milli": -5000,
+    "pfr_opp": 4,
+    "raise_flop": 1,
+    "rake_paid": 10,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "steal_opp": 1,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 4,
+    "won": 346,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 4,
+    "wwsf": 2,
+    "wwsf_opp": 4
+  }
+}

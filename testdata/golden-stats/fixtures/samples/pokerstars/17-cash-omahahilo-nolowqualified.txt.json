@@ -1,0 +1,57 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109707013172",
+      "index": 0,
+      "phf": "74483e6f3d4e807ef457ec9cc78397efc31fa644409e96f32d63ffaa741885cf",
+      "rows": "88823511976e4ff8d03c81945bc228720a49efef51c142da03e495e0ed9c72a7",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1499,
+    "path": "fixtures/samples/pokerstars/17-cash-omahahilo-nolowqualified.txt",
+    "sha256": "e1de4f35cf528a6c6bfde37b94b14ff5241e89ecd0ca8a9796ff8f1c1e5ec23b"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_turn": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 1782,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "hands": 5,
+    "iso_opp": 4,
+    "limp": 2,
+    "limp_opp": 4,
+    "net": -76,
+    "net_bb_milli": -7600,
+    "pfr_opp": 5,
+    "raise_flop": 2,
+    "rake_paid": 76,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 1706,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

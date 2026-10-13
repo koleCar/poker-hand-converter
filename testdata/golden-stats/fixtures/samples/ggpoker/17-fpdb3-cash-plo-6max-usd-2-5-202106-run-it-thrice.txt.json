@@ -1,0 +1,66 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OM260919438",
+      "index": 0,
+      "phf": "b957d1b94b5b152a9c103f72758bac86dede13bf605ace27590c71be3e1453c3",
+      "rows": "8b917b8310000223d0a9c58c01bf7c2a6f71edba1d0cf9ef46d1062072f351e2",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1801,
+    "path": "fixtures/samples/ggpoker/17-fpdb3-cash-plo-6max-usd-2-5-202106-run-it-thrice.txt",
+    "sha256": "bb869ca222bf60ee50963b0b1a79577528fd2738381b62ba571408964138195d"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cold_call_opp": 1,
+    "contributed": 32780,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 2,
+    "hands": 5,
+    "limp_opp": 2,
+    "net": -1250,
+    "net_bb_milli": -2500,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 1250,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 31530,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

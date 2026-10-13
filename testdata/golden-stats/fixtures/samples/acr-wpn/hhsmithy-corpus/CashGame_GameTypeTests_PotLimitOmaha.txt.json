@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "262003062",
+      "index": 0,
+      "phf": "17e999ec01b91a93815e57f3d3c1bace7ad7563e38284a32d8ba074619b1b736",
+      "rows": "bec9fc4358708004da38a4959d72f0ffa242e95ca2176c756cd08d101a55e58f",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 834,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt",
+    "sha256": "a0c7af777f503a16620ec0c9f3257116f91a34af9a9451054e985d95c3b90edc"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 100,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 100
+  }
+}

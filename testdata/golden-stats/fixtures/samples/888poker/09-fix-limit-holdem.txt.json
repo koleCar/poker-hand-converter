@@ -1,0 +1,52 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-280096744",
+      "index": 0,
+      "phf": "6ffa88be5dfed094ed3679a2a39ca88248d9d079b5bf3ab431753eee53d93a21",
+      "rows": "1b73010c74b25ce6a31d6205f0098ab8afb22140b407abc8ef6552e9f25b33db",
+      "seats": [
+        4,
+        6,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 658,
+    "path": "fixtures/samples/888poker/09-fix-limit-holdem.txt",
+    "sha256": "f9b9a36b84e1677108e3eb682864dccb89b60b66dcd557fa04468272cd73d655"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_steal": 1,
+    "contributed": 380,
+    "flop_seen": 2,
+    "fold_to_steal_opp": 1,
+    "hands": 3,
+    "limp_opp": 2,
+    "net": -19,
+    "net_bb_milli": -190,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rake_paid": 19,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 361,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3534392210",
+      "index": 0,
+      "phf": "4fe2e042c3a34f352b9b6ace226a4a29fc1cca314acf8d4f1101ec9d7f8a6f9e",
+      "rows": "2cc4cecfbbfd84cd95e4d8b2c876d086b28d02004f30efe5605444510baf0cc8",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "3534392764",
+      "index": 1,
+      "phf": "64062ce17efd0a07dd61c5add5f7ab8ef200126123a5e142f614dc4608824556",
+      "rows": "600d27e6ed52434d57212a65a996ca45310f26879b807792f55dfdef7e073d46",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "3534392956",
+      "index": 2,
+      "phf": "c94f1275cb091282787bed9678486c68f160a27990c507aa6ddd75193e43fec3",
+      "rows": "82c654860e7738072f9a0b4d57c434efe2c6d24936d8725442ee93509ef457f3",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 3936,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-6max-USD-STT - Hyper Turbo (500 Chips) - $25-$1.25 - 201706.txt",
+    "sha256": "61d23a2305d687c155c10486a0caacea7ce4f7db963ad9f3dff1f2b8d183fd1b"
+  },
+  "rows": 18,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 2,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "cold_call_opp": 2,
+    "contributed": 400,
+    "donk_turn_opp": 1,
+    "flop_seen": 3,
+    "fold_turn": 2,
+    "hands": 18,
+    "iso": 1,
+    "iso_opp": 4,
+    "limp": 1,
+    "limp_opp": 11,
+    "pfr": 3,
+    "pfr_opp": 18,
+    "rfi": 2,
+    "rfi_opp": 7,
+    "squeeze_opp": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 8,
+    "turn_seen": 3,
+    "vpip": 5,
+    "vpip_opp": 18,
+    "won": 400,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

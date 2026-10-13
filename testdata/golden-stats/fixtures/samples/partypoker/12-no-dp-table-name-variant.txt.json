@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-11617233792",
+      "index": 0,
+      "phf": "a67ec38626223fdf39e556a76b6272085a0540819c39e7ac1f58a66bf9175fbc",
+      "rows": "f6d244e1f573a5aad8f3df87f2024972e3491df3bde86498479628234a030f22",
+      "seats": [
+        2,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 584,
+    "path": "fixtures/samples/partypoker/12-no-dp-table-name-variant.txt",
+    "sha256": "6d236f7011cc8af5cdb4d68e8a15fa0130d0bb3918fcc4654fed5023af09dfed"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 10000,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 10000
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5339611-1666-1383796425",
+      "index": 0,
+      "phf": "732ce3e31dae907ec6f89bed47601337d6f95060cdea1a57bdbf46f9b5baecd2",
+      "rows": "bff4c7af1ae14b5156fbccb538101c603708b39da6a592aad25ddf735dd13392",
+      "seats": [
+        1,
+        2,
+        3,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 605,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_HandActionTests_FoldedPreflop.txt",
+    "sha256": "340572cd3325575142cfa2467736d164a859846e03ce32a0584d40c86259ccbc"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 125,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "vpip": 1,
+    "vpip_opp": 4,
+    "won": 125
+  }
+}

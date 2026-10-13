@@ -1,0 +1,74 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD73831348",
+      "index": 0,
+      "phf": "1efc4706bb899593f4bed30cf736ca82b88aba5333676a1c1b8187b52d910c7d",
+      "rows": "e1014983507e6041095ffe29dc9695154bf230f7b7b461bc3932bcfa31f2a1ae",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73831422",
+      "index": 1,
+      "phf": "329b2c6ff84e685ec28b0bbc65db8eb28655061858ce256b2bd2929b1c3b133a",
+      "rows": "859d440bf1bb4b611e7c03d3fd3e73a0b6c96dcfe0cc514ca979d8176710fa1e",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 3743,
+    "path": "weplay-hh/kole1992/HH20260126 T11264971 (#1) No Limit Hold_em $50 + $5.txt",
+    "sha256": "9bdd819ccf94d108c2fb76a12b0b736192f1245a20ed543c178d31cbff397fd0"
+  },
+  "rows": 14,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_three_bet": 1,
+    "cold_call": 1,
+    "cold_call_opp": 4,
+    "contributed": 435898,
+    "flop_seen": 5,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 2,
+    "four_bet_opp": 6,
+    "hands": 14,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 6,
+    "pfr": 4,
+    "pfr_opp": 14,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "river_seen": 5,
+    "three_bet": 2,
+    "three_bet_opp": 5,
+    "turn_seen": 5,
+    "vpip": 6,
+    "vpip_opp": 14,
+    "won": 435898,
+    "wsd": 2,
+    "wsd_opp": 5,
+    "wtsd": 5,
+    "wtsd_opp": 5,
+    "wwsf": 2,
+    "wwsf_opp": 5
+  }
+}

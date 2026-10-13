@@ -1,0 +1,82 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "4294547312",
+      "index": 0,
+      "phf": "b21c62f12bc42000721c51f43798cafc539c093dc4893a3b8b797e03bdf3843f",
+      "rows": "5f5670bc19678142c172557cfaba8933d0bbf66d2a562e297b954b2a4a3d4982",
+      "seats": [
+        19,
+        20
+      ]
+    },
+    {
+      "handId": "4294547849",
+      "index": 1,
+      "phf": "4b9e61abcccb9bc7c33133e54a6a56677914da5a9bb35a73fc21b99ebddc88d6",
+      "rows": "44b5a986c6b8188015af65b5f1e69601334435c9c9f357b9c0f00f88cfb39ec1",
+      "seats": [
+        5,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "handId": "4294548239",
+      "index": 2,
+      "phf": "7144572dd146706199a6da5799c9937a169f3f597a971a861e3b9f340e338bf1",
+      "rows": "f2e1ad02d939eeb86d549fc84331ee177e779603dd12597c0c72d11fe5d6aefd",
+      "seats": [
+        5,
+        16,
+        18,
+        19,
+        20,
+        21
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2897,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - Monthly Milly Satellite 10 Seats Gtd (Turbo) - $55-$5 - 202105.txt",
+    "sha256": "009f34847a49111a0fc904adcadf865f3d4c47df451117e56fa4b8d284027874"
+  },
+  "rows": 12,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call_opp": 1,
+    "contributed": 250,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 3,
+    "fold_to_steal_opp": 4,
+    "hands": 12,
+    "limp_opp": 6,
+    "pfr": 2,
+    "pfr_opp": 11,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rfi": 2,
+    "rfi_opp": 6,
+    "steal": 2,
+    "steal_opp": 2,
+    "three_bet_opp": 5,
+    "vpip": 3,
+    "vpip_opp": 11,
+    "won": 250,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

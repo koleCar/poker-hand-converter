@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "41888200000",
+      "index": 0,
+      "phf": "56fee34f834ec53bfb46b3911049c9d4f2db9ce6e56179181cab1e2466531cae",
+      "rows": "30ec0e4923fbf8382a97e7428dbef570830d4622b404fe61998765787f4940e1",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1035,
+    "path": "fixtures/samples/pokerstars/35-tour-husng-nlhe-match-round-level.txt",
+    "sha256": "5c95f017026b104f04318821806a42efee5030475df0a2e61361088dfbf5532d"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_turn": 2,
+    "contributed": 2980,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "pfr_opp": 2,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 2980,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "33729180182",
+      "index": 0,
+      "phf": "d8c1a7a1def8fd73f9a772f34f9a9417eb8db2234b5a8091c336507e0524105d",
+      "rows": "612a803abdb9d0c87f85bb940effef69d11b93b61d84a29244b6aae177769ca4",
+      "seats": [
+        2,
+        3
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 713,
+    "path": "fixtures/samples/full-tilt/07-cash-flhe-fixed-limit-holdem.txt",
+    "sha256": "2c22a57563e3d22a814fcb7ba2310159520fa857e8dab19e4a4432ceb67fd188"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 30,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -1,
+    "net_bb_milli": -200,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 1,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 29,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

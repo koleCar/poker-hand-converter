@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13550918572",
+      "index": 0,
+      "phf": "c84b8f96cf845095d36d106d53ca7ac21fb683b8869bb5faec7fa293f405c427",
+      "rows": "3fbfd33d3b2225c2744f2358771c405cc9355e8f85655939957d8d66ad428360",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1090,
+    "path": "fixtures/samples/partypoker/08-omaha-hilo-split-pot.txt",
+    "sha256": "ffaffb6de6d34243cff92d3d68e92533e00bf006c5c6fee07c60ad9d59f7a011"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_four_bet": 1,
+    "contributed": 6050,
+    "five_bet_opp": 1,
+    "flop_seen": 2,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 5,
+    "limp_opp": 3,
+    "net": -300,
+    "net_bb_milli": -3000,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "raise_vs_three_bet": 1,
+    "rake_paid": 300,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 5750,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 2,
+    "wwsf_opp": 2
+  }
+}

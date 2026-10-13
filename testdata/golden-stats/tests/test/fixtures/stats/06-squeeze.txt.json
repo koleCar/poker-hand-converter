@@ -1,0 +1,47 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST06",
+      "index": 0,
+      "phf": "f0d65c61e6eac251c85139e31bca3877187f9e6dbc4288abce147540afccb5a6",
+      "rows": "7c3bbba6740722db07f1792b038e8f867d8b7720fe3b7747e2fa1463974cc8a7",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 850,
+    "path": "tests/test/fixtures/stats/06-squeeze.txt",
+    "sha256": "aaaaeaf4c3a953bc08ab9ea72cea5367bb7289b7200cf5c783224f6a6588ac3e"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call": 1,
+    "cold_call_opp": 3,
+    "contributed": 1050,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 4,
+    "hands": 6,
+    "limp_opp": 1,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze": 1,
+    "squeeze_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 3,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 1050
+  }
+}

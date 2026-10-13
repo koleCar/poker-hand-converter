@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "83504515230",
+      "index": 0,
+      "phf": "5323003995e1e96c323256b54602eb8ad61ad6222cc7434909435138abc573f0",
+      "rows": "183d8a994f512e1787e18dae0786b1520db4c75e2c0562072d4a934922387d1c",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1575,
+    "path": "fixtures/samples/pokerstars/05-cash-nlhe-playername-with-colon.txt",
+    "sha256": "b92ade50752ba4671d291df8d568656cf28092c45f422a69a1e1a441b781bd12"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 60,
+    "flop_seen": 2,
+    "hands": 9,
+    "iso_opp": 6,
+    "limp": 1,
+    "limp_opp": 8,
+    "net": -3,
+    "net_bb_milli": -120,
+    "pfr_opp": 9,
+    "rake_paid": 3,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 9,
+    "won": 57,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

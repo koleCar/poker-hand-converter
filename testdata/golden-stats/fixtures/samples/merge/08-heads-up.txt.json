@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1464,
+    "path": "fixtures/samples/merge/08-heads-up.txt",
+    "sha256": "b22428a787b749ed855ceff9d8570b32d5a51867b4ddfc69ba349514f38aa252"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

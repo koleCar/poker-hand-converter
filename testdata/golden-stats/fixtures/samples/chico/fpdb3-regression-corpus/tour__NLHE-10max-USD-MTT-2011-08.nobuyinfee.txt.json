@@ -1,0 +1,349 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-900218526",
+      "index": 0,
+      "phf": "861c6fc0ee61fdf14cff9afa0dda2b91a783e5a5e33b8bee750408b83f327140",
+      "rows": "fe0347c7f66814b07bbc2d0ae510c3fab89ad822947276660fe4b8be0d3059d2",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900219162",
+      "index": 1,
+      "phf": "da8f3f5396141982fe7ee462bced3072831f08f13817cf03565007f3f17af261",
+      "rows": "8e57a3364ae70694da1bd2e6a86b1a8361f33d7d75928c836c240fd3febb2105",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900219408",
+      "index": 2,
+      "phf": "61fb49be2b8115ccced39d191bbbc369f25871b0b537fe1bca86dcca09383320",
+      "rows": "dfb27194c9d41a82eec044c26adb2810a7d668669d08fa593e78492556562ea7",
+      "seats": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900219823",
+      "index": 3,
+      "phf": "8b58c0217710d07fd17eb7a540dc4f7a250dc43a82afe1cedb3b9baf7ece90ab",
+      "rows": "235386f6c391e768f615b7386582efdcd2b7ab11450c95b6f7924580c5fb25bb",
+      "seats": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900220209",
+      "index": 4,
+      "phf": "dfbae38fd9ea7004bf0fab393679e4c7ee61e686a3e81c21f4e3adef10ab27ea",
+      "rows": "772c4660529f4b3818f83e3565851b0b67c15e6775c1aa0dcc1f8225e9c9f740",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900220510",
+      "index": 5,
+      "phf": "2dc0e89a3f57816243855a00175a1b939451c72dd6c973e6df73cc66ab7b06fd",
+      "rows": "0f1c3bab2f20cf7c86701ff1d25eaaeab4399d948438d30a45a7d53e6afc1dd4",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900220684",
+      "index": 6,
+      "phf": "8399d62a6865e48161a9268dcac3d7384195e779b8f8eee3df7b2967bb1135ad",
+      "rows": "d4df327574a693d3bdfdf448ba6b2a8cbf7acceaff8d3e8756dc999b2c6675c1",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900220806",
+      "index": 7,
+      "phf": "cce2187ee2a9d1a36f382c68f004140ea8fb42baa4615151909a5052a2833992",
+      "rows": "d1f1e30994a1450f19fc6b0a46d3c6948758dd2e918ef6e2278f32fd320970e9",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900221098",
+      "index": 8,
+      "phf": "d704312b67ef20419b4dc3aafc71c426a81d60cb6f97b42e858e8abfec2c57a0",
+      "rows": "86781ac78f0e3d9fd8f97d4ef18e1b931bc8210436a3184a1aa049d1e05ff6c6",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900221194",
+      "index": 9,
+      "phf": "6a632af677b58e0f759d1faab7ba5bb1d96487c406cda1c9a233f81e5c7a7200",
+      "rows": "1ff8f656181d9e5b403a725b78580c509037b459c7ee9e12c51a4424ad5bb775",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900221545",
+      "index": 10,
+      "phf": "90b23bd1212590b9b365b49be0568153126eb0945b3bbae09f80dea90530dcb9",
+      "rows": "2957c4d15196a97b1b22a87d8c909f9d426da29891f037aec0de312f5abbf40f",
+      "seats": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900221873",
+      "index": 11,
+      "phf": "2d61f6aa61a34a46f710ed4bb827d5b622c0093425ae88708610b9e856b193b1",
+      "rows": "5291605d5c03c510d1234431de9e8833d56002f989363cd5d48b69de999034eb",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900222217",
+      "index": 12,
+      "phf": "7c2241fce2d3fdfa8731a0a29f84da6ee8937e9f73c8ea9d15ce2fab56eb9cda",
+      "rows": "bd0dfcbac0d40b990a55f5d4c72a3497f031e7a4d44a4d91b00dc6aa179050af",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900222500",
+      "index": 13,
+      "phf": "dc883ffd49bd561161394c47cfb538234efd53a52b67e1d5c6a6e72eebdde1c0",
+      "rows": "fb1b3f97c503331979575ef7c2408e324db87d28b82701d656db389efbaa2a96",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900222789",
+      "index": 14,
+      "phf": "182aca20299a5d0af1b657640577151c0d3c0de3555615c98471b09e47048e7e",
+      "rows": "174a2d69d09c4a9c85cab59769e5fcc987806a3fd32f61e4e010dee221c100d5",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-900223168",
+      "index": 15,
+      "phf": "6f17dc21f09a8ebb7d079f8d0c68b84407278a8dcf1a8baea2cda0a67502231c",
+      "rows": "328437bdd90f6dca6f9f635dc81dfdbbfdc8fb09f980d103e953fb441c18a914",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 25023,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-2011-08.nobuyinfee.txt",
+    "sha256": "a901a96bf90299af72757e968c8b3a45a443b996377e4a98dcc9e38e06d2369e"
+  },
+  "rows": 152,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 4,
+    "bet_river": 3,
+    "bet_turn": 5,
+    "call_cbet_flop": 1,
+    "call_cbet_turn": 1,
+    "call_flop": 3,
+    "call_turn": 2,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 2,
+    "cbet_river": 1,
+    "cbet_river_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 18,
+    "check_raise_flop_opp": 2,
+    "check_raise_turn_opp": 3,
+    "check_river": 5,
+    "check_turn": 13,
+    "cold_call_opp": 10,
+    "contributed": 4920,
+    "donk_flop_opp": 1,
+    "donk_turn": 1,
+    "donk_turn_opp": 2,
+    "flop_seen": 27,
+    "fold_flop": 2,
+    "fold_river": 5,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_river": 1,
+    "fold_to_cbet_river_opp": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_turn": 5,
+    "hands": 152,
+    "iso": 5,
+    "iso_opp": 70,
+    "limp": 24,
+    "limp_opp": 127,
+    "pfr": 6,
+    "pfr_opp": 150,
+    "raise_flop": 1,
+    "raise_river": 1,
+    "rfi": 1,
+    "rfi_opp": 60,
+    "river_seen": 15,
+    "steal_opp": 7,
+    "three_bet_opp": 26,
+    "turn_seen": 24,
+    "vpip": 30,
+    "vpip_opp": 150,
+    "won": 4920,
+    "wsd": 3,
+    "wsd_opp": 7,
+    "wtsd": 7,
+    "wtsd_opp": 27,
+    "wwsf": 11,
+    "wwsf_opp": 27
+  }
+}

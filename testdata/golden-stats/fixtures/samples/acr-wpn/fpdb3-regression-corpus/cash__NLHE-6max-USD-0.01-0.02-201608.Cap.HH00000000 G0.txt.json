@@ -1,0 +1,85 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "698338917",
+      "index": 0,
+      "phf": "edb425d2f1bf7fc882d212f35f68b27639f6fffcc8a20af577ed240d5de6797c",
+      "rows": "c3c465048747371fc01aee60dc07c3d79314fddeb9b8fb01d5a659b1a49316d8",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "698339423",
+      "index": 1,
+      "phf": "e144886e679e4bb74e7df4e9636a5da3d8bb4a7c4f49bbb4b67c577c6b81d94f",
+      "rows": "9d48890b4e3d399f9fc8c92070b2e4161a3a698ea48f5a6355ddc6bd238e4e70",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "698339630",
+      "index": 2,
+      "phf": "6851c7f3b972096b2508e72b1248d343cba985a79120bb2801e577ac5c127a87",
+      "rows": "3517bd864c2735304be966bc33b4184649f62f7a0a0053d8f1959fd14a9bf35b",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 8593,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-USD-0.01-0.02-201608.Cap.HH00000000 G0.txt",
+    "sha256": "c24c507b445c9baa3542547eacac7e40aeca226e86a4d496588c179f1c5e7f03"
+  },
+  "rows": 15,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 2,
+    "call_steal": 3,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_flop_opp": 2,
+    "cold_call_opp": 2,
+    "contributed": 29,
+    "donk_flop": 1,
+    "donk_flop_opp": 3,
+    "flop_seen": 5,
+    "fold_flop": 3,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 4,
+    "hands": 15,
+    "limp_opp": 8,
+    "pfr": 2,
+    "pfr_opp": 14,
+    "rfi": 2,
+    "rfi_opp": 8,
+    "squeeze_opp": 1,
+    "steal": 2,
+    "steal_opp": 5,
+    "three_bet_opp": 6,
+    "vpip": 5,
+    "vpip_opp": 14,
+    "won": 29,
+    "wtsd_opp": 5,
+    "wwsf": 2,
+    "wwsf_opp": 5
+  }
+}

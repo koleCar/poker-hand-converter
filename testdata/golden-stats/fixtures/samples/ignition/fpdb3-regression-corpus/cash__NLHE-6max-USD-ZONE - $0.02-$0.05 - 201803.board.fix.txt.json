@@ -1,0 +1,71 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3581708086",
+      "index": 0,
+      "phf": "2d1990caf3deda171140f042a413ac4ec4d7a70f81c39dd2c739f2a9d7ba624d",
+      "rows": "27b18f5e7857b2132a6c8e6f77688bd29e512856056587b0fa7f1d2e2d917450",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1435,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-6max-USD-ZONE - $0.02-$0.05 - 201803.board.fix.txt",
+    "sha256": "9f69bd18f4ec5218b4460e20831a6a2390b7f992ab6e024aaf0a6e70870a2023"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_three_bet": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_river_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 1,
+    "check_turn": 1,
+    "contributed": 546,
+    "donk_flop_opp": 1,
+    "donk_river_opp": 1,
+    "flop_seen": 2,
+    "fold_to_steal_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 6,
+    "limp_opp": 5,
+    "net": -27,
+    "net_bb_milli": -5400,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "rake_paid": 27,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 519,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

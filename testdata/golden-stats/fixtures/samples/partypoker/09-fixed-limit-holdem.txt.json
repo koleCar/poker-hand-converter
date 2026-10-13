@@ -1,0 +1,46 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13549974403",
+      "index": 0,
+      "phf": "af1887f9dd2a9fc8ef16412199ab2806f998fa6b17ddb7799b9843de4ce76bce",
+      "rows": "4d7e70c65b1ff6bf22f351e896d727cce163484d34b798fefdff8fd0eb9a7ec3",
+      "seats": [
+        1,
+        2,
+        3,
+        6,
+        8,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 786,
+    "path": "fixtures/samples/partypoker/09-fixed-limit-holdem.txt",
+    "sha256": "5d1da477216ea57d682a256d1d9e9c209d776dfcff2daba6e7c8227f08291b7f"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 12,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 6,
+    "iso_opp": 5,
+    "limp": 1,
+    "limp_opp": 5,
+    "pfr_opp": 6,
+    "rfi_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 12,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

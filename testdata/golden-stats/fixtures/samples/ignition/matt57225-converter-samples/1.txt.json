@@ -1,0 +1,36 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3589791199",
+      "index": 0,
+      "phf": "e43d49fc695246ad7a0f1fcd1e8b6ae618d3f4d5d1ee13c0f4a18412cdb34d2e",
+      "rows": "df75b8785e7c5b92e118845e841eca3bb150fa4489600903011d23c2d211eece",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1283,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/1.txt",
+    "sha256": "0ea39729fcb3a42ae8202917b96bce6a883fecacf9223259ac993a2ad836e87d"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 75,
+    "hands": 6,
+    "limp_opp": 5,
+    "pfr_opp": 5,
+    "rfi_opp": 5,
+    "steal_opp": 3,
+    "vpip_opp": 5,
+    "won": 75
+  }
+}

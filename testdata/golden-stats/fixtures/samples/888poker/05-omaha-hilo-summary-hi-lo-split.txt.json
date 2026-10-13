@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-441695827",
+      "index": 0,
+      "phf": "ce663844e8933e6454882a63edd2e925298a94d198100b05d9e578edf0e3061e",
+      "rows": "553b337a4f3f5ea4da2e25648daa4987ad07cb4a76fe66196a0dd254497ed768",
+      "seats": [
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 792,
+    "path": "fixtures/samples/888poker/05-omaha-hilo-summary-hi-lo-split.txt",
+    "sha256": "8bc4c60e4fee988be4a4c0cfbd9159e79c01b338f2ab7cc0773be4550645b9ce"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 200,
+    "flop_seen": 2,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "net": -10,
+    "net_bb_milli": -100,
+    "pfr_opp": 2,
+    "rake_paid": 10,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 190,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

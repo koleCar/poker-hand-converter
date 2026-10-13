@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3325979755",
+      "index": 0,
+      "phf": "ea3ff4430a874cec0acfc13c585906a49e0afb146577d2781f38ae35484cc4b9",
+      "rows": "09b9224fd6755abc42ba3997457f8ddba3e92413e218ea97590f9c12196c5663",
+      "seats": [
+        2,
+        3,
+        4,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1498,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-STT - $3-$0.30 - 201601.repeat.actions.ok.txt",
+    "sha256": "a1690ffc144de33883229e8c14af4035ad1ad261330e4f6b84881e17759ad9d3"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 1085,
+    "flop_seen": 3,
+    "hands": 4,
+    "iso_opp": 2,
+    "limp": 2,
+    "limp_opp": 3,
+    "pfr_opp": 4,
+    "rfi_opp": 2,
+    "river_seen": 3,
+    "steal_opp": 2,
+    "turn_seen": 3,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 1085,
+    "wsd": 1,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2601407546",
+      "index": 0,
+      "phf": "5247c7185c17690779e46ad6e7f9320e9e2173a5a61d766f45f67d31b6eccb66",
+      "rows": "3badff5b8f316f1c8b64192890a440651638f11d83af3bb2cdcffac491712495",
+      "seats": [
+        1,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "handId": "2601407767",
+      "index": 1,
+      "phf": "7e118fb25ab9516794dba033c4e1a6f984f3d19fd958ef39c0b2675086f1549c",
+      "rows": "d581e5e4bca560e574d1347268a444a4f42b887915be824ba267e7db13ee7c4e",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "handId": "2601407966",
+      "index": 2,
+      "phf": "d1e6020e286deca48b172eb15a79f54b88150358c920469c4303952734da89ef",
+      "rows": "3fd3288b95a5ed7687083a38b7f8bbe4283a38913246d00c26853d6cb23ab803",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "handId": "2601408155",
+      "index": 3,
+      "phf": "f82ff126c6077076a0d591b6c8e131c8433ea71d89de60f501fff000f3c20b73",
+      "rows": "466bf44e33cad90cc44d61ca74e2442852c3ec71eca152c68e6ae2b364193460",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 4644,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO-USD-5-10-201204.new.format.txt",
+    "sha256": "217d8c88eb9cbabbc92d2fb4e4c7edf9a5689f545ab29daba62c3c883c02c5be"
+  },
+  "rows": 19,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 2,
+    "check_flop": 5,
+    "cold_call": 2,
+    "cold_call_opp": 2,
+    "contributed": 45000,
+    "donk_flop_opp": 2,
+    "flop_seen": 9,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "fold_turn": 4,
+    "four_bet_opp": 2,
+    "hands": 19,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 11,
+    "net": -500,
+    "net_bb_milli": -500,
+    "pfr": 3,
+    "pfr_opp": 18,
+    "rake_paid": 500,
+    "rfi": 2,
+    "rfi_opp": 11,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "steal": 1,
+    "steal_opp": 8,
+    "three_bet": 1,
+    "three_bet_opp": 5,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 7,
+    "vpip": 8,
+    "vpip_opp": 18,
+    "won": 44500,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 9,
+    "wwsf": 3,
+    "wwsf_opp": 9
+  }
+}

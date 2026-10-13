@@ -1,0 +1,55 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5285192-1130-1382664338",
+      "index": 0,
+      "phf": "f0a81d2f0ac41bba363e1add3725ac6fb247b3be70d814dba660ae546033735e",
+      "rows": "9abb0a6d607db8882c01bc335ac3ade77f08da4d4ff4195a921d082d081dab41",
+      "seats": [
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 664,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_ValidHandTests_ValidHand.txt",
+    "sha256": "e55f781d4cffcec2328fb8b6abb9acc2c717c6437b9ddf875ecac0023d58dc98"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 2,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 1510,
+    "donk_flop": 1,
+    "donk_flop_opp": 2,
+    "flop_seen": 3,
+    "fold_flop": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 3,
+    "limp_opp": 1,
+    "net": -98,
+    "net_bb_milli": -980,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "raise_flop": 1,
+    "rake_paid": 98,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 2,
+    "vpip": 3,
+    "vpip_opp": 3,
+    "won": 1412,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2541,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLO8-6max-USD-3-6-202104.RIT.txt",
+    "sha256": "b8d2ed7d215e4ffc71a35a36b835221c7f05b26314d06a6e76ec9c676a553a39"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

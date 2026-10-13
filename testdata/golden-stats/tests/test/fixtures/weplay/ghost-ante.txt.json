@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 975,
+    "path": "tests/test/fixtures/weplay/ghost-ante.txt",
+    "sha256": "84da7099d83d3afb756931febe21aa1152cde043a65b4e00efae5e4389bbce4c"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

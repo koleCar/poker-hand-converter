@@ -1,0 +1,61 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "132630000000",
+      "index": 0,
+      "phf": "99b3c6019364ddbf11b7f4cd17ae1588f9328621f78dadf91f0361004e9090ad",
+      "rows": "22ecba0d69f4069312384f67187d5bcd5d7203e7ad8aa745513eda952403e2ea",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1410,
+    "path": "fixtures/samples/pokerstars/32-cash-zoom-plo-wet-et-header.txt",
+    "sha256": "9268c8ef7e7f5349b783bc86caf115195cd517adc781050cf67afdee0df42d4c"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_three_bet": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "cold_call_opp": 3,
+    "contributed": 4500,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 4,
+    "hands": 6,
+    "limp_opp": 1,
+    "net": -202,
+    "net_bb_milli": -1010,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "rake_paid": 202,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 4298,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

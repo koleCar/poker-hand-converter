@@ -1,0 +1,66 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109681344065",
+      "index": 0,
+      "phf": "74835a7ee5c7d10a6b7091c72130e011bb2f9c9a9472cf07106c703df6f4b12a",
+      "rows": "4e0d28c1f39a603d36d180b9b4f7221942227d7ef1654b0431ded493de9754db",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1489,
+    "path": "fixtures/samples/pokerstars/01-cash-nlhe-6max-ante.txt",
+    "sha256": "b8a31e325e009ab96127baaeddf6b781622e5c6eb03ac48711e5c6f1cc311365"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_steal": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_turn_opp": 1,
+    "check_river": 2,
+    "check_turn": 1,
+    "cold_call_opp": 1,
+    "contributed": 189,
+    "donk_flop_opp": 1,
+    "donk_river_opp": 1,
+    "flop_seen": 2,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "net": -8,
+    "net_bb_milli": -800,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 8,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 181,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

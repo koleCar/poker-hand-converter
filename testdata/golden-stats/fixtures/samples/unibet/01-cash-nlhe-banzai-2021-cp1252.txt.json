@@ -1,0 +1,40 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "UB-1463192545",
+      "index": 0,
+      "phf": "86c00156a69c9d34de65819dcc8b4a210c910a9d27f4c7f3f04ebcd0753f85f8",
+      "rows": "22336c38a29cc64d437d6273a70bf6c714be440b63b5057d3f27295e15514e3b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 877,
+    "path": "fixtures/samples/unibet/01-cash-nlhe-banzai-2021-cp1252.txt",
+    "sha256": "b0b9d617066513ba5aeffc5784942bb5f0bb68a1d80fe1a0c4522ec62fb1cad0"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 2,
+    "contributed": 25,
+    "hands": 6,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "three_bet_opp": 4,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 25
+  }
+}

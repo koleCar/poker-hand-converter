@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-8765421-255-87965425854",
+      "index": 0,
+      "phf": "ad719d34ba1e91d5d2cda71befdc4ab0f69cc091c1b7c08d53046d0e8140b814",
+      "rows": "9c02e391dd7bb13e27d722296b4962c92e18123d954eb7ac39c15bbbb52dfae8",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 554,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_GeneralHands_HeroName.txt",
+    "sha256": "2b88ca919c58dd945faf67c276cbfeb6393dd6f0349f221a31279b32342dbe5f"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 800,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 800
+  }
+}

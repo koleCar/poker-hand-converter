@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383465399",
+      "index": 0,
+      "phf": "8301039d1624bee9b1da789baa9def0ba2e3ba57bdeb8cca1b2eafc35d40d7b3",
+      "rows": "0df8aa84199a7d473abc5cbc1dcaa6f8efcef93e59aeafa305a84848c334d390",
+      "seats": [
+        3,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1614,
+    "path": "fixtures/samples/ipoker/15-heads-up.xml",
+    "sha256": "1909f4634e9d01f052808779fa67e2a0d69a9419eafcd739dd6e672d623f1f4a"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 14,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 14
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "61910233643",
+      "index": 0,
+      "phf": "43b30be9285e076631202f1197f35269c1c189a542b9f35ad96e88c40472ec03",
+      "rows": "a83e7813f2a66bfb8745e02119300336c7b6b85e77f6bfe48fd1f11f785366d8",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1121,
+    "path": "fixtures/samples/pokerstars/08-cash-nlhe-cap-game-reached-cap.txt",
+    "sha256": "af5599142263ffcd869acaf7d6b1eca2cebfdd43d181c64ac4824de10d18c21a"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 900,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 7,
+    "limp_opp": 5,
+    "pfr": 2,
+    "pfr_opp": 7,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "three_bet_vs_steal": 1,
+    "vpip": 2,
+    "vpip_opp": 7,
+    "won": 900
+  }
+}

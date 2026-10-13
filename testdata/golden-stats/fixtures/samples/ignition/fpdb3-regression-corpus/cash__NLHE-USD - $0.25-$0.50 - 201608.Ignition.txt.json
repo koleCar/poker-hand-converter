@@ -1,0 +1,33 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3340409736",
+      "index": 0,
+      "phf": "fa5a3cb205394d47994a860aefa5335aeacad6b84224632a8ecf9c5d6b3dc520",
+      "rows": "1161dc58460c81f896c0687ac3f685e7cda257819bd25d207a0113b49eaebd4b",
+      "seats": [
+        1,
+        4,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 717,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD - $0.25-$0.50 - 201608.Ignition.txt",
+    "sha256": "45fc424af6cb41876975c782bbac2c5e380d0ec5b299f9cab6b41e459ad0c093"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 75,
+    "hands": 3,
+    "limp_opp": 2,
+    "pfr_opp": 2,
+    "rfi_opp": 2,
+    "steal_opp": 2,
+    "vpip_opp": 2,
+    "won": 75
+  }
+}

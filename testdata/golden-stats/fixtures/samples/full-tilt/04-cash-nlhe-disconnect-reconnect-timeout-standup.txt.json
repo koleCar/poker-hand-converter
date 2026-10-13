@@ -1,0 +1,54 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "33727539525",
+      "index": 0,
+      "phf": "b3c6baceb887556fe313e97091c34664ec1717acda8898630acb70b755c85863",
+      "rows": "38cb726a250425653a66a1a09327d76f3a15cc2edbb69a6c57f8b58738955baf",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1309,
+    "path": "fixtures/samples/full-tilt/04-cash-nlhe-disconnect-reconnect-timeout-standup.txt",
+    "sha256": "2da68bfeeb97c2c8bd63abd15350f62b257ff5d68f16031b9e298629988af929"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "contributed": 1850,
+    "donk_flop": 1,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_turn": 1,
+    "hands": 5,
+    "iso": 1,
+    "iso_opp": 2,
+    "limp": 1,
+    "limp_opp": 3,
+    "net": -90,
+    "net_bb_milli": -900,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 90,
+    "rfi_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 1760,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

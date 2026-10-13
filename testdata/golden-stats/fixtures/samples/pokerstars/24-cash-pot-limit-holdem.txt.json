@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109680643860",
+      "index": 0,
+      "phf": "5a4fed20ef2fa566bd1f29f9dcda4202dd9666d88544fc58cd8dfe7e6f30f9bc",
+      "rows": "9688174a125aef300ee1b9c23399591791e0435c7a0731c025c7c90cd0ace276",
+      "seats": [
+        1,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 754,
+    "path": "fixtures/samples/pokerstars/24-cash-pot-limit-holdem.txt",
+    "sha256": "fd45f8b0f6da04e216778a42880abf41d65a18764dfc2e9a1e881cdbb73b4161"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 400,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 2,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "net": -18,
+    "net_bb_milli": -180,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 18,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 382,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

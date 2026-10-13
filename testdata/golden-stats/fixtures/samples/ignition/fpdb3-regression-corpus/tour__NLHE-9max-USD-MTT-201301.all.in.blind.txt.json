@@ -1,0 +1,47 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2710007631",
+      "index": 0,
+      "phf": "fe8d99e2eeff37e662a398b29ef29e4f529ed57508d7da86e754ca648f1ce198",
+      "rows": "c3748400f644c9cf8e664989a314687dcd811aba0315776e8d6d02286e00c230",
+      "seats": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1413,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT-201301.all.in.blind.txt",
+    "sha256": "d9016800762f19788e9a9b2a35af7bd5923f463ddd621f6167784720ce4cd981"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 119,
+    "flop_seen": 2,
+    "hands": 6,
+    "iso_opp": 3,
+    "limp": 1,
+    "limp_opp": 5,
+    "pfr_opp": 5,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 5,
+    "won": 119,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

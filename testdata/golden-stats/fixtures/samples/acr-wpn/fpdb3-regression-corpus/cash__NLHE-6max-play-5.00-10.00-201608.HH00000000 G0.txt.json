@@ -1,0 +1,45 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "698333926",
+      "index": 0,
+      "phf": "54f5a267d0128d86882afe234e5569374eeb8b31d8b4fe7e985e042036252c8e",
+      "rows": "f79bf7a10bb8f8bb3807d16d727e80a2d94f7bf3fd21fc6cb0655dc4d6f17cd8",
+      "seats": [
+        2,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2107,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-play-5.00-10.00-201608.HH00000000 G0.txt",
+    "sha256": "878082e5c255087b9055d5501ecd9d0403a2e0cb5b395476b3b509b3e0410766"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "contributed": 2000,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 3,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "net": -100,
+    "net_bb_milli": -100,
+    "pfr_opp": 3,
+    "rake_paid": 100,
+    "rfi_opp": 2,
+    "steal_opp": 2,
+    "vpip": 1,
+    "vpip_opp": 3,
+    "won": 1900,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

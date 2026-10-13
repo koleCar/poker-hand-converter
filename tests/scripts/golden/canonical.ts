@@ -23,11 +23,18 @@
 export class CanonicalJsonError extends Error {}
 
 const utf8 = new TextEncoder();
+const SURROGATE = /[\ud800-\udfff]/;
 
 /** Byte-order comparison of two strings' UTF-8 encodings. */
 export function compareUtf8(a: string, b: string): number {
   if (a === b) {
     return 0;
+  }
+  // Without a surrogate on either side, UTF-16 code-unit order is code-point
+  // order, which is UTF-8 byte order: no need to encode. (The stats goldens
+  // sort ~170 ASCII keys per row over 50 000 rows.)
+  if (!SURROGATE.test(a) && !SURROGATE.test(b)) {
+    return a < b ? -1 : 1;
   }
   const x = utf8.encode(a);
   const y = utf8.encode(b);

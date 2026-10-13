@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1027919331",
+      "index": 0,
+      "phf": "bb29a04a554625daf9ed4987d55cea1c1343845a53b4962ac22d29c03faefc21",
+      "rows": "0b5994c06ec5157b0375f54eaee2576540d8473b90bf049a7c7169cf5f3c2c4d",
+      "seats": [
+        3,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 751,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.25-0.50-201206.PayNoRake.txt",
+    "sha256": "e52fa4dff64ddf561e328eb3f4c4eef67ccfe039885e44a680b278c291e795d2"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 100,
+    "flop_seen": 2,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "net": -5,
+    "net_bb_milli": -100,
+    "pfr_opp": 2,
+    "rake_paid": 5,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 95,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

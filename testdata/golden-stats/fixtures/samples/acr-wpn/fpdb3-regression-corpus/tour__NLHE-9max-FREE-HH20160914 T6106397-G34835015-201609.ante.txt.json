@@ -1,0 +1,44 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "727816656",
+      "index": 0,
+      "phf": "52c37824a70a9f65a84f6f0200ff67b571a9b93220517aa75fcfd1266e88ca25",
+      "rows": "07fb25812c7bee96e102823cc37222136f183cd5872643a2c94f7003fb2fcd7e",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2286,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-9max-FREE-HH20160914 T6106397-G34835015-201609.ante.txt",
+    "sha256": "862d5f830b2c27e5aabd65f046631ac3ff4fb753fb1ae979fbb48313f10a2818"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 490,
+    "hands": 9,
+    "iso": 1,
+    "iso_opp": 5,
+    "limp": 2,
+    "limp_opp": 8,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "rfi_opp": 3,
+    "three_bet_opp": 3,
+    "vpip": 3,
+    "vpip_opp": 9,
+    "won": 490
+  }
+}

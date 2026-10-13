@@ -1,4 +1,4 @@
-# STATS — the derivation engine, version `stats/1`
+# STATS — the derivation engine, version `stats/2`
 
 A poker statistic is not arithmetic. `sum(vpip) / sum(vpip_opp)` is arithmetic;
 deciding what a VPIP *opportunity* is turns out to be forty separate judgement
@@ -532,6 +532,14 @@ derived under the new one, and the backfill keys off the tag.
 Adding a counter is **additive** and does not need a bump — but it does need a
 column in `mapping.ts`, and the schema-drift invariant will say so.
 
+| Version | Change |
+| --- | --- |
+| `stats/1` | M1 (#43). |
+| `stats/2` | Adds `pot_type` (walk, bomb, limped, single-raised, 3bet, 4bet+). Additive, but stored rows had no value for it, so the bump makes the rebuild re-derive them. |
+
+A bump changes the Rust port too (§12): `STATS_VERSION` in `rail-stats` must
+equal the TypeScript's, and a test says so.
+
 ---
 
 ## 11. Deliberate non-decisions
@@ -558,3 +566,56 @@ Recorded so they are not relitigated:
   the "straddle is a blind" rule; what is muddy is a *positional* report over a
   mixed sample. `has_straddle` is on the row so that report can drop them, and
   making it the default would silently shrink every sample instead.
+
+---
+
+## 12. The Rust implementation
+
+`core/rail-stats` (docs/RAIL-PLAN.md R2.1) is this engine ported to Rust for
+the desktop app and the HUD: every counter, every call in §4 and every rule in
+§3, §5, §7 and §8, ported as the TypeScript has it, oddities included. The
+module layout mirrors the TypeScript file for file:
+
+| TypeScript | Rust |
+| --- | --- |
+| `types.ts` | `rail_stats::counters` (`Counter`, `SeatCounters`, `SeatMoney`, the rulebook) |
+| `context.ts` | `rail_stats::context` |
+| `preflop.ts`, `postflop.ts`, `showdown.ts`, `money.ts` | the modules of the same names |
+| `derive.ts` | `rail_stats::derive` (`hand_facts`, `pot_type_of`, `hand_class`) |
+| `mapping.ts` | `rail_stats::mapping` (`StatsRow`, `stats_rows`, `StatsRow::to_json`) |
+| `rates.ts` | not yet: rollups and rates are R2.3-R2.5 |
+
+`rail_stats::rows_for(&hand)` is `statsRows(handFacts(hand))`.
+
+**The TypeScript stays the oracle** until the web moves to the Rust core
+(R4.x). A change of meaning lands in `frontend/src/lib/stats` first, with its
+spot fixture and its version bump, and regenerates the stats goldens
+(`npm run golden:emit` in `tests/`, `testdata/golden-stats/`); the Rust port
+then sees it as a failing diff. The Rust tests are:
+
+- the golden diff: every corpus hand's rows equal to the TypeScript's, byte for
+  byte in canonical JSON (`tests/corpus.rs`);
+- the invariants of §9, ported (`tests/support/invariants.rs`), over the whole
+  corpus;
+- the spot fixtures of `tests/test/fixtures/stats/` with the expectations of
+  `statsSpots.test.ts`, and the short-deck and pot-type spots
+  (`tests/spots.rs`);
+- seeded mutations of golden hands through both engines (`tests/vectors.rs`,
+  `tests/data/stats-vectors.mjs`);
+- the column lists and `STATS_VERSION` against `types.ts` and `mapping.ts`
+  (`tests/columns.rs`).
+
+Where the port has to choose, it chooses the TypeScript's arithmetic:
+
+- the three divisions done in doubles - `net_bb_milli`,
+  `starting_stack_bb_tenths` and the largest-remainder fee split, whose
+  ordering compares fractional parts as doubles - run in
+  `rail_core::js::JsNumber`, IEEE-754 emulated in integers, so they round
+  exactly as the browser does;
+- `-0` (a loss under half a thousandth of a big blind) is 0 in Rust and is
+  written as 0 by the oracle;
+- `buildContext` runs `assignPositions` on the caller's hand in place when
+  every position is null; the port does it on a copy and leaves the caller's
+  hand alone, with the same rows;
+- two players sharing a seat number give two rows for that seat, both
+  describing the last such player, as the TypeScript's `Map`s do.

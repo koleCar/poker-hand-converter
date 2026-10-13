@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 665,
+    "path": "fixtures/samples/partypoker/15-invalid-hand-truncated.txt",
+    "sha256": "c14856eece4dc67076da086da3fbe179531599fedfee40633a0618660b766b93"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

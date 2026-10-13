@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049101693",
+      "index": 0,
+      "phf": "7c9ffc25c4d55fff66e4c30e3cd2e9a565706bec3ed58288bd0b543b69d1c3d2",
+      "rows": "e554c8928602f9a81aad3be67bd20babca6fc920211ee8bb1018cfb85cd52de5",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2936,
+    "path": "fixtures/samples/microgaming/08-full-ring-9handed.txt",
+    "sha256": "5ae6550ce4040484fb0e73eb83bf7bfa5e3f34f075f9be8b7b4de3124863e164"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "check_flop": 2,
+    "check_raise_river_opp": 1,
+    "check_river": 1,
+    "check_turn": 2,
+    "contributed": 4,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "hands": 8,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 7,
+    "pfr_opp": 8,
+    "rfi_opp": 7,
+    "river_seen": 2,
+    "steal_opp": 3,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 8,
+    "won": 4,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109680936246",
+      "index": 0,
+      "phf": "87fe0ea40cb79b26a518507594081281871fbec4a773cbb9e6d963b018d63ca5",
+      "rows": "20960d264fa51b900c2e61c2507077c2aad3bb70d9b99348affdb8b081012234",
+      "seats": [
+        1,
+        3,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 754,
+    "path": "fixtures/samples/pokerstars/22-cash-nlhe-cap-game.txt",
+    "sha256": "5283fb589c2bd4275f907afc8308776e0c73471a234dd85ad93c03b36500db02"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 100,
+    "hands": 3,
+    "limp_opp": 2,
+    "pfr_opp": 2,
+    "rfi_opp": 2,
+    "steal_opp": 2,
+    "vpip_opp": 2,
+    "won": 100
+  }
+}

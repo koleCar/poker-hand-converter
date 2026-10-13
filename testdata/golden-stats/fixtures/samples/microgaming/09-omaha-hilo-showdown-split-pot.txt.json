@@ -1,0 +1,55 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049105591",
+      "index": 0,
+      "phf": "9d2cccdf3e5a6499925c82d47c82c72dea020c518f1853dade63bcecf188b4a4",
+      "rows": "866d67a2b1314d61e18ec7ae804ea4bf12f2b7b9947df89992cc36aafcf0e08e",
+      "seats": [
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2735,
+    "path": "fixtures/samples/microgaming/09-omaha-hilo-showdown-split-pot.txt",
+    "sha256": "bbe1c8d8313509b8fa58b6547fc4f4688621fd485332b9b5a5b33963393d61ec"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "check_flop": 3,
+    "contributed": 36,
+    "flop_seen": 3,
+    "fold_turn": 1,
+    "hands": 4,
+    "iso_opp": 2,
+    "limp": 2,
+    "limp_opp": 3,
+    "net": -3,
+    "net_bb_milli": -1500,
+    "pfr_opp": 4,
+    "rake_paid": 3,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "turn_seen": 3,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 33,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 2,
+    "wwsf_opp": 3
+  }
+}

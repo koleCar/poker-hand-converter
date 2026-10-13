@@ -1,0 +1,40 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST02",
+      "index": 0,
+      "phf": "ee0c34eae4a1a48c3774d253d1e062d77b8e586208775c77d836a94f3c0993f5",
+      "rows": "44b193d1fa5a00b002fa01ee1444a3b13c82161bfef4b7ebc304109102962849",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 845,
+    "path": "tests/test/fixtures/stats/02-straddle-open-is-not-a-three-bet.txt",
+    "sha256": "bfafd0c279574fc03660c779a4502243d2add0bb558121144150603a5e18f155"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 550,
+    "hands": 6,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "three_bet_opp": 4,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 550
+  }
+}
