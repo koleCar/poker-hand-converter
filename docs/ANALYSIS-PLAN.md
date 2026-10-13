@@ -3290,3 +3290,131 @@ Each phase appends what it learned that changed the plan.
     on these lines (most are multiway or placed on 6-max sets).
   - **Fix.** The runner's closing estimate crashed after a finished run
     (an old call site missed the lines argument); no effect on the chunks.
+- 2026-10-13 — Multiway flop narrowing from the library: **nothing shipped**
+  (`tests/scripts/flop-library/multiwayNarrowing.test.ts`, study code
+  `multiwayLibrary.ts` beside it). `ANALYSIS_VERSION` stays `analysis/21`; no
+  migration, no behaviour change, nothing in `frontend/`.
+  - **Why.** The open item of `analysis/15` and `/16`: multiway flop and turn
+    calls are graded against ranges the heuristic narrowed through the flop,
+    and the narrowing was named the larger risk (4-4 on 2-2-2 calling a bet
+    and a call read 9% equity: the heuristic narrows the bettor to
+    overpairs). The proposed lever: a flop narrowing from the library for
+    multiway pots.
+  - **What was built (study only).** Each flop player of a multiway pot is
+    read as one of the two seats of the heads-up chunk of the closest line,
+    on the chart set the aggressor's last preflop decision is read on (the
+    100bb sets; any other depth has no library):
+    - single raised: the aggressor's line against the big blind (`co-bb`
+      for a cutoff open; full ring UTG+1/UTG+2 read `utg-bb`, MP `lj-bb`);
+      3-bet: the 3-bet line of the same opener and 3-bettor, when the
+      library has it; limped: `sb-limp`. Four or more raises, a preflop
+      all-in, an ante or straddle: none;
+    - roles: the aggressor plays the chunk's aggressor, every caller its
+      caller (the big blind, or the button against the small blind's
+      3-bet); limped, the last to act plays the big blind, everyone else the
+      small blind;
+    - the flop: the exact chunk, else its representative read by hand
+      category (`readingChain`), as heads-up;
+    - the street onto one heads-up line between the two roles: a check is
+      followed into the tree only when the next actor has the other role
+      (several players of one role checking are that role checking once); a
+      call or a fold stays at the node (the next player of the same role
+      answers the same bet); a bet or raise follows its edge (sizes by the
+      translation, `OFF_TREE_DISTANCE`; a node the role's range reaches
+      under 2% is not read);
+    - `L(combo | action) = ε + (1 − ε) · strategy` at that node; an action
+      the line cannot follow falls back to the heuristic (multiway
+      adjustments included), and after an aggressive one that cannot follow,
+      the rest of the street does too. Turn and river: the heuristic.
+    The flag it would have carried (`multiway-library-narrowing`) was not
+    added: nothing ships.
+  - **Data.** The 5,448 stored hands of the test user (local stack, the
+    owner's WePlay export), 1,282 flops three or more saw (no bomb pot).
+    Every opponent shown down after one of them (the hero left out), scored
+    on their range as the turn came, as `analysis/17`-`/20` score: mean
+    log-likelihood per combo of the shown combo, a combo outside the range at
+    a twentieth of a uniform combo. 725 shown players, 373 of them bet,
+    raised or called on the flop (164 players); 128 of those (88 players) on
+    a flop with a chunk, whose flop actions are 189, 145 read by the library
+    (the rest fall back). Hands with a chunk: single raised 110 (8 exact
+    flops), limped 60 (6), 3-bet 3. Starting ranges as the analysis reads
+    them (population, charts, placeholders; no villain statistics).
+  - **Method.** One parameter, ε, chosen held out: five folds by player,
+    every player scored with the ε (0, 0.01, 0.03, 0.1, 0.3, 0.5, 1) that did
+    best on the other four. Standard errors clustered by player. Also scored:
+    each ε alone, the library's likelihood times the heuristic's (geometric
+    mean, ε = 0.03), and no flop narrowing at all (every flop likelihood 1,
+    the heuristic after it) for scale.
+  - **Measured** (Δ against the heuristic per combo):
+
+    | shown players | n | heuristic | library, ε held out | library ε = 0.03 | library × heuristic | no flop narrowing |
+    |---|---|---|---|---|---|---|
+    | bet, raised or called; a chunk read | 128 | −6.970 | **−0.261 ± 0.049** (ε 0.5-1) | −0.392 ± 0.088 | −0.114 ± 0.042 | −0.317 ± 0.047 |
+    | the same, single raised | 80 | −6.914 | −0.212 ± 0.061 | −0.420 ± 0.104 | −0.139 ± 0.050 | −0.266 ± 0.059 |
+    | the same, limped | 43 | −7.006 | −0.288 ± 0.086 | −0.365 ± 0.141 | −0.076 ± 0.067 | −0.417 ± 0.080 |
+    | the same, 3-bet | 5 | −7.560 | −0.171 ± 0.106 | −0.176 ± 0.109 | −0.044 ± 0.035 | −0.274 ± 0.170 |
+    | at least one own action read | 114 | −7.011 | −0.265 ± 0.048 | −0.412 ± 0.097 | −0.119 ± 0.047 | −0.316 ± 0.047 |
+    | checked only; a chunk read | 140 | −6.843 | +0.036 ± 0.020 | −0.056 ± 0.048 | −0.002 ± 0.024 | +0.037 ± 0.022 |
+    | everyone shown; a chunk read | 268 | −6.904 | −0.107 ± 0.027 | −0.217 ± 0.050 | −0.055 ± 0.024 | −0.132 ± 0.027 |
+    | bet, raised or called; all | 373 | −7.206 | −0.090 ± 0.018 | −0.135 ± 0.033 | −0.039 ± 0.015 | −0.215 ± 0.042 |
+
+    The heuristic's narrowing is worth +0.32 over none on the bettors and
+    callers; the library's is worth less than none at a small ε (−0.39 at
+    0.03 against −0.32), and every fold picks ε = 0.5 or 1 - at 1 the read
+    actions are not narrowed at all. On them lower ε is worse throughout (ε =
+    0: −0.50 ± 0.12): the heads-up strategy rules out hands multiway bettors and
+    callers do hold. Mixing it into the heuristic only dilutes the
+    heuristic. The one gain, +0.036 ± 0.020 on players who only checked,
+    is no narrowing's (+0.037): the heuristic trims checks a little too hard
+    multiway; the library adds nothing there either. Every row of bettors and
+    callers with more than five shown loses by more than three standard
+    errors.
+  - **Control.** The heads-up flops the library reads today (shipped since
+    `analysis/8`) give only 11 shown bettors and callers on this export
+    (library −0.07 ± 0.37 against the heuristic, no narrowing −0.09 ±
+    0.10) and 23 checkers: too few to say whether the heads-up library
+    narrowing explains shown hands better than the heuristic heads-up. That
+    question is open and is not this one.
+  - **The grades it would move** (the hero's approximate flop and turn calls
+    and folds in hands whose multiway flop has a chunk, computed twice on the
+    same path - `flopCallEv`/`turnCallEv` and their grade, without the
+    sensitivity check - on the heuristic walk and on the library walk): 103
+    of the 219 approximate grades (flop 63 of 143, turn 40 of 76) sit on
+    such hands. At ε = 0.03 no flop grade changes and 3 turn grades do; at
+    ε = 0.5 one flop fold (Perfect → Inaccurate) and the same 3 turns. The
+    turn's: Q♣K♠ folding 3.7bb into 11.2bb on 4♥A♠J♥ 8♥ heads-up after a
+    three-way flop, share 29% → 25%, Mistake (0.7bb) → Perfect; T♠T♣ calling
+    4bb into 16bb on 4♠7♠Q♣ 9♣ three-way, share 30% → 18%, Perfect →
+    Mistake (0.8bb); K♣T♣ folding 8bb into 16bb on J♦7♥J♥ T♠, 58% → 59%,
+    Perfect → Inaccurate (0.1bb). **The 4-4 on 2-2-2 hand** (8-handed,
+    UTG opens, UTG+1, the button and the big blind call; the big blind
+    checks 4♠4♥, the opener bets, UTG+1 folds, the button and the hero
+    call; read on `utg-bb`, the representative 4♦4♥4♠): since
+    `analysis/19`'s wider callers the heuristic share of the flop call is
+    17% (not 9%), and the call is Perfect on both walks; the library reads
+    35%. The turn fold after it (3♣, checked to the button, who bets 15bb
+    into 20bb) is a Mistake on both, 3.3bb → 6.4bb. So the example
+    that motivated this is real - the heuristic narrows a trips board's
+    bettor too hard - but the library's reading is not better on the hands
+    that were shown, and on this library it would move almost no grade.
+  - **Not shipped.** The library narrowing loses to the heuristic held out
+    on every subset of multiway flop bettors and callers, by more than the
+    heuristic gains over no narrowing at small ε; the heuristic stays the
+    multiway flop narrowing (`narrowing-heuristic` on multiway grades as
+    before). No flag added, no version bump.
+  - **Open.**
+    - Why it loses, as far as the data says: a heads-up equilibrium bets and
+      calls with a different, more polarised, mix than multiway players
+      (who bet strong hands and call with pairs and draws), and the chunk's
+      ranges are the charts' heads-up ones, not a cold caller's or a
+      limper's. A multiway-specific reading (a solver over three ranges, or
+      the library's strategy only as an ordering of hands with the
+      heuristic's multiway shares) is untested.
+    - The heuristic trims a check slightly too much multiway (not narrowing
+      checks at all scores +0.04 ± 0.02 on checkers); a smaller
+      `CHECK_VALUE`/`CHECK_AIR` trim multiway is worth a held-out test of
+      its own.
+    - Coverage is a third of the shown bettors and callers (128 of 373):
+      other depths, 4-bet pots and BB-aggressor lines have no chunk.
+    - The heads-up control is too small on this export (11 shown); with
+      more libraries it should be scored the same way.
