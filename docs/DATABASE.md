@@ -412,6 +412,8 @@ Tests: `supabase/tests/database/forum.test.sql` — 63 assertions.
 | `thread_subscriptions` (`watching` / `muted`) | select-own | `set_thread_subscription`, plus auto-watch when you post (trigger) or comment (fan-out) |
 | `notifications` | select-own; `my_notifications`, `unread_notification_count` | `fan_out_comment_notifications` only; `mark_notifications_read` sets `read_at` |
 
+`anon` has SELECT on `notifications` with no policy (`20270519090000`), so it reads zero rows. Without the privilege Realtime sends an anonymous socket an empty "Error 401" notice for *every* change, which leaks when each account is notified; the same pattern as `hand_arrivals` (R1.10).
+
 **`fan_out_comment_notifications`** is called from `create_comment` (not a
 trigger — self-suppression, mutes and caps are product rules). One row per
 person, in priority order: the replied-to comment's author, the post's author

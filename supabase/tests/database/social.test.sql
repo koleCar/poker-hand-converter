@@ -6,7 +6,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(35);
+select plan(36);
 
 -- ------------------------------------------------------------------ setup --
 
@@ -140,7 +140,10 @@ select is(jsonb_array_length(public.my_saved_posts()), 0, 'and it is gone');
 
 select pg_temp.act_as_anon();
 select throws_ok($$ select public.save_post(current_setting('test.p')) $$, '42501', null, 'anon cannot save');
-select throws_ok($$ select * from public.notifications $$, '42501', null, 'anon cannot read notifications');
+select is((select count(*) from public.notifications), 0::bigint,
+  'anon reads zero notifications (SELECT without a policy, so Realtime sends anon nothing)');
+select throws_ok($$ insert into public.notifications (user_id) values (gen_random_uuid()) $$, '42501', null,
+  'anon cannot write notifications');
 
 -- ------------------------------------------------------------ reconcile --
 
