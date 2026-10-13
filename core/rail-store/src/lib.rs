@@ -32,6 +32,7 @@ pub mod error;
 pub mod import;
 pub mod migrate;
 pub mod read;
+pub mod sources;
 pub mod time;
 pub mod writer;
 
@@ -147,28 +148,17 @@ impl Store {
         self.reader.status()
     }
 
-    /// Add a watched folder, or return the id it already has.
+    /// Add a watched folder, or return the id it already has (see
+    /// [`WriterHandle::add_source`]).
     pub fn add_source(
         &self,
         path: &str,
         recursive: bool,
         site_override: Option<&str>,
     ) -> Result<i64> {
-        let path = path.to_owned();
-        let site_override = site_override.map(str::to_owned);
-        self.writer.handle()?.write(move |tx| {
-            tx.execute(
-                "INSERT INTO sources (path, site_override, recursive, added_at)
-                 VALUES (?1, ?2, ?3, ?4)
-                 ON CONFLICT (path) DO NOTHING",
-                params![path, site_override, recursive, time::now_ms()],
-            )?;
-            Ok(
-                tx.query_row("SELECT id FROM sources WHERE path = ?1", [&path], |row| {
-                    row.get(0)
-                })?,
-            )
-        })
+        self.writer
+            .handle()?
+            .add_source(path, recursive, site_override, false)
     }
 
     /// Set a `kv` value.

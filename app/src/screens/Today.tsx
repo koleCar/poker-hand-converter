@@ -3,16 +3,16 @@ import { useEffect, useState } from "react";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { errorText, inApp, ipc, type StoreStatus } from "../lib/ipc";
+import { ImportStatus } from "./ImportStatus";
 import styles from "./Today.module.css";
 
-/** How often the counts refresh while the screen is open. R1.3's watcher
- * will push changes instead. */
+/** How often the counts refresh while the screen is open. */
 const REFRESH_MS = 5000;
 
 const number = new Intl.NumberFormat();
 
-/** Today: the local store's counts (R1.2). The session result and the
- * import progress arrive with R1.3 / R1.6 and Phase 2. */
+/** Today: the watcher's folders (R1.3) and the local store's counts (R1.2).
+ * The session result and the import progress arrive with R1.6 and Phase 2. */
 export function Today() {
   const t = useT();
   const [status, setStatus] = useState<StoreStatus | null>(null);
@@ -64,6 +64,7 @@ export function Today() {
   return (
     <>
       <ScreenHeader title={t.screens.today.title} lead={t.screens.today.lead} />
+      <ImportStatus />
       <section className={styles.section} aria-labelledby="today-store">
         <h2 id="today-store" className={styles.heading}>
           {d.heading}

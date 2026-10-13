@@ -13,11 +13,13 @@
 //! - crash-safe settings ([`settings`]);
 //! - the local store (`rail-store`, R1.2), opened in `setup` under the app's
 //!   local data directory and managed as [`commands::StoreState`]; the Today
-//!   screen shows its counts (`store_status`).
-//!
-//! Where the next steps plug in: the watcher (R1.3) starts after the store
-//! in `setup`, feeds it through `StoreState`'s writer handle, and reports
-//! through [`tray::set_status`].
+//!   screen shows its counts (`store_status`);
+//! - the watcher (`rail-watch`, R1.3), started right after the store and
+//!   managed as [`watch::WatcherState`]: it reads the folders in the store's
+//!   `sources` into the store, reports in the tray's status line, and is
+//!   paused and resumed from the tray; the Today screen shows its folders
+//!   (`watcher_status`). It is stopped on exit before anything else, since
+//!   the store waits for the watcher's handles on its writer.
 
 use std::sync::Mutex;
 
@@ -31,6 +33,7 @@ pub mod dev;
 pub mod settings;
 pub mod strings;
 pub mod tray;
+pub mod watch;
 
 /// The main window's label (`tauri.conf.json`).
 pub const MAIN_WINDOW: &str = "main";
@@ -112,10 +115,21 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // A store that does not open is logged and reported by `store_status`;
     // the shell still starts, so the user sees why.
     let store_path = app.path().app_local_data_dir()?.join(rail_store::FILE_NAME);
-    app.manage(commands::StoreState::open(store_path));
+    let store = commands::StoreState::open(store_path);
+
+    // The watcher (R1.3), after the store: it commits through the store's
+    // writer. Without a store it does not start; the tray and the Today
+    // screen say so.
+    let watcher = watch::WatcherState::start(&store);
+    app.manage(store);
+    app.manage(watcher);
 
     commands::reconcile_login_item(app, start_at_login);
     tray::build(app)?;
+    if let Some(watcher) = app.try_state::<watch::WatcherState>() {
+        watch::refresh_tray(app, &watcher);
+    }
+    watch::spawn_tray_refresher(app);
 
     // The window is created hidden (`visible: false`) so a login start can
     // stay in the tray.
@@ -153,8 +167,11 @@ pub fn run() {
                 commands::set_theme,
                 commands::set_start_at_login,
                 commands::store_status,
+                watch::watcher_status,
+                watch::set_import_paused,
                 dev::dev_pick_file,
                 dev::convert_file,
+                dev::dev_add_folder,
             ]);
     #[cfg(not(debug_assertions))]
     let builder = builder.invoke_handler(tauri::generate_handler![
@@ -164,6 +181,8 @@ pub fn run() {
         commands::set_theme,
         commands::set_start_at_login,
         commands::store_status,
+        watch::watcher_status,
+        watch::set_import_paused,
     ]);
 
     let app = builder
@@ -181,13 +200,16 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("the Tauri app could not be built");
 
-    app.run(|app, event| {
+    app.run(|app, event| match event {
+        // The watcher first: the store waits for its writer handles.
+        tauri::RunEvent::Exit => {
+            if let Some(watcher) = app.try_state::<watch::WatcherState>() {
+                watcher.stop();
+            }
+        }
         // macOS: a click on the Dock icon while the window is hidden.
         #[cfg(target_os = "macos")]
-        if let tauri::RunEvent::Reopen { .. } = event {
-            show_main_window(app);
-        }
-        #[cfg(not(target_os = "macos"))]
-        let _ = (app, event);
+        tauri::RunEvent::Reopen { .. } => show_main_window(app),
+        _ => {}
     });
 }

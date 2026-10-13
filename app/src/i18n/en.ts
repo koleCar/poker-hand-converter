@@ -75,6 +75,37 @@ export const en = {
     storeFile: "Stored in",
   },
 
+  /** The Today screen's watcher status (R1.3). */
+  watch: {
+    heading: "Import",
+    loading: "Loading…",
+    unavailable: "Import status is only available inside the Rail app.",
+    notRunning: (reason: string) => `Import is not running: ${reason}`,
+    running: "Rail reads new hands from these folders as the rooms write them.",
+    paused: "Import is paused. Changes are noted and read when you resume.",
+    pause: "Pause import",
+    resume: "Resume import",
+    noFolders: "No folders are watched yet.",
+    folder: "Folder",
+    status: "Status",
+    handsToday: "Today",
+    hands: "Hands",
+    lastImport: "Last import",
+    issues: "Issues",
+    never: "Never",
+    none: "None",
+    states: {
+      watching: "Watching",
+      polling: "Polling (network folder)",
+      unavailable: "Not available",
+      error: "Cannot be read",
+      disabled: "Off",
+    },
+    quarantined: (count: number) => `${count} refused`,
+    fileErrors: (count: number) => `${count} unreadable`,
+    pending: (count: number) => `${count} waiting for the hand to finish`,
+  },
+
   settings: {
     loading: "Loading…",
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,
@@ -129,14 +160,27 @@ export const en = {
     error: (message: string) => `The core threw: ${message}`,
     millis: (ms: number) => `${ms} ms`,
     time: "Time",
+    addFolder: "Add a folder to watch…",
+    addFolderNote:
+      "Debug builds only: watches a folder (with its subfolders) until first-run setup and Settings, Folders exist.",
+    adding: "Choosing…",
   },
 
   /** Mirrored in `src-tauri/src/strings.rs`; not used by the window. */
   tray: {
     tooltip: "Rail",
     statusIdle: "No folders watched yet",
+    statusWatching: (folders: number, handsToday: number) =>
+      `Watching ${folders === 1 ? "1 folder" : `${folders} folders`} · ${
+        handsToday === 1 ? "1 hand today" : `${handsToday} hands today`
+      }`,
+    statusPaused: "Import paused",
+    statusUnavailable: (folders: number) =>
+      folders === 1 ? "1 folder cannot be read" : `${folders} folders cannot be read`,
+    statusError: "Import is not running",
     open: "Open Rail",
     pauseImport: "Pause import",
+    resumeImport: "Resume import",
     quit: "Quit Rail",
   },
 } as const;

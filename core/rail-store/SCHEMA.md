@@ -27,6 +27,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | Version | File | What |
 | --- | --- | --- |
 | 1 | `0001_initial.sql` | `kv`, `sources`, `files`, `hands`, `quarantine`, `unsupported`, `outbox` |
+| 2 | `0002_source_poll_only.sql` | `sources.poll_only` (R1.3) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -53,8 +54,12 @@ version (that is `user_version`) and not the window settings (those are
 
 ### `sources`
 
-Watched folders. R1.2 creates the table and `Store::add_source`; the
-watcher (R1.3) and Settings → Folders (R1.5) fill it.
+Watched folders. Written through `WriterHandle::add_source`,
+`remove_source`, `set_source_enabled`, `set_source_poll_only` and
+`set_source_status` (`src/sources.rs`): the watcher (R1.3) keeps `status`
+and `last_error` current; Settings → Folders (R1.5) edits the rest.
+Removing a folder keeps its files and hands (`files.source_id` becomes
+NULL).
 
 | Column | Type | |
 | --- | --- | --- |
@@ -63,9 +68,10 @@ watcher (R1.3) and Settings → Folders (R1.5) fill it.
 | `site_override` | TEXT NULL | a forced parser id for every file under it |
 | `enabled` | INTEGER | 0 / 1; a disabled folder keeps its hands |
 | `recursive` | INTEGER | 0 / 1 |
-| `status` | TEXT | `idle` for now; the watcher's state later |
+| `status` | TEXT | the watcher's state: `idle` (never started), `watching`, `polling`, `unavailable` (not there: an unplugged drive), `error` (cannot be read or watched), `disabled` |
 | `last_error` | TEXT NULL | why the folder cannot be watched |
 | `added_at` | INTEGER | ms |
+| `poll_only` | INTEGER | 0 / 1 (version 2): read by polling, without OS notifications - a network share, detected when the folder is added, or set by the user |
 
 ### `files`
 

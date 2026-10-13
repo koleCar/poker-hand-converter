@@ -46,6 +46,30 @@ pub async fn dev_pick_file<R: Runtime>(app: AppHandle<R>) -> Option<String> {
         .map(|path| path.display().to_string())
 }
 
+/// A native folder picker, then the folder is watched (recursive; poll
+/// only when it is on a network volume). The temporary way to add a folder
+/// until R1.4 (first-run discovery) and R1.5 (Settings → Folders). Returns
+/// the folder's id, or `None` when cancelled.
+#[tauri::command]
+pub async fn dev_add_folder<R: Runtime>(
+    app: AppHandle<R>,
+    watcher: tauri::State<'_, crate::watch::WatcherState>,
+) -> Result<Option<i64>, String> {
+    let Some(folder) = app
+        .dialog()
+        .file()
+        .blocking_pick_folder()
+        .and_then(|picked| picked.into_path().ok())
+    else {
+        return Ok(None);
+    };
+    let id = watcher
+        .with(|watcher| watcher.add_source(&folder, true, None))?
+        .map_err(|error| error.to_string())?;
+    log::info!("dev: watching {} (folder {id})", folder.display());
+    Ok(Some(id))
+}
+
 /// `rail_core::convert` on the file at `path`.
 #[tauri::command]
 pub async fn convert_file(path: String) -> Result<ConvertSummary, String> {

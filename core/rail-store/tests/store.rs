@@ -449,6 +449,36 @@ fn sources_and_kv() {
     );
     assert!(source.enabled && source.recursive);
 
+    // The watcher's writes (R1.3).
+    let writer = store.writer().expect("writer");
+    assert!(writer.set_source_poll_only(id, true).expect("poll only"));
+    assert!(writer.set_source_enabled(id, false).expect("disable"));
+    writer
+        .set_source_status(id, "unavailable", Some("gone"))
+        .expect("status");
+    let source = &store.reader().sources().expect("sources")[0];
+    assert!(source.poll_only && !source.enabled);
+    assert_eq!(
+        (source.status.as_str(), source.last_error.as_deref()),
+        ("unavailable", Some("gone"))
+    );
+    assert!(
+        !writer
+            .set_source_enabled(id + 100, true)
+            .expect("no such folder")
+    );
+    let other = writer
+        .add_source("/elsewhere", false, None, true)
+        .expect("add");
+    assert!(writer.remove_source(id).expect("remove"));
+    assert!(!writer.remove_source(id).expect("removed already"));
+    let sources = store.reader().sources().expect("sources");
+    assert_eq!(sources.len(), 1);
+    assert_eq!((sources[0].id, sources[0].poll_only), (other, true));
+    // The removed folder's file and hands stay, without a folder.
+    let files = store.reader().files().expect("files");
+    assert_eq!((files[0].source_id, files[0].hands), (None, 4));
+
     store.set_kv("sync.cursor", "abc").expect("set");
     store.set_kv("sync.cursor", "def").expect("set again");
     assert_eq!(

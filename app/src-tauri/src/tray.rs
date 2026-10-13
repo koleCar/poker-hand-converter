@@ -1,9 +1,10 @@
 //! The tray (Windows notification area, macOS menu bar) icon and its menu.
 //!
-//! The menu's first line is a disabled status line. Today it only ever says
-//! that no folder is watched; the watcher (R1.3) and the import pipeline
-//! (R1.6) report through [`set_status`], and "Pause import" is enabled when
-//! there is an import to pause.
+//! The menu's first line is a disabled status line: what the watcher (R1.3)
+//! is doing ("Watching 2 folders · 37 hands today", "Import paused"), set
+//! through [`set_status`] by `watch::refresh_tray`. "Pause import" pauses
+//! and resumes the watcher (its text follows, [`set_pause_text`]); it is
+//! enabled when there is something to pause.
 
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -40,7 +41,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let text = strings::tray();
     let status = MenuItem::with_id(app, STATUS, text.status_idle, false, None::<&str>)?;
     let open = MenuItem::with_id(app, OPEN, text.open, true, None::<&str>)?;
-    // A placeholder until there is an import to pause (R1.3 / R1.6).
+    // Enabled once the watcher runs with a folder (`watch::refresh_tray`).
     let pause_import =
         MenuItem::with_id(app, PAUSE_IMPORT, text.pause_import, false, None::<&str>)?;
     let quit = MenuItem::with_id(app, QUIT, text.quit, true, None::<&str>)?;
@@ -65,6 +66,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .show_menu_on_left_click(cfg!(target_os = "macos"))
         .on_menu_event(|app, event| match event.id().as_ref() {
             OPEN => crate::show_main_window(app),
+            PAUSE_IMPORT => crate::watch::toggle_pause(app),
             QUIT => {
                 log::info!("quit from the tray");
                 app.exit(0);
@@ -106,7 +108,15 @@ pub fn set_status<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<(
     }
 }
 
-/// Enable or disable "Pause import" (R1.6 enables it while importing).
+/// "Pause import" or "Resume import".
+pub fn set_pause_text<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<()> {
+    match app.try_state::<TrayMenu<R>>() {
+        Some(menu) => menu.pause_import.set_text(text),
+        None => Ok(()),
+    }
+}
+
+/// Enable or disable "Pause import".
 pub fn set_pause_enabled<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> tauri::Result<()> {
     match app.try_state::<TrayMenu<R>>() {
         Some(menu) => menu.pause_import.set_enabled(enabled),
