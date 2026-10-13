@@ -18,7 +18,7 @@
 
 use std::sync::Mutex;
 
-use tauri::{AppHandle, Manager, RunEvent, Runtime, WindowEvent};
+use tauri::{AppHandle, Manager, Runtime, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 
@@ -168,7 +168,7 @@ pub fn run() {
     app.run(|app, event| {
         // macOS: a click on the Dock icon while the window is hidden.
         #[cfg(target_os = "macos")]
-        if let RunEvent::Reopen { .. } = event {
+        if let tauri::RunEvent::Reopen { .. } = event {
             show_main_window(app);
         }
         #[cfg(not(target_os = "macos"))]
