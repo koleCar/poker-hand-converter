@@ -305,6 +305,28 @@ async fn signed_in() -> Harness {
     h
 }
 
+/// R1.9: a token for one account is never handed out for another.
+#[tokio::test]
+async fn a_token_is_handed_out_only_for_its_own_account() {
+    let h = signed_in().await;
+    assert_eq!(
+        h.account.user(),
+        Some((USER.to_owned(), "player@example.test".to_owned()))
+    );
+    assert_eq!(
+        h.account.access_token_for(USER).await.unwrap().expose(),
+        "access-1"
+    );
+    assert!(h.account.access_token_for(OTHER).await.is_none());
+    assert!(
+        h.fake.refreshed.lock().unwrap().is_empty(),
+        "no refresh spent for another account"
+    );
+    h.account.sign_out().await;
+    assert!(h.account.access_token_for(USER).await.is_none());
+    assert_eq!(h.account.user(), None);
+}
+
 #[tokio::test]
 async fn a_refresh_rotates_the_stored_token() {
     let h = signed_in().await;

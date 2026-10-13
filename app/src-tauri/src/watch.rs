@@ -40,8 +40,9 @@ pub struct WatcherState {
 }
 
 impl WatcherState {
-    /// Start watching the store's enabled folders.
-    pub fn start(store: &StoreState) -> Self {
+    /// Start watching the store's enabled folders. Each import with new
+    /// hands wakes the sync worker in `sync` once it exists (R1.9).
+    pub fn start(store: &StoreState, sync: crate::sync::SyncSlot) -> Self {
         let dirty = Arc::new(AtomicBool::new(true));
         let Some(store) = &store.store else {
             return Self {
@@ -63,6 +64,12 @@ impl WatcherState {
                 };
                 Watcher::start(store.path(), writer, config, move |event| {
                     on_event(&flag, &event);
+                    if let WatchEvent::Imported { inserted, .. } = &event
+                        && *inserted > 0
+                        && let Some(worker) = sync.get()
+                    {
+                        worker.wake();
+                    }
                 })
                 .map_err(|e| e.to_string())
             });

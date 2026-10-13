@@ -18,6 +18,7 @@ The schema is defined by four migrations:
 | `20270414090000_unparsed_registry.sql` | Rail R0.11: `unparsed_hands` becomes the unsupported-format registry for the desktop app too - `origin`, `os`, `client_version`, `consented_at`, `anonymiser_version`, `guessed_site`, `guess_confidence`, the consent rule, two more `unparsed_gaps` columns. See [`unparsed_hands`](#unparsed_hands--the-failure-corpus) and `docs/unsupported-formats.md`. |
 | `20270421090000_desktop_sign_in.sql` | Rail R1.7: `claim_desktop_sign_in()`, the per-account budget of the desktop sign-in handoff (10 an hour). The handoff itself is the Edge Function `supabase/functions/desktop-handoff`. See [Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff). |
 | `20270428090000_desktop_ingest.sql` | Rail R1.8: hands synced by the desktop app. `hands.origin`, `standard_text` nullable for desktop rows only (Q4: PHF only, no standard or source text), `hand_sources`, `register_hand_source`, `ingest_hands` (every search column derived from the PHF on the server), per-account desktop budgets. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). |
+| `20270505090000_desktop_pull.sql` | Rail R1.9: the desktop sync worker's pull. `hands_since(p_after_created, p_after_id, p_limit)` (invoker, the caller's rows by keyset `(created_at, id)`, ids / keys / origins only, rows at least a minute old) and its index `hands_owner_created_idx`. See [The desktop pull](#the-desktop-pull-hands_since). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -231,6 +232,7 @@ why:
 | `ingest_hands` | **definer** | Desktop rows may only be written here (the insert policy refuses them on the direct path) and the source counters have no client UPDATE grant. Owner from `auth.uid()`, source checked to be the caller's, budget spent first, every column but `hand_key` and `phf` derived on the server. `authenticated` only (R1.8). |
 | `register_hand_source` | **definer** | `hand_sources` has no client write grant. Owner from `auth.uid()`; updates only the descriptive columns of the caller's own row. `authenticated` only (R1.8). |
 | `hand_row_from_phf`, `hand_row_problem`, `phf_*` helpers | invoker | Pure: the PHF-to-row mapping and the constraint mirror `ingest_hands` uses. No client may execute them. |
+| `hands_since` | invoker | Reads the caller's own rows (explicit `owner_id = auth.uid()` and RLS): ids, times, keys, origins. `authenticated` only (R1.9). |
 
 ---
 
@@ -1025,6 +1027,41 @@ refused call writes nothing, the web's global budget untouched, the stats
 rebuild and `save_hand_stats` on desktop rows.
 `supabase/tests/database/desktop_ingest_parity.test.sql`: generated, above.
 
+### The desktop pull: `hands_since`
+
+`20270505090000_desktop_pull.sql` (Rail R1.9). The app keeps the account's
+whole library in its local store, so the app and the web show the same
+hands: it uploads its own with `ingest_hands` and **pulls the rest** - hands
+saved on the web and hands synced from the account's other computers.
+Which device sent a row is not recorded per hand, so the pull walks every
+row of the account, **keys first**: `hands_since(p_after_created,
+p_after_id, p_limit)` returns a keyset page (`(created_at, id)` ascending,
+at most 1 000) of `id, created_at, hand_key, origin` - ~150 bytes a row -
+and the app fetches the PHF (`GET /rest/v1/hands?select=hand_key,phf&id=in.
+(...)`, plain RLS) only for the keys its store lacks. A device's own uploads
+cost it ~150 bytes each to recognise.
+
+**Why rows younger than a minute are left out.** `created_at` is set to
+`now()` by `hands_normalize`: the inserting transaction's *start*. A
+transaction can commit after one that started later, and a cursor that
+moved past the later row would never see the earlier one. Every client
+write reaches `hands` through PostgREST as `authenticated` (`save_hands`,
+`ingest_hands`), whose `statement_timeout` (8 s on Supabase) ends a
+transaction long before a minute, so a row older than a minute that is not
+yet visible cannot exist. The price is a minute or two before a web upload
+reaches the app (it pulls every five minutes anyway; the web's own live path
+is Realtime, R1.10).
+
+Invoker, `search_path` pinned, explicit owner filter plus RLS, EXECUTE for
+`authenticated` only; index `hands_owner_created_idx (owner_id, created_at,
+id)`. No write path, no new grant on a table.
+
+`supabase/tests/database/desktop_pull.test.sql` (17): invoker and grants, the
+result columns (no PHF), anon / no-uid / half-cursor refusals, pages that
+visit every settled row once in order (ties on `created_at` included),
+desktop and web rows alike, never another account's, a fresh row hidden
+until it settles and then found after the cursor, the page size clamped.
+
 ## Verifying the isolation
 
 A migration returning `201` proves the SQL ran, not that two accounts are
@@ -1354,6 +1391,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `phf_redact_private(jsonb)` | `service_role` | jsonb | Internal. Strips the private keys from a PHF document's `meta`. |
 | `register_hand_source(p_device_id, p_local_id, p_device_name, p_label, p_site)` | `authenticated` | uuid | Registers (or renames) a folder the desktop app watches; idempotent per account + device + local id. No paths: a label with `/` or `\` is 22023. R1.8. |
 | `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. |
+| `hands_since(p_after_created timestamptz, p_after_id uuid, p_limit int)` | `authenticated` | `setof (id, created_at, hand_key, origin)` | The desktop pull: a keyset page of the caller's hands, oldest first, rows at least a minute old, at most 1 000. See [The desktop pull](#the-desktop-pull-hands_since). R1.9. |
 
 `search_hands` filter keys (all optional): `site`, `board[]`, `heroCards[]`,
 `heroHandClasses[]`, `heroName`, `player`, `tableName`, `variant`, `limitType`,
@@ -1550,6 +1588,7 @@ two filters plus a sort", not by reflexively indexing every column.
 | `hands_board_gin`, `hands_hero_cards_gin`, `hands_players_gin` | Containment (`@>`) predicates: "board contains these cards", "hero holds these cards", "player X was at the table". These are the filters that need GIN — btree cannot answer them. |
 | `hands_played_at_idx` | The default list order. |
 | `hands_created_at_idx` | "Recently imported". |
+| `hands_owner_created_idx` (`(owner_id, created_at, id)`) | The desktop pull's keyset, `hands_since` (R1.9): one range scan per page, the row comparison `(created_at, id) > cursor` included. |
 | `hands_site_played_idx`, `hands_hero_played_idx`, `hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`, `hands_tournament_idx` | Composite `(filter column, played_at desc)`. Every one of these is "filter by a low-cardinality column, then sort by time". A single-column index would force a sort of the whole matching set; the composite serves filter and order in one scan. The hero / class / stakes / tournament ones are partial (`WHERE … IS NOT NULL`) because the null side is never filtered on. |
 | `hands_total_pot_idx`, `hands_hero_profit_idx` | The "biggest pot" and "best/worst result" sort orders, and the `minPot` filter. |
 | `hands_showdown_idx` | `showdownOnly`. Partial on the selective side, so it is far smaller than indexing a skewed boolean. |

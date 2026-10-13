@@ -35,7 +35,11 @@
 //!   a `rail://` callback (`tauri-plugin-deep-link`; a second process started
 //!   by a link forwards it here through the single-instance plugin), the
 //!   session's refresh token in the OS keychain, refreshed in the
-//!   background, and its line in the tray.
+//!   background, and its line in the tray;
+//! - sync ([`sync`], R1.9): the worker that sends the outbox to Supabase and
+//!   pulls the account's other hands, woken by imports and account changes,
+//!   with its line in the tray and its controls in Settings → Account. It is
+//!   stopped on exit with the watcher, before the store closes.
 
 use std::sync::Mutex;
 
@@ -52,6 +56,7 @@ pub mod folders;
 pub mod quarantine;
 pub mod settings;
 pub mod strings;
+pub mod sync;
 pub mod tray;
 pub mod watch;
 
@@ -140,7 +145,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // The watcher (R1.3), after the store: it commits through the store's
     // writer. Without a store it does not start; the tray and the Today
     // screen say so.
-    let watcher = watch::WatcherState::start(&store);
+    let sync_slot = sync::SyncSlot::default();
+    let watcher = watch::WatcherState::start(&store, std::sync::Arc::clone(&sync_slot));
     app.manage(store);
     app.manage(watcher);
 
@@ -154,6 +160,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // The account (R1.7): after the tray (it sets the account line), and
     // before the window shows, so a link that started the app is handled.
     account::setup(app);
+    // Sync (R1.9): after the store and the account it uses.
+    sync::setup(app, &sync_slot);
 
     // The window is created hidden (`visible: false`) so a login start can
     // stay in the tray.
@@ -219,6 +227,12 @@ pub fn run() {
         account::account_open_sign_in_page,
         account::account_cancel_sign_in,
         account::account_sign_out,
+        sync::sync_status,
+        sync::sync_now,
+        sync::sync_set_paused,
+        sync::sync_set_cap,
+        sync::sync_answer_account,
+        sync::sync_retry_rejected,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -254,6 +268,12 @@ pub fn run() {
         account::account_open_sign_in_page,
         account::account_cancel_sign_in,
         account::account_sign_out,
+        sync::sync_status,
+        sync::sync_now,
+        sync::sync_set_paused,
+        sync::sync_set_cap,
+        sync::sync_answer_account,
+        sync::sync_retry_rejected,
     ]);
 
     let app = builder
@@ -272,8 +292,12 @@ pub fn run() {
         .expect("the Tauri app could not be built");
 
     app.run(|app, event| match event {
-        // The watcher first: the store waits for its writer handles.
+        // The watcher and the sync worker first: the store waits for their
+        // writer handles.
         tauri::RunEvent::Exit => {
+            if let Some(sync) = app.try_state::<sync::SyncState>() {
+                sync.stop();
+            }
             if let Some(watcher) = app.try_state::<watch::WatcherState>() {
                 watcher.stop();
             }

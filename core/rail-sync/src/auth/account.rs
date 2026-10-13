@@ -600,6 +600,45 @@ impl<A: AuthApi> Account<A> {
         fresh(&self.lock())
     }
 
+    /// [`Account::access_token`], but only for `user_id`'s session: `None`
+    /// when another account, or none, is signed in. The sync worker (R1.9)
+    /// sends a store's hands with this, so a token for an account the hands
+    /// do not belong to is never used for them - not even when the account
+    /// changes between two calls.
+    pub async fn access_token_for(&self, user_id: &str) -> Option<Secret> {
+        let fresh = |inner: &Inner| {
+            if inner.stored.as_ref()?.user_id != user_id {
+                return None;
+            }
+            inner
+                .live
+                .as_ref()
+                .filter(|live| live.expires_at > Instant::now() + Duration::from_secs(30))
+                .map(|live| live.access_token.clone())
+        };
+        if let Some(token) = fresh(&self.lock()) {
+            return Some(token);
+        }
+        let ours = self
+            .lock()
+            .stored
+            .as_ref()
+            .is_some_and(|stored| stored.user_id == user_id);
+        if !ours {
+            return None;
+        }
+        let _ = self.refresh().await;
+        fresh(&self.lock())
+    }
+
+    /// The signed-in account: its id and email.
+    pub fn user(&self) -> Option<(String, String)> {
+        self.lock()
+            .stored
+            .as_ref()
+            .map(|stored| (stored.user_id.clone(), stored.email.clone()))
+    }
+
     /// Sign out: forget the session here at once, then end it on the server
     /// (this session only; the browser's is not touched).
     pub async fn sign_out(&self) {

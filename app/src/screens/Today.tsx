@@ -5,6 +5,7 @@ import { useT } from "../i18n";
 import { errorText, inApp, ipc, type StoreStatus } from "../lib/ipc";
 import { go } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
+import { useSync } from "../lib/useSync";
 import { ImportStatus } from "./ImportStatus";
 import styles from "./Today.module.css";
 
@@ -13,9 +14,9 @@ const REFRESH_MS = 5000;
 
 const number = new Intl.NumberFormat();
 
-/** Today: who is signed in (R1.7), the watcher's folders with a backfill's
- * progress (R1.3, R1.6) and the local store's counts (R1.2). The session
- * result arrives in Phase 2. */
+/** Today: who is signed in (R1.7) and how sync stands (R1.9), the
+ * watcher's folders with a backfill's progress (R1.3, R1.6) and the local
+ * store's counts (R1.2). The session result arrives in Phase 2. */
 export function Today() {
   const t = useT();
   const [status, setStatus] = useState<StoreStatus | null>(null);
@@ -68,6 +69,7 @@ export function Today() {
     <>
       <ScreenHeader title={t.screens.today.title} lead={t.screens.today.lead} />
       <AccountLine />
+      <SyncLine />
       <ImportStatus />
       <section className={styles.section} aria-labelledby="today-store">
         <h2 id="today-store" className={styles.heading}>
@@ -117,6 +119,50 @@ function AccountLine() {
       <span>{text}</span>
       <button type="button" className={styles.link} onClick={() => go("settings")}>
         {t.today.account}
+      </button>
+    </p>
+  );
+}
+
+/** One line: how sync with the web stands (R1.9); nothing when sync is off
+ * or nobody is signed in (the account line says so). */
+function SyncLine() {
+  const t = useT();
+  const { sync } = useSync();
+  if (!sync || sync.phase.state === "signedOut" || sync.phase.state === "starting") {
+    return null;
+  }
+  const d = t.sync.today;
+  let text: string;
+  switch (sync.phase.state) {
+    case "upToDate":
+      text = d.upToDate;
+      break;
+    case "syncing":
+      text = sync.sent > 0 ? d.syncing(sync.sent, Math.max(sync.total, sync.sent)) : d.waiting(sync.outbox);
+      break;
+    case "offline":
+      text = d.offline;
+      break;
+    case "paused":
+      text = d.paused;
+      break;
+    case "accountMismatch":
+    case "declined":
+      text = d.question;
+      break;
+    case "rateLimited":
+      text = d.waiting(sync.outbox);
+      break;
+    case "failed":
+      text = d.problem;
+      break;
+  }
+  return (
+    <p className={styles.account}>
+      <span>{text}</span>
+      <button type="button" className={styles.link} onClick={() => go("settings")}>
+        {d.details}
       </button>
     </p>
   );

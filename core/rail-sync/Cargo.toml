@@ -1,6 +1,6 @@
 [package]
 name = "rail-sync"
-description = "Sync between the local store and Supabase: the desktop account (R1.7), the ingest calls (R1.8), later the worker and the pull"
+description = "Sync between the local store and Supabase: the desktop account (R1.7), the ingest calls (R1.8), the sync worker and the pull (R1.9)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -12,6 +12,8 @@ repository.workspace = true
 # purpose. `reqwest` and `tokio` are the versions Tauri already brings.
 [dependencies]
 rail-store = { path = "../rail-store" }
+# The pull reads the server's PHF back into `PhfHand` (R1.9).
+rail-core = { path = "../rail-core" }
 # HTTPS to Supabase. rustls with the *ring* provider (reqwest's own
 # `rustls` feature would pull aws-lc-rs, a C/assembly build on every OS);
 # certificates are checked by the operating system's verifier
@@ -31,6 +33,8 @@ tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt"] }
 log = "0.4.34"
 
 [dev-dependencies]
+# The sync end-to-end example drives the watcher too (the Phase 1 exit check).
+rail-watch = { path = "../rail-watch" }
 # `net` and `io-util`: the ingest tests' scripted HTTP server.
 tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt", "rt-multi-thread", "test-util", "net", "io-util"] }
 

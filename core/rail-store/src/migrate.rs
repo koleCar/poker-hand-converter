@@ -42,6 +42,10 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0004_folder_rollups.sql",
         sql: include_str!("../migrations/0004_folder_rollups.sql"),
     },
+    Migration {
+        name: "0005_sync.sql",
+        sql: include_str!("../migrations/0005_sync.sql"),
+    },
 ];
 
 /// The schema version this build writes.

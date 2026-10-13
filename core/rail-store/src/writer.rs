@@ -343,7 +343,8 @@ pub fn apply_import(tx: &Connection, batch: &ImportBatch) -> Result<ImportOutcom
          ON CONFLICT (hand_key) DO NOTHING",
     )?;
     let mut enqueue = tx.prepare_cached(
-        "INSERT INTO outbox (hand_key, enqueued_at, next_attempt_at) VALUES (?1, ?2, ?2)
+        "INSERT INTO outbox (hand_key, enqueued_at, next_attempt_at, played_at)
+         VALUES (?1, ?2, ?2, ?3)
          ON CONFLICT (hand_key) DO NOTHING",
     )?;
     for hand in &batch.hands {
@@ -372,7 +373,7 @@ pub fn apply_import(tx: &Connection, batch: &ImportBatch) -> Result<ImportOutcom
             now,
         ])?;
         if inserted == 1 {
-            enqueue.execute(params![hand.hand_key, now])?;
+            enqueue.execute(params![hand.hand_key, now, hand.played_at])?;
             outcome.inserted += 1;
         } else {
             outcome.duplicates += 1;

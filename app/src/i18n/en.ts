@@ -210,6 +210,79 @@ export const en = {
     },
   },
 
+  /** Sync with the web (R1.9): Settings, Account; Today; the tray. */
+  sync: {
+    heading: "Sync",
+    loading: "Loading…",
+    off: "Sync is not available in this build. Your hands stay on this computer.",
+    starting: "Starting…",
+    signedOut: (waiting: number) =>
+      waiting === 0
+        ? "Sign in to sync. Your hands stay on this computer until then."
+        : `Sign in to sync. ${waiting} hands wait on this computer until then.`,
+    paused: (waiting: number) =>
+      waiting === 0 ? "Sync is paused." : `Sync is paused. ${waiting} hands wait to be sent.`,
+    mismatch: (owner: string, email: string, hands: number) =>
+      `This computer's ${hands} hands were synced to ${owner}. You are now signed in as ${email}.`,
+    mismatchQuestion: (email: string) => `Upload them to ${email} too?`,
+    mismatchHint:
+      "Uploading copies them into this account's library; nothing is removed anywhere. Until you choose, nothing is sent or fetched.",
+    upload: (email: string) => `Upload to ${email}`,
+    keepApart: "Keep them apart",
+    declined: (email: string) =>
+      `Not syncing: this computer's hands stay apart from ${email}. Sign in with the other account to sync again.`,
+    uploadInstead: (email: string) => `Upload them to ${email} instead`,
+    anotherAccount: "another account",
+    syncing: (sent: number, total: number) => `Syncing ${sent} of ${total} hands.`,
+    speed: (hands: number, kb: number) => `About ${hands} hands a second (${kb} KB/s).`,
+    capped: (limit: string) => `Upload limited to ${limit} while a large backlog syncs.`,
+    upToDate: "Up to date.",
+    lastSync: (time: string) => `Last synced ${time}.`,
+    offline: (waiting: number) =>
+      waiting === 0
+        ? "Offline. Rail syncs again by itself when the connection is back."
+        : `Offline. ${waiting} hands wait; Rail sends them by itself when the connection is back.`,
+    rateLimited: (time: string) => `The account's sync limit is reached for now. Rail continues at ${time}.`,
+    failed: (reason: string, time: string) => `Sync ran into a problem: ${reason}. Rail tries again at ${time}.`,
+    retrying: (count: number) => `${count} hands will be tried again shortly.`,
+    pulled: (count: number) => `${count} hands from the web and your other computers were added here.`,
+    pullSkipped: (count: number) => `${count} hands from the web need a newer Rail to open.`,
+    rejectedHeading: (count: number) => `The server refused ${count} hands`,
+    rejectedHint: "Sending them again cannot help. After a Rail update, try again.",
+    reasons: {
+      shape: "Missing parts of the hand",
+      schema: "Unknown hand format version",
+      "hand-key": "Hand id does not match",
+      "raw-text": "Contained the original text",
+      "too-large": "Too large",
+      invalid: "A value the server does not accept",
+      unreadable: "Could not be read here",
+    } as Record<string, string>,
+    otherReason: (code: string) => `Other (${code})`,
+    tryAgain: "Try again",
+    syncNow: "Sync now",
+    pause: "Pause sync",
+    resume: "Resume sync",
+    capLabel: "Upload speed while a large backlog syncs",
+    caps: {
+      slow: "256 KB/s",
+      normal: "1 MB/s (default)",
+      fast: "4 MB/s",
+      none: "No limit",
+    },
+    today: {
+      upToDate: "Synced with the web.",
+      syncing: (sent: number, total: number) => `Syncing ${sent} of ${total} hands with the web.`,
+      waiting: (count: number) => `${count} hands wait to sync.`,
+      offline: "Offline: hands sync when the connection is back.",
+      paused: "Sync is paused.",
+      question: "Sync waits for your answer.",
+      problem: "Sync has a problem.",
+      details: "Sync settings",
+    },
+    failedAction: (reason: string) => `That did not work: ${reason}`,
+  },
+
   settings: {
     loading: "Loading…",
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,

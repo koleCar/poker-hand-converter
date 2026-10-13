@@ -21,3 +21,7 @@ rail-core = { path = "../rail-core" }
 rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled", "cache"] }
 # A hand's canonical PHF is stored zstd-compressed (docs/RAIL-PLAN.md §3.4).
 zstd = { version = "=0.14.2", default-features = false }
+
+[dev-dependencies]
+# The sync tests read a stored PHF back into `PhfHand` (as the pull does).
+serde_json = "1.0.154"

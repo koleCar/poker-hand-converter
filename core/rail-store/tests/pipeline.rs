@@ -252,7 +252,10 @@ fn rollups_are_built_from_an_older_store() {
     }
     let mut conn = Connection::open(&path).expect("open");
     conn.execute_batch(
-        "DROP TRIGGER sources_totals_row; DROP TRIGGER files_totals_insert;
+        "DROP INDEX outbox_recent_idx; DROP INDEX outbox_retry_idx;
+         ALTER TABLE outbox DROP COLUMN played_at; DROP TABLE sync_rejected;
+         DROP INDEX hands_pulled_idx; ALTER TABLE hands DROP COLUMN pulled_at;
+         DROP TRIGGER sources_totals_row; DROP TRIGGER files_totals_insert;
          DROP TRIGGER files_totals_delete; DROP TRIGGER files_totals_update;
          DROP TRIGGER quarantine_count_insert; DROP TRIGGER quarantine_count_delete;
          DROP TABLE source_days; DROP TABLE source_totals;
@@ -262,7 +265,7 @@ fn rollups_are_built_from_an_older_store() {
     )
     .expect("back to version 3");
     let applied = migrate::migrate(&mut conn).expect("migrate");
-    assert_eq!(applied, vec![4]);
+    assert_eq!(applied, (4..=migrate::LATEST).collect::<Vec<_>>());
     assert_integrity(&conn);
     let (files, hands, quarantined): (i64, i64, i64) = conn
         .query_row(

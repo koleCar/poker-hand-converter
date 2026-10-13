@@ -101,7 +101,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`), every HUD policy unknown | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
 | File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands. **Import pipeline (R1.6)**: a pool of import threads (physical cores - 1), live files first, large files cut into parallel batches, grouped commits; backfill progress in the tray, on Today and the folder cards; refused hands app-wide with their raw text and "Try again after an update"; 10 300 hands/s on an M2 Pro (target >= 5 000), guarded in CI | Sync to Supabase (R1.8-R1.9) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
-| Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
+| Sync | Web saves to Supabase directly; **R1.8**: `ingest_hands` / `hand_sources` for desktop rows (PHF only, Q4); **R1.9**: the desktop sync worker (`rail_sync::worker`) - the outbox in batches of 500 to `ingest_hands`, hands just played first, backoff while offline, the account's rate limit waited out, refused hands kept with their reason, a bandwidth cap while a large backlog syncs, resumable after a kill, never sent to another account than the store's; and the pull (`hands_since`) of the account's hands from the web and its other computers. Settings → Account, Today and the tray show it | Live arrival on the web (R1.10); gzip uploads if bandwidth needs it | 1 |
 | Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats` | Ported to Rust, computed at import; display stats defined in `config/stats/` | 2 |
 | Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 1–2 |
@@ -252,8 +252,23 @@ state), the three GoTrue calls (verify the one-time token, refresh, log out;
 reqwest with rustls on *ring* and the OS certificate verifier), and the
 manager: one sign-in at a time for ten minutes, refresh five minutes before
 expiry with backoff while offline, sign-out when the server refuses the
-refresh token. The sync worker (R1.9) takes its access token from
-`Account::access_token()`.
+refresh token.
+
+Since R1.9, `rail_sync::worker` is the sync worker the app runs in the
+background: it takes up to 500 hands from the outbox - those queued in the
+last 15 minutes first, newest played first, so a hand just played never
+waits behind a backfill - and sends them with `ingest_hands` under the
+watched folder's `hand_sources` row. Inserted and duplicate hands leave the
+outbox; refused ones are kept with their reason (Settings → Account counts
+them, "Try again" after an update); while offline it backs off (5 s doubling
+to 10 min, with jitter), a spent rate limit is waited out and probed with
+one hand. A large backlog is paced to an upload cap (1 MiB/s by default,
+lower with tables open - the Phase 3 hook). Every call's token is for the
+account that owns the store's hands (`kv` `sync.owner`); signing in as
+another account syncs nothing until the user chooses to upload this
+computer's hands to it. The pull fetches the account's other hands (saved on
+the web, synced from other computers) by keyset cursor, keys first, PHF only
+for the hands the store lacks.
 
 ### 5.4 Statistics engine (`core/rail-stats`, Phase 2)
 
@@ -568,7 +583,10 @@ Rail" there, the browser hands the app a `rail://auth/callback` link and the
 app signs in with a session of its own. The refresh token is in the OS
 keychain (service `app.rail.desktop`, account `session@<Supabase host>`),
 never in `settings.json` or the log. Rail works without an account ("Use
-offline"). Where it signs in is compiled in: `RAIL_SUPABASE_URL` and
+offline"). Signed in, the app syncs by itself (since R1.9): Settings →
+Account shows "Syncing 120 of 4 000 hands" / up to date / offline / paused,
+the hands the server refused per reason, Sync now, Pause sync and the upload
+limit for a large backlog; Today and the tray show one line. Where it signs in is compiled in: `RAIL_SUPABASE_URL` and
 `RAIL_WEB_URL` default to production, `RAIL_SUPABASE_ANON_KEY` (the public
 anon key) has no default, and a build without it says sign-in is not
 available; a debug build also reads the three at run time. `rail://` links
@@ -576,7 +594,10 @@ reach only a bundled app on macOS (the bundle's Info.plist registers the
 scheme); in `tauri dev` on macOS the link does not come back, so the flow is
 checked end to end with `supabase/functions/desktop-handoff/e2e.sh` against
 a local Supabase stack instead (the app's code, the real function and
-GoTrue; see the script's header).
+GoTrue; see the script's header). Sync is checked end to end the same way:
+`cargo run -p rail-sync --example sync_e2e` against a local stack (kill and
+resume, the watcher-to-PostgREST exit check of Phase 1 with a network cut
+mid-batch, the pull; see its header).
 
 CI job `app` lints and typechecks the TypeScript on Linux, runs clippy and
 the crate's tests on Linux, macOS and Windows, and attaches an unsigned

@@ -331,9 +331,10 @@ pub enum IngestError {
     SignedOut,
     /// Still `401` after a refresh: the token is not accepted here.
     Unauthorized,
-    /// The account's budget is spent (`53400`): wait (the windows are 10
-    /// minutes and a day) and send again.
-    RateLimited,
+    /// The account's budget is spent (`53400`): wait for the window (10
+    /// minutes or a day, from the server's message) and send again. A
+    /// refused call costs no budget (it rolls back).
+    RateLimited { window: RateWindow },
     /// The source id is unknown or not this account's (`23503`): register
     /// the folder again.
     UnknownSource,
@@ -350,7 +351,7 @@ impl std::fmt::Display for IngestError {
         match self {
             Self::SignedOut => f.write_str("not signed in"),
             Self::Unauthorized => f.write_str("the server does not accept this session"),
-            Self::RateLimited => f.write_str("the account's sync budget is spent for now"),
+            Self::RateLimited { .. } => f.write_str("the account's sync budget is spent for now"),
             Self::UnknownSource => f.write_str("the server does not know this folder"),
             Self::Refused { status, code } => write!(f, "refused ({status} {code})"),
             Self::Transient(why) => write!(f, "not reachable: {why}"),
@@ -359,6 +360,30 @@ impl std::fmt::Display for IngestError {
 }
 
 impl std::error::Error for IngestError {}
+
+/// Which budget a `53400` spent: what to wait for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RateWindow {
+    /// `desktop_ingest:<uid>` (150 000 rows) or `hand_source:<uid>`: a
+    /// window of 10 minutes.
+    Minutes,
+    /// `desktop_ingest_day:<uid>` (2 000 000 rows a day).
+    Day,
+    /// Another refusal with the same code (200 sources per account).
+    Unknown,
+}
+
+impl RateWindow {
+    fn of(message: &str) -> Self {
+        if message.contains("desktop_ingest_day:") {
+            Self::Day
+        } else if message.contains("desktop_ingest:") || message.contains("hand_source:") {
+            Self::Minutes
+        } else {
+            Self::Unknown
+        }
+    }
+}
 
 /// Where [`IngestClient::ingest_as`] gets its bearer token: the account
 /// (a fake in tests).
@@ -384,6 +409,8 @@ impl<A: AuthApi> TokenSource for Account<A> {
 pub struct IngestClient {
     http: reqwest::Client,
     rpc_base: Url,
+    /// `rest/v1/`, for the pull's table reads.
+    rest_base: Url,
     anon_key: Secret,
 }
 
@@ -402,9 +429,14 @@ impl IngestClient {
             .supabase_url
             .join("rest/v1/rpc/")
             .map_err(|_| IngestError::Transient("bad Supabase URL".into()))?;
+        let rest_base = config
+            .supabase_url
+            .join("rest/v1/")
+            .map_err(|_| IngestError::Transient("bad Supabase URL".into()))?;
         Ok(Self {
             http,
             rpc_base,
+            rest_base,
             anon_key: config.anon_key.clone(),
         })
     }
@@ -422,14 +454,20 @@ impl IngestClient {
         function: &str,
         body: String,
     ) -> Result<Vec<u8>, IngestError> {
-        let response = self
-            .http
-            .post(self.endpoint(function))
+        let request = self.http.post(self.endpoint(function)).body(body);
+        self.send(token, request).await
+    }
+
+    async fn send(
+        &self,
+        token: &Secret,
+        request: reqwest::RequestBuilder,
+    ) -> Result<Vec<u8>, IngestError> {
+        let response = request
             .header("apikey", self.anon_key.expose())
             .bearer_auth(token.expose())
             .header(reqwest::header::CONTENT_TYPE, "application/json")
             .header(reqwest::header::ACCEPT, "application/json")
-            .body(body)
             .send()
             .await
             .map_err(|error| IngestError::Transient(error.without_url().to_string()))?;
@@ -526,17 +564,24 @@ where
 #[derive(Deserialize)]
 struct PostgrestError {
     code: Option<String>,
+    message: Option<String>,
 }
 
 fn error_of(status: u16, body: &[u8]) -> IngestError {
-    let code = serde_json::from_slice::<PostgrestError>(body)
-        .ok()
+    let error = serde_json::from_slice::<PostgrestError>(body).ok();
+    let message = error
+        .as_ref()
+        .and_then(|error| error.message.clone())
+        .unwrap_or_default();
+    let code = error
         .and_then(|error| error.code)
         .filter(|code| code.len() <= 16 && code.bytes().all(|b| b.is_ascii_alphanumeric()))
         .unwrap_or_default();
     match (status, code.as_str()) {
         (401, _) => IngestError::Unauthorized,
-        (_, "53400") => IngestError::RateLimited,
+        (_, "53400") => IngestError::RateLimited {
+            window: RateWindow::of(&message),
+        },
         (_, "23503") => IngestError::UnknownSource,
         (408 | 429, _) => IngestError::Transient(format!("HTTP {status}")),
         (400..=499, _) => IngestError::Refused {
@@ -620,6 +665,10 @@ fn is_uuid(text: &str) -> bool {
             _ => b.is_ascii_hexdigit(),
         })
 }
+
+mod pull;
+
+pub use pull::{PHF_IDS_PER_CALL, RemoteHand, RemoteKey};
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
