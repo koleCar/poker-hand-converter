@@ -227,6 +227,11 @@ ships a copy and fetches updates from the web origin over HTTPS; a downloaded
 file is schema-validated and may only make HUD policy *stricter* than the
 shipped copy, never looser, until a new signed release says otherwise.
 
+Built in R0.12 (`config/sites.json`, `config/sites.schema.json`,
+`core/rail-config`); the real shape adds `kind`, `network`, `operating`,
+`skins`, `anonymisation`, `docs`, `notes`, and a verification status on every
+path and on the `files` and `tables` blocks - see *As built, R0.12*.
+
 ---
 
 ## Phase 0 — Foundations
@@ -1721,6 +1726,88 @@ under WASM; the registry records an unknown file end to end.
   an entry; `hud.allowed` is `null` (unknown) for every room until R3.0.
 - CI rule: a parser without a `sites.json` entry fails the build, and vice
   versa.
+- *As built, R0.12* (§15):
+  - **Granularity: one entry per client** - a room or a skin, the thing a
+    player installs and the unit the watcher (folders), the HUD (processes,
+    window titles, seat layouts) and HUD policy all act on - with a `parser`
+    field, so several entries may share a parser. Where our sources name a
+    network but not which clients write which files, a `kind: "network"`
+    entry stands in until R1.4 / R3.0 split it into rooms; the validator
+    and the schema forbid a network (or a `format`) any table data and
+    `hud.allowed: true`, so a HUD can never attach on a network's say-so.
+    `kind: "format"` is Rail's own `standard` text, which a parser reads but
+    no client writes.
+  - **22 entries.** 19 cover the 19 parsers, one each (`acrwpn` is the
+    `acr` entry). 13 rooms: `pokerstars`, `ggpoker`, `winamax`, `888poker`,
+    `partypoker`, `acr`, `coinpoker`, `unibet`, `weplay`, `pokerbros`,
+    `fulltilt`, `runitonce`, and `wpt-global` without a parser (no export
+    since June 2026). 8 networks: `ipoker`, `chico`, `ignition`,
+    `microgaming`, `ongame`, `entraction`, and `bossmedia` and `merge`
+    without a parser (the R0.11 registry's `KNOWN_FORMATS` ids: samples,
+    no parser). 1 format: `standard`. WPN's other skins (Black Chip, True
+    Poker, Ya Poker) and GG's (Natural8, BestPoker, ClubGG) are named in
+    notes, not entries, until a client or a file confirms them.
+  - **Unknown is `null`, never a guess.** Every `hud.allowed` is `null`
+    (a test holds it until R3.0). Only PokerStars has paths - one per OS,
+    `verified: false`, the research doc's *inferred* tracker-support folders;
+    every other entry's are empty. `files.live` is the README §6 starting
+    point (`true` PokerStars, Winamax, ACR; `false` GGPoker, Ignition, WPT
+    Global, PokerBros and the closed rooms; `null` the rest), every `files`
+    block `verified: false` with its source; `files.glob` is set only where
+    real file names are known (`*.txt`: PokerStars, GGPoker, WePlay);
+    `encoding` is `auto` everywhere (the core sniffs each file). Every
+    `tables` field is `null`. `anonymisation` is
+    `frontend/src/lib/db/anonymization.ts`'s site default (`positional`
+    Ignition, `opaque-id` GGPoker, `none` the other parsers, `null` without
+    a parser), held to that file by a test. `operating` is `false` for the
+    closed rooms per their research docs, `true` for rooms that plainly run
+    today (2026 samples or common knowledge, not a per-client check), and
+    `null` where not established (Chico, Ignition, and the `standard`
+    format).
+  - **`rail-config`** (pure functions; builds for wasm32, now part of CI's
+    WebAssembly build): `model::{Config, Site, ...}` mirror the schema with
+    `deny_unknown_fields`; `parse`, `load(text, parsers)` (parse +
+    `validate` + `check_coverage`), `load_shipped(parsers)` over the
+    embedded `SHIPPED` copy, `load_remote(shipped, text, parsers) ->
+    Merged`, `merge_remote(shipped, remote) -> Merged { config, notes }`,
+    `Site::hud_permitted()` (a room with `allowed == true`; R3.10's
+    question). Parser ids are passed in
+    (`rail_core::parsers::REGISTRATION_ORDER`), so the crate does not
+    depend on the core. `validate` checks what the schema cannot or what
+    the app must check without a schema engine: unique ids, `parser` in the
+    registry, a parsed entry has an `anonymisation`, title regexes compile
+    and have a `table` group, seat layouts are sizes 2-10, Windows paths
+    start at `%VAR%\` or `X:\`, macOS paths at `~/` or `/`, real
+    `YYYY-MM-DD` dates, a verified path has a date, `hud.allowed: true` has
+    an `https://` source and a date.
+  - **Merge rule** (`merge.rs`, tested over all nine shipped/remote pairs):
+    looseness `false` < `null` < `true`; a remote entry may only move down
+    or stay (then its block wins, so a re-check can refresh the date); a
+    looser one keeps the shipped `hud` block and is reported. **Unknown ids
+    in the remote file are ignored** (reported): an id is a key the app
+    stores, and identity comes with a release. A shipped id the remote
+    lacks stays as shipped. A remote entry that changes `kind`, `parser` or
+    `anonymisation` is ignored whole. Paths, files, tables, names and notes
+    are taken from the remote file - the guideline's "a new path without a
+    new version". A remote file that does not parse, has another
+    `version`, or fails `validate` is refused whole.
+  - **CI rules**: `core/rail-config/tests/sites.rs` (in `cargo test
+    --workspace` on all three OSes) fails when a parser of
+    `rail_core::parsers::builtin()` has no entry or an entry names a parser
+    that does not exist - so the guideline's "a new room or format = parser
+    + golden tests + an entry in `config/sites.json`" (§14) is now
+    enforced - and checks the docs links, `KNOWN_FORMATS`, the
+    anonymisation mirror, "nothing verified, no HUD policy", and the merge
+    on the real file. `tests/test/sitesConfig.test.ts` validates the file
+    against the JSON Schema with ajv (draft 2020-12, formats asserted;
+    `ajv` and `ajv-formats` added to `tests/` dev-dependencies, since a Rust
+    schema engine would have added ~44 crates) and checks that the schema
+    refuses 14 kinds of mistake.
+  - **For R4.x** (not changed now): the web still takes display names from
+    each TypeScript parser's `name` (`HandList.tsx`, `siteLabel`) and the
+    anonymisation sets from `anonymization.ts`; when the web moves to the
+    WASM core (R4.1) or `packages/ui` (R4.5), both should come from
+    `sites.json` (the anonymisation test then becomes redundant).
 
 ### R0.13 WASM build — M
 - `rail-core-wasm` with `wasm-bindgen`: `convert(bytes, filename) -> JSON`,
@@ -1783,6 +1870,15 @@ exactly once, and the same files imported twice change nothing.
 - Fill `sites.json` paths per room and OS **from real installs** (P6), not from
   tracker forums; record how each was verified. Today the research docs confirm
   almost no default folders.
+- From R0.12: every path is `verified: false` and only PokerStars has any
+  (inferred). Per room, set `paths` (a verified entry needs `checkedAt` and
+  a `source` saying how it was seen), `files.glob` and `files.live` with
+  `files.verified`, and `operating` where it is `null`; relax the paths and
+  files part of the R0.12 test `nothing_is_verified_yet`. Split the
+  `network` entries that still operate (`ipoker`, `chico`, `ignition`) into
+  one room per client found, and add the skins named only in notes (WPN:
+  Black Chip, True Poker, Ya Poker; GG: Natural8, BestPoker, ClubGG) once a
+  client is installed. No source covers PokerStars' regional clients yet.
 - First-run screen: found folders with file count and date of the last hand;
   one click to confirm; "import everything" vs "only new hands".
 
@@ -1911,6 +2007,14 @@ database, on the development Mac and on a mid-range Windows laptop.
 - Per room: HUD policy, the exact page it comes from, the date, and whether the
   client writes live files and persistent names. Into `sites.json` (`hud`
   block); the README table (§6) updated from it; owner signs off.
+- From R0.12: every `hud.allowed` is `null` and a test
+  (`every_hud_policy_is_unknown_until_r3_0`) holds it; R3.0 replaces that
+  test with the owner-signed list. `allowed: true` needs an `https://`
+  `source` and `checkedAt`, and is refused on a `network` entry, so split
+  those first. The `tables` block (process names, a title regex with a
+  `table` group, `seatLayouts`, `preferredSeat`) stays `null` until R3.3 /
+  R3.6 / R3.11 read it from the clients, which also relax the tables part
+  of `nothing_is_verified_yet`.
 - Repeat before every release (checklist in §12).
 
 ### R3.1 Table simulator (`rail-hud-sim`) — M
@@ -1961,6 +2065,8 @@ database, on the development Mac and on a mid-range Windows laptop.
 ### R3.10 Compliance mode — S
 - The HUD refuses to attach to windows of rooms whose `hud.allowed` is not
   `true` — unknown counts as no — and says why in the app. No override.
+  The question is `rail_config::Site::hud_permitted()` (R0.12), asked of the
+  merged configuration (`load_remote`).
 - A10: analysis and solver screens are hidden while any table is open.
 
 ### R3.11 macOS: find tables — M
@@ -2137,3 +2243,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.10c done**: `fulltilt` and `runitonce` in Rust, registered in `index.ts` order; Full Tilt reads its own grammar into `StarsHandDraft`, Run It Once its body through R0.7a's clone dialect. One additive shared change: `StarsHandDraft::showdown_marker_at` (the TypeScript's runout `-1` of `*** SHOW DOWN 0 ***`); all earlier vectors still equal. Goldens: `fulltilt` **13 / 13** files (21 hands, 1 refusal `no-seat-block`; both header generations, run-it-twice, Omaha H/L halves), `runitonce` **4 / 4** (2 hands, 2 refusals: the Omaha splash file `unsupported-variant`, the tournament summary `no-hands`), fully; whole-file detection of the sixteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p3-vectors.*`): splits, 25 detection probes, **4 251** seeded mutations through both parsers (168 misread from UTF-16LE; `cashOnly` outcomes where they differ), the 17 files re-encoded six ways, all equal (two soak runs of 42 231 cases too). Numbers beyond `u32` (seats, size, button, runout index, and runout `-1`) are carried as stand-ins and reported as R0.6's `parser-error` only where the TypeScript returns its hand. 42 TS test cases translated (`p3Parsers.test.ts` Full Tilt / Run It Once parts, Full Tilt's `phfHiLo`; not the replayer or `analyzeAllIn`). Not reproducible, reported: a Full Tilt marker numbered past 10 000 (the TypeScript allocates a runout per index), and a Run It Once seat line beyond `u32`, which stops the shared dialect at that line (R0.7a) where the TypeScript may refuse later or drop a duplicate. |
 | 2026-10-13 | **R0.10d done, R0.10 complete - all 19 parsers in Rust**: `ongame`, `entraction` and `unibet`, registered in `index.ts` order; `parsers::ported()` is the whole registry and a test asserts `builtin()` equals `REGISTRATION_ORDER`. All three build on `p2_handbuilder` (Unibet through `draft_to_standard_text` with its own tournament first line, `$` patterns expanded as `String.prototype.replace` does). Additive shared change: `phf::money::{format_amount_digits_js, parse_buy_in_token_js}`; the `dev` profile optimises the regex and sha-256 dependencies (test speed only). Goldens: `ongame` **13 / 13** files (21 hands, 1 refusal), `entraction` **13 / 13** (21 hands, 1 refusal - the validator's `hi-lo-payout-contradiction`; three of four Hi/Lo files convert), `unibet` **5 / 5** (4 hands, 2 refusals), fully; and the Phase 0 exit check minus WASM: the whole Rust pipeline over the corpus equals every golden - **556 / 556** files, **8 422 / 8 422** hands, **196 / 196** refusals. Beyond the corpus (`tests/data/p4-vectors.*`): 78 text-room probes, splits, 35 detection probes, **6 026** seeded cases through all three parsers, the 31 files re-encoded six ways, all equal (two soak runs of 47 786 cases too). 43 TS test cases translated (`legacyNetworks` Ongame / Entraction, `unibetParser`, `phfHiLo` Entraction; not the replayer or `analyzeAllIn`). Not reproducible, reported: seats, sizes and buttons between 2^32 and 2^53. Phase 0 left: R0.11 registry, R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
 | 2026-10-13 | **R0.11 done** (Phase 0 part; the desktop-local `unsupported` table waits for R1.2): the core returns `FileConversion::unrecognized` - `Unrecognized { fingerprint, header_sample, guessed_site, confidence, guess_basis, shape }` - beside the unchanged `unknown-site` refusal for a file no parser claims; every golden byte-identical, the 24 unrecognised files carry a record with the golden's fingerprint, Boss Media and Merge guessed by signature at 1000. The anonymiser (`rail-anon/1`, `rail-convert --anonymise`) replaces every name its wide rules find, consistently, amounts and layout kept, 64 KiB samples: over all **556** corpus files **3 454** (file, name) pairs / **1 471** distinct names checked, none survives (no name of 3+ characters even as a substring). Migration `20270414090000_unparsed_registry.sql` (not applied to production): `unparsed_hands.origin` (`web` default) / `os` / `client_version` / `consented_at` / `anonymiser_version` / `guessed_site` / `guess_confidence`, the consent rule in the RPC and in `CHECK` constraints, `unparsed_gaps.desktop_hands` / `guessed_sites`; pgTAP 41 tests; types regenerated. `docs/unsupported-formats.md` with the weekly triage query; label `new-format`. Phase 0 left: R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
+| 2026-10-13 | **R0.12 done**: `config/sites.json` v1 and `config/sites.schema.json` (draft 2020-12). One entry per client (room or skin) with a `parser` field; `network` entries stand in where the clients are not yet told apart (iPoker, Chico, Ignition and the closed networks) and can never carry table data or allow a HUD; `standard` is a `format`. **22 entries**: the 19 parsers, plus WPT Global, Boss Media and Merge without one. Unknown is `null`: every `hud.allowed` `null`; 2 paths in all (PokerStars, inferred, `verified: false`); `files.live` from the README §6 starting point, unverified; every `tables` field `null`. `rail-config`: typed loader (`load`, `load_shipped`, `load_remote`), `validate` / `check_coverage`, `merge_remote` (a remote file may only make HUD policy stricter, `false` < `null` < `true`; unknown remote ids ignored; identity changes ignored), `Site::hud_permitted`; builds for wasm32 (added to CI's WebAssembly build). CI: a parser without an entry, or an entry naming a missing parser, fails `cargo test` - the guideline §14 rule is now enforced; the file is validated against its schema by ajv in `tests/`. Phase 0 left: R0.13 WASM + shadow mode, R0.14 layout. |

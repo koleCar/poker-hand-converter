@@ -179,7 +179,7 @@ jobs:
 
       - name: WebAssembly build
         if: matrix.os == 'ubuntu-latest'
-        run: cargo build -p rail-core -p rail-core-wasm --target wasm32-unknown-unknown --locked
+        run: cargo build -p rail-core -p rail-core-wasm -p rail-config --target wasm32-unknown-unknown --locked
 
   database:
     name: Migrations and pgTAP

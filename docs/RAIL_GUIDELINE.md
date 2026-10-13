@@ -286,7 +286,7 @@ Predložena struktura repozitorija:
 
 Pravila:
 
-- Nova soba ili format = parser + golden testovi + unos u `config/sites.json`, u istom pull requestu.
+- Nova soba ili format = parser + golden testovi + unos u `config/sites.json`, u istom pull requestu. Od R0.12 to provjerava `cargo test`: parser bez unosa ili unos s nepostojećim parserom ruši build (`core/rail-config/tests/sites.rs`).
 - Promjene baze samo kroz migracije u `supabase/`.
 - Nova statistika = definicija u `config/stats/`, ne kod u aplikaciji ili webu.
 - Svaki pull request mora proći build za macOS i Windows.
