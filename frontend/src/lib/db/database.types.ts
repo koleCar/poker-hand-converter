@@ -2106,15 +2106,22 @@ export type Database = {
       }
       unparsed_hands: {
         Row: {
+          anonymiser_version: string | null
+          client_version: string | null
+          consented_at: string | null
           detected_site: string | null
           detection_confidence: number | null
           fingerprint: string
           first_seen_at: string
+          guess_confidence: number | null
+          guessed_site: string | null
           id: string
           last_seen_at: string
           message: string
           notes: string | null
           occurrences: number
+          origin: Database["public"]["Enums"]["unparsed_origin"]
+          os: string | null
           parser_version: string
           raw_text: string
           reason: string
@@ -2124,15 +2131,22 @@ export type Database = {
           submitted_by: string | null
         }
         Insert: {
+          anonymiser_version?: string | null
+          client_version?: string | null
+          consented_at?: string | null
           detected_site?: string | null
           detection_confidence?: number | null
           fingerprint: string
           first_seen_at?: string
+          guess_confidence?: number | null
+          guessed_site?: string | null
           id?: string
           last_seen_at?: string
           message: string
           notes?: string | null
           occurrences?: number
+          origin?: Database["public"]["Enums"]["unparsed_origin"]
+          os?: string | null
           parser_version: string
           raw_text: string
           reason: string
@@ -2142,15 +2156,22 @@ export type Database = {
           submitted_by?: string | null
         }
         Update: {
+          anonymiser_version?: string | null
+          client_version?: string | null
+          consented_at?: string | null
           detected_site?: string | null
           detection_confidence?: number | null
           fingerprint?: string
           first_seen_at?: string
+          guess_confidence?: number | null
+          guessed_site?: string | null
           id?: string
           last_seen_at?: string
           message?: string
           notes?: string | null
           occurrences?: number
+          origin?: Database["public"]["Enums"]["unparsed_origin"]
+          os?: string | null
           parser_version?: string
           raw_text?: string
           reason?: string
@@ -2237,9 +2258,11 @@ export type Database = {
       }
       unparsed_gaps: {
         Row: {
+          desktop_hands: number | null
           detected_site: string | null
           distinct_hands: number | null
           first_seen_at: string | null
+          guessed_sites: string[] | null
           last_seen_at: string | null
           reason: string | null
           stage: Database["public"]["Enums"]["conversion_stage"] | null
@@ -2888,6 +2911,7 @@ export type Database = {
         Returns: Json
       }
       trainer_summary: { Args: { p_days?: number }; Returns: Json }
+      unparsed_consent_instant: { Args: { p_value: string }; Returns: string }
       unparsed_summary: { Args: { p_limit?: number }; Returns: Json }
       unpublish_hand: { Args: { p_public_id: string }; Returns: boolean }
       unread_notification_count: { Args: never; Returns: number }
@@ -2913,6 +2937,7 @@ export type Database = {
       profile_role: "member" | "moderator" | "admin"
       publish_mode: "pseudonyms" | "positions" | "as-imported"
       site_anonymization: "none" | "positional" | "opaque-id"
+      unparsed_origin: "web" | "desktop"
       unparsed_status: "new" | "triaged" | "parser-written" | "wontfix"
     }
     CompositeTypes: {
@@ -3046,6 +3071,7 @@ export const Constants = {
       profile_role: ["member", "moderator", "admin"],
       publish_mode: ["pseudonyms", "positions", "as-imported"],
       site_anonymization: ["none", "positional", "opaque-id"],
+      unparsed_origin: ["web", "desktop"],
       unparsed_status: ["new", "triaged", "parser-written", "wontfix"],
     },
   },

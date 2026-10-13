@@ -123,3 +123,28 @@ fn reports_a_file_no_parser_claims() {
     assert!(text.contains("  detected: none\n"), "{text}");
     assert!(text.contains("unknown-site"), "{text}");
 }
+
+#[test]
+fn anonymises_a_file_no_parser_claims() {
+    let path = "fixtures/samples/merge/01-basic-hand-nlhe.txt";
+    let output = run(&["--anonymise", path]);
+    assert!(output.status.success(), "{output:?}");
+    let sample = stdout(&output);
+    assert!(
+        sample.starts_with("<description type=\"Omaha\""),
+        "{sample}"
+    );
+    assert!(
+        sample.contains("nickname=\"Anon1\" balance=\"$829.00\""),
+        "{sample}"
+    );
+    for name in ["nemi711", "gamblegambel", "yuseff415"] {
+        assert!(!sample.contains(name), "{name} survives");
+    }
+    let summary = String::from_utf8_lossy(&output.stderr).into_owned();
+    assert!(
+        summary.contains("  unrecognized: xml ")
+            && summary.contains(", guess: merge 1000 (known-format)\n"),
+        "{summary}"
+    );
+}

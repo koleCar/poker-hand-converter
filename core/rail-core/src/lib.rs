@@ -24,9 +24,13 @@
 //! - [`cards`], [`eval`]: reading cards, and hand evaluation (full deck,
 //!   short deck, Omaha high and the eight-or-better low) - what validation
 //!   and hi/lo need now, and what all-in EV (R2.2) builds on.
+//! - [`unrecognized`], [`anonymise`]: the unsupported-format registry's
+//!   record of a file no parser claims, and the anonymised sample of it a
+//!   user may share (R0.11).
 //! - [`js`]: the JavaScript semantics the reference depends on - `\s`,
 //!   regular expressions, IEEE-754 number arithmetic.
 
+pub mod anonymise;
 pub mod canonical;
 pub mod cards;
 pub mod convert;
@@ -37,10 +41,12 @@ pub mod js;
 pub mod parsers;
 pub mod phf;
 pub mod positions;
+pub mod unrecognized;
 pub mod validate;
 
 pub use convert::{FileConversion, convert, convert_any};
 pub use phf::PHF_SCHEMA;
+pub use unrecognized::Unrecognized;
 
 #[cfg(test)]
 mod tests {

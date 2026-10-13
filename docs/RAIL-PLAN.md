@@ -1633,6 +1633,88 @@ under WASM; the registry records an unknown file end to end.
 - **Done when** an unknown file dropped into a watched folder (or on the web)
   appears in the registry with its fields, once, with its count going up on
   repeats.
+- *As built, R0.11* (§15) - the Phase 0 part: core, anonymiser, database,
+  docs. The desktop-local `unsupported` table and the consent UI wait for
+  R1.2 / R1.3 (there is no local store or watcher yet), so the "watched
+  folder" half of *done when* is theirs; the web half holds today (the web
+  already records `unknown-site` through `record_conversion_failures`, one
+  row per fingerprint, `occurrences` going up).
+  - **Core** (`core/rail-core/src/unrecognized.rs`): `Unrecognized {
+    fingerprint, header_sample, guessed_site, confidence, guess_basis, shape
+    }`, returned as `FileConversion::unrecognized` - a new field, set exactly
+    when detection on the whole file is empty (no forced site), i.e. when the
+    result is the one file-level `unknown-site` refusal. The golden document
+    is built from the other fields, so every golden is byte-identical; the
+    TypeScript has no equivalent record. `fingerprint` is the refusal's
+    (asserted equal to the golden's for all 24 files). `header_sample`: the
+    first 12 non-blank lines of the **anonymised** text, trailing whitespace
+    off, 160 characters each, joined with `\n` - deterministic because the
+    decoder has already removed the BOM and CRLF (a CRLF copy of a file gives
+    an equal record, tested). `guessed_site` / `confidence` (per-mille): the
+    best detector score in 1..199 (`below-threshold`; no detector produces
+    one today - every score is a literal of 250 or more), else a known
+    format's signature, at least half of its literal markers present
+    (`known-format`; `KNOWN_FORMATS` holds the two formats with samples and
+    no parser, `bossmedia` and `merge`, each guessed at 1000 on all its
+    files; the Winamax and Full Tilt fragments get no guess). `shape`:
+    `xml` / `json` / `text` from the first character. `rail-convert` prints
+    an `unrecognized:` line for such a file.
+  - **Anonymiser** (`core/rail-core/src/anonymise.rs`, `ANONYMISER_VERSION
+    = "rail-anon/1"`): `anonymise(text)`, `shareable_sample(text)` (cut to
+    64 KiB at a line end after collecting names from the whole text),
+    `Anonymised::apply` (the same mapping over a file name);
+    `rail-convert --anonymise <file>`. Names are collected wide - keyed
+    values whose key names a person (XML attributes and elements, JSON
+    members and string arrays, `key = value`), seat lines, colon and bare
+    action lines, column layouts, `Dealt to`, `returned to`, `said`,
+    `Dealer:` lines - and every occurrence of every one is replaced,
+    token-bounded where the name's edge is a word character, longest first,
+    by `Player<n>` in order of first appearance; the prefix falls back to
+    `Anon` / `Villain` / `Nick` / `AnonX...` so that it never occurs in the
+    input. One- or two-digit values under `player=` / `dealer=` stay (seat
+    references). `Debug` never prints the mapping. **Guarantee, tested**
+    (`tests/anonymise.rs`): over all 556 corpus files, every player name the
+    pipeline reads from the file, and for the 24 unrecognised files every
+    name a format-specific reading finds (`NAME=`, `PLAYER=`, `nickname=`,
+    seat and post lines) - **3 454 (file, name) pairs, 1 471 distinct
+    names** - is absent as a token from the anonymised text, the sample and
+    the header sample, and no name of three or more characters is even a
+    substring of the output. (49 pipeline names are not in their input as
+    read - Ignition's `[ME]` seat becomes `Hero` - and are not counted.)
+    Limits, documented in `docs/unsupported-formats.md`: a name only in free
+    text no rule reads, an encoded name outside a name-like key, a
+    placeholder-like name (`N/A`) under a name key.
+  - **Database** (`supabase/migrations/20270414090000_unparsed_registry.sql`,
+    not applied to production by this step): `unparsed_hands` gains `origin`
+    (enum `unparsed_origin`, `web` by default - every existing row),
+    `os`, `client_version`, `consented_at`, `anonymiser_version`,
+    `guessed_site`, `guess_confidence`. The same RPC,
+    `record_conversion_failures`, takes the new keys; a desktop record
+    without a valid consent time (ISO 8601 with a zone, not in the future,
+    parsed by the non-raising `unparsed_consent_instant`, which no client may
+    execute), anonymiser version, OS and client version, or over 64 KiB, is
+    skipped, and `CHECK` constraints refuse such a row from any writer.
+    A repeat counts, refreshes the client and the guess, and never rewrites
+    `origin`, `consented_at` or `anonymiser_version` (they describe
+    `raw_text`). `unparsed_gaps` gains `desktop_hands` and `guessed_sites`.
+    Grants, RLS, first-submitter reads, rate limit unchanged. pgTAP
+    `unparsed_registry.test.sql` (41 tests); types regenerated.
+  - **Docs**: `docs/unsupported-formats.md` (the record, the anonymiser and
+    its limits, the weekly triage queries over `unparsed_gaps` /
+    `unparsed_hands`, the formats with a sample and no parser, the formats
+    known without a sample, seeded from `COVERAGE-PLAN.md` and
+    `hh-formats/*`); `docs/DATABASE.md`; GitHub label `new-format`.
+  - **For R1.2**: the local `unsupported` table (§3.4) keyed by
+    `fingerprint`, holding the `Unrecognized` fields (`header_sample`,
+    `guessed_site`, `confidence`, `guess_basis`, `shape`), the file's path
+    and encoding, `count`, `first_seen`, `last_seen`, and the consent state
+    (`consented_at`, `sent_at`, the `ANONYMISER_VERSION` used); a repeat
+    bumps `count`. The upload (R1.x, with sign-in) sends
+    `shareable_sample(text).text` as `rawText`, `apply(filename)` as
+    `sourceFilename`, `origin: "desktop"`, `os`, `clientVersion`,
+    `consentedAt`, `anonymiserVersion`, `guessedSite`, `guessConfidence`
+    (per-mille / 1000) through `record_conversion_failures`, never the raw
+    text, and only after the user's consent (a setting, asked once).
 
 ### R0.12 `config/sites.json` v1 — M
 - JSON Schema, loader and validator in `rail-config`; every current parser has
@@ -1682,6 +1764,8 @@ exactly once, and the same files imported twice change nothing.
 ### R1.2 Local store — M
 - `rail-store`: §3.4 schema, embedded migrations, WAL, a single writer thread,
   read connections for UI queries.
+- The `unsupported` table from R0.11's `Unrecognized` record and the consent
+  state (see *As built, R0.11*, "For R1.2").
 - **Done when** a crash mid-import (killed process) leaves the database
   consistent and the import resumes where it stopped.
 
@@ -2052,3 +2136,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.10b done**: `acrwpn` (all three WPN dialects - legacy, modern, data-mined) and `ignition` in Rust, registered in `index.ts` order, with all of `p5-handdraft.ts` as a reusable module in `parsers::shared` (`P5Draft`, `p5_draft_to_standard_text`, `p5_build_hand`; amounts, seats, size and button in `JsNumber`). One shared change: `phf::hilo::StatedTotals` holds `JsNumber`s (Ignition's `HI` / `LOW` are doubles in TypeScript); all earlier vectors still equal. Goldens: `acrwpn` **76 / 76** files (144 hands, 25 refusals; the 14 UTF-16LE files, Omaha, Six Plus), `ignition` **56 / 56** (96 hands, 12 refusals; Omaha Hi/Lo with its halves, streets recovered from betting closure), fully; whole-file detection of the fourteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p5-vectors.*`): splits, 37 detection probes, **3 935** seeded mutations through both parsers (146 misread from UTF-16LE; `cashOnly` outcomes where they differ), **700** random drafts through the builder, the 132 files re-encoded six ways, all equal (two soak runs, 36 767 cases and 7 000 drafts each, too). 30 TS test cases translated (`p5Parsers.test.ts`, the Ignition files of `phfHiLo`, the ACR parts of `shortDeck`; not the replayer, stats or equity). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated actor (`u32` in a PHF; neither parser produces one). |
 | 2026-10-13 | **R0.10c done**: `fulltilt` and `runitonce` in Rust, registered in `index.ts` order; Full Tilt reads its own grammar into `StarsHandDraft`, Run It Once its body through R0.7a's clone dialect. One additive shared change: `StarsHandDraft::showdown_marker_at` (the TypeScript's runout `-1` of `*** SHOW DOWN 0 ***`); all earlier vectors still equal. Goldens: `fulltilt` **13 / 13** files (21 hands, 1 refusal `no-seat-block`; both header generations, run-it-twice, Omaha H/L halves), `runitonce` **4 / 4** (2 hands, 2 refusals: the Omaha splash file `unsupported-variant`, the tournament summary `no-hands`), fully; whole-file detection of the sixteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p3-vectors.*`): splits, 25 detection probes, **4 251** seeded mutations through both parsers (168 misread from UTF-16LE; `cashOnly` outcomes where they differ), the 17 files re-encoded six ways, all equal (two soak runs of 42 231 cases too). Numbers beyond `u32` (seats, size, button, runout index, and runout `-1`) are carried as stand-ins and reported as R0.6's `parser-error` only where the TypeScript returns its hand. 42 TS test cases translated (`p3Parsers.test.ts` Full Tilt / Run It Once parts, Full Tilt's `phfHiLo`; not the replayer or `analyzeAllIn`). Not reproducible, reported: a Full Tilt marker numbered past 10 000 (the TypeScript allocates a runout per index), and a Run It Once seat line beyond `u32`, which stops the shared dialect at that line (R0.7a) where the TypeScript may refuse later or drop a duplicate. |
 | 2026-10-13 | **R0.10d done, R0.10 complete - all 19 parsers in Rust**: `ongame`, `entraction` and `unibet`, registered in `index.ts` order; `parsers::ported()` is the whole registry and a test asserts `builtin()` equals `REGISTRATION_ORDER`. All three build on `p2_handbuilder` (Unibet through `draft_to_standard_text` with its own tournament first line, `$` patterns expanded as `String.prototype.replace` does). Additive shared change: `phf::money::{format_amount_digits_js, parse_buy_in_token_js}`; the `dev` profile optimises the regex and sha-256 dependencies (test speed only). Goldens: `ongame` **13 / 13** files (21 hands, 1 refusal), `entraction` **13 / 13** (21 hands, 1 refusal - the validator's `hi-lo-payout-contradiction`; three of four Hi/Lo files convert), `unibet` **5 / 5** (4 hands, 2 refusals), fully; and the Phase 0 exit check minus WASM: the whole Rust pipeline over the corpus equals every golden - **556 / 556** files, **8 422 / 8 422** hands, **196 / 196** refusals. Beyond the corpus (`tests/data/p4-vectors.*`): 78 text-room probes, splits, 35 detection probes, **6 026** seeded cases through all three parsers, the 31 files re-encoded six ways, all equal (two soak runs of 47 786 cases too). 43 TS test cases translated (`legacyNetworks` Ongame / Entraction, `unibetParser`, `phfHiLo` Entraction; not the replayer or `analyzeAllIn`). Not reproducible, reported: seats, sizes and buttons between 2^32 and 2^53. Phase 0 left: R0.11 registry, R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
+| 2026-10-13 | **R0.11 done** (Phase 0 part; the desktop-local `unsupported` table waits for R1.2): the core returns `FileConversion::unrecognized` - `Unrecognized { fingerprint, header_sample, guessed_site, confidence, guess_basis, shape }` - beside the unchanged `unknown-site` refusal for a file no parser claims; every golden byte-identical, the 24 unrecognised files carry a record with the golden's fingerprint, Boss Media and Merge guessed by signature at 1000. The anonymiser (`rail-anon/1`, `rail-convert --anonymise`) replaces every name its wide rules find, consistently, amounts and layout kept, 64 KiB samples: over all **556** corpus files **3 454** (file, name) pairs / **1 471** distinct names checked, none survives (no name of 3+ characters even as a substring). Migration `20270414090000_unparsed_registry.sql` (not applied to production): `unparsed_hands.origin` (`web` default) / `os` / `client_version` / `consented_at` / `anonymiser_version` / `guessed_site` / `guess_confidence`, the consent rule in the RPC and in `CHECK` constraints, `unparsed_gaps.desktop_hands` / `guessed_sites`; pgTAP 41 tests; types regenerated. `docs/unsupported-formats.md` with the weekly triage query; label `new-format`. Phase 0 left: R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
