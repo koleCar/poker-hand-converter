@@ -25,3 +25,11 @@ testdata/golden-ev/** text eol=lf
 # R0.4). A cargo test compares them byte for byte with what the model renders,
 # so they are LF on every checkout, Windows included.
 core/rail-core-wasm/types/*.d.ts text eol=lf
+
+# Configuration the Rust core and the web both read (config/sites.json,
+# config/stats/) and the web's byte-for-byte copy of the stat definitions.
+# Tests hash these files (R2.4: display vectors pin the sha-256 of
+# config/stats/standard.json), so they are LF on every checkout - a Windows
+# checkout with autocrlf would otherwise change the bytes and the hash.
+config/** text eol=lf
+frontend/src/lib/stats/definitions.json text eol=lf
