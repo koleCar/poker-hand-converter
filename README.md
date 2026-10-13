@@ -504,18 +504,29 @@ cargo run --release -p rail-store --example import_corpus -- [threads] [db]
 ```
 
 The import benchmark (since R1.6; the guideline's >= 5 000 hands/s is
-measured on the development Mac, 10 300 hands/s; CI's `import-bench` job on
-the 3-core macOS runner is a regression guard at 3 500 hands/s): builds a **generated** dataset of about `--hands`
-hands in a temporary directory - the corpus copied with every hand id's
-digits permuted, labelled `GENERATED.md`, removed afterwards, never
-committed - and imports it through the real watcher into an empty store;
-prints hands stored per second, the cost of `Watcher::status()`, and the
-database size:
+measured on the development Mac, an M2 Pro: 10 300 hands/s): builds a
+**generated** dataset of about `--hands` hands in a temporary directory -
+the corpus copied with every hand id's digits permuted, labelled
+`GENERATED.md`, removed afterwards, never committed. It measures a
+**reference** on the machine (one thread converting the corpus from memory
+with `rail_core`, no store, no watcher) before the first import and after
+each one; each run imports the dataset through the real watcher into an
+empty store and prints hands stored per second, its reference (the mean of
+the passes around it), the **pipeline efficiency** (hands stored/s /
+(reference x import threads)), the cost of `Watcher::status()`, and the
+database size. `--min-efficiency` (percent) and `--min-rate` (hands/s) make
+it exit 1 when the best of `--runs` is below them. CI's `import-bench` job
+(3-core macOS runner, whose speed varies from job to job) gates on the
+efficiency, 45 %, with a floor of 1 500 hands/s:
 
 ```bash
 cargo run --release -p rail-watch --example import_bench -- \
-    [--hands 100000] [--workers N] [--runs 1] [--min-rate 5000] [--dir PATH] [--keep]
+    [--hands 100000] [--workers N] [--runs 1] [--min-efficiency PERCENT] \
+    [--min-rate HANDS_PER_S] [--dir PATH] [--keep]
 ```
+
+The efficiency does not see a slower `rail_core` (it slows the reference
+too); compare the printed reference rate across runs for that.
 
 The core as WebAssembly (since R0.13; the web app switches to it in R4.1),
 and shadow mode - the WASM core next to the TypeScript pipeline over the

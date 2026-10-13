@@ -79,7 +79,9 @@ pub fn corpus(root: &Path) -> Vec<PathBuf> {
     files
 }
 
-fn options(name: &Path) -> ConvertOptions {
+/// The conversion options the watcher's reader uses for a file (validated,
+/// with its name).
+pub fn options(name: &Path) -> ConvertOptions {
     ConvertOptions {
         source_filename: name.file_name().map(|n| n.to_string_lossy().into_owned()),
         validate: true,

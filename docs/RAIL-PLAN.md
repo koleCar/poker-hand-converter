@@ -2700,6 +2700,24 @@ exactly once, and the same files imported twice change nothing.
     ReadDirectoryChangesW report no opens). `WatcherStatus` now also says
     how many files are queued and being read, and the backfill test prints
     them if a backfill does not end.
+  - **Found on Linux CI, fixed** (2026-10-13; the backfill test read
+    `Some(309 of 312 files)` on the status right after the end event): not
+    a second end of a live backfill - nothing can revive a run once it is
+    `None` - but **the end reported before the status showed it**. The
+    coordinator emitted `Progress { None }` from the read's answer and
+    wrote the status (`publish`, at most every 200 ms) at the end of the
+    loop turn, so a status read in between still showed the last
+    published progress; the tray reads `status` on events and could keep
+    "Importing 98%" until something else changed. Now an end is queued
+    and reported by `publish` **after** the status is written (ends
+    before new progress, and flushed on stop): a status read on any event
+    shows what the event says, or later. Tested deterministically
+    (`watcher::tests`: the coordinator driven by hand, each event recorded
+    with the status at that moment - red before) and on the real watcher
+    (`tests/backfill.rs`: the status checked at once on the end, which the
+    test's sink holds for 100 ms - 10 / 10 red before, the CI values
+    exactly; one end, nothing of that backfill after it, every file read;
+    `RAIL_WATCH_THREADS` picks the import threads).
   - **App**: `watcher_status` carries each folder's backfill with the time
     left at the pace so far (`secondsLeft`, computed in Rust); the tray's
     line reads "Importing 37% · 12345 hands" (`strings.rs`, en + hr) while
@@ -2756,17 +2774,41 @@ exactly once, and the same files imported twice change nothing.
     (every core: the writer, the coordinator and the threads share them)
     it measured **3 926 and 4 615 hands/s** (first PR run, which failed a
     5 000 gate) and **4 782 and 5 264** (second run) - 100k hands, release
-    build, the first run of each pair with cold caches. A gate at 5 000 on
-    that runner would fail about half the time on noise. The job
-    `import-bench` (release build as shipped - thin LTO - cached by
-    rust-cache) is therefore a **regression guard calibrated to the
-    runner**: three runs, the best counts, **fails below 3 500 hands
-    stored/s** (~25 % under the typical best run of ~4 700). Its name says
-    so. Making 3 vCPUs clear 5 000 with margin would take ~+25 % per
-    hand: the measurable cheap levers are small (zstd level 1: +2-3 %,
-    +3 % store size - not taken); the rest is the core's detection and
-    parsing (~65 % of a hand), out of scope for a no-behaviour-change
-    step.
+    build, the first run of each pair with cold caches. Making 3 vCPUs
+    clear 5 000 with margin would take ~+25 % per hand: the measurable
+    cheap levers are small (zstd level 1: +2-3 %, +3 % store size - not
+    taken); the rest is the core's detection and parsing (~65 % of a
+    hand), out of scope for a no-behaviour-change step.
+  - **The CI gate is a ratio** (since 2026-10-13, after R1.6). R1.6
+    first gated `import-bench` on **best of three >= 3 500 hands
+    stored/s**, calibrated on the two runs above. The runner's speed moves
+    more than that from job to job: the best of three on code that did not
+    touch the import path was **3 907, 4 317, 4 666** (passes) and
+    **3 436** (3 244 / 3 276 / 3 436, R1.7's PR: a fail on runner noise),
+    and single runs went from 2 954 to 4 666 within one job. The
+    benchmark now measures a **reference on the same runner**: one thread
+    converting the corpus templates (copy 0 of the dataset, 7 321 hands)
+    from memory with `rail_core`, no store, no watcher, ~3 s, once before
+    the first import and again after every import; a run's reference is
+    the mean of the passes around it. The gate is the **pipeline
+    efficiency** = hands stored/s / (reference x import threads), best of
+    three runs, **>= 45 %**, plus an **absolute floor of 1 500 hands
+    stored/s**. Measured on the runner (this PR's jobs, 3 threads): the
+    reference itself swings **1 621 - 3 205 hands/s** within a job (a
+    shared VM's speed moves within seconds; hence a pass on each side of
+    an import); per-run efficiency **36 - 67 %**; **best of three 67 %
+    (import 3 339), 59 % (4 071), 62 % (3 584)** - two of those jobs
+    would have failed or barely passed the old gate; the ratio sits 14-22
+    points above its gate. 45 % is ~24 % under the lowest
+    best of three: a pipeline regression of that size (reading, the
+    writer, the store, the watcher) fails it on any runner speed. What
+    the ratio cannot see is a slower `rail_core` (it slows the reference
+    too): the floor catches a catastrophic one, and the reference rate is
+    printed in every run (`RUN ... reference=`) to compare across jobs.
+    On the owner's M2 Pro, busy with the flop-library solver, the same
+    measure gave a reference of **1 790 - 2 210 hands/s** and **31-34 %**
+    with 8 threads (E-cores and the solver share them; the ratio is
+    calibrated per runner, not comparable across machines).
   - **For R1.8 / R1.9**: a 500k backfill puts 500k rows in `outbox` in
     ~1 minute; `outbox_due` reads oldest first, so the sync worker drains
     backfill and live hands in arrival order - send live hands (recent
@@ -3643,4 +3685,6 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.7 done**: desktop sign-in through the system browser (A6). The app makes an X25519 key pair and a state per sign-in (memory only, ten minutes) and opens `/auth/desktop`; after the user signs in and confirms there, the Edge Function `desktop-handoff` (Deno, WebCrypto) verifies the caller's JWT with GoTrue, refuses unconfirmed / anonymous accounts, spends the per-account budget `claim_desktop_sign_in()` (migration `20270421090000`, 10 an hour, as the user), mints a one-time magic-link token with the service role and returns it encrypted to the app's key; the page redirects to `rail://auth/callback`, the app decrypts and redeems it at `/verify` for a session of its own. Refresh token in the OS keychain (`keyring` =3.6.3), access token in memory, background refresh with backoff, sign-out ends only the app's session. `tauri-plugin-deep-link` =2.4.10, single-instance with `deep-link`. `rail-sync::auth` (handoff, GoTrue client on reqwest + rustls/*ring*, the manager). Settings → Account, first-run step 1 with "Use offline" (Q3 open), Today and tray lines; `en` + `hr`. Tests: Rust 32 + app, Deno 17 (new CI job `functions`), pgTAP 14; end to end against a local stack (interception, replay, independence of the two sessions, sign-out, budget) and the page in a browser. Production untouched: the owner's checklist is under R1.7 *As built*. |
 | 2026-10-13 | Owner decisions: **Q3** - the app works offline without an account, an account is needed only for sync (guideline §6); **Q4** - a desktop hand is PHF + per-seat stats only, no `standard_text`, no `source_text`, originals stay on the user's disk (guideline §4; A5 decided). |
 | 2026-10-13 | **R1.8 done**: Supabase for desktop ingest (migration `20270428090000_desktop_ingest.sql`). `hands.origin` (`web` / `desktop`); `standard_text` nullable for desktop rows only, with a CHECK for every writer (no standard text, no source text, empty `meta.rawText`, PHF <= 256 KiB); the direct insert path writes web rows only. `hand_sources` (watched folder per device, counters, no paths; RLS select-own) and `register_hand_source`. `ingest_hands(p_source, p_rows)` (definer): `{hand_key, phf}` rows, every search column derived on the server by `hand_row_from_phf` (the SQL twin of `handInsertFromPhf`; parity over the corpus, 7 496 distinct hands, 0 differences), per-row `inserted` / `duplicate` / `rejected` + reason, at most 500 hands / 8 MiB a call. Budget per account: 150 000 rows / 10 min and 2 000 000 / day; desktop rows no longer spend the web's global `hands_insert`. Web readers derive the text from the PHF (`storedStandardText`: `getHand`, both share readers); stats rebuild and `save_hand_stats` work on desktop rows unchanged. `rail_sync::ingest`: rows from the outbox (rawText emptied), batches (500 / 4 MiB), `IngestClient` with a fresh token per call and one refresh on 401. Tests: pgTAP 51 + 40 (generated parity), Rust 14, vitest, end to end on a local stack (7 469 hands, 16 calls, 18 s). PostgREST refuses gzip bodies (~7.5 KB JSON a hand on the wire; noted for R1.9). Production untouched: the owner's checklist is under R1.8 *As built*. |
+| 2026-10-13 | **R1.6 fix, backfill end before the status** (Linux CI: `a_backfill_reports_its_progress_and_ends` read `Some(309 of 312 files)` on the status right after `Progress { None }`): the coordinator reported a backfill's end from the read's answer and wrote the status at the end of the loop turn, so a status read in between showed the last published progress (no backfill ran on; a run cannot come back once over). An end is now reported by `publish` after the status is written (ends before new progress; flushed on stop). New deterministic `watcher::tests` (the coordinator driven by hand, red before); the backfill test checks the status at once on the end (its sink holds the watcher 100 ms there: old code 10 / 10 red with the CI values), waits for "over and every file read", and fails on a second end or progress of the same `started_at` after it; `RAIL_WATCH_THREADS` picks its import threads. Stress on macOS: 60 / 60 runs (30 each at 1 and 2 threads) plus 40 / 40 with four copies at once. |
+| 2026-10-13 | **Import benchmark gate: a ratio, not hands/s** (R1.6 "As built"). The absolute gate (best of three >= 3 500 hands/s on the 3-core M1 runner) failed R1.7's PR, which does not touch the import path, at 3 436 hands/s: the runner's speed moves between jobs (best of three 3 436 - 5 264 on the same code) and within one (2 954 - 4 666). `import_bench` now measures a reference on the same runner - one thread converting the corpus (7 321 hands) from memory with `rail_core`, before the first import and after each one - and gates on the pipeline efficiency, hands stored/s / (reference x threads), best of three, **>= 45 %** (`--min-efficiency`); measured 59 / 62 / 67 % on jobs whose absolute rate was 3 339 - 4 071; plus a floor of **1 500 hands/s** (`--min-rate`) for a catastrophic slowdown, `rail_core`'s own included, which the ratio cannot see. Job renamed; the guideline's >= 5 000 stays measured on the owner's M2 Pro (10 300). No change to importing or parsing. |
 | 2026-10-13 | **R1.9 done, Phase 1's exit criterion met on a local stack**: the sync worker (`rail_sync::worker`). Outbox in send order - hands queued in the last 15 min newest played first, then the backlog oldest due first (store migration 0005: `outbox.played_at` + covering index) - in batches of 500 per watched folder (`hand_sources` registered once, device id random in `kv`) to `ingest_hands`; inserted / duplicate leave the outbox, rejected go to `sync_rejected` with the reason (UI counts per reason, Try again); offline = backoff 5 s to 10 min with jitter and per-hand attempts; the rate limit waited out by window then probed with one hand; 401 refresh once; resumable and idempotent. Upload cap while > 2 000 hands wait (default 1 MB/s, user setting; tables-open hook). Account safety: the store's owner in `kv`, every token from `Account::access_token_for(owner)`, signed out = nothing sent, another account = nothing sent or pulled until the user uploads this computer's hands to it or keeps them apart. Pull of every row of the account the store lacks (web and other computers): `hands_since` keyset (migration `20270505090000_desktop_pull.sql`, invoker, keys only, rows a minute old) then PHF for missing keys; pulled hands never queued. App: Settings → Account Sync panel, Today line, tray line, Sync now / Pause / cap, `en` + `hr`. Tests: store 5, sync 13 worker tests on a scripted server, pgTAP 17 (suite 997). End to end: killed mid-sync and resumed, server = store (7 469, once each; ~270 hands/s, 7.5 KB a hand); 58 live hands through the watcher visible as the user in 0.5-5.9 s through a network cut mid-batch, once each; a web hand pulled into a second store. Remaining for Phase 1: R1.10; production checklist under R1.9 *As built*. |

@@ -87,6 +87,16 @@ library (about 40 minutes for 5,448 hands instead of twice that). Since
 `analysis/17` it also lists, at the approximate flop and turn grades, the
 preflop lines of the opponents whose range is a placeholder.
 
+**Multiway flop narrowing from the library (a study; nothing shipped).**
+`npm run floplib:multiway-narrowing` (same `FLOPLIB_HANDS` and `FLOPLIB_DIR`)
+scores the opponents shown down after a flop three or more saw on their
+range as the turn came, narrowed through the flop by the heuristic and by a
+narrowing read from the heads-up chunk of the closest line
+(`multiwayLibrary.ts`, study code only), held out by player, and compares
+the hero's approximate flop and turn call grades on both walks
+(`FLOPLIB_EXAMPLES=1` prints the changed ones, `FLOPLIB_HAND=n` one hand).
+About two minutes for 5,448 hands. `docs/ANALYSIS-PLAN.md` §10 2026-10-13.
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity
