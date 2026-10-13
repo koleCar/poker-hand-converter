@@ -34,3 +34,8 @@ pnpm-debug.log*
 # Golden oracle with PHF bodies written out (~137 MB); regenerate with
 # `npm run golden:emit` in tests/. See testdata/golden/README.md.
 /testdata/golden-full/
+
+# Desktop app (app/): the Vite output is app/dist/ (covered above); Tauri
+# regenerates its capability schemas on every build. Rust output goes to the
+# workspace's /target/, bundles to /target/release/bundle/.
+/app/src-tauri/gen/

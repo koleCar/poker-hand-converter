@@ -104,7 +104,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
 | Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats` | Ported to Rust, computed at import; display stats defined in `config/stats/` | 2 |
-| Desktop UI | — | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 2 |
+| Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 1–2 |
 | HUD | — | Separate native process, Windows first, then macOS | 3 |
 | Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
 | Analysis | **Live on web**: phases S, A1–A9 of [`docs/ANALYSIS-PLAN.md`](docs/ANALYSIS-PLAN.md) | Session review, leak finder in the app (never during play) | 5 |
@@ -329,7 +329,7 @@ Today, and where each part is going (the move is a planned step,
 | `frontend/src/lib/{phf,parsers}` | `core/rail-core` | Parsers, PHF model, validation, serializer |
 | `frontend/src/lib/stats`, `lib/equity` | `core/rail-stats`, `core/rail-equity` | Statistics and all-in EV |
 | — | `core/rail-store`, `core/rail-watch`, `core/rail-sync` | SQLite, file watcher, sync |
-| — | `app/` | Tauri desktop app |
+| `app/` (R1.1) | `app/` | Tauri desktop app: `src-tauri/` (Rust, in the workspace) and `src/` (React) |
 | — | `hud/` | Native HUD overlay, Windows and macOS |
 | `frontend/` | `web/` | Next.js web app (Vercel root directory moves with it) |
 | `frontend/src/components`, `src/styles/tokens` | `packages/ui/` | Shared components and design tokens |
@@ -385,8 +385,8 @@ What CI runs on Linux, macOS and Windows:
 ```bash
 (cd tests && npm ci && npm run golden:emit)   # cargo test needs testdata/golden-full/
 cargo fmt --all --check
-cargo clippy --workspace --all-targets --locked -- -D warnings
-cargo test --workspace --locked
+cargo clippy --workspace --exclude rail-app --all-targets --locked -- -D warnings
+cargo test --workspace --exclude rail-app --locked     # the app crate has its own job (below)
 cargo build -p rail-core -p rail-core-wasm -p rail-config --target wasm32-unknown-unknown --locked
 (cd tests && npm run phf:dts-check)           # Rust-generated PHF declarations = types.ts
 (cd tests && npm run wasm:build && npm run wasm:shadow)   # Linux only, CI job `wasm` (below)
@@ -429,11 +429,47 @@ npm run wasm:build -- web    # the ES-module target the web worker will load (R4
 npm run wasm:shadow          # 556 files: WASM = TypeScript; prints both throughputs
 ```
 
+### Desktop app (since R1.1)
+
+Tauri 2 with React and TypeScript in `app/`: the Rust shell is
+`app/src-tauri/` (the `rail-app` crate, a member of the workspace above), the
+window is `app/src/` (Vite). It has its own `package.json` until R0.14 adds
+npm workspaces at the root.
+
+```bash
+cd app
+npm install
+npm run tauri dev            # Vite on :1420 + the Rust shell, both reloading on change
+npm run tauri build          # release bundle for this machine: target/release/bundle/
+npm run lint && npm run lint:css && npm run typecheck
+```
+
+On Linux, Tauri needs the WebKitGTK development packages first
+(`libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+libssl-dev`); Rail does not ship for Linux, CI only checks that it compiles.
+
+`npm run dev` alone serves the window in a browser at
+http://localhost:1420, without the Rust side (Settings then says so).
+Closing the window hides it; Rail stays in the tray (menu bar), and "Quit
+Rail" there ends it. In a debug build (`tauri dev`), Settings has a
+developer panel that runs the core on a picked file; release builds have
+neither the panel nor its commands. Settings, logs and the login item live
+under the app identifier `app.rail.desktop` (provisional until the domain
+is chosen, Q2): `settings.json` in the OS config directory, `rail.log` in
+the OS log directory (Settings, About shows both paths).
+
+CI job `app` lints and typechecks the TypeScript on Linux, runs clippy and
+the crate's tests on Linux, macOS and Windows, and attaches an unsigned
+`.dmg` (macOS, the runner's architecture) and NSIS installer (Windows) to
+every pull request run for 7 days. Unsigned means no Developer ID (P3) and
+no Windows certificate (P4): the macOS app is only ad-hoc signed (which Apple
+silicon requires to launch at all), so the first launch needs System Settings,
+Privacy & Security, "Open Anyway"; Windows SmartScreen asks for "Run anyway".
+
 Coming with later steps:
 
 | Command | What it does | Step |
 | --- | --- | --- |
-| `npm run tauri dev --workspace app` | Desktop app in development | R1.1 |
 | `cargo run -p rail-hud-sim` | Table simulator: fake tables writing real corpus hands, for HUD work without a poker client | R3.1 |
 
 ---

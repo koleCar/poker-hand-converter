@@ -16,6 +16,7 @@ members = [
   "core/rail-config",
   "hud/rail-hud",
   "hud/rail-hud-sim",
+  "app/src-tauri",
 ]
 
 [workspace.package]

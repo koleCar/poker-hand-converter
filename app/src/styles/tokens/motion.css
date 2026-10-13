@@ -1,0 +1,94 @@
+/* ===========================================================================
+   MOTION + LAYERING
+   ===========================================================================
+
+   Durations, easings and z-index. Not themed — a transition does not change
+   speed because the page got lighter.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * Everything below is inside `@layer tokens`.
+ *
+ * It used to be put there by the importer — `index.css` said
+ * `@import "./styles/tokens/primitives.css" layer(tokens);`. That form does not
+ * survive the Next.js build: css-loader inlines the file but emits the layer
+ * condition in the *media* slot, producing `@media layer(tokens){…}`. That is
+ * not a valid media query, so every browser drops the whole block — which meant
+ * every design token silently evaluated to nothing and the app rendered as
+ * unstyled HTML. It builds, it lints, and it looks completely broken.
+ *
+ * Declaring the layer here instead is equivalent and has no such dependency on
+ * how the file is pulled in. `index.css` now uses a plain `@import`.
+ *
+ * Why a layer at all: an unlayered rule beats every layered one regardless of
+ * order, so putting the tokens in a layer means a component sheet can always
+ * override one at the same specificity without depending on import order. It
+ * costs nothing here — these are custom properties nothing else declares —
+ * whereas demoting `body` or `input` would quietly reshuffle them under every
+ * component sheet, which is why the base rules in `index.css` stay unlayered.
+ * ------------------------------------------------------------------------- */
+
+@layer tokens {
+  :root {
+    /* ===================================================== durations =======
+       Roughly geometric. The rule of thumb the scale encodes: the further a
+       thing moves and the more of the screen it covers, the longer it may take.
+
+         1   80ms — a colour or opacity flip. Below ~60ms reads as instant.
+         2  120ms — hover, focus ring, small state change
+         3  160ms — a control resizing, a chip appearing
+         4  220ms — a card dealing, a panel expanding
+         5  320ms — a dialog or drawer entering
+         6  460ms — a pot sweeping across the table
+         7  700ms — a full-table reset; the longest thing allowed */
+    --dur-1: 80ms;
+    --dur-2: 120ms;
+    --dur-3: 160ms;
+    --dur-4: 220ms;
+    --dur-5: 320ms;
+    --dur-6: 460ms;
+    --dur-7: 700ms;
+
+    /* ======================================================= easings =======
+       standard — the default. Decelerating, for anything already on screen.
+       out      — enters: fast start, long settle.
+       in       — exits: the thing is leaving, so it may accelerate away.
+       spring   — a slight overshoot. Cards and chips only; physical objects
+                  land with a bounce, UI panels do not.
+       linear   — progress bars and scrub handles, where the value IS the
+                  position and easing it would be a lie. */
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-out: cubic-bezier(0.2, 0.9, 0.3, 1);
+    --ease-in: cubic-bezier(0.6, 0, 1, 0.6);
+    --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    --ease-linear: linear;
+
+    /* ======================================================= z-index =======
+       Two independent scales, because they solve different problems.
+
+       FELT-LOCAL (0-20). The table creates its own stacking context, so these
+       numbers only ever compete with each other. They are small on purpose: it
+       should be obvious at a glance that a seat cannot escape the table and
+       land on top of the header. Order is the physical order of a real table —
+       the cloth, then what is printed on it, then what is placed on it, then
+       what is moving over it. */
+    --z-felt: 0;
+    --z-board: 2;
+    --z-chips: 3;
+    --z-seat: 4;
+    --z-seat-active: 6;
+    --z-motion: 12;
+    --z-pot: 13;
+
+    /* APP-GLOBAL (40+). Spaced in tens so a layer can be slipped between two of
+       them without renumbering the world. The gap between this scale and the
+       felt-local one is deliberate and large. */
+    --z-header: 40;
+    --z-sticky: 50;
+    --z-scrim: 60;
+    --z-overlay: 70;
+    --z-menu: 80;
+    --z-toast: 90;
+    --z-tooltip: 100;
+  }
+}

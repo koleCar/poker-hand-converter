@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The main window: core APIs only. Rail's own commands (src/commands.rs) are allowed without a permission entry; no plugin API is reachable from the web side.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

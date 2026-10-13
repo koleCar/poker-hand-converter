@@ -1,0 +1,121 @@
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 720px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.heading {
+  font-size: var(--font-size-lg);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.label {
+  color: var(--text-primary);
+}
+
+.hint,
+.muted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.error {
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: var(--space-0-5);
+  gap: var(--space-0-5);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.segment {
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.segment:hover {
+  color: var(--text-primary);
+}
+
+.segment[aria-pressed="true"] {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin-top: var(--space-1);
+  accent-color: var(--accent-bg);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--text-tertiary);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.mono {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+.button {
+  align-self: flex-start;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-2);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--accent-bg-hover);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
