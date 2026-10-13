@@ -1,0 +1,53 @@
+[package]
+name = "rail-app"
+description = "Rail desktop app: the Tauri 2 shell around the core (docs/RAIL-PLAN.md R1.1)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+repository.workspace = true
+# Native only: macOS and Windows ship, Linux is checked in CI. Never built for
+# wasm32 (the core's WebAssembly build names its packages with `-p`).
+
+[lib]
+name = "rail_app"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rail"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+# Held on the 2.11 line with `tauri`; see below.
+tauri-codegen = "=2.6.3"
+tauri-plugin = "=2.6.3"
+
+# Tauri and its plugins are pinned exactly (R1.1): the CLI in app/package.json
+# (`@tauri-apps/cli`) and `@tauri-apps/api` must stay on the same minor as
+# `tauri`, and `tauri build` refuses a mismatch. Bump them together.
+[dependencies]
+rail-core = { path = "../../core/rail-core" }
+rail-config = { path = "../../core/rail-config" }
+tauri = { version = "=2.11.5", features = ["tray-icon"] }
+tauri-plugin-log = "=2.9.1"
+# Only the debug build registers it: the dev-only "convert a file" panel
+# picks its file with it (see `dev.rs`).
+tauri-plugin-dialog = "=2.7.3"
+log = "0.4.34"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tauri-plugin-single-instance = "=2.4.4"
+tauri-plugin-autostart = "=2.5.1"
+# `tauri` 2.11.5 asks for its own sub-crates with caret requirements, so a
+# fresh resolve pulls the 2.12 line of these, which does not compile against
+# tauri 2.11 (`Error::UnexpectedMenuKind` and friends). They are listed only
+# to hold them on the versions tauri 2.11.5 was released with; nothing here
+# uses them directly. Move them with `tauri`, all at once.
+tauri-runtime = "=2.11.3"
+tauri-runtime-wry = "=2.11.4"
+tauri-utils = "=2.9.3"
+tauri-macros = "=2.6.3"

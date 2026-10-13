@@ -1940,6 +1940,78 @@ exactly once, and the same files imported twice change nothing.
   status; optional start at login; log files; crash-safe settings.
 - CI builds unsigned app bundles on macOS (universal) and Windows (MSI/NSIS)
   for every PR.
+- *As built* (§15):
+  - **Layout.** `app/src-tauri/` is the crate `rail-app` (lib `rail_app`,
+    binary `rail`, bundle `Rail`), a workspace member with the workspace
+    lints and no exceptions; `app/src/` is Vite 7 + React 19 + TypeScript
+    5.9 with its own `app/package.json` and lockfile until R0.14's npm
+    workspaces. Identifier `app.rail.desktop`, provisional until the domain
+    (P2, Q2): it names the config and log directories and the login item,
+    so changing it later means moving the user's settings.
+  - **Pinned exactly**: `tauri` 2.11.5, `tauri-build` 2.6.3,
+    `tauri-plugin-single-instance` 2.4.4, `-autostart` 2.5.1, `-log` 2.9.1,
+    `-dialog` 2.7.3; `@tauri-apps/cli` 2.11.4, `@tauri-apps/api` 2.11.1,
+    React 19.2.8, Vite 7.3.6. `tauri` 2.11.5 asks for its own sub-crates
+    with caret requirements and a fresh resolve takes the 2.12 line, which
+    does not compile against it; `tauri-runtime` 2.11.3,
+    `tauri-runtime-wry` 2.11.4, `tauri-utils` 2.9.3, `tauri-macros` /
+    `tauri-codegen` / `tauri-plugin` 2.6.3 are therefore listed in
+    `Cargo.toml` with `=` only to hold them. Move all of them together.
+  - **Shell** (`src-tauri/src/lib.rs`): single instance (a second launch
+    focuses the first window); tray icon with a disabled status line ("No
+    folders watched yet"), Open Rail, Pause import (disabled placeholder),
+    Quit Rail - `tray::set_status` / `tray::set_pause_enabled` are the hooks
+    for R1.3 / R1.6; closing the window hides it to the tray, Cmd+Q or Quit
+    ends the app, the Dock icon reopens it on macOS. Start at login is off
+    by default, a setting; the login item (LaunchAgent on macOS) passes
+    `--minimized`, which keeps the window hidden, and is reconciled with the
+    setting on every start. Logs: `rail.log` in the OS log directory, 5 MB
+    per file, the five newest kept, panics logged too. Settings
+    (`settings.rs`): `settings.json` in the OS config directory, `{ version:
+    1, theme, startAtLogin }`, written to a temp file, fsynced and renamed
+    over the old one; an unreadable file is moved to `.corrupt` and the
+    defaults used, a file from a newer version is read but never written;
+    8 tests, plus one that `core_info` reaches the core and loads the
+    shipped config.
+  - **Window**: sidebar and the six screens of guideline §6 as hash routes,
+    five as placeholders; Settings has Appearance (theme: system / dark /
+    light, `data-theme` as on the web), Startup (start at login) and About -
+    the command `core_info` returns the workspace version, `phf/1`, the 19
+    parser ids from `rail_core::parsers::builtin()` and the entry count of
+    `rail_config::load_shipped` (22), and `app_info` the log and settings
+    paths. Debug builds only: `dev_pick_file` + `convert_file(path)` run
+    `rail_core::convert` on a picked file and show encoding, detection,
+    hands, refusals and time (`cfg(debug_assertions)` on the Rust side,
+    `import.meta.env.DEV` on the web side; neither is in a release build).
+    Strings in `app/src/i18n/` (`en`, `hr` prepared and typed against the
+    same `Dict`, not yet selectable), the web's lint rule against bare JSX
+    literals; the tray's strings are mirrored in `strings.rs`. Styles: CSS
+    Modules over a **copy** of `frontend/src/styles/tokens/` in
+    `app/src/styles/tokens/` (A3), with the web's stylelint token rules;
+    `packages/ui` (R2.6) makes it one copy. Capabilities: `core:default`
+    only; no plugin API is reachable from the window.
+  - **CI**, job `app`: Linux installs WebKitGTK and runs ESLint, stylelint,
+    `tsc -b`, clippy and the crate's tests; macOS and Windows run clippy and
+    tests, then `tauri build`: **macOS `.app` + `.dmg` for the runner's
+    architecture (arm64), not universal** - a universal binary compiles the
+    app twice, which the release workflow (§12) can afford and a PR run
+    should not; **Windows NSIS** (per-user). Bundles are built with LTO off
+    and 16 codegen units (job env over the workspace release profile) and
+    uploaded for 7 days. The macOS bundle is ad-hoc signed
+    (`signingIdentity: "-"`, no certificate, no secret) because Apple
+    silicon does not launch an unsigned app; Developer ID and notarisation
+    stay with P3 and the release workflow. The `core` job now runs clippy
+    and tests with `--exclude rail-app` (Tauri would need WebKitGTK there
+    and would be compiled twice per OS); `cargo fmt --all` still covers it.
+  - **For R1.2**: open the store in `setup` (`lib.rs`) next to the
+    settings, as managed state, under `app_data_dir` (not the config
+    directory, which holds `settings.json` only); folders, rooms and the
+    consent state belong in the store, not in `settings.json`. **For
+    R1.3**: start the watcher after the store in `setup`, report through
+    `tray::set_status`, and enable "Pause import" with
+    `tray::set_pause_enabled`; the Today screen is where its status shows.
+  - Not here, as planned: signing, updater, deep links, sign-in (R1.7,
+    §12); Inter is not bundled, so the app uses the system UI font.
 
 ### R1.2 Local store — M
 - `rail-store`: §3.4 schema, embedded migrations, WAL, a single writer thread,
@@ -2338,3 +2410,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.11 done** (Phase 0 part; the desktop-local `unsupported` table waits for R1.2): the core returns `FileConversion::unrecognized` - `Unrecognized { fingerprint, header_sample, guessed_site, confidence, guess_basis, shape }` - beside the unchanged `unknown-site` refusal for a file no parser claims; every golden byte-identical, the 24 unrecognised files carry a record with the golden's fingerprint, Boss Media and Merge guessed by signature at 1000. The anonymiser (`rail-anon/1`, `rail-convert --anonymise`) replaces every name its wide rules find, consistently, amounts and layout kept, 64 KiB samples: over all **556** corpus files **3 454** (file, name) pairs / **1 471** distinct names checked, none survives (no name of 3+ characters even as a substring). Migration `20270414090000_unparsed_registry.sql` (not applied to production): `unparsed_hands.origin` (`web` default) / `os` / `client_version` / `consented_at` / `anonymiser_version` / `guessed_site` / `guess_confidence`, the consent rule in the RPC and in `CHECK` constraints, `unparsed_gaps.desktop_hands` / `guessed_sites`; pgTAP 41 tests; types regenerated. `docs/unsupported-formats.md` with the weekly triage query; label `new-format`. Phase 0 left: R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
 | 2026-10-13 | **R0.12 done**: `config/sites.json` v1 and `config/sites.schema.json` (draft 2020-12). One entry per client (room or skin) with a `parser` field; `network` entries stand in where the clients are not yet told apart (iPoker, Chico, Ignition and the closed networks) and can never carry table data or allow a HUD; `standard` is a `format`. **22 entries**: the 19 parsers, plus WPT Global, Boss Media and Merge without one. Unknown is `null`: every `hud.allowed` `null`; 2 paths in all (PokerStars, inferred, `verified: false`); `files.live` from the README §6 starting point, unverified; every `tables` field `null`. `rail-config`: typed loader (`load`, `load_shipped`, `load_remote`), `validate` / `check_coverage`, `merge_remote` (a remote file may only make HUD policy stricter, `false` < `null` < `true`; unknown remote ids ignored; identity changes ignored), `Site::hud_permitted`; builds for wasm32 (added to CI's WebAssembly build). CI: a parser without an entry, or an entry naming a missing parser, fails `cargo test` - the guideline §14 rule is now enforced; the file is validated against its schema by ajv in `tests/`. Phase 0 left: R0.13 WASM + shadow mode, R0.14 layout. |
 | 2026-10-13 | **R0.13 done**: `rail-core-wasm` with wasm-bindgen 0.2.129 - `convert(bytes, filename, optionsJson)` (`rail-convert/1`: decode, detection, hands as PHF with optional Rust-side canonical sha-256, refusals with raw text, warnings, standard text per hand and per file, stats, the R0.11 `unrecognized` record; `parsedAt` required from the caller), `detect`, `serialize` (one hand or a file), `anonymise`, `formats`; JSON text both ways; typed wrapper `core/rail-core-wasm/js/index.ts` over `types/phf.d.ts`; `forbid(unsafe_code)` kept. `npm run wasm:build` (cargo profile `wasm-release`: `opt-level = "s"`, fat LTO, 1 CGU, abort; pinned wasm-bindgen-cli, name section removed, no wasm-opt; output gitignored): **2.28 MB raw, 0.77 MB gzipped** (budget 1.5 MB, enforced). **Shadow mode** (`npm run wasm:shadow`): the WASM core equals the TypeScript pipeline on **556 / 556** corpus files - **8 422** hands byte-identical in canonical PHF (Rust's own canonical hash = the golden's), **196** refusals with stage, reason, message and fingerprint, warnings, standard text per hand and per file; registry record on all 24 unclaimed files. Throughput: TypeScript ~3 150 hands/s, WASM ~2 600 (with `JSON.parse`). CI job `wasm` (build, budget, shadow). **Phase 0 exit, all but R0.14**: the golden diff is 100 % natively on Linux, macOS and Windows (`core` job, `every_corpus_file_matches_its_golden`) and under WASM (`wasm` job); the registry's record comes out of the core on the web path (WASM) for every unclaimed file - its write to `unparsed_hands` from the web stays the TypeScript one until R4.1, and from the desktop arrives with R1.2. Phase 0 left: R0.14 layout and rename. |
+| 2026-10-13 | **R1.1 done**: Tauri 2 app shell in `app/` (crate `rail-app` in the workspace; Vite + React + TypeScript with its own lockfile). Single instance, tray with a status menu (Open Rail, Pause import as a disabled placeholder, Quit Rail; closing the window hides it to the tray), start at login (off by default, a setting, `--minimized` at login), log files in the OS log directory (5 MB x 5), crash-safe versioned `settings.json` (temp file, fsync, rename; 8 tests). Six screens as hash routes with a sidebar, English strings through `app/src/i18n/` (`hr` prepared), CSS Modules over a copy of the web's token layer (A3), dark/light/system theme. Settings, About calls `core_info`: 19 parsers, `phf/1`, 22 `sites.json` entries via `rail_config::load_shipped`; a debug-only `convert_file` runs `rail_core::convert` on a picked file. Pinned: tauri 2.11.5 (its sub-crates held on the 2.11 line, see *As built*), CLI 2.11.4, api 2.11.1, React 19.2.8, Vite 7.3.6. CI job `app`: TS/CSS lint and typecheck plus clippy and tests on Linux (WebKitGTK installed); clippy, tests and an unsigned bundle on macOS (`.dmg`, arm64, ad-hoc signed; not universal, see *As built*) and Windows (NSIS), artifacts kept 7 days; the `core` job excludes `rail-app`. |
