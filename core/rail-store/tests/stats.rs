@@ -841,11 +841,20 @@ fn the_worker_pauses_resumes_and_stops() {
             std::thread::sleep(Duration::from_millis(20));
         }
     };
+    // The thread started before the pause and may have begun a page (8
+    // hands) already: a pause takes effect between steps, never inside one.
+    // Once it says it is paused, nothing more is computed.
     until("paused", &|s| s.activity == Activity::PausedBackfill);
-    std::thread::sleep(Duration::from_millis(200));
+    let paused_at = store.reader().stats_status().expect("s").ev_pending;
+    assert!(
+        pending - paused_at <= u64::from(background::EV_PAGE),
+        "at most the page in flight when the pause came"
+    );
+    std::thread::sleep(Duration::from_millis(300));
     assert_eq!(
         store.reader().stats_status().expect("s").ev_pending,
-        pending
+        paused_at,
+        "nothing computed while paused"
     );
     worker.set_backfill(false);
     let done = until("the queue computed", &|s| {

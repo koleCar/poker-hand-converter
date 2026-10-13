@@ -358,8 +358,7 @@ const INSERT_HAND_SQL: &str =
         fast_fold, has_straddle, is_bomb_pot, is_big_blind_ante, is_run_it_twice, has_cashout,
         is_walk, street_reached, pot_type, total_pot, house_into_pot, fees)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18,
-             ?19, ?20, ?21, ?22)
-     RETURNING id";
+             ?19, ?20, ?21, ?22)";
 
 const INSERT_SEAT_SQL: &str = "INSERT INTO seat_stats (hand_id, seat, player, scope, is_hero,
         position, hole_cards, hand_class, starting_stack, starting_stack_bb_tenths, totals)
@@ -521,46 +520,46 @@ impl Pending {
 
     /// Write a hand's rows (it has none) and count them.
     fn add_rows(&mut self, conn: &Connection, hand_key: &str, stats: &PreparedStats) -> Result<()> {
-        let Some((first, _)) = stats.rows.first() else {
+        let Some(first) = stats.rows.first().map(|seat| &seat.row) else {
             return Ok(());
         };
         let segment_id = self.segment_id(conn, &stats.segment)?;
         let hand = &first.hand;
-        let hand_id: i64 = conn.prepare_cached(INSERT_HAND_SQL)?.query_row(
-            params![
-                hand_key,
-                self.generation,
-                hand.played_at,
-                segment_id,
-                hand.stats_version,
-                stats.anonymization.as_str(),
-                hand.site_id,
-                hand.currency_minor_units,
-                to_i64(hand.player_count, "player_count")?,
-                hand.tournament_id,
-                hand.fast_fold,
-                hand.has_straddle,
-                hand.is_bomb_pot,
-                hand.is_big_blind_ante,
-                hand.is_run_it_twice,
-                hand.has_cashout,
-                hand.is_walk,
-                hand.street_reached.as_str(),
-                hand.pot_type.as_str(),
-                hand.total_pot,
-                hand.house_into_pot,
-                hand.fees,
-            ],
-            |row| row.get(0),
-        )?;
+        conn.prepare_cached(INSERT_HAND_SQL)?.execute(params![
+            hand_key,
+            self.generation,
+            hand.played_at,
+            segment_id,
+            hand.stats_version,
+            stats.anonymization.as_str(),
+            hand.site_id,
+            hand.currency_minor_units,
+            to_i64(hand.player_count, "player_count")?,
+            hand.tournament_id,
+            hand.fast_fold,
+            hand.has_straddle,
+            hand.is_bomb_pot,
+            hand.is_big_blind_ante,
+            hand.is_run_it_twice,
+            hand.has_cashout,
+            hand.is_walk,
+            hand.street_reached.as_str(),
+            hand.pot_type.as_str(),
+            hand.total_pot,
+            hand.house_into_pot,
+            hand.fees,
+        ])?;
+        // `execute` + the rowid rather than `RETURNING id` through
+        // `query_row`: profiled, that spent a third of the insert's time in
+        // resetting the statement.
+        let hand_id = conn.last_insert_rowid();
         let kind = kind_of(first);
         let (counted, money) = Exclusions::default().admits(kind);
         let played_at = hand.played_at.as_deref();
         let day = day_of(played_at);
         let mut insert = conn.prepare_cached(INSERT_SEAT_SQL)?;
-        for (row, scope) in &stats.rows {
-            let seat = &row.seat;
-            let values = SeatValues::of(row);
+        for prepared in &stats.rows {
+            let (seat, scope, values) = (&prepared.row.seat, &prepared.scope, &prepared.values);
             let position = seat.position.map(|position| position.as_str());
             insert.execute(params![
                 hand_id,
@@ -569,11 +568,11 @@ impl Pending {
                 scope,
                 seat.is_hero,
                 position,
-                seat.hole_cards.join(" "),
+                prepared.hole_cards,
                 seat.hand_class,
                 seat.starting_stack,
                 seat.starting_stack_bb_tenths,
-                encode_seat(&values),
+                prepared.totals,
             ])?;
             // The HUD's sums: `aggregate`'s defaults.
             if counted {
@@ -586,7 +585,7 @@ impl Pending {
                         segment_id,
                     ))
                     .or_default();
-                totals.add_seat(&values, money);
+                totals.add_seat(values, money);
                 if played_at > last.as_deref() {
                     *last = played_at.map(str::to_owned);
                 }
@@ -601,7 +600,7 @@ impl Pending {
                         kind,
                     ))
                     .or_default()
-                    .add_seat(&values, true);
+                    .add_seat(values, true);
             }
         }
         Ok(())

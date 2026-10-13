@@ -294,7 +294,9 @@ impl StatsWorker {
         self.shared.wake.notify_all();
     }
 
-    /// A backfill is importing (pause everything) or not.
+    /// A backfill is importing (pause everything) or not. A pause takes
+    /// effect after the step in flight (a rebuild page, or up to
+    /// [`EV_PAGE`] EV rows): the status says `PausedBackfill` once it has.
     pub fn set_backfill(&self, active: bool) {
         self.shared.control().backfill = active;
         self.wake();

@@ -11,7 +11,10 @@ app's local data directory (`app_local_data_dir`): on macOS
 - **Engine**: SQLite compiled into the binary (`rusqlite` `=0.40.2`,
   `bundled`, which pins `libsqlite3-sys` 0.38.2). WAL mode, `synchronous =
   NORMAL`, foreign keys on, a 5 s busy timeout, 16 KiB pages (a compressed
-  PHF fits its leaf page; with 4 KiB pages the corpus took 35 % more space).
+  PHF fits its leaf page; with 4 KiB pages the corpus took 35 % more space),
+  `temp_store = MEMORY` on the write connection (R2.3: the statement
+  journal of the import batches' savepoints stays in memory instead of
+  temporary files).
 - **Version**: `PRAGMA user_version`. Migrations are SQL files in
   `migrations/`, compiled in (`src/migrate.rs`), forward-only, each in its
   own transaction with the version bump. A file with a version above the

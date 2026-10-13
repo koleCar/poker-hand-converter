@@ -14,6 +14,7 @@ use rail_equity::EvRow;
 use rail_stats::{Segment, SiteAnonymization, StatsRow};
 
 use crate::error::{Error, Result};
+use crate::stats::{SeatValues, encode_seat};
 
 /// zstd level for stored PHF. 3 is zstd's default: ~6-8x on canonical PHF,
 /// fast enough that compression is a small part of an import.
@@ -96,10 +97,25 @@ pub enum EvPlan {
 pub struct PreparedStats {
     pub anonymization: SiteAnonymization,
     pub segment: Segment,
-    /// The kept rows ([`rail_stats::stored_rows`], villains included), each
-    /// with its rollup scope.
-    pub rows: Vec<(StatsRow, String)>,
+    /// The kept rows ([`rail_stats::stored_rows`], villains included),
+    /// ready for `seat_stats`.
+    pub rows: Vec<PreparedSeat>,
     pub ev: EvPlan,
+}
+
+/// One kept seat, with everything the writer stores of it computed here, on
+/// the producer's thread: the writer only binds and sums.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PreparedSeat {
+    pub row: StatsRow,
+    /// Its rollup scope ([`rail_stats::rollup_scope`]).
+    pub scope: String,
+    /// Its counters and money...
+    pub values: SeatValues,
+    /// ...as `seat_stats.totals` stores them ([`crate::stats::encode_seat`]).
+    pub totals: Vec<u8>,
+    /// `seat_stats.hole_cards`: the cards separated by spaces.
+    pub hole_cards: String,
 }
 
 impl PreparedStats {
@@ -120,8 +136,14 @@ impl PreparedStats {
                 .rows
                 .into_iter()
                 .map(|row| {
-                    let scope = rail_stats::rollup_scope(anonymization, &row);
-                    (row, scope)
+                    let values = SeatValues::of(&row);
+                    PreparedSeat {
+                        scope: rail_stats::rollup_scope(anonymization, &row),
+                        totals: encode_seat(&values),
+                        hole_cards: row.seat.hole_cards.join(" "),
+                        values,
+                        row,
+                    }
                 })
                 .collect(),
             ev,
@@ -132,7 +154,7 @@ impl PreparedStats {
     pub fn hero(&self) -> Option<&StatsRow> {
         self.rows
             .iter()
-            .map(|(row, _)| row)
+            .map(|seat| &seat.row)
             .find(|row| row.seat.is_hero)
     }
 }

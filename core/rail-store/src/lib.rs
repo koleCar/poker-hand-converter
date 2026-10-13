@@ -47,8 +47,8 @@ pub mod writer;
 
 pub use background::{Activity, StatsWorker, WorkerStatus};
 pub use batch::{
-    EvPlan, FileState, ImportBatch, ImportOutcome, PreparedHand, PreparedStats, Refusal,
-    UnrecognizedFile,
+    EvPlan, FileState, ImportBatch, ImportOutcome, PreparedHand, PreparedSeat, PreparedStats,
+    Refusal, UnrecognizedFile,
 };
 pub use error::{Error, Result};
 pub use import::{FileImport, ImportOptions, import_file};
@@ -114,6 +114,14 @@ fn open_write_connection(path: &Path) -> Result<Connection> {
     }
     conn.pragma_update(None, "synchronous", "NORMAL")?;
     conn.pragma_update(None, "foreign_keys", true)?;
+    // Each import batch runs in a savepoint (R1.6), and SQLite copies every
+    // page a savepoint first changes into a statement journal - a temporary
+    // file once it passes 64 KiB, opened, written and closed per group of
+    // batches. In memory instead: with R2.3's statistics a batch touches
+    // several times more pages, and those file calls were a third of the
+    // writer's time (measured; the import threads lost the CPU to it on a
+    // 3-core runner). A group's journal is a few MB.
+    conn.pragma_update(None, "temp_store", "MEMORY")?;
     Ok(conn)
 }
 
