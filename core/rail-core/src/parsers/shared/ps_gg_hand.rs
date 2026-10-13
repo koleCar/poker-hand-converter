@@ -869,6 +869,20 @@ impl StarsHandDraft {
         self.street_commit = HashMap::new();
     }
 
+    /// `marker("showdown", runoutIndex, label, cards)` with a runout index no
+    /// `u32` holds: Full Tilt's `*** SHOW DOWN 0 ***` is `Number("0") - 1`.
+    /// The TypeScript extends no runout (`while (length <= -1)` never runs)
+    /// and tags every action that follows with -1; here they carry
+    /// `stand_in`, an index the caller keeps clear of every real runout and
+    /// finds on the built hand. Nothing else differs from `marker`'s
+    /// showdown branch.
+    pub fn showdown_marker_at(&mut self, stand_in: u32, label: &str) {
+        self.runout_index = stand_in;
+        self.saw_showdown_marker = true;
+        self.showdown_labels.push(js::to_upper_case(label));
+        self.street = Street::Showdown;
+    }
+
     /* ----------------------------------------------------------- the actions */
 
     fn seat_of(&self, name: &str) -> Option<u32> {

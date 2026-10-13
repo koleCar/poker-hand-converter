@@ -9,7 +9,7 @@
 //! Chico, which reconciles against the printed pot (`p6-handbuilder.ts`).
 //! R0.10b: the builder of Ignition and ACR / WPN, which takes the
 //! settlement the room states and checks the replay against it
-//! (`p5-handdraft.ts`).
+//! (`p5-handdraft.ts`). R0.10c (Full Tilt, Run It Once): no new module.
 
 pub mod p2_handbuilder;
 pub mod p2_partygaming;

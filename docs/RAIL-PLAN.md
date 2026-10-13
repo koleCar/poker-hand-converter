@@ -1328,6 +1328,145 @@ under WASM; the registry records an unknown file end to end.
     `$`. `p5-vectors.mjs` adds two generator tricks: an op that misreads the
     whole text from UTF-16LE, and a second option set recorded only where
     its outcome differs.
+- *As built, R0.10c* (§15):
+  - **Layout** (`core/rail-core/src/parsers/`): `fulltilt.rs`
+    (`FullTiltParser`, `FULLTILT_PARSER_VERSION`, `OFF_BOARD`,
+    `MAX_RUNOUT_INDEX`) and `runitonce.rs` (`RunItOnceParser`), each with
+    its `tests` submodule. Both registered in `index.ts` order (`fulltilt`,
+    `runitonce` after `microgaming`); `fulltilt` declares `hi_lo_variants()`
+    = `OMAHA_HI_LO`, `runitonce` none (every hi/lo label refused, as
+    `unsupportedGameSkip` without a list). Full Tilt reads its own line
+    grammar into `StarsHandDraft`; Run It Once reads its body with
+    `parse_stars_family_body` (R0.7a), so this is the first step that runs
+    the clone dialect through a site parser it was written for.
+  - **One shared change, additive**: `StarsHandDraft::showdown_marker_at
+    (stand_in, label)` - the TypeScript's `marker("showdown", -1, ...)`
+    (Full Tilt's `*** SHOW DOWN 0 ***` is `Number("0") - 1`): no runout is
+    added, the actions that follow carry a stand-in index. Nothing else in
+    merged code changed; every earlier vector file still passes (the full
+    `cargo test --workspace`).
+  - **Numbers no PHF holds, reported where the TypeScript returns.** Full
+    Tilt keeps seats, the table size, the button and runout indices as
+    JavaScript numbers. Where its hand would hold one beyond `u32` (`Seat
+    99999999999:`, `(99999999999 max)`, `The button is in seat
+    #99999999999`, `wins pot 99999999999`) or the `-1` of `SHOW DOWN 0`,
+    the Rust parser carries a stand-in to the very end - seats through
+    `SeatNumbers` (one stand-in per distinct double, counting down from
+    `u32::MAX` past every seat number the hand prints, so the summary and
+    the seat block find each other as the TypeScript's `Map` does), runout
+    `-1` as `OFF_BOARD` - and returns R0.6's `parser-error` only after the
+    `unseated-actor` check, so every refusal the TypeScript reaches first
+    is reached here too, and a huge seat line dropped as a duplicate name
+    still gives the hand. Run It Once does the same for the table size and
+    button the dialect holds back (`set_table_numbers`): it takes them back
+    with `set_table` and reports them after its own `unseated-actor` check.
+  - **Golden agreement** (`tests/golden_sites.rs`): `fulltilt` **13 / 13**
+    files, **21** hands, **1** refusal (`no-seat-block`, the summary-only
+    fragment) - both header generations, the `of`-phrased uncalled return,
+    `and is capped`, run-it-twice with numbered markers and per-runout
+    SUMMARY blocks (`run-it-twice-summary`), fixed-limit blinds from the
+    posts, chat, the ten-hand file, `PL Omaha Hi` and both `Omaha H/L`
+    tables with their halves; warnings `no-hero` 19 (the validator's) and
+    `run-it-twice-summary` 1. The headerless fragment (`09-`) stays
+    `unknown-site`. `runitonce` **4 / 4** files, **2** hands, **2**
+    refusals (`unsupported-variant` - the Omaha splash-the-pot file -, and
+    `no-hands` - the tournament summary file, claimed at 0.95 and split to
+    nothing); warning `uncalled-includes-promo` 1. Each fully: ranking,
+    chunks, PHF, standard text per hand and per file, warnings, refusal
+    stage, reason, message and fingerprint, stats. Whole-file detection of
+    the sixteen ported parsers equals the goldens on **all 556** files.
+  - **Beyond the corpus** (`tests/data/p3-vectors.{mjs,json}`, 2.1 MB, run
+    by `tests/p3_vectors.rs`; the generator bundles the TypeScript): both
+    parsers' splits of every corpus file and of 16 edge texts, 25 detection
+    probes, **4 251** seeded mutations of every corpus chunk of both rooms
+    (catalogues of each grammar's lines - numbered and `0` markers,
+    `SUMMARY n`, `wins pot n`, `the high pot`, `and is capped`, chat, dead
+    blinds, `adds`, Splash The Pot, `[hero]`, `Table ID` -, other headers -
+    both Full Tilt word orders, variants, hi/lo, stud, short deck, Sit & Go
+    and tournaments, every currency glyph, `(n max)`, rolled-over dates,
+    RIO's tournament header -, changed amounts, renamed seats, cut hands,
+    `\r` / `\r\n` / U+2028 line ends, a BOM, 168 whose whole text is
+    UTF-16LE read back as UTF-8), each through **both** parsers - detection
+    and outcome, and the outcome with `cashOnly` where it differs (539) -
+    (1 895 Full Tilt and 981 Run It Once hands, every refusal reason of
+    both reached), and the 17 corpus files re-encoded six ways (UTF-16 LE
+    with and without BOM, UTF-16 BE, Windows-1252, CRLF, UTF-8 with BOM)
+    through `rail_core::convert` (102 files, 138 hands): all equal. One
+    generator guard: `StarsHandDraft.prototype.marker` is wrapped to throw
+    `RUNOUT_CAP` past index 9 999 (a `*** RIVER 99999999999 ***` would
+    exhaust Node's heap); the Rust parser refuses at the same line. Two
+    soak runs (`P3_STRESS=11`, `=29`, 42 231 cases each; `P3_OUT` /
+    `P3_VECTORS` as in R0.10a) were equal too.
+  - **TS oddities kept** - Full Tilt: `*** FLOP|TURN|RIVER 0 ***` throws
+    (`Cannot set properties of undefined (setting 'flop')`, a
+    `parser-error`) while `*** SHOW DOWN 0 ***` / `00` tags what follows
+    runout -1; `*** RIVER 5 ***` adds empty runouts up to index 4, and only
+    1-4 get a standard-text word (`FIRST`...`FOURTH`); `*** SUMMARY 0 ***`
+    is block 0 like the unnumbered one, `SUMMARY n` boards go to runout
+    `max(n - 1, 0)`, and once any SUMMARY marker is seen every later line
+    is a summary line (a seat line there is a summary seat); a block-1
+    seat line of a collector is skipped, any seat line in a block above 1
+    warns `run-it-twice-summary`; `wins pot n` is re-tagged to runout
+    `max(n - 1, 0)` after `build` (`pot 0` too), the winners are rebuilt
+    without `half` and the hi/lo halves derived again (build's
+    `hi-lo-split-unresolved` dropped, the rest kept, then the new
+    unresolved, then `hi-lo-half-mismatch`); wins, folds, checks, wagers,
+    raises, mucks, shows and dead `posts $x` are read only for a seated
+    name (an unseated one is an `unknown-line`, not a refusal), while
+    blinds, antes, `posts a dead … blind` (always a missed blind, verb
+    `posts dead blind`) and uncalled returns are booked for any name (and
+    refuse `unseated-actor`); `X shows` with neither cards nor a
+    description is no show; `Uncalled bet ($5)` (the PokerStars form) is an
+    `unknown-line`; `X: …` is chat only for a seated `X`; `Hand #N has been
+    canceled` refuses whatever `N`, before the header is read; a header
+    that fails to parse is `tournament-unsupported` only if it says
+    `Tournament`, `Sit & Go` or `Match #`; `()`, `(deep)` and no
+    description are nine seats, `(0 max)` lets `build` take the size from
+    the seats; a fixed-limit header's stakes are dropped (blinds from the
+    posts); a stake with no `$`/`€`/`£` (`₹` included) is chips and refused
+    `unsupported-currency`; `24:00:00` is the next day (V8). Run It Once: a
+    tournament header whose stakes have no PHF unit falls back to the cash
+    pattern on the same payload; the `button-seat-empty` check compares
+    the JavaScript number; `padHour` is always on; the rest is R0.7a's
+    dialect (hoisted uncalled return, splash cap, `[hero]`).
+  - **Not reproducible, reported**: a Full Tilt marker numbered past 10 000
+    is refused with a `parser-error` naming the cap - the TypeScript
+    allocates a runout per index (and dies of heap long before `u32`); the
+    vectors check the Rust refusal against the guard. A seat line beyond
+    `u32` in Run It Once stops the shared clone dialect at that line
+    (R0.7a's behaviour, PokerBros' too): where the TypeScript goes on to
+    `unseated-actor` or drops the line as a duplicate name, Rust says
+    `parser-error` (2 cases in a 42 231-case soak, counted by the vector
+    test). Making the dialect defer seats the way Full Tilt does needs
+    `DialectResult` to carry stand-ins and PokerBros to report them at its
+    end - left for a step that touches PokerBros.
+  - 42 TypeScript test cases translated (`tests/p3_parsers.rs`): the Full
+    Tilt and Run It Once parts of `p3Parsers.test.ts` (both corpora - the
+    six `it.each` per room as loops -, all 14 Full Tilt and 10 Run It Once
+    tests, the four shared-namespace tests) and the Full Tilt part of
+    `phfHiLo` (the room's own split, its three converted hi/lo fixtures),
+    plus 13 unit tests in the modules (source checks of every pattern and
+    message, the header generations, the `0` markers, numbers beyond `u32`,
+    the runout cap, line-start detection - recorded from Node). Skipped:
+    the replayer half of "pays the whole pot out and never goes below zero"
+    (`buildReplay`), `phfHiLo`'s `analyzeAllIn` (R2.2); the PokerBros parts
+    are R0.8's. `phfDetect`, `phfOmaha` and `phfPositions` have no Full
+    Tilt or Run It Once part.
+  - **For R0.10d** (`ongame`, `entraction`, `unibet`): everything they
+    import is ported - `p2_handbuilder` (`JsNumber` drafts,
+    `draft_to_standard_text`, `format_header_date`, `build_hand`),
+    `p2_partygaming::{iso_from_party_date, known_zone}` (Ongame),
+    `p4_textroom`, `variant_lock`, and `parse_standard_hand` (Unibet). The
+    24 Entraction and Ongame samples start with a UTF-8 BOM, which
+    `decode_source` strips and a raw `readFileSync` keeps (golden README):
+    translate the TS tests with the loader they use. If a parser keeps a
+    seat or size as a JavaScript number past a refusal it can still reach,
+    carry a stand-in and report the `u32` error where the TypeScript
+    returns (Full Tilt's `SeatNumbers`); a number that sizes an allocation
+    in the TypeScript needs a cap and a generator guard (the `RUNOUT_CAP`
+    wrapper). The file tool still turns `\u` escapes into literal
+    characters in `.mjs` and Markdown (not in Rust `"\u{...}"` strings):
+    escape non-ASCII afterwards.
 
 ### R0.11 Unsupported-format registry — M
 - Core returns `Unrecognized { fingerprint, header_sample, guessed_site, confidence }`
@@ -1759,3 +1898,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.9 done**: `ipoker` and `microgaming` in Rust, registered in `index.ts` order, with all of `p2-xml.ts` and `p4-textroom.ts` as reusable modules in `parsers::shared`. The XML reader is the TypeScript's own scanner (the path Node runs), ported - not `quick-xml`: its leniency (a closing tag closes whatever is open, CDATA skipped to the first `>`, `Object.prototype` names as entities) is behaviour. iPoker's action order is `Array.prototype.sort` as V8 does it (`js::sort`, TimSort; 1 120 Node-recorded arrays with `NaN` replay exactly). The draft builder gained the street and the kind that the rooms' object-literal tables return for an `Object.prototype` key (`type="toString"`), and V8 sorting. Goldens: `ipoker` **15 / 15** files (26 hands, 1 refusal), `microgaming` **12 / 12** (21 hands), fully; whole-file detection of the ten ported parsers equal on all 556 files; iPoker's assembled `rawText` now checked against the Rust split. Beyond the corpus (`tests/data/xml-vectors.*`): reader, Base64 and strict-amount probes, splits, detection, **3 888** seeded XML mutations through both parsers and the 27 files re-encoded six ways, all equal (two 38 448-case soak runs too). 33 TS test cases translated. Not reproducible, reported: lone surrogates (`&#xD800;`; U+FFFD stands in, `parser-error` where it would show), seats/table sizes between 2^32 and 2^53 (`u32` in a PHF). |
 | 2026-10-13 | **R0.10a done** (R0.10 picked up as R0.10a-d, grouped by shared module): `winamax` and `chico` in Rust, registered in `index.ts` order, with all of `p6-handbuilder.ts` as a reusable module in `parsers::shared` (`P6Draft`, `p6_to_standard_text`, `build_p6_hand`; amounts, seats, size and button in `JsNumber`; no merged shared code changed). Goldens: `winamax` **26 / 26** files (34 hands, 1 refusal; the three Windows-1252 files convert as the app decodes them, the negative fragment stays `unknown-site`), `chico` **16 / 16** (48 hands, 20 refusals - 13 of the 17 Omaha hands headed `Hold'em Pot Limit` refused `rake-mismatch`, the 4 others read as `omaha`), fully; whole-file detection of the twelve ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p6-vectors.*`): splits, 29 detection probes, **3 003** seeded mutations through both parsers, **600** random drafts through the builder, the 42 files re-encoded seven ways (U+FFFD included), all equal (two soak runs, 29 067 cases and 6 000 drafts each, too). 33 TS test cases translated (`p6Parsers.test.ts` but the replayer). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated blind (`u32` in a PHF). |
 | 2026-10-13 | **R0.10b done**: `acrwpn` (all three WPN dialects - legacy, modern, data-mined) and `ignition` in Rust, registered in `index.ts` order, with all of `p5-handdraft.ts` as a reusable module in `parsers::shared` (`P5Draft`, `p5_draft_to_standard_text`, `p5_build_hand`; amounts, seats, size and button in `JsNumber`). One shared change: `phf::hilo::StatedTotals` holds `JsNumber`s (Ignition's `HI` / `LOW` are doubles in TypeScript); all earlier vectors still equal. Goldens: `acrwpn` **76 / 76** files (144 hands, 25 refusals; the 14 UTF-16LE files, Omaha, Six Plus), `ignition` **56 / 56** (96 hands, 12 refusals; Omaha Hi/Lo with its halves, streets recovered from betting closure), fully; whole-file detection of the fourteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p5-vectors.*`): splits, 37 detection probes, **3 935** seeded mutations through both parsers (146 misread from UTF-16LE; `cashOnly` outcomes where they differ), **700** random drafts through the builder, the 132 files re-encoded six ways, all equal (two soak runs, 36 767 cases and 7 000 drafts each, too). 30 TS test cases translated (`p5Parsers.test.ts`, the Ignition files of `phfHiLo`, the ACR parts of `shortDeck`; not the replayer, stats or equity). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated actor (`u32` in a PHF; neither parser produces one). |
+| 2026-10-13 | **R0.10c done**: `fulltilt` and `runitonce` in Rust, registered in `index.ts` order; Full Tilt reads its own grammar into `StarsHandDraft`, Run It Once its body through R0.7a's clone dialect. One additive shared change: `StarsHandDraft::showdown_marker_at` (the TypeScript's runout `-1` of `*** SHOW DOWN 0 ***`); all earlier vectors still equal. Goldens: `fulltilt` **13 / 13** files (21 hands, 1 refusal `no-seat-block`; both header generations, run-it-twice, Omaha H/L halves), `runitonce` **4 / 4** (2 hands, 2 refusals: the Omaha splash file `unsupported-variant`, the tournament summary `no-hands`), fully; whole-file detection of the sixteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p3-vectors.*`): splits, 25 detection probes, **4 251** seeded mutations through both parsers (168 misread from UTF-16LE; `cashOnly` outcomes where they differ), the 17 files re-encoded six ways, all equal (two soak runs of 42 231 cases too). Numbers beyond `u32` (seats, size, button, runout index, and runout `-1`) are carried as stand-ins and reported as R0.6's `parser-error` only where the TypeScript returns its hand. 42 TS test cases translated (`p3Parsers.test.ts` Full Tilt / Run It Once parts, Full Tilt's `phfHiLo`; not the replayer or `analyzeAllIn`). Not reproducible, reported: a Full Tilt marker numbered past 10 000 (the TypeScript allocates a runout per index), and a Run It Once seat line beyond `u32`, which stops the shared dialect at that line (R0.7a) where the TypeScript may refuse later or drop a duplicate. |
