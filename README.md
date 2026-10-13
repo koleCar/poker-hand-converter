@@ -96,7 +96,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Component | Today | Target | Phase |
 | --- | --- | --- | --- |
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
-| Parsers | **19 parsers in TypeScript**, run in the browser; in Rust so far `standard`, the PokerStars family (`pokerstars`, `ggpoker`, `weplay`, `coinpoker`), the `*****` family (`partypoker`, `888poker`, `pokerbros`), the XML rooms (`ipoker`, `microgaming`), `winamax` and `chico`, `acrwpn` and `ignition`, and `fulltilt` and `runitonce`, each equal to the TypeScript on every corpus file (R0.6–R0.10c) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
+| Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads) | Same registry fed by the desktop too, with consent and anonymisation | 0 |
 | `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
 | File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |
@@ -397,8 +397,8 @@ regenerate its TypeScript declarations with
 Workspace lints deny lossy integer casts and float arithmetic, because money is
 integer minor units everywhere; the core crates forbid `unsafe`.
 
-Convert files from the command line with the Rust core (since R0.8; the parsers
-ported so far):
+Convert files from the command line with the Rust core (since R0.8; all 19
+parsers since R0.10d):
 
 ```bash
 cargo run -p rail-core --bin rail-convert -- <file>...          # per file: encoding, detected parsers, hands, refusals

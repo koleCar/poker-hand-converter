@@ -11,11 +11,13 @@
 pub mod acrwpn;
 pub mod chico;
 pub mod coinpoker;
+pub mod entraction;
 pub mod fulltilt;
 pub mod ggpoker;
 pub mod ignition;
 pub mod ipoker;
 pub mod microgaming;
+pub mod ongame;
 pub mod partypoker;
 pub mod pokerbros;
 pub mod pokerstars;
@@ -23,6 +25,7 @@ pub mod pokerstars888;
 pub mod runitonce;
 pub mod shared;
 pub mod standard;
+pub mod unibet;
 pub mod weplay;
 pub mod winamax;
 
@@ -72,6 +75,9 @@ fn ported() -> Vec<Box<dyn SiteParser>> {
         Box::new(acrwpn::AcrWpnParser),
         Box::new(fulltilt::FullTiltParser),
         Box::new(runitonce::RunItOnceParser),
+        Box::new(ongame::OngameParser),
+        Box::new(entraction::EntractionParser),
+        Box::new(unibet::UnibetParser),
     ]
 }
 
@@ -144,5 +150,15 @@ mod tests {
         let mut expected: Vec<&str> = ported().iter().map(|parser| parser.id()).collect();
         expected.sort_by_key(|id| REGISTRATION_ORDER.iter().position(|o| o == id));
         assert_eq!(ids, expected);
+    }
+
+    /// Since R0.10d every TypeScript parser is ported: the built-in registry
+    /// is the whole `index.ts` registry, in its order (which
+    /// `registration_order_is_the_typescript_order` reads from `index.ts`).
+    #[test]
+    fn the_builtin_registry_is_the_whole_typescript_registry() {
+        let ids: Vec<&str> = builtin().parsers().map(SiteParser::id).collect();
+        assert_eq!(ids, REGISTRATION_ORDER);
+        assert_eq!(ported().len(), REGISTRATION_ORDER.len());
     }
 }

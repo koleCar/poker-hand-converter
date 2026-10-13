@@ -94,8 +94,9 @@ fn ggpoker() {
 /// Whole-file detection over the entire corpus (556 files), restricted to the
 /// parsers ported so far: every ported parser scores every file exactly as
 /// the golden ranking says - claiming no file of a site not yet ported, and
-/// ranked in the same order. This is what keeps the files of later sites from
-/// being misrouted once their parser arrives.
+/// ranked in the same order. This is what kept the files of later sites from
+/// being misrouted as their parsers arrived; since R0.10d the registry is
+/// complete and the ranking is compared whole.
 #[test]
 fn ported_parsers_rank_every_corpus_file_as_the_goldens_do() {
     let registry = rail_core::parsers::builtin();
@@ -328,6 +329,75 @@ fn runitonce() {
     assert_eq!(report.files, 4, "the set of files `runitonce` wins changed");
     assert_eq!(report.hands, 2);
     assert_eq!(report.refusals, 2);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `ongame` (R0.10d): NL and FL Hold'em, Omaha (a showdown and a pot-limit
+/// table), the increment-then-total raise, the all-in whose uncalled return
+/// the room never prints, a name that looks like a street separator, the
+/// euro table, heads-up, a full ring, a ten-hand session and the Italian
+/// skin; one refusal (`unsupported-hi-lo`, the `OMAHA_HI_LO` table). Every
+/// sample opens with a UTF-8 BOM.
+#[test]
+fn ongame() {
+    let report = golden::check(Selection::Parsers(&["ongame"]));
+    assert_eq!(report.files, 13, "the set of files `ongame` wins changed");
+    assert_eq!(report.hands, 21);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `entraction` (R0.10d): NL, FL and PL Hold'em, PL Omaha, the one
+/// five-card Omaha hand, three of the four Omaha Hi/Lo files with their
+/// halves from the cards, `Payback` against the derived return, cumulative
+/// boards, `Game ended` with its GMT offset, heads-up with the big blind
+/// printed first, a full ring, a ten-hand file; one refusal - the
+/// validator's `hi-lo-payout-contradiction` on `07-allin-showdown.txt`,
+/// which shares its hand number with `08-euro-table.txt` but not its cards.
+/// Every sample opens with a UTF-8 BOM.
+#[test]
+fn entraction() {
+    let report = golden::check(Selection::Parsers(&["entraction"]));
+    assert_eq!(
+        report.files, 13,
+        "the set of files `entraction` wins changed"
+    );
+    assert_eq!(report.hands, 21);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `unibet` (R0.10d): both header generations - the 2021 Banzai hand in
+/// UTF-8 and in Windows-1252 (decoded by the app, so it converts; the
+/// TypeScript suite's UTF-8 reading is refused `lossy-encoding`), the 2026
+/// PL Omaha cash file and the 2026 tournament (session token stripped,
+/// chips, the rewritten tournament header, `Total prize`); refusals
+/// `no-winner` (the PLO hand Unibet printed without a `wins` line) and
+/// `tournament-summary`.
+#[test]
+fn unibet() {
+    let report = golden::check(Selection::Parsers(&["unibet"]));
+    assert_eq!(report.files, 5, "the set of files `unibet` wins changed");
+    assert_eq!(report.hands, 4);
+    assert_eq!(report.refusals, 2);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// The Phase 0 exit check, minus WASM (R0.13): with all 19 parsers ported,
+/// the whole Rust pipeline over every corpus file - decoding, detection with
+/// the complete registry, splitting, every hand's PHF, standard text and
+/// warnings, the per-file text, every refusal with its stage, reason,
+/// message and fingerprint, and the stats - equals the TypeScript goldens.
+#[test]
+fn every_corpus_file_matches_its_golden() {
+    let report = golden::check(Selection::All);
+    assert_eq!(report.files, 556, "the corpus changed");
+    assert_eq!(report.hands, 8422);
+    assert_eq!(report.refusals, 196);
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }

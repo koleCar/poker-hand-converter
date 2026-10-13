@@ -496,6 +496,17 @@ pub fn format_amount_js(
     }
 }
 
+/// `formatAmountDigits` for an amount held as a JavaScript number (Unibet
+/// prints its draft's header blinds with it).
+pub fn format_amount_digits_js(
+    amount: JsNumber,
+    unit: &CurrencyUnit,
+    style: DecimalStyle,
+    group_thousands: bool,
+) -> String {
+    format_digits(amount, unit, style, group_thousands)
+}
+
 /// `totalBuyIn`: what actually left the player's account.
 pub fn total_buy_in(tournament: &PhfTournament) -> Amount {
     tournament.buy_in + tournament.bounty.unwrap_or(0) + tournament.fee
@@ -549,6 +560,34 @@ pub fn parse_buy_in_token(token: &str, unit: &CurrencyUnit) -> BuyIn {
             bounty: 0,
             fee: amount(fee),
         },
+    }
+}
+
+/// [`parse_buy_in_token`] as the JavaScript numbers it returns
+/// (`[buyIn, bounty, fee]`), for a caller that prints them again (Unibet's
+/// tournament header): `parseAmount` is a double, and four or more parts sum
+/// in doubles from 0.
+pub fn parse_buy_in_token_js(token: &str, unit: &CurrencyUnit) -> [JsNumber; 3] {
+    let zero = JsNumber::ZERO;
+    if FREEROLL.is_match(token) {
+        return [zero; 3];
+    }
+    let parts: Vec<&str> = token
+        .split('+')
+        .map(js::trim)
+        .filter(|part| !part.is_empty())
+        .collect();
+    let amount = |part: &str| parse_amount_js(part, unit);
+    match parts.as_slice() {
+        [] => [zero; 3],
+        [only] => [amount(only), zero, zero],
+        [buy_in, fee] => [amount(buy_in), zero, amount(fee)],
+        [buy_in, bounty, fee] => [amount(buy_in), amount(bounty), amount(fee)],
+        [rest @ .., fee] => [
+            rest.iter().fold(zero, |sum, part| sum + amount(part)),
+            zero,
+            amount(fee),
+        ],
     }
 }
 

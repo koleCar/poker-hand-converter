@@ -49,6 +49,23 @@ unwrap_used = "warn"
 [profile.dev.package.serde_json]
 opt-level = 3
 
+# The parser tests run every corpus file (and tens of thousands of vector
+# cases) through regex matching and sha-256: optimised, the dependencies
+# that do that work keep the debug test run short. Our own crates stay
+# unoptimised (debug assertions, overflow checks).
+[profile.dev.package.regex]
+opt-level = 3
+[profile.dev.package.regex-automata]
+opt-level = 3
+[profile.dev.package.regex-syntax]
+opt-level = 3
+[profile.dev.package.aho-corasick]
+opt-level = 3
+[profile.dev.package.memchr]
+opt-level = 3
+[profile.dev.package.sha2]
+opt-level = 3
+
 [profile.release]
 lto = "thin"
 codegen-units = 1
