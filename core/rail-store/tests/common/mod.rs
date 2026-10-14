@@ -221,15 +221,17 @@ pub fn stats_snapshot(conn: &Connection) -> StatsSnapshot {
         "SELECT l.hand_key, l.played_at, l.site_hand_id, {SEGMENT_KEY}, l.hero_position,
                 l.hero_cards,
                 l.hero_net, l.hero_net_bb_milli, l.hero_stack_bb_tenths, l.board, l.all_in,
-                l.showdown, l.pot_type, l.currency_symbol
+                l.showdown, l.pot_type, l.currency_symbol, l.kind, l.hero_wtsd, l.currency,
+                l.minor_units
          FROM hand_list l JOIN segments g ON g.id = l.segment_id"
     );
     let mut stmt = conn.prepare(&sql).expect("prepare list");
+    let columns = stmt.column_count();
     let mut rows = stmt.query([]).expect("list");
     while let Some(row) = rows.next().expect("row") {
         snap.list.insert(
             row.get(0).expect("key"),
-            (1..14).map(|i| text(row, i)).collect(),
+            (1..columns).map(|i| text(row, i)).collect(),
         );
     }
     snap
@@ -238,7 +240,8 @@ pub fn stats_snapshot(conn: &Connection) -> StatsSnapshot {
 /// `hand_list` (R2.7a) has one row per `hand_stats` row, made of it: the
 /// hand's date, segment and pot type, and its hero's seat row (position,
 /// cards, net, stack); after the EV pass, `all_in` is whether the hand has
-/// an `ev_rows` row (while it is queued, on).
+/// an `ev_rows` row (while it is queued, on); (R2.7b) the hand's kind, unit
+/// and minor units, and the hero's `wtsd`.
 pub fn assert_list(conn: &Connection) {
     let missing: i64 = conn
         .query_row(
@@ -260,7 +263,12 @@ pub fn assert_list(conn: &Connection) {
                     l.hero_stack_bb_tenths IS s.starting_stack_bb_tenths,
                     l.hero_net, l.hero_net_bb_milli, s.totals, l.all_in,
                     EXISTS (SELECT 1 FROM ev_rows e WHERE e.hand_key = d.hand_key),
-                    EXISTS (SELECT 1 FROM ev_pending p WHERE p.hand_key = d.hand_key)
+                    EXISTS (SELECT 1 FROM ev_pending p WHERE p.hand_key = d.hand_key),
+                    l.kind = (d.is_bomb_pot | (d.has_straddle << 1) | (d.has_cashout << 2))
+                    AND l.minor_units = d.currency_minor_units
+                    AND l.currency = (SELECT h.currency FROM hands h
+                                      WHERE h.hand_key = d.hand_key),
+                    l.hero_wtsd
              FROM hand_stats d JOIN hand_list l ON l.hand_key = d.hand_key
              LEFT JOIN seat_stats s ON s.hand_id = d.id AND s.is_hero = 1
                AND s.seat = (SELECT min(seat) FROM seat_stats x
@@ -291,6 +299,16 @@ pub fn assert_list(conn: &Connection) {
             (values.net(), values.net_bb_milli())
         });
         assert_eq!(net.zip(net_bb), hero, "{key}: hand_list hero result");
+        assert!(
+            row.get::<_, bool>(13).expect("flag"),
+            "{key}: hand_list kind, currency, minor units"
+        );
+        let wtsd = totals_wtsd(row.get(9).expect("totals"));
+        assert_eq!(
+            row.get::<_, bool>(14).expect("wtsd"),
+            wtsd,
+            "{key}: hero_wtsd"
+        );
         let (all_in, ev, pending): (bool, bool, bool) = (
             row.get(10).expect("all_in"),
             row.get(11).expect("ev"),
@@ -300,6 +318,14 @@ pub fn assert_list(conn: &Connection) {
             assert_eq!(all_in, ev, "{key}: hand_list all_in after the EV pass");
         }
     }
+}
+
+/// The hero's `wtsd` counter from its seat blob (false without a hero).
+fn totals_wtsd(totals: Option<Vec<u8>>) -> bool {
+    totals.is_some_and(|blob| {
+        let values = rail_store::stats::decode_seat(&blob).expect("decode");
+        values.counters[rail_stats::Counter::wtsd.index()] > 0
+    })
 }
 
 /// The rollups' sums, read back.

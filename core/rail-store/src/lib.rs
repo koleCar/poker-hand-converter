@@ -21,6 +21,8 @@
 //!   and commits it; R1.3's incremental reader sends the same batches.
 //! - **The Hands screen** (R2.7a, [`hand_list`]): the list with its
 //!   filters and counts, "go to hand", notes, tags and saved filters.
+//! - **Reports** (R2.7b, [`report`]): the win-rate graph, the latest
+//!   session and the breakdowns by situation.
 //! - **Statistics** (R2.3, [`stats`], [`stats_read`], [`background`]): a
 //!   hand's seat rows, rollup increments and EV row are derived with the
 //!   hand (on the producer's thread) and written in its transaction; a
@@ -41,6 +43,7 @@ pub mod hand_list;
 pub mod import;
 pub mod migrate;
 pub mod read;
+pub mod report;
 pub mod sources;
 pub mod stats;
 pub mod stats_read;
@@ -60,9 +63,10 @@ pub use hand_list::{
 };
 pub use import::{FileImport, ImportOptions, import_file};
 pub use read::{Reader, StaleRefusals, StoreStatus};
+pub use report::{Breakdowns, Graph, GraphPoint, ReportFilter, Session, Units};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
 pub use stats::{Exclusions, RebuildState, SeatValues, Totals};
-pub use stats_read::{EvAdjust, HeroFilter, HeroTotal, Rollup, SegmentRow, StatsStatus};
+pub use stats_read::{EvAdjust, HeroFilter, HeroSum, HeroTotal, Rollup, SegmentRow, StatsStatus};
 pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};
 pub use writer::{PendingImport, WriterHandle};
 

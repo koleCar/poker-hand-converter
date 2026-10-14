@@ -377,8 +377,9 @@ const INSERT_SEAT_SQL: &str = "INSERT INTO seat_stats (hand_id, seat, player, sc
 
 const INSERT_LIST_SQL: &str = "INSERT INTO hand_list (played_at, hand_key, site_hand_id,
         segment_id, hero_position, hero_cards, hero_net, hero_net_bb_milli, hero_stack_bb_tenths,
-        board, all_in, showdown, pot_type, currency_symbol)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)";
+        board, all_in, showdown, pot_type, currency_symbol, kind, hero_wtsd, currency,
+        minor_units)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)";
 
 const UPSERT_EV_SQL: &str =
     "INSERT INTO ev_rows (hand_key, seat, ev_version, ev_net, ev_net_bb_milli)
@@ -591,6 +592,10 @@ impl Pending {
             stats.list.showdown,
             hand.pot_type.as_str(),
             stats.list.currency_symbol,
+            kind,
+            hero.is_some_and(|seat| seat.values.counters[Counter::wtsd.index()] > 0),
+            stats.list.currency,
+            hand.currency_minor_units,
         ])?;
         let mut insert = conn.prepare_cached(INSERT_SEAT_SQL)?;
         for prepared in &stats.rows {

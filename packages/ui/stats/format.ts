@@ -31,3 +31,16 @@ export const fixedIn = (locale: string, digits: number) => (value: number) =>
   numberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: false }).format(
     value,
   );
+
+const dateFormats = new Map<string, Intl.DateTimeFormat>();
+
+/** One `Intl.DateTimeFormat` per locale and options, built on first use. */
+export function dateFormat(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let format = dateFormats.get(key);
+  if (!format) {
+    format = new Intl.DateTimeFormat(locale, options);
+    dateFormats.set(key, format);
+  }
+  return format;
+}

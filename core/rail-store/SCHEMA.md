@@ -39,6 +39,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 5 | `0005_sync.sql` | `outbox.played_at` (filled from `hands`) and `outbox_recent_idx`, `outbox_retry_idx`; `hands.pulled_at` and `hands_pulled_idx`; `sync_rejected` (R1.9) |
 | 6 | `0006_stats.sql` | `segments`, `hand_stats`, `seat_stats`, `player_rollups`, `hero_rollups`, `ev_rows`, `ev_pending` (R2.3) |
 | 7 | `0007_hands_screen.sql` | `hand_list` and its delete trigger on `hand_stats`, `hand_notes`, `hand_tags`, `saved_filters`; forgets `stats.version`, so the next open rebuilds the statistics and with them the list rows (R2.7a) |
+| 8 | `0008_reports.sql` | `hand_list.kind`, `hero_wtsd`, `currency`, `minor_units` (the reports' graph and sessions); forgets `stats.version`, so the next open rebuilds the list rows with them (R2.7b) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -544,6 +545,9 @@ primary key read backwards, and a page after a cursor is a seek.
 | `showdown` | INTEGER | 0 / 1: `results.wentToShowdown` |
 | `pot_type` | TEXT | `hand_stats.pot_type` |
 | `currency_symbol` | TEXT | `game.unit.symbol` (`$`; `''` for chips) |
+| `kind` | INTEGER | (version 8) the hand's `hero_rollups` kind: bomb pot 1, straddled 2, EV cashout 4 - the reports apply `aggregate`'s exclusions from it |
+| `hero_wtsd` | INTEGER | (version 8) 0 / 1: the hero's `wtsd` counter, the graph's showdown / non-showdown split (`showdown` is the hand's) |
+| `currency`, `minor_units` | TEXT, INTEGER | (version 8) `game.unit.code` and `currency_minor_units`: the reports' money refusals (chips with cash, two currencies) and their sums' unit |
 
 `tests/common` checks, after every write in the store's tests and after every
 kill in the crash test, that the list rows are exactly the `hand_stats` rows
@@ -553,7 +557,9 @@ A store from version 6 has statistics but no list rows: migration 7 deletes
 `kv` `stats.version`, so opening it starts a rebuild (`stats::ensure_current`)
 and the background pass writes the list rows as it goes (measured at 498k
 generated hands: the open 0.25 s, the rebuild 114 s, during which the list
-fills).
+fills). Migration 8 adds four columns the same way: SQL cannot read the
+hero's `wtsd` out of `seat_stats.totals`, so the rebuild writes them (498k
+hands: the open 2.0 s, the rebuild 100 s).
 
 ### `hand_notes`, `hand_tags`
 
@@ -568,8 +574,8 @@ of a tag and the tags in use. **Local only for now**: syncing them to the web
 
 ### `saved_filters`
 
-The Hands screen's saved filters (guideline §6): `id`, `screen` (`hands`;
-Reports may use it later), `name` (unique per screen; saving under a name
+The screens' saved filters (guideline §6): `id`, `screen` (`hands`, or
+`reports` since R2.7b), `name` (unique per screen; saving under a name
 replaces it), `filter` (the window's filter as JSON, checked by the app to
 parse as a filter), `created_at`.
 
@@ -586,3 +592,24 @@ parse as a filter), `created_at`.
 Measured on a generated 497 809-hand store (the R1.6 benchmark dataset;
 `cargo run --release -p rail-store --example hand_list_queries`): see
 docs/RAIL-PLAN.md, R2.7a *As built*.
+
+## The Today and Reports screens (version 8, R2.7b)
+
+No table of their own: `hand_list` (with version 8's columns) in its
+primary key's order is the hero's hands in time order, which is what the
+win-rate graph and the sessions need, and the statistics are
+`hero_totals`' (`hero_rollups` and the partial days' seat rows).
+`saved_filters` holds Reports' filters under `screen = 'reports'`.
+
+### Reading them (`rail_store::report`)
+
+| Call | For | How |
+| --- | --- | --- |
+| `Reader::report_hero_filter(&ReportFilter)` | the `HeroFilter` of a report's filter (segments, positions, dates) | the segments' dimensions to a set of ids |
+| `Reader::report_graph(&ReportFilter, points)` | the win-rate graph: `ntile` buckets of the hero's hands in time order (dated first, then `hand_key`), cumulative big blinds and money, showdown / non-showdown by `hero_wtsd`, the all-in EV line, and the sample's money refusals (`Units`) | one range scan of `hand_list` (bomb pots out by `kind`, an EV cashout's money out); `ev_rows` / `ev_pending` looked up for the all-in rows only; cached per read connection until the next commit |
+| `Reader::sessions(gap, limit, pots)`, `latest_session(gap, pots)` | sessions: runs with no gap longer than `gap` minutes, across tables (the web's `stats_sessions`); money refused per session; with `pots`, the tables and the biggest pots in big blinds | `hand_list` read newest first until `limit` sessions are closed; tables and pots join `hand_stats` and `hands` for the session's rows |
+| `Reader::report_breakdowns(&ReportFilter)` | the hero's totals by pot type, stack band (the web's `stack_bb`), starting hand, players dealt in and street reached | one pass over `hand_stats` in table order (`NOT INDEXED`: `hand_stats_played_idx` is 10-20 times slower for a whole store) with the hero's `seat_stats` row; cached like the graph |
+
+Measured on the generated 497 809-hand store
+(`cargo run --release -p rail-store --example report_queries`): see
+docs/RAIL-PLAN.md, R2.7b *As built*.

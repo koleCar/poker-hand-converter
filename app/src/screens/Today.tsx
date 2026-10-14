@@ -7,6 +7,7 @@ import { go } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
 import { useSync } from "../lib/useSync";
 import { ImportStatus } from "./ImportStatus";
+import { SessionPanel } from "./today/SessionPanel";
 import styles from "./Today.module.css";
 
 /** How often the counts refresh while the screen is open. */
@@ -14,9 +15,10 @@ const REFRESH_MS = 5000;
 
 const number = new Intl.NumberFormat();
 
-/** Today: who is signed in (R1.7) and how sync stands (R1.9), the
+/** Today: who is signed in (R1.7) and how sync stands (R1.9), the current
+ * session - its result, hands, statistics and biggest pots (R2.7b) - the
  * watcher's folders with a backfill's progress (R1.3, R1.6) and the local
- * store's counts (R1.2). The session result arrives in Phase 2. */
+ * store's counts (R1.2). */
 export function Today() {
   const t = useT();
   const [status, setStatus] = useState<StoreStatus | null>(null);
@@ -70,6 +72,7 @@ export function Today() {
       <ScreenHeader title={t.screens.today.title} lead={t.screens.today.lead} />
       <AccountLine />
       <SyncLine />
+      <SessionPanel />
       <ImportStatus />
       <section className={styles.section} aria-labelledby="today-store">
         <h2 id="today-store" className={styles.heading}>

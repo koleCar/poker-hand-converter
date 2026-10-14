@@ -6,21 +6,28 @@
  * language; they live here anyway so a label and its hint stay together.
  * Functions that take a count format it themselves, so the number and the
  * noun it governs are decided in one place.
+ *
+ * The tile's, the statistics table's and the win-rate graph's words (with the
+ * three `common` ones the graph reads and `hud.sample`) are the shared UI
+ * package's (`packages/ui/strings/stats.en.ts`, R2.7b), which the desktop app
+ * shows too; the blocks below name them.
  */
 
+import { statsUiEn } from "@rail/ui/strings/stats.en";
+
 const num = (value: number) => value.toLocaleString("en-GB");
-const hands = (count: number) => `${num(count)} ${count === 1 ? "hand" : "hands"}`;
+const { hands } = statsUiEn;
 
 export const statsEn = {
   common: {
     /** "1,234 hands". */
     hands,
     /** Column and field heading. */
-    handsHead: "Hands",
+    handsHead: statsUiEn.handsHead,
     result: "Result",
     bb100: "bb/100",
     /** An amount already formatted, in big blinds: "+12.5 bb". */
-    bb: (amount: string) => `${amount} bb`,
+    bb: statsUiEn.bb,
     winRate: "Win rate",
     tryAgain: "Try again",
     unknownStakes: "Unknown stakes",
@@ -90,34 +97,17 @@ export const statsEn = {
     stakeOption: (stake: string, count: number) => `${stake} · ${hands(count)}`,
   },
 
-  tile: {
-    /** By the shared reliability level (`lib/stats/reliability.ts`): the sample against the statistic's minimum. */
-    reliability: {
-      ok: "Enough sample — this number is stable.",
-      low: "Moderate sample — the shape is real, the decimal is not.",
-      insufficient: "Small sample — read this as a hint, not a measurement.",
-    },
-    noOpportunities: "no opportunities",
-    /** Bounds already formatted, without the percent sign. */
-    interval: (low: string, high: string) => `95% confidence interval ${low}% to ${high}%`,
-    /** A value's tooltip: the sample and the interval, all already formatted. */
-    sample: (n: string, low: string, high: string) => `n = ${n}, 95% CI ${low}–${high}%`,
-    noSample: "no sample",
-  },
+  tile: statsUiEn.tile,
 
   /** The shared package's statistics table (`packages/ui/stats/StatTable.tsx`, R2.6): its column headings. */
-  table: {
-    statistic: "Statistic",
-    value: "Value",
-    sample: "Sample",
-  },
+  table: statsUiEn.table,
 
   hud: {
     mixedUnitKind:
       "This sample mixes tournament chips with cash. Chips are not money — their value is the payout structure — so there is no total to show. Filter to one game format.",
     noMoney: "No money figure for this sample.",
     /** A figure without an interval: its sample, already formatted. */
-    sample: (n: string) => `n = ${n}`,
+    sample: statsUiEn.sampleOnly,
     provisional: (count: number, floor: number) =>
       `${hands(count)}. A win rate does not settle down until somewhere past ${num(floor)}, so read this as a direction rather than a number.`,
     currency: "Currency",
@@ -267,33 +257,5 @@ export const statsEn = {
     },
   },
 
-  graph: {
-    series: {
-      total: { label: "Total", hint: "Everything won and lost" },
-      showdown: { label: "Showdown", hint: "Hands that reached showdown" },
-      nonShowdown: { label: "Non-showdown", hint: "Hands that ended before showdown" },
-      allInEv: {
-        label: "All-in EV",
-        hint: (runouts: number) =>
-          `Total, with ${num(runouts)} all-in ${runouts === 1 ? "runout" : "runouts"} paid at equity`,
-      },
-    },
-    mixedUnitKind:
-      "This sample mixes tournament chips with cash, so there is no win-rate graph to draw. Chips are not money — what they are worth is the payout structure — and a curve that added them to dollars would be a shape with no meaning. Filter to one game format.",
-    notEnough:
-      "Not enough hands yet to draw a curve. The graph needs at least a couple of buckets of play behind it; keep uploading.",
-    ariaLabel: (count: number) =>
-      `Cumulative win rate over ${hands(count)}, split into total, showdown and non-showdown big blinds won.`,
-    axisLabel: "Hands played",
-    noDates: "no dates on these hands",
-    noAllIns: "no all-ins yet",
-    notComputed: "not yet computed",
-    noAllInsHint: "Appears once a hand in this sample has an all-in with cards to come",
-    notComputedHint: "Needs equity over the runout",
-    mixedCurrency:
-      "This sample spans more than one currency, so the cash series is withheld and only the big-blind ones are drawn. Adding dollars to euros produces a curve with no unit; big blinds are a unit of the game and combine correctly.",
-    showNumbers: "Show the numbers",
-    from: "From",
-    to: "To",
-  },
+  graph: statsUiEn.graph,
 } as const;

@@ -61,6 +61,7 @@ pub mod folder_settings;
 pub mod folders;
 pub mod hands;
 pub mod quarantine;
+pub mod reports;
 pub mod settings;
 pub mod stats;
 pub mod strings;
@@ -261,6 +262,10 @@ pub fn run() {
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
+        reports::stat_definitions,
+        reports::report,
+        reports::report_breakdowns,
+        reports::today,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -317,6 +322,10 @@ pub fn run() {
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
+        reports::stat_definitions,
+        reports::report,
+        reports::report_breakdowns,
+        reports::today,
     ]);
 
     let app = builder

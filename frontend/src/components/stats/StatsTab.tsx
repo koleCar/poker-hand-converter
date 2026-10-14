@@ -50,7 +50,7 @@ import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { SessionsPanel } from "./SessionsPanel";
 import { countIn, stakeLabel, useIntlLocale } from "./format";
-import { WinrateGraph } from "./WinrateGraph";
+import { WinrateGraph } from "@rail/ui/stats/WinrateGraph";
 import "../../styles/stats.css";
 
 interface StatsTabProps {

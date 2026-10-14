@@ -115,6 +115,42 @@ impl HeroTotal {
     }
 }
 
+/// Several of [`Reader::hero_totals`]' rows summed: a report's group (all
+/// of a filter, a position, a stake...), with its all-in EV adjustment.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct HeroSum {
+    pub totals: Totals,
+    pub ev: EvAdjust,
+}
+
+impl HeroSum {
+    /// The sum of `totals`.
+    pub fn of<'a>(totals: impl IntoIterator<Item = &'a HeroTotal>) -> Self {
+        let mut sum = Self::default();
+        for total in totals {
+            sum.add(total);
+        }
+        sum
+    }
+
+    /// Add one row (its money is already what the filter's exclusions
+    /// admit).
+    pub fn add(&mut self, total: &HeroTotal) {
+        self.totals.add(&total.totals, true);
+        self.ev.add(&total.ev);
+    }
+
+    /// The inputs of a display definition, as [`HeroTotal::sums`].
+    pub fn sums(&self) -> rail_stats::display::Sums {
+        let mut sums = self.totals.sums();
+        sums.ev_net_bb_milli = self
+            .totals
+            .money("net_bb_milli")
+            .map(|net| net + self.ev.bb_milli);
+        sums
+    }
+}
+
 /// Where the statistics stand, for the status line.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StatsStatus {

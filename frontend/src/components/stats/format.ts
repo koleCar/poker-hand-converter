@@ -12,26 +12,14 @@ import type { StakeVolume } from "../../lib/db";
 import { useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 
-/* `numberFormat`, `countIn` and `fixedIn` live with the tile in the shared
-   package (packages/ui, R2.6); one cache of formatters for both. */
-export { countIn, fixedIn, numberFormat } from "@rail/ui/stats/format";
+/* `numberFormat`, `countIn`, `fixedIn` and `dateFormat` live with the tile
+   and the win-rate graph in the shared package (packages/ui, R2.6, R2.7b);
+   one cache of formatters for both. */
+export { countIn, dateFormat, fixedIn, numberFormat } from "@rail/ui/stats/format";
 
 /** The reader's BCP 47 tag, for `Intl`. */
 export function useIntlLocale(): string {
   return INTL_LOCALE[useLocale()];
-}
-
-const dateFormats = new Map<string, Intl.DateTimeFormat>();
-
-/** One `Intl.DateTimeFormat` per locale and options, built on first use. */
-export function dateFormat(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-  const key = `${locale}|${JSON.stringify(options)}`;
-  let format = dateFormats.get(key);
-  if (!format) {
-    format = new Intl.DateTimeFormat(locale, options);
-    dateFormats.set(key, format);
-  }
-  return format;
 }
 
 export function money(amount: number, currency: string, minorUnits: number): string {

@@ -124,6 +124,9 @@ pub struct ListFacts {
     /// `game.unit.symbol` (`$`, `''` for chips), so a list row prints its
     /// money without the PHF.
     pub currency_symbol: String,
+    /// `game.unit.code` (`USD`, `CHIPS`): the reports' money refusals
+    /// (R2.7b; the web's `hand_stats.currency`).
+    pub currency: String,
 }
 
 /// One kept seat, with everything the writer stores of it computed here, on
@@ -161,6 +164,7 @@ impl PreparedStats {
             },
             showdown: hand.results.went_to_showdown,
             currency_symbol: hand.game.unit.symbol.clone(),
+            currency: hand.game.unit.code.clone(),
         };
         Self {
             anonymization,

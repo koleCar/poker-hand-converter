@@ -4,7 +4,8 @@
  * room, date, stakes, position, ... - each showing what it is set to and
  * opening its values as toggle chips (`FilterChips` of the shared package)
  * with how many hands each would match; then the saved filters and "clear
- * all".
+ * all". Reports (R2.7b) shows the same row with the groups a report sums by
+ * (`REPORT_GROUPS`) and its own saved filters.
  */
 import { useRef, useState } from "react";
 import { Chip } from "@rail/ui/chips/Chip";
@@ -12,7 +13,7 @@ import { FilterChips, type FilterChipOption } from "@rail/ui/chips/FilterChips";
 import { useUiStrings } from "@rail/ui/i18n";
 
 import { useT } from "../../i18n";
-import type { FacetCount, HandFacets } from "../../lib/ipc";
+import type { FacetCount, FilterScreen, HandFacets } from "../../lib/ipc";
 import {
   DATE_PRESETS,
   EMPTY_FILTER,
@@ -34,7 +35,7 @@ import styles from "./FilterBar.module.css";
 import { Popover } from "./Popover";
 import { SavedFilters } from "./SavedFilters";
 
-type GroupId =
+export type GroupId =
   | "date"
   | "site"
   | "format"
@@ -65,7 +66,7 @@ const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
 };
 
 /** The row's order: what a player narrows by first. */
-const GROUPS: GroupId[] = [
+export const HAND_GROUPS: GroupId[] = [
   "date",
   "site",
   "stakes",
@@ -82,10 +83,21 @@ const GROUPS: GroupId[] = [
   "notes",
 ];
 
+/**
+ * Reports' groups (R2.7b): what `hero_totals` sums by - the dates, the
+ * segment's dimensions and the hero's position. A pot type or a stack depth
+ * is a breakdown there, not a filter.
+ */
+export const REPORT_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "format", "variant", "limit", "size"];
+
 interface FilterBarProps {
   filter: FilterState;
   facets: HandFacets | null;
   onChange: (filter: FilterState) => void;
+  /** The chips in the row, in order (the Hands screen's by default). */
+  groups?: GroupId[];
+  /** Whose saved filters the row lists. */
+  screen?: FilterScreen;
 }
 
 /** The labelled options of a list group, with counts. */
@@ -147,14 +159,14 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
   }));
 }
 
-export function FilterBar({ filter, facets, onChange }: FilterBarProps) {
+export function FilterBar({ filter, facets, onChange, groups = HAND_GROUPS, screen = "hands" }: FilterBarProps) {
   const t = useT().hands;
   const active = activeGroups(filter);
   return (
     <div className={styles.bar} role="toolbar" aria-label={t.filters.label}>
-      <SavedFilters filter={filter} onApply={onChange} />
+      <SavedFilters filter={filter} onApply={onChange} screen={screen} />
       <div className={styles.groups}>
-        {GROUPS.map((group) => (
+        {groups.map((group) => (
           <GroupChip key={group} group={group} filter={filter} facets={facets} onChange={onChange} />
         ))}
       </div>

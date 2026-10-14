@@ -2,8 +2,9 @@
  * The command palette (guideline §6: Cmd/Ctrl + K "to jump to a hand, a
  * player or a report"). R2.7a wires the shared `CommandPalette` shell to the
  * screens and to "go to hand" by the number the room printed (the local
- * store's `hands_find`: an index on the room's id, a prefix match); players
- * and reports join it with their screens, the rest of its features in R2.8.
+ * store's `hands_find`: an index on the room's id, a prefix match); the
+ * reports' breakdowns are listed by name (R2.7b: `#/reports/<tab>`); players
+ * join it with their screen, the rest of its features in R2.8.
  */
 import { useEffect, useMemo, useState } from "react";
 import { CommandPalette, type PaletteItem } from "@rail/ui/palette/CommandPalette";
@@ -12,6 +13,7 @@ import { useT } from "../i18n";
 import { inApp, ipc, type HandRow } from "../lib/ipc";
 import { SCREENS, go, type Screen } from "../lib/router";
 import { playedAt, stakes } from "../screens/hands/format";
+import { TABS } from "../screens/reports/Breakdown";
 
 /** Hands listed for a query. */
 const HAND_RESULTS = 8;
@@ -71,8 +73,14 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
             group: t.palette.hands,
           }))
         : [];
+    const reports: PaletteItem[] =
+      needle === ""
+        ? []
+        : TABS.map((tab) => ({ tab, name: t.reports.breakdown.tabs[tab] }))
+            .filter(({ name }) => name.toLowerCase().includes(needle) || t.nav.reports.toLowerCase().includes(needle))
+            .map(({ tab, name }) => ({ id: `report:${tab}`, label: t.palette.report(name), group: t.palette.reports }));
     // A hand's number is what is typed most: its results first.
-    return found.concat(screens);
+    return found.concat(screens, reports);
   }, [trimmed, hands, t]);
 
   const select = (item: PaletteItem) => {
@@ -80,6 +88,8 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
       go(item.id.slice("screen:".length) as Screen);
     } else if (item.id.startsWith("hand:")) {
       go("hands", item.id.slice("hand:".length));
+    } else if (item.id.startsWith("report:")) {
+      go("reports", item.id.slice("report:".length));
     }
     onClose();
   };
