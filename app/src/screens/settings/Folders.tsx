@@ -9,7 +9,7 @@
  */
 import { useEffect, useState } from "react";
 
-import { Dialog } from "../../components/Dialog";
+import { Dialog } from "@rail/ui/dialog/Dialog";
 import { FoundFolderTable, type FoundRow } from "../../components/FoundFolderTable";
 import { ImportChoice } from "../../components/ImportChoice";
 import { useT } from "../../i18n";

@@ -1,0 +1,18 @@
+/* A filter's chips: one line, scrolling sideways rather than wrapping. The
+   chips themselves are the global `.chip-btn` family (styles/controls.css). */
+
+.row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* Two classes, so it outranks `.chip-btn` whichever sheet loads first. */
+.row .clear {
+  margin-inline-start: var(--space-1);
+  color: var(--fg-dim);
+}

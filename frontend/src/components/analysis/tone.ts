@@ -9,7 +9,7 @@
  * must not look like "fine".
  */
 
-import type { ReplayMarkTone } from "../replayer/ReplayViewer";
+import type { ReplayMarkTone } from "@rail/ui/replayer/ReplayViewer";
 
 export type DecisionTone = ReplayMarkTone | "skipped";
 

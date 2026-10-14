@@ -19,7 +19,7 @@ import { useFormats } from "../controls";
 import type { CardItem } from "../../../lib/learn/progress";
 import { dealSplit } from "../../../lib/trainer";
 import { gradeSplit, rightGroups, type SplitGrade, type SplitItem } from "../../../lib/training";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";
 

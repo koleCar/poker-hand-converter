@@ -1,5 +1,6 @@
-/* The design tokens live in `styles/tokens/` and are pulled in here, in this
-   order:
+/* The design tokens live in the shared UI package (`packages/ui/tokens/`,
+   R2.6; the desktop app imports the same four files) and are pulled in here,
+   in this order:
 
      primitives   raw ramps — never referenced outside tokens/
      semantic     what components use, plus the legacy aliases
@@ -25,10 +26,10 @@
    while demoting `body` or `input` would quietly reshuffle them under every
    component sheet. */
 
-@import "./styles/tokens/primitives.css";
-@import "./styles/tokens/semantic.css";
-@import "./styles/tokens/theme-light.css";
-@import "./styles/tokens/motion.css";
+@import "@rail/ui/tokens/primitives.css";
+@import "@rail/ui/tokens/semantic.css";
+@import "@rail/ui/tokens/theme-light.css";
+@import "@rail/ui/tokens/motion.css";
 
 :root {
   font-family: var(--font-family-sans);

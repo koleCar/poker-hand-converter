@@ -1,0 +1,86 @@
+/* The command palette's shell (`CommandPalette.tsx`). Semantic tokens only. */
+
+.palette {
+  inline-size: min(560px, calc(100vw - var(--space-8)));
+  max-block-size: min(480px, calc(100vh - var(--space-16)));
+  margin-block-start: 12vh;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+
+.palette[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.palette::backdrop {
+  background: var(--surface-scrim);
+}
+
+.input {
+  inline-size: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-block-end: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-md);
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.list {
+  margin: 0;
+  padding: var(--space-1) 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.group {
+  padding: var(--space-2) var(--space-4) var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+}
+
+.active {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+}
+
+.label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail {
+  flex: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.empty {
+  padding: var(--space-4);
+  color: var(--text-secondary);
+}

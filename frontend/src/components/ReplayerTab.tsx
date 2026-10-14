@@ -47,8 +47,8 @@ import {
   type ReplayerFilterForm,
 } from "./handFilters";
 import { HandList } from "./HandList";
-import { Icon } from "./ui/Icon";
-import { ReplayViewer } from "./replayer/ReplayViewer";
+import { Icon } from "@rail/ui/icon/Icon";
+import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { PublishHandButton } from "./share/PublishHandButton";
 import { ShareHandButton } from "./share/ShareHandButton";
 import liveStyles from "./live/live.module.css";

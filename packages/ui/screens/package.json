@@ -1,0 +1,12 @@
+{
+  "name": "rail-ui-screens",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Screenshot comparison of the web before and after a change to packages/ui (R2.6). See screens.mjs.",
+  "type": "module",
+  "devDependencies": {
+    "pixelmatch": "7.1.0",
+    "playwright": "1.55.1",
+    "pngjs": "7.0.0"
+  }
+}

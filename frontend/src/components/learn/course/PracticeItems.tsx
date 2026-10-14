@@ -18,7 +18,7 @@ import { useId, useState, type FormEvent } from "react";
 import { GRADES, type Grade } from "../../../lib/analysis/types";
 import { useDict } from "../../../lib/i18n/client";
 import { gradeCalc, gradeClassify, type CalcItem, type ClassifyItem } from "../../../lib/learn/practice";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useOptionLabel } from "../../analysis/train/AnswerResult";
 import { ConceptWidget } from "../ConceptWidget";
 import { useFormats } from "../controls";

@@ -7,7 +7,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
-import { Icon } from "../ui/Icon";
+import { Icon } from "@rail/ui/icon/Icon";
 
 interface ShareHandButtonProps {
   hand: PhfHand;

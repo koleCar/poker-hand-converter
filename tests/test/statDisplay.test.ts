@@ -253,7 +253,7 @@ describe("display parity (Rust replays the same vectors)", () => {
 
 /* ------------------------------------------------------ guideline §14 - */
 
-const SCANNED = ["frontend/src", "app/src", "app/src-tauri/src", "hud"];
+const SCANNED = ["frontend/src", "packages/ui", "app/src", "app/src-tauri/src", "hud"];
 const NOT_SCANNED = [
   // The engine: the counters, `rates.ts` (the reference the definitions are
   // held to) and the evaluator itself.

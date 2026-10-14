@@ -1,0 +1,62 @@
+/* A table of displayed statistics (`StatTable.tsx`). Semantic tokens only. */
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.caption {
+  margin-block-end: var(--space-2);
+  text-align: start;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Read by a screen reader, not drawn. */
+.hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.table th,
+.table td {
+  padding: var(--space-1) var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.table thead th {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-align: start;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.table .label {
+  font-weight: var(--font-weight-regular);
+  text-align: start;
+}
+
+.table .number {
+  text-align: end;
+}
+
+/* The sample count, toned by the reliability level - the rule the tiles'
+   band follows (stat-tile.css). */
+.table .low {
+  color: var(--warning-fg);
+}
+
+.table .insufficient {
+  color: var(--danger-fg);
+}
+
+.table .ok {
+  color: var(--text-secondary);
+}

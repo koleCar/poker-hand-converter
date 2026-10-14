@@ -109,9 +109,10 @@ jobs:
         working-directory: frontend
 
       # The token layering from #11 is only worth anything if it is enforced:
-      # no primitive ramp (`--n-800`) and no raw hex outside `src/styles/tokens/`.
-      # `replayer.css` and `cards.css` are exempt from the hex rule on purpose —
-      # the felt, the cards and the chips are deliberately unthemed.
+      # no primitive ramp (`--n-800`) and no raw hex in `src/`. The token layer
+      # itself, and the deliberately unthemed felt, cards and chips
+      # (`replayer.css`, `cards.css`, exempt from the hex rule), are the shared
+      # UI package's since R2.6; the `ui` job lints them.
       - name: Lint stylesheets
         run: npm run lint:css
         working-directory: frontend
@@ -125,6 +126,40 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: frontend
+
+  # The shared UI package (docs/RAIL-PLAN.md R2.6): tokens and the components
+  # the web and the desktop app both render, consumed as source (`file:` links
+  # from frontend/ and app/), so there is nothing to build here. Both consumer
+  # jobs typecheck and bundle it again under their own settings; this job
+  # holds it to its own rules - ESLint (no Supabase, Tauri or Next imports, no
+  # user-facing literals, the web's pure library only through model/),
+  # stylelint (the token rules: no primitive and no raw hex outside tokens/)
+  # and tsc.
+  ui:
+    name: Shared UI package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/ui/package-lock.json
+
+      - run: npm ci
+        working-directory: packages/ui
+
+      - run: npm run lint
+        working-directory: packages/ui
+
+      - name: Lint stylesheets
+        run: npm run lint:css
+        working-directory: packages/ui
+
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: packages/ui
 
   # The Rust workspace: Rail core, the desktop crates and the HUD
   # (docs/RAIL-PLAN.md R0.1). Every pull request builds on macOS and Windows

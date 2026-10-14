@@ -29,7 +29,8 @@ import {
 import { EMPTY_REPLAYER_FILTERS, POSITIONS, type ReplayerFilterForm } from "./handFilters";
 import { useDict } from "../lib/i18n/client";
 import { getParser } from "../lib/phf";
-import { CardRow } from "./replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
+import { Chip } from "@rail/ui/chips/Chip";
 
 function siteLabel(id: string): string {
   return getParser(id)?.name ?? id;
@@ -244,26 +245,20 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
 
         <div className="filters__quick">
           <span className="muted">{t.quick}</span>
-          <button
-            type="button"
-            className={`chip-btn ${draft.showdownOnly ? "is-active" : ""}`}
-            aria-pressed={draft.showdownOnly}
+          <Chip
+            pressed={draft.showdownOnly}
             onClick={() => applyNow({ ...draft, showdownOnly: !draft.showdownOnly })}
           >
             {t.showdownOnly}
-          </button>
-          <button
-            type="button"
-            className={`chip-btn ${draft.heroWonOnly ? "is-active" : ""}`}
-            aria-pressed={draft.heroWonOnly}
+          </Chip>
+          <Chip
+            pressed={draft.heroWonOnly}
             onClick={() => applyNow({ ...draft, heroWonOnly: !draft.heroWonOnly })}
           >
             {t.heroWon}
-          </button>
-          <button
-            type="button"
-            className={`chip-btn ${draft.sort === "pot_desc" ? "is-active" : ""}`}
-            aria-pressed={draft.sort === "pot_desc"}
+          </Chip>
+          <Chip
+            pressed={draft.sort === "pot_desc"}
             onClick={() =>
               applyNow({
                 ...draft,
@@ -272,7 +267,7 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
             }
           >
             {t.biggestPots}
-          </button>
+          </Chip>
         </div>
 
         {/* Hero position is the one filter that works on every room, anonymized
@@ -281,24 +276,22 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
           <legend className="field__label">{t.heroPosition}</legend>
           <div className="filters__chips">
             {POSITIONS.map((position) => (
-              <button
+              <Chip
                 key={position}
-                type="button"
-                className={`chip-btn chip-btn--pos ${draft.heroPositions.includes(position) ? "is-active" : ""}`}
-                aria-pressed={draft.heroPositions.includes(position)}
+                className="chip-btn--pos"
+                pressed={draft.heroPositions.includes(position)}
                 onClick={() => togglePosition("heroPositions", position)}
               >
                 {position}
-              </button>
+              </Chip>
             ))}
             {draft.heroPositions.length ? (
-              <button
-                type="button"
-                className="chip-btn chip-btn--clear"
+              <Chip
+                className="chip-btn--clear"
                 onClick={() => set("heroPositions", [])}
               >
                 {t.clear}
-              </button>
+              </Chip>
             ) : null}
           </div>
         </fieldset>
@@ -406,24 +399,22 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
               <legend className="field__label">{t.winnerPosition}</legend>
               <div className="filters__chips">
                 {POSITIONS.map((position) => (
-                  <button
+                  <Chip
                     key={position}
-                    type="button"
-                    className={`chip-btn chip-btn--pos ${draft.winnerPositions.includes(position) ? "is-active" : ""}`}
-                    aria-pressed={draft.winnerPositions.includes(position)}
+                    className="chip-btn--pos"
+                    pressed={draft.winnerPositions.includes(position)}
                     onClick={() => togglePosition("winnerPositions", position)}
                   >
                     {position}
-                  </button>
+                  </Chip>
                 ))}
                 {draft.winnerPositions.length ? (
-                  <button
-                    type="button"
-                    className="chip-btn chip-btn--clear"
+                  <Chip
+                    className="chip-btn--clear"
                     onClick={() => set("winnerPositions", [])}
                   >
                     {t.clear}
-                  </button>
+                  </Chip>
                 ) : null}
               </div>
               <span className="field__hint">{t.winnerHint}</span>

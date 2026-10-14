@@ -24,7 +24,7 @@ import type { CardItem } from "../../../lib/learn/progress";
 import { HAND_CLASSES } from "../../../lib/solver/handClasses";
 import { dealPaint } from "../../../lib/trainer";
 import { gradePaint, PAINT_IN, PAINT_OUT, PAINT_PASS, type PaintGrade, type PaintItem, type PaintOptions } from "../../../lib/training";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useFormats } from "../controls";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";

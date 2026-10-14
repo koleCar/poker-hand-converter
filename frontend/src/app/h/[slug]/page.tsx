@@ -4,7 +4,7 @@ import { buildSharePreview, formatPlayedAt, formatStakes, shortGameName } from "
 import { BrandMark } from "../../../components/shell/BrandMark";
 import { AnalysisShareToggle } from "../../../components/analysis/AnalysisShareToggle";
 import { SharedAnalysisReplay } from "../../../components/analysis/SharedAnalysis";
-import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
+import { decodePosition, POSITION_PARAM, type ReplayPosition } from "@rail/ui/replayer/position";
 import { RecordShareView } from "./RecordShareView";
 import { parseHand } from "../../../lib/phf";
 import type { PhfHand } from "../../../lib/phf/types";

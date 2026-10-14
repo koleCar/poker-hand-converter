@@ -25,9 +25,9 @@ import { paths } from "../../lib/routes";
 import { convertAny, getParser, toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
-import { ReplayViewer } from "../replayer/ReplayViewer";
+import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
-import { Icon } from "../ui/Icon";
+import { Icon } from "@rail/ui/icon/Icon";
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {

@@ -105,6 +105,13 @@ export const statsEn = {
     noSample: "no sample",
   },
 
+  /** The shared package's statistics table (`packages/ui/stats/StatTable.tsx`, R2.6): its column headings. */
+  table: {
+    statistic: "Statistic",
+    value: "Value",
+    sample: "Sample",
+  },
+
   hud: {
     mixedUnitKind:
       "This sample mixes tournament chips with cash. Chips are not money — their value is the payout structure — so there is no total to show. Filter to one game format.",

@@ -1,0 +1,137 @@
+/* The base controls: `.muted`, the `.btn` family, `.icon` and `.chip-btn`.
+ *
+ * Global class names (BEM), not a CSS Module: they are the web's house style
+ * from before the package existed, worn by the replayer's transport, its
+ * overlays and nearly every screen of the web, and moved here unchanged (R2.6)
+ * so the desktop app gets the same buttons. The web imports this sheet from
+ * `frontend/src/styles/app.css`, in the cascade position it always had.
+ * Import it after `replayer/replayer.css`, as the web does: where the two meet
+ * at equal specificity (`.chip-btn.is-active` against
+ * `.rp__transport .chip-btn`), the control's state has to win. */
+
+.muted {
+  color: var(--fg-muted);
+  font-size: 12.5px;
+}
+
+/* --------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  /* `.btn` is worn by `<a>` as often as by `<button>` — every call to action in
+     the app is a link with this class on it. The share page and the shell bar
+     each used to kill the underline in their own sheet, which left any new
+     surface (the feed placeholder, the 404) with underlined buttons until
+     somebody noticed. It belongs on the class that claims to look like a
+     button. */
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-bg-active));
+  border-color: transparent;
+  color: var(--text-on-accent);
+  font-weight: 650;
+}
+
+/* Hover lightens the fill in the dark theme and darkens it in the light one —
+   both are `--accent-bg-hover`, which is what the token is for. */
+.btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--accent-bg-hover), var(--accent-bg));
+  border-color: transparent;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--fg-muted);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--fg);
+  background: var(--bg-elev-2);
+}
+
+.btn--sm {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+
+.btn--icon {
+  width: 38px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+/* `icon/Icon.tsx`. Sized off the text so it sits in a labelled button
+   too; icon-only rows size it up where they need to. */
+.icon {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+  flex: none;
+  vertical-align: middle;
+}
+
+.btn--icon .icon {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.btn--play {
+  width: 48px;
+  height: 38px;
+  font-size: 14px;
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-bg-active));
+  border-color: transparent;
+  color: var(--text-on-accent);
+}
+
+.chip-btn {
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.chip-btn:hover {
+  color: var(--fg);
+  border-color: var(--border-hover);
+}
+
+.chip-btn.is-active {
+  background: color-mix(in srgb, var(--accent-fg) 15%, transparent);
+  border-color: var(--accent-border);
+  color: var(--accent-on-subtle);
+}

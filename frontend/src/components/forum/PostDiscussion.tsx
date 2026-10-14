@@ -20,9 +20,9 @@ import type { PhfHand, Street } from "../../lib/phf/types";
 import { useSharedAnalysis } from "../analysis/SharedAnalysis";
 import { anchorLabel } from "../../lib/forum/anchor";
 import { useDict } from "../../lib/i18n/client";
-import { ReplayViewer, type ReplayMark } from "../replayer/ReplayViewer";
+import { ReplayViewer, type ReplayMark } from "@rail/ui/replayer/ReplayViewer";
 import type { CommentAnchor } from "../../lib/forum/types";
-import type { ReplayPosition } from "../replayer/position";
+import type { ReplayPosition } from "@rail/ui/replayer/position";
 import styles from "./forum.module.css";
 
 export interface Spot {

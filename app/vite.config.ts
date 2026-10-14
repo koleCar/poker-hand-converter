@@ -8,6 +8,11 @@ const debug = Boolean(process.env.TAURI_ENV_DEBUG);
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    // `@rail/ui` (packages/ui, R2.6) is linked source outside this folder:
+    // one React for the app and the package.
+    dedupe: ["react", "react-dom"],
+  },
   // Tauri prints its own output; keep Rust errors on screen.
   clearScreen: false,
   server: {
@@ -15,6 +20,9 @@ export default defineConfig({
     port: 1420,
     strictPort: true,
     watch: { ignored: ["**/src-tauri/**"] },
+    // The shared UI package (packages/ui) and the web's pure library it
+    // builds on (frontend/src/lib) are outside this folder.
+    fs: { allow: [".."] },
   },
   envPrefix: ["VITE_", "TAURI_ENV_"],
   build: {

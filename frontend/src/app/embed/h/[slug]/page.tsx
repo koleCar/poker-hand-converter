@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { EmbedFrame, EmbedGone } from "../../../../components/embed/EmbedFrame";
-import { ReplayViewer } from "../../../../components/replayer/ReplayViewer";
-import { decodePosition, POSITION_PARAM } from "../../../../components/replayer/position";
+import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
+import { decodePosition, POSITION_PARAM } from "@rail/ui/replayer/position";
 import { getDict } from "../../../../lib/i18n/server";
 import { parseHand } from "../../../../lib/phf";
 import { sharedHandUrl } from "../../../../lib/routes";

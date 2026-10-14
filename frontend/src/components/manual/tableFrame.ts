@@ -12,7 +12,7 @@
 import type { EngineState, LoggedAction, ManualSettlement } from "../../lib/manual";
 import type { CurrencyUnit } from "../../lib/phf/types";
 import type { ActionTone, ReplayFrame, SeatFrameState } from "../../lib/replay";
-import type { TableHand } from "../replayer/ReplayTable";
+import type { TableHand } from "@rail/ui/replayer/ReplayTable";
 import type { EditorState } from "./editorState";
 
 const TONE: Record<LoggedAction["kind"], ActionTone> = {

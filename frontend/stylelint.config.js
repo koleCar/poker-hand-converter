@@ -3,13 +3,18 @@
  *
  * The two rules that matter:
  *
- *   1. No primitive tokens outside `src/styles/tokens/`. A component that
- *      writes `--n-800` has hard-coded a shade and silently opted out of every
- *      future theme; a component that writes `--border-default` has stated an
- *      intent, and an intent is the thing a theme can re-point.
+ *   1. No primitive tokens in `src/`. A component that writes `--n-800` has
+ *      hard-coded a shade and silently opted out of every future theme; a
+ *      component that writes `--border-default` has stated an intent, and an
+ *      intent is the thing a theme can re-point.
  *
- *   2. No raw hex outside `src/styles/tokens/`. Same argument, one step
- *      cruder — see #56, which was ~94 of these.
+ *   2. No raw hex in `src/`. Same argument, one step cruder — see #56, which
+ *      was ~94 of these.
+ *
+ * The token layer itself, and the felt, cards and chips that are exempt from
+ * the hex rule, live in the shared UI package since R2.6
+ * (`packages/ui/tokens/`, `replayer/replayer.css`, `cards/cards.css`), whose
+ * own `stylelint.config.js` enforces the same two rules over the package.
  *
  * `color-no-hex` only catches hex. Raw `rgb()` / `hsl()` slip past it, and
  * there is no stock rule that catches them without also banning the
@@ -100,37 +105,13 @@ export default {
         "color-no-hex": true,
 
         /* The primitive ramps, spelled out rather than by prefix: `--chip-w`
-           is a local card-geometry variable in cards.css and `--chip-denom-*`
+           is a local card-geometry variable in the package's cards.css and `--chip-denom-*`
            is a semantic token, so a bare `--chip-` prefix would be wrong. */
         "declaration-property-value-disallowed-list": {
           "/.*/": [
             "/var\\(\\s*--(?:[namfw]-[0-9]|st-|ink-|chip-(?:white|red|blue|green|black|purple|gold))/",
           ],
         },
-      },
-    },
-
-    {
-      /* The token layer is the one place a colour is allowed to be a value
-         rather than a reference. That is the whole point of it. */
-      files: ["src/styles/tokens/**/*.css"],
-      rules: {
-        "color-no-hex": null,
-        "declaration-property-value-disallowed-list": null,
-      },
-    },
-
-    {
-      /* The felt, the cards and the chips are deliberately unthemed (#11): a
-         poker table is a physical object the UI is showing you, not a surface
-         the UI owns, and recolouring it per theme is recolouring a photograph.
-         Keeping it fixed is also what makes an OG image, a screenshot and a
-         forum embed look identical to every reader whatever theme they are in.
-         Their literals are therefore intentional and exempt — but only from
-         the hex rule: they still may not reach into the primitive ramps. */
-      files: ["src/styles/replayer.css", "src/styles/cards.css"],
-      rules: {
-        "color-no-hex": null,
       },
     },
   ],

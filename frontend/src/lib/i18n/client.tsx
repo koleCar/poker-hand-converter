@@ -1,15 +1,19 @@
 "use client";
 
+import { UiStringsProvider } from "@rail/ui/i18n";
 import { createContext, useContext, type ReactNode } from "react";
 import { setActiveLocale } from "./active";
 import { DICTIONARIES } from "./dictionaries";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, type Dict, type Locale } from "./types";
+import { UI_STRINGS } from "./ui";
 
 const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
 
 /**
  * Mounted once in the root layout with the locale the server resolved, so the
- * first client render uses the same strings the server did.
+ * first client render uses the same strings the server did. It also hands the
+ * shared UI package (`@rail/ui`: the replayer, cards, tiles, overlays) its
+ * slice of the same dictionary - see `ui.ts`.
  */
 export function I18nProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
   // For `rpc()`, which runs outside React. Idempotent, browser only: on the
@@ -17,7 +21,11 @@ export function I18nProvider({ locale, children }: { locale: Locale; children: R
   if (typeof window !== "undefined") {
     setActiveLocale(locale);
   }
-  return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
+  return (
+    <LocaleContext.Provider value={locale}>
+      <UiStringsProvider strings={UI_STRINGS[locale]}>{children}</UiStringsProvider>
+    </LocaleContext.Provider>
+  );
 }
 
 export function useLocale(): Locale {

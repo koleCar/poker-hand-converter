@@ -32,7 +32,7 @@ import {
   type SeatMoney,
 } from "../../lib/stats";
 import { countIn, fixedIn, numberFormat, useIntlLocale } from "./format";
-import { StatTile } from "./StatTile";
+import { StatTile } from "@rail/ui/stats/StatTile";
 
 const stat = (id: string) => statById(STANDARD_STATS, id);
 const BB_PER_100 = stat("bb_per_100");

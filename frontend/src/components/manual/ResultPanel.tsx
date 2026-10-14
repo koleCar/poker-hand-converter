@@ -3,7 +3,7 @@
 import { useDict } from "../../lib/i18n/client";
 import type { EngineState, ManualPot, ManualSettlement } from "../../lib/manual";
 import type { Amount, CurrencyUnit } from "../../lib/phf/types";
-import { CardRow } from "../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { AmountInput } from "./AmountInput";
 import type { CardTarget } from "./CardDialog";
 import { formatFor, type AmountMode, type EditorState } from "./editorState";

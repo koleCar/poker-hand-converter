@@ -58,7 +58,7 @@ import { useDict } from "../../../lib/i18n/client";
 import type { ConceptId } from "../../../lib/learn/concepts";
 import { paths } from "../../../lib/routes";
 import { getParser } from "../../../lib/phf";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { countIn, dateFormat, stakeLabel, useIntlLocale } from "../../stats/format";
 import { AnalysisNav } from "../AnalysisNav";
 import { GradeIcon } from "../GradeIcon";

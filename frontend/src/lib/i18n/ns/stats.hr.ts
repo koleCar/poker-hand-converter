@@ -96,6 +96,12 @@ export const statsHr: Dict["stats"] = {
     noSample: "nema uzorka",
   },
 
+  table: {
+    statistic: "Statistika",
+    value: "Vrijednost",
+    sample: "Uzorak",
+  },
+
   hud: {
     mixedUnitKind:
       "Ovaj uzorak miješa turnirske čipove i cash. Čipovi nisu novac — vrijede onoliko koliko kaže struktura isplata — pa nema zbroja koji bi se mogao prikazati. Filtriraj na jedan format igre.",

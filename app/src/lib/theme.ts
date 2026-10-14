@@ -1,6 +1,6 @@
 /**
  * Applies the theme the way the web does: `data-theme="dark" | "light"` on
- * `<html>`, which `styles/tokens/theme-light.css` keys on. "system" follows
+ * `<html>`, which `@rail/ui/tokens/theme-light.css` keys on. "system" follows
  * `prefers-color-scheme` and keeps following it while chosen.
  */
 import type { Theme } from "./ipc";

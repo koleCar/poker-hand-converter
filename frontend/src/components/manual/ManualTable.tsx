@@ -2,10 +2,10 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReplayFrame } from "../../lib/replay";
-import { ReplayTable, type TableHand } from "../replayer/ReplayTable";
-import { DEFAULT_REPLAY_SETTINGS } from "../replayer/replaySettings";
-import { shapeFor, type TableShape } from "../replayer/seatLayout";
-import type { AmountFormatter } from "../replayer/tableMath";
+import { ReplayTable, type TableHand } from "@rail/ui/replayer/ReplayTable";
+import { DEFAULT_REPLAY_SETTINGS } from "@rail/ui/replayer/replaySettings";
+import { shapeFor, type TableShape } from "@rail/ui/replayer/seatLayout";
+import type { AmountFormatter } from "@rail/ui/replayer/tableMath";
 import styles from "./manual.module.css";
 
 interface ManualTableProps {

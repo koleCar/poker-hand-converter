@@ -104,7 +104,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Sync | Web saves to Supabase directly; **R1.8**: `ingest_hands` / `hand_sources` for desktop rows (PHF only, Q4); **R1.9**: the desktop sync worker (`rail_sync::worker`) - the outbox in batches of 500 to `ingest_hands`, hands just played first, backoff while offline, the account's rate limit waited out, refused hands kept with their reason, a bandwidth cap while a large backlog syncs, resumable after a kill, never sent to another account than the store's; and the pull (`hands_since`) of the account's hands from the web and its other computers. Settings → Account, Today and the tray show it; **R1.10**: the web's `/library` and `/stats` show synced hands live (Realtime on a one-row-per-account signal, `hand_arrivals`; debounced, nothing while the tab is hidden; statistics derived without a click). Phase 1 is complete on `staging`; production needs the owner's checklist ([`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.10) | gzip uploads if bandwidth needs it | 1 |
 | Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats`; **R2.1**: ported to Rust (`core/rail-stats`, `rows_for(&PhfHand)`), its rows equal to the TypeScript's for all 8 422 corpus hands (51 464 rows) and 4 000 seeded mutations of them; the TypeScript stays the oracle (`testdata/golden-stats/`); **R2.2**: all-in EV ported too (`core/rail-equity`, `ev_row`), its `hand_stats_ev` rows and analyses equal to the TypeScript's for every corpus hand (8 121 rows, 508 all-ins, the 11 Omaha preflop Monte Carlo ones included, equities bit for bit) and 4 500 seeded vectors (`testdata/golden-ev/`); **R2.3**: run at import on the desktop - seat rows, per-player rollups by segment and the hero's by day, written with each hand; preflop all-ins evaluated by a background pass that also rebuilds after a version bump; **R2.4**: displayed statistics are data - `config/stats/standard.json` (32 definitions: formula over the counters, format, colour bands, sample, labels in `en` + `hr`, HUD membership), evaluated identically in Rust (`rail_stats::display`) and on the web (`lib/stats/display.ts`), equal to the web's `rates()` and `Intl` text over the corpus; **R2.5**: every value's reliability - a 95% Wilson interval for rates, a level and an opacity from the definition's `sample.min` - the same bits in Rust (`rail_stats::reliability`) and on the web (`lib/stats/reliability.ts`), which `/stats` uses | The desktop's screens (R2.7); custom statistics (R2.10) | 2 |
-| Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 1–2 |
+| Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI. **Shared UI package (R2.6)**: `packages/ui` - the design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay and the command palette's shell, one set for the web and the app; the web renders from it with no visual change, the app takes its tokens and dialog from it | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings (R2.7) | 1–2 |
 | HUD | — | Separate native process, Windows first, then macOS | 3 |
 | Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
 | Analysis | **Live on web**: phases S, A1–A9 of [`docs/ANALYSIS-PLAN.md`](docs/ANALYSIS-PLAN.md) | Session review, leak finder in the app (never during play) | 5 |
@@ -480,7 +480,7 @@ Today, and where each part is going (the move is a planned step,
 | `app/` (R1.1) | `app/` | Tauri desktop app: `src-tauri/` (Rust, in the workspace) and `src/` (React) |
 | — | `hud/` | Native HUD overlay, Windows and macOS |
 | `frontend/` | `web/` | Next.js web app (Vercel root directory moves with it) |
-| `frontend/src/components`, `src/styles/tokens` | `packages/ui/` | Shared components and design tokens |
+| `packages/ui/` (R2.6) | `packages/ui/` | Shared UI package `@rail/ui`: design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay, command palette. Source consumed by `frontend/` and `app/` through `file:` links; the web's own screens stay in `frontend/src/components` |
 | `supabase/` | `supabase/` | Migrations, RLS, pgTAP tests |
 | `config/sites.json` (R0.12) | `config/` | `sites.json` and its schema; `stats/` |
 | `fixtures/`, `gg-hh/`, `weplay-hh/`, `tests/test/fixtures/` | `testdata/` | Real corpus and goldens (moved with a byte-hash check) |
@@ -692,6 +692,23 @@ every pull request run for 7 days. Unsigned means no Developer ID (P3) and
 no Windows certificate (P4): the macOS app is only ad-hoc signed (which Apple
 silicon requires to launch at all), so the first launch needs System Settings,
 Privacy & Security, "Open Anyway"; Windows SmartScreen asks for "Run anyway".
+
+### Shared UI package (since R2.6)
+
+`packages/ui/` is `@rail/ui`: the design tokens and the components the web and
+the app both render (cards, chips, the replayer, stat tile and table, dialog,
+overlay, command palette). It is source, not a build: `frontend/` and `app/`
+depend on it as `file:../packages/ui`, so their `npm install` links it and
+their bundlers compile it. Its own checks:
+
+```bash
+cd packages/ui
+npm install
+npm run lint && npm run lint:css && npm run typecheck
+```
+
+How the consumers import it and the rules that keep it shareable are in
+[`docs/WEB.md`](docs/WEB.md), "Shared UI package".
 
 Coming with later steps:
 

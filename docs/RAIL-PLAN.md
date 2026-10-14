@@ -4099,6 +4099,135 @@ database, on the development Mac and on a mid-range Windows laptop.
   change (screenshot comparison of key screens before and after).
 - Components take data through props and a small `DataSource` interface:
   Supabase on the web, Tauri commands on the desktop.
+- *As built* (§15): **done** - `packages/ui` is `@rail/ui`, the one design
+  system of the web and the desktop app, and the web renders from it with no
+  visual change. [`docs/WEB.md`](WEB.md) "Shared UI package" is the
+  reference.
+  - **Layout** (source, no build step; a directory per area, imported by
+    path, `@rail/ui/replayer/ReplayViewer`): `tokens/` (the four token files,
+    each with its own `@layer tokens`); `styles/controls.css` (`.muted`,
+    `.btn`, `.icon`, `.chip-btn`); `cards/` (`PlayingCard`, `CardRow`,
+    `cards.css`); `chips/` (`Chip`, `FilterChips`); `replayer/` (the web's
+    replayer, 23 modules, and `replayer.css`); `overlay/`, `icon/`;
+    `dialog/` (the app's `<dialog>`); `stats/` (`StatTile` and
+    `stat-tile.css`, `StatTable`, `format.ts`); `palette/`
+    (`CommandPalette`); `i18n.tsx`, `data.tsx`, `model/`; `screens/` (the
+    comparison script below, its own `package.json`).
+  - **What moved** (`git mv`, imports rewritten, nothing else): the token
+    layer from `frontend/src/styles/tokens/` (the app's byte copy from R1.1
+    is deleted); `frontend/src/components/replayer/*`, `components/ui/{Overlay,Icon}`,
+    `components/stats/StatTile`; the sheets `replayer.css`, `cards.css`,
+    `overlay.css`. Two blocks were cut out of larger sheets with their
+    cascade position kept: `app.css` lines 13-197 became `styles/layout.css`
+    (web) + `styles/controls.css` (package), `@import`ed by `app.css` in their
+    old order after cards and replayer; the tile rules left `stats.css` for
+    `stat-tile.css`, imported by `StatTile` (nothing else targets those
+    elements, so their place does not matter - checked below). New:
+    `Chip` (the web's filter bar uses it for its chips, same markup),
+    `FilterChips` (guideline §6 "filters as chips in one row"), `StatTable`
+    (rows of `Shown`: value at the reliability's opacity, "n = …, 95% CI
+    a–b" tooltip, sample toned by level; locale decimal mark over the
+    `formatFixed` text), the `CommandPalette` shell (search field + listbox on
+    a modal `<dialog>`, arrows / Enter / Escape; finding and navigating are
+    the surface's), `DataSource`.
+  - **One door out: `model/`.** The replayer needs PHF, the replay frames and
+    the cards, which are the web's framework-free library
+    (`frontend/src/lib/{phf/types,replay,cards}`, the statistics display
+    types) - the same files `tests/` and the Rust parity vectors build on.
+    `model/*.ts` re-export them; the package's ESLint allows no other import
+    from outside it (and no `next/*`, `@supabase/*`, `@tauri-apps/*`,
+    `server-only`). At R0.14 these four files are what changes.
+  - **Words.** The package holds no copy. `i18n.tsx` declares `UiStrings`
+    (`intlLocale`, `closeNamed`, `replayer` - the full `ReplayerStrings`,
+    `statTile`, `statTable`) and `UiStringsProvider`; components call
+    `useUiStrings()` where they called the web's `useDict()`. The web builds
+    the value once per language from its dictionaries
+    (`lib/i18n/ui.ts`, same objects) and mounts it inside `I18nProvider`.
+    New web strings: `stats.table.{statistic,value,sample}` (en, hr).
+    The package's ESLint has the surfaces' no-bare-literal rule.
+  - **`DataSource`** (`data.tsx`): `hand(id) -> PhfHand | null`, with
+    `DataSourceProvider`, `useDataSource` and `useHand(id)` (loading / ready
+    / missing / failed). The web's implementation is
+    `frontend/src/lib/db/dataSource.ts` (`getHand`); not mounted yet, since no
+    web screen renders a package component that fetches.
+  - **Consumers.** Both depend on `"@rail/ui": "file:../packages/ui"` (npm
+    links it; the lockfiles gain only the link and the package's manifest).
+    Web: `transpilePackages: ["@rail/ui"]`; `tsconfig.json` maps
+    `react`/`react-dom` types to its own `node_modules` (Next aliases React
+    when bundling); `next dev --turbopack` gets the repository as its root in
+    the development phase only, so `next build`'s output and file tracing are
+    unchanged. App: the same `paths` in `tsconfig.app.json`, Vite
+    `resolve.dedupe: ["react", "react-dom"]` and `server.fs.allow: [".."]`;
+    `index.css` imports the tokens from the package, `Folders` and
+    `RawTextDialog` use `@rail/ui/dialog/Dialog`. The package itself has
+    only dev dependencies (ESLint, stylelint, TypeScript, React types) and no
+    React at run time, so there is one React per bundle by construction.
+  - **No visual change, measured.** `packages/ui/screens/screens.mjs`
+    (Playwright 1.55.1, Chromium 140): the base (`origin/staging`) and the
+    change built with `next build`, served offline by `next start`, each
+    captured twice - 288 full-page and replayer element screenshots across 9
+    pages (convert, stats signed out, library, feed, upload, manual entry, a
+    shared-hand link offline, learn, analysis), the converter's output for a
+    dropped corpus file, the inline replayer, and the library replayer for two
+    corpus hands (NLHE 6-max; PLO run-it-twice with a side pot) at widths 1440
+    / 1100 / 900 / 768 / 600 / 480 / 390 / 320 (two heights below 768, around
+    the 30rem / 32rem / 22rem container breakpoints) at the start, six actions
+    in and the end, plus the hand-info and shortcut sheets, in both themes.
+    Result: **285 of 288 screenshots pixel-identical; the other 3 (two dark
+    480x560 run-it-twice frames, one light 320x800 end) differ by 47-70 pixels
+    at most 1, 1 and 11 levels of one channel, all inside the sticky header's
+    backdrop blur at the pills' rounded corners - the kind of difference 7
+    other screenshots showed between two runs of the same build - and their
+    element captures of the replayer are identical**. With each screenshot the
+    page's whole cascade (every rule, document order) and DOM were compared
+    too: of 192 DOMs, all equal once class attributes are
+    whitespace-normalised (the one change: `Chip` writes `class="chip-btn"`
+    where the filter bar wrote `"chip-btn "`); of 192 cascades, 188 equal once
+    the tile's rules are left out, and the other 4 (`/stats`) hold the same
+    tile rules in a sheet of their own instead of inside `stats.css` (on
+    `/analysis` they are simply not loaded any more: no tile there). The stat
+    tiles (not reachable offline) were checked apart: the server markup of the
+    stats grid in en and hr is byte-identical before and after, and that
+    markup rendered inside each build's `/stats` page is pixel-identical in 72
+    screenshots (3 widths x 2 themes x 12 samples, all three reliability
+    levels). The desktop app's production bundle (`vite build`) is
+    byte-identical to the base's: same JavaScript, same CSS, same file names.
+  - **Vercel.** The root directory stays `frontend`; the build reads
+    `../packages/ui` through the `file:` link, which Vercel provides with
+    "Include files outside the root directory in the Build Step" (on by
+    default; the PR's preview deployment is the check, `docs/WEB.md`
+    Deployment). No project setting was changed.
+  - **CI**: new job `ui` (Shared UI package) - `npm ci`, ESLint, stylelint
+    (the token rules; `replayer.css` and `cards.css` keep their hex
+    exemption), `tsc`. The `frontend` and `app` jobs typecheck and bundle the
+    package again through their imports; `tests/test/statDisplay.test.ts`
+    scans `packages/ui` for hand-computed statistics (none) and
+    `potOdds.test.ts` imports the package's `replayer/potOdds`.
+  - **For R2.7** (desktop screens): import `@rail/ui/tokens/*` (done),
+    then, for the replayer, `cards/cards.css`, `replayer/replayer.css` and
+    `styles/controls.css` in that order after the tokens (controls after
+    replayer, as on the web); mount `UiStringsProvider` - the app needs
+    `ReplayerStrings` in `en` and `hr`, which today live in the web's
+    `lib/i18n/ns/replayer.{en,hr}.ts` (decide: copy into `app/src/i18n/`, or
+    move both dictionaries into the package as data - the brief kept the
+    package copy-free); implement `DataSource` over a new Tauri command
+    (`get_hand` -> PHF JSON from `rail-store`) and mount
+    `DataSourceProvider`; Hands: `FilterChips` for position / limit / date /
+    stack depth, `ReplayViewer` with `useHand(id)`; Reports: `StatTable` with
+    `Shown` rows from `rail_stats::display` (the R2.5 note above); the
+    command palette: `CommandPalette` with the app's own search and a
+    Cmd/Ctrl+K listener. Two things to settle first: (1) the app's
+    `tsconfig.app.json` has `noUncheckedIndexedAccess` and
+    `exactOptionalPropertyTypes`, and the app typechecks whatever it imports:
+    under them the moved replayer has 36 errors and the web library behind
+    `model/` 51 (`lib/replay` 18, `lib/phf/types` 15, `lib/stats/display` 12,
+    `lib/cards` 6), so even `StatTable` (its types come from
+    `lib/stats/display`) brings 12; the package's new code itself is clean.
+    Either tighten that code (behaviour-neutral, but it is the web's library
+    and the oracle) or relax the two flags in the app - before the first
+    screen; (2) the web's Inter font files are not in the app, so text metrics in the
+    replayer differ from the web's until they are. The web's
+    `WinrateGraph` (the plan's "graphs") did not move: Reports moves it.
 
 ### R2.7 Desktop screens — XL (one PR per screen)
 - Today, Hands (virtualised list, filter chips, saved filters, replayer, tags,
@@ -4398,3 +4527,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R2.3 done**: local statistics in `rail-store` (migration 6). With every hand, on the import threads, `PreparedStats` (`rail_stats::stored_rows` - `handStatsRows`' rule: hero always, villains unless the room is positionally anonymised, one row per seat - the segment, the rollup scope, the EV plan); in the hand's transaction `hand_stats` + `seat_stats` (counters and money as a varint blob: the first, column-per-counter layout cost +61 % size and 21-29 % of the import's speed) and the rollup increments, summed per writer group and upserted once per key: `player_rollups` (site, player, scope, segment; `aggregate`'s default exclusions) and `hero_rollups` (segment, position, UTC day, kind). Segment = (site key, format, variant, limit, `hu`/`6max`/`full` by `maxSeats`, a cash game's currency and exact big blind or `chips`). Opaque-id villains (GGPoker, ACR/WPN mined) summed per session (`<table>@<UTC day>`), never across sessions. The hero's EV at import unless the all-in was preflop (`rail_equity::ev_row_unless_preflop`); those, and rebuilds after a `STATS_VERSION` bump or on request (new generation, cursor in `kv`, resumable), by a background `StatsWorker` paused during backfills and (EV) while tables are open. Rows equal the engine's for every corpus seat; crash test checks rows and rollups after every kill. import pipeline efficiency unchanged after the fix (local 3 threads 48 / 46 % before, 48 / 48 % after; the first push's 41-44 % on CI came from SQLite's statement journal in temp files - now `temp_store = MEMORY` - and a `RETURNING` insert), stats 17-22 µs a hand on the import threads, +18 % size; preflop all-in 26 ms in the background; rebuild ~6 500 hands/s; at 500k the HUD lookup for 9 players takes 73 µs (p99 0.24 ms), hero totals 76-127 ms. App: the pass started with the store, Settings debug panel. Preflop-matchup cache measured, not built. |
 | 2026-10-14 | **R2.4 done**: displayed statistics are data. `config/stats/standard.json` (32 definitions: the guideline §5 set plus hands, net bb, RFI, iso, cold call, squeeze, fold to 4-bet, cbet river, fold to turn cbet, raise flop cbet, saw flop, AF) and `stats.schema.json`; a definition is labels and descriptions in `en` + `hr`, a formula over the `stats/2` counters (`pct`, `sum`, `+ - * /`; evaluated in JavaScript's doubles, `JsNumber` in Rust), a format, colour bands to five tones, the sample and its full-opacity minimum, default HUD membership. `rail_config::stats` parses and validates (names against the caller's vocabulary), `rail_stats::display` evaluates (and ports `aggregate`), `rail_store` gives `Totals::sums()` / `HeroTotal::sums()` (all-in EV). The web: `lib/stats/display.ts` + `definitions.ts` (a checked copy of the file); text is `Intl.NumberFormat`'s rounding (shortest decimal, half away from zero), not `toFixed`. Parity over 558 corpus groups, 600 synthetic totals, 33 formulas and 5 000 format cases: Rust = TypeScript bit for bit, and 33 582 values = `rates()`, 26 405 texts = `Intl`. `/stats` tiles now print `(made * 100) / n` like the breakdown (they printed `(made / n) * 100`: "28.7" vs "28.8" at 23 of 80); `HudGrid` reads `STANDARD_STATS`. Guideline §14 enforced by a source scan with a shrinking allow-list. R2.4 "As built". |
 | 2026-10-14 | **R2.5 done**: sample reliability. A rate's 95% Wilson interval (z = 1.959964, exact 0 / 100 at the edges, bounds at the definition's decimals), a level for every value (`ok` from `sample.min` = R2.4's `full`, `low` from a quarter, `insufficient` below) and a continuous opacity (`0.6 + 0.4 * sqrt(sample / min)`, 1 from `min`); no interval for bb/100 (no per-hand variance is stored) or AF. One rule, code: `rail_stats::reliability` + `DisplayStat::reliability`, `lib/stats/reliability.ts` + `statReliability`; `JsNumber::sqrt` (correctly rounded). Schema caps `sample.min` at 10^9 (Rust, TS and ajv refuse more). Parity over display-vectors' 1 158 cases x 32 statistics (20 677 intervals), 3 041 Wilson edge/random cases, 2 168 level cases, 3 921 `Math.sqrt` cases: Rust = TypeScript bit for bit; intervals within 1e-9 of `reports.ts`'s textbook Wilson. `/stats`: `uncertainty.ts` removed; tiles take the shared level (band colour, tooltip) instead of ±2 / ±6 points and a continuous opacity instead of three steps; tooltips "n = …, 95% CI a–b". R2.5 "As built". |
+| 2026-10-14 | **R2.6 done**: the shared UI package `packages/ui` (`@rail/ui`), source consumed by both surfaces through `file:../packages/ui` (no build step; R0.14's root workspaces still deferred). Moved with `git mv`, imports rewritten only: the token layer (the app's R1.1 copy deleted, both surfaces import `@rail/ui/tokens/*`), the web's replayer (23 modules + `replayer.css`), `PlayingCard` + `cards.css`, `Overlay` + `overlay.css`, `Icon`, `StatTile` (its rules out of `stats.css` into `stat-tile.css`), the base controls (`.muted`, `.btn`, `.icon`, `.chip-btn`: `app.css` split into the web's `layout.css` + the package's `styles/controls.css`, `@import`ed in their old order) and the app's `Dialog`. New: `Chip` (the web's filter bar uses it), `FilterChips`, `StatTable` (rows of R2.4 `Shown` with R2.5 reliability), the `CommandPalette` shell, `DataSource` (`hand(id)`, `useHand`; the web's implementation over `getHand`, not mounted yet), `UiStrings` (the package holds no copy; the web mounts slices of its dictionaries in `I18nProvider`; new `stats.table` strings). The package reaches outside itself only through `model/` (re-exports of the web's framework-free `lib/{phf/types,replay,cards}` and the stats display types); its ESLint forbids Next, Supabase, Tauri and bare literals. Web: `transpilePackages`, React types pinned by `paths`, the repository as Turbopack's root in `next dev` only (production build and tracing root unchanged), Vercel root directory still `frontend` (needs "Include files outside the root directory", on by default). App: same `paths`, Vite `dedupe` + `fs.allow`. **No visual change**: 285 of 288 screenshots pixel-identical across two runs of each build, the other 3 within the sticky header's backdrop blur (at most 70 px, channel deltas 1-11, the same noise seen within one build); every DOM equal up to class whitespace; every cascade equal apart from the tile rules now loading with `StatTile`; stat tiles 72 / 72 identical; the app's bundle byte-identical. New CI job `ui` (ESLint, stylelint, tsc). For R2.7: see *As built* (strings, `get_hand` command, the app's stricter TS flags vs the moved code). |

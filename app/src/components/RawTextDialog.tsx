@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useT } from "../i18n";
 import { errorText, ipc, type RefusedHand } from "../lib/ipc";
-import { Dialog } from "./Dialog";
+import { Dialog } from "@rail/ui/dialog/Dialog";
 import styles from "./RawTextDialog.module.css";
 
 /**
