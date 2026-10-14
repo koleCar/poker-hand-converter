@@ -219,6 +219,24 @@ jobs:
       - name: Test
         run: cargo test --workspace --exclude rail-app --locked
 
+      # The table simulator with its windows (docs/RAIL-PLAN.md R3.1): three
+      # tables, twenty hands into a temporary folder, exit; every window
+      # must show a frame (a `window` event each), and the folder must read
+      # back through rail_core as PokerStars hands. macOS and Windows runners
+      # have a desktop session; on Linux the headless run in `cargo test`
+      # (hud/rail-hud-sim/tests/smoke.rs) is the check.
+      - name: Table simulator, windowed smoke
+        if: matrix.os != 'ubuntu-latest'
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/rail-hud-sim-smoke"
+          events="$RUNNER_TEMP/rail-hud-sim-events.jsonl"
+          cargo run --locked -q -p rail-hud-sim -- --tables 3 --hands 20 --speed 1200 --linger 500 --no-stdin --out "$out" > "$events"
+          windows=$(grep -o '"event":"window","table":[0-9]*' "$events" | sort -u | wc -l)
+          echo "tables whose window showed a frame: $windows"
+          test "$windows" -eq 3
+          cargo run --locked -q -p rail-hud-sim -- verify --room pokerstars --out "$out" --hands 20
+
       # The generated declarations against frontend/src/lib/phf/types.ts,
       # type by type (tests/scripts/phf-dts/check.ts). The same on every OS.
       - name: Declarations match types.ts

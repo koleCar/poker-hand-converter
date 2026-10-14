@@ -105,7 +105,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats`; **R2.1**: ported to Rust (`core/rail-stats`, `rows_for(&PhfHand)`), its rows equal to the TypeScript's for all 8 422 corpus hands (51 464 rows) and 4 000 seeded mutations of them; the TypeScript stays the oracle (`testdata/golden-stats/`); **R2.2**: all-in EV ported too (`core/rail-equity`, `ev_row`), its `hand_stats_ev` rows and analyses equal to the TypeScript's for every corpus hand (8 121 rows, 508 all-ins, the 11 Omaha preflop Monte Carlo ones included, equities bit for bit) and 4 500 seeded vectors (`testdata/golden-ev/`); **R2.3**: run at import on the desktop - seat rows, per-player rollups by segment and the hero's by day, written with each hand; preflop all-ins evaluated by a background pass that also rebuilds after a version bump; **R2.4**: displayed statistics are data - `config/stats/standard.json` (32 definitions: formula over the counters, format, colour bands, sample, labels in `en` + `hr`, HUD membership), evaluated identically in Rust (`rail_stats::display`) and on the web (`lib/stats/display.ts`), equal to the web's `rates()` and `Intl` text over the corpus; **R2.5**: every value's reliability - a 95% Wilson interval for rates, a level and an opacity from the definition's `sample.min` - the same bits in Rust (`rail_stats::reliability`) and on the web (`lib/stats/reliability.ts`), which `/stats` uses; **R2.7b**: the desktop's reports print the web's numbers - over the corpus, every statistic, graph bucket, breakdown row and session equal to the web's SQL restated in TypeScript over the TypeScript engine's rows (`core/rail-store/tests/data/report-vectors.*`); **R2.10**: custom statistics - per-seat decision events (`rail_stats::events`) and a predicate language over them (`first` / `any` / `each` opportunity `=>` action), which re-expresses the standard set and equals the coded counters on every corpus row but 12 (seats that never decided anything, STATS-SPEC §14.4); **R2.11**: targeted recompute - a dependency map from each kind of definition change to the tables it touches, worked out in the background beside the statistics on screen and swapped in whole | Custom statistics on the web | 2 |
 | Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI. **Shared UI package (R2.6)**: `packages/ui` - the design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay and the command palette's shell, one set for the web and the app; the web renders from it with no visual change, the app takes its tokens and dialog from it. **Hands (R2.7a)**: the virtualised hand list over the local store (keyset pages), filter chips in one row with counts and saved filters, the shared replayer beside it (the web's, with Inter bundled), tags and a note per hand, Cmd/Ctrl + K to go to a hand by its number or to a screen. **Today and Reports (R2.7b)**: the current session (the web's 30-minute rule: result in money and big blinds, hands, hands per hour, its key statistics, its biggest pots into Hands) above the import status; Reports with the filter row and its own saved filters - the result, bb/100 and all-in EV bb/100, the web's win-rate graph (moved into `packages/ui`) in big blinds or money, every statistic with its reliability, breakdowns by position, stake, table size, room, game, pot type, stack depth, players, street and the 13 x 13 starting-hand grid. **Players (R2.7c)**: the opponents of rooms that print screen names, most hands together first, searched by the start of a name (also from Cmd/Ctrl + K), with your result against each in big blinds; a profile with their statistics and reliability, rows by position, stake, table size and game, a colour tag, labels and a note, and "hands with this player" into Hands; opaque-id rooms' opponents counted, never listed. **Polish (R2.8)**: the command palette complete (fuzzy search over screens, hands, players, reports, saved filters, Settings sections and commands, recent choices, shortcut hints, keyboard only), theme (dark / light / system) and density (comfortable / compact) saved and painted before the first frame, Croatian complete and switchable in Settings (the tray follows), the Players list virtualised as a keyboard grid, the profile's own game kind, one shape for loading, empty and error states, a contrast pass in both themes. **Custom statistics (R2.10)**: Settings → Your statistics - a counter and a formula written in code fields with what is wrong underlined in place, a live preview on your last 5 000 hands, label, format, colour bands and minimum sample; listed in Reports with the shipped statistics | Tauri 2 + React: HUD, Settings (Phase 3) | 1–2 |
-| HUD | — | Separate native process, Windows first, then macOS | 3 |
+| HUD | **Table simulator (R3.1)**: `rail-hud-sim` opens table windows titled like PokerStars, Winamax or ACR tables and writes real corpus hands into a folder of its own at play speed (fresh ids, one cast of players per table, the hero in a fixed seat), for the watcher and every HUD step; scriptable (move, resize, minimise, table move, close); runs headless in `cargo test` and with windows in CI on macOS and Windows | Separate native process, Windows first, then macOS | 3 |
 | Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
 | Analysis | **Live on web**: phases S, A1–A9 of [`docs/ANALYSIS-PLAN.md`](docs/ANALYSIS-PLAN.md) | Session review, leak finder in the app (never during play) | 5 |
 | Subscription | — | Plans, Stripe, EU VAT | 6 |
@@ -431,6 +431,11 @@ automatic, signed updates (Apple notarization, Windows code signing).
 | Overlay | layered, no-activate, click-through window owned by the table | non-activating transparent `NSPanel` ordered above the table |
 | Follow moves and resizes | `SetWinEventHook` | `AXObserver` notifications |
 | User permissions | usually none | Accessibility (Screen Recording only if a room's titles need it) |
+
+The HUD is developed against the **table simulator** (`hud/rail-hud-sim`,
+R3.1; [§8](#table-simulator-since-r31)): windows titled like a room's tables
+with a drawn table to align to, writing real corpus hands where the watcher
+picks them up - no poker client, no real money, on any machine and in CI.
 
 **Compliance mode** is on by default: `config/sites.json` says per room whether
 a HUD is allowed, and Rail refuses to attach where it is not. No real-time
@@ -788,11 +793,48 @@ npm run lint && npm run lint:css && npm run typecheck
 How the consumers import it and the rules that keep it shareable are in
 [`docs/WEB.md`](docs/WEB.md), "Shared UI package".
 
-Coming with later steps:
+### Table simulator (since R3.1)
 
-| Command | What it does | Step |
-| --- | --- | --- |
-| `cargo run -p rail-hud-sim` | Table simulator: fake tables writing real corpus hands, for HUD work without a poker client | R3.1 |
+`hud/rail-hud-sim`: windows titled like a room's tables (PokerStars,
+Winamax, ACR), each with a drawn table - felt, seats with names and stacks,
+the dealer button, the board, and "RAIL TABLE SIMULATOR - not a poker
+client" across the top - while it writes real corpus hands
+(`fixtures/samples/<room>/`, rewritten with fresh ids, the table's name, the
+current time and one cast of players per table) into a hand-history folder
+at play speed, the way the room appends them. It is not a poker client and
+never writes into a real client's folder: the default output is a new
+temporary folder, and `--out` must be empty or one it made.
+
+```bash
+cargo run -p rail-hud-sim                                  # 3 PokerStars tables, 2 hands/min each
+cargo run -p rail-hud-sim -- --room acr --tables 12 --sizes 6 --speed 6
+cargo run -p rail-hud-sim -- --room winamax --out /tmp/sim-hh   # then watch /tmp/sim-hh in the app
+cargo run -p rail-hud-sim -- --tournament --preferred-seat
+cargo run -p rail-hud-sim -- --headless --hands 20 --out /tmp/sim-hh
+cargo run -p rail-hud-sim -- verify --room pokerstars --out /tmp/sim-hh --hands 20
+cargo run -p rail-hud-sim -- --help                        # every option, command and key
+```
+
+Events (a table opened, a hand written with its key and players, a window's
+position and size, ...) are JSON lines on standard output; commands are lines
+on standard input or in `--script` (`pause`, `speed 6`, `open 9`,
+`move 2 100 100`, `resize 2 800 580`, `minimize 2`, `restore 2`,
+`tablemove 2`, `close 2`, `status`, `quit`, and `wait <ms>` in scripts;
+[`hud/rail-hud-sim/scripts/tracking.txt`](hud/rail-hud-sim/scripts/tracking.txt)
+is the HUD tracking tests' script). In a window: space pauses, +/- change the
+speed, H writes a hand now, T moves the player to another table, N opens a
+table, W closes this one, M minimises, the arrows move it, Q quits.
+`hud/rail-hud-sim/rooms.json` holds each room's title and file-name formats,
+encoding and separators, and says which of them are sourced and which
+invented (all window titles are invented until R3.3 / R3.11 read real ones).
+
+End to end with the watcher and the store (the hand in the file until its
+players' rollups are readable; prints p50 / p95 / max):
+
+```bash
+cargo build -p rail-hud-sim
+cargo run -p rail-hud-sim --example e2e -- [--windows] [--room acr] [--tables 12] [--hands 48] [--speed 6]
+```
 
 ---
 

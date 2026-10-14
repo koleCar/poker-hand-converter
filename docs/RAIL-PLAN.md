@@ -5531,6 +5531,154 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
   writes real corpus hands into a hand-history folder at play speed.
 - Runs on both systems and in CI; drives the watcher (Phase 1 exit check) and
   every HUD test below.
+- *As built* (§15): **done** - `hud/rail-hud-sim`, a library (the
+  simulator without its windows) and the binary `rail-hud-sim` (the
+  windows, the command line). `#![forbid(unsafe_code)]`, workspace lints.
+  How to run it: README §8 "Table simulator".
+  - **Windowing: `winit` =0.30.13 + `softbuffer` =0.4.8 + `font8x8`
+    =0.3.1**, all without default features. Each window is a plain
+    top-level OS window (`NSWindow`, `HWND`, X11/Wayland surface) whose
+    frame is drawn on the CPU (`rail_hud_sim::draw`, integer geometry, an
+    8x8 bitmap font: no font file, no shaping) and handed to the OS by
+    softbuffer. Chosen over `eframe`/`egui` because that needs a GPU API:
+    `glow` wants OpenGL (a GitHub Windows runner has only GDI's OpenGL
+    1.1) and `wgpu` is large; a simulator needs titles, rectangles and a
+    few words, not widgets, and must run on CI runners and in virtual
+    machines. Release binary 4.8 MB on macOS arm64, most of it the core.
+    Linux compiles with no system packages (X11 and Wayland are loaded at
+    run time); not run there with windows.
+  - **Rooms** (`hud/rail-hud-sim/rooms.json`, compiled in; every choice
+    tagged SOURCED / PARTLY SOURCED / INVENTED in its `sources`, a test
+    holds that):
+
+    | | PokerStars | Winamax | ACR |
+    | --- | --- | --- | --- |
+    | Hands used | `PokerStars Game/Hand #` (no Zoom, no Home Game): 104 | cash: 34 | era C (`Hand #`, `Game Hand #`) only: 6 |
+    | Cash sizes | 6, 9, 2 (sourced) | 5, 2, 9 (sourced: no 6-max in the corpus) | 6, 9 (1 and 3 hands) |
+    | Tournaments | yes (9 hands; 2-, 6-, 9-, 10-max) | none in the corpus: refused | yes (8-, 9-max) |
+    | Window title | `{table} - {stakes} {currency} - {game} - Logged In as {hero}`; tournament `Tournament {tid} Table {tno} - {game} - ...` (invented) | `{table} - {game} - {stakes}` (invented) | `{table} - {stakes} {game} - {size}-max`; tournament `{tname} ({tid}) Table {tno} - {game}` (invented) |
+    | File name | `HH{date} {table} - {stakes} - {currency} {game}.txt` (shape sourced, money form invented); tournament `HH{date} T{tid} {game}.txt` (invented) | `{date}_{table}_real_{game}.txt` (invented) | `HH{date} CASHID-G{gid}TN-{table} GAMETYPE-{game}.txt` (partly sourced from fpdb's file names); tournament `SCHEDULEDID-G{tid}TN-...` |
+    | Encoding, line ends | UTF-8 BOM, LF (sourced) | UTF-8 BOM, LF (sourced) | UTF-8, LF (era C; `--encoding utf-16le` for the older files' form) |
+    | After each hand | 3 line ends (two blank lines, sourced) | 6 (five blank lines, sourced) | 2 (one blank line, partly sourced) |
+    | Hero's deal line | after `*** HOLE CARDS ***` | before `*** PRE-FLOP ***` | after `*** HOLE CARDS ***` |
+
+    Table names are the corpus's own (`Hygiea IV 40-100 bb`, `Florence 03`,
+    `Miramar (Cap)`), one per table, never two tables alike; a tournament
+    table's name is what the room's hands carry (`{tid} {tno}` PokerStars,
+    `{tno}` ACR). `{date}` is the hand's UTC date, so a table writes one
+    file per day like PokerStars.
+  - **A hand** is a corpus hand rewritten for its table
+    (`rail_hud_sim::rewrite`): the hand id (globally increasing, from the
+    clock in ms, so runs do not collide in a store; Winamax's
+    `{table}-{n}-{unix}` form kept), the table name on the table line, the
+    tournament id, every timestamp of the header moved by one shift to now
+    (the core reads a stamp as written, so the hand is played "now" in
+    whatever zone it is labelled; a dual-zone header keeps its offset), the
+    seats rotated so the hero sits in the table's hero seat (positions
+    unchanged), and every name replaced by the table's player of that seat
+    (one cast per table, unique in the run; the hero `--hero`, default
+    `SimHero`, at every table). Most corpus hands have no hero (fixtures
+    seen from the rail): one dealt-in player becomes the hero and a
+    `Dealt to` line is added where the room prints it, with the cards that
+    player showed, or cards nobody holds and the board does not use. The
+    result is converted with the room's parser and must read back as one
+    hand with exactly the new id, table, tournament, names, seats, stacks,
+    hero, positions, button and number of actions; otherwise another hand
+    is taken. A test rewrites every usable hand for every hero seat.
+  - **Tables and speed.** `--speed` hands per minute per table (default 2,
+    hundredths allowed), `--jitter` +- percent (30); a new table's first
+    hand within half an interval. A table's stakes come from one hand
+    (title, file name); its later hands have the same blinds and currency
+    when the corpus has three such, else the same currency (the corpus is
+    small: stakes may vary within a table). Each hand is appended in one
+    write (the whole hand and its separator) and flushed, the way a client
+    writes a finished hand; a BOM only at a new file's start.
+  - **Its own folder only.** Default output a new folder under the system
+    temporary directory; `--out` must be empty or hold the marker
+    `.rail-hud-sim` (hidden: the watcher skips it), and a path with a
+    `HandHistory` / `hands` component is refused outright. Nothing is
+    written under the repository.
+  - **Controls.** Command line (`--help`); commands on standard input or in
+    `--script` (with `wait <ms>`): `pause`, `resume`, `speed`, `faster`,
+    `slower`, `open [size]`, `close`, `hand`, `tablemove` (new table name
+    and title, new opponents, new hero seat), `move`, `resize`, `minimize`,
+    `restore`, `focus`, `tile`, `status`, `quit`; keys in a window (space,
+    +/-, H, T, N, W, M, arrows, Q). Events are JSON lines on standard
+    output: `started` (with the title regex), `table`, `hand` (hand id and
+    store key, table name, file, players, bytes, write time in ms), `window`
+    (position and client size in physical pixels, minimised; sent once the
+    first frame is shown and 400 ms after a window command or an OS move or
+    resize, when the window has settled - a minimise animates on macOS),
+    `closed`, `paused`, `speed`, `status`, `done`, `error`.
+  - **Not a client.** The process is `rail-hud-sim`; every frame carries
+    "RAIL TABLE SIMULATOR - not a poker client" across the top; windows
+    open without taking focus.
+  - **Test-only title regex** (`room::title_regex`): the room's title
+    template with its text escaped, `{table}` / `{tid}` / `{tno}` as named
+    groups and every other field a lazy wildcard, anchored; printed by
+    `--title-regex` and in `started`. `room::table_from_title` reads the
+    hands' table name back from a title (tournaments through
+    `tableFromTitle`). Tests check it on every title the simulator makes,
+    after a table move too. It claims nothing about real clients:
+    `sites.json` `tables.title` stays theirs (R3.3, R3.11).
+  - **Tests.** 20 unit tests (rooms file, dates, rewrite of every corpus
+    hand for every hero seat, titles read back per room and kind, drawing at
+    any size, encodings, the folder guard) and `tests/smoke.rs` (the binary,
+    headless: 3 tables, 20 hands per room - PokerStars, Winamax, ACR, ACR in
+    UTF-16LE with CRLF, PokerStars tournaments - each folder read back
+    through `rail_core::convert` with the room detected first and no
+    refusal; commands from standard input; a foreign folder refused) - in
+    `cargo test` on Linux, macOS and Windows. **CI**: job `core` on macOS
+    and Windows also runs it with windows (3 tables, 20 hands, every window
+    must show a frame, then `rail-hud-sim verify`).
+  - **End to end** (`examples/e2e.rs`, on the dev machine): the simulator
+    binary writes, `rail_watch::Watcher` imports into a fresh store, and the
+    latency is from the `hand` event until the store has the hand and every
+    player of it has a rollup counting all their hands so far
+    (`Reader::hud_totals`). M2 Pro, debug build: PokerStars 3 tables 15
+    hands p50 516 / p95 523 / max 527 ms; Winamax 24 hands 512 / 517 / 528;
+    ACR 24 hands 516 / 522 / 530; **12 tables with windows**, 48 hands,
+    514 / 523 / 554 ms; none over 1 s. §3.3's < 1 s holds; the aim of
+    250 ms does not, for the reason R1.3 measured: a table's newest hand
+    is the last in its file, so the watcher's 500 ms quiet period is the
+    floor (a hand the next hand's header completes takes 15-24 ms).
+  - **Limits.** ACR's era-C corpus is thin (4 cash hands), so its tables
+    repeat the same hands with new ids, names and seats; Winamax has no
+    tournament hand; whole-hand writes only (R1.3's random-append test
+    covers partial writes); every window title is invented.
+  - **For R3.2** (HUD process): the HUD's tests start the simulator as a
+    process (build it first: `cargo build -p rail-hud-sim`; a binary cannot
+    be a dependency) and read its events; for the data path without
+    windows (Linux CI) `--headless` with the same events.
+  - **For R3.3** (Windows, find tables): the process is `rail-hud-sim.exe`;
+    give the HUD a test-only room entry (process name and the regex from
+    `--title-regex`), never in `sites.json`; the hands' table name equals
+    the title's `table` group (or `tableFromTitle`), and every `hand`
+    event says which table and file it went to, so "match the title to the
+    newest hands' table name" can be asserted. Capture the real clients'
+    titles into `sites.json` and `rooms.json` when verified.
+  - **For R3.4** (Windows overlay): the table is drawn in fixed fractions of
+    the client area - `rail_hud_sim::draw::seat_center(size, seat,
+    hero_seat)` in thousandths, `TABLE_CENTER` - so a test can check where
+    a seat panel lands at any window size and DPI.
+  - **For R3.5 / R3.13** (tracking): `scripts/tracking.txt` moves, resizes,
+    minimises, restores, moves the player to another table (title change),
+    closes and opens; each step's `window` event is the ground truth to
+    compare the overlay with. On macOS a requested position may be pulled
+    onto the visible screen (below the menu bar): compare with the event,
+    not the request.
+  - **For R3.6** (seats): `--preferred-seat` draws the hero's seat at the
+    bottom, as clients do; the hero's seat per table is in the `table`
+    event (`heroSeat`) and stays fixed until a table move.
+  - **For R3.7** (data path): a `hand` event's `atMs` is when its bytes were
+    written - the start of the latency to measure to the redraw.
+  - **For R3.11 / R3.12** (macOS): the windows are ordinary `NSWindow`s of
+    an unbundled process; their titles are `AXTitle`s (the Accessibility
+    permission is the HUD's, not the simulator's).
+  - **For R3.14** (twelve tables): `--tables 12 --sizes 6 --speed 6` (or
+    faster) on both systems; the simulator redraws a window only when its
+    table changes. The end-to-end example measures the store side; the
+    HUD's redraw is added to it there.
 
 ### R3.2 HUD process and IPC — M
 - `rail-hud` as a Tauri sidecar; IPC from §3.2; health checks and restart;
@@ -5782,3 +5930,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.10 done**: custom statistics. `rail_stats::events` exports per-seat decision events from the counters' own context (42 fields: the hand, the seat, the decision - street, position, facing none/limp/bet/raise, raise level, action, all-in, sizes in thousandths of a bb and of the pot, stacks, position in the hand, multiway, initiative, the cbet chain, the steal; `EVENTS_VERSION` `events/1`); `rail_config::stats::predicate` parses a counter as `first`/`any`/`each` opportunity `=>` action, errors with byte spans, bounded like R2.4's formulas; `rail_stats::custom` evaluates it and validates and compiles a user's definitions (R2.4 `StatDef` + predicate; counters `<id>` / `<id>_opp` readable by formulas through `Variable::Custom`; shipped values unchanged). **Acceptance**: 57 predicates re-express the standard set and equal the coded counters on every one of the corpus's 51 464 rows (8 422 hands), legs included; the showdown family differs on 12 rows, seats with no decision at all (all in by a blind or the antes), which the language cannot see - documented in STATS-SPEC §14.4. Store migration 11 (`custom_stats` in the user's store, `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`; tested from every earlier version): counted by the background pass from the stored PHF (~26k hands/s on one thread), not at import - events + 57 predicates cost ~14 µs a hand on the import threads but the writes would land in the writer, the pipeline's bottleneck; import gate unchanged (58 %, gate 45 %). A rebuild of the coded statistics recounts them; a changed predicate recounts only its statistic. App: `custom_stats_list` / `_check` / `_save` / `_delete`, the definitions API and Reports' summary include them. Editor in Settings ("Your statistics"): code fields with errors underlined in place, a live preview on the last 5 000 hero hands, labels, format, bands, minimum sample, examples and the field reference; Reports lists them in their group; `en` + `hr`; checked in a browser against a mocked IPC with made-up data. |
 | 2026-10-14 | **R2.11 done, Phase 2's steps complete**: targeted recompute. `rail_store::recompute`: the dependency map as data (`DEPENDENCIES`: a definition's display fields and formulas recompute nothing, a custom predicate that statistic, `EVENTS_VERSION` the custom counts, `STATS_VERSION` the rows job, the new `rail_stats::SEGMENT_VERSION` the segments job, `EV_VERSION` the EV job - each with every table it writes; a test holds it to the schema and checks every unnamed table is untouched). The rows job derives every hand from its PHF and compares, stages only the hands that differ and sums every hand into twins of the rollups and the Players list's lines; the segments job regroups the stored seat rows without deriving; the EV job evaluates every hero hand beside the stored rows; each ends with one swap (staged rows written in place, twins renamed into place, `stats.epoch` moved on). Readers never see half of it: every `Reader::with` is one read transaction, multi-connection answers check the epoch (`Reader::same_epoch`), the reports read EV rows of any version until the swap - a test runs the screens' and the HUD's reads during both jobs. Hands keep their `hand_stats.id`: custom counts survive unless a seat moves between rollup keys. Store migration 12 (work tables), tested from every earlier version; resumable, paused for backfills and open tables; progress on Reports, Hands, Players and Settings, `stats-changed` to re-read after a swap. New crash test: killed between and inside pages and inside both swaps, always the old statistics or the new, resumes. At 500k (vs staging's full rebuild, 84.3 s with the players' index and one custom statistic): segments 28.2 s, "rebuild statistics" 36.1 s, a counter on 250k hands 46.4 s (swap 4.1 s), an EV bump ~367 s vs ~397 s (preflop enumeration dominates). Phase 2 summary in the R2.11 section: the 1M targets hold warm on the M2 Pro; the cold-start Reports case and a Windows laptop's numbers remain. |
 | 2026-10-14 | **R3.0 done (proposal, awaiting the owner's sign-off)**: the HUD compliance check. Every `sites.json` entry's `hud` block from the room's own page, read 2026-10-14, with quotes, URLs, live files, names and confidence in `docs/research/HUD-POLICIES.md`, plus the per-release re-check checklist. **Allowed (3)**: PokerStars (with its Reference Guide's HUD restrictions), Winamax, ACR (own hands, nothing from the hand in play, no overlap of ACR's graphics). **Prohibited or unusable (15)**: GGPoker, partypoker, Unibet, CoinPoker, WPT Global by policy; Ignition (anonymous), PokerBros (no desktop client), the closed rooms, `standard`. **Unknown (4)**: 888poker, iPoker, Chico, WePlay. No network split (no skin's own page allows a HUD). `ignition.operating` true, `partypoker.files.live` false. Test `hud_policies_are_the_signed_list` pins (id, allowed, source) and `hud_permitted()` = PokerStars, Winamax, ACR; the ajv test pins the same list. README §6 and guideline Appendix A from it. Flagged: GG SEP 7.2 on third-party import. |
+| 2026-10-14 | **R3.1 done**: the table simulator `hud/rail-hud-sim` (A8). Windows titled like PokerStars, Winamax or ACR tables (winit =0.30.13 + softbuffer =0.4.8, CPU-drawn: felt, seats with names and stacks, button, board, "RAIL TABLE SIMULATOR - not a poker client"; no GPU, so it runs on CI runners; 4.8 MB release on macOS) at the room's sizes, writing real corpus hands (104 PokerStars, 34 Winamax, 6 ACR era-C) into its own folder at play speed: fresh ids, the table's name, the current time, seats rotated so the hero keeps one seat, one cast of players per table, a hero added to hero-less fixtures with a `Dealt to` line; every hand read back with the room's parser before it is written. Per-room title, file-name, encoding and separator formats in `rooms.json`, each tagged sourced / partly sourced / invented (all titles invented); a test-only title regex generated from the title template. Controls: flags, stdin / `--script` commands (move, resize, minimise, restore, table move, open, close, speed, pause, status), keys; JSON-line events. Tests: 20 unit + headless smoke (3 tables, 20 hands per room, read back through `rail_core::convert`) on three OSes; CI's `core` job runs it with windows on macOS and Windows. End to end (`examples/e2e.rs`, watcher + store + `hud_totals`, M2 Pro, debug): p50 512-516 ms, p95 <= 523 ms, max 554 ms with 12 windowed tables; < 1 s holds, the 500 ms quiet period is the floor (R1.3). R3.1 "As built" has notes for R3.2-R3.7 and R3.11-R3.14. |
