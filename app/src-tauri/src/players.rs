@@ -565,13 +565,11 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         let state = crate::commands::StoreState::open(dir.join(rail_store::FILE_NAME));
         let store = state.store.as_ref().expect("open");
-        for name in ["01-cash-nlhe-8max-0.25-0.50.txt"] {
-            let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../fixtures/samples/weplay")
-                .join(name);
-            rail_store::import_file(store, &file, &rail_store::ImportOptions::default())
-                .expect("import");
-        }
+        let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../fixtures/samples/weplay")
+            .join("01-cash-nlhe-8max-0.25-0.50.txt");
+        rail_store::import_file(store, &file, &rail_store::ImportOptions::default())
+            .expect("import");
         let writer = store.writer().expect("writer");
         rail_store::background::drain(store.reader(), &writer).expect("drain");
         drop(writer);
