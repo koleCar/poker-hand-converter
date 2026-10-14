@@ -14,7 +14,7 @@ use rail_store::migrate;
 use rail_store::{Error, FileState, ParserVersions, Store, import_file};
 use rusqlite::Connection;
 
-use common::{PARSED_AT, assert_integrity, corpus_file, scratch_dir, snapshot};
+use common::{DOWN_FROM_9, PARSED_AT, assert_integrity, corpus_file, scratch_dir, snapshot};
 
 const CHICO: &str =
     "fixtures/samples/chico/fpdb3-regression-corpus/cash__PLO-10max-USD-0.05-0.10-201209.txt";
@@ -251,6 +251,7 @@ fn rollups_are_built_from_an_older_store() {
         store.close();
     }
     let mut conn = Connection::open(&path).expect("open");
+    conn.execute_batch(DOWN_FROM_9).expect("back to version 8");
     conn.execute_batch(
         "DROP TABLE hand_list; DROP TABLE hand_notes; DROP TABLE hand_tags;
          DROP TABLE saved_filters;

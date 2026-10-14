@@ -27,7 +27,9 @@ use rusqlite::Connection;
 use rusqlite::types::ValueRef;
 use serde_json::{Map, Value};
 
-use common::{PARSED_AT, assert_integrity, corpus_files, scratch_dir, snapshot, stats_snapshot};
+use common::{
+    DOWN_FROM_9, PARSED_AT, assert_integrity, corpus_files, scratch_dir, snapshot, stats_snapshot,
+};
 
 fn options() -> ImportOptions {
     ImportOptions {
@@ -548,6 +550,7 @@ fn an_older_store_gets_its_statistics() {
     let path = copy_of_corpus("stats-older");
     {
         let conn = Connection::open(&path).expect("open");
+        conn.execute_batch(DOWN_FROM_9).expect("back to version 8");
         conn.execute_batch(
             "DROP TABLE hand_list; DROP TABLE hand_notes; DROP TABLE hand_tags;
              DROP TABLE saved_filters;

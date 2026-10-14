@@ -41,6 +41,10 @@ pub enum Error {
     /// The transaction a group of import batches shared did not commit
     /// (R1.6): none of them was stored. SQLite's message.
     Commit(String),
+    /// A note, colour or label on a name that is not an opponent of a room
+    /// with real screen names (R2.7c): a positional seat label is another
+    /// human every hand, an opaque token another one next session.
+    NotAnOpponent,
 }
 
 impl fmt::Display for Error {
@@ -69,6 +73,10 @@ impl fmt::Display for Error {
                 write!(f, "{path} is watched already (folder {id})")
             }
             Self::Commit(error) => write!(f, "the import transaction did not commit: {error}"),
+            Self::NotAnOpponent => f.write_str(
+                "notes, colours and labels are for opponents you have played with, in rooms that \
+                 show real screen names",
+            ),
         }
     }
 }

@@ -23,6 +23,9 @@
 //!   filters and counts, "go to hand", notes, tags and saved filters.
 //! - **Reports** (R2.7b, [`report`]): the win-rate graph, the latest
 //!   session and the breakdowns by situation.
+//! - **Players** (R2.7c, [`players`]): the opponents with their hands and
+//!   result together, a profile, and the user's colour tags, labels and
+//!   notes.
 //! - **Statistics** (R2.3, [`stats`], [`stats_read`], [`background`]): a
 //!   hand's seat rows, rollup increments and EV row are derived with the
 //!   hand (on the producer's thread) and written in its transaction; a
@@ -42,6 +45,7 @@ pub mod error;
 pub mod hand_list;
 pub mod import;
 pub mod migrate;
+pub mod players;
 pub mod read;
 pub mod report;
 pub mod sources;
@@ -58,14 +62,15 @@ pub use batch::{
 };
 pub use error::{Error, Result};
 pub use hand_list::{
-    Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, SavedFilter,
-    StakeFacet,
+    Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, PlayerRef,
+    SavedFilter, StakeFacet,
 };
 pub use import::{FileImport, ImportOptions, import_file};
+pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use report::{Breakdowns, Graph, GraphPoint, ReportFilter, Session, Units};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
-pub use stats::{Exclusions, RebuildState, SeatValues, Totals};
+pub use stats::{Exclusions, PlayerSeen, RebuildState, SeatValues, Totals};
 pub use stats_read::{EvAdjust, HeroFilter, HeroSum, HeroTotal, Rollup, SegmentRow, StatsStatus};
 pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};
 pub use writer::{PendingImport, WriterHandle};

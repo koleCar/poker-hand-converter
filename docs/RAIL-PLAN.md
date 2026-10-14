@@ -201,7 +201,9 @@ integer `id` (`files.path` stays unique) so that `hands.file_id` and
 `quarantine.file_id` are small. `seat_stats`, `player_rollups` and their
 companions came with R2.3 (migration 6); the Hands screen's `hand_list`,
 `hand_notes`, `hand_tags` and `saved_filters` with R2.7a (migration 7);
-`players` (R2.7c) and `hud_layouts` (Phase 3) come as later migrations.
+`players` with R2.7c (migration 9: the user's words, with the list's sums
+and the opponents' rows by name beside it); `hud_layouts` (Phase 3) comes as
+a later migration.
 
 ### 3.5 Supabase mapping
 
@@ -4553,6 +4555,149 @@ database, on the development Mac and on a mid-range Windows laptop.
     cache): the reports' tables are a fraction of the 2 GB file, so warming
     `hand_list` and `hero_rollups` in the background after start, or keeping
     the PHF out of the pages the reports read, is worth measuring.
+- *As built, R2.7c* (§15): **done** - the Players screen. **Phase 2 status
+  after it**: the screens of R2.7 are built (Today, Hands, Reports,
+  Players; Settings had its folders, account and debug panels since Phase
+  1); left in Phase 2 are **R2.8** polish (palette features beyond hands,
+  players, screens and reports; density; the language setting), **R2.9**
+  the 1M benchmark database and the nightly performance gate, **R2.10**
+  custom statistics and **R2.11** targeted recompute.
+  - **Who is a player (decided).** An opponent's seat row at scope `''`
+    with a name: a villain of a room that prints real screen names
+    (docs/DATABASE.md "Player identity and anonymized rooms"). Positional
+    rooms have no villain rows (R2.3). **Opaque-id opponents are counted,
+    never listed** - the list says how many of their hands it left out, as
+    the web's `stats_opponents` does - and **take no notes, colours or
+    labels**, as the web's `set_player_note` refuses them. Scoping a note to
+    the session (`<table>@<UTC day>`) was considered and not built: the
+    token is gone when the session ends, so the note would never be read
+    again, and the next session's holder of the same token would inherit
+    it. The store refuses such a write (`Error::NotAnOpponent`), not only
+    the screen. The listed players are those with hands **together** (the
+    hero in the hand): an opponent seen only in hands without a hero (an
+    observed table) has statistics but is not listed.
+  - **Store** (`rail-store` migration 9, `0009_players.sql`, tested from
+    every earlier version; `core/rail-store/SCHEMA.md` "The Players
+    screen"): `players` (site, name -> colour from a fixed six, note) and
+    `player_labels` - the user's words, keyed by the natural key without a
+    foreign key, the web's `player_notes` limits (note 2 000 characters;
+    up to 8 labels of 24, lower-cased) so a sync carries them as they are;
+    `player_summary` (per named opponent: hands seen, first and last seen,
+    hands together and the hero's result against them in big blinds, cash
+    and tournament chips apart - summed at import with the rollups,
+    `aggregate`'s defaults) and `player_hidden` (the opaque-id opponents'
+    rows per site); `player_hands` (player, hand, seat) - an opponent's
+    seat rows by name - **written by the background pass, not the import**
+    (below), with a delete trigger on `seat_stats`. `tests/common`
+    holds the summary, the hidden counts and `player_hands` to the seat rows
+    after every store test and every kill of the crash test. A version-8
+    store opens in 0.2 s and rebuilds once in the background (the summary
+    comes from the seat blobs, which SQL cannot read).
+  - **Import cost, measured** (`import_bench`, 100k generated hands, 3
+    threads as CI's runner, interleaved runs against the version-8 build,
+    M2 Pro with the owner's work on it, load 5-10). A partial index on
+    `seat_stats (player)` cost 3-5 points of efficiency (v8 51/46/47 % vs
+    45/41/45 %); `player_hands` written sorted at each group's flush instead
+    still cost **5 %** of the rate (v8 5 872-5 942 hands/s, 49-50 %; it
+    5 507-5 728, 46-47 %): every transaction touches a page of a
+    name-ordered table per opponent. Split: the summary alone -0.4 %, the
+    by-name entries -4.4 %. CI's best of three was 50-60 % in the last
+    runs, a few points over its 45 % gate, so the by-name entries moved to
+    the **background pass** (`stats::index_players`, `kv`
+    `players.indexed`, 20 000 hands a transaction, sorted; a rebuilt hand
+    whose id the pass has passed is written inline): **as shipped, -1.0 %**
+    (v8 5 820-5 864, it 5 761-5 822 hands/s; 49-50 % vs 48-49 %), 4 063 ->
+    4 066 bytes a hand. The villain-by-position view R2.3 asked about is
+    therefore built (from `player_hands`), and the gate stays green.
+  - **At 500k** (`cargo run --release -p rail-store --example
+    players_queries`; a generated 497 809-hand store from `import_bench
+    --rename-players`, never committed; load 6-9): **70 948 named
+    opponents**, 2 287 548 of 2 979 446 seat rows by name. Upgrade from
+    version 8: open 0.2 s, rebuild 64.5 s, then `player_hands` in 25 steps
+    of 83-129 ms (3.4 s). **The list**: 200 rows of 38 483 (the rest only
+    in hands without a hero) 30.6 ms on the first call after a commit (the
+    summary read into memory), then **0.4 ms**; a search of one or three
+    letters 0.3 ms; the palette's 8 0.4 ms. With 300 000 made-up opponents
+    added (`--pad`; 370 948): 173 ms first, then 6.9 ms, a search 3 ms.
+    **A profile** (rollups, summary, words) 0.0-0.2 ms; **by position**
+    11-12 ms for the opponent with the most hands (8 122), 0.6-0.9 ms for
+    the 250th (860). **Hands with this player**: first page of 100 68 ms
+    cold / 17.5 ms (the most hands), 33 / 3.5 ms (the 250th); chip counts
+    10.4 / 0.1 ms and 1.7 / 0.2 ms; every page of 8 326 rows 0.48 s (each
+    page sorts the player's hands again).
+  - **Dataset.** `import_bench --rename-players` (R2.9 asked for it): every
+    copy of a template rewrites its villains' names through a per-copy
+    letter permutation that keeps each letter's class (an opaque hex token
+    stays one), same length, whole words only, never a hero's name; kept
+    only where the renamed copy converts to the same hands, names, heroes
+    and anonymisation (390 of 431 templates; the other 41 keep the corpus's
+    names). Off by default: CI's benchmark is unchanged.
+  - **Commands** (`app/src-tauri/src/players.rs`, thin, async):
+    `players_list(query)`, `player_profile(site, player, kind)` (every
+    definition's `Shown`, a `players: hero` or money one withheld; big
+    blinds withheld when the profile mixes chips with cash; rows by
+    position, stake, table size, game; a hand per cash stake for its
+    label), `player_sites`, `player_labels`, `player_set_note`,
+    `player_set_colour`, `player_add_label`, `player_remove_label`;
+    `hands_page` / `hands_facets` take `filter.player`; `stats_status`
+    reports `playersUnindexed` and the activity `indexing`.
+  - **Screen** (`app/src/screens/Players.tsx`, `screens/players/`): a
+    search box (prefix, any case, debounced), the game kind (all, cash,
+    tournaments - on a store with both it opens on the kind with more
+    hands, as Reports), room, colour, label and note filters; notices for
+    the money refusal, the opaque-id hands left out, a rebuild and the
+    pass's backlog; the table (colour, name, labels, a note mark, room,
+    hands together, your result in bb, last seen; 200 rows, "show more" to
+    500); the profile beside it (`#/players/<site>:<name>`): hands together
+    by kind, first and last seen, your result per kind (never added), the
+    button "Hands with this player" (opens Hands with a player chip that
+    removes it), the colour (an ARIA radio group, arrow keys), labels and a
+    note saved as you type, every `players: any` statistic in the shared
+    `StatTable` with its reliability, and the breakdown tabs in Reports'
+    `GroupTable`. The colour tags are app tokens over the token layer's
+    semantic hues (`--player-tag-*` in `app/src/index.css`: danger, grade
+    "mistake", warning, success, info, anonymity - both themes; every
+    swatch named). Cmd/Ctrl + K finds players by the start of the name.
+    Strings `en` + `hr`. Checked in a browser against a mocked IPC with
+    made-up players (list, search, kinds, colours, labels, note, profile and
+    tabs, hands with a player, the palette, light and dark); not in a
+    `tauri dev` window, no real hands or names anywhere.
+  - **Tests.** `core/rail-store/tests/players.rs` on the corpus: the list
+    is exactly the named opponents, ordered, one kind's numbers and the
+    hero's result as the web's join computes them; search by prefix in any
+    case; opaque tokens counted, never listed, no profile; positions add up
+    to the rollups; "hands with this player" equals their hands with other
+    filters on top, counts included; notes, colours and labels refused for
+    the hero, a token, a seat label, a stranger, within the limits, gone
+    when cleared, surviving a rebuild; the background pass's entries; a
+    version-8 store gets the summary. App: the profile over a fixture
+    (`players::tests`), the filter's player and the route parameter
+    (`tests/test/appHandsFilter.test.ts`).
+  - **Sync later (R4.x, not built).** The web keeps `player_notes` (owner,
+    site, player, note, tags) and §3.5 plans a `players` table for tags
+    and colours. The plan: add `colour` to the web's notes (or fold them
+    into `players`), push and pull the desktop's `players` / `player_labels`
+    rows through the outbox like hands, last write wins per player by
+    `updated_at`, and keep the identity rule on both sides (the web refuses
+    a non-`none` room's name; the desktop never writes one). Labels are the
+    web's tags already (same limits, lower-cased).
+  - **For R2.8**: the palette has players; the table is not virtualised
+    (500 rows at most) - a keyboard grid like the Hands list's would be
+    the polish; the profile follows the list's kind (no kind of its own).
+    **For R2.9**: `--rename-players` gives a realistic opponent count;
+    gate the list's first call after a commit (it reads the whole summary:
+    0.17 s with 371k opponents - an index on hands together or a narrower
+    cache would bound it), the background pass's catch-up after a large
+    backfill (3.4 s at 500k), and "every page" for a heavy regular. **For
+    R2.10**: a user's statistic needs nothing here - the profile shows every
+    `players: any` definition. **For R2.11**: a targeted recompute must keep
+    the summary in step with the rollups (both are summed in
+    `stats::Pending`). **For R3.8** (HUD popup): an opponent's colour,
+    labels and note are `Reader::player_notes(site, name)` (a key lookup);
+    never for an opaque or positional seat; the six colour names map to the
+    HUD's own palette; the popup's "by position" is `player_positions`
+    (milliseconds, from `player_hands`, which lags the import by one
+    background step - a hand just played is in the rollups at once).
 
 ### R2.8 Polish — M
 - Command palette, dark/light theme, density, i18n with `en` and `hr` prepared
@@ -4850,3 +4995,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.6 done**: the shared UI package `packages/ui` (`@rail/ui`), source consumed by both surfaces through `file:../packages/ui` (no build step; R0.14's root workspaces still deferred). Moved with `git mv`, imports rewritten only: the token layer (the app's R1.1 copy deleted, both surfaces import `@rail/ui/tokens/*`), the web's replayer (23 modules + `replayer.css`), `PlayingCard` + `cards.css`, `Overlay` + `overlay.css`, `Icon`, `StatTile` (its rules out of `stats.css` into `stat-tile.css`), the base controls (`.muted`, `.btn`, `.icon`, `.chip-btn`: `app.css` split into the web's `layout.css` + the package's `styles/controls.css`, `@import`ed in their old order) and the app's `Dialog`. New: `Chip` (the web's filter bar uses it), `FilterChips`, `StatTable` (rows of R2.4 `Shown` with R2.5 reliability), the `CommandPalette` shell, `DataSource` (`hand(id)`, `useHand`; the web's implementation over `getHand`, not mounted yet), `UiStrings` (the package holds no copy; the web mounts slices of its dictionaries in `I18nProvider`; new `stats.table` strings). The package reaches outside itself only through `model/` (re-exports of the web's framework-free `lib/{phf/types,replay,cards}` and the stats display types); its ESLint forbids Next, Supabase, Tauri and bare literals. Web: `transpilePackages`, React types pinned by `paths`, the repository as Turbopack's root in `next dev` only (production build and tracing root unchanged), Vercel root directory still `frontend` (needs "Include files outside the root directory", on by default). App: same `paths`, Vite `dedupe` + `fs.allow`. **No visual change**: 285 of 288 screenshots pixel-identical across two runs of each build, the other 3 within the sticky header's backdrop blur (at most 70 px, channel deltas 1-11, the same noise seen within one build); every DOM equal up to class whitespace; every cascade equal apart from the tile rules now loading with `StatTile`; stat tiles 72 / 72 identical; the app's bundle byte-identical. New CI job `ui` (ESLint, stylelint, tsc). For R2.7: see *As built* (strings, `get_hand` command, the app's stricter TS flags vs the moved code). |
 | 2026-10-14 | **R2.7a done** (R2.7 split by the orchestrator: a = Hands, b = Today + Reports, c = Players + `players`): the desktop Hands screen. `rail-store` migration 7: `hand_list` (one narrow row per `hand_stats` row - hero position, cards, net, stack, board, all-in, showdown, pot type, symbol, the room's hand number, segment; `WITHOUT ROWID` keyed by (`played_at`, `hand_key`), the list's order; written with the statistics rows, deleted with them by a trigger, checked against them after every store test and every crash-test kill), `hand_notes` / `hand_tags` (local only, no foreign key; sync later), `saved_filters`; a version-6 store rebuilds its statistics once to fill the list (0.25 s open, 498k hands in 114 s in the background). `rail_store::hand_list`: keyset pages with every filter (room, format, variant, limit, table size, stake as segment ids; position, pot, result, stack, all-in; notes and tags driven from their tables; date range), chip counts with each group's own selection left out (one pass, counted in Rust, cached until the next commit), go to hand, notes, tags, saved filters. At 497 809 generated hands under load: first page 0.7-1.3 ms for most filters, 14-35 ms for rare ones and a full scan, chip counts 205 ms then ~1 ms per click. Thin async Tauri commands (`hands.rs`). Screen: virtualised list (fixed rows, ~30 in the DOM), filter chips in one row with counts and saved filters, the shared replayer beside the list via `useHand` over a Tauri `DataSource`, tags and a note per hand, "Open on the web" placeholder, `#/hands/<key>`; ARIA grid with a roving row (Up/Down, Enter into the replayer's keys); Cmd/Ctrl + K: a hand by number, the screens. The replayer's `en` / `hr` dictionaries moved into `packages/ui/strings/` (the web's namespace files re-export them), `FilterChips` got a `detail`; the web unchanged - 288 / 288 screenshots and every DOM identical, one CSS module block in another place in its chunk. App: `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` off (the shared code's 87 errors), Inter bundled with its OFL licence. Checked in a browser against a mocked IPC with made-up hands. |
 | 2026-10-14 | **R2.7b done**: the desktop Today and Reports screens. `rail-store` migration 8: `hand_list` gains `kind`, `hero_wtsd`, `currency`, `minor_units` (written by the rebuild the migration starts: 500k in 100 s); `rail_store::report` - the win-rate graph from one scan of the list (`ntile` as `stats_graph`, total / showdown / non-showdown / all-in EV in big blinds and money, the web's money refusals), sessions by `stats_sessions`' 30-minute rule (refused per session), breakdowns by pot type, stack band, starting hand, players and street from one pass over the hero's seat rows, both cached until a commit; `HeroSum`. Commands `stat_definitions`, `report`, `report_breakdowns`, `today` (R2.4 `Shown` with R2.5 reliability), saved filters per screen. Today: the current session's result (money and bb), hands, hands per hour, tables, key statistics, biggest pots into Hands, then the import status. Reports: the filter row with its own saved filters (opens on the biggest format of a mixed store, as the web), summary, the graph in bb or money, every statistic by group, ten breakdown tabs with the 13 x 13 grid; palette entries. The web's `WinrateGraph` and `chartScale` moved to `packages/ui` with their sheet, the tile / table / graph words to `packages/ui/strings/stats.*`; web unchanged - 288 / 288 screenshots and every DOM identical, the graph's markup byte-identical and 84 / 84 pixel-identical inside each build's `/stats`, cascades equal but for the graph's own sheet. Parity with the web over the corpus (the web's SQL restated in TypeScript over the TypeScript rows): 288 statistics, 3 677 graph buckets, 1 967 breakdown rows and 193 sessions equal. At 500k: Reports opens in 0.11-0.5 s (1.8 s cold), a situation tab 0.4-1.6 s first; at 1M a situation tab and a cold open exceed the 1 s target (notes for R2.9). Checked in a browser against a mocked IPC with made-up data. |
+| 2026-10-14 | **R2.7c done**: the desktop Players screen. `rail-store` migration 9: `players` + `player_labels` (colour from six, note, labels - the web's `player_notes` limits; local only, sync with the web is R4.x), `player_summary` (per named opponent: hands, first/last seen, hands together and the hero's result in bb, cash and chips apart; summed at import with the rollups), `player_hidden` (opaque-id rows counted, not listed), `player_hands` (an opponent's seat rows by name, written by the background pass after the import - written by the import it cost 5 % of the import's rate, as shipped -1.0 %, gate green); a version-8 store opens in 0.2 s and rebuilds in the background. Opaque-id names are never listed and take no notes (the web's rule; session-scoped notes considered and rejected), the store refuses the write. `rail_store::players`: the list (prefix search in any case, kind, room, colour, label, note; most hands together first; the web's money refusal), a profile (rollups, summary, words), positions from the seat rows; `HandFilter::player` for "hands with this player". At 500k with renamed players (70 948 opponents): the list 0.3-0.4 ms (30 ms first after a commit; 371k padded: 173 ms first, 7 ms), a profile <1 ms, by position 1-12 ms, hands with a player first page 3.5-17.5 ms. `import_bench --rename-players` (per-copy villain names). Commands in `players.rs`; screen with list, filters, profile (statistics with reliability, breakdown by position/stake/table/game, colour radio group, labels, note), Hands' player chip, palette search; `--player-tag-*` tokens over semantic hues; `en` + `hr`. Checked in a browser against a mocked IPC with made-up players. |

@@ -21,7 +21,9 @@ use rail_store::import::ImportOptions;
 use rail_store::{Store, background, import_file};
 use rusqlite::Connection;
 
-use common::{PARSED_AT, Rng, assert_integrity, corpus_files, scratch_dir, stats_snapshot};
+use common::{
+    DOWN_FROM_9, PARSED_AT, Rng, assert_integrity, corpus_files, scratch_dir, stats_snapshot,
+};
 
 fn options() -> ImportOptions {
     ImportOptions {
@@ -718,6 +720,7 @@ fn a_version_6_store_gets_its_list() {
     let path = copy_of_corpus("list-v6");
     {
         let conn = Connection::open(&path).expect("open");
+        conn.execute_batch(DOWN_FROM_9).expect("back to version 8");
         conn.execute_batch(
             "DROP TABLE hand_list; DROP TABLE hand_notes; DROP TABLE hand_tags;
              DROP TABLE saved_filters;

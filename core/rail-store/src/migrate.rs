@@ -9,10 +9,10 @@
 //! build and is refused untouched ([`Error::NewerSchema`]).
 //!
 //! Rules: a migration that has shipped is never edited; a change is a new
-//! file appended here. Reserved for later phases (docs/RAIL-PLAN.md §3.4,
-//! `SCHEMA.md`): `players` (Phase 2, R2.7c) and `hud_layouts` (Phase 3), each
-//! as the next free number when it lands (`seat_stats` and the rollups: 6;
-//! the Hands screen's tables: 7; the reports' list columns: 8).
+//! file appended here. Reserved for a later phase (docs/RAIL-PLAN.md §3.4,
+//! `SCHEMA.md`): `hud_layouts` (Phase 3), as the next free number when it
+//! lands (`seat_stats` and the rollups: 6; the Hands screen's tables: 7; the
+//! reports' list columns: 8; the Players screen's `players`: 9).
 
 use rusqlite::Connection;
 
@@ -58,6 +58,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0008_reports.sql",
         sql: include_str!("../migrations/0008_reports.sql"),
+    },
+    Migration {
+        name: "0009_players.sql",
+        sql: include_str!("../migrations/0009_players.sql"),
     },
 ];
 

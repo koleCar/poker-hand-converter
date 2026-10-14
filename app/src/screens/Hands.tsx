@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "../i18n";
 import { inApp, ipc, type HandAnnotations, type HandRow, type StatsStatus } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
-import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "./hands/filter";
+import { EMPTY_FILTER, activeGroups, takeRequestedFilter, toQuery, type FilterState } from "./hands/filter";
 import { FilterBar } from "./hands/FilterBar";
 import { count } from "./hands/format";
 import { HandList } from "./hands/HandList";
@@ -48,7 +48,8 @@ function useRebuild(): StatsStatus | null {
 export function Hands() {
   const t = useT();
   const selected = useRouteParam();
-  const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
+  // Opened from a player's profile: their hands (R2.7c).
+  const [filter, setFilter] = useState<FilterState>(() => takeRequestedFilter() ?? EMPTY_FILTER);
   // A date preset is resolved when the filter is set ("last 7 days" from now).
   const query = useMemo(() => toQuery(filter), [filter]);
   const list = useHandList(query);

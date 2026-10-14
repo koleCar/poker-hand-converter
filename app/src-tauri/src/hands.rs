@@ -86,6 +86,16 @@ pub struct FilterDto {
     /// ISO instants: from (inclusive), to (exclusive).
     from: Option<String>,
     to: Option<String>,
+    /// Hands this opponent was dealt into (R2.7c).
+    player: Option<PlayerRefDto>,
+}
+
+/// `PlayerRef`: an opponent's room (site key) and name.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlayerRefDto {
+    site: String,
+    player: String,
 }
 
 impl From<FilterDto> for HandFilter {
@@ -106,6 +116,13 @@ impl From<FilterDto> for HandFilter {
             tags: hand_list::tag_set(&dto.tags),
             from: dto.from.filter(|from| !from.is_empty()),
             to: dto.to.filter(|to| !to.is_empty()),
+            player: dto
+                .player
+                .filter(|player| !player.player.is_empty())
+                .map(|player| hand_list::PlayerRef {
+                    site: player.site,
+                    player: player.player,
+                }),
         }
     }
 }
@@ -592,6 +609,19 @@ mod tests {
         assert_eq!(filter.tags, ["bluff"]);
         assert_eq!(filter.from, None);
         assert_eq!(filter.to.as_deref(), Some("2026-01-01T00:00:00.000Z"));
+        assert_eq!(filter.player, None);
+        let with: HandFilter = serde_json::from_str::<FilterDto>(
+            r#"{"player":{"site":"pokerstars","player":"made-up name"}}"#,
+        )
+        .expect("player")
+        .into();
+        assert_eq!(
+            with.player,
+            Some(rail_store::PlayerRef {
+                site: "pokerstars".to_owned(),
+                player: "made-up name".to_owned(),
+            })
+        );
         let empty: HandFilter = serde_json::from_str::<FilterDto>("{}")
             .expect("empty")
             .into();

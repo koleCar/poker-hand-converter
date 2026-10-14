@@ -60,6 +60,7 @@ pub mod dev;
 pub mod folder_settings;
 pub mod folders;
 pub mod hands;
+pub mod players;
 pub mod quarantine;
 pub mod reports;
 pub mod settings;
@@ -266,6 +267,14 @@ pub fn run() {
         reports::report,
         reports::report_breakdowns,
         reports::today,
+        players::players_list,
+        players::player_profile,
+        players::player_sites,
+        players::player_labels,
+        players::player_set_note,
+        players::player_set_colour,
+        players::player_add_label,
+        players::player_remove_label,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -326,6 +335,14 @@ pub fn run() {
         reports::report,
         reports::report_breakdowns,
         reports::today,
+        players::players_list,
+        players::player_profile,
+        players::player_sites,
+        players::player_labels,
+        players::player_set_note,
+        players::player_set_colour,
+        players::player_add_label,
+        players::player_remove_label,
     ]);
 
     let app = builder

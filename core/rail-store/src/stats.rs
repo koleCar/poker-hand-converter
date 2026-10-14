@@ -14,7 +14,19 @@
 //!   hands left out of the money, `money_hands` counted). **`hero_rollups`**
 //!   (segment, position, UTC day, kind): the hero's rows, nothing excluded,
 //!   kept apart by [`kind_of`] so a report can apply any of `aggregate`'s
-//!   options.
+//!   options. **`player_summary`** (site, player; R2.7c): per opponent of a
+//!   room with real screen names, the hands seen, first and last seen, and
+//!   the hero's hands with them and result against them, cash and
+//!   tournament chips apart (the Players list); **`player_hidden`** (site):
+//!   the opaque-id opponents' rows, counted but not listed;
+//!   **`player_hands`** (player, hand, seat): those opponents' seat rows by
+//!   name - not written by the import but by the background pass after it
+//!   ([`index_players`], `kv` `players.indexed`), in large sorted chunks:
+//!   written with each batch (an index on `seat_stats`, or this table at
+//!   each group's flush) it cost the import 4-5 % of its rate (measured), a
+//!   page of a name-ordered table touched per opponent per transaction.
+//!   A rebuilt hand whose row reuses an id the pass has done is written
+//!   inline.
 //! - **Summed in memory, added once** ([`Pending`]): a batch's (or a whole
 //!   group of batches', `writer::commit_group`) new rows are summed per
 //!   rollup key and added with one upsert per key, so a backfill writes a
@@ -42,6 +54,7 @@
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
+use rail_core::phf::GameFormat;
 use rail_equity::{EV_VERSION, EvRow};
 use rail_stats::{
     COUNTER_COUNT, COUNTER_KEYS, Counter, MONEY_KEYS, STATS_VERSION, Segment, StatsRow,
@@ -64,6 +77,9 @@ pub const KV_REBUILD_TOTAL: &str = "stats.rebuild.total";
 /// `kv`: the `EV_VERSION` every hero hand has been evaluated at or is
 /// queued for.
 pub const KV_EV_VERSION: &str = "ev.version";
+/// `kv` (R2.7c): every `hand_stats.id` up to this one has its opponents in
+/// `player_hands`; the background pass does the ones after it.
+pub const KV_PLAYERS_INDEXED: &str = "players.indexed";
 
 /// How many money columns follow the counters.
 pub const MONEY_COUNT: usize = MONEY_KEYS.len();
@@ -363,6 +379,99 @@ fn upsert_hero_sql() -> &'static str {
     })
 }
 
+/// One opponent's line of `player_summary`, or a sum of them (R2.7c).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct PlayerSeen {
+    /// Seat rows counted (bomb pots out).
+    pub hands: i64,
+    pub first_played_at: Option<String>,
+    pub last_played_at: Option<String>,
+    /// Hands the hero played too, cash and tournament chips apart.
+    pub cash_hands: i64,
+    pub chips_hands: i64,
+    /// The hero's result in them over the hands whose money counts.
+    pub cash_money_hands: i64,
+    pub cash_net_bb_milli: i64,
+    pub chips_money_hands: i64,
+    pub chips_net_bb_milli: i64,
+}
+
+impl PlayerSeen {
+    /// One seat row: `hero` is the hero's `net_bb_milli` when the hero
+    /// played the hand, `money` whether its money counts.
+    pub fn seat(played_at: Option<&str>, cash: bool, hero: Option<i64>, money: bool) -> Self {
+        let mut seen = Self {
+            hands: 1,
+            first_played_at: played_at.map(str::to_owned),
+            last_played_at: played_at.map(str::to_owned),
+            ..Self::default()
+        };
+        if let Some(net) = hero {
+            let (hands, money_hands, sum) = if cash {
+                (
+                    &mut seen.cash_hands,
+                    &mut seen.cash_money_hands,
+                    &mut seen.cash_net_bb_milli,
+                )
+            } else {
+                (
+                    &mut seen.chips_hands,
+                    &mut seen.chips_money_hands,
+                    &mut seen.chips_net_bb_milli,
+                )
+            };
+            *hands = 1;
+            if money {
+                *money_hands = 1;
+                *sum = net;
+            }
+        }
+        seen
+    }
+
+    /// Add another line: counts summed, the earliest and latest dates kept.
+    pub fn add(&mut self, other: &Self) {
+        self.hands += other.hands;
+        self.cash_hands += other.cash_hands;
+        self.chips_hands += other.chips_hands;
+        self.cash_money_hands += other.cash_money_hands;
+        self.cash_net_bb_milli += other.cash_net_bb_milli;
+        self.chips_money_hands += other.chips_money_hands;
+        self.chips_net_bb_milli += other.chips_net_bb_milli;
+        if let Some(first) = &other.first_played_at
+            && self.first_played_at.as_ref().is_none_or(|own| first < own)
+        {
+            self.first_played_at = Some(first.clone());
+        }
+        if other.last_played_at > self.last_played_at {
+            self.last_played_at.clone_from(&other.last_played_at);
+        }
+    }
+}
+
+const UPSERT_SEEN_SQL: &str = "INSERT INTO player_summary (site, player, hands, first_played_at,
+        last_played_at, cash_hands, chips_hands, cash_money_hands, cash_net_bb_milli,
+        chips_money_hands, chips_net_bb_milli)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
+     ON CONFLICT (site, player) DO UPDATE SET
+       hands = hands + excluded.hands,
+       first_played_at = CASE WHEN first_played_at IS NULL
+                                OR excluded.first_played_at < first_played_at
+                              THEN excluded.first_played_at ELSE first_played_at END,
+       last_played_at = CASE WHEN excluded.last_played_at > coalesce(last_played_at, '')
+                             THEN excluded.last_played_at ELSE last_played_at END,
+       cash_hands = cash_hands + excluded.cash_hands,
+       chips_hands = chips_hands + excluded.chips_hands,
+       cash_money_hands = cash_money_hands + excluded.cash_money_hands,
+       cash_net_bb_milli = cash_net_bb_milli + excluded.cash_net_bb_milli,
+       chips_money_hands = chips_money_hands + excluded.chips_money_hands,
+       chips_net_bb_milli = chips_net_bb_milli + excluded.chips_net_bb_milli";
+
+const UPSERT_HIDDEN_SQL: &str = "INSERT INTO player_hidden (site, hands, cash_hands)
+     VALUES (?1, ?2, ?3)
+     ON CONFLICT (site) DO UPDATE SET hands = hands + excluded.hands,
+                                      cash_hands = cash_hands + excluded.cash_hands";
+
 const INSERT_HAND_SQL: &str =
     "INSERT INTO hand_stats (hand_key, gen, played_at, segment_id, stats_version,
         site_anonymization, site_id, currency_minor_units, player_count, tournament_id,
@@ -487,6 +596,16 @@ pub(crate) struct Pending {
     segments: HashMap<Segment, i64>,
     players: HashMap<PlayerKey, (Totals, Option<String>)>,
     heroes: HashMap<HeroKey, Totals>,
+    /// `player_summary` by (site, player) (R2.7c).
+    seen: HashMap<(String, String), PlayerSeen>,
+    /// `player_hidden` by site: (hands, of which cash).
+    hidden: HashMap<String, (i64, i64)>,
+    /// `player_hands`: (player, `hand_stats.id`, seat) of hands whose id
+    /// the background pass has gone past (a rebuild reusing an id): the
+    /// others are the pass's.
+    hands: Vec<(String, i64, u32)>,
+    /// `kv` `players.indexed` when the transaction began.
+    indexed: i64,
 }
 
 impl Pending {
@@ -497,6 +616,10 @@ impl Pending {
             segments: HashMap::new(),
             players: HashMap::new(),
             heroes: HashMap::new(),
+            seen: HashMap::new(),
+            hidden: HashMap::new(),
+            hands: Vec::new(),
+            indexed: kv_i64(conn, KV_PLAYERS_INDEXED)?.unwrap_or(0),
         })
     }
 
@@ -508,6 +631,10 @@ impl Pending {
             segments: self.segments.clone(),
             players: HashMap::new(),
             heroes: HashMap::new(),
+            seen: HashMap::new(),
+            hidden: HashMap::new(),
+            hands: Vec::new(),
+            indexed: self.indexed,
         }
     }
 
@@ -524,6 +651,15 @@ impl Pending {
         for (key, totals) in child.heroes {
             self.heroes.entry(key).or_default().add(&totals, true);
         }
+        for (key, seen) in child.seen {
+            self.seen.entry(key).or_default().add(&seen);
+        }
+        for (site, (hands, cash)) in child.hidden {
+            let sum = self.hidden.entry(site).or_default();
+            sum.0 += hands;
+            sum.1 += cash;
+        }
+        self.hands.extend(child.hands);
     }
 
     fn segment_id(&mut self, conn: &Connection, segment: &Segment) -> Result<i64> {
@@ -597,6 +733,9 @@ impl Pending {
             stats.list.currency,
             hand.currency_minor_units,
         ])?;
+        // The Players list's lines (R2.7c): the hero's result in this hand.
+        let cash = stats.segment.format == GameFormat::Cash;
+        let hero_net = hero.map(|seat| seat.values.net_bb_milli());
         let mut insert = conn.prepare_cached(INSERT_SEAT_SQL)?;
         for prepared in &stats.rows {
             let (seat, scope, values) = (&prepared.row.seat, &prepared.scope, &prepared.values);
@@ -614,6 +753,15 @@ impl Pending {
                 seat.starting_stack_bb_tenths,
                 prepared.totals,
             ])?;
+            // An opponent of a room with real names, by name (R2.7c), when
+            // the background pass will not get to this id.
+            if hand_id <= self.indexed
+                && !seat.is_hero
+                && scope.is_empty()
+                && !seat.player.is_empty()
+            {
+                self.hands.push((seat.player.clone(), hand_id, seat.seat));
+            }
             // The HUD's sums: `aggregate`'s defaults.
             if counted {
                 let (totals, last) = self
@@ -628,6 +776,20 @@ impl Pending {
                 totals.add_seat(values, money);
                 if played_at > last.as_deref() {
                     *last = played_at.map(str::to_owned);
+                }
+                if !seat.is_hero {
+                    if scope.is_empty() {
+                        if !seat.player.is_empty() {
+                            self.seen
+                                .entry((stats.segment.site.clone(), seat.player.clone()))
+                                .or_default()
+                                .add(&PlayerSeen::seat(played_at, cash, hero_net, money));
+                        }
+                    } else {
+                        let sum = self.hidden.entry(stats.segment.site.clone()).or_default();
+                        sum.0 += 1;
+                        sum.1 += i64::from(cash);
+                    }
                 }
             }
             // The hero's: everything, by kind.
@@ -668,7 +830,17 @@ impl Pending {
     }
 
     /// Add the sums to the rollups.
-    pub(crate) fn flush(self, conn: &Connection) -> Result<()> {
+    pub(crate) fn flush(mut self, conn: &Connection) -> Result<()> {
+        if !self.hands.is_empty() {
+            // In key order: each page of the table is visited once.
+            self.hands.sort_unstable();
+            let mut insert = conn.prepare_cached(
+                "INSERT OR IGNORE INTO player_hands (player, hand_id, seat) VALUES (?1, ?2, ?3)",
+            )?;
+            for (player, hand_id, seat) in &self.hands {
+                insert.execute(params![player, hand_id, seat])?;
+            }
+        }
         if !self.players.is_empty() {
             let mut upsert = conn.prepare_cached(upsert_player_sql())?;
             for ((site, player, scope, segment_id), (totals, last)) in &self.players {
@@ -679,6 +851,30 @@ impl Pending {
                 upsert.raw_bind_parameter(5, last)?;
                 bind_totals(&mut upsert, 6, totals)?;
                 upsert.raw_execute()?;
+            }
+        }
+        if !self.seen.is_empty() {
+            let mut upsert = conn.prepare_cached(UPSERT_SEEN_SQL)?;
+            for ((site, player), seen) in &self.seen {
+                upsert.execute(params![
+                    site,
+                    player,
+                    seen.hands,
+                    seen.first_played_at,
+                    seen.last_played_at,
+                    seen.cash_hands,
+                    seen.chips_hands,
+                    seen.cash_money_hands,
+                    seen.cash_net_bb_milli,
+                    seen.chips_money_hands,
+                    seen.chips_net_bb_milli,
+                ])?;
+            }
+        }
+        if !self.hidden.is_empty() {
+            let mut upsert = conn.prepare_cached(UPSERT_HIDDEN_SQL)?;
+            for (site, (hands, cash)) in &self.hidden {
+                upsert.execute(params![site, hands, cash])?;
             }
         }
         if !self.heroes.is_empty() {
@@ -694,6 +890,52 @@ impl Pending {
         }
         Ok(())
     }
+}
+
+/// One step of the background pass's `player_hands` (R2.7c): the
+/// opponents of the next `hands` `hand_stats` rows after `kv`
+/// `players.indexed`, sorted and written in one go, and the mark moved.
+/// Returns the hands gone through (0: nothing left).
+pub fn index_players(conn: &Connection, hands: u32) -> Result<usize> {
+    let after = kv_i64(conn, KV_PLAYERS_INDEXED)?.unwrap_or(0);
+    let (upto, n): (Option<i64>, i64) = conn
+        .prepare_cached(
+            "SELECT max(id), count(*) FROM
+               (SELECT id FROM hand_stats WHERE id > ?1 ORDER BY id LIMIT ?2)",
+        )?
+        .query_row(params![after, hands], |row| Ok((row.get(0)?, row.get(1)?)))?;
+    let Some(upto) = upto else {
+        return Ok(0);
+    };
+    let mut entries: Vec<(String, i64, u32)> = conn
+        .prepare_cached(
+            "SELECT player, hand_id, seat FROM seat_stats
+             WHERE hand_id > ?1 AND hand_id <= ?2 AND is_hero = 0 AND scope = ''
+               AND player <> ''",
+        )?
+        .query_map(params![after, upto], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+        })?
+        .collect::<rusqlite::Result<_>>()?;
+    entries.sort_unstable();
+    let mut insert = conn.prepare_cached(
+        "INSERT OR IGNORE INTO player_hands (player, hand_id, seat) VALUES (?1, ?2, ?3)",
+    )?;
+    for (player, hand_id, seat) in &entries {
+        insert.execute(params![player, hand_id, seat])?;
+    }
+    kv_set(conn, KV_PLAYERS_INDEXED, &upto.to_string())?;
+    usize::try_from(n).map_err(|_| Error::OutOfRange("hands"))
+}
+
+/// Hands whose opponents the background pass has not written to
+/// `player_hands` yet.
+pub fn players_unindexed(conn: &Connection) -> Result<u64> {
+    let after = kv_i64(conn, KV_PLAYERS_INDEXED)?.unwrap_or(0);
+    let n: i64 = conn
+        .prepare_cached("SELECT count(*) FROM hand_stats WHERE id > ?1")?
+        .query_row([after], |row| row.get(0))?;
+    u64::try_from(n).map_err(|_| Error::OutOfRange("count"))
 }
 
 /// Store (or replace) an applicable EV row.
@@ -739,6 +981,8 @@ pub fn begin_rebuild(conn: &Connection) -> Result<u64> {
     kv_set(conn, KV_VERSION, STATS_VERSION)?;
     conn.execute("DELETE FROM player_rollups", [])?;
     conn.execute("DELETE FROM hero_rollups", [])?;
+    conn.execute("DELETE FROM player_summary", [])?;
+    conn.execute("DELETE FROM player_hidden", [])?;
     let total: i64 = conn.query_row("SELECT count(*) FROM hands", [], |row| row.get(0))?;
     if total > 0 {
         kv_set(conn, KV_REBUILD_CURSOR, "")?;

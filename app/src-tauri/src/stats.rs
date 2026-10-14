@@ -128,14 +128,17 @@ impl StatsState {
 #[derive(Debug, Default, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct StatsStatusDto {
-    /// `idle`, `rebuilding`, `computing`, `paused-backfill`,
-    /// `paused-tables`, `stopped`.
+    /// `idle`, `rebuilding`, `indexing` (R2.7c), `computing`,
+    /// `paused-backfill`, `paused-tables`, `stopped`.
     activity: &'static str,
     /// A rebuild in progress: hands done, of hands to do.
     rebuild_done: Option<u64>,
     rebuild_total: Option<u64>,
     /// Hands waiting for their all-in EV.
     ev_pending: u64,
+    /// Hands whose opponents the pass has not indexed yet (R2.7c: "hands
+    /// with this player" and a profile by position miss them until then).
+    players_unindexed: u64,
     /// EV rows computed since the app started, and the milliseconds the
     /// computation took.
     ev_computed: u64,
@@ -150,6 +153,7 @@ impl From<WorkerStatus> for StatsStatusDto {
             rebuild_done: status.rebuild.as_ref().map(|r| r.done),
             rebuild_total: status.rebuild.as_ref().map(|r| r.total),
             ev_pending: status.ev_pending,
+            players_unindexed: status.players_unindexed,
             ev_computed: status.ev_computed,
             ev_millis: status.ev_millis,
             last_error: status.last_error,

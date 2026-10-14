@@ -40,13 +40,13 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 6 | `0006_stats.sql` | `segments`, `hand_stats`, `seat_stats`, `player_rollups`, `hero_rollups`, `ev_rows`, `ev_pending` (R2.3) |
 | 7 | `0007_hands_screen.sql` | `hand_list` and its delete trigger on `hand_stats`, `hand_notes`, `hand_tags`, `saved_filters`; forgets `stats.version`, so the next open rebuilds the statistics and with them the list rows (R2.7a) |
 | 8 | `0008_reports.sql` | `hand_list.kind`, `hero_wtsd`, `currency`, `minor_units` (the reports' graph and sessions); forgets `stats.version`, so the next open rebuilds the list rows with them (R2.7b) |
+| 9 | `0009_players.sql` | `players`, `player_labels` (the user's colour, labels and note per opponent), `player_summary`, `player_hidden` (the list's sums), `player_hands` and its delete trigger on `seat_stats`; forgets `stats.version`, so the next open rebuilds the statistics and with them the sums (R2.7c) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
 
 | Step | Tables |
 | --- | --- |
-| R2.7c (Phase 2) | `players` (notes, colour tag, labels) |
 | R3.6 / R3.9 (Phase 3) | `hud_layouts` (layouts, presets, seat positions per site and table size) |
 
 ## Tables
@@ -613,3 +613,99 @@ win-rate graph and the sessions need, and the statistics are
 Measured on the generated 497 809-hand store
 (`cargo run --release -p rail-store --example report_queries`): see
 docs/RAIL-PLAN.md, R2.7b *As built*.
+
+## The Players screen (version 9, R2.7c)
+
+The opponents, the user's words on them, and an opponent's hands by name.
+Read and written by `rail_store::players` (the list, a profile, the
+words) and `hand_list` (a player filter); `player_summary` and
+`player_hidden` are written by `rail_store::stats` with the rollups,
+`player_hands` by the background pass.
+
+**Who is a player** (docs/DATABASE.md "Player identity and anonymized
+rooms"): an opponent's seat row at scope `''` with a name - a villain of a
+room that prints real screen names. A positionally anonymised room has no
+villain rows; an opaque-id room's villains have their session as scope
+(R2.3) and are **counted, never listed**: a token is another person next
+session, so a list, a profile or a note across sessions would describe
+someone nobody played. The same rule as the web's `stats_opponents` (listed
+by name, opaque rows counted) and `set_player_note` (refused for both). A
+note is not scoped to a session either: a session's token is gone when the
+session ends, so a note on it would never be read again, and on the next
+session's holder of the same token it would be wrong.
+
+### `players`, `player_labels`
+
+The user's words: per (`site`, `player`) a colour (`red`, `orange`,
+`yellow`, `green`, `blue`, `purple` - a `CHECK`; NULL for none), a note
+(trimmed, at most 2 000 characters; `''` for none) and `updated_at`; a row
+with neither is deleted. Labels in `player_labels` (`site`, `player`,
+`label`) PK, `added_at`: trimmed, inner whitespace one space, lower case,
+1-24 characters, no control character, at most 8 a player -
+`players::normalize_label`, the web's `player_notes.tags` rules, so a later
+sync carries them unchanged. `player_labels_label_idx (label, site,
+player)`: the players with a label, the labels in use. Keyed by the natural
+key with **no** foreign key, like `hand_notes`: they outlive any rebuild.
+Written only for an opponent ([`players::is_opponent`]: an entry in
+`player_hands` or a summary line), refused otherwise
+(`Error::NotAnOpponent`); clearing is always allowed. **Local only for
+now**: syncing them with the web's `player_notes` is R4.x (docs/RAIL-PLAN.md
+R2.7c *As built*).
+
+### `player_summary`
+
+Per (`site`, `player`) of a named opponent, what the list shows and sorts
+by, summed like a rollup with `aggregate`'s defaults (bomb pots out; an EV
+cashout's result out of the money): `hands` (their seat rows counted),
+`first_played_at` / `last_played_at`, and of those hands the ones the hero
+played too, cash (`cash_hands`) and tournament chips (`chips_hands`) apart,
+with the hero's result in them over the hands whose money counts
+(`cash_money_hands`, `cash_net_bb_milli`, `chips_money_hands`,
+`chips_net_bb_milli`): the web's `stats_opponents` joins the hero's row of
+the same hand; here it is summed at import. Chips and cash are never added
+(the web refuses a result for a scope with both). Emptied by a rebuild
+(`begin_rebuild`) and summed again by its pass. `WITHOUT ROWID`.
+`tests/common::assert_rollups` holds it to the seat rows after every store
+test and every kill of the crash test.
+
+### `player_hidden`
+
+Per `site`: the opaque-id opponents' seat rows (`hands`, of which
+`cash_hands`), bomb pots out - what the list says it left out. Summed and
+emptied like `player_summary`.
+
+### `player_hands`
+
+(`player`, `hand_id`, `seat`) PK, `WITHOUT ROWID`: every named opponent's
+seat row at scope `''`, by name - "hands with this player" and the profile
+by position read an opponent's rows from it. **Written by the background
+pass, not the import** (`stats::index_players`, `kv` `players.indexed`:
+every `hand_stats.id` up to it is done; [`background::INDEX_PAGE`] hands a
+transaction, sorted): written by each import transaction - as a partial
+index on `seat_stats` or as this table at the flush - it cost the import 4-5 %
+of its rate (measured: each transaction touches a page of a name-ordered
+table per opponent). A rebuilt hand whose row reuses an id the pass has
+passed (deleting the highest id and inserting again) is written inline. A
+deleted seat row takes its entry with it (`seat_stats_player_delete`).
+`StatsStatus::players_unindexed` counts the hands not done yet.
+`tests/common::assert_rollups` holds it to the seat rows up to the mark.
+
+A store from version 8: migration 9 creates the tables empty and forgets
+`stats.version`, so the store rebuilds its statistics in the background
+(the summary is summed from the seat blobs) and the pass then fills
+`player_hands`.
+
+### Reading them (`rail_store::players`, `hand_list`)
+
+| Call | For | How |
+| --- | --- | --- |
+| `Reader::player_list(&PlayerQuery)` | the list: a prefix of the name in any case, a room, a kind (all / cash / chips), colours, labels, a note; most hands together first; the scope's money refusal and hidden count | `player_summary` read whole once per commit (`PRAGMA data_version`) and searched in memory; `players` / `player_labels` joined in memory; `player_hidden` |
+| `Reader::player_profile(site, player)` | a profile: the summary line, the rollups (`player_rollups` at scope `''`, every segment of the site), the words | key lookups |
+| `Reader::player_positions(site, player, segments)` | the profile by position; a hand per segment (a stake's label) | the player's `player_hands` entries, each seat row's blob summed in Rust (`aggregate`'s defaults) |
+| `Reader::hand_page` / `hand_facets` with `HandFilter::player` | "hands with this player" | from `player_hands` through `hand_stats` (the room by segment) to the list rows, sorted after |
+| `Reader::player_notes`, `player_labels` | the words; the labels in use | |
+| `set_note`, `set_colour`, `add_label`, `remove_label` | writes, on the writer | refused for anyone but an opponent |
+
+Measured on the generated 497 809-hand store with renamed players
+(`cargo run --release -p rail-store --example players_queries`): see
+docs/RAIL-PLAN.md, R2.7c *As built*.

@@ -1,8 +1,10 @@
 /**
  * The desktop app's Hands screen filter (`app/src/screens/hands/filter.ts`,
  * R2.7a): what the store is asked for, the date presets as UTC instants of
- * local days, and saved filters read back whatever they hold. Pure
- * TypeScript, so it runs here; the app has no test runner of its own.
+ * local days, and saved filters read back whatever they hold; (R2.7c) the
+ * player filter of "hands with this player", the hand-off from the Players
+ * screen, and the Players screen's route parameter. Pure TypeScript, so it
+ * runs here; the app has no test runner of its own.
  */
 import { describe, expect, it } from "vitest";
 
@@ -12,10 +14,13 @@ import {
   dateRange,
   fromSaved,
   ordered,
+  requestFilter,
+  takeRequestedFilter,
   toQuery,
   toSaved,
   type FilterState,
 } from "../../app/src/screens/hands/filter.js";
+import { parsePlayerParam, playerParam } from "../../app/src/screens/players/param.js";
 
 const NOW = new Date(2026, 9, 14, 15, 30); // local time, 14 Oct 2026 15:30
 
@@ -73,5 +78,31 @@ describe("Hands filter", () => {
   it("orders chips by the table, the unknown after them", () => {
     const values = ["SB", "zz", "BTN", "UTG", "aa"].map((value) => ({ value }));
     expect(ordered(values, ["UTG", "BTN", "SB"]).map((v) => v.value)).toEqual(["UTG", "BTN", "SB", "aa", "zz"]);
+  });
+
+  it("narrows to a player: counted, asked for, saved, handed over once", () => {
+    const player = { site: "pokerstars", player: "Made Up: 7" };
+    const filter: FilterState = { ...EMPTY_FILTER, player };
+    expect(activeGroups(filter)).toBe(1);
+    expect(toQuery(filter, NOW).player).toEqual(player);
+    expect(toQuery(EMPTY_FILTER, NOW).player).toBeNull();
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    expect(fromSaved('{"player":{"site":"pokerstars","player":""}}')).toEqual(EMPTY_FILTER);
+    expect(fromSaved('{"player":{"site":3,"player":"x"}}')).toEqual(EMPTY_FILTER);
+    expect(fromSaved('{"player":"x"}')).toEqual(EMPTY_FILTER);
+    expect(takeRequestedFilter()).toBeNull();
+    requestFilter(filter);
+    expect(takeRequestedFilter()).toEqual(filter);
+    expect(takeRequestedFilter()).toBeNull();
+  });
+});
+
+describe("Players route parameter", () => {
+  it("is the site key, a colon, and the name (which may hold colons)", () => {
+    expect(parsePlayerParam(playerParam("pokerstars", "a:b c"))).toEqual({ site: "pokerstars", player: "a:b c" });
+    expect(parsePlayerParam(null)).toBeNull();
+    expect(parsePlayerParam("pokerstars")).toBeNull();
+    expect(parsePlayerParam(":name")).toBeNull();
+    expect(parsePlayerParam("pokerstars:")).toBeNull();
   });
 });
