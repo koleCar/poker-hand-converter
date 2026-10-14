@@ -170,8 +170,17 @@ import type { Position, Street } from "../phf/types";
  *               grades downstream of such a check (approximate turn calls,
  *               river solves after a multiway flop) move with the ranges
  *               (ANALYSIS-PLAN §10 2026-10-14, multiway check trim).
+ *   analysis/23 A flop or turn check heads-up is trimmed half as hard by the
+ *               heuristic narrowing: value checks `HEADS_UP_CHECK_VALUE`
+ *               (0.75, was 0.5) of the time, a strong draw
+ *               `HEADS_UP_CHECK_DRAW` (0.8, was 0.6), air `HEADS_UP_CHECK_AIR`
+ *               (0.85, was 0.7); the river and multiway checks unchanged.
+ *               Where the flop library reads a heads-up flop the flop is
+ *               unchanged; turns and rivers downstream of a heuristic check
+ *               move with the ranges (ANALYSIS-PLAN §10 2026-10-14,
+ *               heads-up check trim).
  */
-export const ANALYSIS_VERSION = "analysis/22" as const;
+export const ANALYSIS_VERSION = "analysis/23" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

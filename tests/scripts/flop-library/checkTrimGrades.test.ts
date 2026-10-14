@@ -9,6 +9,11 @@
  * the console only). Turn solves are off (`turn: false`, as the 2026-10-13
  * study counted): heads-up turns after a multiway flop keep no grade here.
  *
+ * `CHECKTRIM_GRADES_HEADSUP=1` (§10, 2026-10-14, the heads-up check trim)
+ * takes the hands whose flop two saw with the hero instead, the flop library
+ * on as the analysis reads it. Turn solves stay off unless
+ * `CHECKTRIM_GRADES_TURN=1` (heads-up turns are solved, not approximated).
+ *
  *     cd tests && FLOPLIB_HANDS=... FLOPLIB_DIR=... CHECKTRIM_GRADES_OUT=/tmp/x.json npm run floplib:check-trim-grades
  */
 
@@ -26,6 +31,8 @@ const FILE = process.env.FLOPLIB_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
 const OUT = process.env.CHECKTRIM_GRADES_OUT ?? "";
 const BEFORE = process.env.CHECKTRIM_GRADES_BEFORE ?? "";
+const HEADS_UP = process.env.CHECKTRIM_GRADES_HEADSUP === "1";
+const TURN = process.env.CHECKTRIM_GRADES_TURN === "1";
 
 type Graded = [hand: number, action: number, street: string, act: string, source: string, grade: string | null, evLoss: number | null];
 
@@ -35,7 +42,7 @@ const localFetch = async (url: string): Promise<Response> => {
   return new Response(readFileSync(path));
 };
 
-it("grades the hero's decisions on multiway flops", { timeout: 12 * 60 * 60_000 }, async () => {
+it("grades the hero's decisions on multiway (or heads-up) flops", { timeout: 12 * 60 * 60_000 }, async () => {
   if (!FILE || !existsSync(FILE) || !DIR || !existsSync(DIR) || !OUT) {
     console.log("FLOPLIB_HANDS, FLOPLIB_DIR and CHECKTRIM_GRADES_OUT must be set; nothing to do");
     return;
@@ -59,9 +66,9 @@ it("grades the hero's decisions on multiway flops", { timeout: 12 * 60 * 60_000 
     const context = buildContext(structuredClone(hand));
     const seats = flopSeats(context);
     const hero = heroSeatOf(context);
-    if (seats.length < 3 || hero === null || !seats.includes(hero)) continue;
+    if ((HEADS_UP ? seats.length !== 2 : seats.length < 3) || hero === null || !seats.includes(hero)) continue;
     await library.prefetch(hand, charts);
-    const analysis = analyzeHand(structuredClone(hand), { charts, turn: false, flopLibrary: library });
+    const analysis = analyzeHand(structuredClone(hand), { charts, turn: TURN, flopLibrary: library });
     analysed += 1;
     for (const d of analysis.decisions) {
       if (d.street === "preflop") continue;
@@ -69,7 +76,7 @@ it("grades the hero's decisions on multiway flops", { timeout: 12 * 60 * 60_000 
     }
   }
   writeFileSync(OUT, JSON.stringify(out));
-  console.log(`${analysed} hands with a multiway flop and the hero in it, ${out.length} postflop decisions (${out.filter((d) => d[5] !== null).length} graded), ${((performance.now() - started) / 1000).toFixed(0)} s`);
+  console.log(`${analysed} hands with a ${HEADS_UP ? "heads-up" : "multiway"} flop and the hero in it, ${out.length} postflop decisions (${out.filter((d) => d[5] !== null).length} graded), ${((performance.now() - started) / 1000).toFixed(0)} s`);
 
   if (!BEFORE || !existsSync(BEFORE)) return;
   const before = new Map((JSON.parse(readFileSync(BEFORE, "utf8")) as Graded[]).map((d) => [`${d[0]}:${d[1]}`, d]));

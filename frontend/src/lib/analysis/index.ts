@@ -123,9 +123,14 @@ export {
 export { analyzeHand, heroSeatOf, riverStudy, turnStudy, villainsOfFacts, type AnalyzeOptions } from "./analyze";
 export {
   BLUFF_ZONE,
+  CHECK_AIR,
+  CHECK_DRAW,
   CHECK_REPEAT,
   CHECK_VALUE,
   FLOOR,
+  HEADS_UP_CHECK_AIR,
+  HEADS_UP_CHECK_DRAW,
+  HEADS_UP_CHECK_VALUE,
   MULTIWAY_BLUFF,
   MULTIWAY_CHECK_DRAW,
   MULTIWAY_CHECK_VALUE,
