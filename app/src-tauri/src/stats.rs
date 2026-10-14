@@ -11,8 +11,9 @@
 //! the screens show and swaps them in when done, and computes the all-in EV
 //! of preflop all-ins in the background. Its status is [`stats_status`];
 //! when a recompute swaps, the window hears [`CHANGED_EVENT`] and the
-//! screens read again. Tables open (the HUD of Phase 3) will pause its
-//! heavy parts through `StatsWorker::set_tables_open`.
+//! screens read again, and so does the HUD (`stats_changed`, R3.2). While
+//! the HUD is attached to any table its heavy parts pause
+//! ([`StatsState::set_tables_open`], from `hud`).
 
 use std::collections::BTreeSet;
 use std::sync::{Arc, Mutex, PoisonError};
@@ -110,6 +111,14 @@ impl StatsState {
         }
     }
 
+    /// Poker tables are open (the HUD says so, R3.2): the pass pauses its
+    /// heavy parts - a recompute, the EV - until they close.
+    pub fn set_tables_open(&self, open: bool) {
+        if let Some(worker) = &self.worker {
+            worker.set_tables_open(open);
+        }
+    }
+
     /// Stop the thread (on exit): it lets go of the store's writer.
     pub fn stop(&self) {
         if let Some(worker) = &self.worker {
@@ -151,10 +160,14 @@ pub fn spawn_refresher<R: Runtime>(app: &AppHandle<R>) {
                 if status.activity == rail_store::Activity::Stopped {
                     return;
                 }
-                if last.is_some_and(|last| last != status.epoch)
-                    && let Err(error) = app.emit(CHANGED_EVENT, ())
-                {
-                    log::debug!("{CHANGED_EVENT}: {error}");
+                if last.is_some_and(|last| last != status.epoch) {
+                    if let Err(error) = app.emit(CHANGED_EVENT, ()) {
+                        log::debug!("{CHANGED_EVENT}: {error}");
+                    }
+                    // The HUD re-reads every table it shows (R3.2).
+                    if let Some(hud) = app.try_state::<crate::hud::HudState>() {
+                        hud.stats_changed(status.epoch);
+                    }
                 }
                 last = Some(status.epoch);
                 std::thread::sleep(Duration::from_secs(1));

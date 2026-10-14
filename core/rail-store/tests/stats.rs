@@ -377,6 +377,94 @@ fn hud_totals_sum_a_players_segments() {
     store.close();
 }
 
+/// What the app tells the HUD after an import (R3.2): a file's newest
+/// hands with their site, table and players, each of whom has a rollup.
+#[test]
+fn newest_hands_of_a_file_for_the_hud() {
+    let path = copy_of_corpus("newest-hands");
+    let store = Store::open(&path).expect("open");
+    let conn = Connection::open(store.path()).expect("open");
+    let (file_id, file, hands): (i64, String, i64) = conn
+        .query_row(
+            "SELECT id, path, hands FROM files WHERE hands >= 4 ORDER BY hands DESC, id LIMIT 1",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .expect("a file with hands");
+    let expected: Vec<String> = conn
+        .prepare("SELECT hand_key FROM hands WHERE file_id = ?1 ORDER BY rowid DESC LIMIT 3")
+        .expect("prepare")
+        .query_map([file_id], |row| row.get(0))
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("rows");
+    let reader = store.reader();
+    let newest = reader
+        .newest_hands_of_file(Path::new(&file), 3)
+        .expect("newest");
+    assert_eq!(
+        newest
+            .iter()
+            .map(|h| h.hand_key.clone())
+            .collect::<Vec<_>>(),
+        expected
+    );
+    for hand in &newest {
+        let (table, seats): (Option<String>, i64) = conn
+            .query_row(
+                "SELECT h.table_name, (SELECT count(*) FROM seat_stats s
+                   WHERE s.hand_id = hs.id AND s.player != '')
+                 FROM hands h JOIN hand_stats hs ON hs.hand_key = h.hand_key
+                 WHERE h.hand_key = ?1",
+                [&hand.hand_key],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("hand");
+        assert_eq!(hand.table, table);
+        assert_eq!(i64::try_from(hand.players.len()).expect("len"), seats);
+        assert!(!hand.players.is_empty());
+        let players: Vec<(&str, &str)> = hand
+            .players
+            .iter()
+            .map(|(name, scope)| (name.as_str(), scope.as_str()))
+            .collect();
+        let totals = reader
+            .hud_totals(&hand.site, &players, None)
+            .expect("hud totals");
+        assert!(
+            totals.iter().all(|t| t.hands() >= 1),
+            "every player of {} has a rollup on {}",
+            hand.hand_key,
+            hand.site
+        );
+    }
+    assert_eq!(
+        reader
+            .newest_hands_of_file(Path::new(&file), u32::MAX)
+            .expect("all")
+            .len(),
+        usize::try_from(hands).expect("hands")
+    );
+    assert!(
+        reader
+            .newest_hands_of_file(Path::new("/no/such/file.txt"), 3)
+            .expect("none")
+            .is_empty()
+    );
+
+    // `data_version` moves when another connection commits.
+    let one = rail_store::Reader::open(store.path(), 1).expect("reader");
+    let before = one.data_version().expect("version");
+    assert_eq!(one.data_version().expect("version"), before);
+    conn.execute(
+        "INSERT INTO kv (key, value, updated_at) VALUES ('test.hud', '1', 0)",
+        [],
+    )
+    .expect("write");
+    assert_ne!(one.data_version().expect("version"), before);
+    store.close();
+}
+
 /// After the background pass, every hero hand has the web's EV row
 /// (`handEvRow`), the queue is empty, and a hand without a hero has none.
 #[test]

@@ -15,6 +15,7 @@ members = [
   "core/rail-sync",
   "core/rail-config",
   "hud/rail-hud",
+  "hud/rail-hud-ipc",
   "hud/rail-hud-sim",
   "app/src-tauri",
 ]

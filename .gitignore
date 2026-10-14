@@ -43,3 +43,6 @@ pnpm-debug.log*
 # regenerates its capability schemas on every build. Rust output goes to the
 # workspace's /target/, bundles to /target/release/bundle/.
 /app/src-tauri/gen/
+# The HUD sidecar copied in for a bundle (`npm run hud:sidecar`, R3.2):
+# rail-hud-<target triple>, built from hud/rail-hud.
+/app/src-tauri/binaries/

@@ -46,6 +46,18 @@ pub struct SegmentRow {
     pub segment: Segment,
 }
 
+/// A stored hand as the HUD hears of it ([`Reader::newest_hands_of_file`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ImportedHand {
+    pub hand_key: String,
+    /// The rollups' site (`segments.site`): what `hud_totals` takes.
+    pub site: String,
+    pub table: Option<String>,
+    /// Every kept seat's `(player, scope)`, in seat order; seats without a
+    /// name left out.
+    pub players: Vec<(String, String)>,
+}
+
 /// One row of `player_rollups`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Rollup {
@@ -455,6 +467,65 @@ impl Reader {
             }
             Ok(out)
         })
+    }
+
+    /// The newest `limit` hands `path` delivered (`hands.file_id`), newest
+    /// first, each with its rollups' site (`segments.site`), table and
+    /// every kept seat's `(player, scope)` in seat order: what the app tells
+    /// the HUD after an import (R3.2, `hand_imported`). A hand without
+    /// statistics rows is left out (the rows are written with the hand).
+    pub fn newest_hands_of_file(
+        &self,
+        path: &std::path::Path,
+        limit: u32,
+    ) -> Result<Vec<ImportedHand>> {
+        self.with(|conn| {
+            let mut hands = conn.prepare_cached(
+                "SELECT h.hand_key, s.site, h.table_name, hs.id
+                 FROM files f
+                 JOIN hands h ON h.file_id = f.id
+                 JOIN hand_stats hs ON hs.hand_key = h.hand_key
+                 JOIN segments s ON s.id = hs.segment_id
+                 WHERE f.path = ?1
+                 ORDER BY h.rowid DESC
+                 LIMIT ?2",
+            )?;
+            let mut seats = conn.prepare_cached(
+                "SELECT player, scope FROM seat_stats
+                 WHERE hand_id = ?1 AND player != '' ORDER BY seat",
+            )?;
+            let rows = hands
+                .query_map(params![crate::import::path_key(path), limit], |row| {
+                    Ok((
+                        row.get::<_, String>(0)?,
+                        row.get::<_, String>(1)?,
+                        row.get::<_, Option<String>>(2)?,
+                        row.get::<_, i64>(3)?,
+                    ))
+                })?
+                .collect::<rusqlite::Result<Vec<_>>>()?;
+            let mut out = Vec::with_capacity(rows.len());
+            for (hand_key, site, table, hand_id) in rows {
+                let players = seats
+                    .query_map(params![hand_id], |row| Ok((row.get(0)?, row.get(1)?)))?
+                    .collect::<rusqlite::Result<Vec<_>>>()?;
+                out.push(ImportedHand {
+                    hand_key,
+                    site,
+                    table,
+                    players,
+                });
+            }
+            Ok(out)
+        })
+    }
+
+    /// SQLite's `PRAGMA data_version` on one of the pool's connections: it
+    /// changes when another connection (the app's writer) has committed
+    /// since that connection last looked. Meaningful on a one-connection
+    /// [`Reader`] (the HUD's), whose reads all go through that connection.
+    pub fn data_version(&self) -> Result<i64> {
+        self.with(|conn| Ok(conn.query_row("PRAGMA data_version", [], |row| row.get(0))?))
     }
 
     /// The hero's totals per (segment, position) over `filter`, with the

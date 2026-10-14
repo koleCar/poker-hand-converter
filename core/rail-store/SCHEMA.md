@@ -529,6 +529,8 @@ first. Cascades with the hand.
 | Call | For | How |
 | --- | --- | --- |
 | `Reader::hud_totals(site, &[(player, scope)], segments)` | the HUD (R3.7): a table's players, over its segment, a set, or all of the site's | one `player_rollups` key range per player |
+| `Reader::newest_hands_of_file(path, limit)` | the app's `hand_imported` to the HUD (R3.2): a file's newest hands with their rollup site (`segments.site`), table and every kept seat's `(player, scope)` | `files.path` (unique), `hands_file_idx` backwards, `hand_stats` by `hand_key`, `seat_stats` by its key |
+| `Reader::data_version()` | the HUD (R3.2): has the app committed since it last looked? | `PRAGMA data_version` on the pool's connection (a one-connection `Reader`) |
 | `Reader::player_rollup(site, player, scope, segment)` / `player_rollups(site, player, scope)` | a player's row in one segment / in every segment of a site | key lookups |
 | `Reader::hero_totals(&HeroFilter)` | reports (R2.7): the hero by segment and position over a date range, with `aggregate`'s options, and the all-in EV adjustment | whole UTC days from `hero_rollups`; the partial days at the two ends from the hero's rows (`hand_stats_played_idx`), so any range of UTC instants is exact (a local-time range is passed as instants); EV from `ev_rows` (few) and the queue's count |
 | `Reader::segments()`, `segment_id(&Segment)` | segment ids and back | |
