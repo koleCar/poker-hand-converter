@@ -97,8 +97,10 @@ pub const WRITE_CACHE_KIB: i64 = 16_384;
 /// --writer-only`: -6 % of the writer's time per hand.
 pub const WAL_AUTOCHECKPOINT: u32 = 4_096;
 
-/// Read connections in the pool [`Store::open`] makes.
-pub const READERS: usize = 4;
+/// Read connections in the pool [`Store::open`] makes: the Reports
+/// breakdown pass's [`report::PASS_THREADS`] and one for the other screens
+/// meanwhile (R2.9; four before).
+pub const READERS: usize = report::PASS_THREADS + 1;
 
 /// The store's file name in the app's data directory.
 pub const FILE_NAME: &str = "rail.db";

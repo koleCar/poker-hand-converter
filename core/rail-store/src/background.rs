@@ -21,7 +21,10 @@
 //! the import threads have the CPU) and its EV part while poker tables are
 //! open ([`StatsWorker::set_tables_open`], for the HUD of Phase 3: EV is
 //! for after the session, and the HUD should not share the CPU with an
-//! enumeration). Work is read through its own read connection and written
+//! enumeration). Before any of it, once, it **warms up** the store (R2.9,
+//! [`Reader::warm_up`]): what Today, Reports and Players read first, into
+//! the OS cache, so a large store's first report does not wait for the
+//! disk. Work is read through its own read connection and written
 //! through the store's single writer, like everything else; the writer
 //! interleaves its transactions with the import's. [`drain`] runs the same
 //! steps to the end on the caller's thread (tests, examples).
@@ -293,13 +296,18 @@ impl StatsWorker {
     /// and its writer.
     pub fn start(path: &Path, writer: WriterHandle) -> Result<Self> {
         let reader = Reader::open(path, 1)?;
+        // The warm-up's own connections (R2.9), closed once it is done.
+        let warm = Reader::open(path, crate::report::WARM_UP_CONNECTIONS)?;
         let shared = Arc::new(Shared::default());
         shared.control().kicked = true;
         let thread = {
             let (shared, writer) = (Arc::clone(&shared), writer.clone());
             thread::Builder::new()
                 .name("rail-stats-pass".to_owned())
-                .spawn(move || run(&shared, &reader, &writer))
+                .spawn(move || {
+                    warm_up(&shared, warm);
+                    run(&shared, &reader, &writer);
+                })
                 .map_err(|source| Error::Io {
                     path: "rail-stats-pass".into(),
                     source,
@@ -420,6 +428,20 @@ fn wait(shared: &Shared, timeout: Duration) -> bool {
     }
     control.kicked = false;
     control.stop
+}
+
+/// First thing after the app starts (R2.9): read what the screens read
+/// first ([`Reader::warm_up`]) into the OS cache, unless the pass is
+/// already stopping.
+fn warm_up(shared: &Shared, warm: Reader) {
+    if shared.control().stop {
+        return;
+    }
+    let started = Instant::now();
+    match warm.warm_up() {
+        Ok(()) => log::info!("store warmed up in {:.1?}", started.elapsed()),
+        Err(error) => log::warn!("store warm-up: {error}"),
+    }
 }
 
 fn run(shared: &Shared, reader: &Reader, writer: &WriterHandle) {

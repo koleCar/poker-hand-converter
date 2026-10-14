@@ -1,0 +1,114 @@
+# The performance gate (docs/RAIL-PLAN.md R2.9; guideline §1 targets).
+#
+# Nightly, not on every pull request: it builds a GENERATED store of a
+# million hands (copies of the repository's corpus with fresh hand ids,
+# fresh villain names and every copy played a week before the next - see
+# core/rail-watch/examples/import_bench/dataset.rs; written to the runner's
+# temp directory, never committed, deleted at the end) through the real
+# import pipeline and measures every guideline §1 target that exists before
+# the HUD (Phase 3):
+#
+#   - local import of old hands (>= 5,000 hands/s on the owner's machine;
+#     here the pipeline efficiency against a same-runner reference, as the
+#     PR job `import-bench` gates it),
+#   - the HUD delay after a hand (< 1 s; the watcher, the store and the
+#     HUD's lookup - one table and twelve at once),
+#   - reports over a million hands (< 1 s): Reports opening and every
+#     breakdown tab's first click, Today, the Hands list, Players, the HUD's
+#     lookup, warm (first call after a commit) and cold (the store's pages
+#     dropped from the OS cache with posix_fadvise: no sudo; reported, not
+#     gated - a shared runner's disk decides it), and after the background
+#     warm-up the app runs at start (gated),
+#   - the background pass after the backfill, the store's size.
+#
+# Times are normalised to the owner's M2 Pro by the runner's own reference
+# rate (one thread converting the corpus; perf_gate's `--m2-reference`), so
+# the budgets (perf_gate's BUDGETS: the guideline's 1 s, the plan's 10 ms
+# for the HUD's lookup, regression budgets below) mean the same thing on any
+# runner; `--tolerance 1.5` absorbs a shared runner's noise. The HUD delay
+# is judged absolute. The import runs on every vCPU, and its efficiency
+# floor (25 %) is a guard against a collapse until the first nightly runs
+# calibrate it (the owner's M2 Pro: 37 % at 1M with 8 threads; the PR job's
+# 45 % is for 100k hands on the 3-core macOS runner). The report (JSON and markdown) is
+# uploaded as an artifact and written to the job summary.
+#
+# Scale: the full 1M on ubuntu-latest (4 vCPU, 16 GB): ~1.3 GB of generated
+# files and a ~4 GB store; disk is freed first. The all-in EV queue
+# (~27k preflop all-ins at 1M, ~20 ms each on an M2 Pro: ~9 min of one core)
+# is run for --ev-budget seconds and extrapolated (the rest stays queued, as
+# the app would show it while the pass works). `workflow_dispatch` can ask
+# for fewer hands (a smaller store's queries that read every hand are scaled
+# up linearly to 1M).
+#
+# `schedule` runs on the default branch only (main); `workflow_dispatch`
+# from the Actions tab on any branch; on a pull request only when it is
+# labelled `perf`.
+
+name: Performance gate
+
+on:
+  schedule:
+    - cron: "23 1 * * *"
+  workflow_dispatch:
+    inputs:
+      hands:
+        description: Hands in the generated store
+        default: "1000000"
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: perf-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  perf:
+    name: Performance gate (1M generated hands)
+    if: github.event_name != 'pull_request' || github.event.label.name == 'perf'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          df -h /
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: perf-gate
+
+      - name: Build (release)
+        run: cargo build --release --locked -p rail-watch --example perf_gate
+
+      - name: Generated 1M store, then every target
+        env:
+          HANDS: ${{ github.event.inputs.hands || '1000000' }}
+        run: |
+          nproc; free -g; lscpu | grep -i 'model name' || true
+          ./target/release/examples/perf_gate \
+            --hands "$HANDS" --dir "$RUNNER_TEMP/rail-perf" \
+            --ev-budget 240 --runs 5 \
+            --workers "$(nproc)" --gate --tolerance 1.5 --min-efficiency 25 \
+            --json perf-report.json --markdown perf-report.md
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f perf-report.md ]; then cat perf-report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-report
+          path: |
+            perf-report.json
+            perf-report.md
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Remove the generated data
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/rail-perf"

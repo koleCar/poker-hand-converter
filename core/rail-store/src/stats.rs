@@ -203,6 +203,33 @@ pub fn decode_seat(bytes: &[u8]) -> Result<SeatValues> {
     Ok(values)
 }
 
+/// [`decode_seat`]'s values without the zeros, as `(column, value)` in
+/// column order, written into `out` (cleared first): what a pass that adds
+/// one seat to several sums reads (R2.9, the reports' breakdowns - a seat
+/// holds ~7 values of ~97, so adding those beats adding every column). The
+/// same checks as [`decode_seat`], and the columns must be in the order
+/// [`encode_seat`] writes them.
+pub fn decode_seat_sparse(bytes: &[u8], out: &mut Vec<(usize, i64)>) -> Result<()> {
+    out.clear();
+    let mut at = 0;
+    while at < bytes.len() {
+        let index = usize::try_from(read_varint(bytes, &mut at)?)
+            .map_err(|_| Error::Corrupt("seat totals: index".to_owned()))?;
+        let zigzag = i64::from_ne_bytes(read_varint(bytes, &mut at)?.to_ne_bytes());
+        let value = ((zigzag >> 1) & i64::MAX) ^ -(zigzag & 1);
+        if index < COUNTER_COUNT {
+            u32::try_from(value).map_err(|_| Error::Corrupt("seat totals: counter".to_owned()))?;
+        } else if index - COUNTER_COUNT >= MONEY_COUNT {
+            return Err(Error::Corrupt("seat totals: column".to_owned()));
+        }
+        if out.last().is_some_and(|&(last, _)| last >= index) {
+            return Err(Error::Corrupt("seat totals: order".to_owned()));
+        }
+        out.push((index, value));
+    }
+    Ok(())
+}
+
 /// Summed counters and money: a rollup row, or any sum of seat rows.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Totals {
@@ -261,6 +288,22 @@ impl Totals {
                 *sum += value;
             }
             self.money_hands += i64::from(values.counters[Counter::hands.index()]);
+        }
+    }
+
+    /// [`Totals::add_seat`] for a seat read by [`decode_seat_sparse`]: the
+    /// same sums, adding only the values that are not 0.
+    pub fn add_sparse(&mut self, values: &[(usize, i64)], money: bool) {
+        let hands = Counter::hands.index();
+        for &(index, value) in values {
+            if index < COUNTER_COUNT {
+                self.counters[index] += value;
+                if money && index == hands {
+                    self.money_hands += value;
+                }
+            } else if money {
+                self.money[index - COUNTER_COUNT] += value;
+            }
         }
     }
 
@@ -1183,7 +1226,7 @@ fn set_list_all_in(conn: &Connection, hand_key: &str, all_in: bool) -> Result<()
 
 #[cfg(test)]
 mod tests {
-    use super::{MONEY_COUNT, SeatValues, decode_seat, encode_seat};
+    use super::{MONEY_COUNT, SeatValues, Totals, decode_seat, decode_seat_sparse, encode_seat};
     use rail_stats::COUNTER_COUNT;
 
     #[test]
@@ -1201,5 +1244,38 @@ mod tests {
         assert_eq!(decode_seat(&bytes).expect("decode"), values);
         assert!(decode_seat(&bytes[..bytes.len() - 1]).is_err());
         assert!(decode_seat(&[120, 2]).is_err(), "no such column");
+    }
+
+    #[test]
+    fn sparse_seats_add_up_as_whole_ones() {
+        let mut values = SeatValues {
+            counters: [0; COUNTER_COUNT],
+            money: [0; MONEY_COUNT],
+        };
+        values.counters[0] = 1;
+        values.counters[3] = 1;
+        values.counters[COUNTER_COUNT - 1] = 7;
+        values.money = [5, -7, 0, 12_345, 1 << 40, 0, -1];
+        let bytes = encode_seat(&values);
+        let mut sparse = Vec::new();
+        decode_seat_sparse(&bytes, &mut sparse).expect("decode");
+        assert_eq!(sparse.len(), 8);
+        for money in [true, false] {
+            let (mut whole, mut part) = (Totals::default(), Totals::default());
+            for _ in 0..3 {
+                whole.add_seat(&decode_seat(&bytes).expect("decode"), money);
+                part.add_sparse(&sparse, money);
+            }
+            assert_eq!(whole, part, "money {money}");
+        }
+        assert!(decode_seat_sparse(&bytes[..bytes.len() - 1], &mut sparse).is_err());
+        assert!(
+            decode_seat_sparse(&[120, 2], &mut sparse).is_err(),
+            "no such column"
+        );
+        assert!(
+            decode_seat_sparse(&[3, 2, 3, 2], &mut sparse).is_err(),
+            "out of order"
+        );
     }
 }

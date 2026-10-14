@@ -33,6 +33,22 @@
 //! to the same hands with exactly the expected names, the same heroes and
 //! the same anonymisation; otherwise its copies keep the corpus's names
 //! (counted). Byte templates only (UTF-16 files keep their names).
+//!
+//! **Dates** (`--spread`, R2.9; off by default, so CI's import benchmark is
+//! unchanged): without it every copy is played on the corpus's own days,
+//! so at a million hands a day holds ~140 copies of a corpus day - about
+//! fifty times a real day. With it, copy *c* is played [`SPREAD_DAYS`] x
+//! *c* days earlier: every date in the file (`2026/02/17`, `2026-02-17`,
+//! `2014/3/9`; for the templates that need it `3/9/2014` read month first
+//! or day first, and Unix times in seconds) moves back by that many days in
+//! the room's own calendar, the time of day and the weekday kept. A million
+//! hands then span ~2.7 years back from the corpus, and a day holds the
+//! hands of the few corpus days that land on it: real sessions (the corpus
+//! files are real tables at their real pace) at a realistic daily volume.
+//! A template's dates move only if its first shifted copy converts to the
+//! same hands, each dealt exactly that many days earlier (give or take the
+//! hour a daylight-saving change makes); otherwise its copies keep the
+//! corpus's dates (counted). Byte templates only.
 
 use std::collections::{BTreeSet, HashSet};
 use std::path::{Path, PathBuf};
@@ -47,6 +63,198 @@ use rail_core::phf::PhfHand;
 /// Digit runs shorter than this are never rewritten (too common: amounts,
 /// seats, times).
 const MIN_RUN: usize = 4;
+
+/// `--spread`: copy *c* is played this many days x *c* earlier (whole
+/// weeks keep every weekday a room may print).
+pub const SPREAD_DAYS: i64 = 7;
+
+/// How a template's dates are read (`--spread`): year first always, plus
+/// the forms its first shifted copy needed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+struct DateStyle {
+    /// `M/D/YYYY`.
+    mdy: bool,
+    /// `D/M/YYYY`.
+    dmy: bool,
+    /// Unix times in seconds (ten digits, not a hand id's run).
+    epoch: bool,
+}
+
+/// The styles tried, in order.
+const DATE_STYLES: [DateStyle; 6] = [
+    DateStyle {
+        mdy: false,
+        dmy: false,
+        epoch: false,
+    },
+    DateStyle {
+        mdy: true,
+        dmy: false,
+        epoch: false,
+    },
+    DateStyle {
+        mdy: false,
+        dmy: true,
+        epoch: false,
+    },
+    DateStyle {
+        mdy: false,
+        dmy: false,
+        epoch: true,
+    },
+    DateStyle {
+        mdy: true,
+        dmy: false,
+        epoch: true,
+    },
+    DateStyle {
+        mdy: false,
+        dmy: true,
+        epoch: true,
+    },
+];
+
+/// Days since 1970-01-01 of a proleptic Gregorian date (H. Hinnant's
+/// `days_from_civil`).
+fn days_from_civil(year: i64, month: i64, day: i64) -> i64 {
+    let y = if month <= 2 { year - 1 } else { year };
+    let era = y.div_euclid(400);
+    let yoe = y - era * 400;
+    let mp = (month + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + day - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe - 719_468
+}
+
+/// The date of a day number (`civil_from_days`).
+fn civil_from_days(days: i64) -> (i64, i64, i64) {
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    (yoe + era * 400 + i64::from(month <= 2), month, day)
+}
+
+/// `(year, month, day)` moved by `shift` days, if it is a real date in a
+/// plausible year.
+fn shifted_date(year: i64, month: i64, day: i64, shift: i64) -> Option<(i64, i64, i64)> {
+    if !(1990..=2099).contains(&year) || !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        return None;
+    }
+    let days = days_from_civil(year, month, day);
+    (civil_from_days(days) == (year, month, day)).then(|| civil_from_days(days + shift))
+}
+
+/// A month or day as written: a two-digit original keeps its zero, a
+/// one-digit one stays unpadded.
+fn digits(value: i64, width: usize) -> String {
+    if width >= 2 {
+        format!("{value:02}")
+    } else {
+        value.to_string()
+    }
+}
+
+/// The value of an ASCII digit run.
+fn number(run: &[u8]) -> i64 {
+    run.iter()
+        .fold(0, |acc, digit| acc * 10 + i64::from(digit - b'0'))
+}
+
+/// `bytes` with every date (in `style`) moved by `shift` days; Unix times
+/// in seconds by as many days' seconds, unless the run is one of `ids`.
+fn shift_dates(bytes: &[u8], shift: i64, style: DateStyle, ids: &HashSet<Vec<u8>>) -> Vec<u8> {
+    // Maximal digit runs: (start, end).
+    let mut runs = Vec::new();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i].is_ascii_digit() {
+            let start = i;
+            while i < bytes.len() && bytes[i].is_ascii_digit() {
+                i += 1;
+            }
+            runs.push((start, i));
+        } else {
+            i += 1;
+        }
+    }
+    let sep_between = |a: (usize, usize), b: (usize, usize)| -> Option<u8> {
+        (b.0 == a.1 + 1 && matches!(bytes[a.1], b'/' | b'-' | b'.')).then(|| bytes[a.1])
+    };
+    let mut out = Vec::with_capacity(bytes.len() + 16);
+    let mut copied = 0;
+    let mut k = 0;
+    while k < runs.len() {
+        let (start, end) = runs[k];
+        let len = end - start;
+        let mut replaced: Option<(usize, String)> = None;
+        if k + 2 < runs.len()
+            && let (Some(s1), Some(s2)) = (
+                sep_between(runs[k], runs[k + 1]),
+                sep_between(runs[k + 1], runs[k + 2]),
+            )
+            && s1 == s2
+        {
+            let (b, c) = (runs[k + 1], runs[k + 2]);
+            let (lb, lc) = (b.1 - b.0, c.1 - c.0);
+            let sep = char::from(s1);
+            if len == 4 && (1..=2).contains(&lb) && (1..=2).contains(&lc) {
+                if let Some((y, m, d)) = shifted_date(
+                    number(&bytes[start..end]),
+                    number(&bytes[b.0..b.1]),
+                    number(&bytes[c.0..c.1]),
+                    shift,
+                ) {
+                    let text = format!("{y}{sep}{}{sep}{}", digits(m, lb), digits(d, lc));
+                    replaced = Some((c.1, text));
+                }
+            } else if (style.mdy || style.dmy)
+                && (1..=2).contains(&len)
+                && (1..=2).contains(&lb)
+                && lc == 4
+            {
+                let (first, second) = (number(&bytes[start..end]), number(&bytes[b.0..b.1]));
+                let (m, d) = if style.mdy {
+                    (first, second)
+                } else {
+                    (second, first)
+                };
+                if let Some((y, m2, d2)) = shifted_date(number(&bytes[c.0..c.1]), m, d, shift) {
+                    let (a2, b2) = if style.mdy { (m2, d2) } else { (d2, m2) };
+                    let text = format!("{}{sep}{}{sep}{y}", digits(a2, len), digits(b2, lb));
+                    replaced = Some((c.1, text));
+                }
+            }
+        }
+        if replaced.is_none() && style.epoch && len == 10 && !ids.contains(&bytes[start..end]) {
+            let seconds = number(&bytes[start..end]);
+            if (1_000_000_000..2_000_000_000).contains(&seconds) {
+                replaced = Some((end, (seconds + shift * 86_400).to_string()));
+            }
+        }
+        if let Some((until, text)) = replaced {
+            out.extend_from_slice(&bytes[copied..start]);
+            out.extend_from_slice(text.as_bytes());
+            copied = until;
+            while k < runs.len() && runs[k].0 < until {
+                k += 1;
+            }
+        } else {
+            k += 1;
+        }
+    }
+    out.extend_from_slice(&bytes[copied..]);
+    out
+}
+
+/// Copy `copy`'s date shift under `--spread`, in days.
+pub fn spread_shift(copy: usize) -> i64 {
+    -SPREAD_DAYS * i64::try_from(copy).expect("copy")
+}
 
 /// A corpus file that can be replicated.
 #[derive(Debug, Clone)]
@@ -65,6 +273,8 @@ pub struct Template {
     /// Villain names rewritten in its copies (`--rename-players`; empty:
     /// the corpus's names).
     names: Vec<Vec<u8>>,
+    /// How its dates move (`--spread`; `None`: the corpus's dates).
+    dates: Option<DateStyle>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -221,16 +431,23 @@ impl Template {
     /// when its names are rewritten, its villains' names through the copy's
     /// [`letter_map`].
     pub fn rewrite(&self, perm: &[u8; 10], copy: usize) -> Vec<u8> {
-        let mut out = self.rewrite_ids(perm);
+        let mut out = match self.dates {
+            Some(style) if copy > 0 => {
+                let moved = shift_dates(&self.bytes, spread_shift(copy), style, &self.runs);
+                self.rewrite_ids(&moved, perm)
+            }
+            _ => self.rewrite_ids(&self.bytes, perm),
+        };
         if copy > 0 && !self.names.is_empty() {
             rename(&mut out, &self.names, &letter_map(copy));
         }
         out
     }
 
-    /// The file with its id runs rewritten through `perm`.
-    fn rewrite_ids(&self, perm: &[u8; 10]) -> Vec<u8> {
-        let mut out = self.bytes.clone();
+    /// `bytes` (the file, its dates perhaps moved) with its id runs
+    /// rewritten through `perm`.
+    fn rewrite_ids(&self, bytes: &[u8], perm: &[u8; 10]) -> Vec<u8> {
+        let mut out = bytes.to_vec();
         let width = if self.unit == Unit::Byte { 1 } else { 2 };
         let digit_at = |bytes: &[u8], at: usize| -> Option<u8> {
             let unit = match self.unit {
@@ -242,18 +459,18 @@ impl Template {
                 .contains(&unit)
                 .then(|| u8::try_from(unit).expect("ASCII"))
         };
-        let units = self.bytes.len() / width;
+        let units = bytes.len() / width;
         let mut i = 0;
         let mut run = Vec::new();
         while i < units {
-            if digit_at(&self.bytes, i * width).is_none() {
+            if digit_at(bytes, i * width).is_none() {
                 i += 1;
                 continue;
             }
             let start = i;
             run.clear();
             while i < units
-                && let Some(digit) = digit_at(&self.bytes, i * width)
+                && let Some(digit) = digit_at(bytes, i * width)
             {
                 run.push(digit);
                 i += 1;
@@ -293,12 +510,18 @@ pub struct Selection {
     /// and those that keep the corpus's names (the check failed, or UTF-16).
     pub renamed: usize,
     pub names_kept: usize,
+    /// (`--spread`) Templates whose copies move their dates, and those that
+    /// keep the corpus's (the check failed, or UTF-16) with their hands.
+    pub shifted: usize,
+    pub dates_kept: usize,
+    pub dates_kept_hands: usize,
 }
 
 /// Load the corpus and keep the files that can be replicated (see the
 /// module docs), using `threads` threads; with `rename`, the villains'
-/// names are rewritten in every copy but the first wherever that checks out.
-pub fn templates(root: &Path, threads: usize, rename: bool) -> Selection {
+/// names are rewritten in every copy but the first wherever that checks out;
+/// with `spread`, likewise the dates.
+pub fn templates(root: &Path, threads: usize, rename: bool, spread: bool) -> Selection {
     let files = corpus(root);
     let corpus_files = files.len();
     let next = AtomicUsize::new(0);
@@ -313,7 +536,7 @@ pub fn templates(root: &Path, threads: usize, rename: bool) -> Selection {
                 loop {
                     let n = next.fetch_add(1, Ordering::Relaxed);
                     let Some(relative) = files.get(n) else { break };
-                    let verdict = template(root, relative, &check, rename);
+                    let verdict = template(root, relative, &check, rename, spread);
                     let mut out = out.lock().expect("selection");
                     match verdict {
                         Verdict::Keep(template) => out.templates.push(*template),
@@ -343,6 +566,15 @@ pub fn templates(root: &Path, threads: usize, rename: bool) -> Selection {
     if rename {
         selection.names_kept = kept.len() - selection.renamed;
     }
+    if spread {
+        selection.shifted = kept.iter().filter(|t| t.dates.is_some()).count();
+        selection.dates_kept = kept.len() - selection.shifted;
+        selection.dates_kept_hands = kept
+            .iter()
+            .filter(|t| t.dates.is_none())
+            .map(|t| t.hands)
+            .sum();
+    }
     selection.templates = kept;
     selection
 }
@@ -357,7 +589,7 @@ enum Verdict {
     NotRewritable,
 }
 
-fn template(root: &Path, relative: &Path, check: &[u8; 10], rename: bool) -> Verdict {
+fn template(root: &Path, relative: &Path, check: &[u8; 10], rename: bool, spread: bool) -> Verdict {
     let Ok(bytes) = std::fs::read(root.join(relative)) else {
         return Verdict::NoHands;
     };
@@ -399,6 +631,7 @@ fn template(root: &Path, relative: &Path, check: &[u8; 10], rename: bool) -> Ver
         keys: keys.iter().cloned().collect(),
         parser,
         names: Vec::new(),
+        dates: None,
     };
     let copy = template.rewrite(check, 1);
     let Some((new_keys, new_refusals)) = outline(&convert_file(&copy, &options)) else {
@@ -413,8 +646,13 @@ fn template(root: &Path, relative: &Path, check: &[u8; 10], rename: bool) -> Ver
     {
         return Verdict::NotRewritable;
     }
+    let hands: Vec<&PhfHand> = result.hands.iter().map(|hand| &hand.hand).collect();
+    if spread && unit == Unit::Byte {
+        template.dates = DATE_STYLES
+            .into_iter()
+            .find(|&style| shifts_cleanly(&template, style, &hands, refusals, check, &options));
+    }
     if rename && unit == Unit::Byte {
-        let hands: Vec<&PhfHand> = result.hands.iter().map(|hand| &hand.hand).collect();
         template.names = villain_names(&hands);
         if !template.names.is_empty() && !renames_cleanly(&template, &hands, check, &options) {
             template.names.clear();
@@ -475,6 +713,41 @@ fn renames_cleanly(
     })
 }
 
+/// Whether copy 1 with its dates moved in `style` converts to as many new
+/// hands and refusals, each hand dealt [`spread_shift`]`(1)` days earlier
+/// (an hour either way for a daylight-saving change in the room's zone; an
+/// undated hand stays undated).
+fn shifts_cleanly(
+    template: &Template,
+    style: DateStyle,
+    hands: &[&PhfHand],
+    refusals: usize,
+    check: &[u8; 10],
+    options: &ConvertOptions,
+) -> bool {
+    let shift_ms = spread_shift(1) * 86_400_000;
+    let mut trial = template.clone();
+    trial.dates = Some(style);
+    trial.names.clear();
+    let copy = trial.rewrite(check, 1);
+    let conversion = convert_file(&copy, options);
+    let Some(Ok(result)) = conversion.result.as_ref() else {
+        return false;
+    };
+    if result.hands.len() != hands.len() || result.failures.len() != refusals {
+        return false;
+    }
+    let ms = |at: Option<&str>| at.and_then(rail_store::time::ms_from_iso);
+    hands.iter().zip(&result.hands).all(|(old, new)| {
+        let (old, new) = (old.played_at.as_deref(), new.hand.played_at.as_deref());
+        match (ms(old), ms(new)) {
+            (Some(a), Some(b)) => (b - a - shift_ms).abs() <= 3_600_000,
+            (None, None) => old.is_none() && new.is_none(),
+            _ => false,
+        }
+    })
+}
+
 /// The hand's anonymisation, as the store derives it.
 fn anonymization(hand: &PhfHand) -> &'static str {
     rail_store::PreparedStats::from_phf(hand)
@@ -506,7 +779,8 @@ pub fn write(dir: &Path, selection: &Selection, copies: usize, threads: usize) -
         dir.join("GENERATED.md"),
         "GENERATED DATA - Rail import benchmark (docs/RAIL-PLAN.md R1.6).\n\
          Copies of the repository's corpus with every hand id's digits permuted\n\
-         (with --rename-players, the villains' names' letters too),\n\
+         (with --rename-players, the villains' names' letters too; with\n\
+         --spread, every date moved back a week per copy),\n\
          made on the fly by core/rail-watch/examples/import_bench. Not real hands\n\
          of anyone; never commit this directory. Safe to delete.\n",
     )

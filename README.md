@@ -433,7 +433,7 @@ migration procedure: [`docs/DATABASE.md`](docs/DATABASE.md).
 | `hands` | exists; unique on `(owner_id, hand_key)` where `hand_key = site:hand id` |
 | `hand_players` | covered by `hand_stats` (one row per dealt-in seat) — not added |
 | `players` | new in Phase 2 (tags, colours); `player_notes` exists |
-| `player_stats` | new in Phase 2, only if the 1M-hand benchmark needs it server-side |
+| `player_stats` | needed server-side: the 1M-hand benchmark (R2.9) measured the web's reports over a million hands at 5-44 s; with a hero rollup and a covering index it is recommended for R4.x, not built yet |
 | `hand_sources` | new in Phase 1 |
 | `hud_layouts` | new in Phase 3 |
 | `unsupported_formats` | the existing `unparsed_hands` corpus, extended in Phase 0 (R0.11: `origin`, `os`, `client_version`, `consented_at`) |
@@ -625,6 +625,38 @@ cargo run --release -p rail-watch --example import_bench -- \
 
 The efficiency does not see a slower `rail_core` (it slows the reference
 too); compare the printed reference rate across runs for that.
+`--rename-players` gives every copy new opponents' names and `--spread`
+plays every copy a week before the one after it (a real day's volume).
+
+The performance gate (since R2.9): a **generated** store of a million hands
+(the dataset above with `--rename-players --spread`, deleted afterwards)
+built through the real watcher, then every guideline §1 target that exists
+before the HUD - the import rate, the HUD delay after a hand (one table and
+twelve at once), Reports and each breakdown tab, Today, Hands, Players, the
+HUD's lookup, warm, cold (the store's pages dropped from the OS cache
+without `sudo`) and after the warm-up the app runs at start - with times
+normalised to the owner's M2 Pro by the machine's reference rate. CI runs
+it nightly (`.github/workflows/perf-nightly.yml`; on a pull request only
+with the `perf` label) and uploads the report; results in
+[`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R2.9:
+
+```bash
+cargo run --release -p rail-watch --example perf_gate -- \
+    [--hands 1000000] [--dir PATH] [--keep] [--reuse] [--ev-budget SECONDS] \
+    [--gate] [--json FILE] [--markdown FILE]
+```
+
+The web's reports over a million hands of one user, against a throwaway
+local Supabase stack (never the project's): the corpus through
+`ingest_hands` / `save_hand_stats` / `save_hand_ev` as a user, copied to
+a million, then `stats_summary`, `stats_graph`, `stats_breakdown`,
+`stats_opponents` and `stats_sessions` timed:
+
+```bash
+cd tests
+RAIL_PERF_PSQL='docker exec -i supabase_db_<project> psql -U postgres -d postgres -X -q' \
+  npm run supabase:perf
+```
 
 The core as WebAssembly (since R0.13; the web app switches to it in R4.1),
 and shadow mode - the WASM core next to the TypeScript pipeline over the

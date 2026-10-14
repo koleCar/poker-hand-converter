@@ -27,13 +27,18 @@
 //!   hero's totals by pot type, stack depth, starting hand, players dealt
 //!   in and the street the hand reached, from one pass over `hand_stats`
 //!   and the hero's `seat_stats` row (table order: measured at 500k hands,
-//!   0.3 s, against 3-7 s through `hand_stats_played_idx`). By position,
-//!   stake, room and format they are [`Reader::hero_totals`]' own rows.
+//!   0.3 s, against 3-7 s through `hand_stats_played_idx`), split into
+//!   [`PASS_THREADS`] `id` ranges on as many read connections (R2.9). By
+//!   position, stake, room and format they are [`Reader::hero_totals`]' own
+//!   rows.
+//! - **The warm-up** ([`Reader::warm_up`], R2.9): what the screens read
+//!   first, read once when the app starts so it is in the OS cache.
 //!
 //! The graph and the breakdowns are cached per read connection until the
 //! next commit (`PRAGMA data_version`), as the Hands screen's counts are.
 
 use std::collections::{BTreeMap, HashMap};
+use std::fmt::Write as _;
 use std::sync::Arc;
 
 use rail_equity::EV_VERSION;
@@ -44,7 +49,8 @@ use crate::error::{Error, Result};
 use crate::hand_list::{SegmentDims, allows, segments};
 use crate::read::Reader;
 use crate::stats::{
-    Exclusions, KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, Totals, current_gen, decode_seat,
+    Exclusions, KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, Totals, current_gen,
+    decode_seat_sparse,
 };
 use crate::stats_read::HeroFilter;
 use crate::time::ms_from_iso;
@@ -725,27 +731,127 @@ fn close_session(conn: &Connection, session: OpenSession, pots: Option<usize>) -
     Ok(closed)
 }
 
-/// The breakdowns' pass (see the module header).
-fn breakdown_pass(conn: &Connection, filter: &ReportFilter) -> Result<Breakdowns> {
-    let all = segments(conn)?;
-    let ids = filter.segment_ids(&all);
-    let mut params = vec![Value::Integer(current_gen(conn)?)];
-    let sql = format!(
-        "SELECT d.is_bomb_pot, d.has_straddle, d.has_cashout, d.pot_type, d.player_count,
-                d.street_reached, s.hand_class, s.starting_stack_bb_tenths, s.totals
-         FROM hand_stats d NOT INDEXED
-         CROSS JOIN seat_stats s ON s.hand_id = d.id AND s.is_hero = 1
-         WHERE d.gen = ?1{}",
-        clauses(
-            filter,
-            ids.as_deref(),
-            ("d.played_at", "d.segment_id", "coalesce(s.position, '')"),
-            &mut params,
-        )
-    );
-    let mut sums: [BTreeMap<String, Totals>; 5] = Default::default();
-    let mut stmt = conn.prepare_cached(&sql)?;
+/// The threads a breakdown pass is split over (R2.9), each on a read
+/// connection of the pool: at a million hands one thread took 1.25-1.29 s,
+/// four 0.49-0.54 s (with the bundled SQLite's global page-cache mutex off,
+/// `.cargo/config.toml`), and a cold store's pass 0.9 s instead of 1.8-2.6.
+pub const PASS_THREADS: usize = 4;
+
+/// The connections [`Reader::warm_up`] runs on: three parts and the
+/// breakdowns' [`PASS_THREADS`].
+pub const WARM_UP_CONNECTIONS: usize = PASS_THREADS + 3;
+
+/// A breakdown pass's sums: pot type, stack band, starting hand, players,
+/// street.
+type SituationSums = [BTreeMap<String, Totals>; 5];
+
+/// The breakdowns' pass (see the module header): the hero's seat rows of
+/// `hand_stats` in table order, split into consecutive `id` ranges, one per
+/// connection, each on its own thread, the sums added at the end. The
+/// ranges are read once, so hands imported during the pass (higher ids) are
+/// in no chunk; the result is cached under the data version read before
+/// it, so the next call after any commit computes it again.
+fn breakdown_pass(conns: &mut [&mut Connection], filter: &ReportFilter) -> Result<Breakdowns> {
+    let (sql, params, ranges) = {
+        let conn: &Connection = &*conns[0];
+        let all = segments(conn)?;
+        let ids = filter.segment_ids(&all);
+        // The generation, then the chunk's id bounds (?2, ?3, set per
+        // chunk); the filter's clauses number on from there.
+        let mut params = vec![
+            Value::Integer(current_gen(conn)?),
+            Value::Integer(0),
+            Value::Integer(0),
+        ];
+        let sql = format!(
+            "SELECT d.is_bomb_pot, d.has_straddle, d.has_cashout, d.pot_type, d.player_count,
+                    d.street_reached, s.hand_class, s.starting_stack_bb_tenths, s.totals
+             FROM hand_stats d NOT INDEXED
+             CROSS JOIN seat_stats s ON s.hand_id = d.id AND s.is_hero = 1
+             WHERE d.gen = ?1 AND d.id >= ?2 AND d.id <= ?3{}",
+            clauses(
+                filter,
+                ids.as_deref(),
+                ("d.played_at", "d.segment_id", "coalesce(s.position, '')"),
+                &mut params,
+            )
+        );
+        let bounds: (Option<i64>, Option<i64>) =
+            conn.query_row("SELECT min(id), max(id) FROM hand_stats", [], |row| {
+                Ok((row.get(0)?, row.get(1)?))
+            })?;
+        let (Some(lo), Some(hi)) = bounds else {
+            return Ok(Breakdowns::default());
+        };
+        let parts = i64::try_from(conns.len()).unwrap_or(1).max(1);
+        let span = (hi - lo) / parts + 1;
+        let ranges: Vec<(i64, i64)> = (0..parts)
+            .map(|i| (lo + i * span, (lo + (i + 1) * span - 1).min(hi)))
+            .filter(|(from, to)| from <= to)
+            .collect();
+        (sql, params, ranges)
+    };
+    let chunk = |conn: &Connection, (from, to): (i64, i64)| {
+        let mut params = params.clone();
+        params[1] = Value::Integer(from);
+        params[2] = Value::Integer(to);
+        breakdown_chunk(conn, &sql, params)
+    };
+    let mut parts: Vec<SituationSums> = if ranges.len() <= 1 {
+        ranges
+            .iter()
+            .map(|&range| chunk(&*conns[0], range))
+            .collect::<Result<_>>()?
+    } else {
+        std::thread::scope(|scope| {
+            let handles: Vec<_> = conns
+                .iter_mut()
+                .zip(&ranges)
+                .map(|(conn, &range)| {
+                    let conn: &mut Connection = conn;
+                    let chunk = &chunk;
+                    scope.spawn(move || chunk(&*conn, range))
+                })
+                .collect();
+            handles
+                .into_iter()
+                .map(|handle| {
+                    handle
+                        .join()
+                        .unwrap_or_else(|panic| std::panic::resume_unwind(panic))
+                })
+                .collect::<Result<Vec<_>>>()
+        })?
+    };
+    let mut sums = parts.pop().unwrap_or_default();
+    for part in parts {
+        for (into, from) in sums.iter_mut().zip(part) {
+            for (key, totals) in from {
+                into.entry(key).or_default().add(&totals, true);
+            }
+        }
+    }
+    let [pot_type, stack, hand_class, players, street] = sums.map(|map| {
+        map.into_iter()
+            .map(|(key, totals)| BreakdownRow { key, totals })
+            .collect()
+    });
+    Ok(Breakdowns {
+        pot_type,
+        stack,
+        hand_class,
+        players,
+        street,
+    })
+}
+
+/// One `id` range of the breakdowns' pass.
+fn breakdown_chunk(conn: &Connection, sql: &str, params: Vec<Value>) -> Result<SituationSums> {
+    let mut sums: SituationSums = Default::default();
+    let mut stmt = conn.prepare_cached(sql)?;
     let mut rows = stmt.query(params_from_iter(params))?;
+    let mut players = String::new();
+    let mut values: Vec<(usize, i64)> = Vec::with_capacity(32);
     while let Some(row) = rows.next()? {
         let kind = (if row.get::<_, bool>(0)? {
             KIND_BOMB_POT
@@ -764,30 +870,34 @@ fn breakdown_pass(conn: &Connection, filter: &ReportFilter) -> Result<Breakdowns
         if !counted {
             continue;
         }
-        let values = decode_seat(&row.get::<_, Vec<u8>>(8)?)?;
-        let keys = [
-            row.get::<_, String>(3)?,
-            stack_band(row.get(7)?).to_owned(),
-            row.get::<_, Option<String>>(6)?.unwrap_or_default(),
-            row.get::<_, i64>(4)?.to_string(),
-            row.get::<_, String>(5)?,
+        decode_seat_sparse(
+            row.get_ref(8)?.as_blob().map_err(rusqlite::Error::from)?,
+            &mut values,
+        )?;
+        players.clear();
+        let _ = write!(players, "{}", row.get::<_, i64>(4)?);
+        let keys: [&str; 5] = [
+            row.get_ref(3)?.as_str().map_err(rusqlite::Error::from)?,
+            stack_band(row.get(7)?),
+            row.get_ref(6)?
+                .as_str_or_null()
+                .map_err(rusqlite::Error::from)?
+                .unwrap_or_default(),
+            &players,
+            row.get_ref(5)?.as_str().map_err(rusqlite::Error::from)?,
         ];
+        // The keys are a handful each: look up before allocating one.
         for (map, key) in sums.iter_mut().zip(keys) {
-            map.entry(key).or_default().add_seat(&values, money);
+            if let Some(totals) = map.get_mut(key) {
+                totals.add_sparse(&values, money);
+            } else {
+                map.entry(key.to_owned())
+                    .or_default()
+                    .add_sparse(&values, money);
+            }
         }
     }
-    let [pot_type, stack, hand_class, players, street] = sums.map(|map| {
-        map.into_iter()
-            .map(|(key, totals)| BreakdownRow { key, totals })
-            .collect()
-    });
-    Ok(Breakdowns {
-        pot_type,
-        stack,
-        hand_class,
-        players,
-        street,
-    })
+    Ok(sums)
 }
 
 impl Reader {
@@ -845,14 +955,79 @@ impl Reader {
             .next())
     }
 
+    /// What opening Reports reads: the hero's totals of `filter`
+    /// ([`Reader::hero_totals`]) and its graph ([`Reader::report_graph`]),
+    /// the two at once on two connections (R2.9: at a million hands each
+    /// is ~0.25-0.3 s, one after the other ~0.55 s).
+    pub fn report_open(
+        &self,
+        filter: &ReportFilter,
+        points: u32,
+    ) -> Result<(Vec<crate::stats_read::HeroTotal>, Arc<Graph>)> {
+        std::thread::scope(|scope| {
+            let graph = scope.spawn(|| self.report_graph(filter, points));
+            let totals = self
+                .report_hero_filter(filter)
+                .and_then(|hero| self.hero_totals(&hero));
+            let graph = graph
+                .join()
+                .unwrap_or_else(|panic| std::panic::resume_unwind(panic));
+            Ok((totals?, graph?))
+        })
+    }
+
+    /// Read what the screens read first, so that the OS has it cached
+    /// before the user opens them (R2.9): the store's counts (Today's
+    /// tiles), the latest session, the hero's totals with their EV
+    /// adjustment, the list in time order (the graph), the seat rows of the
+    /// breakdowns and the opponents' summary - every report's filter reads
+    /// the same tables. At a million hands a cold store's first Reports took
+    /// ~4 s, and these tables are ~0.6 GB of its ~4 GB (the PHF is the
+    /// rest, read a hand at a time). The parts run at once, each on a
+    /// connection of its own (the disk serves several reads at a time):
+    /// open the reader with [`WARM_UP_CONNECTIONS`]. The background pass
+    /// runs it once when it starts ([`crate::StatsWorker`]).
+    pub fn warm_up(&self) -> Result<()> {
+        let all = ReportFilter::default();
+        std::thread::scope(|scope| {
+            // The hero's totals: their EV adjustment reads the seat rows of
+            // every all-in hand, at random (~2.4 s of a cold 1M store).
+            let totals = scope.spawn(|| -> Result<()> {
+                self.hero_totals(&self.report_hero_filter(&all)?)?;
+                Ok(())
+            });
+            let graph = scope.spawn(|| -> Result<()> {
+                self.report_graph(&all, 1)?;
+                Ok(())
+            });
+            let today = scope.spawn(|| -> Result<()> {
+                self.status()?;
+                // With its pots: they read the session's `hands` rows.
+                self.latest_session(SESSION_GAP_MINUTES, 5)?;
+                self.player_list(&crate::players::PlayerQuery {
+                    limit: 1,
+                    ..crate::players::PlayerQuery::default()
+                })?;
+                Ok(())
+            });
+            // The breakdowns on the connections left ([`PASS_THREADS`]).
+            let breakdowns = self.report_breakdowns(&all).map(drop);
+            for part in [totals, graph, today] {
+                part.join()
+                    .unwrap_or_else(|panic| std::panic::resume_unwind(panic))?;
+            }
+            breakdowns
+        })
+    }
+
     /// The hero's totals of `filter` by situation; see the module header.
     pub fn report_breakdowns(&self, filter: &ReportFilter) -> Result<Arc<Breakdowns>> {
-        self.with(|conn| {
-            let key = cache_key(conn, format!("{filter:?}"))?;
+        self.with_many(PASS_THREADS, |conns| {
+            let key = cache_key(&*conns[0], format!("{filter:?}"))?;
             if let Some(found) = cache_get(&mut self.report_cache().breakdowns, &key) {
                 return Ok(found);
             }
-            let found = Arc::new(breakdown_pass(conn, filter)?);
+            let found = Arc::new(breakdown_pass(conns, filter)?);
             cache_put(&mut self.report_cache().breakdowns, key, Arc::clone(&found));
             Ok(found)
         })

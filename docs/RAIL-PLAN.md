@@ -215,7 +215,7 @@ a later migration.
 | `hands` | existing; key `(owner_id, hand_key)` with `hand_key = site:hand id` | — |
 | `hand_players` | not added; `hand_stats` has one row per dealt-in seat | — |
 | `players` | new: tags and colours; `player_notes` stays (or is folded in) | R2.7 |
-| `player_stats` | only if R2.9 shows server-side reports need it | R2.9 |
+| `player_stats` | only if R2.9 shows server-side reports need it - **it does** (R2.9 *As built*: the web's reports over 1M hands of one user take 5-44 s; a hero rollup, `player_stats` and a covering index recommended, not built) | R2.9 (measured), R4.x |
 | `hud_layouts` | new; synced so layouts follow the user to a second machine | R3.9 |
 | `unsupported_formats` | extend `unparsed_hands`: `origin` (web/desktop), `os`, `client_version`, `consented_at` | R0.11 |
 
@@ -4910,6 +4910,179 @@ database, on the development Mac and on a mid-range Windows laptop.
   every target in guideline §1; fails on regression.
 - Same measurement against Supabase decides whether `player_stats` is needed
   server-side (§3.5).
+- *As built* (§15): **done** - the 1M benchmark store, the measurements,
+  three fixes, the nightly gate, and the server's numbers (it needs
+  rollups: recommended below, not built). No schema change, no migration,
+  no statistic computed differently.
+  - **Dataset** (`core/rail-watch/examples/import_bench/dataset.rs`, used by
+    the new `perf_gate` example; GENERATED, written to a temporary
+    directory with a `GENERATED.md`, deleted after the import, never under
+    `testdata/` or a fixture tree). The corpus's 431 replicable files
+    copied 137 times with fresh hand ids (R1.6) and fresh villain names
+    (R2.7c's `--rename-players`: 390 templates; the other 41 keep their
+    names in every copy and become the heavy regulars), and new
+    **`--spread`**: copy *c* is played 7 x *c* days earlier - every date in
+    the file moved in the room's own calendar (`2026/02/17`, `2026-02-17`,
+    `2014/3/9`, and where a template needs it `3/9/2014` month or day
+    first, Unix seconds), time of day and weekday kept, checked per
+    template (its first shifted copy must convert to the same hands, each
+    dealt exactly 7 days earlier, give or take a DST hour): 381 templates
+    shift, 50 keep their dates (135 hands a copy). Without it a day held
+    ~140 copies of a corpus day (R2.7b's "50 times a real day"). As
+    stored: **982 408 hands** (59 047 files, 1.23 GB of text), **76 128
+    named opponents** with hands together, the heaviest regular 16 361
+    hands together; hero hands on the day of the median hand **978**, of
+    the 90th-percentile hand 1 650, the busiest day 8 578 (a multi-tabler's
+    day where copies overlap); 5 698 days with hero hands, 2001-2026 (the
+    corpus's fixture files carry old dates); 19 374 sessions.
+  - **`perf_gate`** (`core/rail-watch/examples/perf_gate/`): builds the
+    dataset, measures a reference conversion rate before and after, imports
+    through the real watcher (the backfill), runs the background pass
+    (players' index, then the EV queue, timed; `--ev-budget` stops and
+    extrapolates), the HUD delay (a hand appended to a live table file ->
+    in the store + `hud_totals` of its players; 1 table x 15 hands, then 12
+    tables finishing a hand at the same moment x 8), then every screen's
+    store calls (warm: each first call after a commit with the OS cache
+    warm, and again), then **cold**: the store's pages dropped from the OS
+    cache without `sudo` (Linux `posix_fadvise(DONTNEED)`; macOS: the file
+    rewritten through `F_NOCACHE` and renamed over itself - the flag is the
+    vnode's, so it is cleared again after, or every later read bypasses the
+    cache: the first A/B round was spoiled by exactly that and re-run) and
+    the app's start (open, Today, Reports, a tab, Hands, Players), Reports
+    as the very first screen, and the start as built (the warm-up, then the
+    screens). Times are normalised to the M2 Pro by the reference rate
+    (`--m2-reference 4200`), a smaller dataset scaled to 1M for the passes
+    that read every hand; `--gate` fails on a budget x `--tolerance`
+    (`BUDGETS`: the guideline's 1 s per screen, the plan's 10 ms for the
+    HUD's lookup, regression budgets far under them; cold reads reported,
+    not gated); `--json` / `--markdown` write the report; `--reuse` re-runs
+    the queries on a kept store (how every A/B below was made).
+  - **Results** (owner's M2 Pro, 10 cores / 16 GB; part of the evening
+    another session's test run and Docker shared the machine - noted where
+    it shows; before = `origin/staging`, after = this step; every query
+    number is two interleaved runs or more):
+
+    | Guideline §1 target | Measured on the 1M store | Before | After | |
+    | --- | --- | ---: | ---: | --- |
+    | Install to first HUD < 5 min | needs the HUD (Phase 3) | - | - | not yet measurable |
+    | HUD delay after a hand < 1 s | appended -> in the store + the HUD's lookup, p95, 1 table / 12 at once | 0.52 / 0.56 s | 0.51 / 0.54 s | **met** (max 0.97 s / one hand of 15 at 1.64 s in the final run; 0.5 s of it is the reader's quiet period) |
+    | | the HUD's lookup, 9 players (plan §3.3 < 10 ms) | 0.07 ms (p99 0.09) | 0.07 ms | met |
+    | Local import >= 5 000 hands/s | 1M through the watcher, 8 threads | 12 158 hands/s | 10 061 hands/s* | **met** |
+    | Report over 1M < 1 s | Reports opens (cash / everything), first call after a commit | 0.53-0.57 s | **0.29-0.33 s** | **met** |
+    | | a breakdown tab by situation, first click (everything / cash) | **1.25-1.29 s** | **0.49-0.60 s** | **met** (was not) |
+    | | the same, one stake / the button | 0.68-0.80 s | 0.27-0.37 s | met |
+    | | Reports cold, after a cold Today (pages not cached) | 3.8-4.0 s | 2.5-2.6 s | not met |
+    | | Reports cold as the very first screen | 4.8-5.1 s | 3.4-3.6 s | **not met** (inside the warm-up's first ~1.5 s) |
+    | | after the start's warm-up (1.4-1.6 s in the background): Reports / a tab / Today / Players | - | 0.65 / 0.79-0.86 / 0.36-0.42 / 0.06-0.17 s | **met** |
+    | | Today (latest session, its statistics and pots), first / cold | 0.07-0.38 / 1.39 s | 0.07-0.36 / 0.93-0.98 s | met |
+    | | Hands: first page / the slowest filter / the chip counts | 12-18 / 60 / 250 ms | same | met |
+    | | Players: list after a commit / profile / positions / hands with them, first page / slowest of 55 pages | 61-164 / 0.2 / 18 / 34-110 / 34-41 ms | same | met |
+    | >= 12 tables with a HUD | needs the HUD; the pipeline part is the 12-table delay above | - | - | not yet measurable |
+    | (store) | size; background after the 1M backfill: players' index / EV queue | 3.85 GB (4 108 B a hand); 8.5 s / 26 103 all-ins in 541 s | same | |
+
+    \* the final run shared the machine with another session's tests (load
+    4-7); the interleaved import A/B of the change (300k hands): 3
+    threads 58-59 % -> 59 %, 8 threads 35-36 % -> 35-37 % efficiency
+    (11 641-11 816 -> 11 698-12 140 hands/s) - no difference.
+  - **Fix 1: the breakdowns' pass on four connections.** Profiled at 1M:
+    SQLite's part of the pass (scan `hand_stats`, seek the hero's
+    `seat_stats` row) is 0.52 s of the 1.25 s, Rust's decoding and five
+    sums the rest; summing only a seat's non-zero values
+    (`decode_seat_sparse` + `Totals::add_sparse`, ~7 of 97; unit-tested
+    equal to `add_seat`) saved ~5-8 %. The pass is now split into four
+    `id` ranges, each on a read connection of its own thread
+    (`report::PASS_THREADS`; `Reader::with_many` takes the free
+    connections but leaves one of the pool for other screens; the pool is
+    `PASS_THREADS + 1` = 5, was 4), the sums added at the end.
+  - **Fix 2: the bundled SQLite's global page-cache mutex**
+    (`.cargo/config.toml`, `LIBSQLITE3_FLAGS`). The split pass first ran
+    no faster - each of the four chunks took as long as the whole (~1.0 s):
+    libsqlite3-sys compiles SQLite with `SQLITE_ENABLE_MEMORY_MANAGEMENT`,
+    which puts every connection's page cache in one group behind one global
+    mutex (`pcache1.separateCache = 0`), plus memory statistics (a global
+    mutex per allocation), so a process's read connections take turns on
+    every page. (Four `sqlite3` processes over the same ranges ran 3.3x
+    faster than one.) Both off (`-USQLITE_ENABLE_MEMORY_MANAGEMENT
+    -DSQLITE_DEFAULT_MEMSTATUS=0`; nothing calls `sqlite3_release_memory`
+    or reads the memory statistics): **1.25-1.29 s -> 0.49-0.54 s**, cold
+    1.8-2.6 s -> 0.9-1.0 s; one connection unchanged; the import unchanged
+    (above). Applies to every build in the workspace (CI and `tauri build`
+    included; an existing `LIBSQLITE3_FLAGS` in the environment wins).
+  - **Fix 3: Reports opens with the two passes at once**
+    (`Reader::report_open`: `hero_totals` and the graph on two
+    connections; the app's `build_report` calls it): 0.53-0.57 s ->
+    0.29-0.33 s warm, 3.8-4.0 s -> 2.5-2.6 s cold.
+  - **Fix 4: a warm-up at start** (`Reader::warm_up`, run once by the
+    statistics pass's thread before its first step, on its own
+    `WARM_UP_CONNECTIONS` = 7): the counts, the latest session with its
+    pots, the hero's totals (their EV adjustment reads the seat rows of
+    every all-in hand at random: 2.4 s of a cold 1M store alone), the
+    list in time order, the breakdowns, the opponents' summary - ~0.6 GB of
+    the 3.85 GB file - all at once (a cold NVMe serves parallel reads far
+    faster: 1.4-1.6 s in all, against 6-7 s one after the other). The
+    results stay in the warm-up's own caches; what it buys is the OS cache.
+  - **Not met, left**: a store opened cold and Reports clicked within the
+    warm-up's first ~1.5 s waits 2.5-3.6 s. The rest is the EV
+    adjustment's random reads (`ev_rows` -> `hand_stats` -> the hero's
+    `seat_stats` row): it could come from `hand_list` (net, net in bb,
+    position, segment, kind, date are there; the hero's seat is not - a
+    column and a rebuild), measured first against the import. The R2.7c
+    misses at a real opponent count: the list's first call after a commit
+    58-178 ms (76k opponents; R2.7c's 0.17 s was 371k padded), the players'
+    catch-up after a 1M backfill 8.5 s in the background, every page of a
+    16k-hand regular 34-41 ms a page - no change needed. The HUD delay's
+    one 1.6 s hand in 15 (FSEvents' coalescing or the machine's load) is
+    for R3.x's 12-table test on the simulator.
+  - **Nightly gate** (`.github/workflows/perf-nightly.yml`): `schedule`
+    (01:23 UTC; runs on the default branch, `main`), `workflow_dispatch`
+    (any branch, `hands` input) and on a pull request only when it is
+    labelled `perf` - never on every PR. `ubuntu-latest` (4 vCPU, 16 GB),
+    the full **1M** (disk freed first: ~1.3 GB of text, a ~4 GB store),
+    `--workers $(nproc)`, `--ev-budget 240` (the rest of the EV queue
+    extrapolated and left queued, as the app would show it), `--gate
+    --tolerance 1.5 --min-efficiency 25` (a collapse guard until nightly
+    runs calibrate it; the M2 Pro's 8 threads give 31-37 % at 1M), report
+    as an artifact (JSON + markdown, 30 days) and in the job summary; the
+    generated data is deleted at the end. Times are M2-equivalent (the
+    runner's reference rate / 4 200); the CPU-bound budgets hold on any
+    runner, the HUD delay is absolute, cold reads are reported only.
+    Expected ~30-40 min with the build.
+  - **Supabase** (`tests/scripts/supabase-perf/`, `npm run supabase:perf`;
+    an isolated local stack - a copy of `supabase/` with its own project id
+    and ports 5762x, `.temp/` deleted, stopped and its volumes removed
+    after; Postgres in Docker on the M2 Pro, `shared_buffers` 128 MB). The
+    corpus (7 496 hands) through `register_hand_source` + `ingest_hands`,
+    its statistics rows with villains through `save_hand_stats` (15 hands
+    left out: seats over 24, which `hand_stats_seat_ok` refuses) and
+    `save_hand_ev`, as the user; then copied as `postgres` to **1 004 464
+    hands** (6.0M `hand_stats` rows, 972k hero, 171k opponents; `hands`
+    4.6 GB, `hand_stats` 4.0 GB). Each RPC as the user, first / again:
+
+    | Report | everything | cash |
+    | --- | ---: | ---: |
+    | `stats_summary` | 7.8 / 6.7 s | 5.3 / 5.3 s |
+    | `stats_graph` (60 buckets) | 5.2 / 4.8 s | 7.7 / 8.0 s |
+    | `stats_breakdown` (each of 7 groups) | 7.8-10.4 s | 7.0-8.5 s |
+    | `stats_opponents` (50) | 27.7 / 21.9 s | 43.6 / 41.2 s |
+    | `stats_sessions` | 7.5 / 7.3 s | 8.5 / 5.4 s |
+
+    **Not met, by 5-40x.** Even a bare four-column sum of the hero rows is
+    1.6 s: `hand_stats_hero_idx` does not cover the counters, so it is a
+    parallel scan of the whole 3.3 GB heap (villain rows interleaved).
+    **Recommendation (not built; R4.x or before the web shows desktop
+    libraries):** (1) a hero rollup maintained by `save_hand_stats` (as the
+    desktop's `hero_rollups`: owner, version, the segment's dimensions,
+    position, UTC day, kind, + the counters; for the breakdowns also pot
+    type and players dealt in): a prototype built from these rows (311k
+    rows, 306 MB here) answered the summary in **60 ms** and a month by pot
+    type in 16 ms; (2) **`player_stats`** (owner, version, site, player +
+    the counters) for `stats_opponents`: the top 50 in **0.2-0.6 ms**
+    against 22-44 s - §3.5's "only if R2.9 shows it is needed": it is;
+    (3) for the graph and sessions, which walk the hero's hands in time
+    order, a covering partial index (`(owner_id, stats_version, played_at)
+    include (net, net_bb_milli, wtsd, ...) where is_hero`, 72 MB): an
+    index-only scan of the 972k rows in **110-180 ms** against 5-8 s.
+    `save_hand_stats`' cost with (1)-(2) is to be measured when built.
 
 ### R2.10 Custom statistics — L
 - Core exports per-seat decision events (street, position, facing — unopened,
@@ -5199,3 +5372,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.7c done**: the desktop Players screen. `rail-store` migration 9: `players` + `player_labels` (colour from six, note, labels - the web's `player_notes` limits; local only, sync with the web is R4.x), `player_summary` (per named opponent: hands, first/last seen, hands together and the hero's result in bb, cash and chips apart; summed at import with the rollups), `player_hidden` (opaque-id rows counted, not listed), `player_hands` (an opponent's seat rows by name, written by the background pass after the import - written by the import it cost 5 % of the import's rate, as shipped -1.0 %, gate green); a version-8 store opens in 0.2 s and rebuilds in the background. Opaque-id names are never listed and take no notes (the web's rule; session-scoped notes considered and rejected), the store refuses the write. `rail_store::players`: the list (prefix search in any case, kind, room, colour, label, note; most hands together first; the web's money refusal), a profile (rollups, summary, words), positions from the seat rows; `HandFilter::player` for "hands with this player". At 500k with renamed players (70 948 opponents): the list 0.3-0.4 ms (30 ms first after a commit; 371k padded: 173 ms first, 7 ms), a profile <1 ms, by position 1-12 ms, hands with a player first page 3.5-17.5 ms. `import_bench --rename-players` (per-copy villain names). Commands in `players.rs`; screen with list, filters, profile (statistics with reliability, breakdown by position/stake/table/game, colour radio group, labels, note), Hands' player chip, palette search; `--player-tag-*` tokens over semantic hues; `en` + `hr`. Checked in a browser against a mocked IPC with made-up players. |
 | 2026-10-14 | **Import writer, second pass** (R2.7c "As built"; on R2.7c's PR, whose CI import benchmark failed at 44 % against its 45 % gate). Profiled: the import threads spent ~15 % of their time blocked waiting for their own commits, so at most three batches were ever queued and the writer committed ~5 500 transactions of ~18 hands per 100k (44 pages of 16 KiB each; 3.8 GiB of WAL for a 396 MiB store; commit + auto-checkpoint ~47 % of its busy time). Now: `FileReader::start` queues a one-batch read with the writer (`WriterHandle::queue`) and a committer thread waits for the commits in order and answers the coordinator (a file stays in flight until then; a moved offset still retries as the same look); the writer holds a group of queued batches open for up to 5 ms once a second one is waiting (`GROUP_LINGER`; waited-for batches commit at once); the write connection gets a 16 MiB page cache and a checkpoint every 4 096 pages; migration 10 drops `hands_played_at_idx`, which nothing read. Writer alone (`import_bench --writer-only 4`, new): 51.1 -> 43.6 us a hand. Pipeline, 3 threads, M2 Pro: efficiency 51-52 % -> 59-60 %; CI 55 / 58 / 54 % (best 58 %) with the pipelining alone, 53 / 62 / 54 % (best 62 %) with all of it (was 43 / 41 / 44 %). Not taken (measured): foreign keys off, dropping indexes that have readers, a 20 ms linger. The gate stays at 45 % with 3 threads on the 3-core runner (stricter than the app's cores - 1; documented). No change to what is stored or derived, nor to crash safety. |
 | 2026-10-14 | **R2.8 done**: polish of the desktop screens. **Command palette** complete in `packages/ui` (labelled groups, ↑/↓, Tab and Page keys inside the field, Escape with text typed, matched letters marked, item shortcuts, key hints, live count) with a new fuzzy ranker (`palette/fuzzy.ts`); the app lists screens (Cmd/Ctrl + 1-6), hands, players, reports, saved filters of Hands and Reports (applied to an open screen too), Settings sections (the refused hands among them) and commands (pause/resume import, sync now, theme, density, language), with five recent choices. **Theme and density**: `settings.json` gains `density` and `locale` (`set_density`, `set_locale`); `lib/appearance.ts` paints `data-theme` / `data-density` / `lang` and keeps a copy that `public/appearance.js` applies before the first paint; `packages/ui/tokens/density.css` (app only; `StatTable` falls back to its old values); the Hands list and the Players grid read the row height back from CSS. **i18n**: Croatian complete in the web's register with the shared `plural`, counts passed as numbers, every `Intl` formatter live in the chosen language (en-GB / hr-HR), the tray follows; the app's ESLint rule extended to expression children, conditionals, templates and the app's text props (9 / 9 probes caught, 0 in the app); `tests/test/appI18n.test.ts`. **From R2.7**: the Players table virtualised as a keyboard grid, the profile's own game kind; one loading / empty / error component; selected rows as a tint (the solid plate fell to 1.4:1 in light). **Contrast** (the web's sweep, both themes, five screens): 0 failures beyond the sweep's known exemptions after the fixes, among them the felt's money in light (`--felt-money`, app only). **Web unchanged**: 288 / 288 screenshots, 192 / 192 DOMs, cascades equal but for `--felt-money`; `screens.mjs`'s sheet captures repaired. Checked in a browser against a mocked IPC with made-up data, 2 themes x 2 densities x 2 languages. No core crate changed. |
+| 2026-10-14 | **R2.9 done**: the 1M benchmark store and the performance gate. Dataset: `import_bench/dataset.rs` gains `--spread` (copy *c* played 7 x *c* days earlier, every date moved in the room's calendar, checked per template: 381 of 431 shift) on top of fresh ids and villain names - 982 408 hands stored, 76 128 named opponents, 978 hero hands on the median hand's day (was ~50 real days' worth); generated, deleted, never committed. New `core/rail-watch/examples/perf_gate` (import through the watcher, the background pass, the HUD delay on 1 and 12 live tables, every screen's store calls warm and cold without `sudo`, the start's warm-up; M2-normalised budgets, `--gate`, JSON/markdown). On the M2 Pro at 1M: import 10-12k hands/s, HUD delay p95 0.51-0.56 s, the HUD's lookup 0.07 ms - met; a breakdown tab's first click 1.25-1.29 s -> 0.49-0.60 s and Reports 0.53-0.57 -> 0.29-0.33 s (four-connection breakdowns pass, sparse sums, Reports' two passes at once, and `.cargo/config.toml` turning off the bundled SQLite's global page-cache and memory-statistics mutexes, which made a process's read connections take turns - the import unchanged in an interleaved A/B), the screens after the start's background warm-up (1.4-1.6 s on a cold store) 0.06-0.86 s - met; Reports on a cold store within the warm-up's first ~1.5 s still 2.5-3.6 s (not met; the EV adjustment's random reads, a later `hand_list` column). No schema or statistics change. Nightly workflow `perf-nightly.yml` (cron + dispatch + the `perf` label; full 1M on ubuntu-latest; artifact). Supabase, measured on an isolated local stack: the web's reports over 1M hands of one user take 5-10 s, `stats_opponents` 22-44 s - `player_stats`, a hero rollup and a covering index recommended (prototypes: 0.2-60 ms), not built. |

@@ -484,9 +484,8 @@ pub fn build_report(
     points: u32,
 ) -> Result<ReportDto, String> {
     let display = display()?;
-    let hero = reader.report_hero_filter(filter).map_err(text)?;
-    let totals = reader.hero_totals(&hero).map_err(text)?;
-    let graph = reader.report_graph(filter, points).map_err(text)?;
+    // The totals and the graph at once (R2.9).
+    let (totals, graph) = reader.report_open(filter, points).map_err(text)?;
     let units = &graph.units;
     let segments: BTreeMap<i64, rail_stats::Segment> = reader
         .segments()
