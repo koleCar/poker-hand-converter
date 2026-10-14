@@ -8,9 +8,11 @@
  */
 import { useT } from "../i18n";
 import { ipc, type SyncStatus } from "../lib/ipc";
+import { liveDateFormat, liveNumberFormat } from "../i18n/format";
 import styles from "./SyncPanel.module.css";
 
-const number = new Intl.NumberFormat();
+const number = liveNumberFormat();
+const CLOCK = liveDateFormat({ hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 /** The choices of the upload limit, bytes a second (`null`: none). */
 const CAPS: [key: "slow" | "normal" | "fast" | "none", bytes: number | null][] = [
@@ -21,7 +23,7 @@ const CAPS: [key: "slow" | "normal" | "fast" | "none", bytes: number | null][] =
 ];
 
 function clock(ms: number): string {
-  return new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return CLOCK.format(ms);
 }
 
 function limit(bytes: number): string {

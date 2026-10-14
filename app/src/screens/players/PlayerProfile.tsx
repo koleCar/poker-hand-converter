@@ -11,6 +11,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import type { StatDefinition, StatGroup as DefinitionGroup } from "@rail/ui/model/stats";
 import { StatTable } from "@rail/ui/stats/StatTable";
 
+import { StateMessage } from "../../components/StateMessage";
 import { useLocale, useT } from "../../i18n";
 import {
   PLAYER_COLOURS,
@@ -50,16 +51,21 @@ export function PlayerProfile({
   /** The colour, labels or note changed: the list shows it. */
   onNotes: (notes: PlayerNotes) => void;
 }) {
-  const t = useT().players.profile;
+  const players = useT().players;
+  const t = players.profile;
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const definitions = useStatDefinitions();
   const headingId = useId();
+  // The profile's own game kind (R2.8): the list's until the reader picks
+  // one here, for this player (a new player opens on the list's again).
+  const [ownKind, setOwnKind] = useState<GameKind | null>(null);
+  const shownKind = ownKind ?? kind;
 
   useEffect(() => {
     let current = true;
     ipc
-      .playerProfile(site, player, kind)
+      .playerProfile(site, player, shownKind)
       .then((value) => {
         if (!current) return;
         setProfile(value);
@@ -71,10 +77,11 @@ export function PlayerProfile({
     return () => {
       current = false;
     };
-  }, [site, player, kind]);
+  }, [site, player, shownKind]);
 
+  const kinds: GameKind[] = ["all", "cash", "chips"];
   return (
-    <section className={styles.profile} aria-labelledby={headingId}>
+    <section className={styles.profile} aria-labelledby={headingId} tabIndex={-1}>
       <div className={styles.profileHead}>
         <div>
           <h2 id={headingId} className={styles.profileName}>
@@ -86,16 +93,31 @@ export function PlayerProfile({
           ×
         </button>
       </div>
+      <div className={styles.segmented} role="group" aria-label={t.kind} title={t.kindHint}>
+        {kinds.map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={`chip-btn${shownKind === value ? " is-active" : ""}`}
+            aria-pressed={shownKind === value}
+            onClick={() => setOwnKind(value)}
+          >
+            {players.kinds[value]}
+          </button>
+        ))}
+      </div>
       {error !== null ? (
-        <p className={styles.errorText} role="alert">
+        <StateMessage kind="error" compact>
           {t.failed(error)}
-        </p>
+        </StateMessage>
       ) : profile === null || definitions === null ? (
-        <p className={styles.muted} role="status">
+        <StateMessage kind="loading" compact>
           {t.loading}
-        </p>
+        </StateMessage>
       ) : profile.seen === null ? (
-        <p className={styles.muted}>{t.notOpponent}</p>
+        <StateMessage kind="empty" compact>
+          {t.notOpponent}
+        </StateMessage>
       ) : (
         <Body profile={profile} definitions={definitions} onNotes={onNotes} />
       )}
@@ -122,7 +144,7 @@ function Body({
     <div className={styles.fact}>
       <dt>{label}</dt>
       <dd className={kind.netBbMilli > 0 ? styles.up : kind.netBbMilli < 0 ? styles.down : ""}>
-        {kind.moneyHands === 0 ? t.noHands : t.resultLine(bigBlinds(kind.netBbMilli), count(kind.moneyHands))}
+        {kind.moneyHands === 0 ? t.noHands : t.resultLine(bigBlinds(kind.netBbMilli), kind.moneyHands)}
       </dd>
     </div>
   );
@@ -141,8 +163,8 @@ function Body({
             <span className={styles.muted}>
               {" "}
               {[
-                seen.cash.hands > 0 ? t.togetherCash(count(seen.cash.hands)) : null,
-                seen.chips.hands > 0 ? t.togetherChips(count(seen.chips.hands)) : null,
+                seen.cash.hands > 0 ? t.togetherCash(seen.cash.hands) : null,
+                seen.chips.hands > 0 ? t.togetherChips(seen.chips.hands) : null,
               ]
                 .filter((part) => part !== null)
                 .join(" · ")}
@@ -173,14 +195,14 @@ function Body({
           go("hands");
         }}
       >
-        {t.handsWith(count(together))}
+        {t.handsWith(together)}
       </button>
 
       <Words profile={profile} onNotes={onNotes} />
 
       <div>
         <h3 className={styles.subhead}>{t.stats}</h3>
-        <p className={styles.muted}>{t.sample(count(seen.hands))}</p>
+        <p className={styles.muted}>{t.sample(seen.hands)}</p>
         {profile.mixedKind ? <p className={styles.warning}>{t.mixedKind}</p> : null}
         <div className={styles.statGroups}>
           {DEFINITION_GROUPS.map((group) => (

@@ -1,9 +1,10 @@
 import { useT } from "../i18n";
 import type { Backfill } from "../lib/ipc";
+import { liveNumberFormat } from "../i18n/format";
 import styles from "./BackfillProgress.module.css";
 
-const number = new Intl.NumberFormat();
-const megabytes = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 });
+const number = liveNumberFormat();
+const megabytes = liveNumberFormat({ maximumFractionDigits: 1 });
 
 /** Whole percent of `done` in `total`, 0-100. */
 export function percentOf(done: number, total: number): number {

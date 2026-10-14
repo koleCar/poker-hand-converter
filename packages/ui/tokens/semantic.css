@@ -263,6 +263,14 @@
     --felt-text: #ffffff;
     --felt-text-muted: rgb(255 255 255 / 72%);
 
+    /* Money on the felt: the dark theme's --money-fg, fixed like the rest of
+       the table. The replayer paints stacks and the pot with --money-fg,
+       which the light theme re-points to a gold for light pages (#8e6524),
+       about 1.2:1 on the felt. The desktop app points the felt's --money-fg
+       here in its light theme (R2.8, `app/src/index.css`); the web does not
+       use it yet. */
+    --felt-money: var(--m-200);
+
     /* Playing cards. Prefixed --pcard-* rather than --card-* because
        `.pcard`/`.card` already define local --card-w/--card-r geometry vars and
        a root-level --card-* would be shadowed unpredictably inside them. */

@@ -25,11 +25,19 @@ import { StatTable } from "@rail/ui/stats/StatTable";
 import { StatValue } from "@rail/ui/stats/StatValue";
 import { WinrateGraph, type WinrateGraphMoney } from "@rail/ui/stats/WinrateGraph";
 
+import { StateMessage } from "../components/StateMessage";
 import { useLocale, useT } from "../i18n";
 import { inApp, ipc, type HandFacets, type Report, type StatsStatus, type Units } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
 import { shownOf, statRows, useStatDefinitions } from "../lib/useStatDefinitions";
-import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "./hands/filter";
+import {
+  EMPTY_FILTER,
+  activeGroups,
+  onFilterRequested,
+  takeRequestedFilter,
+  toQuery,
+  type FilterState,
+} from "./hands/filter";
 import { FilterBar, REPORT_GROUPS } from "./hands/FilterBar";
 import { bigBlinds, count, signedMoney, unitOf } from "./hands/format";
 import { Breakdown, isTab, needsBreakdowns, type Tab } from "./reports/Breakdown";
@@ -91,7 +99,12 @@ export function Reports() {
   const param = useRouteParam();
   const tab: Tab = isTab(param) ? param : "position";
   /** The reader's filter; `null` until they set one (this run of the app). */
-  const [chosen, setChosen] = useState<FilterState | null>(lastFilter);
+  const [chosen, setChosen] = useState<FilterState | null>(() => {
+    // A saved filter chosen in the palette (R2.8) replaces the kept one.
+    const handed = takeRequestedFilter("reports");
+    if (handed) lastFilter = handed;
+    return lastFilter;
+  });
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
   // A store with tournaments and cash opens on the format with the most
   // hands (the web's `defaultScope`), and says so: the chips' counts decide.
@@ -104,6 +117,18 @@ export function Reports() {
     lastFilter = next;
     setChosen(next);
   };
+  useEffect(
+    () =>
+      onFilterRequested((target) => {
+        if (target !== "reports") return;
+        const next = takeRequestedFilter("reports");
+        if (next) {
+          lastFilter = next;
+          setChosen(next);
+        }
+      }),
+    [],
+  );
   const query = useMemo(() => toQuery(filter), [filter]);
   // The first report waits for the counts that pick its format.
   const state = useReport(query, chosen !== null || facetsSeen !== null);
@@ -134,15 +159,11 @@ export function Reports() {
 
   let body;
   if (state.error !== null && report === null) {
-    body = <p className={styles.message}>{r.storeError(state.error)}</p>;
+    body = <StateMessage kind="error">{r.storeError(state.error)}</StateMessage>;
   } else if (report === null || definitions === null) {
-    body = (
-      <p className={styles.message} role="status">
-        {r.loading}
-      </p>
-    );
+    body = <StateMessage kind="loading">{r.loading}</StateMessage>;
   } else if (report.summary.hands === 0 && report.graph.hands === 0) {
-    body = <p className={styles.message}>{filtered ? r.noMatch : r.empty}</p>;
+    body = <StateMessage kind="empty">{filtered ? r.noMatch : r.empty}</StateMessage>;
   } else {
     body = (
       <ReportBody
@@ -162,7 +183,7 @@ export function Reports() {
         <h1 className={styles.title}>{t.screens.reports.title}</h1>
         {report ? (
           <span className={styles.count} aria-live="polite">
-            {r.count(count(report.graph.hands))}
+            {r.count(report.graph.hands)}
           </span>
         ) : null}
       </header>
@@ -174,7 +195,7 @@ export function Reports() {
       ) : null}
       {rebuild?.activity === "rebuilding" && rebuild.rebuildTotal !== null ? (
         <p className={styles.notice} role="status">
-          {r.rebuilding(count(rebuild.rebuildDone ?? 0), count(rebuild.rebuildTotal))}
+          {r.rebuilding(rebuild.rebuildDone ?? 0, rebuild.rebuildTotal)}
         </p>
       ) : null}
       {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}
@@ -183,7 +204,7 @@ export function Reports() {
       ) : null}
       {report && report.graph.allInEv.pending > 0 ? (
         <p className={styles.notice} role="status">
-          {r.evPending(count(report.graph.allInEv.pending))}
+          {r.evPending(report.graph.allInEv.pending)}
         </p>
       ) : null}
       {body}

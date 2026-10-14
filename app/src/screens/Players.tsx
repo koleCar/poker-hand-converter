@@ -15,8 +15,9 @@
  * does. The open player is the route, `#/players/<site>:<name>`, which is
  * how the command palette opens one.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import {
   PLAYER_COLOURS,
@@ -99,6 +100,7 @@ export function Players() {
   const [arrivals, setArrivals] = useState(0);
   const [debounced, setDebounced] = useState(query.search);
   const rebuild = useRebuild();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const update = (change: Partial<typeof query>) => {
     const next = { ...query, ...change };
@@ -190,24 +192,29 @@ export function Players() {
     debounced.trim() !== "" || query.site !== null || query.colours.length > 0 || query.labels.length > 0 || query.noted !== null;
   let countLine: string | null = null;
   if (list) {
-    countLine = filtered ? p.countOf(count(list.matching), count(list.players)) : p.count(count(list.players));
+    countLine = filtered ? p.countOf(list.matching, list.players) : p.count(list.players);
   }
 
   let body;
   if (error !== null && list === null) {
-    body = <p className={styles.message}>{p.storeError(error)}</p>;
+    body = <StateMessage kind="error">{p.storeError(error)}</StateMessage>;
   } else if (list === null || list.rows.length === 0) {
-    body = (
-      <p className={styles.message} role="status">
-        {list === null || loading ? p.loading : filtered ? p.noMatch : p.empty}
-      </p>
-    );
+    body =
+      list === null || loading ? (
+        <StateMessage kind="loading">{p.loading}</StateMessage>
+      ) : (
+        <StateMessage kind="empty">{filtered ? p.noMatch : p.empty}</StateMessage>
+      );
   } else {
     body = (
       <PlayerTable
         rows={list.rows}
         selected={selected}
         onSelect={(row) => replaceParam("players", playerParam(row.site, row.player))}
+        onOpen={() =>
+          // Enter on a row: into the profile (rendered by then, or on the next frame).
+          window.requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>("section")?.focus())
+        }
         more={list.matching > list.rows.length && limit < MAX_ROWS}
         onMore={() => setLimit((n) => Math.min(MAX_ROWS, n + PAGE))}
       />
@@ -325,21 +332,21 @@ export function Players() {
         <p className={styles.notice}>{p.defaultKind(p.kinds[defaultKind])}</p>
       ) : null}
       {list?.mixedKind ? <p className={styles.warning}>{p.mixedKind}</p> : null}
-      {list && list.hiddenHands > 0 ? <p className={styles.notice}>{p.hidden(count(list.hiddenHands))}</p> : null}
+      {list && list.hiddenHands > 0 ? <p className={styles.notice}>{p.hidden(list.hiddenHands)}</p> : null}
       {rebuild?.activity === "rebuilding" && rebuild.rebuildTotal !== null ? (
         <p className={styles.notice} role="status">
-          {p.rebuilding(count(rebuild.rebuildDone ?? 0), count(rebuild.rebuildTotal))}
+          {p.rebuilding(rebuild.rebuildDone ?? 0, rebuild.rebuildTotal)}
         </p>
       ) : rebuild && rebuild.playersUnindexed > 0 && rebuild.activity !== "idle" ? (
         <p className={styles.notice} role="status">
-          {p.indexing(count(rebuild.playersUnindexed))}
+          {p.indexing(rebuild.playersUnindexed)}
         </p>
       ) : null}
 
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>
         <div className={styles.list}>{body}</div>
         {selected !== null ? (
-          <div className={styles.panel}>
+          <div className={styles.panel} ref={panelRef}>
             <PlayerProfile
               key={playerParam(selected.site, selected.player)}
               site={selected.site}

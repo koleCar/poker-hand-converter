@@ -6,10 +6,7 @@ import { statsUiHr } from "@rail/ui/strings/stats.hr";
 
 import { en } from "./en";
 import { hr } from "./hr";
-import type { Dict, Locale } from "./types";
-
-/** The language's BCP 47 tag for `Intl`, as the web uses it. */
-export const INTL_LOCALE: Record<Locale, string> = { en: "en-GB", hr: "hr-HR" };
+import { INTL_LOCALE, type Dict, type Locale } from "./types";
 
 /** The package's statistics words in one language (`packages/ui/strings/stats.*.ts`). */
 type StatsUi = typeof statsUiEn | typeof statsUiHr;

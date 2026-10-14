@@ -1,8 +1,12 @@
 //! The few user-facing strings the Rust side shows itself: the tray icon's
 //! tooltip and menu. Everything in the window comes from the web side's
 //! dictionaries (`app/src/i18n/`); these mirror its `tray` keys, and the two
-//! are kept in step by hand until there is a locale setting to pick between
-//! them (Croatian is prepared, not yet selectable).
+//! are kept in step by hand. The language is the settings' `locale` (R2.8):
+//! set at start and by `set_locale`, which relabels the tray at once.
+
+use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::settings::Locale;
 
 /// The tray icon's strings.
 #[derive(Debug, Clone, Copy)]
@@ -171,7 +175,7 @@ pub const TRAY_HR: Tray = Tray {
     account_signed_in: signed_in_hr,
     account_offline: offline_hr,
     account_signing_in: "Prijava u pregledniku…",
-    account_signed_out: "Nisi prijavljen",
+    account_signed_out: "Nema prijave",
     account_offline_only: "Rad bez mreže",
     sync_off: "Sinkronizacija isključena",
     sync_starting: "Sinkronizacija se pokreće…",
@@ -190,9 +194,29 @@ pub const TRAY_HR: Tray = Tray {
     quit: "Zatvori Rail",
 };
 
-/// The strings in use. English until a locale setting exists.
-pub const fn tray() -> &'static Tray {
-    &TRAY_EN
+/// Croatian chosen (`settings.locale`); English otherwise.
+static CROATIAN: AtomicBool = AtomicBool::new(false);
+
+/// Choose the tray's language. The callers relabel what is already drawn.
+pub fn set_locale(locale: Locale) {
+    CROATIAN.store(locale == Locale::Hr, Ordering::Relaxed);
+}
+
+/// The strings in one language.
+pub const fn tray_in(locale: Locale) -> &'static Tray {
+    match locale {
+        Locale::En => &TRAY_EN,
+        Locale::Hr => &TRAY_HR,
+    }
+}
+
+/// The strings in use: the settings' language.
+pub fn tray() -> &'static Tray {
+    tray_in(if CROATIAN.load(Ordering::Relaxed) {
+        Locale::Hr
+    } else {
+        Locale::En
+    })
 }
 
 #[cfg(test)]
@@ -227,5 +251,14 @@ mod tests {
         assert_eq!((TRAY_EN.sync_syncing)(1, 2), "Syncing 1 of 2 hands");
         assert_eq!((TRAY_EN.sync_offline)(1), "Offline · 1 hand waits to sync");
         assert_eq!((TRAY_HR.sync_syncing)(1, 2), "Sinkronizacija: 1 od 2 ruku");
+    }
+
+    #[test]
+    fn the_locale_picks_the_strings() {
+        // `tray()` itself reads a global the other tests leave at English;
+        // the choice it makes is this one.
+        assert_eq!(tray_in(Locale::Hr).quit, "Zatvori Rail");
+        assert_eq!(tray_in(Locale::En).quit, "Quit Rail");
+        assert_eq!(tray().quit, "Quit Rail");
     }
 }

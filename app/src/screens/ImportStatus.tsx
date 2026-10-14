@@ -5,10 +5,11 @@ import { useT } from "../i18n";
 import { errorText, inApp, ipc, type WatchSource } from "../lib/ipc";
 import { screenHref, SETUP } from "../lib/router";
 import { useWatcherStatus } from "../lib/useWatcherStatus";
+import { liveDateFormat, liveNumberFormat } from "../i18n/format";
 import styles from "./ImportStatus.module.css";
 
-const number = new Intl.NumberFormat();
-const time = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "medium" });
+const number = liveNumberFormat();
+const time = liveDateFormat({ dateStyle: "short", timeStyle: "medium" });
 
 /**
  * The watcher (R1.3): its folders, their state and counts, pause / resume,

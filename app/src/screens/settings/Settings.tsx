@@ -1,8 +1,9 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useT } from "../../i18n";
 import { inApp } from "../../lib/ipc";
+import { useRouteParam } from "../../lib/router";
 import { About } from "./About";
 import { Account } from "./Account";
 import { Folders } from "./Folders";
@@ -16,18 +17,50 @@ const DevConvert = import.meta.env.DEV ? lazy(() => import("./DevConvert")) : nu
 // The statistics pass's controls (R2.3), until R2.7's screens.
 const DevStats = import.meta.env.DEV ? lazy(() => import("./DevStats")) : null;
 
+/** A section the command palette can open (`#/settings/<id>`, R2.8). */
+function Anchor({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <div id={`section-${id}`} className={styles.anchor} tabIndex={-1}>
+      {children}
+    </div>
+  );
+}
+
 export function Settings() {
   const t = useT();
+  const section = useRouteParam();
+
+  // Opened on a section (the palette's "Settings: Folders", "Refused
+  // hands"): bring it into view and put focus there, so the keyboard
+  // continues from it.
+  useEffect(() => {
+    if (section === null) return;
+    const frame = window.requestAnimationFrame(() => {
+      const node = document.getElementById(`section-${section}`);
+      node?.scrollIntoView({ block: "start" });
+      node?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [section]);
+
   return (
     <>
       <ScreenHeader title={t.screens.settings.title} lead={t.screens.settings.lead} />
       {inApp ? (
         <div className={styles.sections}>
-          <Account />
-          <Folders />
-          <RefusedAll />
+          <Anchor id="account">
+            <Account />
+          </Anchor>
+          <Anchor id="folders">
+            <Folders />
+          </Anchor>
+          <Anchor id="refused">
+            <RefusedAll />
+          </Anchor>
           <Preferences />
-          <About />
+          <Anchor id="about">
+            <About />
+          </Anchor>
           {DevStats && (
             <Suspense fallback={null}>
               <DevStats />

@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useT } from "../i18n";
 import { errorText, ipc, type RefusedHand, type Retryable } from "../lib/ipc";
 import { RawTextDialog } from "./RawTextDialog";
+import { liveDateFormat } from "../i18n/format";
 import styles from "./RefusedTable.module.css";
 
-const time = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" });
+const time = liveDateFormat({ dateStyle: "short", timeStyle: "short" });
 
 /** The last part of a file's path: the table shows names, the title the whole path. */
 function fileName(path: string): string {

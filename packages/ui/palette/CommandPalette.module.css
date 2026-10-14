@@ -33,9 +33,11 @@
   font-size: var(--font-size-md);
 }
 
+/* The field is the dialog's one stop and always focused: its ring is the
+   accent line under it rather than an outline around the dialog's edge. */
 .input:focus {
   outline: none;
-  box-shadow: none;
+  box-shadow: inset 0 -2px 0 var(--border-focus);
 }
 
 .list {
@@ -56,7 +58,6 @@
 .item {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-4);
   cursor: pointer;
@@ -68,6 +69,7 @@
 }
 
 .label {
+  flex: 1 1 auto;
   min-inline-size: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -83,4 +85,69 @@
 .empty {
   padding: var(--space-4);
   color: var(--text-secondary);
+}
+
+/* The query's matched letters: weight and the accent, not a fill (a fill
+   would fight the active row's). */
+.mark {
+  background: none;
+  color: var(--accent-fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.active .mark {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.keys {
+  display: inline-flex;
+  flex: none;
+  gap: var(--space-0-5);
+}
+
+.kbd {
+  min-inline-size: 1.5em;
+  padding: 0 var(--space-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.busy {
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Read by a screen reader, not drawn. */
+.hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

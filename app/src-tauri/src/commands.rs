@@ -9,7 +9,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Manager, Runtime, State};
 use tauri_plugin_autostart::ManagerExt;
 
-use crate::settings::{Settings, Store, Theme};
+use crate::settings::{Density, Locale, Settings, Store, Theme};
 
 /// The settings store, as app state.
 #[derive(Debug)]
@@ -105,6 +105,39 @@ pub fn set_theme(settings: State<'_, SettingsState>, theme: Theme) -> Result<Set
             .cloned()
             .map_err(|error| error.to_string())
     })
+}
+
+/// Comfortable or compact lists and tables (R2.8).
+#[tauri::command]
+pub fn set_density(
+    settings: State<'_, SettingsState>,
+    density: Density,
+) -> Result<Settings, String> {
+    settings.with(|store| {
+        store
+            .update(|s| s.density = density)
+            .cloned()
+            .map_err(|error| error.to_string())
+    })
+}
+
+/// The language (R2.8): saved, then the tray's words follow at once (the
+/// window switches its own dictionaries).
+#[tauri::command]
+pub fn set_locale<R: Runtime>(
+    app: AppHandle<R>,
+    settings: State<'_, SettingsState>,
+    locale: Locale,
+) -> Result<Settings, String> {
+    let saved = settings.with(|store| {
+        store
+            .update(|s| s.locale = locale)
+            .cloned()
+            .map_err(|error| error.to_string())
+    })?;
+    crate::strings::set_locale(saved.locale);
+    crate::tray::relabel(&app);
+    Ok(saved)
 }
 
 /// The first-run screen was finished or skipped (`true`), or should show

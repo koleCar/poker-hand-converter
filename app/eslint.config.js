@@ -12,6 +12,13 @@ import { defineConfig, globalIgnores } from "eslint/config";
 const NO_BARE_LITERAL =
   "User-facing string literal. Put it in `src/i18n/en.ts` (and `hr.ts`) and reference it through `useT()`.";
 
+/** Attributes whose text is shown or read aloud: the platform's and the app's own components' (R2.8). */
+const SHOWN_ATTRIBUTES =
+  "/^(alt|title|placeholder|aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|label|caption|lead|heading|detail|emptyText|busyText)$/";
+
+/** Two letters in a row: a word, not a sign ("—", "×", "✎", "+"). */
+const WORDS = "/\\p{L}\\p{L}/u";
+
 export default defineConfig([
   globalIgnores(["dist", "src-tauri"]),
   {
@@ -34,6 +41,40 @@ export default defineConfig([
         {
           selector:
             "JSXAttribute[name.name=/^(alt|title|placeholder|aria-label|aria-description|aria-placeholder)$/] > Literal[value=/[\\p{L}\\p{N}]/u]",
+          message: NO_BARE_LITERAL,
+        },
+        // R2.8, the i18n audit: what the two rules above let through.
+        // Text as an expression child (`{"Loading"}`), chosen in place
+        // (`{busy ? "Saving" : label}`, `{error && "Failed"}`) or templated
+        // (`{`${n} hands`}`).
+        {
+          selector: `:matches(JSXElement, JSXFragment) > JSXExpressionContainer > Literal[value=${WORDS}]`,
+          message: NO_BARE_LITERAL,
+        },
+        {
+          selector: `:matches(JSXElement, JSXFragment) > JSXExpressionContainer > :matches(ConditionalExpression, LogicalExpression) > Literal[value=${WORDS}]`,
+          message: NO_BARE_LITERAL,
+        },
+        {
+          selector: `:matches(JSXElement, JSXFragment) > JSXExpressionContainer > TemplateLiteral > TemplateElement[value.raw=${WORDS}]`,
+          message: NO_BARE_LITERAL,
+        },
+        // The same on an attribute that is shown or read aloud, the app's
+        // components' text props included (`label`, `caption`, `emptyText`…).
+        {
+          selector: `JSXAttribute[name.name=${SHOWN_ATTRIBUTES}] > Literal[value=${WORDS}]`,
+          message: NO_BARE_LITERAL,
+        },
+        {
+          selector: `JSXAttribute[name.name=${SHOWN_ATTRIBUTES}] > JSXExpressionContainer > Literal[value=${WORDS}]`,
+          message: NO_BARE_LITERAL,
+        },
+        {
+          selector: `JSXAttribute[name.name=${SHOWN_ATTRIBUTES}] > JSXExpressionContainer > :matches(ConditionalExpression, LogicalExpression) > Literal[value=${WORDS}]`,
+          message: NO_BARE_LITERAL,
+        },
+        {
+          selector: `JSXAttribute[name.name=${SHOWN_ATTRIBUTES}] > JSXExpressionContainer > TemplateLiteral > TemplateElement[value.raw=${WORDS}]`,
           message: NO_BARE_LITERAL,
         },
       ],

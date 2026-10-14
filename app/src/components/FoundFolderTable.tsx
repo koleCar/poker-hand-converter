@@ -1,9 +1,10 @@
 import { useT } from "../i18n";
 import type { FoundFolder } from "../lib/ipc";
+import { liveDateFormat, liveNumberFormat } from "../i18n/format";
 import styles from "./FoundFolderTable.module.css";
 
-const number = new Intl.NumberFormat();
-const day = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+const number = liveNumberFormat();
+const day = liveDateFormat({ dateStyle: "medium" });
 
 /** A row: a folder discovery found, or one picked by hand. */
 export interface FoundRow {

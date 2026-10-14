@@ -31,7 +31,9 @@ pub struct TrayMenu<R: Runtime> {
     status: MenuItem<R>,
     account: MenuItem<R>,
     sync: MenuItem<R>,
+    open: MenuItem<R>,
     pause_import: MenuItem<R>,
+    quit: MenuItem<R>,
 }
 
 // `MenuItem<R>` is `Debug` only for the default runtime.
@@ -41,7 +43,9 @@ impl<R: Runtime> std::fmt::Debug for TrayMenu<R> {
             .field("status", self.status.id())
             .field("account", self.account.id())
             .field("sync", self.sync.id())
+            .field("open", self.open.id())
             .field("pause_import", self.pause_import.id())
+            .field("quit", self.quit.id())
             .finish()
     }
 }
@@ -112,9 +116,35 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         status,
         account,
         sync,
+        open,
         pause_import,
+        quit,
     });
     Ok(())
+}
+
+/// Every line in the language just chosen (R2.8, `commands::set_locale`):
+/// the fixed items and the tooltip here, the status (with "Pause import"),
+/// account and sync lines by their own refreshers.
+pub fn relabel<R: Runtime>(app: &AppHandle<R>) {
+    let text = strings::tray();
+    if let Some(menu) = app.try_state::<TrayMenu<R>>() {
+        for (item, label) in [(&menu.open, text.open), (&menu.quit, text.quit)] {
+            if let Err(error) = item.set_text(label) {
+                log::debug!("tray relabel: {error}");
+            }
+        }
+    }
+    if let Some(tray) = app.tray_by_id(TRAY_ID)
+        && let Err(error) = tray.set_tooltip(Some(text.tooltip))
+    {
+        log::debug!("tray tooltip: {error}");
+    }
+    if let Some(watcher) = app.try_state::<crate::watch::WatcherState>() {
+        crate::watch::refresh_tray(app, &watcher);
+    }
+    crate::account::refresh_tray(app);
+    crate::sync::refresh_tray(app);
 }
 
 /// Replace the status line (R1.3 / R1.6: "Watching 3 folders", "Importing

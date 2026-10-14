@@ -1,9 +1,11 @@
-/* A table of displayed statistics (`StatTable.tsx`). Semantic tokens only. */
+/* A table of displayed statistics (`StatTable.tsx`). Semantic tokens only;
+   the density's where a surface sets them (`tokens/density.css`, R2.8), else
+   the values it was built with. */
 
 .table {
   inline-size: 100%;
   border-collapse: collapse;
-  font-size: var(--font-size-sm);
+  font-size: var(--density-table-font, var(--font-size-sm));
   font-variant-numeric: tabular-nums;
 }
 
@@ -25,7 +27,7 @@
 
 .table th,
 .table td {
-  padding: var(--space-1) var(--space-2);
+  padding: var(--density-cell-block, var(--space-1)) var(--density-cell-inline, var(--space-2));
   border-block-end: 1px solid var(--border-subtle);
 }
 

@@ -8,12 +8,13 @@ import { useAccount } from "../lib/useAccount";
 import { useSync } from "../lib/useSync";
 import { ImportStatus } from "./ImportStatus";
 import { SessionPanel } from "./today/SessionPanel";
+import { liveNumberFormat } from "../i18n/format";
 import styles from "./Today.module.css";
 
 /** How often the counts refresh while the screen is open. */
 const REFRESH_MS = 5000;
 
-const number = new Intl.NumberFormat();
+const number = liveNumberFormat();
 
 /** Today: who is signed in (R1.7) and how sync stands (R1.9), the current
  * session - its result, hands, statistics and biggest pots (R2.7b) - the
@@ -79,7 +80,11 @@ export function Today() {
           {d.heading}
         </h2>
         {!inApp && <p className={styles.muted}>{d.unavailable}</p>}
-        {inApp && failure && <p className={styles.error}>{d.storeError(failure)}</p>}
+        {inApp && failure && (
+          <p className={styles.error} role="alert">
+            {d.storeError(failure)}
+          </p>
+        )}
         {inApp && !failure && !status && <p className={styles.muted}>{d.loading}</p>}
         {status && !status.error && (
           <>

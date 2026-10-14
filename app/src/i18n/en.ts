@@ -10,9 +10,23 @@
  * lint rule in `eslint.config.js` rejects bare JSX text and bare
  * `title` / `aria-label` / `placeholder` / `alt` literals in `src/**`.
  *
+ * Numbers inside a sentence are formatted here (`countIn`), so each language
+ * groups digits its own way and picks the noun's form from the number
+ * (Croatian has three, `plural`); a count is passed as a number, not as text.
+ *
  * The tray menu is drawn by the Rust side, which has its own copy of the
  * `tray` strings (`src-tauri/src/strings.rs`); keep the two in step.
  */
+import { countIn } from "./format";
+
+/** Counts in English digits ("1,204"), whatever the window's language. */
+const n = countIn("en");
+
+/** "1 hand", "1,204 hands". */
+function hands(count: number): string {
+  return count === 1 ? "1 hand" : `${n(count)} hands`;
+}
+
 export const en = {
   brand: {
     name: "Rail",
@@ -26,6 +40,8 @@ export const en = {
     players: "Players",
     hud: "HUD",
     settings: "Settings",
+    search: "Search…",
+    searchLabel: "Search or run a command",
   },
 
   placeholder: "Not built yet.",
@@ -256,11 +272,11 @@ export const en = {
     signedOut: (waiting: number) =>
       waiting === 0
         ? "Sign in to sync. Your hands stay on this computer until then."
-        : `Sign in to sync. ${waiting} hands wait on this computer until then.`,
+        : `Sign in to sync. ${hands(waiting)} wait on this computer until then.`,
     paused: (waiting: number) =>
-      waiting === 0 ? "Sync is paused." : `Sync is paused. ${waiting} hands wait to be sent.`,
-    mismatch: (owner: string, email: string, hands: number) =>
-      `This computer's ${hands} hands were synced to ${owner}. You are now signed in as ${email}.`,
+      waiting === 0 ? "Sync is paused." : `Sync is paused. ${hands(waiting)} wait to be sent.`,
+    mismatch: (owner: string, email: string, count: number) =>
+      `This computer's ${count === 1 ? "hand was" : `${n(count)} hands were`} synced to ${owner}. You are now signed in as ${email}.`,
     mismatchQuestion: (email: string) => `Upload them to ${email} too?`,
     mismatchHint:
       "Uploading copies them into this account's library; nothing is removed anywhere. Until you choose, nothing is sent or fetched.",
@@ -270,21 +286,22 @@ export const en = {
       `Not syncing: this computer's hands stay apart from ${email}. Sign in with the other account to sync again.`,
     uploadInstead: (email: string) => `Upload them to ${email} instead`,
     anotherAccount: "another account",
-    syncing: (sent: number, total: number) => `Syncing ${sent} of ${total} hands.`,
-    speed: (hands: number, kb: number) => `About ${hands} hands a second (${kb} KB/s).`,
+    syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${hands(total)}.`,
+    speed: (perSecond: number, kb: number) => `About ${hands(perSecond)} a second (${n(kb)} KB/s).`,
     capped: (limit: string) => `Upload limited to ${limit} while a large backlog syncs.`,
     upToDate: "Up to date.",
     lastSync: (time: string) => `Last synced ${time}.`,
     offline: (waiting: number) =>
       waiting === 0
         ? "Offline. Rail syncs again by itself when the connection is back."
-        : `Offline. ${waiting} hands wait; Rail sends them by itself when the connection is back.`,
+        : `Offline. ${hands(waiting)} ${waiting === 1 ? "waits" : "wait"}; Rail sends ${waiting === 1 ? "it" : "them"} by itself when the connection is back.`,
     rateLimited: (time: string) => `The account's sync limit is reached for now. Rail continues at ${time}.`,
     failed: (reason: string, time: string) => `Sync ran into a problem: ${reason}. Rail tries again at ${time}.`,
-    retrying: (count: number) => `${count} hands will be tried again shortly.`,
-    pulled: (count: number) => `${count} hands from the web and your other computers were added here.`,
-    pullSkipped: (count: number) => `${count} hands from the web need a newer Rail to open.`,
-    rejectedHeading: (count: number) => `The server refused ${count} hands`,
+    retrying: (count: number) => `${hands(count)} will be tried again shortly.`,
+    pulled: (count: number) =>
+      `${hands(count)} from the web and your other computers ${count === 1 ? "was" : "were"} added here.`,
+    pullSkipped: (count: number) => `${hands(count)} from the web ${count === 1 ? "needs" : "need"} a newer Rail to open.`,
+    rejectedHeading: (count: number) => `The server refused ${hands(count)}`,
     rejectedHint: "Sending them again cannot help. After a Rail update, try again.",
     reasons: {
       shape: "Missing parts of the hand",
@@ -309,8 +326,8 @@ export const en = {
     },
     today: {
       upToDate: "Synced with the web.",
-      syncing: (sent: number, total: number) => `Syncing ${sent} of ${total} hands with the web.`,
-      waiting: (count: number) => `${count} hands wait to sync.`,
+      syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${hands(total)} with the web.`,
+      waiting: (count: number) => `${hands(count)} ${count === 1 ? "waits" : "wait"} to sync.`,
       offline: "Offline: hands sync when the connection is back.",
       paused: "Sync is paused.",
       question: "Sync waits for your answer.",
@@ -442,6 +459,16 @@ export const en = {
       system: "Match the system",
       dark: "Dark",
       light: "Light",
+      density: "Density",
+      densityHint: "How tightly lists and tables are set: row height, spacing and their type size.",
+      comfortable: "Comfortable",
+      compact: "Compact",
+      language: "Language",
+      languageHint: "The window and the tray menu. Numbers and dates follow it.",
+      languages: {
+        en: "English",
+        hr: "Hrvatski",
+      },
     },
 
     startup: {
@@ -455,9 +482,9 @@ export const en = {
       version: "Version",
       core: "Core",
       handFormat: "Hand format",
-      parsers: (count: number) => `${count} parsers`,
+      parsers: (count: number) => (count === 1 ? "1 parser" : `${n(count)} parsers`),
       sites: "Rooms in sites.json",
-      sitesCount: (count: number, version: number) => `${count} (format version ${version})`,
+      sitesCount: (count: number, version: number) => `${n(count)} (format version ${version})`,
       configError: (reason: string) => `sites.json did not load: ${reason}`,
       logs: "Log files",
       settingsFile: "Settings file",
@@ -535,11 +562,11 @@ export const en = {
     loading: "Loading refused hands…",
     loadFailed: (reason: string) => `Could not load the refused hands: ${reason}`,
     none: "No refused hands.",
-    total: (count: number) => (count === 1 ? "1 hand was refused." : `${count} hands were refused.`),
+    total: (count: number) => (count === 1 ? "1 hand was refused." : `${n(count)} hands were refused.`),
     byReason: "By reason",
     pickReason: "Choose a reason to see its hands.",
     ofReason: (reason: string) => `Hands refused as ${reason}`,
-    more: (shown: number, total: number) => `Showing the ${shown} most recent of ${total}.`,
+    more: (shown: number, total: number) => `Showing the ${n(shown)} most recent of ${n(total)}.`,
     reason: "Reason",
     details: "Details",
     file: "File",
@@ -578,10 +605,10 @@ export const en = {
     loading: "Loading hands…",
     empty: "No hands yet. They appear here as Rail imports them from your hand-history folders.",
     noMatch: "No hand matches these filters.",
-    rebuilding: (done: string, total: string) =>
-      `Updating the hand list after an upgrade: ${done} of ${total} hands. The list fills as it goes.`,
-    count: (shown: string) => `${shown} hands`,
-    countOf: (matching: string, total: string) => `${matching} of ${total} hands`,
+    rebuilding: (done: number, total: number) =>
+      `Updating the hand list after an upgrade: ${n(done)} of ${hands(total)}. The list fills as it goes.`,
+    count: (shown: number) => hands(shown),
+    countOf: (matching: number, total: number) => `${n(matching)} of ${hands(total)}`,
     loadingMore: "Loading more…",
     listLabel: "Hands, newest first",
     columns: {
@@ -729,12 +756,12 @@ export const en = {
     loading: "Loading players…",
     empty: "No opponents yet. They appear here as Rail imports hands from rooms that show screen names.",
     noMatch: "No opponent matches.",
-    count: (players: string) => `${players} opponents`,
-    countOf: (matching: string, total: string) => `${matching} of ${total} opponents`,
-    rebuilding: (done: string, total: string) =>
-      `Updating the players after an upgrade: ${done} of ${total} hands. The list fills as it goes.`,
-    indexing: (hands: string) =>
-      `Rail is still sorting the opponents of ${hands} recent hands; until it has, “hands with this player” and the breakdown by position leave those hands out.`,
+    count: (players: number) => (players === 1 ? "1 opponent" : `${n(players)} opponents`),
+    countOf: (matching: number, total: number) => `${n(matching)} of ${n(total)} opponents`,
+    rebuilding: (done: number, total: number) =>
+      `Updating the players after an upgrade: ${n(done)} of ${hands(total)}. The list fills as it goes.`,
+    indexing: (count: number) =>
+      `Rail is still sorting the opponents of ${count === 1 ? "1 recent hand" : `${n(count)} recent hands`}; until it has, “hands with this player” and the breakdown by position leave ${count === 1 ? "it" : "those hands"} out.`,
     search: "Search players",
     searchPlaceholder: "Name starts with…",
     kinds: {
@@ -753,8 +780,8 @@ export const en = {
       `Showing ${kind} only: tournament chips and cash do not add up to one result. Change it with the Game buttons.`,
     mixedKind:
       "These hands mix tournament chips with cash, so your result against each opponent is not shown. Choose Cash or Tournaments.",
-    hidden: (hands: string) =>
-      `${hands} opponents' hands from rooms that hide screen names (such as GGPoker) count in your statistics but are not listed: a name there lasts one session, so it cannot be followed from one session to the next.`,
+    hidden: (count: number) =>
+      `${count === 1 ? "1 opponent's hand" : `${n(count)} opponents' hands`} from rooms that hide screen names (such as GGPoker) count in your statistics but are not listed: a name there lasts one session, so it cannot be followed from one session to the next.`,
     listLabel: "Opponents, most hands together first",
     columns: {
       name: "Player",
@@ -783,19 +810,22 @@ export const en = {
       notOpponent:
         "This name is not an opponent from a room that shows screen names, so it has no profile and takes no notes.",
       together: "Hands together",
-      togetherCash: (hands: string) => `${hands} in cash games`,
-      togetherChips: (hands: string) => `${hands} in tournaments`,
+      togetherCash: (count: number) => `${n(count)} in cash games`,
+      togetherChips: (count: number) => `${n(count)} in tournaments`,
       firstSeen: "First seen",
       lastSeen: "Last seen",
       result: "Your result against them",
       resultCash: "Cash",
       resultChips: "Tournaments",
-      resultLine: (bb: string, hands: string) => `${bb} bb over ${hands} hands`,
+      resultLine: (bb: string, count: number) => `${bb} bb over ${hands(count)}`,
       perHundred: (value: string) => `${value} bb/100`,
       noHands: "No hands",
-      handsWith: (hands: string) => `Hands with this player (${hands})`,
+      handsWith: (count: number) => `Hands with this player (${n(count)})`,
+      kind: "Game",
+      kindHint: "Their numbers in cash games, in tournaments or in both; the list's choice until you pick one here.",
       stats: "Their statistics",
-      sample: (hands: string) => `Over ${hands} of their hands, yours or not.`,
+      sample: (count: number) =>
+        count === 1 ? "Over 1 hand of theirs, yours or not." : `Over ${n(count)} of their hands, yours or not.`,
       statsNote:
         "These are the player's own numbers from every hand of theirs Rail has seen. All-in EV is computed for your hands only and is not shown here. A value fades while its sample is thin; hover it for the sample and its 95% interval.",
       mixedKind:
@@ -837,9 +867,9 @@ export const en = {
     storeError: (reason: string) => `The report did not load: ${reason}`,
     empty: "No hands yet. Reports fill in as Rail imports your hand histories.",
     noMatch: "None of your hands matches these filters.",
-    count: (hands: string) => `${hands} hands`,
-    rebuilding: (done: string, total: string) =>
-      `Updating the statistics after an upgrade: ${done} of ${total} hands. The numbers grow as it goes.`,
+    count: (count: number) => hands(count),
+    rebuilding: (done: number, total: number) =>
+      `Updating the statistics after an upgrade: ${n(done)} of ${hands(total)}. The numbers grow as it goes.`,
     defaultFormat: (format: string) =>
       `Showing ${format} only: tournament chips and cash do not add up to one result. Change it with the Game chip.`,
     summary: {
@@ -856,8 +886,10 @@ export const en = {
       mixedCurrency:
         "These hands span more than one currency, so the money figures are withheld; big blinds add up correctly.",
     },
-    evPending: (hands: string) =>
-      `${hands} all-in hands are still being evaluated in the background; until then the EV line counts them at their result.`,
+    evPending: (count: number) =>
+      count === 1
+        ? "1 all-in hand is still being evaluated in the background; until then the EV line counts it at its result."
+        : `${n(count)} all-in hands are still being evaluated in the background; until then the EV line counts them at their result.`,
     graph: {
       heading: "Winnings",
       unit: "Show in",
@@ -934,28 +966,72 @@ export const en = {
         hands: "Dealt",
       },
       gridLabel: "Starting hands, thirteen by thirteen",
-      cellLabel: (handClass: string, hands: string | null) =>
-        `${handClass}: ${hands === null ? "never dealt" : `${hands} hands`}`,
+      cellLabel: (handClass: string, count: number | null) =>
+        `${handClass}: ${count === null ? "never dealt" : hands(count)}`,
       neverDealt: "never dealt in this sample",
       notHoldem: "The grid is for Hold'em starting hands; these hands have none. The table lists every class.",
       selected: (handClass: string) => `${handClass} in this sample`,
     },
   },
   palette: {
-    label: "Go to",
-    placeholder: "Hand id, player or screen",
-    empty: "Nothing found. Type a hand's number as the room printed it, or the start of a player's name.",
+    label: "Command palette",
+    placeholder: "Hand number, player, screen or command",
+    empty: "Nothing found. Type a hand's number as the room printed it, the start of a player's name, or a command.",
+    results: (count: number) => (count === 0 ? "No results" : count === 1 ? "1 result" : `${n(count)} results`),
+    recent: "Recent",
     screens: "Screens",
     hands: "Hands",
     reports: "Reports",
     report: (name: string) => `Report: ${name}`,
     searching: "Searching…",
     screen: (name: string) => name,
+    goTo: "go to open screen",
     hand: (id: string) => `Hand #${id}`,
     handDetail: (room: string, stakes: string, date: string) => `${room} · ${stakes} · ${date}`,
     players: "Players",
     player: (name: string) => `Player: ${name}`,
-    playerDetail: (room: string, hands: string) => `${room} · ${hands} hands together`,
+    playerDetail: (room: string, count: number) => `${room} · ${hands(count)} together`,
+    savedFilters: "Saved filters",
+    savedFilter: (screen: string, name: string) => `${screen}: ${name}`,
+    savedFilterDetail: "Apply the saved filter",
+    settings: "Settings",
+    section: (name: string) => `Settings: ${name}`,
+    sections: {
+      account: "Account and sync",
+      folders: "Hand-history folders",
+      refused: "Refused hands",
+      appearance: "Appearance and language",
+      startup: "Startup",
+      about: "About",
+    },
+    commands: "Commands",
+    command: {
+      pauseImport: "Pause import",
+      resumeImport: "Resume import",
+      syncNow: "Sync now",
+      themeDark: "Use the dark theme",
+      themeLight: "Use the light theme",
+      themeSystem: "Match the system's theme",
+      compact: "Compact lists and tables",
+      comfortable: "Comfortable lists and tables",
+      language: "Switch to Croatian (Hrvatski)",
+      refused: "Show refused hands",
+      current: "In use",
+    },
+    keywords: {
+      import: "import watch folders pause resume start",
+      sync: "sync upload web send",
+      theme: "theme dark light mode appearance colours",
+      density: "density compact comfortable rows spacing size",
+      language: "language croatian hrvatski english jezik",
+      refused: "refused quarantine errors unreadable",
+      settings: "settings preferences options",
+    },
+    hints: {
+      move: "move",
+      open: "open",
+      close: "close",
+    },
   },
 
   /** The words the shared UI package (`packages/ui`) needs besides the replayer's. */

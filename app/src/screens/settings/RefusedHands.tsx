@@ -3,9 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { RefusedTable, RetryRefused } from "../../components/RefusedTable";
 import { useT } from "../../i18n";
 import { errorText, ipc, type FolderQuarantine } from "../../lib/ipc";
+import { liveNumberFormat } from "../../i18n/format";
 import styles from "./Folders.module.css";
 
-const number = new Intl.NumberFormat();
+const number = liveNumberFormat();
 
 /**
  * One folder's quarantine (guideline §3: "ruke u karanteni"): counts per

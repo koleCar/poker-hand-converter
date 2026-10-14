@@ -1,5 +1,6 @@
 /**
- * The hand list, virtualised: rows have one fixed height, so the list is a
+ * The hand list, virtualised: rows have one fixed height - the density's
+ * `--density-row` (R2.8), read back by `useRowHeight` - so the list is a
  * spacer as tall as every loaded row and only the rows in view (and a few
  * beyond) are in the DOM - a few dozen elements whether 300 or 500 000
  * hands are loaded. Scrolling near the end of what is loaded asks for the
@@ -14,12 +15,11 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type Keyboar
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 
 import { useT } from "../../i18n";
+import { useRowHeight } from "../../lib/appearance";
 import type { HandRow } from "../../lib/ipc";
 import { bigBlinds, playedAt, signedMoney, stakes, unitOf } from "./format";
 import styles from "./HandList.module.css";
 
-/** Every row's height in px (`--row` in the stylesheet). */
-export const ROW_HEIGHT = 40;
 /** Rows rendered above and below the visible ones. */
 const OVERSCAN = 8;
 /** Ask for the next page when the view is this many rows from the end. */
@@ -49,6 +49,7 @@ export function HandList({
   onLoadMore,
 }: HandListProps) {
   const t = useT().hands;
+  const ROW_HEIGHT = useRowHeight();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ top: 0, height: 600 });
   // A row to focus once it is rendered (keyboard moves).
@@ -70,6 +71,17 @@ export function HandList({
     return () => observer.disconnect();
   }, [measure]);
 
+  // Another density: the same row stays at the top of the view.
+  const previousRow = useRef(ROW_HEIGHT);
+  useLayoutEffect(() => {
+    const node = scrollRef.current;
+    if (node && previousRow.current !== ROW_HEIGHT) {
+      node.scrollTop = (node.scrollTop / previousRow.current) * ROW_HEIGHT;
+      previousRow.current = ROW_HEIGHT;
+      measure();
+    }
+  }, [ROW_HEIGHT, measure]);
+
   // A new list (another filter) starts at the top.
   const firstKey = rows[0]?.handKey ?? null;
   const previousFirst = useRef(firstKey);
@@ -81,7 +93,7 @@ export function HandList({
       if (node && node.scrollTop < ROW_HEIGHT) node.scrollTop = 0;
     }
     previousFirst.current = firstKey;
-  }, [firstKey, rows.length]);
+  }, [firstKey, rows.length, ROW_HEIGHT]);
 
   const first = Math.max(0, Math.floor(view.top / ROW_HEIGHT) - OVERSCAN);
   const last = Math.min(rows.length, Math.ceil((view.top + view.height) / ROW_HEIGHT) + OVERSCAN);
@@ -186,6 +198,7 @@ export function HandList({
               key={row.handKey}
               row={row}
               index={index}
+              top={index * ROW_HEIGHT}
               selected={row.handKey === selected}
               tabbable={index === tabbable}
               onSelect={onSelect}
@@ -206,13 +219,15 @@ export function HandList({
 interface RowProps {
   row: HandRow;
   index: number;
+  /** Where the row sits in the spacer, px. */
+  top: number;
   selected: boolean;
   tabbable: boolean;
   onSelect: (handKey: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>, index: number, row: HandRow) => void;
 }
 
-function Row({ row, index, selected, tabbable, onSelect, onKeyDown }: RowProps) {
+function Row({ row, index, top, selected, tabbable, onSelect, onKeyDown }: RowProps) {
   const t = useT().hands;
   const unit = unitOf(row);
   const date = playedAt(row.playedAt);
@@ -231,7 +246,7 @@ function Row({ row, index, selected, tabbable, onSelect, onKeyDown }: RowProps) 
   return (
     <div
       className={`${styles.row} ${selected ? styles.selected : ""}`}
-      style={{ top: index * ROW_HEIGHT }}
+      style={{ top }}
       role="row"
       aria-rowindex={index + 2}
       aria-selected={selected}

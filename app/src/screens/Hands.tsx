@@ -8,12 +8,19 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { inApp, ipc, type HandAnnotations, type HandRow, type StatsStatus } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
-import { EMPTY_FILTER, activeGroups, takeRequestedFilter, toQuery, type FilterState } from "./hands/filter";
+import {
+  EMPTY_FILTER,
+  activeGroups,
+  onFilterRequested,
+  takeRequestedFilter,
+  toQuery,
+  type FilterState,
+} from "./hands/filter";
 import { FilterBar } from "./hands/FilterBar";
-import { count } from "./hands/format";
 import { HandList } from "./hands/HandList";
 import { HandPanel } from "./hands/HandPanel";
 import styles from "./hands/Hands.module.css";
@@ -50,6 +57,16 @@ export function Hands() {
   const selected = useRouteParam();
   // Opened from a player's profile: their hands (R2.7c).
   const [filter, setFilter] = useState<FilterState>(() => takeRequestedFilter() ?? EMPTY_FILTER);
+  // A saved filter chosen in the palette while the screen is open (R2.8).
+  useEffect(
+    () =>
+      onFilterRequested((target) => {
+        if (target !== "hands") return;
+        const next = takeRequestedFilter("hands");
+        if (next) setFilter(next);
+      }),
+    [],
+  );
   // A date preset is resolved when the filter is set ("last 7 days" from now).
   const query = useMemo(() => toQuery(filter), [filter]);
   const list = useHandList(query);
@@ -123,18 +140,18 @@ export function Hands() {
   if (facets) {
     countLine =
       filtered && storeHands !== null
-        ? t.hands.countOf(count(facets.total), count(storeHands))
-        : t.hands.count(count(facets.total));
+        ? t.hands.countOf(facets.total, storeHands)
+        : t.hands.count(facets.total);
   }
 
   let body;
   if (list.error !== null) {
-    body = <p className={styles.message}>{t.hands.storeError(list.error)}</p>;
+    body = <StateMessage kind="error">{t.hands.storeError(list.error)}</StateMessage>;
   } else if (list.rows.length === 0) {
-    body = (
-      <p className={styles.message} role="status">
-        {list.loading ? t.hands.loading : filtered ? t.hands.noMatch : t.hands.empty}
-      </p>
+    body = list.loading ? (
+      <StateMessage kind="loading">{t.hands.loading}</StateMessage>
+    ) : (
+      <StateMessage kind="empty">{filtered ? t.hands.noMatch : t.hands.empty}</StateMessage>
     );
   } else {
     body = (
@@ -164,7 +181,7 @@ export function Hands() {
       <FilterBar filter={filter} facets={facets} onChange={setFilter} />
       {rebuild?.activity === "rebuilding" && rebuild.rebuildTotal !== null ? (
         <p className={styles.notice} role="status">
-          {t.hands.rebuilding(count(rebuild.rebuildDone ?? 0), count(rebuild.rebuildTotal))}
+          {t.hands.rebuilding(rebuild.rebuildDone ?? 0, rebuild.rebuildTotal)}
         </p>
       ) : null}
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>

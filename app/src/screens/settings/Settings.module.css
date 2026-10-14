@@ -126,3 +126,16 @@
   opacity: 0.6;
   cursor: progress;
 }
+
+/* A section the command palette opens (`#/settings/<id>`, R2.8): focused by
+   script so the keyboard continues from it; it takes no ring of its own (the
+   section is the visible target), and it clears the screen's top padding
+   when scrolled to. */
+.anchor {
+  scroll-margin-block-start: var(--space-6);
+}
+
+.anchor:focus,
+.section:focus {
+  outline: none;
+}

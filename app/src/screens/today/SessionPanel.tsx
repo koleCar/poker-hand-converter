@@ -13,11 +13,13 @@ import { useCallback, useEffect, useState } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { StatTable } from "@rail/ui/stats/StatTable";
 
+import { StateMessage } from "../../components/StateMessage";
 import { useLocale, useT } from "../../i18n";
 import { errorText, inApp, ipc, onWatcherChanged, type HandRow, type Session } from "../../lib/ipc";
 import { go, screenHref } from "../../lib/router";
 import { statRows, useStatDefinitions } from "../../lib/useStatDefinitions";
 import { bigBlinds, count, signedMoney, stakes, unitOf } from "../hands/format";
+import { liveDateFormat, liveNumberFormat } from "../../i18n/format";
 import styles from "./SessionPanel.module.css";
 
 /** The session's key statistics, in this order. */
@@ -37,15 +39,15 @@ const KEY_STATS = [
 /** Below this the session is too short for a rate per hour. */
 const MIN_MINUTES_FOR_RATE = 10;
 
-const TIME = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
-const DAY_TIME = new Intl.DateTimeFormat(undefined, {
+const TIME = liveDateFormat({ hour: "2-digit", minute: "2-digit" });
+const DAY_TIME = liveDateFormat({
   weekday: "short",
   day: "numeric",
   month: "short",
   hour: "2-digit",
   minute: "2-digit",
 });
-const BB = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+const BB = liveNumberFormat({ maximumFractionDigits: 1, minimumFractionDigits: 1 });
 
 function minutesBetween(from: string, to: string): number {
   return Math.max(0, Math.round((Date.parse(to) - Date.parse(from)) / 60_000));
@@ -92,11 +94,23 @@ export function SessionPanel() {
   if (!inApp) {
     body = <p className={styles.muted}>{t.today.unavailable}</p>;
   } else if (error !== null) {
-    body = <p className={styles.error}>{d.error(error)}</p>;
+    body = (
+      <StateMessage kind="error" compact>
+        {d.error(error)}
+      </StateMessage>
+    );
   } else if (!loaded) {
-    body = <p className={styles.muted}>{d.loading}</p>;
+    body = (
+      <StateMessage kind="loading" compact>
+        {d.loading}
+      </StateMessage>
+    );
   } else if (session === null) {
-    body = <p className={styles.muted}>{d.none}</p>;
+    body = (
+      <StateMessage kind="empty" compact>
+        {d.none}
+      </StateMessage>
+    );
   } else {
     body = <SessionBody session={session} />;
   }

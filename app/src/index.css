@@ -5,7 +5,9 @@
    Order is load-bearing, as on the web (`frontend/src/index.css`):
    primitives, semantic (the dark default), theme-light (re-points the
    semantic layer under `[data-theme="light"]`, same specificity, so it must
-   come later), motion. Each file declares its own `@layer tokens`.
+   come later), motion, then density (R2.8: comfortable or compact lists and
+   tables under `[data-density]`, the app's only). Each file declares its own
+   `@layer tokens`.
 
    Components use semantic tokens only; `stylelint.config.js` rejects a
    primitive (`--n-800`) or a raw hex anywhere in `src/` (the token layer is
@@ -30,6 +32,7 @@
 @import "@rail/ui/tokens/semantic.css";
 @import "@rail/ui/tokens/theme-light.css";
 @import "@rail/ui/tokens/motion.css";
+@import "@rail/ui/tokens/density.css";
 @import "@rail/ui/cards/cards.css";
 @import "@rail/ui/replayer/replayer.css";
 @import "@rail/ui/styles/controls.css";
@@ -100,6 +103,15 @@ select {
   color: var(--info-on-tint);
   background: color-mix(in srgb, var(--info-fg) 10%, transparent);
   border-color: color-mix(in srgb, var(--info-fg) 32%, transparent);
+}
+
+/* The felt is not themed (`@rail/ui/tokens/semantic.css`), but the replayer
+   paints the stacks and the pot on it with --money-fg, which the light theme
+   re-points for light pages: about 1.2:1 on the felt (R2.8's contrast pass).
+   On the felt the app keeps the dark theme's gold, `--felt-money`, in both
+   themes. */
+:root[data-theme="light"] .rp__felt {
+  --money-fg: var(--felt-money);
 }
 
 /* The Players screen's colour tags (R2.7c): a small fixed palette

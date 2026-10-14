@@ -7,6 +7,7 @@
 import { formatAmount, type CurrencyUnit } from "@rail/ui/model/phf";
 
 import type { HandRow, StakeFacet } from "../../lib/ipc";
+import { liveDateFormat, liveNumberFormat } from "../../i18n/format";
 
 export function unitOf(row: Pick<HandRow, "currency" | "currencySymbol" | "minorUnits">): CurrencyUnit {
   const minorUnits = row.minorUnits || 1;
@@ -49,7 +50,7 @@ export function stakeLabel(facet: StakeFacet): string | null {
   });
 }
 
-const BIG_BLINDS = new Intl.NumberFormat(undefined, {
+const BIG_BLINDS = liveNumberFormat({
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
   signDisplay: "exceptZero",
@@ -60,7 +61,7 @@ export function bigBlinds(milli: number): string {
   return BIG_BLINDS.format(milli / 1000);
 }
 
-const DATE = new Intl.DateTimeFormat(undefined, {
+const DATE = liveDateFormat({
   day: "2-digit",
   month: "2-digit",
   year: "2-digit",
@@ -72,7 +73,7 @@ export function playedAt(iso: string | null): string {
   return iso ? DATE.format(new Date(iso)) : "—";
 }
 
-const COUNT = new Intl.NumberFormat();
+const COUNT = liveNumberFormat();
 
 export function count(n: number): string {
   return COUNT.format(n);

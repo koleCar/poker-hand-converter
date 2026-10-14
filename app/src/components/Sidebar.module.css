@@ -7,9 +7,11 @@
   border-right: 1px solid var(--border-subtle);
 }
 
+/* Large text (20px bold), so the money hue clears 3:1 in both themes (R2.8;
+   at 17px it needed 4.5:1 and had 4.46 in light). */
 .brand {
   padding: 0 var(--space-3);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--money-fg);
@@ -45,4 +47,35 @@
 .active:hover {
   background: var(--surface-selected);
   color: var(--text-on-selected);
+}
+
+/* The command palette's button (R2.8). */
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: start;
+  cursor: pointer;
+}
+
+.search:hover {
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.kbd {
+  flex: none;
+  padding: 0 var(--space-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-1);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
 }
