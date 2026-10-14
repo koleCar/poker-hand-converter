@@ -1,0 +1,51 @@
+/* ===========================================================================
+   DENSITY — how tightly lists and tables are set (R2.8; guideline §6).
+   ===========================================================================
+
+   Two settings, keyed on `data-density` on `<html>` as the theme is keyed on
+   `data-theme`: comfortable (the default, the values the screens were built
+   with) and compact. Only the dimensions that make a list or a table longer
+   or shorter change - a row's height, a cell's padding, the tables' type
+   size and the page's margins; colours, radii, the type scale itself and
+   the replayer do not.
+
+   The desktop app imports this file; the web does not (yet). A component
+   shared with the web reads these with its old value as the fallback
+   (`var(--density-cell-block, var(--space-1))`), so without this file it
+   renders as before.
+
+   A virtualised list positions its rows by `--density-row` and reads the
+   same value back in script when the density changes, so the CSS stays the
+   one place the number lives.
+   =========================================================================== */
+
+@layer tokens {
+  :root {
+    /* A list row (the Hands list, the Players table): fits the xs cards. */
+    --density-row: 40px;
+
+    /* A table cell: statistics tables, breakdowns, the session's pots. */
+    --density-cell-block: var(--space-1);
+    --density-cell-inline: var(--space-2);
+
+    /* A roomier table (the import status, the refused hands). */
+    --density-cell-block-loose: var(--space-2);
+
+    /* The type of lists and tables. */
+    --density-table-font: var(--font-size-sm);
+
+    /* The screen's margins. */
+    --density-page-block: var(--space-8);
+    --density-page-inline: var(--space-10);
+  }
+
+  :root[data-density="compact"] {
+    --density-row: 32px;
+    --density-cell-block: var(--space-0-5);
+    --density-cell-inline: var(--space-2);
+    --density-cell-block-loose: var(--space-1);
+    --density-table-font: var(--font-size-xs);
+    --density-page-block: var(--space-5);
+    --density-page-inline: var(--space-6);
+  }
+}

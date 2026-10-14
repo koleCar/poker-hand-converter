@@ -7,11 +7,20 @@ import type { WinrateGraphBucket, WinrateGraphData } from "@rail/ui/stats/Winrat
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
+import type { Locale } from "../i18n/types";
+
 export type Theme = "system" | "dark" | "light";
+
+/** `settings::Density` (R2.8). */
+export type Density = "comfortable" | "compact";
 
 export interface Settings {
   version: number;
   theme: Theme;
+  /** R2.8: lists and tables. */
+  density: Density;
+  /** R2.8: the window's and the tray's language. */
+  locale: Locale;
   startAtLogin: boolean;
   /** The first-run screen was finished or skipped (R1.4). */
   firstRunDone: boolean;
@@ -672,6 +681,9 @@ export const ipc = {
   appInfo: () => invoke<AppInfo>("app_info"),
   getSettings: () => invoke<Settings>("get_settings"),
   setTheme: (theme: Theme) => invoke<Settings>("set_theme", { theme }),
+  setDensity: (density: Density) => invoke<Settings>("set_density", { density }),
+  /** Also relabels the tray. */
+  setLocale: (locale: Locale) => invoke<Settings>("set_locale", { locale }),
   setStartAtLogin: (enabled: boolean) => invoke<Settings>("set_start_at_login", { enabled }),
   setFirstRunDone: (done: boolean) => invoke<Settings>("set_first_run_done", { done }),
   storeStatus: () => invoke<StoreStatus>("store_status"),

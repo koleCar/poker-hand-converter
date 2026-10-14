@@ -164,27 +164,44 @@ async function capture(base, out) {
     }
   }
 
-  // Two of the replayer's sheets.
-  {
+  // Two of the replayer's sheets. Waited for as open dialogs, not as visible
+  // boxes, and tried up to three times (R2.8: under load a sheet sometimes
+  // missed its first wait on either build; the end's result sheet may not
+  // open at all - closed when it did).
+  for (let attempt = 1; attempt <= 3; attempt++) {
     const { context, page } = await open(1280, 900, "dark");
-    await convert(page, RUN_IT_TWICE);
-    await page.getByRole("button", { name: /^Replay$/ }).first().click();
-    await page.locator(".rp").first().waitFor({ timeout: 60000 });
-    await page.getByRole("button", { name: "Jump to end" }).first().click();
-    // The end opens the result sheet; close it first.
-    await page.locator("dialog.ov[open]").first().waitFor();
-    await page.keyboard.press("Escape");
-    await page.locator("dialog.ov[open]").first().waitFor({ state: "hidden" });
-    await page.getByRole("button", { name: "Hand info" }).first().click();
-    await page.locator("dialog.ov[open]").first().waitFor();
-    await shot(page, "dark-replayer-info-sheet", false);
-    await page.keyboard.press("Escape");
-    await page.locator("dialog.ov[open]").first().waitFor({ state: "hidden" });
-    await page.getByRole("button", { name: "Hand info" }).first().focus();
-    await page.keyboard.press("Shift+Slash");
-    await page.locator("dialog.ov[open]").first().waitFor();
-    await shot(page, "dark-replayer-shortcuts", false);
-    await context.close();
+    const sheet = page.locator("dialog.ov[open]").first();
+    try {
+      await convert(page, RUN_IT_TWICE);
+      await page.getByRole("button", { name: /^Replay$/ }).first().click();
+      await page.locator(".rp").first().waitFor({ timeout: 60000 });
+      await page.getByRole("button", { name: "Jump to end" }).first().click();
+      const resultSheet = await sheet
+        .waitFor({ state: "attached", timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+      if (resultSheet) {
+        await page.keyboard.press("Escape");
+        await sheet.waitFor({ state: "detached" });
+      }
+      await page.getByRole("button", { name: "Hand info" }).first().click();
+      await sheet.waitFor({ state: "attached" });
+      await shot(page, "dark-replayer-info-sheet", false);
+      await page.keyboard.press("Escape");
+      await sheet.waitFor({ state: "detached" });
+      await page.getByRole("button", { name: "Hand info" }).first().focus();
+      // The closed sheet hands focus back a moment later; "?" before that is lost.
+      await page.waitForTimeout(500);
+      await page.keyboard.press("Shift+Slash");
+      await sheet.waitFor({ state: "attached" });
+      await shot(page, "dark-replayer-shortcuts", false);
+      await context.close();
+      break;
+    } catch (error) {
+      await context.close();
+      if (attempt === 3) throw error;
+      console.log(`sheets: attempt ${attempt} failed (${String(error).split("\n")[0]}), again`);
+    }
   }
 
   await browser.close();

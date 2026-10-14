@@ -1,6 +1,48 @@
+/**
+ * Croatian (R2.8: chosen in Settings, Appearance). The web's register: the
+ * reader is "ti", and sentences avoid the past tense of the second person,
+ * which would need the reader's gender ("Prijava: ..." rather than
+ * "Prijavljen si ..."). A count picks its noun's form with the shared
+ * `plural` (one / few / many: 1 ruka, 2 ruke, 5 ruku) and is grouped the
+ * Croatian way (`countIn`: 1.204). Poker's own words (pot, stack, showdown,
+ * all-in, board) stay as Croatian players say them, as on the web.
+ */
+import { plural } from "@rail/ui/strings/plural";
+
+import { countIn } from "./format";
 import type { Dict } from "./types";
 
-/** Croatian. Prepared, not yet selectable - see `types.ts`. */
+/** Counts in Croatian digits ("1.204"), whatever the window's language. */
+const n = countIn("hr");
+
+/** After a number: 1 ruka, 2 ruke, 5 ruku. */
+function ruku(count: number): string {
+  return `${n(count)} ${plural(count, "ruka", "ruke", "ruku")}`;
+}
+
+/** After "od", "iz": od 1 ruke, od 2 ruke, od 5 ruku. */
+function odRuku(count: number): string {
+  return `${n(count)} ${plural(count, "ruke", "ruke", "ruku")}`;
+}
+
+/** As an object (kroz, za, odbio je): 1 ruku, 2 ruke, 5 ruku. */
+function rukuAcc(count: number): string {
+  return `${n(count)} ${plural(count, "ruku", "ruke", "ruku")}`;
+}
+
+function mapa(count: number): string {
+  return `${n(count)} ${plural(count, "mapu", "mape", "mapa")}`;
+}
+
+function datoteka(count: number): string {
+  return `${n(count)} ${plural(count, "datoteka", "datoteke", "datoteka")}`;
+}
+
+/** The sentence's first letter in capitals. */
+function cap(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 export const hr: Dict = {
   brand: {
     name: "Rail",
@@ -14,6 +56,8 @@ export const hr: Dict = {
     players: "Igrači",
     hud: "HUD",
     settings: "Postavke",
+    search: "Traži…",
+    searchLabel: "Traži ili pokreni naredbu",
   },
 
   placeholder: "Još nije napravljeno.",
@@ -21,7 +65,7 @@ export const hr: Dict = {
   screens: {
     today: {
       title: "Danas",
-      lead: "Trenutna sesija: rezultat, broj ruku i status uvoza.",
+      lead: "Tvoja trenutna sesija: rezultat, odigrane ruke i stanje uvoza.",
     },
     hands: {
       title: "Ruke",
@@ -74,14 +118,14 @@ export const hr: Dict = {
       duration: (minutes) =>
         minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`,
       rule: (minutes) =>
-        `Sesija je niz ruku bez stanke dulje od ${minutes} minuta, preko svih stolova.`,
+        `Sesija je niz ruku bez stanke dulje od ${minutes} ${plural(minutes, "minute", "minute", "minuta")}, preko svih stolova.`,
       result: "Rezultat",
       resultBb: "U big blindovima",
       hands: "Ruke",
       perHour: "Ruku na sat",
       tables: "Stolovi",
       perHourTitle: "Kroz dosadašnje trajanje sesije",
-      mixedKind: "Ova sesija miješa turnirske čipove i cash, pa nema rezultata koji bi se mogao zbrojiti.",
+      mixedKind: "Ova sesija miješa turnirske žetone i cash, pa nema rezultata koji bi se mogao zbrojiti.",
       mixedCurrency: "Ova sesija obuhvaća više valuta: rezultat je samo u big blindovima.",
       stats: "Statistika sesije",
       statsNote: "Bomb potovi nisu u statistici, kao ni drugdje; rezultat ih uključuje.",
@@ -89,7 +133,7 @@ export const hr: Dict = {
       potsNote: "U big blindovima. Otvori ruku u Rukama.",
       potColumns: {
         time: "Vrijeme",
-        stakes: "Limit",
+        stakes: "Ulozi",
         cards: "Karte",
         pot: "Pot",
         result: "Rezultat",
@@ -103,7 +147,7 @@ export const hr: Dict = {
   watch: {
     heading: "Uvoz",
     loading: "Učitavanje…",
-    unavailable: "Status uvoza dostupan je samo unutar aplikacije Rail.",
+    unavailable: "Stanje uvoza dostupno je samo unutar aplikacije Rail.",
     notRunning: (reason) => `Uvoz nije pokrenut: ${reason}`,
     running: "Rail čita nove ruke iz ovih mapa čim ih soba zapiše.",
     paused: "Uvoz je pauziran. Promjene se bilježe i čitaju kad ga nastaviš.",
@@ -126,9 +170,9 @@ export const hr: Dict = {
       error: "Ne može se čitati",
       disabled: "Isključena",
     },
-    quarantined: (count) => `odbijeno: ${count}`,
-    fileErrors: (count) => `nečitljivo: ${count}`,
-    pending: (count) => `čeka kraj ruke: ${count}`,
+    quarantined: (count) => `${n(count)} ${plural(count, "odbijena", "odbijene", "odbijenih")}`,
+    fileErrors: (count) => `${n(count)} ${plural(count, "nečitljiva", "nečitljive", "nečitljivih")}`,
+    pending: (count) => `${n(count)} ${plural(count, "čeka", "čekaju", "čeka")} kraj ruke`,
   },
 
   foundFolders: {
@@ -141,20 +185,20 @@ export const hr: Dict = {
     noFiles: "Još nema",
     unknown: "Nepoznato",
     watched: "Već se prati",
-    manual: "Dodali ste vi",
+    manual: "Dodana ručno",
     unverified: "Ova zadana mapa još nije potvrđena na stvarnoj instalaciji.",
     notThisRoom: "Najnovije datoteke ovdje ne izgledaju kao ruke ove sobe.",
   },
 
   importChoice: {
     importAll: "Uvezi sve",
-    importAllHint: "Sve ruke koje su već tu, a zatim svaku novu dok igrate.",
+    importAllHint: "Sve ruke koje su već tu, a zatim svaku novu dok igraš.",
     onlyNew: "Samo nove ruke",
     onlyNewHint: "Ono što je sada tu ostaje; uvoze se samo ruke odigrane od sada.",
   },
 
   firstRun: {
-    title: "Dobro došli u Rail",
+    title: "Dobrodošlica u Rail",
     lead: "Tri koraka do prvog HUD-a: prijava, potvrda mapa s rukama, otvaranje stola.",
     unavailable: "Postavljanje je dostupno samo unutar aplikacije Rail.",
     skip: "Preskoči zasad",
@@ -162,32 +206,32 @@ export const hr: Dict = {
     signIn: {
       heading: "1. Prijava",
       useOffline: "Koristi bez računa",
-      offlineChosen: "Rail radi bez računa. Prijaviti se možete bilo kada u Postavkama, Račun.",
+      offlineChosen: "Rail radi bez računa. Prijaviti se možeš bilo kada u Postavkama, Račun.",
     },
 
     folders: {
-      heading: "2. Potvrdite mape s rukama",
-      searching: "Tražimo mape vaših poker soba…",
-      found: (count) => `Rail je na ovom računalu pronašao mapa: ${count}.`,
-      lead: "Odznačite mapu koju ne želite. Kasnije to možete promijeniti u Postavkama.",
+      heading: "2. Potvrdi mape s rukama",
+      searching: "Tražim mape tvojih poker soba…",
+      found: (count) => `Rail je na ovom računalu pronašao ${mapa(count)}.`,
+      lead: "Odznači mapu koju ne želiš. Kasnije to možeš promijeniti u Postavkama.",
       empty: "Rail na ovom računalu nije pronašao nijednu mapu s rukama.",
       lookedFor: (rooms) => `Tražio je u zadanim mapama ovih soba: ${rooms}.`,
       noRooms: "Za ovaj sustav još nije poznata zadana mapa nijedne poker sobe.",
       verifying:
-        "Zadane mape svake sobe provjeravamo na stvarnim instalacijama, pa ovaj popis raste s novim verzijama. Ako vaša soba sprema ruke negdje drugdje, dodajte mapu sami.",
+        "Zadane mape svake sobe provjeravamo na stvarnim instalacijama, pa ovaj popis raste s novim verzijama. Ako tvoja soba sprema ruke negdje drugdje, dodaj mapu sam.",
       addManually: "Ručno dodaj mapu…",
       choosing: "Odabir…",
       existingHeading: "Ruke koje su već u ovim mapama",
-      confirm: (count) => `Prati mape: ${count}`,
+      confirm: (count) => `Prati ${mapa(count)}`,
       adding: "Dodavanje…",
-      added: (count) => `Rail prati mapa: ${count}.`,
+      added: (count) => `Rail prati ${mapa(count)}.`,
       discoverFailed: (reason) => `Traženje mapa nije uspjelo: ${reason}`,
       addFailed: (reason) => `Mape nisu dodane: ${reason}`,
     },
 
     table: {
-      heading: "3. Otvorite stol",
-      body: "Igrajte kao i inače. Rail čita svaku ruku čim je soba zapiše, a ekran Danas pokazuje kako stižu.",
+      heading: "3. Otvori stol",
+      body: "Igraj kao i inače. Rail čita svaku ruku čim je soba zapiše, a ekran Danas pokazuje kako stižu.",
       done: "Idi na Danas",
     },
   },
@@ -197,33 +241,33 @@ export const hr: Dict = {
     loading: "Učitavanje…",
     notConfigured: "Ova verzija Raila nema uslugu računa. Sve radi na ovom računalu; ništa se ne sinkronizira.",
     signedOut:
-      "Prijavite se da vam ruke budu usklađene s webom. Rail otvara stranicu za prijavu u pregledniku, gdje upravitelj lozinki i prijava Googleom rade kao inače.",
-    signIn: "Prijavite se u pregledniku",
-    waiting: (time: string) => `Dovršite prijavu u pregledniku (još ${time}).`,
-    waitingHint: "Već ste prijavljeni na webu? Potvrdite ondje gumbom Prijavi Rail.",
+      "Prijavi se da ti ruke budu usklađene s webom. Rail otvara stranicu za prijavu u pregledniku, gdje upravitelj lozinki i prijava Googleom rade kao inače.",
+    signIn: "Prijavi se u pregledniku",
+    waiting: (time: string) => `Dovrši prijavu u pregledniku (još ${time}).`,
+    waitingHint: "Već si prijavljen na webu? Potvrdi ondje gumbom Prijavi Rail.",
     openAgain: "Ponovno otvori stranicu",
     cancel: "Odustani",
-    signedInAs: (email: string) => `Prijavljeni ste kao ${email}`,
+    signedInAs: (email: string) => `Prijava: ${email}`,
     online: "Povezano.",
     offline: "Izvan mreže. Rail radi dalje i sam se ponovno povezuje.",
     signOut: "Odjava",
-    notSignedIn: "Niste prijavljeni: ruke ostaju na ovom računalu.",
+    notSignedIn: "Nema prijave: ruke ostaju na ovom računalu.",
     signingInShort: "Prijava u pregledniku…",
     signingOut: "Odjavljivanje…",
     failed: (reason: string) => `Nije uspjelo: ${reason}`,
     notices: {
       cancelled: "Prijava je otkazana u pregledniku.",
-      timedOut: "Prijava je trajala dulje od deset minuta. Pokušajte ponovno.",
-      notInProgress: "Taj link za prijavu bio je za raniji pokušaj ili je Rail u međuvremenu ponovno pokrenut. Pokušajte ponovno.",
-      invalidLink: "Taj link za prijavu nije valjan. Pokušajte ponovno.",
-      linkRejected: "Ta prijava je istekla ili je već iskorištena. Pokušajte ponovno.",
-      offline: "Rail nije mogao doći do poslužitelja da dovrši prijavu. Provjerite vezu i pokušajte ponovno.",
+      timedOut: "Prijava je trajala dulje od deset minuta. Pokušaj ponovno.",
+      notInProgress: "Taj link za prijavu bio je za raniji pokušaj ili je Rail u međuvremenu ponovno pokrenut. Pokušaj ponovno.",
+      invalidLink: "Taj link za prijavu nije valjan. Pokušaj ponovno.",
+      linkRejected: "Ta prijava je istekla ili je već iskorištena. Pokušaj ponovno.",
+      offline: "Rail nije mogao doći do poslužitelja da dovrši prijavu. Provjeri vezu i pokušaj ponovno.",
       sessionEnded:
-        "Odjavljeni ste: sesija je završena na poslužitelju (npr. nakon promjene lozinke). Prijavite se ponovno.",
+        "Odjava: sesija je završena na poslužitelju (npr. nakon promjene lozinke). Prijavi se ponovno.",
       keychainUnavailable:
         "Rail ne može koristiti sistemski spremnik ključeva, pa će nakon ponovnog pokretanja tražiti prijavu.",
-      signedOutLocally: "Odjavljeni ste na ovom računalu. Rail nije mogao doći do poslužitelja da ondje završi sesiju.",
-      browserFailed: "Rail nije mogao otvoriti preglednik. Upotrijebite Ponovno otvori stranicu.",
+      signedOutLocally: "Odjava na ovom računalu je izvršena. Rail nije mogao doći do poslužitelja da ondje završi sesiju.",
+      browserFailed: "Rail nije mogao otvoriti preglednik. Upotrijebi Ponovno otvori stranicu.",
     },
   },
 
@@ -234,37 +278,41 @@ export const hr: Dict = {
     starting: "Pokretanje…",
     signedOut: (waiting) =>
       waiting === 0
-        ? "Prijavite se za sinkronizaciju. Do tada ruke ostaju na ovom računalu."
-        : `Prijavite se za sinkronizaciju. Do tada na ovom računalu čeka ruku: ${waiting}.`,
+        ? "Prijavi se za sinkronizaciju. Do tada ruke ostaju na ovom računalu."
+        : `Prijavi se za sinkronizaciju. Do tada na ovom računalu ${plural(waiting, "čeka", "čekaju", "čeka")} ${ruku(waiting)}.`,
     paused: (waiting) =>
-      waiting === 0 ? "Sinkronizacija je pauzirana." : `Sinkronizacija je pauzirana. Ruku za slanje: ${waiting}.`,
-    mismatch: (owner, email, hands) =>
-      `Ruke s ovog računala (${hands}) sinkronizirane su na ${owner}. Sada ste prijavljeni kao ${email}.`,
+      waiting === 0
+        ? "Sinkronizacija je pauzirana."
+        : `Sinkronizacija je pauzirana. Slanje ${plural(waiting, "čeka", "čekaju", "čeka")} ${ruku(waiting)}.`,
+    mismatch: (owner, email, count) =>
+      `${cap(ruku(count))} s ovog računala ${plural(count, "sinkronizirana je", "sinkronizirane su", "sinkronizirano je")} na ${owner}. Sada je prijavljen račun ${email}.`,
     mismatchQuestion: (email) => `Prenijeti ih i na ${email}?`,
     mismatchHint:
-      "Prijenos ih kopira u knjižnicu ovog računa; ništa se nigdje ne briše. Dok ne odaberete, ništa se ne šalje ni ne preuzima.",
+      "Prijenos ih kopira u knjižnicu ovog računa; ništa se nigdje ne briše. Dok ne odabereš, ništa se ne šalje ni ne preuzima.",
     upload: (email) => `Prenesi na ${email}`,
     keepApart: "Drži ih odvojeno",
     declined: (email) =>
-      `Bez sinkronizacije: ruke s ovog računala ostaju odvojene od ${email}. Prijavite se drugim računom za nastavak.`,
+      `Bez sinkronizacije: ruke s ovog računala ostaju odvojene od ${email}. Prijavi se drugim računom za nastavak.`,
     uploadInstead: (email) => `Ipak ih prenesi na ${email}`,
     anotherAccount: "drugi račun",
-    syncing: (sent, total) => `Sinkronizacija: ${sent} od ${total} ruku.`,
-    speed: (hands, kb) => `Oko ${hands} ruku u sekundi (${kb} KB/s).`,
+    syncing: (sent, total) => `Sinkronizacija: ${n(sent)} od ${odRuku(total)}.`,
+    speed: (perSecond, kb) => `Oko ${ruku(perSecond)} u sekundi (${n(kb)} KB/s).`,
     capped: (limit) => `Slanje je ograničeno na ${limit} dok se sinkronizira velik zaostatak.`,
     upToDate: "Sve je sinkronizirano.",
     lastSync: (time) => `Zadnja sinkronizacija: ${time}.`,
     offline: (waiting) =>
       waiting === 0
         ? "Izvan mreže. Rail sam nastavlja kad se veza vrati."
-        : `Izvan mreže. Ruku na čekanju: ${waiting}; Rail ih sam šalje kad se veza vrati.`,
+        : `Izvan mreže. ${cap(ruku(waiting))} ${plural(waiting, "čeka", "čekaju", "čeka")}; Rail ${plural(waiting, "je", "ih", "ih")} sam šalje kad se veza vrati.`,
     rateLimited: (time) => `Ograničenje sinkronizacije računa trenutno je dosegnuto. Rail nastavlja u ${time}.`,
     failed: (reason, time) => `Problem sa sinkronizacijom: ${reason}. Rail pokušava ponovno u ${time}.`,
-    retrying: (count) => `Ruke koje se uskoro ponovno šalju: ${count}.`,
-    pulled: (count) => `S weba i drugih računala dodano je ruku: ${count}.`,
-    pullSkipped: (count) => `Ruke s weba za koje treba novija verzija Raila: ${count}.`,
-    rejectedHeading: (count) => `Poslužitelj je odbio ruku: ${count}`,
-    rejectedHint: "Ponovno slanje ne pomaže. Nakon nadogradnje Raila pokušajte ponovno.",
+    retrying: (count) => `${cap(ruku(count))} ${plural(count, "šalje", "šalju", "šalje")} se uskoro ponovno.`,
+    pulled: (count) =>
+      `S weba i s tvojih drugih računala ${plural(count, "dodana je", "dodane su", "dodano je")} ${ruku(count)}.`,
+    pullSkipped: (count) =>
+      `${cap(ruku(count))} s weba ${plural(count, "treba", "trebaju", "treba")} noviju verziju Raila.`,
+    rejectedHeading: (count) => `Poslužitelj je odbio ${rukuAcc(count)}`,
+    rejectedHint: "Ponovno slanje ne pomaže. Nakon nadogradnje Raila pokušaj ponovno.",
     reasons: {
       shape: "Nedostaju dijelovi ruke",
       schema: "Nepoznata verzija formata",
@@ -288,11 +336,11 @@ export const hr: Dict = {
     },
     today: {
       upToDate: "Sinkronizirano s webom.",
-      syncing: (sent, total) => `Sinkronizacija s webom: ${sent} od ${total} ruku.`,
-      waiting: (count) => `Ruku koje čekaju sinkronizaciju: ${count}.`,
+      syncing: (sent, total) => `Sinkronizacija s webom: ${n(sent)} od ${odRuku(total)}.`,
+      waiting: (count) => `${cap(ruku(count))} ${plural(count, "čeka", "čekaju", "čeka")} sinkronizaciju.`,
       offline: "Izvan mreže: ruke se sinkroniziraju kad se veza vrati.",
       paused: "Sinkronizacija je pauzirana.",
-      question: "Sinkronizacija čeka vaš odgovor.",
+      question: "Sinkronizacija čeka tvoj odgovor.",
       problem: "Sinkronizacija ima problem.",
       details: "Postavke sinkronizacije",
     },
@@ -306,11 +354,11 @@ export const hr: Dict = {
 
     folders: {
       heading: "Mape s rukama",
-      body: "Rail čita nove ruke iz ovih mapa čim ih vaše poker sobe zapišu.",
+      body: "Rail čita nove ruke iz ovih mapa čim ih tvoje poker sobe zapišu.",
       loading: "Učitavanje mapa…",
       notRunning: (reason) => `Uvoz nije pokrenut: ${reason}`,
       loadFailed: (reason) => `Mape se nisu učitale: ${reason}`,
-      empty: "Još se ne prati nijedna mapa. Dodajte je ili pustite Rail da potraži mape vaših poker soba.",
+      empty: "Još se ne prati nijedna mapa. Dodaj je ili pusti Rail da potraži mape tvojih poker soba.",
       add: "Dodaj mapu…",
       choosing: "Odabir…",
       findAgain: "Ponovno potraži mape",
@@ -319,24 +367,25 @@ export const hr: Dict = {
 
       search: {
         heading: "Mape koje je Rail pronašao",
-        searching: "Tražimo mape vaših poker soba…",
+        searching: "Tražim mape tvojih poker soba…",
         failed: (reason) => `Traženje mapa nije uspjelo: ${reason}`,
         noneNew: "Nema novih mapa: svaka mapa koju Rail poznaje već se prati.",
-        found: (count) => `Rail je pronašao mapa koje se još ne prate: ${count}.`,
+        found: (count) =>
+          `Rail je pronašao ${n(count)} ${plural(count, "mapu koja se još ne prati", "mape koje se još ne prate", "mapa koje se još ne prate")}.`,
         existingHeading: "Ruke koje su već u ovim mapama",
-        confirm: (count) => `Prati mape: ${count}`,
+        confirm: (count) => `Prati ${mapa(count)}`,
         adding: "Dodavanje…",
-        added: (count) => `Rail sada prati još mapa: ${count}.`,
+        added: (count) => `Rail sada prati još ${mapa(count)}.`,
         close: "Zatvori",
       },
 
       room: "Soba",
       roomFound: (name) => `${name} (pronašao Rail)`,
-      roomChosen: (name) => `${name} (odabrali ste vi)`,
+      roomChosen: (name) => `${name} (tvoj odabir)`,
       roomDetected: "Prepoznaje se po datoteci",
       roomAuto: "Prepoznaj po datoteci",
       roomHint:
-        "Sobu odaberite samo ako Rail ne prepoznaje ruke iz ove mape: tada se svaka datoteka u njoj čita kao ruke te sobe.",
+        "Sobu odaberi samo ako Rail ne prepoznaje ruke iz ove mape: tada se svaka datoteka u njoj čita kao ruke te sobe.",
       lastImport: "Zadnji uvoz",
       never: "Nikad",
       handsToday: "Ruke danas",
@@ -344,11 +393,13 @@ export const hr: Dict = {
       files: "Datoteke",
       problems: "Problemi",
       noProblems: "Nema",
-      fileErrors: (count) => `datoteke koje se ne mogu čitati: ${count}`,
-      pending: (count) => `datoteke koje čekaju kraj ruke: ${count}`,
-      quarantined: (count) => `odbijene ruke: ${count}`,
+      fileErrors: (count) =>
+        `${n(count)} ${plural(count, "datoteka se ne može čitati", "datoteke se ne mogu čitati", "datoteka se ne može čitati")}`,
+      pending: (count) =>
+        `${n(count)} ${plural(count, "datoteka čeka", "datoteke čekaju", "datoteka čeka")} kraj svoje ruke`,
+      quarantined: (count) => `${n(count)} ${plural(count, "odbijena ruka", "odbijene ruke", "odbijenih ruku")}`,
 
-      showRefused: (count) => `Prikaži odbijene ruke (${count})`,
+      showRefused: (count) => (count === 1 ? "Prikaži odbijenu ruku" : `Prikaži odbijene ruke (${n(count)})`),
       hideRefused: "Sakrij odbijene ruke",
       refusedHeading: (path) => `Odbijene ruke u ${path}`,
       refusedLoading: "Učitavanje odbijenih ruku…",
@@ -357,7 +408,7 @@ export const hr: Dict = {
       refusedLead:
         "Rail nije mogao pročitati ove ruke. Čuvaju se, kako bi ih kasnija verzija mogla pročitati; razlog kaže zašto.",
       byReason: "Po razlogu",
-      refusedMore: (shown, total) => `Prikazano je najnovijih ${shown} od ${total}.`,
+      refusedMore: (shown, total) => `Prikazano je najnovijih ${n(shown)} od ${n(total)}.`,
 
       settingsOf: (path) => `Postavke za ${path}`,
       enabled: "Prati ovu mapu",
@@ -369,7 +420,9 @@ export const hr: Dict = {
       remove: "Ukloni…",
       saved: "Spremljeno.",
       roomSaved: (count) =>
-        count === 0 ? "Spremljeno." : `Spremljeno. Datoteke koje se ponovno čitaju kao ruke te sobe: ${count}.`,
+        count === 0
+          ? "Spremljeno."
+          : `Spremljeno. ${n(count)} ${plural(count, "datoteka se ponovno čita", "datoteke se ponovno čitaju", "datoteka se ponovno čita")} kao ruke te sobe.`,
       actionFailed: (reason) => `Mapa nije promijenjena: ${reason}`,
 
       folder: "Mapa",
@@ -386,21 +439,21 @@ export const hr: Dict = {
       moveFrom: "Sada",
       moveTo: "Nova mapa",
       moveBody:
-        "Ako su u novoj mapi iste datoteke (premjestili ste je ili kopirali), Rail nastavlja gdje je stao. Inače čita novu mapu, a ruke već uvezene iz stare ostaju u Railu.",
+        "Ako su u novoj mapi iste datoteke (mapa je premještena ili kopirana), Rail nastavlja gdje je stao. Inače čita novu mapu, a ruke već uvezene iz stare ostaju u Railu.",
       moveConfirm: "Koristi novu mapu",
       moving: "Mijenjanje…",
       moved: (moved, detached) =>
         moved === 0
           ? "Gotovo. Rail čita novu mapu; ruke iz stare mape ostaju u Railu."
           : detached === 0
-            ? `Gotovo. Datoteke koje nastavljaju gdje su stale: ${moved}.`
-            : `Gotovo. Datoteke koje nastavljaju gdje su stale: ${moved}; datoteke kojih tamo nema, a ruke im ostaju: ${detached}.`,
+            ? `Gotovo. ${n(moved)} ${plural(moved, "datoteka nastavlja", "datoteke nastavljaju", "datoteka nastavlja")} gdje je Rail stao.`
+            : `Gotovo. ${n(moved)} ${plural(moved, "datoteka nastavlja", "datoteke nastavljaju", "datoteka nastavlja")} gdje je Rail stao; ${datoteka(detached)} ondje ${plural(detached, "nije pronađena", "nisu pronađene", "nije pronađeno")}, a ${plural(detached, "njezine", "njihove", "njihove")} ruke ostaju u Railu.`,
 
       removeHeading: "Ukloniti ovu mapu?",
       removeBody: (hands) =>
         hands === 0
           ? "Rail je prestaje pratiti. Ništa se u mapi ne briše."
-          : `Rail je prestaje pratiti. Ruke koje su već uvezene iz nje (${hands}) ostaju u Railu, a ništa se u mapi ne briše.`,
+          : `Rail je prestaje pratiti. ${cap(ruku(hands))} ${plural(hands, "uvezena", "uvezene", "uvezenih")} iz nje ${plural(hands, "ostaje", "ostaju", "ostaje")} u Railu, a ništa se u mapi ne briše.`,
       removeConfirm: "Ukloni mapu",
       removing: "Uklanjanje…",
       removed: (path) => `Rail više ne prati ${path}. Njezine ruke ostaju.`,
@@ -412,11 +465,21 @@ export const hr: Dict = {
       system: "Prema sustavu",
       dark: "Tamna",
       light: "Svijetla",
+      density: "Gustoća",
+      densityHint: "Koliko su gusto složeni popisi i tablice: visina retka, razmaci i veličina slova.",
+      comfortable: "Prozračno",
+      compact: "Zbijeno",
+      language: "Jezik",
+      languageHint: "Prozor i izbornik u traci sustava. Brojevi i datumi ga prate.",
+      languages: {
+        en: "English",
+        hr: "Hrvatski",
+      },
     },
 
     startup: {
       heading: "Pokretanje",
-      startAtLogin: "Pokreni Rail pri prijavi",
+      startAtLogin: "Pokreni Rail pri prijavi u sustav",
       startAtLoginHint: "Rail se pokreće u traci sustava, spreman za uvoz, bez otvaranja ovog prozora.",
     },
 
@@ -425,9 +488,9 @@ export const hr: Dict = {
       version: "Verzija",
       core: "Jezgra",
       handFormat: "Format ruku",
-      parsers: (count) => `parsera: ${count}`,
-      sites: "Soba u sites.json",
-      sitesCount: (count, version) => `${count} (verzija formata ${version})`,
+      parsers: (count) => `${n(count)} ${plural(count, "parser", "parsera", "parsera")}`,
+      sites: "Sobe u sites.json",
+      sitesCount: (count, version) => `${n(count)} (verzija formata ${version})`,
       configError: (reason) => `sites.json se nije učitao: ${reason}`,
       logs: "Zapisi (logovi)",
       settingsFile: "Datoteka postavki",
@@ -470,15 +533,15 @@ export const hr: Dict = {
       stopped: "Zaustavljen",
     },
     rebuild: "Ponovna izgradnja",
-    rebuildProgress: (done, total) => `${done} od ${total} ruku`,
+    rebuildProgress: (done, total) => `${n(done)} od ${odRuku(total)}`,
     none: "Nema",
     evPending: "Ruke koje čekaju all-in EV",
     evComputed: "Izračunan all-in EV",
-    evTime: (n, ms) => `${n} ruku u ${(ms / 1000).toFixed(1)} s`,
+    evTime: (count, ms) => `${ruku(count)} u ${(ms / 1000).toFixed(1).replace(".", ",")} s`,
     rebuildButton: "Ponovno izgradi statistike",
     evButton: "Ponovno izračunaj all-in EV",
-    rebuildStarted: (n) => `Ponovno se grade statistike ${n} ruku.`,
-    evQueued: (n) => `${n} ruku čeka all-in EV.`,
+    rebuildStarted: (count) => `Statistika se ponovno gradi za ${rukuAcc(count)}.`,
+    evQueued: (count) => `${cap(ruku(count))} ${plural(count, "čeka", "čekaju", "čeka")} all-in EV.`,
   },
 
   backfill: {
@@ -501,11 +564,11 @@ export const hr: Dict = {
     loading: "Učitavanje odbijenih ruku…",
     loadFailed: (reason) => `Odbijene ruke nisu učitane: ${reason}`,
     none: "Nema odbijenih ruku.",
-    total: (count) => `Odbijene ruke: ${count}.`,
+    total: (count) => `${plural(count, "Odbijena je", "Odbijene su", "Odbijeno je")} ${ruku(count)}.`,
     byReason: "Po razlogu",
     pickReason: "Odaberi razlog da vidiš njegove ruke.",
     ofReason: (reason) => `Ruke odbijene kao ${reason}`,
-    more: (shown, total) => `Prikazano je ${shown} najnovijih od ${total}.`,
+    more: (shown, total) => `Prikazano je ${n(shown)} najnovijih od ${n(total)}.`,
     reason: "Razlog",
     details: "Pojedinosti",
     file: "Datoteka",
@@ -528,9 +591,12 @@ export const hr: Dict = {
     retry: "Pokušaj ponovno nakon nadogradnje",
     retrying: "Ponovno čitanje…",
     retryHint: (hands, files) =>
-      `Ruke odbijene u starijoj verziji parsera: ${hands} (datoteke: ${files}). Ova ih verzija možda može pročitati.`,
+      `Starija verzija parsera odbila je ${rukuAcc(hands)} (${datoteka(files)}). Ova ${plural(hands, "je", "ih", "ih")} verzija možda može pročitati.`,
     upToDate: "Ove su ruke odbili parseri ove verzije.",
-    retried: (files) => (files === 0 ? "Nema ničeg za ponovno čitanje." : `Ponovno se čitaju datoteke: ${files}.`),
+    retried: (files) =>
+      files === 0
+        ? "Nema ničeg za ponovno čitanje."
+        : `Ponovno se ${plural(files, "čita", "čitaju", "čita")} ${datoteka(files)}.`,
     retryFailed: (reason) => `Ponovno čitanje nije uspjelo: ${reason}`,
   },
 
@@ -538,12 +604,12 @@ export const hr: Dict = {
     unavailable: "Tvoje ruke dostupne su samo u aplikaciji Rail.",
     storeError: (reason) => `Popis ruku nije se učitao: ${reason}`,
     loading: "Učitavam ruke…",
-    empty: "Još nema ruku. Pojavit će se ovdje čim ih Rail uveze iz tvojih mapa s povijesti ruku.",
+    empty: "Još nema ruku. Pojavit će se ovdje čim ih Rail uveze iz tvojih mapa s poviješću ruku.",
     noMatch: "Nijedna ruka ne odgovara ovim filterima.",
     rebuilding: (done, total) =>
-      `Popis ruku osvježava se nakon nadogradnje: ${done} od ${total} ruku. Popis se puni usput.`,
-    count: (shown) => `Ruke: ${shown}`,
-    countOf: (matching, total) => `Ruke: ${matching} od ${total}`,
+      `Popis ruku osvježava se nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Popis se puni usput.`,
+    count: (shown) => ruku(shown),
+    countOf: (matching, total) => `${n(matching)} od ${odRuku(total)}`,
     loadingMore: "Učitavam još…",
     listLabel: "Ruke, najnovije prve",
     columns: {
@@ -647,7 +713,7 @@ export const hr: Dict = {
       chips: "Žetoni",
       removePlayer: (name) => `Igrač: ${name}. Ukloni ovaj filtar`,
       noTags: "Još nema oznaka. Označi ruku u panelu uz replayer.",
-      count: (n) => n,
+      count: (value) => value,
     },
     saved: {
       button: "Spremljeni filteri",
@@ -664,7 +730,7 @@ export const hr: Dict = {
       label: "Ruka",
       choose: "Odaberi ruku s popisa da je ovdje pogledaš u replayeru.",
       loading: "Učitavam ruku…",
-      missing: "Ove ruke više nema u tvojoj pohrani ruku.",
+      missing: "Ove ruke više nema u tvojem spremištu ruku.",
       failed: (reason) => `Ruka se nije učitala: ${reason}`,
       close: "Zatvori",
       openInWeb: "Otvori na webu",
@@ -689,12 +755,12 @@ export const hr: Dict = {
     loading: "Učitavam igrače…",
     empty: "Još nema protivnika. Pojavljuju se ovdje dok Rail uvozi ruke iz soba koje prikazuju korisnička imena.",
     noMatch: "Nijedan protivnik ne odgovara.",
-    count: (players) => `${players} protivnika`,
-    countOf: (matching, total) => `${matching} od ${total} protivnika`,
+    count: (players) => `${n(players)} ${plural(players, "protivnik", "protivnika", "protivnika")}`,
+    countOf: (matching, total) => `${n(matching)} od ${n(total)} protivnika`,
     rebuilding: (done, total) =>
-      `Ažuriram igrače nakon nadogradnje: ${done} od ${total} ruku. Popis se puni usput.`,
-    indexing: (hands) =>
-      `Rail još razvrstava protivnike iz ${hands} nedavnih ruku; dok ne završi, „ruke s ovim igračem” i raščlamba po poziciji izostavljaju te ruke.`,
+      `Ažuriram igrače nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Popis se puni usput.`,
+    indexing: (count) =>
+      `Rail još razvrstava protivnike iz ${n(count)} ${plural(count, "nedavne ruke", "nedavne ruke", "nedavnih ruku")}; dok ne završi, „ruke s ovim igračem” i raščlamba po poziciji ${plural(count, "izostavljaju tu ruku", "izostavljaju te ruke", "izostavljaju te ruke")}.`,
     search: "Traži igrače",
     searchPlaceholder: "Ime počinje s…",
     kinds: {
@@ -713,8 +779,8 @@ export const hr: Dict = {
       `Prikazujem samo: ${kind}. Turnirski žetoni i novac ne zbrajaju se u jedan rezultat. Promijeni gumbima Igra.`,
     mixedKind:
       "Ove ruke miješaju turnirske žetone i novac, pa tvoj rezultat protiv pojedinog protivnika nije prikazan. Odaberi Cash ili Turniri.",
-    hidden: (hands) =>
-      `${hands} ruku protivnika iz soba koje skrivaju korisnička imena (poput GGPokera) ulazi u tvoju statistiku, ali nije na popisu: ime ondje traje jednu sesiju, pa ga se ne može pratiti iz sesije u sesiju.`,
+    hidden: (count) =>
+      `${cap(ruku(count))} protivnika iz soba koje skrivaju korisnička imena (poput GGPokera) ${plural(count, "ulazi", "ulaze", "ulazi")} u tvoju statistiku, ali ${plural(count, "nije", "nisu", "nije")} na popisu: ime ondje traje jednu sesiju, pa ga se ne može pratiti iz sesije u sesiju.`,
     listLabel: "Protivnici, najviše zajedničkih ruku prvo",
     columns: {
       name: "Igrač",
@@ -743,23 +809,25 @@ export const hr: Dict = {
       notOpponent:
         "Ovo ime nije protivnik iz sobe koja prikazuje korisnička imena, pa nema profil i ne prima bilješke.",
       together: "Zajedničke ruke",
-      togetherCash: (hands) => `${hands} u cash igrama`,
-      togetherChips: (hands) => `${hands} na turnirima`,
+      togetherCash: (count) => `${n(count)} u cash igrama`,
+      togetherChips: (count) => `${n(count)} na turnirima`,
       firstSeen: "Prvi put",
       lastSeen: "Zadnji put",
-      result: "Tvoj rezultat protiv njega",
+      result: "Tvoj rezultat protiv tog igrača",
       resultCash: "Cash",
       resultChips: "Turniri",
-      resultLine: (bb, hands) => `${bb} bb u ${hands} ruku`,
+      resultLine: (bb, count) => `${bb} bb kroz ${rukuAcc(count)}`,
       perHundred: (value) => `${value} bb/100`,
       noHands: "Nema ruku",
-      handsWith: (hands) => `Ruke s ovim igračem (${hands})`,
-      stats: "Njegova statistika",
-      sample: (hands) => `Iz ${hands} njegovih ruku, tvojih ili ne.`,
+      handsWith: (count) => `Ruke s ovim igračem (${n(count)})`,
+      kind: "Igra",
+      kindHint: "Brojevi tog igrača u cash igrama, na turnirima ili u oboje; dok ovdje ne odabereš, vrijedi odabir s popisa.",
+      stats: "Statistika igrača",
+      sample: (count) => `Kroz ${rukuAcc(count)} tog igrača, s tobom ili bez tebe.`,
       statsNote:
-        "Ovo su igračevi brojevi iz svake njegove ruke koju je Rail vidio. All-in EV računa se samo za tvoje ruke i ovdje nije prikazan. Vrijednost blijedi dok joj je uzorak malen; zadrži pokazivač na njoj za uzorak i 95% interval.",
+        "Ovo su igračevi brojevi iz svake njegove ruke koju je Rail vidio. All-in EV računa se samo za tvoje ruke i ovdje nije prikazan. Vrijednost blijedi dok joj je uzorak malen; zadrži pokazivač na njoj za uzorak i 95 % interval.",
       mixedKind:
-        "Njegove ruke miješaju turnirske žetone i novac, pa su brojevi u velikim blindovima izostavljeni. Odaberi Cash ili Turniri.",
+        "Ruke tog igrača miješaju turnirske žetone i novac, pa su brojevi u big blindovima izostavljeni. Odaberi Cash ili Turniri.",
       breakdown: "Raščlamba",
       tabs: {
         position: "Pozicija",
@@ -780,13 +848,14 @@ export const hr: Dict = {
       addLabel: "Dodaj oznaku",
       labelPlaceholder: "Oznaka, pa Enter",
       removeLabel: (label) => `Ukloni oznaku „${label}”`,
-      labelsHint: "Do osam oznaka od 24 znaka.",
+      labelsHint: "Do osam oznaka od najviše 24 znaka.",
       note: "Bilješka",
       notePlaceholder: "Kako igra, zapažanja, podsjetnici…",
       noteSaved: "Spremljeno",
       noteSaving: "Spremam…",
       saveFailed: (reason) => `Nije spremljeno: ${reason}`,
-      localOnly: "Boje, oznake i bilješke zasad ostaju na ovom računalu; poslije će se sinkronizirati s tvojim bilješkama o igračima na webu.",
+      localOnly:
+        "Boje, oznake i bilješke zasad ostaju na ovom računalu; poslije će se sinkronizirati s tvojim bilješkama o igračima na webu.",
     },
   },
 
@@ -796,11 +865,11 @@ export const hr: Dict = {
     storeError: (reason) => `Izvještaj se nije učitao: ${reason}`,
     empty: "Još nema ruku. Izvještaji se pune kako Rail uvozi tvoje povijesti ruku.",
     noMatch: "Nijedna tvoja ruka ne odgovara ovim filterima.",
-    count: (hands) => `${hands} ruku`,
+    count: (count) => ruku(count),
     rebuilding: (done, total) =>
-      `Ažuriram statistiku nakon nadogradnje: ${done} od ${total} ruku. Brojke rastu kako napreduje.`,
+      `Ažuriram statistiku nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Brojke rastu kako napreduje.`,
     defaultFormat: (format) =>
-      `Prikazujem samo: ${format}. Turnirski čipovi i cash ne zbrajaju se u jedan rezultat. Promijeni to čipom Igra.`,
+      `Prikazujem samo: ${format}. Turnirski žetoni i cash ne zbrajaju se u jedan rezultat. Promijeni to čipom Igra.`,
     summary: {
       label: "Sažetak",
       hands: "Ruke",
@@ -811,12 +880,12 @@ export const hr: Dict = {
     },
     units: {
       mixedKind:
-        "Ove ruke miješaju turnirske čipove i cash, pa nema rezultata za zbrojiti ni grafa za nacrtati. Filtriraj na jedan format igre.",
+        "Ove ruke miješaju turnirske žetone i cash, pa nema rezultata za zbrojiti ni grafa za nacrtati. Filtriraj na jedan format igre.",
       mixedCurrency:
         "Ove ruke obuhvaćaju više valuta, pa su iznosi u novcu izostavljeni; big blindovi se zbrajaju ispravno.",
     },
-    evPending: (hands) =>
-      `Za ${hands} all-in ruku equity se još računa u pozadini; dotad ih EV linija broji po rezultatu.`,
+    evPending: (count) =>
+      `Za ${n(count)} all-in ${plural(count, "ruku", "ruke", "ruku")} equity se još računa u pozadini; dotad ${plural(count, "je", "ih", "ih")} EV linija broji po rezultatu.`,
     graph: {
       heading: "Zarada",
       unit: "Prikaži u",
@@ -832,7 +901,7 @@ export const hr: Dict = {
         showdown: "Showdown",
         results: "Rezultati",
       },
-      note: "Vrijednost blijedi dok je uzorak malen; zadrži pokazivač na njoj za uzorak i 95% interval.",
+      note: "Vrijednost blijedi dok je uzorak malen; zadrži pokazivač na njoj za uzorak i 95 % interval.",
     },
     breakdown: {
       heading: "Raščlamba",
@@ -840,7 +909,7 @@ export const hr: Dict = {
       computing: "Brojim…",
       tabs: {
         position: "Pozicija",
-        stake: "Limit",
+        stake: "Ulozi",
         size: "Veličina stola",
         site: "Soba",
         format: "Igra",
@@ -852,7 +921,7 @@ export const hr: Dict = {
       },
       heads: {
         position: "Pozicija",
-        stake: "Limit",
+        stake: "Ulozi",
         size: "Stol",
         site: "Soba",
         format: "Igra",
@@ -893,27 +962,74 @@ export const hr: Dict = {
         hands: "Podijeljeno",
       },
       gridLabel: "Početne ruke, trinaest puta trinaest",
-      cellLabel: (handClass, hands) => `${handClass}: ${hands === null ? "nikad podijeljena" : `${hands} ruku`}`,
+      cellLabel: (handClass, count) => `${handClass}: ${count === null ? "nikad podijeljena" : ruku(count)}`,
       neverDealt: "nikad podijeljena u ovom uzorku",
       notHoldem: "Mreža je za početne ruke Hold'ema; ove ruke ih nemaju. Tablica navodi svaku klasu.",
       selected: (handClass) => `${handClass} u ovom uzorku`,
     },
   },
+
   palette: {
-    label: "Idi na",
-    placeholder: "Broj ruke, igrač ili ekran",
-    empty: "Ništa nije pronađeno. Upiši broj ruke kako ga je ispisala soba ili početak imena igrača.",
+    label: "Paleta naredbi",
+    placeholder: "Broj ruke, igrač, ekran ili naredba",
+    empty: "Ništa nije pronađeno. Upiši broj ruke kako ga je ispisala soba, početak imena igrača ili naredbu.",
+    results: (count) =>
+      count === 0 ? "Nema rezultata" : `${n(count)} ${plural(count, "rezultat", "rezultata", "rezultata")}`,
+    recent: "Nedavno",
     screens: "Ekrani",
     hands: "Ruke",
     reports: "Izvještaji",
     report: (name) => `Izvještaj: ${name}`,
     searching: "Tražim…",
     screen: (name) => name,
+    goTo: "idi na otvori ekran",
     hand: (id) => `Ruka #${id}`,
     handDetail: (room, stakes, date) => `${room} · ${stakes} · ${date}`,
     players: "Igrači",
     player: (name) => `Igrač: ${name}`,
-    playerDetail: (room, hands) => `${room} · ${hands} zajedničkih ruku`,
+    playerDetail: (room, count) =>
+      `${room} · ${n(count)} ${plural(count, "zajednička ruka", "zajedničke ruke", "zajedničkih ruku")}`,
+    savedFilters: "Spremljeni filteri",
+    savedFilter: (screen, name) => `${screen}: ${name}`,
+    savedFilterDetail: "Primijeni spremljeni filter",
+    settings: "Postavke",
+    section: (name) => `Postavke: ${name}`,
+    sections: {
+      account: "Račun i sinkronizacija",
+      folders: "Mape s rukama",
+      refused: "Odbijene ruke",
+      appearance: "Izgled i jezik",
+      startup: "Pokretanje",
+      about: "O aplikaciji",
+    },
+    commands: "Naredbe",
+    command: {
+      pauseImport: "Pauziraj uvoz",
+      resumeImport: "Nastavi uvoz",
+      syncNow: "Sinkroniziraj sada",
+      themeDark: "Tamna tema",
+      themeLight: "Svijetla tema",
+      themeSystem: "Tema prema sustavu",
+      compact: "Zbijeni popisi i tablice",
+      comfortable: "Prozračni popisi i tablice",
+      language: "Prebaci na engleski (English)",
+      refused: "Prikaži odbijene ruke",
+      current: "U uporabi",
+    },
+    keywords: {
+      import: "uvoz mape prati pauziraj nastavi pokreni import",
+      sync: "sinkronizacija pošalji web sync",
+      theme: "tema tamna svijetla izgled boje theme dark light",
+      density: "gustoća zbijeno prozračno retci razmak density compact",
+      language: "jezik engleski english hrvatski language",
+      refused: "odbijene karantena greške nečitljive refused",
+      settings: "postavke opcije settings",
+    },
+    hints: {
+      move: "kretanje",
+      open: "otvori",
+      close: "zatvori",
+    },
   },
 
   ui: {

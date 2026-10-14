@@ -9,9 +9,10 @@ import { useCallback, useEffect, useState } from "react";
 import { RefusedTable, RetryRefused } from "../../components/RefusedTable";
 import { useT } from "../../i18n";
 import { errorText, ipc, onWatcherChanged, type QuarantineList, type QuarantineSummary } from "../../lib/ipc";
+import { liveNumberFormat } from "../../i18n/format";
 import styles from "./Folders.module.css";
 
-const number = new Intl.NumberFormat();
+const number = liveNumberFormat();
 
 export function RefusedAll() {
   const t = useT();

@@ -39,6 +39,26 @@ pub enum Theme {
     Light,
 }
 
+/// How tightly lists and tables are set (R2.8): row heights, cell padding
+/// and the tables' type size (`data-density` on the window's `<html>`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Density {
+    #[default]
+    Comfortable,
+    Compact,
+}
+
+/// The language of the window and the tray (R2.8). English is the default;
+/// Croatian is the second language, as on the web.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Locale {
+    #[default]
+    En,
+    Hr,
+}
+
 /// The settings document. Every field has a default, so a file missing a
 /// field (an older version, or one edited by hand) still loads.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -46,6 +66,10 @@ pub enum Theme {
 pub struct Settings {
     pub version: u32,
     pub theme: Theme,
+    /// Lists and tables (R2.8). A file from before R2.8 lacks it: comfortable.
+    pub density: Density,
+    /// The language (R2.8). A file from before R2.8 lacks it: English.
+    pub locale: Locale,
     /// Start Rail when the user logs in (`tauri-plugin-autostart`). Off by
     /// default; the OS login item is reconciled with this on every start.
     pub start_at_login: bool,
@@ -61,6 +85,8 @@ impl Default for Settings {
         Self {
             version: VERSION,
             theme: Theme::default(),
+            density: Density::default(),
+            locale: Locale::default(),
             start_at_login: false,
             first_run_done: false,
         }
@@ -311,6 +337,8 @@ mod tests {
             serde_json::json!({
                 "version": VERSION,
                 "theme": "dark",
+                "density": "comfortable",
+                "locale": "en",
                 "startAtLogin": false,
                 "firstRunDone": false
             })
@@ -325,6 +353,37 @@ mod tests {
         assert!(!store.get().first_run_done, "a file from before R1.4");
         store.update(|s| s.first_run_done = true).expect("save");
         assert!(Store::load(dir.file()).0.get().first_run_done);
+    }
+
+    #[test]
+    fn density_and_locale_round_trip_and_default_for_an_older_file() {
+        let dir = TempDir::new();
+        // A file from before R2.8.
+        write_atomic(&dir.file(), br#"{"version":1,"theme":"light"}"#).expect("write");
+        let (mut store, loaded) = Store::load(dir.file());
+        assert_eq!(loaded, Loaded::Ok);
+        assert_eq!(store.get().density, Density::Comfortable);
+        assert_eq!(store.get().locale, Locale::En);
+        store
+            .update(|s| {
+                s.density = Density::Compact;
+                s.locale = Locale::Hr;
+            })
+            .expect("save");
+        let again = Store::load(dir.file()).0;
+        assert_eq!(again.get().density, Density::Compact);
+        assert_eq!(again.get().locale, Locale::Hr);
+        assert_eq!(again.get().theme, Theme::Light);
+    }
+
+    #[test]
+    fn an_unknown_density_or_locale_is_refused_as_a_whole_file() {
+        // The same rule as an unknown theme: not readable, moved aside.
+        let dir = TempDir::new();
+        write_atomic(&dir.file(), br#"{"version":1,"locale":"de"}"#).expect("write");
+        let (store, loaded) = Store::load(dir.file());
+        assert!(matches!(loaded, Loaded::Corrupt { .. }));
+        assert_eq!(store.get(), &Settings::default());
     }
 
     #[test]

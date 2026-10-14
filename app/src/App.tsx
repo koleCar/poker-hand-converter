@@ -2,6 +2,7 @@ import type { JSX } from "react";
 
 import styles from "./App.module.css";
 import { Palette } from "./components/Palette";
+import { useLocale } from "./i18n";
 import { Sidebar } from "./components/Sidebar";
 import { SETUP, useRoute, type Route } from "./lib/router";
 import { FirstRun } from "./screens/FirstRun";
@@ -24,13 +25,16 @@ const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
 
 export function App() {
   const route = useRoute();
+  const locale = useLocale();
   const Current = SCREEN_COMPONENTS[route];
   return (
     <div className={styles.shell}>
       {/* The first-run screen belongs to Settings (where it is reached later). */}
       <Sidebar current={route === SETUP ? "settings" : route} />
       <main className={styles.main}>
-        <Current />
+        {/* A new language mounts the screen again: every number and date
+            on it is formatted in that language (`i18n/format.ts`). */}
+        <Current key={locale} />
       </main>
       <Palette />
     </div>

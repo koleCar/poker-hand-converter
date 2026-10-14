@@ -18,7 +18,6 @@ import { StatValue } from "@rail/ui/stats/StatValue";
 
 import { useLocale, useT } from "../../i18n";
 import type { StatGroup } from "../../lib/ipc";
-import { count } from "../hands/format";
 import styles from "./Reports.module.css";
 
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"] as const;
@@ -121,7 +120,7 @@ export function HandMatrix({ rows, columns }: HandMatrixProps) {
                   role="gridcell"
                   className={`${styles.cell}${selected === handClass ? ` ${styles.cellSelected}` : ""}`}
                   style={{ background: `color-mix(in srgb, ${tone} ${Math.round(level * 55)}%, var(--surface-raised))` }}
-                  aria-label={m.cellLabel(handClass, row ? count(row.hands) : null)}
+                  aria-label={m.cellLabel(handClass, row ? row.hands : null)}
                   aria-pressed={selected === handClass}
                   onClick={() => setSelected(selected === handClass ? null : handClass)}
                 >

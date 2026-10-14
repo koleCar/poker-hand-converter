@@ -1,9 +1,9 @@
 /* The virtualised list: a scroll box, a sticky header, and rows positioned
-   absolutely in a spacer as tall as every loaded row. `--row` must match
-   `ROW_HEIGHT` in HandList.tsx. */
+   absolutely in a spacer as tall as every loaded row. `--row` is the
+   density's (R2.8), which HandList.tsx reads back (`useRowHeight`). */
 
 .scroll {
-  --row: 40px;
+  --row: var(--density-row);
 
   position: relative;
   overflow: auto;
@@ -12,7 +12,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
   background: var(--surface-raised);
-  font-size: var(--font-size-sm);
+  font-size: var(--density-table-font);
   font-variant-numeric: tabular-nums;
   overscroll-behavior: contain;
 }
@@ -70,10 +70,13 @@
   outline-offset: -2px;
 }
 
+/* The chosen row: a tint and the accent edge (R2.8). `--surface-selected` is a
+   solid plate meant for white text, and these rows keep their own colours
+   (dates, results): on it they fell under 4.5:1, in light under 1.5:1. */
 .body > .selected,
 .body > .selected:hover {
-  background: var(--surface-selected);
-  box-shadow: inset 3px 0 0 var(--surface-selected-edge);
+  background: var(--accent-subtle);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
 }
 
 .more {
@@ -91,7 +94,7 @@
 
 .room small {
   margin-left: var(--space-2);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: var(--font-size-xs);
 }
 

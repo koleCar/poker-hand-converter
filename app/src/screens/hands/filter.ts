@@ -68,19 +68,34 @@ export const EMPTY_FILTER: FilterState = {
   player: null,
 };
 
-/** A filter the Hands screen opens with once (the Players screen's "hands with this player"). */
-let requested: FilterState | null = null;
+/** The screens a filter can be handed to. */
+export type FilterTarget = "hands" | "reports";
 
-/** Open the Hands screen next with `filter`. */
-export function requestFilter(filter: FilterState): void {
-  requested = filter;
+/**
+ * A filter a screen takes once: the Players screen's "hands with this
+ * player" (R2.7c), a saved filter chosen in the command palette (R2.8). A
+ * screen not open yet takes it when it mounts; an open one is told.
+ */
+const requested: Record<FilterTarget, FilterState | null> = { hands: null, reports: null };
+const requestListeners = new Set<(target: FilterTarget) => void>();
+
+/** Hand `filter` to a screen (go there next). */
+export function requestFilter(filter: FilterState, target: FilterTarget = "hands"): void {
+  requested[target] = filter;
+  for (const listener of requestListeners) listener(target);
 }
 
 /** The filter asked for, once; `null` when none was. */
-export function takeRequestedFilter(): FilterState | null {
-  const filter = requested;
-  requested = null;
+export function takeRequestedFilter(target: FilterTarget = "hands"): FilterState | null {
+  const filter = requested[target];
+  requested[target] = null;
   return filter;
+}
+
+/** Told when a filter is handed to a screen that may be open; returns the unsubscribe. */
+export function onFilterRequested(listener: (target: FilterTarget) => void): () => void {
+  requestListeners.add(listener);
+  return () => requestListeners.delete(listener);
 }
 
 /** Seats in table order, as the web's filter lists them. */

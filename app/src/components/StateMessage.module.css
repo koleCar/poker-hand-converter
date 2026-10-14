@@ -1,0 +1,79 @@
+/* A screen's loading, empty or error state (`StateMessage.tsx`, R2.8). */
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: 100%;
+  min-height: 12rem;
+  padding: var(--space-6);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-3);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.compact {
+  height: auto;
+  min-height: 0;
+  padding: var(--space-4);
+}
+
+.message[data-kind="error"] {
+  border-style: solid;
+  border-color: var(--danger-border);
+  color: var(--danger-fg);
+}
+
+.text {
+  max-inline-size: 40rem;
+}
+
+/* Three lines where rows will be: a hint of the shape, not a promise. */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: min(24rem, 100%);
+}
+
+.skeleton span {
+  display: block;
+  block-size: 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-hover);
+}
+
+.skeleton span:nth-child(2) {
+  inline-size: 82%;
+}
+
+.skeleton span:nth-child(3) {
+  inline-size: 64%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton span {
+    animation: pulse 1.4s var(--ease-standard) infinite alternate;
+  }
+
+  .skeleton span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .skeleton span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.4;
+  }
+}

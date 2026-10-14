@@ -11,8 +11,14 @@ export type Dict = Widen<typeof en>;
 
 export type Locale = "en" | "hr";
 
+/** Every language, in Settings' order. */
+export const LOCALES: readonly Locale[] = ["en", "hr"];
+
 /**
- * English is the default and, for now, the only language shown: Croatian
- * keys are prepared (`hr.ts`) but there is no language setting yet.
+ * English is the default; Croatian is chosen in Settings, Appearance (R2.8:
+ * the settings' `locale`, which the tray follows too).
  */
 export const DEFAULT_LOCALE: Locale = "en";
+
+/** The language's BCP 47 tag for `Intl`, as the web uses it. */
+export const INTL_LOCALE: Record<Locale, string> = { en: "en-GB", hr: "hr-HR" };

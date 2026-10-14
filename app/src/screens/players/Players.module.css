@@ -138,11 +138,6 @@
   border-style: dashed;
 }
 
-/* In the list, no colour is no dot (the column stays aligned). */
-.name .swatch[data-colour="none"] {
-  visibility: hidden;
-}
-
 .clear {
   border: 0;
   background: none;
@@ -203,50 +198,113 @@
 .tableWrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
 }
 
-.table {
-  inline-size: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
+/* The virtualised grid (R2.8, `PlayerTable.tsx`): a scroll box, a sticky
+   header, rows positioned in a spacer, `--density-row` tall - the Hands
+   list's shape. */
+.grid {
+  container-type: inline-size;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 12rem;
+  overflow: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  font-size: var(--density-table-font);
   font-variant-numeric: tabular-nums;
+  overscroll-behavior: contain;
 }
 
-.table th,
-.table td {
-  padding: var(--space-1) var(--space-2);
-  border-block-end: 1px solid var(--border-subtle);
-  text-align: start;
+.gridRow {
+  display: grid;
+  grid-template-columns: minmax(12rem, 2.4fr) minmax(6rem, 1fr) 6.5rem 7.5rem 8.5rem;
+  align-items: center;
+  column-gap: var(--space-3);
+  height: var(--density-row);
+  padding: 0 var(--space-3);
+  min-width: 46rem;
   white-space: nowrap;
 }
 
-.table thead th {
+.gridRow > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Beside an open profile the list is narrow: the room and "last seen" give
+   way (the profile shows both), the rest fits without scrolling sideways. */
+@container (width < 40rem) {
+  .grid .gridRow,
+  .grid .gridBody {
+    min-width: 0;
+  }
+
+  .grid .gridRow {
+    grid-template-columns: minmax(8rem, 1fr) 7rem 7.5rem;
+  }
+
+  .grid .gridRow > :nth-child(2),
+  .grid .gridRow > :nth-child(5) {
+    display: none;
+  }
+}
+
+.gridHead {
   position: sticky;
-  inset-block-start: 0;
-  background: var(--surface-base);
-  color: var(--text-tertiary);
+  top: 0;
+  z-index: 1;
+  background: var(--surface-raised-2);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
 }
 
-.table tbody th {
-  font-weight: var(--font-weight-regular);
+.gridBody {
+  position: relative;
+  min-width: 46rem;
 }
 
-.table tbody tr:hover {
+.gridBody > .gridRow {
+  position: absolute;
+  inset-inline: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.gridBody > .gridRow:hover {
   background: var(--surface-hover);
 }
 
-.table tbody tr[aria-current="true"] {
-  background: var(--accent-subtle);
+.gridBody > .gridRow:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
 }
 
-.table .number {
+/* The chosen row: a tint and the accent edge (R2.8). `--surface-selected` is a
+   solid plate meant for white text, and these rows keep their own colours
+   (dates, results): on it they fell under 4.5:1, in light under 1.5:1. */
+.gridBody > .gridSelected,
+.gridBody > .gridSelected:hover {
+  background: var(--accent-subtle);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}
+
+.number {
   text-align: end;
+}
+
+.dim {
+  color: var(--text-secondary);
 }
 
 .hidden {
@@ -260,26 +318,23 @@
 
 .nameCell {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.name {
-  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  text-align: start;
 }
 
-.name:hover .nameText {
-  text-decoration: underline;
+.nameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: var(--font-weight-medium);
+}
+
+/* In the list, no colour is no dot (the column stays aligned). */
+.nameCell .swatch[data-colour="none"] {
+  visibility: hidden;
+}
+
+.nameCell .label {
+  flex: none;
 }
 
 .label {

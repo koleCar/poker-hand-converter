@@ -139,6 +139,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
         other => log::warn!("settings at {}: {other:?}", store.path().display()),
     }
     let start_at_login = store.get().start_at_login;
+    // The tray's words in the chosen language (R2.8), before it is built.
+    strings::set_locale(store.get().locale);
     app.manage(commands::SettingsState(Mutex::new(store)));
 
     // The local store (R1.2): hands, quarantine, registry, outbox. In the
@@ -216,6 +218,8 @@ pub fn run() {
         commands::app_info,
         commands::get_settings,
         commands::set_theme,
+        commands::set_density,
+        commands::set_locale,
         commands::set_start_at_login,
         commands::set_first_run_done,
         commands::store_status,
@@ -284,6 +288,8 @@ pub fn run() {
         commands::app_info,
         commands::get_settings,
         commands::set_theme,
+        commands::set_density,
+        commands::set_locale,
         commands::set_start_at_login,
         commands::set_first_run_done,
         commands::store_status,

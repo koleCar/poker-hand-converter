@@ -9,7 +9,7 @@
 }
 
 .table th {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--density-cell-block-loose) var(--space-3);
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-weight: var(--font-weight-semibold);
@@ -17,7 +17,7 @@
 }
 
 .table td {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--density-cell-block-loose) var(--space-3);
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: top;
 }

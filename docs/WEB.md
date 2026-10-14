@@ -531,7 +531,7 @@ this app with no visual change.
 
 | Path | What it is | Styles |
 | --- | --- | --- |
-| `tokens/` | `primitives`, `semantic`, `theme-light`, `motion` — the one token layer; each file declares its own `@layer tokens` | — |
+| `tokens/` | `primitives`, `semantic`, `theme-light`, `motion` — the one token layer; each file declares its own `@layer tokens`. `density` (R2.8): comfortable / compact sizes under `[data-density]`, imported by the desktop app only (shared components read them with their old value as the fallback); `semantic`'s `--felt-money` (R2.8) is the felt's unthemed money gold, which the app uses in its light theme and the web does not yet | — |
 | `styles/controls.css` | `.muted`, the `.btn` family, `.icon`, `.chip-btn` | global (BEM) |
 | `cards/PlayingCard.tsx` | `PlayingCard`, `CardRow`, the suit glyphs | `cards/cards.css`, global |
 | `chips/` | `Chip` (one `.chip-btn`, toggle or action), `FilterChips` (a filter as one row of chips) | `.chip-btn`; `FilterChips.module.css` |
@@ -540,7 +540,8 @@ this app with no visual change.
 | `dialog/Dialog.tsx` | The desktop app's modal `<dialog>` | CSS Module |
 | `stats/StatTile.tsx`, `stats/StatTable.tsx`, `stats/StatValue.tsx` | A statistic's tile (value, sample, interval band); a table of statistics; one value faded by its reliability with its sample and interval in the tooltip (R2.7b, the desktop's report cells). All show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
 | `stats/WinrateGraph.tsx`, `stats/chartScale.ts` | The win-rate graph (R2.7b moved it from `components/stats/`): total, showdown, non-showdown and all-in EV over hands, hand-written SVG, its legend and table view; `unit="money"` (the desktop's) draws the same lines in the currency. `chartScale` is its axis arithmetic, which `TrendChart` shares | `stats/winrate-graph.css`, global (`.stats-chart*`, `.stats-legend*`, `.stats-key*`), imported by the component and by `TrendChart` |
-| `palette/CommandPalette.tsx` | The command palette's shell: field, list, keys. What it finds is the surface's | CSS Module |
+| `palette/CommandPalette.tsx` | The command palette's shell: field, list in labelled groups, keys (↑/↓, Tab, Page Up/Down, Enter, Escape), matched letters marked, an item's shortcut and the footer's key hints, a live result count (R2.8). What it finds is the surface's | CSS Module |
+| `palette/fuzzy.ts` | `fuzzyMatch` / `rankItems` (R2.8): the query's letters in order, case and diacritics ignored, word starts and prefixes first; for a surface to rank its own items | — |
 | `i18n.tsx` | `UiStrings` (the words the components show) and `UiStringsProvider` | — |
 | `strings/` | Data, not components (R2.7a): the replayer's dictionaries `replayer.en.ts` / `replayer.hr.ts` (`ReplayerStrings`) and the Croatian `plural` they use; this app's `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export them, so `en.ts` / `hr.ts` are unchanged; the desktop app hands them to its `UiStringsProvider`. `model/replayStrings.ts` brings the frames' English. Since R2.7b also `stats.en.ts` / `stats.hr.ts`: the stat tile's, the statistics table's and the win-rate graph's words (and `hands`, `handsHead`, `bb`, `sampleOnly`), which this app's `ns/stats.{en,hr}.ts` take block by block - the text unchanged | — |
 | `data.tsx` | `DataSource` (where a component that fetches gets data), `DataSourceProvider`, `useHand` | — |

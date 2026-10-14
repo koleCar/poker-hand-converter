@@ -4786,6 +4786,123 @@ database, on the development Mac and on a mid-range Windows laptop.
 ### R2.8 Polish — M
 - Command palette, dark/light theme, density, i18n with `en` and `hr` prepared
   (same pattern as the web's `lib/i18n`).
+- *As built* (§15): **done** - guideline §6's UX on the four screens of R2.7
+  and Settings. No core crate changed; the web renders as before (below).
+  - **Command palette.** The package's shell (`packages/ui/palette/`) is
+    complete and still finds nothing itself: options in labelled ARIA groups
+    under a combobox (`aria-activedescendant`, focus never leaves the field);
+    ↑/↓ and Tab / Shift + Tab move (Tab never leaves the field), Page Up /
+    Page Down by five, Enter chooses, Escape closes even with text typed (a
+    search field would only clear it), the active option scrolls into view,
+    the query's letters are marked, an item may show its own shortcut, the
+    footer the palette's keys, a polite live region the result count; a
+    native close the browser makes without a cancel event (a second Escape)
+    is reported too. New `palette/fuzzy.ts` (`fuzzyMatch`, `rankItems`):
+    the query's letters in order, case and diacritics ignored, word starts,
+    runs and prefixes first, keywords a little behind the label. The app
+    (`components/Palette.tsx`) supplies: hands by the room's number and
+    players by name (the store, as R2.7a/c), the screens with Cmd/Ctrl + 1-6
+    (also global), the reports' breakdowns, **saved filters** of Hands and
+    Reports (handed to the screen even when it is open: `requestFilter(f,
+    target)` + `onFilterRequested`), the **Settings sections**
+    (`#/settings/<section>`, scrolled to and focused: account and sync,
+    folders, refused hands, appearance and language, startup, about) and the
+    **commands** - pause / resume import (when the watcher runs a folder),
+    sync now (when sync exists), the three themes (the one in use marked),
+    the other density, the other language, show refused hands - each with
+    words it also answers to in both languages; with nothing typed, the last
+    five places opened (`localStorage` `rail.palette.recent`, labels rebuilt
+    in the current language) then the screens and commands. A sidebar
+    button opens it for the mouse.
+  - **Theme and density.** `settings.json` gains `density`
+    (comfortable / compact) and `locale` (en / hr), both defaulted for an
+    older file (version stays 1); commands `set_density`, `set_locale`.
+    `lib/appearance.ts` (replaces `lib/theme.ts`) paints `data-theme`,
+    `data-density` and `lang` on `<html>` and keeps a copy in `localStorage`
+    (`rail.appearance`) that **`public/appearance.js`, a classic script in
+    `<head>` (the CSP's `'self'`), applies before the first paint** - no dark
+    frame before a light theme, no English frame before Croatian; the
+    settings arrive over IPC and win. "System" follows
+    `prefers-color-scheme` live. Density is tokens:
+    `packages/ui/tokens/density.css` (`--density-row` 40 / 32 px, cell
+    padding, a roomier cell, the tables' type 12 / 11 px, the page margins),
+    imported by the app only; the shared `StatTable` reads them with its old
+    values as fallbacks. The Hands list and the new Players grid position
+    rows by `--density-row` read back in script (`useRowHeight`), keeping the
+    row at the top in view when it changes. The felt, cards and chips stay
+    unthemed; the contrast pass found the replayer painting stacks and the
+    pot with the themed `--money-fg` (about 1.2:1 on the felt in light), so
+    the token layer gained `--felt-money` (the dark gold, unused by the web)
+    and the app points the felt's `--money-fg` at it in light.
+  - **i18n.** English default, Croatian complete: `hr.ts` rewritten in the
+    web's register (ti; no gendered second-person past tense), every count
+    through the shared `plural` (1 ruka / 2 ruke / 5 ruku, verbs agreeing),
+    "od N ruke/ruku" forms; English singulars fixed ("1 hand"). Counts are
+    passed as numbers and formatted by the dictionary (`countIn`: 1,204 /
+    1.204); every `Intl` formatter in the app is "live"
+    (`i18n/format.ts`: `liveNumberFormat`, `liveDateFormat`), resolved with
+    the chosen language's tag (en-GB, hr-HR) at each call; the screen
+    remounts on a language change. Settings, Appearance: theme, density,
+    language (each language named in itself, `lang` set). The tray follows
+    (`strings::set_locale`, `tray::relabel`; "Nisi prijavljen" became "Nema
+    prijave"). **Audit**: no bare string in a component; the app's ESLint
+    rule now also rejects text as an expression child (`{"…"}`), chosen in
+    place (`{a ? "…" : b}`, `{a && "…"}`), templated, and on the app's own
+    text props (`label`, `caption`, `lead`, `heading`, `detail`,
+    `emptyText`, `busyText`) - a probe file trips all nine selectors, the
+    app has none. Croatian strings equal to English are names and poker's
+    own words only (`tests/test/appI18n.test.ts` holds both to that, no
+    empty strings, the plural forms, the number formats, the boot script's
+    key). **Left in English**: messages the Rust side returns as errors
+    (`errorText`, e.g. "Sync is not available in this build."); a
+    `localizeServerMessage` like the web's is a later step.
+  - **From R2.7.** The Players table is a **virtualised ARIA grid** like the
+    Hands list (rows in a spacer, ~25 in the DOM; Up / Down, Page Up /
+    Down, Home / End, Enter into the profile; beside an open profile the
+    room and "last seen" give way through a container query - WKWebView
+    before Safari 16 scrolls sideways instead). **The profile has its own
+    game kind** (all / cash / tournaments), the list's until chosen there.
+    **Consistency**: one `StateMessage` for the loading (three skeleton
+    lines, still under reduced motion), empty and error states of Today's
+    session, Hands, Reports, Players and the profile, with `status` /
+    `alert` roles; the store errors were unannounced before. The chosen row
+    of Hands and Players is a tint with the accent edge (`--surface-selected`
+    is a plate for white text: on it the rows' own colours fell to 3.7:1 in
+    dark and 1.4:1 in light); the hand's room number and the sidebar's brand
+    (now large text) clear their ratios; the palette's field shows focus
+    as an accent line; Settings sections focused from the palette take no
+    ring of their own.
+  - **Accessibility, measured** (Playwright against a mocked IPC with
+    made-up data; the web's `frontend/scripts/contrast-sweep.js` on Today,
+    Hands with a hand open, Reports, Players with a profile, Settings, in
+    both themes): after the fixes above, 0 failures on Today and Settings;
+    the rest are the sweep's known exemptions - a disabled replayer control,
+    values faded by their reliability (R2.5's opacity, by design), text
+    the sweep composites over the page instead of the felt, and a
+    screen-reader-only label. Keyboard: Tab reaches every filter chip and
+    the list's one roving row, the sidebar after the screen; every stop
+    showed a ring. The palette's flows by keyboard alone: open, fuzzy
+    ("gtrep" -> Reports), a command (theme, density, language), a hand by
+    number, a saved filter applied to an open Hands, recent items, a
+    Settings section focused, Ctrl + 3, the Players grid's End and Enter.
+    Screenshots of the five screens in 2 themes x 2 densities x 2 languages
+    (40) and of the palette looked through; not in a `tauri dev` window.
+  - **Web unchanged, measured** with R2.6's `screens.mjs` (base
+    `origin/staging` and the change, `next build`, offline, two captures
+    each): **288 of 288 screenshots pixel-identical, all 192 DOMs
+    identical, all 192 cascades identical once the one new declaration
+    (`--felt-money` on `:root`, unused by the web) is left out**. The web
+    imports none of the other changed package files (`palette/`,
+    `StatTable`, `density.css`). The script's replayer-sheet captures had
+    gone stale on the base too: the result sheet at the end is open but
+    has no box Playwright counts as visible, and "?" pressed while the
+    closed sheet hands focus back was lost; they now wait for an open
+    dialog, pause before the key, and retry up to three times.
+  - **For later**: a `localizeServerMessage` for the Rust side's errors;
+    the web adopting the palette (its words through props, `rankItems`) and
+    `density.css`; the web's replayer in its light theme has the same
+    stacks-and-pot contrast (`--felt-money` is ready for it); the contrast
+    sweep in CI needs a headless browser in the app job.
 
 ### R2.9 Benchmark database and performance gate — M
 - A 1M-hand database built by replicating real corpus hands with fresh ids and
@@ -5081,3 +5198,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.7b done**: the desktop Today and Reports screens. `rail-store` migration 8: `hand_list` gains `kind`, `hero_wtsd`, `currency`, `minor_units` (written by the rebuild the migration starts: 500k in 100 s); `rail_store::report` - the win-rate graph from one scan of the list (`ntile` as `stats_graph`, total / showdown / non-showdown / all-in EV in big blinds and money, the web's money refusals), sessions by `stats_sessions`' 30-minute rule (refused per session), breakdowns by pot type, stack band, starting hand, players and street from one pass over the hero's seat rows, both cached until a commit; `HeroSum`. Commands `stat_definitions`, `report`, `report_breakdowns`, `today` (R2.4 `Shown` with R2.5 reliability), saved filters per screen. Today: the current session's result (money and bb), hands, hands per hour, tables, key statistics, biggest pots into Hands, then the import status. Reports: the filter row with its own saved filters (opens on the biggest format of a mixed store, as the web), summary, the graph in bb or money, every statistic by group, ten breakdown tabs with the 13 x 13 grid; palette entries. The web's `WinrateGraph` and `chartScale` moved to `packages/ui` with their sheet, the tile / table / graph words to `packages/ui/strings/stats.*`; web unchanged - 288 / 288 screenshots and every DOM identical, the graph's markup byte-identical and 84 / 84 pixel-identical inside each build's `/stats`, cascades equal but for the graph's own sheet. Parity with the web over the corpus (the web's SQL restated in TypeScript over the TypeScript rows): 288 statistics, 3 677 graph buckets, 1 967 breakdown rows and 193 sessions equal. At 500k: Reports opens in 0.11-0.5 s (1.8 s cold), a situation tab 0.4-1.6 s first; at 1M a situation tab and a cold open exceed the 1 s target (notes for R2.9). Checked in a browser against a mocked IPC with made-up data. |
 | 2026-10-14 | **R2.7c done**: the desktop Players screen. `rail-store` migration 9: `players` + `player_labels` (colour from six, note, labels - the web's `player_notes` limits; local only, sync with the web is R4.x), `player_summary` (per named opponent: hands, first/last seen, hands together and the hero's result in bb, cash and chips apart; summed at import with the rollups), `player_hidden` (opaque-id rows counted, not listed), `player_hands` (an opponent's seat rows by name, written by the background pass after the import - written by the import it cost 5 % of the import's rate, as shipped -1.0 %, gate green); a version-8 store opens in 0.2 s and rebuilds in the background. Opaque-id names are never listed and take no notes (the web's rule; session-scoped notes considered and rejected), the store refuses the write. `rail_store::players`: the list (prefix search in any case, kind, room, colour, label, note; most hands together first; the web's money refusal), a profile (rollups, summary, words), positions from the seat rows; `HandFilter::player` for "hands with this player". At 500k with renamed players (70 948 opponents): the list 0.3-0.4 ms (30 ms first after a commit; 371k padded: 173 ms first, 7 ms), a profile <1 ms, by position 1-12 ms, hands with a player first page 3.5-17.5 ms. `import_bench --rename-players` (per-copy villain names). Commands in `players.rs`; screen with list, filters, profile (statistics with reliability, breakdown by position/stake/table/game, colour radio group, labels, note), Hands' player chip, palette search; `--player-tag-*` tokens over semantic hues; `en` + `hr`. Checked in a browser against a mocked IPC with made-up players. |
 | 2026-10-14 | **Import writer, second pass** (R2.7c "As built"; on R2.7c's PR, whose CI import benchmark failed at 44 % against its 45 % gate). Profiled: the import threads spent ~15 % of their time blocked waiting for their own commits, so at most three batches were ever queued and the writer committed ~5 500 transactions of ~18 hands per 100k (44 pages of 16 KiB each; 3.8 GiB of WAL for a 396 MiB store; commit + auto-checkpoint ~47 % of its busy time). Now: `FileReader::start` queues a one-batch read with the writer (`WriterHandle::queue`) and a committer thread waits for the commits in order and answers the coordinator (a file stays in flight until then; a moved offset still retries as the same look); the writer holds a group of queued batches open for up to 5 ms once a second one is waiting (`GROUP_LINGER`; waited-for batches commit at once); the write connection gets a 16 MiB page cache and a checkpoint every 4 096 pages; migration 10 drops `hands_played_at_idx`, which nothing read. Writer alone (`import_bench --writer-only 4`, new): 51.1 -> 43.6 us a hand. Pipeline, 3 threads, M2 Pro: efficiency 51-52 % -> 59-60 %; CI 55 / 58 / 54 % (best 58 %) with the pipelining alone, 53 / 62 / 54 % (best 62 %) with all of it (was 43 / 41 / 44 %). Not taken (measured): foreign keys off, dropping indexes that have readers, a 20 ms linger. The gate stays at 45 % with 3 threads on the 3-core runner (stricter than the app's cores - 1; documented). No change to what is stored or derived, nor to crash safety. |
+| 2026-10-14 | **R2.8 done**: polish of the desktop screens. **Command palette** complete in `packages/ui` (labelled groups, ↑/↓, Tab and Page keys inside the field, Escape with text typed, matched letters marked, item shortcuts, key hints, live count) with a new fuzzy ranker (`palette/fuzzy.ts`); the app lists screens (Cmd/Ctrl + 1-6), hands, players, reports, saved filters of Hands and Reports (applied to an open screen too), Settings sections (the refused hands among them) and commands (pause/resume import, sync now, theme, density, language), with five recent choices. **Theme and density**: `settings.json` gains `density` and `locale` (`set_density`, `set_locale`); `lib/appearance.ts` paints `data-theme` / `data-density` / `lang` and keeps a copy that `public/appearance.js` applies before the first paint; `packages/ui/tokens/density.css` (app only; `StatTable` falls back to its old values); the Hands list and the Players grid read the row height back from CSS. **i18n**: Croatian complete in the web's register with the shared `plural`, counts passed as numbers, every `Intl` formatter live in the chosen language (en-GB / hr-HR), the tray follows; the app's ESLint rule extended to expression children, conditionals, templates and the app's text props (9 / 9 probes caught, 0 in the app); `tests/test/appI18n.test.ts`. **From R2.7**: the Players table virtualised as a keyboard grid, the profile's own game kind; one loading / empty / error component; selected rows as a tint (the solid plate fell to 1.4:1 in light). **Contrast** (the web's sweep, both themes, five screens): 0 failures beyond the sweep's known exemptions after the fixes, among them the felt's money in light (`--felt-money`, app only). **Web unchanged**: 288 / 288 screenshots, 192 / 192 DOMs, cascades equal but for `--felt-money`; `screens.mjs`'s sheet captures repaired. Checked in a browser against a mocked IPC with made-up data, 2 themes x 2 densities x 2 languages. No core crate changed. |

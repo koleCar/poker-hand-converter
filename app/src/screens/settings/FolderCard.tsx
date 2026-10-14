@@ -5,9 +5,10 @@ import { useT } from "../../i18n";
 import type { RoomChoice, WatchSource } from "../../lib/ipc";
 import styles from "./Folders.module.css";
 import { RefusedHands } from "./RefusedHands";
+import { liveDateFormat, liveNumberFormat } from "../../i18n/format";
 
-const number = new Intl.NumberFormat();
-const time = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "medium" });
+const number = liveNumberFormat();
+const time = liveDateFormat({ dateStyle: "short", timeStyle: "medium" });
 
 /** What a folder's controls ask the list to do. */
 export interface FolderActions {
