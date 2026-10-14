@@ -44,15 +44,42 @@ describe("config/sites.json", () => {
     expect(ok).toBe(true);
   });
 
-  it("knows no HUD policy yet (R3.0 sets them)", () => {
-    for (const s of shipped().sites) {
-      expect(s.hud.allowed, s.id).toBeNull();
-    }
+  // R3.0 (docs/research/HUD-POLICIES.md), signed off by the owner; the same
+  // list is pinned in core/rail-config/tests/sites.rs.
+  it("carries the R3.0 HUD policies", () => {
+    const policies = Object.fromEntries(shipped().sites.map((s: Json) => [s.id, s.hud.allowed]));
+    expect(policies).toEqual({
+      pokerstars: true,
+      ggpoker: false,
+      winamax: true,
+      "888poker": null,
+      partypoker: false,
+      ipoker: null,
+      acr: true,
+      coinpoker: false,
+      unibet: false,
+      chico: null,
+      ignition: false,
+      weplay: null,
+      pokerbros: false,
+      microgaming: false,
+      fulltilt: false,
+      ongame: false,
+      entraction: false,
+      runitonce: false,
+      standard: false,
+      "wpt-global": false,
+      bossmedia: false,
+      merge: false,
+    });
   });
 
   const refused: [string, (doc: Json) => void][] = [
     ["an unknown field", (d) => (site(d, "winamax").hudAllowed = true)],
-    ["hud.allowed true without source and date", (d) => (site(d, "winamax").hud.allowed = true)],
+    [
+      "hud.allowed true without source and date",
+      (d) => Object.assign(site(d, "888poker").hud, { allowed: true, source: null, checkedAt: null }),
+    ],
     [
       "hud.allowed true with an http source",
       (d) => Object.assign(site(d, "winamax").hud, { allowed: true, source: "http://x", checkedAt: "2026-10-13" }),

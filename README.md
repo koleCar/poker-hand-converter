@@ -98,7 +98,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)); since R1.2 the desktop's local registry (`unsupported` in `rail-store`, count and consent state) | Unknown files from watched folders recorded (R1.3), consented uploads after sign-in (R1.7+) | 0–1 |
-| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`), every HUD policy unknown | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
+| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`); **R3.0** HUD policy per entry from each room's own page, dated (proposal awaiting the owner's sign-off: allowed on PokerStars, Winamax, ACR; [`HUD-POLICIES.md`](docs/research/HUD-POLICIES.md)) | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), the unknown HUD policies settled, re-checked every release | 0–3 |
 | File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands. **Import pipeline (R1.6)**: a pool of import threads (physical cores - 1), live files first, large files cut into parallel batches, grouped commits; backfill progress in the tray, on Today and the folder cards; refused hands app-wide with their raw text and "Try again after an update"; 10 300 hands/s on an M2 Pro (target >= 5 000), guarded in CI | Sync to Supabase (R1.8-R1.9) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts; **R2.3**: the local statistics (seat rows, rollups per player and segment, the hero's per day, all-in EV); **R2.7a**: the hand list (one narrow row per hand in the list's order, written with the statistics), notes, tags and saved filters - a page of 100 in ~1 ms at 500k hands, filtered pages 1-35 ms; **R2.7b**: the reports' reads (`rail_store::report`) - the win-rate graph from one scan of the list (migration 8 adds the columns it needs), sessions by the web's 30-minute rule, breakdowns by situation - Reports opens in 0.1-0.5 s at 500k hands (1.8 s on a cold disk cache); **R2.7c**: the players (`rail_store::players`, migration 9) - per opponent of a room with real names the hands together and your result against them (written with the statistics), their seat rows by name (written by the background pass after the import, which keeps the import's rate), the user's colour tags, labels and notes (local only); **R2.10**: the user's own statistics (migration 11) and their counts, made by the background pass from the stored hands (~26k hands/s) and summed like the coded rollups | HUD layouts (Phase 3) | 1 |
 | Sync | Web saves to Supabase directly; **R1.8**: `ingest_hands` / `hand_sources` for desktop rows (PHF only, Q4); **R1.9**: the desktop sync worker (`rail_sync::worker`) - the outbox in batches of 500 to `ingest_hands`, hands just played first, backoff while offline, the account's rate limit waited out, refused hands kept with their reason, a bandwidth cap while a large backlog syncs, resumable after a kill, never sent to another account than the store's; and the pull (`hands_since`) of the account's hands from the web and its other computers. Settings → Account, Today and the tray show it; **R1.10**: the web's `/library` and `/stats` show synced hands live (Realtime on a one-row-per-account signal, `hand_arrivals`; debounced, nothing while the tab is hidden; statistics derived without a click). Phase 1 is complete on `staging`; production needs the owner's checklist ([`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.10) | gzip uploads if bandwidth needs it | 1 |
@@ -476,31 +476,34 @@ migration procedure: [`docs/DATABASE.md`](docs/DATABASE.md).
 Rail aims at every game format and as many rooms as possible. "Parser" is the
 state of the TypeScript parser today; every row still has to be ported to Rust
 in Phase 0. "Live files" is whether the client writes hand histories to disk
-while you play, which a HUD needs. **The HUD and live-file columns are a
-starting point to verify, not a policy**: Phase 3 opens with a dated,
-sourced compliance check of every room, and only that check goes into
-[`config/sites.json`](config/sites.json). That file (since R0.12) carries
-this table's live-file column as unverified starting points and
-`hud.allowed: null` - unknown, which the HUD treats as no - for every room.
-Since R1.4 three clients were looked at on a real macOS install: WePlay
-writes its files live (import only all the same), GGPoker and CoinPoker
-write none locally ([`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md)).
+while you play, which a HUD needs; it is a starting point to verify except
+where R1.4 looked at a real macOS install (WePlay writes its files live,
+GGPoker and CoinPoker write none locally,
+[`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md)).
+**The HUD column is R3.0's compliance check** (2026-10-14, proposal awaiting
+the owner's sign-off): each room's own policy page, quoted and dated in
+[`docs/research/HUD-POLICIES.md`](docs/research/HUD-POLICIES.md) and carried
+in [`config/sites.json`](config/sites.json) (`hud`). The HUD attaches only
+where it says "allowed"; unknown counts as prohibited, and the list is
+re-checked before every release.
 
-| Room or network | Parser | Live files | HUD (to verify) |
+| Room or network | Parser | Live files | HUD (R3.0, 2026-10-14) |
 | --- | --- | --- | --- |
-| PokerStars | ✅ | yes | likely allowed |
-| GGPoker (GG Network) | ✅ | no — downloaded afterwards, opponents hashed | likely prohibited |
-| Winamax | ✅ | yes | likely allowed |
-| 888poker | ✅ (2012–15 era verified) | to verify | to verify |
-| partypoker | ✅ (2012–15 era verified) | to verify | likely prohibited |
-| iPoker network | ✅ | per skin | per skin |
-| Winning Poker Network (ACR) | ✅ | yes | likely allowed |
-| WPT Global | — (no export exists since June 2026) | no | not applicable |
-| CoinPoker | ✅ | no — shown in the client from its server (macOS, seen R1.4) | to verify |
-| Unibet Poker | ✅ | to verify | to verify |
-| Chico network | ✅ | to verify | to verify |
-| Ignition / Bodog / Bovada | ✅ | no — anonymous tables | not useful |
-| WePlay, PokerBros, MicroGaming, Full Tilt, Ongame, Entraction, Run It Once | ✅ | — | — (import only) |
+| PokerStars | ✅ | yes | allowed, with restrictions (own hands only, numeric stats, at most two colour thresholds, no labels, no card-split stats) |
+| GGPoker (GG Network) | ✅ | no — downloaded afterwards, opponents hashed | prohibited |
+| Winamax | ✅ | yes | allowed (tracking / profiling software is on its authorised list) |
+| 888poker | ✅ (2012–15 era verified) | to verify | unknown — 888poker.com's terms not readable from here |
+| partypoker | ✅ (2012–15 era verified) | no — MyGame downloads, opponents hidden | prohibited |
+| iPoker network | ✅ | per skin | unknown — per skin, no skin's page says so |
+| Winning Poker Network (ACR) | ✅ | yes | allowed (ACR), with restrictions (own hands only, nothing from the hand in play, panels off ACR's own graphics) |
+| WPT Global | — (no export exists since June 2026) | no | prohibited |
+| CoinPoker | ✅ | no — shown in the client from its server (macOS, seen R1.4) | prohibited (since June 2026) |
+| Unibet Poker | ✅ | to verify | prohibited |
+| Chico network | ✅ | to verify | unknown — per skin, pages not readable |
+| Ignition / Bodog / Bovada | ✅ | no — anonymous tables | no — anonymous names |
+| WePlay | ✅ | yes (macOS, seen R1.4) | unknown — rules only in the app |
+| PokerBros | ✅ | — | no — no desktop client |
+| MicroGaming, Full Tilt, Ongame, Entraction, Run It Once | ✅ | — | no — closed (import only) |
 
 Games: No Limit and Pot Limit Hold'em, Omaha (4 and 5 cards, Hi/Lo where a room's
 own fixtures prove it), short deck. Structures: cash and fast-fold, MTT
@@ -865,3 +868,4 @@ of each decision and risks are in [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md).
 | Which formats can we not read, and how is that triaged? | [`docs/unsupported-formats.md`](docs/unsupported-formats.md) |
 | Where did this sample come from? | `fixtures/samples/<room>/SOURCES.md` |
 | Where does room X keep its hand histories, and how do I check? | [`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md) |
+| May the HUD run on room X, says who, and how is it re-checked? | [`docs/research/HUD-POLICIES.md`](docs/research/HUD-POLICIES.md) |

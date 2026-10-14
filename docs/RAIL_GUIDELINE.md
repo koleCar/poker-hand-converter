@@ -324,23 +324,25 @@ Model ruke od Faze 0 nosi varijantu igre i strukturu, a HUD i izvještaji imaju 
 
 Redoslijed implementacije određuje broj korisnika koji je traže; pravila HUD-a provjeravaju se za svaku sobu prije izdanja. Status: Planirano · U izradi · Podržano · Nepodržano.
 
-Stanje 12. listopada 2026. (A7). „Parser” je postojeći TypeScript parser, koji se u Fazi 0 prenosi u Rust. Stupac HUD je polazište za provjeru u koraku R3.0, ne pravilo; u `config/sites.json` ulazi samo provjereno pravilo s izvorom i datumom.
+Stanje 12. listopada 2026. (A7). „Parser” je postojeći TypeScript parser, koji se u Fazi 0 prenosi u Rust. Stupac „Pravila HUD-a” je provjera iz koraka R3.0 (14. listopada 2026., prijedlog koji čeka vlasnikovo odobrenje): pravilo svake sobe s njezine službene stranice, s izvorom i datumom, u `config/sites.json` i u `docs/research/HUD-POLICIES.md`. Nepoznato se računa kao zabranjeno.
 
 | Soba ili mreža | Status | Live datoteke | Pravila HUD-a |
 | --- | --- | --- | --- |
-| PokerStars | Podržano (TS) | da | vjerojatno dopušten, provjeriti |
-| GGPoker (GG Network) | Podržano (TS), samo uvoz | ne: preuzimaju se naknadno, protivnici su hashirani | vjerojatno zabranjen, provjeriti |
-| Winamax | Podržano (TS) | da | vjerojatno dopušten, provjeriti |
-| 888poker | Podržano (TS), provjereno za 2012–15 | provjeriti | provjeriti |
-| partypoker | Podržano (TS), provjereno za 2012–15 | provjeriti | vjerojatno zabranjen, provjeriti |
-| iPoker mreža | Podržano (TS) | ovisi o skinu | ovisi o skinu |
-| Winning Poker Network (ACR) | Podržano (TS) | da | vjerojatno dopušten, provjeriti |
-| WPT Global | Nepodržano: soba od lipnja 2026. nema izvoz ruku | ne | nije primjenjivo |
-| CoinPoker | Podržano (TS) | provjeriti | provjeriti |
-| Unibet Poker | Podržano (TS) | provjeriti | provjeriti |
-| Chico mreža | Podržano (TS) | provjeriti | provjeriti |
-| Ignition / Bodog / Bovada | Podržano (TS), samo uvoz | ne: anonimni stolovi | HUD nema smisla |
-| WePlay, PokerBros, MicroGaming, Full Tilt, Ongame, Entraction, Run It Once | Podržano (TS), samo uvoz | — | — |
+| PokerStars | Podržano (TS) | da | dopušten, uz ograničenja (samo vlastite ruke, brojčane statistike, najviše dva praga boje, bez oznaka igrača) |
+| GGPoker (GG Network) | Podržano (TS), samo uvoz | ne: preuzimaju se naknadno, protivnici su hashirani | zabranjen |
+| Winamax | Podržano (TS) | da | dopušten (tracking softver je na popisu dopuštenih) |
+| 888poker | Podržano (TS), provjereno za 2012–15 | provjeriti | nepoznato: uvjeti 888poker.com nisu dostupni iz Hrvatske |
+| partypoker | Podržano (TS), provjereno za 2012–15 | ne: preuzimanje kroz MyGame, protivnici skriveni | zabranjen |
+| iPoker mreža | Podržano (TS) | ovisi o skinu | nepoznato: ovisi o skinu, nijedan skin to ne navodi |
+| Winning Poker Network (ACR) | Podržano (TS) | da | dopušten na ACR-u, uz ograničenja (samo vlastite ruke, ništa iz ruke u tijeku, paneli ne prekrivaju grafiku stola) |
+| WPT Global | Nepodržano: soba od lipnja 2026. nema izvoz ruku | ne | zabranjen |
+| CoinPoker | Podržano (TS) | ne (macOS, R1.4) | zabranjen (od lipnja 2026.) |
+| Unibet Poker | Podržano (TS) | provjeriti | zabranjen |
+| Chico mreža | Podržano (TS) | provjeriti | nepoznato: ovisi o skinu, stranice nedostupne |
+| Ignition / Bodog / Bovada | Podržano (TS), samo uvoz | ne: anonimni stolovi | ne: anonimna imena |
+| WePlay | Podržano (TS), samo uvoz | da (macOS, R1.4) | nepoznato: pravila su samo u aplikaciji |
+| PokerBros | Podržano (TS), samo uvoz | — | ne: nema desktop klijenta |
+| MicroGaming, Full Tilt, Ongame, Entraction, Run It Once | Podržano (TS), samo uvoz | — | ne: zatvoreno |
 
 ### Registar nepodržanih formata
 
