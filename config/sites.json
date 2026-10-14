@@ -48,14 +48,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: likely allowed (README section 6). Not a policy until R3.0."
+        "allowed": true,
+        "source": "https://www.pokerstars.uk/poker/room/prohibited/",
+        "checkedAt": "2026-10-14",
+        "notes": "Permitted with restrictions: the Third Party Tools and Services Policy permits tools that \"monitor and display numerical-based statistics in-game\" from your own play. Its Reference Guide (last updated 21 Sep 2026, linked from the page) adds: stats only from hands the user played (up to 30 observed hands per session to seed a HUD), raw counts / opportunities, colour by at most two raw thresholds, pop-ups allowed; no stats split by card values, no display that changes with game state (position, stacks) or opponent tendencies, no labels or categories, no hand charts, no graph of more than one data point. Read on pokerstars.uk: pokerstars.com is blocked from Croatia. docs/research/HUD-POLICIES.md."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/pokerstars.md"
+        "docs/research/hh-formats/pokerstars.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -91,14 +92,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: likely prohibited (README section 6); import only whatever the policy says, since files are not live and opponents are hashed."
+        "allowed": false,
+        "source": "https://ggpoker.com/network/security-ecology-policy/",
+        "checkedAt": "2026-10-14",
+        "notes": "Prohibited: the Security & Ecology Policy (version 20260313) lists \"solvers, charts, or HUDs\" among prohibited tools; only GG's own Smart HUD / PokerCraft. Also no live files and hashed opponents. Its section 7.2 also bars 3rd-party tools that import or convert hand histories - an import question for the owner (docs/research/HUD-POLICIES.md)."
       },
       "anonymisation": "opaque-id",
       "docs": [
-        "docs/research/hh-formats/ggpoker.md"
+        "docs/research/hh-formats/ggpoker.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "Natural8, BestPoker and ClubGG are GG skins with no real sample (docs/unsupported-formats.md); they get entries of their own once a file confirms the grammar."
     },
@@ -134,14 +136,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: likely allowed (README section 6). Not a policy until R3.0."
+        "allowed": true,
+        "source": "https://www.winamax.fr/cgu-poker",
+        "checkedAt": "2026-10-14",
+        "notes": "Permitted: the poker rules (section 1.2, PDF of 10 Oct 2023 linked from the page) list as authorised software that stores your own statistics and analyses opponent data you collected yourself (\"profiling\"; \"Exemples : HoldemManager, PokerTracker, Xeester\"). Prohibited: solvers, ICM and equity calculators, dynamic ranges, seating scripts, some dynamic Hand2Note features, data mining / sharing. A tool not on the list needs integrity@winamax.com's prior approval - Rail fits the profiling category, but asking is the safe step. winamax.fr only; .es not read."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/winamax.md"
+        "docs/research/hh-formats/winamax.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -178,13 +181,14 @@
       },
       "hud": {
         "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: to verify (README section 6)."
+        "source": "https://www.888.ca/security-and-privacy/user-agreement/",
+        "checkedAt": "2026-10-14",
+        "notes": "Not established. 888poker.com is blocked from Croatia; the Ontario user agreement (5 Aug 2026) permits tracking software showing in-game stats on information you have \"at that specific table\", which may mean the current session only; secondary sources say third-party HUDs are allowed except on SNAP. Live files and the current client not checked."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/888poker.md"
+        "docs/research/hh-formats/888poker.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "Parser verified on the 2012-15 files of the corpus."
     },
@@ -203,9 +207,9 @@
       "files": {
         "glob": null,
         "encoding": "auto",
-        "live": null,
+        "live": false,
         "verified": false,
-        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "source": "partypoker's own Fairer Place to Play page (https://www.partypoker.com/en/poker/p/safer-poker, read 2026-10-14, R3.0): hand histories are downloaded from MyGame afterwards, opponents hidden; not seen on an install",
         "notes": "No default export folder or file name found in any source (docs/research/hh-formats/partypoker.md section 12)."
       },
       "tables": {
@@ -220,14 +224,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: likely prohibited (README section 6)."
+        "allowed": false,
+        "source": "https://www.partypoker.com/en/poker/p/safer-poker",
+        "checkedAt": "2026-10-14",
+        "notes": "Prohibited: \"the only third-party tools that are permitted\" while the client runs are ten table/caption tools, no HUD among them; Super HUD is named as prohibited. Hand histories come afterwards from MyGame, opponents anonymised, so no live files either."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/partypoker.md"
+        "docs/research/hh-formats/partypoker.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "Parser verified on the 2012-15 files of the corpus."
     },
@@ -265,12 +270,13 @@
       "hud": {
         "allowed": null,
         "source": null,
-        "checkedAt": null,
-        "notes": "Per skin (README section 6). A network entry: split into one room entry per skin before any HUD policy applies."
+        "checkedAt": "2026-10-14",
+        "notes": "Network: per skin. No skin's own policy page could be read (betfair, bet365, Betsson, William Hill: blocked from Croatia or silent on HUDs); secondary sources say iPoker permits third-party HUDs beside its built-in one. Not split: no skin clearly allows one on an official page."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/ipoker.md"
+        "docs/research/hh-formats/ipoker.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "No skin name appears in the files, so the skins cannot be told apart from the text; which skins exist today is for R1.4 / R3.0."
     },
@@ -306,14 +312,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: likely allowed (README section 6). Not a policy until R3.0."
+        "allowed": true,
+        "source": "https://www.acrpoker.eu/security/",
+        "checkedAt": "2026-10-14",
+        "notes": "Permitted with restrictions: policy 4.1.3 accepts \"Hand trackers and Heads Up Display (HUD) type tools\" with numeric stats from your own hands only and no information from the current hand in play. Prohibited: player labelling, data-mined hands, real-time advice, and (4.2.11) tools that change or overlap ACR's own table graphics - HUD panels must not cover them. WPN's other skins not checked."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/acr-wpn.md"
+        "docs/research/hh-formats/acr-wpn.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "The data-mined dialect writes numeric ids for names; such hands are opaque-id per hand (warning numeric-player-ids). Black Chip Poker, True Poker and Ya Poker are named as WPN skins in the research and write the same text; they get entries when R1.4 finds their clients."
     },
@@ -349,14 +356,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: to verify (README section 6)."
+        "allowed": false,
+        "source": "https://coinpoker.com/third-party-tools/",
+        "checkedAt": "2026-10-14",
+        "notes": "Prohibited since 9 Jun 2026: HUDs and statistical overlays (PokerTracker, Hold'em Manager, Hand2Note, DriveHUD) are banned, only CoinPoker's built-in HUD. The page refuses scripted fetches (403); read through a search engine's copy (policy dated 25 Jun 2026). Also no local hand histories (R1.4)."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/coinpoker.md"
+        "docs/research/hh-formats/coinpoker.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -392,14 +400,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: to verify (README section 6)."
+        "allowed": false,
+        "source": "https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet",
+        "checkedAt": "2026-10-14",
+        "notes": "Prohibited: \"No 3rd party software is allowed at Unibet Poker\"; the poker rules (v3.0, 14 Oct 2024) name hand trackers and HUDs as prohibited programs it detects."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/unibet.md"
+        "docs/research/hh-formats/unibet.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -444,12 +453,13 @@
       "hud": {
         "allowed": null,
         "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: to verify (README section 6). A network entry: split into one room entry per skin before any HUD policy applies."
+        "checkedAt": "2026-10-14",
+        "notes": "Network: per skin. BetOnline, SportsBetting and TigerGaming refuse scripted fetches (403); a search engine's copy of BetOnline's help centre says own-play trackers are permitted, an older rules page lists them as banned while playing. Not split: no skin's page could be read."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/chico.md"
+        "docs/research/hh-formats/chico.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "The first four skin names are printed in real files; Tiger Gaming and SportsBetting.ag Poker only in a parser's source. Which skins operate today is not established."
     },
@@ -459,7 +469,7 @@
       "kind": "network",
       "parser": "ignition",
       "network": null,
-      "operating": null,
+      "operating": true,
       "skins": [
         "Ignition",
         "Bovada",
@@ -489,14 +499,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Starting point: a HUD has no use here, every name is a position (README section 6)."
+        "allowed": false,
+        "source": "https://www.ignitioncasino.eu/poker/incognito-poker",
+        "checkedAt": "2026-10-14",
+        "notes": "Anonymous names: \"User IDs are hidden. Instead, a number is assigned to each player.\" A HUD has nothing to attach statistics to, and hand histories are downloaded afterwards."
       },
       "anonymisation": "positional",
       "docs": [
-        "docs/research/hh-formats/ignition-bodog-bovada.md"
+        "docs/research/hh-formats/ignition-bodog-bovada.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "Brand strings seen in real files: Ignition, Bovada, Bodog, Bodog.com, Bodog.eu, Bodog UK."
     },
@@ -541,12 +552,13 @@
       "hud": {
         "allowed": null,
         "source": null,
-        "checkedAt": null,
-        "notes": "Import only (README section 6)."
+        "checkedAt": "2026-10-14",
+        "notes": "Not established: no official terms or third-party-software page found on the web; the rules are in the app. The client writes live files (R1.4) and names are persistent in the corpus."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/weplay.md"
+        "docs/research/hh-formats/weplay.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -582,14 +594,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Import only (README section 6); there is no desktop client to attach to."
+        "allowed": false,
+        "source": "docs/research/hh-formats/pokerbros.md",
+        "checkedAt": "2026-10-14",
+        "notes": "No desktop client and no live files (mobile-only app with an in-app viewer): nothing for a desktop HUD to attach to. The room's own policy was not looked up."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/pokerbros.md"
+        "docs/research/hh-formats/pokerbros.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -625,14 +638,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Import only: the network shut down in 2016."
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed: the network shut down in 2016. Import only."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/legacy-networks.md"
+        "docs/research/hh-formats/legacy-networks.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -668,14 +682,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Import only: no live site exists."
+        "allowed": false,
+        "source": "docs/research/hh-formats/full-tilt.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed: no live site exists. Import only."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/full-tilt.md"
+        "docs/research/hh-formats/full-tilt.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -711,14 +726,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Import only: the network was shut down through the mid-2010s."
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed: shut down through the mid-2010s. Import only."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/legacy-networks.md"
+        "docs/research/hh-formats/legacy-networks.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -754,14 +770,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Import only: the network was wound down around 2014-15."
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed: wound down around 2014-15. Import only."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/legacy-networks.md"
+        "docs/research/hh-formats/legacy-networks.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -797,14 +814,15 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Import only: closed in 2022."
+        "allowed": false,
+        "source": "docs/research/hh-formats/run-it-once.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed in 2022. Import only."
       },
       "anonymisation": "none",
       "docs": [
-        "docs/research/hh-formats/run-it-once.md"
+        "docs/research/hh-formats/run-it-once.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": ""
     },
@@ -840,10 +858,10 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
+        "allowed": false,
         "source": null,
-        "checkedAt": null,
-        "notes": "Not a room."
+        "checkedAt": "2026-10-14",
+        "notes": "Not a room: Rail's own text format, no client to attach to."
       },
       "anonymisation": "none",
       "docs": [
@@ -883,15 +901,16 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "Not applicable while the room writes no files (README section 6)."
+        "allowed": false,
+        "source": "https://wptglobal.com/terms-and-conditions",
+        "checkedAt": "2026-10-14",
+        "notes": "Prohibited: the terms' Annex A lists \"Using or attempting to use HUDS\" as a prohibited activity. Also writes no hand-history files (no export since June 2026)."
       },
       "anonymisation": null,
       "docs": [
         "docs/research/hh-formats/wpt-global.md",
-        "docs/unsupported-formats.md"
+        "docs/unsupported-formats.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "No parser: docs/unsupported-formats.md, Formats known without a sample."
     },
@@ -927,15 +946,16 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "No parser; the network was folded into Microgaming's platform."
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed: folded into Microgaming's platform. No parser."
       },
       "anonymisation": null,
       "docs": [
         "docs/research/hh-formats/legacy-networks.md",
-        "docs/unsupported-formats.md"
+        "docs/unsupported-formats.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "Sample, no parser: card suits cannot be solved from the corpus (docs/unsupported-formats.md). The unsupported-format registry guesses it by signature (rail_core::unrecognized::KNOWN_FORMATS)."
     },
@@ -971,15 +991,16 @@
         "source": null
       },
       "hud": {
-        "allowed": null,
-        "source": null,
-        "checkedAt": null,
-        "notes": "No parser; the network shut down in 2017."
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-10-14",
+        "notes": "Closed: the network shut down in 2017. No parser."
       },
       "anonymisation": null,
       "docs": [
         "docs/research/hh-formats/legacy-networks.md",
-        "docs/unsupported-formats.md"
+        "docs/unsupported-formats.md",
+        "docs/research/HUD-POLICIES.md"
       ],
       "notes": "Sample, no parser (docs/unsupported-formats.md). The unsupported-format registry guesses it by signature (rail_core::unrecognized::KNOWN_FORMATS)."
     }

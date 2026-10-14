@@ -91,16 +91,155 @@ fn an_entry_naming_a_missing_parser_fails() {
     );
 }
 
-/// R0.12: no HUD policy is known yet. R3.0 replaces this test with the
-/// owner-signed list of rooms that allow one.
+/// R3.0: the HUD policy of every entry, as proposed in
+/// `docs/research/HUD-POLICIES.md` and signed off by the owner: (id,
+/// allowed, source). Any change to a policy - a room switched on or off, a
+/// new source - has to change this list too, so it is a reviewed diff.
+/// `None` is unknown, which the HUD treats as prohibited (guideline §7).
+const HUD_POLICIES: &[(&str, Option<bool>, Option<&str>)] = &[
+    (
+        "pokerstars",
+        Some(true),
+        Some("https://www.pokerstars.uk/poker/room/prohibited/"),
+    ),
+    (
+        "ggpoker",
+        Some(false),
+        Some("https://ggpoker.com/network/security-ecology-policy/"),
+    ),
+    (
+        "winamax",
+        Some(true),
+        Some("https://www.winamax.fr/cgu-poker"),
+    ),
+    (
+        "888poker",
+        None,
+        Some("https://www.888.ca/security-and-privacy/user-agreement/"),
+    ),
+    (
+        "partypoker",
+        Some(false),
+        Some("https://www.partypoker.com/en/poker/p/safer-poker"),
+    ),
+    ("ipoker", None, None),
+    ("acr", Some(true), Some("https://www.acrpoker.eu/security/")),
+    (
+        "coinpoker",
+        Some(false),
+        Some("https://coinpoker.com/third-party-tools/"),
+    ),
+    (
+        "unibet",
+        Some(false),
+        Some("https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet"),
+    ),
+    ("chico", None, None),
+    (
+        "ignition",
+        Some(false),
+        Some("https://www.ignitioncasino.eu/poker/incognito-poker"),
+    ),
+    ("weplay", None, None),
+    (
+        "pokerbros",
+        Some(false),
+        Some("docs/research/hh-formats/pokerbros.md"),
+    ),
+    (
+        "microgaming",
+        Some(false),
+        Some("docs/research/hh-formats/legacy-networks.md"),
+    ),
+    (
+        "fulltilt",
+        Some(false),
+        Some("docs/research/hh-formats/full-tilt.md"),
+    ),
+    (
+        "ongame",
+        Some(false),
+        Some("docs/research/hh-formats/legacy-networks.md"),
+    ),
+    (
+        "entraction",
+        Some(false),
+        Some("docs/research/hh-formats/legacy-networks.md"),
+    ),
+    (
+        "runitonce",
+        Some(false),
+        Some("docs/research/hh-formats/run-it-once.md"),
+    ),
+    ("standard", Some(false), None),
+    (
+        "wpt-global",
+        Some(false),
+        Some("https://wptglobal.com/terms-and-conditions"),
+    ),
+    (
+        "bossmedia",
+        Some(false),
+        Some("docs/research/hh-formats/legacy-networks.md"),
+    ),
+    (
+        "merge",
+        Some(false),
+        Some("docs/research/hh-formats/legacy-networks.md"),
+    ),
+];
+
+/// The date of the R3.0 check; a re-check (plan §12) moves it.
+const HUD_CHECKED_AT: &str = "2026-10-14";
+
 #[test]
-fn every_hud_policy_is_unknown_until_r3_0() {
+fn hud_policies_are_the_signed_list() {
     let config = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    let shipped: Vec<(&str, Option<bool>, Option<&str>)> = config
+        .sites
+        .iter()
+        .map(|site| {
+            (
+                site.id.as_str(),
+                site.hud.allowed,
+                site.hud.source.as_deref(),
+            )
+        })
+        .collect();
+    assert_eq!(shipped, HUD_POLICIES);
     for site in &config.sites {
-        assert_eq!(site.hud.allowed, None, "{}", site.id);
-        assert_eq!(site.hud.source, None, "{}", site.id);
-        assert!(!site.hud_permitted(), "{}", site.id);
+        assert_eq!(
+            site.hud.checked_at.as_deref(),
+            Some(HUD_CHECKED_AT),
+            "{}",
+            site.id
+        );
+        assert!(!site.hud.notes.trim().is_empty(), "{}", site.id);
+        if site.hud.allowed == Some(true) {
+            assert_eq!(site.kind, SiteKind::Room, "{}", site.id);
+            assert!(
+                site.hud
+                    .source
+                    .as_deref()
+                    .is_some_and(|source| source.starts_with("https://")),
+                "{}",
+                site.id
+            );
+        }
+        // A source that is not a web page is a repository document.
+        if let Some(source) = site.hud.source.as_deref()
+            && !source.starts_with("https://")
+        {
+            assert!(repo().join(source).is_file(), "{}: {source}", site.id);
+        }
     }
+    let permitted: Vec<&str> = config
+        .sites
+        .iter()
+        .filter(|site| site.hud_permitted())
+        .map(|site| site.id.as_str())
+        .collect();
+    assert_eq!(permitted, ["pokerstars", "winamax", "acr"]);
 }
 
 /// The `files` blocks seen on a real install (R1.4, macOS, 2026-10-13):
@@ -241,11 +380,12 @@ fn validator_problems() {
         (
             "hud allowed without a date",
             |v| {
-                let hud = &mut site_mut(v, "winamax")["hud"];
+                let hud = &mut site_mut(v, "888poker")["hud"];
                 hud["allowed"] = json!(true);
                 hud["source"] = json!("https://example.org");
+                hud["checkedAt"] = Value::Null;
             },
-            "winamax: hud.allowed is true without checkedAt",
+            "888poker: hud.allowed is true without checkedAt",
         ),
         (
             "duplicate id",
@@ -258,21 +398,22 @@ fn validator_problems() {
         (
             "hud allowed without a source",
             |v| {
-                let hud = &mut site_mut(v, "winamax")["hud"];
+                let hud = &mut site_mut(v, "888poker")["hud"];
                 hud["allowed"] = json!(true);
+                hud["source"] = Value::Null;
                 hud["checkedAt"] = json!("2026-10-13");
             },
-            "winamax: hud.allowed is true without an https source",
+            "888poker: hud.allowed is true without an https source",
         ),
         (
             "hud allowed with an http source",
             |v| {
-                let hud = &mut site_mut(v, "winamax")["hud"];
+                let hud = &mut site_mut(v, "888poker")["hud"];
                 hud["allowed"] = json!(true);
                 hud["source"] = json!("http://example.org");
                 hud["checkedAt"] = json!("2026-10-13");
             },
-            "winamax: hud.allowed is true without an https source",
+            "888poker: hud.allowed is true without an https source",
         ),
         (
             "a network cannot allow a HUD",
@@ -367,7 +508,7 @@ fn a_remote_file_cannot_switch_a_hud_on() {
     let shipped = load_shipped(&REGISTRATION_ORDER).expect("valid");
     let mut remote = shipped_value();
     {
-        let site = site_mut(&mut remote, "pokerstars");
+        let site = site_mut(&mut remote, "888poker");
         site["hud"] = json!({
             "allowed": true,
             "source": "https://example.org/terms",
@@ -376,28 +517,51 @@ fn a_remote_file_cannot_switch_a_hud_on() {
         });
         site["files"]["notes"] = json!("corrected");
     }
-    site_mut(&mut remote, "ggpoker")["hud"]["allowed"] = json!(false);
+    site_mut(&mut remote, "weplay")["hud"]["allowed"] = json!(false);
     let merged =
         load_remote(&shipped, &remote.to_string(), &REGISTRATION_ORDER).expect("valid remote");
-    let pokerstars = merged.config.site("pokerstars").expect("pokerstars");
+    let p888 = merged.config.site("888poker").expect("888poker");
+    assert_eq!(p888.hud, shipped.site("888poker").expect("shipped").hud);
+    assert_eq!(p888.files.notes, "corrected");
     assert_eq!(
-        pokerstars.hud,
-        shipped.site("pokerstars").expect("shipped").hud
-    );
-    assert_eq!(pokerstars.files.notes, "corrected");
-    assert_eq!(
-        merged.config.site("ggpoker").expect("ggpoker").hud.allowed,
+        merged.config.site("weplay").expect("weplay").hud.allowed,
         Some(false)
     );
     assert_eq!(
         merged.notes,
         [MergeNote::LooserHudIgnored {
-            id: "pokerstars".to_owned(),
+            id: "888poker".to_owned(),
             shipped: None,
             remote: Some(true)
         }]
     );
     assert_eq!(validate(&merged.config, &REGISTRATION_ORDER), Vec::new());
+}
+
+/// The other direction, on a room R3.0 allows: a room that changes its rules
+/// between releases is switched off by the remote file without a new version.
+#[test]
+fn a_remote_file_can_switch_an_allowed_hud_off() {
+    let shipped = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    assert!(
+        shipped
+            .site("pokerstars")
+            .expect("pokerstars")
+            .hud_permitted()
+    );
+    let mut remote = shipped_value();
+    site_mut(&mut remote, "pokerstars")["hud"] = json!({
+        "allowed": false,
+        "source": "https://www.pokerstars.uk/poker/room/prohibited/",
+        "checkedAt": "2026-11-01",
+        "notes": "re-check: HUDs no longer permitted"
+    });
+    let merged =
+        load_remote(&shipped, &remote.to_string(), &REGISTRATION_ORDER).expect("valid remote");
+    let pokerstars = merged.config.site("pokerstars").expect("pokerstars");
+    assert!(!pokerstars.hud_permitted());
+    assert_eq!(pokerstars.hud.checked_at.as_deref(), Some("2026-11-01"));
+    assert_eq!(merged.notes, Vec::new());
 }
 
 #[test]
