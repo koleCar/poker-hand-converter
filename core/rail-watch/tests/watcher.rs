@@ -45,10 +45,20 @@ fn fast() -> WatchConfig {
         // Notifications must do the work: no rescan during a test.
         rescan: Duration::from_secs(600),
         poll_interval: Duration::from_millis(200),
-        workers: 2,
+        workers: threads(),
         detect_network: false,
         file_globs: BTreeMap::new(),
     }
+}
+
+/// Import threads: `RAIL_WATCH_THREADS` (1, 2 or 8 shake out timing),
+/// else 2.
+fn threads() -> usize {
+    std::env::var("RAIL_WATCH_THREADS")
+        .ok()
+        .and_then(|threads| threads.parse().ok())
+        .filter(|threads| *threads > 0)
+        .unwrap_or(2)
 }
 
 fn start(name: &str, config: WatchConfig) -> Running {

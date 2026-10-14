@@ -71,6 +71,23 @@
 //! ([`FileReader::forget`]). A file that cannot be read (permissions) is
 //! reported ([`WatchEvent::FileError`]) and tried again at the next rescan.
 //!
+//! # Changing a folder under its reads
+//!
+//! [`Watcher::set_source_path`] and [`Watcher::set_source_site_override`]
+//! change in the store what a folder's files are (their paths) or how they
+//! are read (their offsets, back to 0). They first **fence** the folder:
+//! the coordinator starts no new read of its files and answers once none
+//! is in flight (a read ends with its commit answered, so nothing of it is
+//! still with the writer); then the store is changed, and the reload that
+//! follows lets the folder's reads go again under the new settings. A read
+//! that ran across the change used to commit under the old one: on a path
+//! change, a read of the old path that looked at the store after the move
+//! found no row there, read the whole file again from 0 and gave the
+//! folder a second row for the old path (its hands deduped, but the folder
+//! counted a file too many and detached it at its next change); under a
+//! room override, its batch met the reset offset and was read again with
+//! the old room.
+//!
 //! # Stopping
 //!
 //! [`Watcher::stop`] (or dropping it) asks large reads to stop after the
@@ -338,6 +355,10 @@ enum Command {
     /// These files (path, folder) were set back to offset 0 in the store:
     /// read them again.
     Reread(Vec<(PathBuf, i64)>),
+    /// Start no read of the folder's files; answer once none is in flight.
+    Fence(i64, Sender<()>),
+    /// Undo one `Fence` of the folder (after the reload that follows it).
+    Unfence(i64),
     Stop,
 }
 
@@ -406,6 +427,19 @@ pub struct Watcher {
     detect_network: bool,
     file_globs: BTreeMap<String, String>,
     thread: Option<JoinHandle<()>>,
+}
+
+/// A folder fenced by [`Watcher::fence`]: its reads go again when this is
+/// dropped.
+struct Fence<'a> {
+    watcher: &'a Watcher,
+    id: i64,
+}
+
+impl Drop for Fence<'_> {
+    fn drop(&mut self) {
+        let _ = self.watcher.send(Command::Unfence(self.id));
+    }
 }
 
 impl std::fmt::Debug for Watcher {
@@ -482,12 +516,14 @@ impl Watcher {
             on_event,
             sources: HashMap::new(),
             files: HashMap::new(),
-            in_flight: HashSet::new(),
+            in_flight: HashMap::new(),
             committing: HashSet::new(),
             queue: VecDeque::new(),
             queued: HashSet::new(),
             again: HashMap::new(),
             rechecks: BTreeSet::new(),
+            fenced: HashMap::new(),
+            fence_waiters: Vec::new(),
             ended: Vec::new(),
             last_publish: 0,
             publish_now: true,
@@ -516,6 +552,20 @@ impl Watcher {
         self.inbox
             .send(Msg::Cmd(command))
             .map_err(|_| Error::Stopped)
+    }
+
+    /// Fence folder `id` (see "Changing a folder under its reads"): returns
+    /// once none of its files is being read, and none is started until the
+    /// fence is dropped. Waits for the reads in flight (one look per file;
+    /// a large read commits its batches first). Not from the `on_event`
+    /// callback, which runs on the coordinator.
+    fn fence(&self, id: i64) -> Result<Fence<'_>> {
+        let (reply, answer) = mpsc::channel();
+        self.send(Command::Fence(id, reply))?;
+        // Undone on every way out, a failed wait included.
+        let fence = Fence { watcher: self, id };
+        answer.recv().map_err(|_| Error::Stopped)?;
+        Ok(fence)
     }
 
     /// Stop reading new bytes; notifications are still noted, and resuming
@@ -656,9 +706,9 @@ impl Watcher {
     /// when detection fails. The files the new choice reads differently are
     /// read again from their start
     /// ([`WriterHandle::set_source_site_override`]); hands stay and dedupe.
-    ///
-    /// A file a worker is reading at that very moment may be committed with
-    /// the old choice; it is read with the new one when it next changes.
+    /// The folder's reads in progress finish first, and none starts until
+    /// the watcher has the new choice (see "Changing a folder under its
+    /// reads").
     pub fn set_source_site_override(
         &self,
         id: i64,
@@ -669,6 +719,7 @@ impl Watcher {
         {
             return Err(Error::UnknownParser(parser.to_owned()));
         }
+        let _fence = self.fence(id)?;
         let change = self.writer.set_source_site_override(id, parser)?;
         if change.found {
             log::info!(
@@ -734,7 +785,14 @@ impl Watcher {
     /// read ("only new hands", as when adding a folder); otherwise they are
     /// imported. Fails with the store's `PathTaken` when another folder has
     /// the path.
+    ///
+    /// The folder's reads in progress finish first, and none starts until
+    /// the watcher has the new path (see "Changing a folder under its
+    /// reads"): the offsets compared are final, and no read of an old path
+    /// lands after its row moved.
     pub fn set_source_path(&self, id: i64, path: &Path, only_new: bool) -> Result<SourceMoved> {
+        // The folder and its files as they stand once its reads are done.
+        let _fence = self.fence(id)?;
         let Some(row) = self
             .reader
             .store_reader()
@@ -1003,7 +1061,9 @@ struct Coordinator {
     on_event: OnEvent,
     sources: HashMap<i64, SourceRt>,
     files: HashMap<PathBuf, FileRt>,
-    in_flight: HashSet<PathBuf>,
+    /// The files being read, with their folder (known even when the
+    /// folder's files were dropped meanwhile: a fence waits for these too).
+    in_flight: HashMap<PathBuf, i64>,
     /// The files of `in_flight` whose batch is with the writer: their
     /// import thread is free for another file.
     committing: HashSet<PathBuf>,
@@ -1016,6 +1076,11 @@ struct Coordinator {
     again: HashMap<PathBuf, bool>,
     /// Recheck times, earliest first.
     rechecks: BTreeSet<(i64, PathBuf)>,
+    /// Fenced folders (with how many fences each): none of their files is
+    /// dispatched.
+    fenced: HashMap<i64, u32>,
+    /// Fences to answer once their folder has no read in flight.
+    fence_waiters: Vec<(i64, Sender<()>)>,
     /// Folders whose backfill ended since the last publish: reported by
     /// it, after the status shows the end.
     ended: Vec<i64>,
@@ -1053,6 +1118,7 @@ impl Coordinator {
                 }
                 self.handle(message);
             }
+            self.answer_fences();
             if !self.paused.load(Ordering::SeqCst) {
                 let now = time::now_ms();
                 self.scan_due(now);
@@ -1122,7 +1188,7 @@ impl Coordinator {
             }
             Msg::Done(done) => self.on_done(*done),
             Msg::Committing(path) => {
-                if self.in_flight.contains(&path) {
+                if self.in_flight.contains_key(&path) {
                     self.committing.insert(path);
                 }
             }
@@ -1154,6 +1220,18 @@ impl Coordinator {
                         }
                     }
                     Command::Reread(files) => self.reread(files),
+                    Command::Fence(id, reply) => {
+                        *self.fenced.entry(id).or_default() += 1;
+                        self.fence_waiters.push((id, reply));
+                    }
+                    Command::Unfence(id) => {
+                        if let Some(count) = self.fenced.get_mut(&id) {
+                            *count -= 1;
+                            if *count == 0 {
+                                self.fenced.remove(&id);
+                            }
+                        }
+                    }
                     Command::Stop => {}
                 }
             }
@@ -1483,7 +1561,7 @@ impl Coordinator {
     /// or the back (a walk). One that a read has now is queued again when
     /// the read answers.
     fn enqueue(&mut self, path: PathBuf, front: bool) {
-        if self.in_flight.contains(&path) {
+        if self.in_flight.contains_key(&path) {
             let urgent = self.again.entry(path).or_insert(false);
             *urgent |= front;
             return;
@@ -1651,6 +1729,8 @@ impl Coordinator {
             return;
         }
         let cap = self.limits.cap(self.threads);
+        // Files of fenced folders: they stay queued, in their order.
+        let mut held = Vec::new();
         // Reads waiting only for their commit do not hold a thread.
         while self.in_flight.len().saturating_sub(self.committing.len()) < cap {
             let Some(path) = self.queue.pop_front() else {
@@ -1662,6 +1742,10 @@ impl Coordinator {
             let Some(file) = self.files.get_mut(&path) else {
                 continue;
             };
+            if self.fenced.contains_key(&file.source_id) {
+                held.push(path);
+                continue;
+            }
             let Some(source) = self.sources.get(&file.source_id).filter(|s| s.enabled) else {
                 continue;
             };
@@ -1675,9 +1759,29 @@ impl Coordinator {
                 track,
                 attempt: Attempt::default(),
             };
-            self.in_flight.insert(path);
+            self.in_flight.insert(path, job.source_id);
             self.spawn(job);
         }
+        for path in held.into_iter().rev() {
+            self.queued.insert(path.clone());
+            self.queue.push_front(path);
+        }
+    }
+
+    /// Answer the fences whose folder has no read in flight.
+    fn answer_fences(&mut self) {
+        if self.fence_waiters.is_empty() {
+            return;
+        }
+        let in_flight = &self.in_flight;
+        self.fence_waiters.retain(|(id, reply)| {
+            if in_flight.values().any(|source_id| source_id == id) {
+                return true;
+            }
+            // A handle that stopped waiting has nothing to answer.
+            let _ = reply.send(());
+            false
+        });
     }
 
     /// Run `job` on the pool (it is in flight).
@@ -2033,12 +2137,14 @@ mod tests {
             on_event,
             sources: HashMap::new(),
             files: HashMap::new(),
-            in_flight: HashSet::new(),
+            in_flight: HashMap::new(),
             committing: HashSet::new(),
             queue: VecDeque::new(),
             queued: HashSet::new(),
             again: HashMap::new(),
             rechecks: BTreeSet::new(),
+            fenced: HashMap::new(),
+            fence_waiters: Vec::new(),
             ended: Vec::new(),
             last_publish: 0,
             publish_now: true,
@@ -2214,6 +2320,96 @@ mod tests {
         c.read("a", 2 * MB);
         c.finish();
         assert_eq!(progress(&seen).last(), Some(&(None, None)));
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// A path change or a room override fences its folder (see "Changing a
+    /// folder under its reads"): no file of the folder is dispatched, and
+    /// the fence is answered only once the folder's read in flight has
+    /// answered - the move then cannot land under it. Before, a read of the
+    /// old path that looked at the store after the move read the file again
+    /// from 0 under a new row (macOS CI: the folder had two files, the old
+    /// path's among them). The other folders read on; the folder reads
+    /// again once every fence on it is undone.
+    #[test]
+    fn a_fenced_folder_starts_no_read_and_is_answered_after_its_reads() {
+        const OTHER: i64 = 2;
+        let (store, dir) = store("fence");
+        let (mut c, _) = coordinator(&store);
+        // Import threads, so that `dispatch` starts reads: these files are
+        // not there, and their reads answer `Gone`.
+        c.pool = Some(
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(1)
+                .build()
+                .expect("pool"),
+        );
+        let (commits, _commit_queue) = mpsc::channel();
+        c.commits = Some(commits);
+        c.threads = 4;
+        c.sources.insert(SOURCE, source());
+        c.sources.insert(
+            OTHER,
+            SourceRt {
+                id: OTHER,
+                path: PathBuf::from("other"),
+                real_path: PathBuf::from("other"),
+                ..source()
+            },
+        );
+        let path = PathBuf::from;
+        // A read of the folder's "hh/a" is in flight (its track is with it).
+        c.files.insert(
+            path("hh/a"),
+            FileRt {
+                track: None,
+                ..FileRt::new(SOURCE)
+            },
+        );
+        c.in_flight.insert(path("hh/a"), SOURCE);
+
+        let (reply, answer) = mpsc::channel();
+        c.handle(Msg::Cmd(Command::Fence(SOURCE, reply)));
+        let (second, second_answer) = mpsc::channel();
+        c.handle(Msg::Cmd(Command::Fence(SOURCE, second)));
+        c.answer_fences();
+        assert!(answer.try_recv().is_err(), "not while hh/a is read");
+
+        // A change of the folder's file and of the other folder's.
+        for (file, id) in [("hh/b", SOURCE), ("other/c", OTHER)] {
+            c.files.insert(path(file), FileRt::new(id));
+            c.enqueue(path(file), true);
+        }
+        c.dispatch();
+        assert!(c.in_flight.contains_key(&path("other/c")));
+        assert!(!c.in_flight.contains_key(&path("hh/b")), "fenced");
+        assert!(c.queued.contains(&path("hh/b")) && c.queue.contains(&path("hh/b")));
+
+        // The read of "hh/a" answers: both fences are answered.
+        c.handle(Msg::Done(Box::new(Done {
+            path: path("hh/a"),
+            track: FileTrack::default(),
+            result: Ok(Polled::Unchanged),
+        })));
+        c.answer_fences();
+        assert_eq!(answer.try_recv(), Ok(()));
+        assert_eq!(second_answer.try_recv(), Ok(()));
+
+        // Fenced until both fences are undone.
+        c.handle(Msg::Cmd(Command::Unfence(SOURCE)));
+        c.dispatch();
+        assert!(!c.in_flight.contains_key(&path("hh/b")), "one fence left");
+        c.handle(Msg::Cmd(Command::Unfence(SOURCE)));
+        c.dispatch();
+        assert_eq!(c.in_flight.get(&path("hh/b")), Some(&SOURCE));
+
+        // A folder with nothing in flight is answered at once.
+        let (reply, answer) = mpsc::channel();
+        c.handle(Msg::Cmd(Command::Fence(OTHER + 1, reply)));
+        c.answer_fences();
+        assert_eq!(answer.try_recv(), Ok(()));
         drop(c);
         drop(store);
         let _ = std::fs::remove_dir_all(dir);
