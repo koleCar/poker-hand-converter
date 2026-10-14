@@ -3621,3 +3621,99 @@ Each phase appends what it learned that changed the plan.
       on this export; where it does, its strategy is not scored against the
       heuristic here (34 rows; the grid held out on the heuristic walk
       scores +0.033 ± 0.034 there, too few to say anything).
+- 2026-10-14 — The river check trim, held out: not shipped
+  (study `tests/scripts/flop-library/riverCheckTrim.test.ts`,
+  `npm run floplib:river-check-trim`). No migration, no version bump.
+  - **Why.** The open item of both check trims above: the river checks
+    (`CHECK_VALUE` 0.5, `CHECK_AIR` 0.7; `CHECK_DRAW` does nothing on the
+    river, where no combo has outs) and `CHECK_REPEAT` (0.5) were never
+    fitted. Nothing narrows after a river check, but the range after a
+    player's last river action can be scored directly on the hand they show.
+  - **Data.** The same 5,448 stored hands. Every opponent shown down (the
+    hero left out; no bomb pot) who acted on the river and did not fold:
+    1,408 river rows (236 players), 1,119 on a river that began heads-up
+    (307 of them after a multiway flop) and 289 on a river that began with
+    three or more. Heads-up flops through `walkRanges` (the hero's own flops
+    read the flop library where a chunk covers them, as analysed), multiway
+    flops through `walkMultiway` (from the hero's seat, or the first seat in
+    a pot without the hero). 939 rows checked the river, 872 of them after
+    an earlier postflop check, so most river checks are already trimmed at
+    `CHECK_REPEAT` or less. For `CHECK_REPEAT` the flop and turn rows of the
+    earlier studies are added (1,558 and 1,415; 4,381 rows, 244 players).
+    Score, folds and clustered standard errors as the two check trims.
+    Fidelity: the study's restated constants reproduce the shipped heuristic
+    to the bit (600 river-start and end-of-river ranges).
+  - **Method.** Only river checks recomputed; everything else is
+    `analysis/23`. Candidates: `CHECK_VALUE` 0.3, 0.5, 0.65, 0.8, 1 ×
+    `CHECK_AIR` 0.5, 0.7, 0.8, 0.9, 1 (25), and the whole trim × 0, 0.25,
+    0.5, 0.75, 1.25, 1.5 (above 1 a harder trim). Three families: heads-up
+    river checks only, multiway river checks only, both alike; the separate
+    fits score each row with its own family's held-out choice. `CHECK_REPEAT`
+    0, 0.25, 0.75, 1 on every street, fitted on all rows.
+  - **Measured** (Δ against `analysis/23` per combo; the last four columns
+    are fixed candidates, not held out):
+
+    | river rows | n (players) | `analysis/23` | both alike, grid, held out | both alike, scale, held out | separate grids, held out | separate scales, held out | trim × 0.5 | no trim | trim × 1.5 | value 1, air 0.7 |
+    |---|---|---|---|---|---|---|---|---|---|---|
+    | every river row | 1,408 (236) | −6.835 | −0.002 ± 0.002 | −0.002 ± 0.002 | −0.002 ± 0.003 | −0.002 ± 0.003 | −0.005 ± 0.001 | −0.010 ± 0.002 | +0.001 ± 0.003 | −0.011 ± 0.003 |
+    | checked only | 868 (193) | −6.859 | +0.000 ± 0.002 | +0.000 ± 0.002 | +0.001 ± 0.002 | +0.001 ± 0.002 | −0.008 ± 0.002 | −0.017 ± 0.003 | +0.005 ± 0.003 | −0.016 ± 0.003 |
+    | check-call | 67 (49) | −6.743 | −0.008 ± 0.005 | −0.008 ± 0.005 | −0.012 ± 0.006 | −0.010 ± 0.005 | +0.008 ± 0.006 | +0.014 ± 0.011 | −0.016 ± 0.010 | −0.021 ± 0.030 |
+    | check-raise | 4 (4) | −6.091 | +0.005 ± 0.025 | +0.005 ± 0.025 | +0.005 ± 0.025 | +0.005 ± 0.025 | −0.031 ± 0.055 | −0.079 ± 0.125 | +0.016 ± 0.043 | −0.135 ± 0.195 |
+    | never checked | 469 (178) | −6.811 | −0.007 ± 0.007 | −0.007 ± 0.007 | −0.007 ± 0.007 | −0.007 ± 0.007 | −0.000 ± 0.001 | −0.000 ± 0.001 | −0.004 ± 0.007 | −0.002 ± 0.001 |
+    | checked after an earlier check | 872 (199) | −6.847 | +0.002 ± 0.001 | +0.002 ± 0.001 | +0.002 ± 0.001 | +0.002 ± 0.001 | −0.006 ± 0.001 | −0.013 ± 0.002 | +0.005 ± 0.001 | −0.015 ± 0.004 |
+    | checked, first check of the hand | 67 (51) | −6.843 | −0.028 ± 0.024 | −0.028 ± 0.024 | −0.027 ± 0.024 | −0.026 ± 0.024 | −0.019 ± 0.019 | −0.044 ± 0.033 | −0.023 ± 0.035 | −0.030 ± 0.035 |
+    | heads-up | 1,119 (213) | −6.849 | −0.003 ± 0.003 | −0.003 ± 0.003 | −0.003 ± 0.003 | −0.003 ± 0.003 | −0.005 ± 0.001 | −0.011 ± 0.002 | +0.000 ± 0.004 | −0.013 ± 0.003 |
+    | heads-up, checked only | 655 (167) | −6.864 | +0.000 ± 0.002 | +0.000 ± 0.002 | +0.000 ± 0.002 | +0.000 ± 0.002 | −0.009 ± 0.002 | −0.019 ± 0.004 | +0.005 ± 0.003 | −0.019 ± 0.004 |
+    | heads-up, check-call | 58 (43) | −6.833 | −0.011 ± 0.005 | −0.011 ± 0.005 | −0.011 ± 0.005 | −0.011 ± 0.005 | +0.011 ± 0.006 | +0.018 ± 0.011 | −0.019 ± 0.011 | −0.013 ± 0.034 |
+    | heads-up, never checked | 402 (158) | −6.834 | −0.008 ± 0.008 | −0.008 ± 0.008 | −0.008 ± 0.008 | −0.008 ± 0.008 | −0.000 ± 0.001 | −0.001 ± 0.001 | −0.005 ± 0.008 | −0.002 ± 0.001 |
+    | heads-up, after a multiway flop | 307 (141) | −6.706 | −0.010 ± 0.010 | −0.010 ± 0.010 | −0.010 ± 0.010 | −0.010 ± 0.010 | −0.010 ± 0.003 | −0.019 ± 0.006 | −0.005 ± 0.011 | −0.022 ± 0.008 |
+    | multiway | 289 (145) | −6.782 | +0.001 ± 0.002 | +0.001 ± 0.002 | +0.002 ± 0.002 | +0.003 ± 0.002 | −0.004 ± 0.002 | −0.008 ± 0.004 | +0.003 ± 0.002 | −0.004 ± 0.004 |
+    | multiway, checked only | 213 (112) | −6.841 | +0.000 ± 0.003 | +0.000 ± 0.003 | +0.004 ± 0.002 | +0.004 ± 0.003 | −0.005 ± 0.003 | −0.011 ± 0.005 | +0.004 ± 0.003 | −0.003 ± 0.005 |
+    | multiway, never checked | 67 (61) | −6.675 | +0.000 ± 0.000 | +0.000 ± 0.000 | −0.000 ± 0.000 | −0.000 ± 0.000 | +0.000 ± 0.000 | +0.001 ± 0.001 | −0.000 ± 0.000 | +0.001 ± 0.001 |
+    | the hero's pots | 269 (115) | −7.073 | +0.002 ± 0.002 | +0.002 ± 0.002 | +0.002 ± 0.002 | +0.001 ± 0.002 | −0.004 ± 0.002 | −0.009 ± 0.004 | +0.003 ± 0.003 | −0.007 ± 0.004 |
+    | pots without the hero | 1,139 (224) | −6.779 | −0.003 ± 0.003 | −0.003 ± 0.003 | −0.003 ± 0.003 | −0.003 ± 0.003 | −0.005 ± 0.001 | −0.011 ± 0.002 | −0.000 ± 0.003 | −0.013 ± 0.003 |
+
+    The held-out fits wander between the current trim and a harder one
+    (× 1.25 in three folds, the current trim in one, × 1.5 in one; multiway
+    alone value 0.3–0.5 with air 0.5, or × 1.5) and gain nothing held out:
+    −0.002 ± 0.002 overall, whichever family. In sample the best cell on all
+    river rows (× 1.25) is +0.001 ± 0.001. The current constants sit at the optimum, and the data does tell
+    them from the alternatives: a softer trim loses (× 0.5 −0.005 ± 0.001,
+    no trim −0.010 ± 0.002, keeping all value −0.011 ± 0.003), unlike the
+    flop and turn, where the trim was too hard. A harder trim helps the
+    players who only checked (+0.005 at × 1.5) by as much as it costs the
+    check-callers (−0.016), the same trade in the other direction. Multiway
+    rivers lean to a harder air trim (+0.003 to +0.004 on 289 rows), within
+    two standard errors.
+  - **`CHECK_REPEAT`** (Δ against 0.5; held out it picked 1 in two folds and
+    0.75 in three):
+
+    | rows | n (players) | `analysis/23` | held out | 0 | 0.25 | 0.75 | 1 |
+    |---|---|---|---|---|---|---|---|
+    | every row | 4,381 (244) | −6.885 | +0.001 ± 0.002 | −0.006 ± 0.002 | −0.003 ± 0.001 | +0.002 ± 0.001 | +0.002 ± 0.002 |
+    | turn, everyone | 1,415 (237) | −6.870 | −0.003 ± 0.001 | −0.001 ± 0.002 | −0.000 ± 0.002 | −0.001 ± 0.001 | −0.003 ± 0.002 |
+    | turn, checked after an earlier check | 769 (192) | −6.936 | −0.004 ± 0.002 | −0.000 ± 0.003 | +0.000 ± 0.002 | −0.002 ± 0.002 | −0.006 ± 0.004 |
+    | river, everyone | 1,408 (236) | −6.835 | +0.005 ± 0.004 | −0.016 ± 0.004 | −0.008 ± 0.002 | +0.007 ± 0.003 | +0.008 ± 0.006 |
+    | river, checked after an earlier check | 872 (199) | −6.847 | +0.004 ± 0.005 | −0.019 ± 0.004 | −0.010 ± 0.002 | +0.007 ± 0.003 | +0.002 ± 0.007 |
+
+    The flop rows do not move (no check on the flop follows an earlier one).
+    A weaker repeat discount (0.75) is a little better on the river and a
+    little worse on the turn; held out +0.001 ± 0.002, nothing to ship.
+  - **Not shipped.** Neither rule is met: the best held-out river candidate
+    is −0.002 ± 0.002 against the current constants (the bar was more than
+    two standard errors better), and `CHECK_REPEAT` held out is +0.001 ±
+    0.002. `CHECK_VALUE`, `CHECK_AIR`, `CHECK_DRAW` and `CHECK_REPEAT` stay;
+    no grade moves.
+  - **Open.**
+    - Most river checks are repeated checks (872 of 939), trimmed at half
+      strength or less, so the score barely sees the river constants
+      themselves; a first check on the river is only 67 rows (−0.03 ± 0.02
+      for every alternative, too few to say anything).
+    - A river grade the solver makes reads its ranges from the solve, so
+      the river check trim reaches only approximate river grades, equity
+      facts and the sensitivity check; and the hero's own heads-up rivers
+      start from the turn solve where the turn was solved, which this study
+      does not follow (it walks the heuristic from the flop).
+    - Multiway rivers may want a harder air trim (value 0.3–0.5, air 0.5 in
+      every fold, +0.002 ± 0.002 held out on 289 rows): worth another look
+      with more multiway showdowns.
