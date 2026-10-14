@@ -162,8 +162,16 @@ import type { Position, Street } from "../phf/types";
  *               the 9-max 100bb set (`FLOP_LINES_9MAX`) in the
  *               `flop-library` bucket, so heads-up flops on those lines are
  *               graded from their solves like 6-max ones.
+ *   analysis/22 A flop or turn check with three or more players in the pot
+ *               is trimmed less by the heuristic narrowing: value checks
+ *               `MULTIWAY_CHECK_VALUE` (0.65, was 0.5) of the time and a
+ *               strong draw always (`MULTIWAY_CHECK_DRAW`, was 0.6); air,
+ *               the river and every heads-up check unchanged. Multiway
+ *               grades downstream of such a check (approximate turn calls,
+ *               river solves after a multiway flop) move with the ranges
+ *               (ANALYSIS-PLAN §10 2026-10-14, multiway check trim).
  */
-export const ANALYSIS_VERSION = "analysis/21" as const;
+export const ANALYSIS_VERSION = "analysis/22" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

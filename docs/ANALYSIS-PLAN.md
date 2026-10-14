@@ -3418,3 +3418,97 @@ Each phase appends what it learned that changed the plan.
       other depths, 4-bet pots and BB-aggressor lines have no chunk.
     - The heads-up control is too small on this export (11 shown); with
       more libraries it should be scored the same way.
+- 2026-10-14 — The multiway check trim, `analysis/22`
+  (`lib/analysis/narrowing.ts`; study `tests/scripts/flop-library/checkTrim.test.ts`,
+  `npm run floplib:check-trim`; grades `checkTrimGrades.test.ts`). No
+  migration.
+  - **Why.** The open item of 2026-10-13: on players who only checked a
+    multiway flop, not narrowing at all scored +0.037 ± 0.022 per combo over
+    the heuristic, so the heuristic trims a multiway check too hard. A
+    smaller multiway trim, tested held out on its own.
+  - **Data.** As 2026-10-13: the 5,448 stored hands of the test user, every
+    opponent shown down after a flop three or more saw (the hero left out; no
+    bomb pot). Flop rows: 676 shown players (205 players) scored on their
+    range as the turn came. Turn rows: 417 (173 players) still in as the
+    river came after a turn three or more began, scored on their range as
+    the river came. Score as `analysis/17`-`/21`: mean log-likelihood per
+    combo of the shown combo, a combo outside the range at a twentieth of a
+    uniform combo. Starting ranges as the analysis reads them.
+  - **Method.** The heuristic's check likelihood recomputed (study code; the
+    shipped one reproduced to the bit) with other constants **only for flop
+    and turn checks with three or more live players**; everything else is
+    `heuristic/2` as it was. Candidates: a grid of `CHECK_VALUE` 0.5, 0.65,
+    0.8, 1 × `CHECK_AIR` 0.7, 0.8, 0.9, 1 × `CHECK_DRAW` 0.6, 0.8, 1 (48),
+    and the whole trim × 0, 0.25, 0.5, 0.75. Chosen held out with
+    2026-10-13's folds: five folds by player, every player scored by the
+    candidate that did best on the other four folds' flop and turn rows
+    together. Standard errors clustered by player. Baseline: `analysis/21`
+    (value 0.5, air 0.7, draw 0.6).
+  - **Measured** (Δ against `analysis/21` per combo; the last three columns
+    are fixed candidates, not held out):
+
+    | shown players | n (players) | `analysis/21` | grid, held out | scale, held out | value 0.65, air 0.7, draw 1 | trim × 0.5 | no trim |
+    |---|---|---|---|---|---|---|---|
+    | flop and turn together | 1,093 (205) | −6.859 | **+0.025 ± 0.009** | +0.025 ± 0.009 | +0.030 ± 0.008 | +0.025 ± 0.009 | +0.012 ± 0.015 |
+    | flop, everyone | 676 (205) | −6.905 | +0.030 ± 0.007 | +0.025 ± 0.007 | +0.034 ± 0.006 | +0.025 ± 0.007 | +0.025 ± 0.013 |
+    | flop, checked only | 352 (157) | −7.042 | +0.034 ± 0.009 | +0.034 ± 0.008 | +0.034 ± 0.009 | +0.034 ± 0.008 | +0.044 ± 0.014 |
+    | the same, a chunk read (2026-10-13's row) | 145 (93) | −6.858 | +0.031 ± 0.013 | +0.029 ± 0.013 | +0.030 ± 0.012 | +0.029 ± 0.013 | +0.034 ± 0.022 |
+    | flop, checked then called or raised | 122 (76) | −6.840 | +0.077 ± 0.026 | +0.065 ± 0.025 | +0.092 ± 0.022 | +0.065 ± 0.025 | +0.063 ± 0.045 |
+    | flop, never checked | 202 (119) | −6.704 | −0.006 ± 0.007 | −0.015 ± 0.011 | −0.002 ± 0.005 | −0.015 ± 0.011 | −0.030 ± 0.020 |
+    | flop, three players | 468 (174) | −6.914 | +0.033 ± 0.008 | +0.028 ± 0.008 | +0.036 ± 0.007 | +0.028 ± 0.008 | +0.031 ± 0.013 |
+    | flop, four or more | 208 (115) | −6.882 | +0.021 ± 0.010 | +0.019 ± 0.011 | +0.029 ± 0.008 | +0.019 ± 0.011 | +0.011 ± 0.024 |
+    | turn, everyone | 417 (173) | −6.784 | +0.017 ± 0.017 | +0.024 ± 0.015 | +0.023 ± 0.015 | +0.024 ± 0.015 | −0.008 ± 0.027 |
+    | turn, checked only | 237 (130) | −6.882 | +0.011 ± 0.016 | +0.025 ± 0.015 | +0.014 ± 0.015 | +0.025 ± 0.015 | +0.003 ± 0.029 |
+    | turn, checked then called or raised | 42 (34) | −6.474 | +0.093 ± 0.066 | +0.040 ± 0.081 | +0.082 ± 0.063 | +0.040 ± 0.081 | +0.092 ± 0.097 |
+    | turn, never checked | 138 (88) | −6.711 | +0.005 ± 0.032 | +0.019 ± 0.026 | +0.019 ± 0.026 | +0.019 ± 0.026 | −0.059 ± 0.054 |
+
+    The grid picked value 0.65, air 0.7, draw 1 in four folds (value 0.8,
+    air 0.9, draw 1 in the fifth); the scale picked 0.5 in all five. Both
+    beat `analysis/21` held out by +0.025 ± 0.009, 2.8 standard errors.
+    The gain comes from strong hands and strong draws: air keeps its trim
+    in four folds of five (0.9 in the fifth), and dropping the trim
+    entirely is better for pure checkers but costs the players who bet
+    (their opponents' checked ranges get too wide), so it ends at +0.012 ±
+    0.015 overall. The biggest single gain is on players who checked and
+    then called or raised (+0.08 to +0.09): exactly the strong hands and
+    draws the old trim pushed out. No subset with more than 20 shown is
+    worse by more than a standard error; the only negative held-out cell is
+    the flop players who never checked, −0.006 ± 0.007 (the change reaches
+    them only through the field's strength).
+  - **Control, heads-up.** Unchanged by construction (`players` unset or 2
+    takes the heads-up constants; a unit test pins it). For scale, the same
+    trims applied to heads-up checks on all 152 heads-up flops with a shown
+    opponent (73 players; the heuristic walk): checkers +0.039 ± 0.015 at
+    × 0.5 and +0.054 ± 0.025 with no trim (91 shown), bettors and callers
+    +0.005 ± 0.016 (61). Heads-up checks look trimmed too hard as well, but
+    on a sample a seventh the size; not changed here.
+  - **Shipped.** `MULTIWAY_CHECK_VALUE = 0.65` (was `CHECK_VALUE` 0.5) and
+    `MULTIWAY_CHECK_DRAW = 1` (was `CHECK_DRAW` 0.6) for a flop or turn check
+    with three or more players in the pot; `CHECK_AIR` (0.7), the river,
+    `CHECK_REPEAT` and every heads-up check unchanged. The narrowing's id
+    stays `heuristic/2` (`+mw` multiway); `ANALYSIS_VERSION` →
+    `analysis/22`.
+  - **The grades it moves** (`analyzeHand` without turn solves, as
+    2026-10-13 counted, over the 452 stored hands whose multiway flop the
+    hero saw; 306 graded postflop decisions): 10 grades change, none on
+    the flop. Flop approximate calls and folds 0 of 143 (two EV losses
+    move); turn approximate 3 of 76; river approximate 0 of 23; river
+    solves after a multiway flop 7 of 64 (two better, five worse, each
+    one step between Perfect, Good and Inaccurate). Examples: Q♣K♠ folding
+    the turn on 4♥A♠J♥ 8♥ after a three-way flop (2026-10-13's example),
+    Mistake (0.66bb) → Inaccurate (0.09bb); A♦4♥ calling the turn on
+    2♠5♠T♦ 8♦ three-way, Inaccurate (0.12bb) → Mistake (0.25bb); T♥8♥
+    calling the river on 8♠7♣7♥ 4♥ T♣ after a five-way flop, Good (0.54bb)
+    → Perfect. Heads-up turns after a multiway flop (solved, not counted
+    here) move with the same ranges.
+  - **Open.**
+    - The heads-up control says the heads-up check trim may be too hard as
+      well (+0.04 ± 0.015 at half the trim on 91 checkers); a held-out
+      test on more heads-up shown hands, and the heads-up library's own
+      narrowing scored the same way, before touching it.
+    - The river keeps the old constants: no shown range after a river
+      check can be scored this way (nothing narrows after it), so a river
+      check trim needs a different test (the river call grades' agreement
+      with a solve, or bluff-catchers' outcomes).
+    - Turn rows alone are not significant (+0.017 ± 0.017 held out); the
+      turn shares the flop's constants because they did no worse there.

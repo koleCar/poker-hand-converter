@@ -72,6 +72,11 @@
  * - **Fewer bets, far fewer bluffs**: the value share is scaled by
  *   `MULTIWAY_VALUE` and the bluff-and-draw target by `MULTIWAY_BLUFF` for
  *   each player beyond two. A bluff has to get through everyone.
+ * - **Checks trimmed less** (analysis/22): on the flop and turn a check
+ *   keeps value `MULTIWAY_CHECK_VALUE` of the time instead of `CHECK_VALUE`
+ *   and a strong draw `MULTIWAY_CHECK_DRAW` (always); with more players a
+ *   strong hand and a draw check more often than heads-up. Scored on shown
+ *   hands, held out (ANALYSIS-PLAN §10 2026-10-14). The river is unchanged.
  * - **The MDF split**: against a bet of `x` pots, the defenders together must
  *   continue `1 / (1 + x)` of the time; if each of the `k` defenders
  *   continues independently with a share `d`, everyone folds `(1 − d)^k`
@@ -125,6 +130,15 @@ export const CHECK_VALUE = 0.5;
 export const CHECK_REPEAT = 0.5;
 export const CHECK_DRAW = 0.6;
 export const CHECK_AIR = 0.7;
+/**
+ * Multiway (analysis/22): a flop or turn check with three or more players in
+ * the pot trims value less (it checks this often) and a strong draw not at
+ * all; the air trim is `CHECK_AIR` as heads-up. Fitted held out on shown
+ * hands (ANALYSIS-PLAN §10 2026-10-14); the river keeps the heads-up
+ * constants.
+ */
+export const MULTIWAY_CHECK_VALUE = 0.65;
+export const MULTIWAY_CHECK_DRAW = 1;
 /** How much of a draw's chance of hitting turns into equity. */
 export const DRAW_REALISATION = 0.75;
 /** Outs that make a draw "strong". */
@@ -513,19 +527,22 @@ function call(input: NarrowInput, { q, outs }: Scored): Float64Array {
 function check(input: NarrowInput, { q, outs }: Scored): Float64Array {
   const { street, actor } = input;
   const repeat = Math.pow(CHECK_REPEAT, Math.max(0, input.action.checksBefore ?? 0));
+  const multiway = extraPlayers(input) > 0 && street !== "river";
+  const checkValue = multiway ? MULTIWAY_CHECK_VALUE : CHECK_VALUE;
+  const checkDraw = multiway ? MULTIWAY_CHECK_DRAW : CHECK_DRAW;
   const cut = 1 - VALUE_SHARE[street];
   const out = new Float64Array(NUM_COMBOS);
   for (let c = 0; c < NUM_COMBOS; c += 1) {
     if (!(actor[c] > 0) || Number.isNaN(q[c])) continue;
     const o = outs[c];
     if (o >= STRONG_DRAW_OUTS) {
-      out[c] = 1 - (1 - CHECK_DRAW) * repeat;
+      out[c] = 1 - (1 - checkDraw) * repeat;
       continue;
     }
     const value = ramp(q[c], cut - RAMP, cut);
     const air = q[c] < BLUFF_ZONE && o < WEAK_DRAW_OUTS ? 1 - ramp(q[c], BLUFF_ZONE - RAMP, BLUFF_ZONE) : 0;
-    // Value fades to CHECK_VALUE, air to CHECK_AIR, the middle checks.
-    out[c] = Math.max(FLOOR, 1 - repeat * (value * (1 - CHECK_VALUE) + air * (1 - CHECK_AIR)));
+    // Value fades to CHECK_VALUE (multiway on the flop and turn, MULTIWAY_CHECK_VALUE), air to CHECK_AIR, the middle checks.
+    out[c] = Math.max(FLOOR, 1 - repeat * (value * (1 - checkValue) + air * (1 - CHECK_AIR)));
   }
   return out;
 }
