@@ -71,6 +71,8 @@ pub enum Activity {
     Rebuilding,
     /// Writing the opponents of new hands to `player_hands` (R2.7c).
     Indexing,
+    /// Counting the user's own statistics (R2.10).
+    Counting,
     /// Computing EV rows.
     Computing,
     /// Paused: a backfill is importing.
@@ -89,6 +91,7 @@ impl Activity {
             Self::Idle => "idle",
             Self::Rebuilding => "rebuilding",
             Self::Indexing => "indexing",
+            Self::Counting => "counting",
             Self::Computing => "computing",
             Self::PausedBackfill => "paused-backfill",
             Self::PausedTables => "paused-tables",
@@ -148,6 +151,8 @@ pub enum Step {
     Rebuilt(usize),
     /// Hands whose opponents went to `player_hands`.
     Indexed(usize),
+    /// Hands counted for the user's own statistics (0: a page went stale).
+    Counted(usize),
     /// EV rows computed, and the time the computation took.
     Computed(usize, Duration),
     /// Nothing left (of what was allowed).
@@ -155,7 +160,7 @@ pub enum Step {
 }
 
 /// A stored PHF back as a hand.
-fn hand_from(blob: &[u8], size: i64) -> Result<PhfHand> {
+pub(crate) fn hand_from(blob: &[u8], size: i64) -> Result<PhfHand> {
     let size = u64::try_from(size).map_err(|_| Error::OutOfRange("PHF size"))?;
     let json = decompress_phf(blob, size)?;
     serde_json::from_str(&json).map_err(|error| Error::Corrupt(format!("stored PHF: {error}")))
@@ -241,7 +246,8 @@ fn ev_step(reader: &Reader, writer: &WriterHandle) -> Result<Option<(usize, Dura
 }
 
 /// One step: a rebuild page if a rebuild runs, else the opponents of a
-/// page of new hands, else (when `ev` allows) a page of EV rows.
+/// page of new hands, else a page of the user's own statistics (R2.10,
+/// [`crate::custom`]), else (when `ev` allows) a page of EV rows.
 pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
     if let Some(n) = rebuild_step(reader, writer)? {
         return Ok(Step::Rebuilt(n));
@@ -249,6 +255,9 @@ pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
     let indexed = writer.write(|tx| crate::stats::index_players(tx, INDEX_PAGE))?;
     if indexed > 0 {
         return Ok(Step::Indexed(indexed));
+    }
+    if let Some(n) = crate::custom::custom_step(reader, writer)? {
+        return Ok(Step::Counted(n));
     }
     if ev && let Some((n, took)) = ev_step(reader, writer)? {
         return Ok(Step::Computed(n, took));
@@ -261,6 +270,8 @@ pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
 pub struct Drained {
     pub rebuilt: usize,
     pub indexed: usize,
+    /// Hands counted for the user's own statistics.
+    pub counted: usize,
     pub ev_rows: usize,
     pub ev_time: Duration,
 }
@@ -272,6 +283,7 @@ pub fn drain(reader: &Reader, writer: &WriterHandle) -> Result<Drained> {
         match step(reader, writer, true)? {
             Step::Rebuilt(n) => drained.rebuilt += n,
             Step::Indexed(n) => drained.indexed += n,
+            Step::Counted(n) => drained.counted += n,
             Step::Computed(n, took) => {
                 drained.ev_rows += n;
                 drained.ev_time += took;
@@ -469,6 +481,10 @@ fn run(shared: &Shared, reader: &Reader, writer: &WriterHandle) {
             Ok(Step::Indexed(_)) => {
                 shared.status().last_error = None;
                 refresh(shared, reader, Activity::Indexing);
+            }
+            Ok(Step::Counted(_)) => {
+                shared.status().last_error = None;
+                refresh(shared, reader, Activity::Counting);
             }
             Ok(Step::Computed(n, took)) => {
                 {

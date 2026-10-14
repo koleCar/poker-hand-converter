@@ -749,3 +749,237 @@ corpus and 600 synthetic totals, and the same text as `Intl`
 The thresholds and minimum samples are starting values for 6-max no-limit,
 for the user to change (R3.9 keeps a user's changes as an override by `id`).
 
+---
+
+## 14. Custom statistics: decision events and the predicate language
+
+The counters of §6 stay code: each one is a judgement call, ported and
+golden-tested. A **user's own** statistic (docs/RAIL-PLAN.md R2.10,
+amendment A11) needs a new opportunity without new code, so the engine also
+exports every seat's **decision events** - each decision with the betting
+state it was made in - and a small **predicate language** defines a counter
+as a filter over them. A predicate is never a counter of §6 in disguise: the
+two are compared on the whole corpus (§14.4), and they agree on every row
+except the twelve the language cannot see.
+
+| File | Contents |
+| --- | --- |
+| `core/rail-stats/src/events.rs` | `hand_events(&PhfHand) -> HandEvents`: the events (§14.1) |
+| `core/rail-config/src/stats/predicate.rs` | the grammar and the parser, errors with byte spans (§14.2) |
+| `core/rail-stats/src/custom.rs` | the fields, `CustomCounter` (evaluation), `CustomSet` (a user's definitions validated and compiled), `EVENTS_VERSION` |
+| `core/rail-stats/tests/custom_acceptance.rs` | the standard set in the language against the coded counters (§14.4) |
+| `core/rail-stats/tests/events.rs` | the facts the acceptance test does not reach (sizes, position) on pinned hands |
+| `core/rail-store/src/custom.rs` | the definitions in the user's store, the background count, the sums |
+
+Rust only: the desktop app is the consumer. The web shows a user's statistic
+once it runs the Rust core (R4.1) or ports `events.rs` and `custom.rs`; it
+does not yet.
+
+### 14.1 Decision events
+
+`hand_events` builds the same `StatsContext` as `hand_facts` (§3) - the same
+five decision types, raise levels with the straddle as a blind (§4.1), the
+same preflop aggressor, cbet chain (§4.4) and steal attempt (§4.5) - and
+gives one `SeatEvents` per dealt-in seat, in `rows_for`'s order, each with
+one `DecisionEvent` per decision. Nothing reads them back into a counter of
+§6; `EVENTS_VERSION` (`events/1`) changes when a field changes meaning, and
+the stored custom counts are then made again.
+
+Sizes are integers in **thousandths** (of a big blind, or of a percentage
+point), rounded down; a size the hand cannot give - no big blind, an empty
+pot, a check - has **no value**, and a field with no value fails every test
+(`not` turns that round). In the language they read as decimals: `size_pot
+<= 33.3`, `stack_bb > 40`.
+
+**The hand** (the same on every event of the hand):
+
+| Field | Kind | Value |
+| --- | --- | --- |
+| `bomb_pot` | yes/no | §8 (`is_bomb_pot`) |
+| `straddle` | yes/no | a straddle was posted (`has_straddle`) |
+| `button_blind` | yes/no | GG short deck's button blind (§4.5) |
+| `walk` | yes/no | `is_walk` (§4.2) |
+| `dealt` | number | seats dealt in |
+| `max_seats` | number | the table's size |
+| `preflop_raises` | number | voluntary preflop raises: 0 limped, 1 single-raised, 2 a 3-bet pot, 3+ 4-bet or more (`pot_type` as a number) |
+
+**The seat** (the same on every event of the seat):
+
+| Field | Kind | Value |
+| --- | --- | --- |
+| `hero` | yes/no | the hero's seat |
+| `position` | `utg` `utg1` `utg2` `mp` `lj` `hj` `co` `btn` `sb` `bb` | PHF's position, lower case without `+`; none when the hand has none |
+| `posted_blind` | yes/no | posted a blind, a dead post, a missed blind or a straddle (the cold-call and fold-to-steal test, §4.6) |
+| `big_blind` | yes/no | the first `big-blind` poster (a button blind too) |
+| `preflop_aggressor` | yes/no | the last preflop raiser |
+| `stack_bb` | number | starting stack in big blinds |
+| `effective_bb` | number | the smaller of the seat's starting stack and the largest other dealt-in seat's, in big blinds |
+| `saw_flop`, `saw_turn`, `saw_river` | yes/no | `flop_seen` / `turn_seen` / `river_seen` (§6.2: the street was dealt and the seat had not folded - all-in seats included) |
+| `showdown` | yes/no | `wtsd`'s test: two or more seats never folded and this is one (§4.8) |
+| `won` | yes/no | collected chips from a pot (§6.3) |
+
+**The decision:**
+
+| Field | Kind | Value |
+| --- | --- | --- |
+| `street` | `preflop` `flop` `turn` `river` | |
+| `action` | `fold` `check` `call` `bet` `raise` | |
+| `all_in` | yes/no | the action put the seat all in |
+| `facing` | `none` `limp` `bet` `raise` | preflop: `none` an unopened pot (blinds and straddles only), `limp` one or more limpers and no raise, `raise` a voluntary raise; postflop: `none` nothing bet yet, `bet` a bet, `raise` a raise. Preflop `none` + `limp` partition raise level 0 exactly as RFI and iso do (§4.3) |
+| `raise_level` | number | voluntary raises before on the street (`raisesBefore`, §3.1) |
+| `limpers` | number | preflop at raise level 0: the players who limped before; otherwise 0 |
+| `callers` | number | calls since the last bet or raise on the street (the squeeze test) |
+| `first_on_street` | yes/no | the seat's first decision on the street |
+| `first_at_level` | yes/no | the seat's first decision on the street at this raise level |
+| `checked_before` | yes/no | the seat checked earlier on the street |
+| `own_raise` | number | the level the seat's latest raise on the street made: 1 it opened, 2 it 3-bet, ...; 0 none |
+| `facing_steal` | yes/no | preflop: the hand's steal attempt (§6.1, all of §4.5's conditions) was another seat's, and it is still the only raise |
+| `facing_cbet` | yes/no | the street's continuation bet (§6.2) was another seat's, made before this decision, and nobody has raised since |
+| `barrels` | number | the cbets of earlier streets, each called and not raised, unbroken from the flop: 0 on the flop, 1 on the turn after a called flop cbet, 2 on the river after two (§4.4) |
+| `initiative` | yes/no | the seat made the previous street's last bet or raise (on the flop: the preflop raiser); preflop false |
+| `ahead_of_aggressor` | yes/no | the previous street's aggressor is another seat, still in the hand on this street, that has not acted on it yet (the donk test) |
+| `in_position` | yes/no | postflop: the seat is the last to make its first decision on the street - it acts last among the seats that can act; none preflop |
+| `players` | number | seats still in the hand when the street began (all-in seats included); preflop the seats dealt in |
+| `multiway` | yes/no | `players` is 3 or more |
+| `pot_bb` | number | the pot before the decision (every posting, call, bet and raise so far, uncalled returns taken back), big blinds |
+| `size_bb` | number | a call, bet or raise: the seat's total on the street after it - a raise's "to" - in big blinds |
+| `size_pot` | number | a bet: its chips as a percentage of the pot before it; a raise: the chips over the call as a percentage of the pot after the call (a pot-sized raise is 100) |
+| `facing_size_pot` | number | the `size_pot` of the last bet or raise on the street before this decision; none when nothing voluntary was bet (preflop blinds are not a bet) |
+
+The size classes a tracker names - a third of the pot, half, pot, overbet;
+an open to 2.5 bb - are comparisons on these: `size_pot <= 40`,
+`size_bb >= 2.5 and size_bb < 3`.
+
+### 14.2 The predicate language
+
+```text
+counter    := mode condition ("=>" condition)?
+mode       := "first" | "any" | "each"
+condition  := conj ("or" conj)*
+conj       := neg ("and" neg)*
+neg        := "not" neg | "(" condition ")" | test
+test       := field
+            | field ("=" | "!=" | "<" | "<=" | ">" | ">=") value
+            | field "in" "(" value ("," value)* ")"
+value      := number | word        number := [0-9]+ ("." [0-9]{1,3})?
+```
+
+The condition before `=>` is the **opportunity**, the one after it the
+**action** (without `=>` every opportunity is made). `and` binds tighter than
+`or`, `not` tighter than both. A bare field must be yes/no; a yes/no field
+compares to `true` / `false`; a choice field compares with `=`, `!=` or `in`
+to its own words; a number field with every comparison to numbers of at most
+three decimals (kept as thousandths: exact). Nothing else exists - no
+arithmetic, no functions, no other names - and a predicate is at most 1 000
+bytes and 32 levels deep, `in` at most 32 values: like a formula (§13), it
+cannot reach anything but the event in front of it.
+
+**Modes** - how a seat's events in one hand count:
+
+| Mode | Opportunities | Made |
+| --- | --- | --- |
+| `first` | 1 if any event passes the opportunity | 1 if the **first** such event passes the action |
+| `any` | 1 if any event passes the opportunity | 1 if **any** such event passes the action |
+| `each` | every event that passes the opportunity | every one of those that passes the action |
+
+`first` and `any` are §3.2's "0 or 1 per hand". The coded counters' two
+shapes of "first" are both a `first` predicate: "the first decision at raise
+level 1" is `first raise_level = 1`, and "the first decision, if it is
+unopened" is `first first_on_street and facing = none` - the
+`first_on_street` / `first_at_level` fields turn "first, then test" into
+"first that passes".
+
+**Errors** carry the byte offset and length of what they are about - an
+unknown field (with the nearest name when one is a typo away: `stret` ->
+`street`), a word that is not one of the field's, a comparison its kind does
+not have, a number with four decimals, an unclosed parenthesis - and the
+editor underlines exactly that span. The messages are English, as the
+formula language's are.
+
+### 14.3 A user's statistic
+
+A user's statistic is an R2.4 definition (§13: id, labels, description,
+formula, format, sample, bands) and, optionally, a predicate. With one it has
+two counters of its own, named by its id: `<id>` (made) and `<id>_opp`
+(opportunities); its formula defaults to `pct(<id>, <id>_opp)` and may be
+any formula over those, the ninety coded counters, the money columns and
+other user statistics' counters (`rail_stats::custom::CustomSet`: an id may
+not be a shipped id, a counter, another statistic or another statistic's
+counter; a statistic whose counters another formula reads cannot be renamed
+or deleted until that one changes). Without one it is a formula over the
+existing counters only. A formula that reads the hero's all-in EV is the
+hero's (`players: hero`).
+
+Definitions live in the user's store, not in `config/stats/`
+(`custom_stats`, `core/rail-store/SCHEMA.md` "Custom statistics"). The
+background pass counts each predicate over every stored hand from its PHF,
+on the seats the store keeps (§9's rows: the hero, and villains unless the
+room is positionally anonymised), and sums the counts the way the coded
+rollups are summed - the hero's per hand and per (segment, position, day,
+kind), every kept seat's per (site, player, scope, segment) with bomb pots
+left out - so a report's filter and the HUD's lookup read them as they read
+the coded counters.
+
+### 14.4 The standard set in the language
+
+`core/rail-stats/tests/custom_acceptance.rs` writes the standard counters as
+predicates and compares them with the coded counters on **every dealt-in seat
+of every corpus hand: 8 422 hands, 51 464 rows**, opportunities and made
+alike. With `PF` = `street = preflop and not bomb_pot and not (walk and
+big_blind)` (the guard every preflop counter has in code, §4.2, §8):
+
+| Counter | Predicate | Opportunities | Made | Rows that differ |
+| --- | --- | ---: | ---: | ---: |
+| `vpip` | `any PF => action in (call, bet, raise)` | 49 390 | 15 122 | 0 |
+| `pfr` | `any PF => action = raise` | 49 390 | 8 017 | 0 |
+| `rfi` | `first PF and first_on_street and facing = none => action = raise` | 22 088 | 5 423 | 0 |
+| `iso` | `first PF and first_on_street and facing = limp => action = raise` | 6 198 | 1 014 | 0 |
+| `limp` | `first PF and first_on_street and raise_level = 0 and action != check => action = call` | 27 030 | 3 047 | 0 |
+| `cold_call` | `first PF and first_on_street and raise_level >= 1 and not posted_blind => action = call` | 9 341 | 1 332 | 0 |
+| `three_bet` | `first PF and raise_level = 1 => action = raise` | 20 087 | 1 504 | 0 |
+| `four_bet` | `first PF and raise_level = 2 => action = raise` | 4 080 | 240 | 0 |
+| `five_bet` | `first PF and raise_level = 3 => action = raise` | 406 | 42 | 0 |
+| `squeeze` | `first PF and raise_level = 1 and first_at_level and callers >= 1 => action = raise` | 4 255 | 290 | 0 |
+| `steal` | `first PF and first_on_street and facing = none and position in (co, btn, sb) and not straddle and not button_blind and dealt >= 3 => action = raise` | 7 838 | 2 672 | 0 |
+| `fold_to_steal` (+ `call_steal`, `three_bet_vs_steal`) | `first PF and facing_steal and posted_blind and first_on_street => action = fold` (`call`; `in (raise, bet)`) | 4 331 | 2 642 / 1 237 / 452 | 0 |
+| `fold_to_three_bet` (+ legs) | `first PF and raise_level = 2 and own_raise = 1 => action = fold` | 1 427 | 637 / 624 / 166 | 0 |
+| `fold_to_four_bet` (+ legs) | `first PF and raise_level = 3 and own_raise = 2 => action = fold` | 221 | 76 / 109 / 36 | 0 |
+| `cbet_flop` / `_turn` / `_river` | `first street = flop and first_on_street and preflop_aggressor and barrels = 0 and facing = none and not bomb_pot => action = bet` (turn: `barrels = 1`, river: `barrels = 2`) | 3 441 / 760 / 144 | 1 826 / 368 / 86 | 0 |
+| `fold_to_cbet_<street>` (+ `call_cbet`, `raise_cbet`) | `first street = flop and facing_cbet => action = fold` (`call`; `in (raise, bet)`) | 2 208 / 382 / 87 | 1 115 / 158 / 34 | 0 |
+| `donk_<street>` | `first street = flop and first_on_street and facing = none and ahead_of_aggressor => action = bet` | 3 083 / 990 / 464 | 323 / 92 / 58 | 0 |
+| `check_raise_<street>` | `first street = flop and checked_before and facing != none => action = raise` | 3 028 / 1 339 / 660 | 206 / 87 / 35 | 0 |
+| `bet_/raise_/call_/check_/fold_<street>` | `each street = flop => action = bet` ... (made only: the raw counts have no opportunity) | - | e.g. `bet_flop` 3 175 | 0 |
+| `flop_seen` | `any saw_flop` (opportunities only) | 13 616 | - | **12** |
+| `wtsd` | `any saw_flop => showdown` | 13 616 | 4 417 | **12** |
+| `wwsf` | `any saw_flop => won` | 13 616 | 5 417 | **12** |
+| `wsd` | `any saw_flop and showdown => won` | 4 417 | 2 232 | **12** |
+
+**Every preflop and postflop counter matches exactly**, legs included: the
+judgement calls of §4 - the straddle as a blind, the walked big blind, RFI
+against isolation, the called-cbet chain, no steal heads-up, straddled or
+with a button blind, a blind's call is not a cold call, a fold to a raised
+cbet is not a fold to the cbet - are all expressible, because the events
+carry the context the code decides them on.
+
+**The one difference: a seat with no decision at all.** The showdown family
+counts over `flop_seen`, which includes a player all in before the flop
+(§Read-this): they see the flop without deciding anything. The language
+reaches a seat only through its events, so a seat that **never made a
+decision in the whole hand** has nothing for `any` to find. In the corpus
+that is 12 of the 51 464 rows - players all in by posting a blind or the
+antes (Ignition and Chico regression files, cash and tournament, limit and
+no-limit; in one heads-up limit hand both players), a WePlay tournament
+player all in by the ante (the same hand twice in the corpus) and a WePlay
+bomb-pot player all in by the bomb ante - and the acceptance test checks that
+every differing row is such a seat. A player who shoved preflop has the shove as an event, and is
+counted exactly. Closing the gap would take a synthetic "dealt in" event per
+seat; it is not built, because a custom showdown statistic over seats that
+never acted is not one anybody has asked for, and the coded WTSD, WWSF and
+W$SD stay what reports show.
+
+Cost (release, M2 Pro, the corpus): building a hand's events takes
+**~4.8 µs**, evaluating all 57 predicates above on every seat **~9 µs**
+(~0.16 µs a counter a hand) - next to `rows_for`'s ~6.6 µs. The background
+pass, which also reads the PHF back from the store, counts **~26 000 hands a
+second** on one thread for one statistic, and adding statistics costs little
+(~34-39 µs a hand either way).

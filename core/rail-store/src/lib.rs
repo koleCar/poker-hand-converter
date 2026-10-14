@@ -41,6 +41,7 @@ use rusqlite::{Connection, OpenFlags, params};
 
 pub mod background;
 pub mod batch;
+pub mod custom;
 pub mod error;
 pub mod hand_list;
 pub mod import;
@@ -60,6 +61,7 @@ pub use batch::{
     EvPlan, FileState, ImportBatch, ImportOutcome, ListFacts, PreparedHand, PreparedSeat,
     PreparedStats, Refusal, UnrecognizedFile,
 };
+pub use custom::{CustomCounts, CustomProgress, CustomStatRow};
 pub use error::{Error, Result};
 pub use hand_list::{
     Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, PlayerRef,

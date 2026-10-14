@@ -72,6 +72,9 @@ pub enum Variable {
     /// `net_bb_milli` with each evaluated all-in's luck taken out (the
     /// hero's `ev_net_bb_milli` summed over the money rows).
     EvNetBbMilli,
+    /// A user's counter (R2.10, [`crate::custom`]): an index into
+    /// [`Sums::custom`].
+    Custom(u32),
 }
 
 impl Variable {
@@ -105,6 +108,10 @@ pub struct Sums {
     /// (`rail_store::EvAdjust::bb_milli`). `None` when not known (villains,
     /// or a caller that does not read EV).
     pub ev_net_bb_milli: Option<i64>,
+    /// A user's counters (R2.10), in the order of the
+    /// [`crate::custom::CustomSet`] that reads them; empty for everything
+    /// else (a formula naming one then has no value).
+    pub custom: Vec<i64>,
 }
 
 impl Default for Sums {
@@ -114,6 +121,7 @@ impl Default for Sums {
             money: [0; MONEY_COUNT],
             money_hands: 0,
             ev_net_bb_milli: None,
+            custom: Vec::new(),
         }
     }
 }
@@ -126,6 +134,7 @@ impl Sums {
             Variable::Money(index) => self.money.get(index).copied(),
             Variable::MoneyHands => Some(self.money_hands),
             Variable::EvNetBbMilli => self.ev_net_bb_milli,
+            Variable::Custom(index) => self.custom.get(usize::try_from(index).ok()?).copied(),
         }
     }
 
@@ -142,6 +151,12 @@ impl Sums {
             .ev_net_bb_milli
             .zip(other.ev_net_bb_milli)
             .map(|(a, b)| a + b);
+        if self.custom.len() < other.custom.len() {
+            self.custom.resize(other.custom.len(), 0);
+        }
+        for (sum, value) in self.custom.iter_mut().zip(&other.custom) {
+            *sum += value;
+        }
     }
 
     /// Add one row: its counters, and its money (and one money hand) when
@@ -215,22 +230,29 @@ fn finite(value: JsNumber) -> Option<JsNumber> {
     value.is_finite().then_some(value)
 }
 
+/// How a compiled formula finds its inputs: [`Variable::from_name`], or a
+/// caller's own (R2.10's custom counters).
+type Resolve<'r> = &'r dyn Fn(&str) -> Option<Variable>;
+
 impl Node {
     fn compile(expr: &Expr) -> Option<Self> {
+        Self::compile_with(expr, &Variable::from_name)
+    }
+
+    fn compile_with(expr: &Expr, resolve: Resolve<'_>) -> Option<Self> {
+        let compile = |inner: &Expr| Self::compile_with(inner, resolve).map(Box::new);
         Some(match expr {
             Expr::Number(text) => Self::Const(JsNumber::parse(text)),
-            Expr::Name(name) => Self::Var(Variable::from_name(name)?),
-            Expr::Neg(inner) => Self::Neg(Box::new(Self::compile(inner)?)),
-            Expr::Binary { op, left, right } => Self::Binary(
-                *op,
-                Box::new(Self::compile(left)?),
-                Box::new(Self::compile(right)?),
+            Expr::Name(name) => Self::Var(resolve(name)?),
+            Expr::Neg(inner) => Self::Neg(compile(inner)?),
+            Expr::Binary { op, left, right } => Self::Binary(*op, compile(left)?, compile(right)?),
+            Expr::Pct(made, opp) => Self::Pct(compile(made)?, compile(opp)?),
+            Expr::Sum(terms) => Self::Sum(
+                terms
+                    .iter()
+                    .map(|term| Self::compile_with(term, resolve))
+                    .collect::<Option<_>>()?,
             ),
-            Expr::Pct(made, opp) => Self::Pct(
-                Box::new(Self::compile(made)?),
-                Box::new(Self::compile(opp)?),
-            ),
-            Expr::Sum(terms) => Self::Sum(terms.iter().map(Self::compile).collect::<Option<_>>()?),
         })
     }
 
@@ -386,12 +408,20 @@ pub struct Reliability {
 
 impl DisplayStat {
     fn compile(stat: &Stat) -> Option<Self> {
+        Self::compile_with(stat, &Variable::from_name)
+    }
+
+    /// Compile a definition whose names `resolve` binds - a user's statistic
+    /// (R2.10), whose formula may read its own counters
+    /// ([`Variable::Custom`]). `None` when a name does not resolve.
+    pub fn compile_with(stat: &Stat, resolve: &dyn Fn(&str) -> Option<Variable>) -> Option<Self> {
+        let compile = |expr: &Expr| Node::compile_with(expr, resolve);
         Some(Self {
             def: stat.def.clone(),
-            value: Node::compile(&stat.formula)?,
-            sample: Node::compile(&stat.sample)?,
+            value: compile(&stat.formula)?,
+            sample: compile(&stat.sample)?,
             rate: match stat.rate() {
-                Some((made, opp)) => Some((Node::compile(made)?, Node::compile(opp)?)),
+                Some((made, opp)) => Some((compile(made)?, compile(opp)?)),
                 None => None,
             },
             bands: stat
@@ -554,6 +584,7 @@ mod tests {
                 Variable::Money(index) => sums.money[index] = value,
                 Variable::MoneyHands => sums.money_hands = value,
                 Variable::EvNetBbMilli => sums.ev_net_bb_milli = Some(value),
+                Variable::Custom(_) => unreachable!("no custom names here"),
             }
         }
         sums

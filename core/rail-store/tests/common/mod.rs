@@ -15,8 +15,13 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
-/// Back from version 9 to 8 (R2.7c): what the older-store tests run first.
-pub const DOWN_FROM_9: &str = "DROP TABLE players; DROP TABLE player_labels;
+/// Back from the latest version to 8 (R2.7c; version 11's custom
+/// statistics, R2.10, go first, version 10 only dropped an index): what the
+/// older-store tests run first.
+pub const DOWN_FROM_9: &str = "DROP TABLE custom_stats; DROP TABLE custom_hero_rows;
+     DROP TABLE custom_hero_rollups; DROP TABLE custom_player_rollups;
+     DELETE FROM kv WHERE key LIKE 'custom.%';
+     DROP TABLE players; DROP TABLE player_labels;
      DROP TABLE player_summary; DROP TABLE player_hidden;
      DROP TRIGGER seat_stats_player_delete; DROP TABLE player_hands;";
 

@@ -6,6 +6,7 @@ import { inApp } from "../../lib/ipc";
 import { useRouteParam } from "../../lib/router";
 import { About } from "./About";
 import { Account } from "./Account";
+import { CustomStats } from "./CustomStats";
 import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
 import { RefusedAll } from "./RefusedAll";
@@ -56,6 +57,9 @@ export function Settings() {
           </Anchor>
           <Anchor id="refused">
             <RefusedAll />
+          </Anchor>
+          <Anchor id="statistics">
+            <CustomStats />
           </Anchor>
           <Preferences />
           <Anchor id="about">

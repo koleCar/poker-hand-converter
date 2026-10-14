@@ -308,7 +308,7 @@ fn pass(store: &Store, seconds: u64) {
                 rows += n;
                 computing += took;
             }
-            Step::Rebuilt(_) | Step::Indexed(_) => {}
+            Step::Rebuilt(_) | Step::Indexed(_) | Step::Counted(_) => {}
             Step::Nothing => break,
         }
     }

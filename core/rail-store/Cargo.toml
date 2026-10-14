@@ -28,3 +28,7 @@ zstd = { version = "=0.14.2", default-features = false }
 # a hand it cannot.
 serde_json = "1.0.154"
 log = "0.4.34"
+
+[dev-dependencies]
+# The custom statistics' tests (R2.10) build definitions (`StatDef`).
+rail-config = { path = "../rail-config" }

@@ -5091,6 +5091,170 @@ database, on the development Mac and on a mid-range Windows laptop.
   in the app previews the value on the user's own hands as you type.
 - Acceptance: the standard set re-expressed in the language matches the coded
   counters over the corpus (differences documented, as in `STATS-SPEC.md` §4).
+- *As built* (§15): **done** - a user builds a statistic in Settings, sees
+  its value on their own hands as they type, and finds it in Reports;
+  the language re-expresses the standard set and matches the coded counters
+  on every corpus row but twelve, which it cannot see by construction.
+  [`docs/STATS-SPEC.md`](STATS-SPEC.md) §14 is the reference.
+  - **Decision events** (`rail_stats::events`, `hand_events(&PhfHand)`):
+    from the same `StatsContext` the counters walk (the same five decision
+    types, raise levels with the straddle as a blind, preflop aggressor,
+    called-cbet chain, steal attempt), one `SeatEvents` per dealt-in seat in
+    `rows_for`'s order, one `DecisionEvent` per decision. Fields, 42 in all
+    (§14.1): the hand (`bomb_pot`, `straddle`, `button_blind`, `walk`,
+    `dealt`, `max_seats`, `preflop_raises`), the seat (`hero`, `position`,
+    `posted_blind`, `big_blind`, `preflop_aggressor`, `stack_bb`,
+    `effective_bb`, `saw_flop/turn/river`, `showdown`, `won`), the decision
+    (`street`, `action`, `all_in`, `facing` none/limp/bet/raise,
+    `raise_level`, `limpers`, `callers`, `first_on_street`,
+    `first_at_level`, `checked_before`, `own_raise`, `facing_steal`,
+    `facing_cbet`, `barrels`, `initiative`, `ahead_of_aggressor`,
+    `in_position`, `players`, `multiway`, `pot_bb`, `size_bb`, `size_pot`,
+    `facing_size_pot`). Sizes in thousandths, rounded down, no value when
+    the hand cannot give one (no big blind, a check). `EVENTS_VERSION`
+    (`events/1`) recounts every custom statistic when it changes. No
+    counter changed: `rows_for` does not read events (R2.1's goldens and
+    every parity test unchanged).
+  - **Predicate language** (`rail_config::stats::predicate`, parsed like
+    R2.4's formulas, evaluated by `rail_stats::custom::CustomCounter`):
+    `mode opportunity => action`, modes `first` / `any` (once per hand, as
+    the coded preflop counters) / `each`; `and`, `or`, `not`, parentheses;
+    comparisons `= != < <= > >=` and `in (...)` against the field's kind
+    (yes/no, number with up to three decimals, a choice of words). No
+    arithmetic, no functions; 1 000 bytes, 32 levels, 32 values in a list.
+    Errors carry a byte offset and length (an unknown field with its
+    nearest name, a word that is not the field's, a comparison its kind
+    has not, ...), which the editor underlines.
+  - **A user's statistic** (`rail_stats::custom::CustomSet`): an R2.4
+    `StatDef` plus an optional predicate; with one it has the counters
+    `<id>` and `<id>_opp`, read by its formula (default `pct(<id>,
+    <id>_opp)`) and by other custom formulas, through a new
+    `display::Variable::Custom` and `Sums::custom` (empty for every shipped
+    definition: their values are unchanged). Validated as the shipped file
+    is (`rail_config::stats::check_definition`, new) plus: an id may not be
+    a shipped id, a counter, another statistic or another statistic's
+    counter; a statistic whose counters another formula reads can be
+    neither renamed nor deleted; a formula reading the all-in EV is the
+    hero's. Problems name the part (id, predicate, formula, sample, other)
+    and carry spans.
+  - **Acceptance** (`core/rail-stats/tests/custom_acceptance.rs`, in CI):
+    57 predicates - VPIP, PFR, RFI, iso, limp, cold call, 3-bet, 4-bet,
+    5-bet, squeeze, steal, fold to steal / 3-bet / 4-bet with their call and
+    raise legs, cbet flop / turn / river, fold to cbet with its legs on
+    every street, donk and check-raise on every street, the fifteen raw
+    action counts, and the showdown family (saw flop, WTSD, WWSF, W$SD) -
+    against the coded counters on **every dealt-in seat of the 8 422 corpus
+    hands (51 464 rows)**: **every preflop and postflop counter equal on
+    every row**, opportunities and made, legs included (every judgement call
+    of STATS-SPEC §4 is expressible). **The showdown family differs on 12
+    rows**: seats that never made a decision in the hand (all in by a blind
+    or the antes, a bomb-pot player all in by the bomb ante) see the flop,
+    so `flop_seen` counts them, but the language reaches a seat only through
+    its decisions; the test checks every differing row is such a seat. Not
+    closed (a synthetic "dealt in" event would): the coded WTSD / WWSF / W$SD
+    stay what reports show. Table and reasons: STATS-SPEC §14.4.
+  - **Storage** (store migration 11, tested from every earlier version -
+    `migrates_from_empty_and_from_every_earlier_version`, plus a version-10
+    store with hands, `an_older_store_gets_the_tables`): `custom_stats`
+    (the definitions, in the user's store: `stat_key`, `rev`, the definition
+    JSON, the predicate, order, `counted_to`; `AUTOINCREMENT` ids, never
+    reused), `custom_hero_rows` (the hero's counts per hand),
+    `custom_hero_rollups` (segment, position, UTC day, kind - as
+    `hero_rollups`), `custom_player_rollups` (site, player, scope, segment,
+    bomb pots out - as `player_rollups`); `kv` `custom.events_version`
+    (`core/rail-store/SCHEMA.md` "Custom statistics"). The older-store
+    tests' shared downgrade (`DOWN_FROM_9`) drops the new tables first.
+  - **Compute: in the background pass, not at import.** Measured first
+    (release, M2 Pro, the corpus): building a hand's events costs
+    ~4.8 µs and the 57 acceptance predicates on every seat ~9 µs
+    (~0.16 µs a predicate a hand), next to `rows_for`'s ~6.6 µs - cheap on
+    the import threads. What is not cheap is the **writer**: a row per hand
+    and rollup increments per statistic and kept seat, in the import's
+    transaction, which is the pipeline's bottleneck (R1.6, R2.3, R2.7c's
+    "second pass": every page the import touches costs). So imports only
+    wake the pass; `custom_step` (after the rebuild and the players'
+    index, before the EV queue) reads the next 1 000 `hand_stats` rows past
+    the lowest `counted_to`, decompresses each PHF once, builds its events
+    once and counts every statistic still below that hand, and one writer
+    transaction writes the rows, adds the rollups and moves `counted_to`
+    for each statistic whose `rev` and `counted_to` are unchanged (a page
+    computed before an edit is dropped and read again). **~26 000 hands a
+    second on one thread** for one statistic (~39 µs a hand), ~34 µs a hand for
+    three more at once (`the_pass_counts_this_fast`, ignored test): a new statistic over
+    1M hands is ~40 s of one core; a hand just imported is counted on the
+    pass's next step. A rebuild of the coded statistics gives every hand a
+    new `hand_stats` id, so `begin_rebuild` clears all custom counts and the
+    pass counts them again after it; nothing custom runs during a rebuild.
+    The pass pauses for backfills as before (not for open tables: it is
+    cheap). **Import gate**: the import path is unchanged; `import_bench`
+    locally (50k hands, 3 threads, M2 Pro under load ~3.5): **58 / 58 %**
+    efficiency (gate 45 %), as R2.9 measured before (58-59 %).
+  - **Tests**: the acceptance test; `tests/events.rs` (sizes, pot,
+    position, barrels, steal and cbet facts on pinned hands, and counters on
+    them); `custom.rs` unit tests (compile, cross-reads, every refusal with
+    its span, renames refused while read); `rail_config` predicate tests
+    (precedence, modes, every error with offset and length, the limits);
+    `core/rail-store/tests/custom.rs` - the standard counters in the
+    language summed by the store equal the coded ones over eight report
+    filters (dates with partial days, one day, segments and positions,
+    `aggregate`'s options) and in every `player_rollups` row; a rename keeps
+    the counts, a new predicate recounts, a stale page is not written, a
+    rebuild recounts to the same numbers, a delete leaves nothing; imports
+    are counted as they come.
+  - **App** (`app/src-tauri/src/custom_stats.rs`, thin): `custom_stats_list`
+    (the statistics with their value over every hero hand counted so far
+    and the pass's progress; the language's fields), `custom_stat_check`
+    (problems with spans, and a **preview**: a predicate counted on the
+    hero's last 5 000 hands - read from the store once and kept 60 s, so a
+    keystroke costs microseconds; a formula over the coded counters shown
+    over every hand at once), `custom_stat_save`, `custom_stat_delete`
+    (refused while another formula reads it). `stat_definitions` now
+    returns the shipped definitions then the user's (`custom: true`);
+    Reports' summary appends the user's statistics over the same filter
+    (`ids` beside `stats`, matched by id in the window).
+  - **Editor** (Settings, "Your statistics"; the palette opens it):
+    the list with each statistic's value over all hands (with its
+    reliability), "Counting: x of y hands" while the pass works, edit,
+    delete (a dialog); the editor - name, short label, id (derived from the
+    name, editable), group, description, the counter and the formula as
+    code fields with the problem's span underlined in place (byte offsets
+    turned into the text's characters, so Croatian letters before an error
+    do not shift it), unit, decimals, minimum sample, a sample formula,
+    colour bands; a live preview ("On your last 5,000 hands: 37.1% · taken
+    153 times of 412 chances"), checked as the user types (250 ms pause,
+    with stand-ins until the name and label exist); examples (cbet in 3-bet
+    pots, fold to a multiway cbet, small cbet, open above 3 bb, short-stack
+    open shove, river call against a pot-size bet) and the field reference.
+    Reports lists a user's statistic in its group, marked "(yours)". `en` +
+    `hr` (the language's own error messages are English, as R2.4's formula
+    errors). Checked in a browser against a mocked IPC with made-up data:
+    1280 and 900 px, dark and light, English and Croatian, underlines,
+    preview, save, delete, Reports.
+  - **For R2.11** (targeted recompute): a custom statistic already
+    recomputes only itself - a changed predicate clears and recounts that
+    statistic alone (`rev`), a changed formula, label or format recounts
+    nothing (the formula reads the counts); `CustomSet::reader_of` /
+    `Expr::names()` are the dependency map between custom statistics. What
+    R2.11 adds is the same for the coded layer (today a `STATS_VERSION`
+    bump rebuilds everything and, with it, every custom count - the
+    rebuild's new `hand_stats` ids force it; keeping ids stable across a
+    rebuild would let custom counts survive a coded change they do not
+    depend on). **For R3.9** (HUD editor): the definitions API already
+    lists the user's statistics (`stat_definitions`, `custom: true`); the
+    HUD's lookup is `Reader::custom_player_totals(site, player, scope,
+    segments, ids)` (one key range per statistic) beside `hud_totals`, the
+    values `CustomSet::sums` + `DisplayStat::show` as for the shipped ones;
+    an opaque-id villain's scope is the session scope as for the coded
+    rollups; a statistic's `hud` membership is the user's override layer
+    (`hud_layouts`), as for shipped ones. A custom count lags an import by
+    the pass's next step (milliseconds when idle; behind a backfill, which
+    pauses the pass): if the HUD needs it within the same 1 s as the coded
+    counters, R3.7 can wake the pass on `hand_imported` (it does already)
+    or count the HUD's statistics for the new hand at import.
+  - **Not done / web**: the web does not show users' statistics (the
+    evaluator is Rust; R4.1's WASM core or a TypeScript port of
+    `events.rs` + `custom.rs` would); custom statistics are local, not
+    synced.
 
 ### R2.11 Targeted recompute — S
 - Dependency map definition → counters; a definition change recomputes only
@@ -5373,3 +5537,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **Import writer, second pass** (R2.7c "As built"; on R2.7c's PR, whose CI import benchmark failed at 44 % against its 45 % gate). Profiled: the import threads spent ~15 % of their time blocked waiting for their own commits, so at most three batches were ever queued and the writer committed ~5 500 transactions of ~18 hands per 100k (44 pages of 16 KiB each; 3.8 GiB of WAL for a 396 MiB store; commit + auto-checkpoint ~47 % of its busy time). Now: `FileReader::start` queues a one-batch read with the writer (`WriterHandle::queue`) and a committer thread waits for the commits in order and answers the coordinator (a file stays in flight until then; a moved offset still retries as the same look); the writer holds a group of queued batches open for up to 5 ms once a second one is waiting (`GROUP_LINGER`; waited-for batches commit at once); the write connection gets a 16 MiB page cache and a checkpoint every 4 096 pages; migration 10 drops `hands_played_at_idx`, which nothing read. Writer alone (`import_bench --writer-only 4`, new): 51.1 -> 43.6 us a hand. Pipeline, 3 threads, M2 Pro: efficiency 51-52 % -> 59-60 %; CI 55 / 58 / 54 % (best 58 %) with the pipelining alone, 53 / 62 / 54 % (best 62 %) with all of it (was 43 / 41 / 44 %). Not taken (measured): foreign keys off, dropping indexes that have readers, a 20 ms linger. The gate stays at 45 % with 3 threads on the 3-core runner (stricter than the app's cores - 1; documented). No change to what is stored or derived, nor to crash safety. |
 | 2026-10-14 | **R2.8 done**: polish of the desktop screens. **Command palette** complete in `packages/ui` (labelled groups, ↑/↓, Tab and Page keys inside the field, Escape with text typed, matched letters marked, item shortcuts, key hints, live count) with a new fuzzy ranker (`palette/fuzzy.ts`); the app lists screens (Cmd/Ctrl + 1-6), hands, players, reports, saved filters of Hands and Reports (applied to an open screen too), Settings sections (the refused hands among them) and commands (pause/resume import, sync now, theme, density, language), with five recent choices. **Theme and density**: `settings.json` gains `density` and `locale` (`set_density`, `set_locale`); `lib/appearance.ts` paints `data-theme` / `data-density` / `lang` and keeps a copy that `public/appearance.js` applies before the first paint; `packages/ui/tokens/density.css` (app only; `StatTable` falls back to its old values); the Hands list and the Players grid read the row height back from CSS. **i18n**: Croatian complete in the web's register with the shared `plural`, counts passed as numbers, every `Intl` formatter live in the chosen language (en-GB / hr-HR), the tray follows; the app's ESLint rule extended to expression children, conditionals, templates and the app's text props (9 / 9 probes caught, 0 in the app); `tests/test/appI18n.test.ts`. **From R2.7**: the Players table virtualised as a keyboard grid, the profile's own game kind; one loading / empty / error component; selected rows as a tint (the solid plate fell to 1.4:1 in light). **Contrast** (the web's sweep, both themes, five screens): 0 failures beyond the sweep's known exemptions after the fixes, among them the felt's money in light (`--felt-money`, app only). **Web unchanged**: 288 / 288 screenshots, 192 / 192 DOMs, cascades equal but for `--felt-money`; `screens.mjs`'s sheet captures repaired. Checked in a browser against a mocked IPC with made-up data, 2 themes x 2 densities x 2 languages. No core crate changed. |
 | 2026-10-14 | **R2.9 done**: the 1M benchmark store and the performance gate. Dataset: `import_bench/dataset.rs` gains `--spread` (copy *c* played 7 x *c* days earlier, every date moved in the room's calendar, checked per template: 381 of 431 shift) on top of fresh ids and villain names - 982 408 hands stored, 76 128 named opponents, 978 hero hands on the median hand's day (was ~50 real days' worth); generated, deleted, never committed. New `core/rail-watch/examples/perf_gate` (import through the watcher, the background pass, the HUD delay on 1 and 12 live tables, every screen's store calls warm and cold without `sudo`, the start's warm-up; M2-normalised budgets, `--gate`, JSON/markdown). On the M2 Pro at 1M: import 10-12k hands/s, HUD delay p95 0.51-0.56 s, the HUD's lookup 0.07 ms - met; a breakdown tab's first click 1.25-1.29 s -> 0.49-0.60 s and Reports 0.53-0.57 -> 0.29-0.33 s (four-connection breakdowns pass, sparse sums, Reports' two passes at once, and `.cargo/config.toml` turning off the bundled SQLite's global page-cache and memory-statistics mutexes, which made a process's read connections take turns - the import unchanged in an interleaved A/B), the screens after the start's background warm-up (1.4-1.6 s on a cold store) 0.06-0.86 s - met; Reports on a cold store within the warm-up's first ~1.5 s still 2.5-3.6 s (not met; the EV adjustment's random reads, a later `hand_list` column). No schema or statistics change. Nightly workflow `perf-nightly.yml` (cron + dispatch + the `perf` label; full 1M on ubuntu-latest; artifact). Supabase, measured on an isolated local stack: the web's reports over 1M hands of one user take 5-10 s, `stats_opponents` 22-44 s - `player_stats`, a hero rollup and a covering index recommended (prototypes: 0.2-60 ms), not built. |
+| 2026-10-14 | **R2.10 done**: custom statistics. `rail_stats::events` exports per-seat decision events from the counters' own context (42 fields: the hand, the seat, the decision - street, position, facing none/limp/bet/raise, raise level, action, all-in, sizes in thousandths of a bb and of the pot, stacks, position in the hand, multiway, initiative, the cbet chain, the steal; `EVENTS_VERSION` `events/1`); `rail_config::stats::predicate` parses a counter as `first`/`any`/`each` opportunity `=>` action, errors with byte spans, bounded like R2.4's formulas; `rail_stats::custom` evaluates it and validates and compiles a user's definitions (R2.4 `StatDef` + predicate; counters `<id>` / `<id>_opp` readable by formulas through `Variable::Custom`; shipped values unchanged). **Acceptance**: 57 predicates re-express the standard set and equal the coded counters on every one of the corpus's 51 464 rows (8 422 hands), legs included; the showdown family differs on 12 rows, seats with no decision at all (all in by a blind or the antes), which the language cannot see - documented in STATS-SPEC §14.4. Store migration 11 (`custom_stats` in the user's store, `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`; tested from every earlier version): counted by the background pass from the stored PHF (~26k hands/s on one thread), not at import - events + 57 predicates cost ~14 µs a hand on the import threads but the writes would land in the writer, the pipeline's bottleneck; import gate unchanged (58 %, gate 45 %). A rebuild of the coded statistics recounts them; a changed predicate recounts only its statistic. App: `custom_stats_list` / `_check` / `_save` / `_delete`, the definitions API and Reports' summary include them. Editor in Settings ("Your statistics"): code fields with errors underlined in place, a live preview on the last 5 000 hero hands, labels, format, bands, minimum sample, examples and the field reference; Reports lists them in their group; `en` + `hr`; checked in a browser against a mocked IPC with made-up data. |

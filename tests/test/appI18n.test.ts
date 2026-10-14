@@ -45,6 +45,8 @@ describe("dictionaries", () => {
       "No limit", "Pot limit", "Fixed limit", "Heads-up", "6-max", "Full ring", "Walk", "Bomb pot", "3-bet",
       "4-bet+", "Showdown", "Preflop", "Postflop", "Flop", "Turn", "River", "VPIP", "PFR", "bb", "bb/100",
       "All-in EV bb/100", "—", "256 KB/s", "4 MB/s", "English", "Hrvatski", "Filter: x",
+      // The same word in Croatian (R2.10's editor).
+      "Formula",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

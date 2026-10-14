@@ -1,0 +1,396 @@
+/* Settings, Your statistics (R2.10): the list and the editor. */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.heading {
+  font-size: var(--font-size-lg);
+}
+
+.subheading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.body {
+  color: var(--text-secondary);
+}
+
+.label {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.hint {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.error {
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.mono {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The list */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: start;
+  vertical-align: baseline;
+}
+
+.table thead th {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+}
+
+.statName {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rowActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* The editor */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.input {
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--danger-border);
+}
+
+/* A code field: the textarea over a backdrop that holds the same text with
+   what is wrong underlined. Both use the same font, padding, border and
+   wrapping, so the underline sits under the characters it marks. */
+.code {
+  position: relative;
+}
+
+.backdrop,
+.textarea {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  letter-spacing: normal;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-color: transparent;
+  color: transparent;
+  pointer-events: none;
+}
+
+.textarea {
+  position: relative;
+  display: block;
+  resize: vertical;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.code {
+  background: var(--surface-inset);
+  border-radius: var(--radius-2);
+}
+
+.textarea[aria-invalid="true"] {
+  border-color: var(--danger-border);
+}
+
+.textarea:focus-visible,
+.input:focus-visible,
+.button:focus-visible,
+.secondary:focus-visible,
+.danger:focus-visible,
+.dangerSolid:focus-visible,
+.example:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.mark {
+  background: transparent;
+  color: transparent;
+  text-decoration: underline wavy var(--danger-fg);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.problems {
+  margin: 0;
+  padding-inline-start: var(--space-4);
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.problems:empty {
+  display: none;
+}
+
+.other {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bands {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bandBelow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 12rem;
+}
+
+.bandBelow .input {
+  width: 6rem;
+}
+
+.bandRest {
+  width: 12rem;
+  color: var(--text-secondary);
+}
+
+.preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.previewValue {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.button,
+.secondary,
+.danger,
+.dangerSolid {
+  align-self: flex-start;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  cursor: pointer;
+  font: inherit;
+}
+
+.button {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+}
+
+.button:hover {
+  background: var(--accent-bg-hover);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.secondary:hover {
+  background: var(--surface-hover);
+}
+
+.danger {
+  border-color: var(--danger-border);
+  background: transparent;
+  color: var(--danger-fg);
+}
+
+.danger:hover {
+  background: var(--danger-bg);
+}
+
+.dangerSolid {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.button:disabled,
+.secondary:disabled,
+.danger:disabled,
+.dangerSolid:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reference summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.reference[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.example {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.example:hover {
+  background: var(--surface-hover);
+}
+
+.example code {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+
+.fieldRow {
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.fieldRow dt {
+  color: var(--text-primary);
+}
+
+.fieldRow dd {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}

@@ -517,8 +517,10 @@ export interface Report {
     net: number | null;
     netBbMilli: number | null;
     evNetBbMilli: number | null;
-    /** Every definition, in `statDefinitions()`' order. */
+    /** Every definition, in `statDefinitions()`' order: the shipped ones, then the user's own (R2.10). */
     stats: Shown[];
+    /** The definition id of each of `stats` (match by id: the user's statistics change while the app runs). */
+    ids: string[];
   };
   graph: Graph;
   /** The definition ids of every group row's `stats`. */
@@ -673,6 +675,69 @@ export interface PlayerSite {
 /** The screens with saved filters. */
 export type FilterScreen = "hands" | "reports";
 
+/* ------------------------------------------- Custom statistics (R2.10) - */
+
+/** `reports::DefinitionDto`: a shipped definition, or the user's own (`custom`). */
+export interface Definition extends StatDefinition {
+  custom: boolean;
+}
+
+/** `rail_stats::custom::CustomProblem`: what is wrong, and where (byte offsets into the predicate or a formula). */
+export interface CustomProblem {
+  part: "id" | "predicate" | "formula" | "sample" | "other";
+  offset: number | null;
+  length: number | null;
+  message: string;
+}
+
+/** `custom_stats::FieldDto`: a field of the predicate language. */
+export interface CustomField {
+  name: string;
+  kind: "bool" | "number" | "choice";
+  choices: string[];
+}
+
+/** `custom_stats::CustomStatDto`: a saved statistic. */
+export interface CustomStat {
+  definition: StatDefinition;
+  predicate: string | null;
+  /** Why this build cannot show it; empty when fine. */
+  problems: CustomProblem[];
+  /** Hands the background pass has still to count, of `total` (null: no counter). */
+  remaining: number | null;
+  total: number | null;
+  /** Over every hero hand counted so far. */
+  shown: Shown | null;
+}
+
+/** `custom_stats::CustomListDto`. */
+export interface CustomList {
+  stats: CustomStat[];
+  fields: CustomField[];
+  /** The shipped definitions' ids (taken). */
+  shipped: string[];
+  previewHands: number;
+}
+
+/** `custom_stats::CheckDto`: a draft's problems, or its preview. */
+export interface CustomCheck {
+  problems: CustomProblem[];
+  preview: {
+    shown: Shown;
+    made: number | null;
+    opp: number | null;
+    hands: number;
+    /** true: the last `previewHands` hands; false: every hand. */
+    sample: boolean;
+  } | null;
+}
+
+/** What the editor sends: the definition and its predicate. */
+export interface CustomDraft {
+  definition: StatDefinition;
+  predicate: string | null;
+}
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -755,7 +820,15 @@ export const ipc = {
   deleteSavedFilter: (id: number, screen: FilterScreen = "hands") =>
     invoke<SavedFilter[]>("delete_saved_filter", { id, screen }),
   /** Today and Reports (R2.7b). Every shipped statistic definition, in file order. */
-  statDefinitions: () => invoke<StatDefinition[]>("stat_definitions"),
+  statDefinitions: () => invoke<Definition[]>("stat_definitions"),
+  /** The user's own statistics (R2.10). */
+  customStatsList: () => invoke<CustomList>("custom_stats_list"),
+  customStatCheck: (draft: CustomDraft, replacing: string | null) =>
+    invoke<CustomCheck>("custom_stat_check", { draft, replacing }),
+  customStatSave: (draft: CustomDraft, replacing: string | null) =>
+    invoke<{ problems: CustomProblem[]; list: CustomList | null }>("custom_stat_save", { draft, replacing }),
+  customStatDelete: (id: string) =>
+    invoke<{ deleted: boolean; readBy: string | null; list: CustomList }>("custom_stat_delete", { id }),
   /** The report over a filter (the Hands filter's report groups); `points`: the graph's buckets. */
   report: (filter: HandFilter, points: number) => invoke<Report>("report", { filter, points }),
   reportBreakdowns: (filter: HandFilter) => invoke<Breakdowns>("report_breakdowns", { filter }),
