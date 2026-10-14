@@ -1,0 +1,125 @@
+{
+  "about": "The table simulator's rooms (docs/RAIL-PLAN.md R3.1). Every field says in 'sources' whether it is SOURCED (from the corpus or docs/research/hh-formats/), PARTLY SOURCED, or INVENTED. Window titles are all INVENTED: no real table title has been captured yet (sites.json tables.title is null until R3.3/R3.11 read them from the clients); they only imitate the usual shape - table name first, then stakes and game. Placeholders: {table} the table name as written in the hands, {stakes} '$0.05/$0.10', {stakesDash} '$0.05-$0.10', {currency} 'USD', {game} from 'games', {gameFile} from 'gameFiles', {hero}, {size} seats, {tid} tournament id, {tno} table number, {tname} tournament name, {gid} a per-table game id, {date} YYYYMMDD of the hand (UTC).",
+  "rooms": [
+    {
+      "id": "pokerstars",
+      "name": "PokerStars",
+      "parser": "pokerstars",
+      "corpus": "pokerstars",
+      "header": "^PokerStars (?:Game|Hand) #",
+      "sizes": [6, 9, 2],
+      "cash": {
+        "title": "{table} - {stakes} {currency} - {game} - Logged In as {hero}",
+        "file": "HH{date} {table} - {stakesDash} - {currency} {game}.txt"
+      },
+      "tournament": {
+        "title": "Tournament {tid} Table {tno} - {game} - Logged In as {hero}",
+        "tableFromTitle": "{tid} {tno}",
+        "file": "HH{date} T{tid} {game}.txt"
+      },
+      "games": {
+        "holdem-nl": "No Limit Hold'em",
+        "holdem-pl": "Pot Limit Hold'em",
+        "holdem-fl": "Limit Hold'em",
+        "omaha-pl": "Pot Limit Omaha",
+        "omaha-nl": "No Limit Omaha",
+        "omaha-fl": "Limit Omaha"
+      },
+      "gameFiles": {},
+      "dealt": { "after": "*** HOLE CARDS ***" },
+      "encoding": "utf-8-bom",
+      "lineEnd": "lf",
+      "separator": 3,
+      "window": [794, 576],
+      "sources": {
+        "header": "SOURCED: the live client's header, docs/research/hh-formats/pokerstars.md section 2; Zoom and Home Game hands are left out (their tables are not ordinary windows).",
+        "sizes": "SOURCED: the cash table sizes in fixtures/samples/pokerstars (9-max 73 hands, 6-max 18, heads-up 2).",
+        "tableNames": "SOURCED: drawn from the corpus's own table names (for example 'Hygiea IV 40-100 bb').",
+        "dealt": "SOURCED: 'Dealt to <hero> [cards]' right after '*** HOLE CARDS ***' (the corpus hands that have a hero).",
+        "title": "INVENTED (unverified): '<table> - <stakes> - <game> - Logged In as <hero>'; to be replaced by the real title when R3.3 reads it.",
+        "file": "PARTLY SOURCED: 'HH<YYYYMMDD> <table name> - <stakes> - <game>.txt' is the client's own name (pokerstars.md section 12, 'HH20200618 lets gooooo - 50-100 - Play Money No Limit Hold'em.txt'); the money form of the stakes is INVENTED. One file per table and day. Tournament file name INVENTED.",
+        "encoding": "SOURCED: most real files start with a UTF-8 BOM and use LF (pokerstars.md section 12).",
+        "separator": "SOURCED: hands separated by two blank lines (fixtures/samples/pokerstars/27-cash-multi-hand-file-blank-line-separator.txt).",
+        "window": "INVENTED: a typical default table size."
+      }
+    },
+    {
+      "id": "winamax",
+      "name": "Winamax",
+      "parser": "winamax",
+      "corpus": "winamax",
+      "header": "^Winamax Poker - CashGame - ",
+      "sizes": [5, 2, 9],
+      "cash": {
+        "title": "{table} - {game} - {stakes}",
+        "file": "{date}_{table}_real_{gameFile}.txt"
+      },
+      "tournament": null,
+      "games": {
+        "holdem-nl": "Holdem no limit",
+        "omaha-pl": "Omaha pot limit"
+      },
+      "gameFiles": {
+        "holdem-nl": "holdem_no-limit",
+        "omaha-pl": "omaha_pot-limit"
+      },
+      "dealt": { "before": "*** PRE-FLOP ***" },
+      "encoding": "utf-8-bom",
+      "lineEnd": "lf",
+      "separator": 6,
+      "window": [800, 560],
+      "sources": {
+        "header": "SOURCED: docs/research/hh-formats/winamax.md section 2 (cash games only; the corpus has no Winamax tournament hand, so tournaments are refused).",
+        "sizes": "SOURCED: the corpus's cash tables are 5-max (25 hands), heads-up (4) and 9-max (4); no 6-max.",
+        "tableNames": "SOURCED: the corpus's table names ('Florence 03', 'Milwaukee 06', ...).",
+        "dealt": "SOURCED: 'Dealt to <hero> [cards]' right before '*** PRE-FLOP ***' (CashGame_GeneralHands_HeroName.txt).",
+        "title": "INVENTED (unverified).",
+        "file": "INVENTED: no real Winamax export name is known (winamax.md section 12); '<date>_<table>_real_<game>.txt' is a guess to verify.",
+        "encoding": "SOURCED: UTF-8 with BOM and LF in most corpus files (winamax.md section 12).",
+        "separator": "SOURCED: five blank lines between hands (winamax.md section 12, CashGame_MultipleHandsTests_10MultipleHands.txt). The corpus file's last hand has no line end at all; whether the client writes the separator before or after a hand is unknown - before would make a live file's last hand end without a line end (the watcher's settle time, R1.3).",
+        "window": "INVENTED."
+      }
+    },
+    {
+      "id": "acr",
+      "name": "Americas Cardroom",
+      "parser": "acrwpn",
+      "corpus": "acr-wpn",
+      "header": "^(?:Game )?Hand #\\d+ - ",
+      "sizes": [6, 9],
+      "cash": {
+        "title": "{table} - {stakes} {game} - {size}-max",
+        "file": "HH{date} CASHID-G{gid}TN-{table} GAMETYPE-{game}.txt"
+      },
+      "tournament": {
+        "title": "{tname} ({tid}) Table {tno} - {game}",
+        "tableFromTitle": "{tno}",
+        "file": "HH{date} SCHEDULEDID-G{tid}TN-{tname} GAMETYPE-{game}.txt"
+      },
+      "games": {
+        "holdem-nl": "Holdem(No Limit)",
+        "holdem-pl": "Holdem(Pot Limit)",
+        "holdem-fl": "Holdem(Fixed Limit)",
+        "omaha-pl": "Omaha(Pot Limit)",
+        "omaha-nl": "Omaha(No Limit)"
+      },
+      "gameFiles": {},
+      "dealt": { "after": "*** HOLE CARDS ***" },
+      "encoding": "utf-8",
+      "lineEnd": "lf",
+      "separator": 2,
+      "window": [800, 590],
+      "sources": {
+        "header": "SOURCED: the current grammar ('era C', 'Hand #... - ' and 'Game Hand #... - ', docs/research/hh-formats/acr-wpn.md); the legacy 'Game started at:' eras are left out - a live client writes one grammar.",
+        "sizes": "SOURCED: the era-C cash hands in fixtures/samples/acr-wpn that the simulator can use: 6-max (1 hand) and 9-max (3); none heads-up. The same few hands repeat, each time with a fresh id, names, seats and time.",
+        "tableNames": "SOURCED: the corpus's table names ('Blitz Poker', 'Miramar (Cap)', ...).",
+        "dealt": "SOURCED: 'Dealt to <hero> [cards]' right after '*** HOLE CARDS ***' (era-C fixtures).",
+        "title": "INVENTED (unverified).",
+        "file": "PARTLY SOURCED: the fpdb fixtures keep fragments of WPN's own names ('HH20160621 G30997753', 'CASHID-TN-Miramar (Cap) GAMETYPE', 'SCHEDULEDID-TN-The Venom ... GAMETYPE'); the full shape is INVENTED around them.",
+        "encoding": "PARTLY SOURCED: era-C fixtures are plain ASCII/UTF-8 (acr-wpn.md section 12); older files are UTF-8 with BOM or UTF-16LE - use --encoding to write those.",
+        "separator": "PARTLY SOURCED: one blank line between hands in era A/B files (acr-wpn.md section 12); no multi-hand era-C file is in the corpus.",
+        "window": "INVENTED."
+      }
+    }
+  ]
+}

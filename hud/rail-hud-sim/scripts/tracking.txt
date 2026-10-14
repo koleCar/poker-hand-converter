@@ -1,0 +1,51 @@
+# Table simulator script for the HUD's tracking tests (docs/RAIL-PLAN.md
+# R3.1; R3.5 on Windows, R3.13 on macOS). Run with three tables:
+#
+#   rail-hud-sim --tables 3 --sizes 6 --speed 6 --script hud/rail-hud-sim/scripts/tracking.txt
+#
+# Every window command is answered by a `window` event on standard output
+# with the window's position and client size after it (physical pixels), so
+# a test can compare the overlay's rectangle with it. Positions are screen
+# pixels; keep them on the primary monitor.
+
+wait 3000
+# A hand on every table, so the overlays have players.
+hand 1
+hand 2
+hand 3
+wait 2000
+
+# Move and resize.
+move 1 100 100
+wait 1000
+move 1 400 160
+wait 1000
+resize 1 640 470
+wait 1000
+resize 1 1000 730
+wait 1000
+
+# Minimise and restore.
+minimize 2
+wait 1500
+restore 2
+wait 1500
+
+# A tournament-style table move: the title changes, new opponents.
+tablemove 3
+wait 500
+hand 3
+wait 2000
+
+# Close one, open one.
+close 2
+wait 1000
+open 6
+wait 2000
+
+# Back to the grid, a last status, and out.
+tile
+wait 1000
+status
+wait 500
+quit

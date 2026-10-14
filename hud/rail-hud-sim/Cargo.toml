@@ -9,3 +9,22 @@ repository.workspace = true
 
 [lints]
 workspace = true
+
+[dependencies]
+rail-core = { path = "../../core/rail-core" }
+regex = "1.13.1"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+# Windows without a GPU (docs/RAIL-PLAN.md R3.1 "As built"): winit for the
+# windows and the event loop, softbuffer to put a CPU-drawn frame in them,
+# font8x8 for text. No default features: no Wayland client-side decorations
+# (they would pull a font stack in) and no KMS backend.
+winit = { version = "=0.30.13", default-features = false, features = ["rwh_06", "x11", "wayland", "wayland-dlopen"] }
+softbuffer = { version = "=0.4.8", default-features = false, features = ["x11", "x11-dlopen", "wayland", "wayland-dlopen"] }
+font8x8 = { version = "=0.3.1", default-features = false }
+
+[dev-dependencies]
+# The end-to-end check (examples/e2e.rs): the simulator's hands through the
+# watcher into the store, and the HUD's lookup of their players.
+rail-store = { path = "../../core/rail-store" }
+rail-watch = { path = "../../core/rail-watch" }
