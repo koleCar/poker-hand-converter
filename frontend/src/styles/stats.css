@@ -294,27 +294,25 @@
   background: var(--fg-dim);
 }
 
-/* Three bands, loudest where the number is least trustworthy. A "noise" tile
-   keeps its digits — you asked for them — but stops competing for attention
-   with the ones that mean something. */
-.stats-tile--firm .stats-tile__band-fill {
+/* Three levels (the shared rule of lib/stats/reliability.ts: the sample
+   against the statistic's sample.min), loudest where the number is least
+   trustworthy. The figure's opacity is set inline from the same rule - 1 from
+   sample.min, down to 0.6 - so it fades continuously rather than in steps. An
+   "insufficient" tile keeps its digits — you asked for them — but stops
+   competing for attention with the ones that mean something. */
+.stats-tile--ok .stats-tile__band-fill {
   background: var(--accent-fg);
 }
 
-.stats-tile--loose .stats-tile__value {
-  opacity: 0.88;
-}
-
-.stats-tile--loose .stats-tile__band-fill {
+.stats-tile--low .stats-tile__band-fill {
   background: var(--warning-fg);
 }
 
-.stats-tile--noise .stats-tile__value {
-  opacity: 0.6;
+.stats-tile--insufficient .stats-tile__value {
   font-weight: var(--font-weight-semibold);
 }
 
-.stats-tile--noise .stats-tile__band-fill {
+.stats-tile--insufficient .stats-tile__band-fill {
   background: var(--danger-fg);
 }
 

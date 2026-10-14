@@ -37,6 +37,7 @@ use rail_core::js::JsNumber;
 
 use crate::counters::{COUNTER_COUNT, COUNTER_KEYS, Counter, MONEY_KEYS};
 use crate::mapping::StatsRow;
+use crate::reliability::{Interval, Level, sample_reliability, wilson};
 
 /// How many money columns a row carries ([`MONEY_KEYS`]).
 pub const MONEY_COUNT: usize = MONEY_KEYS.len();
@@ -365,6 +366,22 @@ pub struct Shown {
     pub sample: Option<JsNumber>,
     /// The sample reaches `sample.min`: shown at full opacity.
     pub full: bool,
+    /// [`DisplayStat::reliability`].
+    pub reliability: Reliability,
+}
+
+/// How far to trust a value (R2.5, [`crate::reliability`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reliability {
+    /// [`Level::Ok`] exactly when [`Shown::full`].
+    pub level: Level,
+    /// 1 from `sample.min`, down to 0.6 with no sample.
+    pub opacity: JsNumber,
+    /// A rate's 95% Wilson interval in percentage points; `None` for other
+    /// statistics.
+    pub interval: Option<Interval>,
+    /// The bounds as text at the definition's decimals ([`format_fixed`]).
+    pub interval_text: Option<(String, String)>,
 }
 
 impl DisplayStat {
@@ -418,6 +435,28 @@ impl DisplayStat {
                 .is_some_and(|sample| !sample.less_than(JsNumber::from_u64(min)))
     }
 
+    /// The level and opacity of the value's sample against `sample.min`, and
+    /// for a `pct(made, opportunities)` its Wilson interval
+    /// ([`crate::reliability`]). `statReliability` in `display.ts`.
+    pub fn reliability(&self, sums: &Sums) -> Reliability {
+        let (level, opacity) = sample_reliability(self.sample(sums), self.def.sample.min);
+        let interval = self
+            .rate(sums)
+            .and_then(|(made, opportunities)| wilson(made, opportunities));
+        let decimals = self.def.format.decimals;
+        Reliability {
+            level,
+            opacity,
+            interval,
+            interval_text: interval.map(|i| {
+                (
+                    format_fixed(i.low, decimals),
+                    format_fixed(i.high, decimals),
+                )
+            }),
+        }
+    }
+
     /// The value as text ([`format_fixed`]); for money, of the value in
     /// major units (`value / 10^minor_units`), and `None` without
     /// `minor_units`.
@@ -447,6 +486,7 @@ impl DisplayStat {
             tone: value.and_then(|value| self.tone(value)),
             sample: self.sample(sums),
             full: self.full(sums),
+            reliability: self.reliability(sums),
         }
     }
 }
@@ -542,6 +582,14 @@ mod tests {
         assert_eq!(shown.tone, Some(Tone::High));
         assert!(shown.full);
         assert!(!vpip.full(&sums(&[("vpip", 30), ("vpip_opp", 99)])));
+        assert_eq!(shown.reliability.level, Level::Ok);
+        assert_eq!(
+            shown.reliability.interval_text,
+            Some(("21.9".to_owned(), "39.6".to_owned()))
+        );
+        let thin = vpip.reliability(&sums(&[("vpip", 3), ("vpip_opp", 25)]));
+        assert_eq!(thin.level, Level::Low);
+        assert_eq!(thin.opacity.to_js_string(), "0.8");
     }
 
     #[test]
@@ -568,6 +616,9 @@ mod tests {
         let hands = d.get("hands").expect("hands");
         assert_eq!(hands.show(&s, None).text.as_deref(), Some("300"));
         assert!(hands.full(&Sums::default()));
+        // A win rate: no interval, the level from its 10 000-hand minimum.
+        let shown = bb.show(&s, None).reliability;
+        assert_eq!((shown.level, shown.interval), (Level::Insufficient, None));
     }
 
     #[test]

@@ -10,17 +10,22 @@
  *   2. the sample it was measured over (`made / opportunities`),
  *   3. a band showing how wide the 95% interval is.
  *
+ * How far to trust it is the shared rule of `lib/stats/reliability.ts` (R2.5),
+ * the one the desktop app and the HUD use: the level (`ok` / `low` /
+ * `insufficient`, from the definition's `sample.min`) colours the band, and the
+ * opacity dims the figure, continuously, until the sample reaches `sample.min`.
+ *
  * The confidence band is drawn as a bar rather than printed as "±4.1%" alone
  * because the comparison a reader actually makes is between tiles: a row where
  * one bar is a sliver and its neighbour fills the tile says "these two numbers
  * are not the same kind of fact" faster than two sets of digits ever will. The
- * numeric margin is there too, in the title attribute and below the value, for
- * anyone who wants it.
+ * numeric margin is there too, below the value, and the sample and interval in
+ * the value's tooltip ("n = 80, 95% CI 20.0–39.5%").
  */
 
 import { useDict } from "../../lib/i18n/client";
+import type { StatReliability } from "../../lib/stats";
 import { countIn, fixedIn, useIntlLocale } from "./format";
-import { confidenceOf, wilson } from "./uncertainty";
 
 interface StatTileProps {
   label: string;
@@ -28,39 +33,47 @@ interface StatTileProps {
   made: number;
   /** The denominator, e.g. 3-bet opportunities. */
   opportunities: number;
+  /** The definition's value (`pct(made, opportunities)`), null without opportunities. */
+  value: number | null;
+  /** The definition's `statReliability`. */
+  reliability: StatReliability;
   /** Shown under the label; the definition in a few words. */
   hint?: string;
 }
 
-/** Confidence bar width, as a fraction of the tile. Capped so "noise" is full. */
+/** Confidence bar width, as a fraction of the tile. Capped so a wide interval is full. */
 function bandWidth(margin: number): number {
   // 12.5 percentage points of half-width is the cap: past that the interval is
   // a quarter of the whole range and the bar has already said everything it can.
   return Math.min(100, (margin / 12.5) * 100);
 }
 
-export function StatTile({ label, made, opportunities, hint }: StatTileProps) {
-  const en = useDict().stats.tile;
+export function StatTile({ label, made, opportunities, value, reliability, hint }: StatTileProps) {
+  const t = useDict().stats.tile;
   const locale = useIntlLocale();
   const count = countIn(locale);
   const one = fixedIn(locale, 1);
-  const interval = wilson(made, opportunities);
-  const confidence = confidenceOf(interval);
+  const { interval, level, opacity } = reliability;
+  const margin = interval ? (interval.high - interval.low) / 2 : null;
 
   return (
-    <div className={`stats-tile stats-tile--${confidence}`}>
+    <div className={`stats-tile stats-tile--${level}`}>
       <span className="stats-tile__label">{label}</span>
-      <span className="stats-tile__value">
-        {interval ? `${one(interval.value)}%` : "—"}
+      <span
+        className="stats-tile__value"
+        style={{ opacity }}
+        title={interval ? t.sample(count(opportunities), one(interval.low), one(interval.high)) : undefined}
+      >
+        {value !== null ? `${one(value)}%` : "—"}
       </span>
       <span className="stats-tile__sample">
-        {interval ? (
+        {interval && margin !== null ? (
           <>
             {count(made)} / {count(opportunities)}
-            <span className="stats-tile__margin"> ±{one(interval.margin)}</span>
+            <span className="stats-tile__margin"> ±{one(margin)}</span>
           </>
         ) : (
-          en.noOpportunities
+          t.noOpportunities
         )}
       </span>
       {/* Not a progress bar: the fill is the *width of the doubt*, so a short
@@ -68,13 +81,13 @@ export function StatTile({ label, made, opportunities, hint }: StatTileProps) {
           cannot see that the neighbouring tiles make the comparison obvious. */}
       <span
         className="stats-tile__band"
-        title={en.confidence[confidence]}
+        title={t.reliability[level]}
         role="img"
-        aria-label={interval ? en.interval(one(interval.low), one(interval.high)) : en.noSample}
+        aria-label={interval ? t.interval(one(interval.low), one(interval.high)) : t.noSample}
       >
         <span
           className="stats-tile__band-fill"
-          style={{ width: `${interval ? bandWidth(interval.margin) : 100}%` }}
+          style={{ width: `${margin !== null ? bandWidth(margin) : 100}%` }}
         />
       </span>
       {hint ? <span className="stats-tile__hint">{hint}</span> : null}

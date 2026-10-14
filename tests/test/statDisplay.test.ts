@@ -81,6 +81,7 @@ describe("config/stats/standard.json", () => {
     ["an unknown unit", (d) => (stat(d, "vpip").format.unit = "permille")],
     ["seven decimals", (d) => (stat(d, "vpip").format.decimals = 7)],
     ["a fractional sample", (d) => (stat(d, "vpip").sample.min = 2.5)],
+    ["a sample minimum above 10^9", (d) => (stat(d, "vpip").sample.min = 1_000_000_001)],
     ["an unknown tone", (d) => (stat(d, "vpip").bands[0].tone = "red")],
     ["an unknown group", (d) => (stat(d, "vpip").group = "river")],
     ["an unknown HUD place", (d) => (stat(d, "vpip").hud = "corner")],
@@ -105,6 +106,8 @@ describe("config/stats/standard.json", () => {
       ["no sample for a ratio", (d) => delete stat(d, "aggression_factor").sample.of, /needs "of"/],
       ["descending bands", (d) => (stat(d, "vpip").bands[1].below = 1), /not above/],
       ["a formula that does not parse", (d) => (stat(d, "vpip").formula = "pct(vpip,"), /does not parse/],
+      ["a sample minimum above 10^9", (d) => (stat(d, "vpip").sample.min = 1_000_000_001), /sample\.min/],
+      ["a fractional sample minimum", (d) => (stat(d, "vpip").sample.min = 2.5), /sample\.min/],
     ];
     for (const [, edit, message] of broken) {
       const doc = shipped();

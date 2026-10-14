@@ -46,7 +46,7 @@ import {
   type NodeSample,
 } from "../../frontend/src/lib/analysis/index.js";
 import { actionTotals, GRID_CELLS } from "../../frontend/src/components/analysis/chartSpots.js";
-import { wilson } from "../../frontend/src/components/stats/uncertainty.js";
+import { wilson } from "../../frontend/src/lib/stats/reliability.js";
 import { chartLibrary, handClassOf, loadCharts, type ChartNode, type ChartSet } from "../../frontend/src/lib/charts/index.js";
 import { en } from "../../frontend/src/lib/i18n/en.js";
 import { hr } from "../../frontend/src/lib/i18n/hr.js";
@@ -235,7 +235,7 @@ describe("the hand-adjusted reference", () => {
 });
 
 describe("uncertainty", () => {
-  it("is the statistics screen's Wilson interval, in fractions", () => {
+  it("is the statistics' Wilson interval (lib/stats/reliability.ts), in fractions", () => {
     for (const [made, n] of [
       [0, 3],
       [3, 3],

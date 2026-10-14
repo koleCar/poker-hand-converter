@@ -659,7 +659,7 @@ A definition:
 | `label`, `name`, `description` | `{ "en": ..., "hr": ... }`: the HUD's short label, the full name, one sentence |
 | `formula` | the value, over the counters (below) |
 | `format` | `unit` (`percent`, `bb_per_100`, `bb`, `ratio`, `count`, `money` in minor units) and `decimals` (0-6) |
-| `sample` | `of` (a formula; defaults to a `pct`'s opportunities) and `min`: full opacity from `min` up |
+| `sample` | `of` (a formula; defaults to a `pct`'s opportunities) and `min` (0 to 10^9): full opacity and level `ok` from `min` up (reliability, below) |
 | `bands` | ascending `{ "below": x, "tone": t }`, the last without `below`; tones `very-low` .. `very-high` are positions on a scale, not colours |
 | `hud` | default membership: `panel` (4-6), `popup`, `none` |
 
@@ -690,6 +690,48 @@ any negative value ("-0.0" for -0.04). Not `Number.prototype.toFixed`, which
 rounds the double's exact binary value: `(-0.15).toFixed(1)` is "-0.1", every
 browser's `Intl` prints "-0.2". A UI may localise the decimal mark; the digits
 are these. Bands compare the unrounded value.
+
+**Reliability** (R2.5; `rail_stats::reliability`, `lib/stats/reliability.ts`):
+every value is shown with how far to trust it, in the same arithmetic as the
+value (doubles, `JsNumber` in Rust - which gained a correctly rounded `sqrt`,
+`Math.sqrt`'s IEEE-754 square root), so the app, the HUD and the web dim the
+same values by the same amount.
+
+- **Interval, rates only.** A `pct(made, opportunities)` gets the 95% Wilson
+  score interval, in percentage points, computed in this order with
+  `z = 1.959964` (the web's long-standing constant; a table's
+  1.959963984540054 moves the eighth digit):
+  `z2 = z * z`, `centre = made + z2 / 2`,
+  `spread = z * sqrt((made * (n - made)) / n + z2 / 4)`,
+  `low = made === 0 ? 0 : ((centre - spread) * 100) / (n + z2)`,
+  `high = made === n ? 100 : ((centre + spread) * 100) / (n + z2)`,
+  clamped to 0-100 - the textbook `(p + z²/2n ± z·√(p(1-p)/n + z²/4n²)) /
+  (1 + z²/n)` multiplied through by `n`. None unless `n > 0` and
+  `0 <= made <= n`. Wilson, not `p ± z·√(p(1-p)/n)`: that leaves 0-100 near
+  the edges and prints "±0" for 0 of 3 (Wilson: 0-56.1%). The bounds are
+  printed at the definition's decimals, like the value ("n = 80, 95% CI
+  20.0-39.5%").
+- **No interval for anything else.** A win rate's would need the variance of
+  the per-hand result, and the counters and rollups are sums, not sums of
+  squares; a "±" from an assumed standard deviation would be a guess shown
+  as a measurement. A ratio (AF) is not a proportion. Their reliability is
+  their sample.
+- **Level**, from the sample (`sample.of`, or the rate's opportunities)
+  against `sample.min`: `ok` from `min` (always when `min` is 0) - R2.4's
+  `full`; `low` from a quarter of `min` (an interval at most twice the width
+  at `min`, since widths shrink with `√n`); `insufficient` below that or with
+  no sample.
+- **Opacity**: 1 from `min`; below it `0.6 + 0.4 * sqrt(sample / min)`, 0.6
+  with no sample. It rises with the precision and reaches 1 exactly where the
+  level turns `ok`; 0.6 keeps large figures legible (it was the web's
+  small-sample opacity). A screen may keep a stronger floor where small text
+  must keep its contrast (the web's win-rate headline stays at 0.8).
+
+Rust and TypeScript give the same bits over the corpus and synthetic totals
+(`core/rail-stats/tests/data/reliability-vectors.mjs` writes them, checking
+each interval against `lib/analysis/reports.ts`'s independent Wilson
+implementation; `cargo test -p rail-stats --test reliability` and
+`tests/test/statReliability.test.ts` replay).
 
 The starting set (32):
 

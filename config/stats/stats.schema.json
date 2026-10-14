@@ -99,7 +99,7 @@
           }
         },
         "sample": {
-          "description": "The sample the value stands on, for the reliability shown next to it (R2.5): full opacity from min upwards.",
+          "description": "The sample the value stands on, for the reliability shown next to it (R2.5, docs/STATS-SPEC.md section 13): its size is shown with the value, and against min it gives a level (ok from min, low from a quarter of min, insufficient below that or with no sample) and an opacity (1 from min; 0.6 + 0.4 * sqrt(sample / min) below it). A pct(made, opportunities) also gets a 95% Wilson interval; other statistics get none (no per-hand variance is stored).",
           "type": "object",
           "additionalProperties": false,
           "required": ["min"],
@@ -109,9 +109,10 @@
               "$ref": "#/$defs/formula"
             },
             "min": {
-              "description": "The sample from which the value is shown at full opacity.",
+              "description": "The sample from which the value is shown at full opacity (level ok). 0: always. At most 10^9, so it is an exact double and the comparisons are exact in every reader.",
               "type": "integer",
-              "minimum": 0
+              "minimum": 0,
+              "maximum": 1000000000
             }
           }
         },

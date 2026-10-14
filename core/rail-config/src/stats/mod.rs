@@ -31,6 +31,11 @@ pub use model::{
 /// The `version` of a stats file this build reads.
 pub const STATS_FILE_VERSION: u32 = 1;
 
+/// The largest `sample.min` a definition may have: far below 2^53, so it is
+/// an exact double and the reliability rule (R2.5) compares and divides by it
+/// exactly in Rust and in the web's JavaScript alike.
+pub const MAX_SAMPLE_MIN: u64 = 1_000_000_000;
+
 /// The definitions shipped with this build: `config/stats/standard.json`.
 pub const SHIPPED_STATS: &str = include_str!("../../../../config/stats/standard.json");
 
@@ -223,6 +228,12 @@ fn check_stat(
     if def.format.unit == Unit::Count && def.format.decimals != 0 {
         report("a count has no decimals".to_owned());
     }
+    if def.sample.min > MAX_SAMPLE_MIN {
+        report(format!(
+            "sample.min {} is above {MAX_SAMPLE_MIN}",
+            def.sample.min
+        ));
+    }
     check_bands(&def.bands, report);
 
     let check_formula = |what: &str, text: &str, report: &mut dyn FnMut(String)| {
@@ -408,6 +419,14 @@ mod tests {
             r#""format": { "unit": "count", "decimals": 2 }, "sample": { "of": "hands", "min": 0 }"#,
         ));
         assert_eq!(problems(&count), ["a: a count has no decimals"]);
+        let huge = file(&stat("a", "pct(vpip, vpip_opp)", "").replace(
+            r#""sample": { "min": 10 }"#,
+            r#""sample": { "min": 1000000001 }"#,
+        ));
+        assert_eq!(
+            problems(&huge),
+            ["a: sample.min 1000000001 is above 1000000000"]
+        );
         let empty =
             file(&stat("a", "pct(vpip, vpip_opp)", "").replace(r#""hr": "N""#, r#""hr": " ""#));
         assert_eq!(problems(&empty), ["a: name.hr is empty"]);

@@ -11,7 +11,7 @@
 //! rounds it once, to nearest, ties to even, exactly as the hardware would.
 //!
 //! Only what the ported code needs is here: `Number(string)`, `+`, `-`, `*`,
-//! `/`, `Math.round`, `Number.prototype.toFixed`, `String(number)`, and exact
+//! `/`, `Math.round`, `Math.sqrt`, `Number.prototype.toFixed`, `String(number)`, and exact
 //! conversions to and from integers. `f64` appears only as an opaque bit
 //! pattern (`from_bits`/`to_bits`), for the correctly rounded decimal parser
 //! and the shortest-digits printer of the standard library - neither is
@@ -651,6 +651,35 @@ impl JsNumber {
         }
     }
 
+    /// `Math.sqrt(x)`: the correctly rounded square root (ECMAScript
+    /// requires the exact root rounded to the nearest double, as IEEE-754's
+    /// `squareRoot` does). `NaN` below zero, `-0` for `-0`.
+    ///
+    /// The significand, scaled to an even exponent and widened to at least
+    /// 125 bits, has an integer square root of at least 62 bits; its
+    /// remainder is the sticky bit, so rounding that root once is exact.
+    pub fn sqrt(self) -> Self {
+        match self {
+            Self::Nan | Self::Infinite { negative: true } => Self::Nan,
+            Self::Infinite { negative: false } => self,
+            Self::Finite { significand: 0, .. } => self,
+            Self::Finite { negative: true, .. } => Self::Nan,
+            Self::Finite {
+                negative: false,
+                significand,
+                exponent,
+            } => {
+                let (significand, exponent) = normalize53(significand, exponent);
+                // 72 or 73 bits of widening, whichever leaves an even exponent.
+                let widen = if exponent % 2 == 0 { 72 } else { 73 };
+                let wide = u128::from(significand) << widen;
+                let root = wide.isqrt();
+                let sticky = root * root != wide;
+                round_pack(false, root, (exponent - widen) / 2, sticky)
+            }
+        }
+    }
+
     /// Numeric comparison (`None` when either side is `NaN`; `-0 == 0`).
     pub fn compare(self, other: Self) -> Option<Ordering> {
         match (self, other) {
@@ -972,6 +1001,23 @@ mod tests {
         assert_eq!((n("1.005") * n("100")).round().to_i64(), Some(100));
         assert_eq!((n("1.23") * n("100")).to_js_string(), "123");
         assert_eq!((n("1.1") * n("100")).to_js_string(), "110.00000000000001");
+    }
+
+    #[test]
+    fn square_roots_are_correctly_rounded() {
+        let root = |text: &str| n(text).sqrt().to_js_string();
+        assert_eq!(root("4"), "2");
+        assert_eq!(root("2"), "1.4142135623730951");
+        assert_eq!(root("0.01"), "0.1");
+        assert_eq!(root("3.8414"), "1.959948978927768");
+        assert_eq!(root("5e-324"), "2.2227587494850775e-162");
+        assert_eq!(root("1.7976931348623157e308"), "1.3407807929942596e+154");
+        assert_eq!(root("9007199254740993"), "94906265.62425156");
+        assert_eq!(root("Infinity"), "Infinity");
+        assert_eq!(root("-1"), "NaN");
+        assert_eq!(root("-Infinity"), "NaN");
+        assert!(n("-0").sqrt().is_sign_negative());
+        assert_eq!(n("0").sqrt(), JsNumber::ZERO);
     }
 
     #[test]

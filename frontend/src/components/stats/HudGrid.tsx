@@ -9,7 +9,9 @@
  * second definition, and the first time the two disagree nobody will be able to
  * say which one the tests covered (guideline §14; `statDisplay.test.ts` scans
  * for it). A tile takes its `made / opportunities` from the definition's
- * `pct(made, opportunities)`, the win rate its decimals and its sample floor.
+ * `pct(made, opportunities)`, the win rate its decimals and its sample floor,
+ * and every figure its reliability - level, opacity, interval - from
+ * `statReliability` (R2.5), the rule the desktop app and the HUD dim by.
  *
  * What this file decides is only which statistics are worth a tile and what they
  * are called. The order is the order a player thinks in: money first (it is the
@@ -20,10 +22,12 @@ import { useDict } from "../../lib/i18n/client";
 import {
   STANDARD_STATS,
   statById,
-  statFull,
   statRate,
+  statReliability,
+  statSample,
   statValue,
   type DisplaySums,
+  type StatReliability,
   type SeatCounters,
   type SeatMoney,
 } from "../../lib/stats";
@@ -36,10 +40,19 @@ const NET_BB = stat("net_bb");
 const AF = stat("aggression_factor");
 const AFQ = stat("aggression_frequency");
 
-/** A tile's `made` and `opportunities`: the definition's `pct(made, opportunities)`. */
-function sample(id: string, sums: DisplaySums): { made: number; opportunities: number } {
-  const rate = statRate(stat(id), sums);
-  return { made: rate?.made ?? 0, opportunities: rate?.opportunities ?? 0 };
+/** A tile's inputs: the definition's `pct(made, opportunities)`, its value and its reliability. */
+function sample(
+  id: string,
+  sums: DisplaySums,
+): { made: number; opportunities: number; value: number | null; reliability: StatReliability } {
+  const def = stat(id);
+  const rate = statRate(def, sums);
+  return {
+    made: rate?.made ?? 0,
+    opportunities: rate?.opportunities ?? 0,
+    value: statValue(def, sums),
+    reliability: statReliability(def, sums),
+  };
 }
 
 interface HudGridProps {
@@ -102,7 +115,13 @@ export function HudGrid({
   const aggressionFactor = statValue(AF, sums);
   const aggressionFrequency = statValue(AFQ, sums);
   const hands = counters.hands;
-  const trusted = statFull(BB_PER_100, sums);
+  // The win rate has no interval (no per-hand variance is stored); its level
+  // is the shared rule's, over the money hands against the 10 000 of the
+  // definition. The headline keeps its own 0.8 fade (contrast, #57).
+  const trusted = statReliability(BB_PER_100, sums).level === "ok";
+  const af = statReliability(AF, sums);
+  const afq = statReliability(AFQ, sums);
+  const one = fixedIn(locale, 1);
   const s = (id: string) => sample(id, sums);
 
   return (
@@ -115,6 +134,7 @@ export function HudGrid({
             className={`stats-headline__value ${
               money === null ? "" : (winRate ?? 0) >= 0 ? "is-up" : "is-down"
             } ${trusted ? "" : "is-provisional"}`}
+            title={money === null ? undefined : en.sample(count(moneyHands))}
           >
             {money !== null && winRate !== null ? `${bb100.format(winRate)}` : "—"}
             <span className="stats-headline__unit">{t.common.bb100}</span>
@@ -127,7 +147,7 @@ export function HudGrid({
             /* No "±" here, ever. A confidence interval on a win rate needs the
                variance of the per-hand result, and the engine stores sums, not
                sums of squares — so any band would be an assumed standard
-               deviation dressed up as a measurement. See `uncertainty.ts`. */
+               deviation dressed up as a measurement. See `lib/stats/reliability.ts`. */
             <p className="stats-headline__note">{en.provisional(moneyHands, BB_PER_100.def.sample.min)}</p>
           )}
         </div>
@@ -204,11 +224,24 @@ export function HudGrid({
         <dl className="stats-inline">
           <div>
             <dt>{en.aggressionFactor}</dt>
-            <dd>{aggressionFactor === null ? "—" : fixedIn(locale, AF.def.format.decimals)(aggressionFactor)}</dd>
+            <dd style={{ opacity: af.opacity }} title={en.sample(count(statSample(AF, sums) ?? 0))}>
+              {aggressionFactor === null ? "—" : fixedIn(locale, AF.def.format.decimals)(aggressionFactor)}
+            </dd>
           </div>
           <div>
             <dt>{en.aggressionFrequency}</dt>
-            <dd>
+            <dd
+              style={{ opacity: afq.opacity }}
+              title={
+                afq.interval
+                  ? t.tile.sample(
+                      count(statSample(AFQ, sums) ?? 0),
+                      one(afq.interval.low),
+                      one(afq.interval.high),
+                    )
+                  : undefined
+              }
+            >
               {aggressionFrequency === null
                 ? "—"
                 : `${fixedIn(locale, AFQ.def.format.decimals)(aggressionFrequency)}%`}

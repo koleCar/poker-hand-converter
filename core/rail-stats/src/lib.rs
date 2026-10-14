@@ -41,6 +41,7 @@ pub mod mapping;
 pub mod money;
 pub mod postflop;
 pub mod preflop;
+pub mod reliability;
 pub mod segment;
 pub mod showdown;
 pub mod stored;
