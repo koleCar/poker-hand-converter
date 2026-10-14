@@ -4,13 +4,17 @@
 //! ```text
 //! cargo run --release -p rail-watch --example import_bench -- \
 //!     [--hands 100000] [--workers N] [--runs 1] [--min-rate 5000] \
-//!     [--min-efficiency PERCENT] [--keep] [--dir PATH]
+//!     [--min-efficiency PERCENT] [--keep] [--dir PATH] [--rename-players] \
+//!     [--writer-only BATCHES]
 //! ```
 //!
 //! 1. Builds a **generated** dataset of about `--hands` hands in a temporary
 //!    directory: copies of the repository's corpus with rewritten hand ids
 //!    (`dataset.rs`; labelled `GENERATED.md`, removed afterwards unless
-//!    `--keep`; never under `testdata/` or a fixture tree).
+//!    `--keep`; never under `testdata/` or a fixture tree). With
+//!    `--rename-players` every copy also gets new villain names (R2.7c: a
+//!    store with a real store's number of opponents, for the Players
+//!    screen's measurements; `dataset.rs`). CI runs without it.
 //! 2. Measures a **reference rate on this machine**: one thread converts the
 //!    corpus templates (copy 0 of the dataset, ~7 300 hands held in memory:
 //!    no file reads, no store, no watcher) with the reader's options, hands
@@ -42,6 +46,15 @@
 //! does not see a slowdown of `rail_core` itself (it slows the reference
 //! too); the reference rate is printed for that. `--workers` defaults to
 //! the app's default (`WatchConfig::default()`).
+//!
+//! `--writer-only BATCHES` measures the **store's writer alone** instead
+//! (steps 2-4 skipped): every file of the dataset is converted into its
+//! batch up front (in memory, in parallel), then each run commits them
+//! into an empty store from one thread, `BATCHES` at a time (one
+//! transaction per group, as the writer groups a backfill's batches;
+//! ~3-4 at 3 import threads), and prints the writer's time per hand - what
+//! a change to the writer or the schema costs or saves, without the
+//! conversion's noise. Not a gate.
 
 mod dataset;
 
@@ -64,6 +77,8 @@ struct Args {
     keep: bool,
     dir: Option<PathBuf>,
     runs: usize,
+    rename_players: bool,
+    writer_only: Option<usize>,
 }
 
 fn args() -> Args {
@@ -75,6 +90,8 @@ fn args() -> Args {
         keep: false,
         dir: None,
         runs: 1,
+        rename_players: false,
+        writer_only: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(arg) = it.next() {
@@ -89,6 +106,8 @@ fn args() -> Args {
             "--dir" => args.dir = Some(PathBuf::from(value())),
             "--runs" => args.runs = value().parse().expect("--runs"),
             "--keep" => args.keep = true,
+            "--rename-players" => args.rename_players = true,
+            "--writer-only" => args.writer_only = Some(value().parse().expect("--writer-only")),
             other => panic!("unknown argument {other}"),
         }
     }
@@ -135,7 +154,7 @@ fn main() {
     std::fs::create_dir_all(&base).expect("bench dir");
     let _ = std::fs::write(base.join(".metadata_never_index"), b"");
     let started = Instant::now();
-    let selection = dataset::templates(&root, cores);
+    let selection = dataset::templates(&root, cores, args.rename_players);
     let per_copy: usize = selection.templates.iter().map(|t| t.hands).sum();
     let copies = usize::try_from(
         args.hands
@@ -161,6 +180,20 @@ fn main() {
         data.hands,
         started.elapsed().as_secs_f64()
     );
+    if args.rename_players {
+        println!(
+            "player names rewritten per copy in {} templates ({} keep the corpus's names)",
+            selection.renamed, selection.names_kept
+        );
+    }
+
+    if let Some(group) = args.writer_only {
+        writer_only(&data, &db, group.max(1), args.runs.max(1), cores);
+        if !args.keep {
+            let _ = std::fs::remove_dir_all(&base);
+        }
+        return;
+    }
 
     // 2.-4. A reference, then each run: an import into an empty store and
     // a reference after it. A run's reference is the mean of the two around
@@ -276,6 +309,80 @@ fn stats_cost(selection: &dataset::Selection) {
         convert.as_micros() / n,
         stats.as_micros() * 100 / convert.as_micros().max(1)
     );
+}
+
+/// `--writer-only`: the dataset's batches, converted up front, committed
+/// `group` at a time from one thread into an empty store, `runs` times.
+fn writer_only(data: &dataset::Dataset, db: &Path, group: usize, runs: usize, cores: usize) {
+    let started = Instant::now();
+    let options = rail_store::ImportOptions {
+        parsed_at: Some(rail_core::detect::PINNED_PARSED_AT.to_owned()),
+        source_id: None,
+    };
+    let next = std::sync::atomic::AtomicUsize::new(0);
+    let batches: Mutex<Vec<(usize, rail_store::ImportBatch)>> = Mutex::default();
+    std::thread::scope(|scope| {
+        for _ in 0..cores {
+            scope.spawn(|| {
+                loop {
+                    let n = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    let Some((path, _)) = data.files.get(n) else {
+                        break;
+                    };
+                    let batch =
+                        rail_store::import::whole_file_batch(path, &options).expect("convert");
+                    batches.lock().expect("batches").push((n, batch));
+                }
+            });
+        }
+    });
+    let mut batches = batches.into_inner().expect("batches");
+    batches.sort_unstable_by_key(|(n, _)| *n);
+    let hands: usize = batches.iter().map(|(_, batch)| batch.hands.len()).sum();
+    println!(
+        "writer only: {} batches, {hands} hands converted in {:.1} s; committed {group} \
+         batches a transaction",
+        batches.len(),
+        started.elapsed().as_secs_f64()
+    );
+    for run in 1..=runs {
+        remove_store(db);
+        let store = Store::open(db).expect("store");
+        let source = store
+            .add_source(&data.dir.to_string_lossy(), true, None)
+            .expect("source");
+        let mut owned: Vec<rail_store::ImportBatch> = batches
+            .iter()
+            .map(|(_, batch)| {
+                let mut batch = batch.clone();
+                batch.file.source_id = Some(source);
+                batch
+            })
+            .collect();
+        let writer = store.writer().expect("writer");
+        let started = Instant::now();
+        while !owned.is_empty() {
+            let rest = owned.split_off(owned.len().min(group));
+            let pending: Vec<_> = owned
+                .drain(..)
+                .map(|batch| writer.import_async(batch).expect("queue"))
+                .collect();
+            for pending in pending {
+                pending.wait().expect("commit");
+            }
+            owned = rest;
+        }
+        let elapsed = started.elapsed();
+        drop(writer);
+        let stored = store.status().expect("status").hands;
+        store.close();
+        let ns = elapsed.as_nanos() / u128::from(stored.max(1));
+        println!(
+            "WRITER run={run} hands={stored} seconds={:.3} us_per_hand={:.2} group={group}",
+            elapsed.as_secs_f64(),
+            ms(ns)
+        );
+    }
 }
 
 /// `rate / (reference x workers)`, in percent.

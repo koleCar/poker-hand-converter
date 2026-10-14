@@ -15,6 +15,11 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
+/// Back from version 9 to 8 (R2.7c): what the older-store tests run first.
+pub const DOWN_FROM_9: &str = "DROP TABLE players; DROP TABLE player_labels;
+     DROP TABLE player_summary; DROP TABLE player_hidden;
+     DROP TRIGGER seat_stats_player_delete; DROP TABLE player_hands;";
+
 pub fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
@@ -124,6 +129,10 @@ pub struct StatsSnapshot {
     pub ev_pending: BTreeSet<String>,
     /// (R2.7a) hand_key -> the `hand_list` row, its segment by key.
     pub list: BTreeMap<String, Vec<String>>,
+    /// (R2.7c) (site, player) -> the `player_summary` row.
+    pub summary: BTreeMap<(String, String), Vec<String>>,
+    /// (R2.7c) site -> the `player_hidden` row.
+    pub hidden: BTreeMap<String, Vec<String>>,
 }
 
 /// A segment's key in SQL (`g` is `segments`).
@@ -232,6 +241,31 @@ pub fn stats_snapshot(conn: &Connection) -> StatsSnapshot {
         snap.list.insert(
             row.get(0).expect("key"),
             (1..columns).map(|i| text(row, i)).collect(),
+        );
+    }
+    let mut stmt = conn
+        .prepare(
+            "SELECT site, player, hands, first_played_at, last_played_at, cash_hands,
+                    chips_hands, cash_money_hands, cash_net_bb_milli, chips_money_hands,
+                    chips_net_bb_milli
+             FROM player_summary",
+        )
+        .expect("prepare summary");
+    let mut rows = stmt.query([]).expect("summary");
+    while let Some(row) = rows.next().expect("row") {
+        snap.summary.insert(
+            (row.get(0).expect("site"), row.get(1).expect("player")),
+            (2..11).map(|i| text(row, i)).collect(),
+        );
+    }
+    let mut stmt = conn
+        .prepare("SELECT site, hands, cash_hands FROM player_hidden")
+        .expect("prepare hidden");
+    let mut rows = stmt.query([]).expect("hidden");
+    while let Some(row) = rows.next().expect("row") {
+        snap.hidden.insert(
+            row.get(0).expect("site"),
+            (1..3).map(|i| text(row, i)).collect(),
         );
     }
     snap
@@ -348,7 +382,11 @@ fn rollup_totals(row: &rusqlite::Row<'_>, first: usize) -> rail_store::Totals {
 /// `player_rollups` per (site, player, scope, segment) with `aggregate`'s
 /// default exclusions (bomb pots out, EV-cashout money out),
 /// `hero_rollups` per (segment, position, UTC day, kind) of the hero's
-/// rows. Every column, `last_played_at` included.
+/// rows. Every column, `last_played_at` included. And (R2.7c)
+/// `player_summary` per (site, player) of the opponents' rows at scope `''`
+/// with a name (bomb pots out; the hero's hands and result in the hand,
+/// cash and chips apart, an EV cashout's result out), `player_hidden` per
+/// site of the opponents' rows of other scopes.
 pub fn assert_rollups(conn: &Connection) {
     use rail_store::stats::{KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, decode_seat};
     let generation: i64 = conn
@@ -364,12 +402,70 @@ pub fn assert_rollups(conn: &Connection) {
     let mut stmt = conn
         .prepare(
             "SELECT g.site, s.player, s.scope, d.segment_id, h.played_at, d.is_bomb_pot,
-                    d.has_straddle, d.has_cashout, s.is_hero, coalesce(s.position, ''), s.totals
+                    d.has_straddle, d.has_cashout, s.is_hero, coalesce(s.position, ''), s.totals,
+                    d.id, g.game_format = 'cash'
              FROM seat_stats s JOIN hand_stats d ON d.id = s.hand_id
              JOIN segments g ON g.id = d.segment_id JOIN hands h ON h.hand_key = d.hand_key
              WHERE d.gen = ?1",
         )
         .expect("prepare rows");
+    // (R2.7c) The opponents' lines: every row first, the hero's result per hand.
+    struct Seat {
+        site: String,
+        player: String,
+        scope: String,
+        hand: i64,
+        played: Option<String>,
+        bomb: bool,
+        cashout: bool,
+        hero: bool,
+        cash: bool,
+        net_bb_milli: i64,
+    }
+    let mut seats: Vec<Seat> = Vec::new();
+    let mut rows = stmt.query([generation]).expect("rows");
+    while let Some(row) = rows.next().expect("row") {
+        let blob: Vec<u8> = row.get(10).expect("blob");
+        seats.push(Seat {
+            site: row.get(0).expect("site"),
+            player: row.get(1).expect("player"),
+            scope: row.get(2).expect("scope"),
+            hand: row.get(11).expect("hand"),
+            played: row.get(4).expect("played_at"),
+            bomb: row.get(5).expect("bomb"),
+            cashout: row.get(7).expect("cashout"),
+            hero: row.get(8).expect("hero"),
+            cash: row.get(12).expect("cash"),
+            net_bb_milli: decode_seat(&blob).expect("decode").net_bb_milli(),
+        });
+    }
+    drop(rows);
+    let hero_net: BTreeMap<i64, i64> = seats
+        .iter()
+        .filter(|seat| seat.hero)
+        .map(|seat| (seat.hand, seat.net_bb_milli))
+        .collect();
+    let mut summary: BTreeMap<(String, String), rail_store::PlayerSeen> = BTreeMap::new();
+    let mut hidden: BTreeMap<String, (i64, i64)> = BTreeMap::new();
+    for seat in seats.iter().filter(|seat| !seat.hero && !seat.bomb) {
+        if seat.scope.is_empty() {
+            if !seat.player.is_empty() {
+                summary
+                    .entry((seat.site.clone(), seat.player.clone()))
+                    .or_default()
+                    .add(&rail_store::PlayerSeen::seat(
+                        seat.played.as_deref(),
+                        seat.cash,
+                        hero_net.get(&seat.hand).copied(),
+                        !seat.cashout,
+                    ));
+            }
+        } else {
+            let sum = hidden.entry(seat.site.clone()).or_default();
+            sum.0 += 1;
+            sum.1 += i64::from(seat.cash);
+        }
+    }
     let mut rows = stmt.query([generation]).expect("rows");
     while let Some(row) = rows.next().expect("row") {
         let played: Option<String> = row.get(4).expect("played_at");
@@ -451,6 +547,68 @@ pub fn assert_rollups(conn: &Connection) {
         "hero_rollups are not the sums of the hero's rows ({} stored, {} expected)",
         stored_heroes.len(),
         heroes.len()
+    );
+    let mut stored_summary = BTreeMap::new();
+    let mut stmt = conn
+        .prepare(
+            "SELECT site, player, hands, first_played_at, last_played_at, cash_hands,
+                    chips_hands, cash_money_hands, cash_net_bb_milli, chips_money_hands,
+                    chips_net_bb_milli
+             FROM player_summary",
+        )
+        .expect("prepare summary");
+    let mut rows = stmt.query([]).expect("summary");
+    while let Some(row) = rows.next().expect("row") {
+        stored_summary.insert(
+            (row.get(0).expect("site"), row.get(1).expect("player")),
+            rail_store::PlayerSeen {
+                hands: row.get(2).expect("hands"),
+                first_played_at: row.get(3).expect("first"),
+                last_played_at: row.get(4).expect("last"),
+                cash_hands: row.get(5).expect("cash"),
+                chips_hands: row.get(6).expect("chips"),
+                cash_money_hands: row.get(7).expect("cash money"),
+                cash_net_bb_milli: row.get(8).expect("cash net"),
+                chips_money_hands: row.get(9).expect("chips money"),
+                chips_net_bb_milli: row.get(10).expect("chips net"),
+            },
+        );
+    }
+    assert!(
+        stored_summary == summary,
+        "player_summary is not the sums of the opponents' rows ({} stored, {} expected)",
+        stored_summary.len(),
+        summary.len()
+    );
+    let stored_hidden: BTreeMap<String, (i64, i64)> = conn
+        .prepare("SELECT site, hands, cash_hands FROM player_hidden")
+        .expect("prepare hidden")
+        .query_map([], |row| Ok((row.get(0)?, (row.get(1)?, row.get(2)?))))
+        .expect("hidden")
+        .collect::<Result<_, _>>()
+        .expect("rows");
+    assert_eq!(stored_hidden, hidden, "player_hidden");
+    // `player_hands`: exactly the named opponents' seat rows at scope '' of
+    // the hands the background pass has gone through (`players.indexed`).
+    let mismatched: i64 = conn
+        .query_row(
+            "WITH m AS (SELECT coalesce((SELECT CAST(value AS INTEGER) FROM kv
+                                         WHERE key = 'players.indexed'), 0) AS upto)
+             SELECT (SELECT count(*) FROM (
+                       SELECT player, hand_id, seat FROM seat_stats, m
+                        WHERE is_hero = 0 AND scope = '' AND player <> '' AND hand_id <= m.upto
+                       EXCEPT SELECT player, hand_id, seat FROM player_hands))
+                  + (SELECT count(*) FROM (
+                       SELECT player, hand_id, seat FROM player_hands
+                       EXCEPT SELECT player, hand_id, seat FROM seat_stats, m
+                        WHERE is_hero = 0 AND scope = '' AND player <> '' AND hand_id <= m.upto))",
+            [],
+            |row| row.get(0),
+        )
+        .expect("player_hands");
+    assert_eq!(
+        mismatched, 0,
+        "player_hands are not the opponents' seat rows"
     );
 }
 

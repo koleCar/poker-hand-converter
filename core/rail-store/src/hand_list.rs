@@ -13,7 +13,8 @@
 //!   variant, limit, table size, stake) become a set of `segments.id`s
 //!   (that table is small); the hero's position, result and stack, the pot
 //!   type and the all-in flag are columns of the row; the date range is a
-//!   range of the key; notes and tags are the user's tables.
+//!   range of the key; notes and tags are the user's tables; a player
+//!   (R2.7c, "hands with this player") is their entries in `player_hands`.
 //! - **The counts** ([`Reader::hand_facets`]) for each chip: the hands that
 //!   would match if that chip's own group were left out of the filter (how
 //!   many hands a click adds), all groups from one pass over the rows.
@@ -51,6 +52,14 @@ pub const STACK_DEPTHS: [(&str, i64, Option<i64>); 4] = [
 /// The hero's result in a hand, for the result filter.
 pub const RESULTS: [&str; 3] = ["won", "lost", "even"];
 
+/// An opponent of a room with real screen names (R2.7c): the site key
+/// (`segments.site`) and the name as the room printed it.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct PlayerRef {
+    pub site: String,
+    pub player: String,
+}
+
 /// What the list shows: every group is "any" when empty, and a hand must
 /// match every group that is not.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -87,6 +96,8 @@ pub struct HandFilter {
     pub from: Option<String>,
     /// Before this instant, exclusive.
     pub to: Option<String>,
+    /// Only hands this opponent was dealt into (R2.7c).
+    pub player: Option<PlayerRef>,
 }
 
 /// Where the next page starts: the last row of the page before.
@@ -319,11 +330,26 @@ impl Where {
 const RESULT_SQL: &str = "CASE WHEN l.hero_net IS NULL THEN '' WHEN l.hero_net > 0 THEN 'won' \
                           WHEN l.hero_net < 0 THEN 'lost' ELSE 'even' END";
 
-/// The rows a query goes through, `l` being `hand_list`. With a note or
-/// tag filter, from the user's (small) table to the list rows of its hands,
-/// sorted afterwards; otherwise the list in its order. Measured at 500k
-/// hands, probing the notes for every row took 180 ms, the tags 350 ms.
+/// The rows a query goes through, `l` being `hand_list`. With a player,
+/// from their entries in `player_hands` (villains of rooms with real
+/// names) in the player's room to the list rows of those hands; with
+/// a note or tag filter, from the user's (small) table to the list rows of
+/// its hands; both sorted afterwards. Otherwise the list in its order.
+/// Measured at 500k hands, probing the notes for every row took 180 ms,
+/// the tags 350 ms. The note and tag clauses stay in [`base_clauses`], so
+/// a player and a tag filter together are both applied.
 fn source(filter: &HandFilter, w: &mut Where) -> String {
+    if let Some(player) = &filter.player {
+        let name = w.text(&player.player);
+        let site = w.text(&player.site);
+        return format!(
+            "FROM player_hands ps
+             CROSS JOIN hand_stats ks ON ks.id = ps.hand_id AND ps.player = {name}
+             CROSS JOIN segments pg ON pg.id = ks.segment_id AND pg.site = {site}
+             CROSS JOIN hand_list l
+               ON l.played_at = coalesce(ks.played_at, '') AND l.hand_key = ks.hand_key"
+        );
+    }
     let driver = if filter.has_note == Some(true) {
         Some("SELECT hand_key FROM hand_notes".to_owned())
     } else if filter.tags.is_empty() {

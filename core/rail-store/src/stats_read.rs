@@ -163,6 +163,10 @@ pub struct StatsStatus {
     pub rebuild: Option<RebuildState>,
     /// Hands waiting for the background EV pass.
     pub ev_pending: u64,
+    /// (R2.7c) Hands whose opponents the background pass has not indexed
+    /// yet ("hands with this player" and the profile by position miss them
+    /// until it has).
+    pub players_unindexed: u64,
 }
 
 fn segment_from(row: &rusqlite::Row<'_>) -> rusqlite::Result<SegmentRow> {
@@ -597,6 +601,7 @@ impl Reader {
                 generation: current_gen(conn)?,
                 rebuild: rebuild_state(conn)?,
                 ev_pending: u64::try_from(pending).unwrap_or(0),
+                players_unindexed: crate::stats::players_unindexed(conn)?,
             })
         })
     }

@@ -13,6 +13,7 @@
 
 use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::thread::{self, JoinHandle};
+use std::time::{Duration, Instant};
 
 use rusqlite::{Connection, OptionalExtension, Transaction, params};
 
@@ -34,14 +35,27 @@ pub const GROUP_BATCHES: usize = 64;
 /// M2 Pro), not more.
 pub const GROUP_HANDS: usize = 2_000;
 
+/// A group of batches sent with [`WriterHandle::queue`] (producers that do
+/// not wait for their commits: the watcher's import threads during a
+/// backfill) that found a second one already waiting keeps collecting for
+/// up to this long from its first batch. A transaction rewrites every page
+/// it touches - the indexes keyed by hand and the rollups' - however few
+/// hands it holds, so fewer, larger groups write less (at 3 import threads
+/// ~1 600 groups instead of ~3 200 per 100k hands; measured). A lone batch
+/// (a hand being played), and any batch someone waits for
+/// ([`WriterHandle::import`], [`WriterHandle::import_async`]: a large
+/// read's pieces), commits at once.
+pub const GROUP_LINGER: Duration = Duration::from_millis(5);
+
 /// A write job: opens its transaction on the writer's connection, commits
 /// it, and answers its caller.
 type Job = Box<dyn FnOnce(&mut Connection) + Send>;
 
 /// What the writer thread is asked to do.
 enum Command {
-    /// Store one read of one file (one transaction), and answer.
-    Import(Box<ImportBatch>, SyncSender<Result<ImportOutcome>>),
+    /// Store one read of one file (one transaction), and answer; `true`:
+    /// sent with [`WriterHandle::queue`] (its group may linger).
+    Import(Box<ImportBatch>, SyncSender<Result<ImportOutcome>>, bool),
     /// Any other write, as a closure that answers on its own channel.
     Write(Job),
 }
@@ -88,9 +102,21 @@ impl WriterHandle {
     /// one's `to_offset`, and if one fails (say [`Error::OffsetMismatch`]),
     /// the ones after it fail the offset check too and store nothing.
     pub fn import_async(&self, batch: ImportBatch) -> Result<PendingImport> {
+        self.send_import(batch, false)
+    }
+
+    /// [`WriterHandle::import_async`] for a producer that goes on with other
+    /// work and leaves the wait to someone else (the watcher's committer):
+    /// the writer may hold the batch's group open for [`GROUP_LINGER`] to
+    /// commit it together with the batches the other producers send.
+    pub fn queue(&self, batch: ImportBatch) -> Result<PendingImport> {
+        self.send_import(batch, true)
+    }
+
+    fn send_import(&self, batch: ImportBatch, linger: bool) -> Result<PendingImport> {
         let (reply, answer) = mpsc::sync_channel(1);
         self.sender
-            .send(Command::Import(Box::new(batch), reply))
+            .send(Command::Import(Box::new(batch), reply, linger))
             .map_err(|_| Error::WriterGone)?;
         Ok(PendingImport { answer })
     }
@@ -173,26 +199,38 @@ type Queued = (Box<ImportBatch>, SyncSender<Result<ImportOutcome>>);
 /// stale offset) is rolled back alone and answered with its error, the
 /// others commit. A crash before the commit loses the whole group, and
 /// with it every offset of the group - so R1.2's invariant (an offset moves
-/// with exactly the hands read up to it) holds per batch as before.
+/// with exactly the hands read up to it) holds per batch as before. A group
+/// of [`WriterHandle::queue`]d batches that found a second one waiting
+/// collects for up to [`GROUP_LINGER`].
 fn run(mut conn: Connection, commands: &Receiver<Command>) {
     // Ends when every handle is dropped.
     let mut next = commands.recv().ok();
     while let Some(command) = next.take() {
         match command {
-            Command::Import(batch, reply) => {
+            Command::Import(batch, reply, queued) => {
                 let mut hands = batch.hands.len();
                 let mut group: Vec<Queued> = vec![(batch, reply)];
+                // Nobody waits for any batch of the group yet.
+                let mut linger = queued;
+                let until = Instant::now() + GROUP_LINGER;
                 while group.len() < GROUP_BATCHES && hands < GROUP_HANDS {
-                    match commands.try_recv() {
-                        Ok(Command::Import(batch, reply)) => {
+                    let left = until.saturating_duration_since(Instant::now());
+                    let received = if group.len() < 2 || !linger || left.is_zero() {
+                        commands.try_recv().ok()
+                    } else {
+                        commands.recv_timeout(left).ok()
+                    };
+                    match received {
+                        Some(Command::Import(batch, reply, queued)) => {
                             hands += batch.hands.len();
                             group.push((batch, reply));
+                            linger &= queued;
                         }
-                        Ok(other) => {
+                        Some(other) => {
                             next = Some(other);
                             break;
                         }
-                        Err(_) => break,
+                        None => break,
                     }
                 }
                 commit_group(&mut conn, group);

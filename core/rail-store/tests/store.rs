@@ -128,14 +128,21 @@ fn opens_with_wal_normal_sync_and_foreign_keys() {
         .query_row("PRAGMA journal_mode", [], |row| row.get(0))
         .expect("journal_mode");
     assert_eq!(mode, "wal");
-    // `synchronous` and `foreign_keys` are per connection: the writer's own.
-    let (sync, fk) = store
+    // `synchronous`, `foreign_keys` and the cache and checkpoint sizes are
+    // per connection: the writer's own.
+    let (sync, fk, cache, checkpoint) = store
         .writer()
         .expect("writer")
         .write(|tx| {
-            let sync: i64 = tx.query_row("PRAGMA synchronous", [], |row| row.get(0))?;
-            let fk: i64 = tx.query_row("PRAGMA foreign_keys", [], |row| row.get(0))?;
-            Ok((sync, fk))
+            let get = |pragma: &str| -> rusqlite::Result<i64> {
+                tx.query_row(&format!("PRAGMA {pragma}"), [], |row| row.get(0))
+            };
+            Ok((
+                get("synchronous")?,
+                get("foreign_keys")?,
+                get("cache_size")?,
+                get("wal_autocheckpoint")?,
+            ))
         })
         .expect("pragmas");
     assert_eq!(
@@ -143,6 +150,8 @@ fn opens_with_wal_normal_sync_and_foreign_keys() {
         (1, 1),
         "synchronous = NORMAL, foreign_keys = ON"
     );
+    assert_eq!(cache, -rail_store::WRITE_CACHE_KIB);
+    assert_eq!(checkpoint, i64::from(rail_store::WAL_AUTOCHECKPOINT));
     assert_eq!(store.status().expect("status").schema_version, LATEST);
     store.close();
     // Reopening a current store applies nothing and keeps working.

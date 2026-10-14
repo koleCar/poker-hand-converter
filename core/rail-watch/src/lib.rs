@@ -28,7 +28,10 @@ pub mod scan;
 pub mod watcher;
 
 pub use error::{Error, Result};
-pub use reader::{FileReader, FileRef, FileTrack, ImportLimits, Polled, ReadConfig};
+pub use reader::{
+    Attempt, Committing, FileReader, FileRef, FileTrack, Finished, ImportLimits, Polled,
+    ReadConfig, Started,
+};
 pub use watcher::{
     AddedSource, Backfill, NewSource, SourceMoved, SourceState, SourceStatus, WatchConfig,
     WatchEvent, Watcher, WatcherStatus, default_workers,

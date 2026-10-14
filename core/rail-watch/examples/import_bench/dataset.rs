@@ -19,6 +19,20 @@
 //! The rewrite works on code units: bytes for UTF-8 and Windows-1252 (no
 //! multi-byte UTF-8 sequence contains an ASCII digit), 16-bit units for
 //! UTF-16 LE / BE.
+//!
+//! **Player names** (`--rename-players`, R2.7c; off by default, so CI's
+//! benchmark is unchanged): without it every copy holds the corpus's few
+//! thousand opponents again, far fewer players than a real store of that
+//! size. With it, copy *c* also rewrites every villain's name through a
+//! per-copy permutation of the ASCII letters that keeps each letter's class
+//! (`a-f`, `g-z`, `A-F`, `G-Z`: an opaque hex token stays a hex token, so
+//! no room's anonymisation changes) - the same length, so again no offset
+//! moves. A name is rewritten wherever it stands as a whole word (the bytes
+//! around it are not letters, digits or `_`); a hero's name never is. A
+//! template's names are rewritten only if its first renamed copy converts
+//! to the same hands with exactly the expected names, the same heroes and
+//! the same anonymisation; otherwise its copies keep the corpus's names
+//! (counted). Byte templates only (UTF-16 files keep their names).
 
 use std::collections::{BTreeSet, HashSet};
 use std::path::{Path, PathBuf};
@@ -28,6 +42,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use rail_core::convert::{FileConversion, convert_file};
 use rail_core::decode::Encoding;
 use rail_core::detect::ConvertOptions;
+use rail_core::phf::PhfHand;
 
 /// Digit runs shorter than this are never rewritten (too common: amounts,
 /// seats, times).
@@ -47,6 +62,9 @@ pub struct Template {
     keys: HashSet<String>,
     /// The parser of its first hand.
     parser: String,
+    /// Villain names rewritten in its copies (`--rename-players`; empty:
+    /// the corpus's names).
+    names: Vec<Vec<u8>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -138,9 +156,80 @@ pub fn permutations(copies: usize) -> Vec<[u8; 10]> {
     list
 }
 
+/// Copy `copy`'s letter map (`--rename-players`): identity for copy 0,
+/// else a seeded shuffle within each class `a-f`, `g-z`, `A-F`, `G-Z`.
+pub fn letter_map(copy: usize) -> [u8; 256] {
+    let mut map = [0_u8; 256];
+    for (i, slot) in map.iter_mut().enumerate() {
+        *slot = u8::try_from(i).expect("byte");
+    }
+    if copy == 0 {
+        return map;
+    }
+    let mut state: u64 = 0x5EED_0007_0C00 ^ u64::try_from(copy).expect("copy");
+    for (first, last) in [(b'a', b'f'), (b'g', b'z'), (b'A', b'F'), (b'G', b'Z')] {
+        let mut class: Vec<u8> = (first..=last).collect();
+        for i in (1..class.len()).rev() {
+            state = state.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = state;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^= z >> 31;
+            let j = usize::try_from(z % u64::try_from(i + 1).expect("small")).expect("small");
+            class.swap(i, j);
+        }
+        for (letter, mapped) in (first..=last).zip(class) {
+            map[usize::from(letter)] = mapped;
+        }
+    }
+    map
+}
+
+/// Whether `byte` continues a word (a name's neighbours must not).
+fn word_byte(byte: u8) -> bool {
+    byte.is_ascii_alphanumeric() || byte == b'_'
+}
+
+/// Every whole-word occurrence in `bytes` of a name in `names`, mapped
+/// letter by letter through `map` (the same length).
+fn rename(bytes: &mut [u8], names: &[Vec<u8>], map: &[u8; 256]) {
+    let original = bytes.to_vec();
+    for name in names {
+        let Some(&first) = name.first() else { continue };
+        let mut at = 0;
+        while at + name.len() <= original.len() {
+            if original[at] == first
+                && original[at..at + name.len()] == name[..]
+                && (at == 0 || !word_byte(original[at - 1]))
+                && original
+                    .get(at + name.len())
+                    .is_none_or(|&next| !word_byte(next))
+            {
+                for (k, &byte) in name.iter().enumerate() {
+                    bytes[at + k] = map[usize::from(byte)];
+                }
+                at += name.len();
+            } else {
+                at += 1;
+            }
+        }
+    }
+}
+
 impl Template {
+    /// Copy `copy` of the file: its id runs rewritten through `perm` and,
+    /// when its names are rewritten, its villains' names through the copy's
+    /// [`letter_map`].
+    pub fn rewrite(&self, perm: &[u8; 10], copy: usize) -> Vec<u8> {
+        let mut out = self.rewrite_ids(perm);
+        if copy > 0 && !self.names.is_empty() {
+            rename(&mut out, &self.names, &letter_map(copy));
+        }
+        out
+    }
+
     /// The file with its id runs rewritten through `perm`.
-    pub fn rewrite(&self, perm: &[u8; 10]) -> Vec<u8> {
+    fn rewrite_ids(&self, perm: &[u8; 10]) -> Vec<u8> {
         let mut out = self.bytes.clone();
         let width = if self.unit == Unit::Byte { 1 } else { 2 };
         let digit_at = |bytes: &[u8], at: usize| -> Option<u8> {
@@ -200,11 +289,16 @@ pub struct Selection {
     pub repeats: usize,
     /// Parsers with at least one template.
     pub parsers: BTreeSet<String>,
+    /// (`--rename-players`) Templates whose copies rename their villains,
+    /// and those that keep the corpus's names (the check failed, or UTF-16).
+    pub renamed: usize,
+    pub names_kept: usize,
 }
 
 /// Load the corpus and keep the files that can be replicated (see the
-/// module docs), using `threads` threads.
-pub fn templates(root: &Path, threads: usize) -> Selection {
+/// module docs), using `threads` threads; with `rename`, the villains'
+/// names are rewritten in every copy but the first wherever that checks out.
+pub fn templates(root: &Path, threads: usize, rename: bool) -> Selection {
     let files = corpus(root);
     let corpus_files = files.len();
     let next = AtomicUsize::new(0);
@@ -219,7 +313,7 @@ pub fn templates(root: &Path, threads: usize) -> Selection {
                 loop {
                     let n = next.fetch_add(1, Ordering::Relaxed);
                     let Some(relative) = files.get(n) else { break };
-                    let verdict = template(root, relative, &check);
+                    let verdict = template(root, relative, &check, rename);
                     let mut out = out.lock().expect("selection");
                     match verdict {
                         Verdict::Keep(template) => out.templates.push(*template),
@@ -245,6 +339,10 @@ pub fn templates(root: &Path, threads: usize) -> Selection {
         kept.push(template);
     }
     selection.parsers = kept.iter().map(|t| t.parser.clone()).collect();
+    selection.renamed = kept.iter().filter(|t| !t.names.is_empty()).count();
+    if rename {
+        selection.names_kept = kept.len() - selection.renamed;
+    }
     selection.templates = kept;
     selection
 }
@@ -259,7 +357,7 @@ enum Verdict {
     NotRewritable,
 }
 
-fn template(root: &Path, relative: &Path, check: &[u8; 10]) -> Verdict {
+fn template(root: &Path, relative: &Path, check: &[u8; 10], rename: bool) -> Verdict {
     let Ok(bytes) = std::fs::read(root.join(relative)) else {
         return Verdict::NoHands;
     };
@@ -292,7 +390,7 @@ fn template(root: &Path, relative: &Path, check: &[u8; 10]) -> Verdict {
         .first()
         .map(|hand| hand.hand.meta.parser_id.clone())
         .unwrap_or_default();
-    let template = Template {
+    let mut template = Template {
         relative: relative.to_path_buf(),
         bytes,
         unit,
@@ -300,8 +398,9 @@ fn template(root: &Path, relative: &Path, check: &[u8; 10]) -> Verdict {
         hands: keys.iter().collect::<HashSet<_>>().len(),
         keys: keys.iter().cloned().collect(),
         parser,
+        names: Vec::new(),
     };
-    let copy = template.rewrite(check);
+    let copy = template.rewrite(check, 1);
     let Some((new_keys, new_refusals)) = outline(&convert_file(&copy, &options)) else {
         return Verdict::NotRewritable;
     };
@@ -314,7 +413,73 @@ fn template(root: &Path, relative: &Path, check: &[u8; 10]) -> Verdict {
     {
         return Verdict::NotRewritable;
     }
+    if rename && unit == Unit::Byte {
+        let hands: Vec<&PhfHand> = result.hands.iter().map(|hand| &hand.hand).collect();
+        template.names = villain_names(&hands);
+        if !template.names.is_empty() && !renames_cleanly(&template, &hands, check, &options) {
+            template.names.clear();
+        }
+    }
     Verdict::Keep(Box::new(template))
+}
+
+/// The names a template's copies rewrite: every villain's (at least three
+/// bytes, with a letter), never one that is a hero's in the file.
+fn villain_names(hands: &[&PhfHand]) -> Vec<Vec<u8>> {
+    let heroes: HashSet<&str> = hands
+        .iter()
+        .flat_map(|hand| hand.players.iter())
+        .filter(|player| player.is_hero)
+        .map(|player| player.name.as_str())
+        .collect();
+    let names: BTreeSet<Vec<u8>> = hands
+        .iter()
+        .flat_map(|hand| hand.players.iter())
+        .filter(|player| !player.is_hero && !heroes.contains(player.name.as_str()))
+        .map(|player| player.name.as_bytes().to_vec())
+        .filter(|name| name.len() >= 3 && name.iter().any(u8::is_ascii_alphabetic))
+        .collect();
+    names.into_iter().collect()
+}
+
+/// Whether copy 1 with renamed villains converts to the same hands with
+/// exactly the expected names, the same heroes and the same anonymisation.
+fn renames_cleanly(
+    template: &Template,
+    hands: &[&PhfHand],
+    check: &[u8; 10],
+    options: &ConvertOptions,
+) -> bool {
+    let map = letter_map(1);
+    let names: HashSet<&[u8]> = template.names.iter().map(Vec::as_slice).collect();
+    let copy = template.rewrite(check, 1);
+    let conversion = convert_file(&copy, options);
+    let Some(Ok(result)) = conversion.result.as_ref() else {
+        return false;
+    };
+    if result.hands.len() != hands.len() {
+        return false;
+    }
+    hands.iter().zip(&result.hands).all(|(old, new)| {
+        let new = &new.hand;
+        old.players.len() == new.players.len()
+            && anonymization(old) == anonymization(new)
+            && old.players.iter().zip(&new.players).all(|(a, b)| {
+                let expected: Vec<u8> = if names.contains(a.name.as_bytes()) {
+                    a.name.bytes().map(|byte| map[usize::from(byte)]).collect()
+                } else {
+                    a.name.as_bytes().to_vec()
+                };
+                a.is_hero == b.is_hero && a.seat == b.seat && b.name.as_bytes() == expected
+            })
+    })
+}
+
+/// The hand's anonymisation, as the store derives it.
+fn anonymization(hand: &PhfHand) -> &'static str {
+    rail_store::PreparedStats::from_phf(hand)
+        .anonymization
+        .as_str()
 }
 
 /// What [`write`] produced.
@@ -340,7 +505,8 @@ pub fn write(dir: &Path, selection: &Selection, copies: usize, threads: usize) -
     std::fs::write(
         dir.join("GENERATED.md"),
         "GENERATED DATA - Rail import benchmark (docs/RAIL-PLAN.md R1.6).\n\
-         Copies of the repository's corpus with every hand id's digits permuted,\n\
+         Copies of the repository's corpus with every hand id's digits permuted\n\
+         (with --rename-players, the villains' names' letters too),\n\
          made on the fly by core/rail-watch/examples/import_bench. Not real hands\n\
          of anyone; never commit this directory. Safe to delete.\n",
     )
@@ -361,7 +527,7 @@ pub fn write(dir: &Path, selection: &Selection, copies: usize, threads: usize) -
                     let template = &selection.templates[t];
                     let path = dir.join(format!("copy-{copy:04}")).join(&template.relative);
                     std::fs::create_dir_all(path.parent().expect("parent")).expect("dirs");
-                    let bytes = template.rewrite(&perms[copy]);
+                    let bytes = template.rewrite(&perms[copy], copy);
                     std::fs::write(&path, &bytes).expect("write");
                     std::fs::File::options()
                         .write(true)

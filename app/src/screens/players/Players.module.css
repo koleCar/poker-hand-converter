@@ -1,0 +1,474 @@
+/* Players (R2.7c): title, the toolbar, notices, then the list and (with a
+   player open) the profile beside it, both scrolling inside. Semantic
+   tokens only; the colour tags are `--player-tag-*` (`index.css`). */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.count {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- toolbar */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.search {
+  inline-size: 16rem;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.segmented {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.select {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.select select {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+}
+
+.swatches {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.swatchButton {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 26px;
+  block-size: 26px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: none;
+  cursor: pointer;
+}
+
+.swatchButton:hover {
+  background: var(--surface-hover);
+}
+
+.swatchOn {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+}
+
+/* A colour tag: a dot, named by its button or its `aria-label`. */
+.swatch {
+  display: inline-block;
+  flex: none;
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: 1px solid var(--border-default);
+}
+
+.swatch[data-colour="red"] {
+  background: var(--player-tag-red);
+  border-color: var(--player-tag-red);
+}
+
+.swatch[data-colour="orange"] {
+  background: var(--player-tag-orange);
+  border-color: var(--player-tag-orange);
+}
+
+.swatch[data-colour="yellow"] {
+  background: var(--player-tag-yellow);
+  border-color: var(--player-tag-yellow);
+}
+
+.swatch[data-colour="green"] {
+  background: var(--player-tag-green);
+  border-color: var(--player-tag-green);
+}
+
+.swatch[data-colour="blue"] {
+  background: var(--player-tag-blue);
+  border-color: var(--player-tag-blue);
+}
+
+.swatch[data-colour="purple"] {
+  background: var(--player-tag-purple);
+  border-color: var(--player-tag-purple);
+}
+
+.swatch[data-colour="none"] {
+  border-style: dashed;
+}
+
+/* In the list, no colour is no dot (the column stays aligned). */
+.name .swatch[data-colour="none"] {
+  visibility: hidden;
+}
+
+.clear {
+  border: 0;
+  background: none;
+  color: var(--accent-fg);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.notice,
+.warning {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-2);
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: var(--font-size-sm);
+}
+
+.warning {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+/* ------------------------------------------------------- list + profile */
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.split {
+  grid-template-columns: minmax(22rem, 1fr) minmax(28rem, 1.2fr);
+}
+
+.list,
+.panel {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.message {
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
+  padding: var(--space-6);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-3);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.tableWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: var(--space-1) var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  background: var(--surface-base);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.table tbody th {
+  font-weight: var(--font-weight-regular);
+}
+
+.table tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+.table tbody tr[aria-current="true"] {
+  background: var(--accent-subtle);
+}
+
+.table .number {
+  text-align: end;
+}
+
+.hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nameCell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  text-align: start;
+}
+
+.name:hover .nameText {
+  text-decoration: underline;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-pill);
+  color: var(--accent-fg);
+  font-size: var(--font-size-xs);
+}
+
+.label button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 var(--space-1);
+}
+
+.noteMark {
+  color: var(--text-tertiary);
+}
+
+.up {
+  color: var(--profit-fg);
+}
+
+.down {
+  color: var(--loss-fg);
+}
+
+.more {
+  align-self: center;
+}
+
+/* ------------------------------------------------------------- profile */
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.profileHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.profileName {
+  font-size: var(--font-size-xl);
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.errorText {
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.fact dt {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.fact dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.resultBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.subhead {
+  margin-block-end: var(--space-2);
+  font-size: var(--font-size-base);
+}
+
+.statGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4) var(--space-6);
+  align-items: start;
+  margin-block: var(--space-3);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-block-end: var(--space-2);
+}
+
+/* The colour, labels and note: label beside control. */
+.words {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-base);
+}
+
+.wordsRow {
+  display: contents;
+}
+
+.wordsLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.noteState {
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-regular);
+  text-transform: none;
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.labelInput,
+.note {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.labelInput {
+  inline-size: 11rem;
+  padding: var(--space-1) var(--space-2);
+}
+
+.note {
+  resize: vertical;
+  min-height: 4rem;
+  padding: var(--space-2);
+  font-family: inherit;
+  line-height: var(--line-height-normal);
+}
+
+.footnote {
+  grid-column: 1 / -1;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.words .errorText {
+  grid-column: 1 / -1;
+}

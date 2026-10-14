@@ -32,6 +32,8 @@ pub struct Reader {
     facets: Mutex<crate::hand_list::FacetCache>,
     /// The reports' last graphs and breakdowns (R2.7b).
     reports: Mutex<crate::report::ReportCache>,
+    /// The Players screen's summary, read once per commit (R2.7c).
+    players: Mutex<crate::players::PlayerCache>,
 }
 
 impl Reader {
@@ -52,6 +54,7 @@ impl Reader {
             next: AtomicUsize::new(0),
             facets: Mutex::default(),
             reports: Mutex::default(),
+            players: Mutex::default(),
         })
     }
 
@@ -77,6 +80,11 @@ impl Reader {
     /// The reports' cache of graphs and breakdowns.
     pub(crate) fn report_cache(&self) -> std::sync::MutexGuard<'_, crate::report::ReportCache> {
         self.reports.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// The Players screen's cache of the summary.
+    pub(crate) fn player_cache(&self) -> std::sync::MutexGuard<'_, crate::players::PlayerCache> {
+        self.players.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     /// The counts the Today screen shows.

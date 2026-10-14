@@ -3,9 +3,10 @@
  * `HandFilter` groups, with the date as a preset ("last 7 days" stays
  * relative when a saved filter is applied again next week) or a custom range
  * of local days. `toQuery` turns it into what the store reads, with the date
- * as UTC instants.
+ * as UTC instants. A player (R2.7c, "hands with this player" from the
+ * Players screen) narrows it to an opponent's hands.
  */
-import type { HandFilter } from "../../lib/ipc";
+import type { HandFilter, PlayerRef } from "../../lib/ipc";
 
 export type DatePreset = "today" | "week" | "month" | "year" | "custom";
 
@@ -43,6 +44,8 @@ export interface FilterState {
   /** A custom range: local days, `YYYY-MM-DD`, both inclusive. */
   dateFrom: string;
   dateTo: string;
+  /** Only hands this opponent was dealt into (R2.7c). */
+  player: PlayerRef | null;
 }
 
 export const EMPTY_FILTER: FilterState = {
@@ -62,7 +65,23 @@ export const EMPTY_FILTER: FilterState = {
   date: null,
   dateFrom: "",
   dateTo: "",
+  player: null,
 };
+
+/** A filter the Hands screen opens with once (the Players screen's "hands with this player"). */
+let requested: FilterState | null = null;
+
+/** Open the Hands screen next with `filter`. */
+export function requestFilter(filter: FilterState): void {
+  requested = filter;
+}
+
+/** The filter asked for, once; `null` when none was. */
+export function takeRequestedFilter(): FilterState | null {
+  const filter = requested;
+  requested = null;
+  return filter;
+}
 
 /** Seats in table order, as the web's filter lists them. */
 export const POSITION_ORDER = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -92,7 +111,8 @@ export function activeGroups(filter: FilterState): number {
     lists.filter((group) => filter[group].length > 0).length +
     (filter.allIn === null ? 0 : 1) +
     (filter.hasNote === null ? 0 : 1) +
-    (filter.date === null ? 0 : 1)
+    (filter.date === null ? 0 : 1) +
+    (filter.player === null ? 0 : 1)
   );
 }
 
@@ -157,6 +177,7 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
     hasNote: filter.hasNote,
     from,
     to,
+    player: filter.player,
   };
 }
 
@@ -185,6 +206,7 @@ export function fromSaved(json: string): FilterState | null {
     const item = saved[key];
     return typeof item === "string" ? item : "";
   };
+  const player = saved.player as Record<string, unknown> | null | undefined;
   return {
     sites: list("sites"),
     formats: list("formats"),
@@ -202,6 +224,14 @@ export function fromSaved(json: string): FilterState | null {
     date: typeof date === "string" && (DATE_PRESETS as string[]).includes(date) ? (date as DatePreset) : null,
     dateFrom: text("dateFrom"),
     dateTo: text("dateTo"),
+    player:
+      typeof player === "object" &&
+      player !== null &&
+      typeof player.site === "string" &&
+      typeof player.player === "string" &&
+      player.player !== ""
+        ? { site: player.site, player: player.player }
+        : null,
   };
 }
 

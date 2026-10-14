@@ -65,7 +65,7 @@ fn text(error: rail_store::Error) -> String {
 }
 
 /// The shipped definitions, compiled once.
-fn display() -> Result<&'static Display, String> {
+pub(crate) fn display() -> Result<&'static Display, String> {
     static DISPLAY: OnceLock<Result<Display, String>> = OnceLock::new();
     DISPLAY
         .get_or_init(|| Display::shipped().map_err(|error| error.to_string()))
@@ -130,7 +130,13 @@ impl ShownDto {
 
     /// The value withheld (a refused unit): no value, text or tone; the
     /// sample stays.
-    fn withheld(mut self) -> Self {
+    /// No value, text or tone (a test's view of [`Self::withheld`]).
+    #[cfg(test)]
+    pub(crate) fn value_is_withheld(&self) -> bool {
+        self.value.is_none() && self.text.is_none() && self.tone.is_none()
+    }
+
+    pub(crate) fn withheld(mut self) -> Self {
         self.value = None;
         self.text = None;
         self.tone = None;
@@ -164,7 +170,12 @@ impl From<&Units> for UnitsDto {
 
 /// Every definition shown over `sums`, with the units' refusals: no big
 /// blinds across chips and cash, no money across currencies.
-fn show_all(display: &Display, sums: &Sums, units: &Units, ids: Option<&[&str]>) -> Vec<ShownDto> {
+pub(crate) fn show_all(
+    display: &Display,
+    sums: &Sums,
+    units: &Units,
+    ids: Option<&[&str]>,
+) -> Vec<ShownDto> {
     let minor = units.money_decimals();
     let stats: Vec<_> = match ids {
         None => display.stats.iter().collect(),
@@ -198,6 +209,34 @@ pub struct GroupDto {
     net_bb_milli: Option<i64>,
     /// [`BREAKDOWN_COLUMNS`], in that order.
     stats: Vec<ShownDto>,
+}
+
+#[cfg(test)]
+impl GroupDto {
+    /// The group's hands.
+    pub(crate) fn hands(&self) -> i64 {
+        self.hands
+    }
+}
+
+/// A group row of plain totals (no all-in EV): the breakdowns by
+/// situation, and an opponent's rows on the Players screen (R2.7c), whose
+/// [`BREAKDOWN_COLUMNS`] are all `players: any` statistics.
+pub(crate) fn totals_row(
+    key: String,
+    label: Option<String>,
+    totals: &rail_store::Totals,
+    display: &Display,
+    units: &Units,
+) -> GroupDto {
+    Group {
+        sum: HeroSum {
+            totals: totals.clone(),
+            ..HeroSum::default()
+        },
+        ev: false,
+    }
+    .dto(key, label, display, units)
 }
 
 /// One group's sums: `hero_totals`' rows with their all-in EV adjustment,
@@ -433,16 +472,7 @@ fn rows(
 
 fn situation(list: &[BreakdownRow], display: &Display, units: &Units) -> Vec<GroupDto> {
     list.iter()
-        .map(|row| {
-            Group {
-                sum: HeroSum {
-                    totals: row.totals.clone(),
-                    ..HeroSum::default()
-                },
-                ev: false,
-            }
-            .dto(row.key.clone(), None, display, units)
-        })
+        .map(|row| totals_row(row.key.clone(), None, &row.totals, display, units))
         .collect()
 }
 

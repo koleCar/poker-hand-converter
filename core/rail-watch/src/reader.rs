@@ -97,7 +97,9 @@ use rail_core::detect::{ConvertOptions, DetectionCandidate, FORCED_PERMILLE};
 use rail_core::js::JsError;
 use rail_store::import::path_key;
 use rail_store::read::StoredFile;
-use rail_store::{FileState, ImportBatch, ImportOutcome, Reader, WriterHandle, time};
+use rail_store::{
+    FileState, ImportBatch, ImportOutcome, PendingImport, Reader, WriterHandle, time,
+};
 use rayon::prelude::*;
 
 use crate::codec::{self, Codec, Decision};
@@ -275,6 +277,88 @@ impl Polled {
     }
 }
 
+/// What a look at a file has been through so far: [`FileReader::poll`]
+/// re-reads a truncated file once, and once more when the stored offset
+/// moved under its batch.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct Attempt {
+    restarted: bool,
+    retried: bool,
+}
+
+/// What [`FileReader::start`] got to.
+#[derive(Debug)]
+pub enum Started {
+    /// The look is over (nothing to commit, or a large read committed).
+    Done(Polled),
+    /// A one-batch read is with the writer.
+    Committing(Committing),
+}
+
+/// A one-batch read queued with the writer, not yet waited for. Batches are
+/// committed in the order they were queued, whoever waits for them.
+#[derive(Debug)]
+pub struct Committing {
+    pending: PendingImport,
+    from: u64,
+    to: u64,
+    codec: Option<Codec>,
+    head: Option<Vec<u8>>,
+    recheck_at: Option<i64>,
+    attempt: Attempt,
+}
+
+/// What [`Committing::wait`] concluded.
+#[derive(Debug)]
+pub enum Finished {
+    /// Committed: the look is over.
+    Done(Polled),
+    /// The stored offset moved under the batch (nothing of it stored):
+    /// look again, [`FileReader::start`] with this attempt.
+    Again(Attempt),
+}
+
+impl Committing {
+    /// Wait for the commit and update `track` (the file's, as
+    /// [`FileReader::start`] left it).
+    pub fn wait(self, track: &mut FileTrack) -> Result<Finished> {
+        let Self {
+            pending,
+            from,
+            to,
+            codec,
+            head,
+            recheck_at,
+            attempt,
+        } = self;
+        match pending.wait() {
+            Ok(outcome) => {
+                track.stats.commits += 1;
+                if codec.is_some() {
+                    track.codec = codec;
+                }
+                if head.is_some() {
+                    track.head = head;
+                }
+                Ok(Finished::Done(Polled::Committed {
+                    outcome,
+                    from,
+                    to,
+                    recheck_at,
+                }))
+            }
+            // The stored offset moved under us: read again.
+            Err(rail_store::Error::OffsetMismatch { .. }) if !attempt.retried => {
+                Ok(Finished::Again(Attempt {
+                    retried: true,
+                    ..attempt
+                }))
+            }
+            Err(error) => Err(error.into()),
+        }
+    }
+}
+
 /// The batch a read makes, before it is committed.
 #[derive(Debug)]
 enum Step {
@@ -409,26 +493,53 @@ impl FileReader {
     }
 
     /// Look at a file at time `now` (ms since the epoch) and commit what is
-    /// complete.
+    /// complete: [`FileReader::start`], then [`Committing::wait`] on this
+    /// thread.
     pub fn poll(&self, file: &FileRef<'_>, track: &mut FileTrack, now: i64) -> Result<Polled> {
+        let mut attempt = Attempt::default();
+        loop {
+            match self.start(file, track, now, attempt)? {
+                Started::Done(polled) => return Ok(polled),
+                Started::Committing(committing) => match committing.wait(track)? {
+                    Finished::Done(polled) => return Ok(polled),
+                    Finished::Again(next) => attempt = next,
+                },
+            }
+        }
+    }
+
+    /// [`FileReader::poll`] up to the commit of a one-batch read: the batch
+    /// is queued with the writer and the caller waits for its commit when
+    /// it likes ([`Committing::wait`]) - the watcher's import threads go on
+    /// to the next file meanwhile (a commit's wait was ~15 % of their time,
+    /// measured). Everything else (nothing to commit, a large read, whose
+    /// batches are committed in order before it returns) is answered here.
+    /// `attempt` is [`Attempt::default`] for a new look, or what
+    /// [`Finished::Again`] gave.
+    pub fn start(
+        &self,
+        file: &FileRef<'_>,
+        track: &mut FileTrack,
+        now: i64,
+        mut attempt: Attempt,
+    ) -> Result<Started> {
         let key = path_key(file.path);
-        let mut restarted = false;
-        let mut retried = false;
         loop {
             let stored = self.reader.file_state(&key)?;
-            match self.prepare(file, stored.as_ref(), track, now)? {
-                Step::Gone => return Ok(Polled::Gone),
+            let polled = match self.prepare(file, stored.as_ref(), track, now)? {
+                Step::Gone => Polled::Gone,
                 // Truncated or replaced: the row goes back to 0 first (so the
                 // next look reads from the start even if this one stores
                 // nothing), then the file is read from its start.
-                Step::Restart if !restarted => {
-                    restarted = true;
+                Step::Restart if !attempt.restarted => {
+                    attempt.restarted = true;
                     self.reset_row(file)?;
+                    continue;
                 }
-                Step::Restart => return Ok(Polled::Waiting { recheck_at: None }),
-                Step::Unchanged => return Ok(Polled::Unchanged),
-                Step::Waiting(recheck_at) => return Ok(Polled::Waiting { recheck_at }),
-                Step::Split(split) => return self.commit_split(*split, track, now),
+                Step::Restart => Polled::Waiting { recheck_at: None },
+                Step::Unchanged => Polled::Unchanged,
+                Step::Waiting(recheck_at) => Polled::Waiting { recheck_at },
+                Step::Split(split) => self.commit_split(*split, track, now)?,
                 Step::Commit {
                     batch,
                     codec,
@@ -436,30 +547,18 @@ impl FileReader {
                     recheck_at,
                 } => {
                     let (from, to) = (batch.file.from_offset, batch.file.to_offset);
-                    match self.writer.import(*batch) {
-                        Ok(outcome) => {
-                            track.stats.commits += 1;
-                            if codec.is_some() {
-                                track.codec = codec;
-                            }
-                            if head.is_some() {
-                                track.head = head;
-                            }
-                            return Ok(Polled::Committed {
-                                outcome,
-                                from,
-                                to,
-                                recheck_at,
-                            });
-                        }
-                        // The stored offset moved under us: read again.
-                        Err(rail_store::Error::OffsetMismatch { .. }) if !retried => {
-                            retried = true;
-                        }
-                        Err(error) => return Err(error.into()),
-                    }
+                    return Ok(Started::Committing(Committing {
+                        pending: self.writer.queue(*batch)?,
+                        from,
+                        to,
+                        codec,
+                        head,
+                        recheck_at,
+                        attempt,
+                    }));
                 }
-            }
+            };
+            return Ok(Started::Done(polled));
         }
     }
 

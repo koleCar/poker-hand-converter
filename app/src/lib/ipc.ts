@@ -311,12 +311,14 @@ export type AccountStatus =
 
 /** `stats::StatsStatusDto`: the background statistics pass (R2.3). */
 export interface StatsStatus {
-  activity: "idle" | "rebuilding" | "computing" | "paused-backfill" | "paused-tables" | "stopped";
+  activity: "idle" | "rebuilding" | "indexing" | "computing" | "paused-backfill" | "paused-tables" | "stopped";
   /** A rebuild in progress: hands done, of hands to do. */
   rebuildDone: number | null;
   rebuildTotal: number | null;
   /** Hands waiting for their all-in EV. */
   evPending: number;
+  /** Hands whose opponents are not indexed yet (R2.7c). */
+  playersUnindexed: number;
   /** EV rows computed since the app started, and the time it took. */
   evComputed: number;
   evMillis: number;
@@ -347,6 +349,14 @@ export interface HandFilter {
   /** ISO instants: from (inclusive), to (exclusive). */
   from?: string | null;
   to?: string | null;
+  /** Hands this opponent was dealt into (R2.7c): their room's site key and name. */
+  player?: PlayerRef | null;
+}
+
+/** An opponent of a room with real screen names (R2.7c). */
+export interface PlayerRef {
+  site: string;
+  player: string;
 }
 
 /** `hands::CursorDto`: where the next page starts. */
@@ -538,6 +548,119 @@ export interface Session {
   biggestPots: HandRow[];
 }
 
+/* ------------------------------------------------------ Players (R2.7c) - */
+
+/** The colour tags, in the order the screen offers them (`rail_store::players::COLOURS`). */
+export const PLAYER_COLOURS = ["red", "orange", "yellow", "green", "blue", "purple"] as const;
+export type PlayerColour = (typeof PLAYER_COLOURS)[number];
+
+/** Which hands a players list counts: all, cash games, tournament chips. */
+export type GameKind = "all" | "cash" | "chips";
+
+/** `players::PlayerQueryDto`. */
+export interface PlayerQuery {
+  /** A prefix of the name, any case. */
+  search?: string;
+  site?: string | null;
+  kind?: GameKind;
+  colours?: string[];
+  labels?: string[];
+  noted?: boolean | null;
+  limit?: number;
+}
+
+/** `players::PlayerRowDto`: one opponent in the list. */
+export interface PlayerRow {
+  site: string;
+  siteName: string;
+  player: string;
+  /** Hands together in the list's kind. */
+  hands: number;
+  /** The hero's result against them, thousandths of a big blind; null when the list mixes chips with cash. */
+  netBbMilli: number | null;
+  moneyHands: number;
+  firstPlayedAt: string | null;
+  lastPlayedAt: string | null;
+  colour: PlayerColour | null;
+  labels: string[];
+  hasNote: boolean;
+}
+
+/** `players::PlayerListDto`. */
+export interface PlayerList {
+  rows: PlayerRow[];
+  /** Players the query matches (`rows` are the first of them). */
+  matching: number;
+  /** Players of the room and kind, before the search and the words. */
+  players: number;
+  cashHands: number;
+  chipsHands: number;
+  mixedKind: boolean;
+  /** Opponents' hands of rooms that hide names: counted, not listed. */
+  hiddenHands: number;
+}
+
+/** `players::TogetherDto`: the hero's hands with an opponent and result against them, one kind. */
+export interface Together {
+  hands: number;
+  moneyHands: number;
+  netBbMilli: number;
+}
+
+/** `players::SeenDto`. */
+export interface PlayerSeen {
+  /** Their hands counted in the statistics. */
+  hands: number;
+  firstPlayedAt: string | null;
+  lastPlayedAt: string | null;
+  cash: Together;
+  chips: Together;
+}
+
+/** `players::NotesDto`: the user's words on a player (local only for now). */
+export interface PlayerNotes {
+  colour: PlayerColour | null;
+  note: string;
+  labels: string[];
+}
+
+/** A stake's label parts (a hand of that stake). */
+export interface StakeSample {
+  key: string;
+  currency: string;
+  currencySymbol: string;
+  minorUnits: number;
+  smallBlind: number;
+  bigBlind: number;
+}
+
+/** `players::ProfileDto`: one opponent. */
+export interface PlayerProfile {
+  site: string;
+  siteName: string;
+  player: string;
+  /** null: not an opponent of a room with real names. */
+  seen: PlayerSeen | null;
+  notes: PlayerNotes;
+  /** The profile's sample mixes chips with cash: big-blind statistics withheld. */
+  mixedKind: boolean;
+  /** Every definition, in `statDefinitions()`' order; hero-only ones withheld. */
+  stats: Shown[];
+  columns: string[];
+  byPosition: StatGroup[];
+  byStake: StatGroup[];
+  bySize: StatGroup[];
+  byFormat: StatGroup[];
+  stakes: StakeSample[];
+  lastPlayedAt: string | null;
+}
+
+/** `players::SiteDto`. */
+export interface PlayerSite {
+  value: string;
+  name: string;
+}
+
 /** The screens with saved filters. */
 export type FilterScreen = "hands" | "reports";
 
@@ -625,6 +748,20 @@ export const ipc = {
   report: (filter: HandFilter, points: number) => invoke<Report>("report", { filter, points }),
   reportBreakdowns: (filter: HandFilter) => invoke<Breakdowns>("report_breakdowns", { filter }),
   today: () => invoke<{ session: Session | null }>("today"),
+  /** Players (R2.7c). */
+  playersList: (query: PlayerQuery) => invoke<PlayerList>("players_list", { query }),
+  playerProfile: (site: string, player: string, kind: GameKind) =>
+    invoke<PlayerProfile>("player_profile", { site, player, kind }),
+  playerSites: () => invoke<PlayerSite[]>("player_sites"),
+  playerLabels: () => invoke<FacetCount[]>("player_labels"),
+  playerSetNote: (site: string, player: string, note: string) =>
+    invoke<PlayerNotes>("player_set_note", { site, player, note }),
+  playerSetColour: (site: string, player: string, colour: PlayerColour | null) =>
+    invoke<PlayerNotes>("player_set_colour", { site, player, colour }),
+  playerAddLabel: (site: string, player: string, label: string) =>
+    invoke<PlayerNotes>("player_add_label", { site, player, label }),
+  playerRemoveLabel: (site: string, player: string, label: string) =>
+    invoke<PlayerNotes>("player_remove_label", { site, player, label }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

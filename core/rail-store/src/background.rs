@@ -6,7 +6,12 @@
 //!    hand's seat rows and rollups from its stored PHF, a page of hands per
 //!    writer transaction, in `hand_key` order, with the cursor in `kv`
 //!    (resumable after a crash or a quit);
-//! 2. then computes the **EV rows** the import left for later: hands whose
+//! 2. then writes the opponents of the hands imported since it last did to
+//!    `player_hands` (R2.7c, the Players screen's "hands with this player"),
+//!    [`INDEX_PAGE`] hands a transaction, sorted - the import leaves them,
+//!    as a page of that name-ordered table touched per opponent per import
+//!    transaction cost it 4-5 % of its rate;
+//! 3. then computes the **EV rows** the import left for later: hands whose
 //!    all-in was completed preflop (an enumeration of 1.7M boards, 25-46 ms
 //!    each), and every hero hand after an `EV_VERSION` bump - a few hands
 //!    per transaction, newest first, so a session just played is evaluated
@@ -43,6 +48,12 @@ pub const REBUILD_PAGE: u32 = 500;
 /// pause or a quit is answered within that.
 pub const EV_PAGE: u32 = 8;
 
+/// Hands per `player_hands` transaction (R2.7c): ~4-5 opponents each, so a
+/// transaction writes ~90k entries sorted - large, because each one rewrites
+/// most of the table's pages wherever its entries fall (measured at 500k
+/// hands: see docs/RAIL-PLAN.md, R2.7c *As built*).
+pub const INDEX_PAGE: u32 = 20_000;
+
 /// How long the idle thread sleeps before looking for work again on its own
 /// (new work normally wakes it: [`StatsWorker::wake`]).
 pub const IDLE_WAIT: Duration = Duration::from_secs(60);
@@ -55,6 +66,8 @@ pub enum Activity {
     Idle,
     /// Rebuilding the seat rows and rollups.
     Rebuilding,
+    /// Writing the opponents of new hands to `player_hands` (R2.7c).
+    Indexing,
     /// Computing EV rows.
     Computing,
     /// Paused: a backfill is importing.
@@ -72,6 +85,7 @@ impl Activity {
         match self {
             Self::Idle => "idle",
             Self::Rebuilding => "rebuilding",
+            Self::Indexing => "indexing",
             Self::Computing => "computing",
             Self::PausedBackfill => "paused-backfill",
             Self::PausedTables => "paused-tables",
@@ -88,6 +102,8 @@ pub struct WorkerStatus {
     pub rebuild: Option<RebuildState>,
     /// Hands waiting for an EV row.
     pub ev_pending: u64,
+    /// Hands whose opponents are not in `player_hands` yet (R2.7c).
+    pub players_unindexed: u64,
     /// EV rows computed by this worker since it started, and the time they
     /// took (the enumeration, not the writes).
     pub ev_computed: u64,
@@ -127,6 +143,8 @@ impl Shared {
 pub enum Step {
     /// A page of the rebuild: hands gone through (0: the rebuild ended).
     Rebuilt(usize),
+    /// Hands whose opponents went to `player_hands`.
+    Indexed(usize),
     /// EV rows computed, and the time the computation took.
     Computed(usize, Duration),
     /// Nothing left (of what was allowed).
@@ -219,11 +237,15 @@ fn ev_step(reader: &Reader, writer: &WriterHandle) -> Result<Option<(usize, Dura
     Ok(Some((n, took)))
 }
 
-/// One step: a rebuild page if a rebuild runs, else (when `ev` allows) a
-/// page of EV rows.
+/// One step: a rebuild page if a rebuild runs, else the opponents of a
+/// page of new hands, else (when `ev` allows) a page of EV rows.
 pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
     if let Some(n) = rebuild_step(reader, writer)? {
         return Ok(Step::Rebuilt(n));
+    }
+    let indexed = writer.write(|tx| crate::stats::index_players(tx, INDEX_PAGE))?;
+    if indexed > 0 {
+        return Ok(Step::Indexed(indexed));
     }
     if ev && let Some((n, took)) = ev_step(reader, writer)? {
         return Ok(Step::Computed(n, took));
@@ -235,6 +257,7 @@ pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Drained {
     pub rebuilt: usize,
+    pub indexed: usize,
     pub ev_rows: usize,
     pub ev_time: Duration,
 }
@@ -245,6 +268,7 @@ pub fn drain(reader: &Reader, writer: &WriterHandle) -> Result<Drained> {
     loop {
         match step(reader, writer, true)? {
             Step::Rebuilt(n) => drained.rebuilt += n,
+            Step::Indexed(n) => drained.indexed += n,
             Step::Computed(n, took) => {
                 drained.ev_rows += n;
                 drained.ev_time += took;
@@ -373,6 +397,7 @@ fn refresh(shared: &Shared, reader: &Reader, activity: Activity) {
         Ok(counts) => {
             status.rebuild = counts.rebuild;
             status.ev_pending = counts.ev_pending;
+            status.players_unindexed = counts.players_unindexed;
         }
         Err(error) => status.last_error = Some(error.to_string()),
     }
@@ -418,6 +443,10 @@ fn run(shared: &Shared, reader: &Reader, writer: &WriterHandle) {
             Ok(Step::Rebuilt(_)) => {
                 shared.status().last_error = None;
                 refresh(shared, reader, Activity::Rebuilding);
+            }
+            Ok(Step::Indexed(_)) => {
+                shared.status().last_error = None;
+                refresh(shared, reader, Activity::Indexing);
             }
             Ok(Step::Computed(n, took)) => {
                 {

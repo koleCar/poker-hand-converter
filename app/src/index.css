@@ -101,3 +101,18 @@ select {
   background: color-mix(in srgb, var(--info-fg) 10%, transparent);
   border-color: color-mix(in srgb, var(--info-fg) 32%, transparent);
 }
+
+/* The Players screen's colour tags (R2.7c): a small fixed palette
+   (`rail_store::players::COLOURS`), each pointed at a semantic hue of the
+   token layer, so both themes get it at the contrast those tokens were
+   measured at (each clears 3:1 as a fill on the page's surfaces, WCAG
+   1.4.11). A colour is never the only signal: every swatch is named. On
+   `:root`, where `data-theme` is set, so the light theme re-points them. */
+:root {
+  --player-tag-red: var(--danger-fg);
+  --player-tag-orange: var(--grade-mistake);
+  --player-tag-yellow: var(--warning-fg);
+  --player-tag-green: var(--success-fg);
+  --player-tag-blue: var(--info-fg);
+  --player-tag-purple: var(--anon-fg);
+}

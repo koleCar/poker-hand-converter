@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 use common::*;
 use rail_core::detect::PINNED_PARSED_AT;
 use rail_store::{ImportOptions, Store, import_file};
-use rail_watch::{FileReader, FileRef, FileTrack, Polled, ReadConfig};
+use rail_watch::{Attempt, FileReader, FileRef, FileTrack, Finished, Polled, ReadConfig, Started};
 
 const STARS: &str = "fixtures/samples/pokerstars/27-cash-multi-hand-file-blank-line-separator.txt";
 const STARS_58: &str = "fixtures/samples/pokerstars/28-cash-multi-hand-file-no-blank-separator.txt";
@@ -161,6 +161,73 @@ fn a_hand_is_complete_when_the_next_starts_or_the_file_is_quiet() {
     let polled = s.reader.poll(&file, &mut track, T0 + 20_000).expect("poll");
     assert_eq!(committed(&polled), (b2 as u64, b5 as u64, 3, 0));
     assert_eq!(hands(&s.store), 5);
+}
+
+/// The watcher's import threads queue a batch and leave the wait for its
+/// commit to the committer (`FileReader::start`, `Committing::wait`). A
+/// batch whose stored offset moved before the writer got to it stores
+/// nothing, and the same look goes on from the new offset
+/// (`Finished::Again`) - what `poll` did inline before.
+#[test]
+fn a_batch_whose_offset_moved_before_its_commit_is_read_again() {
+    let s = setup("moved");
+    let bytes = corpus(STARS);
+    let starts = hand_starts(&bytes);
+    let (b1, b2) = (starts[0], starts[1]);
+    let path = s.dir.join("hh/stars.txt");
+    let file = FileRef::new(&path);
+    let mut track = FileTrack::default();
+    write_at(&path, &bytes[..b1 + 40], T0);
+    let polled = s.reader.poll(&file, &mut track, T0).expect("poll");
+    assert_eq!(committed(&polled), (0, b1 as u64, 1, 0));
+    // Hand 2 is complete once hand 3 starts.
+    append_at(&path, &bytes[b1 + 40..b2 + 40], T0 + 100);
+
+    // The writer is held by a job that, once the batch is queued behind
+    // it, sets the file's offset back to 0 (as a reset would).
+    let writer = s.store.writer().expect("writer");
+    let key = rail_store::import::path_key(&path);
+    let (started, running) = std::sync::mpsc::channel();
+    let (go, wait) = std::sync::mpsc::channel::<()>();
+    let blocker = std::thread::spawn(move || {
+        writer.write(move |tx| {
+            started.send(()).expect("started");
+            wait.recv().expect("go");
+            tx.execute("UPDATE files SET read_offset = 0 WHERE path = ?1", [key])?;
+            Ok(())
+        })
+    });
+    running.recv().expect("the job runs");
+    let Started::Committing(committing) = s
+        .reader
+        .start(&file, &mut track, T0 + 100, Attempt::default())
+        .expect("start")
+    else {
+        panic!("expected a batch with the writer");
+    };
+    go.send(()).expect("go");
+    blocker.join().expect("join").expect("offset moved");
+    let Finished::Again(attempt) = committing.wait(&mut track).expect("wait") else {
+        panic!("expected the look to go on");
+    };
+    assert_eq!(hands(&s.store), 1, "the stale batch stored nothing");
+    assert_eq!(offset(&s.store, &path), 0);
+
+    // The rest of the look reads from the moved offset: hand 1 again (known)
+    // and hand 2.
+    let Started::Committing(committing) = s
+        .reader
+        .start(&file, &mut track, T0 + 100, attempt)
+        .expect("start")
+    else {
+        panic!("expected a batch with the writer");
+    };
+    let Finished::Done(polled) = committing.wait(&mut track).expect("wait") else {
+        panic!("expected a commit");
+    };
+    assert_eq!(committed(&polled), (0, b2 as u64, 1, 1));
+    assert_eq!(hands(&s.store), 2);
+    assert_eq!(offset(&s.store, &path), b2 as u64);
 }
 
 /// "Only new hands" (R1.4): a file marked as read imports nothing of what

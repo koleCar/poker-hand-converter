@@ -23,6 +23,9 @@
 //!   filters and counts, "go to hand", notes, tags and saved filters.
 //! - **Reports** (R2.7b, [`report`]): the win-rate graph, the latest
 //!   session and the breakdowns by situation.
+//! - **Players** (R2.7c, [`players`]): the opponents with their hands and
+//!   result together, a profile, and the user's colour tags, labels and
+//!   notes.
 //! - **Statistics** (R2.3, [`stats`], [`stats_read`], [`background`]): a
 //!   hand's seat rows, rollup increments and EV row are derived with the
 //!   hand (on the producer's thread) and written in its transaction; a
@@ -42,6 +45,7 @@ pub mod error;
 pub mod hand_list;
 pub mod import;
 pub mod migrate;
+pub mod players;
 pub mod read;
 pub mod report;
 pub mod sources;
@@ -58,14 +62,15 @@ pub use batch::{
 };
 pub use error::{Error, Result};
 pub use hand_list::{
-    Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, SavedFilter,
-    StakeFacet,
+    Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, PlayerRef,
+    SavedFilter, StakeFacet,
 };
 pub use import::{FileImport, ImportOptions, import_file};
+pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use report::{Breakdowns, Graph, GraphPoint, ReportFilter, Session, Units};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
-pub use stats::{Exclusions, RebuildState, SeatValues, Totals};
+pub use stats::{Exclusions, PlayerSeen, RebuildState, SeatValues, Totals};
 pub use stats_read::{EvAdjust, HeroFilter, HeroSum, HeroTotal, Rollup, SegmentRow, StatsStatus};
 pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};
 pub use writer::{PendingImport, WriterHandle};
@@ -81,6 +86,16 @@ pub const BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 /// corpus: 4.4 KB per hand on disk). 16 KiB pages keep a typical hand in
 /// its leaf page.
 pub const PAGE_SIZE: u32 = 16_384;
+
+/// The write connection's page cache, in KiB (16 MiB; SQLite's default is
+/// 2 MB). Measured with `import_bench --writer-only`: -6 % of the writer's
+/// time per hand; 64 MiB did no better.
+pub const WRITE_CACHE_KIB: i64 = 16_384;
+
+/// The write connection checkpoints the WAL into the database once it holds
+/// this many pages (SQLite's default: 1 000). Measured with `import_bench
+/// --writer-only`: -6 % of the writer's time per hand.
+pub const WAL_AUTOCHECKPOINT: u32 = 4_096;
 
 /// Read connections in the pool [`Store::open`] makes.
 pub const READERS: usize = 4;
@@ -133,6 +148,16 @@ fn open_write_connection(path: &Path) -> Result<Connection> {
     // writer's time (measured; the import threads lost the CPU to it on a
     // 3-core runner). A group's journal is a few MB.
     conn.pragma_update(None, "temp_store", "MEMORY")?;
+    // SQLite's default page cache is 2 MB - 128 of our 16 KiB pages, fewer
+    // than one import transaction touches once the indexes keyed by hand
+    // have grown: pages were read back from the OS between transactions.
+    conn.pragma_update(None, "cache_size", -WRITE_CACHE_KIB)?;
+    // A checkpoint every 4 096 WAL pages (64 MiB) instead of 1 000: an
+    // import rewrites the same index and rollup pages in transaction after
+    // transaction, and a checkpoint copies each page once however often it
+    // changed, with one sync of the database. The WAL is truncated when the
+    // store closes.
+    conn.pragma_update(None, "wal_autocheckpoint", WAL_AUTOCHECKPOINT)?;
     Ok(conn)
 }
 

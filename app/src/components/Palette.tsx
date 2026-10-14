@@ -4,19 +4,24 @@
  * screens and to "go to hand" by the number the room printed (the local
  * store's `hands_find`: an index on the room's id, a prefix match); the
  * reports' breakdowns are listed by name (R2.7b: `#/reports/<tab>`); players
- * join it with their screen, the rest of its features in R2.8.
+ * by the start of their name (R2.7c: the store's prefix search, most hands
+ * together first; `#/players/<site>:<name>`). The rest of its features are
+ * R2.8.
  */
 import { useEffect, useMemo, useState } from "react";
 import { CommandPalette, type PaletteItem } from "@rail/ui/palette/CommandPalette";
 
 import { useT } from "../i18n";
-import { inApp, ipc, type HandRow } from "../lib/ipc";
+import { inApp, ipc, type HandRow, type PlayerRow } from "../lib/ipc";
 import { SCREENS, go, type Screen } from "../lib/router";
-import { playedAt, stakes } from "../screens/hands/format";
+import { count, playedAt, stakes } from "../screens/hands/format";
+import { playerParam } from "../screens/players/param";
 import { TABS } from "../screens/reports/Breakdown";
 
 /** Hands listed for a query. */
 const HAND_RESULTS = 8;
+/** Players listed for a query. */
+const PLAYER_RESULTS = 6;
 /** Typing pauses this long before the store is asked. */
 const SEARCH_DEBOUNCE_MS = 120;
 
@@ -40,6 +45,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
   const t = useT();
   const [query, setQuery] = useState("");
   const [hands, setHands] = useState<{ query: string; rows: HandRow[] }>({ query: "", rows: [] });
+  const [players, setPlayers] = useState<{ query: string; rows: PlayerRow[] }>({ query: "", rows: [] });
 
   const trimmed = query.trim();
   useEffect(() => {
@@ -50,6 +56,12 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
         .handsFind(trimmed, HAND_RESULTS)
         .then((rows) => {
           if (current) setHands({ query: trimmed, rows });
+        })
+        .catch(() => undefined);
+      ipc
+        .playersList({ search: trimmed, limit: PLAYER_RESULTS })
+        .then((list) => {
+          if (current) setPlayers({ query: trimmed, rows: list.rows });
         })
         .catch(() => undefined);
     }, SEARCH_DEBOUNCE_MS);
@@ -79,9 +91,18 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
         : TABS.map((tab) => ({ tab, name: t.reports.breakdown.tabs[tab] }))
             .filter(({ name }) => name.toLowerCase().includes(needle) || t.nav.reports.toLowerCase().includes(needle))
             .map(({ tab, name }) => ({ id: `report:${tab}`, label: t.palette.report(name), group: t.palette.reports }));
+    const people: PaletteItem[] =
+      players.query === trimmed && trimmed !== ""
+        ? players.rows.map((row) => ({
+            id: `player:${playerParam(row.site, row.player)}`,
+            label: t.palette.player(row.player),
+            detail: t.palette.playerDetail(row.siteName, count(row.hands)),
+            group: t.palette.players,
+          }))
+        : [];
     // A hand's number is what is typed most: its results first.
-    return found.concat(screens, reports);
-  }, [trimmed, hands, t]);
+    return found.concat(people, screens, reports);
+  }, [trimmed, hands, players, t]);
 
   const select = (item: PaletteItem) => {
     if (item.id.startsWith("screen:")) {
@@ -90,6 +111,8 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
       go("hands", item.id.slice("hand:".length));
     } else if (item.id.startsWith("report:")) {
       go("reports", item.id.slice("report:".length));
+    } else if (item.id.startsWith("player:")) {
+      go("players", item.id.slice("player:".length));
     }
     onClose();
   };

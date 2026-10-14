@@ -21,7 +21,9 @@ use rail_store::{HeroSum, HeroTotal, Reader, Store, Totals, background, hand_lis
 use rusqlite::Connection;
 use serde_json::Value;
 
-use common::{PARSED_AT, assert_integrity, corpus_files, repo_root, scratch_dir, stats_snapshot};
+use common::{
+    DOWN_FROM_9, PARSED_AT, assert_integrity, corpus_files, repo_root, scratch_dir, stats_snapshot,
+};
 
 const REGENERATE: &str = "regenerate the vectors: cd tests && npm run golden:emit, then \
                           node core/rail-store/tests/data/report-vectors.mjs";
@@ -539,6 +541,7 @@ fn a_version_7_store_gets_the_reports_columns() {
     let path = copy_of_corpus("report-v7");
     {
         let conn = Connection::open(&path).expect("open");
+        conn.execute_batch(DOWN_FROM_9).expect("back to version 8");
         conn.execute_batch(
             "ALTER TABLE hand_list DROP COLUMN kind;
              ALTER TABLE hand_list DROP COLUMN hero_wtsd;

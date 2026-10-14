@@ -162,10 +162,26 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
 export function FilterBar({ filter, facets, onChange, groups = HAND_GROUPS, screen = "hands" }: FilterBarProps) {
   const t = useT().hands;
   const active = activeGroups(filter);
+  const player = screen === "hands" ? filter.player : null;
   return (
     <div className={styles.bar} role="toolbar" aria-label={t.filters.label}>
       <SavedFilters filter={filter} onApply={onChange} screen={screen} />
       <div className={styles.groups}>
+        {player !== null ? (
+          // Set from the Players screen ("hands with this player"); a click takes it off.
+          <Chip
+            pressed
+            className={styles.group}
+            aria-label={t.filters.removePlayer(player.player)}
+            title={t.filters.removePlayer(player.player)}
+            onClick={() => onChange({ ...filter, player: null })}
+          >
+            {t.filters.summary(t.filters.groups.player, player.player)}
+            <span className={styles.caret} aria-hidden="true">
+              ×
+            </span>
+          </Chip>
+        ) : null}
         {groups.map((group) => (
           <GroupChip key={group} group={group} filter={filter} facets={facets} onChange={onChange} />
         ))}

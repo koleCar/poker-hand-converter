@@ -95,7 +95,7 @@ fn main() {
             match background::step(store.reader(), &writer, false).expect("step") {
                 Step::Rebuilt(n) => hands += n,
                 Step::Nothing => break,
-                Step::Computed(..) => {}
+                Step::Computed(..) | Step::Indexed(_) => {}
             }
         }
         println!(
