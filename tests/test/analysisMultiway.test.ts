@@ -28,6 +28,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   analyzeHand,
+  CHECK_VALUE,
+  MULTIWAY_CHECK_DRAW,
+  MULTIWAY_CHECK_VALUE,
   callShare,
   FLOP_MARGIN_POT,
   FLOP_REALISATION,
@@ -255,6 +258,57 @@ describe("the MDF split and fold equity", () => {
     // Heads-up inputs are untouched by A9: `players: 2` is the heads-up model.
     const same = narrow({ ...base, players: 2, action: { kind: "call", sizePot: 0.75, allIn: false } });
     expect(same).toEqual(narrow({ ...base, action: { kind: "call", sizePot: 0.75, allIn: false } }));
+  });
+
+  it("trims a multiway flop or turn check less than a heads-up one (analysis/22), and leaves heads-up and the river alone", () => {
+    const check = { kind: "check" as const, sizePot: null, allIn: false, checksBefore: 0 };
+    const live = (board: number[]) => {
+      const range = new Float64Array(NUM_COMBOS);
+      for (let c = 0; c < NUM_COMBOS; c += 1) if (!board.includes(comboHi(c)) && !board.includes(comboLo(c))) range[c] = 1;
+      return range;
+    };
+    // Kh Qh 7h 2c: a flush-draw-heavy turn has strong draws, value and air in every range.
+    for (const cards of [["Kh", "Qh", "7c"], ["Kh", "Qh", "7c", "2h"]]) {
+      const board = parseCards(cards);
+      const range = live(board);
+      const street = (board.length === 3 ? "flop" : "turn") as "flop" | "turn";
+      const base = { street, board, actor: range, opponent: range, strength: streetStrength(board), action: check };
+      const headsUp = heuristicModel.likelihood(base);
+      const threeWay = heuristicModel.likelihood({ ...base, players: 3, opponents: [range, range] });
+      const outs = base.strength.outs;
+      let value = 0;
+      let draws = 0;
+      let air = 0;
+      // The field's strength with the heads-up constants (analysis/21's multiway check), to tell the regions apart.
+      const fieldHeadsUp = heuristicModel.likelihood({ ...base, opponents: [range, range] });
+      for (let c = 0; c < NUM_COMBOS; c += 1) {
+        if (!(range[c] > 0)) continue;
+        expect(threeWay[c]).toBeGreaterThanOrEqual(Math.min(1, fieldHeadsUp[c]) - 1e-12);
+        if (outs[c] >= 8) {
+          draws += 1;
+          expect(threeWay[c]).toBeCloseTo(1 - (1 - MULTIWAY_CHECK_DRAW), 12);
+          expect(headsUp[c]).toBeCloseTo(0.6, 12);
+        } else if (fieldHeadsUp[c] < 1 && threeWay[c] > fieldHeadsUp[c]) {
+          // Value: trimmed by 1 − MULTIWAY_CHECK_VALUE instead of 1 − CHECK_VALUE.
+          value += 1;
+          expect(1 - threeWay[c]).toBeCloseTo(((1 - fieldHeadsUp[c]) * (1 - MULTIWAY_CHECK_VALUE)) / (1 - CHECK_VALUE), 9);
+        } else if (fieldHeadsUp[c] < 1) {
+          // Air keeps the heads-up trim.
+          air += 1;
+          expect(threeWay[c]).toBeCloseTo(fieldHeadsUp[c], 12);
+        }
+      }
+      expect(value).toBeGreaterThan(0);
+      expect(draws).toBeGreaterThan(0);
+      expect(air).toBeGreaterThan(0);
+      // Heads-up (`players` unset or 2) is the heads-up model, as before.
+      expect(heuristicModel.likelihood({ ...base, players: 2 })).toEqual(headsUp);
+    }
+    // The river keeps the heads-up constants multiway.
+    const board = parseCards(["Kh", "Qh", "7c", "2h", "3d"]);
+    const range = live(board);
+    const river = { street: "river" as const, board, actor: range, opponent: range, strength: streetStrength(board), action: check };
+    expect(heuristicModel.likelihood({ ...river, players: 3, opponents: [range, range] })).toEqual(heuristicModel.likelihood({ ...river, opponents: [range, range] }));
   });
 
   it("counts the next card's nut and non-nut outs by brute force", () => {

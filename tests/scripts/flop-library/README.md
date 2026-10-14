@@ -97,6 +97,18 @@ the hero's approximate flop and turn call grades on both walks
 (`FLOPLIB_EXAMPLES=1` prints the changed ones, `FLOPLIB_HAND=n` one hand).
 About two minutes for 5,448 hands. `docs/ANALYSIS-PLAN.md` §10 2026-10-13.
 
+**The multiway check trim (`analysis/22`).** `npm run floplib:check-trim`
+(same variables) scores the same shown players, on the flop and the turn,
+with multiway checks trimmed by a grid of `CHECK_VALUE`/`CHECK_AIR`/
+`CHECK_DRAW` values and by a single scale on the trim, against
+`analysis/21`'s constants, held out by player; a heads-up control applies
+the same scales to heads-up checks. About five minutes.
+`npm run floplib:check-trim-grades` with `CHECKTRIM_GRADES_OUT=file`
+writes the hero's postflop grades on multiway flops (hand and action
+indices, no names or cards); run it before and after a narrowing change,
+the second time with `CHECKTRIM_GRADES_BEFORE=` the first file, to count the
+grades that moved. Under a minute. `docs/ANALYSIS-PLAN.md` §10 2026-10-14.
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity
