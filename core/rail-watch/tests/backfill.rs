@@ -72,28 +72,6 @@ fn start(name: &str, workers: usize) -> Running {
     }
 }
 
-/// Copy corpus files with hands into `folder` until there are `bytes`,
-/// their mtime an hour back (old files: no quiet period to wait for).
-fn fill(folder: &std::path::Path, bytes: u64) -> (u64, usize) {
-    fs::create_dir_all(folder).expect("folder");
-    let (mut total, mut files) = (0, 0);
-    for golden in all_goldens() {
-        if golden.hands == 0 || golden.unknown_site.is_some() {
-            continue;
-        }
-        let name = golden.path.replace(['/', '\\'], "_");
-        let path = folder.join(name);
-        fs::copy(repo_root().join(&golden.path), &path).expect("copy");
-        set_mtime(&path, now_ms() - 3_600_000);
-        total += golden.bytes;
-        files += 1;
-        if total >= bytes {
-            break;
-        }
-    }
-    (total, files)
-}
-
 /// Import threads for the backfill test: `RAIL_WATCH_THREADS` (1 or 2 shake
 /// out timing), else 2.
 fn backfill_threads() -> usize {

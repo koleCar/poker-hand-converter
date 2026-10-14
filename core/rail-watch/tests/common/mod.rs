@@ -308,6 +308,28 @@ pub fn held(store: &Store) -> Held {
     }
 }
 
+/// Copy corpus files with hands into `folder` until there are `bytes`,
+/// their mtime an hour back (old files: no quiet period to wait for).
+pub fn fill(folder: &Path, bytes: u64) -> (u64, usize) {
+    fs::create_dir_all(folder).expect("folder");
+    let (mut total, mut files) = (0, 0);
+    for golden in all_goldens() {
+        if golden.hands == 0 || golden.unknown_site.is_some() {
+            continue;
+        }
+        let name = golden.path.replace(['/', '\\'], "_");
+        let path = folder.join(name);
+        fs::copy(repo_root().join(&golden.path), &path).expect("copy");
+        set_mtime(&path, now_ms() - 3_600_000);
+        total += golden.bytes;
+        files += 1;
+        if total >= bytes {
+            break;
+        }
+    }
+    (total, files)
+}
+
 /// Wait until `check` holds, or fail after `seconds`.
 pub fn wait_for(what: &str, seconds: u64, mut check: impl FnMut() -> bool) {
     let deadline = std::time::Instant::now() + Duration::from_secs(seconds);
