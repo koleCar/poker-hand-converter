@@ -87,6 +87,16 @@ pub const BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 /// its leaf page.
 pub const PAGE_SIZE: u32 = 16_384;
 
+/// The write connection's page cache, in KiB (16 MiB; SQLite's default is
+/// 2 MB). Measured with `import_bench --writer-only`: -6 % of the writer's
+/// time per hand; 64 MiB did no better.
+pub const WRITE_CACHE_KIB: i64 = 16_384;
+
+/// The write connection checkpoints the WAL into the database once it holds
+/// this many pages (SQLite's default: 1 000). Measured with `import_bench
+/// --writer-only`: -6 % of the writer's time per hand.
+pub const WAL_AUTOCHECKPOINT: u32 = 4_096;
+
 /// Read connections in the pool [`Store::open`] makes.
 pub const READERS: usize = 4;
 
@@ -138,6 +148,16 @@ fn open_write_connection(path: &Path) -> Result<Connection> {
     // writer's time (measured; the import threads lost the CPU to it on a
     // 3-core runner). A group's journal is a few MB.
     conn.pragma_update(None, "temp_store", "MEMORY")?;
+    // SQLite's default page cache is 2 MB - 128 of our 16 KiB pages, fewer
+    // than one import transaction touches once the indexes keyed by hand
+    // have grown: pages were read back from the OS between transactions.
+    conn.pragma_update(None, "cache_size", -WRITE_CACHE_KIB)?;
+    // A checkpoint every 4 096 WAL pages (64 MiB) instead of 1 000: an
+    // import rewrites the same index and rollup pages in transaction after
+    // transaction, and a checkpoint copies each page once however often it
+    // changed, with one sync of the database. The WAL is truncated when the
+    // store closes.
+    conn.pragma_update(None, "wal_autocheckpoint", WAL_AUTOCHECKPOINT)?;
     Ok(conn)
 }
 

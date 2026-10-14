@@ -548,7 +548,7 @@ impl FileReader {
                 } => {
                     let (from, to) = (batch.file.from_offset, batch.file.to_offset);
                     return Ok(Started::Committing(Committing {
-                        pending: self.writer.import_async(*batch)?,
+                        pending: self.writer.queue(*batch)?,
                         from,
                         to,
                         codec,

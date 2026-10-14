@@ -4698,6 +4698,88 @@ database, on the development Mac and on a mid-range Windows laptop.
     HUD's own palette; the popup's "by position" is `player_positions`
     (milliseconds, from `player_hands`, which lags the import by one
     background step - a hand just played is in the rollups at once).
+  - **Import writer, second pass** (on R2.7c's PR, whose CI import
+    benchmark failed its gate: best of three **44 %**, runs 43 / 41 / 44 %,
+    against 45 %). **Profiled** (`sample` and SQLite's per-statement
+    profile, 100k generated hands, 3 import threads as on the runner, the
+    owner's M2 Pro): the writer was busy ~35 % of the import's wall time
+    and was not the bottleneck by itself - the **import threads waited for
+    it**: each one called `WriterHandle::import` and blocked until its
+    file's batch committed, **~15 % of its time**. With at most three
+    batches queued the writer committed **5 522 transactions of ~18 hands**,
+    and every transaction rewrites each page it touches (the indexes keyed
+    by hand fill at random places, the rollups' pages): **44 pages of 16 KiB
+    a commit, 3.8 GiB of WAL for a 396 MiB store**. Of the writer's busy
+    time: commit (WAL frames, their checksums) 25 %, the auto-checkpoint 22 %
+    (three quarters of it `fsync`), then by statement (ms per 100k hands)
+    `seat_stats` 425 (611k rows), `hands` 396, `hand_stats` 227,
+    `hand_list` 225, `outbox` 224, `player_rollups` 201 (37k upserts, one
+    per key and group already), savepoint releases 126, `files` 73 + 49,
+    `hero_rollups` 67, `player_summary` 44, `quarantine` 23, `kv` 19,
+    `source_days` 14, `ev_rows` / `ev_pending` / `segments` / the offset
+    check 5-7 each; the rest Rust (binding, the sums, freeing the batches,
+    ~10 %). The import threads themselves: conversion 46 % and detection
+    11 % (the reference's work), `PreparedHand` 21 % (canonical JSON ~11 %,
+    zstd ~6 %, statistics ~3.5 %), reading 6 %.
+  - **What changed.** (1) **The import threads no longer wait for their
+    commits** (`rail-watch`): `FileReader::start` reads, converts and
+    queues a one-batch read (`WriterHandle::queue`) and returns; a
+    **committer** thread waits for the commits in order
+    (`Committing::wait`) and answers the coordinator as the import thread
+    did. A file stays in flight - never read twice at once - until its
+    commit is answered; the dispatch cap counts only files being read. A
+    batch whose stored offset moved goes on as the same look
+    (`Finished::Again`), as `poll` retried inline (`poll` itself is start
+    + wait, unchanged for its callers; new test). A large read still
+    commits its pieces before it returns. (2) **The writer lingers for
+    queued batches**: a group of `queue`d batches that found a second one
+    waiting collects for up to 5 ms (`GROUP_LINGER`); a lone batch (a hand
+    being played) and any batch someone waits for (`import`,
+    `import_async`: a large read's pieces, the tests) commit at once:
+    ~1 640 transactions per 100k instead of ~3 250. (3) A **16 MiB page
+    cache** on the write connection (default 2 MB = 128 of our pages), (4)
+    a **checkpoint every 4 096 WAL pages** (64 MiB; default 1 000) and (5)
+    **migration 10** drops `hands_played_at_idx`, an index nothing reads
+    (the list reads `hand_list`, date ranges `hand_stats`) that every hand
+    wrote at a random place. No change to what is stored or derived, to the
+    offset rule or to crash safety (the crash test and every store test
+    unchanged and green).
+  - **Measured** (interleaved A/B, M2 Pro with the owner's work on it). A
+    new `import_bench --writer-only N` commits the dataset's batches,
+    converted up front, N to a transaction from one thread - the writer's
+    cost alone: **51.1 -> 43.6 us a hand** at 4 batches a transaction for
+    (3)-(5) together (each -6-7 %; a 64 MiB cache no better than 16), and
+    by group size (all of them in) 55.5 us at 1 batch, 48.3 at 2, 43.6 at
+    4, 40.8 at 8, 38.8 at 16. The whole pipeline, 3 threads on P-cores
+    (the writer has a core of its own there): efficiency **51 / 52 / 52 %
+    before, 59 / 60 / 60 % with (1)-(2), 60 / 59 / 60 % with all**; with
+    every thread held to the 4 E-cores (`taskpolicy -c background`, 4
+    threads, CPU-bound like the runner; noisy) 42 / 44 / 44 % -> 47 / 48 /
+    46 % -> 43 / 46 / 45 %. **CI** (3 threads on the 3-core M1 runner):
+    with (1)-(2) **55 / 58 / 54 %, best 58 %** (import 5 747 hands/s,
+    reference 3 484); with all of it CI_V2.
+  - **Measured and not taken**: foreign keys off on the write connection
+    during imports (-4 %: the integrity checks are worth more); all eight
+    secondary indexes of `hands`, `outbox`, `hand_stats` and `hand_list`
+    dropped (-20-25 % of the writer, but every one but `played_at` has a
+    reader); a 20 ms linger (more hands a transaction, slower overall:
+    the queue fills); freeing the batches off the writer (5.8 % of its
+    time, but it only moves the CPU, which is what the runner lacks).
+  - **Is the ratio fair on 3 cores?** Not quite, and on purpose: with 3
+    import threads on 3 cores the writer, the committer, the coordinator
+    and the benchmark's own polling take their CPU from the threads, and
+    the threads do more than the reference (canonical JSON, zstd, the
+    statistics: ~a third on top of the conversion), so ~60-65 % is the
+    ceiling there. The app's default is physical cores - 1 (2 on the
+    runner), which would leave the writer a core and read higher; the job
+    keeps 3 threads, the stricter measure its 45 % was calibrated on (said
+    so in `ci.yml`). Changing it would mean calibrating the gate again.
+  - **For R2.9**: at 1M the indexes keyed by hand are 10x larger, so a
+    transaction touches more distinct pages - measure the writer there
+    (`--writer-only`); the next levers are fewer pages per hand (a narrower
+    `hand_list`, the `outbox` indexes) and the import threads' own
+    canonical JSON (a direct serialiser instead of a `serde_json::Value`
+    tree) and zstd level.
 
 ### R2.8 Polish — M
 - Command palette, dark/light theme, density, i18n with `en` and `hr` prepared
@@ -4996,3 +5078,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.7a done** (R2.7 split by the orchestrator: a = Hands, b = Today + Reports, c = Players + `players`): the desktop Hands screen. `rail-store` migration 7: `hand_list` (one narrow row per `hand_stats` row - hero position, cards, net, stack, board, all-in, showdown, pot type, symbol, the room's hand number, segment; `WITHOUT ROWID` keyed by (`played_at`, `hand_key`), the list's order; written with the statistics rows, deleted with them by a trigger, checked against them after every store test and every crash-test kill), `hand_notes` / `hand_tags` (local only, no foreign key; sync later), `saved_filters`; a version-6 store rebuilds its statistics once to fill the list (0.25 s open, 498k hands in 114 s in the background). `rail_store::hand_list`: keyset pages with every filter (room, format, variant, limit, table size, stake as segment ids; position, pot, result, stack, all-in; notes and tags driven from their tables; date range), chip counts with each group's own selection left out (one pass, counted in Rust, cached until the next commit), go to hand, notes, tags, saved filters. At 497 809 generated hands under load: first page 0.7-1.3 ms for most filters, 14-35 ms for rare ones and a full scan, chip counts 205 ms then ~1 ms per click. Thin async Tauri commands (`hands.rs`). Screen: virtualised list (fixed rows, ~30 in the DOM), filter chips in one row with counts and saved filters, the shared replayer beside the list via `useHand` over a Tauri `DataSource`, tags and a note per hand, "Open on the web" placeholder, `#/hands/<key>`; ARIA grid with a roving row (Up/Down, Enter into the replayer's keys); Cmd/Ctrl + K: a hand by number, the screens. The replayer's `en` / `hr` dictionaries moved into `packages/ui/strings/` (the web's namespace files re-export them), `FilterChips` got a `detail`; the web unchanged - 288 / 288 screenshots and every DOM identical, one CSS module block in another place in its chunk. App: `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` off (the shared code's 87 errors), Inter bundled with its OFL licence. Checked in a browser against a mocked IPC with made-up hands. |
 | 2026-10-14 | **R2.7b done**: the desktop Today and Reports screens. `rail-store` migration 8: `hand_list` gains `kind`, `hero_wtsd`, `currency`, `minor_units` (written by the rebuild the migration starts: 500k in 100 s); `rail_store::report` - the win-rate graph from one scan of the list (`ntile` as `stats_graph`, total / showdown / non-showdown / all-in EV in big blinds and money, the web's money refusals), sessions by `stats_sessions`' 30-minute rule (refused per session), breakdowns by pot type, stack band, starting hand, players and street from one pass over the hero's seat rows, both cached until a commit; `HeroSum`. Commands `stat_definitions`, `report`, `report_breakdowns`, `today` (R2.4 `Shown` with R2.5 reliability), saved filters per screen. Today: the current session's result (money and bb), hands, hands per hour, tables, key statistics, biggest pots into Hands, then the import status. Reports: the filter row with its own saved filters (opens on the biggest format of a mixed store, as the web), summary, the graph in bb or money, every statistic by group, ten breakdown tabs with the 13 x 13 grid; palette entries. The web's `WinrateGraph` and `chartScale` moved to `packages/ui` with their sheet, the tile / table / graph words to `packages/ui/strings/stats.*`; web unchanged - 288 / 288 screenshots and every DOM identical, the graph's markup byte-identical and 84 / 84 pixel-identical inside each build's `/stats`, cascades equal but for the graph's own sheet. Parity with the web over the corpus (the web's SQL restated in TypeScript over the TypeScript rows): 288 statistics, 3 677 graph buckets, 1 967 breakdown rows and 193 sessions equal. At 500k: Reports opens in 0.11-0.5 s (1.8 s cold), a situation tab 0.4-1.6 s first; at 1M a situation tab and a cold open exceed the 1 s target (notes for R2.9). Checked in a browser against a mocked IPC with made-up data. |
 | 2026-10-14 | **R2.7c done**: the desktop Players screen. `rail-store` migration 9: `players` + `player_labels` (colour from six, note, labels - the web's `player_notes` limits; local only, sync with the web is R4.x), `player_summary` (per named opponent: hands, first/last seen, hands together and the hero's result in bb, cash and chips apart; summed at import with the rollups), `player_hidden` (opaque-id rows counted, not listed), `player_hands` (an opponent's seat rows by name, written by the background pass after the import - written by the import it cost 5 % of the import's rate, as shipped -1.0 %, gate green); a version-8 store opens in 0.2 s and rebuilds in the background. Opaque-id names are never listed and take no notes (the web's rule; session-scoped notes considered and rejected), the store refuses the write. `rail_store::players`: the list (prefix search in any case, kind, room, colour, label, note; most hands together first; the web's money refusal), a profile (rollups, summary, words), positions from the seat rows; `HandFilter::player` for "hands with this player". At 500k with renamed players (70 948 opponents): the list 0.3-0.4 ms (30 ms first after a commit; 371k padded: 173 ms first, 7 ms), a profile <1 ms, by position 1-12 ms, hands with a player first page 3.5-17.5 ms. `import_bench --rename-players` (per-copy villain names). Commands in `players.rs`; screen with list, filters, profile (statistics with reliability, breakdown by position/stake/table/game, colour radio group, labels, note), Hands' player chip, palette search; `--player-tag-*` tokens over semantic hues; `en` + `hr`. Checked in a browser against a mocked IPC with made-up players. |
+| 2026-10-14 | **Import writer, second pass** (R2.7c "As built"; on R2.7c's PR, whose CI import benchmark failed at 44 % against its 45 % gate). Profiled: the import threads spent ~15 % of their time blocked waiting for their own commits, so at most three batches were ever queued and the writer committed ~5 500 transactions of ~18 hands per 100k (44 pages of 16 KiB each; 3.8 GiB of WAL for a 396 MiB store; commit + auto-checkpoint ~47 % of its busy time). Now: `FileReader::start` queues a one-batch read with the writer (`WriterHandle::queue`) and a committer thread waits for the commits in order and answers the coordinator (a file stays in flight until then; a moved offset still retries as the same look); the writer holds a group of queued batches open for up to 5 ms once a second one is waiting (`GROUP_LINGER`; waited-for batches commit at once); the write connection gets a 16 MiB page cache and a checkpoint every 4 096 pages; migration 10 drops `hands_played_at_idx`, which nothing read. Writer alone (`import_bench --writer-only 4`, new): 51.1 -> 43.6 us a hand. Pipeline, 3 threads, M2 Pro: efficiency 51-52 % -> 59-60 %; CI 55 / 58 / 54 % (best 58 %) with the pipelining alone, CI_V2 with all of it. Not taken (measured): foreign keys off, dropping indexes that have readers, a 20 ms linger. The gate stays at 45 % with 3 threads on the 3-core runner (stricter than the app's cores - 1; documented). No change to what is stored or derived, nor to crash safety. |

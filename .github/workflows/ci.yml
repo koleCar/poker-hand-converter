@@ -356,7 +356,14 @@ jobs:
   # through the real watcher into an empty store and prints hands stored
   # per second. Release profile as shipped (thin LTO), cached by rust-cache.
   # Import threads: every core of the runner (3); the app's default is
-  # physical cores - 1, capped at 8.
+  # physical cores - 1, capped at 8. Deliberately the stricter setting: the
+  # writer, the committer and the coordinator take their CPU from the three
+  # import threads here, and the threads also compress and derive the
+  # statistics (~a third on top of the reference's conversion), so the
+  # ratio cannot reach 100 % (about 60-65 % is the ceiling on a busy
+  # 3-core runner; R2.7c "Import writer, second pass"). With 2 threads
+  # (the app's default here) it would read higher and the 45 % gate would
+  # have to be calibrated again.
   import-bench:
     name: Import benchmark (macOS runner, gate on pipeline efficiency vs a same-runner reference)
     runs-on: macos-latest

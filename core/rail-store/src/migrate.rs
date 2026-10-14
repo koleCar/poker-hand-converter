@@ -12,7 +12,8 @@
 //! file appended here. Reserved for a later phase (docs/RAIL-PLAN.md §3.4,
 //! `SCHEMA.md`): `hud_layouts` (Phase 3), as the next free number when it
 //! lands (`seat_stats` and the rollups: 6; the Hands screen's tables: 7; the
-//! reports' list columns: 8; the Players screen's `players`: 9).
+//! reports' list columns: 8; the Players screen's `players`: 9; an unused
+//! index dropped for the import: 10).
 
 use rusqlite::Connection;
 
@@ -62,6 +63,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0009_players.sql",
         sql: include_str!("../migrations/0009_players.sql"),
+    },
+    Migration {
+        name: "0010_import_indexes.sql",
+        sql: include_str!("../migrations/0010_import_indexes.sql"),
     },
 ];
 

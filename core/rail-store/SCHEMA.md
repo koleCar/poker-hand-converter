@@ -14,7 +14,10 @@ app's local data directory (`app_local_data_dir`): on macOS
   PHF fits its leaf page; with 4 KiB pages the corpus took 35 % more space),
   `temp_store = MEMORY` on the write connection (R2.3: the statement
   journal of the import batches' savepoints stays in memory instead of
-  temporary files).
+  temporary files), and on it a 16 MiB page cache (`cache_size`; SQLite's
+  default 2 MB is 128 of these pages) and a WAL checkpoint every 4 096
+  pages (`wal_autocheckpoint`, 64 MiB; default 1 000) - both measured on
+  the import's writer (R2.7c, "Import writer, second pass").
 - **Version**: `PRAGMA user_version`. Migrations are SQL files in
   `migrations/`, compiled in (`src/migrate.rs`), forward-only, each in its
   own transaction with the version bump. A file with a version above the
@@ -26,7 +29,10 @@ app's local data directory (`app_local_data_dir`): on macOS
   read of one file) is one transaction - or, when several batches wait in
   the writer's queue together (a backfill), one savepoint each inside one
   shared transaction (R1.6): each batch is still stored whole or not at
-  all, with its own offset.
+  all, with its own offset. Batches whose producer does not wait for the
+  commit (`WriterHandle::queue`: the watcher's import threads) may hold
+  their group open for up to 5 ms (`GROUP_LINGER`) once a second one is
+  waiting, so a backfill commits fewer, larger transactions.
 
 ## Migrations
 
@@ -41,6 +47,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 7 | `0007_hands_screen.sql` | `hand_list` and its delete trigger on `hand_stats`, `hand_notes`, `hand_tags`, `saved_filters`; forgets `stats.version`, so the next open rebuilds the statistics and with them the list rows (R2.7a) |
 | 8 | `0008_reports.sql` | `hand_list.kind`, `hero_wtsd`, `currency`, `minor_units` (the reports' graph and sessions); forgets `stats.version`, so the next open rebuilds the list rows with them (R2.7b) |
 | 9 | `0009_players.sql` | `players`, `player_labels` (the user's colour, labels and note per opponent), `player_summary`, `player_hidden` (the list's sums), `player_hands` and its delete trigger on `seat_stats`; forgets `stats.version`, so the next open rebuilds the statistics and with them the sums (R2.7c) |
+| 10 | `0010_import_indexes.sql` | drops `hands_played_at_idx`: no query reads it (the list reads `hand_list`, date ranges `hand_stats`), and each imported hand wrote an entry at a random place (~7 % of the writer's time per hand) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -211,8 +218,9 @@ truth; the other columns are projections of it for lists, the HUD and sync.
 | `synced_at` | INTEGER NULL | ms; when the server confirmed it (R1.9) |
 | `pulled_at` | INTEGER NULL | (version 5) ms; the hand came from the server (the pull, R1.9), not from a file here: never queued for upload, `synced_at` set, `file_id` NULL. An account change uploads only hands without it |
 
-Indexes: `file_id`, `imported_at`, `played_at`; `hands_pulled_idx` on
-`pulled_at` where it is set (version 5).
+Indexes: `file_id`, `imported_at`; `hands_pulled_idx` on `pulled_at` where
+it is set (version 5). (`played_at` had one until version 10, which dropped
+it: nothing read it.)
 
 ### `quarantine`
 
