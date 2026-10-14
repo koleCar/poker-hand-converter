@@ -4011,6 +4011,87 @@ database, on the development Mac and on a mid-range Windows laptop.
 ### R2.5 Sample reliability — S
 - Confidence interval per value (Wilson for rates) and the dimming rule from
   the definition; shown in tooltips, used by the HUD.
+- *As built* (§15): **done** - every displayed value carries its
+  reliability, computed identically in Rust and on the web.
+  [`docs/STATS-SPEC.md`](STATS-SPEC.md) §13 "Reliability" is the reference.
+  - **Model.** *Interval*: a `pct(made, opportunities)` gets the 95% Wilson
+    score interval in percentage points (`z = 1.959964`, the web's constant;
+    `z2 = z*z`, `centre = made + z2/2`, `spread = z*sqrt(made*(n-made)/n +
+    z2/4)`, `low/high = ((centre -/+ spread)*100)/(n + z2)`, exactly 0 at
+    `made = 0` and 100 at `made = n`, clamped; none unless `n > 0` and
+    `0 <= made <= n`). Bounds printed at the definition's decimals
+    (`format_fixed`). *No interval for other statistics*: bb/100 would need
+    the per-hand variance and the store keeps sums, not sums of squares (an
+    assumed SD shown as a "±" would be fabricated); AF is not a proportion.
+    *Level* from the sample (`sample.of` or the rate's opportunities)
+    against `sample.min`: `ok` from `min` (= R2.4's `full`; always when
+    `min` is 0), `low` from `min / 4` (interval at most twice the width at
+    `min`), `insufficient` below or with no sample. *Opacity*: 1 from `min`,
+    else `0.6 + 0.4 * sqrt(sample / min)` (0.6 with no sample) - continuous,
+    proportional to the precision, 1 where the level turns `ok`; 0.6 is the
+    floor at which the web's large figures keep their contrast.
+  - **Data.** Nothing new per statistic: `sample.min` (and `sample.of`) was
+    already the only thing that varies; confidence (95%) and the curve are
+    one rule for every statistic, so they are code, not a field nobody
+    would set differently. The schema documents the rule and caps `min` at
+    10^9 (`rail_config::stats::MAX_SAMPLE_MIN`, `compileStats`; ajv and
+    `rail_config` tests refuse more) so `min` is an exact double everywhere.
+  - **Exactness.** The same IEEE-754 double operations in the same order on
+    both sides: TypeScript's numbers, Rust's `JsNumber`. `JsNumber` gained
+    `sqrt` (`Math.sqrt` is correctly rounded by the ECMAScript spec): the
+    53-bit significand widened by 72/73 bits to an even exponent,
+    `u128::isqrt`, the remainder as the sticky bit, one rounding.
+  - **Rust**: `rail_stats::reliability` (`wilson`, `sample_reliability`,
+    `Level`, `Interval`, `WILSON_Z`, `OPACITY_FLOOR`);
+    `DisplayStat::reliability(&Sums) -> Reliability { level, opacity,
+    interval, interval_text }`, also in `Shown::reliability`.
+    **TypeScript**: `frontend/src/lib/stats/reliability.ts` (pure; `wilson`,
+    `sampleReliability`, constants), `statReliability` and
+    `Shown.reliability` in `display.ts`, exported from `lib/stats`.
+  - **Parity**: `core/rail-stats/tests/data/reliability-vectors.mjs` (no
+    goldens needed: it reads display-vectors.json's 558 corpus groups and
+    600 synthetic totals, `meta.inputs` pins their sha-256) writes every
+    shipped statistic's level, opacity, bounds and bound texts over those
+    1 158 cases (37 056 values, 20 677 intervals; 17 722 insufficient,
+    4 593 low, 14 741 ok), 3 041 Wilson cases (n = 0, made = 0, made = n,
+    made outside 0..n, -0, NaN, Infinity, fractions, 2^53, 2^61, 1e300,
+    1e308, 3 000 seeded), 2 168 level/opacity cases and 3 921 `Math.sqrt`
+    cases (seeded random bit patterns over every exponent, subnormals,
+    perfect squares +/- 1, specials). Before writing, every interval is
+    checked within 1e-9 points of `lib/analysis/reports.ts`'s independent
+    textbook Wilson and every level against `full`. `cargo test -p
+    rail-stats --test reliability` and `tests/test/statReliability.test.ts`
+    replay: **Rust = TypeScript bit for bit on every case**. (A 1e-12
+    perturbation of `z2` in Rust fails 2 068 of the Wilson cases and
+    19 234 statistic lines - the vectors see rounding-level drift.)
+  - **Web (`/stats`)**: `components/stats/uncertainty.ts` is gone; the
+    tiles read `statReliability`. Visible changes: (1) a tile's level - the
+    band's colour and its tooltip - is the shared rule (`sample.min` per
+    statistic) instead of the web's own ±2 / ±6 point thresholds, which no
+    other surface used and which called a 25% VPIP "noise" until ~200
+    opportunities and "firm" only past ~1 800, the same for a fold to 4-bet
+    as for VPIP; (2) the figure's
+    opacity is continuous (0.6-1) instead of three steps (0.6 / 0.88 / 1);
+    (3) the value's tooltip reads "n = 80, 95% CI 20.0–39.5%" (hr: "95%
+    interval pouzdanosti"); AF and AFq are dimmed by the same rule and have
+    the same tooltip (AF: "n = ..."); the win-rate headline's title gives its
+    sample. Unchanged: the ± margin and the band's width (the interval's
+    half-width; its bounds now differ from before only in the last bits of a
+    double), the win rate's 0.8 fade and note (now `level !== "ok"`, the
+    same as `statFull`). i18n: `stats.tile.confidence.{firm,loose,noise}` ->
+    `stats.tile.reliability.{ok,low,insufficient}`, new `stats.tile.sample`
+    and `stats.hud.sample`.
+  - **For R2.7**: show `Shown::reliability` with every report value - the
+    level as the tone of the sample count, `opacity` on the figure,
+    `interval_text` in tooltips ("n = …, 95% CI a–b"); the HUD's i18n needs
+    the same two strings. The breakdown and opponents tables on the web
+    (`BreakdownPanel.tsx`, `OpponentsPanel.tsx`'s `< 20` thin-sample mark)
+    still have their own rule until R4.5. **For R3.8**: dim each panel value
+    by `Reliability::opacity` (`JsNumber::to_f64` for the renderer) - it is
+    1 from `sample.min`, so a seasoned regular's panel is untouched; the
+    popup's tooltip is `interval_text`. A villain with no sample at all
+    still shows "—" at 0.6. A per-user floor (R3.9) would be an override of
+    the 0.6, not of the rule.
 
 ### R2.6 Shared UI package — L
 - `packages/ui`: tokens, cards, chips, the replayer, stat tables, graphs,
@@ -4316,3 +4397,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R2.2 done**: all-in EV in Rust (`core/rail-equity`), `lib/equity` ported - `enumerate.ts` (exhaustive enumeration, the seeded Monte Carlo, `plan`, `EquityInputError`), `range.ts`, `multiway.ts`, `allInEv.ts` - and `handEvRow` (`ev_row`, `EV_VERSION` `ev/1`). Exact representation: shares of a pot as integers in units of 1/27720 of a board (`units / (boards * 27720)`), and the TypeScript's double arithmetic after that (the equity division, `apportion`, range weights) replayed operation for operation in `JsNumber`. Oracle: `npm run golden:emit` also writes `testdata/golden-ev/` (hero row as the web stores it and the full `analyzeAllIn`, equities as `String(x)`, hashed; 3.1 MB, 5.5 MB in full gitignored), checked by `golden-fresh`. **8 121 / 8 121 rows and 8 422 / 8 422 analyses equal** (508 all-ins: 226 preflop enumerations, 11 Omaha preflop Monte Carlo, 1 short deck; 22 hi/lo declined), every equity bit for bit, Monte Carlo exact (same `mulberry32`, same Fisher-Yates); 4 500 seeded vectors (mutated hands, `equity()` requests, ranges) and a 45 000-case soak equal. `equityEnumerate`, `equityAllInEv`, `equityRange`, `equityCorpus` translated, plus the `analyzeAllIn` checks of `shortDeck` and `phfHiLo`. Release, M2 Pro: 25 ms per heads-up preflop all-in, 15 ms Omaha preflop, under 1 ms flop/turn; R2.3 should run the backfill's EV as a background pass or cache preflop matchups. `rail_core::eval` gains `#[inline]` on its hot path only; the dev profile builds rail-equity optimised. rail-equity joins CI's wasm32 build. |
 | 2026-10-13 | **R2.3 done**: local statistics in `rail-store` (migration 6). With every hand, on the import threads, `PreparedStats` (`rail_stats::stored_rows` - `handStatsRows`' rule: hero always, villains unless the room is positionally anonymised, one row per seat - the segment, the rollup scope, the EV plan); in the hand's transaction `hand_stats` + `seat_stats` (counters and money as a varint blob: the first, column-per-counter layout cost +61 % size and 21-29 % of the import's speed) and the rollup increments, summed per writer group and upserted once per key: `player_rollups` (site, player, scope, segment; `aggregate`'s default exclusions) and `hero_rollups` (segment, position, UTC day, kind). Segment = (site key, format, variant, limit, `hu`/`6max`/`full` by `maxSeats`, a cash game's currency and exact big blind or `chips`). Opaque-id villains (GGPoker, ACR/WPN mined) summed per session (`<table>@<UTC day>`), never across sessions. The hero's EV at import unless the all-in was preflop (`rail_equity::ev_row_unless_preflop`); those, and rebuilds after a `STATS_VERSION` bump or on request (new generation, cursor in `kv`, resumable), by a background `StatsWorker` paused during backfills and (EV) while tables are open. Rows equal the engine's for every corpus seat; crash test checks rows and rollups after every kill. import pipeline efficiency unchanged after the fix (local 3 threads 48 / 46 % before, 48 / 48 % after; the first push's 41-44 % on CI came from SQLite's statement journal in temp files - now `temp_store = MEMORY` - and a `RETURNING` insert), stats 17-22 µs a hand on the import threads, +18 % size; preflop all-in 26 ms in the background; rebuild ~6 500 hands/s; at 500k the HUD lookup for 9 players takes 73 µs (p99 0.24 ms), hero totals 76-127 ms. App: the pass started with the store, Settings debug panel. Preflop-matchup cache measured, not built. |
 | 2026-10-14 | **R2.4 done**: displayed statistics are data. `config/stats/standard.json` (32 definitions: the guideline §5 set plus hands, net bb, RFI, iso, cold call, squeeze, fold to 4-bet, cbet river, fold to turn cbet, raise flop cbet, saw flop, AF) and `stats.schema.json`; a definition is labels and descriptions in `en` + `hr`, a formula over the `stats/2` counters (`pct`, `sum`, `+ - * /`; evaluated in JavaScript's doubles, `JsNumber` in Rust), a format, colour bands to five tones, the sample and its full-opacity minimum, default HUD membership. `rail_config::stats` parses and validates (names against the caller's vocabulary), `rail_stats::display` evaluates (and ports `aggregate`), `rail_store` gives `Totals::sums()` / `HeroTotal::sums()` (all-in EV). The web: `lib/stats/display.ts` + `definitions.ts` (a checked copy of the file); text is `Intl.NumberFormat`'s rounding (shortest decimal, half away from zero), not `toFixed`. Parity over 558 corpus groups, 600 synthetic totals, 33 formulas and 5 000 format cases: Rust = TypeScript bit for bit, and 33 582 values = `rates()`, 26 405 texts = `Intl`. `/stats` tiles now print `(made * 100) / n` like the breakdown (they printed `(made / n) * 100`: "28.7" vs "28.8" at 23 of 80); `HudGrid` reads `STANDARD_STATS`. Guideline §14 enforced by a source scan with a shrinking allow-list. R2.4 "As built". |
+| 2026-10-14 | **R2.5 done**: sample reliability. A rate's 95% Wilson interval (z = 1.959964, exact 0 / 100 at the edges, bounds at the definition's decimals), a level for every value (`ok` from `sample.min` = R2.4's `full`, `low` from a quarter, `insufficient` below) and a continuous opacity (`0.6 + 0.4 * sqrt(sample / min)`, 1 from `min`); no interval for bb/100 (no per-hand variance is stored) or AF. One rule, code: `rail_stats::reliability` + `DisplayStat::reliability`, `lib/stats/reliability.ts` + `statReliability`; `JsNumber::sqrt` (correctly rounded). Schema caps `sample.min` at 10^9 (Rust, TS and ajv refuse more). Parity over display-vectors' 1 158 cases x 32 statistics (20 677 intervals), 3 041 Wilson edge/random cases, 2 168 level cases, 3 921 `Math.sqrt` cases: Rust = TypeScript bit for bit; intervals within 1e-9 of `reports.ts`'s textbook Wilson. `/stats`: `uncertainty.ts` removed; tiles take the shared level (band colour, tooltip) instead of ±2 / ±6 points and a continuous opacity instead of three steps; tooltips "n = …, 95% CI a–b". R2.5 "As built". |

@@ -85,13 +85,14 @@ export const statsHr: Dict["stats"] = {
   },
 
   tile: {
-    confidence: {
-      firm: "Velik uzorak — ovaj broj je stabilan.",
-      loose: "Srednji uzorak — oblik je stvaran, decimala nije.",
-      noise: "Mali uzorak — čitaj ovo kao naznaku, ne kao mjerenje.",
+    reliability: {
+      ok: "Dovoljan uzorak — ovaj broj je stabilan.",
+      low: "Srednji uzorak — oblik je stvaran, decimala nije.",
+      insufficient: "Mali uzorak — čitaj ovo kao naznaku, ne kao mjerenje.",
     },
     noOpportunities: "nema prilika",
     interval: (low: string, high: string) => `95% interval pouzdanosti, od ${low}% do ${high}%`,
+    sample: (n: string, low: string, high: string) => `n = ${n}, 95% interval pouzdanosti ${low}–${high}%`,
     noSample: "nema uzorka",
   },
 
@@ -99,6 +100,7 @@ export const statsHr: Dict["stats"] = {
     mixedUnitKind:
       "Ovaj uzorak miješa turnirske čipove i cash. Čipovi nisu novac — vrijede onoliko koliko kaže struktura isplata — pa nema zbroja koji bi se mogao prikazati. Filtriraj na jedan format igre.",
     noMoney: "Za ovaj uzorak nema iznosa u novcu.",
+    sample: (n: string) => `n = ${n}`,
     provisional: (count: number, floor: number) =>
       `${hands(count)}. Winrate se ne smiri prije otprilike ${handsGen(floor)}, pa ovo čitaj kao smjer, a ne kao broj.`,
     currency: "Valuta",

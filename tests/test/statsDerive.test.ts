@@ -119,6 +119,7 @@ describe("the module stays importable from a server", () => {
       "postflop.ts",
       "preflop.ts",
       "rates.ts",
+      "reliability.ts",
       "showdown.ts",
       "types.ts",
     ]);

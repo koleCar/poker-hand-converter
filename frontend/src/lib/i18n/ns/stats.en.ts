@@ -91,14 +91,17 @@ export const statsEn = {
   },
 
   tile: {
-    confidence: {
-      firm: "Tight sample — this number is stable.",
-      loose: "Moderate sample — the shape is real, the decimal is not.",
-      noise: "Small sample — read this as a hint, not a measurement.",
+    /** By the shared reliability level (`lib/stats/reliability.ts`): the sample against the statistic's minimum. */
+    reliability: {
+      ok: "Enough sample — this number is stable.",
+      low: "Moderate sample — the shape is real, the decimal is not.",
+      insufficient: "Small sample — read this as a hint, not a measurement.",
     },
     noOpportunities: "no opportunities",
     /** Bounds already formatted, without the percent sign. */
     interval: (low: string, high: string) => `95% confidence interval ${low}% to ${high}%`,
+    /** A value's tooltip: the sample and the interval, all already formatted. */
+    sample: (n: string, low: string, high: string) => `n = ${n}, 95% CI ${low}–${high}%`,
     noSample: "no sample",
   },
 
@@ -106,6 +109,8 @@ export const statsEn = {
     mixedUnitKind:
       "This sample mixes tournament chips with cash. Chips are not money — their value is the payout structure — so there is no total to show. Filter to one game format.",
     noMoney: "No money figure for this sample.",
+    /** A figure without an interval: its sample, already formatted. */
+    sample: (n: string) => `n = ${n}`,
     provisional: (count: number, floor: number) =>
       `${hands(count)}. A win rate does not settle down until somewhere past ${num(floor)}, so read this as a direction rather than a number.`,
     currency: "Currency",

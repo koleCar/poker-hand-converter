@@ -45,6 +45,7 @@
  */
 
 import type { StatsTotals } from "./rates";
+import { MAX_SAMPLE_MIN, sampleReliability, wilson, type RateInterval, type Reliability } from "./reliability";
 import { COUNTER_KEYS, MONEY_KEYS, type CounterKey, type MoneyKey } from "./types";
 
 /* ---------------------------------------------------------------- shape - */
@@ -401,6 +402,20 @@ export interface Shown {
   sample: number | null;
   /** The sample reaches `sample.min`: shown at full opacity. */
   full: boolean;
+  /** `statReliability`: the level, the opacity, a rate's interval and its text. */
+  reliability: StatReliability;
+}
+
+/** How far to trust a value (R2.5; `reliability.ts`). */
+export interface StatReliability {
+  /** `ok` exactly when `full`. */
+  level: Reliability;
+  /** 1 from `sample.min`, down to `OPACITY_FLOOR` (0.6) with no sample. */
+  opacity: number;
+  /** A rate's 95% Wilson interval in percentage points; null for other statistics. */
+  interval: RateInterval | null;
+  /** The bounds as text, at the definition's decimals (`formatFixed`). */
+  intervalText: { low: string; high: string } | null;
 }
 
 export function statValue(stat: DisplayStat, sums: DisplaySums): number | null {
@@ -428,6 +443,26 @@ export function statFull(stat: DisplayStat, sums: DisplaySums): boolean {
   if (min === 0) return true;
   const sample = statSample(stat, sums);
   return sample !== null && !(sample < min);
+}
+
+/**
+ * The level and opacity of the value's sample against `sample.min`, and for
+ * a `pct(made, opportunities)` its Wilson interval (`reliability.ts`).
+ */
+export function statReliability(stat: DisplayStat, sums: DisplaySums): StatReliability {
+  const { level, opacity } = sampleReliability(statSample(stat, sums), stat.def.sample.min);
+  const rate = statRate(stat, sums);
+  const interval = rate === null ? null : wilson(rate.made, rate.opportunities);
+  const decimals = stat.def.format.decimals;
+  return {
+    level,
+    opacity,
+    interval,
+    intervalText:
+      interval === null
+        ? null
+        : { low: formatFixed(interval.low, decimals), high: formatFixed(interval.high, decimals) },
+  };
 }
 
 /** The value as text; money in major units of `minorUnits`. */
@@ -496,6 +531,7 @@ export function showStat(stat: DisplayStat, sums: DisplaySums, minorUnits: numbe
     tone: value === null ? null : statTone(stat, value),
     sample: statSample(stat, sums),
     full: statFull(stat, sums),
+    reliability: statReliability(stat, sums),
   };
 }
 
@@ -541,6 +577,9 @@ export function compileStats(file: StatsFile): DisplayStat[] {
       sample = formula.opp;
     } else {
       return fail('the formula is not pct(made, opportunities), so the sample needs "of"');
+    }
+    if (!Number.isSafeInteger(def.sample.min) || def.sample.min < 0 || def.sample.min > MAX_SAMPLE_MIN) {
+      fail(`sample.min ${def.sample.min} is not a whole number from 0 to ${MAX_SAMPLE_MIN}`);
     }
     let previous = -Infinity;
     def.bands.forEach((band, i) => {

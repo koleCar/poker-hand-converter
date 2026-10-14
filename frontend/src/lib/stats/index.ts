@@ -108,6 +108,7 @@ export {
   statById,
   statFull,
   statRate,
+  statReliability,
   statSample,
   statText,
   statTone,
@@ -118,6 +119,7 @@ export {
   type HudPlace,
   type Shown,
   type StatBand,
+  type StatReliability,
   type StatDefinition,
   type StatGroup,
   type StatPlayers,
@@ -128,3 +130,14 @@ export {
 } from "./display";
 
 export { STANDARD_STATS, localized } from "./definitions";
+
+export {
+  CONFIDENCE_PERCENT,
+  MAX_SAMPLE_MIN,
+  OPACITY_FLOOR,
+  WILSON_Z,
+  sampleReliability,
+  wilson,
+  type RateInterval,
+  type Reliability,
+} from "./reliability";

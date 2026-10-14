@@ -116,7 +116,9 @@ pub struct SampleDef {
     /// `pct(made, opportunities)` (then it is `opportunities`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub of: Option<String>,
-    /// Full opacity from this sample upwards.
+    /// Full opacity (reliability `ok`) from this sample upwards; at most
+    /// [`MAX_SAMPLE_MIN`](super::MAX_SAMPLE_MIN). `rail_stats::reliability`
+    /// has the rule below it.
     pub min: u64,
 }
 

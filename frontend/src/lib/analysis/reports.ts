@@ -31,7 +31,7 @@
  *   range reference answers "is my frequency the reference's", the adjusted
  *   one "did I play the hands I had the way the reference would".
  * - **Uncertainty**: a 95% Wilson interval on the player's frequency (the
- *   statistics screen's choice, `components/stats/uncertainty.ts`, for the
+ *   statistics' choice, `lib/stats/reliability.ts` (R2.5), for the
  *   same reasons; this is the same formula in fractions). A player who plays
  *   the reference's strategy on hands dealt from the reference's range takes
  *   an action `Binomial(n, p_ref)` times, so a range reference outside the
@@ -79,7 +79,7 @@ export const MIN_SAMPLE = 10;
  * modelling error (`docs/CHARTS.md` §9), not a leak.
  */
 export const MIN_PRACTICAL_DIFF = 0.02;
-/** The two-sided 95% normal quantile, as `uncertainty.ts` uses. */
+/** The two-sided 95% normal quantile, as `lib/stats/reliability.ts` uses. */
 export const WILSON_Z = 1.959964;
 
 const NUM_CLASSES = 169;
