@@ -51,7 +51,7 @@ import { fetchDrillsBySpot } from "../../../lib/db/training";
 import { useAuth } from "../../../lib/auth";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { dateFormat, useIntlLocale } from "../../stats/format";
 import { AnalysisNav } from "../AnalysisNav";
 import { GradeIcon } from "../GradeIcon";

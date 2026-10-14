@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { potOddsAt } from "../../frontend/src/components/replayer/potOdds.js";
+import { potOddsAt } from "../../packages/ui/replayer/potOdds.js";
 import { parseStandardHand, splitStandardHands } from "../../frontend/src/lib/phf/serialize.js";
 import { buildReplay, type ReplayFrame } from "../../frontend/src/lib/replay.js";
 import { ggFiles } from "./support/corpus.js";

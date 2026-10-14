@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDict } from "../../lib/i18n/client";
 import { MANUAL_UNITS, type EngineState, type ManualCurrency } from "../../lib/manual";
 import type { Amount, CurrencyUnit } from "../../lib/phf/types";
-import { CardRow } from "../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { AmountInput } from "./AmountInput";
 import type { CardTarget } from "./CardDialog";
 import { TABLE_SIZES, formatFor, unitOf, withTableSize, type AmountMode, type EditorState } from "./editorState";

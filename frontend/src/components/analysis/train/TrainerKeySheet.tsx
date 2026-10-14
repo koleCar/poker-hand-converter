@@ -7,7 +7,7 @@
 "use client";
 
 import { useDict } from "../../../lib/i18n/client";
-import { Overlay } from "../../ui/Overlay";
+import { Overlay } from "@rail/ui/overlay/Overlay";
 import { TRAINER_SHORTCUTS } from "./trainerKeys";
 
 export function TrainerKeySheet({ open, onClose }: { open: boolean; onClose: () => void }) {

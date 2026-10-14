@@ -1,10 +1,6 @@
 /* The design tokens (amendment A3: CSS Modules + the existing token layer,
-   no Tailwind).
-
-   `styles/tokens/` is a COPY of `frontend/src/styles/tokens/`, taken at
-   R1.1 and not edited here. The shared UI package (`packages/ui`, R2.6)
-   makes it one copy for the web and the app; until then a change to the web's
-   tokens that the app should have is copied over by hand, file for file.
+   no Tailwind), from the shared UI package `packages/ui` (R2.6): the same
+   four files the web imports, one copy for both surfaces.
 
    Order is load-bearing, as on the web (`frontend/src/index.css`):
    primitives, semantic (the dark default), theme-light (re-points the
@@ -12,15 +8,16 @@
    come later), motion. Each file declares its own `@layer tokens`.
 
    Components use semantic tokens only; `stylelint.config.js` rejects a
-   primitive (`--n-800`) or a raw hex outside `styles/tokens/`.
+   primitive (`--n-800`) or a raw hex anywhere in `src/` (the token layer is
+   the package's).
 
    The web loads Inter from its own font files; the app does not ship them
    yet, so `--font-family-sans` falls through to the system UI font. */
 
-@import "./styles/tokens/primitives.css";
-@import "./styles/tokens/semantic.css";
-@import "./styles/tokens/theme-light.css";
-@import "./styles/tokens/motion.css";
+@import "@rail/ui/tokens/primitives.css";
+@import "@rail/ui/tokens/semantic.css";
+@import "@rail/ui/tokens/theme-light.css";
+@import "@rail/ui/tokens/motion.css";
 
 :root {
   font-family: var(--font-family-sans);

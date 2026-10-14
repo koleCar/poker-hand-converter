@@ -3,7 +3,7 @@
 import { useDict } from "../../lib/i18n/client";
 import { BOARD_SIZE, HOLE_CARDS, type EngineState } from "../../lib/manual";
 import { CardPicker } from "../learn/CardPicker";
-import { Overlay } from "../ui/Overlay";
+import { Overlay } from "@rail/ui/overlay/Overlay";
 import { usedCards, type EditorState } from "./editorState";
 import styles from "./manual.module.css";
 

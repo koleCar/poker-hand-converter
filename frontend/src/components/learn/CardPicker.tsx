@@ -14,7 +14,7 @@
 import { useRef, useState, type KeyboardEvent } from "react";
 import { SUIT_PATH, type Suit } from "../../lib/cards";
 import { useDict } from "../../lib/i18n/client";
-import { CardRow } from "../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import styles from "./learn.module.css";
 
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"] as const;

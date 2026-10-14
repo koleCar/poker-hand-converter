@@ -31,8 +31,8 @@ import {
   type TrainerAnswer,
   type TrainerSpot,
 } from "../../../lib/training";
-import { CardRow } from "../../replayer/PlayingCard";
-import { ReplayViewer } from "../../replayer/ReplayViewer";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
+import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { lineSteps } from "../chartSpots";
 import { AnswerBar, type AnswerOption } from "./AnswerBar";
 import { AnswerResult } from "./AnswerResult";

@@ -22,8 +22,8 @@ import type { HandAnalysis } from "../../lib/analysis/types";
 import { handAnalysisFromStored } from "../../lib/db/analysisRows";
 import { useDict } from "../../lib/i18n/client";
 import type { PhfHand } from "../../lib/phf/types";
-import type { ReplayPosition } from "../replayer/position";
-import { ReplayViewer, type ReplayMark, type ReplaySheet } from "../replayer/ReplayViewer";
+import type { ReplayPosition } from "@rail/ui/replayer/position";
+import { ReplayViewer, type ReplayMark, type ReplaySheet } from "@rail/ui/replayer/ReplayViewer";
 import { AnalysisSheet, markWord } from "./AnalysisSheet";
 import { toneOf } from "./tone";
 

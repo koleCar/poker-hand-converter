@@ -25,7 +25,7 @@ import { cleanPerfect, costliest, exampleWhy, type ExampleCandidate } from "../.
 import { cardFor } from "../../../lib/learn/progress";
 import { rowMatches } from "../../../lib/learn/recommend";
 import { paths } from "../../../lib/routes";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useOptionLabel } from "../../analysis/train/AnswerResult";
 import { useFormats } from "../controls";
 import { CardItemView } from "./ExerciseBlock";

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { HandSummary } from "../../../components/hand/HandSummary";
 import { AnalysisShareToggle } from "../../../components/analysis/AnalysisShareToggle";
 import { SharedAnalysisReplay } from "../../../components/analysis/SharedAnalysis";
-import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
+import { decodePosition, POSITION_PARAM, type ReplayPosition } from "@rail/ui/replayer/position";
 import { buildSharePreview, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
 import { ReportButton } from "../../../components/forum/ReportButton";

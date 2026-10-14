@@ -29,7 +29,7 @@
  * graph before already knows. The red is `--loss-fg` because that token exists
  * precisely so a chart can use a signed-number red without dragging every error
  * toast along with it (see the note on `--profit-fg` / `--loss-fg` in
- * `tokens/semantic.css`); here it means "showdown", not "bad", and the legend
+ * `packages/ui/tokens/semantic.css`); here it means "showdown", not "bad", and the legend
  * is always on screen saying so.
  *
  * All four resolve through semantic tokens, so the light theme re-points them
@@ -232,88 +232,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
   gap: 10px;
-}
-
-.stats-tile {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px 11px;
-  background: var(--surface-inset);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm);
-}
-
-.stats-tile__label {
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.stats-tile__value {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  font-variant-numeric: tabular-nums;
-}
-
-.stats-tile__sample {
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
-  font-variant-numeric: tabular-nums;
-}
-
-.stats-tile__margin {
-  color: var(--fg-muted);
-}
-
-.stats-tile__hint {
-  margin-top: 3px;
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
-  line-height: var(--line-height-snug);
-}
-
-/* The width of the doubt, not a progress bar: a short fill is the good case.
-   The track is a lighter step of the same idea so the bar reads as a range
-   rather than as an amount. */
-.stats-tile__band {
-  display: block;
-  margin-top: 5px;
-  height: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--control-track);
-  overflow: hidden;
-}
-
-.stats-tile__band-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--radius-pill);
-  background: var(--fg-dim);
-}
-
-/* Three levels (the shared rule of lib/stats/reliability.ts: the sample
-   against the statistic's sample.min), loudest where the number is least
-   trustworthy. The figure's opacity is set inline from the same rule - 1 from
-   sample.min, down to 0.6 - so it fades continuously rather than in steps. An
-   "insufficient" tile keeps its digits — you asked for them — but stops
-   competing for attention with the ones that mean something. */
-.stats-tile--ok .stats-tile__band-fill {
-  background: var(--accent-fg);
-}
-
-.stats-tile--low .stats-tile__band-fill {
-  background: var(--warning-fg);
-}
-
-.stats-tile--insufficient .stats-tile__value {
-  font-weight: var(--font-weight-semibold);
-}
-
-.stats-tile--insufficient .stats-tile__band-fill {
-  background: var(--danger-fg);
 }
 
 .stats-inline {

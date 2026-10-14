@@ -12,24 +12,16 @@ import type { StakeVolume } from "../../lib/db";
 import { useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 
+/* `numberFormat`, `countIn` and `fixedIn` live with the tile in the shared
+   package (packages/ui, R2.6); one cache of formatters for both. */
+export { countIn, fixedIn, numberFormat } from "@rail/ui/stats/format";
+
 /** The reader's BCP 47 tag, for `Intl`. */
 export function useIntlLocale(): string {
   return INTL_LOCALE[useLocale()];
 }
 
-const numberFormats = new Map<string, Intl.NumberFormat>();
 const dateFormats = new Map<string, Intl.DateTimeFormat>();
-
-/** One `Intl.NumberFormat` per locale and options, built on first use. */
-export function numberFormat(locale: string, options: Intl.NumberFormatOptions = {}): Intl.NumberFormat {
-  const key = `${locale}|${JSON.stringify(options)}`;
-  let format = numberFormats.get(key);
-  if (!format) {
-    format = new Intl.NumberFormat(locale, options);
-    numberFormats.set(key, format);
-  }
-  return format;
-}
 
 /** One `Intl.DateTimeFormat` per locale and options, built on first use. */
 export function dateFormat(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
@@ -41,18 +33,6 @@ export function dateFormat(locale: string, options: Intl.DateTimeFormatOptions):
   }
   return format;
 }
-
-/** A whole-number formatter for `locale`: "1,234" / "1.234". */
-export const countIn = (locale: string) => (value: number) => numberFormat(locale).format(value);
-
-/**
- * A fixed number of decimals, without grouping — the locale's decimal mark in
- * place of `toFixed`, and otherwise the same digits.
- */
-export const fixedIn = (locale: string, digits: number) => (value: number) =>
-  numberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: false }).format(
-    value,
-  );
 
 export function money(amount: number, currency: string, minorUnits: number): string {
   const value = amount / minorUnits;

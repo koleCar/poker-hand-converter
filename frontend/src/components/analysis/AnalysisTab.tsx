@@ -48,7 +48,7 @@ import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { getParser } from "../../lib/phf";
-import { CardRow } from "../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { countIn, dateFormat, numberFormat, useIntlLocale } from "../stats/format";
 import { FLAG_CONCEPTS } from "../../lib/learn/links";
 import { ActionStrip } from "./ActionStrip";

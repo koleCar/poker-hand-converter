@@ -23,7 +23,7 @@ import { PollOptionLine, PollReference } from "./PollReference";
 import type { ForumComment, PollChoice, PollState } from "../../lib/forum/types";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
-import { ReplayViewer } from "../replayer/ReplayViewer";
+import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { CommentComposer } from "./CommentComposer";
 import { CommentThread } from "./CommentThread";
 import { PostDiscussion } from "./PostDiscussion";

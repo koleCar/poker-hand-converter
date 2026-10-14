@@ -1,12 +1,14 @@
 /* The token rules of the web (`frontend/stylelint.config.js`), for the app:
  *
- *   1. no primitive tokens (`--n-800`) outside `src/styles/tokens/`;
- *   2. no raw hex outside `src/styles/tokens/`.
+ *   1. no primitive tokens (`--n-800`) in `src/`;
+ *   2. no raw hex in `src/`.
  *
- * A component states an intent (`--border-default`), which a theme can
- * re-point; a shade is an opt-out from every theme. The relaxations below are
- * the web's, for the same house style (BEM-free here, since CSS Modules scope
- * the names, but the token names and the copied token files need them).
+ * The token layer itself is the shared UI package's (`packages/ui/tokens/`,
+ * R2.6), linted there by the same rules. A component states an intent
+ * (`--border-default`), which a theme can re-point; a shade is an opt-out from
+ * every theme. The relaxations below are the web's, for the same house style
+ * (BEM-free here, since CSS Modules scope the names, but the token names need
+ * them).
  */
 export default {
   extends: ["stylelint-config-standard"],
@@ -42,14 +44,6 @@ export default {
         "declaration-property-value-disallowed-list": {
           "/.*/": ["/var\\(\\s*--(?:[namfw]-[0-9]|st-|ink-|chip-(?:white|red|blue|green|black|purple|gold))/"],
         },
-      },
-    },
-    {
-      // The copied token layer: where a colour is a value, not a reference.
-      files: ["src/styles/tokens/**/*.css"],
-      rules: {
-        "color-no-hex": null,
-        "declaration-property-value-disallowed-list": null,
       },
     },
   ],

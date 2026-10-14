@@ -13,7 +13,7 @@ import { handUnit, type HandSummary } from "../lib/db";
 import { useDict, useLocale } from "../lib/i18n/client";
 import { INTL_LOCALE } from "../lib/i18n/dictionaries";
 import { getParser } from "../lib/phf";
-import { CardRow } from "./replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 
 /**
  * Money for a list column.

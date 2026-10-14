@@ -7,7 +7,7 @@
  */
 
 import type { PhfHand } from "../../../lib/phf/types";
-import type { ReplayPosition } from "../../replayer/position";
+import type { ReplayPosition } from "@rail/ui/replayer/position";
 
 const ORDER = ["preflop", "flop", "turn", "river"] as const;
 

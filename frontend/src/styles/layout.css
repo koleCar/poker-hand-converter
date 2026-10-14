@@ -1,0 +1,63 @@
+/* Page layout and the `.card` surface: the block that opened `app.css`
+ * before the base controls moved to the shared UI package (R2.6). Imported by
+ * `app.css` between the package's replayer sheet and its controls, which is
+ * where these rules always sat in the cascade. */
+
+/* ---------------------------------------------------------------- layout */
+
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  width: min(1420px, 100%);
+  margin: 0 auto;
+  padding: 24px 24px 72px;
+  flex: 1;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ------------------------------------------------------------------ card */
+
+.card {
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-raised-fade));
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.card__head p {
+  margin-top: 3px;
+  max-width: 70ch;
+}
+
+.card__head-actions,
+.card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

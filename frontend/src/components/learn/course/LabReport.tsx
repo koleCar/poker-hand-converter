@@ -16,7 +16,7 @@
 import { useId, useState } from "react";
 import { useDict } from "../../../lib/i18n/client";
 import { gradeLab, LAB_TOLERANCE, type LabItem, type LabStep } from "../../../lib/training";
-import { CardRow } from "../../replayer/PlayingCard";
+import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useFormats } from "../controls";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";

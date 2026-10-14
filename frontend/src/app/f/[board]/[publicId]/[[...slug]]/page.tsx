@@ -17,7 +17,7 @@ import { PostText } from "../../../../../components/forum/PostText";
 import { VoteButtons } from "../../../../../components/forum/VoteButtons";
 import { HandSummary } from "../../../../../components/hand/HandSummary";
 import { PollThread } from "../../../../../components/forum/PollThread";
-import { decodePosition, POSITION_PARAM } from "../../../../../components/replayer/position";
+import { decodePosition, POSITION_PARAM } from "@rail/ui/replayer/position";
 import { ServerFrame } from "../../../../../components/shell/ServerFrame";
 import { discussionJsonLd, jsonLdScript } from "../../../../../lib/forum/jsonLd";
 import { excerpt } from "../../../../../lib/forum/text";

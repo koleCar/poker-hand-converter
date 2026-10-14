@@ -35,8 +35,8 @@ import {
 } from "../../lib/manual";
 import type { Dict } from "../../lib/i18n/types";
 import { formatAmount } from "../../lib/phf/types";
-import { Overlay } from "../ui/Overlay";
-import { createAmountFormatter } from "../replayer/tableMath";
+import { Overlay } from "@rail/ui/overlay/Overlay";
+import { createAmountFormatter } from "@rail/ui/replayer/tableMath";
 import { ActionBar } from "./ActionBar";
 import { ActionBubble } from "./ActionBubble";
 import { ManualTable } from "./ManualTable";

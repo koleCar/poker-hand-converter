@@ -403,8 +403,9 @@ rules are where a new parser is most likely to go quietly wrong.
 | `frontend/src/lib/i18n/` | `en.ts`. Every user-facing string on the App Router surfaces |
 | `frontend/src/lib/routes.ts` | `paths` and `sharedHandUrl`. What survived the old route table |
 | `frontend/src/app/` | The App Router: pages, layout, `sitemap.ts`, `robots.ts`, `auth/callback` |
-| `frontend/src/components/` | `converter/`, `replayer/`, `share/`, `shell/`, `stats/`, `auth/` |
-| `frontend/src/styles/` | ~4400 lines of global CSS, plus the token layer. New components use CSS Modules |
+| `frontend/src/components/` | `converter/`, `share/`, `shell/`, `stats/`, `auth/` and the other screens. The replayer, cards, overlay, icons and the stat tile moved to `packages/ui` (R2.6) |
+| `frontend/src/styles/` | ~3800 lines of global CSS. The token layer, the replayer's and the cards' sheets and the base controls moved to `packages/ui` (R2.6). New components use CSS Modules |
+| `packages/ui/` | The shared UI package `@rail/ui`, linked as `file:../packages/ui` — see "Shared UI package" below |
 | `frontend/src/workers/` | Conversion off the main thread |
 | `tests/` | Test harness only — no runtime backend |
 | `supabase/migrations/` | Schema |
@@ -416,7 +417,7 @@ rules are where a new parser is most likely to go quietly wrong.
 
 ## Rules that are load-bearing
 
-Three conventions here are not style preferences. Each one has a lint rule
+Four conventions here are not style preferences. Each one has a lint rule
 behind it, and each one was written down because breaking it is cheap, silent,
 and expensive to undo.
 
@@ -451,8 +452,21 @@ Enforced by `no-restricted-imports` and `no-restricted-properties` in
 the file: `theme-light.css` overrides `:root` at the same specificity and only
 wins by arriving later, and `styles/app.css` has to come last because its
 `.btn` / `.card` families are the base the component sheets override. Sheets
-that belong to one screen (`converter.css`, `stats.css`, `upload.css`,
-`overlay.css`) stay imported from their components so Next code-splits them.
+that belong to one screen (`converter.css`, `stats.css`, `upload.css`, the
+package's `overlay.css` and stat-tile sheet) stay imported from their
+components so Next code-splits them.
+
+Since R2.6 part of that CSS lives in the shared UI package, **in the same
+cascade position**: `index.css` imports the four token files from
+`@rail/ui/tokens/`, and `styles/app.css` imports, in this order, the package's
+`cards/cards.css` and `replayer/replayer.css`, the web's `styles/layout.css`
+(the block that used to open `app.css`) and the package's
+`styles/controls.css` (`.muted`, `.btn`, `.icon`, `.chip-btn`, which used to
+follow it), then its own rules. Same rules, same order: R2.6's comparison
+found every captured page's cascade unchanged, apart from the stat tile's own
+rules, which now load with the tile (`StatTile` imports them; nothing else
+targets those elements). Moving a sheet between the web and the package is a
+move of `@import` lines, never a reordering.
 
 **New components use CSS Modules. Not Tailwind.** Rewriting every component
 mid-migration is how the replayer's container-query layout — genuinely hard CSS,
@@ -468,9 +482,16 @@ builds and lints cleanly and renders as unstyled HTML. Do not reintroduce that
 form.
 
 `stylelint.config.js` still enforces the two rules that matter: no primitive
-tokens and no raw hex outside `src/styles/tokens/`.
+tokens and no raw hex in `src/`. The token layer itself (where hex is the
+point) and the deliberately unthemed felt, cards and chips are the package's
+now (`packages/ui/tokens/`, `replayer.css`, `cards.css`), and
+`packages/ui/stylelint.config.js` holds them to the same two rules.
 
 ### 3. User-facing strings go through `lib/i18n/en.ts`
+
+(The shared UI package holds no copy at all: its components read their words
+from `UiStringsProvider`, which `lib/i18n/client.tsx` mounts with slices of
+these same dictionaries — `lib/i18n/ui.ts`. See "Shared UI package".)
 
 The product is English-only and Croatian is coming. The difference between "add
 a locale" and "refactor every component" is decided now, not then.
@@ -483,6 +504,75 @@ and hauling them through `en.ts` during a framework migration is how a sentence
 that explains a refusal reason loses a comma. What the scoping buys is that the
 pile **cannot grow** — new UI lands in `src/app/**`, and a new file there cannot
 ship a bare literal.
+
+### 4. The shared UI package stays shareable
+
+`packages/ui` (`@rail/ui`) renders in this Next.js app and in the desktop app's
+Tauri webview, so `packages/ui/eslint.config.js` forbids `next/*`,
+`@supabase/*`, `@tauri-apps/*` and `server-only` there, forbids user-facing
+literals in its components, and lets it reach outside itself only through
+`packages/ui/model/` — which re-exports this app's framework-free library
+(`lib/phf/types`, `lib/replay`, `lib/cards`, the `lib/stats` display types).
+That last edge is why rule 1 matters twice now: a framework import in
+`lib/{phf,replay,cards,stats}` would break the desktop app's bundle as well as
+the test harness.
+
+---
+
+## Shared UI package
+
+`packages/ui/` is the design system both surfaces render (guideline §6, "the
+same design system and components in the app and on the web"; amendment A3:
+CSS Modules and the existing token layer, no Tailwind). R2.6 moved it out of
+this app with no visual change.
+
+| Path | What it is | Styles |
+| --- | --- | --- |
+| `tokens/` | `primitives`, `semantic`, `theme-light`, `motion` — the one token layer; each file declares its own `@layer tokens` | — |
+| `styles/controls.css` | `.muted`, the `.btn` family, `.icon`, `.chip-btn` | global (BEM) |
+| `cards/PlayingCard.tsx` | `PlayingCard`, `CardRow`, the suit glyphs | `cards/cards.css`, global |
+| `chips/` | `Chip` (one `.chip-btn`, toggle or action), `FilterChips` (a filter as one row of chips) | `.chip-btn`; `FilterChips.module.css` |
+| `replayer/` | The replayer: `ReplayViewer`, table, seats, bets, pot, board, controls, sheets; `position.ts`, `potOdds.ts`, `seatLayout.ts` | `replayer/replayer.css`, global — the container-query layout, unchanged |
+| `overlay/Overlay.tsx`, `icon/Icon.tsx` | The modal / non-modal `<dialog>` overlay the replayer's sheets use; the stroke icon set | `overlay/overlay.css`, global |
+| `dialog/Dialog.tsx` | The desktop app's modal `<dialog>` | CSS Module |
+| `stats/StatTile.tsx`, `stats/StatTable.tsx` | A statistic's tile (value, sample, interval band); a table of statistics. Both show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
+| `palette/CommandPalette.tsx` | The command palette's shell: field, list, keys. What it finds is the surface's | CSS Module |
+| `i18n.tsx` | `UiStrings` (the words the components show) and `UiStringsProvider` | — |
+| `data.tsx` | `DataSource` (where a component that fetches gets data), `DataSourceProvider`, `useHand` | — |
+| `model/` | The one door out: re-exports of this app's pure library (PHF, replay frames, cards, statistics types) | — |
+
+Global class names stay global where the web's markup and CSS already used
+them (the replayer's ~1 800 tuned lines, the cards, the buttons): renaming them
+to CSS Modules would be a rewrite, and a rewrite is how the pixel behaviour
+gets lost. New components in the package use CSS Modules.
+
+**How this app consumes it.** `package.json` has `"@rail/ui":
+"file:../packages/ui"` (npm links it into `node_modules/@rail/ui`), imports
+are by path — `@rail/ui/replayer/ReplayViewer`, `@rail/ui/tokens/semantic.css`
+— and `next.config.ts` lists it in `transpilePackages`. React is this app's:
+`tsconfig.json` maps `react` / `react-dom` types to `./node_modules` (the
+package has none of its own at run time), and Next aliases React when it
+bundles. `next dev --turbopack` serves files only under its root, so in
+development the root is the repository (`next.config.ts`); `next build` keeps
+its default root, this folder.
+
+**Words.** `lib/i18n/ui.ts` cuts the package's `UiStrings` from this app's
+dictionaries (`replayer`, `stats.tile`, `stats.table`, `chrome.closeNamed`),
+once per language, and `I18nProvider` mounts them. A key the package needs and
+a dictionary lacks is a type error there.
+
+**Data.** `lib/db/dataSource.ts` implements `DataSource` over Supabase
+(`hand(id)` = `getHand`). Not mounted yet: nothing on the web renders a package
+component that fetches for itself.
+
+**Checks.** CI job "Shared UI package" runs the package's ESLint, stylelint
+and `tsc`; this app's jobs typecheck and bundle it again under its settings,
+and the desktop app's under its stricter ones.
+
+**Changing it.** Edit `packages/ui` and both surfaces see it on their next
+build or reload. After changing `packages/ui/package.json`, run `npm install`
+in `frontend/` and `app/` so their lockfiles carry its manifest (npm ci does
+not fail when they drift, which is why it has to be remembered).
 
 ---
 
@@ -603,7 +693,13 @@ Production is **https://poker-hand-converter.vercel.app**. Every push to `main`
 deploys.
 
 - **Root directory**: `frontend`. This is not cosmetic — see "The rule that
-  keeps the test harness alive" below.
+  keeps the test harness alive" below. Since R2.6 the build also needs one
+  directory outside it, `packages/ui` (`file:../packages/ui` in
+  `package.json`). Vercel clones the whole repository and, with the project
+  setting **"Include files outside the root directory in the Build Step"**
+  (Settings → Build and Deployment → Root Directory; on by default), gives the
+  build all of it. If a deploy ever fails to find `@rail/ui` or
+  `../packages/ui`, that setting is the first thing to check.
 - **Framework preset**: Next.js (build `npm run build`, output `.next`).
   `frontend/vercel.json` pins `"framework": "nextjs"` so the project setting
   cannot silently disagree with the repository; it also keeps the

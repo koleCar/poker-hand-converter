@@ -11,7 +11,11 @@
  *     shell.css
  *     share.css
  *     auth.css
- *     styles/app.css -> @imports cards.css, replayer.css
+ *     styles/app.css -> @imports cards.css, replayer.css, layout.css, controls.css
+ *
+ * The tokens, cards, replayer and base controls (`.btn`, `.chip-btn`, `.icon`)
+ * are the shared UI package's (`packages/ui`, R2.6, imported as `@rail/ui/...`)
+ * and sit exactly where they sat when they were files in `styles/`.
  *
  * Three of those relationships are order-dependent rather than stylistic:
  *
@@ -25,7 +29,8 @@
  *  * `app.css` last, because its `.btn` / `.card` families are the base that
  *    `converter.css`, `stats.css` and the rest override.
  *
- * The remaining sheets — `overlay.css`, `converter.css`, `upload.css`,
+ * The remaining sheets — `overlay.css` (the package's `Overlay`), the
+ * statistic tile's (the package's `StatTile`), `converter.css`, `upload.css`,
  * `stats.css` — stay imported from the components that own them, so Next
  * code-splits them onto the routes that use them. They were the lazily-injected
  * chunk CSS under Vite too, so their cascade position is unchanged.

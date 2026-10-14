@@ -26,7 +26,7 @@ import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import styles from "./PublishHandButton.module.css";
-import { Icon } from "../ui/Icon";
+import { Icon } from "@rail/ui/icon/Icon";
 
 const MODES: PublishMode[] = ["pseudonyms", "positions", "as-imported"];
 

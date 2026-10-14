@@ -1,0 +1,91 @@
+/* One statistic's tile (`StatTile.tsx`): the value, its sample and the band
+ * that is the width of its 95% interval, coloured by the R2.5 reliability
+ * level.
+ *
+ * Global BEM names (`stats-tile*`), not a CSS Module: the block moved here
+ * unchanged from the web's `styles/stats.css` (R2.6), where the grid that lays
+ * the tiles out (`.stats-grid`) still lives. Nothing else targets these
+ * elements, so the sheet does not depend on its place in the cascade.
+ * `StatTile.tsx` imports it. */
+
+.stats-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 11px;
+  background: var(--surface-inset);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+
+.stats-tile__label {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.stats-tile__value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-tile__sample {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-tile__margin {
+  color: var(--fg-muted);
+}
+
+.stats-tile__hint {
+  margin-top: 3px;
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  line-height: var(--line-height-snug);
+}
+
+/* The width of the doubt, not a progress bar: a short fill is the good case.
+   The track is a lighter step of the same idea so the bar reads as a range
+   rather than as an amount. */
+.stats-tile__band {
+  display: block;
+  margin-top: 5px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--control-track);
+  overflow: hidden;
+}
+
+.stats-tile__band-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--fg-dim);
+}
+
+/* Three levels (the shared rule of lib/stats/reliability.ts: the sample
+   against the statistic's sample.min), loudest where the number is least
+   trustworthy. The figure's opacity is set inline from the same rule - 1 from
+   sample.min, down to 0.6 - so it fades continuously rather than in steps. An
+   "insufficient" tile keeps its digits — you asked for them — but stops
+   competing for attention with the ones that mean something. */
+.stats-tile--ok .stats-tile__band-fill {
+  background: var(--accent-fg);
+}
+
+.stats-tile--low .stats-tile__band-fill {
+  background: var(--warning-fg);
+}
+
+.stats-tile--insufficient .stats-tile__value {
+  font-weight: var(--font-weight-semibold);
+}
+
+.stats-tile--insufficient .stats-tile__band-fill {
+  background: var(--danger-fg);
+}

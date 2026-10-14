@@ -1,4 +1,7 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 /**
  * Next.js configuration.
@@ -21,9 +24,27 @@ import type { NextConfig } from "next";
  * `/convert` itself was an alias for `/` in the old hand-rolled matcher, so a
  * link to `/convert` written any time in the past lands exactly where it always
  * did. That is the one alias that got *more* correct by moving.
+ *
+ * ## The shared UI package
+ *
+ * `@rail/ui` (`packages/ui`, R2.6) is TypeScript and CSS source outside this
+ * folder, linked as `file:../packages/ui`; `transpilePackages` compiles it like
+ * the app's own code. `next build` (webpack) follows the link on its own. The
+ * development server (`next dev --turbopack`) only reads files under its root,
+ * which is this folder unless told otherwise, so in development the root is the
+ * repository. The production build keeps its default root (this folder), so
+ * its output and file tracing are what they were before the package existed.
+ * On Vercel the root directory stays `frontend`; the build needs the
+ * repository's other files, which Vercel includes by default ("Include files
+ * outside the root directory in the Build Step", docs/WEB.md).
  */
+const REPOSITORY = join(dirname(fileURLToPath(import.meta.url)), "..");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  // The shared UI package: see "The shared UI package" above.
+  transpilePackages: ["@rail/ui"],
 
   async redirects() {
     return [
@@ -82,4 +103,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default function config(phase: string): NextConfig {
+  return phase === PHASE_DEVELOPMENT_SERVER ? { ...nextConfig, turbopack: { root: REPOSITORY } } : nextConfig;
+}
