@@ -5,7 +5,7 @@
 //! cargo run --release -p rail-watch --example import_bench -- \
 //!     [--hands 100000] [--workers N] [--runs 1] [--min-rate 5000] \
 //!     [--min-efficiency PERCENT] [--keep] [--dir PATH] [--rename-players] \
-//!     [--writer-only BATCHES]
+//!     [--spread] [--writer-only BATCHES]
 //! ```
 //!
 //! 1. Builds a **generated** dataset of about `--hands` hands in a temporary
@@ -14,7 +14,9 @@
 //!    `--keep`; never under `testdata/` or a fixture tree). With
 //!    `--rename-players` every copy also gets new villain names (R2.7c: a
 //!    store with a real store's number of opponents, for the Players
-//!    screen's measurements; `dataset.rs`). CI runs without it.
+//!    screen's measurements; `dataset.rs`). With `--spread` (R2.9) every
+//!    copy is also played a week before the previous one, so a day holds a
+//!    real day's volume (`dataset.rs`). CI's gate runs without both.
 //! 2. Measures a **reference rate on this machine**: one thread converts the
 //!    corpus templates (copy 0 of the dataset, ~7 300 hands held in memory:
 //!    no file reads, no store, no watcher) with the reader's options, hands
@@ -78,6 +80,7 @@ struct Args {
     dir: Option<PathBuf>,
     runs: usize,
     rename_players: bool,
+    spread: bool,
     writer_only: Option<usize>,
 }
 
@@ -91,6 +94,7 @@ fn args() -> Args {
         dir: None,
         runs: 1,
         rename_players: false,
+        spread: false,
         writer_only: None,
     };
     let mut it = std::env::args().skip(1);
@@ -107,6 +111,7 @@ fn args() -> Args {
             "--runs" => args.runs = value().parse().expect("--runs"),
             "--keep" => args.keep = true,
             "--rename-players" => args.rename_players = true,
+            "--spread" => args.spread = true,
             "--writer-only" => args.writer_only = Some(value().parse().expect("--writer-only")),
             other => panic!("unknown argument {other}"),
         }
@@ -154,7 +159,7 @@ fn main() {
     std::fs::create_dir_all(&base).expect("bench dir");
     let _ = std::fs::write(base.join(".metadata_never_index"), b"");
     let started = Instant::now();
-    let selection = dataset::templates(&root, cores, args.rename_players);
+    let selection = dataset::templates(&root, cores, args.rename_players, args.spread);
     let per_copy: usize = selection.templates.iter().map(|t| t.hands).sum();
     let copies = usize::try_from(
         args.hands
@@ -184,6 +189,16 @@ fn main() {
         println!(
             "player names rewritten per copy in {} templates ({} keep the corpus's names)",
             selection.renamed, selection.names_kept
+        );
+    }
+    if args.spread {
+        println!(
+            "dates moved back {} days per copy in {} templates ({} keep the corpus's dates, {} \
+             hands a copy)",
+            dataset::SPREAD_DAYS,
+            selection.shifted,
+            selection.dates_kept,
+            selection.dates_kept_hands
         );
     }
 

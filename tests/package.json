@@ -28,7 +28,8 @@
     "golden:emit": "vitest run --config scripts/golden/vitest.config.ts",
     "desktop-ingest:fixture": "RAIL_PARITY_FIXTURE=1 vitest run --config scripts/desktop-ingest/vitest.config.ts",
     "desktop-ingest:parity": "vitest run --config scripts/desktop-ingest/vitest.config.ts",
-    "realtime:arrivals": "node scripts/realtime-arrivals/check.mjs",
+    "supabase:perf": "vitest run --config scripts/supabase-perf/vitest.config.ts",
+    "realtime:arrivals":"node scripts/realtime-arrivals/check.mjs",
     "phf:dts-check": "tsc -p scripts/phf-dts",
     "wasm:build": "node scripts/wasm/build.mjs",
     "wasm:shadow": "vitest run --config scripts/wasm/vitest.config.ts"

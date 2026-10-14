@@ -474,6 +474,61 @@ fn graph_buckets_and_the_cache() {
     store.close();
 }
 
+/// R2.9: the breakdowns' pass split over the pool's connections (`id`
+/// ranges, one thread each) sums to what one connection sums, for every
+/// filter shape; the warm-up reads without changing an answer.
+#[test]
+fn the_split_breakdowns_and_the_warm_up() {
+    let path = copy_of_corpus("report-split");
+    let filters = [
+        ReportFilter::default(),
+        ReportFilter {
+            formats: vec!["cash".to_owned()],
+            ..ReportFilter::default()
+        },
+        ReportFilter {
+            positions: vec!["BTN".to_owned(), "BB".to_owned()],
+            ..ReportFilter::default()
+        },
+        ReportFilter {
+            from: Some("2026-02-01T00:00:00.000Z".to_owned()),
+            to: Some("2026-02-18T12:00:00.000Z".to_owned()),
+            ..ReportFilter::default()
+        },
+    ];
+    let one = Reader::open(&path, 1).expect("one connection");
+    let many = Reader::open(&path, rail_store::report::WARM_UP_CONNECTIONS).expect("pool");
+    many.warm_up().expect("warm up");
+    for filter in &filters {
+        let single = one.report_breakdowns(filter).expect("one");
+        let split = many.report_breakdowns(filter).expect("split");
+        assert_eq!(*single, *split, "{filter:?}");
+        assert!(!single.pot_type.is_empty(), "{filter:?}");
+        let hero = one.report_hero_filter(filter).expect("filter");
+        assert_eq!(
+            one.hero_totals(&hero).expect("totals"),
+            many.hero_totals(&hero).expect("totals")
+        );
+        assert_eq!(
+            *one.report_graph(filter, 60).expect("graph"),
+            *many.report_graph(filter, 60).expect("graph")
+        );
+        // Opening Reports: the two at once are the two one after the other.
+        let (totals, graph) = many.report_open(filter, 60).expect("open");
+        assert_eq!(totals, one.hero_totals(&hero).expect("totals"));
+        assert_eq!(*graph, *one.report_graph(filter, 60).expect("graph"));
+    }
+    // A store without hands: empty breakdowns, and a warm-up that works.
+    let empty = scratch_dir("report-empty").join("rail.db");
+    Store::open(&empty).expect("open").close();
+    let reader = Reader::open(&empty, rail_store::report::WARM_UP_CONNECTIONS).expect("open");
+    reader.warm_up().expect("warm up");
+    let none = reader
+        .report_breakdowns(&ReportFilter::default())
+        .expect("breakdowns");
+    assert!(none.pot_type.is_empty() && none.hand_class.is_empty());
+}
+
 /// Sessions: the latest is the list's first, with its tables and biggest
 /// pots in big blinds; a gap of 0 splits at every new instant; sessions
 /// never overlap and hold every dated hero hand.

@@ -72,6 +72,36 @@ impl Reader {
         f(&conn)
     }
 
+    /// Run `f` on up to `max` of the pool's connections at once (R2.9: a pass
+    /// split across threads): those free, but never the whole pool - one is
+    /// left for the other screens' calls meanwhile - and at least one (when
+    /// none is free, the next in turn). The first is the one
+    /// [`Reader::with`] would have picked when it is free (the caches key
+    /// on it).
+    pub(crate) fn with_many<T>(
+        &self,
+        max: usize,
+        f: impl FnOnce(&mut [&mut Connection]) -> Result<T>,
+    ) -> Result<T> {
+        let spare = usize::from(self.conns.len() > 1);
+        let mut guards: Vec<std::sync::MutexGuard<'_, Connection>> = self
+            .conns
+            .iter()
+            .filter_map(|conn| conn.try_lock().ok())
+            .take(max.min(self.conns.len() - spare).max(1))
+            .collect();
+        if guards.is_empty() {
+            let index = self.next.fetch_add(1, Ordering::Relaxed) % self.conns.len();
+            guards.push(
+                self.conns[index]
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner),
+            );
+        }
+        let mut conns: Vec<&mut Connection> = guards.iter_mut().map(|guard| &mut **guard).collect();
+        f(&mut conns)
+    }
+
     /// The Hands screen's cache of counting passes.
     pub(crate) fn facet_cache(&self) -> std::sync::MutexGuard<'_, crate::hand_list::FacetCache> {
         self.facets.lock().unwrap_or_else(PoisonError::into_inner)

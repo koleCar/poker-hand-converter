@@ -1,0 +1,15 @@
+# The bundled SQLite's compile options (libsqlite3-sys reads LIBSQLITE3_FLAGS;
+# docs/RAIL-PLAN.md R2.9).
+#
+# libsqlite3-sys builds SQLite with SQLITE_ENABLE_MEMORY_MANAGEMENT, which
+# puts every connection's page cache in one global group behind one mutex,
+# and with memory statistics on (another global mutex per allocation): two
+# read connections of one process then take turns on every page. Measured at
+# a million hands (R2.9): the Reports breakdown pass split over four read
+# connections took as long as on one (each chunk ~1.0 s); with both off it
+# ran 2.2x faster (1.27 -> 0.56 s). Nothing here calls
+# sqlite3_release_memory() or reads sqlite3_memory_used(), the two things
+# these options are for. The import's pipeline efficiency is unchanged
+# (interleaved A/B, 100k hands, 3 threads: 57-60 % before, 60 % after).
+[env]
+LIBSQLITE3_FLAGS = "-USQLITE_ENABLE_MEMORY_MANAGEMENT -DSQLITE_DEFAULT_MEMSTATUS=0"
