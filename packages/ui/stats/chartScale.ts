@@ -1,7 +1,8 @@
 /**
  * Axis arithmetic shared by the hand-written SVG charts: the win-rate graph
  * (`WinrateGraph.tsx`) and the analysis progress charts
- * (`components/analysis/progress/TrendChart.tsx`).
+ * (the web's `components/analysis/progress/TrendChart.tsx`). In the shared
+ * package since R2.7b, with the graph.
  */
 
 /** Round a span up to a readable step: 1, 2, 2.5 or 5 times a power of ten. */

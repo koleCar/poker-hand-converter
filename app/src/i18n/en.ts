@@ -74,6 +74,43 @@ export const en = {
     outbox: "Waiting to sync",
     storeFile: "Stored in",
     account: "Account settings",
+    session: {
+      current: "Current session",
+      last: "Last session",
+      heading: "Session",
+      loading: "Reading your session…",
+      none: "No session yet. Your session shows up here with the first hand Rail imports.",
+      error: (reason: string) => `The session did not load: ${reason}`,
+      started: (time: string) => `Started ${time}`,
+      range: (from: string, to: string) => `${from} – ${to}`,
+      lasted: (duration: string) => `${duration} so far`,
+      duration: (minutes: number) =>
+        minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`,
+      rule: (minutes: number) =>
+        `A session is a run of hands with no break longer than ${minutes} minutes, across every table.`,
+      result: "Result",
+      resultBb: "In big blinds",
+      hands: "Hands",
+      perHour: "Hands per hour",
+      tables: "Tables",
+      perHourTitle: "Over the session's length so far",
+      mixedKind: "This session mixes tournament chips with cash, so it has no result to add up.",
+      mixedCurrency: "This session spans more than one currency: its result is in big blinds only.",
+      stats: "Session statistics",
+      statsNote: "Bomb pots are left out of the statistics, as everywhere; the result includes them.",
+      pots: "Biggest pots",
+      potsNote: "In big blinds. Open one in Hands.",
+      potColumns: {
+        time: "Time",
+        stakes: "Stakes",
+        cards: "Cards",
+        pot: "Pot",
+        result: "Result",
+      },
+      potBb: (bb: string) => `${bb} bb`,
+      openHand: (id: string) => `Open hand #${id} in Hands`,
+      reports: "All reports",
+    },
   },
 
   /** The Today screen's watcher status (R1.3). */
@@ -683,12 +720,124 @@ export const en = {
   },
 
   /** The command palette (Cmd/Ctrl + K; R2.7a: hands by id and the screens). */
+  reports: {
+    unavailable: "Reports are only available inside the Rail app.",
+    loading: "Adding up your hands…",
+    storeError: (reason: string) => `The report did not load: ${reason}`,
+    empty: "No hands yet. Reports fill in as Rail imports your hand histories.",
+    noMatch: "None of your hands matches these filters.",
+    count: (hands: string) => `${hands} hands`,
+    rebuilding: (done: string, total: string) =>
+      `Updating the statistics after an upgrade: ${done} of ${total} hands. The numbers grow as it goes.`,
+    defaultFormat: (format: string) =>
+      `Showing ${format} only: tournament chips and cash do not add up to one result. Change it with the Game chip.`,
+    summary: {
+      label: "Summary",
+      hands: "Hands",
+      result: "Result",
+      netBb: "Big blinds",
+      bb100: "bb/100",
+      evBb100: "All-in EV bb/100",
+    },
+    units: {
+      mixedKind:
+        "These hands mix tournament chips with cash, so there is no result to add up and no graph to draw. Filter to one game format.",
+      mixedCurrency:
+        "These hands span more than one currency, so the money figures are withheld; big blinds add up correctly.",
+    },
+    evPending: (hands: string) =>
+      `${hands} all-in hands are still being evaluated in the background; until then the EV line counts them at their result.`,
+    graph: {
+      heading: "Winnings",
+      unit: "Show in",
+      bigBlinds: "Big blinds",
+      money: "Money",
+      notEnough: "Not enough hands yet to draw a curve.",
+    },
+    stats: {
+      heading: "Statistics",
+      groups: {
+        preflop: "Preflop",
+        postflop: "Postflop",
+        showdown: "Showdown",
+        results: "Results",
+      },
+      note: "A value fades while its sample is thin; hover it for the sample and its 95% interval.",
+    },
+    breakdown: {
+      heading: "Breakdown",
+      splitBy: "Split by",
+      computing: "Counting…",
+      tabs: {
+        position: "Position",
+        stake: "Stakes",
+        size: "Table size",
+        site: "Room",
+        format: "Game",
+        potType: "Pot type",
+        stack: "Stack depth",
+        players: "Players",
+        street: "Street reached",
+        handClass: "Starting hands",
+      },
+      heads: {
+        position: "Position",
+        stake: "Stakes",
+        size: "Table",
+        site: "Room",
+        format: "Game",
+        potType: "Pot",
+        stack: "Stack",
+        players: "Players",
+        street: "Street",
+        handClass: "Hand",
+      },
+      unknown: "Unknown",
+      noPosition: "No position",
+      headsUp: "Heads-up",
+      handed: (players: string) => `${players}-handed`,
+      stacks: {
+        "0-20": "Under 20 bb",
+        "20-40": "20–40 bb",
+        "40-70": "40–70 bb",
+        "70-100": "70–100 bb",
+        "100-150": "100–150 bb",
+        "150-250": "150–250 bb",
+        "250+": "250 bb and more",
+      } as Record<string, string>,
+      streets: {
+        preflop: "Preflop",
+        flop: "Flop",
+        turn: "Turn",
+        river: "River",
+        showdown: "Showdown",
+      } as Record<string, string>,
+      empty: "No hands in this split.",
+    },
+    matrix: {
+      colourBy: "Colour by",
+      metrics: {
+        bb_per_100: "Win rate",
+        vpip: "VPIP",
+        pfr: "PFR",
+        hands: "Dealt",
+      },
+      gridLabel: "Starting hands, thirteen by thirteen",
+      cellLabel: (handClass: string, hands: string | null) =>
+        `${handClass}: ${hands === null ? "never dealt" : `${hands} hands`}`,
+      neverDealt: "never dealt in this sample",
+      notHoldem: "The grid is for Hold'em starting hands; these hands have none. The table lists every class.",
+      selected: (handClass: string) => `${handClass} in this sample`,
+    },
+  },
   palette: {
     label: "Go to",
     placeholder: "Hand id or screen",
     empty: "Nothing found. Type a hand's number as the room printed it.",
     screens: "Screens",
     hands: "Hands",
+    reports: "Reports",
+    report: (name: string) => `Report: ${name}`,
     searching: "Searching…",
     screen: (name: string) => name,
     hand: (id: string) => `Hand #${id}`,
@@ -698,23 +847,6 @@ export const en = {
   /** The words the shared UI package (`packages/ui`) needs besides the replayer's. */
   ui: {
     closeNamed: (what: string) => `Close ${what.toLowerCase()}`,
-    statTile: {
-      reliability: {
-        ok: "Enough sample — this number is stable.",
-        low: "Moderate sample — the shape is real, the decimal is not.",
-        insufficient: "Small sample — read this as a hint, not a measurement.",
-      },
-      noOpportunities: "no opportunities",
-      interval: (low: string, high: string) => `95% confidence interval ${low}% to ${high}%`,
-      sample: (n: string, low: string, high: string) => `n = ${n}, 95% CI ${low}–${high}%`,
-      noSample: "no sample",
-    },
-    statTable: {
-      statistic: "Statistic",
-      value: "Value",
-      sample: "Sample",
-      sampleOnly: (n: string) => `n = ${n}`,
-    },
   },
 
   /** Mirrored in `src-tauri/src/strings.rs`; not used by the window. */

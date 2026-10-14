@@ -18,7 +18,12 @@
    (`frontend/src/styles/app.css`): cards, the replayer, then the controls
    (`.btn`, `.chip-btn`, ...), which must come after the replayer. They style
    only their own class names (`.rp`, `.pcard`, ...); the app's components
-   use CSS Modules. */
+   use CSS Modules.
+
+   Below, the web's notice classes the shared win-rate graph writes
+   (`notice notice--info` / `--warn`: its "not enough hands" and refusals,
+   R2.7b), with the web's rules (`frontend/src/styles/app.css`); the graph
+   imports its own sheet. */
 
 @import "./fonts.css";
 @import "@rail/ui/tokens/primitives.css";
@@ -76,4 +81,23 @@ select {
 :focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
+}
+
+.notice {
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 12.5px;
+  border: 1px solid;
+}
+
+.notice--warn {
+  color: var(--warning-on-tint);
+  background: color-mix(in srgb, var(--warning-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--warning-fg) 32%, transparent);
+}
+
+.notice--info {
+  color: var(--info-on-tint);
+  background: color-mix(in srgb, var(--info-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--info-fg) 32%, transparent);
 }

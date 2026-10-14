@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chip } from "@rail/ui/chips/Chip";
 
 import { useT } from "../../i18n";
-import { errorText, inApp, ipc, type SavedFilter } from "../../lib/ipc";
+import { errorText, inApp, ipc, type FilterScreen, type SavedFilter } from "../../lib/ipc";
 import { activeGroups, fromSaved, toSaved, type FilterState } from "./filter";
 import styles from "./FilterBar.module.css";
 import { Popover } from "./Popover";
@@ -16,9 +16,12 @@ import { Popover } from "./Popover";
 export function SavedFilters({
   filter,
   onApply,
+  screen,
 }: {
   filter: FilterState;
   onApply: (filter: FilterState) => void;
+  /** Whose saved filters: the Hands screen's or Reports' (R2.7b). */
+  screen: FilterScreen;
 }) {
   const t = useT().hands.saved;
   const anchor = useRef<HTMLSpanElement>(null);
@@ -30,15 +33,15 @@ export function SavedFilters({
   useEffect(() => {
     if (!inApp) return;
     ipc
-      .savedFilters()
+      .savedFilters(screen)
       .then(setSaved)
       .catch(() => undefined);
-  }, []);
+  }, [screen]);
 
   const save = () => {
     if (!name.trim()) return;
     ipc
-      .saveFilter(name.trim(), toSaved(filter))
+      .saveFilter(name.trim(), toSaved(filter), screen)
       .then((list) => {
         setSaved(list);
         setName("");
@@ -87,7 +90,7 @@ export function SavedFilters({
                   title={t.remove(item.name)}
                   onClick={() => {
                     ipc
-                      .deleteSavedFilter(item.id)
+                      .deleteSavedFilter(item.id, screen)
                       .then(setSaved)
                       .catch(() => undefined);
                   }}

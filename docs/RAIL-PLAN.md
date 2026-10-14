@@ -4372,7 +4372,7 @@ database, on the development Mac and on a mid-range Windows laptop.
     screen's, `saved_filters` has a `screen` column for Reports. Today can
     show the session's hands from `hand_page` with a date filter (0.7 ms).
     The palette lists screens; add reports there.
-  - **For R2.7c** (Players): migration 8; notes and colour tags can follow
+  - **For R2.7c** (Players): migration 9 (R2.7b took 8); notes and colour tags can follow
     `hand_notes` (keyed by the natural key, no foreign key, local until a
     sync step); the palette should search players (`player_rollups` is keyed
     by site and name); "hands with this player" needs a player -> hands
@@ -4380,6 +4380,179 @@ database, on the development Mac and on a mid-range Windows laptop.
   - **Later** (not R2.7): syncing notes, tags and saved filters to the web;
     "Open on the web" (a web route by hand key, after sync); the web's
     `DataSource` is still not mounted.
+- *As built, R2.7b* (§15): **done** - the Today and Reports screens.
+  - **Store** (`rail-store` migration 8, `0008_reports.sql`, tested from
+    every earlier version; `core/rail-store/SCHEMA.md` "The Today and
+    Reports screens"): the win-rate graph and the sessions walk the hero's
+    hands in time order, which is `hand_list`'s primary key - one narrow
+    range scan (0.05 s warm for 500k rows) where `hand_stats` through
+    `hand_stats_played_idx` and `seat_stats` took 3-7 s. The list gained
+    what they need: `kind` (bomb pot / straddled / EV cashout, for
+    `aggregate`'s exclusions), `hero_wtsd` (the graph's showdown split is
+    the hero's `wtsd`, not the hand's `wentToShowdown`), `currency` and
+    `minor_units` (the money refusals, exactly as the web counts
+    currencies). SQL cannot read `wtsd` out of the seat blob, so the
+    migration forgets `stats.version` as 7 did and the rebuild writes the
+    columns (500k: open 2.0 s, rebuild 100 s in the background).
+    `tests/common::assert_list` holds the new columns to `hand_stats`, the
+    hands and the hero's seat row after every store test and kill.
+  - **Queries** (`rail_store::report`): `ReportFilter` (the segment's
+    dimensions, the hero's position, a date range - what `hero_totals`
+    sums by; `report_hero_filter` turns it into a `HeroFilter`);
+    `report_graph(filter, points)` - `ntile` over (`played_at`, nulls last,
+    `hand_key`) as `stats_graph`, per bucket the cumulative result in big
+    blinds and money, showdown and non-showdown, the all-in EV line from
+    `ev_rows` (looked up for the all-in rows only; hands still queued count
+    at their result and are counted), the sample's `Units` (chips with cash:
+    no money and no graph; two currencies: big blinds only), capped at
+    4 000 points; `sessions(gap, limit, pots)` / `latest_session` - the
+    web's `stats_sessions` rule (no gap longer than 30 minutes, across
+    tables; bomb pots and straddles in, an EV cashout's money out), read
+    newest first so the latest costs its own hands; tables and the biggest
+    pots in big blinds on request; money refused per session (the web
+    refuses for the whole list of its scope; a cash session keeps its
+    result whatever else the store holds); `report_breakdowns(filter)` -
+    the hero's totals by pot type, stack band (the web's `stack_bb`),
+    starting hand, players dealt in and street reached, one pass over
+    `hand_stats` in table order with the hero's seat row. The graph and the
+    breakdowns are cached per read connection until the next commit
+    (`PRAGMA data_version`), as the Hands screen's counts. `HeroSum` (in
+    `stats_read`) sums `hero_totals`' rows with their EV adjustment.
+  - **Measured** (`cargo run --release -p rail-store --example
+    report_queries`, the generated 497 809-hand store of the R1.6 bench,
+    never committed; M2 Pro under load 7-8; two runs): **opening Reports**
+    (`hero_totals` + the graph at 1 500 points), first call / again:
+    everything (470 224 hero hands; chips with cash, so no graph) 488 / 161
+    ms with the list's pages in the OS cache, **1.8 s** / 135 ms when they
+    were not (the 2 GB store's pages evicted by other work); cash (439 846
+    hands, 1 500 points) 374-403 / 114-144 ms; one stake (236 663) 213-277 /
+    109-117 ms; the button (78 789) 207-236 / 118-141 ms; a month 48-54 ms.
+    Of that, `hero_totals` 91-167 ms (its EV adjustment's lookups dominate,
+    R2.3), the graph's pass 120-330 ms warm, then cached. **A breakdown tab
+    by situation** (first click): 1.2-1.6 s for everything, 0.66-0.81 s
+    cash, 0.39-0.53 s a stake or a position, then cached. **Today**: the
+    latest session 15-86 ms first, 0.2-0.3 ms after. Every session of the
+    store (192; the parity test's call, not a screen) 0.17-0.19 s without
+    tables and pots (27 s with them: they read `hands` for every hand).
+    **At 1M** (linear, honestly): opening Reports 0.25-0.3 s warm, 0.8-1.0 s
+    with the list in the OS cache - at the guideline's limit, not under it
+    with margin - and over it on a cold first read (~3.5 s); a situation
+    tab's first pass 1.6-3.2 s - over it. The bench's days are 69 copies of
+    the corpus's, so a day there holds ~50 times a real day's hands (the
+    partial-day and session costs are pessimistic).
+  - **Commands** (`app/src-tauri/src/reports.rs`, thin, async):
+    `stat_definitions` (every shipped definition, file order),
+    `report(filter, points)` (units, the summary - totals, net, net bb, EV
+    result and every definition's `Shown` - the graph in the web's
+    `StatsGraph` shape plus the money lines, and the rollups' breakdowns by
+    position, stake, room, table size and format, each row with the
+    breakdown columns hands, bb/100, VPIP, PFR, RFI, 3B, F3B, steal, CB,
+    WTSD, W$SD), `report_breakdowns(filter)`, `today()` (the latest
+    session with every definition over its hands, its biggest pots as Hands
+    rows, whether it is still going). Values are `Shown` as the web's
+    `showStat` returns them (doubles bit for bit, R2.4 / R2.5); a refused
+    unit withholds a big-blind or money statistic's value (the sample
+    stays). The saved-filter commands take a `screen` (`hands` default,
+    `reports`).
+  - **Screens.** *Today* (`screens/today/SessionPanel.tsx`): current or last
+    session - when, result in money and big blinds (refusal notes), hands,
+    hands per hour (from 10 minutes), tables, the key statistics in the
+    shared `StatTable` with their reliability, the five biggest pots (time,
+    room and stakes, cards, pot in bb, result) linking into Hands; then the
+    import status and store counts as before; refreshed by the watcher's
+    events and once a minute. *Reports* (`screens/Reports.tsx`,
+    `screens/reports/`): the Hands filter row with the report groups (date,
+    room, stakes, position, game, variant, limit, table) and Reports' own
+    saved filters; on a store that mixes formats it opens on the format with
+    the most hands and says so (the web's `defaultScope`); notices for the
+    refusals, the EV queue and a rebuild; summary tiles (hands, result, big
+    blinds, bb/100, all-in EV bb/100); the graph in big blinds or money;
+    every statistic in four `StatTable`s by group; the breakdown tabs
+    (ARIA tabs, arrow keys; the tab is the route `#/reports/<tab>`) -
+    position, pot type, stack depth, starting hands (the web's 13 x 13 grid
+    with a metric toggle, cells as buttons, the selected class's row under
+    it, plus the full table), players, street, stakes, table size, room,
+    game - each cell the definition's value faded by reliability with its
+    sample and interval as tooltip. The palette lists the breakdowns.
+    Hands per hour, the matrix's tint and the money view's scale are
+    presentation; no statistic is computed in the window (the guideline §14
+    scan passes).
+  - **Shared UI package.** The web's `WinrateGraph` and `chartScale` moved to
+    `packages/ui/stats/` (`git mv`): words from `UiStrings.winrateGraph`,
+    data typed as `WinrateGraphData` (the web's `StatsGraph` fits), and an
+    optional `unit="money"` / `money` the web never passes. Its rules moved
+    to `stats/winrate-graph.css`, imported by the component (as `StatTile`
+    imports its sheet) and by the web's analysis `TrendChart`, which reuses
+    the classes and `chartScale`; `styles/stats.css` stays one file without
+    them. Splitting `stats.css` into three `@import`s in the old order was
+    tried first and rejected by the comparison below: each imported file
+    becomes a CSS module of its own and `next build` placed them on either
+    side of the analysis pages' `leaks.module.css`, so `.leaks_summary`'s gap
+    would have won over `.stats-group`'s on the signed-in `WhatChanged` card.
+    Keeping the web's old modules as re-exports to hold the import graph's
+    shape moved `/convert`'s modules instead. The tile's, the table's and the graph's words are data in
+    `packages/ui/strings/stats.{en,hr}.ts`, which the web's
+    `ns/stats.{en,hr}.ts` reference block by block (text unchanged) and the
+    app hands to its provider (its R2.7a copies are gone; its own words:
+    the close label and the graph's "not enough hands"). New: `StatValue`
+    (one value with reliability and tooltip; `StatTable` shares its
+    helpers; a count gets the locale's grouping). App: `useLocale`, the
+    web's `.notice` rules in `index.css` (the graph writes them).
+  - **Parity with the web** (`core/rail-store/tests/report.rs`,
+    `tests/data/report-vectors.{mjs,json}`): the vectors script restates
+    the web's SQL (`hand_stats_filter_sql`, `stats_summary`, `stats_graph`,
+    `stats_sessions`, `stats_breakdown`) in TypeScript over the TypeScript
+    engine's rows (`golden-stats-full`, the hero's `handEvRow` in
+    `golden-ev-full`), the store's hands (files in Rust's path order, first
+    copy of each key: 7 269 hero hands, 926 duplicate copies skipped), over 9
+    scopes (everything - chips with cash -, cash - two currencies -, one and
+    two cash stakes, the tournament formats, button and big blind, the
+    biggest room, two date ranges). The Rust test imports the corpus, runs
+    the EV pass and compares: **288 statistic values and texts (bb/100,
+    net, all-in EV bb/100 included), every scope's totals and units, 3 677
+    graph buckets (60 and 997 points: every cumulative line in big blinds
+    and money, dates), 1 967 breakdown rows (all 98 columns, the EV
+    adjustment of the rollup groups) and 193 sessions - all equal**. Also:
+    `ntile` sizes, the graph's end equals `hero_totals` (net, money, EV),
+    the cache follows a commit, sessions partition the dated hero hands
+    with gaps over 30 minutes between them (a gap of 0 splits at every
+    instant), the biggest pots are ordered, and a version-7 store rebuilds
+    to the import's list.
+  - **Web unchanged, measured** with R2.6's `screens.mjs` (base
+    `origin/staging` and the change, `next build`, offline, two captures
+    each): **288 of 288 screenshots pixel-identical, all 192 DOMs identical**; of
+    192 cascades 184 are identical and the other 8 (`/stats` and
+    `/analysis`, both themes and widths) hold the same rules in the same
+    order once the graph's are left out - on `/stats` those sit in their
+    own sheet, on `/analysis` they arrive with `TrendChart`'s chunk (not
+    loaded offline; nothing beside them sets their properties). The graph is not reachable offline, so it was
+    checked apart: its server markup (7 made-up graphs - 60 buckets, no EV,
+    no all-ins, two currencies, chips with cash, one bucket, flat - in en
+    and hr) is **byte-identical** before and after, and that markup inside
+    each build's `/stats` page with the build's own CSS is **pixel-identical
+    in 84 of 84 screenshots** (2 themes x 3 widths x 14).
+  - **Checked in a browser** against a mocked IPC with made-up data (a
+    20 000-hand store in tournaments and cash, a session, all breakdowns):
+    Today, Reports (default format, money toggle, tabs, the matrix, the
+    palette's report items), light and dark; not in a `tauri dev` window, no
+    real hands anywhere.
+  - **For R2.7c** (Players): migration 9; a player's report can reuse
+    `report_breakdowns`' pass shape over the villain's seat rows (needs a
+    `seat_stats (player)` path), `StatValue` and the group table
+    (`screens/reports/Breakdown.tsx`'s `GroupTable`); the palette's report
+    items show how to add players.
+  - **For R2.9**: gate at 1M (1) opening Reports cold (the graph's pass and
+    `hero_totals`' EV lookups), (2) the breakdowns by situation - at 1M
+    over a second on first click; candidates: hero rollups by pot type /
+    stack band / starting hand (more `hero_rollups` keys, measured against
+    the import), or a hero-only narrow table with the seat blob in time
+    order that would also feed the graph - measure the import's cost first
+    (R2.3's efficiency gate), (3) a real-volume dataset (the bench's
+    duplicated days make sessions and partial days ~50 times too big), (4)
+    the cold first read (1.8 s at 500k with the store's pages out of the OS
+    cache): the reports' tables are a fraction of the 2 GB file, so warming
+    `hand_list` and `hero_rollups` in the background after start, or keeping
+    the PHF out of the pages the reports read, is worth measuring.
 
 ### R2.8 Polish — M
 - Command palette, dark/light theme, density, i18n with `en` and `hr` prepared
@@ -4676,3 +4849,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.5 done**: sample reliability. A rate's 95% Wilson interval (z = 1.959964, exact 0 / 100 at the edges, bounds at the definition's decimals), a level for every value (`ok` from `sample.min` = R2.4's `full`, `low` from a quarter, `insufficient` below) and a continuous opacity (`0.6 + 0.4 * sqrt(sample / min)`, 1 from `min`); no interval for bb/100 (no per-hand variance is stored) or AF. One rule, code: `rail_stats::reliability` + `DisplayStat::reliability`, `lib/stats/reliability.ts` + `statReliability`; `JsNumber::sqrt` (correctly rounded). Schema caps `sample.min` at 10^9 (Rust, TS and ajv refuse more). Parity over display-vectors' 1 158 cases x 32 statistics (20 677 intervals), 3 041 Wilson edge/random cases, 2 168 level cases, 3 921 `Math.sqrt` cases: Rust = TypeScript bit for bit; intervals within 1e-9 of `reports.ts`'s textbook Wilson. `/stats`: `uncertainty.ts` removed; tiles take the shared level (band colour, tooltip) instead of ±2 / ±6 points and a continuous opacity instead of three steps; tooltips "n = …, 95% CI a–b". R2.5 "As built". |
 | 2026-10-14 | **R2.6 done**: the shared UI package `packages/ui` (`@rail/ui`), source consumed by both surfaces through `file:../packages/ui` (no build step; R0.14's root workspaces still deferred). Moved with `git mv`, imports rewritten only: the token layer (the app's R1.1 copy deleted, both surfaces import `@rail/ui/tokens/*`), the web's replayer (23 modules + `replayer.css`), `PlayingCard` + `cards.css`, `Overlay` + `overlay.css`, `Icon`, `StatTile` (its rules out of `stats.css` into `stat-tile.css`), the base controls (`.muted`, `.btn`, `.icon`, `.chip-btn`: `app.css` split into the web's `layout.css` + the package's `styles/controls.css`, `@import`ed in their old order) and the app's `Dialog`. New: `Chip` (the web's filter bar uses it), `FilterChips`, `StatTable` (rows of R2.4 `Shown` with R2.5 reliability), the `CommandPalette` shell, `DataSource` (`hand(id)`, `useHand`; the web's implementation over `getHand`, not mounted yet), `UiStrings` (the package holds no copy; the web mounts slices of its dictionaries in `I18nProvider`; new `stats.table` strings). The package reaches outside itself only through `model/` (re-exports of the web's framework-free `lib/{phf/types,replay,cards}` and the stats display types); its ESLint forbids Next, Supabase, Tauri and bare literals. Web: `transpilePackages`, React types pinned by `paths`, the repository as Turbopack's root in `next dev` only (production build and tracing root unchanged), Vercel root directory still `frontend` (needs "Include files outside the root directory", on by default). App: same `paths`, Vite `dedupe` + `fs.allow`. **No visual change**: 285 of 288 screenshots pixel-identical across two runs of each build, the other 3 within the sticky header's backdrop blur (at most 70 px, channel deltas 1-11, the same noise seen within one build); every DOM equal up to class whitespace; every cascade equal apart from the tile rules now loading with `StatTile`; stat tiles 72 / 72 identical; the app's bundle byte-identical. New CI job `ui` (ESLint, stylelint, tsc). For R2.7: see *As built* (strings, `get_hand` command, the app's stricter TS flags vs the moved code). |
 | 2026-10-14 | **R2.7a done** (R2.7 split by the orchestrator: a = Hands, b = Today + Reports, c = Players + `players`): the desktop Hands screen. `rail-store` migration 7: `hand_list` (one narrow row per `hand_stats` row - hero position, cards, net, stack, board, all-in, showdown, pot type, symbol, the room's hand number, segment; `WITHOUT ROWID` keyed by (`played_at`, `hand_key`), the list's order; written with the statistics rows, deleted with them by a trigger, checked against them after every store test and every crash-test kill), `hand_notes` / `hand_tags` (local only, no foreign key; sync later), `saved_filters`; a version-6 store rebuilds its statistics once to fill the list (0.25 s open, 498k hands in 114 s in the background). `rail_store::hand_list`: keyset pages with every filter (room, format, variant, limit, table size, stake as segment ids; position, pot, result, stack, all-in; notes and tags driven from their tables; date range), chip counts with each group's own selection left out (one pass, counted in Rust, cached until the next commit), go to hand, notes, tags, saved filters. At 497 809 generated hands under load: first page 0.7-1.3 ms for most filters, 14-35 ms for rare ones and a full scan, chip counts 205 ms then ~1 ms per click. Thin async Tauri commands (`hands.rs`). Screen: virtualised list (fixed rows, ~30 in the DOM), filter chips in one row with counts and saved filters, the shared replayer beside the list via `useHand` over a Tauri `DataSource`, tags and a note per hand, "Open on the web" placeholder, `#/hands/<key>`; ARIA grid with a roving row (Up/Down, Enter into the replayer's keys); Cmd/Ctrl + K: a hand by number, the screens. The replayer's `en` / `hr` dictionaries moved into `packages/ui/strings/` (the web's namespace files re-export them), `FilterChips` got a `detail`; the web unchanged - 288 / 288 screenshots and every DOM identical, one CSS module block in another place in its chunk. App: `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` off (the shared code's 87 errors), Inter bundled with its OFL licence. Checked in a browser against a mocked IPC with made-up hands. |
+| 2026-10-14 | **R2.7b done**: the desktop Today and Reports screens. `rail-store` migration 8: `hand_list` gains `kind`, `hero_wtsd`, `currency`, `minor_units` (written by the rebuild the migration starts: 500k in 100 s); `rail_store::report` - the win-rate graph from one scan of the list (`ntile` as `stats_graph`, total / showdown / non-showdown / all-in EV in big blinds and money, the web's money refusals), sessions by `stats_sessions`' 30-minute rule (refused per session), breakdowns by pot type, stack band, starting hand, players and street from one pass over the hero's seat rows, both cached until a commit; `HeroSum`. Commands `stat_definitions`, `report`, `report_breakdowns`, `today` (R2.4 `Shown` with R2.5 reliability), saved filters per screen. Today: the current session's result (money and bb), hands, hands per hour, tables, key statistics, biggest pots into Hands, then the import status. Reports: the filter row with its own saved filters (opens on the biggest format of a mixed store, as the web), summary, the graph in bb or money, every statistic by group, ten breakdown tabs with the 13 x 13 grid; palette entries. The web's `WinrateGraph` and `chartScale` moved to `packages/ui` with their sheet, the tile / table / graph words to `packages/ui/strings/stats.*`; web unchanged - 288 / 288 screenshots and every DOM identical, the graph's markup byte-identical and 84 / 84 pixel-identical inside each build's `/stats`, cascades equal but for the graph's own sheet. Parity with the web over the corpus (the web's SQL restated in TypeScript over the TypeScript rows): 288 statistics, 3 677 graph buckets, 1 967 breakdown rows and 193 sessions equal. At 500k: Reports opens in 0.11-0.5 s (1.8 s cold), a situation tab 0.4-1.6 s first; at 1M a situation tab and a cold open exceed the 1 s target (notes for R2.9). Checked in a browser against a mocked IPC with made-up data. |

@@ -30,6 +30,8 @@ pub struct Reader {
     next: AtomicUsize,
     /// The Hands screen's last counting passes (R2.7a).
     facets: Mutex<crate::hand_list::FacetCache>,
+    /// The reports' last graphs and breakdowns (R2.7b).
+    reports: Mutex<crate::report::ReportCache>,
 }
 
 impl Reader {
@@ -49,6 +51,7 @@ impl Reader {
             conns,
             next: AtomicUsize::new(0),
             facets: Mutex::default(),
+            reports: Mutex::default(),
         })
     }
 
@@ -69,6 +72,11 @@ impl Reader {
     /// The Hands screen's cache of counting passes.
     pub(crate) fn facet_cache(&self) -> std::sync::MutexGuard<'_, crate::hand_list::FacetCache> {
         self.facets.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// The reports' cache of graphs and breakdowns.
+    pub(crate) fn report_cache(&self) -> std::sync::MutexGuard<'_, crate::report::ReportCache> {
+        self.reports.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     /// The counts the Today screen shows.

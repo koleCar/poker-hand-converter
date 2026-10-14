@@ -19,6 +19,7 @@ import { useUiStrings } from "../i18n";
 import type { Shown, StatUnit } from "../model/stats";
 import { countIn } from "./format";
 import styles from "./StatTable.module.css";
+import { decimalMark, shownText, shownTitle } from "./StatValue";
 
 export interface StatTableRow {
   /** The definition's id (`vpip`), unique in the table. */
@@ -39,17 +40,6 @@ export interface StatTableProps {
   rows: readonly StatTableRow[];
 }
 
-const decimalMarks = new Map<string, string>();
-
-/** "," for hr-HR, "." for en-GB. */
-function decimalMark(locale: string): string {
-  let mark = decimalMarks.get(locale);
-  if (mark === undefined) {
-    mark = new Intl.NumberFormat(locale).formatToParts(1.5).find((part) => part.type === "decimal")?.value ?? ".";
-    decimalMarks.set(locale, mark);
-  }
-  return mark;
-}
 
 export function StatTable({ caption, showCaption = false, rows }: StatTableProps) {
   const strings = useUiStrings();
@@ -77,10 +67,8 @@ export function StatTable({ caption, showCaption = false, rows }: StatTableProps
         {rows.map(({ id, label, description, unit, shown }) => {
           const { reliability, sample } = shown;
           const n = sample === null ? null : count(sample);
-          const interval = reliability.intervalText;
-          const title =
-            n === null ? undefined : interval ? tile.sample(n, interval.low, interval.high) : t.sampleOnly(n);
-          const text = shown.text === null ? "—" : `${shown.text.replace(".", mark)}${unit === "percent" ? "%" : ""}`;
+          const title = shownTitle(shown, strings, count);
+          const text = shownText(shown, unit, mark, count);
           return (
             <tr key={id} data-tone={shown.tone ?? undefined}>
               <th scope="row" className={styles.label} title={description}>

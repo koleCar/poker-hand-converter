@@ -225,16 +225,16 @@ pub struct SavedFilter {
 
 /// A segment's dimensions, as `segments` stores them.
 #[derive(Debug, Clone)]
-struct SegmentDims {
-    site: String,
-    format: String,
-    variant: String,
-    limit: String,
-    size: String,
-    stake: String,
+pub(crate) struct SegmentDims {
+    pub(crate) site: String,
+    pub(crate) format: String,
+    pub(crate) variant: String,
+    pub(crate) limit: String,
+    pub(crate) size: String,
+    pub(crate) stake: String,
 }
 
-fn segments(conn: &Connection) -> Result<HashMap<i64, SegmentDims>> {
+pub(crate) fn segments(conn: &Connection) -> Result<HashMap<i64, SegmentDims>> {
     let mut stmt = conn.prepare_cached(
         "SELECT id, site, game_format, variant, limit_type, size_class, stake FROM segments",
     )?;
@@ -255,7 +255,7 @@ fn segments(conn: &Connection) -> Result<HashMap<i64, SegmentDims>> {
 }
 
 /// `values` is empty ("any") or holds `value`.
-fn allows(values: &[String], value: &str) -> bool {
+pub(crate) fn allows(values: &[String], value: &str) -> bool {
     values.is_empty() || values.iter().any(|v| v == value)
 }
 

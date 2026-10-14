@@ -34,6 +34,73 @@ pub fn iso_now() -> String {
     iso_from_ms(now_ms())
 }
 
+/// Back from an ISO instant in UTC, as PHF writes `playedAt`
+/// (`2026-10-13T08:15:00.123Z`; the fraction may have any number of digits
+/// or be absent, digits past the millisecond are cut). `None` for any other
+/// text, an offset other than `Z` included.
+pub fn ms_from_iso(text: &str) -> Option<i64> {
+    let bytes = text.as_bytes();
+    let digits = |from: usize, len: usize| -> Option<i64> {
+        let part = bytes.get(from..from + len)?;
+        part.iter().try_fold(0_i64, |value, &byte| {
+            byte.is_ascii_digit()
+                .then(|| value * 10 + i64::from(byte - b'0'))
+        })
+    };
+    let at = |index: usize, byte: u8| bytes.get(index) == Some(&byte);
+    if !(at(4, b'-') && at(7, b'-') && at(10, b'T') && at(13, b':') && at(16, b':')) {
+        return None;
+    }
+    let (year, month, day) = (digits(0, 4)?, digits(5, 2)?, digits(8, 2)?);
+    let (hour, minute, second) = (digits(11, 2)?, digits(14, 2)?, digits(17, 2)?);
+    if !(1..=12).contains(&month)
+        || !(1..=31).contains(&day)
+        || hour > 23
+        || minute > 59
+        || second > 60
+    {
+        return None;
+    }
+    let mut index = 19;
+    let mut milli = 0;
+    if at(index, b'.') {
+        index += 1;
+        let start = index;
+        let mut kept = 0;
+        while let Some(byte) = bytes.get(index).filter(|byte| byte.is_ascii_digit()) {
+            if kept < 3 {
+                milli = milli * 10 + i64::from(byte - b'0');
+                kept += 1;
+            }
+            index += 1;
+        }
+        if index == start {
+            return None;
+        }
+        while kept < 3 {
+            milli *= 10;
+            kept += 1;
+        }
+    }
+    if index + 1 != bytes.len() || !at(index, b'Z') {
+        return None;
+    }
+    let days = days_from_civil(year, month, day);
+    Some(((days * 24 + hour) * 60 + minute) * 60_000 + second * 1000 + milli)
+}
+
+/// Howard Hinnant's `days_from_civil`: (year, month, day) in the proleptic
+/// Gregorian calendar to days since 1970-01-01.
+fn days_from_civil(year: i64, month: i64, day: i64) -> i64 {
+    let y = if month <= 2 { year - 1 } else { year };
+    let era = y.div_euclid(400);
+    let yoe = y.rem_euclid(400);
+    let mp = if month > 2 { month - 3 } else { month + 9 };
+    let doy = (153 * mp + 2) / 5 + day - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe - 719_468
+}
+
 /// Howard Hinnant's `civil_from_days`: days since 1970-01-01 to (year,
 /// month, day) in the proleptic Gregorian calendar.
 fn civil_from_days(days: i64) -> (i64, i64, i64) {
@@ -51,7 +118,42 @@ fn civil_from_days(days: i64) -> (i64, i64, i64) {
 
 #[cfg(test)]
 mod tests {
-    use super::iso_from_ms;
+    use super::{iso_from_ms, ms_from_iso};
+
+    #[test]
+    fn iso_round_trips() {
+        for ms in [
+            0,
+            1_760_343_300_123,
+            951_782_400_000,
+            1_704_067_199_999,
+            -1,
+            4_102_444_800_000,
+        ] {
+            assert_eq!(ms_from_iso(&iso_from_ms(ms)), Some(ms), "{ms}");
+        }
+        assert_eq!(ms_from_iso("2025-10-13T08:15:00Z"), Some(1_760_343_300_000));
+        assert_eq!(
+            ms_from_iso("2025-10-13T08:15:00.1Z"),
+            Some(1_760_343_300_100)
+        );
+        assert_eq!(
+            ms_from_iso("2025-10-13T08:15:00.123456Z"),
+            Some(1_760_343_300_123)
+        );
+        for bad in [
+            "",
+            "2025-10-13",
+            "2025-10-13T08:15:00",
+            "2025-10-13T08:15:00+02:00",
+            "2025-10-13T08:15:00.Z",
+            "2025-13-13T08:15:00Z",
+            "2025-10-13T08:15:00.000Zx",
+            "2025-10-13 08:15:00Z",
+        ] {
+            assert_eq!(ms_from_iso(bad), None, "{bad}");
+        }
+    }
 
     #[test]
     fn iso_matches_to_iso_string() {

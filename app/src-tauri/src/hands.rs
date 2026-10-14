@@ -11,8 +11,9 @@
 //! - `hand_phf(handKey)`: a hand's PHF (JSON text) for the replayer;
 //! - `hand_annotations`, `hand_set_note`, `hand_add_tag`,
 //!   `hand_remove_tag`: a hand's note and tags (local only for now);
-//! - `saved_filters`, `save_filter`, `delete_saved_filter`: the screen's
-//!   saved filters (the filter as the window wrote it, JSON).
+//! - `saved_filters`, `save_filter`, `delete_saved_filter`: a screen's
+//!   saved filters (the filter as the window wrote it, JSON): the Hands
+//!   screen's, or (R2.7b) the Reports screen's, which share the filter row.
 //!
 //! All async: they run off the main thread, so a slow query never blocks
 //! the window.
@@ -23,8 +24,19 @@ use tauri::State;
 
 use crate::commands::StoreState;
 
-/// The screen the saved filters belong to.
-const SCREEN: &str = "hands";
+/// The screens with saved filters; the first is the default.
+const SCREENS: [&str; 2] = ["hands", "reports"];
+
+/// The screen a saved-filter command is about (`None`: the Hands screen).
+fn screen(name: Option<&str>) -> Result<&'static str, String> {
+    match name {
+        None => Ok(SCREENS[0]),
+        Some(name) => SCREENS
+            .into_iter()
+            .find(|screen| *screen == name)
+            .ok_or_else(|| format!("no saved filters for the screen \"{name}\"")),
+    }
+}
 
 fn open(store: &StoreState) -> Result<&rail_store::Store, String> {
     store
@@ -92,6 +104,25 @@ impl From<FilterDto> for HandFilter {
             all_in: dto.all_in,
             has_note: dto.has_note,
             tags: hand_list::tag_set(&dto.tags),
+            from: dto.from.filter(|from| !from.is_empty()),
+            to: dto.to.filter(|to| !to.is_empty()),
+        }
+    }
+}
+
+/// The report's filter (R2.7b): the groups a report sums by (the
+/// segment's dimensions, the hero's position, the dates); the hand-level
+/// groups (pot, result, stack, all-in, notes, tags) are the list's only.
+impl From<FilterDto> for rail_store::ReportFilter {
+    fn from(dto: FilterDto) -> Self {
+        Self {
+            sites: dto.sites,
+            formats: dto.formats,
+            variants: dto.variants,
+            limits: dto.limits,
+            sizes: dto.sizes,
+            stakes: dto.stakes,
+            positions: dto.positions,
             from: dto.from.filter(|from| !from.is_empty()),
             to: dto.to.filter(|to| !to.is_empty()),
         }
@@ -462,10 +493,10 @@ fn annotations(store: &rail_store::Store, hand_key: &str) -> Result<AnnotationsD
     })
 }
 
-fn saved(store: &rail_store::Store) -> Result<Vec<SavedFilterDto>, String> {
+fn saved(store: &rail_store::Store, screen: &str) -> Result<Vec<SavedFilterDto>, String> {
     Ok(store
         .reader()
-        .saved_filters(SCREEN)
+        .saved_filters(screen)
         .map_err(text)?
         .into_iter()
         .map(|saved| SavedFilterDto {
@@ -476,19 +507,25 @@ fn saved(store: &rail_store::Store) -> Result<Vec<SavedFilterDto>, String> {
         .collect())
 }
 
+/// A screen's saved filters (`screen`: `hands`, the default, or `reports`).
 #[tauri::command]
-pub async fn saved_filters(store: State<'_, StoreState>) -> Result<Vec<SavedFilterDto>, String> {
-    saved(open(&store)?)
+pub async fn saved_filters(
+    store: State<'_, StoreState>,
+    screen: Option<String>,
+) -> Result<Vec<SavedFilterDto>, String> {
+    saved(open(&store)?, self::screen(screen.as_deref())?)
 }
 
-/// Save the filter under `name` (replacing one of that name); returns the
-/// saved filters.
+/// Save the filter under `name` (replacing one of that name) for `screen`;
+/// returns that screen's saved filters.
 #[tauri::command]
 pub async fn save_filter(
     store: State<'_, StoreState>,
     name: String,
     filter: String,
+    screen: Option<String>,
 ) -> Result<Vec<SavedFilterDto>, String> {
+    let screen = self::screen(screen.as_deref())?;
     // The window's JSON, checked to be a filter before it is kept.
     serde_json::from_str::<FilterDto>(&filter).map_err(|error| error.to_string())?;
     let store = open(&store)?;
@@ -496,24 +533,27 @@ pub async fn save_filter(
         .writer()
         .and_then(|writer| {
             writer.write(move |tx| {
-                hand_list::save_filter(tx, SCREEN, &name, &filter, rail_store::time::now_ms())
+                hand_list::save_filter(tx, screen, &name, &filter, rail_store::time::now_ms())
             })
         })
         .map_err(text)?;
-    saved(store)
+    saved(store, screen)
 }
 
+/// Delete a saved filter; returns `screen`'s saved filters.
 #[tauri::command]
 pub async fn delete_saved_filter(
     store: State<'_, StoreState>,
     id: i64,
+    screen: Option<String>,
 ) -> Result<Vec<SavedFilterDto>, String> {
+    let screen = self::screen(screen.as_deref())?;
     let store = open(&store)?;
     store
         .writer()
         .and_then(|writer| writer.write(move |tx| hand_list::delete_saved_filter(tx, id)))
         .map_err(text)?;
-    saved(store)
+    saved(store, screen)
 }
 
 #[cfg(test)]
@@ -524,6 +564,13 @@ mod tests {
     /// The window's filter JSON: camelCase, every group optional; tags
     /// normalised, empty dates dropped.
     /// Rooms by their `sites.json` name; an unknown id is shown as is.
+    #[test]
+    fn saved_filter_screens() {
+        assert_eq!(super::screen(None), Ok("hands"));
+        assert_eq!(super::screen(Some("reports")), Ok("reports"));
+        assert!(super::screen(Some("players")).is_err());
+    }
+
     #[test]
     fn site_names() {
         assert_eq!(super::site_name("pokerstars"), "PokerStars");

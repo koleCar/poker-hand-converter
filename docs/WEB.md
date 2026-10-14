@@ -538,10 +538,11 @@ this app with no visual change.
 | `replayer/` | The replayer: `ReplayViewer`, table, seats, bets, pot, board, controls, sheets; `position.ts`, `potOdds.ts`, `seatLayout.ts` | `replayer/replayer.css`, global — the container-query layout, unchanged |
 | `overlay/Overlay.tsx`, `icon/Icon.tsx` | The modal / non-modal `<dialog>` overlay the replayer's sheets use; the stroke icon set | `overlay/overlay.css`, global |
 | `dialog/Dialog.tsx` | The desktop app's modal `<dialog>` | CSS Module |
-| `stats/StatTile.tsx`, `stats/StatTable.tsx` | A statistic's tile (value, sample, interval band); a table of statistics. Both show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
+| `stats/StatTile.tsx`, `stats/StatTable.tsx`, `stats/StatValue.tsx` | A statistic's tile (value, sample, interval band); a table of statistics; one value faded by its reliability with its sample and interval in the tooltip (R2.7b, the desktop's report cells). All show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
+| `stats/WinrateGraph.tsx`, `stats/chartScale.ts` | The win-rate graph (R2.7b moved it from `components/stats/`): total, showdown, non-showdown and all-in EV over hands, hand-written SVG, its legend and table view; `unit="money"` (the desktop's) draws the same lines in the currency. `chartScale` is its axis arithmetic, which `TrendChart` shares | `stats/winrate-graph.css`, global (`.stats-chart*`, `.stats-legend*`, `.stats-key*`), imported by the component and by `TrendChart` |
 | `palette/CommandPalette.tsx` | The command palette's shell: field, list, keys. What it finds is the surface's | CSS Module |
 | `i18n.tsx` | `UiStrings` (the words the components show) and `UiStringsProvider` | — |
-| `strings/` | Data, not components (R2.7a): the replayer's dictionaries `replayer.en.ts` / `replayer.hr.ts` (`ReplayerStrings`) and the Croatian `plural` they use; this app's `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export them, so `en.ts` / `hr.ts` are unchanged; the desktop app hands them to its `UiStringsProvider`. `model/replayStrings.ts` brings the frames' English | — |
+| `strings/` | Data, not components (R2.7a): the replayer's dictionaries `replayer.en.ts` / `replayer.hr.ts` (`ReplayerStrings`) and the Croatian `plural` they use; this app's `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export them, so `en.ts` / `hr.ts` are unchanged; the desktop app hands them to its `UiStringsProvider`. `model/replayStrings.ts` brings the frames' English. Since R2.7b also `stats.en.ts` / `stats.hr.ts`: the stat tile's, the statistics table's and the win-rate graph's words (and `hands`, `handsHead`, `bb`, `sampleOnly`), which this app's `ns/stats.{en,hr}.ts` take block by block - the text unchanged | — |
 | `data.tsx` | `DataSource` (where a component that fetches gets data), `DataSourceProvider`, `useHand` | — |
 | `model/` | The one door out: re-exports of this app's pure library (PHF, replay frames, cards, statistics types) | — |
 
@@ -561,13 +562,23 @@ development the root is the repository (`next.config.ts`); `next build` keeps
 its default root, this folder.
 
 **Words.** `lib/i18n/ui.ts` cuts the package's `UiStrings` from this app's
-dictionaries (`replayer`, `stats.tile`, `stats.table`, `chrome.closeNamed`),
-once per language, and `I18nProvider` mounts them. A key the package needs and
-a dictionary lacks is a type error there. The `replayer` slice is the
-package's own data (`packages/ui/strings/`, R2.7a), so the web and the
-desktop app show one text; the test harness resolves `@rail/ui` to the
+dictionaries (`replayer`, `stats.tile`, `stats.table`, `stats.graph` with
+three `stats.common` words, `chrome.closeNamed`), once per language, and
+`I18nProvider` mounts them. A key the package needs and a dictionary lacks is
+a type error there. The `replayer` and the statistics slices are the
+package's own data (`packages/ui/strings/`, R2.7a and R2.7b), so the web and
+the desktop app show one text; the test harness resolves `@rail/ui` to the
 package by an alias in `tests/vitest.config.ts`, since the re-exports import
 it by name.
+
+**Styles that moved out of a sheet.** The graph's rules left
+`styles/stats.css` for the package's `stats/winrate-graph.css` (R2.7b), as
+the tile's left for `stat-tile.css` in R2.6: a sheet of their own, imported
+by the component. `stats.css` stays one file. Splitting it into `@import`s
+of its pieces was tried and rejected: each `@import`ed file becomes a CSS
+module of its own, and `next build` placed them on either side of the
+analysis pages' modules, so `.leaks_summary` came after `.stats-group` and
+its gap won on `WhatChanged`'s card.
 
 **Data.** `lib/db/dataSource.ts` implements `DataSource` over Supabase
 (`hand(id)` = `getHand`). Not mounted yet: nothing on the web renders a package

@@ -1,11 +1,16 @@
+import { statsUiHr } from "@rail/ui/strings/stats.hr";
 import { plural } from "../plural";
 import type { Dict } from "../types";
 
-/** Strings for the stats components, Croatian. Same shape as `stats.en.ts`. */
+/**
+ * Strings for the stats components, Croatian. Same shape as `stats.en.ts`;
+ * the tile's, the table's and the graph's words are the shared package's
+ * (`packages/ui/strings/stats.hr.ts`, R2.7b).
+ */
 
 const num = (value: number) => value.toLocaleString("hr-HR");
 /** Nominativ: 1 ruka, 2 ruke, 5 ruku. */
-const hands = (count: number) => `${num(count)} ${plural(count, "ruka", "ruke", "ruku")}`;
+const { hands } = statsUiHr;
 /** Genitiv, iza "od" / "kroz": od 1 ruke, od 2 ruke, od 5 ruku. */
 const handsGen = (count: number) => `${num(count)} ${plural(count, "ruke", "ruke", "ruku")}`;
 /** Akuzativ, iza "kroz": kroz 1 ruku, kroz 2 ruke, kroz 5 ruku. */
@@ -14,10 +19,10 @@ const handsAcc = (count: number) => `${num(count)} ${plural(count, "ruku", "ruke
 export const statsHr: Dict["stats"] = {
   common: {
     hands,
-    handsHead: "Ruke",
+    handsHead: statsUiHr.handsHead,
     result: "Rezultat",
     bb100: "bb/100",
-    bb: (amount: string) => `${amount} bb`,
+    bb: statsUiHr.bb,
     winRate: "Winrate",
     tryAgain: "Pokušaj ponovno",
     unknownStakes: "Nepoznat limit",
@@ -84,29 +89,15 @@ export const statsHr: Dict["stats"] = {
     stakeOption: (stake: string, count: number) => `${stake} · ${hands(count)}`,
   },
 
-  tile: {
-    reliability: {
-      ok: "Dovoljan uzorak — ovaj broj je stabilan.",
-      low: "Srednji uzorak — oblik je stvaran, decimala nije.",
-      insufficient: "Mali uzorak — čitaj ovo kao naznaku, ne kao mjerenje.",
-    },
-    noOpportunities: "nema prilika",
-    interval: (low: string, high: string) => `95% interval pouzdanosti, od ${low}% do ${high}%`,
-    sample: (n: string, low: string, high: string) => `n = ${n}, 95% interval pouzdanosti ${low}–${high}%`,
-    noSample: "nema uzorka",
-  },
+  tile: statsUiHr.tile,
 
-  table: {
-    statistic: "Statistika",
-    value: "Vrijednost",
-    sample: "Uzorak",
-  },
+  table: statsUiHr.table,
 
   hud: {
     mixedUnitKind:
       "Ovaj uzorak miješa turnirske čipove i cash. Čipovi nisu novac — vrijede onoliko koliko kaže struktura isplata — pa nema zbroja koji bi se mogao prikazati. Filtriraj na jedan format igre.",
     noMoney: "Za ovaj uzorak nema iznosa u novcu.",
-    sample: (n: string) => `n = ${n}`,
+    sample: statsUiHr.sampleOnly,
     provisional: (count: number, floor: number) =>
       `${hands(count)}. Winrate se ne smiri prije otprilike ${handsGen(floor)}, pa ovo čitaj kao smjer, a ne kao broj.`,
     currency: "Valuta",
@@ -254,32 +245,5 @@ export const statsHr: Dict["stats"] = {
     },
   },
 
-  graph: {
-    series: {
-      total: { label: "Ukupno", hint: "Sve dobiveno i izgubljeno" },
-      showdown: { label: "Showdown", hint: "Ruke koje su došle do showdowna" },
-      nonShowdown: { label: "Bez showdowna", hint: "Ruke završene prije showdowna" },
-      allInEv: {
-        label: "All-in EV",
-        hint: (runouts: number) => `Ukupno, s all-in runoutima (${num(runouts)}) isplaćenima po equityju`,
-      },
-    },
-    mixedUnitKind:
-      "Ovaj uzorak miješa turnirske čipove i cash, pa nema grafa winratea koji bi se mogao nacrtati. Čipovi nisu novac — vrijede onoliko koliko kaže struktura isplata — a krivulja koja ih zbraja s dolarima bila bi oblik bez značenja. Filtriraj na jedan format igre.",
-    notEnough:
-      "Još nema dovoljno ruku za krivulju. Graf treba barem nekoliko skupina odigranih ruku; nastavi učitavati.",
-    ariaLabel: (count: number) =>
-      `Kumulativni winrate kroz ${handsAcc(count)}, podijeljen na ukupne big blindove te one dobivene sa showdownom i bez njega.`,
-    axisLabel: "Odigrane ruke",
-    noDates: "ove ruke nemaju datume",
-    noAllIns: "još nema all-ina",
-    notComputed: "još nije izračunato",
-    noAllInsHint: "Pojavljuje se čim neka ruka u ovom uzorku ima all-in prije posljednje karte",
-    notComputedHint: "Treba equity kroz runout",
-    mixedCurrency:
-      "Ovaj uzorak obuhvaća više valuta, pa je serija u novcu izostavljena i crtaju se samo one u big blindovima. Dolari zbrojeni s eurima daju krivulju bez jedinice; big blindovi su jedinica igre i zbrajaju se ispravno.",
-    showNumbers: "Prikaži brojke",
-    from: "Od",
-    to: "Do",
-  },
+  graph: statsUiHr.graph,
 };

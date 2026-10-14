@@ -33,6 +33,9 @@ tauri-plugin = "=2.6.3"
 rail-core = { path = "../../core/rail-core" }
 rail-config = { path = "../../core/rail-config" }
 rail-store = { path = "../../core/rail-store" }
+# The displayed statistics (R2.4 definitions, R2.5 reliability) of the
+# Today and Reports screens (R2.7b).
+rail-stats = { path = "../../core/rail-stats" }
 rail-watch = { path = "../../core/rail-watch" }
 # The desktop account (R1.7): the handoff, GoTrue, the refresh loop.
 rail-sync = { path = "../../core/rail-sync" }

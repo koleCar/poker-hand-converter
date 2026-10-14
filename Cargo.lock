@@ -3173,6 +3173,7 @@ dependencies = [
  "open",
  "rail-config",
  "rail-core",
+ "rail-stats",
  "rail-store",
  "rail-sync",
  "rail-watch",

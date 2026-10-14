@@ -39,13 +39,71 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { StatsGraph, StatsGraphBucket } from "../../lib/db";
-import { useDict } from "../../lib/i18n/client";
+import { useUiStrings } from "../i18n";
 import { niceStep, ticks } from "./chartScale";
-import { countIn, dateFormat, numberFormat, useIntlLocale } from "./format";
+import { countIn, dateFormat, numberFormat } from "./format";
+import "./winrate-graph.css";
+
+/**
+ * ## In the shared package (R2.7b)
+ *
+ * Moved from the web's `components/stats/` so the desktop app's Reports draws
+ * the same graph. The web passes what it always passed (its `StatsGraph`
+ * satisfies {@link WinrateGraphData}) and renders exactly what it rendered;
+ * its words are `UiStrings.winrateGraph` (`strings/stats.{en,hr}.ts`), its
+ * rules `stats/winrate-graph.css` (imported here, as `StatTile` imports its
+ * sheet). The desktop app adds
+ * the money view: `unit="money"` draws the same lines in the currency, from
+ * the `cum*Net` columns, which only it sends for every line.
+ */
+
+/** One bucket of hands and the sums up to its end (the web's `StatsGraphBucket`). */
+export interface WinrateGraphBucket {
+  bucket: number;
+  hands: number;
+  firstPlayedAt: string | null;
+  lastPlayedAt: string | null;
+  cumHands: number;
+  /** Cumulative result, in thousandths of a big blind. */
+  cumNetBbMilli: number;
+  /** ...of it won in hands that reached showdown. */
+  cumSdBbMilli: number;
+  /** ...and in hands that did not. */
+  cumNsdBbMilli: number;
+  /** The all-in EV line, thousandths of a big blind. */
+  cumEvBbMilli: number;
+  /** Cumulative result in minor units, or null across mixed currencies. */
+  cumNet: number | null;
+  /** The money view's other lines, minor units (the desktop app's). */
+  cumSdNet?: number | null;
+  cumNsdNet?: number | null;
+  cumEvNet?: number | null;
+}
+
+/** What the graph draws (the web's `StatsGraph` is one). */
+export interface WinrateGraphData {
+  hands: number;
+  buckets: readonly WinrateGraphBucket[];
+  /** Null when the EV line is not available; `allInHands` evaluated all-ins in the sample. */
+  allInEv: { allInHands: number } | null;
+  mixedUnitKind: boolean;
+  mixedCurrency: boolean;
+}
+
+/** The currency of the money view. */
+export interface WinrateGraphMoney {
+  /** Minor units per unit (100 for cents). */
+  minorUnits: number;
+  /** An amount in units, signed and with its symbol: "+$12.50". */
+  format: (amount: number) => string;
+}
 
 interface WinrateGraphProps {
-  graph: StatsGraph;
+  graph: WinrateGraphData;
+  /** Big blinds (the default, and the web's only view) or money. */
+  unit?: "bb" | "money";
+  /** Required for `unit="money"`. */
+  money?: WinrateGraphMoney | null;
 }
 
 const PAD = { top: 18, right: 22, bottom: 30, left: 56 };
@@ -64,16 +122,21 @@ interface Series {
 interface Point {
   /** Cumulative hands. */
   x: number;
-  bucket: StatsGraphBucket | null;
+  bucket: WinrateGraphBucket | null;
 }
 
-export function WinrateGraph({ graph }: WinrateGraphProps) {
-  const t = useDict().stats;
-  const en = t.graph;
-  const locale = useIntlLocale();
+export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphProps) {
+  const strings = useUiStrings();
+  const t = strings.winrateGraph;
+  const locale = strings.intlLocale;
   const count = countIn(locale);
   const bb = numberFormat(locale, { maximumFractionDigits: 1, signDisplay: "exceptZero" });
   const date = dateFormat(locale, { dateStyle: "medium" });
+  /** The money view, when asked for and possible. */
+  const inMoney = unit === "money" && money !== null ? money : null;
+  /** A figure as the table prints it, and as the legend and tooltip do. */
+  const plain = (value: number) => (inMoney ? inMoney.format(value) : bb.format(value));
+  const labelled = (value: number) => (inMoney ? inMoney.format(value) : t.bb(bb.format(value)));
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(860);
   const [hover, setHover] = useState<number | null>(null);
@@ -108,29 +171,35 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
       points.push({ x: bucket.cumHands, bucket });
     }
 
+    // Big blinds from thousandths, money from minor units.
+    type Pick = (b: WinrateGraphBucket) => number | null | undefined;
+    const line = (bbMilli: (b: WinrateGraphBucket) => number, net: Pick) =>
+      inMoney
+        ? [0, ...graph.buckets.map((b) => (net(b) ?? 0) / inMoney.minorUnits)]
+        : [0, ...graph.buckets.map((b) => bbMilli(b) / 1000)];
     const series: Series[] = [
       {
         key: "total",
-        ...en.series.total,
-        values: [0, ...graph.buckets.map((b) => b.cumNetBbMilli / 1000)],
+        ...t.series.total,
+        values: line((b) => b.cumNetBbMilli, (b) => b.cumNet),
       },
       {
         key: "showdown",
-        ...en.series.showdown,
-        values: [0, ...graph.buckets.map((b) => b.cumSdBbMilli / 1000)],
+        ...t.series.showdown,
+        values: line((b) => b.cumSdBbMilli, (b) => b.cumSdNet),
       },
       {
         key: "nonShowdown",
-        ...en.series.nonShowdown,
-        values: [0, ...graph.buckets.map((b) => b.cumNsdBbMilli / 1000)],
+        ...t.series.nonShowdown,
+        values: line((b) => b.cumNsdBbMilli, (b) => b.cumNsdNet),
       },
     ];
     if (graph.allInEv && graph.allInEv.allInHands > 0) {
       series.push({
         key: "allInEv",
-        label: en.series.allInEv.label,
-        hint: en.series.allInEv.hint(graph.allInEv.allInHands),
-        values: [0, ...graph.buckets.map((b) => b.cumEvBbMilli / 1000)],
+        label: t.series.allInEv.label,
+        hint: t.series.allInEv.hint(graph.allInEv.allInHands),
+        values: line((b) => b.cumEvBbMilli, (b) => b.cumEvNet),
       });
     }
 
@@ -144,7 +213,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
     const max = Math.ceil(rawMax / step) * step;
 
     return { points, series, min, max: max === min ? min + step : max, step };
-  }, [graph.buckets, graph.allInEv, en]);
+  }, [graph.buckets, graph.allInEv, t, inMoney]);
 
   const innerW = Math.max(1, width - PAD.left - PAD.right);
   const innerH = HEIGHT - PAD.top - PAD.bottom;
@@ -180,13 +249,13 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
 
   if (graph.mixedUnitKind) {
     return (
-      <p className="notice notice--warn">{en.mixedUnitKind}</p>
+      <p className="notice notice--warn">{t.mixedUnitKind}</p>
     );
   }
 
   if (graph.buckets.length < 2) {
     return (
-      <p className="notice notice--info">{en.notEnough}</p>
+      <p className="notice notice--info">{t.notEnough}</p>
     );
   }
 
@@ -204,7 +273,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
         height={HEIGHT}
         viewBox={`0 0 ${width} ${HEIGHT}`}
         role="img"
-        aria-label={en.ariaLabel(graph.hands)}
+        aria-label={t.ariaLabel(graph.hands)}
       >
         {/* Gridlines: hairline, solid, one step off the surface. They exist to
             be read past, so they never get a dash or a second weight. */}
@@ -286,7 +355,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
         />
       </svg>
 
-      <p className="stats-chart__axis-label">{en.axisLabel}</p>
+      <p className="stats-chart__axis-label">{t.axisLabel}</p>
 
       {activeBucket ? (
         <div
@@ -299,13 +368,13 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
               xAt(activeBucket.cumHands) > width / 2 ? "translate(-100%, 0)" : "translate(8px, 0)",
           }}
         >
-          <strong>{t.common.hands(activeBucket.cumHands)}</strong>
+          <strong>{t.hands(activeBucket.cumHands)}</strong>
           <span className="muted">
             {activeBucket.firstPlayedAt
               ? `${date.format(new Date(activeBucket.firstPlayedAt))} – ${
                   activeBucket.lastPlayedAt ? date.format(new Date(activeBucket.lastPlayedAt)) : "?"
                 }`
-              : en.noDates}
+              : t.noDates}
           </span>
           <dl>
             {model.series.map((s) => (
@@ -313,7 +382,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
                 <dt>
                   <span className={`stats-key stats-key--${s.key}`} /> {s.label}
                 </dt>
-                <dd>{t.common.bb(bb.format(s.values[hover ?? 0]))}</dd>
+                <dd>{labelled(s.values[hover ?? 0])}</dd>
               </div>
             ))}
           </dl>
@@ -329,46 +398,46 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
           <li key={s.key}>
             <span className={`stats-key stats-key--${s.key}`} />
             <span className="stats-legend__label">{s.label}</span>
-            <span className="stats-legend__value">{t.common.bb(bb.format(s.values[s.values.length - 1]))}</span>
+            <span className="stats-legend__value">{labelled(s.values[s.values.length - 1])}</span>
             <span className="stats-legend__hint">{s.hint}</span>
           </li>
         ))}
         {model.series.some((s) => s.key === "allInEv") ? null : (
           <li className="is-pending">
             <span className="stats-key stats-key--allInEv" />
-            <span className="stats-legend__label">{en.series.allInEv.label}</span>
-            <span className="stats-legend__value">{graph.allInEv ? en.noAllIns : en.notComputed}</span>
-            <span className="stats-legend__hint">{graph.allInEv ? en.noAllInsHint : en.notComputedHint}</span>
+            <span className="stats-legend__label">{t.series.allInEv.label}</span>
+            <span className="stats-legend__value">{graph.allInEv ? t.noAllIns : t.notComputed}</span>
+            <span className="stats-legend__hint">{graph.allInEv ? t.noAllInsHint : t.notComputedHint}</span>
           </li>
         )}
       </ul>
 
       {graph.mixedCurrency ? (
-        <p className="notice notice--info">{en.mixedCurrency}</p>
+        <p className="notice notice--info">{t.mixedCurrency}</p>
       ) : null}
 
       {/* A table view exists for every chart. It is also the only readout that
           survives a screen reader, a print-out and forced-colors mode. */}
       <details className="stats-chart__table">
-        <summary>{en.showNumbers}</summary>
+        <summary>{t.showNumbers}</summary>
         <table>
           <thead>
             <tr>
-              <th scope="col">{t.common.handsHead}</th>
-              <th scope="col">{en.series.total.label}</th>
-              <th scope="col">{en.series.showdown.label}</th>
-              <th scope="col">{en.series.nonShowdown.label}</th>
-              <th scope="col">{en.from}</th>
-              <th scope="col">{en.to}</th>
+              <th scope="col">{t.handsHead}</th>
+              <th scope="col">{t.series.total.label}</th>
+              <th scope="col">{t.series.showdown.label}</th>
+              <th scope="col">{t.series.nonShowdown.label}</th>
+              <th scope="col">{t.from}</th>
+              <th scope="col">{t.to}</th>
             </tr>
           </thead>
           <tbody>
-            {graph.buckets.map((bucket) => (
+            {graph.buckets.map((bucket, index) => (
               <tr key={bucket.bucket}>
                 <td>{count(bucket.cumHands)}</td>
-                <td>{bb.format(bucket.cumNetBbMilli / 1000)}</td>
-                <td>{bb.format(bucket.cumSdBbMilli / 1000)}</td>
-                <td>{bb.format(bucket.cumNsdBbMilli / 1000)}</td>
+                <td>{plain(model.series[0].values[index + 1])}</td>
+                <td>{plain(model.series[1].values[index + 1])}</td>
+                <td>{plain(model.series[2].values[index + 1])}</td>
                 <td>{bucket.firstPlayedAt ? date.format(new Date(bucket.firstPlayedAt)) : "—"}</td>
                 <td>{bucket.lastPlayedAt ? date.format(new Date(bucket.lastPlayedAt)) : "—"}</td>
               </tr>

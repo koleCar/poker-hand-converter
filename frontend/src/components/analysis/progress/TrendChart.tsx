@@ -1,7 +1,7 @@
 /**
  * One analysis metric over time (phase A6): a line of per-bucket values, an
  * optional 95% band, and the graded-move volume under it. Hand-written SVG on
- * the win-rate graph's pattern (`components/stats/WinrateGraph.tsx`): the
+ * the win-rate graph's pattern (`packages/ui/stats/WinrateGraph.tsx`): the
  * viewBox is measured in CSS pixels so a tick is 12px on a phone too, the
  * axis arithmetic is shared (`chartScale.ts`), the classes are the stats
  * chart's, and a table view carries every number for screen readers, print
@@ -20,7 +20,9 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useDict } from "../../../lib/i18n/client";
-import { niceStep, ticks } from "../../stats/chartScale";
+import { niceStep, ticks } from "@rail/ui/stats/chartScale";
+// The chart classes' rules (the win-rate graph's sheet, R2.7b).
+import "@rail/ui/stats/winrate-graph.css";
 import styles from "../leaks/leaks.module.css";
 
 export interface TrendChartPoint {

@@ -8,9 +8,10 @@
  * surface mounts one `UiStringsProvider` with the slices below for the
  * reader's language. The replayer's dictionaries are data in this package,
  * `strings/replayer.{en,hr}.ts` (R2.7a), so the web (`frontend/src/lib/i18n/`)
- * and the desktop app (`app/src/i18n/ui.ts`) show the same words; the other
- * slices come from each surface's own dictionaries (the web's
- * `stats.{en,hr}.ts` and `chrome.{en,hr}.ts`, the app's `ui`). These
+ * and the desktop app (`app/src/i18n/ui.ts`) show the same words; so are
+ * the statistic tile's, the statistics table's and the win-rate graph's since
+ * R2.7b (`strings/stats.{en,hr}.ts`). The close label comes from each
+ * surface's own dictionaries (the web's `chrome.{en,hr}.ts`, the app's `ui`). These
  * interfaces are the contract: a dictionary that lacks a key, or has a
  * function with the wrong arguments, is a type error where the surface builds
  * its `UiStrings`.
@@ -270,6 +271,44 @@ export interface StatTableStrings {
   sampleOnly: (n: string) => string;
 }
 
+/** One line of the win-rate graph: its legend label and the hint under it. */
+export interface GraphSeriesStrings {
+  label: string;
+  hint: string;
+}
+
+/**
+ * The win-rate graph (`stats/WinrateGraph.tsx`): the web's `stats.graph`,
+ * with the three `stats.common` words it reads.
+ */
+export interface WinrateGraphStrings {
+  /** "1,234 hands". */
+  hands: (count: number) => string;
+  /** The table view's first column. */
+  handsHead: string;
+  /** An amount already formatted, in big blinds: "+12.5 bb". */
+  bb: (amount: string) => string;
+  series: {
+    total: GraphSeriesStrings;
+    showdown: GraphSeriesStrings;
+    nonShowdown: GraphSeriesStrings;
+    allInEv: { label: string; hint: (runouts: number) => string };
+  };
+  mixedUnitKind: string;
+  notEnough: string;
+  ariaLabel: (count: number) => string;
+  axisLabel: string;
+  noDates: string;
+  noAllIns: string;
+  notComputed: string;
+  noAllInsHint: string;
+  notComputedHint: string;
+  mixedCurrency: string;
+  showNumbers: string;
+  from: string;
+  to: string;
+}
+
 export interface UiStrings {
   /** The reader's BCP 47 tag, for `Intl` ("en-GB", "hr-HR"). */
   intlLocale: string;
@@ -278,6 +317,7 @@ export interface UiStrings {
   replayer: ReplayerStrings;
   statTile: StatTileStrings;
   statTable: StatTableStrings;
+  winrateGraph: WinrateGraphStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);
