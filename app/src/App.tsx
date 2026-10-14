@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 
 import styles from "./App.module.css";
+import { Palette } from "./components/Palette";
 import { Sidebar } from "./components/Sidebar";
 import { SETUP, useRoute, type Route } from "./lib/router";
 import { FirstRun } from "./screens/FirstRun";
@@ -31,6 +32,7 @@ export function App() {
       <main className={styles.main}>
         <Current />
       </main>
+      <Palette />
     </div>
   );
 }

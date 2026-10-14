@@ -321,6 +321,130 @@ export interface StatsStatus {
   lastError: string | null;
 }
 
+/* ------------------------------------------------------- Hands (R2.7a) - */
+
+/** `hands::FilterDto`: every group "any" when empty or absent. */
+export interface HandFilter {
+  sites?: string[];
+  formats?: string[];
+  variants?: string[];
+  limits?: string[];
+  /** `hu`, `6max`, `full`. */
+  sizes?: string[];
+  /** `USD:200`, `chips`. */
+  stakes?: string[];
+  positions?: string[];
+  potTypes?: string[];
+  /** `won`, `lost`, `even`. */
+  results?: string[];
+  /** `0-40`, `40-80`, `80-120`, `120+` (big blinds). */
+  stacks?: string[];
+  allIn?: boolean | null;
+  hasNote?: boolean | null;
+  tags?: string[];
+  /** ISO instants: from (inclusive), to (exclusive). */
+  from?: string | null;
+  to?: string | null;
+}
+
+/** `hands::CursorDto`: where the next page starts. */
+export interface HandCursor {
+  playedAt: string;
+  handKey: string;
+}
+
+/** `hands::HandRowDto`: one row of the list. Money in minor units. */
+export interface HandRow {
+  handKey: string;
+  site: string;
+  siteName: string;
+  siteHandId: string;
+  playedAt: string | null;
+  gameFormat: string;
+  variant: string;
+  limitType: string;
+  currency: string;
+  currencySymbol: string;
+  minorUnits: number;
+  smallBlind: number;
+  bigBlind: number;
+  ante: number;
+  maxSeats: number;
+  tableName: string | null;
+  heroPosition: string | null;
+  heroCards: string[];
+  board: string[];
+  heroNet: number | null;
+  /** Thousandths of a big blind. */
+  heroNetBbMilli: number | null;
+  /** All in with cards to come. */
+  allIn: boolean;
+  /** The all-in EV result where it differs from the result. */
+  evNet: number | null;
+  evNetBbMilli: number | null;
+  /** Waiting for the background EV pass. */
+  evPending: boolean;
+  potType: string;
+  totalPot: number;
+  showdown: boolean;
+  hasNote: boolean;
+  tags: string[];
+}
+
+export interface HandPage {
+  rows: HandRow[];
+  next: HandCursor | null;
+}
+
+export interface FacetCount {
+  value: string;
+  count: number;
+}
+
+export interface SiteFacet extends FacetCount {
+  name: string;
+}
+
+export interface StakeFacet extends FacetCount {
+  currency: string | null;
+  currencySymbol: string | null;
+  minorUnits: number | null;
+  smallBlind: number | null;
+  bigBlind: number | null;
+}
+
+/** `hands::FacetsDto`: each group counted as if its own selection were left out. */
+export interface HandFacets {
+  total: number;
+  sites: SiteFacet[];
+  formats: FacetCount[];
+  variants: FacetCount[];
+  limits: FacetCount[];
+  sizes: FacetCount[];
+  stakes: StakeFacet[];
+  positions: FacetCount[];
+  potTypes: FacetCount[];
+  results: FacetCount[];
+  stacks: FacetCount[];
+  allIn: FacetCount[];
+  /** Every tag in use, with its hands. */
+  tags: FacetCount[];
+  /** Hands with a note. */
+  noted: number;
+}
+
+export interface HandAnnotations {
+  note: string | null;
+  tags: string[];
+}
+
+export interface SavedFilter {
+  id: number;
+  name: string;
+  /** The filter as saved (JSON of `HandFilter`). */
+  filter: string;
+}
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -381,6 +505,22 @@ export const ipc = {
   statsRebuild: () => invoke<number>("stats_rebuild"),
   /** Compute every hero hand's all-in EV again; returns the hands queued. */
   statsRecomputeEv: () => invoke<number>("stats_recompute_ev"),
+  /** The Hands screen (R2.7a). */
+  handsPage: (filter: HandFilter, after: HandCursor | null, limit: number) =>
+    invoke<HandPage>("hands_page", { filter, after, limit }),
+  handsFacets: (filter: HandFilter) => invoke<HandFacets>("hands_facets", { filter }),
+  handsByKey: (keys: string[]) => invoke<HandRow[]>("hands_by_key", { keys }),
+  /** "Go to hand": by the room's id (a prefix of it) or the hand key. */
+  handsFind: (query: string, limit: number) => invoke<HandRow[]>("hands_find", { query, limit }),
+  /** A hand's PHF as JSON text; `null` when the store has no such hand. */
+  handPhf: (handKey: string) => invoke<string | null>("hand_phf", { handKey }),
+  handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
+  handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
+  handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
+  handRemoveTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_remove_tag", { handKey, tag }),
+  savedFilters: () => invoke<SavedFilter[]>("saved_filters"),
+  saveFilter: (name: string, filter: string) => invoke<SavedFilter[]>("save_filter", { name, filter }),
+  deleteSavedFilter: (id: number) => invoke<SavedFilter[]>("delete_saved_filter", { id }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

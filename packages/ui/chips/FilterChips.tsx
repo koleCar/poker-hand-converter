@@ -5,6 +5,11 @@ export interface FilterChipOption<T extends string> {
   value: T;
   /** What the chip says, in the reader's language (or a label that is not prose, like "BTN"). */
   label: string;
+  /**
+   * A quieter second part, already formatted: how many hands the chip would
+   * match (the desktop's Hands screen, R2.7a). Read with the label.
+   */
+  detail?: string | undefined;
 }
 
 export interface FilterChipsProps<T extends string> {
@@ -41,6 +46,7 @@ export function FilterChips<T extends string>({ label, options, selected, onChan
       {options.map((option) => (
         <Chip key={option.value} pressed={on.has(option.value)} onClick={() => toggle(option.value)}>
           {option.label}
+          {option.detail !== undefined ? <span className={styles.detail}>{option.detail}</span> : null}
         </Chip>
       ))}
       {clearLabel !== undefined && selected.length > 0 ? (

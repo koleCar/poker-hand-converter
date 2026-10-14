@@ -38,13 +38,14 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 4 | `0004_folder_rollups.sql` | `files.hands`, `files.quarantined`, `source_totals`, `source_days`, their triggers; `files_source_idx` on `(source_id, last_import_at)` (R1.6) |
 | 5 | `0005_sync.sql` | `outbox.played_at` (filled from `hands`) and `outbox_recent_idx`, `outbox_retry_idx`; `hands.pulled_at` and `hands_pulled_idx`; `sync_rejected` (R1.9) |
 | 6 | `0006_stats.sql` | `segments`, `hand_stats`, `seat_stats`, `player_rollups`, `hero_rollups`, `ev_rows`, `ev_pending` (R2.3) |
+| 7 | `0007_hands_screen.sql` | `hand_list` and its delete trigger on `hand_stats`, `hand_notes`, `hand_tags`, `saved_filters`; forgets `stats.version`, so the next open rebuilds the statistics and with them the list rows (R2.7a) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
 
 | Step | Tables |
 | --- | --- |
-| R2.7 (Phase 2) | `players` (notes, colour tag, labels) |
+| R2.7c (Phase 2) | `players` (notes, colour tag, labels) |
 | R3.6 / R3.9 (Phase 3) | `hud_layouts` (layouts, presets, seat positions per site and table size) |
 
 ## Tables
@@ -511,3 +512,77 @@ first. Cascades with the hand.
 | `Reader::hero_totals(&HeroFilter)` | reports (R2.7): the hero by segment and position over a date range, with `aggregate`'s options, and the all-in EV adjustment | whole UTC days from `hero_rollups`; the partial days at the two ends from the hero's rows (`hand_stats_played_idx`), so any range of UTC instants is exact (a local-time range is passed as instants); EV from `ev_rows` (few) and the queue's count |
 | `Reader::segments()`, `segment_id(&Segment)` | segment ids and back | |
 | `Reader::stats_status()` | the status line | `kv` and `count(*)` of `ev_pending` |
+
+## The Hands screen (version 7, R2.7a)
+
+The desktop's hand list, the user's notes and tags on hands, and the
+screen's saved filters. Read and written by `rail_store::hand_list`.
+
+### `hand_list`
+
+One narrow row per `hand_stats` row (a hand with statistics rows: every
+hand with a hero, and every other hand but a positionally anonymised room's
+without one): what the list shows and filters on, so a page never reads
+`hands` (whose rows hold the PHF) except for its own rows. **Derived**, like
+the statistics: written by `stats::Pending::add_rows` with the hand's
+`hand_stats` row - at import, by a pull, by a rebuild - and deleted with it
+by the trigger `hand_stats_list_delete` (which a cascade from `hands` fires
+too). `WITHOUT ROWID`, clustered by the list's order: newest first is the
+primary key read backwards, and a page after a cursor is a seek.
+
+| Column | Type | |
+| --- | --- | --- |
+| `played_at` | TEXT | PK with `hand_key`: `hands.played_at`, `''` for a hand without one (it sorts last) |
+| `hand_key` | TEXT | |
+| `site_hand_id` | TEXT | `hands.site_hand_id`; `hand_list_site_hand_id_idx`: "go to hand" by the number the room printed (on the list, not on `hands`: an index on `hands` would read the whole PHF table inside the migration) |
+| `segment_id` | INTEGER | `hand_stats.segment_id`: the site, format, variant, limit, table size and stake filters are a set of segment ids |
+| `hero_position`, `hero_cards` | TEXT NULL | the hero's seat row (`seat_stats.position`, `hole_cards`); NULL without a hero |
+| `hero_net`, `hero_net_bb_milli` | INTEGER NULL | the hero's net, minor units and thousandths of a big blind (`seat_stats.totals`) |
+| `hero_stack_bb_tenths` | INTEGER NULL | the hero's starting stack, tenths of a big blind (the stack-depth filter) |
+| `board` | TEXT | the primary runout (`primaryBoard`), cards separated by spaces, `''` before a flop |
+| `all_in` | INTEGER | 0 / 1: the hero all in with cards to come - the hands with an `ev_rows` row. A preflop all-in is written 1 and set to what the background pass found when it evaluates it (`stats::apply_ev_rows`) |
+| `showdown` | INTEGER | 0 / 1: `results.wentToShowdown` |
+| `pot_type` | TEXT | `hand_stats.pot_type` |
+| `currency_symbol` | TEXT | `game.unit.symbol` (`$`; `''` for chips) |
+
+`tests/common` checks, after every write in the store's tests and after every
+kill in the crash test, that the list rows are exactly the `hand_stats` rows
+and agree with them and with the hero's seat row.
+
+A store from version 6 has statistics but no list rows: migration 7 deletes
+`kv` `stats.version`, so opening it starts a rebuild (`stats::ensure_current`)
+and the background pass writes the list rows as it goes (measured at 498k
+generated hands: the open 0.25 s, the rebuild 114 s, during which the list
+fills).
+
+### `hand_notes`, `hand_tags`
+
+The user's words on a hand: one note (`hand_key` PK, `note`, `updated_at`;
+an empty note is no row) and any number of tags (`(hand_key, tag)` PK,
+`added_at`; a tag is trimmed, inner whitespace one space, 1-40 characters,
+`hand_list::normalize_tag`). Keyed by `hand_key` with **no** foreign key:
+they survive anything that happens to the derived rows (a rebuild, a hand
+deleted and imported again). `hand_tags_tag_idx (tag, hand_key)`: the hands
+of a tag and the tags in use. **Local only for now**: syncing them to the web
+(a Supabase table, the outbox) is a later step.
+
+### `saved_filters`
+
+The Hands screen's saved filters (guideline §6): `id`, `screen` (`hands`;
+Reports may use it later), `name` (unique per screen; saving under a name
+replaces it), `filter` (the window's filter as JSON, checked by the app to
+parse as a filter), `created_at`.
+
+### Reading them (`rail_store::hand_list`)
+
+| Call | For | How |
+| --- | --- | --- |
+| `Reader::hand_page(&HandFilter, after, limit)` | a page of the list, newest first; `next` is the cursor of the page after (`(played_at, hand_key)` of its last row) | `hand_list` backwards from the cursor, the filter's clauses on its columns; `hands`, `hand_stats`, `ev_rows`, `ev_pending`, `hand_notes`, `hand_tags` joined for the page's rows only. With a note or tag filter the query starts from those (small) tables instead |
+| `Reader::hand_facets(&HandFilter)` | the counts beside the filter chips: per group, the hands the filter would match with that group's own selection left out | one pass over the rows of the date range (notes and tags applied), counted in Rust by (segment, position, pot type, all-in, result, stack depth); cached per read connection until the next commit, so a chip clicked over the same range recounts from the groups |
+| `Reader::hand_rows(keys)`, `find_hands(query, limit)` | rows of given hands; "go to hand" by the room's id or the hand key | `hand_list_site_hand_id_idx` (a prefix is a range of it) |
+| `Reader::hand_annotations`, `hand_tags`, `noted_hands`, `saved_filters` | a hand's note and tags; the tags in use; hands with a note; a screen's saved filters | |
+| `set_note`, `add_tag`, `remove_tag`, `save_filter`, `delete_saved_filter` | writes, on the writer (`WriterHandle::write`) | |
+
+Measured on a generated 497 809-hand store (the R1.6 benchmark dataset;
+`cargo run --release -p rail-store --example hand_list_queries`): see
+docs/RAIL-PLAN.md, R2.7a *As built*.

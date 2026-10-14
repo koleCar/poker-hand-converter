@@ -199,8 +199,9 @@ Built in R1.2 (`core/rail-store`, every table and column in
 `quarantine`, `unsupported`, `outbox`; `files` and `quarantine` have an
 integer `id` (`files.path` stays unique) so that `hands.file_id` and
 `quarantine.file_id` are small. `seat_stats`, `player_rollups` and their
-companions came with R2.3 (migration 6); `players` (R2.7) and `hud_layouts`
-(Phase 3) come as later migrations.
+companions came with R2.3 (migration 6); the Hands screen's `hand_list`,
+`hand_notes`, `hand_tags` and `saved_filters` with R2.7a (migration 7);
+`players` (R2.7c) and `hud_layouts` (Phase 3) come as later migrations.
 
 ### 3.5 Supabase mapping
 
@@ -4233,6 +4234,152 @@ database, on the development Mac and on a mid-range Windows laptop.
 - Today, Hands (virtualised list, filter chips, saved filters, replayer, tags,
   notes), Reports (winnings + all-in EV graph, by position and situation),
   Players (profile, notes, colour tags — `players` migration), Settings.
+- Split when picked up (orchestrator, 2026-10-14): **R2.7a** Hands, **R2.7b**
+  Today + Reports, **R2.7c** Players + the `players` migration.
+- *As built, R2.7a* (§15): **done** - the Hands screen.
+  - **Store** (`rail-store` migration 7, `0007_hands_screen.sql`;
+    `core/rail-store/SCHEMA.md` "The Hands screen"): `hand_list`, one narrow
+    row per `hand_stats` row - the hero's position, cards, net (minor units
+    and thousandths of a bb) and starting stack, the primary board, the
+    all-in flag (an `ev_rows` row; a preflop all-in is on until the EV pass
+    settles it), showdown, pot type, the unit's symbol, the room's hand
+    number and the segment - `WITHOUT ROWID`, primary key (`played_at`,
+    `hand_key`): the list's order, so a page is one range and a keyset
+    cursor a seek, and `hands` (the PHF) is read only for the page's rows.
+    Derived like the statistics: written by `stats::Pending::add_rows` with
+    the hand's `hand_stats` row (import, pull, rebuild) and deleted with it
+    by a trigger; `tests/common::assert_list` holds it to `hand_stats` and
+    the hero's seat row after every store test and every kill of the crash
+    test. `hand_notes` and `hand_tags` (the user's words, keyed by `hand_key`
+    without a foreign key so they outlive any rebuild; **local only - syncing
+    them to the web is a later step**), `saved_filters` (per screen, name,
+    the window's JSON). Migration 7 forgets `stats.version`, so a version-6
+    store rebuilds its statistics once and the pass writes the list rows
+    (the screen says so while it runs). "Go to hand" uses an index on
+    `hand_list.site_hand_id`, not on `hands`: that index made the migration
+    read the whole PHF table (11 s at 500k before the window opened; 0.25 s
+    now).
+  - **Queries** (`rail_store::hand_list`): `Reader::hand_page(filter,
+    after, limit)`; `HandFilter` = site, format, variant, limit, table size,
+    stake (a set of `segments.id`s), hero position, pot type, hero result
+    (won / lost / even), stack depth (0-40 / 40-80 / 80-120 / 120+ bb),
+    all-in, has note, tags (any of), date range (UTC instants). With a note
+    or tag filter the query starts from those small tables (probing them per
+    row cost 180 / 350 ms at 500k). `hand_facets(filter)`: per chip group,
+    the hands the filter would match with that group's own selection left
+    out, from one pass over the date range counted in Rust (SQLite's
+    `GROUP BY` over the expressions was 600 ms), cached per read connection
+    until the next commit (`PRAGMA data_version`), so clicking chips over
+    the same range recounts in ~1 ms. `hand_rows`, `find_hands` (the room's
+    number, a prefix, or the hand key), notes, tags, saved filters.
+  - **Measured** (`cargo run --release -p rail-store --example
+    hand_list_queries`, a generated 497 809-hand store from the R1.6 bench
+    dataset, never committed; M2 Pro with the flop-library run on 9 of 10
+    cores, load ~12): first page of 100, median - no filter 0.9 ms; hero on
+    the BTN 1.2; won 0.7; all in 0.8; a recent month 0.7; 3-bet pot and
+    80-120 bb 1.3; a note 21; a tag 14; one stake (1 584 hands, 0.3 %) 33; a
+    room and 6-max 34; a rare combination (69 hands) 34; nothing matching (a
+    full scan) 35; the 200th page through the cursor 2.6. Chip counts: 205
+    ms for the whole store (a commit since), then ~1 ms per chip clicked;
+    a date range 1.8 ms. Go to hand 0.06 ms; a hand's PHF 0.01 ms. Upgrade
+    from version 6: open 0.25 s, the rebuild 498k hands in 114 s in the
+    background. Maxima are the first, cold runs (up to ~0.9 s for a page
+    whose rows' `hands` pages are not cached yet).
+  - **Commands** (`app/src-tauri/src/hands.rs`, thin, async):
+    `hands_page`, `hands_facets` (+ tags in use, hands with a note, room
+    names from `sites.json`), `hands_by_key`, `hands_find`, `hand_phf`
+    (JSON text, parsed in the window), `hand_annotations`, `hand_set_note`,
+    `hand_add_tag`, `hand_remove_tag`, `saved_filters`, `save_filter`
+    (checks the JSON parses as a filter), `delete_saved_filter`.
+  - **Screen** (`app/src/screens/Hands.tsx`, `screens/hands/`): the list is
+    virtualised by hand (fixed 40 px rows in a spacer, ~30 rows in the DOM
+    whatever is loaded; the next 300 fetched 60 rows before the end; hands
+    arriving while it is open go on top without moving the rows in view):
+    date, room and its hand number, stakes, position, cards, board, result in
+    money and in bb, marks (all-in with its EV in bb or "being computed",
+    showdown, a note, tags). Filters: one row of group chips (date presets or
+    a custom range, room, stakes, position, pot, result, stack, all-in, game,
+    variant, limit, table, tags, notes), each opening its values as the
+    package's `FilterChips` with the count each would match (`FilterChips`
+    gained an optional `detail`); saved filters first in the row (apply,
+    delete, save under a name; a date preset stays relative). The chosen hand
+    opens beside the list in the shared `ReplayViewer` through `useHand` over
+    the app's `DataSource` (`lib/dataSource.ts`, the last 16 hands kept),
+    with its tags (suggested from those in use) and a note (saved as you
+    type) under it, and a disabled "Open on the web" placeholder. The open
+    hand is the route, `#/hands/<hand key>`. Keyboard: the list is an ARIA
+    grid with a roving row (Up / Down / Page Up / Page Down move the
+    selection, Enter moves focus into the replayer, whose ←/→, space and
+    Home/End then work as on the web); rows, chips and the replayer's
+    controls are labelled.
+  - **Command palette** (`components/Palette.tsx`): Cmd/Ctrl + K opens the
+    package's `CommandPalette`; a number finds hands by the room's id (prefix,
+    debounced), and the screens are listed; Enter opens the hand or the
+    screen. Players and reports join it with their screens; the rest is R2.8.
+  - **Strings.** App `en` + `hr` (`hands`, `palette`, `ui`). The replayer's
+    two dictionaries moved into the package as data,
+    `packages/ui/strings/replayer.{en,hr}.ts` (with the Croatian `plural`;
+    `model/replayStrings.ts` brings the frames' English), so the app shows
+    the web's words: `app/src/i18n/ui.ts` builds its `UiStrings` from them
+    and the app's `ui` slice (close label, stat tile and table words - a copy
+    of the web's text, for R2.7b's Reports). The web's
+    `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export
+    them, so its dictionaries are unchanged; `tests/vitest.config.ts`
+    resolves `@rail/ui` for the harness.
+  - **Web unchanged, measured** with R2.6's `packages/ui/screens/screens.mjs`
+    (base `origin/staging` and the change, `next build`, two captures each):
+    **288 of 288 screenshots
+    pixel-identical** (any run against any run), **all 192 DOMs identical**;
+    of 192 cascades 12 are identical and 180 hold the same rules with one
+    block moved: the five rules of `app/convert/convert.module.css` sit
+    earlier in one CSS chunk (`next build` orders a chunk's modules by the
+    module graph, which the move changed; every rule is the same, and
+    nothing else matches those classes). Keeping the web's
+    `ns/replayer.*.ts` as re-exports and importing the frames' English
+    through its own `model/replayStrings.ts` brought one of two changed CSS
+    files back to the base's bytes; this one stayed.
+  - **App settings.** `tsconfig.app.json` drops `noUncheckedIndexedAccess`
+    and `exactOptionalPropertyTypes` (the web's strictness: the shared
+    replayer and the web's library behind `model/` have 87 errors under
+    them, and they are the oracle). Inter is bundled: the web's two woff2
+    files and the licence (`OFL.txt`, SIL OFL 1.1, which allows bundling
+    with the licence) in `app/public/fonts/`, the web's `@font-face` rules
+    and fallbacks in `app/src/fonts.css`, the latin cut preloaded; the
+    replayer's sheets imported after the tokens in the web's order; the
+    app's stylelint accepts CSS Modules' `:global`.
+  - **Tests.** `core/rail-store/tests/hand_list.rs` on the corpus: every
+    hand with rows listed once, newest first, matching its PHF and the
+    engine (board, hero, result, stakes, symbol, showdown); after the EV
+    pass `all_in` is "has an EV row"; pages read before and after hands
+    arrive make one list; 150 seeded random filters - every page (random
+    page sizes) and every chip's count equal a scan of the hands; notes,
+    tags (normalised, limits), saved filters (replace by name), the counts'
+    cache following a write; go to hand by id, prefix, `#id` and key; a
+    version-6 store gets the same list rows as an import. The migration
+    test covers 0..7; the older-store tests drop the new tables. App: the
+    filter model (`tests/test/appHandsFilter.test.ts`: date presets as
+    local days, saved filters read back whatever they hold); the commands'
+    DTOs (`hands::tests`). Checked in a browser against a mocked IPC with
+    20 000 made-up hands (list, scrolling and paging, filters and counts,
+    saved filters, the replayer and its keys, tags and a note, the palette);
+    not in a `tauri dev` window, and no real hands anywhere.
+  - **For R2.7b** (Today + Reports): `Reader::hero_totals` and `StatTable`
+    with `Shown` rows from `rail_stats::display`; the app's `ui.statTile` /
+    `ui.statTable` words are a copy of the web's (moving them into
+    `packages/ui/strings/` like the replayer's would make one copy);
+    `WinrateGraph` still lives in the web. The filter row is reusable:
+    `FilterState` / `FilterBar` / `Popover` / `SavedFilters` are the Hands
+    screen's, `saved_filters` has a `screen` column for Reports. Today can
+    show the session's hands from `hand_page` with a date filter (0.7 ms).
+    The palette lists screens; add reports there.
+  - **For R2.7c** (Players): migration 8; notes and colour tags can follow
+    `hand_notes` (keyed by the natural key, no foreign key, local until a
+    sync step); the palette should search players (`player_rollups` is keyed
+    by site and name); "hands with this player" needs a player -> hands
+    path (`seat_stats` has no index on `player`) - measure it at 500k.
+  - **Later** (not R2.7): syncing notes, tags and saved filters to the web;
+    "Open on the web" (a web route by hand key, after sync); the web's
+    `DataSource` is still not mounted.
 
 ### R2.8 Polish — M
 - Command palette, dark/light theme, density, i18n with `en` and `hr` prepared
@@ -4528,3 +4675,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.4 done**: displayed statistics are data. `config/stats/standard.json` (32 definitions: the guideline §5 set plus hands, net bb, RFI, iso, cold call, squeeze, fold to 4-bet, cbet river, fold to turn cbet, raise flop cbet, saw flop, AF) and `stats.schema.json`; a definition is labels and descriptions in `en` + `hr`, a formula over the `stats/2` counters (`pct`, `sum`, `+ - * /`; evaluated in JavaScript's doubles, `JsNumber` in Rust), a format, colour bands to five tones, the sample and its full-opacity minimum, default HUD membership. `rail_config::stats` parses and validates (names against the caller's vocabulary), `rail_stats::display` evaluates (and ports `aggregate`), `rail_store` gives `Totals::sums()` / `HeroTotal::sums()` (all-in EV). The web: `lib/stats/display.ts` + `definitions.ts` (a checked copy of the file); text is `Intl.NumberFormat`'s rounding (shortest decimal, half away from zero), not `toFixed`. Parity over 558 corpus groups, 600 synthetic totals, 33 formulas and 5 000 format cases: Rust = TypeScript bit for bit, and 33 582 values = `rates()`, 26 405 texts = `Intl`. `/stats` tiles now print `(made * 100) / n` like the breakdown (they printed `(made / n) * 100`: "28.7" vs "28.8" at 23 of 80); `HudGrid` reads `STANDARD_STATS`. Guideline §14 enforced by a source scan with a shrinking allow-list. R2.4 "As built". |
 | 2026-10-14 | **R2.5 done**: sample reliability. A rate's 95% Wilson interval (z = 1.959964, exact 0 / 100 at the edges, bounds at the definition's decimals), a level for every value (`ok` from `sample.min` = R2.4's `full`, `low` from a quarter, `insufficient` below) and a continuous opacity (`0.6 + 0.4 * sqrt(sample / min)`, 1 from `min`); no interval for bb/100 (no per-hand variance is stored) or AF. One rule, code: `rail_stats::reliability` + `DisplayStat::reliability`, `lib/stats/reliability.ts` + `statReliability`; `JsNumber::sqrt` (correctly rounded). Schema caps `sample.min` at 10^9 (Rust, TS and ajv refuse more). Parity over display-vectors' 1 158 cases x 32 statistics (20 677 intervals), 3 041 Wilson edge/random cases, 2 168 level cases, 3 921 `Math.sqrt` cases: Rust = TypeScript bit for bit; intervals within 1e-9 of `reports.ts`'s textbook Wilson. `/stats`: `uncertainty.ts` removed; tiles take the shared level (band colour, tooltip) instead of ±2 / ±6 points and a continuous opacity instead of three steps; tooltips "n = …, 95% CI a–b". R2.5 "As built". |
 | 2026-10-14 | **R2.6 done**: the shared UI package `packages/ui` (`@rail/ui`), source consumed by both surfaces through `file:../packages/ui` (no build step; R0.14's root workspaces still deferred). Moved with `git mv`, imports rewritten only: the token layer (the app's R1.1 copy deleted, both surfaces import `@rail/ui/tokens/*`), the web's replayer (23 modules + `replayer.css`), `PlayingCard` + `cards.css`, `Overlay` + `overlay.css`, `Icon`, `StatTile` (its rules out of `stats.css` into `stat-tile.css`), the base controls (`.muted`, `.btn`, `.icon`, `.chip-btn`: `app.css` split into the web's `layout.css` + the package's `styles/controls.css`, `@import`ed in their old order) and the app's `Dialog`. New: `Chip` (the web's filter bar uses it), `FilterChips`, `StatTable` (rows of R2.4 `Shown` with R2.5 reliability), the `CommandPalette` shell, `DataSource` (`hand(id)`, `useHand`; the web's implementation over `getHand`, not mounted yet), `UiStrings` (the package holds no copy; the web mounts slices of its dictionaries in `I18nProvider`; new `stats.table` strings). The package reaches outside itself only through `model/` (re-exports of the web's framework-free `lib/{phf/types,replay,cards}` and the stats display types); its ESLint forbids Next, Supabase, Tauri and bare literals. Web: `transpilePackages`, React types pinned by `paths`, the repository as Turbopack's root in `next dev` only (production build and tracing root unchanged), Vercel root directory still `frontend` (needs "Include files outside the root directory", on by default). App: same `paths`, Vite `dedupe` + `fs.allow`. **No visual change**: 285 of 288 screenshots pixel-identical across two runs of each build, the other 3 within the sticky header's backdrop blur (at most 70 px, channel deltas 1-11, the same noise seen within one build); every DOM equal up to class whitespace; every cascade equal apart from the tile rules now loading with `StatTile`; stat tiles 72 / 72 identical; the app's bundle byte-identical. New CI job `ui` (ESLint, stylelint, tsc). For R2.7: see *As built* (strings, `get_hand` command, the app's stricter TS flags vs the moved code). |
+| 2026-10-14 | **R2.7a done** (R2.7 split by the orchestrator: a = Hands, b = Today + Reports, c = Players + `players`): the desktop Hands screen. `rail-store` migration 7: `hand_list` (one narrow row per `hand_stats` row - hero position, cards, net, stack, board, all-in, showdown, pot type, symbol, the room's hand number, segment; `WITHOUT ROWID` keyed by (`played_at`, `hand_key`), the list's order; written with the statistics rows, deleted with them by a trigger, checked against them after every store test and every crash-test kill), `hand_notes` / `hand_tags` (local only, no foreign key; sync later), `saved_filters`; a version-6 store rebuilds its statistics once to fill the list (0.25 s open, 498k hands in 114 s in the background). `rail_store::hand_list`: keyset pages with every filter (room, format, variant, limit, table size, stake as segment ids; position, pot, result, stack, all-in; notes and tags driven from their tables; date range), chip counts with each group's own selection left out (one pass, counted in Rust, cached until the next commit), go to hand, notes, tags, saved filters. At 497 809 generated hands under load: first page 0.7-1.3 ms for most filters, 14-35 ms for rare ones and a full scan, chip counts 205 ms then ~1 ms per click. Thin async Tauri commands (`hands.rs`). Screen: virtualised list (fixed rows, ~30 in the DOM), filter chips in one row with counts and saved filters, the shared replayer beside the list via `useHand` over a Tauri `DataSource`, tags and a note per hand, "Open on the web" placeholder, `#/hands/<key>`; ARIA grid with a roving row (Up/Down, Enter into the replayer's keys); Cmd/Ctrl + K: a hand by number, the screens. The replayer's `en` / `hr` dictionaries moved into `packages/ui/strings/` (the web's namespace files re-export them), `FilterChips` got a `detail`; the web unchanged - 288 / 288 screenshots and every DOM identical, one CSS module block in another place in its chunk. App: `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes` off (the shared code's 87 errors), Inter bundled with its OFL licence. Checked in a browser against a mocked IPC with made-up hands. |

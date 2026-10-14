@@ -252,7 +252,9 @@ fn rollups_are_built_from_an_older_store() {
     }
     let mut conn = Connection::open(&path).expect("open");
     conn.execute_batch(
-        "DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
+        "DROP TABLE hand_list; DROP TABLE hand_notes; DROP TABLE hand_tags;
+         DROP TABLE saved_filters;
+         DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
          DROP TABLE hand_stats;
          DROP TABLE player_rollups; DROP TABLE seat_stats; DROP TABLE segments;
          DELETE FROM kv WHERE key LIKE 'stats.%' OR key LIKE 'ev.%';

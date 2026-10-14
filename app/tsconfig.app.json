@@ -17,8 +17,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    /* `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` were on
+       here until R2.7a and are off now, as they are on the web: the app
+       typechecks every file it imports, and the shared replayer
+       (`packages/ui`) and the web's framework-free library behind
+       `@rail/ui/model/` (PHF, replay frames, cards, statistics display) -
+       the oracle the Rust parity tests are held to - were written without
+       them (87 errors under them). Rewriting that code to compile under the
+       app's stricter flags would change the web's library for no behaviour;
+       relaxing the two flags keeps one strictness for all of it. */
 
     /* `@rail/ui` (packages/ui, R2.6) is linked source outside this folder:
        its imports of React resolve to this app's copy, not to whatever is

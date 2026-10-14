@@ -16,3 +16,10 @@
   margin-inline-start: var(--space-1);
   color: var(--fg-dim);
 }
+
+/* A chip's count, after its label. */
+.detail {
+  margin-inline-start: var(--space-1);
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}

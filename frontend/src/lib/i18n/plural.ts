@@ -1,12 +1,6 @@
 /**
- * Croatian plural: one (1, 21, 31…), few (2–4, 22–24…), many (everything
- * else — 0, 5–20, 25–30, and 11–14 in every hundred). A module of its own so
- * the namespace files can import it without a cycle through `hr.ts`.
+ * Croatian plural (one / few / many). It lives in the shared UI package
+ * (`packages/ui/strings/plural.ts`) since the replayer's Croatian moved there
+ * (R2.7a); the web's dictionaries keep importing it from here.
  */
-export function plural(count: number, one: string, few: string, many: string): string {
-  const n = Math.abs(count) % 100;
-  const last = n % 10;
-  if (last === 1 && n !== 11) return one;
-  if (last >= 2 && last <= 4 && (n < 12 || n > 14)) return few;
-  return many;
-}
+export { plural } from "@rail/ui/strings/plural";

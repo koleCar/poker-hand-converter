@@ -19,6 +19,8 @@
 //!   UI; WAL readers never wait for the writer.
 //! - **Import** ([`import`]): `import_file` runs `rail_core` on a whole file
 //!   and commits it; R1.3's incremental reader sends the same batches.
+//! - **The Hands screen** (R2.7a, [`hand_list`]): the list with its
+//!   filters and counts, "go to hand", notes, tags and saved filters.
 //! - **Statistics** (R2.3, [`stats`], [`stats_read`], [`background`]): a
 //!   hand's seat rows, rollup increments and EV row are derived with the
 //!   hand (on the producer's thread) and written in its transaction; a
@@ -35,6 +37,7 @@ use rusqlite::{Connection, OpenFlags, params};
 pub mod background;
 pub mod batch;
 pub mod error;
+pub mod hand_list;
 pub mod import;
 pub mod migrate;
 pub mod read;
@@ -47,10 +50,14 @@ pub mod writer;
 
 pub use background::{Activity, StatsWorker, WorkerStatus};
 pub use batch::{
-    EvPlan, FileState, ImportBatch, ImportOutcome, PreparedHand, PreparedSeat, PreparedStats,
-    Refusal, UnrecognizedFile,
+    EvPlan, FileState, ImportBatch, ImportOutcome, ListFacts, PreparedHand, PreparedSeat,
+    PreparedStats, Refusal, UnrecognizedFile,
 };
 pub use error::{Error, Result};
+pub use hand_list::{
+    Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, SavedFilter,
+    StakeFacet,
+};
 pub use import::{FileImport, ImportOptions, import_file};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};

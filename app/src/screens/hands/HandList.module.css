@@ -1,0 +1,147 @@
+/* The virtualised list: a scroll box, a sticky header, and rows positioned
+   absolutely in a spacer as tall as every loaded row. `--row` must match
+   `ROW_HEIGHT` in HandList.tsx. */
+
+.scroll {
+  --row: 40px;
+
+  position: relative;
+  overflow: auto;
+  min-height: 0;
+  height: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  overscroll-behavior: contain;
+}
+
+.row {
+  display: grid;
+  grid-template-columns:
+    8.5rem minmax(7rem, 1.2fr) 6.5rem 3.25rem 5.5rem minmax(7.5rem, 1fr)
+    6.5rem 4.25rem minmax(6rem, 1.4fr);
+  align-items: center;
+  column-gap: var(--space-3);
+  height: var(--row);
+  padding: 0 var(--space-3);
+  min-width: 62rem;
+  white-space: nowrap;
+}
+
+.row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-raised-2);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.body {
+  position: relative;
+  min-width: 62rem;
+}
+
+.body > .row {
+  position: absolute;
+  inset-inline: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.body > .row:hover {
+  background: var(--surface-hover);
+}
+
+.body > .row:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.body > .selected,
+.body > .selected:hover {
+  background: var(--surface-selected);
+  box-shadow: inset 3px 0 0 var(--surface-selected-edge);
+}
+
+.more {
+  position: absolute;
+  inset-inline: 0;
+  height: var(--row);
+  display: grid;
+  place-items: center;
+  color: var(--text-tertiary);
+}
+
+.date {
+  color: var(--text-secondary);
+}
+
+.room small {
+  margin-left: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.stakes {
+  color: var(--text-secondary);
+}
+
+.position {
+  font-weight: var(--font-weight-semibold);
+}
+
+.num {
+  text-align: right;
+}
+
+.won {
+  color: var(--profit-fg);
+}
+
+.lost {
+  color: var(--loss-fg);
+}
+
+.even,
+.dim {
+  color: var(--text-tertiary);
+}
+
+.marks {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.mark {
+  flex: none;
+  padding: 0 var(--space-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  line-height: 1.6;
+}
+
+.allIn {
+  border-color: var(--warning-border);
+  color: var(--warning-fg);
+}
+
+.tag {
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}

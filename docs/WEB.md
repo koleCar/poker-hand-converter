@@ -489,9 +489,12 @@ now (`packages/ui/tokens/`, `replayer.css`, `cards.css`), and
 
 ### 3. User-facing strings go through `lib/i18n/en.ts`
 
-(The shared UI package holds no copy at all: its components read their words
-from `UiStringsProvider`, which `lib/i18n/client.tsx` mounts with slices of
-these same dictionaries — `lib/i18n/ui.ts`. See "Shared UI package".)
+(The shared UI package's components hold no copy: they read their words from
+`UiStringsProvider`, which `lib/i18n/client.tsx` mounts with slices of these
+same dictionaries — `lib/i18n/ui.ts`. The replayer's two dictionaries are
+data in the package since R2.7a, `packages/ui/strings/replayer.{en,hr}.ts`,
+which `ns/replayer.{en,hr}.ts` re-export into `en.ts` and `hr.ts` as before,
+so the desktop app shows the same words. See "Shared UI package".)
 
 The product is English-only and Croatian is coming. The difference between "add
 a locale" and "refactor every component" is decided now, not then.
@@ -538,6 +541,7 @@ this app with no visual change.
 | `stats/StatTile.tsx`, `stats/StatTable.tsx` | A statistic's tile (value, sample, interval band); a table of statistics. Both show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
 | `palette/CommandPalette.tsx` | The command palette's shell: field, list, keys. What it finds is the surface's | CSS Module |
 | `i18n.tsx` | `UiStrings` (the words the components show) and `UiStringsProvider` | — |
+| `strings/` | Data, not components (R2.7a): the replayer's dictionaries `replayer.en.ts` / `replayer.hr.ts` (`ReplayerStrings`) and the Croatian `plural` they use; this app's `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export them, so `en.ts` / `hr.ts` are unchanged; the desktop app hands them to its `UiStringsProvider`. `model/replayStrings.ts` brings the frames' English | — |
 | `data.tsx` | `DataSource` (where a component that fetches gets data), `DataSourceProvider`, `useHand` | — |
 | `model/` | The one door out: re-exports of this app's pure library (PHF, replay frames, cards, statistics types) | — |
 
@@ -559,7 +563,11 @@ its default root, this folder.
 **Words.** `lib/i18n/ui.ts` cuts the package's `UiStrings` from this app's
 dictionaries (`replayer`, `stats.tile`, `stats.table`, `chrome.closeNamed`),
 once per language, and `I18nProvider` mounts them. A key the package needs and
-a dictionary lacks is a type error there.
+a dictionary lacks is a type error there. The `replayer` slice is the
+package's own data (`packages/ui/strings/`, R2.7a), so the web and the
+desktop app show one text; the test harness resolves `@rail/ui` to the
+package by an alias in `tests/vitest.config.ts`, since the re-exports import
+it by name.
 
 **Data.** `lib/db/dataSource.ts` implements `DataSource` over Supabase
 (`hand(id)` = `getHand`). Not mounted yet: nothing on the web renders a package
@@ -567,7 +575,9 @@ component that fetches for itself.
 
 **Checks.** CI job "Shared UI package" runs the package's ESLint, stylelint
 and `tsc`; this app's jobs typecheck and bundle it again under its settings,
-and the desktop app's under its stricter ones.
+and the desktop app's under its own (since R2.7a without
+`noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`, as here: the
+package and the library behind `model/` were written without them).
 
 **Changing it.** Edit `packages/ui` and both surfaces see it on their next
 build or reload. After changing `packages/ui/package.json`, run `npm install`

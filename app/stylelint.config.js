@@ -34,6 +34,9 @@ export default {
     "color-hex-length": null,
     "no-duplicate-selectors": null,
     "declaration-property-value-keyword-no-deprecated": null,
+    // CSS Modules' `:global(...)`: a module reaching a shared package class
+    // (the Hands screen sets the replayer's `--rp-block` on `.rp`, R2.7a).
+    "selector-pseudo-class-no-unknown": [true, { ignorePseudoClasses: ["global"] }],
   },
 
   overrides: [

@@ -1,9 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { DataSourceProvider } from "@rail/ui/data";
 
 import "./index.css";
 import { App } from "./App";
 import { I18nProvider } from "./i18n";
+import { storeDataSource } from "./lib/dataSource";
 import { inApp, ipc } from "./lib/ipc";
 import { go, SETUP } from "./lib/router";
 import { applyTheme } from "./lib/theme";
@@ -30,7 +32,9 @@ if (root) {
   createRoot(root).render(
     <StrictMode>
       <I18nProvider>
-        <App />
+        <DataSourceProvider source={storeDataSource}>
+          <App />
+        </DataSourceProvider>
       </I18nProvider>
     </StrictMode>,
   );

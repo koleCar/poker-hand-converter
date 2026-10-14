@@ -6,8 +6,8 @@
  * Pure TypeScript on purpose. `lib/replay.ts` is imported by the test harness
  * and by server code, so it cannot reach for React or the i18n provider; it
  * takes one of these objects instead and defaults to the English one below.
- * The replayer passes `useDict().replayer.frames`, which is this same shape in
- * the reader's language (`lib/i18n/ns/replayer.*.ts`).
+ * The replayer passes `useUiStrings().replayer.frames`, which is this same
+ * shape in the reader's language (`packages/ui/strings/replayer.*.ts`).
  *
  * Everything that comes out of the hand itself — player names, card codes,
  * amounts, the room's own hand descriptions — arrives already formatted and is

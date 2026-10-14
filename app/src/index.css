@@ -11,13 +11,23 @@
    primitive (`--n-800`) or a raw hex anywhere in `src/` (the token layer is
    the package's).
 
-   The web loads Inter from its own font files; the app does not ship them
-   yet, so `--font-family-sans` falls through to the system UI font. */
+   Inter is bundled (`fonts.css`, R2.7a): the web's files and faces, first,
+   as the web loads them before its other sheets.
 
+   After the tokens, the shared replayer's global sheets in the web's order
+   (`frontend/src/styles/app.css`): cards, the replayer, then the controls
+   (`.btn`, `.chip-btn`, ...), which must come after the replayer. They style
+   only their own class names (`.rp`, `.pcard`, ...); the app's components
+   use CSS Modules. */
+
+@import "./fonts.css";
 @import "@rail/ui/tokens/primitives.css";
 @import "@rail/ui/tokens/semantic.css";
 @import "@rail/ui/tokens/theme-light.css";
 @import "@rail/ui/tokens/motion.css";
+@import "@rail/ui/cards/cards.css";
+@import "@rail/ui/replayer/replayer.css";
+@import "@rail/ui/styles/controls.css";
 
 :root {
   font-family: var(--font-family-sans);

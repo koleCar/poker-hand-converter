@@ -549,7 +549,9 @@ fn an_older_store_gets_its_statistics() {
     {
         let conn = Connection::open(&path).expect("open");
         conn.execute_batch(
-            "DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
+            "DROP TABLE hand_list; DROP TABLE hand_notes; DROP TABLE hand_tags;
+             DROP TABLE saved_filters;
+             DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
              DROP TABLE hand_stats;
              DROP TABLE player_rollups; DROP TABLE seat_stats; DROP TABLE segments;
              DELETE FROM kv WHERE key LIKE 'stats.%' OR key LIKE 'ev.%';
@@ -643,6 +645,7 @@ fn pulled_hands_get_their_statistics() {
     assert_eq!(pulled.heroes, reference.heroes);
     assert_eq!(pulled.ev_rows, reference.ev_rows);
     assert_eq!(pulled.ev_pending, reference.ev_pending);
+    assert_eq!(pulled.list, reference.list);
 }
 
 /// What `hero_totals` should say, from the engine's rows.
