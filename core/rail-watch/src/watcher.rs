@@ -9,13 +9,21 @@
 //!   files to the import threads - never the same file to two at once. It
 //!   does no file reading and no conversion itself.
 //! - **Import threads** (a rayon pool of [`WatchConfig::workers`], R1.6):
-//!   run [`FileReader::poll`] - read the new bytes, convert, commit through
-//!   the store's writer. A large read is cut into batches that convert in
-//!   parallel on the same threads (work stealing: no more threads than the
-//!   pool). At most as many files are in flight as the pool has threads
-//!   (or [`Watcher::set_import_threads`] allows); the writer's queue is
+//!   run [`FileReader::start`] - read the new bytes, convert, queue the
+//!   batch with the store's writer - and go on to the next file without
+//!   waiting for the commit. A large read is cut into batches that convert
+//!   in parallel on the same threads (work stealing: no more threads than
+//!   the pool) and commits them before it returns. At most as many files
+//!   are being read as the pool has threads (or
+//!   [`Watcher::set_import_threads`] allows); the writer's queue is
 //!   bounded, so when it is full the threads block and the coordinator
 //!   keeps the files queued (back-pressure without unbounded memory).
+//! - **Committer** (one): waits for the commits of the batches the import
+//!   threads queued, in order, and answers the coordinator as the import
+//!   thread did before (a file stays in flight - never read twice at once -
+//!   until its commit is answered). Waiting for each commit on the import
+//!   thread was ~15 % of its time with a commit at ~1 ms (measured, 3
+//!   threads), more on a machine with no core to spare for the writer.
 //!
 //! # Which file goes first
 //!
@@ -83,7 +91,10 @@ use notify::{EventKind, RecursiveMode, Watcher as _};
 use rail_store::{ParserVersions, WriterHandle, time};
 
 use crate::error::{Error, Result};
-use crate::reader::{FileReader, FileRef, FileTrack, ImportLimits, Polled, ReadConfig};
+use crate::reader::{
+    Attempt, Committing, FileReader, FileRef, FileTrack, Finished, ImportLimits, Polled,
+    ReadConfig, Started,
+};
 use crate::scan;
 
 /// The most import threads [`default_workers`] picks.
@@ -334,6 +345,11 @@ enum Command {
 enum Msg {
     Fs(notify::Result<notify::Event>),
     Done(Box<Done>),
+    /// The file's batch is with the writer: its import thread is free.
+    Committing(PathBuf),
+    /// The stored offset moved under the file's batch: read it again at
+    /// once (the rest of the same look, [`Finished::Again`]).
+    Again(Box<Job>),
     Cmd(Command),
 }
 
@@ -350,6 +366,13 @@ struct Job {
     source_id: i64,
     site_override: Option<String>,
     track: FileTrack,
+    attempt: Attempt,
+}
+
+/// A read whose batch is with the writer, for the committer.
+struct Commit {
+    job: Job,
+    committing: Committing,
 }
 
 /// What the coordinator shares with the handle (for `status`).
@@ -431,6 +454,15 @@ impl Watcher {
             .build()
             .map_err(|error| Error::io("rail-import", std::io::Error::other(error)))?;
 
+        let (commits, commit_queue) = mpsc::channel();
+        let committer = {
+            let inbox = inbox.clone();
+            thread::Builder::new()
+                .name("rail-commit".to_owned())
+                .spawn(move || run_committer(&commit_queue, &inbox))
+                .map_err(|error| Error::io("rail-commit", error))?
+        };
+
         let detect_network = config.detect_network;
         let file_globs = config.file_globs.clone();
         let coordinator = Coordinator {
@@ -441,6 +473,8 @@ impl Watcher {
             messages,
             inbox: inbox.clone(),
             pool: Some(pool),
+            commits: Some(commits),
+            committer: Some(committer),
             threads,
             limits: Arc::clone(&limits),
             shared: Arc::clone(&shared),
@@ -449,6 +483,7 @@ impl Watcher {
             sources: HashMap::new(),
             files: HashMap::new(),
             in_flight: HashSet::new(),
+            committing: HashSet::new(),
             queue: VecDeque::new(),
             queued: HashSet::new(),
             again: HashMap::new(),
@@ -812,20 +847,62 @@ impl Drop for Watcher {
     }
 }
 
-/// One read, on an import thread.
-fn run_job(mut job: Job, reader: &FileReader, inbox: &Sender<Msg>) {
+/// One read, on an import thread: up to its batch being queued with the
+/// writer, whose commit the committer waits for.
+fn run_job(mut job: Job, reader: &FileReader, inbox: &Sender<Msg>, commits: &Sender<Commit>) {
     let file = FileRef {
         path: &job.path,
         source_id: Some(job.source_id),
         site_override: job.site_override.as_deref(),
     };
-    let result = reader.poll(&file, &mut job.track, time::now_ms());
-    let done = Done {
+    let message = match reader.start(&file, &mut job.track, time::now_ms(), job.attempt) {
+        Ok(Started::Committing(committing)) => {
+            // Before the committer can answer: the coordinator sees this
+            // first (one channel, sent in this order).
+            let _ = inbox.send(Msg::Committing(job.path.clone()));
+            match commits.send(Commit { job, committing }) {
+                Ok(()) => return,
+                // No committer (it is only ended after the last read): wait
+                // here.
+                Err(mpsc::SendError(commit)) => settle(commit),
+            }
+        }
+        Ok(Started::Done(polled)) => done(job, Ok(polled)),
+        Err(error) => done(job, Err(error)),
+    };
+    let _ = inbox.send(message);
+}
+
+fn done(job: Job, result: Result<Polled>) -> Msg {
+    Msg::Done(Box::new(Done {
         path: job.path,
         track: job.track,
         result,
-    };
-    let _ = inbox.send(Msg::Done(Box::new(done)));
+    }))
+}
+
+/// Wait for a read's commit: the coordinator's answer.
+fn settle(commit: Commit) -> Msg {
+    let Commit {
+        mut job,
+        committing,
+    } = commit;
+    match committing.wait(&mut job.track) {
+        Ok(Finished::Done(polled)) => done(job, Ok(polled)),
+        Ok(Finished::Again(attempt)) => {
+            job.attempt = attempt;
+            Msg::Again(Box::new(job))
+        }
+        Err(error) => done(job, Err(error)),
+    }
+}
+
+/// The committer: answers each queued read once its batch is committed, in
+/// the order they were queued (the writer commits in that order too).
+fn run_committer(commits: &Receiver<Commit>, inbox: &Sender<Msg>) {
+    while let Ok(commit) = commits.recv() {
+        let _ = inbox.send(settle(commit));
+    }
 }
 
 /// A folder as the coordinator runs it.
@@ -916,6 +993,9 @@ struct Coordinator {
     /// For the import threads' answers.
     inbox: Sender<Msg>,
     pool: Option<rayon::ThreadPool>,
+    /// The committer's queue and thread (ended after the pool).
+    commits: Option<Sender<Commit>>,
+    committer: Option<JoinHandle<()>>,
     threads: usize,
     limits: Arc<ImportLimits>,
     shared: Arc<Mutex<Shared>>,
@@ -924,6 +1004,9 @@ struct Coordinator {
     sources: HashMap<i64, SourceRt>,
     files: HashMap<PathBuf, FileRt>,
     in_flight: HashSet<PathBuf>,
+    /// The files of `in_flight` whose batch is with the writer: their
+    /// import thread is free for another file.
+    committing: HashSet<PathBuf>,
     /// Files to read, in order (see "Which file goes first"), and the same
     /// set for lookups.
     queue: VecDeque<PathBuf>,
@@ -991,13 +1074,20 @@ impl Coordinator {
             match self.messages.recv_timeout(Duration::from_millis(50)) {
                 Ok(Msg::Done(done)) => {
                     self.in_flight.remove(&done.path);
+                    self.committing.remove(&done.path);
                 }
+                Ok(Msg::Again(job)) => self.again_now(*job),
                 Ok(_) | Err(RecvTimeoutError::Timeout) => {}
                 Err(RecvTimeoutError::Disconnected) => break,
             }
         }
-        // Dropping the pool ends its threads (nothing is queued in it).
+        // Dropping the pool ends its threads (nothing is queued in it), and
+        // then the committer (nothing is queued in it either).
         self.pool = None;
+        self.commits = None;
+        if let Some(committer) = self.committer.take() {
+            let _ = committer.join();
+        }
         let mut shared = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
         shared.running = false;
     }
@@ -1031,6 +1121,12 @@ impl Coordinator {
                 }
             }
             Msg::Done(done) => self.on_done(*done),
+            Msg::Committing(path) => {
+                if self.in_flight.contains(&path) {
+                    self.committing.insert(path);
+                }
+            }
+            Msg::Again(job) => self.again_now(*job),
             Msg::Cmd(command) => {
                 self.publish_now = true;
                 match command {
@@ -1551,11 +1647,12 @@ impl Coordinator {
 
     /// Start reads of queued files, as many as may run at once.
     fn dispatch(&mut self) {
-        let Some(pool) = &self.pool else {
+        if self.pool.is_none() {
             return;
-        };
+        }
         let cap = self.limits.cap(self.threads);
-        while self.in_flight.len() < cap {
+        // Reads waiting only for their commit do not hold a thread.
+        while self.in_flight.len().saturating_sub(self.committing.len()) < cap {
             let Some(path) = self.queue.pop_front() else {
                 break;
             };
@@ -1576,10 +1673,41 @@ impl Coordinator {
                 source_id: file.source_id,
                 site_override: source.site_override.clone(),
                 track,
+                attempt: Attempt::default(),
             };
             self.in_flight.insert(path);
-            let (reader, inbox) = (Arc::clone(&self.reader), self.inbox.clone());
-            pool.spawn(move || run_job(job, &reader, &inbox));
+            self.spawn(job);
+        }
+    }
+
+    /// Run `job` on the pool (it is in flight).
+    fn spawn(&self, job: Job) {
+        let (Some(pool), Some(commits)) = (&self.pool, &self.commits) else {
+            return;
+        };
+        let (reader, inbox, commits) = (
+            Arc::clone(&self.reader),
+            self.inbox.clone(),
+            commits.clone(),
+        );
+        pool.spawn(move || run_job(job, &reader, &inbox, &commits));
+    }
+
+    /// A read whose batch met a moved offset goes on at once, as one look
+    /// (paused or not: it had started).
+    fn again_now(&mut self, job: Job) {
+        self.committing.remove(&job.path);
+        if self.pool.is_some() && self.commits.is_some() {
+            self.spawn(job);
+        } else {
+            let path = job.path.clone();
+            self.on_done(Done {
+                path,
+                track: job.track,
+                result: Ok(Polled::Waiting {
+                    recheck_at: Some(time::now_ms()),
+                }),
+            });
         }
     }
 
@@ -1590,6 +1718,7 @@ impl Coordinator {
             result,
         } = done;
         self.in_flight.remove(&path);
+        self.committing.remove(&path);
         let again = self.again.remove(&path);
         let Some(file) = self.files.get_mut(&path) else {
             return; // its folder was removed meanwhile
@@ -1895,6 +2024,8 @@ mod tests {
             messages,
             inbox,
             pool: None,
+            commits: None,
+            committer: None,
             threads: 1,
             limits: Arc::default(),
             shared,
@@ -1903,6 +2034,7 @@ mod tests {
             sources: HashMap::new(),
             files: HashMap::new(),
             in_flight: HashSet::new(),
+            committing: HashSet::new(),
             queue: VecDeque::new(),
             queued: HashSet::new(),
             again: HashMap::new(),

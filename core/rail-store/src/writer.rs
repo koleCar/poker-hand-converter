@@ -13,6 +13,7 @@
 
 use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::thread::{self, JoinHandle};
+use std::time::{Duration, Instant};
 
 use rusqlite::{Connection, OptionalExtension, Transaction, params};
 
@@ -33,6 +34,16 @@ pub const GROUP_BATCHES: usize = 64;
 /// backfill batches waits for the group's commit (~35 ms at this size on an
 /// M2 Pro), not more.
 pub const GROUP_HANDS: usize = 2_000;
+
+/// A group that found a second batch already waiting (several producers
+/// that do not wait for their commits: the watcher's import threads during
+/// a backfill) keeps collecting for up to this long from its first batch.
+/// A transaction rewrites every page it touches - the indexes keyed by hand
+/// and the rollups' - however few hands it holds, so fewer, larger groups
+/// write less (at 3 import threads ~1 600 groups instead of ~3 200 per 100k
+/// hands; measured). A lone batch (a hand being played, or any caller that
+/// waits for its commit before sending the next) commits at once.
+pub const GROUP_LINGER: Duration = Duration::from_millis(5);
 
 /// A write job: opens its transaction on the writer's connection, commits
 /// it, and answers its caller.
@@ -173,7 +184,8 @@ type Queued = (Box<ImportBatch>, SyncSender<Result<ImportOutcome>>);
 /// stale offset) is rolled back alone and answered with its error, the
 /// others commit. A crash before the commit loses the whole group, and
 /// with it every offset of the group - so R1.2's invariant (an offset moves
-/// with exactly the hands read up to it) holds per batch as before.
+/// with exactly the hands read up to it) holds per batch as before. A group
+/// that found a second batch waiting collects for up to [`GROUP_LINGER`].
 fn run(mut conn: Connection, commands: &Receiver<Command>) {
     // Ends when every handle is dropped.
     let mut next = commands.recv().ok();
@@ -182,17 +194,24 @@ fn run(mut conn: Connection, commands: &Receiver<Command>) {
             Command::Import(batch, reply) => {
                 let mut hands = batch.hands.len();
                 let mut group: Vec<Queued> = vec![(batch, reply)];
+                let until = Instant::now() + GROUP_LINGER;
                 while group.len() < GROUP_BATCHES && hands < GROUP_HANDS {
-                    match commands.try_recv() {
-                        Ok(Command::Import(batch, reply)) => {
+                    let left = until.saturating_duration_since(Instant::now());
+                    let received = if group.len() < 2 || left.is_zero() {
+                        commands.try_recv().ok()
+                    } else {
+                        commands.recv_timeout(left).ok()
+                    };
+                    match received {
+                        Some(Command::Import(batch, reply)) => {
                             hands += batch.hands.len();
                             group.push((batch, reply));
                         }
-                        Ok(other) => {
+                        Some(other) => {
                             next = Some(other);
                             break;
                         }
-                        Err(_) => break,
+                        None => break,
                     }
                 }
                 commit_group(&mut conn, group);
