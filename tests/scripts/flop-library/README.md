@@ -120,6 +120,15 @@ through the heuristic. About seven minutes. `CHECKTRIM_GRADES_HEADSUP=1`
 makes `floplib:check-trim-grades` take the hero's heads-up flops instead.
 `docs/ANALYSIS-PLAN.md` §10 2026-10-14 (the heads-up check trim).
 
+**The river check trim (not shipped).** `npm run floplib:river-check-trim`
+(same variables) scores every shown player who acted on the river, heads-up
+or multiway flop, with or without the hero, on their range after their last
+river action, with river checks trimmed by a grid of `CHECK_VALUE`/
+`CHECK_AIR` values and by a single scale (heads-up, multiway and both
+alike), held out by player; it also varies `CHECK_REPEAT` on every street,
+scored on the flop, turn and river rows. About 13 minutes.
+`docs/ANALYSIS-PLAN.md` §10 2026-10-14 (the river check trim).
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity
