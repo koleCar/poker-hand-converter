@@ -41,7 +41,6 @@ use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write as _;
 use std::sync::Arc;
 
-use rail_equity::EV_VERSION;
 use rusqlite::types::Value;
 use rusqlite::{Connection, OptionalExtension, params, params_from_iter};
 
@@ -423,15 +422,12 @@ fn clauses(
     sql
 }
 
-/// The EV row of an all-in hand at this build's `EV_VERSION`.
+/// The EV row of an all-in hand (whatever its `ev_version`: an
+/// `EV_VERSION` bump's recompute swaps the new rows in when done, R2.11).
 fn ev_row(conn: &Connection, hand_key: &str) -> Result<Option<(i64, i64)>> {
     Ok(conn
-        .prepare_cached(
-            "SELECT ev_net, ev_net_bb_milli FROM ev_rows WHERE hand_key = ?1 AND ev_version = ?2",
-        )?
-        .query_row(params![hand_key, EV_VERSION], |row| {
-            Ok((row.get(0)?, row.get(1)?))
-        })
+        .prepare_cached("SELECT ev_net, ev_net_bb_milli FROM ev_rows WHERE hand_key = ?1")?
+        .query_row(params![hand_key], |row| Ok((row.get(0)?, row.get(1)?)))
         .optional()?)
 }
 
@@ -964,15 +960,19 @@ impl Reader {
         filter: &ReportFilter,
         points: u32,
     ) -> Result<(Vec<crate::stats_read::HeroTotal>, Arc<Graph>)> {
-        std::thread::scope(|scope| {
-            let graph = scope.spawn(|| self.report_graph(filter, points));
-            let totals = self
-                .report_hero_filter(filter)
-                .and_then(|hero| self.hero_totals(&hero));
-            let graph = graph
-                .join()
-                .unwrap_or_else(|panic| std::panic::resume_unwind(panic));
-            Ok((totals?, graph?))
+        // Two connections, two snapshots: run again if a recompute swapped
+        // its statistics in between (R2.11).
+        self.same_epoch(|| {
+            std::thread::scope(|scope| {
+                let graph = scope.spawn(|| self.report_graph(filter, points));
+                let totals = self
+                    .report_hero_filter(filter)
+                    .and_then(|hero| self.hero_totals(&hero));
+                let graph = graph
+                    .join()
+                    .unwrap_or_else(|panic| std::panic::resume_unwind(panic));
+                Ok((totals?, graph?))
+            })
         })
     }
 
@@ -1022,14 +1022,18 @@ impl Reader {
 
     /// The hero's totals of `filter` by situation; see the module header.
     pub fn report_breakdowns(&self, filter: &ReportFilter) -> Result<Arc<Breakdowns>> {
-        self.with_many(PASS_THREADS, |conns| {
-            let key = cache_key(&*conns[0], format!("{filter:?}"))?;
-            if let Some(found) = cache_get(&mut self.report_cache().breakdowns, &key) {
-                return Ok(found);
-            }
-            let found = Arc::new(breakdown_pass(conns, filter)?);
-            cache_put(&mut self.report_cache().breakdowns, key, Arc::clone(&found));
-            Ok(found)
+        // Its chunks read on several connections: run again if a recompute
+        // swapped its statistics in meanwhile (R2.11).
+        self.same_epoch(|| {
+            self.with_many(PASS_THREADS, |conns| {
+                let key = cache_key(&*conns[0], format!("{filter:?}"))?;
+                if let Some(found) = cache_get(&mut self.report_cache().breakdowns, &key) {
+                    return Ok(found);
+                }
+                let found = Arc::new(breakdown_pass(conns, filter)?);
+                cache_put(&mut self.report_cache().breakdowns, key, Arc::clone(&found));
+                Ok(found)
+            })
         })
     }
 }

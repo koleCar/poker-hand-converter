@@ -27,7 +27,6 @@
 use std::path::PathBuf;
 use std::time::Instant;
 
-use rail_store::background::{self, Step};
 use rail_store::report::{ReportFilter, SESSION_GAP_MINUTES};
 use rail_store::{Reader, Store};
 
@@ -101,11 +100,8 @@ fn main() {
         .is_some()
     {
         let started = Instant::now();
-        let mut hands = 0;
-        while let Step::Rebuilt(n) = background::step(store.reader(), &writer, false).expect("step")
-        {
-            hands += n;
-        }
+        let hands =
+            rail_store::recompute::run_rows_job(store.reader(), &writer).expect("recompute");
         println!(
             "rebuild (the list's new columns): {hands} hands in {:.1?}",
             started.elapsed()

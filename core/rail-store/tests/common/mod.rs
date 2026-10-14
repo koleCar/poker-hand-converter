@@ -15,10 +15,26 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
-/// Back from the latest version to 8 (R2.7c; version 11's custom
-/// statistics, R2.10, go first, version 10 only dropped an index): what the
-/// older-store tests run first.
-pub const DOWN_FROM_9: &str = "DROP TABLE custom_stats; DROP TABLE custom_hero_rows;
+/// Back from the latest version to 11 (R2.11's staging tables and the
+/// twins of the rollups, and its `kv` keys).
+pub const DOWN_FROM_12: &str = "DROP TABLE recompute_hands; DROP TABLE recompute_seats;
+     DROP TABLE recompute_list; DROP TABLE recompute_player_rollups;
+     DROP TABLE recompute_hero_rollups; DROP TABLE recompute_player_summary;
+     DROP TABLE recompute_player_hidden; DROP TABLE recompute_ev;
+     DELETE FROM kv WHERE key LIKE 'recompute.%'
+                       OR key IN ('stats.segment_version', 'stats.epoch');";
+
+/// Back from the latest version to 8 (R2.7c; version 12's tables, R2.11,
+/// and version 11's custom statistics, R2.10, go first, version 10 only
+/// dropped an index): what the older-store tests run first.
+pub const DOWN_FROM_9: &str = "DROP TABLE recompute_hands; DROP TABLE recompute_seats;
+     DROP TABLE recompute_list; DROP TABLE recompute_player_rollups;
+     DROP TABLE recompute_hero_rollups; DROP TABLE recompute_player_summary;
+     DROP TABLE recompute_player_hidden; DROP TABLE recompute_ev;
+     DELETE FROM kv WHERE key LIKE 'recompute.%'
+                       OR key IN ('stats.segment_version', 'stats.epoch');
+     DROP TABLE custom_stats;
+     DELETE FROM kv WHERE key = 'players.indexed'; DROP TABLE custom_hero_rows;
      DROP TABLE custom_hero_rollups; DROP TABLE custom_player_rollups;
      DELETE FROM kv WHERE key LIKE 'custom.%';
      DROP TABLE players; DROP TABLE player_labels;
@@ -383,16 +399,122 @@ fn rollup_totals(row: &rusqlite::Row<'_>, first: usize) -> rail_store::Totals {
     totals
 }
 
-/// The rollups are the sums of the seat rows of the current generation:
-/// `player_rollups` per (site, player, scope, segment) with `aggregate`'s
-/// default exclusions (bomb pots out, EV-cashout money out),
-/// `hero_rollups` per (segment, position, UTC day, kind) of the hero's
-/// rows. Every column, `last_played_at` included. And (R2.7c)
-/// `player_summary` per (site, player) of the opponents' rows at scope `''`
-/// with a name (bomb pots out; the hero's hands and result in the hand,
-/// cash and chips apart, an EV cashout's result out), `player_hidden` per
-/// site of the opponents' rows of other scopes.
-pub fn assert_rollups(conn: &Connection) {
+/// A `player_rollups` key: site, player, scope, segment.
+pub type PlayerKey = (String, String, String, i64);
+/// A `hero_rollups` key: segment, position, day, kind.
+pub type HeroKey = (i64, String, String, i64);
+
+/// What the rollups and the Players list's lines should hold: the sums of
+/// the seat rows of the current generation (see [`assert_rollups`]).
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct ExpectedRollups {
+    pub players: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)>,
+    pub heroes: BTreeMap<HeroKey, rail_store::Totals>,
+    pub summary: BTreeMap<(String, String), rail_store::PlayerSeen>,
+    pub hidden: BTreeMap<String, (i64, i64)>,
+}
+
+/// Rewrite `player_rollups`, `hero_rollups`, `player_summary` and
+/// `player_hidden` from the seat rows ([`expected_rollups`]): how a test
+/// that changes stored rows by hand (an older engine's rows, R2.11) makes
+/// the store consistent again, independently of the store's own code.
+pub fn write_rollups(conn: &Connection) {
+    let expected = expected_rollups(conn);
+    let columns = total_columns();
+    let marks = |n: usize| {
+        (1..=n)
+            .map(|i| format!("?{i}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let bind = |totals: &rail_store::Totals| -> Vec<i64> {
+        let mut out: Vec<i64> = totals.counters.to_vec();
+        out.extend(totals.money);
+        out.push(totals.money_hands);
+        out
+    };
+    conn.execute_batch(
+        "DELETE FROM player_rollups; DELETE FROM hero_rollups;
+         DELETE FROM player_summary; DELETE FROM player_hidden;",
+    )
+    .expect("empty the rollups");
+    let mut insert = conn
+        .prepare(&format!(
+            "INSERT INTO player_rollups (site, player, scope, segment_id, last_played_at, {})
+             VALUES ({})",
+            columns.join(", "),
+            marks(5 + columns.len())
+        ))
+        .expect("prepare");
+    for ((site, player, scope, segment), (totals, last)) in &expected.players {
+        let mut values: Vec<rusqlite::types::Value> = vec![
+            site.clone().into(),
+            player.clone().into(),
+            scope.clone().into(),
+            (*segment).into(),
+            last.clone().into(),
+        ];
+        values.extend(bind(totals).into_iter().map(rusqlite::types::Value::from));
+        insert
+            .execute(rusqlite::params_from_iter(values))
+            .expect("insert player");
+    }
+    let mut insert = conn
+        .prepare(&format!(
+            "INSERT INTO hero_rollups (segment_id, position, day, kind, {}) VALUES ({})",
+            columns.join(", "),
+            marks(4 + columns.len())
+        ))
+        .expect("prepare");
+    for ((segment, position, day, kind), totals) in &expected.heroes {
+        let mut values: Vec<rusqlite::types::Value> = vec![
+            (*segment).into(),
+            position.clone().into(),
+            day.clone().into(),
+            (*kind).into(),
+        ];
+        values.extend(bind(totals).into_iter().map(rusqlite::types::Value::from));
+        insert
+            .execute(rusqlite::params_from_iter(values))
+            .expect("insert hero");
+    }
+    for ((site, player), seen) in &expected.summary {
+        conn.execute(
+            "INSERT INTO player_summary (site, player, hands, first_played_at, last_played_at,
+               cash_hands, chips_hands, cash_money_hands, cash_net_bb_milli, chips_money_hands,
+               chips_net_bb_milli)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+            rusqlite::params![
+                site,
+                player,
+                seen.hands,
+                seen.first_played_at,
+                seen.last_played_at,
+                seen.cash_hands,
+                seen.chips_hands,
+                seen.cash_money_hands,
+                seen.cash_net_bb_milli,
+                seen.chips_money_hands,
+                seen.chips_net_bb_milli
+            ],
+        )
+        .expect("insert summary");
+    }
+    for (site, (hands, cash)) in &expected.hidden {
+        conn.execute(
+            "INSERT INTO player_hidden (site, hands, cash_hands) VALUES (?1, ?2, ?3)",
+            rusqlite::params![site, hands, cash],
+        )
+        .expect("insert hidden");
+    }
+}
+
+/// The rollups' expected content: `player_rollups` per (site, player,
+/// scope, segment) with `aggregate`'s default exclusions (bomb pots out,
+/// EV-cashout money out), `hero_rollups` per (segment, position, UTC day,
+/// kind) of the hero's rows, `player_summary` and `player_hidden` - from the
+/// seat rows of the current generation.
+pub fn expected_rollups(conn: &Connection) -> ExpectedRollups {
     use rail_store::stats::{KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, decode_seat};
     let generation: i64 = conn
         .query_row(
@@ -401,9 +523,8 @@ pub fn assert_rollups(conn: &Connection) {
             |row| row.get(0),
         )
         .expect("generation");
-    type PlayerKey = (String, String, String, i64);
     let mut players: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)> = BTreeMap::new();
-    let mut heroes: BTreeMap<(i64, String, String, i64), rail_store::Totals> = BTreeMap::new();
+    let mut heroes: BTreeMap<HeroKey, rail_store::Totals> = BTreeMap::new();
     let mut stmt = conn
         .prepare(
             "SELECT g.site, s.player, s.scope, d.segment_id, h.played_at, d.is_bomb_pot,
@@ -504,6 +625,28 @@ pub fn assert_rollups(conn: &Connection) {
                 .add_seat(&values, true);
         }
     }
+    ExpectedRollups {
+        players,
+        heroes,
+        summary,
+        hidden,
+    }
+}
+
+/// The rollups are the sums of the seat rows of the current generation
+/// ([`expected_rollups`]): every column, `last_played_at` included. And
+/// (R2.7c) `player_summary` per (site, player) of the opponents' rows at
+/// scope `''` with a name (bomb pots out; the hero's hands and result in the
+/// hand, cash and chips apart, an EV cashout's result out), `player_hidden`
+/// per site of the opponents' rows of other scopes, and `player_hands` the
+/// named opponents' seat rows the background pass has gone through.
+pub fn assert_rollups(conn: &Connection) {
+    let ExpectedRollups {
+        players,
+        heroes,
+        summary,
+        hidden,
+    } = expected_rollups(conn);
     let columns = total_columns().join(", ");
     let mut stored_players = BTreeMap::new();
     let mut stmt = conn
@@ -769,4 +912,211 @@ pub fn assert_integrity(conn: &Connection) {
     assert_eq!(orphans, 0, "source_totals without a folder");
     assert_rollups(conn);
     assert_list(conn);
+}
+
+/* ------------------------------------------------- an older engine (R2.11) - */
+
+/// Rows as an older engine might have left them (R2.11's tests): changes to
+/// stored rows, made by hand, with the rollups rewritten from the rows
+/// afterwards ([`write_rollups`]) so the store is consistent - only "old".
+/// Each returns the hands it changed.
+pub mod older {
+    use std::collections::BTreeSet;
+
+    use rail_stats::Counter;
+    use rail_store::stats::{decode_seat, encode_seat};
+    use rusqlite::{Connection, params};
+
+    use super::Rng;
+
+    /// A counter's definition was different: `cbet_flop_opp` one higher on
+    /// about `per_mille` of the opponents' seat rows. Nothing else changes
+    /// (no list column, no hero result, no seat moves).
+    pub fn counters(conn: &Connection, rng: &mut Rng, per_mille: u64) -> BTreeSet<String> {
+        let seats: Vec<(i64, i64, String, Vec<u8>)> = conn
+            .prepare(
+                "SELECT s.hand_id, s.seat, d.hand_key, s.totals FROM seat_stats s
+                 JOIN hand_stats d ON d.id = s.hand_id WHERE s.is_hero = 0
+                 ORDER BY s.hand_id, s.seat",
+            )
+            .expect("prepare")
+            .query_map([], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            })
+            .expect("seats")
+            .collect::<Result<_, _>>()
+            .expect("rows");
+        let mut changed = BTreeSet::new();
+        for (hand, seat, key, blob) in seats {
+            if rng.below(1000) >= per_mille {
+                continue;
+            }
+            let mut values = decode_seat(&blob).expect("decode");
+            values.counters[Counter::cbet_flop_opp.index()] += 1;
+            conn.execute(
+                "UPDATE seat_stats SET totals = ?3 WHERE hand_id = ?1 AND seat = ?2",
+                params![hand, seat, encode_seat(&values)],
+            )
+            .expect("update");
+            changed.insert(key);
+        }
+        changed
+    }
+
+    /// The money was different: the hero's `net` one minor unit and
+    /// `net_bb_milli` a big blind higher in about `per_mille` of the hero's
+    /// hands without an all-in (no EV row, none queued), and the list's
+    /// hero result with them, as the import wrote it.
+    pub fn money(conn: &Connection, rng: &mut Rng, per_mille: u64) -> BTreeSet<String> {
+        let seats: Vec<(i64, i64, String, Vec<u8>)> = conn
+            .prepare(
+                "SELECT s.hand_id, s.seat, d.hand_key, s.totals FROM seat_stats s
+                 JOIN hand_stats d ON d.id = s.hand_id
+                 WHERE s.is_hero = 1
+                   AND NOT EXISTS (SELECT 1 FROM ev_rows e WHERE e.hand_key = d.hand_key)
+                   AND NOT EXISTS (SELECT 1 FROM ev_pending p WHERE p.hand_key = d.hand_key)
+                 ORDER BY s.hand_id",
+            )
+            .expect("prepare")
+            .query_map([], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            })
+            .expect("seats")
+            .collect::<Result<_, _>>()
+            .expect("rows");
+        let mut changed = BTreeSet::new();
+        for (hand, seat, key, blob) in seats {
+            if rng.below(1000) >= per_mille || !changed.insert(key.clone()) {
+                continue;
+            }
+            let mut values = decode_seat(&blob).expect("decode");
+            values.money[2] += 1;
+            values.money[3] += 1000;
+            conn.execute(
+                "UPDATE seat_stats SET totals = ?3 WHERE hand_id = ?1 AND seat = ?2",
+                params![hand, seat, encode_seat(&values)],
+            )
+            .expect("update");
+            conn.execute(
+                "UPDATE hand_list SET hero_net = ?2, hero_net_bb_milli = ?3 WHERE hand_key = ?1",
+                params![key, values.money[2], values.money[3]],
+            )
+            .expect("update list");
+        }
+        changed
+    }
+
+    /// The segments were defined otherwise: about `per_mille` of the hands
+    /// in a segment of their own (their segment's columns, the size class
+    /// marked `-old`), in `hand_stats` and the list.
+    pub fn segments(conn: &Connection, rng: &mut Rng, per_mille: u64) -> BTreeSet<String> {
+        let hands: Vec<(i64, String, i64)> = conn
+            .prepare("SELECT id, hand_key, segment_id FROM hand_stats ORDER BY id")
+            .expect("prepare")
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+            .expect("hands")
+            .collect::<Result<_, _>>()
+            .expect("rows");
+        let mut changed = BTreeSet::new();
+        for (id, key, segment) in hands {
+            if rng.below(1000) >= per_mille {
+                continue;
+            }
+            conn.execute(
+                "INSERT OR IGNORE INTO segments (site, game_format, variant, limit_type,
+                   size_class, stake)
+                 SELECT site, game_format, variant, limit_type, size_class || '-old', stake
+                 FROM segments WHERE id = ?1",
+                [segment],
+            )
+            .expect("segment");
+            let old: i64 = conn
+                .query_row(
+                    "SELECT o.id FROM segments o JOIN segments g ON g.id = ?1
+                     WHERE o.site = g.site AND o.game_format = g.game_format
+                       AND o.variant = g.variant AND o.limit_type = g.limit_type
+                       AND o.size_class = g.size_class || '-old' AND o.stake = g.stake",
+                    [segment],
+                    |row| row.get(0),
+                )
+                .expect("old segment");
+            conn.execute(
+                "UPDATE hand_stats SET segment_id = ?2 WHERE id = ?1",
+                params![id, old],
+            )
+            .expect("hand");
+            conn.execute(
+                "UPDATE hand_list SET segment_id = ?2 WHERE hand_key = ?1",
+                params![key, old],
+            )
+            .expect("list");
+            changed.insert(key);
+        }
+        changed
+    }
+
+    /// The all-in EV was computed otherwise: every stored row's `ev_net` 7
+    /// higher, its version `ev/0`, and `ev.version` `ev/0`.
+    pub fn ev(conn: &Connection) -> usize {
+        let n = conn
+            .execute(
+                "UPDATE ev_rows SET ev_net = ev_net + 7, ev_net_bb_milli = ev_net_bb_milli + 70,
+                   ev_version = 'ev/0'",
+                [],
+            )
+            .expect("ev rows");
+        conn.execute("UPDATE kv SET value = 'ev/0' WHERE key = 'ev.version'", [])
+            .expect("kv");
+        n
+    }
+
+    /// Say the stored rows were made under another `STATS_VERSION` (opening
+    /// the store starts the rows job).
+    pub fn stats_version(conn: &Connection) {
+        conn.execute(
+            "UPDATE kv SET value = 'stats/0' WHERE key = 'stats.version'",
+            [],
+        )
+        .expect("kv");
+    }
+
+    /// Say the rollups were grouped under another `SEGMENT_VERSION` (opening
+    /// the store starts the segments job).
+    pub fn segment_version(conn: &Connection) {
+        conn.execute(
+            "UPDATE kv SET value = 'segment/0' WHERE key = 'stats.segment_version'",
+            [],
+        )
+        .expect("kv");
+    }
+}
+
+/// Every row of `table`, as text, sorted: two equal results mean the table
+/// did not change.
+pub fn table_rows(conn: &Connection, table: &str) -> Vec<String> {
+    let mut stmt = conn
+        .prepare(&format!("SELECT * FROM {table}"))
+        .expect("prepare");
+    let columns = stmt.column_count();
+    let mut rows: Vec<String> = stmt
+        .query_map([], |row| {
+            Ok((0..columns)
+                .map(|i| {
+                    use rusqlite::types::ValueRef;
+                    match row.get_ref(i).expect("column") {
+                        ValueRef::Null => "NULL".to_owned(),
+                        ValueRef::Integer(n) => n.to_string(),
+                        ValueRef::Real(_) => panic!("no REAL columns"),
+                        ValueRef::Text(t) => format!("'{}'", String::from_utf8_lossy(t)),
+                        ValueRef::Blob(b) => format!("x{}", b.len()),
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("|"))
+        })
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("rows");
+    rows.sort();
+    rows
 }

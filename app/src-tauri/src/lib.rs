@@ -182,6 +182,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     account::setup(app);
     // Sync (R1.9): after the store and the account it uses.
     sync::setup(app, &sync_slot);
+    // A recompute's swap tells the window (R2.11).
+    stats::spawn_refresher(app);
 
     // The window is created hidden (`visible: false`) so a login start can
     // stay in the tray.

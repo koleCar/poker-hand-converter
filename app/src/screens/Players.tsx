@@ -17,6 +17,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { RecomputeNotice, recomputing } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import {
@@ -24,7 +25,7 @@ import {
   errorText,
   inApp,
   ipc,
-  onWatcherChanged,
+  onStatsDataChanged,
   type FacetCount,
   type GameKind,
   type PlayerList,
@@ -69,7 +70,7 @@ function useRebuild(): StatsStatus | null {
         .then((value) => {
           if (stopped) return;
           setStatus(value);
-          if (value.activity === "rebuilding" || value.activity === "indexing" || value.playersUnindexed > 0) {
+          if (recomputing(value) || value.activity === "indexing" || value.playersUnindexed > 0) {
             timer = window.setTimeout(poll, 3000);
           }
         })
@@ -119,7 +120,7 @@ export function Players() {
     ipc.playerSites().then(setSites).catch(() => undefined);
     let last = 0;
     let timer: number | undefined;
-    const stop = onWatcherChanged(() => {
+    const stop = onStatsDataChanged(() => {
       const wait = Math.max(0, last + ARRIVAL_THROTTLE_MS - Date.now());
       window.clearTimeout(timer);
       timer = window.setTimeout(() => {
@@ -333,10 +334,8 @@ export function Players() {
       ) : null}
       {list?.mixedKind ? <p className={styles.warning}>{p.mixedKind}</p> : null}
       {list && list.hiddenHands > 0 ? <p className={styles.notice}>{p.hidden(list.hiddenHands)}</p> : null}
-      {rebuild?.activity === "rebuilding" && rebuild.rebuildTotal !== null ? (
-        <p className={styles.notice} role="status">
-          {p.rebuilding(rebuild.rebuildDone ?? 0, rebuild.rebuildTotal)}
-        </p>
+      {recomputing(rebuild) ? (
+        <RecomputeNotice status={rebuild} filling={p.rebuilding} className={styles.notice} />
       ) : rebuild && rebuild.playersUnindexed > 0 && rebuild.activity !== "idle" ? (
         <p className={styles.notice} role="status">
           {p.indexing(rebuild.playersUnindexed)}

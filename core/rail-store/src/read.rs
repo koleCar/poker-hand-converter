@@ -23,6 +23,23 @@ use crate::error::{Error, Result};
 const TODAY_START_MS: &str =
     "CAST(strftime('%s', 'now', 'localtime', 'start of day', 'utc') AS INTEGER) * 1000";
 
+/// How many times [`Reader::same_epoch`] runs a spread answer at most.
+pub const EPOCH_TRIES: u32 = 3;
+
+/// `f` in a read transaction on `conn` (ended whatever `f` returns).
+fn in_read<T>(conn: &Connection, f: impl FnOnce(&Connection) -> Result<T>) -> Result<T> {
+    if !conn.is_autocommit() {
+        // Already inside one (a caller's): nothing to open.
+        return f(conn);
+    }
+    conn.execute_batch("BEGIN")?;
+    let value = f(conn);
+    let ended = conn.execute_batch(if value.is_ok() { "COMMIT" } else { "ROLLBACK" });
+    let value = value?;
+    ended?;
+    Ok(value)
+}
+
 /// A pool of read-only connections.
 #[derive(Debug)]
 pub struct Reader {
@@ -58,18 +75,21 @@ impl Reader {
         })
     }
 
-    /// Run `f` on a free connection (or wait for the next one in turn).
+    /// Run `f` on a free connection (or wait for the next one in turn), in
+    /// one read transaction: everything `f` reads is the store as of one
+    /// commit (R2.11: a recompute swaps its new statistics in with one
+    /// commit, so an answer is all old or all new).
     pub fn with<T>(&self, f: impl FnOnce(&Connection) -> Result<T>) -> Result<T> {
         for conn in &self.conns {
             if let Ok(conn) = conn.try_lock() {
-                return f(&conn);
+                return in_read(&conn, f);
             }
         }
         let index = self.next.fetch_add(1, Ordering::Relaxed) % self.conns.len();
         let conn = self.conns[index]
             .lock()
             .unwrap_or_else(PoisonError::into_inner);
-        f(&conn)
+        in_read(&conn, f)
     }
 
     /// Run `f` on up to `max` of the pool's connections at once (R2.9: a pass
@@ -100,6 +120,24 @@ impl Reader {
         }
         let mut conns: Vec<&mut Connection> = guards.iter_mut().map(|guard| &mut **guard).collect();
         f(&mut conns)
+    }
+
+    /// Run `f`, which spreads one answer over several connections (each in
+    /// a read transaction of its own), until no recompute swapped its
+    /// statistics in while it ran (R2.11: the `kv` `stats.epoch` read before
+    /// and after is the same), at most [`EPOCH_TRIES`] times - a swap is
+    /// rare, and the last try's answer is returned anyway.
+    pub(crate) fn same_epoch<T>(&self, mut f: impl FnMut() -> Result<T>) -> Result<T> {
+        let epoch = || self.with(crate::recompute::epoch);
+        let mut tries = 1;
+        loop {
+            let before = epoch()?;
+            let value = f()?;
+            if epoch()? == before || tries >= EPOCH_TRIES {
+                return Ok(value);
+            }
+            tries += 1;
+        }
     }
 
     /// The Hands screen's cache of counting passes.

@@ -8,9 +8,10 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
-import { inApp, ipc, type HandAnnotations, type HandRow, type StatsStatus } from "../lib/ipc";
+import { inApp, ipc, type HandAnnotations, type HandRow } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
 import {
   EMPTY_FILTER,
@@ -25,32 +26,6 @@ import { HandList } from "./hands/HandList";
 import { HandPanel } from "./hands/HandPanel";
 import styles from "./hands/Hands.module.css";
 import { useHandList } from "./hands/useHandList";
-
-/** While the statistics rebuild after an upgrade, the list fills as it goes. */
-function useRebuild(): StatsStatus | null {
-  const [status, setStatus] = useState<StatsStatus | null>(null);
-  useEffect(() => {
-    if (!inApp) return;
-    let stopped = false;
-    let timer: number | undefined;
-    const poll = () => {
-      ipc
-        .statsStatus()
-        .then((value) => {
-          if (stopped) return;
-          setStatus(value);
-          if (value.activity === "rebuilding") timer = window.setTimeout(poll, 2000);
-        })
-        .catch(() => undefined);
-    };
-    poll();
-    return () => {
-      stopped = true;
-      window.clearTimeout(timer);
-    };
-  }, []);
-  return status;
-}
 
 export function Hands() {
   const t = useT();
@@ -70,7 +45,7 @@ export function Hands() {
   // A date preset is resolved when the filter is set ("last 7 days" from now).
   const query = useMemo(() => toQuery(filter), [filter]);
   const list = useHandList(query);
-  const rebuild = useRebuild();
+  const rebuild = useRecompute();
   // Every hand in the store, for "N of M hands" under a filter.
   const [storeHands, setStoreHands] = useState<number | null>(null);
   const facetsNow = list.facets;
@@ -179,11 +154,7 @@ export function Hands() {
         ) : null}
       </header>
       <FilterBar filter={filter} facets={facets} onChange={setFilter} />
-      {rebuild?.activity === "rebuilding" && rebuild.rebuildTotal !== null ? (
-        <p className={styles.notice} role="status">
-          {t.hands.rebuilding(rebuild.rebuildDone ?? 0, rebuild.rebuildTotal)}
-        </p>
-      ) : null}
+      <RecomputeNotice status={rebuild} filling={t.hands.rebuilding} className={styles.notice} />
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>
         <div className={styles.list}>{body}</div>
         {selected !== null ? (

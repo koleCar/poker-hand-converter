@@ -633,23 +633,44 @@ export const en = {
     activity: "Doing",
     activities: {
       idle: "Nothing",
-      rebuilding: "Rebuilding the statistics",
+      rebuilding: "Recomputing the statistics",
       indexing: "Sorting the opponents of new hands",
+      counting: "Counting your own statistics",
       computing: "Computing all-in EV",
+      "recomputing-ev": "Recomputing all-in EV",
       "paused-backfill": "Waiting for the import to finish",
-      "paused-tables": "All-in EV waits while tables are open",
+      "paused-tables": "Recomputing and all-in EV wait while tables are open",
       stopped: "Stopped",
     },
-    rebuild: "Rebuild",
+    rebuild: "Recompute",
     rebuildProgress: (done: number, total: number) => `${done} of ${total} hands`,
+    evRecompute: "All-in EV again",
     none: "None",
     evPending: "Hands waiting for all-in EV",
     evComputed: "All-in EV computed",
     evTime: (n: number, ms: number) => `${n} hands in ${(ms / 1000).toFixed(1)} s`,
     rebuildButton: "Rebuild statistics",
     evButton: "Compute all-in EV again",
-    rebuildStarted: (n: number) => `Rebuilding the statistics of ${n} hands.`,
-    evQueued: (n: number) => `${n} hands queued for all-in EV.`,
+    rebuildStarted: (n: number) => `Recomputing the statistics of ${n} hands.`,
+    evQueued: (n: number) => `Computing the all-in EV of ${n} hands again.`,
+  },
+
+  /**
+   * A recompute after an upgrade (R2.11): the new numbers are worked out
+   * beside the ones shown and replace them, whole, when done. On Reports,
+   * Hands, Players and Settings.
+   */
+  recompute: {
+    rows: (done: number, total: number) =>
+      `Updating your statistics to this version of Rail: ${n(done)} of ${hands(total)}. You see the previous numbers until it is done.`,
+    segments: (done: number, total: number) =>
+      `Regrouping your statistics by game: ${n(done)} of ${hands(total)}. You see the previous grouping until it is done.`,
+    ev: (done: number, total: number) =>
+      `Computing all-in EV again: ${n(done)} of ${hands(total)}. You see the previous all-in EV until it is done.`,
+    filling: (done: number, total: number) =>
+      `Working out your statistics: ${n(done)} of ${hands(total)}. The numbers grow as it goes.`,
+    pausedTables: "It waits while poker tables are open.",
+    pausedImport: "It waits for the import to finish.",
   },
 
   /** A folder's backfill in progress, on Today and the folder cards (R1.6). */

@@ -518,3 +518,367 @@ fn crash_mid_import_is_consistent_and_resumes() {
         resumed.unsupported.len()
     );
 }
+
+/* ------------------------------------------------- a recompute (R2.11) - */
+
+/// The recompute child's database path; unset, [`child_recompute`] does
+/// nothing.
+const CHILD_RECOMPUTE_DB: &str = "RAIL_STORE_CRASH_RECOMPUTE_DB";
+/// Set: hold the next swap (the rows job's, else the EV job's) in an open
+/// transaction.
+const CHILD_HOLD_SWAP: &str = "RAIL_STORE_CRASH_HOLD_SWAP";
+
+const STEP: &str = "RAIL-STORE-STEP";
+
+/// The child of [`crash_mid_recompute_is_consistent_and_resumes`]: open the
+/// store (which begins its recompute, or finds it begun) and run the
+/// recompute's steps to the end, one line per step.
+#[test]
+#[ignore = "the child process of crash_mid_recompute_is_consistent_and_resumes"]
+fn child_recompute() {
+    use rail_store::recompute;
+    let Some(db) = std::env::var_os(CHILD_RECOMPUTE_DB) else {
+        return;
+    };
+    let hold = std::env::var_os(CHILD_HOLD_SWAP).is_some();
+    let store = Store::open(PathBuf::from(db)).expect("open the store");
+    let writer = store.writer().expect("writer");
+    let reader = store.reader();
+    loop {
+        if hold {
+            if let Some(page) = recompute::rows_page(reader, &writer).expect("page") {
+                if page.hands() == 0 {
+                    hold_swap(&writer, |tx| recompute::finish_rows(tx));
+                }
+                let n = page.hands();
+                writer
+                    .write(move |tx| recompute::apply_rows_page(tx, page))
+                    .expect("apply");
+                say(&format!("{STEP} rows {n}"));
+                continue;
+            }
+            if let Some(page) = recompute::ev_page(reader).expect("page") {
+                if page.hands() == 0 {
+                    hold_swap(&writer, |tx| recompute::finish_ev(tx));
+                }
+                let n = page.hands();
+                writer
+                    .write(move |tx| recompute::apply_ev_page(tx, &page))
+                    .expect("apply");
+                say(&format!("{STEP} ev {n}"));
+                continue;
+            }
+        }
+        if let Some(n) = recompute::rows_step(reader, &writer).expect("rows step") {
+            say(&format!("{STEP} rows {n}"));
+            continue;
+        }
+        if let Some((n, _)) = recompute::ev_step(reader, &writer).expect("ev step") {
+            say(&format!("{STEP} ev {n}"));
+            continue;
+        }
+        break;
+    }
+    drop(writer);
+    store.close();
+    say(DONE);
+}
+
+/// Run a swap inside a writer transaction and wait there to be killed.
+fn hold_swap(
+    writer: &rail_store::WriterHandle,
+    swap: impl FnOnce(&rusqlite::Transaction<'_>) -> rail_store::Result<bool> + Send + 'static,
+) -> ! {
+    let _ = writer.write(move |tx| -> rail_store::Result<()> {
+        let swapped = swap(tx)?;
+        say(&format!("{HOLDING} the swap ({swapped}), not committed"));
+        loop {
+            std::thread::sleep(Duration::from_secs(1));
+        }
+    });
+    unreachable!("the held transaction never returns");
+}
+
+#[derive(Debug, Clone, Copy)]
+enum RecomputeKill {
+    /// After this many reported steps, plus the delay.
+    At(u64, Duration),
+    /// Inside the next swap's transaction.
+    InsideSwap,
+    /// Let it finish.
+    Never,
+}
+
+fn run_recompute_child(db: &Path, kill: RecomputeKill) -> Run {
+    let exe = std::env::current_exe().expect("test binary");
+    let mut command = Command::new(exe);
+    command
+        .args([
+            "child_recompute",
+            "--exact",
+            "--ignored",
+            "--nocapture",
+            "--test-threads=1",
+        ])
+        .env(CHILD_RECOMPUTE_DB, db)
+        .env_remove(CHILD_HOLD_SWAP)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null());
+    if let RecomputeKill::InsideSwap = kill {
+        command.env(CHILD_HOLD_SWAP, "1");
+    }
+    let mut child = command.spawn().expect("spawn the child");
+    let stdout = child.stdout.take().expect("child stdout");
+    let mut run = Run::default();
+    if let RecomputeKill::At(0, delay) = kill {
+        std::thread::sleep(delay);
+        let _ = child.kill();
+    }
+    for line in BufReader::new(stdout).lines() {
+        let Ok(line) = line else { break };
+        let Some(start) = line.find("RAIL-STORE-") else {
+            continue;
+        };
+        let line = line[start..].to_owned();
+        let tag = line.split_once(' ').map_or(line.as_str(), |(tag, _)| tag);
+        let kill_now = match tag {
+            STEP => {
+                run.committed += 1;
+                matches!(kill, RecomputeKill::At(after, _) if after == run.committed)
+            }
+            HOLDING => {
+                run.held = true;
+                true
+            }
+            DONE => {
+                run.finished = true;
+                false
+            }
+            _ => false,
+        };
+        run.log.push(line);
+        if kill_now {
+            if let RecomputeKill::At(_, delay) = kill {
+                std::thread::sleep(delay);
+            }
+            let _ = child.kill();
+            break;
+        }
+    }
+    let status = child.wait().expect("wait for the child");
+    if matches!(kill, RecomputeKill::Never) {
+        assert!(
+            status.success() && run.finished,
+            "the last child failed: {status}"
+        );
+    }
+    run
+}
+
+/// The statistics a screen reads, without the EV: the seat rows, the
+/// rollups, the list, the Players list's lines.
+fn rows_part(stats: &common::StatsSnapshot) -> String {
+    format!(
+        "{:?}",
+        (
+            &stats.seats,
+            &stats.players,
+            &stats.heroes,
+            &stats.list,
+            &stats.summary,
+            &stats.hidden
+        )
+    )
+}
+
+fn ev_part(stats: &common::StatsSnapshot) -> String {
+    format!("{:?}", (&stats.ev_rows, &stats.ev_pending))
+}
+
+/// How far each job is: (rows done, EV done) - 0 before it began,
+/// `u64::MAX` once swapped.
+fn progress(conn: &Connection) -> (u64, u64) {
+    let get = |key: &str| -> Option<String> {
+        conn.query_row("SELECT value FROM kv WHERE key = ?1", [key], |row| {
+            row.get(0)
+        })
+        .ok()
+    };
+    let job = |running: &str, done: &str, version: &str, current: &str| {
+        if get(running).is_some() {
+            get(done).map_or(0, |n| n.parse().expect("a count"))
+        } else if get(version).as_deref() == Some(current) {
+            u64::MAX
+        } else {
+            0
+        }
+    };
+    (
+        job(
+            "recompute.rows.job",
+            "recompute.rows.done",
+            "stats.version",
+            rail_stats::STATS_VERSION,
+        ),
+        job(
+            "recompute.ev.target",
+            "recompute.ev.done",
+            "ev.version",
+            rail_equity::EV_VERSION,
+        ),
+    )
+}
+
+/// R2.11's crash check: **a recompute killed at any moment - between its
+/// pages, inside a page's transaction, inside the swap's - leaves the store
+/// consistent and showing either the old statistics or the new ones, and
+/// the next start goes on where it stopped.**
+///
+/// The store is a clean import of the corpus whose rows an "older engine"
+/// made (`common::older`: a counter, the money, the segments, the all-in
+/// EV changed by hand, the rollups rewritten from the rows), so opening it
+/// begins the rows job and the EV job. A child process runs them and is
+/// killed (`SIGKILL` / `TerminateProcess`) after a random number of steps
+/// plus a random delay, or inside a swap it holds open; after every kill:
+///
+/// - `PRAGMA integrity_check`, foreign keys, the rollups equal the sums of
+///   the seat rows, the list its rows (`assert_integrity`);
+/// - what the screens read is the old statistics or the clean import's,
+///   whole: the rows (seat rows, rollups, list, summary) one or the other,
+///   the EV rows one or the other, and never new EV over old rows (the rows
+///   job swaps first);
+/// - each job's progress never goes back: the next child resumes it.
+///
+/// Then a child runs to the end, and the store equals the clean import.
+/// `RAIL_STORE_CRASH_SEED` replays a run; `RAIL_STORE_CRASH_KILLS` sets the
+/// number of kills (default 12).
+#[test]
+fn crash_mid_recompute_is_consistent_and_resumes() {
+    let seed = std::env::var("RAIL_STORE_CRASH_SEED")
+        .ok()
+        .and_then(|seed| seed.parse().ok())
+        .unwrap_or_else(|| u64::try_from(rail_store::time::now_ms()).expect("clock after 1970"));
+    let kills: u64 = std::env::var("RAIL_STORE_CRASH_KILLS")
+        .ok()
+        .and_then(|kills| kills.parse().ok())
+        .unwrap_or(12);
+    eprintln!("recompute crash test: seed {seed}, {kills} kills (RAIL_STORE_CRASH_SEED replays)");
+    let mut rng = Rng::new(seed);
+    let dir = scratch_dir("crash-recompute");
+
+    // The reference: one clean import.
+    let clean = Store::open(dir.join("clean.db")).expect("open clean");
+    for path in corpus_files() {
+        clean
+            .import(whole_file_batch(&path, &options()).expect("convert"))
+            .expect("import");
+    }
+    let clean_path = clean.path().to_path_buf();
+    clean.close();
+    let reference = snapshot(&Connection::open(&clean_path).expect("open clean"));
+
+    // The same store as an older engine left it.
+    let db = dir.join("recompute.db");
+    std::fs::copy(&clean_path, &db).expect("copy");
+    let old = {
+        let conn = Connection::open(&db).expect("open");
+        let mut tamper = Rng::new(seed ^ 0x5eed);
+        common::older::counters(&conn, &mut tamper, 100);
+        common::older::money(&conn, &mut tamper, 100);
+        common::older::segments(&conn, &mut tamper, 100);
+        common::older::ev(&conn);
+        common::write_rollups(&conn);
+        common::older::stats_version(&conn);
+        assert_integrity(&conn);
+        snapshot(&conn)
+    };
+    let (old_rows, old_ev) = (rows_part(&old.stats), ev_part(&old.stats));
+    let (new_rows, new_ev) = (rows_part(&reference.stats), ev_part(&reference.stats));
+    assert!(old_rows != new_rows && old_ev != new_ev);
+
+    let mut last = (0, 0);
+    let (mut killed, mut inside) = (0, 0);
+    let mut ev_swap_held = false;
+    for round in 0..kills {
+        // The first kill before the first step; the second inside the rows
+        // job's swap; the first after the rows swapped inside the EV job's.
+        let kill = if round == 0 {
+            RecomputeKill::At(0, Duration::from_millis(rng.below(400)))
+        } else if round == 1 || (last.0 == u64::MAX && last.1 != u64::MAX && !ev_swap_held) {
+            ev_swap_held = last.0 == u64::MAX;
+            RecomputeKill::InsideSwap
+        } else if rng.below(5) == 0 {
+            RecomputeKill::InsideSwap
+        } else {
+            RecomputeKill::At(1 + rng.below(6), Duration::from_millis(rng.below(300)))
+        };
+        let run = run_recompute_child(&db, kill);
+        let conn = Connection::open(&db).expect("open after the kill");
+        assert_integrity(&conn);
+        let now = snapshot(&conn);
+        let (rows, ev) = (rows_part(&now.stats), ev_part(&now.stats));
+        let rows_new = if rows == new_rows {
+            true
+        } else {
+            assert!(rows == old_rows, "round {round}: rows neither old nor new");
+            false
+        };
+        let ev_new = if ev == new_ev {
+            true
+        } else {
+            assert!(ev == old_ev, "round {round}: EV neither old nor new");
+            false
+        };
+        assert!(rows_new || !ev_new, "round {round}: new EV over old rows");
+        assert!(
+            now.hands == reference.hands && now.files == reference.files,
+            "round {round}: the hands changed"
+        );
+        let at = progress(&conn);
+        assert!(
+            at.0 >= last.0 && at.1 >= last.1,
+            "round {round}: a job went back from {last:?} to {at:?} - it did not resume:\n{}",
+            run.log.join("\n")
+        );
+        last = at;
+        if !run.finished {
+            if run.held {
+                inside += 1;
+            } else {
+                killed += 1;
+            }
+        }
+        eprintln!(
+            "round {round}: {kill:?}; {} steps{}; progress {at:?}, rows {}, EV {}",
+            run.committed,
+            if run.held {
+                ", killed inside the swap"
+            } else if run.finished {
+                ", finished before the kill"
+            } else {
+                ""
+            },
+            if rows_new { "new" } else { "old" },
+            if ev_new { "new" } else { "old" },
+        );
+        if run.finished {
+            break;
+        }
+    }
+    assert!(killed + inside > 0, "no kill landed before the end");
+
+    let run = run_recompute_child(&db, RecomputeKill::Never);
+    assert!(run.finished);
+    let conn = Connection::open(&db).expect("open");
+    assert_integrity(&conn);
+    let finished = snapshot(&conn);
+    assert!(
+        finished == reference,
+        "the recomputed store differs from a clean import"
+    );
+    eprintln!(
+        "recompute crash test: {killed} kills between or inside pages, {inside} inside a swap; \
+         {} hands - equal to a clean import",
+        finished.hands.len()
+    );
+}

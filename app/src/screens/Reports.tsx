@@ -25,9 +25,10 @@ import { StatTable } from "@rail/ui/stats/StatTable";
 import { StatValue } from "@rail/ui/stats/StatValue";
 import { WinrateGraph, type WinrateGraphMoney } from "@rail/ui/stats/WinrateGraph";
 
+import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useLocale, useT } from "../i18n";
-import { inApp, ipc, type HandFacets, type Report, type StatsStatus, type Units } from "../lib/ipc";
+import { inApp, type HandFacets, type Report, type Units } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
 import { shownOf, statRows, useStatDefinitions } from "../lib/useStatDefinitions";
 import {
@@ -48,32 +49,6 @@ import { useReport } from "./reports/useReport";
 let lastFilter: FilterState | null = null;
 
 const DEFINITION_GROUPS: DefinitionGroup[] = ["results", "preflop", "postflop", "showdown"];
-
-/** While the statistics rebuild after an upgrade, the report grows as it goes. */
-function useRebuild(): StatsStatus | null {
-  const [status, setStatus] = useState<StatsStatus | null>(null);
-  useEffect(() => {
-    if (!inApp) return;
-    let stopped = false;
-    let timer: number | undefined;
-    const poll = () => {
-      ipc
-        .statsStatus()
-        .then((value) => {
-          if (stopped) return;
-          setStatus(value);
-          if (value.activity === "rebuilding") timer = window.setTimeout(poll, 3000);
-        })
-        .catch(() => undefined);
-    };
-    poll();
-    return () => {
-      stopped = true;
-      window.clearTimeout(timer);
-    };
-  }, []);
-  return status;
-}
 
 /** The game format with the most hands, when the store holds more than one. */
 function biggestFormat(facets: HandFacets): string | null {
@@ -137,7 +112,7 @@ export function Reports() {
     setFacetsSeen(facets);
   }
   const definitions = useStatDefinitions();
-  const rebuild = useRebuild();
+  const rebuild = useRecompute();
   const [unit, setUnit] = useState<"bb" | "money">("bb");
 
   useEffect(() => {
@@ -193,11 +168,7 @@ export function Reports() {
           {r.defaultFormat((t.hands.filters.formats as Record<string, string>)[defaultFormat] ?? defaultFormat)}
         </p>
       ) : null}
-      {rebuild?.activity === "rebuilding" && rebuild.rebuildTotal !== null ? (
-        <p className={styles.notice} role="status">
-          {r.rebuilding(rebuild.rebuildDone ?? 0, rebuild.rebuildTotal)}
-        </p>
-      ) : null}
+      <RecomputeNotice status={rebuild} filling={r.rebuilding} className={styles.notice} />
       {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (
         <p className={styles.notice}>{r.units.mixedCurrency}</p>

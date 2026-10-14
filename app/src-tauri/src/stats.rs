@@ -5,18 +5,26 @@
 //! Stopped on exit with the watcher and sync, before the store closes (it
 //! holds a handle on the store's writer).
 //!
-//! The pass rebuilds the statistics after a stats version bump (or when
-//! asked: [`stats_rebuild`], a debug button under Settings until R2.7's
-//! real screens) and computes the all-in EV of preflop all-ins in the
-//! background. Its status is [`stats_status`]. Tables open (the HUD of
-//! Phase 3) will pause its EV part through `StatsWorker::set_tables_open`.
+//! The pass recomputes the statistics after a definition changes (R2.11:
+//! a stats, segment or EV version bump - or when asked: [`stats_rebuild`],
+//! [`stats_recompute_ev`], debug buttons under Settings) beside the ones
+//! the screens show and swaps them in when done, and computes the all-in EV
+//! of preflop all-ins in the background. Its status is [`stats_status`];
+//! when a recompute swaps, the window hears [`CHANGED_EVENT`] and the
+//! screens read again. Tables open (the HUD of Phase 3) will pause its
+//! heavy parts through `StatsWorker::set_tables_open`.
 
 use std::collections::BTreeSet;
 use std::sync::{Arc, Mutex, PoisonError};
+use std::time::Duration;
 
 use rail_store::{StatsWorker, WorkerStatus};
 use serde::Serialize;
-use tauri::State;
+use tauri::{AppHandle, Emitter, Manager, Runtime, State};
+
+/// The event the window hears when a recompute has swapped new statistics
+/// in (R2.11): every screen that shows statistics reads them again.
+pub const CHANGED_EVENT: &str = "stats-changed";
 
 use crate::commands::StoreState;
 
@@ -124,16 +132,59 @@ impl StatsState {
     }
 }
 
+/// Watch the pass's epoch and tell the window when a recompute swapped its
+/// statistics in (once a second at most).
+pub fn spawn_refresher<R: Runtime>(app: &AppHandle<R>) {
+    let app = app.clone();
+    let spawned = std::thread::Builder::new()
+        .name("rail-stats-status".to_owned())
+        .spawn(move || {
+            let mut last: Option<i64> = None;
+            loop {
+                let Some(state) = app.try_state::<StatsState>() else {
+                    return;
+                };
+                let Some(worker) = state.worker.clone() else {
+                    return;
+                };
+                let status = worker.status();
+                if status.activity == rail_store::Activity::Stopped {
+                    return;
+                }
+                if last.is_some_and(|last| last != status.epoch)
+                    && let Err(error) = app.emit(CHANGED_EVENT, ())
+                {
+                    log::debug!("{CHANGED_EVENT}: {error}");
+                }
+                last = Some(status.epoch);
+                std::thread::sleep(Duration::from_secs(1));
+            }
+        });
+    if let Err(error) = spawned {
+        log::warn!("statistics status thread: {error}");
+    }
+}
+
 /// `rail_store::WorkerStatus` for the window.
 #[derive(Debug, Default, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct StatsStatusDto {
-    /// `idle`, `rebuilding`, `indexing` (R2.7c), `computing`,
-    /// `paused-backfill`, `paused-tables`, `stopped`.
+    /// `idle`, `rebuilding`, `indexing` (R2.7c), `counting` (R2.10),
+    /// `computing`, `recomputing-ev` (R2.11), `paused-backfill`,
+    /// `paused-tables`, `stopped`.
     activity: &'static str,
-    /// A rebuild in progress: hands done, of hands to do.
+    /// A recompute's rows job in progress (R2.11): hands done, of hands to
+    /// do...
     rebuild_done: Option<u64>,
     rebuild_total: Option<u64>,
+    /// ...which job (`rows`, `segments`)...
+    rebuild_job: Option<&'static str>,
+    /// ...and whether it fills a store that had no statistics (the screens
+    /// grow as it goes) rather than replacing them when done.
+    rebuild_fills: bool,
+    /// A recompute's EV job in progress: hands evaluated, of hands to do.
+    ev_recompute_done: Option<u64>,
+    ev_recompute_total: Option<u64>,
     /// Hands waiting for their all-in EV.
     ev_pending: u64,
     /// Hands whose opponents the pass has not indexed yet (R2.7c: "hands
@@ -152,6 +203,10 @@ impl From<WorkerStatus> for StatsStatusDto {
             activity: status.activity.as_str(),
             rebuild_done: status.rebuild.as_ref().map(|r| r.done),
             rebuild_total: status.rebuild.as_ref().map(|r| r.total),
+            rebuild_job: status.rebuild.as_ref().map(|r| r.job.as_str()),
+            rebuild_fills: status.rebuild.as_ref().is_some_and(|r| r.fills > 0),
+            ev_recompute_done: status.ev_recompute.as_ref().map(|r| r.done),
+            ev_recompute_total: status.ev_recompute.as_ref().map(|r| r.total),
             ev_pending: status.ev_pending,
             players_unindexed: status.players_unindexed,
             ev_computed: status.ev_computed,
@@ -167,15 +222,16 @@ pub fn stats_status(state: State<'_, StatsState>) -> Result<StatsStatusDto, Stri
     state.with(|worker| Ok(worker.status().into()))
 }
 
-/// Rebuild every hand's statistics from its stored hand (in the
-/// background). Returns the hands to go through.
+/// Work every hand's statistics out again from its stored hand (in the
+/// background; R2.11: swapped in when done). Returns the hands to go
+/// through.
 #[tauri::command]
 pub async fn stats_rebuild(state: State<'_, StatsState>) -> Result<u64, String> {
     state.with(StatsWorker::rebuild_stats)
 }
 
-/// Compute every hero hand's all-in EV again (in the background). Returns
-/// the hands queued.
+/// Compute every hero hand's all-in EV again (in the background; R2.11:
+/// swapped in when done). Returns the hands to evaluate.
 #[tauri::command]
 pub async fn stats_recompute_ev(state: State<'_, StatsState>) -> Result<u64, String> {
     state.with(StatsWorker::recompute_ev)

@@ -19,7 +19,7 @@ use rail_store::import::ImportOptions;
 use rail_store::{CustomCounts, Exclusions, HeroFilter, Store, import_file};
 use rusqlite::Connection;
 
-use common::{DOWN_FROM_9, PARSED_AT, assert_integrity, corpus_files, scratch_dir};
+use common::{DOWN_FROM_9, DOWN_FROM_12, PARSED_AT, assert_integrity, corpus_files, scratch_dir};
 
 const VPIP: &str = "any street = preflop and not bomb_pot and not (walk and big_blind) \
                     => action in (call, bet, raise)";
@@ -373,15 +373,16 @@ fn edits_renames_deletes_and_rebuilds_keep_the_counts_right() {
         Counter::cbet_flop_opp,
     );
 
-    // A rebuild of the coded statistics gives the hands new ids: everything
-    // is counted again after it, to the same numbers.
+    // A rebuild of the coded statistics (R2.11: a recompute) keeps every
+    // hand's id and moves no seat: the counts stay as they are, during it
+    // and after it.
     store
         .writer()
         .expect("writer")
         .write(|tx| rail_store::stats::begin_rebuild(tx).map(drop))
         .expect("rebuild");
-    assert_eq!(ours(&store, &all, id), CustomCounts::default());
-    drain(&store);
+    assert_eq!(ours(&store, &all, id), coded_3b);
+    assert_eq!(drain(&store), 0, "nothing counted again");
     assert_eq!(ours(&store, &all, id), coded_3b);
     assert_same(
         &store,
@@ -460,6 +461,8 @@ fn an_older_store_gets_the_tables() {
     let path = copy_of_corpus("custom-older");
     {
         let conn = Connection::open(&path).expect("open");
+        conn.execute_batch(DOWN_FROM_12)
+            .expect("back to version 11");
         conn.execute_batch(
             "DROP TABLE custom_stats; DROP TABLE custom_hero_rows;
              DROP TABLE custom_hero_rollups; DROP TABLE custom_player_rollups;

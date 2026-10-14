@@ -320,10 +320,26 @@ export type AccountStatus =
 
 /** `stats::StatsStatusDto`: the background statistics pass (R2.3). */
 export interface StatsStatus {
-  activity: "idle" | "rebuilding" | "indexing" | "computing" | "paused-backfill" | "paused-tables" | "stopped";
-  /** A rebuild in progress: hands done, of hands to do. */
+  activity:
+    | "idle"
+    | "rebuilding"
+    | "indexing"
+    | "counting"
+    | "computing"
+    | "recomputing-ev"
+    | "paused-backfill"
+    | "paused-tables"
+    | "stopped";
+  /** A recompute's rows job in progress (R2.11): hands done, of hands to do... */
   rebuildDone: number | null;
   rebuildTotal: number | null;
+  /** ...which job... */
+  rebuildJob: "rows" | "segments" | null;
+  /** ...and whether it fills a store that had no statistics (the screens grow as it goes). */
+  rebuildFills: boolean;
+  /** A recompute's EV job in progress: hands evaluated, of hands to do. */
+  evRecomputeDone: number | null;
+  evRecomputeTotal: number | null;
   /** Hands waiting for their all-in EV. */
   evPending: number;
   /** Hands whose opponents are not indexed yet (R2.7c). */
@@ -860,6 +876,20 @@ export const ipc = {
  */
 export function onWatcherChanged(onChange: () => void): () => void {
   return onAppEvent("watcher-changed", onChange);
+}
+
+/**
+ * Call `onChange` whenever the statistics the screens show may have changed:
+ * hands arrived (`watcher-changed`), or a recompute swapped new statistics in
+ * (R2.11, `stats-changed`).
+ */
+export function onStatsDataChanged(onChange: () => void): () => void {
+  const watcher = onWatcherChanged(onChange);
+  const stats = onAppEvent("stats-changed", onChange);
+  return () => {
+    watcher();
+    stats();
+  };
 }
 
 /** Call `onChange` whenever the sync status changed (R1.9; at most once a second). */

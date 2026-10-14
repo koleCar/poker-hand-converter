@@ -13,7 +13,7 @@ import {
   errorText,
   inApp,
   ipc,
-  onWatcherChanged,
+  onStatsDataChanged,
   type Breakdowns,
   type HandFacets,
   type HandFilter,
@@ -106,7 +106,7 @@ export function useReport(query: HandFilter, ready = true): ReportState {
   useEffect(() => {
     if (!inApp) return;
     let timer: number | undefined;
-    const stop = onWatcherChanged(() => {
+    const stop = onStatsDataChanged(() => {
       if (timer !== undefined) return;
       timer = window.setTimeout(() => {
         timer = undefined;

@@ -13,7 +13,8 @@
 //! `SCHEMA.md`): `hud_layouts` (Phase 3), as the next free number when it
 //! lands (`seat_stats` and the rollups: 6; the Hands screen's tables: 7; the
 //! reports' list columns: 8; the Players screen's `players`: 9; an unused
-//! index dropped for the import: 10; custom statistics: 11).
+//! index dropped for the import: 10; custom statistics: 11; the targeted
+//! recompute's staging tables: 12).
 
 use rusqlite::Connection;
 
@@ -71,6 +72,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0011_custom_stats.sql",
         sql: include_str!("../migrations/0011_custom_stats.sql"),
+    },
+    Migration {
+        name: "0012_recompute.sql",
+        sql: include_str!("../migrations/0012_recompute.sql"),
     },
 ];
 

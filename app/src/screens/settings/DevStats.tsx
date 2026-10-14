@@ -1,8 +1,8 @@
 /**
- * Debug builds only (see `Settings.tsx`), until R2.7's screens: the
- * background statistics pass (R2.3) - what it is doing, and the two commands
- * that give it work: rebuild every hand's statistics, compute every all-in EV
- * again.
+ * Debug builds only (see `Settings.tsx`): the background statistics pass
+ * (R2.3) - what it is doing, and the two commands that give it work (R2.11:
+ * each a recompute, swapped in when done): work every hand's statistics out
+ * again, compute every all-in EV again.
  */
 import { useCallback, useEffect, useState } from "react";
 
@@ -56,6 +56,13 @@ export default function DevStats() {
           <dd>
             {status.rebuildTotal !== null
               ? s.rebuildProgress(status.rebuildDone ?? 0, status.rebuildTotal)
+              : s.none}
+          </dd>
+
+          <dt>{s.evRecompute}</dt>
+          <dd>
+            {status.evRecomputeTotal !== null
+              ? s.rebuildProgress(status.evRecomputeDone ?? 0, status.evRecomputeTotal)
               : s.none}
           </dd>
 

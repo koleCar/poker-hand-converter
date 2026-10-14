@@ -25,25 +25,29 @@
 //!   written with each batch (an index on `seat_stats`, or this table at
 //!   each group's flush) it cost the import 4-5 % of its rate (measured), a
 //!   page of a name-ordered table touched per opponent per transaction.
-//!   A rebuilt hand whose row reuses an id the pass has done is written
-//!   inline.
+//!   A hand whose seat rows a recompute replaces, with an id the pass has
+//!   done, gets its entries back with them.
 //! - **Summed in memory, added once** ([`Pending`]): a batch's (or a whole
 //!   group of batches', `writer::commit_group`) new rows are summed per
 //!   rollup key and added with one upsert per key, so a backfill writes a
 //!   rollup row per player and segment per transaction, not per seat. A
 //!   duplicate hand stores nothing and adds nothing.
-//! - **Generations** (`kv` `stats.gen`; `hand_stats.gen`): a rebuild
-//!   ([`begin_rebuild`]: a `STATS_VERSION` bump, or "rebuild statistics")
-//!   starts a new generation and empties the rollups; the background pass
-//!   then replaces each hand's older rows with new ones and counts them
-//!   ([`apply_rebuild_page`]), while imports keep counting their new hands in
-//!   the new generation. At every commit **the rollups equal the sums of the
+//! - **Recomputed beside, swapped in** (R2.11, [`crate::recompute`]): after a
+//!   definition change the background pass sums every hand's new rows into
+//!   the rollups' twins and stages the rows that differ; one transaction
+//!   swaps them in. At every commit **the rollups equal the sums of the
 //!   seat rows of the current generation** (`tests/common::assert_rollups`,
-//!   after every kill of the crash test too), and no row is counted twice.
+//!   after every kill of both crash tests too), and no row is counted twice.
+//!   A hand keeps its `hand_stats.id` for good. `kv` `stats.gen` and
+//!   `hand_stats.gen` remain from R2.3's rebuild, which started a new
+//!   generation and emptied the rollups: rows of an older generation are
+//!   left only by a store whose rebuild an older build had not finished, and
+//!   the next recompute brings them in.
 //! - **EV** (`ev_rows`, `ev_pending`): the hero's EV is computed with the hand
 //!   unless its all-in was completed preflop (1.7M boards, 25-46 ms): those
-//!   wait in `ev_pending` for the background pass (`crate::background`), as
-//!   does every hero hand after an `EV_VERSION` bump. Only rows that differ
+//!   wait in `ev_pending` for the background pass (`crate::background`); an
+//!   `EV_VERSION` bump evaluates every hero hand again beside them
+//!   ([`crate::recompute`]). Only rows that differ
 //!   from the result are stored (`applicable`); any other hero hand's row is
 //!   `ev_net = net` (`handEvRow`), implied by its absence from both tables.
 //!
@@ -55,10 +59,8 @@ use std::collections::HashMap;
 use std::sync::OnceLock;
 
 use rail_core::phf::GameFormat;
-use rail_equity::{EV_VERSION, EvRow};
-use rail_stats::{
-    COUNTER_COUNT, COUNTER_KEYS, Counter, MONEY_KEYS, STATS_VERSION, Segment, StatsRow,
-};
+use rail_equity::EvRow;
+use rail_stats::{COUNTER_COUNT, COUNTER_KEYS, Counter, MONEY_KEYS, Segment, StatsRow};
 use rusqlite::{Connection, OptionalExtension, Statement, params};
 
 use crate::batch::{EvPlan, PreparedStats};
@@ -66,16 +68,23 @@ use crate::error::{Error, Result};
 
 /// `kv`: the generation the rollups count.
 pub const KV_GEN: &str = "stats.gen";
-/// `kv`: the `STATS_VERSION` the current generation is derived under.
+/// `kv`: the `STATS_VERSION` the stored rows and rollups are derived under.
 pub const KV_VERSION: &str = "stats.version";
-/// `kv`: while a rebuild runs, the last `hand_key` it finished...
+/// `kv` (R2.11): the `SEGMENT_VERSION` the rollups are grouped under.
+pub const KV_SEGMENT_VERSION: &str = "stats.segment_version";
+/// `kv` (R2.11): moved on by every swap of a recompute; a reader that
+/// spreads one answer over several connections compares it.
+pub const KV_EPOCH: &str = "stats.epoch";
+/// `kv`, R2.3's rebuild (before R2.11): the last `hand_key` it finished. A
+/// store an older build left mid-rebuild still has it; opening it starts a
+/// recompute instead.
 pub const KV_REBUILD_CURSOR: &str = "stats.rebuild.cursor";
-/// ...how many hands it has gone through...
+/// ...how many hands it had gone through...
 pub const KV_REBUILD_DONE: &str = "stats.rebuild.done";
 /// ...and how many there were when it started.
 pub const KV_REBUILD_TOTAL: &str = "stats.rebuild.total";
-/// `kv`: the `EV_VERSION` every hero hand has been evaluated at or is
-/// queued for.
+/// `kv`: the `EV_VERSION` of the stored EV rows (an `EV_VERSION` bump's
+/// recompute sets it when it swaps the new rows in).
 pub const KV_EV_VERSION: &str = "ev.version";
 /// `kv` (R2.7c): every `hand_stats.id` up to this one has its opponents in
 /// `player_hands`; the background pass does the ones after it.
@@ -392,16 +401,74 @@ fn placeholders(n: usize) -> String {
         .join(", ")
 }
 
-fn upsert_player_sql() -> &'static str {
-    static SQL: OnceLock<String> = OnceLock::new();
-    SQL.get_or_init(|| {
+/// Where a [`Pending`]'s sums go: the rollups the screens read, or their
+/// twins a recompute fills before it swaps them in ([`crate::recompute`],
+/// R2.11).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Target {
+    Live,
+    Shadow,
+}
+
+impl Target {
+    const fn index(self) -> usize {
+        match self {
+            Self::Live => 0,
+            Self::Shadow => 1,
+        }
+    }
+
+    /// The table that takes the sums of the live table `live`.
+    pub(crate) const fn table(self, live: Summed) -> &'static str {
+        match (self, live) {
+            (Self::Live, Summed::Players) => "player_rollups",
+            (Self::Live, Summed::Heroes) => "hero_rollups",
+            (Self::Live, Summed::Summary) => "player_summary",
+            (Self::Live, Summed::Hidden) => "player_hidden",
+            (Self::Shadow, Summed::Players) => "recompute_player_rollups",
+            (Self::Shadow, Summed::Heroes) => "recompute_hero_rollups",
+            (Self::Shadow, Summed::Summary) => "recompute_player_summary",
+            (Self::Shadow, Summed::Hidden) => "recompute_player_hidden",
+        }
+    }
+}
+
+/// The tables that hold sums of the seat rows (each has a twin a
+/// recompute fills: [`Target::Shadow`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Summed {
+    Players,
+    Heroes,
+    Summary,
+    Hidden,
+}
+
+impl Summed {
+    pub(crate) const ALL: [Self; 4] = [Self::Players, Self::Heroes, Self::Summary, Self::Hidden];
+}
+
+/// One SQL text per [`Target`], made once.
+type PerTarget = [OnceLock<String>; 2];
+
+fn per_target(
+    cell: &'static PerTarget,
+    target: Target,
+    make: impl FnOnce() -> String,
+) -> &'static str {
+    cell[target.index()].get_or_init(make)
+}
+
+fn upsert_player_sql(target: Target) -> &'static str {
+    static SQL: PerTarget = [OnceLock::new(), OnceLock::new()];
+    per_target(&SQL, target, || {
         format!(
-            "INSERT INTO player_rollups (site, player, scope, segment_id, last_played_at, {})
+            "INSERT INTO {} (site, player, scope, segment_id, last_played_at, {})
              VALUES ({})
              ON CONFLICT (site, player, scope, segment_id) DO UPDATE SET
                last_played_at = CASE WHEN excluded.last_played_at > coalesce(last_played_at, '')
                                      THEN excluded.last_played_at ELSE last_played_at END,
                {}",
+            target.table(Summed::Players),
             total_columns(str::to_owned),
             placeholders(5 + TOTAL_COUNT),
             total_columns(|c| format!("{c} = {c} + excluded.{c}"))
@@ -409,13 +476,14 @@ fn upsert_player_sql() -> &'static str {
     })
 }
 
-fn upsert_hero_sql() -> &'static str {
-    static SQL: OnceLock<String> = OnceLock::new();
-    SQL.get_or_init(|| {
+fn upsert_hero_sql(target: Target) -> &'static str {
+    static SQL: PerTarget = [OnceLock::new(), OnceLock::new()];
+    per_target(&SQL, target, || {
         format!(
-            "INSERT INTO hero_rollups (segment_id, position, day, kind, {})
+            "INSERT INTO {} (segment_id, position, day, kind, {})
              VALUES ({})
              ON CONFLICT (segment_id, position, day, kind) DO UPDATE SET {}",
+            target.table(Summed::Heroes),
             total_columns(str::to_owned),
             placeholders(4 + TOTAL_COUNT),
             total_columns(|c| format!("{c} = {c} + excluded.{c}"))
@@ -493,30 +561,46 @@ impl PlayerSeen {
     }
 }
 
-const UPSERT_SEEN_SQL: &str = "INSERT INTO player_summary (site, player, hands, first_played_at,
-        last_played_at, cash_hands, chips_hands, cash_money_hands, cash_net_bb_milli,
-        chips_money_hands, chips_net_bb_milli)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
-     ON CONFLICT (site, player) DO UPDATE SET
-       hands = hands + excluded.hands,
-       first_played_at = CASE WHEN first_played_at IS NULL
-                                OR excluded.first_played_at < first_played_at
-                              THEN excluded.first_played_at ELSE first_played_at END,
-       last_played_at = CASE WHEN excluded.last_played_at > coalesce(last_played_at, '')
-                             THEN excluded.last_played_at ELSE last_played_at END,
-       cash_hands = cash_hands + excluded.cash_hands,
-       chips_hands = chips_hands + excluded.chips_hands,
-       cash_money_hands = cash_money_hands + excluded.cash_money_hands,
-       cash_net_bb_milli = cash_net_bb_milli + excluded.cash_net_bb_milli,
-       chips_money_hands = chips_money_hands + excluded.chips_money_hands,
-       chips_net_bb_milli = chips_net_bb_milli + excluded.chips_net_bb_milli";
+fn upsert_seen_sql(target: Target) -> &'static str {
+    static SQL: PerTarget = [OnceLock::new(), OnceLock::new()];
+    per_target(&SQL, target, || {
+        format!(
+            "INSERT INTO {} (site, player, hands, first_played_at,
+                last_played_at, cash_hands, chips_hands, cash_money_hands, cash_net_bb_milli,
+                chips_money_hands, chips_net_bb_milli)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
+             ON CONFLICT (site, player) DO UPDATE SET
+               hands = hands + excluded.hands,
+               first_played_at = CASE WHEN first_played_at IS NULL
+                                        OR excluded.first_played_at < first_played_at
+                                      THEN excluded.first_played_at ELSE first_played_at END,
+               last_played_at = CASE WHEN excluded.last_played_at > coalesce(last_played_at, '')
+                                     THEN excluded.last_played_at ELSE last_played_at END,
+               cash_hands = cash_hands + excluded.cash_hands,
+               chips_hands = chips_hands + excluded.chips_hands,
+               cash_money_hands = cash_money_hands + excluded.cash_money_hands,
+               cash_net_bb_milli = cash_net_bb_milli + excluded.cash_net_bb_milli,
+               chips_money_hands = chips_money_hands + excluded.chips_money_hands,
+               chips_net_bb_milli = chips_net_bb_milli + excluded.chips_net_bb_milli",
+            target.table(Summed::Summary)
+        )
+    })
+}
 
-const UPSERT_HIDDEN_SQL: &str = "INSERT INTO player_hidden (site, hands, cash_hands)
-     VALUES (?1, ?2, ?3)
-     ON CONFLICT (site) DO UPDATE SET hands = hands + excluded.hands,
-                                      cash_hands = cash_hands + excluded.cash_hands";
+fn upsert_hidden_sql(target: Target) -> &'static str {
+    static SQL: PerTarget = [OnceLock::new(), OnceLock::new()];
+    per_target(&SQL, target, || {
+        format!(
+            "INSERT INTO {} (site, hands, cash_hands)
+             VALUES (?1, ?2, ?3)
+             ON CONFLICT (site) DO UPDATE SET hands = hands + excluded.hands,
+                                              cash_hands = cash_hands + excluded.cash_hands",
+            target.table(Summed::Hidden)
+        )
+    })
+}
 
-const INSERT_HAND_SQL: &str =
+pub(crate) const INSERT_HAND_SQL: &str =
     "INSERT INTO hand_stats (hand_key, gen, played_at, segment_id, stats_version,
         site_anonymization, site_id, currency_minor_units, player_count, tournament_id,
         fast_fold, has_straddle, is_bomb_pot, is_big_blind_ante, is_run_it_twice, has_cashout,
@@ -524,17 +608,18 @@ const INSERT_HAND_SQL: &str =
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18,
              ?19, ?20, ?21, ?22)";
 
-const INSERT_SEAT_SQL: &str = "INSERT INTO seat_stats (hand_id, seat, player, scope, is_hero,
+pub(crate) const INSERT_SEAT_SQL: &str =
+    "INSERT INTO seat_stats (hand_id, seat, player, scope, is_hero,
         position, hole_cards, hand_class, starting_stack, starting_stack_bb_tenths, totals)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)";
 
-const INSERT_LIST_SQL: &str = "INSERT INTO hand_list (played_at, hand_key, site_hand_id,
+pub(crate) const INSERT_LIST_SQL: &str = "INSERT INTO hand_list (played_at, hand_key, site_hand_id,
         segment_id, hero_position, hero_cards, hero_net, hero_net_bb_milli, hero_stack_bb_tenths,
         board, all_in, showdown, pot_type, currency_symbol, kind, hero_wtsd, currency,
         minor_units)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)";
 
-const UPSERT_EV_SQL: &str =
+pub(crate) const UPSERT_EV_SQL: &str =
     "INSERT INTO ev_rows (hand_key, seat, ev_version, ev_net, ev_net_bb_milli)
      VALUES (?1, ?2, ?3, ?4, ?5)
      ON CONFLICT (hand_key) DO UPDATE SET
@@ -542,7 +627,7 @@ const UPSERT_EV_SQL: &str =
        ev_net_bb_milli = excluded.ev_net_bb_milli";
 
 /// Bind `totals` from parameter `first` on.
-fn bind_totals(stmt: &mut Statement<'_>, first: usize, totals: &Totals) -> Result<()> {
+pub(crate) fn bind_totals(stmt: &mut Statement<'_>, first: usize, totals: &Totals) -> Result<()> {
     for (i, value) in totals.counters.iter().enumerate() {
         stmt.raw_bind_parameter(first + i, value)?;
     }
@@ -553,7 +638,7 @@ fn bind_totals(stmt: &mut Statement<'_>, first: usize, totals: &Totals) -> Resul
     Ok(())
 }
 
-fn to_i64(value: usize, what: &'static str) -> Result<i64> {
+pub(crate) fn to_i64(value: usize, what: &'static str) -> Result<i64> {
     i64::try_from(value).map_err(|_| Error::OutOfRange(what))
 }
 
@@ -576,7 +661,7 @@ pub(crate) fn kv_set(conn: &Connection, key: &str, value: &str) -> Result<()> {
     Ok(())
 }
 
-fn kv_i64(conn: &Connection, key: &str) -> Result<Option<i64>> {
+pub(crate) fn kv_i64(conn: &Connection, key: &str) -> Result<Option<i64>> {
     kv_get(conn, key)?
         .map(|value| {
             value
@@ -592,7 +677,7 @@ pub fn current_gen(conn: &Connection) -> Result<i64> {
 }
 
 /// `segments.id` of `segment`, added when new.
-fn segment_id(conn: &Connection, segment: &Segment) -> Result<i64> {
+pub(crate) fn segment_id(conn: &Connection, segment: &Segment) -> Result<i64> {
     let stake = segment.stake.key();
     let key = params![
         segment.site,
@@ -630,12 +715,77 @@ pub(crate) fn day_of(played_at: Option<&str>) -> &str {
     played_at.and_then(|at| at.get(..10)).unwrap_or("")
 }
 
+/// A hand as the rollups see it: where its seats are summed.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct HandSum<'a> {
+    /// `segments.site`.
+    pub site: &'a str,
+    pub segment_id: i64,
+    pub played_at: Option<&'a str>,
+    /// [`kind_of`].
+    pub kind: i64,
+    /// A cash game (the Players list keeps cash and chips apart).
+    pub cash: bool,
+    /// The hero's `net_bb_milli` when the hero played the hand.
+    pub hero_net: Option<i64>,
+}
+
+/// A seat as the rollups see it.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct SeatSum<'a> {
+    pub player: &'a str,
+    pub scope: &'a str,
+    pub is_hero: bool,
+    /// `""` for none.
+    pub position: &'a str,
+    pub values: &'a SeatValues,
+}
+
+impl<'a> HandSum<'a> {
+    /// A prepared hand's (it has rows) in segment `segment_id`.
+    pub(crate) fn of(stats: &'a PreparedStats, segment_id: i64) -> Option<Self> {
+        let first = &stats.rows.first()?.row;
+        Some(Self {
+            site: &stats.segment.site,
+            segment_id,
+            played_at: first.hand.played_at.as_deref(),
+            kind: kind_of(first),
+            cash: stats.segment.format == GameFormat::Cash,
+            hero_net: stats
+                .rows
+                .iter()
+                .find(|seat| seat.row.seat.is_hero)
+                .map(|seat| seat.values.net_bb_milli()),
+        })
+    }
+}
+
+impl<'a> SeatSum<'a> {
+    /// A prepared seat's.
+    pub(crate) fn of(seat: &'a crate::batch::PreparedSeat) -> Self {
+        Self {
+            player: &seat.row.seat.player,
+            scope: &seat.scope,
+            is_hero: seat.row.seat.is_hero,
+            position: seat
+                .row
+                .seat
+                .position
+                .map_or("", |position| position.as_str()),
+            values: &seat.values,
+        }
+    }
+}
+
 /// Statistics written in one transaction: the rows as they come, the
 /// rollups summed in memory and added by [`Pending::flush`]. A group of
 /// batches (`writer::commit_group`) gives each batch a [`Pending::child`]
-/// and [`Pending::merge`]s it once the batch's savepoint commits.
+/// and [`Pending::merge`]s it once the batch's savepoint commits. A
+/// recompute (R2.11) sums into a [`Target::Shadow`] one, whose
+/// [`Pending::flush`] adds to the rollups' twins.
 #[derive(Debug)]
 pub(crate) struct Pending {
+    target: Target,
     generation: i64,
     segments: HashMap<Segment, i64>,
     players: HashMap<PlayerKey, (Totals, Option<String>)>,
@@ -645,8 +795,7 @@ pub(crate) struct Pending {
     /// `player_hidden` by site: (hands, of which cash).
     hidden: HashMap<String, (i64, i64)>,
     /// `player_hands`: (player, `hand_stats.id`, seat) of hands whose id
-    /// the background pass has gone past (a rebuild reusing an id): the
-    /// others are the pass's.
+    /// the background pass has gone past: the others are the pass's.
     hands: Vec<(String, i64, u32)>,
     /// `kv` `players.indexed` when the transaction began.
     indexed: i64,
@@ -656,6 +805,7 @@ impl Pending {
     /// For the current generation.
     pub(crate) fn new(conn: &Connection) -> Result<Self> {
         Ok(Self {
+            target: Target::Live,
             generation: current_gen(conn)?,
             segments: HashMap::new(),
             players: HashMap::new(),
@@ -667,10 +817,27 @@ impl Pending {
         })
     }
 
+    /// Sums for the rollups' twins (a recompute's, R2.11): only
+    /// [`Pending::count`] and [`Pending::flush`] - it writes no rows.
+    pub(crate) fn shadow() -> Self {
+        Self {
+            target: Target::Shadow,
+            generation: 0,
+            segments: HashMap::new(),
+            players: HashMap::new(),
+            heroes: HashMap::new(),
+            seen: HashMap::new(),
+            hidden: HashMap::new(),
+            hands: Vec::new(),
+            indexed: 0,
+        }
+    }
+
     /// An empty one for a batch inside this one's transaction (the
     /// segments known so far shared).
     pub(crate) fn child(&self) -> Self {
         Self {
+            target: self.target,
             generation: self.generation,
             segments: self.segments.clone(),
             players: HashMap::new(),
@@ -715,6 +882,58 @@ impl Pending {
         Ok(id)
     }
 
+    /// Add one seat row of `hand` to the sums: the HUD's (`aggregate`'s
+    /// defaults), the Players list's and the hero's.
+    pub(crate) fn count(&mut self, hand: &HandSum<'_>, seat: &SeatSum<'_>) {
+        let (counted, money) = Exclusions::default().admits(hand.kind);
+        if counted {
+            let (totals, last) = self
+                .players
+                .entry((
+                    hand.site.to_owned(),
+                    seat.player.to_owned(),
+                    seat.scope.to_owned(),
+                    hand.segment_id,
+                ))
+                .or_default();
+            totals.add_seat(seat.values, money);
+            if hand.played_at > last.as_deref() {
+                *last = hand.played_at.map(str::to_owned);
+            }
+            if !seat.is_hero {
+                if seat.scope.is_empty() {
+                    if !seat.player.is_empty() {
+                        self.seen
+                            .entry((hand.site.to_owned(), seat.player.to_owned()))
+                            .or_default()
+                            .add(&PlayerSeen::seat(
+                                hand.played_at,
+                                hand.cash,
+                                hand.hero_net,
+                                money,
+                            ));
+                    }
+                } else {
+                    let sum = self.hidden.entry(hand.site.to_owned()).or_default();
+                    sum.0 += 1;
+                    sum.1 += i64::from(hand.cash);
+                }
+            }
+        }
+        // The hero's: everything, by kind.
+        if seat.is_hero {
+            self.heroes
+                .entry((
+                    hand.segment_id,
+                    seat.position.to_owned(),
+                    day_of(hand.played_at).to_owned(),
+                    hand.kind,
+                ))
+                .or_default()
+                .add_seat(seat.values, true);
+        }
+    }
+
     /// Write a hand's rows (it has none) and count them.
     fn add_rows(&mut self, conn: &Connection, hand_key: &str, stats: &PreparedStats) -> Result<()> {
         let Some(first) = stats.rows.first().map(|seat| &seat.row) else {
@@ -751,9 +970,7 @@ impl Pending {
         // resetting the statement.
         let hand_id = conn.last_insert_rowid();
         let kind = kind_of(first);
-        let (counted, money) = Exclusions::default().admits(kind);
         let played_at = hand.played_at.as_deref();
-        let day = day_of(played_at);
         // The Hands list's row (R2.7a), deleted with the `hand_stats` row by
         // a trigger.
         let hero = stats.rows.iter().find(|seat| seat.row.seat.is_hero);
@@ -778,11 +995,17 @@ impl Pending {
             hand.currency_minor_units,
         ])?;
         // The Players list's lines (R2.7c): the hero's result in this hand.
-        let cash = stats.segment.format == GameFormat::Cash;
-        let hero_net = hero.map(|seat| seat.values.net_bb_milli());
+        let sum = HandSum {
+            site: &stats.segment.site,
+            segment_id,
+            played_at,
+            kind,
+            cash: stats.segment.format == GameFormat::Cash,
+            hero_net: hero.map(|seat| seat.values.net_bb_milli()),
+        };
         let mut insert = conn.prepare_cached(INSERT_SEAT_SQL)?;
         for prepared in &stats.rows {
-            let (seat, scope, values) = (&prepared.row.seat, &prepared.scope, &prepared.values);
+            let (seat, scope) = (&prepared.row.seat, &prepared.scope);
             let position = seat.position.map(|position| position.as_str());
             insert.execute(params![
                 hand_id,
@@ -806,48 +1029,7 @@ impl Pending {
             {
                 self.hands.push((seat.player.clone(), hand_id, seat.seat));
             }
-            // The HUD's sums: `aggregate`'s defaults.
-            if counted {
-                let (totals, last) = self
-                    .players
-                    .entry((
-                        stats.segment.site.clone(),
-                        seat.player.clone(),
-                        scope.clone(),
-                        segment_id,
-                    ))
-                    .or_default();
-                totals.add_seat(values, money);
-                if played_at > last.as_deref() {
-                    *last = played_at.map(str::to_owned);
-                }
-                if !seat.is_hero {
-                    if scope.is_empty() {
-                        if !seat.player.is_empty() {
-                            self.seen
-                                .entry((stats.segment.site.clone(), seat.player.clone()))
-                                .or_default()
-                                .add(&PlayerSeen::seat(played_at, cash, hero_net, money));
-                        }
-                    } else {
-                        let sum = self.hidden.entry(stats.segment.site.clone()).or_default();
-                        sum.0 += 1;
-                        sum.1 += i64::from(cash);
-                    }
-                }
-            }
-            // The hero's: everything, by kind.
-            if seat.is_hero {
-                self.heroes
-                    .entry((
-                        segment_id,
-                        position.unwrap_or("").to_owned(),
-                        day.to_owned(),
-                        kind,
-                    ))
-                    .or_default()
-                    .add_seat(values, true);
-            }
+            self.count(&sum, &SeatSum::of(prepared));
         }
         Ok(())
     }
@@ -873,8 +1055,9 @@ impl Pending {
         Ok(())
     }
 
-    /// Add the sums to the rollups.
+    /// Add the sums to the rollups (or to their twins).
     pub(crate) fn flush(mut self, conn: &Connection) -> Result<()> {
+        let target = self.target;
         if !self.hands.is_empty() {
             // In key order: each page of the table is visited once.
             self.hands.sort_unstable();
@@ -886,7 +1069,7 @@ impl Pending {
             }
         }
         if !self.players.is_empty() {
-            let mut upsert = conn.prepare_cached(upsert_player_sql())?;
+            let mut upsert = conn.prepare_cached(upsert_player_sql(target))?;
             for ((site, player, scope, segment_id), (totals, last)) in &self.players {
                 upsert.raw_bind_parameter(1, site)?;
                 upsert.raw_bind_parameter(2, player)?;
@@ -898,7 +1081,7 @@ impl Pending {
             }
         }
         if !self.seen.is_empty() {
-            let mut upsert = conn.prepare_cached(UPSERT_SEEN_SQL)?;
+            let mut upsert = conn.prepare_cached(upsert_seen_sql(target))?;
             for ((site, player), seen) in &self.seen {
                 upsert.execute(params![
                     site,
@@ -916,13 +1099,13 @@ impl Pending {
             }
         }
         if !self.hidden.is_empty() {
-            let mut upsert = conn.prepare_cached(UPSERT_HIDDEN_SQL)?;
+            let mut upsert = conn.prepare_cached(upsert_hidden_sql(target))?;
             for (site, (hands, cash)) in &self.hidden {
                 upsert.execute(params![site, hands, cash])?;
             }
         }
         if !self.heroes.is_empty() {
-            let mut upsert = conn.prepare_cached(upsert_hero_sql())?;
+            let mut upsert = conn.prepare_cached(upsert_hero_sql(target))?;
             for ((segment_id, position, day, kind), totals) in &self.heroes {
                 upsert.raw_bind_parameter(1, segment_id)?;
                 upsert.raw_bind_parameter(2, position)?;
@@ -983,7 +1166,7 @@ pub fn players_unindexed(conn: &Connection) -> Result<u64> {
 }
 
 /// Store (or replace) an applicable EV row.
-fn upsert_ev(conn: &Connection, row: &EvRow) -> Result<()> {
+pub(crate) fn upsert_ev(conn: &Connection, row: &EvRow) -> Result<()> {
     conn.prepare_cached(UPSERT_EV_SQL)?.execute(params![
         row.hand_key,
         row.seat,
@@ -996,7 +1179,7 @@ fn upsert_ev(conn: &Connection, row: &EvRow) -> Result<()> {
 
 /// A hand's EV is known now: an applicable row is stored, any other leaves
 /// none; the hand leaves the queue.
-fn settle_ev(conn: &Connection, hand_key: &str, row: Option<&EvRow>) -> Result<()> {
+pub(crate) fn settle_ev(conn: &Connection, hand_key: &str, row: Option<&EvRow>) -> Result<()> {
     match row.filter(|row| row.applicable) {
         Some(row) => upsert_ev(conn, row)?,
         None => {
@@ -1009,195 +1192,35 @@ fn settle_ev(conn: &Connection, hand_key: &str, row: Option<&EvRow>) -> Result<(
     Ok(())
 }
 
-/// Queue a hand for the background EV pass.
-fn enqueue_ev(conn: &Connection, hand_key: &str) -> Result<()> {
+/// Queue a hand for the background EV pass. A queued hand has no EV row
+/// (R2.11: the reports read every stored row, whatever its version, so a
+/// hand is in one of the two tables or in neither).
+pub(crate) fn enqueue_ev(conn: &Connection, hand_key: &str) -> Result<()> {
+    conn.prepare_cached("DELETE FROM ev_rows WHERE hand_key = ?1")?
+        .execute([hand_key])?;
     conn.prepare_cached("INSERT OR IGNORE INTO ev_pending (hand_key) VALUES (?1)")?
         .execute([hand_key])?;
     Ok(())
 }
 
-/// Start a new generation: empty rollups, every stored hand to be derived
-/// again by the background pass (resumable, through `kv`). Returns the hands
-/// to go through.
+/// "Rebuild statistics": every hand's statistics worked out again from its
+/// stored PHF and swapped in when done ([`crate::recompute::begin_rows`] -
+/// the statistics the screens read stay whole meanwhile, and only the rows
+/// that come out different are rewritten). Returns the hands to go
+/// through.
 pub fn begin_rebuild(conn: &Connection) -> Result<u64> {
-    let generation = current_gen(conn)? + 1;
-    kv_set(conn, KV_GEN, &generation.to_string())?;
-    kv_set(conn, KV_VERSION, STATS_VERSION)?;
-    conn.execute("DELETE FROM player_rollups", [])?;
-    conn.execute("DELETE FROM hero_rollups", [])?;
-    conn.execute("DELETE FROM player_summary", [])?;
-    conn.execute("DELETE FROM player_hidden", [])?;
-    // Every hand gets a new `hand_stats` id: the user's own statistics are
-    // counted again after the rebuild (R2.10).
-    crate::custom::reset_custom_counts(conn)?;
-    let total: i64 = conn.query_row("SELECT count(*) FROM hands", [], |row| row.get(0))?;
-    if total > 0 {
-        kv_set(conn, KV_REBUILD_CURSOR, "")?;
-        kv_set(conn, KV_REBUILD_DONE, "0")?;
-        kv_set(conn, KV_REBUILD_TOTAL, &total.to_string())?;
-    } else {
-        end_rebuild(conn)?;
-    }
-    u64::try_from(total).map_err(|_| Error::OutOfRange("hands"))
+    crate::recompute::begin_rows(conn, crate::recompute::RowsJob::Rows)
 }
 
-fn end_rebuild(conn: &Connection) -> Result<()> {
-    conn.execute(
-        "DELETE FROM kv WHERE key IN (?1, ?2, ?3)",
-        params![KV_REBUILD_CURSOR, KV_REBUILD_DONE, KV_REBUILD_TOTAL],
-    )?;
-    Ok(())
-}
-
-/// Every hero hand to the EV queue (an `EV_VERSION` bump, or "compute EV
-/// again"). Returns how many were queued.
-pub fn requeue_ev(conn: &Connection) -> Result<u64> {
-    kv_set(conn, KV_EV_VERSION, EV_VERSION)?;
-    let queued = conn.execute(
-        "INSERT OR IGNORE INTO ev_pending (hand_key)
-         SELECT d.hand_key FROM hand_stats d
-         WHERE EXISTS (SELECT 1 FROM seat_stats s WHERE s.hand_id = d.id AND s.is_hero = 1)
-         ORDER BY d.id",
-        [],
-    )?;
-    u64::try_from(queued).map_err(|_| Error::OutOfRange("queued"))
-}
-
-/// On open: a store whose rollups were built under another `STATS_VERSION`
-/// (or never: a store from before R2.3) starts a rebuild; one evaluated at
-/// another `EV_VERSION` queues every hero hand.
+/// On open: bring the statistics up to this build's definitions - the
+/// jobs of [`crate::recompute::ensure_current`], and the user's own
+/// statistics' events version.
 pub(crate) fn ensure_current(conn: &mut Connection) -> Result<()> {
     let tx = conn.transaction()?;
-    if kv_get(&tx, KV_VERSION)?.as_deref() != Some(STATS_VERSION) {
-        begin_rebuild(&tx)?;
-    }
-    if kv_get(&tx, KV_EV_VERSION)?.as_deref() != Some(EV_VERSION) {
-        requeue_ev(&tx)?;
-    }
+    crate::recompute::ensure_current(&tx)?;
     crate::custom::ensure_events_version(&tx)?;
     tx.commit()?;
     Ok(())
-}
-
-/// Where a rebuild stands.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RebuildState {
-    /// The last `hand_key` done (`""` before the first page).
-    pub cursor: String,
-    pub done: u64,
-    pub total: u64,
-}
-
-/// The running rebuild, if any.
-pub fn rebuild_state(conn: &Connection) -> Result<Option<RebuildState>> {
-    let Some(cursor) = kv_get(conn, KV_REBUILD_CURSOR)? else {
-        return Ok(None);
-    };
-    let count =
-        |key| -> Result<u64> { Ok(u64::try_from(kv_i64(conn, key)?.unwrap_or(0)).unwrap_or(0)) };
-    Ok(Some(RebuildState {
-        cursor,
-        done: count(KV_REBUILD_DONE)?,
-        total: count(KV_REBUILD_TOTAL)?,
-    }))
-}
-
-/// One page of a rebuild, derived by the background pass: per hand its
-/// statistics (`None`: its PHF could not be read back - its rows go).
-#[derive(Debug)]
-pub struct RebuildPage {
-    /// The cursor the page was read after: if the rebuild moved on (or
-    /// restarted) since, the page is stale and dropped.
-    pub after: String,
-    pub hands: Vec<(String, Option<PreparedStats>)>,
-}
-
-/// The hero's seat, net and net in thousandths of a big blind: an EV result
-/// stays valid while these do not change (`handEvRow` reads nothing else of
-/// the statistics).
-type HeroFacts = (u32, i64, i64);
-
-fn hero_facts(row: &StatsRow) -> HeroFacts {
-    (
-        row.seat.seat,
-        row.seat.money.net,
-        row.seat.money.net_bb_milli,
-    )
-}
-
-/// Apply one rebuild page: each hand whose rows are of an older generation
-/// (or that has none) gets new rows, counted in the current one; a hand
-/// already counted (imported since the rebuild began) is left. The cursor
-/// moves in the same transaction. Returns whether the page applied
-/// (`false`: stale).
-pub fn apply_rebuild_page(conn: &Connection, page: &RebuildPage) -> Result<bool> {
-    let Some(state) = rebuild_state(conn)? else {
-        return Ok(false);
-    };
-    if state.cursor != page.after {
-        return Ok(false);
-    }
-    let mut pending = Pending::new(conn)?;
-    for (hand_key, stats) in &page.hands {
-        let existing: Option<(i64, i64)> = conn
-            .prepare_cached("SELECT id, gen FROM hand_stats WHERE hand_key = ?1")?
-            .query_row([hand_key], |row| Ok((row.get(0)?, row.get(1)?)))
-            .optional()?;
-        let mut old_hero: Option<HeroFacts> = None;
-        if let Some((id, generation)) = existing {
-            if generation == pending.generation {
-                continue;
-            }
-            let hero: Option<(u32, Vec<u8>)> = conn
-                .prepare_cached(
-                    "SELECT seat, totals FROM seat_stats WHERE hand_id = ?1 AND is_hero = 1
-                     ORDER BY seat LIMIT 1",
-                )?
-                .query_row([id], |row| Ok((row.get(0)?, row.get(1)?)))
-                .optional()?;
-            if let Some((seat, blob)) = hero {
-                let values = decode_seat(&blob)?;
-                old_hero = Some((seat, values.net(), values.net_bb_milli()));
-            }
-            conn.prepare_cached("DELETE FROM hand_stats WHERE id = ?1")?
-                .execute([id])?;
-        }
-        let Some(stats) = stats else {
-            continue;
-        };
-        pending.add_rows(conn, hand_key, stats)?;
-        match &stats.ev {
-            EvPlan::NoHero => settle_ev(conn, hand_key, None)?,
-            EvPlan::Row(row) => settle_ev(conn, hand_key, Some(row))?,
-            EvPlan::Deferred => {
-                let queued = conn
-                    .prepare_cached("SELECT 1 FROM ev_pending WHERE hand_key = ?1")?
-                    .exists([hand_key])?;
-                // Evaluated before, for the same hero result: still right.
-                let valid =
-                    !queued && old_hero.is_some() && old_hero == stats.hero().map(hero_facts);
-                if valid {
-                    // The list's flag is what that evaluation found.
-                    let applicable = conn
-                        .prepare_cached("SELECT 1 FROM ev_rows WHERE hand_key = ?1")?
-                        .exists([hand_key])?;
-                    set_list_all_in(conn, hand_key, applicable)?;
-                } else {
-                    enqueue_ev(conn, hand_key)?;
-                }
-            }
-        }
-    }
-    pending.flush(conn)?;
-    match page.hands.last() {
-        Some((last, _)) => {
-            let done = state.done + u64::try_from(page.hands.len()).unwrap_or(0);
-            kv_set(conn, KV_REBUILD_CURSOR, last)?;
-            kv_set(conn, KV_REBUILD_DONE, &done.to_string())?;
-        }
-        None => end_rebuild(conn)?,
-    }
-    Ok(true)
 }
 
 /// Apply EV results computed by the background pass: per hand its row
@@ -1218,7 +1241,7 @@ pub fn apply_ev_rows(conn: &Connection, rows: &[(String, Option<EvRow>)]) -> Res
 /// The list's all-in flag of a hand once its EV is known (a preflop
 /// all-in's row was written with the flag on, before the pass evaluated
 /// it: [`crate::ListFacts::all_in`]).
-fn set_list_all_in(conn: &Connection, hand_key: &str, all_in: bool) -> Result<()> {
+pub(crate) fn set_list_all_in(conn: &Connection, hand_key: &str, all_in: bool) -> Result<()> {
     conn.prepare_cached(
         "UPDATE hand_list SET all_in = ?2
          WHERE hand_key = ?1

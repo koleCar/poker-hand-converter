@@ -25,7 +25,6 @@
 use std::path::PathBuf;
 use std::time::Instant;
 
-use rail_store::background::{self, Step};
 use rail_store::hand_list::{self, HandCursor, HandFilter};
 use rail_store::{Reader, Store};
 
@@ -90,14 +89,8 @@ fn main() {
         .is_some()
     {
         let started = Instant::now();
-        let mut hands = 0;
-        loop {
-            match background::step(store.reader(), &writer, false).expect("step") {
-                Step::Rebuilt(n) => hands += n,
-                Step::Nothing => break,
-                Step::Computed(..) | Step::Indexed(_) | Step::Counted(_) => {}
-            }
-        }
+        let hands =
+            rail_store::recompute::run_rows_job(store.reader(), &writer).expect("recompute");
         println!(
             "rebuild (the list rows of an older store): {hands} hands in {:.1?}",
             started.elapsed()

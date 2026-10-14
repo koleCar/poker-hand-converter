@@ -16,22 +16,27 @@
 //!   passed as UTC instants), and the all-in EV adjustment from the few
 //!   stored `ev_rows`.
 //!
-//! Every sum is of the current generation (see `stats`): during a rebuild
-//! the numbers grow as the background pass gets through the hands.
+//! Every answer is read in one transaction (`Reader::with`): a recompute
+//! (R2.11) swaps its new statistics in with one commit, so an answer is the
+//! old statistics or the new ones, never a mix. While a recompute's rows job
+//! fills a store that had no statistics (`RebuildState::fills`), the
+//! numbers grow as it gets through the hands. The EV adjustment reads every
+//! stored row, whatever its `ev_version`: an `EV_VERSION` bump's job swaps
+//! the new rows in when it is done.
 
 use std::collections::BTreeMap;
 
 use rail_core::phf::{GameFormat, LimitType, Variant};
-use rail_equity::EV_VERSION;
 use rail_stats::{Segment, SizeClass, Stake};
 use rusqlite::types::Value;
 use rusqlite::{OptionalExtension, params, params_from_iter};
 
 use crate::error::{Error, Result};
 use crate::read::Reader;
+use crate::recompute::{EvRecomputeState, RebuildState, epoch, ev_state, rows_state};
 use crate::stats::{
-    Exclusions, KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, RebuildState, Totals, current_gen,
-    decode_seat, kv_get, rebuild_state, total_columns,
+    Exclusions, KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, Totals, current_gen, decode_seat,
+    kv_get, total_columns,
 };
 
 /// A segment and its id in this store.
@@ -156,11 +161,15 @@ impl HeroSum {
 pub struct StatsStatus {
     /// The `STATS_VERSION` the rollups are built under.
     pub stats_version: Option<String>,
-    /// The `EV_VERSION` the hero hands are evaluated at or queued for.
+    /// The `EV_VERSION` of the stored EV rows.
     pub ev_version: Option<String>,
     pub generation: i64,
-    /// A rebuild in progress.
+    /// Moved on by every recompute's swap (R2.11).
+    pub epoch: i64,
+    /// A recompute's rows job in progress (R2.11; R2.3's rebuild).
     pub rebuild: Option<RebuildState>,
+    /// A recompute's EV job in progress (R2.11).
+    pub ev_recompute: Option<EvRecomputeState>,
     /// Hands waiting for the background EV pass.
     pub ev_pending: u64,
     /// (R2.7c) Hands whose opponents the background pass has not indexed
@@ -547,14 +556,12 @@ impl Reader {
             // The EV adjustment over the whole range: the stored rows (all-ins
             // with cards to come) and the hands still queued.
             let (from, to) = (filter.from.as_deref(), filter.to.as_deref());
-            let (sql, mut params) = hero_rows(
+            let (sql, params) = hero_rows(
                 "ev_rows e CROSS JOIN hand_stats d ON d.hand_key = e.hand_key",
                 from,
                 to,
                 ", e.seat, s.seat, e.ev_net, e.ev_net_bb_milli",
             );
-            params.push(Value::Text(EV_VERSION.to_owned()));
-            let sql = format!("{sql} AND e.ev_version = ?{}", params.len());
             let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params_from_iter(params))?;
             while let Some(row) = rows.next()? {
@@ -599,7 +606,9 @@ impl Reader {
                 stats_version: kv_get(conn, crate::stats::KV_VERSION)?,
                 ev_version: kv_get(conn, crate::stats::KV_EV_VERSION)?,
                 generation: current_gen(conn)?,
-                rebuild: rebuild_state(conn)?,
+                epoch: epoch(conn)?,
+                rebuild: rows_state(conn)?,
+                ev_recompute: ev_state(conn)?,
                 ev_pending: u64::try_from(pending).unwrap_or(0),
                 players_unindexed: crate::stats::players_unindexed(conn)?,
             })

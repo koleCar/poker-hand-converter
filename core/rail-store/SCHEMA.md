@@ -49,6 +49,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 9 | `0009_players.sql` | `players`, `player_labels` (the user's colour, labels and note per opponent), `player_summary`, `player_hidden` (the list's sums), `player_hands` and its delete trigger on `seat_stats`; forgets `stats.version`, so the next open rebuilds the statistics and with them the sums (R2.7c) |
 | 10 | `0010_import_indexes.sql` | drops `hands_played_at_idx`: no query reads it (the list reads `hand_list`, date ranges `hand_stats`), and each imported hand wrote an entry at a random place (~7 % of the writer's time per hand) |
 | 11 | `0011_custom_stats.sql` | `custom_stats` (the user's own statistics), `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups` (their counts) (R2.10); empty, nothing to rebuild |
+| 12 | `0012_recompute.sql` | the targeted recompute's work tables (R2.11): `recompute_hands`, `recompute_seats`, `recompute_list` (staged rows), `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden` (the twins of the four summed tables, swapped in by rename), `recompute_ev` and `recompute_ev_waiting_idx`; empty, nothing to recompute |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -82,11 +83,19 @@ The statistics' keys (R2.3, `rail_store::stats`):
 
 | Key | Value |
 | --- | --- |
-| `stats.gen` | the generation the rollups count (`hand_stats.gen`); a rebuild starts the next |
-| `stats.version` | the `STATS_VERSION` (`stats/2`) the current generation is derived under; another one on open starts a rebuild |
-| `stats.rebuild.cursor` | while a rebuild runs: the last `hand_key` it went through (`''` before the first page); absent otherwise |
-| `stats.rebuild.done`, `stats.rebuild.total` | its progress: hands gone through, of the hands stored when it began |
-| `ev.version` | the `EV_VERSION` (`ev/1`) every hero hand was evaluated at or is queued for; another one on open queues every hero hand again |
+| `stats.gen` | the generation the rollups count (`hand_stats.gen`). R2.3's rebuild started the next; since R2.11 it stays (a recompute swaps instead), and rows of an older one are left only by a store an older build left mid-rebuild |
+| `stats.version` | the `STATS_VERSION` (`stats/2`) the stored rows and rollups are derived under; another one on open starts the recompute's rows job, and its swap sets it |
+| `stats.segment_version` | (R2.11) the `rail_stats::SEGMENT_VERSION` (`segment/1`) the rollups are grouped under; another one on open starts the segments job. Set silently on a store from before R2.11 |
+| `stats.epoch` | (R2.11) moved on by every recompute's swap: a reader that spreads one answer over several connections reads it before and after (`Reader::same_epoch`); the app tells the window (`stats-changed`) |
+| `recompute.rows.job` | (R2.11) while a rows job runs: `rows` or `segments`; absent otherwise |
+| `recompute.rows.target` | the versions it works out, `<STATS_VERSION> <SEGMENT_VERSION>`: a build of other versions starts it again rather than resuming |
+| `recompute.rows.cursor` | the last `hands` rowid it went through (`0` before the first page) |
+| `recompute.rows.done`, `recompute.rows.total` | its progress: hands gone through, of the hands stored when it began |
+| `recompute.rows.fills` | hands without rows of the current generation when it began (a store from before version 6, a rebuild an older build left): the job writes theirs at once, so the screens grow meanwhile |
+| `recompute.rows.custom` | `1` once a hand's seats moved between rollup keys: the swap clears the custom counts |
+| `recompute.ev.target`, `recompute.ev.done`, `recompute.ev.total` | (R2.11) while the EV job runs: the `EV_VERSION` it evaluates at, hands evaluated, hands to evaluate |
+| `stats.rebuild.cursor`, `stats.rebuild.done`, `stats.rebuild.total` | R2.3's rebuild, before R2.11: a store an older build left mid-rebuild has them; opening it deletes them and starts the rows job |
+| `ev.version` | the `EV_VERSION` (`ev/1`) of the stored EV rows; another one on open starts the EV job, and its swap sets it |
 | `custom.events_version` | (R2.10) the `rail_stats::custom::EVENTS_VERSION` (`events/1`) the custom counts were made under; another one on open clears them and every custom statistic is counted again |
 
 | Column | Type | |
@@ -321,8 +330,9 @@ Index: `sync_rejected_reason_idx (reason)`.
 
 The local statistics: per hand the rows `rail_stats::stored_rows` keeps,
 the rollups the HUD and the reports read, and the hero's all-in EV. Written
-by `rail_store::stats`, read by `rail_store::stats_read`, rebuilt and
-completed by the background pass `rail_store::background` (`StatsWorker`).
+by `rail_store::stats`, read by `rail_store::stats_read`, recomputed
+(R2.11, `rail_store::recompute`) and completed by the background pass
+`rail_store::background` (`StatsWorker`).
 
 **How they are written.** A hand's rows are derived on the producer's
 thread (the import threads, the sync pull: `PreparedStats` beside the
@@ -355,19 +365,15 @@ draws on the same way). A session that runs past midnight UTC, or a
 tournament player moved to another table, splits in two: it under-merges,
 never over-merges. The hero is always one person (scope `''`).
 
-**Generations and rebuilds.** The rollups count the rows of one generation
-(`kv` `stats.gen`; `hand_stats.gen`). A rebuild - started on open when
-`stats.version` is not this build's `STATS_VERSION` (a version bump, or a
-store from before version 6), or by "rebuild statistics" after a definition
-change - begins the next generation in one transaction: the rollups are
-emptied and a cursor set. The background pass then goes through `hands` in
-`hand_key` order, 500 a transaction, reads each PHF back, derives its rows
-with this build's engine and replaces the older generation's rows with them,
-moving the cursor in the same transaction (resumable after a quit or a
-crash). Hands imported meanwhile are counted in the new generation at once
-and skipped by the pass. **At every commit the rollups are the sums of the
-current generation's rows**; during a rebuild they grow as the pass goes.
-Measured on the corpus (7 496 hands, debug build): ~3 s.
+**Recomputes (R2.11).** When a definition changes - `stats.version`,
+`stats.segment_version` or `ev.version` is not this build's on open, or the
+user asks for "rebuild statistics" - the background pass works the new
+statistics out **beside** the ones the screens read and swaps them in with
+one commit; see "Targeted recompute" below for what each change touches.
+**At every commit the rollups are the sums of the current generation's
+rows**, and a reader sees the old statistics or the new ones, whole. (R2.3's
+rebuild began a new generation, emptied the rollups and refilled them as it
+went, and gave every hand a new `hand_stats.id`; a hand keeps its id now.)
 
 **All-in EV.** `ev_row` (`handEvRow` of the web) needs the hero's row. A
 hand whose all-in was completed **preflop** (1.7M boards enumerated, 25-46
@@ -379,9 +385,13 @@ evaluated at import (a flop or turn all-in: a few hundred boards; no all-in:
 the analysis's first checks, `rail_equity::all_in_street`). Only rows that
 differ from the result are stored (`applicable`: an all-in with cards to
 come, ~6 % of hero hands in the corpus); every other hero hand's row is
-`ev_net = net`, implied by its absence from both tables. An `ev.version`
-other than this build's `EV_VERSION` queues every hero hand again; a rebuild
-queues a hand again only when its hero's seat or result changed.
+`ev_net = net`, implied by its absence from both tables. A hand is in
+`ev_rows`, in `ev_pending` or in neither, never both (queueing a hand drops
+its row), and the reports read every stored row whatever its `ev_version`:
+an `ev.version` other than this build's starts the EV job, which evaluates
+every hero hand again beside the stored rows and swaps them in when done; a
+rows job queues or settles a hand again only when its hero's seat or result
+changed.
 
 ### `segments`
 
@@ -413,10 +423,10 @@ hand.
 | --- | --- | --- |
 | `id` | INTEGER PK | what `seat_stats` refers to (an integer: 6 seat rows a hand would repeat a ~25-byte key) |
 | `hand_key` | TEXT UNIQUE → `hands` | cascades |
-| `gen` | INTEGER | the generation its rows are counted in |
+| `gen` | INTEGER | the generation its rows are counted in (`kv` `stats.gen`; an older one only on a store an older build left mid-rebuild) |
 | `played_at` | TEXT NULL | `hands.played_at`, repeated: a date range reads this narrow table, never `hands` (whose rows hold the PHF; reading them made a report's partial days take seconds at 500k) |
 | `segment_id` | INTEGER | `segments.id` |
-| `stats_version` | TEXT | `stats/2` |
+| `stats_version` | TEXT | `stats/2`: the version its rows are derived under - a rows job stamps it on the hands whose rows came out the same |
 | `site_anonymization` | TEXT | `none` / `positional` / `opaque-id` (`rail_stats::detect_anonymization`, the web's `detectAnonymization`) |
 | `site_id` | TEXT | `meta.siteId` as the parser wrote it |
 | `currency_minor_units`, `player_count`, `tournament_id`, `fast_fold` | | as in the engine's row |
@@ -452,8 +462,8 @@ column (the hand's columns on every seat, a column per counter): 2 KB more a
 hand (3 283 → 5 297 bytes, +61 %) and 21-29 % fewer hands imported a
 second on the 100k benchmark, the writer's time going to six 133-column
 records a hand. Nothing reads a seat's counters in SQL: the rollups hold
-the sums, and the rows are read for a report's partial days, a rebuild's
-comparison and (R2.7) reports by situation, all summed in Rust.
+the sums, and the rows are read for a report's partial days, a
+recompute's comparison and (R2.7) reports by situation, all summed in Rust.
 
 ### `player_rollups`
 
@@ -673,8 +683,9 @@ with the hero's result in them over the hands whose money counts
 (`cash_money_hands`, `cash_net_bb_milli`, `chips_money_hands`,
 `chips_net_bb_milli`): the web's `stats_opponents` joins the hero's row of
 the same hand; here it is summed at import. Chips and cash are never added
-(the web refuses a result for a scope with both). Emptied by a rebuild
-(`begin_rebuild`) and summed again by its pass. `WITHOUT ROWID`.
+(the web refuses a result for a scope with both). Summed again into its
+twin by a recompute's rows job and swapped in with the rollups (R2.11).
+`WITHOUT ROWID`.
 `tests/common::assert_rollups` holds it to the seat rows after every store
 test and every kill of the crash test.
 
@@ -694,14 +705,14 @@ every `hand_stats.id` up to it is done; [`background::INDEX_PAGE`] hands a
 transaction, sorted): written by each import transaction - as a partial
 index on `seat_stats` or as this table at the flush - it cost the import 4-5 %
 of its rate (measured: each transaction touches a page of a name-ordered
-table per opponent). A rebuilt hand whose row reuses an id the pass has
-passed (deleting the highest id and inserting again) is written inline. A
-deleted seat row takes its entry with it (`seat_stats_player_delete`).
+table per opponent). A deleted seat row takes its entry with it
+(`seat_stats_player_delete`); a recompute's swap that replaces a hand's seat
+rows writes its entries again when the pass has gone past its id.
 `StatsStatus::players_unindexed` counts the hands not done yet.
 `tests/common::assert_rollups` holds it to the seat rows up to the mark.
 
 A store from version 8: migration 9 creates the tables empty and forgets
-`stats.version`, so the store rebuilds its statistics in the background
+`stats.version`, so the store recomputes its statistics in the background
 (the summary is summed from the seat blobs) and the pass then fills
 `player_hands`.
 
@@ -750,18 +761,22 @@ built*). No foreign keys: counts are cleared explicitly.
 | `custom_hero_rollups` | (`stat_id`, `segment_id`, `position`, `day`, `kind`) | `made`, `opp` | as `hero_rollups`: every hand, the kind in the key, so a report applies `aggregate`'s options |
 | `custom_player_rollups` | (`stat_id`, `site`, `player`, `scope`, `segment_id`) | `made`, `opp` | as `player_rollups`: every kept seat (the hero and villains), bomb pots left out - the HUD's |
 
-All three `WITHOUT ROWID`. **The pass** (`custom_step`, after the rebuild
-and the players' index, before the EV queue): the 1 000 `hand_stats` rows
+All three `WITHOUT ROWID`. **The pass** (`custom_step`, after the players'
+index, before a recompute and the EV queue): the 1 000 `hand_stats` rows
 after the lowest `counted_to` of a statistic with a predicate, each hand's
 PHF decompressed and its events built once, every statistic whose
 `counted_to` is below the hand counted on the seats `seat_stats` keeps; one
 writer transaction writes the rows and adds the rollups for each statistic
 whose `rev` and `counted_to` are still what the page was read with (and the
-generation unchanged, no rebuild running), and moves its `counted_to` to the
-page's end. Nothing runs while the coded statistics rebuild: the rebuild
-gives every hand a new `hand_stats` id, so `begin_rebuild` clears every
-custom count (`reset_custom_counts`) and the pass counts them again after
-it. A predicate this build cannot parse (saved by a newer one) is skipped.
+generation unchanged, no recompute running that will clear the counts), and
+moves its `counted_to` to the page's end. A recompute of the coded
+statistics (R2.11) leaves the counts alone - a hand keeps its `hand_stats`
+id, and the counts come from the decision events and the kept seats -
+unless it moves a hand's seats between rollup keys (its segment, kind or
+day, a seat's player, scope or position): then its swap clears every custom
+count (`reset_custom_counts`) and the pass counts them again after it, and
+the pass waits while such a recompute runs. A predicate this build cannot
+parse (saved by a newer one) is skipped.
 
 ### Reading them (`rail_store::custom`)
 
@@ -773,3 +788,103 @@ it. A predicate this build cannot parse (saved by a newer one) is skipped.
 | `Reader::custom_player_totals(site, player, scope, segments, ids)` | the HUD's lookup (R3.9) | a key range of `custom_player_rollups` per statistic |
 | `Reader::recent_hero_hands(limit)` | the editor's preview: the hero's latest hands as PHF | `hand_stats_played_idx` backwards |
 | `save_custom_stat`, `delete_custom_stat`, `reset_custom_counts` | writes, on the writer | |
+
+## Targeted recompute (version 12, R2.11)
+
+Guideline §5, "ciljani preračun": when a definition changes, a background
+job recomputes only what it touches, not the whole store.
+`rail_store::recompute` holds the dependency map as data
+(`DEPENDENCIES`: per kind of change, the work and every table it writes,
+with how much of it) and the three jobs; `tests/recompute.rs` checks the map
+against the schema and, for each change, that every table it does not name
+is left exactly as it was.
+
+### The dependency map
+
+| Change | Work | Writes | Leaves alone |
+| --- | --- | --- | --- |
+| a definition's label, name, description, format, colour bands, sample, HUD membership (R2.4) | nothing | - | everything: read where it is shown |
+| a formula over counters the store has, shipped or custom (R2.4, R2.10) | nothing: evaluated when read, over sums that do not change | - | everything |
+| a custom statistic's predicate (R2.10) | the custom pass counts that statistic again (`rev`, `counted_to` 0) | its rows of `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups` | every other table and statistic |
+| `EVENTS_VERSION` (the decision events) | every custom statistic counted again | the three custom tables | the coded statistics, EV |
+| `STATS_VERSION` (a coded counter, the money, a hand or seat column, which seats are kept) | the **rows job**: every hand derived again from its PHF and compared | `hand_stats`, `seat_stats`, `hand_list`: the rows of the hands that come out different (staged, written by the swap; `hand_stats.stats_version` stamped on the others); the four summed tables summed again into their twins and swapped in; `player_hands` of the hands whose seat rows change; `ev_rows` / `ev_pending` of the hands whose hero seat or result changed; a new segment's row; the custom counts **only if** a hand's seats moved between rollup keys | `player_hands`, EV and the custom counts of every other hand; the user's words |
+| `SEGMENT_VERSION` (which segment a hand is in) | the **segments job**: each hand's segment from its PHF; the stored seat rows summed under it - **no statistic derived again** | `hand_stats.segment_id` and `hand_list.segment_id` of the hands that move; the four summed tables (twins, swapped); a new segment's row; the custom counts if any hand moved (their rollups are by segment) | `seat_stats`, `player_hands`, EV |
+| `EV_VERSION` (the all-in EV) | the **EV job**: every hero hand not waiting in `ev_pending` evaluated again beside the stored rows | `ev_rows`, swapped in; `hand_list.all_in` of the hands whose row came or went | every statistic, the rollups, `ev_pending` |
+
+A "rebuild statistics" (`StatsWorker::rebuild_stats`, the debug button) is
+the rows job with nothing changed: it derives and compares every hand and
+rewrites none whose rows are right.
+
+### The jobs
+
+- **Rows job** (`RowsJob::Rows`). Pages of 500 hands in `hands` rowid order
+  (a hand imported meanwhile has a higher rowid: the job reaches it too).
+  On the pass's thread, outside any write: each PHF read back,
+  `PreparedStats::from_phf`, the stored rows read, and compared column by
+  column (`hand_stats` but `stats_version`, the seat rows, the list row but
+  `all_in`, which belongs to EV). In one writer transaction per page: the
+  hands that differ staged, by part (`recompute_hands.parts`: 1 hand
+  columns, 2 seat rows, 4 list row, 8 the hand keeps no rows, 16 only the
+  seat rows' `totals`); the others'
+  `stats_version` stamped; every hand's new rows summed into the twins
+  (`stats::Pending` with `Target::Shadow`); a hand with no rows at all (a
+  store from before version 6) written and counted at once, as an import
+  writes it; the cursor moved. A hand whose rows are of an older generation
+  (a store an older build left mid-rebuild) is staged whole.
+- **Segments job** (`RowsJob::Segments`). The same pages; each hand's
+  `rail_stats::Segment::of` from its PHF, its stored seat rows decoded and
+  summed under that segment; a hand whose segment changed has its
+  `hand_stats` and list rows staged with the new `segment_id`. A rows job
+  covers a segment change too (it derives the segment with the rest).
+- **EV job**. `begin_ev` lists every hero hand not in `ev_pending` in
+  `recompute_ev`; pages of up to 256 hands, evaluated on the pass's thread
+  until 250 ms have gone (`rail_equity::all_in_street` first: a hand without
+  an all-in has no row, without deriving its statistics), the results written
+  into `recompute_ev` (`done`).
+- **The swap**, in one writer transaction once no hand is left: the seat
+  blobs of the `totals`-only hands and the list rows of the list-only hands
+  in one `UPDATE ... FROM` each (measured at 500k: 250k hands' blobs 4.1 s,
+  482k list rows 2.6 s; a statement per hand took 6.5 s and 4.8 s), the
+  other staged parts written (`hand_stats` updated in place - **the id stays** -, the
+  seat rows replaced and their `player_hands` entries written again, the
+  list row replaced with its all-in flag carried over or decided by the new
+  EV plan, EV rows settled or queued), each summed table renamed with its
+  twin (`ALTER TABLE ... RENAME`, so the swap does not copy the rollups)
+  and the old one emptied, the custom counts cleared if a seat moved,
+  `stats.version` / `stats.segment_version` / `ev.version` set, `kv`
+  `stats.epoch` moved on, the work tables emptied. A hand the EV queue holds
+  is the queue's: the EV job's swap leaves it.
+- **Resumable**: the state is in `kv` (`recompute.*`) and the work tables,
+  written in each page's transaction; a quit or a crash resumes where it
+  stopped, and a build of other versions starts the job again. A stale page
+  (the job moved on or started again meanwhile) is dropped.
+- **Low priority**: one thread, a page at a time, paused while a backfill
+  imports, and paused - the whole recompute, rows and EV - while poker
+  tables are open (`StatsWorker::set_tables_open`, the HUD's hook): the
+  screens keep the statistics they show until the swap anyway. The players'
+  index and the custom counts of new hands go on.
+
+### Consistent reads
+
+Every `Reader::with` call is one read transaction: an answer is the store
+as of one commit, so the old statistics or the new ones. An answer spread
+over several connections - Reports opening (`report_open`: the totals and
+the graph at once) and the breakdowns' pass (four `id` ranges) - reads
+`stats.epoch` before and after and runs again if a swap came between
+(`Reader::same_epoch`, at most three times). `tests/recompute.rs`
+(`readers_never_see_a_half_done_recompute`) runs the screens' and the HUD's
+reads in a loop on the store's pool and on a second `Reader` (the HUD's
+process) while a rows job and an EV job run and swap: every answer equals
+the old store's or the clean import's.
+
+### The work tables
+
+| Table | Key | |
+| --- | --- | --- |
+| `recompute_hands` | `hand_id` | a staged hand: `hand_key`, `parts` (1 \| 2 \| 4 \| 8 \| 16), the `hand_stats` columns (part 1), `ev_plan` (0 keep, 1 the row in `ev_seat`, `ev_version`, `ev_net`, `ev_net_bb_milli`, 2 no row, 3 queue) |
+| `recompute_seats` | (`hand_id`, `seat`) | its new seat rows (part 2 or 16), `seat_stats`' columns |
+| `recompute_list` | `hand_id` | its new list row (part 4), `hand_list`'s columns |
+| `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden` | as the live tables | the twins: the same shape, so the swap renames them into place. **A migration that changes one of the four live tables changes its twin the same way.** |
+| `recompute_ev` | `hand_key` | the EV job's hands; `done`, and once done the new row (`applicable` 1) or none; index `recompute_ev_waiting_idx (done, hand_key)` |
+
+All empty when no recompute runs.

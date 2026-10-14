@@ -506,7 +506,7 @@ fn background_pass(db: &Path, budget: Option<u64>, report: &mut Report) {
         let step_started = Instant::now();
         match background::step(reader, &writer, true).expect("step") {
             // The perf store has no custom statistics (R2.10).
-            Step::Rebuilt(_) | Step::Counted(_) => {}
+            Step::Rebuilt(_) | Step::Counted(_) | Step::Reevaluated(..) => {}
             Step::Indexed(n) => {
                 indexed += n;
                 index_time += step_started.elapsed();

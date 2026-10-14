@@ -308,7 +308,7 @@ fn pass(store: &Store, seconds: u64) {
                 rows += n;
                 computing += took;
             }
-            Step::Rebuilt(_) | Step::Indexed(_) | Step::Counted(_) => {}
+            Step::Rebuilt(_) | Step::Indexed(_) | Step::Counted(_) | Step::Reevaluated(..) => {}
             Step::Nothing => break,
         }
     }
@@ -326,16 +326,12 @@ fn pass(store: &Store, seconds: u64) {
     let mut done = 0usize;
     let mut finished = false;
     while started.elapsed() < budget {
-        match background::step(reader, &writer, false).expect("step") {
-            Step::Rebuilt(0) => {
+        match rail_store::recompute::rows_step(reader, &writer).expect("step") {
+            Some(0) | None => {
                 finished = true;
                 break;
             }
-            Step::Rebuilt(n) => done += n,
-            _ => {
-                finished = true;
-                break;
-            }
+            Some(n) => done += n,
         }
     }
     let secs = started.elapsed().as_secs_f64();
@@ -355,10 +351,7 @@ fn pass(store: &Store, seconds: u64) {
 fn finish_rebuild(store: &Store) {
     let writer = store.writer().expect("writer");
     let started = Instant::now();
-    let mut done = 0;
-    while let Step::Rebuilt(n) = background::step(store.reader(), &writer, false).expect("step") {
-        done += n;
-    }
+    let done = rail_store::recompute::run_rows_job(store.reader(), &writer).expect("recompute");
     if done > 0 {
         println!(
             "finished a running rebuild: {done} hands in {:.1} s",
