@@ -28,7 +28,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   analyzeHand,
+  CHECK_AIR,
+  CHECK_DRAW,
   CHECK_VALUE,
+  HEADS_UP_CHECK_AIR,
+  HEADS_UP_CHECK_DRAW,
+  HEADS_UP_CHECK_VALUE,
   MULTIWAY_CHECK_DRAW,
   MULTIWAY_CHECK_VALUE,
   callShare,
@@ -260,7 +265,7 @@ describe("the MDF split and fold equity", () => {
     expect(same).toEqual(narrow({ ...base, action: { kind: "call", sizePot: 0.75, allIn: false } }));
   });
 
-  it("trims a multiway flop or turn check less than a heads-up one (analysis/22), and leaves heads-up and the river alone", () => {
+  it("trims a multiway flop or turn check with its own constants (analysis/22), and leaves the river alone", () => {
     const check = { kind: "check" as const, sizePot: null, allIn: false, checksBefore: 0 };
     const live = (board: number[]) => {
       const range = new Float64Array(NUM_COMBOS);
@@ -279,36 +284,83 @@ describe("the MDF split and fold equity", () => {
       let value = 0;
       let draws = 0;
       let air = 0;
-      // The field's strength with the heads-up constants (analysis/21's multiway check), to tell the regions apart.
+      // The field's strength with the heads-up constants (analysis/23), to tell the regions apart.
       const fieldHeadsUp = heuristicModel.likelihood({ ...base, opponents: [range, range] });
+      // Value is trimmed by 1 − MULTIWAY_CHECK_VALUE instead of 1 − HEADS_UP_CHECK_VALUE, air by 1 − CHECK_AIR instead of 1 − HEADS_UP_CHECK_AIR.
+      const valueRatio = (1 - MULTIWAY_CHECK_VALUE) / (1 - HEADS_UP_CHECK_VALUE);
+      const airRatio = (1 - CHECK_AIR) / (1 - HEADS_UP_CHECK_AIR);
       for (let c = 0; c < NUM_COMBOS; c += 1) {
         if (!(range[c] > 0)) continue;
-        expect(threeWay[c]).toBeGreaterThanOrEqual(Math.min(1, fieldHeadsUp[c]) - 1e-12);
         if (outs[c] >= 8) {
           draws += 1;
-          expect(threeWay[c]).toBeCloseTo(1 - (1 - MULTIWAY_CHECK_DRAW), 12);
-          expect(headsUp[c]).toBeCloseTo(0.6, 12);
-        } else if (fieldHeadsUp[c] < 1 && threeWay[c] > fieldHeadsUp[c]) {
-          // Value: trimmed by 1 − MULTIWAY_CHECK_VALUE instead of 1 − CHECK_VALUE.
-          value += 1;
-          expect(1 - threeWay[c]).toBeCloseTo(((1 - fieldHeadsUp[c]) * (1 - MULTIWAY_CHECK_VALUE)) / (1 - CHECK_VALUE), 9);
+          expect(threeWay[c]).toBeCloseTo(MULTIWAY_CHECK_DRAW, 12);
+          expect(headsUp[c]).toBeCloseTo(HEADS_UP_CHECK_DRAW, 12);
         } else if (fieldHeadsUp[c] < 1) {
-          // Air keeps the heads-up trim.
-          air += 1;
-          expect(threeWay[c]).toBeCloseTo(fieldHeadsUp[c], 12);
-        }
+          const ratio = (1 - threeWay[c]) / (1 - fieldHeadsUp[c]);
+          if (Math.abs(ratio - valueRatio) < 1e-9) value += 1;
+          else {
+            expect(ratio).toBeCloseTo(airRatio, 9);
+            air += 1;
+          }
+        } else expect(threeWay[c]).toBe(1);
       }
       expect(value).toBeGreaterThan(0);
       expect(draws).toBeGreaterThan(0);
       expect(air).toBeGreaterThan(0);
-      // Heads-up (`players` unset or 2) is the heads-up model, as before.
+      // Heads-up (`players` unset or 2) is the heads-up model.
       expect(heuristicModel.likelihood({ ...base, players: 2 })).toEqual(headsUp);
     }
-    // The river keeps the heads-up constants multiway.
+    // The river keeps the river constants multiway.
     const board = parseCards(["Kh", "Qh", "7c", "2h", "3d"]);
     const range = live(board);
     const river = { street: "river" as const, board, actor: range, opponent: range, strength: streetStrength(board), action: check };
     expect(heuristicModel.likelihood({ ...river, players: 3, opponents: [range, range] })).toEqual(heuristicModel.likelihood({ ...river, opponents: [range, range] }));
+  });
+
+  it("trims a heads-up flop or turn check half as hard as the river's constants (analysis/23)", () => {
+    expect(1 - HEADS_UP_CHECK_VALUE).toBeCloseTo((1 - CHECK_VALUE) / 2, 12);
+    expect(1 - HEADS_UP_CHECK_DRAW).toBeCloseTo((1 - CHECK_DRAW) / 2, 12);
+    expect(1 - HEADS_UP_CHECK_AIR).toBeCloseTo((1 - CHECK_AIR) / 2, 12);
+    const check = { kind: "check" as const, sizePot: null, allIn: false, checksBefore: 0 };
+    const live = (board: number[]) => {
+      const range = new Float64Array(NUM_COMBOS);
+      for (let c = 0; c < NUM_COMBOS; c += 1) if (!board.includes(comboHi(c)) && !board.includes(comboLo(c))) range[c] = 1;
+      return range;
+    };
+    for (const cards of [["Kh", "Qh", "7c"], ["Kh", "Qh", "7c", "2h"]]) {
+      const board = parseCards(cards);
+      const range = live(board);
+      const street = (board.length === 3 ? "flop" : "turn") as "flop" | "turn";
+      const base = { street, board, actor: range, opponent: range, strength: streetStrength(board), action: check };
+      const headsUp = heuristicModel.likelihood(base);
+      expect(heuristicModel.likelihood({ ...base, players: 2 })).toEqual(headsUp);
+      let draws = 0;
+      let value = 0;
+      let air = 0;
+      for (let c = 0; c < NUM_COMBOS; c += 1) {
+        if (!(range[c] > 0)) continue;
+        // Nothing is trimmed below the lighter of the two trims.
+        expect(headsUp[c]).toBeGreaterThanOrEqual(Math.min(HEADS_UP_CHECK_VALUE, HEADS_UP_CHECK_AIR) - 1e-12);
+        if (base.strength.outs[c] >= 8) {
+          draws += 1;
+          expect(headsUp[c]).toBeCloseTo(HEADS_UP_CHECK_DRAW, 12);
+        } else if (Math.abs(headsUp[c] - HEADS_UP_CHECK_VALUE) < 1e-12) value += 1;
+        else if (Math.abs(headsUp[c] - HEADS_UP_CHECK_AIR) < 1e-12) air += 1;
+      }
+      expect(draws).toBeGreaterThan(0);
+      expect(value).toBeGreaterThan(0);
+      expect(air).toBeGreaterThan(0);
+      // A repeated check trims a quarter of the first one's, as before.
+      const third = heuristicModel.likelihood({ ...base, action: { ...check, checksBefore: 2 } });
+      for (let c = 0; c < NUM_COMBOS; c += 1) if (range[c] > 0) expect(1 - third[c]).toBeCloseTo((1 - headsUp[c]) / 4, 9);
+    }
+    // The river keeps its constants heads-up: a strong draw is gone by then, the top checks CHECK_VALUE of the time.
+    const board = parseCards(["Kh", "Qh", "7c", "2h", "3d"]);
+    const range = live(board);
+    const river = heuristicModel.likelihood({ street: "river", board, actor: range, opponent: range, strength: streetStrength(board), action: check });
+    let top = 0;
+    for (let c = 0; c < NUM_COMBOS; c += 1) if (range[c] > 0 && Math.abs(river[c] - CHECK_VALUE) < 1e-12) top += 1;
+    expect(top).toBeGreaterThan(0);
   });
 
   it("counts the next card's nut and non-nut outs by brute force", () => {

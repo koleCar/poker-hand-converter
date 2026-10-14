@@ -3512,3 +3512,112 @@ Each phase appends what it learned that changed the plan.
       with a solve, or bluff-catchers' outcomes).
     - Turn rows alone are not significant (+0.017 ± 0.017 held out); the
       turn shares the flop's constants because they did no worse there.
+- 2026-10-14 — The heads-up check trim, `analysis/23`
+  (`lib/analysis/narrowing.ts`; study `tests/scripts/flop-library/headsUpCheckTrim.test.ts`,
+  `npm run floplib:hu-check-trim`; grades `checkTrimGrades.test.ts` with
+  `CHECKTRIM_GRADES_HEADSUP=1`). No migration.
+  - **Why.** The open item of the multiway check trim: its heads-up control
+    said heads-up checks are trimmed too hard as well (+0.039 ± 0.015 at
+    half the trim on 91 players who only checked), on a sample too small to
+    act on. A held-out test of its own, on every heads-up shown hand.
+  - **Data.** The same 5,448 stored hands. Every opponent shown down after a
+    flop two players saw (the hero left out; no bomb pot): 781 flops, with
+    or without the hero (in a pot without the hero both players start from
+    the population ranges, as opponents do). Flop rows: 882 shown players
+    (193 players), scored on their range as the turn came. Turn rows: 849
+    (189), on their range as the river came: 814 after a heads-up flop and
+    35 from turns that began heads-up after a multiway flop (the multiway
+    walk, as the analysis hands it on). Score, folds and clustered standard
+    errors as the multiway check trim.
+  - **The flop library.** Where a chunk covers the hero's heads-up flop the
+    analysis narrows the flop with the library's strategy, and the
+    heuristic's check only where the line leaves the tree. Each row is scored
+    as analysed (the library where it reads, the candidate as its fallback)
+    and on the plain heuristic walk. Of the 781 flops only 35 have a chunk:
+    most shown hands are pots without the hero, which the analysis never
+    grades, and of the hero's own pots a quarter are covered (34 of the 146
+    flop rows from them). Of
+    the 615 flop rows that checked the flop, 30 had the check read from the
+    library and none fell back to the heuristic there; 585 went through the
+    heuristic. Any candidate moves 1,198 of the 1,731 rows as analysed.
+  - **Method.** As the multiway check trim, with the multiway constants
+    fixed at `analysis/22`'s: the heuristic's check likelihood recomputed
+    with other constants **only for flop and turn checks with two live
+    players** (the river untouched; no shown range after a river check can
+    be scored). Candidates: the same grid of value × air × draw (48) and the
+    whole trim × 0, 0.25, 0.5, 0.75. Fitted on the rows as analysed, flop
+    and turn together. Baseline: `analysis/22` (value 0.5, air 0.7, draw
+    0.6, the river's constants). Fidelity: the shipped heuristic reproduces
+    the study's winner to the bit (401 turn- and river-start ranges).
+  - **Measured** (Δ against `analysis/22` per combo, as analysed; "heuristic
+    walk" is the grid held out with no library; the last three columns are
+    fixed candidates, not held out):
+
+    | shown players | n (players) | `analysis/22` | grid, held out | scale, held out | grid, heuristic walk | trim × 0.5 | value 0.65, air 0.7, draw 1 | no trim |
+    |---|---|---|---|---|---|---|---|---|
+    | flop and turn together | 1,731 (194) | −6.987 | +0.016 ± 0.007 | **+0.019 ± 0.006** | +0.019 ± 0.006 | +0.023 ± 0.005 | +0.008 ± 0.006 | +0.022 ± 0.009 |
+    | flop, everyone | 882 (193) | −7.024 | +0.021 ± 0.006 | +0.023 ± 0.005 | +0.024 ± 0.005 | +0.024 ± 0.004 | +0.014 ± 0.005 | +0.030 ± 0.007 |
+    | flop, checked only | 467 (154) | −7.112 | +0.020 ± 0.008 | +0.019 ± 0.008 | +0.020 ± 0.008 | +0.022 ± 0.006 | +0.012 ± 0.006 | +0.025 ± 0.011 |
+    | flop, checked then called or raised | 148 (83) | −6.896 | +0.057 ± 0.022 | +0.068 ± 0.016 | +0.073 ± 0.018 | +0.067 ± 0.014 | +0.033 ± 0.020 | +0.090 ± 0.024 |
+    | flop, never checked | 267 (115) | −6.941 | +0.004 ± 0.003 | +0.004 ± 0.003 | +0.004 ± 0.003 | +0.005 ± 0.003 | +0.005 ± 0.004 | +0.006 ± 0.004 |
+    | flop, the hero's pots | 146 (70) | −7.590 | +0.024 ± 0.011 | +0.025 ± 0.010 | +0.031 ± 0.013 | +0.022 ± 0.008 | +0.018 ± 0.008 | +0.028 ± 0.014 |
+    | the same, a chunk read | 34 (27) | −7.220 | 0 | 0 | +0.033 ± 0.034 | 0 | 0 | 0 |
+    | flop, a check through the heuristic | 585 (165) | −7.042 | +0.030 ± 0.009 | +0.032 ± 0.007 | +0.033 ± 0.008 | +0.034 ± 0.006 | +0.018 ± 0.007 | +0.043 ± 0.010 |
+    | flop, pots without the hero | 736 (187) | −6.912 | +0.021 ± 0.007 | +0.022 ± 0.006 | +0.023 ± 0.006 | +0.025 ± 0.005 | +0.013 ± 0.006 | +0.031 ± 0.008 |
+    | turn, everyone | 849 (189) | −6.949 | +0.010 ± 0.009 | +0.015 ± 0.009 | +0.015 ± 0.008 | +0.021 ± 0.007 | +0.003 ± 0.009 | +0.013 ± 0.012 |
+    | turn, checked only | 515 (152) | −7.018 | +0.010 ± 0.013 | +0.014 ± 0.012 | +0.016 ± 0.011 | +0.022 ± 0.010 | −0.001 ± 0.013 | +0.015 ± 0.017 |
+    | turn, checked then called or raised | 80 (52) | −6.925 | +0.032 ± 0.045 | +0.036 ± 0.041 | +0.027 ± 0.044 | +0.044 ± 0.035 | +0.025 ± 0.035 | +0.019 ± 0.067 |
+    | turn, never checked | 254 (116) | −6.816 | +0.005 ± 0.014 | +0.009 ± 0.012 | +0.008 ± 0.013 | +0.011 ± 0.011 | +0.003 ± 0.011 | +0.008 ± 0.018 |
+    | turn, after a multiway flop | 35 (27) | −6.815 | −0.002 ± 0.021 | −0.005 ± 0.022 | −0.004 ± 0.021 | −0.003 ± 0.017 | −0.020 ± 0.018 | −0.012 ± 0.030 |
+    | turn, the hero acted on it | 148 (69) | −7.396 | +0.034 ± 0.012 | +0.035 ± 0.011 | +0.043 ± 0.014 | +0.030 ± 0.009 | +0.018 ± 0.011 | +0.038 ± 0.017 |
+
+    The scale picked × 0.5 in three folds (× 0.25 and × 0 in the other
+    two); held out it beats `analysis/22` by +0.019 ± 0.006, 3.2 standard
+    errors. The grid's choices wander (value 0.8 with air 0.8–0.9 and draw
+    0.6–0.8 in four folds, no trim in the fifth) and score less held out,
+    +0.016 ± 0.007 (2.3 SE); in sample its best cell (value 0.8, air 0.9,
+    draw 0.8, +0.023) is no better than × 0.5 (+0.023), so the one-parameter
+    scale is the winner. No subset with more than 20 shown is worse than
+    `analysis/22` by more than a standard error; the only negative held-out
+    cell is the 35 turns after a multiway flop (−0.005 ± 0.022). Unlike
+    multiway, the multiway winner (value 0.65, draw 1, air kept) does only
+    half as well heads-up: heads-up the air trim is too hard as well. As
+    multiway, the biggest gain is on players who checked and then called or
+    raised (+0.07), the strong hands and draws the trim pushed out; turn
+    rows alone are not significant (+0.015 ± 0.009 held out) and share the
+    flop's constants because they did no worse.
+  - **Shipped.** `HEADS_UP_CHECK_VALUE = 0.75`, `HEADS_UP_CHECK_DRAW = 0.8`,
+    `HEADS_UP_CHECK_AIR = 0.85` (the trim × 0.5 written as constants; were
+    `CHECK_VALUE` 0.5, `CHECK_DRAW` 0.6, `CHECK_AIR` 0.7) for a flop or turn
+    check with two players in the pot. The river (heads-up and multiway),
+    `CHECK_REPEAT`, the multiway constants and the flop library's own
+    strategy are unchanged. The narrowing's id stays `heuristic/2`;
+    `ANALYSIS_VERSION` → `analysis/23`.
+  - **The grades it moves** (`analyzeHand` with the flop library and turn
+    solves, `CHECKTRIM_GRADES_HEADSUP=1 CHECKTRIM_GRADES_TURN=1`, over the
+    560 stored hands whose heads-up flop the hero saw; 1,452 postflop
+    decisions, 925 graded after): 71 grades change, none on the flop.
+    Flop solves 0 of 151 (the flop grade reads the library or the flop
+    solve, not the narrowing of a check after it). Turn solves 36 of 464:
+    13 better, 20 worse, 3 newly solved (ungraded before); one turn call is no longer solved. River solves 34 of
+    310: 16 better, 17 worse, one newly solved and one no longer. Most move
+    one step; 18 move two or three (mostly good ↔ mistake). A further 147 keep
+    their grade with a different EV loss. Without turn solves (the setting
+    of the multiway count) it is 29 grades, all on the river. Examples:
+    9♦9♥ in the small blind checking the turn on K♥6♥A♥ 8♣ after the flop
+    was checked through, Perfect → Mistake (2.13bb); T♥T♠ check-raising the
+    turn on T♣5♠9♥ 3♦ against the button, Good (3.24bb) → Mistake (8.16bb);
+    A♥J♣ on the button checking back the river on A♦Q♣4♦ 3♣ 4♥ in a 4-bet
+    pot after the flop was checked through, Good (3.48bb) → Perfect, its
+    turn call solved for the first time (Perfect).
+  - **Open.**
+    - The river check trim is still the old one, untested: nothing narrows
+      after a river check, so it needs a different test (bluff-catchers'
+      outcomes, or agreement with a solve).
+    - Most of the evidence is from pots without the hero (736 of 882 flop
+      rows); the hero's own pots agree (+0.025 ± 0.010 held out) but are a
+      sixth of it.
+    - The library reads the flop of only a few of the hero's heads-up pots
+      on this export; where it does, its strategy is not scored against the
+      heuristic here (34 rows; the grid held out on the heuristic walk
+      scores +0.033 ± 0.034 there, too few to say anything).

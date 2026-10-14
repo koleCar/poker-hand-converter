@@ -109,6 +109,17 @@ indices, no names or cards); run it before and after a narrowing change,
 the second time with `CHECKTRIM_GRADES_BEFORE=` the first file, to count the
 grades that moved. Under a minute. `docs/ANALYSIS-PLAN.md` §10 2026-10-14.
 
+**The heads-up check trim (`analysis/23`).** `npm run floplib:hu-check-trim`
+(same variables) scores every shown player of a heads-up flop (with or
+without the hero) and of a turn that began heads-up after a multiway flop,
+with heads-up flop and turn checks trimmed by the same grid and scales,
+against the shipped constants, held out by player. Each row is scored on the
+heuristic walk and as analysed (the flop library's strategy where a chunk
+covers the hero's flop), and the study says how many flop checks went
+through the heuristic. About seven minutes. `CHECKTRIM_GRADES_HEADSUP=1`
+makes `floplib:check-trim-grades` take the hero's heads-up flops instead.
+`docs/ANALYSIS-PLAN.md` §10 2026-10-14 (the heads-up check trim).
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

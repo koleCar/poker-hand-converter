@@ -18,6 +18,7 @@
     "floplib:turn-realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/turnRealisation",
     "floplib:multiway-narrowing": "vitest run --config scripts/flop-library/vitest.config.ts multiwayNarrowing",
     "floplib:check-trim": "vitest run --config scripts/flop-library/vitest.config.ts checkTrim.test",
+    "floplib:hu-check-trim": "vitest run --config scripts/flop-library/vitest.config.ts headsUpCheckTrim",
     "floplib:check-trim-grades": "vitest run --config scripts/flop-library/vitest.config.ts checkTrimGrades",
     "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets",
     "ranges:extract": "vitest run --config scripts/caller-ranges/vitest.config.ts extract",

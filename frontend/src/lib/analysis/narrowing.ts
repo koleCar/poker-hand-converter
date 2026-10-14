@@ -55,6 +55,11 @@
  *   trimming three checks at full strength left a "check, check, check"
  *   range as nothing but air with no medium hands — which made a river bluff
  *   look mandatory (`heuristic/1`, A4's first library run).
+ *   **On the flop and turn heads-up the trim is half as hard**
+ *   (analysis/23): value checks `HEADS_UP_CHECK_VALUE`, draws
+ *   `HEADS_UP_CHECK_DRAW`, air `HEADS_UP_CHECK_AIR` — the river constants'
+ *   trim × 0.5. Scored on shown heads-up hands, held out (ANALYSIS-PLAN §10
+ *   2026-10-14). The river keeps `CHECK_VALUE`, `CHECK_DRAW`, `CHECK_AIR`.
  *
  * The constants are part of `ANALYSIS_VERSION`: changing one re-narrows every
  * stored river grade.
@@ -83,8 +88,8 @@
  *   of the time, so `d = 1 − α^(1/k)` with `α = x / (1 + x)`. A caller
  *   defends that top share of its range (heads-up, `k = 1`, it is the MDF).
  *
- * Heads-up inputs (no `opponents`, `players` unset or 2) are untouched: every
- * heads-up grade is the same as before A9.
+ * Heads-up inputs (no `opponents`, `players` unset or 2) are untouched by
+ * A9: every heads-up grade was the same as before it.
  *
  * ## Designed to be replaced
  *
@@ -131,11 +136,20 @@ export const CHECK_REPEAT = 0.5;
 export const CHECK_DRAW = 0.6;
 export const CHECK_AIR = 0.7;
 /**
+ * Heads-up (analysis/23): a flop or turn check with two players in the pot
+ * trims half as hard as the constants above (value 0.75, draw 0.8, air 0.85:
+ * `1 − (1 − CHECK_*) / 2`). Fitted held out on shown heads-up hands
+ * (ANALYSIS-PLAN §10 2026-10-14); the river keeps the constants above.
+ */
+export const HEADS_UP_CHECK_VALUE = 0.75;
+export const HEADS_UP_CHECK_DRAW = 0.8;
+export const HEADS_UP_CHECK_AIR = 0.85;
+/**
  * Multiway (analysis/22): a flop or turn check with three or more players in
  * the pot trims value less (it checks this often) and a strong draw not at
- * all; the air trim is `CHECK_AIR` as heads-up. Fitted held out on shown
- * hands (ANALYSIS-PLAN §10 2026-10-14); the river keeps the heads-up
- * constants.
+ * all; the air trim is `CHECK_AIR` (the river's). Fitted held out on shown
+ * hands (ANALYSIS-PLAN §10 2026-10-14); the river keeps `CHECK_VALUE` and
+ * `CHECK_DRAW`.
  */
 export const MULTIWAY_CHECK_VALUE = 0.65;
 export const MULTIWAY_CHECK_DRAW = 1;
@@ -527,9 +541,12 @@ function call(input: NarrowInput, { q, outs }: Scored): Float64Array {
 function check(input: NarrowInput, { q, outs }: Scored): Float64Array {
   const { street, actor } = input;
   const repeat = Math.pow(CHECK_REPEAT, Math.max(0, input.action.checksBefore ?? 0));
-  const multiway = extraPlayers(input) > 0 && street !== "river";
-  const checkValue = multiway ? MULTIWAY_CHECK_VALUE : CHECK_VALUE;
-  const checkDraw = multiway ? MULTIWAY_CHECK_DRAW : CHECK_DRAW;
+  const river = street === "river";
+  const multiway = extraPlayers(input) > 0 && !river;
+  const headsUp = extraPlayers(input) === 0 && !river;
+  const checkValue = multiway ? MULTIWAY_CHECK_VALUE : headsUp ? HEADS_UP_CHECK_VALUE : CHECK_VALUE;
+  const checkDraw = multiway ? MULTIWAY_CHECK_DRAW : headsUp ? HEADS_UP_CHECK_DRAW : CHECK_DRAW;
+  const checkAir = headsUp ? HEADS_UP_CHECK_AIR : CHECK_AIR;
   const cut = 1 - VALUE_SHARE[street];
   const out = new Float64Array(NUM_COMBOS);
   for (let c = 0; c < NUM_COMBOS; c += 1) {
@@ -541,8 +558,8 @@ function check(input: NarrowInput, { q, outs }: Scored): Float64Array {
     }
     const value = ramp(q[c], cut - RAMP, cut);
     const air = q[c] < BLUFF_ZONE && o < WEAK_DRAW_OUTS ? 1 - ramp(q[c], BLUFF_ZONE - RAMP, BLUFF_ZONE) : 0;
-    // Value fades to CHECK_VALUE (multiway on the flop and turn, MULTIWAY_CHECK_VALUE), air to CHECK_AIR, the middle checks.
-    out[c] = Math.max(FLOOR, 1 - repeat * (value * (1 - checkValue) + air * (1 - CHECK_AIR)));
+    // Value fades to checkValue, air to checkAir (the river's constants, heads-up's or multiway's on the flop and turn), the middle checks.
+    out[c] = Math.max(FLOOR, 1 - repeat * (value * (1 - checkValue) + air * (1 - checkAir)));
   }
   return out;
 }
