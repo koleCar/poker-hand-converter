@@ -1,6 +1,14 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  resolve: {
+    // The web's dictionaries (`frontend/src/lib/i18n/`) take the replayer's
+    // words and the Croatian `plural` from the shared UI package by its name
+    // (R2.7a); the web resolves it through its `file:` dependency, the
+    // harness here.
+    alias: { "@rail/ui": fileURLToPath(new URL("../packages/ui", import.meta.url)) },
+  },
   test: {
     include: ["test/**/*.test.ts"],
     exclude: ["dist/**", "node_modules/**"],

@@ -375,6 +375,11 @@ const INSERT_SEAT_SQL: &str = "INSERT INTO seat_stats (hand_id, seat, player, sc
         position, hole_cards, hand_class, starting_stack, starting_stack_bb_tenths, totals)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)";
 
+const INSERT_LIST_SQL: &str = "INSERT INTO hand_list (played_at, hand_key, site_hand_id,
+        segment_id, hero_position, hero_cards, hero_net, hero_net_bb_milli, hero_stack_bb_tenths,
+        board, all_in, showdown, pot_type, currency_symbol)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)";
+
 const UPSERT_EV_SQL: &str =
     "INSERT INTO ev_rows (hand_key, seat, ev_version, ev_net, ev_net_bb_milli)
      VALUES (?1, ?2, ?3, ?4, ?5)
@@ -568,6 +573,25 @@ impl Pending {
         let (counted, money) = Exclusions::default().admits(kind);
         let played_at = hand.played_at.as_deref();
         let day = day_of(played_at);
+        // The Hands list's row (R2.7a), deleted with the `hand_stats` row by
+        // a trigger.
+        let hero = stats.rows.iter().find(|seat| seat.row.seat.is_hero);
+        conn.prepare_cached(INSERT_LIST_SQL)?.execute(params![
+            played_at.unwrap_or(""),
+            hand_key,
+            hand.hand_id,
+            segment_id,
+            hero.and_then(|seat| seat.row.seat.position.map(|position| position.as_str())),
+            hero.map(|seat| seat.hole_cards.as_str()),
+            hero.map(|seat| seat.values.net()),
+            hero.map(|seat| seat.values.net_bb_milli()),
+            hero.map(|seat| seat.row.seat.starting_stack_bb_tenths),
+            stats.list.board,
+            stats.list.all_in,
+            stats.list.showdown,
+            hand.pot_type.as_str(),
+            stats.list.currency_symbol,
+        ])?;
         let mut insert = conn.prepare_cached(INSERT_SEAT_SQL)?;
         for prepared in &stats.rows {
             let (seat, scope, values) = (&prepared.row.seat, &prepared.scope, &prepared.values);
@@ -855,7 +879,13 @@ pub fn apply_rebuild_page(conn: &Connection, page: &RebuildPage) -> Result<bool>
                 // Evaluated before, for the same hero result: still right.
                 let valid =
                     !queued && old_hero.is_some() && old_hero == stats.hero().map(hero_facts);
-                if !valid {
+                if valid {
+                    // The list's flag is what that evaluation found.
+                    let applicable = conn
+                        .prepare_cached("SELECT 1 FROM ev_rows WHERE hand_key = ?1")?
+                        .exists([hand_key])?;
+                    set_list_all_in(conn, hand_key, applicable)?;
+                } else {
                     enqueue_ev(conn, hand_key)?;
                 }
             }
@@ -879,7 +909,26 @@ pub fn apply_rebuild_page(conn: &Connection, page: &RebuildPage) -> Result<bool>
 pub fn apply_ev_rows(conn: &Connection, rows: &[(String, Option<EvRow>)]) -> Result<()> {
     for (hand_key, row) in rows {
         settle_ev(conn, hand_key, row.as_ref())?;
+        set_list_all_in(
+            conn,
+            hand_key,
+            row.as_ref().is_some_and(|row| row.applicable),
+        )?;
     }
+    Ok(())
+}
+
+/// The list's all-in flag of a hand once its EV is known (a preflop
+/// all-in's row was written with the flag on, before the pass evaluated
+/// it: [`crate::ListFacts::all_in`]).
+fn set_list_all_in(conn: &Connection, hand_key: &str, all_in: bool) -> Result<()> {
+    conn.prepare_cached(
+        "UPDATE hand_list SET all_in = ?2
+         WHERE hand_key = ?1
+           AND played_at = (SELECT coalesce(played_at, '') FROM hand_stats WHERE hand_key = ?1)
+           AND all_in <> ?2",
+    )?
+    .execute(params![hand_key, all_in])?;
     Ok(())
 }
 

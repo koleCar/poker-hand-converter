@@ -101,6 +101,29 @@ pub struct PreparedStats {
     /// ready for `seat_stats`.
     pub rows: Vec<PreparedSeat>,
     pub ev: EvPlan,
+    /// What the Hands screen's list needs that the rows do not hold (R2.7a,
+    /// `hand_list`).
+    pub list: ListFacts,
+}
+
+/// A hand's facts for `hand_list` beyond its rows (R2.7a): what the list
+/// shows and filters on without reading the PHF back.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ListFacts {
+    /// The primary runout (`primaryBoard`), the cards separated by spaces;
+    /// `''` when no board was dealt.
+    pub board: String,
+    /// The hero went all in with cards to come: the hands whose all-in EV
+    /// differs from the result (`ev_rows`). A preflop all-in
+    /// ([`EvPlan::Deferred`]) counts until the background pass has
+    /// evaluated it, which sets the stored value to what it found (the
+    /// analysis can still skip a hand: hole cards not shown, ...).
+    pub all_in: bool,
+    /// `results.wentToShowdown`.
+    pub showdown: bool,
+    /// `game.unit.symbol` (`$`, `''` for chips), so a list row prints its
+    /// money without the PHF.
+    pub currency_symbol: String,
 }
 
 /// One kept seat, with everything the writer stores of it computed here, on
@@ -129,8 +152,19 @@ impl PreparedStats {
             }
         };
         let anonymization = stored.anonymization;
+        let list = ListFacts {
+            board: rail_core::phf::hand::primary_board(hand).join(" "),
+            all_in: match &ev {
+                EvPlan::NoHero => false,
+                EvPlan::Row(row) => row.applicable,
+                EvPlan::Deferred => true,
+            },
+            showdown: hand.results.went_to_showdown,
+            currency_symbol: hand.game.unit.symbol.clone(),
+        };
         Self {
             anonymization,
+            list,
             segment: stored.segment,
             rows: stored
                 .rows

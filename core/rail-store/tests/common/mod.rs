@@ -122,6 +122,8 @@ pub struct StatsSnapshot {
     /// hand_key -> seat, version, ev_net, ev_net_bb_milli.
     pub ev_rows: BTreeMap<String, Vec<String>>,
     pub ev_pending: BTreeSet<String>,
+    /// (R2.7a) hand_key -> the `hand_list` row, its segment by key.
+    pub list: BTreeMap<String, Vec<String>>,
 }
 
 /// A segment's key in SQL (`g` is `segments`).
@@ -215,7 +217,89 @@ pub fn stats_snapshot(conn: &Connection) -> StatsSnapshot {
     while let Some(row) = rows.next().expect("row") {
         snap.ev_pending.insert(row.get(0).expect("key"));
     }
+    let sql = format!(
+        "SELECT l.hand_key, l.played_at, l.site_hand_id, {SEGMENT_KEY}, l.hero_position,
+                l.hero_cards,
+                l.hero_net, l.hero_net_bb_milli, l.hero_stack_bb_tenths, l.board, l.all_in,
+                l.showdown, l.pot_type, l.currency_symbol
+         FROM hand_list l JOIN segments g ON g.id = l.segment_id"
+    );
+    let mut stmt = conn.prepare(&sql).expect("prepare list");
+    let mut rows = stmt.query([]).expect("list");
+    while let Some(row) = rows.next().expect("row") {
+        snap.list.insert(
+            row.get(0).expect("key"),
+            (1..14).map(|i| text(row, i)).collect(),
+        );
+    }
     snap
+}
+
+/// `hand_list` (R2.7a) has one row per `hand_stats` row, made of it: the
+/// hand's date, segment and pot type, and its hero's seat row (position,
+/// cards, net, stack); after the EV pass, `all_in` is whether the hand has
+/// an `ev_rows` row (while it is queued, on).
+pub fn assert_list(conn: &Connection) {
+    let missing: i64 = conn
+        .query_row(
+            "SELECT (SELECT count(*) FROM hand_stats) - (SELECT count(*) FROM hand_list)
+                    + (SELECT count(*) FROM hand_list l WHERE NOT EXISTS
+                         (SELECT 1 FROM hand_stats d WHERE d.hand_key = l.hand_key))",
+            [],
+            |row| row.get(0),
+        )
+        .expect("list count");
+    assert_eq!(missing, 0, "hand_list rows are not the hand_stats rows");
+    let mut stmt = conn
+        .prepare(
+            "SELECT d.hand_key, l.played_at = coalesce(d.played_at, '')
+                    AND l.site_hand_id = (SELECT h.site_hand_id FROM hands h
+                                          WHERE h.hand_key = d.hand_key),
+                    l.segment_id = d.segment_id, l.pot_type = d.pot_type,
+                    l.hero_position IS s.position, l.hero_cards IS s.hole_cards,
+                    l.hero_stack_bb_tenths IS s.starting_stack_bb_tenths,
+                    l.hero_net, l.hero_net_bb_milli, s.totals, l.all_in,
+                    EXISTS (SELECT 1 FROM ev_rows e WHERE e.hand_key = d.hand_key),
+                    EXISTS (SELECT 1 FROM ev_pending p WHERE p.hand_key = d.hand_key)
+             FROM hand_stats d JOIN hand_list l ON l.hand_key = d.hand_key
+             LEFT JOIN seat_stats s ON s.hand_id = d.id AND s.is_hero = 1
+               AND s.seat = (SELECT min(seat) FROM seat_stats x
+                             WHERE x.hand_id = d.id AND x.is_hero = 1)",
+        )
+        .expect("prepare list check");
+    let mut rows = stmt.query([]).expect("list check");
+    while let Some(row) = rows.next().expect("row") {
+        let key: String = row.get(0).expect("key");
+        for (i, what) in [
+            (1, "played_at and site_hand_id"),
+            (2, "segment"),
+            (3, "pot type"),
+            (4, "hero position"),
+            (5, "hero cards"),
+            (6, "hero stack"),
+        ] {
+            assert!(
+                row.get::<_, bool>(i).expect("flag"),
+                "{key}: hand_list {what}"
+            );
+        }
+        let net: Option<i64> = row.get(7).expect("net");
+        let net_bb: Option<i64> = row.get(8).expect("net bb");
+        let totals: Option<Vec<u8>> = row.get(9).expect("totals");
+        let hero = totals.map(|blob| {
+            let values = rail_store::stats::decode_seat(&blob).expect("decode");
+            (values.net(), values.net_bb_milli())
+        });
+        assert_eq!(net.zip(net_bb), hero, "{key}: hand_list hero result");
+        let (all_in, ev, pending): (bool, bool, bool) = (
+            row.get(10).expect("all_in"),
+            row.get(11).expect("ev"),
+            row.get(12).expect("pending"),
+        );
+        if !pending {
+            assert_eq!(all_in, ev, "{key}: hand_list all_in after the EV pass");
+        }
+    }
 }
 
 /// The rollups' sums, read back.
@@ -495,4 +579,5 @@ pub fn assert_integrity(conn: &Connection) {
         .expect("orphan totals");
     assert_eq!(orphans, 0, "source_totals without a folder");
     assert_rollups(conn);
+    assert_list(conn);
 }

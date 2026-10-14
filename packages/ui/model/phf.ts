@@ -9,6 +9,6 @@
  * than copying it. It is framework-free by lint rule (docs/WEB.md, "The
  * pure-TypeScript layer may not import the framework"), which is what makes it
  * safe to bundle into the desktop app too. When the web moves to `web/`
- * (R0.14), these four paths are the ones that change.
+ * (R0.14), the paths in these files are the ones that change.
  */
 export * from "../../../frontend/src/lib/phf/types";

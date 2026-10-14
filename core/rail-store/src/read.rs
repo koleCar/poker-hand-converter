@@ -28,6 +28,8 @@ const TODAY_START_MS: &str =
 pub struct Reader {
     conns: Vec<Mutex<Connection>>,
     next: AtomicUsize,
+    /// The Hands screen's last counting passes (R2.7a).
+    facets: Mutex<crate::hand_list::FacetCache>,
 }
 
 impl Reader {
@@ -46,6 +48,7 @@ impl Reader {
         Ok(Self {
             conns,
             next: AtomicUsize::new(0),
+            facets: Mutex::default(),
         })
     }
 
@@ -61,6 +64,11 @@ impl Reader {
             .lock()
             .unwrap_or_else(PoisonError::into_inner);
         f(&conn)
+    }
+
+    /// The Hands screen's cache of counting passes.
+    pub(crate) fn facet_cache(&self) -> std::sync::MutexGuard<'_, crate::hand_list::FacetCache> {
+        self.facets.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     /// The counts the Today screen shows.

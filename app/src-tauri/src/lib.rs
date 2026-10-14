@@ -43,7 +43,9 @@
 //! - the statistics pass ([`stats`], R2.3): rebuilds the local statistics
 //!   after a stats version bump (or when asked from Settings) and computes
 //!   the all-in EV of preflop all-ins in the background; woken by imports,
-//!   paused while a backfill runs, stopped on exit with the watcher.
+//!   paused while a backfill runs, stopped on exit with the watcher;
+//! - the Hands screen ([`hands`], R2.7a): the list with its filters and
+//!   counts, a hand's PHF for the replayer, notes, tags and saved filters.
 
 use std::sync::Mutex;
 
@@ -57,6 +59,7 @@ pub mod commands;
 pub mod dev;
 pub mod folder_settings;
 pub mod folders;
+pub mod hands;
 pub mod quarantine;
 pub mod settings;
 pub mod stats;
@@ -246,6 +249,18 @@ pub fn run() {
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
+        hands::hands_page,
+        hands::hands_facets,
+        hands::hands_by_key,
+        hands::hands_find,
+        hands::hand_phf,
+        hands::hand_annotations,
+        hands::hand_set_note,
+        hands::hand_add_tag,
+        hands::hand_remove_tag,
+        hands::saved_filters,
+        hands::save_filter,
+        hands::delete_saved_filter,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -290,6 +305,18 @@ pub fn run() {
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
+        hands::hands_page,
+        hands::hands_facets,
+        hands::hands_by_key,
+        hands::hands_find,
+        hands::hand_phf,
+        hands::hand_annotations,
+        hands::hand_set_note,
+        hands::hand_add_tag,
+        hands::hand_remove_tag,
+        hands::saved_filters,
+        hands::save_filter,
+        hands::delete_saved_filter,
     ]);
 
     let app = builder

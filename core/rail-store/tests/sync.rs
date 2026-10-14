@@ -357,7 +357,9 @@ fn the_migration_fills_the_outbox_played_time() {
     // Back to version 4's outbox (versions 5 and 6 are additive).
     let conn = Connection::open(&path).expect("open");
     conn.execute_batch(
-        "DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
+        "DROP TABLE hand_list; DROP TABLE hand_notes; DROP TABLE hand_tags;
+         DROP TABLE saved_filters;
+         DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
          DROP TABLE player_rollups; DROP TABLE seat_stats; DROP TABLE hand_stats;
          DROP TABLE segments;
          DELETE FROM kv WHERE key LIKE 'stats.%' OR key LIKE 'ev.%';

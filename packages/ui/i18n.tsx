@@ -3,12 +3,14 @@
 /**
  * The words the package's components show, handed in by the surface.
  *
- * `@rail/ui` holds no copy of its own (guideline §6: English by default,
- * translations prepared from the start; the i18n rule of both surfaces). Each
- * surface keeps its dictionaries where it always has - the web in
- * `frontend/src/lib/i18n/` (`replayer.{en,hr}.ts`, `stats.{en,hr}.ts`,
- * `chrome.{en,hr}.ts`), the app in `app/src/i18n/` - and mounts one
- * `UiStringsProvider` with the slices below for the reader's language. These
+ * The components hold no copy (guideline §6: English by default,
+ * translations prepared from the start; the i18n rule of both surfaces): each
+ * surface mounts one `UiStringsProvider` with the slices below for the
+ * reader's language. The replayer's dictionaries are data in this package,
+ * `strings/replayer.{en,hr}.ts` (R2.7a), so the web (`frontend/src/lib/i18n/`)
+ * and the desktop app (`app/src/i18n/ui.ts`) show the same words; the other
+ * slices come from each surface's own dictionaries (the web's
+ * `stats.{en,hr}.ts` and `chrome.{en,hr}.ts`, the app's `ui`). These
  * interfaces are the contract: a dictionary that lacks a key, or has a
  * function with the wrong arguments, is a type error where the surface builds
  * its `UiStrings`.
@@ -20,7 +22,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import type { ReplayStrings } from "./model/replay";
 
-/** The replayer's strings: `frontend/src/lib/i18n/ns/replayer.en.ts` is the English. */
+/** The replayer's strings: `strings/replayer.en.ts` is the English. */
 export interface ReplayerStrings {
   /** Handed to `buildReplay`, which writes the captions onto the frames. */
   frames: ReplayStrings;
