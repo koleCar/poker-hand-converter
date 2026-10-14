@@ -3264,6 +3264,7 @@ name = "rail-store"
 version = "0.0.0"
 dependencies = [
  "log",
+ "rail-config",
  "rail-core",
  "rail-equity",
  "rail-stats",

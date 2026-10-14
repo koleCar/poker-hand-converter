@@ -10,7 +10,7 @@
  *   total, showdown, non-showdown and all-in EV, cumulative over hands, in
  *   big blinds or in money;
  * - every displayed statistic (R2.4 definitions) by group, each with its
- *   reliability (R2.5);
+ *   reliability (R2.5), the user's own (R2.10) among them, marked;
  * - the breakdowns (`reports/Breakdown.tsx`).
  *
  * Every number is the Rust side's (`report`, `report_breakdowns`), the web's
@@ -247,6 +247,16 @@ function ReportBody({
       : null;
   const tone = (value: number | null) =>
     value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down;
+  // The user's own statistics (R2.10) are listed with the shipped ones of
+  // their group, their names marked.
+  const marked = definitions.map((definition) =>
+    definition.custom
+      ? {
+          ...definition,
+          name: { en: r.stats.yours(definition.name.en), hr: r.stats.yours(definition.name.hr) },
+        }
+      : definition,
+  );
   const bb100 = shownOf(definitions, summary.stats, "bb_per_100");
   const ev100 = shownOf(definitions, summary.stats, "allin_ev_bb_per_100");
 
@@ -329,7 +339,13 @@ function ReportBody({
               key={group}
               caption={r.stats.groups[group]}
               showCaption
-              rows={statRows(definitions, summary.stats, locale, (definition) => definition.group === group)}
+              rows={statRows(
+                marked,
+                summary.stats,
+                locale,
+                (definition) => definition.group === group,
+                summary.ids,
+              )}
             />
           ))}
         </div>

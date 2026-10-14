@@ -19,6 +19,7 @@
 
 pub mod formula;
 pub mod model;
+pub mod predicate;
 
 use std::collections::HashSet;
 use std::fmt;
@@ -184,6 +185,34 @@ pub fn load_stats(text: &str, vocabulary: Vocabulary<'_>) -> Result<Definitions,
         Ok(Definitions { stats })
     } else {
         Err(StatsError::Invalid(problems))
+    }
+}
+
+/// Validate one definition on its own - a user's statistic (R2.10) - with
+/// every check a file's definitions get (id, words, format, sample, bands,
+/// the formula's names against `vocabulary`). Uniqueness against other
+/// definitions is the caller's.
+pub fn check_definition(
+    def: StatDef,
+    vocabulary: Vocabulary<'_>,
+) -> Result<Stat, Vec<StatProblem>> {
+    let mut problems = Vec::new();
+    let parsed = {
+        let mut report = |message: String| {
+            problems.push(StatProblem {
+                stat: Some(def.id.clone()),
+                message,
+            });
+        };
+        check_stat(&def, vocabulary, &mut report)
+    };
+    match parsed {
+        Some((formula, sample)) if problems.is_empty() => Ok(Stat {
+            def,
+            formula,
+            sample,
+        }),
+        _ => Err(problems),
     }
 }
 

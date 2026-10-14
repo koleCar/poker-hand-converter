@@ -48,7 +48,7 @@ const RECENT_MAX = 5;
 const RECENT_KEY = "rail.palette.recent";
 
 /** The Settings sections the palette opens (`#/settings/<section>`; ids in `Settings.tsx`). */
-export const SETTINGS_SECTIONS = ["account", "folders", "refused", "appearance", "startup", "about"] as const;
+export const SETTINGS_SECTIONS = ["account", "folders", "refused", "statistics", "appearance", "startup", "about"] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 /** The platform's modifier as a key cap: ⌘ on a Mac, Ctrl elsewhere. */

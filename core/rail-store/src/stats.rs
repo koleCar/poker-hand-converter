@@ -346,6 +346,7 @@ impl Totals {
             money: self.money,
             money_hands: self.money_hands,
             ev_net_bb_milli: None,
+            custom: Vec::new(),
         }
     }
 
@@ -1026,6 +1027,9 @@ pub fn begin_rebuild(conn: &Connection) -> Result<u64> {
     conn.execute("DELETE FROM hero_rollups", [])?;
     conn.execute("DELETE FROM player_summary", [])?;
     conn.execute("DELETE FROM player_hidden", [])?;
+    // Every hand gets a new `hand_stats` id: the user's own statistics are
+    // counted again after the rebuild (R2.10).
+    crate::custom::reset_custom_counts(conn)?;
     let total: i64 = conn.query_row("SELECT count(*) FROM hands", [], |row| row.get(0))?;
     if total > 0 {
         kv_set(conn, KV_REBUILD_CURSOR, "")?;
@@ -1070,6 +1074,7 @@ pub(crate) fn ensure_current(conn: &mut Connection) -> Result<()> {
     if kv_get(&tx, KV_EV_VERSION)?.as_deref() != Some(EV_VERSION) {
         requeue_ev(&tx)?;
     }
+    crate::custom::ensure_events_version(&tx)?;
     tx.commit()?;
     Ok(())
 }

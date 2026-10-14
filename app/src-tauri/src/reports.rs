@@ -26,7 +26,7 @@ use std::sync::OnceLock;
 
 use rail_config::stats::{StatDef, Unit};
 use rail_core::js::JsNumber;
-use rail_stats::display::{Display, Shown, Sums};
+use rail_stats::display::{Display, DisplayStat, Shown, Sums};
 use rail_store::report::{BreakdownRow, Graph, ReportFilter, SESSION_GAP_MINUTES, Units};
 use rail_store::{HeroSum, HeroTotal};
 use serde::Serialize;
@@ -106,7 +106,7 @@ pub struct ShownDto {
 }
 
 impl ShownDto {
-    fn of(shown: Shown) -> Self {
+    pub(crate) fn of(shown: Shown) -> Self {
         let reliability = shown.reliability;
         Self {
             value: shown.value.map(JsNumber::to_f64),
@@ -168,30 +168,35 @@ impl From<&Units> for UnitsDto {
     }
 }
 
-/// Every definition shown over `sums`, with the units' refusals: no big
-/// blinds across chips and cash, no money across currencies.
+/// One definition shown over `sums`, with the units' refusals when
+/// `units` are known: no big blinds across chips and cash, no money across
+/// currencies.
+pub(crate) fn show_one(stat: &DisplayStat, sums: &Sums, units: Option<&Units>) -> ShownDto {
+    let minor = units.and_then(Units::money_decimals);
+    let shown = ShownDto::of(stat.show(sums, minor));
+    let refused = units.is_some_and(|units| match stat.def.format.unit {
+        Unit::BbPer100 | Unit::Bb => !units.big_blinds(),
+        Unit::Money => !units.money(),
+        _ => false,
+    });
+    if refused { shown.withheld() } else { shown }
+}
+
+/// Every definition shown over `sums`, with the units' refusals
+/// ([`show_one`]).
 pub(crate) fn show_all(
     display: &Display,
     sums: &Sums,
     units: &Units,
     ids: Option<&[&str]>,
 ) -> Vec<ShownDto> {
-    let minor = units.money_decimals();
     let stats: Vec<_> = match ids {
         None => display.stats.iter().collect(),
         Some(ids) => ids.iter().filter_map(|id| display.get(id)).collect(),
     };
     stats
         .into_iter()
-        .map(|stat| {
-            let shown = ShownDto::of(stat.show(sums, minor));
-            let refused = match stat.def.format.unit {
-                Unit::BbPer100 | Unit::Bb => !units.big_blinds(),
-                Unit::Money => !units.money(),
-                _ => false,
-            };
-            if refused { shown.withheld() } else { shown }
-        })
+        .map(|stat| show_one(stat, sums, Some(units)))
         .collect()
 }
 
@@ -379,8 +384,12 @@ pub struct SummaryDto {
     net_bb_milli: Option<i64>,
     /// The all-in EV result, thousandths of a big blind.
     ev_net_bb_milli: Option<i64>,
-    /// Every definition, in [`stat_definitions`]' order.
+    /// Every definition, in [`stat_definitions`]' order: the shipped ones,
+    /// then the user's own (R2.10).
     stats: Vec<ShownDto>,
+    /// The definition of each of `stats`, by id (the user's statistics
+    /// change while the app runs; the window matches by id).
+    ids: Vec<String>,
 }
 
 /// What opening Reports shows.
@@ -500,6 +509,14 @@ pub fn build_report(
         all.add(total);
     }
     let sums = all.sums();
+    let mut stats = show_all(display, &sums, units, None);
+    let mut ids: Vec<String> = display.stats.iter().map(|s| s.id().to_owned()).collect();
+    // The user's own statistics (R2.10) over the same hands.
+    let hero_filter = reader.report_hero_filter(filter).map_err(text)?;
+    for (id, shown) in crate::custom_stats::shown_for_report(reader, &hero_filter, &sums, units)? {
+        ids.push(id);
+        stats.push(shown);
+    }
     let summary = SummaryDto {
         hands: all.sum.totals.hands(),
         money_hands: all.sum.totals.money_hands,
@@ -509,7 +526,8 @@ pub fn build_report(
             .then(|| all.sum.totals.money("net_bb_milli"))
             .flatten(),
         ev_net_bb_milli: units.big_blinds().then_some(sums.ev_net_bb_milli).flatten(),
-        stats: show_all(display, &sums, units, None),
+        stats,
+        ids,
     };
     let none = |_: &str| None;
     Ok(ReportDto {
@@ -622,15 +640,36 @@ pub fn build_today(reader: &rail_store::Reader, now_ms: i64) -> Result<TodayDto,
 
 /* --------------------------------------------------------- the commands - */
 
-/// Every shipped definition, in file order (the order of every `stats`
-/// list the other commands return).
+/// A definition for the window: the shipped ones (`config/stats/`) and the
+/// user's own (R2.10, `custom: true`).
+#[derive(Debug, Clone, Serialize)]
+pub struct DefinitionDto {
+    #[serde(flatten)]
+    def: StatDef,
+    custom: bool,
+}
+
+/// Every shipped definition, in file order, then the user's own in their
+/// order (the order of every `stats` list the other commands return; the
+/// shipped ones alone where a list has no user statistics).
 #[tauri::command]
-pub async fn stat_definitions() -> Result<Vec<StatDef>, String> {
-    Ok(display()?
+pub async fn stat_definitions(store: State<'_, StoreState>) -> Result<Vec<DefinitionDto>, String> {
+    let mut out: Vec<DefinitionDto> = display()?
         .stats
         .iter()
-        .map(|stat| stat.def.clone())
-        .collect())
+        .map(|stat| DefinitionDto {
+            def: stat.def.clone(),
+            custom: false,
+        })
+        .collect();
+    if let Ok(store) = open(&store) {
+        out.extend(
+            crate::custom_stats::definitions(store.reader())?
+                .into_iter()
+                .map(|def| DefinitionDto { def, custom: true }),
+        );
+    }
+    Ok(out)
 }
 
 /// What opening Reports shows (see the module header).

@@ -55,6 +55,7 @@ use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 
 pub mod account;
 pub mod commands;
+pub mod custom_stats;
 #[cfg(debug_assertions)]
 pub mod dev;
 pub mod folder_settings;
@@ -165,6 +166,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
         watch::WatcherState::start(&store, std::sync::Arc::clone(&sync_slot), stats.clone());
     app.manage(stats);
     app.manage(store);
+    // The custom statistics editor's preview hands (R2.10).
+    app.manage(custom_stats::CustomState::default());
     app.manage(watcher);
 
     commands::reconcile_login_item(app, start_at_login);
@@ -268,6 +271,10 @@ pub fn run() {
         hands::save_filter,
         hands::delete_saved_filter,
         reports::stat_definitions,
+        custom_stats::custom_stats_list,
+        custom_stats::custom_stat_check,
+        custom_stats::custom_stat_save,
+        custom_stats::custom_stat_delete,
         reports::report,
         reports::report_breakdowns,
         reports::today,
@@ -338,6 +345,10 @@ pub fn run() {
         hands::save_filter,
         hands::delete_saved_filter,
         reports::stat_definitions,
+        custom_stats::custom_stats_list,
+        custom_stats::custom_stat_check,
+        custom_stats::custom_stat_save,
+        custom_stats::custom_stat_delete,
         reports::report,
         reports::report_breakdowns,
         reports::today,

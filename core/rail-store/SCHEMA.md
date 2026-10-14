@@ -48,6 +48,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 8 | `0008_reports.sql` | `hand_list.kind`, `hero_wtsd`, `currency`, `minor_units` (the reports' graph and sessions); forgets `stats.version`, so the next open rebuilds the list rows with them (R2.7b) |
 | 9 | `0009_players.sql` | `players`, `player_labels` (the user's colour, labels and note per opponent), `player_summary`, `player_hidden` (the list's sums), `player_hands` and its delete trigger on `seat_stats`; forgets `stats.version`, so the next open rebuilds the statistics and with them the sums (R2.7c) |
 | 10 | `0010_import_indexes.sql` | drops `hands_played_at_idx`: no query reads it (the list reads `hand_list`, date ranges `hand_stats`), and each imported hand wrote an entry at a random place (~7 % of the writer's time per hand) |
+| 11 | `0011_custom_stats.sql` | `custom_stats` (the user's own statistics), `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups` (their counts) (R2.10); empty, nothing to rebuild |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -86,6 +87,7 @@ The statistics' keys (R2.3, `rail_store::stats`):
 | `stats.rebuild.cursor` | while a rebuild runs: the last `hand_key` it went through (`''` before the first page); absent otherwise |
 | `stats.rebuild.done`, `stats.rebuild.total` | its progress: hands gone through, of the hands stored when it began |
 | `ev.version` | the `EV_VERSION` (`ev/1`) every hero hand was evaluated at or is queued for; another one on open queues every hero hand again |
+| `custom.events_version` | (R2.10) the `rail_stats::custom::EVENTS_VERSION` (`events/1`) the custom counts were made under; another one on open clears them and every custom statistic is counted again |
 
 | Column | Type | |
 | --- | --- | --- |
@@ -717,3 +719,57 @@ A store from version 8: migration 9 creates the tables empty and forgets
 Measured on the generated 497 809-hand store with renamed players
 (`cargo run --release -p rail-store --example players_queries`): see
 docs/RAIL-PLAN.md, R2.7c *As built*.
+
+## Custom statistics (version 11, R2.10)
+
+The user's own statistics (docs/STATS-SPEC.md §14, `rail_store::custom`):
+an R2.4 definition each, and for one that counts a new situation a predicate
+over decision events. The definitions are the user's (they live here, not in
+`config/stats/`); the counts are derived, by the background pass, from the
+stored PHF: the import writes nothing here (docs/RAIL-PLAN.md R2.10 *As
+built*). No foreign keys: counts are cleared explicitly.
+
+### `custom_stats`
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | INTEGER PK AUTOINCREMENT | never reused: a page of counts computed for a deleted statistic cannot land on a new one |
+| `stat_key` | TEXT UNIQUE | the definition's `id`; formulas name its counters `<stat_key>` and `<stat_key>_opp`; a rename keeps the counts |
+| `rev` | INTEGER | +1 when the predicate changes (its counts are cleared and `counted_to` goes back to 0) |
+| `definition` | TEXT | the `StatDef` as JSON (labels, formula, format, sample, bands) |
+| `predicate` | TEXT | the counter's predicate; NULL for a formula over the existing counters only |
+| `ord` | INTEGER | the user's order |
+| `counted_to` | INTEGER | the `hand_stats.id` the pass has counted the predicate up to |
+| `created_at`, `updated_at` | INTEGER | ms |
+
+### `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`
+
+| Table | Key | Values | |
+| --- | --- | --- | --- |
+| `custom_hero_rows` | (`stat_id`, `hand_id` = `hand_stats.id`) | `made`, `opp` | the hero's counts per hand, where not both 0: a report's partial days |
+| `custom_hero_rollups` | (`stat_id`, `segment_id`, `position`, `day`, `kind`) | `made`, `opp` | as `hero_rollups`: every hand, the kind in the key, so a report applies `aggregate`'s options |
+| `custom_player_rollups` | (`stat_id`, `site`, `player`, `scope`, `segment_id`) | `made`, `opp` | as `player_rollups`: every kept seat (the hero and villains), bomb pots left out - the HUD's |
+
+All three `WITHOUT ROWID`. **The pass** (`custom_step`, after the rebuild
+and the players' index, before the EV queue): the 1 000 `hand_stats` rows
+after the lowest `counted_to` of a statistic with a predicate, each hand's
+PHF decompressed and its events built once, every statistic whose
+`counted_to` is below the hand counted on the seats `seat_stats` keeps; one
+writer transaction writes the rows and adds the rollups for each statistic
+whose `rev` and `counted_to` are still what the page was read with (and the
+generation unchanged, no rebuild running), and moves its `counted_to` to the
+page's end. Nothing runs while the coded statistics rebuild: the rebuild
+gives every hand a new `hand_stats` id, so `begin_rebuild` clears every
+custom count (`reset_custom_counts`) and the pass counts them again after
+it. A predicate this build cannot parse (saved by a newer one) is skipped.
+
+### Reading them (`rail_store::custom`)
+
+| Call | For | How |
+| --- | --- | --- |
+| `Reader::custom_stats()` | the definitions, in order | |
+| `Reader::custom_progress()` | the pass's progress per statistic: hands left of the hands stored | a count of `hand_stats` past `counted_to` |
+| `Reader::custom_hero_totals(&HeroFilter, ids)` | a report's values: the same hands `hero_totals` sums | whole UTC days from `custom_hero_rollups`, the partial days at the ends from `custom_hero_rows` through `hand_stats_played_idx` and the hero's `seat_stats` row; `aggregate`'s exclusions by kind |
+| `Reader::custom_player_totals(site, player, scope, segments, ids)` | the HUD's lookup (R3.9) | a key range of `custom_player_rollups` per statistic |
+| `Reader::recent_hero_hands(limit)` | the editor's preview: the hero's latest hands as PHF | `hand_stats_played_idx` backwards |
+| `save_custom_stat`, `delete_custom_stat`, `reset_custom_counts` | writes, on the writer | |

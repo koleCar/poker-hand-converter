@@ -218,7 +218,7 @@ fn rollup_from(row: &rusqlite::Row<'_>) -> rusqlite::Result<Rollup> {
 
 /// ` AND column IN (?n, ...)` over `values`, appended to `params`; `""` for
 /// no filter.
-fn in_list(column: &str, values: Option<Vec<Value>>, params: &mut Vec<Value>) -> String {
+pub(crate) fn in_list(column: &str, values: Option<Vec<Value>>, params: &mut Vec<Value>) -> String {
     match values {
         None => String::new(),
         Some(values) => {
@@ -235,7 +235,7 @@ fn in_list(column: &str, values: Option<Vec<Value>>, params: &mut Vec<Value>) ->
 }
 
 /// ` AND column >= ?n` / `< ?n`, appended to `params`.
-fn bound(column: &str, op: &str, value: &str, params: &mut Vec<Value>) -> String {
+pub(crate) fn bound(column: &str, op: &str, value: &str, params: &mut Vec<Value>) -> String {
     params.push(Value::Text(value.to_owned()));
     format!(" AND {column} {op} ?{}", params.len())
 }
@@ -244,14 +244,14 @@ fn bound(column: &str, op: &str, value: &str, params: &mut Vec<Value>) -> String
 /// `hero_rollups` (`day` strictly between `lo` and `hi`) and the partial
 /// days at the ends as `played_at` ranges for the seat rows.
 #[derive(Debug, Default)]
-struct DayRanges {
+pub(crate) struct DayRanges {
     /// `None` for both: every day, undated hands included. `Some("")` as
     /// `lo` leaves out the undated ones.
-    lo: Option<String>,
-    hi: Option<String>,
+    pub(crate) lo: Option<String>,
+    pub(crate) hi: Option<String>,
     /// No whole day inside the range.
-    no_days: bool,
-    edges: Vec<(String, String)>,
+    pub(crate) no_days: bool,
+    pub(crate) edges: Vec<(String, String)>,
 }
 
 /// The day of an ISO instant (its first ten characters).
@@ -265,7 +265,7 @@ fn end_of(day: &str) -> String {
     format!("{day}U")
 }
 
-fn day_ranges(from: Option<&str>, to: Option<&str>) -> Result<DayRanges> {
+pub(crate) fn day_ranges(from: Option<&str>, to: Option<&str>) -> Result<DayRanges> {
     Ok(match (from, to) {
         (None, None) => DayRanges::default(),
         (Some(from), None) => DayRanges {
@@ -302,7 +302,7 @@ fn day_ranges(from: Option<&str>, to: Option<&str>) -> Result<DayRanges> {
 
 /// The kind of a hand from its `hand_stats` flags (columns `first..+3`:
 /// bomb pot, straddle, cashout).
-fn kind_from(row: &rusqlite::Row<'_>, first: usize) -> rusqlite::Result<i64> {
+pub(crate) fn kind_from(row: &rusqlite::Row<'_>, first: usize) -> rusqlite::Result<i64> {
     Ok((if row.get::<_, bool>(first)? {
         KIND_BOMB_POT
     } else {
