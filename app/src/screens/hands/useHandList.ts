@@ -7,7 +7,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { errorText, inApp, ipc, onWatcherChanged, type HandCursor, type HandFacets, type HandFilter, type HandRow } from "../../lib/ipc";
+import { errorText, inApp, ipc, onStatsDataChanged, type HandCursor, type HandFacets, type HandFilter, type HandRow } from "../../lib/ipc";
 
 /** The first page: a screenful and a scroll. */
 export const FIRST_PAGE = 100;
@@ -142,7 +142,7 @@ export function useHandList(query: HandFilter): HandList {
         })
         .catch(() => undefined);
     };
-    const stop = onWatcherChanged(() => {
+    const stop = onStatsDataChanged(() => {
       const wait = last + ARRIVAL_THROTTLE_MS - Date.now();
       if (timer !== undefined) return;
       timer = window.setTimeout(

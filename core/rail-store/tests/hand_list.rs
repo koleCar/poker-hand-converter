@@ -743,9 +743,9 @@ fn a_version_6_store_gets_its_list() {
         "the list fills as the pass goes"
     );
     let writer = store.writer().expect("writer");
-    while background::step(store.reader(), &writer, false).expect("step")
-        != background::Step::Nothing
-    {}
+    // The recompute alone (not the EV pass: the reference's preflop all-ins
+    // are still queued).
+    rail_store::recompute::run_rows_job(store.reader(), &writer).expect("recompute");
     drop(writer);
     store.close();
     let conn = Connection::open(&path).expect("open");

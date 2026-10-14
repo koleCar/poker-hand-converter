@@ -1,27 +1,32 @@
-//! The background statistics pass (docs/RAIL-PLAN.md R2.3): one
-//! low-priority thread that
+//! The background statistics pass (docs/RAIL-PLAN.md R2.3, R2.11): one
+//! low-priority thread that, a step at a time,
 //!
-//! 1. **rebuilds** - after a `STATS_VERSION` bump, a store from before
-//!    R2.3, or "rebuild statistics" ([`StatsWorker::rebuild_stats`]) - every
-//!    hand's seat rows and rollups from its stored PHF, a page of hands per
-//!    writer transaction, in `hand_key` order, with the cursor in `kv`
-//!    (resumable after a crash or a quit);
-//! 2. then writes the opponents of the hands imported since it last did to
+//! 1. writes the opponents of the hands imported since it last did to
 //!    `player_hands` (R2.7c, the Players screen's "hands with this player"),
 //!    [`INDEX_PAGE`] hands a transaction, sorted - the import leaves them,
 //!    as a page of that name-ordered table touched per opponent per import
 //!    transaction cost it 4-5 % of its rate;
-//! 3. then computes the **EV rows** the import left for later: hands whose
+//! 2. counts the user's own statistics (R2.10, [`crate::custom`]);
+//! 3. runs a **recompute's rows job** (R2.11, [`crate::recompute`]: a
+//!    `STATS_VERSION` or `SEGMENT_VERSION` bump, a store from before R2.3, or
+//!    "rebuild statistics", [`StatsWorker::rebuild_stats`]) - a page of hands
+//!    per writer transaction, in `hands` row order, the cursor in `kv`
+//!    (resumable after a crash or a quit), the statistics the screens read
+//!    swapped at the end;
+//! 4. computes the **EV rows** the import left for later: hands whose
 //!    all-in was completed preflop (an enumeration of 1.7M boards, 25-46 ms
-//!    each), and every hero hand after an `EV_VERSION` bump - a few hands
-//!    per transaction, newest first, so a session just played is evaluated
-//!    before a backlog.
+//!    each) - a few hands per transaction, newest first, so a session just
+//!    played is evaluated before a backlog;
+//! 5. runs a recompute's **EV job** (an `EV_VERSION` bump, or "compute
+//!    all-in EV again", [`StatsWorker::recompute_ev`]).
 //!
 //! It **pauses** while a backfill imports ([`StatsWorker::set_backfill`]:
-//! the import threads have the CPU) and its EV part while poker tables are
-//! open ([`StatsWorker::set_tables_open`], for the HUD of Phase 3: EV is
-//! for after the session, and the HUD should not share the CPU with an
-//! enumeration). Before any of it, once, it **warms up** the store (R2.9,
+//! the import threads have the CPU) and its heavy parts - the recompute and
+//! EV - while poker tables are open ([`StatsWorker::set_tables_open`], for
+//! the HUD of Phase 3: the HUD should not share the CPU with them, and a
+//! recompute shows its result only when it is done anyway). The players'
+//! index and the custom counts go on: they are cheap and keep new hands
+//! complete. Before any of it, once, it **warms up** the store (R2.9,
 //! [`Reader::warm_up`]): what Today, Reports and Players read first, into
 //! the OS cache, so a large store's first report does not wait for the
 //! disk. Work is read through its own read connection and written
@@ -36,16 +41,16 @@ use std::time::{Duration, Instant};
 
 use rail_core::phf::PhfHand;
 use rail_equity::EvRow;
-use rusqlite::params;
 
-use crate::batch::{PreparedStats, decompress_phf};
+use crate::batch::decompress_phf;
 use crate::error::{Error, Result};
 use crate::read::Reader;
-use crate::stats::{RebuildPage, RebuildState, apply_ev_rows, apply_rebuild_page};
+use crate::recompute::{EvRecomputeState, RebuildState};
+use crate::stats::apply_ev_rows;
 use crate::writer::WriterHandle;
 
-/// Hands per rebuild transaction (~60 us of derivation each).
-pub const REBUILD_PAGE: u32 = 500;
+/// Hands per page of a recompute's rows job (~60 us of derivation each).
+pub const REBUILD_PAGE: u32 = crate::recompute::ROWS_PAGE;
 
 /// Hands per EV transaction: up to ~0.4 s of preflop enumeration, so a
 /// pause or a quit is answered within that.
@@ -67,7 +72,7 @@ pub enum Activity {
     /// Nothing to do.
     #[default]
     Idle,
-    /// Rebuilding the seat rows and rollups.
+    /// A recompute's rows job: the statistics worked out again (R2.11).
     Rebuilding,
     /// Writing the opponents of new hands to `player_hands` (R2.7c).
     Indexing,
@@ -75,17 +80,19 @@ pub enum Activity {
     Counting,
     /// Computing EV rows.
     Computing,
+    /// A recompute's EV job: every hero hand's all-in EV again (R2.11).
+    Reevaluating,
     /// Paused: a backfill is importing.
     PausedBackfill,
-    /// The EV part paused: tables are open (rebuilds still run).
+    /// The heavy parts (a recompute, EV) paused: tables are open.
     PausedTables,
     /// Stopped (or never started).
     Stopped,
 }
 
 impl Activity {
-    /// `idle`, `rebuilding`, `computing`, `paused-backfill`,
-    /// `paused-tables`, `stopped`.
+    /// `idle`, `rebuilding`, `indexing`, `counting`, `computing`,
+    /// `recomputing-ev`, `paused-backfill`, `paused-tables`, `stopped`.
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Idle => "idle",
@@ -93,6 +100,7 @@ impl Activity {
             Self::Indexing => "indexing",
             Self::Counting => "counting",
             Self::Computing => "computing",
+            Self::Reevaluating => "recomputing-ev",
             Self::PausedBackfill => "paused-backfill",
             Self::PausedTables => "paused-tables",
             Self::Stopped => "stopped",
@@ -104,8 +112,13 @@ impl Activity {
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct WorkerStatus {
     pub activity: Activity,
-    /// A rebuild in progress: hands done of hands to do.
+    /// A recompute's rows job in progress: hands done of hands to do.
     pub rebuild: Option<RebuildState>,
+    /// A recompute's EV job in progress.
+    pub ev_recompute: Option<EvRecomputeState>,
+    /// The store's epoch (`kv` `stats.epoch`): it moves on when a recompute
+    /// swaps its statistics in, so a screen knows to read them again.
+    pub epoch: i64,
     /// Hands waiting for an EV row.
     pub ev_pending: u64,
     /// Hands whose opponents are not in `player_hands` yet (R2.7c).
@@ -147,7 +160,8 @@ impl Shared {
 /// What one step did.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Step {
-    /// A page of the rebuild: hands gone through (0: the rebuild ended).
+    /// A page of a recompute's rows job: hands gone through (0: its end -
+    /// the swap, or new hands to go through first).
     Rebuilt(usize),
     /// Hands whose opponents went to `player_hands`.
     Indexed(usize),
@@ -155,6 +169,9 @@ pub enum Step {
     Counted(usize),
     /// EV rows computed, and the time the computation took.
     Computed(usize, Duration),
+    /// A page of a recompute's EV job: hands evaluated (0: its end), and
+    /// the time it took.
+    Reevaluated(usize, Duration),
     /// Nothing left (of what was allowed).
     Nothing,
 }
@@ -167,48 +184,6 @@ pub(crate) fn hand_from(blob: &[u8], size: i64) -> Result<PhfHand> {
 }
 
 type StoredPhf = (String, Vec<u8>, i64);
-
-/// One page of the rebuild, if one is running.
-fn rebuild_step(reader: &Reader, writer: &WriterHandle) -> Result<Option<usize>> {
-    let Some((state, rows)) = reader.with(|conn| {
-        let Some(state) = crate::stats::rebuild_state(conn)? else {
-            return Ok(None);
-        };
-        let mut stmt = conn.prepare_cached(
-            "SELECT hand_key, phf, phf_size FROM hands
-             WHERE hand_key > ?1 ORDER BY hand_key LIMIT ?2",
-        )?;
-        let rows = stmt
-            .query_map(params![state.cursor, REBUILD_PAGE], |row| {
-                Ok((row.get(0)?, row.get(1)?, row.get(2)?))
-            })?
-            .collect::<rusqlite::Result<Vec<StoredPhf>>>()?;
-        Ok(Some((state, rows)))
-    })?
-    else {
-        return Ok(None);
-    };
-    let hands: Vec<(String, Option<PreparedStats>)> = rows
-        .into_iter()
-        .map(|(hand_key, blob, size)| {
-            let stats = match hand_from(&blob, size) {
-                Ok(hand) => Some(PreparedStats::from_phf(&hand)),
-                Err(error) => {
-                    log::warn!("statistics rebuild: {hand_key}: {error}");
-                    None
-                }
-            };
-            (hand_key, stats)
-        })
-        .collect();
-    let n = hands.len();
-    let page = RebuildPage {
-        after: state.cursor,
-        hands,
-    };
-    writer.write(move |tx| apply_rebuild_page(tx, &page))?;
-    Ok(Some(n))
-}
 
 /// One page of the EV queue, newest first.
 fn ev_step(reader: &Reader, writer: &WriterHandle) -> Result<Option<(usize, Duration)>> {
@@ -245,13 +220,11 @@ fn ev_step(reader: &Reader, writer: &WriterHandle) -> Result<Option<(usize, Dura
     Ok(Some((n, took)))
 }
 
-/// One step: a rebuild page if a rebuild runs, else the opponents of a
-/// page of new hands, else a page of the user's own statistics (R2.10,
-/// [`crate::custom`]), else (when `ev` allows) a page of EV rows.
-pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
-    if let Some(n) = rebuild_step(reader, writer)? {
-        return Ok(Step::Rebuilt(n));
-    }
+/// One step: the opponents of a page of new hands, else a page of the
+/// user's own statistics (R2.10, [`crate::custom`]), else - when `heavy`
+/// allows (no tables open) - a page of a recompute's rows job (R2.11,
+/// [`crate::recompute`]), a page of EV rows, a page of a recompute's EV job.
+pub fn step(reader: &Reader, writer: &WriterHandle, heavy: bool) -> Result<Step> {
     let indexed = writer.write(|tx| crate::stats::index_players(tx, INDEX_PAGE))?;
     if indexed > 0 {
         return Ok(Step::Indexed(indexed));
@@ -259,8 +232,17 @@ pub fn step(reader: &Reader, writer: &WriterHandle, ev: bool) -> Result<Step> {
     if let Some(n) = crate::custom::custom_step(reader, writer)? {
         return Ok(Step::Counted(n));
     }
-    if ev && let Some((n, took)) = ev_step(reader, writer)? {
+    if !heavy {
+        return Ok(Step::Nothing);
+    }
+    if let Some(n) = crate::recompute::rows_step(reader, writer)? {
+        return Ok(Step::Rebuilt(n));
+    }
+    if let Some((n, took)) = ev_step(reader, writer)? {
         return Ok(Step::Computed(n, took));
+    }
+    if let Some((n, took)) = crate::recompute::ev_step(reader, writer)? {
+        return Ok(Step::Reevaluated(n, took));
     }
     Ok(Step::Nothing)
 }
@@ -274,9 +256,11 @@ pub struct Drained {
     pub counted: usize,
     pub ev_rows: usize,
     pub ev_time: Duration,
+    /// Hands a recompute's EV job evaluated.
+    pub reevaluated: usize,
 }
 
-/// Run the pass to the end on this thread: the rebuild, then the EV queue.
+/// Run the pass to the end on this thread: every step until none is left.
 pub fn drain(reader: &Reader, writer: &WriterHandle) -> Result<Drained> {
     let mut drained = Drained::default();
     loop {
@@ -288,6 +272,7 @@ pub fn drain(reader: &Reader, writer: &WriterHandle) -> Result<Drained> {
                 drained.ev_rows += n;
                 drained.ev_time += took;
             }
+            Step::Reevaluated(n, _) => drained.reevaluated += n,
             Step::Nothing => return Ok(drained),
         }
     }
@@ -346,8 +331,8 @@ impl StatsWorker {
         self.wake();
     }
 
-    /// Poker tables are open (pause the EV part) or not. The HUD's hook
-    /// (Phase 3).
+    /// Poker tables are open (pause the heavy parts: a recompute, EV) or
+    /// not. The HUD's hook (Phase 3).
     pub fn set_tables_open(&self, open: bool) {
         self.shared.control().tables_open = open;
         self.wake();
@@ -358,17 +343,20 @@ impl StatsWorker {
         self.shared.status().clone()
     }
 
-    /// Start a rebuild of every hand's statistics (a new generation; the
-    /// rollups count up again as it runs). Returns the hands to go through.
+    /// "Rebuild statistics": a recompute's rows job over every hand (R2.11:
+    /// the screens keep the statistics they show until it swaps the new
+    /// ones in). Returns the hands to go through.
     pub fn rebuild_stats(&self) -> Result<u64> {
         let total = self.writer()?.write(|tx| crate::stats::begin_rebuild(tx))?;
         self.wake();
         Ok(total)
     }
 
-    /// Queue every hero hand for its EV row again. Returns how many.
+    /// "Compute all-in EV again": a recompute's EV job over every hero hand
+    /// (the stored rows stay until it swaps the new ones in). Returns how
+    /// many it evaluates.
     pub fn recompute_ev(&self) -> Result<u64> {
-        let queued = self.writer()?.write(|tx| crate::stats::requeue_ev(tx))?;
+        let queued = self.writer()?.write(|tx| crate::recompute::begin_ev(tx))?;
         self.wake();
         Ok(queued)
     }
@@ -416,6 +404,8 @@ fn refresh(shared: &Shared, reader: &Reader, activity: Activity) {
     match counts {
         Ok(counts) => {
             status.rebuild = counts.rebuild;
+            status.ev_recompute = counts.ev_recompute;
+            status.epoch = counts.epoch;
             status.ev_pending = counts.ev_pending;
             status.players_unindexed = counts.players_unindexed;
         }
@@ -494,6 +484,10 @@ fn run(shared: &Shared, reader: &Reader, writer: &WriterHandle) {
                     status.ev_millis += u64::try_from(took.as_millis()).unwrap_or(u64::MAX);
                 }
                 refresh(shared, reader, Activity::Computing);
+            }
+            Ok(Step::Reevaluated(..)) => {
+                shared.status().last_error = None;
+                refresh(shared, reader, Activity::Reevaluating);
             }
             Ok(Step::Nothing) => {
                 let activity = if tables_open {

@@ -18,6 +18,7 @@ import { Dialog } from "@rail/ui/dialog/Dialog";
 import type { StatDefinition, StatGroup, StatTone, StatUnit } from "@rail/ui/model/stats";
 import { StatValue } from "@rail/ui/stats/StatValue";
 
+import { RecomputeNotice, useRecompute } from "../../components/RecomputeNotice";
 import { useLocale, useT } from "../../i18n";
 import {
   errorText,
@@ -683,6 +684,9 @@ export function CustomStats() {
       .catch((e: unknown) => setError(errorText(e)));
   };
   useEffect(load, []);
+  // A recompute after an upgrade (R2.11): its progress, here with the
+  // statistics.
+  const recompute = useRecompute();
 
   // While the background pass counts, read the list again now and then.
   const counting = list?.stats.some((stat) => (stat.remaining ?? 0) > 0) ?? false;
@@ -718,6 +722,7 @@ export function CustomStats() {
         {c.heading}
       </h2>
       <p className={styles.body}>{c.body}</p>
+      <RecomputeNotice status={recompute} className={styles.hint} />
       {error ? <p className={styles.error}>{c.loadFailed(error)}</p> : null}
       {list === null && !error ? <p className={styles.hint}>{c.loading}</p> : null}
       {list && list.stats.length === 0 ? <p className={styles.hint}>{c.empty}</p> : null}

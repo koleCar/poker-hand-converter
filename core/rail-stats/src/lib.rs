@@ -51,7 +51,7 @@ pub mod showdown;
 pub mod stored;
 
 pub use anonymization::{SiteAnonymization, detect_anonymization};
-pub use segment::{Segment, SizeClass, Stake, site_key};
+pub use segment::{SEGMENT_VERSION, Segment, SizeClass, Stake, site_key};
 pub use stored::{StoredRows, rollup_scope, session_scope, stored_rows};
 
 pub use counters::{

@@ -26,7 +26,7 @@
 use std::path::PathBuf;
 use std::time::Instant;
 
-use rail_store::background::{self, Step};
+use rail_store::background;
 use rail_store::hand_list::{HandCursor, HandFilter, PlayerRef};
 use rail_store::players::{GameKind, PlayerQuery};
 use rail_store::{Reader, Store};
@@ -137,13 +137,8 @@ fn main() {
         .is_some()
     {
         let started = Instant::now();
-        let mut hands = 0;
-        while let Some(n) = match background::step(store.reader(), &writer, false).expect("step") {
-            Step::Rebuilt(n) => Some(n),
-            _ => None,
-        } {
-            hands += n;
-        }
+        let hands =
+            rail_store::recompute::run_rows_job(store.reader(), &writer).expect("recompute");
         println!(
             "rebuild (the player summary): {hands} hands in {:.1?}",
             started.elapsed()

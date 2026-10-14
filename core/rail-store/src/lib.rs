@@ -29,8 +29,10 @@
 //! - **Statistics** (R2.3, [`stats`], [`stats_read`], [`background`]): a
 //!   hand's seat rows, rollup increments and EV row are derived with the
 //!   hand (on the producer's thread) and written in its transaction; a
-//!   background pass computes the expensive EV rows (preflop all-ins) and
-//!   rebuilds everything after a version bump.
+//!   background pass computes the expensive EV rows (preflop all-ins).
+//! - **Targeted recompute** (R2.11, [`recompute`]): after a definition
+//!   changes, the background pass works out only what the change touches,
+//!   beside the statistics the screens read, and swaps it in whole.
 //!
 //! The schema is documented table by table in `SCHEMA.md`.
 
@@ -48,6 +50,7 @@ pub mod import;
 pub mod migrate;
 pub mod players;
 pub mod read;
+pub mod recompute;
 pub mod report;
 pub mod sources;
 pub mod stats;
@@ -70,9 +73,10 @@ pub use hand_list::{
 pub use import::{FileImport, ImportOptions, import_file};
 pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
 pub use read::{Reader, StaleRefusals, StoreStatus};
+pub use recompute::{EvRecomputeState, RebuildState, RowsJob};
 pub use report::{Breakdowns, Graph, GraphPoint, ReportFilter, Session, Units};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
-pub use stats::{Exclusions, PlayerSeen, RebuildState, SeatValues, Totals};
+pub use stats::{Exclusions, PlayerSeen, SeatValues, Totals};
 pub use stats_read::{EvAdjust, HeroFilter, HeroSum, HeroTotal, Rollup, SegmentRow, StatsStatus};
 pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};
 pub use writer::{PendingImport, WriterHandle};

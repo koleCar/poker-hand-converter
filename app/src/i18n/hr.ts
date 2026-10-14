@@ -636,23 +636,39 @@ export const hr: Dict = {
     activity: "Radi",
     activities: {
       idle: "Ništa",
-      rebuilding: "Ponovno gradi statistike",
+      rebuilding: "Ponovno računa statistike",
       indexing: "Razvrstava protivnike novih ruku",
+      counting: "Broji tvoje statistike",
       computing: "Računa all-in EV",
+      "recomputing-ev": "Ponovno računa all-in EV",
       "paused-backfill": "Čeka da uvoz završi",
-      "paused-tables": "All-in EV čeka dok su stolovi otvoreni",
+      "paused-tables": "Ponovni izračun i all-in EV čekaju dok su stolovi otvoreni",
       stopped: "Zaustavljen",
     },
-    rebuild: "Ponovna izgradnja",
+    rebuild: "Ponovni izračun",
     rebuildProgress: (done, total) => `${n(done)} od ${odRuku(total)}`,
+    evRecompute: "All-in EV ponovno",
     none: "Nema",
     evPending: "Ruke koje čekaju all-in EV",
     evComputed: "Izračunan all-in EV",
     evTime: (count, ms) => `${ruku(count)} u ${(ms / 1000).toFixed(1).replace(".", ",")} s`,
     rebuildButton: "Ponovno izgradi statistike",
     evButton: "Ponovno izračunaj all-in EV",
-    rebuildStarted: (count) => `Statistika se ponovno gradi za ${rukuAcc(count)}.`,
-    evQueued: (count) => `${cap(ruku(count))} ${plural(count, "čeka", "čekaju", "čeka")} all-in EV.`,
+    rebuildStarted: (count) => `Statistika se ponovno računa za ${rukuAcc(count)}.`,
+    evQueued: (count) => `All-in EV ponovno se računa za ${rukuAcc(count)}.`,
+  },
+
+  recompute: {
+    rows: (done, total) =>
+      `Ažuriram tvoju statistiku za ovu verziju Raila: ${n(done)} od ${odRuku(total)}. Dok ne završi, vidiš dosadašnje brojke.`,
+    segments: (done, total) =>
+      `Ponovno grupiram tvoju statistiku po igrama: ${n(done)} od ${odRuku(total)}. Dok ne završi, vidiš dosadašnje grupiranje.`,
+    ev: (done, total) =>
+      `Ponovno računam all-in EV: ${n(done)} od ${odRuku(total)}. Dok ne završi, vidiš dosadašnji all-in EV.`,
+    filling: (done, total) =>
+      `Računam tvoju statistiku: ${n(done)} od ${odRuku(total)}. Brojke rastu kako napreduje.`,
+    pausedTables: "Čeka dok su stolovi otvoreni.",
+    pausedImport: "Čeka da uvoz završi.",
   },
 
   backfill: {

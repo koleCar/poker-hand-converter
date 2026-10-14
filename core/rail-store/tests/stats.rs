@@ -479,12 +479,20 @@ fn a_rebuild_reproduces_the_import_and_imports_during_it_count_once() {
         .write(|tx| rail_store::stats::begin_rebuild(tx))
         .expect("rebuild");
     let status = store.reader().stats_status().expect("status");
-    assert_eq!(status.generation, 2);
     assert_eq!(
-        status.rebuild.as_ref().map(|r| (r.done, r.total)),
-        Some((0, total))
+        status.generation, 1,
+        "R2.11: a recompute keeps the generation"
     );
+    assert_eq!(
+        status.rebuild.as_ref().map(|r| (r.done, r.total, r.fills)),
+        Some((0, total, 0))
+    );
+    // The screens keep the statistics they show until the swap.
     assert_integrity(&Connection::open(&path).expect("open"));
+    assert!(
+        stats_snapshot(&Connection::open(&path).expect("open")) == reference,
+        "a recompute that has not swapped changed what the screens read"
+    );
     let started = Instant::now();
     let drained = background::drain(store.reader(), &writer).expect("drain");
     eprintln!(
@@ -518,7 +526,7 @@ fn a_rebuild_reproduces_the_import_and_imports_during_it_count_once() {
         .write(|tx| rail_store::stats::begin_rebuild(tx))
         .expect("rebuild");
     for _ in 0..3 {
-        background::step(store.reader(), &writer, false).expect("step");
+        background::step(store.reader(), &writer, true).expect("step");
     }
     for file in second {
         import_file(&store, file, &options()).expect("import");
@@ -921,32 +929,34 @@ fn the_worker_pauses_resumes_and_stops() {
     assert_eq!(done.last_error, None);
     let computed = stats_snapshot(&Connection::open(&path).expect("open"));
 
-    // Tables open: a rebuild runs, the EV it queues waits.
+    // Tables open (R2.11): a recompute - the statistics and the all-in EV
+    // worked out again - waits, and the screens keep what they show.
     worker.set_tables_open(true);
     let total = worker.rebuild_stats().expect("rebuild");
     assert!(total > 0);
-    let deadline = Instant::now() + Duration::from_secs(120);
-    while store.reader().stats_status().expect("s").rebuild.is_some() {
-        assert!(
-            Instant::now() < deadline,
-            "the rebuild ends with tables open"
-        );
-        std::thread::sleep(Duration::from_millis(20));
-    }
     let queued = worker.recompute_ev().expect("recompute");
     assert!(queued > 0);
-    std::thread::sleep(Duration::from_millis(300));
-    assert_eq!(
-        store.reader().stats_status().expect("s").ev_pending,
-        queued,
-        "no EV computed while tables are open"
-    );
-    until("EV paused", &|s| {
-        s.activity == Activity::PausedTables && s.ev_pending == queued
+    until("paused for tables", &|s| {
+        s.activity == Activity::PausedTables
     });
+    std::thread::sleep(Duration::from_millis(300));
+    let status = store.reader().stats_status().expect("s");
+    assert_eq!(
+        status.rebuild.map(|r| r.done),
+        Some(0),
+        "no recompute while tables are open"
+    );
+    assert_eq!(
+        status.ev_recompute.map(|r| (r.done, r.total)),
+        Some((0, queued))
+    );
+    assert!(stats_snapshot(&Connection::open(&path).expect("open")) == computed);
     worker.set_tables_open(false);
     until("recomputed", &|s| {
-        s.activity == Activity::Idle && s.ev_pending == 0
+        s.activity == Activity::Idle
+            && s.rebuild.is_none()
+            && s.ev_recompute.is_none()
+            && s.ev_pending == 0
     });
     worker.stop();
     assert_eq!(worker.status().activity, Activity::Stopped);

@@ -15,7 +15,7 @@ import { StatTable } from "@rail/ui/stats/StatTable";
 
 import { StateMessage } from "../../components/StateMessage";
 import { useLocale, useT } from "../../i18n";
-import { errorText, inApp, ipc, onWatcherChanged, type HandRow, type Session } from "../../lib/ipc";
+import { errorText, inApp, ipc, onStatsDataChanged, type HandRow, type Session } from "../../lib/ipc";
 import { go, screenHref } from "../../lib/router";
 import { statRows, useStatDefinitions } from "../../lib/useStatDefinitions";
 import { bigBlinds, count, signedMoney, stakes, unitOf } from "../hands/format";
@@ -73,7 +73,7 @@ function useSession(): { session: Session | null; loaded: boolean; error: string
   useEffect(() => {
     if (!inApp) return;
     load();
-    const stop = onWatcherChanged(load);
+    const stop = onStatsDataChanged(load);
     const timer = window.setInterval(load, 60_000);
     return () => {
       stop();

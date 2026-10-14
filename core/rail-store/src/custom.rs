@@ -26,10 +26,14 @@
 //!   from the rollup, the partial days from the rows, `aggregate`'s
 //!   exclusions by kind) and [`Reader::custom_player_totals`] the HUD's.
 //! - **Resets**: a statistic's predicate changed - its counts go and it is
-//!   counted again; the coded statistics rebuild (`begin_rebuild`: every
-//!   hand gets a new `hand_stats` id) or
-//!   `rail_stats::custom::EVENTS_VERSION` changes - every statistic's counts
-//!   go ([`reset_custom_counts`]).
+//!   counted again; `rail_stats::custom::EVENTS_VERSION` changes, or a
+//!   recompute of the coded statistics moves a hand's seats between rollup
+//!   keys (R2.11, [`crate::recompute`]: its segment, kind or day, or a seat's
+//!   player, scope or position) - every statistic's counts go
+//!   ([`reset_custom_counts`]). Any other recompute leaves them: a hand
+//!   keeps its `hand_stats.id`, and the counts are made from the decision
+//!   events and the kept seats, which it did not change. While a recompute
+//!   runs that will reset them, the pass waits.
 
 use std::collections::{BTreeMap, HashMap};
 
@@ -41,7 +45,8 @@ use rusqlite::{Connection, OptionalExtension, params, params_from_iter};
 use crate::background::hand_from;
 use crate::error::{Error, Result};
 use crate::read::Reader;
-use crate::stats::{Exclusions, current_gen, day_of, kv_get, kv_set, rebuild_state};
+use crate::recompute::custom_on_hold;
+use crate::stats::{Exclusions, current_gen, day_of, kv_get, kv_set};
 use crate::stats_read::{HeroFilter, bound, day_ranges, in_list, kind_from};
 
 /// Hands per step of the custom pass.
@@ -173,7 +178,8 @@ pub fn delete_custom_stat(conn: &Connection, key: &str) -> Result<bool> {
 }
 
 /// Every statistic's counts gone and counted again from the first hand
-/// (a rebuild of the coded statistics, an `EVENTS_VERSION` change).
+/// (an `EVENTS_VERSION` change; a recompute that moved a hand's seats
+/// between rollup keys, R2.11).
 pub fn reset_custom_counts(conn: &Connection) -> Result<()> {
     conn.execute("DELETE FROM custom_hero_rows", [])?;
     conn.execute("DELETE FROM custom_hero_rollups", [])?;
@@ -238,10 +244,11 @@ struct KeptSeat {
 }
 
 /// Compute the next page, if any statistic has hands left to count (and no
-/// rebuild of the coded statistics is running: it gives the hands new ids).
+/// recompute of the coded statistics is running that will reset the counts
+/// when it swaps, R2.11).
 pub fn custom_page(reader: &Reader) -> Result<Option<CustomPage>> {
     let read = reader.with(|conn| {
-        if rebuild_state(conn)?.is_some() {
+        if custom_on_hold(conn)? {
             return Ok(None);
         }
         let generation = current_gen(conn)?;
@@ -387,10 +394,11 @@ pub fn custom_page(reader: &Reader) -> Result<Option<CustomPage>> {
 
 /// Write a page: for each statistic still as it was when the page was read
 /// (same `rev`, same `counted_to`, the same generation of the coded
-/// statistics and no rebuild running), its counts, and its `counted_to`
-/// moved to the page's end. Returns the statistics it counted for.
+/// statistics and no recompute running that will reset the counts), its
+/// counts, and its `counted_to` moved to the page's end. Returns the
+/// statistics it counted for.
 pub fn apply_custom_page(conn: &Connection, page: &CustomPage) -> Result<usize> {
-    if rebuild_state(conn)?.is_some() || current_gen(conn)? != page.generation {
+    if custom_on_hold(conn)? || current_gen(conn)? != page.generation {
         return Ok(0);
     }
     let mut valid: Vec<i64> = Vec::new();

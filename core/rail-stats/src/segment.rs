@@ -32,6 +32,12 @@
 
 use rail_core::phf::{Amount, GameFormat, LimitType, PhfHand, Variant};
 
+/// The segment definition's version. A store whose rollups were grouped
+/// under another one regroups them from its seat rows without deriving
+/// the statistics again (`rail_store::recompute`, docs/RAIL-PLAN.md R2.11).
+/// Bump it with any change to what [`Segment::of`] returns for a hand.
+pub const SEGMENT_VERSION: &str = "segment/1";
+
 /// The table-size class of a segment.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum SizeClass {

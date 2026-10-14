@@ -5259,6 +5259,202 @@ database, on the development Mac and on a mid-range Windows laptop.
 ### R2.11 Targeted recompute — S
 - Dependency map definition → counters; a definition change recomputes only
   what it touches, in the background.
+- *As built* (§15): **done** - a definition change recomputes what it
+  touches, beside the statistics the screens show, and swaps the result in
+  with one commit; every hand keeps its `hand_stats.id`, so the user's own
+  counts survive a recompute that moves no seat.
+  [`core/rail-store/SCHEMA.md`](../core/rail-store/SCHEMA.md) "Targeted
+  recompute" is the reference.
+  - **Dependency map, as data** (`rail_store::recompute::DEPENDENCIES`, one
+    line per change: the work and every table it writes, with how much):
+
+    | Change | Work | Writes | Untouched |
+    | --- | --- | --- | --- |
+    | label, name, description, format, bands, sample, HUD membership | nothing | - | everything |
+    | a formula over counters the store has (shipped or custom) | nothing (evaluated when read) | - | everything |
+    | a custom predicate | the custom pass counts that statistic again | its custom rows and rollups | the rest |
+    | `EVENTS_VERSION` | every custom statistic counted again | the custom tables | coded statistics, EV |
+    | `STATS_VERSION` (a counter, money, a hand or seat column, the kept rows) | **rows job**: every hand derived from its PHF, compared | `hand_stats` / `seat_stats` / `hand_list` rows of the hands that differ (staged; `stats_version` stamped on the rest); rollups, `player_summary`, `player_hidden` summed again into twins and swapped; `player_hands` of rewritten seats; EV of hands whose hero seat or result changed; custom counts **only if** a seat moved between rollup keys | everything else |
+    | `SEGMENT_VERSION` (new constant, `segment/1`) | **segments job**: each hand's segment from its PHF, the stored seat rows regrouped - no statistic derived | `segment_id` of the hands that move; the four summed tables (twins); custom counts if any moved | `seat_stats`, `player_hands`, EV |
+    | `EV_VERSION` | **EV job**: every hero hand not queued, evaluated beside | `ev_rows` (swapped), `hand_list.all_in` where a row came or went | every statistic |
+
+    `tests/recompute.rs` checks the map against the schema (every derived
+    table named, every other one listed as not derived) and, per change,
+    that every table the line does not name is identical after the job.
+  - **How a job runs** (`rail_store::recompute`; store migration 12,
+    `0012_recompute.sql`, tested from every earlier version): pages of 500
+    hands in `hands` rowid order (a hand imported meanwhile has a higher
+    rowid, so the job reaches it too); on the pass's thread, outside any
+    write, each PHF read back, derived (`PreparedStats::from_phf`) and
+    compared with its stored rows column by column (`hand_stats` but
+    `stats_version`, the seat rows, the list row but `all_in`, which
+    belongs to EV); in one writer transaction per page, the hands that
+    differ staged by part (`recompute_hands` / `_seats` / `_list`), the
+    others' `stats_version` stamped, every hand's new rows summed into the
+    twins of the four summed tables (`stats::Pending` with
+    `Target::Shadow`), a hand with no rows at all (a store from before
+    migration 6) written at once as an import writes it, the cursor moved.
+    The **swap**, one transaction once no hand is left: the staged parts
+    written in place (the id stays; seat rows replaced with their
+    `player_hands` entries; the list row's all-in flag carried over or set
+    by the new EV plan; EV rows settled or queued for the hands whose hero
+    changed), each summed table renamed with its twin (`ALTER TABLE ...
+    RENAME`: the swap does not copy the rollups), the custom counts cleared
+    only if a seat moved, the versions set, `kv` `stats.epoch` moved on.
+    The EV job lists every hero hand not in `ev_pending` in `recompute_ev`,
+    evaluates up to 256 a page until 250 ms have gone
+    (`rail_equity::all_in_street` first: no all-in, no row, nothing
+    derived), and its swap writes the rows whose existence or value changed.
+  - **Stable ids, decided: kept.** R2.3's rebuild deleted each hand's
+    `hand_stats` row and inserted a new one, so every custom count (keyed by
+    that id) was cleared and counted again (~23 s per statistic at 500k).
+    Now a hand's row is updated in place and keeps its id for good (hands
+    are never deleted, so ids only grow); the custom counts are made from
+    the decision events and the kept seats, which a coded change does not
+    touch, so they survive unless a seat moves between rollup keys (its
+    segment, kind or day, a seat's player, scope or position) - detected per
+    hand by the comparison, not trusted to the map - and then the swap
+    clears them and the pass counts again (it waits meanwhile).
+  - **Targeted counters from stored PHF, decided: derive every hand,
+    write only what differs.** A `STATS_VERSION` bump cannot know which
+    hands a changed counter touches without deriving them, and deriving is
+    the cheap part (~40-60 µs a hand); what R2.3 paid for was the writes -
+    every `hand_stats`, `seat_stats` and `hand_list` row deleted and
+    inserted, the players' index and the custom counts redone. Rewriting
+    only the changed counters of each blob was considered and not built: a
+    blob is a whole seat's values and the comparison finds the changed
+    seats anyway; the staged seat rows are exactly those. A per-version
+    list of changed counters (to skip the comparison) was not built either:
+    the comparison is what makes a wrong declaration harmless.
+  - **Consistent reads.** Every `Reader::with` is one read transaction now,
+    so an answer is the store as of one commit; an answer spread over
+    several connections (Reports opening: the totals and the graph at once;
+    the breakdowns' four `id` ranges) reads `stats.epoch` before and after
+    and runs again if a swap came between (`Reader::same_epoch`). The EV
+    adjustment reads every stored row whatever its version (a hand is in
+    `ev_rows`, in `ev_pending` or neither, never both - queueing drops the
+    row; an open deletes R2.3's leftovers), so the old rows count until the
+    EV swap. **Test** (`readers_never_see_a_half_done_recompute`): the
+    screens' and the HUD's reads (hero totals, the HUD lookup, the Players
+    list, the breakdowns, Reports opening cash and everything) in a loop on
+    the store's pool and on a second `Reader` (the HUD's process) while a
+    rows job (a counter and the money changed) and then an EV job run and
+    swap: every answer equals the older store's or the clean import's
+    (e.g. 1 110 old and 180 new answers in one run, 2 573 / 91 for EV).
+  - **Background job.** One thread, a page at a time; after the players'
+    index and the custom counts of new hands (cheap, they keep new hands
+    complete), before the EV queue; paused while a backfill imports, and -
+    the whole recompute, rows and EV - while tables are open
+    (`set_tables_open`; R2.3 let its rebuild run then). Resumable: the state
+    is in `kv` (`recompute.rows.*`, `recompute.ev.*`) and the work tables,
+    written in each page's transaction; a build of other versions starts
+    the job again; a stale page is dropped. Not given an OS priority (the
+    crate has no `unsafe`; a page is a fraction of a second).
+  - **Progress in the app**: `stats_status` gains the job (`rows` /
+    `segments`), whether it fills a store that had no statistics, and the
+    EV job's progress; activity `recomputing-ev`. Reports, Hands and Players
+    show it in their notice line (`components/RecomputeNotice.tsx`: "You see
+    the previous numbers until it is done", or the screen's "fills as it
+    goes" while it fills), Settings under "Your statistics"; a swap emits
+    `stats-changed` (a thread watching the pass's epoch) and Reports,
+    Hands, Players and Today read again. `en` + `hr`. The debug panel shows
+    the EV job. The tray shows nothing new (its lines are the watcher's,
+    the account's and sync's).
+  - **Crash safety** (`tests/crash.rs`,
+    `crash_mid_recompute_is_consistent_and_resumes`): a clean corpus import
+    made "older" (a counter, the money, the segments and the EV changed by
+    hand, the rollups rewritten from the rows), opened by a child process
+    that runs both jobs and is killed at random moments, between and inside
+    pages, and inside each swap it holds open; after every kill integrity,
+    the rollups equal the rows, the screens' tables are the old store's or
+    the clean import's (never new EV over old rows), and each job's progress
+    never goes back (the next child resumes); the last child's store equals
+    the clean import. R1.2's import crash test unchanged and green.
+  - **Measured at 500k** (`cargo run --release -p rail-store --example
+    recompute_bench`, new; a 497 809-hand store from `import_bench --hands
+    500000 --rename-players --spread`, generated, deleted after, never
+    committed; the R2.3 column is staging's build on a copy of the same
+    store with a scratch example that is not committed; one thread; the
+    owner's M2 Pro with the flop library's solves on it, load 9-11):
+
+    | Change | Before (R2.3) | After (R2.11) |
+    | --- | --- | --- |
+    | (a) a custom predicate | 21-24 s (that statistic counted again: R2.10 already targeted it) | 21.2 s; a label or formula edit 0 s |
+    | (b) the segment definition | the full rebuild below: 84.3 s | **28.2 s** (segments job 28.0 s, swap 0.24 s): no statistic derived, nothing staged when no hand moves, custom counts kept |
+    | (c) `EV_VERSION` | every hero hand (468 962) queued, 8 a transaction: 60 s for the hands without a preflop all-in (7 818 hands/s) + the 13 265 preflop all-ins at 25.4 ms ≈ 337 s: **~397 s**, the all-in EV "waiting" on every report meanwhile | EV job 30.1 s for the 468 962 (15 565 hands/s: no derivation without an all-in) + the same ~337 s of enumeration: **~367 s**, the old EV shown until the swap |
+    | (d) `STATS_VERSION`, nothing changed ("rebuild statistics") | full rebuild 53.0 s, rollups empty and growing meanwhile; then the players' index again 4.3 s and the custom statistic counted again 27.0 s: **84.3 s** | **36.1 s**, 0 staged, swap 43 ms, nothing counted again |
+    | (d) `STATS_VERSION`, a counter changed on 1 opponent seat in 10 (249 636 hands) | 84.3 s | **46.4 s** (42.2 s + swap 4.1 s), custom counts kept |
+    | (d) every hero list row changed (482 227 hands: the swap's worst case) | 84.3 s | **45.8 s** (43.1 s + swap 2.6 s) |
+
+    The swap holds the writer while it runs; it happens only with no table
+    open and no backfill (both pause the job). The first version wrote every
+    staged hand with a statement each: 6.5 s and 4.8 s for the two large
+    cases; a seat-blob-only part (`parts` 16) and list rows written in one
+    `UPDATE ... FROM` each brought them to 4.1 s and 2.6 s. Before R2.11 the
+    pass had no swap; it had the rollups empty for 53 s instead.
+  - **Tests**: `tests/recompute.rs` (the map against the schema; a rebuild
+    that finds nothing stages nothing and changes nothing; a counter change
+    stages exactly the changed hands, keeps every id and the custom counts,
+    counts nothing again, leaves the unnamed tables identical; a money
+    change fixes the list and the Players list's lines; a segment change
+    regroups without touching seat rows, EV or `player_hands`, recounts the
+    custom statistic to the same numbers; an EV change leaves the reports'
+    EV as it was until the swap; a store an older build left mid-rebuild is
+    finished; readers during both jobs), the crash test above, and the
+    earlier tests adapted (a rebuild keeps the generation and the custom
+    counts; tables open now pause the recompute). Every parity test is
+    unchanged and green: no statistic is computed differently. The import
+    path's only change is `Pending`'s refactor (a target, the count split
+    out): `import_bench` locally, 50k hands, 3 threads, load ~10: **50-51 %**
+    efficiency (gate 45 %); the random-append and import crash tests green.
+  - **For R3.x (HUD)**: read through `Reader` (each lookup a snapshot);
+    `StatsWorker::set_tables_open(true)` while drawing pauses recompute and
+    EV; listen for the store's epoch (`StatsStatus::epoch`, the app's
+    `stats-changed`) to re-read every table's players after a swap; a
+    custom statistic's HUD value is `custom_player_totals`, cleared and
+    counted again only when a recompute moved seats.
+
+### Phase 2 summary (after R2.11)
+
+R2.1-R2.11 are on `staging`: the statistics engine, all-in EV, rollups and
+segments, displayed statistics as data, sample reliability, the shared UI
+package, the four desktop screens and Settings, the polish, the 1M benchmark
+and its nightly gate, custom statistics and targeted recompute.
+
+**Exit criterion: "the performance targets (guideline §1) hold on a 1M-hand
+benchmark database, on the development Mac and on a mid-range Windows
+laptop."** From R2.9's measurements on the 1M store (982 408 hands, the
+owner's M2 Pro), unchanged by R2.10-R2.11 (no change to the import, the
+rollups' reads or the screens' queries; every read is now one transaction,
+two statements more):
+
+| Guideline §1 target | On the 1M store | Status |
+| --- | --- | --- |
+| Local import >= 5 000 hands/s | 10 061-12 158 hands/s through the watcher, 8 threads | **met** |
+| HUD delay < 1 s (the pipeline's part) | p95 0.51-0.56 s, 1 table and 12 at once; the HUD's lookup 0.07 ms | **met** for the store's part; the HUD itself is Phase 3 |
+| Report over 1M < 1 s | Reports opening 0.29-0.33 s, a breakdown tab 0.49-0.60 s, Today, Hands and Players well under, all warm or after the start's background warm-up (1.4-1.6 s) | **met** |
+| | Reports opened on a cold store within the warm-up's first ~1.5 s: 2.5-3.6 s | **not met** |
+| Install to first HUD < 5 min; >= 12 tables with a HUD | need the HUD | Phase 3 |
+| On a mid-range Windows laptop | not measured (the nightly gate runs on Linux; normalised to the M2) | **open** |
+
+**What remains of Phase 2.** (1) The cold-start Reports case: the EV
+adjustment's random reads (`ev_rows` -> `hand_stats` -> the hero's
+`seat_stats` row) - R2.9's candidate is the hero's seat in `hand_list`
+(one column, filled by a rows job now, without a rebuild's cost) so the
+adjustment reads only the list, measured against the import first. (2) The
+same measurements on a mid-range Windows laptop (`perf_gate` runs there as
+it is). (3) The nightly gate's thresholds, calibrated from its first runs.
+The web side of R2.9 (server rollups, `player_stats`) and custom statistics
+on the web are Phase 4.
+
+**What Phase 3 needs from Phase 2** (all there): the read API for the HUD
+(`Reader::hud_totals`, `custom_player_totals`, `player_notes`, the session
+scope of opaque ids) in a process of its own; `StatsWorker::set_tables_open`
+- now pausing the recompute and EV, the hook R3.x calls while tables are
+open; `stats_status`'s epoch (`stats-changed`) to redraw after a recompute;
+the display definitions' `label`, `tone`, `full` and `hud` membership; and
+migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
+(R2.9) is for R3.14's 12-table test.
 
 ---
 
@@ -5538,3 +5734,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.8 done**: polish of the desktop screens. **Command palette** complete in `packages/ui` (labelled groups, ↑/↓, Tab and Page keys inside the field, Escape with text typed, matched letters marked, item shortcuts, key hints, live count) with a new fuzzy ranker (`palette/fuzzy.ts`); the app lists screens (Cmd/Ctrl + 1-6), hands, players, reports, saved filters of Hands and Reports (applied to an open screen too), Settings sections (the refused hands among them) and commands (pause/resume import, sync now, theme, density, language), with five recent choices. **Theme and density**: `settings.json` gains `density` and `locale` (`set_density`, `set_locale`); `lib/appearance.ts` paints `data-theme` / `data-density` / `lang` and keeps a copy that `public/appearance.js` applies before the first paint; `packages/ui/tokens/density.css` (app only; `StatTable` falls back to its old values); the Hands list and the Players grid read the row height back from CSS. **i18n**: Croatian complete in the web's register with the shared `plural`, counts passed as numbers, every `Intl` formatter live in the chosen language (en-GB / hr-HR), the tray follows; the app's ESLint rule extended to expression children, conditionals, templates and the app's text props (9 / 9 probes caught, 0 in the app); `tests/test/appI18n.test.ts`. **From R2.7**: the Players table virtualised as a keyboard grid, the profile's own game kind; one loading / empty / error component; selected rows as a tint (the solid plate fell to 1.4:1 in light). **Contrast** (the web's sweep, both themes, five screens): 0 failures beyond the sweep's known exemptions after the fixes, among them the felt's money in light (`--felt-money`, app only). **Web unchanged**: 288 / 288 screenshots, 192 / 192 DOMs, cascades equal but for `--felt-money`; `screens.mjs`'s sheet captures repaired. Checked in a browser against a mocked IPC with made-up data, 2 themes x 2 densities x 2 languages. No core crate changed. |
 | 2026-10-14 | **R2.9 done**: the 1M benchmark store and the performance gate. Dataset: `import_bench/dataset.rs` gains `--spread` (copy *c* played 7 x *c* days earlier, every date moved in the room's calendar, checked per template: 381 of 431 shift) on top of fresh ids and villain names - 982 408 hands stored, 76 128 named opponents, 978 hero hands on the median hand's day (was ~50 real days' worth); generated, deleted, never committed. New `core/rail-watch/examples/perf_gate` (import through the watcher, the background pass, the HUD delay on 1 and 12 live tables, every screen's store calls warm and cold without `sudo`, the start's warm-up; M2-normalised budgets, `--gate`, JSON/markdown). On the M2 Pro at 1M: import 10-12k hands/s, HUD delay p95 0.51-0.56 s, the HUD's lookup 0.07 ms - met; a breakdown tab's first click 1.25-1.29 s -> 0.49-0.60 s and Reports 0.53-0.57 -> 0.29-0.33 s (four-connection breakdowns pass, sparse sums, Reports' two passes at once, and `.cargo/config.toml` turning off the bundled SQLite's global page-cache and memory-statistics mutexes, which made a process's read connections take turns - the import unchanged in an interleaved A/B), the screens after the start's background warm-up (1.4-1.6 s on a cold store) 0.06-0.86 s - met; Reports on a cold store within the warm-up's first ~1.5 s still 2.5-3.6 s (not met; the EV adjustment's random reads, a later `hand_list` column). No schema or statistics change. Nightly workflow `perf-nightly.yml` (cron + dispatch + the `perf` label; full 1M on ubuntu-latest; artifact). Supabase, measured on an isolated local stack: the web's reports over 1M hands of one user take 5-10 s, `stats_opponents` 22-44 s - `player_stats`, a hero rollup and a covering index recommended (prototypes: 0.2-60 ms), not built. |
 | 2026-10-14 | **R2.10 done**: custom statistics. `rail_stats::events` exports per-seat decision events from the counters' own context (42 fields: the hand, the seat, the decision - street, position, facing none/limp/bet/raise, raise level, action, all-in, sizes in thousandths of a bb and of the pot, stacks, position in the hand, multiway, initiative, the cbet chain, the steal; `EVENTS_VERSION` `events/1`); `rail_config::stats::predicate` parses a counter as `first`/`any`/`each` opportunity `=>` action, errors with byte spans, bounded like R2.4's formulas; `rail_stats::custom` evaluates it and validates and compiles a user's definitions (R2.4 `StatDef` + predicate; counters `<id>` / `<id>_opp` readable by formulas through `Variable::Custom`; shipped values unchanged). **Acceptance**: 57 predicates re-express the standard set and equal the coded counters on every one of the corpus's 51 464 rows (8 422 hands), legs included; the showdown family differs on 12 rows, seats with no decision at all (all in by a blind or the antes), which the language cannot see - documented in STATS-SPEC §14.4. Store migration 11 (`custom_stats` in the user's store, `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`; tested from every earlier version): counted by the background pass from the stored PHF (~26k hands/s on one thread), not at import - events + 57 predicates cost ~14 µs a hand on the import threads but the writes would land in the writer, the pipeline's bottleneck; import gate unchanged (58 %, gate 45 %). A rebuild of the coded statistics recounts them; a changed predicate recounts only its statistic. App: `custom_stats_list` / `_check` / `_save` / `_delete`, the definitions API and Reports' summary include them. Editor in Settings ("Your statistics"): code fields with errors underlined in place, a live preview on the last 5 000 hero hands, labels, format, bands, minimum sample, examples and the field reference; Reports lists them in their group; `en` + `hr`; checked in a browser against a mocked IPC with made-up data. |
+| 2026-10-14 | **R2.11 done, Phase 2's steps complete**: targeted recompute. `rail_store::recompute`: the dependency map as data (`DEPENDENCIES`: a definition's display fields and formulas recompute nothing, a custom predicate that statistic, `EVENTS_VERSION` the custom counts, `STATS_VERSION` the rows job, the new `rail_stats::SEGMENT_VERSION` the segments job, `EV_VERSION` the EV job - each with every table it writes; a test holds it to the schema and checks every unnamed table is untouched). The rows job derives every hand from its PHF and compares, stages only the hands that differ and sums every hand into twins of the rollups and the Players list's lines; the segments job regroups the stored seat rows without deriving; the EV job evaluates every hero hand beside the stored rows; each ends with one swap (staged rows written in place, twins renamed into place, `stats.epoch` moved on). Readers never see half of it: every `Reader::with` is one read transaction, multi-connection answers check the epoch (`Reader::same_epoch`), the reports read EV rows of any version until the swap - a test runs the screens' and the HUD's reads during both jobs. Hands keep their `hand_stats.id`: custom counts survive unless a seat moves between rollup keys. Store migration 12 (work tables), tested from every earlier version; resumable, paused for backfills and open tables; progress on Reports, Hands, Players and Settings, `stats-changed` to re-read after a swap. New crash test: killed between and inside pages and inside both swaps, always the old statistics or the new, resumes. At 500k (vs staging's full rebuild, 84.3 s with the players' index and one custom statistic): segments 28.2 s, "rebuild statistics" 36.1 s, a counter on 250k hands 46.4 s (swap 4.1 s), an EV bump ~367 s vs ~397 s (preflop enumeration dominates). Phase 2 summary in the R2.11 section: the 1M targets hold warm on the M2 Pro; the cold-start Reports case and a Windows laptop's numbers remain. |
