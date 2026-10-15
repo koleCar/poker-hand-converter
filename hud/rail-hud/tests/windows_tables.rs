@@ -392,8 +392,10 @@ fn the_simulators_windows_are_found() {
     );
     eprintln!("found:\n{found:#?}");
 
-    // Visible top-level windows only: a pattern that takes any title of
-    // the simulator's process still finds exactly its three tables.
+    // Visible, titled top-level windows only: a pattern that takes any
+    // title of the simulator's process still finds exactly its three
+    // tables - not winit's untitled helper window, which Windows reports
+    // as visible.
     let any = TableMatcher::simulator("pokerstars", Regex::new("^.*$").expect("regex"));
     let all = find(&mut backend, &any);
     assert_eq!(

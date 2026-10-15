@@ -5932,7 +5932,9 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
     the diagnostic. **Minimised** windows are found with `minimized: true`
     and an empty client rect; **cloaked** ones (another virtual desktop)
     are found as hidden too (`minimized: true`) rather than dropped, so a
-    table on another desktop stays attached. Every match is returned,
+    table on another desktop stays attached. A window without a title is
+    never a table (helper windows can claim to be visible). Every match is
+    returned,
     allowed or not; compliance in the engine refuses (unchanged from R3.2).
     `track` records the window (R3.5 hooks it), `poll_events` is empty,
     `overlay` unsupported (R3.4).
@@ -6027,7 +6029,10 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
     exactly those three (the process's pid), with the hands' table names,
     client rects equal to the simulator's own `window` events and sizes
     640 x 480 times the monitor's scale; a catch-all title pattern on the
-    simulator's process still finds three (visible top-level only); a
+    simulator's process still finds three (visible, titled top-level
+    windows only: the first CI run found a fourth, winit's untitled
+    "Winit Thread Event Target", which Windows reports as visible -
+    `table_of` now never offers an untitled window to a matcher); a
     minimised table is found and marked; `tablemove` retitles the same
     window; `--list-windows` lists the three with "Logged In as <you>" and
     no hero name; `rail-hud --standalone --sim-site pokerstars` attaches to

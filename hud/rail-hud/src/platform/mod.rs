@@ -133,6 +133,12 @@ pub fn dpi_permille(dpi: u32) -> u32 {
 /// cloaked window is still a table - the HUD stays attached and shows
 /// nothing over it until it is back.
 pub fn table_of(window: &RawWindow, matchers: &[TableMatcher]) -> Option<TableWindow> {
+    // A window without a title is never a table, whatever a pattern
+    // accepts: helper windows can report themselves visible (winit's
+    // "Winit Thread Event Target", seen on the Windows CI runner).
+    if window.title.trim().is_empty() {
+        return None;
+    }
     matchers.iter().find_map(|matcher| {
         let found = matcher.matches(&window.process, &window.title)?;
         Some(TableWindow {
@@ -328,6 +334,14 @@ mod tests {
         assert!(table_of(&raw("rail-hud-sim.exe", "Hygiea IV - $1"), &matchers()).is_none());
         assert!(table_of(&raw("PokerStars.exe", "PokerStars Lobby"), &matchers()).is_none());
         assert!(table_of(&raw("", "Hygiea IV - $1"), &matchers()).is_none());
+        // No title, no table - even for a pattern that takes anything.
+        let any = [TableMatcher::simulator(
+            "pokerstars",
+            Regex::new("^.*$").expect("regex"),
+        )];
+        assert!(table_of(&raw("rail-hud-sim.exe", ""), &any).is_none());
+        assert!(table_of(&raw("rail-hud-sim.exe", "  "), &any).is_none());
+        assert!(table_of(&raw("rail-hud-sim.exe", "T"), &any).is_some());
     }
 
     /// Minimised and cloaked tables are tables, marked hidden; a client that
