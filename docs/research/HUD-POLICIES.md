@@ -281,6 +281,30 @@ Run It Once (closed 2022), per their research docs. Import only.
 
 Rail's own text format, not a room.
 
+## Restrictions as data (R3.4)
+
+Each allowed room's conditions are also in `config/sites.json`
+`hud.restrictions`, which the HUD's renderer enforces on any panel design
+(plan R3.4); a downloaded copy can only add restrictions. From the sections
+above:
+
+| Restriction | PokerStars | ACR | Winamax |
+| --- | --- | --- | --- |
+| `ownHandsOnly` | yes | yes | yes ("data you collected yourself") |
+| `rawCountsOnly` | yes | - | - |
+| `maxColourThresholds` | 2 | - | - |
+| `noCardSplitStats` | yes | - | - |
+| `noGameStateSwitching` | yes | - | yes (read conservatively: "some dynamic features of Hand2Note" are prohibited, unnamed) |
+| `noTendencySwitching` | yes | - | yes (the same) |
+| `noPlayerLabels` | yes | yes (4.2.10) | - |
+| `noHandCharts` | yes | - | - |
+| `noGraphs` | yes | - | - |
+| `noHandInPlay` | - | yes (4.1.3) | - |
+| `noOverlapTableGraphics` | - | yes (4.2.11) | - |
+
+The HUD's default panel complies with all of them at once. A re-check that
+finds a changed condition updates this table and `sites.json` together.
+
 ## Re-check before every release (plan section 12)
 
 For every entry with `allowed: true` (today PokerStars, Winamax, ACR), and
