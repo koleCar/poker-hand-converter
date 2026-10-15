@@ -83,7 +83,7 @@ pub use report::{Breakdowns, Graph, GraphPoint, ReportFilter, Session, Units};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
 pub use stats::{Exclusions, PlayerSeen, SeatValues, Totals};
 pub use stats_read::{
-    EvAdjust, HandSeat, HeroFilter, HeroSum, HeroTotal, ImportedHand, Rollup, SegmentRow,
+    EvAdjust, HandSeat, HeroFilter, HeroSum, HeroTotal, HudHand, ImportedHand, Rollup, SegmentRow,
     StatsStatus,
 };
 pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};

@@ -6,17 +6,25 @@
 //! store - a missing one is looked for again every second.
 //!
 //! A table's numbers are `Reader::hud_totals` (R2.3: one key range of
-//! `player_rollups` per player; sub-millisecond at 500k hands, R2.9's gate).
-//! `PRAGMA data_version` tells the HUD when the app committed something it
-//! has not re-read, so the overlays stay current even when no
-//! `hand_imported` arrives (the app busy, a message dropped).
+//! `player_rollups` per player; sub-millisecond at 500k hands, R2.9's gate)
+//! over the table's segment (R3.7: its hand's, `Reader::hud_hand`), or
+//! `Reader::hud_own_totals` on a room that allows statistics from the
+//! user's own hands only (R3.7: less the part from hands without a hero
+//! seat); a design with the user's own statistics adds their counts
+//! (`Reader::custom_player_totals`). `PRAGMA data_version` tells the HUD
+//! when the app committed something it has not re-read, so the overlays
+//! stay current even when no `hand_imported` arrives (the app busy, a
+//! message dropped).
 
 #![forbid(unsafe_code)]
 
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
-use rail_store::{Reader, RoomSettings, SeatPosition, Totals};
+use rail_store::{
+    CustomCounts, CustomStatRow, HudHand, ImportedHand, Reader, RoomSettings, SeatPosition, Totals,
+};
 
 /// The user's HUD layouts as the store has them (R3.6): the panels they
 /// placed, their per-room preferred-seat answers.
@@ -78,13 +86,26 @@ impl StoreView {
         }
     }
 
-    /// The totals of `players` (name, scope) on `site`, all its segments.
-    pub fn totals(&mut self, site: &str, players: &[(&str, &str)]) -> Result<Vec<Totals>, String> {
+    /// The totals of `players` (name, scope) on `site` over `segments`
+    /// (`None`: all of the site's); `own_hands_only` (R3.7): only the hands
+    /// the user played.
+    pub fn totals(
+        &mut self,
+        site: &str,
+        players: &[(&str, &str)],
+        segments: Option<&[i64]>,
+        own_hands_only: bool,
+    ) -> Result<Vec<Totals>, String> {
         if !self.ensure_open() {
             return Err("the store is not open".to_owned());
         }
         let reader = self.reader.as_ref().ok_or("the store is not open")?;
-        reader.hud_totals(site, players, None).map_err(|error| {
+        let read = if own_hands_only {
+            reader.hud_own_totals(site, players, segments)
+        } else {
+            reader.hud_totals(site, players, segments)
+        };
+        read.map_err(|error| {
             // Opened again on the next call: the file may have been
             // replaced (a restore) or the connection broken.
             self.reader = None;
@@ -92,12 +113,74 @@ impl StoreView {
         })
     }
 
-    /// A stored hand's table size (`None`: no store, no such hand).
-    pub fn hand_seats(&mut self, hand_key: &str) -> Option<u32> {
+    /// (R3.7) A player's counts of the user's statistics `ids`, as
+    /// [`StoreView::totals`] reads the rollups.
+    pub fn custom_totals(
+        &mut self,
+        key: (&str, &str, &str),
+        segments: Option<&[i64]>,
+        ids: &[i64],
+        own_hands_only: bool,
+    ) -> Result<BTreeMap<i64, CustomCounts>, String> {
+        let (site, player, scope) = key;
+        if !self.ensure_open() {
+            return Err("the store is not open".to_owned());
+        }
+        let reader = self.reader.as_ref().ok_or("the store is not open")?;
+        reader
+            .custom_player_totals(site, player, scope, segments, ids, own_hands_only)
+            .map_err(|error| error.to_string())
+    }
+
+    /// (R3.7) A stored hand's segment and table size (`None`: no store, no
+    /// such hand, or one without statistics rows).
+    pub fn hud_hand(&mut self, hand_key: &str) -> Option<HudHand> {
         if !self.ensure_open() {
             return None;
         }
-        self.reader.as_ref()?.hand_seats(hand_key).ok().flatten()
+        self.reader.as_ref()?.hud_hand(hand_key).ok().flatten()
+    }
+
+    /// (R3.7) The newest hand of a table, played and imported since
+    /// `since_ms` (Unix ms): what a HUD started while the table is open
+    /// shows at once. `None`: no store, or no such hand.
+    pub fn latest_hand_of_table(
+        &mut self,
+        site: &str,
+        table: &dyn Fn(&str) -> bool,
+        since_ms: i64,
+        scan: u32,
+    ) -> Option<ImportedHand> {
+        if !self.ensure_open() {
+            return None;
+        }
+        let played_since = rail_store::time::iso_from_ms(since_ms);
+        match self
+            .reader
+            .as_ref()?
+            .latest_hand_of_table(site, table, since_ms, &played_since, scan)
+        {
+            Ok(hand) => hand,
+            Err(error) => {
+                eprintln!("rail-hud: a table's latest hand: {error}");
+                None
+            }
+        }
+    }
+
+    /// (R3.7) The user's own statistics (R2.10) as the store has them;
+    /// `None`: no store yet, or they did not read.
+    pub fn custom_stats(&mut self) -> Option<Vec<CustomStatRow>> {
+        if !self.ensure_open() {
+            return None;
+        }
+        match self.reader.as_ref()?.custom_stats() {
+            Ok(rows) => Some(rows),
+            Err(error) => {
+                eprintln!("rail-hud: the user's statistics did not read: {error}");
+                None
+            }
+        }
     }
 
     /// The user's HUD layouts (R3.6): the panels they placed and their
@@ -151,17 +234,29 @@ mod tests {
         let mut view = StoreView::new(Some(path.clone()));
         assert!(!view.ensure_open());
         assert!(!path.exists(), "the HUD never creates the store");
-        assert!(view.totals("pokerstars", &[("a", "")]).is_err());
+        assert!(
+            view.totals("pokerstars", &[("a", "")], None, false)
+                .is_err()
+        );
 
         let store = rail_store::Store::open(&path).expect("the app's store");
         let mut view = StoreView::new(Some(path.clone()));
         assert!(view.ensure_open());
         let totals = view
-            .totals("pokerstars", &[("a", ""), ("b", "")])
+            .totals("pokerstars", &[("a", ""), ("b", "")], None, false)
             .expect("totals");
         assert_eq!(totals.len(), 2);
         assert!(totals.iter().all(|t| t.hands() == 0));
-        assert_eq!(view.hand_seats("pokerstars:1"), None);
+        let own = view
+            .totals("pokerstars", &[("a", "")], Some(&[1]), true)
+            .expect("own totals");
+        assert_eq!(own.len(), 1);
+        assert_eq!(view.hud_hand("pokerstars:1"), None);
+        assert_eq!(
+            view.latest_hand_of_table("pokerstars", &|_| true, 0, 100),
+            None
+        );
+        assert_eq!(view.custom_stats(), Some(Vec::new()));
         assert_eq!(view.user_layouts(), Some(Ok((Vec::new(), Vec::new()))));
         assert!(view.changed(), "first look");
         assert!(!view.changed());

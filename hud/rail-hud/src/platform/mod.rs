@@ -237,6 +237,10 @@ pub struct OverlayFrame {
     pub permit: Permit,
     /// A line instead of panels: "waiting for first hand", "no store".
     pub status: Option<String>,
+    /// (R3.7) **Debug builds only**: the latency of the hand the frame
+    /// shows, a small line in a corner of the table. Never set in a release
+    /// build (`crate::engine` makes it under `cfg!(debug_assertions)`).
+    pub debug: Option<String>,
     /// The table's seats (the title's, else its hands'); `None`: from the
     /// players' seat numbers.
     pub size: Option<u32>,
@@ -251,6 +255,7 @@ impl OverlayFrame {
         Self {
             permit,
             status: Some(status.into()),
+            debug: None,
             size,
             seating: Seating::default(),
             panels: Vec::new(),

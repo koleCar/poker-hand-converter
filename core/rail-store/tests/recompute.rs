@@ -124,6 +124,7 @@ fn custom_rows(conn: &Connection) -> Vec<Vec<String>> {
         "custom_hero_rows",
         "custom_hero_rollups",
         "custom_player_rollups",
+        "custom_player_rollups_observed",
     ]
     .iter()
     .map(|table| table_rows(conn, table))
@@ -288,6 +289,7 @@ fn a_rebuild_that_finds_nothing_rewrites_nothing() {
             !matches!(
                 t,
                 Table::PlayerRollups
+                    | Table::PlayerRollupsObserved
                     | Table::HeroRollups
                     | Table::PlayerSummary
                     | Table::PlayerHidden

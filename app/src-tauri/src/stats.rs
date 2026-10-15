@@ -119,6 +119,12 @@ impl StatsState {
         }
     }
 
+    /// The pass itself, for tests.
+    #[cfg(test)]
+    pub(crate) fn worker(&self) -> Option<Arc<StatsWorker>> {
+        self.worker.clone()
+    }
+
     /// Stop the thread (on exit): it lets go of the store's writer.
     pub fn stop(&self) {
         if let Some(worker) = &self.worker {

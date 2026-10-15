@@ -12,6 +12,9 @@
 //! - **What it hears**: `hand_imported` for the newest hands of every file
 //!   an import added to ([`HudFeed`], a thread of its own with its own
 //!   read-only connection - the watcher's callback only queues the file),
+//!   with the hand's timing (R3.7: when the watcher noticed the file, when
+//!   the commit was reported, when it was sent - the HUD completes the
+//!   latency chain and reports it in `table_updated`),
 //!   `stats_changed` when a recompute swaps (from `stats::spawn_refresher`),
 //!   `shutdown` on exit. Nothing here ever waits for the HUD: every send is
 //!   queued or dropped.
@@ -35,9 +38,9 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{self, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex, PoisonError};
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use rail_hud_ipc::protocol::{AppMessage, HudMessage, PlayerRef, RefusalReason};
+use rail_hud_ipc::protocol::{AppMessage, HandTiming, HudMessage, PlayerRef, RefusalReason};
 use rail_hud_ipc::supervisor::{Event, Supervisor, SupervisorConfig};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Runtime, State};
@@ -92,15 +95,42 @@ struct Shared {
     refused: Mutex<Vec<RefusedDto>>,
 }
 
+/// Now, in Unix microseconds (the latency chain's clock, R3.7).
+fn unix_us() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |d| i64::try_from(d.as_micros()).unwrap_or(i64::MAX))
+}
+
+/// An import the feeder tells the HUD about.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct Fed {
+    path: PathBuf,
+    inserted: u32,
+    /// (R3.7) The hand's way through the app so far: the watcher's notice
+    /// and the commit's report.
+    timing: HandTiming,
+}
+
 /// Where the watcher's callback drops a file that got new hands.
 #[derive(Debug, Clone, Default)]
-pub struct HudFeed(Option<SyncSender<(PathBuf, u32)>>);
+pub struct HudFeed(Option<SyncSender<Fed>>);
 
 impl HudFeed {
-    /// `inserted` new hands were stored from `path`; never waits.
-    pub fn imported(&self, path: &std::path::Path, inserted: u32) {
+    /// `inserted` new hands were stored from `path` (the watcher noticed the
+    /// change at `noticed_ms`, Unix ms); never waits.
+    pub fn imported(&self, path: &std::path::Path, inserted: u32, noticed_ms: Option<i64>) {
+        let fed = Fed {
+            path: path.to_owned(),
+            inserted,
+            timing: HandTiming {
+                noticed_us: noticed_ms.map(|ms| ms.saturating_mul(1000)),
+                imported_us: Some(unix_us()),
+                sent_us: None,
+            },
+        };
         if let Some(tx) = &self.0
-            && let Err(TrySendError::Disconnected(_)) = tx.try_send((path.to_owned(), inserted))
+            && let Err(TrySendError::Disconnected(_)) = tx.try_send(fed)
         {
             log::debug!("hud: the feeder is gone");
         }
@@ -401,7 +431,7 @@ fn on_event<R: Runtime>(
 /// The feeder: imports in, `hand_imported` out, with its own read-only
 /// connection. Waiting imports of one file are folded into one look.
 fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> HudFeed {
-    let (tx, rx) = mpsc::sync_channel::<(PathBuf, u32)>(FEED_QUEUE);
+    let (tx, rx) = mpsc::sync_channel::<Fed>(FEED_QUEUE);
     let path = store_path.to_owned();
     let spawned = std::thread::Builder::new()
         .name("rail-hud-feed".to_owned())
@@ -421,14 +451,21 @@ fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> Hu
                 if !supervisor.is_connected() {
                     continue;
                 }
-                let mut folded: Vec<(PathBuf, u32)> = Vec::new();
-                for (file, inserted) in files {
-                    match folded.iter_mut().find(|(f, _)| *f == file) {
-                        Some((_, n)) => *n += inserted,
-                        None => folded.push((file, inserted)),
+                // One look per file; its first import's timing (the
+                // earliest: a chain is never made to look shorter).
+                let mut folded: Vec<Fed> = Vec::new();
+                for fed in files {
+                    match folded.iter_mut().find(|f| f.path == fed.path) {
+                        Some(f) => f.inserted += fed.inserted,
+                        None => folded.push(fed),
                     }
                 }
-                for (file, inserted) in folded {
+                for Fed {
+                    path: file,
+                    inserted,
+                    timing,
+                } in folded
+                {
                     let hands =
                         match reader.newest_hands_of_file(&file, inserted.min(HANDS_PER_IMPORT)) {
                             Ok(hands) => hands,
@@ -453,6 +490,10 @@ fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> Hu
                                     hero: p.hero,
                                 })
                                 .collect(),
+                            timing: Some(HandTiming {
+                                sent_us: Some(unix_us()),
+                                ..timing
+                            }),
                         });
                     }
                 }
@@ -572,20 +613,60 @@ mod tests {
     }
 
     /// The statistics pass and sync hear only the edges: no tables -> some
-    /// tables -> none.
+    /// tables -> none. (R3.7) While the HUD says tables are open a
+    /// recompute waits - nothing of it is worked out, the screens and the
+    /// HUD keep their numbers - and it runs once they close.
     #[test]
     fn tables_open_is_passed_on_at_its_edges() {
+        use rail_store::Activity;
         let dir = std::env::temp_dir().join(format!("rail-app-hud-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let store = StoreState::open(dir.join(rail_store::FILE_NAME));
+        let hands = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(
+            "../../fixtures/samples/pokerstars/03-cash-plo-run-it-twice-sidepot-dualtimestamp.txt",
+        );
+        rail_store::import_file(
+            store.store.as_ref().expect("the store"),
+            &hands,
+            &rail_store::ImportOptions::default(),
+        )
+        .expect("a hand to recompute");
         let stats = StatsState::start(&store);
         let sync = SyncSlot::default();
         let shared = Shared::default();
+        let worker = stats.worker().expect("the pass");
+        let until = |what: &str, done: &dyn Fn(&rail_store::WorkerStatus) -> bool| {
+            let deadline = std::time::Instant::now() + Duration::from_secs(20);
+            loop {
+                let status = worker.status();
+                if done(&status) {
+                    return status;
+                }
+                assert!(std::time::Instant::now() < deadline, "{what}: {status:?}");
+                std::thread::sleep(Duration::from_millis(20));
+            }
+        };
         set_tables_open(&shared, &stats, &sync, 2);
         assert_eq!(shared.tables_open.load(Ordering::SeqCst), 2);
+        assert!(worker.rebuild_stats().expect("rebuild") > 0);
+        let epoch = until("paused for the tables", &|s| {
+            s.activity == Activity::PausedTables && s.rebuild.is_some()
+        })
+        .epoch;
+        std::thread::sleep(Duration::from_millis(300));
+        let status = worker.status();
+        assert_eq!(
+            (status.rebuild.map(|r| r.done), status.epoch),
+            (Some(0), epoch),
+            "nothing recomputed, nothing swapped while tables are open"
+        );
         set_tables_open(&shared, &stats, &sync, 5);
         set_tables_open(&shared, &stats, &sync, 0);
         assert_eq!(shared.tables_open.load(Ordering::SeqCst), 0);
+        let done = until("recomputed once closed", &|s| {
+            s.rebuild.is_none() && s.epoch > epoch
+        });
+        assert_eq!(done.last_error, None);
         stats.stop();
         drop(store);
         let _ = std::fs::remove_dir_all(&dir);
@@ -636,12 +717,20 @@ mod tests {
 
     #[test]
     fn a_feed_without_a_hud_drops_quietly() {
-        HudFeed::default().imported(std::path::Path::new("/x/HH1.txt"), 3);
+        HudFeed::default().imported(std::path::Path::new("/x/HH1.txt"), 3, None);
         let (tx, rx) = mpsc::sync_channel(1);
         let feed = HudFeed(Some(tx));
-        feed.imported(std::path::Path::new("/x/HH1.txt"), 3);
-        feed.imported(std::path::Path::new("/x/HH2.txt"), 1); // full: dropped
-        assert_eq!(rx.try_recv().ok(), Some((PathBuf::from("/x/HH1.txt"), 3)));
+        let before = unix_us();
+        feed.imported(std::path::Path::new("/x/HH1.txt"), 3, Some(1_000));
+        feed.imported(std::path::Path::new("/x/HH2.txt"), 1, None); // full: dropped
+        let fed = rx.try_recv().expect("queued");
+        assert_eq!(
+            (fed.path, fed.inserted, fed.timing.noticed_us),
+            (PathBuf::from("/x/HH1.txt"), 3, Some(1_000_000))
+        );
+        // (R3.7) The commit's report is stamped when the watcher says so.
+        assert!(fed.timing.imported_us.is_some_and(|at| at >= before));
+        assert_eq!(fed.timing.sent_us, None, "stamped when sent");
         assert!(rx.try_recv().is_err());
     }
 }

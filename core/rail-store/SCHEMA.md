@@ -51,6 +51,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 11 | `0011_custom_stats.sql` | `custom_stats` (the user's own statistics), `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups` (their counts) (R2.10); empty, nothing to rebuild |
 | 12 | `0012_recompute.sql` | the targeted recompute's work tables (R2.11): `recompute_hands`, `recompute_seats`, `recompute_list` (staged rows), `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden` (the twins of the four summed tables, swapped in by rename), `recompute_ev` and `recompute_ev_waiting_idx`; empty, nothing to recompute |
 | 13 | `0013_hud_layouts.sql` | `hud_seat_positions` (where the user dragged a panel, per room, table size and visual seat) and `hud_room_settings` (the user's preferred-seat answer per room) (R3.6); empty, nothing to rebuild |
+| 14 | `0014_observed_rollups.sql` | (R3.7) `player_rollups_observed` (the part of `player_rollups` from hands without a hero seat), its twin `recompute_player_rollups_observed`, `custom_player_rollups_observed`; **filled in the migration's transaction** from the stored seat rows (`stats::fill_observed`: SQL cannot read the counter blob; at most a scan of `hand_stats` and the seat rows of the hands without a hero), and when there are such hands the user's own statistics are counted again; a rows job an older build left running is begun again (its twins had no observed part) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -486,6 +487,27 @@ player's segments of a site are one range of the key. `WITHOUT ROWID`.
 | `won`, ... `cashout_risk` | INTEGER | the 7 money columns, `MONEY_KEYS` |
 | `money_hands` | INTEGER | the hands whose money is summed (`moneyHands`): bb/100 divides by it |
 
+### `player_rollups_observed` (version 14, R3.7)
+
+The part of `player_rollups` that comes from hands the user did **not**
+play: per (site, player, scope, segment) the sums of the current
+generation's seat rows of hands **without a hero seat** (a table watched,
+someone else's history), with the same exclusions and the same columns as
+`player_rollups`; `WITHOUT ROWID`, the same key. Written by the same code in
+the same transaction (`stats::Pending`: one more map, filled only for a hand
+without a hero - a hand the user played writes nothing here), summed again
+by a recompute and swapped in with the other summed tables (twin
+`recompute_player_rollups_observed`). **Why**: PokerStars, Winamax and ACR
+allow HUD statistics from the user's own hands only (`sites.json`
+`hud.restrictions.ownHandsOnly`); the HUD reads `player_rollups` less this
+table there (`Reader::hud_own_totals`: one more key range per player, empty
+for a player never seen in an observed hand), which is exactly the sums of
+the played hands' rows - every column is a plain integer sum. "Played" is
+"has a hero seat": the store's notion of the user (a parser's `Dealt to`
+line); a hand the user sat out without cards counts as observed. `tests/
+common::assert_rollups` holds it to the rows after every write and every
+crash-test kill.
+
 ### `hero_rollups`
 
 The hero's rows summed per (segment, position, UTC day, kind), **nothing
@@ -530,6 +552,9 @@ first. Cascades with the hand.
 | Call | For | How |
 | --- | --- | --- |
 | `Reader::hud_totals(site, &[(player, scope)], segments)` | the HUD (R3.7): a table's players, over its segment, a set, or all of the site's | one `player_rollups` key range per player |
+| `Reader::hud_own_totals(site, &[(player, scope)], segments)` | (R3.7) the same on a room that allows statistics from the user's own hands only | `player_rollups` less `player_rollups_observed`: two key ranges per player, one transaction |
+| `Reader::hud_hand(hand_key)` | (R3.7) a hand's segment (the table's, for the lookup) and table size | `hand_stats` by `hand_key`, `segments` and `hands` by key |
+| `Reader::latest_hand_of_table(site, table, imported_since_ms, played_since, scan)` | (R3.7) a HUD attached to a table it was not told of (restarted, opened after its hands): the table's newest hand, played and imported recently, with its kept seats | `hands_imported_at_idx` newest first (no sort), at most `scan` hands looked at; then `hand_stats` and `seat_stats` by key |
 | `Reader::newest_hands_of_file(path, limit)` | the app's `hand_imported` to the HUD (R3.2): a file's newest hands with their rollup site (`segments.site`), table and every kept seat's `(player, scope)` | `files.path` (unique), `hands_file_idx` backwards, `hand_stats` by `hand_key`, `seat_stats` by its key |
 | `Reader::data_version()` | the HUD (R3.2): has the app committed since it last looked? | `PRAGMA data_version` on the pool's connection (a one-connection `Reader`) |
 | `Reader::player_rollup(site, player, scope, segment)` / `player_rollups(site, player, scope)` | a player's row in one segment / in every segment of a site | key lookups |
@@ -756,15 +781,16 @@ built*). No foreign keys: counts are cleared explicitly.
 | `counted_to` | INTEGER | the `hand_stats.id` the pass has counted the predicate up to |
 | `created_at`, `updated_at` | INTEGER | ms |
 
-### `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`
+### `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`, `custom_player_rollups_observed`
 
 | Table | Key | Values | |
 | --- | --- | --- | --- |
 | `custom_hero_rows` | (`stat_id`, `hand_id` = `hand_stats.id`) | `made`, `opp` | the hero's counts per hand, where not both 0: a report's partial days |
 | `custom_hero_rollups` | (`stat_id`, `segment_id`, `position`, `day`, `kind`) | `made`, `opp` | as `hero_rollups`: every hand, the kind in the key, so a report applies `aggregate`'s options |
 | `custom_player_rollups` | (`stat_id`, `site`, `player`, `scope`, `segment_id`) | `made`, `opp` | as `player_rollups`: every kept seat (the hero and villains), bomb pots left out - the HUD's |
+| `custom_player_rollups_observed` | the same | `made`, `opp` | (version 14, R3.7) its part from hands without a hero seat, as `player_rollups_observed`; cleared with it |
 
-All three `WITHOUT ROWID`. **The pass** (`custom_step`, after the players'
+All four `WITHOUT ROWID`. **The pass** (`custom_step`, after the players'
 index, before a recompute and the EV queue): the 1 000 `hand_stats` rows
 after the lowest `counted_to` of a statistic with a predicate, each hand's
 PHF decompressed and its events built once, every statistic whose
@@ -788,7 +814,7 @@ parse (saved by a newer one) is skipped.
 | `Reader::custom_stats()` | the definitions, in order | |
 | `Reader::custom_progress()` | the pass's progress per statistic: hands left of the hands stored | a count of `hand_stats` past `counted_to` |
 | `Reader::custom_hero_totals(&HeroFilter, ids)` | a report's values: the same hands `hero_totals` sums | whole UTC days from `custom_hero_rollups`, the partial days at the ends from `custom_hero_rows` through `hand_stats_played_idx` and the hero's `seat_stats` row; `aggregate`'s exclusions by kind |
-| `Reader::custom_player_totals(site, player, scope, segments, ids)` | the HUD's lookup (R3.9) | a key range of `custom_player_rollups` per statistic |
+| `Reader::custom_player_totals(site, player, scope, segments, ids, own_hands_only)` | the HUD's lookup (R3.7; R3.9's editor puts them in a design) | a key range of `custom_player_rollups` per statistic, less `custom_player_rollups_observed` with `own_hands_only`. A new hand's counts come one step of the background pass after the hand |
 | `Reader::recent_hero_hands(limit)` | the editor's preview: the hero's latest hands as PHF | `hand_stats_played_idx` backwards |
 | `save_custom_stat`, `delete_custom_stat`, `reset_custom_counts` | writes, on the writer | |
 
@@ -808,10 +834,10 @@ is left exactly as it was.
 | --- | --- | --- | --- |
 | a definition's label, name, description, format, colour bands, sample, HUD membership (R2.4) | nothing | - | everything: read where it is shown |
 | a formula over counters the store has, shipped or custom (R2.4, R2.10) | nothing: evaluated when read, over sums that do not change | - | everything |
-| a custom statistic's predicate (R2.10) | the custom pass counts that statistic again (`rev`, `counted_to` 0) | its rows of `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups` | every other table and statistic |
-| `EVENTS_VERSION` (the decision events) | every custom statistic counted again | the three custom tables | the coded statistics, EV |
-| `STATS_VERSION` (a coded counter, the money, a hand or seat column, which seats are kept) | the **rows job**: every hand derived again from its PHF and compared | `hand_stats`, `seat_stats`, `hand_list`: the rows of the hands that come out different (staged, written by the swap; `hand_stats.stats_version` stamped on the others); the four summed tables summed again into their twins and swapped in; `player_hands` of the hands whose seat rows change; `ev_rows` / `ev_pending` of the hands whose hero seat or result changed; a new segment's row; the custom counts **only if** a hand's seats moved between rollup keys | `player_hands`, EV and the custom counts of every other hand; the user's words |
-| `SEGMENT_VERSION` (which segment a hand is in) | the **segments job**: each hand's segment from its PHF; the stored seat rows summed under it - **no statistic derived again** | `hand_stats.segment_id` and `hand_list.segment_id` of the hands that move; the four summed tables (twins, swapped); a new segment's row; the custom counts if any hand moved (their rollups are by segment) | `seat_stats`, `player_hands`, EV |
+| a custom statistic's predicate (R2.10) | the custom pass counts that statistic again (`rev`, `counted_to` 0) | its rows of `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`, `custom_player_rollups_observed` | every other table and statistic |
+| `EVENTS_VERSION` (the decision events) | every custom statistic counted again | the four custom tables | the coded statistics, EV |
+| `STATS_VERSION` (a coded counter, the money, a hand or seat column, which seats are kept) | the **rows job**: every hand derived again from its PHF and compared | `hand_stats`, `seat_stats`, `hand_list`: the rows of the hands that come out different (staged, written by the swap; `hand_stats.stats_version` stamped on the others); the five summed tables (R3.7: `player_rollups_observed` the fifth) summed again into their twins and swapped in; `player_hands` of the hands whose seat rows change; `ev_rows` / `ev_pending` of the hands whose hero seat or result changed; a new segment's row; the custom counts **only if** a hand's seats moved between rollup keys | `player_hands`, EV and the custom counts of every other hand; the user's words |
+| `SEGMENT_VERSION` (which segment a hand is in) | the **segments job**: each hand's segment from its PHF; the stored seat rows summed under it - **no statistic derived again** | `hand_stats.segment_id` and `hand_list.segment_id` of the hands that move; the five summed tables (twins, swapped); a new segment's row; the custom counts if any hand moved (their rollups are by segment) | `seat_stats`, `player_hands`, EV |
 | `EV_VERSION` (the all-in EV) | the **EV job**: every hero hand not waiting in `ev_pending` evaluated again beside the stored rows | `ev_rows`, swapped in; `hand_list.all_in` of the hands whose row came or went | every statistic, the rollups, `ev_pending` |
 
 A "rebuild statistics" (`StatsWorker::rebuild_stats`, the debug button) is
@@ -887,7 +913,7 @@ the old store's or the clean import's.
 | `recompute_hands` | `hand_id` | a staged hand: `hand_key`, `parts` (1 \| 2 \| 4 \| 8 \| 16), the `hand_stats` columns (part 1), `ev_plan` (0 keep, 1 the row in `ev_seat`, `ev_version`, `ev_net`, `ev_net_bb_milli`, 2 no row, 3 queue) |
 | `recompute_seats` | (`hand_id`, `seat`) | its new seat rows (part 2 or 16), `seat_stats`' columns |
 | `recompute_list` | `hand_id` | its new list row (part 4), `hand_list`'s columns |
-| `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden` | as the live tables | the twins: the same shape, so the swap renames them into place. **A migration that changes one of the four live tables changes its twin the same way.** |
+| `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden`, `recompute_player_rollups_observed` (version 14) | as the live tables | the twins: the same shape, so the swap renames them into place. **A migration that changes one of the five live tables changes its twin the same way.** |
 | `recompute_ev` | `hand_key` | the EV job's hands; `done`, and once done the new row (`applicable` 1) or none; index `recompute_ev_waiting_idx (done, hand_key)` |
 
 All empty when no recompute runs.

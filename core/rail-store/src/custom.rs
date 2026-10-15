@@ -105,6 +105,7 @@ fn clear_counts(conn: &Connection, id: i64) -> Result<()> {
         "custom_hero_rows",
         "custom_hero_rollups",
         "custom_player_rollups",
+        "custom_player_rollups_observed",
     ] {
         conn.execute(&format!("DELETE FROM {table} WHERE stat_id = ?1"), [id])?;
     }
@@ -184,6 +185,7 @@ pub fn reset_custom_counts(conn: &Connection) -> Result<()> {
     conn.execute("DELETE FROM custom_hero_rows", [])?;
     conn.execute("DELETE FROM custom_hero_rollups", [])?;
     conn.execute("DELETE FROM custom_player_rollups", [])?;
+    conn.execute("DELETE FROM custom_player_rollups_observed", [])?;
     conn.execute("UPDATE custom_stats SET counted_to = 0", [])?;
     kv_set(conn, KV_EVENTS_VERSION, rail_stats::custom::EVENTS_VERSION)?;
     Ok(())
@@ -222,6 +224,8 @@ pub struct CustomPage {
     heroes: HashMap<(i64, i64, String, String, i64), CustomCounts>,
     /// (stat, site, player, scope, segment).
     players: HashMap<(i64, String, String, String, i64), CustomCounts>,
+    /// (R3.7) `players`' part from hands without a hero seat.
+    observed: HashMap<(i64, String, String, String, i64), CustomCounts>,
 }
 
 struct PageHand {
@@ -349,8 +353,10 @@ pub fn custom_page(reader: &Reader) -> Result<Option<CustomPage>> {
         };
         let events = hand_events(&phf);
         let day = day_of(hand.played_at.as_deref()).to_owned();
-        // The HUD's sums: `aggregate`'s defaults (bomb pots out).
+        // The HUD's sums: `aggregate`'s defaults (bomb pots out); and their
+        // part from a hand the user did not play (R3.7).
         let counted = Exclusions::default().admits(hand.kind).0;
+        let observed = !kept.iter().any(|seat| seat.is_hero);
         for seat in kept {
             let Some(seat_events) = events.seats.iter().find(|s| s.seat == seat.seat) else {
                 continue;
@@ -375,16 +381,17 @@ pub fn custom_page(reader: &Reader) -> Result<Option<CustomPage>> {
                         .add(made, opp);
                 }
                 if counted {
-                    page.players
-                        .entry((
-                            stat.id,
-                            hand.site.clone(),
-                            seat.player.clone(),
-                            seat.scope.clone(),
-                            hand.segment_id,
-                        ))
-                        .or_default()
-                        .add(made, opp);
+                    let key = (
+                        stat.id,
+                        hand.site.clone(),
+                        seat.player.clone(),
+                        seat.scope.clone(),
+                        hand.segment_id,
+                    );
+                    if observed {
+                        page.observed.entry(key.clone()).or_default().add(made, opp);
+                    }
+                    page.players.entry(key).or_default().add(made, opp);
                 }
             }
         }
@@ -441,23 +448,28 @@ pub fn apply_custom_page(conn: &Connection, page: &CustomPage) -> Result<usize> 
             ])?;
         }
     }
-    let mut upsert = conn.prepare_cached(
-        "INSERT INTO custom_player_rollups (stat_id, site, player, scope, segment_id, made, opp)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
-         ON CONFLICT (stat_id, site, player, scope, segment_id)
-         DO UPDATE SET made = made + excluded.made, opp = opp + excluded.opp",
-    )?;
-    for ((stat, site, player, scope, segment), counts) in &page.players {
-        if valid.contains(stat) {
-            upsert.execute(params![
-                stat,
-                site,
-                player,
-                scope,
-                segment,
-                counts.made,
-                counts.opp
-            ])?;
+    for (table, sums) in [
+        ("custom_player_rollups", &page.players),
+        ("custom_player_rollups_observed", &page.observed),
+    ] {
+        let mut upsert = conn.prepare_cached(&format!(
+            "INSERT INTO {table} (stat_id, site, player, scope, segment_id, made, opp)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+             ON CONFLICT (stat_id, site, player, scope, segment_id)
+             DO UPDATE SET made = made + excluded.made, opp = opp + excluded.opp"
+        ))?;
+        for ((stat, site, player, scope, segment), counts) in sums {
+            if valid.contains(stat) {
+                upsert.execute(params![
+                    stat,
+                    site,
+                    player,
+                    scope,
+                    segment,
+                    counts.made,
+                    counts.opp
+                ])?;
+            }
         }
     }
     let mut mark = conn.prepare_cached("UPDATE custom_stats SET counted_to = ?2 WHERE id = ?1")?;
@@ -673,7 +685,11 @@ impl Reader {
 
     /// One player's counts of statistics `ids` (bomb pots left out), over
     /// the segments `segments` (`None`: every segment of the site) - the
-    /// HUD's lookup for a user's statistic (R3.9).
+    /// HUD's lookup for a user's statistic (R3.7, R3.9). `own_hands_only`
+    /// (R3.7, a room's `ownHandsOnly`): without the hands the user did not
+    /// play (`custom_player_rollups_observed` taken away). Like every custom
+    /// count, a new hand's comes one step of the background pass after the
+    /// hand (the import only wakes the pass).
     pub fn custom_player_totals(
         &self,
         site: &str,
@@ -681,22 +697,34 @@ impl Reader {
         scope: &str,
         segments: Option<&[i64]>,
         ids: &[i64],
+        own_hands_only: bool,
     ) -> Result<BTreeMap<i64, CustomCounts>> {
         let mut out: BTreeMap<i64, CustomCounts> = BTreeMap::new();
         if ids.is_empty() {
             return Ok(out);
         }
         self.with(|conn| {
-            let mut stmt = conn.prepare_cached(
-                "SELECT segment_id, made, opp FROM custom_player_rollups
-                 WHERE stat_id = ?1 AND site = ?2 AND player = ?3 AND scope = ?4",
-            )?;
-            for &id in ids {
-                let mut rows = stmt.query(params![id, site, player, scope])?;
-                while let Some(row) = rows.next()? {
-                    let segment: i64 = row.get(0)?;
-                    if segments.is_none_or(|wanted| wanted.contains(&segment)) {
-                        out.entry(id).or_default().add(row.get(1)?, row.get(2)?);
+            let tables: &[(&str, i64)] = if own_hands_only {
+                &[
+                    ("custom_player_rollups", 1),
+                    ("custom_player_rollups_observed", -1),
+                ]
+            } else {
+                &[("custom_player_rollups", 1)]
+            };
+            for &(table, sign) in tables {
+                let mut stmt = conn.prepare_cached(&format!(
+                    "SELECT segment_id, made, opp FROM {table}
+                     WHERE stat_id = ?1 AND site = ?2 AND player = ?3 AND scope = ?4"
+                ))?;
+                for &id in ids {
+                    let mut rows = stmt.query(params![id, site, player, scope])?;
+                    while let Some(row) = rows.next()? {
+                        let segment: i64 = row.get(0)?;
+                        if segments.is_none_or(|wanted| wanted.contains(&segment)) {
+                            let (made, opp): (i64, i64) = (row.get(1)?, row.get(2)?);
+                            out.entry(id).or_default().add(sign * made, sign * opp);
+                        }
                     }
                 }
             }

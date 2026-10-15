@@ -39,6 +39,30 @@
 //!   window whose room is (no longer) allowed gets no frame and loses its
 //!   overlay. A window that moves, resizes, changes scale or is minimised is
 //!   handed to the backend ([`Platform::follow`]) to keep its overlay on it.
+//! - **The data path** (R3.7): a table's numbers are its players' rollups
+//!   over **the table's segment** - the segment its hand is summed in
+//!   (`Reader::hud_hand`: site, format, variant, limit, table-size class and
+//!   stake as the hand has them, so the table's own hands always count) -
+//!   and, on a room whose rules allow statistics from the user's own hands
+//!   only (`ownHandsOnly`: PokerStars, Winamax, ACR), without the hands the
+//!   user did not play (`Reader::hud_own_totals`). An opaque-id room's
+//!   villain is keyed by the session scope the store wrote with the hand
+//!   (`PlayerRef.scope`), never across sessions. A design with the user's
+//!   own statistics (R2.10) reads their counts too; those lag the hand by
+//!   one step of the app's background pass. **Nothing from the hand in
+//!   play**: the store only ever holds complete hands - the watcher imports
+//!   a hand once the room has finished writing it (R1.3's completeness
+//!   rule) - and this process reads nothing but the store.
+//! - **Attaching to a table that already has hands** (R3.7): a window with
+//!   no hand announced since this process started (a restarted HUD, a table
+//!   opened before it) is filled from its table's newest stored hand, when
+//!   that hand was played and imported in the last [`RESTART_WINDOW`] - an
+//!   older one could seat players who have left.
+//! - **Latency** (R3.7): every hand's chain - the watcher noticing its file,
+//!   the import, the app sending `hand_imported`, its arrival here, the
+//!   rollups re-read, the frame handed to the backend - goes back to the app
+//!   in `table_updated`, into `--latency-report` (JSON lines) when asked,
+//!   and, in a debug build only, onto the table as a small line.
 //! - `stats_changed` and `resync` re-read every attached table; so does the
 //!   store's own `data_version` moving without a message (checked every
 //!   [`Settings::store_every`]): the HUD keeps drawing from the store when
@@ -62,12 +86,16 @@
 #![forbid(unsafe_code)]
 
 use std::collections::BTreeMap;
+use std::io::Write as _;
 use std::sync::mpsc::{Receiver, RecvTimeoutError};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use rail_hud_ipc::protocol::{
-    AppMessage, HealthReport, HudMessage, PlayerHands, PlayerRef, RefusalReason,
+    AppMessage, HandTiming, HealthReport, HudMessage, LatencyChain, PlayerHands, PlayerRef,
+    RefusalReason,
 };
+use rail_stats::custom::{CustomDef, CustomSet};
+use rail_stats::display::Display;
 
 use crate::compliance::Compliance;
 use crate::data::StoreView;
@@ -105,6 +133,9 @@ pub struct Settings {
     pub tick: Duration,
     pub find_every: Duration,
     pub store_every: Duration,
+    /// (R3.7) How recent a table's newest stored hand must be for a window
+    /// attached after it to start from its players ([`RESTART_WINDOW`]).
+    pub restart_window: Duration,
 }
 
 impl Default for Settings {
@@ -113,6 +144,7 @@ impl Default for Settings {
             tick: Duration::from_millis(50),
             find_every: Duration::from_millis(500),
             store_every: Duration::from_secs(2),
+            restart_window: RESTART_WINDOW,
         }
     }
 }
@@ -122,6 +154,46 @@ const RECENT_TABLES: usize = 256;
 
 /// Shown before a table's first hand (§3.3).
 pub const WAITING: &str = "waiting for first hand";
+
+/// (R3.7) How recent a table's newest stored hand must be - played and
+/// imported - for a window attached after it to start from its players.
+pub const RESTART_WINDOW: Duration = Duration::from_secs(15 * 60);
+
+/// (R3.7) At most this many of the newest imported hands are looked at for
+/// a table's newest hand (a backfill that just imported old hands is not
+/// read through).
+pub const RESTART_SCAN: u32 = 5_000;
+
+/// Now, in Unix microseconds.
+pub fn unix_us() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |d| i64::try_from(d.as_micros()).unwrap_or(i64::MAX))
+}
+
+/// A past instant of this process in Unix microseconds.
+fn unix_us_at(at: Instant) -> i64 {
+    unix_us() - i64::try_from(at.elapsed().as_micros()).unwrap_or(0)
+}
+
+/// (R3.7) The debug build's line: the chain up to the re-read, as the
+/// table shows it.
+pub fn debug_line(chain: &LatencyChain) -> String {
+    let ms = |from: Option<i64>, to: Option<i64>| match (from, to) {
+        (Some(from), Some(to)) => format!("{}", (to - from) / 1000),
+        _ => "-".to_owned(),
+    };
+    let us =
+        |from: Option<i64>, to: i64| from.map_or_else(|| "-".to_owned(), |f| format!("{}", to - f));
+    format!(
+        "debug: file to HUD {} ms (import {} ms, app {} ms, ipc {} us, read {} us)",
+        ms(chain.noticed_us, Some(chain.read_us)),
+        ms(chain.noticed_us, chain.imported_us),
+        ms(chain.imported_us, chain.sent_us),
+        us(chain.sent_us, chain.arrived_us),
+        chain.read_us - chain.arrived_us,
+    )
+}
 
 #[derive(Debug)]
 struct Attached {
@@ -137,6 +209,12 @@ struct Attached {
     hero_seat: Option<u32>,
     /// The last panel drag of this window the engine took in (R3.6).
     drags_seen: u64,
+    /// (R3.7) The table's segment: its last hand's (`None` before one, or
+    /// when the store has no statistics rows for it - then every segment of
+    /// the site).
+    segment: Option<i64>,
+    /// (R3.7) Debug builds: the last hand's latency line.
+    debug: Option<String>,
     /// What it shows: a status line or panels (redrawn when the layout or
     /// the user's positions change).
     shown: (Option<String>, Vec<SeatPanel>),
@@ -165,8 +243,18 @@ pub struct Hud {
     /// Test-only room entries: the simulator's windows posing as a room
     /// ([`Hud::add_simulator_room`]), after `sites.json`'s matchers.
     test_matchers: Vec<TableMatcher>,
-    /// The panel's statistics (the default design's, R3.4).
+    /// The panel's design (the default, R3.4; R3.9's editor will set it).
+    design: PanelDesign,
+    /// The panel's statistics, compiled for [`Hud::design`].
     panel_stats: PanelStats,
+    /// (R3.7) The user's statistics with a counter that the design shows:
+    /// (statistic id, its row id in the store).
+    custom_ids: Vec<(String, i64)>,
+    /// The design's statistics are compiled against the store's user
+    /// statistics (or need none).
+    custom_read: bool,
+    /// (R3.7) `--latency-report`: one JSON line per hand's chain.
+    latency_report: Option<Box<dyn std::io::Write>>,
     /// Where each room draws its tables and where the user put panels
     /// (R3.6).
     rooms: Rooms,
@@ -211,10 +299,64 @@ impl Hud {
             last_find_error: None,
             recent: BTreeMap::new(),
             test_matchers: Vec::new(),
+            design: PanelDesign::default(),
             panel_stats: PanelStats::new(&PanelDesign::default()),
+            custom_ids: Vec::new(),
+            custom_read: false,
+            latency_report: None,
             rooms,
             user_layouts_read: false,
         }
+    }
+
+    /// (R3.7) Write every hand's latency chain to `out`, one JSON object a
+    /// line (`--latency-report`, for tests and measurements).
+    pub fn set_latency_report(&mut self, out: Box<dyn std::io::Write>) {
+        self.latency_report = Some(out);
+    }
+
+    /// (R3.7; R3.9's editor) Show `design`: its statistics are compiled
+    /// again - a user's own statistic (R2.10) from the store's definitions -
+    /// and every table read again.
+    pub fn set_design(&mut self, design: PanelDesign, out: &mut dyn FnMut(HudMessage)) {
+        self.design = design;
+        self.custom_read = false;
+        self.read_custom_stats();
+        self.reread_all(Instant::now(), out);
+    }
+
+    /// Compile the design's statistics; read the user's own from the store
+    /// when it shows any (at most once per change: `custom_read`).
+    fn read_custom_stats(&mut self) {
+        let all_shipped = Display::shipped().is_ok_and(|display| {
+            self.design
+                .stats
+                .iter()
+                .all(|slot| display.get(&slot.id).is_some())
+        });
+        if all_shipped {
+            self.panel_stats = PanelStats::new(&self.design);
+            self.custom_ids.clear();
+            self.custom_read = true;
+            return;
+        }
+        let Some(rows) = self.store.custom_stats() else {
+            // No store yet: the shipped ones now, the rest once it opens.
+            self.panel_stats = PanelStats::new(&self.design);
+            return;
+        };
+        let defs: Vec<CustomDef> = rows.iter().map(|row| row.def.clone()).collect();
+        let (set, refused) = CustomSet::compile(&defs);
+        for (id, problems) in refused {
+            eprintln!("rail-hud: the user's statistic {id} does not compile: {problems:?}");
+        }
+        self.custom_ids = rows
+            .iter()
+            .filter(|row| row.def.predicate.is_some())
+            .map(|row| (row.def.def.id.clone(), row.id))
+            .collect();
+        self.panel_stats = PanelStats::with_custom(&self.design, &set);
+        self.custom_read = true;
     }
 
     /// A test-only room entry (R3.3; R3.1 / R3.2 notes): the table
@@ -307,6 +449,7 @@ impl Hud {
                 table,
                 hand_key,
                 players,
+                timing,
             } => {
                 let table = table.as_deref().map(table_key).filter(|t| !t.is_empty());
                 let targets = table
@@ -327,8 +470,8 @@ impl Hud {
                             attached.players.clone_from(&players);
                             attached.hero_seat = seats::hero_after(&players, attached.hero_seat);
                         }
-                        self.fill_seats(id, &hand_key);
-                        self.reread(id, Some(&hand_key), at, out);
+                        self.read_hand(id, &hand_key);
+                        self.reread(id, Some(&hand_key), at, timing, out);
                     }
                     several => {
                         let ids = several.to_vec();
@@ -345,6 +488,10 @@ impl Hud {
                 }
             }
             AppMessage::StatsChanged { .. } | AppMessage::Resync => {
+                // A recompute's swap may have recounted the user's own
+                // statistics too: their definitions again, then every table.
+                self.custom_read = false;
+                self.read_custom_stats();
                 self.reread_all(at, out);
                 self.store.changed();
             }
@@ -387,8 +534,14 @@ impl Hud {
             }),
             AppMessage::LayoutChanged | AppMessage::SettingsChanged => {
                 // The user's positions and preferred seat (R3.6); R3.9's
-                // presets will be read here too.
+                // presets will be read here too, and the user's own
+                // statistics (R3.7) may have changed.
                 self.read_user_layouts();
+                if !self.custom_ids.is_empty() || !self.custom_read {
+                    self.custom_read = false;
+                    self.read_custom_stats();
+                    self.reread_all(at, out);
+                }
                 self.repaint_all();
             }
             AppMessage::Shutdown => return Some(Exit::Shutdown),
@@ -413,6 +566,9 @@ impl Hud {
             if !self.user_layouts_read && self.store.is_open() {
                 self.read_user_layouts();
                 self.repaint_all();
+            }
+            if !self.custom_read && self.store.is_open() {
+                self.read_custom_stats();
             }
             if self.store.changed() {
                 self.reread_all(now, out);
@@ -527,20 +683,21 @@ impl Hud {
         }
     }
 
-    /// A window whose title gives no seats takes the table size of its
-    /// hand (`hands.max_seats`).
-    fn fill_seats(&mut self, id: WindowId, hand_key: &str) {
-        let wanted = self
-            .attached
-            .get(&id)
-            .is_some_and(|a| a.title_seats.is_none());
-        if !wanted {
+    /// What the table takes from its stored hand (R3.7): the segment its
+    /// players are read over, and - for a window whose title gives no
+    /// seats - the table size (`hands.max_seats`; R3.6 lays the table out
+    /// at it). A hand the store does not have (yet) changes nothing.
+    fn read_hand(&mut self, id: WindowId, hand_key: &str) {
+        let Some(hand) = self.store.hud_hand(hand_key) else {
             return;
-        }
-        if let Some(seats) = self.store.hand_seats(hand_key)
-            && let Some(attached) = self.attached.get_mut(&id)
-        {
-            attached.window.size = Some(seats);
+        };
+        if let Some(attached) = self.attached.get_mut(&id) {
+            attached.segment = Some(hand.segment.id);
+            if attached.title_seats.is_none()
+                && let Some(seats) = hand.max_seats
+            {
+                attached.window.size = Some(seats);
+            }
         }
     }
 
@@ -564,6 +721,8 @@ impl Hud {
                 players: Vec::new(),
                 hero_seat: None,
                 drags_seen: 0,
+                segment: None,
+                debug: None,
                 shown: (None, Vec::new()),
             },
         );
@@ -586,15 +745,52 @@ impl Hud {
             self.ambiguous(&same_name, &table);
             return;
         }
-        let Some((hand_key, players)) = self.recent.get(&(site, table)).cloned() else {
+        let recent = self.recent.get(&(site.clone(), table.clone())).cloned();
+        let from_store = recent.is_none();
+        let Some((hand_key, players)) = recent.or_else(|| self.stored_hand(&site, &table)) else {
             return;
         };
         if let Some(attached) = self.attached.get_mut(&id) {
             attached.hero_seat = seats::hero_after(&players, attached.hero_seat);
             attached.players = players;
         }
-        self.fill_seats(id, &hand_key);
-        self.reread(id, Some(&hand_key), Instant::now(), out);
+        self.read_hand(id, &hand_key);
+        self.reread(id, Some(&hand_key), Instant::now(), None, out);
+        if from_store {
+            // What this read is seen (the store's first look would read
+            // every table again for nothing).
+            self.store.changed();
+        }
+    }
+
+    /// (R3.7) A table's newest stored hand, when it was played and imported
+    /// in the last [`Settings::restart_window`]: what a window attached without a
+    /// hand announced to this process (a restarted HUD, a table opened
+    /// before it) starts from.
+    fn stored_hand(&mut self, site: &str, table: &str) -> Option<(String, Vec<PlayerRef>)> {
+        let window_ms = i64::try_from(self.settings.restart_window.as_millis()).unwrap_or(i64::MAX);
+        let since = unix_us() / 1000 - window_ms;
+        let hand = self.store.latest_hand_of_table(
+            site,
+            &|name| table_key(name) == table,
+            since,
+            RESTART_SCAN,
+        )?;
+        eprintln!(
+            "rail-hud: table {table:?} starts from its stored hand {}",
+            hand.hand_key
+        );
+        let players = hand
+            .players
+            .into_iter()
+            .map(|seat| PlayerRef {
+                name: seat.player,
+                scope: seat.scope,
+                seat: Some(seat.seat),
+                hero: seat.hero,
+            })
+            .collect();
+        Some((hand.hand_key, players))
     }
 
     fn refuse(
@@ -654,6 +850,8 @@ impl Hud {
                             a.window.table = table;
                             a.players.clear();
                             a.hero_seat = None;
+                            a.segment = None;
+                            a.debug = None;
                         }
                         moved
                     });
@@ -763,16 +961,20 @@ impl Hud {
     fn reread_all(&mut self, since: Instant, out: &mut dyn FnMut(HudMessage)) {
         let ids: Vec<WindowId> = self.attached.keys().copied().collect();
         for id in ids {
-            self.reread(id, None, since, out);
+            self.reread(id, None, since, None, out);
         }
     }
 
-    /// Read the table's players' rollups again and redraw it.
+    /// Read the table's players' rollups again - over the table's segment,
+    /// and only the user's own hands where the room says so (R3.7) - and
+    /// redraw it. `hand_key`: the hand that caused it (its chain is
+    /// reported, `timing` the app's part of it).
     fn reread(
         &mut self,
         id: WindowId,
         hand_key: Option<&str>,
         since: Instant,
+        timing: Option<HandTiming>,
         out: &mut dyn FnMut(HudMessage),
     ) {
         let Some(attached) = self.attached.get(&id) else {
@@ -783,45 +985,141 @@ impl Hud {
         }
         let site = attached.store_site.clone();
         let players = attached.players.clone();
+        let segments: Option<Vec<i64>> = attached.segment.map(|segment| vec![segment]);
+        // `ownHandsOnly`: statistics from hands the user played only. A room
+        // without a permit is not drawn at all (`repaint`); read as strictly.
+        let own_hands_only = self
+            .compliance
+            .permit(&attached.window.site)
+            .map_or(true, |permit| permit.restrictions().own_hands_only);
         let keys: Vec<(&str, &str)> = players
             .iter()
             .map(|p| (p.name.as_str(), p.scope.as_str()))
             .collect();
-        let totals = match self.store.totals(&site, &keys) {
+        let totals = match self
+            .store
+            .totals(&site, &keys, segments.as_deref(), own_hands_only)
+        {
             Ok(totals) => totals,
             Err(error) => {
                 self.draw(id, Some(format!("no statistics: {error}")), Vec::new());
                 return;
             }
         };
+        let custom = self.custom_counts(&site, &players, segments.as_deref(), own_hands_only);
         let elapsed = since.elapsed();
         self.latencies.record(elapsed);
+        let read_us = unix_us();
         let panels: Vec<SeatPanel> = players
             .iter()
             .zip(&totals)
-            .map(|(player, totals)| SeatPanel {
+            .enumerate()
+            .map(|(index, (player, totals))| SeatPanel {
                 player: player.name.clone(),
                 seat: player.seat,
                 hands: totals.hands(),
-                stats: self.panel_stats.cells(&totals.sums()),
+                stats: self.panel_stats.cells_with(&totals.sums(), |key| {
+                    custom
+                        .get(index)
+                        .and_then(|counts| counts.get(key).copied())
+                }),
                 label: None,
             })
             .collect();
+        let shown: Vec<PlayerHands> = panels
+            .iter()
+            .map(|p| PlayerHands {
+                name: p.player.clone(),
+                hands: p.hands,
+            })
+            .collect();
+        let mut chain = hand_key.map(|_| LatencyChain {
+            noticed_us: timing.and_then(|t| t.noticed_us),
+            imported_us: timing.and_then(|t| t.imported_us),
+            sent_us: timing.and_then(|t| t.sent_us),
+            arrived_us: unix_us_at(since),
+            read_us,
+            painted_us: read_us,
+        });
+        // A debug build shows the hand's latency on the table; a release
+        // build never does.
+        if cfg!(debug_assertions)
+            && let Some(chain) = chain.as_ref().filter(|c| c.noticed_us.is_some())
+            && let Some(attached) = self.attached.get_mut(&id)
+        {
+            attached.debug = Some(debug_line(chain));
+        }
+        self.draw(id, None, panels);
+        if let Some(chain) = &mut chain {
+            chain.painted_us = unix_us();
+        }
+        let table = self.attached.get(&id).and_then(|a| a.window.table.clone());
+        if let (Some(report), Some(chain), Some(hand_key)) =
+            (&mut self.latency_report, &chain, hand_key)
+        {
+            let line = serde_json::json!({
+                "window": id.0,
+                "site": site,
+                "table": table,
+                "handKey": hand_key,
+                "chain": chain,
+                "totalUs": chain.total_us(),
+            });
+            if writeln!(report, "{line}")
+                .and_then(|()| report.flush())
+                .is_err()
+            {
+                eprintln!("rail-hud: the latency report could not be written");
+                self.latency_report = None;
+            }
+        }
         out(HudMessage::TableUpdated {
             window: id.0,
             site,
-            table: self.attached.get(&id).and_then(|a| a.window.table.clone()),
+            table,
             hand_key: hand_key.map(str::to_owned),
-            players: panels
-                .iter()
-                .map(|p| PlayerHands {
-                    name: p.player.clone(),
-                    hands: p.hands,
-                })
-                .collect(),
+            players: shown,
             reread_us: micros(elapsed),
+            chain,
         });
-        self.draw(id, None, panels);
+    }
+
+    /// (R3.7) Each player's counts of the user's statistics the design
+    /// shows, by statistic id (empty when it shows none).
+    fn custom_counts(
+        &mut self,
+        site: &str,
+        players: &[PlayerRef],
+        segments: Option<&[i64]>,
+        own_hands_only: bool,
+    ) -> Vec<BTreeMap<String, (i64, i64)>> {
+        if self.custom_ids.is_empty() || !self.panel_stats.reads_custom() {
+            return Vec::new();
+        }
+        let wanted = self.custom_ids.clone();
+        let ids: Vec<i64> = wanted.iter().map(|(_, id)| *id).collect();
+        players
+            .iter()
+            .map(|player| {
+                match self.store.custom_totals(
+                    (site, &player.name, &player.scope),
+                    segments,
+                    &ids,
+                    own_hands_only,
+                ) {
+                    Ok(counts) => wanted
+                        .iter()
+                        .filter_map(|(key, id)| {
+                            counts.get(id).map(|c| (key.clone(), (c.made, c.opp)))
+                        })
+                        .collect(),
+                    Err(error) => {
+                        eprintln!("rail-hud: the user's statistics of a player: {error}");
+                        BTreeMap::new()
+                    }
+                }
+            })
+            .collect()
     }
 
     /// Show a status line or panels over an attached window.
@@ -876,6 +1174,8 @@ impl Hud {
         let (status, panels) = attached.shown.clone();
         let frame = OverlayFrame {
             permit,
+            // Only ever set in a debug build (`reread`).
+            debug: attached.debug.clone().filter(|_| status.is_none()),
             status,
             size: Some(size),
             seating,
@@ -994,6 +1294,7 @@ mod tests {
                         table: Some("T".into()),
                         hand_key: format!("{site}:1"),
                         players: vec![PlayerRef::named("P")],
+                        timing: None,
                     },
                     Instant::now(),
                 ),
@@ -1073,6 +1374,7 @@ mod tests {
                     table: Some(table.into()),
                     hand_key: format!("acrwpn:{player}"),
                     players: vec![PlayerRef::named(player)],
+                    timing: None,
                 },
                 Instant::now(),
             )
@@ -1114,6 +1416,7 @@ mod tests {
                 table: Some(table.into()),
                 hand_key: format!("{site}:{player}"),
                 players: vec![PlayerRef::named(player)],
+                timing: None,
             },
             Instant::now(),
         )
@@ -1422,6 +1725,7 @@ mod tests {
                         ..PlayerRef::named(format!("P{seat}")).at(seat)
                     })
                     .collect(),
+                timing: None,
             },
             Instant::now(),
         )

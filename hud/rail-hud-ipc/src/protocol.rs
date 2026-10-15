@@ -59,6 +59,10 @@ pub enum AppMessage {
         table: Option<String>,
         hand_key: String,
         players: Vec<PlayerRef>,
+        /// (R3.7) When the hand went through the app: the start of the
+        /// latency chain the HUD completes. Absent from an older app.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        timing: Option<HandTiming>,
     },
     /// A recompute swapped new statistics in (R2.11, `kv` `stats.epoch`):
     /// every number shown is re-read.
@@ -128,6 +132,11 @@ pub enum HudMessage {
         players: Vec<PlayerHands>,
         /// From the message's arrival to the rollups re-read, microseconds.
         reread_us: u64,
+        /// (R3.7) The whole chain for the hand, from the watcher noticing
+        /// its file to the frame handed to the overlay; absent for a re-read
+        /// no hand caused, or from an older HUD.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        chain: Option<LatencyChain>,
     },
     /// The user dragged a seat's panel (R3.6): the app remembers it in the
     /// store (`hud_seat_positions`; the HUD's own connection is read-only)
@@ -164,6 +173,53 @@ pub enum RefusalReason {
     NotARoom,
     /// No `sites.json` entry has this id.
     UnknownSite,
+}
+
+/// (R3.7) A hand's way through the app, Unix microseconds (one clock: both
+/// processes run on the user's machine).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HandTiming {
+    /// The watcher noticed the file change whose commit stored the hand
+    /// (`rail_watch::WatchEvent::Imported`'s `noticed_ms`); `None` when it
+    /// does not know (a later batch of one read).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub noticed_us: Option<i64>,
+    /// The watcher reported the commit (the hand is in the store).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub imported_us: Option<i64>,
+    /// The app queued `hand_imported` for the HUD.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sent_us: Option<i64>,
+}
+
+/// (R3.7) A hand's latency chain, from the file to the overlay, Unix
+/// microseconds: the app's [`HandTiming`] and the HUD's own stamps.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LatencyChain {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub noticed_us: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub imported_us: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sent_us: Option<i64>,
+    /// The HUD read `hand_imported` off the channel.
+    pub arrived_us: i64,
+    /// The table's players' rollups were re-read.
+    pub read_us: i64,
+    /// The frame was handed to the platform backend: drawn on the
+    /// simulator's backend; on Windows queued to the overlay thread, whose
+    /// paint follows (R3.4: p50 2.1 ms).
+    pub painted_us: i64,
+}
+
+impl LatencyChain {
+    /// From the watcher noticing the file to the frame, microseconds
+    /// (`None` without the watcher's stamp).
+    pub fn total_us(&self) -> Option<i64> {
+        self.noticed_us.map(|noticed| self.painted_us - noticed)
+    }
 }
 
 /// A player's hand count as the HUD read it.
@@ -238,12 +294,18 @@ mod tests {
                         hero: false,
                     },
                 ],
+                timing: Some(HandTiming {
+                    noticed_us: Some(1_000),
+                    imported_us: Some(501_000),
+                    sent_us: Some(502_000),
+                }),
             },
             AppMessage::HandImported {
                 site: "winamax".into(),
                 table: None,
                 hand_key: "winamax:1-2-3".into(),
                 players: vec![],
+                timing: None,
             },
             AppMessage::StatsChanged { epoch: 7 },
             AppMessage::LayoutChanged,
@@ -297,6 +359,23 @@ mod tests {
                     hands: 20,
                 }],
                 reread_us: 250,
+                chain: None,
+            },
+            HudMessage::TableUpdated {
+                window: 1,
+                site: "pokerstars".into(),
+                table: Some("T".into()),
+                hand_key: Some("pokerstars:1".into()),
+                players: vec![],
+                reread_us: 250,
+                chain: Some(LatencyChain {
+                    noticed_us: Some(1_000),
+                    imported_us: Some(501_000),
+                    sent_us: None,
+                    arrived_us: 502_500,
+                    read_us: 502_800,
+                    painted_us: 502_900,
+                }),
             },
             HudMessage::SeatPositionChanged {
                 site: "acr".into(),
@@ -326,11 +405,46 @@ mod tests {
                     ..PlayerRef::named("H").at(3)
                 },
             ],
+            timing: None,
         })
         .expect("json");
         assert_eq!(
             text,
             r#"{"type":"hand_imported","site":"acr","table":"Miramar (Cap)","handKey":"acr:9","players":[{"name":"P","scope":""},{"name":"H","scope":"","seat":3,"hero":true}]}"#
+        );
+        // (R3.7) The timing, when the app has it; an older HUD ignores it.
+        let text = serde_json::to_string(&AppMessage::HandImported {
+            site: "acr".into(),
+            table: None,
+            hand_key: "acr:9".into(),
+            players: vec![],
+            timing: Some(HandTiming {
+                noticed_us: Some(1),
+                imported_us: Some(2),
+                sent_us: Some(3),
+            }),
+        })
+        .expect("json");
+        assert_eq!(
+            text,
+            r#"{"type":"hand_imported","site":"acr","table":null,"handKey":"acr:9","players":[],"timing":{"noticedUs":1,"importedUs":2,"sentUs":3}}"#
+        );
+        let chain = LatencyChain {
+            noticed_us: Some(100),
+            imported_us: None,
+            sent_us: None,
+            arrived_us: 500,
+            read_us: 600,
+            painted_us: 700,
+        };
+        assert_eq!(chain.total_us(), Some(600));
+        assert_eq!(
+            LatencyChain {
+                noticed_us: None,
+                ..chain
+            }
+            .total_us(),
+            None
         );
         assert_eq!(
             serde_json::to_string(&HudMessage::TablesOpen { count: 2 }).expect("json"),

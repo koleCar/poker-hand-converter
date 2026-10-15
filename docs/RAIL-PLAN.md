@@ -162,6 +162,13 @@ HUD process and a mutual handshake; see R3.2. Popups that need rich content
 
 The HUD shows a player's numbers from the first hand written for that table; a
 table that has not produced a hand yet shows "waiting for first hand".
+*As built* (R3.7): the chain is measured per hand, end to end, in the
+headless e2e (`hud/rail-hud/tests/e2e.rs`, debug build, M2 Pro, 12 tables,
+96 hands): written -> the watcher's notice 12 ms, notice -> import 503 ms
+(the 500 ms quiet period), import -> `hand_imported` sent 1.7 ms, IPC 0.14
+ms, the re-read 0.8 ms, the frame 0.4 ms (p50s); **the whole chain p50 506
+ms, p95 521 ms** - < 1 s holds (asserted on the p95), the aim of 250 ms
+waits on the quiet period (R1.3).
 
 ### 3.4 Local SQLite schema (first version)
 
@@ -5874,7 +5881,8 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
     timeout during the handshake (only the user's processes can connect
     there); a HUD restarted mid-session shows "waiting for first hand" until
     its table's next hand (no "latest hand of this table" lookup: `hands`
-    has no table index).
+    has no table index). *Closed by R3.7*: a table's newest stored hand
+    through `hands_imported_at_idx`, the last 15 minutes.
   - **For R3.3 / R3.11** (find tables): implement `find_tables` in
     `platform/windows.rs` / `macos.rs` against the matchers
     `Compliance::matchers()` builds from `sites.json` `tables` (processes
@@ -6730,6 +6738,194 @@ graphics, and CPU with twelve real tables.
 ### R3.7 Data path — S
 - On `hand_imported`, reload rollups of that table's players, redraw;
   instrument the latency from file event to redraw and show it in debug builds.
+- *As built* (§15): **done** - the HUD reads the right numbers for the
+  right players, on restricted rooms from the user's own hands only, never
+  from the hand in play, at once after a restart, and every hand's latency
+  is measured from the watcher to the frame. `hud/rail-hud/src/engine.rs`
+  (the data path), `data.rs`, `panel.rs` (the user's statistics), rail-store
+  migration 14 (`0014_observed_rollups.sql`, `stats::fill_observed`), new
+  reads in `stats_read.rs`, the watcher's `noticed_ms`, the protocol's
+  `HandTiming` / `LatencyChain`, the app's feeder.
+  - **The table's segment.** A table's players are read over **the
+    segment its hand is summed in** (`Reader::hud_hand`: `hand_stats.
+    segment_id` - site, format, variant, limit, table-size class, stake as
+    the hand has them; R2.3's definition, `SEGMENT_VERSION` included), kept
+    per window and replaced with each hand (a table move forgets it).
+    Decided against rebuilding the segment from R3.6's layout size: the
+    rollups of this table's own hands are keyed by the hand's `maxSeats`
+    class, so a title that disagreed with the hand would read a segment
+    without the table's own hands. The two only differ when a room's title
+    and history disagree on the size; R3.6 keeps laying the table out by
+    `size_of`. A hand the store has no statistics row for (or a store error)
+    falls back to every segment of the site, as R3.2 read. Opaque-id rooms'
+    villains are read under the scope the store wrote with the hand
+    (`PlayerRef.scope` = `seat_stats.scope`, `<table>@<UTC day>`), never
+    across sessions - no allowed room has them today (GGPoker is
+    prohibited; ACR's own client writes screen names), the path keeps them
+    right anyway. The hero's panel is read like every seat's: the hero's
+    rollups are by definition hands the user played.
+  - **`ownHandsOnly`, decided: a separate rollup of the observed part,
+    subtracted at read time.** PokerStars, Winamax and ACR allow statistics
+    only from hands the user played (PokerStars' guide allows up to 30
+    observed hands per session to seed a HUD; Rail takes none). A hand the
+    user played = a hand **with a hero seat** (the parser's `Dealt to`; a
+    hand sat out without cards counts as observed, the strict side). The
+    store now keeps **`player_rollups_observed`**: per (site, player,
+    scope, segment) the sums of the seat rows of hands without a hero seat,
+    the same columns and rules as `player_rollups`, written by the same
+    `stats::Pending` in the hand's transaction (one more map, filled only
+    for a hand without a hero - a played hand writes nothing more), summed
+    again by a recompute and swapped in with the others (a fifth summed
+    table: `Summed::Observed`, twin `recompute_player_rollups_observed`);
+    the custom pass keeps **`custom_player_rollups_observed`** the same way.
+    The HUD reads `Reader::hud_own_totals` = `player_rollups` less the
+    observed part (`Totals::subtract`; exact: every column is an integer sum
+    of seat rows under the same exclusions), one more key range per player,
+    one read transaction; `custom_player_totals(.., own_hands_only)` alike.
+    Considered and not built: a rollup of the played part (it would double
+    the writes of every played hand - nearly all of a user's); a column in
+    `player_rollups`' key (every reader and the Players screen would have to
+    filter it); filtering seat rows at read time (no index from a player to
+    their hands without the background pass's lag, and a regular's
+    thousands of rows would not be sub-millisecond). **Migration 14**
+    (tested from every earlier version, and from a version-13 store with
+    hands, a counted custom statistic and a rows job running:
+    `tests/observed.rs`) creates the three tables and fills the observed
+    part in its own transaction from the stored rows (`stats::fill_observed`:
+    SQL cannot read the counter blob); when there are observed hands the
+    user's statistics are counted again (their observed part needs the
+    decision events); a rows job an older build left running is begun
+    again (its twins had no observed part). R2.11's dependency map gains
+    both tables (`Table::PlayerRollupsObserved`: resummed by the rows and
+    segments jobs; `Table::CustomPlayerRollupsObserved`: with the custom
+    counts) and its schema test passes; `tests/common::assert_rollups`
+    holds the observed part to the rows after every write and every kill of
+    both crash tests.
+  - **Cost, measured** (M2 Pro, load 6-9). Import gate, 100k generated
+    hands, 3 threads, interleaved with `staging`'s build: **staging 60 /
+    60 %, this branch 59 / 60 %** (7 248-7 275 vs 7 253-7 321 hands/s) -
+    the gate's dataset has 0.7 % hands without a hero. Worst case, the
+    corpus with every `Dealt to` removed (89 % observed), one thread
+    through `import_file`: 359-381 us a hand vs 367-382 us as it is - no
+    measurable difference (the hero rows, EV and hero rollups such hands
+    lose pay for the observed upserts). HUD lookup at 500k hands with
+    300 000 padded players (`stats_queries --pad`, release): 9 players over
+    the table's segment **88 us median / 109 us p99; own hands only 121 us /
+    154 us**; `hud_hand` 2 us; a table's newest hand 7 us (found) and 2.5 ms
+    median (not found: 5 000 newest hands looked at, on attach only).
+  - **Nothing from the hand in play** (ACR's rule; every room by design).
+    The HUD reads nothing but the store; the rooms write a hand's history
+    once it has ended; the watcher stores a hand only once its file has
+    been quiet for 500 ms with a hand that validates, or the next hand has
+    begun (R1.3) - a hand still being written is never stored, so no
+    re-read (`hand_imported`, `resync`, `stats_changed`, the store's own
+    `data_version` check) can count it. `tests/in_play.rs` (the real
+    watcher): a table shows one hand while the next is played (nothing in
+    the file, 1.5 s of re-reads) and while it is written in four pieces
+    100 ms apart (re-read after each), the store holding one hand
+    throughout; written and quiet, it is imported, announced and counted.
+    **Found while building it**: R1.3's stated assumption is load-bearing -
+    a PokerStars hand cut at the flop *validates*, so a room that stopped
+    writing mid-hand for longer than the quiet period, at a line end, would
+    get the prefix stored (and the full hand then deduplicated away). No
+    room seen writes that way; R3.14 must confirm it on the real clients
+    before a room's `tables` block is verified (a per-room "hand finished"
+    marker in the reader is the fix if one does). The HUD's re-reads are
+    not tied to `hand_imported`: a committed hand can be counted by a
+    re-read before its message arrives (R3.2's `data_version` check) - it is
+    complete then, so that is not the hand in play.
+  - **Attaching to a table with hands** (R3.2's limit: a restarted HUD
+    waited for each table's next hand). A window with no hand announced
+    since this process started is filled from **its table's newest stored
+    hand** (`Reader::latest_hand_of_table`: `hands_imported_at_idx` newest
+    first - no sort, checked by `EXPLAIN QUERY PLAN` -, the room by
+    `hand_key`'s prefix, the table by `table_key`, at most 5 000 hands
+    looked at), only when that hand was **played and imported in the last
+    15 minutes** (`Settings::restart_window`): an older hand of a reused
+    table name could seat players who have left; a hand without a
+    `played_at` never counts. Players, seats, hero, segment and table size
+    come from the store; then the usual re-read. No new index on `hands`
+    (migration 10 dropped one there: ~7 % of the writer's time per hand).
+    Tests: the
+    engine against a store (the corpus hand from 2014 is too old by default
+    - the table waits - and found with a long window: the table's numbers,
+    seats and size at once) and **end to end** (`a_restarted_hud_shows_its_
+    tables_at_once`: the HUD killed with `kill -9` / `taskkill`, the
+    supervisor's new process shows every table with its newest hand and
+    the same numbers before any new hand).
+  - **The user's statistics (R2.10) in a design.** `PanelStats::with_custom`
+    compiles a design's ids against the shipped definitions, else the
+    user's own (`CustomSet` from the store, read when the store opens and
+    again on `stats_changed` / `settings_changed` / `layout_changed`); a
+    cell of a user's statistic is evaluated through its definition over
+    `custom_sums` with the player's counts (`custom_player_totals`, own
+    hands only where the room says so). The default design has none, so no
+    extra read happens today; `Hud::set_design` is R3.9's hook. Their
+    counts lag the hand by one step of the app's background pass (the
+    import only wakes it): the HUD shows them at its next re-read (the
+    store's `data_version` check, every 2 s).
+  - **Latency, per hand** (§3.3). The watcher stamps the first change it
+    noticed since a file's last commit (`WatchEvent::Imported.noticed_ms`:
+    the OS notification or a walk); the app stamps the commit's report and
+    the send (`hand_imported.timing`, `HandTiming`, optional: protocol 1
+    unchanged); the HUD stamps the arrival, the re-read and the frame
+    handed to the backend (`LatencyChain`, Unix microseconds - one clock on
+    one machine) and returns it in `table_updated.chain`, appends it to
+    `--latency-report <file>` (JSON lines) and, **in a debug build only**
+    (`cfg!(debug_assertions)`), draws it on the table as one small line in
+    a corner clear of the table's graphics (`OverlayFrame.debug`; `None` in
+    every release frame, a test checks both). On Windows the frame is
+    painted on the overlay thread right after (R3.4: p50 2.1 ms). The e2e
+    prints every stage and asserts the whole chain's **p95 < 1 s** (and the
+    slowest hand < 5 s on shared runners). M2 Pro, debug: PokerStars 3
+    tables, 12 hands - chain p50 506 ms, p95 522 ms; **12 tables, 96
+    hands - p50 506 ms, p95 521 ms, max 527 ms** (notice -> import 503 /
+    516 ms, import -> sent 1.7 / 3.4 ms, IPC 0.14 / 0.24 ms, re-read 0.8 /
+    2.3 ms, frame 0.4 / 1.0 ms; the file's write -> the watcher's notice 12
+    ms before it); ACR 2 tables - p50 515 ms. The quiet period is the whole
+    story; everything after it is ~3 ms.
+  - **`stats_changed` and `tables_open`** (R2.11, R3.2), verified: a
+    recompute (a rows job over rollups made "older" by hand) swaps the new
+    statistics in and `stats_changed` makes the HUD read every table again
+    with the new numbers (`tests/data_path.rs`); while the HUD reports
+    tables open, the app's pass starts no recompute work and swaps nothing
+    (activity `paused-tables`, the epoch unchanged), and runs it once they
+    close (the app's `tables_open_is_passed_on_at_its_edges`).
+  - **Tests.** rail-store `tests/observed.rs` (own hands only: every
+    counter equal to a store of the played hand alone, custom counts too;
+    the observed part through a recompute; migration 14 from version 13
+    with data; a table's newest hand and its query plan); rail-hud
+    `tests/data_path.rs` (a restricted room never counts the observed hand,
+    whichever hand is announced; restart; swap; a user's statistic; the
+    chain and the debug line), `tests/in_play.rs`, the e2e (chain stages,
+    the report file, restart); protocol round trips and wire form with
+    `timing` and `chain`; the app's feeder stamps and the pause. Parity
+    unchanged (no statistic computed differently); the crash tests, the
+    dependency-map test and the import gate green.
+  - **Limits.** "Own hands" is "a hand with a hero seat": another player's
+    histories imported into the user's folders (with their own `Dealt to`)
+    count as played - the app imports the rooms' own folders; a list of the
+    user's screen names per room would close it (`hands.hero_name`). The
+    restart lookup gives up after 5 000 hands (a backfill just imported):
+    the table then waits for its next hand. No real client is measured yet,
+    so every number above is the simulator's.
+  - **For R3.8** (panel and popup): the panel's numbers are already over
+    the table's segment and, on the three allowed rooms, own hands only -
+    the popup must read the same way (`Reader::hud_own_totals` with the
+    window's `segment`, `custom_player_totals(.., own_hands_only)`), and
+    "stats by situation" there must come from own hands too (the seat rows
+    of hands with a hero seat). The legend shows the thresholds actually
+    used (`collapse_tone`). A click arrives on the overlay thread (R3.4 /
+    R3.6 notes); `open_in_app` carries the player's scope. The debug line
+    sits in a corner the popup may cover; it is debug-only.
+  - **For R3.9** (editor): `Hud::set_design` takes a design whose ids may be
+    the user's statistics; the frame does not carry the design yet (the
+    backends draw `PanelDesign::default`'s cells) - pass it with the frame
+    or the backend when the editor lands, and flag a user's statistic with
+    a card predicate `card_split` so PokerStars drops it.
+  - **For R3.14**: confirm on each real client that a hand's history is
+    written whole after the hand (the in-play guarantee above), and measure
+    the chain there.
 
 ### R3.8 Panel and popup — M
 - 4–6 stats, colours from thresholds with legend, dimming from R2.5, hand
@@ -6959,3 +7155,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **R3.4 done**: Windows overlays. One `WS_POPUP` per table with `WS_EX_LAYERED \| WS_EX_TOOLWINDOW \| WS_EX_NOACTIVATE`, **owned by the table window** (above it, hidden while it is minimised, gone with it), exactly over its client rect in physical pixels, from a per-monitor-v2 thread of its own that never blocks (a cross-process owner ties input state to it); Direct2D (software DC render target) and DirectWrite paint a premultiplied DIB shown with `UpdateLayeredWindow`, alpha 0 outside the panels so clicks reach the table (`HTTRANSPARENT` too, `MA_NOACTIVATE`); hidden while minimised or cloaked; repainted only when the frame, size or scale changes, moved without a repaint. Panels: the six shipped `hud: panel` statistics with R2.4 bands (blue / white / orange on near-black) and R2.5 dimming, and the hand count, at the seats of a default layout - the simulator's geometry (`layout.rs`), next to each seat's plate, clear of plates, board and each other at every usual size and scale - "waiting for first hand" as a pill. `hand_imported` players carry `seat` and `hero` (from `seat_stats`). **Restrictions as data**: `sites.json` `hud.restrictions` (11 fields; schema, validator - required when allowed -, merge that only adds), PokerStars / ACR / Winamax from R3.0's pages; every frame carries compliance's `Permit` (asked again before each draw, checked against the window's room by the backend) and the renderer enforces the room's restrictions on any design (two thresholds, no card-split or switching statistics, no labels, nothing over table graphics); the default design complies with all of them at once. Windows CI test (`tests/windows_overlay.rs`): ownership, styles, rect, panels at the seats (surface and screen pixels), click-through, minimise / restore / move, dedupe, refusals, and the HUD process drawing on an allowed room and making no overlay window on a prohibited one; `twelve_tables_perf` on 12 tables in CI: a paint p50 2.1 ms, p95 4.0 ms (budget 16 ms), idle overlays 0 ms CPU over 10 s, the HUD process attached to 12 tables 0.46 % of one core. |
 | 2026-10-15 | **R3.5 done**: Windows tracking. `SetWinEventHook` **out of context** (`WINEVENT_OUTOFCONTEXT \| WINEVENT_SKIPOWNPROCESS`), **scoped to each tracked table's process** (one set per poker process, undone when the find sees it with no tracked table and no visible window), six hooks for exactly twelve events - foreground, move/size start and end, minimise start and end, destroy, show, hide, location change, name change, cloaked, uncloaked - for the window object only (`OBJID_WINDOW`, `CHILDID_SELF`); feature `Win32_UI_Accessibility`, no new crate. **On the overlay thread** (an out-of-context hook calls back on the thread that set it, which must pump and never block; only the overlay window's own thread moves it without a hop): the callback only filters and notes, the thread reads each noted table once and moves its overlay at once (no repaint), repaints at a new size or **monitor scale**, hides it while minimised / cloaked; the engine gets the latest per table (`platform::tracking`: a drag's hundred locations are one `Moved`), a new title through the room's own matcher (`Retitled` with the hands' table name: a tournament move at once), `Closed` for destroyed or hidden tables, and the new `TableEvent::Appeared` (a followed process showed a window: find now). **No fight with the 500 ms re-find**: an overlay is always placed from the table as it is at that moment, never from a description; the engine's `follow` with something the hooks did not report makes the thread look again. Z-order checked on foreground (`restacked`); overlays destroyed with their tables' process are noticed through their own `WM_DESTROY`. DPI: the overlay's `WM_DPICHANGED` and every location re-read the monitor's scale; no dpi change is possible on the CI runner, the scale logic is unit-tested. Tests: `platform::tracking` (6, every OS), `engine::hook_events_between_finds`, Windows CI `tests/windows_tracking.rs` - scripted `SetWindowPos` moves, the simulator's move / resize / minimise / restore / table move / close, a hidden and shown table, 100 moves in 1 s, the process killed, in the backend; the extended `scripts/tracking.txt` and a 100-move drag through the `rail-hud` process. Measured on the CI runner: table moved -> overlay moved p50 101 µs / p95 125 µs (40 moves), through the `rail-hud` process 100 moves in 1 s p50 58 µs / p95 120 µs with 15 ms of CPU and no backward move; table move seen in 2.3 ms; a killed client's overlays gone in 1.4 ms. |
 | 2026-10-15 | **R3.6 done**: seats and layouts. A hand's seat becomes a **slot** (the place on the screen) of the room's layout for the table size: `sites.json` `tables.seatLayouts` is now per size `{seats, plate, center, heroSlot, graphics, seatNumbers}` in thousandths of the client rect (schema `$defs.seatLayout`, validator checks), `null` for every room until measured (`CAPTURING-TABLES.md` "Seat layouts"; R3.14) - meanwhile `TableLayout::simulator`, the simulator's geometry. **Preferred seat**: a rotating client's seat `s` is at `(slot(s) - slot(hero) + heroSlot) mod size` (`seats::slot_of`), on when the user says so (`hud_room_settings`, the app's `hud_set_preferred_seat`), else `tables.preferredSeat` (`null` everywhere), else off; the hero's seat from each hand, kept while not dealt in, none for an observer, forgotten on a table move; a seat past the window's size lays out on the size that has it (9-max -> 6-max), heads-up two slots. **Drag**: the Windows overlay thread takes its own mouse messages (press on a panel -> `SetCapture`, moves past 4 px repaint the panel where the scene allows it, release or lost capture drops it), keeps the drop until the engine's frame has it (`Seating::drags_seen`) and reports `TableEvent::PanelMoved`; the engine redraws every table of that room and size and sends the new `seat_position_changed {site, size, slot, x, y}`; the app's thread writes **migration 13** (`hud_seat_positions` per (room, size, slot), `hud_room_settings`), which the read-only HUD reads at start and on `layout_changed` / `settings_changed`; not synced yet (R3.9 / R4.x). On `noOverlapTableGraphics` (ACR) a dragged panel goes to the nearest place clear of the layout's graphics (`layout::constrain`); a remote `sites.json` can only add graphics zones (union per size; a shrunk or dropped zone keeps the shipped one) and only narrow a room's process names (never another entry's), so table data cannot loosen compliance. Where a panel is never changes what it shows (PokerStars: no display switching by position, stack or opponent; no per-position stat sets). Tests on all OSes (every size x hero seat x rotation equal to the simulator's drawing, observer, size change, measured layouts, constrain, drag, the engine with a real store) and Windows CI `windows_seats.rs` (panels at the simulator's drawn seats with `--preferred-seat` off and on, its hero frame read off the screen; a posted-message drag kept off the graphics posing as ACR, where dropped posing as PokerStars; the HUD process: drag -> `seat_position_changed` -> store -> restart restores it). |
+| 2026-10-15 | **R3.7 done**: the HUD data path. A table's players are read over **the table's segment** (its hand's: `Reader::hud_hand`), opaque-id villains under the session scope the store wrote. **`ownHandsOnly`** (PokerStars, Winamax, ACR): store migration 14 adds `player_rollups_observed` - the part of `player_rollups` from hands without a hero seat, written by the same `Pending` in the hand's transaction (nothing more for a played hand), a fifth summed table with its recompute twin - and `custom_player_rollups_observed`; the HUD reads rollups less that part (`Reader::hud_own_totals`, `custom_player_totals(.., own_hands_only)`), exact to the counter (a store with an observed and a played hand equals a store of the played hand alone). Migration 14 fills the part from the stored rows in its transaction (`stats::fill_observed`), recounts the user's statistics when observed hands exist, restarts a rows job left running; tested from every version and from a version-13 store with data; R2.11's map gains both tables. Cost: import gate 59-60 % vs staging's 60 % (interleaved, 100k, 3 threads), an all-observed corpus imports at the same rate; HUD lookup at 500k + 300k padded players 88 -> 121 us median (p99 109 -> 154 us). **Nothing from the hand in play**: documented and tested with the real watcher (`tests/in_play.rs`); found that R1.3's assumption is load-bearing (a PokerStars prefix cut at the flop validates: a room stalling mid-hand > 500 ms would get it stored) - R3.14 checks the real clients. **Restart**: a window with no announced hand starts from its table's newest stored hand played and imported in the last 15 min (`Reader::latest_hand_of_table`, `hands_imported_at_idx`, no sort); e2e kills the HUD and the new process shows every table at once. The user's statistics in a design (`PanelStats::with_custom`, `Hud::set_design`). **Latency chain** per hand - watcher notice (`WatchEvent::Imported.noticed_ms`) -> import -> sent (`hand_imported.timing`) -> arrived -> re-read -> frame (`table_updated.chain`, `--latency-report` JSON lines, a debug build's line on the table, never in release): 12 tables, 96 hands, debug, M2 Pro: **p50 506 ms, p95 521 ms** (503 ms of it the quiet period; re-read 0.8 ms, frame 0.4 ms); the e2e asserts p95 < 1 s. `stats_changed` re-read after a swap and the recompute pause while tables are open verified by tests. |

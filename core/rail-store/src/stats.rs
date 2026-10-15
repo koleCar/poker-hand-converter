@@ -329,6 +329,20 @@ impl Totals {
         }
     }
 
+    /// Take away a part of these sums (R3.7: a player's rollup less its
+    /// observed part, [`crate::Reader::hud_own_totals`]): exact, since every
+    /// sum is a plain integer sum of seat rows and the part was summed under
+    /// the same rules.
+    pub fn subtract(&mut self, part: &Self) {
+        for (sum, value) in self.counters.iter_mut().zip(part.counters) {
+            *sum -= value;
+        }
+        for (sum, value) in self.money.iter_mut().zip(part.money) {
+            *sum -= value;
+        }
+        self.money_hands -= part.money_hands;
+    }
+
     /// One counter.
     pub fn get(&self, counter: Counter) -> i64 {
         self.counters[counter.index()]
@@ -425,10 +439,12 @@ impl Target {
             (Self::Live, Summed::Heroes) => "hero_rollups",
             (Self::Live, Summed::Summary) => "player_summary",
             (Self::Live, Summed::Hidden) => "player_hidden",
+            (Self::Live, Summed::Observed) => "player_rollups_observed",
             (Self::Shadow, Summed::Players) => "recompute_player_rollups",
             (Self::Shadow, Summed::Heroes) => "recompute_hero_rollups",
             (Self::Shadow, Summed::Summary) => "recompute_player_summary",
             (Self::Shadow, Summed::Hidden) => "recompute_player_hidden",
+            (Self::Shadow, Summed::Observed) => "recompute_player_rollups_observed",
         }
     }
 }
@@ -441,10 +457,18 @@ pub(crate) enum Summed {
     Heroes,
     Summary,
     Hidden,
+    /// (R3.7) `player_rollups`' part from hands without a hero seat.
+    Observed,
 }
 
 impl Summed {
-    pub(crate) const ALL: [Self; 4] = [Self::Players, Self::Heroes, Self::Summary, Self::Hidden];
+    pub(crate) const ALL: [Self; 5] = [
+        Self::Players,
+        Self::Heroes,
+        Self::Summary,
+        Self::Hidden,
+        Self::Observed,
+    ];
 }
 
 /// One SQL text per [`Target`], made once.
@@ -461,6 +485,21 @@ fn per_target(
 fn upsert_player_sql(target: Target) -> &'static str {
     static SQL: PerTarget = [OnceLock::new(), OnceLock::new()];
     per_target(&SQL, target, || {
+        upsert_rollup_sql(target.table(Summed::Players))
+    })
+}
+
+/// (R3.7) The same upsert into `player_rollups_observed` (or its twin).
+fn upsert_observed_sql(target: Target) -> &'static str {
+    static SQL: PerTarget = [OnceLock::new(), OnceLock::new()];
+    per_target(&SQL, target, || {
+        upsert_rollup_sql(target.table(Summed::Observed))
+    })
+}
+
+/// Add a (site, player, scope, segment) row's sums to `table`.
+fn upsert_rollup_sql(table: &str) -> String {
+    {
         format!(
             "INSERT INTO {} (site, player, scope, segment_id, last_played_at, {})
              VALUES ({})
@@ -468,12 +507,12 @@ fn upsert_player_sql(target: Target) -> &'static str {
                last_played_at = CASE WHEN excluded.last_played_at > coalesce(last_played_at, '')
                                      THEN excluded.last_played_at ELSE last_played_at END,
                {}",
-            target.table(Summed::Players),
+            table,
             total_columns(str::to_owned),
             placeholders(5 + TOTAL_COUNT),
             total_columns(|c| format!("{c} = {c} + excluded.{c}"))
         )
-    })
+    }
 }
 
 fn upsert_hero_sql(target: Target) -> &'static str {
@@ -789,6 +828,8 @@ pub(crate) struct Pending {
     generation: i64,
     segments: HashMap<Segment, i64>,
     players: HashMap<PlayerKey, (Totals, Option<String>)>,
+    /// (R3.7) `players`' part from hands without a hero seat.
+    observed: HashMap<PlayerKey, (Totals, Option<String>)>,
     heroes: HashMap<HeroKey, Totals>,
     /// `player_summary` by (site, player) (R2.7c).
     seen: HashMap<(String, String), PlayerSeen>,
@@ -809,6 +850,7 @@ impl Pending {
             generation: current_gen(conn)?,
             segments: HashMap::new(),
             players: HashMap::new(),
+            observed: HashMap::new(),
             heroes: HashMap::new(),
             seen: HashMap::new(),
             hidden: HashMap::new(),
@@ -825,6 +867,7 @@ impl Pending {
             generation: 0,
             segments: HashMap::new(),
             players: HashMap::new(),
+            observed: HashMap::new(),
             heroes: HashMap::new(),
             seen: HashMap::new(),
             hidden: HashMap::new(),
@@ -841,6 +884,7 @@ impl Pending {
             generation: self.generation,
             segments: self.segments.clone(),
             players: HashMap::new(),
+            observed: HashMap::new(),
             heroes: HashMap::new(),
             seen: HashMap::new(),
             hidden: HashMap::new(),
@@ -854,6 +898,13 @@ impl Pending {
         self.segments.extend(child.segments);
         for (key, (totals, last)) in child.players {
             let (sum, newest) = self.players.entry(key).or_default();
+            sum.add(&totals, true);
+            if last > *newest {
+                *newest = last;
+            }
+        }
+        for (key, (totals, last)) in child.observed {
+            let (sum, newest) = self.observed.entry(key).or_default();
             sum.add(&totals, true);
             if last > *newest {
                 *newest = last;
@@ -883,19 +934,27 @@ impl Pending {
     }
 
     /// Add one seat row of `hand` to the sums: the HUD's (`aggregate`'s
-    /// defaults), the Players list's and the hero's.
+    /// defaults; R3.7: and their observed part when the hand has no hero
+    /// seat), the Players list's and the hero's.
     pub(crate) fn count(&mut self, hand: &HandSum<'_>, seat: &SeatSum<'_>) {
         let (counted, money) = Exclusions::default().admits(hand.kind);
         if counted {
-            let (totals, last) = self
-                .players
-                .entry((
-                    hand.site.to_owned(),
-                    seat.player.to_owned(),
-                    seat.scope.to_owned(),
-                    hand.segment_id,
-                ))
-                .or_default();
+            let key = (
+                hand.site.to_owned(),
+                seat.player.to_owned(),
+                seat.scope.to_owned(),
+                hand.segment_id,
+            );
+            // A hand the user did not play: no hero seat (`hero_net` is the
+            // hero's result whenever the hand has one).
+            if hand.hero_net.is_none() {
+                let (totals, last) = self.observed.entry(key.clone()).or_default();
+                totals.add_seat(seat.values, money);
+                if hand.played_at > last.as_deref() {
+                    *last = hand.played_at.map(str::to_owned);
+                }
+            }
+            let (totals, last) = self.players.entry(key).or_default();
             totals.add_seat(seat.values, money);
             if hand.played_at > last.as_deref() {
                 *last = hand.played_at.map(str::to_owned);
@@ -1080,6 +1139,18 @@ impl Pending {
                 upsert.raw_execute()?;
             }
         }
+        if !self.observed.is_empty() {
+            let mut upsert = conn.prepare_cached(upsert_observed_sql(target))?;
+            for ((site, player, scope, segment_id), (totals, last)) in &self.observed {
+                upsert.raw_bind_parameter(1, site)?;
+                upsert.raw_bind_parameter(2, player)?;
+                upsert.raw_bind_parameter(3, scope)?;
+                upsert.raw_bind_parameter(4, segment_id)?;
+                upsert.raw_bind_parameter(5, last)?;
+                bind_totals(&mut upsert, 6, totals)?;
+                upsert.raw_execute()?;
+            }
+        }
         if !self.seen.is_empty() {
             let mut upsert = conn.prepare_cached(upsert_seen_sql(target))?;
             for ((site, player), seen) in &self.seen {
@@ -1117,6 +1188,65 @@ impl Pending {
         }
         Ok(())
     }
+}
+
+/// (R3.7, store migration 14) Fill `player_rollups_observed` from the
+/// stored rows: the current generation's seat rows of hands without a hero
+/// seat, summed as [`Pending::count`] sums them. When there are any, the
+/// user's own statistics are counted again (their observed part,
+/// `custom_player_rollups_observed`, comes from the decision events only the
+/// custom pass derives). Runs once, inside the migration's transaction.
+pub(crate) fn fill_observed(conn: &Connection) -> Result<()> {
+    let generation = current_gen(conn)?;
+    let mut pending = Pending::new(conn)?;
+    let mut stmt = conn.prepare(
+        "SELECT g.site, s.player, s.scope, d.segment_id, d.played_at, d.is_bomb_pot,
+                d.has_straddle, d.has_cashout, s.totals
+         FROM hand_stats d
+         JOIN segments g ON g.id = d.segment_id
+         JOIN seat_stats s ON s.hand_id = d.id
+         WHERE d.gen = ?1
+           AND NOT EXISTS (SELECT 1 FROM seat_stats h WHERE h.hand_id = d.id AND h.is_hero = 1)",
+    )?;
+    let mut rows = stmt.query([generation])?;
+    let mut any = false;
+    while let Some(row) = rows.next()? {
+        any = true;
+        let kind = (if row.get::<_, bool>(5)? {
+            KIND_BOMB_POT
+        } else {
+            0
+        }) | (if row.get::<_, bool>(6)? {
+            KIND_STRADDLED
+        } else {
+            0
+        }) | (if row.get::<_, bool>(7)? {
+            KIND_CASHOUT
+        } else {
+            0
+        });
+        let (counted, money) = Exclusions::default().admits(kind);
+        if !counted {
+            continue;
+        }
+        let values = decode_seat(&row.get::<_, Vec<u8>>(8)?)?;
+        let played_at: Option<String> = row.get(4)?;
+        let (totals, last) = pending
+            .observed
+            .entry((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            .or_default();
+        totals.add_seat(&values, money);
+        if played_at > *last {
+            *last = played_at;
+        }
+    }
+    drop(rows);
+    drop(stmt);
+    pending.flush(conn)?;
+    if any {
+        crate::custom::reset_custom_counts(conn)?;
+    }
+    Ok(())
 }
 
 /// One step of the background pass's `player_hands` (R2.7c): the

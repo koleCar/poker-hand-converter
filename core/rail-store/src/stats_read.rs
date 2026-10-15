@@ -9,6 +9,12 @@
 //! - **The HUD's lookup** ([`Reader::hud_totals`]): one sum per player of a
 //!   table, over the segments the HUD counts (the table's own, a set of
 //!   them, or all of the site's): one key range per player.
+//!   [`Reader::hud_own_totals`] (R3.7) is the same without the hands the
+//!   user did not play (`player_rollups_observed` taken away): a room whose
+//!   rules allow statistics from the user's own hands only. The table's
+//!   segment is its hand's ([`Reader::hud_hand`]); a HUD started while a
+//!   table is open finds that table's latest hand with
+//!   [`Reader::latest_hand_of_table`].
 //! - **The hero's totals** ([`Reader::hero_totals`]) by segment and
 //!   position over a date range, with any of `aggregate`'s options: whole
 //!   UTC days from `hero_rollups`, the partial days at the two ends from the
@@ -46,7 +52,8 @@ pub struct SegmentRow {
     pub segment: Segment,
 }
 
-/// A stored hand as the HUD hears of it ([`Reader::newest_hands_of_file`]).
+/// A stored hand as the HUD hears of it ([`Reader::newest_hands_of_file`],
+/// [`Reader::latest_hand_of_table`]).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ImportedHand {
     pub hand_key: String,
@@ -67,6 +74,16 @@ pub struct HandSeat {
     /// `""`, or an opaque-id villain's session (`player_rollups.scope`).
     pub scope: String,
     pub hero: bool,
+}
+
+/// What the HUD reads of a stored hand (R3.7, [`Reader::hud_hand`]): the
+/// segment its seats are summed in - the table's, for the HUD's lookup -
+/// and the table size it was written with.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HudHand {
+    pub segment: SegmentRow,
+    /// `hands.max_seats`.
+    pub max_seats: Option<u32>,
 }
 
 /// One row of `player_rollups`.
@@ -365,6 +382,53 @@ fn slot(
         })
 }
 
+/// A player's rollups of one site summed over `segments` (`None`: all of
+/// them), from `table` (`player_rollups` or `player_rollups_observed`): one
+/// key range.
+fn rollup_sum(
+    conn: &rusqlite::Connection,
+    table: &str,
+    site: &str,
+    player: &str,
+    scope: &str,
+    segments: Option<&[i64]>,
+) -> Result<Totals> {
+    let sql = format!(
+        "SELECT segment_id, last_played_at, {} FROM {table}
+         WHERE site = ?1 AND player = ?2 AND scope = ?3",
+        total_columns(str::to_owned)
+    );
+    let mut stmt = conn.prepare_cached(&sql)?;
+    let mut sum = Totals::default();
+    let mut rows = stmt.query(params![site, player, scope])?;
+    while let Some(row) = rows.next()? {
+        let rollup = rollup_from(row)?;
+        if segments.is_none_or(|wanted| wanted.contains(&rollup.segment_id)) {
+            sum.add(&rollup.totals, true);
+        }
+    }
+    Ok(sum)
+}
+
+/// A hand's kept seats with a name, in seat order: what `hand_imported`
+/// carries.
+fn hand_seats(conn: &rusqlite::Connection, hand_id: i64) -> Result<Vec<HandSeat>> {
+    let mut seats = conn.prepare_cached(
+        "SELECT seat, player, scope, is_hero FROM seat_stats
+         WHERE hand_id = ?1 AND player != '' ORDER BY seat",
+    )?;
+    Ok(seats
+        .query_map(params![hand_id], |row| {
+            Ok(HandSeat {
+                seat: u32::try_from(row.get::<_, i64>(0)?).unwrap_or(0),
+                player: row.get(1)?,
+                scope: row.get(2)?,
+                hero: row.get::<_, i64>(3)? != 0,
+            })
+        })?
+        .collect::<rusqlite::Result<Vec<_>>>()?)
+}
+
 fn decode_error(error: Error) -> rusqlite::Error {
     rusqlite::Error::FromSqlConversionFailure(
         0,
@@ -458,25 +522,146 @@ impl Reader {
         segments: Option<&[i64]>,
     ) -> Result<Vec<Totals>> {
         self.with(|conn| {
-            let sql = format!(
-                "SELECT segment_id, last_played_at, {} FROM player_rollups
-                 WHERE site = ?1 AND player = ?2 AND scope = ?3",
-                total_columns(str::to_owned)
-            );
-            let mut stmt = conn.prepare_cached(&sql)?;
             let mut out = Vec::with_capacity(players.len());
             for (player, scope) in players {
-                let mut sum = Totals::default();
-                let mut rows = stmt.query(params![site, player, scope])?;
-                while let Some(row) = rows.next()? {
-                    let rollup = rollup_from(row)?;
-                    if segments.is_none_or(|wanted| wanted.contains(&rollup.segment_id)) {
-                        sum.add(&rollup.totals, true);
-                    }
-                }
+                out.push(rollup_sum(
+                    conn,
+                    "player_rollups",
+                    site,
+                    player,
+                    scope,
+                    segments,
+                )?);
+            }
+            Ok(out)
+        })
+    }
+
+    /// [`Reader::hud_totals`] counting only the hands the user played (R3.7;
+    /// a room whose rules say `ownHandsOnly`): each player's rollups less
+    /// their part from hands without a hero seat (`player_rollups_observed`,
+    /// written with the hand like the rollups, so the difference is exact).
+    /// One more key range per player, which is empty for a player never
+    /// seen in an observed hand. Read in one transaction: both tables as of
+    /// one commit.
+    pub fn hud_own_totals(
+        &self,
+        site: &str,
+        players: &[(&str, &str)],
+        segments: Option<&[i64]>,
+    ) -> Result<Vec<Totals>> {
+        self.with(|conn| {
+            let mut out = Vec::with_capacity(players.len());
+            for (player, scope) in players {
+                let mut sum = rollup_sum(conn, "player_rollups", site, player, scope, segments)?;
+                let observed = rollup_sum(
+                    conn,
+                    "player_rollups_observed",
+                    site,
+                    player,
+                    scope,
+                    segments,
+                )?;
+                sum.subtract(&observed);
                 out.push(sum);
             }
             Ok(out)
+        })
+    }
+
+    /// A stored hand's segment and table size (R3.7): the HUD reads its
+    /// table's players over the segment their hands at that table are
+    /// summed in. `None`: no such hand, or one without statistics rows.
+    pub fn hud_hand(&self, hand_key: &str) -> Result<Option<HudHand>> {
+        self.with(|conn| {
+            Ok(conn
+                .prepare_cached(
+                    "SELECT g.id, g.site, g.game_format, g.variant, g.limit_type, g.size_class,
+                            g.stake, h.max_seats
+                     FROM hand_stats d
+                     JOIN segments g ON g.id = d.segment_id
+                     JOIN hands h ON h.hand_key = d.hand_key
+                     WHERE d.hand_key = ?1",
+                )?
+                .query_row([hand_key], |row| {
+                    Ok(HudHand {
+                        segment: segment_from(row)?,
+                        max_seats: row
+                            .get::<_, Option<i64>>(7)?
+                            .and_then(|n| u32::try_from(n).ok()),
+                    })
+                })
+                .optional()?)
+        })
+    }
+
+    /// The newest stored hand of a table (R3.7): what a HUD started while
+    /// the table is open - restarted, or a window found after its hands -
+    /// shows at once instead of waiting for the next hand. `site` is the
+    /// rollups' site (`hand_key`'s prefix); `table` says whether a hand's
+    /// table name is the window's (the HUD compares names its own way).
+    /// Only a recent hand counts, so a table name the room reuses never
+    /// brings back players of another day: imported at `imported_since_ms`
+    /// or later (`hands_imported_at_idx`, newest first) **and** played at
+    /// `played_since` (ISO UTC, as PHF writes it) or later; a hand without a
+    /// `played_at` never counts. At most `scan` of the newest imported
+    /// hands are looked at (a backfill that just imported thousands of old
+    /// hands makes the lookup give up rather than read them all).
+    pub fn latest_hand_of_table(
+        &self,
+        site: &str,
+        table: &dyn Fn(&str) -> bool,
+        imported_since_ms: i64,
+        played_since: &str,
+        scan: u32,
+    ) -> Result<Option<ImportedHand>> {
+        let prefix = format!("{site}:");
+        self.with(|conn| {
+            let found = {
+                let mut stmt = conn.prepare_cached(
+                    "SELECT hand_key, table_name, played_at FROM hands
+                     WHERE imported_at >= ?1
+                     ORDER BY imported_at DESC, rowid DESC
+                     LIMIT ?2",
+                )?;
+                let mut rows = stmt.query(params![imported_since_ms, scan])?;
+                let mut found = None;
+                while let Some(row) = rows.next()? {
+                    let hand_key: String = row.get(0)?;
+                    if !hand_key.starts_with(&prefix) {
+                        continue;
+                    }
+                    let Some(name) = row.get::<_, Option<String>>(1)? else {
+                        continue;
+                    };
+                    let played_at: Option<String> = row.get(2)?;
+                    if played_at.as_deref().is_some_and(|at| at >= played_since) && table(&name) {
+                        found = Some((hand_key, name));
+                        break;
+                    }
+                }
+                found
+            };
+            let Some((hand_key, name)) = found else {
+                return Ok(None);
+            };
+            let hand_id: Option<(i64, String)> = conn
+                .prepare_cached(
+                    "SELECT d.id, g.site FROM hand_stats d JOIN segments g ON g.id = d.segment_id
+                     WHERE d.hand_key = ?1",
+                )?
+                .query_row([&hand_key], |row| Ok((row.get(0)?, row.get(1)?)))
+                .optional()?;
+            let Some((hand_id, site)) = hand_id else {
+                return Ok(None);
+            };
+            let players = hand_seats(conn, hand_id)?;
+            Ok(Some(ImportedHand {
+                hand_key,
+                site,
+                table: Some(name),
+                players,
+            }))
         })
     }
 
@@ -501,10 +686,6 @@ impl Reader {
                  ORDER BY h.rowid DESC
                  LIMIT ?2",
             )?;
-            let mut seats = conn.prepare_cached(
-                "SELECT seat, player, scope, is_hero FROM seat_stats
-                 WHERE hand_id = ?1 AND player != '' ORDER BY seat",
-            )?;
             let rows = hands
                 .query_map(params![crate::import::path_key(path), limit], |row| {
                     Ok((
@@ -517,16 +698,7 @@ impl Reader {
                 .collect::<rusqlite::Result<Vec<_>>>()?;
             let mut out = Vec::with_capacity(rows.len());
             for (hand_key, site, table, hand_id) in rows {
-                let players = seats
-                    .query_map(params![hand_id], |row| {
-                        Ok(HandSeat {
-                            seat: u32::try_from(row.get::<_, i64>(0)?).unwrap_or(0),
-                            player: row.get(1)?,
-                            scope: row.get(2)?,
-                            hero: row.get::<_, i64>(3)? != 0,
-                        })
-                    })?
-                    .collect::<rusqlite::Result<Vec<_>>>()?;
+                let players = hand_seats(conn, hand_id)?;
                 out.push(ImportedHand {
                     hand_key,
                     site,

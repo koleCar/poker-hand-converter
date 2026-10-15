@@ -72,14 +72,20 @@ impl WatcherState {
                 Watcher::start(store.path(), writer, config, move |event| {
                     on_event(&flag, &event);
                     match &event {
-                        WatchEvent::Imported { path, inserted, .. } if *inserted > 0 => {
+                        WatchEvent::Imported {
+                            path,
+                            inserted,
+                            noticed_ms,
+                            ..
+                        } if *inserted > 0 => {
                             if let Some(worker) = sync.get() {
                                 worker.wake();
                             }
                             stats.wake();
                             // The HUD re-reads the players of these hands
-                            // (R3.2); only queued here.
-                            hud.imported(path, *inserted);
+                            // (R3.2); only queued here, with when the
+                            // watcher noticed the file (R3.7's chain).
+                            hud.imported(path, *inserted, *noticed_ms);
                         }
                         WatchEvent::Progress {
                             source_id,

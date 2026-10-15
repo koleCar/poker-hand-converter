@@ -15,7 +15,10 @@
 //! tables: 7; the reports' list columns: 8; the Players screen's `players`:
 //! 9; an unused index dropped for the import: 10; custom statistics: 11;
 //! the targeted recompute's staging tables: 12; the HUD's seat positions
-//! and preferred seat: 13).
+//! and preferred seat: 13; the observed part of the opponents' rollups, for
+//! rooms that allow statistics from the user's own hands only: 14). A
+//! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
+//! sums the seat rows' blobs), in the same transaction.
 
 use rusqlite::Connection;
 
@@ -82,7 +85,20 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0013_hud_layouts.sql",
         sql: include_str!("../migrations/0013_hud_layouts.sql"),
     },
+    Migration {
+        name: "0014_observed_rollups.sql",
+        sql: include_str!("../migrations/0014_observed_rollups.sql"),
+    },
 ];
+
+/// What a migration fills in Rust after its SQL, in its transaction (SQL
+/// cannot read the seat rows' counter blob).
+fn after_sql(version: u32, conn: &Connection) -> Result<()> {
+    match version {
+        14 => crate::stats::fill_observed(conn),
+        _ => Ok(()),
+    }
+}
 
 /// The schema version this build writes.
 pub const LATEST: u32 = {
@@ -121,6 +137,7 @@ pub fn migrate_to(conn: &mut Connection, target: u32) -> Result<Vec<u32>> {
         let migration = MIGRATIONS[index];
         let tx = conn.transaction()?;
         tx.execute_batch(migration.sql)?;
+        after_sql(next, &tx)?;
         // `user_version` lives in the database header, which the
         // transaction covers: the bump commits with the migration or not
         // at all.

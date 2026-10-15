@@ -79,6 +79,8 @@ pub enum Table {
     SeatStats,
     HandList,
     PlayerRollups,
+    /// (R3.7) `player_rollups`' part from hands without a hero seat.
+    PlayerRollupsObserved,
     HeroRollups,
     PlayerSummary,
     PlayerHidden,
@@ -88,16 +90,19 @@ pub enum Table {
     CustomHeroRows,
     CustomHeroRollups,
     CustomPlayerRollups,
+    /// (R3.7) `custom_player_rollups`' part from hands without a hero seat.
+    CustomPlayerRollupsObserved,
 }
 
 impl Table {
     /// Every derived table.
-    pub const ALL: [Self; 14] = [
+    pub const ALL: [Self; 16] = [
         Self::Segments,
         Self::HandStats,
         Self::SeatStats,
         Self::HandList,
         Self::PlayerRollups,
+        Self::PlayerRollupsObserved,
         Self::HeroRollups,
         Self::PlayerSummary,
         Self::PlayerHidden,
@@ -107,6 +112,7 @@ impl Table {
         Self::CustomHeroRows,
         Self::CustomHeroRollups,
         Self::CustomPlayerRollups,
+        Self::CustomPlayerRollupsObserved,
     ];
 
     /// The table's name in the store.
@@ -117,6 +123,7 @@ impl Table {
             Self::SeatStats => "seat_stats",
             Self::HandList => "hand_list",
             Self::PlayerRollups => "player_rollups",
+            Self::PlayerRollupsObserved => "player_rollups_observed",
             Self::HeroRollups => "hero_rollups",
             Self::PlayerSummary => "player_summary",
             Self::PlayerHidden => "player_hidden",
@@ -126,6 +133,7 @@ impl Table {
             Self::CustomHeroRows => "custom_hero_rows",
             Self::CustomHeroRollups => "custom_hero_rollups",
             Self::CustomPlayerRollups => "custom_player_rollups",
+            Self::CustomPlayerRollupsObserved => "custom_player_rollups_observed",
         }
     }
 }
@@ -226,6 +234,7 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::CustomHeroRows, Extent::OneStatistic),
             (Table::CustomHeroRollups, Extent::OneStatistic),
             (Table::CustomPlayerRollups, Extent::OneStatistic),
+            (Table::CustomPlayerRollupsObserved, Extent::OneStatistic),
         ],
     },
     Dependency {
@@ -235,6 +244,7 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::CustomHeroRows, Extent::AllStatistics),
             (Table::CustomHeroRollups, Extent::AllStatistics),
             (Table::CustomPlayerRollups, Extent::AllStatistics),
+            (Table::CustomPlayerRollupsObserved, Extent::AllStatistics),
         ],
     },
     Dependency {
@@ -246,6 +256,7 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::SeatStats, Extent::Changed),
             (Table::HandList, Extent::Changed),
             (Table::PlayerRollups, Extent::Resummed),
+            (Table::PlayerRollupsObserved, Extent::Resummed),
             (Table::HeroRollups, Extent::Resummed),
             (Table::PlayerSummary, Extent::Resummed),
             (Table::PlayerHidden, Extent::Resummed),
@@ -255,6 +266,7 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::CustomHeroRows, Extent::IfSeatsMoved),
             (Table::CustomHeroRollups, Extent::IfSeatsMoved),
             (Table::CustomPlayerRollups, Extent::IfSeatsMoved),
+            (Table::CustomPlayerRollupsObserved, Extent::IfSeatsMoved),
         ],
     },
     Dependency {
@@ -265,12 +277,14 @@ pub const DEPENDENCIES: [Dependency; 7] = [
             (Table::HandStats, Extent::Changed),
             (Table::HandList, Extent::Changed),
             (Table::PlayerRollups, Extent::Resummed),
+            (Table::PlayerRollupsObserved, Extent::Resummed),
             (Table::HeroRollups, Extent::Resummed),
             (Table::PlayerSummary, Extent::Resummed),
             (Table::PlayerHidden, Extent::Resummed),
             (Table::CustomHeroRows, Extent::IfSeatsMoved),
             (Table::CustomHeroRollups, Extent::IfSeatsMoved),
             (Table::CustomPlayerRollups, Extent::IfSeatsMoved),
+            (Table::CustomPlayerRollupsObserved, Extent::IfSeatsMoved),
         ],
     },
     Dependency {

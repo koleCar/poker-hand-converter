@@ -15,9 +15,12 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
-/// Back from the latest version to 11 (R3.6's HUD layouts; R2.11's staging
-/// tables and the twins of the rollups, and its `kv` keys).
-pub const DOWN_FROM_12: &str = "DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
+/// Back from the latest version to 11 (R3.7's observed rollups; R3.6's HUD
+/// layouts; R2.11's staging tables and the twins of the rollups, and its
+/// `kv` keys).
+pub const DOWN_FROM_12: &str = "DROP TABLE player_rollups_observed;
+     DROP TABLE recompute_player_rollups_observed; DROP TABLE custom_player_rollups_observed;
+     DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
      DROP TABLE recompute_hands; DROP TABLE recompute_seats;
      DROP TABLE recompute_list; DROP TABLE recompute_player_rollups;
      DROP TABLE recompute_hero_rollups; DROP TABLE recompute_player_summary;
@@ -25,11 +28,13 @@ pub const DOWN_FROM_12: &str = "DROP TABLE hud_seat_positions; DROP TABLE hud_ro
      DELETE FROM kv WHERE key LIKE 'recompute.%'
                        OR key IN ('stats.segment_version', 'stats.epoch');";
 
-/// Back from the latest version to 8 (R2.7c; version 13's HUD layouts,
-/// R3.6, version 12's tables, R2.11, and version 11's custom statistics,
-/// R2.10, go first, version 10 only dropped an index): what the
-/// older-store tests run first.
-pub const DOWN_FROM_9: &str = "DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
+/// Back from the latest version to 8 (R2.7c; version 14's observed
+/// rollups, R3.7, version 13's HUD layouts, R3.6, version 12's tables,
+/// R2.11, and version 11's custom statistics, R2.10, go first, version 10
+/// only dropped an index): what the older-store tests run first.
+pub const DOWN_FROM_9: &str = "DROP TABLE player_rollups_observed;
+     DROP TABLE recompute_player_rollups_observed; DROP TABLE custom_player_rollups_observed;
+     DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
      DROP TABLE recompute_hands; DROP TABLE recompute_seats;
      DROP TABLE recompute_list; DROP TABLE recompute_player_rollups;
      DROP TABLE recompute_hero_rollups; DROP TABLE recompute_player_summary;
@@ -412,6 +417,8 @@ pub type HeroKey = (i64, String, String, i64);
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct ExpectedRollups {
     pub players: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)>,
+    /// (R3.7) `players`' part from hands without a hero seat.
+    pub observed: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)>,
     pub heroes: BTreeMap<HeroKey, rail_store::Totals>,
     pub summary: BTreeMap<(String, String), rail_store::PlayerSeen>,
     pub hidden: BTreeMap<String, (i64, i64)>,
@@ -438,29 +445,35 @@ pub fn write_rollups(conn: &Connection) {
     };
     conn.execute_batch(
         "DELETE FROM player_rollups; DELETE FROM hero_rollups;
-         DELETE FROM player_summary; DELETE FROM player_hidden;",
+         DELETE FROM player_summary; DELETE FROM player_hidden;
+         DELETE FROM player_rollups_observed;",
     )
     .expect("empty the rollups");
-    let mut insert = conn
-        .prepare(&format!(
-            "INSERT INTO player_rollups (site, player, scope, segment_id, last_played_at, {})
-             VALUES ({})",
-            columns.join(", "),
-            marks(5 + columns.len())
-        ))
-        .expect("prepare");
-    for ((site, player, scope, segment), (totals, last)) in &expected.players {
-        let mut values: Vec<rusqlite::types::Value> = vec![
-            site.clone().into(),
-            player.clone().into(),
-            scope.clone().into(),
-            (*segment).into(),
-            last.clone().into(),
-        ];
-        values.extend(bind(totals).into_iter().map(rusqlite::types::Value::from));
-        insert
-            .execute(rusqlite::params_from_iter(values))
-            .expect("insert player");
+    for (table, sums) in [
+        ("player_rollups", &expected.players),
+        ("player_rollups_observed", &expected.observed),
+    ] {
+        let mut insert = conn
+            .prepare(&format!(
+                "INSERT INTO {table} (site, player, scope, segment_id, last_played_at, {})
+                 VALUES ({})",
+                columns.join(", "),
+                marks(5 + columns.len())
+            ))
+            .expect("prepare");
+        for ((site, player, scope, segment), (totals, last)) in sums {
+            let mut values: Vec<rusqlite::types::Value> = vec![
+                site.clone().into(),
+                player.clone().into(),
+                scope.clone().into(),
+                (*segment).into(),
+                last.clone().into(),
+            ];
+            values.extend(bind(totals).into_iter().map(rusqlite::types::Value::from));
+            insert
+                .execute(rusqlite::params_from_iter(values))
+                .expect("insert player");
+        }
     }
     let mut insert = conn
         .prepare(&format!(
@@ -527,6 +540,7 @@ pub fn expected_rollups(conn: &Connection) -> ExpectedRollups {
         )
         .expect("generation");
     let mut players: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)> = BTreeMap::new();
+    let mut observed: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)> = BTreeMap::new();
     let mut heroes: BTreeMap<HeroKey, rail_store::Totals> = BTreeMap::new();
     let mut stmt = conn
         .prepare(
@@ -603,15 +617,23 @@ pub fn expected_rollups(conn: &Connection) -> ExpectedRollups {
         let cashout: bool = row.get(7).expect("cashout");
         let values = decode_seat(&row.get::<_, Vec<u8>>(10).expect("blob")).expect("decode");
         let segment: i64 = row.get(3).expect("segment");
+        let hand: i64 = row.get(11).expect("hand");
         if !bomb {
-            let (totals, last) = players
-                .entry((
-                    row.get(0).expect("site"),
-                    row.get(1).expect("player"),
-                    row.get(2).expect("scope"),
-                    segment,
-                ))
-                .or_default();
+            let key: PlayerKey = (
+                row.get(0).expect("site"),
+                row.get(1).expect("player"),
+                row.get(2).expect("scope"),
+                segment,
+            );
+            // (R3.7) A hand without a hero seat: the user did not play it.
+            if !hero_net.contains_key(&hand) {
+                let (totals, last) = observed.entry(key.clone()).or_default();
+                totals.add_seat(&values, !cashout);
+                if played > *last {
+                    last.clone_from(&played);
+                }
+            }
+            let (totals, last) = players.entry(key).or_default();
             totals.add_seat(&values, !cashout);
             if played > *last {
                 last.clone_from(&played);
@@ -630,6 +652,7 @@ pub fn expected_rollups(conn: &Connection) -> ExpectedRollups {
     }
     ExpectedRollups {
         players,
+        observed,
         heroes,
         summary,
         hidden,
@@ -646,6 +669,7 @@ pub fn expected_rollups(conn: &Connection) -> ExpectedRollups {
 pub fn assert_rollups(conn: &Connection) {
     let ExpectedRollups {
         players,
+        observed,
         heroes,
         summary,
         hidden,
@@ -674,6 +698,32 @@ pub fn assert_rollups(conn: &Connection) {
         "player_rollups are not the sums of the seat rows ({} stored, {} expected)",
         stored_players.len(),
         players.len()
+    );
+    let mut stored_observed = BTreeMap::new();
+    let mut stmt = conn
+        .prepare(&format!(
+            "SELECT site, player, scope, segment_id, last_played_at, {columns}
+             FROM player_rollups_observed"
+        ))
+        .expect("prepare observed");
+    let mut rows = stmt.query([]).expect("observed");
+    while let Some(row) = rows.next().expect("row") {
+        stored_observed.insert(
+            (
+                row.get(0).expect("site"),
+                row.get(1).expect("player"),
+                row.get(2).expect("scope"),
+                row.get(3).expect("segment"),
+            ),
+            (rollup_totals(row, 5), row.get(4).expect("last")),
+        );
+    }
+    assert!(
+        stored_observed == observed,
+        "player_rollups_observed are not the sums of the seat rows of hands without a hero \
+         ({} stored, {} expected)",
+        stored_observed.len(),
+        observed.len()
     );
     let mut stored_heroes = BTreeMap::new();
     let mut stmt = conn
