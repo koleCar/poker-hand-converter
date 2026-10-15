@@ -9,7 +9,7 @@
 
 use std::path::Path;
 
-use rail_config::model::{Anonymisation, SiteKind};
+use rail_config::model::{Anonymisation, HudRestrictions, SiteKind};
 use rail_config::{
     Error, MergeNote, SHIPPED, check_coverage, load, load_remote, load_shipped, validate,
 };
@@ -242,6 +242,69 @@ fn hud_policies_are_the_signed_list() {
     assert_eq!(permitted, ["pokerstars", "winamax", "acr"]);
 }
 
+/// R3.4: each permitted room's restrictions, from its policy
+/// (`docs/research/HUD-POLICIES.md`), enforced by the HUD's renderer; the
+/// rooms without a HUD carry none. The TypeScript schema test pins the same.
+#[test]
+fn hud_restrictions_are_the_policies() {
+    let config = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    let of = |id: &str| config.site(id).expect(id).hud.restrictions;
+    assert_eq!(
+        of("pokerstars"),
+        Some(HudRestrictions {
+            own_hands_only: true,
+            raw_counts_only: true,
+            max_colour_thresholds: Some(2),
+            no_card_split_stats: true,
+            no_game_state_switching: true,
+            no_tendency_switching: true,
+            no_player_labels: true,
+            no_hand_charts: true,
+            no_graphs: true,
+            no_hand_in_play: false,
+            no_overlap_table_graphics: false,
+        })
+    );
+    assert_eq!(
+        of("acr"),
+        Some(HudRestrictions {
+            own_hands_only: true,
+            no_player_labels: true,
+            no_hand_in_play: true,
+            no_overlap_table_graphics: true,
+            ..HudRestrictions::NONE
+        })
+    );
+    assert_eq!(
+        of("winamax"),
+        Some(HudRestrictions {
+            own_hands_only: true,
+            no_game_state_switching: true,
+            no_tendency_switching: true,
+            ..HudRestrictions::NONE
+        })
+    );
+    for site in &config.sites {
+        assert_eq!(
+            site.hud.restrictions.is_some(),
+            site.hud_permitted(),
+            "{}",
+            site.id
+        );
+    }
+    // The HUD's default panel (R3.4) complies with every room at once.
+    let all = [of("pokerstars"), of("acr"), of("winamax")]
+        .into_iter()
+        .flatten()
+        .fold(HudRestrictions::NONE, |a, b| a.stricter(&b));
+    assert!(HudRestrictions::STRICTEST.at_least_as_strict_as(&all));
+}
+
+/// A permitted room's restrictions block with nothing restricted.
+fn no_restrictions() -> Value {
+    serde_json::to_value(HudRestrictions::NONE).expect("json")
+}
+
 /// The `files` blocks seen on a real install (R1.4, macOS, 2026-10-13):
 /// WePlay writes live; GGPoker and CoinPoker write no local hand histories
 /// (verified negatives, no path).
@@ -376,12 +439,18 @@ fn anonymisation_matches_the_web() {
 #[test]
 fn validator_problems() {
     type Edit = fn(&mut Value);
-    let cases: [(&str, Edit, &str); 14] = [
+    let cases: [(&str, Edit, &str); 15] = [
+        (
+            "hud allowed without restrictions",
+            |v| site_mut(v, "pokerstars")["hud"]["restrictions"] = Value::Null,
+            "pokerstars: hud.allowed is true without restrictions",
+        ),
         (
             "hud allowed without a date",
             |v| {
                 let hud = &mut site_mut(v, "888poker")["hud"];
                 hud["allowed"] = json!(true);
+                hud["restrictions"] = no_restrictions();
                 hud["source"] = json!("https://example.org");
                 hud["checkedAt"] = Value::Null;
             },
@@ -400,6 +469,7 @@ fn validator_problems() {
             |v| {
                 let hud = &mut site_mut(v, "888poker")["hud"];
                 hud["allowed"] = json!(true);
+                hud["restrictions"] = no_restrictions();
                 hud["source"] = Value::Null;
                 hud["checkedAt"] = json!("2026-10-13");
             },
@@ -410,6 +480,7 @@ fn validator_problems() {
             |v| {
                 let hud = &mut site_mut(v, "888poker")["hud"];
                 hud["allowed"] = json!(true);
+                hud["restrictions"] = no_restrictions();
                 hud["source"] = json!("http://example.org");
                 hud["checkedAt"] = json!("2026-10-13");
             },
@@ -420,6 +491,7 @@ fn validator_problems() {
             |v| {
                 let hud = &mut site_mut(v, "ipoker")["hud"];
                 hud["allowed"] = json!(true);
+                hud["restrictions"] = no_restrictions();
                 hud["source"] = json!("https://example.org");
                 hud["checkedAt"] = json!("2026-10-13");
             },
@@ -544,6 +616,7 @@ fn a_remote_file_cannot_switch_a_hud_on() {
             "allowed": true,
             "source": "https://example.org/terms",
             "checkedAt": "2026-10-13",
+            "restrictions": no_restrictions(),
             "notes": ""
         });
         site["files"]["notes"] = json!("corrected");

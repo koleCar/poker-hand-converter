@@ -53,9 +53,20 @@ pub struct ImportedHand {
     /// The rollups' site (`segments.site`): what `hud_totals` takes.
     pub site: String,
     pub table: Option<String>,
-    /// Every kept seat's `(player, scope)`, in seat order; seats without a
-    /// name left out.
-    pub players: Vec<(String, String)>,
+    /// Every kept seat, in seat order; seats without a name left out.
+    pub players: Vec<HandSeat>,
+}
+
+/// One kept seat of an [`ImportedHand`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HandSeat {
+    /// The seat number the hand gives (`seat_stats.seat`): where the HUD
+    /// draws the player's panel (R3.4, R3.6).
+    pub seat: u32,
+    pub player: String,
+    /// `""`, or an opaque-id villain's session (`player_rollups.scope`).
+    pub scope: String,
+    pub hero: bool,
 }
 
 /// One row of `player_rollups`.
@@ -471,7 +482,7 @@ impl Reader {
 
     /// The newest `limit` hands `path` delivered (`hands.file_id`), newest
     /// first, each with its rollups' site (`segments.site`), table and
-    /// every kept seat's `(player, scope)` in seat order: what the app tells
+    /// every kept seat (number, player, scope, hero) in seat order: what the app tells
     /// the HUD after an import (R3.2, `hand_imported`). A hand without
     /// statistics rows is left out (the rows are written with the hand).
     pub fn newest_hands_of_file(
@@ -491,7 +502,7 @@ impl Reader {
                  LIMIT ?2",
             )?;
             let mut seats = conn.prepare_cached(
-                "SELECT player, scope FROM seat_stats
+                "SELECT seat, player, scope, is_hero FROM seat_stats
                  WHERE hand_id = ?1 AND player != '' ORDER BY seat",
             )?;
             let rows = hands
@@ -507,7 +518,14 @@ impl Reader {
             let mut out = Vec::with_capacity(rows.len());
             for (hand_key, site, table, hand_id) in rows {
                 let players = seats
-                    .query_map(params![hand_id], |row| Ok((row.get(0)?, row.get(1)?)))?
+                    .query_map(params![hand_id], |row| {
+                        Ok(HandSeat {
+                            seat: u32::try_from(row.get::<_, i64>(0)?).unwrap_or(0),
+                            player: row.get(1)?,
+                            scope: row.get(2)?,
+                            hero: row.get::<_, i64>(3)? != 0,
+                        })
+                    })?
                     .collect::<rusqlite::Result<Vec<_>>>()?;
                 out.push(ImportedHand {
                     hand_key,

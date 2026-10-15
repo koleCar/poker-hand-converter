@@ -1,7 +1,7 @@
 //! The one platform trait (docs/RAIL-PLAN.md §3.1, R3.2): finding table
 //! windows, following them, drawing over them. Windows finds tables since
-//! R3.3 ([`windows`]; following and drawing are R3.4 - R3.5); macOS
-//! (R3.11 - R3.13) is a stub that finds nothing. [`sim::SimBackend`] is a
+//! R3.3 and draws over them since R3.4 ([`windows`]; its hooks are R3.5);
+//! macOS (R3.11 - R3.13) is a stub that finds nothing. [`sim::SimBackend`] is a
 //! fake driven by the table simulator's events (R3.1), so the data path
 //! runs end to end without any window API, on every OS and in CI.
 //!
@@ -15,6 +15,9 @@
 //! function at a time. Every other module below forbids it.
 
 use std::fmt;
+
+use crate::compliance::Permit;
+use crate::panel::StatCell;
 
 pub mod macos;
 pub mod matcher;
@@ -188,20 +191,46 @@ pub enum TableEvent {
     },
 }
 
-/// What an overlay shows. The panels' look is R3.8; this is the data.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+/// What an overlay shows (R3.4): the data; `crate::scene::compose` lays it
+/// out under the permit's restrictions.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OverlayFrame {
+    /// Compliance mode's yes for the window's room: no frame exists for a
+    /// room without a HUD.
+    pub permit: Permit,
     /// A line instead of panels: "waiting for first hand", "no store".
     pub status: Option<String>,
+    /// The table's seats (the title's, else its hands'); `None`: from the
+    /// players' seat numbers.
+    pub size: Option<u32>,
     pub panels: Vec<SeatPanel>,
+}
+
+impl OverlayFrame {
+    /// A frame with a status line and no panels.
+    pub fn status(permit: Permit, size: Option<u32>, status: impl Into<String>) -> Self {
+        Self {
+            permit,
+            status: Some(status.into()),
+            size,
+            panels: Vec::new(),
+        }
+    }
 }
 
 /// One player's panel.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SeatPanel {
     pub player: String,
+    /// The hand's seat number: where the panel goes (`None`: not placed).
+    pub seat: Option<u32>,
     /// Hands the player's rollups count.
     pub hands: i64,
+    /// The design's statistics (`crate::panel`).
+    pub stats: Vec<StatCell>,
+    /// A label (R3.8's notes / tags); never shown where the room forbids
+    /// labelling players. Always `None` in R3.4.
+    pub label: Option<String>,
 }
 
 /// Why a backend call failed.
@@ -246,12 +275,19 @@ pub trait Platform {
     /// Stop following it.
     fn untrack(&mut self, id: WindowId);
 
+    /// A tracked window moved, was resized, changed monitor or scale, was
+    /// minimised, cloaked or restored, or changed size (seats): keep its
+    /// overlay on it (R3.4). The engine calls this with what it knows now;
+    /// a backend without overlays ignores it.
+    fn follow(&mut self, _window: &TableWindow) {}
+
     /// What happened to the tracked windows since the last call; never
     /// blocks.
     fn poll_events(&mut self) -> Vec<TableEvent>;
 
     /// Show `frame` over the window (creating its overlay on first use):
-    /// above the table, below other windows, never taking focus.
+    /// above the table, below other windows, never taking focus. A frame
+    /// equal to the one shown, at the same size, is not drawn again.
     fn overlay(&mut self, id: WindowId, frame: &OverlayFrame) -> Result<(), PlatformError>;
 
     /// Remove the window's overlay.
@@ -378,8 +414,9 @@ mod tests {
 
     /// The stubs find nothing, so nothing is ever drawn by them. Windows'
     /// backend finds what matches (nothing, with no matcher) and, on
-    /// Windows, follows a window it is given (R3.5 adds the hooks); it
-    /// draws nothing yet (R3.4).
+    /// Windows, follows a window it is given (R3.5 adds the hooks); its
+    /// overlays are `tests/windows_overlay.rs`'s (a window id that is no
+    /// window is refused).
     #[test]
     fn the_stub_backends_find_nothing() {
         for mut backend in [
@@ -412,10 +449,17 @@ mod tests {
             let tracks = cfg!(windows) && backend.name() == "windows";
             assert_eq!(backend.track(&window).is_ok(), tracks, "{}", backend.name());
             backend.untrack(WindowId(1));
-            assert!(matches!(
-                backend.overlay(WindowId(1), &OverlayFrame::default()),
-                Err(PlatformError::Unsupported(_))
-            ));
+            let permit = crate::compliance::Compliance::shipped()
+                .expect("shipped")
+                .permit("pokerstars")
+                .expect("permitted");
+            let frame = OverlayFrame::status(permit, Some(6), "waiting");
+            assert!(
+                backend.overlay(WindowId(1), &frame).is_err(),
+                "{}",
+                backend.name()
+            );
+            backend.remove_overlay(WindowId(1));
         }
     }
 }

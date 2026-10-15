@@ -201,6 +201,20 @@ impl SimBackend {
         &self.overlays
     }
 
+    /// What the Windows backend would paint over a window now: its last
+    /// frame laid out over its client area (R3.4's default design).
+    pub fn scene(&self, id: WindowId) -> Option<crate::scene::Scene> {
+        let frame = self.overlays.get(&id)?;
+        let table = self.tracked.get(&id)?;
+        Some(crate::scene::compose(
+            frame,
+            table.client.width,
+            table.client.height,
+            1000,
+            &crate::panel::PanelDesign::default(),
+        ))
+    }
+
     fn matcher(&self) -> Option<TableMatcher> {
         let feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
         feed.title_regex
@@ -267,6 +281,13 @@ impl Platform for SimBackend {
 
     fn untrack(&mut self, id: WindowId) {
         self.tracked.remove(&id);
+    }
+
+    fn follow(&mut self, window: &TableWindow) {
+        if let Some(table) = self.tracked.get_mut(&window.id) {
+            table.client = window.client;
+            table.minimized = window.minimized;
+        }
     }
 
     fn poll_events(&mut self) -> Vec<TableEvent> {
@@ -393,12 +414,18 @@ mod tests {
                 table: Some("Florence 03".into())
             }]
         );
-        backend
-            .overlay(WindowId(1), &OverlayFrame::default())
-            .expect("overlay");
+        let permit = crate::compliance::Compliance::shipped()
+            .expect("shipped")
+            .permit("pokerstars")
+            .expect("permitted");
+        let frame = OverlayFrame::status(permit, Some(6), "waiting for first hand");
+        backend.overlay(WindowId(1), &frame).expect("overlay");
         assert_eq!(backend.overlays().len(), 1);
+        let scene = backend.scene(WindowId(1)).expect("a scene");
+        assert_eq!((scene.width, scene.height), (800, 600));
+        assert_eq!(scene.panels.len(), 1, "the status pill");
         assert_eq!(
-            backend.overlay(WindowId(2), &OverlayFrame::default()),
+            backend.overlay(WindowId(2), &frame),
             Err(PlatformError::Gone(WindowId(2)))
         );
         feed.push_line(r#"{"event":"closed","table":1}"#);

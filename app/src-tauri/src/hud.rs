@@ -337,7 +337,12 @@ fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> Hu
                             players: hand
                                 .players
                                 .into_iter()
-                                .map(|(name, scope)| PlayerRef { name, scope })
+                                .map(|p| PlayerRef {
+                                    name: p.player,
+                                    scope: p.scope,
+                                    seat: Some(p.seat),
+                                    hero: p.hero,
+                                })
                                 .collect(),
                         });
                     }

@@ -423,10 +423,18 @@ fn newest_hands_of_a_file_for_the_hud() {
         assert_eq!(hand.table, table);
         assert_eq!(i64::try_from(hand.players.len()).expect("len"), seats);
         assert!(!hand.players.is_empty());
+        // Seat numbers (R3.4: where the HUD draws), ascending, from 1.
+        assert!(hand.players[0].seat >= 1, "{:?}", hand.players);
+        assert!(
+            hand.players.windows(2).all(|w| w[0].seat < w[1].seat),
+            "{:?}",
+            hand.players
+        );
+        assert!(hand.players.iter().filter(|p| p.hero).count() <= 1);
         let players: Vec<(&str, &str)> = hand
             .players
             .iter()
-            .map(|(name, scope)| (name.as_str(), scope.as_str()))
+            .map(|p| (p.player.as_str(), p.scope.as_str()))
             .collect();
         let totals = reader
             .hud_totals(&hand.site, &players, None)

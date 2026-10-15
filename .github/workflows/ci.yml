@@ -191,7 +191,12 @@ jobs:
   # table names, client rects and scale, followed through a minimise and a
   # table move, listed (redacted) by `rail-hud --list-windows`, attached
   # and refused by the HUD process; a failure prints every window Windows
-  # reported.
+  # reported. And R3.4's hud/rail-hud/tests/windows_overlay.rs: an overlay
+  # per simulator table, owned by it, layered / tool / no-activate, exactly
+  # over its client area, panels at the seats (surface and screen pixels),
+  # clicks through everywhere but the panels, hidden while minimised, moved
+  # without a repaint; the HUD process draws on an allowed room's tables
+  # and makes no overlay window on a prohibited room's.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -240,6 +245,14 @@ jobs:
       # back through rail_core as PokerStars hands. macOS and Windows runners
       # have a desktop session; on Linux the headless run in `cargo test`
       # (hud/rail-hud-sim/tests/smoke.rs) is the check.
+      # R3.4's measurement: twelve simulator tables, every overlay painted
+      # 20 times (paint p50 / p95 / max; p95 must stay under 16 ms), then
+      # the idle CPU of the overlays and of the HUD process attached to all
+      # twelve. The `R3.4 perf:` line is the record (docs/RAIL-PLAN.md R3.4).
+      - name: HUD overlays, twelve tables (measurement)
+        if: matrix.os == 'windows-latest'
+        run: cargo test -p rail-hud --test windows_overlay --locked -- --ignored --nocapture twelve_tables_perf
+
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'
         shell: bash

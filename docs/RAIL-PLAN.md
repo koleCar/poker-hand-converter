@@ -6076,6 +6076,227 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
   owned by the table window (stays above it, minimises with it, never steals
   focus); hit-testing transparent outside panels; Direct2D/DirectWrite drawing;
   per-monitor DPI v2.
+- *As built* (§15): **done** - `hud/rail-hud/src/platform/windows.rs` (the
+  backend), `platform/windows/overlay.rs` (the overlay thread, windows,
+  surfaces, painter), `platform/windows/probe.rs` (read-only looks for tests
+  and diagnostics), and three platform-free modules every OS tests:
+  `layout.rs` (where panels go), `panel.rs` (what they say, the design and
+  its restrictions), `scene.rs` (a frame laid out into rectangles and text
+  at physical pixels). Still no real room has a `tables` block, so the HUD
+  draws on no real client: every Windows test draws on the simulator's
+  real windows posing as an allowed room.
+  - **Windows, ownership, hit-testing.** One `WS_POPUP` per table with
+    `WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE`, created with the
+    **table's `HWND` as its owner**: Windows keeps an owned window directly
+    above its owner (not above other programs' windows), hides it while the
+    owner is minimised and destroys it with the owner; the tool style keeps
+    it off the taskbar and Alt+Tab; no-activate plus `MA_NOACTIVATE` for
+    `WM_MOUSEACTIVATE` keep a click from taking focus from the table. It
+    covers the table's **client rect exactly, in physical pixels** (the
+    engine's `TableWindow.client`), from a thread that makes itself
+    per-monitor DPI aware (v2) before it creates anything (`WM_DPICHANGED`
+    is answered without resizing: the window follows the table, not
+    Windows' suggestion). **Click-through**: the surface is alpha 0 outside
+    the panels and Windows hit-tests a layered window by its alpha, so a
+    click anywhere but on a panel reaches the table (the window procedure
+    also answers `WM_NCHITTEST` with `HTTRANSPARENT` outside the panels -
+    which only binds our own thread); panels take clicks for R3.8's popup.
+    Not `WS_EX_TRANSPARENT`, which would make the panels click-through too.
+    **Hidden** while the table is minimised or cloaked (`TableWindow.
+    minimized`, R3.3), shown again (`SW_SHOWNOACTIVATE`) when it is back.
+  - **The overlay thread.** The windows live on a thread of their own
+    (`rail-hud-overlays`) that waits in `GetMessageW` and does nothing but
+    create, paint, move, show and destroy them. A cross-process owner ties
+    the table's input queue state to the thread that owns the overlay, and
+    Windows sends that thread messages while the table moves or minimises,
+    so it must never block: the engine (store reads, matching, IPC) stays on
+    the loop thread and hands frames and geometry over a channel; a thread
+    message wakes the overlay thread when the channel goes from empty to
+    not, and it drains the channel whole. Queries (`overlay_info`,
+    `overlay_pixel`, `render_times_us`) answer over a channel of their own
+    after every command sent before them, which makes the tests exact.
+  - **Rendering: Direct2D + DirectWrite into a DIB, `UpdateLayeredWindow`**
+    (the `windows` crate =0.61.3 already locked; features
+    `Win32_Graphics_Direct2D`, `_Direct2D_Common`, `_DirectWrite`,
+    `_Dxgi_Common`, `Win32_System_LibraryLoader` - no new crate in
+    `Cargo.lock`). A **software** DC render target (`B8G8R8A8_UNORM`,
+    premultiplied, 96 dpi so one DIP is one physical pixel) paints into a
+    32-bit top-down DIB section selected into a memory DC, which
+    `UpdateLayeredWindow(ULW_ALPHA)` puts on screen at the table's client
+    origin and size. Text is DirectWrite's (Segoe UI, semibold figures,
+    centred in fixed cells, grayscale anti-aliasing: ClearType needs an
+    opaque background). Chosen over a CPU rasteriser for correctness first -
+    DirectWrite shapes and falls back across fonts as the rest of Windows
+    does, hinted at the real pixel size, and Direct2D writes correct
+    premultiplied alpha; GDI text writes no alpha (it would have to be
+    rebuilt by hand), and tiny-skia would need a font file and a shaper,
+    new crates both. Software rather than hardware: no GPU read-back per
+    frame and the same path on a CI runner without a GPU; a paint is one
+    clear of the surface, a few rounded rectangles and short text runs. A
+    failed `EndDraw` makes the target again once. **Redraws only on
+    change**: an equal frame at the same client size and scale is not
+    painted again (the engine re-reads every attached table when the store
+    moves - those frames are mostly equal), a move only moves the window
+    (`SetWindowPos`, no repaint), a resize or a scale change repaints.
+    Memory: one surface per table, 4 bytes per client pixel (a 1280 x 880
+    table 4.3 MiB), plus Windows' copy for the layered window.
+  - **The panel** (`panel.rs`, `scene.rs`): the shipped statistics whose
+    `hud` is `panel` (R2.4: VPIP, PFR, 3B, F3B, CB, AFq - six), each as a
+    whole number (`format_fixed(value, 0)`; `-` with no opportunity yet),
+    coloured by its R2.4 band, its opacity R2.5's reliability (600 - 1000
+    thousandths: a small sample dims, never hides), and the hand count
+    (grey, at most five characters: `987`, `12345`, `123k`, `4.5M`) - two
+    rows of three figures, the count at the end of the first. Near-black
+    panels at 88 % opacity, light figures: neutral off-white, a light blue
+    for the low band and a light orange for the high band (blue / orange
+    rather than green / red, which a red-green colour-blind player cannot
+    tell apart; each above 7:1 against the panel), so they read on any felt.
+    No name, no label, no chart, nothing about the hand in play (the
+    rollups count finished hands the room wrote to disk). **"Waiting for
+    first hand"**: one pill near the top centre, clear of the seats and the
+    board. Sizes: a row is 3.4 % of the client height, between 13 and 22
+    logical pixels times the monitor's scale; the font 72 % of a row.
+  - **Seats** (`layout.rs`, until R3.6): the simulator's own per-size slots
+    in thousandths of the client area (`SEAT_SLOTS`, `TABLE_CENTER`; a test
+    holds them equal to `rail_hud_sim::draw::seat_center` / `TABLE_CENTER`),
+    seat `n` in slot `n - 1`, no hero rotation. A panel goes next to its
+    seat's plate, on the first free side - above / below (away from the
+    table's centre first), slid along that side as far as it still
+    overlaps the plate, then beside it - where it covers **no seat plate,
+    not the board and no other panel** ("table graphics", modelled on the
+    simulator's plates and board). Seat order first, the reverse order if
+    that leaves fewer without a place. Unit tests: every seat of every size
+    (2 - 10) placed, inside the client area, covering nothing, next to its
+    plate, at 640 x 440 to 1280 x 900 logical and 100 - 200 % scale
+    (1920 x 1080 and 2560 x 1600 too). **Seat numbers** reach the HUD with
+    the hand: `PlayerRef` gains `seat` and `hero` (optional and defaulted,
+    no protocol bump; an older app's players have no seat and get no
+    panel), from `seat_stats.seat` / `is_hero` (`Reader::
+    newest_hands_of_file` now returns `HandSeat`s). The table size is the
+    window's (title or hand), else the smallest of 6 / 9 / 10 holding every
+    seat.
+  - **Restrictions as data** (`sites.json` `hud.restrictions`, schema
+    `$defs.hudRestrictions`, `rail_config::model::HudRestrictions`):
+    `ownHandsOnly`, `rawCountsOnly`, `maxColourThresholds` (a count or
+    `null`), `noCardSplitStats`, `noGameStateSwitching`,
+    `noTendencySwitching`, `noPlayerLabels`, `noHandCharts`, `noGraphs`,
+    `noHandInPlay`, `noOverlapTableGraphics` - each restricts when `true`
+    (or a number). Required (an object) on every allowed room, `null`
+    elsewhere: **PokerStars** - own hands, raw counts, two thresholds, no
+    card-split statistics, no switching by game state or tendencies, no
+    labels, charts or graphs; **ACR** - own hands, no labels, nothing from
+    the hand in play, no overlap of ACR's table graphics; **Winamax** - own
+    hands, no switching (its rules forbid "some dynamic features of
+    Hand2Note", unspecified: read conservatively). The validator refuses
+    `allowed: true` without them (a remote file from before R3.4 is then
+    refused whole and the shipped policy stays); the merge keeps every
+    restriction of both copies when both allow
+    (`HudRestrictions::stricter`, `MergeNote::LooserRestrictionsIgnored`):
+    a download can add a restriction, never drop or ease one. **The
+    default design complies with the stricter of all three**
+    (`HudRestrictions::STRICTEST`: two thresholds, fixed statistics, no
+    labels, clear of the graphics), and the renderer enforces the room's
+    restrictions on any design anyway (`PanelDesign::enforce`, before
+    layout): card-split and switching statistics dropped, bands collapsed
+    to the allowed number of thresholds (`collapse_tone`: two keep low |
+    normal | high), labels dropped, panels that would cover table graphics
+    dropped. **No frame for a disallowed room can exist**: an
+    `OverlayFrame` carries compliance's `Permit` (private fields; only
+    `Compliance::permit` makes one, for a room `hud_permitted()` allows,
+    with its restrictions), the engine asks for it again before every draw
+    (a room switched off loses its overlay), and the Windows backend refuses
+    a frame whose permit names another room than the window's. Structural,
+    noted here rather than enforced by the renderer: nothing from the hand
+    in play (the data path reads finished hands only), no charts or graphs
+    (the scene has no such item), raw counts (every shipped statistic is a
+    raw rate).
+  - **Engine.** `reread` builds a `SeatPanel` per player (seat, hand count,
+    the design's cells over `Totals::sums()`); `draw` asks for the permit
+    and adds the table size; `TableEvent::Moved` / `Minimized` (from the
+    re-find every 500 ms until R3.5's hooks) call the new
+    `Platform::follow(&TableWindow)` so the backend keeps the overlay on
+    the table. The sim backend records frames and lays them out
+    (`SimBackend::scene`) for tests on every OS.
+  - **Tests.** All OSes: `layout` (the simulator's geometry, sizes,
+    rectangles, metrics, every panel placed clear of the table at every
+    usual size, next to its seat, a crowded table dropping panels only
+    where it must), `panel` (the shipped panel, the default design
+    complying with every room, a design cut down by PokerStars' / ACR's
+    rules, tone collapse on every shipped band list, cells from rollups -
+    value, band, 0.68 opacity at 4 of 100 -, hand counts), `scene` (panels
+    at their seats, colours and dimming, the permit binding a looser
+    design, ACR never covering the table, the waiting pill, players
+    without seats, sizes from seats), `compliance::permits`, rail-config
+    (`hud_restrictions_are_the_policies`, the validator, the merge's
+    `restrictions_only_get_stricter`), the ajv schema test (shape,
+    required, the pinned restrictions), rail-store (seats ascending, one
+    hero at most), the protocol (seat and hero on the wire, an older app's
+    player). **Windows CI** (`tests/windows_overlay.rs`, in the `core`
+    job's `cargo test`): the simulator's three tables (6, 9, 2 seats) at
+    640 x 480 with a panel per seat - per table the overlay exists, is
+    **owned by the table window**, has layered / tool / no-activate and not
+    app-window / topmost, its rect **is the client rect**, it shows; its
+    panels are the layout's and each sits next to the simulator's own seat
+    plate; the surface's pixel in a panel's margin is the panel colour
+    premultiplied, the table's centre is alpha 0, a figure is drawn; a
+    point at the table's centre hits the **table**, a panel point the
+    overlay (checked where no other simulator window covers the point);
+    the screen there (`BitBlt` with `CAPTUREBLT`) is the panel colour
+    composed over what the table draws (read with the overlay hidden, then
+    shown); minimised -> hidden, restored -> shown at the table, moved ->
+    moved **without a repaint**; the same frame twice paints once; a frame
+    permitted for another room and a window not tracked are refused;
+    removed -> destroyed. Then the HUD process (`rail-hud --standalone
+    --sim-site ...`): three shown overlay windows (class `RailHudOverlay`)
+    owned by the simulator's windows for `pokerstars`, **no overlay window
+    at all** for `ggpoker`. A failure prints what the overlay thread knew,
+    the simulator's events and every window. Cross-checked locally with
+    `cargo clippy --target x86_64-pc-windows-msvc -p rail-hud --all-targets`
+    (stand-in C compiler and archiver for SQLite / zstd).
+  - **Performance** (CI step "HUD overlays, twelve tables (measurement)",
+    `twelve_tables_perf`, debug build, `windows-latest`): twelve simulator
+    tables (9- and 6-max, 640 x 480), each overlay painted 20 times with
+    new figures (PR #193's first run, one 96 dpi monitor): **a paint
+    (layout, Direct2D, `UpdateLayeredWindow`) p50 2.1 ms, p95 4.0 ms, max
+    42 ms** (the first paints, which make the factories' fonts and the
+    surfaces; well inside the 16 ms budget); the 240 frames handed over and
+    painted in 1.9 s; with the twelve overlays idle for 10 s the test
+    process used **0 ms of CPU** (the overlay thread sleeps in
+    `GetMessageW`); the `rail-hud` process attached to the twelve tables,
+    idle for 10 s: **46 ms of CPU, 0.46 % of one core** - its loop's 50 ms
+    tick and the re-find every 500 ms (`EnumWindows`), which R3.5's hooks
+    can slow down. Surfaces: 14 MiB for twelve 640 x 480 tables.
+  - **Limits.** Nothing real is drawn on until a room's titles are captured
+    (R3.3's procedure). The table graphics are the simulator's, not any
+    room's: ACR's real seat plates, buttons and cards must be measured
+    before ACR's matcher is verified (R3.6). No panel interaction yet (R3.8:
+    the panels already take clicks). Panels are fixed in two rows; the
+    popup, legend and per-room layouts are R3.6 / R3.8 / R3.9. Not run on
+    a real high-dpi or multi-monitor machine (CI is one 96 dpi monitor).
+  - **For R3.5** (tracking): call `Platform::follow` with the window as
+    the hooks see it - a move or resize, minimise / restore, cloak, a DPI
+    or monitor change - and the overlay follows at once (a move costs a
+    `SetWindowPos`, no repaint). `EVENT_OBJECT_LOCATIONCHANGE` fires
+    during a drag: debounce the store side, never the follow. On a
+    destroyed table the engine's `Closed` calls `remove_overlay`, which
+    destroys the overlay if Windows has not already (owned windows go with
+    their owner). Z-order needs nothing: an owned window stays above its
+    owner.
+  - **For R3.6** (seats and layouts): replace `layout::seat_center` (and
+    `size_for`) with the room's seat map and the hero's rotation -
+    `PlayerRef.hero` and the hero's seat are now in every `hand_imported`;
+    measure each room's table graphics (`layout::table_graphics` is the
+    simulator's) - ACR's above all (`noOverlapTableGraphics`: the renderer
+    drops a panel that would cover them); dragged positions in client
+    thousandths go where `place_panels` chooses a side today.
+  - **For R3.8** (panel and popup): the panels already take clicks
+    (`Scene::panels` is the hit region, `WM_NCHITTEST` answers
+    `HTCLIENT` there) and never activate; a click arrives as a mouse
+    message on the overlay thread - forward it to the loop thread rather
+    than doing work there. Labels (notes, tags) have a place
+    (`SeatPanel.label`, a third row) that rooms with `noPlayerLabels`
+    never show; colour thresholds beyond two are cut on PokerStars by
+    `collapse_tone`; a legend must show the thresholds actually used.
 
 ### R3.5 Windows: tracking — M
 - `SetWinEventHook` for location change, foreground, minimise/restore, destroy,
@@ -6316,3 +6537,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **R3.2 done**: the HUD process and IPC. `hud/rail-hud` is its own process, the app's Tauri sidecar (`bundle.externalBin` in `app/src-tauri/tauri.hud.conf.json`, `npm run hud:sidecar`; CI's `app` job bundles it and checks it is in the `.app` and the NSIS installer), started with `std::process::Command` from beside the app's executable and supervised by `rail_hud_ipc::supervisor`: a fresh 256-bit token per process on its standard input, `health` every 2 s, no answer for 10 s / exit / disconnect -> killed and restarted with a backoff 0.5 s -> 30 s, `shutdown` + stdin closed on exit (it also exits when the app is gone). New crate `hud/rail-hud-ipc`: protocol 1 (the plan's messages plus `stats_changed`, `policy`, `resync`, `shutdown`, `tables_open`, `attach_refused`, `table_updated`; unknown types and fields tolerated), 4-byte length + JSON frames (1 MiB, 1 KiB before authentication), a Unix socket in a `0700` folder (`0600`) or a named pipe with an owner-and-SYSTEM DACL (`interprocess` =2.4.5), a mutual HMAC-SHA256 handshake, links whose sends never block. The app: imports feed `hand_imported` from a thread of its own (new `Reader::newest_hands_of_file`), recompute swaps `stats_changed`, `tables_open` pauses the stats pass and slows sync. The HUD: the store read-only (new `Reader::data_version` keeps it current without messages), compliance mode in the process (shipped + remote merge, `hud_permitted()`, refusals reported once, a stricter policy detaching), the platform trait (`find_tables`, `track`, `poll_events`, `overlay`) with Windows / macOS stubs and a fake backend driven by `rail-hud-sim`'s events. Headless end to end in CI: hand in file -> HUD re-read p50 515 ms (12 tables 513; the watcher's quiet period), inside the HUD 0.24-0.28 ms; a prohibited and an unknown room refused with nothing read. |
 | 2026-10-15 | **Fix: the other folder settings raced their reads too** (follow-up to the 2026-10-14 path-change fix; R1.5, R1.6). Each method that changes a folder was checked for a read in flight going wrong across it. **Fenced now** (`Watcher::change_fenced`: fence, store change, reload, unfence): `remove_source` - a batch after the delete named the gone folder (`FOREIGN KEY constraint failed`, a `FileError`, the read lost) or, since SQLite gives the next folder the removed one's id when it was the highest, joined a folder added right after with the old folder's file and hands; `set_source_enabled(false)` - the folder's reads committed after it showed disabled (a large read to the end of its file); `set_source_recursive(false)` - a subfolder file being read was read on; `add_source_with` with a room for a folder already there - files outside the room's glob were read on. **Held**: a folder being added with a room or "only new" is in the store before its room and marks, and a reload already on its way (the one `start` sends, another folder's) could load and read it in between - seen once in the stress below as 9 old hands in `only_new_hands_and_a_rooms_files`; `HoldNew` / `ReleaseNew` fence every folder a reload loads for the first time until the reload after the setup. **Not fenced** (comments in the code): `set_source_poll_only` (only how changes are noticed; tracked files and backfill kept), enabling and subfolders on (every read in flight is of a file still covered, read as before), `retry_refused` (a batch from the old offset is refused and read again from 0; `FileRt::reset`). A fence also stops a large read of its folder after the group it is committing (`ImportLimits::stop_folder`, checked between groups like the pause), so a click waits for one group, not a whole file - path and room changes included. Tests: deterministic coordinator tests per change (`a_removed_folder_is_fenced_until_its_reads_answer`, `a_disabled_folder_is_fenced_until_its_reads_answer`, `subfolders_switched_off_are_fenced_until_their_reads_answer`, `a_room_given_to_a_folder_is_fenced_until_its_reads_answer`, `a_folder_being_added_is_held_until_it_is_set_up`; the old fence test checks the stop), `large_read.rs::a_stopped_folder_stops_its_large_read_between_batches`, and four watcher tests that change a folder in the middle of a 4 MB backfill and assert nothing more is stored once the call returns (`fill` moved to `tests/common`). Stress on the 10-core Mac with the flop library running (6 solves), 100 runs, 20 at once, of those four plus the four existing affected tests (disable/remove, recursive, poll-only, only-new): before, 100 / 100 / 100 runs failed with 1 / 2 / 8 import threads (disable 89 / 94 / 96, remove 73 / 77 / 87, subfolders 91 / 92 / 97, room 93 / 91 / 94; the existing tests 0 / 1 / 0); after, 0 / 0 / 0; the path-change and room-override tests 100 runs each at 1 / 2 / 8 threads: 0 / 0 / 0. No store or parsing change. |
 | 2026-10-15 | **R3.3 done**: Windows finds tables. `platform::windows::find_tables`: `EnumWindows` over visible top-level windows, `GetWindowTextW`, class, the owning process (`GetWindowThreadProcessId` -> `QueryFullProcessImageNameW`), minimised and cloaked (`DWMWA_CLOAKED`) kept and marked hidden, the client rect in physical pixels (`GetClientRect` + `ClientToScreen` on a per-monitor-v2 thread; the HUD process sets per-monitor v2 at start), the scale from the monitor's effective dpi (a DPI-unaware client's own `GetDpiForWindow` is 96; both kept for the diagnostic). `windows` =0.61.3 (already locked by Tauri), six API features; the crate is `deny(unsafe_code)` with `forbid` in every other module and each Win32 call wrapped with its own `allow` and `// SAFETY:` comment. Matchers from `sites.json` `tables` (none yet) plus test-only simulator entries (process `rail-hud-sim` only; `rail-hud --standalone --sim-site <id> --sim-title <regex>`); every match returned, compliance refuses. Identity: (room, table name, seats) - the title's `table` group equal to the hand's `Table '...'` name after white-space normalisation, never a prefix; two windows with one name get no hand and say why; seats from a `seats` group or the last hand (`Reader::hand_seats`); the re-find every 500 ms follows retitles (tournament moves), moves, minimise until R3.5's hooks, and an unmatched hand triggers one at once; `health.waiting` counts tables waiting for their first hand. `rail-hud --list-windows` prints each visible window's process, class, redacted title ("Logged in as ..." and the user's names - `--you`, the store's hero names - become `<you>`), client size, dpi and awareness, non-ASCII characters, the room that takes it, and what `--try-title` reads; the owner's capture procedure is `docs/research/CAPTURING-TABLES.md`. `sites.json` `tables` gains `checkedAt`; `verified: true` needs it, an "Observed on" source and a regex. The simulator's `window` event gains `clientX` / `clientY`. Windows CI test (`hud/rail-hud/tests/windows_tables.rs`): three simulator windows found exactly, names, rects and scale checked against the simulator, minimise and table move followed, `--list-windows` redacted, the HUD attaching (PokerStars) and refusing (GGPoker). No real room has a `tables` block yet: nothing real is attached. |
+| 2026-10-15 | **R3.4 done**: Windows overlays. One `WS_POPUP` per table with `WS_EX_LAYERED \| WS_EX_TOOLWINDOW \| WS_EX_NOACTIVATE`, **owned by the table window** (above it, hidden while it is minimised, gone with it), exactly over its client rect in physical pixels, from a per-monitor-v2 thread of its own that never blocks (a cross-process owner ties input state to it); Direct2D (software DC render target) and DirectWrite paint a premultiplied DIB shown with `UpdateLayeredWindow`, alpha 0 outside the panels so clicks reach the table (`HTTRANSPARENT` too, `MA_NOACTIVATE`); hidden while minimised or cloaked; repainted only when the frame, size or scale changes, moved without a repaint. Panels: the six shipped `hud: panel` statistics with R2.4 bands (blue / white / orange on near-black) and R2.5 dimming, and the hand count, at the seats of a default layout - the simulator's geometry (`layout.rs`), next to each seat's plate, clear of plates, board and each other at every usual size and scale - "waiting for first hand" as a pill. `hand_imported` players carry `seat` and `hero` (from `seat_stats`). **Restrictions as data**: `sites.json` `hud.restrictions` (11 fields; schema, validator - required when allowed -, merge that only adds), PokerStars / ACR / Winamax from R3.0's pages; every frame carries compliance's `Permit` (asked again before each draw, checked against the window's room by the backend) and the renderer enforces the room's restrictions on any design (two thresholds, no card-split or switching statistics, no labels, nothing over table graphics); the default design complies with all of them at once. Windows CI test (`tests/windows_overlay.rs`): ownership, styles, rect, panels at the seats (surface and screen pixels), click-through, minimise / restore / move, dedupe, refusals, and the HUD process drawing on an allowed room and making no overlay window on a prohibited one; `twelve_tables_perf` on 12 tables in CI: a paint p50 2.1 ms, p95 4.0 ms (budget 16 ms), idle overlays 0 ms CPU over 10 s, the HUD process attached to 12 tables 0.46 % of one core. |
