@@ -835,11 +835,17 @@ impl Sim {
                 while table.table_number == old {
                     table.table_number = u32::try_from(self.rng.between(1, 60)).unwrap_or(1);
                 }
-                self.used_table_names.remove(&table.name);
+                // The old name stays taken while the new one is picked: a
+                // move is to another table (a cash table could otherwise
+                // draw its own name again).
+                let old_name = table.name.clone();
                 let count = self.templates_of(&table.group).len();
                 table.stakes = self.rng.index(count);
                 table.first = Some(table.stakes);
                 self.seat_table(&mut table);
+                if table.name != old_name {
+                    self.used_table_names.remove(&old_name);
+                }
                 table.shown = None;
                 self.events.push(Self::table_event(&table, true));
                 self.tables[index] = table;
@@ -937,7 +943,13 @@ mod tests {
                     sim.apply(&Command::Hand(*id)).expect("hand");
                 }
                 sim.tick(Instant::now());
+                let before = sim.table(ids[0]).expect("table").name.clone();
                 sim.apply(&Command::TableMove(ids[0])).expect("move");
+                assert_ne!(
+                    sim.table(ids[0]).expect("table").name,
+                    before,
+                    "{room}: a move is to another table"
+                );
                 sim.apply(&Command::Hand(ids[0])).expect("hand");
                 sim.tick(Instant::now());
                 for table in sim.tables() {

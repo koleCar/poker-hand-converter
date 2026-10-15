@@ -64,6 +64,8 @@ struct Seen {
     tables: BTreeMap<u64, (String, String)>,
     /// table -> its latest `window` event
     windows: BTreeMap<u64, Value>,
+    /// table -> how many `table` events with `moved: true`
+    moves: BTreeMap<u64, u32>,
     log: Vec<String>,
 }
 
@@ -72,6 +74,9 @@ impl Seen {
         let table = event["table"].as_u64();
         match (event["event"].as_str(), table) {
             (Some("table"), Some(t)) => {
+                if event["moved"].as_bool() == Some(true) {
+                    *self.moves.entry(t).or_default() += 1;
+                }
                 self.tables.insert(
                     t,
                     (
@@ -103,6 +108,7 @@ impl Seen {
         done: impl Fn(&Self) -> bool,
     ) {
         let deadline = Instant::now() + timeout;
+        let start = self.log.len();
         while !done(self) {
             let left = deadline.saturating_duration_since(Instant::now());
             assert!(
@@ -113,6 +119,10 @@ impl Seen {
             if let Ok(event) = events.recv_timeout(left.min(Duration::from_millis(200))) {
                 self.take(event);
             }
+        }
+        eprintln!("step ok: {what}; the simulator said:");
+        for line in &self.log[start.min(self.log.len())..] {
+            eprintln!("  {line}");
         }
     }
 }
@@ -313,7 +323,16 @@ fn find_until(
         let found = find(backend, matcher);
         let verdict = ok(&found, seen);
         match verdict {
-            Ok(()) => return found,
+            Ok(()) => {
+                eprintln!("step ok: {what}:");
+                for w in &found {
+                    eprintln!(
+                        "  {:#x} {:?} table {:?} client {:?} scale {} minimised {}",
+                        w.id.0, w.title, w.table, w.client, w.scale_permille, w.minimized
+                    );
+                }
+                return found;
+            }
             Err(why) if Instant::now() >= deadline => panic!(
                 "{what}: {why}\nfound:\n{found:#?}\nthe simulator said:\n{}\nwindows:\n{}",
                 seen.log.join("\n"),
@@ -404,6 +423,7 @@ fn the_simulators_windows_are_found() {
         "the simulator's visible windows: {all:#?}\nwindows:\n{}",
         listing()
     );
+    eprintln!("step ok: a catch-all pattern finds the same three");
     // No matcher, nothing; a matcher of another process, nothing.
     assert!(
         find(
@@ -454,14 +474,22 @@ fn the_simulators_windows_are_found() {
     // A table move retitles the same window: found again, with the new
     // table's name.
     let before = seen.tables.get(&first).cloned().expect("first table");
+    let moves = seen.moves.get(&first).copied().unwrap_or(0);
     sim.command(&format!("tablemove {first}"));
     seen.until(
         &sim.events,
         Duration::from_secs(20),
         "the table move",
-        |s| s.tables.get(&first).is_some_and(|t| *t != before),
+        |s| s.moves.get(&first).copied().unwrap_or(0) > moves,
     );
     let after = seen.tables.get(&first).cloned().expect("moved table");
+    eprintln!("step: table {first} moved from {before:?} to {after:?}");
+    assert_ne!(
+        after.1,
+        before.1,
+        "the simulator's table move kept the table name; the simulator said:\n{}",
+        seen.log.join("\n")
+    );
     find_until(
         &mut backend,
         &matcher,

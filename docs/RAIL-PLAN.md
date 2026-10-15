@@ -6012,7 +6012,11 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
   - **Simulator**: its `window` event gains `clientX` / `clientY` (the
     client area's origin, winit's `inner_position`; `x` / `y` stay the
     frame's), which the sim backend now uses for the client rect and the
-    Windows test compares with.
+    Windows test compares with. Fixed: a cash table's `tablemove` released
+    its name before drawing a new one and could draw the same name again
+    (the Windows test's second run waited for a rename that never came);
+    the old name now stays taken during the draw, and the simulator's
+    unit test asserts a move changes the name.
   - **Tests**: `platform::matcher` (process and title, `.exe`, seats,
     the simulator entry, whole-name identity, redaction), `platform`
     (raw windows to tables, minimised / cloaked / DPI-unaware scale),
