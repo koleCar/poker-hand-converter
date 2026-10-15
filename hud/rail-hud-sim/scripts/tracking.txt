@@ -1,5 +1,6 @@
 # Table simulator script for the HUD's tracking tests (docs/RAIL-PLAN.md
-# R3.1; R3.5 on Windows, R3.13 on macOS). Run with three tables:
+# R3.1; R3.5 on Windows - hud/rail-hud/tests/windows_tracking.rs runs it
+# with the HUD process -, R3.13 on macOS). Run with three tables:
 #
 #   rail-hud-sim --tables 3 --sizes 6 --speed 6 --script hud/rail-hud-sim/scripts/tracking.txt
 #
@@ -23,6 +24,38 @@ wait 1000
 resize 1 640 470
 wait 1000
 resize 1 1000 730
+wait 1000
+
+# A drag (R3.5): twelve moves 40 ms apart, as a hand on the title bar
+# would make them. The overlay follows each one at once; the `window`
+# event comes once the window has settled, at the last position.
+move 1 120 100
+wait 40
+move 1 135 104
+wait 40
+move 1 150 108
+wait 40
+move 1 165 112
+wait 40
+move 1 180 116
+wait 40
+move 1 195 120
+wait 40
+move 1 210 124
+wait 40
+move 1 225 128
+wait 40
+move 1 240 132
+wait 40
+move 1 255 136
+wait 40
+move 1 270 140
+wait 40
+move 1 285 144
+wait 1000
+
+# Another table to the front (its overlay stays directly above it).
+focus 3
 wait 1000
 
 # Minimise and restore.

@@ -6302,6 +6302,188 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
 - `SetWinEventHook` for location change, foreground, minimise/restore, destroy,
   name change (tournament table moves); debounced; DPI changes between
   monitors.
+- *As built* (§15): **done** - the hooks in
+  `hud/rail-hud/src/platform/windows/overlay.rs` (on the overlay thread),
+  the backend's side in `platform/windows.rs`, the platform-free half
+  (which events, what an overlay does, what the engine is told) in the new
+  `platform/tracking.rs`, tested on every OS. Still no real room has a
+  `tables` block: every Windows test follows the simulator's windows.
+  - **Hooks.** `SetWinEventHook`, **out of context**
+    (`WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS`: no DLL in the
+    client, events queued to our thread) and **scoped to the process id**
+    of each tracked table's client: one set per poker process, made when
+    its first table is tracked, undone when the periodic find sees that
+    process with no tracked table and no visible window (it exited or went
+    to the tray). Six hooks per process, one per range of
+    `tracking::win_event::RANGES`, exactly the twelve events and nothing
+    between them (a single `FOREGROUND ..= MINIMIZEEND` range would bring
+    every menu, capture and scroll event): `EVENT_SYSTEM_FOREGROUND`,
+    `MOVESIZESTART` / `END`, `MINIMIZESTART` / `END`,
+    `EVENT_OBJECT_DESTROY`, `SHOW`, `HIDE`, `LOCATIONCHANGE`, `NAMECHANGE`,
+    `CLOAKED`, `UNCLOAKED`; only the window object counts (`idObject ==
+    OBJID_WINDOW`, `idChild == CHILDID_SELF`: never a caret, cursor or a
+    child's part; `tracking::classify`). Feature `Win32_UI_Accessibility`
+    of the locked `windows` =0.61.3 (no new crate). The numbers are the
+    crate's (a Windows unit test).
+  - **Thread: the overlay thread, justified.** An out-of-context hook
+    calls back on the thread that set it, inside that thread's message
+    wait, so the thread must pump messages and never block - which is
+    what the overlay thread already is (R3.4) - and the one thing the
+    callback is for, moving the overlay, can only be done directly by the
+    thread that owns the overlay window: no hop to another thread, no lock,
+    no wait between the table moving and its overlay moving. A thread of
+    its own would have to hand every location to the overlay thread
+    (`SetWindowPos` on another thread's window sends it a message and
+    waits). The thread is now started by the first `track` (hooks before
+    any frame). **The callback does almost nothing** (`win_event`): drops
+    events about windows it does not follow (a thread-local set) - except
+    a top-level window a followed process shows -, notes the rest
+    (table, event, when) in a thread-local list, each (table, event) once,
+    and posts the thread `HOOKED` once; the thread then reads each noted
+    table's state **once**, however many events it had (`ffi::state_of`:
+    `IsWindow`, `IsIconic`, the client rect with `GetClientRect` +
+    `ClientToScreen` on a per-monitor-v2 thread, the monitor's scale,
+    `DWMWA_CLOAKED`, `IsWindowVisible` - no call that sends the client a
+    message), and acts. Never in the callback itself: it can run while
+    the thread is inside a Win32 call of its own, and the overlays' state
+    is not touched re-entrantly (the overlay window procedure's
+    `WM_DPICHANGED` and `WM_DESTROY` are noted the same way).
+  - **Follow immediately, debounce only the data side.** On every
+    location the overlay is placed by `tracking::plan`: only the position
+    changed -> `SetWindowPos` (no repaint; `OverlayInfo.moves` counts
+    them), a new client size or **a new scale** -> repainted at that size
+    and scale, minimised / cloaked / being minimised -> hidden, back ->
+    shown. What the thread saw is kept for the backend **per table, the
+    latest only** (`tracking::Observed`: geometry, title, gone, and
+    "a window appeared"), so a drag's hundred locations become one
+    `TableEvent::Moved` at the engine's next tick (`tracking::events`;
+    the engine's data side - redraws, store reads - never sees the storm)
+    while the overlay has followed every one.
+  - **What the engine hears** (`poll_events`): `Moved` / `Minimized`
+    (geometry against what the engine was last told), `Retitled` - the
+    new title through **the window's own room's matcher**
+    (`TableMatcher::matches`; the matchers of the last find), so `table`
+    is the hands' `table_key` and a tournament table move is a new table
+    identity at once (the engine logs `window N moved to table ...`); a
+    title the room no longer takes is `Closed` (the find would drop it
+    too) -, `Closed` for a destroyed table and for one its client hides
+    (`SW_HIDE`: not a visible top-level window, which the find does not
+    list either; the overlay goes at once, since Windows does not hide an
+    owned window with a hidden owner), and the new
+    **`TableEvent::Appeared`**: a followed process showed a top-level
+    window (a new table, or a hidden one back), and the engine looks for
+    tables at its next tick instead of at the next periodic find.
+    `EVENT_SYSTEM_MINIMIZESTART` hides the overlay before `IsIconic` says
+    so (for at most 2 s if `MINIMIZEEND` never comes).
+  - **The periodic re-find (500 ms) stays, and cannot fight the hooks.**
+    The overlay thread **never places an overlay from a description**: a
+    new frame, a hook event, the engine's `follow` - each reads the table
+    as it is at that moment. The re-find's snapshot can be older than
+    what the hooks showed; the engine then calls `follow` with it, the
+    backend sees a description it was not given by the hooks and asks the
+    thread to look again (`Resync`), which puts the overlay where the
+    table is now - never back. A `follow` that only repeats what the hooks
+    reported does nothing. (R3.4's test that hid an overlay by telling the
+    backend its table was minimised now hides it by hand,
+    `drive::show_window`.)
+  - **DPI.** The scale is the table's monitor's effective dpi (R3.3's
+    rule, now `tracking::scale_of`), read on every location: a table
+    dragged onto a monitor of another dpi - a per-monitor-aware client
+    resizes itself, an unaware one is stretched by Windows - or a monitor
+    whose scale setting changed under it repaints its overlay at the new
+    scale (`plan`: a new scale at the same pixel size is still a repaint).
+    The overlay window's own `WM_DPICHANGED` (it was moved onto that
+    monitor) is answered without resizing and makes the thread read its
+    table again. The CI runner has one 96 dpi monitor, so **no dpi change
+    is tested on Windows**; `tracking`'s unit tests hold the logic
+    (`what_an_overlay_does`, `locations_coalesce`, `scale_from_the_monitor`).
+  - **Z-order sanity.** On `EVENT_SYSTEM_FOREGROUND` of a table, its
+    overlay must be directly above it (walking the z-order down from the
+    overlay to the table); if not, it is put right above it (after the
+    window just above the table, `SWP_NOACTIVATE`) and counted in
+    `OverlayInfo.restacked`. Windows keeps an owned window above its owner,
+    so this is a check that should never act.
+  - **A table's process exits**: Windows destroys the overlays it owns (the
+    overlay thread sees its own `WM_DESTROY` for a window it did not
+    destroy, finds the table gone, reports it) and the hooks report the
+    tables' `EVENT_OBJECT_DESTROY`; either way the engine gets `Closed`,
+    and the process is unhooked at the next find. An overlay destroyed
+    under a living table is made again with its last frame.
+  - **Tests.** All OSes: `platform::tracking` (only the window object's
+    events, every hooked range exactly hooked events; scale from the
+    monitor; what an overlay does - move, resize, a monitor of another dpi
+    at the same and at a new size, hide, show; a storm of 100 locations is
+    one `Moved`; minimise; a table move through the room's own matcher
+    with seats; a title the room no longer takes, destroyed and hidden
+    windows closed; `Appeared`), `engine::hook_events_between_finds` (a
+    move and a retitle between finds, `Appeared` finding at once, `Closed`
+    detaching), on Windows `ffi::tests::win_event_numbers`. **Windows CI**
+    (`hud/rail-hud/tests/windows_tracking.rs`, in the `core` job's `cargo
+    test`, and again with its output in the step "HUD tracking
+    (measurement)"): `hooks_follow_every_change` - the backend, the
+    simulator's three tables of one process hooked once; 40 scripted
+    `SetWindowPos` moves of one table, each followed (the overlay's rect
+    equals the table's client rect; lag table moved -> overlay moved, p50
+    under one frame, p95 under three), never repainted, the other two
+    overlays untouched, one `Moved` for the engine; the simulator's `move`
+    (the overlay equals its `window` event); `resize` -> repainted at 800 x
+    560; `minimize` -> hidden and `Minimized`, `restore` -> shown on the
+    table; z-order after a raise and a focus; `tablemove` -> `Retitled`
+    with the new table's hands' name; hidden by its client -> the overlay
+    gone, `Closed`, shown -> `Appeared`, found and followed again; **100
+    moves in 1 s** (lag p50 / p95, the overlay thread's CPU under 500 ms, no
+    repaint, one `Moved`); `close` -> `Closed`, the overlay destroyed; the
+    simulator killed -> `Closed` for its tables, their overlays gone, the
+    process unhooked. `the_hud_follows_the_tracking_script` - `rail-hud
+    --standalone` with the simulator running `scripts/tracking.txt`
+    (extended: a drag of twelve moves 40 ms apart, a focus): after every
+    `window` event the HUD's overlay of that table covers the reported
+    client rect and is above the table (hidden while minimised), a table
+    move is logged as one, a closed table has no overlay, an opened one
+    gets one. `the_hud_follows_a_drag` - the HUD process during 100 moves
+    in 1 s: lag per move, its CPU, the overlay **never back at an older
+    position and never hidden** while the re-find runs twice meanwhile,
+    still there 600 ms after; a hidden table's overlay gone and back after
+    the show (`Appeared`); the simulator killed -> no overlay left.
+  - **Measured** (CI, `windows-latest`, debug build, one 96 dpi monitor):
+    see §15's R3.5 row and the "HUD tracking (measurement)" step's
+    `R3.5 ...` lines.
+  - **Limits.** No dpi or multi-monitor change on a real machine (CI has
+    one monitor); no real client yet (R3.3's capture, R3.14). A client that
+    hides a table rather than closing it detaches it until it is shown
+    again (then found at once). The hooks see what Windows reports for the
+    window object: a client that draws its tables inside one big window
+    (no such room is known) would need child-window tracking.
+  - **For R3.6** (seats and layouts): an overlay's size and scale change
+    only through `tracking::plan`'s repaint, so a layout keyed by client
+    size and scale is redrawn exactly when it must be; the overlay thread
+    already gets clicks on panels (R3.4) - a drag of a panel (R3.6's
+    "drag to move") must be handled there and handed to the loop thread
+    like R3.8's clicks, never doing store work on the overlay thread (it
+    runs the hooks). `Retitled` with a new table already forgets the seat
+    map's players (engine); the hero's seat changes with a table move.
+  - **For R3.13** (macOS tracking): `platform::tracking` is shared -
+    `Observed` / `events` (coalescing, retitle through the room's matcher,
+    `Appeared`) and `plan` apply to `AXObserver` notifications as they do
+    to WinEvents; keep "place from the window as it is now" so the
+    `CGWindowList` fallback poll cannot fight the observers.
+
+**Windows HUD status (after R3.5).** On the simulator, in CI: tables are
+found by process and title (R3.3), drawn over by an owned, layered,
+click-through overlay at the seats with each room's restrictions enforced
+(R3.4), and followed by hooks - drags, resizes, minimise, cloak, hide, table
+moves, closes and process exits - without lag and without fighting the
+periodic re-find (R3.5); twelve tables cost a paint p50 of 2 ms and idle
+overlays no CPU (R3.4). **What needs the owner**: the real clients' window
+titles and processes (R3.3's capture, `docs/research/CAPTURING-TABLES.md`),
+which become `sites.json` `tables` blocks - until then the HUD attaches to
+no real client; ACR's real table graphics measured (R3.6). **What needs a
+real-client check** (R3.14, on each allowed room - PokerStars, Winamax, ACR -
+with play money where it exists, P5 / P6): the hooks against the real
+client's windows (a client may hide rather than close a table, or move its
+tables between windows), a high-dpi and a two-monitor setup (drag across
+monitors of different scale), the overlay over the client's real seats and
+graphics, and CPU with twelve real tables.
 
 ### R3.6 Seats and layouts — M
 - Map hand-history seats to on-screen seats from table size and the room's
@@ -6538,3 +6720,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **Fix: the other folder settings raced their reads too** (follow-up to the 2026-10-14 path-change fix; R1.5, R1.6). Each method that changes a folder was checked for a read in flight going wrong across it. **Fenced now** (`Watcher::change_fenced`: fence, store change, reload, unfence): `remove_source` - a batch after the delete named the gone folder (`FOREIGN KEY constraint failed`, a `FileError`, the read lost) or, since SQLite gives the next folder the removed one's id when it was the highest, joined a folder added right after with the old folder's file and hands; `set_source_enabled(false)` - the folder's reads committed after it showed disabled (a large read to the end of its file); `set_source_recursive(false)` - a subfolder file being read was read on; `add_source_with` with a room for a folder already there - files outside the room's glob were read on. **Held**: a folder being added with a room or "only new" is in the store before its room and marks, and a reload already on its way (the one `start` sends, another folder's) could load and read it in between - seen once in the stress below as 9 old hands in `only_new_hands_and_a_rooms_files`; `HoldNew` / `ReleaseNew` fence every folder a reload loads for the first time until the reload after the setup. **Not fenced** (comments in the code): `set_source_poll_only` (only how changes are noticed; tracked files and backfill kept), enabling and subfolders on (every read in flight is of a file still covered, read as before), `retry_refused` (a batch from the old offset is refused and read again from 0; `FileRt::reset`). A fence also stops a large read of its folder after the group it is committing (`ImportLimits::stop_folder`, checked between groups like the pause), so a click waits for one group, not a whole file - path and room changes included. Tests: deterministic coordinator tests per change (`a_removed_folder_is_fenced_until_its_reads_answer`, `a_disabled_folder_is_fenced_until_its_reads_answer`, `subfolders_switched_off_are_fenced_until_their_reads_answer`, `a_room_given_to_a_folder_is_fenced_until_its_reads_answer`, `a_folder_being_added_is_held_until_it_is_set_up`; the old fence test checks the stop), `large_read.rs::a_stopped_folder_stops_its_large_read_between_batches`, and four watcher tests that change a folder in the middle of a 4 MB backfill and assert nothing more is stored once the call returns (`fill` moved to `tests/common`). Stress on the 10-core Mac with the flop library running (6 solves), 100 runs, 20 at once, of those four plus the four existing affected tests (disable/remove, recursive, poll-only, only-new): before, 100 / 100 / 100 runs failed with 1 / 2 / 8 import threads (disable 89 / 94 / 96, remove 73 / 77 / 87, subfolders 91 / 92 / 97, room 93 / 91 / 94; the existing tests 0 / 1 / 0); after, 0 / 0 / 0; the path-change and room-override tests 100 runs each at 1 / 2 / 8 threads: 0 / 0 / 0. No store or parsing change. |
 | 2026-10-15 | **R3.3 done**: Windows finds tables. `platform::windows::find_tables`: `EnumWindows` over visible top-level windows, `GetWindowTextW`, class, the owning process (`GetWindowThreadProcessId` -> `QueryFullProcessImageNameW`), minimised and cloaked (`DWMWA_CLOAKED`) kept and marked hidden, the client rect in physical pixels (`GetClientRect` + `ClientToScreen` on a per-monitor-v2 thread; the HUD process sets per-monitor v2 at start), the scale from the monitor's effective dpi (a DPI-unaware client's own `GetDpiForWindow` is 96; both kept for the diagnostic). `windows` =0.61.3 (already locked by Tauri), six API features; the crate is `deny(unsafe_code)` with `forbid` in every other module and each Win32 call wrapped with its own `allow` and `// SAFETY:` comment. Matchers from `sites.json` `tables` (none yet) plus test-only simulator entries (process `rail-hud-sim` only; `rail-hud --standalone --sim-site <id> --sim-title <regex>`); every match returned, compliance refuses. Identity: (room, table name, seats) - the title's `table` group equal to the hand's `Table '...'` name after white-space normalisation, never a prefix; two windows with one name get no hand and say why; seats from a `seats` group or the last hand (`Reader::hand_seats`); the re-find every 500 ms follows retitles (tournament moves), moves, minimise until R3.5's hooks, and an unmatched hand triggers one at once; `health.waiting` counts tables waiting for their first hand. `rail-hud --list-windows` prints each visible window's process, class, redacted title ("Logged in as ..." and the user's names - `--you`, the store's hero names - become `<you>`), client size, dpi and awareness, non-ASCII characters, the room that takes it, and what `--try-title` reads; the owner's capture procedure is `docs/research/CAPTURING-TABLES.md`. `sites.json` `tables` gains `checkedAt`; `verified: true` needs it, an "Observed on" source and a regex. The simulator's `window` event gains `clientX` / `clientY`. Windows CI test (`hud/rail-hud/tests/windows_tables.rs`): three simulator windows found exactly, names, rects and scale checked against the simulator, minimise and table move followed, `--list-windows` redacted, the HUD attaching (PokerStars) and refusing (GGPoker). No real room has a `tables` block yet: nothing real is attached. |
 | 2026-10-15 | **R3.4 done**: Windows overlays. One `WS_POPUP` per table with `WS_EX_LAYERED \| WS_EX_TOOLWINDOW \| WS_EX_NOACTIVATE`, **owned by the table window** (above it, hidden while it is minimised, gone with it), exactly over its client rect in physical pixels, from a per-monitor-v2 thread of its own that never blocks (a cross-process owner ties input state to it); Direct2D (software DC render target) and DirectWrite paint a premultiplied DIB shown with `UpdateLayeredWindow`, alpha 0 outside the panels so clicks reach the table (`HTTRANSPARENT` too, `MA_NOACTIVATE`); hidden while minimised or cloaked; repainted only when the frame, size or scale changes, moved without a repaint. Panels: the six shipped `hud: panel` statistics with R2.4 bands (blue / white / orange on near-black) and R2.5 dimming, and the hand count, at the seats of a default layout - the simulator's geometry (`layout.rs`), next to each seat's plate, clear of plates, board and each other at every usual size and scale - "waiting for first hand" as a pill. `hand_imported` players carry `seat` and `hero` (from `seat_stats`). **Restrictions as data**: `sites.json` `hud.restrictions` (11 fields; schema, validator - required when allowed -, merge that only adds), PokerStars / ACR / Winamax from R3.0's pages; every frame carries compliance's `Permit` (asked again before each draw, checked against the window's room by the backend) and the renderer enforces the room's restrictions on any design (two thresholds, no card-split or switching statistics, no labels, nothing over table graphics); the default design complies with all of them at once. Windows CI test (`tests/windows_overlay.rs`): ownership, styles, rect, panels at the seats (surface and screen pixels), click-through, minimise / restore / move, dedupe, refusals, and the HUD process drawing on an allowed room and making no overlay window on a prohibited one; `twelve_tables_perf` on 12 tables in CI: a paint p50 2.1 ms, p95 4.0 ms (budget 16 ms), idle overlays 0 ms CPU over 10 s, the HUD process attached to 12 tables 0.46 % of one core. |
+| 2026-10-15 | **R3.5 done**: Windows tracking. `SetWinEventHook` **out of context** (`WINEVENT_OUTOFCONTEXT \| WINEVENT_SKIPOWNPROCESS`), **scoped to each tracked table's process** (one set per poker process, undone when the find sees it with no tracked table and no visible window), six hooks for exactly twelve events - foreground, move/size start and end, minimise start and end, destroy, show, hide, location change, name change, cloaked, uncloaked - for the window object only (`OBJID_WINDOW`, `CHILDID_SELF`); feature `Win32_UI_Accessibility`, no new crate. **On the overlay thread** (an out-of-context hook calls back on the thread that set it, which must pump and never block; only the overlay window's own thread moves it without a hop): the callback only filters and notes, the thread reads each noted table once and moves its overlay at once (no repaint), repaints at a new size or **monitor scale**, hides it while minimised / cloaked; the engine gets the latest per table (`platform::tracking`: a drag's hundred locations are one `Moved`), a new title through the room's own matcher (`Retitled` with the hands' table name: a tournament move at once), `Closed` for destroyed or hidden tables, and the new `TableEvent::Appeared` (a followed process showed a window: find now). **No fight with the 500 ms re-find**: an overlay is always placed from the table as it is at that moment, never from a description; the engine's `follow` with something the hooks did not report makes the thread look again. Z-order checked on foreground (`restacked`); overlays destroyed with their tables' process are noticed through their own `WM_DESTROY`. DPI: the overlay's `WM_DPICHANGED` and every location re-read the monitor's scale; no dpi change is possible on the CI runner, the scale logic is unit-tested. Tests: `platform::tracking` (6, every OS), `engine::hook_events_between_finds`, Windows CI `tests/windows_tracking.rs` - scripted `SetWindowPos` moves, the simulator's move / resize / minimise / restore / table move / close, a hidden and shown table, 100 moves in 1 s, the process killed, in the backend; the extended `scripts/tracking.txt` and a 100-move drag through the `rail-hud` process. Measured: see R3.5 as built. |

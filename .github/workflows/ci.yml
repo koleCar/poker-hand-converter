@@ -196,7 +196,12 @@ jobs:
   # over its client area, panels at the seats (surface and screen pixels),
   # clicks through everywhere but the panels, hidden while minimised, moved
   # without a repaint; the HUD process draws on an allowed room's tables
-  # and makes no overlay window on a prohibited room's.
+  # and makes no overlay window on a prohibited room's. And R3.5's
+  # hud/rail-hud/tests/windows_tracking.rs: WinEvent hooks follow scripted
+  # SetWindowPos moves, the simulator's move / resize / minimise / table
+  # move / close, a hidden and shown table, a hundred moves in a second and
+  # the simulator's exit, in the backend and through the HUD process with
+  # the simulator's tracking script.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -252,6 +257,13 @@ jobs:
       - name: HUD overlays, twelve tables (measurement)
         if: matrix.os == 'windows-latest'
         run: cargo test -p rail-hud --test windows_overlay --locked -- --ignored --nocapture twelve_tables_perf
+
+      # R3.5's tracking tests again, with their output: the `R3.5 ...`
+      # lines are the follow lag (table moved -> overlay moved, p50 / p95),
+      # the storm's CPU and the hide / show times docs/RAIL-PLAN.md records.
+      - name: HUD tracking (measurement)
+        if: matrix.os == 'windows-latest'
+        run: cargo test -p rail-hud --test windows_tracking --locked -- --nocapture --test-threads 1
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'
