@@ -2,8 +2,10 @@
 //! diagnostics (R3.4): an overlay's owner, styles, rectangle and
 //! visibility; which window a screen point hits; a screen pixel as
 //! composed (layered windows included); a process's top-level windows and
-//! its CPU time. Each call switches its thread to per-monitor DPI
-//! awareness (v2) for itself, so every coordinate is physical pixels.
+//! its CPU time; since R3.5 a window's client area, whether it exists, the
+//! z-order of two windows and a thread's CPU time. Each call switches its
+//! thread to per-monitor DPI awareness (v2) where coordinates are read,
+//! so every coordinate is physical pixels.
 
 use std::time::Duration;
 
@@ -13,16 +15,17 @@ use windows::Win32::Graphics::Gdi::{
     DIB_RGB_COLORS, DeleteDC, DeleteObject, GdiFlush, GetDC, ReleaseDC, SRCCOPY, SelectObject,
 };
 use windows::Win32::System::Threading::{
-    GetProcessTimes, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION,
+    GetProcessTimes, GetThreadTimes, OpenProcess, OpenThread, PROCESS_QUERY_LIMITED_INFORMATION,
+    THREAD_QUERY_LIMITED_INFORMATION,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
-    EnumWindows, GA_ROOT, GW_OWNER, GWL_EXSTYLE, GetAncestor, GetWindow, GetWindowLongPtrW,
-    GetWindowRect, IsWindowVisible, WindowFromPoint,
+    EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GetAncestor, GetWindow,
+    GetWindowLongPtrW, GetWindowRect, IsWindowVisible, WindowFromPoint,
 };
 use windows::core::BOOL;
 
 use super::super::{Rect, WindowId};
-use super::ffi::{ThreadDpi, class_name, hwnd_of, id_of, process_id};
+use super::ffi::{ThreadDpi, class_name, client_rect, hwnd_of, id_of, is_window, process_id};
 
 /// The window that owns `id` (`GetWindow(GW_OWNER)`).
 #[allow(unsafe_code)]
@@ -188,6 +191,62 @@ pub fn cpu_time(pid: u32) -> Option<Duration> {
     read.ok()?;
     let ticks = |t: FILETIME| (u64::from(t.dwHighDateTime) << 32) | u64::from(t.dwLowDateTime);
     // FILETIME counts 100 ns.
+    Some(Duration::from_nanos(
+        (ticks(kernel) + ticks(user)).saturating_mul(100),
+    ))
+}
+
+/// Its client area on screen, physical pixels (R3.5: what an overlay must
+/// cover); `None` for a window that is gone.
+pub fn client_area(id: WindowId) -> Option<Rect> {
+    let _dpi = ThreadDpi::per_monitor_v2();
+    client_rect(hwnd_of(id))
+}
+
+/// Whether the handle still names a window (`IsWindow`).
+pub fn exists(id: WindowId) -> bool {
+    is_window(hwnd_of(id))
+}
+
+/// Whether `upper` is above `lower` in the z-order (walking down from
+/// `upper`, bounded).
+#[allow(unsafe_code)]
+pub fn is_above(upper: WindowId, lower: WindowId) -> bool {
+    let lower = hwnd_of(lower);
+    let mut next = hwnd_of(upper);
+    for _ in 0..8192 {
+        // SAFETY: reads a relation; the end of the list or a stale handle
+        // is an `Err`.
+        match unsafe { GetWindow(next, GW_HWNDNEXT) } {
+            Ok(below) if !below.is_invalid() => {
+                if below == lower {
+                    return true;
+                }
+                next = below;
+            }
+            _ => return false,
+        }
+    }
+    false
+}
+
+/// The CPU time (kernel + user) thread `tid` has used so far.
+#[allow(unsafe_code)]
+pub fn thread_cpu_time(tid: u32) -> Option<Duration> {
+    // SAFETY: no memory preconditions; failure is an `Err`.
+    let handle = unsafe { OpenThread(THREAD_QUERY_LIMITED_INFORMATION, false, tid) }.ok()?;
+    let (mut created, mut exited, mut kernel, mut user) = (
+        FILETIME::default(),
+        FILETIME::default(),
+        FILETIME::default(),
+        FILETIME::default(),
+    );
+    // SAFETY: four valid out pointers and the live handle opened above.
+    let read = unsafe { GetThreadTimes(handle, &mut created, &mut exited, &mut kernel, &mut user) };
+    // SAFETY: closes the handle opened above, once.
+    let _ = unsafe { CloseHandle(handle) };
+    read.ok()?;
+    let ticks = |t: FILETIME| (u64::from(t.dwHighDateTime) << 32) | u64::from(t.dwLowDateTime);
     Some(Duration::from_nanos(
         (ticks(kernel) + ticks(user)).saturating_mul(100),
     ))

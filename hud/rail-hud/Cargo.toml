@@ -39,7 +39,8 @@ serde_json = "1.0.154"
 # small `unsafe` wrappers. The version the app's Tauri already locks (one
 # copy in the build); only the API families used. R3.4's overlays draw
 # with Direct2D and DirectWrite into a DIB that `UpdateLayeredWindow`
-# shows (features only: no new crate in Cargo.lock).
+# shows (features only: no new crate in Cargo.lock). R3.5's WinEvent hooks
+# (`SetWinEventHook`) are `Win32_UI_Accessibility`.
 [target.'cfg(windows)'.dependencies]
 windows = { version = "=0.61.3", features = [
   "Win32_Foundation",
@@ -51,6 +52,7 @@ windows = { version = "=0.61.3", features = [
   "Win32_Graphics_Gdi",
   "Win32_System_LibraryLoader",
   "Win32_System_Threading",
+  "Win32_UI_Accessibility",
   "Win32_UI_HiDpi",
   "Win32_UI_WindowsAndMessaging",
 ] }

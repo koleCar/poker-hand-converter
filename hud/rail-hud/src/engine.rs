@@ -8,9 +8,14 @@
 //!   are dropped. Whenever the number attached changes, the app hears it
 //!   ([`HudMessage::TablesOpen`]).
 //!   A window already attached is compared with what the find saw: its
-//!   title (a tournament table move: R3.5's hooks will say so at once,
-//!   the re-find says it within [`Settings::find_every`]), client area,
-//!   scale and minimise.
+//!   title (a tournament table move), client area, scale and minimise.
+//!   Since R3.5 the Windows backend's hooks say all of that as it happens
+//!   ([`Platform::poll_events`], drained every [`Settings::tick`], one
+//!   event per window and kind however many the hooks saw - the overlay
+//!   itself has followed every one on the backend's own thread); the
+//!   periodic find stays as the safety net for anything a hook missed, and
+//!   a window a followed process shows ([`TableEvent::Appeared`]) makes the
+//!   HUD look at once.
 //! - **Table identity** (R3.3): a window is (room, table name, seats). A
 //!   `hand_imported` goes to the attached window of that room (by the
 //!   store's site) whose title's table name equals the hand's
@@ -131,6 +136,8 @@ pub struct Hud {
     started: Instant,
     next_find: Instant,
     next_store: Instant,
+    /// Look for tables at the next tick, whatever `next_find` says.
+    find_soon: bool,
     last_find_error: Option<String>,
     /// The last hand announced per (store site, table), for windows that
     /// attach after it (bounded by [`RECENT_TABLES`]).
@@ -172,6 +179,7 @@ impl Hud {
             started: now,
             next_find: now,
             next_store: now,
+            find_soon: false,
             last_find_error: None,
             recent: BTreeMap::new(),
             test_matchers: Vec::new(),
@@ -358,7 +366,7 @@ impl Hud {
         if !events.is_empty() {
             self.apply(events, out);
         }
-        if now >= self.next_find {
+        if now >= self.next_find || std::mem::take(&mut self.find_soon) {
             self.next_find = now + self.settings.find_every;
             self.find(out);
         }
@@ -392,8 +400,8 @@ impl Hud {
         let mut changed = Vec::new();
         for window in found {
             if let Some(attached) = self.attached.get_mut(&window.id) {
-                // What R3.5's hooks will report as it happens, seen here
-                // by looking again.
+                // What the hooks (R3.5) report as it happens, seen here by
+                // looking again: the safety net for a missed event.
                 if window.size.is_some() {
                     attached.title_seats = window.size;
                     attached.window.size = window.size;
@@ -603,6 +611,11 @@ impl Hud {
                         moved
                     });
                     if moved {
+                        eprintln!(
+                            "rail-hud: window {} moved to table {:?}",
+                            id.0,
+                            self.attached.get(&id).and_then(|a| a.window.table.clone())
+                        );
                         self.draw(id, Some(WAITING.to_owned()), Vec::new());
                         self.adopt_recent(id, out);
                     }
@@ -611,6 +624,7 @@ impl Hud {
                     self.detach(id);
                     self.refused.remove(&id);
                 }
+                TableEvent::Appeared => self.find_soon = true,
             }
         }
         self.report_open(out);
@@ -991,8 +1005,8 @@ mod tests {
         assert_eq!(hud.health().waiting, 0);
     }
 
-    /// A backend without events (Windows until R3.5): what it finds is all
-    /// the engine learns.
+    /// A backend without events (Windows before R3.5's hooks): what it
+    /// finds is all the engine learns.
     #[derive(Default)]
     struct Polled(std::rc::Rc<std::cell::RefCell<Vec<TableWindow>>>);
 
@@ -1079,6 +1093,119 @@ mod tests {
 
         windows.borrow_mut().clear();
         assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 0 }]);
+    }
+
+    /// A backend with hooks (Windows since R3.5): its events, and how many
+    /// times it was asked to find.
+    #[derive(Default)]
+    struct Hooked {
+        windows: std::rc::Rc<std::cell::RefCell<Vec<TableWindow>>>,
+        events: std::rc::Rc<std::cell::RefCell<Vec<TableEvent>>>,
+        finds: std::rc::Rc<std::cell::Cell<u32>>,
+        followed: std::rc::Rc<std::cell::RefCell<Vec<crate::platform::Rect>>>,
+    }
+
+    impl Platform for Hooked {
+        fn name(&self) -> &'static str {
+            "hooked"
+        }
+        fn find_tables(
+            &mut self,
+            _: &[TableMatcher],
+        ) -> Result<Vec<TableWindow>, crate::platform::PlatformError> {
+            self.finds.set(self.finds.get() + 1);
+            Ok(self.windows.borrow().clone())
+        }
+        fn track(&mut self, _: &TableWindow) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn untrack(&mut self, _: WindowId) {}
+        fn follow(&mut self, window: &TableWindow) {
+            self.followed.borrow_mut().push(window.client);
+        }
+        fn poll_events(&mut self) -> Vec<TableEvent> {
+            std::mem::take(&mut *self.events.borrow_mut())
+        }
+        fn overlay(
+            &mut self,
+            _: WindowId,
+            _: &OverlayFrame,
+        ) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn remove_overlay(&mut self, _: WindowId) {}
+    }
+
+    /// The hooks' events between two finds: a move is followed at the next
+    /// tick, a retitle moves the table, `Appeared` makes the HUD look at
+    /// once rather than at the next periodic find, `Closed` detaches.
+    #[test]
+    fn hook_events_between_finds() {
+        let backend = Hooked::default();
+        let (windows, events, finds, followed) = (
+            backend.windows.clone(),
+            backend.events.clone(),
+            backend.finds.clone(),
+            backend.followed.clone(),
+        );
+        windows
+            .borrow_mut()
+            .push(polled_window("T 1 - x", "T 1", Some(6)));
+        let mut hud = Hud::new(
+            Box::new(backend),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(None),
+            Settings::default(),
+        );
+        let start = Instant::now();
+        let mut sent = Vec::new();
+        hud.tick(start, &mut |m| sent.push(m));
+        assert_eq!(finds.get(), 1);
+        assert_eq!(sent, [HudMessage::TablesOpen { count: 1 }]);
+        hud.handle(hand("pokerstars", "T 2", "Bo"), &mut |_| {});
+
+        // Moved and retitled by the hooks, well before the next find.
+        let mut client = polled_window("", "", None).client;
+        client.x = 640;
+        events.borrow_mut().extend([
+            TableEvent::Moved {
+                id: WindowId(9),
+                client,
+                scale_permille: 1250,
+            },
+            TableEvent::Retitled {
+                id: WindowId(9),
+                title: "T 2 - x".into(),
+                table: Some("T 2".into()),
+            },
+        ]);
+        hud.tick(start, &mut |_| {});
+        assert_eq!(finds.get(), 1, "no find yet");
+        let window = hud.window(WindowId(9)).expect("attached").clone();
+        assert_eq!((window.client.x, window.scale_permille), (640, 1250));
+        assert_eq!(*followed.borrow(), [client]);
+        assert_eq!(window.table.as_deref(), Some("T 2"));
+        assert_eq!(hud.players_of(WindowId(9)), ["Bo"], "T 2's last hand");
+
+        // A window shown by the client: looked for at once.
+        let mut second = polled_window("T 3 - x", "T 3", Some(6));
+        second.id = WindowId(10);
+        windows.borrow_mut()[0] = window;
+        windows.borrow_mut().push(second);
+        events.borrow_mut().push(TableEvent::Appeared);
+        let mut sent = Vec::new();
+        hud.tick(start, &mut |m| sent.push(m));
+        assert_eq!(finds.get(), 2, "found at once");
+        assert_eq!(sent, [HudMessage::TablesOpen { count: 2 }]);
+        hud.tick(start, &mut |_| {});
+        assert_eq!(finds.get(), 2, "and then on the period again");
+
+        events
+            .borrow_mut()
+            .push(TableEvent::Closed { id: WindowId(10) });
+        let mut sent = Vec::new();
+        hud.tick(start, &mut |m| sent.push(m));
+        assert_eq!(sent, [HudMessage::TablesOpen { count: 1 }]);
     }
 
     /// The test-only room entry adds the simulator's matcher to the find.

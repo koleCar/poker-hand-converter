@@ -1,9 +1,11 @@
 //! The one platform trait (docs/RAIL-PLAN.md §3.1, R3.2): finding table
 //! windows, following them, drawing over them. Windows finds tables since
-//! R3.3 and draws over them since R3.4 ([`windows`]; its hooks are R3.5);
-//! macOS (R3.11 - R3.13) is a stub that finds nothing. [`sim::SimBackend`] is a
-//! fake driven by the table simulator's events (R3.1), so the data path
-//! runs end to end without any window API, on every OS and in CI.
+//! R3.3, draws over them since R3.4 and follows them with WinEvent hooks
+//! since R3.5 ([`windows`]; the platform-free half of following is
+//! [`tracking`]); macOS (R3.11 - R3.13) is a stub that finds nothing.
+//! [`sim::SimBackend`] is a fake driven by the table simulator's events
+//! (R3.1), so the data path runs end to end without any window API, on
+//! every OS and in CI.
 //!
 //! Units: positions and sizes are **physical pixels** of the client area
 //! (what the table is drawn in, without the frame), the scale is the
@@ -23,6 +25,7 @@ pub mod macos;
 pub mod matcher;
 pub mod none;
 pub mod sim;
+pub mod tracking;
 pub mod windows;
 
 pub use matcher::{Redactor, SIM_PROCESS, TableMatcher, TitleMatch, table_key};
@@ -157,11 +160,7 @@ pub fn table_of(window: &RawWindow, matchers: &[TableMatcher]) -> Option<TableWi
             client: window.client,
             // The monitor's scale is what an overlay draws at; a window
             // that is not per-monitor aware says 96 for itself.
-            scale_permille: dpi_permille(if window.monitor_dpi == 0 {
-                window.window_dpi
-            } else {
-                window.monitor_dpi
-            }),
+            scale_permille: tracking::scale_of(window.monitor_dpi, window.window_dpi),
             minimized: window.minimized || window.cloaked,
         })
     })
@@ -189,6 +188,10 @@ pub enum TableEvent {
     Closed {
         id: WindowId,
     },
+    /// A followed process showed a top-level window (R3.5): perhaps a new
+    /// table, or one shown again - look for tables now rather than at the
+    /// next periodic find.
+    Appeared,
 }
 
 /// What an overlay shows (R3.4): the data; `crate::scene::compose` lays it
@@ -278,7 +281,10 @@ pub trait Platform {
     /// A tracked window moved, was resized, changed monitor or scale, was
     /// minimised, cloaked or restored, or changed size (seats): keep its
     /// overlay on it (R3.4). The engine calls this with what it knows now;
-    /// a backend without overlays ignores it.
+    /// a backend without overlays ignores it. A backend that follows the
+    /// windows itself (Windows' hooks, R3.5) has moved the overlay already
+    /// and may check the system again rather than trust a description
+    /// that can be older than what it saw.
     fn follow(&mut self, _window: &TableWindow) {}
 
     /// What happened to the tracked windows since the last call; never

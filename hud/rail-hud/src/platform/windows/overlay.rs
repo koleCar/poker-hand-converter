@@ -1,21 +1,50 @@
-//! The overlay windows (R3.4): their thread, their window procedure, their
-//! surfaces and the Direct2D painter. See the parent module's header for
-//! the design; every function that calls Win32 allows `unsafe` for itself
-//! and says why each block is sound.
+//! The overlay windows (R3.4) and the hooks that keep them on their tables
+//! (R3.5): their thread, their window procedure, their surfaces and the
+//! Direct2D painter. See the parent module's header for the design; every
+//! function that calls Win32 allows `unsafe` for itself and says why each
+//! block is sound.
 //!
-//! **The thread.** Started with the first overlay; it makes itself
+//! **The thread.** Started with the first tracked table; it makes itself
 //! per-monitor DPI aware (v2), creates its message queue, registers the
 //! window class and the painter, then waits in `GetMessageW`. Commands
 //! come over a channel; a thread message (`WAKE`) is posted when the
 //! channel goes from empty to not, and the thread drains it whole. It owns
 //! every overlay window (a window belongs to the thread that made it), so
 //! everything that touches one happens here. Queries (`info`, `pixel`,
-//! `times`) answer over a channel of their own, after every command sent
-//! before them.
+//! `times`, `follow_times`) answer over a channel of their own, after every
+//! command sent before them.
+//!
+//! **The hooks (R3.5).** One set of out-of-context WinEvent hooks per poker
+//! process with a tracked table, set (and undone) on this thread: an
+//! out-of-context hook calls back on the thread that set it, from inside
+//! its message wait, so it needs a thread that pumps messages and never
+//! blocks - this one - and what the callback is for, moving an overlay, is
+//! done directly only by the thread that owns the overlay window: no hop
+//! to another thread, no lock, no wait between the table moving and its
+//! overlay moving. The callback ([`win_event`]) does almost nothing: it
+//! drops every event that is not about a followed table (or a top-level
+//! window a followed process shows), notes the rest in a thread-local
+//! list and posts the thread `HOOKED` once. The thread then handles the
+//! list: each noted table's state is read from the system once, however
+//! many events it had (`ffi::state_of`), and its overlay is moved (no
+//! repaint), repainted (a new client size or scale) or hidden
+//! ([`tracking::plan`]); what it saw is kept for the backend's
+//! `poll_events`, the latest per table ([`tracking::Observed`]). Never in
+//! the callback itself: it can be called while the thread is inside a
+//! Win32 call of its own (a `SetWindowPos` that waits on another thread),
+//! and the overlays' state must not be touched re-entrantly. The same goes
+//! for the overlay windows' own `WM_DPICHANGED` (a monitor of another dpi:
+//! repaint at its scale) and `WM_DESTROY` (destroyed with its table's
+//! process).
+//!
+//! **The table's geometry is always read here, at the moment it is used**
+//! (for a new frame, a hook event, the engine's `follow`), never taken
+//! from a description handed over, which can be older than what the hooks
+//! have shown: the engine's periodic re-find cannot move an overlay back.
 
-use std::cell::RefCell;
-use std::collections::HashMap;
+use std::cell::{Cell, RefCell};
 use std::collections::hash_map::Entry;
+use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex, PoisonError};
@@ -45,19 +74,22 @@ use windows::Win32::Graphics::Gdi::{
 };
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows::Win32::System::Threading::GetCurrentThreadId;
+use windows::Win32::UI::Accessibility::{HWINEVENTHOOK, SetWinEventHook, UnhookWinEvent};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW, HTTRANSPARENT,
-    IsWindowVisible, MA_NOACTIVATE, MSG, PM_NOREMOVE, PeekMessageW, PostThreadMessageW,
-    RegisterClassExW, SW_HIDE, SW_SHOWNOACTIVATE, SWP_NOACTIVATE, SWP_NOSIZE, SWP_NOZORDER,
-    SetWindowPos, ShowWindow, ULW_ALPHA, UpdateLayeredWindow, WM_APP, WM_DPICHANGED,
-    WM_MOUSEACTIVATE, WM_NCHITTEST, WNDCLASSEXW, WS_EX_LAYERED, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
-    WS_POPUP,
+    CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GW_HWNDNEXT, GW_HWNDPREV,
+    GetMessageW, GetWindow, HTTRANSPARENT, HWND_TOP, IsWindowVisible, MA_NOACTIVATE, MSG,
+    PM_NOREMOVE, PeekMessageW, PostThreadMessageW, RegisterClassExW, SW_HIDE, SW_SHOWNOACTIVATE,
+    SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SetWindowPos, ShowWindow, ULW_ALPHA,
+    UpdateLayeredWindow, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WM_APP, WM_DESTROY,
+    WM_DPICHANGED, WM_MOUSEACTIVATE, WM_NCHITTEST, WNDCLASSEXW, WS_EX_LAYERED, WS_EX_NOACTIVATE,
+    WS_EX_TOOLWINDOW, WS_POPUP,
 };
 use windows::core::{PCWSTR, w};
 
+use super::super::tracking::{self, Geometry, Hooked, Observed, Placed, Plan, win_event};
 use super::super::{OverlayFrame, PlatformError, Rect, TableWindow, WindowId};
 use super::OverlayInfo;
-use super::ffi::{ThreadDpi, hwnd_of, id_of};
+use super::ffi::{ThreadDpi, hwnd_of, id_of, is_top_level, is_window, state_of, window_text};
 use crate::layout;
 use crate::panel::PanelDesign;
 use crate::scene::{Item, Rgba, Scene, compose};
@@ -65,41 +97,44 @@ use crate::scene::{Item, Rgba, Scene, compose};
 /// The thread message that says "the channel has commands".
 const WAKE: u32 = WM_APP + 0x52;
 
-/// Paint times kept for `times` (the most recent).
+/// The thread message that says "the hooks noted something" (R3.5).
+const HOOKED: u32 = WM_APP + 0x53;
+
+/// Paint and follow times kept for `times` / `follow_times` (the most
+/// recent).
 const KEEP_TIMES: usize = 10_000;
 
 /// How long a query waits for the thread.
 const ASK: Duration = Duration::from_secs(10);
 
-/// Where and how a table is: what its overlay covers.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Geometry {
-    /// The table's client area, physical screen pixels.
-    client: Rect,
-    scale: u32,
-    /// Minimised or cloaked: the overlay is hidden.
-    hidden: bool,
-}
-
-impl Geometry {
-    fn of(window: &TableWindow) -> Self {
-        Self {
-            client: window.client,
-            scale: window.scale_permille,
-            hidden: window.minimized,
-        }
-    }
-}
+/// How long a table counts as being minimised after
+/// `EVENT_SYSTEM_MINIMIZESTART` while `IsIconic` does not say so yet: a
+/// missed `MINIMIZEEND` must not hide an overlay for good.
+const MINIMIZING: Duration = Duration::from_secs(2);
 
 enum Command {
     Frame {
         table: WindowId,
-        geometry: Geometry,
         frame: Box<OverlayFrame>,
     },
-    Geometry {
+    /// Follow a table: hook its process (once), note its window.
+    Track {
         table: WindowId,
-        geometry: Geometry,
+        pid: Option<u32>,
+        title: String,
+        /// What the engine knows of it: a different reading is news.
+        known: Geometry,
+    },
+    Untrack {
+        table: WindowId,
+    },
+    /// Read the table again and put its overlay right.
+    Resync {
+        table: WindowId,
+    },
+    /// Undo a process's hooks (it has no tracked table left).
+    Unhook {
+        pid: u32,
     },
     Remove {
         table: WindowId,
@@ -117,15 +152,21 @@ enum Command {
     Times {
         reply: Sender<Vec<u64>>,
     },
+    FollowTimes {
+        reply: Sender<Vec<u64>>,
+    },
     Quit,
 }
 
-/// The handle the backend holds: the thread, its channel, its id.
+/// The handle the backend holds: the thread, its channel, its id, and
+/// what its hooks saw.
 pub(in crate::platform) struct OverlayThread {
     thread_id: u32,
     commands: Mutex<Sender<Command>>,
     /// A `WAKE` is posted and not yet taken.
     pending: Arc<AtomicBool>,
+    /// What the hooks saw since the backend last looked.
+    observed: Arc<Mutex<Observed>>,
     join: Option<std::thread::JoinHandle<()>>,
 }
 
@@ -144,16 +185,19 @@ impl OverlayThread {
         let (commands, receiver) = mpsc::channel();
         let (ready, started) = mpsc::channel();
         let pending = Arc::new(AtomicBool::new(false));
+        let observed = Arc::new(Mutex::new(Observed::default()));
         let flag = Arc::clone(&pending);
+        let seen = Arc::clone(&observed);
         let join = std::thread::Builder::new()
             .name("rail-hud-overlays".to_owned())
-            .spawn(move || run(&receiver, &ready, &flag))
+            .spawn(move || run(&receiver, &ready, &flag, seen))
             .map_err(|e| PlatformError::Os(format!("the overlay thread: {e}")))?;
         match started.recv_timeout(ASK) {
             Ok(Ok(thread_id)) => Ok(Self {
                 thread_id,
                 commands: Mutex::new(commands),
                 pending,
+                observed,
                 join: Some(join),
             }),
             Ok(Err(error)) => {
@@ -173,7 +217,7 @@ impl OverlayThread {
             .send(command)
             .map_err(|_| PlatformError::Os("the overlay thread has stopped".to_owned()))?;
         if !self.pending.swap(true, Ordering::SeqCst) {
-            post_wake(self.thread_id)?;
+            post(self.thread_id, WAKE)?;
         }
         Ok(())
     }
@@ -184,27 +228,53 @@ impl OverlayThread {
         answer.recv_timeout(ASK).ok()
     }
 
+    pub(in crate::platform) fn thread_id(&self) -> u32 {
+        self.thread_id
+    }
+
     pub(in crate::platform) fn frame(
         &self,
-        window: &TableWindow,
+        table: WindowId,
         frame: OverlayFrame,
     ) -> Result<(), PlatformError> {
         self.send(Command::Frame {
-            table: window.id,
-            geometry: Geometry::of(window),
+            table,
             frame: Box::new(frame),
         })
     }
 
-    pub(in crate::platform) fn geometry(&self, window: &TableWindow) {
-        let _ = self.send(Command::Geometry {
+    pub(in crate::platform) fn track(&self, window: &TableWindow) {
+        let _ = self.send(Command::Track {
             table: window.id,
-            geometry: Geometry::of(window),
+            pid: window.process.pid,
+            title: window.title.clone(),
+            known: Geometry {
+                client: window.client,
+                scale_permille: window.scale_permille,
+                hidden: window.minimized,
+            },
         });
+    }
+
+    pub(in crate::platform) fn untrack(&self, table: WindowId) {
+        let _ = self.send(Command::Untrack { table });
+    }
+
+    pub(in crate::platform) fn resync(&self, table: WindowId) {
+        let _ = self.send(Command::Resync { table });
+    }
+
+    pub(in crate::platform) fn unhook(&self, pid: u32) {
+        let _ = self.send(Command::Unhook { pid });
     }
 
     pub(in crate::platform) fn remove(&self, table: WindowId) {
         let _ = self.send(Command::Remove { table });
+    }
+
+    /// What the hooks saw since the last call (taken).
+    pub(in crate::platform) fn observed(&self) -> Observed {
+        std::mem::take(&mut *self.observed.lock().unwrap_or_else(PoisonError::into_inner))
     }
 
     pub(in crate::platform) fn info(&self, table: WindowId) -> Option<OverlayInfo> {
@@ -220,10 +290,16 @@ impl OverlayThread {
         self.ask(|reply| Command::Times { reply })
             .unwrap_or_default()
     }
+
+    pub(in crate::platform) fn follow_times(&self) -> Vec<u64> {
+        self.ask(|reply| Command::FollowTimes { reply })
+            .unwrap_or_default()
+    }
 }
 
 impl Drop for OverlayThread {
-    /// Every overlay window is destroyed by its thread on the way out.
+    /// Every overlay window is destroyed, and every hook undone, by the
+    /// thread on the way out.
     fn drop(&mut self) {
         if self.send(Command::Quit).is_ok()
             && let Some(join) = self.join.take()
@@ -234,17 +310,106 @@ impl Drop for OverlayThread {
 }
 
 #[allow(unsafe_code)]
-fn post_wake(thread_id: u32) -> Result<(), PlatformError> {
+fn post(thread_id: u32, message: u32) -> Result<(), PlatformError> {
     // SAFETY: posts a message carrying no pointers to a thread id; a
     // thread that is gone makes it fail, which is reported.
-    unsafe { PostThreadMessageW(thread_id, WAKE, WPARAM(0), LPARAM(0)) }
+    unsafe { PostThreadMessageW(thread_id, message, WPARAM(0), LPARAM(0)) }
         .map_err(|e| PlatformError::Os(format!("PostThreadMessageW: {e}")))
 }
 
+/// What the hook callback and the window procedure noted for the thread
+/// to handle (R3.5).
+#[derive(Default)]
+struct Pending {
+    /// A `HOOKED` is posted and not yet handled.
+    posted: bool,
+    /// Followed tables' events: (table, event, when the callback saw it);
+    /// each (table, event) once - the thread reads the table's state when
+    /// it handles them, not what it was at each event.
+    tables: Vec<(WindowId, Hooked, Instant)>,
+    /// A followed process showed a top-level window.
+    appeared: bool,
+    /// Overlay windows whose monitor's dpi changed.
+    dpi: Vec<WindowId>,
+    /// Overlay windows being destroyed.
+    destroyed: Vec<WindowId>,
+}
+
+thread_local! {
+    static PENDING: RefCell<Pending> = RefCell::new(Pending::default());
+    /// The followed tables, for the callback's first filter.
+    static FOLLOWED: RefCell<HashSet<WindowId>> = RefCell::new(HashSet::new());
+    /// This thread's id, for posting `HOOKED` to itself.
+    static THREAD: Cell<u32> = const { Cell::new(0) };
+}
+
+/// Note something for the thread, posting `HOOKED` if none is pending.
+/// The list is borrowed only here and in [`take_pending`], never across a
+/// Win32 call, so the borrow cannot fail; if it ever did, the note is
+/// dropped (the re-find catches up) rather than panicking in a callback.
+fn note(add: impl FnOnce(&mut Pending)) {
+    let post_now = PENDING.with(|pending| match pending.try_borrow_mut() {
+        Ok(mut pending) => {
+            add(&mut pending);
+            !std::mem::replace(&mut pending.posted, true)
+        }
+        Err(_) => false,
+    });
+    if post_now {
+        let _ = post(THREAD.with(Cell::get), HOOKED);
+    }
+}
+
+fn take_pending() -> Pending {
+    PENDING.with(|pending| {
+        pending
+            .try_borrow_mut()
+            .map(|mut p| std::mem::take(&mut *p))
+            .unwrap_or_default()
+    })
+}
+
+/// The WinEvent callback (R3.5), on this thread, inside its message wait.
+/// It only filters and notes; the thread does the rest on `HOOKED`.
+extern "system" fn win_event(
+    _hook: HWINEVENTHOOK,
+    event: u32,
+    hwnd: HWND,
+    object: i32,
+    child: i32,
+    _thread: u32,
+    _time: u32,
+) {
+    let Some(kind) = tracking::classify(event, object, child) else {
+        return;
+    };
+    if hwnd.is_invalid() {
+        return;
+    }
+    let id = id_of(hwnd);
+    let followed = FOLLOWED.with(|f| f.try_borrow().is_ok_and(|f| f.contains(&id)));
+    if followed {
+        let now = Instant::now();
+        note(|p| {
+            if !p.tables.iter().any(|(t, k, _)| *t == id && *k == kind) {
+                p.tables.push((id, kind, now));
+            }
+        });
+    } else if kind == Hooked::Shown && is_top_level(hwnd) {
+        note(|p| p.appeared = true);
+    }
+}
+
 /// The thread's body.
-fn run(commands: &Receiver<Command>, ready: &Sender<Result<u32, String>>, pending: &AtomicBool) {
+fn run(
+    commands: &Receiver<Command>,
+    ready: &Sender<Result<u32, String>>,
+    pending: &AtomicBool,
+    observed: Arc<Mutex<Observed>>,
+) {
     let _dpi = ThreadDpi::per_monitor_v2();
     let thread_id = make_queue();
+    THREAD.with(|t| t.set(thread_id));
     let setup = register_class().and_then(|()| Painter::new());
     let painter = match setup {
         Ok(painter) => painter,
@@ -261,6 +426,10 @@ fn run(commands: &Receiver<Command>, ready: &Sender<Result<u32, String>>, pendin
         design: PanelDesign::default(),
         windows: HashMap::new(),
         times: Vec::new(),
+        followed: HashMap::new(),
+        hooks: HashMap::new(),
+        observed,
+        follow_times: Vec::new(),
     };
     'pump: while let Some(message) = next_message() {
         if message.hwnd.is_invalid() && message.message == WAKE {
@@ -270,6 +439,8 @@ fn run(commands: &Receiver<Command>, ready: &Sender<Result<u32, String>>, pendin
                     break 'pump;
                 }
             }
+        } else if message.hwnd.is_invalid() && message.message == HOOKED {
+            state.hooked();
         } else {
             dispatch(&message);
         }
@@ -289,7 +460,8 @@ fn make_queue() -> u32 {
     unsafe { GetCurrentThreadId() }
 }
 
-/// The next message, `None` on `WM_QUIT` or an error.
+/// The next message, `None` on `WM_QUIT` or an error. The hooks' callbacks
+/// run inside this wait.
 #[allow(unsafe_code)]
 fn next_message() -> Option<MSG> {
     let mut message = MSG::default();
@@ -370,8 +542,21 @@ extern "system" fn window_proc(
         // from the table).
         WM_MOUSEACTIVATE => LRESULT(isize::try_from(MA_NOACTIVATE).unwrap_or(3)),
         // The overlay follows the table's client area, not the suggested
-        // rectangle.
-        WM_DPICHANGED => LRESULT(0),
+        // rectangle; a monitor of another dpi means painting at its scale
+        // (R3.5), which the thread does once this message is handled.
+        WM_DPICHANGED => {
+            let id = id_of(hwnd);
+            note(|p| p.dpi.push(id));
+            LRESULT(0)
+        }
+        // Destroyed: by us (`close`), or by Windows with its owner - the
+        // table - when the table's process ends (R3.5).
+        WM_DESTROY => {
+            let id = id_of(hwnd);
+            note(|p| p.destroyed.push(id));
+            // SAFETY: the default handling of this window's own message.
+            unsafe { DefWindowProcW(hwnd, message, wparam, lparam) }
+        }
         // SAFETY: the default handling of this window's own message.
         _ => unsafe { DefWindowProcW(hwnd, message, wparam, lparam) },
     }
@@ -390,6 +575,7 @@ fn point_of(lparam: LPARAM) -> (i32, i32) {
 /// One table's overlay.
 struct Overlay {
     hwnd: HWND,
+    /// The table as last read: what the overlay was put over.
     geometry: Geometry,
     frame: Option<OverlayFrame>,
     /// Needs painting (a new frame) before it shows.
@@ -402,7 +588,21 @@ struct Overlay {
     scene: Scene,
     renders: u64,
     last_render_us: u64,
+    moves: u64,
+    restacked: u64,
     error: Option<String>,
+}
+
+/// A followed table (R3.5).
+struct Followed {
+    pid: Option<u32>,
+    title: String,
+    /// `EVENT_SYSTEM_MINIMIZESTART` seen, `IsIconic` not yet true.
+    minimizing: Option<Instant>,
+    /// The geometry last reported (or known to the engine).
+    last: Option<Geometry>,
+    /// Destroyed or hidden: reported once, then ignored until untracked.
+    gone: bool,
 }
 
 /// Everything on the thread.
@@ -411,21 +611,45 @@ struct Overlays {
     design: PanelDesign,
     windows: HashMap<WindowId, Overlay>,
     times: Vec<u64>,
+    followed: HashMap<WindowId, Followed>,
+    /// The hooks per poker process.
+    hooks: HashMap<u32, Vec<HWINEVENTHOOK>>,
+    observed: Arc<Mutex<Observed>>,
+    /// Hook event -> overlay put right, µs.
+    follow_times: Vec<u64>,
+}
+
+fn keep(times: &mut Vec<u64>, us: u64) {
+    if times.len() >= KEEP_TIMES {
+        times.remove(0);
+    }
+    times.push(us);
+}
+
+fn micros(since: Instant) -> u64 {
+    u64::try_from(since.elapsed().as_micros()).unwrap_or(u64::MAX)
 }
 
 impl Overlays {
     /// One command; `false` ends the thread.
     fn handle(&mut self, command: Command) -> bool {
         match command {
-            Command::Frame {
+            Command::Frame { table, frame } => self.frame(table, *frame),
+            Command::Track {
                 table,
-                geometry,
-                frame,
-            } => self.frame(table, geometry, *frame),
-            Command::Geometry { table, geometry } => {
-                if let Some(overlay) = self.windows.get_mut(&table) {
-                    overlay.geometry = geometry;
-                    self.sync(table);
+                pid,
+                title,
+                known,
+            } => self.track(table, pid, title, known),
+            Command::Untrack { table } => {
+                self.followed.remove(&table);
+                FOLLOWED.with(|f| f.borrow_mut().remove(&table));
+            }
+            Command::Resync { table } => self.follow(table, None),
+            Command::Unhook { pid } => {
+                let used = self.followed.values().any(|f| f.pid == Some(pid));
+                if !used && let Some(hooks) = self.hooks.remove(&pid) {
+                    unhook(hooks);
                 }
             }
             Command::Remove { table } => {
@@ -447,14 +671,237 @@ impl Overlays {
             Command::Times { reply } => {
                 let _ = reply.send(self.times.clone());
             }
+            Command::FollowTimes { reply } => {
+                let _ = reply.send(self.follow_times.clone());
+            }
             Command::Quit => return false,
         }
         true
     }
 
-    fn frame(&mut self, table: WindowId, geometry: Geometry, frame: OverlayFrame) {
+    fn observe(&self, add: impl FnOnce(&mut Observed)) {
+        add(&mut self.observed.lock().unwrap_or_else(PoisonError::into_inner));
+    }
+
+    /// Follow a table: hook its process if it is not yet, and read it
+    /// once (what differs from what the engine knows is reported).
+    fn track(&mut self, table: WindowId, pid: Option<u32>, title: String, known: Geometry) {
+        self.followed.insert(
+            table,
+            Followed {
+                pid,
+                title,
+                minimizing: None,
+                last: Some(known),
+                gone: false,
+            },
+        );
+        FOLLOWED.with(|f| f.borrow_mut().insert(table));
+        if let Some(pid) = pid.filter(|&p| p != 0)
+            && let Entry::Vacant(slot) = self.hooks.entry(pid)
+        {
+            let hooks = hook(pid);
+            eprintln!(
+                "rail-hud: hooked process {pid} ({} of {} event ranges)",
+                hooks.len(),
+                win_event::RANGES.len()
+            );
+            slot.insert(hooks);
+        }
+        self.follow(table, None);
+    }
+
+    /// What the hooks noted since the last `HOOKED`.
+    fn hooked(&mut self) {
+        let pending = take_pending();
+        if pending.appeared {
+            self.observe(|o| o.appeared = true);
+        }
+        for overlay in pending.destroyed {
+            self.overlay_destroyed(overlay);
+        }
+        // Per table, in order: its events, and the first one's time.
+        let mut by_table: Vec<(WindowId, Vec<Hooked>, Instant)> = Vec::new();
+        for (table, kind, at) in pending.tables {
+            match by_table.iter_mut().find(|(t, _, _)| *t == table) {
+                Some((_, kinds, _)) => kinds.push(kind),
+                None => by_table.push((table, vec![kind], at)),
+            }
+        }
+        for (table, kinds, at) in by_table {
+            self.table_events(table, &kinds, at);
+        }
+        for overlay in pending.dpi {
+            let table = self
+                .windows
+                .iter()
+                .find(|(_, o)| id_of(o.hwnd) == overlay)
+                .map(|(t, _)| *t);
+            if let Some(table) = table {
+                self.follow(table, None);
+            }
+        }
+    }
+
+    /// A followed table's events since the last `HOOKED`.
+    fn table_events(&mut self, table: WindowId, kinds: &[Hooked], at: Instant) {
+        let Some(followed) = self.followed.get(&table) else {
+            return;
+        };
+        if followed.gone {
+            // Hidden, reported gone, not yet untracked by the engine - and
+            // shown again: a table to find anew.
+            if kinds.contains(&Hooked::Shown) {
+                self.observe(|o| o.appeared = true);
+            }
+            return;
+        }
+        if kinds.contains(&Hooked::Destroyed) {
+            self.table_gone(table);
+            return;
+        }
+        let mut moves = false;
+        let mut foreground = false;
+        let mut title = None;
+        if let Some(followed) = self.followed.get_mut(&table) {
+            for kind in kinds {
+                match kind {
+                    Hooked::MinimizeStart => followed.minimizing = Some(Instant::now()),
+                    Hooked::MinimizeEnd => followed.minimizing = None,
+                    Hooked::Name => {
+                        let now = window_text(hwnd_of(table));
+                        if now != followed.title {
+                            followed.title.clone_from(&now);
+                            title = Some(now);
+                        }
+                    }
+                    Hooked::Foreground => foreground = true,
+                    _ => {}
+                }
+                moves |= kind.moves();
+            }
+        }
+        if let Some(title) = title {
+            self.observe(|o| o.title(table, title));
+        }
+        if moves {
+            self.follow(table, Some(at));
+        }
+        if foreground {
+            self.restack(table);
+        }
+    }
+
+    /// The table as it is now (R3.5): `None` when it is gone or hidden by
+    /// its client (then its overlay is removed and the engine told). A
+    /// reading the engine was not given yet is reported.
+    fn read(&mut self, table: WindowId) -> Option<Geometry> {
+        let Some(state) = state_of(hwnd_of(table)).filter(|s| s.visible) else {
+            self.table_gone(table);
+            return None;
+        };
+        let mut report = false;
+        let mut geometry = Geometry {
+            client: state.client,
+            scale_permille: state.scale_permille,
+            hidden: state.iconic || state.cloaked,
+        };
+        if let Some(followed) = self.followed.get_mut(&table) {
+            if state.iconic {
+                followed.minimizing = None;
+            }
+            geometry.hidden |= followed
+                .minimizing
+                .is_some_and(|since| since.elapsed() < MINIMIZING);
+            report = followed.last != Some(geometry);
+            followed.last = Some(geometry);
+        }
+        if report {
+            self.observe(|o| o.geometry(table, geometry));
+        }
+        Some(geometry)
+    }
+
+    /// Read the table and put its overlay right; `at`: the hook event
+    /// this answers, for the follow time.
+    fn follow(&mut self, table: WindowId, at: Option<Instant>) {
+        let Some(geometry) = self.read(table) else {
+            return;
+        };
+        let plan = self.sync(table, geometry);
+        if let Some(at) = at
+            && plan != Plan::Keep
+        {
+            keep(&mut self.follow_times, micros(at));
+        }
+    }
+
+    /// Destroyed, or hidden by its client: the overlay goes now, the
+    /// engine hears it once.
+    fn table_gone(&mut self, table: WindowId) {
+        if let Some(followed) = self.followed.get_mut(&table) {
+            if followed.gone {
+                return;
+            }
+            followed.gone = true;
+        }
+        if let Some(overlay) = self.windows.remove(&table) {
+            close(overlay);
+        }
+        self.observe(|o| o.gone(table));
+    }
+
+    /// An overlay window is being destroyed. If we did it, it is no longer
+    /// in `windows`; otherwise Windows did, with its owner - the table's
+    /// process ended - or something else did and the table is still there,
+    /// and its overlay is made again.
+    fn overlay_destroyed(&mut self, overlay: WindowId) {
+        let Some(table) = self
+            .windows
+            .iter()
+            .find(|(_, o)| id_of(o.hwnd) == overlay)
+            .map(|(t, _)| *t)
+        else {
+            return;
+        };
+        let Some(lost) = self.windows.remove(&table) else {
+            return;
+        };
+        HIT.with(|hit| {
+            hit.borrow_mut().remove(&lost.hwnd.0.addr());
+        });
+        if is_window(hwnd_of(table)) {
+            if let Some(frame) = lost.frame {
+                self.frame(table, frame);
+            }
+        } else {
+            self.table_gone(table);
+        }
+    }
+
+    /// The table came to the foreground: its overlay must be directly
+    /// above it. Windows keeps an owned window above its owner, so this
+    /// is a check that should never have to act; when it does, it is
+    /// counted (`OverlayInfo::restacked`).
+    fn restack(&mut self, table: WindowId) {
+        let Some(overlay) = self.windows.get_mut(&table) else {
+            return;
+        };
+        if !is_visible(overlay.hwnd) || above(overlay.hwnd, hwnd_of(table)) {
+            return;
+        }
+        match put_above(overlay.hwnd, hwnd_of(table)) {
+            Ok(()) => overlay.restacked += 1,
+            Err(error) => overlay.error = Some(error),
+        }
+    }
+
+    fn frame(&mut self, table: WindowId, frame: OverlayFrame) {
+        let Some(geometry) = self.read(table) else {
+            return;
+        };
         if let Entry::Vacant(slot) = self.windows.entry(table) {
-            let overlay = match create_window(table, &geometry) {
+            let overlay = match create_window(table, &geometry.client) {
                 Ok(hwnd) => Overlay {
                     hwnd,
                     geometry,
@@ -466,6 +913,8 @@ impl Overlays {
                     scene: Scene::default(),
                     renders: 0,
                     last_render_us: 0,
+                    moves: 0,
+                    restacked: 0,
                     error: None,
                 },
                 Err(error) => {
@@ -482,32 +931,33 @@ impl Overlays {
                 overlay.frame = Some(frame);
                 overlay.dirty = true;
             }
-            overlay.geometry = geometry;
         }
-        self.sync(table);
+        self.sync(table, geometry);
     }
 
-    /// Bring a table's overlay in line with its frame and geometry: paint
-    /// when the frame, the size or the scale changed, move when only the
-    /// position did, hide while the table is minimised or cloaked.
-    fn sync(&mut self, table: WindowId) {
+    /// Bring a table's overlay in line with its frame and the table as it
+    /// is ([`tracking::plan`]): paint when the frame, the size or the scale
+    /// changed, move when only the position did, hide while the table is
+    /// minimised or cloaked. What it did.
+    fn sync(&mut self, table: WindowId, g: Geometry) -> Plan {
         let Some(overlay) = self.windows.get_mut(&table) else {
-            return;
+            return Plan::Keep;
         };
-        let g = overlay.geometry;
-        if g.hidden || g.client.width == 0 || g.client.height == 0 {
-            show(overlay.hwnd, false);
-            return;
-        }
-        let size = (g.client.width, g.client.height, g.scale);
-        if overlay.dirty || overlay.painted != Some(size) {
-            match paint(&mut self.painter, &self.design, overlay) {
+        let placed = Placed {
+            shown: is_visible(overlay.hwnd),
+            at: overlay.at,
+            painted: overlay.painted,
+        };
+        let plan = tracking::plan(&placed, &g, overlay.dirty);
+        overlay.geometry = g;
+        match plan {
+            Plan::Keep => {}
+            Plan::Hide => show(overlay.hwnd, false),
+            Plan::Paint => match paint(&mut self.painter, &self.design, overlay) {
                 Ok(us) => {
                     overlay.error = None;
-                    if self.times.len() >= KEEP_TIMES {
-                        self.times.remove(0);
-                    }
-                    self.times.push(us);
+                    keep(&mut self.times, us);
+                    show(overlay.hwnd, true);
                 }
                 Err(error) => {
                     eprintln!(
@@ -515,22 +965,28 @@ impl Overlays {
                         table.0
                     );
                     overlay.error = Some(error);
-                    return;
                 }
+            },
+            Plan::Move => {
+                if let Err(error) = move_to(overlay.hwnd, g.client.x, g.client.y) {
+                    overlay.error = Some(error);
+                }
+                overlay.at = (g.client.x, g.client.y);
+                overlay.moves += 1;
+                set_hit(overlay);
+                show(overlay.hwnd, true);
             }
-        } else if overlay.at != (g.client.x, g.client.y) {
-            if let Err(error) = move_to(overlay.hwnd, g.client.x, g.client.y) {
-                overlay.error = Some(error);
-            }
-            overlay.at = (g.client.x, g.client.y);
-            set_hit(overlay);
+            Plan::Show => show(overlay.hwnd, true),
         }
-        show(overlay.hwnd, true);
+        plan
     }
 
     fn close_all(&mut self) {
         for (_, overlay) in self.windows.drain() {
             close(overlay);
+        }
+        for (_, hooks) in self.hooks.drain() {
+            unhook(hooks);
         }
     }
 }
@@ -544,6 +1000,8 @@ fn info(overlay: &Overlay) -> OverlayInfo {
         painted: overlay.painted.map_or((0, 0), |(w, h, _)| (w, h)),
         panels: overlay.scene.panels.clone(),
         dropped: overlay.scene.dropped.clone(),
+        moves: overlay.moves,
+        restacked: overlay.restacked,
         error: overlay.error.clone(),
     }
 }
@@ -560,7 +1018,13 @@ fn paint(
     let Some(frame) = &overlay.frame else {
         return Ok(0);
     };
-    let scene = compose(frame, g.client.width, g.client.height, g.scale, design);
+    let scene = compose(
+        frame,
+        g.client.width,
+        g.client.height,
+        g.scale_permille,
+        design,
+    );
     let fits = overlay
         .surface
         .as_ref()
@@ -576,11 +1040,11 @@ fn paint(
     painter.paint(&scene, surface)?;
     show_layered(overlay.hwnd, &g.client, surface)?;
     overlay.scene = scene;
-    overlay.painted = Some((g.client.width, g.client.height, g.scale));
+    overlay.painted = Some(g.size());
     overlay.at = (g.client.x, g.client.y);
     overlay.dirty = false;
     overlay.renders += 1;
-    let us = u64::try_from(started.elapsed().as_micros()).unwrap_or(u64::MAX);
+    let us = micros(started);
     overlay.last_render_us = us;
     set_hit(overlay);
     Ok(us)
@@ -602,13 +1066,97 @@ fn close(overlay: Overlay) {
     destroy_window(overlay.hwnd);
 }
 
+/// The hooks for one poker process (R3.5), one per event range of
+/// [`win_event::RANGES`]; those that could not be set are left out (the
+/// engine's re-find still sees what they would have said).
+#[allow(unsafe_code)]
+fn hook(pid: u32) -> Vec<HWINEVENTHOOK> {
+    win_event::RANGES
+        .iter()
+        .filter_map(|&(min, max)| {
+            // SAFETY: `win_event` is a plain function that lives as long as
+            // the program, never unwinds and touches only this thread's
+            // state; out of context (no module handle) nothing is loaded
+            // into the other process and Windows calls it on this thread,
+            // which pumps messages; the hook is undone with
+            // `UnhookWinEvent` on this same thread.
+            let hook = unsafe {
+                SetWinEventHook(
+                    min,
+                    max,
+                    None,
+                    Some(win_event),
+                    pid,
+                    0,
+                    WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS,
+                )
+            };
+            (!hook.is_invalid()).then_some(hook)
+        })
+        .collect()
+}
+
+#[allow(unsafe_code)]
+fn unhook(hooks: Vec<HWINEVENTHOOK>) {
+    for hook in hooks {
+        // SAFETY: a hook this thread set and has not undone, undone once,
+        // on this thread.
+        let _ = unsafe { UnhookWinEvent(hook) };
+    }
+}
+
+/// Whether `upper` is above `lower` in the z-order (walking down from
+/// `upper`; bounded, as the order can change during the walk).
+#[allow(unsafe_code)]
+fn above(upper: HWND, lower: HWND) -> bool {
+    let mut next = upper;
+    for _ in 0..8192 {
+        // SAFETY: reads a relation; the end of the list or a stale handle
+        // is an `Err`.
+        match unsafe { GetWindow(next, GW_HWNDNEXT) } {
+            Ok(below) if !below.is_invalid() => {
+                if below == lower {
+                    return true;
+                }
+                next = below;
+            }
+            _ => return false,
+        }
+    }
+    false
+}
+
+/// Put `overlay` directly above `table`: after the window just above the
+/// table, or on top when the table is.
+#[allow(unsafe_code)]
+fn put_above(overlay: HWND, table: HWND) -> Result<(), String> {
+    // SAFETY: reads a relation; none above (or a stale handle) is an `Err`.
+    let previous = unsafe { GetWindow(table, GW_HWNDPREV) }
+        .ok()
+        .filter(|h| !h.is_invalid() && *h != overlay);
+    // SAFETY: a window of this thread; no pointers; neither moved, sized
+    // nor activated.
+    unsafe {
+        SetWindowPos(
+            overlay,
+            Some(previous.unwrap_or(HWND_TOP)),
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE,
+        )
+    }
+    .map_err(|e| format!("SetWindowPos (z-order): {e}"))
+}
+
 /// The overlay window for `table`: owned by it, layered, a tool window
 /// that never activates; hidden until painted.
 #[allow(unsafe_code)]
-fn create_window(table: WindowId, geometry: &Geometry) -> Result<HWND, String> {
+fn create_window(table: WindowId, client: &Rect) -> Result<HWND, String> {
     // SAFETY: no preconditions; `None` asks for this executable's module.
     let module = unsafe { GetModuleHandleW(None) }.map_err(|e| format!("GetModuleHandleW: {e}"))?;
-    let c = geometry.client;
+    let c = *client;
     // SAFETY: the class is registered by this thread (`register_class`)
     // with a static name; the owner is a window handle of another process,
     // which Windows checks (a stale one fails the call); nothing else is

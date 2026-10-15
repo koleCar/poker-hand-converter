@@ -37,7 +37,7 @@ use rail_config::stats::Tone;
 use rail_hud::compliance::Compliance;
 use rail_hud::layout;
 use rail_hud::panel::{PanelDesign, StatCell};
-use rail_hud::platform::windows::{OVERLAY_CLASS, WindowsBackend, ex_style, probe};
+use rail_hud::platform::windows::{OVERLAY_CLASS, WindowsBackend, drive, ex_style, probe};
 use rail_hud::platform::{OverlayFrame, Platform, Rect, SeatPanel, TableWindow, WindowId};
 use rail_hud::scene::{self, PANEL};
 use support::{Hud, Seen, Sim, find_until, listing, matcher, simulator, title_regex, wait_for};
@@ -363,11 +363,13 @@ fn overlays_sit_on_their_tables() {
         window.client.x + i32::try_from(px).expect("x"),
         window.client.y + i32::try_from(py).expect("y"),
     );
-    let mut hidden = window.clone();
-    hidden.minimized = true;
+    // Hidden by hand (the backend places overlays from the table as it is,
+    // R3.5, so it cannot be told the table is minimised when it is not);
+    // nothing makes the overlay thread look at this table meanwhile.
+    let overlay_window = info.window.expect("window");
     let mut last = String::new();
     let composed = (0..3).any(|_| {
-        backend.follow(&hidden);
+        drive::show_window(overlay_window, false);
         wait_for(Duration::from_secs(5), "hidden for the screen read", || {
             if probe::visible(info.window.expect("window")) {
                 Err("still visible".to_owned())
@@ -377,7 +379,7 @@ fn overlays_sit_on_their_tables() {
         });
         std::thread::sleep(Duration::from_millis(300));
         let under = probe::screen_pixel(sx, sy);
-        backend.follow(window);
+        drive::show_window(overlay_window, true);
         wait_for(Duration::from_secs(5), "shown again", || {
             if probe::visible(info.window.expect("window")) {
                 Ok(())
