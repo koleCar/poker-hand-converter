@@ -3185,8 +3185,10 @@ Each phase appends what it learned that changed the plan.
     - Limps and limp-calls did not move with any statistic tried; a limp
       frequency counted per position, or the limp-then-fold-to-a-raise
       frequency, might separate limp ranges better than overall looseness.
-    - The snapshot is the panel's 200 biggest samples; a library with more
-      than 200 regulars of 30+ hands leaves the rest on the population.
+    - ~~The snapshot is the panel's 200 biggest samples; a library with more
+      than 200 regulars of 30+ hands leaves the rest on the population.~~
+      Done 2026-10-15: the run reads every opponent of the hands it
+      analyses (`villain_counters`, `20270526090000`; entry below).
     - ~~The shared read still returns `facts.villain`~~ Done: it never did (`analysis_public_facts` lists keys); now also `- 'villain'` in `read_shared_analysis` and `withoutOwnerFacts` client-side (`20270407090000`, `analysis_share_villain.test.sql`).
     - The parameters are the owner's opponents' (one pool, around $0.50/$1);
       refit on more libraries when there are some.
@@ -3805,3 +3807,57 @@ Each phase appends what it learned that changed the plan.
       over three ranges (or multiway-specific chunks), not a reweighting of
       the heads-up one. Nothing cheaper is left to try from this library.
     - Coverage is unchanged: 279 of 676 shown flop rows sit on a chunk.
+- 2026-10-15 — Opponents' statistics for every opponent analysed, not the
+  200 biggest samples (`villain_counters`,
+  `20270526090000_villain_counters.sql`; `lib/db/villainCounters.ts`).
+  `ANALYSIS_VERSION` stays `analysis/23`; no grade moves on the measured
+  library.
+  - **Why.** `analysis/20`'s open item: the rebuild read one snapshot of
+    `stats_opponents`, the opponents panel's report, which returns the 200
+    biggest samples. A learner with more than 200 opponents of 30+ hands
+    got the population range for everybody past the cap, silently.
+  - **Change.** A read-only invoker function, `villain_counters(p_players,
+    p_filters)`: the counters `villain.ts` reads (`hands`, `vpip_opp`,
+    `vpip`, `pfr`) for exactly the `{site, player}` keys it is given, at
+    most 500 per call, under `hand_stats`' RLS and `owner_id = auth.uid()`,
+    with `stats_opponents`' rules (rooms with persistent names only, no bomb
+    pots, the same `statsVersion` / `gameFormat` / `minHands` filters). No
+    table grant changes, nothing `security definer`. The rebuild
+    (`runAnalysis`) now collects the opponents of each chunk of hands before
+    a worker analyses it and asks for theirs (cash games, at least 30 hands,
+    the current statistics version), in calls of at most 500 keys; each
+    player is asked once per run, a player in flight for another chunk is
+    waited on (`VillainCounters`). The hand view's fresh analysis asks for
+    its hand's opponents through a cache kept ten minutes. When
+    `villain_counters` cannot be read (a database without it, a failed
+    call) the run falls back to the old capped snapshot, never to nothing.
+    The opponents panel and the Learn pool still read `stats_opponents`,
+    unchanged.
+  - **Measured** (the local test stack's 5,448 hands, counted Node-side
+    with `handFacts` as the panel sums them; counts only): 287 opponents in
+    cash hands, **172 with 30 or more hands, so none past the cap of 200**
+    (the 200th-biggest sample is 23 hands). On this library the per-chunk
+    counters are exactly the old snapshot's for every opponent a hand can
+    look up, so the analysis' input is identical hand by hand and **no
+    grade moves** (the analysis is deterministic in its input; nothing
+    re-run for that reason).
+  - **No version bump.** A library with 200 or fewer qualifying opponents
+    (the owner's, and every library this could be measured on) gets
+    byte-identical rows, so a bump would re-analyse every library for
+    nothing. A library with more keeps its `analysis/23` rows, analysed with
+    the population range for the opponents past the cap; every such row
+    records the sample it was moved on (`SpotFacts.villain`, absent there),
+    so nothing it shows is wrong about what it read, and the next version
+    bump re-analyses it with every opponent's statistics. New hands are
+    analysed with them from now on.
+  - Tests: pgTAP `villain_counters.test.sql` (20: invoker, own rows only,
+    the same counters as `stats_opponents`, filters, opaque-id never summed,
+    the cap and malformed input refused, a second user, anon); Vitest
+    `villainCounters.test.ts` (the hands' opponents once each, batches of at
+    most 500 with 1,234 opponents all answered, each player asked once
+    including one in flight, null with no statistics, a failed call
+    forgotten and retried).
+  - **Open.**
+    - No library with more than 200 opponents of 30+ hands has been
+      measured; when one exists, the grades its next bump moves are the
+      measure of what the cap cost.

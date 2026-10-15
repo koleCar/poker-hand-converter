@@ -3106,6 +3106,17 @@ export type Database = {
       unread_notification_count: { Args: never; Returns: number }
       username_fold: { Args: { p_name: string }; Returns: string }
       username_shape_problem: { Args: { p_name: string }; Returns: string }
+      villain_counters: {
+        Args: { p_filters?: Json; p_players: Json }
+        Returns: {
+          hands: number
+          pfr: number
+          player: string
+          site: string
+          vpip: number
+          vpip_opp: number
+        }[]
+      }
       vote_comment: {
         Args: { p_post_public_id: string; p_seq: number; p_value: number }
         Returns: Json
