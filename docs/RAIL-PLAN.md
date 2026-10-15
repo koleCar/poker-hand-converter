@@ -142,9 +142,12 @@ IPC is a local socket (Unix domain socket on macOS, named pipe on Windows) with
 length-prefixed JSON messages: `hand_imported {site, table, hand_key, players}`,
 `layout_changed`, `settings_changed`, `open_in_app {player}`, `health`. The app
 restarts the HUD if it dies; the HUD keeps drawing from SQLite if the app is
-busy. Popups that need rich content (stats by situation, notes) open as small
-Tauri webview windows and reuse `packages/ui`; the always-visible panels are
-drawn natively for speed.
+busy. *As built* (R3.2): `hud/rail-hud-ipc`, protocol 1 - also
+`stats_changed {epoch}`, `policy {remote}`, `resync` and `shutdown` to the HUD,
+`tables_open {count}`, `attach_refused`, `table_updated` from it; a token per
+HUD process and a mutual handshake; see R3.2. Popups that need rich content
+(stats by situation, notes) open as small Tauri webview windows and reuse
+`packages/ui`; the always-visible panels are drawn natively for speed.
 
 ### 3.3 Latency budget (target < 1 s, aim < 250 ms)
 
@@ -5484,8 +5487,8 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
   of `only_what_was_seen_is_verified` (R0.12's `nothing_is_verified_yet`,
   renamed in R1.4).
 - Repeat before every release (checklist in §12).
-- *As built, R3.0* (§15) - **a proposal; the owner signs it off before
-  merge**:
+- *As built, R3.0* (§15) - **signed by the owner on 2026-10-14, merged
+  in #187**:
   - Every entry's `hud` block from the room's own page, read 2026-10-14
     without signing in; quotes, URLs, live files, names, confidence and the
     re-check checklist in `docs/research/HUD-POLICIES.md`.
@@ -5689,6 +5692,204 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
 - `rail-hud` as a Tauri sidecar; IPC from §3.2; health checks and restart;
   read-only SQLite; one platform trait (`find_tables`, `track`, `overlay`)
   with Windows and macOS backends.
+- *As built* (§15): **done** - `hud/rail-hud` (a library and the binary
+  `rail-hud`) and the new `hud/rail-hud-ipc` (the channel, used by both
+  sides), both `#![forbid(unsafe_code)]` with the workspace lints; the app's
+  side in `app/src-tauri/src/hud.rs`. How to run it: README §8 "HUD process".
+  - **Processes.** The app starts the HUD as its **Tauri sidecar**: the
+    binary beside the app's own executable (`Rail.app/Contents/MacOS/rail-hud`,
+    beside `Rail.exe`; `target/<profile>/rail-hud` in development).
+    Bundling is `bundle.externalBin` in a separate
+    `app/src-tauri/tauri.hud.conf.json`, passed to `tauri build --config`
+    after `npm run hud:sidecar` (release build, copied to
+    `src-tauri/binaries/rail-hud-<target triple>`, gitignored): in
+    `tauri.conf.json` it would make every `cargo build -p rail-app` (clippy,
+    tests, dev) fail until the sidecar existed, since `tauri-build` checks the
+    file. The process is started with `std::process::Command`, not
+    `tauri-plugin-shell` (no plugin, no permission for the window; the
+    sidecar lookup is the same "next to the executable"). Started in `setup`
+    before the watcher (imports feed it), stopped first on exit.
+    `RAIL_HUD=off` keeps it from starting; a missing binary is a status
+    (`not-installed`), looked for again every 30 s.
+  - **Supervision** (`rail_hud_ipc::supervisor`): a fresh token per process
+    on its standard input, `--store <rail.db> --ipc <endpoint>` on the
+    command line, standard output discarded, standard error forwarded line by
+    line to the app's log (target `rail_hud`), on Windows `CREATE_NO_WINDOW`.
+    The app waits up to 15 s for that process's authenticated connection
+    (the pid it proved with the token); then `health {seq}` every 2 s, and no
+    answer for 10 s (a hung HUD), the process exiting or the connection
+    closing ends it: stdin closed, 1.5 s grace, killed, started again after
+    a backoff of 0.5 s doubling to 30 s (a run of 60 s resets it); it never
+    gives up. Shutdown: `shutdown`, stdin closed, 1.5 s, killed; the HUD
+    also exits on its own when its standard input ends - which is what an
+    app crash looks like to it. `hud_status` (command) shows phase, pid,
+    starts, last exit, tables open, refused windows, the HUD's re-read
+    latency and dropped messages; no screen shows it yet (R3.10).
+  - **The app never blocks on the HUD.** Every send is a `try_send` into a
+    1 024-message queue drained by the link's writer thread; a full queue
+    drops the message and the next write is preceded by `resync`. The
+    watcher's callback only queues the file that got hands (256 at most,
+    dropped beyond: a backfill's flood); a feeder thread with its own
+    read-only connection folds them per file and sends `hand_imported` for
+    its newest hands (`Reader::newest_hands_of_file`, new: the hand's
+    rollup site from `segments.site`, its table and every kept seat's
+    `(player, scope)`; at most 10 per import, oldest first), and only while
+    a HUD is connected. Callbacks from the HUD run on the link's reader
+    thread and only flip atomics or emit window events.
+  - **IPC** (`rail_hud_ipc`): Unix domain socket in a fresh `0700` folder
+    `rail-hud-<random>` in the user's temporary directory (`/tmp` when that
+    path would not fit a socket address), the socket `0600`, both removed
+    with the listener; on Windows a named pipe
+    `\\.\pipe\rail-hud-<pid>-<random>`, first instance only, remote clients
+    rejected, DACL `D:P(A;;GA;;;OW)(A;;GA;;;SY)` (owner and SYSTEM only; the
+    default would give Everyone read access) - through `interprocess`
+    =2.4.5 (safe wrappers over `CreateNamedPipeW` and an SDDL security
+    descriptor; std has no pipe server). Frames: 4-byte big-endian length +
+    one JSON message, at most 1 MiB, and 1 KiB until the handshake is done
+    (an unauthenticated peer cannot make either side allocate more); zero
+    and oversized lengths refused before allocating.
+  - **Authentication.** 256-bit random token per HUD process, written as the
+    first line of its standard input (a command-line argument is visible to
+    every user in the process list; the environment cannot be cleared
+    without `unsafe` in Rust 2024). Handshake: `client_hello {protocol,
+    nonce, pid}` -> `server_hello {nonce, proof}` -> `client_proof` ->
+    `welcome`, each proof HMAC-SHA256(token, role, version, both nonces)
+    compared in constant time (HMAC over the workspace's `sha2`, checked
+    against RFC 4231's vectors; `getrandom` for the token and nonces - pure
+    Rust, so the crate cross-checks for `x86_64-pc-windows-msvc` without a
+    C toolchain). The HUD checks the app's proof before sending its own, so
+    a process squatting on the endpoint learns nothing; the app takes only
+    the process it just started, and only while it waits for it (a stranger
+    gets the connection closed). Other users cannot reach the endpoint at
+    all; the user's other processes fail the handshake. A version mismatch
+    is `refused` with both versions named.
+  - **Protocol 1** (`rail_hud_ipc::protocol`; `type` in snake case, fields in
+    camel case; an unknown type reads as `Unknown`, unknown fields are
+    ignored). To the HUD: `hand_imported {site, table, handKey, players:
+    [{name, scope}]}`, `stats_changed {epoch}` (R2.11's swap; from
+    `stats::spawn_refresher`), `layout_changed`, `settings_changed` (read by
+    R3.6 / R3.9), `policy {remote}` (the app's remote `sites.json`; the app
+    fetches none yet), `resync`, `health {seq}`, `shutdown`. From it:
+    `health {seq, report}` (uptime, attached, refused, store open, platform,
+    re-read p50 / p95 / max), `tables_open {count}`, `open_in_app {site,
+    player}` (the app shows its window and emits `hud-open-player`; sent by
+    R3.8's popup), `attach_refused {site, window, reason}`, `table_updated
+    {window, site, table, handKey, players: [{name, hands}], rereadUs}`.
+    Round-trip, wire-form and tolerance tests.
+  - **`tables_open`** pauses the statistics pass's heavy parts
+    (`StatsState::set_tables_open` -> `StatsWorker::set_tables_open`) and
+    lowers sync's bandwidth (`SyncWorker::set_tables_open`) on the edges 0
+    -> some -> 0; the HUD going away counts as 0. It counts tables the HUD
+    is **attached** to: a refused room's windows do not count.
+  - **Read path** (`rail_hud::data`): `rail_store::Reader` with one
+    connection (`SQLITE_OPEN_READ_ONLY` + `query_only`; a test shows writes
+    refused); a missing store is never created, looked for again every
+    second. `hand_imported` sets the players of every attached window of
+    that room - matched by the store's site (`sites.json`'s `parser`: `acr`
+    is `acrwpn` in the store) and the title's table name - and re-reads
+    their `Reader::hud_totals` (all the site's segments; R3.7 picks the
+    table's). `stats_changed`, `resync` and the store's own `PRAGMA
+    data_version` moving without a message (checked every 2 s; new
+    `Reader::data_version`) re-read every attached table: the HUD keeps
+    drawing when the app is busy. A hand of a table the HUD is not
+    attached to is never read; its players are kept (the last hand of up
+    to 256 tables), so a window found a moment after its hand - or a
+    tournament move to a table with a known hand - starts from them.
+  - **Platform trait** (`rail_hud::platform::Platform`): `find_tables(&[TableMatcher])`,
+    `track`, `untrack`, `poll_events` (moved, minimised, retitled - a
+    tournament table move forgets the players -, closed), `overlay(id,
+    &OverlayFrame)`, `remove_overlay`; driven from the HUD's one loop thread
+    (not `Send`: AppKit wants the main thread). `TableWindow`: window id
+    (`HWND` / `CGWindowID` / the simulator's table number), the `sites.json`
+    room whose matcher took it, process (pid, name), title, the title's
+    `table` group, seats, client rect in physical pixels, scale in
+    thousandths (no floating point), minimised. `TableMatcher` from
+    `sites.json` `tables` (processes for this OS + title regex; all `null`
+    today, so none). Backends: `windows` and `macos` stubs (find nothing;
+    their module docs list the R3.3 - R3.5 and R3.11 - R3.13 calls), `none`
+    on Linux, and **`sim`**: the simulator's standard output (JSON lines,
+    tailed from a file every 10 ms) is the windows - `started` gives its
+    own title regex, `table` / `window` / `closed` the rest; overlays are
+    recorded in memory.
+  - **Compliance mode in the HUD process** (`rail_hud::compliance`): a window
+    is attached only when `Site::hud_permitted()` of its room - in the
+    shipped `sites.json` merged with the app's remote copy by
+    `rail_config::load_remote` (stricter only; a refused remote file changes
+    nothing). Otherwise `attach_refused` once per window with `prohibited`,
+    `unknown`, `not-a-room` or `unknown-site`; a `policy` that switches a
+    room off detaches its tables at once. **Test-only room entries** are the
+    sim backend's `--sim-site <id>`: the simulator's windows, matched by its
+    own title regex, pose as that room, and compliance decides as for a real
+    window; it cannot help a real client (the backend reports only the
+    simulator's tables) and nothing of it is in `sites.json`.
+  - **Tests** (all in `cargo test` on Linux, macOS, Windows): rail-hud-ipc 17
+    (messages, frames and limits, handshake both ways, wrong token, squatter,
+    wrong version, garbage first, the real socket / pipe duplex at 64 KiB
+    each way, `0700` / `0600` and cleanup); rail-hud 15 unit (compliance with
+    the signed list and remote merges, the sim backend, the loop: attach,
+    refuse once, a stricter policy detaching, table moves, exits; the store
+    read-only), `tests/supervisor.rs` (the real binary: connect, health,
+    `kill -9` -> restart with a new pid and token, stop and cleanup, a
+    failing HUD retried with backoff, a missing one reported, a stranger
+    refused), `tests/e2e.rs` (below); rail-store
+    `newest_hands_of_a_file_for_the_hud`; the app's `hud` module 3.
+  - **Latency** (§3.3; `tests/e2e.rs`: `rail-hud-sim --headless` -> watcher
+    -> store -> `newest_hands_of_file` -> `hand_imported` through the real
+    supervisor -> `rail-hud --platform sim` -> `hud_totals` ->
+    `table_updated`; M2 Pro, debug build). PokerStars, 3 tables, 12 hands:
+    hand in file -> the app reads `table_updated` p50 515 / p95 521 / max
+    524 ms; `hand_imported` sent -> `table_updated` read 0.58 / 0.79 / 1.7
+    ms; inside the HUD, arrival -> rollups re-read 0.28 / 0.45 / 1.4 ms.
+    **12 tables, 96 hands**: 513 / 520 / 529 ms; 0.47 / 1.2 / 4.7 ms; 0.24 /
+    0.80 / 4.5 ms. ACR (`acrwpn` in the store), 2 tables: 514 / 517 / 532
+    ms. The HUD's part is far inside its 10 ms; the total is the watcher's
+    500 ms quiet period (R1.3, R3.1), so §3.3's < 1 s holds and the aim of
+    250 ms still does not. The prohibited (`ggpoker`) and unknown
+    (`888poker`) runs: every window refused with its reason, nothing
+    attached, not one `table_updated`.
+  - **CI**: the HUD crates are in the `core` job's workspace clippy and test
+    on all three systems (the e2e uses the `rail-hud-sim` binary the same
+    `cargo test` builds; run alone it builds it). The `app` job builds the
+    sidecar (`npm run hud:sidecar`), bundles with
+    `--config src-tauri/tauri.hud.conf.json`, and checks the HUD is in
+    `Rail.app/Contents/MacOS/` (and runs `--help`) and in the NSIS
+    installer's file list.
+  - **Limits.** No real window is found or drawn on yet; the app fetches no
+    remote `sites.json` yet (`policy` is ready for it); `layout_changed` /
+    `settings_changed` are accepted and ignored; Windows' pipe reads have no
+    timeout during the handshake (only the user's processes can connect
+    there); a HUD restarted mid-session shows "waiting for first hand" until
+    its table's next hand (no "latest hand of this table" lookup: `hands`
+    has no table index).
+  - **For R3.3 / R3.11** (find tables): implement `find_tables` in
+    `platform/windows.rs` / `macos.rs` against the matchers
+    `Compliance::matchers()` builds from `sites.json` `tables` (processes
+    for this OS, the title regex with its `table` group) - capture real
+    titles first; return every match, allowed or not (compliance refuses and
+    the app says why). Report the client rect in physical pixels and the
+    scale in thousandths. The Win32 / AppKit calls need `unsafe`: lift
+    `forbid` to `deny` in that module only, each block justified. Process
+    names: compare without case.
+  - **For R3.4 / R3.12** (overlays): `overlay(id, &OverlayFrame)` is called
+    on attach ("waiting for first hand") and after each re-read; the
+    backend owns the overlay window and keeps it on the table
+    (`TableEvent::Moved` already reaches the loop). macOS: the loop must run
+    on the main thread inside the AppKit run loop - `Hud::run` waits on a
+    channel with a 50 ms tick, which then becomes a run-loop timer or
+    source.
+  - **For R3.5 / R3.13** (tracking): `poll_events` drains what the hooks /
+    observers queued; `Retitled` with a new `table` is a tournament move (the
+    loop forgets the players); `Closed` detaches. The sim backend's events
+    and `rail-hud-sim/scripts/tracking.txt` are the ground truth to compare
+    with.
+  - **For R3.7** (data path): `table_updated` carries the re-read latency;
+    the redraw time is the backend's to add. Pick the table's segment(s)
+    for `hud_totals` instead of the whole site; a "latest hand of this
+    table" query (an index on `hands (site, table_name, rowid)` or the hand
+    list) would fill a table at attach instead of at its next hand.
+  - **For R3.10**: the HUD-process half is done here (the decision, refusal
+    reasons, a stricter remote policy detaching); the app keeps the last 32
+    refusals in `hud_status` for the screen that says why.
 
 ### R3.3 Windows: find tables — M
 - `EnumWindows` + `GetWindowText` + owning process; title regex from
@@ -5934,6 +6135,7 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **R2.9 done**: the 1M benchmark store and the performance gate. Dataset: `import_bench/dataset.rs` gains `--spread` (copy *c* played 7 x *c* days earlier, every date moved in the room's calendar, checked per template: 381 of 431 shift) on top of fresh ids and villain names - 982 408 hands stored, 76 128 named opponents, 978 hero hands on the median hand's day (was ~50 real days' worth); generated, deleted, never committed. New `core/rail-watch/examples/perf_gate` (import through the watcher, the background pass, the HUD delay on 1 and 12 live tables, every screen's store calls warm and cold without `sudo`, the start's warm-up; M2-normalised budgets, `--gate`, JSON/markdown). On the M2 Pro at 1M: import 10-12k hands/s, HUD delay p95 0.51-0.56 s, the HUD's lookup 0.07 ms - met; a breakdown tab's first click 1.25-1.29 s -> 0.49-0.60 s and Reports 0.53-0.57 -> 0.29-0.33 s (four-connection breakdowns pass, sparse sums, Reports' two passes at once, and `.cargo/config.toml` turning off the bundled SQLite's global page-cache and memory-statistics mutexes, which made a process's read connections take turns - the import unchanged in an interleaved A/B), the screens after the start's background warm-up (1.4-1.6 s on a cold store) 0.06-0.86 s - met; Reports on a cold store within the warm-up's first ~1.5 s still 2.5-3.6 s (not met; the EV adjustment's random reads, a later `hand_list` column). No schema or statistics change. Nightly workflow `perf-nightly.yml` (cron + dispatch + the `perf` label; full 1M on ubuntu-latest; artifact). Supabase, measured on an isolated local stack: the web's reports over 1M hands of one user take 5-10 s, `stats_opponents` 22-44 s - `player_stats`, a hero rollup and a covering index recommended (prototypes: 0.2-60 ms), not built. |
 | 2026-10-14 | **R2.10 done**: custom statistics. `rail_stats::events` exports per-seat decision events from the counters' own context (42 fields: the hand, the seat, the decision - street, position, facing none/limp/bet/raise, raise level, action, all-in, sizes in thousandths of a bb and of the pot, stacks, position in the hand, multiway, initiative, the cbet chain, the steal; `EVENTS_VERSION` `events/1`); `rail_config::stats::predicate` parses a counter as `first`/`any`/`each` opportunity `=>` action, errors with byte spans, bounded like R2.4's formulas; `rail_stats::custom` evaluates it and validates and compiles a user's definitions (R2.4 `StatDef` + predicate; counters `<id>` / `<id>_opp` readable by formulas through `Variable::Custom`; shipped values unchanged). **Acceptance**: 57 predicates re-express the standard set and equal the coded counters on every one of the corpus's 51 464 rows (8 422 hands), legs included; the showdown family differs on 12 rows, seats with no decision at all (all in by a blind or the antes), which the language cannot see - documented in STATS-SPEC §14.4. Store migration 11 (`custom_stats` in the user's store, `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups`; tested from every earlier version): counted by the background pass from the stored PHF (~26k hands/s on one thread), not at import - events + 57 predicates cost ~14 µs a hand on the import threads but the writes would land in the writer, the pipeline's bottleneck; import gate unchanged (58 %, gate 45 %). A rebuild of the coded statistics recounts them; a changed predicate recounts only its statistic. App: `custom_stats_list` / `_check` / `_save` / `_delete`, the definitions API and Reports' summary include them. Editor in Settings ("Your statistics"): code fields with errors underlined in place, a live preview on the last 5 000 hero hands, labels, format, bands, minimum sample, examples and the field reference; Reports lists them in their group; `en` + `hr`; checked in a browser against a mocked IPC with made-up data. |
 | 2026-10-14 | **R2.11 done, Phase 2's steps complete**: targeted recompute. `rail_store::recompute`: the dependency map as data (`DEPENDENCIES`: a definition's display fields and formulas recompute nothing, a custom predicate that statistic, `EVENTS_VERSION` the custom counts, `STATS_VERSION` the rows job, the new `rail_stats::SEGMENT_VERSION` the segments job, `EV_VERSION` the EV job - each with every table it writes; a test holds it to the schema and checks every unnamed table is untouched). The rows job derives every hand from its PHF and compares, stages only the hands that differ and sums every hand into twins of the rollups and the Players list's lines; the segments job regroups the stored seat rows without deriving; the EV job evaluates every hero hand beside the stored rows; each ends with one swap (staged rows written in place, twins renamed into place, `stats.epoch` moved on). Readers never see half of it: every `Reader::with` is one read transaction, multi-connection answers check the epoch (`Reader::same_epoch`), the reports read EV rows of any version until the swap - a test runs the screens' and the HUD's reads during both jobs. Hands keep their `hand_stats.id`: custom counts survive unless a seat moves between rollup keys. Store migration 12 (work tables), tested from every earlier version; resumable, paused for backfills and open tables; progress on Reports, Hands, Players and Settings, `stats-changed` to re-read after a swap. New crash test: killed between and inside pages and inside both swaps, always the old statistics or the new, resumes. At 500k (vs staging's full rebuild, 84.3 s with the players' index and one custom statistic): segments 28.2 s, "rebuild statistics" 36.1 s, a counter on 250k hands 46.4 s (swap 4.1 s), an EV bump ~367 s vs ~397 s (preflop enumeration dominates). Phase 2 summary in the R2.11 section: the 1M targets hold warm on the M2 Pro; the cold-start Reports case and a Windows laptop's numbers remain. |
-| 2026-10-14 | **R3.0 done (proposal, awaiting the owner's sign-off)**: the HUD compliance check. Every `sites.json` entry's `hud` block from the room's own page, read 2026-10-14, with quotes, URLs, live files, names and confidence in `docs/research/HUD-POLICIES.md`, plus the per-release re-check checklist. **Allowed (3)**: PokerStars (with its Reference Guide's HUD restrictions), Winamax, ACR (own hands, nothing from the hand in play, no overlap of ACR's graphics). **Prohibited or unusable (15)**: GGPoker, partypoker, Unibet, CoinPoker, WPT Global by policy; Ignition (anonymous), PokerBros (no desktop client), the closed rooms, `standard`. **Unknown (4)**: 888poker, iPoker, Chico, WePlay. No network split (no skin's own page allows a HUD). `ignition.operating` true, `partypoker.files.live` false. Test `hud_policies_are_the_signed_list` pins (id, allowed, source) and `hud_permitted()` = PokerStars, Winamax, ACR; the ajv test pins the same list. README §6 and guideline Appendix A from it. Flagged: GG SEP 7.2 on third-party import. |
+| 2026-10-14 | **R3.0 done (signed by the owner on 2026-10-14, merged in #187)**: the HUD compliance check. Every `sites.json` entry's `hud` block from the room's own page, read 2026-10-14, with quotes, URLs, live files, names and confidence in `docs/research/HUD-POLICIES.md`, plus the per-release re-check checklist. **Allowed (3)**: PokerStars (with its Reference Guide's HUD restrictions), Winamax, ACR (own hands, nothing from the hand in play, no overlap of ACR's graphics). **Prohibited or unusable (15)**: GGPoker, partypoker, Unibet, CoinPoker, WPT Global by policy; Ignition (anonymous), PokerBros (no desktop client), the closed rooms, `standard`. **Unknown (4)**: 888poker, iPoker, Chico, WePlay. No network split (no skin's own page allows a HUD). `ignition.operating` true, `partypoker.files.live` false. Test `hud_policies_are_the_signed_list` pins (id, allowed, source) and `hud_permitted()` = PokerStars, Winamax, ACR; the ajv test pins the same list. README §6 and guideline Appendix A from it. Flagged: GG SEP 7.2 on third-party import. |
 | 2026-10-14 | **R3.1 done**: the table simulator `hud/rail-hud-sim` (A8). Windows titled like PokerStars, Winamax or ACR tables (winit =0.30.13 + softbuffer =0.4.8, CPU-drawn: felt, seats with names and stacks, button, board, "RAIL TABLE SIMULATOR - not a poker client"; no GPU, so it runs on CI runners; 4.8 MB release on macOS) at the room's sizes, writing real corpus hands (104 PokerStars, 34 Winamax, 6 ACR era-C) into its own folder at play speed: fresh ids, the table's name, the current time, seats rotated so the hero keeps one seat, one cast of players per table, a hero added to hero-less fixtures with a `Dealt to` line; every hand read back with the room's parser before it is written. Per-room title, file-name, encoding and separator formats in `rooms.json`, each tagged sourced / partly sourced / invented (all titles invented); a test-only title regex generated from the title template. Controls: flags, stdin / `--script` commands (move, resize, minimise, restore, table move, open, close, speed, pause, status), keys; JSON-line events. Tests: 20 unit + headless smoke (3 tables, 20 hands per room, read back through `rail_core::convert`) on three OSes; CI's `core` job runs it with windows on macOS and Windows. End to end (`examples/e2e.rs`, watcher + store + `hud_totals`, M2 Pro, debug): p50 512-516 ms, p95 <= 523 ms, max 554 ms with 12 windowed tables; < 1 s holds, the 500 ms quiet period is the floor (R1.3). R3.1 "As built" has notes for R3.2-R3.7 and R3.11-R3.14. |
 | 2026-10-14 | **Fix: a folder's path change raced its reads** (R1.5 "Edit path", R1.6 / "Import writer, second pass"). `a_folder_path_changes_and_continues_where_it_stopped` failed on macOS CI (PR #188) with `(moved, detached, marked) = (0, 2, 1)`, expected `(0, 1, 1)`: at the second change the folder had **two** file rows - the new path's at 13 037 bytes and `old/table.txt` again at 6 601, the whole file. Cause, a product bug (the "known gap" R1.5 documented, worse than described): `Watcher::set_source_path` moved the rows in the store while the coordinator still had the old path until its reload, so a read of the old path dispatched around the move (the 1 s re-walk after the watch is set, a late FSEvents notification or a recheck) looked the file up after its row had moved, found none, read it whole from 0 and committed a new row under the folder; its answer came after the reload had dropped the old files, so no `Imported` event showed it. Hands deduped, but the folder counted a file too many, the file was read twice, and the next change detached it. Fix (`rail-watch`, no store or parsing change): `set_source_path` and `set_source_site_override` first **fence** the folder - a `Fence` command makes the coordinator dispatch none of its files (they stay queued) and answer once none is in flight (`in_flight` now keeps each read's folder; a read is in flight until its commit is answered, so nothing of it is left with the writer) - then change the store, mark, reload, and the dropped guard sends `Unfence` after the `Reload`. The offsets the move compares are final, and the override's reset can no longer meet a batch read with the old room. A deterministic unit test drives the coordinator by hand (`a_fenced_folder_starts_no_read_and_is_answered_after_its_reads`: nothing of the folder dispatched while fenced, the fence answered only after the read in flight answers, other folders read on, two fences need two `Unfence`); the watcher tests take `RAIL_WATCH_THREADS`. Stress, the path-change test 100 times each with 20 copies running at once on a 10-core Mac: before 5 / 7 / 1 failures with 1 / 2 / 8 import threads (all `(0, 2, 1)`), after 0 / 0 / 0; 50 runs one at a time and the room-override test 60 times under the same load: 0 failures. |
+| 2026-10-15 | **R3.2 done**: the HUD process and IPC. `hud/rail-hud` is its own process, the app's Tauri sidecar (`bundle.externalBin` in `app/src-tauri/tauri.hud.conf.json`, `npm run hud:sidecar`; CI's `app` job bundles it and checks it is in the `.app` and the NSIS installer), started with `std::process::Command` from beside the app's executable and supervised by `rail_hud_ipc::supervisor`: a fresh 256-bit token per process on its standard input, `health` every 2 s, no answer for 10 s / exit / disconnect -> killed and restarted with a backoff 0.5 s -> 30 s, `shutdown` + stdin closed on exit (it also exits when the app is gone). New crate `hud/rail-hud-ipc`: protocol 1 (the plan's messages plus `stats_changed`, `policy`, `resync`, `shutdown`, `tables_open`, `attach_refused`, `table_updated`; unknown types and fields tolerated), 4-byte length + JSON frames (1 MiB, 1 KiB before authentication), a Unix socket in a `0700` folder (`0600`) or a named pipe with an owner-and-SYSTEM DACL (`interprocess` =2.4.5), a mutual HMAC-SHA256 handshake, links whose sends never block. The app: imports feed `hand_imported` from a thread of its own (new `Reader::newest_hands_of_file`), recompute swaps `stats_changed`, `tables_open` pauses the stats pass and slows sync. The HUD: the store read-only (new `Reader::data_version` keeps it current without messages), compliance mode in the process (shipped + remote merge, `hud_permitted()`, refusals reported once, a stricter policy detaching), the platform trait (`find_tables`, `track`, `poll_events`, `overlay`) with Windows / macOS stubs and a fake backend driven by `rail-hud-sim`'s events. Headless end to end in CI: hand in file -> HUD re-read p50 515 ms (12 tables 513; the watcher's quiet period), inside the HUD 0.24-0.28 ms; a prohibited and an unknown room refused with nothing read. |

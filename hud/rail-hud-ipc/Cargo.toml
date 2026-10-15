@@ -1,0 +1,30 @@
+[package]
+name = "rail-hud-ipc"
+description = "The app <-> HUD channel: protocol, framing, authentication, transport, supervision"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+# The handshake's HMAC-SHA256 (over the workspace's SHA-256) and the
+# random tokens and nonces from the OS. Both pure Rust: this crate builds
+# for every target without a C toolchain.
+sha2 = "0.11.0"
+getrandom = "0.3.4"
+log = "0.4.34"
+
+# Named pipes (docs/RAIL-PLAN.md §3.2): the standard library has no pipe
+# server, and creating one with a DACL needs the Win32 API. `interprocess`
+# wraps both safely (`PipeListenerOptions`, `SecurityDescriptor` from an
+# SDDL string), so this crate stays `forbid(unsafe_code)`. Without default
+# features: no tokio.
+[target.'cfg(windows)'.dependencies]
+interprocess = { version = "=2.4.5", default-features = false }
+widestring = "=1.2.1"

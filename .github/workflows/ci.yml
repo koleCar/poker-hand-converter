@@ -178,6 +178,15 @@ jobs:
   # all-in EV diff (R2.2, core/rail-equity/tests/corpus.rs) does the same
   # against testdata/golden-ev/.
   #
+  # The HUD crates (R3.2: hud/rail-hud, hud/rail-hud-ipc) are in the
+  # workspace run on all three systems: the protocol and handshake tests, the
+  # real socket / named pipe, the supervisor with the real `rail-hud` binary
+  # (start, health, kill and restart, strangers refused), and the headless
+  # end-to-end test - the simulator's hands through the watcher and the store
+  # to the HUD process, an allowed room attached and a prohibited one
+  # refused (hud/rail-hud/tests/e2e.rs; it uses the rail-hud-sim binary the
+  # same `cargo test` builds).
+  #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
   # WebKitGTK development packages, and compiling Tauri in both jobs on every
@@ -332,12 +341,38 @@ jobs:
       - name: Test (app crate)
         run: cargo test -p rail-app --locked
 
+      # The HUD process is the app's Tauri sidecar (docs/RAIL-PLAN.md R3.2):
+      # `rail-hud` built in release and copied to
+      # src-tauri/binaries/rail-hud-<target triple> for the bundler
+      # (`bundle.externalBin` in src-tauri/tauri.hud.conf.json), which puts
+      # it next to the app's executable - where the app starts it from.
+      - name: HUD sidecar
+        if: runner.os != 'Linux'
+        run: npm run hud:sidecar
+        working-directory: app
+
       # `tauri build` runs `npm run build` (tsc + vite) first, then the
       # release build and the bundler.
       - name: Unsigned bundle
         if: runner.os != 'Linux'
-        run: npm run tauri -- build --ci --bundles ${{ matrix.bundles }}
+        run: npm run tauri -- build --ci --bundles ${{ matrix.bundles }} --config src-tauri/tauri.hud.conf.json
         working-directory: app
+
+      # The sidecar made it in: in the .app beside the app's binary (and it
+      # runs), and in the NSIS installer's file list.
+      - name: The HUD is in the bundle
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then
+            hud=target/release/bundle/macos/Rail.app/Contents/MacOS/rail-hud
+            test -x "$hud"
+            "$hud" --help 2>&1 | head -2
+          else
+            nsi=$(find target/release/nsis -name installer.nsi | head -1)
+            echo "$nsi"
+            grep -n "rail-hud" "$nsi"
+          fi
 
       - uses: actions/upload-artifact@v4
         if: runner.os != 'Linux'

@@ -98,14 +98,14 @@ Performance targets (guideline §1, measured from Phase 2):
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)); since R1.2 the desktop's local registry (`unsupported` in `rail-store`, count and consent state) | Unknown files from watched folders recorded (R1.3), consented uploads after sign-in (R1.7+) | 0–1 |
-| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`); **R3.0** HUD policy per entry from each room's own page, dated (proposal awaiting the owner's sign-off: allowed on PokerStars, Winamax, ACR; [`HUD-POLICIES.md`](docs/research/HUD-POLICIES.md)) | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), the unknown HUD policies settled, re-checked every release | 0–3 |
+| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`); **R3.0** HUD policy per entry from each room's own page, dated (signed by the owner on 2026-10-14: allowed on PokerStars, Winamax, ACR; [`HUD-POLICIES.md`](docs/research/HUD-POLICIES.md)) | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), the unknown HUD policies settled, re-checked every release | 0–3 |
 | File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands. **Import pipeline (R1.6)**: a pool of import threads (physical cores - 1), live files first, large files cut into parallel batches, grouped commits; backfill progress in the tray, on Today and the folder cards; refused hands app-wide with their raw text and "Try again after an update"; 10 300 hands/s on an M2 Pro (target >= 5 000), guarded in CI | Sync to Supabase (R1.8-R1.9) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts; **R2.3**: the local statistics (seat rows, rollups per player and segment, the hero's per day, all-in EV); **R2.7a**: the hand list (one narrow row per hand in the list's order, written with the statistics), notes, tags and saved filters - a page of 100 in ~1 ms at 500k hands, filtered pages 1-35 ms; **R2.7b**: the reports' reads (`rail_store::report`) - the win-rate graph from one scan of the list (migration 8 adds the columns it needs), sessions by the web's 30-minute rule, breakdowns by situation - Reports opens in 0.1-0.5 s at 500k hands (1.8 s on a cold disk cache); **R2.7c**: the players (`rail_store::players`, migration 9) - per opponent of a room with real names the hands together and your result against them (written with the statistics), their seat rows by name (written by the background pass after the import, which keeps the import's rate), the user's colour tags, labels and notes (local only); **R2.10**: the user's own statistics (migration 11) and their counts, made by the background pass from the stored hands (~26k hands/s) and summed like the coded rollups | HUD layouts (Phase 3) | 1 |
 | Sync | Web saves to Supabase directly; **R1.8**: `ingest_hands` / `hand_sources` for desktop rows (PHF only, Q4); **R1.9**: the desktop sync worker (`rail_sync::worker`) - the outbox in batches of 500 to `ingest_hands`, hands just played first, backoff while offline, the account's rate limit waited out, refused hands kept with their reason, a bandwidth cap while a large backlog syncs, resumable after a kill, never sent to another account than the store's; and the pull (`hands_since`) of the account's hands from the web and its other computers. Settings → Account, Today and the tray show it; **R1.10**: the web's `/library` and `/stats` show synced hands live (Realtime on a one-row-per-account signal, `hand_arrivals`; debounced, nothing while the tab is hidden; statistics derived without a click). Phase 1 is complete on `staging`; production needs the owner's checklist ([`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.10) | gzip uploads if bandwidth needs it | 1 |
 | Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats`; **R2.1**: ported to Rust (`core/rail-stats`, `rows_for(&PhfHand)`), its rows equal to the TypeScript's for all 8 422 corpus hands (51 464 rows) and 4 000 seeded mutations of them; the TypeScript stays the oracle (`testdata/golden-stats/`); **R2.2**: all-in EV ported too (`core/rail-equity`, `ev_row`), its `hand_stats_ev` rows and analyses equal to the TypeScript's for every corpus hand (8 121 rows, 508 all-ins, the 11 Omaha preflop Monte Carlo ones included, equities bit for bit) and 4 500 seeded vectors (`testdata/golden-ev/`); **R2.3**: run at import on the desktop - seat rows, per-player rollups by segment and the hero's by day, written with each hand; preflop all-ins evaluated by a background pass that also rebuilds after a version bump; **R2.4**: displayed statistics are data - `config/stats/standard.json` (32 definitions: formula over the counters, format, colour bands, sample, labels in `en` + `hr`, HUD membership), evaluated identically in Rust (`rail_stats::display`) and on the web (`lib/stats/display.ts`), equal to the web's `rates()` and `Intl` text over the corpus; **R2.5**: every value's reliability - a 95% Wilson interval for rates, a level and an opacity from the definition's `sample.min` - the same bits in Rust (`rail_stats::reliability`) and on the web (`lib/stats/reliability.ts`), which `/stats` uses; **R2.7b**: the desktop's reports print the web's numbers - over the corpus, every statistic, graph bucket, breakdown row and session equal to the web's SQL restated in TypeScript over the TypeScript engine's rows (`core/rail-store/tests/data/report-vectors.*`); **R2.10**: custom statistics - per-seat decision events (`rail_stats::events`) and a predicate language over them (`first` / `any` / `each` opportunity `=>` action), which re-expresses the standard set and equals the coded counters on every corpus row but 12 (seats that never decided anything, STATS-SPEC §14.4); **R2.11**: targeted recompute - a dependency map from each kind of definition change to the tables it touches, worked out in the background beside the statistics on screen and swapped in whole | Custom statistics on the web | 2 |
 | Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI. **Shared UI package (R2.6)**: `packages/ui` - the design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay and the command palette's shell, one set for the web and the app; the web renders from it with no visual change, the app takes its tokens and dialog from it. **Hands (R2.7a)**: the virtualised hand list over the local store (keyset pages), filter chips in one row with counts and saved filters, the shared replayer beside it (the web's, with Inter bundled), tags and a note per hand, Cmd/Ctrl + K to go to a hand by its number or to a screen. **Today and Reports (R2.7b)**: the current session (the web's 30-minute rule: result in money and big blinds, hands, hands per hour, its key statistics, its biggest pots into Hands) above the import status; Reports with the filter row and its own saved filters - the result, bb/100 and all-in EV bb/100, the web's win-rate graph (moved into `packages/ui`) in big blinds or money, every statistic with its reliability, breakdowns by position, stake, table size, room, game, pot type, stack depth, players, street and the 13 x 13 starting-hand grid. **Players (R2.7c)**: the opponents of rooms that print screen names, most hands together first, searched by the start of a name (also from Cmd/Ctrl + K), with your result against each in big blinds; a profile with their statistics and reliability, rows by position, stake, table size and game, a colour tag, labels and a note, and "hands with this player" into Hands; opaque-id rooms' opponents counted, never listed. **Polish (R2.8)**: the command palette complete (fuzzy search over screens, hands, players, reports, saved filters, Settings sections and commands, recent choices, shortcut hints, keyboard only), theme (dark / light / system) and density (comfortable / compact) saved and painted before the first frame, Croatian complete and switchable in Settings (the tray follows), the Players list virtualised as a keyboard grid, the profile's own game kind, one shape for loading, empty and error states, a contrast pass in both themes. **Custom statistics (R2.10)**: Settings → Your statistics - a counter and a formula written in code fields with what is wrong underlined in place, a live preview on your last 5 000 hands, label, format, colour bands and minimum sample; listed in Reports with the shipped statistics | Tauri 2 + React: HUD, Settings (Phase 3) | 1–2 |
-| HUD | **Table simulator (R3.1)**: `rail-hud-sim` opens table windows titled like PokerStars, Winamax or ACR tables and writes real corpus hands into a folder of its own at play speed (fresh ids, one cast of players per table, the hero in a fixed seat), for the watcher and every HUD step; scriptable (move, resize, minimise, table move, close); runs headless in `cargo test` and with windows in CI on macOS and Windows | Separate native process, Windows first, then macOS | 3 |
+| HUD | **Table simulator (R3.1)**: `rail-hud-sim` opens table windows titled like PokerStars, Winamax or ACR tables and writes real corpus hands into a folder of its own at play speed (fresh ids, one cast of players per table, the hero in a fixed seat), for the watcher and every HUD step; scriptable (move, resize, minimise, table move, close); runs headless in `cargo test` and with windows in CI on macOS and Windows. **HUD process and IPC (R3.2)**: `rail-hud` is its own process, the app's Tauri sidecar - started, health-checked and restarted with a backoff by the app, told of every imported hand over a local socket / named pipe that only the user can reach, with a per-process token and a mutual handshake; it reads the store read-only, attaches only to rooms whose HUD policy is `allowed` (compliance mode in the process itself) and pauses the app's heavy work while tables are open. Window finding and overlays are stubs until R3.3 (Windows) and R3.11 (macOS); a fake backend driven by the simulator runs the whole data path in CI (hand in file -> HUD re-read: p50 ~515 ms, the watcher's quiet period; inside the HUD ~0.25 ms) | Native overlays, Windows first, then macOS | 3 |
 | Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
 | Analysis | **Live on web**: phases S, A1–A9 of [`docs/ANALYSIS-PLAN.md`](docs/ANALYSIS-PLAN.md) | Session review, leak finder in the app (never during play) | 5 |
 | Subscription | — | Plans, Stripe, EU VAT | 6 |
@@ -437,8 +437,24 @@ R3.1; [§8](#table-simulator-since-r31)): windows titled like a room's tables
 with a drawn table to align to, writing real corpus hands where the watcher
 picks them up - no poker client, no real money, on any machine and in CI.
 
-**Compliance mode** is on by default: `config/sites.json` says per room whether
-a HUD is allowed, and Rail refuses to attach where it is not. No real-time
+**The HUD process (R3.2).** `hud/rail-hud` runs apart from the app, as its
+Tauri sidecar: the app starts it, checks its health every 2 s, restarts it
+with a backoff when it dies or hangs, and shuts it down on exit (it also exits
+by itself when the app is gone). They talk over a Unix domain socket (macOS)
+or a named pipe (Windows) only the user can open, with length-prefixed JSON
+messages (`hud/rail-hud-ipc`): a random token per HUD process on its standard
+input and a mutual HMAC handshake keep the user's other programs out. The app
+says `hand_imported` (the hand's room, table and players) and
+`stats_changed`; the HUD re-reads those players' rollups from the store,
+opened read-only, and says `tables_open`, which pauses the app's heavy
+background work and slows sync while you play. The platform layer
+(`find_tables`, `track`, `overlay`) is one trait with Windows and macOS
+backends (stubs until R3.3 / R3.11) and a fake one driven by the simulator.
+
+**Compliance mode** is on by default and lives in the HUD process itself:
+`config/sites.json` says per room whether a HUD is allowed (a remote copy can
+only make that stricter), and the HUD refuses to attach where it is not -
+unknown counts as no, and there is no override. No real-time
 assistance of any kind; no sharing or selling of opponent data between users;
 the room list is re-checked before every release.
 
@@ -485,8 +501,8 @@ while you play, which a HUD needs; it is a starting point to verify except
 where R1.4 looked at a real macOS install (WePlay writes its files live,
 GGPoker and CoinPoker write none locally,
 [`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md)).
-**The HUD column is R3.0's compliance check** (2026-10-14, proposal awaiting
-the owner's sign-off): each room's own policy page, quoted and dated in
+**The HUD column is R3.0's compliance check** (2026-10-14, signed by the
+owner the same day): each room's own policy page, quoted and dated in
 [`docs/research/HUD-POLICIES.md`](docs/research/HUD-POLICIES.md) and carried
 in [`config/sites.json`](config/sites.json) (`hud`). The HUD attaches only
 where it says "allowed"; unknown counts as prohibited, and the list is
@@ -529,7 +545,7 @@ Today, and where each part is going (the move is a planned step,
 | `frontend/src/lib/stats`, `lib/equity` | `core/rail-stats`, `core/rail-equity` | Statistics and all-in EV |
 | — | `core/rail-store`, `core/rail-watch`, `core/rail-sync` | SQLite, file watcher, sync |
 | `app/` (R1.1) | `app/` | Tauri desktop app: `src-tauri/` (Rust, in the workspace) and `src/` (React) |
-| — | `hud/` | Native HUD overlay, Windows and macOS |
+| `hud/` (R3.1, R3.2) | `hud/` | The HUD process `rail-hud` (overlays, Windows and macOS), its channel to the app `rail-hud-ipc`, the table simulator `rail-hud-sim` |
 | `frontend/` | `web/` | Next.js web app (Vercel root directory moves with it) |
 | `packages/ui/` (R2.6) | `packages/ui/` | Shared UI package `@rail/ui`: design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay, command palette. Source consumed by `frontend/` and `app/` through `file:` links; the web's own screens stay in `frontend/src/components` |
 | `supabase/` | `supabase/` | Migrations, RLS, pgTAP tests |
@@ -776,6 +792,21 @@ no Windows certificate (P4): the macOS app is only ad-hoc signed (which Apple
 silicon requires to launch at all), so the first launch needs System Settings,
 Privacy & Security, "Open Anyway"; Windows SmartScreen asks for "Run anyway".
 
+The HUD (since R3.2) is a separate binary the app starts from beside its own
+executable: in development `cargo build -p rail-hud` puts it in
+`target/debug/` next to `rail` (without it the app runs and says the HUD is
+not installed; `RAIL_HUD=off` keeps it from starting). A bundle carries it as
+a Tauri sidecar:
+
+```bash
+cd app
+npm run hud:sidecar          # cargo build --release -p rail-hud, copied to src-tauri/binaries/
+npm run tauri -- build --config src-tauri/tauri.hud.conf.json
+```
+
+CI's `app` job does the same and checks the HUD is in the `.app` and the
+NSIS installer.
+
 ### Shared UI package (since R2.6)
 
 `packages/ui/` is `@rail/ui`: the design tokens and the components the web and
@@ -834,6 +865,32 @@ players' rollups are readable; prints p50 / p95 / max):
 ```bash
 cargo build -p rail-hud-sim
 cargo run -p rail-hud-sim --example e2e -- [--windows] [--room acr] [--tables 12] [--hands 48] [--speed 6]
+```
+
+### HUD process (since R3.2)
+
+`hud/rail-hud` is the HUD process, `hud/rail-hud-ipc` the channel to it (the
+protocol, framing, handshake, socket / pipe and the app's supervisor). The
+app starts it; by hand it runs only `--standalone` (no app, its messages
+printed to standard error):
+
+```bash
+cargo run -p rail-hud -- --help
+cargo run -p rail-hud -- --standalone --store <rail.db> --platform sim \
+    --sim-events <simulator stdout file> --sim-site pokerstars
+```
+
+`--platform sim` takes its "windows" from the table simulator's events
+instead of the system: `--sim-site` is the `sites.json` room they pose as,
+and compliance mode decides on it as on a real window (`pokerstars`
+attaches, `ggpoker` is refused). The whole data path - simulator, watcher,
+store, `hand_imported`, the HUD process through the real supervisor,
+re-read - runs headless in `cargo test -p rail-hud` (it builds and uses the
+simulator binary); bigger runs print their latency:
+
+```bash
+RAIL_HUD_E2E_TABLES=12 RAIL_HUD_E2E_HANDS=96 RAIL_HUD_E2E_SPEED=30 \
+    cargo test -p rail-hud --test e2e -- --nocapture
 ```
 
 ---

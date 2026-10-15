@@ -7,8 +7,32 @@ rust-version.workspace = true
 publish.workspace = true
 repository.workspace = true
 
-[dependencies]
-rail-config = { path = "../../core/rail-config" }
+[lib]
+name = "rail_hud"
+path = "src/lib.rs"
+
+# The process the app starts as its sidecar (docs/RAIL-PLAN.md R3.2).
+[[bin]]
+name = "rail-hud"
+path = "src/main.rs"
 
 [lints]
 workspace = true
+
+[dependencies]
+# Compliance mode: the shipped sites.json, merged with a remote copy by
+# R0.12's rules; `hud_permitted()` is the one question.
+rail-config = { path = "../../core/rail-config" }
+# The parser ids `rail_config::load_shipped` checks coverage against.
+rail-core = { path = "../../core/rail-core" }
+# The read path: the store opened read-only, `Reader::hud_totals`.
+rail-store = { path = "../../core/rail-store" }
+rail-hud-ipc = { path = "../rail-hud-ipc" }
+regex = "1.13.1"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+
+[dev-dependencies]
+# The end-to-end test (tests/e2e.rs): the simulator's hands through the
+# watcher into a store, the app's side of the channel, this process.
+rail-watch = { path = "../../core/rail-watch" }

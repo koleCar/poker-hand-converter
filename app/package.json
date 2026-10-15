@@ -10,7 +10,8 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "lint:css": "stylelint \"src/**/*.css\"",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "hud:sidecar": "node scripts/hud-sidecar.mjs"
   },
   "dependencies": {
     "@rail/ui": "file:../packages/ui",

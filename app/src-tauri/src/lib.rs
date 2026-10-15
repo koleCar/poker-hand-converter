@@ -45,7 +45,11 @@
 //!   the all-in EV of preflop all-ins in the background; woken by imports,
 //!   paused while a backfill runs, stopped on exit with the watcher;
 //! - the Hands screen ([`hands`], R2.7a): the list with its filters and
-//!   counts, a hand's PHF for the replayer, notes, tags and saved filters.
+//!   counts, a hand's PHF for the replayer, notes, tags and saved filters;
+//! - the HUD process ([`hud`], R3.2): the `rail-hud` sidecar, started and
+//!   supervised (restarted with a backoff, health-checked), told of every
+//!   import, stopped first on exit; while it is attached to tables the
+//!   statistics pass and sync slow down.
 
 use std::sync::Mutex;
 
@@ -61,6 +65,7 @@ pub mod dev;
 pub mod folder_settings;
 pub mod folders;
 pub mod hands;
+pub mod hud;
 pub mod players;
 pub mod quarantine;
 pub mod reports;
@@ -162,8 +167,20 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // The statistics pass (R2.3), before the watcher: imports wake it and a
     // backfill pauses it.
     let stats = stats::StatsState::start(&store);
-    let watcher =
-        watch::WatcherState::start(&store, std::sync::Arc::clone(&sync_slot), stats.clone());
+    // The HUD (R3.2), before the watcher: imports feed it.
+    let hud = hud::HudState::start(
+        app,
+        &store,
+        stats.clone(),
+        std::sync::Arc::clone(&sync_slot),
+    );
+    let watcher = watch::WatcherState::start(
+        &store,
+        std::sync::Arc::clone(&sync_slot),
+        stats.clone(),
+        hud.feed(),
+    );
+    app.manage(hud);
     app.manage(stats);
     app.manage(store);
     // The custom statistics editor's preview hands (R2.10).
@@ -182,6 +199,9 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     account::setup(app);
     // Sync (R1.9): after the store and the account it uses.
     sync::setup(app, &sync_slot);
+    if let Some(hud) = app.try_state::<hud::HudState>() {
+        hud.sync_started();
+    }
     // A recompute's swap tells the window (R2.11).
     stats::spawn_refresher(app);
 
@@ -288,6 +308,7 @@ pub fn run() {
         players::player_set_colour,
         players::player_add_label,
         players::player_remove_label,
+        hud::hud_status,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -362,6 +383,7 @@ pub fn run() {
         players::player_set_colour,
         players::player_add_label,
         players::player_remove_label,
+        hud::hud_status,
     ]);
 
     let app = builder
@@ -380,9 +402,13 @@ pub fn run() {
         .expect("the Tauri app could not be built");
 
     app.run(|app, event| match event {
-        // The watcher, the sync worker and the statistics pass first: the
-        // store waits for their writer handles.
+        // The HUD first (its overlays go at once), then the watcher, the
+        // sync worker and the statistics pass: the store waits for their
+        // writer handles.
         tauri::RunEvent::Exit => {
+            if let Some(hud) = app.try_state::<hud::HudState>() {
+                hud.stop();
+            }
             if let Some(sync) = app.try_state::<sync::SyncState>() {
                 sync.stop();
             }

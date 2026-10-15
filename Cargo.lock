@@ -1129,6 +1129,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "doctest-file"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2db04e74f0a9a93103b50e90b96024c9b2bdca8bce6a632ec71b88736d3d359"
+
+[[package]]
 name = "dom_query"
 version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2197,6 +2203,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c033f80b2c113cdf91ab7a33faa9cbc014726dcad99880c8609af2a370edf37d"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "interprocess"
+version = "2.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe388dd743f24e2e350318bd4bc67b2ab99599c2c63076cd9397293206779186"
+dependencies = [
+ "doctest-file",
+ "libc",
+ "recvmsg",
+ "widestring",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3616,6 +3635,7 @@ dependencies = [
  "open",
  "rail-config",
  "rail-core",
+ "rail-hud-ipc",
  "rail-stats",
  "rail-store",
  "rail-sync",
@@ -3685,6 +3705,26 @@ name = "rail-hud"
 version = "0.0.0"
 dependencies = [
  "rail-config",
+ "rail-core",
+ "rail-hud-ipc",
+ "rail-store",
+ "rail-watch",
+ "regex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "rail-hud-ipc"
+version = "0.0.0"
+dependencies = [
+ "getrandom 0.3.4",
+ "interprocess",
+ "log",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "widestring",
 ]
 
 [[package]]
@@ -3794,6 +3834,12 @@ dependencies = [
  "crossbeam-deque",
  "crossbeam-utils",
 ]
+
+[[package]]
+name = "recvmsg"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3edd4d5d42c92f0a659926464d4cce56b562761267ecf0f469d85b7de384175"
 
 [[package]]
 name = "redox_syscall"
@@ -6048,6 +6094,12 @@ dependencies = [
  "windows",
  "windows-core",
 ]
+
+[[package]]
+name = "widestring"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72069c3113ab32ab29e5584db3c6ec55d416895e60715417b5b883a357c3e471"
 
 [[package]]
 name = "winapi"

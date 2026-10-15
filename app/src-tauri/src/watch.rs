@@ -43,11 +43,12 @@ impl WatcherState {
     /// Start watching the store's enabled folders. Each import with new
     /// hands wakes the sync worker in `sync` once it exists (R1.9).
     /// The statistics pass is woken by the same imports, and paused while a
-    /// folder's backfill runs (R2.3).
+    /// folder's backfill runs (R2.3). The HUD hears of the new hands (R3.2).
     pub fn start(
         store: &StoreState,
         sync: crate::sync::SyncSlot,
         stats: crate::stats::StatsState,
+        hud: crate::hud::HudFeed,
     ) -> Self {
         let dirty = Arc::new(AtomicBool::new(true));
         let Some(store) = &store.store else {
@@ -71,11 +72,14 @@ impl WatcherState {
                 Watcher::start(store.path(), writer, config, move |event| {
                     on_event(&flag, &event);
                     match &event {
-                        WatchEvent::Imported { inserted, .. } if *inserted > 0 => {
+                        WatchEvent::Imported { path, inserted, .. } if *inserted > 0 => {
                             if let Some(worker) = sync.get() {
                                 worker.wake();
                             }
                             stats.wake();
+                            // The HUD re-reads the players of these hands
+                            // (R3.2); only queued here.
+                            hud.imported(path, *inserted);
                         }
                         WatchEvent::Progress {
                             source_id,
