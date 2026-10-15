@@ -10,6 +10,7 @@ import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 
 import { useT } from "../../i18n";
 import { errorText, ipc, type HandAnnotations, type HandRow } from "../../lib/ipc";
+import { useTablesOpen } from "../../lib/useTablesOpen";
 import styles from "./HandPanel.module.css";
 
 /** How long typing pauses before the note is saved. */
@@ -29,6 +30,8 @@ interface HandPanelProps {
 export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: HandPanelProps) {
   const t = useT().hands.panel;
   const state = useHand(handKey);
+  // A10: no pot odds while a poker table is open.
+  const tablesOpen = useTablesOpen();
 
   return (
     <section className={styles.panel} aria-label={t.label}>
@@ -40,6 +43,7 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
             site={row?.siteName ?? null}
             onClose={onClose}
             urlSync={false}
+            potOdds={!tablesOpen}
             headerExtra={
               <button
                 type="button"
@@ -62,6 +66,11 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
           </p>
         )}
       </div>
+      {tablesOpen ? (
+        <p className={styles.status} role="note">
+          {t.potOddsHidden}
+        </p>
+      ) : null}
       <Annotations key={handKey} handKey={handKey} knownTags={knownTags} onAnnotated={onAnnotated} />
     </section>
   );

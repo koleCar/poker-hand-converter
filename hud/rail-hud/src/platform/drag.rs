@@ -90,6 +90,12 @@ impl Drag {
         Some(at)
     }
 
+    /// (R3.8) The press never moved past the threshold: a click on the
+    /// panel (it opens the popup), not a drag.
+    pub fn is_click(&self) -> bool {
+        self.at.is_none()
+    }
+
     /// The release, against the scene painted with the drag: where the
     /// panel ended up (its centre, thousandths) when it was dragged and the
     /// scene placed it where the user wanted (`None`: a click, or no place
@@ -113,7 +119,7 @@ mod tests {
     use crate::compliance::Compliance;
     use crate::layout::{Positions, table_graphics};
     use crate::panel::{PanelDesign, StatCell};
-    use crate::platform::{OverlayFrame, SeatPanel, Seating};
+    use crate::platform::{OverlayFrame, PanelWords, SeatPanel, Seating};
     use crate::scene::{compose, compose_with};
 
     fn frame(site: &str, seats: &[u32]) -> OverlayFrame {
@@ -140,9 +146,10 @@ mod tests {
                             opacity_permille: 1000,
                         })
                         .collect(),
-                    label: None,
+                    words: PanelWords::default(),
                 })
                 .collect(),
+            legend: Vec::new(),
         }
     }
 
@@ -193,8 +200,14 @@ mod tests {
         let frame = frame("pokerstars", &[1]);
         let scene = compose(&frame, 800, 580, 1000, &PanelDesign::default());
         let (x, y) = middle(&scene.seat_panels[0].1);
-        let drag = Drag::press(&scene, x, y).expect("on a panel");
+        let mut drag = Drag::press(&scene, x, y).expect("on a panel");
+        assert!(drag.is_click());
         assert_eq!(drag.release(&scene), None);
+        // Within the threshold it stays a click; past it, a drag.
+        assert_eq!(drag.moved(x + 4, y - 4, threshold(1000), 800, 580), None);
+        assert!(drag.is_click());
+        assert!(drag.moved(x + 5, y, threshold(1000), 800, 580).is_some());
+        assert!(!drag.is_click());
         assert_eq!(threshold(1000), 4);
         assert_eq!(threshold(1500), 6);
         assert_eq!(threshold(0), 4);

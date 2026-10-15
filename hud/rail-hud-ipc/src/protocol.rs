@@ -156,9 +156,49 @@ pub enum HudMessage {
         x: u32,
         y: u32,
     },
+    /// (R3.8) The user clicked a seat's panel (a press and release that
+    /// never became a drag): the app opens its popup for that player next
+    /// to the panel - one popup window, reused while it is open; the same
+    /// panel clicked again closes it. The app reads what the popup shows
+    /// itself (the HUD's connection is read-only and the popup edits the
+    /// player's note), over the same rows the panel shows: the table's
+    /// `segment`, the user's own hands only where the room says so.
+    #[serde(rename_all = "camelCase")]
+    OpenPopup {
+        /// The table window (`HWND`, the simulator's table number).
+        window: u64,
+        /// The `sites.json` room (`acr`): its HUD rules decide what the
+        /// popup may show.
+        site: String,
+        /// The rollups' site (`acrwpn`): where the player's rows are.
+        store_site: String,
+        /// The table name from the window's title.
+        table: Option<String>,
+        /// The player as the table's last hand had them (scope, seat, hero).
+        player: PlayerRef,
+        /// The table's segment (R3.7); `None`: every segment of the site.
+        segment: Option<i64>,
+        /// The panel's visual seat (R3.6): its identity on the screen.
+        slot: u32,
+        /// The panel on the screen, physical pixels: the popup goes beside
+        /// it.
+        anchor: ScreenRect,
+        /// The table's monitor scale, thousandths (1000 = 96 dpi).
+        scale_permille: u32,
+    },
     /// A message type this build does not know (a newer HUD).
     #[serde(other)]
     Unknown,
+}
+
+/// (R3.8) A rectangle on the screen, physical pixels.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScreenRect {
+    pub x: i32,
+    pub y: i32,
+    pub width: u32,
+    pub height: u32,
 }
 
 /// Why compliance mode refused a window.
@@ -384,6 +424,36 @@ mod tests {
                 x: 1000,
                 y: 0,
             },
+            HudMessage::OpenPopup {
+                window: 0x1234,
+                site: "acr".into(),
+                store_site: "acrwpn".into(),
+                table: Some("Miramar".into()),
+                player: PlayerRef::named("Villain").at(4),
+                segment: Some(7),
+                slot: 3,
+                anchor: ScreenRect {
+                    x: -1200,
+                    y: 40,
+                    width: 96,
+                    height: 44,
+                },
+                scale_permille: 1500,
+            },
+            HudMessage::OpenPopup {
+                window: 1,
+                site: "pokerstars".into(),
+                store_site: "pokerstars".into(),
+                table: None,
+                player: PlayerRef {
+                    hero: true,
+                    ..PlayerRef::named("SimHero").at(1)
+                },
+                segment: None,
+                slot: 0,
+                anchor: ScreenRect::default(),
+                scale_permille: 1000,
+            },
         ];
         for message in &hud {
             assert_eq!(&round_trip(message), message);
@@ -464,6 +534,27 @@ mod tests {
             })
             .expect("json"),
             r#"{"type":"seat_position_changed","site":"pokerstars","size":9,"slot":0,"x":512,"y":873}"#
+        );
+        // (R3.8) A click on a panel.
+        assert_eq!(
+            serde_json::to_string(&HudMessage::OpenPopup {
+                window: 9,
+                site: "acr".into(),
+                store_site: "acrwpn".into(),
+                table: Some("T".into()),
+                player: PlayerRef::named("V").at(2),
+                segment: Some(3),
+                slot: 1,
+                anchor: ScreenRect {
+                    x: 10,
+                    y: -5,
+                    width: 80,
+                    height: 40,
+                },
+                scale_permille: 1250,
+            })
+            .expect("json"),
+            r#"{"type":"open_popup","window":9,"site":"acr","storeSite":"acrwpn","table":"T","player":{"name":"V","scope":"","seat":2},"segment":3,"slot":1,"anchor":{"x":10,"y":-5,"width":80,"height":40},"scalePermille":1250}"#
         );
     }
 

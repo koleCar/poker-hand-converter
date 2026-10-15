@@ -2,7 +2,7 @@
  * The Rust commands, typed. Each type mirrors a `#[derive(Serialize)]` struct
  * in `src-tauri/src/commands.rs` or `dev.rs` (camelCase on both sides).
  */
-import type { Shown, StatDefinition } from "@rail/ui/model/stats";
+import type { Shown, StatDefinition, StatTone } from "@rail/ui/model/stats";
 import type { WinrateGraphBucket, WinrateGraphData } from "@rail/ui/stats/WinrateGraph";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -691,6 +691,58 @@ export interface PlayerSite {
 /** The screens with saved filters. */
 export type FilterScreen = "hands" | "reports";
 
+/* ------------------------------------------------- The HUD (R3.2, R3.8) - */
+
+/** `hud::HudStatusDto`, the part the window reads: tables the HUD is attached to. */
+export interface HudStatus {
+  phase: string;
+  tablesOpen: number;
+}
+
+/** `popup::PopupRules`: what the room's HUD rules let the popup show. */
+export interface PopupRules {
+  ownHandsOnly: boolean;
+  /** Colour by at most this many thresholds. */
+  colourThresholds: number | null;
+  /** Rows by position (not where the display may not switch with game state: PokerStars, Winamax). */
+  byPosition: boolean;
+  /** The colour tag and labels (not where labelling players is banned: PokerStars, ACR). */
+  labels: boolean;
+  /** The note (the user's own words). */
+  notes: boolean;
+}
+
+/** `popup::BandDto`: one colour band in use, `below` its upper threshold (none: the rest). */
+export interface PopupBand {
+  below: number | null;
+  tone: StatTone;
+}
+
+/** `popup::PopupDto`: what the HUD popup shows (R3.8). */
+export interface HudPopup {
+  site: string;
+  siteName: string;
+  /** The site the player's words are kept under. */
+  storeSite: string;
+  table: string | null;
+  player: string;
+  hero: boolean;
+  /** An opaque-id seat: one session's token, not a name. */
+  opaque: boolean;
+  rules: PopupRules;
+  /** Hands their statistics count. */
+  hands: number;
+  /** The statistics shown, by definition id. */
+  ids: string[];
+  stats: Shown[];
+  /** Each statistic's thresholds in use. */
+  legend: { id: string; bands: PopupBand[] }[];
+  together: PlayerSeen | null;
+  notes: PlayerNotes | null;
+  columns: string[];
+  byPosition: StatGroup[] | null;
+}
+
 /* ------------------------------------------- Custom statistics (R2.10) - */
 
 /** `reports::DefinitionDto`: a shipped definition, or the user's own (`custom`). */
@@ -863,6 +915,12 @@ export const ipc = {
     invoke<PlayerNotes>("player_add_label", { site, player, label }),
   playerRemoveLabel: (site: string, player: string, label: string) =>
     invoke<PlayerNotes>("player_remove_label", { site, player, label }),
+  /** The HUD process (R3.2): its tables (A10: analysis hides while one is open). */
+  hudStatus: () => invoke<HudStatus>("hud_status"),
+  /** The HUD popup (R3.8): what it shows (`null`: none open), close it, open the player in Rail. */
+  hudPopup: () => invoke<HudPopup | null>("hud_popup"),
+  hudPopupClose: () => invoke<null>("hud_popup_close"),
+  hudPopupOpenInApp: () => invoke<null>("hud_popup_open_in_app"),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
@@ -902,13 +960,35 @@ export function onAccountChanged(onChange: () => void): () => void {
   return onAppEvent("account-changed", onChange);
 }
 
-function onAppEvent(name: string, onChange: () => void): () => void {
+/** (R3.8) The HUD popup was moved to another panel: read it again. */
+export function onHudPopupChanged(onChange: () => void): () => void {
+  return onAppEvent("hud-popup-changed", onChange);
+}
+
+/** (R3.8, A10) Whether the HUD has any table open, on each change. */
+export function onTablesOpen(onChange: (open: boolean) => void): () => void {
+  return onAppEvent<boolean>("hud-tables-open", onChange);
+}
+
+/** `hud::OpenPlayer`: "show this player" from the HUD popup. */
+export interface OpenPlayer {
+  site: string;
+  name: string;
+  scope: string;
+}
+
+/** (R3.8) The HUD popup's "Open in Rail". */
+export function onOpenPlayer(onOpen: (player: OpenPlayer) => void): () => void {
+  return onAppEvent<OpenPlayer>("hud-open-player", onOpen);
+}
+
+function onAppEvent<T = unknown>(name: string, onChange: (payload: T) => void): () => void {
   if (!inApp) {
     return () => undefined;
   }
   let stop: (() => void) | null = null;
   let stopped = false;
-  listen(name, onChange)
+  listen<T>(name, (event) => onChange(event.payload))
     .then((unlisten) => {
       if (stopped) {
         unlisten();

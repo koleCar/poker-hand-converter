@@ -214,14 +214,19 @@ pub struct Observed {
     pub tables: BTreeMap<WindowId, Seen>,
     /// A top-level window of a followed process was shown.
     pub appeared: bool,
-    /// Panels the user dropped somewhere (R3.6), in order: every one is the
-    /// user's decision, none is coalesced away.
+    /// Panels the user dropped somewhere (R3.6) or clicked (R3.8), in
+    /// order: every one is the user's decision, none is coalesced away.
     pub dragged: Vec<TableEvent>,
 }
 
 impl Observed {
     /// The user dropped a panel (a [`TableEvent::PanelMoved`]).
     pub fn dragged(&mut self, event: TableEvent) {
+        self.dragged.push(event);
+    }
+
+    /// (R3.8) The user clicked a panel (a [`TableEvent::PanelClicked`]).
+    pub fn clicked(&mut self, event: TableEvent) {
         self.dragged.push(event);
     }
 
@@ -307,11 +312,15 @@ pub fn events(
     if observed.appeared {
         out.push(TableEvent::Appeared);
     }
-    // Drags of tables the engine still follows, after their table's own
-    // events (a table closed meanwhile takes its drag with it).
-    out.extend(observed.dragged.into_iter().filter(
-        |event| matches!(event, TableEvent::PanelMoved { id, .. } if tracked.contains_key(id)),
-    ));
+    // Drags and clicks of tables the engine still follows, after their
+    // table's own events (a table closed meanwhile takes them with it).
+    out.extend(observed.dragged.into_iter().filter(|event| {
+        matches!(
+            event,
+            TableEvent::PanelMoved { id, .. } | TableEvent::PanelClicked { id, .. }
+                if tracked.contains_key(id)
+        )
+    }));
     out
 }
 
@@ -489,14 +498,26 @@ mod tests {
             y: 200,
             seq,
         };
+        // (R3.8) Clicks go the same way, in order with the drags.
+        let click = |id, slot| TableEvent::PanelClicked {
+            id: WindowId(id),
+            slot,
+            panel: rect(10, 20, 90, 40),
+            scale_permille: 1000,
+        };
         observed.dragged(drag(1, 2, 1));
+        observed.clicked(click(1, 4));
         observed.dragged(drag(1, 2, 2));
         observed.dragged(drag(7, 0, 3));
+        observed.clicked(click(7, 1));
         assert!(!observed.is_empty());
         assert_eq!(
             events(observed, &mut tracked, &matchers()),
-            [drag(1, 2, 1), drag(1, 2, 2)]
+            [drag(1, 2, 1), click(1, 4), drag(1, 2, 2)]
         );
+        let mut clicked = Observed::default();
+        clicked.clicked(click(1, 0));
+        assert!(!clicked.is_empty());
     }
 
     #[test]

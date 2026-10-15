@@ -648,9 +648,54 @@ pub fn place_status(
     }
 }
 
+/// (R3.8) Where the legend goes: a corner of the client area `margin` in
+/// from its edges - top left, top right, bottom left, bottom right, the
+/// first that is clear of the table's graphics and of everything `taken`
+/// (the panels, the status pill, the debug line). `None`: no corner is free
+/// (the legend is left out; the panels matter more).
+pub fn place_legend(
+    width: u32,
+    height: u32,
+    layout: &TableLayout,
+    size: (u32, u32),
+    margin: u32,
+    taken: &[Rect],
+) -> Option<Rect> {
+    let graphics = layout.graphics(width, height);
+    let (w, h, m) = (i64::from(size.0), i64::from(size.1), i64::from(margin));
+    let (right, bottom) = (i64::from(width) - w - m, i64::from(height) - h - m);
+    [(m, m), (right, m), (m, bottom), (right, bottom)]
+        .into_iter()
+        .map(|(x, y)| rect(x, y, w, h))
+        .find(|c| {
+            inside(c, width, height)
+                && !graphics.iter().any(|g| intersects(c, g))
+                && !taken.iter().any(|t| intersects(c, t))
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// (R3.8) The legend takes the first free corner: top left on an empty
+    /// table, the next one when something is there, none when the client
+    /// is too small for it.
+    #[test]
+    fn the_legend_takes_a_free_corner() {
+        let layout = TableLayout::simulator(6);
+        let (w, h) = (800, 580);
+        let first = place_legend(w, h, &layout, (60, 20), 4, &[]).expect("a corner");
+        assert_eq!((first.x, first.y), (4, 4));
+        let second = place_legend(w, h, &layout, (60, 20), 4, &[first]).expect("another");
+        assert_eq!((second.x, second.y), (736, 4));
+        for corner in [first, second] {
+            for g in layout.graphics(w, h) {
+                assert!(!intersects(&corner, &g));
+            }
+        }
+        assert_eq!(place_legend(50, 20, &layout, (60, 20), 4, &[]), None);
+    }
 
     /// The client sizes the default layout must fit without dropping a
     /// panel: from a small table (640 x 440 logical) up, at 100 % to 200 %.

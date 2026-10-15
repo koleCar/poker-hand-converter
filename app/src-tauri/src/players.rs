@@ -136,6 +136,29 @@ impl From<PlayerNotes> for NotesDto {
     }
 }
 
+impl NotesDto {
+    /// (R3.8) The note alone: a HUD popup on a room that forbids labelling
+    /// players shows no colour and no labels.
+    #[must_use]
+    pub(crate) fn note_only(mut self) -> Self {
+        self.colour = None;
+        self.labels.clear();
+        self
+    }
+
+    /// The note (a test's view).
+    #[cfg(test)]
+    pub(crate) fn note(&self) -> &str {
+        &self.note
+    }
+
+    /// The colour and labels (a test's view).
+    #[cfg(test)]
+    pub(crate) fn words(&self) -> (Option<&str>, &[String]) {
+        (self.colour.as_deref(), &self.labels)
+    }
+}
+
 /// One opponent in the list.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,0 +1,180 @@
+/* The HUD popup (R3.8): a small window beside a panel at the table - its
+   own page, scrolling, compact. Semantic tokens only; the value colours are
+   the app's `--hud-tone-*` (`index.css`), the panel's blue / orange. */
+
+.popup {
+  block-size: 100%;
+  overflow-y: auto;
+  padding: var(--space-3);
+  border: 1px solid var(--border-default);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.who {
+  min-inline-size: 0;
+}
+
+.name {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.notice {
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-2);
+  background: var(--info-bg);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+}
+
+.fact dt {
+  color: var(--text-secondary);
+}
+
+.fact dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.up {
+  color: var(--profit-fg);
+}
+
+.down {
+  color: var(--loss-fg);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.subhead {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+summary.subhead {
+  cursor: pointer;
+}
+
+.groups {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* A value in the panel's colour for its band. */
+.groups :global(tr[data-tone="very-low"]) td:first-of-type {
+  color: var(--hud-tone-very-low);
+}
+
+.groups :global(tr[data-tone="low"]) td:first-of-type {
+  color: var(--hud-tone-low);
+}
+
+.groups :global(tr[data-tone="normal"]) td:first-of-type {
+  color: var(--hud-tone-normal);
+}
+
+.groups :global(tr[data-tone="high"]) td:first-of-type {
+  color: var(--hud-tone-high);
+}
+
+.groups :global(tr[data-tone="very-high"]) td:first-of-type {
+  color: var(--hud-tone-very-high);
+}
+
+.legend {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.legendName {
+  font-weight: var(--font-weight-medium);
+}
+
+.bands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.band[data-tone="very-low"] {
+  color: var(--hud-tone-very-low);
+}
+
+.band[data-tone="low"] {
+  color: var(--hud-tone-low);
+}
+
+.band[data-tone="normal"] {
+  color: var(--hud-tone-normal);
+}
+
+.band[data-tone="high"] {
+  color: var(--hud-tone-high);
+}
+
+.band[data-tone="very-high"] {
+  color: var(--hud-tone-very-high);
+}
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}

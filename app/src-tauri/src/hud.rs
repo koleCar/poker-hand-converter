@@ -24,6 +24,10 @@
 //!   the HUD goes away the tables count as closed. `attach_refused` is
 //!   logged and kept for the status (R3.10 shows it in the app);
 //!   `open_in_app` shows the window and emits [`OPEN_PLAYER_EVENT`];
+//!   (R3.8) `open_popup` (a click on a panel) opens the HUD popup
+//!   (`crate::popup`), and the window hears [`TABLES_OPEN_EVENT`] on the
+//!   edges of `tables_open` - while tables are open it hides its analysis
+//!   (A10), and the popup closes when the last table does;
 //!   `seat_position_changed` (R3.6: the user dragged a panel) is written to
 //!   the store by a thread of its own ([`LayoutWrites`]) - the HUD's
 //!   connection is read-only, and the supervisor's callback never waits for
@@ -43,7 +47,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use rail_hud_ipc::protocol::{AppMessage, HandTiming, HudMessage, PlayerRef, RefusalReason};
 use rail_hud_ipc::supervisor::{Event, Supervisor, SupervisorConfig};
 use serde::Serialize;
-use tauri::{AppHandle, Emitter, Runtime, State};
+use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 
 use crate::commands::StoreState;
 use crate::stats::StatsState;
@@ -52,6 +56,11 @@ use crate::sync::SyncSlot;
 /// The window event for "show this player" from a HUD popup (R3.8); the
 /// payload is `{site, name, scope}`.
 pub const OPEN_PLAYER_EVENT: &str = "hud-open-player";
+
+/// (R3.8, A10) The window event on the edges of the HUD's `tables_open`:
+/// the payload is whether any table is open now. While one is, the window
+/// hides its analysis (guideline §7: no help during play).
+pub const TABLES_OPEN_EVENT: &str = "hud-tables-open";
 
 /// The environment variable that keeps the HUD from starting (`off`).
 pub const DISABLE_VAR: &str = "RAIL_HUD";
@@ -352,15 +361,35 @@ impl HudState {
     }
 }
 
-fn set_tables_open(shared: &Shared, stats: &StatsState, sync: &SyncSlot, count: u32) {
+/// The HUD's table count; on its edges (none -> some -> none) the
+/// statistics pass and sync hear it. Returns whether it was an edge.
+fn set_tables_open(shared: &Shared, stats: &StatsState, sync: &SyncSlot, count: u32) -> bool {
     let before = shared.tables_open.swap(count, Ordering::SeqCst);
-    if (before > 0) != (count > 0) {
+    let edge = (before > 0) != (count > 0);
+    if edge {
         let open = count > 0;
         log::info!("hud: tables {}", if open { "open" } else { "closed" });
         stats.set_tables_open(open);
         if let Some(worker) = sync.get() {
             worker.set_tables_open(open);
         }
+    }
+    edge
+}
+
+/// (R3.8) The window hears an edge of `tables_open` (A10); with no table
+/// open the popup closes.
+fn tables_edge<R: Runtime>(app: &AppHandle<R>, open: bool) {
+    if let Err(error) = app.emit(TABLES_OPEN_EVENT, open) {
+        log::debug!("{TABLES_OPEN_EVENT}: {error}");
+    }
+    if !open {
+        let handle = app.clone();
+        let _ = app.run_on_main_thread(move || {
+            if let Some(state) = handle.try_state::<crate::popup::PopupState>() {
+                crate::popup::close(&handle, &state);
+            }
+        });
     }
 }
 
@@ -377,10 +406,40 @@ fn on_event<R: Runtime>(
         Event::Connected { pid } => log::debug!("hud: pid {pid} connected"),
         Event::Disconnected { reason } => {
             log::info!("hud: gone ({reason})");
-            set_tables_open(shared, stats, sync, 0);
+            if set_tables_open(shared, stats, sync, 0) {
+                tables_edge(app, false);
+            }
         }
         Event::Message(message, _) => match message {
-            HudMessage::TablesOpen { count } => set_tables_open(shared, stats, sync, count),
+            HudMessage::TablesOpen { count } => {
+                if set_tables_open(shared, stats, sync, count) {
+                    tables_edge(app, count > 0);
+                }
+            }
+            HudMessage::OpenPopup {
+                window,
+                site,
+                store_site,
+                table,
+                player,
+                segment,
+                slot,
+                anchor,
+                scale_permille,
+            } => crate::popup::request(
+                app,
+                crate::popup::PopupTarget {
+                    window,
+                    site,
+                    store_site,
+                    table,
+                    player,
+                    segment,
+                    slot,
+                    anchor,
+                    scale_permille,
+                },
+            ),
             HudMessage::AttachRefused {
                 site,
                 window,
@@ -513,14 +572,14 @@ fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> Hu
 /// [`OPEN_PLAYER_EVENT`]'s payload.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct OpenPlayer {
+pub(crate) struct OpenPlayer {
     site: String,
     name: String,
     scope: String,
 }
 
 impl OpenPlayer {
-    fn new(site: String, player: PlayerRef) -> Self {
+    pub(crate) fn new(site: String, player: PlayerRef) -> Self {
         Self {
             site,
             name: player.name,
@@ -712,6 +771,92 @@ mod tests {
             y: 0,
         });
         drop((layouts, reader));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (R3.8) The app's half of a click on a panel: the HUD's
+    /// `open_popup` opens the popup window (Tauri's mock runtime), the
+    /// window hears the tables' edges, and the last table closing closes
+    /// the popup. A room whose HUD is not allowed gets no window.
+    #[test]
+    fn open_popup_from_the_hud_opens_the_window() {
+        use rail_hud_ipc::protocol::ScreenRect;
+        use tauri::Listener;
+
+        let dir = std::env::temp_dir().join(format!("rail-app-hud-popup-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let store = StoreState::open(dir.join(rail_store::FILE_NAME));
+        let stats = StatsState::start(&store);
+        let (sync, shared, layouts) = (
+            SyncSlot::default(),
+            Shared::default(),
+            LayoutWrites::default(),
+        );
+        let app = tauri::test::mock_builder()
+            .build(tauri::test::mock_context(tauri::test::noop_assets()))
+            .expect("a mock app");
+        let handle = app.handle();
+        handle.manage(crate::popup::PopupState::default());
+        let edges = Arc::new(Mutex::new(Vec::new()));
+        let heard = Arc::clone(&edges);
+        handle.listen(TABLES_OPEN_EVENT, move |event| {
+            heard
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .push(event.payload().to_owned());
+        });
+        let message = |site: &str| {
+            Event::Message(
+                HudMessage::OpenPopup {
+                    window: 3,
+                    site: site.into(),
+                    store_site: site.into(),
+                    table: Some("Made-up".into()),
+                    player: PlayerRef::named("Villain").at(4),
+                    segment: Some(1),
+                    slot: 3,
+                    anchor: ScreenRect {
+                        x: 100,
+                        y: 100,
+                        width: 90,
+                        height: 40,
+                    },
+                    scale_permille: 1000,
+                },
+                std::time::Instant::now(),
+            )
+        };
+        let event = |e: Event| on_event(handle, &shared, &stats, &sync, &layouts, e);
+        event(Event::Message(
+            HudMessage::TablesOpen { count: 1 },
+            std::time::Instant::now(),
+        ));
+        event(message("ggpoker"));
+        let popup = handle.state::<crate::popup::PopupState>();
+        assert_eq!(popup.label(), None, "no popup for a room without a HUD");
+        event(message("pokerstars"));
+        let label = popup.label().expect("a popup");
+        assert!(handle.get_webview_window(&label).is_some());
+        let target = popup.target().expect("its target");
+        assert_eq!(
+            (
+                target.site.as_str(),
+                target.player.name.as_str(),
+                target.slot
+            ),
+            ("pokerstars", "Villain", 3)
+        );
+        event(Event::Message(
+            HudMessage::TablesOpen { count: 0 },
+            std::time::Instant::now(),
+        ));
+        assert_eq!(popup.label(), None, "no table, no popup");
+        assert_eq!(
+            *edges.lock().unwrap_or_else(PoisonError::into_inner),
+            ["true", "false"]
+        );
+        stats.stop();
+        drop(store);
         let _ = std::fs::remove_dir_all(&dir);
     }
 

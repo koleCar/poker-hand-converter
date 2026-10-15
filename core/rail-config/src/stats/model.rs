@@ -157,6 +157,53 @@ impl Tone {
     }
 }
 
+impl Tone {
+    /// (R3.8) This tone with the thresholds beyond `max` merged away - a
+    /// room that allows colour by at most `max` fixed thresholds
+    /// (`hud.restrictions.maxColourThresholds`: PokerStars 2). The five
+    /// tones have four thresholds between them (very low | low | normal |
+    /// high | very high); they are kept in the order low|normal,
+    /// normal|high, very low|low, high|very high, so two thresholds give
+    /// low, normal and high, one gives low and normal, none gives normal.
+    /// `None`: every tone.
+    #[must_use]
+    pub fn collapse(self, max: Option<u32>) -> Self {
+        let Some(max) = max else {
+            return self;
+        };
+        let keep_low = max >= 1;
+        let keep_high = max >= 2;
+        let keep_very_low = max >= 3;
+        let keep_very_high = max >= 4;
+        match self {
+            Self::VeryLow if keep_very_low => Self::VeryLow,
+            Self::VeryLow | Self::Low if keep_low => Self::Low,
+            Self::VeryHigh if keep_very_high => Self::VeryHigh,
+            Self::VeryHigh | Self::High if keep_high => Self::High,
+            _ => Self::Normal,
+        }
+    }
+}
+
+/// (R3.8) A definition's bands as a room with at most `max` colour
+/// thresholds shows them: every tone collapsed ([`Tone::collapse`]) and
+/// neighbouring bands of one tone merged into one (it ends where the last of
+/// them ended). What a legend lists: the thresholds actually in use.
+pub fn collapse_bands(bands: &[Band], max: Option<u32>) -> Vec<Band> {
+    let mut out: Vec<Band> = Vec::with_capacity(bands.len());
+    for band in bands {
+        let tone = band.tone.collapse(max);
+        match out.last_mut() {
+            Some(last) if last.tone == tone => last.below = band.below,
+            _ => out.push(Band {
+                below: band.below,
+                tone,
+            }),
+        }
+    }
+    out
+}
+
 /// Default HUD membership.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

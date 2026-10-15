@@ -27,6 +27,7 @@ use std::fmt;
 pub use formula::{Expr, Op, ParseError, parse as parse_formula};
 pub use model::{
     Band, Format, Group, HudPlace, Players, SampleDef, StatDef, StatsFile, Text, Tone, Unit,
+    collapse_bands,
 };
 
 /// The `version` of a stats file this build reads.
@@ -471,5 +472,67 @@ mod tests {
             })
         ));
         assert_eq!(problems(&file("")), ["no statistics"]);
+    }
+
+    /// (R3.8) At most `max` thresholds survive a collapse; two keep low,
+    /// normal and high.
+    #[test]
+    fn tones_collapse_to_the_allowed_thresholds() {
+        let all = [
+            Tone::VeryLow,
+            Tone::Low,
+            Tone::Normal,
+            Tone::High,
+            Tone::VeryHigh,
+        ];
+        let collapsed = |max: Option<u32>| all.map(|tone| tone.collapse(max)).to_vec();
+        assert_eq!(collapsed(None), all);
+        assert_eq!(collapsed(Some(4)), all);
+        assert_eq!(
+            collapsed(Some(2)),
+            [Tone::Low, Tone::Low, Tone::Normal, Tone::High, Tone::High]
+        );
+        assert_eq!(
+            collapsed(Some(1)),
+            [
+                Tone::Low,
+                Tone::Low,
+                Tone::Normal,
+                Tone::Normal,
+                Tone::Normal
+            ]
+        );
+        assert_eq!(collapsed(Some(0)), [Tone::Normal; 5]);
+    }
+
+    /// (R3.8) Bands merged where their collapsed tones meet: a five-band
+    /// definition under two thresholds is three bands with the inner
+    /// thresholds kept (the shipped definitions: rail-hud's `panel`
+    /// tests).
+    #[test]
+    fn bands_collapse_to_the_thresholds_in_use() {
+        let band = |below: Option<f64>, tone| Band { below, tone };
+        let five = [
+            band(Some(15.0), Tone::VeryLow),
+            band(Some(22.0), Tone::Low),
+            band(Some(30.0), Tone::Normal),
+            band(Some(40.0), Tone::High),
+            band(None, Tone::VeryHigh),
+        ];
+        assert_eq!(collapse_bands(&five, None), five);
+        assert_eq!(
+            collapse_bands(&five, Some(2)),
+            [
+                band(Some(22.0), Tone::Low),
+                band(Some(30.0), Tone::Normal),
+                band(None, Tone::High),
+            ]
+        );
+        assert_eq!(
+            collapse_bands(&five, Some(1)),
+            [band(Some(22.0), Tone::Low), band(None, Tone::Normal)]
+        );
+        assert_eq!(collapse_bands(&five, Some(0)), [band(None, Tone::Normal)]);
+        assert!(collapse_bands(&[], Some(2)).is_empty());
     }
 }

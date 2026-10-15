@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The main window: core APIs only. Rail's own commands (src/commands.rs) are allowed without a permission entry; no plugin API is reachable from the web side.",
-  "windows": ["main"],
+  "description": "The main window and the HUD popups (R3.8, hud-popup-<n>): core APIs only. Rail's own commands (src/commands.rs) are allowed without a permission entry; no plugin API is reachable from the web side.",
+  "windows": ["main", "hud-popup-*"],
   "permissions": ["core:default"]
 }

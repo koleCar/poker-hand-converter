@@ -229,15 +229,40 @@ function Body({
 
 /** The colour, the labels and the note. */
 function Words({ profile, onNotes }: { profile: Profile; onNotes: (notes: PlayerNotes) => void }) {
+  return <PlayerWords site={profile.site} player={profile.player} initial={profile.notes} onNotes={onNotes} />;
+}
+
+/**
+ * A player's words, saved as they change: the colour (an ARIA radio group),
+ * the labels and the note. (R3.8) The HUD popup shows it too, with
+ * `labels={false}` (the note alone) where the room forbids labelling
+ * players.
+ */
+export function PlayerWords({
+  site,
+  player,
+  initial,
+  onNotes,
+  labels: showLabels = true,
+  footnote = true,
+}: {
+  site: string;
+  player: string;
+  initial: PlayerNotes;
+  onNotes: (notes: PlayerNotes) => void;
+  /** The colour and labels (false: the note alone). */
+  labels?: boolean;
+  /** "Stays on this computer for now". */
+  footnote?: boolean;
+}) {
   const p = useT().players;
   const t = p.profile;
-  const { site, player } = profile;
-  const [notes, setNotes] = useState(profile.notes);
-  const [note, setNote] = useState(profile.notes.note);
+  const [notes, setNotes] = useState(initial);
+  const [note, setNote] = useState(initial.note);
   const [label, setLabel] = useState("");
   const [noteState, setNoteState] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
-  const savedNote = useRef(profile.notes.note);
+  const savedNote = useRef(initial.note);
   const timer = useRef<number | undefined>(undefined);
   const pending = useRef<string | null>(null);
   const groupId = useId();
@@ -311,71 +336,75 @@ function Words({ profile, onNotes }: { profile: Profile; onNotes: (notes: Player
 
   return (
     <div className={styles.words}>
-      <div className={styles.wordsRow}>
-        <span className={styles.wordsLabel} id={`${groupId}-colour`}>
-          {t.colour}
-        </span>
-        <div role="radiogroup" aria-labelledby={`${groupId}-colour`} className={styles.swatches} onKeyDown={onColourKey}>
-          {choices.map((colour) => {
-            const checked = notes.colour === colour;
-            const name = colour === null ? p.noColour : p.colours[colour];
-            return (
-              <button
-                key={colour ?? "none"}
-                type="button"
-                role="radio"
-                aria-checked={checked}
-                aria-label={name}
-                title={name}
-                tabIndex={checked ? 0 : -1}
-                className={`${styles.swatchButton}${checked ? ` ${styles.swatchOn}` : ""}`}
-                onClick={() => setColour(colour)}
-              >
-                <span className={styles.swatch} data-colour={colour ?? "none"} aria-hidden="true" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      <div className={styles.wordsRow}>
-        <span className={styles.wordsLabel} id={`${groupId}-labels`}>
-          {t.labels}
-        </span>
-        <ul className={styles.labels} aria-labelledby={`${groupId}-labels`}>
-          {notes.labels.map((name) => (
-            <li key={name} className={styles.label}>
-              {name}
-              <button
-                type="button"
-                aria-label={t.removeLabel(name)}
-                title={t.removeLabel(name)}
-                onClick={() => ipc.playerRemoveLabel(site, player, name).then(applied).catch(failed)}
-              >
-                ×
-              </button>
-            </li>
-          ))}
-          {notes.labels.length < 8 ? (
-            <li>
-              <input
-                className={styles.labelInput}
-                value={label}
-                maxLength={24}
-                placeholder={t.labelPlaceholder}
-                aria-label={t.addLabel}
-                title={t.labelsHint}
-                onChange={(event) => setLabel(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    addLabel();
-                  }
-                }}
-              />
-            </li>
-          ) : null}
-        </ul>
-      </div>
+      {showLabels ? (
+        <>
+          <div className={styles.wordsRow}>
+            <span className={styles.wordsLabel} id={`${groupId}-colour`}>
+              {t.colour}
+            </span>
+            <div role="radiogroup" aria-labelledby={`${groupId}-colour`} className={styles.swatches} onKeyDown={onColourKey}>
+              {choices.map((colour) => {
+                const checked = notes.colour === colour;
+                const name = colour === null ? p.noColour : p.colours[colour];
+                return (
+                  <button
+                    key={colour ?? "none"}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    aria-label={name}
+                    title={name}
+                    tabIndex={checked ? 0 : -1}
+                    className={`${styles.swatchButton}${checked ? ` ${styles.swatchOn}` : ""}`}
+                    onClick={() => setColour(colour)}
+                  >
+                    <span className={styles.swatch} data-colour={colour ?? "none"} aria-hidden="true" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className={styles.wordsRow}>
+            <span className={styles.wordsLabel} id={`${groupId}-labels`}>
+              {t.labels}
+            </span>
+            <ul className={styles.labels} aria-labelledby={`${groupId}-labels`}>
+              {notes.labels.map((name) => (
+                <li key={name} className={styles.label}>
+                  {name}
+                  <button
+                    type="button"
+                    aria-label={t.removeLabel(name)}
+                    title={t.removeLabel(name)}
+                    onClick={() => ipc.playerRemoveLabel(site, player, name).then(applied).catch(failed)}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+              {notes.labels.length < 8 ? (
+                <li>
+                  <input
+                    className={styles.labelInput}
+                    value={label}
+                    maxLength={24}
+                    placeholder={t.labelPlaceholder}
+                    aria-label={t.addLabel}
+                    title={t.labelsHint}
+                    onChange={(event) => setLabel(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addLabel();
+                      }
+                    }}
+                  />
+                </li>
+              ) : null}
+            </ul>
+          </div>
+        </>
+      ) : null}
       <label className={styles.wordsRow}>
         <span className={styles.wordsLabel}>
           {t.note}
@@ -401,7 +430,7 @@ function Words({ profile, onNotes }: { profile: Profile; onNotes: (notes: Player
           onBlur={() => saveNote(note)}
         />
       </label>
-      <p className={styles.footnote}>{t.localOnly}</p>
+      {footnote ? <p className={styles.footnote}>{t.localOnly}</p> : null}
       {error ? (
         <p className={styles.errorText} role="alert">
           {error}

@@ -49,7 +49,10 @@
 //! - the HUD process ([`hud`], R3.2): the `rail-hud` sidecar, started and
 //!   supervised (restarted with a backoff, health-checked), told of every
 //!   import, stopped first on exit; while it is attached to tables the
-//!   statistics pass and sync slow down.
+//!   statistics pass and sync slow down;
+//! - the HUD popup ([`popup`], R3.8): a click on a panel opens a small
+//!   window of the app's beside it, which never takes the keyboard from the
+//!   table when it opens.
 
 use std::sync::Mutex;
 
@@ -67,6 +70,7 @@ pub mod folders;
 pub mod hands;
 pub mod hud;
 pub mod players;
+pub mod popup;
 pub mod quarantine;
 pub mod reports;
 pub mod settings;
@@ -167,6 +171,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // The statistics pass (R2.3), before the watcher: imports wake it and a
     // backfill pauses it.
     let stats = stats::StatsState::start(&store);
+    // The HUD popup (R3.8), before the HUD: a click on a panel opens it.
+    app.manage(popup::PopupState::default());
     // The HUD (R3.2), before the watcher: imports feed it.
     let hud = hud::HudState::start(
         app,
@@ -311,6 +317,9 @@ pub fn run() {
         hud::hud_status,
         hud::hud_set_preferred_seat,
         hud::hud_reset_seat_positions,
+        popup::hud_popup,
+        popup::hud_popup_close,
+        popup::hud_popup_open_in_app,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -388,6 +397,9 @@ pub fn run() {
         hud::hud_status,
         hud::hud_set_preferred_seat,
         hud::hud_reset_seat_positions,
+        popup::hud_popup,
+        popup::hud_popup_close,
+        popup::hud_popup_open_in_app,
     ]);
 
     let app = builder
@@ -400,6 +412,13 @@ pub fn run() {
             {
                 api.prevent_close();
                 let _ = window.hide();
+            }
+            // (R3.8) The HUD popup closes when it loses the keyboard the
+            // user gave it (a click elsewhere).
+            if let WindowEvent::Focused(false) = event
+                && window.label().starts_with(popup::POPUP_LABEL_PREFIX)
+            {
+                popup::blurred(window.app_handle(), window.label());
             }
         })
         .build(tauri::generate_context!())

@@ -150,6 +150,13 @@ pub struct OverlayInfo {
     pub size: u32,
     /// Panels dragged and dropped on this overlay (R3.6).
     pub drags: u64,
+    /// (R3.8) Clicks on its panels: popups asked for.
+    pub clicks: u64,
+    /// (R3.8) The colour tags drawn, by slot, client-relative: none on a
+    /// room that forbids labelling players.
+    pub tags: Vec<(u32, Rect)>,
+    /// (R3.8) The legend, client-relative, when drawn.
+    pub legend: Option<Rect>,
     /// Seats whose panel the layout dropped.
     pub dropped: Vec<String>,
     /// How many times it was moved without a repaint (R3.5: a drag).

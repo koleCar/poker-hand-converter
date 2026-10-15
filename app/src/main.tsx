@@ -9,6 +9,11 @@ import { adoptSettings } from "./lib/appearance";
 import { storeDataSource } from "./lib/dataSource";
 import { inApp, ipc } from "./lib/ipc";
 import { go, SETUP } from "./lib/router";
+import { HudPopupWindow } from "./popup/HudPopup";
+
+// (R3.8) The HUD popup is a window of its own on this page's popup route
+// (`src-tauri/src/popup.rs`): the popup, not the app's screens.
+const popup = window.location.hash.startsWith("#/hud-popup");
 
 // The theme, density and language were painted before this script ran
 // (`public/appearance.js`, from the copy `lib/appearance.ts` keeps); the
@@ -21,7 +26,7 @@ if (inApp) {
     .getSettings()
     .then((settings) => {
       adoptSettings(settings);
-      if (!settings.firstRunDone) {
+      if (!popup && !settings.firstRunDone) {
         go(SETUP);
       }
     })
@@ -33,9 +38,13 @@ if (root) {
   createRoot(root).render(
     <StrictMode>
       <I18nProvider>
-        <DataSourceProvider source={storeDataSource}>
-          <App />
-        </DataSourceProvider>
+        {popup ? (
+          <HudPopupWindow />
+        ) : (
+          <DataSourceProvider source={storeDataSource}>
+            <App />
+          </DataSourceProvider>
+        )}
       </I18nProvider>
     </StrictMode>,
   );
