@@ -201,7 +201,13 @@ jobs:
   # SetWindowPos moves, the simulator's move / resize / minimise / table
   # move / close, a hidden and shown table, a hundred moves in a second and
   # the simulator's exit, in the backend and through the HUD process with
-  # the simulator's tracking script.
+  # the simulator's tracking script. And R3.6's
+  # hud/rail-hud/tests/windows_seats.rs: panels at the seats the simulator
+  # draws with `--preferred-seat` off and on (its gold hero frame read off
+  # the screen where the HUD puts the hero), a panel dragged with posted
+  # mouse messages - kept clear of the table graphics posing as ACR, where
+  # dropped posing as PokerStars -, and the HUD process: drag ->
+  # `seat_position_changed` -> the store -> a restarted HUD puts it back.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -264,6 +270,12 @@ jobs:
       - name: HUD tracking (measurement)
         if: matrix.os == 'windows-latest'
         run: cargo test -p rail-hud --test windows_tracking --locked -- --nocapture --test-threads 1
+
+      # R3.6's seat and drag tests again, with their per-step output
+      # (`step ok: ...`: which seat, which slot, where a panel was dropped).
+      - name: HUD seats and layouts (steps)
+        if: matrix.os == 'windows-latest'
+        run: cargo test -p rail-hud --test windows_seats --locked -- --nocapture --test-threads 1
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'

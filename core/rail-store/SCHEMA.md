@@ -50,13 +50,14 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 10 | `0010_import_indexes.sql` | drops `hands_played_at_idx`: no query reads it (the list reads `hand_list`, date ranges `hand_stats`), and each imported hand wrote an entry at a random place (~7 % of the writer's time per hand) |
 | 11 | `0011_custom_stats.sql` | `custom_stats` (the user's own statistics), `custom_hero_rows`, `custom_hero_rollups`, `custom_player_rollups` (their counts) (R2.10); empty, nothing to rebuild |
 | 12 | `0012_recompute.sql` | the targeted recompute's work tables (R2.11): `recompute_hands`, `recompute_seats`, `recompute_list` (staged rows), `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden` (the twins of the four summed tables, swapped in by rename), `recompute_ev` and `recompute_ev_waiting_idx`; empty, nothing to recompute |
+| 13 | `0013_hud_layouts.sql` | `hud_seat_positions` (where the user dragged a panel, per room, table size and visual seat) and `hud_room_settings` (the user's preferred-seat answer per room) (R3.6); empty, nothing to rebuild |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
 
 | Step | Tables |
 | --- | --- |
-| R3.6 / R3.9 (Phase 3) | `hud_layouts` (layouts, presets, seat positions per site and table size) |
+| R3.9 (Phase 3) | the HUD editor's presets per room and table size (the rest of the plan's `hud_layouts`), and sync of the HUD tables |
 
 ## Tables
 
@@ -890,3 +891,37 @@ the old store's or the clean import's.
 | `recompute_ev` | `hand_key` | the EV job's hands; `done`, and once done the new row (`applicable` 1) or none; index `recompute_ev_waiting_idx (done, hand_key)` |
 
 All empty when no recompute runs.
+
+## The HUD's layouts (version 13, R3.6)
+
+Where the user dragged the HUD's panels, and whether their poker client
+rotates the table ("preferred seat"). The HUD process reads them with its
+read-only connection (`Reader::hud_seat_positions`,
+`Reader::hud_room_settings`) when the store opens and on `layout_changed` /
+`settings_changed`; **the app writes them**: a drag reaches it as the HUD's
+`seat_position_changed` and a thread of its own calls
+`WriterHandle::set_hud_seat_position`; the commands `hud_set_preferred_seat`
+and `hud_reset_seat_positions` call `set_hud_preferred_seat` and
+`clear_hud_seat_positions` (`rail_store::hud`). Empty on creation. Not
+synced yet: R3.9 / R4.x (`updated_at` is for last writer wins); the HUD
+editor's presets (the rest of the plan's `hud_layouts`) come with R3.9.
+
+### `hud_seat_positions`
+
+| Column | Type | |
+| --- | --- | --- |
+| `site` | TEXT | the `sites.json` room (`acr`, not the store's `acrwpn`: a layout belongs to the client that draws the table) |
+| `size` | INTEGER | the table size, 2 - 10 (checked) |
+| `slot` | INTEGER | the **visual seat**: an index into the room's seat layout for the size (`0 <= slot < size`, checked) - where on the screen, not a hand history's seat number (with a rotating client the hero's panel stays where the hero is drawn) |
+| `x`, `y` | INTEGER | the panel's centre in thousandths of the table window's client area, 0 - 1000 (checked) |
+| `updated_at` | INTEGER | ms |
+
+Primary key (`site`, `size`, `slot`); `STRICT, WITHOUT ROWID`.
+
+### `hud_room_settings`
+
+| Column | Type | |
+| --- | --- | --- |
+| `site` | TEXT PK | the `sites.json` room |
+| `preferred_seat` | INTEGER | 1: the user's client rotates the table so they always sit in one place; 0: it does not; NULL (or no row): as `sites.json` `tables.preferredSeat` says, and no when that is unknown |
+| `updated_at` | INTEGER | ms |

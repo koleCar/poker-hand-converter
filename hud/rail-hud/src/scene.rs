@@ -4,6 +4,12 @@
 //! Windows backend paints a [`Scene`] with Direct2D and DirectWrite, macOS
 //! (R3.12) will with Core Graphics.
 //!
+//! **Where** (R3.6): each player's hand-history seat becomes a slot of the
+//! room's layout for the table size (`crate::seats`: the room's numbering,
+//! the hero's rotation); a panel the user dragged goes where they left it
+//! ([`compose_with`] adds the overlay thread's drag on top of the frame's
+//! positions), the others next to their seat's plate around it.
+//!
 //! The renderer is where a room's restrictions bind ([`compose`]): the
 //! frame carries compliance's [`crate::compliance::Permit`] - no frame of a
 //! room without a HUD can exist - and the panel design is cut down to the
@@ -24,9 +30,10 @@
 
 use rail_config::stats::Tone;
 
-use crate::layout::{self, Metrics};
+use crate::layout::{self, Metrics, Placing, Positions, TableLayout};
 use crate::panel::{PanelDesign, collapse_tone, hands_text};
 use crate::platform::{OverlayFrame, Rect};
+use crate::seats;
 
 /// A colour with straight (not premultiplied) alpha.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -123,6 +130,13 @@ pub struct Scene {
     /// The panels' rectangles: where the overlay takes clicks (R3.8's
     /// popup); everywhere else is transparent and clicks reach the table.
     pub panels: Vec<Rect>,
+    /// The seats' panels by slot (R3.6): what a drag picks up.
+    pub seat_panels: Vec<(u32, Rect)>,
+    /// The slots whose panel is where the user put it (R3.6).
+    pub placed_by_user: Vec<u32>,
+    /// The table size laid out (R3.6): what a dragged position is kept
+    /// under.
+    pub size: u32,
     /// Seats whose panel was dropped (no room clear of the table's
     /// graphics, or no seat number), for the diagnostics.
     pub dropped: Vec<String>,
@@ -132,6 +146,15 @@ impl Scene {
     /// Whether a point (client-relative) is on a panel.
     pub fn hit(&self, x: i32, y: i32) -> bool {
         self.panels.iter().any(|r| layout::contains(r, x, y))
+    }
+
+    /// The slot of the seat panel at a point (client-relative), if any.
+    pub fn seat_panel_at(&self, x: i32, y: i32) -> Option<(u32, Rect)> {
+        self.seat_panels
+            .iter()
+            .rev()
+            .find(|(_, r)| layout::contains(r, x, y))
+            .copied()
     }
 }
 
@@ -144,20 +167,49 @@ pub fn compose(
     scale_permille: u32,
     design: &PanelDesign,
 ) -> Scene {
-    let design = design.enforce(frame.permit.restrictions());
+    compose_with(
+        frame,
+        width,
+        height,
+        scale_permille,
+        design,
+        &Positions::new(),
+    )
+}
+
+/// [`compose`] with positions on top of the frame's own (a panel being
+/// dragged, or dropped and not yet taken in by the engine: the overlay
+/// thread's).
+pub fn compose_with(
+    frame: &OverlayFrame,
+    width: u32,
+    height: u32,
+    scale_permille: u32,
+    design: &PanelDesign,
+    overrides: &Positions,
+) -> Scene {
+    let restrictions = frame.permit.restrictions();
+    let design = design.enforce(restrictions);
     let metrics = Metrics::for_client(height, scale_permille);
+    let size = seats::table_size(frame.size, frame.panels.iter().filter_map(|p| p.seat));
+    let table = frame
+        .seating
+        .layout
+        .clone()
+        .filter(|l| l.size == size)
+        .unwrap_or_else(|| TableLayout::simulator(size));
     let mut scene = Scene {
         width,
         height,
+        size,
         ..Scene::default()
     };
-    let size = layout::size_for(frame.size, frame.panels.iter().filter_map(|p| p.seat));
 
     if let Some(status) = &frame.status {
         let chars = u32::try_from(status.chars().count()).unwrap_or(u32::MAX);
         let pill = metrics.pill_size(chars);
         if let Some(rect) =
-            layout::place_status(width, height, size, pill, design.avoid_table_graphics)
+            layout::place_status(width, height, &table, pill, design.avoid_table_graphics)
         {
             scene.items.push(Item::Fill {
                 rect,
@@ -187,26 +239,73 @@ pub fn compose(
     let columns = u32::try_from(columns.div_ceil(2)).unwrap_or(1);
     let labels = design.player_labels && frame.panels.iter().any(|p| p.label.is_some());
     let panel = metrics.panel_size(columns, u32::from(labels));
-    let seated: Vec<u32> = frame.panels.iter().filter_map(|p| p.seat).collect();
-    let placed = layout::place_panels(
-        width,
-        height,
-        size,
-        &seated,
-        panel,
-        metrics.gap,
-        design.avoid_table_graphics,
+
+    // Each seated player's slot: the room's layout, the hero's rotation.
+    let slot_of = |seat: u32| seats::slot_of(&table, seat, frame.seating.rotate_to);
+    let slots: Vec<u32> = frame
+        .panels
+        .iter()
+        .filter_map(|p| p.seat.and_then(slot_of))
+        .collect();
+
+    // The user's places first (R3.6): inside the client area, and on a
+    // room that forbids covering its graphics (ACR) the nearest place clear
+    // of them; one with no such place falls back to the layout's.
+    let mut positions = frame.seating.positions.clone();
+    positions.extend(overrides.iter().map(|(k, v)| (*k, *v)));
+    let graphics = table.graphics(width, height);
+    let binding = restrictions
+        .no_overlap_table_graphics
+        .then_some(graphics.as_slice());
+    let mut placed: Vec<(u32, Rect)> = Vec::new();
+    for &slot in &slots {
+        if let Some(&center) = positions.get(&slot)
+            && let Some(rect) = layout::constrain(
+                width,
+                height,
+                layout::centred_at(width, height, center, panel),
+                binding,
+            )
+        {
+            placed.push((slot, rect));
+            scene.placed_by_user.push(slot);
+        }
+    }
+    let taken: Vec<Rect> = placed.iter().map(|(_, r)| *r).collect();
+    let auto: Vec<u32> = slots
+        .iter()
+        .copied()
+        .filter(|s| !scene.placed_by_user.contains(s))
+        .collect();
+    placed.extend(
+        layout::place_panels(
+            &Placing {
+                width,
+                height,
+                layout: &table,
+                panel,
+                gap: metrics.gap,
+                avoid_graphics: design.avoid_table_graphics,
+                taken: &taken,
+            },
+            &auto,
+        )
+        .into_iter()
+        .filter_map(|(slot, rect)| rect.map(|r| (slot, r))),
     );
+
     for player in &frame.panels {
         let Some(seat) = player.seat else {
             scene.dropped.push(format!("{}: no seat", player.player));
             continue;
         };
-        let Some(rect) = placed
-            .iter()
-            .find(|(s, _)| *s == seat)
-            .and_then(|(_, r)| *r)
-        else {
+        let Some(slot) = slot_of(seat) else {
+            scene
+                .dropped
+                .push(format!("seat {seat}: not a seat of a {size}-seat table"));
+            continue;
+        };
+        let Some(rect) = placed.iter().find(|(s, _)| *s == slot).map(|(_, r)| *r) else {
             scene.dropped.push(format!("seat {seat}"));
             continue;
         };
@@ -216,6 +315,7 @@ pub fn compose(
             color: PANEL,
         });
         scene.panels.push(rect);
+        scene.seat_panels.push((slot, rect));
         let cells: Vec<_> = player
             .stats
             .iter()
@@ -282,7 +382,7 @@ mod tests {
     use super::*;
     use crate::compliance::Compliance;
     use crate::panel::StatCell;
-    use crate::platform::SeatPanel;
+    use crate::platform::{SeatPanel, Seating};
 
     fn cell(id: &str, text: &str, tone: Tone, opacity: u32) -> StatCell {
         StatCell {
@@ -307,6 +407,7 @@ mod tests {
             permit: compliance.permit(site).expect("permitted"),
             status: None,
             size,
+            seating: Seating::default(),
             panels: seats
                 .iter()
                 .map(|&seat| SeatPanel {
@@ -478,6 +579,130 @@ mod tests {
         let plate = layout::seat_plate(800, 580, layout::seat_center(9, 8).expect("seat"));
         let rect = scene.panels[0];
         assert!((rect.x - plate.x).abs() < 200, "{rect:?} vs {plate:?}");
+    }
+
+    /// The hero's rotation (R3.6): with the room's client rotating, the
+    /// hero's panel is at the bottom slot and every other panel by its seat
+    /// around the table; without, by seat number.
+    #[test]
+    fn panels_follow_the_heros_rotation() {
+        let (w, h) = (800, 580);
+        let mut frame = frame("pokerstars", Some(6), &[1, 2, 3, 4, 5, 6]);
+        let plain = compose(&frame, w, h, 1000, &PanelDesign::default());
+        let slots = |scene: &Scene| {
+            scene
+                .seat_panels
+                .iter()
+                .map(|(s, _)| *s)
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(slots(&plain), [0, 1, 2, 3, 4, 5]);
+        frame.seating.rotate_to = Some(4);
+        let rotated = compose(&frame, w, h, 1000, &PanelDesign::default());
+        assert_eq!(slots(&rotated), [3, 4, 5, 0, 1, 2]);
+        let layout = TableLayout::simulator(6);
+        for (seat, (slot, rect)) in (1..=6).zip(&rotated.seat_panels) {
+            let drawn = rail_hud_sim::draw::seat_center(6, seat, Some(4));
+            assert_eq!(layout.slot_center(*slot), Some(drawn));
+            let plate = layout.plate(w, h, *slot).expect("plate");
+            let near = Rect {
+                x: plate.x - 10,
+                y: plate.y - 10,
+                width: plate.width + 20,
+                height: plate.height + 20,
+            };
+            assert!(layout::intersects(rect, &near), "seat {seat}: {rect:?}");
+        }
+        // The hero's panel is the one next to the bottom plate.
+        assert!(rotated.seat_panels[3].1.y > i32::try_from(h / 2).expect("h"));
+    }
+
+    /// A panel the user dragged (R3.6): centred where they left it, the
+    /// others kept clear of it; inside the client area always.
+    #[test]
+    fn a_users_position_wins() {
+        let (w, h) = (800, 580);
+        let mut frame = frame("pokerstars", Some(6), &[1, 2, 3]);
+        frame.seating.positions.insert(1, (500, 100));
+        let scene = compose(&frame, w, h, 1000, &PanelDesign::default());
+        assert_eq!(scene.placed_by_user, [1]);
+        let (slot, moved) = scene.seat_panels[1];
+        assert_eq!(slot, 1);
+        assert_eq!(layout::center_permille(&moved, w, h).0, 500);
+        assert!((i64::from(moved.y) + i64::from(moved.height) / 2 - 58).abs() <= 1);
+        for (s, r) in &scene.seat_panels {
+            if *s != 1 {
+                assert!(!layout::intersects(r, &moved), "{s}: {r:?}");
+            }
+        }
+        // A drag in progress overrides the stored place; past the edge it
+        // is pulled in.
+        let mut drag = Positions::new();
+        drag.insert(1, (1000, 1000));
+        let dragged = compose_with(&frame, w, h, 1000, &PanelDesign::default(), &drag);
+        let r = dragged.seat_panels[1].1;
+        assert!(layout::inside(&r, w, h));
+        assert_eq!(
+            (
+                i64::from(r.x) + i64::from(r.width),
+                i64::from(r.y) + i64::from(r.height)
+            ),
+            (i64::from(w), i64::from(h))
+        );
+        // A position kept for another size is not this table's.
+        assert_eq!(scene.size, 6);
+        let mut nine = frame.clone();
+        nine.size = Some(9);
+        nine.seating.positions.clear();
+        assert!(
+            compose(&nine, w, h, 1000, &PanelDesign::default())
+                .placed_by_user
+                .is_empty()
+        );
+    }
+
+    /// ACR (`noOverlapTableGraphics`): a panel dragged onto the board or a
+    /// seat plate goes to the nearest place clear of every graphic; on
+    /// PokerStars the user may put it where they like.
+    #[test]
+    fn acr_keeps_a_dragged_panel_off_its_graphics() {
+        let (w, h) = (800, 580);
+        let graphics = layout::table_graphics(w, h, 6);
+        for (site, binding) in [("acr", true), ("pokerstars", false)] {
+            for target in [(500, 540), (145, 690), (500, 840)] {
+                let mut frame = frame(site, Some(6), &[1, 2]);
+                frame.seating.positions.insert(0, target);
+                let scene = compose(&frame, w, h, 1000, &PanelDesign::default());
+                assert_eq!(scene.placed_by_user, [0], "{site} {target:?}");
+                let r = scene.seat_panels[0].1;
+                let covers = graphics.iter().any(|g| layout::intersects(&r, g));
+                assert_eq!(covers, !binding, "{site} at {target:?}: {r:?}");
+                assert!(layout::inside(&r, w, h));
+            }
+        }
+    }
+
+    /// A hand's seat past the window's size (a table turned from 9-max to
+    /// 6-max under a window that still says 6) lays out on the size that
+    /// has it; a seat the room's numbering does not have is dropped.
+    #[test]
+    fn a_seat_past_the_size() {
+        let scene = compose(
+            &frame("pokerstars", Some(6), &[1, 8]),
+            800,
+            580,
+            1000,
+            &PanelDesign::default(),
+        );
+        assert_eq!(scene.size, 9);
+        assert_eq!(scene.seat_panels.len(), 2);
+        let mut numbered = frame("pokerstars", Some(6), &[1, 3]);
+        let mut layout = TableLayout::simulator(6);
+        layout.seat_numbers = Some(vec![1, 2, 4, 5, 7, 9]);
+        numbered.seating.layout = Some(layout);
+        let scene = compose(&numbered, 800, 580, 1000, &PanelDesign::default());
+        assert_eq!(scene.seat_panels.len(), 1);
+        assert_eq!(scene.dropped, ["seat 3: not a seat of a 6-seat table"]);
     }
 
     #[test]

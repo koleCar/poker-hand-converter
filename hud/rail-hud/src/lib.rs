@@ -36,6 +36,7 @@ pub mod list;
 pub mod panel;
 pub mod platform;
 pub mod scene;
+pub mod seats;
 
 use std::ffi::OsString;
 use std::io::BufRead as _;
@@ -77,7 +78,7 @@ For development, without the app:
 
 Windows:
   --platform native     this system's backend (default)
-    with --standalone, the table simulator's real windows as a room's:
+    the table simulator's real windows as a room's (tests only):
     --sim-site <id>       the sites.json room they pose as
     --sim-title <regex>   their titles (rail-hud-sim --title-regex)
   --platform sim        the table simulator's windows, from its events:
@@ -138,13 +139,14 @@ impl Args {
                 if parsed.sim_events.is_some() {
                     return Err("--sim-events goes with --platform sim".to_owned());
                 }
+                // The test-only room entry: the app never passes it; the
+                // tests that play the app do (R3.6: a drag reaches the
+                // store through the IPC). It takes the simulator's process
+                // only, so it cannot help a real client past compliance.
                 if parsed.sim_site.is_some() != parsed.sim_title.is_some() {
                     return Err(
                         "the simulator's windows need --sim-site and --sim-title".to_owned()
                     );
-                }
-                if parsed.sim_title.is_some() && !parsed.standalone {
-                    return Err("--sim-title is for --standalone runs".to_owned());
                 }
             }
             "sim" => {
@@ -359,7 +361,8 @@ mod tests {
         assert_eq!(parse(&["--help"]), Err(String::new()));
 
         // The simulator's real windows (native backend, test-only room):
-        // both flags, standalone only, a regex that compiles.
+        // both flags, a regex that compiles; with the app's channel too
+        // (R3.6's tests play the app).
         let args = parse(&[
             "--standalone",
             "--sim-site",
@@ -371,7 +374,9 @@ mod tests {
         assert_eq!(args.sim_title.as_deref(), Some("^(?P<table>.+?) - "));
         assert!(parse(&["--standalone", "--sim-title", "^x"]).is_err());
         assert!(parse(&["--standalone", "--sim-site", "a", "--sim-title", "(x"]).is_err());
-        assert!(parse(&["--ipc", "p", "--sim-site", "a", "--sim-title", "^x"]).is_err());
+        let args = parse(&["--ipc", "p", "--sim-site", "a", "--sim-title", "^x"]).expect("ipc");
+        assert_eq!(args.sim_site.as_deref(), Some("a"));
+        assert!(parse(&["--ipc", "p", "--sim-title", "^x"]).is_err());
         assert!(
             parse(&[
                 "--standalone",

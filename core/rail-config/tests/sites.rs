@@ -305,6 +305,44 @@ fn no_restrictions() -> Value {
     serde_json::to_value(HudRestrictions::NONE).expect("json")
 }
 
+/// A well-formed seat layout (R3.6) with `seats` seats on a circle-ish
+/// row, a plate, the centre, the hero at the first seat and a board zone.
+fn seat_layout(seats: u32) -> Value {
+    let points: Vec<Value> = (0..seats).map(|i| json!([100 + i * 80, 800])).collect();
+    json!({
+        "seats": points,
+        "plate": [150, 80],
+        "center": [500, 500],
+        "heroSlot": 0,
+        "graphics": [[300, 450, 400, 120]],
+        "seatNumbers": null
+    })
+}
+
+/// A shipped-shaped file accepts measured layouts: every size, a seat
+/// numbering, a rotating client.
+#[test]
+fn seat_layouts_are_accepted() {
+    let mut value = shipped_value();
+    let tables = &mut site_mut(&mut value, "winamax")["tables"];
+    let mut nine = seat_layout(6);
+    nine["seatNumbers"] = json!([1, 2, 4, 5, 7, 8]);
+    nine["heroSlot"] = json!(5);
+    tables["seatLayouts"] = json!({"2": seat_layout(2), "6": nine, "10": seat_layout(10)});
+    tables["preferredSeat"] = json!(true);
+    assert_eq!(problems(&value), Vec::<String>::new());
+    let config = load(&value.to_string(), &REGISTRATION_ORDER).expect("loads");
+    let layouts = config
+        .site("winamax")
+        .and_then(|s| s.tables.seat_layouts.as_ref())
+        .expect("layouts");
+    assert_eq!(
+        layouts["6"].seat_numbers.as_deref(),
+        Some(&[1, 2, 4, 5, 7, 8][..])
+    );
+    assert_eq!(layouts["6"].hero_slot, 5);
+}
+
 /// The `files` blocks seen on a real install (R1.4, macOS, 2026-10-13):
 /// WePlay writes live; GGPoker and CoinPoker write no local hand histories
 /// (verified negatives, no path).
@@ -439,7 +477,7 @@ fn anonymisation_matches_the_web() {
 #[test]
 fn validator_problems() {
     type Edit = fn(&mut Value);
-    let cases: [(&str, Edit, &str); 15] = [
+    let cases: [(&str, Edit, &str); 18] = [
         (
             "hud allowed without restrictions",
             |v| site_mut(v, "pokerstars")["hud"]["restrictions"] = Value::Null,
@@ -514,8 +552,33 @@ fn validator_problems() {
         ),
         (
             "a seat layout for 11 seats",
-            |v| site_mut(v, "winamax")["tables"]["seatLayouts"] = json!({"11": "x"}),
+            |v| {
+                site_mut(v, "winamax")["tables"]["seatLayouts"] = json!({"11": seat_layout(11)});
+            },
             "winamax: tables.seatLayouts: \"11\" is not a table size 2-10",
+        ),
+        (
+            "a seat layout with a seat missing",
+            |v| site_mut(v, "winamax")["tables"]["seatLayouts"] = json!({"6": seat_layout(5)}),
+            "winamax: tables.seatLayouts.6: 5 seats for a 6-seat table",
+        ),
+        (
+            "a hero slot that is no seat",
+            |v| {
+                let mut layout = seat_layout(6);
+                layout["heroSlot"] = json!(6);
+                site_mut(v, "winamax")["tables"]["seatLayouts"] = json!({"6": layout});
+            },
+            "winamax: tables.seatLayouts.6: heroSlot 6 is not a seat",
+        ),
+        (
+            "table graphics off the client area",
+            |v| {
+                let mut layout = seat_layout(6);
+                layout["graphics"] = json!([[900, 100, 200, 50]]);
+                site_mut(v, "winamax")["tables"]["seatLayouts"] = json!({"6": layout});
+            },
+            "winamax: tables.seatLayouts.6: graphics outside the client area",
         ),
         (
             "verified table titles without a date",

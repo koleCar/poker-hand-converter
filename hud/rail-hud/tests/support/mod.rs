@@ -59,6 +59,10 @@ pub struct Seen {
     pub tables: BTreeMap<u64, (String, String, u32)>,
     /// table -> its latest `window` event
     pub windows: BTreeMap<u64, Value>,
+    /// table -> the hero's seat (R3.6: the `table` event's `heroSeat`)
+    pub heroes: BTreeMap<u64, u32>,
+    /// table -> its latest `hand` event (R3.6: `seated` has the seats)
+    pub hands: BTreeMap<u64, Value>,
     pub log: Vec<String>,
 }
 
@@ -66,7 +70,16 @@ impl Seen {
     pub fn take(&mut self, event: Value) {
         let table = event["table"].as_u64();
         match (event["event"].as_str(), table) {
+            (Some("hand"), Some(t)) => {
+                self.hands.insert(t, event.clone());
+            }
             (Some("table"), Some(t)) => {
+                if let Some(hero) = event["heroSeat"]
+                    .as_u64()
+                    .and_then(|h| u32::try_from(h).ok())
+                {
+                    self.heroes.insert(t, hero);
+                }
                 self.tables.insert(
                     t,
                     (
@@ -82,6 +95,8 @@ impl Seen {
             (Some("closed"), Some(t)) => {
                 self.tables.remove(&t);
                 self.windows.remove(&t);
+                self.heroes.remove(&t);
+                self.hands.remove(&t);
             }
             _ => {}
         }

@@ -129,6 +129,24 @@ pub enum HudMessage {
         /// From the message's arrival to the rollups re-read, microseconds.
         reread_us: u64,
     },
+    /// The user dragged a seat's panel (R3.6): the app remembers it in the
+    /// store (`hud_seat_positions`; the HUD's own connection is read-only)
+    /// for the room, the table size and the visual seat, and the HUD reads
+    /// it back at its next start. The HUD already shows it there.
+    #[serde(rename_all = "camelCase")]
+    SeatPositionChanged {
+        /// The `sites.json` room (`acr`, not the store's `acrwpn`).
+        site: String,
+        /// The table size, 2 - 10.
+        size: u32,
+        /// The visual seat: an index into the room's seat layout for the
+        /// size (with a rotating client, where the hero is drawn is one
+        /// slot whatever seat they took) - not a hand history's seat.
+        slot: u32,
+        /// The panel's centre, thousandths of the table's client area.
+        x: u32,
+        y: u32,
+    },
     /// A message type this build does not know (a newer HUD).
     #[serde(other)]
     Unknown,
@@ -280,6 +298,13 @@ mod tests {
                 }],
                 reread_us: 250,
             },
+            HudMessage::SeatPositionChanged {
+                site: "acr".into(),
+                size: 6,
+                slot: 5,
+                x: 1000,
+                y: 0,
+            },
         ];
         for message in &hud {
             assert_eq!(&round_trip(message), message);
@@ -314,6 +339,17 @@ mod tests {
         assert_eq!(
             serde_json::to_string(&AppMessage::Resync).expect("json"),
             r#"{"type":"resync"}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&HudMessage::SeatPositionChanged {
+                site: "pokerstars".into(),
+                size: 9,
+                slot: 0,
+                x: 512,
+                y: 873,
+            })
+            .expect("json"),
+            r#"{"type":"seat_position_changed","site":"pokerstars","size":9,"slot":0,"x":512,"y":873}"#
         );
     }
 

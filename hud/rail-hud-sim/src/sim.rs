@@ -130,6 +130,10 @@ pub enum Event {
         table_name: String,
         file: String,
         players: Vec<String>,
+        /// Each player's seat and whether they are the hero (R3.6): what
+        /// the app's `hand_imported` carries, for tests that play the app
+        /// without a store.
+        seated: Vec<Seated>,
         bytes: usize,
         at_ms: i64,
         template: String,
@@ -165,6 +169,15 @@ pub enum Event {
     Done { hands: u64 },
     #[serde(rename_all = "camelCase")]
     Error { message: String },
+}
+
+/// A player of a written hand: seat and name, and the hero's flag.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Seated {
+    pub seat: u32,
+    pub name: String,
+    pub hero: bool,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -756,6 +769,15 @@ impl Sim {
                 table_name: table.name.clone(),
                 file: path.display().to_string(),
                 players: hand.players.iter().map(|p| p.name.clone()).collect(),
+                seated: hand
+                    .players
+                    .iter()
+                    .map(|p| Seated {
+                        seat: p.seat,
+                        name: p.name.clone(),
+                        hero: p.is_hero,
+                    })
+                    .collect(),
                 bytes,
                 at_ms: unix_ms(),
                 template: template.source.display().to_string(),
@@ -961,8 +983,18 @@ mod tests {
                     .into_iter()
                     .filter_map(|e| match e {
                         Event::Hand {
-                            table_name, table, ..
-                        } => Some((table, table_name)),
+                            table_name,
+                            table,
+                            seated,
+                            players,
+                            ..
+                        } => {
+                            // R3.6: every player with a seat, the hero
+                            // once.
+                            assert_eq!(seated.len(), players.len(), "{room}");
+                            assert_eq!(seated.iter().filter(|s| s.hero).count(), 1, "{room}");
+                            Some((table, table_name))
+                        }
                         Event::Error { message } => panic!("{room}: {message}"),
                         _ => None,
                     })

@@ -9,12 +9,13 @@
 //! build and is refused untouched ([`Error::NewerSchema`]).
 //!
 //! Rules: a migration that has shipped is never edited; a change is a new
-//! file appended here. Reserved for a later phase (docs/RAIL-PLAN.md §3.4,
-//! `SCHEMA.md`): `hud_layouts` (Phase 3), as the next free number when it
-//! lands (`seat_stats` and the rollups: 6; the Hands screen's tables: 7; the
-//! reports' list columns: 8; the Players screen's `players`: 9; an unused
-//! index dropped for the import: 10; custom statistics: 11; the targeted
-//! recompute's staging tables: 12).
+//! file appended here. Reserved for a later step (docs/RAIL-PLAN.md §3.4,
+//! `SCHEMA.md`): the HUD editor's presets (R3.9), as the next free number
+//! when it lands (`seat_stats` and the rollups: 6; the Hands screen's
+//! tables: 7; the reports' list columns: 8; the Players screen's `players`:
+//! 9; an unused index dropped for the import: 10; custom statistics: 11;
+//! the targeted recompute's staging tables: 12; the HUD's seat positions
+//! and preferred seat: 13).
 
 use rusqlite::Connection;
 
@@ -76,6 +77,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0012_recompute.sql",
         sql: include_str!("../migrations/0012_recompute.sql"),
+    },
+    Migration {
+        name: "0013_hud_layouts.sql",
+        sql: include_str!("../migrations/0013_hud_layouts.sql"),
     },
 ];
 

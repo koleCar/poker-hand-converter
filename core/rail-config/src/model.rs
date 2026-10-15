@@ -129,8 +129,13 @@ pub struct Tables {
     pub process: Processes,
     /// Rust `regex` syntax with a named group `table`.
     pub title: Option<String>,
-    /// Table size (`"2"`..`"10"`) to layout id.
-    pub seat_layouts: Option<BTreeMap<String, String>>,
+    /// Table size (`"2"`..`"10"`) to where the client draws the seats and
+    /// its other table graphics (R3.6), measured on a real install; a size
+    /// without one gets the HUD's default (the table simulator's geometry).
+    pub seat_layouts: Option<BTreeMap<String, SeatLayout>>,
+    /// Whether the client rotates the table so the hero always sits in one
+    /// place ("preferred seat"; the layout's `hero_slot`). `None`: unknown,
+    /// read as "does not rotate" unless the user says otherwise (R3.6).
     pub preferred_seat: Option<bool>,
     /// `true` only once the titles were seen on a real install (R3.3,
     /// `docs/research/CAPTURING-TABLES.md`), with `checked_at`.
@@ -149,6 +154,35 @@ impl Tables {
             && self.seat_layouts.is_none()
             && self.preferred_seat.is_none()
     }
+}
+
+/// One table size's geometry as a room's client draws it (R3.6), in
+/// thousandths of the table window's **client area** (0 - 1000 on each
+/// axis, so it holds at any window size and DPI). Measured on a real
+/// install, like the titles (`docs/research/CAPTURING-TABLES.md`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct SeatLayout {
+    /// The centre of each seat's plate, `[x, y]`, clockwise, in the order
+    /// the client draws seat 1, 2, ... when it does not rotate the table.
+    pub seats: Vec<[u32; 2]>,
+    /// A seat plate's size, `[width, height]`, centred on its seat.
+    pub plate: [u32; 2],
+    /// The table's centre: a panel goes on the side of its seat away from
+    /// it first.
+    pub center: [u32; 2],
+    /// Where a rotating client draws the hero: an index into `seats`
+    /// (`0` when the hero sits at the first one, usually bottom centre).
+    pub hero_slot: u32,
+    /// The client's other table graphics a panel must not cover - the
+    /// board and pot, the dealer tray, buttons - as `[x, y, width,
+    /// height]`. ACR's policy (4.2.11, `noOverlapTableGraphics`) makes
+    /// them binding there.
+    pub graphics: Vec<[u32; 4]>,
+    /// The hand history's seat number of each entry of `seats`, when the
+    /// room does not number a table's seats `1..=size` (a 6-max table
+    /// written with a 9-max table's numbers); `None`: `1..=size`.
+    pub seat_numbers: Option<Vec<u32>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

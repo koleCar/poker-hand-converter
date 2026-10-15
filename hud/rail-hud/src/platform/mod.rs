@@ -19,8 +19,10 @@
 use std::fmt;
 
 use crate::compliance::Permit;
+use crate::layout::{Positions, TableLayout};
 use crate::panel::StatCell;
 
+pub mod drag;
 pub mod macos;
 pub mod matcher;
 pub mod none;
@@ -192,6 +194,38 @@ pub enum TableEvent {
     /// table, or one shown again - look for tables now rather than at the
     /// next periodic find.
     Appeared,
+    /// The user dragged a seat's panel to a new place (R3.6): remembered
+    /// for the room, the table `size` and the `slot` (the visual seat).
+    PanelMoved {
+        id: WindowId,
+        size: u32,
+        slot: u32,
+        /// The panel's centre, thousandths of the client area - already
+        /// inside it, and clear of the table graphics where the room
+        /// forbids covering them.
+        x: u32,
+        y: u32,
+        /// The backend's count of drags (increasing): the engine hands the
+        /// last it took back in [`Seating::drags_seen`], so the overlay
+        /// stops showing its own copy once the frame carries the position.
+        seq: u64,
+    },
+}
+
+/// Where a frame's panels go (R3.6): the room's layout for the table size,
+/// the hero's rotation and the panels the user placed.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Seating {
+    /// Where the room's client draws this table size; `None`: the table
+    /// simulator's geometry (the default until a room's is measured).
+    pub layout: Option<TableLayout>,
+    /// The hero's seat when the room's client rotates the table so the hero
+    /// is always in one place; `None`: drawn by seat number.
+    pub rotate_to: Option<u32>,
+    /// Panels the user placed, by slot (this room and table size).
+    pub positions: Positions,
+    /// The last [`TableEvent::PanelMoved`] (`seq`) the engine took in.
+    pub drags_seen: u64,
 }
 
 /// What an overlay shows (R3.4): the data; `crate::scene::compose` lays it
@@ -206,6 +240,8 @@ pub struct OverlayFrame {
     /// The table's seats (the title's, else its hands'); `None`: from the
     /// players' seat numbers.
     pub size: Option<u32>,
+    /// Where the panels go (R3.6).
+    pub seating: Seating,
     pub panels: Vec<SeatPanel>,
 }
 
@@ -216,6 +252,7 @@ impl OverlayFrame {
             permit,
             status: Some(status.into()),
             size,
+            seating: Seating::default(),
             panels: Vec::new(),
         }
     }

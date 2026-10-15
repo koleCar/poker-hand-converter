@@ -16,7 +16,11 @@
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
-use rail_store::{Reader, Totals};
+use rail_store::{Reader, RoomSettings, SeatPosition, Totals};
+
+/// The user's HUD layouts as the store has them (R3.6): the panels they
+/// placed, their per-room preferred-seat answers.
+pub type UserLayouts = (Vec<SeatPosition>, Vec<RoomSettings>);
 
 /// How often a store that is missing or failed is tried again.
 const RETRY: Duration = Duration::from_secs(1);
@@ -96,6 +100,22 @@ impl StoreView {
         self.reader.as_ref()?.hand_seats(hand_key).ok().flatten()
     }
 
+    /// The user's HUD layouts (R3.6): the panels they placed and their
+    /// per-room preferred-seat answers, as the app wrote them. `None`: no
+    /// store yet.
+    pub fn user_layouts(&mut self) -> Option<Result<UserLayouts, String>> {
+        if !self.ensure_open() {
+            return None;
+        }
+        let reader = self.reader.as_ref()?;
+        Some(
+            reader
+                .hud_seat_positions()
+                .and_then(|positions| Ok((positions, reader.hud_room_settings()?)))
+                .map_err(|error| error.to_string()),
+        )
+    }
+
     /// Whether the app has committed since the last call (the first call
     /// on an open store says yes).
     pub fn changed(&mut self) -> bool {
@@ -142,6 +162,7 @@ mod tests {
         assert_eq!(totals.len(), 2);
         assert!(totals.iter().all(|t| t.hands() == 0));
         assert_eq!(view.hand_seats("pokerstars:1"), None);
+        assert_eq!(view.user_layouts(), Some(Ok((Vec::new(), Vec::new()))));
         assert!(view.changed(), "first look");
         assert!(!view.changed());
 
