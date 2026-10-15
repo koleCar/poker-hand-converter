@@ -175,7 +175,7 @@ table that has not produced a hand yet shows "waiting for first hand".
 | `seat_stats` | one row per dealt-in seat at the current stats version — the local `hand_stats` (built: `hand_stats` per hand + `seat_stats` per seat, R2.3) | `(hand_key, seat)` (built: `(hand_id, seat)`) |
 | `player_rollups` | summed counters per (player, segment) for the HUD and reports | `(site, player, segment)` (built: `(site, player, scope, segment)`; the hero's per day in `hero_rollups`) |
 | `players` | notes, colour tag, labels | `(site, name)` |
-| `hud_layouts` | layouts, presets, seat positions per (site, table size) | `id` |
+| `hud_layouts` | layouts, presets, seat positions per (site, table size) (built in R3.6: `hud_seat_positions` per (site, size, slot) and `hud_room_settings` per site; presets R3.9) | `id` |
 | `outbox` | hands not yet synced, attempts, last error | `hand_key` |
 | `kv` | schema version, sync cursors, settings | `key` |
 
@@ -205,8 +205,10 @@ integer `id` (`files.path` stays unique) so that `hands.file_id` and
 companions came with R2.3 (migration 6); the Hands screen's `hand_list`,
 `hand_notes`, `hand_tags` and `saved_filters` with R2.7a (migration 7);
 `players` with R2.7c (migration 9: the user's words, with the list's sums
-and the opponents' rows by name beside it); `hud_layouts` (Phase 3) comes as
-a later migration.
+and the opponents' rows by name beside it); the HUD's seat positions and
+preferred seat with R3.6 (migration 13: `hud_seat_positions`,
+`hud_room_settings`); the HUD editor's presets (the rest of `hud_layouts`)
+come with R3.9 as a later migration.
 
 ### 3.5 Supabase mapping
 
@@ -219,7 +221,7 @@ a later migration.
 | `hand_players` | not added; `hand_stats` has one row per dealt-in seat | — |
 | `players` | new: tags and colours; `player_notes` stays (or is folded in) | R2.7 |
 | `player_stats` | only if R2.9 shows server-side reports need it - **it does** (R2.9 *As built*: the web's reports over 1M hands of one user take 5-44 s; a hero rollup, `player_stats` and a covering index recommended, not built) | R2.9 (measured), R4.x |
-| `hud_layouts` | new; synced so layouts follow the user to a second machine | R3.9 |
+| `hud_layouts` | new; synced so layouts follow the user to a second machine (the local seat positions and preferred seat exist since R3.6, not synced yet) | R3.9 |
 | `unsupported_formats` | extend `unparsed_hands`: `origin` (web/desktop), `os`, `client_version`, `consented_at` | R0.11 |
 
 Rules that do not change: RLS on every table, clients insert only, no
@@ -243,7 +245,10 @@ shared.
     "tables": {
       "process": { "windows": ["PokerStars.exe"], "macos": ["PokerStars"] },
       "title":   "^(?<table>.+?) - .*(?<stakes>[$€]\\S+/[$€]\\S+)",
-      "seatLayouts": { "6": "stars-6max", "9": "stars-9max" },
+      // R3.6: per size, thousandths of the client area (measured, else null)
+      "seatLayouts": { "6": { "seats": [[500, 840], …], "plate": [170, 80],
+                              "center": [500, 540], "heroSlot": 0,
+                              "graphics": [[285, 480, 430, 150]], "seatNumbers": null } },
       "preferredSeat": true
     },
     "hud": { "allowed": true, "source": "https://…", "checkedAt": "2026-…", "notes": "" }
@@ -255,7 +260,9 @@ Paths here are illustrative; R1.4 verified the first ones on real installs
 (see *As built, R1.4*; how: `docs/research/VERIFYING-PATHS.md`). The app
 ships a copy and fetches updates from the web origin over HTTPS; a downloaded
 file is schema-validated and may only make HUD policy *stricter* than the
-shipped copy, never looser, until a new signed release says otherwise.
+shipped copy, never looser, until a new signed release says otherwise. Since
+R3.6 that covers the table data that bears on compliance too: a room's
+table-graphics zones only grow and its process names only narrow.
 
 Built in R0.12 (`config/sites.json`, `config/sites.schema.json`,
 `core/rail-config`); the real shape adds `kind`, `network`, `operating`,
@@ -6507,6 +6514,218 @@ graphics, and CPU with twelve real tables.
 - Map hand-history seats to on-screen seats from table size and the room's
   "preferred seat" rotation; layouts in normalised coordinates of the client
   area; drag to move a panel, remembered per (room, table size, seat).
+- *As built* (§15): **done** - the platform-free `hud/rail-hud/src/seats.rs`
+  (mapping, rotation, the rooms' layouts and the user's), `layout.rs`
+  (`TableLayout`, the user's positions, `constrain`), `scene.rs`
+  (`compose_with`), `platform/drag.rs` (what a press, move and release
+  mean), the Windows overlay thread's mouse handling
+  (`platform/windows/overlay.rs`), the engine's half, rail-store migration
+  13 (`core/rail-store/src/hud.rs`), the protocol's `seat_position_changed`
+  and the app's writer (`app/src-tauri/src/hud.rs`). Still no real room has
+  a `tables` block: every Windows test uses the simulator's windows posing
+  as an allowed room.
+  - **Slots.** A table's layout lists where the client draws its seats,
+    clockwise; **slot** `i` is the place where an unrotated client draws
+    its `i`-th seat (`seatNumbers` says which hand-history seat that is
+    when a room does not number a table `1..=size` - a 6-max table written
+    with 9-max numbers). Panels, positions and the store are keyed by slot
+    (the "visual seat"), never by a hand's seat number.
+  - **Rotation model ("preferred seat").** A client that always draws the
+    hero in one place turns the whole table: the hero goes to the layout's
+    `heroSlot`, everyone keeps their order around the table, so seat `s`
+    is at `(slot(s) - slot(hero) + heroSlot) mod size`
+    (`seats::slot_of`). Whether a room's client does: the user's word
+    (`hud_room_settings`, the app's `hud_set_preferred_seat`; PokerStars,
+    Winamax and ACR let the player choose, so it is the user's setting
+    first), else `sites.json` `tables.preferredSeat` (`null` for every room
+    until a capture says), else no. The simulator's `--preferred-seat` is
+    the test case (its `slot_of` is the same formula with `heroSlot` 0); a
+    unit test holds every size 2 - 10 x every hero seat x rotation on / off
+    to the simulator's drawing.
+  - **The hero's seat** comes with each hand (`PlayerRef.hero`, R3.4):
+    `seats::hero_after` keeps a seat the hand does not mention while nobody
+    else sits in it (not dealt in, sitting out), drops it when someone else
+    does (the hero left) - **an observer (no hero ever) gets no rotation**,
+    as the client draws the table by its numbers then. A tournament table
+    move (`Retitled` with a new table, R3.5) forgets it with the players;
+    the next hand brings the new seat. **Table size**: the window's (title,
+    else the hand's `max_seats`), unless a hand names a seat past it (a
+    9-max table turned 6-max under a window that still says 9, or the other
+    way) - then the smallest of 6 / 9 / 10 holding every seat
+    (`seats::table_size`); positions are per size, so a size change shows
+    that size's. **Heads-up** is a size like any other (two slots, the
+    hero at the bottom when rotated).
+  - **Layout data.** `sites.json` `tables.seatLayouts` is now, per size
+    `"2"`..`"10"`, `{seats: [[x, y]...], plate: [w, h], center: [x, y],
+    heroSlot, graphics: [[x, y, w, h]...], seatNumbers}` in **thousandths of
+    the client rect** (integers, the workspace forbids floats; the schema
+    `$defs.seatLayout` and the validator check a seat per seat, everything
+    inside 0 - 1000, `heroSlot` a seat, distinct seat numbers). **Every
+    room's stays `null`**: no client has been measured (R3.3's capture,
+    R3.14 with the real clients; `docs/research/CAPTURING-TABLES.md` now
+    says how). A size without one gets **`TableLayout::simulator`** - the
+    simulator's slots, plates and board, R3.4's default -, which is what
+    every test draws on. The engine's `seats::Rooms` holds the measured
+    layouts and `preferredSeat` from the configuration in force (rebuilt
+    on `policy`), and the user's part from the store.
+  - **User positions and persistence.** A panel the user dragged is
+    centred where they left it: `layout::Positions` (slot -> centre in
+    thousandths), per (room, size). The scene places those first - inside
+    the client area, and on a room with `noOverlapTableGraphics` moved to
+    the nearest place clear of the layout's graphics (`layout::constrain`:
+    rings around the drop; none clear -> the layout's own place) - then
+    every other panel next to its plate as before, clear of the user's.
+    **Store**: migration 13 (`0013_hud_layouts.sql`, tested from every
+    earlier version by `migrates_from_empty_and_from_every_earlier_version`)
+    adds `hud_seat_positions (site, size, slot, x, y, updated_at)` (the
+    `sites.json` room id - `acr`, not the store's `acrwpn` -, checks on
+    every range) and `hud_room_settings (site, preferred_seat, updated_at)`.
+    The HUD's connection stays read-only (R3.2): `Reader::hud_seat_positions`
+    / `hud_room_settings` when the store opens and on `layout_changed` /
+    `settings_changed`; the app writes (`WriterHandle::set_hud_seat_position`,
+    `clear_hud_seat_positions`, `set_hud_preferred_seat`). **Not synced yet**
+    (`updated_at` is there for last writer wins): R3.9 / R4.x.
+  - **Drag (Windows).** The panels already took clicks (R3.4). The overlay
+    thread's pump hands its own `WM_LBUTTONDOWN` / `WM_MOUSEMOVE` /
+    `WM_LBUTTONUP` to `Overlays::mouse` before dispatching: a press on a
+    seat's panel (the last painted scene's `seat_panels`) starts a drag and
+    takes the capture (`SetCapture`; feature
+    `Win32_UI_Input_KeyboardAndMouse` of the locked `windows` =0.61.3, no
+    new crate); a move with the button down, past Windows' 4 px drag
+    threshold at the monitor's scale, repaints the panel where the pointer
+    takes it - laid out by the scene, so constrained during the drag too; a
+    move without the button is ignored (not a release: the capture brings
+    the release, and `WM_CAPTURECHANGED` - noted by the window procedure,
+    handled on `HOOKED` like R3.5's events - ends the drag where the panel
+    is). The release keeps the panel where the last scene shows it (on the
+    overlay, until a frame's `Seating::drags_seen` says the engine has it),
+    and notes `TableEvent::PanelMoved {id, size, slot, x, y, seq}` in
+    `tracking::Observed` (in order, never coalesced) for `poll_events`. A
+    press that never passed the threshold is a click (R3.8's). **No store
+    work and no wait on the overlay thread** (it runs the hooks): the
+    engine remembers the position at once, redraws every table of that
+    room and size with it, and sends `seat_position_changed {site, size,
+    slot, x, y}` (protocol 1, a new HUD message: older apps ignore it as
+    `Unknown`); the app's callback queues it to a thread of its own
+    (`LayoutWrites`, `rail-hud-layouts`) that writes the store.
+  - **ACR's graphics.** `noOverlapTableGraphics` binds the user's
+    positions too (`compose_with`: the restriction from the frame's permit,
+    not the design): a panel dropped on the board or a plate lands at the
+    nearest clear place, and that is what is stored. On rooms without the
+    restriction the user may put a panel anywhere inside the client area
+    (the default layout itself still keeps clear of every room's graphics).
+    The zones are the layout's: the simulator's plates and board in tests;
+    ACR's real ones must be measured before its matcher is verified.
+  - **A remote `sites.json` never loosens compliance through table data**
+    (R0.12's rule extended, `rail_config::merge_tables`): for every size
+    the shipped file has a layout for, the merged `graphics` are the
+    **union** of the shipped and the remote zones - a remote file that
+    shrinks or removes a zone, drops the size or the whole `seatLayouts`
+    keeps the shipped zones (`MergeNote::TableGraphicsKept`); the restriction
+    itself was already stricter-only (R3.4). The process names decide
+    whose windows a room's matcher may take, so they only narrow: a subset
+    of the shipped names where the shipped file has some, and never a name
+    the shipped file gives another entry (`MergeNote::LooserProcessesIgnored`;
+    a title regex then only chooses among the room's own windows and stays
+    a correction). Geometry that does not bear on compliance - seat
+    anchors, plate size, hero slot, seat numbering, `preferredSeat`, the
+    title, the verification notes - may come from the remote file, and a
+    size only the remote file has is taken as it is (new measured data).
+    Tests: `merge::table_graphics_only_grow`, `processes_only_narrow`, and
+    on the real shipped file `a_remote_file_cannot_shrink_acrs_table_graphics`
+    (ACR's zone shrunk or removed by the remote stays; an added zone joins
+    them).
+  - **What a position is about (PokerStars).** PokerStars forbids
+    switching the HUD's **display** by position, stack or opponent ("no
+    display switching on position / stacks or on tendencies", R3.0). The
+    seat mapping decides **where** a seat's panel is drawn - next to the
+    player it describes, wherever the client draws them -, never **what**
+    it shows: every panel shows the same statistics, whatever seat,
+    position or stack. No per-position or per-seat statistic sets were
+    added, and R3.9 must not add them on rooms with
+    `noGameStateSwitching`.
+  - **Test-only room entry over IPC.** `--sim-site` / `--sim-title` are
+    accepted with `--ipc` too (tests that play the app need the channel;
+    the app never passes them, and the entry takes only `rail-hud-sim`'s
+    process). The simulator's `hand` event gains `seated` (seat, name,
+    hero per player) for such tests.
+  - **Tests.** All OSes: `seats` (every size x every hero seat x rotation
+    on / off equal to the simulator's drawing, heads-up, a measured layout
+    with its own hero slot and seat numbers, the hero's seat from hand to
+    hand - observing, not dealt in, seat taken -, table sizes and a 9 -> 6
+    size change, `Rooms`: the user's word over `sites.json`'s), `layout`
+    (measured layouts, user panels avoided, `constrain`), `scene` (rotation,
+    user positions and overrides, ACR keeping a dropped panel off its
+    graphics, a seat past the size, a seat the numbering lacks), `drag`
+    (press / threshold / move / release, a click, ACR), `tracking` (drags
+    in order), `engine::seats_rotation_and_drags` (a real store: positions
+    read at start, rotation only once the user's setting is read on
+    `settings_changed`, kept while not dealt in, dropped when the seat is
+    taken, forgotten on a table move; a drag told to the app and applied
+    to both 6-seat tables but not the 9-seat one; nonsense from a backend
+    not passed on; `layout_changed` reads the store again), rail-store
+    (`hud` module: round trip, ranges refused by the writer and by the
+    table's checks, per-room settings), rail-config (`seat_layouts_are_accepted`,
+    three new validator cases), the ajv test (layout shape, refused shapes),
+    the protocol (round trip, wire form), the app (`a_dragged_panel_is_written`:
+    the layout thread writes the store). **Windows CI**
+    (`hud/rail-hud/tests/windows_seats.rs`, in the `core` job's `cargo test`
+    and again with its output in the step "HUD seats and layouts (steps)"):
+    `panels_sit_at_the_drawn_seats` - the simulator's 6-, 9- and 2-seat
+    tables with `--preferred-seat` off and on: every panel next to the
+    plate the simulator draws for that seat by its own rotation, and the
+    simulator's gold hero frame read off the screen (`BitBlt`) at the
+    plate the HUD gives the hero (slot 0 when rotated);
+    `acr_keeps_a_dragged_panel_off_its_graphics` - posted mouse messages
+    (`drive::drag`) drag a panel onto the board: posing as ACR it lands
+    clear of every plate and the board, posing as PokerStars where it was
+    dropped; one `PanelMoved` each, a frame carrying the position keeps it,
+    a click moves nothing; `a_dragged_panel_is_remembered` - the HUD
+    process under the real supervisor, the simulator with
+    `--preferred-seat`, the user's "my client rotates" in the store: the
+    hero's panel (slot 0) dragged, `seat_position_changed` received and
+    written with the app's call, a click at the new place reaches the
+    overlay and at the old one the table; the HUD stopped and started
+    again puts the panel back there from the store. Cross-checked locally
+    with `cargo clippy --target x86_64-pc-windows-msvc -p rail-hud
+    --all-targets -- -D warnings` (stand-in C compiler and archiver).
+  - **Limits.** No real room's layout or `preferredSeat` is known (every
+    room `null`): the HUD lays out every real table with the simulator's
+    geometry until the owner's capture / R3.14 measures it - wrong for any
+    real client, so the measurement is required before a room's `tables`
+    block is marked verified. The drag is Windows
+    only (macOS R3.12 feeds `platform::drag` the same way). Not tested with
+    a real mouse (`SendInput`) nor on a high-dpi monitor (CI: posted
+    messages, one 96 dpi monitor). No screen calls `hud_set_preferred_seat`
+    / `hud_reset_seat_positions` yet (R3.9 / R3.10).
+  - **For R3.7** (data path): `hand_imported` already sets the hero's seat
+    and redraws; the layout follows `size_of` (window size, else the
+    hand's seats) - when R3.7 reads a table's segment, read its size from
+    the same place.
+  - **For R3.8** (panel and popup): a press that never moves is a click
+    (`Drag::release` returns `None` with `at` unset): open the popup there
+    (`end_drag` is the hook), forwarded to the loop thread like a drop. The
+    panel's identity on screen is its slot (`Scene::seat_panels`).
+  - **For R3.9** (editor and presets): user positions are per (room,
+    size, slot) in `hud_seat_positions`; a reset is
+    `hud_reset_seat_positions` (+ `layout_changed`). A frame without a
+    dropped position does not clear the overlay's own copy until its
+    `drags_seen` passes that drop's `seq` - a reset that removes positions
+    the overlay still holds must come with a frame whose `drags_seen` is
+    current (the engine's frames always are). Sync `hud_seat_positions` /
+    `hud_room_settings` (last writer wins by `updated_at`). No per-position
+    statistic sets on rooms with `noGameStateSwitching` (PokerStars).
+  - **For R3.11 - R3.13** (macOS): `seats`, `layout`, `scene`,
+    `platform::drag` and `tracking::Observed::dragged` are shared - feed
+    `Drag` the overlay's `mouseDown` / `mouseDragged` / `mouseUp` in client
+    pixels, keep the drop on the overlay until `drags_seen`, report
+    `PanelMoved`; never do store work on the AppKit main thread's run loop
+    path beyond that.
+  - **For R3.14** (real clients): measure each allowed room's seat plates,
+    centre, board / pot / dealer zones per table size and its preferred-seat
+    behaviour (where the hero is drawn) on a real install
+    (`CAPTURING-TABLES.md` "Seat layouts"), into `tables.seatLayouts` /
+    `preferredSeat`; ACR's zones above all.
 
 ### R3.7 Data path — S
 - On `hand_imported`, reload rollups of that table's players, redraw;
@@ -6739,3 +6958,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **R3.3 done**: Windows finds tables. `platform::windows::find_tables`: `EnumWindows` over visible top-level windows, `GetWindowTextW`, class, the owning process (`GetWindowThreadProcessId` -> `QueryFullProcessImageNameW`), minimised and cloaked (`DWMWA_CLOAKED`) kept and marked hidden, the client rect in physical pixels (`GetClientRect` + `ClientToScreen` on a per-monitor-v2 thread; the HUD process sets per-monitor v2 at start), the scale from the monitor's effective dpi (a DPI-unaware client's own `GetDpiForWindow` is 96; both kept for the diagnostic). `windows` =0.61.3 (already locked by Tauri), six API features; the crate is `deny(unsafe_code)` with `forbid` in every other module and each Win32 call wrapped with its own `allow` and `// SAFETY:` comment. Matchers from `sites.json` `tables` (none yet) plus test-only simulator entries (process `rail-hud-sim` only; `rail-hud --standalone --sim-site <id> --sim-title <regex>`); every match returned, compliance refuses. Identity: (room, table name, seats) - the title's `table` group equal to the hand's `Table '...'` name after white-space normalisation, never a prefix; two windows with one name get no hand and say why; seats from a `seats` group or the last hand (`Reader::hand_seats`); the re-find every 500 ms follows retitles (tournament moves), moves, minimise until R3.5's hooks, and an unmatched hand triggers one at once; `health.waiting` counts tables waiting for their first hand. `rail-hud --list-windows` prints each visible window's process, class, redacted title ("Logged in as ..." and the user's names - `--you`, the store's hero names - become `<you>`), client size, dpi and awareness, non-ASCII characters, the room that takes it, and what `--try-title` reads; the owner's capture procedure is `docs/research/CAPTURING-TABLES.md`. `sites.json` `tables` gains `checkedAt`; `verified: true` needs it, an "Observed on" source and a regex. The simulator's `window` event gains `clientX` / `clientY`. Windows CI test (`hud/rail-hud/tests/windows_tables.rs`): three simulator windows found exactly, names, rects and scale checked against the simulator, minimise and table move followed, `--list-windows` redacted, the HUD attaching (PokerStars) and refusing (GGPoker). No real room has a `tables` block yet: nothing real is attached. |
 | 2026-10-15 | **R3.4 done**: Windows overlays. One `WS_POPUP` per table with `WS_EX_LAYERED \| WS_EX_TOOLWINDOW \| WS_EX_NOACTIVATE`, **owned by the table window** (above it, hidden while it is minimised, gone with it), exactly over its client rect in physical pixels, from a per-monitor-v2 thread of its own that never blocks (a cross-process owner ties input state to it); Direct2D (software DC render target) and DirectWrite paint a premultiplied DIB shown with `UpdateLayeredWindow`, alpha 0 outside the panels so clicks reach the table (`HTTRANSPARENT` too, `MA_NOACTIVATE`); hidden while minimised or cloaked; repainted only when the frame, size or scale changes, moved without a repaint. Panels: the six shipped `hud: panel` statistics with R2.4 bands (blue / white / orange on near-black) and R2.5 dimming, and the hand count, at the seats of a default layout - the simulator's geometry (`layout.rs`), next to each seat's plate, clear of plates, board and each other at every usual size and scale - "waiting for first hand" as a pill. `hand_imported` players carry `seat` and `hero` (from `seat_stats`). **Restrictions as data**: `sites.json` `hud.restrictions` (11 fields; schema, validator - required when allowed -, merge that only adds), PokerStars / ACR / Winamax from R3.0's pages; every frame carries compliance's `Permit` (asked again before each draw, checked against the window's room by the backend) and the renderer enforces the room's restrictions on any design (two thresholds, no card-split or switching statistics, no labels, nothing over table graphics); the default design complies with all of them at once. Windows CI test (`tests/windows_overlay.rs`): ownership, styles, rect, panels at the seats (surface and screen pixels), click-through, minimise / restore / move, dedupe, refusals, and the HUD process drawing on an allowed room and making no overlay window on a prohibited one; `twelve_tables_perf` on 12 tables in CI: a paint p50 2.1 ms, p95 4.0 ms (budget 16 ms), idle overlays 0 ms CPU over 10 s, the HUD process attached to 12 tables 0.46 % of one core. |
 | 2026-10-15 | **R3.5 done**: Windows tracking. `SetWinEventHook` **out of context** (`WINEVENT_OUTOFCONTEXT \| WINEVENT_SKIPOWNPROCESS`), **scoped to each tracked table's process** (one set per poker process, undone when the find sees it with no tracked table and no visible window), six hooks for exactly twelve events - foreground, move/size start and end, minimise start and end, destroy, show, hide, location change, name change, cloaked, uncloaked - for the window object only (`OBJID_WINDOW`, `CHILDID_SELF`); feature `Win32_UI_Accessibility`, no new crate. **On the overlay thread** (an out-of-context hook calls back on the thread that set it, which must pump and never block; only the overlay window's own thread moves it without a hop): the callback only filters and notes, the thread reads each noted table once and moves its overlay at once (no repaint), repaints at a new size or **monitor scale**, hides it while minimised / cloaked; the engine gets the latest per table (`platform::tracking`: a drag's hundred locations are one `Moved`), a new title through the room's own matcher (`Retitled` with the hands' table name: a tournament move at once), `Closed` for destroyed or hidden tables, and the new `TableEvent::Appeared` (a followed process showed a window: find now). **No fight with the 500 ms re-find**: an overlay is always placed from the table as it is at that moment, never from a description; the engine's `follow` with something the hooks did not report makes the thread look again. Z-order checked on foreground (`restacked`); overlays destroyed with their tables' process are noticed through their own `WM_DESTROY`. DPI: the overlay's `WM_DPICHANGED` and every location re-read the monitor's scale; no dpi change is possible on the CI runner, the scale logic is unit-tested. Tests: `platform::tracking` (6, every OS), `engine::hook_events_between_finds`, Windows CI `tests/windows_tracking.rs` - scripted `SetWindowPos` moves, the simulator's move / resize / minimise / restore / table move / close, a hidden and shown table, 100 moves in 1 s, the process killed, in the backend; the extended `scripts/tracking.txt` and a 100-move drag through the `rail-hud` process. Measured on the CI runner: table moved -> overlay moved p50 101 µs / p95 125 µs (40 moves), through the `rail-hud` process 100 moves in 1 s p50 58 µs / p95 120 µs with 15 ms of CPU and no backward move; table move seen in 2.3 ms; a killed client's overlays gone in 1.4 ms. |
+| 2026-10-15 | **R3.6 done**: seats and layouts. A hand's seat becomes a **slot** (the place on the screen) of the room's layout for the table size: `sites.json` `tables.seatLayouts` is now per size `{seats, plate, center, heroSlot, graphics, seatNumbers}` in thousandths of the client rect (schema `$defs.seatLayout`, validator checks), `null` for every room until measured (`CAPTURING-TABLES.md` "Seat layouts"; R3.14) - meanwhile `TableLayout::simulator`, the simulator's geometry. **Preferred seat**: a rotating client's seat `s` is at `(slot(s) - slot(hero) + heroSlot) mod size` (`seats::slot_of`), on when the user says so (`hud_room_settings`, the app's `hud_set_preferred_seat`), else `tables.preferredSeat` (`null` everywhere), else off; the hero's seat from each hand, kept while not dealt in, none for an observer, forgotten on a table move; a seat past the window's size lays out on the size that has it (9-max -> 6-max), heads-up two slots. **Drag**: the Windows overlay thread takes its own mouse messages (press on a panel -> `SetCapture`, moves past 4 px repaint the panel where the scene allows it, release or lost capture drops it), keeps the drop until the engine's frame has it (`Seating::drags_seen`) and reports `TableEvent::PanelMoved`; the engine redraws every table of that room and size and sends the new `seat_position_changed {site, size, slot, x, y}`; the app's thread writes **migration 13** (`hud_seat_positions` per (room, size, slot), `hud_room_settings`), which the read-only HUD reads at start and on `layout_changed` / `settings_changed`; not synced yet (R3.9 / R4.x). On `noOverlapTableGraphics` (ACR) a dragged panel goes to the nearest place clear of the layout's graphics (`layout::constrain`); a remote `sites.json` can only add graphics zones (union per size; a shrunk or dropped zone keeps the shipped one) and only narrow a room's process names (never another entry's), so table data cannot loosen compliance. Where a panel is never changes what it shows (PokerStars: no display switching by position, stack or opponent; no per-position stat sets). Tests on all OSes (every size x hero seat x rotation equal to the simulator's drawing, observer, size change, measured layouts, constrain, drag, the engine with a real store) and Windows CI `windows_seats.rs` (panels at the simulator's drawn seats with `--preferred-seat` off and on, its hero frame read off the screen; a posted-message drag kept off the graphics posing as ACR, where dropped posing as PokerStars; the HUD process: drag -> `seat_position_changed` -> store -> restart restores it). |

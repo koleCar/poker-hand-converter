@@ -36,6 +36,15 @@ const site = (doc: Json, id: string): Json => {
   if (!found) throw new Error(`no site ${id}`);
   return found;
 };
+/** A well-formed seat layout (R3.6) of `seats` seats, thousandths. */
+const seatLayout = (seats: number): Json => ({
+  seats: Array.from({ length: seats }, (_, i) => [100 + i * 80, 800]),
+  plate: [150, 80],
+  center: [500, 500],
+  heroSlot: 0,
+  graphics: [[300, 450, 400, 120]],
+  seatNumbers: null,
+});
 
 describe("config/sites.json", () => {
   it("fits its schema", () => {
@@ -114,7 +123,33 @@ describe("config/sites.json", () => {
     ["a macOS path with no root", (d) => (site(d, "pokerstars").paths.macos[0].path = "Library/PokerStars")],
     ["a parsed site without anonymisation", (d) => (site(d, "winamax").anonymisation = null)],
     ["an unknown anonymisation", (d) => (site(d, "ggpoker").anonymisation = "hashed")],
-    ["a seat layout for 11 seats", (d) => (site(d, "winamax").tables.seatLayouts = { "11": "x" })],
+    ["a seat layout for 11 seats", (d) => (site(d, "winamax").tables.seatLayouts = { "11": seatLayout(11) })],
+    // R3.6: a layout is geometry in thousandths of the client area.
+    ["a seat layout by name", (d) => (site(d, "winamax").tables.seatLayouts = { "6": "winamax-6max" })],
+    [
+      "a seat point past the client area",
+      (d) => {
+        const layout = seatLayout(6);
+        layout.seats[0] = [500, 1001];
+        site(d, "winamax").tables.seatLayouts = { "6": layout };
+      },
+    ],
+    [
+      "a seat layout without its graphics",
+      (d) => {
+        const layout: Record<string, unknown> = seatLayout(6);
+        delete layout.graphics;
+        site(d, "winamax").tables.seatLayouts = { "6": layout };
+      },
+    ],
+    [
+      "repeated hand-history seat numbers",
+      (d) => {
+        const layout = seatLayout(6);
+        layout.seatNumbers = [1, 1, 2, 3, 4, 5];
+        site(d, "winamax").tables.seatLayouts = { "6": layout };
+      },
+    ],
     [
       "verified table titles without a date",
       (d) =>
@@ -155,7 +190,8 @@ describe("config/sites.json", () => {
     Object.assign(site(doc, "winamax").tables, {
       process: { windows: ["Winamax.exe"], macos: null },
       title: "^(?<table>.+?) / ",
-      seatLayouts: { "6": "winamax-6max" },
+      seatLayouts: { "6": seatLayout(6) },
+      preferredSeat: true,
       verified: true,
       checkedAt: "2026-10-20",
       source: "Observed on a Windows install, 2026-10-20: Winamax 7",

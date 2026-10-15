@@ -20,7 +20,16 @@
 //!   (`StatsWorker::set_tables_open`, `SyncWorker::set_tables_open`); when
 //!   the HUD goes away the tables count as closed. `attach_refused` is
 //!   logged and kept for the status (R3.10 shows it in the app);
-//!   `open_in_app` shows the window and emits [`OPEN_PLAYER_EVENT`].
+//!   `open_in_app` shows the window and emits [`OPEN_PLAYER_EVENT`];
+//!   `seat_position_changed` (R3.6: the user dragged a panel) is written to
+//!   the store by a thread of its own ([`LayoutWrites`]) - the HUD's
+//!   connection is read-only, and the supervisor's callback never waits for
+//!   a commit.
+//! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
+//!   client rotates the table on a room, or not, or as `sites.json` says)
+//!   and [`hud_reset_seat_positions`] write the store and tell the HUD
+//!   (`settings_changed`, `layout_changed`), which reads them again. No
+//!   screen calls them yet (R3.9's HUD editor, R3.10's HUD screen).
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -54,6 +63,10 @@ const FEED_QUEUE: usize = 256;
 
 /// Windows refused that the status keeps.
 const REFUSED_KEPT: usize = 32;
+
+/// Dragged panels waiting for the store (R3.6); more are dropped (a drag is
+/// a user's hand on the mouse - this never fills).
+const LAYOUT_QUEUE: usize = 64;
 
 /// The binary next to the app's own.
 fn sidecar_path() -> Option<PathBuf> {
@@ -90,6 +103,68 @@ impl HudFeed {
             && let Err(TrySendError::Disconnected(_)) = tx.try_send((path.to_owned(), inserted))
         {
             log::debug!("hud: the feeder is gone");
+        }
+    }
+}
+
+/// A panel the user dragged, for the store (R3.6).
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct SeatWrite {
+    site: String,
+    size: u32,
+    slot: u32,
+    x: u32,
+    y: u32,
+}
+
+/// Where the supervisor's callback drops a dragged panel's position: a
+/// thread of its own writes it (`hud_seat_positions`), so the callback
+/// never waits for a commit.
+#[derive(Debug, Clone, Default)]
+pub struct LayoutWrites(Option<SyncSender<SeatWrite>>);
+
+impl LayoutWrites {
+    /// The writer thread over the store's writer.
+    fn start(writer: rail_store::WriterHandle) -> Self {
+        let (tx, rx) = mpsc::sync_channel::<SeatWrite>(LAYOUT_QUEUE);
+        let spawned = std::thread::Builder::new()
+            .name("rail-hud-layouts".to_owned())
+            .spawn(move || {
+                while let Ok(write) = rx.recv() {
+                    match writer.set_hud_seat_position(
+                        &write.site,
+                        write.size,
+                        write.slot,
+                        write.x,
+                        write.y,
+                    ) {
+                        Ok(()) => log::info!(
+                            "hud: {} {}-seat panel {} now at ({}, {})",
+                            write.site,
+                            write.size,
+                            write.slot,
+                            write.x,
+                            write.y
+                        ),
+                        Err(error) => log::warn!("hud: a panel position was not kept: {error}"),
+                    }
+                }
+            });
+        match spawned {
+            Ok(_) => Self(Some(tx)),
+            Err(error) => {
+                log::error!("hud: layout thread: {error}");
+                Self(None)
+            }
+        }
+    }
+
+    /// Queue one; never waits.
+    fn queue(&self, write: SeatWrite) {
+        if let Some(tx) = &self.0
+            && tx.try_send(write).is_err()
+        {
+            log::warn!("hud: a panel position was dropped");
         }
     }
 }
@@ -133,12 +208,16 @@ impl HudState {
         };
         let mut config = SupervisorConfig::new(program);
         config.args = vec!["--store".into(), store.path.clone().into_os_string()];
+        let layouts = match store.store.as_ref().map(rail_store::Store::writer) {
+            Some(Ok(writer)) => LayoutWrites::start(writer),
+            _ => LayoutWrites::default(),
+        };
 
         let on_event = {
             let app = app.clone();
             let shared = Arc::clone(&shared);
             let sync = Arc::clone(&sync);
-            move |event: Event| on_event(&app, &shared, &stats, &sync, event)
+            move |event: Event| on_event(&app, &shared, &stats, &sync, &layouts, event)
         };
         let supervisor = match Supervisor::start(config, on_event) {
             Ok(supervisor) => Arc::new(supervisor),
@@ -176,6 +255,22 @@ impl HudState {
     pub fn stats_changed(&self, epoch: i64) {
         if let Some(supervisor) = &self.supervisor {
             supervisor.send(AppMessage::StatsChanged { epoch });
+        }
+    }
+
+    /// The user changed a HUD setting (R3.6: the preferred seat): the HUD
+    /// reads them again.
+    pub fn settings_changed(&self) {
+        if let Some(supervisor) = &self.supervisor {
+            supervisor.send(AppMessage::SettingsChanged);
+        }
+    }
+
+    /// The user's panel positions changed outside the HUD (a reset): the
+    /// HUD reads them again.
+    pub fn layout_changed(&self) {
+        if let Some(supervisor) = &self.supervisor {
+            supervisor.send(AppMessage::LayoutChanged);
         }
     }
 
@@ -245,6 +340,7 @@ fn on_event<R: Runtime>(
     shared: &Shared,
     stats: &StatsState,
     sync: &SyncSlot,
+    layouts: &LayoutWrites,
     event: Event,
 ) {
     match event {
@@ -284,6 +380,19 @@ fn on_event<R: Runtime>(
                 reread_us,
                 ..
             } => log::debug!("hud: table updated ({hand_key:?}, re-read {reread_us} us)"),
+            HudMessage::SeatPositionChanged {
+                site,
+                size,
+                slot,
+                x,
+                y,
+            } => layouts.queue(SeatWrite {
+                site,
+                size,
+                slot,
+                x,
+                y,
+            }),
             HudMessage::Health { .. } | HudMessage::Unknown => {}
         },
     }
@@ -407,6 +516,43 @@ pub fn hud_status(state: State<'_, HudState>) -> HudStatusDto {
     state.status()
 }
 
+/// Whether the user's poker client rotates the table on room `site` so they
+/// always sit in one place (R3.6, "preferred seat"): `true`, `false`, or
+/// `null` to go by `sites.json`. The HUD lays the seats out again at once.
+#[tauri::command]
+pub async fn hud_set_preferred_seat(
+    store: State<'_, StoreState>,
+    hud: State<'_, HudState>,
+    site: String,
+    preferred: Option<bool>,
+) -> Result<(), String> {
+    let store = store.store.as_ref().ok_or("the store is not open")?;
+    store
+        .writer()
+        .and_then(|writer| writer.set_hud_preferred_seat(&site, preferred))
+        .map_err(|error| error.to_string())?;
+    hud.settings_changed();
+    Ok(())
+}
+
+/// Put a room's panels back where the layout places them (R3.6): one table
+/// size, or every size when `size` is `null`. How many positions went.
+#[tauri::command]
+pub async fn hud_reset_seat_positions(
+    store: State<'_, StoreState>,
+    hud: State<'_, HudState>,
+    site: String,
+    size: Option<u32>,
+) -> Result<u64, String> {
+    let store = store.store.as_ref().ok_or("the store is not open")?;
+    let gone = store
+        .writer()
+        .and_then(|writer| writer.clear_hud_seat_positions(&site, size))
+        .map_err(|error| error.to_string())?;
+    hud.layout_changed();
+    Ok(gone)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -442,6 +588,49 @@ mod tests {
         assert_eq!(shared.tables_open.load(Ordering::SeqCst), 0);
         stats.stop();
         drop(store);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// A dragged panel the HUD reports reaches the store through the
+    /// layout thread (R3.6), and the HUD's read-only view of the store
+    /// sees it.
+    #[test]
+    fn a_dragged_panel_is_written() {
+        let dir = std::env::temp_dir().join(format!("rail-app-hud-layout-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let store = StoreState::open(dir.join(rail_store::FILE_NAME));
+        let opened = store.store.as_ref().expect("store");
+        let layouts = LayoutWrites::start(opened.writer().expect("writer"));
+        layouts.queue(SeatWrite {
+            site: "acr".into(),
+            size: 6,
+            slot: 2,
+            x: 300,
+            y: 640,
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        let reader = rail_store::Reader::open(&store.path, 1).expect("reader");
+        loop {
+            let found = reader.hud_seat_positions().expect("read");
+            if let [p] = found.as_slice() {
+                assert_eq!(
+                    (p.site.as_str(), p.size, p.slot, p.x, p.y),
+                    ("acr", 6, 2, 300, 640)
+                );
+                break;
+            }
+            assert!(std::time::Instant::now() < deadline, "not written");
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        // A position out of range is refused, quietly (logged).
+        layouts.queue(SeatWrite {
+            site: "acr".into(),
+            size: 6,
+            slot: 9,
+            x: 0,
+            y: 0,
+        });
+        drop((layouts, reader));
         let _ = std::fs::remove_dir_all(&dir);
     }
 

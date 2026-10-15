@@ -134,7 +134,8 @@ Whoever turns it into configuration (an R3.3 follow-up, per room):
    The validator (`rail_config::validate`, and `sites.schema.json`) refuses
    `verified: true` without `checkedAt`, a source starting `Observed on `,
    or a title regex. `macos` stays `null` until R3.11 captures the macOS
-   client the same way; `seatLayouts` / `preferredSeat` are R3.6's.
+   client the same way; `seatLayouts` / `preferredSeat` come from the
+   measurement below ("Seat layouts").
 3. Relax `only_what_was_seen_is_verified` in
    `core/rail-config/tests/sites.rs` for exactly that room's tables, and
    `only_allowed_rooms_are_attached` in `hud/rail-hud/src/compliance.rs`
@@ -142,6 +143,55 @@ Whoever turns it into configuration (an R3.3 follow-up, per room):
 4. Replace the simulator's invented title for the room in
    `hud/rail-hud-sim/rooms.json` with the real format, tagged SOURCED, so
    the simulator's tables look like the real ones.
+
+## Seat layouts (R3.6)
+
+The HUD puts a seat's panel next to where the client draws that seat, and
+on ACR it must never cover the client's own table graphics (policy 4.2.11).
+Until a room is measured, every table is laid out with the table
+simulator's geometry, which matches no real client. Per room and per table
+size the room has (2, 6, 9 or whatever it offers), with the client at its
+default table theme:
+
+1. **A screenshot of the table's client area** (the window without its
+   frame) at a known size - the `--list-windows` line gives the client size
+   in pixels - with every seat taken if possible.
+2. **Each seat's plate**: its centre, clockwise, starting from the seat the
+   hand history calls seat 1 **with preferred seat off** (sit at seat 1, or
+   compare names with a hand). And one plate's width and height.
+3. **The table's other graphics** a panel must not cover: the board and pot,
+   the dealer tray, chip stacks if drawn apart from the plate, the action
+   buttons' area, time bank, chat. Each as a rectangle.
+4. **Preferred seat**: whether the client offers it, its default, and where
+   it draws you with it on (which of the plates, usually bottom centre).
+5. **Seat numbering**: whether the hand history numbers a smaller table's
+   seats `1..size` or from a bigger table's numbers (a 6-max table written
+   as seats 1, 2, 4, 5, 7, 9), and what a final table or a short-handed
+   table does.
+
+Turn each point into thousandths of the client width and height (x / width
+x 1000, rounded) and fill `tables.seatLayouts` and `tables.preferredSeat`:
+
+```json
+"seatLayouts": {
+  "6": {
+    "seats": [[500, 840], [145, 690], [145, 390], [500, 240], [855, 390], [855, 690]],
+    "plate": [170, 80],
+    "center": [500, 540],
+    "heroSlot": 0,
+    "graphics": [[285, 480, 430, 150], [0, 920, 1000, 80]],
+    "seatNumbers": null
+  }
+},
+"preferredSeat": false
+```
+
+`seats` lists the plates in hand-history seat order with preferred seat
+off; `heroSlot` is the index into `seats` where the client draws you with
+it on. The validator checks one seat per seat of the size, every value
+within 0 - 1000, `heroSlot` a seat and distinct `seatNumbers`. A user's
+own answer to "does your client rotate the table?" (the app's setting)
+wins over `preferredSeat`, which is only the default.
 
 ## Seen so far
 

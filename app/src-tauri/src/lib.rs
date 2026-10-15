@@ -309,6 +309,8 @@ pub fn run() {
         players::player_add_label,
         players::player_remove_label,
         hud::hud_status,
+        hud::hud_set_preferred_seat,
+        hud::hud_reset_seat_positions,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -384,6 +386,8 @@ pub fn run() {
         players::player_add_label,
         players::player_remove_label,
         hud::hud_status,
+        hud::hud_set_preferred_seat,
+        hud::hud_reset_seat_positions,
     ]);
 
     let app = builder

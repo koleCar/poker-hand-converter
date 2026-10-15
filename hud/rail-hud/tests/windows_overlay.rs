@@ -68,6 +68,7 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
         permit,
         status: None,
         size: Some(seats),
+        seating: rail_hud::platform::Seating::default(),
         panels: (1..=seats)
             .map(|seat| SeatPanel {
                 player: format!("Player{seat}"),

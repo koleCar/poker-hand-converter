@@ -142,6 +142,14 @@ pub struct OverlayInfo {
     pub painted: (u32, u32),
     /// Its panels, client-relative: where it takes clicks.
     pub panels: Vec<Rect>,
+    /// The seats' panels by slot (R3.6), client-relative.
+    pub seat_panels: Vec<(u32, Rect)>,
+    /// The slots whose panel is where the user put it (R3.6).
+    pub placed_by_user: Vec<u32>,
+    /// The table size laid out (R3.6).
+    pub size: u32,
+    /// Panels dragged and dropped on this overlay (R3.6).
+    pub drags: u64,
     /// Seats whose panel the layout dropped.
     pub dropped: Vec<String>,
     /// How many times it was moved without a repaint (R3.5: a drag).

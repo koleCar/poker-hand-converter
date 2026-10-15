@@ -78,6 +78,13 @@ impl Compliance {
         }
     }
 
+    /// The configuration in force (shipped, merged with the remote copy):
+    /// the rooms' table data - layouts and preferred seat (R3.6) - as well
+    /// as their policies.
+    pub fn config(&self) -> &Config {
+        &self.config
+    }
+
     /// May the HUD attach to a window of the room `site`?
     pub fn decide(&self, site: &str) -> Result<(), RefusalReason> {
         let Some(entry) = self.config.site(site) else {

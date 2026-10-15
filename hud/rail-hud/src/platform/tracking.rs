@@ -214,9 +214,17 @@ pub struct Observed {
     pub tables: BTreeMap<WindowId, Seen>,
     /// A top-level window of a followed process was shown.
     pub appeared: bool,
+    /// Panels the user dropped somewhere (R3.6), in order: every one is the
+    /// user's decision, none is coalesced away.
+    pub dragged: Vec<TableEvent>,
 }
 
 impl Observed {
+    /// The user dropped a panel (a [`TableEvent::PanelMoved`]).
+    pub fn dragged(&mut self, event: TableEvent) {
+        self.dragged.push(event);
+    }
+
     pub fn geometry(&mut self, id: WindowId, geometry: Geometry) {
         self.tables.entry(id).or_default().geometry = Some(geometry);
     }
@@ -230,7 +238,7 @@ impl Observed {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.tables.is_empty() && !self.appeared
+        self.tables.is_empty() && !self.appeared && self.dragged.is_empty()
     }
 }
 
@@ -299,6 +307,11 @@ pub fn events(
     if observed.appeared {
         out.push(TableEvent::Appeared);
     }
+    // Drags of tables the engine still follows, after their table's own
+    // events (a table closed meanwhile takes its drag with it).
+    out.extend(observed.dragged.into_iter().filter(
+        |event| matches!(event, TableEvent::PanelMoved { id, .. } if tracked.contains_key(id)),
+    ));
     out
 }
 
@@ -462,6 +475,30 @@ mod tests {
 
     /// A storm of locations is one `Moved` with the last; a minimise is one
     /// `Minimized`; nothing changed is nothing.
+    /// Drags (R3.6) reach the engine in order, none coalesced away; a
+    /// drag on a table no longer followed is dropped.
+    #[test]
+    fn drags_are_kept_in_order() {
+        let mut tracked = BTreeMap::from([(WindowId(1), window(1, "A - x", "A"))]);
+        let mut observed = Observed::default();
+        let drag = |id, slot, seq| TableEvent::PanelMoved {
+            id: WindowId(id),
+            size: 6,
+            slot,
+            x: 100,
+            y: 200,
+            seq,
+        };
+        observed.dragged(drag(1, 2, 1));
+        observed.dragged(drag(1, 2, 2));
+        observed.dragged(drag(7, 0, 3));
+        assert!(!observed.is_empty());
+        assert_eq!(
+            events(observed, &mut tracked, &matchers()),
+            [drag(1, 2, 1), drag(1, 2, 2)]
+        );
+    }
+
     #[test]
     fn locations_coalesce() {
         let mut tracked = BTreeMap::from([(WindowId(1), window(1, "A - x", "A"))]);

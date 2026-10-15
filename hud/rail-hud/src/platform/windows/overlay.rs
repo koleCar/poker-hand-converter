@@ -37,6 +37,21 @@
 //! repaint at its scale) and `WM_DESTROY` (destroyed with its table's
 //! process).
 //!
+//! **Dragging a panel (R3.6).** The panels take clicks (R3.4); a press on
+//! one, a move with the button down and the release arrive as this
+//! thread's own mouse messages, which the pump hands to
+//! [`Overlays::mouse`] before dispatching anything ([`super::super::drag`]
+//! says what they mean). The panel is repainted where the pointer takes it,
+//! laid out by the scene: inside the client area and, on a room that
+//! forbids covering its graphics (ACR), clear of them during the drag too.
+//! The capture keeps the release ours wherever it happens, and the drop
+//! is kept on the overlay (until the engine's next frame carries it,
+//! `Seating::drags_seen`) and noted for the backend's `poll_events` as a
+//! `TableEvent::PanelMoved`. Nothing else happens here: the engine tells
+//! the app, which writes the store; this thread never waits on either.
+//! Losing the capture (another window took the mouse) ends the drag where
+//! the panel is.
+//!
 //! **The table's geometry is always read here, at the moment it is used**
 //! (for a new frame, a hook event, the engine's `follow`), never taken
 //! from a description handed over, which can be older than what the hooks
@@ -75,24 +90,26 @@ use windows::Win32::Graphics::Gdi::{
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
 use windows::Win32::System::Threading::GetCurrentThreadId;
 use windows::Win32::UI::Accessibility::{HWINEVENTHOOK, SetWinEventHook, UnhookWinEvent};
+use windows::Win32::UI::Input::KeyboardAndMouse::{ReleaseCapture, SetCapture};
 use windows::Win32::UI::WindowsAndMessaging::{
     CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GW_HWNDNEXT, GW_HWNDPREV,
     GetMessageW, GetWindow, HTTRANSPARENT, HWND_TOP, IsWindowVisible, MA_NOACTIVATE, MSG,
     PM_NOREMOVE, PeekMessageW, PostThreadMessageW, RegisterClassExW, SW_HIDE, SW_SHOWNOACTIVATE,
     SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SetWindowPos, ShowWindow, ULW_ALPHA,
-    UpdateLayeredWindow, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WM_APP, WM_DESTROY,
-    WM_DPICHANGED, WM_MOUSEACTIVATE, WM_NCHITTEST, WNDCLASSEXW, WS_EX_LAYERED, WS_EX_NOACTIVATE,
-    WS_EX_TOOLWINDOW, WS_POPUP,
+    UpdateLayeredWindow, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WM_APP, WM_CAPTURECHANGED,
+    WM_DESTROY, WM_DPICHANGED, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEACTIVATE, WM_MOUSEMOVE,
+    WM_NCHITTEST, WNDCLASSEXW, WS_EX_LAYERED, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_POPUP,
 };
 use windows::core::{PCWSTR, w};
 
+use super::super::drag::{self, Drag};
 use super::super::tracking::{self, Geometry, Hooked, Observed, Placed, Plan, win_event};
-use super::super::{OverlayFrame, PlatformError, Rect, TableWindow, WindowId};
+use super::super::{OverlayFrame, PlatformError, Rect, TableEvent, TableWindow, WindowId};
 use super::OverlayInfo;
 use super::ffi::{ThreadDpi, hwnd_of, id_of, is_top_level, is_window, state_of, window_text};
-use crate::layout;
+use crate::layout::{self, Positions};
 use crate::panel::PanelDesign;
-use crate::scene::{Item, Rgba, Scene, compose};
+use crate::scene::{Item, Rgba, Scene, compose_with};
 
 /// The thread message that says "the channel has commands".
 const WAKE: u32 = WM_APP + 0x52;
@@ -106,6 +123,9 @@ const KEEP_TIMES: usize = 10_000;
 
 /// How long a query waits for the thread.
 const ASK: Duration = Duration::from_secs(10);
+
+/// `MK_LBUTTON` in a mouse message's `wparam`: the left button is down.
+const LEFT_BUTTON: usize = 0x0001;
 
 /// How long a table counts as being minimised after
 /// `EVENT_SYSTEM_MINIMIZESTART` while `IsIconic` does not say so yet: a
@@ -333,6 +353,8 @@ struct Pending {
     dpi: Vec<WindowId>,
     /// Overlay windows being destroyed.
     destroyed: Vec<WindowId>,
+    /// Overlay windows that lost the mouse capture (R3.6: a drag ends).
+    capture_lost: Vec<WindowId>,
 }
 
 thread_local! {
@@ -430,6 +452,7 @@ fn run(
         hooks: HashMap::new(),
         observed,
         follow_times: Vec::new(),
+        drag_seq: 0,
     };
     'pump: while let Some(message) = next_message() {
         if message.hwnd.is_invalid() && message.message == WAKE {
@@ -441,7 +464,7 @@ fn run(
             }
         } else if message.hwnd.is_invalid() && message.message == HOOKED {
             state.hooked();
-        } else {
+        } else if !state.mouse(&message) {
             dispatch(&message);
         }
     }
@@ -549,6 +572,13 @@ extern "system" fn window_proc(
             note(|p| p.dpi.push(id));
             LRESULT(0)
         }
+        // The mouse capture went elsewhere (R3.6): a drag ends where the
+        // panel is, which the thread does once this message is handled.
+        WM_CAPTURECHANGED => {
+            let id = id_of(hwnd);
+            note(|p| p.capture_lost.push(id));
+            LRESULT(0)
+        }
         // Destroyed: by us (`close`), or by Windows with its owner - the
         // table - when the table's process ends (R3.5).
         WM_DESTROY => {
@@ -591,6 +621,27 @@ struct Overlay {
     moves: u64,
     restacked: u64,
     error: Option<String>,
+    /// A press on a seat's panel being followed (R3.6).
+    drag: Option<Drag>,
+    /// Panels dropped and not yet in the engine's frame (R3.6): (drag
+    /// number, slot, centre in thousandths), oldest first.
+    kept: Vec<(u64, u32, (u32, u32))>,
+    /// Drags dropped on this overlay.
+    drags: u64,
+}
+
+impl Overlay {
+    /// The positions the overlay shows over its frame's: drops the engine
+    /// has not taken in yet, then the drag in progress.
+    fn overrides(&self) -> Positions {
+        let mut out: Positions = self.kept.iter().map(|&(_, slot, at)| (slot, at)).collect();
+        if let Some(drag) = &self.drag
+            && let Some(at) = drag.at
+        {
+            out.insert(drag.slot, at);
+        }
+        out
+    }
 }
 
 /// A followed table (R3.5).
@@ -617,6 +668,9 @@ struct Overlays {
     observed: Arc<Mutex<Observed>>,
     /// Hook event -> overlay put right, µs.
     follow_times: Vec<u64>,
+    /// Drags dropped so far, on every overlay (R3.6): each drop's number,
+    /// which the engine hands back in its frames.
+    drag_seq: u64,
 }
 
 fn keep(times: &mut Vec<u64>, us: u64) {
@@ -719,6 +773,11 @@ impl Overlays {
         }
         for overlay in pending.destroyed {
             self.overlay_destroyed(overlay);
+        }
+        for overlay in pending.capture_lost {
+            if let Some(table) = self.table_of_overlay(overlay) {
+                self.end_drag(table);
+            }
         }
         // Per table, in order: its events, and the first one's time.
         let mut by_table: Vec<(WindowId, Vec<Hooked>, Instant)> = Vec::new();
@@ -916,6 +975,9 @@ impl Overlays {
                     moves: 0,
                     restacked: 0,
                     error: None,
+                    drag: None,
+                    kept: Vec::new(),
+                    drags: 0,
                 },
                 Err(error) => {
                     eprintln!("rail-hud: overlay for window {}: {error}", table.0);
@@ -925,6 +987,9 @@ impl Overlays {
             slot.insert(overlay);
         }
         if let Some(overlay) = self.windows.get_mut(&table) {
+            // Drops the engine has taken in are in the frame now (R3.6).
+            let seen = frame.seating.drags_seen;
+            overlay.kept.retain(|(seq, _, _)| *seq > seen);
             // The same frame again (a re-read that changed nothing) is not
             // painted again.
             if overlay.frame.as_ref() != Some(&frame) {
@@ -981,6 +1046,119 @@ impl Overlays {
         plan
     }
 
+    /// A mouse message of this thread (R3.6): a press, move or release on
+    /// an overlay, taken here; `false` for anything else (dispatched).
+    fn mouse(&mut self, message: &MSG) -> bool {
+        if !matches!(
+            message.message,
+            WM_LBUTTONDOWN | WM_MOUSEMOVE | WM_LBUTTONUP
+        ) {
+            return false;
+        }
+        let Some(table) = self.table_of_overlay(id_of(message.hwnd)) else {
+            return false;
+        };
+        // Client coordinates of the overlay, which covers the table's
+        // client area exactly: the scene's.
+        let (x, y) = point_of(message.lParam);
+        let dragging = self.windows.get(&table).is_some_and(|o| o.drag.is_some());
+        match message.message {
+            WM_LBUTTONDOWN => {
+                if dragging {
+                    // A release we never saw: end that drag first.
+                    self.end_drag(table);
+                }
+                if let Some(overlay) = self.windows.get_mut(&table)
+                    && let Some(drag) = Drag::press(&overlay.scene, x, y)
+                {
+                    overlay.drag = Some(drag);
+                    set_capture(overlay.hwnd);
+                }
+            }
+            WM_MOUSEMOVE => {
+                // A move without the button is ignored, not a release: the
+                // release comes as one (the capture makes sure), or the
+                // capture's loss ends the drag.
+                let down = message.wParam.0 & LEFT_BUTTON != 0;
+                let moved = self.windows.get_mut(&table).and_then(|overlay| {
+                    let g = overlay.geometry;
+                    let drag = overlay.drag.as_mut().filter(|_| down)?;
+                    drag.moved(
+                        x,
+                        y,
+                        drag::threshold(g.scale_permille),
+                        g.client.width,
+                        g.client.height,
+                    )
+                });
+                if moved.is_some() {
+                    self.repaint(table);
+                }
+            }
+            _ => {
+                if dragging {
+                    release_capture();
+                    self.end_drag(table);
+                }
+            }
+        }
+        true
+    }
+
+    /// End the drag of `table`'s overlay where the panel is: kept, and the
+    /// engine told, when it moved to a place it may be; a click otherwise
+    /// (R3.8's), or back where it was.
+    fn end_drag(&mut self, table: WindowId) {
+        let Some(overlay) = self.windows.get_mut(&table) else {
+            return;
+        };
+        let Some(drag) = overlay.drag.take() else {
+            return;
+        };
+        let Some(at) = drag.release(&overlay.scene) else {
+            if drag.at.is_some() {
+                // Nowhere it may go: back to where it was.
+                self.repaint(table);
+            }
+            return;
+        };
+        self.drag_seq += 1;
+        let seq = self.drag_seq;
+        overlay.kept.push((seq, drag.slot, at));
+        overlay.drags += 1;
+        let size = overlay.scene.size;
+        self.observe(|o| {
+            o.dragged(TableEvent::PanelMoved {
+                id: table,
+                size,
+                slot: drag.slot,
+                x: at.0,
+                y: at.1,
+                seq,
+            });
+        });
+        // Exactly where it is kept.
+        self.repaint(table);
+    }
+
+    /// Paint `table`'s overlay again as it is (a drag moved a panel).
+    fn repaint(&mut self, table: WindowId) {
+        let Some(overlay) = self.windows.get_mut(&table) else {
+            return;
+        };
+        overlay.dirty = true;
+        let g = overlay.geometry;
+        self.sync(table, g);
+    }
+
+    /// The table an overlay window is over.
+    fn table_of_overlay(&self, overlay: WindowId) -> Option<WindowId> {
+        self.windows
+            .iter()
+            .find(|(_, o)| id_of(o.hwnd) == overlay)
+            .map(|(t, _)| *t)
+    }
+
     fn close_all(&mut self) {
         for (_, overlay) in self.windows.drain() {
             close(overlay);
@@ -999,6 +1177,10 @@ fn info(overlay: &Overlay) -> OverlayInfo {
         last_render_us: overlay.last_render_us,
         painted: overlay.painted.map_or((0, 0), |(w, h, _)| (w, h)),
         panels: overlay.scene.panels.clone(),
+        seat_panels: overlay.scene.seat_panels.clone(),
+        placed_by_user: overlay.scene.placed_by_user.clone(),
+        size: overlay.scene.size,
+        drags: overlay.drags,
         dropped: overlay.scene.dropped.clone(),
         moves: overlay.moves,
         restacked: overlay.restacked,
@@ -1018,12 +1200,13 @@ fn paint(
     let Some(frame) = &overlay.frame else {
         return Ok(0);
     };
-    let scene = compose(
+    let scene = compose_with(
         frame,
         g.client.width,
         g.client.height,
         g.scale_permille,
         design,
+        &overlay.overrides(),
     );
     let fits = overlay
         .surface
@@ -1057,6 +1240,22 @@ fn set_hit(overlay: &Overlay) {
             (overlay.at.0, overlay.at.1, overlay.scene.panels.clone()),
         );
     });
+}
+
+/// Take the mouse for an overlay while a panel is dragged (R3.6): the
+/// moves and the release come here wherever the pointer goes.
+#[allow(unsafe_code)]
+fn set_capture(hwnd: HWND) {
+    // SAFETY: a window of this thread; the previous capture window it
+    // returns is not used.
+    let _ = unsafe { SetCapture(hwnd) };
+}
+
+/// Give the mouse back after a drag.
+#[allow(unsafe_code)]
+fn release_capture() {
+    // SAFETY: no arguments; failing (no capture held) changes nothing.
+    let _ = unsafe { ReleaseCapture() };
 }
 
 fn close(overlay: Overlay) {

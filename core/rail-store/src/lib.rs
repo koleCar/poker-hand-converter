@@ -33,6 +33,9 @@
 //! - **Targeted recompute** (R2.11, [`recompute`]): after a definition
 //!   changes, the background pass works out only what the change touches,
 //!   beside the statistics the screens read, and swaps it in whole.
+//! - **The HUD's layouts** (R3.6, [`hud`]): where the user dragged a seat's
+//!   panel and whether their client rotates the table; written by the app
+//!   for the HUD process, which only reads.
 //!
 //! The schema is documented table by table in `SCHEMA.md`.
 
@@ -46,6 +49,7 @@ pub mod batch;
 pub mod custom;
 pub mod error;
 pub mod hand_list;
+pub mod hud;
 pub mod import;
 pub mod migrate;
 pub mod players;
@@ -70,6 +74,7 @@ pub use hand_list::{
     Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, PlayerRef,
     SavedFilter, StakeFacet,
 };
+pub use hud::{RoomSettings, SeatPosition};
 pub use import::{FileImport, ImportOptions, import_file};
 pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
 pub use read::{Reader, StaleRefusals, StoreStatus};

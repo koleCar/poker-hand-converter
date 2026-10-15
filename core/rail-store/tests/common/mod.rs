@@ -15,19 +15,22 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
-/// Back from the latest version to 11 (R2.11's staging tables and the
-/// twins of the rollups, and its `kv` keys).
-pub const DOWN_FROM_12: &str = "DROP TABLE recompute_hands; DROP TABLE recompute_seats;
+/// Back from the latest version to 11 (R3.6's HUD layouts; R2.11's staging
+/// tables and the twins of the rollups, and its `kv` keys).
+pub const DOWN_FROM_12: &str = "DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
+     DROP TABLE recompute_hands; DROP TABLE recompute_seats;
      DROP TABLE recompute_list; DROP TABLE recompute_player_rollups;
      DROP TABLE recompute_hero_rollups; DROP TABLE recompute_player_summary;
      DROP TABLE recompute_player_hidden; DROP TABLE recompute_ev;
      DELETE FROM kv WHERE key LIKE 'recompute.%'
                        OR key IN ('stats.segment_version', 'stats.epoch');";
 
-/// Back from the latest version to 8 (R2.7c; version 12's tables, R2.11,
-/// and version 11's custom statistics, R2.10, go first, version 10 only
-/// dropped an index): what the older-store tests run first.
-pub const DOWN_FROM_9: &str = "DROP TABLE recompute_hands; DROP TABLE recompute_seats;
+/// Back from the latest version to 8 (R2.7c; version 13's HUD layouts,
+/// R3.6, version 12's tables, R2.11, and version 11's custom statistics,
+/// R2.10, go first, version 10 only dropped an index): what the
+/// older-store tests run first.
+pub const DOWN_FROM_9: &str = "DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
+     DROP TABLE recompute_hands; DROP TABLE recompute_seats;
      DROP TABLE recompute_list; DROP TABLE recompute_player_rollups;
      DROP TABLE recompute_hero_rollups; DROP TABLE recompute_player_summary;
      DROP TABLE recompute_player_hidden; DROP TABLE recompute_ev;

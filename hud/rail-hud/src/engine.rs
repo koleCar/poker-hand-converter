@@ -45,6 +45,17 @@
 //!   the app is busy.
 //! - `policy` merges the app's remote `sites.json`; tables whose room is no
 //!   longer allowed are detached at once.
+//! - **Seats and layouts** (R3.6): each window's hero seat comes with its
+//!   hands (`crate::seats::hero_after`; forgotten on a table move); a frame
+//!   carries the room's layout for the table size, the hero's seat when the
+//!   room's client rotates the table (the user's word, else `sites.json`),
+//!   and the panels the user placed ([`crate::seats::Rooms`], read from the
+//!   store at start and on `layout_changed` / `settings_changed`). A panel
+//!   the user drags ([`TableEvent::PanelMoved`], from the backend's overlay
+//!   thread) is remembered at once, every table of that room and size is
+//!   redrawn with it, and the app is told
+//!   ([`HudMessage::SeatPositionChanged`]) - it writes the store, which
+//!   this process only reads.
 //! - `shutdown`, the connection closing or standard input ending (the app is
 //!   gone) end the loop; the overlays are removed.
 
@@ -63,8 +74,10 @@ use crate::data::StoreView;
 use crate::latency::{Latencies, micros};
 use crate::panel::{PanelDesign, PanelStats};
 use crate::platform::{
-    OverlayFrame, Platform, SeatPanel, TableEvent, TableMatcher, TableWindow, WindowId, table_key,
+    OverlayFrame, Platform, SeatPanel, Seating, TableEvent, TableMatcher, TableWindow, WindowId,
+    table_key,
 };
+use crate::seats::{self, Rooms};
 
 /// What the loop is fed.
 #[derive(Debug)]
@@ -120,6 +133,13 @@ struct Attached {
     /// The seats the title gives (its `seats` group); `None`: the window's
     /// `size` comes from its hands.
     title_seats: Option<u32>,
+    /// The hero's seat at this table (R3.6), from its hands.
+    hero_seat: Option<u32>,
+    /// The last panel drag of this window the engine took in (R3.6).
+    drags_seen: u64,
+    /// What it shows: a status line or panels (redrawn when the layout or
+    /// the user's positions change).
+    shown: (Option<String>, Vec<SeatPanel>),
 }
 
 /// The HUD.
@@ -147,6 +167,12 @@ pub struct Hud {
     test_matchers: Vec<TableMatcher>,
     /// The panel's statistics (the default design's, R3.4).
     panel_stats: PanelStats,
+    /// Where each room draws its tables and where the user put panels
+    /// (R3.6).
+    rooms: Rooms,
+    /// The user's layouts were read from the store (once it opens, and
+    /// again on `layout_changed` / `settings_changed`).
+    user_layouts_read: bool,
 }
 
 impl std::fmt::Debug for Hud {
@@ -167,6 +193,8 @@ impl Hud {
         settings: Settings,
     ) -> Self {
         let now = Instant::now();
+        let mut rooms = Rooms::default();
+        rooms.set_config(compliance.config());
         Self {
             platform,
             compliance,
@@ -184,6 +212,8 @@ impl Hud {
             recent: BTreeMap::new(),
             test_matchers: Vec::new(),
             panel_stats: PanelStats::new(&PanelDesign::default()),
+            rooms,
+            user_layouts_read: false,
         }
     }
 
@@ -295,6 +325,7 @@ impl Hud {
                         let id = *id;
                         if let Some(attached) = self.attached.get_mut(&id) {
                             attached.players.clone_from(&players);
+                            attached.hero_seat = seats::hero_after(&players, attached.hero_seat);
                         }
                         self.fill_seats(id, &hand_key);
                         self.reread(id, Some(&hand_key), at, out);
@@ -330,6 +361,8 @@ impl Hud {
                     ),
                     Err(error) => eprintln!("rail-hud: the remote policy was refused: {error}"),
                 }
+                // Table data (layouts, preferred seat) may have changed too.
+                self.rooms.set_config(self.compliance.config());
                 // Decide again: detach what is no longer allowed now, and
                 // look at refused windows afresh at the next find.
                 let ids: Vec<(WindowId, String)> = self
@@ -346,13 +379,17 @@ impl Hud {
                 }
                 self.report_open(out);
                 self.next_find = Instant::now();
+                self.repaint_all();
             }
             AppMessage::Health { seq } => out(HudMessage::Health {
                 seq,
                 report: self.health(),
             }),
             AppMessage::LayoutChanged | AppMessage::SettingsChanged => {
-                // Layouts (R3.6) and settings (R3.9) are not read yet.
+                // The user's positions and preferred seat (R3.6); R3.9's
+                // presets will be read here too.
+                self.read_user_layouts();
+                self.repaint_all();
             }
             AppMessage::Shutdown => return Some(Exit::Shutdown),
             AppMessage::Unknown => {}
@@ -373,6 +410,10 @@ impl Hud {
         if now >= self.next_store {
             self.next_store = now + self.settings.store_every;
             self.store.ensure_open();
+            if !self.user_layouts_read && self.store.is_open() {
+                self.read_user_layouts();
+                self.repaint_all();
+            }
             if self.store.changed() {
                 self.reread_all(now, out);
             }
@@ -521,6 +562,9 @@ impl Hud {
                 window,
                 store_site,
                 players: Vec::new(),
+                hero_seat: None,
+                drags_seen: 0,
+                shown: (None, Vec::new()),
             },
         );
         self.draw(id, Some(WAITING.to_owned()), Vec::new());
@@ -546,6 +590,7 @@ impl Hud {
             return;
         };
         if let Some(attached) = self.attached.get_mut(&id) {
+            attached.hero_seat = seats::hero_after(&players, attached.hero_seat);
             attached.players = players;
         }
         self.fill_seats(id, &hand_key);
@@ -604,9 +649,11 @@ impl Hud {
                         a.window.title = title;
                         let moved = a.window.table != table;
                         if moved {
-                            // A tournament table move: other players.
+                            // A tournament table move: other players, and
+                            // the hero at another seat.
                             a.window.table = table;
                             a.players.clear();
+                            a.hero_seat = None;
                         }
                         moved
                     });
@@ -625,9 +672,92 @@ impl Hud {
                     self.refused.remove(&id);
                 }
                 TableEvent::Appeared => self.find_soon = true,
+                TableEvent::PanelMoved {
+                    id,
+                    size,
+                    slot,
+                    x,
+                    y,
+                    seq,
+                } => self.panel_moved(id, size, slot, (x, y), seq, out),
             }
         }
         self.report_open(out);
+    }
+
+    /// The user dropped a seat's panel somewhere (R3.6): remembered for the
+    /// room and table size at once, every table of that room and size
+    /// redrawn with it, and the app told - it writes the store.
+    fn panel_moved(
+        &mut self,
+        id: WindowId,
+        size: u32,
+        slot: u32,
+        at: (u32, u32),
+        seq: u64,
+        out: &mut dyn FnMut(HudMessage),
+    ) {
+        let Some(attached) = self.attached.get_mut(&id) else {
+            return;
+        };
+        attached.drags_seen = attached.drags_seen.max(seq);
+        let site = attached.window.site.clone();
+        if !(2..=10).contains(&size) || slot >= size || at.0 > 1000 || at.1 > 1000 {
+            return;
+        }
+        eprintln!(
+            "rail-hud: window {}: the panel at slot {slot} of a {size}-seat {site} table moved to ({}, {})",
+            id.0, at.0, at.1
+        );
+        self.rooms.set_position(&site, size, slot, at);
+        out(HudMessage::SeatPositionChanged {
+            site: site.clone(),
+            size,
+            slot,
+            x: at.0,
+            y: at.1,
+        });
+        let same: Vec<WindowId> = self
+            .attached
+            .iter()
+            .filter(|(other, a)| {
+                **other == id || (a.window.site == site && Self::size_of(a) == size)
+            })
+            .map(|(other, _)| *other)
+            .collect();
+        for other in same {
+            self.repaint(other);
+        }
+    }
+
+    /// Read the user's layouts from the store (R3.6); a store that cannot
+    /// say keeps what is known.
+    fn read_user_layouts(&mut self) {
+        match self.store.user_layouts() {
+            None => {}
+            Some(Ok((positions, settings))) => {
+                eprintln!(
+                    "rail-hud: {} panel positions and {} room settings from the store",
+                    positions.len(),
+                    settings.len()
+                );
+                self.rooms.set_user(positions, settings);
+                self.user_layouts_read = true;
+            }
+            Some(Err(error)) => {
+                eprintln!("rail-hud: the HUD layouts did not read: {error}");
+                self.user_layouts_read = true;
+            }
+        }
+    }
+
+    /// The table size a window is laid out at: its own (title, hands),
+    /// unless a hand names a seat past it (`crate::seats::table_size`).
+    fn size_of(attached: &Attached) -> u32 {
+        seats::table_size(
+            attached.window.size,
+            attached.shown.1.iter().filter_map(|p| p.seat),
+        )
     }
 
     fn reread_all(&mut self, since: Instant, out: &mut dyn FnMut(HudMessage)) {
@@ -694,11 +824,29 @@ impl Hud {
         self.draw(id, None, panels);
     }
 
-    /// Show a status line or panels over an attached window. Compliance is
-    /// asked again here (guideline §7, R3.4): no frame - and so nothing
-    /// drawn - without its permit for the window's room; a window that has
-    /// lost it loses its overlay.
+    /// Show a status line or panels over an attached window.
     fn draw(&mut self, id: WindowId, status: Option<String>, panels: Vec<SeatPanel>) {
+        let Some(attached) = self.attached.get_mut(&id) else {
+            return;
+        };
+        attached.shown = (status, panels);
+        self.repaint(id);
+    }
+
+    /// Every attached window again (a layout or a preferred seat changed).
+    fn repaint_all(&mut self) {
+        let ids: Vec<WindowId> = self.attached.keys().copied().collect();
+        for id in ids {
+            self.repaint(id);
+        }
+    }
+
+    /// Hand the window's frame to the backend: what it shows, where (the
+    /// room's layout for the table size, the hero's rotation, the user's
+    /// positions - R3.6). Compliance is asked again here (guideline §7,
+    /// R3.4): no frame - and so nothing drawn - without its permit for the
+    /// window's room; a window that has lost it loses its overlay.
+    fn repaint(&mut self, id: WindowId) {
         let Some(attached) = self.attached.get(&id) else {
             return;
         };
@@ -713,10 +861,24 @@ impl Hud {
                 return;
             }
         };
+        let site = attached.window.site.as_str();
+        let size = Self::size_of(attached);
+        let seating = Seating {
+            layout: self.rooms.layout(site, size),
+            rotate_to: if self.rooms.rotates(site) {
+                attached.hero_seat
+            } else {
+                None
+            },
+            positions: self.rooms.positions(site, size),
+            drags_seen: attached.drags_seen,
+        };
+        let (status, panels) = attached.shown.clone();
         let frame = OverlayFrame {
             permit,
             status,
-            size: attached.window.size,
+            size: Some(size),
+            seating,
             panels,
         };
         if let Err(error) = self.platform.overlay(id, &frame) {
@@ -1206,6 +1368,233 @@ mod tests {
         let mut sent = Vec::new();
         hud.tick(start, &mut |m| sent.push(m));
         assert_eq!(sent, [HudMessage::TablesOpen { count: 1 }]);
+    }
+
+    /// A backend that keeps every frame (R3.6) and gives the events a test
+    /// queues - the overlay thread's drags among them.
+    #[derive(Default)]
+    struct Drawn {
+        windows: std::rc::Rc<std::cell::RefCell<Vec<TableWindow>>>,
+        events: std::rc::Rc<std::cell::RefCell<Vec<TableEvent>>>,
+        frames: std::rc::Rc<std::cell::RefCell<BTreeMap<WindowId, OverlayFrame>>>,
+    }
+
+    impl Platform for Drawn {
+        fn name(&self) -> &'static str {
+            "drawn"
+        }
+        fn find_tables(
+            &mut self,
+            _: &[TableMatcher],
+        ) -> Result<Vec<TableWindow>, crate::platform::PlatformError> {
+            Ok(self.windows.borrow().clone())
+        }
+        fn track(&mut self, _: &TableWindow) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn untrack(&mut self, _: WindowId) {}
+        fn poll_events(&mut self) -> Vec<TableEvent> {
+            std::mem::take(&mut *self.events.borrow_mut())
+        }
+        fn overlay(
+            &mut self,
+            id: WindowId,
+            frame: &OverlayFrame,
+        ) -> Result<(), crate::platform::PlatformError> {
+            self.frames.borrow_mut().insert(id, frame.clone());
+            Ok(())
+        }
+        fn remove_overlay(&mut self, id: WindowId) {
+            self.frames.borrow_mut().remove(&id);
+        }
+    }
+
+    fn seated(site: &str, table: &str, key: &str, hero: Option<u32>, seats: &[u32]) -> Input {
+        Input::App(
+            AppMessage::HandImported {
+                site: site.into(),
+                table: Some(table.into()),
+                hand_key: key.into(),
+                players: seats
+                    .iter()
+                    .map(|&seat| PlayerRef {
+                        hero: hero == Some(seat),
+                        ..PlayerRef::named(format!("P{seat}")).at(seat)
+                    })
+                    .collect(),
+            },
+            Instant::now(),
+        )
+    }
+
+    /// The app's store with the user's layouts (R3.6), as the app writes
+    /// them; the HUD reads it read-only.
+    fn store_with(
+        name: &str,
+        write: impl FnOnce(&rail_store::WriterHandle),
+    ) -> (std::path::PathBuf, std::path::PathBuf) {
+        let dir =
+            std::env::temp_dir().join(format!("rail-hud-engine-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let path = dir.join(rail_store::FILE_NAME);
+        let store = rail_store::Store::open(&path).expect("store");
+        let writer = store.writer().expect("writer");
+        write(&writer);
+        drop(writer);
+        store.close();
+        (path, dir)
+    }
+
+    /// Seats and layouts through the engine (R3.6): the hero's seat from
+    /// the hands, rotation only where the room's client rotates (the
+    /// user's word from the store), the hero kept while not dealt in,
+    /// forgotten on a table move; a drag remembered for every table of that
+    /// room and size, told to the app; the store's positions read at start
+    /// and on `layout_changed`.
+    #[test]
+    fn seats_rotation_and_drags() {
+        let (path, dir) = store_with("seats", |writer| {
+            writer
+                .set_hud_seat_position("pokerstars", 9, 4, 111, 222)
+                .expect("a position");
+        });
+        let backend = Drawn::default();
+        let (windows, events, frames) = (
+            backend.windows.clone(),
+            backend.events.clone(),
+            backend.frames.clone(),
+        );
+        let mut one = polled_window("T 1 - x", "T 1", Some(6));
+        one.id = WindowId(1);
+        let mut two = polled_window("T 2 - x", "T 2", Some(6));
+        two.id = WindowId(2);
+        let mut nine = polled_window("T 9 - x", "T 9", Some(9));
+        nine.id = WindowId(3);
+        windows.borrow_mut().extend([one, two, nine]);
+        let mut hud = Hud::new(
+            Box::new(backend),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(Some(path.clone())),
+            Settings::default(),
+        );
+        step(&mut hud);
+        let seating = |id: u64| {
+            frames
+                .borrow()
+                .get(&WindowId(id))
+                .map(|f| f.seating.clone())
+                .expect("a frame")
+        };
+        assert_eq!(
+            seating(3).positions.get(&4),
+            Some(&(111, 222)),
+            "read from the store at start"
+        );
+        assert!(seating(1).positions.is_empty(), "another size");
+
+        // PokerStars' preferred seat is unknown: no rotation.
+        hud.handle(
+            seated("pokerstars", "T 1", "h1", Some(4), &[1, 2, 4]),
+            &mut |_| {},
+        );
+        assert_eq!(seating(1).rotate_to, None);
+        // The user says their client rotates: from the store, on
+        // `settings_changed`.
+        let writer_store = rail_store::Store::open(&path).expect("the app's store");
+        writer_store
+            .writer()
+            .expect("writer")
+            .set_hud_preferred_seat("pokerstars", Some(true))
+            .expect("on");
+        hud.handle(
+            Input::App(AppMessage::SettingsChanged, Instant::now()),
+            &mut |_| {},
+        );
+        assert_eq!(seating(1).rotate_to, Some(4));
+        // Not dealt in: the seat kept while empty; someone else in it: no
+        // rotation.
+        hud.handle(
+            seated("pokerstars", "T 1", "h2", None, &[1, 2]),
+            &mut |_| {},
+        );
+        assert_eq!(seating(1).rotate_to, Some(4));
+        hud.handle(
+            seated("pokerstars", "T 1", "h3", None, &[1, 4]),
+            &mut |_| {},
+        );
+        assert_eq!(seating(1).rotate_to, None);
+        hud.handle(
+            seated("pokerstars", "T 1", "h4", Some(2), &[1, 2]),
+            &mut |_| {},
+        );
+        assert_eq!(seating(1).rotate_to, Some(2));
+        // A table move forgets it.
+        events.borrow_mut().push(TableEvent::Retitled {
+            id: WindowId(1),
+            title: "T 5 - x".into(),
+            table: Some("T 5".into()),
+        });
+        hud.tick(Instant::now(), &mut |_| {});
+        assert_eq!(seating(1).rotate_to, None);
+
+        // A drag on table 1 (6 seats): the app is told, both 6-seat tables
+        // get the position, the 9-seat one does not; the frame says the
+        // drag was taken in.
+        events.borrow_mut().push(TableEvent::PanelMoved {
+            id: WindowId(1),
+            size: 6,
+            slot: 2,
+            x: 300,
+            y: 400,
+            seq: 7,
+        });
+        let mut sent = Vec::new();
+        hud.tick(Instant::now(), &mut |m| sent.push(m));
+        assert_eq!(
+            sent,
+            [HudMessage::SeatPositionChanged {
+                site: "pokerstars".into(),
+                size: 6,
+                slot: 2,
+                x: 300,
+                y: 400
+            }]
+        );
+        assert_eq!(seating(1).positions.get(&2), Some(&(300, 400)));
+        assert_eq!(seating(1).drags_seen, 7);
+        assert_eq!(seating(2).positions.get(&2), Some(&(300, 400)));
+        assert_eq!(seating(2).drags_seen, 0);
+        assert!(!seating(3).positions.contains_key(&2));
+        // Nonsense from a backend is not passed on.
+        events.borrow_mut().push(TableEvent::PanelMoved {
+            id: WindowId(1),
+            size: 6,
+            slot: 6,
+            x: 300,
+            y: 400,
+            seq: 8,
+        });
+        let mut sent = Vec::new();
+        hud.tick(Instant::now(), &mut |m| sent.push(m));
+        assert!(sent.is_empty());
+
+        // The app wrote the drag; `layout_changed` reads the store again
+        // (which now has both).
+        writer_store
+            .writer()
+            .expect("writer")
+            .set_hud_seat_position("pokerstars", 6, 2, 300, 400)
+            .expect("the app writes");
+        hud.handle(
+            Input::App(AppMessage::LayoutChanged, Instant::now()),
+            &mut |_| {},
+        );
+        assert_eq!(seating(2).positions.get(&2), Some(&(300, 400)));
+        assert_eq!(seating(3).positions.get(&4), Some(&(111, 222)));
+        hud.shutdown();
+        drop(hud);
+        writer_store.close();
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     /// The test-only room entry adds the simulator's matcher to the find.

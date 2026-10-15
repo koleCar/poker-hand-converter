@@ -1,31 +1,46 @@
-//! Where the HUD's panels go on a table (R3.4's default layout; R3.6
-//! replaces it with each room's seat map, the hero's rotation and panels
-//! the user drags).
+//! Where the HUD's panels go on a table (R3.4's default layout; R3.6's
+//! room layouts, rotation and the panels the user drags).
 //!
 //! Everything is integer maths over the table's **client area** in physical
 //! pixels; positions on the table are in thousandths of the client width and
 //! height, so a layout holds at any window size and DPI.
 //!
-//! - **Seats**: one slot per seat of a table size, seat 1 at the bottom and
-//!   then clockwise ([`SEAT_SLOTS`]) - the table simulator's own geometry
-//!   (`rail_hud_sim::draw::seat_center`, R3.1), which a test holds equal.
-//!   No hero rotation yet (R3.6): seat `n` is slot `n - 1`.
-//! - **Table graphics** ([`table_graphics`]): what a client draws and a panel
-//!   must not cover - every seat's plate and the board. ACR forbids covering
-//!   them (policy 4.2.11, `noOverlapTableGraphics`), and the default layout
-//!   keeps clear of them for every room. Modelled on the simulator's plates
-//!   until R3.6 measures each room's.
+//! - **A table layout** ([`TableLayout`], per room and table size): where
+//!   the client draws each seat - its **slots**, clockwise, in the order of
+//!   the hand history's seats 1, 2, ... when nothing is rotated -, the
+//!   table's centre, where a rotating client draws the hero (`hero_slot`),
+//!   and the table graphics a panel must not cover. A room's measured one
+//!   comes from `sites.json` `tables.seatLayouts` (none is measured yet:
+//!   R3.3's capture, R3.14); every other size and room gets
+//!   [`TableLayout::simulator`], the table simulator's own geometry
+//!   (`rail_hud_sim::draw::seat_center`, R3.1; a test holds it equal) with
+//!   seat 1 bottom centre. Which slot a hand's seat is drawn at - the
+//!   hero's rotation, a table's seat numbering - is `crate::seats`.
+//! - **Table graphics** ([`TableLayout::graphics`]): what a client draws and
+//!   a panel must not cover - every seat's plate and the board (measured
+//!   layouts add their own zones). ACR forbids covering them (policy
+//!   4.2.11, `noOverlapTableGraphics`), and the default layout keeps clear
+//!   of them for every room.
 //! - **Panels** ([`place_panels`]): next to the seat's plate, on the first
 //!   side - away from the table's centre vertically, then towards it, then
 //!   outward and inward horizontally - where the panel lies inside the
 //!   client area and covers no table graphic and no other panel. When no
 //!   side is free the panel is dropped if the room forbids covering its
 //!   graphics, else it takes the first side anyway.
+//! - **The user's positions** ([`Positions`], [`constrain`]): a panel the
+//!   user dragged is centred where they left it (thousandths of the client
+//!   area, per room, table size and slot), kept inside the client area,
+//!   and on a room that forbids covering its graphics moved to the nearest
+//!   place clear of them; the other panels avoid it.
 //! - **Sizes** ([`Metrics`]): a row is 3.4 % of the client height, between
 //!   13 and 22 logical pixels (times the monitor's scale): the HUD grows
 //!   with the table, never past a size that would cover it.
 
 #![forbid(unsafe_code)]
+
+use std::collections::BTreeMap;
+
+use rail_config::model::SeatLayout;
 
 use crate::platform::Rect;
 
@@ -109,17 +124,148 @@ pub fn seat_center(size: u32, seat: u32) -> Option<(u32, u32)> {
     slots(size).get(slot).copied()
 }
 
-/// The table size to lay out for: the window's, else the smallest usual
-/// size that has every seat a hand named (6, 9, 10).
-pub fn size_for(size: Option<u32>, seats: impl IntoIterator<Item = u32>) -> u32 {
-    if let Some(size) = size {
-        return size.clamp(MIN_SEATS, MAX_SEATS);
+/// Panels the user put somewhere, by slot: each panel's centre in
+/// thousandths of the client width and height (R3.6; per room and table
+/// size, `hud_seat_positions` in the store).
+pub type Positions = BTreeMap<u32, (u32, u32)>;
+
+/// What a layout's table graphics are.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Graphics {
+    /// The table simulator's: its seat plates (17 % of the width, at least
+    /// 90 px; three text lines or 8 % of the height) and its board.
+    Simulator,
+    /// Measured on a room's client: a plate's size and the other zones
+    /// (`[x, y, width, height]`), thousandths of the client area.
+    Measured {
+        plate: (u32, u32),
+        zones: Vec<[u32; 4]>,
+    },
+}
+
+/// Where one room's client draws one table size (R3.6).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableLayout {
+    /// The table size, 2 - 10.
+    pub size: u32,
+    /// Each slot's seat plate centre, clockwise, thousandths; slot `i` is
+    /// where an unrotated client draws its `i`-th seat.
+    pub slots: Vec<(u32, u32)>,
+    /// The table's centre, thousandths.
+    pub center: (u32, u32),
+    /// Where a rotating client draws the hero.
+    pub hero_slot: u32,
+    /// The hand history's seat number of each slot, when not `1..=size`.
+    pub seat_numbers: Option<Vec<u32>>,
+    pub graphics: Graphics,
+}
+
+impl TableLayout {
+    /// The table simulator's geometry for `size` seats (clamped to 2 -
+    /// 10): seat 1 bottom centre, clockwise, the hero at the bottom when
+    /// it rotates (`--preferred-seat`). The default for every room and
+    /// size without a measured layout.
+    pub fn simulator(size: u32) -> Self {
+        let size = size.clamp(MIN_SEATS, MAX_SEATS);
+        Self {
+            size,
+            slots: slots(size).to_vec(),
+            center: TABLE_CENTER,
+            hero_slot: 0,
+            seat_numbers: None,
+            graphics: Graphics::Simulator,
+        }
     }
-    let highest = seats.into_iter().max().unwrap_or(0);
-    [6, 9, 10]
-        .into_iter()
-        .find(|&n| n >= highest)
-        .unwrap_or(MAX_SEATS)
+
+    /// A room's measured layout (`sites.json` `tables.seatLayouts`) for
+    /// `size` seats; `None` when it does not describe that many seats (the
+    /// validator refuses such a file, so a shipped one always fits).
+    pub fn measured(size: u32, layout: &SeatLayout) -> Option<Self> {
+        let fits = (MIN_SEATS..=MAX_SEATS).contains(&size)
+            && u32::try_from(layout.seats.len()).ok() == Some(size)
+            && layout.hero_slot < size
+            && layout
+                .seat_numbers
+                .as_ref()
+                .is_none_or(|numbers| numbers.len() == layout.seats.len());
+        fits.then(|| Self {
+            size,
+            slots: layout
+                .seats
+                .iter()
+                .map(|&[x, y]| (x.min(1000), y.min(1000)))
+                .collect(),
+            center: (layout.center[0].min(1000), layout.center[1].min(1000)),
+            hero_slot: layout.hero_slot,
+            seat_numbers: layout.seat_numbers.clone(),
+            graphics: Graphics::Measured {
+                plate: (layout.plate[0], layout.plate[1]),
+                zones: layout.graphics.clone(),
+            },
+        })
+    }
+
+    /// A slot's plate centre, thousandths.
+    pub fn slot_center(&self, slot: u32) -> Option<(u32, u32)> {
+        self.slots.get(usize::try_from(slot).ok()?).copied()
+    }
+
+    /// The slot an unrotated client draws a hand history's seat at.
+    pub fn slot_of_seat(&self, seat: u32) -> Option<u32> {
+        match &self.seat_numbers {
+            Some(numbers) => numbers
+                .iter()
+                .position(|&n| n == seat)
+                .and_then(|i| u32::try_from(i).ok()),
+            None => (1..=self.size).contains(&seat).then(|| seat - 1),
+        }
+    }
+
+    /// The plate drawn at `slot`, client-relative pixels.
+    pub fn plate(&self, width: u32, height: u32, slot: u32) -> Option<Rect> {
+        let center = self.slot_center(slot)?;
+        Some(self.plate_at(width, height, center))
+    }
+
+    fn plate_at(&self, width: u32, height: u32, center: (u32, u32)) -> Rect {
+        match &self.graphics {
+            Graphics::Simulator => seat_plate(width, height, center),
+            Graphics::Measured { plate, .. } => {
+                let (w, h) = (part(width, plate.0), part(height, plate.1));
+                rect(
+                    part(width, center.0) - w / 2,
+                    part(height, center.1) - h / 2,
+                    w,
+                    h,
+                )
+            }
+        }
+    }
+
+    /// Everything of the table a panel must not cover: every slot's plate
+    /// (taken or empty) and the other graphics (the simulator's board, a
+    /// measured layout's zones). Client-relative pixels.
+    pub fn graphics(&self, width: u32, height: u32) -> Vec<Rect> {
+        let mut out: Vec<Rect> = self
+            .slots
+            .iter()
+            .map(|&center| self.plate_at(width, height, center))
+            .collect();
+        match &self.graphics {
+            Graphics::Simulator => out.push(board_area(width, height)),
+            Graphics::Measured { zones, .. } => {
+                out.extend(zones.iter().map(|&[x, y, w, h]| {
+                    rect(
+                        part(width, x),
+                        part(height, y),
+                        part(width, w),
+                        part(height, h),
+                    )
+                }));
+            }
+        }
+        out
+    }
 }
 
 fn part(total: u32, thousandths: u32) -> i64 {
@@ -172,9 +318,9 @@ pub fn contains(r: &Rect, x: i32, y: i32) -> bool {
         && i64::from(y) < i64::from(r.y) + i64::from(r.height)
 }
 
-/// The plate a client draws for a seat centred at `center` (thousandths):
-/// the simulator's (17 % of the width, at least 90 px; three text lines or
-/// 8 % of the height). Client-relative pixels.
+/// The plate the table simulator draws for a seat centred at `center`
+/// (thousandths): 17 % of the width, at least 90 px; three text lines or
+/// 8 % of the height. Client-relative pixels.
 pub fn seat_plate(width: u32, height: u32, center: (u32, u32)) -> Rect {
     let (w, h) = (i64::from(width), i64::from(height));
     let text_scale = (h / 330).clamp(1, 3);
@@ -185,7 +331,7 @@ pub fn seat_plate(width: u32, height: u32, center: (u32, u32)) -> Rect {
     rect(cx - plate_w / 2, cy - plate_h / 2, plate_w, plate_h)
 }
 
-/// The board, the pot and the hand line around the table's centre.
+/// The simulator's board, pot and hand line around the table's centre.
 pub fn board_area(width: u32, height: u32) -> Rect {
     let h = i64::from(height);
     let (cx, cy) = (part(width, TABLE_CENTER.0), part(height, TABLE_CENTER.1));
@@ -193,15 +339,80 @@ pub fn board_area(width: u32, height: u32) -> Rect {
     rect(cx - half_w, cy - h * 60 / 1000, 2 * half_w, h * 155 / 1000)
 }
 
-/// Everything of the table a panel must not cover: every seat's plate (taken
-/// or empty) and the board.
+/// The simulator's table graphics for `size` seats
+/// ([`TableLayout::graphics`] of [`TableLayout::simulator`]).
 pub fn table_graphics(width: u32, height: u32, size: u32) -> Vec<Rect> {
-    let mut out: Vec<Rect> = slots(size)
-        .iter()
-        .map(|&center| seat_plate(width, height, center))
-        .collect();
-    out.push(board_area(width, height));
-    out
+    TableLayout::simulator(size).graphics(width, height)
+}
+
+/// A panel's centre in thousandths of the client area (what the store
+/// keeps for a dragged panel).
+pub fn center_permille(r: &Rect, width: u32, height: u32) -> (u32, u32) {
+    let at = |start: i32, size: u32, total: u32| {
+        let middle = i64::from(start) + i64::from(size) / 2;
+        let total = i64::from(total.max(1));
+        u32::try_from((middle * 1000 / total).clamp(0, 1000)).unwrap_or(0)
+    };
+    (at(r.x, r.width, width), at(r.y, r.height, height))
+}
+
+/// A `panel`-sized rectangle centred at `center` (thousandths).
+pub fn centred_at(width: u32, height: u32, center: (u32, u32), panel: (u32, u32)) -> Rect {
+    let (pw, ph) = (i64::from(panel.0), i64::from(panel.1));
+    rect(
+        part(width, center.0) - pw / 2,
+        part(height, center.1) - ph / 2,
+        pw,
+        ph,
+    )
+}
+
+/// Where a panel the user put at `wanted` may go: inside the client area,
+/// and when `graphics` is given (the room forbids covering its table
+/// graphics, ACR) clear of every one of them - the nearest such place,
+/// searched in rings around `wanted`; `None` when there is none.
+pub fn constrain(width: u32, height: u32, wanted: Rect, graphics: Option<&[Rect]>) -> Option<Rect> {
+    let (pw, ph) = (i64::from(wanted.width), i64::from(wanted.height));
+    let fit = |x: i64, y: i64| {
+        let x = x.clamp(0, (i64::from(width) - pw).max(0));
+        let y = y.clamp(0, (i64::from(height) - ph).max(0));
+        rect(x, y, pw, ph)
+    };
+    let start = fit(i64::from(wanted.x), i64::from(wanted.y));
+    let Some(graphics) = graphics else {
+        return Some(start);
+    };
+    let clear = |r: &Rect| !graphics.iter().any(|g| intersects(r, g));
+    if clear(&start) {
+        return Some(start);
+    }
+    let step = i64::from((wanted.width.min(wanted.height) / 4).max(2));
+    let reach = i64::from(width.max(height));
+    let (sx, sy) = (i64::from(start.x), i64::from(start.y));
+    let mut radius = step;
+    while radius <= reach {
+        let mut ring = Vec::new();
+        let mut d = -radius;
+        while d <= radius {
+            ring.push((d, -radius));
+            ring.push((d, radius));
+            if d != -radius && d != radius {
+                ring.push((-radius, d));
+                ring.push((radius, d));
+            }
+            d += step;
+        }
+        ring.sort_by_key(|&(dx, dy)| dx * dx + dy * dy);
+        if let Some(found) = ring
+            .into_iter()
+            .map(|(dx, dy)| fit(sx + dx, sy + dy))
+            .find(|candidate| clear(candidate))
+        {
+            return Some(found);
+        }
+        radius += step;
+    }
+    None
 }
 
 /// A panel's and its text's sizes for one client area, physical pixels.
@@ -261,42 +472,32 @@ impl Metrics {
     }
 }
 
-/// Where each seat's panel goes: for each of `seats` (in order), its
+/// What [`place_panels`] works with: the client area, the layout, a
+/// panel's size and gap, whether table graphics bind, and what is already
+/// taken (panels the user placed).
+#[derive(Debug, Clone, Copy)]
+pub struct Placing<'a> {
+    pub width: u32,
+    pub height: u32,
+    pub layout: &'a TableLayout,
+    pub panel: (u32, u32),
+    pub gap: u32,
+    pub avoid_graphics: bool,
+    pub taken: &'a [Rect],
+}
+
+/// Where each slot's panel goes: for each of `slots` (in order), its
 /// rectangle (client-relative pixels), or `None` when it was dropped
 /// because every side would cover table graphics and `avoid_graphics`
-/// holds. Seats beyond the table size are dropped too.
-pub fn place_panels(
-    width: u32,
-    height: u32,
-    size: u32,
-    seats: &[u32],
-    panel: (u32, u32),
-    gap: u32,
-    avoid_graphics: bool,
-) -> Vec<(u32, Option<Rect>)> {
-    // Seat order first; if a panel finds no free side, the reverse order
+/// holds. Slots the layout does not have are dropped too.
+pub fn place_panels(placing: &Placing<'_>, slots: &[u32]) -> Vec<(u32, Option<Rect>)> {
+    // Slot order first; if a panel finds no free side, the reverse order
     // too (a crowded 10-seat table), and whichever leaves fewer without one.
-    let (forward, conflicts) = greedy(
-        width,
-        height,
-        size,
-        seats.iter(),
-        panel,
-        gap,
-        avoid_graphics,
-    );
+    let (forward, conflicts) = greedy(placing, slots.iter());
     if conflicts == 0 {
         return forward;
     }
-    let (mut backward, fewer) = greedy(
-        width,
-        height,
-        size,
-        seats.iter().rev(),
-        panel,
-        gap,
-        avoid_graphics,
-    );
+    let (mut backward, fewer) = greedy(placing, slots.iter().rev());
     if fewer < conflicts {
         backward.reverse();
         backward
@@ -308,25 +509,30 @@ pub fn place_panels(
 /// One pass in `order`: each panel on its first free side. Returns the
 /// placements (in `order`) and how many found no free side.
 fn greedy<'a>(
-    width: u32,
-    height: u32,
-    size: u32,
+    placing: &Placing<'_>,
     order: impl Iterator<Item = &'a u32>,
-    panel: (u32, u32),
-    gap: u32,
-    avoid_graphics: bool,
 ) -> (Vec<(u32, Option<Rect>)>, usize) {
-    let graphics = table_graphics(width, height, size);
-    let mut taken: Vec<Rect> = Vec::new();
+    let Placing {
+        width,
+        height,
+        layout,
+        panel,
+        gap,
+        avoid_graphics,
+        taken,
+    } = *placing;
+    let graphics = layout.graphics(width, height);
+    let mut taken: Vec<Rect> = taken.to_vec();
     let mut out = Vec::new();
     let mut conflicts = 0;
-    for &seat in order {
-        let Some(center) = seat_center(size, seat) else {
-            out.push((seat, None));
+    for &slot in order {
+        let (Some(center), Some(plate)) =
+            (layout.slot_center(slot), layout.plate(width, height, slot))
+        else {
+            out.push((slot, None));
             continue;
         };
-        let plate = seat_plate(width, height, center);
-        let candidates = sides(width, height, center, &plate, panel, gap);
+        let candidates = sides(width, height, center, layout.center, &plate, panel, gap);
         let free = candidates.iter().find(|candidate| {
             inside(candidate, width, height)
                 && !graphics.iter().any(|g| intersects(candidate, g))
@@ -343,7 +549,7 @@ fn greedy<'a>(
         if let Some(rect) = chosen {
             taken.push(rect);
         }
-        out.push((seat, chosen));
+        out.push((slot, chosen));
     }
     (out, conflicts)
 }
@@ -357,6 +563,7 @@ fn sides(
     width: u32,
     height: u32,
     center: (u32, u32),
+    table_center: (u32, u32),
     plate: &Rect,
     panel: (u32, u32),
     gap: u32,
@@ -364,7 +571,7 @@ fn sides(
     let (pw, ph) = (i64::from(panel.0), i64::from(panel.1));
     let gap = i64::from(gap);
     let (sx, sy) = (part(width, center.0), part(height, center.1));
-    let (cx, cy) = (part(width, TABLE_CENTER.0), part(height, TABLE_CENTER.1));
+    let (cx, cy) = (part(width, table_center.0), part(height, table_center.1));
     let (bx, by) = (i64::from(plate.x), i64::from(plate.y));
     let (bw, bh) = (i64::from(plate.width), i64::from(plate.height));
     let above = by - gap - ph;
@@ -420,11 +627,11 @@ fn sides(
 pub fn place_status(
     width: u32,
     height: u32,
-    size: u32,
+    layout: &TableLayout,
     pill: (u32, u32),
     avoid_graphics: bool,
 ) -> Option<Rect> {
-    let graphics = table_graphics(width, height, size);
+    let graphics = layout.graphics(width, height);
     let (pw, ph) = (i64::from(pill.0), i64::from(pill.1));
     let x = (i64::from(width) - pw) / 2;
     let candidates = [
@@ -459,11 +666,31 @@ mod tests {
         out
     }
 
-    /// The layout is the simulator's: the same slot per seat, the same
-    /// centre (so a test can find a seat on its tables at any size).
+    fn placing<'a>(
+        w: u32,
+        h: u32,
+        layout: &'a TableLayout,
+        metrics: &Metrics,
+        avoid: bool,
+    ) -> Placing<'a> {
+        Placing {
+            width: w,
+            height: h,
+            layout,
+            panel: metrics.panel_size(3, 0),
+            gap: metrics.gap,
+            avoid_graphics: avoid,
+            taken: &[],
+        }
+    }
+
+    /// The default layout is the simulator's: the same slot per seat, the
+    /// same centre (so a test can find a seat on its tables at any size).
     #[test]
     fn seats_are_the_simulators() {
         for size in MIN_SEATS..=MAX_SEATS {
+            let layout = TableLayout::simulator(size);
+            assert_eq!(layout.size, size);
             for seat in 1..=size {
                 let (x, y) = rail_hud_sim::draw::seat_center(size, seat, None);
                 assert_eq!(
@@ -471,23 +698,73 @@ mod tests {
                     Some((x, y)),
                     "{size} seats, {seat}"
                 );
+                assert_eq!(layout.slot_of_seat(seat), Some(seat - 1));
+                assert_eq!(layout.slot_center(seat - 1), Some((x, y)));
             }
             assert_eq!(seat_center(size, 0), None);
             assert_eq!(seat_center(size, size + 1), None);
+            assert_eq!(layout.slot_of_seat(0), None);
+            assert_eq!(layout.slot_of_seat(size + 1), None);
+            assert_eq!(layout.slot_center(size), None);
         }
         assert_eq!(TABLE_CENTER, rail_hud_sim::draw::TABLE_CENTER);
+        assert_eq!(TableLayout::simulator(1).size, 2);
+        assert_eq!(TableLayout::simulator(12).size, 10);
     }
 
+    fn measured_six() -> SeatLayout {
+        SeatLayout {
+            seats: vec![
+                [700, 150],
+                [900, 450],
+                [700, 800],
+                [300, 800],
+                [100, 450],
+                [300, 150],
+            ],
+            plate: [160, 90],
+            center: [500, 480],
+            hero_slot: 2,
+            graphics: vec![[350, 380, 300, 180], [900, 0, 100, 60]],
+            seat_numbers: None,
+        }
+    }
+
+    /// A measured layout: its plates, its zones, its seat numbering; one
+    /// that does not fit the size is not taken.
     #[test]
-    fn sizes() {
-        assert_eq!(size_for(Some(6), []), 6);
-        assert_eq!(size_for(Some(1), []), 2);
-        assert_eq!(size_for(Some(12), []), 10);
-        assert_eq!(size_for(None, [1, 4]), 6);
-        assert_eq!(size_for(None, [2, 8]), 9);
-        assert_eq!(size_for(None, [10]), 10);
-        assert_eq!(size_for(None, [13]), 10);
-        assert_eq!(size_for(None, []), 6);
+    fn a_measured_layout() {
+        let layout = TableLayout::measured(6, &measured_six()).expect("fits");
+        assert_eq!(layout.plate(1000, 1000, 0), Some(rect(620, 105, 160, 90)));
+        let graphics = layout.graphics(1000, 1000);
+        assert_eq!(graphics.len(), 8);
+        assert_eq!(graphics[6], rect(350, 380, 300, 180));
+        assert_eq!(graphics[7], rect(900, 0, 100, 60));
+        assert_eq!(layout.slot_of_seat(4), Some(3));
+
+        let mut numbered = measured_six();
+        numbered.seat_numbers = Some(vec![1, 2, 4, 5, 7, 9]);
+        let layout = TableLayout::measured(6, &numbered).expect("fits");
+        assert_eq!(layout.slot_of_seat(7), Some(4));
+        assert_eq!(layout.slot_of_seat(3), None, "no such seat at this table");
+
+        assert!(TableLayout::measured(9, &measured_six()).is_none());
+        let mut wrong = measured_six();
+        wrong.hero_slot = 6;
+        assert!(TableLayout::measured(6, &wrong).is_none());
+
+        // Its panels keep clear of its own zones.
+        let layout = TableLayout::measured(6, &measured_six()).expect("fits");
+        let metrics = Metrics::for_client(580, 1000);
+        let placed = place_panels(
+            &placing(800, 580, &layout, &metrics, true),
+            &[0, 1, 2, 3, 4, 5],
+        );
+        let graphics = layout.graphics(800, 580);
+        for (slot, r) in placed {
+            let r = r.unwrap_or_else(|| panic!("slot {slot} dropped"));
+            assert!(graphics.iter().all(|g| !intersects(&r, g)), "{slot}: {r:?}");
+        }
     }
 
     #[test]
@@ -504,6 +781,18 @@ mod tests {
         assert!(!inside(&rect(6, 0, 5, 5), 10, 10));
         assert!(contains(&a, 0, 9));
         assert!(!contains(&a, 10, 0));
+        assert_eq!(
+            center_permille(&rect(300, 200, 40, 20), 800, 420),
+            (400, 500)
+        );
+        assert_eq!(
+            centred_at(800, 420, (400, 500), (40, 20)),
+            rect(300, 200, 40, 20)
+        );
+        assert_eq!(
+            center_permille(&rect(-500, 9000, 10, 10), 800, 420),
+            (0, 1000)
+        );
     }
 
     #[test]
@@ -529,16 +818,16 @@ mod tests {
     fn every_panel_fits_clear_of_the_table() {
         for (w, h, scale) in usual_clients() {
             let metrics = Metrics::for_client(h, scale);
-            let panel = metrics.panel_size(3, 0);
             for size in MIN_SEATS..=MAX_SEATS {
-                let seats: Vec<u32> = (1..=size).collect();
-                let placed = place_panels(w, h, size, &seats, panel, metrics.gap, true);
+                let layout = TableLayout::simulator(size);
+                let slots: Vec<u32> = (0..size).collect();
+                let placed = place_panels(&placing(w, h, &layout, &metrics, true), &slots);
                 let graphics = table_graphics(w, h, size);
                 let rects: Vec<Rect> = placed
                     .iter()
-                    .map(|(seat, r)| {
+                    .map(|(slot, r)| {
                         r.unwrap_or_else(|| {
-                            panic!("{w}x{h} at {scale}: {size} seats, seat {seat} dropped")
+                            panic!("{w}x{h} at {scale}: {size} seats, slot {slot} dropped")
                         })
                     })
                     .collect();
@@ -551,7 +840,7 @@ mod tests {
                         assert!(!intersects(r, other), "{w}x{h} {size}: {r:?} / {other:?}");
                     }
                 }
-                let status = place_status(w, h, size, metrics.pill_size(22), true)
+                let status = place_status(w, h, &layout, metrics.pill_size(22), true)
                     .unwrap_or_else(|| panic!("{w}x{h} {size}: no room for the status"));
                 assert!(graphics.iter().all(|g| !intersects(&status, g)));
             }
@@ -564,15 +853,15 @@ mod tests {
     fn a_panel_is_next_to_its_seat() {
         for (w, h, scale) in usual_clients() {
             let metrics = Metrics::for_client(h, scale);
-            let panel = metrics.panel_size(3, 0);
             for size in MIN_SEATS..=MAX_SEATS {
-                let seats: Vec<u32> = (1..=size).collect();
-                for (seat, r) in place_panels(w, h, size, &seats, panel, metrics.gap, true) {
+                let layout = TableLayout::simulator(size);
+                let slots: Vec<u32> = (0..size).collect();
+                for (slot, r) in place_panels(&placing(w, h, &layout, &metrics, true), &slots) {
                     let r = r.expect("placed");
-                    let plate = seat_plate(w, h, seat_center(size, seat).expect("seat"));
+                    let plate = layout.plate(w, h, slot).expect("slot");
                     assert!(
                         next_to(&r, &plate, metrics.gap),
-                        "{w}x{h}: {size} seats, seat {seat}: {r:?} not next to {plate:?}"
+                        "{w}x{h}: {size} seats, slot {slot}: {r:?} not next to {plate:?}"
                     );
                 }
             }
@@ -597,18 +886,67 @@ mod tests {
     fn a_crowded_table_drops_panels_only_where_it_must() {
         let (w, h) = (300, 200);
         let metrics = Metrics::for_client(h, 2000);
-        let panel = metrics.panel_size(3, 0);
-        let seats: Vec<u32> = (1..=10).collect();
-        let strict = place_panels(w, h, 10, &seats, panel, metrics.gap, true);
+        let layout = TableLayout::simulator(10);
+        let slots: Vec<u32> = (0..10).collect();
+        let strict = place_panels(&placing(w, h, &layout, &metrics, true), &slots);
         assert!(strict.iter().any(|(_, r)| r.is_none()));
         let graphics = table_graphics(w, h, 10);
         for r in strict.iter().filter_map(|(_, r)| r.as_ref()) {
             assert!(graphics.iter().all(|g| !intersects(r, g)));
         }
-        let loose = place_panels(w, h, 10, &seats, panel, metrics.gap, false);
+        let loose = place_panels(&placing(w, h, &layout, &metrics, false), &slots);
         assert!(loose.iter().all(|(_, r)| r.is_some()));
-        // A seat the table does not have is never placed.
-        let beyond = place_panels(800, 580, 6, &[7], panel, metrics.gap, false);
-        assert_eq!(beyond, [(7, None)]);
+        // A slot the table does not have is never placed.
+        let six = TableLayout::simulator(6);
+        let beyond = place_panels(&placing(800, 580, &six, &metrics, false), &[6]);
+        assert_eq!(beyond, [(6, None)]);
+    }
+
+    /// A panel the user placed is kept clear of by the others.
+    #[test]
+    fn placed_panels_are_avoided() {
+        let (w, h) = (800, 580);
+        let metrics = Metrics::for_client(h, 1000);
+        let layout = TableLayout::simulator(6);
+        let free = place_panels(&placing(w, h, &layout, &metrics, true), &[1]);
+        let usual = free[0].1.expect("placed");
+        let taken = [usual];
+        let mut with = placing(w, h, &layout, &metrics, true);
+        with.taken = &taken;
+        let moved = place_panels(&with, &[1])[0].1.expect("placed");
+        assert_ne!(moved, usual);
+        assert!(!intersects(&moved, &usual));
+    }
+
+    /// A dragged panel: inside the client area always; on a room that
+    /// forbids covering its graphics, the nearest place clear of them.
+    #[test]
+    fn a_dragged_panel_is_constrained() {
+        let (w, h) = (800, 580);
+        let panel = (100, 40);
+        // Past the edge: pulled in.
+        let out = constrain(w, h, rect(760, -20, 100, 40), None).expect("inside");
+        assert_eq!(out, rect(700, 0, 100, 40));
+        // On the board, no restriction: where it was put.
+        let board = board_area(w, h);
+        let on_board = centred_at(w, h, (500, 540), panel);
+        assert!(intersects(&on_board, &board));
+        assert_eq!(constrain(w, h, on_board, None), Some(on_board));
+        // ACR: the nearest place clear of every graphic.
+        let graphics = table_graphics(w, h, 6);
+        let moved = constrain(w, h, on_board, Some(&graphics)).expect("a clear place");
+        assert!(graphics.iter().all(|g| !intersects(&moved, g)));
+        assert!(inside(&moved, w, h));
+        let distance = |a: &Rect, b: &Rect| {
+            (i64::from(a.x) - i64::from(b.x)).abs() + (i64::from(a.y) - i64::from(b.y)).abs()
+        };
+        assert!(distance(&moved, &on_board) < 200, "near: {moved:?}");
+        // Already clear: unchanged.
+        let clear = rect(10, 60, 100, 40);
+        assert!(graphics.iter().all(|g| !intersects(&clear, g)));
+        assert_eq!(constrain(w, h, clear, Some(&graphics)), Some(clear));
+        // Nowhere clear: none.
+        let everything = [rect(0, 0, i64::from(w), i64::from(h))];
+        assert_eq!(constrain(w, h, clear, Some(&everything)), None);
     }
 }

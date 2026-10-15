@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use std::fmt;
 
 use crate::VERSION;
-use crate::model::{Config, PathEntry, Site, SiteKind};
+use crate::model::{Config, PathEntry, SeatLayout, Site, SiteKind};
 
 /// One thing wrong with a file.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -218,17 +218,56 @@ fn check_tables(site: &Site, report: &mut impl FnMut(String)) {
     }
     if let Some(layouts) = &tables.seat_layouts {
         for (size, layout) in layouts {
-            if !size
-                .parse::<u8>()
-                .is_ok_and(|n| (2..=10).contains(&n) && n.to_string() == *size)
-            {
-                report(format!(
+            match size.parse::<u32>() {
+                Ok(n) if (2..=10).contains(&n) && n.to_string() == *size => {
+                    check_seat_layout(size, n, layout, report);
+                }
+                _ => report(format!(
                     "tables.seatLayouts: {size:?} is not a table size 2-10"
-                ));
+                )),
             }
-            if layout.trim().is_empty() {
-                report(format!("tables.seatLayouts.{size} is empty"));
-            }
+        }
+    }
+}
+
+/// One size's layout (R3.6): a seat per seat of the size, everything inside
+/// the client area (thousandths), the hero's slot one of the seats, the
+/// hand history's seat numbers distinct.
+fn check_seat_layout(key: &str, size: u32, layout: &SeatLayout, report: &mut impl FnMut(String)) {
+    let at = format!("tables.seatLayouts.{key}");
+    if u32::try_from(layout.seats.len()).ok() != Some(size) {
+        report(format!(
+            "{at}: {} seats for a {size}-seat table",
+            layout.seats.len()
+        ));
+    }
+    let inside = |v: &u32| *v <= 1000;
+    if !layout.seats.iter().flatten().all(inside) || !layout.center.iter().all(inside) {
+        report(format!("{at}: a point outside 0-1000"));
+    }
+    if layout.plate.iter().any(|&v| v == 0 || v > 1000) {
+        report(format!("{at}: plate is not a size within 1-1000"));
+    }
+    if layout.graphics.iter().any(|&[x, y, w, h]| {
+        w == 0 || h == 0 || x.saturating_add(w) > 1000 || y.saturating_add(h) > 1000
+    }) {
+        report(format!("{at}: graphics outside the client area"));
+    }
+    if layout.hero_slot >= size {
+        report(format!("{at}: heroSlot {} is not a seat", layout.hero_slot));
+    }
+    if let Some(numbers) = &layout.seat_numbers {
+        let mut sorted = numbers.clone();
+        sorted.sort_unstable();
+        sorted.dedup();
+        if numbers.len() != layout.seats.len()
+            || sorted.len() != numbers.len()
+            || sorted.first().is_some_and(|&n| n == 0)
+            || sorted.last().is_some_and(|&n| n > 10)
+        {
+            report(format!(
+                "{at}: seatNumbers must be one distinct seat 1-10 per seat"
+            ));
         }
     }
 }
