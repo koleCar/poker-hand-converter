@@ -132,8 +132,12 @@ pub struct Tables {
     /// Table size (`"2"`..`"10"`) to layout id.
     pub seat_layouts: Option<BTreeMap<String, String>>,
     pub preferred_seat: Option<bool>,
+    /// `true` only once the titles were seen on a real install (R3.3,
+    /// `docs/research/CAPTURING-TABLES.md`), with `checked_at`.
     pub verified: bool,
     pub source: Option<String>,
+    /// `YYYY-MM-DD`: when the titles were captured.
+    pub checked_at: Option<String>,
 }
 
 impl Tables {

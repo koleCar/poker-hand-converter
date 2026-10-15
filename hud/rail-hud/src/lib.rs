@@ -1,4 +1,7 @@
-#![forbid(unsafe_code)]
+// `deny`, not `forbid`: `platform::windows` lifts it for its Win32
+// wrappers, one function at a time, each with a `// SAFETY:` comment.
+// Every other module `forbid`s `unsafe` for itself.
+#![deny(unsafe_code)]
 //! The HUD overlay process (docs/RAIL-PLAN.md §3.2, Phase 3; guideline §7:
 //! the HUD runs as a process of its own, so a stalled app never freezes the
 //! overlays on live tables).
@@ -11,18 +14,24 @@
 //!   redraw on the app's messages, report;
 //! - [`compliance`]: compliance mode, in this process;
 //! - [`data`]: the store, read-only;
-//! - [`platform`]: the windowing trait and its backends (the Windows and
-//!   macOS ones stubs until R3.3 / R3.11; [`platform::sim`] the fake driven
-//!   by the table simulator);
-//! - [`latency`]: `hand_imported` -> rollups re-read.
+//! - [`platform`]: the windowing trait and its backends (Windows finds
+//!   tables since R3.3, overlays and hooks are R3.4 / R3.5; macOS a stub
+//!   until R3.11; [`platform::sim`] the fake driven by the table
+//!   simulator);
+//! - [`latency`]: `hand_imported` -> rollups re-read;
+//! - [`list`]: `--list-windows`, the diagnostic that captures real table
+//!   titles (redacted) for `sites.json`.
 //!
 //! No real-time assistance of any kind (guideline §7): the HUD shows the
 //! players' own statistics from the store, nothing about the hand in play.
+
+#![forbid(clippy::undocumented_unsafe_blocks)]
 
 pub mod compliance;
 pub mod data;
 pub mod engine;
 pub mod latency;
+pub mod list;
 pub mod platform;
 
 use std::ffi::OsString;
@@ -65,9 +74,16 @@ For development, without the app:
 
 Windows:
   --platform native     this system's backend (default)
+    with --standalone, the table simulator's real windows as a room's:
+    --sim-site <id>       the sites.json room they pose as
+    --sim-title <regex>   their titles (rail-hud-sim --title-regex)
   --platform sim        the table simulator's windows, from its events:
     --sim-events <file>   the simulator's standard output, as it is written
     --sim-site <id>       the sites.json room its tables pose as
+
+Capturing real table titles (redacted; see --list-windows --help):
+
+  rail-hud --list-windows [--process <exe>] [--you <name>] ...
 ";
 
 /// The command line.
@@ -78,6 +94,9 @@ pub struct Args {
     pub standalone: bool,
     pub sim_events: Option<PathBuf>,
     pub sim_site: Option<String>,
+    /// The simulator's title regex for the native backend (a test-only
+    /// room entry, [`Hud::add_simulator_room`]); checked to compile.
+    pub sim_title: Option<String>,
 }
 
 impl Args {
@@ -101,19 +120,36 @@ impl Args {
                 "--platform" => platform = value("--platform")?,
                 "--sim-events" => parsed.sim_events = Some(PathBuf::from(value("--sim-events")?)),
                 "--sim-site" => parsed.sim_site = Some(value("--sim-site")?),
+                "--sim-title" => {
+                    let title = value("--sim-title")?;
+                    regex::Regex::new(&title)
+                        .map_err(|e| format!("--sim-title does not compile: {e}"))?;
+                    parsed.sim_title = Some(title);
+                }
                 "--help" | "-h" => return Err(String::new()),
                 other => return Err(format!("unknown argument {other}")),
             }
         }
         match platform.as_str() {
             "native" => {
-                if parsed.sim_events.is_some() || parsed.sim_site.is_some() {
-                    return Err("--sim-events and --sim-site go with --platform sim".to_owned());
+                if parsed.sim_events.is_some() {
+                    return Err("--sim-events goes with --platform sim".to_owned());
+                }
+                if parsed.sim_site.is_some() != parsed.sim_title.is_some() {
+                    return Err(
+                        "the simulator's windows need --sim-site and --sim-title".to_owned()
+                    );
+                }
+                if parsed.sim_title.is_some() && !parsed.standalone {
+                    return Err("--sim-title is for --standalone runs".to_owned());
                 }
             }
             "sim" => {
                 if parsed.sim_events.is_none() || parsed.sim_site.is_none() {
                     return Err("--platform sim needs --sim-events and --sim-site".to_owned());
+                }
+                if parsed.sim_title.is_some() {
+                    return Err("--sim-title goes with --platform native".to_owned());
                 }
             }
             other => return Err(format!("no platform {other}")),
@@ -133,13 +169,23 @@ impl Args {
                 events.clone(),
                 site.clone(),
             )?),
-            _ => platform::native(),
+            _ => {
+                // Physical pixels from every window API, before any window
+                // exists (R3.3); a no-op off Windows.
+                if let Err(error) = platform::windows::init_process_dpi_awareness() {
+                    eprintln!("rail-hud: DPI awareness: {error}");
+                }
+                platform::native()
+            }
         })
     }
 }
 
 /// The process: returns its exit code.
 pub fn main_with(args: Vec<OsString>) -> i32 {
+    if args.iter().any(|a| a == "--list-windows") {
+        return list::run(args);
+    }
     let args = match Args::parse(args) {
         Ok(args) => args,
         Err(error) => {
@@ -236,6 +282,18 @@ pub fn main_with(args: Vec<OsString>) -> i32 {
         StoreView::new(args.store.clone()),
         Settings::default(),
     );
+    if let (None, Some(site), Some(title)) = (&args.sim_events, &args.sim_site, &args.sim_title) {
+        match regex::Regex::new(title) {
+            Ok(title) => {
+                eprintln!("rail-hud: the simulator's windows pose as {site} (test-only room)");
+                hud.add_simulator_room(site, title);
+            }
+            Err(error) => {
+                eprintln!("rail-hud: --sim-title: {error}");
+                return exit_code::USAGE;
+            }
+        }
+    }
     eprintln!(
         "rail-hud: running (pid {}, {}, store {})",
         std::process::id(),
@@ -296,5 +354,34 @@ mod tests {
         assert!(parse(&["--standalone", "--store"]).is_err());
         assert!(parse(&["--frobnicate"]).is_err());
         assert_eq!(parse(&["--help"]), Err(String::new()));
+
+        // The simulator's real windows (native backend, test-only room):
+        // both flags, standalone only, a regex that compiles.
+        let args = parse(&[
+            "--standalone",
+            "--sim-site",
+            "pokerstars",
+            "--sim-title",
+            "^(?P<table>.+?) - ",
+        ])
+        .expect("native sim");
+        assert_eq!(args.sim_title.as_deref(), Some("^(?P<table>.+?) - "));
+        assert!(parse(&["--standalone", "--sim-title", "^x"]).is_err());
+        assert!(parse(&["--standalone", "--sim-site", "a", "--sim-title", "(x"]).is_err());
+        assert!(parse(&["--ipc", "p", "--sim-site", "a", "--sim-title", "^x"]).is_err());
+        assert!(
+            parse(&[
+                "--standalone",
+                "--platform",
+                "sim",
+                "--sim-events",
+                "e",
+                "--sim-site",
+                "a",
+                "--sim-title",
+                "^x"
+            ])
+            .is_err()
+        );
     }
 }

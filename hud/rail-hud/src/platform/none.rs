@@ -1,5 +1,7 @@
 //! Systems without a HUD (Linux: not shipped, built in CI): no tables, ever.
 
+#![forbid(unsafe_code)]
+
 use super::{
     OverlayFrame, Platform, PlatformError, TableEvent, TableMatcher, TableWindow, WindowId,
 };

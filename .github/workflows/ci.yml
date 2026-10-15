@@ -185,7 +185,13 @@ jobs:
   # end-to-end test - the simulator's hands through the watcher and the store
   # to the HUD process, an allowed room attached and a prohibited one
   # refused (hud/rail-hud/tests/e2e.rs; it uses the rail-hud-sim binary the
-  # same `cargo test` builds).
+  # same `cargo test` builds). On Windows only, the same `cargo test` also
+  # runs R3.3's hud/rail-hud/tests/windows_tables.rs: three simulator
+  # windows on the runner's desktop, found by the Win32 backend with their
+  # table names, client rects and scale, followed through a minimise and a
+  # table move, listed (redacted) by `rail-hud --list-windows`, attached
+  # and refused by the HUD process; a failure prints every window Windows
+  # reported.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the

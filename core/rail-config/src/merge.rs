@@ -189,6 +189,7 @@ mod tests {
                 preferred_seat: None,
                 verified: false,
                 source: None,
+                checked_at: None,
             },
             hud: hud(allowed),
             anonymisation: Some(Anonymisation::None),

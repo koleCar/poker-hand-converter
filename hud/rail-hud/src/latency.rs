@@ -4,6 +4,8 @@
 //! the last [`WINDOW`] re-reads. Reported in every health answer and per
 //! table in `table_updated`.
 
+#![forbid(unsafe_code)]
+
 use std::collections::VecDeque;
 use std::time::Duration;
 

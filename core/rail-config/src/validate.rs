@@ -189,6 +189,28 @@ fn check_tables(site: &Site, report: &mut impl FnMut(String)) {
             Err(error) => report(format!("tables.title does not compile: {error}")),
         }
     }
+    if let Some(date) = &tables.checked_at
+        && !is_date(date)
+    {
+        report(format!("tables.checkedAt {date:?} is not YYYY-MM-DD"));
+    }
+    // R3.3 (docs/research/CAPTURING-TABLES.md): verified means the titles
+    // were seen on a real install - dated, said where, with the regex.
+    if tables.verified {
+        if tables.checked_at.is_none() {
+            report("tables.verified without checkedAt".to_owned());
+        }
+        if !tables
+            .source
+            .as_deref()
+            .is_some_and(|source| source.starts_with("Observed on "))
+        {
+            report("tables.verified without an \"Observed on ...\" source".to_owned());
+        }
+        if tables.title.is_none() {
+            report("tables.verified without a title regex".to_owned());
+        }
+    }
     if let Some(layouts) = &tables.seat_layouts {
         for (size, layout) in layouts {
             if !size

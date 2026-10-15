@@ -218,6 +218,7 @@ impl HudState {
             platform: (!health.platform.is_empty()).then_some(health.platform),
             reread_p50_us: health.reread.p50_us,
             reread_p95_us: health.reread.p95_us,
+            tables_waiting: health.waiting,
             health_age_ms: status
                 .health_age
                 .map(|age| u64::try_from(age.as_millis()).unwrap_or(u64::MAX)),
@@ -384,6 +385,8 @@ pub struct HudStatusDto {
     starts: u32,
     last_exit: Option<String>,
     tables_open: u32,
+    /// Of those, the tables still "waiting for first hand" (R3.3).
+    tables_waiting: u32,
     refused: Vec<RefusedDto>,
     store_open: bool,
     platform: Option<String>,

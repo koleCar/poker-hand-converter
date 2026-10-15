@@ -462,6 +462,33 @@ fn newest_hands_of_a_file_for_the_hud() {
     )
     .expect("write");
     assert_ne!(one.data_version().expect("version"), before);
+
+    // R3.3: a hand's table size, and the user's own names (redacted from
+    // the window list).
+    let (key, max_seats): (String, i64) = conn
+        .query_row(
+            "SELECT hand_key, max_seats FROM hands ORDER BY rowid LIMIT 1",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .expect("a hand");
+    assert_eq!(
+        reader.hand_seats(&key).expect("seats"),
+        Some(u32::try_from(max_seats).expect("seats"))
+    );
+    assert_eq!(reader.hand_seats("nobody:1").expect("seats"), None);
+    let heroes: Vec<String> = conn
+        .prepare(
+            "SELECT DISTINCT hero_name FROM hands WHERE hero_name IS NOT NULL
+             AND hero_name != '' ORDER BY hero_name",
+        )
+        .expect("prepare")
+        .query_map([], |row| row.get(0))
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("rows");
+    assert!(!heroes.is_empty());
+    assert_eq!(reader.hero_names().expect("heroes"), heroes);
     store.close();
 }
 

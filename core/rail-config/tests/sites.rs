@@ -376,7 +376,7 @@ fn anonymisation_matches_the_web() {
 #[test]
 fn validator_problems() {
     type Edit = fn(&mut Value);
-    let cases: [(&str, Edit, &str); 11] = [
+    let cases: [(&str, Edit, &str); 14] = [
         (
             "hud allowed without a date",
             |v| {
@@ -444,6 +444,37 @@ fn validator_problems() {
             "a seat layout for 11 seats",
             |v| site_mut(v, "winamax")["tables"]["seatLayouts"] = json!({"11": "x"}),
             "winamax: tables.seatLayouts: \"11\" is not a table size 2-10",
+        ),
+        (
+            "verified table titles without a date",
+            |v| {
+                let tables = &mut site_mut(v, "winamax")["tables"];
+                tables["verified"] = json!(true);
+                tables["title"] = json!("^(?P<table>.+?) - ");
+                tables["source"] = json!("Observed on a Windows install, 2026-10-20: Winamax 7");
+            },
+            "winamax: tables.verified without checkedAt",
+        ),
+        (
+            "verified table titles without an observation",
+            |v| {
+                let tables = &mut site_mut(v, "winamax")["tables"];
+                tables["verified"] = json!(true);
+                tables["title"] = json!("^(?P<table>.+?) - ");
+                tables["checkedAt"] = json!("2026-10-20");
+                tables["source"] = json!("docs/research/hh-formats/winamax.md");
+            },
+            "winamax: tables.verified without an \"Observed on ...\" source",
+        ),
+        (
+            "verified table titles without a regex",
+            |v| {
+                let tables = &mut site_mut(v, "winamax")["tables"];
+                tables["verified"] = json!(true);
+                tables["checkedAt"] = json!("2026-10-20");
+                tables["source"] = json!("Observed on a Windows install, 2026-10-20: Winamax 7");
+            },
+            "winamax: tables.verified without a title regex",
         ),
         (
             "a verified path without a date",

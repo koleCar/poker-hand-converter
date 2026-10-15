@@ -175,7 +175,7 @@
       "description": "What the HUD needs to find and read a table window (R3.3, R3.6, R3.11). null fields are unknown.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["process", "title", "seatLayouts", "preferredSeat", "verified", "source"],
+      "required": ["process", "title", "seatLayouts", "preferredSeat", "verified", "source", "checkedAt"],
       "properties": {
         "process": {
           "type": "object",
@@ -187,7 +187,7 @@
           }
         },
         "title": {
-          "description": "Regular expression (Rust regex syntax) over a table window's title, with a named group 'table' (and optionally 'stakes').",
+          "description": "Regular expression (Rust regex syntax) over a table window's title, with a named group 'table' - exactly the table name the room's hands carry - and optionally 'seats' (the table size, 2-10) and 'stakes'. Captured on a real install (docs/research/CAPTURING-TABLES.md).",
           "type": ["string", "null"],
           "minLength": 1
         },
@@ -206,8 +206,20 @@
           "description": "Whether the client rotates the table so the hero always sits in one place.",
           "type": ["boolean", "null"]
         },
-        "verified": { "type": "boolean" },
-        "source": { "type": ["string", "null"] }
+        "verified": {
+          "description": "true only once the titles were seen on a real install (R3.3, docs/research/CAPTURING-TABLES.md), with checkedAt, a source and a title.",
+          "type": "boolean"
+        },
+        "source": { "type": ["string", "null"] },
+        "checkedAt": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+      },
+      "if": { "properties": { "verified": { "const": true } } },
+      "then": {
+        "properties": {
+          "checkedAt": { "$ref": "#/$defs/date" },
+          "source": { "type": "string", "pattern": "^Observed on " },
+          "title": { "type": "string" }
+        }
       }
     },
     "processNames": {

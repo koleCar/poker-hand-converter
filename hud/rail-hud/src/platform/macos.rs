@@ -14,6 +14,8 @@
 //!   resized, miniaturised, destroyed, title changed), `CGWindowList`
 //!   polling as the fallback.
 
+#![forbid(unsafe_code)]
+
 use super::{
     OverlayFrame, Platform, PlatformError, TableEvent, TableMatcher, TableWindow, WindowId,
 };

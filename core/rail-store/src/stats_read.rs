@@ -520,6 +520,36 @@ impl Reader {
         })
     }
 
+    /// A stored hand's table size (`hands.max_seats`): the HUD's seats for
+    /// a window whose title does not say (R3.3). `None`: no such hand.
+    pub fn hand_seats(&self, hand_key: &str) -> Result<Option<u32>> {
+        self.with(|conn| {
+            let seats: Option<i64> = conn
+                .query_row(
+                    "SELECT max_seats FROM hands WHERE hand_key = ?1",
+                    [hand_key],
+                    |row| row.get(0),
+                )
+                .optional()?;
+            Ok(seats.and_then(|n| u32::try_from(n).ok()))
+        })
+    }
+
+    /// Every hero name in the store (`hands.hero_name`), sorted: the user's
+    /// own screen names, which the HUD's `--list-windows` diagnostic
+    /// redacts from window titles (R3.3). A full scan; a diagnostic's.
+    pub fn hero_names(&self) -> Result<Vec<String>> {
+        self.with(|conn| {
+            let mut stmt = conn.prepare(
+                "SELECT DISTINCT hero_name FROM hands
+                 WHERE hero_name IS NOT NULL AND hero_name != ''
+                 ORDER BY hero_name",
+            )?;
+            let rows = stmt.query_map([], |row| row.get(0))?;
+            Ok(rows.collect::<rusqlite::Result<_>>()?)
+        })
+    }
+
     /// SQLite's `PRAGMA data_version` on one of the pool's connections: it
     /// changes when another connection (the app's writer) has committed
     /// since that connection last looked. Meaningful on a one-connection

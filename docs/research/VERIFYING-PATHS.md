@@ -7,6 +7,10 @@ written while you play (`files.live`). First-run discovery (R1.4,
 these are still research guesses (`verified: false`); this is how to turn
 one into an observation, or into a verified "there is nothing local".
 
+The HUD's table windows (`tables`: process names, title regex) are captured
+the same way, on the same visit if you like, with the diagnostic in
+[CAPTURING-TABLES.md](CAPTURING-TABLES.md).
+
 **Privacy.** Everything below is read-only and stays on your machine. Never
 copy a hand history, a player or account name, an account id or an e-mail
 address into the repository, a pull request, a test fixture or a log -

@@ -136,12 +136,17 @@ pub enum Event {
     },
     #[serde(rename_all = "camelCase")]
     Closed { table: u32 },
+    /// `x`, `y`: the frame's top-left; `clientX`, `clientY`: the client
+    /// area's (what the table is drawn in, `width` x `height`); all screen
+    /// coordinates in physical pixels.
     #[serde(rename_all = "camelCase")]
     Window {
         table: u32,
         title: String,
         x: i32,
         y: i32,
+        client_x: i32,
+        client_y: i32,
         width: u32,
         height: u32,
         minimized: bool,
