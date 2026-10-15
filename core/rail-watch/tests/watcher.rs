@@ -639,3 +639,169 @@ fn recursive_off_reads_the_top_level_only() {
     );
     running.watcher.stop();
 }
+
+/// A folder in the middle of a backfill: about 4 MB of corpus files (old,
+/// so no quiet period) under `files_in` (the folder or one of its
+/// subfolders), the folder added and read until some hands are in. From
+/// then on its reads are in flight while the test changes the folder.
+/// Returns the folder's id.
+fn backfilling(running: &Running, folder: &Path, files_in: &Path) -> i64 {
+    fill(files_in, 4 * 1024 * 1024);
+    let id = running
+        .watcher
+        .add_source(folder, true, Some(false))
+        .expect("add");
+    wait_for("the backfill under way", 60, || hands(&running.store) > 0);
+    id
+}
+
+/// Nothing is committed any more: the store keeps `before` hands (the
+/// sleep only proves that nothing happens).
+fn nothing_more(running: &Running, before: u64, what: &str) {
+    std::thread::sleep(Duration::from_millis(1_000));
+    assert_eq!(hands(&running.store), before, "{what}");
+}
+
+fn file_errors(running: &Running) -> Vec<WatchEvent> {
+    running
+        .events
+        .lock()
+        .expect("events")
+        .iter()
+        .filter(|event| matches!(event, WatchEvent::FileError { .. }))
+        .cloned()
+        .collect()
+}
+
+/// A folder disabled in the middle of its backfill: once
+/// `set_source_enabled` returns, nothing more of it is committed - the
+/// reads it had in flight finished first (they used to commit after it
+/// returned, the folder already shown disabled). Enabled again, its
+/// backfill goes on.
+#[test]
+fn a_folder_disabled_during_its_backfill_imports_nothing_after() {
+    let running = start("disable-backfill", fast());
+    let folder = running.dir.join("hh");
+    let id = backfilling(&running, &folder, &folder);
+    assert!(
+        running
+            .watcher
+            .set_source_enabled(id, false)
+            .expect("disable")
+    );
+    let before = hands(&running.store);
+    nothing_more(&running, before, "a disabled folder imported more");
+    assert_eq!(state_of(&running, id), Some(SourceState::Disabled));
+
+    assert!(
+        running
+            .watcher
+            .set_source_enabled(id, true)
+            .expect("enable")
+    );
+    wait_for("the backfill going on", 60, || {
+        hands(&running.store) > before
+    });
+    assert!(
+        file_errors(&running).is_empty(),
+        "{:?}",
+        file_errors(&running)
+    );
+    running.watcher.stop();
+}
+
+/// A folder removed in the middle of its backfill: its reads in flight
+/// commit before it goes (then its file rows are detached with their
+/// hands), never after. A batch that came after used to fail on the
+/// missing folder (a `FileError`), or - when a folder added right after
+/// was given the removed one's id, as SQLite does for the last row - join
+/// the new folder with the old folder's file.
+#[test]
+fn a_folder_removed_during_its_backfill_leaves_nothing_behind() {
+    let running = start("remove-backfill", fast());
+    let folder = running.dir.join("hh");
+    let id = backfilling(&running, &folder, &folder);
+    assert!(running.watcher.remove_source(id).expect("remove"));
+    let before = hands(&running.store);
+    let other = running.dir.join("other");
+    fs::create_dir_all(&other).expect("folder");
+    let again = running
+        .watcher
+        .add_source(&other, true, Some(false))
+        .expect("add");
+    nothing_more(&running, before, "a removed folder imported more");
+    assert_eq!(
+        source_files(&running, again).len(),
+        0,
+        "the new folder (id {again}, the removed one's {id}) has the removed folder's files"
+    );
+    let attached: Vec<_> = running
+        .store
+        .reader()
+        .files()
+        .expect("files")
+        .into_iter()
+        .filter(|file| file.source_id.is_some())
+        .map(|file| (file.path, file.source_id))
+        .collect();
+    assert!(attached.is_empty(), "rows still in a folder: {attached:?}");
+    assert!(
+        file_errors(&running).is_empty(),
+        "{:?}",
+        file_errors(&running)
+    );
+    running.watcher.stop();
+}
+
+/// "Include subfolders" switched off in the middle of a subfolder's
+/// backfill: once `set_source_recursive` returns, nothing more of the
+/// subfolder is committed (its reads in flight used to).
+#[test]
+fn recursive_off_during_a_subfolders_backfill_imports_nothing_after() {
+    let running = start("recursive-backfill", fast());
+    let folder = running.dir.join("hh");
+    let id = backfilling(&running, &folder, &folder.join("sub"));
+    assert!(
+        running
+            .watcher
+            .set_source_recursive(id, false)
+            .expect("recursive")
+    );
+    let before = hands(&running.store);
+    nothing_more(&running, before, "the subfolder was read after");
+    running.watcher.stop();
+}
+
+/// A folder added again with a room whose files are other ones (its
+/// `files.glob`) in the middle of its backfill: once `add_source_with`
+/// returns, nothing of the files the room does not have is committed.
+#[test]
+fn a_room_given_during_a_backfill_imports_nothing_else_after() {
+    let config = WatchConfig {
+        file_globs: BTreeMap::from([("pokerstars".to_owned(), "HH*.txt".to_owned())]),
+        ..fast()
+    };
+    let running = start("room-backfill", config);
+    let folder = running.dir.join("hh");
+    let id = backfilling(&running, &folder, &folder);
+    let added = running
+        .watcher
+        .add_source_with(
+            &folder,
+            &NewSource {
+                recursive: true,
+                poll_only: Some(false),
+                site: Some("pokerstars".to_owned()),
+                only_new: false,
+            },
+        )
+        .expect("add again");
+    assert_eq!(added.id, id, "the same folder");
+    let before = hands(&running.store);
+    nothing_more(
+        &running,
+        before,
+        "files that are not the room's were read after",
+    );
+    running.watcher.stop();
+}

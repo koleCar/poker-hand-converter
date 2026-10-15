@@ -73,20 +73,50 @@
 //!
 //! # Changing a folder under its reads
 //!
-//! [`Watcher::set_source_path`] and [`Watcher::set_source_site_override`]
-//! change in the store what a folder's files are (their paths) or how they
-//! are read (their offsets, back to 0). They first **fence** the folder:
-//! the coordinator starts no new read of its files and answers once none
-//! is in flight (a read ends with its commit answered, so nothing of it is
-//! still with the writer); then the store is changed, and the reload that
-//! follows lets the folder's reads go again under the new settings. A read
-//! that ran across the change used to commit under the old one: on a path
-//! change, a read of the old path that looked at the store after the move
-//! found no row there, read the whole file again from 0 and gave the
-//! folder a second row for the old path (its hands deduped, but the folder
-//! counted a file too many and detached it at its next change); under a
-//! room override, its batch met the reset offset and was read again with
-//! the old room.
+//! A change of a folder that a read in flight would get wrong first
+//! **fences** the folder: the coordinator starts no new read of its files,
+//! asks a large read of it to stop after the batches it is committing
+//! ([`ImportLimits::stop_folder`]), and answers once none is in flight (a
+//! read ends with its commit answered, so nothing of it is still with the
+//! writer); then the store is changed, and the reload that follows lets
+//! the folder's reads go again under the new settings (or drops them). A
+//! read that ran across the change used to commit under the old settings:
+//!
+//! - [`Watcher::set_source_path`]: a read of the old path that looked at
+//!   the store after the move found no row there, read the whole file
+//!   again from 0 and gave the folder a second row for the old path (its
+//!   hands deduped, but the folder counted a file too many and detached
+//!   it at its next change);
+//! - [`Watcher::set_source_site_override`]: its batch met the reset offset
+//!   and was read again with the old room;
+//! - [`Watcher::remove_source`]: its batch named the deleted folder and
+//!   failed (`FOREIGN KEY constraint failed`, a [`WatchEvent::FileError`],
+//!   the read lost), or - a folder added right after gets the removed
+//!   one's id when that was the highest, as SQLite numbers rows - joined
+//!   the new folder with the old folder's file and hands;
+//! - [`Watcher::set_source_enabled`] (off): its hands were committed after
+//!   the folder showed disabled, a large read's to the end of the file;
+//! - [`Watcher::set_source_recursive`] (off) and a room given to a folder
+//!   already there ([`Watcher::add_source_with`], whose `files.glob` may
+//!   leave files out): a file the folder no longer covers was read on.
+//!
+//! A folder being added with a room or "only new hands"
+//! ([`Watcher::add_source_with`]) is in the store a moment before its room
+//! and marks are; a reload already on its way (the one [`Watcher::start`]
+//! sends, or another folder's) could load it then and read it with
+//! neither - its old hands, other rooms' files. The coordinator is told
+//! first to **hold** every folder a reload loads for the first time (it is
+//! fenced) and lets them go after the reload that follows the setup.
+//!
+//! Not fenced, because no read in flight can go wrong across them:
+//! [`Watcher::set_source_poll_only`] (only how changes are noticed, not how
+//! a file is read or committed), enabling a folder and switching its
+//! subfolders on (every read in flight is of a file the folder still
+//! covers, read as before; the reload's walk reads each file on from the
+//! store's offset, which the store moves only with a batch that starts
+//! where it stands), and [`Watcher::retry_refused`] (its reset is guarded
+//! the same way: a batch from the old offset is refused and read again
+//! from 0, and the coordinator starts the file afresh after its read).
 //!
 //! # Stopping
 //!
@@ -359,6 +389,12 @@ enum Command {
     Fence(i64, Sender<()>),
     /// Undo one `Fence` of the folder (after the reload that follows it).
     Unfence(i64),
+    /// Fence every folder a reload loads for the first time from now on
+    /// (a folder being added: its row is in the store before its room and
+    /// "only new" marks are); answer at once.
+    HoldNew(Sender<()>),
+    /// Undo one `HoldNew`: with none left, the folders it fenced go.
+    ReleaseNew,
     Stop,
 }
 
@@ -439,6 +475,17 @@ struct Fence<'a> {
 impl Drop for Fence<'_> {
     fn drop(&mut self) {
         let _ = self.watcher.send(Command::Unfence(self.id));
+    }
+}
+
+/// New folders held by [`Watcher::hold_new`]: they go when this is dropped.
+struct HeldNew<'a> {
+    watcher: &'a Watcher,
+}
+
+impl Drop for HeldNew<'_> {
+    fn drop(&mut self) {
+        let _ = self.watcher.send(Command::ReleaseNew);
     }
 }
 
@@ -524,6 +571,8 @@ impl Watcher {
             rechecks: BTreeSet::new(),
             fenced: HashMap::new(),
             fence_waiters: Vec::new(),
+            holding_new: 0,
+            held_new: Vec::new(),
             ended: Vec::new(),
             last_publish: 0,
             publish_now: true,
@@ -557,8 +606,8 @@ impl Watcher {
     /// Fence folder `id` (see "Changing a folder under its reads"): returns
     /// once none of its files is being read, and none is started until the
     /// fence is dropped. Waits for the reads in flight (one look per file;
-    /// a large read commits its batches first). Not from the `on_event`
-    /// callback, which runs on the coordinator.
+    /// a large read stops after the batches it is committing). Not from the
+    /// `on_event` callback, which runs on the coordinator.
     fn fence(&self, id: i64) -> Result<Fence<'_>> {
         let (reply, answer) = mpsc::channel();
         self.send(Command::Fence(id, reply))?;
@@ -566,6 +615,16 @@ impl Watcher {
         let fence = Fence { watcher: self, id };
         answer.recv().map_err(|_| Error::Stopped)?;
         Ok(fence)
+    }
+
+    /// Make `change` to folder `id` in the store under a fence, then
+    /// reload; the folder's reads go again (or are dropped) after the
+    /// reload. A failed change reloads nothing.
+    fn change_fenced<T>(&self, id: i64, change: impl FnOnce() -> Result<T>) -> Result<T> {
+        let _fence = self.fence(id)?;
+        let value = change()?;
+        self.send(Command::Reload)?;
+        Ok(value)
     }
 
     /// Stop reading new bytes; notifications are still noted, and resuming
@@ -619,16 +678,37 @@ impl Watcher {
     /// takes the folder up, so none of their hands is read in between. A
     /// folder already there keeps its row and id; its room is updated, and
     /// "only new" leaves the files it already has rows for alone.
+    ///
+    /// The room and the marks are written after the folder's row (see
+    /// "Changing a folder under its reads"). A new folder is held until
+    /// they are: a reload already on its way (the one [`Watcher::start`]
+    /// sends, another folder's) would otherwise load it in between and
+    /// read it with neither - its old hands, files of other rooms. A folder
+    /// already there given a room is fenced: under the room's glob it may
+    /// cover fewer files, and a read of one it no longer covers would go
+    /// on. Without a room, "only new" on a folder already there needs
+    /// neither: it marks only files the store has no row for, and a first
+    /// read of one already in flight commits from 0 either way (always
+    /// accepted) - the file is read as it was being read.
     pub fn add_source_with(&self, path: &Path, options: &NewSource) -> Result<AddedSource> {
         let poll_only = options
             .poll_only
             .unwrap_or_else(|| self.detect_network && scan::is_network_path(path));
+        let set_up = options.site.is_some() || options.only_new;
+        let _held = if set_up { Some(self.hold_new()?) } else { None };
         let id = self.writer.add_source(
             &rail_store::import::path_key(path),
             options.recursive,
             None,
             poll_only,
         )?;
+        // Undone after the reload below, before the hold (dropped in
+        // reverse order).
+        let _fence = if options.site.is_some() {
+            Some(self.fence(id)?)
+        } else {
+            None
+        };
         if let Some(site) = &options.site {
             self.writer.set_source_site(id, Some(site))?;
         }
@@ -639,6 +719,18 @@ impl Watcher {
         };
         self.send(Command::Reload)?;
         Ok(AddedSource { id, marked })
+    }
+
+    /// Hold the folders a reload loads for the first time from now on (they
+    /// are fenced) until the guard is dropped. Returns once the coordinator
+    /// has handled every command sent before, so a reload that comes before
+    /// it cannot see a folder added after it returns.
+    fn hold_new(&self) -> Result<HeldNew<'_>> {
+        let (reply, answer) = mpsc::channel();
+        self.send(Command::HoldNew(reply))?;
+        let held = HeldNew { watcher: self };
+        answer.recv().map_err(|_| Error::Stopped)?;
+        Ok(held)
     }
 
     /// "Only new hands": store the folder's matching files that the store
@@ -673,20 +765,38 @@ impl Watcher {
     }
 
     /// Stop watching a folder and forget it; its hands stay.
+    ///
+    /// The folder's reads in progress finish first (see "Changing a folder
+    /// under its reads"): what they read is stored under the folder, then
+    /// detached with the rest, and nothing of it comes after - a batch
+    /// after the removal named a folder that was gone, or the next folder
+    /// added, which may get the same id.
     pub fn remove_source(&self, id: i64) -> Result<bool> {
-        let removed = self.writer.remove_source(id)?;
-        self.send(Command::Reload)?;
-        Ok(removed)
+        self.change_fenced(id, || Ok(self.writer.remove_source(id)?))
     }
 
     /// Enable or disable a folder; a disabled folder keeps its hands.
+    ///
+    /// Disabling waits for the folder's reads in progress (see "Changing a
+    /// folder under its reads"): once it returns, nothing more of the
+    /// folder is stored. Enabling needs no fence: a disabled folder has no
+    /// read in flight, and an enabled one reads on as before.
     pub fn set_source_enabled(&self, id: i64, enabled: bool) -> Result<bool> {
-        let found = self.writer.set_source_enabled(id, enabled)?;
-        self.send(Command::Reload)?;
-        Ok(found)
+        if enabled {
+            let found = self.writer.set_source_enabled(id, enabled)?;
+            self.send(Command::Reload)?;
+            return Ok(found);
+        }
+        self.change_fenced(id, || Ok(self.writer.set_source_enabled(id, enabled)?))
     }
 
     /// Read a folder by polling only, or with notifications again.
+    ///
+    /// Not fenced: this changes only how the folder's changes are noticed
+    /// (OS notifications, or a walk every poll interval), not which files
+    /// are read nor how a read is committed. A read in flight commits as
+    /// it would have, and the reload keeps the folder's tracked files and
+    /// backfill (it re-registers the OS watch only).
     pub fn set_source_poll_only(&self, id: i64, poll_only: bool) -> Result<bool> {
         let found = self.writer.set_source_poll_only(id, poll_only)?;
         self.send(Command::Reload)?;
@@ -695,10 +805,22 @@ impl Watcher {
 
     /// Watch a folder's subfolders too, or only its top level. Files read
     /// from subfolders before keep their hands.
+    ///
+    /// Switching subfolders off waits for the folder's reads in progress
+    /// (see "Changing a folder under its reads"): once it returns, no file
+    /// of a subfolder is read any more. Switching them on needs no fence:
+    /// every read in flight is of a file the folder still covers, read as
+    /// before, and the reload's walk reads each file on from the store's
+    /// offset.
     pub fn set_source_recursive(&self, id: i64, recursive: bool) -> Result<bool> {
-        let found = self.writer.set_source_recursive(id, recursive)?;
-        self.send(Command::Reload)?;
-        Ok(found)
+        if recursive {
+            let found = self.writer.set_source_recursive(id, recursive)?;
+            self.send(Command::Reload)?;
+            return Ok(found);
+        }
+        self.change_fenced(id, || {
+            Ok(self.writer.set_source_recursive(id, recursive)?)
+        })
     }
 
     /// Read every file of a folder with one parser (a `rail_core` parser
@@ -719,17 +841,17 @@ impl Watcher {
         {
             return Err(Error::UnknownParser(parser.to_owned()));
         }
-        let _fence = self.fence(id)?;
-        let change = self.writer.set_source_site_override(id, parser)?;
-        if change.found {
-            log::info!(
-                "folder {id}: room {}, {} files to read again",
-                parser.unwrap_or("detected per file"),
-                change.reset
-            );
-        }
-        self.send(Command::Reload)?;
-        Ok(change)
+        self.change_fenced(id, || {
+            let change = self.writer.set_source_site_override(id, parser)?;
+            if change.found {
+                log::info!(
+                    "folder {id}: room {}, {} files to read again",
+                    parser.unwrap_or("detected per file"),
+                    change.reset
+                );
+            }
+            Ok(change)
+        })
     }
 
     /// The parsers of this build with their versions, as the store compares
@@ -1081,6 +1203,9 @@ struct Coordinator {
     fenced: HashMap<i64, u32>,
     /// Fences to answer once their folder has no read in flight.
     fence_waiters: Vec<(i64, Sender<()>)>,
+    /// `HoldNew`s not released yet, and the folders fenced by them.
+    holding_new: u32,
+    held_new: Vec<i64>,
     /// Folders whose backfill ended since the last publish: reported by
     /// it, after the status shows the end.
     ended: Vec<i64>,
@@ -1221,19 +1346,43 @@ impl Coordinator {
                     }
                     Command::Reread(files) => self.reread(files),
                     Command::Fence(id, reply) => {
-                        *self.fenced.entry(id).or_default() += 1;
+                        self.fence(id);
                         self.fence_waiters.push((id, reply));
                     }
-                    Command::Unfence(id) => {
-                        if let Some(count) = self.fenced.get_mut(&id) {
-                            *count -= 1;
-                            if *count == 0 {
-                                self.fenced.remove(&id);
+                    Command::Unfence(id) => self.unfence(id),
+                    Command::HoldNew(reply) => {
+                        self.holding_new += 1;
+                        let _ = reply.send(());
+                    }
+                    Command::ReleaseNew => {
+                        self.holding_new = self.holding_new.saturating_sub(1);
+                        if self.holding_new == 0 {
+                            for id in std::mem::take(&mut self.held_new) {
+                                self.unfence(id);
                             }
                         }
                     }
                     Command::Stop => {}
                 }
+            }
+        }
+    }
+
+    /// Fence folder `id` once more: none of its files is dispatched, and a
+    /// large read of it stops after the batches it is committing (the
+    /// fence waits for one group, not for the rest of a big file).
+    fn fence(&mut self, id: i64) {
+        *self.fenced.entry(id).or_default() += 1;
+        self.limits.stop_folder(id, true);
+    }
+
+    /// Undo one fence of folder `id`.
+    fn unfence(&mut self, id: i64) {
+        if let Some(count) = self.fenced.get_mut(&id) {
+            *count -= 1;
+            if *count == 0 {
+                self.fenced.remove(&id);
+                self.limits.stop_folder(id, false);
             }
         }
     }
@@ -1299,6 +1448,10 @@ impl Coordinator {
                 } else {
                     run = old.run;
                 }
+            } else if self.holding_new > 0 {
+                // A folder being added: not read until it is set up.
+                self.fence(row.id);
+                self.held_new.push(row.id);
             }
             let mut source = SourceRt {
                 id: row.id,
@@ -2145,6 +2298,8 @@ mod tests {
             rechecks: BTreeSet::new(),
             fenced: HashMap::new(),
             fence_waiters: Vec::new(),
+            holding_new: 0,
+            held_new: Vec::new(),
             ended: Vec::new(),
             last_publish: 0,
             publish_now: true,
@@ -2376,6 +2531,9 @@ mod tests {
         c.handle(Msg::Cmd(Command::Fence(SOURCE, second)));
         c.answer_fences();
         assert!(answer.try_recv().is_err(), "not while hh/a is read");
+        // A large read of the folder stops after its batches committing;
+        // the other folder's read on.
+        assert!(c.limits.stops(Some(SOURCE)) && !c.limits.stops(Some(OTHER)));
 
         // A change of the folder's file and of the other folder's.
         for (file, id) in [("hh/b", SOURCE), ("other/c", OTHER)] {
@@ -2401,15 +2559,278 @@ mod tests {
         c.handle(Msg::Cmd(Command::Unfence(SOURCE)));
         c.dispatch();
         assert!(!c.in_flight.contains_key(&path("hh/b")), "one fence left");
+        assert!(c.limits.stops(Some(SOURCE)), "one fence left");
         c.handle(Msg::Cmd(Command::Unfence(SOURCE)));
         c.dispatch();
         assert_eq!(c.in_flight.get(&path("hh/b")), Some(&SOURCE));
+        assert!(!c.limits.stops(Some(SOURCE)));
 
         // A folder with nothing in flight is answered at once.
         let (reply, answer) = mpsc::channel();
         c.handle(Msg::Cmd(Command::Fence(OTHER + 1, reply)));
         c.answer_fences();
         assert_eq!(answer.try_recv(), Ok(()));
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// Import threads for `c`, so that `dispatch` starts reads (of files
+    /// that are not there: they answer `Gone`, unread by the tests). Keep
+    /// the returned committer queue while `c` runs.
+    fn with_threads(c: &mut Coordinator) -> Receiver<Commit> {
+        c.pool = Some(
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(1)
+                .build()
+                .expect("pool"),
+        );
+        let (commits, commit_queue) = mpsc::channel();
+        c.commits = Some(commits);
+        c.threads = 4;
+        commit_queue
+    }
+
+    /// A folder `name` under `dir`, stored and loaded by `c`.
+    fn stored_folder(c: &mut Coordinator, dir: &Path, name: &str) -> (i64, PathBuf) {
+        let folder = dir.join(name);
+        let id = c
+            .writer
+            .add_source(&rail_store::import::path_key(&folder), true, None, false)
+            .expect("add");
+        c.reload();
+        assert!(c.sources.get(&id).is_some_and(|source| source.enabled));
+        (id, folder)
+    }
+
+    /// What `Watcher::change_fenced` makes the coordinator do, step by step,
+    /// with a read of the folder's `reading` in flight and a change of its
+    /// `waiting` queued: the fence (the read in flight told to stop early),
+    /// answered only once that read has answered - so its commit lands
+    /// before the change; `change`, the store write; the reload; the
+    /// unfence. No read of the folder starts in between.
+    fn fenced_change(
+        c: &mut Coordinator,
+        id: i64,
+        reading: &Path,
+        waiting: &Path,
+        change: impl FnOnce(&WriterHandle),
+    ) {
+        c.files.insert(
+            reading.to_path_buf(),
+            FileRt {
+                track: None,
+                ..FileRt::new(id)
+            },
+        );
+        c.in_flight.insert(reading.to_path_buf(), id);
+        c.files.insert(waiting.to_path_buf(), FileRt::new(id));
+        c.enqueue(waiting.to_path_buf(), true);
+
+        let (reply, answer) = mpsc::channel();
+        c.handle(Msg::Cmd(Command::Fence(id, reply)));
+        c.answer_fences();
+        assert!(answer.try_recv().is_err(), "answered with a read in flight");
+        assert!(
+            c.limits.stops(Some(id)),
+            "a large read of the folder goes on"
+        );
+        c.dispatch();
+        assert!(!c.in_flight.contains_key(waiting), "read under the fence");
+
+        // The read in flight commits and answers: the fence is answered.
+        c.handle(Msg::Done(Box::new(Done {
+            path: reading.to_path_buf(),
+            track: FileTrack::default(),
+            result: Ok(Polled::Unchanged),
+        })));
+        c.answer_fences();
+        assert_eq!(answer.try_recv(), Ok(()));
+
+        // The store changes; nothing of the folder starts until the reload.
+        change(&c.writer);
+        c.dispatch();
+        assert!(!c.in_flight.contains_key(waiting), "read before the reload");
+        c.handle(Msg::Cmd(Command::Reload));
+        c.handle(Msg::Cmd(Command::Unfence(id)));
+        assert!(!c.fenced.contains_key(&id) && !c.limits.stops(Some(id)));
+        c.dispatch();
+    }
+
+    /// No file of folder `id` is tracked, queued or being read.
+    fn nothing_of(c: &Coordinator, id: i64, waiting: &Path) {
+        assert!(c.files.values().all(|file| file.source_id != id));
+        assert!(!c.queued.contains(waiting) && !c.in_flight.contains_key(waiting));
+    }
+
+    /// `remove_source` is fenced: the folder's read in flight commits
+    /// while the folder is there (then its row is detached with it), never
+    /// after. A batch after the removal used to name a folder that was
+    /// gone (`FOREIGN KEY constraint failed`, the read lost) or - SQLite
+    /// gives the next folder the removed one's id when it was the highest,
+    /// as here - join the next folder added.
+    #[test]
+    fn a_removed_folder_is_fenced_until_its_reads_answer() {
+        let (store, dir) = store("fence-remove");
+        let (mut c, _) = coordinator(&store);
+        let _commits = with_threads(&mut c);
+        let (id, folder) = stored_folder(&mut c, &dir, "hh");
+        let waiting = folder.join("b.txt");
+        fenced_change(&mut c, id, &folder.join("a.txt"), &waiting, |writer| {
+            assert!(writer.remove_source(id).expect("remove"));
+        });
+        assert!(!c.sources.contains_key(&id));
+        nothing_of(&c, id, &waiting);
+        let next = c
+            .writer
+            .add_source(
+                &rail_store::import::path_key(&dir.join("next")),
+                true,
+                None,
+                false,
+            )
+            .expect("add");
+        assert_eq!(next, id, "the removed folder's id, given again");
+        c.handle(Msg::Cmd(Command::Reload));
+        c.dispatch();
+        nothing_of(&c, id, &waiting);
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// Disabling is fenced: the folder's read in flight commits before it
+    /// shows disabled, and nothing of it is read after (its reads used to
+    /// commit after, a large one to the end of its file).
+    #[test]
+    fn a_disabled_folder_is_fenced_until_its_reads_answer() {
+        let (store, dir) = store("fence-disable");
+        let (mut c, _) = coordinator(&store);
+        let _commits = with_threads(&mut c);
+        let (id, folder) = stored_folder(&mut c, &dir, "hh");
+        let waiting = folder.join("b.txt");
+        fenced_change(&mut c, id, &folder.join("a.txt"), &waiting, |writer| {
+            assert!(writer.set_source_enabled(id, false).expect("disable"));
+        });
+        let source = &c.sources[&id];
+        assert!(!source.enabled);
+        assert_eq!(source.state, Some(SourceState::Disabled));
+        nothing_of(&c, id, &waiting);
+        assert!(
+            c.source_of(&waiting).is_none(),
+            "a notification would read it"
+        );
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// Switching subfolders off is fenced: a subfolder's read in flight
+    /// commits before, and no subfolder file is read after.
+    #[test]
+    fn subfolders_switched_off_are_fenced_until_their_reads_answer() {
+        let (store, dir) = store("fence-recursive");
+        let (mut c, _) = coordinator(&store);
+        let _commits = with_threads(&mut c);
+        let (id, folder) = stored_folder(&mut c, &dir, "hh");
+        let waiting = folder.join("sub").join("b.txt");
+        assert!(c.source_of(&waiting).is_some());
+        let reading = folder.join("sub").join("a.txt");
+        fenced_change(&mut c, id, &reading, &waiting, |writer| {
+            assert!(writer.set_source_recursive(id, false).expect("recursive"));
+        });
+        assert!(!c.sources[&id].recursive);
+        nothing_of(&c, id, &waiting);
+        assert!(
+            c.source_of(&waiting).is_none(),
+            "a notification would read it"
+        );
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// A room given to a folder already there (`add_source_with`) is
+    /// fenced: its glob may leave files out, and a read of one in flight
+    /// commits before; none of them is read after.
+    #[test]
+    fn a_room_given_to_a_folder_is_fenced_until_its_reads_answer() {
+        let (store, dir) = store("fence-room");
+        let (mut c, _) = coordinator(&store);
+        c.config.file_globs = BTreeMap::from([("pokerstars".to_owned(), "HH*.txt".to_owned())]);
+        let _commits = with_threads(&mut c);
+        let (id, folder) = stored_folder(&mut c, &dir, "hh");
+        let waiting = folder.join("b.txt");
+        fenced_change(&mut c, id, &folder.join("a.txt"), &waiting, |writer| {
+            assert!(
+                writer
+                    .set_source_site(id, Some("pokerstars"))
+                    .expect("room")
+            );
+        });
+        assert_eq!(c.sources[&id].glob.as_deref(), Some("HH*.txt"));
+        assert!(!scan::is_candidate_for(&waiting, Some("HH*.txt")));
+        nothing_of(&c, id, &waiting);
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// A folder being added with a room or "only new" is held: a reload
+    /// that loads it before its room and marks are written (say the one
+    /// `start` sends, handled late) fences it, so none of its files is read
+    /// until the reload after the setup and the release. A folder loaded
+    /// before the hold reads on. Such a reload used to read the new
+    /// folder's old hands (`only_new_hands_and_a_rooms_files`, once in 300
+    /// stress runs: 9 old hands where none belonged).
+    #[test]
+    fn a_folder_being_added_is_held_until_it_is_set_up() {
+        let (store, dir) = store("hold-new");
+        let (mut c, _) = coordinator(&store);
+        let _commits = with_threads(&mut c);
+        let (known, known_folder) = stored_folder(&mut c, &dir, "known");
+        let (reply, answer) = mpsc::channel();
+        c.handle(Msg::Cmd(Command::HoldNew(reply)));
+        assert_eq!(answer.try_recv(), Ok(()), "answered at once");
+
+        // The new folder's row is in; a reload on its way loads it.
+        let added = |c: &Coordinator, name: &str| {
+            c.writer
+                .add_source(
+                    &rail_store::import::path_key(&dir.join(name)),
+                    true,
+                    None,
+                    false,
+                )
+                .expect("add")
+        };
+        let id = added(&c, "new");
+        c.handle(Msg::Cmd(Command::Reload));
+        assert!(c.sources.contains_key(&id) && c.fenced.contains_key(&id));
+        assert!(c.limits.stops(Some(id)) && !c.fenced.contains_key(&known));
+        let old = dir.join("new").join("old.txt");
+        let other = known_folder.join("c.txt");
+        for (file, source) in [(&old, id), (&other, known)] {
+            c.files.insert(file.clone(), FileRt::new(source));
+            c.enqueue(file.clone(), true);
+        }
+        c.dispatch();
+        assert!(!c.in_flight.contains_key(&old), "read before its setup");
+        assert!(c.in_flight.contains_key(&other), "a folder known before");
+
+        // Set up and reloaded: still held until the release.
+        c.handle(Msg::Cmd(Command::Reload));
+        c.dispatch();
+        assert!(!c.in_flight.contains_key(&old), "read before the release");
+        c.handle(Msg::Cmd(Command::ReleaseNew));
+        assert!(c.fenced.is_empty() && c.held_new.is_empty() && !c.limits.stops(Some(id)));
+        c.dispatch();
+        assert_eq!(c.in_flight.get(&old), Some(&id));
+
+        // Released: a folder loaded now is not held.
+        let later = added(&c, "later");
+        c.handle(Msg::Cmd(Command::Reload));
+        assert!(c.sources.contains_key(&later) && !c.fenced.contains_key(&later));
         drop(c);
         drop(store);
         let _ = std::fs::remove_dir_all(dir);

@@ -5,8 +5,9 @@
 //! of more than three hands is split: per (parser, encoding) the file with
 //! most hands, as it is and with the other line ends (CRLF <-> LF), so the
 //! byte offsets of the cuts are checked through CRLF, BOMs and UTF-16.
-//! Then a pause in the middle of a large read: it stops after the batches
-//! it is committing and continues from there.
+//! Then a pause in the middle of a large read, and a stop of its folder
+//! alone (the watcher changing the folder): it stops after the batches it
+//! is committing and continues from there.
 
 mod common;
 
@@ -204,4 +205,63 @@ fn a_pause_stops_a_large_read_between_batches() {
     reader.limits().set_threads(0);
     let (_, _) = read_to_end(&reader, &path);
     assert_eq!(held(&store), whole(&dir, "w", &bytes), "{}", golden.path);
+}
+
+/// The folder of a large read stopped in the middle (the watcher fences a
+/// folder it changes): as with a pause, the first group of batches commits
+/// and the read stops; let go, it continues to the same end. A file of no
+/// folder, or of another, is not stopped.
+#[test]
+fn a_stopped_folder_stops_its_large_read_between_batches() {
+    let (golden, bytes) = picks()
+        .into_iter()
+        .max_by_key(|(golden, _)| golden.hands)
+        .expect("a file");
+    let dir = scratch_dir("split-folder-stop");
+    let store = Store::open(dir.join("rail.db")).expect("open");
+    let id = store
+        .writer()
+        .expect("writer")
+        .add_source(&rail_store::import::path_key(&dir), true, None, false)
+        .expect("folder");
+    let path = dir.join("hh.txt");
+    fs::write(&path, &bytes).expect("write");
+    set_mtime(&path, T0);
+    let reader = reader_for(&store);
+    reader.limits().set_threads(1);
+    reader.limits().stop_folder(id, true);
+    assert!(!reader.limits().stops(None) && !reader.limits().stops(Some(id + 1)));
+    let mut track = FileTrack::default();
+    let now = T0 + 3_600_000;
+    let file = FileRef {
+        path: &path,
+        source_id: Some(id),
+        site_override: None,
+    };
+    let first = reader.poll(&file, &mut track, now).expect("poll");
+    let Polled::Committed {
+        outcome,
+        from,
+        to,
+        recheck_at,
+    } = first
+    else {
+        panic!("{}: {first:?}", golden.path);
+    };
+    assert_eq!(from, 0);
+    assert!(to < u64::try_from(bytes.len()).expect("len"));
+    assert_eq!(recheck_at, Some(now), "the rest at once");
+    assert!(
+        usize::try_from(outcome.inserted + outcome.duplicates + outcome.quarantined)
+            .expect("small")
+            <= BATCH,
+        "one batch of at most {BATCH} hands before the stop took effect: {outcome:?}"
+    );
+    reader.limits().stop_folder(id, false);
+    reader.limits().set_threads(0);
+    let (_, _) = read_to_end(&reader, &path);
+    assert_eq!(held(&store), whole(&dir, "w", &bytes), "{}", golden.path);
+    let files = store.reader().files().expect("files");
+    assert_eq!(files.len(), 1);
+    assert_eq!(files[0].source_id, Some(id), "still the folder's");
 }

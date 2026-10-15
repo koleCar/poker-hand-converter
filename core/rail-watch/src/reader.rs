@@ -71,7 +71,8 @@
 //! store's offset rule holds for each, and a crash keeps a prefix of them.
 //! The last hand is read by the next look, at once. Between groups of
 //! batches the reader stops early when [`ImportLimits::interrupt`] is set
-//! (pause, stop), with what it committed so far.
+//! (pause, stop) or its folder is stopped ([`ImportLimits::stop_folder`]:
+//! the watcher changes it), with what it committed so far.
 //!
 //! # Truncation, rotation, deletion
 //!
@@ -82,12 +83,13 @@
 //! 0 ([`FileReader::forget`]) so a new file at the same path starts from
 //! its beginning; its hands stay.
 
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::ops::Range;
 use std::path::Path;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, PoisonError};
 
 use rail_core::convert::{
     Candidate, ConversionResult, FileConversion, convert_any, convert_any_detected,
@@ -151,12 +153,15 @@ impl Default for ReadConfig {
 }
 
 /// What the watcher can change while a read runs: how many import threads
-/// a large read may use at once, and a request to stop early.
+/// a large read may use at once, and a request to stop early - every read,
+/// or the reads of some folders.
 #[derive(Debug, Default)]
 pub struct ImportLimits {
     /// 0: every thread of the pool the read runs on.
     threads: AtomicUsize,
     interrupt: AtomicBool,
+    /// Folders whose reads stop early (the watcher's fenced folders).
+    stopped: Mutex<HashSet<i64>>,
 }
 
 impl ImportLimits {
@@ -188,6 +193,30 @@ impl ImportLimits {
 
     pub fn interrupted(&self) -> bool {
         self.interrupt.load(Ordering::SeqCst)
+    }
+
+    /// Ask the reads of folder `source_id` in progress to stop after the
+    /// batches they are committing (`true`), or let them run - the
+    /// interrupt for one folder, while the watcher changes it.
+    pub fn stop_folder(&self, source_id: i64, stop: bool) {
+        let mut stopped = self.stopped.lock().unwrap_or_else(PoisonError::into_inner);
+        if stop {
+            stopped.insert(source_id);
+        } else {
+            stopped.remove(&source_id);
+        }
+    }
+
+    /// Whether a read of folder `source_id` (none: a file of no folder) is
+    /// to stop early.
+    pub fn stops(&self, source_id: Option<i64>) -> bool {
+        self.interrupted()
+            || source_id.is_some_and(|id| {
+                self.stopped
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .contains(&id)
+            })
     }
 }
 
@@ -1093,7 +1122,7 @@ impl FileReader {
         let mut done: Option<(u64, u64)> = None;
         let mut first = true;
         'groups: for group in split.pieces.chunks(self.limits.threads().max(1)) {
-            if !first && self.limits.interrupted() {
+            if !first && self.limits.stops(split.file.source_id) {
                 break;
             }
             let batches: Vec<Option<Result<ImportBatch>>> = group
