@@ -763,3 +763,87 @@ fn kinds() {
         assert!(site.tables.is_unknown(), "{id}");
     }
 }
+
+/// R3.6, the R0.12 rule for table data: a remote file never loosens ACR's
+/// `noOverlapTableGraphics`. A shipped ACR layout's zone shrunk or removed
+/// by the remote file stays; a zone the remote file adds is kept with the
+/// shipped ones (their union); the seat anchors may still be corrected.
+#[test]
+fn a_remote_file_cannot_shrink_acrs_table_graphics() {
+    let board = json!([300, 420, 400, 160]);
+    let tray = json!([440, 620, 120, 60]);
+    let mut shipped_value = shipped_value();
+    let mut layout = seat_layout(6);
+    layout["graphics"] = json!([board, tray]);
+    site_mut(&mut shipped_value, "acr")["tables"]["seatLayouts"] = json!({"6": layout});
+    let shipped = load(&shipped_value.to_string(), &REGISTRATION_ORDER).expect("shipped");
+    let graphics_of = |config: &rail_config::Config| {
+        config
+            .site("acr")
+            .and_then(|s| s.tables.seat_layouts.as_ref())
+            .map(|l| l["6"].graphics.clone())
+            .expect("acr's layout")
+    };
+
+    // Shrunk board, tray removed, anchors moved.
+    let mut remote = shipped_value.clone();
+    let mut shrunk = seat_layout(6);
+    shrunk["graphics"] = json!([[320, 440, 300, 100]]);
+    shrunk["seats"][0] = json!([110, 790]);
+    site_mut(&mut remote, "acr")["tables"]["seatLayouts"] = json!({"6": shrunk});
+    let merged =
+        load_remote(&shipped, &remote.to_string(), &REGISTRATION_ORDER).expect("valid remote");
+    assert_eq!(
+        graphics_of(&merged.config),
+        [
+            [300, 420, 400, 160],
+            [440, 620, 120, 60],
+            [320, 440, 300, 100]
+        ]
+    );
+    assert!(merged.notes.contains(&MergeNote::TableGraphicsKept {
+        id: "acr".into(),
+        size: "6".into()
+    }));
+    let acr = merged.config.site("acr").expect("acr");
+    let six = &acr.tables.seat_layouts.as_ref().expect("layouts")["6"];
+    assert_eq!(six.seats[0], [110, 790], "anchors are a correction");
+    assert!(
+        acr.hud
+            .restrictions
+            .is_some_and(|r| r.no_overlap_table_graphics),
+        "the restriction stays"
+    );
+
+    // Layouts removed altogether: the shipped one stays.
+    let mut remote = shipped_value.clone();
+    site_mut(&mut remote, "acr")["tables"]["seatLayouts"] = Value::Null;
+    let merged =
+        load_remote(&shipped, &remote.to_string(), &REGISTRATION_ORDER).expect("valid remote");
+    assert_eq!(
+        graphics_of(&merged.config),
+        [[300, 420, 400, 160], [440, 620, 120, 60]]
+    );
+
+    // A zone added: the union.
+    let mut remote = shipped_value.clone();
+    let mut more = seat_layout(6);
+    more["graphics"] = json!([board, tray, [0, 900, 1000, 100]]);
+    site_mut(&mut remote, "acr")["tables"]["seatLayouts"] = json!({"6": more});
+    let merged =
+        load_remote(&shipped, &remote.to_string(), &REGISTRATION_ORDER).expect("valid remote");
+    assert_eq!(
+        graphics_of(&merged.config),
+        [
+            [300, 420, 400, 160],
+            [440, 620, 120, 60],
+            [0, 900, 1000, 100]
+        ]
+    );
+    assert!(
+        !merged
+            .notes
+            .iter()
+            .any(|n| matches!(n, MergeNote::TableGraphicsKept { .. }))
+    );
+}

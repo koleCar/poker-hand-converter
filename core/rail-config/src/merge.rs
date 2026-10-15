@@ -23,10 +23,34 @@
 //!   ignored (mixing would pair e.g. a room's table data with a network).
 //!   `anonymisation` decides which names the database keeps
 //!   (docs/DATABASE.md), so a download must not loosen it either.
+//! - **Table data that bears on compliance is stricter-only too** (R3.6,
+//!   [`merge_tables`]); the rest of `tables` (title regex, seat anchors,
+//!   plate size, hero slot, seat numbering, preferred seat, verification
+//!   notes) is a correction the remote file may make:
+//!   - **Table graphics only grow.** For every table size the shipped file
+//!     has a `seatLayouts` entry for, the merged layout keeps every shipped
+//!     `graphics` zone and adds the remote's (their union, shipped first);
+//!     a remote file that drops a size, or the whole `seatLayouts`, keeps
+//!     the shipped layout of that size. A zone is what a panel must not
+//!     cover where the room forbids covering its graphics (ACR,
+//!     `noOverlapTableGraphics`): shrinking or dropping one would let the
+//!     HUD draw where the room's policy says it may not
+//!     ([`MergeNote::TableGraphicsKept`]). A size only the remote file
+//!     has is taken as it is (new measured data; the HUD's default for an
+//!     unmeasured size is not a room's own graphics).
+//!   - **Processes never reach another room's windows.** The process names
+//!     decide whose windows a room's matcher may take, and compliance mode
+//!     decides on the room the matcher belongs to. Where the shipped file
+//!     names a room's processes (per OS), the remote's may only be a subset
+//!     of them; where it names none, the remote's may not name a process
+//!     the shipped file gives to another entry
+//!     ([`MergeNote::LooserProcessesIgnored`]). A title regex can then only
+//!     choose among that room's own windows, so it may be corrected.
 
 use std::cmp::Ordering;
+use std::collections::BTreeMap;
 
-use crate::model::{Config, Hud, Site};
+use crate::model::{Config, Hud, Processes, Site, Tables};
 
 /// How much a HUD policy permits, least first.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -72,6 +96,12 @@ pub enum MergeNote {
     /// The remote entry drops or eases a HUD restriction of the shipped
     /// one; the merged entry keeps every restriction of both.
     LooserRestrictionsIgnored { id: String },
+    /// The remote entry drops or shrinks a shipped table-graphics zone (or
+    /// the whole layout of a size): the shipped zones stay (R3.6).
+    TableGraphicsKept { id: String, size: String },
+    /// The remote entry's table processes reach past the shipped ones (or
+    /// name another entry's): those names are left out (R3.6).
+    LooserProcessesIgnored { id: String },
 }
 
 /// `shipped` with `remote`'s corrections applied under the rule above. Both
@@ -89,7 +119,7 @@ pub fn merge_remote(shipped: &Config, remote: &Config) -> Merged {
                 });
                 ours.clone()
             }
-            Some(theirs) => merge_site(ours, theirs, &mut notes),
+            Some(theirs) => merge_site(shipped, ours, theirs, &mut notes),
         })
         .collect();
     for theirs in &remote.sites {
@@ -109,7 +139,7 @@ pub fn merge_remote(shipped: &Config, remote: &Config) -> Merged {
     }
 }
 
-fn merge_site(ours: &Site, theirs: &Site, notes: &mut Vec<MergeNote>) -> Site {
+fn merge_site(shipped: &Config, ours: &Site, theirs: &Site, notes: &mut Vec<MergeNote>) -> Site {
     let identity = [
         ("kind", ours.kind == theirs.kind),
         ("parser", ours.parser == theirs.parser),
@@ -145,7 +175,121 @@ fn merge_site(ours: &Site, theirs: &Site, notes: &mut Vec<MergeNote>) -> Site {
         }
         Ordering::Less => {}
     }
+    merged.tables = merge_tables(shipped, ours, theirs, notes);
     merged
+}
+
+/// A room's `tables` block under the stricter-only rule for what bears on
+/// compliance (see the module's header): table graphics only grow, and the
+/// process names never reach past the shipped ones or into another entry's.
+/// Everything else is the remote's.
+pub fn merge_tables(
+    shipped: &Config,
+    ours: &Site,
+    theirs: &Site,
+    notes: &mut Vec<MergeNote>,
+) -> Tables {
+    let mut merged = theirs.tables.clone();
+
+    // Graphics: every shipped zone stays, per shipped size.
+    if let Some(shipped_layouts) = &ours.tables.seat_layouts {
+        let layouts = merged.seat_layouts.get_or_insert_with(BTreeMap::new);
+        for (size, kept) in shipped_layouts {
+            match layouts.get_mut(size) {
+                None => {
+                    layouts.insert(size.clone(), kept.clone());
+                    notes.push(MergeNote::TableGraphicsKept {
+                        id: ours.id.clone(),
+                        size: size.clone(),
+                    });
+                }
+                Some(layout) => {
+                    let mut zones = kept.graphics.clone();
+                    for zone in &layout.graphics {
+                        if !zones.contains(zone) {
+                            zones.push(*zone);
+                        }
+                    }
+                    if !kept.graphics.iter().all(|z| layout.graphics.contains(z)) {
+                        notes.push(MergeNote::TableGraphicsKept {
+                            id: ours.id.clone(),
+                            size: size.clone(),
+                        });
+                    }
+                    layout.graphics = zones;
+                }
+            }
+        }
+    }
+
+    // Processes: a subset of the shipped names, or (none shipped) no name
+    // another entry has.
+    let mut looser = false;
+    let others = |os: fn(&Processes) -> &Option<Vec<String>>| -> Vec<String> {
+        shipped
+            .sites
+            .iter()
+            .filter(|site| site.id != ours.id)
+            .filter_map(|site| os(&site.tables.process).clone())
+            .flatten()
+            .collect()
+    };
+    let windows = merge_processes(
+        ours.tables.process.windows.as_deref(),
+        theirs.tables.process.windows.as_deref(),
+        &others(|p| &p.windows),
+        &mut looser,
+    );
+    let macos = merge_processes(
+        ours.tables.process.macos.as_deref(),
+        theirs.tables.process.macos.as_deref(),
+        &others(|p| &p.macos),
+        &mut looser,
+    );
+    merged.process = Processes { windows, macos };
+    if looser {
+        notes.push(MergeNote::LooserProcessesIgnored {
+            id: ours.id.clone(),
+        });
+    }
+    merged
+}
+
+/// One OS's process names: the remote's that the shipped list has (when it
+/// has one) and that no other entry claims. `None` when none are left.
+fn merge_processes(
+    shipped: Option<&[String]>,
+    remote: Option<&[String]>,
+    others: &[String],
+    looser: &mut bool,
+) -> Option<Vec<String>> {
+    let remote = remote?;
+    let kept: Vec<String> = remote
+        .iter()
+        .filter(|name| {
+            let allowed = shipped.is_none_or(|list| list.iter().any(|s| same_process(s, name)))
+                && !others.iter().any(|other| same_process(other, name));
+            *looser |= !allowed;
+            allowed
+        })
+        .cloned()
+        .collect();
+    (!kept.is_empty()).then_some(kept)
+}
+
+/// The same executable: without case, without a trailing `.exe` (the HUD's
+/// matcher compares them so).
+fn same_process(a: &str, b: &str) -> bool {
+    fn stem(name: &str) -> &str {
+        let name = name.trim();
+        let n = name.len();
+        if n > 4 && name.is_char_boundary(n - 4) && name[n - 4..].eq_ignore_ascii_case(".exe") {
+            &name[..n - 4]
+        } else {
+            name
+        }
+    }
+    stem(a).eq_ignore_ascii_case(stem(b))
 }
 
 #[cfg(test)]
@@ -456,5 +600,162 @@ mod tests {
         ]);
         let merged = merge_remote(&shipped, &remote);
         assert_eq!(merged.config, shipped);
+    }
+
+    fn six_seats(graphics: Vec<[u32; 4]>, x: u32) -> crate::model::SeatLayout {
+        crate::model::SeatLayout {
+            seats: (0..6).map(|i| [x + i * 100, 800]).collect(),
+            plate: [150, 80],
+            center: [500, 500],
+            hero_slot: 0,
+            graphics,
+            seat_numbers: None,
+        }
+    }
+
+    fn with_layouts(mut site: Site, layouts: &[(&str, crate::model::SeatLayout)]) -> Site {
+        site.tables.seat_layouts = Some(
+            layouts
+                .iter()
+                .map(|(size, layout)| ((*size).to_owned(), layout.clone()))
+                .collect(),
+        );
+        site
+    }
+
+    const BOARD: [u32; 4] = [300, 400, 400, 150];
+    const TRAY: [u32; 4] = [450, 600, 100, 50];
+
+    /// R3.6: a remote file that shrinks or drops a shipped table-graphics
+    /// zone keeps the shipped one (and may still move the seats); one that
+    /// adds a zone gets the union; one that drops a size or the whole
+    /// layout keeps the shipped layout; a size only the remote has is
+    /// taken.
+    #[test]
+    fn table_graphics_only_grow() {
+        let shipped = config(vec![with_layouts(
+            site("pokerstars", "pokerstars", Some(true)),
+            &[("6", six_seats(vec![BOARD, TRAY], 100))],
+        )]);
+        let layout = |merged: &Merged, size: &str| {
+            merged.config.sites[0]
+                .tables
+                .seat_layouts
+                .as_ref()
+                .and_then(|l| l.get(size))
+                .cloned()
+                .expect("a layout")
+        };
+        let kept = || MergeNote::TableGraphicsKept {
+            id: "pokerstars".into(),
+            size: "6".into(),
+        };
+
+        // Shrunk board, tray dropped, seats moved.
+        let smaller = [320, 420, 360, 100];
+        let remote = config(vec![with_layouts(
+            site("pokerstars", "pokerstars", Some(true)),
+            &[("6", six_seats(vec![smaller], 120))],
+        )]);
+        let merged = merge_remote(&shipped, &remote);
+        let six = layout(&merged, "6");
+        assert_eq!(six.graphics, vec![BOARD, TRAY, smaller]);
+        assert_eq!(six.seats[0], [120, 800], "anchors are a correction");
+        assert_eq!(merged.notes, vec![kept()]);
+        assert_eq!(validate(&merged.config, PARSERS), Vec::new());
+
+        // A zone added: the union, no note.
+        let buttons = [700, 900, 300, 100];
+        let remote = config(vec![with_layouts(
+            site("pokerstars", "pokerstars", Some(true)),
+            &[("6", six_seats(vec![TRAY, BOARD, buttons], 100))],
+        )]);
+        let merged = merge_remote(&shipped, &remote);
+        assert_eq!(layout(&merged, "6").graphics, vec![BOARD, TRAY, buttons]);
+        assert_eq!(merged.notes, Vec::new());
+
+        // The size dropped (another size added), or no layouts at all.
+        let remote = config(vec![with_layouts(
+            site("pokerstars", "pokerstars", Some(true)),
+            &[("2", {
+                let mut two = six_seats(vec![], 100);
+                two.seats.truncate(2);
+                two
+            })],
+        )]);
+        let merged = merge_remote(&shipped, &remote);
+        assert_eq!(layout(&merged, "6"), six_seats(vec![BOARD, TRAY], 100));
+        assert!(layout(&merged, "2").graphics.is_empty(), "taken as it is");
+        assert_eq!(merged.notes, vec![kept()]);
+        let merged = merge_remote(
+            &shipped,
+            &config(vec![site("pokerstars", "pokerstars", Some(true))]),
+        );
+        assert_eq!(layout(&merged, "6"), six_seats(vec![BOARD, TRAY], 100));
+        assert_eq!(merged.notes, vec![kept()]);
+    }
+
+    fn with_processes(mut site: Site, windows: &[&str]) -> Site {
+        site.tables.process.windows = Some(windows.iter().map(|s| (*s).to_owned()).collect());
+        site
+    }
+
+    /// R3.6: a room's process names never reach past the shipped ones, nor
+    /// into another entry's (its windows would then pose as this room).
+    #[test]
+    fn processes_only_narrow() {
+        let shipped = config(vec![
+            with_processes(
+                site("pokerstars", "pokerstars", Some(true)),
+                &["PokerStars.exe"],
+            ),
+            with_processes(site("ggpoker", "ggpoker", Some(false)), &["GGnet.exe"]),
+        ]);
+        let processes = |merged: &Merged| merged.config.sites[0].tables.process.windows.clone();
+        let looser = MergeNote::LooserProcessesIgnored {
+            id: "pokerstars".into(),
+        };
+        // Another room's process added: left out.
+        let remote = config(vec![
+            with_processes(
+                site("pokerstars", "pokerstars", Some(true)),
+                &["PokerStars.exe", "ggnet"],
+            ),
+            with_processes(site("ggpoker", "ggpoker", Some(false)), &["GGnet.exe"]),
+        ]);
+        let merged = merge_remote(&shipped, &remote);
+        assert_eq!(processes(&merged), Some(vec!["PokerStars.exe".to_owned()]));
+        assert_eq!(merged.notes, vec![looser.clone()]);
+        // A new name past the shipped list: left out; a subset is fine.
+        let remote = config(vec![
+            with_processes(
+                site("pokerstars", "pokerstars", Some(true)),
+                &["Stars2.exe"],
+            ),
+            with_processes(site("ggpoker", "ggpoker", Some(false)), &["GGnet.exe"]),
+        ]);
+        let merged = merge_remote(&shipped, &remote);
+        assert_eq!(processes(&merged), None, "nothing left: no matcher");
+        assert_eq!(merged.notes, vec![looser.clone()]);
+        let merged = merge_remote(&shipped, &shipped);
+        assert_eq!(merged.config, shipped);
+        assert_eq!(merged.notes, Vec::new());
+
+        // None shipped: the remote's names, unless another entry has them.
+        let unknown = config(vec![
+            site("pokerstars", "pokerstars", Some(true)),
+            with_processes(site("ggpoker", "ggpoker", Some(false)), &["GGnet.exe"]),
+        ]);
+        let remote = config(vec![
+            with_processes(
+                site("pokerstars", "pokerstars", Some(true)),
+                &["PokerStars.exe", "GGNET.EXE"],
+            ),
+            with_processes(site("ggpoker", "ggpoker", Some(false)), &["GGnet.exe"]),
+        ]);
+        let merged = merge_remote(&unknown, &remote);
+        assert_eq!(processes(&merged), Some(vec!["PokerStars.exe".to_owned()]));
+        assert_eq!(merged.notes, vec![looser]);
+        assert_eq!(validate(&merged.config, PARSERS), Vec::new());
     }
 }
