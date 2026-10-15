@@ -213,12 +213,17 @@ impl App {
             .window
             .outer_position()
             .unwrap_or(PhysicalPosition::new(0, 0));
+        // The client area's origin (Windows: `ClientToScreen` of 0,0);
+        // where a system cannot tell (Wayland), the frame's.
+        let client = win.window.inner_position().unwrap_or(position);
         let size = win.window.inner_size();
         Event::Window {
             table: win.table,
             title: win.title.clone(),
             x: position.x,
             y: position.y,
+            client_x: client.x,
+            client_y: client.y,
             width: size.width,
             height: size.height,
             minimized: win.window.is_minimized().unwrap_or(false),

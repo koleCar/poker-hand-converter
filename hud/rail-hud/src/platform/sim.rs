@@ -21,6 +21,8 @@
 //! simulator's standard output is written to ([`SimBackend::tail`], the
 //! HUD's `--sim-events`), or line by line in tests.
 
+#![forbid(unsafe_code)]
+
 use std::collections::BTreeMap;
 use std::io::{Read as _, Seek as _, SeekFrom};
 use std::path::PathBuf;
@@ -31,13 +33,11 @@ use std::time::Duration;
 use regex::Regex;
 use serde_json::Value;
 
+pub use super::SIM_PROCESS;
 use super::{
     OverlayFrame, Platform, PlatformError, ProcessInfo, Rect, TableEvent, TableMatcher,
     TableWindow, WindowId,
 };
-
-/// The simulator's process name (R3.1: the process is `rail-hud-sim`).
-pub const SIM_PROCESS: &str = "rail-hud-sim";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct SimTable {
@@ -96,15 +96,18 @@ impl SimFeed {
             }
             Some("window") => {
                 if let Some(entry) = table.and_then(|t| feed.tables.get_mut(&t)) {
+                    // The client area's origin (`clientX`, since R3.3);
+                    // older simulators gave the frame's only.
+                    let at = |client: &str, frame: &str| {
+                        event[client]
+                            .as_i64()
+                            .or_else(|| event[frame].as_i64())
+                            .and_then(|v| i32::try_from(v).ok())
+                            .unwrap_or(0)
+                    };
                     entry.client = Rect {
-                        x: event["x"]
-                            .as_i64()
-                            .and_then(|x| i32::try_from(x).ok())
-                            .unwrap_or(0),
-                        y: event["y"]
-                            .as_i64()
-                            .and_then(|y| i32::try_from(y).ok())
-                            .unwrap_or(0),
+                        x: at("clientX", "x"),
+                        y: at("clientY", "y"),
                         width: number(&event["width"]).unwrap_or(0),
                         height: number(&event["height"]).unwrap_or(0),
                     };
@@ -200,11 +203,9 @@ impl SimBackend {
 
     fn matcher(&self) -> Option<TableMatcher> {
         let feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
-        feed.title_regex.as_ref().map(|regex| TableMatcher {
-            site: self.site.clone(),
-            processes: vec![SIM_PROCESS.to_owned()],
-            title: regex.clone(),
-        })
+        feed.title_regex
+            .as_ref()
+            .map(|regex| TableMatcher::simulator(self.site.clone(), regex.clone()))
     }
 
     fn snapshot(&self) -> BTreeMap<u32, SimTable> {
@@ -235,7 +236,7 @@ impl Platform for SimBackend {
             .snapshot()
             .into_iter()
             .filter_map(|(number, table)| {
-                let group = matcher.matches(SIM_PROCESS, &table.title)?;
+                let found = matcher.matches(SIM_PROCESS, &table.title)?;
                 Some(TableWindow {
                     id: WindowId(u64::from(number)),
                     site: matcher.site.clone(),
@@ -244,8 +245,8 @@ impl Platform for SimBackend {
                         name: SIM_PROCESS.to_owned(),
                     },
                     title: table.title,
-                    table: group,
-                    size: table.size,
+                    table: found.table,
+                    size: found.seats.or(table.size),
                     client: table.client,
                     scale_permille: 1000,
                     minimized: table.minimized,
@@ -298,7 +299,7 @@ impl Platform for SimBackend {
                     table: regex
                         .as_ref()
                         .and_then(|m| m.matches(SIM_PROCESS, &current.title))
-                        .flatten(),
+                        .and_then(|found| found.table),
                 });
             }
             *seen = current.clone();

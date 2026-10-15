@@ -11,6 +11,8 @@
 //! has not re-read, so the overlays stay current even when no
 //! `hand_imported` arrives (the app busy, a message dropped).
 
+#![forbid(unsafe_code)]
+
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
@@ -86,6 +88,14 @@ impl StoreView {
         })
     }
 
+    /// A stored hand's table size (`None`: no store, no such hand).
+    pub fn hand_seats(&mut self, hand_key: &str) -> Option<u32> {
+        if !self.ensure_open() {
+            return None;
+        }
+        self.reader.as_ref()?.hand_seats(hand_key).ok().flatten()
+    }
+
     /// Whether the app has committed since the last call (the first call
     /// on an open store says yes).
     pub fn changed(&mut self) -> bool {
@@ -131,6 +141,7 @@ mod tests {
             .expect("totals");
         assert_eq!(totals.len(), 2);
         assert!(totals.iter().all(|t| t.hands() == 0));
+        assert_eq!(view.hand_seats("pokerstars:1"), None);
         assert!(view.changed(), "first look");
         assert!(!view.changed());
 

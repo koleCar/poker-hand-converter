@@ -7,12 +7,26 @@
 //!   the app told why ([`HudMessage::AttachRefused`]). Windows that are gone
 //!   are dropped. Whenever the number attached changes, the app hears it
 //!   ([`HudMessage::TablesOpen`]).
-//! - `hand_imported` re-reads the rollups of the hand's players for every
-//!   attached window of that room (by the store's site) and table name,
-//!   redraws it, and reports the latency ([`HudMessage::TableUpdated`]). A
-//!   hand of a table the HUD is not attached to - a refused room's above
-//!   all - is not read; its players are remembered (the last hand of up to
-//!   256 tables), so a window found a moment later starts from them.
+//!   A window already attached is compared with what the find saw: its
+//!   title (a tournament table move: R3.5's hooks will say so at once,
+//!   the re-find says it within [`Settings::find_every`]), client area,
+//!   scale and minimise.
+//! - **Table identity** (R3.3): a window is (room, table name, seats). A
+//!   `hand_imported` goes to the attached window of that room (by the
+//!   store's site) whose title's table name equals the hand's
+//!   ([`crate::platform::table_key`]: white space aside, exactly - `Table 1`
+//!   is not `Table 11`). Two attached windows with the same name cannot be
+//!   told apart: neither gets the hand, both say so. A window whose title
+//!   gives no seats takes them from the hand (`hands.max_seats`). A hand
+//!   that no window takes makes the HUD look at the windows at once (its
+//!   table may have just been retitled). The hand's players are re-read,
+//!   the window redrawn, and the latency reported
+//!   ([`HudMessage::TableUpdated`]). A hand of a table the HUD is not
+//!   attached to - a refused room's above all - is not read; its players
+//!   are remembered (the last hand of up to 256 tables), so a window found
+//!   a moment later starts from them.
+//! - Until its first hand a window shows [`WAITING`]; the health report
+//!   counts the attached tables still waiting.
 //! - `stats_changed` and `resync` re-read every attached table; so does the
 //!   store's own `data_version` moving without a message (checked every
 //!   [`Settings::store_every`]): the HUD keeps drawing from the store when
@@ -21,6 +35,8 @@
 //!   longer allowed are detached at once.
 //! - `shutdown`, the connection closing or standard input ending (the app is
 //!   gone) end the loop; the overlays are removed.
+
+#![forbid(unsafe_code)]
 
 use std::collections::BTreeMap;
 use std::sync::mpsc::{Receiver, RecvTimeoutError};
@@ -33,7 +49,9 @@ use rail_hud_ipc::protocol::{
 use crate::compliance::Compliance;
 use crate::data::StoreView;
 use crate::latency::{Latencies, micros};
-use crate::platform::{OverlayFrame, Platform, SeatPanel, TableEvent, TableWindow, WindowId};
+use crate::platform::{
+    OverlayFrame, Platform, SeatPanel, TableEvent, TableMatcher, TableWindow, WindowId, table_key,
+};
 
 /// What the loop is fed.
 #[derive(Debug)]
@@ -86,6 +104,9 @@ struct Attached {
     store_site: String,
     /// The players of the table's last hand.
     players: Vec<PlayerRef>,
+    /// The seats the title gives (its `seats` group); `None`: the window's
+    /// `size` comes from its hands.
+    title_seats: Option<u32>,
 }
 
 /// The HUD.
@@ -106,6 +127,9 @@ pub struct Hud {
     /// The last hand announced per (store site, table), for windows that
     /// attach after it (bounded by [`RECENT_TABLES`]).
     recent: BTreeMap<(String, String), (String, Vec<PlayerRef>)>,
+    /// Test-only room entries: the simulator's windows posing as a room
+    /// ([`Hud::add_simulator_room`]), after `sites.json`'s matchers.
+    test_matchers: Vec<TableMatcher>,
 }
 
 impl std::fmt::Debug for Hud {
@@ -140,7 +164,19 @@ impl Hud {
             next_store: now,
             last_find_error: None,
             recent: BTreeMap::new(),
+            test_matchers: Vec::new(),
         }
+    }
+
+    /// A test-only room entry (R3.3; R3.1 / R3.2 notes): the table
+    /// simulator's real windows - its process only, titled as `title`
+    /// (`rail-hud-sim --title-regex`) reads - found by the system's backend
+    /// as tables of `site`. Compliance mode decides on `site` as for a real
+    /// window. The simulator's process is the only one it takes, so it can
+    /// never attach to a real client; nothing of it is in `sites.json`.
+    pub fn add_simulator_room(&mut self, site: &str, title: regex::Regex) {
+        self.test_matchers
+            .push(TableMatcher::simulator(site.to_owned(), title));
     }
 
     /// Run until told to stop; `out` sends to the app (never blocks).
@@ -178,7 +214,19 @@ impl Hud {
             store_open: self.store.is_open(),
             platform: self.platform.name().to_owned(),
             reread: self.latencies.summary(),
+            waiting: u32::try_from(
+                self.attached
+                    .values()
+                    .filter(|a| a.players.is_empty())
+                    .count(),
+            )
+            .unwrap_or(u32::MAX),
         }
+    }
+
+    /// An attached window as the HUD knows it (tests).
+    pub fn window(&self, id: WindowId) -> Option<&TableWindow> {
+        self.attached.get(&id).map(|a| &a.window)
     }
 
     /// The players a window shows (tests).
@@ -211,19 +259,31 @@ impl Hud {
                 hand_key,
                 players,
             } => {
-                let targets: Vec<WindowId> = self
-                    .attached
-                    .iter()
-                    .filter(|(_, a)| {
-                        a.store_site == site && table.is_some() && a.window.table == table
-                    })
-                    .map(|(id, _)| *id)
-                    .collect();
-                for id in targets {
-                    if let Some(attached) = self.attached.get_mut(&id) {
-                        attached.players.clone_from(&players);
+                let table = table.as_deref().map(table_key).filter(|t| !t.is_empty());
+                let targets = table
+                    .as_deref()
+                    .map(|t| self.windows_of(&site, t))
+                    .unwrap_or_default();
+                match targets.as_slice() {
+                    [] => {
+                        // Its window may have just been retitled (a
+                        // tournament move) or opened: look now.
+                        if table.is_some() && !self.attached.is_empty() {
+                            self.next_find = Instant::now();
+                        }
                     }
-                    self.reread(id, Some(&hand_key), at, out);
+                    [id] => {
+                        let id = *id;
+                        if let Some(attached) = self.attached.get_mut(&id) {
+                            attached.players.clone_from(&players);
+                        }
+                        self.fill_seats(id, &hand_key);
+                        self.reread(id, Some(&hand_key), at, out);
+                    }
+                    several => {
+                        let ids = several.to_vec();
+                        self.ambiguous(&ids, table.as_deref().unwrap_or_default());
+                    }
                 }
                 // What this message made us read is seen.
                 self.store.changed();
@@ -301,7 +361,8 @@ impl Hud {
     }
 
     fn find(&mut self, out: &mut dyn FnMut(HudMessage)) {
-        let matchers = self.compliance.matchers();
+        let mut matchers = self.compliance.matchers();
+        matchers.extend(self.test_matchers.iter().cloned());
         let found = match self.platform.find_tables(&matchers) {
             Ok(found) => {
                 self.last_find_error = None;
@@ -317,8 +378,40 @@ impl Hud {
             }
         };
         let seen: Vec<WindowId> = found.iter().map(|w| w.id).collect();
+        let mut changed = Vec::new();
         for window in found {
-            if self.attached.contains_key(&window.id) || self.refused.contains_key(&window.id) {
+            if let Some(attached) = self.attached.get_mut(&window.id) {
+                // What R3.5's hooks will report as it happens, seen here
+                // by looking again.
+                if window.size.is_some() {
+                    attached.title_seats = window.size;
+                    attached.window.size = window.size;
+                }
+                if attached.window.client != window.client
+                    || attached.window.scale_permille != window.scale_permille
+                {
+                    changed.push(TableEvent::Moved {
+                        id: window.id,
+                        client: window.client,
+                        scale_permille: window.scale_permille,
+                    });
+                }
+                if attached.window.minimized != window.minimized {
+                    changed.push(TableEvent::Minimized {
+                        id: window.id,
+                        minimized: window.minimized,
+                    });
+                }
+                if attached.window.title != window.title {
+                    changed.push(TableEvent::Retitled {
+                        id: window.id,
+                        title: window.title,
+                        table: window.table,
+                    });
+                }
+                continue;
+            }
+            if self.refused.contains_key(&window.id) {
                 continue;
             }
             match self.compliance.decide(&window.site) {
@@ -339,7 +432,58 @@ impl Hud {
             self.detach(id);
         }
         self.refused.retain(|id, _| seen.contains(id));
-        self.report_open(out);
+        if changed.is_empty() {
+            self.report_open(out);
+        } else {
+            self.apply(changed, out);
+        }
+    }
+
+    /// The attached windows of `site` (the store's) whose table name is
+    /// `table` (a [`table_key`]).
+    fn windows_of(&self, site: &str, table: &str) -> Vec<WindowId> {
+        self.attached
+            .iter()
+            .filter(|(_, a)| a.store_site == site && a.window.table.as_deref() == Some(table))
+            .map(|(id, _)| *id)
+            .collect()
+    }
+
+    /// Several windows carry one table name: none of them can be given a
+    /// hand of that name (whose would it be?). They say so and wait.
+    fn ambiguous(&mut self, ids: &[WindowId], table: &str) {
+        for id in ids {
+            if let Some(attached) = self.attached.get_mut(id) {
+                attached.players.clear();
+            }
+            self.draw(
+                *id,
+                OverlayFrame {
+                    status: Some(format!(
+                        "{} tables named {table:?}: cannot tell them apart",
+                        ids.len()
+                    )),
+                    panels: Vec::new(),
+                },
+            );
+        }
+    }
+
+    /// A window whose title gives no seats takes the table size of its
+    /// hand (`hands.max_seats`).
+    fn fill_seats(&mut self, id: WindowId, hand_key: &str) {
+        let wanted = self
+            .attached
+            .get(&id)
+            .is_some_and(|a| a.title_seats.is_none());
+        if !wanted {
+            return;
+        }
+        if let Some(seats) = self.store.hand_seats(hand_key)
+            && let Some(attached) = self.attached.get_mut(&id)
+        {
+            attached.window.size = Some(seats);
+        }
     }
 
     fn attach(&mut self, window: TableWindow, out: &mut dyn FnMut(HudMessage)) {
@@ -356,6 +500,7 @@ impl Hud {
         self.attached.insert(
             id,
             Attached {
+                title_seats: window.size,
                 window,
                 store_site,
                 players: Vec::new(),
@@ -368,18 +513,25 @@ impl Hud {
     /// A window attached (or moved to another table) after its table's last
     /// hand was announced starts from that hand's players.
     fn adopt_recent(&mut self, id: WindowId, out: &mut dyn FnMut(HudMessage)) {
-        let Some(attached) = self.attached.get_mut(&id) else {
+        let Some(attached) = self.attached.get(&id) else {
             return;
         };
         let Some(table) = attached.window.table.clone() else {
             return;
         };
-        let Some((hand_key, players)) = self.recent.get(&(attached.store_site.clone(), table))
-        else {
+        let site = attached.store_site.clone();
+        let same_name = self.windows_of(&site, &table);
+        if same_name.len() > 1 {
+            self.ambiguous(&same_name, &table);
+            return;
+        }
+        let Some((hand_key, players)) = self.recent.get(&(site, table)).cloned() else {
             return;
         };
-        attached.players.clone_from(players);
-        let hand_key = hand_key.clone();
+        if let Some(attached) = self.attached.get_mut(&id) {
+            attached.players = players;
+        }
+        self.fill_seats(id, &hand_key);
         self.reread(id, Some(&hand_key), Instant::now(), out);
     }
 
@@ -758,5 +910,203 @@ mod tests {
         assert_eq!(hud.run(&rx, &mut |_| {}), Exit::AppClosed(Some("x".into())));
         drop(tx);
         assert_eq!(hud.run(&rx, &mut |_| {}), Exit::AppGone);
+    }
+
+    fn hand(site: &str, table: &str, player: &str) -> Input {
+        Input::App(
+            AppMessage::HandImported {
+                site: site.into(),
+                table: Some(table.into()),
+                hand_key: format!("{site}:{player}"),
+                players: vec![PlayerRef::named(player)],
+            },
+            Instant::now(),
+        )
+    }
+
+    /// Identity is the whole name (R3.3): `Table 1` is not `Table 11`,
+    /// `Hygiea IV` is not `Hygiea IV 40-100 bb`; white space aside.
+    #[test]
+    fn similar_names_are_different_tables() {
+        let (mut hud, feed) = hud("pokerstars");
+        table(&feed, 1, "Table 1 - x");
+        table(&feed, 2, "Table 11 - x");
+        table(&feed, 3, "Hygiea IV - x");
+        table(&feed, 4, "Hygiea IV 40-100 bb - x");
+        step(&mut hud);
+        assert_eq!(hud.health().waiting, 4);
+        hud.handle(hand("pokerstars", "Table 1", "Ana"), &mut |_| {});
+        hud.handle(hand("pokerstars", " Table  11 ", "Bo"), &mut |_| {});
+        hud.handle(hand("pokerstars", "Hygiea IV 40-100 bb", "Cy"), &mut |_| {});
+        hud.handle(hand("pokerstars", "Hygiea", "Di"), &mut |_| {});
+        assert_eq!(hud.players_of(WindowId(1)), ["Ana"]);
+        assert_eq!(hud.players_of(WindowId(2)), ["Bo"]);
+        assert!(hud.players_of(WindowId(3)).is_empty());
+        assert_eq!(hud.players_of(WindowId(4)), ["Cy"]);
+        assert_eq!(hud.health().waiting, 1, "Hygiea IV has had no hand");
+        // Another room's hand of the same name is not this table's.
+        hud.handle(hand("winamax", "Hygiea IV", "Ed"), &mut |_| {});
+        assert!(hud.players_of(WindowId(3)).is_empty());
+    }
+
+    /// Two windows with one table name cannot be told apart: neither takes
+    /// the hand. Once one closes, the other does.
+    #[test]
+    fn one_name_on_two_windows_is_ambiguous() {
+        let (mut hud, feed) = hud("pokerstars");
+        table(&feed, 1, "Same - x");
+        step(&mut hud);
+        hud.handle(hand("pokerstars", "Same", "Ana"), &mut |_| {});
+        assert_eq!(hud.players_of(WindowId(1)), ["Ana"]);
+        table(&feed, 2, "Same - y");
+        step(&mut hud);
+        assert!(hud.players_of(WindowId(1)).is_empty(), "no longer known");
+        hud.handle(hand("pokerstars", "Same", "Bo"), &mut |_| {});
+        assert!(hud.players_of(WindowId(1)).is_empty());
+        assert!(hud.players_of(WindowId(2)).is_empty());
+        assert_eq!(hud.health().waiting, 2);
+        feed.push_line(r#"{"event":"closed","table":2}"#);
+        step(&mut hud);
+        hud.handle(hand("pokerstars", "Same", "Cy"), &mut |_| {});
+        assert_eq!(hud.players_of(WindowId(1)), ["Cy"]);
+        assert_eq!(hud.health().waiting, 0);
+    }
+
+    /// A backend without events (Windows until R3.5): what it finds is all
+    /// the engine learns.
+    #[derive(Default)]
+    struct Polled(std::rc::Rc<std::cell::RefCell<Vec<TableWindow>>>);
+
+    impl Platform for Polled {
+        fn name(&self) -> &'static str {
+            "polled"
+        }
+        fn find_tables(
+            &mut self,
+            _: &[TableMatcher],
+        ) -> Result<Vec<TableWindow>, crate::platform::PlatformError> {
+            Ok(self.0.borrow().clone())
+        }
+        fn track(&mut self, _: &TableWindow) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn untrack(&mut self, _: WindowId) {}
+        fn poll_events(&mut self) -> Vec<TableEvent> {
+            Vec::new()
+        }
+        fn overlay(
+            &mut self,
+            _: WindowId,
+            _: &OverlayFrame,
+        ) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn remove_overlay(&mut self, _: WindowId) {}
+    }
+
+    fn polled_window(title: &str, table: &str, size: Option<u32>) -> TableWindow {
+        TableWindow {
+            id: WindowId(9),
+            site: "pokerstars".into(),
+            process: crate::platform::ProcessInfo {
+                pid: Some(1),
+                name: "PokerStars.exe".into(),
+            },
+            title: title.into(),
+            table: Some(table.into()),
+            size,
+            client: crate::platform::Rect {
+                x: 0,
+                y: 0,
+                width: 800,
+                height: 550,
+            },
+            scale_permille: 1000,
+            minimized: false,
+        }
+    }
+
+    /// Without hooks, the re-find sees a tournament table move (the title),
+    /// a move or resize, a minimise, and the seats a title gives.
+    #[test]
+    fn the_re_find_follows_a_window() {
+        let windows = std::rc::Rc::new(std::cell::RefCell::new(vec![polled_window(
+            "T 1 - x", "T 1", None,
+        )]));
+        let mut hud = Hud::new(
+            Box::new(Polled(windows.clone())),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(None),
+            Settings::default(),
+        );
+        assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
+        hud.handle(hand("pokerstars", "T 1", "Ana"), &mut |_| {});
+        hud.handle(hand("pokerstars", "T 2", "Bo"), &mut |_| {});
+        assert_eq!(hud.players_of(WindowId(9)), ["Ana"]);
+        assert_eq!(hud.window(WindowId(9)).and_then(|w| w.size), None);
+
+        let mut moved = polled_window("T 2 - x", "T 2", Some(9));
+        moved.client.x = 300;
+        moved.scale_permille = 1500;
+        moved.minimized = true;
+        windows.borrow_mut()[0] = moved;
+        assert!(step(&mut hud).is_empty());
+        let seen = hud.window(WindowId(9)).expect("attached").clone();
+        assert_eq!(seen.table.as_deref(), Some("T 2"));
+        assert_eq!((seen.client.x, seen.scale_permille), (300, 1500));
+        assert!(seen.minimized);
+        assert_eq!(seen.size, Some(9));
+        assert_eq!(hud.players_of(WindowId(9)), ["Bo"], "T 2's last hand");
+
+        windows.borrow_mut().clear();
+        assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 0 }]);
+    }
+
+    /// The test-only room entry adds the simulator's matcher to the find.
+    #[test]
+    fn a_simulator_room_is_offered_to_the_backend() {
+        struct Offered(std::rc::Rc<std::cell::RefCell<Vec<String>>>);
+        impl Platform for Offered {
+            fn name(&self) -> &'static str {
+                "offered"
+            }
+            fn find_tables(
+                &mut self,
+                matchers: &[TableMatcher],
+            ) -> Result<Vec<TableWindow>, crate::platform::PlatformError> {
+                *self.0.borrow_mut() = matchers
+                    .iter()
+                    .map(|m| format!("{} {}", m.site, m.processes.join(",")))
+                    .collect();
+                Ok(Vec::new())
+            }
+            fn track(&mut self, _: &TableWindow) -> Result<(), crate::platform::PlatformError> {
+                Ok(())
+            }
+            fn untrack(&mut self, _: WindowId) {}
+            fn poll_events(&mut self) -> Vec<TableEvent> {
+                Vec::new()
+            }
+            fn overlay(
+                &mut self,
+                _: WindowId,
+                _: &OverlayFrame,
+            ) -> Result<(), crate::platform::PlatformError> {
+                Ok(())
+            }
+            fn remove_overlay(&mut self, _: WindowId) {}
+        }
+        let offered = std::rc::Rc::new(std::cell::RefCell::new(Vec::new()));
+        let mut hud = Hud::new(
+            Box::new(Offered(offered.clone())),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(None),
+            Settings::default(),
+        );
+        step(&mut hud);
+        assert!(offered.borrow().is_empty(), "no room has a tables block");
+        hud.add_simulator_room("acr", regex::Regex::new("^(?P<table>.+)$").expect("regex"));
+        step(&mut hud);
+        assert_eq!(*offered.borrow(), ["acr rail-hud-sim"]);
     }
 }

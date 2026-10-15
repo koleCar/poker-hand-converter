@@ -5902,6 +5902,174 @@ migration 13 for `hud_layouts`. The HUD delay's one 1.6 s outlier in 15
 - `EnumWindows` + `GetWindowText` + owning process; title regex from
   `sites.json` → table name and stakes; match to the table name in the newest
   hands (hand header `Table '…'`).
+- *As built* (§15): **done** - `hud/rail-hud/src/platform/windows.rs`
+  (`find_tables`), `platform/matcher.rs` (matchers, identity, redaction),
+  `list.rs` (the `--list-windows` diagnostic), the engine's identity rules;
+  `docs/research/CAPTURING-TABLES.md` for the owner. No real room has a
+  `tables` block yet, so the HUD still attaches to no real client: every
+  Windows test runs against the table simulator's real windows.
+  - **`find_tables`** = `platform::windows::enumerate()` then
+    `platform::table_of()` per window. `enumerate`: `EnumWindows` (handles
+    collected first, then examined), `IsWindowVisible` (visible top-level
+    only), `GetWindowTextW` (the caption Windows keeps: never waits on a
+    hung client), `GetClassNameW`, `GetWindowThreadProcessId` ->
+    `OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)` ->
+    `QueryFullProcessImageNameW` (file name kept, one lookup per process per
+    walk; a process that cannot be asked has an empty name and matches
+    nothing), `IsIconic`, `DwmGetWindowAttribute(DWMWA_CLOAKED)`,
+    `GetClientRect` + `ClientToScreen`, `GetDpiForWindow`,
+    `MonitorFromWindow` + `GetDpiForMonitor(MDT_EFFECTIVE_DPI)`,
+    `GetWindowDpiAwarenessContext`. **Physical pixels**: the walk switches
+    its thread to per-monitor DPI awareness v2
+    (`SetThreadDpiAwarenessContext`, restored after), and the HUD process
+    sets it for itself at start (`SetProcessDpiAwarenessContext`, before any
+    window; `init_process_dpi_awareness`) - an API call rather than a
+    manifest, so no resource compiler joins the build. **Scale** =
+    the monitor's effective dpi x 1000 / 96, not `GetDpiForWindow`: a client
+    that is not per-monitor aware says 96 for itself while Windows stretches
+    it, and the overlay (R3.4) must draw at the monitor's scale; the
+    window's own dpi and awareness are kept in `RawWindow` and printed by
+    the diagnostic. **Minimised** windows are found with `minimized: true`
+    and an empty client rect; **cloaked** ones (another virtual desktop)
+    are found as hidden too (`minimized: true`) rather than dropped, so a
+    table on another desktop stays attached. A window without a title is
+    never a table (helper windows can claim to be visible). Every match is
+    returned,
+    allowed or not; compliance in the engine refuses (unchanged from R3.2).
+    `track` records the window (R3.5 hooks it), `poll_events` is empty,
+    `overlay` unsupported (R3.4).
+  - **`unsafe`**: the `windows` crate **=0.61.3** (the version Tauri already
+    locks: no new crate in `Cargo.lock`), features `Win32_Foundation`,
+    `Win32_Graphics_Dwm`, `Win32_Graphics_Gdi`, `Win32_System_Threading`,
+    `Win32_UI_HiDpi`, `Win32_UI_WindowsAndMessaging`, a `cfg(windows)`
+    dependency. The crate is now `deny(unsafe_code)` +
+    `forbid(clippy::undocumented_unsafe_blocks)`; every module but
+    `platform/mod.rs` (whose `forbid` would bind its child `windows`) says
+    `forbid(unsafe_code)` itself; in `windows.rs` each Win32 call is in a
+    small function of `mod ffi` (Windows only) with its own
+    `#[allow(unsafe_code)]` and a `// SAFETY:` comment per block; the
+    binary's `main.rs` stays `forbid`. On macOS and Linux the module
+    compiles to a backend that finds nothing.
+  - **Matchers** (`platform::matcher`): `TableMatcher { site, processes,
+    title }` from `sites.json` `tables` (`Compliance::matchers`, unchanged:
+    none yet) plus **test-only room entries**,
+    `TableMatcher::simulator(site, regex)`: the process `rail-hud-sim` and
+    nothing else, so it can never take a real client's window; compliance
+    decides on the posed `site`. Process names compare without case and
+    without `.exe` (`rail-hud-sim` = `rail-hud-sim.exe`). The title's
+    `table` group gives the name, an optional `seats` group (2 - 10) the
+    table size (`sites.schema.json` describes both). The HUD takes a test
+    entry from `rail-hud --standalone --sim-site <id> --sim-title <regex>`
+    with the native backend (`Hud::add_simulator_room`; standalone only,
+    the app never passes it). Nothing is added to `sites.json`.
+  - **Table identity** (`engine`): a window is (room, table name, seats).
+    The name is `table_key` of the title's group (trimmed, runs of white
+    space one space; case kept); a `hand_imported` goes to the attached
+    window of the same store site whose key **equals** the hand's - never a
+    prefix or substring (`Table 1` / `Table 11`, `Hygiea IV` / `Hygiea IV
+    40-100 bb` are tested). **Two attached windows with one name** (a
+    fast-fold pool, a room that reuses names) cannot be told apart: neither
+    gets the hand, both show "2 tables named ...: cannot tell them apart",
+    and when one closes the other takes the next hand. **Seats** from the
+    title's `seats` group, else from the table's last hand (new
+    `Reader::hand_seats`: `hands.max_seats` by key). **Tournaments**: a
+    table move changes the title; R3.5's `Retitled` will say so at once,
+    and meanwhile the engine's re-find (every 500 ms) compares each
+    attached window with what it found - title (a new table: players
+    forgotten, "waiting for first hand", the new table's last hand adopted
+    if known), client rect and scale, minimise, seats - and a hand that no
+    window takes makes the HUD look again at once ("re-find on demand": the
+    first hand at the new table may come before the retitle is seen).
+    **"Waiting for first hand" HUD-wide**: `health` gains `waiting`
+    (attached tables without a hand yet, or ambiguous; `#[serde(default)]`,
+    so an older HUD reads as 0), shown by the app's `hud_status` as
+    `tablesWaiting`.
+  - **The diagnostic** `rail-hud --list-windows [--process <exe>]...
+    [--you <name>]... [--store <rail.db> | --no-store] [--try-title
+    <regex>]`: every visible top-level window with a title - process,
+    class, title, client size and position in physical pixels, minimised /
+    cloaked, monitor and window dpi and DPI awareness, the title's
+    non-ASCII and control characters with their offsets, the room whose
+    matcher takes it (with compliance's answer), and what a candidate regex
+    reads. **Redaction** (`matcher::Redactor`): everything after "logged in
+    as" (any case and spacing) and every screen name of the user - `--you`,
+    plus the store's hero names (new `Reader::hero_names`), from the app's
+    store at `%LOCALAPPDATA%\app.rail.desktop\rail.db` by default -
+    replaced by `<you>`, case-insensitively, anywhere; names under two
+    characters are not used; the output says how many names were used and
+    never prints them, and tells the reader to check before sharing.
+    Windows only (exit 2 elsewhere).
+  - **`sites.json`**: `tables` gains `checkedAt` (null everywhere); the
+    validator and the schema refuse `tables.verified: true` without
+    `checkedAt`, a source starting `Observed on ` and a title regex (three
+    new cases in `validator_problems`, two in the ajv test). The owner's
+    procedure (which clients, which table kinds - cash 6-max / 9-max / HU,
+    fast-fold, tournament with a table move, Spin -, the hands' `Table '…'`
+    name per table, what to paste back, and how it becomes a `tables` block
+    with `verified`, `checkedAt` and an "Observed on a Windows install,
+    <date>: <client version> ..." source) is
+    `docs/research/CAPTURING-TABLES.md`, linked from `VERIFYING-PATHS.md`.
+  - **Simulator**: its `window` event gains `clientX` / `clientY` (the
+    client area's origin, winit's `inner_position`; `x` / `y` stay the
+    frame's), which the sim backend now uses for the client rect and the
+    Windows test compares with. Fixed: a cash table's `tablemove` released
+    its name before drawing a new one and could draw the same name again
+    (the Windows test's second run waited for a rename that never came);
+    the old name now stays taken during the draw, and the simulator's
+    unit test asserts a move changes the name.
+  - **Tests**: `platform::matcher` (process and title, `.exe`, seats,
+    the simulator entry, whole-name identity, redaction), `platform`
+    (raw windows to tables, minimised / cloaked / DPI-unaware scale),
+    `list` (arguments; the listing never contains a redacted name; a
+    matched window names its room and policy), `engine` (similar names,
+    one name on two windows, the re-find following a retitle / move /
+    minimise / seats on a backend without events, the simulator room
+    offered to the backend), `lib` (`--sim-title` rules), rail-store
+    (`hand_seats`, `hero_names`), rail-config (verified tables), ajv,
+    protocol (`waiting`, an older report). **Windows CI**
+    (`hud/rail-hud/tests/windows_tables.rs`, `cfg(windows)`, in the `core`
+    job's `cargo test` on `windows-latest`): `rail-hud-sim --tables 3
+    --window 640x480`; `find_tables` with the simulator's entry finds
+    exactly those three (the process's pid), with the hands' table names,
+    client rects equal to the simulator's own `window` events and sizes
+    640 x 480 times the monitor's scale; a catch-all title pattern on the
+    simulator's process still finds three (visible, titled top-level
+    windows only: the first CI run found a fourth, winit's untitled
+    "Winit Thread Event Target", which Windows reports as visible -
+    `table_of` now never offers an untitled window to a matcher); a
+    minimised table is found and marked; `tablemove` retitles the same
+    window; `--list-windows` lists the three with "Logged In as <you>" and
+    no hero name; `rail-hud --standalone --sim-site pokerstars` attaches to
+    the three and `--sim-site ggpoker` refuses them. A failure prints what
+    was found, everything the simulator said and every window Windows
+    reported. On macOS and Linux the file is empty. Cross-checked locally
+    with `cargo clippy --target x86_64-pc-windows-msvc -p rail-hud` (a
+    stand-in C compiler for SQLite / zstd, whose objects `check` never
+    links).
+  - **Limits.** No real client's title is known: until the owner's capture
+    every room's matcher is absent and nothing real is found. A tournament
+    title that does not carry the hands' table name gives a window with no
+    table (attached, waiting); the capture will say whether a room needs
+    more than the `table` group. Process names only, no window class (the
+    capture records classes in case a room needs one). Not run on a real
+    high-dpi or multi-monitor Windows machine (CI is one 96 dpi monitor):
+    the scale is checked by construction and against the simulator only.
+  - **For R3.4** (overlay): `WindowId` is the `HWND` value; the client rect
+    is physical screen pixels and `scale_permille` the monitor's; the
+    process is already per-monitor v2 aware (create the overlay windows
+    after `init_process_dpi_awareness`); `RawWindow.awareness` /
+    `window_dpi` say whether the client is stretched by Windows. Minimised
+    and cloaked windows arrive with `minimized: true` - hide the overlay.
+    `overlay()` is the one call still unsupported on Windows; the engine
+    logs each refusal (with `--sim-site` that is one line per redraw).
+  - **For R3.5** (tracking): `track` / `untrack` keep the set of followed
+    `HWND`s; hook them (`SetWinEventHook`, out of context, on the owning
+    pid from `TableWindow.process.pid`) and queue `TableEvent`s. The
+    engine's re-find already turns a changed title, rect, scale or
+    minimise into the same events every 500 ms, so the hooks only make it
+    immediate; `Retitled.table` must be the matcher's `table_key` (use
+    `TableMatcher::matches`). `scripts/tracking.txt` and the Windows test's
+    `minimize` / `tablemove` steps are the ground truth to extend.
 
 ### R3.4 Windows: overlay — L
 - One window per table: `WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE`,
@@ -6147,3 +6315,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-14 | **Fix: a folder's path change raced its reads** (R1.5 "Edit path", R1.6 / "Import writer, second pass"). `a_folder_path_changes_and_continues_where_it_stopped` failed on macOS CI (PR #188) with `(moved, detached, marked) = (0, 2, 1)`, expected `(0, 1, 1)`: at the second change the folder had **two** file rows - the new path's at 13 037 bytes and `old/table.txt` again at 6 601, the whole file. Cause, a product bug (the "known gap" R1.5 documented, worse than described): `Watcher::set_source_path` moved the rows in the store while the coordinator still had the old path until its reload, so a read of the old path dispatched around the move (the 1 s re-walk after the watch is set, a late FSEvents notification or a recheck) looked the file up after its row had moved, found none, read it whole from 0 and committed a new row under the folder; its answer came after the reload had dropped the old files, so no `Imported` event showed it. Hands deduped, but the folder counted a file too many, the file was read twice, and the next change detached it. Fix (`rail-watch`, no store or parsing change): `set_source_path` and `set_source_site_override` first **fence** the folder - a `Fence` command makes the coordinator dispatch none of its files (they stay queued) and answer once none is in flight (`in_flight` now keeps each read's folder; a read is in flight until its commit is answered, so nothing of it is left with the writer) - then change the store, mark, reload, and the dropped guard sends `Unfence` after the `Reload`. The offsets the move compares are final, and the override's reset can no longer meet a batch read with the old room. A deterministic unit test drives the coordinator by hand (`a_fenced_folder_starts_no_read_and_is_answered_after_its_reads`: nothing of the folder dispatched while fenced, the fence answered only after the read in flight answers, other folders read on, two fences need two `Unfence`); the watcher tests take `RAIL_WATCH_THREADS`. Stress, the path-change test 100 times each with 20 copies running at once on a 10-core Mac: before 5 / 7 / 1 failures with 1 / 2 / 8 import threads (all `(0, 2, 1)`), after 0 / 0 / 0; 50 runs one at a time and the room-override test 60 times under the same load: 0 failures. |
 | 2026-10-15 | **R3.2 done**: the HUD process and IPC. `hud/rail-hud` is its own process, the app's Tauri sidecar (`bundle.externalBin` in `app/src-tauri/tauri.hud.conf.json`, `npm run hud:sidecar`; CI's `app` job bundles it and checks it is in the `.app` and the NSIS installer), started with `std::process::Command` from beside the app's executable and supervised by `rail_hud_ipc::supervisor`: a fresh 256-bit token per process on its standard input, `health` every 2 s, no answer for 10 s / exit / disconnect -> killed and restarted with a backoff 0.5 s -> 30 s, `shutdown` + stdin closed on exit (it also exits when the app is gone). New crate `hud/rail-hud-ipc`: protocol 1 (the plan's messages plus `stats_changed`, `policy`, `resync`, `shutdown`, `tables_open`, `attach_refused`, `table_updated`; unknown types and fields tolerated), 4-byte length + JSON frames (1 MiB, 1 KiB before authentication), a Unix socket in a `0700` folder (`0600`) or a named pipe with an owner-and-SYSTEM DACL (`interprocess` =2.4.5), a mutual HMAC-SHA256 handshake, links whose sends never block. The app: imports feed `hand_imported` from a thread of its own (new `Reader::newest_hands_of_file`), recompute swaps `stats_changed`, `tables_open` pauses the stats pass and slows sync. The HUD: the store read-only (new `Reader::data_version` keeps it current without messages), compliance mode in the process (shipped + remote merge, `hud_permitted()`, refusals reported once, a stricter policy detaching), the platform trait (`find_tables`, `track`, `poll_events`, `overlay`) with Windows / macOS stubs and a fake backend driven by `rail-hud-sim`'s events. Headless end to end in CI: hand in file -> HUD re-read p50 515 ms (12 tables 513; the watcher's quiet period), inside the HUD 0.24-0.28 ms; a prohibited and an unknown room refused with nothing read. |
 | 2026-10-15 | **Fix: the other folder settings raced their reads too** (follow-up to the 2026-10-14 path-change fix; R1.5, R1.6). Each method that changes a folder was checked for a read in flight going wrong across it. **Fenced now** (`Watcher::change_fenced`: fence, store change, reload, unfence): `remove_source` - a batch after the delete named the gone folder (`FOREIGN KEY constraint failed`, a `FileError`, the read lost) or, since SQLite gives the next folder the removed one's id when it was the highest, joined a folder added right after with the old folder's file and hands; `set_source_enabled(false)` - the folder's reads committed after it showed disabled (a large read to the end of its file); `set_source_recursive(false)` - a subfolder file being read was read on; `add_source_with` with a room for a folder already there - files outside the room's glob were read on. **Held**: a folder being added with a room or "only new" is in the store before its room and marks, and a reload already on its way (the one `start` sends, another folder's) could load and read it in between - seen once in the stress below as 9 old hands in `only_new_hands_and_a_rooms_files`; `HoldNew` / `ReleaseNew` fence every folder a reload loads for the first time until the reload after the setup. **Not fenced** (comments in the code): `set_source_poll_only` (only how changes are noticed; tracked files and backfill kept), enabling and subfolders on (every read in flight is of a file still covered, read as before), `retry_refused` (a batch from the old offset is refused and read again from 0; `FileRt::reset`). A fence also stops a large read of its folder after the group it is committing (`ImportLimits::stop_folder`, checked between groups like the pause), so a click waits for one group, not a whole file - path and room changes included. Tests: deterministic coordinator tests per change (`a_removed_folder_is_fenced_until_its_reads_answer`, `a_disabled_folder_is_fenced_until_its_reads_answer`, `subfolders_switched_off_are_fenced_until_their_reads_answer`, `a_room_given_to_a_folder_is_fenced_until_its_reads_answer`, `a_folder_being_added_is_held_until_it_is_set_up`; the old fence test checks the stop), `large_read.rs::a_stopped_folder_stops_its_large_read_between_batches`, and four watcher tests that change a folder in the middle of a 4 MB backfill and assert nothing more is stored once the call returns (`fill` moved to `tests/common`). Stress on the 10-core Mac with the flop library running (6 solves), 100 runs, 20 at once, of those four plus the four existing affected tests (disable/remove, recursive, poll-only, only-new): before, 100 / 100 / 100 runs failed with 1 / 2 / 8 import threads (disable 89 / 94 / 96, remove 73 / 77 / 87, subfolders 91 / 92 / 97, room 93 / 91 / 94; the existing tests 0 / 1 / 0); after, 0 / 0 / 0; the path-change and room-override tests 100 runs each at 1 / 2 / 8 threads: 0 / 0 / 0. No store or parsing change. |
+| 2026-10-15 | **R3.3 done**: Windows finds tables. `platform::windows::find_tables`: `EnumWindows` over visible top-level windows, `GetWindowTextW`, class, the owning process (`GetWindowThreadProcessId` -> `QueryFullProcessImageNameW`), minimised and cloaked (`DWMWA_CLOAKED`) kept and marked hidden, the client rect in physical pixels (`GetClientRect` + `ClientToScreen` on a per-monitor-v2 thread; the HUD process sets per-monitor v2 at start), the scale from the monitor's effective dpi (a DPI-unaware client's own `GetDpiForWindow` is 96; both kept for the diagnostic). `windows` =0.61.3 (already locked by Tauri), six API features; the crate is `deny(unsafe_code)` with `forbid` in every other module and each Win32 call wrapped with its own `allow` and `// SAFETY:` comment. Matchers from `sites.json` `tables` (none yet) plus test-only simulator entries (process `rail-hud-sim` only; `rail-hud --standalone --sim-site <id> --sim-title <regex>`); every match returned, compliance refuses. Identity: (room, table name, seats) - the title's `table` group equal to the hand's `Table '...'` name after white-space normalisation, never a prefix; two windows with one name get no hand and say why; seats from a `seats` group or the last hand (`Reader::hand_seats`); the re-find every 500 ms follows retitles (tournament moves), moves, minimise until R3.5's hooks, and an unmatched hand triggers one at once; `health.waiting` counts tables waiting for their first hand. `rail-hud --list-windows` prints each visible window's process, class, redacted title ("Logged in as ..." and the user's names - `--you`, the store's hero names - become `<you>`), client size, dpi and awareness, non-ASCII characters, the room that takes it, and what `--try-title` reads; the owner's capture procedure is `docs/research/CAPTURING-TABLES.md`. `sites.json` `tables` gains `checkedAt`; `verified: true` needs it, an "Observed on" source and a regex. The simulator's `window` event gains `clientX` / `clientY`. Windows CI test (`hud/rail-hud/tests/windows_tables.rs`): three simulator windows found exactly, names, rects and scale checked against the simulator, minimise and table move followed, `--list-windows` redacted, the HUD attaching (PokerStars) and refusing (GGPoker). No real room has a `tables` block yet: nothing real is attached. |

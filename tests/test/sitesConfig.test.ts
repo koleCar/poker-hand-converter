@@ -96,6 +96,25 @@ describe("config/sites.json", () => {
     ["a parsed site without anonymisation", (d) => (site(d, "winamax").anonymisation = null)],
     ["an unknown anonymisation", (d) => (site(d, "ggpoker").anonymisation = "hashed")],
     ["a seat layout for 11 seats", (d) => (site(d, "winamax").tables.seatLayouts = { "11": "x" })],
+    [
+      "verified table titles without a date",
+      (d) =>
+        Object.assign(site(d, "winamax").tables, {
+          verified: true,
+          title: "^(?<table>.+?) - ",
+          source: "Observed on a Windows install, 2026-10-20: Winamax 7",
+        }),
+    ],
+    [
+      "verified table titles without an observation",
+      (d) =>
+        Object.assign(site(d, "winamax").tables, {
+          verified: true,
+          title: "^(?<table>.+?) - ",
+          checkedAt: "2026-10-20",
+          source: "docs/research/hh-formats/winamax.md",
+        }),
+    ],
     ["another version", (d) => (d.version = 2)],
     ["an id with capitals", (d) => (site(d, "winamax").id = "Winamax")],
   ];
@@ -118,6 +137,9 @@ describe("config/sites.json", () => {
       process: { windows: ["Winamax.exe"], macos: null },
       title: "^(?<table>.+?) / ",
       seatLayouts: { "6": "winamax-6max" },
+      verified: true,
+      checkedAt: "2026-10-20",
+      source: "Observed on a Windows install, 2026-10-20: Winamax 7",
     });
     expect(validate(doc)).toBe(true);
   });

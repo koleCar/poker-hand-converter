@@ -7,6 +7,8 @@
 //! a room's policy stricter, never looser; one that does not validate is
 //! refused whole and the shipped copy stays). There is no override.
 
+#![forbid(unsafe_code)]
+
 use rail_config::{Config, MergeNote, Site};
 use rail_hud_ipc::protocol::RefusalReason;
 use regex::Regex;

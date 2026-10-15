@@ -155,6 +155,11 @@ pub struct HealthReport {
     pub platform: String,
     /// `hand_imported` -> rollups re-read, over the last re-reads.
     pub reread: LatencySummary,
+    /// Attached tables still "waiting for first hand" (R3.3): no hand of
+    /// their table yet, or their name shared with another window. Absent
+    /// from an older HUD: 0.
+    #[serde(default)]
+    pub waiting: u32,
 }
 
 /// Latencies in microseconds.
@@ -230,6 +235,7 @@ mod tests {
                         p95_us: 900,
                         max_us: 1000,
                     },
+                    waiting: 1,
                 },
             },
             HudMessage::TablesOpen { count: 12 },
@@ -304,5 +310,12 @@ mod tests {
         assert_eq!(extra, AppMessage::LayoutChanged);
         let no_scope: PlayerRef = serde_json::from_str(r#"{"name":"P"}"#).expect("no scope");
         assert_eq!(no_scope, PlayerRef::named("P"));
+        // A HUD from before R3.3 sends no `waiting`.
+        let older: HealthReport = serde_json::from_str(
+            r#"{"uptimeMs":1,"attached":2,"refused":0,"storeOpen":true,"platform":"sim",
+                "reread":{"count":0,"p50Us":0,"p95Us":0,"maxUs":0}}"#,
+        )
+        .expect("an older report");
+        assert_eq!((older.attached, older.waiting), (2, 0));
     }
 }
