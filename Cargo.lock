@@ -3707,6 +3707,8 @@ dependencies = [
  "rail-config",
  "rail-core",
  "rail-hud-ipc",
+ "rail-hud-sim",
+ "rail-stats",
  "rail-store",
  "rail-watch",
  "regex",

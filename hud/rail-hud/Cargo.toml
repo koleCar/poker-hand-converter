@@ -27,6 +27,9 @@ rail-config = { path = "../../core/rail-config" }
 rail-core = { path = "../../core/rail-core" }
 # The read path: the store opened read-only, `Reader::hud_totals`.
 rail-store = { path = "../../core/rail-store" }
+# The panel's statistics (R3.4): the shipped definitions whose `hud` is
+# `panel`, their bands and R2.5's reliability, over `Totals::sums()`.
+rail-stats = { path = "../../core/rail-stats" }
 rail-hud-ipc = { path = "../rail-hud-ipc" }
 regex = "1.13.1"
 serde = { version = "1.0.229", features = ["derive"] }
@@ -34,12 +37,19 @@ serde_json = "1.0.154"
 
 # Windows (R3.3 - R3.5): the Win32 calls, behind `platform::windows`'s
 # small `unsafe` wrappers. The version the app's Tauri already locks (one
-# copy in the build); only the API families used.
+# copy in the build); only the API families used. R3.4's overlays draw
+# with Direct2D and DirectWrite into a DIB that `UpdateLayeredWindow`
+# shows (features only: no new crate in Cargo.lock).
 [target.'cfg(windows)'.dependencies]
 windows = { version = "=0.61.3", features = [
   "Win32_Foundation",
+  "Win32_Graphics_Direct2D",
+  "Win32_Graphics_Direct2D_Common",
+  "Win32_Graphics_DirectWrite",
   "Win32_Graphics_Dwm",
+  "Win32_Graphics_Dxgi_Common",
   "Win32_Graphics_Gdi",
+  "Win32_System_LibraryLoader",
   "Win32_System_Threading",
   "Win32_UI_HiDpi",
   "Win32_UI_WindowsAndMessaging",
@@ -49,3 +59,6 @@ windows = { version = "=0.61.3", features = [
 # The end-to-end test (tests/e2e.rs): the simulator's hands through the
 # watcher into a store, the app's side of the channel, this process.
 rail-watch = { path = "../../core/rail-watch" }
+# The default layout is the simulator's table geometry (R3.4): a test holds
+# `layout::seat_center` to `rail_hud_sim::draw::seat_center`.
+rail-hud-sim = { path = "../rail-hud-sim" }

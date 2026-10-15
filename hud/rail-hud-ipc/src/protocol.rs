@@ -18,6 +18,13 @@ pub struct PlayerRef {
     pub name: String,
     #[serde(default)]
     pub scope: String,
+    /// The hand's seat number (R3.4): where the HUD draws the player's
+    /// panel. Absent from an older app (the panel is then not placed).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub seat: Option<u32>,
+    /// The user's own seat (R3.6 rotates the layout around it).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub hero: bool,
 }
 
 impl PlayerRef {
@@ -25,7 +32,16 @@ impl PlayerRef {
         Self {
             name: name.into(),
             scope: String::new(),
+            seat: None,
+            hero: false,
         }
+    }
+
+    /// A player at a seat.
+    #[must_use]
+    pub fn at(mut self, seat: u32) -> Self {
+        self.seat = Some(seat);
+        self
     }
 }
 
@@ -193,10 +209,15 @@ mod tests {
                 table: Some("Hygiea IV 40-100 bb".into()),
                 hand_key: "pokerstars:123".into(),
                 players: vec![
-                    PlayerRef::named("SimHero"),
+                    PlayerRef {
+                        hero: true,
+                        ..PlayerRef::named("SimHero").at(1)
+                    },
                     PlayerRef {
                         name: "a1b2".into(),
                         scope: "Table 9@2026-10-15".into(),
+                        seat: Some(9),
+                        hero: false,
                     },
                 ],
             },
@@ -273,12 +294,18 @@ mod tests {
             site: "acr".into(),
             table: Some("Miramar (Cap)".into()),
             hand_key: "acr:9".into(),
-            players: vec![PlayerRef::named("P")],
+            players: vec![
+                PlayerRef::named("P"),
+                PlayerRef {
+                    hero: true,
+                    ..PlayerRef::named("H").at(3)
+                },
+            ],
         })
         .expect("json");
         assert_eq!(
             text,
-            r#"{"type":"hand_imported","site":"acr","table":"Miramar (Cap)","handKey":"acr:9","players":[{"name":"P","scope":""}]}"#
+            r#"{"type":"hand_imported","site":"acr","table":"Miramar (Cap)","handKey":"acr:9","players":[{"name":"P","scope":""},{"name":"H","scope":"","seat":3,"hero":true}]}"#
         );
         assert_eq!(
             serde_json::to_string(&HudMessage::TablesOpen { count: 2 }).expect("json"),
@@ -310,6 +337,10 @@ mod tests {
         assert_eq!(extra, AppMessage::LayoutChanged);
         let no_scope: PlayerRef = serde_json::from_str(r#"{"name":"P"}"#).expect("no scope");
         assert_eq!(no_scope, PlayerRef::named("P"));
+        // An app from before R3.4 sends no seat: the panel is not placed.
+        let no_seat: PlayerRef =
+            serde_json::from_str(r#"{"name":"P","scope":"s"}"#).expect("no seat");
+        assert_eq!((no_seat.seat, no_seat.hero), (None, false));
         // A HUD from before R3.3 sends no `waiting`.
         let older: HealthReport = serde_json::from_str(
             r#"{"uptimeMs":1,"attached":2,"refused":0,"storeOpen":true,"platform":"sim",

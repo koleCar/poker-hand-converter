@@ -52,6 +52,19 @@
         "allowed": true,
         "source": "https://www.pokerstars.uk/poker/room/prohibited/",
         "checkedAt": "2026-10-14",
+        "restrictions": {
+          "ownHandsOnly": true,
+          "rawCountsOnly": true,
+          "maxColourThresholds": 2,
+          "noCardSplitStats": true,
+          "noGameStateSwitching": true,
+          "noTendencySwitching": true,
+          "noPlayerLabels": true,
+          "noHandCharts": true,
+          "noGraphs": true,
+          "noHandInPlay": false,
+          "noOverlapTableGraphics": false
+        },
         "notes": "Permitted with restrictions: the Third Party Tools and Services Policy permits tools that \"monitor and display numerical-based statistics in-game\" from your own play. Its Reference Guide (last updated 21 Sep 2026, linked from the page) adds: stats only from hands the user played (up to 30 observed hands per session to seed a HUD), raw counts / opportunities, colour by at most two raw thresholds, pop-ups allowed; no stats split by card values, no display that changes with game state (position, stacks) or opponent tendencies, no labels or categories, no hand charts, no graph of more than one data point. Read on pokerstars.uk: pokerstars.com is blocked from Croatia. docs/research/HUD-POLICIES.md."
       },
       "anonymisation": "none",
@@ -97,6 +110,7 @@
         "allowed": false,
         "source": "https://ggpoker.com/network/security-ecology-policy/",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Prohibited: the Security & Ecology Policy (version 20260313) lists \"solvers, charts, or HUDs\" among prohibited tools; only GG's own Smart HUD / PokerCraft. Also no live files and hashed opponents. Its section 7.2 also bars 3rd-party tools that import or convert hand histories - an import question for the owner (docs/research/HUD-POLICIES.md)."
       },
       "anonymisation": "opaque-id",
@@ -142,6 +156,19 @@
         "allowed": true,
         "source": "https://www.winamax.fr/cgu-poker",
         "checkedAt": "2026-10-14",
+        "restrictions": {
+          "ownHandsOnly": true,
+          "rawCountsOnly": false,
+          "maxColourThresholds": null,
+          "noCardSplitStats": false,
+          "noGameStateSwitching": true,
+          "noTendencySwitching": true,
+          "noPlayerLabels": false,
+          "noHandCharts": false,
+          "noGraphs": false,
+          "noHandInPlay": false,
+          "noOverlapTableGraphics": false
+        },
         "notes": "Permitted: the poker rules (section 1.2, PDF of 10 Oct 2023 linked from the page) list as authorised software that stores your own statistics and analyses opponent data you collected yourself (\"profiling\"; \"Exemples : HoldemManager, PokerTracker, Xeester\"). Prohibited: solvers, ICM and equity calculators, dynamic ranges, seating scripts, some dynamic Hand2Note features, data mining / sharing. A tool not on the list needs integrity@winamax.com's prior approval - Rail fits the profiling category, but asking is the safe step. winamax.fr only; .es not read."
       },
       "anonymisation": "none",
@@ -187,6 +214,7 @@
         "allowed": null,
         "source": "https://www.888.ca/security-and-privacy/user-agreement/",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Not established. 888poker.com is blocked from Croatia; the Ontario user agreement (5 Aug 2026) permits tracking software showing in-game stats on information you have \"at that specific table\", which may mean the current session only; secondary sources say third-party HUDs are allowed except on SNAP. Live files and the current client not checked."
       },
       "anonymisation": "none",
@@ -232,6 +260,7 @@
         "allowed": false,
         "source": "https://www.partypoker.com/en/poker/p/safer-poker",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Prohibited: \"the only third-party tools that are permitted\" while the client runs are ten table/caption tools, no HUD among them; Super HUD is named as prohibited. Hand histories come afterwards from MyGame, opponents anonymised, so no live files either."
       },
       "anonymisation": "none",
@@ -277,6 +306,7 @@
         "allowed": null,
         "source": null,
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Network: per skin. No skin's own policy page could be read (betfair, bet365, Betsson, William Hill: blocked from Croatia or silent on HUDs); secondary sources say iPoker permits third-party HUDs beside its built-in one. Not split: no skin clearly allows one on an official page."
       },
       "anonymisation": "none",
@@ -322,6 +352,19 @@
         "allowed": true,
         "source": "https://www.acrpoker.eu/security/",
         "checkedAt": "2026-10-14",
+        "restrictions": {
+          "ownHandsOnly": true,
+          "rawCountsOnly": false,
+          "maxColourThresholds": null,
+          "noCardSplitStats": false,
+          "noGameStateSwitching": false,
+          "noTendencySwitching": false,
+          "noPlayerLabels": true,
+          "noHandCharts": false,
+          "noGraphs": false,
+          "noHandInPlay": true,
+          "noOverlapTableGraphics": true
+        },
         "notes": "Permitted with restrictions: policy 4.1.3 accepts \"Hand trackers and Heads Up Display (HUD) type tools\" with numeric stats from your own hands only and no information from the current hand in play. Prohibited: player labelling, data-mined hands, real-time advice, and (4.2.11) tools that change or overlap ACR's own table graphics - HUD panels must not cover them. WPN's other skins not checked."
       },
       "anonymisation": "none",
@@ -367,6 +410,7 @@
         "allowed": false,
         "source": "https://coinpoker.com/third-party-tools/",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Prohibited since 9 Jun 2026: HUDs and statistical overlays (PokerTracker, Hold'em Manager, Hand2Note, DriveHUD) are banned, only CoinPoker's built-in HUD. The page refuses scripted fetches (403); read through a search engine's copy (policy dated 25 Jun 2026). Also no local hand histories (R1.4)."
       },
       "anonymisation": "none",
@@ -412,6 +456,7 @@
         "allowed": false,
         "source": "https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Prohibited: \"No 3rd party software is allowed at Unibet Poker\"; the poker rules (v3.0, 14 Oct 2024) name hand trackers and HUDs as prohibited programs it detects."
       },
       "anonymisation": "none",
@@ -464,6 +509,7 @@
         "allowed": null,
         "source": null,
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Network: per skin. BetOnline, SportsBetting and TigerGaming refuse scripted fetches (403); a search engine's copy of BetOnline's help centre says own-play trackers are permitted, an older rules page lists them as banned while playing. Not split: no skin's page could be read."
       },
       "anonymisation": "none",
@@ -513,6 +559,7 @@
         "allowed": false,
         "source": "https://www.ignitioncasino.eu/poker/incognito-poker",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Anonymous names: \"User IDs are hidden. Instead, a number is assigned to each player.\" A HUD has nothing to attach statistics to, and hand histories are downloaded afterwards."
       },
       "anonymisation": "positional",
@@ -565,6 +612,7 @@
         "allowed": null,
         "source": null,
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Not established: no official terms or third-party-software page found on the web; the rules are in the app. The client writes live files (R1.4) and names are persistent in the corpus."
       },
       "anonymisation": "none",
@@ -610,6 +658,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/pokerbros.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "No desktop client and no live files (mobile-only app with an in-app viewer): nothing for a desktop HUD to attach to. The room's own policy was not looked up."
       },
       "anonymisation": "none",
@@ -655,6 +704,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed: the network shut down in 2016. Import only."
       },
       "anonymisation": "none",
@@ -700,6 +750,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/full-tilt.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed: no live site exists. Import only."
       },
       "anonymisation": "none",
@@ -745,6 +796,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed: shut down through the mid-2010s. Import only."
       },
       "anonymisation": "none",
@@ -790,6 +842,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed: wound down around 2014-15. Import only."
       },
       "anonymisation": "none",
@@ -835,6 +888,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/run-it-once.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed in 2022. Import only."
       },
       "anonymisation": "none",
@@ -880,6 +934,7 @@
         "allowed": false,
         "source": null,
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Not a room: Rail's own text format, no client to attach to."
       },
       "anonymisation": "none",
@@ -924,6 +979,7 @@
         "allowed": false,
         "source": "https://wptglobal.com/terms-and-conditions",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Prohibited: the terms' Annex A lists \"Using or attempting to use HUDS\" as a prohibited activity. Also writes no hand-history files (no export since June 2026)."
       },
       "anonymisation": null,
@@ -970,6 +1026,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed: folded into Microgaming's platform. No parser."
       },
       "anonymisation": null,
@@ -1016,6 +1073,7 @@
         "allowed": false,
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-10-14",
+        "restrictions": null,
         "notes": "Closed: the network shut down in 2017. No parser."
       },
       "anonymisation": null,

@@ -232,19 +232,49 @@
       "description": "The room's HUD policy. allowed: true only after R3.0's dated, sourced check; false prohibited; null unknown, which the HUD treats as prohibited (guideline section 7).",
       "type": "object",
       "additionalProperties": false,
-      "required": ["allowed", "source", "checkedAt", "notes"],
+      "required": ["allowed", "source", "checkedAt", "restrictions", "notes"],
       "properties": {
         "allowed": { "type": ["boolean", "null"] },
         "source": { "type": ["string", "null"] },
         "checkedAt": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "restrictions": {
+          "oneOf": [{ "$ref": "#/$defs/hudRestrictions" }, { "type": "null" }]
+        },
         "notes": { "type": "string" }
       },
       "if": { "properties": { "allowed": { "const": true } } },
       "then": {
         "properties": {
           "source": { "type": "string", "pattern": "^https://" },
-          "checkedAt": { "$ref": "#/$defs/date" }
+          "checkedAt": { "$ref": "#/$defs/date" },
+          "restrictions": { "$ref": "#/$defs/hudRestrictions" }
         }
+      }
+    },
+    "hudRestrictions": {
+      "description": "What a permitted room's policy forbids the HUD to show or do (R3.4; docs/research/HUD-POLICIES.md). Each field restricts when true (or a number); the HUD's renderer enforces them, and a downloaded file can only add restrictions.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownHandsOnly", "rawCountsOnly", "maxColourThresholds", "noCardSplitStats",
+        "noGameStateSwitching", "noTendencySwitching", "noPlayerLabels", "noHandCharts",
+        "noGraphs", "noHandInPlay", "noOverlapTableGraphics"
+      ],
+      "properties": {
+        "ownHandsOnly": { "description": "Statistics only from hands the user played.", "type": "boolean" },
+        "rawCountsOnly": { "description": "Raw counts over opportunities, nothing adjusted by population tendencies.", "type": "boolean" },
+        "maxColourThresholds": {
+          "description": "At most this many fixed colour thresholds per statistic; null: the statistic's own bands.",
+          "oneOf": [{ "type": "integer", "minimum": 0, "maximum": 10 }, { "type": "null" }]
+        },
+        "noCardSplitStats": { "description": "No statistic split by card values.", "type": "boolean" },
+        "noGameStateSwitching": { "description": "The display does not switch with position, stacks or other game state.", "type": "boolean" },
+        "noTendencySwitching": { "description": "The display does not switch with the opponent's tendencies.", "type": "boolean" },
+        "noPlayerLabels": { "description": "No rating, labelling or categorising of players.", "type": "boolean" },
+        "noHandCharts": { "description": "No hand charts.", "type": "boolean" },
+        "noGraphs": { "description": "No graph of more than one data point.", "type": "boolean" },
+        "noHandInPlay": { "description": "Nothing from the hand in play.", "type": "boolean" },
+        "noOverlapTableGraphics": { "description": "Panels never overlap the client's own table graphics.", "type": "boolean" }
       }
     }
   }

@@ -74,6 +74,19 @@ describe("config/sites.json", () => {
     });
   });
 
+  // R3.4: the restrictions the HUD's renderer enforces, pinned with the
+  // policies (core/rail-config/tests/sites.rs holds the same).
+  it("carries the R3.4 HUD restrictions", () => {
+    const restrictions = Object.fromEntries(
+      shipped()
+        .sites.filter((s: Json) => s.hud.restrictions !== null)
+        .map((s: Json) => [s.id, s.hud.restrictions]),
+    );
+    expect(Object.keys(restrictions)).toEqual(["pokerstars", "winamax", "acr"]);
+    expect(restrictions.pokerstars).toMatchObject({ maxColourThresholds: 2, noCardSplitStats: true, noPlayerLabels: true });
+    expect(restrictions.acr).toMatchObject({ noHandInPlay: true, noOverlapTableGraphics: true, ownHandsOnly: true });
+  });
+
   const refused: [string, (doc: Json) => void][] = [
     ["an unknown field", (d) => (site(d, "winamax").hudAllowed = true)],
     [
@@ -88,6 +101,12 @@ describe("config/sites.json", () => {
       "hud.allowed true on a network",
       (d) => Object.assign(site(d, "ipoker").hud, { allowed: true, source: "https://x", checkedAt: "2026-10-13" }),
     ],
+    // R3.4: a permitted room states its restrictions, in this shape.
+    ["hud.allowed true without restrictions", (d) => (site(d, "pokerstars").hud.restrictions = null)],
+    ["a restriction missing", (d) => delete site(d, "acr").hud.restrictions.noOverlapTableGraphics],
+    ["an unknown restriction", (d) => (site(d, "acr").hud.restrictions.noColours = true)],
+    ["a negative threshold count", (d) => (site(d, "pokerstars").hud.restrictions.maxColourThresholds = -1)],
+    ["a restriction that is not a boolean", (d) => (site(d, "winamax").hud.restrictions.noGraphs = "yes")],
     ["table data on a network", (d) => (site(d, "chico").tables.title = "^(?<table>.+)$")],
     ["a date that is not a date", (d) => (site(d, "winamax").hud.checkedAt = "2026-02-30")],
     ["a verified path without a date", (d) => (site(d, "pokerstars").paths.windows[0].verified = true)],

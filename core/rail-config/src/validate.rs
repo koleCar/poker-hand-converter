@@ -136,6 +136,11 @@ fn check_hud(site: &Site, report: &mut impl FnMut(String)) {
         if hud.checked_at.is_none() {
             report("hud.allowed is true without checkedAt".to_owned());
         }
+        // R3.4: the renderer enforces them; a permitted room states its
+        // restrictions (all `false` when its policy has none).
+        if hud.restrictions.is_none() {
+            report("hud.allowed is true without restrictions".to_owned());
+        }
     }
 }
 

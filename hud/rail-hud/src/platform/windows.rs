@@ -18,30 +18,109 @@
 //!   Windows). Then each window through the rooms' matchers
 //!   ([`super::table_of`]). Every match is returned, allowed or not:
 //!   compliance mode in the engine decides.
-//! - R3.4 `overlay`: one layered, tool, no-activate window per table,
-//!   owned by the table window. Until then `overlay` is unsupported.
+//! - **R3.4 `overlay`** (done; `overlay.rs`): one window per table,
+//!   `WS_POPUP` with `WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE`,
+//!   **owned by the table window** (its owner at creation): Windows keeps an
+//!   owned window directly above its owner, hides it while the owner is
+//!   minimised and destroys it with the owner; the tool style keeps it off
+//!   the taskbar and Alt+Tab, no-activate (and `MA_NOACTIVATE`) keeps a
+//!   click from taking focus from the table. It covers the table's client
+//!   area exactly, in physical pixels, from a thread that is per-monitor
+//!   DPI aware (v2). Its pixels are a premultiplied 32-bit DIB painted by
+//!   **Direct2D** (a software DC render target) with **DirectWrite** text
+//!   (grayscale anti-aliasing: ClearType needs an opaque background) and
+//!   shown with `UpdateLayeredWindow` (`ULW_ALPHA`): everything but the
+//!   panels is alpha 0, and Windows hit-tests a layered window by its
+//!   alpha, so a click anywhere but on a panel reaches the table (the
+//!   window procedure also answers `WM_NCHITTEST` with `HTTRANSPARENT`
+//!   outside the panels). Hidden while the table is minimised or cloaked.
+//!   Redrawn only when the frame or the client size or scale changes; a
+//!   move only moves the window. The windows live on a thread of their own
+//!   that does nothing but wait for messages and paint: a cross-process
+//!   owner shares the table's input queue state with ours, so that thread
+//!   must never block - the store, the matching and the engine stay on the
+//!   loop thread, which hands it frames over a channel.
 //! - R3.5 `track` / `poll_events`: `SetWinEventHook` (location change,
 //!   minimise start/end, name change, destroy) on the room's process, its
 //!   callback queueing [`super::TableEvent`]s that `poll_events` drains.
-//!   Until then `track` only records the window and the engine's periodic
-//!   re-find (every 500 ms) picks up titles, rects and minimise.
+//!   Until then `track` records the window and the engine's periodic
+//!   re-find (every 500 ms) picks up titles, rects and minimise and hands
+//!   them to [`Platform::follow`].
+//!
+//! **Why Direct2D rather than a CPU rasteriser.** Correct text first:
+//! DirectWrite shapes and falls back across fonts the way the rest of
+//! Windows does (a name in any script, if R3.8 shows one), with the
+//! system's hinting at the monitor's real pixel size, and Direct2D's
+//! anti-aliasing writes correct premultiplied alpha into the layered
+//! surface - GDI text would need its alpha rebuilt by hand, and a CPU
+//! rasteriser (tiny-skia) needs a font file and a shaper of its own, new
+//! crates for the lock file. Both run on the CPU here (a software render
+//! target: no GPU read-back per frame, the same on a CI runner without a
+//! GPU); a panel redraw costs one clear of the client-sized surface, a few
+//! rounded rectangles and short text runs. Measured on the Windows CI
+//! runner with the simulator's twelve tables: docs/RAIL-PLAN.md R3.4.
 //!
 //! **`unsafe`.** The crate is `deny(unsafe_code)` and every other module
-//! `forbid`s it. Here, and only here, each Win32 call sits in a small
-//! function of `ffi` (compiled on Windows only) that carries its own
-//! `#[allow(unsafe_code)]` and a `// SAFETY:` comment per block. None of
-//! them keeps a pointer past the call; window handles may go stale at any
-//! moment (a table closes mid-walk), which Win32 reports as a failure, and
-//! a failure only drops that window or that detail.
+//! `forbid`s it. Here, and only here (`ffi`, `overlay`, `probe`, all
+//! compiled on Windows only), each Win32 call sits in a small function that
+//! carries its own `#[allow(unsafe_code)]` and a `// SAFETY:` comment per
+//! block. None of them keeps a pointer past the call except the overlay
+//! surface's DIB bits, which live exactly as long as their bitmap; window
+//! handles may go stale at any moment (a table closes mid-walk), which
+//! Win32 reports as a failure, and a failure only drops that window or
+//! that detail.
 //!
-//! On other systems this module compiles to a backend that finds nothing.
+//! On other systems this module compiles to a backend that finds nothing
+//! and draws nothing.
 
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 use super::{
-    OverlayFrame, Platform, PlatformError, RawWindow, TableEvent, TableMatcher, TableWindow,
+    OverlayFrame, Platform, PlatformError, RawWindow, Rect, TableEvent, TableMatcher, TableWindow,
     WindowId, table_of,
 };
+
+#[cfg(windows)]
+mod overlay;
+#[cfg(windows)]
+pub mod probe;
+
+/// The overlay windows' class name (R3.4): what a test or a diagnostic
+/// looks for among a process's windows.
+pub const OVERLAY_CLASS: &str = "RailHudOverlay";
+
+/// Extended window styles, as `GetWindowLongPtrW(GWL_EXSTYLE)` reads them.
+pub mod ex_style {
+    pub const TOPMOST: u32 = 0x0000_0008;
+    pub const TRANSPARENT: u32 = 0x0000_0020;
+    pub const TOOLWINDOW: u32 = 0x0000_0080;
+    pub const APPWINDOW: u32 = 0x0004_0000;
+    pub const LAYERED: u32 = 0x0008_0000;
+    pub const NOACTIVATE: u32 = 0x0800_0000;
+}
+
+/// What the overlay thread knows of one table's overlay (tests and
+/// diagnostics: `WindowsBackend::overlay_info`).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct OverlayInfo {
+    /// The overlay window (`None` until it exists, or when creating it
+    /// failed: see `error`).
+    pub window: Option<WindowId>,
+    /// Whether it is showing.
+    pub shown: bool,
+    /// How many times it was painted.
+    pub renders: u64,
+    /// The last paint's time (scene, Direct2D, `UpdateLayeredWindow`), µs.
+    pub last_render_us: u64,
+    /// The size it was last painted at.
+    pub painted: (u32, u32),
+    /// Its panels, client-relative: where it takes clicks.
+    pub panels: Vec<Rect>,
+    /// Seats whose panel the layout dropped.
+    pub dropped: Vec<String>,
+    /// The last failure, if any.
+    pub error: Option<String>,
+}
 
 /// Every visible top-level window, in z-order (topmost first). Windows
 /// only; elsewhere [`PlatformError::Unsupported`].
@@ -77,8 +156,59 @@ pub fn init_process_dpi_awareness() -> Result<(), PlatformError> {
 /// The Windows backend.
 #[derive(Debug, Default)]
 pub struct WindowsBackend {
-    /// Windows the engine follows (R3.5 hooks them).
-    tracked: BTreeSet<WindowId>,
+    /// Windows the engine follows, as it last described them (R3.5 hooks
+    /// them).
+    tracked: BTreeMap<WindowId, TableWindow>,
+    /// The overlay thread, started with the first overlay.
+    #[cfg(windows)]
+    overlays: Option<overlay::OverlayThread>,
+}
+
+impl WindowsBackend {
+    /// What the overlay thread knows of a table's overlay; `None` when it
+    /// has none (or off Windows). Answered after every command sent before
+    /// it, so it shows their effect.
+    pub fn overlay_info(&self, id: WindowId) -> Option<OverlayInfo> {
+        #[cfg(windows)]
+        {
+            self.overlays.as_ref()?.info(id)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = id;
+            None
+        }
+    }
+
+    /// One pixel of a table's overlay surface as last painted: blue,
+    /// green, red, alpha, premultiplied (the DIB `UpdateLayeredWindow`
+    /// shows). Client-relative physical pixels.
+    pub fn overlay_pixel(&self, id: WindowId, x: u32, y: u32) -> Option<[u8; 4]> {
+        #[cfg(windows)]
+        {
+            self.overlays.as_ref()?.pixel(id, x, y)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = (id, x, y);
+            None
+        }
+    }
+
+    /// Every paint's time so far (µs, oldest first; the last 10 000).
+    pub fn render_times_us(&self) -> Vec<u64> {
+        #[cfg(windows)]
+        {
+            self.overlays
+                .as_ref()
+                .map(overlay::OverlayThread::times)
+                .unwrap_or_default()
+        }
+        #[cfg(not(windows))]
+        {
+            Vec::new()
+        }
+    }
 }
 
 impl Platform for WindowsBackend {
@@ -105,12 +235,24 @@ impl Platform for WindowsBackend {
                 "tracking windows (Windows only)",
             ));
         }
-        self.tracked.insert(window.id);
+        self.tracked.insert(window.id, window.clone());
         Ok(())
     }
 
     fn untrack(&mut self, id: WindowId) {
+        self.remove_overlay(id);
         self.tracked.remove(&id);
+    }
+
+    fn follow(&mut self, window: &TableWindow) {
+        let Some(tracked) = self.tracked.get_mut(&window.id) else {
+            return;
+        };
+        *tracked = window.clone();
+        #[cfg(windows)]
+        if let Some(thread) = &self.overlays {
+            thread.geometry(window);
+        }
     }
 
     fn poll_events(&mut self) -> Vec<TableEvent> {
@@ -118,11 +260,45 @@ impl Platform for WindowsBackend {
         Vec::new()
     }
 
-    fn overlay(&mut self, _: WindowId, _: &OverlayFrame) -> Result<(), PlatformError> {
-        Err(PlatformError::Unsupported("overlays (R3.4)"))
+    /// Hand `frame` to the overlay thread (started on first use) for the
+    /// tracked window `id`. Refused for a window that is not tracked, and
+    /// for a frame whose permit is another room's than the window's - the
+    /// compliance check made again where the drawing starts.
+    fn overlay(&mut self, id: WindowId, frame: &OverlayFrame) -> Result<(), PlatformError> {
+        let window = self.tracked.get(&id).ok_or(PlatformError::Gone(id))?;
+        if frame.permit.site() != window.site {
+            return Err(PlatformError::Os(format!(
+                "a frame permitted for {} is not for window {} of {}",
+                frame.permit.site(),
+                id.0,
+                window.site
+            )));
+        }
+        #[cfg(windows)]
+        {
+            if self.overlays.is_none() {
+                self.overlays = Some(overlay::OverlayThread::start()?);
+            }
+            let thread = self
+                .overlays
+                .as_ref()
+                .ok_or(PlatformError::Unsupported("overlays"))?;
+            thread.frame(window, frame.clone())
+        }
+        #[cfg(not(windows))]
+        {
+            Err(PlatformError::Unsupported("overlays (Windows only)"))
+        }
     }
 
-    fn remove_overlay(&mut self, _: WindowId) {}
+    fn remove_overlay(&mut self, id: WindowId) {
+        #[cfg(windows)]
+        if let Some(thread) = &self.overlays {
+            thread.remove(id);
+        }
+        #[cfg(not(windows))]
+        let _ = id;
+    }
 }
 
 #[cfg(windows)]
@@ -194,18 +370,26 @@ mod ffi {
     }
 
     /// The handle's value: stable while the window lives.
-    fn id_of(hwnd: HWND) -> WindowId {
+    pub(super) fn id_of(hwnd: HWND) -> WindowId {
         WindowId(u64::try_from(hwnd.0.addr()).unwrap_or(0))
+    }
+
+    /// The handle a [`WindowId`] stands for (a value, never dereferenced
+    /// by us: Win32 checks it and fails on a stale one).
+    pub(super) fn hwnd_of(id: WindowId) -> HWND {
+        HWND(std::ptr::without_provenance_mut(
+            usize::try_from(id.0).unwrap_or(0),
+        ))
     }
 
     /// The calling thread per-monitor aware (v2) while it lives, the
     /// previous awareness back on drop. Not `Send` (it holds the context's
     /// raw pointer), so it is dropped on the thread that made it.
-    struct ThreadDpi(DPI_AWARENESS_CONTEXT);
+    pub(super) struct ThreadDpi(DPI_AWARENESS_CONTEXT);
 
     impl ThreadDpi {
         #[allow(unsafe_code)]
-        fn per_monitor_v2() -> Self {
+        pub(super) fn per_monitor_v2() -> Self {
             // SAFETY: changes only this thread's DPI awareness and has no
             // memory preconditions; it returns the previous context (null
             // when the request was refused), restored by `drop`.
@@ -250,7 +434,7 @@ mod ffi {
     }
 
     #[allow(unsafe_code)]
-    fn top_level_windows() -> Result<Vec<HWND>, PlatformError> {
+    pub(super) fn top_level_windows() -> Result<Vec<HWND>, PlatformError> {
         let mut handles: Vec<HWND> = Vec::new();
         let lparam = LPARAM(
             std::ptr::from_mut(&mut handles)
@@ -266,7 +450,7 @@ mod ffi {
     }
 
     #[allow(unsafe_code)]
-    fn is_visible(hwnd: HWND) -> bool {
+    pub(super) fn is_visible(hwnd: HWND) -> bool {
         // SAFETY: reads a flag; a stale handle reads as not visible.
         unsafe { IsWindowVisible(hwnd) }.as_bool()
     }
@@ -278,7 +462,7 @@ mod ffi {
     }
 
     #[allow(unsafe_code)]
-    fn process_id(hwnd: HWND) -> u32 {
+    pub(super) fn process_id(hwnd: HWND) -> u32 {
         let mut pid = 0u32;
         // SAFETY: `pid` is a valid out pointer for the call; a stale
         // handle leaves it 0.
@@ -336,7 +520,7 @@ mod ffi {
     }
 
     #[allow(unsafe_code)]
-    fn class_name(hwnd: HWND) -> String {
+    pub(super) fn class_name(hwnd: HWND) -> String {
         // Class names are at most 256 characters.
         let mut buf = vec![0u16; 257];
         // SAFETY: as in `window_text`: the wrapper passes the buffer's

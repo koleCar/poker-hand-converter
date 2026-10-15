@@ -9,11 +9,36 @@
 
 #![forbid(unsafe_code)]
 
+use rail_config::model::HudRestrictions;
 use rail_config::{Config, MergeNote, Site};
 use rail_hud_ipc::protocol::RefusalReason;
 use regex::Regex;
 
 use crate::platform::TableMatcher;
+
+/// Compliance mode's yes for one room (R3.4): the only way to make an
+/// [`crate::platform::OverlayFrame`], so nothing can be drawn over a window
+/// of a room whose HUD policy is not `allowed: true` - the engine asks again
+/// before every draw, and the Windows backend checks the permit's room
+/// against the window's. It carries the room's restrictions, which the
+/// renderer enforces (`crate::scene::compose`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Permit {
+    site: String,
+    restrictions: HudRestrictions,
+}
+
+impl Permit {
+    /// The `sites.json` room.
+    pub fn site(&self) -> &str {
+        &self.site
+    }
+
+    /// What the room's policy forbids.
+    pub fn restrictions(&self) -> &HudRestrictions {
+        &self.restrictions
+    }
+}
 
 /// The policy in force.
 #[derive(Debug, Clone)]
@@ -65,6 +90,23 @@ impl Compliance {
             (rail_config::model::SiteKind::Room, Some(false)) => RefusalReason::Prohibited,
             (rail_config::model::SiteKind::Room, _) => RefusalReason::Unknown,
             _ => RefusalReason::NotARoom,
+        })
+    }
+
+    /// [`Self::decide`], and with a yes the room's [`Permit`]: its
+    /// restrictions from `sites.json` (a permitted room always has them -
+    /// the validator refuses one without; should one ever be missing, every
+    /// restriction applies).
+    pub fn permit(&self, site: &str) -> Result<Permit, RefusalReason> {
+        self.decide(site)?;
+        let restrictions = self
+            .config
+            .site(site)
+            .and_then(|entry| entry.hud.restrictions)
+            .unwrap_or(HudRestrictions::STRICTEST);
+        Ok(Permit {
+            site: site.to_owned(),
+            restrictions,
         })
     }
 
@@ -166,6 +208,7 @@ mod tests {
             hud["allowed"] = serde_json::Value::Bool(true);
             hud["source"] = "https://example.invalid/policy".into();
             hud["checkedAt"] = "2026-10-15".into();
+            hud["restrictions"] = serde_json::to_value(HudRestrictions::NONE).expect("json");
         });
         let notes = compliance.apply_remote(Some(&on)).expect("merged");
         assert!(
@@ -190,5 +233,41 @@ mod tests {
         );
         compliance.apply_remote(None).expect("shipped");
         assert_eq!(compliance.decide("pokerstars"), Ok(()));
+    }
+
+    /// A permit only for a permitted room, with its restrictions; a remote
+    /// file can add a restriction, not drop one.
+    #[test]
+    fn permits() {
+        let mut compliance = Compliance::shipped().expect("shipped");
+        for (site, reason) in [
+            ("ggpoker", RefusalReason::Prohibited),
+            ("888poker", RefusalReason::Unknown),
+            ("ipoker", RefusalReason::NotARoom),
+            ("nowhere", RefusalReason::UnknownSite),
+        ] {
+            assert_eq!(compliance.permit(site), Err(reason), "{site}");
+        }
+        let stars = compliance.permit("pokerstars").expect("pokerstars");
+        assert_eq!(stars.site(), "pokerstars");
+        assert_eq!(stars.restrictions().max_colour_thresholds, Some(2));
+        let acr = compliance.permit("acr").expect("acr");
+        assert!(acr.restrictions().no_overlap_table_graphics);
+        assert!(!acr.restrictions().no_card_split_stats);
+
+        let eased = remote_with(|v| {
+            let rules = &mut site_mut(v, "acr")["hud"]["restrictions"];
+            rules["noOverlapTableGraphics"] = serde_json::Value::Bool(false);
+            rules["noCardSplitStats"] = serde_json::Value::Bool(true);
+        });
+        let notes = compliance.apply_remote(Some(&eased)).expect("merged");
+        assert!(
+            notes
+                .iter()
+                .any(|n| matches!(n, MergeNote::LooserRestrictionsIgnored { id } if id == "acr"))
+        );
+        let acr = compliance.permit("acr").expect("acr");
+        assert!(acr.restrictions().no_overlap_table_graphics, "kept");
+        assert!(acr.restrictions().no_card_split_stats, "added");
     }
 }

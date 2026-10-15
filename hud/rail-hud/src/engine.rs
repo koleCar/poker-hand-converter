@@ -27,6 +27,13 @@
 //!   a moment later starts from them.
 //! - Until its first hand a window shows [`WAITING`]; the health report
 //!   counts the attached tables still waiting.
+//! - **Drawing** (R3.4): each re-read becomes one panel per seated player -
+//!   the design's statistics over their rollups (`crate::panel`), the hand
+//!   count, the seat - and every frame carries compliance's
+//!   [`crate::compliance::Permit`], asked for again before each draw: a
+//!   window whose room is (no longer) allowed gets no frame and loses its
+//!   overlay. A window that moves, resizes, changes scale or is minimised is
+//!   handed to the backend ([`Platform::follow`]) to keep its overlay on it.
 //! - `stats_changed` and `resync` re-read every attached table; so does the
 //!   store's own `data_version` moving without a message (checked every
 //!   [`Settings::store_every`]): the HUD keeps drawing from the store when
@@ -49,6 +56,7 @@ use rail_hud_ipc::protocol::{
 use crate::compliance::Compliance;
 use crate::data::StoreView;
 use crate::latency::{Latencies, micros};
+use crate::panel::{PanelDesign, PanelStats};
 use crate::platform::{
     OverlayFrame, Platform, SeatPanel, TableEvent, TableMatcher, TableWindow, WindowId, table_key,
 };
@@ -130,6 +138,8 @@ pub struct Hud {
     /// Test-only room entries: the simulator's windows posing as a room
     /// ([`Hud::add_simulator_room`]), after `sites.json`'s matchers.
     test_matchers: Vec<TableMatcher>,
+    /// The panel's statistics (the default design's, R3.4).
+    panel_stats: PanelStats,
 }
 
 impl std::fmt::Debug for Hud {
@@ -165,6 +175,7 @@ impl Hud {
             last_find_error: None,
             recent: BTreeMap::new(),
             test_matchers: Vec::new(),
+            panel_stats: PanelStats::new(&PanelDesign::default()),
         }
     }
 
@@ -458,13 +469,11 @@ impl Hud {
             }
             self.draw(
                 *id,
-                OverlayFrame {
-                    status: Some(format!(
-                        "{} tables named {table:?}: cannot tell them apart",
-                        ids.len()
-                    )),
-                    panels: Vec::new(),
-                },
+                Some(format!(
+                    "{} tables named {table:?}: cannot tell them apart",
+                    ids.len()
+                )),
+                Vec::new(),
             );
         }
     }
@@ -506,7 +515,7 @@ impl Hud {
                 players: Vec::new(),
             },
         );
-        self.draw(id, waiting());
+        self.draw(id, Some(WAITING.to_owned()), Vec::new());
         self.adopt_recent(id, out);
     }
 
@@ -573,11 +582,13 @@ impl Hud {
                     if let Some(a) = self.attached.get_mut(&id) {
                         a.window.client = client;
                         a.window.scale_permille = scale_permille;
+                        self.platform.follow(&a.window);
                     }
                 }
                 TableEvent::Minimized { id, minimized } => {
                     if let Some(a) = self.attached.get_mut(&id) {
                         a.window.minimized = minimized;
+                        self.platform.follow(&a.window);
                     }
                 }
                 TableEvent::Retitled { id, title, table } => {
@@ -592,7 +603,7 @@ impl Hud {
                         moved
                     });
                     if moved {
-                        self.draw(id, waiting());
+                        self.draw(id, Some(WAITING.to_owned()), Vec::new());
                         self.adopt_recent(id, out);
                     }
                 }
@@ -635,13 +646,7 @@ impl Hud {
         let totals = match self.store.totals(&site, &keys) {
             Ok(totals) => totals,
             Err(error) => {
-                self.draw(
-                    id,
-                    OverlayFrame {
-                        status: Some(format!("no statistics: {error}")),
-                        panels: Vec::new(),
-                    },
-                );
+                self.draw(id, Some(format!("no statistics: {error}")), Vec::new());
                 return;
             }
         };
@@ -652,7 +657,10 @@ impl Hud {
             .zip(&totals)
             .map(|(player, totals)| SeatPanel {
                 player: player.name.clone(),
+                seat: player.seat,
                 hands: totals.hands(),
+                stats: self.panel_stats.cells(&totals.sums()),
+                label: None,
             })
             .collect();
         out(HudMessage::TableUpdated {
@@ -669,16 +677,34 @@ impl Hud {
                 .collect(),
             reread_us: micros(elapsed),
         });
-        self.draw(
-            id,
-            OverlayFrame {
-                status: None,
-                panels,
-            },
-        );
+        self.draw(id, None, panels);
     }
 
-    fn draw(&mut self, id: WindowId, frame: OverlayFrame) {
+    /// Show a status line or panels over an attached window. Compliance is
+    /// asked again here (guideline §7, R3.4): no frame - and so nothing
+    /// drawn - without its permit for the window's room; a window that has
+    /// lost it loses its overlay.
+    fn draw(&mut self, id: WindowId, status: Option<String>, panels: Vec<SeatPanel>) {
+        let Some(attached) = self.attached.get(&id) else {
+            return;
+        };
+        let permit = match self.compliance.permit(&attached.window.site) {
+            Ok(permit) => permit,
+            Err(reason) => {
+                eprintln!(
+                    "rail-hud: not drawing on window {} ({}): {reason:?}",
+                    id.0, attached.window.site
+                );
+                self.platform.remove_overlay(id);
+                return;
+            }
+        };
+        let frame = OverlayFrame {
+            permit,
+            status,
+            size: attached.window.size,
+            panels,
+        };
         if let Err(error) = self.platform.overlay(id, &frame) {
             eprintln!("rail-hud: overlay on window {}: {error}", id.0);
         }
@@ -690,13 +716,6 @@ impl Hud {
             self.reported_open = count;
             out(HudMessage::TablesOpen { count });
         }
-    }
-}
-
-fn waiting() -> OverlayFrame {
-    OverlayFrame {
-        status: Some(WAITING.to_owned()),
-        panels: Vec::new(),
     }
 }
 

@@ -31,8 +31,11 @@ pub mod compliance;
 pub mod data;
 pub mod engine;
 pub mod latency;
+pub mod layout;
 pub mod list;
+pub mod panel;
 pub mod platform;
+pub mod scene;
 
 use std::ffi::OsString;
 use std::io::BufRead as _;

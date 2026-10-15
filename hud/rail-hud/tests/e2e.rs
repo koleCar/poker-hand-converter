@@ -174,7 +174,12 @@ fn run(room: &str, site: &str, tables: u32, hands: u32, speed: u32) -> Run {
                     players: hand
                         .players
                         .into_iter()
-                        .map(|(name, scope)| PlayerRef { name, scope })
+                        .map(|p| PlayerRef {
+                            name: p.player,
+                            scope: p.scope,
+                            seat: Some(p.seat),
+                            hero: p.hero,
+                        })
                         .collect(),
                 });
             }

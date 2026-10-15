@@ -8,7 +8,10 @@
 //! - Order of looseness: `false` (prohibited) < `null` (unknown) < `true`
 //!   (allowed). A remote entry may move down or stay; a move up is ignored
 //!   and the shipped `hud` block kept. At equal level the remote block wins
-//!   (a re-check may refresh the source, date and notes).
+//!   (a re-check may refresh the source, date and notes) - except that two
+//!   allowed blocks keep **both** blocks' restrictions (R3.4,
+//!   `HudRestrictions::stricter`): a download can add a restriction, never
+//!   drop one ([`MergeNote::LooserRestrictionsIgnored`]).
 //! - **Unknown ids are ignored**, not added: an entry id is a key the app
 //!   stores (a folder's site, a layout's room), identity and parser come with
 //!   a release, and a remote-only entry would vanish again with the next
@@ -66,6 +69,9 @@ pub enum MergeNote {
     IdentityChangeIgnored { id: String, field: &'static str },
     /// The remote file has no entry for this shipped id; it stays as shipped.
     MissingFromRemote { id: String },
+    /// The remote entry drops or eases a HUD restriction of the shipped
+    /// one; the merged entry keeps every restriction of both.
+    LooserRestrictionsIgnored { id: String },
 }
 
 /// `shipped` with `remote`'s corrections applied under the rule above. Both
@@ -126,7 +132,18 @@ fn merge_site(ours: &Site, theirs: &Site, notes: &mut Vec<MergeNote>) -> Site {
             });
             merged.hud = ours.hud.clone();
         }
-        Ordering::Equal | Ordering::Less => {}
+        Ordering::Equal => {
+            if let (Some(shipped), Some(remote)) =
+                (&ours.hud.restrictions, &theirs.hud.restrictions)
+                && !remote.at_least_as_strict_as(shipped)
+            {
+                notes.push(MergeNote::LooserRestrictionsIgnored {
+                    id: ours.id.clone(),
+                });
+                merged.hud.restrictions = Some(remote.stricter(shipped));
+            }
+        }
+        Ordering::Less => {}
     }
     merged
 }
@@ -135,7 +152,8 @@ fn merge_site(ours: &Site, theirs: &Site, notes: &mut Vec<MergeNote>) -> Site {
 mod tests {
     use super::*;
     use crate::model::{
-        Anonymisation, Encoding, Files, PathEntry, Paths, Processes, SiteKind, Tables,
+        Anonymisation, Encoding, Files, HudRestrictions, PathEntry, Paths, Processes, SiteKind,
+        Tables,
     };
     use crate::validate;
 
@@ -147,12 +165,14 @@ mod tests {
                 allowed,
                 source: Some("https://example.org/terms".to_owned()),
                 checked_at: Some("2026-10-13".to_owned()),
+                restrictions: Some(HudRestrictions::NONE),
                 notes: String::new(),
             },
             _ => Hud {
                 allowed,
                 source: None,
                 checked_at: None,
+                restrictions: None,
                 notes: String::new(),
             },
         }
@@ -269,6 +289,78 @@ mod tests {
         );
         assert_eq!(merged.config.sites[0].hud.notes, "withdrawn");
         assert_eq!(merged.config.sites[0].hud.source, None);
+    }
+
+    /// R3.4: between two allowed blocks a download may add restrictions,
+    /// never drop or ease one; the merged block has every restriction of
+    /// both and the remote file's source, date and notes.
+    #[test]
+    fn restrictions_only_get_stricter() {
+        let with = |restrictions: HudRestrictions, notes: &str| {
+            let mut site = site("pokerstars", "pokerstars", Some(true));
+            site.hud.restrictions = Some(restrictions);
+            site.hud.notes = notes.to_owned();
+            site
+        };
+        let shipped_rules = HudRestrictions {
+            max_colour_thresholds: Some(2),
+            no_player_labels: true,
+            ..HudRestrictions::NONE
+        };
+        let shipped = config(vec![with(shipped_rules, "shipped")]);
+
+        // Stricter: taken as it is.
+        let stricter = HudRestrictions {
+            max_colour_thresholds: Some(1),
+            no_hand_in_play: true,
+            ..shipped_rules
+        };
+        let merged = merge_remote(&shipped, &config(vec![with(stricter, "re-check")]));
+        assert_eq!(merged.config.sites[0].hud.restrictions, Some(stricter));
+        assert_eq!(merged.config.sites[0].hud.notes, "re-check");
+        assert_eq!(merged.notes, Vec::new());
+
+        // Looser in two ways and stricter in one: both kept.
+        let mixed = HudRestrictions {
+            max_colour_thresholds: None,
+            no_graphs: true,
+            ..HudRestrictions::NONE
+        };
+        let merged = merge_remote(&shipped, &config(vec![with(mixed, "eased")]));
+        assert_eq!(
+            merged.config.sites[0].hud.restrictions,
+            Some(HudRestrictions {
+                max_colour_thresholds: Some(2),
+                no_player_labels: true,
+                no_graphs: true,
+                ..HudRestrictions::NONE
+            })
+        );
+        assert_eq!(
+            merged.notes,
+            vec![MergeNote::LooserRestrictionsIgnored {
+                id: "pokerstars".to_owned()
+            }]
+        );
+        assert_eq!(validate(&merged.config, PARSERS), Vec::new());
+    }
+
+    #[test]
+    fn stricter_is_a_union() {
+        let all = HudRestrictions::STRICTEST;
+        let none = HudRestrictions::NONE;
+        assert_eq!(all.stricter(&none), all);
+        assert_eq!(none.stricter(&all), all);
+        assert!(all.at_least_as_strict_as(&none));
+        assert!(!none.at_least_as_strict_as(&all));
+        let three = HudRestrictions {
+            max_colour_thresholds: Some(3),
+            ..none
+        };
+        assert_eq!(three.stricter(&all).max_colour_thresholds, Some(2));
+        assert_eq!(three.stricter(&none).max_colour_thresholds, Some(3));
+        assert!(three.at_least_as_strict_as(&none));
+        assert!(!none.at_least_as_strict_as(&three));
     }
 
     #[test]
