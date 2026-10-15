@@ -99,6 +99,7 @@ mod tests {
                 table: Some("T".into()),
                 hand_key: "pokerstars:1".into(),
                 players: vec![PlayerRef::named("Ana")],
+                timing: None,
             },
             AppMessage::Shutdown,
         ];

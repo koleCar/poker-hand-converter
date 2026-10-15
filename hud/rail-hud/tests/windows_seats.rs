@@ -86,6 +86,7 @@ fn frame(site: &str, size: u32, seats: &[u32], rotate_to: Option<u32>) -> Overla
     OverlayFrame {
         permit,
         status: None,
+        debug: None,
         size: Some(size),
         seating: Seating {
             rotate_to,
@@ -534,6 +535,7 @@ impl App {
             table: hand["tableName"].as_str().map(str::to_owned),
             hand_key: hand["handKey"].as_str().unwrap_or_default().to_owned(),
             players,
+            timing: None,
         });
     }
 

@@ -350,6 +350,12 @@ pub enum WatchEvent {
         quarantined: u32,
         from: u64,
         to: u64,
+        /// (R3.7) When the watcher first noticed the change this commit
+        /// completes - the OS's notification, or a walk that found the file
+        /// changed - in Unix milliseconds: where the HUD's latency chain
+        /// starts. `None` for a later batch of the same read, or a read
+        /// that was not started by a change (a recheck, a reset).
+        noticed_ms: Option<i64>,
     },
     /// A folder changed state.
     Source {
@@ -1146,6 +1152,9 @@ struct FileRt {
     run: Option<FileRun>,
     /// Set back in the store while a read had it: start afresh after.
     reset: bool,
+    /// (R3.7) The first change noticed since the last commit, Unix ms
+    /// ([`WatchEvent::Imported`]'s `noticed_ms`).
+    noticed_ms: Option<i64>,
 }
 
 impl FileRt {
@@ -1160,6 +1169,7 @@ impl FileRt {
             offset: None,
             run: None,
             reset: false,
+            noticed_ms: None,
         }
     }
 }
@@ -1657,6 +1667,7 @@ impl Coordinator {
                     );
                 }
                 Self::join_run(source, file, size, now);
+                file.noticed_ms.get_or_insert(now);
                 self.enqueue(path, false);
             }
         }
@@ -1803,6 +1814,7 @@ impl Coordinator {
             .files
             .entry(path.clone())
             .or_insert_with(|| FileRt::new(source_id));
+        file.noticed_ms.get_or_insert_with(time::now_ms);
         if let Some(source) = self.sources.get_mut(&file.source_id)
             && let Ok(metadata) = std::fs::metadata(&path)
         {
@@ -1994,6 +2006,7 @@ impl Coordinator {
         let mut recheck = None;
         let mut inserted = 0;
         let mut committed_to = None;
+        let mut noticed_ms = None;
         let mut more = false;
         match result {
             Ok(Polled::Gone) => {}
@@ -2001,6 +2014,9 @@ impl Coordinator {
                 recheck = polled.recheck_at();
                 if let Some(file) = self.files.get_mut(&path) {
                     file.error = false;
+                    if matches!(polled, Polled::Committed { .. }) {
+                        noticed_ms = file.noticed_ms.take();
+                    }
                     file.pending = matches!(
                         polled,
                         Polled::Waiting {
@@ -2039,6 +2055,7 @@ impl Coordinator {
                         quarantined: outcome.quarantined,
                         from,
                         to,
+                        noticed_ms,
                     });
                 }
             }

@@ -17,7 +17,10 @@
 //! Then it times:
 //!
 //! - the HUD's lookup ([`Reader::hud_totals`]) for 9 players of one site,
-//!   the table's segment and all of the site's segments;
+//!   the table's segment and all of the site's segments; (R3.7) the same
+//!   counting the user's own hands only ([`Reader::hud_own_totals`]), a
+//!   hand's segment ([`Reader::hud_hand`]) and a table's newest hand
+//!   ([`Reader::latest_hand_of_table`]);
 //! - one rollup ([`Reader::player_rollup`]);
 //! - the hero's totals ([`Reader::hero_totals`]): everything, a date range,
 //!   a segment and position filter;
@@ -157,12 +160,13 @@ fn counts(db: &PathBuf) {
     let conn = Connection::open(db).expect("open");
     let count = |sql: &str| -> i64 { conn.query_row(sql, [], |row| row.get(0)).expect(sql) };
     println!(
-        "store: {} hands, {} seat rows ({} hero), {} player rollups, {} hero rollups, {} segments, \
-         {} EV rows, {} EV pending; {:.0} MiB",
+        "store: {} hands, {} seat rows ({} hero), {} player rollups ({} observed), {} hero \
+         rollups, {} segments, {} EV rows, {} EV pending; {:.0} MiB",
         count("SELECT count(*) FROM hands"),
         count("SELECT count(*) FROM seat_stats"),
         count("SELECT count(*) FROM seat_stats WHERE is_hero = 1"),
         count("SELECT count(*) FROM player_rollups"),
+        count("SELECT count(*) FROM player_rollups_observed"),
         count("SELECT count(*) FROM hero_rollups"),
         count("SELECT count(*) FROM segments"),
         count("SELECT count(*) FROM ev_rows"),
@@ -223,6 +227,53 @@ fn queries(reader: &Reader, conn: &Connection) {
             reader.hud_totals(&site, &table, None).expect("hud");
         }),
     );
+    // R3.7: a room that allows statistics from the user's own hands only.
+    report(
+        "HUD lookup, 9 players, the table's segment, own hands only",
+        &times(2000, || {
+            reader
+                .hud_own_totals(&site, &table, Some(&[segment]))
+                .expect("hud");
+        }),
+    );
+    report(
+        "HUD lookup, 9 players, every segment of the site, own hands only",
+        &times(2000, || {
+            reader.hud_own_totals(&site, &table, None).expect("hud");
+        }),
+    );
+    let (hand_key, table_name): (String, Option<String>) = conn
+        .query_row(
+            "SELECT hand_key, table_name FROM hands ORDER BY rowid DESC LIMIT 1",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .expect("the newest hand");
+    report(
+        "a hand's segment (the table's, hud_hand)",
+        &times(2000, || {
+            reader.hud_hand(&hand_key).expect("hud_hand");
+        }),
+    );
+    let newest_site = hand_key.split(':').next().unwrap_or_default().to_owned();
+    if let Some(name) = table_name {
+        report(
+            "a table's newest hand (on attach; the newest table)",
+            &times(200, || {
+                reader
+                    .latest_hand_of_table(&newest_site, &|n| n == name, 0, "", 5000)
+                    .expect("latest");
+            }),
+        );
+        report(
+            "a table's newest hand (on attach; no such table: 5000 hands looked at)",
+            &times(200, || {
+                reader
+                    .latest_hand_of_table(&newest_site, &|_| false, 0, "", 5000)
+                    .expect("latest");
+            }),
+        );
+    }
     let (player, scope) = &players[0];
     report(
         "one player rollup",

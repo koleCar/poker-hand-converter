@@ -230,6 +230,53 @@ pub fn compose_with(
         }
     }
 
+    // (R3.7) A debug build's latency line: small, in a corner clear of the
+    // table's graphics (bottom left, else top left), never a click target.
+    if let Some(debug) = &frame.debug {
+        let px = (metrics.font * 3 / 4).max(9);
+        let chars = u32::try_from(debug.chars().count()).unwrap_or(u32::MAX);
+        let (w, h) = (
+            2 * metrics.pad + chars.saturating_mul(px) * 56 / 100,
+            metrics.row,
+        );
+        let pad = i32::try_from(metrics.pad).unwrap_or(0);
+        let graphics = table.graphics(width, height);
+        let spot = [
+            i64::from(height) - i64::from(h) - i64::from(pad),
+            i64::from(pad),
+        ]
+        .into_iter()
+        .filter_map(|y| i32::try_from(y).ok())
+        .map(|y| Rect {
+            x: pad,
+            y,
+            width: w,
+            height: h,
+        })
+        .find(|rect| {
+            layout::inside(rect, width, height)
+                && !graphics.iter().any(|g| layout::intersects(rect, g))
+        });
+        match spot {
+            Some(rect) => {
+                scene.items.push(Item::Fill {
+                    rect,
+                    radius: metrics.radius / 2,
+                    color: PANEL,
+                });
+                scene.items.push(Item::Text {
+                    rect,
+                    text: debug.clone(),
+                    px,
+                    color: MUTED,
+                    bold: false,
+                    align: Align::Center,
+                });
+            }
+            None => scene.dropped.push(format!("debug {debug:?}")),
+        }
+    }
+
     let columns = frame
         .panels
         .iter()
@@ -406,6 +453,7 @@ mod tests {
         OverlayFrame {
             permit: compliance.permit(site).expect("permitted"),
             status: None,
+            debug: None,
             size,
             seating: Seating::default(),
             panels: seats

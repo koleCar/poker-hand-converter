@@ -18,7 +18,9 @@
 //!   tables since R3.3, overlays and hooks are R3.4 / R3.5; macOS a stub
 //!   until R3.11; [`platform::sim`] the fake driven by the table
 //!   simulator);
-//! - [`latency`]: `hand_imported` -> rollups re-read;
+//! - [`latency`]: `hand_imported` -> rollups re-read (R3.7: the whole
+//!   chain, from the watcher to the frame, is the engine's: `table_updated`,
+//!   `--latency-report`, a debug build's line on the table);
 //! - [`list`]: `--list-windows`, the diagnostic that captures real table
 //!   titles (redacted) for `sites.json`.
 //!
@@ -76,6 +78,9 @@ For development, without the app:
 
   rail-hud --standalone [--store <rail.db>] ...
 
+Measuring (R3.7): --latency-report <file> writes every hand's latency chain
+(the watcher noticing the file -> the frame), one JSON object a line.
+
 Windows:
   --platform native     this system's backend (default)
     the table simulator's real windows as a room's (tests only):
@@ -101,6 +106,8 @@ pub struct Args {
     /// The simulator's title regex for the native backend (a test-only
     /// room entry, [`Hud::add_simulator_room`]); checked to compile.
     pub sim_title: Option<String>,
+    /// (R3.7) `--latency-report <file>`: every hand's latency chain.
+    pub latency_report: Option<PathBuf>,
 }
 
 impl Args {
@@ -124,6 +131,9 @@ impl Args {
                 "--platform" => platform = value("--platform")?,
                 "--sim-events" => parsed.sim_events = Some(PathBuf::from(value("--sim-events")?)),
                 "--sim-site" => parsed.sim_site = Some(value("--sim-site")?),
+                "--latency-report" => {
+                    parsed.latency_report = Some(PathBuf::from(value("--latency-report")?));
+                }
                 "--sim-title" => {
                     let title = value("--sim-title")?;
                     regex::Regex::new(&title)
@@ -287,6 +297,15 @@ pub fn main_with(args: Vec<OsString>) -> i32 {
         StoreView::new(args.store.clone()),
         Settings::default(),
     );
+    if let Some(path) = &args.latency_report {
+        match std::fs::File::create(path) {
+            Ok(file) => hud.set_latency_report(Box::new(std::io::BufWriter::new(file))),
+            Err(error) => {
+                eprintln!("rail-hud: --latency-report {}: {error}", path.display());
+                return exit_code::USAGE;
+            }
+        }
+    }
     if let (None, Some(site), Some(title)) = (&args.sim_events, &args.sim_site, &args.sim_title) {
         match regex::Regex::new(title) {
             Ok(title) => {
@@ -358,6 +377,9 @@ mod tests {
         assert!(parse(&["--standalone", "--platform", "x11"]).is_err());
         assert!(parse(&["--standalone", "--store"]).is_err());
         assert!(parse(&["--frobnicate"]).is_err());
+        let args = parse(&["--standalone", "--latency-report", "/t/chain.jsonl"]).expect("report");
+        assert_eq!(args.latency_report, Some(PathBuf::from("/t/chain.jsonl")));
+        assert!(parse(&["--standalone", "--latency-report"]).is_err());
         assert_eq!(parse(&["--help"]), Err(String::new()));
 
         // The simulator's real windows (native backend, test-only room):

@@ -67,6 +67,7 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
     OverlayFrame {
         permit,
         status: None,
+        debug: None,
         size: Some(seats),
         seating: rail_hud::platform::Seating::default(),
         panels: (1..=seats)

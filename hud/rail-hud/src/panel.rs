@@ -28,6 +28,7 @@
 use rail_config::model::HudRestrictions;
 use rail_config::stats::{HudPlace, Tone};
 use rail_core::js::JsNumber;
+use rail_stats::custom::{CustomSet, custom_sums};
 use rail_stats::display::{Display, DisplayStat, Sums, format_fixed};
 
 /// How a statistic's display may vary at the table.
@@ -171,26 +172,60 @@ pub struct StatCell {
     pub opacity_permille: u32,
 }
 
+/// One statistic of a panel, compiled.
+#[derive(Debug, Clone)]
+struct PanelStat {
+    display: DisplayStat,
+    /// (R3.7) A user's statistic (R2.10): the custom counter names its
+    /// formulas read ([`rail_stats::custom::CustomStat::names`]), filled per
+    /// player from their `custom_player_rollups`. `None`: a shipped one.
+    custom: Option<Vec<String>>,
+}
+
 /// The compiled panel statistics, evaluated per player.
 #[derive(Debug, Clone)]
 pub struct PanelStats {
-    stats: Vec<DisplayStat>,
+    stats: Vec<PanelStat>,
 }
 
 impl PanelStats {
     /// The design's statistics from the shipped definitions (an id the
     /// definitions do not have is left out).
     pub fn new(design: &PanelDesign) -> Self {
-        let stats = Display::shipped()
-            .map(|display| {
-                design
-                    .stats
-                    .iter()
-                    .filter_map(|slot| display.get(&slot.id).cloned())
-                    .collect()
+        Self::with_custom(design, &CustomSet::default())
+    }
+
+    /// (R3.7) The design's statistics: a shipped definition by its id, else
+    /// the user's own statistic of that id (R2.10, from the store), else
+    /// left out. A shipped id wins (the editor never lets a user's take one).
+    pub fn with_custom(design: &PanelDesign, custom: &CustomSet) -> Self {
+        let shipped = Display::shipped().ok();
+        let stats = design
+            .stats
+            .iter()
+            .filter_map(|slot| {
+                if let Some(stat) = shipped.as_ref().and_then(|d| d.get(&slot.id)) {
+                    return Some(PanelStat {
+                        display: stat.clone(),
+                        custom: None,
+                    });
+                }
+                let stat = custom.get(&slot.id)?;
+                Some(PanelStat {
+                    display: stat.display.clone(),
+                    custom: Some(stat.names.clone()),
+                })
             })
-            .unwrap_or_default();
+            .collect();
         Self { stats }
+    }
+
+    /// Whether a statistic reads the user's own counters: the HUD then
+    /// reads each player's `custom_player_rollups` too.
+    pub fn reads_custom(&self) -> bool {
+        self.stats
+            .iter()
+            .any(|stat| stat.custom.as_ref().is_some_and(|names| !names.is_empty()))
     }
 
     /// How many statistics a panel shows.
@@ -204,10 +239,27 @@ impl PanelStats {
 
     /// The cells of one player's summed rollups.
     pub fn cells(&self, sums: &Sums) -> Vec<StatCell> {
+        self.cells_with(sums, |_| None)
+    }
+
+    /// The cells of one player's summed rollups and their counts of the
+    /// user's statistics: `counts(id)` is the `(made, opportunities)` of
+    /// the user's statistic `id` for this player (`None`: none counted).
+    /// Read through the definitions: a user's statistic's formula over
+    /// [`custom_sums`], a shipped one's over the rollups.
+    pub fn cells_with(
+        &self,
+        sums: &Sums,
+        counts: impl Fn(&str) -> Option<(i64, i64)>,
+    ) -> Vec<StatCell> {
         self.stats
             .iter()
-            .map(|stat| {
-                let shown = stat.show(sums, None);
+            .map(|panel_stat| {
+                let stat = &panel_stat.display;
+                let shown = match &panel_stat.custom {
+                    Some(names) => stat.show(&custom_sums(names, sums, &counts), None),
+                    None => stat.show(sums, None),
+                };
                 StatCell {
                     id: stat.id().to_owned(),
                     text: shown

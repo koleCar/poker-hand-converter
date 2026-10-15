@@ -121,6 +121,7 @@ mod tests {
         OverlayFrame {
             permit: compliance.permit(site).expect("permitted"),
             status: None,
+            debug: None,
             size: Some(6),
             seating: Seating::default(),
             panels: seats
