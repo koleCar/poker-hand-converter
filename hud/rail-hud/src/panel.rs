@@ -245,12 +245,25 @@ pub fn hands_text(hands: i64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rail_config::stats::Expr;
     use rail_stats::counters::Counter;
 
-    fn sums(pairs: &[(&str, i64)]) -> Sums {
+    /// Rollups in which the shipped rate `id` (a `pct(made, opportunities)`
+    /// definition) was made `made` times in `opportunities`: its inputs are
+    /// read from the definition (guideline §14), not named here.
+    fn rate_sums(id: &str, made: i64, opportunities: i64) -> Sums {
+        let display = Display::shipped().expect("shipped");
+        let def = &display.get(id).expect("a shipped statistic").def;
+        let formula = rail_config::stats::parse_formula(&def.formula).expect("formula");
+        let Expr::Pct(top, bottom) = formula else {
+            panic!("{id} is not a rate");
+        };
         let mut sums = Sums::default();
-        for &(name, value) in pairs {
-            let counter = Counter::from_name(name).unwrap_or_else(|| panic!("{name}"));
+        for (input, value) in [(*top, made), (*bottom, opportunities)] {
+            let Expr::Name(name) = input else {
+                panic!("{id}: an input is not one counter");
+            };
+            let counter = Counter::from_name(&name).unwrap_or_else(|| panic!("{name}"));
             sums.counters[counter.index()] = value;
         }
         sums
@@ -425,14 +438,14 @@ mod tests {
         assert!(none.iter().all(|c| c.opacity_permille == 600), "{none:?}");
         // 45 of 150 hands voluntarily: 30 % (the "high" band from 30), a
         // full sample (min 100).
-        let cells = stats.cells(&sums(&[("vpip", 45), ("vpip_opp", 150)]));
+        let cells = stats.cells(&rate_sums("vpip", 45, 150));
         let vpip = &cells[0];
         assert_eq!((vpip.id.as_str(), vpip.text.as_str()), ("vpip", "30"));
         assert_eq!(vpip.tone, Some(Tone::High));
         assert_eq!(vpip.opacity_permille, 1000);
         // 1 of 4: 25 %, a quarter of the sample: 0.6 + 0.4 * sqrt(0.04) =
         // 0.68.
-        let cells = stats.cells(&sums(&[("vpip", 1), ("vpip_opp", 4)]));
+        let cells = stats.cells(&rate_sums("vpip", 1, 4));
         assert_eq!(cells[0].text, "25");
         assert_eq!(cells[0].opacity_permille, 680);
     }
