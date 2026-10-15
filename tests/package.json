@@ -17,6 +17,7 @@
     "floplib:realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/realisation",
     "floplib:turn-realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/turnRealisation",
     "floplib:multiway-narrowing": "vitest run --config scripts/flop-library/vitest.config.ts multiwayNarrowing",
+    "floplib:multiway-ordering": "vitest run --config scripts/flop-library/vitest.config.ts multiwayOrdering",
     "floplib:check-trim": "vitest run --config scripts/flop-library/vitest.config.ts checkTrim.test",
     "floplib:hu-check-trim": "vitest run --config scripts/flop-library/vitest.config.ts headsUpCheckTrim",
     "floplib:river-check-trim": "vitest run --config scripts/flop-library/vitest.config.ts riverCheckTrim",

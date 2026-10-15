@@ -129,6 +129,15 @@ alike), held out by player; it also varies `CHECK_REPEAT` on every street,
 scored on the flop, turn and river rows. About 13 minutes.
 `docs/ANALYSIS-PLAN.md` §10 2026-10-14 (the river check trim).
 
+**The library as an ordering of hands, multiway (not shipped).**
+`npm run floplib:multiway-ordering` (same variables) scores the shown players
+of multiway flops (flop rows and the turn after them) with every flop action
+the library can read narrowed by a hybrid: the heuristic's share of the range
+(Σ w·L) kept, the library's per-combo frequency deciding which combos carry
+it (geometric, linear and rank blends, one α each), against `analysis/23`,
+held out by player. About two minutes. `docs/ANALYSIS-PLAN.md` §10
+2026-10-15.
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

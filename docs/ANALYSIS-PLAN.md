@@ -3717,3 +3717,91 @@ Each phase appends what it learned that changed the plan.
     - Multiway rivers may want a harder air trim (value 0.3–0.5, air 0.5 in
       every fold, +0.002 ± 0.002 held out on 289 rows): worth another look
       with more multiway showdowns.
+- 2026-10-15 — The library as an ordering of hands on multiway flops, held
+  out: not shipped (study `tests/scripts/flop-library/multiwayOrdering.test.ts`,
+  `npm run floplib:multiway-ordering`; the plan and line-following of
+  `multiwayLibrary.ts`). No migration, no version bump; `ANALYSIS_VERSION`
+  stays `analysis/23`.
+  - **Why.** The open item of 2026-10-13: the library read multiway lost to
+    the heuristic held out (−0.090 ± 0.018 per combo on the bettors and
+    callers), and the suspected reason was the shares - a heads-up
+    equilibrium bets and calls a different, more polarised, part of its
+    range than multiway players. Untested there: keep the heuristic's
+    multiway action shares and let the library decide only *which* combos
+    carry them.
+  - **Data.** The same 5,448 stored hands. Every opponent shown down after a
+    flop three or more saw (the hero left out; no bomb pot): 676 flop rows
+    (205 players) scored on their range as the turn came, 279 of them (138
+    players) on a flop with a chunk; and 601 turn rows (195 players), every
+    one of them who acted on the turn after a multiway flop (heads-up or
+    not), scored on their range as the river came. 570 flop actions (every
+    player's, shown or not) were narrowed by a hybrid. Score as
+    `analysis/17`-`/23`: mean log-likelihood per combo of the shown combo, a
+    combo outside the range at a twentieth of a uniform combo. Starting
+    ranges as the analysis reads them.
+  - **Method.** For each multiway flop action the library reads (2026-10-13's
+    plan, roles and line; every other action, the turn and the river stay
+    `analysis/23`'s heuristic), with H the heuristic's likelihood, S the
+    library's frequency of the action for the combo (S′ = 0.03 + 0.97 · S)
+    and w the actor's range, three hybrids with one parameter α each (α = 0
+    is the heuristic):
+    - geometric: L ∝ H^(1−α) · S′^α;
+    - linear: L ∝ (1 − α) · H + α · S′ · Σw·H / Σw·S′;
+    - rank: each combo's percentile in the range by H and by S is blended,
+      (1 − α) · pH + α · pS, and the combo takes the heuristic's likelihood at
+      that percentile (the heuristic's distribution of likelihoods in the
+      library's order at α = 1);
+    each rescaled so Σ w·L is the heuristic's Σ w·H (no L above 1: the scale
+    by bisection with the cap), so the share of the range that takes the
+    action is the heuristic's exactly. α ∈ {0, 0.1, 0.25, 0.5, 0.75, 1}, chosen
+    held out per variant, and variant and α together ("any"): five folds by
+    player (the earlier studies' hash), fitted on flop and turn rows
+    together. Standard errors clustered by player. Baseline `analysis/23`.
+  - **Measured** (Δ against `analysis/23` per combo; geometric and linear at
+    α = 1 are the same model, the library's order at the heuristic's share;
+    the last four columns are fixed candidates, not held out):
+
+    | shown players | n (players) | `analysis/23` | geometric, held out | linear, held out | rank, held out | any, held out | geometric 0.5 | linear 0.5 | rank 0.5 | library order (α = 1) |
+    |---|---|---|---|---|---|---|---|---|---|---|
+    | flop and turn together | 1,277 (205) | −6.831 | 0 | 0 | −0.002 ± 0.005 | **−0.002 ± 0.005** | −0.030 ± 0.010 | −0.027 ± 0.008 | −0.030 ± 0.012 | −0.098 ± 0.019 |
+    | flop, everyone | 676 (205) | −6.871 | 0 | 0 | −0.004 ± 0.005 | −0.004 ± 0.005 | −0.034 ± 0.010 | −0.030 ± 0.008 | −0.034 ± 0.013 | −0.103 ± 0.019 |
+    | flop, a chunk read | 279 (138) | −6.710 | 0 | 0 | −0.009 ± 0.011 | −0.009 ± 0.011 | −0.082 ± 0.023 | −0.074 ± 0.018 | −0.082 ± 0.031 | −0.250 ± 0.045 |
+    | flop, bet or raised | 162 (105) | −6.674 | 0 | 0 | −0.004 ± 0.008 | −0.004 ± 0.008 | −0.048 ± 0.016 | −0.066 ± 0.015 | −0.088 ± 0.042 | −0.172 ± 0.037 |
+    | flop, called (no bet) | 162 (93) | −6.771 | 0 | 0 | −0.013 ± 0.016 | −0.013 ± 0.016 | −0.070 ± 0.029 | −0.050 ± 0.022 | −0.043 ± 0.026 | −0.187 ± 0.054 |
+    | flop, checked only | 352 (157) | −7.007 | 0 | 0 | +0.001 ± 0.001 | +0.001 ± 0.001 | −0.011 ± 0.009 | −0.005 ± 0.007 | −0.004 ± 0.006 | −0.033 ± 0.017 |
+    | flop, bet, raised or called, a chunk read | 130 (90) | −6.575 | 0 | 0 | −0.021 ± 0.025 | −0.021 ± 0.025 | −0.146 ± 0.043 | −0.145 ± 0.034 | −0.164 ± 0.063 | −0.447 ± 0.082 |
+    | flop, checked only, a chunk read | 149 (96) | −6.828 | 0 | 0 | +0.002 ± 0.003 | +0.002 ± 0.003 | −0.025 ± 0.022 | −0.012 ± 0.016 | −0.011 ± 0.015 | −0.079 ± 0.040 |
+    | flop, single raised, a chunk read | 172 (104) | −6.560 | 0 | 0 | −0.002 ± 0.016 | −0.002 ± 0.016 | −0.072 ± 0.027 | −0.059 ± 0.022 | −0.067 ± 0.038 | −0.217 ± 0.048 |
+    | flop, limped, a chunk read | 102 (77) | −6.921 | 0 | 0 | −0.020 ± 0.011 | −0.020 ± 0.011 | −0.101 ± 0.034 | −0.098 ± 0.028 | −0.113 ± 0.041 | −0.310 ± 0.071 |
+    | flop, 3-bet, a chunk read | 5 (5) | −7.560 | 0 | 0 | 0 | 0 | −0.044 ± 0.035 | −0.078 ± 0.048 | 0 | −0.176 ± 0.109 |
+    | flop, the hero's pots | 140 (86) | −6.987 | 0 | 0 | −0.022 ± 0.015 | −0.022 ± 0.015 | −0.070 ± 0.022 | −0.064 ± 0.018 | −0.050 ± 0.027 | −0.172 ± 0.045 |
+    | flop, pots without the hero | 536 (190) | −6.840 | 0 | 0 | +0.001 ± 0.004 | +0.001 ± 0.004 | −0.024 ± 0.010 | −0.022 ± 0.008 | −0.030 ± 0.014 | −0.085 ± 0.021 |
+    | turn after a multiway flop | 601 (195) | −6.785 | 0 | 0 | −0.001 ± 0.005 | −0.001 ± 0.005 | −0.026 ± 0.012 | −0.024 ± 0.011 | −0.025 ± 0.012 | −0.091 ± 0.020 |
+    | the same, a chunk read on the flop | 258 (134) | −6.690 | 0 | 0 | −0.003 ± 0.011 | −0.003 ± 0.011 | −0.060 ± 0.028 | −0.056 ± 0.026 | −0.059 ± 0.029 | −0.213 ± 0.047 |
+    | turn, the hero's pots | 131 (81) | −6.906 | 0 | 0 | −0.011 ± 0.012 | −0.011 ± 0.012 | −0.062 ± 0.026 | −0.057 ± 0.021 | −0.027 ± 0.018 | −0.140 ± 0.046 |
+    | turn, pots without the hero | 470 (181) | −6.752 | 0 | 0 | +0.001 ± 0.004 | +0.001 ± 0.004 | −0.016 ± 0.013 | −0.015 ± 0.013 | −0.025 ± 0.014 | −0.078 ± 0.022 |
+
+    Every fold of the geometric and linear blends picks α = 0, the
+    heuristic itself; the rank blend picks α = 0.1 or 0.25 (the smallest on
+    the grid) and scores −0.002 ± 0.005 held out. In sample the best cell is
+    rank 0.1 at +0.001. Every candidate loses more the more the library's
+    order counts, monotonically, and at α = 1 (the library's order with the
+    heuristic's share exactly) the bettors and callers on a chunk lose
+    −0.447 ± 0.082, as much as 2026-10-13's library at ε = 0 (−0.50 ±
+    0.12). So the shares were not the problem: with them fixed to the
+    heuristic's, the heads-up strategy's *order* of hands is itself what
+    explains multiway bettors' and callers' shown hands worse. The checkers
+    barely move (a check's likelihood is close to 1 for most combos either
+    way).
+  - **Not shipped.** The held-out winner ("any", the rank blend at α 0.1-0.25)
+    is −0.002 ± 0.005 against `analysis/23`, not more than two standard
+    errors better; no variant is better anywhere by more than a standard
+    error, and every fixed α ≥ 0.5 is worse on every subset with more than
+    20 shown. The heuristic stays the multiway flop narrowing; no flag, no
+    version bump, no grade moves.
+  - **Open.**
+    - The library's per-combo order on these flops is a heads-up order of
+      the charts' heads-up ranges; a multiway reading would need a solve
+      over three ranges (or multiway-specific chunks), not a reweighting of
+      the heads-up one. Nothing cheaper is left to try from this library.
+    - Coverage is unchanged: 279 of 676 shown flop rows sit on a chunk.
