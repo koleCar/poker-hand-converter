@@ -625,6 +625,22 @@ per-session hash across sessions invents a person. Each row carries the
 caller's own bb result in the hands they shared (a join to the hero row of the
 same hand). The search is a prefix match with `like` metacharacters escaped.
 
+**Opponents' counters by key** (`20270526090000`, analysis/20).
+`villain_counters(p_players jsonb, p_filters jsonb)` answers the analysis'
+question rather than the panel's: the counters `lib/analysis/villain.ts` reads
+(`hands`, `vpip_opp`, `vpip`, `pfr`) for exactly the named opponents, an array
+of `{site, player}` keys, at most 500 per call (anything else — not an array, a
+key that is not two non-empty strings, 501 keys — is 22023). It replaced the
+analysis' read of `stats_opponents`, whose 200-row cap left a learner's
+opponents past the 200 biggest samples on the population range. Same rules as
+`stats_opponents`: `security invoker` with `owner_id = auth.uid()` on top of
+`hand_stats`' RLS, `none` rooms only, no bomb pots, and the same
+`statsVersion` (default `stats/1`, so the client always sends it),
+`gameFormat` and `minHands` filters. A key named twice is answered once. Read
+only: no grant on any table changes. The client batches the opponents of each
+chunk of hands it analyses and asks each player once per run
+(`lib/db/villainCounters.ts`).
+
 **All-in EV** (`20261207090000`) is computed by `lib/equity` (exhaustive
 enumeration for hold'em, seeded Monte Carlo for preflop Omaha; the evNet of a
 hand sums to its net exactly) and stored in `hand_stats_ev`, a sibling table so
@@ -657,6 +673,14 @@ anon.
 hero-result join, opaque-id exclusion, minHands, escaped search, the villain
 backfill predicate (and positional hands never needing it), prune touching only
 the caller's villain rows, anon.
+
+`supabase/tests/database/villain_counters.test.sql` (20 assertions): an
+invoker function; one row per named opponent the caller has rows for; cash
+only with `gameFormat`, never a bomb pot, never another user's rows; the same
+counters `stats_opponents` reports; minHands; opaque-id hashes never summed;
+the room as part of the key; the version default; a key named twice counted
+once; 500 keys accepted and 501 refused; malformed input refused; a second
+user sees only their own; anon cannot execute it.
 
 `supabase/tests/database/stats_breakdown.test.sql`: grouping, ordering,
 filters before grouping, the whitelist (including a SQL-shaped key), money
@@ -1481,6 +1505,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `register_hand_source(p_device_id, p_local_id, p_device_name, p_label, p_site)` | `authenticated` | uuid | Registers (or renames) a folder the desktop app watches; idempotent per account + device + local id. No paths: a label with `/` or `\` is 22023. R1.8. |
 | `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. |
 | `hands_since(p_after_created timestamptz, p_after_id uuid, p_limit int)` | `authenticated` | `setof (id, created_at, hand_key, origin)` | The desktop pull: a keyset page of the caller's hands, oldest first, rows at least a minute old, at most 1 000. See [The desktop pull](#the-desktop-pull-hands_since). R1.9. |
+| `villain_counters(p_players jsonb, p_filters jsonb)` | `authenticated` | `setof (site, player, hands, vpip_opp, vpip, pfr)` | The caller's own counters for the named opponents (`{site, player}` keys, at most 500 per call), `none` rooms only, no bomb pots; invoker, read only. The analysis' per-villain ranges (analysis/20), without `stats_opponents`' cap of 200. See [Statistics](#statistics-hand_stats-coverage-and-rebuild). |
 
 `search_hands` filter keys (all optional): `site`, `board[]`, `heroCards[]`,
 `heroHandClasses[]`, `heroName`, `player`, `tableName`, `variant`, `limitType`,

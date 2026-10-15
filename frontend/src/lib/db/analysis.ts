@@ -38,8 +38,10 @@ import { preflopCharts, preflopChartsFor } from "../chartSet";
 
 export { preflopCharts };
 import type { PhfHand } from "../phf/types";
+import { STATS_VERSION } from "../stats";
 import { currentUserId, rpc } from "./client";
 import { fetchStatsOpponents } from "./stats";
+import { VillainCounters, type VillainCountersRow, type VillainPlayer } from "./villainCounters";
 import {
   analyseStoredHands,
   handAnalysisFromStored,
@@ -133,36 +135,78 @@ export async function fetchAnalysisCoverage(): Promise<AnalysisCoverage | null> 
 
 /* ------------------------------------------------- opponents' statistics - */
 
-/** The opponents the snapshot reads: `stats_opponents` caps at 200, biggest sample first. */
+/** The fallback snapshot's size: `stats_opponents` caps at 200, biggest sample first. */
 const VILLAIN_SNAPSHOT_LIMIT = 200;
-/** How long the hand view reuses a snapshot before reading a fresh one. */
+/** How long the hand view reuses opponents' counters before reading fresh ones. */
 const VILLAIN_SNAPSHOT_MS = 10 * 60_000;
 
-let villainSnapshot: { at: number; value: Promise<VillainStatsMap | null> } | null = null;
-
 /**
- * The learner's opponents' statistics for the analysis (analysis/20,
- * `lib/analysis/villain.ts`): VPIP, PFR and hands of every opponent with at
- * least `VILLAIN_MIN_HANDS` hands in cash games, from the opponents panel's
- * own report (`stats_opponents`, an invoker read under RLS; rooms with
- * persistent names only, the 200 biggest samples). Null when the learner keeps
- * no opponent rows (the panel's setting is off) or the read fails: the
- * analysis then reads the population ranges, as before.
- *
- * A snapshot: the rebuild reads one at its start (`fresh`), and every row it
- * writes records the sample its ranges were moved on (`SpotFacts.villain`).
- * Rows are not re-analysed when the statistics later grow; the next version
- * bump re-analyses them all with the statistics of that day.
+ * Asks `villain_counters` for some opponents' counters: the analysis'
+ * filters (cash games, at least `VILLAIN_MIN_HANDS` hands, the current
+ * statistics version), as the opponents panel's report applied them.
  */
-export function villainStatsSnapshot(fresh = false): Promise<VillainStatsMap | null> {
-  const now = Date.now();
-  if (fresh || !villainSnapshot || now - villainSnapshot.at > VILLAIN_SNAPSHOT_MS) {
-    villainSnapshot = { at: now, value: loadVillainStats() };
-  }
-  return villainSnapshot.value;
+async function fetchVillainCounters(players: VillainPlayer[]): Promise<VillainCountersRow[]> {
+  if (players.length === 0) return [];
+  const rowsRead = await rpc<Row[] | null>("villain_counters", {
+    p_players: players,
+    p_filters: { statsVersion: STATS_VERSION, gameFormat: "cash", minHands: VILLAIN_MIN_HANDS },
+  });
+  // The counters as stored, handed on (`villain.ts` makes the one rate it reads).
+  return rows(rowsRead).flatMap((row) => {
+    const site = str(row.site);
+    const player = str(row.player);
+    if (!site || !player) return [];
+    const vpipOpp = num(row.vpip_opp);
+    return [{ site, player, vpipOpp, vpip: num(row.vpip), pfr: num(row.pfr) }];
+  });
 }
 
-async function loadVillainStats(): Promise<VillainStatsMap | null> {
+/**
+ * The opponents' statistics for one run of the analysis (analysis/20,
+ * `lib/analysis/villain.ts`): VPIP, PFR and hands of every opponent **of the
+ * hands being analysed** with at least `VILLAIN_MIN_HANDS` hands in cash
+ * games, read per chunk with `villain_counters` (an invoker read under RLS;
+ * rooms with persistent names only) and kept for the run, each player asked
+ * once (`villainCounters.ts`). Null for a chunk with none: the analysis then
+ * reads the population ranges.
+ *
+ * Every row written records the sample its ranges were moved on
+ * (`SpotFacts.villain`). Rows are not re-analysed when the statistics later
+ * grow; the next version bump re-analyses them all with the statistics of
+ * that day.
+ *
+ * When `villain_counters` cannot be read (a deployment whose database does
+ * not have it yet, a failed call), the run falls back to what it read before
+ * analysis/20's fix: one snapshot of `stats_opponents`, the 200 biggest
+ * samples. Never to nothing at all, so a transient failure costs at most the
+ * opponents past the cap.
+ */
+function villainSource(): (hands: readonly PhfHand[]) => Promise<VillainStatsMap | null> {
+  const counters = new VillainCounters(fetchVillainCounters);
+  let fallback: Promise<VillainStatsMap | null> | null = null;
+  return async (hands) => {
+    try {
+      return await counters.statsFor(hands);
+    } catch {
+      fallback ??= loadCappedSnapshot();
+      return fallback;
+    }
+  };
+}
+
+let viewSource: { at: number; read: (hands: readonly PhfHand[]) => Promise<VillainStatsMap | null> } | null = null;
+
+/** The hand view's opponents' counters: a source kept for ten minutes, so paging through hands asks each player once. */
+function viewVillainStats(hands: readonly PhfHand[]): Promise<VillainStatsMap | null> {
+  const now = Date.now();
+  if (!viewSource || now - viewSource.at > VILLAIN_SNAPSHOT_MS) {
+    viewSource = { at: now, read: villainSource() };
+  }
+  return viewSource.read(hands);
+}
+
+/** The pre-fix snapshot, kept as the fallback: `stats_opponents`' 200 biggest samples. */
+async function loadCappedSnapshot(): Promise<VillainStatsMap | null> {
   try {
     const report = await fetchStatsOpponents({ minHands: VILLAIN_MIN_HANDS, gameFormat: "cash" }, "", VILLAIN_SNAPSHOT_LIMIT);
     const out: Record<string, VillainStats> = {};
@@ -244,12 +288,13 @@ function newWorker(): Worker | null {
  * once, mid-page, rather than waiting for the page to finish: what was not
  * written is simply missing next time.
  */
-function analyser(
-  signal?: AbortSignal,
-  /** The run's snapshot of the opponents' statistics (analysis/20). */
-  villains: VillainStatsMap | null = null,
-): {
-  run: (page: AnalyseRequest["page"], onHand?: (done: number) => void) => Promise<AnalysedBatch>;
+function analyser(signal?: AbortSignal): {
+  /** `villains`: the opponents' statistics for this page's hands (analysis/20). */
+  run: (
+    page: AnalyseRequest["page"],
+    onHand?: (done: number) => void,
+    villains?: VillainStatsMap | null,
+  ) => Promise<AnalysedBatch>;
   close: () => void;
   /** In a worker; false when it fell back to the main thread (then the pool is just this one). */
   threaded: boolean;
@@ -258,7 +303,7 @@ function analyser(
   if (!worker) {
     return {
       threaded: false,
-      run: async (page, onHand) => {
+      run: async (page, onHand, villains = null) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
         return analyseStoredHands(page, await preflopChartsFor(page.map((item) => item.phf)), onHand, null, villains);
@@ -275,7 +320,7 @@ function analyser(
   signal?.addEventListener("abort", onAbort, { once: true });
   return {
     threaded: true,
-    run: (page, onHand) =>
+    run: (page, onHand, villains = null) =>
       new Promise<AnalysedBatch>((resolve, reject) => {
         if (signal?.aborted) {
           reject(new Stopped("stopped"));
@@ -334,10 +379,10 @@ function askViewWorker<T>(
  * view's answer for a hand with no row at the current version. In a worker
  * when one can be made: a river solve can take a second. With the opponents'
  * statistics as the rebuild would read them (analysis/20, a snapshot at most
- * ten minutes old).
+ * ten minutes old, read for this hand's opponents).
  */
 export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
-  const villains = await villainStatsSnapshot();
+  const villains = await viewVillainStats([phf]);
   if (viewWorker === undefined) viewWorker = newWorker();
   if (!viewWorker) return analyzeHand(phf, { charts: await preflopChartsFor([phf]), villains });
   jobSequence += 1;
@@ -435,12 +480,12 @@ export async function runAnalysis(
   signal?.addEventListener("abort", onStop, { once: true });
   if (signal?.aborted) inner.abort();
 
-  // One snapshot of the opponents' statistics for the whole run (analysis/20).
-  const villains = await villainStatsSnapshot(true);
-  const first = analyser(inner.signal, villains);
+  // The opponents' statistics, read per chunk for its hands and kept for the run (analysis/20).
+  const villainsFor = villainSource();
+  const first = analyser(inner.signal);
   const engines = [first];
   if (first.threaded) {
-    for (let k = 1; k < poolSize(); k += 1) engines.push(analyser(inner.signal, villains));
+    for (let k = 1; k < poolSize(); k += 1) engines.push(analyser(inner.signal));
   }
 
   // The read side: pages one at a time, cut into chunks for the pool.
@@ -526,10 +571,15 @@ export async function runAnalysis(
       inChunk.set(k, 0);
       let batch: AnalysedBatch;
       try {
-        batch = await engines[k].run(chunk, (done) => {
-          inChunk.set(k, done);
-          report();
-        });
+        const villains = await villainsFor(chunk.map((item) => item.phf));
+        batch = await engines[k].run(
+          chunk,
+          (done) => {
+            inChunk.set(k, done);
+            report();
+          },
+          villains,
+        );
       } catch (error) {
         inChunk.delete(k);
         if (error instanceof Stopped) return;
