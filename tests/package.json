@@ -22,6 +22,7 @@
     "floplib:hu-check-trim": "vitest run --config scripts/flop-library/vitest.config.ts headsUpCheckTrim",
     "floplib:river-check-trim": "vitest run --config scripts/flop-library/vitest.config.ts riverCheckTrim",
     "floplib:check-trim-grades":"vitest run --config scripts/flop-library/vitest.config.ts checkTrimGrades",
+    "floplib:census": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/census",
     "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets",
     "ranges:extract": "vitest run --config scripts/caller-ranges/vitest.config.ts extract",
     "ranges:measure": "vitest run --config scripts/caller-ranges/vitest.config.ts measure",

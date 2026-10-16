@@ -83,6 +83,16 @@ export interface PreflopSpot {
    * its size; anything else is refused (`straddle`).
    */
   straddles?: readonly { position: Position; toBb: number }[];
+  /**
+   * (analysis/24) The button was dead: `positions` are the live names of the
+   * same table (`liveNames` in `fromHand.ts`), not the hand's own.
+   */
+  deadButton?: boolean;
+  /**
+   * (analysis/24) Players who posted a live big blind from another seat and
+   * checked, read in `actions` as limps (`postedLimp` in `fromHand.ts`).
+   */
+  postedLimps?: readonly Position[];
 }
 
 export type ChartMissReason =

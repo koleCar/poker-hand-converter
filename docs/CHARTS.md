@@ -1042,8 +1042,9 @@ library, a set without a straddle refuses every straddled spot and the
 straddle set every unstraddled one. A straddled spot with antes is `ante`.
 
 Refusals, `{ ok: false, reason, detail }`: `straddle`, `ante`, `players`
-(heads-up, ten or more, or positions that are not a `k`-handed ring - a dead
-button), `stack-depth` (no set within 20%), `multiway` (a fifth entrant, or
+(heads-up, ten or more, or positions that are not a `k`-handed ring; since
+`analysis/24` a dead button - the parser's names without a BTN - is read as
+the live `k`-handed ring by `preflopSpotFromHand`, `dead-button`), `stack-depth` (no set within 20%), `multiway` (a fifth entrant, or
 a fourth limper - `charts/4`), `limp` (an open limp other than the SB's, only
 on a set without limp trees), `cold-call`, `off-tree`,
 `rare-line` (the node is in the tree but not in the set: reached under
@@ -1370,7 +1371,13 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
 - **Out of scope by construction**: antes, every other straddle, heads-up, ten or more
   players, depths under 32bb, 72-80bb and over 240bb (§6.5), a fourth
   limper, cold calls of 3-bets, five-way pots, MTT/ICM, players posting a
-  dead big blind out of turn.
+  big blind out of turn with dead money (a missed small blind with it).
+  Since `analysis/24` a live one-big-blind post from another seat that then
+  checks is read as a limp (`posted-blind`, the grade capped at Inaccurate:
+  the poster holds any two cards, the charts' limper the tremble's range
+  with its traps - total-variation distance 0.31 from any two at the median
+  node the owner's posters reach; ANALYSIS-PLAN §10 2026-10-16); the
+  poster's own check is still refused.
 - **The limper may hold any hand** (§1.3). The reference faces a limp as
   the tremble makes it - every class 0.5% - plus the equilibrium's few
   traps, not as a recreational player's limping range (weak aces, small

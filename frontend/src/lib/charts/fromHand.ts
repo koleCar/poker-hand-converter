@@ -7,7 +7,7 @@
  * leave at their defaults.
  */
 
-import { assignPositions, isPostingAction, type PhfHand, type Position } from "../phf/types";
+import { assignPositions, isPostingAction, positionRing, type PhfAction, type PhfHand, type Position } from "../phf/types";
 import { lookupPreflop, rareLineDepthSets, uncoveredDepthSets, type PreflopActionInput, type PreflopSpot } from "./lookup";
 import { CHART_SETS, pickChartSet, type ChartLibrary, type ChartSetSpec } from "./registry";
 
@@ -53,6 +53,9 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
   if (!position.size) {
     return { ok: false, reason: "no-positions", detail: "button unknown; positions cannot be resolved" };
   }
+  // A dead button: the live names of the same table (analysis/24).
+  const live = liveNames([...position.values()]);
+  if (live) for (const [seat, name] of position) position.set(seat, live.get(name) as Position);
 
   const heroPlayer = heroSeat === undefined ? players.find((p) => p.isHero) : players.find((p) => p.seat === heroSeat);
   if (!heroPlayer || !position.has(heroPlayer.seat)) {
@@ -68,6 +71,15 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
     if (at) straddles.push({ position: at, toBb: action.streetTotal / bb });
   }
   const straddled = hand.actions.some((a) => a.type === "straddle");
+  // Big blinds posted from a seat other than the blinds (sitting in, or back from a missed blind), in chips.
+  const posts = new Map<number, number>();
+  for (const action of hand.actions) {
+    if (action.street !== "preflop" || action.seat === null) continue;
+    if (action.type === "big-blind" || action.type === "post" || action.type === "missed-blind") {
+      posts.set(action.seat, (posts.get(action.seat) ?? 0) + action.amount);
+    }
+  }
+  const postedLimps: Position[] = [];
   const actions: PreflopActionInput[] = [];
   let seen = 0;
   for (const action of hand.actions) {
@@ -79,6 +91,16 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
       position: pos,
       type: action.type === "bet" ? "raise" : (action.type as PreflopActionInput["type"]),
     };
+    // A live big blind posted from another seat, then checked: that player has
+    // a big blind in and nothing more to match, which is a limp in chips
+    // (analysis/24, `postedLimp`). Not the hero's own check: the poster's fold
+    // would cost the post, a limper's nothing, so that decision is not a limp's.
+    const own = action.seat === heroPlayer.seat && seen === nth;
+    if (!own && postedLimp(action, pos, posts.get(action.seat) ?? 0, bb)) {
+      input.type = "call";
+      input.toBb = 1;
+      postedLimps.push(pos);
+    }
     if (action.type === "call" || action.type === "raise" || action.type === "bet") {
       input.toBb = action.streetTotal / bb;
     }
@@ -101,6 +123,8 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
             ante: hand.actions.some((a) => a.type === "ante"),
             straddle: straddled,
             ...(straddled ? { straddles } : {}),
+            ...(live ? { deadButton: true } : {}),
+            ...(postedLimps.length ? { postedLimps: [...postedLimps] } : {}),
           },
           heroAction: input,
           heroCards: cards,
@@ -112,6 +136,39 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
     actions.push(input);
   }
   return { ok: false, reason: "no-decision", detail: `the hero has no preflop decision #${nth}` };
+}
+
+/**
+ * A dead button's position names onto the live names of the same table
+ * (analysis/24), or null when the button is not dead. `assignPositions` names
+ * the live seats behind a dead button against a ring one longer with the
+ * button's slot dropped - three players are SB, BB and CO - so a set of names
+ * without a BTN that is exactly `positionRing(k + 1)` less its last name is a
+ * dead button. The game is then a `k`-handed one: the last seat before the
+ * small blind acts last before the blinds and last after the flop, which is
+ * the button's place. Each name maps to the live ring's name at the same
+ * place in the order of play (SB, BB, UTG, ...).
+ */
+export function liveNames(names: readonly Position[]): Map<Position, Position> | null {
+  const k = names.length;
+  if (k < 3 || names.includes("BTN")) return null;
+  const dead = positionRing(k + 1).slice(0, k);
+  const given = new Set(names);
+  if (given.size !== k || dead.some((name) => !given.has(name))) return null;
+  const ring = positionRing(k);
+  return new Map(dead.map((name, i) => [name, ring[i]] as const));
+}
+
+/**
+ * Whether a preflop check is a poster's limp (analysis/24): a seat other than
+ * the blinds that posted exactly one live big blind (no dead money) checks
+ * with exactly that in. In chips that is a limp. In range it is not quite:
+ * the poster holds any two cards, the charts' limper the limp range their
+ * tremble trained, so a grade read this way is capped (`posted-blind`).
+ */
+export function postedLimp(action: PhfAction, position: Position, postedChips: number, bigBlind: number): boolean {
+  if (action.type !== "check" || position === "SB" || position === "BB" || bigBlind <= 0) return false;
+  return Math.abs(postedChips - bigBlind) < 1e-9 && Math.abs(action.streetTotal - bigBlind) < 1e-9;
 }
 
 /**

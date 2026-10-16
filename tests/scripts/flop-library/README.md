@@ -138,6 +138,19 @@ it (geometric, linear and rank blends, one α each), against `analysis/23`,
 held out by player. About two minutes. `docs/ANALYSIS-PLAN.md` §10
 2026-10-15.
 
+**The coverage census.** `CENSUS_OUT=rows.jsonl npm run floplib:census`
+(same variables) analyses every hand as the rebuild does (charts, the flop
+library's shipped sets only - `CENSUS_SETS` - turn solves on, every
+opponent's statistics summed over the file) and counts every hero decision
+by street × outcome: graded by the charts or a solve, graded approximately
+(by flag), analysed without a grade, not analysed by reason; also by table,
+depth and heads-up or multiway. Rows (hand and action indices, no cards or
+names) go to `CENSUS_OUT`; `CENSUS_SHARD=i/n` runs a share of the hands
+(three shards: about 25 minutes on the owner's 5,448 hands, `CENSUS_TURN=0`
+two). `CENSUS_REPORT=a.jsonl,b.jsonl` merges row files into one report, and
+with `CENSUS_BEFORE=` an earlier census's files prints how each decision
+moved. `docs/ANALYSIS-PLAN.md` §10 2026-10-16.
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

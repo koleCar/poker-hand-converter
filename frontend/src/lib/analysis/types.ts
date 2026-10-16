@@ -179,8 +179,20 @@ import type { Position, Street } from "../phf/types";
  *               unchanged; turns and rivers downstream of a heuristic check
  *               move with the ranges (ANALYSIS-PLAN §10 2026-10-14,
  *               heads-up check trim).
+ *   analysis/24 Three refusals of games the references cover, found by the
+ *               coverage census (ANALYSIS-PLAN §10 2026-10-16): a dead button
+ *               (the parser names the seats without a BTN; read as the live
+ *               table of the same size, `dead-button`, exact); a player who
+ *               posted a live big blind from another seat and checked (read
+ *               as a one-big-blind limp, `posted-blind`, capped at
+ *               Inaccurate) - both preflop, and the opponents' chart ranges
+ *               and flop-library placement of such hands; and a heads-up
+ *               flop whose two players' lookups land on sets of different
+ *               depths, now placed on the nearer set judged at the pair's
+ *               effective stack, as analysis/9 meant (`chartLineOf`), so its
+ *               flop reads the library where it has the line.
  */
-export const ANALYSIS_VERSION = "analysis/23" as const;
+export const ANALYSIS_VERSION = "analysis/24" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -378,6 +390,18 @@ export interface Flag {
  *                       limped (`charts/4`): the reference itself barely
  *                       limps there, so it plays against a limper who may
  *                       hold any hand (docs/CHARTS.md §1.3).
+ * - `dead-button`       (analysis/24) the button seat was empty: the table is
+ *                       read as the same number of players with a live
+ *                       button, the last seat before the small blind in the
+ *                       button's place (it acts last before the blinds and
+ *                       after the flop, which is the button's game exactly).
+ * - `posted-blind`      (analysis/24) a player posted a live big blind from
+ *                       another seat (sitting in) and checked: read as a
+ *                       limp of one big blind, which it is in chips. The
+ *                       poster holds any two cards; the charts' limper holds
+ *                       the limp range the tremble trained (not any two:
+ *                       ANALYSIS-PLAN §10 2026-10-16), so the grade is capped
+ *                       at Inaccurate. The poster's own check is not graded.
  * - `rare-line-depth`   (analysis/13) the line is too rare at the answering
  *                       set's depth to be charted there (`rare-line`), and is
  *                       read on the neighbouring depth of the same table that
@@ -455,6 +479,8 @@ export const APPROXIMATIONS = [
   "range-limp-call",
   "range-population",
   "range-villain",
+  "dead-button",
+  "posted-blind",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
