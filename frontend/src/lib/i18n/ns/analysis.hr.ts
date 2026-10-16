@@ -861,6 +861,10 @@ export const analysisHr: Dict["analysis"] = {
       "Protivnik koji je flat-callao raise ili limpao počinje od Railova populacijskog raspona za tu liniju, prilagođenog rukama koje takvi igrači pokažu: stvarni calleri i limperi igraju znatno šire od chartova",
     "range-villain":
       "Raspon kojim big blind brani proširen je ili sužen prema VPIP − PFR tog igrača u tvojim rukama, povučen prema prosjeku protivnika ovisno o uzorku (prikazan uz činjenice); ne ispod 30 ruku",
+    "dead-button":
+      "Mjesto buttona bilo je prazno: čitano kao stol iste veličine sa živim buttonom, na čijem je mjestu posljednje mjesto prije small blinda",
+    "posted-blind":
+      "Igrač je postao big blind da uđe u igru i checkao: čitano kao limp od jednog big blinda, iako takav igrač ima bilo koje dvije karte, a limper iz chartova nema; ocjena nije gora od Netočno",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,

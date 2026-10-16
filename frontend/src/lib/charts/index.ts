@@ -96,7 +96,7 @@ export {
   type PreflopSpot,
   uncoveredDepthSets,
 } from "./lookup";
-export { preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";
+export { liveNames, postedLimp, preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";
 export {
   CHART_SETS,
   chartLibrary,

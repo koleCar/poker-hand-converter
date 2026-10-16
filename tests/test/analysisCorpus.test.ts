@@ -337,7 +337,8 @@ describe("every record satisfies the database's own constraints", () => {
           options: decision.options,
           chosen,
           pot: decision.facts.potBb,
-          capAtInaccurate: decision.approximations.includes("off-tree-size"),
+          // analysis/24: a poster's check read as a limp caps the grade too.
+          capAtInaccurate: decision.approximations.includes("off-tree-size") || decision.approximations.includes("posted-blind"),
           capAtMistake: decision.approximations.includes("range-cap"),
         });
         expect(decision.grade).toBe(again.grade);

@@ -220,7 +220,10 @@ player's decisions. This is why they come first.
   (`limp` only for a set without limp trees).
 - **Lookup approximates:** `short-handed` (3–5 handed read as 6-max, 7–8
   handed as 9-max, the earliest seats folded: exact in the model up to
-  convergence), and off-tree sizes, by action translation.
+  convergence), and off-tree sizes, by action translation. Since
+  `analysis/24` a dead button is read as the live table of the same size
+  (`dead-button`, exact), and a live big blind posted from another seat and
+  checked as a limp (`posted-blind`, capped at Inaccurate; §10 2026-10-16).
 - **Hands outside the range:** a hand class that never reaches a node gets the
   best response, and the lookup reports `inRange: false` so the UI can say so.
 
@@ -3861,3 +3864,142 @@ Each phase appends what it learned that changed the plan.
     - No library with more than 200 opponents of 30+ hands has been
       measured; when one exists, the grades its next bump moves are the
       measure of what the cap cost.
+- 2026-10-16 — The coverage census, and three refusals of games the references
+  cover, `analysis/24` (census `tests/scripts/flop-library/census.test.ts`,
+  `npm run floplib:census`; fixes in `lib/charts/fromHand.ts`,
+  `lib/analysis/preflop.ts`, `lib/analysis/flopLibrary.ts`; tests
+  `tests/test/analysisCoverage.test.ts`). No migration.
+  - **Why.** The cheap modelling ideas on the heads-up flop library are
+    spent (2026-10-13 to 10-15: three not shipped). Before the next one,
+    count where the hero's decisions go ungraded and why, and take the
+    largest cause that needs no new flop-library solve (the machine is busy
+    with the 6-max 150bb batch).
+  - **Data.** The 5,448 stored hands of the test user (local stack), 8,005
+    hero decisions in 5,339 hands with any (109 hands have no hero decision).
+    Every hand analysed as the rebuild does: the chart library, the flop
+    library from the local directory (the two shipped sets only; the 150bb
+    set being solved there is never read), **turn solves on**, and every
+    opponent's statistics summed over the file (`villain_counters`' sums).
+    The whole file, no sample: 35 minutes in two processes, `nice`.
+  - **The census** (`analysis/23`; "no grade" is analysed with facts and
+    flags but no reference: a heads-up flop no chunk covers):
+
+    | street | exact (chart, solver, library) | approximate | no grade | not analysed | all |
+    |---|---|---|---|---|---|
+    | preflop | 4,849 | 0 | 0 | 584 | 5,433 |
+    | flop | 136 (14 exact chunks, 122 mapped) | 143 (`flop-realisation`) | 528 | 464 | 1,271 |
+    | turn | 512 (48 `multiway-history`) | 76 (`turn-realisation`) | 0 | 216 | 804 |
+    | river | 375 (64 `multiway-history`) | 23 (river `multiway-approx`) | 0 | 99 | 497 |
+    | all | 5,872 (73.4%) | 242 (3.0%) | 528 | 1,363 | 8,005 |
+
+    By table (seats): 9-max (7-10) 5,019 decisions, 73.3% graded exactly or
+    approximately; 6-max (3-6) 2,986, 81.6%; no table of two seats, but 267
+    decisions were dealt two-handed (224 on 8-seat tables), none graded
+    preflop. By effective depth: 80-120bb 5,326 decisions, 77.8% graded;
+    120-170bb 1,948, 76.1%; 170bb+ 633, 73.9%; under 80bb 98, 23.5%. Postflop at the decision: heads-up flops 136 of
+    662 graded (525 no chunk), multiway flops 105 of 555 (450 `multiway`:
+    checks and bets), heads-up turns 464 of 475, multiway turns 55 of 245,
+    heads-up rivers 311 of 318, multiway rivers 17 of 98; turns and rivers
+    that began heads-up after a multiway flop 139 of 165.
+  - **Every cause, ranked** (hero decisions; preflop chart reasons with the
+    lookup's detail):
+
+    | cause | decisions | needs |
+    |---|---|---|
+    | heads-up flop, no chunk (no grade) | 528 | see below |
+    | multiway check or bet (`multiway`) | 487 (flop 285, turn 141, river 61) | a multiway solver |
+    | bomb pot (hand) | 262 | a bomb-pot model |
+    | `chart-players`: heads-up (2 dealt) | 110 | a heads-up chart set |
+    | `chart-players`: **a dead button** | 100 | nothing: fixed here |
+    | `chart-off-tree`: **a poster's check** ("CO checks facing a bet") | 102 | nothing: fixed here |
+    | `chart-off-tree`: the tree ends (squeeze tails, "no decision for SB") | 16 | a deeper tree |
+    | `chart-stack-depth` (6-max under 32bb or 72-80bb; 9-max under 80bb) | 106 | chart sets at those depths |
+    | tournament (hand) | 48 | ICM |
+    | `chart-rare-line` (after the neighbouring depth) | 43 | longer chart solves |
+    | `chart-cold-call` / `chart-multiway` / `chart-straddle` / other | 27 / 20 / 11 / 4 | bigger trees |
+    | `turn-unreached` / `river-unreached` | 10 / 6 | nothing sound |
+    | multiway side pot / re-raise; `*-multiway-flop` | 4 / 3; 4 | small |
+
+    Of the 528 heads-up flops without a chunk: 274 the charts could not
+    place - **104 where both players' lines placed, on sets of different
+    depths** (fixed here, below), 64 heads-up hands, about 80 a player at a
+    depth no set covers, the rest other refusals (rare lines, a poster's own
+    check, cold calls); 128 on a set the library has none for (6-max 150bb
+    66, 60bb 31, 200bb 13, the straddle set 6, 9-max 150bb 6, others 6); 103
+    on lines the library does not solve (4-bet or longer 45, single raised
+    37, 3-bet 11, limped 10); 23 other. Most of what is left needs solves: the library at
+    other depths (150bb is being solved), more lines, a heads-up chart set.
+  - **The three fixes** (none needs a solve):
+    - **A dead button.** `assignPositions` names the live seats behind an
+      empty button seat against a ring one longer with the button dropped
+      (five players: SB, BB, UTG, HJ, CO), and no chart seat map took that
+      (`chart-players`, "5 players dealt in (SB, BB, UTG, HJ, CO); the set
+      is 6-max"). The game is the five-handed one with the cutoff in the
+      button's place - it acts last before the blinds and last after the
+      flop - so `preflopSpotFromHand` now maps such names onto the live ring
+      of the same size (`liveNames`), for the hero's grade, every opponent's
+      chart range and the flop library's placement. Exact: the same game,
+      written another way (the test grades a dead-button hand and the same
+      live-button hand: identical options, EVs and grade). Flagged
+      `dead-button`.
+    - **A poster's check.** A player sitting in posts a big blind from
+      another seat and, unraised, checks: the tree has no check there ("CO
+      checks facing a bet", `chart-off-tree`), so every decision after it
+      was refused. In chips it is a limp of one big blind, and it is now
+      read as one (`postedLimp`: a live post of exactly one big blind, no
+      dead money, the street total one big blind). In range it is not: the
+      poster holds any two cards, the charts' limper the range their limp
+      tremble trained. Measured at the 77 nodes the owner's posters reach,
+      the charts' limp range is far from any two (total-variation distance
+      0.31 at the median, 0.78 at the 90th percentile; 25 of 77 within
+      0.25), so these grades are **capped at Inaccurate** (`posted-blind`, as
+      `rare-line-depth`), and the poster's own check stays refused (folding
+      it costs the post, a limper's fold costs nothing).
+    - **A flop pair across depths** (a bug in `analysis/9`). When the two
+      flop players' own lookups land on sets of different depths, both are
+      meant to be placed on the set nearest the pair's effective stack; the
+      re-placement re-judged the deeper player's depth on that set against
+      *their own* deepest opponent (often a third player who folded later),
+      so a 100bb pair whose opener had a 150bb player behind was refused.
+      Judged at the pair's effective stack now (every stack capped at the
+      pair's), so the target set still refuses a pair 20% off its depth.
+  - **Measured** (the census again at `analysis/24`, decision for decision
+    against `analysis/23`, `CENSUS_BEFORE`):
+
+    | | `analysis/23` | `analysis/24` | moved |
+    |---|---|---|---|
+    | preflop graded | 4,849 | **5,042** | +193: dead button 99 (Perfect 87, Inaccurate 3, Mistake 6, Blunder 3; 1 now `chart-rare-line`), poster 94 (Perfect 86, Inaccurate 8 of which 5 capped from Mistake or Blunder; 8 now `chart-multiway` or `chart-rare-line`) |
+    | flop graded from the library | 136 | **163** | +27 (Perfect 20, Good 6, Mistake 1), all from the pair fix |
+    | turn / river solver grades | 512 / 375 | 512 / 375 | 7 turn and 6 river grades move (their ranges now start from the library or the charts); one river newly solved, one now `river-unreached` |
+    | all graded | 6,114 (76.4%) | **6,334 (79.1%)** | +220 |
+    | not analysed or no grade | 1,891 | 1,671 | −220 |
+
+    Preflop grades overall: Perfect 4,364 → 4,537, Inaccurate 202 → 213,
+    Mistake 185 → 191, Blunder 81 → 84; 38 decisions keep their grade with
+    other approximation flags (turn 19, river 12, flop 6, preflop 1). Examples: 6♥3♥ in the big blind four-handed
+    behind a dead button, folding to the small blind's raise, Blunder (read
+    as the live 4-handed blind battle); 3♦5♦ in the small blind four-handed,
+    dead button, folding when it is folded to, Mistake; T♦Q♣ in the small
+    blind seven-handed, dead button, folding to a lojack open and a hijack
+    3-bet, Perfect; 9♦K♠ in the big blind raising after UTG limps and the
+    hijack posts and checks, Inaccurate (`posted-blind`); J♣Q♦ on the cutoff
+    c-betting 2♦9♣9♥ against the big blind, the two players' own lookups on
+    the 150bb and 100bb sets (now the mapped `co-bb` chunk), Perfect.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/24`: two new approximation
+    codes (`dead-button`, `posted-blind`, with their sentences in English and
+    Croatian), the `posted-blind` cap, and the re-placement at the pair's
+    stack. Charts, solvers and the library are unchanged; nothing else moves.
+    The stored hands' positions are unchanged (the parser still names a dead
+    button its way; stats read it as before).
+  - **Open.**
+    - The largest causes left need solves or models: 528 heads-up flops the
+      library does not cover (the 6-max 150bb set being solved takes 66 of
+      them, before the pairs that now re-place onto it), 487 multiway checks and bets, 262 bomb-pot decisions, 110
+      heads-up preflop decisions (no heads-up chart set), 106 preflop at
+      uncovered depths.
+    - The poster's grade is capped because the charts' limper is not any two
+      cards. A chart line with a forced any-two limper (or the limp tremble
+      raised to any two at those nodes) would grade it uncapped.
+    - The pair fix reads the deeper player's preflop range on the pair's
+      set, at the pair's depth: the same approximation every placement
+      within 20% already makes, not measured on its own.

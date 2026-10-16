@@ -443,7 +443,17 @@ export function chartLineOf(hand: PhfHand, seats: readonly number[], charts: Cha
         again.push(p);
         continue;
       }
-      const lookup = lookupPreflop(target, p.spot, null, p.action);
+      // Judged at the pair's effective stack (analysis/24): the player's own
+      // effective stack is against the deepest opponent still in at their
+      // decision - often a third player who folds later - and re-judging it
+      // on the target set refused every pair with one deep player in it.
+      // Every stack capped at the pair's makes the lookup's effective stack
+      // the pair's, so the target set still refuses a pair 20% off its depth.
+      const atPair: PreflopSpot = {
+        ...p.spot,
+        stacksBb: Object.fromEntries(Object.entries(p.spot.stacksBb ?? {}).map(([at, bb]) => [at, Math.min(bb as number, pairBb)])),
+      };
+      const lookup = lookupPreflop(target, atPair, null, p.action);
       if (!lookup.ok || lookup.chosen === null || lookup.chosen < 0) return null;
       again.push({ ...p, line: lookup.node.line + lookup.node.options[lookup.chosen].code, set: target });
     }

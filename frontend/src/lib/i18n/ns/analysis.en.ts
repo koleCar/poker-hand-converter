@@ -887,6 +887,10 @@ export const analysisEn = {
       "An opponent who flat-called a raise or limped starts from Rail's population range for that line, fitted on the hands such players show down: real callers and limpers play far wider than the charts",
     "range-villain":
       "The big blind's defending range is widened or narrowed by that player's own VPIP − PFR in your hands, shrunk toward the pool's by the sample (shown with the facts); not below 30 hands",
+    "dead-button":
+      "The button seat was empty: read as a table of the same size with a live button, the last seat before the small blind in the button's place",
+    "posted-blind":
+      "A player posted a big blind to sit in and checked: read as a one-big-blind limp, though a poster holds any two cards and the charts' limper does not; graded no worse than Inaccurate",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,

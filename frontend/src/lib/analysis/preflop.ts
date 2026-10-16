@@ -188,14 +188,17 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   const approximations = chartApproximations(lookup.set, lookup.approximations);
   // Behind an open limp the reference's limper is the tremble's: any hand (charts/4).
   if (isOpenLimpNode(lookup.node)) approximations.add("limp-tremble");
+  // analysis/24: a dead button read as the live table; a poster's check read as a limp.
+  if (found.spot.deadButton) approximations.add("dead-button");
+  if (found.spot.postedLimps?.length) approximations.add("posted-blind");
   const inRange = lookup.inRange ?? 0;
   if (inRange < OFF_RANGE) approximations.add("out-of-range");
   const result = grade({
     options,
     chosen,
     pot: input.potBb,
-    // Off the chart's size, or read at another depth: the reference is near, not exact.
-    capAtInaccurate: approximations.has("off-tree-size") || approximations.has("rare-line-depth"),
+    // Off the chart's size, read at another depth, or a poster read as a limper (analysis/24): the reference is near, not exact.
+    capAtInaccurate: approximations.has("off-tree-size") || approximations.has("rare-line-depth") || approximations.has("posted-blind"),
   });
   return {
     ok: true,
