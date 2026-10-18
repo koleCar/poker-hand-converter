@@ -73,7 +73,7 @@ import {
   type RealisationModel,
   type RealisationRole,
 } from "./preflopModel";
-import { PF_ACTION, PF_FOLD, POSTFLOP_ORDER, POT_TYPE_INDEX, type PreflopTree } from "./preflopTree";
+import { PF_ACTION, PF_FOLD, POT_TYPE_INDEX, type PreflopTree } from "./preflopTree";
 
 const H = NUM_CLASSES;
 
@@ -288,7 +288,7 @@ export class PreflopSolver {
               share[a].push(null);
               continue;
             }
-            const ip = POSTFLOP_ORDER[tree.players[a]] > POSTFLOP_ORDER[tree.players[b]];
+            const ip = tree.postflop[a] > tree.postflop[b];
             share[a].push(matrix(potType, realisationRole(ip, agg === a), realisationRole(!ip, agg === b)));
           }
         }

@@ -44,10 +44,26 @@ export function vs3betLine(positions: readonly string[], opener: string, threeBe
 
 const pct = (x: number | undefined) => (x === undefined ? "  -  " : `${(100 * x).toFixed(1)}%`.padStart(6));
 
+/**
+ * A heads-up set (`charts/8`, docs/CHARTS.md §8.4): every node of its small
+ * tree, the actor's action shares and the reach.
+ */
+export function headsUpReport(charts: ChartSet): string {
+  const lines = [`${charts.id} (${charts.version}): ${charts.nodes.size} nodes (heads-up: the small blind is the button)`];
+  const nodes = [...charts.nodes.values()].sort((a, b) => a.line.length - b.line.length || a.line.localeCompare(b.line));
+  for (const node of nodes) {
+    const s = split(charts, node.line) ?? {};
+    const shares = node.options.map((o) => `${o.action} ${o.toBb}bb ${pct(s[o.action])}`).join("  ");
+    lines.push(`  ${JSON.stringify(node.line).padEnd(9)} ${node.actor.padEnd(3)} ${node.scenario.padEnd(8)} reach ${node.reach.toFixed(4)}  ${shares}`);
+  }
+  return lines.join("\n");
+}
+
 /** The tables docs/CHARTS.md §8 quotes. */
 export function report(charts: ChartSet): string {
   const positions = charts.game.positions;
   const n = positions.length;
+  if (n === 2) return headsUpReport(charts);
   const lines: string[] = [];
   lines.push(`${charts.id} (${charts.version}): ${charts.nodes.size} nodes`);
   lines.push("RFI (raise / limp):");

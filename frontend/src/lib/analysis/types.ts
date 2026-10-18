@@ -196,8 +196,14 @@ import type { Position, Street } from "../phf/types";
  *               bucket, so heads-up flops placed on the 150bb set are graded
  *               from its solves like the 100bb ones (ANALYSIS-PLAN §10
  *               2026-10-18).
+ *   analysis/26 `charts/8`: heads-up tables (two dealt in, the small blind
+ *               the button) are graded preflop from the heads-up 100bb set
+ *               (`nlhe-cash-hu-100bb`), and their opponents' preflop ranges
+ *               come from it, instead of `chart-players`; a heads-up hand at
+ *               a depth outside 80-120bb is `chart-stack-depth` (ANALYSIS-PLAN
+ *               §10 2026-10-18, heads-up charts).
  */
-export const ANALYSIS_VERSION = "analysis/25" as const;
+export const ANALYSIS_VERSION = "analysis/26" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

@@ -69,6 +69,13 @@
  * or raise first in (`sbOpen`). Sizes against the straddle are the set's own
  * (`PreflopSizing`, in big blinds).
  *
+ * **Heads-up** (`headsUp`, `charts/8`): two players, `SB, BB`, where the
+ * small blind is the button. The preflop action is the same as the blinds'
+ * subgame of a bigger table - the small blind folds, completes or raises
+ * first, the big blind checks or raises a completion - but after the flop
+ * the small blind acts **last**, so every size and realisation role that
+ * depends on position (`postflop`) has the small blind in position.
+ *
  * **Flat arrays, pre-order.** Same shape as `tree.ts`: node fields in parallel
  * typed arrays, children a contiguous slice. Node 0 is the root; ids follow a
  * depth-first walk, so a chart written in node order reads like the tree.
@@ -200,6 +207,23 @@ export interface PreflopTreeConfig {
    * raise (`FLAG_LIMPERS_CAP`). Limpers count as entrants (`maxEntrants`).
    */
   maxLimpers?: number;
+  /**
+   * Heads-up (`charts/8`): two players, `["SB", "BB"]`, where the button posts
+   * the small blind - it acts first preflop and **last** after the flop. In
+   * every other tree the small blind is out of position (`POSTFLOP_ORDER`),
+   * including the blind-versus-blind subgame of a bigger table, so this is a
+   * flag rather than a rule read off the seats.
+   */
+  headsUp?: boolean;
+}
+
+/**
+ * Postflop acting rank of each seat of a table (higher acts later): the
+ * stats engine's order (`POSTFLOP_ORDER`), except heads-up, where the button
+ * is the small blind and acts last.
+ */
+export function postflopRanks(players: readonly PreflopPosition[], headsUp = false): number[] {
+  return players.map((p) => (headsUp ? (p === "SB" ? 1 : 0) : POSTFLOP_ORDER[p]));
 }
 
 /* Node types. */
@@ -230,6 +254,10 @@ export interface PreflopTree {
   readonly players: readonly PreflopPosition[];
   /** The straddle, or null. Its seat is `players[players.length - 1]`. */
   readonly straddle: Readonly<PreflopStraddle> | null;
+  /** Heads-up: the small blind is the button and acts last after the flop (`PreflopTreeConfig.headsUp`). */
+  readonly headsUp: boolean;
+  /** Per player (action order): postflop acting rank, higher in position (`postflopRanks`). */
+  readonly postflop: readonly number[];
   readonly stackBb: number;
   readonly sizing: Readonly<PreflopSizing>;
   readonly maxEntrants: number;
@@ -323,6 +351,10 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
     }
     if (!(straddle.bb > 1)) throw new Error("a straddle is more than the big blind");
   }
+  const headsUp = config.headsUp ?? false;
+  if (headsUp && (table.length !== 2 || table[0] !== "SB" || table[1] !== "BB" || straddle)) {
+    throw new Error("a heads-up tree is the small blind (the button) and the big blind, without a straddle");
+  }
   // Action order: with a straddle, the straddler acts last preflop.
   const players = straddle ? [...table.slice(1), table[0]] : table;
   const n = players.length;
@@ -333,7 +365,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const maxLimpers = Math.max(0, Math.floor(config.maxLimpers ?? 0));
   const sb = players.indexOf("SB");
   const bb = players.indexOf("BB");
-  const postflop = players.map((p) => POSTFLOP_ORDER[p]);
+  const postflop = postflopRanks(players, headsUp);
   // Who has the option in an unopened pot: checks behind limpers, may raise them.
   const option = straddle ? n - 1 : bb;
 
@@ -627,6 +659,8 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   return {
     players,
     straddle,
+    headsUp,
+    postflop,
     stackBb: stack,
     sizing,
     maxEntrants,

@@ -26,13 +26,15 @@
  *   instead of 3,000 (`deep`, docs/CHARTS.md §5.1); nothing else changes.
  * - `charts/7` does the same for the 9-max 150bb set (`deep`, version
  *   `charts/7`, docs/CHARTS.md §5.1).
+ * - `charts/8` adds the heads-up 100bb set (`HEADS_UP`, docs/CHARTS.md §6.9):
+ *   two players, the small blind is the button.
  */
 
 import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../frontend/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7";
+  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7" | "charts/8";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -50,6 +52,8 @@ export interface SetConfig {
   minLimpReach?: number;
   /** A straddle by the first seat left of the big blind (`charts/5`). */
   straddle?: PreflopStraddle;
+  /** Heads-up: `players` are `SB, BB`, the small blind is the button (`charts/8`). */
+  headsUp?: boolean;
   /** Iterations of the final solve (default `PRODUCTION_ITERATIONS`, 3,000; `CHARTS_ITERATIONS` overrides). */
   iterations?: number;
 }
@@ -136,6 +140,34 @@ const STRADDLE: SetConfig = {
 };
 
 /**
+ * `charts/8`: heads-up 100bb (docs/CHARTS.md §6.9). The small blind is the
+ * button: it acts first preflop and last after the flop. Sizes for a
+ * two-handed game: the small blind opens to 2.5bb (a 6-max SB raises to 3bb
+ * into a big blind out of position; here it is in position), the big blind's
+ * raise over a completion is 4bb (no out-of-position extra: heads-up the big
+ * blind is always out of position), 3-bets 4x out of position (10bb) and 3x
+ * in position, 4-bets 2.2x in position (22bb) and 2.5x out of position, the
+ * 5-bet all-in. Only the small blind can limp, so the `charts/3` tree has
+ * every limp (no tremble needed: the completion is a real option, not a
+ * trembled one). The realisation is measured on the tree's own heads-up
+ * spots (`HEADS_UP_REALISATION_SPOTS`), A2c's way: two rounds from
+ * `charts/2`'s fit. The solve is two-player, where DCFR converges; it is
+ * small, so it runs `DEEP_ITERATIONS`.
+ */
+const HEADS_UP: SetConfig = {
+  id: "nlhe-cash-hu-100bb",
+  version: "charts/8",
+  players: ["SB", "BB"],
+  stackBb: 100,
+  sizing: { sbOpen: 2.5, isoOop: 0, allInAbove: ALL_IN_ABOVE },
+  rounds: 2,
+  start: "charts/2-fit",
+  fitName: "charts/8-solver-fit-hu-100bb",
+  headsUp: true,
+  iterations: DEEP_ITERATIONS,
+};
+
+/**
  * Every committed set, in the order the limp refusals of the owner's library
  * ask for them (A2d: 9-max 100bb 399, 6-max 100bb 284, 6-max 150bb 90, 9-max
  * 150bb 77, 9-max 200bb 60, 6-max 60bb 18, 6-max 200bb 3, 6-max 40bb 2).
@@ -159,6 +191,7 @@ export const SET_CONFIGS: readonly SetConfig[] = [
   deep(a2c(SIX, 200, STANDARD)),
   a2d(a2c(SIX, 40, SHORT)),
   STRADDLE,
+  HEADS_UP,
 ];
 
 export function setConfig(id: string): SetConfig {

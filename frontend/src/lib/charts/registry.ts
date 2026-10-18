@@ -15,8 +15,11 @@
  *    least `k` seats: 3-6 handed on a 6-max set, 7-9 handed on a 9-max set.
  *    Fewer players than seats is the `short-handed` approximation: the
  *    missing seats are the earliest ones, folded (`lookup.ts`). Heads-up
- *    (the button is the small blind and acts last after the flop) and ten
- *    or more players are refused (`players`).
+ *    (the button is the small blind and acts last after the flop) is read
+ *    only on a heads-up set (`charts/8`) - never on a bigger table with its
+ *    seats folded, whose blinds play the other way round after the flop -
+ *    and a heads-up set answers nothing else. Ten or more players are
+ *    refused (`players`).
  * 2. **Depth.** Among that table's sets, the one whose depth is nearest the
  *    effective stack (relative distance); further than `STACK_TOLERANCE`
  *    (20%) from every one is refused (`stack-depth`). Strategies are never
@@ -39,7 +42,7 @@ import type { PreflopSpot } from "./lookup";
 /** One committed set: its table, its depth, and how to load it. */
 export interface ChartSetSpec {
   id: string;
-  /** Seats of the set's table: 6 or 9. */
+  /** Seats of the set's table: 2 (heads-up, `charts/8`), 6 or 9. */
   players: number;
   stackBb: number;
   /**
@@ -70,6 +73,7 @@ export const CHART_SETS: readonly ChartSetSpec[] = [
   { id: "nlhe-cash-9max-100bb", players: 9, stackBb: 100, load: () => import("./data/nlhe-cash-9max-100bb.json") },
   { id: "nlhe-cash-9max-150bb", players: 9, stackBb: 150, load: () => import("./data/nlhe-cash-9max-150bb.json") },
   { id: "nlhe-cash-9max-200bb", players: 9, stackBb: 200, load: () => import("./data/nlhe-cash-9max-200bb.json") },
+  { id: "nlhe-cash-hu-100bb", players: 2, stackBb: 100, load: () => import("./data/nlhe-cash-hu-100bb.json") },
   {
     id: "nlhe-cash-6max-100bb-straddle",
     players: 6,
@@ -173,10 +177,12 @@ export function pickChartSet(specs: readonly ChartSetSpec[], spot: PreflopSpot):
 /** Among `specs` (one kind: with or without a straddle), the table and the depth. */
 function pickByDepth(specs: readonly ChartSetSpec[], spot: PreflopSpot): ChartSetPick {
   const k = spot.positions.length;
-  if (k < 3) {
+  if (k < 2) return { ok: false, reason: "players", detail: `${k} players dealt in` };
+  // Heads-up reads only a heads-up set, and a heads-up set only heads-up (see the header).
+  const seats = specs.map((s) => s.players).filter((n) => (k === 2 ? n === 2 : n >= k && n > 2));
+  if (k === 2 && !seats.length) {
     return { ok: false, reason: "players", detail: "heads-up: the small blind is the button; no chart set models it" };
   }
-  const seats = specs.map((s) => s.players).filter((n) => n >= k);
   if (!seats.length) return { ok: false, reason: "players", detail: `${k} players dealt in; the largest chart set is ${Math.max(...specs.map((s) => s.players))}-max` };
   const table = Math.min(...seats);
   const effectiveBb = effectiveStackBb(spot);
@@ -195,7 +201,7 @@ function pickByDepth(specs: readonly ChartSetSpec[], spot: PreflopSpot): ChartSe
     return {
       ok: false,
       reason: "stack-depth",
-      detail: `effective stack ${round2(effectiveBb)}bb is more than ${STACK_TOLERANCE * 100}% from every ${table}-max set (${depths}bb)`,
+      detail: `effective stack ${round2(effectiveBb)}bb is more than ${STACK_TOLERANCE * 100}% from every ${table === 2 ? "heads-up" : `${table}-max`} set (${depths}bb)`,
     };
   }
   return { ok: true, spec: best, effectiveBb };

@@ -11,8 +11,8 @@
  * are passed in, never loaded here: the JSON is ~630 KB, and the caller (the
  * Web Worker, a test, the hand view) decides when to pay for it.
  *
- * **A refusal is an answer.** A line the charts cannot represent — heads-up,
- * a depth no set covers, an open limp, a line too rare to be in the set — is a
+ * **A refusal is an answer.** A line the charts cannot represent — a depth
+ * no set covers, an open limp, a line too rare to be in the set — is a
  * `not-analysed` decision with the lookup's reason, never a guess (§3.5).
  *
  * **EV units.** A chart EV is net chips from the start of the hand, so EV loss
@@ -51,9 +51,9 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
  * on the list, and `modelCaveat` names those hands. `charts/4` (A2d, limp
  * trees), `charts/3` (A2c), `charts/5` (A2e, the straddle set), `charts/6`
- * (the 200bb sets solved longer) and `charts/7` (the 9-max 150bb set solved
- * longer) are the same model at other tables, depths and blinds, with the
- * same weakness.
+ * (the 200bb sets solved longer), `charts/7` (the 9-max 150bb set solved
+ * longer) and `charts/8` (the heads-up set) are the same model at other
+ * tables, depths and blinds, with the same weakness.
  */
 export const WEAK_CHART_VERSIONS: readonly string[] = [
   "charts/1",
@@ -63,6 +63,7 @@ export const WEAK_CHART_VERSIONS: readonly string[] = [
   "charts/5",
   "charts/6",
   "charts/7",
+  "charts/8",
 ];
 
 /**

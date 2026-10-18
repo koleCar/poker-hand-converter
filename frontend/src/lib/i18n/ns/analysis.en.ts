@@ -189,7 +189,7 @@ function mixLabel(decision: DecisionAnalysis): string {
 const chartReasons = {
   "chart-straddle": "a straddle changes every price, and the charts cover only one: a single 2bb straddle from the seat left of the big blind, 4-6 handed, near 100bb",
   "chart-ante": "antes are in the pot, and the cash charts have none",
-  "chart-players": "the charts cover three to nine players (a smaller table is read with the earliest seats folded); heads-up is not covered",
+  "chart-players": "the charts cover two to nine players (heads-up has its own set; a smaller table is read with the earliest seats folded)",
   "chart-stack-depth": "the effective stack is more than 20% from every chart set's depth (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
   "chart-limp": "someone open-limped, and the charts have no open limp except the small blind's",
   "chart-multiway": "this would be a fifth player in the pot, beyond what the charts model",
@@ -736,7 +736,7 @@ export const analysisEn = {
   reference: {
     title: "Preflop is graded against our charts, the turn and river against our solver",
     body:
-      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own preflop charts (6-max at 40–200 bb, full ring at 100–200 bb) wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade. Multiway pots get facts against every opponent's range, and a call or fold facing a bet gets an approximate grade, labelled as such.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own preflop charts (6-max at 40–200 bb, full ring at 100–200 bb, heads-up at 100 bb) wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade. Multiway pots get facts against every opponent's range, and a call or fold facing a bet gets an approximate grade, labelled as such.",
     model:
       "The charts (charts/2) value a flop with the flop checked, so they still under-rate a few hands that win through implied odds: UTG folds 22–55, 54s–87s and A5s, and the button almost never flats a cutoff open. Grades against playing those lean harsh.",
     browse: "Browse the charts",
@@ -793,7 +793,7 @@ export const analysisEn = {
     badHands: (count: number) => `${hands(count)} with a Mistake or a Blunder`,
     showBad: "Show them",
     noGrades:
-      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (three to nine players, 40–200 bb, no open limpers), turn and river decisions in heads-up pots by the solver, and multiway calls and folds facing a bet approximately.",
+      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (two to nine players, 40–200 bb, no open limpers), turn and river decisions in heads-up pots by the solver, and multiway calls and folds facing a bet approximately.",
     byStreet: "By street",
     /** Big blinds to two decimals: "1.25 bb". */
     bb2: (value: number) => `${num(value, 2)} bb`,
@@ -818,7 +818,7 @@ export const analysisEn = {
     "multiway-reraise": "Multiway flop or turn: facing a re-raise",
     "chart-straddle": "Preflop charts: straddle",
     "chart-ante": "Preflop charts: antes",
-    "chart-players": "Preflop charts: heads-up or 10+ players",
+    "chart-players": "Preflop charts: 10+ players",
     "chart-stack-depth": "Preflop charts: no set at this stack depth",
     "chart-limp": "Preflop charts: open limp",
     "chart-multiway": "Preflop charts: fifth player in",
@@ -1239,7 +1239,7 @@ export const analysisEn = {
     failed: (message: string) => `The charts did not load: ${message}`,
     table: "Table and depth",
     /** A chart set: "6-max, 100bb". */
-    setOption: (players: number, stackBb: number, straddle = false) => `${players}-max, ${stackBb}bb${straddle ? ", straddle" : ""}`,
+    setOption: (players: number, stackBb: number, straddle = false) => `${players === 2 ? "Heads-up" : `${players}-max`}, ${stackBb}bb${straddle ? ", straddle" : ""}`,
     category: "Scenario",
     spot: "Spot",
     categories: {

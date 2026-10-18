@@ -74,8 +74,11 @@ function bbVsBtn(set: ChartSet): string {
   return "f".repeat(set.game.positions.indexOf("BTN")) + "rf";
 }
 
-/** The sets without a straddle; the straddle set has its own bands (`straddle.test.ts`). */
-const UNSTRADDLED = CHART_SETS.filter((spec) => !spec.straddle);
+/**
+ * The sets without a straddle, of three or more seats; the straddle set and the
+ * heads-up set have their own bands (`straddle.test.ts`, `headsUp.test.ts`).
+ */
+const UNSTRADDLED = CHART_SETS.filter((spec) => !spec.straddle && spec.players > 2);
 /** `charts/7`: the 9-max 150bb set solved for 9,000 iterations (docs/CHARTS.md §5.1). */
 const DEEP_150 = "nlhe-cash-9max-150bb";
 

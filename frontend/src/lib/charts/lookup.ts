@@ -163,7 +163,7 @@ export function chartTree(charts: ChartSet): PreflopTree {
   let tree = trees.get(charts);
   if (!tree) {
     const model = charts.model as {
-      tree?: { sizing?: PreflopSizing; maxEntrants?: number; sbLimp?: boolean; maxLimpers?: number };
+      tree?: { sizing?: PreflopSizing; maxEntrants?: number; sbLimp?: boolean; maxLimpers?: number; headsUp?: boolean };
     };
     const straddle = charts.game.straddle;
     tree = buildPreflopTree({
@@ -175,6 +175,7 @@ export function chartTree(charts: ChartSet): PreflopTree {
       maxEntrants: model.tree?.maxEntrants,
       sbLimp: model.tree?.sbLimp,
       maxLimpers: model.tree?.maxLimpers,
+      headsUp: model.tree?.headsUp,
     });
     trees.set(charts, tree);
   }
@@ -220,9 +221,20 @@ function seatMap(
 ): { rename: Map<Position, ChartPosition>; folded: ChartPosition[] } | null {
   const k = positions.length;
   const ring = positionRing(k);
-  if (k < 3 || k > seats.length || ring.length !== k) return null;
+  // Heads-up only onto a heads-up set, and a heads-up set only heads-up (`registry.ts`).
+  if ((k === 2) !== (seats.length === 2)) return null;
+  if (k < 2 || k > seats.length || ring.length !== k) return null;
   const given = new Set(positions);
   if (given.size !== k || ring.some((p) => !given.has(p))) return null;
+  if (k === 2) {
+    return {
+      rename: new Map<Position, ChartPosition>([
+        ["SB", "SB"],
+        ["BB", "BB"],
+      ]),
+      folded: [],
+    };
+  }
   if (straddler) {
     // A straddle set (seats in action order, the straddler last): the table's
     // straddler (the first seat left of the big blind) is the set's, the
@@ -306,8 +318,8 @@ export function uncoveredDepthSets(specs: readonly ChartSetSpec[], spot: Preflop
   if (spot.straddle) return [];
   const plain = specs.filter((s) => !s.straddle);
   const k = spot.positions.length;
-  const seats = plain.map((s) => s.players).filter((n) => n >= k);
-  if (k < 3 || !seats.length) return [];
+  const seats = plain.map((s) => s.players).filter((n) => (k === 2 ? n === 2 : n >= k && n > 2));
+  if (k < 2 || !seats.length) return [];
   const table = Math.min(...seats);
   const effectiveBb = effectiveStackBb(spot);
   const same = plain.filter((s) => s.players === table);
@@ -445,9 +457,11 @@ function lookupInSet(
   if (!mapped) {
     return miss(
       "players",
-      spot.positions.length === 2
-        ? "heads-up: the small blind is the button; no chart set models it"
-        : `${spot.positions.length} players dealt in (${spot.positions.join(", ")}); the set is ${seats.length}-max`,
+      spot.positions.length === 2 && seats.length !== 2
+        ? `heads-up: the small blind is the button; the set is ${seats.length}-max`
+        : seats.length === 2
+          ? `${spot.positions.length} players dealt in (${spot.positions.join(", ")}); the set is heads-up`
+          : `${spot.positions.length} players dealt in (${spot.positions.join(", ")}); the set is ${seats.length}-max`,
     );
   }
   const rename = (p: Position): ChartPosition | null => mapped.rename.get(p) ?? null;
