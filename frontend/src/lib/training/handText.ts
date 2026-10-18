@@ -21,6 +21,8 @@ import type { PhfAction, PhfHand } from "../phf/types";
 export const SCRIPT_POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
 /** The full-ring table, in preflop order (the 9-max chart sets' seats). */
 export const NINE_SCRIPT_POSITIONS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
+/** The heads-up table, in preflop order (the heads-up chart sets' seats): the small blind is the button. */
+export const HEADS_UP_SCRIPT_POSITIONS = ["SB", "BB"] as const;
 export type ScriptPosition = (typeof NINE_SCRIPT_POSITIONS)[number];
 
 /** The script's table, in preflop order. */
@@ -31,9 +33,11 @@ function seatsOf(script: Pick<HandScript, "seats">): readonly ScriptPosition[] {
 /**
  * Seat numbers with seat 1 on the button, 2 and 3 the blinds, then the rest in
  * table order (a straddled table's `seats` are in action order, the
- * straddler last; it still sits left of the big blind).
+ * straddler last; it still sits left of the big blind). Heads-up (`["SB",
+ * "BB"]`) the small blind is the button: seat 1, the big blind seat 2.
  */
 function seatNumbers(seats: readonly ScriptPosition[]): Partial<Record<ScriptPosition, number>> {
+  if (seats.length === 2) return { SB: 1, BB: 2 };
   const out: Partial<Record<ScriptPosition, number>> = { BTN: 1, SB: 2, BB: 3 };
   let next = 4;
   const table = [...seats].sort((a, b) => NINE_SCRIPT_POSITIONS.indexOf(a) - NINE_SCRIPT_POSITIONS.indexOf(b));

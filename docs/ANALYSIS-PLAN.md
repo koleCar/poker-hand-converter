@@ -4212,3 +4212,46 @@ Each phase appends what it learned that changed the plan.
     - 7 heads-up decisions under 80bb (6 under 50bb): a 40bb heads-up set
       would need the short sizes (`SHORT`) and is not worth a solve for 7.
     - The heads-up flops still have no flop-library lines (entry above).
+- 2026-10-18 — A5b, heads-up flop lines for the runner (nothing live, no
+  `ANALYSIS_VERSION` change). No migration.
+  - **Why.** The 64 hero flop decisions of heads-up hands (`charts/8`,
+    `charts/9`) had no library lines (`flopLinesFor(2)` was empty).
+  - **The lines** (`FLOP_LINES_HU`, from the heads-up tree's sizes): the
+    small blind's 2.5bb open called (`sb-bb`, `rc`: pot 5, 97.5 behind at
+    100bb), the limp checked (`sb-limp`, `ck`: 2 / 99), the 3-bet to 10
+    called (`sb-bb-3bet`, `rrc`: 20 / 90), the limp raised to 4 and called
+    (`sb-limp-raise`, `crc`: 8 / 96) and the 4-bet to 22 called
+    (`sb-bb-4bet`, `rrrc`: 44 / 78); 50bb more behind at 150bb. The
+    limp-raise re-raised (`crrc`) is left out (rare). The small blind is
+    the button: it acts first preflop and last after the flop, so the big
+    blind is player 0 (out of position) of every heads-up chunk.
+  - **Fixes the reversal needed.** `flopPlayersOf` puts the big blind
+    first on a two-seat table; `libraryEntry` orders the two players with
+    `postflopFirst` (big blind first when two are dealt in; before, the
+    small blind was always first, which would have read the hero's combos
+    from the wrong player of a heads-up chunk); the trainer's script
+    (`seatNumbers`) seats a heads-up table as button-small-blind on seat 1,
+    big blind on seat 2, so `lineSpot` builds the spot from the analysis'
+    own range walk as for the other tables.
+  - **Coverage** (the 5,448 stored hands, `chunkFor` with every chunk
+    assumed present): of the 64 heads-up flop decisions, 56 land on a line
+    within `SPR_TOLERANCE` (100bb: sb-limp 18, sb-bb 16, 3-bet 0 + 1 out
+    of tolerance, 4-bet 1, limp-raise 1; 150bb: sb-bb 11, sb-limp 7, 3-bet
+    1 + 1 out, limp-raise 1), 6 are not placed preflop (stack depth).
+  - **Pilot** (Ts7h4d, scratch out dir, `nice -n 10`, ≤3 solves at a time):
+    100bb sb-bb 100 iterations, 0.82% of the pot, 42 min, peak 2.34 GB;
+    sb-bb-3bet 80 it., 0.98%, 12 min, 0.79 GB; sb-bb-4bet 40 it., 0.69%,
+    1 min, 0.35 GB; 150bb sb-bb-4bet 60 it., 0.83%, 2.7 min, 0.47 GB. The
+    analysis reads each chunk (both players, `source: "solver"`, exact).
+  - **Estimate.** 100bb (`--estimate`, fitted on the three): **~134
+    core-hours**, 47 MB, up to ~2.1-2.4 GB resident (sb-bb); per line sb-bb
+    43, sb-limp 37, limp-raise 24, 3-bet 20, 4-bet 11. The fit is linear in
+    the work proxy and the 6-max limped pot took 2.6× its proxy's share,
+    so sb-limp is likely nearer 90 and the set nearer 190 core-hours.
+    150bb: fitted on the 4-bet alone it says 41, too low; the 6-max sets'
+    ratio (558 / 281 core-hours) puts it at **~270-380**. Both sets: about
+    a week of the nightly runs at 6 solves.
+  - **How it runs.** `npm run floplib -- --set nlhe-cash-hu-100bb`, then
+    `--set nlhe-cash-hu-150bb` (README). Nothing reads a set until its
+    manifest is uploaded (`upload.sh`); that upload is the grade change
+    (`ANALYSIS_VERSION`).

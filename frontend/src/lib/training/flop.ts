@@ -108,7 +108,8 @@ export interface FlopTrainerSpot {
 
 /* ------------------------------------------------------------ the plan - */
 
-const asRiverLine = (line: FlopLine): RiverLine => ({ id: line.id, pot: line.pot, line: line.key });
+/** The trainer deals the 6-max lines only (`FLOP_LINES`), none a 4-bet pot; the river trainer's pots stop at 3-bet. */
+const asRiverLine = (line: FlopLine): RiverLine => ({ id: line.id, pot: line.pot === "4bp" ? "3bp" : line.pot, line: line.key });
 
 /** The seat a flop filter pins: facing a check is in position by definition. */
 export function flopFilterSeat(options: Pick<FlopSpotOptions, "seat" | "facing">): RiverSeat | "any" {
