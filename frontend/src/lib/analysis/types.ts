@@ -191,8 +191,13 @@ import type { Position, Street } from "../phf/types";
  *               depths, now placed on the nearer set judged at the pair's
  *               effective stack, as analysis/9 meant (`chartLineOf`), so its
  *               flop reads the library where it has the line.
+ *   analysis/25 The 6-max 150bb flop library is live: 12 lines × 100 flops of
+ *               `nlhe-cash-6max-150bb` (`FLOP_LINES`) in the `flop-library`
+ *               bucket, so heads-up flops placed on the 150bb set are graded
+ *               from its solves like the 100bb ones (ANALYSIS-PLAN §10
+ *               2026-10-18).
  */
-export const ANALYSIS_VERSION = "analysis/24" as const;
+export const ANALYSIS_VERSION = "analysis/25" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

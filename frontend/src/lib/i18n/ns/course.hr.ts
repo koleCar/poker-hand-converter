@@ -284,7 +284,7 @@ export const courseHr = {
     } as Record<string, string>,
     waits: {
       widget: "Ova vježba treba alat koji još nije napravljen.",
-      "flop-library": "Čeka rješenja flopova na ovoj dubini: Railova knjižnica flopova pokriva samo heads-up linije za 6-max i 100bb.",
+      "flop-library": "Čeka rješenja flopova na ovoj dubini: Railova knjižnica flopova pokriva samo heads-up linije za 6-max na 100bb i 150bb te 9-max na 100bb.",
       "villain-stats": "Čeka statistiku protivnika u analizi.",
       "straddle-charts": "Čeka chartove za straddle, kojih Rail još nema.",
     } as Record<string, string>,

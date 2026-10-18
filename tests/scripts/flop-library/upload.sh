@@ -42,13 +42,18 @@ upload() { # <local file> <object path> <content type>
 
 PATHS=$(python3 -c 'import json,sys; print("\n".join(e["path"] for e in json.load(open(sys.argv[1]))["entries"]))' "$DIR/manifest.json")
 total=$(print -r -- "$PATHS" | wc -l | tr -d ' ')
-n=0
+n=0; failed=0; pids=()
+reap() { for pid in $pids; do wait $pid || failed=$((failed + 1)); done; pids=(); }
 for p in ${(f)PATHS}; do
   upload "$DIR/$p" "$SET/$TREE/$p" application/octet-stream &
+  pids+=($!)
   n=$((n + 1))
-  (( n % 8 == 0 )) && wait
+  (( n % 8 == 0 )) && reap
   (( n % 200 == 0 )) && echo "$n / $total"
 done
-wait
+reap
+# A bare `wait` returns 0 whatever its jobs did: without this a failed chunk
+# went unnoticed and the manifest listed it anyway.
+(( failed == 0 )) || { echo "$failed chunk uploads failed; manifest not uploaded, run again" >&2; exit 1; }
 upload "$DIR/manifest.json" "$SET/$TREE/manifest.json" application/json
 echo "uploaded $total chunks and the manifest to flop-library/$SET/$TREE"
