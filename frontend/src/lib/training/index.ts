@@ -34,6 +34,7 @@ export { nextSeed, pickOne, pickWeighted, seeded, type Rng } from "./rng";
 export {
   HERO_NAME,
   POSTFLOP_ORDER,
+  HEADS_UP_SCRIPT_POSITIONS,
   NINE_SCRIPT_POSITIONS,
   SCRIPT_POSITIONS,
   ScriptError,

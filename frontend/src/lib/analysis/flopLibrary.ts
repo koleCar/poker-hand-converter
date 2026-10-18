@@ -13,7 +13,8 @@
  * the 6-max 100bb set (12 lines × 100 flops) is in the public Storage bucket
  * `flop-library` (§10 A5b), with the 9-max 100bb set (13 lines, since
  * `analysis/21`) and the 6-max 150bb set (12 lines, since `analysis/25`)
- * beside it; a set is live once its manifest is there. The analysis reads the library only when it is
+ * beside it; a set is live once its manifest is there. The heads-up sets
+ * have lines (`FLOP_LINES_HU`) the runner solves; none is uploaded yet. The analysis reads the library only when it is
  * handed one (`AnalyzeOptions.flopLibrary`); the worker hands it one while the
  * flag is on and a Supabase URL is configured. Tests hand it the pilot's
  * chunks or a small solve of their own.
@@ -107,10 +108,10 @@ export function flopLibraryBase(supabaseUrl: string | null | undefined): string 
 /** A heads-up preflop line the library solves: a chart line key, folds included. */
 export interface FlopLine {
   id: string;
-  pot: "srp" | "3bp" | "limped";
+  pot: "srp" | "3bp" | "4bp" | "limped";
   key: string;
-  /** The table the key is spelled for: 6-max (six codes before the flop players) or full ring. */
-  players: 6 | 9;
+  /** The table the key is spelled for: heads-up, 6-max (six codes before the flop players) or full ring. */
+  players: 2 | 6 | 9;
 }
 
 /**
@@ -159,6 +160,23 @@ export const FLOP_LINES_9MAX: readonly FlopLine[] = [
 ];
 
 /**
+ * The heads-up lines (the heads-up sets, `charts/8` and `charts/9`): the
+ * small blind is the button, acts first preflop and **last** after the flop,
+ * so the big blind is out of position on every one (`flopPlayersOf`). The
+ * pots the heads-up tree reaches with real frequency: the small blind's open
+ * called (`rc`), its 3-bet pot (`rrc`) and 4-bet pot (`rrrc`), the limp
+ * checked (`ck`) and the limp raised and called (`crc`). The limp-raise
+ * re-raised (`crrc`) is left out (about 1% of hands). Most common first.
+ */
+export const FLOP_LINES_HU: readonly FlopLine[] = [
+  { id: "sb-bb", pot: "srp", key: "rc", players: 2 },
+  { id: "sb-limp", pot: "limped", key: "ck", players: 2 },
+  { id: "sb-bb-3bet", pot: "3bp", key: "rrc", players: 2 },
+  { id: "sb-limp-raise", pot: "srp", key: "crc", players: 2 },
+  { id: "sb-bb-4bet", pot: "4bp", key: "rrrc", players: 2 },
+];
+
+/**
  * Whether a library line and a hand's placed line are the same pot: equal
  * once folds after the last voluntary action are dropped. A hand's line ends
  * at the later flop player's last decision (`chartLineOf`), so the big
@@ -171,11 +189,10 @@ export function sameLine(libraryKey: string, placedKey: string): boolean {
 
 /**
  * The library's lines for a chart set's table size (7-9 handed play on the
- * full-ring sets). The heads-up set (`charts/8`) has none yet: its flops are
- * the heuristic's.
+ * full-ring sets, two-handed on the heads-up sets).
  */
 export function flopLinesFor(players: number): readonly FlopLine[] {
-  if (players === 2) return [];
+  if (players === 2) return FLOP_LINES_HU;
   return players > 6 ? FLOP_LINES_9MAX : FLOP_LINES;
 }
 
@@ -184,10 +201,11 @@ const POSTFLOP: readonly string[] = ["SB", "BB", "UTG", "UTG+1", "UTG+2", "MP", 
 
 const SIX_SEATS: readonly ChartPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 const NINE_SEATS: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+const TWO_SEATS: readonly ChartPosition[] = ["SB", "BB"];
 
 /** The table a line is spelled over, in preflop order. */
 export function lineSeats(line: Pick<FlopLine, "players">): readonly ChartPosition[] {
-  return line.players === 9 ? NINE_SEATS : SIX_SEATS;
+  return line.players === 9 ? NINE_SEATS : line.players === 2 ? TWO_SEATS : SIX_SEATS;
 }
 
 /** The two players who see the flop on a line, out of position first (6-max unless the seats are given). */
@@ -196,8 +214,9 @@ export function flopPlayersOf(key: string, seats: readonly ChartPosition[] = SIX
   const folded = new Set(steps.filter((s) => s.code === "f").map((s) => s.position));
   const live = seats.filter((p) => !folded.has(p));
   if (live.length !== 2) throw new RangeError(`line ${key} is not heads-up to the flop`);
-  // Postflop the blinds act first, then the rest in preflop order.
-  const order = [...seats.slice(-2), ...seats.slice(0, -2)];
+  // Postflop the blinds act first, then the rest in preflop order. Heads-up
+  // the small blind is the button: the big blind acts first.
+  const order = seats.length === 2 ? ["BB", "SB"] : [...seats.slice(-2), ...seats.slice(0, -2)];
   live.sort((a, b) => order.indexOf(a) - order.indexOf(b));
   return [live[0], live[1]];
 }
@@ -931,6 +950,17 @@ function scaleNode(node: SolvedNode, k: number): SolvedNode {
   };
 }
 
+/**
+ * Whether the first of two positions acts before the second after the flop:
+ * the blinds first, then the rest in preflop order, except on a heads-up
+ * table, where the small blind is the button and the big blind acts first.
+ */
+export function postflopFirst(context: Pick<StatsContext, "dealtInSeats">, a: string | undefined, b: string | undefined): boolean {
+  if (a === undefined || b === undefined) return true;
+  if (context.dealtInSeats.length === 2) return a === "BB";
+  return POSTFLOP.indexOf(a) < POSTFLOP.indexOf(b);
+}
+
 /** Pot and each seat's stack behind at the flop, bb. */
 function flopMoney(hand: PhfHand, context: StatsContext, seats: readonly number[]): { pot: number; behind: number[] } | null {
   const bb = Math.max(1, hand.game.bigBlind);
@@ -984,7 +1014,7 @@ export function libraryEntry(
 
   const heroPos = context.position.get(hero) ?? undefined;
   const villainPos = context.position.get(villain) ?? undefined;
-  const heroFirst = heroPos !== undefined && villainPos !== undefined ? POSTFLOP.indexOf(heroPos) < POSTFLOP.indexOf(villainPos) : true;
+  const heroFirst = postflopFirst(context, heroPos, villainPos);
   const money = flopMoney(hand, context, [hero, villain]);
   if (!money) return { ok: false, reason: "depth" };
   const stackBb = Math.min(money.behind[0], money.behind[1]);

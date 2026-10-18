@@ -1102,8 +1102,9 @@ bands (`tests/test/charts/headsUp.test.ts`): the small blind continues
 65-97% first in, the big blind defends 50-90% against the open, both
 wider than 6-max's, AA never folds, frequencies and EVs consistent, NashConv
 under 0.05 mbb/hand, no node left out. The 64 hero flop decisions of heads-up hands
-have no flop-library chunks (`flopLinesFor(2)` is empty): the
-heuristic's.
+have no flop-library chunks yet: the runner solves five heads-up lines
+(`FLOP_LINES_HU`, docs/ANALYSIS-PLAN.md §10, 2026-10-18), and until a set's
+chunks are uploaded those flops are the heuristic's.
 
 ### 6.10 `charts/9`: heads-up 150bb
 

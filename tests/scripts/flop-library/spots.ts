@@ -12,7 +12,7 @@ import type { ChartSet } from "../../../frontend/src/lib/charts/index.js";
 import { walkRanges } from "../../../frontend/src/lib/analysis/rangeWalk.js";
 import { flopPlayersOf, lineSeats, type FlopLine } from "../../../frontend/src/lib/analysis/flopLibrary.js";
 import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { NINE_SCRIPT_POSITIONS, scriptHand, scriptMoney, seatOf, type HandScript } from "../../../frontend/src/lib/training/handText.js";
+import { HEADS_UP_SCRIPT_POSITIONS, NINE_SCRIPT_POSITIONS, scriptHand, scriptMoney, seatOf, type HandScript } from "../../../frontend/src/lib/training/handText.js";
 import { lineActs } from "../../../frontend/src/lib/training/preflop.js";
 
 export interface LineSpot {
@@ -30,7 +30,7 @@ export interface LineSpot {
 export function lineSpot(charts: ChartSet, line: FlopLine): LineSpot {
   if (charts.game.players !== line.players) throw new Error(`line ${line.id} is spelled for ${line.players}-max, the set is ${charts.game.players}-max`);
   const [oop, ip] = flopPlayersOf(line.key, lineSeats(line));
-  const seats = line.players === 9 ? NINE_SCRIPT_POSITIONS : undefined;
+  const seats = line.players === 9 ? NINE_SCRIPT_POSITIONS : line.players === 2 ? HEADS_UP_SCRIPT_POSITIONS : undefined;
   const preflop = lineActs(charts, line.key);
   // Any flop will do: the walk's preflop ranges are read before the board.
   const script: HandScript = {

@@ -21,7 +21,7 @@ npm run floplib                                     # the full run: 12 lines x 1
 |---|---|---|
 | `--out DIR` | `tests/scripts/flop-library/out` (git-ignored) | where chunks go: `<out>/<set>/<tree>/<line>/<flop>.bin` |
 | `--set ID` | `nlhe-cash-6max-100bb` | the chart set (`frontend/src/lib/charts/data/<ID>.json`) the ranges come from |
-| `--lines a,b` | every line of the set's table (`flopLinesFor`: 12 for 6-max, 13 for the 9-max sets) | line ids |
+| `--lines a,b` | every line of the set's table (`flopLinesFor`: 12 for 6-max, 13 for the 9-max sets, 5 for the heads-up sets) | line ids |
 | `--flops a,b` | the 100 representatives, most-covering first | any flops (any suits; canonicalised) |
 | `--only N` | all | the first N jobs of the queue (flops in order, each with every line) |
 | `--threads N` | half the cores | solves at a time, one process each |
@@ -31,6 +31,26 @@ npm run floplib                                     # the full run: 12 lines x 1
 | `--estimate` | | print the full-run estimate and stop |
 | `--validate` | | compare every solved non-representative flop with its representative, by hand category (the analysis's reading and the coarse one before `analysis/12`, with medians) |
 | `--loo` | | with `--validate`: read every solved representative from its nearest other representative on the line instead (held out; `--lines` narrows it) |
+
+**Heads-up sets.** `--set nlhe-cash-hu-100bb` and `--set nlhe-cash-hu-150bb`
+(`charts/8`, `charts/9`) solve the five heads-up lines (`FLOP_LINES_HU`)
+over the same 100 flops: the small blind's open called (`sb-bb`, key `rc`),
+the limp checked (`sb-limp`, `ck`), the 3-bet pot (`sb-bb-3bet`, `rrc`), the
+limp raised and called (`sb-limp-raise`, `crc`) and the 4-bet pot
+(`sb-bb-4bet`, `rrrc`). Heads-up the small blind is the button, so the big
+blind is player 0 (out of position) of every heads-up chunk. 500 solves a
+set; run one set after the other into the same `--out`:
+
+```bash
+cd tests
+npm run floplib -- --set nlhe-cash-hu-100bb --estimate      # after a pilot: core-hours and memory
+nice -n 10 npm run floplib -- --out ~/Projects/rail-floplib-out --set nlhe-cash-hu-100bb --threads 6 --mem 12 \
+  && nice -n 10 npm run floplib -- --out ~/Projects/rail-floplib-out --set nlhe-cash-hu-150bb --threads 6 --mem 12
+```
+
+Nothing reads them until a set's manifest is uploaded (`upload.sh <out>
+nlhe-cash-hu-100bb`); the analysis already maps a heads-up hand to its line
+(`chunkFor`).
 
 **Resumable.** Each solve runs in its own process and writes its chunk and a
 stats file (`<flop>.json`: iterations, exploitability, time, memory)
