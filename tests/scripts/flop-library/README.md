@@ -172,6 +172,15 @@ two). `CENSUS_REPORT=a.jsonl,b.jsonl` merges row files into one report, and
 with `CENSUS_BEFORE=` an earlier census's files prints how each decision
 moved. `docs/ANALYSIS-PLAN.md` §10 2026-10-16.
 
+**Bomb pots.** `FLOPLIB_HANDS=... npm run floplib:bomb-pots` scores the
+multiway heuristic on the hands opponents show down in bomb pots (started
+from any two cards) against the same in other multiway pots: the shown
+combo's log-likelihood at the turn's and the river's start, minus its
+likelihood in the unnarrowed starting range (the lift), clustered by player.
+`BOMB_GRADES=1` prints every graded hero decision of the bomb pots for a
+spot check (console only). About two minutes. `docs/ANALYSIS-PLAN.md` §10
+2026-10-19.
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

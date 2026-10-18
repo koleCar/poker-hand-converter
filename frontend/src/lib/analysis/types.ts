@@ -208,8 +208,16 @@ import type { Position, Street } from "../phf/types";
  *               from it, instead of `chart-stack-depth`; heads-up is now
  *               covered at 80-180bb (ANALYSIS-PLAN §10 2026-10-18, heads-up
  *               150bb).
+ *   analysis/28 Bomb pots (one board) are analysed instead of refused
+ *               (`bomb-pot`): every player starts from any two cards and is
+ *               narrowed by the multiway heuristic, so a flop, turn or river
+ *               call or fold facing a bet gets the multiway approximate grade
+ *               and a turn or river that began heads-up the heads-up solve
+ *               (`multiway-history`), both capped at Mistake as in any other
+ *               pot; checks and bets three or more ways stay `multiway`
+ *               (ANALYSIS-PLAN §10 2026-10-19, bomb pots).
  */
-export const ANALYSIS_VERSION = "analysis/27" as const;
+export const ANALYSIS_VERSION = "analysis/28" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -419,6 +427,14 @@ export interface Flag {
  *                       the limp range the tremble trained (not any two:
  *                       ANALYSIS-PLAN §10 2026-10-16), so the grade is capped
  *                       at Inaccurate. The poster's own check is not graded.
+ * - `bomb-pot`          (analysis/28) a bomb pot: everyone anted and saw the
+ *                       flop with no preflop betting, so every range starts
+ *                       from any two cards (exact) and is narrowed by the
+ *                       multiway heuristic, which was built on pots with
+ *                       preflop betting; the grades are the multiway
+ *                       approximate ones and heads-up solves after it,
+ *                       capped at Mistake. Replaces `antes` there. A bomb
+ *                       pot on two boards is still refused (`bomb-pot`).
  * - `rare-line-depth`   (analysis/13) the line is too rare at the answering
  *                       set's depth to be charted there (`rare-line`), and is
  *                       read on the neighbouring depth of the same table that
@@ -498,6 +514,7 @@ export const APPROXIMATIONS = [
   "range-villain",
   "dead-button",
   "posted-blind",
+  "bomb-pot",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 

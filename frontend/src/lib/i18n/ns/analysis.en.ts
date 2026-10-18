@@ -808,7 +808,7 @@ export const analysisEn = {
     "hi-lo": "Hi/Lo split pot",
     limit: "Not No-Limit",
     tournament: "Tournament (ICM not modelled)",
-    "bomb-pot": "Bomb pot",
+    "bomb-pot": "Bomb pot on two boards",
     "hero-cards-unknown": "Your cards are unknown",
     "no-decisions": "You had no decision",
     multiway: "Multiway: facts and notes only",
@@ -891,6 +891,8 @@ export const analysisEn = {
       "The button seat was empty: read as a table of the same size with a live button, the last seat before the small blind in the button's place",
     "posted-blind":
       "A player posted a big blind to sit in and checked: read as a one-big-blind limp, though a poster holds any two cards and the charts' limper does not; graded no worse than Inaccurate",
+    "bomb-pot":
+      "A bomb pot: everyone anted and saw the flop, so every range starts from any two cards and is narrowed by Rail's multiway model, not a solver; only calls and folds facing a bet, and heads-up turns and rivers, are graded, never worse than Mistake",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
