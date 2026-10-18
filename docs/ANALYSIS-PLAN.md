@@ -4057,3 +4057,23 @@ Each phase appends what it learned that changed the plan.
       measured in the app.
     - 453 heads-up flops still have no chunk: other depths (60bb, 200bb,
       9-max 150bb), longer lines (4-bet+), heads-up tables (2026-10-16).
+- 2026-10-18 — The flop library loader rides out a rate-limited bucket
+  (follow-up to the 150bb upload's open point). No `ANALYSIS_VERSION` bump,
+  no migration: a chunk that is fetched grades as before.
+  - **The fault.** A manifest fetch that failed (429, 5xx, a failed
+    request) left the set empty for the worker's life, and a chunk fetch
+    that failed was cached as absent: a large rebuild (the `analysis/25`
+    re-run) could lose library grades to rate limiting, silently.
+  - **Fix.** `FlopLibraryLoader` retries a 429, a 5xx or a failed request
+    up to 4 times, 250 ms doubling with jitter (×0.5–1.5), or longer when a
+    `Retry-After` asks (capped at 10 s). When the tries run out nothing is
+    cached: that hand reads the heuristic and the next hand on the chunk
+    (or set) fetches it again. A 404 is remembered as absent, as before.
+    At most 2 fetches are in flight per loader (manifests and chunks
+    together; "fine at two" in the verification), and callers of a chunk
+    already in flight share its fetch. `LibraryFetch` gained an optional
+    `status` and `headers`; test fetchers without them read as before.
+  - **Open.** The cap is per loader: the analysis pool runs up to 4
+    workers, each prefetching its page one hand at a time, so up to 4
+    fetches reach the bucket at once. The retries cover that; not measured
+    against the live bucket.

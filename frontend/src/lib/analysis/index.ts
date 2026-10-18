@@ -259,6 +259,7 @@ export {
   type FlopMiss,
   type FlopProfile,
   type LibraryFetch,
+  type LoaderOptions,
   type LibraryModel,
 } from "./flopLibrary";
 export {
