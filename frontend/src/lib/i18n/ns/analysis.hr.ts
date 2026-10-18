@@ -187,7 +187,7 @@ function mixLabel(decision: DecisionAnalysis): string {
 const chartReasons = {
   "chart-straddle": "straddle mijenja svaku cijenu, a chartovi pokrivaju samo jedan: jedan straddle od 2 bb sa sjedala lijevo od big blinda, za 4-6 igrača, oko 100 bb",
   "chart-ante": "u potu je ante, a cash chartovi ga nemaju",
-  "chart-players": "chartovi pokrivaju od tri do devet igrača (manji stol čita se uz foldane najranije pozicije); heads-up nije pokriven",
+  "chart-players": "chartovi pokrivaju od dva do devet igrača (heads-up ima vlastiti set; manji stol čita se uz foldane najranije pozicije)",
   "chart-stack-depth": "efektivni stack je više od 20 % udaljen od dubine svakog seta chartova (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
   "chart-limp": "netko je open-limpao, a chartovi nemaju open limp osim small blinda",
   "chart-multiway": "ovo bi bio peti igrač u potu, više nego što chartovi modeliraju",
@@ -711,7 +711,7 @@ export const analysisHr: Dict["analysis"] = {
   reference: {
     title: "Preflop se ocjenjuje prema našim chartovima, turn i river prema našem solveru",
     body:
-      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu, turnu ili riveru približnu ocjenu, označenu kao takvu.",
+      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb, heads-up 100 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu, turnu ili riveru približnu ocjenu, označenu kao takvu.",
     model:
       "Chartovi (charts/2) flop vrednuju uz checkan flop, pa još podcjenjuju nekoliko ruku koje dobivaju kroz implied odds: UTG folda 22–55, 54s–87s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     browse: "Pregledaj chartove",
@@ -769,7 +769,7 @@ export const analysisHr: Dict["analysis"] = {
     badHands: (count: number) => `${hands(count)} s greškom ili grubom greškom`,
     showBad: "Prikaži ih",
     noGrades:
-      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od tri do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom, a multiway call ili fold na flopu, turnu ili riveru približno.",
+      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od dva do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom, a multiway call ili fold na flopu, turnu ili riveru približno.",
     byStreet: "Po streetovima",
     bb2: (value: number) => `${num(value, 2)} bb`,
     distribution: (parts: string[]) => parts.join(", "),
@@ -792,7 +792,7 @@ export const analysisHr: Dict["analysis"] = {
     "multiway-reraise": "Multiway flop ili turn: protiv re-raisea",
     "chart-straddle": "Preflop chartovi: straddle",
     "chart-ante": "Preflop chartovi: ante",
-    "chart-players": "Preflop chartovi: heads-up ili 10+ igrača",
+    "chart-players": "Preflop chartovi: 10+ igrača",
     "chart-stack-depth": "Preflop chartovi: nema seta za ovu dubinu stacka",
     "chart-limp": "Preflop chartovi: open limp",
     "chart-multiway": "Preflop chartovi: peti igrač u potu",
@@ -1199,7 +1199,7 @@ export const analysisHr: Dict["analysis"] = {
     loading: "Učitavam chartove…",
     failed: (message: string) => `Chartovi se nisu učitali: ${message}`,
     table: "Stol i dubina",
-    setOption: (players: number, stackBb: number, straddle = false) => `${players}-max, ${stackBb} bb${straddle ? ", straddle" : ""}`,
+    setOption: (players: number, stackBb: number, straddle = false) => `${players === 2 ? "Heads-up" : `${players}-max`}, ${stackBb} bb${straddle ? ", straddle" : ""}`,
     category: "Scenarij",
     spot: "Situacija",
     categories: {

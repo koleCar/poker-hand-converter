@@ -46,6 +46,8 @@ export interface GenerateOptions {
   maxEntrants?: number;
   /** A straddle by the first seat left of the big blind (A2e); absent: none. */
   straddle?: PreflopStraddle;
+  /** Heads-up (`charts/8`): `players` are `SB, BB` and the small blind is the button (`PreflopTreeConfig.headsUp`). */
+  headsUp?: boolean;
   /** Open limps up to this many limpers (`charts/4`); 0 or absent: only the small blind limps. */
   maxLimpers?: number;
   /** The open limp's tremble (`PreflopGame.limpFloor`); only with `maxLimpers`. */
@@ -200,6 +202,7 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
     maxEntrants: options.maxEntrants,
     maxLimpers: options.maxLimpers,
     straddle: options.straddle,
+    headsUp: options.headsUp,
   });
   const realisation = options.realisation ?? CHARTS1_REALISATION;
   const limpFloor = tree.maxLimpers > 0 ? (options.limpFloor ?? 0) : 0;
@@ -225,8 +228,9 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
 
   // The blind-vs-blind subgame on its own: a two-player game, where DCFR's
   // guarantee holds (up to rake), as a calibration of the engine on this model.
+  // A heads-up set is itself a two-player game: no separate calibration.
   let headsUp: GenerateResult["headsUp"] = null;
-  const huIterations = options.headsUpIterations ?? 1000;
+  const huIterations = tree.headsUp ? 0 : (options.headsUpIterations ?? 1000);
   if (huIterations > 0 && players.includes("SB") && players.includes("BB")) {
     options.onProgress?.({ phase: "heads-up" });
     const huTree = buildPreflopTree({ players: ["SB", "BB"], stackBb: options.stackBb, sizing: options.sizing });
@@ -241,7 +245,11 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
   }
 
   options.onProgress?.({ phase: "charts" });
-  const id = options.id ?? `nlhe-cash-${players.length}max-${tree.stackBb}bb${tree.straddle ? "-straddle" : ""}`;
+  const id =
+    options.id ??
+    (tree.headsUp
+      ? `nlhe-cash-hu-${tree.stackBb}bb`
+      : `nlhe-cash-${players.length}max-${tree.stackBb}bb${tree.straddle ? "-straddle" : ""}`);
   const charts = buildChartSet(solver, {
     id,
     version: options.version,
@@ -254,7 +262,11 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
         sbLimp: tree.sbLimp,
         ...(tree.maxLimpers > 0 ? { maxLimpers: tree.maxLimpers, limpFloor } : {}),
         ...(tree.straddle ? { straddle: tree.straddle } : {}),
+        ...(tree.headsUp ? { headsUp: true } : {}),
         cuts: [
+          ...(tree.headsUp
+            ? ["heads-up: the small blind is the button, acts first preflop and last after the flop"]
+            : []),
           ...(tree.straddle
             ? [
                 `a ${tree.straddle.bb}bb straddle by ${tree.straddle.position} (a blind, not a raise): the action starts left of it and it has the option last; both blinds may complete or raise first in (the small blind's size)`,

@@ -1,9 +1,9 @@
-# CHARTS — preflop reference charts, `charts/7`
+# CHARTS — preflop reference charts, `charts/8`
 
-Phases A2a, A2a.1, A2c, A2d and A2e (and `charts/6` / `charts/7`, the 200bb and 9-max 150bb re-solves) of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
+Phases A2a, A2a.1, A2c, A2d and A2e (and `charts/6` / `charts/7`, the 200bb and 9-max 150bb re-solves, and `charts/8`, heads-up) of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
 Rail's preflop reference for **NLHE cash**: a library of chart sets
-(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb, and
-6-max 100bb with a 2bb UTG straddle**, §6),
+(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb,
+6-max 100bb with a 2bb UTG straddle, and heads-up at 100bb**, §6),
 each one for every decision point
 of a preflop betting tree and every one of the 169 hand classes, a frequency
 and an EV in big blinds per action. Grading (§2) reads both.
@@ -22,7 +22,10 @@ set: open limps, over-limps, isolation raises and the limpers' answers
 option last, its own realisation measured on its own spots (§1.4, §6.8).
 `charts/6` solves the two 200bb sets for 9,000 iterations instead of 3,000,
 so their big blind facing a single limp converges and is in the set (§5.1);
-`charts/7` does the same for the 9-max 150bb set.
+`charts/7` does the same for the 9-max 150bb set. `charts/8` adds the
+heads-up 100bb set: two players, the small blind is the button and in
+position after the flop, its realisation measured on its own spots (§1.5,
+§6.9).
 
 ```
 frontend/src/lib/solver/
@@ -42,9 +45,10 @@ frontend/src/lib/charts/
   registry.ts       charts/3: the sets, which one answers a spot, lazy loading
   data/nlhe-cash-<6|9>max-<depth>bb.json   the committed sets (generated)
   data/nlhe-cash-6max-100bb-straddle.json  the straddle set (charts/5, generated)
+  data/nlhe-cash-hu-100bb.json             the heads-up set (charts/8, generated)
 tests/scripts/preflop-charts/      npm run charts:generate (sets.ts, worker pool, cache),
                                    charts:report, charts:coverage, charts:compare
-tests/test/charts/ (data, sets, straddle, registry, lookup, realisation, generate), tests/test/solver/preflop.test.ts
+tests/test/charts/ (data, sets, straddle, headsUp, registry, lookup, realisation, generate), tests/test/solver/preflop.test.ts
 ```
 
 `lib/charts` follows `lib/solver`'s import rule (ESLint-enforced): it may
@@ -242,6 +246,41 @@ raising a level earlier more often.
 Mississippi straddle), a re-straddle, a straddle of another size, 3-handed
 (the seat left of the big blind is the button) or 7 and more handed, and
 other depths; each is refused as `straddle`, with what it was (§7).
+
+### 1.5 Heads-up (`charts/8`)
+
+Two players, `SB, BB`, where the small blind **is the button**: it posts
+0.5bb, acts first preflop and **last** on every later street. The preflop
+action is the blinds' subgame of a bigger table - the small blind folds,
+completes or raises, the big blind checks or raises a completion - but every
+size and realisation role that depends on position has the small blind in
+position (`PreflopTreeConfig.headsUp`, `PreflopTree.postflop`). It is a flag,
+not a rule read off the seats: the blind-versus-blind subgame of a 6- or
+9-max set keeps the small blind out of position.
+
+| Spot | Options (`sets.ts`, `HEADS_UP`) |
+|---|---|
+| SB (button) first in | fold, complete, raise to **2.5bb** |
+| BB after the completion | check, raise to **4bb** |
+| BB facing the open | fold, call, 3-bet to **10bb** (4x, out of position) |
+| SB facing the BB's raise of its completion | fold, call, re-raise to **12bb** (3x) |
+| Facing a 3-bet | fold, call, 4-bet: SB **22bb** (2.2x, in position), BB **30bb** (2.5x, out of position) |
+| Facing a 4-bet | fold, call, 5-bet **all-in** |
+
+Why these: 2.5bb is the button's usual heads-up raise (a 6-max small blind
+raises to 3bb because it is out of position; here it is in position); the
+big blind is out of position in every pot, so its raise over a completion
+has no out-of-position extra (`isoOop` 0) and its 3-bet is the 4x
+out-of-position one. Only the small blind can limp, so the `charts/3` tree
+(`maxLimpers` 0) already has every limp; no tremble (the completion is a
+real option). Nothing is cut: no cap, no cold call (`cut` is empty at every
+node). The tree has **10 action nodes** and 28 in all (9 folds, 7 flops,
+2 all-ins; `tests/test/charts/headsUp.test.ts`).
+
+**Not covered**: other heads-up depths (outside 80-120bb a heads-up spot is
+`stack-depth`), other open sizes (a 2bb or 3bb open is a `sizing`
+approximation, a min-raise to 2bb is 0.08 of the pot from 2.5bb), and a
+heads-up hand is never read on a bigger set with seats folded.
 
 ## 2. Hands and card removal
 
@@ -613,7 +652,8 @@ depth, a loader) and decides which one answers a spot (`pickChartSet`):
 1. **Table.** `k` players dealt in are read on the smallest set with at least
    `k` seats: 3-6 handed on a 6-max set, 7-9 handed on a 9-max set. Fewer
    players than seats is the `short-handed` approximation (§6.3). Heads-up
-   and ten or more are refused (`players`, §6.5).
+   is read on the heads-up set only (`charts/8`, §6.9), and that set reads
+   nothing else; ten or more are refused (`players`, §6.5).
 2. **Depth.** Among that table's sets, the nearest to the effective stack
    (the hero against the deepest opponent still in), by relative distance.
    Further than **20%** from every one is refused (`stack-depth`); more than
@@ -637,6 +677,7 @@ fit (§6.7), with `charts/3` in brackets:
 | `nlhe-cash-9max-200bb` (`charts/6`, §5.1) | **2,841** / 79,131 (`charts/4`: 2,795) | 1,735 | 6,768,378 | 1,731 KB | **0.247** (`charts/4`: 0.439) | 6 h 04 min, 9,000 iterations |
 | **all eight** | | | **30,090,539** (`charts/6`: 30,005,147) | **8.7 MB** | | |
 | `nlhe-cash-6max-100bb-straddle` (`charts/5`, §6.8) | 854 / 4,906 | 492 | 2,022,496 | 539 KB | 0.166 | 43 min with two measurement rounds |
+| `nlhe-cash-hu-100bb` (`charts/8`, §6.9) | 10 / 10 | - | 83,067 | 15 KB | 0.001 | 18 min with two measurement rounds (3 threads), 9,000 iterations |
 
 Solve times are each set's own: one 3,000-iteration solve (no measurement
 rounds, §6.7) per set, five sets at once on a 10-core M-series Mac shared with
@@ -793,9 +834,9 @@ It moves the limped and 4-bet pots more (limped `P` 1.11 at 40bb, 1.02 at
   seat, a re-straddle, another size, 3 or 7+ handed, another depth - stays
   refused (`straddle`), and a straddle set per depth or table is the case to
   reopen if a library brings more straddled games.
-- **Heads-up** stays refused (`players`): the button is the small blind and
-  acts last after the flop, which no set models (our blind-versus-blind is
-  the small blind out of position). 111 decisions (1.8%) in the WePlay export.
+- **Heads-up** is covered at 100bb since `charts/8` (§1.5, §6.9); other
+  heads-up depths are `stack-depth`. Before, 110 decisions in the owner's
+  library were refused (`players`).
 - **Ten or more players, antes, cold calls of 3-bets**: as before. **A
   fourth limper** is `multiway` (§1.3); open limps themselves are covered
   since `charts/4`.
@@ -996,6 +1037,62 @@ Sanity bands (`tests/test/charts/straddle.test.ts`): frequencies sum to 1
 and EVs are consistent with them; AA never folds; 72o never opens; RFI
 widens HJ < CO < BTN; the straddler defends wider against later opens and
 wider than the big blind in front of it; NashConv under 1 mbb/hand.
+
+### 6.9 `charts/8`: the heads-up set
+
+`nlhe-cash-hu-100bb`, the tree of §1.5, generated A2c's way
+(`generateRealisedChartSet`): two measure-and-fit rounds from `charts/2`'s
+fitted model, then the final solve. The realisation is measured on the
+heads-up tree's own seven spots (`HEADS_UP_REALISATION_SPOTS`): the open
+called (raiser in position), the big blind's raise of a completion called
+(raiser out of position), the big blind's 3-bet called and the small blind's
+re-raise of a raised completion called, the small blind's 4-bet called and
+the big blind's 4-bet over a re-raised completion called, and the limped
+pot. Every one had range enough to measure in both rounds (840 turn+river
+solves a round, 120 deals each). Measured range-average realisation, final
+round, big blind / small blind:
+
+| Spot | R measured | R fitted |
+|---|---|---|
+| SB opens, BB calls (`rc`) | 0.85 / 1.13 | 0.86 / 1.11 |
+| SB completes, BB raises, SB calls (`crc`) | 0.89 / 1.13 | 0.90 / 1.12 |
+| SB opens, BB 3-bets, SB calls (`rrc`) | 0.98 / 1.02 | 0.97 / 1.04 |
+| limped (`ck`, every hand the SB continues with) | 0.81 / 1.14 | 0.83 / 1.12 |
+
+Fit error (share RMS, fitted / `charts/1` / raw equity): limped 0.034 /
+0.054 / 0.103, single raised 0.038 / 0.055 / 0.085, 3-bet 0.030 / 0.044 /
+0.056, 4-bet 0.031 / 0.060 / 0.069 - the same quality as the 6- and 9-max
+fits (§6.4). The position edge is the 6-max one's (`P` 1.13 single raised).
+
+**Convergence.** The solve is a two-player game, where DCFR converges, and
+it is tiny, so it runs `DEEP_ITERATIONS` (9,000) in 0.1 s per 500:
+NashConv 0.35 mbb/hand at 500 iterations, 0.011 at 3,000 and **0.001** at
+9,000; every one of the 10 nodes is kept (reach at least 4e-4, none over
+the 2% self-loss bar, `excluded.unconverged` empty). The blind-versus-blind
+calibration solve of the other sets is skipped (`headsUpBlindVsBlind`
+null): the set is itself the two-player game. A rerun writes the same
+bytes (checked, cached measurement).
+
+| Node | Shares (combo- and reach-weighted) |
+|---|---|
+| SB first in | fold 19.9%, complete 22.1%, raise 58.0% (continues 80.1%) |
+| BB vs the completion | check 53.7%, raise 46.3% |
+| BB vs the 2.5bb open | fold 34.6%, call 40.5%, 3-bet 24.9% (defends 65.4%) |
+| SB vs the BB's raise of its completion | fold 56.9%, call 31.4%, re-raise 11.7% |
+| SB vs the 3-bet | fold 56.4%, call 30.9%, 4-bet 12.6% |
+| BB vs the 4-bet | fold 21.9%, call 57.8%, shove 20.4% |
+| SB vs the shove | fold 46.5%, call 53.5% |
+
+The heads-up principles hold without being asked for: the button enters
+80% of hands (the 6-max 100bb small blind, out of position, 60%), the big
+blind defends about two thirds against a 2.5bb open at 3.3:1, and it
+continues against the completion by raising almost half of its range. Sanity
+bands (`tests/test/charts/headsUp.test.ts`): the small blind continues
+65-97% first in, the big blind defends 50-90% against the open, both
+wider than 6-max's, AA never folds, frequencies and EVs consistent, NashConv
+under 0.05 mbb/hand, no node left out. The 64 hero flop decisions of heads-up hands
+have no flop-library chunks (`flopLinesFor(2)` is empty): the
+heuristic's.
 
 ## 7. Lookup
 
@@ -1429,6 +1526,7 @@ CHARTS_SETS=nlhe-cash-6max-200bb npm run charts:generate      # a 200bb set: 9,0
 CHARTS_SETS=nlhe-cash-9max-150bb npm run charts:generate      # charts/7: 9,000 iterations, 6-14 h (13 h 38 min beside the flop batch)
 CHARTS_SETS=nlhe-cash-6max-60bb npm run charts:generate       # one set
 CHARTS_SETS=nlhe-cash-6max-100bb-straddle CHARTS_THREADS=4 npm run charts:generate   # the straddle set, ~43 min (two rounds)
+CHARTS_SETS=nlhe-cash-hu-100bb CHARTS_THREADS=3 npm run charts:generate   # charts/8, the heads-up set, ~18 min (two rounds; the solve takes seconds)
 npm run charts:report        # the §8 tables for every committed set (CHARTS_FILE=... for one file)
 npm run charts:coverage      # §6.6: graded decisions on the corpora, 6-max 100bb alone vs the library
 npm run charts:compare       # §6.3: a native short-handed solve against a bigger set read short-handed

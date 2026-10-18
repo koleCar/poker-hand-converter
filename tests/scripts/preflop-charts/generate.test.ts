@@ -132,6 +132,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
     limpFloor: config.limpFloor,
     minLimpReach: config.minLimpReach,
     ...(config.straddle ? { straddle: config.straddle } : {}),
+    ...(config.headsUp ? { headsUp: true } : {}),
   };
   let result: GenerateResult;
   if (config.reuseFit) {

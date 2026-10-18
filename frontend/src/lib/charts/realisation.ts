@@ -70,7 +70,6 @@ import {
 import {
   PF_ACTION,
   PF_FLOP,
-  POSTFLOP_ORDER,
   POT_TYPE_INDEX,
   potAt,
   type PreflopPosition,
@@ -154,6 +153,26 @@ export const STRADDLE_REALISATION_SPOTS: readonly RealisationSpotSpec[] = [
   { potType: "4bet", actions: [["HJ", "r"], ["CO", "r"], ["HJ", "r"], ["CO", "c"]] },
   { potType: "limped", actions: [["SB", "c"], ["UTG", "k"]], candidates: "SB" },
   { potType: "limped", actions: [["BB", "c"], ["UTG", "k"]], candidates: "BB" },
+];
+
+/**
+ * The measured spots of a heads-up tree (`charts/8`): the small blind is the
+ * button and in position after the flop. Its open called (raiser in
+ * position), the big blind's raise of its limp called (raiser out of
+ * position); the big blind's 3-bet called (out of position) and the small
+ * blind's re-raise of the big blind's raise called (in position); the small
+ * blind's 4-bet called (in position) and the big blind's 4-bet over a
+ * limp-reraise called (out of position); the limped pot. Spots whose range
+ * is too thin under a round's solve are skipped (`prepareSpots`).
+ */
+export const HEADS_UP_REALISATION_SPOTS: readonly RealisationSpotSpec[] = [
+  { potType: "srp", actions: [["SB", "r"], ["BB", "c"]] },
+  { potType: "srp", actions: [["SB", "c"], ["BB", "r"], ["SB", "c"]], candidates: "SB" },
+  { potType: "3bet", actions: [["SB", "r"], ["BB", "r"], ["SB", "c"]] },
+  { potType: "3bet", actions: [["SB", "c"], ["BB", "r"], ["SB", "r"], ["BB", "c"]] },
+  { potType: "4bet", actions: [["SB", "r"], ["BB", "r"], ["SB", "r"], ["BB", "c"]] },
+  { potType: "4bet", actions: [["SB", "c"], ["BB", "r"], ["SB", "r"], ["BB", "r"], ["SB", "c"]] },
+  { potType: "limped", actions: [["SB", "c"], ["BB", "k"]], candidates: "SB" },
 ];
 
 /**
@@ -243,7 +262,8 @@ export function prepareSpots(
     const live: number[] = [];
     for (let p = 0; p < tree.players.length; p += 1) if (tree.live[node] & (1 << p)) live.push(p);
     if (live.length !== 2) continue;
-    const order = live.map((p) => POSTFLOP_ORDER[tree.players[p]]);
+    // Postflop order: heads-up the small blind (the button) is in position.
+    const order = live.map((p) => tree.postflop[p]);
     const [oop, ip] = order[0] < order[1] ? [live[0], live[1]] : [live[1], live[0]];
     const reach = solver.reachAt(node);
     if (spec.candidates) {
@@ -902,7 +922,10 @@ export interface RealisedGenerateOptions extends Omit<GenerateOptions, "realisat
   start?: RealisationModel;
   /** The fitted model's recorded name. Default `charts/2-solver-fit`. */
   fitName?: string;
-  /** The spots measured each round. Default `REALISATION_SPOTS` (a straddled tree: `STRADDLE_REALISATION_SPOTS`). */
+  /**
+   * The spots measured each round. Default `REALISATION_SPOTS` (a straddled
+   * tree: `STRADDLE_REALISATION_SPOTS`; heads-up: `HEADS_UP_REALISATION_SPOTS`).
+   */
   spots?: readonly RealisationSpotSpec[];
   /**
    * Runs turn+river solves. The script runs them on worker threads; the result
@@ -955,6 +978,8 @@ function widthLines(tree: PreflopTree): [string, string][] {
   });
   const btn = tree.players.indexOf("BTN");
   if (btn >= 0 && tree.players.includes("SB")) out.push(["BB vs BTN", "f".repeat(btn) + "rf"]);
+  // Heads-up: the big blind against the small blind's (the button's) open.
+  if (tree.headsUp) out.push(["BB vs SB", "r"]);
   return out;
 }
 
@@ -988,7 +1013,13 @@ export async function generateRealisedChartSet(
       onProgress: undefined,
     });
     equity = solved.equity;
-    const specs = options.spots ?? (options.straddle ? STRADDLE_REALISATION_SPOTS : REALISATION_SPOTS);
+    const specs =
+      options.spots ??
+      (options.headsUp
+        ? HEADS_UP_REALISATION_SPOTS
+        : options.straddle
+          ? STRADDLE_REALISATION_SPOTS
+          : REALISATION_SPOTS);
     const spots = prepareSpots(solved.solver, measure.minClassReach, undefined, specs).map((s) => ({ ...s, round }));
     const jobs = measurementJobs(spots, measure);
     const samples = aggregateSamples(spots, await run(jobs));

@@ -101,16 +101,20 @@ export interface LineStep {
 /** The seats of the 9-max sets, in table order (A2c). */
 export const NINE_TABLE_ORDER: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
 
+/** The heads-up set's seats (`charts/8`): the small blind (the button) acts first preflop. */
+export const HEADS_UP_TABLE_ORDER: readonly ChartPosition[] = ["SB", "BB"];
+
 /** The straddle set's seats (A2e), in action order: left of the straddler first, the straddler (UTG) last. */
 export const STRADDLE_TABLE_ORDER: readonly ChartPosition[] = ["HJ", "CO", "BTN", "SB", "BB", "UTG"];
 
 /**
- * The seats a chart set's lines are written in, by its id: 6-max or 9-max
- * table order, or the straddle set's action order (the straddler last).
+ * The seats a chart set's lines are written in, by its id: 6-max, 9-max or
+ * heads-up table order, or the straddle set's action order (the straddler last).
  */
 export function seatsOfSet(id: string | null | undefined): readonly ChartPosition[] {
   const spec = id ? CHART_SETS.find((s) => s.id === id) : undefined;
   if (spec?.straddle) return STRADDLE_TABLE_ORDER;
+  if (spec?.players === 2 || (!!id && /-hu-/.test(id))) return HEADS_UP_TABLE_ORDER;
   return spec?.players === 9 || (!!id && /-9max-/.test(id)) ? NINE_TABLE_ORDER : TABLE_ORDER;
 }
 
@@ -703,7 +707,8 @@ export interface StatReport {
 const splitId = (key: SplitKey) => `${key.table ?? 6}|${key.position}|${key.versus ?? ""}`;
 
 /** Table order of a split's seats. */
-const seatOrder = (table: number | undefined) => (table === 9 ? NINE_TABLE_ORDER : TABLE_ORDER);
+const seatOrder = (table: number | undefined) =>
+  table === 9 ? NINE_TABLE_ORDER : table === 2 ? HEADS_UP_TABLE_ORDER : TABLE_ORDER;
 
 /** The parts of a set of made-actions over every node `applies` accepts. */
 export function statParts(

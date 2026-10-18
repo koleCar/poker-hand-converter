@@ -25,6 +25,13 @@ import {
 } from "../../../lib/training";
 import type { TrainerTarget } from "../../../lib/training/plan";
 
+/**
+ * The sets the preflop trainer deals from: every table of three or more. The
+ * heads-up set (`charts/8`) grades hands but has no trainer seats yet; a
+ * link to it opens the default set.
+ */
+export const TRAINER_SETS = CHART_SETS.filter((spec) => spec.players > 2);
+
 export const TRAIN_MODES = ["preflop", "river", "drills"] as const;
 export type TrainMode = (typeof TRAIN_MODES)[number];
 
@@ -86,7 +93,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     : [];
   return {
     mode: oneOf(first(query.mode), TRAIN_MODES, spots.length > 0 ? "drills" : DEFAULT_TRAIN_STATE.mode),
-    set: oneOf(first(query.set), CHART_SETS.map((spec) => spec.id), DEFAULT_TRAIN_STATE.set),
+    set: oneOf(first(query.set), TRAINER_SETS.map((spec) => spec.id), DEFAULT_TRAIN_STATE.set),
     family: oneOf(first(query.family), [...PREFLOP_FAMILIES, "random"] as const, DEFAULT_TRAIN_STATE.family),
     seat: seatParam(first(query.seat)),
     vs: seatParam(first(query.vs)),
@@ -137,7 +144,7 @@ export function dueDrillQuery(keys: readonly string[] | null): string {
 /** The address of a study plan's trainer task: the trainer set to the area's spot. */
 export function targetQuery(target: TrainerTarget): string {
   if (target.mode === "preflop") {
-    const set = target.set && CHART_SETS.some((spec) => spec.id === target.set) ? target.set : DEFAULT_TRAIN_STATE.set;
+    const set = target.set && TRAINER_SETS.some((spec) => spec.id === target.set) ? target.set : DEFAULT_TRAIN_STATE.set;
     return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "preflop", set, family: target.family, seat: target.seat, vs: target.vs });
   }
   return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "river", pot: target.pot, side: target.side, role: target.role });

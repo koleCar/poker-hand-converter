@@ -62,7 +62,8 @@ describe("the registry", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain(DEFAULT_CHART_SET);
     for (const spec of CHART_SETS) {
-      expect(spec.id).toBe(`nlhe-cash-${spec.players}max-${spec.stackBb}bb${spec.straddle ? "-straddle" : ""}`);
+      const table = spec.players === 2 ? "hu" : `${spec.players}max`;
+      expect(spec.id).toBe(`nlhe-cash-${table}-${spec.stackBb}bb${spec.straddle ? "-straddle" : ""}`);
       const set = chartSet(spec.id);
       expect(set.id).toBe(spec.id);
       expect(set.game.positions).toHaveLength(spec.players);
@@ -74,16 +75,23 @@ describe("the registry", () => {
       ["nlhe-cash-6max-100bb-straddle", { position: "UTG", bb: 2 }],
     ]);
     expect(CHART_SETS.filter((s) => s.players === 9).map((s) => s.stackBb)).toEqual([100, 150, 200]);
+    // charts/8: one heads-up set, 100bb.
+    expect(CHART_SETS.filter((s) => s.players === 2).map((s) => s.id)).toEqual(["nlhe-cash-hu-100bb"]);
   });
 
-  it("reads 3-6 players on a 6-max set and 7-9 on a 9-max set; refuses heads-up and ten", () => {
+  it("reads heads-up on the heads-up set, 3-6 players on a 6-max set and 7-9 on a 9-max set; refuses ten", () => {
     expect(pickId(table(6, "CO"))).toBe("nlhe-cash-6max-100bb");
     expect(pickId(table(5, "CO"))).toBe("nlhe-cash-6max-100bb");
     expect(pickId(table(3, "BTN"))).toBe("nlhe-cash-6max-100bb");
     expect(pickId(table(7, "LJ"))).toBe("nlhe-cash-9max-100bb");
     expect(pickId(table(8, "UTG"))).toBe("nlhe-cash-9max-100bb");
     expect(pickId(table(9, "UTG+2"))).toBe("nlhe-cash-9max-100bb");
-    expect(pickId(table(2, "SB"))).toBe("players");
+    expect(pickId(table(2, "SB"))).toBe("nlhe-cash-hu-100bb");
+    expect(pickId(table(2, "BB", 119))).toBe("nlhe-cash-hu-100bb");
+    // One heads-up depth: further than 20% is refused, never read on a bigger table.
+    expect(pickId(table(2, "SB", 121))).toBe("stack-depth");
+    expect(pickId(table(2, "SB", 79))).toBe("stack-depth");
+    expect(pickChartSet(CHART_SETS.filter((s) => s.players > 2), table(2, "SB"))).toMatchObject({ ok: false, reason: "players" });
     expect(pickId(table(10, "MP"))).toBe("players");
   });
 
@@ -162,9 +170,15 @@ describe("lookup through the library", () => {
     expect(lookupPreflop(library, table(6, "CO", 75), "KQo")).toMatchObject({ ok: false, reason: "stack-depth" });
   });
 
-  it("refuses straddles and heads-up by name, and says when a set is not loaded", () => {
+  it("refuses straddles by name, reads heads-up only on the heads-up set, and says when a set is not loaded", () => {
     expect(lookupPreflop(library, table(6, "BTN", 100, { straddle: true }), "AA")).toMatchObject({ ok: false, reason: "straddle" });
-    expect(lookupPreflop(library, table(2, "SB"), "AA")).toMatchObject({ ok: false, reason: "players" });
+    const hu = ok(lookupPreflop(library, table(2, "SB"), "AA"));
+    expect(hu.set.id).toBe("nlhe-cash-hu-100bb");
+    expect(hu.node).toMatchObject({ line: "", actor: "SB", scenario: "rfi" });
+    expect(hu.approximations).toEqual([]);
+    // One set on its own: a 6-max set never reads heads-up, the heads-up set nothing else.
+    expect(lookupPreflop(chartSet(DEFAULT_CHART_SET), table(2, "SB"), "AA")).toMatchObject({ ok: false, reason: "players" });
+    expect(lookupPreflop(chartSet("nlhe-cash-hu-100bb"), table(3, "BTN"), "AA")).toMatchObject({ ok: false, reason: "players" });
     const partial = chartLibrary([chartSet(DEFAULT_CHART_SET)]);
     expect(lookupPreflop(partial, table(9, "UTG"), "AA")).toMatchObject({ ok: false, reason: "unavailable" });
     expect(lookupPreflop(partial, table(6, "UTG"), "AA").ok).toBe(true);

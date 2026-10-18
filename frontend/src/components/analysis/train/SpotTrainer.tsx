@@ -38,7 +38,7 @@ import { AnswerBar, type AnswerOption } from "./AnswerBar";
 import { AnswerResult } from "./AnswerResult";
 import { useTrainerKeys } from "./trainerKeys";
 import { lastAction } from "./spotPosition";
-import type { TrainState } from "./trainState";
+import { TRAINER_SETS, type TrainState } from "./trainState";
 import own from "./train.module.css";
 
 /** Seeds tried before saying no spot matches. */
@@ -360,7 +360,7 @@ function Settings({
               onChange({ set, seat: keep(state.seat), vs: keep(state.vs) });
             }}
           >
-            {CHART_SETS.map((s) => (
+            {TRAINER_SETS.map((s) => (
               <option key={s.id} value={s.id}>
                 {t.tableValue(s.players, s.stackBb, Boolean(s.straddle))}
               </option>

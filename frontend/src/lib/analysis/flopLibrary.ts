@@ -169,8 +169,13 @@ export function sameLine(libraryKey: string, placedKey: string): boolean {
   return libraryKey.replace(/f+$/, "") === placedKey.replace(/f+$/, "");
 }
 
-/** The library's lines for a chart set's table size (7-9 handed play on the full-ring sets). */
+/**
+ * The library's lines for a chart set's table size (7-9 handed play on the
+ * full-ring sets). The heads-up set (`charts/8`) has none yet: its flops are
+ * the heuristic's.
+ */
 export function flopLinesFor(players: number): readonly FlopLine[] {
+  if (players === 2) return [];
   return players > 6 ? FLOP_LINES_9MAX : FLOP_LINES;
 }
 

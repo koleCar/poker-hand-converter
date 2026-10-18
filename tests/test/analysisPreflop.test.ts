@@ -331,7 +331,7 @@ describe("what the charts refuse, by name", () => {
       expect(hr.analysis.reasons[reason]).toBeTruthy();
     }
     const decision = pre(analyse(headsUp()));
-    expect(en.analysis.explain(decision)[0]).toMatch(/^Not graded: the charts cover three to nine players/);
+    expect(en.analysis.explain(decision)[0]).toMatch(/^Not graded: the charts cover two to nine players/);
     expect(hr.analysis.explain(decision)[0]).toMatch(/^Bez ocjene:/);
     expect(conceptsForDecision(decision)).toEqual([]);
   });
