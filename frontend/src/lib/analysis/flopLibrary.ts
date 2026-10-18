@@ -279,31 +279,131 @@ export function memoryLibrary(chunks: readonly FlopChunk[], tree?: string): Flop
   };
 }
 
-/** What the loader needs of `fetch`: a test passes one that reads files. */
-export type LibraryFetch = (url: string) => Promise<{ ok: boolean; arrayBuffer(): Promise<ArrayBuffer>; json(): Promise<unknown> }>;
+/**
+ * What the loader needs of `fetch`: a test passes one that reads files.
+ * `status` and `headers` are optional (a test fetcher may leave them out):
+ * without a status, a response that is not ok is a file that is not there.
+ */
+export type LibraryFetch = (url: string) => Promise<{
+  ok: boolean;
+  status?: number;
+  headers?: { get(name: string): string | null };
+  arrayBuffer(): Promise<ArrayBuffer>;
+  json(): Promise<unknown>;
+}>;
+
+/** How the loader rides out a rate-limited or failing bucket. */
+export interface LoaderOptions {
+  /** Tries per file before giving up for now (default 4). */
+  attempts?: number;
+  /** The first retry's delay; each next one doubles, with jitter (default 250 ms). */
+  baseDelayMs?: number;
+  /** Fetches in flight at once, manifests and chunks together (default 2). */
+  concurrency?: number;
+  /** Waits between tries (tests pass one that does not wait). */
+  sleep?: (ms: number) => Promise<void>;
+}
+
+/** The longest a `Retry-After` is honoured: a later hand tries again anyway. */
+const MAX_RETRY_AFTER_MS = 10_000;
+
+/** Too many requests or a server error: worth trying again. Anything else not ok is a file that is not there. */
+function transientStatus(status: number | undefined): boolean {
+  return status === 429 || (status !== undefined && status >= 500);
+}
+
+/** A `Retry-After` header (seconds or an HTTP date) in milliseconds, if there is one. */
+function retryAfterMs(headers: { get(name: string): string | null } | undefined): number {
+  const value = headers?.get("retry-after");
+  if (!value) return 0;
+  const seconds = Number(value);
+  const ms = Number.isFinite(seconds) ? seconds * 1000 : Date.parse(value) - Date.now();
+  return Number.isFinite(ms) ? Math.min(Math.max(ms, 0), MAX_RETRY_AFTER_MS) : 0;
+}
+
+/** Retries ran out on a 429, a 5xx or a failed request: not cached, a later hand tries again. */
+class TransientFetchError extends Error {}
 
 /**
  * Fetches chunks on demand from a base URL: a set's manifest the first time
  * a hand on that set needs it, then each chunk the first time a hand reads
  * it (`prefetch`), kept for the worker's life. Never bundled into a page: a
  * chunk is a separate request. A set with no manifest is an empty library.
+ *
+ * The public bucket answers HTTP 429 to six parallel fetches (2026-10-18),
+ * so at most `concurrency` fetches are in flight, and a 429, a 5xx or a
+ * failed request is retried with backoff. When the retries run out nothing
+ * is cached: that hand reads the heuristic, the next one fetches again.
+ * Only a file that is not there (404) is remembered as absent.
  */
 export class FlopLibraryLoader implements FlopLibrary {
   readonly base: string;
   readonly tree: string;
   private readonly fetcher: LibraryFetch;
+  private readonly attempts: number;
+  private readonly baseDelayMs: number;
+  private readonly concurrency: number;
+  private readonly sleep: (ms: number) => Promise<void>;
   /** Per set id: the (line/flop) keys its manifest lists; empty when it has none. */
   private readonly manifests = new Map<string, Set<string>>();
   private readonly chunks = new Map<string, FlopChunk | null>();
+  /** Per chunk key: its fetch, shared by every caller while it is in flight. */
+  private readonly fetching = new Map<string, Promise<void>>();
+  /** Fetches in flight, and the ones waiting for a slot. */
+  private active = 0;
+  private readonly queue: (() => void)[] = [];
 
-  constructor(base: string, fetcher: LibraryFetch, tree: string = FLOP_PROFILE.tree) {
+  constructor(base: string, fetcher: LibraryFetch, tree: string = FLOP_PROFILE.tree, options: LoaderOptions = {}) {
     this.base = base;
     this.tree = tree;
     this.fetcher = fetcher;
+    this.attempts = Math.max(1, options.attempts ?? 4);
+    this.baseDelayMs = options.baseDelayMs ?? 250;
+    this.concurrency = Math.max(1, options.concurrency ?? 2);
+    this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   }
 
   private url(path: string): string {
     return `${this.base.replace(/\/$/, "")}/${path}`;
+  }
+
+  /** Runs `work` once a fetch slot is free. A finished fetch hands its slot to the next in the queue. */
+  private async slot<T>(work: () => Promise<T>): Promise<T> {
+    if (this.active < this.concurrency) this.active += 1;
+    else await new Promise<void>((resolve) => this.queue.push(resolve));
+    try {
+      return await work();
+    } finally {
+      const next = this.queue.shift();
+      if (next) next();
+      else this.active -= 1;
+    }
+  }
+
+  /**
+   * One file, its body read by `read`: null when it is not there. Retries a
+   * 429, a 5xx or a failed request (the slot is given up while it waits);
+   * throws `TransientFetchError` when the tries run out.
+   */
+  private async fetchFile<T>(url: string, read: (response: Awaited<ReturnType<LibraryFetch>>) => Promise<T>): Promise<T | null> {
+    for (let attempt = 1; ; attempt += 1) {
+      let wait = 0;
+      try {
+        const outcome = await this.slot(async (): Promise<{ body: T | null } | { retryAfter: number }> => {
+          const response = await this.fetcher(url);
+          if (response.ok) return { body: await read(response) };
+          if (!transientStatus(response.status)) return { body: null };
+          return { retryAfter: retryAfterMs(response.headers) };
+        });
+        if ("body" in outcome) return outcome.body;
+        wait = outcome.retryAfter;
+      } catch {
+        // A failed request (or body): transient.
+      }
+      if (attempt >= this.attempts) throw new TransientFetchError(url);
+      const backoff = this.baseDelayMs * 2 ** (attempt - 1) * (0.5 + Math.random());
+      await this.sleep(Math.max(wait, backoff));
+    }
   }
 
   /** Per set id: the manifest's fetch, shared by every caller while it is in flight. */
@@ -312,7 +412,9 @@ export class FlopLibraryLoader implements FlopLibrary {
   /**
    * Loads a set's manifest (once). False when there is none. Callers that
    * arrive while the manifest is still being fetched wait for the same fetch
-   * (the trainer worker answers several jobs at once, Learn L2).
+   * (the trainer worker answers several jobs at once, Learn L2). A manifest
+   * the bucket would not serve (retries spent) is forgotten, so the next
+   * caller fetches it again rather than reading the set as empty for good.
    */
   async ready(set: string): Promise<boolean> {
     let pending = this.loading.get(set);
@@ -321,13 +423,14 @@ export class FlopLibraryLoader implements FlopLibrary {
       this.manifests.set(set, keys);
       pending = (async () => {
         try {
-          const response = await this.fetcher(this.url(`${set}/${this.tree}/manifest.json`));
-          if (response.ok) {
-            const manifest = (await response.json()) as FlopManifest;
-            for (const entry of manifest.entries) keys.add(`${entry.line}/${entry.flop}`);
+          const manifest = (await this.fetchFile(this.url(`${set}/${this.tree}/manifest.json`), (r) => r.json())) as FlopManifest | null;
+          for (const entry of manifest?.entries ?? []) keys.add(`${entry.line}/${entry.flop}`);
+        } catch (error) {
+          // No manifest: nothing of this set is in the library. Unless it was transient: try again later.
+          if (error instanceof TransientFetchError && this.loading.get(set) === pending) {
+            this.loading.delete(set);
+            this.manifests.delete(set);
           }
-        } catch {
-          // No manifest: nothing of this set is in the library.
         }
       })();
       this.loading.set(set, pending);
@@ -345,22 +448,39 @@ export class FlopLibraryLoader implements FlopLibrary {
   }
 
   /**
+   * Fetches a chunk the manifest lists, once; callers of one still in flight
+   * wait for it. A chunk that is not there or does not decode is cached as
+   * null; one the bucket would not serve (retries spent) is not cached.
+   */
+  private fetchChunk(set: string, line: string, flop: string): Promise<void> {
+    const key = `${set}/${line}/${flop}`;
+    if (this.chunks.has(key)) return Promise.resolve();
+    let pending = this.fetching.get(key);
+    if (!pending) {
+      pending = (async () => {
+        try {
+          const bytes = await this.fetchFile(this.url(chunkPath(set, this.tree, line, flop)), (r) => r.arrayBuffer());
+          this.chunks.set(key, bytes ? decodeChunk(bytes) : null);
+        } catch (error) {
+          if (!(error instanceof TransientFetchError)) this.chunks.set(key, null);
+        } finally {
+          this.fetching.delete(key);
+        }
+      })();
+      this.fetching.set(key, pending);
+    }
+    return pending;
+  }
+
+  /**
    * Fetches one chunk by name (the Learn flop drills, which deal from a
    * chunk rather than read a hand's), loading its set's manifest first.
    * Null when the library does not hold it or it cannot be fetched. Never throws.
    */
   async load(set: string, line: string, flop: string): Promise<FlopChunk | null> {
     if (!(await this.ready(set)) || !this.has(set, line, flop)) return null;
-    const key = `${set}/${line}/${flop}`;
-    if (!this.chunks.has(key)) {
-      try {
-        const response = await this.fetcher(this.url(chunkPath(set, this.tree, line, flop)));
-        this.chunks.set(key, response.ok ? decodeChunk(await response.arrayBuffer()) : null);
-      } catch {
-        this.chunks.set(key, null);
-      }
-    }
-    return this.chunks.get(key) ?? null;
+    await this.fetchChunk(set, line, flop);
+    return this.get(set, line, flop);
   }
 
   /** Fetches the chunk a hand would read, if any. Never throws: a missing chunk is the heuristic. */
@@ -376,15 +496,7 @@ export class FlopLibraryLoader implements FlopLibrary {
     } catch {
       return;
     }
-    if (!want) return;
-    const key = `${want.set}/${want.line.id}/${want.flop}`;
-    if (this.chunks.has(key)) return;
-    try {
-      const response = await this.fetcher(this.url(chunkPath(want.set, this.tree, want.line.id, want.flop)));
-      this.chunks.set(key, response.ok ? decodeChunk(await response.arrayBuffer()) : null);
-    } catch {
-      this.chunks.set(key, null);
-    }
+    if (want) await this.fetchChunk(want.set, want.line.id, want.flop);
   }
 }
 

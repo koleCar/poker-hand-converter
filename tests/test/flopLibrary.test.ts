@@ -36,6 +36,7 @@ import {
   walkRanges,
   type FlopEntry,
   type FlopProfile,
+  type LibraryFetch,
 } from "../../frontend/src/lib/analysis/index.js";
 import { chartLibrary, loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
 import { cardCode, cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
@@ -284,6 +285,122 @@ describe("the chunk format", () => {
     // A hand on a line the library has not solved fetches no chunk.
     await loader.prefetch(handOn(["Th", "7d", "4c"], [{ position: "BB", type: "check" }], "fffrfc"), CHARTS);
     expect(fetched).toHaveLength(2);
+  });
+
+  describe("against a rate-limited bucket (2026-10-18)", () => {
+    const base = "https://example.test/floplib";
+    const manifestUrl = `${base}/${CHARTS.id}/flop-test/manifest.json`;
+    const chunkUrl = `${base}/${chunkPath(CHARTS.id, "flop-test", LINE.id, FLOP)}`;
+    const hand = () => handOn(["Th", "7d", "4c"], [{ position: "BB", type: "check" }]);
+
+    /**
+     * A bucket serving the manifest and the chunk, answering each URL's first
+     * fetches with the statuses queued for it (then 200). Sleeps are recorded,
+     * not waited.
+     */
+    function bucket(statuses: Record<string, number[]> = {}, options: { concurrency?: number; delayMs?: number; retryAfter?: string } = {}) {
+      const files = new Map<string, unknown>([
+        [manifestUrl, { entries: [{ line: LINE.id, flop: FLOP }] }],
+        [chunkUrl, bytes],
+      ]);
+      const fetched: string[] = [];
+      const slept: number[] = [];
+      let inFlight = 0;
+      let peak = 0;
+      const fetcher: LibraryFetch = async (url) => {
+        fetched.push(url);
+        inFlight += 1;
+        peak = Math.max(peak, inFlight);
+        try {
+          if (options.delayMs) await new Promise((resolve) => setTimeout(resolve, options.delayMs));
+          const status = statuses[url]?.shift() ?? (files.has(url) ? 200 : 404);
+          if (status === 0) throw new TypeError("Failed to fetch");
+          const body = files.get(url);
+          return {
+            ok: status === 200,
+            status,
+            headers: { get: (name: string) => (name === "retry-after" ? (options.retryAfter ?? null) : null) },
+            arrayBuffer: async () => {
+              const b = body as Uint8Array;
+              return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
+            },
+            json: async () => body,
+          };
+        } finally {
+          inFlight -= 1;
+        }
+      };
+      const loader = new FlopLibraryLoader(base, fetcher, "flop-test", {
+        concurrency: options.concurrency,
+        sleep: async (ms) => {
+          slept.push(ms);
+        },
+      });
+      return { loader, fetched, slept, peak: () => peak };
+    }
+
+    it("retries a 429 and a failed request, then reads the chunk", async () => {
+      const { loader, fetched, slept } = bucket({ [chunkUrl]: [429, 0] });
+      await loader.prefetch(hand(), CHARTS);
+      expect(loader.get(CHARTS.id, LINE.id, FLOP)?.header).toEqual(chunk.header);
+      expect(fetched.filter((url) => url === chunkUrl)).toHaveLength(3);
+      // Exponential backoff with jitter: 250 ms then 500 ms, each ×0.5–1.5.
+      expect(slept).toHaveLength(2);
+      expect(slept[0]).toBeGreaterThanOrEqual(125);
+      expect(slept[0]).toBeLessThanOrEqual(375);
+      expect(slept[1]).toBeGreaterThanOrEqual(250);
+      expect(slept[1]).toBeLessThanOrEqual(750);
+    });
+
+    it("waits as long as a Retry-After asks", async () => {
+      const { loader, slept } = bucket({ [chunkUrl]: [429] }, { retryAfter: "3" });
+      await loader.prefetch(hand(), CHARTS);
+      expect(loader.get(CHARTS.id, LINE.id, FLOP)).not.toBeNull();
+      expect(slept).toEqual([3000]);
+    });
+
+    it("does not cache a chunk the bucket keeps refusing: a later hand fetches it again", async () => {
+      const { loader, fetched } = bucket({ [chunkUrl]: [429, 503, 429, 429] });
+      await loader.prefetch(hand(), CHARTS);
+      expect(loader.get(CHARTS.id, LINE.id, FLOP)).toBeNull();
+      expect(fetched.filter((url) => url === chunkUrl)).toHaveLength(4);
+      await loader.prefetch(hand(), CHARTS);
+      expect(loader.get(CHARTS.id, LINE.id, FLOP)?.header).toEqual(chunk.header);
+      expect(fetched.filter((url) => url === chunkUrl)).toHaveLength(5);
+    });
+
+    it("remembers a 404 as absent, without retrying", async () => {
+      const { loader, fetched, slept } = bucket({ [chunkUrl]: [404] });
+      expect(await loader.load(CHARTS.id, LINE.id, FLOP)).toBeNull();
+      expect(await loader.load(CHARTS.id, LINE.id, FLOP)).toBeNull();
+      expect(fetched.filter((url) => url === chunkUrl)).toHaveLength(1);
+      expect(slept).toEqual([]);
+    });
+
+    it("makes a set live after its manifest's 429, and fetches a refused manifest again later", async () => {
+      const retried = bucket({ [manifestUrl]: [429] });
+      expect(await retried.loader.ready(CHARTS.id)).toBe(true);
+      expect(retried.loader.has(CHARTS.id, LINE.id, FLOP)).toBe(true);
+
+      const refused = bucket({ [manifestUrl]: [429, 429, 429, 429] });
+      expect(await refused.loader.ready(CHARTS.id)).toBe(false);
+      expect(refused.loader.has(CHARTS.id, LINE.id, FLOP)).toBe(false);
+      expect(await refused.loader.ready(CHARTS.id)).toBe(true);
+      expect(refused.fetched.filter((url) => url === manifestUrl)).toHaveLength(5);
+    });
+
+    it("keeps at most `concurrency` fetches in flight, and one fetch per chunk", async () => {
+      const { loader, fetched, peak } = bucket({}, { concurrency: 2, delayMs: 5 });
+      await loader.ready(CHARTS.id);
+      // Six callers on one chunk share one fetch.
+      await Promise.all(Array.from({ length: 6 }, () => loader.load(CHARTS.id, LINE.id, FLOP)));
+      expect(fetched.filter((url) => url === chunkUrl)).toHaveLength(1);
+      // Six manifests of six sets at once: two at a time.
+      const sets = ["s1", "s2", "s3", "s4", "s5", "s6"];
+      await Promise.all(sets.map((set) => loader.ready(set)));
+      expect(fetched).toHaveLength(8);
+      expect(peak()).toBe(2);
+    });
   });
 });
 
