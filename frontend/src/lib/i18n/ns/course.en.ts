@@ -284,7 +284,7 @@ export const courseEn = {
     } as Record<string, string>,
     waits: {
       widget: "This exercise needs a widget that is not built yet.",
-      "flop-library": "Waits for flop solves at this depth: Rail's flop library covers 6-max 100bb heads-up lines only.",
+      "flop-library": "Waits for flop solves at this depth: Rail's flop library covers heads-up lines at 6-max 100bb and 150bb and 9-max 100bb only.",
       "villain-stats": "Waits for opponent statistics in the analysis.",
       "straddle-charts": "Waits for straddle charts, which Rail does not have yet.",
     } as Record<string, string>,

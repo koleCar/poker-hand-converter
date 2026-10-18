@@ -4003,3 +4003,57 @@ Each phase appends what it learned that changed the plan.
     - The pair fix reads the deeper player's preflop range on the pair's
       set, at the pair's depth: the same approximation every placement
       within 20% already makes, not measured on its own.
+- 2026-10-18 — A5b, the 6-max 150bb flop library live, `analysis/25`. No
+  migration.
+  - **The run.** All 12 6-max lines × 100 representative flops of the
+    6-max 150bb set (`charts/4`, hash `f70ff13e`) solved on the owner's
+    machine (~558 core-hours; sb-limp 100, btn-bb 82 the dearest): 1,200
+    chunks, 81 MB, every solve below 1% of the pot (largest 0.99996%,
+    300-iteration cap never reached, at most 280). Uploaded to the
+    `flop-library` bucket with `upload.sh`; the manifest and **all 1,200
+    chunks** (the 40-chunk sample among them) verified byte for byte from
+    the public URL. A set is live once its manifest is in the bucket
+    (`FlopLibraryLoader.ready`), so nothing registers it in code.
+  - **Validation.** `--validate` has nothing to compare (only
+    representatives are solved). Held out (`--validate --loo`, 552 pairs,
+    each representative read from its nearest other one on the line),
+    medians: strategy TV 17.5% (floor 7.2%), |ΔEV| 7.32% of the pot (floor
+    1.87%), same top action 80.7% (92.2%), same check/call grade 72.9%
+    (86.2%) — level with the 100bb set's 17.5%, 7.42%, 81.7%, 69.8%
+    (2026-10-08).
+  - **Measured** (5,448 stored hands, the local library, the two 100bb
+    sets against the same plus 150bb):
+    - `floplib:measure`: hero flop decisions graded from the library 163 →
+      **211** of 1,095 (mapped 148 → 191, exact 15 → 20); the 48 new ones
+      Perfect 34, Good 12, Inaccurate 1, Mistake 1.
+    - `floplib:census` (turn solves on, `CENSUS_BEFORE` decision for
+      decision): heads-up flops with no grade (no chunk) 501 → 453, by
+      effective depth 120-170bb 141 → 98, 170bb+ 46 → 41, 80-120bb 304 →
+      304; the 48 above are the only flop moves. Turn: one
+      `turn-unreached` now solved (Good), 2 Good → Perfect, 3 Perfect →
+      Good, 29 same grade with other approximation flags (their ranges now
+      start from the 150bb chunk); river: 3 Good → Perfect, 1 Perfect →
+      Good, 1 Good → Inaccurate, 23 flags only. All graded 6,334 → **6,383
+      (79.7%)**.
+    - The 2026-10-16 census (at `analysis/23`) counted 66 heads-up flops
+      placed on the 150bb set without a chunk; 48 flops read a 150bb chunk
+      now. Why the rest do not (a line the library does not solve, the stack outside
+      `SPR_TOLERANCE`, the pair re-placed) is not broken down: the census
+      rows carry no reason for a heuristic flop.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/25` (stored analyses re-run
+    and read the new chunks). The census's default `CENSUS_SETS` now
+    includes the 150bb set; the Learn "waits for the flop library" sentence
+    names the three sets (English and Croatian).
+  - **Fix.** `upload.sh` waited on its parallel uploads with a bare `wait`,
+    which succeeds whatever the jobs did, so a failed chunk upload went
+    unnoticed and the manifest was uploaded anyway. It now counts failed
+    uploads and stops before the manifest. This run was unaffected (every
+    chunk verified from the public URL).
+  - **Open.**
+    - The public Storage endpoint answered HTTP 429 to six parallel
+      fetches during the verification (fine at two). The worker fetches a
+      chunk per hand on demand and a failed fetch is the heuristic, silently;
+      a large rebuild could lose library grades to rate limiting. Not
+      measured in the app.
+    - 453 heads-up flops still have no chunk: other depths (60bb, 200bb,
+      9-max 150bb), longer lines (4-bet+), heads-up tables (2026-10-16).
