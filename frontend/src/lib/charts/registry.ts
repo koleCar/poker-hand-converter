@@ -3,9 +3,10 @@
  * one answers a spot, and loading them one at a time.
  *
  * **Sets.** One JSON file per table and stack depth (`data/<id>.json`, see
- * docs/CHARTS.md §6): 6-max at 40 / 60 / 100 / 150 / 200bb and 9-max at
- * 100 / 150 / 200bb. `CHART_SETS` lists them with their table and depth -
- * the manifest is a few hundred bytes; each set is its own dynamic import,
+ * docs/CHARTS.md §6): 6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at
+ * 100 / 150 / 200bb and heads-up at 100 / 150bb. `CHART_SETS` lists them
+ * with their table and depth - the manifest is a few hundred bytes; each
+ * set is its own dynamic import,
  * so a bundler splits every set into its own chunk and a page (or the
  * analysis worker) downloads only the sets its hands need.
  *
@@ -16,7 +17,7 @@
  *    Fewer players than seats is the `short-handed` approximation: the
  *    missing seats are the earliest ones, folded (`lookup.ts`). Heads-up
  *    (the button is the small blind and acts last after the flop) is read
- *    only on a heads-up set (`charts/8`) - never on a bigger table with its
+ *    only on a heads-up set (`charts/8`, `charts/9`) - never on a bigger table with its
  *    seats folded, whose blinds play the other way round after the flop -
  *    and a heads-up set answers nothing else. Ten or more players are
  *    refused (`players`).
@@ -42,7 +43,7 @@ import type { PreflopSpot } from "./lookup";
 /** One committed set: its table, its depth, and how to load it. */
 export interface ChartSetSpec {
   id: string;
-  /** Seats of the set's table: 2 (heads-up, `charts/8`), 6 or 9. */
+  /** Seats of the set's table: 2 (heads-up, `charts/8` and `charts/9`), 6 or 9. */
   players: number;
   stackBb: number;
   /**
@@ -74,6 +75,7 @@ export const CHART_SETS: readonly ChartSetSpec[] = [
   { id: "nlhe-cash-9max-150bb", players: 9, stackBb: 150, load: () => import("./data/nlhe-cash-9max-150bb.json") },
   { id: "nlhe-cash-9max-200bb", players: 9, stackBb: 200, load: () => import("./data/nlhe-cash-9max-200bb.json") },
   { id: "nlhe-cash-hu-100bb", players: 2, stackBb: 100, load: () => import("./data/nlhe-cash-hu-100bb.json") },
+  { id: "nlhe-cash-hu-150bb", players: 2, stackBb: 150, load: () => import("./data/nlhe-cash-hu-150bb.json") },
   {
     id: "nlhe-cash-6max-100bb-straddle",
     players: 6,

@@ -52,7 +52,7 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * on the list, and `modelCaveat` names those hands. `charts/4` (A2d, limp
  * trees), `charts/3` (A2c), `charts/5` (A2e, the straddle set), `charts/6`
  * (the 200bb sets solved longer), `charts/7` (the 9-max 150bb set solved
- * longer) and `charts/8` (the heads-up set) are the same model at other
+ * longer), `charts/8` and `charts/9` (the heads-up sets) are the same model at other
  * tables, depths and blinds, with the same weakness.
  */
 export const WEAK_CHART_VERSIONS: readonly string[] = [
@@ -64,6 +64,7 @@ export const WEAK_CHART_VERSIONS: readonly string[] = [
   "charts/6",
   "charts/7",
   "charts/8",
+  "charts/9",
 ];
 
 /**

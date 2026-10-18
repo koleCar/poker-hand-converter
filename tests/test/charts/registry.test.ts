@@ -75,8 +75,8 @@ describe("the registry", () => {
       ["nlhe-cash-6max-100bb-straddle", { position: "UTG", bb: 2 }],
     ]);
     expect(CHART_SETS.filter((s) => s.players === 9).map((s) => s.stackBb)).toEqual([100, 150, 200]);
-    // charts/8: one heads-up set, 100bb.
-    expect(CHART_SETS.filter((s) => s.players === 2).map((s) => s.id)).toEqual(["nlhe-cash-hu-100bb"]);
+    // charts/8 and charts/9: heads-up at 100bb and 150bb.
+    expect(CHART_SETS.filter((s) => s.players === 2).map((s) => s.id)).toEqual(["nlhe-cash-hu-100bb", "nlhe-cash-hu-150bb"]);
   });
 
   it("reads heads-up on the heads-up set, 3-6 players on a 6-max set and 7-9 on a 9-max set; refuses ten", () => {
@@ -88,11 +88,31 @@ describe("the registry", () => {
     expect(pickId(table(9, "UTG+2"))).toBe("nlhe-cash-9max-100bb");
     expect(pickId(table(2, "SB"))).toBe("nlhe-cash-hu-100bb");
     expect(pickId(table(2, "BB", 119))).toBe("nlhe-cash-hu-100bb");
-    // One heads-up depth: further than 20% is refused, never read on a bigger table.
-    expect(pickId(table(2, "SB", 121))).toBe("stack-depth");
+    // Two heads-up depths: the nearest within 20% (80-180bb), further is refused, never read on a bigger table.
+    expect(pickId(table(2, "SB", 121))).toBe("nlhe-cash-hu-150bb");
     expect(pickId(table(2, "SB", 79))).toBe("stack-depth");
+    expect(pickId(table(2, "SB", 181))).toBe("stack-depth");
     expect(pickChartSet(CHART_SETS.filter((s) => s.players > 2), table(2, "SB"))).toMatchObject({ ok: false, reason: "players" });
     expect(pickId(table(10, "MP"))).toBe("players");
+  });
+
+  it("picks the nearest heads-up depth: 100bb up to 120bb, 150bb from there to 180bb", () => {
+    // Relative distance: 120bb is 20% from both, and the shallower (listed first) keeps it.
+    expect(pickId(table(2, "SB", 120))).toBe("nlhe-cash-hu-100bb");
+    expect(pickId(table(2, "BB", 120.5))).toBe("nlhe-cash-hu-150bb");
+    expect(pickId(table(2, "SB", 150))).toBe("nlhe-cash-hu-150bb");
+    expect(pickId(table(2, "SB", 180))).toBe("nlhe-cash-hu-150bb");
+    // The effective stack: a 300bb button against a 140bb big blind is a 140bb hand.
+    const spot = table(2, "SB", 300);
+    spot.stacksBb = { SB: 300, BB: 140 };
+    expect(pickId(spot)).toBe("nlhe-cash-hu-150bb");
+    // Within 5% is exact; further is the stack-depth note with both depths.
+    const library = fullLibrary();
+    expect(ok(lookupPreflop(library, table(2, "SB", 145), "AA")).approximations).toEqual([]);
+    expect(ok(lookupPreflop(library, table(2, "SB", 130), "AA")).approximations).toMatchObject([
+      { kind: "stack-depth", realBb: 130, chartBb: 150 },
+    ]);
+    expect(ok(lookupPreflop(library, table(2, "SB", 130), "AA")).set.id).toBe("nlhe-cash-hu-150bb");
   });
 
   it("picks the nearest depth within 20%, never interpolating", () => {

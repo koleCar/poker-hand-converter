@@ -210,9 +210,9 @@ player's decisions. This is why they come first.
     every seat, isolation raises sized by the limpers, the limper's answers,
     at most three limpers; solved with a 0.5% limp tremble so the spots
     behind a limp are trained although the equilibrium barely limps;
-  - plus a 6-max 100bb set with a 2bb UTG straddle (`charts/5`) and a
-    **heads-up** 100bb set (`charts/8`: the small blind is the button and
-    in position after the flop).
+  - plus a 6-max 100bb set with a 2bb UTG straddle (`charts/5`) and
+    **heads-up** 100bb and 150bb sets (`charts/8`, `charts/9`: the small
+    blind is the button and in position after the flop).
 - **Convergence:** NashConv 0.06–0.33 mbb/hand (6-max), 0.27–0.44 (9-max) with the limp trees (`charts/3`: 0.04–0.13, 0.26–0.49).
 - **Lookup picks the set:** the smallest table with enough seats, then the
   nearest depth within 20%, never interpolated; the distance is a
@@ -220,7 +220,7 @@ player's decisions. This is why they come first.
 - **Lookup refuses, with a reason:** `cold-call`, `multiway` (more than
   4 entrants, or a fourth limper), `rare-line`, `action-not-modelled`,
   `straddle`, 10+ players (`players`), and depths no set covers (heads-up:
-  80-120bb only)
+  80-180bb only)
   (`limp` only for a set without limp trees).
 - **Lookup approximates:** `short-handed` (3–5 handed read as 6-max, 7–8
   handed as 9-max, the earliest seats folded: exact in the model up to
@@ -4149,3 +4149,66 @@ Each phase appends what it learned that changed the plan.
     - The heads-up flops (64 hero decisions) have no flop-library lines; a
       heads-up `srp` / `3bp` / limped line set would be a new library batch.
     - The trainer and the study plan do not deal heads-up spots yet.
+- 2026-10-18 — Heads-up 150bb charts, `charts/9`, `analysis/27`. No
+  migration.
+  - **Why.** After `charts/8` the largest heads-up preflop refusal left was
+    `chart-stack-depth` at 120-170bb: 38 hero decisions (37 hands), the
+    open item of the entry above.
+  - **The set** `nlhe-cash-hu-150bb` (docs/CHARTS.md §1.5, §6.10): the
+    heads-up tree and sizes of `charts/8` at 150bb (open 2.5bb, 3-bet 10bb,
+    4-bets 22 / 30bb, 5-bet all-in). The 6- and 9-max 150bb sets keep their
+    100bb sizes, and so does this one: nothing before the 5-bet comes near
+    `allInAbove`. `sets.ts` builds both heads-up sets from one `headsUp(depth,
+    version)`; the 100bb config is unchanged. Same pipeline and standard:
+    two measure-and-fit rounds from `charts/2`'s fit on the seven heads-up
+    spots (all measured both rounds), then 9,000 iterations. **NashConv
+    0.001 mbb/hand** (0.011 at 3,000), 10 of 10 nodes kept,
+    `excluded.unconverged` empty (2% self-loss bar). 17 minutes on 3
+    threads under `nice`; a rerun writes the same bytes. 81,902 bytes.
+  - **What it plays** (our solver only, no third-party chart): against
+    100bb the button limps less and raises more (complete 12.5% / raise
+    64.3%, was 22.1 / 58.0; continues 76.8%), the big blind defends a
+    little wider against the open (67.7%, was 65.4; Q5o and 96o now call),
+    and after a 4-bet the pots stay smaller: the big blind flats TT, AQo
+    and AJo instead of shoving some, and the button calls a 150bb shove
+    39.6% (was 53.5% at 100bb; QQ+, AK, TT call, AQo folds). Deeper
+    stacks: more flatting, less stacking off, tighter calls of all-ins.
+  - **Depth selection.** Nothing new in the lookup: heads-up reads only the
+    heads-up sets, nearest depth by relative distance - 100bb up to 120bb
+    (both 20% away there; the shallower, listed first, keeps it), 150bb from
+    there to 180bb; under 80bb and over 180bb `stack-depth`. Rare lines and
+    the opponents' ranges at an uncovered depth read the other heads-up set
+    (`rareLineDepthSets`, `uncoveredDepthSets` stay within the table: never
+    a 6-max set). Tests: `registry.test.ts` (the 120bb boundary, 181bb,
+    the effective stack, the `stack-depth` note at 130bb), `headsUp.test.ts`
+    (both sets' bands, a 150bb hand end to end, 200bb and 60bb refused),
+    `analysisPreflop` / `analysisRanges` (the neighbour lists). The
+    `uncovered-depth` detail says "heads-up" instead of "2-max".
+  - **Measured** (`floplib:census`, the 5,448 stored hands, turn solves on,
+    decision for decision against an `analysis/26` baseline run first; the
+    baseline is byte-identical to the `charts/8` entry's rows):
+    - The 38 heads-up preflop decisions at 120-170bb: **all 38 graded**
+      (Perfect 26, Inaccurate 3, Mistake 9, Blunder 0; raises 20, folds 11,
+      checks 6, call 1). 21 carry `stack-depth-near`, 1 `off-tree-size`.
+      The Mistakes: four folds first in by the button (which plays 77% of
+      hands at 150bb), one big-blind fold to the open, three raises, one
+      check.
+    - Heads-up preflop: 65 → **103 of 110 graded**; the 7 left are under
+      80bb (`stack-depth`).
+    - Preflop graded 5,107 → **5,145**. All graded 6,448 → **6,486**
+      (81.0%).
+    - Postflop, in those heads-up hands only: the opponents' ranges are
+      read on their own depth instead of the 100bb set
+      (`range-neighbour-depth` gone), so 11 turn and river grades move
+      (turn: Mistake → Good 3, Perfect → Good 3, Good → Perfect; river:
+      Good → Perfect 2, Perfect → Good 2) and 25 keep their grade with
+      fewer flags (turn 13, river 10, flop 2). No decision gains or loses a
+      grade postflop; no flop grade moves. Nothing else moves.
+  - **Shipped.** `CHARTS_VERSION` → `charts/9`, `ANALYSIS_VERSION` →
+    `analysis/27` (grades change). `WEAK_CHART_VERSIONS` includes `charts/9`
+    (the same model). Texts name the heads-up depths (English and
+    Croatian).
+  - **Open.**
+    - 7 heads-up decisions under 80bb (6 under 50bb): a 40bb heads-up set
+      would need the short sizes (`SHORT`) and is not worth a solve for 7.
+    - The heads-up flops still have no flop-library lines (entry above).

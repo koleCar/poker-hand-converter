@@ -1,0 +1,2101 @@
+{
+  "version": "charts/9",
+  "id": "nlhe-cash-hu-150bb",
+  "game": {
+    "variant": "holdem",
+    "limit": "nl",
+    "format": "cash",
+    "players": 2,
+    "positions": [
+      "SB",
+      "BB"
+    ],
+    "stackBb": 150
+  },
+  "model": {
+    "tree": {
+      "sizing": {
+        "open": 2.5,
+        "sbOpen": 2.5,
+        "isoVsLimp": 4,
+        "isoPerLimper": 1,
+        "isoOop": 0,
+        "threeBetIp": 3,
+        "threeBetOop": 4,
+        "threeBetVsIso": 3,
+        "squeezePerCaller": 1,
+        "fourBetIp": 2.2,
+        "fourBetOop": 2.5,
+        "roundTo": 0.5,
+        "allInAbove": 0.4
+      },
+      "maxEntrants": 4,
+      "sbLimp": true,
+      "headsUp": true,
+      "cuts": [
+        "heads-up: the small blind is the button, acts first preflop and last after the flop",
+        "no open limps except the small blind's",
+        "at most four players put money in voluntarily; players already in may always continue",
+        "no cold call of a 3-bet or 4-bet",
+        "5-bet is all-in; a cold player facing an all-in folds"
+      ],
+      "actionNodes": 10
+    },
+    "rake": {
+      "name": "5%-cap3bb-nfnd",
+      "percent": 0.05,
+      "capBb": 3,
+      "noFlopNoDrop": true,
+      "potGrowth": {
+        "limped": 2,
+        "srp": 1.75,
+        "3bet": 1.4,
+        "4bet": 1.15,
+        "allin": 1
+      }
+    },
+    "realisation": {
+      "form": "odds: share = e*w_i / (e*w_i + (1-e)*w_j); log w = bias[potType][role] + Σ coef·feature(class)",
+      "name": "charts/9-solver-fit-hu-150bb",
+      "source": "fitted to turn+river solves (flop checked) of the charts' own heads-up ranges; docs/CHARTS.md §4",
+      "features": [
+        "pair",
+        "pairLow",
+        "suited",
+        "gap0",
+        "gap1",
+        "gap2",
+        "offGap3",
+        "high",
+        "low",
+        "suitedAce",
+        "offAce"
+      ],
+      "potTypes": {
+        "limped": {
+          "ipAgg": {
+            "bias": 0.10132,
+            "coef": {
+              "pair": 0.27718,
+              "pairLow": -0.07726,
+              "suited": 0.22028,
+              "gap0": 0.21216,
+              "gap1": 0.17373,
+              "gap2": 0.06457,
+              "offGap3": -0.15538,
+              "high": -0.28382,
+              "low": 0.55808,
+              "suitedAce": 0.18312,
+              "offAce": -0.01964
+            }
+          },
+          "oopAgg": {
+            "bias": -0.40064,
+            "coef": {
+              "pair": 0,
+              "pairLow": 0,
+              "suited": 0.28708,
+              "gap0": 0.18536,
+              "gap1": 0.16684,
+              "gap2": 0.08852,
+              "offGap3": -0.16408,
+              "high": 0.10518,
+              "low": 0.38265,
+              "suitedAce": 0,
+              "offAce": 0.15193
+            }
+          },
+          "ipCaller": {
+            "bias": 0.10132,
+            "coef": {
+              "pair": 0.27718,
+              "pairLow": -0.07726,
+              "suited": 0.22028,
+              "gap0": 0.21216,
+              "gap1": 0.17373,
+              "gap2": 0.06457,
+              "offGap3": -0.15538,
+              "high": -0.28382,
+              "low": 0.55808,
+              "suitedAce": 0.18312,
+              "offAce": -0.01964
+            }
+          },
+          "oopCaller": {
+            "bias": -0.40064,
+            "coef": {
+              "pair": 0,
+              "pairLow": 0,
+              "suited": 0.28708,
+              "gap0": 0.18536,
+              "gap1": 0.16684,
+              "gap2": 0.08852,
+              "offGap3": -0.16408,
+              "high": 0.10518,
+              "low": 0.38265,
+              "suitedAce": 0,
+              "offAce": 0.15193
+            }
+          }
+        },
+        "srp": {
+          "ipAgg": {
+            "bias": 0.04945,
+            "coef": {
+              "pair": 0.48014,
+              "pairLow": -0.14522,
+              "suited": 0.28876,
+              "gap0": 0.19378,
+              "gap1": 0.11412,
+              "gap2": 0.0983,
+              "offGap3": -0.13055,
+              "high": -0.23422,
+              "low": 0.39512,
+              "suitedAce": 0.18309,
+              "offAce": 0.00322
+            }
+          },
+          "oopAgg": {
+            "bias": -0.06153,
+            "coef": {
+              "pair": 0.51355,
+              "pairLow": -0.1216,
+              "suited": 0.26408,
+              "gap0": 0.20061,
+              "gap1": 0.14034,
+              "gap2": 0.05221,
+              "offGap3": -0.02684,
+              "high": -0.20951,
+              "low": 0.29045,
+              "suitedAce": 0.10056,
+              "offAce": -0.03286
+            }
+          },
+          "ipCaller": {
+            "bias": -0.07829,
+            "coef": {
+              "pair": 0.48014,
+              "pairLow": -0.14522,
+              "suited": 0.28876,
+              "gap0": 0.19378,
+              "gap1": 0.11412,
+              "gap2": 0.0983,
+              "offGap3": -0.13055,
+              "high": -0.23422,
+              "low": 0.39512,
+              "suitedAce": 0.18309,
+              "offAce": 0.00322
+            }
+          },
+          "oopCaller": {
+            "bias": -0.18926,
+            "coef": {
+              "pair": 0.51355,
+              "pairLow": -0.1216,
+              "suited": 0.26408,
+              "gap0": 0.20061,
+              "gap1": 0.14034,
+              "gap2": 0.05221,
+              "offGap3": -0.02684,
+              "high": -0.20951,
+              "low": 0.29045,
+              "suitedAce": 0.10056,
+              "offAce": -0.03286
+            }
+          }
+        },
+        "3bet": {
+          "ipAgg": {
+            "bias": 0.1489,
+            "coef": {
+              "pair": 0.44676,
+              "pairLow": -0.21885,
+              "suited": 0.12551,
+              "gap0": 0.02855,
+              "gap1": 0.0576,
+              "gap2": 0.08464,
+              "offGap3": -0.1491,
+              "high": -0.14389,
+              "low": 0.10005,
+              "suitedAce": 0.03078,
+              "offAce": -0.06971
+            }
+          },
+          "oopAgg": {
+            "bias": 0.07287,
+            "coef": {
+              "pair": 0.57453,
+              "pairLow": -0.48362,
+              "suited": 0.20425,
+              "gap0": 0.09478,
+              "gap1": 0.08335,
+              "gap2": -0.06272,
+              "offGap3": -0.1451,
+              "high": -0.30254,
+              "low": 0.12695,
+              "suitedAce": 0.00341,
+              "offAce": -0.0406
+            }
+          },
+          "ipCaller": {
+            "bias": 0.12797,
+            "coef": {
+              "pair": 0.44676,
+              "pairLow": -0.21885,
+              "suited": 0.12551,
+              "gap0": 0.02855,
+              "gap1": 0.0576,
+              "gap2": 0.08464,
+              "offGap3": -0.1491,
+              "high": -0.14389,
+              "low": 0.10005,
+              "suitedAce": 0.03078,
+              "offAce": -0.06971
+            }
+          },
+          "oopCaller": {
+            "bias": 0.05194,
+            "coef": {
+              "pair": 0.57453,
+              "pairLow": -0.48362,
+              "suited": 0.20425,
+              "gap0": 0.09478,
+              "gap1": 0.08335,
+              "gap2": -0.06272,
+              "offGap3": -0.1451,
+              "high": -0.30254,
+              "low": 0.12695,
+              "suitedAce": 0.00341,
+              "offAce": -0.0406
+            }
+          }
+        },
+        "4bet": {
+          "ipAgg": {
+            "bias": 0.42151,
+            "coef": {
+              "pair": 0.08958,
+              "pairLow": -0.3712,
+              "suited": 0.0766,
+              "gap0": 0.11764,
+              "gap1": 0.16101,
+              "gap2": 0.06341,
+              "offGap3": 0,
+              "high": -0.38476,
+              "low": 0.09575,
+              "suitedAce": 0.0278,
+              "offAce": -0.17726
+            }
+          },
+          "oopAgg": {
+            "bias": 0.09325,
+            "coef": {
+              "pair": 0.16355,
+              "pairLow": 0.0355,
+              "suited": 0.41229,
+              "gap0": 0.13582,
+              "gap1": 0.05127,
+              "gap2": -0.06576,
+              "offGap3": -0.02133,
+              "high": -0.31771,
+              "low": 0.02883,
+              "suitedAce": -0.06601,
+              "offAce": 0.13475
+            }
+          },
+          "ipCaller": {
+            "bias": 0.1601,
+            "coef": {
+              "pair": 0.08958,
+              "pairLow": -0.3712,
+              "suited": 0.0766,
+              "gap0": 0.11764,
+              "gap1": 0.16101,
+              "gap2": 0.06341,
+              "offGap3": 0,
+              "high": -0.38476,
+              "low": 0.09575,
+              "suitedAce": 0.0278,
+              "offAce": -0.17726
+            }
+          },
+          "oopCaller": {
+            "bias": -0.16817,
+            "coef": {
+              "pair": 0.16355,
+              "pairLow": 0.0355,
+              "suited": 0.41229,
+              "gap0": 0.13582,
+              "gap1": 0.05127,
+              "gap2": -0.06576,
+              "offGap3": -0.02133,
+              "high": -0.31771,
+              "low": 0.02883,
+              "suitedAce": -0.06601,
+              "offAce": 0.13475
+            }
+          }
+        },
+        "allin": {
+          "ipAgg": {
+            "bias": 0,
+            "coef": {}
+          },
+          "oopAgg": {
+            "bias": 0,
+            "coef": {}
+          },
+          "ipCaller": {
+            "bias": 0,
+            "coef": {}
+          },
+          "oopCaller": {
+            "bias": 0,
+            "coef": {}
+          }
+        }
+      },
+      "rakePotGrowth": {
+        "limped": 2,
+        "srp": 1.75,
+        "3bet": 1.4,
+        "4bet": 1.15,
+        "allin": 1
+      },
+      "multiway": "share_p = x_p + (1 - Σx)/n, x_p = Π_q s_pq"
+    },
+    "realisationFit": {
+      "method": "rounds of: solve the preflop game; solve sampled turn+river spots (flop checked) between the charts' heads-up ranges; fit the realisation model's coefficients to the shares realised",
+      "measure": {
+        "boards": 120,
+        "rivers": 0,
+        "iterations": 60,
+        "seed": 32417,
+        "minClassReach": 0.01
+      },
+      "menu": {
+        "bet": [
+          0.75
+        ],
+        "raise": [],
+        "allIn": true
+      },
+      "maxFitShare": 0.92,
+      "ridge": 0.0001,
+      "start": "charts/2-solver-fit",
+      "rounds": [
+        {
+          "round": 0,
+          "iterations": 1500,
+          "spots": [
+            {
+              "line": "rc",
+              "potType": "srp",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                660.93,
+                799.75
+              ]
+            },
+            {
+              "line": "crc",
+              "potType": "srp",
+              "positions": [
+                "BB",
+                "SB+"
+              ],
+              "combos": [
+                533.98,
+                127.02
+              ]
+            },
+            {
+              "line": "rrc",
+              "potType": "3bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                297.07,
+                271.55
+              ]
+            },
+            {
+              "line": "crrc",
+              "potType": "3bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                219.87,
+                19.57
+              ]
+            },
+            {
+              "line": "rrrc",
+              "potType": "4bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                173.26,
+                100
+              ]
+            },
+            {
+              "line": "crrrc",
+              "potType": "4bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                95.74,
+                14.49
+              ]
+            },
+            {
+              "line": "ck",
+              "potType": "limped",
+              "positions": [
+                "BB",
+                "SB+"
+              ],
+              "combos": [
+                791.82,
+                1066.85
+              ]
+            }
+          ],
+          "jobs": 840,
+          "fit": [
+            {
+              "potType": "limped",
+              "spots": [
+                "ck@0"
+              ],
+              "rmse": {
+                "fitted": 0.03123,
+                "charts1": 0.05646,
+                "equity": 0.11099
+              },
+              "average": [
+                {
+                  "line": "ck@0",
+                  "positions": [
+                    "BB",
+                    "SB+"
+                  ],
+                  "measured": [
+                    0.7673,
+                    1.1708
+                  ],
+                  "fitted": [
+                    0.7861,
+                    1.1561
+                  ]
+                }
+              ],
+              "positionEdge": 1.2658,
+              "initiativeEdge": 1,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "ip",
+                  "measured": 1.145,
+                  "fitted": 1.186,
+                  "weight": 0.021
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.242,
+                  "fitted": 1.127,
+                  "weight": 0.006
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.365,
+                  "fitted": 1.404,
+                  "weight": 0.052
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.167,
+                  "fitted": 1.179,
+                  "weight": 0.029
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.276,
+                  "fitted": 1.248,
+                  "weight": 0.037
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 1.153,
+                  "fitted": 1.188,
+                  "weight": 0.111
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "ip",
+                  "measured": 1.025,
+                  "fitted": 1.027,
+                  "weight": 0.086
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "oop",
+                  "measured": 0.78,
+                  "fitted": 0.795,
+                  "weight": 0.1
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "ip",
+                  "measured": 1.106,
+                  "fitted": 1.122,
+                  "weight": 0.41
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "oop",
+                  "measured": 0.741,
+                  "fitted": 0.765,
+                  "weight": 0.79
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.203,
+                  "fitted": 1.217,
+                  "weight": 0.156
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 1.067,
+                  "fitted": 1.071,
+                  "weight": 0.051
+                }
+              ]
+            },
+            {
+              "potType": "srp",
+              "spots": [
+                "rc@0",
+                "crc@0"
+              ],
+              "rmse": {
+                "fitted": 0.0398,
+                "charts1": 0.0616,
+                "equity": 0.08353
+              },
+              "average": [
+                {
+                  "line": "rc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.8362,
+                    1.1425
+                  ],
+                  "fitted": [
+                    0.8535,
+                    1.127
+                  ]
+                },
+                {
+                  "line": "crc@0",
+                  "positions": [
+                    "BB",
+                    "SB+"
+                  ],
+                  "measured": [
+                    1.0509,
+                    0.9442
+                  ],
+                  "fitted": [
+                    1.0393,
+                    0.9576
+                  ]
+                }
+              ],
+              "positionEdge": 1.0863,
+              "initiativeEdge": 1.1367,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "ip",
+                  "measured": 1.17,
+                  "fitted": 1.203,
+                  "weight": 0.035
+                },
+                {
+                  "group": "pairs 22-66",
+                  "seat": "oop",
+                  "measured": 1.049,
+                  "fitted": 1.081,
+                  "weight": 0.08
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.228,
+                  "fitted": 1.107,
+                  "weight": 0.012
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "oop",
+                  "measured": 1.156,
+                  "fitted": 1.103,
+                  "weight": 0.04
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.324,
+                  "fitted": 1.325,
+                  "weight": 0.095
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 1.114,
+                  "fitted": 1.141,
+                  "weight": 0.131
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.134,
+                  "fitted": 1.163,
+                  "weight": 0.038
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "oop",
+                  "measured": 0.997,
+                  "fitted": 1.016,
+                  "weight": 0.054
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.242,
+                  "fitted": 1.205,
+                  "weight": 0.07
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "oop",
+                  "measured": 1.082,
+                  "fitted": 1.099,
+                  "weight": 0.066
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 0.96,
+                  "fitted": 0.998,
+                  "weight": 0.331
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "oop",
+                  "measured": 0.975,
+                  "fitted": 0.992,
+                  "weight": 0.262
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "ip",
+                  "measured": 0.864,
+                  "fitted": 0.874,
+                  "weight": 0.22
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "oop",
+                  "measured": 0.791,
+                  "fitted": 0.807,
+                  "weight": 0.154
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "ip",
+                  "measured": 1.015,
+                  "fitted": 1.03,
+                  "weight": 0.495
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "oop",
+                  "measured": 0.817,
+                  "fitted": 0.84,
+                  "weight": 0.581
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.135,
+                  "fitted": 1.168,
+                  "weight": 0.302
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.957,
+                  "fitted": 0.975,
+                  "weight": 0.429
+                }
+              ]
+            },
+            {
+              "potType": "3bet",
+              "spots": [
+                "rrc@0",
+                "crrc@0"
+              ],
+              "rmse": {
+                "fitted": 0.02931,
+                "charts1": 0.04792,
+                "equity": 0.05371
+              },
+              "average": [
+                {
+                  "line": "rrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.9734,
+                    1.0351
+                  ],
+                  "fitted": [
+                    0.9654,
+                    1.0461
+                  ]
+                },
+                {
+                  "line": "crrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.9395,
+                    1.0531
+                  ],
+                  "fitted": [
+                    0.9411,
+                    1.0501
+                  ]
+                }
+              ],
+              "positionEdge": 1.2088,
+              "initiativeEdge": 1.0774,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "ip",
+                  "measured": 1.092,
+                  "fitted": 1.108,
+                  "weight": 0.096
+                },
+                {
+                  "group": "pairs 22-66",
+                  "seat": "oop",
+                  "measured": 1.01,
+                  "fitted": 1.024,
+                  "weight": 0.137
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.144,
+                  "fitted": 1.112,
+                  "weight": 0.048
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "oop",
+                  "measured": 1.063,
+                  "fitted": 1.065,
+                  "weight": 0.123
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.12,
+                  "fitted": 1.113,
+                  "weight": 0.24
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 1.02,
+                  "fitted": 1.029,
+                  "weight": 0.281
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.024,
+                  "fitted": 1.03,
+                  "weight": 0.086
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "oop",
+                  "measured": 0.921,
+                  "fitted": 0.918,
+                  "weight": 0.17
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.062,
+                  "fitted": 1.083,
+                  "weight": 0.092
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "oop",
+                  "measured": 0.951,
+                  "fitted": 0.964,
+                  "weight": 0.189
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 0.965,
+                  "fitted": 0.979,
+                  "weight": 0.254
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "oop",
+                  "measured": 0.859,
+                  "fitted": 0.87,
+                  "weight": 0.354
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "ip",
+                  "measured": 0.905,
+                  "fitted": 0.92,
+                  "weight": 0.022
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "ip",
+                  "measured": 1.105,
+                  "fitted": 1.036,
+                  "weight": 0.006
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "oop",
+                  "measured": 0.98,
+                  "fitted": 0.92,
+                  "weight": 0.009
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.015,
+                  "fitted": 1.035,
+                  "weight": 0.28
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.891,
+                  "fitted": 0.901,
+                  "weight": 0.335
+                }
+              ]
+            },
+            {
+              "potType": "4bet",
+              "spots": [
+                "rrrc@0",
+                "crrrc@0"
+              ],
+              "rmse": {
+                "fitted": 0.02994,
+                "charts1": 0.05633,
+                "equity": 0.069
+              },
+              "average": [
+                {
+                  "line": "rrrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.8248,
+                    1.1086
+                  ],
+                  "fitted": [
+                    0.8406,
+                    1.0985
+                  ]
+                },
+                {
+                  "line": "crrrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    1.0444,
+                    0.9232
+                  ],
+                  "fitted": [
+                    1.017,
+                    0.9715
+                  ]
+                }
+              ],
+              "positionEdge": 1.1901,
+              "initiativeEdge": 1.3269,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "oop",
+                  "measured": 0.891,
+                  "fitted": 0.832,
+                  "weight": 0.058
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.051,
+                  "fitted": 1.087,
+                  "weight": 0.166
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "oop",
+                  "measured": 0.947,
+                  "fitted": 0.991,
+                  "weight": 0.265
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.127,
+                  "fitted": 1.137,
+                  "weight": 0.115
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 0.94,
+                  "fitted": 0.961,
+                  "weight": 0.198
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.119,
+                  "fitted": 1.128,
+                  "weight": 0.027
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "oop",
+                  "measured": 0.881,
+                  "fitted": 0.897,
+                  "weight": 0.131
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.073,
+                  "fitted": 1.108,
+                  "weight": 0.269
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "oop",
+                  "measured": 0.917,
+                  "fitted": 0.945,
+                  "weight": 0.284
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 0.939,
+                  "fitted": 0.965,
+                  "weight": 0.169
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "oop",
+                  "measured": 0.852,
+                  "fitted": 0.869,
+                  "weight": 0.237
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.879,
+                  "fitted": 0.886,
+                  "weight": 0.114
+                }
+              ]
+            }
+          ],
+          "widths": {
+            "SB": 0.8046,
+            "BB vs SB": 0.7225
+          }
+        },
+        {
+          "round": 1,
+          "iterations": 1500,
+          "spots": [
+            {
+              "line": "rc",
+              "potType": "srp",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                609.96,
+                808.33
+              ]
+            },
+            {
+              "line": "crc",
+              "potType": "srp",
+              "positions": [
+                "BB",
+                "SB+"
+              ],
+              "combos": [
+                552.51,
+                106.65
+              ]
+            },
+            {
+              "line": "rrc",
+              "potType": "3bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                295.84,
+                258.68
+              ]
+            },
+            {
+              "line": "crrc",
+              "potType": "3bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                203.68,
+                30.04
+              ]
+            },
+            {
+              "line": "rrrc",
+              "potType": "4bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                205.11,
+                95.05
+              ]
+            },
+            {
+              "line": "crrrc",
+              "potType": "4bet",
+              "positions": [
+                "BB",
+                "SB"
+              ],
+              "combos": [
+                93.27,
+                23.24
+              ]
+            },
+            {
+              "line": "ck",
+              "potType": "limped",
+              "positions": [
+                "BB",
+                "SB+"
+              ],
+              "combos": [
+                773.32,
+                1058.4
+              ]
+            }
+          ],
+          "jobs": 840,
+          "fit": [
+            {
+              "potType": "limped",
+              "spots": [
+                "ck@0",
+                "ck@1"
+              ],
+              "rmse": {
+                "fitted": 0.03459,
+                "charts1": 0.05565,
+                "equity": 0.10541
+              },
+              "average": [
+                {
+                  "line": "ck@0",
+                  "positions": [
+                    "BB",
+                    "SB+"
+                  ],
+                  "measured": [
+                    0.7673,
+                    1.1708
+                  ],
+                  "fitted": [
+                    0.7842,
+                    1.1575
+                  ]
+                },
+                {
+                  "line": "ck@1",
+                  "positions": [
+                    "BB",
+                    "SB+"
+                  ],
+                  "measured": [
+                    0.802,
+                    1.1469
+                  ],
+                  "fitted": [
+                    0.8216,
+                    1.1318
+                  ]
+                }
+              ],
+              "positionEdge": 1.3363,
+              "initiativeEdge": 1,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "ip",
+                  "measured": 1.161,
+                  "fitted": 1.187,
+                  "weight": 0.047
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.234,
+                  "fitted": 1.133,
+                  "weight": 0.011
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.335,
+                  "fitted": 1.376,
+                  "weight": 0.105
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 0.956,
+                  "fitted": 0.978,
+                  "weight": 0.042
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.176,
+                  "fitted": 1.184,
+                  "weight": 0.058
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.271,
+                  "fitted": 1.241,
+                  "weight": 0.075
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 1.141,
+                  "fitted": 1.178,
+                  "weight": 0.224
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "ip",
+                  "measured": 1.006,
+                  "fitted": 1.005,
+                  "weight": 0.175
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "oop",
+                  "measured": 0.813,
+                  "fitted": 0.825,
+                  "weight": 0.147
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "ip",
+                  "measured": 1.097,
+                  "fitted": 1.113,
+                  "weight": 0.813
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "oop",
+                  "measured": 0.747,
+                  "fitted": 0.771,
+                  "weight": 1.443
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.182,
+                  "fitted": 1.196,
+                  "weight": 0.314
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.919,
+                  "fitted": 0.933,
+                  "weight": 0.249
+                }
+              ]
+            },
+            {
+              "potType": "srp",
+              "spots": [
+                "rc@0",
+                "crc@0",
+                "rc@1",
+                "crc@1"
+              ],
+              "rmse": {
+                "fitted": 0.03928,
+                "charts1": 0.05814,
+                "equity": 0.08434
+              },
+              "average": [
+                {
+                  "line": "rc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.8362,
+                    1.1425
+                  ],
+                  "fitted": [
+                    0.8525,
+                    1.1279
+                  ]
+                },
+                {
+                  "line": "crc@0",
+                  "positions": [
+                    "BB",
+                    "SB+"
+                  ],
+                  "measured": [
+                    1.0509,
+                    0.9442
+                  ],
+                  "fitted": [
+                    1.0445,
+                    0.9519
+                  ]
+                },
+                {
+                  "line": "rc@1",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.8445,
+                    1.1351
+                  ],
+                  "fitted": [
+                    0.8602,
+                    1.1213
+                  ]
+                },
+                {
+                  "line": "crc@1",
+                  "positions": [
+                    "BB",
+                    "SB+"
+                  ],
+                  "measured": [
+                    0.9253,
+                    1.0879
+                  ],
+                  "fitted": [
+                    0.9145,
+                    1.0984
+                  ]
+                }
+              ],
+              "positionEdge": 1.0984,
+              "initiativeEdge": 1.1363,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "ip",
+                  "measured": 1.172,
+                  "fitted": 1.218,
+                  "weight": 0.071
+                },
+                {
+                  "group": "pairs 22-66",
+                  "seat": "oop",
+                  "measured": 1.033,
+                  "fitted": 1.073,
+                  "weight": 0.13
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.227,
+                  "fitted": 1.108,
+                  "weight": 0.034
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "oop",
+                  "measured": 1.131,
+                  "fitted": 1.075,
+                  "weight": 0.079
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.201,
+                  "fitted": 1.213,
+                  "weight": 0.345
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 1.103,
+                  "fitted": 1.119,
+                  "weight": 0.196
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.132,
+                  "fitted": 1.182,
+                  "weight": 0.076
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "oop",
+                  "measured": 0.992,
+                  "fitted": 0.999,
+                  "weight": 0.109
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.195,
+                  "fitted": 1.186,
+                  "weight": 0.178
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "oop",
+                  "measured": 1.071,
+                  "fitted": 1.08,
+                  "weight": 0.132
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 1.003,
+                  "fitted": 1.038,
+                  "weight": 0.568
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "oop",
+                  "measured": 0.935,
+                  "fitted": 0.951,
+                  "weight": 0.533
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "ip",
+                  "measured": 0.896,
+                  "fitted": 0.912,
+                  "weight": 0.332
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "oop",
+                  "measured": 0.772,
+                  "fitted": 0.783,
+                  "weight": 0.395
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "ip",
+                  "measured": 1.045,
+                  "fitted": 1.059,
+                  "weight": 0.888
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "oop",
+                  "measured": 0.808,
+                  "fitted": 0.834,
+                  "weight": 1.35
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.109,
+                  "fitted": 1.134,
+                  "weight": 0.643
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.938,
+                  "fitted": 0.962,
+                  "weight": 0.667
+                }
+              ]
+            },
+            {
+              "potType": "3bet",
+              "spots": [
+                "rrc@0",
+                "crrc@0",
+                "rrc@1",
+                "crrc@1"
+              ],
+              "rmse": {
+                "fitted": 0.03365,
+                "charts1": 0.05139,
+                "equity": 0.06004
+              },
+              "average": [
+                {
+                  "line": "rrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.9734,
+                    1.0351
+                  ],
+                  "fitted": [
+                    0.961,
+                    1.052
+                  ]
+                },
+                {
+                  "line": "crrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.9395,
+                    1.0531
+                  ],
+                  "fitted": [
+                    0.955,
+                    1.0383
+                  ]
+                },
+                {
+                  "line": "rrc@1",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.9933,
+                    1.0076
+                  ],
+                  "fitted": [
+                    0.9856,
+                    1.0164
+                  ]
+                },
+                {
+                  "line": "crrc@1",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.9049,
+                    1.0957
+                  ],
+                  "fitted": [
+                    0.8967,
+                    1.1055
+                  ]
+                }
+              ],
+              "positionEdge": 1.1673,
+              "initiativeEdge": 1.0212,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "ip",
+                  "measured": 1.102,
+                  "fitted": 1.126,
+                  "weight": 0.195
+                },
+                {
+                  "group": "pairs 22-66",
+                  "seat": "oop",
+                  "measured": 0.993,
+                  "fitted": 1.014,
+                  "weight": 0.343
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.152,
+                  "fitted": 1.121,
+                  "weight": 0.137
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "oop",
+                  "measured": 1.087,
+                  "fitted": 1.071,
+                  "weight": 0.243
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.104,
+                  "fitted": 1.121,
+                  "weight": 0.394
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 1.026,
+                  "fitted": 1.038,
+                  "weight": 0.486
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.01,
+                  "fitted": 1.009,
+                  "weight": 0.187
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "oop",
+                  "measured": 0.9,
+                  "fitted": 0.901,
+                  "weight": 0.39
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.052,
+                  "fitted": 1.071,
+                  "weight": 0.224
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "oop",
+                  "measured": 0.947,
+                  "fitted": 0.966,
+                  "weight": 0.359
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 0.958,
+                  "fitted": 0.98,
+                  "weight": 0.588
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "oop",
+                  "measured": 0.847,
+                  "fitted": 0.861,
+                  "weight": 0.883
+                },
+                {
+                  "group": "offsuit aces A2o-A9o",
+                  "seat": "ip",
+                  "measured": 0.85,
+                  "fitted": 0.859,
+                  "weight": 0.059
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "ip",
+                  "measured": 0.994,
+                  "fitted": 1.021,
+                  "weight": 0.146
+                },
+                {
+                  "group": "other offsuit",
+                  "seat": "oop",
+                  "measured": 0.98,
+                  "fitted": 0.911,
+                  "weight": 0.009
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.048,
+                  "fitted": 1.052,
+                  "weight": 0.389
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.903,
+                  "fitted": 0.915,
+                  "weight": 0.47
+                }
+              ]
+            },
+            {
+              "potType": "4bet",
+              "spots": [
+                "rrrc@0",
+                "crrrc@0",
+                "rrrc@1",
+                "crrrc@1"
+              ],
+              "rmse": {
+                "fitted": 0.03735,
+                "charts1": 0.0603,
+                "equity": 0.07193
+              },
+              "average": [
+                {
+                  "line": "rrrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.8248,
+                    1.1086
+                  ],
+                  "fitted": [
+                    0.8394,
+                    1.0992
+                  ]
+                },
+                {
+                  "line": "crrrc@0",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    1.0444,
+                    0.9232
+                  ],
+                  "fitted": [
+                    1.0202,
+                    0.9662
+                  ]
+                },
+                {
+                  "line": "rrrc@1",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    0.8349,
+                    1.1204
+                  ],
+                  "fitted": [
+                    0.8579,
+                    1.106
+                  ]
+                },
+                {
+                  "line": "crrrc@1",
+                  "positions": [
+                    "BB",
+                    "SB"
+                  ],
+                  "measured": [
+                    1.0633,
+                    0.897
+                  ],
+                  "fitted": [
+                    1.0296,
+                    0.9514
+                  ]
+                }
+              ],
+              "positionEdge": 1.2388,
+              "initiativeEdge": 1.2988,
+              "groups": [
+                {
+                  "group": "pairs 22-66",
+                  "seat": "oop",
+                  "measured": 0.92,
+                  "fitted": 0.881,
+                  "weight": 0.189
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "ip",
+                  "measured": 1.052,
+                  "fitted": 1.091,
+                  "weight": 0.256
+                },
+                {
+                  "group": "pairs 77-JJ",
+                  "seat": "oop",
+                  "measured": 0.942,
+                  "fitted": 0.993,
+                  "weight": 0.53
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "ip",
+                  "measured": 1.082,
+                  "fitted": 1.099,
+                  "weight": 0.307
+                },
+                {
+                  "group": "suited connectors and one-gappers to T9s",
+                  "seat": "oop",
+                  "measured": 0.987,
+                  "fitted": 1.008,
+                  "weight": 0.426
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "ip",
+                  "measured": 1.12,
+                  "fitted": 1.072,
+                  "weight": 0.028
+                },
+                {
+                  "group": "suited aces A2s-A9s",
+                  "seat": "oop",
+                  "measured": 0.853,
+                  "fitted": 0.874,
+                  "weight": 0.21
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "ip",
+                  "measured": 1.046,
+                  "fitted": 1.083,
+                  "weight": 0.469
+                },
+                {
+                  "group": "suited broadways",
+                  "seat": "oop",
+                  "measured": 0.952,
+                  "fitted": 0.977,
+                  "weight": 0.568
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "ip",
+                  "measured": 0.957,
+                  "fitted": 0.985,
+                  "weight": 0.346
+                },
+                {
+                  "group": "offsuit broadways",
+                  "seat": "oop",
+                  "measured": 0.824,
+                  "fitted": 0.849,
+                  "weight": 0.54
+                },
+                {
+                  "group": "other suited",
+                  "seat": "ip",
+                  "measured": 1.059,
+                  "fitted": 1.116,
+                  "weight": 0.189
+                },
+                {
+                  "group": "other suited",
+                  "seat": "oop",
+                  "measured": 0.863,
+                  "fitted": 0.866,
+                  "weight": 0.149
+                }
+              ]
+            }
+          ],
+          "widths": {
+            "SB": 0.7982,
+            "BB vs SB": 0.6832
+          }
+        }
+      ]
+    },
+    "cardRemoval": "hero-opponent exact at class level (m[i][j]/1225); opponent-opponent ignored",
+    "equity": {
+      "method": "Monte Carlo over shared boards, one representative combo per class, symmetrised",
+      "boards": 120000,
+      "seed": 24301,
+      "standardError": 0.00106
+    },
+    "solver": {
+      "algorithm": "DCFR, alternating updates, 169 classes per player",
+      "params": {
+        "alpha": 1.5,
+        "beta": 0,
+        "gamma": 2
+      },
+      "iterations": 9000,
+      "offRange": "classes whose stored range is 0 (< 0.5/255) get the best response to the charts (argmax EV)"
+    },
+    "convergence": {
+      "nashConvMbb": 0.001,
+      "gainMbbByPosition": {
+        "SB": 0,
+        "BB": 0.001
+      },
+      "valueBbByPosition": {
+        "SB": -0.0683,
+        "BB": -0.1858
+      },
+      "rakeBbPerHand": 0.2541,
+      "history": [
+        {
+          "iteration": 500,
+          "nashConvMbb": 0.241,
+          "gainMbb": [
+            0.117,
+            0.123
+          ],
+          "strategyChange": 1.20078
+        },
+        {
+          "iteration": 1000,
+          "nashConvMbb": 0.057,
+          "gainMbb": [
+            0.023,
+            0.033
+          ],
+          "strategyChange": 0.01722
+        },
+        {
+          "iteration": 1500,
+          "nashConvMbb": 0.029,
+          "gainMbb": [
+            0.012,
+            0.017
+          ],
+          "strategyChange": 0.00595
+        },
+        {
+          "iteration": 2000,
+          "nashConvMbb": 0.023,
+          "gainMbb": [
+            0.015,
+            0.008
+          ],
+          "strategyChange": 0.0038
+        },
+        {
+          "iteration": 2500,
+          "nashConvMbb": 0.016,
+          "gainMbb": [
+            0.009,
+            0.007
+          ],
+          "strategyChange": 0.00277
+        },
+        {
+          "iteration": 3000,
+          "nashConvMbb": 0.011,
+          "gainMbb": [
+            0.006,
+            0.005
+          ],
+          "strategyChange": 0.00208
+        },
+        {
+          "iteration": 3500,
+          "nashConvMbb": 0.008,
+          "gainMbb": [
+            0.003,
+            0.005
+          ],
+          "strategyChange": 0.0016
+        },
+        {
+          "iteration": 4000,
+          "nashConvMbb": 0.006,
+          "gainMbb": [
+            0.003,
+            0.004
+          ],
+          "strategyChange": 0.0012
+        },
+        {
+          "iteration": 4500,
+          "nashConvMbb": 0.005,
+          "gainMbb": [
+            0.002,
+            0.003
+          ],
+          "strategyChange": 0.001
+        },
+        {
+          "iteration": 5000,
+          "nashConvMbb": 0.004,
+          "gainMbb": [
+            0.002,
+            0.002
+          ],
+          "strategyChange": 0.00088
+        },
+        {
+          "iteration": 5500,
+          "nashConvMbb": 0.003,
+          "gainMbb": [
+            0.001,
+            0.002
+          ],
+          "strategyChange": 0.00073
+        },
+        {
+          "iteration": 6000,
+          "nashConvMbb": 0.003,
+          "gainMbb": [
+            0.002,
+            0.001
+          ],
+          "strategyChange": 0.00059
+        },
+        {
+          "iteration": 6500,
+          "nashConvMbb": 0.003,
+          "gainMbb": [
+            0.001,
+            0.001
+          ],
+          "strategyChange": 0.00053
+        },
+        {
+          "iteration": 7000,
+          "nashConvMbb": 0.002,
+          "gainMbb": [
+            0.001,
+            0.001
+          ],
+          "strategyChange": 0.00045
+        },
+        {
+          "iteration": 7500,
+          "nashConvMbb": 0.001,
+          "gainMbb": [
+            0.001,
+            0.001
+          ],
+          "strategyChange": 0.00038
+        },
+        {
+          "iteration": 8000,
+          "nashConvMbb": 0.002,
+          "gainMbb": [
+            0.001,
+            0.001
+          ],
+          "strategyChange": 0.0004
+        },
+        {
+          "iteration": 8500,
+          "nashConvMbb": 0.001,
+          "gainMbb": [
+            0.001,
+            0.001
+          ],
+          "strategyChange": 0.00037
+        },
+        {
+          "iteration": 9000,
+          "nashConvMbb": 0.001,
+          "gainMbb": [
+            0,
+            0.001
+          ],
+          "strategyChange": 0.0003
+        }
+      ],
+      "headsUpBlindVsBlind": null,
+      "note": "Multi-player CFR has no equilibrium guarantee; NashConv is the sum over players of what a best response would gain against the others' average strategies (0 at a Nash equilibrium of this model)."
+    },
+    "minReach": 0.00001,
+    "excluded": {
+      "rule": "nodes reached less often than 0.00001, and nodes where the chart's own mix loses more than 2% of the pot for a class in range",
+      "unconverged": []
+    },
+    "hash": "e9930a6c"
+  },
+  "nodes": [
+    {"line":"","actor":"SB","scenario":"rfi","potBb":1.5,"inBb":0.5,"toMatchBb":1,"reach":1,"options":[{"code":"f","action":"fold","toBb":0.5},{"code":"c","action":"call","toBb":1},{"code":"r","action":"raise","toBb":2.5}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAP//fwAAAAAAAAAAAAD//////wAAAAAAAAD//////////wAAAADK////////////AAAAAIsAAAAAAAkAAAAZAAaEAAAAAAAAAAAAMwAAPzIAAAAADwAAAAAAvywAAAAA0wAAAAAAAAn/SwAAAAAAAAAAAwAAAP8AAAAAAAAAAC8AAAAAChf/AAAAAAAAAAAAAAAAAP+pAAAAAAAA//8AFQAA/0kAAAAAAP8AAID/AAD/AAAAAP//AAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAANQAAAAAAAAAAAAD///90///////2////5v/5e////////////8z//8DN//////D//////0DT/////yz////////2ALT///////////z///8A///////////Q//////XoAP////////////////8AVv//AP///wAA/+r//wC2//////8AAAAAAP//AP////8AAAAAAAAA////////AAAAAAAAAAAA/////wAAAAAAAAAAAAD/","ev":"zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv/O/87/zv9oAtUAkAByAFEAPQAoACAAGwAuABMADAAFAJ8A0QFaAE0AMwATAAoAAwD8//n/8v/q/+H/TwAxAF4BOAAwABAAAwD5//T/7//n/97/2P8xACIAEQD+ACUAFQAFAPb/6//n/97/1//T/w0ADAAEAAMAvQAYAAcA+//n/93/1//S/8/////p//b/8P/z/58ADQD9/+//3P/R/87/zf/3/97/1//i/+H/5f+HAAUA9P/m/9H/zf/N/+b/2f/V/9b/1v/b/9v/bQD8/+z/2f/M/8z/3//V/9b/0v/R/9L/1P/S/1kA9P/h/8//y//e/9P/0//Q/83/y//O/8//zP9DAO3/2v/K/9f/1P/R/87/zP/E/8P/yf/M/8v/IADd/83/0v/S/9D/zP/E/8P/xP/C/8T/yP/J/wAA0P/P/9H/zv/L/8T/xv/E/8D/v//C/8P/wv/l/5MC+ACRAHIAWgBKAEIAOQAwAC4AJgAfABgAnwDyAVoATQBAACcAGgASAAsAAwD7//P/7P9PADIAbgE4ADAAIgAKAP3/9//v/+v/6P/l/0EAIwARAP4ALQAgABEA9//r/+j/5f/i/9//EgAZAAQA/f+9ABsADgADAOn/4v/g/93/2v////L/9v/w/+//owAQAAMA+P/f/9r/1//U//f/7P/m/+n/5v/l/4cAAwD3/+3/2f/T/9H/8v/o/97/2P/f/9v/3f9zAPT/7P/g/9L/zv/t/+P/2v/S/87/1f/U/9b/YQDr/+H/2P/P/+n/3f/U/83/yP/D/83/zf/S/08A5f/b/9b/5f/Z/9H/yv/F/7//vf/H/8n/z/87AOD/1//i/9X/zP/H/8L/vP+4/7f/w//G/8n/KADa/97/0v/H/8T/v/+5/7X/sf+y/7//wP/D/xYA","range":"/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////w==","steal":true},
+    {"line":"c","actor":"BB","scenario":"vs-limp","potBb":2,"inBb":1,"toMatchBb":1,"reach":0.125391,"options":[{"code":"k","action":"check","toBb":1},{"code":"r","action":"raise","toBb":4}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbP////8AAAAAAAAA/8H/////AQAAAAAAAAD///////8AAP//AAAAAP//////BAAA////AAAA//7/AP8A/////8oAAAAAAAD/AP///////wAAAP////b/////////AAAA//8A/0uH//////8AAAD/AP/eMP///////AAA/wAAAABb/6v///8AAP///////////////////////////////////////////5MAAAAA/////////wA+AAAAAP7/////////AAAAAAAA//8AAP////8AAAAAAPv//wAAAP///wABAP8A/wAAAAA1////////AP8AAAAAAAD///8AAAAJAAAAAAAAAP///wAA/wC0eAAAAAAA////AP8AIc8AAAAAAAP//wD/////pABUAAAA//8=","ev":"IwAgAB8AGwAUAA4ADAAKAAkACAADAP///f8YACEAHgAdABYADQAKAAkACAAGAAEA/f/6/xcAEQAhAB0AGAAPAAgABQADAAAA+v/2//T/FAAQABAAGgASAAsAAwD8//b/8v/r/+j/5/8FAAgACgADAAsAAgD8//b/6//n/+L/4P/f//7/9/8BAPv/8f8EAPv/9//t/+f/4P/f/97//P/z//L/9P/r/+r/AAD4//D/6v/f/9z/3P/6//P/7//m/+X/5v/n//v/7//q/+H/2v/Y//n/8v/u/+D/1P/c/9//3v/1/+b/4f/b/9X/+P/v/+r/3P/R/9H/2f/Z/9X/7f/i/9//2v/z/+v/5P/V/8v/yv/J/9D/0P/R/+X/3f/a/+//5v/f/9L/yv/J/8b/xf/K/87/zP/g/9r/7P/j/93/0f/J/8j/xv/D/8H/yf/J/8r/3v98Aa0AcQBVAEMAMQAnACEAGgAaABMADQALAG4AZAFqAF4AMwAjABYAFgAQAAwABQAAAP//NwAtAGIBTAAzABUACQAFAP//+//3//X/9f8kACUAHgAVATgAGgABAPz/8P/t/+r/6P/o/w8AEwAOAAoAkQAbAAUA8//n/+P/4P/f/9//AgADAP//+P/y/2oADAADAOn/4//d/9z/3f/8//v/8//s/+T/6f9aAAkA+f/n/9//3P/c//r/+f/v/+X/2v/g/+f/SQD+//D/4f/b/9n/8f/0/+n/3P/T/9L/1v/Z/zoA7//k/9j/1P/p/+//5P/W/8z/zP/O/9L/zv8pAOz/4//Z/+b/6//h/9X/y//I/8j/yP/I/83/GwDn/93/4//o/9//0v/K/8j/xf/E/8H/yP/M/xQA4//n/+j/3v/S/8r/yP/G/8P/vv/B/8f/zP8QAA==","range":"/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////w==","limpers":["SB"]},
+    {"line":"cr","actor":"SB","scenario":"vs-iso","potBb":5,"inBb":1,"toMatchBb":4,"reach":0.058745,"options":[{"code":"f","action":"fold","toBb":1},{"code":"c","action":"call","toBb":4},{"code":"r","action":"raise","toBb":12}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAA//8AAAAAAAAAAAAA////AAD/AAAAAAAAAP///wD/////AAAAAAAA//8A/////////wAAAAD/AP//////////AAAA/wD///////////8AAP///////////////wD/////////////////AAAAAAAAAAAA/wD///8AAAAAAP//////////AAAAAAD/////AP///wAA/wD/AP///////wAA/wD/AP8A/////wAAAP8A//8A/wD//wAAAAD/AAAA/wD/AP8AAAAAAAAAAAD/AP8A/wAAAAAAAAAAAAAA/1r/AAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAP///////////wD/AAAA//////8AAAAAAAAAAP//////AAAAAP8AAAD//wD/AP8AAAAAAAAA/wD/AP8A/wAAAAAAAP8A/wAA/wD/AAAAAAD/AAD//wD/AP8AAAAA/wAAAAD/AP8A/wAAAP8AAAAAAAAA/wClAAD/AAAAAAAAAAD/AAAA/wAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","ev":"nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP/xAKMAiQB5AF4ARgA5ACwAIAAdABUACwACAFkA1QBjAEgANwAPAPv/7f/f/9X/y/+//7b/OQArALgANQAaAAMA4P/P/8f/wP+1/6r/n/8mAA0A9P+iAB0A/v/q/8z/vP+3/6v/oP+S//L/+v/Y/9v/iwAHAOf/1/+2/6n/nf+S/4L/1v+7/7//uv/B/3IA9v/c/8n/q/+W/43/fP/H/6X/iP+l/6H/rv9dAOz/0P/A/5v/iP95/7r/l/93/3T/kf+V/6T/SQDj/8f/sP+N/3P/rf+I/2//ZP9d/4L/iP+a/zkA2f+4/6L/ef+q/37/af9f/1H/Uv94/3//kf8sAM7/r/+U/6L/dP9f/1T/Rv8+/0L/aP9w/4X/GQC3/5D/mf9q/1X/Sv89/zf/Mv81/1v/Z/9u/wMAmv+R/2L/S/8+/y7/KP8j/x7/I/9M/0j/UP/n//8EmwH5ALwAegBSADsALQAgADgADwABAOv/MQHqA40AcwBBAP7/6P/d/9P/yv+6/6z/k/96ADwArwJBADIA/P/R/8n/x//D/6v/lP94/0AAHgDs/94BGQAEAOH/xP+5/7T/mf95/07//P/y/93/w/9bAfP/7P/I/7X/n/99/2P/LP/j/6b/x/+6/6b/FAHl/+D/vf+f/1b/NP9A/9X/k/+E/6z/pv+j/+QA2//U/7P/Wv+C/2//wv+M/3v/dP+S/6L/jf+zANL/yf+X/3b/a/+6/4r/ev9l/zr/kP+D/4L/jADL/7j/k/8p/7z/hP90/17/WP9h/4r/gv+A/2YAvv+v/37/p/9y/2D/Kv9J/0X/Sv90/3H/bv8pAJH/df+b/2X/Uv9L/z//Pv+1/sf+aP9o/1P/7v9j/4P/TP83/zT/Jv+e/pz+lP6s/k//Of8t/7H/","range":"AAAAiwAAAAAACQAAABkABoQAAAAAAAAAAAAzAAA/MgAAAAAPAAAAAAC/LAAAAADTAAAAAAAACf9LAAAAAAAAAAADAAAA/wAAAAAAAAAALwAAAAAKF/8AAAAAAAAAAAAAAAAA/6kAAAAAAAD//wAVAAD/SQAAAAAA/wAAgP8AAP8AAAAA//8AAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAA1AAAAAAAAAAAAAA==","facing":{"position":"BB","toBb":4},"limpers":["SB"]},
+    {"line":"crr","actor":"BB","scenario":"vs-3bet","potBb":16,"inBb":4,"toMatchBb":12,"reach":0.006918,"options":[{"code":"f","action":"fold","toBb":4},{"code":"c","action":"call","toBb":12},{"code":"r","action":"raise","toBb":30}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5f8AAAAAAAD8////////AAAAAAAA/wD///////r/UUYAAAAAAP///////////wAAAP//////////////AAAA//////////////8AAAD//////////////wAAAP//////////////AAAA//////////////8AAP///////////////wAB////////////////AAAAAAD///////////8AAAAATPf////4/xoAS/8AAP//AwAAAAAAAP///wAA/wD/AAAAAAAFAK65AAD///8AAAAAAAAAAAD8AP8AAAAAAAAAAAAAAP8B/wAAAAAAAAAAAAAA/2f/AAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP///wAAAAAAAAAAAAAA//8AAAAAAAAAAAAAAAD//gAAAAAAAAAAAAAAAP//////AAAAAAAAAAAA/////7MIAAAABwAAALQA//8AAAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAA/8AAAAAAAAAAAAAAAAA/gAAAAAAAAAAAAAAAACYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","ev":"cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP5w/nD+cP7tAqYASQCd/2P/Hf/p/sb+sf7J/qz+mf6N/v7/fQKl/23/7f7P/pj+rP6e/p7+hP5w/mX+mf8C/zsCSP8Z/4j+b/5v/mf+Yf5J/jf+K/70/sL+nP7lAR3/6P5m/oD+ZP5h/kz+O/4u/nD+S/5w/nD+HAEH/8n+e/56/l7+T/4//jP+K/7p/ef9Pv5h/pIA2f7L/mv+bf5D/j7+MP71/bb9kP3D/SH+M/5TANT+uP5U/kv+Jv4g/tP9zP2V/aL93/0p/jD+9//T/qH+M/4s/g3+vP29/Yv9hv2d/c79Ev4t/tL/oP6J/h/+HP7W/b/9iP2G/Yb9lf25/fD99v2S/5/+f/4W/rb9ov1u/W/9df1r/XD9lP3f/fL9W/+O/mX+pP2Q/V39Xv1n/WX9T/1S/YL91f3k/TT/cv6Z/YX9Uv1T/Vv9Wf1I/Tf9RP11/b39x/0P/18KAwPGANn/7P6H/k/+fv5V/ov+WP42/iP+lgE7CHoAIQDu/s7+fv6o/pD+nv5p/kT+NP6Z/4b+jAeN/77+wf25/cf9u/3E/ZL9dP1i/ZL+9v1w/RAFYP/L/gH+Pv4L/hf+6P3H/bH9h/3U/Ln8T/10AR//d/73/f791/22/Zv9h/0U/av84/u5/Br9kQDj/nz+4v37/aX9nv2I/dr8Tvyq++77aPzN/BkA1/5k/sn9uP1y/W39AP2a/NP7NfwY/Ib8zfym/9L+OP52/XH9O/3I/HT8u/v3+/f77ftS/M/8hf9l/vr9Rf1J/f78ifzK+w383vv6+8/7I/xR/Bn/a/7u/T39v/xI/I770Puv+5n7mvuE++r7UPzX/lP+wP2s/CH8a/ut+5L7jftV+2X7T/ve+zn8xf4j/qb8EPxX+5j7fft5+0z7Mvs6+0D7sfsE/Kz+","range":"////////////////////////////////////////////kwAAAAD/////////AD4AAAAA/v////////8AAAAAAAD//wAA/////wAAAAAA+///AAAA////AAEA/wD/AAAAADX///////8A/wAAAAAAAP///wAAAAkAAAAAAAAA////AAD/ALR4AAAAAAD///8A/wAhzwAAAAAAA///AP////+kAFQAAAD//w==","facing":{"position":"SB","toBb":12},"limpers":["SB"]},
+    {"line":"crrr","actor":"SB","scenario":"vs-4bet","potBb":42,"inBb":12,"toMatchBb":30,"reach":0.001068,"options":[{"code":"f","action":"fold","toBb":12},{"code":"c","action":"call","toBb":30},{"code":"a","action":"allin","toBb":150}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAA//////////8AAAAAAAD//////////wD/AAAA//////////////8AAAD//////////////wAAAP//////////////AAAA//////////////8AAAD//////////////wAAAP//////////////AAAA//////////////8AAAD//////////////wAA////////////////AAAA/////////wAAAAAAAP///wAAAAAAAAAA//8A////AAAAAAAAAAD/AAD//wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP///wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP///wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAP///wAAAAAAAAD///////8AAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","ev":"UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtQ+1D7UPtjBuv/ef4L/Tv80/vD+6D7ePuV+377X/tI+wH+LwQ1/QH9CfxB+w779vrb+sX6rPqN+nj6e/wo/BICXfxD/Hr7+/qs+p/6hvpw+lH6OPoU++z7Q/tKACj89ftH+7T6bPpj+kv6K/oT+ln6+/ox+xH7sf7Q+7v7APtt+i36HvoA+uf59fk9+nL64vq/+qL9pfub+9z6VfoD+v354fnj+Qn6+Pk7+qf6j/om/aP7kPvc+kf69fnv+cH58vmp+bD5+PmI+ov6pvyj+5L70foy+uT5m/nZ+Zz5aflq+dP5efqM+l/8v/up+9n6Qvqz+bz5gvld+Sf5UfnN+Xj6qvoj/N37wvv4+p35o/lq+UP5F/n9+D/5v/mK+sL63ful+4D7g/mH+U75Jvn/+Pn48Pgq+cj5ovqI+pv7W/tv+XH5NfkQ+eX44Pjo+N34OPni+Vz6NfpY+xYXIwPH/cj8tvvd+g/7J/s2+xT89Pur+3r7qQE+Dr78yPvh+qH5e/me+dT59fnM+Yr5Wvm++4L6wwZz+3z6f/kV+Zr4+vgI+e/4q/hz+I36g/kY+agBYfo1+dT4Vfj+9zz4G/jS9533o/mh+Fb4C/j2/CT5svg4+M/3V/dQ9xT31/a9+G/3SPcJ9832zPqP+GH48fdv95P2m/Zd9ur4Q/fS9pn2fPYl9vv6PfnM+En4efeO9pf2Bflw91H2GfYF9i723vYE+6f5DvlD+FH3fPYd+bX3wfbG9Zj1vvWh9nD3dPvr+Sv5Pfhq9wj6xffP9gD2D/Uy9Rf27fba95n78Pkj+VH44fmZ96r21PUF9UD0NfUL9gX31vdR+wL5H/iY+Vn3aPaO9dD0TPQ/9BP1EPb+9uL2EPvo92X5Hvcq9lv1kfQO9EP0MPQv9R328fWu9cL6","range":"AAAAiwAAAAAACQAAABkABoQAAAAAAAAAAAAzAAA/MgAAAAAPAAAAAAAALAAAAAAAAAAAAAAACQBLAAAAAAAAAAADAAAAAAAAAAAAAAAALwAAAAAAFwAAAAAAAAAAAAAAAAAAAKkAAAAAAAAAAAAAAAAALwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==","facing":{"position":"BB","toBb":30},"limpers":["SB"]},
+    {"line":"crrra","actor":"BB","scenario":"vs-allin","potBb":180,"inBb":30,"toMatchBb":150,"reach":0.000128,"options":[{"code":"f","action":"fold","toBb":30},{"code":"c","action":"call","toBb":150}],"freq":"AADy/////////////wAA/////////////////wD/////////////////AP////////////////8Q////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DQAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAA7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","ev":"SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPRI9Ej0SPSUKPz+R/SI7RzsaOu/65nr9eo77JPr6uqK6iX8BR6o8sbrjOok6RbpLukA6SjoaejM53rnXfCe7sIUivIh8AHvSu5L7YLtpezr7GvsBuz56BDnMe6RB4Lt8+vQ6mrpPehW57jnFufG5sjnFubz6/7oSPRL6enoD+gZ5wDliOUF5Z7kCueS5MrqXef85GPznOnH6bnof+ZY5XDl7ORT53LkA+oG5nHkNeWx8x3rWOpA6CrnYOVq5SznnuTw6JXkm+Ng5cfmgfOL65/piuiq5hHlieaC5DPpX+OX4knk/uVF54Tz3erS6fPnXuaC527jQOhH4j3g2uG04zLlheaQ8sPqJemF5x7nueOD6LDi0+CZ4I/iA+Rf5U/m5PFA6Yfne+Yh4wfoHOJg4L7gtuAU4njjpuTe5FbxB+cW5rbilefH4fbfOOCt4GDgwOHe4gLjYuKG8A==","range":"/////wAAAAAAAAAAAP////+zCAAAAAcAAAC0AP//AAAAAAAAAAAAAAAA//8AAAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAP/AAAAAAAAAAAAAAAAAP4AAAAAAAAAAAAAAAAAmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==","facing":{"position":"SB","toBb":150},"limpers":["SB"]},
+    {"line":"r","actor":"BB","scenario":"vs-open","potBb":3.5,"inBb":1,"toMatchBb":2.5,"reach":0.642709,"options":[{"code":"f","action":"fold","toBb":1},{"code":"c","action":"call","toBb":2.5},{"code":"r","action":"raise","toBb":10}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAD//wAAAAAAAAD/AAAA//////8AAAAAAAAA//////////8AAAAAAP///////////wAAAP//////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAA2mTvAO8AAAAAAAD//////////wAAAAAAAP////////8A/wD/AAD///////////////8AAP//////zf///////wAA//9a////////////AAAE//8A////AAD///8AAAD/AP///wAAAAAA/wAAAP///wAAAAAAAAAAAAAA//8AAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAD//////////////////////////yWbEP8Q////////AAAAAAAAAAD///////8AAAAAAAAA/wD/AP//AAAAAAAAAAAAAAAA//8AAAAAADIAAAAAAAD//wAApQAAAAAAAAAAAP//+wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP///wAAAAAAAAAAAAAA//8AAAAAAAAAAAAAAAD/","ev":"nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+c/5z/nP+NAEoAPgAuACIAFwAPAAYA/f/5//L/7P/m/x0AewAoABoACgD6/+//5v/e/9b/z//J/8P/DwAEAGwAEwAHAPL/4v/V/87/x//B/7v/tv/9//X/7f9gAAYA9P/g/8//xP+//7r/tP+v/+3/5f/g/9//VgD3/+f/0f/C/7j/tP+u/6n/4f/R/8v/zf/Q/0gA6f/Y/8T/tf+r/6f/ov/a/8b/uP+4/77/wf85ANv/y/+5/6v/of+d/9D/vf+r/6X/qv+v/7L/KQDR/8L/sP+g/5b/x/+0/6T/mv+Y/5z/ov+n/xoAyv+7/6j/mf/C/6z/nf+V/47/i/+R/5n/of8MAMb/tv+j/7v/pf+X/5D/iv+C/4H/iP+S/5v///+7/6v/tf+f/5L/i/+F/37/eP93/4D/jP+R//P/r/+v/5r/jf+G/4D/ef90/2//cf97/4L/hf/n/3EDGwGYAFwAVwA0AB4AEQAGABIACQD7//H/0ACHAnMASwAXAAgA8P/m/97/1v/Q/8n/xP9PABkAugE/ACUA5P/a/8j/w/++/7v/tf+w/xEA///w/y4BHwD6/8n/w/+3/7j/t/+w/6v/+P/g/+H/z//rAAIA5f+4/7b/sv+x/6v/p//Y/7r/uP+//7j/tQDs/9H/qv+1/6v/pv+i/8D/pv+Z/5n/qf+m/4oA4P/H/6H/q/+f/5z/tf+o/4n/e/+E/5r/l/9qANv/wv+b/6D/k/+t/6H/gf9u/2z/dP+R/5H/UQDa/8D/lf+a/6v/mP92/2n/XP9b/2b/j/+V/zoA2//A/5b/pf+T/3H/ZP9Y/zH/TP9e/4H/lv8iAM3/sP+e/4v/av9c/0r/Dv8K/yL/VP93/33/CwC6/5n/hv9k/1f/Nv8H/wf/A/8R/03/aP9o//X/","range":"/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////w==","vsSteal":true,"facing":{"position":"SB","toBb":2.5}},
+    {"line":"rr","actor":"SB","scenario":"vs-3bet","potBb":12.5,"inBb":2.5,"toMatchBb":10,"reach":0.155498,"options":[{"code":"f","action":"fold","toBb":2.5},{"code":"c","action":"call","toBb":10},{"code":"r","action":"raise","toBb":22}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAA////AAAAAAAAAAD//////wAAAAAAAAAAAP////8A/wDr/wAAAAD/////////////AAAAAP////////////8AAAAA/////////////wAAAP//////////////AAD///////////////8A/////////////////wD/////////////////AAAAAAD///////////8AAAAA//////////8AALQA/wD//////wAAAP9T/wAAAP//AAAAAAD///8AAAAx//8AAAAA/wD/AAAAAI//AAAAAAAAAAAAAP////8AAAAAAAAAAAAA/////wAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAP//////AAAAAAAAAAAA/////wAAAAAAAAAAAP9L/wD/AAAAAAAAAAAArAD///8AAAAAAAAAAAAA////zgAAAAAAAAAAABQA//9wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","ev":"Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv8G/wb/Bv93ArsAlgBxABsA5v/S/7r/pf+n/5b/gP9v/z4AHQIMAOj/0P+I/2n/Wf9K/zz/Kv8V/wT/FACp/9ABqf+R/3n/O/8f/xb/Cf/2/uT+0P7q/4D/Pf+JAXz/cv9h/yH/A//8/uf+1f7B/lD/Zf8j/w3/RQFs/2D/Tv8K/+/+3v7N/rr+Fv/f/gf/Av/8/ggBZ/9a/0T/Bf/d/tP+v/4B/77+jv7v/u7+9/7XAFf/Rf80/+v+yf67/uj+r/50/nb+3f7q/uj+pABA/y3/E//N/qj+0/6h/mz+Wv5h/tP+1f7Q/nYAJv8P//f+r/7V/pL+YP5T/kb+XP7C/rz+tv5FAAz//P7g/sT+gP5N/j7+Nf40/kL+oP6c/pr+BwDf/sb+r/5s/jv+Lf4m/iv+Iv4m/oX+if5t/s//sv6e/lr+KP4a/hL+F/4S/gH+Cf5s/lH+Pf6Z/+AJtAL0AHIA/f/P/6b/ev9S/1P/LP8P/+f+bQHCBh4A+f+T/zz/+v7b/rr+pP51/kf+G/4bAKn/fgSi/5v/Lf/N/pL+dv5j/jH+AP63/WT/gP8l/54Clf+H/wn/o/5s/mj+QP4w/iL+Bv8S/yD/Ff+SAXP/YP/s/o3+ff5f/kf+Hv7K/qz+kv4G/+n+MAFq/1r/6P6m/mb+WP4x/pP+QP6y/Vb+0/7n/ssATf81/9z+fP5H/iT+Tv7r/an8bvxl/tn+zP5nACn/IP+q/k/+Bf79/Yn9BvyY/Dr8Zv6x/qf+/v8J/+z+ff4R/gP+A/2I+yr94Psb/lX+lf6B/nj/6/7d/l/+fv0H/Ov61vux+737//sJ/iL9XP6I/qj+hf4r/Uf7cvqw+4/7svuf+8T7YPyG/Aj+3P1o/rr8pfrP+nz7Wvt8+3z7VPt++9z76fu8+yz9","range":"////dP//////9v///+b/+Xv////////////M///Azf/////w//////9A0/////8s////////9gC0///////////8////AP//////////0P/////16AD/////////////////AFb//wD///8AAP/q//8Atv//////AAAAAAD//wD/////AAAAAAAAAP///////wAAAAAAAAAAAP////8AAAAAAAAAAAAA/w==","facing":{"position":"BB","toBb":10}},
+    {"line":"rrr","actor":"BB","scenario":"vs-4bet","potBb":32,"inBb":10,"toMatchBb":22,"reach":0.019345,"options":[{"code":"f","action":"fold","toBb":10},{"code":"c","action":"call","toBb":22},{"code":"a","action":"allin","toBb":150}],"freq":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8AAAAAAAAA////////AP//AAAA//////////////8AAAD//////////////wAA////////////////AAD///////////////8AAAD//////////////wAAAP//////////////AAAA//////////////8AAAD//////////////wAA////////////////AAAAC9X//////wAAAG0AAP//////////AAAA//8A/////wAAAAAAAP8AAAD//wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP///wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAP////QqAAAAAAD///+S//8AAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","ev":"GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPwY/Bj8GPzZA5r/M/5F/TX94Py4/J38jPyq/KD8kvyI/H/+YQIe/kn9lfxx/Dz8K/wi/B38EPwA/Pb7Ev1U/PgAYf0J/UX8P/wL/An8Avz2++b72vsx/JD7pfu+/0j9hPzj++f7vvvC+7T7pPuX+w38/PpX+4r71P6+/EH8rPu0+5T7jPt++3H7u/vK+rf64PoJ+8D9bfwD/Hf7h/tR+1L7RPuQ+5X6mfpd+pv6tvpJ/W38DvyP+5D7Wvta+3T7g/po+kv6Kvpl+rr6J/2Z/Cz8n/uZ+2X7Y/t7+mb6Kvof+v35cPrf+iD9ufxB/Kn7qvt++3P6X/or+gP6+fkP+oj6+foV/c78VfzB+3P7aPpU+h76/PnN+f/5GvqW+gf7AP2m/Cb8aPtc+kn6Evrz+c751fkG+iP6pfrk+u/8dPxf+1P6PvoJ+uj5w/nU+dz5Evoy+n36tfra/JoSkAIz/kX9pvx1+0j8d/xq/Af96/yw/Ij8XQE1CwT9Dvxz+/f5mfrW+ub65/rE+o36ZfqM/Dr7yQTC+2j76/lO+gj6O/os+hb63fmu+Yr7W/ry+X0ADPu4+f75tflO+Wf5SfkM+eD49fqy+X/5Hfk+/af5J/rE+U75z/jH+JX4Yvil+Q74/ves96T3x/pm+Xf55PhX+Jf3nfdn94z6wvhw+CL4NPhX9xb8ovpQ+sn5HPlZ+GH4w/oM+Sn43ff294X33fhR/Ar7ifri+Rz5bfi5+ib5Zvh293r3APeJ+FT5ffwn+4f6wvkU+V37F/lU+In36fZm9vn3y/hz+XL8Eftm+rj5O/vw+DP4Yvff9pP1PfcR+MH4Uvk0/En6jPkA+7v4/Pcn97P2nfVy9kb39/ef+Ib4/vtf+df6ivjI9/z2f/Zo9XX2i/Y99+T3vfeG9737","range":"//////////////////////////8lmxD/EP///////wAAAAAAAAAA////////AAAAAAAAAP8A/wD//wAAAAAAAAAAAAAAAP//AAAAAAAyAAAAAAAA//8AAKUAAAAAAAAAAAD///sAAAAAAAAAAAAAAP///wAAAAAAAAAAAAAA////AAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAA/w==","facing":{"position":"SB","toBb":22}},
+    {"line":"rrra","actor":"SB","scenario":"vs-allin","potBb":172,"inBb":22,"toMatchBb":150,"reach":0.003543,"options":[{"code":"f","action":"fold","toBb":22},{"code":"c","action":"call","toBb":150}],"freq":"AAD//////////////wAA/////////////////wD/////////////////AP////////////////8A////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","ev":"aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdo92j3aPdXJxwCS/cx8xDy7vCu8Nfvue4r79vt7exF7FD/MBBE7AzrG+ux6SvpJuki6cvnIOdN5i7mcvMJ6LEDL+xa7BvrROrk6DfpzedE54HmROY878Xm9uf7+j7sFesy6tLonuef5gHmNeUE5SPu7OZE6DjoqPen6w3ryemQ6Cvm1+Uk5ebk8exj5fHmB+e95+n25OtX6wDqiueL5WnlFOWa7MfkAeYD5vrm4ucZ953sk+sp6VnnUOWM5bnr1+ST5J7kveVW56foyfat7ELqf+hr5u/kkOrl5PPkZeNv5PTlkufC6Nn2mOva6crnT+am6knja+M/4szhRuP55CzmmOfG9VLqe+gD5ynpieLA4oThaeEZ4QPjO+Ss5Rrm+PPr50/mNei84QPiwODI4P/g6uAa4pLjNOSp4zPynOWu55PhxeGX4IvgtOAg4YrgAOKk4vbhK+HT8A==","range":"////dAAAAAAAAAAAAOb/+XsAAAAAAAAAAADMS/8AzQAAAAAAAAAAAKwA0///AAAAAAAAAAAAAAC0/84AAAAAAAAAAAAUAP//cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==","facing":{"position":"BB","toBb":150}}
+  ]
+}
