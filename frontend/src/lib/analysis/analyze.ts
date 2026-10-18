@@ -242,7 +242,10 @@ function handSkip(hand: PhfHand, context: StatsContext, hero: number | null): Ha
   if (hand.game.hiLo) return "hi-lo";
   if (hand.game.limit !== "nl") return "limit";
   if (hand.game.format !== "cash") return "tournament";
-  if (context.isBombPot) return "bomb-pot";
+  // analysis/28: a bomb pot is analysed from any two cards (`bomb-pot`), but
+  // not on two boards: each board plays for half the pot, which no model here
+  // (one board, one pot) reads.
+  if (context.isBombPot && (hand.game.bombPot?.doubleBoard || hand.board.runouts.length > 1)) return "bomb-pot";
   const cards = context.players.get(hero)?.holeCards ?? [];
   if (cards.length !== 2 || toSafeIndices(cards) === null) return "hero-cards-unknown";
   return null;
@@ -1244,7 +1247,11 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   // Hand-level approximations (§3.5): what the reference does not model.
   const bb = Math.max(1, hand.game.bigBlind);
   const handApprox = new Set<Approximation>();
-  if (context.anteModel !== "none") handApprox.add("antes");
+  // analysis/28: a bomb pot's antes are its whole pot, in every street's pot
+  // and stacks as dealt; what is approximate is the any-two-cards start
+  // narrowed by the multiway heuristic (`bomb-pot`).
+  if (context.isBombPot) handApprox.add("bomb-pot");
+  else if (context.anteModel !== "none") handApprox.add("antes");
   // A straddle the charts model (A2e) is in the reference; any other is not.
   if (context.hasStraddle && !chartsModelStraddle(hand, hero, resolved.charts)) handApprox.add("straddle");
   if (hand.table.maxSeats !== SIX_MAX) handApprox.add("table-size");

@@ -782,7 +782,7 @@ export const analysisHr: Dict["analysis"] = {
     "hi-lo": "Hi/Lo podijeljeni pot",
     limit: "Nije No-Limit",
     tournament: "Turnir (ICM se ne modelira)",
-    "bomb-pot": "Bomb pot",
+    "bomb-pot": "Bomb pot s dvije ploče",
     "hero-cards-unknown": "Tvoje karte nisu poznate",
     "no-decisions": "Nisi imao/la nijednu odluku",
     multiway: "Multiway: samo činjenice i bilješke",
@@ -865,6 +865,8 @@ export const analysisHr: Dict["analysis"] = {
       "Mjesto buttona bilo je prazno: čitano kao stol iste veličine sa živim buttonom, na čijem je mjestu posljednje mjesto prije small blinda",
     "posted-blind":
       "Igrač je postao big blind da uđe u igru i checkao: čitano kao limp od jednog big blinda, iako takav igrač ima bilo koje dvije karte, a limper iz chartova nema; ocjena nije gora od Netočno",
+    "bomb-pot":
+      "Bomb pot: svi su uložili ante i vidjeli flop, pa svaki raspon kreće od bilo koje dvije karte i sužava ga Railov model za multiway, ne solver; ocjenjuju se samo call i fold protiv beta te heads-up turn i river, nikad gore od Greška",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,

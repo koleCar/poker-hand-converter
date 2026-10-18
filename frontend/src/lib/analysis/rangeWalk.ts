@@ -22,7 +22,7 @@
  */
 
 import type { ChartSet } from "../charts";
-import type { ClassWeights } from "../equity/range";
+import { parseRange, type ClassWeights } from "../equity/range";
 import type { PhfHand, Position } from "../phf/types";
 import type { StatsContext } from "../stats/context";
 import { comboRange, heuristicModel, narrow, removeCards, rangeWeight, streetStrength, type NarrowAction, type NarrowingModel, type NarrowStreet, type StreetStrength } from "./narrowing";
@@ -141,6 +141,10 @@ export interface PreflopRange {
   villain?: VillainSample;
 }
 
+let anyTwoRange: ClassWeights | null = null;
+/** Every class at full weight: a bomb pot's preflop range (analysis/28). */
+const anyTwo = (): ClassWeights => (anyTwoRange ??= parseRange("*"));
+
 /**
  * Whether a seat other than the blinds limped and then flat-called the raise
  * behind it (the `call` line after a limp): its first voluntary preflop
@@ -170,6 +174,12 @@ function limpedThenCalled(context: StatsContext, seat: number, position: Positio
  * `placeholder`: not the charts'). Since analysis/20, with `options.villains`,
  * a big blind's defence is moved by the player's own statistics
  * (`range-villain`, `villain.ts`).
+ *
+ * Since analysis/28, in a bomb pot (`StatsContext.isBombPot`: everyone posts
+ * an ante and sees the flop, with no preflop betting) every player holds any
+ * two cards: the rules deal it, nothing is guessed, so the source is
+ * `chart` (no placeholder flag) and the label `unknown:<position>` ("any two
+ * cards"). The decision carries the hand's `bomb-pot` approximation.
  */
 export function preflopClassRange(
   hand: PhfHand,
@@ -182,6 +192,7 @@ export function preflopClassRange(
   const line = preflopLine(context, seat);
   const position = (context.position.get(seat) ?? null) as Position | null;
   const label = `${line}:${position ?? "?"}`;
+  if (context.isBombPot) return { range: anyTwo(), source: "chart", label: `unknown:${position ?? "?"}`, approx: [] };
   if (options.populationHero !== undefined && seat !== options.populationHero) {
     const population = populationLine(hand, context, seat, beforeIndex);
     if (population) {

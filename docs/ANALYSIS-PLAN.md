@@ -382,7 +382,11 @@ A decision is **not analysed** (`status: partial`) when:
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
 - the game is MTT with ICM;
-- it is a bomb pot;
+- it is a bomb pot on two boards (since `analysis/28` a bomb pot on one
+  board is analysed: every range starts from any two cards, the rules of
+  the game, and the multiway rules above apply - approximate calls and
+  folds, heads-up solves after it, checks and bets three or more ways
+  `multiway` - flagged `bomb-pot`; §10 2026-10-19, bomb pots);
 - there is a straddle that no chart covers;
 - the hero's cards are unknown.
 
@@ -4255,3 +4259,118 @@ Each phase appends what it learned that changed the plan.
     `--set nlhe-cash-hu-150bb` (README). Nothing reads a set until its
     manifest is uploaded (`upload.sh`); that upload is the grade change
     (`ANALYSIS_VERSION`).
+- 2026-10-19 — Bomb pots, `analysis/28` (fix in `lib/analysis/rangeWalk.ts`,
+  `lib/analysis/analyze.ts`; study `tests/scripts/flop-library/bombPots.test.ts`,
+  `npm run floplib:bomb-pots`; tests `tests/test/analysisBombPot.test.ts`).
+  No migration.
+  - **Why.** The census (2026-10-16) ranked 262 bomb-pot hero decisions as
+    the largest cause left that might need no new solve: every bomb pot was
+    refused whole (`bomb-pot`).
+  - **How the parser marks them.** All 129 are WePlay "Liverpool / Niš Bomb
+    Pot (3BB-5BB)" tables (8 seats, cash). Every dealt-in player posts an
+    `ante` of 3-5bb (no `bomb-ante` action, no blinds), there is no preflop
+    action at all, and `game.bombPot` is set (`dealtToStreet: flop`;
+    `doubleBoard` on 3 hands). `StatsContext.isBombPot` reads it from the
+    stream (two or more antes and no blind); the pot type is `bomb`.
+  - **The 262 decisions** (the `analysis/27` census rows, `reason:
+    bomb-pot`): 129 hands, all 9-max tables, 3-8 dealt in (8: 56 hands, 7:
+    27, 6: 19, 5: 11, 3-4: 16); every flop is seen by everyone, so **every
+    one is a multiway flop**. By street flop 175, turn 58, river 29; by
+    action check 108, fold 99, bet 28, call 22, raise 5; facing a bet 126.
+    Players at the decision: 2 (heads-up after folds) 34, 3-4 76, 5-8 152.
+    The pot at the flop is 9-40bb (median 26), the effective stack 94-234bb
+    (median 109; depth bands 80-120bb 166 decisions, 120-170bb 69, 170bb+
+    27), so the flop SPR is 2.6-12.9 (median 4.5; under 4: 47 hands, 4-6:
+    52, 6+: 30) - shallow, as bomb pots are meant to be. By what could
+    grade them: calls and folds facing a bet on the multiway flop and the
+    multiway turn and river 113 (the approximate grades), heads-up turns
+    and rivers after the multiway flop 21 (the heads-up solves), checks,
+    bets and raises three or more ways 127 and one heads-up flop raise
+    (nothing grades them); 6 of the 262 are in the 3 double-board hands.
+  - **The model.** A bomb pot has no preflop action, so every player's
+    preflop range is **any two cards** - not a guess but the rules: all
+    1,326 combos, the board and the hero's cards removed as everywhere.
+    `preflopClassRange` returns it for every seat of a bomb pot (source
+    `chart`: nothing placeholder about it; label `unknown:<position>`, "any
+    two cards"). Nothing else is new: the multiway walk narrows those
+    ranges with the shipped heuristic (`heuristic/2+mw`, the `analysis/22`
+    check trims), a call or fold facing a bet gets the multiway approximate
+    grade (`flop-realisation`, `turn-realisation`, the river's showdown EV),
+    a turn or river that began heads-up the heads-up solve
+    (`multiway-history`), and multiway checks and bets stay `multiway`.
+    Every such grade is already capped at Mistake (flop and turn always,
+    river and the solves unless the move is dominated). Every decision of a
+    bomb pot carries the new flag **`bomb-pot`** (instead of `antes`: the
+    antes are the pot, which every model reads as it is). A bomb pot on two
+    boards (`doubleBoard`, or more than one runout) is still refused: each
+    board plays for half the pot, which no model here reads. The flop
+    library never reads a bomb pot (the charts refuse it, `chart-bomb-pot`).
+  - **Validation: the realised ranges** (`floplib:bomb-pots`, the 5,448
+    stored hands, the hero left out). Every opponent who acted on a flop
+    three or more saw and showed their cards, scored on the narrowed range
+    at the turn's and the river's start: log-likelihood of the shown combo
+    (floor a twentieth of a uniform combo, as `analysis/17`-`/23`) minus
+    its log-likelihood in the unnarrowed starting range (board removed) -
+    the **lift**, what the narrowing explains, since the two kinds of pot
+    start from very different ranges. Clustered by player. Nothing is
+    fitted (no parameter was ever set on a bomb pot), so the whole sample
+    is held out.
+
+    | turn start | bomb pots | other multiway pots |
+    |---|---|---|
+    | everyone who acted on the flop | **+0.461 ± 0.091** (65 shown, 45 players) | +0.131 ± 0.025 (676, 205) |
+    | bettors, raisers, callers | +0.758 ± 0.122 (40) | +0.285 ± 0.050 (324) |
+    | checkers only | −0.015 ± 0.036 (25) | −0.011 ± 0.009 (352) |
+    | shown combo outside the range | 0 of 65 | 81 of 676 (12.0%) |
+
+    At the river's start: bomb pots +0.510 ± 0.155 (48 shown; bettors and
+    callers on the flop +0.557 ± 0.258), other multiway pots +0.149 ±
+    0.036 (604), outside the range 2 of 48 (4.2%) against 11.4%. The
+    heuristic explains shown bomb-pot hands at least as well as it explains
+    the ordinary multiway pots its grades already ship on - more, since any
+    two cards leaves more to explain and nothing to get wrong preflop - and
+    over-trims checks equally little in both. **The bar (not worse than the
+    multiway heuristic on normal pots) is met.**
+  - **Spot check** (`BOMB_GRADES=1`, all 97 grades read; ten here): 9♦8♣
+    folding K♣K♦7♥ to half the pot three-way, Perfect; Q♠Q♣ folding
+    3♥7♣6♦ to two thirds of the pot three-way, Mistake (19.6bb); Q♦Q♥ folding
+    9♣6♣4♣ to a fifth of the pot, Mistake; K♦T♣ folding a full house
+    (A♠K♠K♥A♥2♦) to a river bet heads-up, Mistake (capped from Blunder,
+    `range-cap`); 3♣3♥ calling a flop bet four-way with bottom set, Perfect;
+    4♣4♠ calling the turn with quads, Perfect; 4♠3♥ folding A♣K♣6♦ to a
+    large bet four-way, Perfect; J♣K♣ calling a flop bet four-way with top
+    pair and a flush draw, Perfect, and the heads-up turn call after it,
+    Perfect. Two read harsher than a player would: K♣Q♣ folding a gutshot
+    to two thirds of the pot four-way on T♣3♠A♦, Mistake (capped, `range-cap`; 1.8bb beyond the
+    5% margin), and J♦T♥ folding a gutshot on a monotone K♠8♠7♠ to a third
+    of the pot, Mistake (capped; 2.2bb) - the bettor's range narrowed from any two
+    cards stays wider than such bettors usually are. Both are labelled
+    approximate and capped; neither is a Blunder.
+  - **Measured** (`floplib:census`, turn solves on, decision for decision
+    against the `analysis/27` rows):
+    - The 262 bomb-pot decisions: **97 graded** - 80 approximate (flop 56:
+      Perfect 48, Inaccurate 1, Mistake 7; turn 17 Perfect; river 7
+      Perfect) and 17 heads-up solves (`multiway-history`; turn Perfect 4,
+      Good 4; river Perfect 4, Good 3, Mistake 2); 158 not analysed:
+      `multiway` 124 (checks 102, bets 19, raises 3), `multiway-crowded` 33
+      (calls and folds with more than three players still to answer),
+      `multiway-side-pot` 1; 1 heads-up flop raise analysed with no grade
+      (no chunk); 6 still `bomb-pot` (the 3 double-board hands).
+    - **No other decision moves** (8,005 rows, outcome, grade, reason and
+      flags identical outside the bomb pots).
+    - All graded 6,486 → **6,583 (82.2%)**; approximate grades 242 → 322.
+      The approximate flop grades of bomb pots are Mistake more often (7 of
+      56) than other multiway flops' (4 of 143): wide ranges make a fold of
+      a medium hand cost more, which is what the spot check shows.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/28`; the `bomb-pot`
+    approximation with its sentence (English and Croatian); the hand
+    reason `bomb-pot` now reads "Bomb pot on two boards".
+  - **Open.**
+    - 124 multiway checks, bets and raises in bomb pots wait for whatever grades
+      multiway checks and bets elsewhere (the same `multiway` cause, now
+      611 decisions).
+    - Bomb pots on two boards (3 hands): each board's half-pot would need
+      the approximate EVs per board.
+    - The realisation factors were measured on heads-up pots with preflop
+      ranges; in a bomb pot the ranges are wide and the SPR low. Not
+      measured apart (only 56 flop grades).
