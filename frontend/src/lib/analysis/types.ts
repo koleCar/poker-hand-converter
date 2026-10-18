@@ -202,8 +202,14 @@ import type { Position, Street } from "../phf/types";
  *               come from it, instead of `chart-players`; a heads-up hand at
  *               a depth outside 80-120bb is `chart-stack-depth` (ANALYSIS-PLAN
  *               §10 2026-10-18, heads-up charts).
+ *   analysis/27 `charts/9`: heads-up hands at 120-180bb effective are
+ *               graded preflop from the heads-up 150bb set
+ *               (`nlhe-cash-hu-150bb`), and their opponents' ranges come
+ *               from it, instead of `chart-stack-depth`; heads-up is now
+ *               covered at 80-180bb (ANALYSIS-PLAN §10 2026-10-18, heads-up
+ *               150bb).
  */
-export const ANALYSIS_VERSION = "analysis/26" as const;
+export const ANALYSIS_VERSION = "analysis/27" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

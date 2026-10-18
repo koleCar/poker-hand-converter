@@ -116,6 +116,10 @@ describe("a line at a depth no set covers, read on the nearest charted depth (an
     expect(depths(spot(9, 50))).toEqual([100]);
     expect(depths(spot(9, 300))).toEqual([200]);
     expect(depths(spot(6, 75, true))).toEqual([]);
+    // Heads-up: only the heads-up sets, below 80bb the 100bb one, above 180bb the 150bb one.
+    const hu = (bb: number): PreflopSpot => ({ positions: ["SB", "BB"], hero: "SB", actions: [], stacksBb: { SB: bb, BB: bb } });
+    expect(depths(hu(60))).toEqual([100]);
+    expect(depths(hu(250))).toEqual([150]);
   });
 
   it("reads a 3-bettor's range on the neighbouring set, flagged; without the option it is refused", () => {

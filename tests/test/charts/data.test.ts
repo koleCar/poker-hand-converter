@@ -69,8 +69,8 @@ describe("committed chart set", () => {
     expect(charts.version).toBe("charts/4");
     expect(CHART_SET_VERSIONS).toContain(charts.version);
     // charts/5 (A2e) adds the straddle set, charts/6 and charts/7 re-solve the 200bb and 9-max 150bb sets,
-    // charts/8 adds the heads-up set; this set is still charts/4's.
-    expect(CHARTS_VERSION).toBe("charts/8");
+    // charts/8 and charts/9 add the heads-up sets; this set is still charts/4's.
+    expect(CHARTS_VERSION).toBe("charts/9");
     expect(charts.id).toBe("nlhe-cash-6max-100bb");
     expect(charts.game.positions).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
     expect(charts.game.stackBb).toBe(100);

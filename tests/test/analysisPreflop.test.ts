@@ -597,5 +597,8 @@ describe("a line too rare for its set, read on a neighbouring depth (analysis/13
     expect(depths("nlhe-cash-9max-200bb")).toEqual([150]);
     expect(depths("nlhe-cash-6max-40bb")).toEqual([60]);
     expect(depths("nlhe-cash-6max-100bb-straddle")).toEqual([]);
+    // Heads-up reads only heads-up: the other heads-up depth, never a 6-max set.
+    expect(depths("nlhe-cash-hu-100bb")).toEqual([150]);
+    expect(depths("nlhe-cash-hu-150bb")).toEqual([100]);
   });
 });

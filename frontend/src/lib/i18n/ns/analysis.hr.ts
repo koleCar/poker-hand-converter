@@ -188,7 +188,7 @@ const chartReasons = {
   "chart-straddle": "straddle mijenja svaku cijenu, a chartovi pokrivaju samo jedan: jedan straddle od 2 bb sa sjedala lijevo od big blinda, za 4-6 igrača, oko 100 bb",
   "chart-ante": "u potu je ante, a cash chartovi ga nemaju",
   "chart-players": "chartovi pokrivaju od dva do devet igrača (heads-up ima vlastiti set; manji stol čita se uz foldane najranije pozicije)",
-  "chart-stack-depth": "efektivni stack je više od 20 % udaljen od dubine svakog seta chartova (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
+  "chart-stack-depth": "efektivni stack je više od 20 % udaljen od dubine svakog seta chartova (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb; heads-up: 100, 150 bb)",
   "chart-limp": "netko je open-limpao, a chartovi nemaju open limp osim small blinda",
   "chart-multiway": "ovo bi bio peti igrač u potu, više nego što chartovi modeliraju",
   "chart-cold-call": "hladni call na re-raise nije u stablu chartova",
@@ -711,7 +711,7 @@ export const analysisHr: Dict["analysis"] = {
   reference: {
     title: "Preflop se ocjenjuje prema našim chartovima, turn i river prema našem solveru",
     body:
-      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb, heads-up 100 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu, turnu ili riveru približnu ocjenu, označenu kao takvu.",
+      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb, heads-up 100 i 150 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu, turnu ili riveru približnu ocjenu, označenu kao takvu.",
     model:
       "Chartovi (charts/2) flop vrednuju uz checkan flop, pa još podcjenjuju nekoliko ruku koje dobivaju kroz implied odds: UTG folda 22–55, 54s–87s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     browse: "Pregledaj chartove",

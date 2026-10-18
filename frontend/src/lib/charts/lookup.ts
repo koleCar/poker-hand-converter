@@ -427,7 +427,7 @@ function readAtUncoveredDepth(
       approximations: [
         {
           kind: "uncovered-depth",
-          detail: `no ${other.players}-max set covers an effective stack of ${round2(effectiveBb)}bb; read on the ${other.stackBb}bb set`,
+          detail: `no ${other.players === 2 ? "heads-up" : `${other.players}-max`} set covers an effective stack of ${round2(effectiveBb)}bb; read on the ${other.stackBb}bb set`,
           set: other.id,
           realBb: round2(effectiveBb),
           chartBb: other.stackBb,

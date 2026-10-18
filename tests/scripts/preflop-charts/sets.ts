@@ -28,13 +28,15 @@
  *   `charts/7`, docs/CHARTS.md §5.1).
  * - `charts/8` adds the heads-up 100bb set (`HEADS_UP`, docs/CHARTS.md §6.9):
  *   two players, the small blind is the button.
+ * - `charts/9` adds the heads-up 150bb set (`headsUp(150)`): the same tree,
+ *   sizes and pipeline at 150bb.
  */
 
 import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../frontend/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7" | "charts/8";
+  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7" | "charts/8" | "charts/9";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -154,18 +156,29 @@ const STRADDLE: SetConfig = {
  * `charts/2`'s fit. The solve is two-player, where DCFR converges; it is
  * small, so it runs `DEEP_ITERATIONS`.
  */
-const HEADS_UP: SetConfig = {
-  id: "nlhe-cash-hu-100bb",
-  version: "charts/8",
+const headsUp = (stackBb: number, version: "charts/8" | "charts/9"): SetConfig => ({
+  id: `nlhe-cash-hu-${stackBb}bb`,
+  version,
   players: ["SB", "BB"],
-  stackBb: 100,
+  stackBb,
   sizing: { sbOpen: 2.5, isoOop: 0, allInAbove: ALL_IN_ABOVE },
   rounds: 2,
   start: "charts/2-fit",
-  fitName: "charts/8-solver-fit-hu-100bb",
+  fitName: `${version}-solver-fit-hu-${stackBb}bb`,
   headsUp: true,
   iterations: DEEP_ITERATIONS,
-};
+});
+
+/**
+ * `charts/9`: heads-up 150bb, the same tree and sizes as 100bb. The 6-max and
+ * 9-max 150bb sets keep their 100bb sizes too (`STANDARD`); deeper stacks
+ * change nothing before the 5-bet, which is all-in at either depth (the
+ * largest 4-bet, 30bb, is a fifth of a 150bb stack, under `allInAbove`'s 40%).
+ * The realisation is measured on its own ranges at 150bb's stack-to-pot
+ * ratios, two rounds from `charts/2`'s fit, then 9,000 iterations.
+ */
+const HEADS_UP = headsUp(100, "charts/8");
+const HEADS_UP_150 = headsUp(150, "charts/9");
 
 /**
  * Every committed set, in the order the limp refusals of the owner's library
@@ -192,6 +205,7 @@ export const SET_CONFIGS: readonly SetConfig[] = [
   a2d(a2c(SIX, 40, SHORT)),
   STRADDLE,
   HEADS_UP,
+  HEADS_UP_150,
 ];
 
 export function setConfig(id: string): SetConfig {
