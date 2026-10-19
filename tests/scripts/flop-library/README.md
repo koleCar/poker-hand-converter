@@ -192,6 +192,20 @@ won, the showdown share of the player who shows first against the share won
 would-be grades (`MWBETS_GRADES=1` prints each, console only). About ten
 minutes. `docs/ANALYSIS-PLAN.md` §10 2026-10-19 (multiway checks and bets).
 
+**The players behind a multiway call (`analysis/29`).** `FLOPLIB_HANDS=...
+npm run floplib:multiway-overcall` collects, at every call facing a bet in a
+pot three or more saw the flop of, the next action of each player still to
+answer (the approximate call's responders, every player), scores the
+narrowing model's share (what `analysis/28` and earlier assumed) against
+candidate tables and recalibrations held out (five folds by hand and by
+player), then analyses the hero's multiway-flop hands with the theory and
+with the chosen candidate fitted without the hand's fold and lists the grades
+that move (`OVERCALL_GRADES=1` prints every approximate call with players
+behind; `OVERCALL_PART2=0` stops after the held-out table, 20 seconds), and
+checks the calls' EV against what was won and the river callers' ranges
+against the bettor's shown share. About twelve minutes. Console only.
+`docs/ANALYSIS-PLAN.md` §10 2026-10-20.
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

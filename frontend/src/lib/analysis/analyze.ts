@@ -90,6 +90,7 @@ import {
   walkMultiway,
   type ApproxGrade,
   type MultiWalk,
+  type ResponderFrequency,
   type RiverCallFailure,
 } from "./multiway";
 import { defaultRange, preflopLine } from "./ranges";
@@ -192,6 +193,13 @@ export interface AnalyzeOptions {
    * trainers, a library without opponent statistics - nothing moves.
    */
   villains?: VillainStatsMap | null;
+  /**
+   * (analysis/29) How often the players still to answer continue behind an
+   * approximate multiway call (`RiverCallInput.responders`). Absent - always
+   * in the app - the population's (`populationResponders`); a study passes
+   * `modelResponders` for the narrowing model's MDF split, or a held-out fit.
+   */
+  responders?: ResponderFrequency | null;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -212,8 +220,9 @@ const ANY_TWO: ClassWeights = parseRange("*");
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
-type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary" | "villains">> & {
+type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary" | "villains" | "responders">> & {
   charts: ChartSet | null;
+  responders: ResponderFrequency | null;
   only: number | null;
   flopLibrary: FlopLibrary | null;
   villains: VillainStatsMap | null;
@@ -729,13 +738,14 @@ function approxCall(
   softMulti: () => MultiWalked,
   charts: ChartSet | null,
   seed: number,
+  responders: ResponderFrequency | null = null,
 ): ApproxGrade | RiverCallFailure {
   const action = spot.decision.type as "fold" | "call";
   const dominated = action === "fold" ? built.cannotLose : built.beatsNoHolding;
   const potBb = built.facts.potBb;
   const street = spot.street;
   const on = (walk: MultiWalk, model: NarrowingModel) => {
-    const input = { spot, facts: built.facts, hand, context, hero, walk, model, charts, seed };
+    const input = { spot, facts: built.facts, hand, context, hero, walk, model, charts, seed, ...(responders ? { responders } : {}) };
     const evs = street === "flop" ? flopCallEv(input) : street === "turn" ? turnCallEv(input) : riverCallEv(input);
     if (!evs.ok) return evs;
     if (street === "flop") return gradeFlopCall(evs, action, potBb);
@@ -1230,6 +1240,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     turn: solvesTurn(options),
     flopLibrary: options.flopLibrary ?? null,
     villains: options.villains ?? null,
+    responders: options.responders ?? null,
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -1351,7 +1362,18 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
           approxSkip = "multiway-range-unknown";
         } else {
           try {
-            const result = approxCall(spot, built, hand, context, hero, multi, softMulti, resolved.charts, resolved.seed + spot.decision.order);
+            const result = approxCall(
+              spot,
+              built,
+              hand,
+              context,
+              hero,
+              multi,
+              softMulti,
+              resolved.charts,
+              resolved.seed + spot.decision.order,
+              resolved.responders,
+            );
             if (result.ok) approx = result;
             else approxSkip = result.reason;
           } catch {

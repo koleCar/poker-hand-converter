@@ -361,7 +361,11 @@ A decision is **not analysed** (`status: partial`) when:
   facing a re-raise is refused (`multiway-reraise`: the factors were
   measured on trees with one raise) unless the call ends the betting; the
   flop table is fitted without the all-in calls (`floplib-r/2`; §10
-  2026-10-10, multiway rules and placeholder ranges). Opponents whose line
+  2026-10-10, multiway rules and placeholder ranges). Since `analysis/29`
+  the players still to answer behind the hero's call (all three streets)
+  continue as often as players behind a call do on stored hands (the MDF
+  split recalibrated, `mw-behind/1`; the model's calling range kept; behind
+  a call of a raise the model's own share; §10 2026-10-20). Opponents whose line
   no chart covers - most often an open limper - start from the labelled
   placeholder range (`placeholder-range`); since `analysis/18` a line at a
   depth no set covers, or too rare for its set, is read on the nearest
@@ -4571,3 +4575,183 @@ Each phase appends what it learned that changed the plan.
       always was.
     - A three-player river solver (the only exact reference) would be a new
       solver (three ranges, a three-way showdown per terminal); not costed.
+- 2026-10-20 — The players behind a multiway call, `analysis/29` (study
+  `tests/scripts/flop-library/multiwayOvercall.test.ts`,
+  `npm run floplib:multiway-overcall`; `populationResponders` in
+  `lib/analysis/multiway.ts`). No migration.
+  - **Why.** The open item of 2026-10-19 (multiway checks and bets): in the
+    approximate call and fold grades (`analysis/15`-`/17`, `/28`) the
+    players still to answer behind the hero's call answer by the MDF split,
+    and on the stored hands players call far less often than that. That
+    entry measured every answer to a first bet; the grades need a narrower
+    thing - a player still to answer **after someone has called** - so this
+    study measures exactly that, with the theory computed as the shipped
+    call computes it.
+  - **Data.** The 5,448 stored hands of the test user (local stack). At every
+    call facing a bet in a pot three or more saw the flop of (one board, bomb
+    pots included, every player as the caller), the one to three players
+    still to answer behind it, each one's next action until someone raises:
+    continue (call or raise) or fold. **667 answers** (414 hands, 177
+    players): 638 behind a call of a bet, 29 behind a call of a raise. The
+    theory for each is the narrowing model's call share with the caller as
+    the hero (the same ranges, players, size and pruning as `callEv`). Five
+    folds by hand and five by the answering player's name; standard errors
+    clustered by hand (by player for the player folds).
+  - **Measured 1: how often they continue.**
+
+    | behind a call | n | continued | theory |
+    |---|---|---|---|
+    | every answer | 667 | 0.328 ± 0.021 | 0.494 |
+    | of a bet | 638 | 0.307 ± 0.021 | 0.490 |
+    | of a raise | 29 | 0.793 ± 0.087 | 0.584 |
+    | flop | 431 | 0.325 ± 0.024 | 0.471 |
+    | turn | 191 | 0.351 ± 0.042 | 0.562 |
+    | river | 45 | 0.267 ± 0.075 | 0.424 |
+
+    By fifths of the theory's share (behind a bet): 0.32 → continued 0.16,
+    0.41 → 0.24, 0.48 → 0.28, 0.56 → 0.42, 0.68 → 0.43. **The theory ranks
+    the spots right and is too high everywhere**: where it says a player
+    calls more, they do, at about two thirds of the level.
+  - **Measured 2: candidates held out** (log-loss per answer, theory minus
+    candidate, positive = the candidate is better; every answer):
+
+    | candidate | parameters | log-loss gain, by hand | by player | Brier gain |
+    |---|---|---|---|---|
+    | one rate per street | 3 | +0.024 ± 0.019 | +0.022 ± 0.020 | +0.012 ± 0.009 |
+    | street × bet size (four buckets) | 12 | +0.025 ± 0.019 | +0.024 ± 0.019 | +0.012 ± 0.009 |
+    | street × size × one or two-plus behind | 24 | +0.034 ± 0.019 | +0.033 ± 0.019 | +0.016 ± 0.009 |
+    | logistic: street, log size, players behind | 7 | +0.024 ± 0.018 | +0.020 ± 0.023 | +0.013 ± 0.008 |
+    | street × size, behind a bet only (the theory behind a raise) | 12 | +0.038 ± 0.019 | +0.039 ± 0.020 | +0.019 ± 0.009 |
+    | the theory recalibrated per street, every answer | 4 | +0.056 ± 0.015 | +0.055 ± 0.018 | +0.026 ± 0.007 |
+    | recalibrated, one intercept, behind a bet only | 2 | +0.068 ± 0.015 | +0.068 ± 0.018 | +0.031 ± 0.007 |
+    | recalibrated, a slope per street, behind a bet only | 6 | +0.067 ± 0.015 | +0.064 ± 0.019 | +0.030 ± 0.007 |
+    | **recalibrated per street, behind a bet only (shipped)** | **4** | **+0.070 ± 0.015** | **+0.068 ± 0.018** | **+0.032 ± 0.007** |
+
+    The flat tables fix the level but throw away the theory's ranking, and
+    gain barely one standard error; recalibrating the theory keeps both:
+    `logit p = a[street] + b · logit m`, `m` the model's share, fitted on
+    the 638 answers behind a bet: **a = −0.692 flop, −1.094 turn, −0.685
+    river, b = 1.066** (fitted without each fold: b 0.93-1.20, the flop's a
+    −0.63 to −0.73). A slope near 1 is a shift of the odds: a call's odds
+    times about a half on the flop and river, a third on the turn. Behind a
+    bet the shipped candidate gains +0.073 ± 0.016 (by player +0.071 ±
+    0.019), **4.6 and 3.7 standard errors**; by street flop +0.049 ± 0.015
+    (predicted 0.324, continued 0.325), turn +0.120 ± 0.034 (0.336 / 0.351),
+    river +0.052 ± 0.042 (0.293 / 0.267, 45 answers). Behind a call of a
+    **raise** every candidate fitted on everything loses (−0.28 to −0.34 ±
+    0.10: they continue 0.79 of the time, more than the theory's 0.58), so
+    there the model's own share stays; 29 answers are too few to fit.
+  - **Which hands call.** Only the frequency moves; each player's calling
+    range is the model's, weighted by the new chance. The alternative - the
+    model's likelihood raised to the power that puts it at the lower share,
+    a tighter range - was scored at the 45 called multiway river bets where
+    the bettor shows first (2026-10-19's check): the bettor won 0.622 ±
+    0.071 of the pot, predicted against the model's calling ranges 0.556
+    (won − predicted +0.066 ± 0.041), against the tightened ones +0.070 ±
+    0.042 (squared error −0.005 ± 0.004): no better, and 2026-10-19's
+    top-of-the-range version was +0.201 ± 0.048. The power transform also
+    cannot go below the mass the heuristic's call likelihood puts at 1 (the
+    hands between the cut and the top 5%), which on real ranges is often
+    above the target.
+  - **The grades.** Every hero decision of the 443 multiway-flop hands with
+    the hero in, analysed with the theory and with the recalibration fitted
+    without the hand's fold (no library), and the census at `analysis/28`
+    against `analysis/29` (flop library on, `CENSUS_SETS` the three shipped
+    sets, 8,005 hero decisions, row by row against the bomb pots' rows of
+    2026-10-19): **only multiway call and fold rows move, 6 of the 322
+    approximate ones; 0 other rows** (the study, without the library, moves
+    the same 6). 189 of the approximate calls and folds have players behind;
+    the chances of the players behind fall from 0.4-0.6 to 0.2-0.45, the
+    hero's share in the call rises (0.204 → 0.270 at the largest), and so
+    calling is worth more: **5 harsher, all folds** (flop Perfect →
+    Inaccurate 2, Inaccurate → Mistake 1; turn Perfect → Inaccurate 1,
+    Perfect → Mistake 1), **1 milder** (a turn call Mistake → Perfect).
+    Approximate grades flop Perfect 187 → 185, Inaccurate 1 → 2, Mistake
+    11 → 12; turn Perfect 88 → 87, Inaccurate 1 → 2, Mistake 4; river
+    unchanged (Perfect 29, Mistake 1). The other 183 move EV only (by up to
+    4.6bb), inside their grade.
+  - **The checks of `analysis/15`-`/16`.** The held-out library and turn
+    solve tables and the heads-up pipeline checks have nobody behind the
+    caller, so nothing in them moves; the three-way certain-folder tests
+    still hold (a model share of ~0 recalibrates to ~3·10⁻⁵). On the stored
+    hands, the hero's 44 approximate calls with players behind, the model's
+    call EV against what the hero won from the call on (% of the pot):
+    realised 0.992 ± 0.289, realised − theory +0.626 ± 0.287, realised −
+    recalibrated +0.624 ± 0.287, squared error theory − recalibrated +0.016
+    ± 0.014 (flop 28: +0.031 ± 0.020; turn 13: −0.006 ± 0.014; river 3):
+    **no worse**, and too noisy to say better. Both are low on the flop by
+    +0.96 ± 0.42 of the pot (28 calls: what later streets won, which the
+    heads-up factor does not see multiway; an open item below).
+  - **Read one by one** (all 6 changed and the 14 largest EV moves among the
+    unchanged, read in the study's listing; ten here):
+    - A♥J♥ folding the turn on Q♦5♠T♦3♣ to a third of 18.6bb, four-way, two
+      behind (0.55 → 0.28 each): call EV +0.13 → +1.18bb, share 0.20 →
+      0.27; Perfect → **Inaccurate**. Ace high and the nut gutshot at 25%
+      pot odds; with the two behind folding two times in three the call
+      pays, which is the point.
+    - A♦4♥ calling the turn on 2♠5♠T♦8♦ (half pot, one behind 0.52 → 0.26):
+      call EV −0.81 → −0.28bb, inside the 5% margin; Mistake → **Perfect**.
+      A wheel gutshot and an overcard; the old grade charged it for an
+      overcall half the time that comes a quarter of the time.
+    - K♦3♦ folding the turn on T♦A♣J♥A♥ (half of a 4.5bb limped pot, one
+      behind 0.61 → 0.35): call EV +0.21 → +0.58bb, share 0.31; Perfect →
+      **Mistake** (7.9% of the pot beyond the margin). The least convincing:
+      K-high with a gutshot reads 31% against limpers' placeholder ranges -
+      the narrowing, not the players behind, is what makes it a Mistake;
+      capped and flagged as everywhere.
+    - 6♣8♠ folding a bomb-pot flop on K♠5♠2♠ (half of 34.9bb, four-way, two
+      behind 0.53 → 0.35): call EV +0.79 → +2.33bb; Perfect → **Inaccurate**.
+      Any-two-cards ranges make 24% plausible; mild.
+    - J♥K♣ folding a bomb-pot flop on 8♠J♠9♠ (half of 38bb, one behind 0.74
+      → 0.59): +2.63 → +3.07bb; Inaccurate → **Mistake**. Top pair on a
+      monotone board in a pot of any two cards: a fold the old model already
+      disliked, now a little more.
+    - 7♥6♦ folding the flop on 5♠9♣7♠ five-way (55% of 8.5bb, three behind
+      0.50 → 0.33): +0.17 → +0.50bb, just past the margin; Perfect →
+      **Inaccurate**. Middle pair and the gutshot that makes the nine-high
+      straight.
+    - A♥Q♣ folding the turn on T♥9♣K♦2♦ four-way (38% of 22bb, two behind
+      0.43/0.58 → 0.21/0.32): −0.83 → +0.71bb, still inside the margin;
+      Perfect stays. The largest swing in sign: Broadway gutshot and an
+      overcard pay once the overcalls halve.
+    - 3♥3♦ folding the turn on Q♦6♥7♣5♣ (a third of 18bb, one behind 0.60 →
+      0.34): −0.82 → +0.28bb, Perfect stays (inside the margin). A pair of
+      threes and the gutshot to the 4.
+    - A♠7♠ calling a 3% river bet into 39.8bb in a five-way bomb pot (three
+      behind 0.67 → 0.44): call EV +4.80 → +0.21bb, share 0.144 → 0.031,
+      Perfect stays. The share *falls* with fewer callers: the callers' and
+      the bettor's ranges compete for the same aces (only two left), so a
+      caller holding one makes the bettor hold one less often - exact card
+      removal in `equityVsRanges`, not an error.
+    - 8♦K♠ calling the flop on 6♣5♠K♥ five-way (83% of 49.9bb, three behind
+      0.24 → 0.16): +12.70 → +15.40bb, Perfect stays: top pair gains from
+      fewer overcalls, the common direction for made hands.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/29`. `populationResponders`
+    (`RESPONDER_MODEL` `mw-behind/1`, `RESPONDER_RECALIBRATION`: four
+    numbers) sets each player-behind's chance in `callEv` (flop, turn,
+    river); `RiverCallInput.responders` / `AnalyzeOptions.responders` let a
+    study pass `modelResponders` (the MDF split) or a held-out fit; the
+    stored `facts.multiway.ev.responders` says `mw-behind/1` when it was
+    used. The existing wording said the players behind "call or fold by the
+    model", now wrong: the `multiway-approx` label and the *why* sentence
+    say they call about as often as stored hands show, the model choosing
+    which hands (en, hr); no new flag. Tests (`analysisMultiway`): the
+    river call with a player behind exact against enumeration under both
+    frequencies, the recalibration and its raise exception; the analysis
+    suite, typecheck and lint pass. Only aggregate numbers are committed.
+  - **Open.**
+    - **The walked ranges' strength** (2026-10-19's first open item) comes
+      first still: the hero's share in these calls is read on ranges that
+      are too strong at shown showdowns; this change moves who is in the
+      pot, not what they hold.
+    - Behind a call of a **raise** players continue 0.79 ± 0.09 of the time
+      (29 answers), above the model's 0.58; the model's share stays until
+      there are enough to fit.
+    - The calls' EV is low against what was won on the flop (+0.96 ± 0.42
+      of the pot, 28 calls), for both fields: the heads-up realisation
+      factor applied multiway (the open item of `analysis/15`).
+    - The fit is one library's population (177 players, one site's
+      stakes); refit (`npm run floplib:multiway-overcall` prints the
+      weights) as libraries grow, and per site if they differ.
+    - The same recalibration is the natural answer model for a multiway
+      check-or-bet grade (2026-10-19), once the ranges are calibrated.

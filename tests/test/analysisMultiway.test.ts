@@ -10,6 +10,10 @@
  *   is exactly the heads-up walk.
  * - **The approximate river call** against exact enumeration, with and
  *   without a player still to answer; refusals by name; the grade and its cap.
+ *   Since `analysis/29` the players still to answer continue as often as the
+ *   recalibration says (`populationResponders`) with the model's calling
+ *   range, the model's own share behind a call of a raise or with
+ *   `modelResponders`.
  * - **The approximate flop call** (`analysis/15`): the realisation table,
  *   exact against enumeration with nobody to answer, the heads-up answer
  *   when the player behind always folds, the margin and the cap.
@@ -37,6 +41,10 @@ import {
   MULTIWAY_CHECK_DRAW,
   MULTIWAY_CHECK_VALUE,
   callShare,
+  modelResponders,
+  populationResponders,
+  RESPONDER_MODEL,
+  RESPONDER_RECALIBRATION,
   FLOP_MARGIN_POT,
   FLOP_REALISATION,
   flopCallEv,
@@ -487,27 +495,53 @@ describe("the approximate river call", () => {
     expect(result.call).toBeCloseTo(ev, 3);
   });
 
-  it("mixes the ways a player still to answer can respond, each exactly", () => {
+  it.each([
+    ["the model's own share (modelResponders)", true],
+    ["the recalibrated share (analysis/29, the default)", false],
+  ])("mixes the ways a player still to answer can respond, each exactly: %s", (_title, own) => {
     // River: the big blind checks, the cutoff bets, the hero calls with the big blind still to answer.
     const h = hand("Btn", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP), ...CHECKED(TURN), RIVER, "Bb: checks", "Co: bets $8", "Btn: calls $8", "Bb: folds"]);
     const { context, hero, spot, facts, seat } = riverSpot(h, "call");
     const bbRange = ["Kc Qc", "7h 7d", "As 3s", "9c 8c", "5h 4h"];
     const coRange = ["Ac Kh", "Qh Qd", "Th Ts", "9s 7s"];
     const walk = stubWalk(hero, new Map([[hero, ["Ks Jd", "Ah Kc"]], [seat("Bb"), bbRange], [seat("Co"), coRange]]));
-    const result = riverCallEv({ spot, facts, hand: h, context, hero, walk, model: heuristicModel, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    const result = riverCallEv({
+      spot,
+      facts,
+      hand: h,
+      context,
+      hero,
+      walk,
+      model: heuristicModel,
+      charts: CHARTS,
+      seed: 1,
+      ...(own ? { responders: modelResponders } : {}),
+    }) as RiverCallEv;
     expect(result.ok).toBe(true);
     expect(result.respond.length).toBe(1);
     expect(result.scenarios).toBe(2);
+    expect(result.responders).toBe(own ? undefined : RESPONDER_MODEL);
     // The same answer by hand: the big blind's calling range by the model, then both showdowns.
     const ranges = walk.before(0)!;
     const board = parseCards(["Kd", "7c", "2s", "9h", "3d"]);
     const bb = Float64Array.from(ranges.get(seat("Bb"))!);
     for (const c of parseCards(["Ks", "Jd"])) for (let k = 0; k < NUM_COMBOS; k += 1) if (comboHi(k) === c || comboLo(k) === c) bb[k] = 0;
-    const answer = callShare(
-      heuristicModel,
-      { street: "river", board, actor: bb, opponent: ranges.get(hero)!, opponents: [ranges.get(hero)!, ranges.get(seat("Co"))!], players: 3, strength: streetStrength(board) },
-      facts.facingPot!,
-    );
+    const input = {
+      street: "river" as const,
+      board,
+      actor: bb,
+      opponent: ranges.get(hero)!,
+      opponents: [ranges.get(hero)!, ranges.get(seat("Co"))!],
+      players: 3,
+      strength: streetStrength(board),
+    };
+    const model = callShare(heuristicModel, input, facts.facingPot!);
+    // The recalibration by hand: logit p = a(river) + b · logit(model's share).
+    const z = RESPONDER_RECALIBRATION.intercept.river + RESPONDER_RECALIBRATION.slope * Math.log(model.share / (1 - model.share));
+    const target = 1 / (1 + Math.exp(-z));
+    expect(target).toBeLessThan(model.share);
+    // Only the frequency moves: the calling range is the model's either way.
+    const answer = { share: own ? model.share : target, range: model.range };
     expect(result.respond[0].call).toBeCloseTo(answer.share, 3);
     const asCombos = (r: Float64Array) => {
       const out: WeightedCombo[] = [];
@@ -523,6 +557,15 @@ describe("the approximate river call", () => {
     const pot = facts.potBb + facts.toCallBb;
     const expected = (1 - answer.share) * net(pot, alone) + answer.share * net(pot + facts.toCallBb, both);
     expect(result.call).toBeCloseTo(expected, 3);
+  });
+
+  it("recalibrates the players behind only behind a call of a bet (analysis/29)", () => {
+    const ctx = { street: "flop" as const, sizePot: 0.5, responders: 1, players: 3, model: 0.5, raised: false };
+    expect(populationResponders(ctx)).toBeCloseTo(1 / (1 + Math.exp(-RESPONDER_RECALIBRATION.intercept.flop)), 9);
+    expect(populationResponders({ ...ctx, street: "turn" })!).toBeLessThan(populationResponders(ctx)!);
+    expect(populationResponders({ ...ctx, model: 0.7 })!).toBeGreaterThan(populationResponders(ctx)!);
+    expect(populationResponders({ ...ctx, raised: true })).toBeNull();
+    expect(modelResponders(ctx)).toBeNull();
   });
 
   it("refuses a side pot and a crowd by name", () => {
