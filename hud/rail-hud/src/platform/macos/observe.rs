@@ -340,6 +340,7 @@ fn run(
             apps: BTreeMap::new(),
             rechecks: Vec::new(),
             notes: 0,
+            by_note: BTreeMap::new(),
             follows: 0,
             resyncs: 0,
             space_changes: 0,
@@ -455,6 +456,7 @@ struct State {
     /// Reads due later (after a notification an animation may outrun).
     rechecks: Vec<(Instant, WindowId)>,
     notes: u64,
+    by_note: BTreeMap<String, u64>,
     follows: u64,
     resyncs: u64,
     space_changes: u64,
@@ -741,6 +743,7 @@ impl State {
     /// A notification.
     fn note(&mut self, note: Note) {
         self.notes += 1;
+        *self.by_note.entry(note.name.clone()).or_default() += 1;
         let Some(kind) = AxNote::from_name(&note.name) else {
             return;
         };
@@ -1002,6 +1005,11 @@ impl State {
                 })
                 .collect(),
             notes: self.notes,
+            by_note: self
+                .by_note
+                .iter()
+                .map(|(name, n)| (name.clone(), *n))
+                .collect(),
             follows: self.follows,
             resyncs: self.resyncs,
             space_changes: self.space_changes,

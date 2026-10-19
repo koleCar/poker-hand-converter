@@ -1072,6 +1072,8 @@ pub struct TrackerInfo {
     pub tables: Vec<(WindowId, bool, Vec<String>, Option<Geometry>)>,
     /// Notifications taken.
     pub notes: u64,
+    /// How many of each (by name).
+    pub by_note: Vec<(String, u64)>,
     /// Overlays moved, shown or hidden from a notification or a read.
     pub follows: u64,
     /// Reads asked for by the engine (its re-find saw something else).

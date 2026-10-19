@@ -611,40 +611,76 @@ mod macos {
             );
         }
 
-        // A scripted drag: 40 moves through the Accessibility API, each
-        // followed by the observers alone (no `follow` from the engine).
         let (&na, a) = tables.iter().next().expect("a table");
         let a = a.clone();
         sim.command(&format!("focus {na}"));
         std::thread::sleep(Duration::from_millis(400));
+        let overlay_a = overlay_number(&backend, a.id);
+
+        // A move made by this process through the Accessibility API
+        // (`AXPosition`): is it notified back to this process's own
+        // observer? (CI's first runs: it is not - the HUD never moves a
+        // table, so this is only what the test may use.) Recorded, and the
+        // overlay put right by the engine's description if not.
         let handle = drive::ax_handle(pid, number(a.id)).expect("the table's element");
-        let start = macos::window_now(number(a.id)).expect("table").bounds;
+        let before = tracker(&backend).notes;
+        let here = macos::window_now(number(a.id)).expect("table").bounds;
+        handle
+            .move_to(here.x + 5_000, here.y + 5_000)
+            .expect("AXPosition");
+        let own = until(Duration::from_secs(1), || {
+            macos::window_now(number(a.id)).is_some_and(|w| {
+                macos::window_now(overlay_a).is_some_and(|o| {
+                    o.bounds
+                        .close_to(&macos::client_frame(&w.bounds, bars[&a.id]))
+                }) && w.bounds != here
+            })
+        });
+        let info = tracker(&backend);
+        eprintln!(
+            "R3.13: a move made by this process through AXPosition: {} ({} notification(s) \
+             meanwhile: {:?})",
+            match own {
+                Some(lag) => format!("followed in {} us", lag.as_micros()),
+                None => "NOT notified to this process's own observer".to_owned(),
+            },
+            info.notes - before,
+            info.by_note
+        );
+        if own.is_none() {
+            let mut put = a.clone();
+            put.client.x += 1;
+            backend.follow(&put);
+            wait_for(Duration::from_secs(5), "the overlay put right", || {
+                covers(&backend, a.id)
+            });
+        }
+
+        // A drag: the simulator moves its own window 40 times (as the
+        // client does under a user's drag), each followed by the observers
+        // alone (no `follow` from the engine).
         let renders = info_of(&backend, a.id).renders;
         let _ = backend.poll_events();
+        let origin = macos::to_pixels(
+            &macos::window_now(number(a.id)).expect("table").bounds,
+            a.scale_permille,
+        );
         let mut lags = Vec::new();
+        let mut totals = Vec::new();
         for i in 1..=40 {
-            let prev = macos::window_now(number(a.id)).expect("table").bounds;
-            handle
-                .move_to(start.x + i * 9_000, start.y + i * 3_000)
-                .expect("AXPosition");
-            let lag = until(Duration::from_secs(2), || {
-                let Some(now) = macos::window_now(number(a.id)) else {
-                    return false;
-                };
-                now.bounds != prev
-                    && overlay_bounds(&backend, a.id)
-                        .is_some_and(|o| o.close_to(&macos::client_frame(&now.bounds, bars[&a.id])))
-            })
-            .unwrap_or_else(|| {
-                panic!(
-                    "move {i}: not followed: {:?}; the observers: {:?}",
-                    covers(&backend, a.id).err(),
-                    backend.tracker_info()
-                )
-            });
+            let to = (origin.x + i * 9, origin.y + i * 3);
+            let (lag, total) = sim_move(&mut sim, na, &a, to, overlay_a, bars[&a.id])
+                .unwrap_or_else(|why| {
+                    panic!(
+                        "move {i}: {why}; the observers: {:?}",
+                        backend.tracker_info()
+                    )
+                });
             lags.push(lag);
+            totals.push(total);
         }
         let (p50, p95, max) = summary(&lags);
+        let (t50, t95, _) = summary(&totals);
         let after = info_of(&backend, a.id);
         assert_eq!(after.renders, renders, "a move is not a repaint");
         std::thread::sleep(Duration::from_millis(100));
@@ -656,12 +692,13 @@ mod macos {
         assert_eq!(moved.len(), 1, "one Moved for the engine: {events:?}");
         let (f50, f95, fmax) = summary_us(&backend.follow_times_us());
         eprintln!(
-            "R3.13 drag: 40 scripted moves (AXPosition) -> overlay moved (the window server's \
-             bounds) p50 {p50} us, p95 {p95} us, max {max} us; inside, notification -> overlay \
-             moved p50 {f50} us, p95 {f95} us, max {fmax} us; no repaint, one Moved"
+            "R3.13 drag: 40 moves (the simulator's own) -> table moved (the window server's \
+             bounds) -> overlay moved p50 {p50} us, p95 {p95} us, max {max} us; command -> \
+             overlay moved p50 {t50} us, p95 {t95} us; inside, notification -> overlay moved p50 \
+             {f50} us, p95 {f95} us, max {fmax} us; no repaint, one Moved"
         );
-        assert!(p50 < u128::from(u32::try_from(FRAME.as_micros()).unwrap_or(16_667)) * 2);
-        eprintln!("step ok: a scripted drag followed move by move");
+        assert!(p50 < 2 * FRAME.as_micros(), "p50 {p50} us");
+        eprintln!("step ok: a drag followed move by move");
 
         // The simulator's own move: followed without the engine.
         let prev = macos::window_now(number(a.id)).expect("table").bounds;
@@ -824,7 +861,7 @@ mod macos {
         // A hundred moves in a second.
         sim.command(&format!("focus {na}"));
         std::thread::sleep(Duration::from_millis(400));
-        storm(&mut backend, &handle, &a, bars[&a.id]);
+        storm(&mut backend, &mut sim, na, &a, bars[&a.id]);
 
         // Closed: the overlay goes, the engine hears it.
         let (&nc, c) = tables.iter().nth(2).expect("a third table");
@@ -882,8 +919,11 @@ mod macos {
     /// 100 moves in 1 s through the Accessibility API: each followed, the
     /// overlay never back at an older place nor hidden, one `Moved`, no
     /// repaint; the observers' and the AppKit thread's CPU.
-    fn storm(backend: &mut MacosBackend, handle: &drive::AxHandle, a: &TableWindow, bar: i64) {
-        let start = macos::window_now(number(a.id)).expect("table").bounds;
+    fn storm(backend: &mut MacosBackend, sim: &mut Sim, n: u64, a: &TableWindow, bar: i64) {
+        let start = macos::to_pixels(
+            &macos::window_now(number(a.id)).expect("table").bounds,
+            a.scale_permille,
+        );
         let overlay = overlay_number(backend, a.id);
         let renders = info_of(backend, a.id).renders;
         let _ = backend.poll_events();
@@ -911,22 +951,12 @@ mod macos {
                 }
                 std::thread::sleep(Duration::from_micros(500));
             }
-            let (dx, dy) = ((i % 25) * 6_000, (i / 25) * 9_000);
-            let prev = macos::window_now(number(a.id)).expect("table").bounds;
-            handle
-                .move_to(start.x + 4_000 + dx, start.y + 4_000 + dy)
-                .expect("AXPosition");
-            let mut target = Frame::default();
-            let lag = until(Duration::from_secs(2), || {
-                let Some(now) = macos::window_now(number(a.id)) else {
-                    return false;
-                };
-                target = macos::client_frame(&now.bounds, bar);
-                now.bounds != prev
-                    && macos::window_now(overlay).is_some_and(|w| w.bounds.close_to(&target))
-            })
-            .unwrap_or_else(|| panic!("storm move {i}: not followed"));
-            targets.push(target);
+            let step = i32::try_from(i).unwrap_or(0);
+            let to = (start.x + 4 + (step % 25) * 6, start.y + 4 + (step / 25) * 9);
+            let (lag, _) = sim_move(sim, n, a, to, overlay, bar)
+                .unwrap_or_else(|why| panic!("storm move {i}: {why}"));
+            let table = macos::window_now(number(a.id)).expect("table").bounds;
+            targets.push(macos::client_frame(&table, bar));
             lags.push(lag);
         }
         let wall = started.elapsed();
@@ -950,7 +980,7 @@ mod macos {
             .count();
         let (p50, p95, max) = summary(&lags);
         eprintln!(
-            "R3.13 storm: 100 moves (AXPosition) in {} ms; table moved -> overlay moved p50 {p50} \
+            "R3.13 storm: 100 moves (the simulator's own) in {} ms; table moved -> overlay moved p50 {p50} \
              us, p95 {p95} us, max {max} us; CPU over the storm: the observers' thread {} ms, the \
              AppKit thread {} ms (this whole process, which also drives the moves and watches: \
              {} ms); back to an older place {} times, hidden in {hidden} samples; {moved} Moved \
@@ -971,6 +1001,58 @@ mod macos {
             "following 100 moves cost {tracker_used} + {appkit_used} us"
         );
         eprintln!("step ok: a hundred moves in a second");
+    }
+
+    /// Move table `n` with the simulator's own `move` (its window moved by
+    /// its own process, as a client's is under a user's drag) to `to`
+    /// (pixels), then watch: the time from the window server showing the
+    /// table there to the overlay over its client area, and from the
+    /// command to the overlay.
+    fn sim_move(
+        sim: &mut Sim,
+        n: u64,
+        table: &TableWindow,
+        to: (i32, i32),
+        overlay: u32,
+        bar: i64,
+    ) -> Result<(Duration, Duration), String> {
+        let want = macos::rect_points(
+            &Rect {
+                x: to.0,
+                y: to.1,
+                width: 0,
+                height: 0,
+            },
+            table.scale_permille,
+        );
+        let sent = Instant::now();
+        sim.command(&format!("move {n} {} {}", to.0, to.1));
+        let mut moved: Option<Instant> = None;
+        loop {
+            if let Some(w) = macos::window_now(number(table.id))
+                && (w.bounds.x - want.x).abs() <= 1_000
+                && (w.bounds.y - want.y).abs() <= 1_000
+            {
+                let at = *moved.get_or_insert_with(Instant::now);
+                let client = macos::client_frame(&w.bounds, bar);
+                if macos::window_now(overlay).is_some_and(|o| o.bounds.close_to(&client)) {
+                    return Ok((at.elapsed(), sent.elapsed()));
+                }
+            }
+            if sent.elapsed() > Duration::from_secs(3) {
+                return Err(format!(
+                    "{} the overlay not over it: table {:?}, overlay {:?}",
+                    if moved.is_some() {
+                        "moved,"
+                    } else {
+                        "the table not moved;"
+                    },
+                    macos::window_now(number(table.id)).map(|w| w.bounds),
+                    macos::window_now(overlay).map(|w| w.bounds)
+                ));
+            }
+            std::thread::sleep(Duration::from_micros(200));
+        }
     }
 
     // ---------------------------------------------------------------------
