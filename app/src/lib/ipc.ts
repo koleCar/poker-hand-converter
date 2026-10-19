@@ -2,7 +2,14 @@
  * The Rust commands, typed. Each type mirrors a `#[derive(Serialize)]` struct
  * in `src-tauri/src/commands.rs` or `dev.rs` (camelCase on both sides).
  */
-import type { Shown, StatDefinition, StatTone } from "@rail/ui/model/stats";
+import type {
+  Shown,
+  StatDefinition,
+  StatGroup as DefinitionGroup,
+  StatText,
+  StatTone,
+  StatUnit,
+} from "@rail/ui/model/stats";
 import type { WinrateGraphBucket, WinrateGraphData } from "@rail/ui/stats/WinrateGraph";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -693,6 +700,219 @@ export type FilterScreen = "hands" | "reports";
 
 /* ------------------------------------------------- The HUD (R3.2, R3.8) - */
 
+/* ------------------------------------------------ The HUD editor (R3.9) - */
+
+/** `rail_hud::design::GameFormat`: what a design is assigned by. `mtt`: tournaments and sit-and-gos. */
+export type GameFormat = "cash" | "mtt" | "spin";
+
+/** A colour band as a design overrides it (`rail_config::stats::Band`). */
+export interface DesignBand {
+  below?: number;
+  tone: StatTone;
+}
+
+/** `design::StackWhen`: a cell shown only at these stack depths (whole big blinds). */
+export interface StackWhen {
+  belowBb?: number;
+  atLeastBb?: number;
+}
+
+/** `design::Cell`. */
+export interface DesignCell {
+  stat: string;
+  when?: StackWhen;
+}
+
+/** `design::StatOverride`: the user's layer over a definition, by id. */
+export interface StatOverride {
+  bands?: DesignBand[];
+  decimals?: number;
+  minSample?: number;
+}
+
+/** `design::PopupSection`. */
+export interface PopupSection {
+  group?: DefinitionGroup;
+  title?: string;
+  stats: string[];
+}
+
+/** `design::HudDesign`: what a panel and its popup show. */
+export interface HudDesign {
+  version: number;
+  name: string;
+  preset?: string;
+  format: GameFormat;
+  columns: number;
+  cells: DesignCell[];
+  overrides?: Record<string, StatOverride>;
+  popup: PopupSection[];
+  legend: boolean;
+  playerLabels: boolean;
+  maxColourThresholds: number | null;
+}
+
+/** `design::Problem`: what a design cannot do, anywhere or on a room. */
+export type DesignProblem =
+  | { code: "version" | "nameTooLong" | "noCells" | "tooManyCells" | "columns" | "tooManyPopup" | "titleTooLong" }
+  | { code: "labels" | "roomNotAllowed" }
+  | {
+      code:
+        | "unknownStat"
+        | "duplicateStat"
+        | "heroOnlyStat"
+        | "moneyStat"
+        | "badWhen"
+        | "badBands"
+        | "badDecimals"
+        | "badSample"
+        | "cardSplit"
+        | "gameStateSwitching";
+      stat: string;
+    }
+  | { code: "colourThresholds"; stat: string; count: number; max: number };
+
+/** `sites.json` `hud.restrictions` (`rail_config::model::HudRestrictions`). */
+export interface HudRestrictions {
+  ownHandsOnly: boolean;
+  rawCountsOnly: boolean;
+  maxColourThresholds: number | null;
+  noCardSplitStats: boolean;
+  noGameStateSwitching: boolean;
+  noTendencySwitching: boolean;
+  noPlayerLabels: boolean;
+  noHandCharts: boolean;
+  noGraphs: boolean;
+  noHandInPlay: boolean;
+  noOverlapTableGraphics: boolean;
+}
+
+/** `hud_editor::RoomDto`: a room whose HUD is allowed. */
+export interface HudRoom {
+  id: string;
+  name: string;
+  restrictions: HudRestrictions;
+}
+
+/** `hud_editor::StatDto`: a statistic a design may name. */
+export interface HudStat {
+  id: string;
+  label: StatText;
+  name: StatText;
+  description: StatText;
+  group: DefinitionGroup;
+  unit: StatUnit;
+  decimals: number;
+  minSample: number;
+  bands: DesignBand[];
+  hud: "panel" | "popup" | "none";
+  custom: boolean;
+  cardSplit: boolean;
+  heroOnly: boolean;
+  money: boolean;
+}
+
+export interface HudPreset {
+  id: string;
+  name: StatText;
+  description: StatText;
+  design: HudDesign;
+}
+
+export interface HudUserDesign {
+  id: string;
+  design: HudDesign;
+  updatedAt: number;
+}
+
+/** `hud_editor::CheckDto`. */
+export interface HudCheck {
+  problems: DesignProblem[];
+  rooms: Record<string, DesignProblem[]>;
+}
+
+export interface HudAssignment {
+  site: string;
+  size: number | null;
+  format: GameFormat | null;
+  layout: string;
+  refused: Record<string, DesignProblem[]>;
+}
+
+export interface HudResolved {
+  site: string;
+  size: number | null;
+  format: GameFormat;
+  layout: string;
+  assigned: boolean;
+}
+
+/** `hud_editor::EditorStateDto`. */
+export interface HudEditorState {
+  presets: HudPreset[];
+  defaults: Record<GameFormat, string>;
+  designs: HudUserDesign[];
+  assignments: HudAssignment[];
+  resolved: HudResolved[];
+  rooms: HudRoom[];
+  stats: HudStat[];
+  checks: Record<string, HudCheck>;
+  positions: { site: string; size: number; panels: number }[];
+  roomSettings: { site: string; preferredSeat: boolean | null }[];
+  limits: {
+    maxCells: number;
+    maxColumns: number;
+    maxDecimals: number;
+    maxPopupSections: number;
+    maxPopupStats: number;
+  };
+}
+
+export interface HudSaved {
+  id: string | null;
+  problems: DesignProblem[];
+  refused: Record<string, DesignProblem[]>;
+}
+
+export interface HudAssigned {
+  ok: boolean;
+  refused: Record<string, DesignProblem[]>;
+}
+
+export interface PreviewRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** One thing the HUD's renderer paints (`rail_hud::scene::Item`). */
+export type PreviewItem =
+  | { kind: "fill"; rect: PreviewRect; radius: number; color: [number, number, number, number] }
+  | {
+      kind: "text";
+      rect: PreviewRect;
+      text: string;
+      px: number;
+      color: [number, number, number, number];
+      bold: boolean;
+      align: "center";
+    };
+
+/** `hud_editor::PreviewDto`. */
+export interface HudPreview {
+  width: number;
+  height: number;
+  size: number;
+  plates: PreviewRect[];
+  board: PreviewRect;
+  heroSlot: number;
+  items: PreviewItem[];
+  panels: { slot: number; rect: PreviewRect; stats: string[]; placedByUser: boolean; stackBb: number }[];
+  legend: PreviewRect | null;
+  problems: DesignProblem[];
+}
+
 /** `hud::HudStatusDto`, the part the window reads: tables the HUD is attached to. */
 export interface HudStatus {
   phase: string;
@@ -739,6 +959,8 @@ export interface HudPopup {
   notes: PlayerNotes | null;
   columns: string[];
   byPosition: StatGroup[] | null;
+  /** (R3.9) The table's design's sections; `null`: by group. */
+  sections: { group: DefinitionGroup | null; title: string | null; ids: string[] }[] | null;
 }
 
 /* ------------------------------------------- Custom statistics (R2.10) - */
@@ -919,6 +1141,21 @@ export const ipc = {
   hudPopup: () => invoke<HudPopup | null>("hud_popup"),
   hudPopupClose: () => invoke<null>("hud_popup_close"),
   hudPopupOpenInApp: () => invoke<null>("hud_popup_open_in_app"),
+  /** The HUD editor (R3.9). */
+  hudEditorState: () => invoke<HudEditorState>("hud_editor_state"),
+  hudDesignCheck: (design: HudDesign) => invoke<HudCheck>("hud_design_check", { design }),
+  hudDesignSave: (id: string | null, design: HudDesign) => invoke<HudSaved>("hud_design_save", { id, design }),
+  hudDesignDelete: (id: string) => invoke<boolean>("hud_design_delete", { id }),
+  hudAssign: (site: string, size: number | null, format: GameFormat | null, layout: string | null) =>
+    invoke<HudAssigned>("hud_assign", { site, size, format, layout }),
+  hudPreview: (design: HudDesign, site: string, size: number) =>
+    invoke<HudPreview>("hud_preview", { design, site, size }),
+  /** R3.6's: dragged panels back to the layout's places (`size` null: every size). */
+  hudResetSeatPositions: (site: string, size: number | null) =>
+    invoke<number>("hud_reset_seat_positions", { site, size }),
+  /** R3.6's: the user's client rotates the table (`null`: as `sites.json` says). */
+  hudSetPreferredSeat: (site: string, preferred: boolean | null) =>
+    invoke<null>("hud_set_preferred_seat", { site, preferred }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
@@ -961,6 +1198,11 @@ export function onAccountChanged(onChange: () => void): () => void {
 /** (R3.8) The HUD popup was moved to another panel: read it again. */
 export function onHudPopupChanged(onChange: () => void): () => void {
   return onAppEvent("hud-popup-changed", onChange);
+}
+
+/** (R3.9) A sync brought another computer's HUD designs or layouts. */
+export function onHudLayoutsChanged(onChange: () => void): () => void {
+  return onAppEvent("hud-layouts-changed", onChange);
 }
 
 /** (R3.8, A10) Whether the HUD has any table open, on each change. */

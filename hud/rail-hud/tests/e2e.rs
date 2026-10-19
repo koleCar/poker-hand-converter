@@ -227,6 +227,7 @@ fn run(room: &str, site: &str, tables: u32, hands: u32, speed: u32, restart: boo
                             scope: p.scope,
                             seat: Some(p.seat),
                             hero: p.hero,
+                            stack_bb_tenths: p.stack_bb_tenths,
                         })
                         .collect(),
                     timing: Some(HandTiming {

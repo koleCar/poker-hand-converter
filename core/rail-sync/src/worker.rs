@@ -51,6 +51,16 @@
 //! account's other computers - are fetched by keyset cursor (`hands_since`,
 //! keys first, then the missing PHF) and stored as pulled hands: never
 //! queued for upload, the cursor written in the same transaction.
+//!
+//! **The HUD's layouts** (R3.9): every pass sends the HUD rows written here
+//! since the last sync (`rail_store::Reader::hud_sync_dirty`: designs,
+//! assignments, dragged panels, per-room settings, tombstones included) with
+//! `put_hud_layouts`, and with each pull takes the account's rows back
+//! (`GET hud_layouts`) - **last writer wins by `updated_at`**
+//! (`rail_store::WriterHandle::hud_sync_apply`). When a pull changed
+//! something here, [`SyncWorker::on_hud_layouts`]' hook runs (the app tells
+//! the HUD `layout_changed`). A failure there backs the HUD part off on its
+//! own and never holds up the hands.
 
 use std::collections::VecDeque;
 use std::future::Future;
@@ -349,6 +359,8 @@ struct Shared {
     answer: Mutex<Option<Answer>>,
     retry_rejected: AtomicBool,
     on_change: Box<dyn Fn() + Send + Sync>,
+    /// (R3.9) Called when a pull changed the HUD's layouts here.
+    on_hud: Mutex<Option<Arc<dyn Fn() + Send + Sync>>>,
 }
 
 impl Shared {
@@ -419,6 +431,7 @@ impl SyncWorker {
             answer: Mutex::new(None),
             retry_rejected: AtomicBool::new(false),
             on_change,
+            on_hud: Mutex::new(None),
         });
         let store = Arc::new(store);
         let task = SyncTask {
@@ -434,6 +447,8 @@ impl SyncWorker {
             unknown_sources: 0,
             pull_at: None,
             pull_failures: 0,
+            hud_at: None,
+            hud_failures: 0,
             pacer: Pacer::default(),
             meter: Meter::default(),
         };
@@ -457,6 +472,16 @@ impl SyncWorker {
     /// The account changed: look now, ending any wait.
     pub fn account_changed(&self) {
         self.shared.poke();
+    }
+
+    /// (R3.9) Run `hook` whenever a pull changed the HUD's layouts here
+    /// (another computer's designs, assignments, panel positions).
+    pub fn on_hud_layouts(&self, hook: impl Fn() + Send + Sync + 'static) {
+        *self
+            .shared
+            .on_hud
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = Some(Arc::new(hook));
     }
 
     /// "Sync now": retry what waits, pull, at once.
@@ -552,6 +577,9 @@ pub struct SyncTask<A> {
     unknown_sources: u32,
     pull_at: Option<Instant>,
     pull_failures: u32,
+    /// (R3.9) The HUD part waits until then after a failure.
+    hud_at: Option<Instant>,
+    hud_failures: u32,
     pacer: Pacer,
     meter: Meter,
 }
@@ -775,6 +803,7 @@ impl<A: SyncAccount> SyncTask<A> {
         if pull_due {
             self.pull(&user).await;
         }
+        self.sync_hud(&user, pull_due).await;
         let outbox = self.refresh_counts().await.unwrap_or(0);
         if matches!(
             self.status().phase,
@@ -1238,6 +1267,90 @@ impl<A: SyncAccount> SyncTask<A> {
         let value = id.clone();
         blocking(&self.store, move |s| s.writer()?.set_kv(DEVICE_KEY, &value)).await?;
         Ok(id)
+    }
+
+    /// (R3.9) The HUD's layouts: send what changed here; with a pull, take
+    /// the account's rows back. A failure backs this part off on its own.
+    async fn sync_hud(&mut self, user: &SyncUser, pull: bool) {
+        if self.halted() || self.hud_at.is_some_and(|at| at > Instant::now()) {
+            return;
+        }
+        match self.hud_rounds(user, pull).await {
+            Ok(changed) => {
+                self.hud_failures = 0;
+                self.hud_at = None;
+                if changed {
+                    let hook = self
+                        .shared
+                        .on_hud
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)
+                        .clone();
+                    if let Some(hook) = hook {
+                        hook();
+                    }
+                }
+            }
+            Err(error) => {
+                log::info!("sync: HUD layouts: {error}");
+                self.hud_failures = self.hud_failures.saturating_add(1);
+                let wait = backoff(
+                    self.config.backoff_first,
+                    self.config.backoff_max,
+                    self.hud_failures,
+                );
+                self.hud_at = Some(Instant::now() + wait);
+            }
+        }
+    }
+
+    /// One send (and pull); whether a pulled row changed something here.
+    async fn hud_rounds(&mut self, user: &SyncUser, pull: bool) -> Result<bool, IngestError> {
+        let store_error =
+            |error: rail_store::Error| IngestError::Transient(format!("the local store: {error}"));
+        let as_user = AsUser {
+            account: &self.account,
+            user_id: &user.user_id,
+        };
+        let dirty = blocking(&self.store, |s| s.reader.hud_sync_dirty())
+            .await
+            .map_err(store_error)?;
+        for chunk in dirty.chunks(crate::ingest::HUD_ROWS_PER_PUT) {
+            let outcome = self.client.put_hud_layouts_as(&as_user, chunk).await?;
+            let refused = outcome.iter().filter(|o| !o.applied).count();
+            log::info!(
+                "sync: {} HUD layout rows sent ({refused} older than the server's)",
+                chunk.len()
+            );
+            // Sent: clean here, unless the row changed meanwhile. A row the
+            // server kept its newer copy of comes back with the pull.
+            let sent: Vec<_> = chunk
+                .iter()
+                .map(|row| (row.kind, row.key.clone(), row.updated_at))
+                .collect();
+            blocking(&self.store, move |s| s.writer()?.hud_sync_pushed(sent))
+                .await
+                .map_err(store_error)?;
+        }
+        if !pull {
+            return Ok(false);
+        }
+        let remote = self.client.hud_layouts_as(&as_user).await?;
+        if remote.is_empty() {
+            return Ok(false);
+        }
+        let applied = blocking(&self.store, move |s| s.writer()?.hud_sync_apply(remote))
+            .await
+            .map_err(store_error)?;
+        if applied.applied > 0 || applied.refused > 0 {
+            log::info!(
+                "sync: HUD layouts pulled: {} taken, {} kept, {} unreadable",
+                applied.applied,
+                applied.kept,
+                applied.refused
+            );
+        }
+        Ok(applied.applied > 0)
     }
 
     /// Fetch the account's hands this store lacks, page by page.

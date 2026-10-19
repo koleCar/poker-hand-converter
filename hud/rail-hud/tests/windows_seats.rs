@@ -112,6 +112,7 @@ fn frame(site: &str, size: u32, seats: &[u32], rotate_to: Option<u32>) -> Overla
             })
             .collect(),
         legend: Vec::new(),
+        design: PanelDesign::default(),
     }
 }
 
@@ -658,6 +659,7 @@ impl App {
                 scope: String::new(),
                 seat: p["seat"].as_u64().and_then(|s| u32::try_from(s).ok()),
                 hero: p["hero"].as_bool().unwrap_or(false),
+                stack_bb_tenths: None,
             })
             .collect();
         self.supervisor.send(AppMessage::HandImported {

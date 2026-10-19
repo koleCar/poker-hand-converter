@@ -190,6 +190,9 @@ const NOT_DERIVED: &[&str] = &[
     // R3.6: the user's HUD layouts, nothing derived from hands.
     "hud_seat_positions",
     "hud_room_settings",
+    // R3.9: the user's HUD designs and where each is used.
+    "hud_layouts",
+    "hud_layout_assignments",
 ];
 
 #[test]

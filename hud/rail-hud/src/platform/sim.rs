@@ -202,7 +202,7 @@ impl SimBackend {
     }
 
     /// What the Windows backend would paint over a window now: its last
-    /// frame laid out over its client area (R3.4's default design).
+    /// frame laid out over its client area with the frame's design (R3.9).
     pub fn scene(&self, id: WindowId) -> Option<crate::scene::Scene> {
         let frame = self.overlays.get(&id)?;
         let table = self.tracked.get(&id)?;
@@ -211,7 +211,7 @@ impl SimBackend {
             table.client.width,
             table.client.height,
             1000,
-            &crate::panel::PanelDesign::default(),
+            &frame.design,
         ))
     }
 

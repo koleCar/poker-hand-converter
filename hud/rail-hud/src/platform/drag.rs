@@ -150,6 +150,7 @@ mod tests {
                 })
                 .collect(),
             legend: Vec::new(),
+            design: PanelDesign::default(),
         }
     }
 

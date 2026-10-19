@@ -313,6 +313,15 @@ impl HudState {
         }
     }
 
+    /// (R3.9) The editor wrote designs or assignments: the HUD reads them
+    /// again, and the sync worker sends them soon.
+    pub fn layouts_written(&self) {
+        self.layout_changed();
+        if let Some(worker) = self.sync.get() {
+            worker.wake();
+        }
+    }
+
     /// Shut the HUD down (on exit, first).
     pub fn stop(&self) {
         if let Some(supervisor) = &self.supervisor {
@@ -426,6 +435,7 @@ fn on_event<R: Runtime>(
                 slot,
                 anchor,
                 scale_permille,
+                design,
             } => crate::popup::request(
                 app,
                 crate::popup::PopupTarget {
@@ -438,6 +448,7 @@ fn on_event<R: Runtime>(
                     slot,
                     anchor,
                     scale_permille,
+                    design,
                 },
             ),
             HudMessage::AttachRefused {
@@ -547,6 +558,7 @@ fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> Hu
                                     scope: p.scope,
                                     seat: Some(p.seat),
                                     hero: p.hero,
+                                    stack_bb_tenths: p.stack_bb_tenths,
                                 })
                                 .collect(),
                             timing: Some(HandTiming {
@@ -823,6 +835,7 @@ mod tests {
                         height: 40,
                     },
                     scale_permille: 1000,
+                    design: None,
                 },
                 std::time::Instant::now(),
             )

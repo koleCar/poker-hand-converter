@@ -109,11 +109,14 @@ use rail_hud_ipc::protocol::{
 use rail_stats::custom::{CustomDef, CustomSet};
 use rail_stats::display::Display;
 
+use std::sync::Arc;
+
 use crate::compliance::Compliance;
 use crate::data::StoreView;
+use crate::design::{Assignment, Compiled, DesignSet as Designs, FORCED, GameFormat, HudDesign};
 use crate::latency::{Latencies, micros};
 use crate::layout::TableLayout;
-use crate::panel::{PanelDesign, PanelStats};
+use crate::panel::PanelDesign;
 use crate::platform::{
     OverlayFrame, PanelWords, Platform, Rect, SeatPanel, Seating, TableEvent, TableMatcher,
     TableWindow, TagColour, WindowId, table_key,
@@ -226,6 +229,9 @@ struct Attached {
     /// when the store has no statistics rows for it - then every segment of
     /// the site).
     segment: Option<i64>,
+    /// (R3.9) The table's game format: its last hand's (cash until one
+    /// says): which design is assigned.
+    format: GameFormat,
     /// (R3.7) Debug builds: the last hand's latency line.
     debug: Option<String>,
     /// What it shows: a status line or panels (redrawn when the layout or
@@ -256,16 +262,18 @@ pub struct Hud {
     /// Test-only room entries: the simulator's windows posing as a room
     /// ([`Hud::add_simulator_room`]), after `sites.json`'s matchers.
     test_matchers: Vec<TableMatcher>,
-    /// The panel's design (the default, R3.4; R3.9's editor will set it).
-    design: PanelDesign,
-    /// The panel's statistics, compiled for [`Hud::design`].
-    panel_stats: PanelStats,
-    /// (R3.7) The user's statistics with a counter that the design shows:
-    /// (statistic id, its row id in the store).
+    /// (R3.9) The designs: the presets, the user's and their assignments,
+    /// each compiled once for drawing.
+    designs: Designs,
+    /// (R3.7 / R3.9) One design for every table, whatever is assigned
+    /// ([`Hud::set_design`]: tests and tools).
+    forced: Option<PanelDesign>,
+    /// (R3.7) The user's statistics with a counter: (statistic id, its row
+    /// id in the store).
     custom_ids: Vec<(String, i64)>,
-    /// The design's statistics are compiled against the store's user
-    /// statistics (or need none).
-    custom_read: bool,
+    /// The designs and the user's statistics were read from the store (or
+    /// none is needed).
+    designs_read: bool,
     /// (R3.7) `--latency-report`: one JSON line per hand's chain.
     latency_report: Option<Box<dyn std::io::Write>>,
     /// Where each room draws its tables and where the user put panels
@@ -312,10 +320,10 @@ impl Hud {
             last_find_error: None,
             recent: BTreeMap::new(),
             test_matchers: Vec::new(),
-            design: PanelDesign::default(),
-            panel_stats: PanelStats::new(&PanelDesign::default()),
+            designs: Designs::default(),
+            forced: None,
             custom_ids: Vec::new(),
-            custom_read: false,
+            designs_read: false,
             latency_report: None,
             rooms,
             user_layouts_read: false,
@@ -328,48 +336,99 @@ impl Hud {
         self.latency_report = Some(out);
     }
 
-    /// (R3.7; R3.9's editor) Show `design`: its statistics are compiled
-    /// again - a user's own statistic (R2.10) from the store's definitions -
-    /// and every table read again.
+    /// (R3.7) Show `design` on every table, whatever is assigned (tests and
+    /// tools; the app assigns designs through the store, R3.9): its
+    /// statistics are compiled again - a user's own statistic (R2.10) from
+    /// the store's definitions - and every table read again.
     pub fn set_design(&mut self, design: PanelDesign, out: &mut dyn FnMut(HudMessage)) {
-        self.design = design;
-        self.custom_read = false;
-        self.read_custom_stats();
+        self.forced = Some(design);
+        self.designs_read = false;
+        self.read_designs();
         self.reread_all(Instant::now(), out);
     }
 
-    /// Compile the design's statistics; read the user's own from the store
-    /// when it shows any (at most once per change: `custom_read`).
-    fn read_custom_stats(&mut self) {
-        let all_shipped = Display::shipped().is_ok_and(|display| {
-            self.design
-                .stats
-                .iter()
-                .all(|slot| display.get(&slot.id).is_some())
-        });
-        if all_shipped {
-            self.panel_stats = PanelStats::new(&self.design);
-            self.custom_ids.clear();
-            self.custom_read = true;
-            return;
-        }
-        let Some(rows) = self.store.custom_stats() else {
-            // No store yet: the shipped ones now, the rest once it opens.
-            self.panel_stats = PanelStats::new(&self.design);
+    /// (R3.9) Read the user's designs, their assignments and - when a
+    /// design names one - the user's own statistics (R2.10) from the store;
+    /// the compiled designs are dropped, to be compiled again as tables
+    /// draw. Without a store: the presets alone, read again once it opens.
+    fn read_designs(&mut self) {
+        let Some(read) = self.store.hud_designs() else {
+            self.designs
+                .reset(Vec::new(), Vec::new(), CustomSet::default());
             return;
         };
-        let defs: Vec<CustomDef> = rows.iter().map(|row| row.def.clone()).collect();
-        let (set, refused) = CustomSet::compile(&defs);
-        for (id, problems) in refused {
-            eprintln!("rail-hud: the user's statistic {id} does not compile: {problems:?}");
+        let (stored, assigned) = read.unwrap_or_else(|error| {
+            eprintln!("rail-hud: the HUD designs did not read: {error}");
+            (Vec::new(), Vec::new())
+        });
+        let mut user = Vec::new();
+        for row in stored {
+            match HudDesign::parse(&row.design) {
+                Some(design) => user.push((row.id, design)),
+                None => eprintln!("rail-hud: the design {} is not readable here", row.id),
+            }
         }
-        self.custom_ids = rows
+        let assignments: Vec<Assignment> =
+            assigned.iter().filter_map(Assignment::from_store).collect();
+        let shipped = Display::shipped().ok();
+        let is_shipped = |id: &str| shipped.as_ref().is_some_and(|d| d.get(id).is_some());
+        let needs_custom = user
             .iter()
-            .filter(|row| row.def.predicate.is_some())
-            .map(|row| (row.def.def.id.clone(), row.id))
-            .collect();
-        self.panel_stats = PanelStats::with_custom(&self.design, &set);
-        self.custom_read = true;
+            .flat_map(|(_, design)| design.stat_ids().map(str::to_owned).collect::<Vec<_>>())
+            .chain(
+                self.forced
+                    .iter()
+                    .flat_map(|design| design.stats.iter().map(|slot| slot.id.clone())),
+            )
+            .any(|id| !is_shipped(&id));
+        let mut custom = CustomSet::default();
+        self.custom_ids.clear();
+        if needs_custom && let Some(rows) = self.store.custom_stats() {
+            let defs: Vec<CustomDef> = rows.iter().map(|row| row.def.clone()).collect();
+            let (set, refused) = CustomSet::compile(&defs);
+            for (id, problems) in refused {
+                eprintln!("rail-hud: the user's statistic {id} does not compile: {problems:?}");
+            }
+            self.custom_ids = rows
+                .iter()
+                .filter(|row| row.def.predicate.is_some())
+                .map(|row| (row.def.def.id.clone(), row.id))
+                .collect();
+            custom = set;
+        }
+        eprintln!(
+            "rail-hud: {} designs and {} assignments from the store",
+            user.len(),
+            assignments.len()
+        );
+        self.designs.reset(user, assignments, custom);
+        self.designs_read = true;
+    }
+
+    /// (R3.9) The design a window is drawn with: the forced one, else the
+    /// one assigned to its room, table size and format (the format's
+    /// preset when none is).
+    fn design_of(&mut self, id: WindowId) -> Arc<Compiled> {
+        // The store opened since: its designs before the first table's.
+        if !self.designs_read && self.store.is_open() {
+            self.read_designs();
+        }
+        if let Some(forced) = &self.forced {
+            return self.designs.compile_panel(FORCED, forced.clone(), None);
+        }
+        let key = match self.attached.get(&id) {
+            Some(attached) => self.designs.resolve(
+                &attached.window.site,
+                Some(Self::size_of(attached)),
+                attached.format,
+            ),
+            None => self
+                .designs
+                .presets
+                .default_for(GameFormat::Cash)
+                .to_owned(),
+        };
+        self.designs.compiled(&key)
     }
 
     /// A test-only room entry (R3.3; R3.1 / R3.2 notes): the table
@@ -503,8 +562,7 @@ impl Hud {
             AppMessage::StatsChanged { .. } | AppMessage::Resync => {
                 // A recompute's swap may have recounted the user's own
                 // statistics too: their definitions again, then every table.
-                self.custom_read = false;
-                self.read_custom_stats();
+                self.read_designs();
                 self.reread_all(at, out);
                 self.store.changed();
             }
@@ -546,15 +604,12 @@ impl Hud {
                 report: self.health(),
             }),
             AppMessage::LayoutChanged | AppMessage::SettingsChanged => {
-                // The user's positions and preferred seat (R3.6); R3.9's
-                // presets will be read here too, and the user's own
-                // statistics (R3.7) may have changed.
+                // The user's positions and preferred seat (R3.6), their
+                // designs and assignments (R3.9) and their own statistics
+                // (R3.7): read again, every table again with them.
                 self.read_user_layouts();
-                if !self.custom_ids.is_empty() || !self.custom_read {
-                    self.custom_read = false;
-                    self.read_custom_stats();
-                    self.reread_all(at, out);
-                }
+                self.read_designs();
+                self.reread_all(at, out);
                 self.repaint_all();
             }
             AppMessage::Shutdown => return Some(Exit::Shutdown),
@@ -580,8 +635,9 @@ impl Hud {
                 self.read_user_layouts();
                 self.repaint_all();
             }
-            if !self.custom_read && self.store.is_open() {
-                self.read_custom_stats();
+            if !self.designs_read && self.store.is_open() {
+                self.read_designs();
+                self.repaint_all();
             }
             if self.store.changed() {
                 self.reread_all(now, out);
@@ -706,6 +762,7 @@ impl Hud {
         };
         if let Some(attached) = self.attached.get_mut(&id) {
             attached.segment = Some(hand.segment.id);
+            attached.format = GameFormat::of_hand(hand.segment.segment.format);
             if attached.title_seats.is_none()
                 && let Some(seats) = hand.max_seats
             {
@@ -735,6 +792,7 @@ impl Hud {
                 hero_seat: None,
                 drags_seen: 0,
                 segment: None,
+                format: GameFormat::Cash,
                 debug: None,
                 shown: (None, Vec::new()),
             },
@@ -801,6 +859,7 @@ impl Hud {
                 scope: seat.scope,
                 seat: Some(seat.seat),
                 hero: seat.hero,
+                stack_bb_tenths: seat.stack_bb_tenths,
             })
             .collect();
         Some((hand.hand_key, players))
@@ -923,6 +982,12 @@ impl Hud {
             return;
         }
         let size = Self::size_of(attached);
+        let format = attached.format;
+        let design = if self.forced.is_some() {
+            None
+        } else {
+            Some(self.designs.resolve(site, Some(size), format))
+        };
         let layout = self
             .rooms
             .layout(site, size)
@@ -963,6 +1028,7 @@ impl Hud {
                 height: panel.height,
             },
             scale_permille,
+            design,
         });
     }
 
@@ -975,8 +1041,9 @@ impl Hud {
         window_site: &str,
         site: &str,
         players: &[PlayerRef],
+        player_labels: bool,
     ) -> Vec<PanelWords> {
-        let allowed = self.design.player_labels
+        let allowed = player_labels
             && self
                 .compliance
                 .permit(window_site)
@@ -1122,9 +1189,18 @@ impl Hud {
                 return;
             }
         };
-        let custom = self.custom_counts(&site, &players, segments.as_deref(), own_hands_only);
+        let design = self.design_of(id);
+        let custom = self.custom_counts(
+            &design,
+            &site,
+            &players,
+            segments.as_deref(),
+            own_hands_only,
+        );
         let window_site = attached_site(&self.attached, id);
-        let mut words = self.words_of(&window_site, &site, &players).into_iter();
+        let mut words = self
+            .words_of(&window_site, &site, &players, design.panel.player_labels)
+            .into_iter();
         let elapsed = since.elapsed();
         self.latencies.record(elapsed);
         let read_us = unix_us();
@@ -1136,11 +1212,15 @@ impl Hud {
                 player: player.name.clone(),
                 seat: player.seat,
                 hands: totals.hands(),
-                stats: self.panel_stats.cells_with(&totals.sums(), |key| {
-                    custom
-                        .get(index)
-                        .and_then(|counts| counts.get(key).copied())
-                }),
+                stats: design.stats.cells_with(
+                    &totals.sums(),
+                    |key| {
+                        custom
+                            .get(index)
+                            .and_then(|counts| counts.get(key).copied())
+                    },
+                    player.stack_bb_tenths,
+                ),
                 words: words.next().unwrap_or_default(),
             })
             .collect();
@@ -1206,12 +1286,13 @@ impl Hud {
     /// shows, by statistic id (empty when it shows none).
     fn custom_counts(
         &mut self,
+        design: &Compiled,
         site: &str,
         players: &[PlayerRef],
         segments: Option<&[i64]>,
         own_hands_only: bool,
     ) -> Vec<BTreeMap<String, (i64, i64)>> {
-        if self.custom_ids.is_empty() || !self.panel_stats.reads_custom() {
+        if self.custom_ids.is_empty() || !design.stats.reads_custom() {
             return Vec::new();
         }
         let wanted = self.custom_ids.clone();
@@ -1277,6 +1358,10 @@ impl Hud {
                 return;
             }
         };
+        let design = self.design_of(id);
+        let Some(attached) = self.attached.get(&id) else {
+            return;
+        };
         let site = attached.window.site.as_str();
         let size = Self::size_of(attached);
         let seating = Seating {
@@ -1298,7 +1383,10 @@ impl Hud {
             size: Some(size),
             seating,
             panels,
-            legend: self.panel_stats.legend_tones(),
+            // The bands the design's statistics use - the user's own where
+            // they changed them (R3.9).
+            legend: design.stats.legend_tones(),
+            design: design.panel.clone(),
         };
         if let Err(error) = self.platform.overlay(id, &frame) {
             eprintln!("rail-hud: overlay on window {}: {error}", id.0);
@@ -2108,7 +2196,7 @@ mod tests {
         assert_eq!(words(2), vec![PanelWords::default(); 3], "PokerStars");
         assert_eq!(
             frames.borrow()[&WindowId(1)].legend,
-            PanelStats::new(&PanelDesign::default()).legend_tones()
+            crate::panel::PanelStats::new(&PanelDesign::default()).legend_tones()
         );
 
         // A click on P2's panel (seat 2: slot 1, no rotation).
@@ -2143,6 +2231,8 @@ mod tests {
                     height: 40
                 },
                 scale_permille: 1250,
+                // Nothing assigned: a cash table's preset.
+                design: Some("cash".into()),
             }]
         );
         // The hero's own panel opens the hero's popup.
@@ -2182,6 +2272,180 @@ mod tests {
         );
         hud.shutdown();
         drop(hud);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (R3.9) The design assigned in the store reaches every table's frame
+    /// and the room's rules cut it down when it is laid out: a user's design
+    /// for every room - two columns, a card-split statistic of the user's,
+    /// a cell shown below 20 big blinds - draws all of it on ACR (the cell
+    /// by stack depth for the short stack only), no stack cell on Winamax,
+    /// and neither on PokerStars; cleared, the cash preset again. The
+    /// user's bands colour the legend.
+    #[test]
+    fn designs_follow_the_assignments() {
+        use rail_config::stats::{Band, Format, Group, HudPlace, Players, SampleDef, Text, Unit};
+        let words = |s: &str| Text {
+            en: s.into(),
+            hr: s.into(),
+        };
+        let pairs = CustomDef {
+            def: rail_config::stats::StatDef {
+                id: "pair_raise".into(),
+                group: Group::Preflop,
+                players: Players::Any,
+                label: words("PR"),
+                name: words("Pairs raised"),
+                description: words("made up"),
+                formula: "pct(pair_raise, pair_raise_opp)".into(),
+                format: Format {
+                    unit: Unit::Percent,
+                    decimals: 1,
+                },
+                sample: SampleDef { of: None, min: 10 },
+                bands: Vec::new(),
+                hud: HudPlace::None,
+            },
+            predicate: Some("first street = preflop and pocket_pair => action = raise".into()),
+        };
+        let mut design = crate::design::Presets::shipped()
+            .get("cash")
+            .expect("cash")
+            .design
+            .clone();
+        design.name = "Mine".into();
+        design.columns = 2;
+        design.cells = vec![
+            crate::design::Cell {
+                stat: "vpip".into(),
+                when: None,
+            },
+            crate::design::Cell {
+                stat: "pfr".into(),
+                when: None,
+            },
+            crate::design::Cell {
+                stat: "pair_raise".into(),
+                when: None,
+            },
+            crate::design::Cell {
+                stat: "steal".into(),
+                when: Some(crate::design::StackWhen {
+                    below_bb: Some(20),
+                    at_least_bb: None,
+                }),
+            },
+        ];
+        design.max_colour_thresholds = None;
+        design.overrides.insert(
+            "vpip".into(),
+            crate::design::StatOverride {
+                bands: Some(vec![
+                    Band {
+                        below: Some(25.0),
+                        tone: rail_config::stats::Tone::Low,
+                    },
+                    Band {
+                        below: None,
+                        tone: rail_config::stats::Tone::High,
+                    },
+                ]),
+                ..crate::design::StatOverride::default()
+            },
+        );
+        let json = design.to_json();
+        let (path, dir) = store_with("designs", move |writer| {
+            writer
+                .write(move |tx| rail_store::custom::save_custom_stat(tx, None, &pairs, 1))
+                .expect("a user's statistic");
+            writer.save_hud_layout("d-mine", &json).expect("design");
+            writer
+                .set_hud_layout_assignment("*", 0, "*", Some("d-mine"))
+                .expect("assigned");
+        });
+        let backend = Drawn::default();
+        let (windows, frames) = (backend.windows.clone(), backend.frames.clone());
+        let sites = ["acr", "winamax", "pokerstars"];
+        for (n, site) in (1_u64..).zip(sites) {
+            let mut window = polled_window(&format!("{site} 1 - x"), &format!("{site} 1"), Some(6));
+            window.id = WindowId(n);
+            window.site = site.into();
+            windows.borrow_mut().push(window);
+        }
+        let mut hud = Hud::new(
+            Box::new(backend),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(Some(path.clone())),
+            Settings::default(),
+        );
+        step(&mut hud);
+        for site in sites {
+            let store_site = if site == "acr" { "acrwpn" } else { site };
+            let mut hand = seated(store_site, &format!("{site} 1"), site, Some(1), &[1, 2]);
+            if let Input::App(AppMessage::HandImported { players, .. }, _) = &mut hand {
+                players[0].stack_bb_tenths = Some(150);
+                players[1].stack_bb_tenths = Some(800);
+            }
+            hud.handle(hand, &mut |_| {});
+        }
+        let shown = |id: u64| {
+            let frames = frames.borrow();
+            let frame = frames.get(&WindowId(id)).expect("a frame");
+            let scene = crate::scene::compose(frame, 800, 550, 1000, &frame.design);
+            let mut cells = scene.seat_cells.clone();
+            cells.sort();
+            (frame.design.columns, cells, frame.legend.clone())
+        };
+        let ids = |list: &[&str]| list.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>();
+        // ACR: everything; the steal cell beside the 15 bb stack only.
+        let (columns, cells, legend) = shown(1);
+        assert_eq!(columns, Some(2));
+        assert_eq!(
+            cells,
+            [
+                (0, ids(&["vpip", "pfr", "pair_raise", "steal"])),
+                (1, ids(&["vpip", "pfr", "pair_raise"])),
+            ]
+        );
+        assert!(legend.contains(&rail_config::stats::Tone::Low));
+        // Winamax: no switching by game state.
+        assert_eq!(
+            shown(2).1,
+            [
+                (0, ids(&["vpip", "pfr", "pair_raise"])),
+                (1, ids(&["vpip", "pfr", "pair_raise"])),
+            ]
+        );
+        // PokerStars: no card-split statistic either.
+        assert_eq!(
+            shown(3).1,
+            [(0, ids(&["vpip", "pfr"])), (1, ids(&["vpip", "pfr"]))]
+        );
+
+        // Cleared: the cash preset (R3.4's six statistics) on every table.
+        let app = rail_store::Store::open(&path).expect("the app's store");
+        app.writer()
+            .expect("writer")
+            .set_hud_layout_assignment("*", 0, "*", None)
+            .expect("cleared");
+        hud.handle(
+            Input::App(AppMessage::LayoutChanged, Instant::now()),
+            &mut |_| {},
+        );
+        let six = ids(&[
+            "vpip",
+            "pfr",
+            "three_bet",
+            "fold_to_three_bet",
+            "cbet_flop",
+            "aggression_frequency",
+        ]);
+        for id in 1..=3 {
+            let (columns, cells, _) = shown(id);
+            assert_eq!(columns, Some(3));
+            assert_eq!(cells, [(0, six.clone()), (1, six.clone())], "window {id}");
+        }
+        drop(app);
         let _ = std::fs::remove_dir_all(&dir);
     }
 

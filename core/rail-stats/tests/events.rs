@@ -163,3 +163,39 @@ fn limps_isolation_and_a_straddle() {
         "a straddle is a blind"
     );
 }
+
+/// (R3.9) The card fields: `13-all-in-preflop-is-not-a-cbet-spot.txt` -
+/// the hero (CO) holds Ah Qd, the big blind shows Jh Js, nobody else's
+/// cards are known. A predicate naming one is card-split.
+#[test]
+fn card_fields_from_known_hole_cards() {
+    let events = hand_events(&fixture_hand("13-all-in-preflop-is-not-a-cbet-spot.txt"));
+    let co = seat(&events, Position::Co);
+    assert!(co.cards_known);
+    assert_eq!((co.pocket_pair, co.suited), (Some(false), Some(false)));
+    let bb = seat(&events, Position::Bb);
+    assert!(bb.cards_known);
+    assert_eq!((bb.pocket_pair, bb.suited), (Some(true), Some(false)));
+    let unknown: Vec<&SeatEvents> = events
+        .seats
+        .iter()
+        .filter(|seat| !matches!(seat.position, Some(Position::Co | Position::Bb)))
+        .collect();
+    assert!(!unknown.is_empty());
+    for seat in unknown {
+        assert!(!seat.cards_known);
+        assert_eq!((seat.pocket_pair, seat.suited), (None, None));
+    }
+
+    let pairs = CustomCounter::parse("first street = preflop and pocket_pair => action = raise")
+        .expect("parses");
+    assert!(pairs.reads_cards());
+    let counts = pairs.count_hand(&events);
+    assert_eq!(
+        counts.iter().map(|c| c.opp).sum::<u32>(),
+        1,
+        "the big blind only"
+    );
+    let plain = CustomCounter::parse("first street = preflop => action = raise").expect("parses");
+    assert!(!plain.reads_cards());
+}

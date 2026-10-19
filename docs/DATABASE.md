@@ -19,6 +19,7 @@ The schema is defined by four migrations:
 | `20270421090000_desktop_sign_in.sql` | Rail R1.7: `claim_desktop_sign_in()`, the per-account budget of the desktop sign-in handoff (10 an hour). The handoff itself is the Edge Function `supabase/functions/desktop-handoff`. See [Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff). |
 | `20270428090000_desktop_ingest.sql` | Rail R1.8: hands synced by the desktop app. `hands.origin`, `standard_text` nullable for desktop rows only (Q4: PHF only, no standard or source text), `hand_sources`, `register_hand_source`, `ingest_hands` (every search column derived from the PHF on the server), per-account desktop budgets. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). |
 | `20270505090000_desktop_pull.sql` | Rail R1.9: the desktop sync worker's pull. `hands_since(p_after_created, p_after_id, p_limit)` (invoker, the caller's rows by keyset `(created_at, id)`, ids / keys / origins only, rows at least a minute old) and its index `hands_owner_created_idx`. See [The desktop pull](#the-desktop-pull-hands_since). |
+| `20270602090000_hud_layouts.sql` | Rail R3.9: the desktop HUD's designs, assignments, dragged panel positions and per-room settings follow the account to another computer. `hud_layouts` (one row per owner, kind and key; a null body is a tombstone; last writer wins by the client's `updated_at`), select-own RLS, written only by `put_hud_layouts(p_rows)` (definer). See [The HUD's layouts](#the-huds-layouts-hud_layouts). Not applied to production. |
 | `20270512090000_hand_arrivals.sql` | Rail R1.10: live arrival on the web. `hand_arrivals` (one row per account, bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival`: a counter, how many hands, their origin, the time; no hand content), select-own RLS, in the `supabase_realtime` publication; `hands` stays out of it. See [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
@@ -234,6 +235,7 @@ why:
 | `register_hand_source` | **definer** | `hand_sources` has no client write grant. Owner from `auth.uid()`; updates only the descriptive columns of the caller's own row. `authenticated` only (R1.8). |
 | `hand_row_from_phf`, `hand_row_problem`, `phf_*` helpers | invoker | Pure: the PHF-to-row mapping and the constraint mirror `ingest_hands` uses. No client may execute them. |
 | `hands_since` | invoker | Reads the caller's own rows (explicit `owner_id = auth.uid()` and RLS): ids, times, keys, origins. `authenticated` only (R1.9). |
+| `put_hud_layouts` | **definer** | `hud_layouts` has no client write grant. Owner from `auth.uid()` (the conflict target includes it, so another account's row with the same key is never touched); the batch validated whole (kinds, keys per kind, bodies, times) before anything is written; at most 500 rows a call and 5 000 an account; rate-limited (`hud_layouts:`). `authenticated` only (R3.9). |
 | `hands_signal_arrival` (trigger) | **definer** | `hand_arrivals` has no client write grant and `save_hands` runs as the caller. Reads only the statement's transition table, upserts one row per owner in it; a failure is swallowed so it never fails a save. No client may execute it (R1.10). |
 
 ---
@@ -1175,6 +1177,57 @@ signal, each account reads only its own row and a forged owner finds
 nothing, a client cannot insert, bump or delete a signal, and a failing
 signal does not fail the save.
 
+### The HUD's layouts: `hud_layouts`
+
+`20270602090000_hud_layouts.sql` (Rail R3.9). The desktop app keeps the
+HUD's designs (what a panel and its popup show), which design each room,
+table size and game gets, where the user dragged panels, and their per-room
+"my client seats me at the bottom" in its local store
+(`core/rail-store/SCHEMA.md`, migrations 13 and 15). The sync worker sends
+the rows written there since the last sync and takes the account's rows
+back, so a second computer shows the same HUD.
+
+**One table, four kinds** (`kind`, `key`, `body`): `layout` (the design's
+id; the design as JSON), `assignment` (`site|size|format`;
+`{"layout": id}`), `seat_position` (`site|size|slot`; `{"x", "y"}` in
+thousandths of the table's client area), `room_setting` (`site`;
+`{"preferredSeat"}`). A **null body is a tombstone** - a deleted design, a
+cleared assignment, a reset panel, a room left to its settings - so a delete
+reaches the other computers instead of being lost as a missing row.
+
+**Last writer wins by `updated_at`** - the writing computer's clock in
+milliseconds, carried with the row. `put_hud_layouts` upserts each row only
+when it is newer than the stored one and answers which it took; the client
+reads the whole table back (`GET /rest/v1/hud_layouts`, a few hundred rows
+at most) and applies each row that is newer than its own (a tie keeps the
+local row: `rail_store::WriterHandle::hud_sync_apply`). Two computers with
+skewed clocks resolve by their clocks; a time more than a day ahead is
+refused, so a runaway clock cannot pin a row.
+
+**Threat model.** Everything in it is the user's own: no other account reads
+or writes a row (select-own RLS; the definer writer takes the owner from
+`auth.uid()` only, and its conflict target includes it). `anon` has no grant
+at all. **The content comes from the client**: the server checks shapes and
+bounds - the kind, the key's shape per kind, a body that is an object of at
+most 32 KiB or null, a sane time, 500 rows a call, 5 000 an account, the rate
+limit - and not the design. A false or malicious row only changes its own
+account's HUD, and the client treats pulled designs as untrusted: a design
+this build cannot read is skipped (`HudDesign::parse`), keys and bodies out
+of range are refused by the local store, and the HUD enforces every room's
+restrictions on whatever it draws (`PanelDesign::enforce`), so a synced
+design can never put, say, a card-split statistic on a PokerStars table.
+Nothing in a row is a hand, a player or a statistic's value: designs name
+statistics by id, positions are geometry.
+
+`supabase/tests/database/hud_layouts.test.sql` (35): grants (no client
+writes, nothing for anon), RLS, the writer's definer settings; new rows taken,
+an older or equal row refused and said so, a tombstone stored and replaced by
+a newer row; every refusal (not an array, not an object, an unknown kind,
+malformed keys of each kind, a non-object or oversized body, a time before
+2020 or days ahead, one bad row refusing the batch, 500 a call, 5 000 an
+account); two accounts with the same key apart; anon reads and writes
+nothing.
+
 ## Verifying the isolation
 
 A migration returning `201` proves the SQL ran, not that two accounts are
@@ -1505,6 +1558,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `register_hand_source(p_device_id, p_local_id, p_device_name, p_label, p_site)` | `authenticated` | uuid | Registers (or renames) a folder the desktop app watches; idempotent per account + device + local id. No paths: a label with `/` or `\` is 22023. R1.8. |
 | `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. |
 | `hands_since(p_after_created timestamptz, p_after_id uuid, p_limit int)` | `authenticated` | `setof (id, created_at, hand_key, origin)` | The desktop pull: a keyset page of the caller's hands, oldest first, rows at least a minute old, at most 1 000. See [The desktop pull](#the-desktop-pull-hands_since). R1.9. |
+| `put_hud_layouts(p_rows jsonb)` | `authenticated` | jsonb `[{kind, key, applied}]` | The desktop HUD's layout rows `{kind, key, body, updatedAt}` (at most 500), each kept only when newer than the stored one. See [The HUD's layouts](#the-huds-layouts-hud_layouts). R3.9. |
 | `villain_counters(p_players jsonb, p_filters jsonb)` | `authenticated` | `setof (site, player, hands, vpip_opp, vpip, pfr)` | The caller's own counters for the named opponents (`{site, player}` keys, at most 500 per call), `none` rooms only, no bomb pots; invoker, read only. The analysis' per-villain ranges (analysis/20), without `stats_opponents`' cap of 200. See [Statistics](#statistics-hand_stats-coverage-and-rebuild). |
 
 `search_hands` filter keys (all optional): `site`, `board[]`, `heroCards[]`,
@@ -1632,6 +1686,7 @@ over-permissioned** and the migration revokes first, then grants.
 | `shares` | **none** | **none** | **none**. Sealed. `create_share` / `read_share` / `record_share_view` only. |
 | `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
 | `hand_sources` | **none** | `SELECT` | `hand_sources_owner_select` (`owner_id = (select auth.uid())`). Written only by `register_hand_source` and `ingest_hands`. |
+| `hud_layouts` | **none** | `SELECT` | `hud_layouts_owner_select` (`owner_id = (select auth.uid())`). Written only by `put_hud_layouts` (R3.9). |
 | `hand_arrivals` | `SELECT` | `SELECT` | `hand_arrivals_own_select` (`to authenticated`, `owner_id = (select auth.uid())`); none for `anon`, so anon reads zero rows. Written only by the `hands_signal_arrival` trigger. The anon grant is for Realtime: see [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 
 Why `anon` keeps a `SELECT` *grant* on `unparsed_hands` while having none on

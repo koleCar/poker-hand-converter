@@ -120,6 +120,14 @@ pub struct SeatEvents {
     pub showdown: bool,
     /// Collected chips from a pot (`wwsf`'s "won").
     pub won: bool,
+    /// (R3.9) The seat's hole cards are known: the hero's, or a villain's
+    /// shown at showdown (`holeCards`). Card fields make a statistic
+    /// **card-split** (PokerStars forbids those on a HUD).
+    pub cards_known: bool,
+    /// A pocket pair; `None` unless two hole cards are known.
+    pub pocket_pair: Option<bool>,
+    /// Two hole cards of one suit; `None` unless two are known.
+    pub suited: Option<bool>,
     pub events: Vec<DecisionEvent>,
 }
 
@@ -466,6 +474,7 @@ fn events_of(hand: &PhfHand) -> HandEvents {
                 .collect();
             let events = mine.iter().map(|decision| event(decision, &mine)).collect();
             let stack = player.map_or(0, |player| player.starting_stack);
+            let hole = player.map(|player| player.hole_cards.as_slice());
             let others = stacks
                 .iter()
                 .filter(|(other, _)| *other != seat)
@@ -486,6 +495,9 @@ fn events_of(hand: &PhfHand) -> HandEvents {
                 saw_river: context.live_on_street(seat, Street::River),
                 showdown: context.live_seats.len() >= 2 && context.live_seats.contains(&seat),
                 won: money_for(&money, seat).is_some_and(|money| money.won > 0),
+                cards_known: hole.is_some_and(|cards| !cards.is_empty()),
+                pocket_pair: two_cards(hole).map(|[a, b]| a.0 == b.0),
+                suited: two_cards(hole).map(|[a, b]| a.1 == b.1),
                 events,
             }
         })
@@ -505,5 +517,21 @@ fn events_of(hand: &PhfHand) -> HandEvents {
                 .count(),
         ),
         seats,
+    }
+}
+
+/// (R3.9) Two known hole cards as (rank, suit) characters (`"Ah"` ->
+/// `('A', 'h')`); `None` for any other number of cards or an unreadable
+/// one.
+fn two_cards(hole: Option<&[String]>) -> Option<[(char, char); 2]> {
+    let card = |text: &String| {
+        let mut chars = text.chars();
+        let rank = chars.next()?;
+        let suit = chars.next()?;
+        chars.next().is_none().then_some((rank, suit))
+    };
+    match hole? {
+        [a, b] => Some([card(a)?, card(b)?]),
+        _ => None,
     }
 }

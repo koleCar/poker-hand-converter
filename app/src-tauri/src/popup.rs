@@ -54,6 +54,13 @@
 //!   all three, and its panels carry the tag and the note mark. Nothing
 //!   about the hand in play, no advice, no ranges or equities: historical
 //!   statistics only (guideline §7).
+//! - **The table's design** (R3.9): `open_popup` names the design the
+//!   table is drawn with; the popup shows its sections (the user's titles,
+//!   else the group's), the user's colour bands and decimals, colouring by
+//!   no more thresholds than the design and the room allow. Without one
+//!   (an older HUD): every definition the HUD shows, by group, as before.
+//!   The sections list shipped definitions only (a user's own statistic is
+//!   on the panel, not in the popup yet).
 //! - **Who.** A named opponent has it all. The hero's own panel opens their
 //!   statistics only (no notes, no "together"). An opaque-id seat (scope
 //!   not empty: its name is one session's token) has its statistics over
@@ -62,8 +69,9 @@
 use std::sync::{Mutex, PoisonError};
 
 use rail_config::model::HudRestrictions;
-use rail_config::stats::{HudPlace, Players, Unit, collapse_bands};
+use rail_config::stats::{Group, HudPlace, Players, Unit, collapse_bands};
 use rail_hud_ipc::protocol::{PlayerRef, ScreenRect};
+use rail_stats::display::DisplayStat;
 use rail_store::report::Units;
 use serde::{Deserialize, Serialize};
 use tauri::{
@@ -111,6 +119,9 @@ pub struct PopupTarget {
     pub slot: u32,
     pub anchor: ScreenRect,
     pub scale_permille: u32,
+    /// (R3.9) The design the table is drawn with.
+    #[serde(default)]
+    pub design: Option<String>,
 }
 
 impl PopupTarget {
@@ -449,6 +460,17 @@ pub struct PopupDto {
     columns: Vec<&'static str>,
     /// Their rows by position, where the room allows it.
     by_position: Option<Vec<GroupDto>>,
+    /// (R3.9) The table's design's sections, in order; `None`: by group.
+    sections: Option<Vec<SectionDto>>,
+}
+
+/// (R3.9) One section of the popup, as the design says.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SectionDto {
+    group: Option<Group>,
+    title: Option<String>,
+    ids: Vec<&'static str>,
 }
 
 /// What the popup shows for `target`, read from the store.
@@ -478,26 +500,84 @@ pub fn build_popup(
         mixed_kind: target.segment.is_none(),
         ..Units::default()
     };
-    let max = rules.colour_thresholds;
-    let shown: Vec<_> = display
-        .stats
+    let design = target
+        .design
+        .as_deref()
+        .and_then(|id| crate::hud_editor::load_design(reader, id));
+    // The design colours by at most its own number of thresholds, never more
+    // than the room and the default panel allow.
+    let max = match (
+        rules.colour_thresholds,
+        design.as_ref().and_then(|d| d.max_colour_thresholds),
+    ) {
+        (Some(a), Some(b)) => Some(a.min(b)),
+        (a, b) => a.or(b),
+    };
+    let for_anyone = |stat: &DisplayStat| {
+        stat.def.players == Players::Any && stat.def.format.unit != Unit::Money
+    };
+    let (shown, sections): (Vec<&'static DisplayStat>, Option<Vec<SectionDto>>) = match &design {
+        None => (
+            display
+                .stats
+                .iter()
+                .filter(|stat| for_anyone(stat) && stat.def.hud != HudPlace::None)
+                .collect(),
+            None,
+        ),
+        Some(design) => {
+            let mut shown: Vec<&'static DisplayStat> = Vec::new();
+            let mut sections = Vec::new();
+            for section in &design.popup {
+                let mut ids = Vec::new();
+                for stat in section
+                    .stats
+                    .iter()
+                    .filter_map(|id| display.get(id))
+                    .filter(|stat| for_anyone(stat))
+                {
+                    if !shown.iter().any(|s| s.id() == stat.id()) {
+                        shown.push(stat);
+                    }
+                    ids.push(stat.id());
+                }
+                if !ids.is_empty() {
+                    sections.push(SectionDto {
+                        group: section.group,
+                        title: section.title.clone(),
+                        ids,
+                    });
+                }
+            }
+            (shown, Some(sections))
+        }
+    };
+    // The user's overrides (bands, decimals, sample) over the definitions.
+    let as_designed: Vec<DisplayStat> = shown
         .iter()
-        .filter(|stat| {
-            stat.def.players == Players::Any
-                && stat.def.hud != HudPlace::None
-                && stat.def.format.unit != Unit::Money
+        .map(|stat| {
+            match design
+                .as_ref()
+                .and_then(|design| design.overrides.get(stat.id()))
+            {
+                Some(over) => {
+                    stat.with_overrides(over.bands.as_deref(), over.decimals, over.min_sample)
+                }
+                None => (*stat).clone(),
+            }
         })
         .collect();
     let ids = shown.iter().map(|stat| stat.id()).collect();
-    let stats = shown
+    let stats = as_designed
         .iter()
         .map(|stat| show_one(stat, &sums, Some(&units)).collapsed(max))
         .collect();
     let legend = shown
         .iter()
-        .filter(|stat| !stat.def.bands.is_empty())
-        .map(|stat| LegendDto {
-            id: stat.id(),
+        .zip(&as_designed)
+        .filter(|(_, stat)| !stat.def.bands.is_empty())
+        .map(|(id, stat)| LegendDto {
+            id: id.id(),
             bands: collapse_bands(&stat.def.bands, max)
                 .into_iter()
                 .map(|band| BandDto {
@@ -563,6 +643,7 @@ pub fn build_popup(
         notes,
         columns: BREAKDOWN_COLUMNS.to_vec(),
         by_position,
+        sections,
     })
 }
 
@@ -705,6 +786,7 @@ mod tests {
             slot,
             anchor: rect(400, 300, 90, 40),
             scale_permille: 1000,
+            design: None,
         }
     }
 
@@ -856,6 +938,85 @@ mod tests {
         .expect("popup");
         assert!(popup.opaque && popup.notes.is_none() && popup.by_position.is_none());
         assert_eq!(popup.hands, 0);
+        assert!(popup.sections.is_none(), "no design named: by group");
+
+        // (R3.9) The table's design: its sections in its order, the user's
+        // bands and decimals; a hero-only or money statistic never; one
+        // threshold where the design says one.
+        let mut design = rail_hud::design::Presets::shipped()
+            .get("mtt")
+            .expect("mtt")
+            .design
+            .clone();
+        design.popup = vec![
+            rail_hud::design::PopupSection {
+                group: None,
+                title: Some("Mine".into()),
+                stats: vec![
+                    "wtsd".into(),
+                    "vpip".into(),
+                    "allin_ev_bb_per_100".into(),
+                    "rake_per_100".into(),
+                ],
+            },
+            rail_hud::design::PopupSection {
+                group: Some(Group::Postflop),
+                title: None,
+                stats: vec!["cbet_flop".into(), "vpip".into()],
+            },
+        ];
+        design.max_colour_thresholds = Some(1);
+        design.overrides.insert(
+            "vpip".into(),
+            rail_hud::design::StatOverride {
+                bands: Some(vec![
+                    rail_config::stats::Band {
+                        below: Some(50.0),
+                        tone: rail_config::stats::Tone::Low,
+                    },
+                    rail_config::stats::Band {
+                        below: None,
+                        tone: rail_config::stats::Tone::High,
+                    },
+                ]),
+                decimals: Some(2),
+                min_sample: None,
+            },
+        );
+        writer
+            .save_hud_layout("d-popup", &design.to_json())
+            .expect("design");
+        let designed = PopupTarget {
+            design: Some("d-popup".into()),
+            ..villain.clone()
+        };
+        let popup = build_popup(reader, &designed, PopupRules::for_site("acr").expect("acr"))
+            .expect("popup");
+        let sections = popup.sections.as_ref().expect("the design's sections");
+        assert_eq!(sections.len(), 2);
+        assert_eq!(sections[0].title.as_deref(), Some("Mine"));
+        assert_eq!(sections[0].ids, ["wtsd", "vpip"]);
+        assert_eq!(sections[1].ids, ["cbet_flop", "vpip"]);
+        assert_eq!(popup.ids, ["wtsd", "vpip", "cbet_flop"]);
+        let vpip = popup
+            .legend
+            .iter()
+            .find(|entry| entry.id == "vpip")
+            .expect("vpip's legend");
+        assert_eq!(
+            vpip.bands,
+            [
+                BandDto {
+                    below: Some(50.0),
+                    tone: "low"
+                },
+                BandDto {
+                    below: None,
+                    tone: "normal"
+                },
+            ],
+            "the user's bands, at one threshold"
+        );
         drop(writer);
         drop(state);
         let _ = std::fs::remove_dir_all(&dir);

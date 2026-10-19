@@ -31,6 +31,7 @@
 
 pub mod compliance;
 pub mod data;
+pub mod design;
 pub mod engine;
 pub mod latency;
 pub mod layout;

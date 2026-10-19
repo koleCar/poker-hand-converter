@@ -52,13 +52,10 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 12 | `0012_recompute.sql` | the targeted recompute's work tables (R2.11): `recompute_hands`, `recompute_seats`, `recompute_list` (staged rows), `recompute_player_rollups`, `recompute_hero_rollups`, `recompute_player_summary`, `recompute_player_hidden` (the twins of the four summed tables, swapped in by rename), `recompute_ev` and `recompute_ev_waiting_idx`; empty, nothing to recompute |
 | 13 | `0013_hud_layouts.sql` | `hud_seat_positions` (where the user dragged a panel, per room, table size and visual seat) and `hud_room_settings` (the user's preferred-seat answer per room) (R3.6); empty, nothing to rebuild |
 | 14 | `0014_observed_rollups.sql` | (R3.7) `player_rollups_observed` (the part of `player_rollups` from hands without a hero seat), its twin `recompute_player_rollups_observed`, `custom_player_rollups_observed`; **filled in the migration's transaction** from the stored seat rows (`stats::fill_observed`: SQL cannot read the counter blob; at most a scan of `hand_stats` and the seat rows of the hands without a hero), and when there are such hands the user's own statistics are counted again; a rows job an older build left running is begun again (its twins had no observed part) |
+| 15 | `0015_hud_designs.sql` | (R3.9) `hud_layouts` (the user's HUD designs; a NULL design is a deleted one, kept for sync), `hud_layout_assignments` (which design per room, table size and format); `hud_seat_positions.cleared` (a reset keeps the row as a tombstone) and `dirty` on all four HUD tables (written here since the last sync; rows of an older store start dirty); empty otherwise, nothing to rebuild |
 
-Reserved for later steps, each as the next free number when it lands (the
-numbers are not fixed in advance; the order is):
-
-| Step | Tables |
-| --- | --- |
-| R3.9 (Phase 3) | the HUD editor's presets per room and table size (the rest of the plan's `hud_layouts`), and sync of the HUD tables |
+No migration is reserved for a later step today; each lands as the next
+free number.
 
 ## Tables
 
@@ -928,9 +925,10 @@ read-only connection (`Reader::hud_seat_positions`,
 `seat_position_changed` and a thread of its own calls
 `WriterHandle::set_hud_seat_position`; the commands `hud_set_preferred_seat`
 and `hud_reset_seat_positions` call `set_hud_preferred_seat` and
-`clear_hud_seat_positions` (`rail_store::hud`). Empty on creation. Not
-synced yet: R3.9 / R4.x (`updated_at` is for last writer wins); the HUD
-editor's presets (the rest of the plan's `hud_layouts`) come with R3.9.
+`clear_hud_seat_positions` (`rail_store::hud`). Empty on creation. Synced
+since version 15 (R3.9, below): a reset keeps its rows as tombstones
+(`cleared = 1`, which the HUD does not read), "as `sites.json` says" keeps a
+row with `preferred_seat` NULL.
 
 ### `hud_seat_positions`
 
@@ -951,3 +949,60 @@ Primary key (`site`, `size`, `slot`); `STRICT, WITHOUT ROWID`.
 | `site` | TEXT PK | the `sites.json` room |
 | `preferred_seat` | INTEGER | 1: the user's client rotates the table so they always sit in one place; 0: it does not; NULL (or no row): as `sites.json` `tables.preferredSeat` says, and no when that is unknown |
 | `updated_at` | INTEGER | ms |
+| `dirty` | INTEGER | (version 15) 1: written here since the last sync |
+
+`hud_seat_positions` gains the same `dirty`, and `cleared` (0 / 1): a reset
+panel, kept as a tombstone so the reset syncs; `Reader::hud_seat_positions`
+lists `cleared = 0` only, and a new drag of the slot clears it again.
+
+## The HUD's designs and their sync (version 15, R3.9)
+
+The HUD editor's designs (what a panel and its popup show) and which design
+each table gets. The shipped presets (`cash`, `mtt`, `spin`, `mtt-stack`)
+are `config/hud/presets.json`, never rows here. The app writes
+(`WriterHandle::save_hud_layout`, `delete_hud_layout`,
+`set_hud_layout_assignment`, from the HUD screen's commands); the HUD reads
+them with its read-only connection (`Reader::hud_layouts`,
+`hud_layout_assignments`) when the store opens and on `layout_changed`, and
+resolves a table's design from its room, size and format
+(`rail_hud::design::Assignments::resolve`: room, then format, then size;
+nothing assigned is the format's preset). This crate does not read the
+design JSON: `rail_hud::design::HudDesign` does, and skips a design this
+build cannot read.
+
+### `hud_layouts`
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | TEXT PK | the design's id: `d-` and 32 hex digits (1 - 64 characters, checked) |
+| `design` | TEXT | the design as JSON (at most 32 KiB, checked by the writer); NULL: deleted (a tombstone, so the delete syncs) |
+| `updated_at` | INTEGER | ms; last writer wins |
+| `dirty` | INTEGER | 1: written here since the last sync |
+
+`STRICT, WITHOUT ROWID`. A delete clears the design's assignments in the same
+transaction.
+
+### `hud_layout_assignments`
+
+| Column | Type | |
+| --- | --- | --- |
+| `site` | TEXT | a `sites.json` room, or `*` for every room |
+| `size` | INTEGER | 2 - 10, or 0 for every size (checked) |
+| `format` | TEXT | `cash`, `mtt` (tournaments and sit-and-gos), `spin`, or `*` (checked) |
+| `layout_id` | TEXT | a user's design or a preset; NULL: cleared (a tombstone) |
+| `updated_at` | INTEGER | ms |
+| `dirty` | INTEGER | 1: written here since the last sync |
+
+Primary key (`site`, `size`, `format`); `STRICT, WITHOUT ROWID`.
+
+### Sync (`rail_store::hud`)
+
+| Call | What |
+| --- | --- |
+| `Reader::hud_sync_dirty()` | every dirty row of the four tables as a `HudSyncRow` (`kind`, `key` - the design id, `site\|size\|format`, `site\|size\|slot` or the site -, the body as JSON or none for a tombstone, `updated_at`) |
+| `WriterHandle::hud_sync_pushed(rows)` | the rows sent: clean, unless their `updated_at` changed since they were read |
+| `WriterHandle::hud_sync_apply(rows)` | the account's rows from the server: each replaces the local row when newer, or when there is none (**last writer wins**; a tie keeps the local row); applied rows are clean; a key or body out of range is refused whole and counted |
+
+The worker (`rail_sync::worker`, R1.9's) sends the dirty rows every pass and
+takes the account's rows with each pull (Supabase `hud_layouts`,
+`docs/DATABASE.md`).

@@ -331,6 +331,7 @@ fn migration_14_fills_the_observed_part() {
 
     // Back to version 13: as an older build left it.
     let conn = Connection::open(&path).expect("open");
+    conn.execute_batch(common::DOWN_TO_14).expect("back to 14");
     conn.execute_batch(
         "DROP TABLE player_rollups_observed; DROP TABLE recompute_player_rollups_observed;
          DROP TABLE custom_player_rollups_observed; PRAGMA user_version = 13;",

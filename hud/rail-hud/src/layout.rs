@@ -457,9 +457,15 @@ impl Metrics {
     /// A panel of `columns` statistic columns, two rows of figures (the
     /// hand count in the first row's last cell) and `extra_rows` more.
     pub fn panel_size(&self, columns: u32, extra_rows: u32) -> (u32, u32) {
+        self.panel_rows(columns, 2 + extra_rows)
+    }
+
+    /// (R3.9) A panel of `columns` statistic columns (the hand count's
+    /// cell after them) and `rows` rows in all.
+    pub fn panel_rows(&self, columns: u32, rows: u32) -> (u32, u32) {
         (
             2 * self.pad + columns.max(1) * self.cell + self.wide_cell,
-            2 * self.pad + (2 + extra_rows) * self.row,
+            2 * self.pad + rows.max(1) * self.row,
         )
     }
 

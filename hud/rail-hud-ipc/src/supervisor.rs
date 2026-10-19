@@ -82,6 +82,10 @@ impl SupervisorConfig {
 }
 
 /// What the app hears, on the supervisor's threads.
+// A message is the big variant (R3.9's `open_popup` with its design): one
+// event per message, moved once into the app's callback - boxing it would
+// buy nothing but an allocation per message.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone)]
 pub enum Event {
     /// A HUD process connected and authenticated.

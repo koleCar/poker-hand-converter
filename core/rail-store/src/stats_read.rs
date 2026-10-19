@@ -74,6 +74,10 @@ pub struct HandSeat {
     /// `""`, or an opaque-id villain's session (`player_rollups.scope`).
     pub scope: String,
     pub hero: bool,
+    /// (R3.9) The starting stack, tenths of a big blind
+    /// (`seat_stats.starting_stack_bb_tenths`); `None` without a big blind
+    /// or chips.
+    pub stack_bb_tenths: Option<i64>,
 }
 
 /// What the HUD reads of a stored hand (R3.7, [`Reader::hud_hand`]): the
@@ -414,7 +418,7 @@ fn rollup_sum(
 /// carries.
 fn hand_seats(conn: &rusqlite::Connection, hand_id: i64) -> Result<Vec<HandSeat>> {
     let mut seats = conn.prepare_cached(
-        "SELECT seat, player, scope, is_hero FROM seat_stats
+        "SELECT seat, player, scope, is_hero, starting_stack_bb_tenths FROM seat_stats
          WHERE hand_id = ?1 AND player != '' ORDER BY seat",
     )?;
     Ok(seats
@@ -424,6 +428,8 @@ fn hand_seats(conn: &rusqlite::Connection, hand_id: i64) -> Result<Vec<HandSeat>
                 player: row.get(1)?,
                 scope: row.get(2)?,
                 hero: row.get::<_, i64>(3)? != 0,
+                // 0: no big blind (or no chips) - unknown.
+                stack_bb_tenths: Some(row.get::<_, i64>(4)?).filter(|tenths| *tenths > 0),
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?)

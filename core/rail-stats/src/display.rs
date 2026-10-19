@@ -438,6 +438,34 @@ impl DisplayStat {
         &self.def.id
     }
 
+    /// (R3.9) The same statistic with a user's overrides (the HUD editor's
+    /// layer keyed by id, never an edit of the definition file): colour
+    /// bands, decimals, the sample for full opacity. `None` keeps the
+    /// definition's. The value and the sample's formula are unchanged.
+    #[must_use]
+    pub fn with_overrides(
+        &self,
+        bands: Option<&[rail_config::stats::Band]>,
+        decimals: Option<u32>,
+        sample_min: Option<u64>,
+    ) -> Self {
+        let mut stat = self.clone();
+        if let Some(bands) = bands {
+            stat.def.bands = bands.to_vec();
+            stat.bands = bands
+                .iter()
+                .map(|band| (band.below.map(JsNumber::from_f64), band.tone))
+                .collect();
+        }
+        if let Some(decimals) = decimals {
+            stat.def.format.decimals = decimals;
+        }
+        if let Some(min) = sample_min {
+            stat.def.sample.min = min;
+        }
+        stat
+    }
+
     /// The value, or `None` (see the module header).
     pub fn value(&self, sums: &Sums) -> Option<JsNumber> {
         self.value.eval(sums)

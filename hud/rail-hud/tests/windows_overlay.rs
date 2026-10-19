@@ -92,6 +92,7 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
             })
             .collect(),
         legend: Vec::new(),
+        design: PanelDesign::default(),
     }
 }
 

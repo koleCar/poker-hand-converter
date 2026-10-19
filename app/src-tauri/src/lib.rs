@@ -69,6 +69,7 @@ pub mod folder_settings;
 pub mod folders;
 pub mod hands;
 pub mod hud;
+pub mod hud_editor;
 pub mod players;
 pub mod popup;
 pub mod quarantine;
@@ -317,6 +318,12 @@ pub fn run() {
         hud::hud_status,
         hud::hud_set_preferred_seat,
         hud::hud_reset_seat_positions,
+        hud_editor::hud_editor_state,
+        hud_editor::hud_design_check,
+        hud_editor::hud_design_save,
+        hud_editor::hud_design_delete,
+        hud_editor::hud_assign,
+        hud_editor::hud_preview,
         popup::hud_popup,
         popup::hud_popup_close,
         popup::hud_popup_open_in_app,
@@ -397,6 +404,12 @@ pub fn run() {
         hud::hud_status,
         hud::hud_set_preferred_seat,
         hud::hud_reset_seat_positions,
+        hud_editor::hud_editor_state,
+        hud_editor::hud_design_check,
+        hud_editor::hud_design_save,
+        hud_editor::hud_design_delete,
+        hud_editor::hud_assign,
+        hud_editor::hud_preview,
         popup::hud_popup,
         popup::hud_popup_close,
         popup::hud_popup_open_in_app,

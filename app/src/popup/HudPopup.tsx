@@ -223,6 +223,27 @@ function PopupBody({ popup, onClose }: { popup: Popup; onClose: () => void }) {
           <StateMessage kind="loading" compact>
             {t.loading}
           </StateMessage>
+        ) : popup.sections !== null ? (
+          // (R3.9) The table's design's sections, in its order.
+          <div className={styles.groups}>
+            {popup.sections.map((section, index) => {
+              const rows = statRows(
+                definitions,
+                popup.stats,
+                locale,
+                (definition) => section.ids.includes(definition.id),
+                popup.ids,
+              ).sort((a, b) => section.ids.indexOf(a.id) - section.ids.indexOf(b.id));
+              return rows.length === 0 ? null : (
+                <StatTable
+                  key={index}
+                  caption={section.title ?? (section.group ? all.reports.stats.groups[section.group] : "")}
+                  showCaption
+                  rows={rows}
+                />
+              );
+            })}
+          </div>
         ) : (
           <div className={styles.groups}>
             {GROUPS.map((group) => {

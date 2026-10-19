@@ -15,10 +15,18 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
-/// Back from the latest version to 11 (R3.7's observed rollups; R3.6's HUD
+/// Back from the latest version to 14 (R3.9's designs and assignments, and
+/// the sync marks it added to R3.6's tables).
+pub const DOWN_TO_14: &str = "DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
+     ALTER TABLE hud_seat_positions DROP COLUMN cleared;
+     ALTER TABLE hud_seat_positions DROP COLUMN dirty;
+     ALTER TABLE hud_room_settings DROP COLUMN dirty;";
+
+/// Back from the latest version to 11 (R3.9's designs; R3.7's observed rollups; R3.6's HUD
 /// layouts; R2.11's staging tables and the twins of the rollups, and its
 /// `kv` keys).
-pub const DOWN_FROM_12: &str = "DROP TABLE player_rollups_observed;
+pub const DOWN_FROM_12: &str = "DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
+     DROP TABLE player_rollups_observed;
      DROP TABLE recompute_player_rollups_observed; DROP TABLE custom_player_rollups_observed;
      DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
      DROP TABLE recompute_hands; DROP TABLE recompute_seats;
@@ -28,11 +36,13 @@ pub const DOWN_FROM_12: &str = "DROP TABLE player_rollups_observed;
      DELETE FROM kv WHERE key LIKE 'recompute.%'
                        OR key IN ('stats.segment_version', 'stats.epoch');";
 
-/// Back from the latest version to 8 (R2.7c; version 14's observed
+/// Back from the latest version to 8 (R2.7c; version 15's HUD designs,
+/// R3.9, version 14's observed
 /// rollups, R3.7, version 13's HUD layouts, R3.6, version 12's tables,
 /// R2.11, and version 11's custom statistics, R2.10, go first, version 10
 /// only dropped an index): what the older-store tests run first.
-pub const DOWN_FROM_9: &str = "DROP TABLE player_rollups_observed;
+pub const DOWN_FROM_9: &str = "DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
+     DROP TABLE player_rollups_observed;
      DROP TABLE recompute_player_rollups_observed; DROP TABLE custom_player_rollups_observed;
      DROP TABLE hud_seat_positions; DROP TABLE hud_room_settings;
      DROP TABLE recompute_hands; DROP TABLE recompute_seats;

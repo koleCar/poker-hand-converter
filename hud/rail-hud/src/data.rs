@@ -23,13 +23,16 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
 use rail_store::{
-    CustomCounts, CustomStatRow, HudHand, ImportedHand, PlayerNotes, Reader, RoomSettings,
-    SeatPosition, Totals,
+    CustomCounts, CustomStatRow, HudHand, ImportedHand, LayoutAssignment, PlayerNotes, Reader,
+    RoomSettings, SeatPosition, StoredLayout, Totals,
 };
 
 /// The user's HUD layouts as the store has them (R3.6): the panels they
 /// placed, their per-room preferred-seat answers.
 pub type UserLayouts = (Vec<SeatPosition>, Vec<RoomSettings>);
+
+/// (R3.9) The user's designs and their assignments as the store has them.
+pub type UserDesigns = (Vec<StoredLayout>, Vec<LayoutAssignment>);
 
 /// How often a store that is missing or failed is tried again.
 const RETRY: Duration = Duration::from_secs(1);
@@ -196,6 +199,21 @@ impl StoreView {
             reader
                 .hud_seat_positions()
                 .and_then(|positions| Ok((positions, reader.hud_room_settings()?)))
+                .map_err(|error| error.to_string()),
+        )
+    }
+
+    /// (R3.9) The user's designs and where each is used, as the app wrote
+    /// them (or a sync brought them). `None`: no store yet.
+    pub fn hud_designs(&mut self) -> Option<Result<UserDesigns, String>> {
+        if !self.ensure_open() {
+            return None;
+        }
+        let reader = self.reader.as_ref()?;
+        Some(
+            reader
+                .hud_layouts()
+                .and_then(|designs| Ok((designs, reader.hud_layout_assignments()?)))
                 .map_err(|error| error.to_string()),
         )
     }

@@ -136,6 +136,7 @@ fn imported(
                             scope: p.scope,
                             seat: Some(p.seat),
                             hero: p.hero,
+                            stack_bb_tenths: p.stack_bb_tenths,
                         })
                         .collect(),
                     timing: None,

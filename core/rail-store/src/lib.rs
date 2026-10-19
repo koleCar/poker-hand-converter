@@ -74,7 +74,10 @@ pub use hand_list::{
     Annotations, FacetCount, HandCursor, HandFacets, HandFilter, HandPage, HandRow, PlayerRef,
     SavedFilter, StakeFacet,
 };
-pub use hud::{RoomSettings, SeatPosition};
+pub use hud::{
+    HudSyncApplied, HudSyncKind, HudSyncRow, LayoutAssignment, RoomSettings, SeatPosition,
+    StoredLayout,
+};
 pub use import::{FileImport, ImportOptions, import_file};
 pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};
 pub use read::{Reader, StaleRefusals, StoreStatus};

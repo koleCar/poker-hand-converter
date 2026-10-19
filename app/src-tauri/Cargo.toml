@@ -41,6 +41,12 @@ rail-watch = { path = "../../core/rail-watch" }
 rail-sync = { path = "../../core/rail-sync" }
 # The HUD process (R3.2): its supervisor and the channel to it.
 rail-hud-ipc = { path = "../../hud/rail-hud-ipc" }
+# (R3.9) The HUD editor: the design model, presets, room checks and the
+# renderer's scene for the preview - the HUD's own code, so the preview is
+# what a table shows.
+rail-hud = { path = "../../hud/rail-hud" }
+# (R3.9) A new design's random id. The version rail-sync locks.
+ring = "=0.17.14"
 tauri = { version = "=2.11.5", features = ["tray-icon"] }
 tauri-plugin-log = "=2.9.1"
 # The first-run screen's "Add a folder manually..." folder picker (R1.4,
