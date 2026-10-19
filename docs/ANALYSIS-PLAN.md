@@ -5192,3 +5192,108 @@ Each phase appends what it learned that changed the plan.
     - The fit is one library's population (one site's stakes); refit
       (`npm run floplib:preflop-width` prints the candidates) as libraries
       grow.
+- 2026-10-20 — Raising lines' order and the small blind's open width:
+  **nothing shipped** (study `tests/scripts/flop-library/preflopWidth.test.ts`,
+  `npm run floplib:preflop-width`, new candidate options `tauBy`, `termBy`,
+  `kBy`, `sbWidth` and `PW_REF`, `PW_PICK`). `ANALYSIS_VERSION` stays
+  `analysis/31`; no migration, nothing in `frontend/`, no grade moves, so no
+  census diff.
+  - **Why.** The two open items of `analysis/31` with a preflop fix:
+    (1) after the population order, the later players walked from an
+    isolation still muck more than their ranges say (+0.219 ± 0.049, 61)
+    and after a 3-bet (+0.180 ± 0.079, 24) - is there a raising-line order
+    with one or two numbers that explains them? (2) The small blind opens
+    41% of its chances against an 18.7% chart range: does the width at the
+    observed frequency help?
+  - **Data and score.** As `analysis/31`: the 5,448 stored hands, the 857
+    river showdowns, the unselected score (the first to show by their
+    combo, each later player by their combo when shown, else by the
+    range's chance of losing to the best hand shown before), five folds by
+    hand and five by the first to show's name. Every candidate is built on
+    the study's `analysis/31` (`mix 0.75 popnp +ph` on every chart line;
+    the shipped code scores −0.001 ± 0.001 against it), and every gain
+    below is per spot **over `analysis/31`**, clustered by hand unless
+    said. Library-answered heads-up flops are untouched either way (the
+    study walks without the library; the shipped option would have gone
+    through the same `populationOrder` gate).
+  - **Measured 1: a raising order - nothing.** For isolations and 3-bets
+    (`R2`) only, everything else at `analysis/31`:
+    - their own mix: m 0.5 −0.022 ± 0.010, 0.9 +0.004 ± 0.003, 1.0
+      +0.006 ± 0.005;
+    - a temperature on the order (σ(τ·z + a), τ < 1 flatter, i.e. weaker
+      hands in): τ 0.25 −0.014 ± 0.011, 0.5 −0.004 ± 0.007, 0.75 +0.001
+      ± 0.003, 1.5 −0.010 ± 0.007; on opens, isolations, 3-bets and 4-bets
+      together τ 0.5 −0.030 ± 0.016, 0.75 −0.014 ± 0.010;
+    - their own width (the order's part × k): 0.75 −0.005 ± 0.004, 1.25
+      +0.003 ± 0.002, 1.5 +0.000 ± 0.005 (Measured 0 has 3-bets at 0.77 of
+      the chart's frequency);
+    - one raise-fitted shape term (± 1 on one feature: suited, ace, pair,
+      broadway, gap, high rank, low rank; 14): best pair −1 +0.005 ±
+      0.003, high rank +1 +0.004 ± 0.005, ace +1 +0.003 ± 0.006; worst ace
+      −1 −0.011 ± 0.006.
+    Held out, a fold choosing among the mix / temperature / width family
+    (16 with `analysis/31`): +0.004 ± 0.005 (0.8 SE) by hand, +0.001 ±
+    0.005 (0.2 SE) by player; among the terms (15): −0.000 ± 0.004 /
+    +0.003 ± 0.004. Far from the bar.
+  - **Why not: the mucks and the shown hands pull apart.** The flattest
+    order (τ 0.25) is the only one that moves the mucks much - isolations
+    +0.219 → +0.155 ± 0.048, 3-bets +0.180 → +0.076 ± 0.080 - but the
+    3-bettors who show first then sit too high in their preflop range (PIT
+    − 0.5 +0.054 → +0.111 ± 0.048) and the score loses 0.014. m 1.0 moves
+    the mucks a little (+0.205, +0.141) for +0.006. The isolators and
+    3-bettors who reach a river and muck held weaker hands than their
+    walk says, but those who show do not: the preflop range is not where
+    the gap is. The likelier place is the heuristic's postflop trims of the
+    raiser's line (a c-bet and barrel taken as strength), which no preflop
+    order can fix.
+  - **Measured 0 again, per table** (opponents' first decision, NLHE cash,
+    no ante or straddle): the small blind opens **41.4 ± 2.0%** of 596
+    chances at 6-max (chart 18.7%), **27.8 ± 3.4%** of 176 at 9-max
+    (chart 18.0%), heads-up 40.7 ± 6.4% of 59 (chart 59.3%; not tried).
+  - **Measured 2: the small blind's open at its frequency.** `open:SB`
+    (3 or more players dealt) widened to a share s of all 1,326 combos,
+    the added width in the population order (the range's own quarter
+    kept): s 0.25 +0.006 ± 0.004, 0.30 +0.010 ± 0.005, 0.35 +0.012 ±
+    0.007, 0.414 +0.014 ± 0.008; all of it in the order +0.015 ± 0.008;
+    6-max only +0.017 ± 0.008; **per table at the frequencies (0.414 /
+    0.278), no number fitted on the score: +0.016 ± 0.008**. All of it at
+    heads-up rivers (called bets +0.043 ± 0.024, checked +0.010 ±
+    0.011; multiway exactly 0): the small blind's open reaches few river
+    showdowns (37 first to show, 12 later players). The later players'
+    mucks after it +0.186 ± 0.076 → +0.157 ± 0.059, the first to show's
+    place −0.014 → +0.020 ± 0.044.
+  - **Held out.** The per-table candidate takes its widths from Measured 0,
+    not from the score, so held out it is itself: **+0.016 ± 0.008, 2.0 SE
+    by hand, 1.9 SE by player** - under the bar (> 2 SE both ways). A fold
+    choosing among the six small-blind candidates and `analysis/31`:
+    +0.014 ± 0.008 (1.9 SE) / +0.015 ± 0.008 (1.8 SE); among all 39 of
+    this entry the same choices, the same numbers. **Restricted in
+    sample:** the per-table variant was added after the first grid showed
+    the 6-max-only one ahead; the per-fold choices above include it.
+  - **The checks** (for the small blind's open, the only near miss;
+    candidate − `analysis/31`): the shown-hand rows of `analysis/22`/
+    `/23`/`/28` and the river trim, clustered by player: flop heads-up
+    +0.004 ± 0.005 (855), turn heads-up +0.004 ± 0.005 (998), river
+    heads-up +0.017 ± 0.011 (464), heads-up checked only +0.006 ± 0.006
+    (655), river all +0.008 ± 0.005 (1,408); three or more ways and bomb
+    pots 0 exactly. `analysis/30`'s rows (first to show's share won −
+    predicted): heads-up checked +0.038 → +0.038, called +0.090 → +0.088;
+    multiway unchanged. Nothing worse - but none of it reaches the bar.
+    `analysis/29`'s overcall check reads the shipped code and was not run
+    (nothing shipped).
+  - **Open.**
+    - **The raisers' excess mucks are postflop.** Score the heuristic's
+      flop and turn trims for an isolator's and a 3-bettor's betting line
+      (the unselected score per street, the river trim of 2026-10-14 as
+      the model) rather than their preflop range.
+    - **The small blind's open, ready to re-test.** One candidate, no
+      fitted number: `{"kind":"mix", ..., "sbWidth":{"6":0.414,"9":0.278}}`
+      in the study (`PW_REF="a31 twin"`). It is right in direction on every
+      check and 1.9-2.0 SE short only for lack of river showdowns after a
+      small-blind open; re-run as the libraries grow. Shipping it would
+      move only heads-up grades (and none on a library flop).
+    - The heads-up small blind (button) opens 41% against a 59% chart
+      range (59 chances): too few to test.
+    - `analysis/31`'s other open items stand (the library's heads-up flops
+      on the charts' ranges, the 2bb-pot grade floor, refits as libraries
+      grow).
