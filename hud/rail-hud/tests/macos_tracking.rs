@@ -14,10 +14,11 @@
 //!   its overlays go at once (`kqueue`) and the engine hears `Closed`.
 //! - **With the Accessibility permission** (CI's runner has it): the
 //!   observers. The backend's own find; one observer for the simulator's
-//!   process, the window notifications on each table; a scripted drag of
-//!   40 moves (`AXPosition`, as a user's drag: the Windows test's
-//!   `SetWindowPos`), each followed without the engine - lag p50 / p95, no
-//!   repaint, one `Moved`; the simulator's own move; a resize repainted at
+//!   process, the window notifications on each table; a move this process
+//!   makes through `AXPosition` (recorded); a drag of 40 moves the
+//!   simulator makes itself (its window moved by its own process, as a
+//!   client's is under a user's drag), each followed without the engine -
+//!   lag p50 / p95, no repaint, one `Moved`; a resize repainted at
 //!   the new size; minimise and restore; focus and activation restacking
 //!   at once; a real click on the focused table (does it raise the table
 //!   over its overlay? measured and printed); a tournament table move
@@ -618,10 +619,9 @@ mod macos {
         let overlay_a = overlay_number(&backend, a.id);
 
         // A move made by this process through the Accessibility API
-        // (`AXPosition`): is it notified back to this process's own
-        // observer? (CI's first runs: it is not - the HUD never moves a
-        // table, so this is only what the test may use.) Recorded, and the
-        // overlay put right by the engine's description if not.
+        // (`AXPosition`): followed through this process's own observer too?
+        // Recorded (the HUD never moves a table); the overlay put right by
+        // the engine's description if not.
         let handle = drive::ax_handle(pid, number(a.id)).expect("the table's element");
         let before = tracker(&backend).notes;
         let here = macos::window_now(number(a.id)).expect("table").bounds;

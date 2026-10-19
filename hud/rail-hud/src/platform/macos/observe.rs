@@ -24,10 +24,12 @@
 //! window notifications and on a Space change.
 //!
 //! **A notification moves the overlay before the engine hears of it.** The
-//! callback reads the table from the **window server**
-//! (`CGWindowListCopyWindowInfo` for that one window: bounds and on-screen
-//! flag, no message to the client) - plus, on a resize, the title bar from
-//! the Accessibility API, and on a title change the title - computes the
+//! callback reads the table: on a move or resize the window's own frame
+//! (`AXPosition` + `AXSize` of the notifying element - the window server's
+//! list can still show the old place at that moment, as CI found), else
+//! the **window server**'s bounds (`CGWindowListCopyWindowInfo` for that one
+//! window, no message to the client), and always its on-screen flag - plus,
+//! on a resize, the title bar, and on a title change the title - computes the
 //! client area exactly as the find does ([`tracked_geometry`]) and hands
 //! the AppKit thread the new geometry at once ([`Link::follow_at`]); the
 //! engine's side is noted in a [`Observed`] (coalesced per table: a drag's
@@ -491,7 +493,7 @@ impl State {
             .collect();
         self.rechecks.retain(|(at, _)| *at > now);
         for table in due {
-            self.follow(table, None);
+            self.follow(table, None, None);
         }
         let next = self.rechecks.iter().map(|(at, _)| *at).min();
         Some(next.map_or(IDLE, |at| at.saturating_duration_since(now)))
@@ -529,7 +531,7 @@ impl State {
                     if f.element.is_none() {
                         self.resolve(table);
                     }
-                    self.follow(table, None);
+                    self.follow(table, None, None);
                 }
             }
             Cmd::SpaceChanged => {
@@ -537,7 +539,7 @@ impl State {
                 let tables: Vec<WindowId> = self.tables.keys().copied().collect();
                 for table in tables {
                     self.resolve(table);
-                    self.follow(table, None);
+                    self.follow(table, None, None);
                     self.recheck(table);
                 }
                 if let Some(link) = &self.link {
@@ -595,7 +597,7 @@ impl State {
             let watched = self.apps.get(&pid).is_some_and(App::watched);
             let _ = link.watched(table, watched);
         }
-        self.follow(table, None);
+        self.follow(table, None, None);
     }
 
     fn untrack(&mut self, table: WindowId) {
@@ -788,7 +790,7 @@ impl State {
                 .collect();
             for table in unresolved {
                 self.resolve(table);
-                self.follow(table, None);
+                self.follow(table, None, None);
             }
         }
         if let Some(table) = table {
@@ -819,8 +821,21 @@ impl State {
                 .map(|(id, _)| *id)
                 .collect(),
         };
+        // A move or a resize: the window's frame as the client reports it
+        // with the notification. The window server's list can still show
+        // the old place for a moment (CI: every move of the simulator's
+        // window was read there unchanged), and an overlay placed from it
+        // would stay behind until the next notification.
+        let frame = if matches!(
+            kind,
+            AxNote::WindowMoved | AxNote::Moved | AxNote::WindowResized | AxNote::Resized
+        ) {
+            ffi::frame_of(&note.element)
+        } else {
+            None
+        };
         for table in targets {
-            self.follow(table, Some(note.at));
+            self.follow(table, Some(note.at), frame);
             if effect.recheck {
                 self.recheck(table);
             }
@@ -839,10 +854,12 @@ impl State {
         }
     }
 
-    /// Read `table` from the window server and put its overlay where it is
-    /// now; tell the engine what changed. `at`: the notification this
+    /// Read `table` and put its overlay where it is now; tell the engine
+    /// what changed. The place is `frame` (the client's own, from a move or
+    /// resize notification) or else the window server's; whether it is on
+    /// screen is always the window server's. `at`: the notification this
     /// answers (the AppKit thread measures the follow from it).
-    fn follow(&mut self, table: WindowId, at: Option<Instant>) {
+    fn follow(&mut self, table: WindowId, at: Option<Instant>, frame: Option<Frame>) {
         let Some(f) = self.tables.get(&table) else {
             return;
         };
@@ -859,8 +876,9 @@ impl State {
             .is_some_and(|since| since.elapsed() < MINIMIZING);
         let minimized = f.minimized && (!cg.onscreen || minimizing);
         let displays = ffi::displays();
+        let bounds = frame.unwrap_or(cg.bounds);
         let geometry = tracked_geometry(
-            &cg.bounds,
+            &bounds,
             cg.onscreen,
             f.title_bar,
             minimized,
@@ -898,8 +916,11 @@ impl State {
                 followed.orphaned = true;
                 self.tables.insert(table, followed);
             }
-            self.resolve(table);
-            self.follow(table, None);
+            // Its element is looked for again on the client's next focus,
+            // window or activation notification, or a Space change - not
+            // now: a client that is quitting would hold the thread for the
+            // accessibility timeout (CI: half a second for two tables).
+            self.follow(table, None, None);
             // A window still closing leaves the screen a moment later.
             self.recheck(table);
         } else {
@@ -949,14 +970,15 @@ impl State {
         let Some(f) = self.tables.get(&table) else {
             return;
         };
-        let (Some(element), Some(cg)) = (f.element.as_deref(), ffi::cg_window(f.window)) else {
+        let Some(element) = f.element.as_deref() else {
             return;
         };
+        // The client's own frame: the window server's may lag a resize.
         let ax = ffi::ax_window(element);
-        if ax.frame.is_none() {
+        let Some(frame) = ax.frame else {
             return;
-        }
-        let bar = title_bar(&ax, &cg.bounds);
+        };
+        let bar = title_bar(&ax, &frame);
         if let Some(f) = self.tables.get_mut(&table) {
             f.title_bar = bar;
         }
