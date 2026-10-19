@@ -1,9 +1,11 @@
 import { useT } from "../i18n";
+import { offeredScreens } from "../lib/duringPlay";
 import { SCREENS, screenHref, type Screen } from "../lib/router";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
 
-export function Sidebar({ current }: { current: Screen }) {
+/** The screens; (A10, R3.10) while a poker table is open, without those that help with play. */
+export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: boolean }) {
   const t = useT();
   return (
     <nav className={styles.sidebar} aria-label={t.nav.label}>
@@ -21,7 +23,7 @@ export function Sidebar({ current }: { current: Screen }) {
         <kbd className={styles.kbd} aria-hidden="true">{`${MOD_KEY}${MOD_KEY === "⌘" ? "" : "+"}K`}</kbd>
       </button>
       <ul className={styles.list}>
-        {SCREENS.map((screen) => (
+        {offeredScreens(SCREENS, tablesOpen).map((screen) => (
           <li key={screen}>
             <a
               className={screen === current ? `${styles.link} ${styles.active}` : styles.link}

@@ -913,10 +913,83 @@ export interface HudPreview {
   problems: DesignProblem[];
 }
 
-/** `hud::HudStatusDto`, the part the window reads: tables the HUD is attached to. */
+/** `rail_hud_ipc::protocol::RefusalReason`: why compliance mode refused a window (R3.2, R3.10). */
+export type RefusalReason = "prohibited" | "unknown" | "not-a-room" | "unknown-site";
+
+/** `hud::TableDto` (R3.10): a table the HUD is attached to. */
+export interface HudTable {
+  site: string;
+  window: number;
+  /** The table's name from the window's title. */
+  table: string | null;
+  /** No hand of this table yet. */
+  waiting: boolean;
+}
+
+/** `hud::RefusedDto` (R3.10): a window that looked like a table, refused, still open. */
+export interface HudRefused {
+  site: string;
+  window: number;
+  table: string | null;
+  reason: RefusalReason;
+}
+
+/** `hud::HudStatusDto`, the part the window reads: the HUD process and its tables. */
 export interface HudStatus {
+  /** `off`, `not-installed`, `starting`, `running`, `backoff`, `stopped`. */
   phase: string;
+  /** Why the HUD is off (`off` only). */
+  error: string | null;
   tablesOpen: number;
+  tablesWaiting: number;
+  /** (R3.10) The tables attached. */
+  tables: HudTable[];
+  /** (R3.10) The windows compliance mode refused. */
+  refused: HudRefused[];
+  /** (R3.10) The HUD's policy has the remote room list merged in. */
+  remotePolicy: boolean;
+}
+
+/** `rail_config::model::SiteKind`. */
+export type SiteKind = "room" | "network" | "format";
+
+/** `policy::RoomPolicyDto` (R3.10): one entry's HUD policy. */
+export interface RoomPolicy {
+  id: string;
+  name: string;
+  kind: SiteKind;
+  /** `true` allowed, `false` prohibited, `null` unknown (which counts as no). */
+  allowed: boolean | null;
+  /** Compliance mode's decision: a room, allowed. */
+  permitted: boolean;
+  /** The room's own page the policy was read from (or a note in Rail's repository). */
+  source: string | null;
+  /** `YYYY-MM-DD`. */
+  checkedAt: string | null;
+  notes: string;
+  restrictions: HudRestrictions | null;
+  /** An update of the room list made it stricter than this version's own copy. */
+  stricterThanShipped: boolean;
+}
+
+/** `rail_sync::policy::Outcome`: how the last look for a new room list went. */
+export type PolicyOutcome =
+  | { kind: "updated" }
+  | { kind: "current" }
+  | { kind: "refused"; error: string }
+  | { kind: "failed"; error: string };
+
+/** `policy::PolicyDto` (R3.10): the room list in force. */
+export interface HudPolicy {
+  rooms: RoomPolicy[];
+  /** An update from the web is merged in (else: this version's own list). */
+  remote: boolean;
+  url: string | null;
+  /** When the update in force was downloaded, Unix seconds. */
+  fetchedAt: number | null;
+  lastCheck: { at: number; outcome: PolicyOutcome } | null;
+  /** What the update would have loosened and was not taken, one line each. */
+  notes: string[];
 }
 
 /** `popup::PopupRules`: what the room's HUD rules let the popup show. */
@@ -1137,6 +1210,10 @@ export const ipc = {
     invoke<PlayerNotes>("player_remove_label", { site, player, label }),
   /** The HUD process (R3.2): its tables (A10: analysis hides while one is open). */
   hudStatus: () => invoke<HudStatus>("hud_status"),
+  /** (R3.10) Compliance mode: every room's HUD policy, where the list came from, a look for a new one, a room's policy page. */
+  hudPolicy: () => invoke<HudPolicy>("hud_policy"),
+  hudPolicyCheck: () => invoke<HudPolicy>("hud_policy_check"),
+  hudOpenPolicySource: (site: string) => invoke<null>("hud_open_policy_source", { site }),
   /** The HUD popup (R3.8): what it shows (`null`: none open), close it, open the player in Rail. */
   hudPopup: () => invoke<HudPopup | null>("hud_popup"),
   hudPopupClose: () => invoke<null>("hud_popup_close"),
@@ -1203,6 +1280,16 @@ export function onHudPopupChanged(onChange: () => void): () => void {
 /** (R3.9) A sync brought another computer's HUD designs or layouts. */
 export function onHudLayoutsChanged(onChange: () => void): () => void {
   return onAppEvent("hud-layouts-changed", onChange);
+}
+
+/** (R3.10) The HUD's tables or refused windows changed. */
+export function onHudStatusChanged(onChange: () => void): () => void {
+  return onAppEvent("hud-status-changed", onChange);
+}
+
+/** (R3.10) The room list in force changed (an update from the web). */
+export function onHudPolicyChanged(onChange: () => void): () => void {
+  return onAppEvent("hud-policy-changed", onChange);
 }
 
 /** (R3.8, A10) Whether the HUD has any table open, on each change. */

@@ -1168,6 +1168,71 @@ export const hr: Dict = {
     hidden: "Skriveno dok je otvoren poker stol: Rail ne pomaže tijekom igre. Vraća se kad se stolovi zatvore.",
   },
 
+  hudStatus: {
+    heading: "Za stolovima",
+    loading: "Učitavanje stanja HUD-a…",
+    failed: (reason) => `Stanje HUD-a nije učitano: ${reason}`,
+    unavailable: "Stanje HUD-a dostupno je samo u aplikaciji Rail.",
+    off: "HUD nije pokrenut.",
+    offWhy: (reason) => `HUD nije pokrenut: ${reason}`,
+    starting: "HUD se pokreće…",
+    running: "HUD radi.",
+    noTables: "Nije otvoren nijedan stol sobe koju Rail poznaje.",
+    attached: (count) => `Na ${n(count)} ${plural(count, "stolu", "stola", "stolova")}:`,
+    attachedLabel: "Stolovi s HUD-om",
+    tableAt: (room, table) => `${room} · ${table}`,
+    untitled: "stol bez imena u naslovu",
+    waiting: "čeka prvu ruku za stolom",
+    refusedHeading: (count) => `${n(count)} ${plural(count, "stol", "stola", "stolova")} bez HUD-a`,
+    refusedLabel: "Stolovi bez HUD-a",
+    why: {
+      prohibited: (room) => `Pravila sobe ${room} ne dopuštaju HUD.`,
+      withdrawn: (room) =>
+        `Pravila sobe ${room} više ne dopuštaju HUD: isključila ga je ponovna provjera nakon izlaska ove verzije Raila.`,
+      unknown: (room) => `Pravila sobe ${room} o HUD-u nisu utvrđena, a Rail nepoznato smatra zabranjenim.`,
+      notARoom: (room) =>
+        `${room} je mreža soba, a ne jedna soba: odlučuju pravila svake sobe, a nijedna nije potvrđena.`,
+      unknownSite: "Ovaj prozor ne pripada nijednoj sobi koju Rail poznaje.",
+    },
+    policyLink: "Pravila sobe",
+    policyPage: (room) => `Pravila sobe ${room}, na njezinim stranicama`,
+    checked: (date) => `provjereno ${date}`,
+    noOverride: "Ovdje namjerno nema prekidača za uključivanje HUD-a: Rail crta samo za stolovima sobe koja to dopušta.",
+    explainSummary: "Zašto ovdje ne mogu uključiti HUD?",
+    explain1:
+      "Mnoge poker sobe zabranjuju HUD ili mu postavljaju pravila, a kršenje tih pravila može stajati račun. Zato se Railov HUD veže uz stol samo kad to dopuštaju pravila same sobe: način usklađenosti, uvijek uključen.",
+    explain2:
+      "Za svaku sobu Rail čuva pravilo pročitano na stranicama same sobe, adresu te stranice i datum čitanja. Soba čija pravila zabranjuju HUD ili nisu jasna nema HUD: nepoznato znači ne.",
+    explain3:
+      "Popis se ponovno provjerava prije svakog izdanja, a između izdanja Rail preuzima ispravljeni popis s weba. Ažuriranje sobu može samo isključiti ili joj dodati ograničenje, nikad uključiti: za to treba nova verzija Raila.",
+    explain4:
+      "Statistika, izvještaji i tvoje ruke rade u svakoj sobi. Ako pravila neke sobe kažu drukčije nego Rail, javi nam s poveznicom na njih.",
+    roomsHeading: "Gdje se HUD smije koristiti",
+    allowedLead: "Dopušteno, unutar pravila svake sobe:",
+    notAllowedLead: (count) =>
+      `Sobe u kojima nije dopušteno: ${n(count)} (zabranjeno ili pravila nisu utvrđena)`,
+    noneAllowed: "Nijedna soba: popis ne dopušta nijednu.",
+    listShipped: "Popis soba: onaj s kojim je došla ova verzija Raila.",
+    listRemote: (date) => `Popis soba: ažuriran s weba ${date}. Ažuriranja ga mogu samo pooštriti.`,
+    lastUpdated: (time) => `Provjera ažuriranja ${time}: na snazi je noviji popis.`,
+    lastCurrent: (time) => `Provjera ažuriranja ${time}: nema novijeg.`,
+    lastRefused: (time) =>
+      `Provjera ažuriranja ${time}: datoteka nije bila ispravna i nije upotrijebljena; vrijedi postojeći popis.`,
+    lastFailed: (time) => `Provjera ažuriranja ${time}: web nije dostupan; vrijedi postojeći popis.`,
+    checkNow: "Provjeri ažuriranje sada",
+    checking: "Provjera…",
+    notes: "Nije preuzeto iz ažuriranja jer bi ublažilo pravila:",
+    today: {
+      off: "HUD: nije pokrenut",
+      starting: "HUD: pokreće se…",
+      none: "HUD: nema otvorenog stola",
+      tables: (count) => `HUD: na ${n(count)} ${plural(count, "stolu", "stola", "stolova")}`,
+      refused: (count, rooms) =>
+        `bez njega: ${n(count)} ${plural(count, "stol", "stola", "stolova")} (${rooms}: nije dopušteno)`,
+      details: "Detalji HUD-a",
+    },
+  },
+
   hudPopup: {
     label: (player) => `${player}: HUD prozor`,
     close: "Zatvori (Esc)",
@@ -1390,6 +1455,12 @@ export const hr: Dict = {
     open: "Otvori Rail",
     pauseImport: "Pauziraj uvoz",
     resumeImport: "Nastavi uvoz",
+    hudOff: "HUD isključen",
+    hudStarting: "HUD se pokreće…",
+    hudTables: (attached, refused) =>
+      `${attached === 0 ? "HUD: nema otvorenog stola" : `HUD: stolovi: ${attached}`}${
+        refused === 0 ? "" : ` · nije dopušteno: ${refused}`
+      }`,
     quit: "Zatvori Rail",
   },
 };

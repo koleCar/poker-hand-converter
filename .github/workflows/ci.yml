@@ -211,6 +211,9 @@ jobs:
   # And R3.9's hud/rail-hud/tests/windows_designs.rs: the engine over the
   # real backend and a real store - an assigned design changes what the
   # overlay draws, a card-split statistic is dropped posing as PokerStars.
+  # And R3.10's hud/rail-hud/tests/windows_compliance.rs: a table posing as
+  # a prohibited room refused and listed with its reason, no overlay; a
+  # remote policy (`--policy`) refusing, then detaching, an allowed one.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -287,6 +290,17 @@ jobs:
       - name: HUD designs (steps)
         if: matrix.os == 'windows-latest'
         run: cargo test -p rail-hud --test windows_designs --locked -- --nocapture --test-threads 1
+
+      # R3.10's compliance mode on a real window, with its per-step output:
+      # posing as GGPoker the table is refused and listed (room, table,
+      # reason) in the HUD's health answer - the app's refused list - with no
+      # overlay anywhere; posing as PokerStars with the app's remote copy
+      # switching it off (`--policy`) it is refused from the first look,
+      # attached under the shipped policy, and detached again (the overlay
+      # gone) when the remote copy comes back.
+      - name: HUD compliance mode (steps)
+        if: matrix.os == 'windows-latest'
+        run: cargo test -p rail-hud --test windows_compliance --locked -- --nocapture --test-threads 1
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'

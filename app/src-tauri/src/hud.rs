@@ -22,7 +22,9 @@
 //!   parts and lowers sync's bandwidth while any table is attached
 //!   (`StatsWorker::set_tables_open`, `SyncWorker::set_tables_open`); when
 //!   the HUD goes away the tables count as closed. `attach_refused` is
-//!   logged and kept for the status (R3.10 shows it in the app);
+//!   logged and listed; (R3.10) every health answer brings the tables
+//!   attached and the windows refused (with why), which [`hud_status`]
+//!   gives the HUD screen and Today, and the tray's HUD line follows;
 //!   `open_in_app` shows the window and emits [`OPEN_PLAYER_EVENT`];
 //!   (R3.8) `open_popup` (a click on a panel) opens the HUD popup
 //!   (`crate::popup`), and the window hears [`TABLES_OPEN_EVENT`] on the
@@ -35,8 +37,11 @@
 //! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
 //!   client rotates the table on a room, or not, or as `sites.json` says)
 //!   and [`hud_reset_seat_positions`] write the store and tell the HUD
-//!   (`settings_changed`, `layout_changed`), which reads them again. No
-//!   screen calls them yet (R3.9's HUD editor, R3.10's HUD screen).
+//!   (`settings_changed`, `layout_changed`), which reads them again.
+//! - **Policy** (R3.10, `crate::policy`): the HUD is started with
+//!   `--policy <the cached remote sites.json>` (read before its first look
+//!   for tables), and hears `policy {remote}` on every connection and every
+//!   change - stricter only, merged by the HUD itself.
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -44,7 +49,9 @@ use std::sync::mpsc::{self, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex, PoisonError};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use rail_hud_ipc::protocol::{AppMessage, HandTiming, HudMessage, PlayerRef, RefusalReason};
+use rail_hud_ipc::protocol::{
+    AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, PlayerRef, RefusalReason,
+};
 use rail_hud_ipc::supervisor::{Event, Supervisor, SupervisorConfig};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, Runtime, State};
@@ -76,6 +83,10 @@ const FEED_QUEUE: usize = 256;
 /// Windows refused that the status keeps.
 const REFUSED_KEPT: usize = 32;
 
+/// The window event when the HUD's tables or refusals changed (R3.10; no
+/// payload: the window asks [`hud_status`] again).
+pub const STATUS_EVENT: &str = "hud-status-changed";
+
 /// Dragged panels waiting for the store (R3.6); more are dropped (a drag is
 /// a user's hand on the mouse - this never fills).
 const LAYOUT_QUEUE: usize = 64;
@@ -95,13 +106,86 @@ fn sidecar_path() -> Option<PathBuf> {
 pub struct RefusedDto {
     pub site: String,
     pub window: u64,
+    /// (R3.10) The table name from the window's title, once a health answer
+    /// has listed it.
+    pub table: Option<String>,
     pub reason: RefusalReason,
+}
+
+/// (R3.10) A table the HUD is attached to, for the status.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct TableDto {
+    pub site: String,
+    pub window: u64,
+    pub table: Option<String>,
+    /// Still "waiting for first hand".
+    pub waiting: bool,
+}
+
+/// What the HUD last said about its windows (R3.10).
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+struct Windows {
+    attached: Vec<TableDto>,
+    /// The windows refused that are still open: the health answer's list,
+    /// with each `attach_refused` heard since added at once.
+    refused: Vec<RefusedDto>,
+    remote_policy: bool,
+}
+
+impl Windows {
+    /// The HUD's own lists, from a health answer.
+    fn from_health(report: &HealthReport) -> Self {
+        Self {
+            attached: report
+                .tables
+                .iter()
+                .map(|t: &AttachedTable| TableDto {
+                    site: t.site.clone(),
+                    window: t.window,
+                    table: t.table.clone(),
+                    waiting: t.waiting,
+                })
+                .collect(),
+            refused: report
+                .refused_tables
+                .iter()
+                .map(|r| RefusedDto {
+                    site: r.site.clone(),
+                    window: r.window,
+                    table: r.table.clone(),
+                    reason: r.reason,
+                })
+                .collect(),
+            remote_policy: report.remote_policy,
+        }
+    }
+
+    /// An `attach_refused`: listed now, before the next health answer.
+    fn refused(&mut self, refused: RefusedDto) {
+        self.attached.retain(|t| t.window != refused.window);
+        match self.refused.iter_mut().find(|r| r.window == refused.window) {
+            Some(known) => {
+                known.site = refused.site;
+                known.reason = refused.reason;
+            }
+            None => self.refused.push(refused),
+        }
+        let excess = self.refused.len().saturating_sub(REFUSED_KEPT);
+        self.refused.drain(..excess);
+    }
 }
 
 #[derive(Debug, Default)]
 struct Shared {
     tables_open: AtomicU32,
-    refused: Mutex<Vec<RefusedDto>>,
+    windows: Mutex<Windows>,
+}
+
+impl Shared {
+    fn windows(&self) -> std::sync::MutexGuard<'_, Windows> {
+        self.windows.lock().unwrap_or_else(PoisonError::into_inner)
+    }
 }
 
 /// Now, in Unix microseconds (the latency chain's clock, R3.7).
@@ -233,6 +317,7 @@ impl HudState {
         store: &StoreState,
         stats: StatsState,
         sync: SyncSlot,
+        policy_file: Option<PathBuf>,
     ) -> Self {
         let shared = Arc::new(Shared::default());
         let off = |error: String| Self {
@@ -254,6 +339,12 @@ impl HudState {
         };
         let mut config = SupervisorConfig::new(program);
         config.args = vec!["--store".into(), store.path.clone().into_os_string()];
+        // (R3.10) The cached remote sites.json, read before the HUD's first
+        // look for tables.
+        if let Some(file) = policy_file {
+            config.args.push("--policy".into());
+            config.args.push(file.into_os_string());
+        }
         let layouts = match store.store.as_ref().map(rail_store::Store::writer) {
             Some(Ok(writer)) => LayoutWrites::start(writer, Arc::clone(&sync)),
             _ => LayoutWrites::default(),
@@ -340,6 +431,14 @@ impl HudState {
         }
     }
 
+    /// (R3.10) A new policy is in force: the HUD merges it (stricter only)
+    /// and detaches what it no longer allows.
+    pub fn policy_changed(&self, remote: Option<String>) {
+        if let Some(supervisor) = &self.supervisor {
+            supervisor.send(AppMessage::Policy { remote });
+        }
+    }
+
     /// Shut the HUD down (on exit, first).
     pub fn stop(&self) {
         if let Some(supervisor) = &self.supervisor {
@@ -349,19 +448,13 @@ impl HudState {
     }
 
     pub fn status(&self) -> HudStatusDto {
-        let refused = self
-            .shared
-            .refused
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .clone();
+        let windows = self.shared.windows().clone();
         let tables_open = self.shared.tables_open.load(Ordering::SeqCst);
         let Some(supervisor) = &self.supervisor else {
             return HudStatusDto {
                 phase: "off",
                 error: self.error.clone(),
                 tables_open,
-                refused,
                 ..HudStatusDto::default()
             };
         };
@@ -374,7 +467,9 @@ impl HudState {
             starts: status.starts,
             last_exit: status.last_exit,
             tables_open,
-            refused,
+            tables: windows.attached,
+            refused: windows.refused,
+            remote_policy: windows.remote_policy,
             store_open: health.store_open,
             platform: (!health.platform.is_empty()).then_some(health.platform),
             reread_p50_us: health.reread.p50_us,
@@ -420,6 +515,66 @@ fn tables_edge<R: Runtime>(app: &AppHandle<R>, open: bool) {
     }
 }
 
+/// (R3.10) The window hears that the tables or refusals changed.
+fn status_changed<R: Runtime>(app: &AppHandle<R>) {
+    if let Err(error) = app.emit(STATUS_EVENT, ()) {
+        log::debug!("{STATUS_EVENT}: {error}");
+    }
+}
+
+/// (R3.10) The tray's HUD line: off, no table, tables attached, windows
+/// refused.
+pub fn tray_line(status: &HudStatusDto) -> String {
+    let text = crate::strings::tray();
+    match status.phase {
+        "off" | "not-installed" | "stopped" => text.hud_off.to_owned(),
+        "starting" | "backoff" => text.hud_starting.to_owned(),
+        _ => (text.hud_tables)(status.tables_open, count(status.refused.len())),
+    }
+}
+
+fn count(n: usize) -> u32 {
+    u32::try_from(n).unwrap_or(u32::MAX)
+}
+
+/// Set the tray's HUD line from the status.
+pub fn refresh_tray<R: Runtime>(app: &AppHandle<R>) {
+    let Some(hud) = app.try_state::<HudState>() else {
+        return;
+    };
+    if let Err(error) = crate::tray::set_hud(app, &tray_line(&hud.status())) {
+        log::debug!("tray HUD line: {error}");
+    }
+}
+
+/// The tray's HUD line follows the HUD's phase too (starting, not
+/// installed, backoff), which no event announces: looked at every 2 s,
+/// set when it changed.
+pub fn spawn_tray_refresher<R: Runtime>(app: &AppHandle<R>) {
+    let app = app.clone();
+    let spawned = std::thread::Builder::new()
+        .name("rail-tray-hud".to_owned())
+        .spawn(move || {
+            let mut last = String::new();
+            loop {
+                let Some(hud) = app.try_state::<HudState>() else {
+                    return;
+                };
+                let line = tray_line(&hud.status());
+                if line != last {
+                    if let Err(error) = crate::tray::set_hud(&app, &line) {
+                        log::debug!("tray HUD line: {error}");
+                    }
+                    last = line;
+                }
+                std::thread::sleep(Duration::from_secs(2));
+            }
+        });
+    if let Err(error) = spawned {
+        log::warn!("tray HUD thread: {error}");
+    }
+}
+
 /// The supervisor's events, on its threads: quick, never blocking.
 fn on_event<R: Runtime>(
     app: &AppHandle<R>,
@@ -430,12 +585,30 @@ fn on_event<R: Runtime>(
     event: Event,
 ) {
     match event {
-        Event::Connected { pid } => log::debug!("hud: pid {pid} connected"),
+        Event::Connected { pid } => {
+            log::debug!("hud: pid {pid} connected");
+            // (R3.10) The policy in force now (it may be newer than the
+            // file the process read at start).
+            if let Some(hud) = app.try_state::<HudState>() {
+                hud.policy_changed(crate::policy::remote());
+            }
+            refresh_tray(app);
+        }
         Event::Disconnected { reason } => {
             log::info!("hud: gone ({reason})");
             if set_tables_open(shared, stats, sync, 0) {
                 tables_edge(app, false);
             }
+            let changed = {
+                let mut windows = shared.windows();
+                let changed = *windows != Windows::default();
+                *windows = Windows::default();
+                changed
+            };
+            if changed {
+                status_changed(app);
+            }
+            refresh_tray(app);
         }
         Event::Message(message, _) => match message {
             HudMessage::TablesOpen { count } => {
@@ -475,17 +648,27 @@ fn on_event<R: Runtime>(
                 reason,
             } => {
                 log::info!("hud: compliance mode refused a {site} window ({reason:?})");
-                let mut refused = shared
-                    .refused
-                    .lock()
-                    .unwrap_or_else(PoisonError::into_inner);
-                refused.push(RefusedDto {
+                shared.windows().refused(RefusedDto {
                     site,
                     window,
+                    table: None,
                     reason,
                 });
-                let excess = refused.len().saturating_sub(REFUSED_KEPT);
-                refused.drain(..excess);
+                status_changed(app);
+                refresh_tray(app);
+            }
+            HudMessage::Health { report, .. } => {
+                let now = Windows::from_health(&report);
+                let changed = {
+                    let mut windows = shared.windows();
+                    let changed = *windows != now;
+                    *windows = now;
+                    changed
+                };
+                if changed {
+                    status_changed(app);
+                    refresh_tray(app);
+                }
             }
             HudMessage::OpenInApp { site, player } => {
                 crate::show_main_window(app);
@@ -511,7 +694,7 @@ fn on_event<R: Runtime>(
                 x,
                 y,
             }),
-            HudMessage::Health { .. } | HudMessage::Unknown => {}
+            HudMessage::Unknown => {}
         },
     }
 }
@@ -631,7 +814,12 @@ pub struct HudStatusDto {
     tables_open: u32,
     /// Of those, the tables still "waiting for first hand" (R3.3).
     tables_waiting: u32,
+    /// (R3.10) The tables attached.
+    tables: Vec<TableDto>,
+    /// (R3.10) The windows compliance mode refused that are still open.
     refused: Vec<RefusedDto>,
+    /// (R3.10) The HUD's policy has the remote `sites.json` merged in.
+    remote_policy: bool,
     store_open: bool,
     platform: Option<String>,
     reread_p50_us: u64,
@@ -888,6 +1076,127 @@ mod tests {
         assert_eq!(
             *edges.lock().unwrap_or_else(PoisonError::into_inner),
             ["true", "false"]
+        );
+        stats.stop();
+        drop(store);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (R3.10) What the HUD screen lists: a refusal at once (no table name
+    /// yet), then the HUD's own lists from each health answer - a refused
+    /// window with its table and reason, the tables attached - and nothing
+    /// once the HUD is gone. The tray's line says the same in a few words.
+    #[test]
+    fn the_status_lists_what_the_hud_said() {
+        use rail_hud_ipc::protocol::RefusedTable;
+        use tauri::Listener;
+
+        let dir = std::env::temp_dir().join(format!("rail-app-hud-status-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let store = StoreState::open(dir.join(rail_store::FILE_NAME));
+        let stats = StatsState::start(&store);
+        let (sync, shared, layouts) = (
+            SyncSlot::default(),
+            Shared::default(),
+            LayoutWrites::default(),
+        );
+        let app = tauri::test::mock_builder()
+            .build(tauri::test::mock_context(tauri::test::noop_assets()))
+            .expect("a mock app");
+        let handle = app.handle();
+        let heard = Arc::new(AtomicU32::new(0));
+        let count = Arc::clone(&heard);
+        handle.listen(STATUS_EVENT, move |_| {
+            count.fetch_add(1, Ordering::SeqCst);
+        });
+        let event = |e: Event| on_event(handle, &shared, &stats, &sync, &layouts, e);
+        let message = |m: HudMessage| Event::Message(m, std::time::Instant::now());
+
+        event(message(HudMessage::AttachRefused {
+            site: "ggpoker".into(),
+            window: 7,
+            reason: RefusalReason::Prohibited,
+        }));
+        event(message(HudMessage::AttachRefused {
+            site: "ggpoker".into(),
+            window: 7,
+            reason: RefusalReason::Prohibited,
+        }));
+        assert_eq!(
+            shared.windows().refused,
+            [RefusedDto {
+                site: "ggpoker".into(),
+                window: 7,
+                table: None,
+                reason: RefusalReason::Prohibited,
+            }],
+            "once per window"
+        );
+        let report = HealthReport {
+            attached: 1,
+            refused: 2,
+            tables: vec![AttachedTable {
+                window: 3,
+                site: "pokerstars".into(),
+                table: Some("Made-up II".into()),
+                waiting: false,
+            }],
+            refused_tables: vec![
+                RefusedTable {
+                    window: 7,
+                    site: "ggpoker".into(),
+                    table: Some("Made-up I".into()),
+                    reason: RefusalReason::Prohibited,
+                },
+                RefusedTable {
+                    window: 8,
+                    site: "888poker".into(),
+                    table: None,
+                    reason: RefusalReason::Unknown,
+                },
+            ],
+            remote_policy: true,
+            ..HealthReport::default()
+        };
+        event(message(HudMessage::Health {
+            seq: 1,
+            report: report.clone(),
+        }));
+        let windows = shared.windows().clone();
+        assert_eq!(windows, Windows::from_health(&report));
+        assert_eq!(windows.refused[0].table.as_deref(), Some("Made-up I"));
+        assert_eq!(windows.attached[0].table.as_deref(), Some("Made-up II"));
+        assert!(windows.remote_policy);
+        let before = heard.load(Ordering::SeqCst);
+        event(message(HudMessage::Health { seq: 2, report }));
+        assert_eq!(heard.load(Ordering::SeqCst), before, "unchanged: not told");
+        event(Event::Disconnected {
+            reason: "gone".into(),
+        });
+        assert_eq!(*shared.windows(), Windows::default());
+        assert!(heard.load(Ordering::SeqCst) > before);
+
+        let status = |phase: &'static str, tables_open: u32, refused: usize| HudStatusDto {
+            phase,
+            tables_open,
+            refused: vec![
+                RefusedDto {
+                    site: "ggpoker".into(),
+                    window: 1,
+                    table: None,
+                    reason: RefusalReason::Prohibited,
+                };
+                refused
+            ],
+            ..HudStatusDto::default()
+        };
+        assert_eq!(tray_line(&status("off", 0, 0)), "HUD off");
+        assert_eq!(tray_line(&status("not-installed", 0, 0)), "HUD off");
+        assert_eq!(tray_line(&status("starting", 0, 0)), "HUD starting…");
+        assert_eq!(tray_line(&status("running", 0, 0)), "HUD: no table open");
+        assert_eq!(
+            tray_line(&status("running", 2, 1)),
+            "HUD: 2 tables · 1 not allowed"
         );
         stats.stop();
         drop(store);

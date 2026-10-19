@@ -272,6 +272,10 @@ shipped copy, never looser, until a new signed release says otherwise. Since
 R3.6 that covers the table data that bears on compliance too: a room's
 table-graphics zones only grow and its process names only narrow.
 
+Since R3.10 the app does exactly that: `<web origin>/sites.json` is the
+repository's file published by the web build, fetched every few hours,
+checked whole, merged stricter-only and cached (*As built, R3.10*).
+
 Built in R0.12 (`config/sites.json`, `config/sites.schema.json`,
 `core/rail-config`); the real shape adds `kind`, `network`, `operating`,
 `skins`, `anonymisation`, `docs`, `notes`, and a verification status on every
@@ -7369,6 +7373,149 @@ graphics, and CPU with twelve real tables.
   The question is `rail_config::Site::hud_permitted()` (R0.12), asked of the
   merged configuration (`load_remote`).
 - A10: analysis and solver screens are hidden while any table is open.
+- *As built* (§15): **done** - the app keeps the room list current from the
+  web (stricter only), one merged copy for the HUD, the popup and the editor;
+  the HUD screen, Today and the tray say which tables have the HUD and which
+  were refused and why; A10 reaches the sidebar and the command palette; a
+  release cannot ship on a stale policy check. `core/rail-sync/src/policy.rs`
+  (fetch, check, cache, keeper), `app/src-tauri/src/policy.rs` (the app's
+  single source and its commands), `hud.rs` (status lists, tray line,
+  `--policy`), `rail-hud-ipc` (`HealthReport` lists), `rail-hud`
+  (`--policy`, refusals with table and reason), `app/src/lib/hudCompliance.ts`
+  (pure wording), `screens/hud/HudStatusPanel.tsx`, `lib/duringPlay.ts`,
+  `frontend/scripts/sites-json.mjs`, `tests/scripts/hud-policy/check.mjs`,
+  `.github/workflows/release-checklist.yml`.
+  - **Where the remote `sites.json` lives: the web origin, as a static
+    file** (`<web>/sites.json`; production
+    `https://poker-hand-converter.vercel.app/sites.json`). The web build
+    copies `config/sites.json` byte for byte to `frontend/public/sites.json`
+    (gitignored) before `next dev` / `next build`
+    (`frontend/scripts/sites-json.mjs`, which also refuses a file that is not
+    JSON version 1, failing the deploy rather than the apps), served with
+    `Cache-Control: no-cache` (revalidated every time; Vercel's ETag) and
+    `nosniff`. Chosen over a Supabase Storage object because the repository
+    file stays the one source (no second copy to keep in step, no upload
+    credentials), every change is a reviewed pull request that the schema
+    test and the Rust validator check, and the web deploy is not an app
+    release. **How the owner updates it**: edit `config/sites.json` (switch a
+    room's `hud.allowed` off, add a restriction, refresh `checkedAt`), merge,
+    and it is live with the web deploy - which is `main` (staging does not
+    deploy): it reaches users with the staging -> main promotion.
+  - **Fetch** (`rail_sync::policy::PolicyFetcher`): the URL from
+    `RAIL_WEB_URL` (the sign-in's web origin; a debug build reads it at run
+    time), HTTPS only - plain HTTP only to a loopback address (tests, `next
+    dev`) -, the OS certificate verifier (rustls-platform-verifier, as for
+    sign-in), **no redirects**, `If-None-Match` / `If-Modified-Since` from
+    the cached copy (only when the cache's record's SHA-256 matches its
+    text), 10 s to connect, 20 s in all, at most 1 MiB (checked on the
+    declared length and again while reading). First look 5 s after start,
+    then every 6 h, 30 min after a failure, and "Look for an update now".
+  - **Checked whole, no signature**: `rail_config::load_remote` - the strict
+    schema (`deny_unknown_fields`, `version` 1) and every validator rule - or
+    nothing of the file is used; merged by R0.12 / R3.6's rule (HUD only
+    switched off, restrictions only added, table graphics only grown,
+    processes only narrowed, unknown ids ignored, identity changes ignored).
+    No signature: the strongest thing a forged file could do through a
+    broken TLS chain is switch a HUD *off*, which TLS plus the merge rule
+    already bound; a signing key would be one more secret for no gain in
+    safety (and the hand-edited cache is bound the same way).
+  - **Cache** (`PolicyCache`): `<app local data>/policy/sites.json` (the
+    last good text) and `sites.meta.json` (URL, ETag, Last-Modified,
+    downloaded at, SHA-256), each written to a temporary file and renamed.
+    Only a copy that passed is written. At start the app (`PolicyKeeper::
+    open`) and the HUD (`rail-hud --policy <that file>`, read before its first
+    look for tables, so a room the remote copy switched off is never attached
+    for a moment) merge it over the shipped copy; a cached file that does not
+    pass is left alone and not used. It never expires: a stricter copy stays
+    until a newer one replaces it. **Failure** (offline, 5xx, a redirect, too
+    large, refused) keeps the last good merged copy, or the shipped one.
+  - **One source in the app** (`crate::policy`): `policy::config()` (the
+    merged `Config`) for the popup's rules (`PopupRules::for_site`) and the
+    editor's rooms (`hud_editor::rooms`), `policy::compliance()` (the HUD's
+    own `Compliance` over the same remote text) for the editor's preview.
+    A new copy is applied at once: `policy {remote}` to the HUD (which
+    detaches what it no longer allows; it is also sent on every
+    connection), an open popup of a room no longer allowed closes, and the
+    window hears `hud-policy-changed`.
+  - **The HUD's lists**: `HealthReport` gains `tables` (attached: window,
+    room, table name, waiting), `refusedTables` (still-open refused windows
+    with room, table name and reason) and `remotePolicy` (all `serde(default)`,
+    so no protocol bump); the engine keeps each refusal's table and reason.
+    The app keeps them (`attach_refused` added at once, then replaced by
+    each health answer, cleared when the HUD goes) and `hud_status` gives
+    them with the phase; `hud-status-changed` tells the window.
+  - **UI** (en + hr): the HUD screen opens with **"At the tables"**: the
+    HUD's state, the tables it is on ("waiting for the table's first hand"),
+    the tables **without the HUD** - room and table, why in plain words
+    (`prohibited`; **withdrawn** when the room was allowed in this build and
+    an update switched it off; `unknown` = rules not established, unknown is
+    no; `not-a-room` = a network; `unknown-site`), the room's policy page
+    (opened in the browser by `hud_open_policy_source`, only an `https`
+    `hud.source` of the merged list) and the date it was read -, "There is no
+    switch to turn the HUD on here, by design", the **"Why can't I enable the
+    HUD here?"** explanation (open when a table was refused), where the HUD
+    may be used (allowed rooms with page and date; the others folded), where
+    the list came from ("this version's own" or "updated from the web on
+    ..."), the last look and what an update tried to loosen. **Today** has a
+    line ("HUD: on 2 tables · 1 table without it (GGPoker: not allowed)" ->
+    HUD details). **Tray**: a fourth disabled line ("HUD off", "HUD
+    starting…", "HUD: 2 tables · 1 not allowed"), looked at every 2 s and on
+    each change, relabelled with the language. **No override** anywhere (a
+    test holds the window's commands to the three read-only policy ones).
+  - **A10 complete**: `duringPlay.ts` `screenOffered` / `offeredScreens`;
+    the sidebar and the command palette leave out a screen classified as
+    help while a table is open, and its Cmd/Ctrl + digit does nothing (the
+    others keep their numbers). No screen is classified today (R5.4's
+    analysis will be).
+  - **Release checklist** (§12): `npm run hud:policy-check` in `tests/`
+    (`scripts/hud-policy/check.mjs`, plain Node) lists every room with
+    `hud.allowed = true`, its policy page and `checkedAt`, and exits 1 when a
+    date is older than 90 days (`--max-age-days`), missing, in the future, or
+    the source is not `https` (or the entry is not a room);
+    `.github/workflows/release-checklist.yml` runs it by hand (and as a
+    `workflow_call` for the release workflow), the table in the job summary.
+    Not in CI: it depends on today's date.
+  - **Tests**: rail-sync `policy::tests` against a local HTTP server - a
+    stricter copy applies, is cached and is in force after a restart before
+    any fetch; a looser one is taken for the rest with the room kept and a
+    note; not JSON / an unknown field / version 2 / a validator rule broken
+    are each refused whole with the last good copy and the cache untouched;
+    503, too large, a redirect and nothing listening keep the last good
+    copy; a failure before any copy is the shipped policy; ETag and
+    Last-Modified sent, `304` current, a mismatched record not sent; a
+    damaged cache unused; HTTPS-or-loopback only. rail-config (notes read as
+    lines). rail-hud-ipc (the lists round-trip; an older HUD's health answer
+    reads). rail-hud: compliance `--policy` file (missing, stricter,
+    broken), engine (lists in health, a refusal's table and reason, cleared
+    when the window closes, a stricter policy listing the detached table),
+    arguments. App (`cargo test -p rail-app`, mock runtime): the policy DTO
+    over a cached remote copy (withdrawn room flagged, looser note), without
+    a keeper the signed list, only listed `https` pages open; the status
+    lists from `attach_refused` / health / disconnect and the tray line;
+    strings. `tests/`: `appHudCompliance.test.ts` (wording, ordering, links,
+    dates, no override), `appDuringPlay.test.ts` (sidebar and palette ask the
+    gate), `hudPolicyCheck.test.ts`. **Windows CI**
+    (`windows_compliance.rs`, real windows, the real supervisor): posing as
+    GGPoker the table is `attach_refused` `prohibited` and listed in the
+    health answer's `refusedTables` with its table name and reason - the
+    list the app shows as it is - with no overlay window of the HUD's and
+    `tables_open` never above 0; posing as PokerStars with `--policy` (a
+    copy switching it off) refused from the first look, attached when the
+    app's `policy` goes back to the shipped copy (an overlay appears), and
+    detached again - overlay gone, listed - when the copy comes back.
+    Cross-checked locally with `cargo clippy --target x86_64-pc-windows-msvc
+    -p rail-hud --all-targets` (stand-in C compiler and archiver). The HUD
+    screen and Today were checked in a browser with mocked Tauri calls and
+    made-up tables (running with tables attached and refused, off; English
+    and Croatian; the policy link and "Look for an update now").
+  - **Limits.** The first download needs the web deploy that carries
+    `/sites.json` (the staging -> main promotion); until then every look
+    fails quietly and the shipped copy stays. A remote copy only applies to
+    the HUD's policy and table data; the watcher's folders and the hands'
+    sites still read the shipped copy (`folders::sites()`). A custom
+    statistic edited to read the cards while assigned to PokerStars is still
+    not warned about at save (the renderer drops it; R3.9's note). The
+    workflow can only be dispatched once it is on `main`.
 
 ### R3.11 macOS: find tables — M
 - Accessibility API per poker process (`kAXWindowsAttribute`, `AXTitle`) for
@@ -7489,6 +7636,19 @@ and Rust in the same PR during the port, with the goldens regenerated by
 - **Release checklist**: compliance re-check (R3.0) for every room with
   `hud.allowed = true`; golden diff green; performance gate green; migrations
   applied to production and recorded; release notes.
+  - **The compliance item is enforced (R3.10)**: run the workflow **Release
+    checklist** (Actions -> Release checklist -> Run workflow, on the commit
+    to release; `max_age_days`, default 90) or `npm run hud:policy-check` in
+    `tests/`. It lists every room with `hud.allowed = true`, its policy page
+    (`hud.source`) and `hud.checkedAt`, and **fails** when any date is older
+    than the limit (or missing, or the source is not an `https` page). To
+    pass: re-read each room's page (`docs/research/HUD-POLICIES.md` has the
+    checklist), update `source` / `checkedAt` / `notes` - or switch the room
+    off - in `config/sites.json`, merge. The release workflow, once built,
+    calls it (`workflow_call`) before building.
+  - Between releases a stricter room list reaches the apps from the web
+    (`<web>/sites.json`, R3.10) with the next web deploy; a looser one
+    (a room switched on) needs a release.
 
 ---
 
@@ -7585,3 +7745,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **R3.7 done**: the HUD data path. A table's players are read over **the table's segment** (its hand's: `Reader::hud_hand`), opaque-id villains under the session scope the store wrote. **`ownHandsOnly`** (PokerStars, Winamax, ACR): store migration 14 adds `player_rollups_observed` - the part of `player_rollups` from hands without a hero seat, written by the same `Pending` in the hand's transaction (nothing more for a played hand), a fifth summed table with its recompute twin - and `custom_player_rollups_observed`; the HUD reads rollups less that part (`Reader::hud_own_totals`, `custom_player_totals(.., own_hands_only)`), exact to the counter (a store with an observed and a played hand equals a store of the played hand alone). Migration 14 fills the part from the stored rows in its transaction (`stats::fill_observed`), recounts the user's statistics when observed hands exist, restarts a rows job left running; tested from every version and from a version-13 store with data; R2.11's map gains both tables. Cost: import gate 59-60 % vs staging's 60 % (interleaved, 100k, 3 threads), an all-observed corpus imports at the same rate; HUD lookup at 500k + 300k padded players 88 -> 121 us median (p99 109 -> 154 us). **Nothing from the hand in play**: documented and tested with the real watcher (`tests/in_play.rs`); found that R1.3's assumption is load-bearing (a PokerStars prefix cut at the flop validates: a room stalling mid-hand > 500 ms would get it stored) - R3.14 checks the real clients. **Restart**: a window with no announced hand starts from its table's newest stored hand played and imported in the last 15 min (`Reader::latest_hand_of_table`, `hands_imported_at_idx`, no sort); e2e kills the HUD and the new process shows every table at once. The user's statistics in a design (`PanelStats::with_custom`, `Hud::set_design`). **Latency chain** per hand - watcher notice (`WatchEvent::Imported.noticed_ms`) -> import -> sent (`hand_imported.timing`) -> arrived -> re-read -> frame (`table_updated.chain`, `--latency-report` JSON lines, a debug build's line on the table, never in release): 12 tables, 96 hands, debug, M2 Pro: **p50 506 ms, p95 521 ms** (503 ms of it the quiet period; re-read 0.8 ms, frame 0.4 ms); the e2e asserts p95 < 1 s. `stats_changed` re-read after a swap and the recompute pause while tables are open verified by tests. |
 | 2026-10-19 | **R3.8 done**: panel and popup. **Panel**: the six definitions and the hand count as before, plus a **legend** pill in a free corner (clear of the table's graphics, the panels and the debug line) with one sign per colour in use after the room's collapse (`-` `=` `+` on every allowed room with the default design; PokerStars at most two thresholds whatever the design), and - **only where the room allows labelling players (Winamax; never PokerStars or ACR, `noPlayerLabels`)** - the user's colour tag (a bright bar, contrast on any felt), a note mark and labels, read by `Reader::player_notes`, never for the hero or an opaque-id seat. **Click**: a press that never passed the drag threshold and was released over the overlay is `PanelClicked`; the engine sends `open_popup {site, storeSite, table, player, segment, slot, anchor, scale}`. **Popup**: one Tauri webview window of the app's (`hud-popup-<n>`, `#/hud-popup`, `packages/ui` tables), placed beside the panel in the monitor's work area, reused for another panel, closed by the same panel, Esc, its button, losing the keyboard, the pointer leaving or the last table closing; built hidden and unfocused so the table keeps the keyboard (`SW_SHOWNOACTIVATE` on Windows; macOS not wired). It reads what the panel reads (the table's segment, own hands only) through the app: grouped statistics of `players: any` definitions (no money), thresholds in words, hands together and your result (bb, cash and tournaments apart), **by position only on ACR** (hidden on PokerStars - unclear under "no display changing with game state" - and on Winamax, read as conservatively; `Reader::player_own_positions`), **your words only on Winamax** (on PokerStars and ACR not even the note: a note at the table is a label). **A10**: the app has no analysis/solver/equity/chart screen; `lib/duringPlay.ts` is the gate (every route classified, the shell replaces a helping screen while `tables_open > 0`), and the replayer's pot odds and the 13 x 13 starting-hand chart hide during play. Tests: rail-config, rail-hud (panel, scene, layout, drag, tracking, engine), IPC wire form, rail-store own positions, the app with Tauri's mock runtime (rules per room, popup over a store, the window opened / moved / closed, `open_popup` -> window -> tables' edges), `appDuringPlay.test.ts`; Windows CI `windows_seats.rs` (click vs drag on real windows, tags only posing as Winamax, the HUD process's `open_popup`); the popup page checked in a browser with mocked Tauri calls and made-up data. Found on Windows CI: a hand committed by a recheck after the one before it had no `noticed` stamp (rail-watch now leaves the rest of a commit the latest change noticed), and the app's test binary needs the application manifest (`build.rs` links it into every target on MSVC); the popup test's store folder had the simulator's folder name (the helper's are now `rail-hud-sim-*`, and a wait reports the simulator's stderr and exit status). |
 | 2026-10-19 | **R3.9 done**: the HUD editor and presets. **Model** (`rail_hud::design`): a design is ordered panel cells (shipped or the user's statistics; a cell may show only at some stack depths), columns, per-statistic overrides keyed by id (bands, decimals, sample - a layer, never an edit of the definitions), popup sections, legend, the player's words, colour thresholds. **Presets** (`config/hud/presets.json`): cash (R3.4's panel), tournament, Spin - each complying with every allowed room - and "tournament by stack depth", which switches with the stack and so is ACR's only. **Assignments** per (room or every room, size or every size, format or every format): room, then format, then size, else the format's preset. **Restrictions** enforced twice: the editor refuses to save or assign what a room forbids and says why (PokerStars: a card-split statistic, a stack cell, more than two thresholds; Winamax: a stack cell; labels a note on PokerStars and ACR), and the renderer drops it anyway (defence in depth). R2.10's language gains card fields (`cards_known`, `pocket_pair`, `suited`) and `CustomSet::card_split`. **The design travels with the frame** (`OverlayFrame.design`; the Windows overlay keeps none of its own); the engine resolves each table's design from its room, size and format, the legend reads the user's bands, `open_popup` names the design and the popup shows its sections. **Editor** (HUD screen): drag and drop with a keyboard alternative, per-cell settings, popup sections, live room checks, a preview drawn by the HUD's own renderer under the room's rules, reset of dragged panels, the preferred seat, the assignment matrix; en + hr. **Store** migration 15 (designs, assignments, tombstones and dirty marks); **Supabase** `hud_layouts` + `put_hud_layouts` (select-own RLS, definer writer, pgTAP 35; not applied to production); **sync** of all four HUD tables in R1.9's worker (every write wakes it; the HUD rows are pulled every minute, on their own schedule), last writer wins by `updated_at`. Tests: rail-stats, rail-store, rail-hud (design, panel, engine), rail-sync, pgTAP, the app; Windows CI `windows_designs.rs` (an assigned design changes what the overlay draws posing as Winamax; a card-split statistic dropped posing as PokerStars); the screen checked in a browser over the app's own commands behind a mocked Tauri bridge with made-up data. |
+| 2026-10-19 | **R3.10 done**: compliance mode in the app. **Remote `sites.json`**: the web build publishes `config/sites.json` at `<web>/sites.json` (`frontend/scripts/sites-json.mjs`, `no-cache`), so the repository file is the only source and the owner updates it with a pull request (live with the web deploy = the staging -> main promotion); `rail_sync::policy` fetches it over HTTPS (OS verifier, no redirects, ETag / If-Modified-Since, 10 / 20 s timeouts, 1 MiB cap; HTTP only to loopback), checks it whole with `rail_config::load_remote` (strict schema + validator; no signature - a forged file could only switch a HUD off), merges stricter-only, caches the last good copy atomically, keeps it (or the shipped one) on any failure; first look 5 s after start, then every 6 h (30 min after a failure) and on "Look for an update now". The app's single source (`crate::policy`) feeds the HUD (`rail-hud --policy <cache>` read before the first look for tables; `policy {remote}` on each connection and change), the popup and the editor; a room switched off closes its popup. **Status**: `HealthReport` lists the attached tables and the still-open refused windows with room, table and reason (`serde(default)`, no protocol bump); `hud_status` gives them; the HUD screen's "At the tables" shows the tables with the HUD, the tables without it and why in plain words (prohibited, withdrawn by an update, unknown = no, a network, an unknown site) with the room's policy page and date, "Why can't I enable the HUD here?", the rooms where it may be used and where the list came from; Today has a line, the tray a fourth line; no override anywhere. **A10**: the sidebar and the palette leave out a helping screen while a table is open (`duringPlay.ts` `screenOffered`). **Release checklist**: `npm run hud:policy-check` / the manual workflow `release-checklist.yml` fails on any allowed room checked more than 90 days ago (§12). Tests: rail-sync policy against a local server (stricter applies and is cached, looser ignored with a note, invalid refused whole, failures keep the last good copy, 304, restart), rail-hud (`--policy`, lists), rail-hud-ipc, the app (policy DTO, status lists, tray line), `tests/` (wording, no override, A10 gate, the checklist); Windows CI `windows_compliance.rs`: a table posing as GGPoker refused and listed with its reason, no overlay; posing as PokerStars with a remote copy switching it off refused from the first look, attached under the shipped policy, detached again. The screens checked in a browser with mocked Tauri calls and made-up tables. |

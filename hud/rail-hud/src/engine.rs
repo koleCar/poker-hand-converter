@@ -103,8 +103,8 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use rail_hud_ipc::protocol::{
-    AppMessage, HandTiming, HealthReport, HudMessage, LatencyChain, PlayerHands, PlayerRef,
-    RefusalReason, ScreenRect,
+    AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, LatencyChain, PlayerHands,
+    PlayerRef, RefusalReason, RefusedTable, ScreenRect,
 };
 use rail_stats::custom::{CustomDef, CustomSet};
 use rail_stats::display::Display;
@@ -246,8 +246,9 @@ pub struct Hud {
     store: StoreView,
     settings: Settings,
     attached: BTreeMap<WindowId, Attached>,
-    /// Windows refused, with their room (each reported once).
-    refused: BTreeMap<WindowId, String>,
+    /// Windows refused, with their room, table and reason (each reported
+    /// once; listed in every health answer, R3.10).
+    refused: BTreeMap<WindowId, RefusedTable>,
     reported_open: u32,
     latencies: Latencies,
     started: Instant,
@@ -484,6 +485,18 @@ impl Hud {
                     .count(),
             )
             .unwrap_or(u32::MAX),
+            tables: self
+                .attached
+                .iter()
+                .map(|(id, a)| AttachedTable {
+                    window: id.0,
+                    site: a.window.site.clone(),
+                    table: a.window.table.clone(),
+                    waiting: a.players.is_empty(),
+                })
+                .collect(),
+            refused_tables: self.refused.values().cloned().collect(),
+            remote_policy: self.compliance.has_remote(),
         }
     }
 
@@ -583,16 +596,16 @@ impl Hud {
                 self.rooms.set_config(self.compliance.config());
                 // Decide again: detach what is no longer allowed now, and
                 // look at refused windows afresh at the next find.
-                let ids: Vec<(WindowId, String)> = self
+                let ids: Vec<(WindowId, String, Option<String>)> = self
                     .attached
                     .iter()
-                    .map(|(id, a)| (*id, a.window.site.clone()))
+                    .map(|(id, a)| (*id, a.window.site.clone(), a.window.table.clone()))
                     .collect();
                 self.refused.clear();
-                for (id, site) in ids {
+                for (id, site, table) in ids {
                     if let Err(reason) = self.compliance.decide(&site) {
                         self.detach(id);
-                        self.refuse(id, &site, reason, out);
+                        self.refuse(id, &site, table, reason, out);
                     }
                 }
                 self.report_open(out);
@@ -702,8 +715,8 @@ impl Hud {
             match self.compliance.decide(&window.site) {
                 Ok(()) => self.attach(window, out),
                 Err(reason) => {
-                    let (id, site) = (window.id, window.site);
-                    self.refuse(id, &site, reason, out);
+                    let (id, site, table) = (window.id, window.site, window.table);
+                    self.refuse(id, &site, table, reason, out);
                 }
             }
         }
@@ -869,10 +882,17 @@ impl Hud {
         &mut self,
         id: WindowId,
         site: &str,
+        table: Option<String>,
         reason: RefusalReason,
         out: &mut dyn FnMut(HudMessage),
     ) {
-        if self.refused.insert(id, site.to_owned()).is_none() {
+        let refused = RefusedTable {
+            window: id.0,
+            site: site.to_owned(),
+            table,
+            reason,
+        };
+        if self.refused.insert(id, refused).is_none() {
             eprintln!(
                 "rail-hud: not attaching to window {} ({site}): {reason:?}",
                 id.0
@@ -1471,6 +1491,18 @@ mod tests {
         match &sent[..] {
             [HudMessage::Health { seq: 9, report }] => {
                 assert_eq!((report.attached, report.refused), (1, 0));
+                // (R3.10) The app's list: the table still open, waiting.
+                assert_eq!(
+                    report.tables,
+                    [AttachedTable {
+                        window: 2,
+                        site: "pokerstars".into(),
+                        table: Some("Florence 03".into()),
+                        waiting: true,
+                    }]
+                );
+                assert!(report.refused_tables.is_empty());
+                assert!(!report.remote_policy);
                 assert_eq!(report.platform, "sim");
                 assert!(!report.store_open);
             }
@@ -1501,6 +1533,18 @@ mod tests {
             );
             assert!(step(&mut hud).is_empty(), "reported once");
             assert!(hud.attached().is_empty());
+            // (R3.10) Listed with its reason in every health answer while
+            // it is open, for the app's HUD screen.
+            assert_eq!(
+                hud.health().refused_tables,
+                [RefusedTable {
+                    window: 4,
+                    site: site.into(),
+                    table: Some("T".into()),
+                    reason,
+                }],
+                "{site}"
+            );
             let mut sent = Vec::new();
             hud.handle(
                 Input::App(
@@ -1555,6 +1599,18 @@ mod tests {
             ]
         );
         assert!(step(&mut hud).is_empty());
+        // (R3.10) The app's lists say so: refused, by the remote policy.
+        let health = hud.health();
+        assert!(health.remote_policy && health.tables.is_empty());
+        assert_eq!(
+            health.refused_tables,
+            [RefusedTable {
+                window: 1,
+                site: "winamax".into(),
+                table: Some("Table A".into()),
+                reason: RefusalReason::Prohibited,
+            }]
+        );
         let mut sent = Vec::new();
         hud.handle(
             Input::App(AppMessage::Policy { remote: None }, Instant::now()),
@@ -1562,6 +1618,9 @@ mod tests {
         );
         assert!(sent.is_empty());
         assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
+        let health = hud.health();
+        assert!(!health.remote_policy && health.refused_tables.is_empty());
+        assert_eq!(health.tables.len(), 1);
     }
 
     /// A tournament table move (the title's table changes) forgets the

@@ -188,10 +188,11 @@ impl PopupRules {
         }
     }
 
-    /// A room's rules, from the shipped `sites.json`; `None` where its HUD
-    /// is not allowed (no popup at all).
+    /// A room's rules, from the merged `sites.json` (R3.10: the shipped copy
+    /// with the remote one over it, as the HUD reads it); `None` where its
+    /// HUD is not allowed (no popup at all).
     pub fn for_site(site: &str) -> Option<Self> {
-        let config = crate::folders::sites().ok()?;
+        let config = crate::policy::config();
         let entry = config.site(site)?;
         if !entry.hud_permitted() {
             return None;
