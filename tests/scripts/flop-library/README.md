@@ -181,6 +181,17 @@ likelihood in the unnarrowed starting range (the lift), clustered by player.
 spot check (console only). About two minutes. `docs/ANALYSIS-PLAN.md` §10
 2026-10-19.
 
+**Multiway checks and bets (not shipped).** `FLOPLIB_HANDS=... npm run
+floplib:multiway-bets` measures, in every pot three or more saw the flop of,
+how the field answers a bet and bets when not facing one, against the
+narrowing model's own answers (the MDF split) and a population model fitted
+held out (five folds by hand); then a river check-or-bet model on it
+(`multiwayRiver.ts`, study code): the EV of the hero's action against what was
+won, the showdown share of the player who shows first against the share won
+(with a heads-up control and harder check trims as a probe), and the
+would-be grades (`MWBETS_GRADES=1` prints each, console only). About ten
+minutes. `docs/ANALYSIS-PLAN.md` §10 2026-10-19 (multiway checks and bets).
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity
