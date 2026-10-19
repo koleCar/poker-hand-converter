@@ -90,6 +90,18 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // The desktop app's HUD policy (docs/RAIL-PLAN.md R3.10), copied from
+        // `config/sites.json` at build (`scripts/sites-json.mjs`). Revalidated
+        // on every request (the app sends If-None-Match), so a re-check that
+        // switches a room off reaches the apps with the deploy, not after a
+        // cache expires; `nosniff` keeps it JSON.
+        source: "/sites.json",
+        headers: [
+          { key: "Cache-Control", value: "no-cache" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      {
         source: "/embed/:path*",
         headers: [{ key: "Content-Security-Policy", value: "frame-ancestors *" }],
       },

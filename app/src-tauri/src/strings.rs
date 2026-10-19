@@ -50,6 +50,12 @@ pub struct Tray {
     pub sync_offline: fn(u64) -> String,
     pub sync_rate_limited: &'static str,
     pub sync_failed: &'static str,
+    /// (R3.10) The HUD line: the HUD process is not running.
+    pub hud_off: &'static str,
+    /// Starting, or starting again.
+    pub hud_starting: &'static str,
+    /// Running: tables attached, windows refused by compliance mode.
+    pub hud_tables: fn(u32, u32) -> String,
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
@@ -126,6 +132,32 @@ fn sync_offline_hr(waiting: u64) -> String {
     format!("Izvan mreže · ruke koje čekaju: {waiting}")
 }
 
+fn hud_tables_en(attached: u32, refused: u32) -> String {
+    let tables = match attached {
+        0 => "HUD: no table open".to_owned(),
+        1 => "HUD: 1 table".to_owned(),
+        n => format!("HUD: {n} tables"),
+    };
+    if refused == 0 {
+        tables
+    } else {
+        format!("{tables} · {refused} not allowed")
+    }
+}
+
+fn hud_tables_hr(attached: u32, refused: u32) -> String {
+    let tables = if attached == 0 {
+        "HUD: nema otvorenog stola".to_owned()
+    } else {
+        format!("HUD: stolovi: {attached}")
+    };
+    if refused == 0 {
+        tables
+    } else {
+        format!("{tables} · nije dopušteno: {refused}")
+    }
+}
+
 fn watching_hr(folders: usize, hands_today: u64) -> String {
     format!("Mape: {folders} · ruke danas: {hands_today}")
 }
@@ -158,6 +190,9 @@ pub const TRAY_EN: Tray = Tray {
     sync_offline: sync_offline_en,
     sync_rate_limited: "Sync waits: the account's limit for now",
     sync_failed: "Sync problem: see Settings",
+    hud_off: "HUD off",
+    hud_starting: "HUD starting…",
+    hud_tables: hud_tables_en,
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
@@ -188,6 +223,9 @@ pub const TRAY_HR: Tray = Tray {
     sync_offline: sync_offline_hr,
     sync_rate_limited: "Sinkronizacija čeka: ograničenje računa",
     sync_failed: "Problem sa sinkronizacijom: vidi Postavke",
+    hud_off: "HUD isključen",
+    hud_starting: "HUD se pokreće…",
+    hud_tables: hud_tables_hr,
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",
@@ -251,6 +289,13 @@ mod tests {
         assert_eq!((TRAY_EN.sync_syncing)(1, 2), "Syncing 1 of 2 hands");
         assert_eq!((TRAY_EN.sync_offline)(1), "Offline · 1 hand waits to sync");
         assert_eq!((TRAY_HR.sync_syncing)(1, 2), "Sinkronizacija: 1 od 2 ruku");
+        assert_eq!((TRAY_EN.hud_tables)(0, 0), "HUD: no table open");
+        assert_eq!((TRAY_EN.hud_tables)(1, 0), "HUD: 1 table");
+        assert_eq!((TRAY_EN.hud_tables)(2, 1), "HUD: 2 tables · 1 not allowed");
+        assert_eq!(
+            (TRAY_HR.hud_tables)(0, 2),
+            "HUD: nema otvorenog stola · nije dopušteno: 2"
+        );
     }
 
     #[test]

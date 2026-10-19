@@ -41,7 +41,8 @@ export function App() {
   return (
     <div className={styles.shell}>
       {/* The first-run screen belongs to Settings (where it is reached later). */}
-      <Sidebar current={route === SETUP ? "settings" : route} />
+      {/* A10 (R3.10): the sidebar and the palette leave out a screen that helps with play while a table is open. */}
+      <Sidebar current={route === SETUP ? "settings" : route} tablesOpen={tablesOpen} />
       <main className={styles.main}>
         {/* A new language mounts the screen again: every number and date
             on it is formatted in that language (`i18n/format.ts`). */}
@@ -51,7 +52,7 @@ export function App() {
           <Current key={locale} />
         )}
       </main>
-      <Palette />
+      <Palette tablesOpen={tablesOpen} />
     </div>
   );
 }

@@ -28,6 +28,7 @@ import { CommandPalette, type PaletteItem } from "@rail/ui/palette/CommandPalett
 import { rankItems } from "@rail/ui/palette/fuzzy";
 
 import { useT, type Dict } from "../i18n";
+import { screenOffered } from "../lib/duringPlay";
 import { adoptSettings, getAppearance, setAppearance } from "../lib/appearance";
 import { inApp, ipc, type Density, type HandRow, type PlayerRow, type SavedFilter, type Theme } from "../lib/ipc";
 import { SCREENS, go, type Screen } from "../lib/router";
@@ -91,8 +92,12 @@ function remember(entry: Recent): void {
   }
 }
 
-/** Mounted once by the app: listens for Cmd/Ctrl + K (and + 1-6) and opens the palette. */
-export function Palette() {
+/**
+ * Mounted once by the app: listens for Cmd/Ctrl + K (and + 1-6) and opens the
+ * palette. (A10, R3.10) While a poker table is open (`tablesOpen`), a screen
+ * that helps with play is not listed and its shortcut does nothing.
+ */
+export function Palette({ tablesOpen }: { tablesOpen: boolean }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -105,7 +110,7 @@ export function Palette() {
       }
       const digit = Number(key);
       const screen = Number.isInteger(digit) && digit >= 1 ? SCREENS[digit - 1] : undefined;
-      if (screen) {
+      if (screen && screenOffered(screen, tablesOpen)) {
         event.preventDefault();
         setOpen(false);
         go(screen);
@@ -118,8 +123,8 @@ export function Palette() {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener(OPEN_EVENT, onOpen);
     };
-  }, []);
-  return open ? <PaletteDialog onClose={() => setOpen(false)} /> : null;
+  }, [tablesOpen]);
+  return open ? <PaletteDialog tablesOpen={tablesOpen} onClose={() => setOpen(false)} /> : null;
 }
 
 /** What the app looks like when the palette opens: which commands make sense now. */
@@ -168,17 +173,27 @@ function useContextOnOpen(): Context {
 
 const words = (text: string): string[] => text.split(" ").filter((word) => word !== "");
 
-/** Every item that does not need the store: screens, reports, settings, saved filters, commands. */
-function localItems(t: Dict, context: Context): PaletteItem[] {
+/**
+ * Every item that does not need the store: screens, reports, settings, saved
+ * filters, commands. (A10) While a table is open, a screen that helps with
+ * play is left out (its shortcut keeps its number: the others do not move).
+ */
+function localItems(t: Dict, context: Context, tablesOpen: boolean): PaletteItem[] {
   const p = t.palette;
   const appearance = getAppearance();
-  const items: PaletteItem[] = SCREENS.map((screen, index) => ({
-    id: `screen:${screen}`,
-    label: p.screen(t.nav[screen]),
-    group: p.screens,
-    keywords: [t.screens[screen].lead, ...words(p.goTo)],
-    shortcut: [MOD_KEY, String(index + 1)],
-  }));
+  const items: PaletteItem[] = SCREENS.flatMap((screen, index) =>
+    screenOffered(screen, tablesOpen)
+      ? [
+          {
+            id: `screen:${screen}`,
+            label: p.screen(t.nav[screen]),
+            group: p.screens,
+            keywords: [t.screens[screen].lead, ...words(p.goTo)],
+            shortcut: [MOD_KEY, String(index + 1)],
+          },
+        ]
+      : [],
+  );
   for (const tab of TABS) {
     items.push({
       id: `report:${tab}`,
@@ -250,7 +265,7 @@ function recentItem(t: Dict, recent: Recent, local: readonly PaletteItem[]): Pal
   return { id: recent.id, label, group: p.recent, ...(recent.detail === undefined ? {} : { detail: recent.detail }) };
 }
 
-function PaletteDialog({ onClose }: { onClose: () => void }) {
+function PaletteDialog({ onClose, tablesOpen }: { onClose: () => void; tablesOpen: boolean }) {
   const t = useT();
   const p = t.palette;
   const context = useContextOnOpen();
@@ -283,7 +298,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
     };
   }, [trimmed]);
 
-  const local = useMemo(() => localItems(t, context), [t, context]);
+  const local = useMemo(() => localItems(t, context, tablesOpen), [t, context, tablesOpen]);
   const busy = inApp && trimmed !== "" && (hands.query !== trimmed || players.query !== trimmed);
 
   const items = useMemo<PaletteItem[]>(() => {

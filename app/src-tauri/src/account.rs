@@ -68,11 +68,18 @@ fn setting(name: &str, built: Option<&'static str>) -> Option<String> {
         .map(str::to_owned)
 }
 
+/// The web origin (sign-in, R1.7; the remote `sites.json`, R3.10):
+/// `RAIL_WEB_URL` at build time (a debug build also at run time), else
+/// production.
+pub fn web_url() -> String {
+    setting("RAIL_WEB_URL", option_env!("RAIL_WEB_URL"))
+        .unwrap_or_else(|| DEFAULT_WEB_URL.to_owned())
+}
+
 fn config() -> Option<AuthConfig> {
     let supabase_url = setting("RAIL_SUPABASE_URL", option_env!("RAIL_SUPABASE_URL"))
         .unwrap_or_else(|| DEFAULT_SUPABASE_URL.to_owned());
-    let web_url = setting("RAIL_WEB_URL", option_env!("RAIL_WEB_URL"))
-        .unwrap_or_else(|| DEFAULT_WEB_URL.to_owned());
+    let web_url = web_url();
     let Some(anon_key) = setting(
         "RAIL_SUPABASE_ANON_KEY",
         option_env!("RAIL_SUPABASE_ANON_KEY"),

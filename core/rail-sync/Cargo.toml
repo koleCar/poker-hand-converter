@@ -14,6 +14,8 @@ repository.workspace = true
 rail-store = { path = "../rail-store" }
 # The pull reads the server's PHF back into `PhfHand` (R1.9).
 rail-core = { path = "../rail-core" }
+# (R3.10) The remote sites.json: checked and merged over the shipped copy.
+rail-config = { path = "../rail-config" }
 # HTTPS to Supabase. rustls with the *ring* provider (reqwest's own
 # `rustls` feature would pull aws-lc-rs, a C/assembly build on every OS);
 # certificates are checked by the operating system's verifier

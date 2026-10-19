@@ -301,6 +301,45 @@ pub struct HealthReport {
     /// from an older HUD: 0.
     #[serde(default)]
     pub waiting: u32,
+    /// (R3.10) The tables attached, for the app's HUD status. Absent from
+    /// an older HUD: none listed.
+    #[serde(default)]
+    pub tables: Vec<AttachedTable>,
+    /// (R3.10) The windows compliance mode refused that are still open,
+    /// each with its reason: what the app's HUD screen says "no" about.
+    /// [`HudMessage::AttachRefused`] announces each once; this is the
+    /// current list.
+    #[serde(default)]
+    pub refused_tables: Vec<RefusedTable>,
+    /// (R3.10) The policy in force has the app's remote `sites.json` merged
+    /// in (`false`: the shipped copy alone).
+    #[serde(default)]
+    pub remote_policy: bool,
+}
+
+/// (R3.10) A table the HUD is attached to.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AttachedTable {
+    pub window: u64,
+    /// The `sites.json` room.
+    pub site: String,
+    /// The table name from the window's title.
+    pub table: Option<String>,
+    /// Still "waiting for first hand".
+    pub waiting: bool,
+}
+
+/// (R3.10) A window that looked like a table and was refused.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RefusedTable {
+    pub window: u64,
+    /// The `sites.json` id the window matched.
+    pub site: String,
+    /// The table name from the window's title.
+    pub table: Option<String>,
+    pub reason: RefusalReason,
 }
 
 /// Latencies in microseconds.
@@ -389,6 +428,19 @@ mod tests {
                         max_us: 1000,
                     },
                     waiting: 1,
+                    tables: vec![AttachedTable {
+                        window: 1,
+                        site: "pokerstars".into(),
+                        table: Some("Made-up I".into()),
+                        waiting: true,
+                    }],
+                    refused_tables: vec![RefusedTable {
+                        window: 4,
+                        site: "ggpoker".into(),
+                        table: None,
+                        reason: RefusalReason::Prohibited,
+                    }],
+                    remote_policy: true,
                 },
             },
             HudMessage::TablesOpen { count: 12 },
@@ -472,6 +524,29 @@ mod tests {
         for message in &hud {
             assert_eq!(&round_trip(message), message);
         }
+    }
+
+    /// (R3.10) An older HUD's health answer (no table lists) still reads:
+    /// nothing listed, the shipped policy. A newer one names the refused
+    /// window's reason in kebab case.
+    #[test]
+    fn health_lists_are_optional() {
+        let old = r#"{"type":"health","seq":1,"report":{"uptimeMs":5,"attached":1,"refused":1,"storeOpen":true,"platform":"sim","reread":{"count":0,"p50Us":0,"p95Us":0,"maxUs":0}}}"#;
+        let HudMessage::Health { report, .. } = serde_json::from_str(old).expect("reads") else {
+            panic!("a health answer");
+        };
+        assert!(report.tables.is_empty() && report.refused_tables.is_empty());
+        assert!(!report.remote_policy);
+        let refused = RefusedTable {
+            window: 9,
+            site: "ipoker".into(),
+            table: Some("T".into()),
+            reason: RefusalReason::NotARoom,
+        };
+        assert_eq!(
+            serde_json::to_string(&refused).expect("json"),
+            r#"{"window":9,"site":"ipoker","table":"T","reason":"not-a-room"}"#
+        );
     }
 
     /// The wire form is the plan's: `type` in snake case, fields in camel

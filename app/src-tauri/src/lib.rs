@@ -71,6 +71,7 @@ pub mod hands;
 pub mod hud;
 pub mod hud_editor;
 pub mod players;
+pub mod policy;
 pub mod popup;
 pub mod quarantine;
 pub mod reports;
@@ -174,12 +175,16 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     let stats = stats::StatsState::start(&store);
     // The HUD popup (R3.8), before the HUD: a click on a panel opens it.
     app.manage(popup::PopupState::default());
+    // (R3.10) The HUD policy: the shipped sites.json and the cached remote
+    // copy over it, before the HUD (which reads the same cache at start).
+    let policy = policy::init(&app.path().app_local_data_dir()?.join("policy"));
     // The HUD (R3.2), before the watcher: imports feed it.
     let hud = hud::HudState::start(
         app,
         &store,
         stats.clone(),
         std::sync::Arc::clone(&sync_slot),
+        policy.map(|keeper| keeper.cache_file()),
     );
     let watcher = watch::WatcherState::start(
         &store,
@@ -200,6 +205,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
         watch::refresh_tray(app, &watcher);
     }
     watch::spawn_tray_refresher(app);
+    // (R3.10) The tray's HUD line.
+    hud::spawn_tray_refresher(app);
 
     // The account (R1.7): after the tray (it sets the account line), and
     // before the window shows, so a link that started the app is handled.
@@ -211,6 +218,9 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     }
     // A recompute's swap tells the window (R2.11).
     stats::spawn_refresher(app);
+    // (R3.10) The remote sites.json: a look shortly after start, then every
+    // few hours; a new copy reaches the HUD, the popup and the window.
+    policy::spawn(app);
 
     // The window is created hidden (`visible: false`) so a login start can
     // stay in the tray.
@@ -318,6 +328,9 @@ pub fn run() {
         hud::hud_status,
         hud::hud_set_preferred_seat,
         hud::hud_reset_seat_positions,
+        policy::hud_policy,
+        policy::hud_policy_check,
+        policy::hud_open_policy_source,
         hud_editor::hud_editor_state,
         hud_editor::hud_design_check,
         hud_editor::hud_design_save,
@@ -404,6 +417,9 @@ pub fn run() {
         hud::hud_status,
         hud::hud_set_preferred_seat,
         hud::hud_reset_seat_positions,
+        policy::hud_policy,
+        policy::hud_policy_check,
+        policy::hud_open_policy_source,
         hud_editor::hud_editor_state,
         hud_editor::hud_design_check,
         hud_editor::hud_design_save,

@@ -73,7 +73,10 @@ const USAGE: &str = "\
 rail-hud: Rail's HUD process. Started by the app, which writes a token on
 standard input:
 
-  rail-hud --store <rail.db> --ipc <endpoint>
+  rail-hud --store <rail.db> --ipc <endpoint> [--policy <sites.json>]
+
+--policy: the app's remote sites.json (its last good download), merged over
+the shipped copy before the first look for tables; stricter only (R3.10).
 
 For development, without the app:
 
@@ -109,6 +112,8 @@ pub struct Args {
     pub sim_title: Option<String>,
     /// (R3.7) `--latency-report <file>`: every hand's latency chain.
     pub latency_report: Option<PathBuf>,
+    /// (R3.10) The app's cached remote `sites.json`.
+    pub policy: Option<PathBuf>,
 }
 
 impl Args {
@@ -132,6 +137,7 @@ impl Args {
                 "--platform" => platform = value("--platform")?,
                 "--sim-events" => parsed.sim_events = Some(PathBuf::from(value("--sim-events")?)),
                 "--sim-site" => parsed.sim_site = Some(value("--sim-site")?),
+                "--policy" => parsed.policy = Some(PathBuf::from(value("--policy")?)),
                 "--latency-report" => {
                     parsed.latency_report = Some(PathBuf::from(value("--latency-report")?));
                 }
@@ -216,13 +222,29 @@ pub fn main_with(args: Vec<OsString>) -> i32 {
             };
         }
     };
-    let compliance = match Compliance::shipped() {
+    let mut compliance = match Compliance::shipped() {
         Ok(compliance) => compliance,
         Err(error) => {
             eprintln!("rail-hud: {error}");
             return exit_code::CONFIG;
         }
     };
+    // (R3.10) The app's remote copy, before any window is looked at: a room
+    // it switches off is never attached, not even until the app's `policy`.
+    if let Some(path) = &args.policy {
+        match compliance.apply_remote_file(path) {
+            Ok(notes) => eprintln!(
+                "rail-hud: policy {} ({} notes)",
+                if compliance.has_remote() {
+                    "shipped + remote"
+                } else {
+                    "shipped (no remote copy yet)"
+                },
+                notes.len()
+            ),
+            Err(error) => eprintln!("rail-hud: the remote policy was refused: {error}"),
+        }
+    }
     let platform = match args.platform() {
         Ok(platform) => platform,
         Err(error) => {
@@ -360,6 +382,17 @@ mod tests {
         let args = parse(&["--store", "/x/rail.db", "--ipc", "/t/hud.sock"]).expect("app");
         assert_eq!(args.store, Some(PathBuf::from("/x/rail.db")));
         assert_eq!(args.ipc.as_deref(), Some("/t/hud.sock"));
+        assert_eq!(args.policy, None);
+        let args = parse(&[
+            "--store",
+            "/x/rail.db",
+            "--ipc",
+            "/t/hud.sock",
+            "--policy",
+            "/x/policy/sites.json",
+        ])
+        .expect("app with a remote policy");
+        assert_eq!(args.policy, Some(PathBuf::from("/x/policy/sites.json")));
         let args = parse(&[
             "--standalone",
             "--platform",

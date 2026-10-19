@@ -34,3 +34,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# The remote sites.json for the desktop app (docs/RAIL-PLAN.md R3.10):
+# copied from config/sites.json by scripts/sites-json.mjs at dev and build.
+/public/sites.json

@@ -4,7 +4,9 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { errorText, inApp, ipc, type StoreStatus } from "../lib/ipc";
 import { go } from "../lib/router";
+import { hudState, refusedRoomNames } from "../lib/hudCompliance";
 import { useAccount } from "../lib/useAccount";
+import { useHudCompliance } from "../lib/useHudCompliance";
 import { useSync } from "../lib/useSync";
 import { ImportStatus } from "./ImportStatus";
 import { SessionPanel } from "./today/SessionPanel";
@@ -16,7 +18,9 @@ const REFRESH_MS = 5000;
 
 const number = liveNumberFormat();
 
-/** Today: who is signed in (R1.7) and how sync stands (R1.9), the current
+/** Today: who is signed in (R1.7), how sync stands (R1.9) and the HUD at the
+ * tables - on how many, and which it left alone because the room does not
+ * allow it (R3.10) -, the current
  * session - its result, hands, statistics and biggest pots (R2.7b) - the
  * watcher's folders with a backfill's progress (R1.3, R1.6) and the local
  * store's counts (R1.2). */
@@ -73,6 +77,7 @@ export function Today() {
       <ScreenHeader title={t.screens.today.title} lead={t.screens.today.lead} />
       <AccountLine />
       <SyncLine />
+      <HudLine />
       <SessionPanel />
       <ImportStatus />
       <section className={styles.section} aria-labelledby="today-store">
@@ -170,6 +175,39 @@ function SyncLine() {
     <p className={styles.account}>
       <span>{text}</span>
       <button type="button" className={styles.link} onClick={() => go("settings")}>
+        {d.details}
+      </button>
+    </p>
+  );
+}
+
+/** One line: the HUD at the tables (R3.10) - off, on how many tables, and
+ * how many it left alone because their room does not allow it, with the
+ * HUD screen a click away for the why. */
+function HudLine() {
+  const t = useT();
+  const { status, policy } = useHudCompliance();
+  if (!inApp || status === null) {
+    return null;
+  }
+  const d = t.hudStatus.today;
+  const state = hudState(status);
+  const rooms = refusedRoomNames(status, policy);
+  let text =
+    state === "off"
+      ? d.off
+      : state === "starting"
+        ? d.starting
+        : status.tables.length === 0
+          ? d.none
+          : d.tables(status.tables.length);
+  if (status.refused.length > 0) {
+    text = `${text} · ${d.refused(status.refused.length, rooms.join(", "))}`;
+  }
+  return (
+    <p className={styles.account}>
+      <span>{text}</span>
+      <button type="button" className={styles.link} onClick={() => go("hud")}>
         {d.details}
       </button>
     </p>

@@ -1,0 +1,47 @@
+# The release checklist's compliance item (docs/RAIL-PLAN.md §12, R3.0,
+# R3.10; guideline §7): every room whose HUD config/sites.json allows, with
+# the page its policy was read from and the date it was read. Fails when any
+# of those dates is older than the limit, so a release cannot ship on a
+# stale policy check. Run by hand (Actions -> Release checklist -> Run
+# workflow) on the commit to be released; the table is in the run's summary.
+#
+# Not part of CI on purpose: it depends on today's date, so it would turn red
+# by itself 90 days after a check, on a pull request that has nothing to do
+# with it. The release workflow (§12, not built yet) should call this job.
+
+name: Release checklist
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_age_days:
+        description: "Oldest policy check a release may ship with, in days"
+        required: true
+        default: "90"
+  workflow_call:
+    inputs:
+      max_age_days:
+        type: string
+        required: false
+        default: "90"
+
+permissions:
+  contents: read
+
+jobs:
+  hud-policy:
+    name: HUD policy re-checked
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Plain Node, no dependencies: nothing to install.
+      - name: Rooms with a HUD, their policy pages and dates
+        working-directory: tests
+        env:
+          MAX_AGE_DAYS: ${{ inputs.max_age_days }}
+        run: node scripts/hud-policy/check.mjs --max-age-days "$MAX_AGE_DAYS"

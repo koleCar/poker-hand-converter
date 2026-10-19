@@ -1177,6 +1177,71 @@ export const en = {
     hidden: "Hidden while a poker table is open: Rail gives no help during play. It is back when the tables close.",
   },
 
+  /** Compliance mode (R3.10): the HUD at the tables, and why it stays off where a room does not allow it. */
+  hudStatus: {
+    heading: "At the tables",
+    loading: "Reading the HUD's status…",
+    failed: (reason: string) => `The HUD's status could not be read: ${reason}`,
+    unavailable: "The HUD's status is only available inside the Rail app.",
+    off: "The HUD is not running.",
+    offWhy: (reason: string) => `The HUD is not running: ${reason}`,
+    starting: "The HUD is starting…",
+    running: "The HUD is running.",
+    noTables: "No table of a room Rail knows is open.",
+    attached: (count: number) => (count === 1 ? "On 1 table:" : `On ${n(count)} tables:`),
+    attachedLabel: "Tables with the HUD",
+    tableAt: (room: string, table: string) => `${room} · ${table}`,
+    untitled: "a table with no name in its title",
+    waiting: "waiting for the table's first hand",
+    refusedHeading: (count: number) => (count === 1 ? "1 table without the HUD" : `${n(count)} tables without the HUD`),
+    refusedLabel: "Tables without the HUD",
+    why: {
+      prohibited: (room: string) => `${room}'s rules do not allow a HUD.`,
+      withdrawn: (room: string) =>
+        `${room}'s rules no longer allow a HUD: a re-check after this version of Rail was released switched it off.`,
+      unknown: (room: string) => `${room}'s rules on HUDs are not established, and Rail treats unknown as no.`,
+      notARoom: (room: string) =>
+        `${room} is a network of rooms, not one room: each room's own rules decide, and none has been confirmed.`,
+      unknownSite: "This window does not belong to a room Rail knows.",
+    },
+    policyLink: "Room's policy",
+    policyPage: (room: string) => `The policy of ${room}, on its own site`,
+    checked: (date: string) => `checked ${date}`,
+    noOverride: "There is no switch to turn the HUD on here, by design: Rail only draws at tables whose room allows it.",
+    explainSummary: "Why can't I enable the HUD here?",
+    explain1:
+      "Many poker rooms forbid HUDs or set rules for them, and breaking those rules can cost you your account. So Rail's HUD attaches to a table only when the room's own rules allow it: compliance mode, always on.",
+    explain2:
+      "For every room Rail keeps the rule it read on the room's own pages, the address of that page and the date it was read. A room whose rules forbid a HUD, or whose rules are not clear, gets no HUD: unknown counts as no.",
+    explain3:
+      "The list is checked again before every release, and between releases Rail picks up a corrected list from the web. An update can only switch a room off or add a restriction, never switch one on: that takes a new version of Rail.",
+    explain4:
+      "Statistics, reports and your hands work at every room either way. If a room's rules say otherwise than Rail does, tell us with a link to them.",
+    roomsHeading: "Where the HUD may be used",
+    allowedLead: "Allowed, within each room's rules:",
+    notAllowedLead: (count: number) =>
+      `Not allowed at ${count === 1 ? "1 room" : `${n(count)} rooms`}: forbidden, or the rules are not established`,
+    noneAllowed: "No room: the list allows none.",
+    listShipped: "Room list: the one this version of Rail came with.",
+    listRemote: (date: string) => `Room list: updated from the web on ${date}. Updates can only make it stricter.`,
+    lastUpdated: (time: string) => `Looked for an update ${time}: a newer list is in force.`,
+    lastCurrent: (time: string) => `Looked for an update ${time}: none newer.`,
+    lastRefused: (time: string) => `Looked for an update ${time}: the file was not valid and was not used; the list in force stays.`,
+    lastFailed: (time: string) => `Looked for an update ${time}: not reached; the list in force stays.`,
+    checkNow: "Look for an update now",
+    checking: "Looking…",
+    notes: "Not taken from the update, because it would have loosened the rules:",
+    today: {
+      off: "HUD: not running",
+      starting: "HUD: starting…",
+      none: "HUD: no table open",
+      tables: (count: number) => (count === 1 ? "HUD: on 1 table" : `HUD: on ${n(count)} tables`),
+      refused: (count: number, rooms: string) =>
+        `${count === 1 ? "1 table" : `${n(count)} tables`} without it (${rooms}: not allowed)`,
+      details: "HUD details",
+    },
+  },
+
   /** The HUD popup (R3.8): a click on a player's panel at the table. */
   hudPopup: {
     label: (player: string) => `${player}: the HUD popup`,
@@ -1405,6 +1470,12 @@ export const en = {
     open: "Open Rail",
     pauseImport: "Pause import",
     resumeImport: "Resume import",
+    hudOff: "HUD off",
+    hudStarting: "HUD starting…",
+    hudTables: (attached: number, refused: number) =>
+      `${attached === 0 ? "HUD: no table open" : attached === 1 ? "HUD: 1 table" : `HUD: ${attached} tables`}${
+        refused === 0 ? "" : ` · ${refused} not allowed`
+      }`,
     quit: "Quit Rail",
   },
 } as const;

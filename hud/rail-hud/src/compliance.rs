@@ -45,6 +45,8 @@ impl Permit {
 pub struct Compliance {
     shipped: Config,
     config: Config,
+    /// (R3.10) A remote copy is merged in.
+    remote: bool,
 }
 
 fn parsers() -> Vec<&'static str> {
@@ -58,6 +60,7 @@ impl Compliance {
         Ok(Self {
             config: shipped.clone(),
             shipped,
+            remote: false,
         })
     }
 
@@ -67,15 +70,35 @@ impl Compliance {
     pub fn apply_remote(&mut self, remote: Option<&str>) -> Result<Vec<MergeNote>, String> {
         let Some(text) = remote else {
             self.config = self.shipped.clone();
+            self.remote = false;
             return Ok(Vec::new());
         };
         match rail_config::load_remote(&self.shipped, text, &parsers()) {
             Ok(merged) => {
                 self.config = merged.config;
+                self.remote = true;
                 Ok(merged.notes)
             }
             Err(error) => Err(error.to_string()),
         }
+    }
+
+    /// (R3.10) The app's remote copy at start (`--policy <file>`, the app's
+    /// cache of the last good download): read before the first look for
+    /// tables, so a window the remote copy refuses is never attached for a
+    /// moment. No file: the shipped policy. A file that cannot be read or is
+    /// refused: the shipped policy, and why.
+    pub fn apply_remote_file(&mut self, path: &std::path::Path) -> Result<Vec<MergeNote>, String> {
+        match std::fs::read_to_string(path) {
+            Ok(text) => self.apply_remote(Some(&text)),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
+            Err(error) => Err(format!("{}: {error}", path.display())),
+        }
+    }
+
+    /// (R3.10) Whether a remote copy is merged in.
+    pub fn has_remote(&self) -> bool {
+        self.remote
     }
 
     /// The configuration in force (shipped, merged with the remote copy):
@@ -240,6 +263,45 @@ mod tests {
         );
         compliance.apply_remote(None).expect("shipped");
         assert_eq!(compliance.decide("pokerstars"), Ok(()));
+        assert!(!compliance.has_remote());
+    }
+
+    /// (R3.10) `--policy <file>`: the app's cached remote copy, read at
+    /// start. A missing file is the shipped policy; a broken one is refused
+    /// and the shipped policy stays.
+    #[test]
+    fn the_remote_copy_from_a_file() {
+        let dir = std::env::temp_dir().join(format!("rail-hud-policy-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("dir");
+        let path = dir.join("sites.json");
+        let mut compliance = Compliance::shipped().expect("shipped");
+        assert!(
+            compliance
+                .apply_remote_file(&path)
+                .expect("no file")
+                .is_empty()
+        );
+        assert!(!compliance.has_remote());
+        assert_eq!(compliance.decide("acr"), Ok(()));
+
+        std::fs::write(
+            &path,
+            remote_with(|v| {
+                site_mut(v, "acr")["hud"]["allowed"] = serde_json::Value::Bool(false);
+            }),
+        )
+        .expect("write");
+        compliance.apply_remote_file(&path).expect("merged");
+        assert!(compliance.has_remote());
+        assert_eq!(compliance.decide("acr"), Err(RefusalReason::Prohibited));
+
+        let mut fresh = Compliance::shipped().expect("shipped");
+        std::fs::write(&path, "{\"version\": 1, \"sites\": 3}").expect("write");
+        assert!(fresh.apply_remote_file(&path).is_err());
+        assert!(!fresh.has_remote());
+        assert_eq!(fresh.decide("acr"), Ok(()));
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     /// A permit only for a permitted room, with its restrictions; a remote

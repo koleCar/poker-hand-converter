@@ -28,7 +28,6 @@ use std::collections::BTreeMap;
 use rail_config::model::HudRestrictions;
 use rail_config::stats::{Band, Group, HudPlace, Text, Tone, Unit};
 use rail_core::js::JsNumber;
-use rail_hud::compliance::Compliance;
 use rail_hud::design::{
     self, ANY, Assignment, Assignments, Catalog, GameFormat, HudDesign, MAX_CELLS, MAX_COLUMNS,
     MAX_DECIMALS, MAX_POPUP_SECTIONS, MAX_POPUP_STATS, Presets, Problem, StackWhen,
@@ -200,10 +199,10 @@ pub struct EditorStateDto {
     pub limits: LimitsDto,
 }
 
-/// The rooms whose HUD is allowed (the shipped `sites.json`), with their
-/// restrictions.
+/// The rooms whose HUD is allowed (R3.10: in the merged `sites.json`, as
+/// the HUD decides), with their restrictions.
 pub fn rooms() -> Result<Vec<RoomDto>, String> {
-    let config = crate::folders::sites()?;
+    let config = crate::policy::config();
     Ok(config
         .sites
         .iter()
@@ -676,7 +675,7 @@ pub fn preview(
     size: u32,
 ) -> Result<PreviewDto, String> {
     let size = size.clamp(2, 10);
-    let compliance = Compliance::shipped()?;
+    let compliance = crate::policy::compliance()?;
     let permit = compliance
         .permit(site)
         .map_err(|reason| format!("{site}: no HUD there ({reason:?})"))?;

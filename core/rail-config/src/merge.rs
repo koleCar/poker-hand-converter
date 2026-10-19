@@ -104,6 +104,56 @@ pub enum MergeNote {
     LooserProcessesIgnored { id: String },
 }
 
+impl std::fmt::Display for MergeNote {
+    /// One line for the app's log and its HUD screen (R3.10): what was not
+    /// taken from the remote file, and that the shipped (stricter) value
+    /// stayed.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let level = |allowed: &Option<bool>| match allowed {
+            Some(true) => "allowed",
+            Some(false) => "prohibited",
+            None => "unknown",
+        };
+        match self {
+            Self::UnknownSiteIgnored { id } => {
+                write!(f, "{id}: not in this build's list, ignored")
+            }
+            Self::LooserHudIgnored {
+                id,
+                shipped,
+                remote,
+            } => write!(
+                f,
+                "{id}: the remote file says {}, looser than this build's {}; kept {}",
+                level(remote),
+                level(shipped),
+                level(shipped)
+            ),
+            Self::IdentityChangeIgnored { id, field } => {
+                write!(
+                    f,
+                    "{id}: the remote file changes its {field}; entry ignored"
+                )
+            }
+            Self::MissingFromRemote { id } => {
+                write!(f, "{id}: not in the remote file; kept as shipped")
+            }
+            Self::LooserRestrictionsIgnored { id } => write!(
+                f,
+                "{id}: the remote file drops a HUD restriction; every restriction kept"
+            ),
+            Self::TableGraphicsKept { id, size } => write!(
+                f,
+                "{id}: the remote file shrinks the {size}-seat table graphics; shipped zones kept"
+            ),
+            Self::LooserProcessesIgnored { id } => write!(
+                f,
+                "{id}: the remote file names other processes; those left out"
+            ),
+        }
+    }
+}
+
 /// `shipped` with `remote`'s corrections applied under the rule above. Both
 /// are expected to have passed [`crate::validate`]; the result then does too.
 /// Order, `version` and `$schema` are the shipped file's.
@@ -385,6 +435,23 @@ mod tests {
 
     /// The whole table: the result is the stricter of the two, and a note
     /// says so exactly when the remote file was looser.
+    #[test]
+    fn notes_read_as_one_line_each() {
+        let note = MergeNote::LooserHudIgnored {
+            id: "pokerstars".into(),
+            shipped: Some(false),
+            remote: Some(true),
+        };
+        assert_eq!(
+            note.to_string(),
+            "pokerstars: the remote file says allowed, looser than this build's prohibited; kept prohibited"
+        );
+        assert_eq!(
+            MergeNote::UnknownSiteIgnored { id: "x".into() }.to_string(),
+            "x: not in this build's list, ignored"
+        );
+    }
+
     #[test]
     fn hud_policy_only_gets_stricter() {
         for shipped in LEVELS {

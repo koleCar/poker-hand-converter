@@ -1,12 +1,14 @@
 //! The tray (Windows notification area, macOS menu bar) icon and its menu.
 //!
-//! The menu's first three lines are disabled. The status line says what the
+//! The menu's first four lines are disabled. The status line says what the
 //! watcher (R1.3) is doing ("Watching 2 folders · 37 hands today", "Import
 //! paused"), set through [`set_status`] by `watch::refresh_tray`; the account
 //! line under it (R1.7: "Signed in as ...", "Not signed in") through
 //! [`set_account`] by `account::refresh_tray`; the sync line (R1.9: "Syncing
 //! 120 of 4 000 hands", "Synced: up to date") through [`set_sync`] by
-//! `sync::refresh_tray`. "Pause import" pauses
+//! `sync::refresh_tray`; the HUD line (R3.10: "HUD: 2 tables", "HUD: 1
+//! table · 1 not allowed", "HUD off") through [`set_hud`] by
+//! `hud::refresh_tray`. "Pause import" pauses
 //! and resumes the watcher (its text follows, [`set_pause_text`]); it is
 //! enabled when there is something to pause.
 
@@ -22,6 +24,7 @@ pub const TRAY_ID: &str = "rail";
 const STATUS: &str = "status";
 const ACCOUNT: &str = "account";
 const SYNC: &str = "sync";
+const HUD: &str = "hud";
 const OPEN: &str = "open";
 const PAUSE_IMPORT: &str = "pause-import";
 const QUIT: &str = "quit";
@@ -31,6 +34,7 @@ pub struct TrayMenu<R: Runtime> {
     status: MenuItem<R>,
     account: MenuItem<R>,
     sync: MenuItem<R>,
+    hud: MenuItem<R>,
     open: MenuItem<R>,
     pause_import: MenuItem<R>,
     quit: MenuItem<R>,
@@ -43,6 +47,7 @@ impl<R: Runtime> std::fmt::Debug for TrayMenu<R> {
             .field("status", self.status.id())
             .field("account", self.account.id())
             .field("sync", self.sync.id())
+            .field("hud", self.hud.id())
             .field("open", self.open.id())
             .field("pause_import", self.pause_import.id())
             .field("quit", self.quit.id())
@@ -58,6 +63,8 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let account = MenuItem::with_id(app, ACCOUNT, text.account_signed_out, false, None::<&str>)?;
     // Sync (R1.9), set by `sync::refresh_tray`.
     let sync = MenuItem::with_id(app, SYNC, text.sync_off, false, None::<&str>)?;
+    // The HUD (R3.10), set by `hud::refresh_tray`.
+    let hud = MenuItem::with_id(app, HUD, text.hud_starting, false, None::<&str>)?;
     let open = MenuItem::with_id(app, OPEN, text.open, true, None::<&str>)?;
     // Enabled once the watcher runs with a folder (`watch::refresh_tray`).
     let pause_import =
@@ -69,6 +76,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             &status,
             &account,
             &sync,
+            &hud,
             &PredefinedMenuItem::separator(app)?,
             &open,
             &pause_import,
@@ -116,6 +124,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         status,
         account,
         sync,
+        hud,
         open,
         pause_import,
         quit,
@@ -145,6 +154,7 @@ pub fn relabel<R: Runtime>(app: &AppHandle<R>) {
     }
     crate::account::refresh_tray(app);
     crate::sync::refresh_tray(app);
+    crate::hud::refresh_tray(app);
 }
 
 /// Replace the status line (R1.3 / R1.6: "Watching 3 folders", "Importing
@@ -168,6 +178,14 @@ pub fn set_account<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<
 pub fn set_sync<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<()> {
     match app.try_state::<TrayMenu<R>>() {
         Some(menu) => menu.sync.set_text(text),
+        None => Ok(()),
+    }
+}
+
+/// Replace the HUD line (R3.10).
+pub fn set_hud<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<()> {
+    match app.try_state::<TrayMenu<R>>() {
+        Some(menu) => menu.hud.set_text(text),
         None => Ok(()),
     }
 }
