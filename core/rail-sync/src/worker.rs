@@ -55,8 +55,8 @@
 //! **The HUD's layouts** (R3.9): every pass sends the HUD rows written here
 //! since the last sync (`rail_store::Reader::hud_sync_dirty`: designs,
 //! assignments, dragged panels, per-room settings, tombstones included) with
-//! `put_hud_layouts`, and with each pull takes the account's rows back
-//! (`GET hud_layouts`) - **last writer wins by `updated_at`**
+//! `put_hud_layouts`, and every [`SyncConfig::hud_pull_every`] (and with
+//! each hands pull) takes the account's rows back (`GET hud_layouts`) - **last writer wins by `updated_at`**
 //! (`rail_store::WriterHandle::hud_sync_apply`). When a pull changed
 //! something here, [`SyncWorker::on_hud_layouts`]' hook runs (the app tells
 //! the HUD `layout_changed`). A failure there backs the HUD part off on its
@@ -99,6 +99,10 @@ pub struct SyncConfig {
     pub idle_poll: Duration,
     /// Pull this often.
     pub pull_every: Duration,
+    /// (R3.9) Take the account's HUD layouts back this often (and with every
+    /// hands pull): another computer's edit arrives within this, with no
+    /// other event here. One small read of a few hundred rows at most.
+    pub hud_pull_every: Duration,
     /// Keys per `hands_since` page.
     pub pull_page: u32,
     /// The first wait after a transient failure; doubles to `backoff_max`.
@@ -121,6 +125,7 @@ impl Default for SyncConfig {
             batch_hands: 500,
             idle_poll: Duration::from_secs(60),
             pull_every: Duration::from_secs(5 * 60),
+            hud_pull_every: Duration::from_secs(60),
             pull_page: 1000,
             backoff_first: Duration::from_secs(5),
             backoff_max: Duration::from_secs(10 * 60),
@@ -449,6 +454,7 @@ impl SyncWorker {
             pull_failures: 0,
             hud_at: None,
             hud_failures: 0,
+            hud_pull_at: None,
             pacer: Pacer::default(),
             meter: Meter::default(),
         };
@@ -580,6 +586,8 @@ pub struct SyncTask<A> {
     /// (R3.9) The HUD part waits until then after a failure.
     hud_at: Option<Instant>,
     hud_failures: u32,
+    /// (R3.9) The next pull of the HUD's layouts (`None`: at the next pass).
+    hud_pull_at: Option<Instant>,
     pacer: Pacer,
     meter: Meter,
 }
@@ -803,7 +811,8 @@ impl<A: SyncAccount> SyncTask<A> {
         if pull_due {
             self.pull(&user).await;
         }
-        self.sync_hud(&user, pull_due).await;
+        let hud_pull_due = pull_due || self.hud_pull_at.is_none_or(|at| at <= Instant::now());
+        self.sync_hud(&user, hud_pull_due).await;
         let outbox = self.refresh_counts().await.unwrap_or(0);
         if matches!(
             self.status().phase,
@@ -820,6 +829,9 @@ impl<A: SyncAccount> SyncTask<A> {
         let mut next = self.idle();
         if let Some(pull_at) = self.pull_at {
             next = next.min(pull_at);
+        }
+        if let Some(hud_pull_at) = self.hud_pull_at {
+            next = next.min(hud_pull_at.max(self.hud_at.unwrap_or(hud_pull_at)));
         }
         Halt::Until(next)
     }
@@ -1279,6 +1291,9 @@ impl<A: SyncAccount> SyncTask<A> {
             Ok(changed) => {
                 self.hud_failures = 0;
                 self.hud_at = None;
+                if pull {
+                    self.hud_pull_at = Some(Instant::now() + self.config.hud_pull_every);
+                }
                 if changed {
                     let hook = self
                         .shared

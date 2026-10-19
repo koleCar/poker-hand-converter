@@ -163,8 +163,10 @@ struct SeatWrite {
 pub struct LayoutWrites(Option<SyncSender<SeatWrite>>);
 
 impl LayoutWrites {
-    /// The writer thread over the store's writer.
-    fn start(writer: rail_store::WriterHandle) -> Self {
+    /// The writer thread over the store's writer; (R3.9) each position
+    /// written wakes the sync worker, so the drag reaches the account's
+    /// other computers without waiting for another event here.
+    fn start(writer: rail_store::WriterHandle, sync: SyncSlot) -> Self {
         let (tx, rx) = mpsc::sync_channel::<SeatWrite>(LAYOUT_QUEUE);
         let spawned = std::thread::Builder::new()
             .name("rail-hud-layouts".to_owned())
@@ -177,14 +179,19 @@ impl LayoutWrites {
                         write.x,
                         write.y,
                     ) {
-                        Ok(()) => log::info!(
-                            "hud: {} {}-seat panel {} now at ({}, {})",
-                            write.site,
-                            write.size,
-                            write.slot,
-                            write.x,
-                            write.y
-                        ),
+                        Ok(()) => {
+                            log::info!(
+                                "hud: {} {}-seat panel {} now at ({}, {})",
+                                write.site,
+                                write.size,
+                                write.slot,
+                                write.x,
+                                write.y
+                            );
+                            if let Some(worker) = sync.get() {
+                                worker.wake();
+                            }
+                        }
                         Err(error) => log::warn!("hud: a panel position was not kept: {error}"),
                     }
                 }
@@ -248,7 +255,7 @@ impl HudState {
         let mut config = SupervisorConfig::new(program);
         config.args = vec!["--store".into(), store.path.clone().into_os_string()];
         let layouts = match store.store.as_ref().map(rail_store::Store::writer) {
-            Some(Ok(writer)) => LayoutWrites::start(writer),
+            Some(Ok(writer)) => LayoutWrites::start(writer, Arc::clone(&sync)),
             _ => LayoutWrites::default(),
         };
 
@@ -313,10 +320,21 @@ impl HudState {
         }
     }
 
-    /// (R3.9) The editor wrote designs or assignments: the HUD reads them
-    /// again, and the sync worker sends them soon.
+    /// (R3.9) The editor wrote designs, assignments or panel positions: the
+    /// HUD reads them again, and the sync worker sends them now.
     pub fn layouts_written(&self) {
         self.layout_changed();
+        self.wake_sync();
+    }
+
+    /// (R3.9) The user's per-room settings were written: the HUD reads them
+    /// again, and the sync worker sends them now.
+    pub fn settings_written(&self) {
+        self.settings_changed();
+        self.wake_sync();
+    }
+
+    fn wake_sync(&self) {
         if let Some(worker) = self.sync.get() {
             worker.wake();
         }
@@ -643,7 +661,7 @@ pub async fn hud_set_preferred_seat(
         .writer()
         .and_then(|writer| writer.set_hud_preferred_seat(&site, preferred))
         .map_err(|error| error.to_string())?;
-    hud.settings_changed();
+    hud.settings_written();
     Ok(())
 }
 
@@ -661,7 +679,7 @@ pub async fn hud_reset_seat_positions(
         .writer()
         .and_then(|writer| writer.clear_hud_seat_positions(&site, size))
         .map_err(|error| error.to_string())?;
-    hud.layout_changed();
+    hud.layouts_written();
     Ok(gone)
 }
 
@@ -752,7 +770,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         let store = StoreState::open(dir.join(rail_store::FILE_NAME));
         let opened = store.store.as_ref().expect("store");
-        let layouts = LayoutWrites::start(opened.writer().expect("writer"));
+        let layouts = LayoutWrites::start(opened.writer().expect("writer"), SyncSlot::default());
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,

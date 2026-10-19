@@ -442,6 +442,7 @@ fn config() -> SyncConfig {
         batch_hands: 25,
         idle_poll: Duration::from_millis(200),
         pull_every: Duration::from_secs(3600),
+        hud_pull_every: Duration::from_secs(3600),
         backoff_first: Duration::from_millis(40),
         backoff_max: Duration::from_millis(400),
         rate_limit_first: Duration::from_millis(80),
@@ -1251,13 +1252,19 @@ async fn hud_layouts_follow_the_account() {
         .set_hud_preferred_seat("winamax", Some(true))
         .unwrap();
     drop(writer);
+    // The laptop takes the account's HUD rows back on its own schedule
+    // (`hud_pull_every`), with no "Sync now" or other event: that is how
+    // another computer's edit reaches it.
     let laptop = Rig::start(
         Arc::clone(&server),
         &url,
         laptop,
         laptop_dir,
         FakeAccount::signed_in("a"),
-        config(),
+        SyncConfig {
+            hud_pull_every: Duration::from_millis(150),
+            ..config()
+        },
     );
     laptop
         .until("the laptop's rows on the server", |_| {
@@ -1319,9 +1326,20 @@ async fn hud_layouts_follow_the_account() {
         .unwrap();
     desk.clear_hud_seat_positions("acr", Some(6)).unwrap();
     drop(desk);
-    for rig in [&laptop, &desktop] {
-        rig.worker.sync_now();
-    }
+    // The desktop sends its edit and its reset (whatever the laptop's
+    // older edit did on the server meanwhile, the desktop's is newer).
+    desktop.worker.sync_now();
+    desktop
+        .until("the desktop's edit on the server", |_| {
+            let hud = server.hud.lock().unwrap();
+            hud.get(&("a".into(), "layout".into(), "d-0001".into()))
+                .is_some_and(|(body, _)| body["name"] == "Desktop's")
+                && hud
+                    .get(&("a".into(), "seat_position".into(), "acr|6|2".into()))
+                    .is_some_and(|(body, _)| body.is_null())
+        })
+        .await;
+    // The laptop takes it by its own HUD pull - no "Sync now" here.
     for rig in [&laptop, &desktop] {
         rig.until("the desktop's edit everywhere", |_| {
             let reader = rig.store().reader();
@@ -1329,10 +1347,9 @@ async fn hud_layouts_follow_the_account() {
                 .design
                 .contains("Desktop's")
                 && reader.hud_seat_positions().unwrap().is_empty()
+                && reader.hud_sync_dirty().unwrap().is_empty()
         })
         .await;
-        // Pull again: still the desktop's (the laptop's older edit lost).
-        rig.worker.sync_now();
     }
     // The design deleted on the laptop: a tombstone, and its assignment
     // cleared, on the desktop too.
