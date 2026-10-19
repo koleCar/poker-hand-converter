@@ -6931,6 +6931,168 @@ graphics, and CPU with twelve real tables.
 - 4–6 stats, colours from thresholds with legend, dimming from R2.5, hand
   count; popup on click with stats by situation and notes (webview window,
   `packages/ui`).
+- *As built* (§15): **done** - the panel has its legend and, where the
+  room allows labels, the user's words; a click opens the app's popup
+  beside it without taking the keyboard from the table; the app hides
+  what could help with play while tables are open (A10). `hud/rail-hud`
+  (`panel.rs`, `scene.rs`, `engine.rs`, `layout::place_legend`, the
+  overlay's click), `rail-hud-ipc` (`open_popup`), `rail_config::stats`
+  (`Tone::collapse`, `collapse_bands`), `rail_store::Reader::
+  player_own_positions`, the app's `popup.rs`, `src/popup/HudPopup.tsx`,
+  `src/lib/duringPlay.ts`.
+  - **The panel.** The six `hud: panel` definitions (VPIP, PFR, 3B, F3B,
+    CB, AFq) and the hand count, R2.4 bands, R2.5 opacity - unchanged
+    from R3.4 / R3.7. New: **the legend**, one small pill in the first
+    corner of the client area clear of the table's graphics, every panel
+    and the debug line (`layout::place_legend`; none when no corner is
+    free - the panels matter more), one sign per tone the panels can show
+    after the room's collapse, in that tone's colour: `--` `-` `=` `+`
+    `++` (signs, not words: the HUD draws no language; the popup says
+    them in words). The default design colours by at most two thresholds
+    everywhere, so every allowed room's legend is `-` `=` `+` today; a
+    design with no limit (R3.9) shows five on ACR / Winamax and still
+    three on PokerStars (`maxColourThresholds: 2`). The legend's tones are
+    the panel definitions' bands (`PanelStats::legend_tones`) through
+    `panel::legend_tones` (`Tone::collapse`, moved to `rail_config` so the
+    app's popup collapses the same way). Like every drawn pixel it takes
+    clicks (it is in `Scene::panels`), never a seat's (`seat_panel_at`),
+    so a click there does nothing.
+  - **The user's words on the panel** (R2.7c's colour, labels, note):
+    read with each re-read by `Reader::player_notes` (a key lookup per
+    seat) only when the design shows them and the permit's room does not
+    forbid labelling players (`noPlayerLabels`), never for the hero or an
+    opaque-id seat (scope not empty); drawn as a colour bar down the
+    panel's left edge (`scene::tag_color`: six bright colours, each well
+    apart from the panel's near-black, so the contrast holds on any felt),
+    a small yellow corner mark when there is a note, and the labels as a
+    third row. **Per room**: PokerStars none (Reference Guide: no "rating,
+    labelling or categorising players"), ACR none (4.2.10 "Player
+    labeling"), **Winamax all three** (no such restriction). The default
+    design now asks for them (`player_labels: true`) and enforcement takes
+    them away on the two rooms - `the_default_design_complies_with_every_
+    room` pins exactly that (Winamax the only room with labels).
+  - **The click.** A press that never left the drag threshold and whose
+    button came up over the overlay (`end_drag(.., released: true)`; a lost
+    capture or a release the thread never saw is nothing) is
+    `TableEvent::PanelClicked {slot, panel on the screen, scale}`, noted on
+    the overlay thread and handed to the loop with the drags (`Observed`,
+    in order, dropped with a closed table). The engine finds the player at
+    that slot as the panel was placed (layout, rotation) and sends
+    **`open_popup {window, site, storeSite, table, player (scope, seat,
+    hero), segment, slot, anchor, scalePermille}`** (protocol 1: a new
+    message type is not a protocol change); a slot nobody sits in, or a
+    room no longer permitted, sends nothing.
+  - **The popup: architecture.** The app's supervisor callback hands the
+    target to the main thread (`popup::request`), which opens **one Tauri
+    webview window** (`hud-popup-<n>`, the app's own page on
+    `#/hud-popup`; `main.tsx` renders `HudPopupWindow` there instead of the
+    shell; the capability covers `hud-popup-*` with `core:default` only)
+    beside the panel: right of it, else left, top-aligned, else below /
+    above, inside the work area of the panel's monitor (`popup::place`),
+    380 x 560 logical at the table's scale. Another panel's click moves
+    the open one and tells it to read again (`hud-popup-changed`); the
+    same panel again closes it; a room not permitted opens nothing. The
+    window asks `hud_popup` for what it shows: the app reads the store
+    (the HUD's connection stays read-only) over **the same rows as the
+    panel** - the table's segment, `hud_own_totals` on own-hands-only
+    rooms. Writes (colour, labels, note) go through the app's existing
+    player commands; the panel's mark follows at the HUD's next re-read
+    (the store's `data_version`, 2 s). "Open in Rail" shows the main window
+    on the player's profile (`hud-open-player`, now listened to by the
+    shell).
+  - **The popup: focus.** Built hidden and unfocused (`focused(false)` on
+    window and webview), frameless, always on top, off the taskbar, then
+    shown: on Windows tao shows a window built unfocused with
+    `SW_SHOWNOACTIVATE` and sets it topmost with `SWP_NOACTIVATE`, so the
+    table keeps the keyboard (the user's bet keys keep working). A click
+    into the popup gives it the keyboard (to type a note); then a click
+    elsewhere closes it (`WindowEvent::Focused(false)`). It is destroyed,
+    never hidden, on close. **Limits**: an unfocused popup cannot see a
+    click on the table (it never had the keyboard and the click is not
+    its), so it also closes when the pointer leaves it after having come in
+    (350 ms, not while a field has the keyboard) - "click outside" is
+    approximated by "leave"; Esc works once it has the keyboard; macOS is
+    not wired (R3.11 - R3.13: a non-activating `NSPanel` is the equivalent;
+    Tauri's window there activates the app). Not checked on a real
+    Windows desktop with a real client (CI has no interactive desktop for
+    a webview; the mock runtime covers the window's state).
+  - **The popup: what it shows, per room** (`PopupRules` from the shipped
+    `sites.json`'s restrictions). Statistics: every R2.4 definition with
+    `players: any`, `hud` panel or popup and no money unit (an opponent's
+    money is never shown; the hero's all-in EV is `players: hero`),
+    grouped as the Players screen, coloured by at most two thresholds
+    (fewer where a room says), R2.5 reliability and interval as everywhere;
+    each statistic's thresholds in words under "Colours"; hands together
+    and your result against them in big blinds, cash and tournaments
+    apart, never added (R2.7c's rule). **By position**: `player_hands`
+    seat rows - on own-hands-only rooms through the new
+    `Reader::player_own_positions` (hands with a hero seat, R3.7's rule) -
+    **only where `noGameStateSwitching` is off: ACR**. Decided: PokerStars'
+    guide forbids "a display that changes with the game state other than
+    the game format and the opponent's name"; a table of every position in
+    a popup does not switch, but whether PokerStars reads a per-position
+    split that way is not clear, so it is hidden on PokerStars (and on
+    Winamax, whose `noGameStateSwitching` R3.0 set as conservatively), and
+    the popup says why. **The user's words**: only where labels are allowed
+    (Winamax), shown and editable; on PokerStars and ACR **none of them,
+    not even the note** - a note typed into the HUD at the table is a
+    label in all but name, and their bans are on the tool, not on where it
+    is drawn; the popup says they stay in the Players screen (which is off
+    the table and unaffected). The hero's own panel opens the hero's
+    statistics only; an opaque-id seat its session's statistics, no words,
+    no rows by name. Nothing about the hand in play, no advice, no ranges
+    or equities (a line says so). i18n en + hr; keyboard: the close
+    button and every control reachable by Tab, the colour tags an ARIA
+    radio group (R2.7c's component).
+  - **A10** (guideline §7). The app has **no** analysis, solver, equity or
+    chart screen (analysis is the web's; R5.4 brings it in). The gate is
+    in place: `lib/duringPlay.ts` classifies every route (`SCREEN_HELP`,
+    all `null` today, a `Record` over the routes so a new screen must
+    choose) and the shell shows a "hidden while a poker table is open"
+    notice instead of a screen that helps with play while `tables_open >
+    0` (`useTablesOpen`: `hud_status` at mount, then the app's
+    `hud-tables-open` event on each edge, which the HUD's `tables_open`
+    drives; the popup closes when the last table does). What the app does
+    have that helps with play is hidden too: the replayer's **pot odds**
+    (`ReplayViewer potOdds`, a new prop of `packages/ui`) and Reports'
+    **13 x 13 starting-hand chart** (PokerStars also bans hand charts).
+  - **Tests.** rail-config (tones and bands collapse); rail-hud: panel
+    (label suppression per room, legend tones per room), scene (words
+    drawn on Winamax only, legend's tones / place / clicks, tag contrast),
+    layout (`place_legend`), drag (click vs drag), tracking (clicks in
+    order with drags), engine (`open_popup` for the player at the slot,
+    words read only on Winamax and never for the hero, nothing for an empty
+    slot or an unknown window); rail-hud-ipc round trip and wire form;
+    rail-store `positions_from_own_hands_only`; the app (`cargo test -p
+    rail-app`, Tauri's mock runtime, on Linux, macOS and Windows): the
+    rules per room, the popup over a store per room, one window opened /
+    moved / closed / refused, and `open_popup` from the HUD's message
+    through `on_event` to the window, the tables' edges and the popup
+    closing with the last table; `tests/test/appDuringPlay.test.ts` (A10).
+    **Windows CI** (`windows_seats.rs`): a click on a simulator panel is
+    `PanelClicked` with the panel on the screen (a drag still is not); tags
+    on real windows posing as Winamax (the screen pixel is the tag's
+    colour), none as PokerStars or ACR, the legend clear of every panel;
+    the HUD process under the real supervisor: a click on a villain's
+    panel is `open_popup` for that player and slot, the anchor around the
+    click, a drag is `seat_position_changed` and no popup. The popup page
+    was checked in a browser with mocked Tauri calls and made-up data
+    (Winamax, PokerStars, ACR rules; Esc closes).
+  - **For R3.9** (editor): `PanelDesign` gains `legend`; `player_labels`
+    is on by default and enforcement removes it - an editor must not offer
+    labels on PokerStars / ACR at all. A user's colour bands override
+    the definitions' (the legend reads the bands the frame's statistics
+    use - pass the design's bands with the frame). The popup's statistic
+    list is the definitions' `hud` membership; a user popup layout would
+    be an override of the same list.
+  - **For R3.10** (compliance mode in the app): the popup reads the
+    *shipped* `sites.json` (the app does not download the remote copy yet);
+    when it does, `PopupRules::for_site` must ask the merged one, as the
+    HUD does. The status's `attach_refused` list is still unshown. A10's
+    gate is `duringPlay.ts`; R3.10's "analysis and solver screens hidden"
+    is that gate once R5.4 adds a screen - the sidebar and the command
+    palette should then leave the screen out too (today only the shell
+    replaces it).
 
 ### R3.9 HUD editor and presets — L
 - In the app's HUD screen: drag-and-drop stats, presets for cash, MTT and Spin,
@@ -7156,3 +7318,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **R3.5 done**: Windows tracking. `SetWinEventHook` **out of context** (`WINEVENT_OUTOFCONTEXT \| WINEVENT_SKIPOWNPROCESS`), **scoped to each tracked table's process** (one set per poker process, undone when the find sees it with no tracked table and no visible window), six hooks for exactly twelve events - foreground, move/size start and end, minimise start and end, destroy, show, hide, location change, name change, cloaked, uncloaked - for the window object only (`OBJID_WINDOW`, `CHILDID_SELF`); feature `Win32_UI_Accessibility`, no new crate. **On the overlay thread** (an out-of-context hook calls back on the thread that set it, which must pump and never block; only the overlay window's own thread moves it without a hop): the callback only filters and notes, the thread reads each noted table once and moves its overlay at once (no repaint), repaints at a new size or **monitor scale**, hides it while minimised / cloaked; the engine gets the latest per table (`platform::tracking`: a drag's hundred locations are one `Moved`), a new title through the room's own matcher (`Retitled` with the hands' table name: a tournament move at once), `Closed` for destroyed or hidden tables, and the new `TableEvent::Appeared` (a followed process showed a window: find now). **No fight with the 500 ms re-find**: an overlay is always placed from the table as it is at that moment, never from a description; the engine's `follow` with something the hooks did not report makes the thread look again. Z-order checked on foreground (`restacked`); overlays destroyed with their tables' process are noticed through their own `WM_DESTROY`. DPI: the overlay's `WM_DPICHANGED` and every location re-read the monitor's scale; no dpi change is possible on the CI runner, the scale logic is unit-tested. Tests: `platform::tracking` (6, every OS), `engine::hook_events_between_finds`, Windows CI `tests/windows_tracking.rs` - scripted `SetWindowPos` moves, the simulator's move / resize / minimise / restore / table move / close, a hidden and shown table, 100 moves in 1 s, the process killed, in the backend; the extended `scripts/tracking.txt` and a 100-move drag through the `rail-hud` process. Measured on the CI runner: table moved -> overlay moved p50 101 µs / p95 125 µs (40 moves), through the `rail-hud` process 100 moves in 1 s p50 58 µs / p95 120 µs with 15 ms of CPU and no backward move; table move seen in 2.3 ms; a killed client's overlays gone in 1.4 ms. |
 | 2026-10-15 | **R3.6 done**: seats and layouts. A hand's seat becomes a **slot** (the place on the screen) of the room's layout for the table size: `sites.json` `tables.seatLayouts` is now per size `{seats, plate, center, heroSlot, graphics, seatNumbers}` in thousandths of the client rect (schema `$defs.seatLayout`, validator checks), `null` for every room until measured (`CAPTURING-TABLES.md` "Seat layouts"; R3.14) - meanwhile `TableLayout::simulator`, the simulator's geometry. **Preferred seat**: a rotating client's seat `s` is at `(slot(s) - slot(hero) + heroSlot) mod size` (`seats::slot_of`), on when the user says so (`hud_room_settings`, the app's `hud_set_preferred_seat`), else `tables.preferredSeat` (`null` everywhere), else off; the hero's seat from each hand, kept while not dealt in, none for an observer, forgotten on a table move; a seat past the window's size lays out on the size that has it (9-max -> 6-max), heads-up two slots. **Drag**: the Windows overlay thread takes its own mouse messages (press on a panel -> `SetCapture`, moves past 4 px repaint the panel where the scene allows it, release or lost capture drops it), keeps the drop until the engine's frame has it (`Seating::drags_seen`) and reports `TableEvent::PanelMoved`; the engine redraws every table of that room and size and sends the new `seat_position_changed {site, size, slot, x, y}`; the app's thread writes **migration 13** (`hud_seat_positions` per (room, size, slot), `hud_room_settings`), which the read-only HUD reads at start and on `layout_changed` / `settings_changed`; not synced yet (R3.9 / R4.x). On `noOverlapTableGraphics` (ACR) a dragged panel goes to the nearest place clear of the layout's graphics (`layout::constrain`); a remote `sites.json` can only add graphics zones (union per size; a shrunk or dropped zone keeps the shipped one) and only narrow a room's process names (never another entry's), so table data cannot loosen compliance. Where a panel is never changes what it shows (PokerStars: no display switching by position, stack or opponent; no per-position stat sets). Tests on all OSes (every size x hero seat x rotation equal to the simulator's drawing, observer, size change, measured layouts, constrain, drag, the engine with a real store) and Windows CI `windows_seats.rs` (panels at the simulator's drawn seats with `--preferred-seat` off and on, its hero frame read off the screen; a posted-message drag kept off the graphics posing as ACR, where dropped posing as PokerStars; the HUD process: drag -> `seat_position_changed` -> store -> restart restores it). |
 | 2026-10-15 | **R3.7 done**: the HUD data path. A table's players are read over **the table's segment** (its hand's: `Reader::hud_hand`), opaque-id villains under the session scope the store wrote. **`ownHandsOnly`** (PokerStars, Winamax, ACR): store migration 14 adds `player_rollups_observed` - the part of `player_rollups` from hands without a hero seat, written by the same `Pending` in the hand's transaction (nothing more for a played hand), a fifth summed table with its recompute twin - and `custom_player_rollups_observed`; the HUD reads rollups less that part (`Reader::hud_own_totals`, `custom_player_totals(.., own_hands_only)`), exact to the counter (a store with an observed and a played hand equals a store of the played hand alone). Migration 14 fills the part from the stored rows in its transaction (`stats::fill_observed`), recounts the user's statistics when observed hands exist, restarts a rows job left running; tested from every version and from a version-13 store with data; R2.11's map gains both tables. Cost: import gate 59-60 % vs staging's 60 % (interleaved, 100k, 3 threads), an all-observed corpus imports at the same rate; HUD lookup at 500k + 300k padded players 88 -> 121 us median (p99 109 -> 154 us). **Nothing from the hand in play**: documented and tested with the real watcher (`tests/in_play.rs`); found that R1.3's assumption is load-bearing (a PokerStars prefix cut at the flop validates: a room stalling mid-hand > 500 ms would get it stored) - R3.14 checks the real clients. **Restart**: a window with no announced hand starts from its table's newest stored hand played and imported in the last 15 min (`Reader::latest_hand_of_table`, `hands_imported_at_idx`, no sort); e2e kills the HUD and the new process shows every table at once. The user's statistics in a design (`PanelStats::with_custom`, `Hud::set_design`). **Latency chain** per hand - watcher notice (`WatchEvent::Imported.noticed_ms`) -> import -> sent (`hand_imported.timing`) -> arrived -> re-read -> frame (`table_updated.chain`, `--latency-report` JSON lines, a debug build's line on the table, never in release): 12 tables, 96 hands, debug, M2 Pro: **p50 506 ms, p95 521 ms** (503 ms of it the quiet period; re-read 0.8 ms, frame 0.4 ms); the e2e asserts p95 < 1 s. `stats_changed` re-read after a swap and the recompute pause while tables are open verified by tests. |
+| 2026-10-19 | **R3.8 done**: panel and popup. **Panel**: the six definitions and the hand count as before, plus a **legend** pill in a free corner (clear of the table's graphics, the panels and the debug line) with one sign per colour in use after the room's collapse (`-` `=` `+` on every allowed room with the default design; PokerStars at most two thresholds whatever the design), and - **only where the room allows labelling players (Winamax; never PokerStars or ACR, `noPlayerLabels`)** - the user's colour tag (a bright bar, contrast on any felt), a note mark and labels, read by `Reader::player_notes`, never for the hero or an opaque-id seat. **Click**: a press that never passed the drag threshold and was released over the overlay is `PanelClicked`; the engine sends `open_popup {site, storeSite, table, player, segment, slot, anchor, scale}`. **Popup**: one Tauri webview window of the app's (`hud-popup-<n>`, `#/hud-popup`, `packages/ui` tables), placed beside the panel in the monitor's work area, reused for another panel, closed by the same panel, Esc, its button, losing the keyboard, the pointer leaving or the last table closing; built hidden and unfocused so the table keeps the keyboard (`SW_SHOWNOACTIVATE` on Windows; macOS not wired). It reads what the panel reads (the table's segment, own hands only) through the app: grouped statistics of `players: any` definitions (no money), thresholds in words, hands together and your result (bb, cash and tournaments apart), **by position only on ACR** (hidden on PokerStars - unclear under "no display changing with game state" - and on Winamax, read as conservatively; `Reader::player_own_positions`), **your words only on Winamax** (on PokerStars and ACR not even the note: a note at the table is a label). **A10**: the app has no analysis/solver/equity/chart screen; `lib/duringPlay.ts` is the gate (every route classified, the shell replaces a helping screen while `tables_open > 0`), and the replayer's pot odds and the 13 x 13 starting-hand chart hide during play. Tests: rail-config, rail-hud (panel, scene, layout, drag, tracking, engine), IPC wire form, rail-store own positions, the app with Tauri's mock runtime (rules per room, popup over a store, the window opened / moved / closed, `open_popup` -> window -> tables' edges), `appDuringPlay.test.ts`; Windows CI `windows_seats.rs` (click vs drag on real windows, tags only posing as Winamax, the HUD process's `open_popup`); the popup page checked in a browser with mocked Tauri calls and made-up data. |
