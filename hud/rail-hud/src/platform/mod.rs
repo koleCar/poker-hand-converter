@@ -4,8 +4,9 @@
 //! since R3.5 ([`windows`]; the platform-free half of following is
 //! [`tracking`]); macOS finds tables since R3.11 ([`macos`]: the window
 //! server's list for bounds, the Accessibility API for titles - and so the
-//! Accessibility permission, [`Permission`]); its overlays and tracking
-//! are R3.12 / R3.13. [`sim::SimBackend`] is a fake driven by the table
+//! Accessibility permission, [`Permission`]) and draws over them since
+//! R3.12 (AppKit on the main thread, the engine beside it); its tracking
+//! is R3.13. [`sim::SimBackend`] is a fake driven by the table
 //! simulator's events (R3.1), so the data path runs end to end without any
 //! window API, on every OS and in CI.
 //!
@@ -410,8 +411,10 @@ impl fmt::Display for PlatformError {
 
 impl std::error::Error for PlatformError {}
 
-/// A windowing backend. Called from the HUD's one loop thread only (macOS
-/// overlays must be made on the main thread), so it need not be `Send`.
+/// A windowing backend. Called from the HUD's one loop thread only, so it
+/// need not be `Send`. Its windows live where the system wants them: on
+/// Windows a thread of the backend's own, on macOS the main thread
+/// (AppKit's, R3.12: the loop then runs on a thread beside it).
 pub trait Platform {
     /// `windows`, `macos`, `sim`, `none`.
     fn name(&self) -> &'static str;

@@ -18,7 +18,7 @@ use rail_hud_sim::draw::{Canvas, View, draw};
 use rail_hud_sim::sim::{Event, Sim, speed_text};
 use winit::application::ApplicationHandler;
 use winit::dpi::{LogicalPosition, LogicalSize, PhysicalPosition, PhysicalSize};
-use winit::event::{ElementState, WindowEvent};
+use winit::event::{ElementState, MouseButton, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop, EventLoopProxy};
 use winit::keyboard::{Key, NamedKey};
 use winit::window::{Window, WindowId};
@@ -35,6 +35,9 @@ struct Win {
     version: u64,
     /// The first frame has been presented (reported as a `window` event).
     shown: bool,
+    /// (R3.12) Where the pointer last was over the client area
+    /// (physical pixels): where a click lands.
+    cursor: (i32, i32),
 }
 
 struct App {
@@ -195,6 +198,7 @@ impl App {
                         title: table.title.clone(),
                         version: table.version,
                         shown: false,
+                        cursor: (0, 0),
                     });
                 }
                 Err(message) => {
@@ -404,6 +408,29 @@ impl ApplicationHandler<Command> for App {
                     if win.shown {
                         self.report_later(table);
                     }
+                }
+            }
+            // (R3.12) The overlay tests' proof that a click outside the
+            // HUD's panels reached the table: a `clicked` event.
+            WindowEvent::CursorMoved { position, .. } => {
+                if let Some(win) = self.windows.iter_mut().find(|w| w.window.id() == id) {
+                    #[allow(clippy::cast_possible_truncation)] // pixels, well inside i32
+                    let at = (position.x.round() as i32, position.y.round() as i32);
+                    win.cursor = at;
+                }
+            }
+            WindowEvent::MouseInput {
+                state: ElementState::Pressed,
+                button: MouseButton::Left,
+                ..
+            } => {
+                if let Some(win) = self.windows.iter().find(|w| w.window.id() == id) {
+                    let (x, y) = win.cursor;
+                    self.sim.push_event(Event::Clicked {
+                        table: win.table,
+                        x,
+                        y,
+                    });
                 }
             }
             WindowEvent::KeyboardInput { event, .. } if event.state == ElementState::Pressed => {

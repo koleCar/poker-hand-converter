@@ -156,6 +156,34 @@ pub(super) fn cg_windows() -> Result<Vec<CgWindow>, PlatformError> {
     Ok(out)
 }
 
+/// (R3.12) The window numbers on screen, **front to back**
+/// (`OptionOnScreenOnly`: only that option orders the list by z-order -
+/// `OptionAll` interleaves off-screen windows and does not keep the on-screen
+/// ones in z-order, as the overlay test found). Numbers only: no name, no
+/// permission.
+#[allow(unsafe_code)]
+pub(super) fn onscreen_order() -> Result<Vec<u32>, PlatformError> {
+    let list = CGWindowListCopyWindowInfo(
+        CGWindowListOption::OptionOnScreenOnly | CGWindowListOption::ExcludeDesktopElements,
+        kCGNullWindowID,
+    )
+    .ok_or_else(|| PlatformError::Os("CGWindowListCopyWindowInfo gave nothing".to_owned()))?;
+    // SAFETY: as in `cg_windows`: an array of dictionaries with CFString
+    // keys; values checked with `downcast_ref`.
+    let list: CFRetained<CFArray<CFDictionary<CFString, CFType>>> =
+        unsafe { CFRetained::cast_unchecked(list) };
+    let keys = keys();
+    Ok((0..list.len())
+        .filter_map(|index| {
+            let info = list.get(index)?;
+            let id = info
+                .get(keys.number)
+                .and_then(|v| v.downcast_ref::<CFNumber>().and_then(CFNumber::as_i64))?;
+            u32::try_from(id).ok()
+        })
+        .collect())
+}
+
 /// A `kCGWindowBounds` dictionary (`X`, `Y`, `Width`, `Height` in points,
 /// the main display's top-left the origin) as a [`Frame`].
 #[allow(unsafe_code)]
@@ -231,6 +259,14 @@ pub(super) fn displays() -> Vec<Display> {
             }
         })
         .collect()
+}
+
+/// (R3.12) The main display's height, thousandths of a point: what flips
+/// the window server's top-left space into AppKit's bottom-left one (the
+/// main display's top-left is the origin of the first, its bottom-left the
+/// origin of the second). Read at each use: displays come and go.
+pub(super) fn main_height() -> i64 {
+    milli(CGDisplayBounds(CGMainDisplayID()).size.height)
 }
 
 /// `AXUIElementCopyAttributeValue`: the attribute's value, `None` when the

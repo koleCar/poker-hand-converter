@@ -66,8 +66,35 @@ windows = { version = "=0.61.3", features = [
 # Tauri (tao, wry) already locks; only `objc2-application-services` is new
 # to Cargo.lock, from the same release. `libc` (already locked) for
 # `proc_pidpath` (a process's executable) and `dlsym`.
+#
+# (R3.12) The overlays: AppKit (`NSApplication`, `NSPanel`, `NSEvent`) on
+# the main thread, a layer-hosting view (`CALayer`, Quartz Core) showing a
+# bitmap that Core Graphics paints (`CGBitmapContext`, `CGPath`) with Core
+# Text's lines (`CTLine`, `CTFont`); `dispatch2` wakes the main thread when
+# the engine hands it something; `objc2` for `MainThreadMarker` and
+# `Retained`. Every one is already in Cargo.lock at exactly these versions
+# (Tauri's tao and wry use them): no new crate, only features and the
+# edges to them. `CGEvent` posts real clicks for the overlay test only
+# (`platform::macos::drive`).
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "=0.2.190"
+dispatch2 = { version = "=0.3.1", default-features = false, features = ["std"] }
+objc2 = { version = "=0.6.5", default-features = false, features = ["std"] }
+objc2-app-kit = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "NSApplication",
+  "NSColor",
+  "NSEvent",
+  "NSGraphics",
+  "NSGraphicsContext",
+  "NSPanel",
+  "NSResponder",
+  "NSRunningApplication",
+  "NSView",
+  "NSWindow",
+  "objc2-core-foundation",
+  "objc2-quartz-core",
+] }
 objc2-application-services = { version = "=0.3.2", default-features = false, features = [
   "std",
   "libc",
@@ -78,7 +105,9 @@ objc2-application-services = { version = "=0.3.2", default-features = false, fea
 ] }
 objc2-core-foundation = { version = "=0.3.2", default-features = false, features = [
   "std",
+  "objc2",
   "CFArray",
+  "CFAttributedString",
   "CFCGTypes",
   "CFDictionary",
   "CFNumber",
@@ -86,10 +115,43 @@ objc2-core-foundation = { version = "=0.3.2", default-features = false, features
 ] }
 objc2-core-graphics = { version = "=0.3.2", default-features = false, features = [
   "std",
+  "CGAffineTransform",
+  "CGBitmapContext",
+  "CGColorSpace",
+  "CGContext",
   "CGDirectDisplay",
   "CGError",
+  "CGEvent",
+  "CGEventTypes",
   "CGGeometry",
+  "CGImage",
+  "CGPath",
+  "CGRemoteOperation",
   "CGWindow",
+] }
+objc2-core-text = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "CTFont",
+  "CTLine",
+  "CTStringAttributes",
+  "objc2-core-graphics",
+] }
+objc2-foundation = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "NSArray",
+  "NSDate",
+  "NSEnumerator",
+  "NSGeometry",
+  "NSObjCRuntime",
+  "NSRunLoop",
+  "NSString",
+  "NSValue",
+] }
+objc2-quartz-core = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "CALayer",
+  "CATransaction",
+  "objc2-core-foundation",
 ] }
 
 [dev-dependencies]
@@ -99,3 +161,10 @@ rail-watch = { path = "../../core/rail-watch" }
 # The default layout is the simulator's table geometry (R3.4): a test holds
 # `layout::seat_center` to `rail_hud_sim::draw::seat_center`.
 rail-hud-sim = { path = "../rail-hud-sim" }
+
+# (R3.12) The macOS overlay test makes AppKit windows in its own process,
+# which AppKit allows on the main thread only: the test has its own `main`
+# (libtest runs tests on other threads). Elsewhere it says it skipped.
+[[test]]
+name = "macos_overlay"
+harness = false
