@@ -391,6 +391,13 @@ unsafe extern "C-unwind" fn noted(
     };
     // Never unwind into the system's frames.
     let _ = std::panic::catch_unwind(AssertUnwindSafe(|| deliver(note)));
+    // Back to the loop now: the notification may have scheduled reads
+    // sooner than the run loop's current timeout (`SETTLE`), and whether
+    // handling an observer's callback ends `CFRunLoopRunInMode` is not
+    // documented for every kind of source - stopping it is.
+    if let Some(run_loop) = CFRunLoop::current() {
+        run_loop.stop();
+    }
 }
 
 fn deliver(note: Note) {
