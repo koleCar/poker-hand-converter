@@ -208,6 +208,9 @@ jobs:
   # mouse messages - kept clear of the table graphics posing as ACR, where
   # dropped posing as PokerStars -, and the HUD process: drag ->
   # `seat_position_changed` -> the store -> a restarted HUD puts it back.
+  # And R3.9's hud/rail-hud/tests/windows_designs.rs: the engine over the
+  # real backend and a real store - an assigned design changes what the
+  # overlay draws, a card-split statistic is dropped posing as PokerStars.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -276,6 +279,14 @@ jobs:
       - name: HUD seats and layouts (steps)
         if: matrix.os == 'windows-latest'
         run: cargo test -p rail-hud --test windows_seats --locked -- --nocapture --test-threads 1
+
+      # R3.9's designs on real windows, with their per-step output: an
+      # assigned design changes what the overlay draws (posing as Winamax),
+      # and a card-split statistic of the user's is dropped posing as
+      # PokerStars.
+      - name: HUD designs (steps)
+        if: matrix.os == 'windows-latest'
+        run: cargo test -p rail-hud --test windows_designs --locked -- --nocapture --test-threads 1
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'

@@ -192,6 +192,9 @@ pub struct Scene {
     pub noted: Vec<u32>,
     /// (R3.8) The legend, when drawn, and its tones.
     pub legend: Option<(Rect, Vec<Tone>)>,
+    /// (R3.9) The statistics each seat's panel shows, by slot (their ids,
+    /// in the design's order): what a room's rules left of the design.
+    pub seat_cells: Vec<(u32, Vec<String>)>,
 }
 
 impl Scene {
@@ -331,15 +334,26 @@ pub fn compose_with(
         }
     }
 
-    let columns = frame
+    let cells = frame
         .panels
         .iter()
         .map(|p| p.stats.iter().filter(|c| design.shows(&c.id)).count())
         .max()
         .unwrap_or(0);
-    let columns = u32::try_from(columns.div_ceil(2)).unwrap_or(1);
+    let cells = u32::try_from(cells).unwrap_or(u32::MAX);
+    // R3.4's panel: two rows of figures. (R3.9) A design's: its columns
+    // (fewer when it shows fewer cells), as many rows as the cells take.
+    let (columns, rows) = match design.columns {
+        None => (cells.div_ceil(2), 2),
+        Some(columns) => {
+            let columns = columns
+                .clamp(1, crate::design::MAX_COLUMNS)
+                .min(cells.max(1));
+            (columns, cells.div_ceil(columns).max(1))
+        }
+    };
     let labels = design.player_labels && frame.panels.iter().any(|p| p.words.label.is_some());
-    let panel = metrics.panel_size(columns, u32::from(labels));
+    let panel = metrics.panel_rows(columns, rows + u32::from(labels));
 
     // Each seated player's slot: the room's layout, the hero's rotation.
     let slot_of = |seat: u32| seats::slot_of(&table, seat, frame.seating.rotate_to);
@@ -457,6 +471,9 @@ pub fn compose_with(
             .iter()
             .filter(|c| design.shows(&c.id))
             .collect();
+        scene
+            .seat_cells
+            .push((slot, cells.iter().map(|c| c.id.clone()).collect()));
         let pad = i32::try_from(metrics.pad).unwrap_or(0);
         let row = i32::try_from(metrics.row).unwrap_or(0);
         let cell_w = i32::try_from(metrics.cell).unwrap_or(0);
@@ -498,7 +515,7 @@ pub fn compose_with(
             scene.items.push(Item::Text {
                 rect: Rect {
                     x: rect.x + pad,
-                    y: rect.y + pad + 2 * row,
+                    y: rect.y + pad + i32::try_from(rows).unwrap_or(2) * row,
                     width: rect.width.saturating_sub(2 * metrics.pad),
                     height: metrics.row,
                 },
@@ -602,6 +619,7 @@ mod tests {
                 })
                 .collect(),
             legend: PanelStats::new(&PanelDesign::default()).legend_tones(),
+            design: PanelDesign::default(),
         }
     }
 

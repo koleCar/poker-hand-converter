@@ -186,6 +186,7 @@ fn players_of(hand: &ImportedHand) -> Vec<PlayerRef> {
             scope: seat.scope.clone(),
             seat: Some(seat.seat),
             hero: seat.hero,
+            stack_bb_tenths: seat.stack_bb_tenths,
         })
         .collect()
 }

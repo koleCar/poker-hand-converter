@@ -1,0 +1,499 @@
+/* The HUD screen (R3.9): designs, the panel, the popup, the preview and
+   the assignments. Tokens only (the app's stylelint rules). */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  min-width: 0;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.heading {
+  font-size: var(--font-size-lg);
+}
+
+.subheading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.inline {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.label {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.input {
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.input:focus-visible,
+.cell:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.inputNarrow {
+  width: 7em;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.check {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.hint,
+.muted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.hintBlock {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.hintWarn {
+  color: var(--warning-fg);
+  font-size: var(--font-size-sm);
+}
+
+.error,
+.refused {
+  color: var(--danger-fg);
+}
+
+.note {
+  color: var(--warning-fg);
+}
+
+.ok {
+  color: var(--success-fg);
+}
+
+.refusedBox {
+  padding: var(--space-2) var(--space-3);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-2);
+}
+
+.problemList,
+.roomList,
+.plainList,
+.sections,
+.sectionStats {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.problemList li,
+.roomList li {
+  padding: var(--space-0-5) 0;
+}
+
+.rooms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.presetInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.unsaved {
+  color: var(--warning-fg);
+  font-size: var(--font-size-sm);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The panel: list | cells | the cell's settings */
+
+.panelEditor {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(16rem, 1.3fr) minmax(14rem, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .panelEditor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.palette,
+.cellsColumn,
+.cellSettings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.paletteList {
+  max-height: 28rem;
+  overflow-y: auto;
+  padding-right: var(--space-1);
+}
+
+.paletteGroup + .paletteGroup {
+  margin-top: var(--space-3);
+}
+
+.groupName {
+  margin-bottom: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.paletteRow {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-0-5) 0;
+}
+
+.chip {
+  display: inline-block;
+  padding: var(--space-0-5) var(--space-2);
+  color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  background: var(--surface-raised-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  cursor: grab;
+}
+
+.chipPlaced {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.statName {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: baseline;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.badge,
+.badgeWarn {
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-1);
+}
+
+.badge {
+  color: var(--info-fg);
+  background: var(--info-bg);
+}
+
+.badgeWarn {
+  color: var(--warning-fg);
+  background: var(--warning-bg);
+}
+
+/* The cells look like the HUD's panel: near-black, light figures. */
+.cells {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.cellSlot {
+  display: flex;
+  min-width: 0;
+}
+
+.cell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: var(--space-2) var(--space-1);
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  cursor: grab;
+}
+
+.cellSelected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.cellOver {
+  background: var(--accent-subtle);
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.cellCards {
+  border-color: var(--warning-border);
+}
+
+.cellLabel {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.cellWhen {
+  color: var(--warning-fg);
+  font-size: var(--font-size-xs);
+}
+
+.dropEnd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.bandRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* The popup's sections */
+
+.popupEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.sectionStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.sectionStat {
+  display: flex;
+  gap: var(--space-0-5);
+  align-items: center;
+}
+
+/* The preview: a table under the HUD's own scene */
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.table {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-2);
+}
+
+.tableBack {
+  fill: var(--surface-sunken);
+}
+
+.felt {
+  fill: var(--felt-center);
+  stroke: var(--felt-rail);
+  stroke-width: 14;
+}
+
+.board {
+  fill: var(--felt-edge);
+  opacity: 0.6;
+}
+
+.plate {
+  fill: var(--surface-raised-2);
+  stroke: var(--border-strong);
+}
+
+.plateHero {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.plateText {
+  fill: var(--text-secondary);
+  font-size: 13px;
+}
+
+.roomProblems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* The assignments */
+
+.assignments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow-x: auto;
+}
+
+.matrix {
+  border-collapse: collapse;
+}
+
+.matrix select {
+  width: 100%;
+  max-width: 15rem;
+}
+
+.assignments > .field,
+.popupEditor > button,
+.fieldset > button,
+.presetInfo > button {
+  align-self: flex-start;
+}
+
+.matrix th,
+.matrix td {
+  padding: var(--space-2);
+  text-align: start;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.matrix thead th {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+}
+
+.assigned {
+  border-color: var(--accent);
+}
+
+.assignedTag {
+  display: block;
+  color: var(--accent);
+  font-size: var(--font-size-xs);
+}

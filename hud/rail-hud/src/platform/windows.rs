@@ -157,6 +157,9 @@ pub struct OverlayInfo {
     pub tags: Vec<(u32, Rect)>,
     /// (R3.8) The legend, client-relative, when drawn.
     pub legend: Option<Rect>,
+    /// (R3.9) The statistics each seat's panel shows, by slot: what the
+    /// frame's design left after the room's rules.
+    pub seat_cells: Vec<(u32, Vec<String>)>,
     /// Seats whose panel the layout dropped.
     pub dropped: Vec<String>,
     /// How many times it was moved without a repaint (R3.5: a drag).

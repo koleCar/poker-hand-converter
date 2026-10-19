@@ -92,6 +92,10 @@ fields! {
     SawRiver => "saw_river": Bool,
     Showdown => "showdown": Bool,
     Won => "won": Bool,
+    // (R3.9) The seat's cards: a statistic reading one is card-split.
+    CardsKnown => "cards_known": Bool,
+    PocketPair => "pocket_pair": Bool,
+    Suited => "suited": Bool,
     // The decision.
     Street => "street": Choice(&STREETS),
     Action => "action": Choice(&ACTIONS),
@@ -116,6 +120,16 @@ fields! {
     SizeBb => "size_bb": Number,
     SizePot => "size_pot": Number,
     FacingSizePot => "facing_size_pot": Number,
+}
+
+impl Field {
+    /// (R3.9) The field reads the seat's hole cards: a statistic whose
+    /// predicate names one is **card-split** - known only where the cards
+    /// were (the hero's hands, showdowns) - and PokerStars forbids those on
+    /// a HUD (`noCardSplitStats`).
+    pub const fn reads_cards(self) -> bool {
+        matches!(self, Self::CardsKnown | Self::PocketPair | Self::Suited)
+    }
 }
 
 /// A field's value for one event; `None` fails every test.
@@ -175,6 +189,9 @@ fn value(field: Field, hand: &HandEvents, seat: &SeatEvents, event: &DecisionEve
         F::SawRiver => Val::Bool(seat.saw_river),
         F::Showdown => Val::Bool(seat.showdown),
         F::Won => Val::Bool(seat.won),
+        F::CardsKnown => Val::Bool(seat.cards_known),
+        F::PocketPair => seat.pocket_pair.map_or(Val::None, Val::Bool),
+        F::Suited => seat.suited.map_or(Val::None, Val::Bool),
         F::Street => match event.street {
             Street::Preflop => Val::Choice(0),
             Street::Flop => Val::Choice(1),
@@ -271,6 +288,23 @@ impl CustomCounter {
     /// The mode.
     pub fn mode(&self) -> Mode {
         self.0.mode
+    }
+
+    /// (R3.9) The predicate names a card field ([`Field::reads_cards`]).
+    pub fn reads_cards(&self) -> bool {
+        let Predicate {
+            opportunity,
+            action,
+            ..
+        } = &self.0;
+        std::iter::once(opportunity)
+            .chain(action)
+            .flat_map(Cond::fields)
+            .any(|index| {
+                Field::ALL
+                    .get(index)
+                    .is_some_and(|field| field.reads_cards())
+            })
     }
 
     /// One seat's `(made, opportunities)` in one hand.
@@ -602,6 +636,52 @@ impl CustomSet {
         }
     }
 
+    /// (R3.9) Whether the statistic `id` is **card-split**: its predicate
+    /// names a card field ([`Field::reads_cards`]), or its formula or
+    /// sample reads the counters of a statistic that is. PokerStars forbids
+    /// such statistics on a HUD (`noCardSplitStats`); the HUD editor
+    /// refuses them there and the renderer drops them. `false` for an id
+    /// this set does not have.
+    pub fn card_split(&self, id: &str) -> bool {
+        self.card_split_seen(id, &mut Vec::new())
+    }
+
+    fn card_split_seen<'a>(&'a self, id: &'a str, seen: &mut Vec<&'a str>) -> bool {
+        if seen.contains(&id) {
+            return false;
+        }
+        seen.push(id);
+        let Some(stat) = self.get(id) else {
+            return false;
+        };
+        if stat
+            .counter
+            .as_ref()
+            .is_some_and(CustomCounter::reads_cards)
+        {
+            return true;
+        }
+        let def = &stat.def.def;
+        let read: Vec<String> = [Some(def.formula.as_str()), def.sample.of.as_deref()]
+            .into_iter()
+            .flatten()
+            .filter_map(|text| parse_formula(text).ok())
+            .flat_map(|expr| {
+                expr.names()
+                    .into_iter()
+                    .map(str::to_owned)
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        self.stats.iter().any(|other| {
+            other.def.def.id != id
+                && other.def.counter_names().is_some_and(|(made, opp)| {
+                    read.iter().any(|name| *name == made || *name == opp)
+                })
+                && self.card_split_seen(&other.def.def.id, seen)
+        })
+    }
+
     /// Another statistic whose formula reads `id`'s counters, if any (what
     /// stops a delete or a rename).
     pub fn reader_of(&self, id: &str) -> Option<String> {
@@ -923,6 +1003,55 @@ mod tests {
                 .iter()
                 .any(|p| p.message.starts_with("share reads"))
         );
+    }
+
+    /// (R3.9) Card-split: a predicate naming a card field, or a formula
+    /// reading such a statistic's counters (through another statistic too).
+    #[test]
+    fn card_split_follows_the_counters() {
+        let defs = [
+            def(
+                "pair_open",
+                Some("first street = preflop and pocket_pair => action = raise"),
+                "pct(pair_open, pair_open_opp)",
+            ),
+            def("pair_share", None, "pct(pair_open, vpip)"),
+            def("deeper", None, "pct(pair_share_x, pfr)"),
+            def(
+                "pair_share_x",
+                Some("any street = preflop => action = call"),
+                "pct(pair_open_opp, pair_share_x_opp)",
+            ),
+            def("fcb", Some(FOLD), "pct(fcb, fcb_opp)"),
+            def("ratio", None, "pct(pfr, vpip)"),
+            def(
+                "suited_call",
+                Some("any cards_known and suited => action = call"),
+                "pct(suited_call, suited_call_opp)",
+            ),
+        ];
+        let (set, refused) = CustomSet::compile(&defs);
+        assert!(refused.is_empty(), "{refused:?}");
+        for (id, split) in [
+            ("pair_open", true),
+            ("pair_share", true),
+            ("pair_share_x", true),
+            ("deeper", true),
+            ("fcb", false),
+            ("ratio", false),
+            ("suited_call", true),
+            ("vpip", false),
+            ("nothing", false),
+        ] {
+            assert_eq!(set.card_split(id), split, "{id}");
+        }
+        let cards: Vec<&str> = Field::ALL
+            .iter()
+            .zip(FIELDS)
+            .filter(|(field, _)| field.reads_cards())
+            .map(|(_, def)| def.name)
+            .collect();
+        assert_eq!(cards, ["cards_known", "pocket_pair", "suited"]);
     }
 
     #[test]

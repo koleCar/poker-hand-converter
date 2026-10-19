@@ -22,7 +22,7 @@ use rail_config::stats::Tone;
 
 use crate::compliance::Permit;
 use crate::layout::{Positions, TableLayout};
-use crate::panel::StatCell;
+use crate::panel::{PanelDesign, StatCell};
 
 pub mod drag;
 pub mod macos;
@@ -267,6 +267,11 @@ pub struct OverlayFrame {
     /// the room allows (two thresholds on PokerStars: low, normal, high).
     /// Empty: no legend.
     pub legend: Vec<Tone>,
+    /// (R3.9) The design the table is drawn with - the one assigned to its
+    /// room, size and format (`crate::design`) - flagged with what a room
+    /// may refuse; `crate::scene::compose` cuts it down to the permit's
+    /// restrictions before anything is laid out.
+    pub design: PanelDesign,
 }
 
 impl OverlayFrame {
@@ -280,6 +285,7 @@ impl OverlayFrame {
             seating: Seating::default(),
             panels: Vec::new(),
             legend: Vec::new(),
+            design: PanelDesign::default(),
         }
     }
 }

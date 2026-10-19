@@ -61,7 +61,12 @@ struct Server {
     seq: AtomicU32,
     /// Refuse every connection (the network is down).
     down: AtomicBool,
+    /// (R3.9) `hud_layouts`.
+    hud: Mutex<HudRows>,
 }
+
+/// (R3.9) The server's `hud_layouts`: (user, kind, key) -> (body, updatedAt).
+type HudRows = HashMap<(String, String, String), (Value, i64)>;
 
 impl Server {
     fn uuid(&self) -> String {
@@ -176,6 +181,47 @@ impl Server {
                     })
                     .collect();
                 (200, Value::Array(page).to_string())
+            }
+            ("POST", "/rest/v1/rpc/put_hud_layouts") => {
+                // Last writer wins, as `put_hud_layouts` does.
+                let rows = body["p_rows"].as_array().cloned().unwrap_or_default();
+                let mut hud = self.hud.lock().unwrap();
+                let out: Vec<Value> = rows
+                    .iter()
+                    .map(|row| {
+                        let kind = row["kind"].as_str().unwrap().to_owned();
+                        let key = row["key"].as_str().unwrap().to_owned();
+                        call.keys.push(format!("{kind}/{key}"));
+                        let at = row["updatedAt"].as_i64().unwrap();
+                        let slot = (user.clone(), kind.clone(), key.clone());
+                        let applied = hud.get(&slot).is_none_or(|(_, old)| *old < at);
+                        if applied {
+                            hud.insert(slot, (row["body"].clone(), at));
+                        }
+                        json!({"kind": kind, "key": key, "applied": applied})
+                    })
+                    .collect();
+                (200, Value::Array(out).to_string())
+            }
+            ("GET", "/rest/v1/hud_layouts") => {
+                let mut rows: Vec<(String, String, Value, i64)> = self
+                    .hud
+                    .lock()
+                    .unwrap()
+                    .iter()
+                    .filter(|((u, _, _), _)| *u == user)
+                    .map(|((_, kind, key), (body, at))| {
+                        (kind.clone(), key.clone(), body.clone(), *at)
+                    })
+                    .collect();
+                rows.sort_by(|a, b| (&a.0, &a.1).cmp(&(&b.0, &b.1)));
+                let rows: Vec<Value> = rows
+                    .into_iter()
+                    .map(|(kind, key, body, at)| {
+                        json!({"kind": kind, "key": key, "body": body, "updated_at": at})
+                    })
+                    .collect();
+                (200, Value::Array(rows).to_string())
             }
             ("GET", "/rest/v1/hands") => {
                 let query = path.split('?').nth(1).unwrap_or("");
@@ -396,6 +442,7 @@ fn config() -> SyncConfig {
         batch_hands: 25,
         idle_poll: Duration::from_millis(200),
         pull_every: Duration::from_secs(3600),
+        hud_pull_every: Duration::from_secs(3600),
         backoff_first: Duration::from_millis(40),
         backoff_max: Duration::from_millis(400),
         rate_limit_first: Duration::from_millis(80),
@@ -1174,4 +1221,171 @@ fn the_status_serialises_for_the_window() {
     assert_eq!(value["cap"], DEFAULT_CAP);
     let offline = serde_json::to_value(SyncPhase::Offline { retry_at_ms: 5 }).unwrap();
     assert_eq!(offline, json!({"state": "offline", "retryAtMs": 5}));
+}
+
+/// (R3.9) The HUD's layouts follow the account to another computer: one
+/// computer's design, assignment, dragged panel and room setting reach the
+/// other through the server, and its hook runs; a later edit on the second
+/// wins over an earlier one on the first (last writer by `updatedAt`), on
+/// both; a delete and a reset travel as tombstones; nothing is resent once
+/// sent.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn hud_layouts_follow_the_account() {
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    let open = |name: &str| {
+        let dir = scratch(name);
+        let store = Store::open(dir.join("rail.db")).unwrap();
+        (store, dir)
+    };
+    let (laptop, laptop_dir) = open("hud-laptop");
+    let writer = laptop.writer().unwrap();
+    writer
+        .save_hud_layout("d-0001", r#"{"version":1,"name":"Laptop's"}"#)
+        .unwrap();
+    writer
+        .set_hud_layout_assignment("pokerstars", 0, "cash", Some("d-0001"))
+        .unwrap();
+    writer.set_hud_seat_position("acr", 6, 2, 300, 400).unwrap();
+    writer.set_hud_seat_position("acr", 6, 3, 500, 600).unwrap();
+    writer
+        .set_hud_preferred_seat("winamax", Some(true))
+        .unwrap();
+    drop(writer);
+    // The laptop takes the account's HUD rows back on its own schedule
+    // (`hud_pull_every`), with no "Sync now" or other event: that is how
+    // another computer's edit reaches it.
+    let laptop = Rig::start(
+        Arc::clone(&server),
+        &url,
+        laptop,
+        laptop_dir,
+        FakeAccount::signed_in("a"),
+        SyncConfig {
+            hud_pull_every: Duration::from_millis(150),
+            ..config()
+        },
+    );
+    laptop
+        .until("the laptop's rows on the server", |_| {
+            server.hud.lock().unwrap().len() == 5
+                && laptop.store().reader().hud_sync_dirty().unwrap().is_empty()
+        })
+        .await;
+
+    // The desktop takes them all, and hears it.
+    let (desktop, desktop_dir) = open("hud-desktop");
+    let desktop = Rig::start(
+        Arc::clone(&server),
+        &url,
+        desktop,
+        desktop_dir,
+        FakeAccount::signed_in("a"),
+        config(),
+    );
+    let heard = Arc::new(AtomicUsize::new(0));
+    let count = Arc::clone(&heard);
+    desktop.worker.on_hud_layouts(move || {
+        count.fetch_add(1, Ordering::SeqCst);
+    });
+    desktop.worker.sync_now();
+    desktop
+        .until("the laptop's layouts here", |_| {
+            desktop.store().reader().hud_seat_positions().unwrap().len() == 2
+        })
+        .await;
+    let reader = desktop.store().reader();
+    assert_eq!(reader.hud_layouts().unwrap()[0].id, "d-0001");
+    assert_eq!(
+        reader.hud_layout_assignments().unwrap()[0].layout_id,
+        "d-0001"
+    );
+    assert_eq!(
+        reader.hud_room_settings().unwrap()[0].preferred_seat,
+        Some(true)
+    );
+    assert!(
+        reader.hud_sync_dirty().unwrap().is_empty(),
+        "pulled rows are not sent back"
+    );
+    laptop
+        .until("the hook", |_| heard.load(Ordering::SeqCst) > 0)
+        .await;
+
+    // An edit on the laptop, then a later one on the desktop: the desktop's
+    // wins on both. The desktop also resets slot 3 and deletes nothing yet.
+    laptop
+        .store()
+        .writer()
+        .unwrap()
+        .save_hud_layout("d-0001", r#"{"version":1,"name":"Laptop, edited"}"#)
+        .unwrap();
+    tokio::time::sleep(Duration::from_millis(5)).await;
+    let desk = desktop.store().writer().unwrap();
+    desk.save_hud_layout("d-0001", r#"{"version":1,"name":"Desktop's"}"#)
+        .unwrap();
+    desk.clear_hud_seat_positions("acr", Some(6)).unwrap();
+    drop(desk);
+    // The desktop sends its edit and its reset (whatever the laptop's
+    // older edit did on the server meanwhile, the desktop's is newer).
+    desktop.worker.sync_now();
+    desktop
+        .until("the desktop's edit on the server", |_| {
+            let hud = server.hud.lock().unwrap();
+            hud.get(&("a".into(), "layout".into(), "d-0001".into()))
+                .is_some_and(|(body, _)| body["name"] == "Desktop's")
+                && hud
+                    .get(&("a".into(), "seat_position".into(), "acr|6|2".into()))
+                    .is_some_and(|(body, _)| body.is_null())
+        })
+        .await;
+    // The laptop takes it by its own HUD pull - no "Sync now" here.
+    for rig in [&laptop, &desktop] {
+        rig.until("the desktop's edit everywhere", |_| {
+            let reader = rig.store().reader();
+            reader.hud_layouts().unwrap()[0]
+                .design
+                .contains("Desktop's")
+                && reader.hud_seat_positions().unwrap().is_empty()
+                && reader.hud_sync_dirty().unwrap().is_empty()
+        })
+        .await;
+    }
+    // The design deleted on the laptop: a tombstone, and its assignment
+    // cleared, on the desktop too.
+    let lap = laptop.store().writer().unwrap();
+    assert!(lap.delete_hud_layout("d-0001").unwrap());
+    drop(lap);
+    laptop.worker.sync_now();
+    laptop
+        .until("the delete sent", |_| {
+            server
+                .hud
+                .lock()
+                .unwrap()
+                .get(&("a".into(), "layout".into(), "d-0001".into()))
+                .is_some_and(|(body, _)| body.is_null())
+        })
+        .await;
+    desktop.worker.sync_now();
+    desktop
+        .until("the delete here", |_| {
+            let reader = desktop.store().reader();
+            reader.hud_layouts().unwrap().is_empty()
+                && reader.hud_layout_assignments().unwrap().is_empty()
+        })
+        .await;
+    // Nothing is sent twice: every row went out once per change.
+    let puts: Vec<String> = server
+        .calls
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|c| c.path.ends_with("/put_hud_layouts"))
+        .flat_map(|c| c.keys.clone())
+        .collect();
+    let layout_puts = puts.iter().filter(|k| *k == "layout/d-0001").count();
+    assert_eq!(layout_puts, 4, "save, edit, edit, delete: {puts:?}");
+    laptop.stop().await;
+    desktop.stop().await;
 }

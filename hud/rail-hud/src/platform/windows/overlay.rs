@@ -117,7 +117,6 @@ use super::super::{OverlayFrame, PlatformError, Rect, TableEvent, TableWindow, W
 use super::OverlayInfo;
 use super::ffi::{ThreadDpi, hwnd_of, id_of, is_top_level, is_window, state_of, window_text};
 use crate::layout::{self, Positions};
-use crate::panel::PanelDesign;
 use crate::scene::{Item, Rgba, Scene, compose_with};
 
 /// The thread message that says "the channel has commands".
@@ -454,7 +453,6 @@ fn run(
     }
     let mut state = Overlays {
         painter,
-        design: PanelDesign::default(),
         windows: HashMap::new(),
         times: Vec::new(),
         followed: HashMap::new(),
@@ -670,7 +668,6 @@ struct Followed {
 /// Everything on the thread.
 struct Overlays {
     painter: Painter,
-    design: PanelDesign,
     windows: HashMap<WindowId, Overlay>,
     times: Vec<u64>,
     followed: HashMap<WindowId, Followed>,
@@ -1030,7 +1027,7 @@ impl Overlays {
         match plan {
             Plan::Keep => {}
             Plan::Hide => show(overlay.hwnd, false),
-            Plan::Paint => match paint(&mut self.painter, &self.design, overlay) {
+            Plan::Paint => match paint(&mut self.painter, overlay) {
                 Ok(us) => {
                     overlay.error = None;
                     keep(&mut self.times, us);
@@ -1227,6 +1224,7 @@ fn info(overlay: &Overlay) -> OverlayInfo {
         clicks: overlay.clicks,
         tags: overlay.scene.tags.clone(),
         legend: overlay.scene.legend.as_ref().map(|(rect, _)| *rect),
+        seat_cells: overlay.scene.seat_cells.clone(),
         dropped: overlay.scene.dropped.clone(),
         moves: overlay.moves,
         restacked: overlay.restacked,
@@ -1236,11 +1234,7 @@ fn info(overlay: &Overlay) -> OverlayInfo {
 
 /// Lay the frame out, paint it into the surface and show it where the
 /// table is; the time it took, µs.
-fn paint(
-    painter: &mut Painter,
-    design: &PanelDesign,
-    overlay: &mut Overlay,
-) -> Result<u64, String> {
+fn paint(painter: &mut Painter, overlay: &mut Overlay) -> Result<u64, String> {
     let started = Instant::now();
     let g = overlay.geometry;
     let Some(frame) = &overlay.frame else {
@@ -1251,7 +1245,8 @@ fn paint(
         g.client.width,
         g.client.height,
         g.scale_permille,
-        design,
+        // (R3.9) The table's own design travels with its frame.
+        &frame.design,
         &overlay.overrides(),
     );
     let fits = overlay

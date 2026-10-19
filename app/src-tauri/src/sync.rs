@@ -88,6 +88,15 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>, slot: &SyncSlot) {
     let worker = start(app, &dirty);
     if let Some(worker) = &worker {
         let _ = slot.set(worker.clone());
+        // (R3.9) A pull brought another computer's HUD layouts: the HUD
+        // reads them again, the HUD screen too.
+        let handle = app.clone();
+        worker.on_hud_layouts(move || {
+            if let Some(hud) = handle.try_state::<crate::hud::HudState>() {
+                hud.layout_changed();
+            }
+            let _ = handle.emit(crate::hud_editor::HUD_LAYOUTS_EVENT, ());
+        });
     }
     app.manage(SyncState { worker, dirty });
     refresh_tray(app);

@@ -364,8 +364,8 @@ impl std::error::Error for IngestError {}
 /// Which budget a `53400` spent: what to wait for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RateWindow {
-    /// `desktop_ingest:<uid>` (150 000 rows) or `hand_source:<uid>`: a
-    /// window of 10 minutes.
+    /// `desktop_ingest:<uid>` (150 000 rows), `hand_source:<uid>` or
+    /// (R3.9) `hud_layouts:<uid>`: a window of 10 minutes.
     Minutes,
     /// `desktop_ingest_day:<uid>` (2 000 000 rows a day).
     Day,
@@ -377,7 +377,10 @@ impl RateWindow {
     fn of(message: &str) -> Self {
         if message.contains("desktop_ingest_day:") {
             Self::Day
-        } else if message.contains("desktop_ingest:") || message.contains("hand_source:") {
+        } else if message.contains("desktop_ingest:")
+            || message.contains("hand_source:")
+            || message.contains("hud_layouts:")
+        {
             Self::Minutes
         } else {
             Self::Unknown
@@ -666,8 +669,10 @@ fn is_uuid(text: &str) -> bool {
         })
 }
 
+mod hud;
 mod pull;
 
+pub use hud::{HUD_ROWS_PER_PAGE, HUD_ROWS_PER_PUT, PutOutcome};
 pub use pull::{PHF_IDS_PER_CALL, RemoteHand, RemoteKey};
 
 #[cfg(test)]

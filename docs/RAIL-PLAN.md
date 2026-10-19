@@ -182,7 +182,7 @@ waits on the quiet period (R1.3).
 | `seat_stats` | one row per dealt-in seat at the current stats version — the local `hand_stats` (built: `hand_stats` per hand + `seat_stats` per seat, R2.3) | `(hand_key, seat)` (built: `(hand_id, seat)`) |
 | `player_rollups` | summed counters per (player, segment) for the HUD and reports | `(site, player, segment)` (built: `(site, player, scope, segment)`; the hero's per day in `hero_rollups`) |
 | `players` | notes, colour tag, labels | `(site, name)` |
-| `hud_layouts` | layouts, presets, seat positions per (site, table size) (built in R3.6: `hud_seat_positions` per (site, size, slot) and `hud_room_settings` per site; presets R3.9) | `id` |
+| `hud_layouts` | layouts, presets, seat positions per (site, table size) (built in R3.6: `hud_seat_positions` per (site, size, slot) and `hud_room_settings` per site; R3.9: `hud_layouts` - the user's designs - and `hud_layout_assignments` per (site, size, format); the presets are `config/hud/presets.json`) | `id` |
 | `outbox` | hands not yet synced, attempts, last error | `hand_key` |
 | `kv` | schema version, sync cursors, settings | `key` |
 
@@ -214,8 +214,9 @@ companions came with R2.3 (migration 6); the Hands screen's `hand_list`,
 `players` with R2.7c (migration 9: the user's words, with the list's sums
 and the opponents' rows by name beside it); the HUD's seat positions and
 preferred seat with R3.6 (migration 13: `hud_seat_positions`,
-`hud_room_settings`); the HUD editor's presets (the rest of `hud_layouts`)
-come with R3.9 as a later migration.
+`hud_room_settings`); the HUD editor's designs and assignments, and sync
+marks on all four HUD tables, with R3.9 (migration 15: `hud_layouts`,
+`hud_layout_assignments`).
 
 ### 3.5 Supabase mapping
 
@@ -228,7 +229,7 @@ come with R3.9 as a later migration.
 | `hand_players` | not added; `hand_stats` has one row per dealt-in seat | — |
 | `players` | new: tags and colours; `player_notes` stays (or is folded in) | R2.7 |
 | `player_stats` | only if R2.9 shows server-side reports need it - **it does** (R2.9 *As built*: the web's reports over 1M hands of one user take 5-44 s; a hero rollup, `player_stats` and a covering index recommended, not built) | R2.9 (measured), R4.x |
-| `hud_layouts` | new; synced so layouts follow the user to a second machine (the local seat positions and preferred seat exist since R3.6, not synced yet) | R3.9 |
+| `hud_layouts` | new; synced so layouts follow the user to a second machine (built: one table for designs, assignments, seat positions and room settings, keyed (owner, kind, key), last writer wins by the client's `updated_at`, written only by `put_hud_layouts`) | R3.9 |
 | `unsupported_formats` | extend `unparsed_hands`: `origin` (web/desktop), `os`, `client_version`, `consented_at` | R0.11 |
 
 Rules that do not change: RLS on every table, clients insert only, no
@@ -7118,6 +7119,249 @@ graphics, and CPU with twelve real tables.
 ### R3.9 HUD editor and presets — L
 - In the app's HUD screen: drag-and-drop stats, presets for cash, MTT and Spin,
   per room and table size; `hud_layouts` locally and in Supabase (migration).
+- *As built* (§15): **done** - the HUD screen is an editor: the user
+  builds a panel by dragging statistics (or with the keyboard), sets each
+  one's colours, decimals and sample, lays out the popup, starts from a
+  preset for cash, tournaments or Spin, chooses which design each room,
+  table size and game gets, and sees it on a made-up table drawn by the
+  HUD's own renderer; the HUD draws the assigned design on every table,
+  each room's rules cutting it down; designs and layouts follow the
+  account to another computer. `hud/rail-hud/src/design.rs` (the model,
+  presets, room checks, assignments), `config/hud/presets.json`,
+  `panel.rs` / `scene.rs` / `engine.rs` (the design in the frame),
+  rail-store migration 15 (`core/rail-store/src/hud.rs`), Supabase
+  `20270602090000_hud_layouts.sql`, `rail_sync::ingest::hud` and the
+  worker's HUD step, the app's `hud_editor.rs` and `src/screens/hud/`,
+  card fields in R2.10's language (`rail_stats::custom`, STATS-SPEC §14.1).
+  - **The design** (`design::HudDesign`, JSON, `version` 1; a newer
+    version is not read): `cells` in order - a statistic id each, a shipped
+    R2.4 definition or the user's R2.10 statistic, optionally `when`
+    (`StackWhen {belowBb, atLeastBb}`: shown only at those stack depths of
+    the player's starting stack in the table's last finished hand) -,
+    `columns` (1 - 6 to a row; rows as the cells take), `overrides` keyed by
+    statistic id (`bands`, `decimals`, `minSample`: R2.4's note - a layer
+    over the definitions, never an edit of `config/stats/`), `popup`
+    sections (`group` or the user's `title`, statistic ids), `legend`,
+    `playerLabels`, `maxColourThresholds`, `format` (what it is made for)
+    and `preset` (what it was copied from: "reset to preset"). At most 12
+    cells, 8 popup sections / 40 statistics; no statistic twice on the
+    panel; no hero-only statistic (all-in EV) and no money anywhere (a panel
+    describes opponents); override bands ascending, at most 5
+    (`design::check`, problems by code for the editor's words).
+  - **Presets** (`config/hud/presets.json`, compiled in; a test holds each
+    valid): `cash` (R3.4's panel - VPIP, PFR, 3B, F3B, CB, AFq, three to a
+    row, two thresholds, the player's words where allowed), `mtt`
+    (VPIP, PFR, 3B, Steal, FvSt, CB - stealing and defending the blinds),
+    `spin` (VPIP, PFR, Steal, FvSt, 3B, Limp - three-handed hypers), each
+    with its popup sections and complying with every allowed room; and
+    **`mtt-stack`** ("tournament by stack depth": from 20 bb F3B and CB,
+    below 20 bb Steal and FvSt) - display switching by game state, so
+    **only ACR** may take it; PokerStars and Winamax refuse it, and the
+    editor says why. `defaults` gives each format's preset when nothing is
+    assigned (cash -> `cash`, tournaments and sit-and-gos -> `mtt`,
+    Spin -> `spin`).
+  - **Assignments** (`hud_layout_assignments`: room or `*`, size 2 - 10 or
+    0 for every size, `cash` / `mtt` / `spin` or `*`; a table's format is
+    its last hand's segment, `GameFormat::of_hand`): the most specific wins
+    - **room, then format, then size** (`Assignments::resolve`; an
+    assignment of a design that is gone is passed over), else the format's
+    preset. Decided: format before size, because a tournament design at a
+    6-max table matters more than a 6-max design for cash.
+  - **Restrictions, editor side** (`design::check_for_room`, per allowed
+    room's `hud.restrictions`): `noCardSplitStats` refuses a card-split
+    statistic (PokerStars); `noGameStateSwitching` refuses a `when` cell
+    (PokerStars, Winamax); `maxColourThresholds` refuses a statistic
+    coloured by more thresholds than allowed after the design's own limit
+    and the user's bands (PokerStars: 2); `noPlayerLabels` is a **note**
+    (PokerStars, ACR: the words are never drawn there - the toggle says
+    "Winamax only"). The app refuses to assign a design a room would refuse
+    (`hud_assign`; `*` = every allowed room) and to save a design that a
+    room it is assigned to would then refuse (`hud_design_save`), naming
+    the room and the problem; the screen lists, while editing, where the
+    draft may be used and why not. ACR's "nothing from the hand in play",
+    own hands only and raw counts are structural (R3.7's data path; a stack
+    cell reads the last *finished* hand's stack; every formula reads the
+    player's own counters) and not checked per design.
+  - **Card-split statistics** (R3.7's note). R2.10's language had no card
+    field, so a user could not write one: it gains three seat fields from
+    the seat's known hole cards (`cards_known`, `pocket_pair`, `suited`;
+    none without two known cards - `not pocket_pair` is true where the
+    cards are unknown, the spec says to write `cards_known and not ...`).
+    `Field::reads_cards`, `CustomCounter::reads_cards` and
+    `CustomSet::card_split(id)` - its predicate names one, or its formula or
+    sample reads the counters of a statistic that is, through any chain.
+    No other field changed meaning, so `EVENTS_VERSION` stays `events/1`.
+  - **Restrictions, renderer side (defence in depth).** The design becomes
+    the renderer's `PanelDesign` (`design::panel_design`: each slot flagged
+    `card_split` and `ByGameState` for a `when` cell) and
+    `PanelDesign::enforce` drops what the frame's permit forbids, as since
+    R3.4 - now including a slot with a `when` that claims to be fixed. So a
+    design that changed after it was assigned (a user's statistic edited to
+    read the cards), or synced from another computer, can never put a
+    card-split or switching statistic on a PokerStars table; the Windows
+    test below holds it on real windows.
+  - **The design travels with the frame** (R3.4 / R3.7 / R3.8 notes).
+    `OverlayFrame.design` carries the table's (enforced at layout); the
+    Windows overlay and the sim backend lay out `frame.design` (the
+    overlay thread no longer keeps a design of its own). The engine
+    (`design::DesignSet`) reads the user's designs, assignments and - when
+    a design names one - the user's statistics from the store at open and
+    on `layout_changed` / `settings_changed` / `stats_changed`, resolves
+    each window's design from its room, size and format, compiles each
+    design once (`PanelStats::compile` with the overrides) and draws each
+    table's cells and legend with it: **the legend reads the bands the
+    frame's statistics use, the user's own included**. `Hud::set_design`
+    stays as a test/tool override for every table. `open_popup` gains the
+    design's id (`design`, optional: protocol 1 unchanged); the popup shows
+    the design's sections (user's titles, else the group's), the user's
+    bands and decimals, by no more thresholds than design and room allow;
+    without one, every definition by group as before. A cell's text uses
+    the override's decimals (whole numbers by default, as R3.4). Panel
+    size: `columns` to a row and as many rows as the cells take
+    (`Metrics::panel_rows`); R3.4's two-row rule stays for a design without
+    `columns` (the old default). `Scene::seat_cells` records what each panel
+    shows (tests, the preview).
+  - **Stacks for the `when` cells**: `PlayerRef.stack_bb_tenths` (optional,
+    protocol 1 unchanged) from `seat_stats.starting_stack_bb_tenths` of the
+    hand the app announces (`Reader::newest_hands_of_file`) or the HUD finds
+    on attach (`latest_hand_of_table`); 0 (no big blind) is unknown, and an
+    unknown stack shows no `when` cell.
+  - **The editor** (HUD screen; `hud_editor.rs`: `hud_editor_state`,
+    `hud_design_check`, `hud_design_save`, `hud_design_delete`,
+    `hud_assign`, `hud_preview`; the app now depends on `rail-hud`'s library
+    for the model and the renderer). Designs: presets read-only ("make my
+    copy"), "new design from" a preset, name, format, save, discard, reset to
+    preset, delete (a dialog; its assignments go with it). Panel: the
+    statistics list by group with search, the user's marked "yours" and
+    card-split ones "reads the cards"; the cells as a grid of the design's
+    columns; **drag and drop** (HTML5: a statistic onto a cell goes in
+    before it, onto "drop here" at the end; a cell onto another moves
+    there) with a **keyboard alternative** (each statistic's Add button; a
+    focused cell moves with Alt+Left / Alt+Right and goes with Delete, focus
+    kept; Move earlier / Move later / Remove in the cell's settings; every
+    change announced in a live region); per cell: decimals, the sample for
+    full colour, the user's own bands, "show only at some stack depths"
+    (warned: not on PokerStars or Winamax); columns, colour thresholds,
+    legend, the player's words ("Winamax only"). Popup: sections, titles,
+    statistics added / moved / removed. Rooms: the draft checked as it is
+    edited (200 ms pause), each room "may be used", "may be used; there -
+    (what it leaves out)" or "may not be used - (why)". **Preview**: the
+    room and table size picked, made-up players and numbers (stacks of 12
+    and 60 bb, so `when` cells show on some panels; one villain with a tag,
+    a label and a note; one seat dimmed), the user's dragged panels of that
+    room and size, laid out by `scene::compose` under the room's permit and
+    drawn as SVG over the simulator's table geometry - exactly what a
+    table shows, the room's cuts included; R3.6's "put dragged panels back"
+    (`hud_reset_seat_positions` for that room and size: the engine's
+    repaint on `layout_changed` carries a current `drags_seen`, so the
+    overlay drops its own copy) and "my client seats me at the bottom"
+    (`hud_set_preferred_seat`) under it. **Assignments**: a matrix of every
+    room and "every room" by every game, Cash, Tournament, Spin, at every
+    size or one, each cell showing what it falls through to today (the
+    HUD's own resolution, `resolved` in the state) or the design chosen
+    there; a refused choice is not kept and the room's reasons are shown.
+    en + hr. Every write tells the HUD (`layout_changed`) and wakes the sync
+    worker; a pull that changed something emits `hud-layouts-changed` and
+    the screen reads again.
+  - **Store** (migration 15, tested from every earlier version by the
+    migration test; the older-store tests' downgrades drop it first):
+    `hud_layouts` (id, design JSON or NULL for a deleted one, `updated_at`,
+    `dirty`), `hud_layout_assignments`; R3.6's tables gain `dirty` and
+    (positions) `cleared` - a reset is now a tombstone, "as `sites.json`
+    says" a NULL row - so deletes and resets sync. The HUD's connection
+    reads only (`Reader::hud_layouts`, `hud_layout_assignments`; positions
+    and settings filter tombstones out).
+  - **Sync** (R1.9's worker, every pass): the dirty rows of all four HUD
+    tables (`Reader::hud_sync_dirty`) go to `put_hud_layouts` (500 a call),
+    then are marked clean unless they changed meanwhile; **every minute**
+    (`SyncConfig::hud_pull_every`, its own schedule) and with each hands
+    pull (every 5 minutes, and on "Sync now") the whole of the account's
+    `hud_layouts` (pages of 1 000) is applied by **last writer wins on
+    `updated_at`**, a tie keeping the local row, a row this build cannot
+    read refused whole (`WriterHandle::hud_sync_apply`); when that changed
+    something the worker's hook runs (`SyncWorker::on_hud_layouts`: the app
+    tells the HUD and the screen). A failure backs the HUD part off on its
+    own and never holds up the hands. Every HUD write here wakes the
+    worker (the editor's saves and assignments, a drag through the HUD's
+    layout thread, a reset of dragged panels, the preferred seat), so a
+    change leaves at once and reaches another computer within its next HUD
+    pull - never waiting for an unrelated event. **Found on CI**: the first
+    version pulled the HUD rows only with the hands pull (every 5
+    minutes), so an edit made on one computer just after the other's pull
+    waited up to 5 minutes there; the sync test caught it as a race (its
+    second computer had pulled before the first one's push landed) - hence
+    the HUD's own pull schedule, and the test now waits for the push to
+    land and then for the other computer's own scheduled pull, with no
+    "Sync now". Supabase: one table `hud_layouts`
+    (owner, kind, key, jsonb body or null, `updated_at` bigint), select-own
+    RLS, writes only through `put_hud_layouts` (definer, `auth.uid()`,
+    validated whole, 500 a call, 5 000 an account, rate limit
+    `hud_layouts:`); `docs/DATABASE.md` "The HUD's layouts" has the threat
+    model. **Not applied to production.**
+  - **Tests.** rail-stats: card fields on a fixture (the hero's and a shown
+    hand, unknown elsewhere), `card_split` through chains. rail-store
+    (`hud` module): designs and assignments (a delete clears its
+    assignments, the checks), tombstones, LWW apply (newer, older, tie, new,
+    refused shapes), pushed-then-changed stays dirty. rail-hud: `design`
+    (every preset valid and on which rooms - `mtt-stack` on ACR only; each
+    check by code; each room's refusals; fallback order; stack ranges; the
+    JSON round trip; ids), `panel` (overrides colour, print and dim the
+    cells and drive the legend; a `when` cell per stack; a `when` slot
+    claiming to be fixed still dropped), the engine
+    (`designs_follow_the_assignments`: a real store, a user's design for
+    every room - two columns, a card-split statistic, a stack cell - all of
+    it on ACR with the stack cell beside the short stack only, no stack cell
+    on Winamax, neither on PokerStars; cleared, the cash preset), the IPC's
+    wire form. rail-sync: `hud_layouts_follow_the_account` (two stores, one
+    scripted server: the laptop's rows reach the desktop and its hook runs,
+    a later edit wins on both, a reset and a delete travel, each row sent
+    once per change). pgTAP `hud_layouts.test.sql` (35); full suite 33
+    files / 1 082 tests on an isolated stack (`rail-r39-hud`, ports 567xx);
+    the wire form checked there with curl as a made-up user;
+    `database.types.ts` regenerated. The app (`cargo test -p rail-app`):
+    the state, save / assign refusals, the preview is the renderer's (the
+    room's cuts, the stack cell beside short stacks), the popup's
+    sections, bands and thresholds over a store. **Windows CI**
+    (`hud/rail-hud/tests/windows_designs.rs`, also a step of its own): the
+    engine over the real Windows backend and a real store with the
+    simulator's table posing as Winamax - the cash preset drawn, then the
+    user's design assigned and `layout_changed`: the same overlay draws the
+    design's cells, four to a row, every panel wider; posing as PokerStars
+    with the same assignment, the card-split statistic is dropped and the
+    rest drawn. Cross-checked locally with `cargo clippy --target
+    x86_64-pc-windows-msvc -p rail-hud --all-targets -- -D warnings`
+    (stand-in C compiler). The screen was checked in a browser over the
+    app's own Rust commands behind a mocked Tauri bridge (a scratch HTTP
+    bridge to a made-up store, not committed): drag and drop and the
+    keyboard moves, the stack cell and a card-split statistic refused on
+    PokerStars and Winamax and allowed on ACR, the preview per room (6- and
+    4-column panels, the user's dragged panel), save, assign (refused on
+    PokerStars, kept on ACR), delete; English and Croatian, dark and light,
+    1280 and 900 px.
+  - **Limits.** A user's own statistic is shown on the panel, not in the
+    popup (the popup reads shipped definitions only). A stack cell knows
+    the stack of the table's last finished hand only (nothing about the
+    hand in play, by design). Switching by tendencies (another set for a
+    loose player) is not offered (`Switching::ByTendencies` stays enforced
+    for designs from elsewhere). The preview draws the simulator's table
+    geometry (no room's real layout is measured: R3.14). Last writer wins by
+    each computer's clock. The editor's drag and drop was driven with
+    synthetic drag events in the browser check (a real mouse drag in the
+    Tauri webview is not automated). No preset ships a design with more
+    than two thresholds.
+  - **For R3.10** (compliance mode in the app): `rail_hud::design::check_for_room`
+    and the editor's room lines already say what each room forbids; R3.10's
+    HUD status ("refused: <room>, why") can reuse `RoomDto.restrictions` and
+    the problem words. The app checks designs against the **shipped**
+    `sites.json`; when it downloads the remote one, check against the merged
+    restrictions (`HudRestrictions::stricter`), as the HUD does. A user's
+    statistic edited to read the cards while assigned to PokerStars is not
+    refused by `custom_stat_save` (the renderer drops it; the screen marks
+    the assignment): R3.10 may warn there too.
+  - **For R3.11 - R3.13** (macOS): the design is in the frame
+    (`OverlayFrame.design`); the macOS overlay lays out `frame.design` with
+    `scene::compose_with` exactly as Windows does - no design state on the
+    overlay. The preview is platform-free.
 
 ### R3.10 Compliance mode — S
 - The HUD refuses to attach to windows of rooms whose `hud.allowed` is not
@@ -7340,3 +7584,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-15 | **R3.6 done**: seats and layouts. A hand's seat becomes a **slot** (the place on the screen) of the room's layout for the table size: `sites.json` `tables.seatLayouts` is now per size `{seats, plate, center, heroSlot, graphics, seatNumbers}` in thousandths of the client rect (schema `$defs.seatLayout`, validator checks), `null` for every room until measured (`CAPTURING-TABLES.md` "Seat layouts"; R3.14) - meanwhile `TableLayout::simulator`, the simulator's geometry. **Preferred seat**: a rotating client's seat `s` is at `(slot(s) - slot(hero) + heroSlot) mod size` (`seats::slot_of`), on when the user says so (`hud_room_settings`, the app's `hud_set_preferred_seat`), else `tables.preferredSeat` (`null` everywhere), else off; the hero's seat from each hand, kept while not dealt in, none for an observer, forgotten on a table move; a seat past the window's size lays out on the size that has it (9-max -> 6-max), heads-up two slots. **Drag**: the Windows overlay thread takes its own mouse messages (press on a panel -> `SetCapture`, moves past 4 px repaint the panel where the scene allows it, release or lost capture drops it), keeps the drop until the engine's frame has it (`Seating::drags_seen`) and reports `TableEvent::PanelMoved`; the engine redraws every table of that room and size and sends the new `seat_position_changed {site, size, slot, x, y}`; the app's thread writes **migration 13** (`hud_seat_positions` per (room, size, slot), `hud_room_settings`), which the read-only HUD reads at start and on `layout_changed` / `settings_changed`; not synced yet (R3.9 / R4.x). On `noOverlapTableGraphics` (ACR) a dragged panel goes to the nearest place clear of the layout's graphics (`layout::constrain`); a remote `sites.json` can only add graphics zones (union per size; a shrunk or dropped zone keeps the shipped one) and only narrow a room's process names (never another entry's), so table data cannot loosen compliance. Where a panel is never changes what it shows (PokerStars: no display switching by position, stack or opponent; no per-position stat sets). Tests on all OSes (every size x hero seat x rotation equal to the simulator's drawing, observer, size change, measured layouts, constrain, drag, the engine with a real store) and Windows CI `windows_seats.rs` (panels at the simulator's drawn seats with `--preferred-seat` off and on, its hero frame read off the screen; a posted-message drag kept off the graphics posing as ACR, where dropped posing as PokerStars; the HUD process: drag -> `seat_position_changed` -> store -> restart restores it). |
 | 2026-10-15 | **R3.7 done**: the HUD data path. A table's players are read over **the table's segment** (its hand's: `Reader::hud_hand`), opaque-id villains under the session scope the store wrote. **`ownHandsOnly`** (PokerStars, Winamax, ACR): store migration 14 adds `player_rollups_observed` - the part of `player_rollups` from hands without a hero seat, written by the same `Pending` in the hand's transaction (nothing more for a played hand), a fifth summed table with its recompute twin - and `custom_player_rollups_observed`; the HUD reads rollups less that part (`Reader::hud_own_totals`, `custom_player_totals(.., own_hands_only)`), exact to the counter (a store with an observed and a played hand equals a store of the played hand alone). Migration 14 fills the part from the stored rows in its transaction (`stats::fill_observed`), recounts the user's statistics when observed hands exist, restarts a rows job left running; tested from every version and from a version-13 store with data; R2.11's map gains both tables. Cost: import gate 59-60 % vs staging's 60 % (interleaved, 100k, 3 threads), an all-observed corpus imports at the same rate; HUD lookup at 500k + 300k padded players 88 -> 121 us median (p99 109 -> 154 us). **Nothing from the hand in play**: documented and tested with the real watcher (`tests/in_play.rs`); found that R1.3's assumption is load-bearing (a PokerStars prefix cut at the flop validates: a room stalling mid-hand > 500 ms would get it stored) - R3.14 checks the real clients. **Restart**: a window with no announced hand starts from its table's newest stored hand played and imported in the last 15 min (`Reader::latest_hand_of_table`, `hands_imported_at_idx`, no sort); e2e kills the HUD and the new process shows every table at once. The user's statistics in a design (`PanelStats::with_custom`, `Hud::set_design`). **Latency chain** per hand - watcher notice (`WatchEvent::Imported.noticed_ms`) -> import -> sent (`hand_imported.timing`) -> arrived -> re-read -> frame (`table_updated.chain`, `--latency-report` JSON lines, a debug build's line on the table, never in release): 12 tables, 96 hands, debug, M2 Pro: **p50 506 ms, p95 521 ms** (503 ms of it the quiet period; re-read 0.8 ms, frame 0.4 ms); the e2e asserts p95 < 1 s. `stats_changed` re-read after a swap and the recompute pause while tables are open verified by tests. |
 | 2026-10-19 | **R3.8 done**: panel and popup. **Panel**: the six definitions and the hand count as before, plus a **legend** pill in a free corner (clear of the table's graphics, the panels and the debug line) with one sign per colour in use after the room's collapse (`-` `=` `+` on every allowed room with the default design; PokerStars at most two thresholds whatever the design), and - **only where the room allows labelling players (Winamax; never PokerStars or ACR, `noPlayerLabels`)** - the user's colour tag (a bright bar, contrast on any felt), a note mark and labels, read by `Reader::player_notes`, never for the hero or an opaque-id seat. **Click**: a press that never passed the drag threshold and was released over the overlay is `PanelClicked`; the engine sends `open_popup {site, storeSite, table, player, segment, slot, anchor, scale}`. **Popup**: one Tauri webview window of the app's (`hud-popup-<n>`, `#/hud-popup`, `packages/ui` tables), placed beside the panel in the monitor's work area, reused for another panel, closed by the same panel, Esc, its button, losing the keyboard, the pointer leaving or the last table closing; built hidden and unfocused so the table keeps the keyboard (`SW_SHOWNOACTIVATE` on Windows; macOS not wired). It reads what the panel reads (the table's segment, own hands only) through the app: grouped statistics of `players: any` definitions (no money), thresholds in words, hands together and your result (bb, cash and tournaments apart), **by position only on ACR** (hidden on PokerStars - unclear under "no display changing with game state" - and on Winamax, read as conservatively; `Reader::player_own_positions`), **your words only on Winamax** (on PokerStars and ACR not even the note: a note at the table is a label). **A10**: the app has no analysis/solver/equity/chart screen; `lib/duringPlay.ts` is the gate (every route classified, the shell replaces a helping screen while `tables_open > 0`), and the replayer's pot odds and the 13 x 13 starting-hand chart hide during play. Tests: rail-config, rail-hud (panel, scene, layout, drag, tracking, engine), IPC wire form, rail-store own positions, the app with Tauri's mock runtime (rules per room, popup over a store, the window opened / moved / closed, `open_popup` -> window -> tables' edges), `appDuringPlay.test.ts`; Windows CI `windows_seats.rs` (click vs drag on real windows, tags only posing as Winamax, the HUD process's `open_popup`); the popup page checked in a browser with mocked Tauri calls and made-up data. Found on Windows CI: a hand committed by a recheck after the one before it had no `noticed` stamp (rail-watch now leaves the rest of a commit the latest change noticed), and the app's test binary needs the application manifest (`build.rs` links it into every target on MSVC); the popup test's store folder had the simulator's folder name (the helper's are now `rail-hud-sim-*`, and a wait reports the simulator's stderr and exit status). |
+| 2026-10-19 | **R3.9 done**: the HUD editor and presets. **Model** (`rail_hud::design`): a design is ordered panel cells (shipped or the user's statistics; a cell may show only at some stack depths), columns, per-statistic overrides keyed by id (bands, decimals, sample - a layer, never an edit of the definitions), popup sections, legend, the player's words, colour thresholds. **Presets** (`config/hud/presets.json`): cash (R3.4's panel), tournament, Spin - each complying with every allowed room - and "tournament by stack depth", which switches with the stack and so is ACR's only. **Assignments** per (room or every room, size or every size, format or every format): room, then format, then size, else the format's preset. **Restrictions** enforced twice: the editor refuses to save or assign what a room forbids and says why (PokerStars: a card-split statistic, a stack cell, more than two thresholds; Winamax: a stack cell; labels a note on PokerStars and ACR), and the renderer drops it anyway (defence in depth). R2.10's language gains card fields (`cards_known`, `pocket_pair`, `suited`) and `CustomSet::card_split`. **The design travels with the frame** (`OverlayFrame.design`; the Windows overlay keeps none of its own); the engine resolves each table's design from its room, size and format, the legend reads the user's bands, `open_popup` names the design and the popup shows its sections. **Editor** (HUD screen): drag and drop with a keyboard alternative, per-cell settings, popup sections, live room checks, a preview drawn by the HUD's own renderer under the room's rules, reset of dragged panels, the preferred seat, the assignment matrix; en + hr. **Store** migration 15 (designs, assignments, tombstones and dirty marks); **Supabase** `hud_layouts` + `put_hud_layouts` (select-own RLS, definer writer, pgTAP 35; not applied to production); **sync** of all four HUD tables in R1.9's worker (every write wakes it; the HUD rows are pulled every minute, on their own schedule), last writer wins by `updated_at`. Tests: rail-stats, rail-store, rail-hud (design, panel, engine), rail-sync, pgTAP, the app; Windows CI `windows_designs.rs` (an assigned design changes what the overlay draws posing as Winamax; a card-split statistic dropped posing as PokerStars); the screen checked in a browser over the app's own commands behind a mocked Tauri bridge with made-up data. |

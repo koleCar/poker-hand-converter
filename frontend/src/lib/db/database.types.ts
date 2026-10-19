@@ -1266,6 +1266,33 @@ export type Database = {
         }
         Relationships: []
       }
+      hud_layouts: {
+        Row: {
+          body: Json | null
+          key: string
+          kind: string
+          owner_id: string
+          synced_at: string
+          updated_at: number
+        }
+        Insert: {
+          body?: Json | null
+          key: string
+          kind: string
+          owner_id: string
+          synced_at?: string
+          updated_at: number
+        }
+        Update: {
+          body?: Json | null
+          key?: string
+          kind?: string
+          owner_id?: string
+          synced_at?: string
+          updated_at?: number
+        }
+        Relationships: []
+      }
       ingest_rate_limit: {
         Row: {
           bucket: string
@@ -2959,6 +2986,7 @@ export type Database = {
         Args: { p_before?: string; p_limit?: number; p_username: string }
         Returns: Json
       }
+      put_hud_layouts: { Args: { p_rows: Json }; Returns: Json }
       read_poll: { Args: { p_post: string }; Returns: Json }
       read_published_hand: { Args: { p_public_id: string }; Returns: Json }
       read_share: { Args: { p_slug: string }; Returns: Json }

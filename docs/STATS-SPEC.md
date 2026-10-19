@@ -817,6 +817,20 @@ pot, a check - has **no value**, and a field with no value fails every test
 | `saw_flop`, `saw_turn`, `saw_river` | yes/no | `flop_seen` / `turn_seen` / `river_seen` (§6.2: the street was dealt and the seat had not folded - all-in seats included) |
 | `showdown` | yes/no | `wtsd`'s test: two or more seats never folded and this is one (§4.8) |
 | `won` | yes/no | collected chips from a pot (§6.3) |
+| `cards_known` | yes/no | (R3.9) the seat's hole cards are known: the hero's, or a villain's shown (PHF `holeCards`) |
+| `pocket_pair` | yes/no | (R3.9) two known hole cards of one rank; none unless exactly two cards are known |
+| `suited` | yes/no | (R3.9) two known hole cards of one suit; none unless exactly two cards are known |
+
+**Card fields (R3.9).** `cards_known`, `pocket_pair` and `suited` read the
+seat's cards, so a statistic whose predicate names one - or whose formula
+reads such a statistic's counters - is **card-split**
+(`CustomSet::card_split`): it counts only hands whose cards were seen, and
+PokerStars forbids it on a HUD (`sites.json` `noCardSplitStats`: the HUD
+editor refuses it there and the overlay drops it). `not pocket_pair` is true
+where the cards are unknown (a field without a value fails its test, `not`
+turns that round): write `cards_known and not pocket_pair`. Adding the
+fields changed no other field's meaning, so `EVENTS_VERSION` stays
+`events/1`.
 
 **The decision:**
 

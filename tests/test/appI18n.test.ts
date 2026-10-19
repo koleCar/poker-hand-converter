@@ -47,6 +47,8 @@ describe("dictionaries", () => {
       "All-in EV bb/100", "—", "256 KB/s", "4 MB/s", "English", "Hrvatski", "Filter: x",
       // The same word in Croatian (R2.10's editor).
       "Formula",
+      // The same words in Croatian (R3.9's HUD editor).
+      "Panel", "x (preset)", "x-max",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

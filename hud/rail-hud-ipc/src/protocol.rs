@@ -25,6 +25,12 @@ pub struct PlayerRef {
     /// The user's own seat (R3.6 rotates the layout around it).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub hero: bool,
+    /// (R3.9) The player's starting stack in this (finished) hand, tenths
+    /// of a big blind: a design's cell shown at some stack depths only
+    /// reads it. Absent from an older app, or when the hand has no big
+    /// blind.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stack_bb_tenths: Option<i64>,
 }
 
 impl PlayerRef {
@@ -34,6 +40,7 @@ impl PlayerRef {
             scope: String::new(),
             seat: None,
             hero: false,
+            stack_bb_tenths: None,
         }
     }
 
@@ -185,6 +192,10 @@ pub enum HudMessage {
         anchor: ScreenRect,
         /// The table's monitor scale, thousandths (1000 = 96 dpi).
         scale_permille: u32,
+        /// (R3.9) The design the table is drawn with (a preset's id or a
+        /// user's): the popup shows its sections. Absent from an older HUD.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        design: Option<String>,
     },
     /// A message type this build does not know (a newer HUD).
     #[serde(other)]
@@ -332,6 +343,7 @@ mod tests {
                         scope: "Table 9@2026-10-15".into(),
                         seat: Some(9),
                         hero: false,
+                        stack_bb_tenths: Some(425),
                     },
                 ],
                 timing: Some(HandTiming {
@@ -439,6 +451,7 @@ mod tests {
                     height: 44,
                 },
                 scale_permille: 1500,
+                design: Some("d-0123".into()),
             },
             HudMessage::OpenPopup {
                 window: 1,
@@ -453,6 +466,7 @@ mod tests {
                 slot: 0,
                 anchor: ScreenRect::default(),
                 scale_permille: 1000,
+                design: None,
             },
         ];
         for message in &hud {
@@ -552,9 +566,10 @@ mod tests {
                     height: 40,
                 },
                 scale_permille: 1250,
+                design: Some("cash".into()),
             })
             .expect("json"),
-            r#"{"type":"open_popup","window":9,"site":"acr","storeSite":"acrwpn","table":"T","player":{"name":"V","scope":"","seat":2},"segment":3,"slot":1,"anchor":{"x":10,"y":-5,"width":80,"height":40},"scalePermille":1250}"#
+            r#"{"type":"open_popup","window":9,"site":"acr","storeSite":"acrwpn","table":"T","player":{"name":"V","scope":"","seat":2},"segment":3,"slot":1,"anchor":{"x":10,"y":-5,"width":80,"height":40},"scalePermille":1250,"design":"cash"}"#
         );
     }
 

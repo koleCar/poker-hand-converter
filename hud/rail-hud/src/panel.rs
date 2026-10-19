@@ -34,11 +34,15 @@
 
 #![forbid(unsafe_code)]
 
+use std::collections::BTreeMap;
+
 use rail_config::model::HudRestrictions;
 use rail_config::stats::{HudPlace, Tone};
 use rail_core::js::JsNumber;
 use rail_stats::custom::{CustomSet, custom_sums};
 use rail_stats::display::{Display, DisplayStat, Sums, format_fixed};
+
+use crate::design::{StackWhen, StatOverride};
 
 /// How a statistic's display may vary at the table.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -60,6 +64,9 @@ pub struct StatSlot {
     /// Split by card values (an R2.10 statistic with a card predicate).
     pub card_split: bool,
     pub switching: Switching,
+    /// (R3.9) Shown only at these stack depths (the engine decides per
+    /// player; `switching` is then [`Switching::ByGameState`]).
+    pub when: Option<StackWhen>,
 }
 
 impl StatSlot {
@@ -68,6 +75,7 @@ impl StatSlot {
             id: id.into(),
             card_split: false,
             switching: Switching::Fixed,
+            when: None,
         }
     }
 }
@@ -86,6 +94,9 @@ pub struct PanelDesign {
     pub player_labels: bool,
     /// (R3.8) Show the colour legend on the table.
     pub legend: bool,
+    /// (R3.9) Cells to a row (the editor's); `None`: two rows of figures,
+    /// half the statistics to a row (R3.4's panel).
+    pub columns: Option<u32>,
 }
 
 /// At most this many statistics on a panel (guideline §7: four to six).
@@ -113,6 +124,7 @@ impl Default for PanelDesign {
             avoid_table_graphics: true,
             player_labels: true,
             legend: true,
+            columns: None,
         }
     }
 }
@@ -126,6 +138,9 @@ impl PanelDesign {
             .iter()
             .filter(|slot| !(rules.no_card_split_stats && slot.card_split))
             .filter(|slot| match slot.switching {
+                // A stack range switches with the game state whatever the
+                // slot says.
+                Switching::Fixed if slot.when.is_some() => !rules.no_game_state_switching,
                 Switching::Fixed => true,
                 Switching::ByGameState => !rules.no_game_state_switching,
                 Switching::ByTendencies => !rules.no_tendency_switching,
@@ -143,6 +158,7 @@ impl PanelDesign {
             avoid_table_graphics: self.avoid_table_graphics || rules.no_overlap_table_graphics,
             player_labels: self.player_labels && !rules.no_player_labels,
             legend: self.legend,
+            columns: self.columns,
         }
     }
 
@@ -196,6 +212,10 @@ struct PanelStat {
     /// formulas read ([`rail_stats::custom::CustomStat::names`]), filled per
     /// player from their `custom_player_rollups`. `None`: a shipped one.
     custom: Option<Vec<String>>,
+    /// (R3.9) Decimals on the panel (the user's override; 0 otherwise).
+    decimals: u32,
+    /// (R3.9) Shown only at these stack depths.
+    when: Option<StackWhen>,
 }
 
 /// The compiled panel statistics, evaluated per player.
@@ -215,21 +235,43 @@ impl PanelStats {
     /// the user's own statistic of that id (R2.10, from the store), else
     /// left out. A shipped id wins (the editor never lets a user's take one).
     pub fn with_custom(design: &PanelDesign, custom: &CustomSet) -> Self {
+        Self::compile(design, &BTreeMap::new(), custom)
+    }
+
+    /// (R3.9) [`PanelStats::with_custom`] with the user's overrides
+    /// applied (bands, decimals, sample - keyed by id): the cells' colours
+    /// and the legend follow the user's bands.
+    pub fn compile(
+        design: &PanelDesign,
+        overrides: &BTreeMap<String, StatOverride>,
+        custom: &CustomSet,
+    ) -> Self {
         let shipped = Display::shipped().ok();
         let stats = design
             .stats
             .iter()
             .filter_map(|slot| {
-                if let Some(stat) = shipped.as_ref().and_then(|d| d.get(&slot.id)) {
-                    return Some(PanelStat {
-                        display: stat.clone(),
-                        custom: None,
-                    });
-                }
-                let stat = custom.get(&slot.id)?;
+                let (display, names) =
+                    if let Some(stat) = shipped.as_ref().and_then(|d| d.get(&slot.id)) {
+                        (stat.clone(), None)
+                    } else {
+                        let stat = custom.get(&slot.id)?;
+                        (stat.display.clone(), Some(stat.names.clone()))
+                    };
+                let over = overrides.get(&slot.id);
+                let display = match over {
+                    Some(over) => display.with_overrides(
+                        over.bands.as_deref(),
+                        over.decimals,
+                        over.min_sample,
+                    ),
+                    None => display,
+                };
                 Some(PanelStat {
-                    display: stat.display.clone(),
-                    custom: Some(stat.names.clone()),
+                    display,
+                    custom: names,
+                    decimals: over.and_then(|o| o.decimals).unwrap_or(0),
+                    when: slot.when,
                 })
             })
             .collect();
@@ -266,21 +308,26 @@ impl PanelStats {
 
     /// The cells of one player's summed rollups.
     pub fn cells(&self, sums: &Sums) -> Vec<StatCell> {
-        self.cells_with(sums, |_| None)
+        self.cells_with(sums, |_| None, None)
     }
 
     /// The cells of one player's summed rollups and their counts of the
     /// user's statistics: `counts(id)` is the `(made, opportunities)` of
     /// the user's statistic `id` for this player (`None`: none counted).
     /// Read through the definitions: a user's statistic's formula over
-    /// [`custom_sums`], a shipped one's over the rollups.
+    /// [`custom_sums`], a shipped one's over the rollups. (R3.9) A cell
+    /// shown at some stack depths only is left out unless the player's
+    /// stack (`stack_tenths`, tenths of a big blind at the table's last
+    /// hand) is in its range.
     pub fn cells_with(
         &self,
         sums: &Sums,
         counts: impl Fn(&str) -> Option<(i64, i64)>,
+        stack_tenths: Option<i64>,
     ) -> Vec<StatCell> {
         self.stats
             .iter()
+            .filter(|panel_stat| panel_stat.when.is_none_or(|when| when.holds(stack_tenths)))
             .map(|panel_stat| {
                 let stat = &panel_stat.display;
                 let shown = match &panel_stat.custom {
@@ -289,9 +336,10 @@ impl PanelStats {
                 };
                 StatCell {
                     id: stat.id().to_owned(),
-                    text: shown
-                        .value
-                        .map_or_else(|| "-".to_owned(), |value| format_fixed(value, 0)),
+                    text: shown.value.map_or_else(
+                        || "-".to_owned(),
+                        |value| format_fixed(value, panel_stat.decimals),
+                    ),
                     tone: shown.tone,
                     opacity_permille: permille(shown.reliability.opacity),
                 }
@@ -481,6 +529,7 @@ mod tests {
             avoid_table_graphics: false,
             player_labels: true,
             legend: true,
+            columns: None,
         };
         let ids = |d: &PanelDesign| d.stats.iter().map(|s| s.id.clone()).collect::<Vec<_>>();
 
@@ -593,6 +642,97 @@ mod tests {
         let cells = stats.cells(&rate_sums("vpip", 1, 4));
         assert_eq!(cells[0].text, "25");
         assert_eq!(cells[0].opacity_permille, 680);
+    }
+
+    /// (R3.9) The user's overrides bind the cells and the legend: their
+    /// bands colour the value, their decimals print it, their sample dims
+    /// it; a cell by stack depth shows only in its range (never for an
+    /// unknown stack).
+    #[test]
+    fn overrides_and_stack_cells() {
+        use rail_config::stats::Band;
+        let design = PanelDesign {
+            stats: vec![
+                StatSlot::fixed("vpip"),
+                StatSlot {
+                    switching: Switching::ByGameState,
+                    when: Some(StackWhen {
+                        below_bb: Some(20),
+                        at_least_bb: None,
+                    }),
+                    ..StatSlot::fixed("pfr")
+                },
+            ],
+            ..PanelDesign::default()
+        };
+        let mut overrides = BTreeMap::new();
+        overrides.insert(
+            "vpip".to_owned(),
+            StatOverride {
+                bands: Some(vec![
+                    Band {
+                        below: Some(35.0),
+                        tone: Tone::Low,
+                    },
+                    Band {
+                        below: None,
+                        tone: Tone::High,
+                    },
+                ]),
+                decimals: Some(1),
+                min_sample: Some(1000),
+            },
+        );
+        let stats = PanelStats::compile(&design, &overrides, &CustomSet::default());
+        let vpip_only = PanelDesign {
+            stats: vec![StatSlot::fixed("vpip")],
+            ..PanelDesign::default()
+        };
+        assert_eq!(
+            PanelStats::compile(&vpip_only, &overrides, &CustomSet::default()).legend_tones(),
+            [Tone::Low, Tone::High],
+            "the legend reads the user's bands"
+        );
+        // 45 of 150: 30 %, below the user's 35: low; one decimal; 150 of
+        // the user's 1 000: dimmed (0.6 + 0.4 * sqrt(0.15)).
+        let sums = rate_sums("vpip", 45, 150);
+        let deep = stats.cells_with(&sums, |_| None, Some(400));
+        assert_eq!(deep.len(), 1, "{deep:?}");
+        assert_eq!(deep[0].text, "30.0");
+        assert_eq!(deep[0].tone, Some(Tone::Low));
+        assert!(deep[0].opacity_permille < 1000, "{deep:?}");
+        let short = stats.cells_with(&sums, |_| None, Some(150));
+        assert_eq!(
+            short.iter().map(|c| c.id.as_str()).collect::<Vec<_>>(),
+            ["vpip", "pfr"]
+        );
+        assert_eq!(stats.cells_with(&sums, |_| None, None).len(), 1);
+        // Without overrides: the definition's bands and whole numbers.
+        let plain = PanelStats::new(&design).cells_with(&sums, |_| None, None);
+        assert_eq!(
+            (plain[0].text.as_str(), plain[0].tone),
+            ("30", Some(Tone::High))
+        );
+        // A stack range switches with the game state even when a slot says
+        // it is fixed: dropped where that is forbidden.
+        let sneaky = PanelDesign {
+            stats: vec![StatSlot {
+                when: Some(StackWhen {
+                    below_bb: Some(20),
+                    at_least_bb: None,
+                }),
+                ..StatSlot::fixed("pfr")
+            }],
+            ..PanelDesign::default()
+        };
+        assert!(
+            !sneaky
+                .enforce(&HudRestrictions {
+                    no_game_state_switching: true,
+                    ..HudRestrictions::NONE
+                })
+                .shows("pfr")
+        );
     }
 
     #[test]

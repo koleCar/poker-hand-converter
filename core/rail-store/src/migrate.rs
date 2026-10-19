@@ -9,14 +9,14 @@
 //! build and is refused untouched ([`Error::NewerSchema`]).
 //!
 //! Rules: a migration that has shipped is never edited; a change is a new
-//! file appended here. Reserved for a later step (docs/RAIL-PLAN.md §3.4,
-//! `SCHEMA.md`): the HUD editor's presets (R3.9), as the next free number
-//! when it lands (`seat_stats` and the rollups: 6; the Hands screen's
+//! file appended here (`seat_stats` and the rollups: 6; the Hands screen's
 //! tables: 7; the reports' list columns: 8; the Players screen's `players`:
 //! 9; an unused index dropped for the import: 10; custom statistics: 11;
 //! the targeted recompute's staging tables: 12; the HUD's seat positions
 //! and preferred seat: 13; the observed part of the opponents' rollups, for
-//! rooms that allow statistics from the user's own hands only: 14). A
+//! rooms that allow statistics from the user's own hands only: 14; the HUD
+//! editor's designs and assignments, and sync marks on every HUD table:
+//! 15). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
 //! sums the seat rows' blobs), in the same transaction.
 
@@ -88,6 +88,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0014_observed_rollups.sql",
         sql: include_str!("../migrations/0014_observed_rollups.sql"),
+    },
+    Migration {
+        name: "0015_hud_designs.sql",
+        sql: include_str!("../migrations/0015_hud_designs.sql"),
     },
 ];
 

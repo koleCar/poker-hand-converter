@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "defaults": {
+    "cash": "cash",
+    "mtt": "mtt",
+    "spin": "spin"
+  },
+  "presets": [
+    {
+      "id": "cash",
+      "name": { "en": "Cash", "hr": "Cash" },
+      "description": {
+        "en": "Ring games: how loose, how aggressive, how they defend against a 3-bet and play the flop.",
+        "hr": "Cash stolovi: koliko je igrač labav i agresivan, kako se brani od 3-beta i kako igra flop."
+      },
+      "design": {
+        "version": 1,
+        "format": "cash",
+        "columns": 3,
+        "cells": [
+          { "stat": "vpip" },
+          { "stat": "pfr" },
+          { "stat": "three_bet" },
+          { "stat": "fold_to_three_bet" },
+          { "stat": "cbet_flop" },
+          { "stat": "aggression_frequency" }
+        ],
+        "popup": [
+          { "group": "preflop", "stats": ["rfi", "limp", "iso", "cold_call", "four_bet", "fold_to_four_bet", "squeeze", "steal", "fold_to_steal"] },
+          { "group": "postflop", "stats": ["saw_flop", "cbet_turn", "cbet_river", "fold_to_cbet_flop", "fold_to_cbet_turn", "raise_cbet_flop", "donk_flop", "check_raise_flop", "aggression_factor"] },
+          { "group": "showdown", "stats": ["wwsf", "wtsd", "wsd"] },
+          { "group": "results", "stats": ["hands", "bb_per_100"] }
+        ],
+        "legend": true,
+        "playerLabels": true,
+        "maxColourThresholds": 2
+      }
+    },
+    {
+      "id": "mtt",
+      "name": { "en": "Tournament", "hr": "Turnir" },
+      "description": {
+        "en": "Tournaments and sit-and-gos: opening, stealing the blinds and defending them matter more as the blinds rise.",
+        "hr": "Turniri i sit-and-go: otvaranje, krađa blindova i njihova obrana sve su važniji kako blindovi rastu."
+      },
+      "design": {
+        "version": 1,
+        "format": "mtt",
+        "columns": 3,
+        "cells": [
+          { "stat": "vpip" },
+          { "stat": "pfr" },
+          { "stat": "three_bet" },
+          { "stat": "steal" },
+          { "stat": "fold_to_steal" },
+          { "stat": "cbet_flop" }
+        ],
+        "popup": [
+          { "group": "preflop", "stats": ["rfi", "limp", "cold_call", "fold_to_three_bet", "four_bet", "fold_to_four_bet", "squeeze"] },
+          { "group": "postflop", "stats": ["saw_flop", "cbet_turn", "fold_to_cbet_flop", "fold_to_cbet_turn", "donk_flop", "check_raise_flop", "aggression_frequency"] },
+          { "group": "showdown", "stats": ["wwsf", "wtsd", "wsd"] },
+          { "group": "results", "stats": ["hands"] }
+        ],
+        "legend": true,
+        "playerLabels": true,
+        "maxColourThresholds": 2
+      }
+    },
+    {
+      "id": "spin",
+      "name": { "en": "Spin", "hr": "Spin" },
+      "description": {
+        "en": "Three-handed hyper-turbos: almost every hand is a steal or a defence, few hands see a flop.",
+        "hr": "Hyper-turbo za tri igrača: gotovo svaka ruka je krađa ili obrana, malo ruku vidi flop."
+      },
+      "design": {
+        "version": 1,
+        "format": "spin",
+        "columns": 3,
+        "cells": [
+          { "stat": "vpip" },
+          { "stat": "pfr" },
+          { "stat": "steal" },
+          { "stat": "fold_to_steal" },
+          { "stat": "three_bet" },
+          { "stat": "limp" }
+        ],
+        "popup": [
+          { "group": "preflop", "stats": ["rfi", "fold_to_three_bet", "four_bet", "cold_call"] },
+          { "group": "postflop", "stats": ["saw_flop", "cbet_flop", "fold_to_cbet_flop", "aggression_frequency"] },
+          { "group": "showdown", "stats": ["wtsd", "wsd"] },
+          { "group": "results", "stats": ["hands"] }
+        ],
+        "legend": true,
+        "playerLabels": true,
+        "maxColourThresholds": 2
+      }
+    },
+    {
+      "id": "mtt-stack",
+      "name": { "en": "Tournament by stack depth", "hr": "Turnir po dubini stacka" },
+      "description": {
+        "en": "Below 20 big blinds the panel shows stealing and defending instead of the flop and 3-bet defence. Changes with the stack, so only on rooms that allow that (ACR).",
+        "hr": "Ispod 20 velikih blindova panel umjesto flopa i obrane od 3-beta pokazuje krađu i obranu blindova. Mijenja se sa stackom, pa samo na sobama koje to dopuštaju (ACR)."
+      },
+      "design": {
+        "version": 1,
+        "format": "mtt",
+        "columns": 3,
+        "cells": [
+          { "stat": "vpip" },
+          { "stat": "pfr" },
+          { "stat": "three_bet" },
+          { "stat": "fold_to_three_bet", "when": { "atLeastBb": 20 } },
+          { "stat": "cbet_flop", "when": { "atLeastBb": 20 } },
+          { "stat": "steal", "when": { "belowBb": 20 } },
+          { "stat": "fold_to_steal", "when": { "belowBb": 20 } }
+        ],
+        "popup": [
+          { "group": "preflop", "stats": ["rfi", "limp", "cold_call", "four_bet", "fold_to_four_bet", "squeeze"] },
+          { "group": "postflop", "stats": ["saw_flop", "cbet_turn", "fold_to_cbet_flop", "aggression_frequency"] },
+          { "group": "showdown", "stats": ["wwsf", "wtsd", "wsd"] },
+          { "group": "results", "stats": ["hands"] }
+        ],
+        "legend": true,
+        "playerLabels": true,
+        "maxColourThresholds": 2
+      }
+    }
+  ]
+}
