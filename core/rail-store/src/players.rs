@@ -481,16 +481,48 @@ impl Reader {
         player: &str,
         segment_ids: Option<&[i64]>,
     ) -> Result<PlayerPositions> {
+        self.positions_of(site, player, segment_ids, false)
+    }
+
+    /// (R3.8) [`Reader::player_positions`] over the hands the user played
+    /// only (a hand with a hero seat, R3.7's rule): the HUD popup's "by
+    /// position" on a room that allows statistics from the user's own hands
+    /// only (`ownHandsOnly`).
+    pub fn player_own_positions(
+        &self,
+        site: &str,
+        player: &str,
+        segment_ids: Option<&[i64]>,
+    ) -> Result<PlayerPositions> {
+        self.positions_of(site, player, segment_ids, true)
+    }
+
+    fn positions_of(
+        &self,
+        site: &str,
+        player: &str,
+        segment_ids: Option<&[i64]>,
+        own_hands_only: bool,
+    ) -> Result<PlayerPositions> {
         self.with(|conn| {
             let dims = segments(conn)?;
-            let mut stmt = conn.prepare_cached(
+            let mut stmt = conn.prepare_cached(if own_hands_only {
                 "SELECT d.segment_id, coalesce(s.position, ''), d.is_bomb_pot, d.has_cashout,
                         s.totals, d.hand_key
                  FROM player_hands p
                  CROSS JOIN seat_stats s ON s.hand_id = p.hand_id AND s.seat = p.seat
                  CROSS JOIN hand_stats d ON d.id = p.hand_id
-                 WHERE p.player = ?1",
-            )?;
+                 WHERE p.player = ?1
+                   AND EXISTS (SELECT 1 FROM seat_stats h
+                               WHERE h.hand_id = p.hand_id AND h.is_hero = 1)"
+            } else {
+                "SELECT d.segment_id, coalesce(s.position, ''), d.is_bomb_pot, d.has_cashout,
+                        s.totals, d.hand_key
+                 FROM player_hands p
+                 CROSS JOIN seat_stats s ON s.hand_id = p.hand_id AND s.seat = p.seat
+                 CROSS JOIN hand_stats d ON d.id = p.hand_id
+                 WHERE p.player = ?1"
+            })?;
             let mut rows = stmt.query([player])?;
             let mut out = PlayerPositions::default();
             while let Some(row) = rows.next()? {

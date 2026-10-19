@@ -80,6 +80,18 @@
 //!   redrawn with it, and the app is told
 //!   ([`HudMessage::SeatPositionChanged`]) - it writes the store, which
 //!   this process only reads.
+//! - **Panel and popup** (R3.8): a click on a seat's panel
+//!   ([`TableEvent::PanelClicked`]: pressed and released without a drag)
+//!   asks the app for the popup of the player at that slot
+//!   ([`HudMessage::OpenPopup`]: the room, the player as the table's last
+//!   hand had them, the table's segment, the panel on the screen) - the app
+//!   opens it in a webview of its own and reads what it shows; this process
+//!   never writes. Where the room allows labelling players (the design's
+//!   `player_labels` under the permit: Winamax today, never PokerStars or
+//!   ACR) each named opponent's colour tag, labels and note mark are read
+//!   with their rollups (`Reader::player_notes`, a key lookup) - never for
+//!   an opaque-id seat (its name is a session's token) nor for the hero.
+//!   Every frame carries the panel statistics' colour bands for the legend.
 //! - `shutdown`, the connection closing or standard input ending (the app is
 //!   gone) end the loop; the overlays are removed.
 
@@ -92,7 +104,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use rail_hud_ipc::protocol::{
     AppMessage, HandTiming, HealthReport, HudMessage, LatencyChain, PlayerHands, PlayerRef,
-    RefusalReason,
+    RefusalReason, ScreenRect,
 };
 use rail_stats::custom::{CustomDef, CustomSet};
 use rail_stats::display::Display;
@@ -100,10 +112,11 @@ use rail_stats::display::Display;
 use crate::compliance::Compliance;
 use crate::data::StoreView;
 use crate::latency::{Latencies, micros};
+use crate::layout::TableLayout;
 use crate::panel::{PanelDesign, PanelStats};
 use crate::platform::{
-    OverlayFrame, Platform, SeatPanel, Seating, TableEvent, TableMatcher, TableWindow, WindowId,
-    table_key,
+    OverlayFrame, PanelWords, Platform, Rect, SeatPanel, Seating, TableEvent, TableMatcher,
+    TableWindow, TagColour, WindowId, table_key,
 };
 use crate::seats::{self, Rooms};
 
@@ -878,9 +891,112 @@ impl Hud {
                     y,
                     seq,
                 } => self.panel_moved(id, size, slot, (x, y), seq, out),
+                TableEvent::PanelClicked {
+                    id,
+                    slot,
+                    panel,
+                    scale_permille,
+                } => self.panel_clicked(id, slot, panel, scale_permille, out),
             }
         }
         self.report_open(out);
+    }
+
+    /// (R3.8) The user clicked the panel at `slot`: the app is asked for the
+    /// popup of the player sitting there (by the table's last hand, the
+    /// room's layout and the hero's rotation - as the panel was placed). A
+    /// room no longer allowed, or a slot nobody sits in (a hand changed the
+    /// table between the paint and the click), opens nothing.
+    fn panel_clicked(
+        &mut self,
+        id: WindowId,
+        slot: u32,
+        panel: Rect,
+        scale_permille: u32,
+        out: &mut dyn FnMut(HudMessage),
+    ) {
+        let Some(attached) = self.attached.get(&id) else {
+            return;
+        };
+        let site = attached.window.site.as_str();
+        if self.compliance.permit(site).is_err() {
+            return;
+        }
+        let size = Self::size_of(attached);
+        let layout = self
+            .rooms
+            .layout(site, size)
+            .unwrap_or_else(|| TableLayout::simulator(size));
+        let rotate_to = if self.rooms.rotates(site) {
+            attached.hero_seat
+        } else {
+            None
+        };
+        let Some(player) = attached.players.iter().find(|player| {
+            player
+                .seat
+                .and_then(|seat| seats::slot_of(&layout, seat, rotate_to))
+                == Some(slot)
+        }) else {
+            eprintln!(
+                "rail-hud: window {}: a click on slot {slot}, where nobody sits now",
+                id.0
+            );
+            return;
+        };
+        eprintln!(
+            "rail-hud: window {}: the panel at slot {slot} clicked: its popup",
+            id.0
+        );
+        out(HudMessage::OpenPopup {
+            window: id.0,
+            site: site.to_owned(),
+            store_site: attached.store_site.clone(),
+            table: attached.window.table.clone(),
+            player: player.clone(),
+            segment: attached.segment,
+            slot,
+            anchor: ScreenRect {
+                x: panel.x,
+                y: panel.y,
+                width: panel.width,
+                height: panel.height,
+            },
+            scale_permille,
+        });
+    }
+
+    /// (R3.8) The user's words on each of `players` that their panels may
+    /// show: only where the room allows labelling players and the design
+    /// shows them, and only for a named opponent (an opaque-id seat's name
+    /// is a session's token; the hero takes none).
+    fn words_of(
+        &mut self,
+        window_site: &str,
+        site: &str,
+        players: &[PlayerRef],
+    ) -> Vec<PanelWords> {
+        let allowed = self.design.player_labels
+            && self
+                .compliance
+                .permit(window_site)
+                .is_ok_and(|permit| !permit.restrictions().no_player_labels);
+        players
+            .iter()
+            .map(|player| {
+                if !allowed || player.hero || !player.scope.is_empty() {
+                    return PanelWords::default();
+                }
+                self.store
+                    .player_notes(site, &player.name)
+                    .map(|notes| PanelWords {
+                        colour: notes.colour.as_deref().and_then(TagColour::from_name),
+                        label: (!notes.labels.is_empty()).then(|| notes.labels.join(", ")),
+                        noted: !notes.note.trim().is_empty(),
+                    })
+                    .unwrap_or_default()
+            })
+            .collect()
     }
 
     /// The user dropped a seat's panel somewhere (R3.6): remembered for the
@@ -1007,6 +1123,8 @@ impl Hud {
             }
         };
         let custom = self.custom_counts(&site, &players, segments.as_deref(), own_hands_only);
+        let window_site = attached_site(&self.attached, id);
+        let mut words = self.words_of(&window_site, &site, &players).into_iter();
         let elapsed = since.elapsed();
         self.latencies.record(elapsed);
         let read_us = unix_us();
@@ -1023,7 +1141,7 @@ impl Hud {
                         .get(index)
                         .and_then(|counts| counts.get(key).copied())
                 }),
-                label: None,
+                words: words.next().unwrap_or_default(),
             })
             .collect();
         let shown: Vec<PlayerHands> = panels
@@ -1180,6 +1298,7 @@ impl Hud {
             size: Some(size),
             seating,
             panels,
+            legend: self.panel_stats.legend_tones(),
         };
         if let Err(error) = self.platform.overlay(id, &frame) {
             eprintln!("rail-hud: overlay on window {}: {error}", id.0);
@@ -1193,6 +1312,14 @@ impl Hud {
             out(HudMessage::TablesOpen { count });
         }
     }
+}
+
+/// The `sites.json` room of an attached window (empty when it is gone).
+fn attached_site(attached: &BTreeMap<WindowId, Attached>, id: WindowId) -> String {
+    attached
+        .get(&id)
+        .map(|a| a.window.site.clone())
+        .unwrap_or_default()
 }
 
 #[cfg(test)]
@@ -1898,6 +2025,163 @@ mod tests {
         hud.shutdown();
         drop(hud);
         writer_store.close();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (R3.8) A click on a panel asks the app for the popup of the player
+    /// at that slot (with the room, the store's site, the table, the
+    /// segment and the panel on the screen); a slot nobody sits in asks for
+    /// nothing. The player's words reach the panel on Winamax only, never
+    /// for the hero nor on PokerStars; every frame carries the legend's
+    /// tones.
+    #[test]
+    fn clicks_open_the_popup_and_words_follow_the_room() {
+        let (path, dir) = store_with("popup", |writer| {
+            writer
+                .write(|tx| {
+                    for site in ["winamax", "pokerstars"] {
+                        for player in ["P1", "P2"] {
+                            tx.execute(
+                                "INSERT INTO player_summary (site, player, hands,
+                                    first_played_at, last_played_at, cash_hands, chips_hands,
+                                    cash_money_hands, cash_net_bb_milli, chips_money_hands,
+                                    chips_net_bb_milli)
+                                 VALUES (?1, ?2, 10, NULL, NULL, 10, 0, 10, 0, 0, 0)",
+                                [site, player],
+                            )?;
+                            rail_store::players::set_colour(tx, site, player, Some("red"), 1)?;
+                            rail_store::players::set_note(tx, site, player, "made-up note", 1)?;
+                            rail_store::players::add_label(tx, site, player, "regular", 1)?;
+                        }
+                    }
+                    Ok(())
+                })
+                .expect("the user's words");
+        });
+        let backend = Drawn::default();
+        let (windows, events, frames) = (
+            backend.windows.clone(),
+            backend.events.clone(),
+            backend.frames.clone(),
+        );
+        let mut winamax = polled_window("W 1 - x", "W 1", Some(6));
+        winamax.id = WindowId(1);
+        winamax.site = "winamax".into();
+        let mut stars = polled_window("S 1 - x", "S 1", Some(6));
+        stars.id = WindowId(2);
+        windows.borrow_mut().extend([winamax, stars]);
+        let mut hud = Hud::new(
+            Box::new(backend),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(Some(path.clone())),
+            Settings::default(),
+        );
+        step(&mut hud);
+        hud.handle(
+            seated("winamax", "W 1", "w1", Some(1), &[1, 2, 3]),
+            &mut |_| {},
+        );
+        hud.handle(
+            seated("pokerstars", "S 1", "s1", Some(1), &[1, 2, 3]),
+            &mut |_| {},
+        );
+        let words = |id: u64| -> Vec<PanelWords> {
+            frames
+                .borrow()
+                .get(&WindowId(id))
+                .expect("a frame")
+                .panels
+                .iter()
+                .map(|p| p.words.clone())
+                .collect()
+        };
+        let noted = PanelWords {
+            colour: Some(TagColour::Red),
+            label: Some("regular".into()),
+            noted: true,
+        };
+        // The hero (P1) takes none; P3 has none.
+        assert_eq!(
+            words(1),
+            [PanelWords::default(), noted, PanelWords::default()]
+        );
+        assert_eq!(words(2), vec![PanelWords::default(); 3], "PokerStars");
+        assert_eq!(
+            frames.borrow()[&WindowId(1)].legend,
+            PanelStats::new(&PanelDesign::default()).legend_tones()
+        );
+
+        // A click on P2's panel (seat 2: slot 1, no rotation).
+        let panel = Rect {
+            x: -900,
+            y: 300,
+            width: 90,
+            height: 40,
+        };
+        events.borrow_mut().push(TableEvent::PanelClicked {
+            id: WindowId(1),
+            slot: 1,
+            panel,
+            scale_permille: 1250,
+        });
+        let mut sent = Vec::new();
+        hud.tick(Instant::now(), &mut |m| sent.push(m));
+        assert_eq!(
+            sent,
+            [HudMessage::OpenPopup {
+                window: 1,
+                site: "winamax".into(),
+                store_site: "winamax".into(),
+                table: Some("W 1".into()),
+                player: PlayerRef::named("P2").at(2),
+                segment: None,
+                slot: 1,
+                anchor: ScreenRect {
+                    x: -900,
+                    y: 300,
+                    width: 90,
+                    height: 40
+                },
+                scale_permille: 1250,
+            }]
+        );
+        // The hero's own panel opens the hero's popup.
+        events.borrow_mut().push(TableEvent::PanelClicked {
+            id: WindowId(2),
+            slot: 0,
+            panel,
+            scale_permille: 1000,
+        });
+        let mut sent = Vec::new();
+        hud.tick(Instant::now(), &mut |m| sent.push(m));
+        assert!(
+            matches!(&sent[..], [HudMessage::OpenPopup { player, site, .. }]
+                if player.hero && player.name == "P1" && site == "pokerstars"),
+            "{sent:?}"
+        );
+        // Nobody at slot 4; a window not attached.
+        events.borrow_mut().push(TableEvent::PanelClicked {
+            id: WindowId(1),
+            slot: 4,
+            panel,
+            scale_permille: 1000,
+        });
+        events.borrow_mut().push(TableEvent::PanelClicked {
+            id: WindowId(77),
+            slot: 0,
+            panel,
+            scale_permille: 1000,
+        });
+        let mut sent = Vec::new();
+        hud.tick(Instant::now(), &mut |m| sent.push(m));
+        assert!(
+            !sent
+                .iter()
+                .any(|m| matches!(m, HudMessage::OpenPopup { .. })),
+            "{sent:?}"
+        );
+        hud.shutdown();
+        drop(hud);
         let _ = std::fs::remove_dir_all(&dir);
     }
 

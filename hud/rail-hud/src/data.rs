@@ -23,7 +23,8 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
 use rail_store::{
-    CustomCounts, CustomStatRow, HudHand, ImportedHand, Reader, RoomSettings, SeatPosition, Totals,
+    CustomCounts, CustomStatRow, HudHand, ImportedHand, PlayerNotes, Reader, RoomSettings,
+    SeatPosition, Totals,
 };
 
 /// The user's HUD layouts as the store has them (R3.6): the panels they
@@ -197,6 +198,16 @@ impl StoreView {
                 .and_then(|positions| Ok((positions, reader.hud_room_settings()?)))
                 .map_err(|error| error.to_string()),
         )
+    }
+
+    /// (R3.8) The user's words on a player (R2.7c: colour, labels, note) -
+    /// a key lookup. `None`: no store, or it could not say (the panel then
+    /// shows none).
+    pub fn player_notes(&mut self, site: &str, player: &str) -> Option<PlayerNotes> {
+        if !self.ensure_open() {
+            return None;
+        }
+        self.reader.as_ref()?.player_notes(site, player).ok()
     }
 
     /// Whether the app has committed since the last call (the first call

@@ -18,6 +18,8 @@
 
 use std::fmt;
 
+use rail_config::stats::Tone;
+
 use crate::compliance::Permit;
 use crate::layout::{Positions, TableLayout};
 use crate::panel::StatCell;
@@ -210,6 +212,19 @@ pub enum TableEvent {
         /// stops showing its own copy once the frame carries the position.
         seq: u64,
     },
+    /// (R3.8) The user clicked a seat's panel - pressed and released it
+    /// without dragging it ([`drag::Drag::is_click`]): the engine asks the
+    /// app for the popup of the player at that slot.
+    PanelClicked {
+        id: WindowId,
+        /// The panel's visual seat (R3.6).
+        slot: u32,
+        /// The panel on the screen, physical pixels (the client area's
+        /// origin plus the panel's place in it): where the popup goes.
+        panel: Rect,
+        /// The table's monitor scale, thousandths.
+        scale_permille: u32,
+    },
 }
 
 /// Where a frame's panels go (R3.6): the room's layout for the table size,
@@ -247,6 +262,11 @@ pub struct OverlayFrame {
     /// Where the panels go (R3.6).
     pub seating: Seating,
     pub panels: Vec<SeatPanel>,
+    /// (R3.8) The colour bands the panel's statistics use (each
+    /// definition's tones, in the scale's order): the legend shows them as
+    /// the room allows (two thresholds on PokerStars: low, normal, high).
+    /// Empty: no legend.
+    pub legend: Vec<Tone>,
 }
 
 impl OverlayFrame {
@@ -259,6 +279,7 @@ impl OverlayFrame {
             size,
             seating: Seating::default(),
             panels: Vec::new(),
+            legend: Vec::new(),
         }
     }
 }
@@ -273,9 +294,48 @@ pub struct SeatPanel {
     pub hands: i64,
     /// The design's statistics (`crate::panel`).
     pub stats: Vec<StatCell>,
-    /// A label (R3.8's notes / tags); never shown where the room forbids
-    /// labelling players. Always `None` in R3.4.
+    /// (R3.8) The user's words on the player that a panel may show: never
+    /// drawn where the room forbids labelling players (PokerStars, ACR:
+    /// `noPlayerLabels`), and never read for an opaque-id or positional
+    /// seat, nor for the hero.
+    pub words: PanelWords,
+}
+
+/// (R3.8) A player's colour tag, label and note mark as a panel shows
+/// them (R2.7c's `players` / `player_labels`: the user's own words).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct PanelWords {
+    pub colour: Option<TagColour>,
+    /// The player's labels, as one short line.
     pub label: Option<String>,
+    /// The player has a note (the popup shows it).
+    pub noted: bool,
+}
+
+/// (R3.8) The six colour tags of R2.7c (`rail_store::players::COLOURS`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TagColour {
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Blue,
+    Purple,
+}
+
+impl TagColour {
+    /// The store's name (`red`, ...); `None` for anything else.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Some(match name {
+            "red" => Self::Red,
+            "orange" => Self::Orange,
+            "yellow" => Self::Yellow,
+            "green" => Self::Green,
+            "blue" => Self::Blue,
+            "purple" => Self::Purple,
+            _ => return None,
+        })
+    }
 }
 
 /// Why a backend call failed.
