@@ -1308,6 +1308,17 @@ lines do not move: held out, no statistic improved them - for limps and
 limp-calls not even the open limp per position, the over-limp or a
 limper's answer to a raise (§10 2026-10-11, villain limp statistics).
 
+**Since `analysis/31`** every other opponent range the walks start from - a
+chart range (opens, isolations, 3-bets, calls of 3-bets, the small blind's
+limp, the big blind's check) or a placeholder - keeps its width (its
+combos) but takes three quarters of it in the population's order of hands
+(`populationOrdered` in `lib/analysis/population.ts`, `range-population-order`):
+the opponents' raises are about as frequent as the charts say, but their
+hands, scored at river showdowns with the mucks counted, are not the
+solver's (ANALYSIS-PLAN §10 2026-10-20, opponents' chart ranges). Not for a
+heads-up flop the flop library answers (its chunk was solved from the
+charts' ranges), the hero, the trainers, or after a preflop all-in.
+
 **Loading.** `rareLineChartSets` also lists the `uncoveredDepthSets` of a
 decision the loaded sets refuse as `stack-depth`; a set not loaded is
 skipped.

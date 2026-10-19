@@ -27,6 +27,7 @@
     "floplib:multiway-bets": "vitest run --config scripts/flop-library/vitest.config.ts multiwayBets",
     "floplib:multiway-overcall": "vitest run --config scripts/flop-library/vitest.config.ts multiwayOvercall",
     "floplib:checked-ranges": "vitest run --config scripts/flop-library/vitest.config.ts checkedRanges",
+    "floplib:preflop-width": "vitest run --config scripts/flop-library/vitest.config.ts preflopWidth",
     "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets",
     "ranges:extract": "vitest run --config scripts/caller-ranges/vitest.config.ts extract",
     "ranges:measure": "vitest run --config scripts/caller-ranges/vitest.config.ts measure",

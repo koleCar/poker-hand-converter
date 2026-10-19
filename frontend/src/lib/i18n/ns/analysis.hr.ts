@@ -863,6 +863,8 @@ export const analysisHr: Dict["analysis"] = {
       "Protivnik koji je flat-callao raise ili limpao počinje od Railova populacijskog raspona za tu liniju, prilagođenog rukama koje takvi igrači pokažu: stvarni calleri i limperi igraju znatno šire od chartova",
     "range-villain":
       "Raspon kojim big blind brani proširen je ili sužen prema VPIP − PFR tog igrača u tvojim rukama, povučen prema prosjeku protivnika ovisno o uzorku (prikazan uz činjenice); ne ispod 30 ruku",
+    "range-population-order":
+      "Preflop raspon protivnika zadržava širinu iz chartova, ali tri četvrtine njega slijedi redoslijed ruku koje igra Railova populacija (više slabih asova i suited ruku, manje offsuit broadwaya i srednjih parova nego što solver bira): tako se ruke koje igrači pokažu i bace na riveru objašnjavaju znatno bolje",
     "dead-button":
       "Mjesto buttona bilo je prazno: čitano kao stol iste veličine sa živim buttonom, na čijem je mjestu posljednje mjesto prije small blinda",
     "posted-blind":
