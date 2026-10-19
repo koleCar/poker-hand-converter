@@ -3,7 +3,8 @@
 //! visibility; which window a screen point hits; a screen pixel as
 //! composed (layered windows included); a process's top-level windows and
 //! its CPU time; since R3.5 a window's client area, whether it exists, the
-//! z-order of two windows and a thread's CPU time. Each call switches its
+//! z-order of two windows and a thread's CPU time; since R3.14 a
+//! process's memory (working set, now and at its peak). Each call switches its
 //! thread to per-monitor DPI awareness (v2) where coordinates are read,
 //! so every coordinate is physical pixels.
 
@@ -14,6 +15,7 @@ use windows::Win32::Graphics::Gdi::{
     BI_RGB, BITMAPINFO, BITMAPINFOHEADER, BitBlt, CAPTUREBLT, CreateCompatibleDC, CreateDIBSection,
     DIB_RGB_COLORS, DeleteDC, DeleteObject, GdiFlush, GetDC, ReleaseDC, SRCCOPY, SelectObject,
 };
+use windows::Win32::System::ProcessStatus::{K32GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS};
 use windows::Win32::System::Threading::{
     GetProcessTimes, GetThreadTimes, OpenProcess, OpenThread, PROCESS_QUERY_LIMITED_INFORMATION,
     THREAD_QUERY_LIMITED_INFORMATION,
@@ -193,6 +195,26 @@ pub fn cpu_time(pid: u32) -> Option<Duration> {
     // FILETIME counts 100 ns.
     Some(Duration::from_nanos(
         (ticks(kernel) + ticks(user)).saturating_mul(100),
+    ))
+}
+
+/// (R3.14) Process `pid`'s working set now and at its peak, bytes (the
+/// resident memory Task Manager shows).
+#[allow(unsafe_code)]
+pub fn memory(pid: u32) -> Option<(u64, u64)> {
+    // SAFETY: no memory preconditions; failure is an `Err`.
+    let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }.ok()?;
+    let mut counters = PROCESS_MEMORY_COUNTERS::default();
+    let size = u32::try_from(std::mem::size_of::<PROCESS_MEMORY_COUNTERS>()).ok()?;
+    // SAFETY: a valid out pointer to a structure of `size` bytes and the
+    // live handle opened above.
+    let read = unsafe { K32GetProcessMemoryInfo(handle, &mut counters, size) };
+    // SAFETY: closes the handle opened above, once.
+    let _ = unsafe { CloseHandle(handle) };
+    read.ok().ok()?;
+    Some((
+        u64::try_from(counters.WorkingSetSize).unwrap_or(u64::MAX),
+        u64::try_from(counters.PeakWorkingSetSize).unwrap_or(u64::MAX),
     ))
 }
 

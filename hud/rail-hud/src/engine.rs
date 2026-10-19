@@ -148,6 +148,12 @@ pub struct Settings {
     /// How long the loop waits for a message before looking at the windows.
     pub tick: Duration,
     pub find_every: Duration,
+    /// (R3.14) How often to look while every tracked table is followed by
+    /// the system's notifications alone ([`Platform::notified`]: macOS's
+    /// observers, a client seen to post moves) - the look is then only the
+    /// safety net, and its Accessibility calls are most of the HUD's idle
+    /// cost. A hand of a table no window takes still looks at once.
+    pub find_every_notified: Duration,
     pub store_every: Duration,
     /// (R3.7) How recent a table's newest stored hand must be for a window
     /// attached after it to start from its players ([`RESTART_WINDOW`]).
@@ -159,6 +165,7 @@ impl Default for Settings {
         Self {
             tick: Duration::from_millis(50),
             find_every: Duration::from_millis(500),
+            find_every_notified: Duration::from_secs(2),
             store_every: Duration::from_secs(2),
             restart_window: RESTART_WINDOW,
         }
@@ -281,6 +288,13 @@ pub struct Hud {
     designs_read: bool,
     /// (R3.7) `--latency-report`: one JSON line per hand's chain.
     latency_report: Option<Box<dyn std::io::Write>>,
+    /// (R3.14) `--perf-report`: one JSON object at shutdown
+    /// ([`Hud::perf`]).
+    perf_report: Option<Box<dyn std::io::Write>>,
+    /// (R3.14) Looks for tables so far, and the interval chosen at the
+    /// last one.
+    finds: u64,
+    find_interval: Duration,
     /// Where each room draws its tables and where the user put panels
     /// (R3.6).
     rooms: Rooms,
@@ -331,6 +345,9 @@ impl Hud {
             custom_ids: Vec::new(),
             designs_read: false,
             latency_report: None,
+            perf_report: None,
+            finds: 0,
+            find_interval: settings.find_every,
             rooms,
             user_layouts_read: false,
         }
@@ -466,8 +483,40 @@ impl Hud {
         exit
     }
 
-    /// Remove every overlay and stop following every window.
+    /// (R3.14) Write [`Hud::perf`] to `out` once, at shutdown
+    /// (`--perf-report`, for the twelve-table measurement).
+    pub fn set_perf_report(&mut self, out: Box<dyn std::io::Write>) {
+        self.perf_report = Some(out);
+    }
+
+    /// (R3.14) What the process measured of itself: the backend's paints and
+    /// follows (p50 / p95 / max µs), the hands' re-reads, how many looks for
+    /// tables and the interval in force, the tables attached. Asks the
+    /// backend's thread for its times: not for the loop's hot path.
+    pub fn perf(&self) -> serde_json::Value {
+        serde_json::json!({
+            "platform": self.platform.name(),
+            "uptimeMs": u64::try_from(self.started.elapsed().as_millis()).unwrap_or(u64::MAX),
+            "attached": self.attached.len(),
+            "refused": self.refused.len(),
+            "paint": crate::latency::summarize(self.platform.paint_times_us()),
+            "follow": crate::latency::summarize(self.platform.follow_times_us()),
+            "reread": self.latencies.summary(),
+            "finds": self.finds,
+            "findEveryMs": u64::try_from(self.find_interval.as_millis()).unwrap_or(u64::MAX),
+            "notified": self.platform.notified(),
+        })
+    }
+
+    /// Remove every overlay and stop following every window (the
+    /// `--perf-report` written first, while the overlays' times are there).
     pub fn shutdown(&mut self) {
+        if let Some(mut out) = self.perf_report.take() {
+            let perf = self.perf();
+            if let Err(error) = writeln!(out, "{perf}").and_then(|()| out.flush()) {
+                eprintln!("rail-hud: --perf-report: {error}");
+            }
+        }
         let ids: Vec<WindowId> = self.attached.keys().copied().collect();
         for id in ids {
             self.detach(id);
@@ -701,7 +750,16 @@ impl Hud {
             self.apply(events, out);
         }
         if now >= self.next_find || std::mem::take(&mut self.find_soon) {
-            self.next_find = now + self.settings.find_every;
+            // (R3.14) Slower while the system's notifications follow every
+            // table (asked at each look: a table not observed - a new one,
+            // a client that stopped posting - brings the pace back).
+            self.find_interval = if self.platform.notified() {
+                self.settings.find_every_notified
+            } else {
+                self.settings.find_every
+            };
+            self.next_find = now + self.find_interval;
+            self.finds += 1;
             self.find(out);
         }
         if now >= self.next_store {
@@ -2098,11 +2156,16 @@ mod tests {
         events: std::rc::Rc<std::cell::RefCell<Vec<TableEvent>>>,
         finds: std::rc::Rc<std::cell::Cell<u32>>,
         followed: std::rc::Rc<std::cell::RefCell<Vec<crate::platform::Rect>>>,
+        /// (R3.14) What `notified` answers.
+        notified: std::rc::Rc<std::cell::Cell<bool>>,
     }
 
     impl Platform for Hooked {
         fn name(&self) -> &'static str {
             "hooked"
+        }
+        fn notified(&self) -> bool {
+            self.notified.get()
         }
         fn find_tables(
             &mut self,
@@ -2201,6 +2264,57 @@ mod tests {
         let mut sent = Vec::new();
         hud.tick(start, &mut |m| sent.push(m));
         assert_eq!(sent, [HudMessage::TablesOpen { count: 1 }]);
+    }
+
+    /// (R3.14) While the backend's notifications follow every table the
+    /// periodic look slows to `find_every_notified`; once one is not
+    /// followed it is back at `find_every`; the perf report says which.
+    #[test]
+    fn the_look_slows_while_notifications_follow_every_table() {
+        let backend = Hooked::default();
+        let (windows, finds, notified) = (
+            backend.windows.clone(),
+            backend.finds.clone(),
+            backend.notified.clone(),
+        );
+        windows
+            .borrow_mut()
+            .push(polled_window("T 1 - x", "T 1", Some(6)));
+        let settings = Settings::default();
+        assert!(settings.find_every_notified > settings.find_every);
+        let mut hud = Hud::new(
+            Box::new(backend),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(None),
+            settings,
+        );
+        let start = Instant::now();
+        let at = |ms: u64| start + Duration::from_millis(ms);
+        hud.tick(start, &mut |_| {});
+        assert_eq!(finds.get(), 1);
+        notified.set(true);
+        hud.tick(at(500), &mut |_| {});
+        assert_eq!(finds.get(), 2, "the period was the usual one");
+        assert_eq!(hud.perf()["findEveryMs"], 2000);
+        assert_eq!(hud.perf()["notified"], true);
+        hud.tick(at(1500), &mut |_| {});
+        assert_eq!(finds.get(), 2, "slower now");
+        hud.tick(at(2500), &mut |_| {});
+        assert_eq!(finds.get(), 3);
+        // A hand no window takes still looks at once.
+        hud.handle(hand("pokerstars", "T 9", "Al"), &mut |_| {});
+        hud.tick(at(2600), &mut |_| {});
+        assert_eq!(finds.get(), 4, "looked at once");
+        notified.set(false);
+        hud.tick(at(4600), &mut |_| {});
+        assert_eq!(finds.get(), 5);
+        hud.tick(at(5100), &mut |_| {});
+        assert_eq!(finds.get(), 6, "back at the usual period");
+        let perf = hud.perf();
+        assert_eq!(perf["findEveryMs"], 500);
+        assert_eq!(perf["finds"], 6);
+        assert_eq!(perf["attached"], 1);
+        assert_eq!(perf["paint"]["count"], 0, "this backend paints nothing");
     }
 
     /// A backend that keeps every frame (R3.6) and gives the events a test

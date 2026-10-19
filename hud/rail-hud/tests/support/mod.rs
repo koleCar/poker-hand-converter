@@ -187,9 +187,24 @@ impl Sim {
     /// echoed and also arrives as `stderr` events, and the end of its output
     /// as an `ended` event, so a failure says why it stopped.
     pub fn start(sim: &Path, name: &str, args: &[&str]) -> Self {
-        let out = std::env::temp_dir().join(format!("rail-hud-sim-{name}-{}", std::process::id()));
+        let out = Self::folder(name);
         let _ = std::fs::remove_dir_all(&out);
         std::fs::create_dir_all(&out).expect("out folder");
+        Self::start_into(sim, out, args, None)
+    }
+
+    /// (R3.14) The folder [`Sim::start`] gives the simulator `name`.
+    pub fn folder(name: &str) -> PathBuf {
+        std::env::temp_dir().join(format!("rail-hud-sim-{name}-{}", std::process::id()))
+    }
+
+    /// (R3.14) Start it writing into `out` - an empty folder the caller
+    /// made (and may watch already); removed when the simulator is
+    /// dropped - and, with `tee`, every line of its standard output also
+    /// copied to that file as it comes (what `rail-hud --platform sim`
+    /// tails).
+    pub fn start_into(sim: &Path, out: PathBuf, args: &[&str], tee: Option<PathBuf>) -> Self {
+        let mut tee = tee.map(|path| std::fs::File::create(path).expect("the events file"));
         let mut child = Command::new(sim)
             .args(args)
             .arg("--out")
@@ -219,6 +234,9 @@ impl Sim {
         std::thread::spawn(move || {
             for line in BufReader::new(stdout).lines() {
                 let Ok(line) = line else { break };
+                if let Some(file) = tee.as_mut() {
+                    let _ = writeln!(file, "{line}").and_then(|()| file.flush());
+                }
                 if let Ok(event) = serde_json::from_str::<Value>(&line)
                     && tx.send(event).is_err()
                 {
@@ -264,6 +282,11 @@ impl Sim {
             Ok(None) => "the simulator is still running".to_owned(),
             Err(error) => format!("the simulator's status: {error}"),
         }
+    }
+
+    /// The folder it writes its hands into.
+    pub fn out(&self) -> &Path {
+        &self.out
     }
 
     pub fn command(&mut self, line: &str) {

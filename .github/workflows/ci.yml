@@ -367,6 +367,31 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: cargo test -p rail-hud --test macos_tracking --locked -- --nocapture
 
+      # R3.14, Phase 3's exit: the HUD process on twelve simulator tables
+      # posing as PokerStars plus one posing as GGPoker (prohibited), the
+      # test playing the app (watcher, store, statistics pass, supervisor).
+      # A minute of hands at play speed, every table moved twice, ten
+      # seconds idle: the hand-to-frame chain, paints, follows, the HUD's
+      # and the app's CPU (budgets scaled by a workload timed on the
+      # runner), the HUD's memory, twelve overlays and none on the refused
+      # table. The JSON + markdown report is uploaded per system
+      # (`twelve-tables-<os>`); the gates are listed in it. A Mac runner's
+      # follow p95 is recorded, not gated (its virtual window server stalls
+      # now and then, R3.13); real hardware gates it (`--real-hw`).
+      - name: HUD on twelve tables (R3.14 budget)
+        if: matrix.os != 'ubuntu-latest'
+        shell: bash
+        run: cargo test -p rail-hud --test twelve_tables --locked -- --run --seconds 60 --idle-seconds 10 --report-dir "$RUNNER_TEMP/twelve-tables"
+
+      - name: Twelve-table report
+        if: always() && matrix.os != 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: twelve-tables-${{ matrix.os }}
+          path: ${{ runner.temp }}/twelve-tables
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'
         shell: bash

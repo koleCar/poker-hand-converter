@@ -87,12 +87,16 @@ For development, without the app:
 
 Measuring (R3.7): --latency-report <file> writes every hand's latency chain
 (the watcher noticing the file -> the frame), one JSON object a line.
+(R3.14) --perf-report <file> writes, at shutdown, one JSON object: the
+overlays' paints and follows (p50 / p95 / max us), the re-reads, the looks
+for tables and their interval.
 
 Windows (macOS: the titles need the Accessibility permission):
   --platform native     this system's backend (default)
     the table simulator's real windows as a room's (tests only):
     --sim-site <id>       the sites.json room they pose as
     --sim-title <regex>   their titles (rail-hud-sim --title-regex)
+    (R3.14: the pair again for more rooms, e.g. one allowed, one not)
   --platform sim        the table simulator's windows, from its events:
     --sim-events <file>   the simulator's standard output, as it is written
     --sim-site <id>       the sites.json room its tables pose as
@@ -113,8 +117,14 @@ pub struct Args {
     /// The simulator's title regex for the native backend (a test-only
     /// room entry, [`Hud::add_simulator_room`]); checked to compile.
     pub sim_title: Option<String>,
+    /// (R3.14) Every `--sim-site` / `--sim-title` pair, in order, for the
+    /// native backend: the simulator's windows titled as each regex reads
+    /// pose as that room (the first pair is `sim_site` / `sim_title`).
+    pub sim_rooms: Vec<(String, String)>,
     /// (R3.7) `--latency-report <file>`: every hand's latency chain.
     pub latency_report: Option<PathBuf>,
+    /// (R3.14) `--perf-report <file>`: [`engine::Hud::perf`] at shutdown.
+    pub perf_report: Option<PathBuf>,
     /// (R3.10) The app's cached remote `sites.json`.
     pub policy: Option<PathBuf>,
 }
@@ -123,6 +133,7 @@ impl Args {
     pub fn parse(args: Vec<OsString>) -> Result<Self, String> {
         let mut parsed = Self::default();
         let mut platform = "native".to_owned();
+        let (mut sites, mut titles) = (Vec::new(), Vec::new());
         let mut iter = args.into_iter();
         while let Some(arg) = iter.next() {
             let arg = arg.to_string_lossy().into_owned();
@@ -139,21 +150,26 @@ impl Args {
                 "--standalone" => parsed.standalone = true,
                 "--platform" => platform = value("--platform")?,
                 "--sim-events" => parsed.sim_events = Some(PathBuf::from(value("--sim-events")?)),
-                "--sim-site" => parsed.sim_site = Some(value("--sim-site")?),
+                "--sim-site" => sites.push(value("--sim-site")?),
                 "--policy" => parsed.policy = Some(PathBuf::from(value("--policy")?)),
                 "--latency-report" => {
                     parsed.latency_report = Some(PathBuf::from(value("--latency-report")?));
+                }
+                "--perf-report" => {
+                    parsed.perf_report = Some(PathBuf::from(value("--perf-report")?));
                 }
                 "--sim-title" => {
                     let title = value("--sim-title")?;
                     regex::Regex::new(&title)
                         .map_err(|e| format!("--sim-title does not compile: {e}"))?;
-                    parsed.sim_title = Some(title);
+                    titles.push(title);
                 }
                 "--help" | "-h" => return Err(String::new()),
                 other => return Err(format!("unknown argument {other}")),
             }
         }
+        parsed.sim_site = sites.first().cloned();
+        parsed.sim_title = titles.first().cloned();
         match platform.as_str() {
             "native" => {
                 if parsed.sim_events.is_some() {
@@ -163,17 +179,19 @@ impl Args {
                 // tests that play the app do (R3.6: a drag reaches the
                 // store through the IPC). It takes the simulator's process
                 // only, so it cannot help a real client past compliance.
-                if parsed.sim_site.is_some() != parsed.sim_title.is_some() {
+                // (R3.14) One pair per room the simulator's windows pose as.
+                if sites.len() != titles.len() {
                     return Err(
                         "the simulator's windows need --sim-site and --sim-title".to_owned()
                     );
                 }
+                parsed.sim_rooms = sites.into_iter().zip(titles).collect();
             }
             "sim" => {
-                if parsed.sim_events.is_none() || parsed.sim_site.is_none() {
-                    return Err("--platform sim needs --sim-events and --sim-site".to_owned());
+                if parsed.sim_events.is_none() || sites.len() != 1 {
+                    return Err("--platform sim needs --sim-events and one --sim-site".to_owned());
                 }
-                if parsed.sim_title.is_some() {
+                if !titles.is_empty() {
                     return Err("--sim-title goes with --platform native".to_owned());
                 }
             }
@@ -357,7 +375,16 @@ fn run(args: &Args, compliance: Compliance, link: Option<platform::macos::Link>)
             }
         }
     }
-    if let (None, Some(site), Some(title)) = (&args.sim_events, &args.sim_site, &args.sim_title) {
+    if let Some(path) = &args.perf_report {
+        match std::fs::File::create(path) {
+            Ok(file) => hud.set_perf_report(Box::new(file)),
+            Err(error) => {
+                eprintln!("rail-hud: --perf-report {}: {error}", path.display());
+                return exit_code::USAGE;
+            }
+        }
+    }
+    for (site, title) in &args.sim_rooms {
         match regex::Regex::new(title) {
             Ok(title) => {
                 eprintln!("rail-hud: the simulator's windows pose as {site} (test-only room)");
@@ -467,6 +494,46 @@ mod tests {
         assert!(parse(&["--standalone", "--sim-site", "a", "--sim-title", "(x"]).is_err());
         let args = parse(&["--ipc", "p", "--sim-site", "a", "--sim-title", "^x"]).expect("ipc");
         assert_eq!(args.sim_site.as_deref(), Some("a"));
+        assert_eq!(args.sim_rooms, [("a".to_owned(), "^x".to_owned())]);
+        // (R3.14) Two rooms at once: one allowed, one not.
+        let args = parse(&[
+            "--ipc",
+            "p",
+            "--sim-site",
+            "pokerstars",
+            "--sim-title",
+            "^a",
+            "--sim-site",
+            "ggpoker",
+            "--sim-title",
+            "^b",
+            "--perf-report",
+            "/t/perf.json",
+        ])
+        .expect("two rooms");
+        assert_eq!(
+            args.sim_rooms,
+            [
+                ("pokerstars".to_owned(), "^a".to_owned()),
+                ("ggpoker".to_owned(), "^b".to_owned())
+            ]
+        );
+        assert_eq!(args.perf_report, Some(PathBuf::from("/t/perf.json")));
+        assert!(
+            parse(&[
+                "--ipc",
+                "p",
+                "--sim-site",
+                "a",
+                "--sim-title",
+                "^x",
+                "--sim-site",
+                "b"
+            ])
+            .is_err(),
+            "a room without its titles"
+        );
+        assert!(parse(&["--standalone", "--perf-report"]).is_err());
         assert!(parse(&["--ipc", "p", "--sim-title", "^x"]).is_err());
         assert!(
             parse(&[

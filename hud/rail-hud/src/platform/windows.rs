@@ -470,6 +470,14 @@ impl Platform for WindowsBackend {
         #[cfg(not(windows))]
         let _ = id;
     }
+
+    fn paint_times_us(&self) -> Vec<u64> {
+        self.render_times_us()
+    }
+
+    fn follow_times_us(&self) -> Vec<u64> {
+        WindowsBackend::follow_times_us(self)
+    }
 }
 
 #[cfg(windows)]

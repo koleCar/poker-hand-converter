@@ -1081,6 +1081,43 @@ pub fn restack_every(all_watched: bool) -> std::time::Duration {
     std::time::Duration::from_millis(if all_watched { 250 } else { 100 })
 }
 
+/// (R3.14) Whether a tracked table is followed by notifications alone, so
+/// the engine's periodic look for tables (its Accessibility calls are most
+/// of the HUD's idle cost on macOS) may slow down
+/// ([`Platform::notified`]): its window's element was found, every window
+/// notification that says where it is, whether it is minimised, its title
+/// and its end is registered on it, its application announces new windows,
+/// and its client has **shown that it posts moves** (a move or resize
+/// notification arrived for one of its tables: `posts_moves`). A client
+/// with poor accessibility registers and then never posts; it keeps the
+/// 500 ms look.
+pub fn fully_observed(
+    element_found: bool,
+    window: &[AxNote],
+    app: &[AxNote],
+    posts_moves: bool,
+) -> bool {
+    let has = |notes: &[AxNote], note: AxNote| notes.contains(&note);
+    element_found
+        && posts_moves
+        && (has(window, AxNote::WindowMoved) || has(window, AxNote::Moved))
+        && (has(window, AxNote::WindowResized) || has(window, AxNote::Resized))
+        && has(window, AxNote::Miniaturized)
+        && has(window, AxNote::Deminiaturized)
+        && has(window, AxNote::Destroyed)
+        && has(window, AxNote::TitleChanged)
+        && has(app, AxNote::WindowCreated)
+}
+
+/// (R3.14) Whether a notification shows that its client posts moves: a
+/// window moved or resized.
+pub fn shows_moves(note: AxNote) -> bool {
+    matches!(
+        note,
+        AxNote::WindowMoved | AxNote::Moved | AxNote::WindowResized | AxNote::Resized
+    )
+}
+
 /// (R3.13) What the observers' thread knows: for tests and diagnostics
 /// (`MacosBackend::tracker_info`).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -1558,6 +1595,32 @@ impl Platform for MacosBackend {
     /// list (no permission needed): whether a supported client runs.
     fn running_processes(&mut self) -> Option<Vec<String>> {
         running_processes().ok()
+    }
+
+    /// (R3.14) Every tracked table followed by the observers alone
+    /// ([`fully_observed`]): the observers' thread says so after each of
+    /// its steps (an atomic, no message).
+    fn notified(&self) -> bool {
+        #[cfg(target_os = "macos")]
+        {
+            !self.tracked.is_empty()
+                && self
+                    .tracker
+                    .as_ref()
+                    .is_some_and(observe::Tracker::all_observed)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            false
+        }
+    }
+
+    fn paint_times_us(&self) -> Vec<u64> {
+        self.render_times_us()
+    }
+
+    fn follow_times_us(&self) -> Vec<u64> {
+        MacosBackend::follow_times_us(self)
     }
 }
 
@@ -2355,6 +2418,53 @@ mod tests {
 
     /// (R3.13) The stacking look slows down only when every shown overlay's
     /// client is observed.
+    /// (R3.14) The engine's look slows only for a table whose window and
+    /// application notifications are all registered and whose client has
+    /// shown it posts moves.
+    #[test]
+    fn a_table_is_fully_observed() {
+        let app = [AxNote::WindowCreated, AxNote::Activated];
+        let window = AxNote::WINDOW;
+        assert!(fully_observed(true, &window, &app, true));
+        assert!(!fully_observed(false, &window, &app, true), "no element");
+        assert!(
+            !fully_observed(true, &window, &app, false),
+            "never seen to post a move"
+        );
+        assert!(
+            !fully_observed(true, &window, &[AxNote::Activated], true),
+            "new windows not announced"
+        );
+        for missing in [
+            AxNote::Miniaturized,
+            AxNote::Deminiaturized,
+            AxNote::Destroyed,
+            AxNote::TitleChanged,
+        ] {
+            let fewer: Vec<AxNote> = window.iter().copied().filter(|n| *n != missing).collect();
+            assert!(
+                !fully_observed(true, &fewer, &app, true),
+                "{} not registered",
+                missing.name()
+            );
+        }
+        // Either form of a move and of a resize will do.
+        let generic: Vec<AxNote> = window
+            .iter()
+            .copied()
+            .filter(|n| !matches!(n, AxNote::WindowMoved | AxNote::WindowResized))
+            .collect();
+        assert!(fully_observed(true, &generic, &app, true));
+        let no_moves: Vec<AxNote> = window
+            .iter()
+            .copied()
+            .filter(|n| !matches!(n, AxNote::WindowMoved | AxNote::Moved))
+            .collect();
+        assert!(!fully_observed(true, &no_moves, &app, true));
+        assert!(shows_moves(AxNote::WindowMoved) && shows_moves(AxNote::Resized));
+        assert!(!shows_moves(AxNote::TitleChanged) && !shows_moves(AxNote::Activated));
+    }
+
     #[test]
     fn the_stacking_look_slows_when_observed() {
         assert!(restack_every(true) > restack_every(false));

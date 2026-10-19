@@ -261,3 +261,6 @@ on again. Developer ID signed releases (P3) keep it across updates.
 ## Seen so far
 
 Nothing yet: no `tables` block is filled.
+
+Once a room's `tables` block is merged, check the HUD on its real client:
+[`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md) (R3.14).
