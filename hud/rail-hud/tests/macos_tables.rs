@@ -136,6 +136,7 @@ fn window_server_path(pid: u32, seen: &Seen, matcher: &TableMatcher) {
     }
     let snapshot = Snapshot {
         cg: macos::cg_windows().expect("the window list"),
+        order: macos::onscreen_order().expect("the z-order"),
         names: BTreeMap::from([(pid, "rail-hud-sim".to_owned())]),
         ax: BTreeMap::from([(pid, Ok(ax))]),
         displays,

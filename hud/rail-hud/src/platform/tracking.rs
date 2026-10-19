@@ -1,5 +1,8 @@
 //! Following a table window (docs/RAIL-PLAN.md R3.5): the platform-free
-//! half of the Windows hooks, so every system's `cargo test` checks it.
+//! half of the Windows hooks - and, since R3.13, of the macOS
+//! accessibility observers (`macos::AxNote` maps their notifications onto
+//! the same [`Observed`], [`events`] and [`plan`]) - so every system's
+//! `cargo test` checks it.
 //!
 //! - [`classify`]: which WinEvents the hooks take - the window object only
 //!   (`OBJID_WINDOW`, `CHILDID_SELF`), never a caret, a scroll bar or a
@@ -244,6 +247,26 @@ impl Observed {
 
     pub fn is_empty(&self) -> bool {
         self.tables.is_empty() && !self.appeared && self.dragged.is_empty()
+    }
+
+    /// (R3.13) Take in what another observer saw meanwhile (macOS: the
+    /// accessibility observers' thread beside the AppKit thread's clicks):
+    /// `later`'s geometry and title replace this one's (it is the newer
+    /// look), a window gone in either is gone, `appeared` in either
+    /// counts, drags and clicks are kept in order after this one's.
+    pub fn absorb(&mut self, later: Observed) {
+        for (id, seen) in later.tables {
+            let mine = self.tables.entry(id).or_default();
+            if seen.geometry.is_some() {
+                mine.geometry = seen.geometry;
+            }
+            if seen.title.is_some() {
+                mine.title = seen.title;
+            }
+            mine.gone |= seen.gone;
+        }
+        self.appeared |= later.appeared;
+        self.dragged.extend(later.dragged);
     }
 }
 
@@ -590,6 +613,40 @@ mod tests {
 
     fn table_rect() -> Rect {
         rect(0, 0, 10, 10)
+    }
+
+    /// (R3.13) Two observers' notes as one: the later look wins per kind,
+    /// gone and appeared stick, drags and clicks stay in order.
+    #[test]
+    fn two_observers_merge() {
+        let click = |id, slot| TableEvent::PanelClicked {
+            id: WindowId(id),
+            slot,
+            panel: rect(1, 2, 3, 4),
+            scale_permille: 1000,
+        };
+        let mut appkit = Observed::default();
+        appkit.clicked(click(1, 0));
+        appkit.geometry(WindowId(1), at(rect(1, 1, 640, 480), 1000));
+        appkit.title(WindowId(2), "B - x".into());
+        let mut observers = Observed::default();
+        observers.geometry(WindowId(1), at(rect(9, 9, 640, 480), 2000));
+        observers.gone(WindowId(3));
+        observers.appeared = true;
+        observers.clicked(click(1, 1));
+        appkit.absorb(observers);
+        assert_eq!(
+            appkit.tables[&WindowId(1)].geometry,
+            Some(at(rect(9, 9, 640, 480), 2000))
+        );
+        assert_eq!(appkit.tables[&WindowId(2)].title.as_deref(), Some("B - x"));
+        assert!(appkit.tables[&WindowId(3)].gone);
+        assert!(appkit.appeared);
+        assert_eq!(appkit.dragged, [click(1, 0), click(1, 1)]);
+        // Nothing absorbed changes nothing.
+        let before = appkit.clone();
+        appkit.absorb(Observed::default());
+        assert_eq!(appkit, before);
     }
 
     /// A tournament table move: the new title through the room's own

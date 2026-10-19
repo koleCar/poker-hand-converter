@@ -7959,6 +7959,235 @@ graphics, and CPU with twelve real tables.
 ### R3.13 macOS: tracking — M
 - `AXObserver` for moved, resized, miniaturised, destroyed, title changed;
   `CGWindowList` polling as a fallback for clients with poor accessibility.
+- *As built* (§15): **done** - `hud/rail-hud/src/platform/macos/observe.rs`
+  (the observers' thread; macOS only), the platform-free half in
+  `platform/macos.rs` (`AxNote` and its `Effect`, `tracked_geometry`,
+  `title_bar_between`, `z_ordered`, `restack_every`, `TrackerInfo`) and
+  `platform/tracking.rs` (`Observed::absorb`), the AppKit thread's side in
+  `platform/macos/appkit.rs`, the revoked permission in `engine.rs`, the
+  popup in `app/src-tauri/src/popup.rs`, `tests/macos_tracking.rs`. Still no
+  real room has a macOS `tables` block: everything follows the simulator's
+  windows.
+  - **The observers' thread** (`rail-hud-ax`), started with the first
+    tracked table, runs **its own `CFRunLoop`** (`CFRunLoopRunInMode` in a
+    loop; a version-0 source signalled + `CFRunLoopWakeUp` wakes it for a
+    command; due rechecks set its timeout) - not AppKit's: a callback that
+    asks a busy client something waits up to R3.11's 0.25 s, and neither the
+    overlays nor the engine's loop (store reads) may wait with it. **One
+    `AXObserver` per poker process** with a tracked table, its run-loop
+    source on that loop, made with the process's first table and let go
+    with its last (`track` / `untrack`). On the **application** element:
+    `AXWindowCreated` (-> `TableEvent::Appeared`: the engine looks for
+    tables at once), `AXFocusedWindowChanged`, `AXMainWindowChanged`,
+    `AXApplicationActivated`, `AXApplicationHidden`, `AXApplicationShown`. On
+    each tracked **window**'s element: `AXMoved`, `AXResized`,
+    `AXWindowMiniaturized`, `AXWindowDeminiaturized`,
+    `AXUIElementDestroyed`, `AXTitleChanged`. The window's element is the
+    one of `AXWindows` whose `_AXUIElementGetWindow` is the table's number
+    (else the one at its frame, never one another table took); a window on
+    another Space is not in that list, so it is looked for again on the
+    application's focus, window and activation notifications and on a
+    Space change. The callback's `refcon` is the pid (a number); a
+    notification is handled in the callback itself (or right after, if
+    the thread's state is busy), panics never unwind into the system. What
+    each notification does is data (`AxNote::effect`, unit-tested): which
+    tables to read (the window / every table of the app), title, title bar,
+    minimised, app hidden, gone, appeared, restack, look for elements, read
+    again later (`RECHECKS`: 150 and 500 ms, for animations the window server
+    shows after the notification).
+  - **The overlay moves before the engine hears of it.** On a notification
+    the thread reads the table from the **window server** -
+    `CGWindowListCopyWindowInfo(OptionIncludingWindow, number)`: bounds and
+    the on-screen flag, no message to the client, no permission (measured:
+    that option alone does not list an off-screen window, so a minimised /
+    other-Space / hidden one is looked up in the whole list) - plus the
+    title bar from the Accessibility API on a resize (full screen in or
+    out) and the title on `AXTitleChanged`; computes the client area exactly
+    as the find does (`tracked_geometry`: bounds less the title bar, pixels
+    at the scale of the display it overlaps most; minimised = the empty
+    rect; off screen or the app hidden = hidden, the rect kept) and hands
+    the AppKit thread the geometry at once (`Link::follow_at`, carrying the
+    notification's time for the follow measurement). The engine's side is
+    noted in a `tracking::Observed` of the thread's own, coalesced per table
+    (a drag's hundred moves are one `Moved`); the backend's `poll_events`
+    merges it with the AppKit thread's clicks and drops
+    (`Observed::absorb`) and runs R3.5's `tracking::events` - `Moved`,
+    `Minimized`, `Retitled` through **the room's own matcher** (a tournament
+    table move is a new table at once), `Closed`, `Appeared`. Debouncing is
+    on the data side only.
+  - **No fight with the re-find** (R3.5's rule, carried over). The engine's
+    find every 500 ms stays - the fallback for a client with poor
+    accessibility, and the source of titles for tables on other Spaces -
+    but an overlay is **never placed from a description**: the AppKit thread
+    keeps the latest geometry the observers read and makes and moves an
+    overlay from that, never from the (possibly older) one in a frame; the
+    backend's `follow` with something the observers did not report sends
+    `Resync` (the find's title bar and view with it) and the thread reads
+    the table again and puts the overlay where it is now. Minimised from a
+    description counts only while the window server does not show the
+    window, so an older description cannot hide a table that is back.
+  - **Restack on activation and focus.** `AXApplicationActivated`,
+    `AXFocusedWindowChanged`, `AXMainWindowChanged` and `AXApplicationShown`
+    make the AppKit thread check every shown overlay's stacking now (R3.12's
+    cheap look, the whole order only for a suspect) and once more 50 ms
+    later. The periodic look (R3.12's 100 ms) **slows to 250 ms** when every
+    shown overlay's client is observed (`restack_every`; the observers tell
+    the AppKit thread per table, `Command::Watched`) and stays at 100 ms for
+    one that is not. What only the look catches: a click on the already
+    focused table that raises it over its overlay without changing focus -
+    measured on CI (`R3.13 click`).
+  - **Spaces and full screen.** No accessibility notification exists: the
+    AppKit thread observes `NSWorkspace.activeSpaceDidChangeNotification`
+    (a block on the workspace's notification centre; it counts and wakes the
+    pump), and the pump calls the observers' `SpaceChanged`: every table
+    read again now and at the rechecks - off screen orders its overlay out,
+    on screen orders it in over the table (it joins that Space, R3.12's
+    `MoveToActiveSpace`) - and the stacking checked. Entering or leaving
+    full screen is a resize (`AXResized`: the title bar re-read, 0 in full
+    screen) plus a Space change. **Not testable on a runner** (one Space,
+    no public API to switch): the test posts the notification in-process
+    (the wiring), the hide / show on a switch is a unit test.
+  - **A client's exit**: a `kqueue` (`EVFILT_PROC` / `NOTE_EXIT`) per
+    observed process, waited on by `rail-hud-exits` (an `EVFILT_USER` event
+    stops it): its tables are gone at once - overlays removed, `Closed` -
+    rather than at the next find. A window closed (`AXUIElementDestroyed`)
+    is gone unless the window server still shows it (its element was
+    replaced - a full-screen transition can): then its element is looked
+    for again, and it is gone once it leaves the screen without one. The
+    AppKit thread refuses frames for a table the observers saw close until
+    the engine untracks it (no flash of a new overlay over a dead window).
+  - **The z-order fix** (R3.12's finding). Every use of
+    `CGWindowListCopyWindowInfo(OptionAll)` as if it were front to back is
+    gone: the snapshot reads `onscreen_order` too (`Snapshot.order`) and
+    `assemble` pairs a process's windows (the frame fallback) and orders its
+    result by it (`z_ordered`: on-screen windows in z-order, then the
+    off-screen ones in the list's order). A unit test shows the old pairing
+    the wrong way round for two tables stacked at one place.
+  - **Revoked Accessibility** (R3.11's note). Switched off while tables are
+    attached, every accessibility call fails and the backend's find returns
+    `PermissionNeeded`: the engine now **detaches every table** (overlays
+    removed, `tables_open` 0) instead of keeping stale ones, and the health
+    answer says `permission_needed` - R3.11's onboarding rule holds (a
+    client was attached, so it would matter); nothing prompts. Granted
+    again, the next look attaches. The observers' notifications simply stop
+    (no permission, no notification); their processes are let go with the
+    untracked tables. The system's own revocation cannot be made in a test
+    (that would change TCC): the engine test simulates it with a backend
+    whose find starts failing (`a_revoked_permission_detaches_every_table`).
+  - **The popup on macOS** (R3.8's app-side logic, reused). `open_popup`
+    already arrived (R3.12); the app's popup window is now placed in
+    **points**: the anchor (points x the table's screen's scale, R3.11)
+    divided by the table's scale, the work area of the screen it is on in
+    that screen's points (tao reports each monitor at its own scale), the
+    popup at its logical size beside the panel (`popup::placement`,
+    `to_points`; `LogicalSize` / `LogicalPosition`) - a physical position
+    would be read at the scale of whichever screen the popup window is on.
+    Windows keeps R3.8's physical placement exactly. Not activating as far
+    as macOS allows a Tauri window: shown unfocused
+    (`makeKeyAndOrderFront` on an inactive app does not activate it; the
+    poker client keeps the keyboard), always on top; a click into it
+    activates Rail (the system's rule for a window that is not an
+    `NSPanel`, which a Tauri window cannot be), and a click back on the
+    table closes it. Limit: over a full-screen table it opens on the
+    desktop's Space (no `FullScreenAuxiliary` without native code in the
+    app) - R3.14.
+  - **Bindings**: no new crate; `block2` 0.6.2 (already locked) as a direct
+    dependency for the Space notification's block, new features of the
+    locked objc2 crates (`CFRunLoop`, `CFDate`, `NSWorkspace`,
+    `NSNotification`, `NSOperation`, objc2-app-kit's `libc` for the test's
+    `NSRunningApplication`); Cargo.lock gains two dependency edges.
+    `unsafe` only in `platform/macos/{observe,appkit,ffi,drive}.rs`, one
+    function at a time with a `// SAFETY:` per block (the observer's
+    creation, registration and callback; the run loop's source and the
+    `Waker` that is `Send` because only `CFRunLoopSourceSignal` /
+    `CFRunLoopWakeUp` reach it from other threads; `kqueue` / `kevent`;
+    `clock_gettime` for thread CPU; the notification centre). No setting is
+    changed; nothing prompts.
+  - **Tests.** All systems: `macos::tests` - `what_a_notification_does`
+    (twelve distinct names, each one's effect), `a_table_read_by_the_
+    observers` (the same client rect as the find at 2x and 1x, minimised
+    empty, other Space / hidden app hidden with the rect kept, full screen
+    without a title bar, the title bar recovered), `a_space_change_hides_
+    and_shows`, `z_order_is_the_onscreen_order`, `the_stacking_look_slows_
+    when_observed`; `tracking::tests::two_observers_merge`; `engine::tests::
+    a_revoked_permission_detaches_every_table`; the app's
+    `on_macos_the_popup_is_placed_in_points`. **macOS**
+    `tests/macos_tracking.rs` (own `main`; in the `core` job's `cargo test`
+    and again as the step "HUD tracking on macOS (steps and measurement)"):
+    **without any permission** - two simulator tables, the backend's
+    overlays and observers' thread; a wrong description never places an
+    overlay (the thread re-reads, the engine is told the truth); a table
+    moved by the simulator then described is followed; a simulated Space
+    change re-reads every table; the simulator killed -> both overlays gone
+    and `Closed` without a find (kqueue). **With Accessibility** - the
+    backend's own find; one observer for the simulator (its application
+    notifications), six notifications on each table's element; a scripted
+    drag of 40 `AXPosition` moves each followed by the observers alone (lag
+    from the move returning to the overlay's window-server bounds equal to
+    the table's client area; inside, notification -> overlay moved), no
+    repaint, one `Moved`; the simulator's `move`; `resize` repainted at 800
+    x 560 px; `minimize` ordered out + `Minimized`, `restore` back above the
+    table; `focus` restacked at once; a real click on the focused table
+    (restacks and samples printed); `tablemove` -> `Retitled` with the new
+    table's name; the application hidden and shown (`NSRunningApplication`)
+    -> every overlay out and back; **100 moves in 1 s** (lag, the observers'
+    and AppKit threads' CPU, never back at an older place, never hidden, one
+    `Moved`, no repaint); `close` -> `Closed`, overlay gone; then the HUD
+    process with `scripts/tracking.txt` (every `window` event: the HUD's
+    overlay over the table's client area directly above it, gone while
+    minimised and once closed; the table move logged). Every skipped part
+    is printed (`R3.13:` lines). R3.11's and R3.12's macOS tests pass
+    unchanged (the latter's minimise found the `OptionIncludingWindow`
+    limit). Cross-checked with `cargo clippy --target x86_64-pc-windows-msvc`
+    and `--target x86_64-unknown-linux-gnu -p rail-hud -p rail-hud-sim
+    --all-targets -- -D warnings` (stand-in C compiler); the Windows tests
+    are untouched (the engine's change is on a find that fails with
+    `PermissionNeeded`, which Windows never returns).
+  - **Measured.** Locally (M2 Pro, macOS 26.6, 1x display, debug, an agent
+    shell **without** Accessibility, nothing changed): the permission-free
+    part - the simulator killed -> its overlays gone in 23 - 33 ms, no find.
+    CI (`macos-latest`, which has Accessibility): MEASURED_CI
+  - **Limits.** No real client (no macOS `tables` block). A client that
+    does not post these notifications (poor accessibility) is followed by
+    the 500 ms re-find, as before. A click on the already focused table that
+    raises it over its overlay is caught by the 250 ms look. A window on
+    another Space whose element is replaced is treated as closed (the next
+    find attaches it again). Spaces: simulated only. Retina and two
+    displays: unit tests only (both runners and this Mac are 1x).
+  - **For R3.14** (twelve tables, real clients): measure the observers'
+    CPU with twelve real tables and the restack look's cost; confirm each
+    allowed room's client posts `AXMoved` / `AXResized` /
+    `AXTitleChanged` for its tables (else the re-find carries it) and does
+    not replace its windows' elements; whether a click on a real table
+    raises it over its overlay (CI's `R3.13 click` line says what the
+    simulator does); the popup over a full-screen table; a real Space
+    switch and a Retina / two-display drag; consider slowing the engine's
+    re-find on macOS when every table's client is observed (its AX calls
+    are most of the HUD's idle cost).
+
+**macOS HUD status (after R3.13).** On the simulator, in CI: tables are
+found by process and title through the Accessibility API with the window
+server's places (R3.11; the one permission, asked for only when a supported
+client runs), drawn over by a transparent non-activating panel per table
+exactly over its client area, directly above it, clicks through but on the
+panels, each room's restrictions enforced, no window at all for a
+prohibited room (R3.12), and followed by accessibility observers - drags
+move by move, resizes, minimise and restore, the application hidden and
+shown, focus and activation restacking, tournament table moves, closes and
+the client's exit - without fighting the periodic re-find, a revoked
+permission detaching every table, the popup placed in points (R3.13).
+Twelve tables cost a paint p50 under 1 ms and idle overlays 0.4 % of a core
+(R3.12). **What needs the owner**: the real clients' processes and titles on
+macOS (`rail-hud --list-windows` from a terminal with Accessibility,
+`docs/research/CAPTURING-TABLES.md` "On macOS"), which become `sites.json`
+macOS `tables` blocks - until then the HUD attaches to no real client on
+macOS and asks no Mac user for anything; a Developer ID signature (P3) so
+the Accessibility grant survives updates. **What needs a real-client check**
+(R3.14, on each allowed room, play money where it exists): the title bar
+and client area of each client (a custom title bar would offset the
+panels), its accessibility notifications, the overlay over its real seats,
+a real Space switch and full screen (and the popup there), a Retina and a
+two-display setup, and CPU with twelve real tables.
 
 ### R3.14 Twelve tables — M
 - Simulator with 12 tables on each system; CPU, memory and latency budgets
@@ -8173,3 +8402,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-19 | **R3.10 done**: compliance mode in the app. **Remote `sites.json`**: the web build publishes `config/sites.json` at `<web>/sites.json` (`frontend/scripts/sites-json.mjs`, `no-cache`), so the repository file is the only source and the owner updates it with a pull request (live with the web deploy = the staging -> main promotion); `rail_sync::policy` fetches it over HTTPS (OS verifier, no redirects, ETag / If-Modified-Since, 10 / 20 s timeouts, 1 MiB cap; HTTP only to loopback), checks it whole with `rail_config::load_remote` (strict schema + validator; no signature - a forged file could only switch a HUD off), merges stricter-only, caches the last good copy atomically, keeps it (or the shipped one) on any failure; first look 5 s after start, then every 6 h (30 min after a failure) and on "Look for an update now". The app's single source (`crate::policy`) feeds the HUD (`rail-hud --policy <cache>` read before the first look for tables; `policy {remote}` on each connection and change), the popup and the editor; a room switched off closes its popup. **Status**: `HealthReport` lists the attached tables and the still-open refused windows with room, table and reason (`serde(default)`, no protocol bump); `hud_status` gives them; the HUD screen's "At the tables" shows the tables with the HUD, the tables without it and why in plain words (prohibited, withdrawn by an update, unknown = no, a network, an unknown site) with the room's policy page and date, "Why can't I enable the HUD here?", the rooms where it may be used and where the list came from; Today has a line, the tray a fourth line; no override anywhere. **A10**: the sidebar and the palette leave out a helping screen while a table is open (`duringPlay.ts` `screenOffered`). **Release checklist**: `npm run hud:policy-check` / the manual workflow `release-checklist.yml` fails on any allowed room checked more than 90 days ago (§12). Tests: rail-sync policy against a local server (stricter applies and is cached, looser ignored with a note, invalid refused whole, failures keep the last good copy, 304, restart), rail-hud (`--policy`, lists), rail-hud-ipc, the app (policy DTO, status lists, tray line), `tests/` (wording, no override, A10 gate, the checklist); Windows CI `windows_compliance.rs`: a table posing as GGPoker refused and listed with its reason, no overlay; posing as PokerStars with a remote copy switching it off refused from the first look, attached under the shipped policy, detached again. The screens checked in a browser with mocked Tauri calls and made-up tables. |
 | 2026-10-19 | **R3.11 done**: finding tables on macOS. `platform::macos`: the window server's list (`CGWindowListCopyWindowInfo`, on and off screen, front to back: number, pid, bounds, layer; its window names - Screen Recording - never read) joined with the Accessibility API's windows of the processes a room's matcher takes (executable name from `proc_pidpath`; `AXWindows` -> `AXTitle`, frame, minimised, full screen, subrole, close button; 0.25 s messaging timeout), paired by the window number (`_AXUIElementGetWindow`, looked up with `dlsym`, never linked) else by frame within a point in z-order; client area = bounds less the title bar measured from the close button (32 pt on macOS 26's winit windows); pixels = points x the backing scale of the screen the window overlaps most, exactly winit's physical position; minimised marked, off screen (another Space, full screen, hidden app) = cloaked with the title remembered. objc2 0.3.2 bindings (the line Tauri locks; `objc2-application-services` the one new crate) + `libc`, `unsafe` only in `platform/macos/ffi.rs` with `// SAFETY:` per block. **Permission**: the trait's `permission_needed` / `request_permission`; without Accessibility `find_tables` fails `PermissionNeeded`, the health answer says `permissionNeeded: "accessibility"` (optional field, no protocol bump), and the system's prompt comes only from `request_permission` - the app's "Open System Settings" (`hud_request_permission`, which also opens the Accessibility pane). It is offered only when it would make a difference - a running client of an allowed room with a macOS `tables` block (none today) or the simulator's test entry; otherwise the health answer says `permissionDeferred` and the HUD screen, Today and the tray show "HUD on macOS: no supported poker client running" and ask for nothing (so no Mac user sees the card today). The grant is Rail.app's (the sidecar's responsible process), keyed by its signature: ad-hoc builds need it again after every build, Developer ID releases (P3) keep it. **App**: the HUD screen's card (why - titles and window places only -, what not - no screen recording, input monitoring or control -, the button, waiting, the stale-entry hint, granted), Today's and the tray's line, `en` + `hr`; checked in a browser with mocked calls. **`--list-windows` on macOS** (subrole, px and pt, the scale, Spaces; whether Accessibility is granted, Screen Recording not used), `CAPTURING-TABLES.md` "On macOS". Tests: unit (pixels and points, screens, title bars, pairing, the joined view, the engine's permission path, protocol, app, `tests/`), `tests/macos_tables.rs` on the macOS runner: the simulator's three windows through the window server alone (frames x scale equal to the simulator's, joined into its tables) always, then the backend's own find, minimise, table move, listing and the HUD process with Accessibility, or the permission-needed path without it (the `R3.11:` line says which). Locally only the window-server and permission paths ran (no Accessibility for the agent's shell; nothing changed); the full path is the owner's command `cargo test -p rail-hud --test macos_tables -- --nocapture` with the terminal granted. |
 | 2026-10-19 | **R3.12 done**: overlays on macOS. **Threads**: on macOS the HUD process gives the main thread to AppKit - an **accessory** application (no Dock icon, never active, never the keyboard) that pumps its own event queue - and runs the engine unchanged on `rail-hud-engine` beside it (`macos::with_appkit`), as Windows' overlay thread and loop thread; commands over a channel, the main thread woken by a main-queue block (`dispatch2`) posting an application-defined event; Windows and Linux unchanged. **Windows**: one borderless, non-activating, transparent `NSPanel` per table at the normal level, exactly over the client area (pixels back to points, flipped against the main display's height), **ordered directly above the table** (`orderWindow:relativeTo:` its `CGWindowID`) and kept there by looking every 100 ms (a ~20 µs `windowNumberAtPoint` below the overlay per table; the whole order only on suspicion), `MoveToActiveSpace \| Transient \| IgnoresCycle \| FullScreenAuxiliary` (never `CanJoinAllSpaces`), ordered out while the table is minimised, on another Space or hidden. **Click-through with no permission**: the overlay ignores the mouse; a small click window over each panel takes it (press, drag and release routed to it by the window server) - fed to the shared drag code: `PanelMoved`, `PanelClicked` -> `open_popup`. Measured: a layer-backed window that does not ignore the mouse takes presses on its transparent pixels too, so the Windows way (alpha) does not carry over. **Drawing**: the shared scene painted by Core Graphics + Core Text into a premultiplied bitmap at the table's physical pixels, shown as a layer-hosting view's contents at the backing scale; only on change; permit checked before every draw, other rooms' frames refused. No new crate in Cargo.lock (objc2's AppKit, Foundation, Quartz Core, Core Text, `dispatch2` - all locked by Tauri); `unsafe` only in `platform/macos/{appkit,ffi,drive}.rs`. **Tests**: unit (points / pixels at 1x-3x and negative coordinates, the flip on main / right / above displays, mouse points to client pixels, stacking); `tests/macos_overlay.rs` (own `main`): over the simulator's real windows without any permission - exact place in points, directly above the table in the window server's order, click windows, pixels in the bitmap **and on screen**, the window server's hit test (centre -> table, panel -> click window), moves without repaint, raised -> restacked, minimised -> ordered out, restored, removed; synthetic click / drag -> `PanelClicked` / `PanelMoved`; with Accessibility (CI): real clicks (panel -> overlay, centre -> the simulator's new `clicked` event), the HUD process drawing posing as PokerStars and making no window posing as GGPoker, `open_popup` through the supervisor. **Perf** (M2 Pro, 1x, debug): 12 tables, paint p50 0.9 ms / p95 1.2-2.5 ms / max ~8 ms, overlays idle 0.40 % of one core. `CGWindowListCopyWindowInfo(OptionAll)` is not in z-order (R3.11 assumed it); `onscreen_order` is. Limits: geometry from the engine's 500 ms re-find until R3.13; 1x displays only in practice; popup window not wired on macOS. |
+| 2026-10-19 | **R3.13 done**: tracking on macOS. **Observers**: an `AXObserver` per poker process with a tracked table on a thread of its own with its own `CFRunLoop` (`rail-hud-ax`; not AppKit's: a busy client's 0.25 s must not stall the overlays) - on the application `AXWindowCreated` (`Appeared`), focused / main window changed, activated, hidden, shown; on each table's window `AXMoved`, `AXResized`, miniaturised / deminiaturised, destroyed, title changed (`AxNote::effect`, data, unit-tested); made with a process's first table, let go with its last. **Follow first, tell the engine after**: each notification reads the table from the window server (one window, no message to the client; the whole list for an off-screen one - `OptionIncludingWindow` alone omits it, measured), the client area exactly as the find computes it (`tracked_geometry`), and hands the AppKit thread the geometry at once (`Link::follow_at`); the engine gets R3.5's coalesced events (`tracking::events`, `Retitled` through the room's matcher) from the merged `Observed`. **No fight**: the AppKit thread places overlays only from the observers' latest reading, never a frame's description; the backend's `follow` with anything else makes the thread re-read (`Resync`); the 500 ms re-find stays as the fallback. **Restack** at once on activation, focus, main window and shown; R3.12's 100 ms stacking look slows to 250 ms when every shown overlay's client is observed. **Spaces**: `NSWorkspace.activeSpaceDidChangeNotification` on the AppKit thread makes the observers re-read every table (hide / show at once; simulated in CI - a runner cannot switch Spaces). **Exits**: a `kqueue` (`NOTE_EXIT`) per observed process removes its overlays at once. **Z-order fix**: R3.11's pairing fallback and ordering read `onscreen_order` (`z_ordered`), never the `OptionAll` list. **Revoked Accessibility**: the engine detaches every table on `PermissionNeeded` (overlays gone, `permission_needed` reported by R3.11's rule). **Popup on macOS**: the app places it in points (anchor / the table's scale, the screen's work area in its points, logical size), shown unfocused (the client keeps the keyboard). No new crate (`block2` 0.6.2 already locked; two lock edges); `unsafe` only in `platform/macos/{observe,appkit,ffi,drive}.rs`. Tests: unit (notifications, geometry, Spaces, z-order, restack interval, merge, revoked permission, popup in points) on every OS; `tests/macos_tracking.rs` on the macOS runner - without permission a wrong description, a simulated Space change, a killed simulator; with Accessibility a 40-move scripted drag (`AXPosition`), move, resize, minimise / restore, focus, a real click, table move, app hidden / shown, 100 moves in 1 s, close, and the HUD process with `scripts/tracking.txt`; measurements in the step's `R3.13` lines (R3.13 as built). macOS HUD status summary under R3.13. |

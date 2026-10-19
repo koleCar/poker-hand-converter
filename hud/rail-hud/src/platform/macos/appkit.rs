@@ -118,21 +118,24 @@
 //! them with `Retained` and close them ourselves). Everything else is
 //! objc2's safe API with a [`MainThreadMarker`].
 
-use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::collections::{HashMap, HashSet};
+use std::ptr::NonNull;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender, TryRecvError};
 use std::sync::{Arc, Mutex, PoisonError};
 use std::time::{Duration, Instant};
 
+use block2::RcBlock;
 use dispatch2::DispatchQueue;
 use objc2::rc::{Retained, autoreleasepool};
-use objc2::runtime::AnyObject;
+use objc2::runtime::{AnyObject, NSObjectProtocol, ProtocolObject};
 use objc2::{MainThreadMarker, MainThreadOnly};
 use objc2_app_kit::{
     NSApplication, NSApplicationActivationPolicy, NSBackingStoreType, NSColor, NSEvent,
     NSEventMask, NSEventModifierFlags, NSEventType, NSPanel, NSView, NSWindow,
     NSWindowAnimationBehavior, NSWindowCollectionBehavior, NSWindowNumberListOptions,
-    NSWindowOrderingMode, NSWindowStyleMask,
+    NSWindowOrderingMode, NSWindowStyleMask, NSWorkspace,
+    NSWorkspaceActiveSpaceDidChangeNotification,
 };
 use objc2_core_foundation::{
     CFAttributedString, CFBoolean, CFDictionary, CFRetained, CFString, CFType, CGAffineTransform,
@@ -147,14 +150,15 @@ use objc2_core_text::{
     CTFont, CTFontUIFontType, CTLine, kCTFontAttributeName,
     kCTForegroundColorFromContextAttributeName,
 };
-use objc2_foundation::{NSDate, NSDefaultRunLoopMode, NSPoint, NSRect, NSSize};
+use objc2_foundation::{NSDate, NSDefaultRunLoopMode, NSNotification, NSPoint, NSRect, NSSize};
 use objc2_quartz_core::{CALayer, CATransaction};
 
 use super::super::drag::{self, Drag};
 use super::super::tracking::{self, Geometry, Observed, Placed, Plan};
 use super::super::{OverlayFrame, PlatformError, Rect, TableEvent, WindowId};
 use super::{
-    Frame, HitInfo, Mouse, OverlayInfo, Stacking, appkit_frame, client_pixel, ffi, milli, stacking,
+    Frame, HitInfo, Mouse, OverlayInfo, Stacking, appkit_frame, client_pixel, ffi, milli,
+    restack_every, stacking,
 };
 use crate::layout::Positions;
 use crate::scene::{Item, Rgba, Scene, compose_with};
@@ -162,9 +166,6 @@ use crate::scene::{Item, Rgba, Scene, compose_with};
 /// The application-defined event's subtype that says "the channel has
 /// commands".
 const WAKE: i16 = 0x52;
-
-/// How often the stacking is checked while overlays show.
-const RESTACK_EVERY: Duration = Duration::from_millis(100);
 
 /// How long the pump waits for an event when nothing shows (a command
 /// wakes it at once anyway).
@@ -183,12 +184,45 @@ pub(super) enum Command {
         frame: Box<OverlayFrame>,
         geometry: Geometry,
     },
+    /// The table as it is now (R3.13: from the observers; `at`: the
+    /// notification it answers, for the follow time).
     Follow {
         table: WindowId,
         geometry: Geometry,
+        at: Option<Instant>,
     },
     Remove {
         table: WindowId,
+    },
+    /// (R3.13) The table closed (the observers saw it): its overlay goes
+    /// now and no frame makes it again until the engine untracks it.
+    Gone {
+        table: WindowId,
+    },
+    /// (R3.13) A client was activated or its focus moved: put every
+    /// overlay back directly above its table now.
+    Restack,
+    /// (R3.13) Whether the table's client is observed (activations and
+    /// focus changes restack at once): the stacking look slows down.
+    Watched {
+        table: WindowId,
+        watched: bool,
+    },
+    /// (R3.13) What to call when the active Space changed.
+    OnSpaceChange {
+        handler: Box<dyn Fn() + Send>,
+    },
+    /// (R3.13, tests) Post `activeSpaceDidChangeNotification` on the
+    /// workspace's notification centre, in this process only.
+    SimulateSpaceChange,
+    FollowTimes {
+        reply: Sender<Vec<u64>>,
+    },
+    SpaceChanges {
+        reply: Sender<u64>,
+    },
+    Cpu {
+        reply: Sender<u64>,
     },
     Info {
         table: WindowId,
@@ -263,7 +297,70 @@ impl Link {
     }
 
     pub(super) fn follow(&self, table: WindowId, geometry: Geometry) -> Result<(), PlatformError> {
-        self.send(Command::Follow { table, geometry })
+        self.follow_at(table, geometry, None)
+    }
+
+    /// (R3.13) The table as it is now, read by the observers in answer to
+    /// a notification that came `at`.
+    pub(super) fn follow_at(
+        &self,
+        table: WindowId,
+        geometry: Geometry,
+        at: Option<Instant>,
+    ) -> Result<(), PlatformError> {
+        self.send(Command::Follow {
+            table,
+            geometry,
+            at,
+        })
+    }
+
+    /// (R3.13) The table closed.
+    pub(super) fn gone(&self, table: WindowId) -> Result<(), PlatformError> {
+        self.send(Command::Gone { table })
+    }
+
+    /// (R3.13) Put every overlay back above its table now.
+    pub(super) fn restack(&self) -> Result<(), PlatformError> {
+        self.send(Command::Restack)
+    }
+
+    /// (R3.13) Whether the table's client is observed.
+    pub(super) fn watched(&self, table: WindowId, watched: bool) -> Result<(), PlatformError> {
+        self.send(Command::Watched { table, watched })
+    }
+
+    /// (R3.13) Call `handler` (on the AppKit thread) when the active Space
+    /// changes.
+    pub(super) fn on_space_change(
+        &self,
+        handler: impl Fn() + Send + 'static,
+    ) -> Result<(), PlatformError> {
+        self.send(Command::OnSpaceChange {
+            handler: Box::new(handler),
+        })
+    }
+
+    /// (R3.13, tests) As if the user switched Spaces: the notification is
+    /// posted in this process only.
+    pub(super) fn simulate_space_change(&self) -> Result<(), PlatformError> {
+        self.send(Command::SimulateSpaceChange)
+    }
+
+    /// (R3.13) Every follow from a notification so far: µs from the
+    /// notification to the overlay moved, shown or hidden.
+    pub(super) fn follow_times(&self) -> Option<Vec<u64>> {
+        self.ask(|reply| Command::FollowTimes { reply })
+    }
+
+    /// (R3.13) Active Space changes seen.
+    pub(super) fn space_changes(&self) -> Option<u64> {
+        self.ask(|reply| Command::SpaceChanges { reply })
+    }
+
+    /// (R3.13) The AppKit thread's CPU time so far, µs.
+    pub(super) fn cpu_us(&self) -> Option<u64> {
+        self.ask(|reply| Command::Cpu { reply })
     }
 
     pub(super) fn remove(&self, table: WindowId) -> Result<(), PlatformError> {
@@ -380,6 +477,7 @@ where
         }
     };
     let mut overlays = Overlays::new(mtm, app.clone(), observed);
+    overlays.observe_spaces();
     pump(&app, &rx, &pending, &mut overlays);
     overlays.close_all();
     handle.join().unwrap_or(101)
@@ -405,6 +503,7 @@ fn pump(
                     Err(TryRecvError::Empty) => break,
                 }
             }
+            overlays.space_changed();
             let now = Instant::now();
             overlays.restack_if_due(now);
             let wait = overlays.wait(now);
@@ -686,6 +785,22 @@ struct Overlays {
     /// Drags dropped so far, on every overlay (R3.6).
     drag_seq: u64,
     next_restack: Instant,
+    /// (R3.13) The tables as the observers last read them: an overlay is
+    /// placed from this, not from the engine's (older) description.
+    followed: HashMap<WindowId, Geometry>,
+    /// (R3.13) Tables the observers saw close, until the engine untracks
+    /// them: a frame for one makes no window.
+    gone: HashSet<WindowId>,
+    /// (R3.13) Tables whose client is observed.
+    watched: HashSet<WindowId>,
+    /// (R3.13) Notification -> overlay put right, µs.
+    follow_times: Vec<u64>,
+    /// (R3.13) Active Space changes: counted by the notification's block,
+    /// acted on by the pump.
+    spaces: Arc<AtomicU64>,
+    spaces_seen: u64,
+    on_space_change: Option<Box<dyn Fn() + Send>>,
+    space_observer: Option<Retained<ProtocolObject<dyn NSObjectProtocol>>>,
 }
 
 fn keep(times: &mut Vec<u64>, us: u64) {
@@ -714,7 +829,82 @@ impl Overlays {
             observed,
             drag_seq: 0,
             next_restack: Instant::now(),
+            followed: HashMap::new(),
+            gone: HashSet::new(),
+            watched: HashSet::new(),
+            follow_times: Vec::new(),
+            spaces: Arc::default(),
+            spaces_seen: 0,
+            on_space_change: None,
+            space_observer: None,
         }
+    }
+
+    /// (R3.13) Count the active Space's changes
+    /// (`NSWorkspace.activeSpaceDidChangeNotification`, posted on this
+    /// thread) and wake the pump for each.
+    #[allow(unsafe_code)]
+    fn observe_spaces(&mut self) {
+        let spaces = Arc::clone(&self.spaces);
+        let block = RcBlock::new(move |_note: NonNull<NSNotification>| {
+            spaces.fetch_add(1, Ordering::AcqRel);
+            DispatchQueue::main().exec_async(post_wake);
+        });
+        let center = NSWorkspace::sharedWorkspace().notificationCenter();
+        // SAFETY: reading a constant `NSString` AppKit defines, alive for
+        // the process and never written.
+        let name = unsafe { NSWorkspaceActiveSpaceDidChangeNotification };
+        // SAFETY: no object filter; no queue (the block runs where the
+        // notification is posted: AppKit posts this one on the main
+        // thread); the block only counts and schedules a wake, both
+        // thread-safe; the token is kept and removed on close.
+        let token = unsafe {
+            center.addObserverForName_object_queue_usingBlock(Some(name), None, None, &block)
+        };
+        self.space_observer = Some(token);
+    }
+
+    /// (R3.13) The active Space changed since the last look: the observers
+    /// read every table again (an overlay whose table is now off screen is
+    /// ordered out, one whose table is back is ordered in), and the
+    /// stacking is checked now.
+    fn space_changed(&mut self) {
+        let now = self.spaces.load(Ordering::Acquire);
+        if now == self.spaces_seen {
+            return;
+        }
+        self.spaces_seen = now;
+        if let Some(handler) = &self.on_space_change {
+            handler();
+        }
+        self.restack_now();
+    }
+
+    /// (R3.13, tests) Post the Space notification here, as AppKit would.
+    #[allow(unsafe_code)]
+    fn simulate_space_change(&self) {
+        let center = NSWorkspace::sharedWorkspace().notificationCenter();
+        // SAFETY: as in `observe_spaces`: a constant `NSString`.
+        let name = unsafe { NSWorkspaceActiveSpaceDidChangeNotification };
+        // SAFETY: the notification's documented form: no object.
+        unsafe { center.postNotificationName_object(name, None) };
+    }
+
+    /// (R3.13) Whether every shown overlay's client is observed.
+    fn all_watched(&self) -> bool {
+        self.windows
+            .iter()
+            .filter(|(_, o)| o.shown)
+            .all(|(table, _)| self.watched.contains(table))
+    }
+
+    /// (R3.13) Check the stacking now, and once more a moment later (an
+    /// activation's reordering may still be on its way).
+    fn restack_now(&mut self) {
+        let now = Instant::now();
+        self.next_restack = now;
+        self.restack_if_due(now);
+        self.next_restack = now + Duration::from_millis(50);
     }
 
     fn handle(&mut self, command: Command) {
@@ -724,15 +914,57 @@ impl Overlays {
                 frame,
                 geometry,
             } => self.frame(table, *frame, geometry),
-            Command::Follow { table, geometry } => {
+            Command::Follow {
+                table,
+                geometry,
+                at,
+            } => {
+                if self.gone.contains(&table) {
+                    return;
+                }
+                self.followed.insert(table, geometry);
                 if self.windows.contains_key(&table) {
-                    self.sync(table, geometry);
+                    let plan = self.sync(table, geometry);
+                    if let Some(at) = at
+                        && plan != Plan::Keep
+                    {
+                        keep(&mut self.follow_times, micros(at));
+                    }
                 }
             }
             Command::Remove { table } => {
                 if let Some(overlay) = self.windows.remove(&table) {
                     overlay.close();
                 }
+                self.followed.remove(&table);
+                self.gone.remove(&table);
+                self.watched.remove(&table);
+            }
+            Command::Gone { table } => {
+                if let Some(overlay) = self.windows.remove(&table) {
+                    overlay.close();
+                }
+                self.followed.remove(&table);
+                self.gone.insert(table);
+            }
+            Command::Restack => self.restack_now(),
+            Command::Watched { table, watched } => {
+                if watched {
+                    self.watched.insert(table);
+                } else {
+                    self.watched.remove(&table);
+                }
+            }
+            Command::OnSpaceChange { handler } => self.on_space_change = Some(handler),
+            Command::SimulateSpaceChange => self.simulate_space_change(),
+            Command::FollowTimes { reply } => {
+                let _ = reply.send(self.follow_times.clone());
+            }
+            Command::SpaceChanges { reply } => {
+                let _ = reply.send(self.spaces.load(Ordering::Acquire));
+            }
+            Command::Cpu { reply } => {
+                let _ = reply.send(ffi::thread_cpu_us());
             }
             Command::Info { table, reply } => {
                 let _ = reply.send(self.windows.get(&table).map(info));
@@ -777,6 +1009,12 @@ impl Overlays {
     /// A new frame for `table`, as it is `geometry`: the overlay made on
     /// first use, painted when the frame differs from the one shown.
     fn frame(&mut self, table: WindowId, frame: OverlayFrame, geometry: Geometry) {
+        if self.gone.contains(&table) {
+            return;
+        }
+        // (R3.13) Where the observers last saw the table, when they have:
+        // the engine's description can be older (a drag in progress).
+        let geometry = self.followed.get(&table).copied().unwrap_or(geometry);
         if !self.windows.contains_key(&table) {
             let Ok(table_number) = isize::try_from(table.0) else {
                 return;
@@ -905,7 +1143,7 @@ impl Overlays {
         if self.windows.values().any(|o| o.shown) {
             self.next_restack
                 .saturating_duration_since(now)
-                .min(RESTACK_EVERY)
+                .min(restack_every(self.all_watched()))
         } else {
             IDLE_WAIT
         }
@@ -921,7 +1159,7 @@ impl Overlays {
         if now < self.next_restack {
             return;
         }
-        self.next_restack = now + RESTACK_EVERY;
+        self.next_restack = now + restack_every(self.all_watched());
         let main_height = ffi::main_height();
         let mtm = self.mtm;
         let suspects: Vec<WindowId> = self
@@ -1153,9 +1391,17 @@ impl Overlays {
         }
     }
 
+    #[allow(unsafe_code)]
     fn close_all(&mut self) {
         for (_, overlay) in self.windows.drain() {
             overlay.close();
+        }
+        if let Some(token) = self.space_observer.take() {
+            let center = NSWorkspace::sharedWorkspace().notificationCenter();
+            let object: &AnyObject = (*token).as_ref();
+            // SAFETY: the token `addObserverForName:...` returned, removed
+            // once.
+            unsafe { center.removeObserver(object) };
         }
     }
 }
