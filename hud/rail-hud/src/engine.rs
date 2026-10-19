@@ -119,7 +119,7 @@ use crate::layout::TableLayout;
 use crate::panel::PanelDesign;
 use crate::platform::{
     OverlayFrame, PanelWords, Permission, Platform, Rect, SeatPanel, Seating, TableEvent,
-    TableMatcher, TableWindow, TagColour, WindowId, table_key,
+    TableMatcher, TableWindow, TagColour, WindowId, permission_matters, table_key,
 };
 use crate::seats::{self, Rooms};
 
@@ -257,6 +257,10 @@ pub struct Hud {
     /// Look for tables at the next tick, whatever `next_find` says.
     find_soon: bool,
     last_find_error: Option<String>,
+    /// (R3.11) At the last look, with a permission missing: a running
+    /// process belongs to an allowed room with a matcher, so granting it
+    /// would find tables (`platform::permission_matters`).
+    client_running: bool,
     /// The last hand announced per (store site, table), for windows that
     /// attach after it (bounded by [`RECENT_TABLES`]).
     recent: BTreeMap<(String, String), (String, Vec<PlayerRef>)>,
@@ -319,6 +323,7 @@ impl Hud {
             next_store: now,
             find_soon: false,
             last_find_error: None,
+            client_running: false,
             recent: BTreeMap::new(),
             test_matchers: Vec::new(),
             designs: Designs::default(),
@@ -498,12 +503,48 @@ impl Hud {
             refused_tables: self.refused.values().cloned().collect(),
             remote_policy: self.compliance.has_remote(),
             // (R3.11) Asked of the system now (macOS: Accessibility), so
-            // the app sees a grant within one health answer.
+            // the app sees a grant within one health answer - and reported
+            // as needed only when granting it would find something.
             permission_needed: self
-                .platform
-                .permission_needed()
+                .missing_permission()
+                .filter(|_| self.permission_matters())
+                .map(|p| p.as_str().to_owned()),
+            permission_deferred: self
+                .missing_permission()
+                .filter(|_| !self.permission_matters())
                 .map(|p| p.as_str().to_owned()),
         }
+    }
+
+    /// (R3.11) A permission the backend lacks to find tables.
+    fn missing_permission(&self) -> Option<Permission> {
+        self.platform.permission_needed()
+    }
+
+    /// (R3.11) Whether granting a missing permission would make a
+    /// difference now: the simulator's test entry is active, or at the last
+    /// look a running process belonged to an allowed room with a matcher.
+    /// Otherwise the app is told to ask for nothing.
+    fn permission_matters(&self) -> bool {
+        !self.test_matchers.is_empty() || self.client_running
+    }
+
+    /// (R3.11) With a permission missing: does a running process belong to
+    /// an allowed room whose matcher could take its windows? (No
+    /// permission is needed to tell.)
+    fn look_for_clients(&mut self) {
+        if self.missing_permission().is_none() {
+            self.client_running = false;
+            return;
+        }
+        let allowed: Vec<TableMatcher> = self
+            .compliance
+            .matchers()
+            .into_iter()
+            .filter(|m| self.compliance.decide(&m.site).is_ok())
+            .collect();
+        let running = self.platform.running_processes();
+        self.client_running = permission_matters(running.as_deref(), &allowed, false);
     }
 
     /// An attached window as the HUD knows it (tests).
@@ -633,10 +674,14 @@ impl Hud {
             }
             AppMessage::Shutdown => return Some(Exit::Shutdown),
             // (R3.11) The user clicked for it in the app: the system's own
-            // prompt, if the permission is still missing; then look again.
+            // prompt, if the permission is still missing and would make a
+            // difference (what the health answer offered); then look again.
             AppMessage::RequestPermission { permission } => {
                 match Permission::from_name(&permission) {
-                    Some(permission) if self.platform.permission_needed() == Some(permission) => {
+                    Some(permission)
+                        if self.missing_permission() == Some(permission)
+                            && self.permission_matters() =>
+                    {
                         self.platform.request_permission(permission);
                         self.next_find = Instant::now();
                     }
@@ -677,6 +722,7 @@ impl Hud {
     }
 
     fn find(&mut self, out: &mut dyn FnMut(HudMessage)) {
+        self.look_for_clients();
         let mut matchers = self.compliance.matchers();
         matchers.extend(self.test_matchers.iter().cloned());
         let found = match self.platform.find_tables(&matchers) {
@@ -1898,21 +1944,60 @@ mod tests {
         fn request_permission(&mut self, _: Permission) {
             self.asked.set(self.asked.get() + 1);
         }
+        /// No poker client: a browser and a terminal.
+        fn running_processes(&mut self) -> Option<Vec<String>> {
+            Some(vec!["Safari".into(), "Terminal".into()])
+        }
     }
 
-    /// (R3.11) Without the permission no table is found and every health
-    /// answer says which permission is missing; the system is asked to
-    /// prompt only on the app's `request_permission` (the user's click),
-    /// and only while it is missing; once granted the next look attaches.
-    #[test]
-    fn a_missing_permission_is_reported_and_asked_for_on_request() {
-        let backend = Locked::default();
-        let (granted, asked) = (backend.granted.clone(), backend.asked.clone());
-        let mut hud = Hud::new(
+    fn locked_hud(backend: Locked) -> Hud {
+        Hud::new(
             Box::new(backend),
             Compliance::shipped().expect("shipped"),
             StoreView::new(None),
             Settings::default(),
+        )
+    }
+
+    fn request(name: &str) -> Input {
+        Input::App(
+            AppMessage::RequestPermission {
+                permission: name.into(),
+            },
+            Instant::now(),
+        )
+    }
+
+    /// (R3.11) A missing permission that would find nothing - no running
+    /// client of an allowed room with a matcher (none has a macOS one
+    /// today), no simulator entry - is not offered: the health answer says
+    /// it is deferred (the app shows a neutral line), never needed, and a
+    /// request is not passed to the system.
+    #[test]
+    fn a_missing_permission_without_a_supported_client_is_not_offered() {
+        let backend = Locked::default();
+        let asked = backend.asked.clone();
+        let mut hud = locked_hud(backend);
+        assert!(step(&mut hud).is_empty());
+        let health = hud.health();
+        assert_eq!(health.permission_needed, None);
+        assert_eq!(health.permission_deferred.as_deref(), Some("accessibility"));
+        hud.handle(request("accessibility"), &mut |_| {});
+        assert_eq!(asked.get(), 0, "nothing to gain: not asked");
+    }
+
+    /// (R3.11) With the simulator's test entry the permission is offered:
+    /// every health answer says it is needed; the system is asked to prompt
+    /// only on the app's `request_permission` (the user's click), and only
+    /// while it is missing; once granted the next look attaches.
+    #[test]
+    fn a_missing_permission_is_reported_and_asked_for_on_request() {
+        let backend = Locked::default();
+        let (granted, asked) = (backend.granted.clone(), backend.asked.clone());
+        let mut hud = locked_hud(backend);
+        hud.add_simulator_room(
+            "pokerstars",
+            regex::Regex::new("^(?P<table>.+) - ").expect("regex"),
         );
         assert!(step(&mut hud).is_empty());
         assert!(step(&mut hud).is_empty());
@@ -1921,16 +2006,9 @@ mod tests {
             hud.health().permission_needed.as_deref(),
             Some("accessibility")
         );
+        assert_eq!(hud.health().permission_deferred, None);
         assert_eq!(hud.health().attached, 0);
 
-        let request = |name: &str| {
-            Input::App(
-                AppMessage::RequestPermission {
-                    permission: name.into(),
-                },
-                Instant::now(),
-            )
-        };
         hud.handle(request("screen-recording"), &mut |_| {});
         assert_eq!(asked.get(), 0, "no such permission");
         hud.handle(request("accessibility"), &mut |_| {});
@@ -1938,6 +2016,7 @@ mod tests {
 
         granted.set(true);
         assert_eq!(hud.health().permission_needed, None);
+        assert_eq!(hud.health().permission_deferred, None);
         assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
         hud.handle(request("accessibility"), &mut |_| {});
         assert_eq!(asked.get(), 1, "not asked once granted");

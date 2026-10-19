@@ -14,6 +14,7 @@ import {
   allowedRooms,
   checkedOn,
   hudState,
+  noSupportedClient,
   notAllowedRooms,
   permissionNeeded,
   policyLink,
@@ -74,6 +75,7 @@ function status(extra: Partial<HudStatus> = {}): HudStatus {
     ],
     remotePolicy: true,
     permissionNeeded: null,
+    permissionDeferred: null,
     ...extra,
   };
 }
@@ -138,6 +140,21 @@ describe("compliance mode in the window", () => {
     expect(permissionNeeded(status({ phase: "off", permissionNeeded: "accessibility" }))).toBeNull();
     expect(permissionNeeded(status({ permissionNeeded: "screen-recording" }))).toBeNull();
     expect(permissionNeeded(null)).toBeNull();
+  });
+
+  it("keeps the card hidden without a supported client, with a neutral line instead (R3.11)", () => {
+    // The HUD lacks the permission but no supported client runs: deferred.
+    const idle = status({ tables: [], refused: [], permissionDeferred: "accessibility" });
+    expect(permissionNeeded(idle)).toBeNull();
+    expect(noSupportedClient(idle)).toBe(true);
+    // The simulator's test entry (or a supported client): needed, the card shows.
+    const sim = status({ tables: [], refused: [], permissionNeeded: "accessibility" });
+    expect(permissionNeeded(sim)).toBe("accessibility");
+    expect(noSupportedClient(sim)).toBe(false);
+    // Granted, or not running: neither.
+    expect(noSupportedClient(status({ tables: [] }))).toBe(false);
+    expect(noSupportedClient(status({ phase: "off", tables: [], permissionDeferred: "accessibility" }))).toBe(false);
+    expect(noSupportedClient(null)).toBe(false);
   });
 
   it("asks for nothing but the Accessibility prompt, and only on a click (R3.11)", () => {

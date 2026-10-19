@@ -632,6 +632,39 @@ impl Platform for MacosBackend {
             }
         }
     }
+
+    /// The executables with an ordinary window, from the window server's
+    /// list (no permission needed): whether a supported client runs.
+    fn running_processes(&mut self) -> Option<Vec<String>> {
+        running_processes().ok()
+    }
+}
+
+/// (R3.11) The executables of the processes that have an ordinary window
+/// (layer 0) now - `proc_pidpath`'s file name, else the window server's
+/// owner name -, sorted, once each. Needs no permission. macOS only.
+pub fn running_processes() -> Result<Vec<String>, PlatformError> {
+    #[cfg(target_os = "macos")]
+    {
+        let windows = ffi::cg_windows()?;
+        let mut pids: BTreeMap<u32, String> = BTreeMap::new();
+        for window in windows.iter().filter(|w| w.layer == 0) {
+            pids.entry(window.pid)
+                .or_insert_with(|| window.owner.clone());
+        }
+        let mut names: Vec<String> = pids
+            .into_iter()
+            .map(|(pid, owner)| ffi::process_name(pid).unwrap_or(owner))
+            .filter(|name| !name.is_empty())
+            .collect();
+        names.sort();
+        names.dedup();
+        Ok(names)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err(PlatformError::Unsupported("listing processes (macOS only)"))
+    }
 }
 
 #[cfg(test)]

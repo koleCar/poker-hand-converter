@@ -458,8 +458,10 @@ its overlays and tracking are next) and a fake one driven by the simulator.
 whether it is on screen - but not its title, which macOS shows only to apps
 with Screen Recording, which Rail never asks for. The titles come from the
 Accessibility API instead, asked only of the poker clients' processes: so
-the HUD needs the **Accessibility** permission, and nothing else. Without it
-the HUD finds nothing and says so; the HUD screen explains what the
+the HUD needs the **Accessibility** permission, and nothing else. Rail asks
+for it only when it would make a difference - a supported room's client is
+running - and otherwise says just "HUD on macOS: no supported poker client
+running". When it is needed, the HUD screen explains what the
 permission is for (titles and window places - no screen recording, no
 input monitoring), has macOS show its own prompt and opens System Settings
 at the right pane on a click, and notices the grant by itself. The two lists

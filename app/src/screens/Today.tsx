@@ -4,7 +4,7 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { errorText, inApp, ipc, type StoreStatus } from "../lib/ipc";
 import { go } from "../lib/router";
-import { hudState, permissionNeeded, refusedRoomNames } from "../lib/hudCompliance";
+import { hudState, noSupportedClient, permissionNeeded, refusedRoomNames } from "../lib/hudCompliance";
 import { useAccount } from "../lib/useAccount";
 import { useHudCompliance } from "../lib/useHudCompliance";
 import { useSync } from "../lib/useSync";
@@ -201,7 +201,9 @@ function HudLine() {
         : status.tables.length === 0
           ? permissionNeeded(status) !== null
             ? d.permission
-            : d.none
+            : noSupportedClient(status)
+              ? d.noClient
+              : d.none
           : d.tables(status.tables.length);
   if (status.refused.length > 0) {
     text = `${text} · ${d.refused(status.refused.length, rooms.join(", "))}`;

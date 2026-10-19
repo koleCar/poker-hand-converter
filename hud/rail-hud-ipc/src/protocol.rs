@@ -326,10 +326,19 @@ pub struct HealthReport {
     pub remote_policy: bool,
     /// (R3.11) A system permission the HUD needs and does not have, so it
     /// cannot find tables: `accessibility` on macOS (window titles are read
-    /// through the Accessibility API). `None`: nothing missing, or an older
-    /// HUD.
+    /// through the Accessibility API). Set only when granting it would make
+    /// a difference now - a running process of an allowed room with a macOS
+    /// `tables` block, or the test-only simulator entry - so the app asks
+    /// for it then and only then. `None`: nothing missing, nothing to gain,
+    /// or an older HUD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub permission_needed: Option<String>,
+    /// (R3.11) The same permission is missing but nothing would be found
+    /// with it (no supported poker client is running): the app shows a
+    /// neutral line and asks for nothing. Never set with
+    /// `permission_needed`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub permission_deferred: Option<String>,
 }
 
 /// (R3.10) A table the HUD is attached to.
@@ -460,6 +469,14 @@ mod tests {
                     }],
                     remote_policy: true,
                     permission_needed: Some("accessibility".into()),
+                    permission_deferred: None,
+                },
+            },
+            HudMessage::Health {
+                seq: 4,
+                report: HealthReport {
+                    permission_deferred: Some("accessibility".into()),
+                    ..HealthReport::default()
                 },
             },
             HudMessage::TablesOpen { count: 12 },
@@ -559,6 +576,7 @@ mod tests {
         // (R3.11) Nor does it say a permission is missing; a newer one says
         // which, and only when one is.
         assert_eq!(report.permission_needed, None);
+        assert_eq!(report.permission_deferred, None);
         let needed = HealthReport {
             permission_needed: Some("accessibility".into()),
             ..HealthReport::default()
@@ -570,6 +588,7 @@ mod tests {
         );
         let none = serde_json::to_string(&HealthReport::default()).expect("json");
         assert!(!none.contains("permissionNeeded"), "{none}");
+        assert!(!none.contains("permissionDeferred"), "{none}");
         assert_eq!(
             serde_json::to_string(&AppMessage::RequestPermission {
                 permission: "accessibility".into()

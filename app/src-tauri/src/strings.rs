@@ -59,6 +59,9 @@ pub struct Tray {
     /// (R3.11) Running, but it cannot see tables until the user grants the
     /// Accessibility permission (macOS).
     pub hud_permission: &'static str,
+    /// (R3.11) Running on macOS without the permission, but no supported
+    /// poker client runs: nothing to ask for.
+    pub hud_no_client: &'static str,
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
@@ -197,6 +200,7 @@ pub const TRAY_EN: Tray = Tray {
     hud_starting: "HUD starting…",
     hud_tables: hud_tables_en,
     hud_permission: "HUD: needs the Accessibility permission",
+    hud_no_client: "HUD on macOS: no supported poker client running",
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
@@ -231,6 +235,7 @@ pub const TRAY_HR: Tray = Tray {
     hud_starting: "HUD se pokreće…",
     hud_tables: hud_tables_hr,
     hud_permission: "HUD: treba dopuštenje Pristupačnost",
+    hud_no_client: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent",
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",

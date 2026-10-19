@@ -9,11 +9,14 @@
  * `hud_policy`); `lib/hudCompliance.ts` only words them.
  *
  * (R3.11) On a Mac the HUD reads table windows' titles through the
- * Accessibility API: while the permission is missing the panel opens with
+ * Accessibility API. Only while the permission is missing *and* granting it
+ * would find tables (a supported client runs, or the simulator's test entry
+ * is on) does the panel open with
  * what it is for (titles and window places only - no screen recording, no
  * input monitoring), a button that has macOS show its own prompt and opens
  * System Settings at the pane, and notices the grant from the status it polls.
- * The user grants it; nothing here changes a setting.
+ * The user grants it; nothing here changes a setting. Without a supported
+ * client the panel says only that none is running, and asks for nothing.
  */
 import { useEffect, useRef, useState } from "react";
 
@@ -24,6 +27,7 @@ import {
   allowedRooms,
   checkedOn,
   hudState,
+  noSupportedClient,
   notAllowedRooms,
   permissionNeeded,
   policyLink,
@@ -241,11 +245,13 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
 
       <PermissionCard status={status} />
 
-      {state === "running" &&
+      {noSupportedClient(status) ? (
+        <p className={styles.muted}>{s.permission.noClient}</p>
+      ) : (
+        state === "running" &&
         permissionNeeded(status) === null &&
         status.tables.length === 0 &&
-        refused.length === 0 && (
-        <p className={styles.muted}>{s.noTables}</p>
+        refused.length === 0 && <p className={styles.muted}>{s.noTables}</p>
       )}
       {status.tables.length > 0 && (
         <>

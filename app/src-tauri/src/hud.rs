@@ -40,8 +40,13 @@
 //!   (`settings_changed`, `layout_changed`), which reads them again.
 //! - **Permissions** (R3.11, macOS): the HUD reads window titles through
 //!   the Accessibility API, and every health answer says when that
-//!   permission is missing (`permission_needed`); [`hud_status`] passes it
-//!   on, the HUD screen explains it, and the tray says so. The
+//!   permission is missing *and would make a difference* - a supported
+//!   client (an allowed room with a macOS matcher) is running, or the
+//!   simulator's test entry is on (`permission_needed`) - or is missing
+//!   with nothing to gain (`permission_deferred`). [`hud_status`] passes
+//!   both on: the HUD screen explains and offers the first; for the second
+//!   it, Today and the tray say only that no supported client is running,
+//!   and ask for nothing. The
 //!   permission's TCC entry is the *responsible* process's - Rail.app,
 //!   which starts the sidecar - so it is granted to Rail, keyed by its
 //!   code signature: an ad-hoc signed build (development, CI) is a new
@@ -143,9 +148,11 @@ struct Windows {
     /// with each `attach_refused` heard since added at once.
     refused: Vec<RefusedDto>,
     remote_policy: bool,
-    /// (R3.11) A permission the HUD needs and does not have
-    /// (`accessibility` on macOS).
+    /// (R3.11) A permission the HUD needs and does not have, and granting
+    /// it would find tables now (`accessibility` on macOS).
     permission_needed: Option<String>,
+    /// (R3.11) Missing too, but no supported client runs: ask nothing.
+    permission_deferred: Option<String>,
 }
 
 impl Windows {
@@ -174,6 +181,7 @@ impl Windows {
                 .collect(),
             remote_policy: report.remote_policy,
             permission_needed: report.permission_needed.clone(),
+            permission_deferred: report.permission_deferred.clone(),
         }
     }
 
@@ -499,6 +507,7 @@ impl HudState {
             refused: windows.refused,
             remote_policy: windows.remote_policy,
             permission_needed: windows.permission_needed,
+            permission_deferred: windows.permission_deferred,
             store_open: health.store_open,
             platform: (!health.platform.is_empty()).then_some(health.platform),
             reread_p50_us: health.reread.p50_us,
@@ -561,6 +570,10 @@ pub fn tray_line(status: &HudStatusDto) -> String {
         // (R3.11) It runs but cannot see a table until the user grants it.
         _ if status.permission_needed.is_some() && status.tables_open == 0 => {
             text.hud_permission.to_owned()
+        }
+        // Nothing to gain from the permission now: a neutral line, no ask.
+        _ if status.permission_deferred.is_some() && status.tables_open == 0 => {
+            text.hud_no_client.to_owned()
         }
         _ => (text.hud_tables)(status.tables_open, count(status.refused.len())),
     }
@@ -854,8 +867,12 @@ pub struct HudStatusDto {
     /// (R3.10) The HUD's policy has the remote `sites.json` merged in.
     remote_policy: bool,
     /// (R3.11) A system permission the HUD needs to find tables and does
-    /// not have: `accessibility` on macOS. The HUD screen explains it.
+    /// not have: `accessibility` on macOS. Set only when granting it would
+    /// find tables now. The HUD screen explains it.
     permission_needed: Option<String>,
+    /// (R3.11) Missing, but no supported client runs: the screens say so
+    /// neutrally and ask for nothing.
+    permission_deferred: Option<String>,
     store_open: bool,
     platform: Option<String>,
     reread_p50_us: u64,
@@ -1252,8 +1269,26 @@ mod tests {
         );
         let told = heard.load(Ordering::SeqCst);
         assert!(told > before, "the window hears a permission is needed");
-        event(message(HudMessage::Health { seq: 4, report }));
+        // Deferred (no supported client) is news too.
+        let deferred = HealthReport {
+            permission_deferred: Some("accessibility".into()),
+            ..report.clone()
+        };
+        let told = heard.load(Ordering::SeqCst);
+        event(message(HudMessage::Health {
+            seq: 4,
+            report: deferred,
+        }));
         assert_eq!(shared.windows().permission_needed, None);
+        assert_eq!(
+            shared.windows().permission_deferred.as_deref(),
+            Some("accessibility")
+        );
+        assert!(heard.load(Ordering::SeqCst) > told);
+        let told = heard.load(Ordering::SeqCst);
+        event(message(HudMessage::Health { seq: 5, report }));
+        assert_eq!(shared.windows().permission_needed, None);
+        assert_eq!(shared.windows().permission_deferred, None);
         assert!(
             heard.load(Ordering::SeqCst) > told,
             "and that it was granted"
@@ -1301,6 +1336,15 @@ mod tests {
             ..status("starting", 0, 0)
         };
         assert_eq!(tray_line(&starting), "HUD starting…");
+        // Missing with no supported client running: neutral, no ask.
+        let idle = HudStatusDto {
+            permission_deferred: Some("accessibility".into()),
+            ..status("running", 0, 0)
+        };
+        assert_eq!(
+            tray_line(&idle),
+            "HUD on macOS: no supported poker client running"
+        );
         // Where it is granted: macOS's pane, nothing elsewhere or for
         // anything else.
         assert_eq!(

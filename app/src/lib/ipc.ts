@@ -950,9 +950,13 @@ export interface HudStatus {
   remotePolicy: boolean;
   /**
    * (R3.11) A system permission the HUD needs to find tables and does not
-   * have: `accessibility` on macOS (window titles). `null`: none missing.
+   * have: `accessibility` on macOS (window titles) - only when granting it
+   * would find tables now (a supported client runs, or the simulator's
+   * test entry is on). `null`: none missing, or nothing to gain.
    */
   permissionNeeded: string | null;
+  /** (R3.11) Missing, but no supported poker client runs: say so, ask nothing. */
+  permissionDeferred: string | null;
 }
 
 /** `rail_config::model::SiteKind`. */

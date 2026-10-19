@@ -149,6 +149,14 @@ fn window_server_path(pid: u32, seen: &Seen, matcher: &TableMatcher) {
         panic!("the window server's windows with the simulator's titles: {why}\n{tables:#?}");
     }
     eprintln!("step ok: the window server's three windows, joined with the simulator's titles");
+    // Which clients run is known without any permission (R3.11: whether
+    // asking for Accessibility would make a difference).
+    let running = macos::running_processes().expect("the running processes");
+    assert!(
+        running.iter().any(|p| same_process(p, "rail-hud-sim")),
+        "{running:?}"
+    );
+    eprintln!("step ok: the simulator is among the running processes, read without a permission");
 }
 
 /// Whether `found` agrees with the simulator: three tables of its
@@ -230,17 +238,32 @@ fn permission_path(matcher: &TableMatcher, title_regex: &str) {
     // No matcher, nothing to find: no permission asked for.
     assert_eq!(backend.find_tables(&[]), Ok(Vec::new()));
 
-    let mut engine = Engine::new(
-        Box::new(MacosBackend::default()),
-        Compliance::shipped().expect("shipped"),
-        StoreView::new(None),
-        Settings::default(),
-    );
-    engine.add_simulator_room("pokerstars", regex::Regex::new(title_regex).expect("regex"));
-    let health = engine.health();
+    let engine = || {
+        Engine::new(
+            Box::new(MacosBackend::default()),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(None),
+            Settings::default(),
+        )
+    };
+    // No supported client: the simulator runs, but no allowed room has a
+    // macOS matcher (none has a `tables` block) and no test entry is on -
+    // the permission is deferred, not offered: the app shows no card.
+    let mut plain = engine();
+    plain.tick(std::time::Instant::now(), &mut |_| {});
+    let health = plain.health();
+    assert_eq!(health.permission_needed, None);
+    assert_eq!(health.permission_deferred.as_deref(), Some("accessibility"));
+    eprintln!("step ok: without a supported client the permission is not offered (deferred)");
+    // The simulator's test entry: offered.
+    let mut posing = engine();
+    posing.add_simulator_room("pokerstars", regex::Regex::new(title_regex).expect("regex"));
+    posing.tick(std::time::Instant::now(), &mut |_| {});
+    let health = posing.health();
     assert_eq!(health.permission_needed.as_deref(), Some("accessibility"));
+    assert_eq!(health.permission_deferred, None);
     assert_eq!((health.platform.as_str(), health.attached), ("macos", 0));
-    eprintln!("step ok: the backend and the HUD's health say Accessibility is needed");
+    eprintln!("step ok: with the simulator's entry the HUD's health says Accessibility is needed");
 
     let listed = Command::new(env!("CARGO_BIN_EXE_rail-hud"))
         .args(["--list-windows", "--process", "rail-hud-sim", "--no-store"])

@@ -1246,12 +1246,14 @@ export const en = {
       stale:
         "Rail is already switched on in the list and this does not go away? Remove Rail from the list with the minus button and switch it on again: macOS can keep the permission for an older copy of Rail.",
       granted: "Accessibility permission granted: the HUD can see your tables.",
+      noClient: "HUD on macOS: no supported poker client running.",
     },
     today: {
       off: "HUD: not running",
       starting: "HUD: starting…",
       none: "HUD: no table open",
       permission: "HUD: needs the Accessibility permission",
+      noClient: "HUD on macOS: no supported poker client running",
       tables: (count: number) => (count === 1 ? "HUD: on 1 table" : `HUD: on ${n(count)} tables`),
       refused: (count: number, rooms: string) =>
         `${count === 1 ? "1 table" : `${n(count)} tables`} without it (${rooms}: not allowed)`,

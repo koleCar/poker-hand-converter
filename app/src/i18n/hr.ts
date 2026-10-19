@@ -1236,12 +1236,14 @@ export const hr: Dict = {
       stale:
         "Rail je u popisu već uključen, a ova poruka ne nestaje? Ukloni Rail iz popisa gumbom minus i ponovno ga uključi: macOS može čuvati dopuštenje za stariju kopiju Raila.",
       granted: "Dopuštenje Pristupačnost je dano: HUD vidi tvoje stolove.",
+      noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent.",
     },
     today: {
       off: "HUD: nije pokrenut",
       starting: "HUD: pokreće se…",
       none: "HUD: nema otvorenog stola",
       permission: "HUD: treba dopuštenje Pristupačnost",
+      noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent",
       tables: (count) => `HUD: na ${n(count)} ${plural(count, "stolu", "stola", "stolova")}`,
       refused: (count, rooms) =>
         `bez njega: ${n(count)} ${plural(count, "stol", "stola", "stolova")} (${rooms}: nije dopušteno)`,

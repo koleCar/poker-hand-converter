@@ -462,6 +462,36 @@ pub trait Platform {
     /// Only on the user's request, never unattended; a no-op where nothing
     /// is needed.
     fn request_permission(&mut self, _permission: Permission) {}
+
+    /// (R3.11) The executables of the processes that have an ordinary
+    /// window now, read without any permission (macOS: the window server's
+    /// list and `proc_pidpath`): whether asking for a missing permission
+    /// would find anything. `None`: the backend cannot tell.
+    fn running_processes(&mut self) -> Option<Vec<String>> {
+        None
+    }
+}
+
+/// (R3.11) Whether granting a missing permission would make a difference
+/// now: the test-only simulator entry is active, or one of `running` is a
+/// process of an allowed room's matcher (`allowed`: the matchers of rooms
+/// whose HUD is allowed - a room has one only with a `tables` block for this
+/// system). A backend that cannot tell (`None`) counts as yes when there is
+/// an allowed matcher at all.
+pub fn permission_matters(
+    running: Option<&[String]>,
+    allowed: &[TableMatcher],
+    test_entry: bool,
+) -> bool {
+    if test_entry {
+        return true;
+    }
+    match running {
+        Some(running) => running
+            .iter()
+            .any(|process| allowed.iter().any(|m| m.takes_process(process))),
+        None => !allowed.is_empty(),
+    }
 }
 
 /// This system's backend.
@@ -580,6 +610,32 @@ mod tests {
         assert_eq!(dpi_permille(120), 1250);
         assert_eq!(dpi_permille(192), 2000);
         assert_eq!(dpi_permille(0), 1000);
+    }
+
+    /// (R3.11) A missing permission is asked for only when it would find
+    /// something: a running client of an allowed room with a matcher, or the
+    /// simulator's test entry - never for a prohibited room's client, nor
+    /// with no supported client running.
+    #[test]
+    fn a_permission_matters_only_with_a_supported_client() {
+        let stars = TableMatcher {
+            site: "pokerstars".into(),
+            processes: vec!["PokerStars".into()],
+            title: Regex::new("^(?P<table>.+)$").expect("regex"),
+        };
+        let running = |names: &[&str]| names.iter().map(|n| (*n).to_owned()).collect::<Vec<_>>();
+        let browser = running(&["Safari", "Terminal"]);
+        let client = running(&["Safari", "pokerstars"]);
+        // No room has a macOS matcher today: nothing to ask for.
+        assert!(!permission_matters(Some(&client), &[], false));
+        let allowed = std::slice::from_ref(&stars);
+        assert!(!permission_matters(Some(&browser), allowed, false));
+        assert!(permission_matters(Some(&client), allowed, false));
+        // The simulator's test entry: always.
+        assert!(permission_matters(Some(&browser), &[], true));
+        // A backend that cannot tell: only if some allowed room could match.
+        assert!(permission_matters(None, &[stars], false));
+        assert!(!permission_matters(None, &[], false));
     }
 
     /// The stubs find nothing, so nothing is ever drawn by them. Windows'
