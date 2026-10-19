@@ -10,9 +10,13 @@
 //! an event, moves the pointer, reads a pixel of the screen or asks for a
 //! permission to.
 
+use std::ffi::c_void;
+use std::ptr::NonNull;
 use std::time::Duration;
 
-use objc2_core_foundation::{CGPoint, CGRect, CGSize};
+use objc2_app_kit::NSRunningApplication;
+use objc2_application_services::{AXError, AXUIElement, AXValue, AXValueType};
+use objc2_core_foundation::{CFRetained, CFString, CGPoint, CGRect, CGSize};
 use objc2_core_graphics::{
     CGBitmapContextCreate, CGBitmapContextGetBytesPerRow, CGBitmapContextGetData, CGColorSpace,
     CGContext, CGEvent, CGEventTapLocation, CGEventType, CGImage, CGImageAlphaInfo,
@@ -132,4 +136,83 @@ pub fn own_window_pixels(window: u32, at: &[(u32, u32)]) -> Option<Vec<[u8; 4]>>
             Some([bytes[0], bytes[1], bytes[2], bytes[3]])
         })
         .collect()
+}
+
+/// (R3.13) A window of another process, held through the Accessibility API
+/// so the tracking test can move and resize it the way a user's drag does
+/// (`AXPosition`, `AXSize`; the client applies each and answers): the
+/// macOS twin of the Windows test's `SetWindowPos`. Needs Accessibility;
+/// only the tests use it.
+#[derive(Debug)]
+pub struct AxHandle(CFRetained<AXUIElement>);
+
+/// (R3.13) Process `pid`'s window numbered `window` (the `CGWindowID`).
+pub fn ax_handle(pid: u32, window: u32) -> Result<AxHandle, String> {
+    let app = super::ffi::app_element(pid)?;
+    super::ffi::window_elements(&app)?
+        .into_iter()
+        .find(|e| super::ffi::window_id_of(e) == Some(window))
+        .map(AxHandle)
+        .ok_or_else(|| format!("no accessibility window #{window} in process {pid}"))
+}
+
+impl AxHandle {
+    /// The window's top-left to (`x`, `y`): thousandths of a point, the
+    /// global top-left space.
+    pub fn move_to(&self, x: i64, y: i64) -> Result<(), String> {
+        let at = point(x, y);
+        self.set("AXPosition", AXValueType::CGPoint, &at)
+    }
+
+    /// The window's size to `width` x `height` (thousandths of a point).
+    pub fn resize(&self, width: i64, height: i64) -> Result<(), String> {
+        let p = point(width, height);
+        let size = CGSize::new(p.x, p.y);
+        self.set("AXSize", AXValueType::CGSize, &size)
+    }
+
+    #[allow(unsafe_code)]
+    fn set<T>(&self, attribute: &'static str, kind: AXValueType, value: &T) -> Result<(), String> {
+        let pointer = NonNull::from(value).cast::<c_void>();
+        // SAFETY: `kind` names the type `value` is (a `CGPoint` for
+        // `CGPoint`, a `CGSize` for `CGSize`: the only two callers); the
+        // function copies it.
+        let value = unsafe { AXValue::new(kind, pointer) }.ok_or("AXValueCreate")?;
+        let name = CFString::from_static_str(attribute);
+        // SAFETY: the element, the name and the value are alive for the
+        // call.
+        let error = unsafe { self.0.set_attribute_value(&name, &value) };
+        if error == AXError::Success {
+            Ok(())
+        } else {
+            Err(format!("setting {attribute}: error {}", error.0))
+        }
+    }
+}
+
+/// (R3.13) Hide (`true`) or show process `pid`'s application, as Cmd-H and
+/// a click in the Dock do (`NSRunningApplication`): whether the system took
+/// the request.
+pub fn hide_app(pid: u32, hide: bool) -> bool {
+    let Ok(raw) = libc::pid_t::try_from(pid) else {
+        return false;
+    };
+    let asked = NSRunningApplication::runningApplicationWithProcessIdentifier(raw)
+        .is_some_and(|app| if hide { app.hide() } else { app.unhide() });
+    // CI's runner refused that request for the simulator; the Accessibility
+    // API's `AXHidden` (what a window manager sets) is the other way.
+    asked || ax_hidden(pid, hide)
+}
+
+/// (R3.13) Set the application's `AXHidden` (needs Accessibility).
+#[allow(unsafe_code)]
+fn ax_hidden(pid: u32, hide: bool) -> bool {
+    let Ok(app) = super::ffi::app_element(pid) else {
+        return false;
+    };
+    let name = CFString::from_static_str("AXHidden");
+    let value = objc2_core_foundation::CFBoolean::new(hide);
+    // SAFETY: the element, the name and the value are alive for the call.
+    let error = unsafe { app.set_attribute_value(&name, value) };
+    error == AXError::Success
 }

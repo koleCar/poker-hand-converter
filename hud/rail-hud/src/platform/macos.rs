@@ -3,8 +3,9 @@
 //! - **R3.11 `find_tables`** (done): two sources, joined.
 //!   1. **The window server's list**, `CGWindowListCopyWindowInfo`
 //!      (`OptionAll | ExcludeDesktopElements`: windows on screen *and* off
-//!      it - minimised, on another Space, of a hidden app), front to back:
-//!      the window number (`CGWindowID`, the [`WindowId`]), the owner's pid,
+//!      it - minimised, on another Space, of a hidden app; **not** in
+//!      z-order, which R3.12 found and R3.13 fixed: the order is
+//!      [`onscreen_order`]'s, [`z_ordered`]): the window number (`CGWindowID`, the [`WindowId`]), the owner's pid,
 //!      the bounds in points, the layer (0 = ordinary windows; menus,
 //!      panels and the menu bar are not) and whether it is on screen. Its
 //!      window *names* need Screen Recording since macOS 10.15 and are
@@ -31,7 +32,8 @@
 //!   managers and switchers of macOS use it for exactly this); without it,
 //!   the first window of the same process whose bounds equal the
 //!   accessibility frame within a point, in front-to-back order on both
-//!   sides - so two tables stacked at one place pair in z-order.
+//!   sides (the window server's side by the on-screen z-order, R3.13) -
+//!   so two tables stacked at one place pair in z-order.
 //!
 //!   **Client area**: the window's bounds less its title bar. A standard
 //!   window's buttons sit in the middle of its title bar, so the bar's
@@ -75,9 +77,21 @@
 //!   table's pixels, a layer's contents. AppKit has the main thread
 //!   ([`with_appkit`]); the engine runs beside it and hands it frames over
 //!   a [`Link`]. `appkit.rs` has the design.
-//! - **R3.13 `track` / `poll_events`**: an `AXObserver` per process (moved,
-//!   resized, miniaturised, destroyed, title changed), `CGWindowList`
-//!   polling as the fallback.
+//! - **R3.13 `track` / `poll_events`** (done; `observe.rs`): an
+//!   `AXObserver` per poker process on a thread of its own with its own
+//!   `CFRunLoop` - moved, resized, miniaturised, deminiaturised, destroyed
+//!   and title changed per window; window created, focus and main window
+//!   changed, activated, hidden and shown per application ([`AxNote`]).
+//!   Each notification reads the table from the window server
+//!   ([`tracked_geometry`]) and moves its overlay at once, before the
+//!   engine hears of it (coalesced, `tracking::events`); activation and
+//!   focus restack the overlays now; the active Space's change
+//!   (`NSWorkspace`, on the AppKit thread) makes every table be read
+//!   again; a client's exit (`kqueue`) removes its overlays. The engine's
+//!   re-find (`CGWindowList` and the Accessibility API every 500 ms) stays
+//!   as the fallback for a client with poor accessibility and never fights
+//!   the observers: what it reports otherwise makes them read the table
+//!   again rather than placing an overlay from a description.
 //!
 //! **`unsafe`** lives in `ffi`, `appkit` and `drive` only (compiled on
 //! macOS), one small function per call with its own `#[allow(unsafe_code)]`
@@ -86,7 +100,6 @@
 
 use std::collections::BTreeMap;
 
-#[cfg(target_os = "macos")]
 use super::tracking::Geometry;
 use super::{
     DpiAwareness, OverlayFrame, Permission, Platform, PlatformError, RawWindow, Rect, TableEvent,
@@ -99,6 +112,8 @@ mod appkit;
 pub mod drive;
 #[cfg(target_os = "macos")]
 mod ffi;
+#[cfg(target_os = "macos")]
+mod observe;
 
 /// Thousandths of a point per point: the unit of [`Frame`].
 pub const MILLI: i64 = 1000;
@@ -200,12 +215,18 @@ pub struct Display {
     pub scale_permille: u32,
 }
 
-/// What one look at the system saw: the window server's windows (front to
-/// back), the executables of their processes, the accessibility windows of
-/// the processes looked at, the displays (the main one first).
+/// What one look at the system saw: the window server's windows and their
+/// z-order, the executables of their processes, the accessibility windows
+/// of the processes looked at, the displays (the main one first).
 #[derive(Debug, Clone, Default)]
 pub struct Snapshot {
+    /// Every window, on screen or not: **not in z-order** (`OptionAll`
+    /// interleaves; R3.12 found it) - `order` is.
     pub cg: Vec<CgWindow>,
+    /// (R3.13) The on-screen windows' numbers front to back
+    /// ([`onscreen_order`]): what "front to back" means here. Empty: the
+    /// list's own order.
+    pub order: Vec<u32>,
     pub names: BTreeMap<u32, String>,
     /// Per pid whose windows were asked for: the accessibility windows, or
     /// why there are none.
@@ -308,8 +329,22 @@ fn dpi_of(scale_permille: u32) -> u32 {
     scale_permille.saturating_mul(96) / 1000
 }
 
+/// (R3.13) `windows` in z-order: those on screen as `order` lists them
+/// (front to back, [`onscreen_order`]), then the rest - off screen:
+/// minimised, on another Space, of a hidden app - in their own order.
+/// `cg_windows`' `OptionAll` list is **not** in z-order (R3.12), so it is
+/// never read as such. An empty `order` keeps the list's order.
+pub fn z_ordered<'a>(windows: &[&'a CgWindow], order: &[u32]) -> Vec<&'a CgWindow> {
+    let rank: BTreeMap<u32, usize> = order.iter().enumerate().map(|(i, id)| (*id, i)).collect();
+    let mut out = windows.to_vec();
+    // Stable: off-screen windows keep their relative order.
+    out.sort_by_key(|w| rank.get(&w.id).copied().unwrap_or(usize::MAX));
+    out
+}
+
 /// Which accessibility window each of one process's window-server windows
-/// is (`cg` and `ax` both front to back): by the window number the system
+/// is (`cg` in z-order - [`z_ordered`] - and `ax` front to back, as the
+/// Accessibility API lists an application's windows): by the window number the system
 /// gave, else the first unpaired window whose bounds equal the frame
 /// within a point. An accessibility window with a number that names none
 /// of `cg` is not paired by frame (the number is the truth).
@@ -356,6 +391,10 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
             .iter()
             .filter(|w| w.pid == *pid && w.layer == 0)
             .collect();
+        // (R3.13) Front to back by the on-screen order, never by the
+        // `OptionAll` list's: the frame fallback pairs stacked tables in
+        // z-order.
+        let windows = z_ordered(&windows, &snapshot.order);
         let pairs = pair(&windows, ax);
         for (cg, paired) in windows.iter().zip(pairs) {
             let (title, subrole, bar, minimized) = match paired.map(|a| &ax[a]) {
@@ -422,14 +461,26 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
             ));
         }
     }
-    // Front to back across processes, as the window server lists them.
-    let order: BTreeMap<u32, usize> = snapshot
+    // Front to back across processes (R3.13): the on-screen order, then
+    // the off-screen windows in the list's order.
+    let rank: BTreeMap<u32, usize> = snapshot
+        .order
+        .iter()
+        .enumerate()
+        .map(|(i, id)| (*id, i))
+        .collect();
+    let listed: BTreeMap<u32, usize> = snapshot
         .cg
         .iter()
         .enumerate()
         .map(|(i, w)| (w.id, i))
         .collect();
-    out.sort_by_key(|(id, _)| order.get(id).copied().unwrap_or(usize::MAX));
+    out.sort_by_key(|(id, _)| {
+        (
+            rank.get(id).copied().unwrap_or(usize::MAX),
+            listed.get(id).copied().unwrap_or(usize::MAX),
+        )
+    });
     out.into_iter().map(|(_, window)| window).collect()
 }
 
@@ -459,9 +510,24 @@ pub fn screen_recording_granted() -> bool {
     }
 }
 
-/// The window server's windows alone, front to back - bounds, pid, layer,
-/// on screen; no title (that is the Accessibility API's). Needs no
+/// (R3.13) One window as the window server has it now (bounds, layer, on
+/// screen), `None` once it is gone: what the observers read. Needs no
 /// permission. macOS only.
+pub fn window_now(id: u32) -> Option<CgWindow> {
+    #[cfg(target_os = "macos")]
+    {
+        ffi::cg_window(id)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = id;
+        None
+    }
+}
+
+/// The window server's windows alone - bounds, pid, layer, on screen; no
+/// title (that is the Accessibility API's). **Not in z-order** (R3.12):
+/// [`onscreen_order`] is. Needs no permission. macOS only.
 pub fn cg_windows() -> Result<Vec<CgWindow>, PlatformError> {
     #[cfg(target_os = "macos")]
     {
@@ -507,6 +573,8 @@ pub fn snapshot(wanted: &dyn Fn(&str) -> bool) -> Result<Snapshot, PlatformError
     #[cfg(target_os = "macos")]
     {
         let cg = ffi::cg_windows()?;
+        // (R3.13) The z-order, which the `OptionAll` list is not in.
+        let order = ffi::onscreen_order().unwrap_or_default();
         let mut names = BTreeMap::new();
         for window in cg.iter().filter(|w| w.layer == 0) {
             names
@@ -538,6 +606,7 @@ pub fn snapshot(wanted: &dyn Fn(&str) -> bool) -> Result<Snapshot, PlatformError
         names.retain(|_, name| !name.is_empty());
         Ok(Snapshot {
             cg,
+            order,
             names,
             ax,
             displays: ffi::displays(),
@@ -550,7 +619,8 @@ pub fn snapshot(wanted: &dyn Fn(&str) -> bool) -> Result<Snapshot, PlatformError
     }
 }
 
-/// Every ordinary window of the processes `wanted` takes, front to back,
+/// Every ordinary window of the processes `wanted` takes, front to back
+/// (the on-screen z-order, then the off-screen windows),
 /// titles through the Accessibility API (empty without the permission):
 /// what `--list-windows` prints. One look, nothing remembered. macOS only.
 pub fn enumerate(wanted: &dyn Fn(&str) -> bool) -> Result<Vec<RawWindow>, PlatformError> {
@@ -729,6 +799,320 @@ pub enum Mouse {
     Release(i32, i32),
 }
 
+// ---------------------------------------------------------------------
+// R3.13: following a table - what the accessibility observers' notes
+// mean and where a table is, read from the window server; plain Rust,
+// unit-tested on every system. `observe` (macOS) runs the observers.
+
+/// (R3.13) An accessibility notification the observers take: the first six
+/// on each tracked window's element, the rest on its application's.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AxNote {
+    /// `kAXWindowMovedNotification`: what AppKit posts for a window that
+    /// moved (CI's first run: `AXMoved` alone never came for the
+    /// simulator's windows).
+    WindowMoved,
+    /// `kAXWindowResizedNotification` (also full screen in and out).
+    WindowResized,
+    /// `kAXMovedNotification`: the generic element's move, registered too
+    /// for a client that posts it for its windows.
+    Moved,
+    /// `kAXResizedNotification`, likewise.
+    Resized,
+    /// `kAXWindowMiniaturizedNotification`.
+    Miniaturized,
+    /// `kAXWindowDeminiaturizedNotification`.
+    Deminiaturized,
+    /// `kAXUIElementDestroyedNotification`: the window closed.
+    Destroyed,
+    /// `kAXTitleChangedNotification`: a tournament table move.
+    TitleChanged,
+    /// `kAXWindowCreatedNotification` (the application): a table perhaps.
+    WindowCreated,
+    /// `kAXFocusedWindowChangedNotification` (the application).
+    FocusedWindowChanged,
+    /// `kAXMainWindowChangedNotification` (the application).
+    MainWindowChanged,
+    /// `kAXApplicationActivatedNotification`: its windows come forward.
+    Activated,
+    /// `kAXApplicationHiddenNotification` (Cmd-H).
+    Hidden,
+    /// `kAXApplicationShownNotification`.
+    Shown,
+}
+
+impl AxNote {
+    /// Registered on each tracked window's element.
+    pub const WINDOW: [Self; 8] = [
+        Self::WindowMoved,
+        Self::WindowResized,
+        Self::Moved,
+        Self::Resized,
+        Self::Miniaturized,
+        Self::Deminiaturized,
+        Self::Destroyed,
+        Self::TitleChanged,
+    ];
+
+    /// Registered on the application's element, once per process.
+    pub const APP: [Self; 6] = [
+        Self::WindowCreated,
+        Self::FocusedWindowChanged,
+        Self::MainWindowChanged,
+        Self::Activated,
+        Self::Hidden,
+        Self::Shown,
+    ];
+
+    /// The notification's name (`kAX...Notification`'s value).
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::WindowMoved => "AXWindowMoved",
+            Self::WindowResized => "AXWindowResized",
+            Self::Moved => "AXMoved",
+            Self::Resized => "AXResized",
+            Self::Miniaturized => "AXWindowMiniaturized",
+            Self::Deminiaturized => "AXWindowDeminiaturized",
+            Self::Destroyed => "AXUIElementDestroyed",
+            Self::TitleChanged => "AXTitleChanged",
+            Self::WindowCreated => "AXWindowCreated",
+            Self::FocusedWindowChanged => "AXFocusedWindowChanged",
+            Self::MainWindowChanged => "AXMainWindowChanged",
+            Self::Activated => "AXApplicationActivated",
+            Self::Hidden => "AXApplicationHidden",
+            Self::Shown => "AXApplicationShown",
+        }
+    }
+
+    /// A notification's name back; `None` for anything not observed.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::WINDOW
+            .into_iter()
+            .chain(Self::APP)
+            .find(|n| n.name() == name)
+    }
+
+    /// Whether it is about one window (else about the application).
+    pub fn about_window(self) -> bool {
+        Self::WINDOW.contains(&self)
+    }
+
+    /// What the observers do on it ([`Effect`]).
+    pub fn effect(self) -> Effect {
+        let none = Effect::default();
+        match self {
+            Self::WindowMoved | Self::Moved => Effect {
+                read: Read::Window,
+                settle: true,
+                ..none
+            },
+            Self::WindowResized | Self::Resized => Effect {
+                read: Read::Window,
+                title_bar: true,
+                settle: true,
+                ..none
+            },
+            Self::Miniaturized => Effect {
+                read: Read::Window,
+                minimized: Some(true),
+                ..none
+            },
+            Self::Deminiaturized => Effect {
+                read: Read::Window,
+                minimized: Some(false),
+                recheck: true,
+                ..none
+            },
+            Self::Destroyed => Effect { gone: true, ..none },
+            Self::TitleChanged => Effect {
+                title: true,
+                ..none
+            },
+            Self::WindowCreated => Effect {
+                appeared: true,
+                resolve: true,
+                ..none
+            },
+            Self::FocusedWindowChanged | Self::MainWindowChanged => Effect {
+                restack: true,
+                resolve: true,
+                ..none
+            },
+            Self::Activated => Effect {
+                read: Read::App,
+                restack: true,
+                resolve: true,
+                app_hidden: Some(false),
+                recheck: true,
+                ..none
+            },
+            Self::Hidden => Effect {
+                read: Read::App,
+                app_hidden: Some(true),
+                ..none
+            },
+            Self::Shown => Effect {
+                read: Read::App,
+                app_hidden: Some(false),
+                restack: true,
+                recheck: true,
+                ..none
+            },
+        }
+    }
+}
+
+/// (R3.13) Which tables a notification makes the observers read again.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Read {
+    #[default]
+    None,
+    /// The window it is about.
+    Window,
+    /// Every tracked window of its application.
+    App,
+}
+
+/// (R3.13) What the observers do on a notification.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Effect {
+    /// Read the table (the window server's bounds and on-screen flag) and
+    /// move its overlay at once.
+    pub read: Read,
+    /// Read the title bar again (the Accessibility API's close button and
+    /// full screen): the client area's top may have moved.
+    pub title_bar: bool,
+    /// Read the title (the room's matcher decides, `tracking::events`).
+    pub title: bool,
+    /// The window is minimised (`true`) or restored.
+    pub minimized: Option<bool>,
+    /// The application is hidden (`true`) or shown.
+    pub app_hidden: Option<bool>,
+    /// The window closed (when the window server agrees).
+    pub gone: bool,
+    /// A window appeared: the engine looks for tables now.
+    pub appeared: bool,
+    /// The application's windows may have come forward: put the overlays
+    /// back directly above their tables now.
+    pub restack: bool,
+    /// Look for tracked windows whose element was not found yet (a window
+    /// on another Space is not in `AXWindows` until it is on this one).
+    pub resolve: bool,
+    /// Read again a little later too: the window server may not show the
+    /// window yet when the notification comes (an animation).
+    pub recheck: bool,
+    /// A move or a resize: read again within the next frames until the
+    /// window server shows it ([`SETTLE`]).
+    pub settle: bool,
+}
+
+/// (R3.13) When the observers read a table again after a move or a resize:
+/// the client posts the notification before the window server's list shows
+/// the new place (CI: every move of the simulator's window read unchanged
+/// at the notification). Read from the window server only - never the
+/// client's own frame, which would mean asking a client busy with the drag
+/// (CI: 0.5 s timeouts) and could put an overlay ahead of a later, older
+/// window-server reading; the window server's list only moves forward.
+pub const SETTLE: [std::time::Duration; 6] = [
+    std::time::Duration::from_millis(2),
+    std::time::Duration::from_millis(5),
+    std::time::Duration::from_millis(10),
+    std::time::Duration::from_millis(20),
+    std::time::Duration::from_millis(40),
+    std::time::Duration::from_millis(100),
+];
+
+/// (R3.13) When the observers read a table again after a notification that
+/// may come before the window server shows the change (an animation).
+pub const RECHECKS: [std::time::Duration; 2] = [
+    std::time::Duration::from_millis(150),
+    std::time::Duration::from_millis(500),
+];
+
+/// (R3.13) How long a window counts as minimised after its
+/// `AXWindowMiniaturized` although the window server still shows it (the
+/// animation), as Windows' `MINIMIZESTART` hides the overlay early.
+pub const MINIMIZING: std::time::Duration = std::time::Duration::from_secs(2);
+
+/// (R3.13) Where a tracked table is, from the window server: its `bounds`
+/// (points) less `title_bar`, in pixels at the scale of the display it
+/// overlaps most - exactly what the find ([`assemble`]) makes of it, so the
+/// observers and the periodic re-find agree to the pixel. Minimised: the
+/// empty rect (as the find reports it); off screen (another Space, the app
+/// hidden) or `app_hidden`: hidden, the rect kept.
+pub fn tracked_geometry(
+    bounds: &Frame,
+    onscreen: bool,
+    title_bar: i64,
+    minimized: bool,
+    app_hidden: bool,
+    displays: &[Display],
+) -> Geometry {
+    let scale = display_scale(bounds, displays);
+    Geometry {
+        client: if minimized {
+            Rect::default()
+        } else {
+            to_pixels(&client_frame(bounds, title_bar), scale)
+        },
+        scale_permille: scale,
+        hidden: minimized || app_hidden || !onscreen,
+    }
+}
+
+/// (R3.13) The title bar of a window at `bounds` (points) whose client
+/// area the engine has as `client` (pixels at `scale_permille`): the
+/// distance between the two tops, whole points, within the window. What a
+/// table tracked without the find's memory (or before it) is read with.
+pub fn title_bar_between(bounds: &Frame, client: &Rect, scale_permille: u32) -> i64 {
+    let top = rect_points(client, scale_permille).y - bounds.y;
+    let whole = (top + MILLI / 2).div_euclid(MILLI) * MILLI;
+    whole.clamp(0, bounds.height.max(0))
+}
+
+/// (R3.13) How often the AppKit thread checks the overlays' stacking: with
+/// the observers putting overlays back on every activation and focus change
+/// of their tables' clients (`watched`) the check is only the safety net -
+/// a click on a table that raises it over its overlay without changing
+/// focus - and runs four times a second; an overlay whose client is not
+/// observed (no accessibility, or it refused the observer) keeps R3.12's
+/// ten times.
+pub fn restack_every(all_watched: bool) -> std::time::Duration {
+    std::time::Duration::from_millis(if all_watched { 250 } else { 100 })
+}
+
+/// (R3.13) What the observers' thread knows: for tests and diagnostics
+/// (`MacosBackend::tracker_info`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct TrackerInfo {
+    /// Per observed process: its pid, the application notifications
+    /// registered, and why the observer could not be made (if so).
+    pub processes: Vec<(u32, Vec<String>, Option<String>)>,
+    /// Per tracked table: whether its window's element was found, the
+    /// window notifications registered on it, the geometry last read.
+    pub tables: Vec<(WindowId, bool, Vec<String>, Option<Geometry>)>,
+    /// Notifications taken.
+    pub notes: u64,
+    /// How many of each (by name).
+    pub by_note: Vec<(String, u64)>,
+    /// Overlays moved, shown or hidden from a notification or a read.
+    pub follows: u64,
+    /// Reads asked for by the engine (its re-find saw something else).
+    pub resyncs: u64,
+    /// Space changes (every table read again).
+    pub space_changes: u64,
+    /// Processes seen exit.
+    pub exited: Vec<u32>,
+    /// Whether the thread may ask the Accessibility API (granted).
+    pub trusted: bool,
+    /// The observers' thread's CPU time so far, µs.
+    pub cpu_us: u64,
+    /// The longest a notification took to handle, µs.
+    pub slowest_note_us: u64,
+    /// The longest one reading of a table (the window server) took, µs.
+    pub slowest_read_us: u64,
+}
+
 /// (R3.12) The way from the engine's thread to the AppKit thread (the
 /// main thread, which owns every overlay window): `appkit::Link` on
 /// macOS; never made elsewhere.
@@ -768,19 +1152,26 @@ where
 /// The macOS backend.
 #[derive(Debug, Default)]
 pub struct MacosBackend {
-    /// Windows the engine follows (R3.13 observes them; until then the
-    /// engine's re-find does), as the engine last described them.
+    /// Windows the engine follows, as the engine was last told about them
+    /// (by `poll_events`, R3.13) or told the backend (`track`, `follow`).
     tracked: BTreeMap<WindowId, TableWindow>,
     /// Titles read, by window number: a table on another Space keeps its
     /// title.
     memory: BTreeMap<u32, Remembered>,
-    /// The matchers of the last find (a click's or drop's table is
-    /// checked against `tracked` only; R3.13's titles will need them).
+    /// The matchers of the last find: a new title is read with its room's
+    /// (`TableMatcher::matches`, R3.13's `Retitled`).
     matchers: Vec<TableMatcher>,
     /// (R3.12) The AppKit thread, which owns the overlays; `None`: this
     /// backend draws nothing (not the HUD process's main thread, or a
     /// backend made for finding only).
     link: Option<Link>,
+    /// (R3.13) The accessibility observers' thread, started with the first
+    /// tracked table.
+    #[cfg(target_os = "macos")]
+    tracker: Option<observe::Tracker>,
+    /// (R3.13) It could not be started (said once); the re-find follows.
+    #[cfg(target_os = "macos")]
+    tracker_failed: bool,
 }
 
 impl MacosBackend {
@@ -792,7 +1183,109 @@ impl MacosBackend {
             memory: BTreeMap::new(),
             matchers: Vec::new(),
             link,
+            #[cfg(target_os = "macos")]
+            tracker: None,
+            #[cfg(target_os = "macos")]
+            tracker_failed: false,
         }
+    }
+
+    /// (R3.13) What the observers' thread knows (`None` before the first
+    /// tracked table, or off macOS).
+    pub fn tracker_info(&self) -> Option<TrackerInfo> {
+        #[cfg(target_os = "macos")]
+        {
+            self.tracker.as_ref()?.info()
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            None
+        }
+    }
+
+    /// (R3.13) Every follow from a notification so far: µs from the
+    /// accessibility notification to the overlay moved, shown or hidden on
+    /// the AppKit thread (oldest first; the last 10 000).
+    pub fn follow_times_us(&self) -> Vec<u64> {
+        #[cfg(target_os = "macos")]
+        {
+            self.link
+                .as_ref()
+                .and_then(Link::follow_times)
+                .unwrap_or_default()
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            Vec::new()
+        }
+    }
+
+    /// (R3.13, tests) As if the user switched Spaces: the AppKit thread's
+    /// Space notification posted in this process only. Whether it was sent.
+    pub fn simulate_space_change(&self) -> bool {
+        #[cfg(target_os = "macos")]
+        {
+            self.link
+                .as_ref()
+                .is_some_and(|l| l.simulate_space_change().is_ok())
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            false
+        }
+    }
+
+    /// (R3.13) The AppKit thread's CPU time so far, µs.
+    pub fn appkit_cpu_us(&self) -> Option<u64> {
+        #[cfg(target_os = "macos")]
+        {
+            self.link.as_ref()?.cpu_us()
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            None
+        }
+    }
+
+    /// (R3.13) Active Space changes the AppKit thread saw.
+    pub fn space_changes(&self) -> Option<u64> {
+        #[cfg(target_os = "macos")]
+        {
+            self.link.as_ref()?.space_changes()
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            None
+        }
+    }
+
+    /// (R3.13) The title bar the find measured for window `id`, thousandths
+    /// of a point.
+    #[cfg(target_os = "macos")]
+    fn title_bar_of(&self, id: WindowId) -> Option<i64> {
+        let number = u32::try_from(id.0).ok()?;
+        self.memory.get(&number).map(|m| m.title_bar)
+    }
+
+    /// (R3.13) The observers' thread, started on first use; `None` when it
+    /// cannot be (said once): the engine's re-find follows the tables then.
+    #[cfg(target_os = "macos")]
+    fn tracker(&mut self) -> Option<&observe::Tracker> {
+        if self.tracker.is_none() && !self.tracker_failed {
+            match observe::Tracker::start(self.link.clone()) {
+                Ok(tracker) => {
+                    if let Some(link) = &self.link {
+                        let _ = link.on_space_change(tracker.space_changed());
+                    }
+                    self.tracker = Some(tracker);
+                }
+                Err(error) => {
+                    eprintln!("rail-hud: the accessibility observers: {error}");
+                    self.tracker_failed = true;
+                }
+            }
+        }
+        self.tracker.as_ref()
     }
 
     /// (R3.12) What the AppKit thread knows of a table's overlay, after
@@ -873,8 +1366,9 @@ impl MacosBackend {
         }
     }
 
-    /// (R3.12) The geometry an overlay follows: the window as the engine
-    /// describes it (R3.13's observers will read it themselves).
+    /// (R3.12) The engine's description of a window as an overlay's
+    /// geometry (R3.13: what the overlay is made at before the observers
+    /// read the table, and what a `Resync` tells them the engine knows).
     #[cfg(target_os = "macos")]
     fn geometry(window: &TableWindow) -> Geometry {
         Geometry {
@@ -913,45 +1407,81 @@ impl Platform for MacosBackend {
             .collect())
     }
 
-    /// Follow `window`: recorded (R3.13 adds the observers); its changes
-    /// reach the engine through its re-find meanwhile.
+    /// Follow `window`: (R3.13) its process observed - one `AXObserver`
+    /// per process, its window's notifications registered - and its
+    /// changes from `poll_events` from now on; the re-find stays the
+    /// safety net.
     fn track(&mut self, window: &TableWindow) -> Result<(), PlatformError> {
         if !cfg!(target_os = "macos") {
             return Err(PlatformError::Unsupported("tracking windows (macOS only)"));
         }
         self.tracked.insert(window.id, window.clone());
+        #[cfg(target_os = "macos")]
+        if let Some(pid) = window.process.pid {
+            let title_bar = self.title_bar_of(window.id);
+            if let Some(tracker) = self.tracker() {
+                tracker.track(
+                    window.id,
+                    pid,
+                    window.title.clone(),
+                    title_bar,
+                    Self::geometry(window),
+                );
+            }
+        }
         Ok(())
     }
 
     fn untrack(&mut self, id: WindowId) {
         self.remove_overlay(id);
         self.tracked.remove(&id);
+        #[cfg(target_os = "macos")]
+        if let Some(tracker) = &self.tracker {
+            tracker.untrack(id);
+        }
     }
 
-    /// The engine's view of a window (its re-find, until R3.13): the
-    /// overlay is moved (no repaint), repainted (a new client size or
-    /// scale) or hidden (minimised, another Space, the app hidden) to
-    /// match.
+    /// The engine's view of a window. What the observers reported is on
+    /// screen already (R3.13); anything else - the re-find saw a change
+    /// they did not report, or the backend was never told - makes them
+    /// read the table again: an overlay is never placed from a
+    /// description, which can be older than what they saw. Without the
+    /// observers' thread the overlay follows the description (R3.12).
     fn follow(&mut self, window: &TableWindow) {
         let Some(tracked) = self.tracked.get_mut(&window.id) else {
             return;
         };
+        let known = tracked.client == window.client
+            && tracked.scale_permille == window.scale_permille
+            && tracked.minimized == window.minimized;
         *tracked = window.clone();
         #[cfg(target_os = "macos")]
-        if let Some(link) = &self.link {
-            let _ = link.follow(window.id, Self::geometry(window));
+        {
+            let title_bar = self.title_bar_of(window.id);
+            if let Some(tracker) = &self.tracker {
+                if !known {
+                    tracker.resync(window.id, title_bar, Self::geometry(window));
+                }
+            } else if let Some(link) = &self.link {
+                let _ = link.follow(window.id, Self::geometry(window));
+            }
         }
+        #[cfg(not(target_os = "macos"))]
+        let _ = known;
     }
 
-    /// The panels clicked and dropped on the overlays since the last
-    /// poll, in order (R3.6 / R3.8), for tables the engine still follows.
+    /// What the observers saw (R3.13: moves, sizes, minimised and hidden
+    /// tables, titles through the room's matcher, closes, a window shown)
+    /// and the panels clicked and dropped on the overlays (R3.6 / R3.8)
+    /// since the last poll - one event per table and kind
+    /// ([`super::tracking::events`]), for tables the engine still follows.
     fn poll_events(&mut self) -> Vec<TableEvent> {
         #[cfg(target_os = "macos")]
         {
-            let Some(link) = &self.link else {
-                return Vec::new();
-            };
-            let observed = link.observed();
+            let mut observed = self.link.as_ref().map(Link::observed).unwrap_or_default();
+            if let Some(tracker) = &self.tracker {
+                observed.absorb(tracker.observed());
+            }
             if observed.is_empty() {
                 return Vec::new();
             }
@@ -1280,6 +1810,7 @@ mod tests {
     fn snapshot(cg: Vec<CgWindow>, ax: Vec<AxWindow>) -> Snapshot {
         Snapshot {
             cg,
+            order: Vec::new(),
             names: BTreeMap::from([(7, "rail-hud-sim".to_owned())]),
             ax: BTreeMap::from([(7, Ok(ax))]),
             displays: vec![RETINA, PLAIN],
@@ -1622,6 +2153,213 @@ mod tests {
             Stacking::Away
         );
         assert_eq!(stacking(&[], table, overlay, &hits), Stacking::Away);
+    }
+
+    /// (R3.13) The on-screen order, not the `OptionAll` list's, is z-order:
+    /// two tables stacked at one place pair by it (the frame fallback), and
+    /// the joined view lists them in it, off-screen windows last.
+    #[test]
+    fn z_order_is_the_onscreen_order() {
+        let here = Frame::points(10, 10, 640, 508);
+        // The `OptionAll` list has the back window first.
+        let back = cg(301, 7, here, true);
+        let front = cg(302, 7, here, true);
+        let away = cg(303, 7, Frame::points(900, 10, 640, 508), false);
+        let listed = [&away, &back, &front];
+        let order = [302, 55, 301];
+        let sorted: Vec<u32> = z_ordered(&listed, &order).iter().map(|w| w.id).collect();
+        assert_eq!(
+            sorted,
+            [302, 301, 303],
+            "on screen by z-order, then off screen"
+        );
+        assert_eq!(
+            z_ordered(&listed, &[])
+                .iter()
+                .map(|w| w.id)
+                .collect::<Vec<_>>(),
+            [303, 301, 302],
+            "no order: the list's own"
+        );
+        // Frames only: the accessibility list's front window pairs with
+        // the window server's front one.
+        let ax_list = [ax("front table", here), ax("back table", here)];
+        let mut snap = snapshot(
+            vec![away.clone(), back.clone(), front.clone()],
+            ax_list.to_vec(),
+        );
+        snap.order = order.to_vec();
+        let raw = assemble(&snap, &mut BTreeMap::new());
+        let titles: Vec<(u64, &str)> = raw.iter().map(|w| (w.id.0, w.title.as_str())).collect();
+        assert_eq!(titles, [(302, "front table"), (301, "back table")]);
+        // Without the order (R3.11's assumption) the pairing is the wrong
+        // way round: what this fixes.
+        let snap = snapshot(vec![away, back, front], ax_list.to_vec());
+        let raw = assemble(&snap, &mut BTreeMap::new());
+        assert_eq!(raw[0].id.0, 301);
+        assert_eq!(raw[0].title, "front table");
+    }
+
+    /// (R3.13) The notifications observed, each once, by name; what each
+    /// makes the observers do.
+    #[test]
+    fn what_a_notification_does() {
+        let all: Vec<AxNote> = AxNote::WINDOW.into_iter().chain(AxNote::APP).collect();
+        for note in &all {
+            assert_eq!(AxNote::from_name(note.name()), Some(*note));
+            assert_eq!(note.about_window(), AxNote::WINDOW.contains(note));
+        }
+        let mut names: Vec<&str> = all.iter().map(|n| n.name()).collect();
+        names.sort_unstable();
+        names.dedup();
+        assert_eq!(names.len(), 14, "fourteen distinct notifications");
+        assert_eq!(AxNote::from_name("AXValueChanged"), None);
+        assert_eq!(AxNote::from_name("AXFocusedUIElementChanged"), None);
+
+        // A move reads the window only; nothing else.
+        assert_eq!(AxNote::WindowMoved.effect(), AxNote::Moved.effect());
+        assert_eq!(AxNote::WindowResized.effect(), AxNote::Resized.effect());
+        let moved = AxNote::WindowMoved.effect();
+        assert_eq!(moved.read, Read::Window);
+        assert!(!moved.title_bar && !moved.restack && !moved.recheck && !moved.gone);
+        // ... and again over the next frames, until the window server
+        // shows the move.
+        assert!(moved.settle && AxNote::WindowResized.effect().settle);
+        assert!(!AxNote::TitleChanged.effect().settle);
+        assert!(SETTLE.windows(2).all(|w| w[0] < w[1]));
+        // A resize reads the title bar again too (full screen has none).
+        assert!(AxNote::Resized.effect().title_bar);
+        assert_eq!(AxNote::Miniaturized.effect().minimized, Some(true));
+        let restored = AxNote::Deminiaturized.effect();
+        assert_eq!(restored.minimized, Some(false));
+        assert!(restored.recheck, "the window server may lag the animation");
+        let destroyed = AxNote::Destroyed.effect();
+        assert!(destroyed.gone && destroyed.read == Read::None);
+        assert!(AxNote::TitleChanged.effect().title);
+        let created = AxNote::WindowCreated.effect();
+        assert!(created.appeared && created.resolve);
+        // Activation and focus: the overlays go back above their tables
+        // now; activation also shows a hidden app's.
+        for note in [
+            AxNote::FocusedWindowChanged,
+            AxNote::MainWindowChanged,
+            AxNote::Activated,
+        ] {
+            assert!(note.effect().restack, "{note:?}");
+        }
+        assert_eq!(AxNote::Activated.effect().app_hidden, Some(false));
+        assert_eq!(AxNote::Activated.effect().read, Read::App);
+        let hidden = AxNote::Hidden.effect();
+        assert_eq!((hidden.read, hidden.app_hidden), (Read::App, Some(true)));
+        let shown = AxNote::Shown.effect();
+        assert_eq!((shown.read, shown.app_hidden), (Read::App, Some(false)));
+        assert!(shown.recheck && shown.restack);
+        // Only the window's own notifications act on one window.
+        for note in all {
+            if note.effect().read == Read::Window
+                || note.effect().gone
+                || note.effect().title
+                || note.effect().minimized.is_some()
+            {
+                assert!(note.about_window(), "{note:?}");
+            }
+        }
+    }
+
+    /// (R3.13) A table read from the window server is what the find makes
+    /// of it: the same client rect at the same scale; minimised is the
+    /// empty rect, off screen (another Space) and a hidden app are hidden
+    /// with the rect kept - what `tracking::plan` orders out.
+    #[test]
+    fn a_table_read_by_the_observers() {
+        let displays = [RETINA, PLAIN];
+        let bounds = Frame::points(10, 30, 640, 508);
+        let bar = 28 * MILLI;
+        let on = tracked_geometry(&bounds, true, bar, false, false, &displays);
+        // The find's view of the same window (`assemble`).
+        let mut memory = BTreeMap::new();
+        let raw = assemble(
+            &snapshot(
+                vec![cg(202, 7, bounds, true)],
+                vec![ax("T - 6-max", bounds)],
+            ),
+            &mut memory,
+        );
+        assert_eq!(on.client, raw[0].client);
+        assert_eq!(on.scale_permille, 2000);
+        assert!(!on.hidden && on.shows());
+        // Another Space: hidden, the rect kept (the overlay is ordered out
+        // and comes back where it was).
+        let away = tracked_geometry(&bounds, false, bar, false, false, &displays);
+        assert!(away.hidden && !away.shows());
+        assert_eq!(away.client, on.client);
+        // Minimised: the find's empty rect.
+        let min = tracked_geometry(&bounds, false, bar, true, false, &displays);
+        assert!(min.hidden);
+        assert_eq!(min.client, Rect::default());
+        // The app hidden (Cmd-H) - even while the window server still
+        // shows it.
+        assert!(tracked_geometry(&bounds, true, bar, false, true, &displays).hidden);
+        // On the plain display: 1x.
+        let right = tracked_geometry(
+            &Frame::points(1600, 30, 640, 508),
+            true,
+            bar,
+            false,
+            false,
+            &displays,
+        );
+        assert_eq!(right.scale_permille, 1000);
+        assert_eq!(right.client.x, 1600);
+        // Full screen: no title bar, the whole window.
+        let full = tracked_geometry(&bounds, true, 0, false, false, &displays);
+        assert_eq!(full.client.height, 1016);
+        // The title bar recovered from the engine's client rect.
+        assert_eq!(title_bar_between(&bounds, &on.client, 2000), bar);
+        assert_eq!(title_bar_between(&bounds, &full.client, 2000), 0);
+        let wild = Rect {
+            y: -5000,
+            ..on.client
+        };
+        assert_eq!(title_bar_between(&bounds, &wild, 2000), 0, "never negative");
+    }
+
+    /// (R3.13) A Space change, as the observers' thread handles it: every
+    /// table read again - the one now on another Space hidden, the one on
+    /// this Space shown - and `tracking::plan` orders the overlays out
+    /// and in; nothing is repainted.
+    #[test]
+    fn a_space_change_hides_and_shows() {
+        use super::super::tracking::{Placed, Plan, plan};
+        let displays = [PLAIN];
+        let bounds = Frame::points(100, 100, 640, 512);
+        let bar = 32 * MILLI;
+        let here = tracked_geometry(&bounds, true, bar, false, false, &displays);
+        let placed = Placed {
+            shown: true,
+            at: (here.client.x, here.client.y),
+            painted: Some(here.size()),
+        };
+        // Switched away: the table is off screen now.
+        let gone = tracked_geometry(&bounds, false, bar, false, false, &displays);
+        assert_eq!(plan(&placed, &gone, false), Plan::Hide);
+        // Switched back: shown where it was, not repainted.
+        let hidden = Placed {
+            shown: false,
+            ..placed
+        };
+        assert_eq!(plan(&hidden, &here, false), Plan::Show);
+        // Nothing changed for a table on neither: kept.
+        assert_eq!(plan(&placed, &here, false), Plan::Keep);
+    }
+
+    /// (R3.13) The stacking look slows down only when every shown overlay's
+    /// client is observed.
+    #[test]
+    fn the_stacking_look_slows_when_observed() {
+        assert!(restack_every(true) > restack_every(false));
+        assert_eq!(restack_every(false), std::time::Duration::from_millis(100));
+        assert!(restack_every(true) <= std::time::Duration::from_millis(250));
     }
 
     /// Off macOS the backend finds nothing and asks for nothing.

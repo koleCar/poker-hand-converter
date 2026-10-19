@@ -731,10 +731,32 @@ impl Hud {
                 found
             }
             Err(error) => {
+                let revoked = matches!(error, crate::platform::PlatformError::PermissionNeeded(_));
                 let error = error.to_string();
                 if self.last_find_error.as_ref() != Some(&error) {
                     eprintln!("rail-hud: finding tables: {error}");
                     self.last_find_error = Some(error);
+                }
+                // (R3.13) The permission was taken away while tables were
+                // attached (macOS: Accessibility switched off): no title
+                // can be read any more, so none of them is known to be the
+                // table it was - detach them all (their overlays go) rather
+                // than draw over stale tables. The health answer says the
+                // permission is needed (R3.11's rule: only when it would
+                // find something), and the next look after a grant attaches
+                // again.
+                if revoked && !self.attached.is_empty() {
+                    let ids: Vec<WindowId> = self.attached.keys().copied().collect();
+                    eprintln!(
+                        "rail-hud: the permission to read window titles is gone: detaching {} \
+                         table(s)",
+                        ids.len()
+                    );
+                    for id in ids {
+                        self.detach(id);
+                    }
+                    self.refused.clear();
+                    self.report_open(out);
                 }
                 return;
             }
@@ -1905,6 +1927,9 @@ mod tests {
     struct Locked {
         granted: std::rc::Rc<std::cell::Cell<bool>>,
         asked: std::rc::Rc<std::cell::Cell<u32>>,
+        /// (R3.13) Overlays removed and windows untracked.
+        removed: std::rc::Rc<std::cell::Cell<u32>>,
+        untracked: std::rc::Rc<std::cell::Cell<u32>>,
     }
 
     impl Platform for Locked {
@@ -1926,7 +1951,9 @@ mod tests {
         fn track(&mut self, _: &TableWindow) -> Result<(), crate::platform::PlatformError> {
             Ok(())
         }
-        fn untrack(&mut self, _: WindowId) {}
+        fn untrack(&mut self, _: WindowId) {
+            self.untracked.set(self.untracked.get() + 1);
+        }
         fn poll_events(&mut self) -> Vec<TableEvent> {
             Vec::new()
         }
@@ -1937,7 +1964,9 @@ mod tests {
         ) -> Result<(), crate::platform::PlatformError> {
             Ok(())
         }
-        fn remove_overlay(&mut self, _: WindowId) {}
+        fn remove_overlay(&mut self, _: WindowId) {
+            self.removed.set(self.removed.get() + 1);
+        }
         fn permission_needed(&self) -> Option<Permission> {
             (!self.granted.get()).then_some(Permission::Accessibility)
         }
@@ -2020,6 +2049,45 @@ mod tests {
         assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
         hud.handle(request("accessibility"), &mut |_| {});
         assert_eq!(asked.get(), 1, "not asked once granted");
+    }
+
+    /// (R3.13) The permission taken away while a table is attached (the
+    /// system's "API disabled" from every accessibility call, here the
+    /// backend's `PermissionNeeded`): the table is detached and its overlay
+    /// removed at the next look, the app hears no table is open, the
+    /// health answer says the permission is needed (a client is attached -
+    /// it would matter) and nothing prompts; granted again, the next look
+    /// attaches.
+    #[test]
+    fn a_revoked_permission_detaches_every_table() {
+        let backend = Locked::default();
+        let (granted, asked) = (backend.granted.clone(), backend.asked.clone());
+        let (removed, untracked) = (backend.removed.clone(), backend.untracked.clone());
+        granted.set(true);
+        let mut hud = locked_hud(backend);
+        hud.add_simulator_room(
+            "pokerstars",
+            regex::Regex::new("^(?P<table>.+) - ").expect("regex"),
+        );
+        assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
+        assert_eq!(hud.health().attached, 1);
+
+        granted.set(false);
+        assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 0 }]);
+        assert_eq!(hud.health().attached, 0);
+        assert_eq!((removed.get(), untracked.get()), (1, 1), "overlay gone");
+        assert_eq!(
+            hud.health().permission_needed.as_deref(),
+            Some("accessibility")
+        );
+        assert_eq!(asked.get(), 0, "never prompted unattended");
+        // Still revoked: nothing more to detach, nothing said.
+        assert!(step(&mut hud).is_empty());
+        assert_eq!(removed.get(), 1);
+
+        granted.set(true);
+        assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
+        assert_eq!(hud.health().permission_needed, None);
     }
 
     /// A backend with hooks (Windows since R3.5): its events, and how many

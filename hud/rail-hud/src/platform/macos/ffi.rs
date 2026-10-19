@@ -1,5 +1,7 @@
-//! The macOS calls (R3.11): Core Graphics' window list and displays, the
-//! Accessibility API's windows, `proc_pidpath`. Each function is one
+//! The macOS calls (R3.11; R3.13: one window's state, the elements the
+//! observers register on, a thread's CPU time): Core Graphics' window list
+//! and displays, the Accessibility API's windows, `proc_pidpath`. Each
+//! function is one
 //! concern and allows `unsafe` for itself only, with a `// SAFETY:` comment
 //! per block. What they return is plain Rust ([`super::CgWindow`],
 //! [`super::AxWindow`], [`super::Display`]); everything that decides is in
@@ -23,6 +25,7 @@ use objc2_application_services::{
 };
 use objc2_core_foundation::{
     CFArray, CFBoolean, CFDictionary, CFNumber, CFRetained, CFString, CFType, CGPoint, CGSize,
+    Type as _,
 };
 use objc2_core_graphics::{
     CGDirectDisplayID, CGDisplayBounds, CGDisplayCopyDisplayMode, CGDisplayMode, CGError,
@@ -99,17 +102,36 @@ fn keys() -> Keys {
     }
 }
 
-/// Every window the window server knows, front to back: on screen or not
-/// (minimised, on another Space, an app hidden). Bounds, owner and layer
+/// Every window the window server knows, on screen or not (minimised, on
+/// another Space, an app hidden) - **not in z-order** (`OptionAll`
+/// interleaves; [`onscreen_order`] is the order, R3.12 / R3.13). Bounds, owner and layer
 /// only - the window *names* in this list need Screen Recording since
 /// macOS 10.15 and are never read.
-#[allow(unsafe_code)]
 pub(super) fn cg_windows() -> Result<Vec<CgWindow>, PlatformError> {
     let list = CGWindowListCopyWindowInfo(
         CGWindowListOption::OptionAll | CGWindowListOption::ExcludeDesktopElements,
         kCGNullWindowID,
     )
     .ok_or_else(|| PlatformError::Os("CGWindowListCopyWindowInfo gave nothing".to_owned()))?;
+    Ok(windows_of(list))
+}
+
+/// (R3.13) One window as the window server has it now - bounds, layer, on
+/// screen -, `None` once it is gone. What the observers read on every
+/// notification: no message to the window's application (a busy client
+/// cannot delay it) and no permission. `OptionIncludingWindow` alone
+/// answers for a window on screen only (measured: a minimised one is not
+/// listed), so an off-screen window - minimised, on another Space, of a
+/// hidden app - is looked for in the whole list (a few ms; rare).
+pub(super) fn cg_window(id: u32) -> Option<CgWindow> {
+    let one = CGWindowListCopyWindowInfo(CGWindowListOption::OptionIncludingWindow, id)
+        .and_then(|list| windows_of(list).into_iter().find(|w| w.id == id));
+    one.or_else(|| cg_windows().ok()?.into_iter().find(|w| w.id == id))
+}
+
+/// A window list's descriptions as [`CgWindow`]s (names never read).
+#[allow(unsafe_code)]
+fn windows_of(list: CFRetained<CFArray>) -> Vec<CgWindow> {
     // SAFETY: `CGWindowListCopyWindowInfo` documents its result as an
     // array of dictionaries whose keys are CFStrings (the `kCGWindow*`
     // constants); the values are read as `CFType` and checked with
@@ -153,7 +175,7 @@ pub(super) fn cg_windows() -> Result<Vec<CgWindow>, PlatformError> {
             onscreen,
         });
     }
-    Ok(out)
+    out
 }
 
 /// (R3.12) The window numbers on screen, **front to back**
@@ -361,7 +383,7 @@ fn get_window_fn() -> Option<GetWindow> {
 }
 
 #[allow(unsafe_code)]
-fn window_id_of(element: &AXUIElement) -> Option<u32> {
+pub(super) fn window_id_of(element: &AXUIElement) -> Option<u32> {
     let get = get_window_fn()?;
     let mut id = 0u32;
     // SAFETY: `element` is a live accessibility element for the call and
@@ -377,15 +399,33 @@ fn window_id_of(element: &AXUIElement) -> Option<u32> {
 /// are listed - a window on another Space is the window server's alone.
 /// `Err` when the process cannot be asked (not trusted, no such app, it
 /// did not answer in time).
-#[allow(unsafe_code)]
 pub(super) fn ax_windows(pid: u32) -> Result<Vec<AxWindow>, String> {
+    let app = app_element(pid)?;
+    Ok(window_elements(&app)?
+        .iter()
+        .map(|window| ax_window(window))
+        .collect())
+}
+
+/// The accessibility element of process `pid`'s application, its requests
+/// limited to [`AX_TIMEOUT_S`]. A pid that is no app gives an element whose
+/// calls fail.
+#[allow(unsafe_code)]
+pub(super) fn app_element(pid: u32) -> Result<CFRetained<AXUIElement>, String> {
     let pid = libc::pid_t::try_from(pid).map_err(|e| e.to_string())?;
-    // SAFETY: creating an application element has no memory preconditions;
-    // a pid that is no app gives an element whose calls fail.
+    // SAFETY: creating an application element has no memory preconditions.
     let app = unsafe { AXUIElement::new_application(pid) };
     // SAFETY: sets the timeout on our own element object; no pointers.
     let _ = unsafe { app.set_messaging_timeout(AX_TIMEOUT_S) };
-    let windows = attribute(&app, "AXWindows").ok_or("no AXWindows (refused or timed out)")?;
+    Ok(app)
+}
+
+/// (R3.13) An application's windows (`AXWindows`, front to back) as
+/// elements, each with the [`AX_TIMEOUT_S`] limit: what the observers
+/// register on.
+#[allow(unsafe_code)]
+pub(super) fn window_elements(app: &AXUIElement) -> Result<Vec<CFRetained<AXUIElement>>, String> {
+    let windows = attribute(app, "AXWindows").ok_or("no AXWindows (refused or timed out)")?;
     let windows = windows
         .downcast_ref::<CFArray>()
         .ok_or("AXWindows is not an array")?;
@@ -400,17 +440,49 @@ pub(super) fn ax_windows(pid: u32) -> Result<Vec<AxWindow>, String> {
         let Some(window) = window.downcast_ref::<AXUIElement>() else {
             continue;
         };
-        let close_button = attribute(window, "AXCloseButton")
-            .and_then(|b| b.downcast_ref::<AXUIElement>().and_then(frame_of));
-        out.push(AxWindow {
-            title: string_of(window, "AXTitle").unwrap_or_default(),
-            frame: frame_of(window),
-            minimized: bool_of(window, "AXMinimized").unwrap_or(false),
-            fullscreen: bool_of(window, "AXFullScreen").unwrap_or(false),
-            subrole: string_of(window, "AXSubrole").unwrap_or_default(),
-            close_button,
-            window_id: window_id_of(window),
-        });
+        // SAFETY: sets the timeout on an element we hold; no pointers.
+        let _ = unsafe { window.set_messaging_timeout(AX_TIMEOUT_S) };
+        out.push(window.retain());
     }
     Ok(out)
+}
+
+/// One accessibility window's description: title, frame, minimised, full
+/// screen, subrole, the close button's frame (the title bar), and the
+/// `CGWindowID` where the system says it.
+pub(super) fn ax_window(window: &AXUIElement) -> AxWindow {
+    let close_button = attribute(window, "AXCloseButton")
+        .and_then(|b| b.downcast_ref::<AXUIElement>().and_then(frame_of));
+    AxWindow {
+        title: string_of(window, "AXTitle").unwrap_or_default(),
+        frame: frame_of(window),
+        minimized: bool_of(window, "AXMinimized").unwrap_or(false),
+        fullscreen: bool_of(window, "AXFullScreen").unwrap_or(false),
+        subrole: string_of(window, "AXSubrole").unwrap_or_default(),
+        close_button,
+        window_id: window_id_of(window),
+    }
+}
+
+/// (R3.13) The calling thread's CPU time so far, µs
+/// (`CLOCK_THREAD_CPUTIME_ID`): what following the tables costs, measured
+/// on the observers' and the AppKit thread themselves.
+#[allow(unsafe_code)]
+pub(super) fn thread_cpu_us() -> u64 {
+    let mut now = libc::timespec {
+        tv_sec: 0,
+        tv_nsec: 0,
+    };
+    // SAFETY: `now` is a valid out pointer for one `timespec`.
+    let r = unsafe { libc::clock_gettime(libc::CLOCK_THREAD_CPUTIME_ID, &raw mut now) };
+    if r != 0 {
+        return 0;
+    }
+    u64::try_from(now.tv_sec).unwrap_or(0) * 1_000_000
+        + u64::try_from(now.tv_nsec).unwrap_or(0) / 1000
+}
+
+/// (R3.13) A window's title now (`AXTitle`), `None` when it did not answer.
+pub(super) fn title_of(window: &AXUIElement) -> Option<String> {
+    string_of(window, "AXTitle")
 }

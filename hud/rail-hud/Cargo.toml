@@ -76,8 +76,16 @@ windows = { version = "=0.61.3", features = [
 # (Tauri's tao and wry use them): no new crate, only features and the
 # edges to them. `CGEvent` posts real clicks for the overlay test only
 # (`platform::macos::drive`).
+#
+# (R3.13) Tracking: an `AXObserver` per poker process on a thread of its
+# own with its own `CFRunLoop` (`CFRunLoop`, `CFDate` for
+# `CFRunLoopRunInMode`); `NSWorkspace`'s Space notification with a block
+# (`block2`, `NSNotification`, `NSOperation` for the observer call's
+# signature); `libc`'s `kqueue` for the clients' exits. `block2` 0.6.2 is
+# in Cargo.lock already (objc2's): again no new crate.
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "=0.2.190"
+block2 = { version = "=0.6.2", default-features = false, features = ["std"] }
 dispatch2 = { version = "=0.3.1", default-features = false, features = ["std"] }
 objc2 = { version = "=0.6.5", default-features = false, features = ["std"] }
 objc2-app-kit = { version = "=0.3.2", default-features = false, features = [
@@ -92,6 +100,8 @@ objc2-app-kit = { version = "=0.3.2", default-features = false, features = [
   "NSRunningApplication",
   "NSView",
   "NSWindow",
+  "NSWorkspace",
+  "libc",
   "objc2-core-foundation",
   "objc2-quartz-core",
 ] }
@@ -109,8 +119,10 @@ objc2-core-foundation = { version = "=0.3.2", default-features = false, features
   "CFArray",
   "CFAttributedString",
   "CFCGTypes",
+  "CFDate",
   "CFDictionary",
   "CFNumber",
+  "CFRunLoop",
   "CFString",
 ] }
 objc2-core-graphics = { version = "=0.3.2", default-features = false, features = [
@@ -138,11 +150,14 @@ objc2-core-text = { version = "=0.3.2", default-features = false, features = [
 ] }
 objc2-foundation = { version = "=0.3.2", default-features = false, features = [
   "std",
+  "block2",
   "NSArray",
   "NSDate",
   "NSEnumerator",
   "NSGeometry",
+  "NSNotification",
   "NSObjCRuntime",
+  "NSOperation",
   "NSRunLoop",
   "NSString",
   "NSValue",
@@ -167,4 +182,10 @@ rail-hud-sim = { path = "../rail-hud-sim" }
 # (libtest runs tests on other threads). Elsewhere it says it skipped.
 [[test]]
 name = "macos_overlay"
+harness = false
+
+# (R3.13) The macOS tracking test: the observers moving the overlays of the
+# simulator's tables (AppKit again: its own `main`).
+[[test]]
+name = "macos_tracking"
 harness = false

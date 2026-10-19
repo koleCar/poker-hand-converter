@@ -230,6 +230,14 @@ jobs:
   # drag; with the Accessibility permission real clicks, the HUD process
   # drawing on an allowed room and making no window on a prohibited one,
   # and the popup through the supervisor.
+  # And R3.13's hud/rail-hud/tests/macos_tracking.rs (its own `main` too):
+  # without a permission, a wrong description never placing an overlay, a
+  # (simulated) Space change re-reading every table, a killed simulator's
+  # overlays gone at once; with Accessibility, the observers - a scripted
+  # drag and 100 moves in 1 s followed move by move (lag, CPU), resize,
+  # minimise / restore, focus restacking, a real click, a table move, the
+  # application hidden and shown, a close - and the HUD process following
+  # the simulator's tracking script.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -345,6 +353,19 @@ jobs:
       - name: HUD overlays on macOS, twelve tables (measurement)
         if: matrix.os == 'macos-latest'
         run: cargo test -p rail-hud --test macos_overlay --locked -- --perf --nocapture
+
+      # R3.13's macOS tracking test again, with its output: the `R3.13:`
+      # lines say whether the observers ran (Accessibility) and what was
+      # skipped or simulated (a Space switch); the `R3.13 drag` / `storm` /
+      # `focus` / `click` / `hide` / `exit` lines are the measurements.
+      # Correctness (every table followed, never back, never hidden, no CPU
+      # spike) and the typical lag (p50 under two frames) are gated here;
+      # the storm's p95 is printed, not gated: the runner's virtual window
+      # server stalls a reading for ~0.5 s now and then. R3.14 gates it at
+      # three frames on real hardware (`RAIL_HUD_REAL_HW=1`).
+      - name: HUD tracking on macOS (steps and measurement)
+        if: matrix.os == 'macos-latest'
+        run: cargo test -p rail-hud --test macos_tracking --locked -- --nocapture
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'

@@ -31,8 +31,24 @@
 //!   a note), and then Esc or a click elsewhere closes it. Limits: an
 //!   unfocused popup cannot see a click on the table (the overlay is
 //!   click-through there), so it closes when the pointer leaves it, not on
-//!   that click; macOS (R3.11 - R3.13) is not wired yet - a non-activating
-//!   `NSPanel` would be the equivalent there.
+//!   that click.
+//! - **macOS** (R3.13). The same window, the same rules, placed in
+//!   **points**: the HUD's anchor is in "physical pixels" (points times the
+//!   backing scale of the table's screen, R3.11), so it is divided by the
+//!   table's scale, the work area of the screen it is on is read in that
+//!   screen's points, and the popup is sized and placed with logical
+//!   (point) units - a physical position would be read at the scale of the
+//!   screen the popup window happens to be on ([`placement`]). Not
+//!   activating, as far as macOS allows a Tauri window: it is shown
+//!   unfocused (`makeKeyAndOrderFront` on an inactive app orders it front
+//!   and makes it the app's key window *for when Rail is activated*,
+//!   without activating Rail), so the poker client keeps the keyboard; it
+//!   floats above the tables (`always_on_top`). A click into it activates
+//!   Rail - the system's rule for a window that is not a non-activating
+//!   `NSPanel`, which a Tauri window cannot be - and a click back on the
+//!   table then closes it (it lost the keyboard). Limit: over a table in
+//!   full screen (its own Space) the popup opens on the desktop's Space
+//!   (no `FullScreenAuxiliary` without native code in the app: R3.14).
 //! - **What a room allows** ([`PopupRules`], from the shipped `sites.json`'s
 //!   `hud.restrictions` - the same the HUD's renderer enforces): a room
 //!   whose HUD is not allowed opens nothing. Statistics from the user's own
@@ -75,8 +91,8 @@ use rail_stats::display::DisplayStat;
 use rail_store::report::Units;
 use serde::{Deserialize, Serialize};
 use tauri::{
-    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, Runtime, State, WebviewUrl,
-    WebviewWindowBuilder,
+    AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, PhysicalPosition, PhysicalSize,
+    Runtime, State, WebviewUrl, WebviewWindowBuilder,
 };
 
 use crate::commands::StoreState;
@@ -237,6 +253,143 @@ fn clamp_i32(value: i64) -> i32 {
     i32::try_from(value.clamp(i64::from(i32::MIN), i64::from(i32::MAX))).unwrap_or(0)
 }
 
+/// (R3.13) `value` (physical pixels at `scale_permille`) in points (or
+/// logical pixels), rounded half away from zero.
+fn unscaled(value: i64, scale_permille: u32) -> i64 {
+    let scale = i64::from(scale_permille.clamp(500, 4000));
+    let n = value * 1000;
+    if n >= 0 {
+        (n + scale / 2) / scale
+    } else {
+        -((-n + scale / 2) / scale)
+    }
+}
+
+/// (R3.13) A rect in physical pixels at `scale_permille` in points: how a
+/// macOS anchor (points times the table's screen's scale) and a screen's
+/// work area (points times that screen's scale, as tao reports it) come
+/// back to the one space macOS places windows in.
+pub fn to_points(rect: ScreenRect, scale_permille: u32) -> ScreenRect {
+    let size = |v: u32| u32::try_from(unscaled(i64::from(v), scale_permille).max(0)).unwrap_or(0);
+    ScreenRect {
+        x: clamp_i32(unscaled(i64::from(rect.x), scale_permille)),
+        y: clamp_i32(unscaled(i64::from(rect.y), scale_permille)),
+        width: size(rect.width),
+        height: size(rect.height),
+    }
+}
+
+/// (R3.13) A monitor's scale factor in thousandths (2.0 -> 2000).
+#[allow(
+    clippy::float_arithmetic,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss
+)]
+fn permille(scale_factor: f64) -> u32 {
+    if scale_factor.is_finite() && scale_factor > 0.0 {
+        (scale_factor * 1000.0).round().clamp(1.0, 100_000.0) as u32
+    } else {
+        1000
+    }
+}
+
+/// Where and how big a popup is, and in which unit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Placement {
+    pub x: i32,
+    pub y: i32,
+    pub width: u32,
+    pub height: u32,
+    /// Points / logical pixels (macOS); else physical pixels.
+    pub logical: bool,
+}
+
+/// (R3.13) Where the popup for `target` goes, `area` being the work area
+/// of the anchor's screen in the same unit: physical pixels scaled by the
+/// table's screen (Windows, as R3.8 placed it), or - `logical`, macOS -
+/// points, the anchor brought back to points by the table's scale and the
+/// popup at its logical size.
+pub fn placement(target: &PopupTarget, area: Option<ScreenRect>, logical: bool) -> Placement {
+    let (anchor, size, gap) = if logical {
+        (
+            to_points(target.anchor, target.scale_permille),
+            POPUP_SIZE,
+            GAP,
+        )
+    } else {
+        (
+            target.anchor,
+            (
+                scaled(POPUP_SIZE.0, target.scale_permille),
+                scaled(POPUP_SIZE.1, target.scale_permille),
+            ),
+            scaled(GAP, target.scale_permille),
+        )
+    };
+    let (x, y) = place(anchor, size, area, gap);
+    Placement {
+        x,
+        y,
+        width: size.0,
+        height: size.1,
+        logical,
+    }
+}
+
+/// The middle of a rect.
+fn centre(rect: ScreenRect) -> (i32, i32) {
+    (
+        rect.x
+            .saturating_add(i32::try_from(rect.width / 2).unwrap_or(0)),
+        rect.y
+            .saturating_add(i32::try_from(rect.height / 2).unwrap_or(0)),
+    )
+}
+
+fn contains(rect: &ScreenRect, point: (i32, i32)) -> bool {
+    let (x, y) = (i64::from(point.0), i64::from(point.1));
+    x >= i64::from(rect.x)
+        && y >= i64::from(rect.y)
+        && x < i64::from(rect.x) + i64::from(rect.width)
+        && y < i64::from(rect.y) + i64::from(rect.height)
+}
+
+/// (R3.13, macOS) The work area of the screen that holds `point` (points),
+/// in points: each monitor's (tao's physical pixels at its own scale)
+/// brought back by its own scale.
+fn work_area_points<R: Runtime>(app: &AppHandle<R>, point: (i32, i32)) -> Option<ScreenRect> {
+    app.get_webview_window(crate::MAIN_WINDOW)?
+        .available_monitors()
+        .ok()?
+        .into_iter()
+        .find_map(|monitor| {
+            let scale = permille(monitor.scale_factor());
+            let (p, s) = (monitor.position(), monitor.size());
+            let whole = to_points(
+                ScreenRect {
+                    x: p.x,
+                    y: p.y,
+                    width: s.width,
+                    height: s.height,
+                },
+                scale,
+            );
+            if !contains(&whole, point) {
+                return None;
+            }
+            let area = monitor.work_area();
+            Some(to_points(
+                ScreenRect {
+                    x: area.position.x,
+                    y: area.position.y,
+                    width: area.size.width,
+                    height: area.size.height,
+                },
+                scale,
+            ))
+        })
+}
+
 /// `value` logical pixels at `scale_permille`.
 fn scaled(value: u32, scale_permille: u32) -> u32 {
     let scaled = u64::from(value) * u64::from(scale_permille.clamp(500, 4000)) / 1000;
@@ -306,17 +459,13 @@ pub fn open<R: Runtime>(
     state: &PopupState,
     target: PopupTarget,
 ) -> Result<Opened, String> {
-    let centre = (
-        target
-            .anchor
-            .x
-            .saturating_add(i32::try_from(target.anchor.width / 2).unwrap_or(0)),
-        target
-            .anchor
-            .y
-            .saturating_add(i32::try_from(target.anchor.height / 2).unwrap_or(0)),
-    );
-    let area = work_area(app, centre);
+    // (R3.13) macOS places windows in points: the anchor and the work area
+    // are brought back to points (see the module's header).
+    let area = if cfg!(target_os = "macos") {
+        work_area_points(app, centre(to_points(target.anchor, target.scale_permille)))
+    } else {
+        work_area(app, centre(target.anchor))
+    };
     open_in(app, state, target, area)
 }
 
@@ -331,16 +480,7 @@ fn open_in<R: Runtime>(
     if PopupRules::for_site(&target.site).is_none() {
         return Ok(Opened::Refused);
     }
-    let size = (
-        scaled(POPUP_SIZE.0, target.scale_permille),
-        scaled(POPUP_SIZE.1, target.scale_permille),
-    );
-    let (x, y) = place(
-        target.anchor,
-        size,
-        area,
-        scaled(GAP, target.scale_permille),
-    );
+    let placed = placement(&target, area, cfg!(target_os = "macos"));
     let mut inner = state.lock();
     let open_window = inner
         .label
@@ -361,8 +501,7 @@ fn open_in<R: Runtime>(
         }
         inner.target = Some(target);
         drop(inner);
-        let _ = window.set_size(PhysicalSize::new(size.0, size.1));
-        let _ = window.set_position(PhysicalPosition::new(x, y));
+        put(&window, placed);
         let _ = app.emit_to(label.as_str(), POPUP_CHANGED_EVENT, ());
         return Ok(Opened::Moved(label));
     }
@@ -386,10 +525,20 @@ fn open_in<R: Runtime>(
             inner.label = None;
             error.to_string()
         })?;
-    let _ = window.set_size(PhysicalSize::new(size.0, size.1));
-    let _ = window.set_position(PhysicalPosition::new(x, y));
+    put(&window, placed);
     let _ = window.show();
     Ok(Opened::New(label))
+}
+
+/// Size and place a popup window as `placed` says, in its unit.
+fn put<R: Runtime>(window: &tauri::WebviewWindow<R>, placed: Placement) {
+    if placed.logical {
+        let _ = window.set_size(LogicalSize::new(placed.width, placed.height));
+        let _ = window.set_position(LogicalPosition::new(placed.x, placed.y));
+    } else {
+        let _ = window.set_size(PhysicalSize::new(placed.width, placed.height));
+        let _ = window.set_position(PhysicalPosition::new(placed.x, placed.y));
+    }
 }
 
 /// Close the popup (whichever is open).
@@ -740,6 +889,70 @@ mod tests {
         assert_eq!(place(panel, (380, 560), None, 6), (496, 300));
         assert_eq!(scaled(380, 1500), 570);
         assert_eq!(scaled(380, 0), 190);
+    }
+
+    fn anchored(anchor: ScreenRect, scale_permille: u32) -> PopupTarget {
+        PopupTarget {
+            window: 1,
+            site: "pokerstars".into(),
+            store_site: "pokerstars".into(),
+            table: None,
+            player: PlayerRef::named("Villain").at(2),
+            segment: None,
+            slot: 1,
+            anchor,
+            scale_permille,
+            design: None,
+        }
+    }
+
+    /// (R3.13) On macOS the popup is placed in points: a Retina table's
+    /// anchor (points x 2) back in points, the popup at its logical size,
+    /// beside the panel inside the screen's work area in points; a 1x
+    /// table's the same numbers; Windows keeps R3.8's physical pixels.
+    #[test]
+    fn on_macos_the_popup_is_placed_in_points() {
+        // A panel at (400, 300) pt, 90 x 40 pt, on a 2x screen: the HUD
+        // says (800, 600) px, 180 x 80 px.
+        let retina = anchored(rect(800, 600, 180, 80), 2000);
+        assert_eq!(to_points(retina.anchor, 2000), rect(400, 300, 90, 40));
+        // The 14" MacBook Pro's work area below the menu bar, in points.
+        let area = Some(rect(0, 38, 1512, 944));
+        let placed = placement(&retina, area, true);
+        assert_eq!(
+            placed,
+            Placement {
+                x: 400 + 90 + i32::try_from(GAP).unwrap_or(0),
+                y: 300,
+                width: POPUP_SIZE.0,
+                height: POPUP_SIZE.1,
+                logical: true,
+            }
+        );
+        // Near the bottom: pulled up inside the work area (in points).
+        let low = anchored(rect(800, 1800, 180, 80), 2000);
+        let placed = placement(&low, area, true);
+        assert_eq!(
+            placed.y,
+            38 + 944 - i32::try_from(POPUP_SIZE.1).unwrap_or(0)
+        );
+        // A 1x screen right of the main one: points are pixels.
+        let plain = anchored(rect(1600, 200, 90, 40), 1000);
+        let placed = placement(&plain, Some(rect(1512, 25, 1920, 1055)), true);
+        assert_eq!((placed.x, placed.y), (1696, 200));
+        // Windows: physical pixels, the popup scaled by the monitor.
+        let windows = placement(&anchored(rect(400, 300, 135, 60), 1500), None, false);
+        assert_eq!(
+            (windows.x, windows.y, windows.width, windows.logical),
+            (400 + 135 + 9, 300, 570, false)
+        );
+        // Rounding and negative coordinates (a screen left of the main one).
+        assert_eq!(to_points(rect(-3, -301, 3, 1), 2000), rect(-2, -151, 2, 1));
+        assert_eq!(permille(2.0), 2000);
+        assert_eq!(permille(f64::NAN), 1000);
+        assert!(contains(&rect(0, 0, 10, 10), (9, 9)));
+        assert!(!contains(&rect(0, 0, 10, 10), (10, 0)));
+        assert_eq!(centre(rect(10, 10, 20, 40)), (20, 30));
     }
 
     /// The rooms' rules as the popup reads them: own hands everywhere, two
