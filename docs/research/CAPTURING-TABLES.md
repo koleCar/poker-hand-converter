@@ -1,12 +1,14 @@
-# Capturing a room's table windows on Windows
+# Capturing a room's table windows on Windows and macOS
 
 The HUD finds a table by its window: the program that owns it and its title
-(docs/RAIL-PLAN.md R3.3). For each room, `config/sites.json` says how in its
-`tables` block - the process names and a title regex whose `table` group is
-exactly the table name the room's hand histories carry. Every `tables` block
-is `null` today: nobody has looked at a real client's windows yet, and the
-HUD attaches to nothing until someone does. This is how to look, on a
-Windows PC with the real clients, and how the result becomes `sites.json`.
+(docs/RAIL-PLAN.md R3.3, R3.11). For each room, `config/sites.json` says how
+in its `tables` block - the process names (per system) and a title regex
+whose `table` group is exactly the table name the room's hand histories
+carry. Every `tables` block is `null` today: nobody has looked at a real
+client's windows yet, and the HUD attaches to nothing until someone does.
+This is how to look, on a Windows PC with the real clients, and how the
+result becomes `sites.json`; the Mac's differences are in
+[On macOS](#on-macos-r311).
 
 Only rooms whose HUD policy is allowed matter: **PokerStars, Winamax, ACR**
 (R3.0, `docs/research/HUD-POLICIES.md`). Capturing a title is not attaching
@@ -133,9 +135,11 @@ Whoever turns it into configuration (an R3.3 follow-up, per room):
 
    The validator (`rail_config::validate`, and `sites.schema.json`) refuses
    `verified: true` without `checkedAt`, a source starting `Observed on `,
-   or a title regex. `macos` stays `null` until R3.11 captures the macOS
-   client the same way; `seatLayouts` / `preferredSeat` come from the
-   measurement below ("Seat layouts").
+   or a title regex. `macos` stays `null` until the macOS client is
+   captured the same way ([On macOS](#on-macos-r311)) - one regex must read
+   both systems' titles, or the room needs a note that they differ;
+   `seatLayouts` / `preferredSeat` come from the measurement below ("Seat
+   layouts").
 3. Relax `only_what_was_seen_is_verified` in
    `core/rail-config/tests/sites.rs` for exactly that room's tables, and
    `only_allowed_rooms_are_attached` in `hud/rail-hud/src/compliance.rs`
@@ -192,6 +196,67 @@ it on. The validator checks one seat per seat of the size, every value
 within 0 - 1000, `heroSlot` a seat and distinct `seatNumbers`. A user's
 own answer to "does your client rotate the table?" (the app's setting)
 wins over `preferredSeat`, which is only the default.
+
+## On macOS (R3.11)
+
+The same diagnostic, the same redaction, the same things to capture - on a
+Mac with the room's macOS client (PokerStars, Winamax and ACR each have
+one; check that a room's macOS client is the one it still ships). What
+differs:
+
+**The Accessibility permission, for the terminal.** On a Mac a window's
+title is readable by another program only through the Accessibility API
+(the window server's own list hides titles from programs without Screen
+Recording, which Rail never uses). macOS grants Accessibility to the *app
+that started* the program, so for `rail-hud --list-windows` that is your
+terminal: System Settings, Privacy & Security, **Accessibility**, switch on
+Terminal (or iTerm, ...), then quit and reopen the terminal. Nothing else:
+not Screen Recording, not Input Monitoring. Without it the listing says
+`Accessibility: NOT granted` and shows no title. It never asks by itself.
+Switch it off again afterwards if you like; Rail.app has its own entry for
+the HUD.
+
+Where to get it:
+
+- **From the app**: `Rail.app/Contents/MacOS/rail-hud` (a pull request's CI
+  run has an unsigned `.dmg`; guideline §14). Running the app's copy from a
+  terminal still needs the *terminal's* permission.
+- **From the source**: `cargo build --release -p rail-hud`, then
+  `target/release/rail-hud`.
+
+```text
+rail-hud --list-windows                                   every window with a title
+rail-hud --list-windows --process PokerStars              one program's windows
+rail-hud --list-windows --process PokerStars --you MyScreenName
+rail-hud --list-windows --process PokerStars --try-title "^(?P<table>.+?) - "
+```
+
+**The program name** is the executable's file name - what is inside
+`<App>.app/Contents/MacOS/` (`PokerStars` rather than `PokerStars.app`), the
+same name `ps -axco command` prints. Run the listing without `--process`
+once to see it; it goes into `tables.process.macos`.
+
+**What the lines say on a Mac**: `subrole` instead of `class` (the
+accessibility kind: `AXStandardWindow` for an ordinary window, `AXDialog`,
+`AXFloatingWindow`, ... - a lobby and a table may differ here); the client
+area in pixels **and** points (`1280x960 px ... = 640x480 pt`) with the
+screen's scale (200% on Retina) instead of dpi; `off screen (another Space,
+or the app hidden)` instead of cloaked. The client area is the window less
+its title bar, which the HUD measures from the window's close button: if a
+client draws its own title bar (no close button where macOS puts it), say
+so - the HUD then takes the whole window.
+
+**Also capture on a Mac**: one table in full screen (its own Space) and one
+on another Space or desktop, then switch back to the Space with the
+listing's terminal: the listing shows a table it cannot see as `off screen`
+only if the HUD read its title before, so note what it showed.
+
+**The permission for Rail itself** (the HUD, for players): Rail.app asks on
+the HUD screen. The grant is tied to the app's signature, so an unsigned
+or ad-hoc signed build (a CI artifact, a local build) is a new app to macOS
+with every build: if the HUD screen keeps asking although Rail is switched
+on in the list, remove Rail from the list (the minus button) and switch it
+on again. Developer ID signed releases (P3) keep it across updates.
 
 ## Seen so far
 

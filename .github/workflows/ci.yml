@@ -214,6 +214,13 @@ jobs:
   # And R3.10's hud/rail-hud/tests/windows_compliance.rs: a table posing as
   # a prohibited room refused and listed with its reason, no overlay; a
   # remote policy (`--policy`) refusing, then detaching, an allowed one.
+  # On macOS only, R3.11's hud/rail-hud/tests/macos_tables.rs: three
+  # simulator windows in the window server's list with the simulator's
+  # frames at the screen's scale, joined into tables; then, if the runner
+  # gives the test process the Accessibility permission, the backend's own
+  # find by accessibility titles (minimise, table move, `--list-windows`,
+  # the HUD process attaching and refusing), and if it does not, the
+  # "permission needed" path - the test says which ran and what it skipped.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -301,6 +308,15 @@ jobs:
       - name: HUD compliance mode (steps)
         if: matrix.os == 'windows-latest'
         run: cargo test -p rail-hud --test windows_compliance --locked -- --nocapture --test-threads 1
+
+      # R3.11's macOS tables test again, with its output: the `R3.11:` line
+      # says whether the runner's test process has the Accessibility
+      # permission (the backend's own find ran) or not (the window server's
+      # path and the "permission needed" path ran; the rest is listed as
+      # skipped), then each step's windows.
+      - name: HUD tables on macOS (steps)
+        if: matrix.os == 'macos-latest'
+        run: cargo test -p rail-hud --test macos_tables --locked -- --nocapture --test-threads 1
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'

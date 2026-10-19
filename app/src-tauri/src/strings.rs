@@ -56,6 +56,9 @@ pub struct Tray {
     pub hud_starting: &'static str,
     /// Running: tables attached, windows refused by compliance mode.
     pub hud_tables: fn(u32, u32) -> String,
+    /// (R3.11) Running, but it cannot see tables until the user grants the
+    /// Accessibility permission (macOS).
+    pub hud_permission: &'static str,
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
@@ -193,6 +196,7 @@ pub const TRAY_EN: Tray = Tray {
     hud_off: "HUD off",
     hud_starting: "HUD starting…",
     hud_tables: hud_tables_en,
+    hud_permission: "HUD: needs the Accessibility permission",
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
@@ -226,6 +230,7 @@ pub const TRAY_HR: Tray = Tray {
     hud_off: "HUD isključen",
     hud_starting: "HUD se pokreće…",
     hud_tables: hud_tables_hr,
+    hud_permission: "HUD: treba dopuštenje Pristupačnost",
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",

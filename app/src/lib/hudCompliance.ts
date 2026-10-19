@@ -72,6 +72,18 @@ export function hudState(status: HudStatus | null): HudState {
   }
 }
 
+/** A system permission the HUD waits for (R3.11). */
+export type HudPermission = "accessibility";
+
+/**
+ * (R3.11) The permission the running HUD needs to see any table and does not
+ * have - macOS's Accessibility, for window titles - or `null`. A permission
+ * this window does not know is not offered (an older window, a newer HUD).
+ */
+export function permissionNeeded(status: HudStatus | null): HudPermission | null {
+  return hudState(status) === "running" && status?.permissionNeeded === "accessibility" ? "accessibility" : null;
+}
+
 /** The rooms whose HUD is allowed, in the list's order. */
 export function allowedRooms(policy: HudPolicy | null): RoomPolicy[] {
   return policy?.rooms.filter((room) => room.permitted) ?? [];

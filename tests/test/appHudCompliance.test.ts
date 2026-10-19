@@ -15,6 +15,7 @@ import {
   checkedOn,
   hudState,
   notAllowedRooms,
+  permissionNeeded,
   policyLink,
   refusalWhy,
   refusedRoomNames,
@@ -72,6 +73,7 @@ function status(extra: Partial<HudStatus> = {}): HudStatus {
       { site: "nowhere", window: 6, table: null, reason: "unknown-site" },
     ],
     remotePolicy: true,
+    permissionNeeded: null,
     ...extra,
   };
 }
@@ -127,6 +129,27 @@ describe("compliance mode in the window", () => {
     expect(hudState(status({ phase: "backoff" }))).toBe("starting");
     for (const phase of ["off", "not-installed", "stopped"]) expect(hudState(status({ phase }))).toBe("off");
     expect(hudState(null)).toBe("off");
+  });
+
+  it("asks for the Accessibility permission only while a running HUD waits for it (R3.11)", () => {
+    expect(permissionNeeded(status({ permissionNeeded: "accessibility" }))).toBe("accessibility");
+    expect(permissionNeeded(status())).toBeNull();
+    expect(permissionNeeded(status({ phase: "starting", permissionNeeded: "accessibility" }))).toBeNull();
+    expect(permissionNeeded(status({ phase: "off", permissionNeeded: "accessibility" }))).toBeNull();
+    expect(permissionNeeded(status({ permissionNeeded: "screen-recording" }))).toBeNull();
+    expect(permissionNeeded(null)).toBeNull();
+  });
+
+  it("asks for nothing but the Accessibility prompt, and only on a click (R3.11)", () => {
+    const ipc = readFileSync(join(APP_SRC, "lib/ipc.ts"), "utf8");
+    const commands = [...ipc.matchAll(/invoke<[^>]*>\("(hud_[a-z_]+)"/g)].map((m) => m[1]);
+    expect(commands.filter((c) => c?.includes("permission"))).toEqual(["hud_request_permission"]);
+    const panel = readFileSync(join(APP_SRC, "screens/hud/HudStatusPanel.tsx"), "utf8");
+    // Called from the button's handler only, never from an effect or on load.
+    const calls = [...panel.matchAll(/hudRequestPermission\(/g)];
+    expect(calls).toHaveLength(1);
+    expect(panel).toMatch(/const open = \(\) => \{[^}]*hudRequestPermission\(/s);
+    expect(panel).toMatch(/onClick=\{open\}/);
   });
 
   it("offers no override anywhere: nothing in the window can attach the HUD where it was refused", () => {

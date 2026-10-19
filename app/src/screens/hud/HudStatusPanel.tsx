@@ -7,7 +7,16 @@
  * nothing here (or anywhere in the app) turns the HUD on at a table compliance
  * mode refused. The decisions are the Rust side's (`hud_status`,
  * `hud_policy`); `lib/hudCompliance.ts` only words them.
+ *
+ * (R3.11) On a Mac the HUD reads table windows' titles through the
+ * Accessibility API: while the permission is missing the panel opens with
+ * what it is for (titles and window places only - no screen recording, no
+ * input monitoring), a button that has macOS show its own prompt and opens
+ * System Settings at the pane, and notices the grant from the status it polls.
+ * The user grants it; nothing here changes a setting.
  */
+import { useEffect, useRef, useState } from "react";
+
 import { StateMessage } from "../../components/StateMessage";
 import { useT } from "../../i18n";
 import { liveDateFormat } from "../../i18n/format";
@@ -16,12 +25,14 @@ import {
   checkedOn,
   hudState,
   notAllowedRooms,
+  permissionNeeded,
   policyLink,
   refusedRows,
   roomOf,
+  type HudPermission,
   type RefusalWhy,
 } from "../../lib/hudCompliance";
-import { inApp, ipc, type HudPolicy, type RoomPolicy } from "../../lib/ipc";
+import { errorText, inApp, ipc, type HudPolicy, type HudStatus, type RoomPolicy } from "../../lib/ipc";
 import type { HudCompliance } from "../../lib/useHudCompliance";
 import styles from "./HudStatusPanel.module.css";
 
@@ -57,6 +68,67 @@ function PolicySource({ room }: { room: RoomPolicy | null }) {
       )}
       {on !== null && <span className={styles.muted}>{s.checked(day.format(on))}</span>}
     </span>
+  );
+}
+
+/**
+ * (R3.11) The Accessibility onboarding: why, what not, the button, then
+ * "waiting" until the status says it is granted - and a line saying so once
+ * it is, after the user asked here.
+ */
+function PermissionCard({ status }: { status: HudStatus }) {
+  const t = useT();
+  const p = t.hudStatus.permission;
+  const needed: HudPermission | null = permissionNeeded(status);
+  const [phase, setPhase] = useState<"idle" | "opening" | "asked">("idle");
+  const [failed, setFailed] = useState<string | null>(null);
+  const [granted, setGranted] = useState(false);
+  const wasNeeded = useRef(needed !== null);
+
+  useEffect(() => {
+    if (needed === null && wasNeeded.current && phase === "asked") setGranted(true);
+    wasNeeded.current = needed !== null;
+  }, [needed, phase]);
+
+  if (needed === null) {
+    return granted ? (
+      <p className={styles.granted} role="status">
+        {p.granted}
+      </p>
+    ) : null;
+  }
+  const open = () => {
+    setPhase("opening");
+    setFailed(null);
+    ipc
+      .hudRequestPermission(needed)
+      .then(() => setPhase("asked"))
+      .catch((e: unknown) => {
+        setFailed(errorText(e));
+        setPhase("asked");
+      });
+  };
+  return (
+    <div className={styles.permission} role="status" aria-labelledby="hud-permission">
+      <h3 id="hud-permission" className={styles.subheading}>
+        {p.heading}
+      </h3>
+      <p>{p.why}</p>
+      <p>{p.not}</p>
+      <p>{p.steps}</p>
+      <div>
+        <button type="button" className={styles.button} onClick={open} disabled={phase === "opening"}>
+          {phase === "opening" ? p.opening : p.open}
+        </button>
+      </div>
+      {failed !== null && <p className={styles.muted}>{p.failed(failed)}</p>}
+      {phase === "asked" && (
+        <>
+          <p className={styles.muted}>{p.waiting}</p>
+          <p className={styles.muted}>{p.stale}</p>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -167,7 +239,12 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
               : s.off}
       </p>
 
-      {state === "running" && status.tables.length === 0 && refused.length === 0 && (
+      <PermissionCard status={status} />
+
+      {state === "running" &&
+        permissionNeeded(status) === null &&
+        status.tables.length === 0 &&
+        refused.length === 0 && (
         <p className={styles.muted}>{s.noTables}</p>
       )}
       {status.tables.length > 0 && (

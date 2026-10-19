@@ -94,6 +94,15 @@ pub enum AppMessage {
     Health { seq: u64 },
     /// The app is quitting: remove the overlays and exit.
     Shutdown,
+    /// (R3.11) The user asked, with a click in the app, for a system
+    /// permission the HUD reported missing
+    /// ([`HealthReport::permission_needed`]): on macOS the HUD asks for
+    /// `accessibility` with the system's own prompt
+    /// (`AXIsProcessTrustedWithOptions`), which also lists the app in System
+    /// Settings. Never sent without the user's click; an older HUD ignores
+    /// it.
+    #[serde(rename_all = "camelCase")]
+    RequestPermission { permission: String },
     /// A message type this build does not know (a newer app).
     #[serde(other)]
     Unknown,
@@ -315,6 +324,12 @@ pub struct HealthReport {
     /// in (`false`: the shipped copy alone).
     #[serde(default)]
     pub remote_policy: bool,
+    /// (R3.11) A system permission the HUD needs and does not have, so it
+    /// cannot find tables: `accessibility` on macOS (window titles are read
+    /// through the Accessibility API). `None`: nothing missing, or an older
+    /// HUD.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub permission_needed: Option<String>,
 }
 
 /// (R3.10) A table the HUD is attached to.
@@ -408,6 +423,9 @@ mod tests {
             AppMessage::Resync,
             AppMessage::Health { seq: u64::MAX },
             AppMessage::Shutdown,
+            AppMessage::RequestPermission {
+                permission: "accessibility".into(),
+            },
         ];
         for message in &app {
             assert_eq!(&round_trip(message), message);
@@ -441,6 +459,7 @@ mod tests {
                         reason: RefusalReason::Prohibited,
                     }],
                     remote_policy: true,
+                    permission_needed: Some("accessibility".into()),
                 },
             },
             HudMessage::TablesOpen { count: 12 },
@@ -537,6 +556,27 @@ mod tests {
         };
         assert!(report.tables.is_empty() && report.refused_tables.is_empty());
         assert!(!report.remote_policy);
+        // (R3.11) Nor does it say a permission is missing; a newer one says
+        // which, and only when one is.
+        assert_eq!(report.permission_needed, None);
+        let needed = HealthReport {
+            permission_needed: Some("accessibility".into()),
+            ..HealthReport::default()
+        };
+        let text = serde_json::to_string(&needed).expect("json");
+        assert!(
+            text.contains(r#""permissionNeeded":"accessibility""#),
+            "{text}"
+        );
+        let none = serde_json::to_string(&HealthReport::default()).expect("json");
+        assert!(!none.contains("permissionNeeded"), "{none}");
+        assert_eq!(
+            serde_json::to_string(&AppMessage::RequestPermission {
+                permission: "accessibility".into()
+            })
+            .expect("json"),
+            r#"{"type":"request_permission","permission":"accessibility"}"#
+        );
         let refused = RefusedTable {
             window: 9,
             site: "ipoker".into(),

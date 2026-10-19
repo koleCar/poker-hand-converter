@@ -118,8 +118,8 @@ use crate::latency::{Latencies, micros};
 use crate::layout::TableLayout;
 use crate::panel::PanelDesign;
 use crate::platform::{
-    OverlayFrame, PanelWords, Platform, Rect, SeatPanel, Seating, TableEvent, TableMatcher,
-    TableWindow, TagColour, WindowId, table_key,
+    OverlayFrame, PanelWords, Permission, Platform, Rect, SeatPanel, Seating, TableEvent,
+    TableMatcher, TableWindow, TagColour, WindowId, table_key,
 };
 use crate::seats::{self, Rooms};
 
@@ -497,6 +497,12 @@ impl Hud {
                 .collect(),
             refused_tables: self.refused.values().cloned().collect(),
             remote_policy: self.compliance.has_remote(),
+            // (R3.11) Asked of the system now (macOS: Accessibility), so
+            // the app sees a grant within one health answer.
+            permission_needed: self
+                .platform
+                .permission_needed()
+                .map(|p| p.as_str().to_owned()),
         }
     }
 
@@ -626,6 +632,18 @@ impl Hud {
                 self.repaint_all();
             }
             AppMessage::Shutdown => return Some(Exit::Shutdown),
+            // (R3.11) The user clicked for it in the app: the system's own
+            // prompt, if the permission is still missing; then look again.
+            AppMessage::RequestPermission { permission } => {
+                match Permission::from_name(&permission) {
+                    Some(permission) if self.platform.permission_needed() == Some(permission) => {
+                        self.platform.request_permission(permission);
+                        self.next_find = Instant::now();
+                    }
+                    Some(_) => {}
+                    None => eprintln!("rail-hud: no permission {permission:?} to ask for"),
+                }
+            }
             AppMessage::Unknown => {}
         }
         None
@@ -1832,6 +1850,97 @@ mod tests {
 
         windows.borrow_mut().clear();
         assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 0 }]);
+    }
+
+    /// (R3.11) A backend that needs a permission the user has not granted
+    /// (macOS: Accessibility): whether it is granted, and how many times
+    /// the system was asked to prompt.
+    #[derive(Default)]
+    struct Locked {
+        granted: std::rc::Rc<std::cell::Cell<bool>>,
+        asked: std::rc::Rc<std::cell::Cell<u32>>,
+    }
+
+    impl Platform for Locked {
+        fn name(&self) -> &'static str {
+            "locked"
+        }
+        fn find_tables(
+            &mut self,
+            _: &[TableMatcher],
+        ) -> Result<Vec<TableWindow>, crate::platform::PlatformError> {
+            if self.granted.get() {
+                Ok(vec![polled_window("T 1 - x", "T 1", None)])
+            } else {
+                Err(crate::platform::PlatformError::PermissionNeeded(
+                    Permission::Accessibility,
+                ))
+            }
+        }
+        fn track(&mut self, _: &TableWindow) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn untrack(&mut self, _: WindowId) {}
+        fn poll_events(&mut self) -> Vec<TableEvent> {
+            Vec::new()
+        }
+        fn overlay(
+            &mut self,
+            _: WindowId,
+            _: &OverlayFrame,
+        ) -> Result<(), crate::platform::PlatformError> {
+            Ok(())
+        }
+        fn remove_overlay(&mut self, _: WindowId) {}
+        fn permission_needed(&self) -> Option<Permission> {
+            (!self.granted.get()).then_some(Permission::Accessibility)
+        }
+        fn request_permission(&mut self, _: Permission) {
+            self.asked.set(self.asked.get() + 1);
+        }
+    }
+
+    /// (R3.11) Without the permission no table is found and every health
+    /// answer says which permission is missing; the system is asked to
+    /// prompt only on the app's `request_permission` (the user's click),
+    /// and only while it is missing; once granted the next look attaches.
+    #[test]
+    fn a_missing_permission_is_reported_and_asked_for_on_request() {
+        let backend = Locked::default();
+        let (granted, asked) = (backend.granted.clone(), backend.asked.clone());
+        let mut hud = Hud::new(
+            Box::new(backend),
+            Compliance::shipped().expect("shipped"),
+            StoreView::new(None),
+            Settings::default(),
+        );
+        assert!(step(&mut hud).is_empty());
+        assert!(step(&mut hud).is_empty());
+        assert_eq!(asked.get(), 0, "never prompted unattended");
+        assert_eq!(
+            hud.health().permission_needed.as_deref(),
+            Some("accessibility")
+        );
+        assert_eq!(hud.health().attached, 0);
+
+        let request = |name: &str| {
+            Input::App(
+                AppMessage::RequestPermission {
+                    permission: name.into(),
+                },
+                Instant::now(),
+            )
+        };
+        hud.handle(request("screen-recording"), &mut |_| {});
+        assert_eq!(asked.get(), 0, "no such permission");
+        hud.handle(request("accessibility"), &mut |_| {});
+        assert_eq!(asked.get(), 1);
+
+        granted.set(true);
+        assert_eq!(hud.health().permission_needed, None);
+        assert_eq!(step(&mut hud), [HudMessage::TablesOpen { count: 1 }]);
+        hud.handle(request("accessibility"), &mut |_| {});
+        assert_eq!(asked.get(), 1, "not asked once granted");
     }
 
     /// A backend with hooks (Windows since R3.5): its events, and how many
