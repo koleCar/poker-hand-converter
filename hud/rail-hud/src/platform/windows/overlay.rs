@@ -52,6 +52,15 @@
 //! Losing the capture (another window took the mouse) ends the drag where
 //! the panel is.
 //!
+//! **A click on a panel (R3.8)** is a press whose pointer never left the
+//! drag threshold and whose button came up over the overlay (a lost
+//! capture is no click): on the release the thread notes a
+//! `TableEvent::PanelClicked` with the panel's place on the screen (the
+//! client area's origin as last read here, plus the panel's rectangle in
+//! the last painted scene) and does nothing else - the engine asks the app
+//! for the popup. The overlay never activates (`MA_NOACTIVATE`), so the
+//! click leaves the keyboard with the table.
+//!
 //! **The table's geometry is always read here, at the moment it is used**
 //! (for a new frame, a hook event, the engine's `follow`), never taken
 //! from a description handed over, which can be older than what the hooks
@@ -628,6 +637,8 @@ struct Overlay {
     kept: Vec<(u64, u32, (u32, u32))>,
     /// Drags dropped on this overlay.
     drags: u64,
+    /// (R3.8) Clicks on its panels (popups asked for).
+    clicks: u64,
 }
 
 impl Overlay {
@@ -776,7 +787,7 @@ impl Overlays {
         }
         for overlay in pending.capture_lost {
             if let Some(table) = self.table_of_overlay(overlay) {
-                self.end_drag(table);
+                self.end_drag(table, false);
             }
         }
         // Per table, in order: its events, and the first one's time.
@@ -976,6 +987,7 @@ impl Overlays {
                     restacked: 0,
                     error: None,
                     drag: None,
+                    clicks: 0,
                     kept: Vec::new(),
                     drags: 0,
                 },
@@ -1066,7 +1078,7 @@ impl Overlays {
             WM_LBUTTONDOWN => {
                 if dragging {
                     // A release we never saw: end that drag first.
-                    self.end_drag(table);
+                    self.end_drag(table, false);
                 }
                 if let Some(overlay) = self.windows.get_mut(&table)
                     && let Some(drag) = Drag::press(&overlay.scene, x, y)
@@ -1098,7 +1110,7 @@ impl Overlays {
             _ => {
                 if dragging {
                     release_capture();
-                    self.end_drag(table);
+                    self.end_drag(table, true);
                 }
             }
         }
@@ -1106,20 +1118,51 @@ impl Overlays {
     }
 
     /// End the drag of `table`'s overlay where the panel is: kept, and the
-    /// engine told, when it moved to a place it may be; a click otherwise
-    /// (R3.8's), or back where it was.
-    fn end_drag(&mut self, table: WindowId) {
+    /// engine told, when it moved to a place it may be, or back where it
+    /// was. A press that never moved is a click (R3.8) only when the button
+    /// was `released` over the overlay - a lost capture or a release this
+    /// thread never saw ends it as nothing.
+    fn end_drag(&mut self, table: WindowId, released: bool) {
         let Some(overlay) = self.windows.get_mut(&table) else {
             return;
         };
         let Some(drag) = overlay.drag.take() else {
             return;
         };
-        let Some(at) = drag.release(&overlay.scene) else {
-            if drag.at.is_some() {
-                // Nowhere it may go: back to where it was.
-                self.repaint(table);
+        if drag.is_click() {
+            if !released {
+                return;
             }
+            // (R3.8) A click: the popup of the panel's player, beside the
+            // panel on the screen.
+            let Some(&(slot, rect)) = overlay
+                .scene
+                .seat_panels
+                .iter()
+                .find(|(slot, _)| *slot == drag.slot)
+            else {
+                return;
+            };
+            overlay.clicks += 1;
+            let g = overlay.geometry;
+            let panel = Rect {
+                x: g.client.x.saturating_add(rect.x),
+                y: g.client.y.saturating_add(rect.y),
+                ..rect
+            };
+            self.observe(|o| {
+                o.clicked(TableEvent::PanelClicked {
+                    id: table,
+                    slot,
+                    panel,
+                    scale_permille: g.scale_permille,
+                });
+            });
+            return;
+        }
+        let Some(at) = drag.release(&overlay.scene) else {
+            // Nowhere it may go: back to where it was.
+            self.repaint(table);
             return;
         };
         self.drag_seq += 1;
@@ -1181,6 +1224,9 @@ fn info(overlay: &Overlay) -> OverlayInfo {
         placed_by_user: overlay.scene.placed_by_user.clone(),
         size: overlay.scene.size,
         drags: overlay.drags,
+        clicks: overlay.clicks,
+        tags: overlay.scene.tags.clone(),
+        legend: overlay.scene.legend.as_ref().map(|(rect, _)| *rect),
         dropped: overlay.scene.dropped.clone(),
         moves: overlay.moves,
         restacked: overlay.restacked,

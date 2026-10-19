@@ -16,6 +16,14 @@
 //!   posing as PokerStars where it was dropped; each drop is one
 //!   `PanelMoved` for the engine, and a frame that carries the position
 //!   keeps it there.
+//! - (R3.8) `player_tags_only_where_the_room_allows_labels`: a frame whose
+//!   players have colour tags, labels and notes: the tags drawn (the screen
+//!   pixel is the tag's colour) posing as Winamax, none posing as
+//!   PokerStars or ACR; the legend clear of every panel.
+//! - (R3.8) `a_click_on_a_panel_opens_the_popup`: the HUD process under the
+//!   real supervisor; a click on a villain's panel makes the HUD say
+//!   `open_popup` for that player, slot and panel on the screen; a drag of
+//!   another panel says `seat_position_changed` and asks for no popup.
 //! - `a_dragged_panel_is_remembered`: the HUD process under the real
 //!   supervisor (this test plays the app: the store, `hand_imported`), the
 //!   simulator with `--preferred-seat` and the user's "my client rotates"
@@ -37,10 +45,11 @@ use std::time::{Duration, Instant};
 
 use rail_hud::compliance::Compliance;
 use rail_hud::layout::{self, Positions, TableLayout};
-use rail_hud::panel::{PanelDesign, StatCell};
+use rail_hud::panel::{PanelDesign, PanelStats, StatCell};
 use rail_hud::platform::windows::{OVERLAY_CLASS, WindowsBackend, drive, probe};
 use rail_hud::platform::{
-    OverlayFrame, Platform, Rect, SeatPanel, Seating, TableEvent, TableWindow, WindowId,
+    OverlayFrame, PanelWords, Platform, Rect, SeatPanel, Seating, TableEvent, TableWindow,
+    TagColour, WindowId,
 };
 use rail_hud::scene;
 use rail_hud::seats;
@@ -99,9 +108,10 @@ fn frame(site: &str, size: u32, seats: &[u32], rotate_to: Option<u32>) -> Overla
                 seat: Some(seat),
                 hands: 50,
                 stats: cells(),
-                label: None,
+                words: PanelWords::default(),
             })
             .collect(),
+        legend: Vec::new(),
     }
 }
 
@@ -132,13 +142,13 @@ fn next_to(panel: &Rect, plate: &Rect, gap: u32) -> bool {
 /// drawn (so the hero's plate has its frame).
 fn tables_with_hands(
     backend: &mut WindowsBackend,
-    sim: &Sim,
+    sim: &mut Sim,
     room: &rail_hud::platform::TableMatcher,
     seen: &mut Seen,
     count: usize,
 ) -> Vec<TableWindow> {
-    seen.until(
-        &sim.events,
+    sim.until(
+        seen,
         Duration::from_secs(90),
         &format!("{count} windows, each with its hero seat and a hand"),
         |s| {
@@ -188,14 +198,14 @@ fn drawn_seats(preferred: bool) {
     if preferred {
         args.push("--preferred-seat");
     }
-    let sim = Sim::start(
+    let mut sim = Sim::start(
         &sim_path,
         if preferred { "seats-on" } else { "seats-off" },
         &args,
     );
     let mut seen = Seen::default();
     let mut backend = WindowsBackend::default();
-    let found = tables_with_hands(&mut backend, &sim, &room, &mut seen, 3);
+    let found = tables_with_hands(&mut backend, &mut sim, &room, &mut seen, 3);
 
     for window in &found {
         let number = seen.table_titled(&window.title).expect("table");
@@ -312,7 +322,7 @@ fn acr_keeps_a_dragged_panel_off_its_graphics() {
         eprintln!("--- posing as {site}");
         let room = matcher(site, &regex);
         let window = format!("{WIDTH}x{HEIGHT}");
-        let sim = Sim::start(
+        let mut sim = Sim::start(
             &sim_path,
             &format!("drag-{site}"),
             &[
@@ -322,7 +332,7 @@ fn acr_keeps_a_dragged_panel_off_its_graphics() {
         );
         let mut seen = Seen::default();
         let mut backend = WindowsBackend::default();
-        let found = tables_with_hands(&mut backend, &sim, &room, &mut seen, 1);
+        let found = tables_with_hands(&mut backend, &mut sim, &room, &mut seen, 1);
         let window = &found[0];
         let (w, h) = (window.client.width, window.client.height);
         backend.track(window).expect("track");
@@ -429,19 +439,139 @@ fn acr_keeps_a_dragged_panel_off_its_graphics() {
         );
         eprintln!("step ok: {site}: the frame keeps it at {again:?}");
 
-        // A click (no move) is not a drag.
+        // A click (no move) is not a drag: (R3.8) it is a click, with the
+        // panel's place on the screen, for the popup.
         let (cx, cy) = middle(&again);
         drive::drag(overlay, (cx, cy), (cx + 1, cy), 1).expect("a click");
-        std::thread::sleep(Duration::from_millis(300));
+        let events = wait_for(Duration::from_secs(5), "the PanelClicked event", || {
+            let events = backend.poll_events();
+            if events
+                .iter()
+                .any(|e| matches!(e, TableEvent::PanelClicked { .. }))
+            {
+                Ok(events)
+            } else {
+                Err(format!("{events:?}"))
+            }
+        });
         let info = backend.overlay_info(window.id).expect("info");
         assert_eq!(info.drags, 1, "a click is not a drag: {info:?}");
+        assert_eq!(info.clicks, 1, "{info:?}");
         assert!(
-            !backend
-                .poll_events()
+            !events
                 .iter()
-                .any(|e| matches!(e, TableEvent::PanelMoved { .. }))
+                .any(|e| matches!(e, TableEvent::PanelMoved { .. })),
+            "{events:?}"
         );
-        eprintln!("step ok: {site}: a click moved nothing");
+        let clicked: Vec<&TableEvent> = events
+            .iter()
+            .filter(|e| matches!(e, TableEvent::PanelClicked { .. }))
+            .collect();
+        assert_eq!(
+            clicked,
+            [&TableEvent::PanelClicked {
+                id: window.id,
+                slot: 0,
+                panel: Rect {
+                    x: window.client.x + again.x,
+                    y: window.client.y + again.y,
+                    ..again
+                },
+                scale_permille: window.scale_permille,
+            }],
+            "the panel on the screen"
+        );
+        eprintln!("step ok: {site}: a click moved nothing and asked for the popup");
+        backend.untrack(window.id);
+        drop(sim);
+    }
+}
+
+/// (R3.8) The player's words and the legend on real windows: a frame whose
+/// players have a colour tag, labels and a note, with the legend's tones.
+/// Posing as PokerStars (and ACR: both forbid labelling players) the
+/// overlay draws no tag - the pixel where Winamax's tag goes is the panel's
+/// own colour - and posing as Winamax every panel has its tag, the screen
+/// pixel in it is the tag's colour. The legend is drawn on all three, clear
+/// of every panel.
+#[test]
+fn player_tags_only_where_the_room_allows_labels() {
+    let _serial = serial();
+    let sim_path = simulator();
+    let regex = title_regex(&sim_path);
+    let tag = scene::tag_color(TagColour::Green);
+    let mut winamax_tags: Option<Vec<(u32, Rect)>> = None;
+    for site in ["winamax", "pokerstars", "acr"] {
+        eprintln!("--- posing as {site}");
+        let room = matcher(site, &regex);
+        let window = format!("{WIDTH}x{HEIGHT}");
+        let mut sim = Sim::start(
+            &sim_path,
+            &format!("tags-{site}"),
+            &[
+                "--tables", "1", "--sizes", "6", "--window", &window, "--speed", "60", "--seed",
+                "37",
+            ],
+        );
+        let mut seen = Seen::default();
+        let mut backend = WindowsBackend::default();
+        let found = tables_with_hands(&mut backend, &mut sim, &room, &mut seen, 1);
+        let window = &found[0];
+        backend.track(window).expect("track");
+        let mut six = frame(site, 6, &[1, 2, 3, 4, 5, 6], None);
+        for panel in &mut six.panels {
+            panel.words = PanelWords {
+                colour: Some(TagColour::Green),
+                label: Some("made-up".into()),
+                noted: true,
+            };
+        }
+        six.legend = PanelStats::new(&PanelDesign::default()).legend_tones();
+        backend.overlay(window.id, &six).expect("overlay");
+        let info = wait_for(Duration::from_secs(10), "painted", || {
+            match backend.overlay_info(window.id) {
+                Some(info) if info.renders >= 1 && info.shown => Ok(info),
+                other => Err(format!("{other:?}")),
+            }
+        });
+        assert_eq!(info.seat_panels.len(), 6, "{info:?}");
+        let legend = info.legend.expect("the legend");
+        for (_, panel) in &info.seat_panels {
+            assert!(!layout::intersects(&legend, panel), "{site}: {legend:?}");
+        }
+        let at = |r: &Rect| {
+            (
+                u32::try_from(r.x + 1).unwrap_or(0),
+                u32::try_from(r.y + i32::try_from(r.height / 2).unwrap_or(0)).unwrap_or(0),
+            )
+        };
+        if site == "winamax" {
+            assert_eq!(info.tags.len(), 6, "{info:?}");
+            for (_, bar) in &info.tags {
+                let (x, y) = at(bar);
+                let pixel = backend.overlay_pixel(window.id, x, y).expect("a pixel");
+                assert_eq!(
+                    pixel,
+                    [tag.b, tag.g, tag.r, 255],
+                    "{site}: the tag at {bar:?}"
+                );
+            }
+            winamax_tags = Some(info.tags.clone());
+            eprintln!("step ok: winamax: six tags drawn, legend at {legend:?}");
+        } else {
+            assert!(info.tags.is_empty(), "{site}: {info:?}");
+            // Where Winamax's tags were (the same layout): the panel.
+            for (_, bar) in winamax_tags.as_deref().unwrap_or_default() {
+                let (x, y) = at(bar);
+                let pixel = backend.overlay_pixel(window.id, x, y).expect("a pixel");
+                assert_ne!(
+                    pixel,
+                    [tag.b, tag.g, tag.r, 255],
+                    "{site}: a tag at {bar:?}"
+                );
+            }
+            eprintln!("step ok: {site}: no tag, legend at {legend:?}");
+        }
         backend.untrack(window.id);
         drop(sim);
     }
@@ -612,7 +742,7 @@ fn a_dragged_panel_is_remembered() {
         .expect("preferred seat");
 
     let window_size = format!("{WIDTH}x{HEIGHT}");
-    let sim = Sim::start(
+    let mut sim = Sim::start(
         &sim_path,
         "remembered",
         &[
@@ -631,7 +761,7 @@ fn a_dragged_panel_is_remembered() {
     );
     let mut seen = Seen::default();
     let mut finder = WindowsBackend::default();
-    let found = tables_with_hands(&mut finder, &sim, &room, &mut seen, 1);
+    let found = tables_with_hands(&mut finder, &mut sim, &room, &mut seen, 1);
     let window = found[0].clone();
     let number = seen.table_titled(&window.title).expect("table");
     drive::raise(window.id).expect("raise");
@@ -789,6 +919,178 @@ fn a_dragged_panel_is_remembered() {
     );
     app.supervisor.stop();
     drop(writer);
+    store.close();
+    drop(sim);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// (R3.8) A click on a panel through the whole HUD process: the HUD under
+/// the real supervisor (this test plays the app), the simulator's table
+/// posing as PokerStars; a click on a villain's panel (press and release,
+/// no move) is `open_popup` for that player at that slot, the panel on the
+/// screen where the click was; a drag of another panel is
+/// `seat_position_changed` and no popup.
+#[test]
+fn a_click_on_a_panel_opens_the_popup() {
+    let _serial = serial();
+    let sim_path = simulator();
+    let regex = title_regex(&sim_path);
+    let room = matcher("pokerstars", &regex);
+    let dir: PathBuf =
+        std::env::temp_dir().join(format!("rail-hud-popup-store-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let db = dir.join(rail_store::FILE_NAME);
+    let store = rail_store::Store::open(&db).expect("store");
+
+    let window_size = format!("{WIDTH}x{HEIGHT}");
+    let mut sim = Sim::start(
+        &sim_path,
+        "popup",
+        &[
+            "--tables",
+            "1",
+            "--sizes",
+            "6",
+            "--window",
+            &window_size,
+            "--speed",
+            "6",
+            "--seed",
+            "43",
+        ],
+    );
+    let mut seen = Seen::default();
+    let mut finder = WindowsBackend::default();
+    let found = tables_with_hands(&mut finder, &mut sim, &room, &mut seen, 1);
+    let window = found[0].clone();
+    let number = seen.table_titled(&window.title).expect("table");
+    drive::raise(window.id).expect("raise");
+
+    let mut app = App::start(&db, &regex);
+    app.until(Duration::from_secs(20), "one table attached", |e, _| {
+        matches!(e, Event::Message(HudMessage::TablesOpen { count: 1 }, _))
+    });
+    seen.drain(&sim.events);
+    let hand = seen.hands[&number].clone();
+    app.hand(&hand);
+    app.until(Duration::from_secs(20), "the hand drawn", |e, _| {
+        matches!(
+            e,
+            Event::Message(
+                HudMessage::TableUpdated {
+                    hand_key: Some(_),
+                    ..
+                },
+                _
+            )
+        )
+    });
+    let pid = app.pid();
+    let overlay = wait_for(Duration::from_secs(10), "the HUD's overlay", || {
+        overlay_of(pid, window.id).ok_or_else(|| format!("{:?}", probe::windows_of(pid)))
+    });
+
+    // The villains, by seat; no rotation (PokerStars' is not known and the
+    // user said nothing): seat n is slot n - 1.
+    let seated: Vec<(u32, String, bool)> = hand["seated"]
+        .as_array()
+        .expect("seated")
+        .iter()
+        .map(|p| {
+            (
+                u32::try_from(p["seat"].as_u64().unwrap_or(0)).unwrap_or(0),
+                p["name"].as_str().unwrap_or_default().to_owned(),
+                p["hero"].as_bool().unwrap_or(false),
+            )
+        })
+        .collect();
+    let seats: Vec<u32> = seated.iter().map(|(s, _, _)| *s).collect();
+    let villains: Vec<&(u32, String, bool)> = seated.iter().filter(|(_, _, h)| !h).collect();
+    assert!(villains.len() >= 2, "{seated:?}");
+    let scene = scene::compose(
+        &frame("pokerstars", 6, &seats, None),
+        window.client.width,
+        window.client.height,
+        window.scale_permille,
+        &PanelDesign::default(),
+    );
+    let panel_of = |seat: u32| {
+        scene
+            .seat_panels
+            .iter()
+            .find(|(slot, _)| *slot == seat - 1)
+            .map(|(_, r)| *r)
+            .expect("the seat's panel")
+    };
+    let (seat, name, _) = villains[0];
+    let panel = panel_of(*seat);
+    let at = middle(&panel);
+    wait_for(
+        Duration::from_secs(10),
+        "the villain's panel takes clicks",
+        || reaches(&window, at, overlay),
+    );
+    drive::drag(overlay, at, (at.0 + 1, at.1), 1).expect("a click");
+    let said = app.until(Duration::from_secs(10), "open_popup", |e, _| {
+        matches!(e, Event::Message(HudMessage::OpenPopup { .. }, _))
+    });
+    let Event::Message(
+        HudMessage::OpenPopup {
+            site,
+            store_site,
+            player,
+            slot,
+            anchor,
+            scale_permille,
+            ..
+        },
+        _,
+    ) = said
+    else {
+        unreachable!()
+    };
+    assert_eq!(
+        (site.as_str(), store_site.as_str()),
+        ("pokerstars", "pokerstars")
+    );
+    assert_eq!(
+        (player.name.as_str(), player.seat, player.hero),
+        (name.as_str(), Some(*seat), false)
+    );
+    assert_eq!(slot, seat - 1);
+    assert_eq!(scale_permille, window.scale_permille);
+    let (sx, sy) = (window.client.x + at.0, window.client.y + at.1);
+    assert!(
+        sx >= anchor.x
+            && sy >= anchor.y
+            && sx < anchor.x + i32::try_from(anchor.width).unwrap_or(0)
+            && sy < anchor.y + i32::try_from(anchor.height).unwrap_or(0),
+        "the click ({sx}, {sy}) is in the anchor {anchor:?}"
+    );
+    eprintln!("step ok: open_popup for {name} (seat {seat}, slot {slot}) at {anchor:?}");
+
+    // A drag of another villain's panel: no popup.
+    let before = app.said.len();
+    let (other, _, _) = villains[1];
+    let from = middle(&panel_of(*other));
+    let to = (
+        from.0,
+        from.1 + i32::try_from(window.client.height / 10).unwrap_or(40),
+    );
+    drive::drag(overlay, from, to, 10).expect("the drag's messages");
+    app.until(Duration::from_secs(10), "seat_position_changed", |e, _| {
+        matches!(e, Event::Message(HudMessage::SeatPositionChanged { .. }, _))
+    });
+    std::thread::sleep(Duration::from_millis(300));
+    assert!(
+        !app.said[before..]
+            .iter()
+            .any(|m| matches!(m, HudMessage::OpenPopup { .. })),
+        "a drag asks for no popup: {:?}",
+        &app.said[before..]
+    );
+    eprintln!("step ok: a drag moved a panel and asked for no popup");
+    app.supervisor.stop();
     store.close();
     drop(sim);
     let _ = std::fs::remove_dir_all(&dir);

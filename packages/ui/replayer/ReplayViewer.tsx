@@ -145,6 +145,12 @@ interface ReplayViewerProps {
    * Never rendered in an embed, for the reason every sheet is not.
    */
   sheet?: ReplaySheet;
+  /**
+   * False hides the pot-odds box whatever the reader's setting: the desktop
+   * app while a poker table is open (A10 - no help during play). Defaults
+   * to true.
+   */
+  potOdds?: boolean;
   ref?: React.Ref<ReplayViewerHandle>;
 }
 
@@ -410,6 +416,7 @@ function ReplayStage({
   urlSync,
   marks,
   sheet,
+  potOdds = true,
   ref,
 }: ReplayViewerProps) {
   const embed = mode === "embed";
@@ -497,8 +504,8 @@ function ReplayStage({
   const awardAt = useMemo(() => firstAwardIndex(frames), [frames]);
   const caption = mask.text(frame.description);
   const odds = useMemo(
-    () => (settings.showPotOdds ? potOddsAt(frames, Math.min(index, last)) : null),
-    [settings.showPotOdds, frames, index, last],
+    () => (potOdds && settings.showPotOdds ? potOddsAt(frames, Math.min(index, last)) : null),
+    [potOdds, settings.showPotOdds, frames, index, last],
   );
 
   // The two questions every animation in the subtree is answered by. `motion`

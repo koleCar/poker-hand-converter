@@ -1,5 +1,5 @@
-//! What a seat's panel says (R3.4; the popup and the legend are R3.8, the
-//! editor R3.9), and the rooms' restrictions on it (R3.0, `sites.json`
+//! What a seat's panel says (R3.4; the legend and the player's tag R3.8,
+//! the editor R3.9), and the rooms' restrictions on it (R3.0, `sites.json`
 //! `hud.restrictions`).
 //!
 //! - **Statistics**: the shipped definitions whose `hud` is `panel`
@@ -7,14 +7,23 @@
 //!   evaluated over the player's summed rollups (`Totals::sums`) - its value
 //!   as a whole number, its R2.4 colour band ([`Tone`]) and R2.5's
 //!   reliability opacity (0.6 with no sample up to 1 at `sample.min`) - and
-//!   the hand count. Nothing else: no name, no label, nothing about the hand
-//!   in play (the rollups count finished hands the room wrote to disk).
+//!   the hand count. (R3.8) Where the room allows labelling players, the
+//!   user's colour tag, labels and a note mark (R2.7c's words, read by the
+//!   engine). Never a name, nothing about the hand in play (the rollups
+//!   count finished hands the room wrote to disk).
+//! - **The legend** (R3.8): the colour bands the panel's statistics use
+//!   ([`PanelStats::legend_tones`]), collapsed to what the room allows
+//!   ([`collapse_tone`]: on PokerStars low, normal and high) - drawn as a
+//!   small key on the table (`crate::scene`); the popup lists each
+//!   statistic's thresholds in words.
 //! - **The default design** ([`PanelDesign::default`]) is made to comply with
 //!   every permitted room at once (the stricter of PokerStars' and ACR's
 //!   rules, [`rail_config::model::HudRestrictions::STRICTEST`]): one fixed
 //!   list of statistics for every seat and situation, colour by at most two
-//!   fixed thresholds, no labels, no charts or graphs, panels clear of the
-//!   table's graphics.
+//!   fixed thresholds, no charts or graphs, panels clear of the table's
+//!   graphics. The one thing it asks for that a room may refuse is the
+//!   player's words (R3.8): enforcement drops them on PokerStars and ACR
+//!   (`noPlayerLabels`), so they show on Winamax only today.
 //! - **Enforcement** ([`PanelDesign::enforce`]): whatever the design, the
 //!   room's restrictions are applied before drawing - statistics split by
 //!   card values or switching with game state or tendencies are dropped,
@@ -72,8 +81,11 @@ pub struct PanelDesign {
     pub max_colour_thresholds: Option<u32>,
     /// Never place a panel over the table's own graphics.
     pub avoid_table_graphics: bool,
-    /// Show a player's label (R3.8 notes / tags) when the panel has one.
+    /// Show the player's colour tag, labels and note mark (R3.8) when the
+    /// room allows labelling players.
     pub player_labels: bool,
+    /// (R3.8) Show the colour legend on the table.
+    pub legend: bool,
 }
 
 /// At most this many statistics on a panel (guideline §7: four to six).
@@ -81,7 +93,8 @@ pub const MAX_PANEL_STATS: usize = 6;
 
 impl Default for PanelDesign {
     /// The shipped panel statistics, fixed; two thresholds; clear of the
-    /// table's graphics; no labels.
+    /// table's graphics; the legend; the player's words where the room
+    /// allows them (R3.8).
     fn default() -> Self {
         let stats = Display::shipped()
             .map(|display| {
@@ -98,7 +111,8 @@ impl Default for PanelDesign {
             stats,
             max_colour_thresholds: Some(2),
             avoid_table_graphics: true,
-            player_labels: false,
+            player_labels: true,
+            legend: true,
         }
     }
 }
@@ -128,6 +142,7 @@ impl PanelDesign {
             max_colour_thresholds,
             avoid_table_graphics: self.avoid_table_graphics || rules.no_overlap_table_graphics,
             player_labels: self.player_labels && !rules.no_player_labels,
+            legend: self.legend,
         }
     }
 
@@ -137,26 +152,27 @@ impl PanelDesign {
     }
 }
 
-/// A band's tone with the thresholds beyond `max` merged away. The five
-/// tones have four thresholds between them (very low | low | normal | high
-/// | very high); they are kept in the order low|normal, normal|high,
-/// very low|low, high|very high, so two thresholds give low, normal and
-/// high, one gives low and normal, none gives normal.
+/// A band's tone with the thresholds beyond `max` merged away
+/// ([`Tone::collapse`], shared with the app's popup): two thresholds give
+/// low, normal and high, one gives low and normal, none gives normal.
 pub fn collapse_tone(tone: Tone, max: Option<u32>) -> Tone {
-    let Some(max) = max else {
-        return tone;
-    };
-    let keep_low = max >= 1;
-    let keep_high = max >= 2;
-    let keep_very_low = max >= 3;
-    let keep_very_high = max >= 4;
-    match tone {
-        Tone::VeryLow if keep_very_low => Tone::VeryLow,
-        Tone::VeryLow | Tone::Low if keep_low => Tone::Low,
-        Tone::VeryHigh if keep_very_high => Tone::VeryHigh,
-        Tone::VeryHigh | Tone::High if keep_high => Tone::High,
-        _ => Tone::Normal,
-    }
+    tone.collapse(max)
+}
+
+/// (R3.8) The legend's tones: `tones` (the bands a panel's statistics use)
+/// collapsed to at most `max` thresholds, each once, in the scale's order.
+pub fn legend_tones(tones: &[Tone], max: Option<u32>) -> Vec<Tone> {
+    const SCALE: [Tone; 5] = [
+        Tone::VeryLow,
+        Tone::Low,
+        Tone::Normal,
+        Tone::High,
+        Tone::VeryHigh,
+    ];
+    SCALE
+        .into_iter()
+        .filter(|tone| tones.iter().any(|t| collapse_tone(*t, max) == *tone))
+        .collect()
 }
 
 /// One statistic as a panel shows it.
@@ -226,6 +242,17 @@ impl PanelStats {
         self.stats
             .iter()
             .any(|stat| stat.custom.as_ref().is_some_and(|names| !names.is_empty()))
+    }
+
+    /// (R3.8) Every tone the statistics' bands use, in the scale's order:
+    /// what the legend can show before a room collapses it.
+    pub fn legend_tones(&self) -> Vec<Tone> {
+        let used: Vec<Tone> = self
+            .stats
+            .iter()
+            .flat_map(|stat| stat.display.def.bands.iter().map(|band| band.tone))
+            .collect();
+        legend_tones(&used, None)
     }
 
     /// How many statistics a panel shows.
@@ -340,7 +367,7 @@ mod tests {
         assert!((4..=MAX_PANEL_STATS).contains(&ids.len()));
         assert_eq!(design.max_colour_thresholds, Some(2));
         assert!(design.avoid_table_graphics);
-        assert!(!design.player_labels);
+        assert!(design.player_labels && design.legend);
         assert!(
             design
                 .stats
@@ -349,21 +376,86 @@ mod tests {
         );
     }
 
-    /// The default design already complies with the strictest rules: the
-    /// stricter of PokerStars' and ACR's changes nothing.
+    /// The default design already complies with the strictest rules but
+    /// for the player's words (R3.8), which it shows only where a room
+    /// allows labelling players: under the stricter of PokerStars' and
+    /// ACR's rules, or either's alone, they go and nothing else changes;
+    /// on Winamax nothing changes.
     #[test]
     fn the_default_design_complies_with_every_room() {
         let design = PanelDesign::default();
-        assert_eq!(design.enforce(&HudRestrictions::STRICTEST), design);
+        let without_words = PanelDesign {
+            player_labels: false,
+            ..design.clone()
+        };
+        assert_eq!(design.enforce(&HudRestrictions::STRICTEST), without_words);
         let config =
             rail_config::load_shipped(&rail_core::parsers::REGISTRATION_ORDER).expect("shipped");
+        let mut labels = Vec::new();
         for site in config.sites.iter().filter(|s| s.hud_permitted()) {
             let rules = site
                 .hud
                 .restrictions
                 .expect("a permitted room's restrictions");
-            assert_eq!(design.enforce(&rules), design, "{}", site.id);
+            let enforced = design.enforce(&rules);
+            let expected = if rules.no_player_labels {
+                &without_words
+            } else {
+                labels.push(site.id.as_str());
+                &design
+            };
+            assert_eq!(&enforced, expected, "{}", site.id);
         }
+        assert_eq!(labels, ["winamax"], "label suppression per room");
+    }
+
+    /// (R3.8) The legend shows the thresholds actually in use: the panel's
+    /// statistics use all five tones; PokerStars' two thresholds leave low,
+    /// normal and high; ACR and Winamax (no colour restriction) keep the
+    /// default design's two as well, an unrestricted design all five.
+    #[test]
+    fn the_legend_follows_the_rooms_thresholds() {
+        let all = [
+            Tone::VeryLow,
+            Tone::Low,
+            Tone::Normal,
+            Tone::High,
+            Tone::VeryHigh,
+        ];
+        let stats = PanelStats::new(&PanelDesign::default());
+        assert_eq!(stats.legend_tones(), all);
+        let config =
+            rail_config::load_shipped(&rail_core::parsers::REGISTRATION_ORDER).expect("shipped");
+        let three = [Tone::Low, Tone::Normal, Tone::High];
+        for site in config.sites.iter().filter(|s| s.hud_permitted()) {
+            let rules = site.hud.restrictions.expect("restrictions");
+            let design = PanelDesign::default().enforce(&rules);
+            assert_eq!(
+                legend_tones(&stats.legend_tones(), design.max_colour_thresholds),
+                three,
+                "{}",
+                site.id
+            );
+            let open = PanelDesign {
+                max_colour_thresholds: None,
+                ..PanelDesign::default()
+            }
+            .enforce(&rules);
+            let expected: &[Tone] = if rules.max_colour_thresholds.is_some() {
+                &three
+            } else {
+                &all
+            };
+            assert_eq!(
+                legend_tones(&stats.legend_tones(), open.max_colour_thresholds),
+                expected,
+                "{}",
+                site.id
+            );
+        }
+        assert_eq!(legend_tones(&all, Some(1)), [Tone::Low, Tone::Normal]);
+        assert_eq!(legend_tones(&all, Some(0)), [Tone::Normal]);
+        assert!(legend_tones(&[], Some(2)).is_empty());
     }
 
     /// A design beyond the rules (R3.9 could build one) is cut down to them.
@@ -388,6 +480,7 @@ mod tests {
             max_colour_thresholds: None,
             avoid_table_graphics: false,
             player_labels: true,
+            legend: true,
         };
         let ids = |d: &PanelDesign| d.stats.iter().map(|s| s.id.clone()).collect::<Vec<_>>();
 

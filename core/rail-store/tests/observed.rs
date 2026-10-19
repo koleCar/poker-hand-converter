@@ -222,6 +222,45 @@ fn own_hands_only_leaves_out_observed_hands() {
     own.close();
 }
 
+/// (R3.8) The HUD popup's "by position" on a restricted room: an
+/// opponent's rows by position over the hands the user played only - the
+/// same as a store that only ever had the played hand - while the
+/// unrestricted rows count both hands.
+#[test]
+fn positions_from_own_hands_only() {
+    let dir = scratch_dir("observed-positions-files");
+    let (observed, played) = hand_files(&dir);
+    let (both, _) = store_of("observed-positions-both", &[&observed, &played]);
+    let (own, _) = store_of("observed-positions-own", &[&played]);
+    let (site, players, segment) = table_of(&both, &played);
+    let (_, _, own_segment) = table_of(&own, &played);
+    let mut checked = 0;
+    for (name, _) in players.iter().filter(|(name, _)| name != "Nightfox82") {
+        let all = both
+            .reader()
+            .player_positions(&site, name, Some(&[segment]))
+            .expect("all");
+        let mine = both
+            .reader()
+            .player_own_positions(&site, name, Some(&[segment]))
+            .expect("own");
+        let expected = own
+            .reader()
+            .player_positions(&site, name, Some(&[own_segment]))
+            .expect("expected");
+        let hands = |p: &rail_store::players::PlayerPositions| -> i64 {
+            p.positions.values().map(Totals::hands).sum()
+        };
+        assert_eq!(hands(&all), 2, "{name}: both hands");
+        assert_eq!(hands(&mine), 1, "{name}: the played one");
+        assert_eq!(mine.positions, expected.positions, "{name}");
+        checked += 1;
+    }
+    assert_eq!(checked, 5, "every opponent of the hero");
+    both.close();
+    own.close();
+}
+
 /// A recompute (R2.11) sums the observed part again beside the rest and
 /// swaps it in with them: after "rebuild statistics" the rollups, the
 /// observed part included, are the sums of the rows.

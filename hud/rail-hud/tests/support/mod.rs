@@ -64,6 +64,9 @@ pub struct Seen {
     /// table -> its latest `hand` event (R3.6: `seated` has the seats)
     pub hands: BTreeMap<u64, Value>,
     pub log: Vec<String>,
+    /// The simulator closed its standard output (it exited): nothing more
+    /// will come.
+    pub ended: bool,
 }
 
 impl Seen {
@@ -92,6 +95,7 @@ impl Seen {
             (Some("window"), Some(t)) => {
                 self.windows.insert(t, event.clone());
             }
+            (Some("ended"), _) => self.ended = true,
             (Some("closed"), Some(t)) => {
                 self.tables.remove(&t);
                 self.windows.remove(&t);
@@ -106,7 +110,7 @@ impl Seen {
     }
 
     /// Read events until `done` holds or `timeout` passes (then fail with
-    /// everything said).
+    /// everything said - its standard error included).
     pub fn until(
         &mut self,
         events: &Receiver<Value>,
@@ -114,19 +118,40 @@ impl Seen {
         what: &str,
         done: impl Fn(&Self) -> bool,
     ) {
+        if let Err(why) = self.try_until(events, timeout, what, done) {
+            panic!("{why}");
+        }
+    }
+
+    /// [`Seen::until`], the failure returned: a timeout, or the simulator
+    /// gone before `done` held (no use waiting out the timeout then).
+    pub fn try_until(
+        &mut self,
+        events: &Receiver<Value>,
+        timeout: Duration,
+        what: &str,
+        done: impl Fn(&Self) -> bool,
+    ) -> Result<(), String> {
         let deadline = Instant::now() + timeout;
         while !done(self) {
             let left = deadline.saturating_duration_since(Instant::now());
-            assert!(
-                !left.is_zero(),
-                "timed out waiting for {what}; the simulator said:\n{}",
-                self.log.join("\n")
-            );
+            if left.is_zero() || self.ended {
+                return Err(format!(
+                    "{} waiting for {what}; the simulator said (stdout events and stderr lines):\n{}",
+                    if self.ended {
+                        "the simulator ended its output"
+                    } else {
+                        "timed out"
+                    },
+                    self.log.join("\n")
+                ));
+            }
             if let Ok(event) = events.recv_timeout(left.min(Duration::from_millis(200))) {
                 self.take(event);
             }
         }
         eprintln!("step ok: {what}");
+        Ok(())
     }
 
     /// Take whatever arrived, without waiting.
@@ -154,9 +179,15 @@ pub struct Sim {
 }
 
 impl Sim {
-    /// Start it with `args` (and a fresh folder of its own for the hands).
+    /// Start it with `args` and a fresh folder of its own for the hands:
+    /// `rail-hud-sim-<name>-<pid>`, a name no test's own folder takes (the
+    /// simulator refuses a folder it did not make, and a test's store kept
+    /// open in a folder of the same name could not be removed on Windows -
+    /// R3.8's first popup test met exactly that). Its standard error is
+    /// echoed and also arrives as `stderr` events, and the end of its output
+    /// as an `ended` event, so a failure says why it stopped.
     pub fn start(sim: &Path, name: &str, args: &[&str]) -> Self {
-        let out = std::env::temp_dir().join(format!("rail-hud-{name}-{}", std::process::id()));
+        let out = std::env::temp_dir().join(format!("rail-hud-sim-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&out);
         std::fs::create_dir_all(&out).expect("out folder");
         let mut child = Command::new(sim)
@@ -165,27 +196,73 @@ impl Sim {
             .arg(&out)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
+            .stderr(Stdio::piped())
             .spawn()
             .expect("the simulator starts");
         let stdin = child.stdin.take().expect("stdin");
         let stdout = child.stdout.take().expect("stdout");
+        let stderr = child.stderr.take().expect("stderr");
         let (tx, events) = mpsc::channel();
+        let errors = tx.clone();
+        std::thread::spawn(move || {
+            for line in BufReader::new(stderr).lines() {
+                let Ok(line) = line else { break };
+                eprintln!("{line}");
+                if errors
+                    .send(serde_json::json!({"event": "stderr", "line": line}))
+                    .is_err()
+                {
+                    break;
+                }
+            }
+        });
         std::thread::spawn(move || {
             for line in BufReader::new(stdout).lines() {
                 let Ok(line) = line else { break };
                 if let Ok(event) = serde_json::from_str::<Value>(&line)
                     && tx.send(event).is_err()
                 {
-                    break;
+                    return;
                 }
             }
+            let _ = tx.send(serde_json::json!({"event": "ended"}));
         });
         Self {
             child,
             stdin,
             events,
             out,
+        }
+    }
+
+    /// [`Seen::until`] on this simulator's events; a failure also says
+    /// whether it is still running or how it exited.
+    pub fn until(
+        &mut self,
+        seen: &mut Seen,
+        timeout: Duration,
+        what: &str,
+        done: impl Fn(&Seen) -> bool,
+    ) {
+        if let Err(why) = seen.try_until(&self.events, timeout, what, done) {
+            // Its last words (stderr) may still be on the way.
+            std::thread::sleep(Duration::from_millis(300));
+            let before = seen.log.len();
+            seen.drain(&self.events);
+            panic!(
+                "{why}\nthen:\n{}\n{}",
+                seen.log[before..].join("\n"),
+                self.status()
+            );
+        }
+    }
+
+    /// Whether the simulator is still running, or its exit status.
+    pub fn status(&mut self) -> String {
+        match self.child.try_wait() {
+            Ok(Some(status)) => format!("the simulator exited: {status}"),
+            Ok(None) => "the simulator is still running".to_owned(),
+            Err(error) => format!("the simulator's status: {error}"),
         }
     }
 

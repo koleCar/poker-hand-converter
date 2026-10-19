@@ -497,6 +497,13 @@ fn check_allowed(room: &str, site: &str, run: &Run, tables: u32, hands: u32) {
             Some(&chain),
             "{key}: the report's chain"
         );
+        // Every hand has the watcher's stamp - also one committed by a
+        // recheck after the hand before it was cut off at its start
+        // (rail-watch `FileRt::committed`) - and the stamps are in order.
+        assert!(
+            chain.noticed_us.is_some(),
+            "{key}: the chain has no `noticed` stamp: {chain:?}"
+        );
         assert!(
             chain
                 .noticed_us

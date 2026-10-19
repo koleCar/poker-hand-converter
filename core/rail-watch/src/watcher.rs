@@ -353,8 +353,11 @@ pub enum WatchEvent {
         /// (R3.7) When the watcher first noticed the change this commit
         /// completes - the OS's notification, or a walk that found the file
         /// changed - in Unix milliseconds: where the HUD's latency chain
-        /// starts. `None` for a later batch of the same read, or a read
-        /// that was not started by a change (a recheck, a reset).
+        /// starts. The bytes a commit leaves behind (a file not yet quiet,
+        /// a large read's later batches) keep the latest change noticed
+        /// before it, so their commit has a stamp too. `None` for a read no
+        /// change started (a reset, a recheck of a file whose bytes were
+        /// all committed).
         noticed_ms: Option<i64>,
     },
     /// A folder changed state.
@@ -1155,6 +1158,9 @@ struct FileRt {
     /// (R3.7) The first change noticed since the last commit, Unix ms
     /// ([`WatchEvent::Imported`]'s `noticed_ms`).
     noticed_ms: Option<i64>,
+    /// The latest change noticed, Unix ms: what the bytes a commit leaves
+    /// behind were noticed by (see [`FileRt::committed`]).
+    last_noticed_ms: Option<i64>,
 }
 
 impl FileRt {
@@ -1170,7 +1176,33 @@ impl FileRt {
             run: None,
             reset: false,
             noticed_ms: None,
+            last_noticed_ms: None,
         }
+    }
+
+    /// A change of the file was noticed at `now` (a notification, or a walk
+    /// that found it changed).
+    fn noticed(&mut self, now: i64) {
+        self.noticed_ms.get_or_insert(now);
+        self.last_noticed_ms = Some(now);
+    }
+
+    /// A commit: the stamp it completes (taken), and the stamp the rest
+    /// keeps. A commit that leaves bytes behind (`rest`: the file was not
+    /// quiet, so only the hands the next one's start proves complete went
+    /// in; the last one is committed by a recheck once the file is quiet)
+    /// leaves them the latest change noticed before it - they were on disk
+    /// when it read, so a change no later than that one brought them. Without
+    /// this the rest's commit had no stamp at all (only a new notification
+    /// set one, and a hand written whole within the quiet period of the one
+    /// before gets none): R3.7's chain lost its start for every second hand
+    /// written close behind another (seen on Windows CI).
+    fn committed(&mut self, rest: bool) -> Option<i64> {
+        let taken = self.noticed_ms.take();
+        if rest {
+            self.noticed_ms = self.last_noticed_ms.or(taken);
+        }
+        taken
     }
 }
 
@@ -1667,7 +1699,7 @@ impl Coordinator {
                     );
                 }
                 Self::join_run(source, file, size, now);
-                file.noticed_ms.get_or_insert(now);
+                file.noticed(now);
                 self.enqueue(path, false);
             }
         }
@@ -1814,7 +1846,7 @@ impl Coordinator {
             .files
             .entry(path.clone())
             .or_insert_with(|| FileRt::new(source_id));
-        file.noticed_ms.get_or_insert_with(time::now_ms);
+        file.noticed(time::now_ms());
         if let Some(source) = self.sources.get_mut(&file.source_id)
             && let Ok(metadata) = std::fs::metadata(&path)
         {
@@ -2014,8 +2046,8 @@ impl Coordinator {
                 recheck = polled.recheck_at();
                 if let Some(file) = self.files.get_mut(&path) {
                     file.error = false;
-                    if matches!(polled, Polled::Committed { .. }) {
-                        noticed_ms = file.noticed_ms.take();
+                    if let Polled::Committed { recheck_at, .. } = &polled {
+                        noticed_ms = file.committed(recheck_at.is_some());
                     }
                     file.pending = matches!(
                         polled,
@@ -2256,6 +2288,28 @@ mod tests {
     //! system events, no sleeping - each step is a call.
 
     use super::*;
+
+    /// (R3.7 / R3.8) A commit takes the first change noticed since the last
+    /// one; a commit that leaves a hand behind (the file was not quiet)
+    /// leaves it the latest change noticed, so its own commit - by a
+    /// recheck, with no notification of its own - still has a stamp; a
+    /// commit of everything leaves none, and the next change starts afresh.
+    #[test]
+    fn a_commit_that_leaves_bytes_behind_leaves_them_a_stamp() {
+        let mut file = FileRt::new(SOURCE);
+        file.noticed(100);
+        file.noticed(250);
+        assert_eq!(file.committed(true), Some(100));
+        assert_eq!(file.committed(false), Some(250));
+        assert_eq!(file.committed(false), None);
+        file.noticed(900);
+        assert_eq!(file.committed(false), Some(900));
+        // A later change while the rest waits keeps the rest's (earlier) stamp.
+        file.noticed(1000);
+        assert_eq!(file.committed(true), Some(1000));
+        file.noticed(1300);
+        assert_eq!(file.committed(false), Some(1000));
+    }
 
     /// Each event the coordinator reported, with the folder's backfill as
     /// `Watcher::status` showed it at that moment.

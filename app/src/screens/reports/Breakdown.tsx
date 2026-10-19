@@ -11,6 +11,9 @@
  *
  * The tab is the route's parameter (`#/reports/<tab>`), which is how the
  * command palette opens one.
+ *
+ * (R3.8, A10) While the HUD has a poker table open, the starting hands -
+ * the 13 x 13 chart and its rows - are hidden: no hand charts during play.
  */
 import { useId, useRef, type KeyboardEvent } from "react";
 import type { StatDefinition } from "@rail/ui/model/stats";
@@ -18,6 +21,8 @@ import { StatValue } from "@rail/ui/stats/StatValue";
 
 import { useLocale, useT } from "../../i18n";
 import type { Breakdowns, HandFacets, Report, StatGroup } from "../../lib/ipc";
+import { hiddenDuringPlay } from "../../lib/duringPlay";
+import { useTablesOpen } from "../../lib/useTablesOpen";
 import { FORMAT_ORDER, POSITION_ORDER, POT_TYPE_ORDER, SIZE_ORDER } from "../hands/filter";
 import { stakeLabel } from "../hands/format";
 import { HandMatrix } from "./HandMatrix";
@@ -162,6 +167,8 @@ export function Breakdown({ report, breakdowns, loading, definitions, facets, ta
   );
   const tabsRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
+  // A10: no hand charts while a poker table is open.
+  const hidden = hiddenDuringPlay("handChart", useTablesOpen()) && tab === "handClass";
 
   // Arrow keys move between tabs (the ARIA tabs pattern).
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -205,7 +212,11 @@ export function Breakdown({ report, breakdowns, loading, definitions, facets, ta
         ))}
       </div>
       <div id={`${panelId}-panel`} role="tabpanel" aria-labelledby={`${panelId}-${tab}`} className={styles.panel}>
-        {rows === null ? (
+        {hidden ? (
+          <p className={styles.muted} role="note">
+            {b.handClassHidden}
+          </p>
+        ) : rows === null ? (
           <p className={styles.muted} role="status" aria-busy={loading}>
             {b.computing}
           </p>

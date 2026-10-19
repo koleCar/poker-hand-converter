@@ -38,7 +38,9 @@ use rail_hud::compliance::Compliance;
 use rail_hud::layout;
 use rail_hud::panel::{PanelDesign, StatCell};
 use rail_hud::platform::windows::{OVERLAY_CLASS, WindowsBackend, drive, ex_style, probe};
-use rail_hud::platform::{OverlayFrame, Platform, Rect, SeatPanel, TableWindow, WindowId};
+use rail_hud::platform::{
+    OverlayFrame, PanelWords, Platform, Rect, SeatPanel, TableWindow, WindowId,
+};
 use rail_hud::scene::{self, PANEL};
 use support::{Hud, Seen, Sim, find_until, listing, matcher, simulator, title_regex, wait_for};
 
@@ -86,9 +88,10 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
                         opacity_permille: if i % 2 == 0 { 1000 } else { 650 },
                     })
                     .collect(),
-                label: None,
+                words: PanelWords::default(),
             })
             .collect(),
+        legend: Vec::new(),
     }
 }
 

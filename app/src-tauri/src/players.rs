@@ -136,6 +136,20 @@ impl From<PlayerNotes> for NotesDto {
     }
 }
 
+/// (R3.8) The HUD popup's tests read what it carries.
+#[cfg(test)]
+impl NotesDto {
+    /// The note.
+    pub(crate) fn note(&self) -> &str {
+        &self.note
+    }
+
+    /// The colour and labels.
+    pub(crate) fn words(&self) -> (Option<&str>, &[String]) {
+        (self.colour.as_deref(), &self.labels)
+    }
+}
+
 /// One opponent in the list.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

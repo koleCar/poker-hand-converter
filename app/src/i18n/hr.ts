@@ -873,6 +873,7 @@ export const hr: Dict = {
       noteSaving: "Spremam…",
       noteFailed: (reason) => `Bilješka nije spremljena: ${reason}`,
       localOnly: "Oznake i bilješke zasad ostaju na ovom računalu.",
+      potOddsHidden: "Pot odds su skriveni dok je otvoren poker stol: Rail ne pomaže tijekom igre.",
     },
   },
 
@@ -1035,6 +1036,8 @@ export const hr: Dict = {
       heading: "Raščlamba",
       splitBy: "Podijeli po",
       computing: "Brojim…",
+      handClassHidden:
+        "Početne ruke su skrivene dok je otvoren poker stol: Rail tijekom igre ne prikazuje tablice ruku. Vraćaju se kad se stolovi zatvore.",
       tabs: {
         position: "Pozicija",
         stake: "Ulozi",
@@ -1159,6 +1162,52 @@ export const hr: Dict = {
       open: "otvori",
       close: "zatvori",
     },
+  },
+
+  duringPlay: {
+    hidden: "Skriveno dok je otvoren poker stol: Rail ne pomaže tijekom igre. Vraća se kad se stolovi zatvore.",
+  },
+
+  hudPopup: {
+    label: (player) => `${player}: HUD prozor`,
+    close: "Zatvori (Esc)",
+    loading: "Učitavam…",
+    failed: (reason) => `Nije učitano: ${reason}`,
+    none: "Klikni panel igrača za stolom da ovdje vidiš njegove brojke.",
+    you: "Ti",
+    tableAt: (room, table) => `${room} · ${table}`,
+    opaque: "Ova soba skriva imena igrača: brojke su samo iz ove sesije, a za to mjesto nema bilješki.",
+    sample: (count) => `Kroz ${rukuAcc(count)}`,
+    ownHands: "Samo tvoje odigrane ruke, kako traže pravila ove sobe.",
+    together: "Zajedničke ruke",
+    noTogether: "Još nijedna",
+    result: "Tvoj rezultat protiv ovog igrača",
+    resultCash: (bb, count) => `Cash: ${bb} bb kroz ${rukuAcc(count)}`,
+    resultChips: (bb, count) => `Turniri: ${bb} bb kroz ${rukuAcc(count)}`,
+    stats: "Statistike",
+    statsNote: "Samo prošle ruke, kao na stolu. Vrijednost blijedi dok je uzorak malen; prijeđi mišem preko nje za uzorak i interval od 95 %.",
+    legend: "Boje",
+    legendNote: (thresholds) =>
+      `Što znači koja boja, statistiku po statistiku: ${thresholds === 1 ? "prag koji vrijedi" : "pragovi koji vrijede"} za stolovima ove sobe. Na stolu: - nisko, = uobičajeno, + visoko.`,
+    tones: {
+      "very-low": "vrlo nisko",
+      low: "nisko",
+      normal: "uobičajeno",
+      high: "visoko",
+      "very-high": "vrlo visoko",
+    },
+    below: (value) => `ispod ${value}`,
+    from: (value) => `od ${value}`,
+    range: (low, high) => `${low} do ${high}`,
+    byPosition: "Po poziciji",
+    byPositionHidden: (room) =>
+      `Ne prikazuje se za stolovima sobe ${room}: soba ne dopušta HUD čiji se prikaz mijenja s pozicijom.`,
+    noPosition: "Bez pozicije",
+    note: "Bilješka",
+    wordsHidden: (room) =>
+      `${room} ne dopušta označavanje igrača za stolom, pa tvoje bilješke, boje i oznake za njih ostaju na Railovu ekranu Igrači.`,
+    openInApp: "Otvori u Railu",
+    historical: "Statistike samo iz prošlih ruku: Rail ne daje savjete i ne prikazuje ništa o ruci koja se igra.",
   },
 
   ui: {

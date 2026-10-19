@@ -25,14 +25,32 @@
 //! panel. Unrestricted designs (none ships) add a deeper blue and a red for
 //! the outer bands. A figure's opacity is R2.5's reliability (0.6 - 1): a
 //! small sample shows dimmer, never hidden. The hand count is grey.
+//!
+//! **The player's words (R3.8)**, only where the room allows labelling
+//! players (the design's `player_labels` after the permit's restrictions:
+//! never on PokerStars or ACR): the colour tag as a bar down the panel's left
+//! edge in one of six bright colours ([`tag_color`]: they are drawn on the
+//! panel's own near-black, so they keep their contrast on any felt), a small
+//! mark in the top right corner when the player has a note, and their labels
+//! as a third row.
+//!
+//! **The legend (R3.8)**: one small pill in a corner of the table, clear of
+//! the table's graphics and of every panel, with one sign per colour the
+//! panels can show under the room's rules, in that colour - `--`, `-`, `=`,
+//! `+`, `++` for very low to very high (PokerStars: `-`, `=`, `+`). Signs,
+//! not words: the HUD draws no language. The popup says in words where each
+//! statistic's thresholds are. Like every drawn pixel of a layered window it
+//! takes clicks (it is listed in [`Scene::panels`]), so it goes where the
+//! table has nothing: R3.14 measures each client's controls into the
+//! layout's graphics.
 
 #![forbid(unsafe_code)]
 
 use rail_config::stats::Tone;
 
 use crate::layout::{self, Metrics, Placing, Positions, TableLayout};
-use crate::panel::{PanelDesign, collapse_tone, hands_text};
-use crate::platform::{OverlayFrame, Rect};
+use crate::panel::{PanelDesign, collapse_tone, hands_text, legend_tones};
+use crate::platform::{OverlayFrame, Rect, TagColour};
 use crate::seats;
 
 /// A colour with straight (not premultiplied) alpha.
@@ -79,6 +97,33 @@ pub const VERY_LOW: Rgba = Rgba::rgb(76, 140, 255);
 pub const VERY_HIGH: Rgba = Rgba::rgb(255, 104, 104);
 /// The hand count and figures without a value.
 pub const MUTED: Rgba = Rgba::rgb(160, 168, 180);
+
+/// (R3.8) The note mark: a light yellow corner.
+pub const NOTE: Rgba = Rgba::rgb(255, 214, 102);
+
+/// (R3.8) A colour tag's colour on the panel: bright, each well apart from
+/// the panel's near-black (at least 4.5:1), the app's six names.
+pub fn tag_color(colour: TagColour) -> Rgba {
+    match colour {
+        TagColour::Red => Rgba::rgb(255, 92, 92),
+        TagColour::Orange => Rgba::rgb(255, 150, 50),
+        TagColour::Yellow => Rgba::rgb(255, 221, 64),
+        TagColour::Green => Rgba::rgb(88, 214, 120),
+        TagColour::Blue => Rgba::rgb(86, 170, 255),
+        TagColour::Purple => Rgba::rgb(196, 140, 255),
+    }
+}
+
+/// (R3.8) A tone's sign in the legend.
+pub fn tone_sign(tone: Tone) -> &'static str {
+    match tone {
+        Tone::VeryLow => "--",
+        Tone::Low => "-",
+        Tone::Normal => "=",
+        Tone::High => "+",
+        Tone::VeryHigh => "++",
+    }
+}
 
 /// A tone's colour.
 pub fn tone_color(tone: Option<Tone>) -> Rgba {
@@ -140,6 +185,13 @@ pub struct Scene {
     /// Seats whose panel was dropped (no room clear of the table's
     /// graphics, or no seat number), for the diagnostics.
     pub dropped: Vec<String>,
+    /// (R3.8) The colour tags drawn, by slot: none where the room forbids
+    /// labelling players.
+    pub tags: Vec<(u32, Rect)>,
+    /// (R3.8) The slots whose panel has the note mark.
+    pub noted: Vec<u32>,
+    /// (R3.8) The legend, when drawn, and its tones.
+    pub legend: Option<(Rect, Vec<Tone>)>,
 }
 
 impl Scene {
@@ -232,6 +284,7 @@ pub fn compose_with(
 
     // (R3.7) A debug build's latency line: small, in a corner clear of the
     // table's graphics (bottom left, else top left), never a click target.
+    let mut debug_rect = None;
     if let Some(debug) = &frame.debug {
         let px = (metrics.font * 3 / 4).max(9);
         let chars = u32::try_from(debug.chars().count()).unwrap_or(u32::MAX);
@@ -259,6 +312,7 @@ pub fn compose_with(
         });
         match spot {
             Some(rect) => {
+                debug_rect = Some(rect);
                 scene.items.push(Item::Fill {
                     rect,
                     radius: metrics.radius / 2,
@@ -284,7 +338,7 @@ pub fn compose_with(
         .max()
         .unwrap_or(0);
     let columns = u32::try_from(columns.div_ceil(2)).unwrap_or(1);
-    let labels = design.player_labels && frame.panels.iter().any(|p| p.label.is_some());
+    let labels = design.player_labels && frame.panels.iter().any(|p| p.words.label.is_some());
     let panel = metrics.panel_size(columns, u32::from(labels));
 
     // Each seated player's slot: the room's layout, the hero's rotation.
@@ -363,6 +417,41 @@ pub fn compose_with(
         });
         scene.panels.push(rect);
         scene.seat_panels.push((slot, rect));
+        // (R3.8) The player's colour tag and note mark, where the room
+        // allows labelling players.
+        if design.player_labels {
+            if let Some(colour) = player.words.colour {
+                let inset = metrics.radius;
+                let bar = Rect {
+                    x: rect.x,
+                    y: rect.y + i32::try_from(inset).unwrap_or(0),
+                    width: (metrics.pad * 2 / 3).max(2),
+                    height: rect.height.saturating_sub(2 * inset),
+                };
+                scene.items.push(Item::Fill {
+                    rect: bar,
+                    radius: 0,
+                    color: tag_color(colour),
+                });
+                scene.tags.push((slot, bar));
+            }
+            if player.words.noted {
+                let side = metrics.pad.max(3);
+                let inset = i32::try_from(metrics.radius / 2).unwrap_or(0);
+                let right = rect.x + i32::try_from(rect.width).unwrap_or(0);
+                scene.items.push(Item::Fill {
+                    rect: Rect {
+                        x: right - i32::try_from(side).unwrap_or(0) - inset,
+                        y: rect.y + inset,
+                        width: side,
+                        height: side,
+                    },
+                    radius: 0,
+                    color: NOTE,
+                });
+                scene.noted.push(slot);
+            }
+        }
         let cells: Vec<_> = player
             .stats
             .iter()
@@ -405,7 +494,7 @@ pub fn compose_with(
             bold: false,
             align: Align::Center,
         });
-        if labels && let Some(label) = &player.label {
+        if labels && let Some(label) = &player.words.label {
             scene.items.push(Item::Text {
                 rect: Rect {
                     x: rect.x + pad,
@@ -421,6 +510,48 @@ pub fn compose_with(
             });
         }
     }
+
+    // (R3.8) The legend: the colours the panels can show here, once there
+    // are panels to read it against.
+    if design.legend && !scene.seat_panels.is_empty() {
+        let tones = legend_tones(&frame.legend, design.max_colour_thresholds);
+        if !tones.is_empty() {
+            let count = u32::try_from(tones.len()).unwrap_or(1);
+            let token = metrics.row;
+            let size = (2 * metrics.pad + count * token, metrics.row + metrics.pad);
+            let mut taken = scene.panels.clone();
+            taken.extend(debug_rect);
+            match layout::place_legend(width, height, &table, size, metrics.pad, &taken) {
+                Some(rect) => {
+                    scene.items.push(Item::Fill {
+                        rect,
+                        radius: metrics.radius,
+                        color: PANEL,
+                    });
+                    let pad = i32::try_from(metrics.pad).unwrap_or(0);
+                    let step = i32::try_from(token).unwrap_or(0);
+                    for (index, tone) in (0_i32..).zip(&tones) {
+                        scene.items.push(Item::Text {
+                            rect: Rect {
+                                x: rect.x + pad + index * step,
+                                y: rect.y,
+                                width: token,
+                                height: rect.height,
+                            },
+                            text: tone_sign(*tone).to_owned(),
+                            px: metrics.font,
+                            color: tone_color(Some(*tone)),
+                            bold: true,
+                            align: Align::Center,
+                        });
+                    }
+                    scene.panels.push(rect);
+                    scene.legend = Some((rect, tones));
+                }
+                None => scene.dropped.push("legend".to_owned()),
+            }
+        }
+    }
     scene
 }
 
@@ -428,8 +559,8 @@ pub fn compose_with(
 mod tests {
     use super::*;
     use crate::compliance::Compliance;
-    use crate::panel::StatCell;
-    use crate::platform::{SeatPanel, Seating};
+    use crate::panel::{PanelStats, StatCell};
+    use crate::platform::{PanelWords, SeatPanel, Seating};
 
     fn cell(id: &str, text: &str, tone: Tone, opacity: u32) -> StatCell {
         StatCell {
@@ -463,9 +594,14 @@ mod tests {
                     seat: Some(seat),
                     hands: 1234,
                     stats: six(Tone::VeryHigh),
-                    label: Some("fish".into()),
+                    words: PanelWords {
+                        colour: Some(TagColour::Red),
+                        label: Some("fish".into()),
+                        noted: true,
+                    },
                 })
                 .collect(),
+            legend: PanelStats::new(&PanelDesign::default()).legend_tones(),
         }
     }
 
@@ -493,7 +629,9 @@ mod tests {
             1000,
             &PanelDesign::default(),
         );
-        assert_eq!(scene.panels.len(), 6, "{:?}", scene.dropped);
+        assert_eq!(scene.seat_panels.len(), 6, "{:?}", scene.dropped);
+        // Six panels and the legend (R3.8) take clicks.
+        assert_eq!(scene.panels.len(), 7, "{:?}", scene.dropped);
         assert!(scene.dropped.is_empty());
         for (seat, rect) in (1..=6).zip(&scene.panels) {
             let plate = layout::seat_plate(w, h, layout::seat_center(6, seat).expect("seat"));
@@ -509,10 +647,12 @@ mod tests {
             }
         }
         let shown = texts(&scene);
-        // Six figures and a hand count per panel; no label (PokerStars).
-        assert_eq!(shown.len(), 6 * 7);
+        // Six figures and a hand count per panel and the legend's three
+        // signs; no label, tag or note mark (PokerStars).
+        assert_eq!(shown.len(), 6 * 7 + 3);
         assert_eq!(shown.iter().filter(|(t, _)| *t == "1234").count(), 6);
         assert!(!shown.iter().any(|(t, _)| *t == "fish"));
+        assert!(scene.tags.is_empty() && scene.noted.is_empty());
         // The centre of the table is not the overlay's: clicks pass.
         let (cx, cy) = (
             i32::try_from(w / 2).expect("w"),
@@ -568,6 +708,135 @@ mod tests {
         assert!(shown.iter().take(6).all(|(_, c)| *c == VERY_HIGH));
     }
 
+    /// (R3.8) The player's colour tag, note mark and labels: drawn on
+    /// Winamax, never on PokerStars or ACR (`noPlayerLabels`), whatever the
+    /// design asks for.
+    #[test]
+    fn player_words_only_where_the_room_allows_labels() {
+        let fills = |scene: &Scene, color: Rgba| {
+            scene
+                .items
+                .iter()
+                .filter(|item| matches!(item, Item::Fill { color: c, .. } if *c == color))
+                .count()
+        };
+        for site in ["pokerstars", "acr"] {
+            let scene = compose(
+                &frame(site, Some(6), &[1, 2, 3]),
+                800,
+                580,
+                1000,
+                &PanelDesign::default(),
+            );
+            assert_eq!(scene.seat_panels.len(), 3, "{site}");
+            assert!(scene.tags.is_empty() && scene.noted.is_empty(), "{site}");
+            assert_eq!(fills(&scene, tag_color(TagColour::Red)), 0, "{site}");
+            assert_eq!(fills(&scene, NOTE), 0, "{site}");
+            assert!(!texts(&scene).iter().any(|(t, _)| *t == "fish"), "{site}");
+        }
+        let scene = compose(
+            &frame("winamax", Some(6), &[1, 2, 3]),
+            800,
+            580,
+            1000,
+            &PanelDesign::default(),
+        );
+        let slots: Vec<u32> = scene.seat_panels.iter().map(|(s, _)| *s).collect();
+        assert_eq!(
+            scene.tags.iter().map(|(s, _)| *s).collect::<Vec<_>>(),
+            slots
+        );
+        assert_eq!(scene.noted, slots);
+        assert_eq!(fills(&scene, tag_color(TagColour::Red)), 3);
+        assert_eq!(fills(&scene, NOTE), 3);
+        assert_eq!(
+            texts(&scene).iter().filter(|(t, _)| *t == "fish").count(),
+            3
+        );
+        // Each tag is a bar inside its panel, left of the figures.
+        for ((_, bar), (_, panel)) in scene.tags.iter().zip(&scene.seat_panels) {
+            assert!(layout::intersects(bar, panel));
+            assert_eq!(bar.x, panel.x);
+            assert!(bar.width <= Metrics::for_client(580, 1000).pad);
+        }
+        // A design without words shows none on Winamax either.
+        let quiet = PanelDesign {
+            player_labels: false,
+            ..PanelDesign::default()
+        };
+        let scene = compose(&frame("winamax", Some(6), &[1]), 800, 580, 1000, &quiet);
+        assert!(scene.tags.is_empty() && scene.noted.is_empty());
+        // Every tag colour keeps its contrast on the panel.
+        for colour in [
+            TagColour::Red,
+            TagColour::Orange,
+            TagColour::Yellow,
+            TagColour::Green,
+            TagColour::Blue,
+            TagColour::Purple,
+        ] {
+            let c = tag_color(colour);
+            assert!(
+                u32::from(c.r) + u32::from(c.g) + u32::from(c.b) >= 3 * 120,
+                "{colour:?} too dark for the panel"
+            );
+        }
+    }
+
+    /// (R3.8) The legend: the colours the panels can show under the room's
+    /// rules - PokerStars' two thresholds: low, normal, high - in a corner
+    /// clear of the table's graphics and of every panel; five with a design
+    /// that has no limit where the room has none; none without panels or
+    /// when the design leaves it out.
+    #[test]
+    fn the_legend_shows_the_thresholds_in_use() {
+        let (w, h) = (800, 580);
+        for site in ["pokerstars", "acr", "winamax"] {
+            let scene = compose(
+                &frame(site, Some(6), &[1, 2, 3, 4, 5, 6]),
+                w,
+                h,
+                1000,
+                &PanelDesign::default(),
+            );
+            let (rect, tones) = scene.legend.clone().expect("a legend");
+            assert_eq!(tones, [Tone::Low, Tone::Normal, Tone::High], "{site}");
+            let signs: Vec<(&str, Rgba)> = texts(&scene).into_iter().rev().take(3).collect();
+            assert_eq!(signs, [("+", HIGH), ("=", NORMAL), ("-", LOW)], "{site}");
+            for g in layout::table_graphics(w, h, 6) {
+                assert!(!layout::intersects(&rect, &g), "{site}");
+            }
+            for (_, panel) in &scene.seat_panels {
+                assert!(!layout::intersects(&rect, panel), "{site}");
+            }
+            assert!(layout::inside(&rect, w, h));
+            assert!(scene.hit(rect.x + 1, rect.y + 1), "it takes clicks");
+            assert_eq!(scene.seat_panel_at(rect.x + 1, rect.y + 1), None);
+        }
+        let open = PanelDesign {
+            max_colour_thresholds: None,
+            ..PanelDesign::default()
+        };
+        let stars = compose(&frame("pokerstars", Some(6), &[1]), w, h, 1000, &open);
+        assert_eq!(stars.legend.expect("legend").1.len(), 3, "two thresholds");
+        let winamax = compose(&frame("winamax", Some(6), &[1]), w, h, 1000, &open);
+        assert_eq!(winamax.legend.expect("legend").1.len(), 5);
+        let off = PanelDesign {
+            legend: false,
+            ..PanelDesign::default()
+        };
+        assert!(
+            compose(&frame("winamax", Some(6), &[1]), w, h, 1000, &off)
+                .legend
+                .is_none()
+        );
+        assert!(
+            compose(&frame("winamax", Some(6), &[]), w, h, 1000, &open)
+                .legend
+                .is_none()
+        );
+    }
+
     /// On a table too small for the panels, ACR (no covering its graphics)
     /// gets fewer panels than a room without that rule - and none of ACR's
     /// covers anything.
@@ -621,7 +890,7 @@ mod tests {
         let mut frame = frame("pokerstars", None, &[8, 2]);
         frame.panels[1].seat = None;
         let scene = compose(&frame, 800, 580, 1000, &PanelDesign::default());
-        assert_eq!(scene.panels.len(), 1);
+        assert_eq!(scene.seat_panels.len(), 1);
         assert_eq!(scene.dropped, ["P2: no seat"]);
         // Seat 8 of a 9-max layout.
         let plate = layout::seat_plate(800, 580, layout::seat_center(9, 8).expect("seat"));

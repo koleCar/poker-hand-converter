@@ -879,6 +879,7 @@ export const en = {
       noteSaving: "Saving…",
       noteFailed: (reason: string) => `The note was not saved: ${reason}`,
       localOnly: "Tags and notes stay on this computer for now.",
+      potOddsHidden: "Pot odds are hidden while a poker table is open: Rail gives no help during play.",
     },
   },
 
@@ -1045,6 +1046,8 @@ export const en = {
       heading: "Breakdown",
       splitBy: "Split by",
       computing: "Counting…",
+      handClassHidden:
+        "Starting hands are hidden while a poker table is open: Rail shows no hand charts during play. They are back when the tables close.",
       tabs: {
         position: "Position",
         stake: "Stakes",
@@ -1167,6 +1170,54 @@ export const en = {
       open: "open",
       close: "close",
     },
+  },
+
+  /** A10 (R3.8): what the app hides while a poker table is open. */
+  duringPlay: {
+    hidden: "Hidden while a poker table is open: Rail gives no help during play. It is back when the tables close.",
+  },
+
+  /** The HUD popup (R3.8): a click on a player's panel at the table. */
+  hudPopup: {
+    label: (player: string) => `${player}: the HUD popup`,
+    close: "Close (Esc)",
+    loading: "Loading…",
+    failed: (reason: string) => `Not loaded: ${reason}`,
+    none: "Click a player's panel at a table to see their numbers here.",
+    you: "You",
+    tableAt: (room: string, table: string) => `${room} · ${table}`,
+    opaque: "This room hides screen names: these numbers are from this session only, and the seat takes no notes.",
+    sample: (count: number) => (count === 1 ? "Over 1 hand" : `Over ${hands(count)}`),
+    ownHands: "Hands you played only, as this room's rules ask.",
+    together: "Hands together",
+    noTogether: "None yet",
+    result: "Your result against them",
+    resultCash: (bb: string, count: number) => `Cash: ${bb} bb over ${hands(count)}`,
+    resultChips: (bb: string, count: number) => `Tournaments: ${bb} bb over ${hands(count)}`,
+    stats: "Statistics",
+    statsNote: "Past hands only, as on the table. A value fades while its sample is thin; hover it for the sample and its 95% interval.",
+    legend: "Colours",
+    legendNote: (thresholds: number) =>
+      `What each colour means, statistic by statistic: the ${thresholds === 1 ? "threshold" : "thresholds"} in use at this room's tables. On the table: - low, = normal, + high.`,
+    tones: {
+      "very-low": "very low",
+      low: "low",
+      normal: "normal",
+      high: "high",
+      "very-high": "very high",
+    },
+    below: (value: string) => `below ${value}`,
+    from: (value: string) => `from ${value}`,
+    range: (low: string, high: string) => `${low} to ${high}`,
+    byPosition: "By position",
+    byPositionHidden: (room: string) =>
+      `Not shown at ${room} tables: the room does not allow a HUD whose display changes with position.`,
+    noPosition: "No position",
+    note: "Note",
+    wordsHidden: (room: string) =>
+      `${room} does not allow labelling players at the table, so your notes, colours and labels for them stay in Rail's Players screen.`,
+    openInApp: "Open in Rail",
+    historical: "Statistics from past hands only: Rail gives no advice and shows nothing about the hand being played.",
   },
 
   /** The words the shared UI package (`packages/ui`) needs besides the replayer's. */

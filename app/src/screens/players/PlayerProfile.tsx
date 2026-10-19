@@ -229,15 +229,35 @@ function Body({
 
 /** The colour, the labels and the note. */
 function Words({ profile, onNotes }: { profile: Profile; onNotes: (notes: PlayerNotes) => void }) {
+  return <PlayerWords site={profile.site} player={profile.player} initial={profile.notes} onNotes={onNotes} />;
+}
+
+/**
+ * A player's words, saved as they change: the colour (an ARIA radio group),
+ * the labels and the note. (R3.8) The HUD popup shows it too, without the
+ * "stays on this computer" footnote, on rooms that allow labelling players.
+ */
+export function PlayerWords({
+  site,
+  player,
+  initial,
+  onNotes,
+  footnote = true,
+}: {
+  site: string;
+  player: string;
+  initial: PlayerNotes;
+  onNotes: (notes: PlayerNotes) => void;
+  footnote?: boolean;
+}) {
   const p = useT().players;
   const t = p.profile;
-  const { site, player } = profile;
-  const [notes, setNotes] = useState(profile.notes);
-  const [note, setNote] = useState(profile.notes.note);
+  const [notes, setNotes] = useState(initial);
+  const [note, setNote] = useState(initial.note);
   const [label, setLabel] = useState("");
   const [noteState, setNoteState] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
-  const savedNote = useRef(profile.notes.note);
+  const savedNote = useRef(initial.note);
   const timer = useRef<number | undefined>(undefined);
   const pending = useRef<string | null>(null);
   const groupId = useId();
@@ -401,7 +421,7 @@ function Words({ profile, onNotes }: { profile: Profile; onNotes: (notes: Player
           onBlur={() => saveNote(note)}
         />
       </label>
-      <p className={styles.footnote}>{t.localOnly}</p>
+      {footnote ? <p className={styles.footnote}>{t.localOnly}</p> : null}
       {error ? (
         <p className={styles.errorText} role="alert">
           {error}
