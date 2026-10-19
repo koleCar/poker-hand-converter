@@ -8197,7 +8197,14 @@ graphics, and CPU with twelve real tables.
     re-ordering an overlay and its click windows on a plain move and stops
     settling reads once the window server shows the move, and the storm
     now sends its 100 moves 10 ms apart without waiting (as a drag does);
-    its CI line (`R3.13 storm`) is the record for that
+    its CI line (`R3.13 storm`) is the record for that. **CI gates
+    correctness, not the tail**: the overlay over the table's last place,
+    never at an older one, never hidden, one `Moved`, no repaint, the
+    observers' + AppKit CPU under 0.5 s for the storm, and the typical lag
+    (p50 under two frames) are asserted everywhere; the storm's p95 is
+    printed on CI (the same code measured 85 ms and 0.52 s on two runs -
+    the virtual window server's stalls) and gated at three frames only with
+    `RAIL_HUD_REAL_HW=1` (R3.14, the owner's Mac)
   - **Limits.** No real client (no macOS `tables` block). A client that
     does not post these notifications (poor accessibility) is followed by
     the 500 ms re-find, as before. A click on the already focused table that
@@ -8206,7 +8213,10 @@ graphics, and CPU with twelve real tables.
     another Space whose element is replaced is treated as closed (the next
     find attaches it again). Spaces: simulated only. Retina and two
     displays: unit tests only (both runners and this Mac are 1x).
-  - **For R3.14** (twelve tables, real clients): measure the observers'
+  - **For R3.14** (twelve tables, real clients): run `RAIL_HUD_REAL_HW=1
+    cargo test -p rail-hud --test macos_tracking -- --nocapture` on the
+    owner's Mac (a terminal with Accessibility) - the storm's p95 is gated
+    at three frames there; measure the observers'
     CPU with twelve real tables and the restack look's cost; confirm each
     allowed room's client posts `AXWindowMoved` / `AXWindowResized` /
     `AXTitleChanged` for its tables (else the re-find carries it) and does

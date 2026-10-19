@@ -71,6 +71,12 @@ mod macos {
     /// How often the test asks the window server while it waits.
     const POLL: Duration = Duration::from_millis(2);
 
+    /// (R3.14) A real Mac, not a CI runner's virtual display: latency tails
+    /// are gated only then (`RAIL_HUD_REAL_HW=1`).
+    fn real_hardware() -> bool {
+        std::env::var("RAIL_HUD_REAL_HW").is_ok_and(|v| v == "1")
+    }
+
     pub fn main() {
         let code = macos::with_appkit(|link| {
             let link = link.expect("AppKit runs on this test's main thread");
@@ -96,7 +102,9 @@ mod macos {
             }
             0
         });
-        assert_eq!(code, 0);
+        // 101: a step panicked on the engine's thread (its message above);
+        // `with_appkit` returns the thread's exit, so this only repeats it.
+        assert_eq!(code, 0, "a step failed (see the panic above)");
         eprintln!("macos_tracking: ok");
     }
 
@@ -1041,15 +1049,25 @@ mod macos {
         assert_eq!(hidden, 0, "the overlay hid during the storm");
         assert_eq!(moved, 1, "one Moved: {events:?}");
         assert_eq!(info_of(backend, a.id).renders, renders, "no repaint");
-        // The overlay ends over the table's last place, was never back at
-        // an older one nor hidden (above); a place the table only passed
-        // through may be skipped (a newer one came first), and the places
-        // it covered were covered within two frames typically. The tail is
-        // the runner's: its virtual window server now and then answers one
-        // reading after half a second (the observers' slowest read is in
-        // the line above), so p95 is held to 15 frames, not Windows' 3.
+        // Correctness is strict everywhere: the overlay ends over the
+        // table's last place, was never back at an older one nor hidden
+        // (above); a place the table only passed through may be skipped (a
+        // newer one came first). Latency: the typical place is covered
+        // within two frames everywhere; the tail is gated only on real
+        // hardware (`RAIL_HUD_REAL_HW=1`: R3.14, the owner's Mac, three
+        // frames as on Windows). On CI it is a measurement, not a gate: the
+        // runner's virtual window server now and then answers one reading
+        // after half a second (the observers' slowest read is printed
+        // above; the same code measured p95 85 ms and 0.52 s on two runs).
         assert!(p50 < 2 * FRAME.as_micros(), "p50 {p50} us");
-        assert!(p95 < 15 * FRAME.as_micros(), "p95 {p95} us");
+        if real_hardware() {
+            assert!(p95 < 3 * FRAME.as_micros(), "p95 {p95} us");
+        } else {
+            eprintln!(
+                "R3.13 storm: p95 not gated here (set RAIL_HUD_REAL_HW=1 on real hardware to \
+                 hold it to three frames)"
+            );
+        }
         assert!(
             tracker_used + appkit_used < 500_000,
             "following 100 moves cost {tracker_used} + {appkit_used} us"

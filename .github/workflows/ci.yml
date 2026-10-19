@@ -358,6 +358,11 @@ jobs:
       # lines say whether the observers ran (Accessibility) and what was
       # skipped or simulated (a Space switch); the `R3.13 drag` / `storm` /
       # `focus` / `click` / `hide` / `exit` lines are the measurements.
+      # Correctness (every table followed, never back, never hidden, no CPU
+      # spike) and the typical lag (p50 under two frames) are gated here;
+      # the storm's p95 is printed, not gated: the runner's virtual window
+      # server stalls a reading for ~0.5 s now and then. R3.14 gates it at
+      # three frames on real hardware (`RAIL_HUD_REAL_HW=1`).
       - name: HUD tracking on macOS (steps and measurement)
         if: matrix.os == 'macos-latest'
         run: cargo test -p rail-hud --test macos_tracking --locked -- --nocapture
