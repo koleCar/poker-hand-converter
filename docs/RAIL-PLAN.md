@@ -169,6 +169,11 @@ headless e2e (`hud/rail-hud/tests/e2e.rs`, debug build, M2 Pro, 12 tables,
 ms, the re-read 0.8 ms, the frame 0.4 ms (p50s); **the whole chain p50 506
 ms, p95 521 ms** - < 1 s holds (asserted on the p95), the aim of 250 ms
 waits on the quiet period (R1.3).
+*As built* (R3.14): the same chain through the HUD process on this system's
+backend, twelve windowed tables and a refused thirteenth, gated in CI on
+macOS and Windows (`tests/twelve_tables.rs`, written -> frame p95 < 1 s,
+paint p95 < 16.7 ms); release on the M2 Pro (data path): p50 513 ms, p95
+517 ms.
 
 ### 3.4 Local SQLite schema (first version)
 
@@ -8255,6 +8260,257 @@ two-display setup, and CPU with twelve real tables.
 - Simulator with 12 tables on each system; CPU, memory and latency budgets
   recorded in CI and on real hardware; then a real-client check on each
   allowed room (P5, P6).
+- *As built* (§15): **done on the simulator**; the real-client half is the
+  owner's, with a written procedure. `hud/rail-hud/tests/twelve_tables.rs`
+  (its own `main`), small changes to the HUD process for measuring, the
+  macOS engine's slower search, and
+  [`docs/research/REAL-CLIENT-CHECK.md`](research/REAL-CLIENT-CHECK.md).
+  - **The scenario.** The test plays the app, as `e2e.rs` does: a fresh
+    store, the watcher on both simulators' folders, the statistics pass,
+    and the real supervisor starting the real `rail-hud`. The HUD runs
+    with **this system's backend** (Windows: find, overlays, hooks; macOS:
+    Accessibility find, AppKit overlays, observers). Two simulators:
+    **12 PokerStars-titled tables** (6- and 9-max) posing as `pokerstars`,
+    and **one ACR-titled table** posing as `ggpoker` (prohibited). Each is
+    a test-only room entry, and `rail-hud` now takes one `--sim-site` /
+    `--sim-title` pair per room. The two title regexes are disjoint;
+    a test-only entry takes the simulator's process only. Five phases:
+    1. **Attach**: the simulators are paused until all 12 tables are
+       attached, the thirteenth refused and 12 overlays are on screen.
+    2. **Play** for `--seconds` at `--speed` (6 hands per minute per
+       table). A quarter of the way in, a recompute is queued: it must
+       stay paused while tables are open, as the app's `tables_open`
+       handling does.
+    3. **Follow**: every table is moved out and back while hands go on
+       (24 moves). On Windows the test calls `SetWindowPos`, as a user's
+       drag does; on macOS the simulator moves its own window. The lag is
+       from the table at its new place to the overlay over it, polled.
+    4. **Idle**: the simulators are paused; the HUD's CPU is measured with
+       12 tables showing numbers, then the overlays are counted again.
+    5. **Shutdown**: the HUD writes its new `--perf-report`.
+
+    Without `--run` the test only prints how to run it, so the
+    workspace's `cargo test` does not pay for it.
+  - **What it measures.**
+    - Every hand's chain, from the bytes written (the simulator's `atMs`)
+      through the watcher's notice, the import, `hand_imported`, its
+      arrival and the re-read to the frame (the HUD's `--latency-report`),
+      stage by stage.
+    - The overlays' paints and follows inside the HUD: `--perf-report`, at
+      shutdown, from the backend's own timings, through the new
+      `Platform::paint_times_us` / `follow_times_us` (`latency::summarize`).
+    - The follow seen from outside, as above.
+    - The HUD's and the app's CPU: Windows `GetProcessTimes`; macOS `ps`,
+      10 ms resolution.
+    - The HUD's memory: Windows working set and its peak, through the new
+      `probe::memory`, `K32GetProcessMemoryInfo`, the `windows` feature
+      `Win32_System_ProcessStatus` (no new crate); macOS `ps` RSS,
+      sampled every 5 s.
+    - The overlays on screen: Windows, visible `RailHudOverlay` windows
+      owned by each table; macOS, the HUD's windows over each table's
+      client area.
+    - The refusal (`attach_refused`, `prohibited`), the hands shown, and
+      the statistics pass's state.
+  - **Gates** (`Report::gate` / `exact`). The report is written **before**
+    any gate is checked: JSON + markdown,
+    `twelve-tables-<os>-<profile>-<time>`, in `--report-dir` (default
+    `target/twelve-tables`). It holds only simulator data: no host name,
+    user name or path.
+
+    | Check | Limit | Gated |
+    | --- | --- | --- |
+    | Tables attached; overlays on screen (at attach and at the end) | exactly 12 | everywhere |
+    | Overlays on the refused table; its hands shown | 0 | everywhere |
+    | Refused as `prohibited` | exactly once | everywhere |
+    | Allowed hands written during play and not shown | 0 | everywhere |
+    | Moves not followed | 0 | everywhere |
+    | Recompute progress while tables are open; the pass `PausedTables` | 0; yes | everywhere |
+    | Hand written -> frame, p95 / max | 1 s (§3.3) / 5 s | everywhere |
+    | Overlay paint, p95 | 16.7 ms | everywhere |
+    | Table moved -> overlay over it, p50 | 2 frames (33 ms) | everywhere (R3.13's rule) |
+    | Table moved -> overlay over it, p95 | 3 frames (50 ms) | Windows and real hardware; recorded on a CI Mac (virtual window server, R3.13) |
+    | HUD CPU, 12 tables idle / playing | 5 % / 15 % of one core x runner factor | everywhere |
+    | App CPU while 12 tables play | 20 % of one core x runner factor | everywhere |
+    | HUD memory (RSS max sampled; Windows peak working set) | 256 MiB | everywhere |
+
+    **Runner-relative CPU**: a fixed workload is timed on the machine
+    (xorshift fill + sort, the fastest of five; `-- --calibrate` prints
+    it). Its ratio to the M2 Pro reference for the build profile (debug
+    240 ms, release 7.5 ms, measured on the owner's Mac under the flop
+    library's load) scales the CPU budgets. The factor never goes below
+    1: a faster machine is not held to more. `--real-hw` (or
+    `RAIL_HUD_REAL_HW=1`) marks a real machine; it also gates the follow
+    p95.
+  - **Without the Accessibility permission** (macOS) the HUD can read no
+    title. The test then runs the data path with the simulator's event
+    stream as the windows (`--platform sim`, headless simulators, so a
+    Mac in use gets no windows) and reports `INCOMPLETE`, listing what it
+    skipped. It never prompts and changes no setting.
+  - **CI**: in the `core` job on `macos-latest` and `windows-latest`, the
+    step "HUD on twelve tables (R3.14 budget)" runs `-- --run --seconds 60
+    --idle-seconds 10` in debug. The report is uploaded as the artefact
+    `twelve-tables-<os>` (kept 30 days), even when the step fails. The
+    macOS runner has Accessibility (R3.11 - R3.13), so it runs in full
+    mode. The first numbers are this PR's run artefacts; copy them here
+    once read.
+  - **Measured locally** on the owner's M2 Pro, macOS 26.6.2, one
+    1920 x 1080 display at 1x. The agent's shell has no Accessibility, so
+    the run was data-only and nothing was changed. The machine was busy:
+    the flop library at 6 solves (nice 10), a VM and a browser; load
+    average ~12 on 10 cores.
+    - **Release, 30 s of play (36 hands, all shown)**: hand written ->
+      frame **p50 513 ms, p95 517 ms, max 524 ms**. Of that, the
+      watcher's quiet period is 497 ms (p50), the re-read 0.20 ms (p95
+      0.88) and read -> frame 0.08 ms.
+    - HUD CPU (simulator backend) **0.20 % idle, 0.29 % playing**; the app
+      **0.69 %**; HUD RSS **14 MiB**.
+    - The ACR table posing as GGPoker: 4 hands, none shown.
+    - The recompute (13 hands) queued during play: 0 done,
+      `PausedTables`.
+    - Calibration 7.4 ms (factor 1.0).
+    - Debug, 20 s: p95 524 ms, HUD 0.40 % / 0.49 %, app 1.54 %, 15 MiB.
+    - The in-process overlay measurement in release (`macos_overlay --
+      --perf`, no Accessibility needed): 240 paints of 12 tables **p50
+      0.76 ms, p95 1.09 ms**, max 9.4 ms (the first paint, which loads the
+      fonts); idle 0.30 % of one core.
+    - **Skipped locally** (they need the terminal's Accessibility): the
+      HUD process's overlays on screen and their paints, the follow, the
+      refused table's overlay, and R3.13's real-hardware storm gate.
+  - **Real-hardware kit**, one command, the same on both systems, in a
+    checkout:
+
+    ```text
+    cargo test --release -p rail-hud --test twelve_tables -- --run --real-hw --seconds 300
+    ```
+
+    It builds the HUD and the simulator in release and runs about 6
+    minutes: 13 windows open, move and close by themselves. It writes the
+    report to `target/twelve-tables/`. On macOS the terminal needs
+    Accessibility; there, also run `RAIL_HUD_REAL_HW=1 cargo test -p
+    rail-hud --test macos_tracking -- --nocapture` (R3.13's storm, gated at
+    three frames).
+  - **Fix: the macOS search slows when the observers follow every table**
+    (R3.13's note: the Accessibility calls of the 500 ms search are most
+    of the HUD's idle cost).
+    - New `Platform::notified`. The macOS backend answers from an atomic
+      that the observers' thread publishes after every step: every tracked
+      table's element is found, its move or resize, miniaturise,
+      deminiaturise, destroyed and title notifications are registered, its
+      application's `AXWindowCreated` too, **and its client has posted at
+      least one move or resize for one of its tables**
+      (`macos::fully_observed`, `shows_moves`). The last condition matters
+      because a client with poor accessibility registers and then never
+      posts.
+    - While that holds, the engine looks every `find_every_notified` =
+      **2 s** instead of 500 ms. It asks at every look, so a new table or
+      an unobserved one brings the pace back. A hand that no window takes,
+      and `AXWindowCreated` (`Appeared`), still look at once.
+    - A revoked permission is now seen within 2 s. Windows is unchanged:
+      its search is cheap.
+    - The perf report shows `finds`, `findEveryMs` and `notified`. Tests:
+      `macos::tests::a_table_is_fully_observed` and
+      `engine::tests::the_look_slows_while_notifications_follow_every_table`.
+  - **The R3.x notes for R3.14**, and where each went:
+    - Twelve tables' CPU, memory and latency on the simulator: this step.
+    - Slowing the macOS search: done (above).
+    - The remaining notes go to the real-client procedure, which turns
+      each into a check with pass/fail boxes:
+      - seat layouts and ACR's graphics (C2, C4; measured by the capture,
+        `CAPTURING-TABLES.md`);
+      - preferred seat (C3);
+      - whether each client posts the accessibility notifications, and
+        whether a click raises the table over its overlay (C5);
+      - the mid-hand write pause against the 500 ms quiet period (C10,
+        R3.7);
+      - the macOS title bar (C14);
+      - the popup over a full-screen table (C7);
+      - Retina, two displays and Spaces (C12, C13);
+      - CPU with 12 real tables (C11);
+      - the latency on a real client (C9: a debug build's line and a
+        60 fps recording).
+    - R2.9's one 1.6 s outlier in 15 hands at 12 tables did not recur in
+      the local runs here (max 524 ms over 36 and 24 hands); CI's report
+      has more.
+  - **Limits.**
+    - The simulator is not a client: every real-room number waits for the
+      real-client check.
+    - **No room has a `tables` block, so the HUD attaches to no real
+      client yet.**
+    - Sync is not run in the test (no server), so its bandwidth limit
+      while tables are open (`SyncWorker::set_tables_open`) is not
+      exercised here.
+    - The app is played by the test process, not the Tauri app.
+    - The macOS follow is measured from the window server's list, polled
+      every 2 ms.
+    - CPU on macOS is read through `ps`, at 10 ms resolution.
+    - The runner factor is a compute workload, a rough proxy for a HUD
+      that mostly waits on the system.
+
+### Phase 3 summary (after R3.14)
+
+R3.0 - R3.14 are on `staging`. On the table simulator, the HUD:
+
+- finds tables, draws on them, follows them and lays out seats on Windows
+  and macOS;
+- carries the data path, the panel and popup, the editor and presets;
+- enforces compliance in the HUD process and in the app.
+
+| Step | Windows | macOS |
+| --- | --- | --- |
+| R3.0 HUD policy per room, signed | both: PokerStars, Winamax, ACR allowed; 15 rooms prohibited, 4 unknown | |
+| R3.1 Table simulator | in CI with windows | in CI with windows |
+| R3.2 HUD process, IPC, supervision | both: sidecar, socket / pipe, handshake, read-only store | |
+| R3.3 / R3.11 Find tables | `EnumWindows`, process + title, physical pixels | window server + Accessibility titles, one permission |
+| R3.4 / R3.12 Overlays | layered owned window, Direct2D | non-activating `NSPanel`, Core Graphics; click windows |
+| R3.5 / R3.13 Tracking | WinEvent hooks | `AXObserver`s, Spaces, `kqueue` exits |
+| R3.6 Seats and layouts, drag | both | |
+| R3.7 Data path (segment, own hands, restart, latency chain) | both | |
+| R3.8 Panel and popup (A10) | both; the popup in points on macOS | |
+| R3.9 Editor and presets; R3.10 compliance in the app | both | |
+| R3.14 12 tables within budget, in CI | gated | gated (follow p95 recorded) |
+
+**Exit criterion**: "HUD on 12 simultaneous tables on Windows and macOS
+within budget (§3.3), only on rooms whose `hud.allowed` is `true`."
+
+- **On the simulator: met in CI on both systems** once this step's CI run
+  is green. Its step "HUD on twelve tables" gates the budget above, with
+  twelve overlays and none on a prohibited room's table. The numbers are
+  in the run's `twelve-tables-*` artefacts.
+- **On real clients: pending.** No room's `tables` block is filled, so
+  the HUD attaches to no real client yet. The real-client check follows
+  the capture.
+
+**What the owner must do**, in order:
+
+1. **P5**: a Windows machine (a PC, or Windows 11 on ARM in Parallels if
+   the clients run there).
+2. **P6**: accounts on PokerStars, Winamax and ACR, with play money where
+   offered.
+3. **Capture** each room's tables on Windows and macOS
+   (`CAPTURING-TABLES.md`): processes, titles, seat layouts per size,
+   ACR's graphics and preferred seat. They become the `tables` blocks;
+   until then the HUD attaches to nothing real.
+4. **Run the twelve-table kit** on both machines and send the reports.
+5. **The real-client check** (`REAL-CLIENT-CHECK.md`) per room and system,
+   C1 - C15, results and notes back.
+6. **Signing**: P3 (Developer ID, so the macOS Accessibility grant
+   survives updates) and P4 (Windows code signing) before any public
+   build.
+7. Re-check the HUD policies before each release (R3.0's checklist).
+   GGPoker's SEP 7.2 note on importing hand histories still stands.
+
+**Known limits after Phase 3.**
+
+- Every real-room fact is unverified until the capture and the check. The
+  simulator's titles and geometry are invented.
+- A room that pauses mid-hand while writing would get a hand prefix
+  stored (R3.7); the check finds this out (C10).
+- The macOS popup over a full-screen table opens on the desktop's Space.
+- Spaces are only simulated in CI; Retina and two displays are covered by
+  unit tests only.
+- The 250 ms latency aim is not met: the watcher's 500 ms quiet period
+  sets the floor (R1.3).
+- Sync's pause while tables are open is not part of the twelve-table run.
 
 ---
 
@@ -8465,3 +8721,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-19 | **R3.11 done**: finding tables on macOS. `platform::macos`: the window server's list (`CGWindowListCopyWindowInfo`, on and off screen, front to back: number, pid, bounds, layer; its window names - Screen Recording - never read) joined with the Accessibility API's windows of the processes a room's matcher takes (executable name from `proc_pidpath`; `AXWindows` -> `AXTitle`, frame, minimised, full screen, subrole, close button; 0.25 s messaging timeout), paired by the window number (`_AXUIElementGetWindow`, looked up with `dlsym`, never linked) else by frame within a point in z-order; client area = bounds less the title bar measured from the close button (32 pt on macOS 26's winit windows); pixels = points x the backing scale of the screen the window overlaps most, exactly winit's physical position; minimised marked, off screen (another Space, full screen, hidden app) = cloaked with the title remembered. objc2 0.3.2 bindings (the line Tauri locks; `objc2-application-services` the one new crate) + `libc`, `unsafe` only in `platform/macos/ffi.rs` with `// SAFETY:` per block. **Permission**: the trait's `permission_needed` / `request_permission`; without Accessibility `find_tables` fails `PermissionNeeded`, the health answer says `permissionNeeded: "accessibility"` (optional field, no protocol bump), and the system's prompt comes only from `request_permission` - the app's "Open System Settings" (`hud_request_permission`, which also opens the Accessibility pane). It is offered only when it would make a difference - a running client of an allowed room with a macOS `tables` block (none today) or the simulator's test entry; otherwise the health answer says `permissionDeferred` and the HUD screen, Today and the tray show "HUD on macOS: no supported poker client running" and ask for nothing (so no Mac user sees the card today). The grant is Rail.app's (the sidecar's responsible process), keyed by its signature: ad-hoc builds need it again after every build, Developer ID releases (P3) keep it. **App**: the HUD screen's card (why - titles and window places only -, what not - no screen recording, input monitoring or control -, the button, waiting, the stale-entry hint, granted), Today's and the tray's line, `en` + `hr`; checked in a browser with mocked calls. **`--list-windows` on macOS** (subrole, px and pt, the scale, Spaces; whether Accessibility is granted, Screen Recording not used), `CAPTURING-TABLES.md` "On macOS". Tests: unit (pixels and points, screens, title bars, pairing, the joined view, the engine's permission path, protocol, app, `tests/`), `tests/macos_tables.rs` on the macOS runner: the simulator's three windows through the window server alone (frames x scale equal to the simulator's, joined into its tables) always, then the backend's own find, minimise, table move, listing and the HUD process with Accessibility, or the permission-needed path without it (the `R3.11:` line says which). Locally only the window-server and permission paths ran (no Accessibility for the agent's shell; nothing changed); the full path is the owner's command `cargo test -p rail-hud --test macos_tables -- --nocapture` with the terminal granted. |
 | 2026-10-19 | **R3.12 done**: overlays on macOS. **Threads**: on macOS the HUD process gives the main thread to AppKit - an **accessory** application (no Dock icon, never active, never the keyboard) that pumps its own event queue - and runs the engine unchanged on `rail-hud-engine` beside it (`macos::with_appkit`), as Windows' overlay thread and loop thread; commands over a channel, the main thread woken by a main-queue block (`dispatch2`) posting an application-defined event; Windows and Linux unchanged. **Windows**: one borderless, non-activating, transparent `NSPanel` per table at the normal level, exactly over the client area (pixels back to points, flipped against the main display's height), **ordered directly above the table** (`orderWindow:relativeTo:` its `CGWindowID`) and kept there by looking every 100 ms (a ~20 µs `windowNumberAtPoint` below the overlay per table; the whole order only on suspicion), `MoveToActiveSpace \| Transient \| IgnoresCycle \| FullScreenAuxiliary` (never `CanJoinAllSpaces`), ordered out while the table is minimised, on another Space or hidden. **Click-through with no permission**: the overlay ignores the mouse; a small click window over each panel takes it (press, drag and release routed to it by the window server) - fed to the shared drag code: `PanelMoved`, `PanelClicked` -> `open_popup`. Measured: a layer-backed window that does not ignore the mouse takes presses on its transparent pixels too, so the Windows way (alpha) does not carry over. **Drawing**: the shared scene painted by Core Graphics + Core Text into a premultiplied bitmap at the table's physical pixels, shown as a layer-hosting view's contents at the backing scale; only on change; permit checked before every draw, other rooms' frames refused. No new crate in Cargo.lock (objc2's AppKit, Foundation, Quartz Core, Core Text, `dispatch2` - all locked by Tauri); `unsafe` only in `platform/macos/{appkit,ffi,drive}.rs`. **Tests**: unit (points / pixels at 1x-3x and negative coordinates, the flip on main / right / above displays, mouse points to client pixels, stacking); `tests/macos_overlay.rs` (own `main`): over the simulator's real windows without any permission - exact place in points, directly above the table in the window server's order, click windows, pixels in the bitmap **and on screen**, the window server's hit test (centre -> table, panel -> click window), moves without repaint, raised -> restacked, minimised -> ordered out, restored, removed; synthetic click / drag -> `PanelClicked` / `PanelMoved`; with Accessibility (CI): real clicks (panel -> overlay, centre -> the simulator's new `clicked` event), the HUD process drawing posing as PokerStars and making no window posing as GGPoker, `open_popup` through the supervisor. **Perf** (M2 Pro, 1x, debug): 12 tables, paint p50 0.9 ms / p95 1.2-2.5 ms / max ~8 ms, overlays idle 0.40 % of one core. `CGWindowListCopyWindowInfo(OptionAll)` is not in z-order (R3.11 assumed it); `onscreen_order` is. Limits: geometry from the engine's 500 ms re-find until R3.13; 1x displays only in practice; popup window not wired on macOS. |
 | 2026-10-19 | **R3.13 done**: tracking on macOS. **Observers**: an `AXObserver` per poker process with a tracked table on a thread of its own with its own `CFRunLoop` (`rail-hud-ax`; not AppKit's: a busy client's 0.25 s must not stall the overlays) - on the application `AXWindowCreated` (`Appeared`), focused / main window changed, activated, hidden, shown; on each table's window `AXWindowMoved`, `AXWindowResized` (and the generic `AXMoved` / `AXResized`), miniaturised / deminiaturised, destroyed, title changed (`AxNote::effect`, data, unit-tested); made with a process's first table, let go with its last. **Follow first, tell the engine after**: each notification reads the table from the window server (one window, no message to the client; the whole list for an off-screen one - `OptionIncludingWindow` alone omits it, measured; after a move or resize again at 2 - 100 ms until the list shows it - CI found it lagging the notification), the client area exactly as the find computes it (`tracked_geometry`), and hands the AppKit thread the geometry at once (`Link::follow_at`); the engine gets R3.5's coalesced events (`tracking::events`, `Retitled` through the room's matcher) from the merged `Observed`. **No fight**: the AppKit thread places overlays only from the observers' latest reading, never a frame's description; the backend's `follow` with anything else makes the thread re-read (`Resync`); the 500 ms re-find stays as the fallback. **Restack** at once on activation, focus, main window and shown; R3.12's 100 ms stacking look slows to 250 ms when every shown overlay's client is observed. **Spaces**: `NSWorkspace.activeSpaceDidChangeNotification` on the AppKit thread makes the observers re-read every table (hide / show at once; simulated in CI - a runner cannot switch Spaces). **Exits**: a `kqueue` (`NOTE_EXIT`) per observed process removes its overlays at once. **Z-order fix**: R3.11's pairing fallback and ordering read `onscreen_order` (`z_ordered`), never the `OptionAll` list. **Revoked Accessibility**: the engine detaches every table on `PermissionNeeded` (overlays gone, `permission_needed` reported by R3.11's rule). **Popup on macOS**: the app places it in points (anchor / the table's scale, the screen's work area in its points, logical size), shown unfocused (the client keeps the keyboard). No new crate (`block2` 0.6.2 already locked; two lock edges); `unsafe` only in `platform/macos/{observe,appkit,ffi,drive}.rs`. Tests: unit (notifications, geometry, Spaces, z-order, restack interval, merge, revoked permission, popup in points) on every OS; `tests/macos_tracking.rs` on the macOS runner - without permission a wrong description, a simulated Space change, a killed simulator; with Accessibility a 40-move drag (the simulator's own moves), move, resize, minimise / restore, focus, a real click, table move, app hidden / shown, 100 moves in 1 s, close, and the HUD process with `scripts/tracking.txt`; measurements in the step's `R3.13` lines (R3.13 as built). macOS HUD status summary under R3.13. |
+| 2026-10-20 | **R3.14 done on the simulator; Phase 3's steps complete**: twelve tables. `hud/rail-hud/tests/twelve_tables.rs` (own `main`, `-- --run`) plays the app (store, watcher, statistics pass, real supervisor) with the HUD process on this system's backend over 12 simulator tables posing as PokerStars plus one ACR-titled table posing as GGPoker (`--sim-site` / `--sim-title` now once per room): attach, a minute of hands at 6/min/table with a recompute queued (must stay paused), every table moved twice, idle; JSON + markdown report written before the gates (`target/twelve-tables`, CI artefact `twelve-tables-<os>`). Gates: 12 attached and 12 overlays, none and no hand on the refused table, every hand shown, hand written -> frame p95 < 1 s (§3.3), paint p95 < 16.7 ms, follow p50 < 2 frames (p95 < 3 frames on Windows and `--real-hw`, recorded on a CI Mac), HUD idle / playing CPU 5 % / 15 % and the app's 20 % of one core scaled by a workload timed on the runner (never below the M2 Pro's), HUD memory 256 MiB. New in the HUD: `--perf-report` (paints, follows, re-reads, looks for tables at shutdown; `Platform::paint_times_us` / `follow_times_us`, `latency::summarize`), Windows `probe::memory` (`Win32_System_ProcessStatus`); **the macOS search slows to 2 s** while the observers follow every table and the client has posted a move (`Platform::notified`, `macos::fully_observed`; tested). CI step "HUD on twelve tables (R3.14 budget)" on macOS and Windows. Local (M2 Pro, release, no Accessibility so data-only, machine loaded): written -> frame p50 513 / p95 517 / max 524 ms, HUD 0.20 % idle / 0.29 % playing, app 0.69 %, HUD 14 MiB; overlay paint in-process p50 0.76 / p95 1.09 ms. Real-hardware kit: `cargo test --release -p rail-hud --test twelve_tables -- --run --real-hw --seconds 300`. Owner's procedure for the real clients: `docs/research/REAL-CLIENT-CHECK.md` (C1 - C15). Phase 3 summary in the R3.14 section: met on the simulator in CI; real clients pending the capture (no `tables` block yet), P5, P6 and the check. |

@@ -473,6 +473,29 @@ pub trait Platform {
     fn running_processes(&mut self) -> Option<Vec<String>> {
         None
     }
+
+    /// (R3.14) Every tracked table is followed by the system's
+    /// notifications alone (macOS: [`macos::fully_observed`]), so the
+    /// engine's periodic look is only the safety net and may slow down
+    /// ([`crate::engine::Settings::find_every_notified`]). Cheap: asked at
+    /// every look. `false` by default (Windows keeps its look: cheap there).
+    fn notified(&self) -> bool {
+        false
+    }
+
+    /// (R3.14) Every overlay paint so far, µs (oldest first; the backend
+    /// keeps the last 10 000): for `--perf-report`. Asks the overlays'
+    /// thread, so never on the loop's hot path.
+    fn paint_times_us(&self) -> Vec<u64> {
+        Vec::new()
+    }
+
+    /// (R3.14) Every follow so far, µs - the system's event (WinEvent hook,
+    /// accessibility notification) to the overlay moved, shown or hidden -
+    /// for `--perf-report`, as [`Platform::paint_times_us`].
+    fn follow_times_us(&self) -> Vec<u64> {
+        Vec::new()
+    }
 }
 
 /// (R3.11) Whether granting a missing permission would make a difference

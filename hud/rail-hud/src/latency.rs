@@ -35,20 +35,28 @@ impl Latencies {
     }
 
     pub fn summary(&self) -> LatencySummary {
-        let mut sorted: Vec<u64> = self.recent.iter().copied().collect();
-        sorted.sort_unstable();
-        let at = |percent: usize| {
-            sorted
-                .get(sorted.len().saturating_sub(1) * percent / 100)
-                .copied()
-                .unwrap_or(0)
-        };
         LatencySummary {
             count: self.count,
-            p50_us: at(50),
-            p95_us: at(95),
-            max_us: sorted.last().copied().unwrap_or(0),
+            ..summarize(self.recent.iter().copied().collect())
         }
+    }
+}
+
+/// p50 / p95 / max of `values` (µs), and how many (R3.14's
+/// `--perf-report`: the backend's paints and follows).
+pub fn summarize(mut values: Vec<u64>) -> LatencySummary {
+    values.sort_unstable();
+    let at = |percent: usize| {
+        values
+            .get(values.len().saturating_sub(1) * percent / 100)
+            .copied()
+            .unwrap_or(0)
+    };
+    LatencySummary {
+        count: u64::try_from(values.len()).unwrap_or(u64::MAX),
+        p50_us: at(50),
+        p95_us: at(95),
+        max_us: values.last().copied().unwrap_or(0),
     }
 }
 

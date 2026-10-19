@@ -67,6 +67,7 @@ use std::collections::BTreeMap;
 use std::ffi::c_void;
 use std::panic::AssertUnwindSafe;
 use std::ptr::NonNull;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender, TryRecvError};
 use std::sync::{Arc, Mutex, PoisonError};
 use std::thread::JoinHandle;
@@ -81,8 +82,8 @@ use objc2_core_foundation::{
 use super::super::WindowId;
 use super::super::tracking::{Geometry, Observed};
 use super::{
-    AxNote, Frame, Link, MINIMIZING, RECHECKS, Read, SETTLE, TrackerInfo, ffi, title_bar,
-    title_bar_between, tracked_geometry,
+    AxNote, Frame, Link, MINIMIZING, RECHECKS, Read, SETTLE, TrackerInfo, ffi, fully_observed,
+    shows_moves, title_bar, title_bar_between, tracked_geometry,
 };
 
 /// How long the thread sleeps with nothing to do (a command or a
@@ -151,6 +152,9 @@ pub(super) struct Tracker {
     tx: Sender<Cmd>,
     waker: Arc<Waker>,
     observed: Arc<Mutex<Observed>>,
+    /// (R3.14) Every tracked table followed by notifications alone
+    /// ([`fully_observed`]), as the thread last saw it.
+    all_observed: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
     exits: Option<Exits>,
 }
@@ -169,11 +173,13 @@ impl Tracker {
         let (ready_tx, ready_rx) = mpsc::sync_channel(1);
         let observed: Arc<Mutex<Observed>> = Arc::default();
         let shared = Arc::clone(&observed);
+        let all_observed = Arc::new(AtomicBool::new(false));
+        let all_shared = Arc::clone(&all_observed);
         let exits = Exits::new()?;
         let kq = exits.kq;
         let thread = std::thread::Builder::new()
             .name("rail-hud-ax".to_owned())
-            .spawn(move || run(rx, &ready_tx, link, shared, kq))
+            .spawn(move || run(rx, &ready_tx, link, shared, all_shared, kq))
             .map_err(|e| e.to_string())?;
         let waker = ready_rx
             .recv_timeout(Duration::from_secs(10))
@@ -184,6 +190,7 @@ impl Tracker {
             tx,
             waker,
             observed,
+            all_observed,
             thread: Some(thread),
             exits: Some(exits),
         })
@@ -241,6 +248,12 @@ impl Tracker {
     /// What the observers saw since the last call.
     pub(super) fn observed(&self) -> Observed {
         std::mem::take(&mut *self.observed.lock().unwrap_or_else(PoisonError::into_inner))
+    }
+
+    /// (R3.14) Every tracked table is followed by notifications alone
+    /// ([`fully_observed`]): the engine's look may slow down.
+    pub(super) fn all_observed(&self) -> bool {
+        self.all_observed.load(Ordering::Relaxed)
     }
 
     pub(super) fn info(&self) -> Option<TrackerInfo> {
@@ -325,6 +338,7 @@ fn run(
     ready: &mpsc::SyncSender<Result<Waker, String>>,
     link: Option<Link>,
     observed: Arc<Mutex<Observed>>,
+    all_observed: Arc<AtomicBool>,
     kq: i32,
 ) {
     let (Some(run_loop), Some(source)) = (CFRunLoop::current(), wake_source()) else {
@@ -344,6 +358,7 @@ fn run(
             rx,
             link,
             observed,
+            all_observed,
             kq,
             run_loop,
             tables: BTreeMap::new(),
@@ -454,6 +469,9 @@ struct App {
     registered: Vec<AxNote>,
     hidden: bool,
     error: Option<String>,
+    /// (R3.14) A move or resize notification arrived for one of its
+    /// tables: it posts them ([`fully_observed`]).
+    posts_moves: bool,
 }
 
 impl App {
@@ -469,6 +487,8 @@ struct State {
     rx: Receiver<Cmd>,
     link: Option<Link>,
     observed: Arc<Mutex<Observed>>,
+    /// (R3.14) Published after every step ([`State::publish_observed`]).
+    all_observed: Arc<AtomicBool>,
     kq: i32,
     run_loop: CFRetained<CFRunLoop>,
     tables: BTreeMap<WindowId, Followed>,
@@ -525,8 +545,26 @@ impl State {
                     .retain(|(_, t, at)| *t != table || at.is_none());
             }
         }
+        self.publish_observed();
         let next = self.rechecks.iter().map(|(due, _, _)| *due).min();
         Some(next.map_or(IDLE, |at| at.saturating_duration_since(now)))
+    }
+
+    /// (R3.14) Tell the backend whether every tracked table is followed by
+    /// notifications alone (a few tables: cheap after every step).
+    fn publish_observed(&self) {
+        let all = !self.tables.is_empty()
+            && self.tables.values().all(|followed| {
+                let app = self.apps.get(&followed.pid);
+                !followed.gone
+                    && fully_observed(
+                        followed.element.is_some(),
+                        &followed.registered,
+                        app.map_or(&[][..], |a| &a.registered),
+                        app.is_some_and(|a| a.posts_moves),
+                    )
+            });
+        self.all_observed.store(all, Ordering::Relaxed);
     }
 
     fn handle(&mut self, command: Cmd) {
@@ -664,6 +702,7 @@ impl State {
             registered: Vec::new(),
             hidden: false,
             error: None,
+            posts_moves: false,
         };
         if ffi::trusted() {
             match ffi::app_element(pid).and_then(|element| {
@@ -808,6 +847,11 @@ impl State {
             let Some(found) = found else {
                 return;
             };
+            if shows_moves(kind)
+                && let Some(app) = self.apps.get_mut(&pid)
+            {
+                app.posts_moves = true;
+            }
             Some(found)
         } else {
             None
