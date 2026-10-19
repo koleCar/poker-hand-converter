@@ -170,7 +170,16 @@ export {
   type RangeWalk,
   type WalkFailure,
 } from "./rangeWalk";
-export { POPULATION_RANGES, populationLine, populationRange, type PopulationLine } from "./population";
+export {
+  POPULATION_ORDER,
+  POPULATION_ORDER_MIX,
+  POPULATION_RANGES,
+  populationLine,
+  populationOrderApplies,
+  populationOrdered,
+  populationRange,
+  type PopulationLine,
+} from "./population";
 export {
   VILLAIN_LINES,
   VILLAIN_MIN_HANDS,

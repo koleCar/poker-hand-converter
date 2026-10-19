@@ -26,7 +26,7 @@ import { parseRange, type ClassWeights } from "../equity/range";
 import type { PhfHand, Position } from "../phf/types";
 import type { StatsContext } from "../stats/context";
 import { comboRange, heuristicModel, narrow, removeCards, rangeWeight, streetStrength, type NarrowAction, type NarrowingModel, type NarrowStreet, type StreetStrength } from "./narrowing";
-import { populationLine, populationRange } from "./population";
+import { populationLine, populationOrderApplies, populationOrdered, populationRange } from "./population";
 import { villainKey, villainRange, villainSample, type VillainSample, type VillainStatsMap } from "./villain";
 import { chartRange, WALK_RANGE_OPTIONS } from "./preflop";
 import { defaultRange, preflopLine } from "./ranges";
@@ -101,9 +101,12 @@ export function flopSeats(context: StatsContext): number[] {
  * (analysis/19) `range-population` an opponent's flat call or limp, started
  * from the population range fitted on shown hands (`population.ts`);
  * (analysis/20) `range-villain` that population range moved by the
- * opponent's own statistics in the learner's library (`villain.ts`).
+ * opponent's own statistics in the learner's library (`villain.ts`);
+ * (analysis/31) `range-population-order` an opponent's chart or placeholder
+ * range at its own width, three quarters of it in the population's order
+ * (`populationOrdered`).
  */
-export type RangeApprox = "range-neighbour-depth" | "range-limp-call" | "range-population" | "range-villain";
+export type RangeApprox = "range-neighbour-depth" | "range-limp-call" | "range-population" | "range-villain" | "range-population-order";
 
 /** What the analysis asks of the preflop ranges beyond the charts (analysis/19). */
 export interface PreflopRangeOptions {
@@ -121,6 +124,14 @@ export interface PreflopRangeOptions {
    * with `populationHero`.
    */
   villains?: VillainStatsMap | null;
+  /**
+   * (analysis/31) With `populationHero`, every other seat's chart or
+   * placeholder range keeps its width but takes `POPULATION_ORDER_MIX` of it
+   * in the population's order (`populationOrdered`, `range-population-order`)
+   * - unless this is false: a heads-up flop the flop library answers keeps
+   * the charts' ranges its chunk was solved from.
+   */
+  populationOrder?: boolean;
 }
 
 export interface PreflopClassRange {
@@ -180,6 +191,12 @@ function limpedThenCalled(context: StatsContext, seat: number, position: Positio
  * two cards: the rules deal it, nothing is guessed, so the source is
  * `chart` (no placeholder flag) and the label `unknown:<position>` ("any two
  * cards"). The decision carries the hand's `bomb-pot` approximation.
+ *
+ * Since analysis/31, with `options.populationHero`, an opponent's chart or
+ * placeholder range (not the population's, not a bomb pot's) keeps its
+ * width but takes three quarters of it in the population's order
+ * (`range-population-order`, `populationOrdered`), unless
+ * `options.populationOrder` is false.
  */
 export function preflopClassRange(
   hand: PhfHand,
@@ -212,13 +229,17 @@ export function preflopClassRange(
       return { range: populationRange(population), source: "placeholder", label: populationLabel, approx: ["range-population"] };
     }
   }
+  const ordered = (found: PreflopClassRange): PreflopClassRange =>
+    options.populationHero !== undefined && seat !== options.populationHero && options.populationOrder !== false && populationOrderApplies(hand, beforeIndex)
+      ? { ...found, range: populationOrdered(found.range), approx: [...found.approx, "range-population-order"] }
+      : found;
   const fromCharts = chartRange(hand, seat, beforeIndex, charts, WALK_RANGE_OPTIONS);
-  if (fromCharts) return { range: fromCharts.range, source: "chart", label, approx: [...fromCharts.approx] };
+  if (fromCharts) return ordered({ range: fromCharts.range, source: "chart", label, approx: [...fromCharts.approx] });
   if (line === "unknown") return null;
   if (line === "call" && limpedThenCalled(context, seat, position)) {
-    return { range: defaultRange("limp", position).range, source: "placeholder", label: `limp:${position ?? "?"}`, approx: ["range-limp-call"] };
+    return ordered({ range: defaultRange("limp", position).range, source: "placeholder", label: `limp:${position ?? "?"}`, approx: ["range-limp-call"] });
   }
-  return { range: defaultRange(line, position).range, source: "placeholder", label, approx: [] };
+  return ordered({ range: defaultRange(line, position).range, source: "placeholder", label, approx: [] });
 }
 
 /** One player's preflop range over combos (`preflopClassRange`); null with no line. */

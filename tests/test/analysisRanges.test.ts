@@ -24,8 +24,12 @@ import {
   chartRange,
   defaultRange,
   heroSeatOf,
+  POPULATION_ORDER,
+  POPULATION_ORDER_MIX,
   POPULATION_RANGES,
   populationLine,
+  populationOrderApplies,
+  populationOrdered,
   populationRange,
   preflopClassRange,
   WALK_RANGE_OPTIONS,
@@ -329,5 +333,84 @@ describe("opponents' flat calls and limps start from the population range (analy
     expect(call.approximations).toEqual(expect.arrayContaining(["range-population", "placeholder-range"]));
     expect(en.analysis.approximations["range-population"]).toBeTruthy();
     expect(hr.analysis.approximations["range-population"]).toBeTruthy();
+  });
+});
+
+/*
+ * analysis/31 (ANALYSIS-PLAN §10 2026-10-20, opponents' chart ranges): an
+ * opponent's chart or placeholder range keeps its width but takes
+ * `POPULATION_ORDER_MIX` of it in the population's order.
+ */
+describe("the population order of opponents' chart ranges (analysis/31)", () => {
+  const combos = (range: Map<string, number>) => [...range].reduce((s, [name, w]) => s + w * (name.length === 2 ? 6 : name.endsWith("s") ? 4 : 12), 0);
+  // The cutoff opens, the hero calls on the button.
+  const open = () =>
+    hand("Btn", "Ah Qd", ["Utg: folds", "Hj: folds", "Co: raises $1.5 to $2.5", "Btn: calls $2.5", "Sb: folds", "Bb: folds", "*** FLOP *** [Kd 7c 2s]", "Co: bets $3", "Btn: calls $3"]);
+
+  it("keeps the range's width, three quarters of it in the population's order, pairs in rank order", () => {
+    expect(POPULATION_ORDER).toBe("population-order/1");
+    expect(POPULATION_ORDER_MIX).toBe(0.75);
+    const h = open();
+    const chart = chartRange(h, seatOf(h, "Co"), firstPostflop(h), LIBRARY, WALK_RANGE_OPTIONS)!.range;
+    const ordered = populationOrdered(chart);
+    expect(combos(ordered)).toBeCloseTo(combos(chart), 6);
+    expect(ordered.size).toBe(169);
+    for (const [name, w] of ordered) {
+      expect(w).toBeGreaterThan(0);
+      expect(w).toBeLessThanOrEqual(1);
+      // A quarter of the chart's own weight always stays.
+      expect(w).toBeGreaterThanOrEqual((1 - POPULATION_ORDER_MIX) * (chart.get(name) ?? 0) - 1e-12);
+    }
+    expect(ordered.get("AA")!).toBeGreaterThan(ordered.get("22")!);
+    expect(ordered.get("A5s")!).toBeGreaterThan(ordered.get("K4o")!);
+    expect(ordered.get("72o")!).toBeLessThan(0.05);
+    // A hand outside the chart's range gets some weight; one the chart opens at full weight keeps most of it.
+    expect(chart.get("A5o") ?? 0).toBe(0);
+    expect(ordered.get("A5o")!).toBeGreaterThan(0.05);
+    // Offsuit broadways the chart opens at full weight lose most of it.
+    expect(ordered.get("KTo")!).toBeLessThan(0.6);
+    expect(ordered.get("AKs")!).toBeGreaterThan(0.9);
+    // Any two cards stays any two cards.
+    const all = populationOrdered(new Map([...ordered].map(([name]) => [name, 1])));
+    for (const w of all.values()) expect(w).toBeCloseTo(1, 6);
+  });
+
+  it("is read for opponents' chart and placeholder ranges only, when the analysis asks", () => {
+    const h = open();
+    const context = buildContext(structuredClone(h));
+    const hero = heroSeatOf(context)!;
+    const co = seatOf(h, "Co");
+    const read = preflopClassRange(h, context, co, firstPostflop(h), LIBRARY, { populationHero: hero })!;
+    expect(read).toMatchObject({ source: "chart", label: "open:CO", approx: ["range-population-order"] });
+    const chart = chartRange(h, co, firstPostflop(h), LIBRARY, WALK_RANGE_OPTIONS)!.range;
+    expect([...read.range]).toEqual([...populationOrdered(chart)]);
+    // The trainers (no option), `populationOrder: false` (a flop the library answers) and the hero's own range read the charts.
+    expect(preflopClassRange(h, context, co, firstPostflop(h), LIBRARY)?.approx).toEqual([]);
+    expect(preflopClassRange(h, context, co, firstPostflop(h), LIBRARY, { populationHero: hero, populationOrder: false })?.approx).toEqual([]);
+    expect(preflopClassRange(h, context, co, firstPostflop(h), LIBRARY, { populationHero: co })?.approx).toEqual([]);
+    // A population range is not reordered.
+    expect(preflopClassRange(h, context, hero, firstPostflop(h), LIBRARY, { populationHero: co })?.approx).toEqual(["range-population"]);
+    // After a preflop all-in nothing is.
+    const shove = hand("Btn", "Ah Qd", ["Utg: folds", "Hj: folds", "Co: raises $99 to $100 and is all-in", "Btn: calls $100 and is all-in", "Sb: folds", "Bb: folds", "*** FLOP *** [Kd 7c 2s]"]);
+    const shoveContext = buildContext(structuredClone(shove));
+    expect(populationOrderApplies(shove, Number.MAX_SAFE_INTEGER)).toBe(false);
+    expect(populationOrderApplies(h, firstPostflop(h))).toBe(true);
+    expect(preflopClassRange(shove, shoveContext, seatOf(shove, "Co"), Number.MAX_SAFE_INTEGER, LIBRARY, { populationHero: heroSeatOf(shoveContext)! })?.approx ?? []).not.toContain(
+      "range-population-order",
+    );
+  });
+
+  it("starts the walk from it, and the decision says so in both languages", () => {
+    const h = open();
+    const context = buildContext(structuredClone(h));
+    const hero = heroSeatOf(context)!;
+    const walk = walkRanges(h, context, hero, seatOf(h, "Co"), LIBRARY, undefined, { populationHero: hero });
+    expect(walk.ok).toBe(true);
+    if (!walk.ok) return;
+    expect(walk.approx).toEqual({ hero: [], villain: ["range-population-order"] });
+    const call = decisionOn(analyzeHand(structuredClone(h), { charts: LIBRARY, turn: false }).decisions, "flop", "call");
+    expect(call.approximations).toContain("range-population-order");
+    expect(en.analysis.approximations["range-population-order"]).toBeTruthy();
+    expect(hr.analysis.approximations["range-population-order"]).toBeTruthy();
   });
 });

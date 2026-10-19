@@ -889,6 +889,8 @@ export const analysisEn = {
       "An opponent who flat-called a raise or limped starts from Rail's population range for that line, fitted on the hands such players show down: real callers and limpers play far wider than the charts",
     "range-villain":
       "The big blind's defending range is widened or narrowed by that player's own VPIP − PFR in your hands, shrunk toward the pool's by the sample (shown with the facts); not below 30 hands",
+    "range-population-order":
+      "An opponent's preflop range keeps the charts' width, but three quarters of it follows the order of hands Rail's population plays (more weak aces and suited hands, fewer offsuit broadways and middle pairs than the solver picks): it explains the hands players show and muck at the river far better",
     "dead-button":
       "The button seat was empty: read as a table of the same size with a live button, the last seat before the small blind in the button's place",
     "posted-blind":

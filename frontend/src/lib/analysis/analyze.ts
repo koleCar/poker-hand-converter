@@ -228,8 +228,14 @@ type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLi
   villains: VillainStatsMap | null;
 };
 
-/** What the walks and the equity facts ask of an opponent's preflop range (analysis/19, analysis/20). */
-const rangeOptions = (hero: number, villains: VillainStatsMap | null): PreflopRangeOptions => ({ populationHero: hero, villains });
+/**
+ * What the walks and the equity facts ask of an opponent's preflop range
+ * (analysis/19, analysis/20, analysis/31). `chartOrder`: a heads-up flop the
+ * flop library answers keeps the charts' own ranges, which its chunk was
+ * solved from (no `range-population-order`).
+ */
+const rangeOptions = (hero: number, villains: VillainStatsMap | null, chartOrder = false): PreflopRangeOptions =>
+  chartOrder ? { populationHero: hero, villains, populationOrder: false } : { populationHero: hero, villains };
 
 /** `AnalyzeOptions.turn`, defaulted. */
 const solvesTurn = (options: AnalyzeOptions) => options.turn ?? true;
@@ -524,6 +530,7 @@ function rangeWalkOf(
   model: NarrowingModel = heuristicModel,
   multi: MultiWalk | { ok: false; reason: WalkFailure } | null = null,
   villains: VillainStatsMap | null = null,
+  chartOrder = false,
 ): RangeWalk | { ok: false; reason: WalkFailure } {
   const seats = flopSeats(context);
   // A9: three or more saw the flop. The heads-up part of the hand, if a
@@ -534,7 +541,7 @@ function rangeWalkOf(
   }
   if (seats.length !== 2 || !seats.includes(hero)) return { ok: false, reason: seats.length === 0 ? "no-flop" : "multiway-flop" };
   try {
-    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model, rangeOptions(hero, villains));
+    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model, rangeOptions(hero, villains, chartOrder));
   } catch {
     return { ok: false, reason: "range-empty" };
   }
@@ -1155,7 +1162,8 @@ function handSolvers(
   const model = entry ? libraryModel(entry, heuristicModel) : null;
   // A9: three or more saw the flop - every range walked, the heads-up part handed on.
   const multi = postflop ? multiWalkOf(hand, context, hero, charts, heuristicModel, villains) : null;
-  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel, multi, villains) : null;
+  // analysis/31: a flop the library answers keeps the charts' ranges its chunk was solved from.
+  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel, multi, villains, entry !== null) : null;
   let softMultiWalk: MultiWalked | undefined;
   const softMulti = () => {
     softMultiWalk ??= multi ? multiWalkOf(hand, context, hero, charts, halved(heuristicModel), villains) : null;
@@ -1163,7 +1171,7 @@ function handSolvers(
   };
   let soft: Walked | undefined;
   const softWalk = () => {
-    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel), softMulti(), villains);
+    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel), softMulti(), villains, entry !== null);
     return soft;
   };
   const effectiveBb = effectiveStackBb(context, hero);

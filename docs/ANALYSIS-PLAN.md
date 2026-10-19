@@ -342,7 +342,10 @@ shows them like GTOW's banner:
   the population range fitted on shown hands (`range-population`, with
   `placeholder-range`: not the charts'); since `analysis/20` an opponent's
   big blind defence moved by their own VPIP − PFR in the learner's library,
-  with the sample shown (`range-villain`).
+  with the sample shown (`range-villain`); since `analysis/31` an
+  opponent's chart or placeholder range at its own width, three quarters of
+  it in the population's order of hands (`range-population-order`; not on
+  a heads-up flop the flop library answers).
 - **Source quality:** a heuristic source (§3.6).
 
 A decision is **not analysed** (`status: partial`) when:
@@ -381,7 +384,10 @@ A decision is **not analysed** (`status: partial`) when:
   preflop all-in; §10 2026-10-10, population callers); since `analysis/20`
   a big blind's defence is moved by the player's own statistics where the
   learner keeps them, at least 30 hands (`range-villain`; §10 2026-10-10,
-  villain statistics). The rest (flop
+  villain statistics); since `analysis/31` every other opponent's chart or
+  placeholder range keeps its width but takes three quarters of it in the
+  population's order (`range-population-order`; §10 2026-10-20,
+  opponents' chart ranges). The rest (flop
   and turn checks and bets, river bets and checks) keeps its multiway facts
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
@@ -4936,3 +4942,253 @@ Each phase appends what it learned that changed the plan.
     - A heads-up river the analysis solves starts from the turn's ranges
       and never reads a river check; the flop library's heads-up flops were
       not part of this walk (no library), as in the 2026-10-19 check.
+- 2026-10-20 — Opponents' chart ranges in the population's order,
+  `analysis/31` (study `tests/scripts/flop-library/preflopWidth.test.ts`,
+  `npm run floplib:preflop-width`; `populationOrdered`,
+  `POPULATION_ORDER_MIX` in `lib/analysis/population.ts`, read by
+  `preflopClassRange`). No migration.
+  - **Why.** The first open item of `analysis/30`: mixing any two cards
+    into opponents' chart ranges at 0.15 gained about half a nat per
+    checked river on the unselected score, the largest gain in that study,
+    and it is the part that reaches flop and turn grades and the solves'
+    starting ranges. Which chart ranges are too strong, and what is the
+    least-parameter fix?
+  - **Data.** The 5,448 stored hands of the test user (local stack). The
+    unselected score of `analysis/30` (the first to show scored by their
+    combo in their own walked range; each later player by their combo when
+    shown, else by the range's chance of losing to the best hand shown
+    before them), extended from the 509 rivers checked through to every
+    river showdown in one pot with nobody all-in: **857** (checked through
+    134 three or more ways / 375 heads-up; a bet called 127 / 221, the last
+    bettor shown first). The multiway walk from the hero's seat, no flop
+    library (as `analysis/30`). Five folds by hand and five by the first to
+    show's name; standard errors clustered by hand (by player for the
+    player folds). Opponents only: the hero's range never changes.
+  - **Measured 0: not how often - which hands.** Opponents' first preflop
+    decision (NLHE cash, no ante or straddle), how often they raise where
+    they could, against the share of hands in the chart range they are
+    walked from - frequencies, no showdown, nothing selected:
+
+    | spot | chances | raised | chart range |
+    |---|---|---|---|
+    | open 6-max UTG / HJ / CO / BTN | 1,892 / 890 / 1,388 / 1,118 | 21.0 / 20.1 / 26.8 / 39.9% (± 0.9-1.5) | 17.4 / 19.7 / 26.0 / 38.6% |
+    | open 6-max SB | 596 | 41.4 ± 2.0% | 18.7% |
+    | open 9-max UTG / UTG+1 / LJ / HJ / CO / BTN | 1,778 / 721 / 1,094 / 747 / 489 / 311 | 14.3 / 13.0 / 19.6 / 23.2 / 29.2 / 34.1% | 12.0 / 13.1 / 15.7 / 19.7 / 26.5 / 38.6% |
+    | isolation 6-max / 9-max | 1,237 / 2,339 | 17.8 / 15.1% | 18.6 / 13.1% |
+    | 3-bet 6-max / 9-max | 4,649 / 4,916 | 7.9 / 6.1% | 10.4 / 7.8% |
+
+    Outside the small blind (which raises twice as often as its chart
+    range holds) opponents raise within a few points of the charts, and
+    3-bet *less*. Yet at showdown the same lines are too
+    strong: the later players walked from a chart line muck more than their
+    ranges say (observed − predicted at `analysis/30`, every river
+    showdown): isolations **+0.259 ± 0.052** (61), 3-bets **+0.294 ±
+    0.088** (24), opens +0.082 ± 0.026 (211; UTG +0.120, HJ +0.159, BTN
+    +0.044), against the population's lines at about zero (cold calls
+    −0.007 ± 0.032, the big blind +0.014 ± 0.044, over-limps −0.004). So
+    the charts' ranges are about the right size with the wrong hands in
+    them.
+  - **Measured 1: candidates, in sample** (unselected log-likelihood gain
+    per spot over `analysis/30`, all 857; clustered by hand):
+    - *Wider* (more combos): any two cards mixed in at 0.05-0.3, best
+      +0.452 ± 0.049 (0.2); the population shape added under a union,
+      best +0.536 ± 0.056 (shift −1.5) - both roughly double the opens'
+      width, against Measured 0.
+    - *Same width, other hands* (`mix`): (1 − m) · w + m · σ(β·f + a), β
+      `population/1`'s shared shape, a set so the shape holds the range's
+      combos: m 0.25 +0.397, 0.5 +0.509, **0.75 +0.542 ± 0.055**, 1
+      +0.494. The same width spread uniformly instead (`flat`): best
+      +0.445. Spread by all-in equity against any two cards (the top of
+      that order at the same width): +0.136 at m 0.6, +0.022 at 0.9 - a
+      stronger order is *worse*. It is the population's selection of
+      hands, not strength, that the charts miss.
+    - *Per line* (any two at 0.15, one line at a time): opens +0.163 ±
+      0.030, isolations +0.070, the small blind's limp +0.070, 3-bets
+      +0.056, calls of a 3-bet +0.055, the big blind's check +0.017;
+      4-bets and the charts' flat calls (ante and straddle games) +0.002.
+      The mix with one line left out: without opens +0.334, without
+      isolations / 3-bets / calls of 3-bets / limps +0.459 to +0.468,
+      without the big blind's check +0.528: every chart line contributes,
+      opens most; no line hurts.
+    - Tables apart (the mix on 6-max only +0.295, 9-max only +0.215,
+      heads-up only +0.032): both table sizes, no reason to split.
+    - Placeholder ranges too (a line no chart covers; the limp-call
+      placeholder of `analysis/18`): +0.590 ± 0.057 against +0.542.
+    - The shape's pair × low-rank term ranks big pairs below small ones
+      (fitted on flat calls, where big pairs leave by re-raising); without
+      it (pairs in rank order) +0.593 ± 0.055 against +0.590 - the same.
+      Shipped without it: the lines this reads are mostly raises, where
+      the big pairs stay in.
+    - Width 1.25 × the chart's combos for the shape's part: +0.599 (+0.006
+      over the same width; not shipped - Measured 0 says the width is
+      right).
+  - **Held out.** Every candidate tried above (76: any two, union, mix
+    and flat at each level, per line, per table, the orders, the widths,
+    with and without placeholders) chosen on the other four folds: by hand
+    the mix at 0.75 (with placeholders; three folds at width 1.25, two at
+    width 1 pairs in rank order), **+0.576 ± 0.057 (10.2 SE)**; by player
+    the same family, **+0.599 ± 0.064 (9.3 SE)**. Every group better: the
+    rivers checked through three or more ways +0.437 ± 0.151 (2.9 SE),
+    heads-up +0.612 ± 0.084, the called bets +0.445 ± 0.125 and +0.676 ±
+    0.118. **Restricted in sample:** the family (the same width, the
+    population's order, placeholders included) and the pairs-in-order
+    variant were picked by me across three in-sample grids; the per-fold
+    choice over all 76 is the held-out number above. Within the shipped
+    candidate's own one-number family (m 0.25, 0.5, 0.6, 0.75, 0.9, 1) 0.75
+    is chosen in every fold, by hand and by player: **+0.593 ± 0.055 (10.8
+    SE) by hand, ± 0.063 (9.4 SE) by player**.
+  - **Shipped.** An opponent's chart or placeholder range keeps its width
+    and takes **`POPULATION_ORDER_MIX` = 0.75** of it in `population/1`'s
+    order without the pair term, `populationOrdered`: one new number; the
+    order is the stored shape's, its shift solved per range. Not for the
+    population's own lines (already that shape), a bomb pot, the hero, the
+    trainers (no `populationHero`), after a preflop all-in, or a heads-up
+    flop the flop library answers (`populationOrder: false`: the chunk was
+    solved from the charts' ranges and zeroes what they lack; those hands
+    keep `analysis/30`'s ranges through the flop and the solves after it).
+    An UTG open (6-max 100bb, 200 combos): A9o-A2o 0 → 0.12-0.19, A5s 0 →
+    0.41, JTo 0 → 0.14; KQo 1 → 0.43, KJo 1 → 0.37, 66-99 ~1 → 0.46-0.56,
+    AA 0.96 → 0.75, AKs 0.92 → 0.94. A big blind 3-bet against the button:
+    AJo 0 → 0.36, A9s 0 → 0.42; KQo 1 → 0.40, 66-99 1 → 0.43-0.52. The
+    study's re-implementation and the shipped code agree on every preflop
+    range to 4·10⁻¹⁵ and on every aggregate to the third decimal; single
+    spots differ (up to 0.8 nats) where a threshold in the narrowing flips
+    on that last bit.
+  - **The checks.**
+    - `analysis/30`'s rows (rivers checked through, won − predicted, held
+      out): three or more ways +0.103 ± 0.028 → +0.091 ± 0.028, heads-up
+      +0.053 ± 0.020 → +0.038 ± 0.019; the called bets +0.065 → +0.058
+      and +0.098 → +0.090. Closer everywhere, by less than a standard
+      error: the share is mostly the river trims'.
+    - The shown-hand rows of `analysis/22`/`/23`/`/28` and the 2026-10-14
+      river trim (candidate − `analysis/30` per combo, clustered by
+      player): flop three or more +0.269 ± 0.043 (644), heads-up +0.483 ±
+      0.051 (855); turn +0.229 ± 0.050 (417) and +0.460 ± 0.049 (998);
+      river all +0.410 ± 0.042 (1,408), checked only +0.237 ± 0.066 (213
+      multiway) and +0.404 ± 0.055 (655 heads-up); bomb pots 0 exactly.
+      Even the shown winners - the sample selected toward strength - are
+      better explained: the old ranges were not only too strong but held
+      the wrong hands.
+    - `analysis/29`'s overcall check (`npm run floplib:multiway-overcall`,
+      `OVERCALL_CHART_ORDER=1` for the before): the shipped recalibration
+      held out +0.073 ± 0.016 → +0.072 ± 0.015 behind a bet (theory 0.490
+      → 0.489); the hero's 44 approximate calls, realised − population
+      +0.624 ± 0.287 → +0.621 ± 0.288; called multiway river bets, the
+      bettor's share won − predicted +0.059 ± 0.041 → +0.054 ± 0.039.
+    - Nothing worse by a standard error anywhere.
+  - **What is left.** At the shipped ranges the later players still muck
+    more than predicted after an isolation (+0.219 ± 0.049, 61) and a
+    3-bet (+0.180 ± 0.078, 24), and at called rivers heads-up (+0.089 ±
+    0.028); the first to show's place in their preflop range is
+    calibrated on every chart line (opens +0.037 ± 0.026 above 0.5,
+    3-bets +0.054 ± 0.052, isolations −0.020 ± 0.056).
+  - **The grades.** Census (`npm run floplib:census`, the flop library on,
+    the three shipped sets, 8,005 hero decisions; run twice at
+    `analysis/31`, identical row for row) against `analysis/30` row by row:
+    **72 rows move, 0 on a flop the library answers**. 754 rows read a
+    reordered range (flop 319, turn 268, river 167). By street and kind:
+
+    | | harsher | milder | newly graded | no longer graded |
+    |---|---|---|---|---|
+    | flop, approximate (multiway) | 1 | 1 | | |
+    | turn, approximate (multiway) | | 1 | | |
+    | turn, solver | 18 | 18 | 3 | 2 (`turn-unreached`) |
+    | river, solver | 16 | 9 | 2 | 1 (`river-unreached`) |
+
+    Turn solver Perfect 383 → 387, Good 80 → 72, Inaccurate 7 → 10,
+    Mistake 51 → 53; river solver Perfect 277 → 274, Good 82 → 83,
+    Inaccurate 9 → 7, Mistake 16 → 21; flop approximate Inaccurate 2 → 3,
+    Mistake 12 → 11; turn approximate Perfect 87 → 88, Mistake 4 → 3. No
+    preflop row moves (preflop grades read the charts, not these ranges).
+  - **Read one by one** (27 moved grades with `analyzeHand` at both
+    versions; ten here):
+    - 6♣A♣ folding the river on 7♥6♥7♣2♦J♥ to a bet, after calling the
+      button's 3-bet and its flop bet and checking the turn through: the
+      3-bettor's range at the river 18.9 → 3.9 combos, the hero beats 0.23
+      → 0.58 of it; Good → **Mistake** (14.3bb, 40% of the pot, capped).
+      The largest move: a 3-bet range with more weak aces and suited hands
+      has more misses that bet a river after checking the turn.
+    - J♠A♠ betting the river on A♣8♦Q♥9♠6♣ in a 3-bet pot the small blind
+      called (top pair, jack kicker): the caller's range is 0.47 combos at
+      the end, the hero beats 0.98 → 0.46 of it; Perfect → **Mistake**
+      (10.7bb, capped). The population's order puts aces high, so a call
+      of a 3-bet that check-calls an ace-high board to the river is more
+      often a better ace than the chart's range says.
+    - 6♣7♣ folding the turn on 8♥9♦3♦Q♠ to a bet, after the hero's flop
+      check-raise was re-raised by the cutoff's 3-bet range: that range's
+      strong share 0.24 → 0.19, weak 0.21 → 0.31; Perfect → **Mistake**
+      (3.4bb). The open-ender now has the price.
+    - A♥A♣ betting the turn on Q♠3♦9♥T♥ against a cold 4-bettor who
+      checked the flop: the hero beats 0.68 → 0.83 of the 4-bet range (its
+      strong share 0.58 → 0.32); Mistake → **Perfect**. The chart's 4-bet
+      range is the solver's; the reordered one holds more of the hands
+      players actually 4-bet and then check.
+    - Q♠8♠ calling the turn in the small blind's 3-bet pot on 8♥9♠A♠5♦
+      (bottom pair and a flush draw): Mistake (7.5bb, capped) →
+      **Perfect**; the river fold after it is no longer reached
+      (`river-unreached`): the 3-bettor's line there is a sliver of the
+      new range.
+    - 9♥J♥ calling a turn bet on Q♣T♣7♥4♠ (an open-ender) against the UTG
+      opener: equity 0.18 → 0.24; Mistake → **Perfect**.
+    - 8♦8♥ calling a flop bet three-way on 3♦Q♥2♥ against the hijack's
+      isolation and a limp-caller: equity against the isolation 0.23 →
+      0.30, the field 0.18 → 0.24; Mistake → **Perfect**. The isolation
+      line moves most in `Measured 0` and here.
+    - J♥T♥ folding the flop on Q♥4♣8♠ (a gutshot and a backdoor flush) to
+      the UTG opener's bet with the big blind behind: equity 0.25 → 0.29;
+      Perfect → **Inaccurate**.
+    - K♦Q♦ folding the turn on 5♦A♠5♥A♣ to a third-pot bet from the small
+      blind's 3-bet range after a flop checked through: the hero beats
+      0.28 → 0.41 of it; Perfect → **Mistake** (0.56bb). The least
+      convincing: a 3-bettor who checks a paired-ace flop and bets small
+      is read through the heuristic's trims, which know nothing of how
+      the population slowplays.
+    - Three tiny blind-against-blind pots (the big blind betting the turn
+      with a weak queen, Q-high or a gutshot after the small blind limped
+      and both checked the flop, 0.09-0.25bb): Perfect/Good → **Mistake** by share
+      of a 2bb pot. The small blind's limp in the population's order holds
+      more aces and queens than the chart's limping range, so the stab is
+      called or beaten more often - right in direction, harsh in grade on a
+      2bb pot.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/31`. `POPULATION_ORDER`
+    `population-order/1`, `POPULATION_ORDER_MIX` (0.75), `populationOrdered`
+    and `populationOrderApplies` in `population.ts`;
+    `PreflopRangeOptions.populationOrder` (default on with
+    `populationHero`); the analysis passes it off for a heads-up hand the
+    flop library answers (`rangeOptions(..., chartOrder)` in
+    `handSolvers`, the full and the halved walk). New approximation
+    `range-population-order` (EN/HR) on every decision whose walk or
+    equity read such a range; `docs/CHARTS.md` §7.2. Tests
+    (`analysisRanges`, `flopLibraryPilot`): the width kept, a quarter of
+    the chart's weight always kept, pairs in rank order, any two cards
+    unchanged; read for opponents' chart and placeholder ranges only (not
+    the hero, the trainers, `populationOrder: false`, a population range,
+    after a preflop all-in); the walk and the decision carry the flag in
+    both languages; a turn on the library's flop keeps the charts' range
+    while the same hand without the library reorders it. The study
+    `preflopWidth.test.ts` (`npm run floplib:preflop-width`, prints only)
+    and `OVERCALL_CHART_ORDER` in `multiwayOvercall.test.ts`. The analysis
+    suite, typecheck and lint pass. Only aggregate numbers are committed.
+  - **Open.**
+    - **A raising order.** The order is `population/1`'s, fitted on flat
+      calls and limps, reused for raises with only its pair term dropped.
+      A shape of its own for opens, isolations and 3-bets, fitted on the
+      unselected score (the first to show and the mucks, now 857 rivers),
+      is the next step; isolations (+0.22 ± 0.05 mucks still unexplained)
+      and 3-bets (+0.18 ± 0.08) are where it is needed.
+    - **The small blind's open** is twice the charts' frequency (41% of
+      chances against an 18.7% chart range, 6-max): a width the order
+      does not change. A per-position width from the frequencies (Measured
+      0, no showdown needed) would be the cleanest widening; the score did
+      not ask for wider ranges elsewhere (width 1.25 gained +0.006).
+    - **The library's heads-up flops keep the charts' ranges** (their
+      chunks were solved from them): those hands, and the turn and river
+      solves after them, still read `analysis/30`'s ranges. Re-solving the
+      library from reordered ranges, or reweighting a chunk's ranges by
+      the order before narrowing, would make them consistent.
+    - The tiny blind-against-blind pots: a grade by share of a 2bb pot
+      turns 0.1bb into a Mistake; worth a floor in big blinds (not new to
+      this version, made visible by it).
+    - The fit is one library's population (one site's stakes); refit
+      (`npm run floplib:preflop-width` prints the candidates) as libraries
+      grow.
