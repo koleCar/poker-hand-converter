@@ -142,13 +142,13 @@ fn next_to(panel: &Rect, plate: &Rect, gap: u32) -> bool {
 /// drawn (so the hero's plate has its frame).
 fn tables_with_hands(
     backend: &mut WindowsBackend,
-    sim: &Sim,
+    sim: &mut Sim,
     room: &rail_hud::platform::TableMatcher,
     seen: &mut Seen,
     count: usize,
 ) -> Vec<TableWindow> {
-    seen.until(
-        &sim.events,
+    sim.until(
+        seen,
         Duration::from_secs(90),
         &format!("{count} windows, each with its hero seat and a hand"),
         |s| {
@@ -198,14 +198,14 @@ fn drawn_seats(preferred: bool) {
     if preferred {
         args.push("--preferred-seat");
     }
-    let sim = Sim::start(
+    let mut sim = Sim::start(
         &sim_path,
         if preferred { "seats-on" } else { "seats-off" },
         &args,
     );
     let mut seen = Seen::default();
     let mut backend = WindowsBackend::default();
-    let found = tables_with_hands(&mut backend, &sim, &room, &mut seen, 3);
+    let found = tables_with_hands(&mut backend, &mut sim, &room, &mut seen, 3);
 
     for window in &found {
         let number = seen.table_titled(&window.title).expect("table");
@@ -322,7 +322,7 @@ fn acr_keeps_a_dragged_panel_off_its_graphics() {
         eprintln!("--- posing as {site}");
         let room = matcher(site, &regex);
         let window = format!("{WIDTH}x{HEIGHT}");
-        let sim = Sim::start(
+        let mut sim = Sim::start(
             &sim_path,
             &format!("drag-{site}"),
             &[
@@ -332,7 +332,7 @@ fn acr_keeps_a_dragged_panel_off_its_graphics() {
         );
         let mut seen = Seen::default();
         let mut backend = WindowsBackend::default();
-        let found = tables_with_hands(&mut backend, &sim, &room, &mut seen, 1);
+        let found = tables_with_hands(&mut backend, &mut sim, &room, &mut seen, 1);
         let window = &found[0];
         let (w, h) = (window.client.width, window.client.height);
         backend.track(window).expect("track");
@@ -505,7 +505,7 @@ fn player_tags_only_where_the_room_allows_labels() {
         eprintln!("--- posing as {site}");
         let room = matcher(site, &regex);
         let window = format!("{WIDTH}x{HEIGHT}");
-        let sim = Sim::start(
+        let mut sim = Sim::start(
             &sim_path,
             &format!("tags-{site}"),
             &[
@@ -515,7 +515,7 @@ fn player_tags_only_where_the_room_allows_labels() {
         );
         let mut seen = Seen::default();
         let mut backend = WindowsBackend::default();
-        let found = tables_with_hands(&mut backend, &sim, &room, &mut seen, 1);
+        let found = tables_with_hands(&mut backend, &mut sim, &room, &mut seen, 1);
         let window = &found[0];
         backend.track(window).expect("track");
         let mut six = frame(site, 6, &[1, 2, 3, 4, 5, 6], None);
@@ -742,7 +742,7 @@ fn a_dragged_panel_is_remembered() {
         .expect("preferred seat");
 
     let window_size = format!("{WIDTH}x{HEIGHT}");
-    let sim = Sim::start(
+    let mut sim = Sim::start(
         &sim_path,
         "remembered",
         &[
@@ -761,7 +761,7 @@ fn a_dragged_panel_is_remembered() {
     );
     let mut seen = Seen::default();
     let mut finder = WindowsBackend::default();
-    let found = tables_with_hands(&mut finder, &sim, &room, &mut seen, 1);
+    let found = tables_with_hands(&mut finder, &mut sim, &room, &mut seen, 1);
     let window = found[0].clone();
     let number = seen.table_titled(&window.title).expect("table");
     drive::raise(window.id).expect("raise");
@@ -936,13 +936,14 @@ fn a_click_on_a_panel_opens_the_popup() {
     let sim_path = simulator();
     let regex = title_regex(&sim_path);
     let room = matcher("pokerstars", &regex);
-    let dir: PathBuf = std::env::temp_dir().join(format!("rail-hud-popup-{}", std::process::id()));
+    let dir: PathBuf =
+        std::env::temp_dir().join(format!("rail-hud-popup-store-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     let db = dir.join(rail_store::FILE_NAME);
     let store = rail_store::Store::open(&db).expect("store");
 
     let window_size = format!("{WIDTH}x{HEIGHT}");
-    let sim = Sim::start(
+    let mut sim = Sim::start(
         &sim_path,
         "popup",
         &[
@@ -960,7 +961,7 @@ fn a_click_on_a_panel_opens_the_popup() {
     );
     let mut seen = Seen::default();
     let mut finder = WindowsBackend::default();
-    let found = tables_with_hands(&mut finder, &sim, &room, &mut seen, 1);
+    let found = tables_with_hands(&mut finder, &mut sim, &room, &mut seen, 1);
     let window = found[0].clone();
     let number = seen.table_titled(&window.title).expect("table");
     drive::raise(window.id).expect("raise");
