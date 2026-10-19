@@ -724,7 +724,7 @@ impl Overlay {
 
     /// The click windows over the scene's panels where the table is now:
     /// made, moved and shown or ordered out to match.
-    fn place_hits(&mut self, mtm: MainThreadMarker, main_height: i64) {
+    fn place_hits(&mut self, mtm: MainThreadMarker, main_height: i64, reorder: bool) {
         let g = self.geometry;
         let rects = self.scene.panels.clone();
         for (i, rect) in rects.iter().enumerate() {
@@ -754,8 +754,12 @@ impl Overlay {
         let shown = self.shown;
         for (i, hit) in self.hits.iter_mut().enumerate() {
             if i < rects.len() && shown {
-                hit.panel
-                    .orderWindow_relativeTo(NSWindowOrderingMode::Above, above);
+                // (R3.13) Only moved when it is already in place above the
+                // overlay (a move of the table).
+                if reorder || !hit.shown {
+                    hit.panel
+                        .orderWindow_relativeTo(NSWindowOrderingMode::Above, above);
+                }
                 hit.shown = true;
             } else if hit.shown {
                 hit.panel.orderOut(None);
@@ -1101,7 +1105,7 @@ impl Overlays {
                     overlay.error = None;
                     keep(&mut self.times, us);
                     overlay.order_in();
-                    overlay.place_hits(mtm, main_height);
+                    overlay.place_hits(mtm, main_height, true);
                 }
                 Err(error) => {
                     eprintln!(
@@ -1117,12 +1121,20 @@ impl Overlays {
                 overlay.placed = frame;
                 overlay.at = (g.client.x, g.client.y);
                 overlay.moves += 1;
-                overlay.order_in();
-                overlay.place_hits(mtm, main_height);
+                // (R3.13) A move does not change the window order: an
+                // overlay already shown is only moved (its click windows
+                // too) - during a drag every ordering is a window-server
+                // round trip; the stacking look and the observers' restack
+                // keep the order.
+                let reorder = !overlay.shown;
+                if reorder {
+                    overlay.order_in();
+                }
+                overlay.place_hits(mtm, main_height, reorder);
             }
             Plan::Show => {
                 overlay.order_in();
-                overlay.place_hits(mtm, main_height);
+                overlay.place_hits(mtm, main_height, true);
             }
         }
         plan

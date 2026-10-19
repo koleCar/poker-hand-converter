@@ -89,6 +89,9 @@ use super::{
 /// notification wakes it at once).
 const IDLE: Duration = Duration::from_secs(60);
 
+/// How long the displays read last are used.
+const DISPLAYS_FOR: Duration = Duration::from_secs(5);
+
 /// What the engine's thread (the backend) and the AppKit thread hand the
 /// observers' thread.
 enum Cmd {
@@ -477,9 +480,9 @@ struct State {
     by_note: BTreeMap<String, u64>,
     slowest_note_us: u64,
     slowest_read_us: u64,
-    /// The displays, read at most once a second (and on a Space change):
-    /// every reading of a table needs their scales, and each read asks the
-    /// window server.
+    /// The displays, read at most every [`DISPLAYS_FOR`] (and again on a
+    /// Space change or the engine's `Resync`): every reading of a table
+    /// needs their scales, and each read asks the window server.
     displays: Option<(Instant, Vec<super::Display>)>,
     follows: u64,
     resyncs: u64,
@@ -515,7 +518,12 @@ impl State {
             .collect();
         self.rechecks.retain(|(due, _, _)| *due > now);
         for (table, at) in due {
-            self.follow(table, at);
+            if self.follow(table, at) && at.is_some() {
+                // The window server shows the move now: the rest of its
+                // settling reads are not needed.
+                self.rechecks
+                    .retain(|(_, t, at)| *t != table || at.is_none());
+            }
         }
         let next = self.rechecks.iter().map(|(due, _, _)| *due).min();
         Some(next.map_or(IDLE, |at| at.saturating_duration_since(now)))
@@ -537,6 +545,8 @@ impl State {
                 known,
             } => {
                 self.resyncs += 1;
+                // The engine may have seen a display change.
+                self.displays = None;
                 if let Some(f) = self.tables.get_mut(&table) {
                     f.last = Some(known);
                     if let Some(bar) = title_bar {
@@ -851,11 +861,13 @@ impl State {
                 .collect(),
         };
         for table in targets {
-            self.follow(table, Some(note.at));
+            let moved = self.follow(table, Some(note.at));
             if effect.recheck {
                 self.recheck(table);
             }
-            if effect.settle {
+            // Settling reads only when the window server did not show the
+            // change yet.
+            if effect.settle && !moved {
                 // The window server's list may not show the move yet: read
                 // it again over the next frames (`SETTLE`).
                 let now = Instant::now();
@@ -882,18 +894,19 @@ impl State {
 
     /// Read `table` from the window server and put its overlay where it is
     /// now; tell the engine what changed. `at`: the notification this
-    /// answers (the AppKit thread measures the follow from it).
-    fn follow(&mut self, table: WindowId, at: Option<Instant>) {
+    /// answers (the AppKit thread measures the follow from it). Whether the
+    /// overlay was given a new geometry.
+    fn follow(&mut self, table: WindowId, at: Option<Instant>) -> bool {
         let Some(f) = self.tables.get(&table) else {
-            return;
+            return false;
         };
         if f.gone {
-            return;
+            return false;
         }
         let started = Instant::now();
         let Some(cg) = ffi::cg_window(f.window).filter(|w| w.onscreen || !f.orphaned) else {
             self.gone(table);
-            return;
+            return true;
         };
         let app_hidden = self.apps.get(&f.pid).is_some_and(|a| a.hidden);
         let minimizing = f
@@ -903,7 +916,7 @@ impl State {
         let fresh = self
             .displays
             .as_ref()
-            .is_some_and(|(at, _)| at.elapsed() < Duration::from_secs(1));
+            .is_some_and(|(at, _)| at.elapsed() < DISPLAYS_FOR);
         if !fresh {
             self.displays = Some((Instant::now(), ffi::displays()));
         }
@@ -913,7 +926,7 @@ impl State {
             .map_or(&[][..], |(_, d)| d.as_slice());
         self.slowest_read_us = self.slowest_read_us.max(micros(started));
         let Some(f) = self.tables.get(&table) else {
-            return;
+            return false;
         };
         let geometry = tracked_geometry(
             &cg.bounds,
@@ -924,7 +937,7 @@ impl State {
             displays,
         );
         let Some(f) = self.tables.get_mut(&table) else {
-            return;
+            return false;
         };
         let report = f.last != Some(geometry);
         f.last = Some(geometry);
@@ -937,6 +950,7 @@ impl State {
             let _ = link.follow_at(table, geometry, at);
             self.follows += 1;
         }
+        send
     }
 
     /// `AXUIElementDestroyed`: closed - unless the window server still
