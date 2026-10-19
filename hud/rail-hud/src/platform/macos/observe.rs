@@ -24,12 +24,13 @@
 //! window notifications and on a Space change.
 //!
 //! **A notification moves the overlay before the engine hears of it.** The
-//! callback reads the table: on a move or resize the window's own frame
-//! (`AXPosition` + `AXSize` of the notifying element - the window server's
-//! list can still show the old place at that moment, as CI found), else
-//! the **window server**'s bounds (`CGWindowListCopyWindowInfo` for that one
-//! window, no message to the client), and always its on-screen flag - plus,
-//! on a resize, the title bar, and on a title change the title - computes the
+//! callback reads the table from the **window server**
+//! (`CGWindowListCopyWindowInfo` for that one window: bounds and on-screen
+//! flag, no message to the client) - and, after a move or a resize, again
+//! over the next frames ([`SETTLE`]: the client posts the notification
+//! before the window server's list shows the new place, as CI found) -
+//! plus, on a resize, the title bar, and on a title change the title -
+//! computes the
 //! client area exactly as the find does ([`tracked_geometry`]) and hands
 //! the AppKit thread the new geometry at once ([`Link::follow_at`]); the
 //! engine's side is noted in a [`Observed`] (coalesced per table: a drag's
@@ -80,7 +81,7 @@ use objc2_core_foundation::{
 use super::super::WindowId;
 use super::super::tracking::{Geometry, Observed};
 use super::{
-    AxNote, Frame, Link, MINIMIZING, RECHECKS, Read, TrackerInfo, ffi, title_bar,
+    AxNote, Frame, Link, MINIMIZING, RECHECKS, Read, SETTLE, TrackerInfo, ffi, title_bar,
     title_bar_between, tracked_geometry,
 };
 
@@ -456,7 +457,8 @@ struct State {
     tables: BTreeMap<WindowId, Followed>,
     apps: BTreeMap<u32, App>,
     /// Reads due later (after a notification an animation may outrun).
-    rechecks: Vec<(Instant, WindowId)>,
+    /// (due, table, the notification it answers).
+    rechecks: Vec<(Instant, WindowId, Option<Instant>)>,
     notes: u64,
     by_note: BTreeMap<String, u64>,
     follows: u64,
@@ -485,17 +487,17 @@ impl State {
             self.note(note);
         }
         let now = Instant::now();
-        let due: Vec<WindowId> = self
+        let due: Vec<(WindowId, Option<Instant>)> = self
             .rechecks
             .iter()
-            .filter(|(at, _)| *at <= now)
-            .map(|(_, t)| *t)
+            .filter(|(due, _, _)| *due <= now)
+            .map(|(_, t, at)| (*t, *at))
             .collect();
-        self.rechecks.retain(|(at, _)| *at > now);
-        for table in due {
-            self.follow(table, None, None);
+        self.rechecks.retain(|(due, _, _)| *due > now);
+        for (table, at) in due {
+            self.follow(table, at);
         }
-        let next = self.rechecks.iter().map(|(at, _)| *at).min();
+        let next = self.rechecks.iter().map(|(due, _, _)| *due).min();
         Some(next.map_or(IDLE, |at| at.saturating_duration_since(now)))
     }
 
@@ -531,7 +533,7 @@ impl State {
                     if f.element.is_none() {
                         self.resolve(table);
                     }
-                    self.follow(table, None, None);
+                    self.follow(table, None);
                 }
             }
             Cmd::SpaceChanged => {
@@ -539,7 +541,7 @@ impl State {
                 let tables: Vec<WindowId> = self.tables.keys().copied().collect();
                 for table in tables {
                     self.resolve(table);
-                    self.follow(table, None, None);
+                    self.follow(table, None);
                     self.recheck(table);
                 }
                 if let Some(link) = &self.link {
@@ -597,7 +599,7 @@ impl State {
             let watched = self.apps.get(&pid).is_some_and(App::watched);
             let _ = link.watched(table, watched);
         }
-        self.follow(table, None, None);
+        self.follow(table, None);
     }
 
     fn untrack(&mut self, table: WindowId) {
@@ -605,7 +607,7 @@ impl State {
             return;
         };
         self.unregister(&mut followed);
-        self.rechecks.retain(|(_, t)| *t != table);
+        self.rechecks.retain(|(_, t, _)| *t != table);
         let pid = followed.pid;
         if !self.tables.values().any(|f| f.pid == pid)
             && let Some(app) = self.apps.remove(&pid)
@@ -790,7 +792,7 @@ impl State {
                 .collect();
             for table in unresolved {
                 self.resolve(table);
-                self.follow(table, None, None);
+                self.follow(table, None);
             }
         }
         if let Some(table) = table {
@@ -821,23 +823,20 @@ impl State {
                 .map(|(id, _)| *id)
                 .collect(),
         };
-        // A move or a resize: the window's frame as the client reports it
-        // with the notification. The window server's list can still show
-        // the old place for a moment (CI: every move of the simulator's
-        // window was read there unchanged), and an overlay placed from it
-        // would stay behind until the next notification.
-        let frame = if matches!(
-            kind,
-            AxNote::WindowMoved | AxNote::Moved | AxNote::WindowResized | AxNote::Resized
-        ) {
-            ffi::frame_of(&note.element)
-        } else {
-            None
-        };
         for table in targets {
-            self.follow(table, Some(note.at), frame);
+            self.follow(table, Some(note.at));
             if effect.recheck {
                 self.recheck(table);
+            }
+            if effect.settle {
+                // The window server's list may not show the move yet: read
+                // it again over the next frames (`SETTLE`).
+                let now = Instant::now();
+                self.rechecks
+                    .retain(|(_, t, at)| *t != table || at.is_none());
+                for after in SETTLE {
+                    self.rechecks.push((now + after, table, Some(note.at)));
+                }
             }
         }
         if effect.restack
@@ -850,16 +849,14 @@ impl State {
     fn recheck(&mut self, table: WindowId) {
         let now = Instant::now();
         for after in RECHECKS {
-            self.rechecks.push((now + after, table));
+            self.rechecks.push((now + after, table, None));
         }
     }
 
-    /// Read `table` and put its overlay where it is now; tell the engine
-    /// what changed. The place is `frame` (the client's own, from a move or
-    /// resize notification) or else the window server's; whether it is on
-    /// screen is always the window server's. `at`: the notification this
+    /// Read `table` from the window server and put its overlay where it is
+    /// now; tell the engine what changed. `at`: the notification this
     /// answers (the AppKit thread measures the follow from it).
-    fn follow(&mut self, table: WindowId, at: Option<Instant>, frame: Option<Frame>) {
+    fn follow(&mut self, table: WindowId, at: Option<Instant>) {
         let Some(f) = self.tables.get(&table) else {
             return;
         };
@@ -876,9 +873,8 @@ impl State {
             .is_some_and(|since| since.elapsed() < MINIMIZING);
         let minimized = f.minimized && (!cg.onscreen || minimizing);
         let displays = ffi::displays();
-        let bounds = frame.unwrap_or(cg.bounds);
         let geometry = tracked_geometry(
-            &bounds,
+            &cg.bounds,
             cg.onscreen,
             f.title_bar,
             minimized,
@@ -911,16 +907,18 @@ impl State {
             return;
         };
         if ffi::cg_window(window).is_some_and(|w| w.onscreen) {
-            if let Some(mut followed) = self.tables.remove(&table) {
-                self.unregister(&mut followed);
+            if let Some(followed) = self.tables.get_mut(&table) {
+                // The element is dead: nothing to unregister (asking a
+                // quitting client would wait out the timeout).
+                followed.element = None;
+                followed.registered.clear();
                 followed.orphaned = true;
-                self.tables.insert(table, followed);
             }
             // Its element is looked for again on the client's next focus,
             // window or activation notification, or a Space change - not
             // now: a client that is quitting would hold the thread for the
             // accessibility timeout (CI: half a second for two tables).
-            self.follow(table, None, None);
+            self.follow(table, None);
             // A window still closing leaves the screen a moment later.
             self.recheck(table);
         } else {
@@ -939,7 +937,11 @@ impl State {
             return;
         }
         followed.gone = true;
-        self.unregister(&mut followed);
+        // Closed or its client gone: its element is dead, nothing to
+        // unregister - asking a quitting client would wait out the
+        // accessibility timeout (CI: 0.25 s a table).
+        followed.element = None;
+        followed.registered.clear();
         self.tables.insert(table, followed);
         if let Some(link) = &self.link {
             let _ = link.gone(table);

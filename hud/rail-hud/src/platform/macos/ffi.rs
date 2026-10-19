@@ -332,10 +332,8 @@ fn size_of(element: &AXUIElement, name: &'static str) -> Option<CGSize> {
     read.then_some(size)
 }
 
-/// An element's frame (`AXPosition` + `AXSize`), points. (R3.13) What the
-/// observers read on a window's move or resize: the client's own frame at
-/// the notification, which the window server's list may not show yet.
-pub(super) fn frame_of(element: &AXUIElement) -> Option<Frame> {
+/// An element's frame (`AXPosition` + `AXSize`), points.
+fn frame_of(element: &AXUIElement) -> Option<Frame> {
     let origin = point_of(element, "AXPosition")?;
     let size = size_of(element, "AXSize")?;
     Some(Frame {

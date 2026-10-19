@@ -7998,19 +7998,23 @@ graphics, and CPU with twelve real tables.
     minimised, app hidden, gone, appeared, restack, look for elements, read
     again later (`RECHECKS`: 150 and 500 ms, for animations the window server
     shows after the notification).
-  - **The overlay moves before the engine hears of it.** On a move or a
-    resize the thread reads the window's **own frame** from the notifying
-    element (`AXPosition` + `AXSize`): CI found the window server's list
-    still showing the old place when the notification arrives - every
-    move of the simulator's window read there unchanged, its overlay left
-    behind. Otherwise, and for whether it is on screen, it reads the
-    **window server** -
+  - **The overlay moves before the engine hears of it.** On a notification
+    the thread reads the table from the **window server** -
     `CGWindowListCopyWindowInfo(OptionIncludingWindow, number)`: bounds and
     the on-screen flag, no message to the client, no permission (measured:
     that option alone does not list an off-screen window, so a minimised /
     other-Space / hidden one is looked up in the whole list) - plus the
     title bar from the Accessibility API on a resize (full screen in or
-    out) and the title on `AXTitleChanged`; computes the client area exactly
+    out) and the title on `AXTitleChanged`. **After a move or a resize it
+    reads again at 2, 5, 10, 20, 40 and 100 ms** (`SETTLE`): CI found the
+    client posts the notification before the window server's list shows the
+    new place - every move of the simulator's window read there unchanged,
+    its overlay left behind until the next notification. Reading the
+    window's own frame from the client instead (`AXPosition`) was tried
+    and dropped: a client busy with the drag answered after the 0.25 s
+    timeout (p95 0.5 s on CI), and a reading of the client ahead of the
+    window server could be followed by an older one - the window server's
+    list only moves forward. Computes the client area exactly
     as the find does (`tracked_geometry`: bounds less the title bar, pixels
     at the scale of the display it overlaps most; minimised = the empty
     rect; off screen or the app hidden = hidden, the rect kept) and hands

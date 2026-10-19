@@ -194,11 +194,25 @@ impl AxHandle {
 /// a click in the Dock do (`NSRunningApplication`): whether the system took
 /// the request.
 pub fn hide_app(pid: u32, hide: bool) -> bool {
-    let Ok(pid) = libc::pid_t::try_from(pid) else {
+    let Ok(raw) = libc::pid_t::try_from(pid) else {
         return false;
     };
-    let Some(app) = NSRunningApplication::runningApplicationWithProcessIdentifier(pid) else {
+    let asked = NSRunningApplication::runningApplicationWithProcessIdentifier(raw)
+        .is_some_and(|app| if hide { app.hide() } else { app.unhide() });
+    // CI's runner refused that request for the simulator; the Accessibility
+    // API's `AXHidden` (what a window manager sets) is the other way.
+    asked || ax_hidden(pid, hide)
+}
+
+/// (R3.13) Set the application's `AXHidden` (needs Accessibility).
+#[allow(unsafe_code)]
+fn ax_hidden(pid: u32, hide: bool) -> bool {
+    let Ok(app) = super::ffi::app_element(pid) else {
         return false;
     };
-    if hide { app.hide() } else { app.unhide() }
+    let name = CFString::from_static_str("AXHidden");
+    let value = objc2_core_foundation::CFBoolean::new(hide);
+    // SAFETY: the element, the name and the value are alive for the call.
+    let error = unsafe { app.set_attribute_value(&name, value) };
+    error == AXError::Success
 }

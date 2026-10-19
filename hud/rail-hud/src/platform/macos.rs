@@ -903,11 +903,13 @@ impl AxNote {
         match self {
             Self::WindowMoved | Self::Moved => Effect {
                 read: Read::Window,
+                settle: true,
                 ..none
             },
             Self::WindowResized | Self::Resized => Effect {
                 read: Read::Window,
                 title_bar: true,
+                settle: true,
                 ..none
             },
             Self::Miniaturized => Effect {
@@ -999,7 +1001,26 @@ pub struct Effect {
     /// Read again a little later too: the window server may not show the
     /// window yet when the notification comes (an animation).
     pub recheck: bool,
+    /// A move or a resize: read again within the next frames until the
+    /// window server shows it ([`SETTLE`]).
+    pub settle: bool,
 }
+
+/// (R3.13) When the observers read a table again after a move or a resize:
+/// the client posts the notification before the window server's list shows
+/// the new place (CI: every move of the simulator's window read unchanged
+/// at the notification). Read from the window server only - never the
+/// client's own frame, which would mean asking a client busy with the drag
+/// (CI: 0.5 s timeouts) and could put an overlay ahead of a later, older
+/// window-server reading; the window server's list only moves forward.
+pub const SETTLE: [std::time::Duration; 6] = [
+    std::time::Duration::from_millis(2),
+    std::time::Duration::from_millis(5),
+    std::time::Duration::from_millis(10),
+    std::time::Duration::from_millis(20),
+    std::time::Duration::from_millis(40),
+    std::time::Duration::from_millis(100),
+];
 
 /// (R3.13) When the observers read a table again after a notification that
 /// may come before the window server shows the change (an animation).
@@ -2197,6 +2218,11 @@ mod tests {
         let moved = AxNote::WindowMoved.effect();
         assert_eq!(moved.read, Read::Window);
         assert!(!moved.title_bar && !moved.restack && !moved.recheck && !moved.gone);
+        // ... and again over the next frames, until the window server
+        // shows the move.
+        assert!(moved.settle && AxNote::WindowResized.effect().settle);
+        assert!(!AxNote::TitleChanged.effect().settle);
+        assert!(SETTLE.windows(2).all(|w| w[0] < w[1]));
         // A resize reads the title bar again too (full screen has none).
         assert!(AxNote::Resized.effect().title_bar);
         assert_eq!(AxNote::Miniaturized.effect().minimized, Some(true));
