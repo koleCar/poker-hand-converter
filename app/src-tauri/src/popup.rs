@@ -870,6 +870,7 @@ mod tests {
         let app = tauri::test::mock_builder()
             .build(tauri::test::mock_context(tauri::test::noop_assets()))
             .expect("a mock app");
+        eprintln!("step ok: the mock app");
         let handle = app.handle();
         handle.manage(PopupState::default());
         let state = handle.state::<PopupState>();
@@ -881,16 +882,19 @@ mod tests {
         );
         assert!(handle.get_webview_window("hud-popup-1").is_some());
         assert_eq!(state.target(), Some(first.clone()));
+        eprintln!("step ok: a popup window opened");
         let second = target("pokerstars", "pokerstars", PlayerRef::named("V2").at(3), 2);
         assert_eq!(
             open_in(handle, state, second.clone(), None).expect("open"),
             Opened::Moved("hud-popup-1".into())
         );
         assert_eq!(state.target(), Some(second.clone()));
+        eprintln!("step ok: moved to another panel");
         assert_eq!(
             open_in(handle, state, second, None).expect("open"),
             Opened::Closed
         );
+        eprintln!("step ok: closed by the same panel");
         // (The mock runtime drops the window when its event loop runs; the
         // state forgets it at once.)
         assert_eq!((state.target(), state.label()), (None, None));
@@ -908,5 +912,6 @@ mod tests {
         assert!(state.label().is_some(), "not the open one");
         blurred(handle, "hud-popup-2");
         assert_eq!(state.target(), None);
+        eprintln!("step ok: refused, opened again, closed on blur");
     }
 }

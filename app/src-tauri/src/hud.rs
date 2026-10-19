@@ -795,6 +795,7 @@ mod tests {
         let app = tauri::test::mock_builder()
             .build(tauri::test::mock_context(tauri::test::noop_assets()))
             .expect("a mock app");
+        eprintln!("step ok: the mock app");
         let handle = app.handle();
         handle.manage(crate::popup::PopupState::default());
         let edges = Arc::new(Mutex::new(Vec::new()));
@@ -837,6 +838,7 @@ mod tests {
         event(message("pokerstars"));
         let label = popup.label().expect("a popup");
         assert!(handle.get_webview_window(&label).is_some());
+        eprintln!("step ok: open_popup opened {label}");
         let target = popup.target().expect("its target");
         assert_eq!(
             (
@@ -851,6 +853,7 @@ mod tests {
             std::time::Instant::now(),
         ));
         assert_eq!(popup.label(), None, "no table, no popup");
+        eprintln!("step ok: the last table closed the popup");
         assert_eq!(
             *edges.lock().unwrap_or_else(PoisonError::into_inner),
             ["true", "false"]

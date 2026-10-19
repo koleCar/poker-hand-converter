@@ -381,8 +381,15 @@ jobs:
       - name: Clippy (app crate)
         run: cargo clippy -p rail-app --all-targets --locked -- -D warnings
 
+      # One test at a time with its output: libtest prints `test <name> ...`
+      # as each one starts, so a crash names the test it happened in, after
+      # the test's own `step ok` lines (the HUD popup's window tests). A
+      # test binary that Windows refuses to start names no test at all:
+      # cargo's "process didn't exit successfully" line has its exit code -
+      # 0xc0000139 (STATUS_ENTRYPOINT_NOT_FOUND) was a missing application
+      # manifest (src-tauri/build.rs).
       - name: Test (app crate)
-        run: cargo test -p rail-app --locked
+        run: cargo test -p rail-app --locked -- --nocapture --test-threads 1
 
       # The HUD process is the app's Tauri sidecar (docs/RAIL-PLAN.md R3.2):
       # `rail-hud` built in release and copied to
