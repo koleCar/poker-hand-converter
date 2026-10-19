@@ -127,4 +127,13 @@ select {
   --player-tag-green: var(--success-fg);
   --player-tag-blue: var(--info-fg);
   --player-tag-purple: var(--anon-fg);
+
+  /* The HUD popup's value colours (R3.8): the panel's on the table - blue
+     below, orange from the high threshold, red-green safe - each a semantic
+     hue of the token layer, re-pointed by the light theme. */
+  --hud-tone-very-low: var(--info-fg);
+  --hud-tone-low: var(--info-fg);
+  --hud-tone-normal: var(--text-primary);
+  --hud-tone-high: var(--grade-mistake);
+  --hud-tone-very-high: var(--danger-fg);
 }

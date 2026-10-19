@@ -142,6 +142,37 @@ impl ShownDto {
         self.tone = None;
         self
     }
+
+    /// (R3.8) The tone with the thresholds beyond `max` merged away
+    /// (`Tone::collapse`): a HUD popup colours as its panel does.
+    #[must_use]
+    pub(crate) fn collapsed(mut self, max: Option<u32>) -> Self {
+        self.tone = self
+            .tone
+            .and_then(tone_named)
+            .map(|tone| tone.collapse(max).as_str());
+        self
+    }
+
+    /// The tone's name (a test's view).
+    #[cfg(test)]
+    pub(crate) fn tone(&self) -> Option<&'static str> {
+        self.tone
+    }
+}
+
+/// A tone by its JSON name.
+fn tone_named(name: &str) -> Option<rail_config::stats::Tone> {
+    use rail_config::stats::Tone;
+    [
+        Tone::VeryLow,
+        Tone::Low,
+        Tone::Normal,
+        Tone::High,
+        Tone::VeryHigh,
+    ]
+    .into_iter()
+    .find(|tone| tone.as_str() == name)
 }
 
 /// `rail_store::report::Units`.
@@ -214,6 +245,19 @@ pub struct GroupDto {
     net_bb_milli: Option<i64>,
     /// [`BREAKDOWN_COLUMNS`], in that order.
     stats: Vec<ShownDto>,
+}
+
+impl GroupDto {
+    /// (R3.8) Every statistic's tone collapsed to at most `max` thresholds.
+    #[must_use]
+    pub(crate) fn collapsed(mut self, max: Option<u32>) -> Self {
+        self.stats = self
+            .stats
+            .into_iter()
+            .map(|shown| shown.collapsed(max))
+            .collect();
+        self
+    }
 }
 
 #[cfg(test)]

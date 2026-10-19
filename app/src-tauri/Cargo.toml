@@ -74,3 +74,9 @@ tauri-runtime = "=2.11.3"
 tauri-runtime-wry = "=2.11.4"
 tauri-utils = "=2.9.3"
 tauri-macros = "=2.6.3"
+
+[dev-dependencies]
+# (R3.8) Tauri's mock runtime (`tauri::test`): the HUD popup's window is
+# opened, moved and closed in `cargo test` without a display. The feature
+# adds no crate (`test = []`); the version is `tauri`'s above.
+tauri = { version = "=2.11.5", features = ["tray-icon", "test"] }
