@@ -4374,3 +4374,200 @@ Each phase appends what it learned that changed the plan.
     - The realisation factors were measured on heads-up pots with preflop
       ranges; in a bomb pot the ranges are wide and the SPR low. Not
       measured apart (only 56 flop grades).
+- 2026-10-19 — Multiway checks and bets: **nothing shipped** (study
+  `tests/scripts/flop-library/multiwayBets.test.ts`,
+  `npm run floplib:multiway-bets`; study code `multiwayRiver.ts` beside it).
+  `ANALYSIS_VERSION` stays `analysis/28`; no migration, no behaviour change,
+  nothing in `frontend/`.
+  - **Why.** The largest "not analysed" cause left after the bomb pots: the
+    hero's checks, bets and raises three or more ways (`multiway`), **611**
+    in the `analysis/28` census - flop 370 (check 339, bet 27, raise 4), turn
+    168 (127, 33, 8), river 73 (53, 17, 3). Calls and folds facing a bet have
+    approximate grades (`analysis/15`-`/17`, `/28`); these have none.
+  - **Where they are** (the hero's multiway flops, `analyzeHand` at
+    `analysis/28`; 605 of the 611 found this way): flop checks with players still to act 286, flop checks
+    as the last to act 50, flop bets 26; turn checks 107 and 19, bets 33;
+    river checks 45 and 8, bets 17 (64 of the river's 70 with at most three
+    opponents and nobody all-in); raises 14. Nearly two in three are flop and
+    turn checks with a player still to act.
+  - **Three-way solves: not available.** `lib/solver` is a two-player DCFR
+    (`game.ts`, `tree.ts`, `cfr.ts`: `player: 0 | 1` throughout, a heads-up
+    showdown); a three-player river solver is a new solver, not a small tree
+    on the existing one, so there is no multiway ground truth to measure
+    against.
+  - **Flop and turn: no candidate.** The EV of a check or a bet with cards to
+    come needs what a *checked* pot and a *bettor who is called* go on to
+    win. The shipped realisation tables (`floplib-r/2`, `turnsolve-r/1`)
+    measure only a caller facing a bet, heads-up; nothing measures the other
+    two, and both heads-up-to-multiway transfers tried so far lost held out
+    (2026-10-13, 2026-10-15). So the study takes the river, where nothing is
+    left to come and a check or a bet against fixed ranges is a small tree.
+  - **The river model** (`multiwayRiver.ts`). At a hero river decision not
+    facing a bet: the EV of checking and of betting a third, two thirds or a
+    pot (or the size bet), net from the decision, against the walked ranges
+    (as the river call grades read them, the hero's cards removed, slivers
+    pruned). A bet: every opponent answers in turn (players behind first,
+    then those who checked), calling or folding; callers' ranges are their
+    calling ranges; nobody raises; everyone folding wins the pot. A check:
+    as the last to act, the showdown share of the pot; with players behind,
+    each in turn bets 56% of the pot (the stored hands' median river bet
+    three or more ways; quartiles 41% / 86%) or checks, the hero then calls
+    or folds, whichever is better, the others answering, and if all check,
+    the showdown against the checked ranges. Two models of how the field
+    plays it:
+    - **the theory** - the narrowing model's own answers: the MDF split for
+      calls, the heuristic's betting share for bets. This is what the
+      multiway call grades assume for the players still to answer;
+    - **the population** - two logistic models fitted on every player of the
+      stored hands (the hero too): P(call or raise) facing a bet by street,
+      log size per street, players to answer, a call before, only folds
+      before, and whether the player had checked to the bettor; P(bet) when
+      not facing a bet by street, players, a check before, last to act. The
+      calling range is the top of the range by strength against the field at
+      that share (the heuristic's call shape with its cut moved), the betting
+      range the heuristic's betting shape rescaled to that share.
+    The would-be grade: the chosen option's EV loss against the best option
+    under each field, the **smaller** of the two (both must say it loses),
+    beyond 5% of the pot, capped at Mistake - the convention of the
+    approximate calls.
+  - **Data.** The 5,448 stored hands of the test user (local stack); 1,253
+    flops three or more saw (bomb pots on one board included). 1,267 bets
+    with two or more players to answer them (3,138 answers), 5,942 decisions
+    not facing a bet with three or more live (1,275 bets). Five folds by
+    hand; standard errors clustered by hand.
+  - **Measured 1: the field's answers, held out.** The theory over-predicts
+    calls by two thirds; the population model is calibrated:
+
+    | | called (observed) | theory | population, held out | log-loss theory − population |
+    |---|---|---|---|---|
+    | every answer (3,138) | 0.320 ± 0.009 | 0.520 | 0.321 | **+0.123 ± 0.010** |
+    | flop (1,940) | 0.322 ± 0.011 | 0.500 | 0.323 | +0.097 ± 0.011 |
+    | turn (893) | 0.335 ± 0.017 | 0.586 | 0.335 | +0.181 ± 0.022 |
+    | river (305) | 0.262 ± 0.026 | 0.455 | 0.267 | +0.115 ± 0.026 |
+    | river, checked to the bettor (120) | 0.200 ± 0.037 | 0.498 | 0.214 | +0.199 ± 0.051 |
+    | turn, after folds only (314) | 0.264 ± 0.026 | 0.650 | 0.309 | +0.348 ± 0.043 |
+
+    Everyone folding, per bet (a raise counts as not folding): flop 0.374 ±
+    0.019 observed, theory 0.165, population 0.347; turn 0.420 ± 0.026,
+    0.128, 0.388; river 0.558 ± 0.044, 0.262, 0.514 (a pot or more: 0.829 ±
+    0.065, 0.401, 0.672 - the population model too low there, 2.5 SE). Bets
+    when not facing one: 0.215 ± 0.005 observed, theory 0.440, population
+    0.216 (log-loss +0.135 ± 0.006); river 0.198 ± 0.015, 0.317, 0.200.
+    The extra features (only folds before, checked to the bettor) are worth
+    +0.005 ± 0.002 over street, size, players and a call before. **The fold
+    half of the model holds held out.**
+  - **Measured 2: the showdown share, held out (nothing in it is fitted).**
+    The player who shows first - at a river checked through three or more
+    ways the first to act, at a called river bet the bettor - is shown
+    whatever they hold (every one of the 134 and 45 here was), so their share
+    against the others' ranges can be set against the share they won without
+    selecting on the result. One pot, nobody all-in.
+
+    | | n | won | narrowed ranges | won − predicted | against the preflop ranges | against any two cards |
+    |---|---|---|---|---|---|---|
+    | checked through, three or more | 134 | 0.424 ± 0.042 | 0.245 | **+0.178 ± 0.030** | 0.242 (+0.182 ± 0.033) | 0.292 (+0.132 ± 0.032) |
+    | the same, predicted under 0.3 / 0.3-0.7 / over 0.7 | 88 / 36 / 10 | 0.196 / 0.819 / 1.000 | 0.084 / 0.467 / 0.871 | +0.11 / +0.35 / +0.13 | | |
+    | heads-up control, checked through | 375 | 0.532 ± 0.025 | 0.422 | +0.110 ± 0.020 | 0.447 (+0.085 ± 0.020) | 0.538 (−0.006 ± 0.020) |
+    | called bet, three or more: population calling ranges | 45 | 0.622 ± 0.071 | 0.421 | +0.201 ± 0.048 | | |
+    | the same, the theory's (MDF) calling ranges | 45 | | 0.556 | +0.066 ± 0.041 | | |
+
+    Against any two cards the heads-up share is exact (−0.006 ± 0.020), so
+    the arithmetic holds; against the walked ranges it is **too low by 0.11
+    heads-up and 0.18 multiway** - the opponents' ranges at a checked river
+    are much stronger than what they turn over, multiway even stronger than
+    any two cards. The narrowing barely changes it (0.245 against 0.242 on
+    the preflop ranges): the checks keep too much value, and the starting
+    ranges are not what reaches a checked river. A probe with every check's
+    likelihood squared or raised to the fourth (`L^k`, not the analysis'
+    narrowing): on the river only +0.169 / +0.154; on every street +0.147 /
+    +0.087 ± 0.029 (heads-up +0.082 / +0.032 ± 0.020). No simple harder trim
+    closes the multiway gap.
+  - **Measured 3: the whole EV on the hero's 64 decisions** (river checks and
+    bets in scope, the population fitted without the hand's fold): won from
+    the decision on 0.377 ± 0.069 of the pot, population EV 0.292 (won −
+    predicted +0.085 ± 0.063), theory 0.278 (+0.100 ± 0.067); checks +0.102 ±
+    0.056 (48), bets +0.035 ± 0.193 (16). Low in the same direction as the
+    share, and too few to tell the two fields apart.
+  - **The would-be grades** of the 64 (held-out fits, no sensitivity check):
+
+    | | Perfect | Inaccurate | Mistake |
+    |---|---|---|---|
+    | both fields (the smaller loss) | 61 | 2 | 1 |
+    | the population alone | 33 | 7 | 24 |
+    | the theory alone | 56 | 1 | 7 |
+
+    The two fields disagree on 33 of the 64 and agree that a move loses on
+    3. The disagreement is the bluff: with the population folding 30-75% of
+    the time to a bet (most to a pot-sized one as the last to act), betting
+    air is worth up to 7bb more than checking it, so the population calls 21 of 48 checks Mistakes ("should have
+    bluffed"); the theory, folding a quarter to half as often, says those
+    bets lose. Read one by one (all 64; ten here):
+    - A♠K♦ checking behind on T♠6♦5♥8♣7♠, three-way: population Mistake
+      (26% of the pot: a pot-sized bet 3.5bb, the check 0.55bb), theory
+      Perfect (the bet 0.08bb). Both read ace-high's share at 6%.
+    - A♥Q♠ checking behind on J♥2♣6♠3♦K♦: population Mistake (25%), theory
+      Perfect. Same story; the hero lost the pot.
+    - 5♥6♥ checking in a bomb pot on 9♣7♣3♠A♦2♠ (no pair, 42bb): population
+      Mistake (11%, a pot bet +6.8bb), theory Perfect (every bet loses).
+    - 4♦4♥ betting half the pot as the last to act on T♦8♦A♦8♠T♠ (counterfeited):
+      population Perfect (+2.0bb against 0.7 for the check), theory Mistake
+      (3.5%). The hero won the pot.
+    - T♣J♣ betting 62% as the last to act on J♦5♠K♠2♦8♠ (second pair): both
+      Mistake (8.5%: the check 8.3bb, the bet 6.0bb) - the bet is read as
+      folding out worse and getting called by better. The hero won the pot. The
+      check's 8.3bb rests on a 52% share that the measured bias says is low,
+      and the bet's called share is lower still.
+    - K♦T♦ (two pair) betting a pot into two players on 8♥A♥4♣T♣K♣:
+      population Mistake (8.9%), theory Perfect. The hero lost the bet.
+    - J♣K♠ (trips) betting half of 124bb as the last to act in a bomb pot on
+      9♥3♦J♥J♠8♠: population Inaccurate (the check 85.7bb, the bet 77.3bb),
+      theory Perfect (the bet 103bb). The hero lost the bet.
+    - 4♣4♠ (quads) betting a fifth of 87bb in a bomb pot on Q♠4♥4♦K♣2♣ with
+      players behind: theory Mistake (16%: checking to let them bet, 122.6bb),
+      population Inaccurate (0.8%); both Inaccurate.
+    - 9♥9♠ checking 62bb in a bomb pot on 7♠6♦5♦5♥K♣ with players behind:
+      theory Mistake (7.7%: a third-pot bet +7.8bb), population Perfect.
+      The hero lost the pot.
+    - A♠7♠ (top pair) checking on 6♥K♣9♣5♦A♦ with players behind: theory
+      Mistake (10.9%, bet a third), population Inaccurate (0.1%); both
+      Inaccurate. The hero won the pot.
+  - **Not shipped.** The bar was a held-out check of the model's fold rate
+    and equity, ± SE. The fold rate holds (the population model, against a
+    theory that is two thirds too sticky); **the equity does not**: the
+    showdown share against the walked ranges is low by 0.18 ± 0.03 of the
+    pot at multiway checked rivers (six standard errors) and by 0.20 ± 0.05
+    at called bets with the population's calling ranges. An EV of a check or
+    a bet is a difference of two such shares; a model off by a fifth of the
+    pot cannot grade a choice that a 5% margin is meant to protect. Requiring
+    both fields to agree would grade 64 decisions as 61 Perfect - Perfect by
+    default (one field always likes the other move), not by knowledge - and
+    3 others; that inflates Perfect for 10% of the cause and grades nothing
+    on the flop or turn. Nothing ships; `multiway` stays the reason for all
+    611.
+  - **Open.**
+    - **The walked ranges are too strong at a checked river** (+0.11 ± 0.02
+      heads-up, +0.18 ± 0.03 three or more ways, the share of the first to
+      show). The check-trim studies (`analysis/22`, `/23`, 2026-10-14) scored
+      *which* combos a range holds (log-likelihood) and did not see it; a
+      share-at-showdown criterion scores *how strong* the range is. Every EV
+      read on walked ranges carries it: the multiway river call grades
+      (`analysis/7`), the flop and turn approximate calls, and the ranges the
+      heads-up turn and river solves start from. A narrowing study with this
+      criterion (held out, with the log-likelihood as a guard) comes first;
+      it moves other grades, so it is a version of its own.
+    - **The players still to answer in the approximate call grades** answer
+      by the MDF split (the theory): each calls 0.45-0.59 of the time where
+      the stored hands' players call 0.26-0.34 (held out, log-loss +0.12 ±
+      0.01 better for the population model). The call EVs therefore assume
+      more overcalls than happen. Swapping the population model in moves
+      shipped call grades - a version of its own, after the range strength.
+    - The river model and both field models are in `multiwayRiver.ts`; with
+      calibrated ranges it can be re-run as it is (the EV residual, the
+      would-be grades and the disagreement table are the bar).
+    - Flop and turn checks and bets (538 of the 611) need the realisation of
+      a checked pot and of a called bettor; Rail's heads-up library and turn
+      solves could measure both heads-up (as `floplib-r` and `turnsolve-r`
+      did for the caller), but the multiway transfer is the open question it
+      always was.
+    - A three-player river solver (the only exact reference) would be a new
+      solver (three ranges, a three-way showdown per terminal); not costed.
