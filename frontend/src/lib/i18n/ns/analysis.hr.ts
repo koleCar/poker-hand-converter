@@ -305,7 +305,9 @@ function approxSentences(decision: DecisionAnalysis): string[] {
     );
   }
   out.push(
-    "Igrači koji su još na potezu callaju ili foldaju prema modelu sužavanja i nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor.",
+    ev.responders
+      ? "Igrači koji su još na potezu callaju ili foldaju otprilike onoliko često koliko to čine igrači iza calla u spremljenim multiway rukama (model sužavanja bira koje ruke), nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor."
+      : "Igrači koji su još na potezu callaju ili foldaju prema modelu sužavanja i nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor.",
   );
   if (ev.capped) {
     out.push(
@@ -847,7 +849,7 @@ export const analysisHr: Dict["analysis"] = {
     "flop-mapped": "Flop očitan s najbližeg riješenog flopa iste teksture, a ne riješen sam",
     "library-bucketed": "Tvoja ruka očitana po kategoriji (gotova ruka i draw) u biblioteci flopova, a ne kombinacija po kombinacija",
     "multiway-approx":
-      "Približna multiway ocjena: call na flopu, turnu ili riveru u odnosu na fold, po showdown EV-u na suženim rasponima; igrači na potezu callaju ili foldaju prema modelu, raise se ne uspoređuje; najviše Greška",
+      "Približna multiway ocjena: call na flopu, turnu ili riveru u odnosu na fold, po showdown EV-u na suženim rasponima; igrači na potezu callaju ili foldaju otprilike onoliko često koliko pokazuju spremljene ruke (model bira koje ruke), raise se ne uspoređuje; najviše Greška",
     "flop-realisation":
       "Flop: udio pota koji će ruka osvojiti je njezin equity puta faktor izmjeren na heads-up biblioteci flopova, po poziciji i kategoriji ruke; računa se samo gubitak EV-a veći od 5% pota",
     "turn-realisation":

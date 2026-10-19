@@ -216,8 +216,15 @@ import type { Position, Street } from "../phf/types";
  *               (`multiway-history`), both capped at Mistake as in any other
  *               pot; checks and bets three or more ways stay `multiway`
  *               (ANALYSIS-PLAN §10 2026-10-19, bomb pots).
+ *   analysis/29 The players still to answer behind an approximate multiway
+ *               call continue as often as players behind a call do on
+ *               stored hands (`populationResponders`, `mw-behind/1`: the
+ *               narrowing model's share recalibrated, about 0.31 where the
+ *               MDF split said 0.49), not by the MDF split; behind a call of
+ *               a raise the model's own share stays (ANALYSIS-PLAN §10
+ *               2026-10-20, the players behind a multiway call).
  */
-export const ANALYSIS_VERSION = "analysis/28" as const;
+export const ANALYSIS_VERSION = "analysis/29" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -953,8 +960,14 @@ export interface MultiwayEv {
   equity: number;
   /** Expected pot if the hero calls, bb, before rake. */
   pot: number;
-  /** Players still to answer after the hero's call, and the model's chance each calls. */
+  /**
+   * Players still to answer after the hero's call, and the chance each calls:
+   * since `analysis/29` the narrowing model's share recalibrated on stored
+   * hands (`responders`), behind a call of a raise the model's own.
+   */
   respond: Array<{ position: Position | null; call: number }>;
+  /** (analysis/29) The players-behind table the chances come from (`mw-behind/1`); absent when they are the model's own. */
+  responders?: string;
   /** Ways the players to act can answer (call or fold each). */
   scenarios: number;
   rake: string;

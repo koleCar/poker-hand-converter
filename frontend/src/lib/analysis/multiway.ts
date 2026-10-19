@@ -29,7 +29,10 @@
  * hero's share of it, minus the call. What is approximate is who is in the
  * showdown: players who already put in the bet are; players still to answer
  * it call or fold with the narrowing model's call likelihood (each
- * independently; nobody re-raises). Every way they can answer (call or fold
+ * independently; nobody re-raises) - since `analysis/29` as often as players
+ * behind a call do on stored hands (`populationResponders`: the model's share
+ * recalibrated; the calling range, which hands call, is still the model's;
+ * behind a call of a raise the model's own share). Every way they can answer (call or fold
  * each, at most three of them, eight ways) is enumerated with its chance, the
  * callers' ranges narrowed by the call. The grade compares calling with
  * folding only — raising is not modelled — and is capped at Mistake, like
@@ -721,7 +724,70 @@ export interface RiverCallInput {
   model: NarrowingModel;
   charts: ChartSet | null;
   seed: number;
+  /**
+   * How often each player still to answer continues after the hero's call.
+   * Unset: `populationResponders`. A function returning null leaves it to
+   * `model` (its MDF split), as before `analysis/29`.
+   */
+  responders?: ResponderFrequency;
 }
+
+/** A player still to answer the bet after the hero's call, as `ResponderFrequency` reads them. */
+export interface ResponderContext {
+  street: NarrowStreet;
+  /** The bet over the pot before it (`SpotFacts.facingPot`). */
+  sizePot: number;
+  /** Players still to answer after the hero's call, this one included. */
+  responders: number;
+  /** Players in the pot at the decision, the hero included. */
+  players: number;
+  /** The narrowing model's own share for this player (the MDF split). */
+  model: number;
+  /** The bet the hero calls is a raise (a bet and a raise or more before it on the street). */
+  raised: boolean;
+}
+
+/** The share of a player's range that continues (calls or raises) behind the hero's call; null: the narrowing model's own. */
+export type ResponderFrequency = (ctx: ResponderContext) => number | null;
+
+/** The narrowing model's own answers (the MDF split): what the approximate calls used before `analysis/29`. */
+export const modelResponders: ResponderFrequency = () => null;
+
+/** The players-behind table's id (`analysis/29`). */
+export const RESPONDER_MODEL = "mw-behind/1";
+
+/**
+ * The players behind a multiway call (`analysis/29`): the narrowing model's
+ * share recalibrated on the stored hands, `logit p = a[street] + b · logit m`
+ * with `m` the model's own share (the MDF split). Fitted on every answer of a
+ * player still to answer a bet after someone called it, in pots three or
+ * more saw the flop of (638 answers, 402 hands): they continued 0.31 of the
+ * time where the model said 0.49; held out (five folds by hand) the log-loss
+ * is better by 0.073 ± 0.016 per answer, by player 0.071 ± 0.019 (§10,
+ * 2026-10-20; `npm run floplib:multiway-overcall`). The slope near 1 keeps
+ * the model's ranking of who calls more; the intercepts take the odds of a
+ * call to about a half (flop, river) and a third (turn). Only the frequency
+ * moves: the calling range stays the model's - tightening it to the top of
+ * the range at the lower share read callers far too strong at shown river
+ * showdowns (§10, 2026-10-19), the model's composition much less so.
+ */
+export const RESPONDER_RECALIBRATION: Readonly<{ intercept: Readonly<Record<NarrowStreet, number>>; slope: number }> = {
+  intercept: { flop: -0.692, turn: -1.094, river: -0.685 },
+  slope: 1.066,
+};
+
+/**
+ * `RESPONDER_RECALIBRATION` behind a call of a bet. Behind a call of a raise
+ * (29 answers; they continued 0.79 of the time, the model 0.58) the model's
+ * own share stays: too few to fit, and the recalibration would move it the
+ * wrong way.
+ */
+export const populationResponders: ResponderFrequency = (ctx) => {
+  if (ctx.raised) return null;
+  const m = Math.min(1 - 1e-4, Math.max(1e-4, ctx.model));
+  const z = RESPONDER_RECALIBRATION.intercept[ctx.street] + RESPONDER_RECALIBRATION.slope * Math.log(m / (1 - m));
+  return 1 / (1 + Math.exp(-z));
+};
 
 export interface RiverCallEv {
   ok: true;
@@ -729,6 +795,8 @@ export interface RiverCallEv {
   equity: number;
   pot: number;
   respond: MultiwayEv["respond"];
+  /** Set when the players still to answer continue as fitted (`RESPONDER_MODEL`), not as the model says. */
+  responders?: string;
   scenarios: number;
   rake: string;
   /** Flop and turn only: the realisation factor applied to the share (`FLOP_REALISATION`, `TURN_REALISATION`). */
@@ -1001,11 +1069,15 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
   if (responders.length > MAX_RESPONDERS) return { ok: false, reason: "multiway-crowded", detail: `${responders.length} to answer` };
 
   // Each player still to answer calls by the model's call likelihood against
-  // the bet they face, with the hero's call in: multiway, the MDF split.
+  // the bet they face, with the hero's call in: multiway, the MDF split -
+  // since analysis/29 its share recalibrated on stored hands (`frequency`).
   const board = toIndices(facts.board);
   const strength = streetStrength(board);
   const players = table.opponents.length + 1;
   const sizePot = facts.facingPot ?? 0.5;
+  const frequency = input.responders ?? populationResponders;
+  const raised =
+    hand.actions.filter((a) => a.street === street && a.index < spot.action.index && (a.type === "bet" || a.type === "raise")).length >= 2;
   const answers = responders.map((responder) => {
     const others = [heroRange, ...fixed, ...responders.filter((r) => r !== responder).map((r) => r.range)];
     const narrowInput: Omit<NarrowInput, "action"> = {
@@ -1019,8 +1091,11 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
       narrowInput.players = players;
       narrowInput.opponents = others;
     }
-    const { share, range } = callShare(input.model, narrowInput, sizePot);
-    return { ...responder, p: share, calling: range };
+    const own = callShare(input.model, narrowInput, sizePot);
+    const target = frequency({ street, sizePot, responders: responders.length, players, model: own.share, raised });
+    // The population's frequency; the calling range is the model's (who calls, not how often).
+    if (target === null) return { ...responder, p: own.share, calling: own.range, fitted: false };
+    return { ...responder, p: Math.min(1, Math.max(0, target)), calling: own.range, fitted: true };
   });
 
   const rake = rakeOf(input.charts);
@@ -1087,6 +1162,7 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
       position: (context.position.get(answer.seat) ?? null) as Position | null,
       call: round3(answer.p),
     })),
+    ...(answers.some((answer) => answer.fitted) ? { responders: frequency === populationResponders ? RESPONDER_MODEL : "study" } : {}),
     scenarios,
     rake: rake.name,
     ...(category !== null
@@ -1177,6 +1253,7 @@ function gradeCall(
       equity: evs.equity,
       pot: evs.pot,
       respond: evs.respond,
+      ...(evs.responders ? { responders: evs.responders } : {}),
       scenarios: evs.scenarios,
       rake: evs.rake,
       capped: capped ? (raw.grade as Grade) : null,

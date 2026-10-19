@@ -350,7 +350,9 @@ function approxSentences(decision: DecisionAnalysis): string[] {
     );
   }
   out.push(
-    "Players still to act call or fold by the narrowing model and never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer.",
+    ev.responders
+      ? "Players still to act call or fold about as often as players behind a call do in stored multiway hands (the narrowing model picks which hands), never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer."
+      : "Players still to act call or fold by the narrowing model and never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer.",
   );
   if (ev.capped) {
     out.push(
@@ -873,7 +875,7 @@ export const analysisEn = {
     "rare-line-depth":
       "The line is too rare at this stack depth to be charted, so it is read on the nearest depth that charts it; graded no worse than Inaccurate",
     "multiway-approx":
-      "Approximate multiway grade: a flop, turn or river call against a fold, by showdown EV on narrowed ranges; players to act call or fold by the model, raising is not compared; capped at Mistake",
+      "Approximate multiway grade: a flop, turn or river call against a fold, by showdown EV on narrowed ranges; players to act call or fold about as often as stored hands show (the model picks which hands), raising is not compared; capped at Mistake",
     "flop-realisation":
       "Flop: the share of the pot your hand goes on to win is its equity times a factor measured on the heads-up flop library, by position and hand category; only the EV loss beyond 5% of the pot counts",
     "turn-realisation":
