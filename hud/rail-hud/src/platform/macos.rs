@@ -808,9 +808,16 @@ pub enum Mouse {
 /// on each tracked window's element, the rest on its application's.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AxNote {
-    /// `kAXMovedNotification`.
+    /// `kAXWindowMovedNotification`: what AppKit posts for a window that
+    /// moved (CI's first run: `AXMoved` alone never came for the
+    /// simulator's windows).
+    WindowMoved,
+    /// `kAXWindowResizedNotification` (also full screen in and out).
+    WindowResized,
+    /// `kAXMovedNotification`: the generic element's move, registered too
+    /// for a client that posts it for its windows.
     Moved,
-    /// `kAXResizedNotification` (also full screen in and out).
+    /// `kAXResizedNotification`, likewise.
     Resized,
     /// `kAXWindowMiniaturizedNotification`.
     Miniaturized,
@@ -836,7 +843,9 @@ pub enum AxNote {
 
 impl AxNote {
     /// Registered on each tracked window's element.
-    pub const WINDOW: [Self; 6] = [
+    pub const WINDOW: [Self; 8] = [
+        Self::WindowMoved,
+        Self::WindowResized,
         Self::Moved,
         Self::Resized,
         Self::Miniaturized,
@@ -858,6 +867,8 @@ impl AxNote {
     /// The notification's name (`kAX...Notification`'s value).
     pub fn name(self) -> &'static str {
         match self {
+            Self::WindowMoved => "AXWindowMoved",
+            Self::WindowResized => "AXWindowResized",
             Self::Moved => "AXMoved",
             Self::Resized => "AXResized",
             Self::Miniaturized => "AXWindowMiniaturized",
@@ -890,11 +901,11 @@ impl AxNote {
     pub fn effect(self) -> Effect {
         let none = Effect::default();
         match self {
-            Self::Moved => Effect {
+            Self::WindowMoved | Self::Moved => Effect {
                 read: Read::Window,
                 ..none
             },
-            Self::Resized => Effect {
+            Self::WindowResized | Self::Resized => Effect {
                 read: Read::Window,
                 title_bar: true,
                 ..none
@@ -2174,12 +2185,14 @@ mod tests {
         let mut names: Vec<&str> = all.iter().map(|n| n.name()).collect();
         names.sort_unstable();
         names.dedup();
-        assert_eq!(names.len(), 12, "twelve distinct notifications");
+        assert_eq!(names.len(), 14, "fourteen distinct notifications");
         assert_eq!(AxNote::from_name("AXValueChanged"), None);
         assert_eq!(AxNote::from_name("AXFocusedUIElementChanged"), None);
 
         // A move reads the window only; nothing else.
-        let moved = AxNote::Moved.effect();
+        assert_eq!(AxNote::WindowMoved.effect(), AxNote::Moved.effect());
+        assert_eq!(AxNote::WindowResized.effect(), AxNote::Resized.effect());
+        let moved = AxNote::WindowMoved.effect();
         assert_eq!(moved.read, Read::Window);
         assert!(!moved.title_bar && !moved.restack && !moved.recheck && !moved.gone);
         // A resize reads the title bar again too (full screen has none).

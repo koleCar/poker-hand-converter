@@ -15,7 +15,8 @@
 //! `AXMainWindowChanged`, `AXApplicationActivated` (its windows came
 //! forward: the overlays are put back above their tables now),
 //! `AXApplicationHidden` / `Shown`. On each tracked **window**'s element:
-//! `AXMoved`, `AXResized`, `AXWindowMiniaturized` / `Deminiaturized`,
+//! `AXWindowMoved`, `AXWindowResized` (and the generic `AXMoved` /
+//! `AXResized`), `AXWindowMiniaturized` / `Deminiaturized`,
 //! `AXUIElementDestroyed`, `AXTitleChanged`. The window's element is the
 //! one of `AXWindows` whose `_AXUIElementGetWindow` is the table's number
 //! (else the one at its frame); a window on another Space is not in that
@@ -750,7 +751,16 @@ impl State {
                 .tables
                 .iter()
                 .find(|(_, f)| f.pid == pid && f.element.as_deref() == Some(&*note.element))
-                .map(|(id, _)| *id);
+                .map(|(id, _)| *id)
+                .or_else(|| {
+                    // Not the element registered on (an element the client
+                    // made anew): its window number says which table.
+                    let number = ffi::window_id_of(&note.element)?;
+                    self.tables
+                        .iter()
+                        .find(|(_, f)| f.pid == pid && f.window == number)
+                        .map(|(id, _)| *id)
+                });
             let Some(found) = found else {
                 return;
             };

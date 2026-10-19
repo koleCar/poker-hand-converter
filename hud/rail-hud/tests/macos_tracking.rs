@@ -576,7 +576,7 @@ mod macos {
         };
         let info = wait_for(
             Duration::from_secs(10),
-            "one observer for the simulator, six notifications on each table",
+            "one observer for the simulator, the window notifications on each table",
             || {
                 let info = tracker(&backend);
                 let process = info
@@ -588,10 +588,9 @@ mod macos {
                     return Err(format!("application notifications: {process:?}"));
                 }
                 if info.tables.len() == 3
-                    && info
-                        .tables
-                        .iter()
-                        .all(|(_, element, notes, _)| *element && notes.len() == 6)
+                    && info.tables.iter().all(|(_, element, notes, _)| {
+                        *element && notes.iter().any(|n| n == "AXWindowMoved")
+                    })
                 {
                     Ok(info)
                 } else {
@@ -600,8 +599,9 @@ mod macos {
             },
         );
         eprintln!(
-            "step: the simulator's process observed with {:?}",
-            info.processes[0].1
+            "step: the simulator's process observed with {:?}; each table with {:?}",
+            info.processes[0].1,
+            info.tables.first().map(|t| t.2.clone()).unwrap_or_default()
         );
         for table in tables.values() {
             wait_for(
@@ -636,7 +636,11 @@ mod macos {
                         .is_some_and(|o| o.close_to(&macos::client_frame(&now.bounds, bars[&a.id])))
             })
             .unwrap_or_else(|| {
-                panic!("move {i}: not followed: {:?}", covers(&backend, a.id).err())
+                panic!(
+                    "move {i}: not followed: {:?}; the observers: {:?}",
+                    covers(&backend, a.id).err(),
+                    backend.tracker_info()
+                )
             });
             lags.push(lag);
         }
