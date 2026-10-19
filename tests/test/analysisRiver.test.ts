@@ -24,8 +24,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   BLUFF_ZONE,
+  CHECK_AIR,
+  CHECK_VALUE,
+  CHECKED_TO_RIVER_VALUE,
   FLOOR,
   RIVER_MENU,
+  flopSeats,
   analyzeHand,
   bluffShare,
   comboRange,
@@ -279,6 +283,73 @@ describe("narrowing (heuristic/2)", () => {
       }
     }
     expect(trimmed).toBeGreaterThan(0);
+  });
+
+  it("trims a river check made after a check harder, with no repeat discount (analysis/30)", () => {
+    const actor = removeCards(Float64Array.from(BB), BOARD);
+    const opponent = removeCards(Float64Array.from(BTN), BOARD);
+    const base = { street: "river" as const, board: BOARD, actor, opponent };
+    const check = { kind: "check" as const, sizePot: null, allIn: false };
+    const first = heuristicModel.likelihood({ ...base, action: { ...check, checksBefore: 0 } });
+    const firstAgain = heuristicModel.likelihood({ ...base, action: { ...check, checksBefore: 0, checkedTo: false } });
+    const behind = heuristicModel.likelihood({ ...base, action: { ...check, checksBefore: 0, checkedTo: true } });
+    const behindRepeated = heuristicModel.likelihood({ ...base, action: { ...check, checksBefore: 2, checkedTo: true } });
+    let value = 0;
+    let air = 0;
+    for (let c = 0; c < NUM_COMBOS; c += 1) {
+      if (!(actor[c] > 0)) continue;
+      expect(firstAgain[c]).toBe(first[c]);
+      // No repeat discount when checked to.
+      expect(behindRepeated[c]).toBeCloseTo(behind[c], 12);
+      if (Math.abs(first[c] - CHECK_VALUE) < 1e-12) {
+        value += 1;
+        expect(behind[c]).toBeCloseTo(CHECKED_TO_RIVER_VALUE, 12);
+      }
+      if (Math.abs(first[c] - CHECK_AIR) < 1e-12) {
+        air += 1;
+        expect(behind[c]).toBeCloseTo(CHECK_AIR, 12);
+      }
+    }
+    expect(value).toBeGreaterThan(0);
+    expect(air).toBeGreaterThan(0);
+    // The flag is read on the river only.
+    const turnBoard = BOARD.slice(0, 4);
+    const turn = { street: "turn" as const, board: turnBoard, actor: removeCards(Float64Array.from(BB), turnBoard), opponent: removeCards(Float64Array.from(BTN), turnBoard) };
+    expect(heuristicModel.likelihood({ ...turn, action: { ...check, checksBefore: 1, checkedTo: true } })).toEqual(
+      heuristicModel.likelihood({ ...turn, action: { ...check, checksBefore: 1 } }),
+    );
+  });
+
+  it("marks a check after a check as checked to in the walk (analysis/30)", () => {
+    const seen: { street: string; checkedTo: boolean | undefined }[] = [];
+    const spy = {
+      id: "spy",
+      likelihood(input: Parameters<typeof heuristicModel.likelihood>[0]) {
+        if (input.action.kind === "check") seen.push({ street: input.street, checkedTo: input.action.checkedTo });
+        return heuristicModel.likelihood(input);
+      },
+    };
+    const hand = headsUp({
+      hero: "Btn",
+      cards: "Ah Kd",
+      board: ["2c", "7d", "9h", "Js", "3c"],
+      flop: ["Bb: checks", "Btn: checks"],
+      turn: ["Bb: checks", "Btn: checks"],
+      river: ["Bb: checks", "Btn: checks"],
+    });
+    const context = buildContext(structuredClone(hand));
+    const seats = flopSeats(context);
+    const walk = walkRanges(structuredClone(hand), context, seats[0], seats[1], CHARTS, spy);
+    expect(walk.ok).toBe(true);
+    // Each street: the first check is not checked to, the second is.
+    expect(seen.map((s) => `${s.street}:${s.checkedTo}`)).toEqual([
+      "flop:false",
+      "flop:true",
+      "turn:false",
+      "turn:true",
+      "river:false",
+      "river:true",
+    ]);
   });
 
   it("halves a model's evidence for the sensitivity check: every likelihood becomes its square root", () => {

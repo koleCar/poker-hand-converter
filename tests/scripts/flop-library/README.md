@@ -206,6 +206,17 @@ checks the calls' EV against what was won and the river callers' ranges
 against the bettor's shown share. About twelve minutes. Console only.
 `docs/ANALYSIS-PLAN.md` §10 2026-10-20.
 
+**Checked rivers (`analysis/30`).** `FLOPLIB_HANDS=... npm run
+floplib:checked-ranges` counts who is shown at river showdowns (a later player
+at a checked river is shown only when they win), then scores the walked
+ranges at every river checked through on what is shown without selection: the
+first to act's showdown share and own combo, and every later opponent's
+combo or muck (ten seconds). `CR_GRID=1` adds the held-out candidates (five
+folds by hand and by player; `CR_CANDS='[{"rt":0.3,"rtr":1}]'` for a list
+instead of the grid, about fifteen minutes for the grid); `CR_GUARD='[...]'`
+scores candidates on the earlier studies' shown-hand rows, paired. Console
+only. `docs/ANALYSIS-PLAN.md` §10 2026-10-20 (checked rivers).
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

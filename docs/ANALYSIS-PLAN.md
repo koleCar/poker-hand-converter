@@ -4755,3 +4755,184 @@ Each phase appends what it learned that changed the plan.
       weights) as libraries grow, and per site if they differ.
     - The same recalibration is the natural answer model for a multiway
       check-or-bet grade (2026-10-19), once the ranges are calibrated.
+- 2026-10-20 — Checked rivers: why the walked ranges are too strong,
+  `analysis/30` (study `tests/scripts/flop-library/checkedRanges.test.ts`,
+  `npm run floplib:checked-ranges`; `CHECKED_TO_RIVER_VALUE` and
+  `NarrowAction.checkedTo` in `lib/analysis/narrowing.ts`, set by both walks).
+  No migration.
+  - **Why.** The first open item of 2026-10-19 (multiway checks and bets) and
+    2026-10-20 (the players behind a multiway call): at a river checked
+    through, the first to act - shown whatever they hold - wins 0.424 ± 0.042
+    of the pot three or more ways where the walked ranges say 0.245 (won −
+    predicted +0.178 ± 0.030), heads-up +0.110 ± 0.020, while against any two
+    cards the heads-up share is right (−0.006 ± 0.020). Harder check trims on
+    every street did not close it. The question was where the strength comes
+    from: the bets and calls kept, the weak hands that check, the preflop
+    ranges, or who is shown.
+  - **Data.** The 5,448 stored hands of the test user (local stack). 509
+    rivers checked through (134 after a flop three or more saw, 375 heads-up;
+    one pot, nobody all-in, the first to act shown - all of them are), the
+    multiway walk from the hero's seat (no flop library), as the 2026-10-19
+    check. Five folds by hand and five by the first to act's name; standard
+    errors clustered by hand (by player for the player folds).
+  - **Measured 1: who is shown is selected on winning.** Opponents at river
+    showdowns, shown / not shown:
+
+    | river | first to show, won | first to show, lost | later, won | later, lost |
+    |---|---|---|---|---|
+    | checked through, heads-up | 239 / 0 | 202 / 0 | 227 / 0 | **3 / 222** |
+    | checked through, three or more | 51 / 0 | 65 / 0 | 77 / 0 | **28 / 177** |
+    | a bet called, heads-up | 154 / 0 | 66 / 68 | 149 / 0 | 48 / 102 |
+
+    The first to act at a checked river is always shown; **a later player is
+    shown when they win and almost never when they lose** (1% heads-up). So
+    the 2026-10-19 share (the first to act) is not selected on the result,
+    but every earlier score that read "the opponents' shown hands" - the
+    check trims of `analysis/22` and `/23`, the river trim of 2026-10-14, the
+    preflop fits of `/18`-`/19` - scored a sample of winners, and rewards
+    ranges that are too strong. The gap is range error, and the selection is
+    a likely reason the ranges were fitted that way; it is not a selection
+    artefact of the measurement.
+  - **An unselected score.** Besides the share, the study scores every
+    player at a checked river: the first to act's combo in their own walked
+    range, and each later opponent either by their combo (shown) or by the
+    range's chance of losing to the best hand shown before them (mucked) - a
+    likelihood that uses the losers too ("unselected LL", nats per spot).
+  - **Measured 2: where it is.** The first to act's own range is about right
+    (their place in it by river value 0.473 ± 0.023 three or more ways,
+    0.446 ± 0.014 heads-up; 0.5 is calibrated). The **later players' ranges
+    are too strong**: they muck 0.628 ± 0.032 of the time three or more ways
+    where the ranges say 0.505 (+0.122 ± 0.025), heads-up 0.489 against 0.396
+    (+0.094 ± 0.022). The later players are the ones whose river check came
+    **after a check** - checked to. Heads-up the excess sits on the lines
+    started from the charts (opens +0.160 ± 0.037, isolations +0.24 ± 0.08,
+    3-bets +0.32 ± 0.09) and not on the population lines (first limps +0.02
+    ± 0.06, cold calls −0.04 ± 0.07, the big blind's check +0.00 ± 0.07);
+    three or more ways on every line (+0.09 to +0.13). One candidate at a
+    time, in sample (won − predicted, three or more / heads-up; baseline
+    +0.178 / +0.110):
+    - a river check made **checked to** keeping value 0.03 of the time with
+      no repeat discount: +0.017 / −0.010 - the gap closes;
+    - the flop and turn check trims × 3 multiway: +0.091, unselected LL
+      −1.43 ± 0.16; × 2 heads-up: +0.084;
+    - wider calls (the call's cut − 0.2): +0.175 / +0.097;
+    - opponents' chart ranges mixed with any two cards at 0.3: +0.158 /
+      +0.064, unselected LL +0.29 ± 0.12 / +0.41 ± 0.08.
+    So the bias is not in the bets and calls kept nor the flop and turn
+    checks: it is the **last check**. A player checked to on the river who
+    holds the top of their range bets; `heuristic/2` trimmed that check like
+    any other (value kept 0.5) and, since nearly every such check follows
+    earlier checks, at a half or a quarter of the strength (`CHECK_REPEAT`):
+    an x/x/x player checking behind kept 7/8 of their value hands. The
+    preflop chart ranges are a second, smaller part (open below).
+  - **Candidates, held out.** The river check recomputed (study code; the
+    shipped heuristic reproduces the winner to the bit, 120 spots): checked
+    to - value 0.5, 0.3, 0.15, 0.03 × air 0.7, 1 × repeat discount 0.5, 1;
+    the first river check's value 0.5, 0.25; flop and turn checks made
+    checked to with value as shipped, 0.5, 0.3 (96). Chosen held out by the
+    share's squared error and by the unselected LL. The unconstrained winner
+    (value 0.15, air 1, no discount; every fold by hand, four of five by
+    player) closes the gap: won − predicted +0.030 ± 0.028 three or more
+    ways, −0.013 ± 0.020 heads-up; squared error +0.053 ± 0.014 and +0.012
+    ± 0.006 better, unselected LL +0.17 ± 0.06 and +0.09 ± 0.02. **It fails
+    the guard**: on the earlier studies' shown-hand rows it loses −0.028 ±
+    0.008 per combo on every river row, −0.112 ± 0.033 on multiway rivers
+    checked only - exactly the shown winners it now finds less likely.
+  - **Shipped: the strongest candidate that passes the guard.** A river
+    check made checked to keeps value `CHECKED_TO_RIVER_VALUE` = **0.3** of
+    the time (was 0.5) with **no** `CHECK_REPEAT` discount; air (0.7), the
+    first river check and every flop and turn check unchanged. Within the
+    family that passes the guard (value 0.5, 0.4, 0.3, no discount) it is the
+    held-out choice in every fold, by hand and by player, for both scores:
+
+    | checked rivers | n | `analysis/29` won − predicted | `analysis/30` | squared error, better by | unselected LL, better by |
+    |---|---|---|---|---|---|
+    | three or more ways | 134 | +0.178 ± 0.030 | **+0.103 ± 0.028** | +0.037 ± 0.008 (4.6 SE) | +0.172 ± 0.034 (5.1 SE) |
+    | heads-up | 375 | +0.110 ± 0.020 | **+0.053 ± 0.020** | +0.010 ± 0.003 (3.3 SE) | +0.066 ± 0.011 (6.0 SE) |
+
+    (By player: +0.037 ± 0.008 and +0.010 ± 0.003.) The guard - the earlier
+    shown-hand rows, paired, per combo, clustered by player: flop and turn
+    rows of `analysis/22`/`/23` (644 + 855 + 417 + 998) and the bomb pots'
+    turn and river starts (`/28`) **0 exactly** (nothing before a river check
+    moves); the river rows of 2026-10-14, all 1,408: +0.003 ± 0.004;
+    multiway checked only (213) −0.008 ± 0.018; heads-up checked only (655)
+    +0.008 ± 0.007; others 0.000. Bomb-pot rivers (47, no earlier check)
+    −0.029 ± 0.033. Nothing worse by a standard error. The guard-passing
+    family was set in sample on the guard, not held out.
+  - **What it moves: almost nothing graded.** A river check made checked to
+    is the last action heads-up (the pot goes to showdown) and multiway is
+    followed only by the players behind; so only a hero decision after a
+    checked-to river check reads it. Census (`npm run floplib:census`, the
+    flop library on, the three shipped sets, 8,005 hero decisions) against
+    `analysis/29` row by row: **1 row moves** - a river fold, approximate,
+    Perfect → Mistake (harsher); 0 other rows. Of the hero's decisions after
+    a checked-to river check (23, all read here, `analyzeHand` at both
+    versions): that 1 grade, 6 approximate calls and folds whose EV moves
+    inside their grade, and 16 decisions not graded (`multiway` checks and
+    bets, one `multiway-crowded` fold) whose equity fact rises. The flop and turn
+    approximate calls and the solves' starting ranges do not read a river
+    check: **the strength of those ranges is not changed here** (the
+    preflop part below is what reaches them).
+  - **Read one by one** (all 23; ten here):
+    - A♠K♠ folding the river on 9♠Q♥2♥T♦A♥ seven-way: three checks (the
+      hero's the third), a bet and a call, then the second checker
+      check-raises to 7bb; equity 0.098 → 0.271, call EV −8.26 → +1.87bb: **Perfect →
+      Mistake** (4.0% of the pot; the half-strength check agrees). The one
+      grade that moves, and the least convincing: the checked-to trim moves
+      value out of a range that then check-raises - a trap the data (rivers
+      checked through) never saw. Capped and flagged as every approximate
+      call; an open item below.
+    - K♣Q♠ checking behind on 4♠5♣K♠7♠4♦ three-way (top pair): equity
+      against the field 0.53 → 0.62 (the two checkers hold fewer kings).
+    - A♣4♣ betting small on 3♠9♥K♦T♠A♥ after three checks
+      (top pair, weak kicker): 0.59 → 0.75 - the largest equity move.
+    - J♣K♠ (trips) betting into two checkers on 9♥3♦J♥J♠8♠: 0.71 → 0.77;
+      called by one.
+    - T♣J♣ betting after two checks on J♦5♠K♠2♦8♠ (second pair): 0.52 →
+      0.63 - the 2026-10-19 example whose check "rested on a share the bias
+      says is low"; it is less low now.
+    - T♣A♣ checking behind on 5♣2♦6♠5♦6♣ (ace high on a double-paired
+      board): 0.57 → 0.64.
+    - 7♣7♦ checking last on J♦2♠A♥8♦9♣: 0.26 → 0.30; A♦8♠ on 4♥6♠K♣K♦Q♦:
+      0.25 → 0.30 - weak made hands gain most, as they should if the
+      checkers hold less.
+    - 6♣6♦ folding to a bet on Q♦Q♥4♥9♠4♠ (two checks before the bet, both
+      checkers still to answer): equity 0.050 → 0.055, call EV −6.42 → −6.25bb,
+      Perfect stays.
+    - 7♠T♣ (two pair) folding to a 13bb bet into 112bb after hero and one
+      other checked: equity 0.096 → 0.102, −16.3 → −15.6bb, Perfect stays.
+    - A♥3♥ checking in a seven-way checked pot on 9♠K♠9♣5♥4♦: 0.007 →
+      0.016 - nothing changes the answer with ace high against six.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/30`. `CHECKED_TO_RIVER_VALUE`
+    (0.3) and `NarrowAction.checkedTo` (a check after another decision on
+    the street, set by `walkRanges` and `walkMultiway`; read on the river
+    only); the narrowing's id stays `heuristic/2`. No wording changes (no
+    label or flag describes the check trim). Tests (`analysisRiver`): the
+    checked-to likelihood (value at 0.3, air unchanged, no repeat discount,
+    the flag ignored on the turn) and the walk setting the flag on each
+    street's second check; the analysis suite, typecheck and lint pass.
+    Only aggregate numbers are committed.
+  - **Open.**
+    - **Opponents' chart ranges are too strong** (opens, isolations,
+      3-bets: the heads-up later players above). Mixing any two cards in at
+      0.15 on top of `analysis/30`: won − predicted +0.081 three or more
+      ways, +0.016 heads-up, unselected LL **+0.49 ± 0.11 and +0.48 ± 0.07**
+      - the largest gain in this study, and the part that reaches the flop
+      and turn grades and the solves' starting ranges. It changes nearly
+      every postflop grade against a raiser and the `analysis/18` shown-hand
+      checks score it on winners; a version of its own, fitted on
+      unselected hands (the first to show, the mucks), with its own census.
+    - **The guard and the bar disagree.** The unselected scores want a
+      harder checked-to trim (value 0.15, air not trimmed: the gap closes to
+      +0.030 / −0.013); the shown-hand checks, which score winners only,
+      refuse it. Rescoring the earlier studies with the mucks counted (as
+      here) would settle which to trust; until then the residual (+0.103 ±
+      0.028, +0.053 ± 0.020) stays.
+    - **Check-raises.** A check made checked to is now mostly not value, so
+      a later raise reads the top of a weaker range (the A♠K♠ example). How
+      often a checked-to river check-raise holds value is not measured.
+    - The 2026-10-19 river check-or-bet model can be re-run on these ranges
+      (`multiwayRiver.ts`); its equity half had been the reason it failed.
+    - A heads-up river the analysis solves starts from the turn's ranges
+      and never reads a river check; the flop library's heads-up flops were
+      not part of this walk (no library), as in the 2026-10-19 check.
