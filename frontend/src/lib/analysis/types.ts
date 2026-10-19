@@ -223,8 +223,14 @@ import type { Position, Street } from "../phf/types";
  *               MDF split said 0.49), not by the MDF split; behind a call of
  *               a raise the model's own share stays (ANALYSIS-PLAN §10
  *               2026-10-20, the players behind a multiway call).
+ *   analysis/30 A river check by a player checked to (someone checked
+ *               before them on the river) keeps value only
+ *               `CHECKED_TO_RIVER_VALUE` (0.3, was `CHECK_VALUE` 0.5) of the
+ *               time and is not discounted by `CHECK_REPEAT`: ranges at a
+ *               checked river were too strong against what such rivers show
+ *               down (ANALYSIS-PLAN §10 2026-10-20, checked rivers).
  */
-export const ANALYSIS_VERSION = "analysis/29" as const;
+export const ANALYSIS_VERSION = "analysis/30" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

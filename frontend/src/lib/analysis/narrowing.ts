@@ -60,6 +60,10 @@
  *   `HEADS_UP_CHECK_DRAW`, air `HEADS_UP_CHECK_AIR` — the river constants'
  *   trim × 0.5. Scored on shown heads-up hands, held out (ANALYSIS-PLAN §10
  *   2026-10-14). The river keeps `CHECK_VALUE`, `CHECK_DRAW`, `CHECK_AIR`.
+ *   **On the river, checked to** (analysis/30: someone checked before on
+ *   the street, `NarrowAction.checkedTo`), value checks only
+ *   `CHECKED_TO_RIVER_VALUE` of the time, with no `CHECK_REPEAT` discount
+ *   (ANALYSIS-PLAN §10 2026-10-20, checked rivers).
  *
  * The constants are part of `ANALYSIS_VERSION`: changing one re-narrows every
  * stored river grade.
@@ -153,6 +157,16 @@ export const HEADS_UP_CHECK_AIR = 0.85;
  */
 export const MULTIWAY_CHECK_VALUE = 0.65;
 export const MULTIWAY_CHECK_DRAW = 1;
+/**
+ * analysis/30: a river check by a player **checked to** (someone checked
+ * before them on the river; `NarrowAction.checkedTo`) keeps value only this
+ * often, and is not discounted by `CHECK_REPEAT`: checked to on the last
+ * street, a strong hand bets. Fitted held out on what checked rivers show
+ * down without selection - the first to act's showdown share and every later
+ * player's hand or muck (ANALYSIS-PLAN §10 2026-10-20, checked rivers). The
+ * first river check, and air, keep `CHECK_VALUE`, `CHECK_AIR`, `CHECK_REPEAT`.
+ */
+export const CHECKED_TO_RIVER_VALUE = 0.3;
 /** How much of a draw's chance of hitting turns into equity. */
 export const DRAW_REALISATION = 0.75;
 /** Outs that make a draw "strong". */
@@ -195,6 +209,8 @@ export interface NarrowAction {
   allIn: boolean;
   /** How many times the actor has already checked after the flop in this hand. */
   checksBefore?: number;
+  /** A check made after another player's check on the same street (analysis/30; read on the river only). */
+  checkedTo?: boolean;
 }
 
 export interface NarrowInput {
@@ -540,11 +556,19 @@ function call(input: NarrowInput, { q, outs }: Scored): Float64Array {
 
 function check(input: NarrowInput, { q, outs }: Scored): Float64Array {
   const { street, actor } = input;
-  const repeat = Math.pow(CHECK_REPEAT, Math.max(0, input.action.checksBefore ?? 0));
   const river = street === "river";
+  // analysis/30: checked to on the river, value bets; no repeat discount.
+  const checkedTo = river && input.action.checkedTo === true;
+  const repeat = checkedTo ? 1 : Math.pow(CHECK_REPEAT, Math.max(0, input.action.checksBefore ?? 0));
   const multiway = extraPlayers(input) > 0 && !river;
   const headsUp = extraPlayers(input) === 0 && !river;
-  const checkValue = multiway ? MULTIWAY_CHECK_VALUE : headsUp ? HEADS_UP_CHECK_VALUE : CHECK_VALUE;
+  const checkValue = checkedTo
+    ? CHECKED_TO_RIVER_VALUE
+    : multiway
+      ? MULTIWAY_CHECK_VALUE
+      : headsUp
+        ? HEADS_UP_CHECK_VALUE
+        : CHECK_VALUE;
   const checkDraw = multiway ? MULTIWAY_CHECK_DRAW : headsUp ? HEADS_UP_CHECK_DRAW : CHECK_DRAW;
   const checkAir = headsUp ? HEADS_UP_CHECK_AIR : CHECK_AIR;
   const cut = 1 - VALUE_SHARE[street];

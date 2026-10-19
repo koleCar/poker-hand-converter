@@ -201,12 +201,15 @@ export function walkMultiway(
   let pot = 0;
   let totals = new Map<number, number>();
   let high = 0;
+  /** Decisions already made on this street (a check after one is checked to: analysis/30). */
+  let streetDecisions = 0;
 
   for (const action of hand.actions) {
     if (action.street !== street) {
       street = action.street;
       totals = new Map();
       high = 0;
+      streetDecisions = 0;
       if ((POSTFLOP as readonly string[]).includes(street)) {
         const board = boardOf(hand, street as NarrowStreet);
         if (board.length === 0) break;
@@ -257,7 +260,7 @@ export function walkMultiway(
           board: strength.board,
           actor: ranges.get(action.seat) as Float64Array,
           opponent: others[0] ?? (ranges.get(action.seat) as Float64Array),
-          action: { kind, sizePot, allIn: action.allIn, checksBefore: checks.get(action.seat) ?? 0 },
+          action: { kind, sizePot, allIn: action.allIn, checksBefore: checks.get(action.seat) ?? 0, checkedTo: kind === "check" && streetDecisions > 0 },
           strength,
           actionIndex: action.index,
         };
@@ -271,6 +274,7 @@ export function walkMultiway(
         ranges.set(action.seat, next);
       }
     }
+    if (postflop && DECISIONS.has(action.type)) streetDecisions += 1;
 
     pot += action.amount;
     if (action.type !== "ante" && action.type !== "bomb-ante" && action.type !== "uncalled") {
