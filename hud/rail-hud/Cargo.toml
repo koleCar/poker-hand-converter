@@ -59,6 +59,39 @@ windows = { version = "=0.61.3", features = [
   "Win32_UI_WindowsAndMessaging",
 ] }
 
+# macOS (R3.11): the window server's list (`CGWindowListCopyWindowInfo`)
+# and the displays' scale from Core Graphics, the window titles from the
+# Accessibility API (`AXUIElement`), behind `platform::macos::ffi`'s small
+# `unsafe` wrappers. objc2's generated bindings at the 0.3.2 line the app's
+# Tauri (tao, wry) already locks; only `objc2-application-services` is new
+# to Cargo.lock, from the same release. `libc` (already locked) for
+# `proc_pidpath` (a process's executable) and `dlsym`.
+[target.'cfg(target_os = "macos")'.dependencies]
+libc = "=0.2.190"
+objc2-application-services = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "libc",
+  "HIServices",
+  "AXError",
+  "AXUIElement",
+  "AXValue",
+] }
+objc2-core-foundation = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "CFArray",
+  "CFCGTypes",
+  "CFDictionary",
+  "CFNumber",
+  "CFString",
+] }
+objc2-core-graphics = { version = "=0.3.2", default-features = false, features = [
+  "std",
+  "CGDirectDisplay",
+  "CGError",
+  "CGGeometry",
+  "CGWindow",
+] }
+
 [dev-dependencies]
 # The end-to-end test (tests/e2e.rs): the simulator's hands through the
 # watcher into a store, the app's side of the channel, this process.

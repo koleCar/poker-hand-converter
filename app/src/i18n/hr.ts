@@ -1222,10 +1222,28 @@ export const hr: Dict = {
     checkNow: "Provjeri ažuriranje sada",
     checking: "Provjera…",
     notes: "Nije preuzeto iz ažuriranja jer bi ublažilo pravila:",
+    permission: {
+      heading: "Rail treba dopuštenje Pristupačnost da bi vidio tvoje stolove",
+      why: "Na Macu Railov HUD pronalazi poker stol po naslovu njegova prozora, a macOS aplikaciji dopušta čitanje naslova tuđih prozora samo uz dopuštenje Pristupačnost. Rail čita naslove i položaj prozora: ništa drugo.",
+      not: "Rail ne snima zaslon, ne čita što tipkaš ili klikaš i ne upravlja drugim aplikacijama. Ne trebaju mu Snimanje zaslona ni Praćenje unosa.",
+      steps:
+        "Klikni gumb: macOS će pitati za Rail, a Postavke sustava otvorit će se na Privatnost i sigurnost, Pristupačnost. Ondje uključi Rail. Ovaj zaslon to sam primijeti.",
+      open: "Otvori Postavke sustava",
+      opening: "Otvaranje…",
+      waiting: "Čekam dopuštenje. Rail provjerava svakih nekoliko sekundi.",
+      failed: (reason) =>
+        `Postavke sustava nisu se otvorile (${reason}). Otvori ih sam: Privatnost i sigurnost, Pristupačnost.`,
+      stale:
+        "Rail je u popisu već uključen, a ova poruka ne nestaje? Ukloni Rail iz popisa gumbom minus i ponovno ga uključi: macOS može čuvati dopuštenje za stariju kopiju Raila.",
+      granted: "Dopuštenje Pristupačnost je dano: HUD vidi tvoje stolove.",
+      noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent.",
+    },
     today: {
       off: "HUD: nije pokrenut",
       starting: "HUD: pokreće se…",
       none: "HUD: nema otvorenog stola",
+      permission: "HUD: treba dopuštenje Pristupačnost",
+      noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent",
       tables: (count) => `HUD: na ${n(count)} ${plural(count, "stolu", "stola", "stolova")}`,
       refused: (count, rooms) =>
         `bez njega: ${n(count)} ${plural(count, "stol", "stola", "stolova")} (${rooms}: nije dopušteno)`,

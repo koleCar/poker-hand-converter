@@ -77,6 +77,32 @@
   border-radius: var(--radius-2);
 }
 
+/* (R3.11) macOS: the Accessibility permission the HUD waits for. */
+.permission {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  color: var(--text-secondary);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-2);
+}
+
+.permission > p {
+  margin: 0;
+  max-width: 72ch;
+}
+
+.permission > .subheading {
+  color: var(--text-primary);
+}
+
+.granted {
+  margin: 0;
+  color: var(--text-primary);
+}
+
 .refusal {
   display: flex;
   flex-direction: column;

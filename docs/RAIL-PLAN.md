@@ -7524,6 +7524,212 @@ graphics, and CPU with twelve real tables.
   they are not used).
 - Onboarding screen that explains and requests the permission, and detects when
   it is granted.
+- *As built* (§15): **done** - `hud/rail-hud/src/platform/macos.rs` (the
+  backend and everything that decides, plain Rust, unit-tested on every
+  system), `platform/macos/ffi.rs` (the system calls, macOS only), the
+  permission through the engine and the IPC, `--list-windows` on macOS, the
+  app's onboarding on the HUD screen, `docs/research/CAPTURING-TABLES.md`
+  "On macOS". No real room has a `tables` block, so nothing real is found
+  yet: everything runs against the table simulator's real windows.
+  - **Enumeration** (`macos::snapshot` -> `macos::assemble` ->
+    `platform::table_of`, the R3.3 path): (1) `CGWindowListCopyWindowInfo
+    (OptionAll | ExcludeDesktopElements)` - every window, on screen or not,
+    front to back: number (`CGWindowID` = `WindowId`), owner pid and name,
+    bounds (points), layer, on screen; **window names never read** (Screen
+    Recording since 10.15). Ordinary windows only (layer 0). (2) The process
+    name is the executable's file name (`proc_pidpath`; the owner name as a
+    fallback), compared like Windows' (`same_process`, no case). (3) Only for
+    processes a room's matcher takes: `AXUIElementCreateApplication(pid)`
+    (messaging timeout 0.25 s per request, so a busy client cannot stall the
+    loop for the default 6 s) -> `AXWindows` -> per window `AXTitle`,
+    `AXPosition` + `AXSize`, `AXMinimized`, `AXFullScreen`, `AXSubrole`, the
+    `AXCloseButton`'s frame, and the window number from
+    `_AXUIElementGetWindow` - a private function, **looked up with `dlsym`
+    at run time, never linked** (the macOS window managers and switchers use
+    it for this; if a release drops it, pairing falls back to frames).
+    **Pairing** (`macos::pair`): by that number; else the first unpaired
+    window of the process whose bounds equal the AX frame within one point,
+    front to back on both sides (two tables stacked at one place pair in
+    z-order). **Client area** = bounds less the title bar, whose height is
+    twice the close button's centre below the window's top (`title_bar`):
+    measured on the simulator's winit window, 32 pt on macOS 26 (28 pt up to
+    macOS 15); 0 in full screen or without a close button. **States**:
+    `AXMinimized` -> `minimized` (empty client rect, as Windows); off screen
+    and not minimised (another Space, full screen in its own Space, the app
+    hidden) -> `cloaked` (so `TableWindow.minimized`, hidden, still
+    attached). The AX API lists only the current Space's windows (and
+    minimised ones), so the backend **remembers** each title it read by
+    window number (pruned when the window is gone): a table moved to
+    another Space keeps its title; one never seen on this Space is not found
+    until it is. An off-screen window with neither partner nor memory is
+    left out (AppKit keeps such helper windows for every app: the
+    simulator has five). Every match is returned, allowed or not (compliance
+    decides in the engine).
+  - **Points vs pixels.** macOS window APIs speak points in one global
+    space (main display's top-left, y down). The trait's "physical pixels"
+    are points x the backing scale of the window's screen (the display its
+    bounds overlap most: `CGGetActiveDisplayList`, `CGDisplayBounds`, the
+    display mode's `pixel_width / width`, 2000 on Retina; the main display's
+    for a window on none), rounded half away from zero - exactly winit's
+    physical position (the simulator's `window` events, asserted by the
+    test). Scales on macOS are whole (1x, 2x, 3x), so R3.12 gets points back
+    exactly as rect x 1000 / `scale_permille`. A window straddling displays
+    of different scale is reported at the scale of the one it overlaps most,
+    as AppKit's `NSWindow.screen`. `RawWindow.monitor_dpi` / `window_dpi`
+    carry the scale as 96 x scale (so `dpi_permille` gives it back);
+    `RawWindow.class` is the AX subrole. Floats exist only in `macos::milli`
+    (points -> thousandths of a point, the one `allow(float_arithmetic)`);
+    everything after is integer.
+  - **Bindings**: objc2's generated crates at the 0.3.2 line Tauri (tao,
+    wry) already locks - `objc2-core-foundation`, `objc2-core-graphics`
+    (`CGWindow`, `CGDirectDisplay`), and `objc2-application-services`
+    (`AXUIElement`, `AXValue`, `AXError`; the **one new crate** in
+    `Cargo.lock`, same release) - plus `libc` (locked already) for
+    `proc_pidpath` and `dlsym`; all `=`-pinned, macOS-only dependencies.
+    `unsafe` only in `platform/macos/ffi.rs`, one function per call with its
+    own `#[allow(unsafe_code)]` and a `// SAFETY:` comment per block, as in
+    `windows.rs`; `macos.rs` itself has no `unsafe`.
+  - **Permission** (`platform::Permission::Accessibility`): the trait gains
+    `permission_needed()` (macOS: `AXIsProcessTrusted()`, read for every
+    health answer - reading prompts nobody) and `request_permission()`
+    (macOS: `AXIsProcessTrustedWithOptions({prompt: true})`, the system's own
+    alert, which also lists the app in the pane switched off). Without it
+    `find_tables` fails with `PlatformError::PermissionNeeded` (no title, no
+    table), logged once; with no matcher at all nothing is asked of the
+    system. **IPC** (no protocol bump: optional field, new message type an
+    older HUD reads as `Unknown`): `HealthReport.permission_needed`
+    (`"accessibility"`) and `HealthReport.permission_deferred`, and
+    `AppMessage::RequestPermission { permission }`. **Asked for only when
+    it would make a difference** (the orchestrator's change before merge:
+    a sensitive permission that cannot find anything is not asked for):
+    at each look with the permission missing the engine reads the running
+    processes - no permission needed: the window server's list and
+    `proc_pidpath`, `Platform::running_processes` - and
+    `platform::permission_matters` says whether one belongs to a room whose
+    HUD is allowed *and* that has a matcher here (a macOS `tables` block:
+    none today), or the simulator's test entry is on. Then the health
+    answer says `permission_needed`; otherwise `permission_deferred` (never
+    both) and the app asks for nothing. A `request_permission` is passed to
+    the system only in the first case, then the engine looks for tables at
+    once. **Behaviour change**: a Mac user with no supported client running
+    - every Mac user today - sees no card, only a neutral "HUD on macOS: no
+    supported poker client running" (HUD screen, Today, tray). **Never
+    unattended**: the only sender is the app's
+    `hud_request_permission`, the HUD screen's button. TCC attributes the
+    sidecar to its **responsible process** - Rail.app, which starts it - so
+    the grant is Rail's (in development, the terminal that ran `tauri dev`;
+    for `--list-windows`, the terminal). The entry is keyed by the code
+    signature: an ad-hoc signed build (CI's `.dmg`, a local build) is a new
+    identity with every build and must be granted again (the screen says to
+    remove and re-add Rail when it keeps asking); a **Developer ID** signed
+    release (P3) keeps the grant across updates. Screen Recording: never
+    needed (the diagnostic prints its state only to say so).
+  - **The app** (`hud.rs`): `HudStatusDto.permissionNeeded` from the health
+    answer (a change emits `hud-status-changed`), the tray line "HUD: needs
+    the Accessibility permission", `hud_request_permission` (macOS
+    `accessibility` only: sends the request and opens
+    `x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility`
+    with `open`). **The HUD screen** (`HudStatusPanel`): while the running
+    HUD needs it, a card - why (window titles and places only), what not (no
+    screen recording, no input monitoring, no control of other apps), the
+    steps, "Open System Settings"; then "waiting" and the stale-entry hint;
+    the status poll (3 s) sees the grant and the card becomes "granted".
+    Today's HUD line says so too. `HudStatusDto.permissionDeferred`: the
+    screen, Today and the tray say "HUD on macOS: no supported poker client
+    running" and offer nothing (`lib/hudCompliance.ts`
+    `noSupportedClient`). `en` + `hr` (macOS's Croatian names:
+    Pristupačnost, Privatnost i sigurnost, Postavke sustava). Checked in a
+    browser with mocked Tauri calls (the card, the click, the grant).
+  - **`--list-windows` on macOS**: the same arguments and redaction; the
+    AX subrole as `subrole`, the client area in px and pt with the screen's
+    scale, `off screen (another Space, or the app hidden)`; notes say
+    whether Accessibility is granted (if not: how, and no title is shown)
+    and that Screen Recording is not used. `--process` takes the
+    executable's name.
+  - **Tests**: unit (`platform::macos`: points <-> pixels and rounding,
+    display scale and the screen of a straddling window, title bars -
+    standard, toolbar, fractional, full screen, borderless, clamped -,
+    pairing by number / frame / z-order / tolerance, the joined view with
+    minimised, other-Space (remembered) and closed windows, tables through a
+    matcher; `list` macOS listing; `platform::permission_matters` (no
+    allowed matcher, a browser only, a prohibited room, the test entry);
+    `engine` a missing permission *deferred* without a supported client
+    (not offered, a request ignored) and *needed* with the simulator's
+    entry (asked for only on request and only while missing, attaching once
+    granted); protocol wire forms; the app's status, events and tray lines;
+    `tests/` the helpers - the card hidden without a supported client, shown
+    with the simulator's entry - and that the prompt is only the button's).
+    **`tests/macos_tables.rs`** (`cfg(target_os = "macos")`, the `core`
+    job's `cargo test` on `macos-latest` plus a step with its output): the
+    simulator's three windows (640 x 480 pt) **always** checked through the
+    window server alone - exactly three ordinary on-screen windows of its
+    pid, bounds x scale equal to its own frames - and joined by
+    `macos::assemble` with accessibility windows made from the simulator's
+    events (titles for identity) into three tables with the hands' names
+    and client rects equal to the simulator's. Then by what the test
+    process may do: **with Accessibility**, the backend's own find (exact
+    x / width / bottom, the measured title bar within a point), a catch-all
+    pattern still three, another process's matcher none, a minimised table
+    found and marked, a table move retitling the same window,
+    `--list-windows` (three, redacted, "granted"), `rail-hud --standalone
+    --sim-site pokerstars` attaching to three and `ggpoker` refusing three;
+    **without it**, `find_tables` -> `PermissionNeeded`; the engine's
+    health says `permission_deferred` without the test entry (the simulator
+    runs, but no allowed room has a macOS matcher) and `permission_needed`
+    with it; the simulator is among `running_processes()` (read without a
+    permission);
+    `--list-windows` says "NOT granted" and lists no title, the HUD process
+    logs why it finds nothing - and the test prints the `R3.11:` line naming
+    what it skipped. It never prompts and never changes a setting.
+    **Locally** (the development Mac, macOS 26.6, from an agent's shell
+    whose responsible app has no Accessibility): the window-server path and
+    the permission path pass (title bar 32 pt, scale 1x on that display);
+    the full AX path was **not run** here, and no setting was changed - the
+    owner runs it after granting the terminal Accessibility: `cargo test -p
+    rail-hud --test macos_tables -- --nocapture`. **CI**: whether the
+    runner's test process has Accessibility is the macOS job's `R3.11:`
+    line (the hosted images pre-grant some of their own processes; the
+    first run says whether ours is one).
+  - **Limits.** No real client's title, process name or title bar is known
+    (`tables.process.macos` null everywhere). The title bar is measured from
+    the close button: a client that draws its own title bar or uses a full
+    size content view gets the whole window or a wrong offset (R3.14's
+    check). A window on another Space never seen on this one is not found.
+    The AX calls run on the HUD's loop thread every find (each process
+    0.25 s at worst); R3.13's observers make most of them unnecessary.
+    Not tested on a Retina display with the full AX path, nor with two
+    displays of different scale (unit tests only).
+  - **For R3.12** (overlay): `WindowId` is the `CGWindowID`; position the
+    `NSPanel` in **points**: `client / scale_permille x 1000` (exact), then
+    flip to AppKit's bottom-left origin against the *main* screen's height
+    (`NSScreen.screens[0].frame.height`), as winit does. Order it above the
+    table with `orderWindow(.above, relativeTo: windowNumber)` - the
+    `CGWindowID` is that number. `TableWindow.minimized` covers minimised,
+    other Space and hidden app: hide the panel. Do not give it
+    `canJoinAllSpaces` (it would show on every Space): a panel shown while
+    its table is on screen belongs to that Space; hide it whenever the table
+    is reported off screen, and show it again where the table is. The panel
+    lives in this
+    process, which is unbundled (`rail-hud` inside Rail.app) - an
+    `NSApplication` with the `.accessory` activation policy so it never
+    shows in the Dock or takes focus. AppKit wants the main thread: the
+    engine's loop must move into the AppKit run loop (a timer or a run-loop
+    source in place of `recv_timeout`). Drag (R3.6): feed `platform::drag`
+    the panel's mouse events in client pixels (points x scale).
+  - **For R3.13** (tracking): an `AXObserver` per poker process
+    (`kAXMovedNotification`, `kAXResizedNotification`,
+    `kAXWindowMiniaturizedNotification` / `...Deminiaturized`,
+    `kAXUIElementDestroyedNotification`, `kAXTitleChangedNotification`,
+    `kAXWindowCreatedNotification` for `Appeared`) on the run loop of the
+    AppKit thread; turn them into `platform::tracking::Observed` and let
+    `tracking::events` / `plan` do the rest, placing overlays from the
+    window as it is now (read with the same `ffi` calls) so the 500 ms
+    re-find cannot fight them. Space changes have no AX notification:
+    `NSWorkspace.activeSpaceDidChangeNotification` or the window server's
+    `onscreen` on the re-find. The `memory` of titles stays the source for
+    tables on another Space. A revoked permission makes `find_tables` fail:
+    then detach rather than keep stale tables (today the engine keeps them
+    until the next successful find).
 
 ### R3.12 macOS: overlay — L
 - Borderless, transparent, non-activating `NSPanel` per table; ordered directly
@@ -7746,3 +7952,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-19 | **R3.8 done**: panel and popup. **Panel**: the six definitions and the hand count as before, plus a **legend** pill in a free corner (clear of the table's graphics, the panels and the debug line) with one sign per colour in use after the room's collapse (`-` `=` `+` on every allowed room with the default design; PokerStars at most two thresholds whatever the design), and - **only where the room allows labelling players (Winamax; never PokerStars or ACR, `noPlayerLabels`)** - the user's colour tag (a bright bar, contrast on any felt), a note mark and labels, read by `Reader::player_notes`, never for the hero or an opaque-id seat. **Click**: a press that never passed the drag threshold and was released over the overlay is `PanelClicked`; the engine sends `open_popup {site, storeSite, table, player, segment, slot, anchor, scale}`. **Popup**: one Tauri webview window of the app's (`hud-popup-<n>`, `#/hud-popup`, `packages/ui` tables), placed beside the panel in the monitor's work area, reused for another panel, closed by the same panel, Esc, its button, losing the keyboard, the pointer leaving or the last table closing; built hidden and unfocused so the table keeps the keyboard (`SW_SHOWNOACTIVATE` on Windows; macOS not wired). It reads what the panel reads (the table's segment, own hands only) through the app: grouped statistics of `players: any` definitions (no money), thresholds in words, hands together and your result (bb, cash and tournaments apart), **by position only on ACR** (hidden on PokerStars - unclear under "no display changing with game state" - and on Winamax, read as conservatively; `Reader::player_own_positions`), **your words only on Winamax** (on PokerStars and ACR not even the note: a note at the table is a label). **A10**: the app has no analysis/solver/equity/chart screen; `lib/duringPlay.ts` is the gate (every route classified, the shell replaces a helping screen while `tables_open > 0`), and the replayer's pot odds and the 13 x 13 starting-hand chart hide during play. Tests: rail-config, rail-hud (panel, scene, layout, drag, tracking, engine), IPC wire form, rail-store own positions, the app with Tauri's mock runtime (rules per room, popup over a store, the window opened / moved / closed, `open_popup` -> window -> tables' edges), `appDuringPlay.test.ts`; Windows CI `windows_seats.rs` (click vs drag on real windows, tags only posing as Winamax, the HUD process's `open_popup`); the popup page checked in a browser with mocked Tauri calls and made-up data. Found on Windows CI: a hand committed by a recheck after the one before it had no `noticed` stamp (rail-watch now leaves the rest of a commit the latest change noticed), and the app's test binary needs the application manifest (`build.rs` links it into every target on MSVC); the popup test's store folder had the simulator's folder name (the helper's are now `rail-hud-sim-*`, and a wait reports the simulator's stderr and exit status). |
 | 2026-10-19 | **R3.9 done**: the HUD editor and presets. **Model** (`rail_hud::design`): a design is ordered panel cells (shipped or the user's statistics; a cell may show only at some stack depths), columns, per-statistic overrides keyed by id (bands, decimals, sample - a layer, never an edit of the definitions), popup sections, legend, the player's words, colour thresholds. **Presets** (`config/hud/presets.json`): cash (R3.4's panel), tournament, Spin - each complying with every allowed room - and "tournament by stack depth", which switches with the stack and so is ACR's only. **Assignments** per (room or every room, size or every size, format or every format): room, then format, then size, else the format's preset. **Restrictions** enforced twice: the editor refuses to save or assign what a room forbids and says why (PokerStars: a card-split statistic, a stack cell, more than two thresholds; Winamax: a stack cell; labels a note on PokerStars and ACR), and the renderer drops it anyway (defence in depth). R2.10's language gains card fields (`cards_known`, `pocket_pair`, `suited`) and `CustomSet::card_split`. **The design travels with the frame** (`OverlayFrame.design`; the Windows overlay keeps none of its own); the engine resolves each table's design from its room, size and format, the legend reads the user's bands, `open_popup` names the design and the popup shows its sections. **Editor** (HUD screen): drag and drop with a keyboard alternative, per-cell settings, popup sections, live room checks, a preview drawn by the HUD's own renderer under the room's rules, reset of dragged panels, the preferred seat, the assignment matrix; en + hr. **Store** migration 15 (designs, assignments, tombstones and dirty marks); **Supabase** `hud_layouts` + `put_hud_layouts` (select-own RLS, definer writer, pgTAP 35; not applied to production); **sync** of all four HUD tables in R1.9's worker (every write wakes it; the HUD rows are pulled every minute, on their own schedule), last writer wins by `updated_at`. Tests: rail-stats, rail-store, rail-hud (design, panel, engine), rail-sync, pgTAP, the app; Windows CI `windows_designs.rs` (an assigned design changes what the overlay draws posing as Winamax; a card-split statistic dropped posing as PokerStars); the screen checked in a browser over the app's own commands behind a mocked Tauri bridge with made-up data. |
 | 2026-10-19 | **R3.10 done**: compliance mode in the app. **Remote `sites.json`**: the web build publishes `config/sites.json` at `<web>/sites.json` (`frontend/scripts/sites-json.mjs`, `no-cache`), so the repository file is the only source and the owner updates it with a pull request (live with the web deploy = the staging -> main promotion); `rail_sync::policy` fetches it over HTTPS (OS verifier, no redirects, ETag / If-Modified-Since, 10 / 20 s timeouts, 1 MiB cap; HTTP only to loopback), checks it whole with `rail_config::load_remote` (strict schema + validator; no signature - a forged file could only switch a HUD off), merges stricter-only, caches the last good copy atomically, keeps it (or the shipped one) on any failure; first look 5 s after start, then every 6 h (30 min after a failure) and on "Look for an update now". The app's single source (`crate::policy`) feeds the HUD (`rail-hud --policy <cache>` read before the first look for tables; `policy {remote}` on each connection and change), the popup and the editor; a room switched off closes its popup. **Status**: `HealthReport` lists the attached tables and the still-open refused windows with room, table and reason (`serde(default)`, no protocol bump); `hud_status` gives them; the HUD screen's "At the tables" shows the tables with the HUD, the tables without it and why in plain words (prohibited, withdrawn by an update, unknown = no, a network, an unknown site) with the room's policy page and date, "Why can't I enable the HUD here?", the rooms where it may be used and where the list came from; Today has a line, the tray a fourth line; no override anywhere. **A10**: the sidebar and the palette leave out a helping screen while a table is open (`duringPlay.ts` `screenOffered`). **Release checklist**: `npm run hud:policy-check` / the manual workflow `release-checklist.yml` fails on any allowed room checked more than 90 days ago (§12). Tests: rail-sync policy against a local server (stricter applies and is cached, looser ignored with a note, invalid refused whole, failures keep the last good copy, 304, restart), rail-hud (`--policy`, lists), rail-hud-ipc, the app (policy DTO, status lists, tray line), `tests/` (wording, no override, A10 gate, the checklist); Windows CI `windows_compliance.rs`: a table posing as GGPoker refused and listed with its reason, no overlay; posing as PokerStars with a remote copy switching it off refused from the first look, attached under the shipped policy, detached again. The screens checked in a browser with mocked Tauri calls and made-up tables. |
+| 2026-10-19 | **R3.11 done**: finding tables on macOS. `platform::macos`: the window server's list (`CGWindowListCopyWindowInfo`, on and off screen, front to back: number, pid, bounds, layer; its window names - Screen Recording - never read) joined with the Accessibility API's windows of the processes a room's matcher takes (executable name from `proc_pidpath`; `AXWindows` -> `AXTitle`, frame, minimised, full screen, subrole, close button; 0.25 s messaging timeout), paired by the window number (`_AXUIElementGetWindow`, looked up with `dlsym`, never linked) else by frame within a point in z-order; client area = bounds less the title bar measured from the close button (32 pt on macOS 26's winit windows); pixels = points x the backing scale of the screen the window overlaps most, exactly winit's physical position; minimised marked, off screen (another Space, full screen, hidden app) = cloaked with the title remembered. objc2 0.3.2 bindings (the line Tauri locks; `objc2-application-services` the one new crate) + `libc`, `unsafe` only in `platform/macos/ffi.rs` with `// SAFETY:` per block. **Permission**: the trait's `permission_needed` / `request_permission`; without Accessibility `find_tables` fails `PermissionNeeded`, the health answer says `permissionNeeded: "accessibility"` (optional field, no protocol bump), and the system's prompt comes only from `request_permission` - the app's "Open System Settings" (`hud_request_permission`, which also opens the Accessibility pane). It is offered only when it would make a difference - a running client of an allowed room with a macOS `tables` block (none today) or the simulator's test entry; otherwise the health answer says `permissionDeferred` and the HUD screen, Today and the tray show "HUD on macOS: no supported poker client running" and ask for nothing (so no Mac user sees the card today). The grant is Rail.app's (the sidecar's responsible process), keyed by its signature: ad-hoc builds need it again after every build, Developer ID releases (P3) keep it. **App**: the HUD screen's card (why - titles and window places only -, what not - no screen recording, input monitoring or control -, the button, waiting, the stale-entry hint, granted), Today's and the tray's line, `en` + `hr`; checked in a browser with mocked calls. **`--list-windows` on macOS** (subrole, px and pt, the scale, Spaces; whether Accessibility is granted, Screen Recording not used), `CAPTURING-TABLES.md` "On macOS". Tests: unit (pixels and points, screens, title bars, pairing, the joined view, the engine's permission path, protocol, app, `tests/`), `tests/macos_tables.rs` on the macOS runner: the simulator's three windows through the window server alone (frames x scale equal to the simulator's, joined into its tables) always, then the backend's own find, minimise, table move, listing and the HUD process with Accessibility, or the permission-needed path without it (the `R3.11:` line says which). Locally only the window-server and permission paths ran (no Accessibility for the agent's shell; nothing changed); the full path is the owner's command `cargo test -p rail-hud --test macos_tables -- --nocapture` with the terminal granted. |

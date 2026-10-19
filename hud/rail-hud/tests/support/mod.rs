@@ -1,8 +1,9 @@
 //! The table simulator as a child process, for the Windows overlay tests
-//! (R3.4): start it, read its events, send it commands, find its windows.
-//! Everything it said is kept, so a failure can print it.
+//! (R3.4) and the macOS ones (R3.11): start it, read its events, send it
+//! commands, find its windows. Everything it said is kept, so a failure can
+//! print it.
 
-#![cfg(windows)]
+#![cfg(any(windows, target_os = "macos"))]
 #![allow(dead_code)] // each test file uses part of it
 
 use std::collections::BTreeMap;
@@ -12,7 +13,6 @@ use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver};
 use std::time::{Duration, Instant};
 
-use rail_hud::platform::windows::{WindowsBackend, enumerate};
 use rail_hud::platform::{Platform, TableMatcher, TableWindow};
 use regex::Regex;
 use serde_json::Value;
@@ -290,8 +290,9 @@ impl Drop for Sim {
 }
 
 /// Every visible top-level window Windows reports, for failure messages.
+#[cfg(windows)]
 pub fn listing() -> String {
-    match enumerate() {
+    match rail_hud::platform::windows::enumerate() {
         Ok(all) => all
             .iter()
             .map(|w| {
@@ -315,10 +316,56 @@ pub fn listing() -> String {
     }
 }
 
+/// (R3.11) Every ordinary window the macOS window server lists (bounds,
+/// pid, on screen), then the simulator's windows as the backend joins them
+/// with their accessibility titles (none without the permission), for
+/// failure messages.
+#[cfg(target_os = "macos")]
+pub fn listing() -> String {
+    use rail_hud::platform::macos;
+    let mut out = match macos::cg_windows() {
+        Ok(all) => all
+            .iter()
+            .filter(|w| w.layer == 0)
+            .map(|w| {
+                format!(
+                    "  #{} pid {} {:?} bounds {:?}{}",
+                    w.id,
+                    w.pid,
+                    w.owner,
+                    w.bounds,
+                    if w.onscreen { "" } else { " off screen" }
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n"),
+        Err(error) => format!("  the window list failed: {error}"),
+    };
+    let sim = |p: &str| rail_hud::platform::matcher::same_process(p, "rail-hud-sim");
+    match macos::enumerate(&sim) {
+        Ok(all) => {
+            for w in all {
+                out.push_str(&format!(
+                    "\n  sim #{} {:?} subrole {:?} client {:?} dpi {}{}{}",
+                    w.id.0,
+                    w.title,
+                    w.class,
+                    w.client,
+                    w.monitor_dpi,
+                    if w.minimized { " minimised" } else { "" },
+                    if w.cloaked { " off screen" } else { "" },
+                ));
+            }
+        }
+        Err(error) => out.push_str(&format!("\n  enumerate failed: {error}")),
+    }
+    out
+}
+
 /// Find the simulator's tables until `ok` holds (windows settle after the
 /// simulator's events), else fail with everything seen.
 pub fn find_until(
-    backend: &mut WindowsBackend,
+    backend: &mut impl Platform,
     matcher: &TableMatcher,
     seen: &mut Seen,
     events: &Receiver<Value>,

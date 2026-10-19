@@ -72,6 +72,34 @@ export function hudState(status: HudStatus | null): HudState {
   }
 }
 
+/** A system permission the HUD waits for (R3.11). */
+export type HudPermission = "accessibility";
+
+/**
+ * (R3.11) The permission the running HUD needs to see a table and does not
+ * have - macOS's Accessibility, for window titles - or `null`. The HUD says
+ * so only when granting it would find tables now (a supported client runs,
+ * or the simulator's test entry is on), so the card asks only then. A
+ * permission this window does not know is not offered (an older window, a
+ * newer HUD).
+ */
+export function permissionNeeded(status: HudStatus | null): HudPermission | null {
+  return hudState(status) === "running" && status?.permissionNeeded === "accessibility" ? "accessibility" : null;
+}
+
+/**
+ * (R3.11) The running HUD on macOS lacks the permission but no supported poker
+ * client runs, so there is nothing to ask for: the screens say only that.
+ */
+export function noSupportedClient(status: HudStatus | null): boolean {
+  return (
+    hudState(status) === "running" &&
+    permissionNeeded(status) === null &&
+    (status?.permissionDeferred ?? null) !== null &&
+    (status?.tables.length ?? 0) === 0
+  );
+}
+
 /** The rooms whose HUD is allowed, in the list's order. */
 export function allowedRooms(policy: HudPolicy | null): RoomPolicy[] {
   return policy?.rooms.filter((room) => room.permitted) ?? [];

@@ -2,19 +2,25 @@
 //! windows, following them, drawing over them. Windows finds tables since
 //! R3.3, draws over them since R3.4 and follows them with WinEvent hooks
 //! since R3.5 ([`windows`]; the platform-free half of following is
-//! [`tracking`]); macOS (R3.11 - R3.13) is a stub that finds nothing.
-//! [`sim::SimBackend`] is a fake driven by the table simulator's events
-//! (R3.1), so the data path runs end to end without any window API, on
-//! every OS and in CI.
+//! [`tracking`]); macOS finds tables since R3.11 ([`macos`]: the window
+//! server's list for bounds, the Accessibility API for titles - and so the
+//! Accessibility permission, [`Permission`]); its overlays and tracking
+//! are R3.12 / R3.13. [`sim::SimBackend`] is a fake driven by the table
+//! simulator's events (R3.1), so the data path runs end to end without any
+//! window API, on every OS and in CI.
 //!
 //! Units: positions and sizes are **physical pixels** of the client area
 //! (what the table is drawn in, without the frame), the scale is the
 //! window's monitor's in thousandths (1000 = 100 % = 96 dpi on Windows,
-//! 2000 = Retina). No floating point (the workspace's lints).
+//! 2000 = Retina). No floating point (the workspace's lints). On macOS,
+//! whose window APIs speak points, "physical pixels" are the points times
+//! the backing scale of the window's screen - what winit calls a physical
+//! position - so points come back exactly as the rect divided by the
+//! scale ([`macos`] has the rule).
 //!
 //! `unsafe` stays `deny` here (the crate's level) rather than `forbid`: a
-//! `forbid` would bind [`windows`], whose Win32 wrappers allow it one
-//! function at a time. Every other module below forbids it.
+//! `forbid` would bind [`windows`] and [`macos`], whose system wrappers
+//! allow it one function at a time. Every other module below forbids it.
 
 use std::fmt;
 
@@ -344,6 +350,36 @@ impl TagColour {
     }
 }
 
+/// (R3.11) A system permission a backend needs to find tables, which the
+/// user grants in the system's settings. The HUD reports it
+/// (`HealthReport::permission_needed`) and the app explains it; the HUD
+/// never changes a setting itself, and asks the system to prompt only
+/// when the user clicked for it ([`Platform::request_permission`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Permission {
+    /// macOS: Privacy & Security, Accessibility - to read window titles
+    /// (`AXTitle`). Not Screen Recording: nothing reads pixels, and the
+    /// window server's own window names (which would need it) are not used.
+    Accessibility,
+}
+
+impl Permission {
+    /// The wire name (`accessibility`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Accessibility => "accessibility",
+        }
+    }
+
+    /// The wire name read back.
+    pub fn from_name(name: &str) -> Option<Self> {
+        match name {
+            "accessibility" => Some(Self::Accessibility),
+            _ => None,
+        }
+    }
+}
+
 /// Why a backend call failed.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PlatformError {
@@ -351,6 +387,8 @@ pub enum PlatformError {
     Unsupported(&'static str),
     /// The window is gone.
     Gone(WindowId),
+    /// (R3.11) The user has not granted a permission the call needs.
+    PermissionNeeded(Permission),
     /// The system said no (a permission, a handle).
     Os(String),
 }
@@ -360,6 +398,11 @@ impl fmt::Display for PlatformError {
         match self {
             Self::Unsupported(what) => write!(f, "not supported here: {what}"),
             Self::Gone(id) => write!(f, "window {} is gone", id.0),
+            Self::PermissionNeeded(Permission::Accessibility) => write!(
+                f,
+                "the Accessibility permission is needed to read window titles \
+                 (System Settings, Privacy & Security, Accessibility)"
+            ),
             Self::Os(error) => write!(f, "{error}"),
         }
     }
@@ -406,6 +449,49 @@ pub trait Platform {
 
     /// Remove the window's overlay.
     fn remove_overlay(&mut self, id: WindowId);
+
+    /// (R3.11) A permission the backend needs to find tables and does not
+    /// have now (macOS: Accessibility). Asked for each health answer, so
+    /// cheap; reading it changes nothing and prompts nobody.
+    fn permission_needed(&self) -> Option<Permission> {
+        None
+    }
+
+    /// (R3.11) The user clicked to grant `permission`: ask the system to
+    /// show its own prompt (macOS lists the app in System Settings then).
+    /// Only on the user's request, never unattended; a no-op where nothing
+    /// is needed.
+    fn request_permission(&mut self, _permission: Permission) {}
+
+    /// (R3.11) The executables of the processes that have an ordinary
+    /// window now, read without any permission (macOS: the window server's
+    /// list and `proc_pidpath`): whether asking for a missing permission
+    /// would find anything. `None`: the backend cannot tell.
+    fn running_processes(&mut self) -> Option<Vec<String>> {
+        None
+    }
+}
+
+/// (R3.11) Whether granting a missing permission would make a difference
+/// now: the test-only simulator entry is active, or one of `running` is a
+/// process of an allowed room's matcher (`allowed`: the matchers of rooms
+/// whose HUD is allowed - a room has one only with a `tables` block for this
+/// system). A backend that cannot tell (`None`) counts as yes when there is
+/// an allowed matcher at all.
+pub fn permission_matters(
+    running: Option<&[String]>,
+    allowed: &[TableMatcher],
+    test_entry: bool,
+) -> bool {
+    if test_entry {
+        return true;
+    }
+    match running {
+        Some(running) => running
+            .iter()
+            .any(|process| allowed.iter().any(|m| m.takes_process(process))),
+        None => !allowed.is_empty(),
+    }
 }
 
 /// This system's backend.
@@ -413,7 +499,7 @@ pub fn native() -> Box<dyn Platform> {
     if cfg!(windows) {
         Box::new(windows::WindowsBackend::default())
     } else if cfg!(target_os = "macos") {
-        Box::new(macos::MacosBackend)
+        Box::new(macos::MacosBackend::default())
     } else {
         Box::new(none::NoBackend)
     }
@@ -526,16 +612,42 @@ mod tests {
         assert_eq!(dpi_permille(0), 1000);
     }
 
+    /// (R3.11) A missing permission is asked for only when it would find
+    /// something: a running client of an allowed room with a matcher, or the
+    /// simulator's test entry - never for a prohibited room's client, nor
+    /// with no supported client running.
+    #[test]
+    fn a_permission_matters_only_with_a_supported_client() {
+        let stars = TableMatcher {
+            site: "pokerstars".into(),
+            processes: vec!["PokerStars".into()],
+            title: Regex::new("^(?P<table>.+)$").expect("regex"),
+        };
+        let running = |names: &[&str]| names.iter().map(|n| (*n).to_owned()).collect::<Vec<_>>();
+        let browser = running(&["Safari", "Terminal"]);
+        let client = running(&["Safari", "pokerstars"]);
+        // No room has a macOS matcher today: nothing to ask for.
+        assert!(!permission_matters(Some(&client), &[], false));
+        let allowed = std::slice::from_ref(&stars);
+        assert!(!permission_matters(Some(&browser), allowed, false));
+        assert!(permission_matters(Some(&client), allowed, false));
+        // The simulator's test entry: always.
+        assert!(permission_matters(Some(&browser), &[], true));
+        // A backend that cannot tell: only if some allowed room could match.
+        assert!(permission_matters(None, &[stars], false));
+        assert!(!permission_matters(None, &[], false));
+    }
+
     /// The stubs find nothing, so nothing is ever drawn by them. Windows'
-    /// backend finds what matches (nothing, with no matcher) and, on
-    /// Windows, follows a window it is given (R3.5 adds the hooks); its
-    /// overlays are `tests/windows_overlay.rs`'s (a window id that is no
-    /// window is refused).
+    /// and macOS's backends find what matches (nothing, with no matcher -
+    /// and without asking for any permission) and, on their own system,
+    /// follow a window they are given; their tables are
+    /// `tests/windows_tables.rs`' and `tests/macos_tables.rs`'.
     #[test]
     fn the_stub_backends_find_nothing() {
         for mut backend in [
             Box::new(windows::WindowsBackend::default()) as Box<dyn Platform>,
-            Box::new(macos::MacosBackend),
+            Box::new(macos::MacosBackend::default()),
             Box::new(none::NoBackend),
             native(),
         ] {
@@ -560,7 +672,8 @@ mod tests {
                 scale_permille: 1000,
                 minimized: false,
             };
-            let tracks = cfg!(windows) && backend.name() == "windows";
+            let tracks = (cfg!(windows) && backend.name() == "windows")
+                || (cfg!(target_os = "macos") && backend.name() == "macos");
             assert_eq!(backend.track(&window).is_ok(), tracks, "{}", backend.name());
             backend.untrack(WindowId(1));
             let permit = crate::compliance::Compliance::shipped()

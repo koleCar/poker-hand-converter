@@ -1231,10 +1231,29 @@ export const en = {
     checkNow: "Look for an update now",
     checking: "Looking…",
     notes: "Not taken from the update, because it would have loosened the rules:",
+    /** (R3.11) macOS: the Accessibility permission, which the HUD needs to see tables. */
+    permission: {
+      heading: "Rail needs the Accessibility permission to see your tables",
+      why: "On a Mac, Rail's HUD finds a poker table by its window's title, and macOS lets an app read other apps' window titles only with the Accessibility permission. Rail reads the titles and where the windows are: nothing else.",
+      not: "Rail does not record your screen, read what you type or click, or control other apps. It does not need Screen Recording or Input Monitoring.",
+      steps:
+        "Click the button: macOS asks about Rail and System Settings opens at Privacy & Security, Accessibility. Switch Rail on there. This screen notices by itself.",
+      open: "Open System Settings",
+      opening: "Opening…",
+      waiting: "Waiting for the permission. Rail checks every few seconds.",
+      failed: (reason: string) =>
+        `System Settings did not open (${reason}). Open it yourself: Privacy & Security, Accessibility.`,
+      stale:
+        "Rail is already switched on in the list and this does not go away? Remove Rail from the list with the minus button and switch it on again: macOS can keep the permission for an older copy of Rail.",
+      granted: "Accessibility permission granted: the HUD can see your tables.",
+      noClient: "HUD on macOS: no supported poker client running.",
+    },
     today: {
       off: "HUD: not running",
       starting: "HUD: starting…",
       none: "HUD: no table open",
+      permission: "HUD: needs the Accessibility permission",
+      noClient: "HUD on macOS: no supported poker client running",
       tables: (count: number) => (count === 1 ? "HUD: on 1 table" : `HUD: on ${n(count)} tables`),
       refused: (count: number, rooms: string) =>
         `${count === 1 ? "1 table" : `${n(count)} tables`} without it (${rooms}: not allowed)`,

@@ -13,6 +13,14 @@
 //! title (an en dash and a hyphen look alike), which shipped room's
 //! matcher takes it (none yet), and what a candidate regex (`--try-title`)
 //! reads from it. Read-only: it attaches to nothing and draws nothing.
+//!
+//! **macOS** (R3.11): the ordinary windows of the window server's list
+//! (`platform::macos::enumerate`), with the titles the Accessibility API
+//! gives - which needs the Accessibility permission of the program it is
+//! run from (the terminal); without it the listing says so and shows no
+//! title (it never prompts and never asks for Screen Recording). The
+//! "class" is the accessibility subrole, the scale the screen's backing
+//! scale, "off screen" a window on another Space or of a hidden app.
 
 #![forbid(unsafe_code)]
 
@@ -25,7 +33,9 @@ use regex::Regex;
 use crate::compliance::Compliance;
 use crate::exit_code;
 use crate::platform::matcher::{read_title, same_process};
-use crate::platform::{RawWindow, Redactor, TableMatcher, dpi_permille, table_of, windows};
+use crate::platform::{
+    PlatformError, RawWindow, Redactor, TableMatcher, dpi_permille, macos, table_of, windows,
+};
 
 pub const USAGE: &str = "\
 rail-hud --list-windows: the visible top-level windows, for capturing the
@@ -34,7 +44,8 @@ table titles of real poker clients (docs/research/CAPTURING-TABLES.md).
   rail-hud --list-windows [--process <exe>]... [--you <name>]...
                           [--store <rail.db>] [--try-title <regex>]
 
-  --process <exe>     only this program's windows (PokerStars.exe; repeat)
+  --process <exe>     only this program's windows (PokerStars.exe on Windows,
+                      the executable's name on macOS; repeat)
   --you <name>        one of your screen names, redacted to <you> (repeat)
   --store <rail.db>   redact the hero names of this store too (default: the
                       app's store, when there is one)
@@ -43,7 +54,12 @@ table titles of real poker clients (docs/research/CAPTURING-TABLES.md).
                       groups read from each title
 
 Titles are redacted: anything after \"Logged in as\" and your screen names
-become <you>. Read the output before you share it. Windows only for now.
+become <you>. Read the output before you share it.
+
+Windows and macOS. On macOS the titles come from the Accessibility API: the
+app you run this from (Terminal) needs the Accessibility permission (System
+Settings, Privacy & Security, Accessibility). Nothing else - no Screen
+Recording.
 ";
 
 /// The diagnostic's command line.
@@ -151,10 +167,8 @@ pub fn run(args: Vec<OsString>) -> i32 {
             )),
         }
     }
-    if let Err(error) = windows::init_process_dpi_awareness() {
-        notes.push(format!("DPI awareness: {error}"));
-    }
-    let windows = match windows::enumerate() {
+    let macos = cfg!(target_os = "macos");
+    let windows = match system_windows(&args, &mut notes) {
         Ok(windows) => windows,
         Err(error) => {
             eprintln!("rail-hud --list-windows: {error}");
@@ -175,13 +189,53 @@ pub fn run(args: Vec<OsString>) -> i32 {
             &redactor,
             &matchers,
             compliance.as_ref(),
-            &notes
+            &notes,
+            macos,
         )
     );
     exit_code::OK
 }
 
-/// The listing (no I/O: the tests feed it windows).
+/// This system's windows: Windows' top-level windows (R3.3), or macOS's
+/// ordinary windows with their accessibility titles (R3.11; the
+/// permission's state in `notes` - read, never asked for).
+fn system_windows(
+    args: &ListArgs,
+    notes: &mut Vec<String>,
+) -> Result<Vec<RawWindow>, PlatformError> {
+    if cfg!(target_os = "macos") {
+        if macos::accessibility_granted() {
+            notes.push("Accessibility: granted; titles read through the Accessibility API".into());
+        } else {
+            notes.push(
+                "Accessibility: NOT granted to the program this runs from, so no title can be \
+                 read and no window is shown. Switch it on for your terminal in System Settings, \
+                 Privacy & Security, Accessibility, then run this again"
+                    .into(),
+            );
+        }
+        notes.push(format!(
+            "Screen Recording: not used ({} here)",
+            if macos::screen_recording_granted() {
+                "granted"
+            } else {
+                "not granted"
+            }
+        ));
+        let wanted = |process: &str| {
+            args.processes.is_empty() || args.processes.iter().any(|p| same_process(p, process))
+        };
+        macos::enumerate(&wanted)
+    } else {
+        if let Err(error) = windows::init_process_dpi_awareness() {
+            notes.push(format!("DPI awareness: {error}"));
+        }
+        windows::enumerate()
+    }
+}
+
+/// The listing (no I/O: the tests feed it windows). `macos`: the windows
+/// are macOS's (subroles, backing scale, Spaces) rather than Windows'.
 pub fn render(
     windows: &[RawWindow],
     args: &ListArgs,
@@ -189,6 +243,7 @@ pub fn render(
     matchers: &[TableMatcher],
     compliance: Option<&Compliance>,
     notes: &[String],
+    macos: bool,
 ) -> String {
     let wanted = |w: &&RawWindow| {
         args.processes.is_empty() || args.processes.iter().any(|p| same_process(p, &w.process))
@@ -235,7 +290,11 @@ pub fn render(
             window.process.as_str()
         };
         let _ = writeln!(out, "process: {process}");
-        let _ = writeln!(out, "class:   {:?}", window.class);
+        if macos {
+            let _ = writeln!(out, "subrole: {:?}", window.class);
+        } else {
+            let _ = writeln!(out, "class:   {:?}", window.class);
+        }
         let _ = writeln!(out, "title:   {title:?}");
         let odd: Vec<String> = title
             .char_indices()
@@ -245,31 +304,51 @@ pub fn render(
         if !odd.is_empty() {
             let _ = writeln!(out, "         non-ASCII or control: {}", odd.join(", "));
         }
-        let state = match (window.minimized, window.cloaked) {
-            (true, true) => "minimised, cloaked",
-            (true, false) => "minimised",
-            (false, true) => "cloaked (another virtual desktop?)",
-            (false, false) => "shown",
+        let state = match (window.minimized, window.cloaked, macos) {
+            (true, true, _) => "minimised, cloaked",
+            (true, false, _) => "minimised",
+            (false, true, false) => "cloaked (another virtual desktop?)",
+            (false, true, true) => "off screen (another Space, or the app hidden)",
+            (false, false, _) => "shown",
         };
         let c = window.client;
-        let _ = writeln!(
-            out,
-            "client:  {}x{} physical px at ({}, {}); {state}",
-            c.width, c.height, c.x, c.y
-        );
-        let _ = writeln!(
-            out,
-            "dpi:     monitor {} ({}%), window {} ({}), DPI awareness {}",
-            window.monitor_dpi,
-            dpi_permille(window.monitor_dpi) / 10,
-            window.window_dpi,
-            if window.window_dpi == window.monitor_dpi {
-                "same"
-            } else {
-                "stretched by Windows"
-            },
-            window.awareness.as_str()
-        );
+        if macos {
+            // Pixels are points times the screen's backing scale (R3.11).
+            let scale = dpi_permille(window.monitor_dpi).max(1);
+            let pt = |px: i64| px * 1000 / i64::from(scale);
+            let _ = writeln!(
+                out,
+                "client:  {}x{} px at ({}, {}) = {}x{} pt at ({}, {}); {state}",
+                c.width,
+                c.height,
+                c.x,
+                c.y,
+                pt(i64::from(c.width)),
+                pt(i64::from(c.height)),
+                pt(i64::from(c.x)),
+                pt(i64::from(c.y))
+            );
+            let _ = writeln!(out, "scale:   {}% (the screen's backing scale)", scale / 10);
+        } else {
+            let _ = writeln!(
+                out,
+                "client:  {}x{} physical px at ({}, {}); {state}",
+                c.width, c.height, c.x, c.y
+            );
+            let _ = writeln!(
+                out,
+                "dpi:     monitor {} ({}%), window {} ({}), DPI awareness {}",
+                window.monitor_dpi,
+                dpi_permille(window.monitor_dpi) / 10,
+                window.window_dpi,
+                if window.window_dpi == window.monitor_dpi {
+                    "same"
+                } else {
+                    "stretched by Windows"
+                },
+                window.awareness.as_str()
+            );
+        }
         if let Some(table) = table_of(window, matchers) {
             let decision = match compliance.map(|c| c.decide(&table.site)) {
                 Some(Ok(())) => "HUD allowed".to_owned(),
@@ -387,6 +466,7 @@ mod tests {
             &[],
             None,
             &["a note".to_owned()],
+            false,
         );
         assert!(!listing.to_lowercase().contains("secretme"), "{listing}");
         assert!(listing.contains("2 window(s) with a title (1 without one not shown)"));
@@ -418,6 +498,7 @@ mod tests {
             &matchers,
             Some(&compliance),
             &[],
+            false,
         );
         assert!(
             listing.contains(
@@ -425,5 +506,46 @@ mod tests {
             ),
             "{listing}"
         );
+    }
+
+    /// (R3.11) macOS's windows: the subrole, pixels and points at the
+    /// screen's backing scale, a window on another Space; still redacted.
+    #[test]
+    fn a_macos_listing() {
+        let mut retina = window("rail-hud-sim", "Hygiea IV - Logged In as SecretMe");
+        retina.class = "AXStandardWindow".into();
+        retina.client = Rect {
+            x: 20,
+            y: 116,
+            width: 1280,
+            height: 960,
+        };
+        retina.monitor_dpi = 192;
+        retina.window_dpi = 192;
+        let mut away = retina.clone();
+        away.cloaked = true;
+        away.title = "Florence 03".into();
+        let listing = render(
+            &[retina, away],
+            &ListArgs::default(),
+            &Redactor::new(&["SecretMe".into()]),
+            &[],
+            None,
+            &["Accessibility: granted".to_owned()],
+            true,
+        );
+        assert!(!listing.contains("SecretMe"), "{listing}");
+        assert!(
+            listing.contains("subrole: \"AXStandardWindow\""),
+            "{listing}"
+        );
+        assert!(
+            listing.contains("client:  1280x960 px at (20, 116) = 640x480 pt at (10, 58); shown"),
+            "{listing}"
+        );
+        assert!(listing.contains("scale:   200% (the screen's backing scale)"));
+        assert!(listing.contains("off screen (another Space, or the app hidden)"));
+        assert!(!listing.contains("dpi:") && !listing.contains("class:"));
+        assert!(listing.contains("Note: Accessibility: granted."));
     }
 }

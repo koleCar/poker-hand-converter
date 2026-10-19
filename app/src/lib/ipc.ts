@@ -948,6 +948,15 @@ export interface HudStatus {
   refused: HudRefused[];
   /** (R3.10) The HUD's policy has the remote room list merged in. */
   remotePolicy: boolean;
+  /**
+   * (R3.11) A system permission the HUD needs to find tables and does not
+   * have: `accessibility` on macOS (window titles) - only when granting it
+   * would find tables now (a supported client runs, or the simulator's
+   * test entry is on). `null`: none missing, or nothing to gain.
+   */
+  permissionNeeded: string | null;
+  /** (R3.11) Missing, but no supported poker client runs: say so, ask nothing. */
+  permissionDeferred: string | null;
 }
 
 /** `rail_config::model::SiteKind`. */
@@ -1210,6 +1219,11 @@ export const ipc = {
     invoke<PlayerNotes>("player_remove_label", { site, player, label }),
   /** The HUD process (R3.2): its tables (A10: analysis hides while one is open). */
   hudStatus: () => invoke<HudStatus>("hud_status"),
+  /**
+   * (R3.11) The user's click: the HUD asks macOS for its prompt, and System
+   * Settings opens where `permission` (`accessibility`) is granted.
+   */
+  hudRequestPermission: (permission: string) => invoke<null>("hud_request_permission", { permission }),
   /** (R3.10) Compliance mode: every room's HUD policy, where the list came from, a look for a new one, a room's policy page. */
   hudPolicy: () => invoke<HudPolicy>("hud_policy"),
   hudPolicyCheck: () => invoke<HudPolicy>("hud_policy_check"),

@@ -15,9 +15,11 @@
 //! - [`compliance`]: compliance mode, in this process;
 //! - [`data`]: the store, read-only;
 //! - [`platform`]: the windowing trait and its backends (Windows finds
-//!   tables since R3.3, overlays and hooks are R3.4 / R3.5; macOS a stub
-//!   until R3.11; [`platform::sim`] the fake driven by the table
-//!   simulator);
+//!   tables since R3.3, overlays and hooks are R3.4 / R3.5; macOS finds
+//!   tables since R3.11 - with the Accessibility permission, which the
+//!   health answer reports as `permission_needed` when it is missing -,
+//!   overlays and tracking are R3.12 / R3.13; [`platform::sim`] the fake
+//!   driven by the table simulator);
 //! - [`latency`]: `hand_imported` -> rollups re-read (R3.7: the whole
 //!   chain, from the watcher to the frame, is the engine's: `table_updated`,
 //!   `--latency-report`, a debug build's line on the table);
@@ -85,7 +87,7 @@ For development, without the app:
 Measuring (R3.7): --latency-report <file> writes every hand's latency chain
 (the watcher noticing the file -> the frame), one JSON object a line.
 
-Windows:
+Windows (macOS: the titles need the Accessibility permission):
   --platform native     this system's backend (default)
     the table simulator's real windows as a room's (tests only):
     --sim-site <id>       the sites.json room they pose as
