@@ -41,9 +41,10 @@
 //! host or user name, no path). **Gates**: correctness everywhere; the
 //! latency budget (§3.3: < 1 s from the hand written to the frame, p95)
 //! everywhere; a paint's p95 under 16.7 ms; a follow's p50 under two
-//! frames everywhere, its p95 under three frames on Windows and on real
-//! hardware only (a CI Mac's virtual window server stalls ~0.5 s now and
-//! then: R3.13); CPU **relative to the runner** (budgets for an M2 Pro,
+//! frames and p95 under three frames on Windows and on real hardware only
+//! (a CI Mac's virtual window server stalls ~0.5 s now and then, R3.13:
+//! its p50 read 31 ms and 51 ms on two runs of the same code, so there
+//! both are recorded; "moves not followed" is a gate everywhere); CPU **relative to the runner** (budgets for an M2 Pro,
 //! scaled by a fixed workload timed on this machine, never tightened) and
 //! memory absolute. `--real-hw` (or `RAIL_HUD_REAL_HW=1`) marks a real
 //! machine's run.
@@ -1200,12 +1201,16 @@ mod scenario {
                 Unit::Micros,
                 true,
             );
+            // On a CI Mac the follow latency is the virtual window server's
+            // (R3.13): the same code measured p50 31 ms and 51 ms on two runs.
+            // Recorded there, gated on Windows and on real hardware; "moves not
+            // followed" above stays a gate everywhere.
             report.gate(
                 "table moved -> overlay over it, p50",
                 p(&follow, "p50Us"),
                 2 * FRAME_US,
                 Unit::Micros,
-                true,
+                cfg!(windows) || options.real_hw,
             );
             report.gate(
                 "table moved -> overlay over it, p95",
