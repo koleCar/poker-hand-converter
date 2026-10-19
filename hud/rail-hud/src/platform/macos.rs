@@ -1107,6 +1107,10 @@ pub struct TrackerInfo {
     pub trusted: bool,
     /// The observers' thread's CPU time so far, µs.
     pub cpu_us: u64,
+    /// The longest a notification took to handle, µs.
+    pub slowest_note_us: u64,
+    /// The longest one reading of a table (the window server) took, µs.
+    pub slowest_read_us: u64,
 }
 
 /// (R3.12) The way from the engine's thread to the AppKit thread (the

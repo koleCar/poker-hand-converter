@@ -308,6 +308,10 @@ fn wake_source() -> Option<CFRetained<CFRunLoopSource>> {
     unsafe { CFRunLoopSource::new(None, 0, &raw mut context) }
 }
 
+fn micros(since: Instant) -> u64 {
+    u64::try_from(since.elapsed().as_micros()).unwrap_or(u64::MAX)
+}
+
 #[allow(clippy::float_arithmetic, clippy::cast_precision_loss)]
 fn seconds(wait: Duration) -> f64 {
     wait.as_millis().min(3_600_000) as f64 / 1000.0
@@ -344,6 +348,9 @@ fn run(
             rechecks: Vec::new(),
             notes: 0,
             by_note: BTreeMap::new(),
+            slowest_note_us: 0,
+            slowest_read_us: 0,
+            displays: None,
             follows: 0,
             resyncs: 0,
             space_changes: 0,
@@ -461,6 +468,12 @@ struct State {
     rechecks: Vec<(Instant, WindowId, Option<Instant>)>,
     notes: u64,
     by_note: BTreeMap<String, u64>,
+    slowest_note_us: u64,
+    slowest_read_us: u64,
+    /// The displays, read at most once a second (and on a Space change):
+    /// every reading of a table needs their scales, and each read asks the
+    /// window server.
+    displays: Option<(Instant, Vec<super::Display>)>,
     follows: u64,
     resyncs: u64,
     space_changes: u64,
@@ -538,6 +551,7 @@ impl State {
             }
             Cmd::SpaceChanged => {
                 self.space_changes += 1;
+                self.displays = None;
                 let tables: Vec<WindowId> = self.tables.keys().copied().collect();
                 for table in tables {
                     self.resolve(table);
@@ -746,6 +760,12 @@ impl State {
 
     /// A notification.
     fn note(&mut self, note: Note) {
+        let started = Instant::now();
+        self.handle_note(note);
+        self.slowest_note_us = self.slowest_note_us.max(micros(started));
+    }
+
+    fn handle_note(&mut self, note: Note) {
         self.notes += 1;
         *self.by_note.entry(note.name.clone()).or_default() += 1;
         let Some(kind) = AxNote::from_name(&note.name) else {
@@ -863,6 +883,7 @@ impl State {
         if f.gone {
             return;
         }
+        let started = Instant::now();
         let Some(cg) = ffi::cg_window(f.window).filter(|w| w.onscreen || !f.orphaned) else {
             self.gone(table);
             return;
@@ -872,14 +893,28 @@ impl State {
             .minimizing
             .is_some_and(|since| since.elapsed() < MINIMIZING);
         let minimized = f.minimized && (!cg.onscreen || minimizing);
-        let displays = ffi::displays();
+        let fresh = self
+            .displays
+            .as_ref()
+            .is_some_and(|(at, _)| at.elapsed() < Duration::from_secs(1));
+        if !fresh {
+            self.displays = Some((Instant::now(), ffi::displays()));
+        }
+        let displays = self
+            .displays
+            .as_ref()
+            .map_or(&[][..], |(_, d)| d.as_slice());
+        self.slowest_read_us = self.slowest_read_us.max(micros(started));
+        let Some(f) = self.tables.get(&table) else {
+            return;
+        };
         let geometry = tracked_geometry(
             &cg.bounds,
             cg.onscreen,
             f.title_bar,
             minimized,
             app_hidden,
-            &displays,
+            displays,
         );
         let Some(f) = self.tables.get_mut(&table) else {
             return;
@@ -1040,6 +1075,8 @@ impl State {
             exited: self.exited.clone(),
             trusted: ffi::trusted(),
             cpu_us: ffi::thread_cpu_us(),
+            slowest_note_us: self.slowest_note_us,
+            slowest_read_us: self.slowest_read_us,
         }
     }
 }

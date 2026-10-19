@@ -68,6 +68,9 @@ mod macos {
     /// One frame at 60 Hz.
     const FRAME: Duration = Duration::from_micros(16_667);
 
+    /// How often the test asks the window server while it waits.
+    const POLL: Duration = Duration::from_millis(2);
+
     pub fn main() {
         let code = macos::with_appkit(|link| {
             let link = link.expect("AppKit runs on this test's main thread");
@@ -273,8 +276,10 @@ mod macos {
         )
     }
 
-    /// Poll `check` tightly (0.2 ms) until it holds or `limit` passes: how
-    /// long it took.
+    /// Poll `check` every 2 ms until it holds or `limit` passes: how long
+    /// it took. (Not tighter: every check asks the window server, and a
+    /// test hammering it on the runner's VM slows the very thing it
+    /// measures - the first CI runs saw 0.5 s stalls polling at 0.2 ms.)
     fn until(limit: Duration, mut check: impl FnMut() -> bool) -> Option<Duration> {
         let started = Instant::now();
         loop {
@@ -284,7 +289,7 @@ mod macos {
             if started.elapsed() > limit {
                 return None;
             }
-            std::thread::sleep(Duration::from_micros(200));
+            std::thread::sleep(POLL);
         }
     }
 
@@ -949,7 +954,7 @@ mod macos {
                     }
                     _ => hidden += 1,
                 }
-                std::thread::sleep(Duration::from_micros(500));
+                std::thread::sleep(POLL);
             }
             let step = i32::try_from(i).unwrap_or(0);
             let to = (start.x + 4 + (step % 25) * 6, start.y + 4 + (step / 25) * 9);
@@ -984,12 +989,14 @@ mod macos {
              us, p95 {p95} us, max {max} us; CPU over the storm: the observers' thread {} ms, the \
              AppKit thread {} ms (this whole process, which also drives the moves and watches: \
              {} ms); back to an older place {} times, hidden in {hidden} samples; {moved} Moved \
-             for the engine",
+             for the engine; the observers' slowest notification {} us, slowest read {} us",
             wall.as_millis(),
             tracker_used / 1000,
             appkit_used / 1000,
             process_used.as_millis(),
-            backwards.len()
+            backwards.len(),
+            tracker(backend).slowest_note_us,
+            tracker(backend).slowest_read_us
         );
         assert!(backwards.is_empty(), "the overlay went back: {backwards:?}");
         assert_eq!(hidden, 0, "the overlay hid during the storm");
@@ -1051,7 +1058,7 @@ mod macos {
                     macos::window_now(overlay).map(|w| w.bounds)
                 ));
             }
-            std::thread::sleep(Duration::from_micros(200));
+            std::thread::sleep(POLL);
         }
     }
 
