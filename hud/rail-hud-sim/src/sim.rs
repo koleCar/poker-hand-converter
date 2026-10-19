@@ -155,6 +155,11 @@ pub enum Event {
         height: u32,
         minimized: bool,
     },
+    /// (R3.12) The table's window got a left click (the button went down)
+    /// at client pixel `x`, `y` (physical): how the overlay tests see that
+    /// a click outside the HUD's panels reaches the table.
+    #[serde(rename_all = "camelCase")]
+    Clicked { table: u32, x: i32, y: i32 },
     #[serde(rename_all = "camelCase")]
     Paused { paused: bool },
     #[serde(rename_all = "camelCase")]

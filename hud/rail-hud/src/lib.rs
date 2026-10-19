@@ -18,7 +18,8 @@
 //!   tables since R3.3, overlays and hooks are R3.4 / R3.5; macOS finds
 //!   tables since R3.11 - with the Accessibility permission, which the
 //!   health answer reports as `permission_needed` when it is missing -,
-//!   overlays and tracking are R3.12 / R3.13; [`platform::sim`] the fake
+//!   overlays since R3.12 (AppKit on the main thread, the engine on a
+//!   thread beside it), tracking is R3.13; [`platform::sim`] the fake
 //!   driven by the table simulator);
 //! - [`latency`]: `hand_imported` -> rollups re-read (R3.7: the whole
 //!   chain, from the watcher to the frame, is the engine's: `table_updated`,
@@ -187,7 +188,9 @@ impl Args {
         Ok(parsed)
     }
 
-    fn platform(&self) -> std::io::Result<Box<dyn Platform>> {
+    /// The backend: the simulator's events, else this system's - on macOS
+    /// drawing through `link`, the AppKit thread (R3.12).
+    fn platform(&self, link: Option<platform::macos::Link>) -> std::io::Result<Box<dyn Platform>> {
         Ok(match (&self.sim_events, &self.sim_site) {
             (Some(events), Some(site)) => Box::new(platform::sim::SimBackend::tail(
                 events.clone(),
@@ -199,9 +202,19 @@ impl Args {
                 if let Err(error) = platform::windows::init_process_dpi_awareness() {
                     eprintln!("rail-hud: DPI awareness: {error}");
                 }
-                platform::native()
+                if cfg!(target_os = "macos") {
+                    Box::new(platform::macos::MacosBackend::with_overlays(link))
+                } else {
+                    platform::native()
+                }
             }
         })
+    }
+
+    /// (R3.12) Whether this process draws with AppKit: macOS's own backend
+    /// (not the simulator's events).
+    fn uses_appkit(&self) -> bool {
+        cfg!(target_os = "macos") && self.sim_events.is_none()
     }
 }
 
@@ -247,7 +260,20 @@ pub fn main_with(args: Vec<OsString>) -> i32 {
             Err(error) => eprintln!("rail-hud: the remote policy was refused: {error}"),
         }
     }
-    let platform = match args.platform() {
+    // (R3.12) macOS: AppKit takes this thread - the main one: its windows
+    // and events belong to it - and the engine runs beside it on a thread
+    // of its own; elsewhere the engine runs here.
+    if args.uses_appkit() {
+        return platform::macos::with_appkit(move |link| run(&args, compliance, link));
+    }
+    run(&args, compliance, None)
+}
+
+/// The engine's part of the process, from the backend on: join the app,
+/// run the loop until it ends; the exit code. `link`: the AppKit thread the
+/// macOS backend draws through (R3.12).
+fn run(args: &Args, compliance: Compliance, link: Option<platform::macos::Link>) -> i32 {
+    let platform = match args.platform(link) {
         Ok(platform) => platform,
         Err(error) => {
             eprintln!("rail-hud: {error}");
@@ -406,6 +432,13 @@ mod tests {
         ])
         .expect("sim");
         assert_eq!(args.sim_site.as_deref(), Some("pokerstars"));
+        // (R3.12) The simulator's events need no AppKit; the system's
+        // backend has it on macOS (the main thread), nowhere else.
+        assert!(!args.uses_appkit());
+        assert_eq!(
+            parse(&["--standalone"]).expect("native").uses_appkit(),
+            cfg!(target_os = "macos")
+        );
         assert!(parse(&[]).is_err(), "neither --ipc nor --standalone");
         assert!(parse(&["--standalone", "--ipc", "x"]).is_err());
         assert!(parse(&["--standalone", "--platform", "sim"]).is_err());

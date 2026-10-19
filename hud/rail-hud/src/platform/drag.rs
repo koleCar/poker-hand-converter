@@ -1,6 +1,7 @@
 //! Dragging a seat's panel (R3.6), the platform-free half: what a press,
 //! a move and a release on an overlay mean. The Windows overlay thread
-//! feeds it its mouse messages (macOS, R3.12, will feed it its events);
+//! feeds it its mouse messages, the macOS AppKit thread (R3.12) its click
+//! windows' mouse events;
 //! every OS tests it.
 //!
 //! - A **press** on a seat's panel (the scene's `seat_panels`, its last

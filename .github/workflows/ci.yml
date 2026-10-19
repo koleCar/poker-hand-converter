@@ -221,6 +221,15 @@ jobs:
   # find by accessibility titles (minimise, table move, `--list-windows`,
   # the HUD process attaching and refusing), and if it does not, the
   # "permission needed" path - the test says which ran and what it skipped.
+  # And R3.12's hud/rail-hud/tests/macos_overlay.rs (its own `main`, AppKit
+  # on the main thread; elsewhere it prints that it skipped): overlays over
+  # the simulator's three windows, exactly over their client areas and
+  # directly above them in the window server's order, their pixels on
+  # screen, clicks through everywhere but the panels, a raised table put
+  # back under its overlay, minimise / restore / move, the panels' click and
+  # drag; with the Accessibility permission real clicks, the HUD process
+  # drawing on an allowed room and making no window on a prohibited one,
+  # and the popup through the supervisor.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -317,6 +326,25 @@ jobs:
       - name: HUD tables on macOS (steps)
         if: matrix.os == 'macos-latest'
         run: cargo test -p rail-hud --test macos_tables --locked -- --nocapture --test-threads 1
+
+      # R3.12's macOS overlay test again, with its output (its own `main`:
+      # AppKit runs on the test's main thread): the `R3.12:` lines say
+      # whether real clicks and the HUD process ran (they need the
+      # Accessibility permission, which the runner gave R3.11's test), then
+      # each step - overlays exactly over the simulator's tables and
+      # directly above them, pixels on screen, clicks through, raised /
+      # minimised / moved tables.
+      - name: HUD overlays on macOS (steps)
+        if: matrix.os == 'macos-latest'
+        run: cargo test -p rail-hud --test macos_overlay --locked -- --nocapture
+
+      # R3.12's measurement: twelve simulator tables, every overlay painted
+      # 20 times (paint p50 / p95 / max; p95 must stay under 16 ms), the
+      # overlays' idle CPU and, with Accessibility, the HUD process attached
+      # to all twelve. The `R3.12 perf:` line is the record.
+      - name: HUD overlays on macOS, twelve tables (measurement)
+        if: matrix.os == 'macos-latest'
+        run: cargo test -p rail-hud --test macos_overlay --locked -- --perf --nocapture
 
       - name: Table simulator, windowed smoke
         if: matrix.os != 'ubuntu-latest'

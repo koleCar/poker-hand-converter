@@ -2,7 +2,7 @@
 //! rectangles and lines of text at physical pixels of the table's client
 //! area, with their colours. Platform-free, so every OS tests it; the
 //! Windows backend paints a [`Scene`] with Direct2D and DirectWrite, macOS
-//! (R3.12) will with Core Graphics.
+//! (R3.12) with Core Graphics and Core Text.
 //!
 //! **Where** (R3.6): each player's hand-history seat becomes a slot of the
 //! room's layout for the table size (`crate::seats`: the room's numbering,

@@ -2869,6 +2869,7 @@ dependencies = [
  "objc2 0.6.5",
  "objc2-core-foundation",
  "objc2-foundation 0.3.2",
+ "objc2-quartz-core 0.3.2",
 ]
 
 [[package]]
@@ -3717,10 +3718,16 @@ dependencies = [
 name = "rail-hud"
 version = "0.0.0"
 dependencies = [
+ "dispatch2",
  "libc",
+ "objc2 0.6.5",
+ "objc2-app-kit 0.3.2",
  "objc2-application-services",
  "objc2-core-foundation",
  "objc2-core-graphics",
+ "objc2-core-text",
+ "objc2-foundation 0.3.2",
+ "objc2-quartz-core 0.3.2",
  "rail-config",
  "rail-core",
  "rail-hud-ipc",
