@@ -1,4 +1,5 @@
-import { betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
+import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT } from "../../analysis/grading";
+import { bbFloored, betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
 import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
 import { plural } from "../plural";
 import type { Dict } from "../types";
@@ -206,6 +207,19 @@ const chartReasons = {
 
 const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
+/** analysis/33: zašto je gubitak u malom potu nakon flopa ocijenjen blaže nego što kaže njegov udio u potu. */
+function floorSentences(decision: DecisionAnalysis): string[] {
+  const floored = bbFloored(decision);
+  if (!floored) return [];
+  const limit = (floored === "inaccurate" ? INACCURATE_MAX_EV_LOSS_POT : MISTAKE_MAX_EV_LOSS_POT) * FLOOR_POT_BB;
+  const limitBb = `${num(limit, Number.isInteger(limit) ? 0 : 2)} bb`;
+  return [
+    `Pot je manji od ${bb(FLOOR_POT_BB)}, pa se gubitak mjeri prema ${bb(FLOOR_POT_BB)}: do ${limitBb} ${
+      floored === "inaccurate" ? "najgore je Netočno" : "nikad nije Gruba greška"
+    }. U ovako malom potu i sami rasponi griješe za otprilike toliko big blindova.`,
+  ];
+}
+
 /** Kraj rečenice "Bez ocjene: …" za river, po `RIVER_SKIP_REASONS`. */
 const riverReasons = {
   "river-multiway-flop": "river je počeo s tri ili više igrača u potu, pa nema heads-up rivera koji bi se riješio",
@@ -274,6 +288,7 @@ function approxSentences(decision: DecisionAnalysis): string[] {
     out.push(
       `${decision.action === "fold" ? "Fold" : "Call"} košta ${bb(decision.evLoss)} (${pct(decision.evLossPot ?? 0)} pota)${ev.realisation ? " iznad margine modela (niže)" : ""}.`,
     );
+    out.push(...floorSentences(decision));
   }
   const respond = ev.respond.map((r) => `${r.position ?? "jedan igrač"} calla u oko ${pct(r.call)} slučajeva`);
   const real = ev.realisation;
@@ -531,6 +546,7 @@ function chartSentences(decision: DecisionAnalysis): string[] {
         better ? ` u odnosu na ${optionLabel(better)}` : ""
       }.`,
     );
+    out.push(...floorSentences(decision));
   }
   if (decision.approximations.includes("off-tree-size")) {
     out.push(

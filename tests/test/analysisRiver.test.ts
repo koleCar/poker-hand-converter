@@ -33,6 +33,7 @@ import {
   RIVER_MENU,
   flopSeats,
   analyzeHand,
+  bbFloored,
   bluffShare,
   comboRange,
   followLine,
@@ -618,6 +619,36 @@ describe("river grades with known answers", () => {
       expect(en.analysis.explain(check).join(" ")).toContain("capped at Mistake");
       expect(hr.analysis.explain(check).join(" ")).toContain("ograničena na Grešku");
     }
+  });
+
+  it("says when the big-blind floor made a small pot's grade milder (analysis/33)", () => {
+    const analysis = analyse(
+      headsUp({
+        hero: "Btn",
+        cards: "Ac Th",
+        board: ["3d", "Ks", "5d", "9s", "Kd"],
+        flop: ["Bb: checks", "Btn: bets $2", "Bb: calls $2"],
+        turn: ["Bb: checks", "Btn: checks"],
+        river: ["Bb: checks", "Btn: checks"],
+      }),
+    );
+    const check = river(analysis, "check");
+    const base = { ...check, approximations: check.approximations.filter((a) => a !== "range-cap" && a !== "off-tree-size") };
+    // 0.2bb of a 2bb pot: 10%, Inaccurate only through the floor.
+    const floored = { ...base, grade: "inaccurate" as const, evLoss: 0.2, evLossPot: 0.1, facts: { ...base.facts, potBb: 2 } };
+    expect(bbFloored(floored)).toBe("inaccurate");
+    expect(en.analysis.explain(floored).join(" ")).toContain("judged against 12.5 bb: up to 0.25 bb it is Inaccurate at worst");
+    expect(hr.analysis.explain(floored).join(" ")).toContain("mjeri prema 12,5 bb: do 0,25 bb najgore je Netočno");
+    const mistake = { ...floored, grade: "mistake" as const, evLoss: 0.6, evLossPot: 0.3 };
+    expect(bbFloored(mistake)).toBe("mistake");
+    expect(en.analysis.explain(mistake).join(" ")).toContain("up to 1 bb it is never a Blunder");
+    expect(hr.analysis.explain(mistake).join(" ")).toContain("do 1 bb nikad nije Gruba greška");
+    // Not said where the share alone gives the grade, in a pot at the floor, preflop, or under a cap.
+    expect(bbFloored({ ...floored, evLoss: 0.03, evLossPot: 0.015 })).toBeNull();
+    expect(bbFloored({ ...floored, facts: { ...floored.facts, potBb: 12.5 } })).toBeNull();
+    expect(bbFloored({ ...floored, street: "preflop" })).toBeNull();
+    expect(bbFloored({ ...mistake, approximations: [...mistake.approximations, "range-cap"] })).toBeNull();
+    expect(en.analysis.explain({ ...floored, facts: { ...floored.facts, potBb: 12.5 } }).join(" ")).not.toContain("judged against");
   });
 
   it("caps at Mistake in grade() itself, after the off-tree cap", () => {

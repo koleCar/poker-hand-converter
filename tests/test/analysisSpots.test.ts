@@ -16,6 +16,7 @@ import {
   blockers,
   boardTexture,
   draws,
+  FLOOR_POT_BB,
   grade,
   madeHand,
   toIndices,
@@ -556,6 +557,34 @@ describe("grading (§2), ready for a reference", () => {
     expect(result.evLossPot).toBeCloseTo(0.05, 9);
     expect(result.score).toBeCloseTo(50, 9);
     expect(result.freqDiff).toBeCloseTo(0.96, 9);
+  });
+
+  it("judges a postflop loss against a pot of at least FLOOR_POT_BB (analysis/33)", () => {
+    expect(FLOOR_POT_BB).toBe(12.5);
+    // A 2bb pot, a never-played option: 0.2bb is 10% of it, 1.6% of the floor's pot.
+    const tiny = { options: options([0.98, 1], [0.02, 0.8], [0, 0]), chosen: 1, pot: 2 };
+    expect(grade(tiny).grade).toBe("blunder");
+    const floored = grade({ ...tiny, bbFloor: true });
+    expect(floored.grade).toBe("inaccurate");
+    // The loss shown is still over the real pot; the score reads the floor's.
+    expect(floored.evLossPot).toBeCloseTo(0.1, 9);
+    expect(floored.score).toBeCloseTo(100 - 1000 * (0.2 / 12.5), 9);
+    // At most 0.25bb is never worse than Inaccurate, at most 1bb never a Blunder.
+    const at = (ev: number, pot: number) => grade({ options: options([0.98, 1], [0.02, ev], [0, 0]), chosen: 1, pot, bbFloor: true }).grade;
+    expect(at(0.75, 2)).toBe("inaccurate");
+    expect(at(0.74, 2)).toBe("mistake");
+    expect(at(0, 2)).toBe("mistake");
+    expect(at(-0.01, 2)).toBe("blunder");
+    // A pot at or above the floor is graded exactly as without it.
+    for (const pot of [12.5, 20, 100]) {
+      for (const ev of [0.99, 0.8, 0.5, 0, -5]) {
+        const input = { options: options([0.98, 1], [0.02, ev], [0, 0]), chosen: 1, pot };
+        expect(grade({ ...input, bbFloor: true })).toEqual(grade(input));
+      }
+    }
+    // The frequency rules and the caps do not move.
+    expect(grade({ options: options([0.9, 1], [0.1, 0], [0, 0]), chosen: 1, pot: 2, bbFloor: true }).grade).toBe("good");
+    expect(grade({ ...tiny, options: options([0.98, 1], [0.02, -5], [0, 0]), bbFloor: true, capAtMistake: true }).grade).toBe("mistake");
   });
 
   it("refuses to grade against nothing", () => {

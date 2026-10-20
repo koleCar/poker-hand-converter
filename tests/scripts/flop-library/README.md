@@ -170,7 +170,10 @@ names) go to `CENSUS_OUT`; `CENSUS_SHARD=i/n` runs a share of the hands
 (three shards: about 25 minutes on the owner's 5,448 hands, `CENSUS_TURN=0`
 two). `CENSUS_REPORT=a.jsonl,b.jsonl` merges row files into one report, and
 with `CENSUS_BEFORE=` an earlier census's files prints how each decision
-moved. `docs/ANALYSIS-PLAN.md` §10 2026-10-16.
+moved. `docs/ANALYSIS-PLAN.md` §10 2026-10-16. Since `analysis/33` each
+row also carries the grade's inputs (`evLoss`, `potBb`, `chosenFreq`,
+`maxFreq`), so a threshold change can be tried on the rows of one census
+before it is written (§10 2026-10-20, the big-blind floor).
 
 **Bomb pots.** `FLOPLIB_HANDS=... npm run floplib:bomb-pots` scores the
 multiway heuristic on the hands opponents show down in bomb pots (started

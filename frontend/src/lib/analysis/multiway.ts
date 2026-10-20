@@ -1252,9 +1252,9 @@ function gradeCall(
   // Within the margin the two are too close for the model to call: no loss.
   const beyond = Math.sign(evs.call) * Math.max(0, Math.abs(evs.call) - margin * potBb);
   const graded = margin > 0 ? options.map((option) => ({ ...option, ev: option.action === "call" ? beyond : 0 })) : options;
-  const raw = grade({ options: graded, chosen, pot: potBb });
+  const raw = grade({ options: graded, chosen, pot: potBb, bbFloor: true });
   const capped = !dominated && gradeRank(raw.grade) > gradeRank("mistake");
-  const result = capped ? grade({ options: graded, chosen, pot: potBb, capAtMistake: true }) : raw;
+  const result = capped ? grade({ options: graded, chosen, pot: potBb, capAtMistake: true, bbFloor: true }) : raw;
   const approximations: Approximation[] = ["multiway-approx", "narrowing-heuristic", "rake-profile"];
   if (realisation) approximations.push(realisation);
   if (capped) approximations.push("range-cap");

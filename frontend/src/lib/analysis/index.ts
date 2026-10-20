@@ -93,6 +93,7 @@ export {
 } from "./types";
 
 export {
+  FLOOR_POT_BB,
   GOOD_MIN_FREQ,
   INACCURATE_MAX_EV_LOSS_POT,
   MISTAKE_MAX_EV_LOSS_POT,
@@ -345,6 +346,7 @@ export {
 } from "./turn";
 export {
   MIX_MIN_FREQ,
+  bbFloored,
   bestOption,
   betterAlternative,
   impliedOddsClass,

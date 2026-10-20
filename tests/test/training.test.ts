@@ -496,6 +496,24 @@ describe("drill answers", () => {
     expect(gradeDrill({ ...river, source: "chart", approximations: ["off-tree-size"] }, 1).grade).toBe("inaccurate");
   });
 
+  it("take the big-blind floor for every grade but the charts' (analysis/33)", () => {
+    // A 2bb pot: 0.2bb is 10% of it, 1.6% of the 12.5bb the floor judges it against.
+    const tiny: DrillDecision = {
+      ...preflop,
+      options: [
+        { action: "check", freq: 1, ev: 0.5 },
+        { action: "bet", freq: 0, ev: 0.3, sizePot: 0.5 },
+      ],
+      chosen: 0,
+      grade: "perfect",
+      potBb: 2,
+      source: "solver",
+    };
+    expect(gradeDrill(tiny, 1).grade).toBe("inaccurate");
+    expect(gradeDrill({ ...tiny, source: "approx" }, 1).grade).toBe("inaccurate");
+    expect(gradeDrill({ ...tiny, source: "chart" }, 1).grade).toBe("blunder");
+  });
+
   it("are shown as if the answer had been played", () => {
     const spot = dealPreflop(CHARTS, { family: "vs-open", seat: "BB" }, 3);
     if (!spot) throw new Error("no spot");

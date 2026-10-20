@@ -15,7 +15,8 @@
  * words here and nowhere else, so the stored record stays language-free.
  */
 
-import { betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
+import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT } from "../../analysis/grading";
+import { bbFloored, betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
 import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
 import { reportsEn } from "./analysisReports.en";
 import { leaksEn, progressEn, summaryEn } from "./analysisLeaks.en";
@@ -237,6 +238,7 @@ function chartSentences(decision: DecisionAnalysis): string[] {
         better ? ` against ${optionLabel(better)}` : ""
       }.`,
     );
+    out.push(...floorSentences(decision));
   }
   if (decision.approximations.includes("off-tree-size")) {
     out.push(
@@ -254,6 +256,19 @@ function chartSentences(decision: DecisionAnalysis): string[] {
 }
 
 const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/** analysis/33: why a loss in a small postflop pot is graded milder than its share of the pot says. */
+function floorSentences(decision: DecisionAnalysis): string[] {
+  const floored = bbFloored(decision);
+  if (!floored) return [];
+  const limit = (floored === "inaccurate" ? INACCURATE_MAX_EV_LOSS_POT : MISTAKE_MAX_EV_LOSS_POT) * FLOOR_POT_BB;
+  const limitBb = `${num(limit, Number.isInteger(limit) ? 0 : 2)} bb`;
+  return [
+    `The pot is under ${bb(FLOOR_POT_BB)}, so the loss is judged against ${bb(FLOOR_POT_BB)}: up to ${limitBb} it is ${
+      floored === "inaccurate" ? "Inaccurate at worst" : "never a Blunder"
+    }. In a pot this small the ranges' own error in big blinds is about that large.`,
+  ];
+}
 
 /** Why a river decision has no solver grade: the end of "Not graded: …". Keyed by `RIVER_SKIP_REASONS`. */
 const riverReasons = {
@@ -319,6 +334,7 @@ function approxSentences(decision: DecisionAnalysis): string[] {
     out.push(
       `${decision.action === "fold" ? "Folding" : "Calling"} costs ${bb(decision.evLoss)} (${pct(decision.evLossPot ?? 0)} of the pot)${ev.realisation ? " beyond the model's margin (below)" : ""}.`,
     );
+    out.push(...floorSentences(decision));
   }
   const respond = ev.respond.map((r) => `${r.position ?? "a player"} calling about ${pct(r.call)} of the time`);
   const real = ev.realisation;
