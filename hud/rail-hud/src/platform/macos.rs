@@ -1013,6 +1013,46 @@ pub struct Effect {
     pub settle: bool,
 }
 
+/// (R3.14) How long a new on-screen window whose title cannot be read yet
+/// keeps the re-find at its usual pace (`find_every`, not the slower
+/// `find_every_notified`): the window server lists a client's new window
+/// before the Accessibility API gives its title, and the find that the
+/// window's creation brought on may come between the two (CI: a table
+/// opened, its HUD 2 s later). A window that never gets a title (a
+/// client's helper) stops counting after this.
+pub const UNTITLED_FOR: std::time::Duration = std::time::Duration::from_secs(3);
+
+/// (R3.14) Keep `untitled` (window number -> first seen) to the on-screen
+/// windows of `windows` without a title; whether one of them is newer than
+/// [`UNTITLED_FOR`].
+pub fn untitled_waiting(
+    windows: &[RawWindow],
+    untitled: &mut BTreeMap<u64, std::time::Instant>,
+    now: std::time::Instant,
+) -> bool {
+    let waiting: Vec<u64> = windows
+        .iter()
+        .filter(|w| !w.cloaked && !w.minimized && w.title.trim().is_empty())
+        .map(|w| w.id.0)
+        .collect();
+    untitled.retain(|id, _| waiting.contains(id));
+    for id in waiting {
+        untitled.entry(id).or_insert(now);
+    }
+    untitled_waiting_now(untitled, now)
+}
+
+/// Whether a window of `untitled` was first seen less than
+/// [`UNTITLED_FOR`] before `now`.
+pub fn untitled_waiting_now(
+    untitled: &BTreeMap<u64, std::time::Instant>,
+    now: std::time::Instant,
+) -> bool {
+    untitled
+        .values()
+        .any(|seen| now.saturating_duration_since(*seen) < UNTITLED_FOR)
+}
+
 /// (R3.13) When the observers read a table again after a move or a resize:
 /// the client posts the notification before the window server's list shows
 /// the new place (CI: every move of the simulator's window read unchanged
@@ -1205,6 +1245,10 @@ pub struct MacosBackend {
     /// The matchers of the last find: a new title is read with its room's
     /// (`TableMatcher::matches`, R3.13's `Retitled`).
     matchers: Vec<TableMatcher>,
+    /// (R3.14) On-screen windows of a watched client whose title could not
+    /// be read yet, by window number, and when a find first saw them
+    /// ([`untitled_waiting`]).
+    untitled: BTreeMap<u64, std::time::Instant>,
     /// (R3.12) The AppKit thread, which owns the overlays; `None`: this
     /// backend draws nothing (not the HUD process's main thread, or a
     /// backend made for finding only).
@@ -1226,6 +1270,7 @@ impl MacosBackend {
             tracked: BTreeMap::new(),
             memory: BTreeMap::new(),
             matchers: Vec::new(),
+            untitled: BTreeMap::new(),
             link,
             #[cfg(target_os = "macos")]
             tracker: None,
@@ -1445,6 +1490,7 @@ impl Platform for MacosBackend {
         let wanted = |process: &str| matchers.iter().any(|m| m.takes_process(process));
         let snapshot = snapshot(&wanted)?;
         let windows = assemble(&snapshot, &mut self.memory);
+        untitled_waiting(&windows, &mut self.untitled, std::time::Instant::now());
         Ok(windows
             .iter()
             .filter_map(|window| table_of(window, matchers))
@@ -1611,6 +1657,7 @@ impl Platform for MacosBackend {
         #[cfg(target_os = "macos")]
         {
             !self.tracked.is_empty()
+                && !untitled_waiting_now(&self.untitled, std::time::Instant::now())
                 && self
                     .tracker
                     .as_ref()
@@ -2016,6 +2063,36 @@ mod tests {
         let mut other = snapshot(windows, list);
         other.ax.clear();
         assert!(assemble(&other, &mut BTreeMap::new()).is_empty());
+    }
+
+    /// (R3.14) A new window without a title yet keeps the re-find at its
+    /// usual pace for a while; titled, off-screen or minimised windows do
+    /// not, and one that never gets a title stops counting.
+    #[test]
+    fn a_new_untitled_window_keeps_the_find_quick() {
+        let left = Frame::points(10, 30, 640, 508);
+        let windows = vec![cg(301, 7, left, true), cg(302, 7, left, true)];
+        let titled = ax("Table A - 6-max", left);
+        let start = std::time::Instant::now();
+        let mut untitled = BTreeMap::new();
+        // 301 titled, 302 not yet.
+        let raw = assemble(
+            &snapshot(windows.clone(), vec![titled.clone()]),
+            &mut BTreeMap::new(),
+        );
+        assert!(untitled_waiting(&raw, &mut untitled, start));
+        assert_eq!(untitled.keys().copied().collect::<Vec<_>>(), [302]);
+        // Still untitled a second later: the first sighting counts.
+        let later = start + std::time::Duration::from_secs(1);
+        assert!(untitled_waiting(&raw, &mut untitled, later));
+        // Never titled: no longer waited for.
+        assert!(!untitled_waiting(&raw, &mut untitled, start + UNTITLED_FOR));
+        // Titled now: forgotten.
+        let mut both = titled.clone();
+        both.title = "Table B - 6-max".into();
+        let raw = assemble(&snapshot(windows, vec![titled, both]), &mut BTreeMap::new());
+        assert!(!untitled_waiting(&raw, &mut untitled, later));
+        assert!(untitled.is_empty());
     }
 
     /// Through a room's matcher: the backend's tables are `table_of` these

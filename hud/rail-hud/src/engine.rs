@@ -750,17 +750,19 @@ impl Hud {
             self.apply(events, out);
         }
         if now >= self.next_find || std::mem::take(&mut self.find_soon) {
+            self.finds += 1;
+            self.find(out);
             // (R3.14) Slower while the system's notifications follow every
-            // table (asked at each look: a table not observed - a new one,
-            // a client that stopped posting - brings the pace back).
+            // table (asked after each look, so what it saw counts: a table
+            // not observed - a new one, a client that stopped posting, a
+            // window whose title is not readable yet - brings the pace
+            // back).
             self.find_interval = if self.platform.notified() {
                 self.settings.find_every_notified
             } else {
                 self.settings.find_every
             };
             self.next_find = now + self.find_interval;
-            self.finds += 1;
-            self.find(out);
         }
         if now >= self.next_store {
             self.next_store = now + self.settings.store_every;
