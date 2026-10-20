@@ -1026,9 +1026,16 @@ mod macos {
         let last = *targets.last().expect("a target");
         std::thread::sleep(Duration::from_millis(600));
         let at = macos::window_now(overlay).expect("the overlay").bounds;
+        // Over the table where it is now: a slow window server can show the
+        // last move after the sampling settled (CI: the overlay one row
+        // further than the last place sampled - where the table was).
+        let now = macos::window_now(number(a.id))
+            .map(|table| macos::client_frame(&table.bounds, bar))
+            .expect("the table");
         assert!(
-            at.close_to(&last),
-            "moved after the storm: {at:?} vs {last:?}"
+            at.close_to(&now),
+            "moved after the storm: the overlay at {at:?}, the table at {now:?} \
+             (last sampled {last:?})"
         );
         let events = backend.poll_events();
         let moved = events
