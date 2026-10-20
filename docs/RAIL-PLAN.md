@@ -8472,10 +8472,26 @@ R3.0 - R3.14 are on `staging`. On the table simulator, the HUD:
 **Exit criterion**: "HUD on 12 simultaneous tables on Windows and macOS
 within budget (§3.3), only on rooms whose `hud.allowed` is `true`."
 
-- **On the simulator: met in CI on both systems** once this step's CI run
-  is green. Its step "HUD on twelve tables" gates the budget above, with
-  twelve overlays and none on a prohibited room's table. The numbers are
-  in the run's `twelve-tables-*` artefacts.
+- **On the simulator: met in CI on both systems** (PR #215's run, both
+  reports PASS, debug builds, 12 tables posing as PokerStars + 1 as
+  GGPoker, 60 s of play at 6 hands/min/table, 10 s idle):
+
+  | Measured | `windows-latest` (4 cores) | `macos-latest` (M1 virtual, 3 cores) |
+  | --- | ---: | ---: |
+  | tables attached / overlays (start, end) / on the refused table | 12 / 12, 12 / 0 | 12 / 12, 12 / 0 |
+  | hands written but not shown / refused table's hands shown | 0 / 0 | 0 / 0 |
+  | hand written -> frame, p95 / max | 526 / 590 ms | 619 / 667 ms |
+  | overlay paint, p95 | 5.9 ms | 6.1 ms |
+  | table moved -> overlay over it, p50 / p95 | 0.5 / 0.5 ms | 31 / 78 ms (p95 recorded, not gated on a CI Mac) |
+  | moves not followed | 0 | 0 |
+  | recompute while tables open | paused, 0 progress | paused, 0 progress |
+  | HUD CPU idle / playing (of one core) | 0.46 % / 1.11 % | 1.70 % / 4.26 % |
+  | app CPU while playing | 1.79 % | 3.33 % |
+  | HUD memory | 36 MiB | 70 MiB |
+
+  The macOS follow p50 (31 ms) is close to its 2-frame gate (33 ms) on the
+  virtual runner; the real-hardware run (`--real-hw`) is the measure that
+  counts. Full numbers are in the run's `twelve-tables-*` artefacts.
 - **On real clients: pending.** No room's `tables` block is filled, so
   the HUD attaches to no real client yet. The real-client check follows
   the capture.
