@@ -64,6 +64,15 @@
  *   the street, `NarrowAction.checkedTo`), value checks only
  *   `CHECKED_TO_RIVER_VALUE` of the time, with no `CHECK_REPEAT` discount
  *   (ANALYSIS-PLAN §10 2026-10-20, checked rivers).
+ * - **analysis/32: bets say less, give-ups more.** A bet's likelihood is
+ *   raised to `BET_EVIDENCE` (0.4; not a raise, not in a bomb pot): the
+ *   middle and the bottom of a range bet more often than the regions above
+ *   say. A check by the player with the initiative (`NarrowAction.
+ *   initiative`: the last to bet or raise on an earlier street, checking
+ *   before anyone bets) is squared (`INITIATIVE_CHECK_POWER`): a raiser who
+ *   gives up holds less than another player's check. Fitted held out on
+ *   river showdowns scored without selection (ANALYSIS-PLAN §10 2026-10-20,
+ *   bets and the initiative).
  *
  * The constants are part of `ANALYSIS_VERSION`: changing one re-narrows every
  * stored river grade.
@@ -167,6 +176,24 @@ export const MULTIWAY_CHECK_DRAW = 1;
  * first river check, and air, keep `CHECK_VALUE`, `CHECK_AIR`, `CHECK_REPEAT`.
  */
 export const CHECKED_TO_RIVER_VALUE = 0.3;
+/**
+ * analysis/32: a bet says less than the model above makes of it. Every
+ * postflop bet's likelihood is raised to this power (L → L^0.4: the bet
+ * counts as 0.4 of the evidence; `halved` takes every action at 0.5) - the
+ * middle and the bottom of a range bet more often than the value share and
+ * the bluff ratio say. Not a raise, and not in a bomb pot
+ * (`NarrowAction.bombPot`). Fitted held out on what river showdowns show
+ * without selection (ANALYSIS-PLAN §10 2026-10-20, bets and the
+ * initiative).
+ */
+export const BET_EVIDENCE = 0.4;
+/**
+ * analysis/32: a check by the player with the initiative (`NarrowAction.
+ * initiative`: the last to bet or raise on an earlier street, checking before
+ * anyone bets) trims twice as hard: its likelihood squared. A raiser who
+ * gives up holds less than an ordinary check.
+ */
+export const INITIATIVE_CHECK_POWER = 2;
 /** How much of a draw's chance of hitting turns into equity. */
 export const DRAW_REALISATION = 0.75;
 /** Outs that make a draw "strong". */
@@ -211,6 +238,15 @@ export interface NarrowAction {
   checksBefore?: number;
   /** A check made after another player's check on the same street (analysis/30; read on the river only). */
   checkedTo?: boolean;
+  /**
+   * (analysis/32) The actor has the initiative: the last player to bet or
+   * raise on the latest street that had a bet (preflop's last raiser on the
+   * flop; kept through a street checked through), and nobody has bet yet on
+   * this street. Read on a check (`INITIATIVE_CHECK_POWER`).
+   */
+  initiative?: boolean;
+  /** (analysis/32) The hand is a bomb pot: a bet keeps its full likelihood (`BET_EVIDENCE` is not applied). */
+  bombPot?: boolean;
 }
 
 export interface NarrowInput {
@@ -594,14 +630,23 @@ export const heuristicModel: NarrowingModel = {
   likelihood(input: NarrowInput): Float64Array {
     const s = scored(input);
     switch (input.action.kind) {
-      case "bet":
+      case "bet": {
+        const out = aggressive(input, s);
+        // analysis/32: a bet counts as part of the evidence (not in a bomb pot).
+        if (!input.action.bombPot) for (let c = 0; c < out.length; c += 1) out[c] = Math.pow(out[c], BET_EVIDENCE);
+        return out;
+      }
       case "raise":
         return aggressive(input, s);
       case "call":
         return call(input, s);
       case "check":
-      default:
-        return check(input, s);
+      default: {
+        const out = check(input, s);
+        // analysis/32: the player with the initiative checking trims harder.
+        if (input.action.initiative) for (let c = 0; c < out.length; c += 1) out[c] = Math.pow(out[c], INITIATIVE_CHECK_POWER);
+        return out;
+      }
     }
   },
 };

@@ -237,8 +237,17 @@ import type { Position, Street } from "../phf/types";
  *               heads-up flop the flop library answers keeps the charts'
  *               ranges (ANALYSIS-PLAN §10 2026-10-20, opponents' chart
  *               ranges).
+ *   analysis/32 A postflop bet (not a raise, not in a bomb pot) counts as
+ *               part of the evidence: its likelihood to the power
+ *               `BET_EVIDENCE` (0.4); a check by the player with the
+ *               initiative (the last to bet or raise on an earlier street)
+ *               trims harder, its likelihood squared
+ *               (`INITIATIVE_CHECK_POWER`): what river showdowns show without
+ *               selection said bets were read as too strong and a raiser's
+ *               give-up check as too weak a signal (ANALYSIS-PLAN §10
+ *               2026-10-20, bets and the initiative).
  */
-export const ANALYSIS_VERSION = "analysis/31" as const;
+export const ANALYSIS_VERSION = "analysis/32" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
