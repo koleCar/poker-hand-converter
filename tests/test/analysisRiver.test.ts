@@ -23,11 +23,13 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  BET_EVIDENCE,
   BLUFF_ZONE,
   CHECK_AIR,
   CHECK_VALUE,
   CHECKED_TO_RIVER_VALUE,
   FLOOR,
+  INITIATIVE_CHECK_POWER,
   RIVER_MENU,
   flopSeats,
   analyzeHand,
@@ -151,11 +153,11 @@ const FLOP = BOARD.slice(0, 3);
 const BTN = comboRange(parseClassRange("22+, A2s+, K5s+, Q7s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, A5o+, K9o+, QTo+, JTo"));
 const BB = comboRange(parseClassRange("22-JJ, A2s+, K2s+, Q4s+, J6s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, A2o+, K7o+, Q9o+, J9o+, T9o"));
 
-const narrowed = (street: "flop" | "turn" | "river", kind: "check" | "bet" | "call" | "raise", sizePot: number | null) => {
+const narrowed = (street: "flop" | "turn" | "river", kind: "check" | "bet" | "call" | "raise", sizePot: number | null, bombPot = false) => {
   const board = street === "flop" ? FLOP : street === "turn" ? BOARD.slice(0, 4) : BOARD;
   const actor = removeCards(Float64Array.from(BTN), board);
   const opponent = removeCards(Float64Array.from(BB), board);
-  const after = narrow({ street, board, actor, opponent, action: { kind, sizePot, allIn: false } });
+  const after = narrow({ street, board, actor, opponent, action: { kind, sizePot, allIn: false, bombPot } });
   return { board, actor, opponent, after };
 };
 
@@ -253,9 +255,10 @@ describe("narrowing (heuristic/2)", () => {
     }
   });
 
-  it("bluffs on the river in the share that makes a bluff-catcher indifferent", () => {
+  it("bluffs on the river in the share that makes a bluff-catcher indifferent (before BET_EVIDENCE)", () => {
     for (const size of [0.33, 0.75, 1.5]) {
-      const { actor, after } = narrowed("river", "bet", size);
+      // The bet's own likelihood, as in a bomb pot: analysis/32's power on top flattens it (next test).
+      const { actor, after } = narrowed("river", "bet", size, true);
       const q = percentiles(handStrength(streetStrength(BOARD), removeCards(Float64Array.from(BB), BOARD)), actor);
       let bluffs = 0;
       for (let c = 0; c < NUM_COMBOS; c += 1) if (actor[c] > 0 && q[c] < BLUFF_ZONE) bluffs += after[c];
@@ -350,6 +353,98 @@ describe("narrowing (heuristic/2)", () => {
       "river:false",
       "river:true",
     ]);
+  });
+
+  it("counts a bet as BET_EVIDENCE of the evidence, but not a raise or a bomb pot's bet (analysis/32)", () => {
+    for (const street of ["flop", "turn", "river"] as const) {
+      const board = street === "flop" ? FLOP : street === "turn" ? BOARD.slice(0, 4) : BOARD;
+      const actor = removeCards(Float64Array.from(BTN), board);
+      const opponent = removeCards(Float64Array.from(BB), board);
+      const base = { street, board, actor, opponent };
+      const bet = { kind: "bet" as const, sizePot: 0.75, allIn: false };
+      const full = heuristicModel.likelihood({ ...base, action: { ...bet, bombPot: true } });
+      const read = heuristicModel.likelihood({ ...base, action: bet });
+      let flattened = 0;
+      for (let c = 0; c < NUM_COMBOS; c += 1) {
+        if (!(actor[c] > 0)) continue;
+        expect(read[c]).toBeCloseTo(Math.pow(full[c], BET_EVIDENCE), 12);
+        expect(read[c]).toBeGreaterThanOrEqual(full[c] - 1e-12);
+        if (full[c] < 1) flattened += 1;
+      }
+      expect(flattened).toBeGreaterThan(0);
+      // A raise reads as before.
+      const raise = { kind: "raise" as const, sizePot: 0.75, allIn: false };
+      expect(heuristicModel.likelihood({ ...base, action: raise })).toEqual(heuristicModel.likelihood({ ...base, action: { ...raise, bombPot: true } }));
+    }
+    expect(BET_EVIDENCE).toBe(0.4);
+  });
+
+  it("trims a check by the player with the initiative harder: its likelihood squared (analysis/32)", () => {
+    for (const street of ["flop", "turn", "river"] as const) {
+      const board = street === "flop" ? FLOP : street === "turn" ? BOARD.slice(0, 4) : BOARD;
+      const actor = removeCards(Float64Array.from(BTN), board);
+      const opponent = removeCards(Float64Array.from(BB), board);
+      const base = { street, board, actor, opponent };
+      const check = { kind: "check" as const, sizePot: null, allIn: false, checksBefore: 1 };
+      const plain = heuristicModel.likelihood({ ...base, action: check });
+      const giveUp = heuristicModel.likelihood({ ...base, action: { ...check, initiative: true } });
+      let trimmed = 0;
+      for (let c = 0; c < NUM_COMBOS; c += 1) {
+        if (!(actor[c] > 0)) continue;
+        expect(giveUp[c]).toBeCloseTo(Math.pow(plain[c], INITIATIVE_CHECK_POWER), 12);
+        if (plain[c] < 1) trimmed += 1;
+      }
+      expect(trimmed).toBeGreaterThan(0);
+      // The flag is read on a check only.
+      const bet = { kind: "bet" as const, sizePot: 0.5, allIn: false };
+      expect(heuristicModel.likelihood({ ...base, action: { ...bet, initiative: true } })).toEqual(heuristicModel.likelihood({ ...base, action: bet }));
+    }
+  });
+
+  it("marks the initiative in the walk: the last aggressor's checks before a bet, kept through a street checked through (analysis/32)", () => {
+    const seen: string[] = [];
+    const spy = {
+      id: "spy",
+      likelihood(input: Parameters<typeof heuristicModel.likelihood>[0]) {
+        seen.push(`${input.street}:${input.action.kind}:${input.action.initiative === true}:${input.action.bombPot === true}`);
+        return heuristicModel.likelihood(input);
+      },
+    };
+    const hand = headsUp({
+      hero: "Btn",
+      cards: "Ah Kd",
+      board: ["2c", "7d", "9h", "Js", "3c"],
+      // The button raised preflop: it has the initiative on the flop and keeps it through the flop checked through.
+      flop: ["Bb: checks", "Btn: checks"],
+      turn: ["Bb: checks", "Btn: checks"],
+      river: ["Bb: bets $3", "Btn: calls $3"],
+    });
+    const context = buildContext(structuredClone(hand));
+    const seats = flopSeats(context);
+    const walk = walkRanges(structuredClone(hand), context, seats[0], seats[1], CHARTS, spy);
+    expect(walk.ok).toBe(true);
+    expect(seen).toEqual([
+      "flop:check:false:false",
+      "flop:check:true:false",
+      "turn:check:false:false",
+      "turn:check:true:false",
+      "river:bet:false:false",
+      "river:call:false:false",
+    ]);
+    const second = headsUp({
+      hero: "Btn",
+      cards: "Ah Kd",
+      board: ["2c", "7d", "9h", "Js", "3c"],
+      flop: ["Bb: checks", "Btn: checks"],
+      turn: ["Bb: bets $3", "Btn: calls $3"],
+      river: ["Bb: checks", "Btn: checks"],
+    });
+    seen.length = 0;
+    const context2 = buildContext(structuredClone(second));
+    const seats2 = flopSeats(context2);
+    expect(walkRanges(structuredClone(second), context2, seats2[0], seats2[1], CHARTS, spy).ok).toBe(true);
+    // The big blind's turn bet takes the initiative: its river check is the give-up, the button's is not.
+    expect(seen.slice(-2)).toEqual(["river:check:true:false", "river:check:false:false"]);
   });
 
   it("halves a model's evidence for the sensitivity check: every likelihood becomes its square root", () => {
@@ -681,8 +776,18 @@ describe("the real line onto the solver's tree (§3.3)", () => {
   });
 
   it("caps the grade at Inaccurate when a size is far off the tree", () => {
-    // 40 into 9.5 is 4.2x the pot: 2.7 pots from the 150% bet, and not all-in.
-    const call = river(analyse(line("40", 40)), "call");
+    // analysis/32: a turn checked back by the flop's bettor is a give-up (its range capped), and the
+    // solved river then (almost) never overbets from there; a turn bet and call keeps the line reached.
+    const barrelled = headsUp({
+      hero: "Bb",
+      cards: "Kh Qh",
+      board: ["Kd", "7c", "2s", "9h", "3d"],
+      flop: ["Bb: checks", "Btn: bets $2", "Bb: calls $2"],
+      turn: ["Bb: checks", "Btn: bets $3", "Bb: calls $3"],
+      river: ["Bb: checks", "Btn: bets $40", "Bb: calls $40"],
+    });
+    // 40 into 15.5 is 2.6x the pot: 1.1 pots from the 150% bet, and not all-in.
+    const call = river(analyse(barrelled), "call");
     expect(call.source).toBe("solver");
     expect(call.approximations).toContain("off-tree-size");
     expect(gradeRank(call.grade!)).toBeLessThanOrEqual(gradeRank("inaccurate"));

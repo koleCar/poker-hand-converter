@@ -5297,3 +5297,218 @@ Each phase appends what it learned that changed the plan.
     - `analysis/31`'s other open items stand (the library's heads-up flops
       on the charts' ranges, the 2bb-pot grade floor, refits as libraries
       grow).
+- 2026-10-20 — Bets and the initiative: the preflop aggressor's postflop
+  line, `analysis/32` (study `tests/scripts/flop-library/raiserNarrowing.test.ts`,
+  `npm run floplib:raiser-narrowing`; `BET_EVIDENCE`, `INITIATIVE_CHECK_POWER`,
+  `NarrowAction.initiative` and `NarrowAction.bombPot` in
+  `lib/analysis/narrowing.ts`, set by both walks). No migration.
+  - **Why.** The first open item of the raising-order entry (#219): at
+    `analysis/31` the later players walked from an isolation or a 3-bet
+    still muck more than their ranges say at river showdowns (+0.22 ± 0.05,
+    +0.18 ± 0.08), and no preflop order fixes it (the mucks and those who
+    show first pull apart). Is it how the heuristic narrows the raiser's
+    postflop line - a c-bet and barrels read as strength, a check as
+    weakness?
+  - **Data and score.** As `analysis/31`: the 5,448 stored hands, the 857
+    river showdowns (one pot, nobody all-in), the unselected score (the
+    first to show by their combo in their own walked range; each later
+    player by their combo when shown, else by the range's chance of losing
+    to the best hand shown before them), five folds by hand and five by the
+    first to show's name, standard errors clustered by hand (by player for
+    the player folds). Preflop ranges are `analysis/31`'s; the multiway walk
+    from the hero's seat, no flop library. The *initiative*: the last player
+    to bet or raise on the latest street that had a bet (preflop's last
+    raiser on the flop, kept through a street checked through); an
+    initiative bet is that player's bet before anyone else's on the street,
+    an initiative check their check before any bet. Candidates change the
+    heuristic's likelihood L of those actions: L^t (t < 1 says less),
+    max(L, m) (the middle and bottom bet at least m), per street, per
+    preflop line group (R1 opens, R2 isolations and 3-bets, R4 4-bets, or
+    anyone), and the same for every bet as a control.
+  - **Measured 0: where the excess mucks are** (`analysis/31`, observed −
+    predicted, later players): R2 **+0.208 ± 0.041** (85), R1 +0.041 ±
+    0.025 (211), everyone else +0.022 ± 0.015 (615). 84 of the 85 R2 rows
+    are heuristic-walked: the hero's flop was a library flop in 69 of the
+    857 spots, with 1 R2 row among them - **the excess is the heuristic's,
+    not the library's**. By the R2 player's own postflop line: no
+    initiative bet at all (45) +0.221 ± 0.057, a flop c-bet only (28)
+    +0.218 ± 0.076; check-check-check (25) +0.221 ± 0.074, bet-check-check
+    (15) +0.237 ± 0.083. The excess is as large on the lines with no bet as
+    on c-bet lines: **it is not in the raisers' bets**.
+  - **Measured 1: candidates, in sample** (unselected LL gain per spot
+    over `analysis/31`, all 857; R2 mucks observed − predicted after):
+    - initiative bets, L^t on every street: t 0.75 +0.039, 0.5 +0.077,
+      **0.25 +0.091 ± 0.020** (R2 mucks +0.161), 0 +0.074; at 0.5 per
+      street flop +0.012, turn +0.013, river +0.054; raisers only (R1, R2,
+      R4) at 0.25 +0.050 ± 0.015; R2 only +0.027 ± 0.009. Floors: best m
+      0.5 +0.086 ± 0.020.
+    - **every bet** (the control, not only the initiative holder's): L^t
+      0.75 +0.067, 0.6 +0.108, 0.5 +0.121 ± 0.020, **0.4 +0.126 ± 0.023**,
+      0.3 +0.124; at 0.4 per street flop +0.028 ± 0.013, turn +0.029 ±
+      0.013, river +0.083 ± 0.016. Raises too (at 0.5): +0.125 against
+      +0.121 - nothing added.
+      **It is bets in general, not the raiser's**: a donk bet, a probe or a
+      stab is read as too strong as much as a c-bet.
+    - initiative checks, L^c: c 0.5 −0.045 (a softer give-up is worse), 1.5
+      +0.017, **2 +0.027 ± 0.010**, 3 +0.014; at 2 per street flop +0.007,
+      turn +0.017 ± 0.005, river +0.008; R2 only +0.012 ± 0.005. No
+      `CHECK_REPEAT` discount for an initiative check instead: +0.012 ±
+      0.003.
+    - both: every bet at 0.4 and initiative checks at 2 **+0.134 ± 0.025**,
+      R2 mucks +0.208 → **+0.134 ± 0.040**. The same two rules applied
+      only to R2 players move the R2 mucks as far (+0.135) for +0.031
+      overall; only to R1 +0.028; only to R4 −0.001.
+  - **The guard cut bomb pots.** Every bet at 0.5 failed one shown-hand row
+    of `analysis/28`: bomb-pot flops three or more ways −0.044 ± 0.034
+    (1.3 SE). Bets in a bomb pot (any two cards, no preflop betting) keep
+    their likelihood - **restricted in sample on the guard**, as
+    `analysis/30` was.
+  - **Held out.** The family every bet (no bomb pot) at t 0.75, 0.6, 0.5,
+    0.4, 0.3 × initiative check c 1, 1.5, 2, plus the initiative-only family
+    (t 0.75, 0.5, 0.25, 0, 1 × the same c) and `analysis/31` - 31
+    candidates, a fold choosing on the other four: by hand every bet at
+    0.4 with checks at 2 (three folds) or 1.5 (two), **+0.131 ± 0.024 (5.5
+    SE)**; by player 0.4 with 2 (four) or 1.5 (one), **+0.132 ± 0.025 (5.3
+    SE)**. By group (by hand): checked rivers three or more +0.021 ± 0.030,
+    heads-up +0.037 ± 0.022, called bets three or more +0.232 ± 0.093,
+    heads-up +0.299 ± 0.062; heuristic-walked spots +0.138 ± 0.025, the 69
+    with a library hero flop +0.050 ± 0.059. **Restricted in sample:** the
+    family's shape (powers, every bet rather than the raiser's, the
+    bomb-pot cut) was picked by me across seven in-sample grids (about
+    150 candidates); the held-out number is the per-fold choice over the
+    final 31.
+  - **Shipped.** `BET_EVIDENCE` = **0.4**: every postflop bet's likelihood
+    to the power 0.4 (not a raise, not in a bomb pot);
+    `INITIATIVE_CHECK_POWER` = **2**: a check by the initiative holder
+    squared. Two numbers, the held-out choice in seven of ten folds (the
+    other three chose checks at 1.5). The study's twin and the shipped code
+    agree on all 857 spots to 0 nats.
+  - **The checks** (`analysis/31` → `analysis/32`).
+    - `analysis/30`'s rows, the first to show's share won − predicted (in
+      sample): rivers checked through three or more +0.091 → +0.063 ±
+      0.028, heads-up +0.038 → −0.005 ± 0.019; called bets three or more
+      +0.058 → +0.022 ± 0.026, heads-up +0.090 → +0.057 ± 0.023; the
+      squared error better in every group (held out +0.005 to +0.009).
+      Later players' mucks: R2 +0.208 → +0.134 ± 0.040, R1 +0.041 →
+      −0.022 ± 0.025, others +0.022 → +0.006 ± 0.015.
+    - The shown-hand rows of `analysis/22`/`/23`/`/28` and the 2026-10-14
+      river trim (candidate − `analysis/31` per combo, clustered by player):
+      flop three or more −0.005 ± 0.014 (644), heads-up +0.004 ± 0.006
+      (855); turn +0.027 ± 0.022 (417), +0.029 ± 0.013 (998); river three
+      or more +0.078 ± 0.110 (76), heads-up **+0.191 ± 0.045** (464),
+      checked only −0.011 ± 0.023 (213) and +0.011 ± 0.022 (655), all
+      +0.071 ± 0.020 (1,408); bomb pots: flop 0 exactly, turn −0.006 ±
+      0.012 / +0.002 ± 0.013, river −0.030 ± 0.044 (9) to +0.040 ± 0.030.
+      Nothing worse by a standard error; the shown winners themselves are
+      better explained on the river.
+    - `analysis/29`'s overcall check (`npm run floplib:multiway-overcall`,
+      the shipped code at both versions): behind a bet the theory moves
+      0.489 → 0.501 against 0.307 continued and the shipped recalibration
+      gains +0.072 ± 0.015 → +0.082 ± 0.016 over it (its log-loss 0.590 →
+      0.588); the hero's 44 approximate calls, realised − population
+      +0.621 ± 0.288 → +0.585 ± 0.286; called multiway river bets, the
+      bettor's share won − predicted +0.054 ± 0.039 → +0.043 ± 0.039.
+      Nothing worse.
+  - **The grades.** Census (`npm run floplib:census`, the flop library on,
+    the three shipped sets, 8,005 hero decisions) against `analysis/31`
+    (its second run, identical to the first) row by row: **102 rows move,
+    none of them a flop decision the library answers**. By street and
+    kind:
+
+    | | harsher | milder | newly graded | no longer graded |
+    |---|---|---|---|---|
+    | flop, approximate (multiway) | 5 | 1 | | |
+    | turn, approximate (multiway) | 8 | | | |
+    | turn, solver | 21 | 20 | 1 | 1 (`turn-unreached`) |
+    | river, approximate (multiway) | 7 | | | |
+    | river, solver | 12 | 23 | 3 | |
+
+    Turn solver Perfect 387 → 382, Good 72 → 81, Inaccurate 10 → 7,
+    Mistake 53 → 52; river solver Perfect 274 → 288, Good 83 → 75,
+    Inaccurate 7 → 5, Mistake 21 → 20, not graded 81 → 78. The
+    approximate multiway folds turn harsher (Mistake: flop 11 → 14, turn
+    3 → 9, river 2 → 8): a bet into several players now holds more weak
+    hands, so folding to it costs more. 7 moved rows are turn and river
+    solver grades of hands whose flop the library answers, all milder
+    (Mistake → Good five times): the library's flop is untouched, but the
+    sensitivity re-solve (`halved`, a heuristic walk) now reads bets at 0.2
+    and moves those grades by two classes, so the milder half-strength
+    grade is shown (`range-sensitive`).
+  - **Read one by one** (27 moved grades with `analyzeHand` at both
+    versions; the study's toggle reproduces every `analysis/31` census
+    grade; ten here):
+    - A♣Q♠ folding the turn on A♥6♣2♥T♠ to the button's 3-bet range after
+      calling its flop bet: the 3-bettor barrels 28bb; equity 0.469 →
+      0.525, Good → **Mistake** (7.1bb, 10.8% of the pot, capped). The
+      raiser's barrel this entry set out to test: top pair top kicker
+      against a 3-bettor's double barrel now has the price.
+    - T♠T♣ folding the river three-way on 4♠7♠Q♣9♣9♦ to the big blind's
+      10bb bet after it led the turn: equity 0.124 → 0.397; Perfect →
+      **Mistake** (5.1bb, capped). A donk-bettor's line, not a raiser's -
+      the largest move, and why the rule is every bet.
+    - T♦T♥ folding the river four-way on K♠J♥3♥4♥K♣ to the small blind's
+      third-pot bet after every street checked through: equity 0.106 →
+      0.358; Perfect → **Mistake** (2.5bb). A stab into a checked field was
+      read as the top 28% of a range; the population stabs wider.
+    - 7♥6♥ folding the river three-way on 6♣Q♠5♥K♥J♠ to the small blind's
+      5bb bet after checks: 0.067 → 0.192; Perfect → **Inaccurate**
+      (0.16bb).
+    - K♦9♦ calling a 1bb flop stab three-way on Q♠4♦2♣ from an UTG
+      limper: 0.213 → 0.244; Mistake → **Perfect**.
+    - A♠Q♠ betting the river on T♠8♥K♦Q♥K♠ (the opener checked the flop,
+      bet the turn small and was called): check 6.04 → 7.56bb, bet 33%
+      5.85 → 7.56bb; Mistake → **Perfect**. The hero's own line now reads
+      weaker (the flop give-up squared, the turn bet at 0.4), and the
+      solved big blind pays a river bet more often.
+    - K♦K♠ (the big blind's 3-bet) betting the river on A♣T♦A♥4♠T♣ after
+      its flop c-bet was called and the turn checked through: check 14.34
+      → 12.14, bet 33% 14.21 → 10.71; Good → **Mistake** (1.4bb). The
+      3-bettor's turn give-up caps its own range harder, and the solve
+      prefers to keep checking with a hand that beats the bluffs only.
+    - K♥K♠ betting the turn on 6♥5♥8♠5♠ after the big blind's flop donk
+      bet was called: Good → **Mistake** (0.45bb). The least convincing: a
+      donk range with more draws and air makes checking an overpair better
+      in the solve, on the turn's coarse sizes.
+    - T♥T♠ (a set) raising the turn on T♣5♠9♥3♦ against the button's
+      barrel, a library flop: Mistake → **Good** through the sensitivity
+      re-solve (`range-sensitive`), not the library's chunk.
+    - A♥Q♠ calling the turn on T♣7♠A♣6♦ against the hijack's turn stab
+      after a checked flop: Perfect → **not graded** (`turn-unreached`):
+      the stab now comes from a wider range the solved turn rarely stabs
+      with at that size.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/32`. `BET_EVIDENCE` (0.4)
+    and `INITIATIVE_CHECK_POWER` (2) in `narrowing.ts`, applied in
+    `heuristicModel`; `NarrowAction.initiative` (a check by the initiative
+    holder before any bet on the street) and `NarrowAction.bombPot`, set by
+    `walkRanges` and `walkMultiway`. The narrowing's id stays
+    `heuristic/2` (as `analysis/30`). No wording changes (every grade that
+    reads it already carries `narrowing-heuristic`). Tests
+    (`analysisRiver`): a bet's likelihood is the bomb-pot one to the power
+    0.4, a raise unchanged; an initiative check is the plain one squared,
+    the flag ignored on a bet; the walk marks the initiative (kept through
+    a street checked through, passed by a bet); the river bluff-share test
+    reads the bet before the power; the off-tree cap test barrels the turn
+    (a turn checked back by the flop's bettor is now a give-up the solved
+    river no longer overbets from: `river-unreached`). The analysis suite,
+    typecheck and lint pass. Only aggregate numbers are committed.
+  - **Open.**
+    - **The isolators and 3-bettors still muck too often** (+0.134 ±
+      0.040, 85, down from +0.208): neither their preflop range (#219) nor
+      their postflop narrowing explains the rest; the 25 R2
+      check-check-check rows are still +0.165 ± 0.073. Next candidates: the
+      calling ranges against them (a call of a raiser's bet keeps the top
+      `MDF` - does the field call c-bets wider?) and the river check-down
+      of a raiser in a 3-bet pot specifically.
+    - **The sensitivity check compounds the change.** `halved` reads a bet
+      at 0.4 × 0.5 = 0.2 of the evidence; on library flops it is the only
+      way the change reaches a grade (7 rows, all milder). Whether the
+      half-strength walk should halve the evidence before `BET_EVIDENCE` is
+      a separate question.
+    - **The approximate multiway folds turn harsher** (20 rows). The
+      overcall check agrees in direction (the hero's approximate calls
+      still realise more than predicted); the multiway bettor's share is
+      the next thing to score on its own.
+    - **Bomb pots** keep the old bet reading on one 1.3 SE guard row (65
+      shown hands); refit when there are more.
+    - The fit is one library's population; refit (`npm run
+      floplib:raiser-narrowing`) as libraries grow.

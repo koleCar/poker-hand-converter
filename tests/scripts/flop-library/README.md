@@ -217,6 +217,22 @@ instead of the grid, about fifteen minutes for the grid); `CR_GUARD='[...]'`
 scores candidates on the earlier studies' shown-hand rows, paired. Console
 only. `docs/ANALYSIS-PLAN.md` §10 2026-10-20 (checked rivers).
 
+**Bets and the initiative (`analysis/32`).** `FLOPLIB_HANDS=... npm run
+floplib:raiser-narrowing` scores every river showdown (one pot, nobody
+all-in: 857 on the owner's hands) unselected, as `preflopWidth.test.ts`
+does, with candidate changes of the heuristic's postflop likelihoods: a bet
+to a power (`pow`) or a floor (`mid`), the initiative holder's bets only or
+every bet, a check by the initiative holder to a power, per street and per
+preflop line group (`RN_CANDS='[...]'` or a JSON file; the study's
+`analysis/31` is the shipped heuristic with `analysis/32`'s flags off). It
+prints the later players' mucks by preflop group, by postflop line and by
+whether the flop library answers the hero's flop (`RN_LIB`, a JSON list of
+hand indices from a census), the held-out choice (five folds by hand and by
+the first to show), the shown-hand guard (`RN_GUARD`) and a fidelity line
+(`RN_TWIN` against a `{"shipped": true}` candidate). About eleven seconds a
+candidate. Console only. `docs/ANALYSIS-PLAN.md` §10 2026-10-20 (bets and
+the initiative).
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity
