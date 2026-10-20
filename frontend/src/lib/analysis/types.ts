@@ -229,8 +229,16 @@ import type { Position, Street } from "../phf/types";
  *               time and is not discounted by `CHECK_REPEAT`: ranges at a
  *               checked river were too strong against what such rivers show
  *               down (ANALYSIS-PLAN §10 2026-10-20, checked rivers).
+ *   analysis/31 An opponent's chart or placeholder preflop range (opens,
+ *               isolations, 3-bets, calls of 3-bets, the small blind's
+ *               limp, the big blind's check...) keeps its width but takes
+ *               `POPULATION_ORDER_MIX` (0.75) of it in `population/1`'s
+ *               order (`populationOrdered`, `range-population-order`); a
+ *               heads-up flop the flop library answers keeps the charts'
+ *               ranges (ANALYSIS-PLAN §10 2026-10-20, opponents' chart
+ *               ranges).
  */
-export const ANALYSIS_VERSION = "analysis/30" as const;
+export const ANALYSIS_VERSION = "analysis/31" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -487,6 +495,11 @@ export interface Flag {
  *                       (`villain.ts`); the sample is in `SpotFacts.villain`.
  * - `range-limp-call`   a limper who called an isolation raise starts from
  *                       the placeholder limp range, not the `call` one.
+ * - `range-population-order` (analysis/31) an opponent's chart or
+ *                       placeholder range keeps its width, but three
+ *                       quarters of it follows `population/1`'s order of
+ *                       hands (`populationOrdered`); not where the flop
+ *                       library answers a heads-up flop.
  *
  * - `multiway-history` solved heads-up from a street that began heads-up,
  *                       but three or more saw the flop: the ranges were
@@ -525,6 +538,7 @@ export const APPROXIMATIONS = [
   "range-limp-call",
   "range-population",
   "range-villain",
+  "range-population-order",
   "dead-button",
   "posted-blind",
   "bomb-pot",
@@ -902,7 +916,7 @@ export interface MultiwayOpponent {
    * neighbouring depth's chart, or a limp-caller's limp placeholder. Absent
    * when neither.
    */
-  approx?: ("range-neighbour-depth" | "range-limp-call" | "range-population" | "range-villain")[];
+  approx?: ("range-neighbour-depth" | "range-limp-call" | "range-population" | "range-villain" | "range-population-order")[];
   /** The hero's equity against this range alone, narrowed to the decision. */
   equity: number | null;
   /** Weighted combos in the range, the hero's cards and the board removed. */

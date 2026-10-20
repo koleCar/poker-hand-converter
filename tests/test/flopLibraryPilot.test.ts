@@ -132,5 +132,9 @@ describe.runIf(PRESENT)("the committed pilot", () => {
     // Without the library the same turn rests on the heuristic.
     const plain = analyzeHand(h, { charts: CHARTS }).decisions.find((d) => d.street === "turn");
     expect(plain?.approximations).toContain("narrowing-heuristic");
+    // analysis/31: the 3-bettor's range takes the population's order on the heuristic walk, but where
+    // the library answers the flop it stays the charts' range the chunk was solved from.
+    expect(plain?.approximations).toContain("range-population-order");
+    expect(turn?.approximations).not.toContain("range-population-order");
   });
 });

@@ -379,7 +379,8 @@ pub fn pair(cg: &[&CgWindow], ax: &[AxWindow]) -> Vec<Option<usize>> {
 /// The windows of the processes whose accessibility windows `snapshot` has,
 /// front to back, as [`RawWindow`]s: ordinary windows (layer 0) only; a
 /// window without an accessibility partner has the title remembered for it
-/// (another Space), else none - and is left out when it is off screen too.
+/// (another Space, or a look where the two lists disagree), else none - and
+/// is left out when it is off screen too.
 /// `memory` keeps each title read, for windows that still exist.
 pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> Vec<RawWindow> {
     memory.retain(|id, _| snapshot.cg.iter().any(|w| w.id == *id));
@@ -417,7 +418,13 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
                         window.minimized,
                     )
                 }
-                None => match memory.get(&cg.id).filter(|_| !cg.onscreen) {
+                // Unpaired this look: off screen (another Space), or on
+                // screen while the two lists disagree - a window mid-move
+                // whose frames differ, an app too busy to answer the
+                // Accessibility API. A table seen before keeps its title
+                // rather than drop out of the find and be attached again as
+                // a stranger; the next look reads it afresh.
+                None => match memory.get(&cg.id) {
                     Some(known) => (
                         known.title.clone(),
                         known.subrole.clone(),
@@ -1986,6 +1993,24 @@ mod tests {
         );
         let ids: Vec<(u64, &str)> = raw.iter().map(|w| (w.id.0, w.title.as_str())).collect();
         assert_eq!(ids, [(203, "Table C - 6-max"), (204, "")]);
+
+        // An on-screen table seen before keeps its title through a look
+        // without its partner (it was moving, or its app did not answer):
+        // it stays found, where it is now.
+        let mut seen = BTreeMap::new();
+        assemble(&snapshot(windows.clone(), list.clone()), &mut seen);
+        let mut moving = windows.clone();
+        if let Some(w) = moving.iter_mut().find(|w| w.id == 201) {
+            w.bounds = Frame::points(1500, 60, 640, 508);
+        }
+        let raw = assemble(
+            &snapshot(moving, vec![list[0].clone(), list[2].clone()]),
+            &mut seen,
+        );
+        let b = raw.iter().find(|w| w.id.0 == 201).expect("table B");
+        assert_eq!(b.title, "Table B - 6-max");
+        assert!(!b.cloaked && !b.minimized);
+        assert_eq!(b.client.x, 1500, "where it is now");
 
         // A process whose windows were not asked for is not listed.
         let mut other = snapshot(windows, list);

@@ -31,14 +31,32 @@
  * a tighter range in the model's order), predicted share against the share
  * won.
  *
- *     cd tests && FLOPLIB_HANDS=/path/hands.jsonl [OVERCALL_GRADES=1] npm run floplib:multiway-overcall
+ *     cd tests && FLOPLIB_HANDS=/path/hands.jsonl [OVERCALL_GRADES=1] [OVERCALL_CHART_ORDER=1] npm run floplib:multiway-overcall
+ *
+ * `OVERCALL_CHART_ORDER=1` re-runs it on `analysis/30`'s opponent ranges (no
+ * `range-population-order`, analysis/31) - the before of that version's check
+ * (multiway walks only: every pot here saw a multiway flop).
  *
  * Prints to the console only; nothing about a hand or a player is written.
  */
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { it } from "vitest";
+import { it, vi } from "vitest";
+
+vi.mock("../../../frontend/src/lib/analysis/rangeWalk.js", async (importOriginal) => {
+  const original = await importOriginal<typeof import("../../../frontend/src/lib/analysis/rangeWalk.js")>();
+  if (process.env.OVERCALL_CHART_ORDER !== "1") return original;
+  type Options = NonNullable<Parameters<typeof original.preflopRangeOf>[5]>;
+  const chartOrder = (options: Options | undefined) => (options ? { ...options, populationOrder: false } : options);
+  return {
+    ...original,
+    preflopRangeOf: (...[hand, context, seat, before, charts, options]: Parameters<typeof original.preflopRangeOf>) =>
+      original.preflopRangeOf(hand, context, seat, before, charts, chartOrder(options)),
+    preflopClassRange: (...[hand, context, seat, before, charts, options]: Parameters<typeof original.preflopClassRange>) =>
+      original.preflopClassRange(hand, context, seat, before, charts, chartOrder(options)),
+  };
+});
 
 import {
   analyzeHand,

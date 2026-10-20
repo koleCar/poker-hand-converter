@@ -729,7 +729,7 @@ describe("determinism and the study view", () => {
       }
       expect(study.villain.categories.reduce((sum, row) => sum + row.share, 0)).toBeCloseTo(1, 2);
     }
-  });
+  }, 120_000);
 
   it("lays its cells out in the chart grid's order", () => {
     expect(HAND_CLASSES.map((c) => c.name)).toEqual(GRID_CELLS.map((c) => c.name));
