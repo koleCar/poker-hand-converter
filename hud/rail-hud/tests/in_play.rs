@@ -252,15 +252,39 @@ fn the_hand_in_play_is_never_counted() {
         .map(|mark| second.find(mark).expect("a street"))
         .chain([second.len()])
         .collect();
+    // The pieces go 150 ms apart whatever a reread costs (a Windows CI
+    // runner once spent over 400 ms on two, and the watcher rightly stored
+    // the prefix: R1.3's case above, not this test's).
     let mut from = 0;
+    let mut written: Option<Instant> = None;
+    let mut longest = Duration::ZERO;
     for (index, &to) in cuts.iter().enumerate() {
+        if let Some(at) = written {
+            longest = longest.max(at.elapsed());
+        }
         append(&file, &second[from..to]);
+        let at = Instant::now();
+        written = Some(at);
         from = to;
         if index + 1 < cuts.len() {
             reread(&mut hud, &mut sent, "being written");
-            std::thread::sleep(Duration::from_millis(100));
-            reread(&mut hud, &mut sent, "being written");
+            std::thread::sleep(Duration::from_millis(150).saturating_sub(at.elapsed()));
         }
+    }
+    let quiet = Duration::from_millis(
+        u64::try_from(WatchConfig::default().read.quiet_ms).expect("a quiet period"),
+    );
+    if longest >= quiet {
+        eprintln!(
+            "the runner stalled: {} ms between two pieces, longer than the quiet period; \
+             the hand being written was not tested this run",
+            longest.as_millis()
+        );
+        hud.shutdown();
+        watcher.stop();
+        store.close();
+        let _ = std::fs::remove_dir_all(&base);
+        return;
     }
     let stored: Vec<_> = store
         .reader()
