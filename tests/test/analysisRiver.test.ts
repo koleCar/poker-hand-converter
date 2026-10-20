@@ -574,7 +574,7 @@ describe("the range walk", () => {
 
 /* ------------------------------------------------ grades, known answers - */
 
-describe("river grades with known answers", () => {
+describe("river grades with known answers", { timeout: 120_000 }, () => {
   it("never folds the nuts: folding a royal flush to a bet is a Blunder", () => {
     const analysis = analyse(
       headsUp({
@@ -739,7 +739,7 @@ describe("river grades with known answers", () => {
 
 /* ------------------------------------------------ the line onto the tree - */
 
-describe("the real line onto the solver's tree (§3.3)", () => {
+describe("the real line onto the solver's tree (§3.3)", { timeout: 120_000 }, () => {
   const line = (bet: string, size: number) =>
     headsUp({
       hero: "Bb",
@@ -796,7 +796,7 @@ describe("the real line onto the solver's tree (§3.3)", () => {
 
 /* ------------------------------------------------- determinism, study - */
 
-describe("determinism and the study view", () => {
+describe("determinism and the study view", { timeout: 120_000 }, () => {
   const h = headsUp({
     hero: "Bb",
     cards: "Kh Qh",

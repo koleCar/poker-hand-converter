@@ -243,6 +243,11 @@ pub struct Remembered {
     pub subrole: String,
     /// The title bar's height, thousandths of a point.
     pub title_bar: i64,
+    /// (R3.14) Whether it was measured: the window had its close button
+    /// (or is full screen). A window just created may not have the button
+    /// in the Accessibility API yet - its bar reads 0 then, as a borderless
+    /// window's does.
+    pub bar_known: bool,
 }
 
 /// A display mode's pixels per point, thousandths (1000 when unknown).
@@ -408,6 +413,7 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
                                 title: window.title.clone(),
                                 subrole: window.subrole.clone(),
                                 title_bar: bar,
+                                bar_known: window.close_button.is_some() || window.fullscreen,
                             },
                         );
                     }
@@ -1013,26 +1019,35 @@ pub struct Effect {
     pub settle: bool,
 }
 
-/// (R3.14) How long a new on-screen window whose title cannot be read yet
-/// keeps the re-find at its usual pace (`find_every`, not the slower
-/// `find_every_notified`): the window server lists a client's new window
-/// before the Accessibility API gives its title, and the find that the
-/// window's creation brought on may come between the two (CI: a table
-/// opened, its HUD 2 s later). A window that never gets a title (a
-/// client's helper) stops counting after this.
+/// (R3.14) How long a new on-screen window whose title, or title bar,
+/// cannot be read yet keeps the re-find at its usual pace (`find_every`,
+/// not the slower `find_every_notified`): the window server lists a
+/// client's new window before the Accessibility API gives its title and
+/// its close button, and the find that the window's creation brought on
+/// may come between the two (CI: a new table's overlay over its title bar
+/// too until the find 2 s later). A window that never gets them (a
+/// client's helper, a borderless window) stops counting after this.
 pub const UNTITLED_FOR: std::time::Duration = std::time::Duration::from_secs(3);
 
 /// (R3.14) Keep `untitled` (window number -> first seen) to the on-screen
-/// windows of `windows` without a title; whether one of them is newer than
-/// [`UNTITLED_FOR`].
+/// windows of `windows` without a title, or whose title bar `memory` has
+/// not measured; whether one of them is newer than [`UNTITLED_FOR`].
 pub fn untitled_waiting(
     windows: &[RawWindow],
+    memory: &BTreeMap<u32, Remembered>,
     untitled: &mut BTreeMap<u64, std::time::Instant>,
     now: std::time::Instant,
 ) -> bool {
+    let unmeasured = |id: u64| {
+        u32::try_from(id)
+            .ok()
+            .and_then(|number| memory.get(&number))
+            .is_some_and(|known| !known.bar_known)
+    };
     let waiting: Vec<u64> = windows
         .iter()
-        .filter(|w| !w.cloaked && !w.minimized && w.title.trim().is_empty())
+        .filter(|w| !w.cloaked && !w.minimized)
+        .filter(|w| w.title.trim().is_empty() || unmeasured(w.id.0))
         .map(|w| w.id.0)
         .collect();
     untitled.retain(|id, _| waiting.contains(id));
@@ -1490,7 +1505,12 @@ impl Platform for MacosBackend {
         let wanted = |process: &str| matchers.iter().any(|m| m.takes_process(process));
         let snapshot = snapshot(&wanted)?;
         let windows = assemble(&snapshot, &mut self.memory);
-        untitled_waiting(&windows, &mut self.untitled, std::time::Instant::now());
+        untitled_waiting(
+            &windows,
+            &self.memory,
+            &mut self.untitled,
+            std::time::Instant::now(),
+        );
         Ok(windows
             .iter()
             .filter_map(|window| table_of(window, matchers))
@@ -2080,19 +2100,57 @@ mod tests {
             &snapshot(windows.clone(), vec![titled.clone()]),
             &mut BTreeMap::new(),
         );
-        assert!(untitled_waiting(&raw, &mut untitled, start));
+        assert!(untitled_waiting(
+            &raw,
+            &BTreeMap::new(),
+            &mut untitled,
+            start
+        ));
         assert_eq!(untitled.keys().copied().collect::<Vec<_>>(), [302]);
         // Still untitled a second later: the first sighting counts.
         let later = start + std::time::Duration::from_secs(1);
-        assert!(untitled_waiting(&raw, &mut untitled, later));
+        assert!(untitled_waiting(
+            &raw,
+            &BTreeMap::new(),
+            &mut untitled,
+            later
+        ));
         // Never titled: no longer waited for.
-        assert!(!untitled_waiting(&raw, &mut untitled, start + UNTITLED_FOR));
+        assert!(!untitled_waiting(
+            &raw,
+            &BTreeMap::new(),
+            &mut untitled,
+            start + UNTITLED_FOR
+        ));
         // Titled now: forgotten.
         let mut both = titled.clone();
         both.title = "Table B - 6-max".into();
         let raw = assemble(&snapshot(windows, vec![titled, both]), &mut BTreeMap::new());
-        assert!(!untitled_waiting(&raw, &mut untitled, later));
+        assert!(!untitled_waiting(
+            &raw,
+            &BTreeMap::new(),
+            &mut untitled,
+            later
+        ));
         assert!(untitled.is_empty());
+
+        // Titled, but without its close button yet (just created): its
+        // title bar reads 0, not measured - waited for as well; once the
+        // button is there it is not.
+        let windows = vec![cg(303, 7, left, true)];
+        let mut bare = ax("Table C - 6-max", left);
+        bare.close_button = None;
+        let mut memory = BTreeMap::new();
+        let raw = assemble(&snapshot(windows.clone(), vec![bare]), &mut memory);
+        assert_eq!(raw[0].title, "Table C - 6-max");
+        assert!(!memory[&303].bar_known);
+        assert!(untitled_waiting(&raw, &memory, &mut untitled, start));
+        let raw = assemble(
+            &snapshot(windows, vec![ax("Table C - 6-max", left)]),
+            &mut memory,
+        );
+        assert!(memory[&303].bar_known);
+        assert!(!untitled_waiting(&raw, &memory, &mut untitled, later));
     }
 
     /// Through a room's matcher: the backend's tables are `table_of` these

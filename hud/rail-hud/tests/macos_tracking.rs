@@ -1026,9 +1026,16 @@ mod macos {
         let last = *targets.last().expect("a target");
         std::thread::sleep(Duration::from_millis(600));
         let at = macos::window_now(overlay).expect("the overlay").bounds;
+        // Over the table where it is now: a slow window server can show the
+        // last move after the sampling settled (CI: the overlay one row
+        // further than the last place sampled - where the table was).
+        let now = macos::window_now(number(a.id))
+            .map(|table| macos::client_frame(&table.bounds, bar))
+            .expect("the table");
         assert!(
-            at.close_to(&last),
-            "moved after the storm: {at:?} vs {last:?}"
+            at.close_to(&now),
+            "moved after the storm: the overlay at {at:?}, the table at {now:?} \
+             (last sampled {last:?})"
         );
         let events = backend.poll_events();
         let moved = events
@@ -1134,6 +1141,19 @@ mod macos {
 
     // ---------------------------------------------------------------------
     // The HUD process with the simulator's tracking script.
+
+    /// The HUD's on-screen windows (number and frame).
+    fn hud_windows(hud: u32) -> String {
+        macos::cg_windows()
+            .map(|all| {
+                all.iter()
+                    .filter(|w| w.pid == hud && w.onscreen)
+                    .map(|w| format!("  hud {} {:?}", w.id, w.bounds))
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })
+            .unwrap_or_default()
+    }
 
     /// Every window of the simulator (`sim`) and the HUD (`hud`), front to
     /// back where on screen: a failed step's evidence.
@@ -1294,6 +1314,7 @@ mod macos {
                         // Settled windows only (the event comes once the
                         // window has settled, but give it a moment).
                         let heard = Instant::now();
+                        let heard_at = hud.now();
                         let found = wait_for_window(pid, &event);
                         let Some((id, scale)) = found else {
                             fail(format!("table {n}: no window for {event}"), &log, &mut hud);
@@ -1302,7 +1323,16 @@ mod macos {
                         let then = windows_now(pid, hud_pid);
                         let client = macos::rect_points(&client_of(&event), scale);
                         windows.insert(n, (id, client));
+                        // The HUD's windows each time they change while
+                        // waiting (a failure's timeline).
+                        let mut timeline: Vec<String> = Vec::new();
+                        let mut last = String::new();
                         let covered = until(Duration::from_secs(3), || {
+                            let now = hud_windows(hud_pid);
+                            if now != last {
+                                timeline.push(format!("+{:.3}:\n{now}", hud.now().as_secs_f64()));
+                                last = now;
+                            }
                             hud_overlay(hud_pid, &client).is_some()
                                 && hud_stacked(hud_pid, id, &client).is_ok()
                         });
@@ -1312,13 +1342,16 @@ mod macos {
                             // when it was found and now.
                             fail(
                                 format!(
-                                    "table {n} at {client:?} (window {id}, listed {} ms after \
-                                     the event, given up {} ms after it): {:?}\n\
-                                     windows when listed:\n{then}\nwindows now:\n{}",
+                                    "table {n} at {client:?} (window {id}, event at +{:.3}, \
+                                     listed {} ms after it, given up {} ms after it): {:?}\n\
+                                     windows when listed:\n{then}\nwindows now:\n{}\n\
+                                     the HUD's windows while waiting:\n{}",
+                                    heard_at.as_secs_f64(),
                                     listed.as_millis(),
                                     heard.elapsed().as_millis(),
                                     hud_stacked(hud_pid, id, &client),
-                                    windows_now(pid, hud_pid)
+                                    windows_now(pid, hud_pid),
+                                    timeline.join("\n")
                                 ),
                                 &log,
                                 &mut hud,
