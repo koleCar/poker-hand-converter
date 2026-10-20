@@ -129,20 +129,25 @@ mod macos {
     /// and its screen's scale (the window server's list, no permission).
     fn window_of_event(pid: u32, event: &Value) -> Option<(u32, u32)> {
         let displays = macos::displays();
-        macos::cg_windows()
-            .ok()?
-            .into_iter()
+        let order = macos::onscreen_order().unwrap_or_default();
+        let windows = macos::cg_windows().ok()?;
+        let mine: Vec<&CgWindow> = windows
+            .iter()
             .filter(|w| w.pid == pid && w.layer == 0)
-            .find_map(|w| {
-                let scale = macos::display_scale(&w.bounds, &displays);
-                let px = macos::to_pixels(&w.bounds, scale);
-                let bottom = i64::from(px.y) + i64::from(px.height);
-                (i64::from(px.x) == int(event, "x")
-                    && i64::from(px.y) == int(event, "y")
-                    && i64::from(px.width) == int(event, "width")
-                    && (bottom - (int(event, "clientY") + int(event, "height"))).abs() <= 1)
-                    .then_some((w.id, scale))
-            })
+            .collect();
+        // Front to back: a table opened exactly over another is in front of
+        // it, and the event is about the table that changed - the front one
+        // (the window server's list is not in z-order).
+        macos::z_ordered(&mine, &order).into_iter().find_map(|w| {
+            let scale = macos::display_scale(&w.bounds, &displays);
+            let px = macos::to_pixels(&w.bounds, scale);
+            let bottom = i64::from(px.y) + i64::from(px.height);
+            (i64::from(px.x) == int(event, "x")
+                && i64::from(px.y) == int(event, "y")
+                && i64::from(px.width) == int(event, "width")
+                && (bottom - (int(event, "clientY") + int(event, "height"))).abs() <= 1)
+                .then_some((w.id, scale))
+        })
     }
 
     fn client_of(event: &Value) -> Rect {
@@ -1130,6 +1135,31 @@ mod macos {
     // ---------------------------------------------------------------------
     // The HUD process with the simulator's tracking script.
 
+    /// Every window of the simulator (`sim`) and the HUD (`hud`), front to
+    /// back where on screen: a failed step's evidence.
+    fn windows_now(sim: u32, hud: u32) -> String {
+        let order = macos::onscreen_order().unwrap_or_default();
+        match macos::cg_windows() {
+            Ok(all) => all
+                .iter()
+                .filter(|w| w.pid == sim || w.pid == hud)
+                .map(|w| {
+                    format!(
+                        "  {} {} {:?} onscreen={} layer={} z={:?}",
+                        if w.pid == sim { "sim" } else { "hud" },
+                        w.id,
+                        w.bounds,
+                        w.onscreen,
+                        w.layer,
+                        order.iter().position(|&n| n == w.id)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("\n"),
+            Err(error) => error.to_string(),
+        }
+    }
+
     /// The HUD's overlay over `client` (points): an on-screen window of the
     /// HUD at exactly that place.
     fn hud_overlay(hud: u32, client: &Frame) -> Option<CgWindow> {
@@ -1139,42 +1169,51 @@ mod macos {
             .find(|w| w.pid == hud && w.onscreen && w.layer == 0 && w.bounds.close_to(client))
     }
 
-    /// The HUD's overlay over `client` is directly above `table` (its own
-    /// click windows, inside it, may be between).
+    /// One of the HUD's overlays over `client` is directly above `table`
+    /// (its own click windows, inside it, may be between). Several may be
+    /// there: a table opened exactly over another has its overlay over the
+    /// other's, and the window server's list is not in z-order (CI picked
+    /// the covered table's overlay and failed the new table's step).
     fn hud_stacked(hud: u32, table: u32, client: &Frame) -> Result<(), String> {
         let all = macos::cg_windows().map_err(|e| e.to_string())?;
-        let overlay = all
-            .iter()
-            .find(|w| w.pid == hud && w.onscreen && w.layer == 0 && w.bounds.close_to(client))
-            .ok_or("no overlay there")?;
         let order: Vec<i64> = macos::onscreen_order()
             .map_err(|e| e.to_string())?
             .into_iter()
             .map(i64::from)
             .collect();
-        let o = order
+        let candidates: Vec<&CgWindow> = all
             .iter()
-            .position(|&n| n == i64::from(overlay.id))
-            .ok_or("the overlay is not on screen")?;
-        let inside = |b: &Frame| {
-            b.x >= overlay.bounds.x
-                && b.y >= overlay.bounds.y
-                && b.x + b.width <= overlay.bounds.x + overlay.bounds.width
-                && b.y + b.height <= overlay.bounds.y + overlay.bounds.height
-        };
-        let hits: Vec<i64> = order[..o]
-            .iter()
-            .rev()
-            .map_while(|&n| {
-                all.iter()
-                    .find(|w| i64::from(w.id) == n && w.pid == hud && inside(&w.bounds))
-                    .map(|w| i64::from(w.id))
-            })
+            .filter(|w| w.pid == hud && w.onscreen && w.layer == 0 && w.bounds.close_to(client))
             .collect();
-        match macos::stacking(&order, i64::from(table), i64::from(overlay.id), &hits) {
-            Stacking::Fine => Ok(()),
-            other => Err(format!("{other:?}")),
+        let mut first_error = None;
+        for overlay in candidates {
+            let Some(o) = order.iter().position(|&n| n == i64::from(overlay.id)) else {
+                first_error.get_or_insert_with(|| "the overlay is not on screen".to_owned());
+                continue;
+            };
+            let inside = |b: &Frame| {
+                b.x >= overlay.bounds.x
+                    && b.y >= overlay.bounds.y
+                    && b.x + b.width <= overlay.bounds.x + overlay.bounds.width
+                    && b.y + b.height <= overlay.bounds.y + overlay.bounds.height
+            };
+            let hits: Vec<i64> = order[..o]
+                .iter()
+                .rev()
+                .map_while(|&n| {
+                    all.iter()
+                        .find(|w| i64::from(w.id) == n && w.pid == hud && inside(&w.bounds))
+                        .map(|w| i64::from(w.id))
+                })
+                .collect();
+            match macos::stacking(&order, i64::from(table), i64::from(overlay.id), &hits) {
+                Stacking::Fine => return Ok(()),
+                other => {
+                    first_error.get_or_insert_with(|| format!("{other:?}"));
+                }
+            }
         }
+        Err(first_error.unwrap_or_else(|| "no overlay there".to_owned()))
     }
 
     fn the_hud_follows_the_tracking_script() {
@@ -1254,10 +1293,13 @@ mod macos {
                     } else {
                         // Settled windows only (the event comes once the
                         // window has settled, but give it a moment).
+                        let heard = Instant::now();
                         let found = wait_for_window(pid, &event);
                         let Some((id, scale)) = found else {
                             fail(format!("table {n}: no window for {event}"), &log, &mut hud);
                         };
+                        let listed = heard.elapsed();
+                        let then = windows_now(pid, hud_pid);
                         let client = macos::rect_points(&client_of(&event), scale);
                         windows.insert(n, (id, client));
                         let covered = until(Duration::from_secs(3), || {
@@ -1265,10 +1307,18 @@ mod macos {
                                 && hud_stacked(hud_pid, id, &client).is_ok()
                         });
                         if covered.is_none() {
+                            // The evidence: which window the event was
+                            // taken for, and every window of both processes
+                            // when it was found and now.
                             fail(
                                 format!(
-                                    "table {n} at {client:?}: {:?}",
-                                    hud_stacked(hud_pid, id, &client)
+                                    "table {n} at {client:?} (window {id}, listed {} ms after \
+                                     the event, given up {} ms after it): {:?}\n\
+                                     windows when listed:\n{then}\nwindows now:\n{}",
+                                    listed.as_millis(),
+                                    heard.elapsed().as_millis(),
+                                    hud_stacked(hud_pid, id, &client),
+                                    windows_now(pid, hud_pid)
                                 ),
                                 &log,
                                 &mut hud,

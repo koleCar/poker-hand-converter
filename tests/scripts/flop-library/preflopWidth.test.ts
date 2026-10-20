@@ -41,6 +41,15 @@
  * lists the grids run (any, union, mix, flat by level, per line, per table,
  * the orders, the widths, with and without placeholders).
  *
+ * Raising lines and the small blind's open (§10 2026-10-20, the second
+ * entry, on top of `analysis/31`): a `mix` candidate may give a line group
+ * its own order (`tauBy` temperature, `termBy` one extra feature term,
+ * `kBy` width) and widen the small blind's open to a share of all hands
+ * (`sbWidth`, per table class). `PW_REF=<name>` scores every gain, the held
+ * out choice and the guard against that candidate instead of `analysis/30`
+ * (the study's `analysis/31` is `mix 0.75 popnp +ph` of every group);
+ * `PW_PICK=<regex>` limits what a fold may choose.
+ *
  * Prints to the console only; nothing about a hand or a player is written.
  */
 
@@ -150,6 +159,39 @@ function eqZ(): Float64Array {
   return EQ_Z;
 }
 type Order = "pop" | "popnp" | "eq";
+/** `features` by name, for a raise-fitted extra term (§10 2026-10-20, raising lines). */
+const FEATURE_INDEX: Record<string, number> = { pair: 1, suited: 2, hi: 3, lo: 4, gap: 5, ace: 6, broadway: 7 };
+const twistCache = new Map<string, Float64Array>();
+/**
+ * `popnp`'s logits at temperature `tau` plus `coef` × one feature (a raising
+ * line's own order): z' = tau · z + coef · x[feature].
+ */
+function twistedZ(tau: number, feature: string | undefined, coef: number): Float64Array {
+  const key = `${tau}|${feature}|${coef}`;
+  const hit = twistCache.get(key);
+  if (hit) return hit;
+  const j = feature ? FEATURE_INDEX[feature] : -1;
+  const z = perCombo((name) => {
+    const x = features(name);
+    return tau * x.reduce((s, v, i) => s + (i === 8 ? 0 : v * SHAPE[i]), 0) + (j >= 0 ? coef * x[j] : 0);
+  });
+  twistCache.set(key, z);
+  return z;
+}
+/** A logistic order shifted to `width` combos (bisection). */
+function zAtWidth(Z: Float64Array, width: number): Float64Array {
+  let lo = -60;
+  let hi = 60;
+  for (let i = 0; i < 60; i += 1) {
+    const mid = (lo + hi) / 2;
+    let s = 0;
+    for (let c = 0; c < NUM_COMBOS; c += 1) s += sigmoid(Z[c] + mid);
+    if (s > width) hi = mid;
+    else lo = mid;
+  }
+  const a = (lo + hi) / 2;
+  return Float64Array.from(Z, (z) => sigmoid(z + a));
+}
 /** A range of `width` combos in an order: `pop`/`popnp` the logistic shape shifted (bisection), `eq` the top of the equity order. */
 function shapeAtWidth(width: number, order: Order = "pop"): Float64Array {
   if (order === "eq") {
@@ -207,6 +249,24 @@ interface Cand {
   placeholders?: boolean;
   /** Only tables of this size class ("hu" 2, "6" 3-6, "9" 7+). */
   tables?: string[];
+  /**
+   * `mix` (popnp), per group: the order's temperature (z → tau · z), an
+   * extra feature term (`term`, `coef`) and the order part's width multiple
+   * (`kBy`, overrides `k`) - a raising line's own order (§10 2026-10-20,
+   * raising lines). A group missing keeps the shared order.
+   */
+  tauBy?: Partial<Record<Group, number>>;
+  termBy?: Partial<Record<Group, { feature: string; coef: number }>>;
+  kBy?: Partial<Record<Group, number>>;
+  /**
+   * `mix`: the small blind's open (`open:SB`, not heads-up) widened to this
+   * share of all 1,326 combos, the added width in the order (`sbM` the
+   * order's part of it, default the group's m); `sbTables` limits the table
+   * classes (default 6 and 9).
+   */
+  sbWidth?: number | Record<string, number>;
+  sbM?: number;
+  sbTables?: string[];
 }
 const BASE: Cand = { name: "analysis/30", kind: "none", by: {} };
 const tableClass = (n: number) => (n <= 2 ? "hu" : n <= 6 ? "6" : "9");
@@ -216,16 +276,32 @@ function widener(cand: Cand) {
   return (range: Float64Array, label: string, tableSize: number, source: string, approx: readonly string[]) => {
     if (source !== "chart" && !(cand.placeholders && !approx.includes("range-population"))) return null;
     if (cand.tables && !cand.tables.includes(tableClass(tableSize))) return null;
-    const p = cand.by[groupOf(label.split(":")[0])];
+    const group = groupOf(label.split(":")[0]);
+    let p = cand.by[group];
     if (p === undefined) return null;
-    if (cand.kind === "any") return Float64Array.from(range, (w) => (1 - p) * w + p);
+    if (cand.kind === "any") return Float64Array.from(range, (w) => (1 - (p as number)) * w + (p as number));
     if (cand.kind === "mix" || cand.kind === "flat") {
       const width = range.reduce((s, w) => s + w, 0);
       if (cand.kind === "flat") return Float64Array.from(range, (w) => (1 - p) * w + (p * width) / NUM_COMBOS);
+      const tau = cand.tauBy?.[group];
+      const term = cand.termBy?.[group];
+      const kg = cand.kBy?.[group];
+      const sbShare = typeof cand.sbWidth === "number" ? cand.sbWidth : cand.sbWidth?.[tableClass(tableSize)];
+      const sb = sbShare !== undefined && label === "open:SB" && (cand.sbTables ?? ["6", "9"]).includes(tableClass(tableSize));
+      if (tau !== undefined || term !== undefined || kg !== undefined || sb) {
+        const Z = twistedZ(tau ?? 1, term?.feature, term?.coef ?? 0);
+        let target = width * (kg ?? cand.k ?? 1);
+        if (sb) {
+          p = cand.sbM ?? p;
+          target = (NUM_COMBOS * (sbShare as number) - (1 - p) * width) / p;
+        }
+        const shape = zAtWidth(Z, Math.max(1, Math.min(NUM_COMBOS * 0.98, target)));
+        return Float64Array.from(range, (w, c) => (1 - (p as number)) * w + (p as number) * shape[c]);
+      }
       const shape = shapeAtWidth((cand.k ?? 1) === 1 ? width : Math.min(NUM_COMBOS * 0.98, width * (cand.k ?? 1)), cand.order);
-      return Float64Array.from(range, (w, c) => (1 - p) * w + p * shape[c]);
+      return Float64Array.from(range, (w, c) => (1 - (p as number)) * w + (p as number) * shape[c]);
     }
-    return Float64Array.from(range, (w, c) => 1 - (1 - w) * (1 - sigmoid(SHAPE_Z[c] + p)));
+    return Float64Array.from(range, (w, c) => 1 - (1 - w) * (1 - sigmoid(SHAPE_Z[c] + (p as number))));
   };
 }
 
@@ -386,8 +462,8 @@ const llScore = (s: Spot, r: Result) => (s.order[0] === s.actual ? 0 : r.firstLL
 
 /* ------------------------------------------------------------------ guard - */
 
-/** The earlier studies' shown-hand rows (as `checkedRanges.test.ts`'s guard), candidate − `analysis/30`. */
-function guard(hands: readonly PhfHand[], charts: ChartSet, cand: Cand) {
+/** The earlier studies' shown-hand rows (as `checkedRanges.test.ts`'s guard), candidate − the reference (`PW_REF`, default `analysis/30`). */
+function guard(hands: readonly PhfHand[], charts: ChartSet, cand: Cand, ref: Cand = BASE) {
   interface Row {
     player: string;
     kind: string;
@@ -403,7 +479,7 @@ function guard(hands: readonly PhfHand[], charts: ChartSet, cand: Cand) {
     const shown = seats.filter((s) => s !== actual && (context.players.get(s)?.holeCards?.length ?? 0) === 2);
     if (shown.length === 0) continue;
     const walker = actual !== null && seats.includes(actual) ? actual : seats[0];
-    const a = walk(hand, walker, actual, charts, BASE);
+    const a = walk(hand, walker, actual, charts, ref);
     const b = walk(hand, walker, actual, charts, cand);
     if (!a || !b) continue;
     const bomb = hand.game.bombPot ? "bomb " : "";
@@ -429,7 +505,7 @@ function guard(hands: readonly PhfHand[], charts: ChartSet, cand: Cand) {
       }
     }
   }
-  console.log(`--- guard: the shown-hand checks, ${cand.name} − analysis/30, per combo (clustered by player)`);
+  console.log(`--- guard: the shown-hand checks, ${cand.name} − ${ref.name}, per combo (clustered by player)`);
   for (const k of [...new Set(rows.map((r) => r.kind))].sort()) {
     const sub = rows.filter((r) => r.kind === k);
     console.log(`  ${k}: n ${sub.length} | Δ ${fmt(clustered(sub, (r) => r.player, (r) => r.d))}`);
@@ -653,12 +729,16 @@ it("opponents' preflop chart ranges, scored unselected", { timeout: 12 * 60 * 60
   const R = (n: string, s: Spot) => scores.get(n)?.get(s) as Result;
   const ll = (n: string, s: Spot) => llScore(s, R(n, s));
   const scopes: [string, (s: Spot) => boolean][] = [["all", () => true], ...groups];
-  // In sample, each candidate against the baseline.
-  console.log("in sample (unselected LL gain per spot, clustered by hand; share won − predicted):");
+  // The reference the gains are against (`PW_REF`, a candidate's name; default analysis/30).
+  const REF = process.env.PW_REF && scores.has(process.env.PW_REF) ? process.env.PW_REF : BASE.name;
+  // The candidates a fold may choose (`PW_PICK`, a regular expression on the name; default all).
+  const pickable = process.env.PW_PICK ? names.filter((n) => new RegExp(process.env.PW_PICK as string).test(n)) : names;
+  // In sample, each candidate against the reference.
+  console.log(`in sample (unselected LL gain per spot over ${REF}, clustered by hand; share won − predicted):`);
   for (const n of names.slice(1)) {
     const parts = scopes.map(([t, pick]) => {
       const sub = ok.filter(pick);
-      const g = clustered(sub, (s) => s.h, (s) => ll(n, s) - ll(BASE.name, s));
+      const g = clustered(sub, (s) => s.h, (s) => ll(n, s) - ll(REF, s));
       if (t === "all") return `all LL ${fmt(g)}`;
       const d = clustered(sub, (s) => s.h, (s) => s.firstShare - R(n, s).share);
       return `${t} LL ${fmt(g)} share ${fmt(d)}`;
@@ -674,9 +754,9 @@ it("opponents' preflop chart ranges, scored unselected", { timeout: 12 * 60 * 60
     const held = new Map<Spot, string>();
     for (let k = 0; k < FOLDS; k += 1) {
       const train = ok.filter((s) => foldFn(s) !== k);
-      let best = names[0];
+      let best = pickable[0];
       let bestV = -Infinity;
-      for (const n of names) {
+      for (const n of pickable) {
         const v = train.reduce((a, s) => a + ll(n, s), 0);
         if (v > bestV) {
           bestV = v;
@@ -688,12 +768,12 @@ it("opponents' preflop chart ranges, scored unselected", { timeout: 12 * 60 * 60
     }
     const out = scopes.map(([t, pick]) => {
       const sub = ok.filter(pick);
-      const g = clustered(sub, key, (s) => ll(held.get(s) as string, s) - ll(BASE.name, s));
-      const sq = clustered(sub, key, (s) => (s.firstShare - R(BASE.name, s).share) ** 2 - (s.firstShare - R(held.get(s) as string, s).share) ** 2);
+      const g = clustered(sub, key, (s) => ll(held.get(s) as string, s) - ll(REF, s));
+      const sq = clustered(sub, key, (s) => (s.firstShare - R(REF, s).share) ** 2 - (s.firstShare - R(held.get(s) as string, s).share) ** 2);
       const d = clustered(sub, key, (s) => s.firstShare - R(held.get(s) as string, s).share);
       return `${t}: n ${sub.length} LL gain ${fmt(g)} (${(g.mean / g.se).toFixed(1)} SE); share won − predicted ${fmt(d)}, squared-error gain ${fmt(sq)}`;
     });
-    console.log(`held out [folds by ${fname}] chose ${chosen.join(" / ")}\n    ${out.join("\n    ")}`);
+    console.log(`held out [folds by ${fname}] over ${REF}, from ${pickable.length} candidates, chose ${chosen.join(" / ")}\n    ${out.join("\n    ")}`);
   }
   if (process.env.PW_DIAG_BEST) {
     const n = process.env.PW_DIAG_BEST;
@@ -735,5 +815,6 @@ it("opponents' preflop chart ranges, scored unselected", { timeout: 12 * 60 * 60
     }
   }
   const guarded = process.env.PW_GUARD ?? "";
-  if (guarded) for (const c of grid.slice(1)) if (guarded === "1" || guarded === c.name) guard(hands, charts, c);
+  const refCand = grid.find((c) => c.name === REF) ?? BASE;
+  if (guarded) for (const c of grid.slice(1)) if (c !== refCand && (guarded === "1" || guarded === c.name)) guard(hands, charts, c, refCand);
 });

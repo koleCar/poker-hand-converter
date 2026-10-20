@@ -294,6 +294,10 @@ export function walkRanges(
   let empty = false;
   /** Decisions already made on this street (a check after one is checked to: analysis/30). */
   let streetDecisions = 0;
+  /** The initiative (analysis/32): the last bettor or raiser of the latest street with a bet, and whether this street has had a bet. */
+  let initiativeHolder: number | null = null;
+  let lastAggressor: number | null = null;
+  let betOnStreet = false;
 
   for (const action of hand.actions) {
     if (action.street !== street) {
@@ -301,6 +305,9 @@ export function walkRanges(
       totals = new Map();
       high = 0;
       streetDecisions = 0;
+      if (lastAggressor !== null) initiativeHolder = lastAggressor;
+      lastAggressor = null;
+      betOnStreet = false;
       if ((POSTFLOP as readonly string[]).includes(street)) {
         const board = boardOf(hand, street as NarrowStreet);
         if (board.length === 0) break;
@@ -317,6 +324,7 @@ export function walkRanges(
       }
     }
     if (action.seat === null || NOT_MONEY.has(action.type)) continue;
+    const initiative = !betOnStreet && action.seat === initiativeHolder;
 
     const postflop = (POSTFLOP as readonly string[]).includes(action.street);
     if (postflop && DECISIONS.has(action.type) && (action.seat === hero || action.seat === villain)) {
@@ -353,7 +361,7 @@ export function walkRanges(
           board: strength.board,
           actor: actorIsHero ? ranges.hero : ranges.villain,
           opponent: actorIsHero ? ranges.villain : ranges.hero,
-          action: { kind, sizePot, allIn: action.allIn, checksBefore: checks.get(action.seat) ?? 0, checkedTo: kind === "check" && streetDecisions > 0 },
+          action: { kind, sizePot, allIn: action.allIn, checksBefore: checks.get(action.seat) ?? 0, checkedTo: kind === "check" && streetDecisions > 0, initiative: kind === "check" && initiative, bombPot: context.isBombPot },
           strength,
           actionIndex: action.index,
         };
@@ -363,6 +371,10 @@ export function walkRanges(
       }
     }
     if (postflop && DECISIONS.has(action.type)) streetDecisions += 1;
+    if (action.type === "bet" || action.type === "raise") {
+      lastAggressor = action.seat;
+      betOnStreet = true;
+    }
 
     pot += action.amount;
     if (action.type !== "ante" && action.type !== "bomb-ante" && action.type !== "uncalled") {
