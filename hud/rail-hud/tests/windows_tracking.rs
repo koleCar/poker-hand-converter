@@ -423,12 +423,21 @@ fn hooks_follow_every_change() {
     //    raised and another focused.
     drive::raise(b.window.id).expect("raise");
     sim.command(&format!("focus {}", a.number));
-    std::thread::sleep(Duration::from_millis(500));
-    for t in &tables {
-        assert!(
-            probe::is_above(t.overlay, t.window.id),
-            "table {}'s overlay is below it\n{}",
-            t.number,
+    // Given up to 3 s (a slow CI runner had not restacked one within a fixed
+    // 500 ms).
+    let stacked = until(Duration::from_secs(3), || {
+        tables
+            .iter()
+            .all(|t| probe::is_above(t.overlay, t.window.id))
+    });
+    if stacked.is_none() {
+        let below: Vec<u64> = tables
+            .iter()
+            .filter(|t| !probe::is_above(t.overlay, t.window.id))
+            .map(|t| t.number)
+            .collect();
+        panic!(
+            "tables {below:?}: an overlay is below its table\n{}",
             context(&backend, &tables, &seen)
         );
     }
