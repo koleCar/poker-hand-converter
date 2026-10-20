@@ -40,7 +40,9 @@
 //! gate is checked; the simulator's data only (names like `SimHero`, no
 //! host or user name, no path). **Gates**: correctness everywhere; the
 //! latency budget (§3.3: < 1 s from the hand written to the frame, p95)
-//! everywhere; a paint's p95 under 16.7 ms; a follow's p50 under two
+//! everywhere; a paint's p95 under 16.7 ms on real hardware (on CI
+//! recorded - one debug build read 2.8 to 28 ms on Windows runners - with
+//! a ceiling of three frames); a follow's p50 under two
 //! frames and p95 under three frames on Windows and on real hardware only
 //! (a CI Mac's virtual window server stalls ~0.5 s now and then, R3.13:
 //! its p50 read 31 ms and 51 ms on two runs of the same code, so there
@@ -1194,13 +1196,27 @@ mod scenario {
             );
             let paint = &hud_perf["paint"];
             report.exact("paints recorded (> 0)", u64::from(p(paint, "count") > 0), 1);
+            // A paint is the runner's as much as the HUD's: on CI the same
+            // code measured p95 2.8, 3.1, 4.9, 5.0, 15, 24 and 28 ms (Windows,
+            // debug build, 2026-10-20). The budget is gated on real
+            // hardware; on CI it is recorded, and a ceiling of three frames
+            // still catches a paint gone an order of magnitude slower.
             report.gate(
                 "overlay paint, p95",
                 p(paint, "p95Us"),
                 BUDGET_PAINT_US,
                 Unit::Micros,
-                true,
+                options.real_hw,
             );
+            if !options.real_hw {
+                report.gate(
+                    "overlay paint, p95 (CI ceiling, 3 frames)",
+                    p(paint, "p95Us"),
+                    3 * FRAME_US,
+                    Unit::Micros,
+                    true,
+                );
+            }
             // On a CI Mac the follow latency is the virtual window server's
             // (R3.13): the same code measured p50 31 ms and 51 ms on two runs.
             // Recorded there, gated on Windows and on real hardware; "moves not
