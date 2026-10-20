@@ -441,8 +441,11 @@ pub fn wait_for<T>(
 /// `rail-hud` as a child, its standard error read line by line.
 pub struct Hud {
     pub child: Child,
-    lines: Receiver<String>,
+    lines: Receiver<(Duration, String)>,
     pub seen: Vec<String>,
+    /// When each line of `seen` came, from the start.
+    stamps: Vec<Duration>,
+    started: Instant,
 }
 
 impl Hud {
@@ -455,11 +458,12 @@ impl Hud {
             .spawn()
             .expect("rail-hud starts");
         let stderr = child.stderr.take().expect("stderr");
+        let started = Instant::now();
         let (tx, lines) = mpsc::channel();
         std::thread::spawn(move || {
             for line in BufReader::new(stderr).lines() {
                 let Ok(line) = line else { break };
-                if tx.send(line).is_err() {
+                if tx.send((started.elapsed(), line)).is_err() {
                     break;
                 }
             }
@@ -468,6 +472,8 @@ impl Hud {
             child,
             lines,
             seen: Vec::new(),
+            stamps: Vec::new(),
+            started,
         }
     }
 
@@ -482,14 +488,26 @@ impl Hud {
             if Instant::now() >= deadline {
                 return false;
             }
-            if let Ok(line) = self.lines.recv_timeout(Duration::from_millis(200)) {
+            if let Ok((at, line)) = self.lines.recv_timeout(Duration::from_millis(200)) {
                 self.seen.push(line);
+                self.stamps.push(at);
             }
         }
     }
 
+    /// Time since it started (the clock of `log`'s stamps).
+    pub fn now(&self) -> Duration {
+        self.started.elapsed()
+    }
+
+    /// Every line read, each with when it came (`+s.mmm`).
     pub fn log(&self) -> String {
-        self.seen.join("\n")
+        self.seen
+            .iter()
+            .zip(&self.stamps)
+            .map(|(line, at)| format!("+{:.3} {line}", at.as_secs_f64()))
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 }
 

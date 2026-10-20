@@ -219,23 +219,26 @@ fn the_hand_in_play_is_never_counted() {
 
     // The HUD reads as much as it likes - the store's own check, the app's
     // `resync` - and shows one hand while the next is in play.
-    let mut reread = |hud: &mut Hud, sent: &mut Vec<HudMessage>, what: &str| {
+    // `what`: say what is checked (`None`: the caller checks).
+    let mut reread = |hud: &mut Hud, sent: &mut Vec<HudMessage>, what: Option<&str>| {
         tick(hud, sent);
         hud.handle(Input::App(AppMessage::Resync, Instant::now()), &mut |m| {
             sent.push(m)
         });
-        assert_eq!(
-            shown(&kept),
-            [1; 6],
-            "{what}: the hand in play is not counted"
-        );
+        if let Some(what) = what {
+            assert_eq!(
+                shown(&kept),
+                [1; 6],
+                "{what}: the hand in play is not counted"
+            );
+        }
     };
 
     // The next hand is being played: the rooms write a hand's history when
     // the hand has ended, so nothing of it is in the file yet.
     let until = Instant::now() + Duration::from_millis(1_500);
     while Instant::now() < until {
-        reread(&mut hud, &mut sent, "not written");
+        reread(&mut hud, &mut sent, Some("not written"));
         std::thread::sleep(Duration::from_millis(250));
     }
     // It ends and the room writes it - here in four pieces, each at a line
@@ -252,9 +255,14 @@ fn the_hand_in_play_is_never_counted() {
         .map(|mark| second.find(mark).expect("a street"))
         .chain([second.len()])
         .collect();
-    // The pieces go 150 ms apart whatever a reread costs (a Windows CI
-    // runner once spent over 400 ms on two, and the watcher rightly stored
-    // the prefix: R1.3's case above, not this test's).
+    // The pieces go 150 ms apart whatever a reread costs, and a reread's
+    // count is checked only while no piece has been quiet for the watcher's
+    // quiet period: past it the watcher rightly stores the prefix - R1.3's
+    // case above, not this test's (Windows CI runners spent over 400 ms on
+    // two rereads, and over 500 ms on one).
+    let quiet = Duration::from_millis(
+        u64::try_from(WatchConfig::default().read.quiet_ms).expect("a quiet period"),
+    );
     let mut from = 0;
     let mut written: Option<Instant> = None;
     let mut longest = Duration::ZERO;
@@ -267,13 +275,19 @@ fn the_hand_in_play_is_never_counted() {
         written = Some(at);
         from = to;
         if index + 1 < cuts.len() {
-            reread(&mut hud, &mut sent, "being written");
+            reread(&mut hud, &mut sent, None);
+            let since = at.elapsed();
+            if longest < quiet && since < quiet {
+                assert_eq!(
+                    shown(&kept),
+                    [1; 6],
+                    "being written: the hand in play is not counted"
+                );
+            }
+            longest = longest.max(since);
             std::thread::sleep(Duration::from_millis(150).saturating_sub(at.elapsed()));
         }
     }
-    let quiet = Duration::from_millis(
-        u64::try_from(WatchConfig::default().read.quiet_ms).expect("a quiet period"),
-    );
     if longest >= quiet {
         eprintln!(
             "the runner stalled: {} ms between two pieces, longer than the quiet period; \
