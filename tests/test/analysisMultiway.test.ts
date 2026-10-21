@@ -798,18 +798,19 @@ describe("the approximate flop call (analysis/15)", { timeout: 120_000 }, () => 
     expect(near.grade).toBe("perfect");
     expect(near.evLoss).toBe(0);
     expect(near.approximations).toEqual(["flop-realisation", "multiway-approx", "narrowing-heuristic", "rake-profile"]);
-    const far = gradeFlopCall({ ...evs, call: -1.5 }, "call", 10);
-    expect(far.evLoss).toBeCloseTo(1, 9);
+    const far = gradeFlopCall({ ...evs, call: -2.5 }, "call", 10);
+    // 2bb beyond the margin: over 8% of the 12.5bb the floor judges a 10bb pot against (analysis/33).
+    expect(far.evLoss).toBeCloseTo(2, 9);
     expect(far.grade).toBe("mistake");
     expect(far.ev.capped).toBe("blunder");
     expect(far.approximations).toContain("range-cap");
-    expect(far.ev.call).toBe(-1.5);
-    expect(far.options.map((o) => o.ev)).toEqual([0, -1]);
+    expect(far.ev.call).toBe(-2.5);
+    expect(far.options.map((o) => o.ev)).toEqual([0, -2]);
     expect(gradeFlopCall({ ...evs, call: -1.5 }, "fold", 10).grade).toBe("perfect");
     const mild = gradeFlopCall({ ...evs, call: 0.65 }, "fold", 10);
     expect(mild.grade).toBe("inaccurate");
     for (const g of [near, far, mild]) {
-      expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap") }).grade).toBe(g.grade);
+      expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap"), bbFloor: true }).grade).toBe(g.grade);
     }
   });
 
@@ -1012,14 +1013,14 @@ describe("the approximate turn call (analysis/16)", { timeout: 120_000 }, () => 
     expect(near.grade).toBe("perfect");
     expect(near.evLoss).toBe(0);
     expect(near.approximations).toEqual(["multiway-approx", "narrowing-heuristic", "rake-profile", "turn-realisation"]);
-    const far = gradeTurnCall({ ...evs, call: -(1 + TURN_MARGIN_POT * 10) }, "call", 10);
-    expect(far.evLoss).toBeCloseTo(1, 9);
+    const far = gradeTurnCall({ ...evs, call: -(2 + TURN_MARGIN_POT * 10) }, "call", 10);
+    expect(far.evLoss).toBeCloseTo(2, 9);
     expect(far.grade).toBe("mistake");
     expect(far.ev.capped).toBe("blunder");
     expect(far.approximations).toContain("range-cap");
     expect(gradeTurnCall({ ...evs, call: -1.5 }, "fold", 10).grade).toBe("perfect");
     for (const g of [near, far]) {
-      expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap") }).grade).toBe(g.grade);
+      expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap"), bbFloor: true }).grade).toBe(g.grade);
     }
   });
 

@@ -540,7 +540,7 @@ export function gradeMapped(
   let chosen = mapped.edges[0];
   let graded: GradeResult | null = null;
   for (const edge of mapped.edges) {
-    const candidate = grade({ options, chosen: edge, pot, capAtInaccurate: offTree });
+    const candidate = grade({ options, chosen: edge, pot, capAtInaccurate: offTree, bbFloor: true });
     if (
       !graded ||
       gradeRank(candidate.grade) < gradeRank(graded.grade) ||

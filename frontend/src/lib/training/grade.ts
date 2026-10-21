@@ -94,6 +94,8 @@ export function gradeDrill(decision: DrillDecision, answer: number): GradeResult
     capAtInaccurate: decision.approximations.includes("off-tree-size"),
     // A solver grade and an approximate multiway one (A9) rest on narrowed ranges.
     capAtMistake: decision.source === "solver" || decision.source === "approx",
+    // Every grade but the charts' is postflop: the big-blind floor (analysis/33).
+    bbFloor: decision.source !== "chart",
   });
 }
 
@@ -116,6 +118,7 @@ export function asAnswered(decision: DecisionAnalysis, answer: number, result: G
       chosen: answer,
       pot: decision.facts.potBb,
       capAtInaccurate: decision.approximations.includes("off-tree-size"),
+      bbFloor: true,
     });
     if (uncapped.grade === "blunder" && result.grade === "mistake") approximations.push("range-cap");
   }

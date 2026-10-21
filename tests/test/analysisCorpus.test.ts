@@ -194,6 +194,7 @@ describe("turn grading on a sample of the corpus (A5a)", { timeout: 180_000 }, (
           pot: d.facts.potBb,
           capAtInaccurate: d.approximations.includes("off-tree-size"),
           capAtMistake: d.approximations.includes("range-cap"),
+          bbFloor: true,
         });
         expect(d.grade).toBe(again.grade);
         expect(d.options.reduce((sum, o) => sum + o.freq, 0)).toBeCloseTo(1, 2);
@@ -340,6 +341,8 @@ describe("every record satisfies the database's own constraints", () => {
           // analysis/24: a poster's check read as a limp caps the grade too.
           capAtInaccurate: decision.approximations.includes("off-tree-size") || decision.approximations.includes("posted-blind"),
           capAtMistake: decision.approximations.includes("range-cap"),
+          // analysis/33: every postflop grade takes the big-blind floor, no preflop one.
+          bbFloor: decision.street !== "preflop",
         });
         expect(decision.grade).toBe(again.grade);
         expect(decision.evLoss).toBeCloseTo(again.evLoss, 2);

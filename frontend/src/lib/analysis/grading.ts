@@ -24,6 +24,19 @@ export const INACCURATE_MAX_EV_LOSS_POT = 0.02;
 /** At most this share of the pot: Mistake. Anything more is a Blunder. */
 export const MISTAKE_MAX_EV_LOSS_POT = 0.08;
 
+/**
+ * The big-blind floor (analysis/33): a postflop loss is judged against a pot
+ * of at least this many big blinds. The shares above stay the rule; in a
+ * smaller pot their thresholds are this pot's - a loss of at most
+ * `INACCURATE_MAX_EV_LOSS_POT × FLOOR_POT_BB` (0.25bb) is never worse than
+ * Inaccurate, at most `MISTAKE_MAX_EV_LOSS_POT × FLOOR_POT_BB` (1bb) never a
+ * Blunder - and the move score reads the same pot. Below it the range
+ * model's own error in big blinds is as large as the share thresholds
+ * (ANALYSIS-PLAN §10 2026-10-20, the big-blind floor). Preflop grades (the
+ * charts' EVs, no narrowed ranges) do not take it.
+ */
+export const FLOOR_POT_BB = 12.5;
+
 /** `max(0, 100 − SCORE_PER_POT · evLossPot)` once EV loss is not negligible. */
 export const SCORE_PER_POT = 1000;
 
@@ -47,6 +60,12 @@ export interface GradeInput {
   capAtMistake?: boolean;
   /** Never award Perfect — the heuristic source's rule (§3.6). */
   noPerfect?: boolean;
+  /**
+   * Judge the loss against a pot of at least `FLOOR_POT_BB` (analysis/33):
+   * every postflop grade sets it, preflop ones do not. `evLossPot` stays the
+   * loss over the real pot, the number the reader sees.
+   */
+  bbFloor?: boolean;
 }
 
 export interface GradeResult {
@@ -71,7 +90,8 @@ export interface GradeResult {
  * | Blunder    | everything else                               |
  *
  * EV loss is judged in **% of pot**, not bb: the same 2bb is a disaster in a
- * limped pot and noise in a 4-bet pot. Throws on an empty option list or an
+ * limped pot and noise in a 4-bet pot. With `bbFloor` (postflop) the shares
+ * are taken of a pot of at least `FLOOR_POT_BB`. Throws on an empty option list or an
  * out-of-range `chosen`, because grading a decision against nothing is a bug in
  * the caller, never a decision.
  */
@@ -86,16 +106,18 @@ export function grade(input: GradeInput): GradeResult {
   const evLoss = Math.max(0, maxEv - picked.ev);
   const evLossPot = input.pot > 0 ? evLoss / input.pot : evLoss > 0 ? Infinity : 0;
   const freqDiff = Math.max(0, maxFreq - picked.freq);
-  const negligible = evLossPot <= PERFECT_EV_LOSS_POT;
+  // The share the thresholds and the score read: of the real pot, or (postflop) of at least `FLOOR_POT_BB`.
+  const judged = input.bbFloor && input.pot < FLOOR_POT_BB ? evLoss / FLOOR_POT_BB : evLossPot;
+  const negligible = judged <= PERFECT_EV_LOSS_POT;
 
   let result: Grade;
   if (picked.freq >= maxFreq - PERFECT_FREQ_BAND || negligible) {
     result = "perfect";
   } else if (picked.freq >= GOOD_MIN_FREQ) {
     result = "good";
-  } else if (evLossPot <= INACCURATE_MAX_EV_LOSS_POT) {
+  } else if (judged <= INACCURATE_MAX_EV_LOSS_POT) {
     result = "inaccurate";
-  } else if (evLossPot <= MISTAKE_MAX_EV_LOSS_POT) {
+  } else if (judged <= MISTAKE_MAX_EV_LOSS_POT) {
     result = "mistake";
   } else {
     result = "blunder";
@@ -115,7 +137,7 @@ export function grade(input: GradeInput): GradeResult {
     ? maxFreq > 0
       ? (100 * picked.freq) / maxFreq
       : 100
-    : Math.max(0, 100 - SCORE_PER_POT * evLossPot);
+    : Math.max(0, 100 - SCORE_PER_POT * judged);
 
   return { grade: result, evLoss, evLossPot, freqDiff, score };
 }

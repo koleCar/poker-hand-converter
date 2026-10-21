@@ -166,6 +166,14 @@ Why EV loss in **% of pot** and not bb: the same 2bb is a disaster in a limped p
 and noise in a 4-bet pot (GTOW added % of pot for this reason). bb is still
 stored and shown.
 
+**The big-blind floor** (`analysis/33`, `FLOOR_POT_BB`): a *postflop* grade
+takes the shares above of a pot of at least **12.5bb**, so in a smaller pot a
+loss of at most 0.25bb is never worse than Inaccurate and at most 1bb never a
+Blunder; the move score reads the same pot, and `evLossPot` shown is still
+the share of the real pot. Below about 10bb the range model's own error stops
+shrinking in big blinds (§10, 2026-10-20, the big-blind floor). Preflop
+grades keep the plain shares.
+
 **Move score** (0–100, for averages): `100 · freq[chosen] / max(freq)` when
 `evLoss` is negligible, otherwise `max(0, 100 − 1000 · evLossPot)`. **Hand
 score** is the mean over the hand's decisions; **player score** the mean over
@@ -5512,3 +5520,129 @@ Each phase appends what it learned that changed the plan.
       shown hands); refit when there are more.
     - The fit is one library's population; refit (`npm run
       floplib:raiser-narrowing`) as libraries grow.
+- 2026-10-20 — The big-blind floor: a postflop grade judges its EV loss
+  against a pot of at least 12.5bb, `analysis/33` (`FLOOR_POT_BB` and
+  `GradeInput.bbFloor` in `lib/analysis/grading.ts`; `bbFloored` in
+  `reference.ts`). No migration.
+  - **Why.** The open item of `analysis/31`: grades are by share of the pot
+    (§2), so in a limped blind-against-blind pot of 2bb a 0.09-0.25bb loss
+    is a **Mistake** (over 2%) and anything over 0.16bb would be a
+    **Blunder** (over 8%, capped at Mistake only by `range-cap`). Is a share
+    of a tiny pot still a measure the model can stand behind?
+  - **Data.** The census (`npm run floplib:census`, flop library on, the
+    three shipped sets, turn solves on) over the 5,448 stored hands, 8,005
+    hero decisions, at `analysis/30`, `analysis/31` and `analysis/32`; the
+    census rows now carry each grade's inputs (`evLoss`, `potBb`,
+    `chosenFreq`, `maxFreq`; still no cards, no names), so a floor can be
+    tried on the rows before it is written. The range model's own error is
+    read as how far the chosen move's EV loss moved between versions, the
+    same decision, both versions graded, postflop, only where it moved
+    (`analysis/30` → `analysis/32`, the two range changes of this week):
+
+    | pot before the decision | moved | \|ΔEV loss\| median | p75 | p90 | as a share of the pot, median | p90 |
+    |---|---|---|---|---|---|---|
+    | under 10bb | 98 | 0.055bb | 0.139bb | 0.234bb | 0.9% | 4.2% |
+    | 10-20bb | 89 | 0.143bb | 0.404bb | 0.762bb | 1.1% | 4.9% |
+    | 20bb and up | 109 | 0.466bb | 1.713bb | 3.641bb | 1.3% | 9.7% |
+
+    Above 10bb the movement grows with the pot (the share is what is
+    stable, as §2 assumes); under 10bb it stops shrinking in big blinds:
+    p75 0.10 / 0.16 / 0.12bb and p90 0.21 / 0.16 / 0.25bb in pots under
+    2.5bb (7 moved, all `analysis/31`'s limps), 4-6bb (41) and 6-10bb (49).
+    In a 2bb pot that is a p90 share of 10%, past the Mistake threshold.
+    The model's error there is a fraction of a big blind, not a fraction of
+    the pot, and 0.25bb (2% of 12.5bb) is where the p90 movement sits.
+  - **The rule.** Postflop, the pot the shares are taken of is
+    `max(pot, 12.5bb)`: a loss of at most 0.25bb is never worse than
+    Inaccurate and at most 1bb (8% of 12.5bb) never a Blunder; the
+    frequency rules (Perfect within 5 points, Good from 3.5%) and the caps
+    are untouched, and a pot of 12.5bb or more is graded exactly as before
+    (tested). Negligible stays 0.1% of that pot (0.0125bb in a small pot).
+    The move score reads the same pot; `evLossPot`, the number shown, is
+    still the share of the real pot. Every postflop grader sets it (the
+    turn, river and flop-library solves through `gradeMapped`, the
+    approximate multiway calls through `gradeCall`), and so do drills and
+    poll answers on postflop decisions (`gradeDrill`, `asAnswered`).
+    One constant, not two floors: both thresholds keep their 1:4 ratio,
+    and 12.5bb sits above a limped or single-raised flop (2-7bb) and a
+    single-raised turn after a small called c-bet, below a 3-bet pot.
+  - **Preflop is left alone.** Preflop grades read the charts' EVs (a full
+    preflop solve, no narrowed ranges), every pot is 1.5-3bb by
+    construction, and their shares were the scale the charts' grades were
+    read on since A2. The same floor there would move 258 of the 5,145
+    preflop grades (Mistake → Inaccurate 185, Blunder → Inaccurate 37,
+    Blunder → Mistake 36; 222 of the 295 preflop Mistakes and Blunders lose
+    0.25bb or less) - a separate question, not this one (Open).
+  - **The grades.** Census at `analysis/33` (three shards, the same hands)
+    against `analysis/32` row by row: **28 rows change grade, 25 milder,
+    3 harsher; no preflop row moves**; 12 more keep their grade and lose a
+    flag (11 `range-cap`: the uncapped grade is no longer a Blunder, so the
+    cap no longer applies; 1 `range-sensitive`).
+
+    | | milder | harsher |
+    |---|---|---|
+    | flop, solver (library) | Good → Perfect 5, Mistake → Inaccurate 1 | |
+    | flop, approximate (multiway) | Mistake → Inaccurate 2 | |
+    | turn, solver | Mistake → Inaccurate 12, Good → Perfect 3 | |
+    | turn, approximate (multiway) | Mistake → Inaccurate 1 | |
+    | river, solver | Good → Perfect 1 | Good → Inaccurate 3 |
+
+    Postflop Mistakes 111 → 95 (turn solver 52 → 40), Inaccurate 24 → 43,
+    Good 196 → 184, Perfect 1,112 → 1,121.
+    Of the 1,443 graded postflop decisions 788 are in pots under 12.5bb;
+    230 move score, the postflop mean 88.2 → 89.5 (pots under 12.5bb 89.0
+    → 91.4). The 9 Good → Perfect are losses of 0.006-0.012bb in 4.5-6bb
+    pots (0.1-0.3% of them), negligible on the floor's pot.
+  - **Read one by one** (census rows; no cards or names in the rows):
+    - The tiny blind-against-blind turn stabs of `analysis/31`'s entry:
+      a turn bet in a limped 2bb pot losing 0.09bb (4.5%, played 3.5% by
+      the solve), 0.18bb (9%, twice, `range-cap`) and 0.25bb (12.5%,
+      `range-cap`): Mistake → **Inaccurate**, the sentence now says why.
+      Four more turn bets in limped 2.5bb pots (0.08-0.15bb) the same.
+    - A turn bet in a single-raised 5bb pot losing 0.245bb (4.9%):
+      Mistake → **Inaccurate**; the largest loss the floor forgives.
+    - A multiway flop fold in a limped 4bb pot, 0.237bb beyond the
+      realisation margin: Mistake → **Inaccurate**.
+    - A turn bet in a limped 2.5bb pot losing 0.455bb (18%) stays a
+      **Mistake** (over 0.25bb), and loses `range-cap`: it was a Blunder by
+      share, and is a Mistake now by the rule, not by the cap.
+    - A turn fold in a single-raised 8.9bb pot losing 0.77bb stays a
+      **Mistake** (`range-cap` gone the same way).
+    - The 3 harsher: river checks in single-raised 5.5bb and limped 6.5bb
+      pots and a river bet in a limped 2.5bb pot, rarely played by the
+      solve (1.5-2.6%), 0.07-0.19bb. At `analysis/32` the full narrowing
+      said Mistake and the half-strength one Good, two classes apart, so
+      the sensitivity check showed the milder Good (`range-sensitive`). The
+      floor turns the full grade into Inaccurate, one class from Good, and
+      the check keeps the full grade (§3.5's rule, unchanged). Good →
+      **Inaccurate**: what the rule says once the full grade is no longer
+      an outlier.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/33`. `FLOOR_POT_BB` (12.5)
+    and `GradeInput.bbFloor` in `grading.ts`, set by `gradeMapped`
+    (`river.ts`), `gradeCall` (`multiway.ts`) and the drill graders
+    (`training/grade.ts`, every source but `chart`); §2 of this plan says
+    so. Wording (EN/HR): an Inaccurate or a Mistake the share alone would
+    have made worse says the pot was under 12.5bb, what the floor allows
+    and why (`bbFloored` in `reference.ts`). Tests (`analysisSpots`,
+    `analysisRiver`, `training`, `analysisMultiway`, `analysisCorpus`): the
+    floor's thresholds at 0.25bb and 1bb, the score on the floor's pot, a
+    pot of 12.5bb or more graded exactly as without it, the frequency
+    rules and the caps untouched; the sentence in both languages and when
+    it is not said (pot at the floor, preflop, a cap); drills floored for
+    every source but the charts; the corpus regrades postflop with the
+    floor and preflop without it; the approximate calls' range-cap tests
+    moved to a loss over the floor. The census rows carry the grade's
+    inputs. The analysis suite, typecheck and lint pass. Only aggregate
+    numbers are committed.
+  - **Open.**
+    - **Preflop tiny losses.** 222 of 295 preflop Mistakes and Blunders
+      lose 0.25bb or less (54 under 0.05bb). Whether the charts' EVs are
+      precise to that (the solve's own exploitability, rake, the charts'
+      implied-odds caveat) is the question before any preflop floor; a
+      floor in bb there would be a different number from this one.
+    - **The sensitivity check's two-class rule** makes a milder full grade
+      able to make the shown grade harsher (3 rows here). Comparing the two
+      narrowings' EV losses rather than their grade classes would remove
+      the step.
+    - The error measured is version-to-version movement on 98 small-pot
+      decisions, not a held-out error; remeasure as range changes ship.

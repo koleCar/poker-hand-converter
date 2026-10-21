@@ -7,7 +7,24 @@
  */
 
 import type { DecisionAnalysis, OptionAnalysis } from "./types";
-import { PERFECT_FREQ_BAND } from "./grading";
+import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT, PERFECT_FREQ_BAND } from "./grading";
+
+/**
+ * The big-blind floor made this grade milder than the share of the real pot
+ * says (analysis/33): a postflop pot under `FLOOR_POT_BB`, an Inaccurate whose
+ * loss is over 2% of it (not an off-tree cap) or a Mistake over 8% (not a
+ * range cap). Null-safe on ungraded decisions.
+ */
+export function bbFloored(decision: DecisionAnalysis): "inaccurate" | "mistake" | null {
+  if (decision.street === "preflop" || decision.evLossPot === null || decision.facts.potBb >= FLOOR_POT_BB) return null;
+  if (decision.grade === "inaccurate" && decision.evLossPot > INACCURATE_MAX_EV_LOSS_POT && !decision.approximations.includes("off-tree-size")) {
+    return "inaccurate";
+  }
+  if (decision.grade === "mistake" && decision.evLossPot > MISTAKE_MAX_EV_LOSS_POT && !decision.approximations.includes("range-cap")) {
+    return "mistake";
+  }
+  return null;
+}
 
 /** An option is part of the reference's mix from this frequency up (the grading band). */
 export const MIX_MIN_FREQ = PERFECT_FREQ_BAND;

@@ -82,6 +82,11 @@ export interface CensusRow {
   potType: string;
   /** The flop-library line/chunk read (`exact` | `mapped`) or null. */
   library: string | null;
+  /** The grade's inputs (analysis/33, the big-blind floor): EV loss in bb, the pot before the decision, the chosen option's and the top frequency. */
+  evLoss?: number | null;
+  potBb?: number;
+  chosenFreq?: number | null;
+  maxFreq?: number | null;
 }
 
 const localFetch = async (url: string): Promise<Response> => {
@@ -144,6 +149,10 @@ function rowsOf(h: number, hand: PhfHand, result: analysis.HandAnalysis): Census
     players: d.street === "preflop" ? base.dealt : d.facts.players,
     facing: d.facts.toCallBb > 0,
     library: d.facts.flop?.source === "library" ? (d.facts.flop.mapped ? "mapped" : "exact") : null,
+    evLoss: d.evLoss,
+    potBb: d.facts.potBb,
+    chosenFreq: d.chosen !== null ? (d.options[d.chosen]?.freq ?? null) : null,
+    maxFreq: d.options.length > 0 ? Math.max(...d.options.map((o) => o.freq)) : null,
   }));
 }
 

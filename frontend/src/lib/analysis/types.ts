@@ -246,8 +246,14 @@ import type { Position, Street } from "../phf/types";
  *               selection said bets were read as too strong and a raiser's
  *               give-up check as too weak a signal (ANALYSIS-PLAN §10
  *               2026-10-20, bets and the initiative).
+ *   analysis/33 The big-blind floor: a postflop grade judges its EV loss
+ *               against a pot of at least `FLOOR_POT_BB` (12.5bb), so a loss
+ *               of at most 0.25bb is never worse than Inaccurate and at most
+ *               1bb never a Blunder; the move score reads the same pot.
+ *               Preflop grades are unchanged (ANALYSIS-PLAN §10 2026-10-20,
+ *               the big-blind floor).
  */
-export const ANALYSIS_VERSION = "analysis/32" as const;
+export const ANALYSIS_VERSION = "analysis/33" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
