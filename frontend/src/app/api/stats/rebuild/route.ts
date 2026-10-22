@@ -7,6 +7,7 @@ import {
 } from "../../../../lib/db/statsRows";
 import { EV_VERSION } from "../../../../lib/equity";
 import type { PhfHand } from "../../../../lib/phf/types";
+import { saveRowsByHand } from "../../../../lib/db/statsSave";
 import { STATS_VERSION } from "../../../../lib/stats";
 import { getWritableServerSupabase } from "../../../../lib/supabase/server";
 
@@ -64,7 +65,11 @@ export interface RebuildSlice {
   processed: number;
   /** Rows written. */
   inserted: number;
-  /** Hands whose document could not be derived (a converter bug, not the user's). */
+  /**
+   * Hands whose document could not be derived, or whose rows the database
+   * refused (a converter or schema bug, not the user's). Skipped, not fatal:
+   * the next run tries them again.
+   */
   failed: number;
   /** Pass back as `after` to continue; null when `done`. */
   after: string | null;
@@ -152,23 +157,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           }
         }
       }
-      for (let i = 0; i < rows.length; i += MAX_ROWS_PER_WRITE) {
-        const { data: saved, error: saveError } = await supabase.rpc("save_hand_stats", {
-          p_rows: rows.slice(i, i + MAX_ROWS_PER_WRITE),
-        });
-        if (saveError) {
-          throw saveError;
-        }
-        slice.inserted += (saved as { inserted?: number } | null)?.inserted ?? 0;
-      }
-      for (let i = 0; i < evRows.length; i += MAX_ROWS_PER_WRITE) {
-        const { error: evError } = await supabase.rpc("save_hand_ev", {
-          p_rows: evRows.slice(i, i + MAX_ROWS_PER_WRITE),
-        });
-        if (evError) {
-          throw evError;
-        }
-      }
+      // A hand the database refuses (a constraint, a value out of range) is
+      // skipped and counted, never the page: "missing" is recomputed on every
+      // run, so a failed page would fail again forever (R4.4, F1).
+      const saved = await saveRowsByHand(
+        rows,
+        (chunk) => supabase.rpc("save_hand_stats", { p_rows: chunk }),
+        MAX_ROWS_PER_WRITE,
+      );
+      slice.inserted += saved.inserted;
+      const evSaved = await saveRowsByHand(
+        evRows,
+        (chunk) => supabase.rpc("save_hand_ev", { p_rows: chunk }),
+        MAX_ROWS_PER_WRITE,
+        saved.refused,
+      );
+      slice.failed += new Set([...saved.refused, ...evSaved.refused]).size;
 
       slice.processed += page.length;
       if (page.length > 0) {

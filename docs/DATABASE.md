@@ -23,6 +23,7 @@ The schema is defined by four migrations:
 | `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql` | Rail R4.2: the web's bulk upload. `hand_origin` gains `upload`; `register_web_hand_source()` (the account's one web source); `ingest_hands` takes it besides the app's folders and writes `origin = 'upload'` rows (PHF only, as desktop rows); the private bucket `hand-uploads` with owner-folder policies for the opt-in originals (A2). See [Web bulk upload](#web-bulk-upload-the-web-source-and-hand-uploads). Not applied to production. |
 | `20270512090000_hand_arrivals.sql` | Rail R1.10: live arrival on the web. `hand_arrivals` (one row per account, bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival`: a counter, how many hands, their origin, the time; no hand content), select-own RLS, in the `supabase_realtime` publication; `hands` stays out of it. See [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 | `20270616090000_live_activity.sql` | Rail R4.3: live progress of an upload in the account's other tabs and devices. The first `realtime.messages` policies: on the private channel `activity:<uid>`, the account itself may receive (presence, broadcast) and send presence; nobody else, not `anon`, no broadcast sent. No table, no function, no per-batch write (Presence lives in Realtime's memory). See [Live progress across tabs](#live-progress-across-tabs-activityuid). Not applied to production. |
+| `20270623093000_stats_seats_and_budget.sql` | Rail R4.4 findings F1, F2: seat numbers past 24 (Ignition tournaments) - `hand_stats.seat`, `hand_stats_ev.seat`, `hand_analysis.hero_seat` any `smallint` from 0, `comments.anchor_seat` from 1; statistics inserts charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, `hand_stats_insert_day:<uid>` 10 000 000 / day) with the global `hand_stats_insert` a 3 000 000 / 10 min ceiling, through `hand_stats_charge_budget()` (no client grant). See [Rate limiting](#rate-limiting) and the statistics rebuild. Not applied to production. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -129,11 +130,16 @@ model did not have — and that would be the right change if one account ever
 manages to exhaust a shared budget and lock everyone else out. It has not been
 made yet because the budgets are an order of magnitude above real use, and a
 per-user counter is a strictly larger table with a cleanup job attached.
+That point came for the desktop-sized writes: hand ingest (R1.8, R4.2) and
+statistics (R4.4's F2) are charged per account, because one 1 000 000-hand
+library would otherwise hold a shared budget for hours.
 
 | Bucket | Budget | Enforced by |
 | --- | --- | --- |
 | `hands_insert` | 25 000 **web** rows / 10 min (desktop rows are not counted since R1.8) | `hands_rate_limit()` statement trigger |
-| `hand_stats_insert` | 200 000 rows / 10 min, `hand_stats` and `hand_stats_ev` together (desktop and upload rows' statistics included: R4.4's finding F2) | `hand_stats_rate_limit()` / `hand_stats_ev_rate_limit()` statement triggers |
+| `hand_stats_insert:<user>` | 1 000 000 rows / 10 min **per account**, `hand_stats` and `hand_stats_ev` together (every origin's statistics) | `hand_stats_rate_limit()` / `hand_stats_ev_rate_limit()` statement triggers, through `hand_stats_charge_budget()`, per owner of the rows inserted |
+| `hand_stats_insert_day:<user>` | 10 000 000 rows / day **per account** | the same |
+| `hand_stats_insert` | 3 000 000 rows / 10 min, everyone: a ceiling, not a share (it was the only bucket, 200 000, until R4.4's finding F2) | the same |
 | `unparsed_insert` | 5 000 records / 10 min | `record_conversion_failures()` |
 | `share_create` | 300 shares / hour | `create_share()` |
 | `share_view:<slug>` | 600 views / hour **per slug** | `record_share_view()` |
@@ -604,12 +610,32 @@ app) and an upload row (`ingest_hands` from the web source) arrive with the PHF
 only and get their statistics from this rebuild, exactly as a `save_hands` web
 row: the converter starts it after a bulk save, and `/stats` starts it for hands
 synced from the app. `npm run parity` (tests/) holds the rows of the two paths
-equal byte for byte over the corpus. Two known problems (R4.4 findings):
-`hand_stats_seat_ok` allows seats 0-24, but Ignition's tournament seats run past
-24 (up to 1 227 in the corpus), so `save_hand_stats` refuses the page holding
-such a hand and every rebuild of that account fails on the same page from then
-on (F1); and the inserts spend the global `hand_stats_insert` budget, which a
-desktop-sized library would hold for a long time (F2).
+equal byte for byte over the corpus.
+
+**Seats and refusals** (R4.4's F1, `20270623093000`). A seat is the room's own
+seat number, not an index: Ignition's tournament seats run past 24 (to 1 227 in
+the corpus). `hand_stats.seat`, `hand_stats_ev.seat` and `hand_analysis.hero_seat`
+take any `smallint` from 0 (`comments.anchor_seat` from 1) - the bound
+`hands.hero_seat` always had; counts stay as they were (`max_seats` 2-24, `player_count` 1-24).
+Before, `hand_stats_seat_ok` (0-24) refused the page holding such a hand, and
+since "missing" is computed, every later rebuild of that account failed on the
+same page. The route now also survives any such hand: when `save_hand_stats` or
+`save_hand_ev` refuses a call for its data (SQLSTATE class 22 or 23), it retries
+the call hand by hand (`lib/db/statsSave.ts`), skips the hands still refused and
+counts them in `failed` (the coverage line's "could not be read"); the next run
+tries them again. Any other error (the budget, the session) still fails the
+slice.
+
+**Budget** (R4.4's F2, same migration). The inserts are charged to the account
+(`hand_stats_insert:<uid>`, 1 000 000 rows / 10 min and 10 000 000 / day), with
+the global `hand_stats_insert` kept only as a ceiling (3 000 000 / 10 min); see
+[Rate limiting](#rate-limiting). The route writes ~1 250 rows a second from one
+tab (measured locally), under the account's budget, so a 1 000 000-hand library
+(~2 000 000 rows hero-only, ~7 000 000 with villain rows) rebuilds at the route's
+pace - ~30 minutes, ~1.5 hours with villains - without touching anybody else's.
+The day budget is there because `stats_version` is free text, so an account's
+rows are not bounded by its hands; 10 000 000 is a full rebuild with villain rows
+and EV with room to spare.
 
 **Coverage** returns `{hands, atVersion, stale, missing, withoutHero,
 obsoleteRows, stakes}`. Hands with no hero seat (observed tables) are counted
