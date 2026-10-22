@@ -318,11 +318,18 @@ checks that loading the core requests nothing but its own `.wasm`.
 Detection and parsing run in the Rust core (`core/rail-core`), built for the
 browser as `rail-core-wasm` and committed at `frontend/src/lib/wasm/rail-core/`
 (`.wasm`, wasm-bindgen's JS glue and declarations, `BUILD.json`). Vercel has no
-Rust, so the web ships that copy; CI's `wasm` job rebuilds it with the pinned
-toolchain and fails when the committed bytes differ. After a change to the
-core, run `npm run wasm:web` in `tests/` (it needs wasm-bindgen-cli at
-Cargo.lock's version) and commit `frontend/src/lib/wasm/rail-core/`, or take
-the `rail-core-web` artefact of the failed CI run.
+Rust, so the web ships that copy.
+
+**The committed copy is CI's Linux x86_64 build, never a local one.** The
+linker lays the module out differently on macOS (same code and data, merged
+and ordered another way), so a Mac build cannot match it. CI's `wasm` job
+builds the package, uploads it as the artefact `rail-core-web` and fails when
+the committed copy differs. After a change to the core: push, let that check
+fail, then in `tests/` run `npm run wasm:web-from-ci` (it downloads this
+commit's artefact with `gh` and installs it, BUILD.json included) and commit
+`frontend/src/lib/wasm/rail-core/`. `npm run wasm:web` writes a local build
+only on Linux x86_64 and refuses elsewhere; `npm run wasm:web-check` off Linux
+only checks that the copy matches its BUILD.json.
 
 The bundler emits the `.wasm` as
 `/_next/static/media/rail_core_wasm_bg.<hash>.wasm`, served as

@@ -17,14 +17,15 @@
  * holds without one (R0.13 as built), and an unpinned system binaryen would
  * make the output depend on the machine.
  *
- * **Reproducible across machines** (R4.1: the web package is committed and CI
- * rebuilds it to compare): panic locations in the module name source files,
+ * **Independent of where it is built** (R4.1: the web package is committed and
+ * CI rebuilds it to compare): panic locations in the module name source files,
  * and a dependency's are absolute paths into this machine's cargo home
  * (`/Users/<you>/.cargo/registry/src/...`). The build remaps the cargo home
  * to `/cargo` and the repository to `/rail` with `--remap-path-prefix`
- * (passed as `CARGO_ENCODED_RUSTFLAGS`, so a path with spaces survives), so
- * the bytes depend only on the sources, `rust-toolchain.toml` and
- * Cargo.lock. The standard library's paths are `/rustc/<commit>/...` already.
+ * (passed as `CARGO_ENCODED_RUSTFLAGS`, so a path with spaces survives). The
+ * standard library's paths are `/rustc/<commit>/...` already. The bytes still
+ * depend on the host's linker (macOS and Linux lay the data out differently),
+ * so the committed web copy is CI's Linux build (`web.mjs`).
  *
  * Fails when the gzipped `.wasm` is over {@link BUDGET_GZIP} bytes.
  */

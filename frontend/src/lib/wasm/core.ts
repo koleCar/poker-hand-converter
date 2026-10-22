@@ -2,8 +2,9 @@
  * The WebAssembly core in the browser (docs/RAIL-PLAN.md R4.1).
  *
  * `rail-core-wasm` built with `wasm-bindgen --target web` is committed next to
- * this file (`rail-core/`, written by `npm run wasm:web` in `tests/`; CI
- * rebuilds it and fails when the copy differs - Vercel has no Rust). The glue
+ * this file (`rail-core/`: CI's Linux build, installed with `npm run
+ * wasm:web-from-ci` in `tests/`; CI rebuilds it and fails when the copy
+ * differs - Vercel has no Rust). The glue
  * is an ES module whose default export instantiates the module; it is handed
  * the `.wasm` as `new URL(..., import.meta.url)`, which the bundler emits as a
  * content-hashed static file of this origin (`/_next/static/media/...`,

@@ -880,7 +880,7 @@ cargo install wasm-bindgen-cli --version 0.2.129 --locked   # once; must match C
 cd tests
 npm run wasm:build           # core/rail-core-wasm/pkg/nodejs/ (gitignored); fails over 1.5 MB gzipped
 npm run wasm:build -- web    # the ES-module target the web loads (R4.1)
-npm run wasm:web             # ... and copy it into frontend/src/lib/wasm/rail-core/ (committed; CI compares)
+npm run wasm:web-from-ci     # after a core change: install CI's Linux build into frontend/src/lib/wasm/rail-core/ (the committed copy)
 npm run wasm:shadow          # 556 files: WASM = TypeScript, also on the web's path; prints throughputs
 ```
 
