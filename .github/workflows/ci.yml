@@ -694,8 +694,21 @@ jobs:
         with:
           version: 2.75.0
 
+      # The image registry rate-limits shared runners now and then
+      # ("toomanyrequests", once for over 15 minutes on 2026-10-22): retry
+      # with backoff, alternating the registries Supabase publishes its
+      # images to.
       - name: Start Postgres and apply every migration
-        run: supabase db start
+        run: |
+          registries=(public.ecr.aws ghcr.io docker.io public.ecr.aws ghcr.io)
+          for attempt in 1 2 3 4 5; do
+            export SUPABASE_INTERNAL_IMAGE_REGISTRY=${registries[$((attempt - 1))]}
+            supabase db start && exit 0
+            echo "::warning::supabase db start from $SUPABASE_INTERNAL_IMAGE_REGISTRY failed (attempt $attempt); retrying"
+            supabase stop --no-backup || true
+            sleep $((attempt * 30))
+          done
+          exit 1
 
       # The client is typed from the schema (#8). A migration that changes a
       # table or a function signature without regenerating the types would
@@ -711,6 +724,75 @@ jobs:
 
       - name: pgTAP
         run: supabase test db
+
+  # Web/app parity (docs/RAIL-PLAN.md R4.4, Phase 4's exit): every corpus file
+  # through the desktop app's path (watcher -> local store -> sync worker ->
+  # ingest_hands) and through the web's bulk upload (the converter's bulk run
+  # with the committed WASM core -> bulk saver -> ingest_hands) as two users of
+  # a throwaway local stack (db, auth, PostgREST, Kong only); then the web's
+  # statistics rebuild for both, and every stored `hands`, `hand_stats` and
+  # `hand_stats_ev` row compared byte for byte, and what the web renders from
+  # each. A difference fails with the file, hand, column and first differing
+  # byte. No secrets: the keys are the local stack's own, and nothing here
+  # talks to the live project.
+  parity:
+    name: Web/app parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            tests/package-lock.json
+            frontend/package-lock.json
+
+      # The harness runs the web's own modules (the saver, the rebuild route)
+      # with the web's dependencies (supabase-js, next).
+      - run: npm ci
+        working-directory: tests
+      - run: npm ci
+        working-directory: frontend
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.75.0
+
+      # The committed supabase/.temp/gotrue-version pins a GoTrue that refuses
+      # the stack's HS256 service key on its admin API, which the test uses to
+      # create its two users; without the pin the CLI runs its own default.
+      - name: Start a local stack (db, auth, PostgREST)
+        run: |
+          rm -rf supabase/.temp
+          # Retried with backoff, alternating registries: the image registry
+          # rate-limits shared runners now and then ("toomanyrequests").
+          registries=(public.ecr.aws ghcr.io docker.io public.ecr.aws ghcr.io)
+          for attempt in 1 2 3 4 5; do
+            export SUPABASE_INTERNAL_IMAGE_REGISTRY=${registries[$((attempt - 1))]}
+            supabase start -x studio,imgproxy,logflare,vector,edge-runtime,supavisor,postgres-meta,realtime,storage-api,mailpit && exit 0
+            echo "::warning::supabase start from $SUPABASE_INTERNAL_IMAGE_REGISTRY failed (attempt $attempt); retrying"
+            supabase stop --no-backup || true
+            sleep $((attempt * 30))
+          done
+          exit 1
+
+      - name: The app's half (parity_app, release)
+        run: cargo build --release --locked -p rail-sync --example parity_app
+
+      - name: Parity over the whole corpus
+        working-directory: tests
+        run: |
+          supabase status -o env 2>/dev/null | grep -E '^[A-Z_]+=' > "$RUNNER_TEMP/stack.env"
+          set -a; . "$RUNNER_TEMP/stack.env"; set +a
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          export RAIL_PARITY_URL="$API_URL" RAIL_PARITY_ANON_KEY="$ANON_KEY" RAIL_PARITY_SERVICE_KEY="$SERVICE_ROLE_KEY"
+          export RAIL_PARITY_PSQL="docker exec -i $(docker ps --filter name=supabase_db_ --format '{{.Names}}' | head -1) psql -U postgres -d postgres"
+          export RAIL_PARITY_APP_BIN="$GITHUB_WORKSPACE/target/release/examples/parity_app"
+          npm run parity
 
   # The desktop sign-in's Edge Function (docs/RAIL-PLAN.md R1.7):
   # supabase/functions/desktop-handoff. Format, lint, type check and the unit

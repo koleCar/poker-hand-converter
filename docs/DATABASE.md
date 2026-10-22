@@ -133,6 +133,7 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | Bucket | Budget | Enforced by |
 | --- | --- | --- |
 | `hands_insert` | 25 000 **web** rows / 10 min (desktop rows are not counted since R1.8) | `hands_rate_limit()` statement trigger |
+| `hand_stats_insert` | 200 000 rows / 10 min, `hand_stats` and `hand_stats_ev` together (desktop and upload rows' statistics included: R4.4's finding F2) | `hand_stats_rate_limit()` / `hand_stats_ev_rate_limit()` statement triggers |
 | `unparsed_insert` | 5 000 records / 10 min | `record_conversion_failures()` |
 | `share_create` | 300 shares / hour | `create_share()` |
 | `share_view:<slug>` | 600 views / hour **per slug** | `record_share_view()` |
@@ -597,6 +598,18 @@ being run again, and two concurrent runs are harmless (`on conflict do nothing`)
 The `/stats` screen reads `stats_coverage(version)` and starts a rebuild on its
 own when anything is missing or stale, so a `STATS_VERSION` bump needs no
 migration and no button press.
+
+**Every origin goes through it** (R4.4). A desktop row (`ingest_hands` from the
+app) and an upload row (`ingest_hands` from the web source) arrive with the PHF
+only and get their statistics from this rebuild, exactly as a `save_hands` web
+row: the converter starts it after a bulk save, and `/stats` starts it for hands
+synced from the app. `npm run parity` (tests/) holds the rows of the two paths
+equal byte for byte over the corpus. Two known problems (R4.4 findings):
+`hand_stats_seat_ok` allows seats 0-24, but Ignition's tournament seats run past
+24 (up to 1 227 in the corpus), so `save_hand_stats` refuses the page holding
+such a hand and every rebuild of that account fails on the same page from then
+on (F1); and the inserts spend the global `hand_stats_insert` budget, which a
+desktop-sized library would hold for a long time (F2).
 
 **Coverage** returns `{hands, atVersion, stale, missing, withoutHero,
 obsoleteRows, stakes}`. Hands with no hero seat (observed tables) are counted
@@ -1095,7 +1108,8 @@ from the account's web source** rather than `save_hands`:
   PHF's `meta.rawText`) plus the standard text, ~7.3 KB; an ingested row is
   the PHF alone, its columns derived here (A5, Q4). From the web the original
   text leaves the tab only on the user's explicit opt-in (A2), below.
-- The same hand from the app and from the web is the same row (R4.4).
+- The same hand from the app and from the web is the same row - tested over
+  the whole corpus, statistics included, by `npm run parity` (R4.4).
 
 `register_web_hand_source()` returns the caller's one `hand_sources` row of
 kind `web` (unique per account since R1.8), creating it on first use.

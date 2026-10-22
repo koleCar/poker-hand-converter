@@ -8984,6 +8984,128 @@ produce identical `hands` rows and render identically.
 ### R4.4 Parity test — S
 - Automated: the same corpus file through the app path and the web path gives
   byte-identical `phf` and `hand_stats` rows.
+- *As built* (§15; on `staging`; nothing to apply to production):
+  - **Phase 4's exit holds for the whole corpus on a local stack**: 556
+    files, 7 496 distinct hands - every `hands` column, every `hand_stats`
+    and `hand_stats_ev` row byte for byte, and what the web renders from each,
+    equal between a hand the app synced and the same hand uploaded on the web.
+    **No difference was found between the paths, so nothing was fixed**; two
+    findings outside parity (F1, F2 below) are the owner's.
+  - **The test**: `npm run parity` in `tests/`
+    (`tests/scripts/parity/parity.test.ts`, its own vitest config; needs a
+    local stack, `frontend/node_modules` and cargo), two fresh accounts on
+    the stack - one each, because one account would dedupe the second path
+    into nothing. Users are created with the stack's service key and signed
+    in with a magic-link token redeemed at `/verify` (no password, no
+    captcha, no request leaves the machine); deleted at the end
+    (`RAIL_PARITY_KEEP=1` keeps them). It refuses a non-local URL.
+    - **App path** (A): `core/rail-sync/examples/parity_app.rs` - the
+      files copied into a folder, a fresh `rail-store`, the `rail-watch`
+      watcher on it as the app adds a folder ("Import everything",
+      subfolders; the incremental reader, native `rail-core`), the sync
+      worker with the real `Account` (the session's refresh token, as the
+      keychain holds it) and `IngestClient`, woken by every import:
+      `ingest_hands` from the folder's `hand_sources` row, `origin =
+      'desktop'`. Done when every file is read to its end and the outbox is
+      empty. Only the upload cap is lifted (it paces bytes, never content).
+    - **Web path** (B): the converter's bulk run (`startBulkRun`, the code
+      the conversion worker runs) over the same files as one multi-file drop,
+      with the committed WASM package (asserted: engine `wasm`), its messages
+      structured-cloned into `createBulkSaver` over `createUploadApi` and a
+      supabase-js client signed in as B, wired as `ConverterTab` wires them
+      (window 4): `ingest_hands` from the account's web source, `origin =
+      'upload'`.
+    - **Statistics: how each origin gets `hand_stats`.** Neither path writes
+      them itself. The app sends the PHF only (R1.8 built Q4's "per-seat
+      stats" as derivation on the server: the app's own `rail-stats` rows,
+      equal to the TypeScript's by R2.1's oracle, stay local); the upload
+      stores the PHF and the converter then starts `rebuildStats()`. Both
+      get their rows from `/api/stats/rebuild` (`hands_needing_stats` ->
+      TypeScript `handStatsRows` / `handEvRow` -> `save_hand_stats` /
+      `save_hand_ev`), so there is no gap in *what* is written. The test runs
+      the route's own handler as each user (its one server dependency,
+      `getWritableServerSupabase`, handed the user's client), with villain
+      rows on so every seat is compared. A gap in *when*, noted and not
+      changed: an upload's statistics are written right after the save, a
+      synced hand's when the account next opens `/stats`, which starts the
+      rebuild itself when coverage is missing - and `/stats` (with its
+      opponents panel) is the only reader of `hand_stats`, so nothing shows
+      the difference.
+  - **Compared** (`psql` as `postgres`; each row turned into the jsonb it
+    is compared as once, whole rows first, a differing pair then column by
+    column; `::text` equality, so byte for byte):
+    - `hands`: every column but `id` (the row's own uuid), `owner_id` (two
+      accounts by design), `origin` (`desktop` against `upload` is what it
+      records - checked per side, with `standard_text` and `source_text`
+      null on both) and `created_at` (the insert's time). There is no source
+      column on `hands` (R1.8 keeps `hand_sources` to counters). `phf` whole,
+      with only `meta.parsedAt` masked: the moment of conversion, stamped by
+      each path (`time::iso_now`, `new Date().toISOString()`); its form is
+      checked on both sides (ISO instant, milliseconds, `Z`).
+    - `hand_stats` and `hand_stats_ev`: every column but `hand_id` (the
+      hand's row id), `owner_id` and `created_at`, keyed by (hand key,
+      version, seat).
+    - **Hands the corpus holds in more than one file** (869 keys): each path
+      stores the copy it reads first, and the watcher's order (parallel
+      import threads) is not the drop's; some copies are not the same text
+      (`ipoker:IPN-5383708755` is in `13-fixed-limit-holdem.xml` and, with
+      the hero's name masked, in `02-hero-nickname-masked-preflop.xml`).
+      Where the two stored rows come from different files (3-15 keys a run),
+      the app's PHF is compared byte for byte with the web's conversion of
+      the *same* file instead, and the pair is left out of the row,
+      statistics and rendering comparisons (`split` in the report).
+  - **Rendered** (deterministic data, no screenshots), every hand as each
+    user through the web's readers: `get_hand` -> `toHandRecord` (the record
+    but `id` / `createdAt`), its standard text (`storedStandardText`: both
+    rows have none and derive it from the PHF) exactly, and the replayer's
+    frames - from `parseHand(standardText)` as `ReplayerTab` builds them, and
+    from the PHF as the analysis views and the shared `DataSource` do.
+  - **A difference fails readably**: the repository file(s), the hand key
+    (with version and seat for statistics), the column, the first differing
+    character with 40 either side, and for `phf` the first differing JSON
+    path. The last step proves the comparison sees: inside a rolled-back
+    transaction it changes a hand's `meta.parserVersion`, a `hand_stats`
+    player name and an EV value and deletes one `hand_stats` row, and checks
+    exactly those three columns and one missing row are reported.
+  - **Results** (whole corpus, M2 Pro, CLI 2.75 stack `rail-r44-parity`,
+    four runs): app 7 496 hands stored (172 refusals quarantined, the
+    corpus's own), 0 rejected by the server; web 8 422 converted, 7 496
+    inserted, 926 duplicates, 0 refused; `hands` 7 496 = 7 496 with 0
+    differences; 7 481-7 493 rendered identically (all but the split keys,
+    each of which matched its file's web conversion); 43 923 `hand_stats`
+    and 7 249 `hand_stats_ev` rows, 0 differences (both rebuilds processed
+    7 255 hands, 0 failed). `RAIL_PARITY_CORPUS=sample` (the first two files
+    of every corpus folder - 56 files, every room and format, 454 hands)
+    and a list of paths are there for quick runs.
+  - **Time**: the test 3.2-3.4 min locally - app 30 s (of it ~30 s is the
+    reader's give-up wait for a refused trailing chunk, R1.3), web 15 s,
+    `hands` comparison 11 s, rendering 12 s, both rebuilds 82 s, statistics
+    comparison 13 s, the control 23 s; the sample 45 s. **CI**: job `parity`
+    ("Web/app parity") runs the whole corpus: `supabase start` with db,
+    auth, PostgREST and Kong only (CLI 2.75; `supabase/.temp` removed in the
+    job, because its pinned GoTrue refuses the stack's HS256 service key on
+    the admin API), a release build of the example, then `npm run parity`.
+  - **Findings for the owner** (not parity; neither changed here):
+    - **F1, the statistics rebuild stops for good on an Ignition tournament
+      hand.** Ignition's tournament seat numbers run past 24 (25-1 227 in
+      the corpus: 15 hands in 5 MTT files), and `hand_stats_seat_ok` allows
+      0-24. `save_hand_stats` refuses the whole page, the route answers 500,
+      and every later run fails on the same page: no hand after it (by id)
+      ever gets statistics. Same on both paths, and on `main` today (the
+      TypeScript parsers give the same seats). The test takes those hands
+      out of both accounts before the rebuild and lists them. A fix is one
+      migration (widen the CHECK, e.g. to `smallint`'s range; `rail-store`
+      has no such limit) - or skip / refuse such a hand in the route
+      instead of failing the page.
+    - **F2, statistics spend one budget for every account.** `hand_stats`
+      and `hand_stats_ev` inserts charge the global `hand_stats_insert`
+      (200 000 rows / 10 min, everyone together). A synced or uploaded
+      library is desktop-sized: 1M hands is ~2M rows (hero + EV; ~7M with
+      villain rows), ~100 minutes of the whole site's budget, during which
+      no other account's statistics can be written - R4.2's `hands_insert`
+      problem again. A per-account bucket, as `desktop_ingest`, would fix
+      it. (The test resets the bucket on its local stack before the
+      rebuild; a whole-corpus run writes ~88 000 rows.)
 
 ### R4.5 Screens from `packages/ui` — L
 - Hands, Reports, Players and the replayer on the web from the shared package;
@@ -9032,6 +9154,7 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | HUD | Simulator-driven: attach, follow, seat mapping, compliance refusal, latency | CI on both OSes (headless where possible) + manual real-client checklist |
 | Performance | 1M-hand benchmark, nightly, thresholds from guideline §1 | CI nightly |
 | Web | Existing Vitest harness, lint, typecheck, build; shadow mode, and since R4.1 the web's conversion path WASM against TypeScript, until the TS parsers are deleted | CI |
+| Web/app parity | The whole corpus through the app's path (watcher, store, sync worker) and the web's bulk upload (WASM core, saver) into a local stack as two users; `hands`, `hand_stats`, `hand_stats_ev` byte for byte and the web's rendering inputs (R4.4) | `npm run parity`, CI job `parity` |
 
 The TS harness (`tests/`) stays the oracle until the TS parsers are deleted
 (after R4.1's production period). A parser fix lands in TS and Rust in the same
@@ -9171,3 +9294,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-22 | **R4.1 done on staging**: the web converts with the WASM core. The converter's pipeline (worker and main-thread fallback), the single-hand box and shares of unsaved hands go through `lib/wasm/engine.ts`: the core (`rail-core-wasm --target web`), or - when it cannot load - the TypeScript parsers, loaded on demand, with one warning; output unchanged (`ConversionResult`, `parsedAt` from the caller). Core: new export `split` (the top parser's chunks, so batches of 100 stay) and an empty file name means none. `lib/phf/types.ts` re-exports the 36 generated types (192 importers unchanged; 30 hand-written declarations gone). **Deploy**: the web package committed at `frontend/src/lib/wasm/rail-core/` is CI's Linux x86_64 build (rust-lld on macOS lays the module out differently, so a Mac build can never be committed; `wasm:web` refuses there, `wasm:web-check` only checks the copy against its BUILD.json); the `wasm` job uploads its build as `rail-core-web` and fails on any byte difference, `npm run wasm:web-from-ci` installs the artefact; `wasm:build` remaps the cargo home and repository paths out of the module (78 absolute paths before). Served as `/_next/static/media/*.wasm`, `application/wasm`, immutable; 2.28 MB / 0.77 MB gzipped. Zero server requests holds (browser check; and a test that the loader fetches only its `.wasm`). Tests: `wasmWeb.test.ts` (32, `npm test`), `scripts/wasm/web.test.ts` - **556 / 556** files, 8 422 hands, 196 failures equal on the web's path. Browser worker: 6 000 hands in 2.7 s (~2 200 hands/s). **TS parsers kept** (fallback, oracle); deleting them waits for an agreed period of shadow mode green in production, after the owner promotes `staging`. |
 | 2026-10-22 | **R4.2 done on staging**: bulk upload at desktop scale. The converter's worker reads the drop itself, one file at a time (`bulkSource.ts`; folders up to 100 000 files, non-hand-history files skipped), zips through a streaming reader of its own (`zipStream.ts`: `Blob.slice` + the browser's `DecompressionStream`, zip64, no library, 1.4 KB gzipped), and a signed-in drop is saved while it converts (`bulkSaver.ts`: a 1 500-hand queue that holds the worker back, calls of 250 hands / 3 MB, backoff and pause, budgets) through `ingest_hands` from the account's web source - rows `origin = 'upload'`, PHF only, the account's budget instead of the web's global one (migrations `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql`: `register_web_hand_source`, `ingest_hands` for web sources, the text CHECK). Resume = drop the same files again: an IndexedDB manifest skips stored files, entries and batches. Originals to Storage only on the new opt-in "Also keep the original files" (off by default, per visit): private bucket `hand-uploads`, gzip, 50 MiB, owner-folder policies (select / insert / delete under `auth.uid()`, no update, nothing for anon). The tab keeps the first 20 000 hands. Measured: 1 000 023 hands, 138 MB zip, 545 s (~1 830 hands/s) in Node with the WASM core, heap +45 MB. Tests: 39 Vitest (inputs, save, worker), pgTAP `web_bulk_upload` (37); end to end against a local stack (found and fixed an untyped gzip the bucket refused). Not applied to production. |
 | 2026-10-22 | **R4.3 done on staging**: live progress and arrival. An upload's progress shows in the account's other tabs and devices through **Realtime Presence on the private channel `activity:<uid>`** (state and counts, ~200 bytes, no hand or file name; at most every 2 s, heartbeat 15 s, "done" kept 20 s; no database write per batch; an entry leaves with its socket, ~0.6 s after a close, or after 45 s unchanged): "Saving 120 000 of ~1 000 000 hands from a web upload" with a bar, then "finished"; the total from the opened files' splits scaled by the unopened bytes. Migration `20270616090000_live_activity.sql`: the first `realtime.messages` policies - `authenticated`, own topic only, receive presence + broadcast (Realtime's join is a broadcast read; presence alone was refused), send presence only; B, anon, other topics and broadcasts refused; a public channel of the same name kept apart. Arrivals (R1.10's `hand_arrivals`) now also reach the analysis screens as "N new hands arrived - refresh" (`AppFrame live="notify"`), `/library` updates in place only while the reader is at the top, and "Desktop app syncing: N hands so far" comes from desktop-origin arrivals (two quiet minutes end it). Strip in `AppFrame` (`LiveStrip`, `en` + `hr`, a hidden status region announcing only starts and ends). Tests: Vitest `liveActivity` 27 (publisher, board, estimate, channel lifecycle with a fake client), `liveArrivals` 12; pgTAP `live_activity` 27 (suite 35 files / 1 146); `npm run realtime:activity` 16 / 16 and `realtime:arrivals` 15 / 15 on an isolated local stack; browser end to end (two tabs, a 20 000-hand drop, desktop batches, Croatian at 375 px). Not applied to production. |
+| 2026-10-22 | **R4.4 done on staging; Phase 4's exit met for the corpus on a local stack**: the parity test. `npm run parity` (`tests/scripts/parity/`, CI job `parity`) puts every corpus file through the **app's path** - `core/rail-sync/examples/parity_app.rs`: `rail-watch` on a folder, a fresh `rail-store`, the sync worker with the real `Account` and `IngestClient` into `ingest_hands` (`desktop`) - and the **web's** - the converter's bulk run with the committed WASM core into the bulk saver and `ingest_hands` from the web source (`upload`) - as two users of a throwaway stack, runs the web's statistics rebuild route as each, and compares as `postgres`: every `hands` column but `id` / `owner_id` / `origin` / `created_at` byte for byte (`phf` with only `meta.parsedAt` masked), every `hand_stats` / `hand_stats_ev` column but `hand_id` / `owner_id` / `created_at`, and the web's rendering inputs (`get_hand` -> `toHandRecord`, the derived standard text, the replayer's frames from the text and from the PHF). Hands kept in several corpus files and stored from different copies are checked against the web's conversion of the app's file instead. A rolled-back control proves each kind of difference is reported. Result: **556 files, 7 496 hands, 43 923 statistics rows, 7 249 EV rows: 0 differences**; nothing fixed. Neither path writes `hand_stats` itself: both get them from the web's rebuild (an upload at once, a synced hand when `/stats` opens). Findings for the owner: **F1** - Ignition tournament seats past 24 (15 corpus hands) break `hand_stats_seat_ok`, and the rebuild then fails on that page forever, for the whole account, on both paths and on `main`; **F2** - statistics inserts spend the global `hand_stats_insert` (200 000 rows / 10 min for everyone), which a desktop-sized library would hold for ~100 min. Locally 3.3 min for the whole corpus (45 s for `RAIL_PARITY_CORPUS=sample`). |
