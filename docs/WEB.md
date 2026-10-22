@@ -285,7 +285,7 @@ does this path mean" alongside the framework's is how the two drift apart.
 | Route | What it is |
 | --- | --- |
 | `/` | **The feed.** Placeholder for now: it says so, and points at the two things that work. This is where the product is going, which is why the converter had to move off it. |
-| `/convert` | **Converter.** Drop files, a folder, a zip, or paste text. Detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library (toggleable), refused hands go to the corpus, and the output is downloadable per file or combined. **This route makes zero server requests**; see below. |
+| `/convert` | **Converter.** Drop files, a folder, a zip, or paste text — at desktop scale (R4.2: a folder of tens of thousands of files, a zip of hundreds of MB). Reading, unzipping, detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library while they convert (toggleable; chunked, retried, resumable), refused hands go to the corpus, the original files only on an explicit opt-in, and the output is downloadable per file or combined (up to 20 000 hands per drop). **This route makes zero server requests** unless you save; see below. |
 | `/library` | **Library and replayer.** Pick a hand from your library with filters, or upload/paste a single one. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
 | `/stats` | **Statistics.** VPIP, PFR, 3-bet, c-bets and a showdown / non-showdown win-rate graph over your library. Renders and explains itself when signed out rather than bouncing you somewhere else. |
 | `/analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`, phase A1). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — and the heuristic checks that hold whatever the strategy. Runs in the browser; `/analysis/h/<id>` opens a hand in the replayer with the Analysis sheet. No grades until the preflop charts (A2). |
@@ -312,6 +312,46 @@ the page itself (so a change that breaks it also makes the app tell a visible
 lie), and here. It is verified by driving the real page with a browser and
 asserting that no request leaves the origin; `tests/test/wasmWeb.test.ts` also
 checks that loading the core requests nothing but its own `.wasm`.
+
+The save is the only exception, and only when you are signed in with "Save
+to my library" on: converted hands go to your library, as PHF without the
+original text. The original files themselves go only when you also tick
+**"Also keep the original files"** — off by default, on each visit — and then
+compressed, into your private folder of the `hand-uploads` bucket (A2).
+
+### Bulk upload (R4.2)
+
+A drop of any size converts and saves without holding the drop in the tab:
+
+- **Streaming reads.** The worker gets the dropped `File` handles and reads
+  one file at a time; a zip is read through `Blob.slice()` — its directory,
+  then one entry at a time inflated by the browser's own
+  `DecompressionStream` (`converter/zipStream.ts`, no library; zip64
+  supported, encrypted entries and methods other than stored / deflate
+  refused per entry). A single file or entry over 100 MB is refused; an
+  archive has no limit. Folders and archives skip screenshots, OS debris and
+  other obvious non-hand-histories silently (counted under the results).
+- **Saving as it converts** (`converter/bulkSaver.ts`). Signed in with saving
+  on, batches go to a bounded queue (1 500 hands) and are sent in calls of
+  ≤ 250 hands / 3 MB to `ingest_hands` from the account's web source; the
+  worker is held back while the queue is full, so a slow network slows the
+  conversion instead of filling memory. Transient failures retry with
+  exponential backoff (6 attempts, then the upload pauses with a "Try
+  again"); a spent 10-minute budget waits; a spent daily budget or an ended
+  session pauses. Re-uploading the same files inserts nothing: the server
+  dedupes and the page says "already in your library".
+- **Resume.** The page cannot reopen your files after a reload, so an
+  interrupted upload (tab closed, network gone, daily budget) resumes when you
+  **drop the same files or folder again**: a record in IndexedDB
+  (`converter/uploadManifest.ts`; paths, sizes and CRCs, never hand text)
+  says which files — and which batches of a half-saved file — are stored, and
+  those are skipped without being read. The page offers it when it opens
+  ("An upload from … did not finish …").
+- **What the tab keeps.** The first 20 000 hands (and 2 000 refused ones) for
+  the list, previews and downloads; past that the counts keep growing and the
+  downloads are off for that drop. The file list shows its first 200 rows. A
+  guest's drop that is too big to hold until sign-in says so: sign in, then
+  drop it again.
 
 ### The conversion core is WebAssembly (R4.1)
 
@@ -726,7 +766,8 @@ fine for a value this origin wrote into its own storage and wrong for input that
 arrived over the wire. A **guest** is simply signed out: everything
 client-side works, and nothing is stored, because there is no id to store it
 under. The converter holds a finished run in memory and offers to save it after
-sign-in, so the login never arrives before the value does.
+sign-in, so the login never arrives before the value does (up to 20 000
+hands; a bigger drop asks to be dropped again after signing in, R4.2).
 
 ### Applying migrations
 

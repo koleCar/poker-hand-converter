@@ -22,6 +22,12 @@ import type { SaveState, SourceResult } from "./types";
 const HAND_PAGE = 30;
 
 /**
+ * File rows rendered. A desktop export is tens of thousands of files (R4.2);
+ * the counts above the list cover all of them, the list shows the first.
+ */
+const SOURCE_ROWS = 200;
+
+/**
  * One row of the converted-hand list.
  *
  * Memoized because the list is rendered live while hands are still streaming
@@ -118,25 +124,33 @@ export function ResultsPanel({
   const [visible, setVisible] = useState(HAND_PAGE);
   const [openSource, setOpenSource] = useState<string | null>(null);
 
+  // Counted, not measured from the kept hands: past a few tens of thousands of
+  // hands the tab keeps only the first ones (R4.2), the counts stay exact.
   const totals = useMemo(() => {
     const bySite = new Map<string, number>();
     let hands = 0;
+    let kept = 0;
     let failures = 0;
     let filesWithHands = 0;
+    let truncated = false;
     for (const source of sources) {
-      hands += source.hands.length;
-      failures += source.failures.length;
-      if (source.hands.length > 0) {
+      hands += source.handCount;
+      kept += source.hands.length;
+      failures += source.failureCount;
+      truncated ||= source.truncated;
+      if (source.handCount > 0) {
         filesWithHands += 1;
-      }
-      for (const hand of source.hands) {
-        bySite.set(hand.meta.siteId, (bySite.get(hand.meta.siteId) ?? 0) + 1);
+        if (source.siteId) {
+          bySite.set(source.siteId, (bySite.get(source.siteId) ?? 0) + source.handCount);
+        }
       }
     }
     return {
       hands,
+      kept,
       failures,
       filesWithHands,
+      truncated,
       sites: [...bySite.entries()].sort((a, b) => b[1] - a[1]),
     };
   }, [sources]);
@@ -229,12 +243,18 @@ export function ResultsPanel({
             type="button"
             className="btn btn--primary"
             onClick={downloadAll}
-            disabled={!totals.hands || converting}
+            disabled={!totals.hands || converting || totals.truncated}
           >
             {t.downloadAll}
           </button>
         </div>
       </header>
+
+      {totals.truncated ? (
+        <p className="notice notice--info conv-results__save-error">
+          <span>{t.notAllKept(totals.kept)}</span>
+        </p>
+      ) : null}
 
       {saveState.status === "error" ? (
         <p className="notice notice--warn conv-results__save-error">
@@ -293,13 +313,13 @@ export function ResultsPanel({
       {/* Per file. A table would be unreadable at 390px, so each file is a row
           that wraps into a block instead of scrolling sideways. */}
       <ul className="conv-source-list">
-        {sources.map((source) => {
+        {sources.slice(0, SOURCE_ROWS).map((source) => {
           const isOpen = openSource === source.id;
           const tone = source.problem
             ? "bad"
-            : source.hands.length === 0
+            : source.handCount === 0
               ? "warn"
-              : source.failures.length
+              : source.failureCount
                 ? "mixed"
                 : "ok";
           return (
@@ -322,13 +342,13 @@ export function ResultsPanel({
                         </span>
                       </span>
                       <span
-                        className={`conv-chip ${source.hands.length ? "conv-chip--good" : ""}`}
+                        className={`conv-chip ${source.handCount ? "conv-chip--good" : ""}`}
                       >
-                        {t.handsChip(source.hands.length)}
+                        {t.handsChip(source.handCount)}
                       </span>
-                      {source.failures.length ? (
+                      {source.failureCount ? (
                         <span className="conv-chip conv-chip--warn">
-                          {t.skippedChip(source.failures.length)}
+                          {t.skippedChip(source.failureCount)}
                         </span>
                       ) : null}
                       {source.status === "cancelled" ? (
@@ -343,7 +363,7 @@ export function ResultsPanel({
                 </div>
               </div>
               <div className="conv-source__actions">
-                {source.hands.length ? (
+                {source.hands.length && !source.truncated ? (
                   <button
                     type="button"
                     className="btn btn--ghost btn--sm"
@@ -385,6 +405,9 @@ export function ResultsPanel({
             </li>
           );
         })}
+        {sources.length > SOURCE_ROWS ? (
+          <li className="conv-source muted">{t.moreFiles(sources.length - SOURCE_ROWS)}</li>
+        ) : null}
       </ul>
 
       {totals.hands > 0 ? (
@@ -400,13 +423,13 @@ export function ResultsPanel({
               />
             ))}
           </ul>
-          {visible < totals.hands ? (
+          {visible < totals.kept ? (
             <button
               type="button"
               className="btn btn--ghost conv-hands__more"
               onClick={() => setVisible((count) => count + HAND_PAGE * 3)}
             >
-              {t.showMore(totals.hands - visible)}
+              {t.showMore(totals.kept - visible)}
             </button>
           ) : null}
         </div>

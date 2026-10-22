@@ -66,6 +66,33 @@ export const converterHr: Dict["converter"] = {
     noWorker:
       "Ovaj preglednik nije htio pokrenuti pozadinski worker, pa je pretvaranje radilo na samoj stranici. Velike datoteke zato su se mogle činiti sporima.",
     workerStopped: "Pretvaranje se neočekivano zaustavilo.",
+    keepOriginals: "Zadrži i izvorne datoteke",
+    keepOriginalsHint: "Komprimirane, vidljive samo tvom računu. Isključeno: spremaju se samo pretvorene ruke.",
+    progressBulk: (handsDone: number, files: number, read: string, total: string, percent: number) =>
+      `${converted(handsDone)} · ${num(files)} ${plural(files, "datoteka", "datoteke", "datoteka")} · ${read} od ${total} (${percent} %)`,
+    saveLive: (inserted: number, duplicates: number, refused: number) =>
+      `${num(inserted)} ${plural(inserted, "spremljena", "spremljene", "spremljenih")} u biblioteku${
+        duplicates ? ` · ${num(duplicates)} ${plural(duplicates, "već postoji", "već postoje", "već postoji")}` : ""
+      }${refused ? ` · ${num(refused)} ${plural(refused, "odbijena", "odbijene", "odbijenih")}` : ""}`,
+    originalsKept: (count: number, size: string) =>
+      `${num(count)} ${plural(count, "izvorna datoteka zadržana", "izvorne datoteke zadržane", "izvornih datoteka zadržano")} (${size})`,
+    saveRetrying: (seconds: number) => `Problem s vezom — novi pokušaj za ${num(seconds)} s.`,
+    saveWaitingBudget: (time: string) =>
+      `Ovaj račun je na nekoliko minuta potrošio kvotu za učitavanje — nastavljamo u ${time}.`,
+    savePausedOffline: "Spremanje je zaustavljeno: poslužitelj nije dostupan. Pretvorene ruke čekaju u ovoj kartici.",
+    savePausedSignedOut: "Sesija je istekla. Prijavi se ponovno pa pokušaj opet.",
+    savePausedDayBudget:
+      "Ovaj račun je danas spremio najviše ruku koliko se može u jednom danu. Sutra ponovno ubaci iste datoteke da završiš; spremljeno ostaje spremljeno.",
+    saveRetry: "Pokušaj ponovno",
+    resumeNotice: (date: string, files: number, inserted: number) =>
+      `Učitavanje od ${date} nije završeno: ${num(files)} ${plural(files, "datoteka spremljena", "datoteke spremljene", "datoteka spremljeno")} (${num(inserted)} ${ruka(inserted)}). Ponovno ubaci iste datoteke ili mapu da ga završiš — spremljeno se preskače.`,
+    resumeForget: "Zaboravi",
+    resumed: (files: number) =>
+      `Nastavljam: preskačem ${num(files)} ${plural(files, "ranije spremljenu datoteku", "ranije spremljene datoteke", "ranije spremljenih datoteka")}.`,
+    skippedOther: (files: number) =>
+      `Izostavljeno: ${num(files)} ${plural(files, "datoteka koja nije", "datoteke koje nisu", "datoteka koje nisu")} hand history.`,
+    heldTooMany: (count: number) =>
+      `${converted(count)} — previše da ih kartica čuva dok se ne prijaviš. Prijavi se pa ponovno ubaci iste datoteke da ih spremiš.`,
   },
 
   problems: {
@@ -74,7 +101,6 @@ export const converterHr: Dict["converter"] = {
     binary: "Ovo izgleda kao binarna datoteka, a ne hand history. Provjeri jesi li odabrao/la pravu datoteku.",
     notZip: "Ovo nije zip arhiva koju možemo pročitati.",
     encryptedEntry: "Šifrirane datoteke u zip arhivi nisu podržane.",
-    zip64: "Zip64 arhive nisu podržane. Raspakiraj arhivu i ubaci datoteke.",
     cannotUnzip: "Ovaj preglednik ne zna raspakirati datoteke. Raspakiraj arhivu sam/a i ubaci .txt datoteke.",
     unreadableEntry: "Ovu datoteku iz arhive nije moguće pročitati.",
     emptyArchive: "U arhivi nema datoteka.",
@@ -113,6 +139,9 @@ export const converterHr: Dict["converter"] = {
     detail: "Detalji",
     hideDetail: "Sakrij detalje",
     moreFailures: (count: number) => `Još ${num(count)} — pogledaj panel ispod.`,
+    moreFiles: (count: number) => `…i još ${num(count)} ${plural(count, "datoteka", "datoteke", "datoteka")}`,
+    notAllKept: (kept: number) =>
+      `Previše ruku da ih ova kartica čuva: popis pokazuje prvih ${num(kept)}, a preuzimanje je za ovo učitavanje isključeno.`,
     convertedHands: "Pretvorene ruke",
     showMore: (left: number) =>
       `Prikaži više — ${plural(left, "preostala je", "preostale su", "preostalo je")} ${num(left)}`,

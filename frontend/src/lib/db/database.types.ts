@@ -3010,6 +3010,7 @@ export type Database = {
         }
         Returns: string
       }
+      register_web_hand_source: { Args: never; Returns: string }
       report_content: {
         Args: {
           p_details?: string
@@ -3162,7 +3163,7 @@ export type Database = {
     Enums: {
       conversion_stage: "split" | "detect" | "parse" | "validate" | "serialize"
       game_format: "cash" | "tournament" | "sng" | "spin"
-      hand_origin: "web" | "desktop"
+      hand_origin: "web" | "desktop" | "upload"
       hand_source_kind: "folder" | "web"
       profile_role: "member" | "moderator" | "admin"
       publish_mode: "pseudonyms" | "positions" | "as-imported"
@@ -3298,7 +3299,7 @@ export const Constants = {
     Enums: {
       conversion_stage: ["split", "detect", "parse", "validate", "serialize"],
       game_format: ["cash", "tournament", "sng", "spin"],
-      hand_origin: ["web", "desktop"],
+      hand_origin: ["web", "desktop", "upload"],
       hand_source_kind: ["folder", "web"],
       profile_role: ["member", "moderator", "admin"],
       publish_mode: ["pseudonyms", "positions", "as-imported"],

@@ -10,11 +10,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useDict } from "../../lib/i18n/client";
-import { FILE_ACCEPT, filesFromDrop } from "./inputs";
+import { FILE_ACCEPT, filesFromDrop, pickedFile, skipReason, type PickedFile } from "./inputs";
 
 interface DropZoneProps {
   /** Files picked, dropped, or found inside a dropped folder. */
-  onFiles(files: File[]): void;
+  onFiles(files: PickedFile[]): void;
   /** Text from a dragged selection — some clients drag text rather than a file. */
   onText(text: string): void;
   /** Disables the inputs while a conversion is running. */
@@ -192,7 +192,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
           multiple
           hidden
           onChange={(event) => {
-            const picked = Array.from(event.target.files ?? []);
+            const picked = Array.from(event.target.files ?? []).map(pickedFile);
             if (picked.length) {
               onFiles(picked);
             }
@@ -210,7 +210,8 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
           multiple
           hidden
           onChange={(event) => {
-            const picked = Array.from(event.target.files ?? []);
+            // A picked folder brings its screenshots and dotfiles too.
+            const picked = Array.from(event.target.files ?? []).map(pickedFile).filter((f) => !skipReason(f.path));
             if (picked.length) {
               onFiles(picked);
             }

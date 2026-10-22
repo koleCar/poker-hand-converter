@@ -17,6 +17,7 @@
  */
 
 import type { Dict } from "../../lib/i18n/types";
+import { readZipDirectory, readZipEntry, ZipEntryError } from "./zipStream";
 
 /**
  * Why a file cannot be converted at all, as a code rather than a sentence.
@@ -30,7 +31,6 @@ export type SourceProblem =
   | { kind: "binary" }
   | { kind: "not-zip" }
   | { kind: "encrypted-entry" }
-  | { kind: "zip64" }
   | { kind: "cannot-unzip" }
   | { kind: "unreadable-entry"; detail?: string }
   | { kind: "empty-archive" }
@@ -75,11 +75,12 @@ export const ACCEPTED_EXTENSIONS = [
 export const FILE_ACCEPT = `${ACCEPTED_EXTENSIONS.join(",")},text/plain`;
 
 /**
- * Refuse anything above this. A hand history that large is a mistake (a video,
- * a database dump), and reading it would blow the tab's memory before we ever
- * got to tell the user it was the wrong file.
+ * Refuse a single file (or archive entry) above this. A hand history that
+ * large is a mistake (a video, a database dump), and decoding it would blow
+ * the tab's memory before we ever got to tell the user it was the wrong file.
+ * An archive itself has no limit since R4.2: it is read one entry at a time.
  */
-const MAX_FILE_BYTES = 100 * 1024 * 1024;
+export const MAX_SOURCE_BYTES = 100 * 1024 * 1024;
 
 let sequence = 0;
 
@@ -253,123 +254,88 @@ export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: str
 /* ------------------------------------------------------------------- zip - */
 
 /**
- * Minimal zip reader.
+ * Archive entries and folder files nobody exported as a hand history.
  *
- * Rooms and trackers hand out hand histories as a zip often enough that
- * refusing them is a real papercut, but a zip library is ~30 KB of runtime for
- * a feature this narrow. The browser already ships the hard part:
- * `DecompressionStream("deflate-raw")` is the deflate decoder, so all that is
- * left is walking the central directory, which is about eighty lines.
- *
- * Deliberately not supported: encrypted entries and zip64. Both report a
- * readable problem instead of producing garbage.
+ * A dropped export folder or zip carries the room's other files too - the
+ * client's logs are useful, its screenshots and its `.DS_Store` are not. They
+ * are left out silently rather than listed as "binary file" rows: a folder of
+ * 30 000 hand histories and 2 000 table screenshots should read as 30 000
+ * files. Anything not on this list still goes to the decoder, which refuses
+ * a real binary with a reason; this list only saves reading the obvious ones.
  */
-const ZIP_EOCD = 0x06054b50;
-const ZIP_CENTRAL = 0x02014b50;
-const ZIP_LOCAL = 0x04034b50;
+const NOT_HAND_HISTORY = new Set([
+  "png", "jpg", "jpeg", "gif", "bmp", "webp", "ico", "svg", "heic", "tif", "tiff",
+  "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "rtf",
+  "mp3", "wav", "ogg", "mp4", "mov", "avi", "mkv", "webm",
+  "exe", "dll", "so", "dylib", "msi", "dmg", "pkg", "app", "jar", "class", "bin", "iso",
+  "db", "sqlite", "sqlite3", "mdb", "ldb", "dat", "idx",
+  "gz", "tgz", "bz2", "xz", "7z", "rar", "tar", "zst",
+  "js", "css", "html", "htm", "json", "ini", "cfg", "plist", "lnk", "url", "torrent",
+]);
 
-function findEocd(view: DataView): number {
-  // The comment field is last and variable-length, so the signature has to be
-  // found by scanning back from the end. 64 KiB is the maximum comment size.
-  const start = Math.max(0, view.byteLength - 0x10000 - 22);
-  for (let i = view.byteLength - 22; i >= start; i -= 1) {
-    if (view.getUint32(i, true) === ZIP_EOCD) {
-      return i;
+/** Null when the entry should be read; otherwise why it is left out. */
+export function skipReason(path: string): "hidden" | "not-hand-history" | null {
+  const parts = path.split("/").filter(Boolean);
+  const leaf = path.endsWith("/") ? "" : parts.at(-1) ?? "";
+  if (!leaf || parts.some((part) => part.startsWith(".")) || parts[0] === "__MACOSX") {
+    return "hidden";
+  }
+  const dot = leaf.lastIndexOf(".");
+  const extension = dot > 0 ? leaf.slice(dot + 1).toLowerCase() : "";
+  return NOT_HAND_HISTORY.has(extension) ? "not-hand-history" : null;
+}
+
+/** A {@link ZipEntryError} as the per-file problem the converter shows. */
+export function zipEntryProblem(error: unknown, bytes: number): SourceProblem {
+  if (error instanceof ZipEntryError) {
+    switch (error.kind) {
+      case "encrypted-entry":
+        return { kind: "encrypted-entry" };
+      case "cannot-unzip":
+        return { kind: "cannot-unzip" };
+      case "too-large":
+        return { kind: "too-large", bytes };
+      default:
+        return { kind: "unreadable-entry", detail: error.message };
     }
   }
-  return -1;
+  return { kind: "unreadable-entry", detail: error instanceof Error ? error.message : undefined };
 }
 
-/** Thrown when the browser has no `DecompressionStream`; reported as `cannot-unzip`. */
-class UnzipUnsupportedError extends Error {}
-
-async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
-  const Decompression = (globalThis as { DecompressionStream?: typeof DecompressionStream })
-    .DecompressionStream;
-  if (!Decompression) {
-    throw new UnzipUnsupportedError("DecompressionStream is not available");
+/**
+ * Reads every plausible text entry out of a zip, all at once.
+ *
+ * The single-hand box's reader, and the converter's before R4.2. It no longer
+ * loads the archive (`zipStream.ts` reads it entry by entry), but it does
+ * return every entry's text together, so it is for small archives; the
+ * converter streams through `bulkSource.ts` instead.
+ */
+export async function readZip(file: Blob & { name: string }): Promise<LoadedSource[]> {
+  const directory = await readZipDirectory(file);
+  if ("problem" in directory) {
+    return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: { kind: directory.problem } }];
   }
-  const stream = new Blob([data as unknown as BlobPart]).stream().pipeThrough(new Decompression("deflate-raw"));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
-}
-
-/** Reads every plausible text entry out of a zip. */
-export async function readZip(file: File): Promise<LoadedSource[]> {
-  const buffer = await file.arrayBuffer();
-  const view = new DataView(buffer);
-  const bytes = new Uint8Array(buffer);
-
-  const eocd = findEocd(view);
-  if (eocd < 0) {
-    return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: { kind: "not-zip" } }];
-  }
-
-  const entryCount = view.getUint16(eocd + 10, true);
-  let cursor = view.getUint32(eocd + 16, true);
   const out: LoadedSource[] = [];
-
-  for (let i = 0; i < entryCount; i += 1) {
-    if (cursor + 46 > view.byteLength || view.getUint32(cursor, true) !== ZIP_CENTRAL) {
-      break;
-    }
-    const flags = view.getUint16(cursor + 8, true);
-    const method = view.getUint16(cursor + 10, true);
-    const compressedSize = view.getUint32(cursor + 20, true);
-    const uncompressedSize = view.getUint32(cursor + 24, true);
-    const nameLength = view.getUint16(cursor + 28, true);
-    const extraLength = view.getUint16(cursor + 30, true);
-    const commentLength = view.getUint16(cursor + 32, true);
-    const localOffset = view.getUint32(cursor + 42, true);
-    // Bit 11 says the name is UTF-8; older archivers wrote CP437, and treating
-    // that as UTF-8 only garbles the display name, never the contents.
-    const name = new TextDecoder(flags & 0x800 ? "utf-8" : "utf-8").decode(
-      bytes.subarray(cursor + 46, cursor + 46 + nameLength),
-    );
-    cursor += 46 + nameLength + extraLength + commentLength;
-
-    const label = `${file.name} → ${name}`;
-    // Directory entries and macOS resource forks are not files anyone wants.
-    if (name.endsWith("/") || name.startsWith("__MACOSX/") || name.split("/").pop()?.startsWith(".")) {
+  for (const entry of directory.entries) {
+    if (entry.directory || skipReason(entry.name)) {
       continue;
     }
-    if (flags & 0x0001) {
-      out.push({ id: nextId(), name: label, bytes: uncompressedSize, text: "", encoding: "-", problem: { kind: "encrypted-entry" } });
-      continue;
-    }
-    if (compressedSize === 0xffffffff || uncompressedSize === 0xffffffff) {
-      out.push({ id: nextId(), name: label, bytes: 0, text: "", encoding: "-", problem: { kind: "zip64" } });
-      continue;
-    }
-
-    if (view.getUint32(localOffset, true) !== ZIP_LOCAL) {
-      continue;
-    }
-    const localNameLength = view.getUint16(localOffset + 26, true);
-    const localExtraLength = view.getUint16(localOffset + 28, true);
-    const dataStart = localOffset + 30 + localNameLength + localExtraLength;
-    const raw = bytes.subarray(dataStart, dataStart + compressedSize);
-
+    const label = `${file.name} → ${entry.name}`;
     try {
-      const content = method === 0 ? raw : await inflateRaw(raw);
-      const decoded = decodeSource(
-        content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength) as ArrayBuffer,
-      );
-      out.push({ id: nextId(), name: label, bytes: uncompressedSize, ...decoded });
+      const content = await readZipEntry(file, entry, MAX_SOURCE_BYTES);
+      const decoded = decodeSource(content.buffer as ArrayBuffer);
+      out.push({ id: nextId(), name: label, bytes: entry.uncompressedSize, ...decoded });
     } catch (error) {
       out.push({
         id: nextId(),
         name: label,
-        bytes: uncompressedSize,
+        bytes: entry.uncompressedSize,
         text: "",
         encoding: "-",
-        problem:
-          error instanceof UnzipUnsupportedError
-            ? { kind: "cannot-unzip" }
-            : { kind: "unreadable-entry", detail: error instanceof Error ? error.message : undefined },
+        problem: zipEntryProblem(error, entry.uncompressedSize),
       });
     }
   }
-
   if (out.length === 0) {
     return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: { kind: "empty-archive" } }];
   }
@@ -378,13 +344,16 @@ export async function readZip(file: File): Promise<LoadedSource[]> {
 
 /* ----------------------------------------------------------------- files - */
 
-function isZip(file: File): boolean {
+export function isZip(file: { name: string; type?: string }): boolean {
   return /\.zip$/i.test(file.name) || file.type === "application/zip" || file.type === "application/x-zip-compressed";
 }
 
 /** Reads one picked or dropped file into one or more sources. */
 export async function loadFile(file: File): Promise<LoadedSource[]> {
-  if (file.size > MAX_FILE_BYTES) {
+  if (isZip(file)) {
+    return readZip(file);
+  }
+  if (file.size > MAX_SOURCE_BYTES) {
     return [{
       id: nextId(),
       name: file.name,
@@ -393,9 +362,6 @@ export async function loadFile(file: File): Promise<LoadedSource[]> {
       encoding: "-",
       problem: { kind: "too-large", bytes: file.size },
     }];
-  }
-  if (isZip(file)) {
-    return readZip(file);
   }
   try {
     const decoded = decodeSource(await file.arrayBuffer());
@@ -430,17 +396,42 @@ export function sourceFromText(text: string, name: string): LoadedSource {
 
 /* ------------------------------------------------------------ drag & drop - */
 
+/**
+ * A picked or dropped file and where it sat in what the user gave us:
+ * `HandHistory/Player/HH20261001.txt` for a file inside a dropped or picked
+ * folder, the bare name otherwise. The path is the file's identity for a
+ * resumed upload (`bulkSource.ts`) and the name shown for it.
+ */
+export interface PickedFile {
+  file: File;
+  path: string;
+}
+
+/** A file from an `<input type="file">`, folder pickers included. */
+export function pickedFile(file: File): PickedFile {
+  return { file, path: file.webkitRelativePath || file.name };
+}
+
 interface FileSystemEntryLike {
   isFile: boolean;
   isDirectory: boolean;
+  name: string;
+  fullPath?: string;
   file(onSuccess: (file: File) => void, onError: (error: unknown) => void): void;
   createReader(): {
     readEntries(onSuccess: (entries: FileSystemEntryLike[]) => void, onError: (error: unknown) => void): void;
   };
 }
 
-/** Hard cap on a dropped folder, so a stray home directory cannot hang the tab. */
-const MAX_DROPPED_FILES = 500;
+/**
+ * Hard cap on a dropped folder, so a stray home directory cannot hang the tab.
+ *
+ * 500 before R4.2. A `File` from the entries API is a handle, not its bytes
+ * (~200 bytes each), and the files are read one at a time, so the cap is now
+ * what a real tracker export can hold: a PokerStars folder of ten years is a
+ * few tens of thousands of daily files.
+ */
+export const MAX_DROPPED_FILES = 100_000;
 
 function readDirectory(entry: FileSystemEntryLike): Promise<FileSystemEntryLike[]> {
   // `readEntries` returns at most 100 entries per call and an empty array when
@@ -466,20 +457,33 @@ function entryFile(entry: FileSystemEntryLike): Promise<File | null> {
   return new Promise((resolve) => entry.file((file) => resolve(file), () => resolve(null)));
 }
 
-async function collectEntry(entry: FileSystemEntryLike, out: File[]): Promise<void> {
+function entryPath(entry: FileSystemEntryLike): string {
+  return (entry.fullPath ?? entry.name).replace(/^\/+/, "") || entry.name;
+}
+
+async function collectEntry(entry: FileSystemEntryLike, out: PickedFile[], inFolder: boolean): Promise<void> {
   if (out.length >= MAX_DROPPED_FILES) {
     return;
   }
   if (entry.isFile) {
+    const path = entryPath(entry);
+    // Inside a folder, the room's screenshots and the OS's dotfiles stay out;
+    // a file dropped on its own is read whatever it is called.
+    if (inFolder && skipReason(path)) {
+      return;
+    }
     const file = await entryFile(entry);
     if (file) {
-      out.push(file);
+      out.push({ file, path });
     }
     return;
   }
   if (entry.isDirectory) {
+    if (inFolder && entry.name.startsWith(".")) {
+      return;
+    }
     for (const child of await readDirectory(entry)) {
-      await collectEntry(child, out);
+      await collectEntry(child, out, true);
     }
   }
 }
@@ -491,7 +495,7 @@ async function collectEntry(entry: FileSystemEntryLike, out: File[]): Promise<vo
  * is the only way to support "drag your whole HandHistory folder in" — which is
  * exactly what the folder layout of `weplay-hh/` invites.
  */
-export async function filesFromDrop(transfer: DataTransfer): Promise<File[]> {
+export async function filesFromDrop(transfer: DataTransfer): Promise<PickedFile[]> {
   const items = Array.from(transfer.items ?? []);
   const entries = items
     .map((item) => (item.kind === "file" && "webkitGetAsEntry" in item
@@ -499,17 +503,18 @@ export async function filesFromDrop(transfer: DataTransfer): Promise<File[]> {
       : null))
     .filter((entry): entry is FileSystemEntryLike => entry !== null);
 
+  const plain = () => Array.from(transfer.files ?? []).slice(0, MAX_DROPPED_FILES).map(pickedFile);
   if (entries.length === 0) {
-    return Array.from(transfer.files ?? []).slice(0, MAX_DROPPED_FILES);
+    return plain();
   }
 
-  const out: File[] = [];
+  const out: PickedFile[] = [];
   for (const entry of entries) {
-    await collectEntry(entry, out);
+    await collectEntry(entry, out, false);
   }
   // A browser that gave us entries but no files (rare, and seen on some Linux
   // builds) should still fall back rather than silently drop the whole drop.
-  return out.length > 0 ? out : Array.from(transfer.files ?? []).slice(0, MAX_DROPPED_FILES);
+  return out.length > 0 ? out : plain();
 }
 
 /* ---------------------------------------------------------------- format - */
@@ -548,8 +553,6 @@ export function describeProblem(
       return t.notZip;
     case "encrypted-entry":
       return t.encryptedEntry;
-    case "zip64":
-      return t.zip64;
     case "cannot-unzip":
       return t.cannotUnzip;
     case "unreadable-entry":

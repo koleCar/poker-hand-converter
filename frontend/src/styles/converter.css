@@ -129,6 +129,13 @@
   gap: 12px;
 }
 
+/* "Save to my library" and, next to it, the originals opt-in (R4.2). */
+.conv-switches {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .conv-switch {
   display: flex;
   align-items: flex-start;

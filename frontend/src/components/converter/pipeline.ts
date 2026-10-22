@@ -24,6 +24,7 @@
 import type { ConversionFailure, ConvertOptions } from "../../lib/phf/detect";
 import type { PhfHand } from "../../lib/phf/types";
 import { conversionEngine, type ConversionEngine } from "../../lib/wasm/engine";
+import type { BulkSource } from "./bulkSource";
 
 /**
  * Hands per conversion call.
@@ -74,6 +75,89 @@ function yieldToLoop(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+/** What converting one source reports, with the batch's position (R4.2). */
+interface SourceHandlers {
+  onSourceStart(start: SourceStart): void;
+  /** `index` counts the source's batches from 0; `last` is its final one. */
+  onBatch(batch: PipelineBatch, index: number, last: boolean): void;
+  onSourceEnd(sourceId: string): void;
+  isCancelled(): boolean;
+  /** Awaited before each conversion call: the bulk path's backpressure. */
+  beforeBatch?(): Promise<void>;
+}
+
+/**
+ * Converts one source batch by batch. False when cancelled midway.
+ *
+ * `skipBatches` (a resumed upload) leaves the source's first batches
+ * unconverted: the split is deterministic, so batch `i` is the same hands on
+ * every attempt, and those were stored by the earlier one.
+ */
+async function convertSource(
+  conv: ConversionEngine,
+  source: PipelineSource,
+  options: ConvertOptions,
+  handlers: SourceHandlers,
+  skipBatches = 0,
+): Promise<boolean> {
+  const opts: ConvertOptions = { ...options, sourceFilename: source.name };
+  const split = await conv.split(source.text);
+  const chunks = split.chunks;
+
+  if (split.siteId === null || !chunks || chunks.length === 0) {
+    handlers.onSourceStart({
+      sourceId: source.id,
+      siteId: split.siteId,
+      siteName: split.siteName,
+      confidence: split.confidence,
+      total: 1,
+    });
+    if (skipBatches < 1) {
+      await handlers.beforeBatch?.();
+      const result = await conv.convert(source.text, opts);
+      handlers.onBatch(
+        { sourceId: source.id, hands: result.hands, failures: result.failures, done: 1, total: 1 },
+        0,
+        true,
+      );
+    }
+    handlers.onSourceEnd(source.id);
+    return true;
+  }
+
+  handlers.onSourceStart({
+    sourceId: source.id,
+    siteId: split.siteId,
+    siteName: split.siteName,
+    confidence: split.confidence,
+    total: chunks.length,
+  });
+
+  for (let i = skipBatches * BATCH_SIZE; i < chunks.length; i += BATCH_SIZE) {
+    if (handlers.isCancelled()) {
+      return false;
+    }
+    await handlers.beforeBatch?.();
+    if (handlers.isCancelled()) {
+      return false;
+    }
+    // Re-joined with a blank line: every parser splits on a lookahead at its
+    // own header line, so a batch re-splits into exactly the hands it holds.
+    const batchText = chunks.slice(i, i + BATCH_SIZE).join("\n\n");
+    const result = await conv.convert(batchText, opts);
+    const done = Math.min(i + BATCH_SIZE, chunks.length);
+    handlers.onBatch(
+      { sourceId: source.id, hands: result.hands, failures: result.failures, done, total: chunks.length },
+      i / BATCH_SIZE,
+      done === chunks.length,
+    );
+    await yieldToLoop();
+  }
+
+  handlers.onSourceEnd(source.id);
+  return true;
+}
+
 /**
  * Converts every source, streaming batches through `handlers`.
  *
@@ -95,58 +179,83 @@ export async function runPipeline(
     if (handlers.isCancelled()) {
       return conv.kind;
     }
+    const finished = await convertSource(conv, source, options, {
+      onSourceStart: handlers.onSourceStart,
+      onBatch: (batch) => handlers.onBatch(batch),
+      onSourceEnd: handlers.onSourceEnd,
+      isCancelled: handlers.isCancelled,
+    });
+    if (!finished) {
+      return conv.kind;
+    }
+  }
+  return conv.kind;
+}
 
-    const opts: ConvertOptions = { ...options, sourceFilename: source.name };
-    const split = await conv.split(source.text);
-    const chunks = split.chunks;
+/* ------------------------------------------------------- bulk (R4.2) - */
 
-    if (split.siteId === null || !chunks || chunks.length === 0) {
-      handlers.onSourceStart({
-        sourceId: source.id,
-        siteId: split.siteId,
-        siteName: split.siteName,
-        confidence: split.confidence,
-        total: 1,
-      });
-      const result = await conv.convert(source.text, opts);
-      handlers.onBatch({
-        sourceId: source.id,
-        hands: result.hands,
-        failures: result.failures,
-        done: 1,
-        total: 1,
-      });
-      handlers.onSourceEnd(source.id);
+/** A batch on the bulk path: where it sits in its source, for resuming. */
+export interface StreamBatch extends PipelineBatch {
+  /** The source's resume key (`BulkSource.key`). */
+  key: string;
+  index: number;
+  last: boolean;
+}
+
+export interface StreamHandlers {
+  /** A source was read (or could not be): before any of its batches. */
+  onSource(source: BulkSource): void;
+  onSourceStart(start: SourceStart): void;
+  onBatch(batch: StreamBatch): void;
+  onSourceEnd(sourceId: string, key: string): void;
+  isCancelled(): boolean;
+  /**
+   * Resolves when the consumer has room for another batch. The worker waits
+   * here for the page's acknowledgements, so conversion never runs further
+   * ahead of the save than the page allows.
+   */
+  waitForRoom(): Promise<void>;
+  /** Batches of `key` an earlier attempt stored; 0 when none. */
+  skipBatches(key: string): number;
+}
+
+/**
+ * Converts a stream of sources as they are read (`bulkSource.ts`), one at a
+ * time: the source in hand is the only one in memory. Same batches as
+ * {@link runPipeline} for the same text.
+ */
+export async function runSourceStream(
+  sources: AsyncIterable<BulkSource>,
+  options: ConvertOptions,
+  handlers: StreamHandlers,
+  engine?: ConversionEngine,
+): Promise<ConversionEngine["kind"]> {
+  const conv = engine ?? (await conversionEngine());
+  for await (const source of sources) {
+    if (handlers.isCancelled()) {
+      break;
+    }
+    handlers.onSource(source);
+    if (source.problem) {
       continue;
     }
-
-    handlers.onSourceStart({
-      sourceId: source.id,
-      siteId: split.siteId,
-      siteName: split.siteName,
-      confidence: split.confidence,
-      total: chunks.length,
-    });
-
-    for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
-      if (handlers.isCancelled()) {
-        return conv.kind;
-      }
-      // Re-joined with a blank line: every parser splits on a lookahead at its
-      // own header line, so a batch re-splits into exactly the hands it holds.
-      const batchText = chunks.slice(i, i + BATCH_SIZE).join("\n\n");
-      const result = await conv.convert(batchText, opts);
-      handlers.onBatch({
-        sourceId: source.id,
-        hands: result.hands,
-        failures: result.failures,
-        done: Math.min(i + BATCH_SIZE, chunks.length),
-        total: chunks.length,
-      });
-      await yieldToLoop();
+    const finished = await convertSource(
+      conv,
+      source,
+      options,
+      {
+        onSourceStart: handlers.onSourceStart,
+        onBatch: (batch, index, last) => handlers.onBatch({ ...batch, key: source.key, index, last }),
+        onSourceEnd: (sourceId) => handlers.onSourceEnd(sourceId, source.key),
+        isCancelled: handlers.isCancelled,
+        beforeBatch: handlers.waitForRoom,
+      },
+      handlers.skipBatches(source.key),
+    );
+    if (!finished) {
+      break;
     }
-
-    handlers.onSourceEnd(source.id);
+    await handlers.waitForRoom();
   }
   return conv.kind;
 }
