@@ -43,7 +43,7 @@ export const handsUiHr: typeof handsUiEn = {
   allInPending: "All-in · EV se računa",
   showdown: "Showdown",
   hasNote: "Ima bilješku",
-  positionalNames: "Anon",
+  positionalNames: "Bez imena",
   positionalNamesTitle:
     "Ova soba skriva imena igrača iza oznaka mjesta koje se mijenjaju svake ruke, pa se ruka ne može naći po imenu igrača.",
   filters: {
