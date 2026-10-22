@@ -51,6 +51,16 @@ export const chromeEn = {
     webShareTitle: "Poker hand replay",
     copied: "Link copied to clipboard.",
     copyBlocked: "Your browser blocked the clipboard. Select the link above and copy it manually.",
+    /** The owner's switch for a link's screen names (R4.5): hidden unless turned on. */
+    names: {
+      label: "Show the players' names",
+      explain:
+        "Off: everyone with this link sees Hero, Villain1, Villain2… and no table, hand number or time of play. On: the screen names as the room printed them.",
+      hidden: "Names hidden on this link",
+      shown: "Names shown on this link",
+      saving: "Saving…",
+      failed: (reason: string) => `Could not change it: ${reason}`,
+    },
   },
   db: {
     offlineTitle: "No database configured. The converter works offline; saved hands and sharing are unavailable.",

@@ -27,7 +27,7 @@
  */
 
 import type { PhfHand } from "../phf/types";
-import { requireUserId, rpc } from "./client";
+import { currentUserId, isDatabaseConfigured, requireUserId, rpc } from "./client";
 import { storedStandardText } from "./mapping";
 import type { CreateShareInput, ResolvedShare, ShareRef } from "./types";
 
@@ -67,6 +67,8 @@ export async function createShare(input: CreateShareInput): Promise<ShareRef> {
     // Absent is the same as false server-side; sent explicitly so the wire call
     // states the choice rather than relying on the column default.
     p_spoilers: input.spoilers === true,
+    // Likewise for names (R4.5): hidden unless the sharer turned them on.
+    p_show_names: input.showNames === true,
   });
 
   return { id: payload.id, slug: payload.slug, reused: false };
@@ -129,6 +131,8 @@ export async function resolveShare(slug: string): Promise<ResolvedShare | null> 
     // deployment where the migration has not landed, must not start leaking the
     // result into unfurls because a key was missing.
     spoilers: payload.spoilers === true,
+    // Defaults closed for the same reason: only an explicit `true` is an opt-in.
+    showNames: payload.showNames === true,
     views: Number(payload.views ?? 0),
     createdAt: (payload.createdAt as string | null) ?? null,
     storedHandId: (payload.handId as string | null) ?? null,
@@ -141,4 +145,34 @@ export async function resolveShare(slug: string): Promise<ResolvedShare | null> 
     handText: standardText,
     preview: null,
   };
+}
+
+/** The owner's names setting for one of their share links (R4.5). */
+export interface ShareNamesState {
+  slug: string;
+  showNames: boolean;
+}
+
+function namesStateFrom(raw: unknown): ShareNamesState | null {
+  if (!raw || typeof raw !== "object") return null;
+  const row = raw as Record<string, unknown>;
+  if (typeof row.slug !== "string") return null;
+  return { slug: row.slug, showNames: row.showNames === true };
+}
+
+/**
+ * Whether the caller's own share link shows names; null when the link is not
+ * the caller's (or nobody is signed in) - the database answers only to the
+ * owner, so anyone else gets no switch to draw.
+ */
+export async function shareNamesState(slug: string): Promise<ShareNamesState | null> {
+  if (!isDatabaseConfigured || !SLUG_PATTERN.test(slug) || !(await currentUserId())) return null;
+  return namesStateFrom(await rpc<unknown>("share_names_state", { p_slug: slug }));
+}
+
+/** The owner's switch. Throws the server's sentence for a link that is not the caller's. */
+export async function setShareNames(slug: string, showNames: boolean): Promise<ShareNamesState> {
+  const state = namesStateFrom(await rpc<unknown>("set_share_names", { p_slug: slug, p_show: showNames }));
+  if (!state) throw new Error("set_share_names returned nothing");
+  return state;
 }

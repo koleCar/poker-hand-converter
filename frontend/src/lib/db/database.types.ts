@@ -1994,6 +1994,7 @@ export type Database = {
           last_viewed_at: string | null
           owner_id: string
           phf: Json | null
+          show_names: boolean
           slug: string
           spoilers: boolean
           standard_text: string | null
@@ -2007,6 +2008,7 @@ export type Database = {
           last_viewed_at?: string | null
           owner_id: string
           phf?: Json | null
+          show_names?: boolean
           slug: string
           spoilers?: boolean
           standard_text?: string | null
@@ -2020,6 +2022,7 @@ export type Database = {
           last_viewed_at?: string | null
           owner_id?: string
           phf?: Json | null
+          show_names?: boolean
           slug?: string
           spoilers?: boolean
           standard_text?: string | null
@@ -2589,6 +2592,7 @@ export type Database = {
         Args: {
           p_hand_id?: string
           p_phf?: Json
+          p_show_names?: boolean
           p_spoilers?: boolean
           p_standard_text?: string
           p_title?: string
@@ -3088,6 +3092,10 @@ export type Database = {
         }
         Returns: Json
       }
+      set_share_names: {
+        Args: { p_show: boolean; p_slug: string }
+        Returns: Json
+      }
       set_study_task: {
         Args: { p_done: boolean; p_task: string }
         Returns: Json
@@ -3097,6 +3105,8 @@ export type Database = {
         Returns: string
       }
       set_username: { Args: { p_username: string }; Returns: Json }
+      share_anonymised_phf: { Args: { p_phf: Json }; Returns: Json }
+      share_names_state: { Args: { p_slug: string }; Returns: Json }
       stats_breakdown: {
         Args: { p_filters?: Json; p_group?: string }
         Returns: Json
