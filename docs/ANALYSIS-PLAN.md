@@ -358,6 +358,29 @@ shows them like GTOW's banner:
   a heads-up flop the flop library answers).
 - **Source quality:** a heuristic source (§3.6).
 
+**Caps and the sensitivity check** of the grades that rest on narrowed
+ranges (the turn and river solves, the approximate multiway calls):
+
+- **Range cap** (`range-cap`, A4): capped at Mistake unless the move loses
+  whatever the opponent holds.
+- **Sensitivity check** (`range-sensitive`, A4; a bound since
+  `analysis/34`). A grade of Inaccurate or worse is graded again on ranges
+  narrowed at half strength (`halved`: every likelihood `L` becomes `√L`),
+  by the same rules (the big-blind floor included). The grade shown is the
+  full narrowing's, but **never more than one class harsher than the
+  half-strength grade** (`sensitivityGrade`): what the full narrowing adds
+  beyond one class rests on how hard the ranges are narrowed, not on the
+  hand. One class apart or less, nothing changes. The full narrowing's
+  options, EVs, EV loss, move score and solve are kept, as under a cap (the
+  study view draws the same one); the half-strength model, grade and EV
+  loss and the full grade are in `sensitivity`. The bound is monotone: a
+  milder full or half-strength grade never makes the shown grade harsher
+  (tested). Before `analysis/34` it was a switch - more than one class
+  apart, the half-strength grade and its solve were shown - so a change
+  that softened the full grade could make the shown one harsher. Comparing
+  EV losses instead was tried and not shipped: it ignores how often the
+  half-strength solve plays the move (§10, 2026-10-23).
+
 A decision is **not analysed** (`status: partial`) when:
 - the postflop pot is multiway, except a river call or fold facing a bet
   (an approximate grade, `source: "approx"`) and a turn or river that
@@ -5765,3 +5788,123 @@ Each phase appends what it learned that changed the plan.
       postflop solver grades carry, and no grade reads the room's rake.
     - The fit's error is measured on 6-max 100bb only (145 of the 295
       preflop Mistakes and Blunders); the iteration pairs cover four sets.
+- 2026-10-23 — The sensitivity check's two-class rule: a bound, not a
+  switch. `ANALYSIS_VERSION` → `analysis/34`.
+  - **Why.** The open item of `analysis/33`. The sensitivity check
+    (`range-sensitive`, §3.5) re-grades a turn, river or approximate grade
+    of Inaccurate or worse on ranges narrowed at half strength; when the two
+    grades were more than one class apart, the half-strength grade (and its
+    solve) was shown. That is a switch, and a switch is not monotone: a
+    change that makes the full grade milder can close the gap, and the
+    shown grade jumps back to the harsher full one. At `analysis/33` three
+    river rows went Good → Inaccurate that way (the floor turned their full
+    Mistake into Inaccurate, one class from the half-strength Good).
+  - **What any monotone rule must do.** If the shown grade is always one of
+    the two narrowings' grades, no rule that steps in only when they are far
+    apart can be monotone: where it stops stepping in, the shown grade
+    jumps from the milder one to the harsher one. So the shown grade has to
+    be a bound on the full grade that moves with the half-strength answer.
+    The trigger is a step of its own: a full grade milder than the trigger
+    (Good) is shown as it is, so a checked grade must never be shown milder
+    than what an unchecked neighbour would be.
+  - **Tried first, not shipped: EV losses.** The plan's suggestion: read the
+    full narrowing's loss as at most `k` times the half-strength loss
+    (`min(Lf, k·Lh)`, on the floored pot, so a floored pot is read the same
+    way twice), its class bounding the full grade, never milder than
+    Inaccurate (the trigger's step: a move the full narrowing plays 3.4% and
+    the half-strength one prefers must not show Perfect while the same move
+    played 3.5% shows Good). Monotone, and tested. A full census of the
+    same hands at `k` = 4, the width of one loss class: the 31
+    range-sensitive grades of `analysis/33` all change, all harsher, and
+    nothing else does - Good → Mistake 11, Perfect → Mistake 2, Perfect →
+    Inaccurate 17, Good → Inaccurate 1. Other `k` read off the same rows:
+    from 2 to 8 the same 31 move, 10-14 of them two classes harsher; `k` =
+    1 (the milder of the two losses) moves 35, 6 of them two classes
+    harsher, and makes 4 other Mistakes Inaccurate. The reason is in the
+    rows: the half-strength grade of all 31 is Good or Perfect - at half
+    strength the solve plays the move, in its mix or as its top choice -
+    while its EV loss is anywhere from a fifth of the full one to nearly
+    all of it (0.23 against 0.49bb in a 9.5bb pot;
+    0.39 against 2.14bb in a 30bb pot; 0.83 against 1.03bb in a 14.1bb
+    pot). The grade's first rules read frequency, a loss comparison cannot
+    see it, and so it keeps the full Mistake exactly where the check was
+    meant to step in.
+  - **The rule.** The shown grade is the full narrowing's, but **never more
+    than one class harsher than the half-strength grade**
+    (`sensitivityGrade`: `min(full, half + 1)`, `SENSITIVE_MAX_CLASSES`).
+    Both grades come from `grade()` with the big-blind floor, so a floored
+    pot is read the same way on both. One class apart or less nothing
+    changes (as before); further apart, the grade is pulled to one class
+    past the half-strength grade instead of all the way to it. Monotone in
+    both grades, the trigger included: a checked grade is never milder than
+    Good (a full Inaccurate with a Perfect half-strength grade shows Good,
+    what an unchecked Good shows). Tested: every pair of grades,
+    with and without the Mistake cap after it, and along the full loss on
+    `grade()`'s own output in pots of 2-30bb. The full narrowing's options,
+    EVs, EV loss, move score and solve are kept, as under a cap (before, the
+    half-strength solve was shown, and the study view drew it); `sensitivity`
+    now always holds the half-strength model, grade and EV loss and the
+    full grade (`SensitivityFacts`; rows stored before keep their old
+    meaning and their old sentence).
+  - **Census** (`npm run floplib:census`, the 5,448 stored hands, 8,005
+    hero decisions, three shards, the shipped flop-library sets, turn solves
+    on) at the bound against `analysis/33` row by row: **31 rows change
+    grade, all one class harsher, none milder, no outcome moves**; they are
+    exactly the 31 range-sensitive grades of `analysis/33` (the switch's
+    rows), and no other row gains or loses the flag. The check ran on 154
+    decisions (turn solver 71, river solver 47, approximate flop 16, turn
+    11, river 9); every approximate one kept its grade.
+
+    | | harsher |
+    |---|---|
+    | turn, solver | Perfect → Good 7, Good → Inaccurate 5 |
+    | river, solver | Perfect → Good 12, Good → Inaccurate 7 |
+
+    Postflop (1,443 graded) Perfect 1,121 → 1,102, Good 184 → 191,
+    Inaccurate 43 → 55, Mistake 95 (unchanged), Blunder 0. The EV loss
+    shown is now the full narrowing's on these rows: the postflop sum
+    441 → 478bb.
+  - **Read one by one** (census rows; no cards or names in the rows):
+    - **Perfect → Good, 19.** Perfect at half strength (within 5 points of
+      the top frequency, or a negligible loss; its loss 0-0.69bb); the full
+      solve plays it under 3.5%: full Inaccurate 9, Mistake 8, Blunder 2. Single-
+      raised pots 13, 3-bet 4, 4-bet 1, limped 1; turn and river checks
+      10, bets 5, calls 3, one river fold. The largest full losses: a turn
+      call losing 7.7bb of a 34bb pot (a full Blunder, Perfect at half
+      strength with no loss), a river check 4.2bb of 71.6bb, a river
+      bet 3.8bb of 49.8bb. Good, not Perfect: the move is in the
+      half-strength mix, not in the full one.
+    - **Good → Inaccurate, 12.** All single-raised pots; turn and river
+      bets 6, raises 4, checks 2. The half-strength solve mixes the move in
+      (3.5% or more) and loses 0.04-5.49bb with it; the full one loses
+      0.29-8.16bb (full Mistake 10, Blunder 2: a turn raise 8.2bb of 28bb,
+      a river check 5.8bb of 50bb). Inaccurate says "a little off" without
+      the full narrowing's verdict.
+    - **The three rows of `analysis/33`** (full Inaccurate since the
+      floor, half-strength Good) stay Inaccurate, unflagged: the bound and
+      the switch agree on them. What changed is that a milder full grade
+      can no longer reach a harsher shown grade by a step.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/34`. `sensitivityGrade`,
+    `SENSITIVE_FROM` and `SENSITIVE_MAX_CLASSES` in `grading.ts`, used by
+    the turn and river solves and the approximate calls (`analyze.ts`;
+    the full solve is kept). `SensitivityFacts` (`types.ts`) gains `evLoss`
+    and `full`. Wording (EN/HR): the sentence says the full and the
+    half-strength grade and that the grade is shown at most one grade
+    harsher than the half-strength one; a grade stored before keeps the old
+    sentence; the flag's label says the same; the big-blind floor's
+    sentence is not said on a grade the check lowered (`bbFloored`). Tests
+    (`analysisSpots`: the bound, monotonicity, the old switch's step;
+    `analysisRiver`: the sentence in both languages, the old one, the
+    floor's sentence off; `analysisCorpus`: every range-sensitive grade is
+    one class past its half-strength grade and the full grade is the
+    options' own). The census rows carry the check (`sensitivity`). Only
+    aggregate numbers are committed.
+  - **Open.**
+    - **The price of monotonicity**: a range-sensitive grade is one class
+      harsher than the half-strength grade instead of equal to it (the 31
+      rows). Whether one class is the right tolerance, rather than the
+      half-strength grade itself (monotone only if every grade, Good and
+      Perfect included, took the milder of the two), is a judgement the
+      rows alone do not settle.
+    - **The half-strength walk** still halves the evidence after
+      `BET_EVIDENCE` (`analysis/32`'s open item): the bound inherits it.

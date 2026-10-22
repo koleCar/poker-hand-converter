@@ -87,6 +87,8 @@ export interface CensusRow {
   potBb?: number;
   chosenFreq?: number | null;
   maxFreq?: number | null;
+  /** The sensitivity check (analysis/34) where it ran: the half-strength grade and EV loss, the full narrowing's grade. */
+  sensitivity?: { grade: string; evLoss: number | null; full: string | null } | null;
 }
 
 const localFetch = async (url: string): Promise<Response> => {
@@ -153,7 +155,13 @@ function rowsOf(h: number, hand: PhfHand, result: analysis.HandAnalysis): Census
     potBb: d.facts.potBb,
     chosenFreq: d.chosen !== null ? (d.options[d.chosen]?.freq ?? null) : null,
     maxFreq: d.options.length > 0 ? Math.max(...d.options.map((o) => o.freq)) : null,
+    sensitivity: sensitivityOf(d),
   }));
+}
+
+function sensitivityOf(d: analysis.DecisionAnalysis): CensusRow["sensitivity"] {
+  const s = d.facts.river?.sensitivity ?? d.facts.turn?.sensitivity ?? d.facts.multiway?.ev?.sensitivity ?? null;
+  return s ? { grade: s.grade, evLoss: s.evLoss ?? null, full: s.full ?? null } : null;
 }
 
 /* ---------------------------------------------------------------- report - */

@@ -62,7 +62,7 @@ import { equityVsRange, parseRange, strongestOfRange, type ClassWeights, type We
 import type { PhfHand, Position } from "../phf/types";
 import { buildContext, type StatsContext } from "../stats/context";
 import { potTypeOf } from "../stats/derive";
-import { gradeRank, worstGrade, worstSeverity, meanScore } from "./grading";
+import { gradeRank, meanScore, sensitivityGrade, SENSITIVE_FROM, worstGrade, worstSeverity, type SensitivityResult } from "./grading";
 import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
 import { chartsModelStraddle, gradePreflop } from "./preflop";
@@ -124,6 +124,7 @@ import {
   type Approximation,
   type DecisionAnalysis,
   type DecisionStreet,
+  type Grade,
   type HandAnalysis,
   type HandSkipReason,
   type MultiwayFacts,
@@ -132,6 +133,7 @@ import {
   type PostflopRole,
   type PreflopScenario,
   type RiverSkipReason,
+  type SensitivityFacts,
   type SpotFacts,
   type TurnSkipReason,
   type VillainFact,
@@ -673,23 +675,14 @@ function handTurn(
     const full = gradeOn(spot, "full");
     if (!("graded" in full)) return full;
     const plain = { ...full, graded: { ...full.graded, turn: { ...full.graded.turn, sensitivity: null } } };
-    if (gradeRank(full.graded.grade) < SENSITIVE_FROM) return plain;
+    if (gradeRank(full.graded.grade) < gradeRank(SENSITIVE_FROM)) return plain;
     const half = gradeOn(spot, "half");
     if (!("graded" in half)) return plain;
-    if (gradeRank(full.graded.grade) - gradeRank(half.graded.grade) > 1) {
-      const approximations = [...new Set([...half.graded.approximations, "range-sensitive" as const])].sort();
-      return {
-        ...half,
-        graded: {
-          ...half.graded,
-          approximations,
-          turn: { ...half.graded.turn, sensitivity: { model: full.graded.turn.model, grade: full.graded.grade } },
-        },
-      };
-    }
+    const checked = sensitivityGrade(full.graded.grade, half.graded.grade);
+    const sensitivity = sensitivityFacts(half.graded.turn.model, half.graded, full.graded.grade);
     return {
       ...full,
-      graded: { ...full.graded, turn: { ...full.graded.turn, sensitivity: { model: half.graded.turn.model, grade: half.graded.grade } } },
+      graded: { ...full.graded, ...checkedGrade(full.graded, checked), turn: { ...full.graded.turn, sensitivity } },
     };
   };
 
@@ -732,8 +725,9 @@ type Walked = RangeWalk | { ok: false; reason: WalkFailure } | null;
  * The approximate call (A9 on the river, `analysis/15` on the flop,
  * `analysis/16` on the turn), with the
  * sensitivity check of the solver grades: a grade of Inaccurate or worse is
- * recomputed on the half-strength narrowing, and when the two are more than
- * a class apart the milder one is kept (`range-sensitive`).
+ * recomputed on the half-strength narrowing and shown at most one class
+ * harsher than that (`sensitivityGrade`, `range-sensitive` when it lowers the
+ * grade).
  */
 function approxCall(
   spot: Spot,
@@ -760,34 +754,44 @@ function approxCall(
     return gradeRiverCall(evs, action, potBb, dominated);
   };
   const full = on(multi, heuristicModel);
-  if (!full.ok || gradeRank(full.grade) < SENSITIVE_FROM) return full;
+  if (!full.ok || gradeRank(full.grade) < gradeRank(SENSITIVE_FROM)) return full;
   const softWalk = softMulti();
   if (!softWalk || !softWalk.ok) return full;
   const half = on(softWalk, halved(heuristicModel));
   if (!half.ok) return full;
-  if (gradeRank(full.grade) - gradeRank(half.grade) > 1) {
-    return {
-      ...half,
-      approximations: [...new Set([...half.approximations, "range-sensitive" as const])].sort(),
-      ev: { ...half.ev, sensitivity: { model: multi.model, grade: full.grade } },
-    };
-  }
-  return { ...full, ev: { ...full.ev, sensitivity: { model: softWalk.model, grade: half.grade } } };
+  const checked = sensitivityGrade(full.grade, half.grade);
+  return { ...full, ...checkedGrade(full, checked), ev: { ...full.ev, sensitivity: sensitivityFacts(softWalk.model, half, full.grade) } };
 }
 
-/** Grades at or worse than this run the sensitivity check (§3.5, §9). */
-const SENSITIVE_FROM = gradeRank("inaccurate");
+/** The half-strength narrowing's answer, as the facts keep it (§3.5). */
+function sensitivityFacts(model: string, half: { grade: Grade; evLoss: number }, full: Grade): SensitivityFacts {
+  return { model, grade: half.grade, evLoss: Math.round(half.evLoss * 1000) / 1000, full };
+}
+
+/**
+ * A full-narrowing grade's grade and flags after the sensitivity check. The
+ * options, EVs, EV loss and move score stay the full narrowing's, as under a
+ * cap (`range-cap`).
+ */
+function checkedGrade(full: { approximations: Approximation[] }, checked: SensitivityResult): { grade: Grade; approximations: Approximation[] } {
+  return {
+    grade: checked.grade,
+    approximations: checked.lowered ? [...new Set([...full.approximations, "range-sensitive" as const])].sort() : full.approximations,
+  };
+}
 
 /**
  * The hand's river, solved at most once per narrowing and read at each hero
  * river decision: a hand with a check and then a call is one solve read twice.
  *
- * **The sensitivity check.** A grade of Inaccurate or worse is re-graded on a
- * second solve whose ranges were narrowed at half strength (`halved`). When
- * the two grades are more than one class apart, the grade rests on the
- * narrowing rather than on the hand: the milder of the two is kept — its
- * options, its EVs, its solve (so the study view draws the same one) — and
- * marked `range-sensitive`. Only the bad grades pay for a second solve.
+ * **The sensitivity check** (`sensitivityGrade`, analysis/34). A grade of
+ * Inaccurate or worse is re-graded on a second solve whose ranges were
+ * narrowed at half strength (`halved`). The grade shown is never more than
+ * one class harsher than the half-strength one: what the full narrowing adds
+ * beyond that rests on how hard the ranges are narrowed, not on the hand.
+ * The full narrowing's options, EVs and solve are kept (the study view draws
+ * the same one); a lowered grade is marked `range-sensitive`. Only the bad
+ * grades pay for a second solve.
  */
 function handRiver(
   hand: PhfHand,
@@ -865,30 +869,18 @@ function handRiver(
   const decide = (spot: Spot): { graded: RiverGrade; solve: RiverSolve; node: number } | RiverFailure => {
     const full = gradeOn(spot, "full");
     if (!("graded" in full)) return full;
-    if (gradeRank(full.graded.grade) < SENSITIVE_FROM) {
+    if (gradeRank(full.graded.grade) < gradeRank(SENSITIVE_FROM)) {
       return { ...full, graded: { ...full.graded, river: { ...full.graded.river, sensitivity: null } } };
     }
     const half = gradeOn(spot, "half");
     if (!("graded" in half)) {
       return { ...full, graded: { ...full.graded, river: { ...full.graded.river, sensitivity: null } } };
     }
-    if (gradeRank(full.graded.grade) - gradeRank(half.graded.grade) > 1) {
-      const approximations = [...new Set([...half.graded.approximations, "range-sensitive" as const])].sort();
-      return {
-        ...half,
-        graded: {
-          ...half.graded,
-          approximations,
-          river: { ...half.graded.river, sensitivity: { model: full.graded.river.model, grade: full.graded.grade } },
-        },
-      };
-    }
+    const checked = sensitivityGrade(full.graded.grade, half.graded.grade);
+    const sensitivity = sensitivityFacts(half.graded.river.model, half.graded, full.graded.grade);
     return {
       ...full,
-      graded: {
-        ...full.graded,
-        river: { ...full.graded.river, sensitivity: { model: half.graded.river.model, grade: half.graded.grade } },
-      },
+      graded: { ...full.graded, ...checkedGrade(full.graded, checked), river: { ...full.graded.river, sensitivity } },
     };
   };
 

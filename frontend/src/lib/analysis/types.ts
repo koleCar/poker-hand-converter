@@ -252,8 +252,15 @@ import type { Position, Street } from "../phf/types";
  *               1bb never a Blunder; the move score reads the same pot.
  *               Preflop grades are unchanged (ANALYSIS-PLAN §10 2026-10-20,
  *               the big-blind floor).
+ *   analysis/34 The sensitivity check bounds instead of switching: a turn,
+ *               river or approximate grade is shown at most one class
+ *               harsher than the half-strength narrowing's
+ *               (`sensitivityGrade`), on the full narrowing's options and
+ *               solve. Monotone: a milder full grade can no longer make the
+ *               shown grade harsher (ANALYSIS-PLAN §10 2026-10-23, the
+ *               sensitivity check's two-class rule).
  */
-export const ANALYSIS_VERSION = "analysis/33" as const;
+export const ANALYSIS_VERSION = "analysis/34" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -414,8 +421,11 @@ export interface Flag {
  *                       hand that cannot lose; calling with one that beats
  *                       nothing in the opponent's preflop range).
  * - `range-sensitive`   re-solved with the narrowing at half strength, the
- *                       grade moved by more than one class; the milder of
- *                       the two is the one shown (§3.5, §9).
+ *                       grade there was more than one class milder; the
+ *                       grade shown is one class harsher than it, milder
+ *                       than the full narrowing's (§3.5, §9; before
+ *                       `analysis/34` the half-strength grade itself was
+ *                       shown).
  *
  * Turn grades (A5a) carry the river's codes where they mean the same thing
  * (`narrowing-heuristic` for the flop's narrowing, `rake-profile`,
@@ -1008,8 +1018,8 @@ export interface MultiwayEv {
   rake: string;
   /** The grade before the Mistake cap, or null. */
   capped: Grade | null;
-  /** The grade on the half-strength narrowing; null when not run. */
-  sensitivity: { model: string; grade: Grade } | null;
+  /** The sensitivity check (§3.5): the half-strength narrowing's answer; null when not run. */
+  sensitivity: SensitivityFacts | null;
   /**
    * Flop (`analysis/15`) and turn (`analysis/16`): the realisation table
    * (`floplib-r/1`, since `analysis/17` `floplib-r/2`; `turnsolve-r/1`), the hero's category (`made|d` /
@@ -1026,6 +1036,22 @@ export interface MultiwayEv {
     /** When above 0: how often the call ends the betting (an all-in), where the share takes no factor (the turn since `analysis/16`, the flop since `analysis/17`). */
     allIn?: number;
   };
+}
+
+/**
+ * The sensitivity check (§3.5), stored with a turn, river or approximate
+ * grade of Inaccurate or worse. Since `analysis/34` it is always the
+ * half-strength narrowing's answer: its model (`…-half`), its grade and its
+ * EV loss in bb for the same move, and `full`, the full narrowing's grade
+ * before the check (the shown grade is milder when `range-sensitive`).
+ * Before `analysis/34` (no `evLoss`, no `full`) it was the other narrowing's
+ * grade: the full one's when the half-strength grade was shown.
+ */
+export interface SensitivityFacts {
+  model: string;
+  grade: Grade;
+  evLoss?: number;
+  full?: Grade;
 }
 
 /**
@@ -1046,7 +1072,7 @@ export type TurnRole = "value" | "vulnerable" | "draw" | "bluff-catcher" | "medi
  * numbers, never the strategy: the study view re-solves to draw it.
  */
 export interface TurnFacts {
-  /** Narrowing model of the flop, e.g. `heuristic/2` (`-half` when the sensitivity check chose it). */
+  /** Narrowing model of the flop, e.g. `heuristic/2` (`-half` when the sensitivity check chose it, before `analysis/34`). */
   model: string;
   /** Bet-menu profile, e.g. `turn-m1`. */
   tree: string;
@@ -1074,7 +1100,7 @@ export interface TurnFacts {
   translated: number | null;
   reach: { hero: number; villain: number };
   capped?: Grade | null;
-  sensitivity?: { model: string; grade: Grade } | null;
+  sensitivity?: SensitivityFacts | null;
 }
 
 /** The hero's hand against the opponent's range at a river node, for the *why*. */
@@ -1088,7 +1114,7 @@ export type RangeShape = "polar" | "merged" | "mixed";
  * re-solves, deterministically, to draw it.
  */
 export interface RiverFacts {
-  /** Narrowing model, e.g. `heuristic/2` (`heuristic/2-half` when the sensitivity check chose the softer one). */
+  /** Narrowing model, e.g. `heuristic/2` (`heuristic/2-half` when the sensitivity check chose the softer one, before `analysis/34`). */
   model: string;
   /** Bet-menu profile, e.g. `river-m1`. */
   tree: string;
@@ -1125,11 +1151,10 @@ export interface RiverFacts {
   /** The grade before the Mistake cap (`range-cap`), or null when no cap applied. Absent before the cap existed. */
   capped?: Grade | null;
   /**
-   * The sensitivity check: the grade the other narrowing gave (the half-strength
-   * one, or — when that one is shown — the full one). Null when not run: it
-   * runs only for grades of Inaccurate or worse.
+   * The sensitivity check (`SensitivityFacts`). Null when not run: it runs
+   * only for grades of Inaccurate or worse.
    */
-  sensitivity?: { model: string; grade: Grade } | null;
+  sensitivity?: SensitivityFacts | null;
 }
 
 /** A chart node, by name: the set it is in and its line key (`docs/CHARTS.md` §6). */

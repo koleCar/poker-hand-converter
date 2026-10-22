@@ -18,7 +18,11 @@ import {
   draws,
   FLOOR_POT_BB,
   grade,
+  gradeRank,
   madeHand,
+  SENSITIVE_FROM,
+  SENSITIVE_MAX_CLASSES,
+  sensitivityGrade,
   toIndices,
   worstGrade,
   type DecisionAnalysis,
@@ -585,6 +589,78 @@ describe("grading (§2), ready for a reference", () => {
     // The frequency rules and the caps do not move.
     expect(grade({ options: options([0.9, 1], [0.1, 0], [0, 0]), chosen: 1, pot: 2, bbFloor: true }).grade).toBe("good");
     expect(grade({ ...tiny, options: options([0.98, 1], [0.02, -5], [0, 0]), bbFloor: true, capAtMistake: true }).grade).toBe("mistake");
+  });
+
+  describe("the sensitivity check (analysis/34): at most one class harsher than the half-strength grade", () => {
+    const GRADE_LIST = ["perfect", "good", "inaccurate", "mistake", "blunder"] as const;
+    /** The pipeline: the check where it runs (Inaccurate or worse), then the Mistake cap where it applies. */
+    const shown = (full: (typeof GRADE_LIST)[number], half: (typeof GRADE_LIST)[number], cap = false) => {
+      const checked = gradeRank(full) < gradeRank(SENSITIVE_FROM) ? full : sensitivityGrade(full, half).grade;
+      return cap && checked === "blunder" ? "mistake" : checked;
+    };
+
+    it("bounds the full grade one class past the half-strength one", () => {
+      expect(SENSITIVE_FROM).toBe("inaccurate");
+      expect(SENSITIVE_MAX_CLASSES).toBe(1);
+      expect(sensitivityGrade("blunder", "inaccurate")).toEqual({ grade: "mistake", lowered: true });
+      expect(sensitivityGrade("blunder", "good")).toEqual({ grade: "inaccurate", lowered: true });
+      expect(sensitivityGrade("mistake", "perfect")).toEqual({ grade: "good", lowered: true });
+      expect(sensitivityGrade("inaccurate", "perfect")).toEqual({ grade: "good", lowered: true });
+      // One class apart or less: the full grade, as before analysis/34.
+      expect(sensitivityGrade("mistake", "inaccurate")).toEqual({ grade: "mistake", lowered: false });
+      expect(sensitivityGrade("mistake", "blunder")).toEqual({ grade: "mistake", lowered: false });
+      expect(sensitivityGrade("inaccurate", "good")).toEqual({ grade: "inaccurate", lowered: false });
+      // Milder than Inaccurate never runs it.
+      expect(sensitivityGrade("good", "perfect")).toEqual({ grade: "good", lowered: false });
+    });
+
+    it("is monotone: a milder full or half-strength grade never makes the shown grade harsher", () => {
+      for (const cap of [false, true]) {
+        for (const full of GRADE_LIST) {
+          for (const half of GRADE_LIST) {
+            const result = gradeRank(shown(full, half, cap));
+            expect(result).toBeLessThanOrEqual(gradeRank(full));
+            if (gradeRank(full) >= gradeRank(SENSITIVE_FROM)) expect(result).toBeLessThanOrEqual(gradeRank(half) + 1);
+            for (const milder of GRADE_LIST.filter((g) => gradeRank(g) < gradeRank(full))) {
+              expect(gradeRank(shown(milder, half, cap))).toBeLessThanOrEqual(result);
+            }
+            for (const milder of GRADE_LIST.filter((g) => gradeRank(g) < gradeRank(half))) {
+              expect(gradeRank(shown(full, milder, cap))).toBeLessThanOrEqual(result);
+            }
+          }
+        }
+      }
+      // The grades from grade() itself, both narrowings on the floored pot: along the full
+      // narrowing's loss the shown grade only gets harsher.
+      for (const pot of [2, 6, 12.5, 30]) {
+        for (const half of GRADE_LIST) {
+          for (const freq of [0, 0.02, 0.05]) {
+            let previous = -1;
+            for (const loss of [0, 0.005, 0.05, 0.1, 0.25, 0.3, 0.5, 1, 1.5, 2.4, 3, 5]) {
+              const full = grade({ options: options([0.9, 1], [freq, 1 - loss], [0, -100]), chosen: 1, pot, bbFloor: true }).grade;
+              const result = gradeRank(shown(full, half));
+              expect(result).toBeGreaterThanOrEqual(previous);
+              previous = result;
+            }
+          }
+        }
+      }
+    });
+
+    it("removes the old switch's step: analysis/33's river rows", () => {
+      // The switch of analysis/3-33: more than one class apart, show the half-strength grade.
+      const switched = (full: (typeof GRADE_LIST)[number], half: (typeof GRADE_LIST)[number]) =>
+        gradeRank(full) - gradeRank(half) > 1 ? half : full;
+      // A river check the solve rarely plays in a 5.5bb pot: Mistake on the full narrowing at
+      // analysis/32, Good at half strength - shown Good. The big-blind floor made the full grade
+      // Inaccurate, and the switch then showed Inaccurate: milder in, harsher out.
+      expect(switched("mistake", "good")).toBe("good");
+      expect(switched("inaccurate", "good")).toBe("inaccurate");
+      expect(gradeRank(switched("inaccurate", "good"))).toBeGreaterThan(gradeRank(switched("mistake", "good")));
+      // The bound shows Inaccurate both times: no step.
+      expect(shown("mistake", "good")).toBe("inaccurate");
+      expect(shown("inaccurate", "good")).toBe("inaccurate");
+    });
   });
 
   it("refuses to grade against nothing", () => {

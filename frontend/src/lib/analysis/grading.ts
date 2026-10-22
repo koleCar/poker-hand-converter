@@ -142,6 +142,42 @@ export function grade(input: GradeInput): GradeResult {
   return { grade: result, evLoss, evLossPot, freqDiff, score };
 }
 
+/** Grades at or worse than this run the sensitivity check (§3.5, §9). */
+export const SENSITIVE_FROM: Grade = "inaccurate";
+
+/** How many classes the shown grade may be harsher than the half-strength one (§3.5). */
+export const SENSITIVE_MAX_CLASSES = 1;
+
+export interface SensitivityResult {
+  /** The grade shown: never harsher than the full narrowing's, nor than one class past the half-strength one. */
+  grade: Grade;
+  /** The check lowered the grade (`range-sensitive`). */
+  lowered: boolean;
+}
+
+/**
+ * **The sensitivity check** (analysis/34, §3.5): `full` is the grade on the
+ * full narrowing, `half` the same move's grade on ranges narrowed at half
+ * strength (both graded by `grade()`, the big-blind floor included). The
+ * shown grade is `full`, but never more than `SENSITIVE_MAX_CLASSES` (one)
+ * harsher than `half`: what the full narrowing adds beyond one class rests on
+ * how hard the ranges are narrowed, not on the hand.
+ *
+ * It replaces the switch of `analysis/3`-`analysis/33` (more than one class
+ * apart: show `half`), which was not monotone - a full grade made milder
+ * could close the gap and the shown grade jumped back to the harsher `full`.
+ * This bound is monotone in both grades (tested): a milder full grade, or a
+ * milder half-strength one, never makes the shown grade harsher; one class
+ * apart or less it is `full`, as before. Grades milder than `SENSITIVE_FROM`
+ * do not run the check (they are never lowered, so the bound holds there
+ * too: Good at most one class past anything).
+ */
+export function sensitivityGrade(full: Grade, half: Grade): SensitivityResult {
+  if (gradeRank(full) < gradeRank(SENSITIVE_FROM)) return { grade: full, lowered: false };
+  const bound = GRADES[Math.min(GRADES.length - 1, gradeRank(half) + SENSITIVE_MAX_CLASSES)];
+  return gradeRank(bound) < gradeRank(full) ? { grade: bound, lowered: true } : { grade: full, lowered: false };
+}
+
 /** 0 for Perfect … 4 for Blunder. */
 export function gradeRank(value: Grade): number {
   return GRADES.indexOf(value);

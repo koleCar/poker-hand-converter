@@ -17,7 +17,7 @@
 
 import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT } from "../../analysis/grading";
 import { bbFloored, betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
-import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
+import type { DecisionAnalysis, Flag, OptionAnalysis, SensitivityFacts, SpotFacts } from "../../analysis/types";
 import { reportsEn } from "./analysisReports.en";
 import { leaksEn, progressEn, summaryEn } from "./analysisLeaks.en";
 import { trainEn } from "./analysisTrain.en";
@@ -163,6 +163,17 @@ const gradeWords = {
   mistake: "Mistake",
   blunder: "Blunder",
 } as Record<string, string>;
+
+/**
+ * The sensitivity check's sentence (§3.5). Since `analysis/34` the facts
+ * carry the full grade and the shown one is bounded by the half-strength
+ * grade; a grade stored before that gets `old`, the sentence of the switch.
+ */
+function sensitivitySentence(sensitivity: SensitivityFacts, shown: string | null, narrowed: string, old: string): string {
+  const { full, grade: half } = sensitivity;
+  if (full === undefined) return old;
+  return `${narrowed} at full strength this grades ${gradeWords[full] ?? full}; at half strength, ${gradeWords[half] ?? half}. The grade rests on the narrowing more than on your hand, so it is shown at most one grade harsher than the half-strength one: ${gradeWords[shown ?? ""] ?? shown}.`;
+}
 
 /** "raise to 2.5 bb", "bet 3.1 bb (33%)", "call", "all-in": one option as a player says it. */
 function optionLabel(option: OptionAnalysis): string {
@@ -377,7 +388,12 @@ function approxSentences(decision: DecisionAnalysis): string[] {
   }
   if (decision.approximations.includes("range-sensitive") && ev.sensitivity) {
     out.push(
-      `With the ranges narrowed at full strength this grades ${gradeWords[ev.sensitivity.grade] ?? ev.sensitivity.grade}; at half strength, ${gradeWords[decision.grade] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+      sensitivitySentence(
+        ev.sensitivity,
+        decision.grade,
+        "With the ranges narrowed",
+        `With the ranges narrowed at full strength this grades ${gradeWords[ev.sensitivity.grade] ?? ev.sensitivity.grade}; at half strength, ${gradeWords[decision.grade] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+      ),
     );
   }
   return out;
@@ -499,7 +515,12 @@ function turnSentences(decision: DecisionAnalysis): string[] {
   }
   if (decision.approximations.includes("range-sensitive") && turn.sensitivity) {
     out.push(
-      `With the flop's narrowing at full strength the solver grades this ${gradeWords[turn.sensitivity.grade] ?? turn.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+      sensitivitySentence(
+        turn.sensitivity,
+        decision.grade,
+        "With the flop's narrowing",
+        `With the flop's narrowing at full strength the solver grades this ${gradeWords[turn.sensitivity.grade] ?? turn.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+      ),
     );
   }
   out.push(
@@ -564,7 +585,12 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   }
   if (decision.approximations.includes("range-sensitive") && river.sensitivity) {
     out.push(
-      `With the ranges narrowed at full strength the solver grades this ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+      sensitivitySentence(
+        river.sensitivity,
+        decision.grade,
+        "With the ranges narrowed",
+        `With the ranges narrowed at full strength the solver grades this ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+      ),
     );
   }
   const narrowed =
@@ -883,7 +909,7 @@ export const analysisEn = {
     "size-translated": "Bet sizes read as the nearest of the solver's sizes",
     "solver-unconverged": "Solve stopped above its target (0.5% of the pot on the river, 1% on the turn) from equilibrium",
     "range-cap": "Solver grade capped at Mistake: heuristically narrowed ranges cannot support a Blunder",
-    "range-sensitive": "Solver grade depends on how hard the ranges are narrowed: the milder of two is shown",
+    "range-sensitive": "Solver grade depends on how hard the ranges are narrowed: shown at most one grade harsher than at half strength",
     "coarse-river": "Turn solved with a coarse river below it: one bet size and all-in",
     "flop-mapped": "Flop read from the nearest solved flop of the same texture, not solved itself",
     "library-bucketed": "Your hand read by its category (made hand and draw) in the flop library, not combo for combo",
