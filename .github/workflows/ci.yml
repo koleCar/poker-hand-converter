@@ -694,8 +694,17 @@ jobs:
         with:
           version: 2.75.0
 
+      # The image registry rate-limits shared runners now and then
+      # ("toomanyrequests"): retry the pull with backoff before failing.
       - name: Start Postgres and apply every migration
-        run: supabase db start
+        run: |
+          for attempt in 1 2 3 4 5; do
+            supabase db start && exit 0
+            echo "::warning::supabase db start failed (attempt $attempt); retrying"
+            supabase stop --no-backup || true
+            sleep $((attempt * 60))
+          done
+          exit 1
 
       # The client is typed from the schema (#8). A migration that changes a
       # table or a function signature without regenerating the types would
@@ -755,7 +764,15 @@ jobs:
       - name: Start a local stack (db, auth, PostgREST)
         run: |
           rm -rf supabase/.temp
-          supabase start -x studio,imgproxy,logflare,vector,edge-runtime,supavisor,postgres-meta,realtime,storage-api,mailpit
+          # Retried with backoff: the image registry rate-limits shared
+          # runners now and then ("toomanyrequests").
+          for attempt in 1 2 3 4 5; do
+            supabase start -x studio,imgproxy,logflare,vector,edge-runtime,supavisor,postgres-meta,realtime,storage-api,mailpit && exit 0
+            echo "::warning::supabase start failed (attempt $attempt); retrying"
+            supabase stop --no-backup || true
+            sleep $((attempt * 60))
+          done
+          exit 1
 
       - name: The app's half (parity_app, release)
         run: cargo build --release --locked -p rail-sync --example parity_app
