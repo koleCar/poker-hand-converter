@@ -5,8 +5,9 @@
  * (`src/api.rs` says why); this module parses and types them. It does not
  * load the module itself, because how that is done depends on the
  * `wasm-bindgen` target: `--target nodejs` (the test harness) is a CommonJS
- * file that loads its `.wasm` synchronously, `--target web` (the web app's
- * worker, R4.1) is an ES module whose default export must be awaited first.
+ * file that loads its `.wasm` synchronously, `--target web` (the web app,
+ * R4.1; committed under `frontend/src/lib/wasm/rail-core/`) is an ES module
+ * whose default export must be awaited first.
  * Either way the caller passes the loaded module to {@link railCore}.
  *
  * PHF types are the declarations generated from the Rust model
@@ -19,6 +20,7 @@ import type { PhfHand } from "../types/phf";
 export interface RailCoreWasm {
   convert(bytes: Uint8Array, filename: string, options: string): string;
   detect(bytes: Uint8Array): string;
+  split(bytes: Uint8Array): string;
   serialize(phf: string): string;
   anonymise(bytes: Uint8Array): string;
   formats(): string;
@@ -114,6 +116,14 @@ export interface Detection {
   detected: Detected | null;
 }
 
+/** `split`'s document: the detection plus the top parser's name and split (R4.1). */
+export interface Split extends Detection {
+  /** The top parser's display name; `null` when nothing claims the text. */
+  name: string | null;
+  /** The top parser's hand chunks; `null` when nothing claims the text or its split fails. */
+  chunks: string[] | null;
+}
+
 export interface Sample {
   decode: Decode;
   /** Player names replaced, amounts and layout kept, at most 64 KiB. */
@@ -123,8 +133,10 @@ export interface Sample {
 }
 
 export interface RailCore {
+  /** `filename` without a directory; an empty one is recorded as no filename (`null`). */
   convert(bytes: Uint8Array, filename: string, options: ConvertOptions): ConvertResult;
   detect(bytes: Uint8Array): Detection;
+  split(bytes: Uint8Array): Split;
   /** The standard text of one hand, or of a file's hands. */
   serialize(phf: PhfHand | PhfHand[]): string;
   anonymise(bytes: Uint8Array): Sample;
@@ -137,6 +149,7 @@ export function railCore(raw: RailCoreWasm): RailCore {
     convert: (bytes, filename, options) =>
       JSON.parse(raw.convert(bytes, filename, JSON.stringify(options))) as ConvertResult,
     detect: (bytes) => JSON.parse(raw.detect(bytes)) as Detection,
+    split: (bytes) => JSON.parse(raw.split(bytes)) as Split,
     serialize: (phf) => raw.serialize(JSON.stringify(phf)),
     anonymise: (bytes) => JSON.parse(raw.anonymise(bytes)) as Sample,
     formats: () => JSON.parse(raw.formats()) as { convert: string; phf: string },

@@ -43,7 +43,9 @@ const i18nRules = {
 }
 
 export default defineConfig([
-  globalIgnores(['.next', 'next-env.d.ts']),
+  // `src/lib/wasm/rail-core/` is wasm-bindgen's output, committed as built
+  // (docs/RAIL-PLAN.md R4.1; CI compares it with a fresh build).
+  globalIgnores(['.next', 'next-env.d.ts', 'src/lib/wasm/rail-core']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

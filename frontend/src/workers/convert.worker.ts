@@ -10,10 +10,16 @@
  * The worker owns no state beyond the id of the job it is running, so a cancel
  * is a single flag. Everything else lives in the pipeline module, which the
  * main thread reuses verbatim when a worker cannot be created.
+ *
+ * Since R4.1 the pipeline converts with the WebAssembly core: the first job
+ * awaits its `init()` with the `.wasm` URL (`lib/wasm/core.ts`), later jobs
+ * reuse the instance. When it cannot load, the TypeScript parsers convert
+ * instead (`lib/wasm/engine.ts`), and `done` says which engine ran.
  */
 
 import { runPipeline, type PipelineSource } from "../components/converter/pipeline";
-import type { ConvertOptions } from "../lib/phf";
+import type { ConvertOptions } from "../lib/phf/detect";
+import type { EngineKind } from "../lib/wasm/engine";
 import type { PipelineBatch, SourceStart } from "../components/converter/pipeline";
 
 export interface ConvertRequest {
@@ -34,7 +40,7 @@ export type WorkerResponse =
   | ({ type: "source-start"; jobId: number } & SourceStart)
   | ({ type: "batch"; jobId: number } & PipelineBatch)
   | { type: "source-end"; jobId: number; sourceId: string }
-  | { type: "done"; jobId: number; cancelled: boolean }
+  | { type: "done"; jobId: number; cancelled: boolean; engine: EngineKind }
   | { type: "error"; jobId: number; message: string };
 
 let cancelledJob: number | null = null;
@@ -60,7 +66,7 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
     onSourceEnd: (sourceId) => reply({ type: "source-end", jobId, sourceId }),
     isCancelled,
   })
-    .then(() => reply({ type: "done", jobId, cancelled: isCancelled() }))
+    .then((engine) => reply({ type: "done", jobId, cancelled: isCancelled(), engine }))
     .catch((error: unknown) =>
       reply({ type: "error", jobId, message: error instanceof Error ? error.message : String(error) }),
     );

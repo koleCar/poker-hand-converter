@@ -9,12 +9,16 @@ import { paths } from "../../lib/routes";
  * ## THIS ROUTE MAKES ZERO SERVER REQUESTS. Keep it that way.
  *
  * Hand histories never leave the tab. A file dropped here is read with
- * `FileReader`, decoded in `converter/inputs.ts`, detected and parsed by
- * `lib/parsers/`, serialized by `lib/phf/serialize.ts` and handed back as a
+ * `FileReader`, decoded in `converter/inputs.ts`, detected and parsed by the
+ * WebAssembly core (`lib/wasm/`, R4.1; the TypeScript `lib/parsers/` when it
+ * cannot load), serialized by `lib/phf/serialize.ts` and handed back as a
  * `Blob` download — all of it inside the browser, none of it through anything
  * of ours. The only network traffic this page can generate is (a) the app's own
- * JavaScript, and (b) an *explicit, opt-in* save to the user's library when
- * they are signed in and have left "Save to my library" on.
+ * JavaScript and the core's `.wasm` — static files of this origin, fetched
+ * before any hand is read and carrying nothing of the user's — and (b) an
+ * *explicit, opt-in* save to the user's library when they are signed in and
+ * have left "Save to my library" on. `tests/test/wasmWeb.test.ts` checks that
+ * loading the core requests nothing but its own `.wasm`.
  *
  * That is not incidental. A hand history is a record of who someone played
  * against, for how much, and how well; people are right to be careful with it,

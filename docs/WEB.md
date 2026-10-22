@@ -302,14 +302,42 @@ deliberately not redirected — it is the feed now.
 A file dropped on `/convert` is read, decoded, detected, parsed and serialized
 entirely in the tab, and handed back as a `Blob` download. **Hand histories
 never leave the browser.** The only traffic the page can generate is the app's
-own JavaScript and an explicit, opt-in save to your own library when you are
+own JavaScript, the conversion core's `.wasm` (a static file of the same
+origin, below) and an explicit, opt-in save to your own library when you are
 signed in.
 
 That is a promise the code has to keep, so it is written down three times: as a
 standing comment in `frontend/src/app/convert/page.tsx`, as a line of UI copy on
 the page itself (so a change that breaks it also makes the app tell a visible
 lie), and here. It is verified by driving the real page with a browser and
-asserting that no request leaves the origin.
+asserting that no request leaves the origin; `tests/test/wasmWeb.test.ts` also
+checks that loading the core requests nothing but its own `.wasm`.
+
+### The conversion core is WebAssembly (R4.1)
+
+Detection and parsing run in the Rust core (`core/rail-core`), built for the
+browser as `rail-core-wasm` and committed at `frontend/src/lib/wasm/rail-core/`
+(`.wasm`, wasm-bindgen's JS glue and declarations, `BUILD.json`). Vercel has no
+Rust, so the web ships that copy.
+
+**The committed copy is CI's Linux x86_64 build, never a local one.** The
+linker lays the module out differently on macOS (same code and data, merged
+and ordered another way), so a Mac build cannot match it. CI's `wasm` job
+builds the package, uploads it as the artefact `rail-core-web` and fails when
+the committed copy differs. After a change to the core: push, let that check
+fail, then in `tests/` run `npm run wasm:web-from-ci` (it downloads this
+commit's artefact with `gh` and installs it, BUILD.json included) and commit
+`frontend/src/lib/wasm/rail-core/`. `npm run wasm:web` writes a local build
+only on Linux x86_64 and refuses elsewhere; `npm run wasm:web-check` off Linux
+only checks that the copy matches its BUILD.json.
+
+The bundler emits the `.wasm` as
+`/_next/static/media/rail_core_wasm_bg.<hash>.wasm`, served as
+`application/wasm` with a one-year immutable cache. `lib/wasm/engine.ts` picks
+the engine once per page or worker: the core, or - when it cannot be fetched or
+instantiated - the TypeScript parsers in `lib/parsers/`, with one console
+warning; the user still converts. The TypeScript parsers also remain the
+oracle CI checks the core against, until the plan's R4.1 deletion step.
 
 The table, cards and chips are generated as CSS and SVG inside the app. No
 image assets, so nothing to license, nothing to load at runtime, and it stays
@@ -393,7 +421,7 @@ rules are where a new parser is most likely to go quietly wrong.
 
 | Path | What it is |
 | --- | --- |
-| `frontend/src/lib/phf/` | The format: `types.ts`, `validate.ts`, `serialize.ts`, `detect.ts` |
+| `frontend/src/lib/phf/` | The format: `types.ts` (re-exports the types generated from the Rust model), `validate.ts`, `serialize.ts`, `detect.ts` |
 | `frontend/src/lib/parsers/` | One file per poker room, plus `shared/` helpers and the registry |
 | `frontend/src/lib/db/` | Supabase client layer — save, search, corpus, shares, anonymization |
 | `frontend/src/lib/replay.ts` | PHF → replay frames |
@@ -406,6 +434,7 @@ rules are where a new parser is most likely to go quietly wrong.
 | `frontend/src/components/` | `converter/`, `share/`, `shell/`, `stats/`, `auth/` and the other screens. The replayer, cards, overlay, icons and the stat tile moved to `packages/ui` (R2.6) |
 | `frontend/src/styles/` | ~3800 lines of global CSS. The token layer, the replayer's and the cards' sheets and the base controls moved to `packages/ui` (R2.6). New components use CSS Modules |
 | `packages/ui/` | The shared UI package `@rail/ui`, linked as `file:../packages/ui` — see "Shared UI package" below |
+| `frontend/src/lib/wasm/` | The WebAssembly core: the committed build (`rail-core/`), its loader and the engine choice (R4.1) |
 | `frontend/src/workers/` | Conversion off the main thread |
 | `tests/` | Test harness only — no runtime backend |
 | `supabase/migrations/` | Schema |

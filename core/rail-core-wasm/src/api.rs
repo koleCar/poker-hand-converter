@@ -301,7 +301,9 @@ pub fn convert(bytes: &[u8], filename: &str, options: &str) -> Result<String, St
     let options: Options =
         serde_json::from_str(options).map_err(|error| format!("convert options: {error}"))?;
     let core_options = ConvertOptions {
-        source_filename: Some(filename.to_owned()),
+        // An empty name is no name: the web's single-hand box and share links
+        // convert pasted text, for which `convertAny` records `null`.
+        source_filename: (!filename.is_empty()).then(|| filename.to_owned()),
         cash_only: options.cash_only,
         skip_bomb_pots: options.skip_bomb_pots,
         validate: options.validate,
@@ -379,6 +381,52 @@ pub fn detect(bytes: &[u8]) -> String {
         }),
     };
     serde_json::to_string(&detection).unwrap_or_default()
+}
+
+#[derive(Serialize)]
+struct Split<'a> {
+    decode: Decode,
+    detected: Option<Detected<'a>>,
+    /// The top parser's display name (`SiteParser::name`).
+    name: Option<&'static str>,
+    /// The top parser's split; `null` when nothing claims the text or the
+    /// split fails (then `convert` of the whole text writes the refusal).
+    chunks: Option<Vec<String>>,
+}
+
+/// Decoding, the detection ranking and the top parser's split of a whole
+/// file: `{ decode, detected, name, chunks }`. The web's conversion loop
+/// (R4.1) converts a large file in batches of chunks, re-joined with a blank
+/// line, so it can report progress and stop between batches, as it did with
+/// the TypeScript parsers.
+pub fn split(bytes: &[u8]) -> String {
+    let decoded = decode_source(bytes);
+    let registry = rail_core::parsers::builtin();
+    let candidates = if decoded.problem.is_none() {
+        registry.detect_site(&decoded.text)
+    } else {
+        Vec::new()
+    };
+    let top = candidates.first();
+    let split = Split {
+        decode: Decode {
+            encoding: decoded.encoding.label(),
+            problem: decoded.problem.map(|problem| problem.as_str()),
+        },
+        detected: decoded.problem.is_none().then(|| Detected {
+            top: top.map(|c| c.parser.id()),
+            candidates: candidates
+                .iter()
+                .map(|c| Candidate {
+                    parser: c.parser.id(),
+                    permille: c.permille,
+                })
+                .collect(),
+        }),
+        name: top.map(|c| c.parser.name()),
+        chunks: top.and_then(|c| c.parser.split_hands(&decoded.text).ok()),
+    };
+    serde_json::to_string(&split).unwrap_or_default()
 }
 
 /// The standard text of PHF JSON: one hand (`toStandardText`) or an array of
@@ -507,6 +555,44 @@ mod tests {
         assert_eq!(doc["unrecognized"]["shape"], "text");
         assert_eq!(doc["stats"]["total"], 1);
         assert_eq!(doc["standardTextFile"], Value::Null);
+    }
+
+    #[test]
+    fn an_empty_filename_is_no_filename() {
+        let (bytes, _) = corpus_file(POKERSTARS);
+        let doc: Value =
+            serde_json::from_str(&convert(&bytes, "", &options("")).expect("ok")).expect("JSON");
+        assert_eq!(
+            doc["hands"][0]["phf"]["meta"]["originalFilename"],
+            Value::Null
+        );
+        let doc: Value = serde_json::from_str(&convert(b"hello\n", "", &options("")).expect("ok"))
+            .expect("JSON");
+        assert_eq!(doc["refusals"][0]["sourceFilename"], Value::Null);
+    }
+
+    #[test]
+    fn split_gives_the_top_parsers_chunks() {
+        let (bytes, name) = corpus_file(POKERSTARS);
+        let doc: Value = serde_json::from_str(&split(&bytes)).expect("JSON");
+        let native = rail_core::convert(&bytes, &name);
+        let Some(Ok(result)) = &native.result else {
+            panic!("the sample converts natively");
+        };
+        assert_eq!(doc["detected"]["top"], "pokerstars");
+        assert_eq!(doc["name"], "PokerStars");
+        let chunks = doc["chunks"].as_array().expect("chunks");
+        assert_eq!(chunks.len(), result.chunks as usize);
+        let detection: Value = serde_json::from_str(&detect(&bytes)).expect("JSON");
+        assert_eq!(doc["detected"], detection["detected"]);
+
+        let none: Value = serde_json::from_str(&split(b"hello world\n")).expect("JSON");
+        assert_eq!(none["detected"]["top"], Value::Null);
+        assert_eq!(none["name"], Value::Null);
+        assert_eq!(none["chunks"], Value::Null);
+        let empty: Value = serde_json::from_str(&split(b"")).expect("JSON");
+        assert_eq!(empty["decode"]["problem"], "empty");
+        assert_eq!(empty["detected"], Value::Null);
     }
 
     #[test]

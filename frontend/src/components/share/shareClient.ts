@@ -26,13 +26,15 @@ export const SHARE_UNAVAILABLE_MESSAGE =
   "Sharing needs a database, and this build has none configured.";
 
 /**
- * A hand that was never saved travels as a PHF document. The parser registry is
- * large and only this path needs it, so it is imported on demand — the shared
- * hand page never pays for it.
+ * A hand that was never saved travels as a PHF document. The converter (the
+ * WebAssembly core, or the TypeScript parsers when it cannot load) is large
+ * and only this path needs it, so it is imported on demand — the shared hand
+ * page never pays for it.
  */
 async function derivePhf(handText: string): Promise<unknown> {
-  const { convertAny } = await import("../../lib/parsers");
-  const result = await convertAny(handText);
+  const { conversionEngine } = await import("../../lib/wasm/engine");
+  const engine = await conversionEngine();
+  const result = await engine.convert(handText);
   const hand = result.hands[0];
   if (!hand) {
     throw new Error(

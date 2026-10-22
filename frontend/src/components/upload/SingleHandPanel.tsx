@@ -7,8 +7,9 @@
  * front door next to the batch converter, and the two are now modes of the same
  * tab.
  *
- * It runs the same detection and conversion the batch path uses, so every
- * registered parser works here. Only the first hand is loaded: paste a session
+ * It runs the same detection and conversion the batch path uses (the
+ * WebAssembly core, or the TypeScript parsers when it cannot load:
+ * `lib/wasm/engine.ts`), so every registered parser works here. Only the first hand is loaded: paste a session
  * and the batch drop zone below is what you want, and the notice says so rather
  * than silently dropping the rest.
  */
@@ -22,7 +23,8 @@ import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 import { paths } from "../../lib/routes";
-import { convertAny, getParser, toStandardText } from "../../lib/phf";
+import { getParser, toStandardText } from "../../lib/phf";
+import { conversionEngine } from "../../lib/wasm/engine";
 import type { PhfHand } from "../../lib/phf/types";
 import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
@@ -70,7 +72,8 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
     setNotice(null);
     setBusy(true);
     try {
-      const result = await convertAny(raw, { sourceFilename: fileName, validate: true });
+      const engine = await conversionEngine();
+      const result = await engine.convert(raw, { sourceFilename: fileName, validate: true });
       const [first] = result.hands;
       if (!first) {
         // Every parser writes a human-readable reason; the first one is the

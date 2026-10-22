@@ -24,38 +24,81 @@
  *    and what that parser was unsure about.
  */
 
+/*
+ * ## The types are generated from the Rust model (R4.1)
+ *
+ * Every PHF type is declared once, in `core/rail-core/src/phf/mod.rs`, and
+ * written out as TypeScript by `RAIL_UPDATE_DTS=1 cargo test -p rail-core
+ * --lib phf::dts` into `core/rail-core-wasm/types/phf.d.ts`, the declarations
+ * the WebAssembly core's results carry. This module re-exports them under
+ * their old names, so the 190-odd files that import `phf/types` did not
+ * change; what stays here is behaviour - units, amounts, positions and the
+ * small readers below. The field-by-field documentation is in the generated
+ * file (and `docs/PHF-SPEC.md`). `npm run phf:dts-check` in `tests/` still
+ * compares this module's types with the generated ones, so a hand-written
+ * type that creeps back in has to be identical.
+ */
+import type {
+  Amount,
+  CurrencyUnit,
+  DecimalStyle,
+  Street,
+  Variant,
+  Position,
+  PhfTournament,
+  PhfPlayer,
+  ActionType,
+  PhfAction,
+  PhfBoard,
+  PhfFees,
+  PhfTextStyle,
+  PhfHand,
+  PhfSchema,
+} from "../../../../core/rail-core-wasm/types/phf";
+
+export type {
+  Amount,
+  PhfSchema,
+  CurrencyKind,
+  CurrencyUnit,
+  DecimalStyle,
+  Street,
+  Variant,
+  LimitType,
+  GameFormat,
+  AnteModel,
+  Position,
+  PhfStraddle,
+  PhfBombPot,
+  PhfGame,
+  PhfTable,
+  PhfBounty,
+  PhfTournament,
+  PhfPlayer,
+  ActionType,
+  PotHalf,
+  PhfAction,
+  PhfMarkerLabels,
+  PhfRunout,
+  PhfBoard,
+  ChipMovementAnchor,
+  PhfChipMovement,
+  PhfFees,
+  SeatOutcome,
+  PhfPlayerResult,
+  PhfPot,
+  PhfWinner,
+  PhfResults,
+  PhfWarning,
+  PhfTextStyle,
+  PhfMeta,
+  PhfHand,
+} from "../../../../core/rail-core-wasm/types/phf";
+
 /** Schema tag stamped on every hand. See `docs/PHF-SPEC.md` for the versioning policy. */
-export const PHF_SCHEMA = "phf/1" as const;
-export type PhfSchema = typeof PHF_SCHEMA;
+export const PHF_SCHEMA = "phf/1" as const satisfies PhfSchema;
 
 /* ------------------------------------------------------------------ money - */
-
-/**
- * An amount of money or chips, expressed in **integer minor units**.
- *
- * The unit is not carried on the value itself (that would bloat every action);
- * it lives once on `PhfHand.game.unit` and, for buy-ins, on
- * `PhfTournament.buyInUnit`.
- */
-export type Amount = number;
-
-/**
- * Describes what the integers in a hand mean.
- *
- * `minorUnits` is the divisor used to go from the stored integer to the number
- * a human reads: cash tables use 100 (cents), tournament chips use 1 because a
- * chip is already indivisible.
- */
-export interface CurrencyUnit {
-  /** ISO-ish code. "USD" / "EUR" / "GBP" / "CHIPS" / "TCHIP" for play money. */
-  code: string;
-  /** What gets printed in front of the number; empty string for chips. */
-  symbol: string;
-  /** Minor units per display unit: 100 for cash, 1 for chips. */
-  minorUnits: number;
-  /** Chips never convert to real money inside the hand; cash does. */
-  kind: "cash" | "chips";
-}
 
 /** Builds a cash unit. Two-decimal currencies only; see `JPY` for the exception. */
 export function cashUnit(code: string, symbol: string, minorUnits = 100): CurrencyUnit {
@@ -209,15 +252,6 @@ export function unitForSymbol(symbol: string): CurrencyUnit {
       return CHIPS;
   }
 }
-
-/**
- * How a site prints fractional amounts.
- *
- * GG writes `$0.5`, WePlay writes `$0.50`. Both are "the same" number, but
- * Holdem Manager import is byte sensitive and our own round-trip tests compare
- * text, so the choice has to survive the trip through PHF.
- */
-export type DecimalStyle = "minimal" | "fixed2";
 
 /** Parses "1,234.50" / "0.5" / "2260" into minor units. Junk becomes 0. */
 export function parseAmount(raw: string | undefined | null, unit: CurrencyUnit): Amount {
@@ -399,42 +433,7 @@ export function toBigBlinds(amount: Amount, bigBlind: Amount): number {
 
 /* ------------------------------------------------------------- descriptors - */
 
-export type Street = "preflop" | "flop" | "turn" | "river" | "showdown";
-
 export const STREET_ORDER: Street[] = ["preflop", "flop", "turn", "river", "showdown"];
-
-/**
- * Game variants. Round one only ships a Hold'em parser, but the type system has
- * to be able to *express* the others so adding a PLO parser later is a new file
- * rather than a schema migration.
- *
- * **`Variant` describes the deal, not the pot-award rule.** There is deliberately
- * no `omaha-hilo` member here; see `PhfGame.hiLo` for why the split-pot rule is
- * a flag instead.
- */
-export type Variant =
-  | "holdem"
-  | "omaha"
-  | "omaha5"
-  | "omaha6"
-  | "shortdeck"
-  | "stud"
-  | "razz"
-  | "draw"
-  | "other";
-
-export type LimitType = "nl" | "pl" | "fl";
-
-export type GameFormat = "cash" | "tournament" | "sng" | "spin";
-
-/**
- * Who pays the ante and how.
- *
- * This is not cosmetic: `big-blind-ante` means one player posts for the table,
- * which changes both the chip-conservation check and how the replayer animates
- * the posting round.
- */
-export type AnteModel = "none" | "posted-per-player" | "big-blind-ante" | "button-ante";
 
 /**
  * Whether a card can be dealt in this variant at all.
@@ -527,23 +526,6 @@ export function isHiLoLabel(label: string): boolean {
     /\b(?:8|eight)[\s-]*or[\s-]*better\b/i.test(label)
   );
 }
-
-/**
- * Resolved table position. `MP` is the catch-all for the middle seats of a full
- * ring table; everything else is the seat name players and trackers actually
- * use, so filters like "3-bet from the CO" become a plain equality test.
- */
-export type Position =
-  | "BTN"
-  | "SB"
-  | "BB"
-  | "UTG"
-  | "UTG+1"
-  | "UTG+2"
-  | "MP"
-  | "LJ"
-  | "HJ"
-  | "CO";
 
 /**
  * Position names ordered from the small blind around to the button, for a table
@@ -758,146 +740,8 @@ export function assignPositions(hand: PhfHand): void {
 /* -------------------------------------------------------------------- game - */
 
 /** A straddle, i.e. a voluntary blind posted out of position before the deal. */
-export interface PhfStraddle {
-  seat: number;
-  player: string;
-  /**
-   * The straddle's size: the straddler's street total once it is posted. The
-   * same as the chips added for an ordinary straddle; for a re-straddle by a
-   * seat that already had money in - GG's short deck has the button blind
-   * straddle its own blind - the chips added are on the action instead.
-   */
-  amount: Amount;
-  /** 1 = first straddle (usually UTG), 2 = re-straddle, and so on. */
-  order: number;
-}
-
-/**
- * Bomb pot descriptor. In a bomb pot everybody antes a fixed amount, no blinds
- * are posted and the flop is dealt immediately, so the normal "preflop betting
- * round" invariants do not apply and the validator has to know.
- */
-export interface PhfBombPot {
-  /** Ante each player put in. */
-  ante: Amount;
-  /** Bomb pots usually skip straight to the flop. */
-  dealtToStreet: Street;
-  /** Some rooms run double-board bomb pots. */
-  doubleBoard: boolean;
-}
-
-export interface PhfGame {
-  variant: Variant;
-  limit: LimitType;
-  /**
-   * High-low split: half the pot goes to the lowest qualifying hand.
-   *
-   * **Why a flag and not `omaha-hilo` in `Variant`.** Hi/Lo changes who is paid,
-   * not what is dealt. `omaha` and `omaha-hilo` deal the same four cards onto
-   * the same five-card board; the only difference is the award rule. Modelling
-   * it as a variant would put two independent facts in one field, and the field
-   * is the one everything dispatches on:
-   *
-   *  - `holeCardCount()` is a `switch` over `Variant`. Every hi/lo twin would
-   *    have to be added to it, and a forgotten twin returns `null`, which
-   *    *disables* the cardinality check rather than failing it. A silent
-   *    weakening of a guard is the worst shape a bug can take here.
-   *  - The union would have to double: `omaha-hilo`, `omaha5-hilo`,
-   *    `stud-hilo`, and whatever comes next. The flag is one bit no matter how
-   *    many deals learn it.
-   *  - `public.hands.variant` is free text with an equality filter
-   *    (`h.variant = $8` in `filter_hands`). A new member does not fail loudly
-   *    there; it just means the existing "Omaha" filter quietly stops matching
-   *    hi/lo hands, and nothing enumerates the variants to remind anyone. With
-   *    a flag, `variant = 'omaha'` keeps meaning "dealt like Omaha" and the
-   *    split is an extra predicate when a query wants one.
-   *  - Statistics want it both ways - "my PLO winrate" usually includes hi/lo,
-   *    "my low-half frequency" is meaningless without it. Orthogonal facts in
-   *    orthogonal fields is the only shape that answers both.
-   *  - The text serializer stores `label` verbatim and re-derives both facts
-   *    from it, so the flag costs nothing to round trip.
-   *
-   * **What the flag does not carry is who won which half.** That lives on the
-   * awards - `PhfAction.half` on each collect and `results.winners[].half` -
-   * filled in by `assignHiLoHalves` (`phf/hilo.ts`). A hi/lo hand read as
-   * plain Omaha still balances against itself, so the danger was never the
-   * money: it was a split pot booked as two unrelated wins. A parser opts in
-   * per deal (`SiteParser.hiLoVariants`) only once its own fixtures come out
-   * with every half resolved; every other hi/lo hand is still refused, see
-   * `unsupportedGameSkip` in `phf/detect.ts`.
-   */
-  hiLo: boolean;
-  format: GameFormat;
-  /** Unit for every `Amount` in this hand outside the tournament buy-in. */
-  unit: CurrencyUnit;
-  smallBlind: Amount;
-  bigBlind: Amount;
-  anteModel: AnteModel;
-  /** Ante per player under `posted-per-player`, or the single posted ante otherwise. */
-  ante: Amount;
-  straddles: PhfStraddle[];
-  bombPot: PhfBombPot | null;
-  /** Verbatim game label from the source, e.g. "Hold'em No Limit". */
-  label: string;
-}
-
-export interface PhfTable {
-  name: string | null;
-  maxSeats: number;
-  buttonSeat: number | null;
-  /**
-   * Fast-fold pool brand, or null/absent for an ordinary table.
-   *
-   * PokerStars calls it `Zoom`, GG `Rush & Cash`, Unibet `Banzai`, party
-   * `FastForward`. Every room buries it in the game label, where
-   * canonicalisation drops it - but it changes how the pool plays and is an
-   * obvious filter dimension, so it is worth a field of its own. The brand is
-   * kept rather than a boolean because the presence answers "is this fast
-   * fold?" and the value answers "which one?".
-   */
-  fastFold?: string | null;
-}
 
 /** Tournament-only metadata. `null` on cash hands. */
-export interface PhfTournament {
-  id: string;
-  name: string | null;
-  /**
-   * Buy-in and fee are *real money* even when the stacks are chips.
-   *
-   * `buyIn` is the prize-pool contribution only. A knockout tournament writes
-   * its buy-in as three components - `$4.50+$4.50+$1` is prize pool, bounty,
-   * fee - and collapsing the bounty into the buy-in would overstate what the
-   * player paid for equity in the prize pool, which is the number ROI is
-   * computed against. Use `totalBuyIn()` for what actually left the account.
-   */
-  buyIn: Amount;
-  /**
-   * The knockout portion of the buy-in, i.e. what goes on the player's own head.
-   *
-   * Zero (or absent) for a non-knockout tournament. Optional so that parsers
-   * written before this field existed keep compiling; read it as `?? 0`.
-   */
-  bounty?: Amount;
-  fee: Amount;
-  buyInUnit: CurrencyUnit;
-  /** Level as printed ("XI", "12"), plus the parsed number when we can get one. */
-  levelLabel: string | null;
-  levelNumber: number | null;
-  /** Blinds the level header advertises; may differ from what was posted. */
-  levelSmallBlind: Amount;
-  levelBigBlind: Amount;
-  levelAnte: Amount;
-  /** Progressive-knockout bounties, by player. */
-  bounties: Array<{ player: string; amount: Amount }>;
-  /**
-   * Total prize pool, when the room states it (Unibet prints `Total prize €4`).
-   *
-   * In `buyInUnit`, not chips. Absent when the room does not say; never derived,
-   * because a guess here would look identical to a stated figure.
-   */
-  prizePool?: Amount;
-}
 
 /** What actually left the player's account: prize pool + bounty + fee. */
 export function totalBuyIn(tournament: PhfTournament): Amount {
@@ -954,81 +798,7 @@ export function parseBuyInToken(
 
 /* ----------------------------------------------------------------- players - */
 
-export interface PhfPlayer {
-  seat: number;
-  name: string;
-  startingStack: Amount;
-  isHero: boolean;
-  /**
-   * Hole cards when known. Empty means unknown, which is the normal case for
-   * villains who never showed. Length is variant dependent (2 for Hold'em, 4-6
-   * for Omaha), so never index blindly.
-   */
-  holeCards: string[];
-  /** PKO bounty carried by this player, when the site reports it. */
-  bounty: Amount | null;
-  sittingOut: boolean;
-  /** Resolved from seat + button + table size; null when the button is unknown. */
-  position: Position | null;
-  /**
-   * The source printed a "Dealt to <player>" line for this seat. GG prints one
-   * per seated player, WePlay only for the hero; the serializer needs to know
-   * which shape to emit.
-   */
-  dealtAnnounced: boolean;
-  /**
-   * Cards the *deal block* showed, which is not the same thing as `holeCards`.
-   *
-   * GG writes `Dealt to villain ` with no cards and only reveals them in the
-   * summary; `holeCards` therefore ends up populated while the deal line must
-   * still be re-emitted empty. Keeping the two apart is what makes the text
-   * round trip exact, and it also tells the replayer which hands were visible
-   * from the start versus revealed later.
-   */
-  dealtCards: string[];
-}
-
 /* ----------------------------------------------------------------- actions - */
-
-/**
- * Action vocabulary. A superset of the old `ActionType` union: everything the
- * previous parser could express still round-trips, plus the posting variants
- * and the GG EV-cashout events that used to be silently dropped.
- */
-export type ActionType =
-  | "ante"
-  | "small-blind"
-  | "big-blind"
-  | "straddle"
-  | "post"
-  | "missed-blind"
-  | "bomb-ante"
-  | "fold"
-  | "check"
-  | "call"
-  | "bet"
-  | "raise"
-  | "uncalled"
-  | "show"
-  | "muck"
-  | "collect"
-  | "cashout-choose"
-  | "cashout-pay";
-
-/**
- * Which half of a high-low split pot an award came from.
- *
- * - `hi` - the high half, or the **whole pot** when no low qualified: with no
- *   low hand the high hand is paid everything, and that is still a high award.
- * - `lo` - the low half.
- * - absent - the pot was not split: a hand that is not hi/lo, a pot nobody
- *   contested, or one player taking both halves on a single line.
- *
- * A player who scoops on two lines (888 prints `collected [$0.95]` twice) gets
- * one `hi` and one `lo`; quartering is several `lo` (or `hi`) entries in the
- * same pot.
- */
-export type PotHalf = "hi" | "lo";
 
 /** Posting actions happen before the deal and are animated as one block. */
 export function isPostingAction(type: ActionType): boolean {
@@ -1066,94 +836,7 @@ export function isButtonBlind(action: Pick<PhfAction, "type" | "verb">): boolean
   return action.type === "big-blind" && action.verb === BUTTON_BLIND_VERB;
 }
 
-export interface PhfAction {
-  /** Position in the stream; stable across serialization. */
-  index: number;
-  street: Street;
-  /**
-   * Which runout this action belongs to. Only collects and shows after a
-   * run-it-twice ever use a value > 0; everything else is 0.
-   */
-  runoutIndex: number;
-  /** Seat of the actor, or `null` for dealer-side events. */
-  seat: number | null;
-  player: string;
-  type: ActionType;
-  /**
-   * Chips this action moves into the pot. Negative for an uncalled return,
-   * which is what keeps the chip-conservation sum honest.
-   */
-  amount: Amount;
-  /** Total the actor has committed on this street after the action. */
-  streetTotal: Amount;
-  allIn: boolean;
-  /** Cards revealed by this action (shows). */
-  cards?: string[];
-  /** Showdown hand description, e.g. "a pair of Aces". */
-  description?: string;
-  /**
-   * The literal verb the source used, when it differs from the canonical one.
-   *
-   * WePlay writes `Kadiddy: posts straddle $4` where the standard text says
-   * `posts $4`. The action type is what code should branch on; this keeps the
-   * wording so the text round-trips. The one exception is GG's button blind,
-   * a `big-blind` whose verb is `BUTTON_BLIND_VERB`; see `isButtonBlind`.
-   */
-  verb?: string;
-  /** Which pot a collect came from: "pot", "main pot", "side pot", ... */
-  potName?: string;
-  /**
-   * Which half of a high-low split pot a `collect` paid. Only ever set on a
-   * collect in a `game.hiLo` hand; see `PotHalf` for what absence means.
-   */
-  half?: PotHalf;
-  /** Human readable label; the replayer log renders this verbatim. */
-  label: string;
-  /** 1-based line number inside the raw hand text, for debugging. */
-  sourceLine: number | null;
-  /** The source line this action came from. */
-  rawLine: string;
-}
-
 /* ------------------------------------------------------------------- board - */
-
-/**
- * One runout of the community cards.
- *
- * A `null` street means "identical to runout 0". That is exactly how sites
- * print it (`SECOND TURN` appears but `SECOND FLOP` does not when the flop is
- * shared), and it lets the serializer reproduce the source without guessing.
- */
-export interface PhfRunout {
-  index: number;
-  flop: string[] | null;
-  turn: string | null;
-  river: string | null;
-  /**
-   * Literal prefix the source printed on each street marker for this runout
-   * ("", "FIRST", "SECOND").
-   *
-   * Sites are inconsistent: GG labels both runouts, WePlay leaves a shared
-   * street unlabelled and only marks the one it re-dealt. The prefix carries no
-   * information the index does not, but reproducing it is what keeps imported
-   * text byte-identical on the way back out. Empty for parsers that build a
-   * hand from scratch; the serializer then derives a label.
-   */
-  markerLabels: { flop?: string; turn?: string; river?: string };
-  /**
-   * Cards the SUMMARY `Board` line listed for this runout, verbatim.
-   *
-   * GG lists only the cards that differ from runout 0, WePlay repeats the whole
-   * board. Same reasoning as `markerLabels`: kept for faithful output, never
-   * read as data - use `resolveRunout` for that.
-   */
-  summaryCards: string[] | null;
-}
-
-export interface PhfBoard {
-  /** Always at least one entry. Two entries means the hand was run twice. */
-  runouts: PhfRunout[];
-}
 
 /** Resolves runout `index` against runout 0, returning up to five card codes. */
 export function resolveRunout(board: PhfBoard, index: number): string[] {
@@ -1186,60 +869,6 @@ export function runoutThroughStreet(board: PhfBoard, index: number, street: Stre
 
 /* ---------------------------------------------------------- chip movements - */
 
-/**
- * Chips that move outside the ordinary bet path.
- *
- * PHF's chip model has exactly two flows: a seat puts chips into the pot, and
- * the pot pays chips back out to seats less fees. Rooms run promotions that fit
- * neither, and every one of them breaks an invariant if it is forced into the
- * model that exists:
- *
- * - **House into the pot.** GG's `Cash Drop to Pot : total $0.2`, Run It Once's
- *   `STP added: €0.50`. Attributing it to a seat corrupts that seat's `net`;
- *   dropping it breaks chip conservation, because the pot is genuinely larger
- *   than the sum of what the players put in; calling it a negative fee makes
- *   the replayer pay out more than the pot holds.
- * - **Seat to the house, bypassing the pot.** MicroGaming's
- *   `BadBeatContribution`: a jackpot drop that leaves a stack and never becomes
- *   part of the pot. It cannot be a `PhfFees` entry, because those are taken
- *   *from* the pot and counting it there breaks the payout check. Left
- *   unmodelled it silently leaves the contributor's replayed stack too high.
- *
- * Both are the same idea seen from opposite ends, so they get one type. The
- * money is real and has to be accounted for; what makes it awkward is only that
- * one end of the movement is not a seat.
- *
- * Deliberately *not* modelled as a `PhfAction`: `ActionType` is a closed union
- * that consumers switch on, so extending it is a `phf/2` change, whereas an
- * optional field here is additive. See `docs/PHF-SPEC.md` §5.
- */
-export interface PhfChipMovement {
-  /**
-   * What the room called it, as a machine code: `splash-the-pot`,
-   * `cash-drop`, `bad-beat-drop`, `jackpot-drop`.
-   */
-  kind: string;
-  /** Seat the chips left, or null when the house supplied them. */
-  fromSeat: number | null;
-  /** Player name for `fromSeat`, or null. */
-  fromPlayer: string | null;
-  /**
-   * Whether the chips land in the pot.
-   *
-   * `true` means they count toward chip conservation and the pot the winners
-   * split; `false` means they leave the table entirely and only reduce a stack.
-   */
-  toPot: boolean;
-  amount: Amount;
-  /** Verbatim source line, so the text round-trips. */
-  raw: string | null;
-  /**
-   * Where the room printed it, which differs: GG puts the drop after the seat
-   * block and before the blinds, Run It Once after `*** HOLE CARDS ***`.
-   */
-  anchor: "before-postings" | "after-hole-cards";
-}
-
 /** Chips the house added to the pot, which nobody contributed. */
 export function houseIntoPot(hand: PhfHand): Amount {
   return (hand.chipMovements ?? [])
@@ -1256,21 +885,6 @@ export function seatOutOfPot(hand: PhfHand, seat: number): Amount {
 
 /* ----------------------------------------------------------------- results - */
 
-/**
- * Fees taken out of the pot, broken out rather than lumped into one `rake`
- * number, because the GG summary line reports them separately and win-rate math
- * needs to be able to add back the ones that are promotional.
- */
-export interface PhfFees {
-  rake: Amount;
-  jackpot: Amount;
-  bingo: Amount;
-  fortune: Amount;
-  tax: Amount;
-  /** Anything a site reports that does not map to the above. */
-  other: Amount;
-}
-
 export const ZERO_FEES: PhfFees = {
   rake: 0,
   jackpot: 0,
@@ -1285,172 +899,8 @@ export function totalFees(fees: PhfFees): Amount {
 }
 
 /** How a player's hand ended, as reported by the summary block. */
-export type SeatOutcome =
-  | "folded"
-  | "collected"
-  | "won"
-  | "lost"
-  | "mucked"
-  | "showed"
-  | "unknown";
-
-export interface PhfPlayerResult {
-  seat: number;
-  player: string;
-  /** Total chips collected from all pots. */
-  won: Amount;
-  /** Total chips put in, net of uncalled returns. */
-  contributed: Amount;
-  /** `won - contributed`. Negative for a loser. */
-  net: Amount;
-  wentToShowdown: boolean;
-  /** Cards this player revealed (showdown or summary). */
-  shownCards: string[];
-  mucked: boolean;
-  handDescription: string | null;
-  /**
-   * Position words exactly as the summary prints them, e.g. `["(button)"]` or
-   * `["(button)", "(small blind)"]` heads-up. The machine-readable position
-   * lives on `PhfPlayer.position`; this is here for byte-faithful output.
-   */
-  positionLabels: string[];
-  outcome: SeatOutcome;
-  foldedStreet: Street | null;
-  /** Summary said "(didn't bet)": folded without putting a chip in voluntarily. */
-  didntBet: boolean;
-  /** GG EV-cashout risk paid by this player, settled outside the pot. */
-  cashoutRisk: Amount | null;
-  /**
-   * The summary line verbatim.
-   *
-   * The summary block is site-authored prose ("showed [Ah Kd] and won ($12)
-   * with two pair, Aces and Fours, and lost") whose exact wording carries no
-   * information the structured fields lack. Keeping the original string lets
-   * `toStandardText` reproduce imported text byte for byte - which Holdem
-   * Manager import depends on - without forcing every future parser to
-   * replicate one site's phrasing. Parsers that build a hand from scratch leave
-   * this `null` and the serializer generates a canonical line.
-   */
-  raw: string | null;
-}
-
-export interface PhfResults {
-  /** Pot before fees, as the source reports it. */
-  totalPot: Amount;
-  /**
-   * Side-pot breakdown when the source reports one, e.g.
-   * `[{ name: "Main", amount: 3715 }, { name: "Side", amount: 6596 }]`.
-   * Empty when everything went into a single pot.
-   */
-  pots: Array<{ name: string; amount: Amount }>;
-  fees: PhfFees;
-  players: PhfPlayerResult[];
-  /**
-   * Flattened winner list; one entry per collect, per runout. `half` mirrors
-   * the collect it came from (`PhfAction.half`).
-   */
-  winners: Array<{
-    player: string;
-    seat: number | null;
-    amount: Amount;
-    runoutIndex: number;
-    half?: PotHalf;
-  }>;
-  /** Hero's `net`, or null when there is no hero. */
-  heroNet: Amount | null;
-  wentToShowdown: boolean;
-  /** Furthest street the hand actually reached. */
-  streetReached: Street;
-}
 
 /* -------------------------------------------------------------------- meta - */
-
-export interface PhfWarning {
-  /** Short machine code, e.g. "unknown-line". */
-  code: string;
-  message: string;
-  /** 1-based line number in the raw text when the warning is line-scoped. */
-  line?: number;
-}
-
-/**
- * Purely presentational choices that a site makes and that therefore have to
- * survive a round trip through PHF. None of these affect the meaning of a hand.
- */
-export interface PhfTextStyle {
-  /** `$0.5` (GG) versus `$0.50` (WePlay and most others). */
-  decimals: DecimalStyle;
-  /** The source prints a `Dealt to` line for every seated player, not just the hero. */
-  dealtLinesForAllPlayers: boolean;
-  /** The source printed an explicit `*** SHOWDOWN ***` section. */
-  showdownSection: boolean;
-  /** The source printed `*** HOLE CARDS ***`. */
-  holeCardsSection: boolean;
-  /**
-   * Prefixes of the showdown markers the source printed, in order. `[""]` is a
-   * single `*** SHOWDOWN ***`; `["FIRST", "SECOND"]` is a run-it-twice that
-   * settled each runout separately.
-   */
-  showdownLabels: string[];
-  /** The SUMMARY block carried a "Hand was run two times" note. */
-  runItTwiceNote: boolean;
-  /**
-   * The source zero-pads the hour in the header timestamp.
-   *
-   * GG writes `05:56:01`, WePlay writes `8:34:11`. Undetectable from a hand
-   * dealt after 09:59, which is harmless: both styles render those identically.
-   */
-  padHour: boolean;
-
-  /*
-   * The fields below are *optional and tri-state*: `true`/`false` pin the
-   * choice, `undefined` means "work it out from `meta.rawText`".
-   *
-   * That matters because eleven site parsers build `PhfHand` objects by hand,
-   * and every one of them spreads `DEFAULT_TEXT_STYLE`. A required field would
-   * silently take its default in all of them and the output would be wrong for
-   * whichever rooms do not match that default. Leaving them undefined lets
-   * `resolveTextStyle` recover the answer from the source the hand already
-   * carries, so a parser only has to think about presentation when it wants to
-   * override what its own source text plainly says.
-   */
-
-  /** Digit grouping in amounts: `21,929` (GG tournaments) versus `21929`. */
-  groupThousands?: boolean;
-  /**
-   * A `Dealt to <player>` line with no cards ends with a trailing space.
-   *
-   * GG's cash exports write `Dealt to villain ` and its tournament exports
-   * write `Dealt to villain`. Trackers match on the line, so the difference has
-   * to survive.
-   */
-  dealtLineTrailingSpace?: boolean;
-  /**
-   * Fee columns on the `Total pot` line, in order, excluding the pot itself.
-   *
-   * Rooms print anywhere from one to five: `["Rake"]`,
-   * `["Rake", "Jackpot", "Bingo"]`, or the full GG cash set
-   * `["Rake", "Jackpot", "Bingo", "Fortune", "Tax"]`.
-   */
-  summaryFeeColumns?: string[];
-  /**
-   * The header text after `Poker Hand #<id>: `, verbatim.
-   *
-   * The header is one line of per-room prose - GG writes
-   * `Tournament #25313426, H-04: $1,050 GGMasters High Rollers Hold'em No Limit   - Level14(300/600)`,
-   * PokerStars writes `Tournament #257640000, $20+$1 USD Hold'em No Limit - Match Round I, Level IV (50/100)`,
-   * WePlay writes `Tournament (Name)#id, $15+$1.50 ...` - and the variation
-   * includes things like an incidental triple space that no structured field
-   * should ever have to model. Capturing it keeps imported text byte-exact
-   * without coupling this serializer to every room, which is the whole point of
-   * the parser plugin architecture.
-   *
-   * Authoritative data still lives in `PhfHand.tournament` and `PhfHand.game`;
-   * this is replayed only when it demonstrably belongs to the same hand, and a
-   * hand built from scratch gets a generated header instead.
-   */
-  headerPayload?: string;
-}
 
 export const DEFAULT_TEXT_STYLE: PhfTextStyle = {
   decimals: "minimal",
@@ -1462,52 +912,7 @@ export const DEFAULT_TEXT_STYLE: PhfTextStyle = {
   padHour: true,
 };
 
-export interface PhfMeta {
-  /** Registry id of the site the hand came from, e.g. "weplay". */
-  siteId: string;
-  /** Display name for the UI. */
-  siteName: string;
-  /** Hand id exactly as the site wrote it. */
-  handId: string;
-  /**
-   * Stable dedupe key.
-   *
-   * Kept equal to `handId` for the sites we already store so that re-uploading
-   * a file that was imported before the PHF rewrite still dedupes against the
-   * existing `stored_hands.hand_key` rows.
-   */
-  handKey: string;
-  originalFilename: string | null;
-  parserId: string;
-  parserVersion: string;
-  warnings: PhfWarning[];
-  /** The hand's own slice of the uploaded file. Never lose the source. */
-  rawText: string;
-  /** ISO timestamp of when we parsed it (not when it was played). */
-  parsedAt: string;
-  textStyle: PhfTextStyle;
-}
-
 /* -------------------------------------------------------------------- hand - */
-
-export interface PhfHand {
-  schema: PhfSchema;
-  meta: PhfMeta;
-  game: PhfGame;
-  table: PhfTable;
-  tournament: PhfTournament | null;
-  players: PhfPlayer[];
-  actions: PhfAction[];
-  /**
-   * Promotional and jackpot chip movements that are not bets. Absent on the
-   * overwhelming majority of hands; see `PhfChipMovement`.
-   */
-  chipMovements?: PhfChipMovement[];
-  board: PhfBoard;
-  results: PhfResults;
-  /** ISO timestamp the hand was dealt, or null when the source omits it. */
-  playedAt: string | null;
-}
 
 /* ----------------------------------------------------------------- helpers - */
 

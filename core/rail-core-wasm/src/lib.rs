@@ -1,5 +1,5 @@
 //! WebAssembly facade over `rail-core` (docs/RAIL-PLAN.md R0.13): `convert`,
-//! `detect`, `serialize` and `anonymise`, bytes and JSON text in, JSON text
+//! `detect`, `split` (R4.1), `serialize` and `anonymise`, bytes and JSON text in, JSON text
 //! out, for the web app's worker (R4.1) and the TypeScript harness's shadow
 //! mode (`tests/scripts/wasm/`).
 //!
@@ -32,6 +32,14 @@ pub fn convert(bytes: &[u8], filename: &str, options: &str) -> Result<String, Js
 #[wasm_bindgen]
 pub fn detect(bytes: &[u8]) -> String {
     api::detect(bytes)
+}
+
+/// `split(bytes)`: decoding, the detection ranking, the top parser's name
+/// and its split of the file into hand chunks, as JSON text (the web's
+/// batched conversion, R4.1).
+#[wasm_bindgen]
+pub fn split(bytes: &[u8]) -> String {
+    api::split(bytes)
 }
 
 /// `serialize(phfJson)`: the standard text of one PHF hand, or of an array

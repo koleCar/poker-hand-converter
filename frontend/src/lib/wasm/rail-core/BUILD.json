@@ -1,0 +1,26 @@
+{
+  "//": "Written by tests/scripts/wasm/web.mjs (docs/RAIL-PLAN.md R4.1). Do not edit; CI rebuilds and compares.",
+  "host": "x86_64-unknown-linux-gnu",
+  "rustToolchain": "1.99.0",
+  "wasmBindgen": "0.2.129",
+  "profile": "wasm-release",
+  "gzip": 767747,
+  "files": {
+    "rail_core_wasm.js": {
+      "bytes": 10997,
+      "sha256": "ae9925c5d5d9dae0cd87d101b526eb045de82666c20434415b391c2b9ccf1323"
+    },
+    "rail_core_wasm.d.ts": {
+      "bytes": 3068,
+      "sha256": "b1929036a1c7cb2d05ca71a52a76c49a3dcd1d26e21954103c8a8c4b3df4c49e"
+    },
+    "rail_core_wasm_bg.wasm": {
+      "bytes": 2276125,
+      "sha256": "2d73e5d0643fdeb414fb8776aebf5c71d8ae1453364132f87bb1dd8381d7e826"
+    },
+    "rail_core_wasm_bg.wasm.d.ts": {
+      "bytes": 923,
+      "sha256": "a5c6b3859f3d8eb445ce488f3a3b4eaae01f8d66f3e1f48c6a1f1f07da02d2a2"
+    }
+  }
+}

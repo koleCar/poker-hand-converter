@@ -43,7 +43,10 @@
     "hud:policy-check": "node scripts/hud-policy/check.mjs",
     "phf:dts-check": "tsc -p scripts/phf-dts",
     "wasm:build": "node scripts/wasm/build.mjs",
-    "wasm:shadow": "vitest run --config scripts/wasm/vitest.config.ts"
+    "wasm:shadow": "vitest run --config scripts/wasm/vitest.config.ts",
+    "wasm:web": "node scripts/wasm/web.mjs",
+    "wasm:web-check": "node scripts/wasm/web.mjs --check",
+    "wasm:web-from-ci": "node scripts/wasm/web-from-ci.mjs"
   },
   "keywords": [],
   "author": "",
