@@ -6,13 +6,13 @@ import { AnalysisShareToggle } from "../../../components/analysis/AnalysisShareT
 import { SharedAnalysisReplay } from "../../../components/analysis/SharedAnalysis";
 import { decodePosition, POSITION_PARAM, type ReplayPosition } from "@rail/ui/replayer/position";
 import { RecordShareView } from "./RecordShareView";
-import { parseHand } from "../../../lib/phf";
 import type { PhfHand } from "../../../lib/phf/types";
 import { getDict } from "../../../lib/i18n/server";
 import type { Dict } from "../../../lib/i18n/types";
 import { paths, sharedHandUrl } from "../../../lib/routes";
 import { readSharedAnalysisAnon } from "../../../lib/server/analysisShare";
-import { readShare, type ShareReadResult } from "../../../lib/server/shares";
+import { readShare, shareHand, type ShareReadResult } from "../../../lib/server/shares";
+import { ShareNamesToggle } from "../../../components/share/ShareNamesToggle";
 
 /**
  * A shared hand. Server-rendered, with real per-request metadata.
@@ -51,6 +51,14 @@ import { readShare, type ShareReadResult } from "../../../lib/server/shares";
  * position: it is permanently at the deal, so "Villain wins $312" in an
  * `og:description` answers "what would you do here?" before anyone opens the
  * link. Same rule, same single implementation, as the in-app replayer chrome.
+ *
+ * ## Names (R4.5)
+ *
+ * Hidden unless the link's owner turned them on, and enforced by the
+ * database, not here: `read_share` returns the hand through the forum's
+ * scrubber (Hero, Villain1..n; no table, room hand number or time of play)
+ * and no stored text, so the page, its metadata and the embed have no name
+ * to show. The owner's switch is `ShareNamesToggle`.
  */
 
 interface PageProps {
@@ -58,10 +66,13 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-/** Both halves of the page read the hand the same way, from the same cache. */
+/**
+ * Both halves of the page read the hand the same way, from the same cache.
+ * Unless the owner turned names on, that is the server's anonymised copy
+ * (R4.5, `shareHand`).
+ */
 function handOf(result: ShareReadResult): PhfHand | null {
-  const text = result.share?.standardText;
-  return text ? parseHand(text) : null;
+  return shareHand(result.share);
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -201,7 +212,8 @@ async function SharedHandContent({
         <SharedAnalysisReplay hand={hand} initialPosition={initialPosition} analysis={analysis} />
       </section>
 
-      {/* Only the link's owner sees this switch (it renders nothing for anyone else). */}
+      {/* Only the link's owner sees these switches (they render nothing for anyone else). */}
+      <ShareNamesToggle slug={slug} refreshOnChange />
       <AnalysisShareToggle surface="share" id={slug} refreshOnChange />
 
 

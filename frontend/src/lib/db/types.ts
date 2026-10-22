@@ -402,6 +402,12 @@ export interface CreateShareInput {
    * server-side; see `20261004120000_share_spoilers.sql` and #23.
    */
   spoilers?: boolean;
+  /**
+   * Whether the link shows the players' screen names. Defaults to false
+   * server-side (R4.5, `20270623090000_share_names.sql`): a stranger gets
+   * Hero / Villain1..n unless the owner turns names on.
+   */
+  showNames?: boolean;
 }
 
 export interface ShareRef {
@@ -430,6 +436,13 @@ export interface ResolvedShare {
    * false unless the sharer asked otherwise.
    */
   spoilers: boolean;
+  /**
+   * Whether the owner chose to show screen names on this link (R4.5). False
+   * by default: then `phf` is the server's anonymised copy (Hero,
+   * Villain1..n; no table, room hand number or time) and there is no stored
+   * standard text - `standardText` is rendered from that `phf`.
+   */
+  showNames: boolean;
   /** View counter *before* this view; `recordShareView` runs separately. */
   views: number;
   createdAt: string | null;

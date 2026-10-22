@@ -124,7 +124,7 @@ export {
   type UnparsedQuery,
 } from "./failures";
 
-export { createShare, resolveShare } from "./shares";
+export { createShare, resolveShare, setShareNames, shareNamesState, type ShareNamesState } from "./shares";
 
 export {
   myPublishedHandIds,

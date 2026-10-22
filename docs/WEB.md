@@ -23,7 +23,8 @@ shared hand.
 Converting, previewing, downloading and replaying need no account at all. An
 account is what gives you a *library*: hands you save belong to you and nobody
 else can read them. The one deliberate exception is a share link — anyone you
-send one to can replay that hand without signing in.
+send one to can replay that hand without signing in, with the players' names
+hidden unless you turn them on for that link (R4.5).
 
 Live: **https://poker-hand-converter.vercel.app**
 
@@ -289,7 +290,7 @@ does this path mean" alongside the framework's is how the two drift apart.
 | `/library` | **Library and replayer.** Pick a hand from your library with filters, or upload/paste a single one. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
 | `/stats` | **Statistics.** VPIP, PFR, 3-bet, c-bets and a showdown / non-showdown win-rate graph over your library. Renders and explains itself when signed out rather than bouncing you somewhere else. |
 | `/analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`, phase A1). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — and the heuristic checks that hold whatever the strategy. Runs in the browser; `/analysis/h/<id>` opens a hand in the replayer with the Analysis sheet. No grades until the preflop charts (A2). |
-| `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. |
+| `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. **Names hidden by default** (R4.5): Hero, Villain1, Villain2… and no table, room hand number or time, unless the link's owner ticks "Show the players' names" (in the share dialog or on the page); `/embed/h/:slug` follows the same setting. See "Share links and names" below. |
 | `/auth/callback` | The one address every sign-in returns to. Exchanges `?code=` for a cookie session; `?next=` is validated against a fixed allow-list of relative paths. |
 
 Permanent (308) redirects, in `next.config.ts`, for every address these screens
@@ -772,6 +773,40 @@ separates two users' hands is the database, never the UI.
   lives in `record_share_view`, a separate `volatile` function, so a page can be
   rendered (and its unfurl tags generated) without counting a reader. The
   combined `resolve_share` is deprecated and removable on or after 2026-11-27.
+
+### Share links and names (R4.5)
+
+A share link hides the players' screen names unless its owner opted in, and
+the database enforces it (`20270623090000_share_names.sql`):
+
+- `shares.show_names` is `not null default false`, so every link made before
+  R4.5 became anonymised - nothing earlier recorded a choice about names
+  (`spoilers` is about the result).
+- `read_share` (and the deprecated `resolve_share`) returns, for a hidden
+  link, the hand through the forum's `scrub_phf(.., 'pseudonyms')` - Hero,
+  Villain1..n in seat order; no raw lines, table name, tournament id, room
+  hand number or exact time - **no** `standardText` (the room's dialect, with
+  every name) and no `title`. If any original screen name still appears as a
+  whole token anywhere in the scrubbed document, it returns no hand at all
+  (`share_anonymised_phf`, the same last line of defence as `publish_hand`;
+  positional rooms are not checked). Over the corpus's 8 367 hands it
+  withholds none.
+- The owner turns names on or off per link: `create_share(..., p_show_names)`,
+  `share_names_state(slug)` / `set_share_names(slug, show)` (owner only; any
+  other caller gets null / the "does not exist" error, anon nothing). The web
+  shows the switch (`components/share/ShareNamesToggle.tsx`) in the share
+  dialog once the link exists and on `/h/:slug` for its owner.
+- The page, its metadata (`<title>`, `og:description` - which names the
+  winner only with spoilers on, and then by pseudonym) and `/embed/h/:slug`
+  render the payload's `phf` as it came (`lib/server/shares.ts` `shareHand`),
+  like a published hand. A share's Open Graph image is the static
+  `/og-default.png`; published hands (`/p/:id`, its OG image, the sitemap and
+  the feed) were anonymised by `publish_hand` before R4.5.
+- Tests: pgTAP `share_names` (40); `npm run share:names` (in `tests/`) checks
+  the served pages end to end against a local stack and a local
+  `next start`: six corpus hands (awkward names: slashes, a colon, mojibake),
+  stored and never saved, page and embed, no name in the HTML, then names on
+  and off.
 - Dedupe is `(owner_id, hand_key)`, not `hand_key`. A global key would tell the
   second person to upload a hand "already stored" and then show them nothing,
   because the row they collided with is not theirs to read.
