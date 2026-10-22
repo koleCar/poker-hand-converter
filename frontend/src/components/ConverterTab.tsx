@@ -58,6 +58,8 @@ import type { PhfHand } from "../lib/phf/types";
 import type { InputItem } from "./converter/bulkSource";
 import type { SourceInfo } from "./converter/bulkRun";
 import { createBulkSaver, type BulkSaver, type SaveProgress } from "./converter/bulkSaver";
+import { uploadActivityOf } from "../lib/live/activity";
+import { useUploadPresence } from "./live/useLiveActivity";
 import { DropZone } from "./converter/DropZone";
 import { FailurePanel } from "./converter/FailurePanel";
 import { HandPreview } from "./converter/HandPreview";
@@ -206,6 +208,8 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   const [converting, setConverting] = useState(false);
   const [read, setRead] = useState<ReadProgress>(NO_READ);
   const [upload, setUpload] = useState<SaveProgress | null>(null);
+  /** The running upload's id (its manifest's), published to the account's other tabs (R4.3). */
+  const [uploadId, setUploadId] = useState<string | null>(null);
   const [legacySave, setLegacySave] = useState<SaveState>(IDLE_SAVE);
   const [recorded, setRecorded] = useState<{ created: number; updated: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -383,6 +387,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
       });
       saverRef.current = saver;
       manifestRef.current = manifest;
+      setUploadId(manifest.id);
       return saver;
     },
     [afterSave, onSaveChange],
@@ -696,12 +701,29 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
     const running = runnable.find((source) => source.status === "running");
     const handsDone = sources.reduce((sum, source) => sum + source.handCount, 0);
     const percent = read.total > 0 ? Math.min(100, Math.round((read.bytes / read.total) * 100)) : 0;
+    // For the estimate other tabs show (R4.3): a file's hands are known once
+    // it is split, long before they are all saved.
+    let knownHands = 0;
+    let bytesKnown = 0;
+    let bytesUnusable = 0;
+    for (const source of sources) {
+      if (source.problem) {
+        bytesUnusable += source.bytes;
+      } else if (source.status === "done" || source.status === "cancelled") {
+        knownHands += source.handCount;
+        bytesKnown += source.bytes;
+      } else if (source.total > 0) {
+        knownHands += Math.max(source.handCount, source.total - source.failureCount);
+        bytesKnown += source.bytes;
+      }
+    }
     return {
       files: runnable.length,
       filesDone: finished.length,
       current: running ?? null,
       handsDone,
       percent,
+      extent: { knownHands, bytesKnown, bytesTotal: Math.max(0, read.total - bytesUnusable) },
     };
   }, [sources, read]);
 
@@ -743,6 +765,19 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
 
   const allFailures = useMemo(() => sources.flatMap((source) => source.failures), [sources]);
   const busy = converting || reading;
+
+  // The account's other tabs and devices see this upload live (R4.3): state
+  // and counts only, on the account's private channel, throttled; withdrawn
+  // when the upload is reset or this page goes away.
+  const liveUserId = isDatabaseConfigured && auth.isSignedIn ? (auth.user?.id ?? null) : null;
+  const liveActivity = useMemo(
+    () =>
+      upload && uploadId
+        ? uploadActivityOf(uploadId, upload, { ...progress.extent, converting: busy })
+        : null,
+    [upload, uploadId, progress.extent, busy],
+  );
+  useUploadPresence(liveUserId, liveActivity);
   const showProgress = busy || saving || upload?.state === "paused";
   // Results appear while the conversion is still running: batches arrive every
   // ~60 ms, so the counts tick up and the first hands are previewable long

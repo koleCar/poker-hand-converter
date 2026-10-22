@@ -61,7 +61,7 @@ describe("createArrivalBatcher", () => {
     advance(1499);
     expect(flushes).toHaveLength(0);
     advance(1);
-    expect(flushes).toEqual([{ seq: 1, hands: 500, desktop: true, resync: false }]);
+    expect(flushes).toEqual([{ seq: 1, hands: 500, desktop: true, desktopHands: 500, resync: false }]);
   });
 
   it("folds a burst into one refresh, never one per signal", () => {
@@ -72,7 +72,7 @@ describe("createArrivalBatcher", () => {
     }
     expect(flushes).toHaveLength(0);
     advance(500);
-    expect(flushes).toEqual([{ seq: 1, hands: 1500, desktop: true, resync: false }]);
+    expect(flushes).toEqual([{ seq: 1, hands: 1500, desktop: true, desktopHands: 1500, resync: false }]);
   });
 
   it("a burst that never goes quiet still refreshes after the max wait", () => {
@@ -129,7 +129,7 @@ describe("createArrivalBatcher", () => {
     expect(flushes).toHaveLength(0);
     expect(pendingTimers()).toBe(0);
     batcher.setHidden(false);
-    expect(flushes).toEqual([{ seq: 1, hands: 20000, desktop: true, resync: false }]);
+    expect(flushes).toEqual([{ seq: 1, hands: 20000, desktop: true, desktopHands: 20000, resync: false }]);
   });
 
   it("hiding cancels a scheduled refresh; showing with nothing pending does nothing", () => {
@@ -139,7 +139,7 @@ describe("createArrivalBatcher", () => {
     advance(60000);
     expect(flushes).toHaveLength(0);
     batcher.setHidden(false);
-    expect(flushes).toEqual([{ seq: 1, hands: 2, desktop: false, resync: false }]);
+    expect(flushes).toEqual([{ seq: 1, hands: 2, desktop: false, desktopHands: 0, resync: false }]);
     batcher.setHidden(true);
     batcher.setHidden(false);
     advance(60000);
@@ -150,7 +150,7 @@ describe("createArrivalBatcher", () => {
     const { batcher, advance, flushes } = setup();
     batcher.push({ hands: null, origin: null });
     advance(1500);
-    expect(flushes).toEqual([{ seq: 1, hands: 0, desktop: false, resync: true }]);
+    expect(flushes).toEqual([{ seq: 1, hands: 0, desktop: false, desktopHands: 0, resync: true }]);
   });
 
   it("numbers its flushes and keeps the origins of one batch together", () => {
@@ -160,9 +160,9 @@ describe("createArrivalBatcher", () => {
     batcher.push({ hands: 3, origin: "web" });
     batcher.push({ hands: 500, origin: "desktop" });
     advance(1500);
-    expect(flushes.map((batch) => [batch.seq, batch.hands, batch.desktop])).toEqual([
-      [1, 1, false],
-      [2, 503, true],
+    expect(flushes.map((batch) => [batch.seq, batch.hands, batch.desktop, batch.desktopHands])).toEqual([
+      [1, 1, false, 0],
+      [2, 503, true, 500],
     ]);
   });
 

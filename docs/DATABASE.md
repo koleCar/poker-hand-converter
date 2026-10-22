@@ -22,6 +22,7 @@ The schema is defined by four migrations:
 | `20270602090000_hud_layouts.sql` | Rail R3.9: the desktop HUD's designs, assignments, dragged panel positions and per-room settings follow the account to another computer. `hud_layouts` (one row per owner, kind and key; a null body is a tombstone; last writer wins by the client's `updated_at`), select-own RLS, written only by `put_hud_layouts(p_rows)` (definer). See [The HUD's layouts](#the-huds-layouts-hud_layouts). Not applied to production. |
 | `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql` | Rail R4.2: the web's bulk upload. `hand_origin` gains `upload`; `register_web_hand_source()` (the account's one web source); `ingest_hands` takes it besides the app's folders and writes `origin = 'upload'` rows (PHF only, as desktop rows); the private bucket `hand-uploads` with owner-folder policies for the opt-in originals (A2). See [Web bulk upload](#web-bulk-upload-the-web-source-and-hand-uploads). Not applied to production. |
 | `20270512090000_hand_arrivals.sql` | Rail R1.10: live arrival on the web. `hand_arrivals` (one row per account, bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival`: a counter, how many hands, their origin, the time; no hand content), select-own RLS, in the `supabase_realtime` publication; `hands` stays out of it. See [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
+| `20270616090000_live_activity.sql` | Rail R4.3: live progress of an upload in the account's other tabs and devices. The first `realtime.messages` policies: on the private channel `activity:<uid>`, the account itself may receive (presence, broadcast) and send presence; nobody else, not `anon`, no broadcast sent. No table, no function, no per-batch write (Presence lives in Realtime's memory). See [Live progress across tabs](#live-progress-across-tabs-activityuid). Not applied to production. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -426,7 +427,7 @@ the commenter, anyone who muted the thread (a mute silences replies and
 mentions too), a banned account, and — for everyone — nobody at all when the
 commenter is shadowbanned.
 
-**Realtime**, for exactly three things:
+**Realtime**, for exactly four things:
 
 * the unread badge — Postgres Changes on `notifications`, filtered
   `user_id=eq.<uid>`. `notifications` is in the `supabase_realtime`
@@ -442,6 +443,11 @@ commenter is shadowbanned.
   Changes on `hand_arrivals`, one row per account, filtered
   `owner_id=eq.<uid>`; `hands` itself is not published. See
   [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals).
+* an upload's progress in the account's other tabs (Rail R4.3) - **Presence**
+  on the **private** channel `activity:<uid>`, the only private channel; its
+  authorisation is the `realtime.messages` policies of
+  `20270616090000_live_activity.sql`. See
+  [Live progress across tabs](#live-progress-across-tabs-activityuid).
 
 **What a socket gets for a table it cannot select (measured in R1.10).**
 Realtime does not run RLS for a subscriber whose role lacks SELECT on the
@@ -1212,8 +1218,11 @@ backfill keeps signalling, after 5 s, then 10, 20 and at most every 30 s),
 does nothing while the tab is hidden (one refetch when it is shown again),
 treats a reconnect as a signal (events in the gap are lost), and removes the
 channel on unmount and sign-out. `/library` re-reads the first page in
-place, or shows "N new hands - show" past it; `/stats` re-reads quietly and
-runs `/api/stats/rebuild` for the new hands. "Hands arriving from <device>"
+place while the reader is at the top of it, or shows "N new hands - show"
+(scrolled down, or past the first page; R4.3); `/stats` re-reads quietly and
+runs `/api/stats/rebuild` for the new hands; the analysis screens (overview,
+reports, progress, leaks, plan) are not touched and offer "N new hands
+arrived - refresh" instead (R4.3). "Hands arriving from <device>"
 under the library heading reads `hand_sources.last_ingest_at` (select-own),
 shown for ten minutes after the last sync.
 
@@ -1226,6 +1235,61 @@ are one signal each with their count and origin, all duplicates is no
 signal, each account reads only its own row and a forged owner finds
 nothing, a client cannot insert, bump or delete a signal, and a failing
 signal does not fail the save.
+
+### Live progress across tabs: `activity:<uid>`
+
+`20270616090000_live_activity.sql` (Rail R4.3). A bulk upload (R4.2) knows
+its progress in the tab that runs it; every other tab and device of the
+account shows it too ("Saving 120 000 of ~1 000 000 hands from a web
+upload", then "finished"). The uploading tab publishes a ~200-byte summary
+- a random upload id, a state, counts; no hand, no file name - as its
+**Presence** on the private Realtime channel `activity:<uid>`, at most every
+2 s while counts move and every 15 s while they do not. Client:
+`components/live/activityChannel.ts`, `lib/live/activity.ts`.
+
+**Why Presence, not a progress row.** No database write per batch: Presence
+state lives in Realtime's memory, where a progress row would be an UPDATE,
+a WAL decode and an RLS check per subscriber for each of a 1M-hand upload's
+~4 000 calls. Stale progress expires by itself: an entry belongs to its
+socket, so a closed tab's goes when the socket does (~0.6 s on a close,
+measured; Realtime's heartbeat timeout otherwise), and the web drops an
+entry that has not changed for 45 s. A tab opened mid-upload gets the
+current state on join.
+
+**Authorisation.** A private join makes Realtime run, as the socket's role
+with `request.jwt.claims` and `realtime.topic` set, a SELECT (receive) and
+an INSERT (send) on `realtime.messages`, rolled back. RLS on that table was
+on with no policy, so every private join was refused; these are its first
+two policies, both `to authenticated`:
+
+| Policy | Admits |
+| --- | --- |
+| `live_activity_own_receive` (select) | `extension in ('presence', 'broadcast')`, `realtime.topic() = 'activity:' \|\| auth.uid()`, and the row's `topic` is that topic |
+| `live_activity_own_send` (insert) | `extension = 'presence'`, the same topic rule |
+
+Receiving names `broadcast` because Realtime's join is itself a broadcast
+read: with presence alone the join is refused (measured on the local
+stack's Realtime 2.73). Sending is presence only, so nothing can be
+broadcast on the topic. Checked end to end by `npm run realtime:activity`
+(`tests/scripts/realtime-activity/check.mjs`, local stacks only):
+
+| Socket | Outcome |
+| --- | --- |
+| A on `activity:<A>` | joins, tracks; A's other device sees the entry at once, its updates, and its leave when the tab closes (~0.6 s) |
+| B on `activity:<A>`, `anon` on `activity:<A>`, A on `activity:<B>` | join refused ("Unauthorized: You do not have permissions to read from this Channel topic") |
+| B or `anon` on a **public** channel named `activity:<A>` | a different channel: none of A's presence arrives there, and nothing tracked there reaches A's private one |
+| A broadcasting on its own private channel | not delivered (no send policy for broadcast; a control run with one delivered it) |
+
+The bell's and the arrivals' channels are public channels guarded by table
+RLS and are not affected. Hosted project: nothing to configure; "allow
+public access" in the Realtime settings must stay on for those two.
+
+`supabase/tests/database/live_activity.test.sql` (27): exactly these two
+policies on `realtime.messages`, for `authenticated`, select and insert, RLS
+on; the owner may receive presence and broadcast on its own topic and send
+presence, not broadcast, not another topic's rows; A on B's topic and B on
+A's receive nothing and send nothing; another topic, no topic, or a topic
+that only starts with the uid opens nothing; `anon` nothing at all.
 
 ### The HUD's layouts: `hud_layouts`
 

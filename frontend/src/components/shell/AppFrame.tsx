@@ -8,8 +8,15 @@ import { markSignInOffered, useAuth, wasSignInOffered } from "../../lib/auth";
 import { countHands } from "../../lib/db";
 import { paths } from "../../lib/routes";
 import { isSupabaseConfigured } from "../../lib/supabase/config";
-import type { ArrivalBatch } from "../../lib/live/arrivals";
+import {
+  DESKTOP_SYNC_QUIET_MS,
+  noteDesktopBatch,
+  type ArrivalBatch,
+  type DesktopSyncState,
+} from "../../lib/live/arrivals";
+import { LiveStrip } from "../live/LiveStrip";
 import { useHandArrivals } from "../live/useHandArrivals";
+import { useOtherUploads } from "../live/useLiveActivity";
 
 /**
  * Everything the three signed-in screens share, minus the screen.
@@ -58,10 +65,19 @@ interface AppFrameProps {
   redirectWhenEmpty?: boolean;
   /**
    * Listen for hands arriving in the account while the screen is open
-   * (Realtime, `components/live/useHandArrivals.ts`). True for `/library` and
-   * `/stats`; never for the converter, whose promise is no server requests.
+   * (Realtime, `components/live/useHandArrivals.ts`), and show the live strip
+   * (R4.3: uploads in the account's other tabs, the desktop app syncing).
+   *
+   * - `true`: the screen re-reads on its own from `arrival` (`/library`,
+   *   `/stats`).
+   * - `"notify"`: the screen is not touched; the strip offers "N new hands
+   *   arrived - refresh", which bumps `refreshToken` (the analysis screens,
+   *   whose re-read is a visible reload).
+   *
+   * Never the converter, whose promise is no server requests (its own upload
+   * publishes itself, `useUploadPresence`).
    */
-  live?: boolean;
+  live?: boolean | "notify";
   children: (context: AppFrameContext) => ReactNode;
 }
 
@@ -85,16 +101,57 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, childre
   // last account's batch with it.
   const liveUser = live && isSupabaseConfigured && auth.isSignedIn ? (auth.user?.id ?? null) : null;
   const [arrival, setArrival] = useState<{ user: string; batch: ArrivalBatch } | null>(null);
+  /** Notify screens: hands that arrived since the screen last read (R4.3). */
+  const [unseen, setUnseen] = useState<{ user: string; hands: number } | null>(null);
+  const [desktop, setDesktop] = useState<{ user: string; sync: DesktopSyncState } | null>(null);
   const onArrival = useCallback(
     (batch: ArrivalBatch) => {
       if (!liveUser) return;
-      setArrival({ user: liveUser, batch });
+      if (live === "notify") {
+        // A resync alone (a reconnect, count unknown) may have brought
+        // nothing: no button for it.
+        if (batch.hands > 0) {
+          setUnseen((current) => ({
+            user: liveUser,
+            hands: (current && current.user === liveUser ? current.hands : 0) + batch.hands,
+          }));
+        }
+      } else {
+        setArrival({ user: liveUser, batch });
+      }
+      if (batch.desktopHands > 0) {
+        const now = Date.now();
+        setDesktop((current) => {
+          const sync = noteDesktopBatch(current && current.user === liveUser ? current.sync : null, batch, now);
+          return sync ? { user: liveUser, sync } : null;
+        });
+      }
       refreshCount();
     },
-    [liveUser, refreshCount],
+    [live, liveUser, refreshCount],
   );
   useHandArrivals(liveUser, onArrival);
   const currentArrival = arrival && arrival.user === liveUser ? arrival.batch : null;
+  const otherUploads = useOtherUploads(liveUser);
+
+  // The desktop line goes once the sync has been quiet long enough: every
+  // batch makes a new state object, so this restarts with each one.
+  const desktopSync = desktop && desktop.user === liveUser ? desktop.sync : null;
+  useEffect(() => {
+    if (!desktopSync) return;
+    const timer = setTimeout(
+      () => setDesktop((current) => (current && current.sync === desktopSync ? null : current)),
+      DESKTOP_SYNC_QUIET_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [desktopSync]);
+  // `/library` says which device is syncing under its own heading (R1.10).
+  const shownDesktop = tab === "library" ? null : desktopSync;
+  const unseenHands = live === "notify" && unseen && unseen.user === liveUser ? unseen.hands : null;
+  const showUnseen = useCallback(() => {
+    setUnseen(null);
+    setRefreshToken((current) => current + 1);
+  }, []);
 
   /**
    * Who gets a hand history, and when the answer is known.
@@ -172,6 +229,9 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, childre
       {/* Rendered while the answer is still unknown — the tabs have their own
           loading states, and unmounting once `settled` says no keeps the
           redirect from flashing a library on the way out. */}
+      {holdForRedirect || !liveUser ? null : (
+        <LiveStrip uploads={otherUploads} desktop={shownDesktop} newHands={unseenHands} onRefresh={showUnseen} />
+      )}
       {holdForRedirect ? null : children({ refreshToken, onHandsSaved, arrival: currentArrival })}
     </AppShell>
   );

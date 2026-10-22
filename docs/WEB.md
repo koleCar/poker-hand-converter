@@ -318,6 +318,9 @@ to my library" on: converted hands go to your library, as PHF without the
 original text. The original files themselves go only when you also tick
 **"Also keep the original files"** — off by default, on each visit — and then
 compressed, into your private folder of the `hand-uploads` bucket (A2).
+While such a save runs, its progress (a state and counts, nothing of a hand
+or a file name) is published to your account's private Realtime channel so
+your other tabs can show it (R4.3, below).
 
 ### Bulk upload (R4.2)
 
@@ -352,6 +355,38 @@ A drop of any size converts and saves without holding the drop in the tab:
   downloads are off for that drop. The file list shows its first 200 rows. A
   guest's drop that is too big to hold until sign-in says so: sign in, then
   drop it again.
+
+### Live progress and arrival (R1.10, R4.3)
+
+Signed in, the library's screens follow the account live, through Supabase
+Realtime; signed out, or on `/convert` while not saving, no socket is opened.
+
+- **Hands arriving** from the desktop app or another tab: the account's
+  `hand_arrivals` row (one change per save call, whatever its size;
+  `components/live/useHandArrivals.ts`), coalesced by `lib/live/arrivals.ts`
+  - a refresh 1.5 s after a burst goes quiet, at most every 5 s backing off
+  to 30 s while one never does, nothing while the tab is hidden, one resync
+  after a reconnect. `/library` updates its first page in place while you
+  are at the top of it and otherwise shows "N new hands - show"; `/stats`
+  re-reads and derives statistics for the new hands; the analysis screens
+  (`AppFrame live="notify"`) are left alone and offer "N new hands arrived -
+  refresh".
+- **An upload in another tab or device** (R4.3): the uploading tab publishes
+  its state and counts - never a hand or a file name - as Presence on the
+  account's private channel `activity:<uid>` (`components/live/
+  activityChannel.ts`, `useUploadPresence`), at most every 2 s; every live
+  screen shows "Saving 120 000 of ~1 000 000 hands from a web upload" with a
+  bar, then "finished" for 20 s. The total is estimated from the bytes read
+  until conversion ends. A closed tab's entry leaves with its socket; one
+  that stops changing for 45 s is dropped. Only the account itself can join
+  the channel (`realtime.messages` policies, `docs/DATABASE.md`).
+- **The desktop app syncing**: "Desktop app syncing: 12 500 hands so far",
+  counted from the arrivals of desktop origin, gone after two quiet minutes
+  (on `/library`, the line under the heading names the device instead).
+- **Accessibility**: the strip's counts are not a live region (they tick);
+  a visually hidden polite region announces only beginnings and ends - an
+  upload started elsewhere, finished, the desktop app syncing, new hands to
+  show.
 
 ### The conversion core is WebAssembly (R4.1)
 

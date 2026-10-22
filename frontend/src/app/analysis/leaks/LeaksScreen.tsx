@@ -6,7 +6,7 @@ import { LeaksTab } from "../../../components/analysis/leaks/LeaksTab";
 /** Client half of `/analysis/leaks`: the shell, with the Analysis tab selected. */
 export function LeaksScreen({ query }: { query: Record<string, string | string[] | undefined> }) {
   return (
-    <AppFrame tab="analysis">
+    <AppFrame tab="analysis" live="notify">
       {({ refreshToken }) => <LeaksTab initialQuery={query} refreshToken={refreshToken} />}
     </AppFrame>
   );

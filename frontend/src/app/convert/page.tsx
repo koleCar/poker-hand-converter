@@ -21,7 +21,10 @@ import { paths } from "../../lib/routes";
  * have left "Save to my library" on — the converted hands, without their
  * original text; the original files themselves only if they also tick "Also
  * keep the original files" (off by default, every visit), into their own
- * private Storage folder (A2, R4.2). `tests/test/wasmWeb.test.ts` checks that
+ * private Storage folder (A2, R4.2); while that save runs, its progress -
+ * counts and a state, nothing of a hand or a file name - goes to the
+ * account's own private Realtime channel so its other tabs can show it
+ * (R4.3, `components/live/useLiveActivity.ts`). `tests/test/wasmWeb.test.ts` checks that
  * loading the core requests nothing but its own `.wasm`.
  *
  * That is not incidental. A hand history is a record of who someone played

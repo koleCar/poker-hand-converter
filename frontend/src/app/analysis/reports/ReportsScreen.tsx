@@ -6,7 +6,7 @@ import { ReportsTab } from "../../../components/analysis/reports/ReportsTab";
 /** Client half of `/analysis/reports`: the shell, with the Analysis tab selected. */
 export function ReportsScreen({ query }: { query: Record<string, string | string[] | undefined> }) {
   return (
-    <AppFrame tab="analysis">
+    <AppFrame tab="analysis" live="notify">
       {({ refreshToken }) => <ReportsTab initialQuery={query} refreshToken={refreshToken} />}
     </AppFrame>
   );
