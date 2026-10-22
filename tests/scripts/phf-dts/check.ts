@@ -11,6 +11,11 @@
  * comparison is deep, `same<Ts.PhfHand, Rs.PhfHand>` alone covers the whole
  * model; the per-type lines are there so a failure names the type that moved.
  *
+ * Since R4.1 `types.ts` re-exports the generated types instead of declaring
+ * its own, so every line below compares a type with itself; the check stays
+ * so a hand-written declaration that creeps back into `types.ts` has to be
+ * identical to the model's.
+ *
  * What it does not see: anything that is not a type. `types.ts` also exports
  * functions and constants (`parseAmount`, `USD`, `assignPositions`, ...), which
  * the Rust side ports in R0.5 with their own tests. And the comparison is of

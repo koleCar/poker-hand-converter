@@ -17,11 +17,21 @@
  * holds without one (R0.13 as built), and an unpinned system binaryen would
  * make the output depend on the machine.
  *
+ * **Reproducible across machines** (R4.1: the web package is committed and CI
+ * rebuilds it to compare): panic locations in the module name source files,
+ * and a dependency's are absolute paths into this machine's cargo home
+ * (`/Users/<you>/.cargo/registry/src/...`). The build remaps the cargo home
+ * to `/cargo` and the repository to `/rail` with `--remap-path-prefix`
+ * (passed as `CARGO_ENCODED_RUSTFLAGS`, so a path with spaces survives), so
+ * the bytes depend only on the sources, `rust-toolchain.toml` and
+ * Cargo.lock. The standard library's paths are `/rustc/<commit>/...` already.
+ *
  * Fails when the gzipped `.wasm` is over {@link BUDGET_GZIP} bytes.
  */
 
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { brotliCompressSync, constants, gzipSync } from "node:zlib";
@@ -84,7 +94,17 @@ if (installed !== wanted) {
   process.exit(1);
 }
 
+/** The `--remap-path-prefix` flags that take this machine's paths out of the module. */
+function remapFlags() {
+  const cargoHome = process.env.CARGO_HOME || join(homedir(), ".cargo");
+  return [`--remap-path-prefix=${cargoHome}=/cargo`, `--remap-path-prefix=${ROOT}=/rail`];
+}
+
 const started = performance.now();
+// Any RUSTFLAGS the caller set are kept, after the remaps.
+const extra = process.env.RUSTFLAGS ? process.env.RUSTFLAGS.split(" ").filter(Boolean) : [];
+process.env.CARGO_ENCODED_RUSTFLAGS = [...remapFlags(), ...extra].join("\x1f");
+delete process.env.RUSTFLAGS;
 run("cargo", ["build", "-p", CRATE, "--target", "wasm32-unknown-unknown", "--profile", "wasm-release", "--locked"]);
 for (const target of targets) {
   // The function-name section is ~0.9 MB raw (~0.1 MB gzipped) of symbol

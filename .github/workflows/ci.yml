@@ -405,7 +405,9 @@ jobs:
           cargo run --locked -q -p rail-hud-sim -- verify --room pokerstars --out "$out" --hands 20
 
       # The generated declarations against frontend/src/lib/phf/types.ts,
-      # type by type (tests/scripts/phf-dts/check.ts). The same on every OS.
+      # type by type (tests/scripts/phf-dts/check.ts). Since R4.1 types.ts
+      # re-exports the generated types, so this holds it to doing so. The
+      # same on every OS.
       - name: Declarations match types.ts
         if: matrix.os == 'ubuntu-latest'
         run: npm run phf:dts-check
@@ -613,6 +615,14 @@ jobs:
   # wasm-bindgen-cli must be the exact version of the wasm-bindgen crate in
   # Cargo.lock; rust-cache keeps ~/.cargo/bin, so it is compiled only when the
   # cache is cold or the version moves.
+  #
+  # Since R4.1 the web converts with this core, and Vercel (no Rust) ships the
+  # `--target web` build committed at frontend/src/lib/wasm/rail-core/. The
+  # job rebuilds it and fails when the committed copy is not byte for byte
+  # what the sources build (like `golden-fresh`); the fresh build is uploaded
+  # as `rail-core-web` so a contributor without the toolchain can commit it.
+  # Shadow mode then also runs the web's conversion path (the committed
+  # package, batched, through lib/wasm/engine.ts) against the TypeScript one.
   wasm:
     name: WebAssembly core, shadow mode
     runs-on: ubuntu-latest
@@ -639,11 +649,24 @@ jobs:
           wasm-bindgen --version
 
       - name: Build, size budget
-        run: npm run wasm:build
+        run: npm run wasm:build -- nodejs web
         working-directory: tests
 
-      # Every corpus file through the TypeScript pipeline and the WASM core;
-      # also prints the throughput of both.
+      - name: The web's committed package is a fresh build
+        run: npm run wasm:web-check
+        working-directory: tests
+
+      - name: Fresh web package (when the committed one differs)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rail-core-web
+          path: core/rail-core-wasm/pkg/web/
+          retention-days: 7
+
+      # Every corpus file through the TypeScript pipeline and the WASM core,
+      # and through the web's conversion path with each engine; also prints
+      # the throughput of both.
       - name: Shadow mode
         run: npm run wasm:shadow
         working-directory: tests

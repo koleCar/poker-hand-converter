@@ -6,9 +6,14 @@
  * `file://` page, an embedded webview — and a converter that shows a blank
  * screen in those cases is worse than one that is briefly janky, so the
  * fallback runs the identical pipeline on the main thread.
+ *
+ * Either way the pipeline converts with the WebAssembly core, or with the
+ * TypeScript parsers when the core cannot load (`lib/wasm/engine.ts`);
+ * `onDone` reports which.
  */
 
-import type { ConvertOptions } from "../../lib/phf";
+import type { ConvertOptions } from "../../lib/phf/detect";
+import type { EngineKind } from "../../lib/wasm/engine";
 import { runPipeline, type PipelineBatch, type PipelineSource, type SourceStart } from "./pipeline";
 import type { WorkerRequest, WorkerResponse } from "../../workers/convert.worker";
 
@@ -16,7 +21,7 @@ export interface ConversionHandlers {
   onSourceStart(start: SourceStart): void;
   onBatch(batch: PipelineBatch): void;
   onSourceEnd(sourceId: string): void;
-  onDone(info: { cancelled: boolean; usedWorker: boolean }): void;
+  onDone(info: { cancelled: boolean; usedWorker: boolean; engine: EngineKind | null }): void;
   /**
    * The run failed. `message` is the thrown error's own (technical) text, or
    * empty when the worker died without one; the caller supplies the words for
@@ -60,7 +65,7 @@ export function startConversion(
       onSourceEnd: handlers.onSourceEnd,
       isCancelled: () => cancelled,
     })
-      .then(() => handlers.onDone({ cancelled, usedWorker: false }))
+      .then((engine) => handlers.onDone({ cancelled, usedWorker: false, engine }))
       .catch((error: unknown) =>
         handlers.onError(error instanceof Error ? error.message : String(error)),
       );
@@ -68,13 +73,13 @@ export function startConversion(
   }
 
   let finished = false;
-  const finish = (cancelled: boolean) => {
+  const finish = (cancelled: boolean, engine: EngineKind | null) => {
     if (finished) {
       return;
     }
     finished = true;
     worker.terminate();
-    handlers.onDone({ cancelled, usedWorker: true });
+    handlers.onDone({ cancelled, usedWorker: true, engine });
   };
 
   worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
@@ -93,7 +98,7 @@ export function startConversion(
         handlers.onSourceEnd(message.sourceId);
         break;
       case "done":
-        finish(message.cancelled);
+        finish(message.cancelled, message.engine);
         break;
       case "error":
         if (!finished) {
@@ -125,7 +130,7 @@ export function startConversion(
       // partial result; terminating outright would throw away converted hands.
       worker.postMessage({ type: "cancel", jobId } satisfies WorkerRequest);
       // Belt and braces: if the worker is wedged, stop waiting for it.
-      setTimeout(() => finish(true), 1500);
+      setTimeout(() => finish(true, null), 1500);
     },
   };
 }

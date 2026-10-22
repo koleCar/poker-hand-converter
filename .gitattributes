@@ -33,3 +33,9 @@ core/rail-core-wasm/types/*.d.ts text eol=lf
 # checkout with autocrlf would otherwise change the bytes and the hash.
 config/** text eol=lf
 frontend/src/lib/stats/definitions.json text eol=lf
+
+# The web app's copy of the WebAssembly core (docs/RAIL-PLAN.md R4.1): built
+# by `npm run wasm:web`, compared byte for byte with a fresh build in CI, so
+# no checkout may rewrite its line endings. The module itself is binary.
+frontend/src/lib/wasm/rail-core/** -text
+frontend/src/lib/wasm/rail-core/*.wasm -diff

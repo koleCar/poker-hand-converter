@@ -1,31 +1,32 @@
 /**
  * The conversion loop, without any DOM or React in it.
  *
- * `convertAny` is one call that returns when the whole file is done. On the
- * 7.9 MB / 6 299-hand file built from `weplay-hh/` that call takes ~2 s, which
- * is two seconds of no progress bar, no cancel button and no repaint. So the
- * loop here splits the file with the detected parser first and feeds
- * `convertAny` one batch of hands at a time, reporting after each batch.
+ * Converting a whole file is one call that returns when the file is done. On
+ * the 7.9 MB / 6 299-hand file built from `weplay-hh/` that call takes ~2 s,
+ * which is two seconds of no progress bar, no cancel button and no repaint. So
+ * the loop here splits the file with the detected parser first and converts
+ * one batch of hands at a time, reporting after each batch.
  *
  * Measured with the batched loop: identical output (6 120 hands, 179 failures)
  * and no measurable overhead, with the slowest single batch at ~60 ms for a
  * batch of 100. That is small enough to stay responsive even in the main-thread
  * fallback, and it is what lets cancel take effect within a frame or two.
  *
+ * The splitting and converting are the engine's (`lib/wasm/engine.ts`): the
+ * WebAssembly core since R4.1, the TypeScript parsers when it cannot load.
+ * Both split the same way and batch the same way, so a run's batches, hands
+ * and failures do not depend on which one ran.
+ *
  * This module is imported by both `workers/convert.worker.ts` and — when a
  * worker cannot be created — by the main thread, so it must not touch `window`.
  */
 
-import {
-  convertAny,
-  detectSite,
-  type ConversionFailure,
-  type ConvertOptions,
-} from "../../lib/phf";
+import type { ConversionFailure, ConvertOptions } from "../../lib/phf/detect";
 import type { PhfHand } from "../../lib/phf/types";
+import { conversionEngine, type ConversionEngine } from "../../lib/wasm/engine";
 
 /**
- * Hands per `convertAny` call.
+ * Hands per conversion call.
  *
  * Small enough that a cancel lands quickly and the progress bar moves visibly,
  * large enough that the per-call detection and split overhead disappears.
@@ -76,42 +77,38 @@ function yieldToLoop(): Promise<void> {
 /**
  * Converts every source, streaming batches through `handlers`.
  *
- * A source whose site nothing recognises still goes through `convertAny` once,
+ * A source whose site nothing recognises still goes through the engine once,
  * because that is what produces the `unknown-site` failure record we want to
  * keep — an unsupported format is reference material, not an error to swallow.
+ *
+ * `engine` defaults to {@link conversionEngine}'s choice; the caller can learn
+ * which one ran from the returned kind.
  */
 export async function runPipeline(
   sources: PipelineSource[],
   options: ConvertOptions,
   handlers: PipelineHandlers,
-): Promise<void> {
+  engine?: ConversionEngine,
+): Promise<ConversionEngine["kind"]> {
+  const conv = engine ?? (await conversionEngine());
   for (const source of sources) {
     if (handlers.isCancelled()) {
-      return;
+      return conv.kind;
     }
 
     const opts: ConvertOptions = { ...options, sourceFilename: source.name };
-    const best = detectSite(source.text)[0];
+    const split = await conv.split(source.text);
+    const chunks = split.chunks;
 
-    let chunks: string[] | null = null;
-    if (best) {
-      try {
-        chunks = best.parser.splitHands(source.text);
-      } catch {
-        // Let `convertAny` produce the proper `split-failed` failure record.
-        chunks = null;
-      }
-    }
-
-    if (!best || !chunks || chunks.length === 0) {
+    if (split.siteId === null || !chunks || chunks.length === 0) {
       handlers.onSourceStart({
         sourceId: source.id,
-        siteId: best?.parser.id ?? null,
-        siteName: best?.parser.name ?? null,
-        confidence: best?.confidence ?? null,
+        siteId: split.siteId,
+        siteName: split.siteName,
+        confidence: split.confidence,
         total: 1,
       });
-      const result = await convertAny(source.text, opts);
+      const result = await conv.convert(source.text, opts);
       handlers.onBatch({
         sourceId: source.id,
         hands: result.hands,
@@ -125,20 +122,20 @@ export async function runPipeline(
 
     handlers.onSourceStart({
       sourceId: source.id,
-      siteId: best.parser.id,
-      siteName: best.parser.name,
-      confidence: best.confidence,
+      siteId: split.siteId,
+      siteName: split.siteName,
+      confidence: split.confidence,
       total: chunks.length,
     });
 
     for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
       if (handlers.isCancelled()) {
-        return;
+        return conv.kind;
       }
       // Re-joined with a blank line: every parser splits on a lookahead at its
       // own header line, so a batch re-splits into exactly the hands it holds.
       const batchText = chunks.slice(i, i + BATCH_SIZE).join("\n\n");
-      const result = await convertAny(batchText, opts);
+      const result = await conv.convert(batchText, opts);
       handlers.onBatch({
         sourceId: source.id,
         hands: result.hands,
@@ -151,4 +148,5 @@ export async function runPipeline(
 
     handlers.onSourceEnd(source.id);
   }
+  return conv.kind;
 }

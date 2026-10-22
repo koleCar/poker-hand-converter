@@ -8544,6 +8544,122 @@ produce identical `hands` rows and render identically.
   green in production for an agreed period. Analysis, replay and Learn code keep
   consuming PHF JSON and do not change.
 - The "zero server requests" check on `/convert` still passes.
+- *As built* (§15; on `staging`, not yet in production):
+  - **Every web caller that turns text into PHF uses the core**: the
+    converter's pipeline (`components/converter/pipeline.ts`, in the worker
+    and in the main-thread fallback), the single-hand box
+    (`upload/SingleHandPanel.tsx`) and a share of a hand never saved
+    (`share/shareClient.ts`). They ask `lib/wasm/engine.ts`'s
+    `conversionEngine()` for an engine with one face - `split(text)` and
+    `convert(text, options)` returning `convertAny`'s `ConversionResult` - so
+    nothing downstream changed: hands are the core's PHF (`JSON.parse`d),
+    refusals become `ConversionFailure`s (the core's sha-256 fingerprint,
+    per-mille / 1000 as the confidence), stats as before. `parsedAt` is
+    `new Date().toISOString()` per call. `lib/trainer.ts` and
+    `lib/converter.ts` convert no user text (the trainer deals its own drills;
+    `converter.ts` is only the legacy tests' facade) and are unchanged.
+  - **Batches as before.** The pipeline needs the top parser's split to
+    convert 100 hands at a time (progress, cancel); the core gained one
+    export, `split(bytes) -> { decode, detected, name, chunks }`
+    (`api::split`, plumbing over `SiteParser::split_hands`; no parsing
+    behaviour changed), and an empty `filename` given to `convert` now means
+    none (`null`), as `convertAny` records pasted text. Both have native
+    tests.
+  - **Text in, as the converter decoded it.** The web already decodes every
+    file (`decodeSource`) to show its encoding and refuse binary; the engine
+    hands the core that text as UTF-8, which it reads back unchanged. Text
+    the core would read differently - a CR, a leading BOM, an empty file
+    name, or what its decoder calls empty / whitespace / binary (possible
+    for pasted text) - goes to the TypeScript engine, so the two never
+    disagree about the input.
+  - **Fallback**: the module is loaded once per page or worker
+    (`lib/wasm/core.ts`: the glue's `init()` with
+    `new URL("./rail-core/rail_core_wasm_bg.wasm", import.meta.url)`, then a
+    `formats()` check); if fetching or instantiating fails, one
+    `console.warn` and the TypeScript parsers convert, imported on demand
+    (the worker's chunk is 5.6 KB on the WASM path; the parsers are a lazy
+    chunk). The worker's `done` message and `onDone` say which engine ran.
+  - **Types**: `lib/phf/types.ts` re-exports the 36 generated types of
+    `core/rail-core-wasm/types/phf.d.ts` under their old names (type-only
+    imports, erased by the bundlers) instead of a straight swap - 192 files
+    import `phf/types`, and the module also holds behaviour (units,
+    `parseAmount`, `assignPositions`, readers), which stays. The 30
+    hand-written declarations are gone; `PhfBounty`, `PhfPot`, `PhfWinner`,
+    `PhfMarkerLabels`, `CurrencyKind` and `ChipMovementAnchor` are new
+    names. `phf:dts-check` now holds `types.ts` to re-exporting them. Web,
+    `packages/ui` and the app typecheck unchanged.
+  - **Deploy decision: the built web package is committed.** Vercel builds
+    `frontend/` and has no Rust. `npm run wasm:web` (`tests/scripts/wasm/
+    web.mjs`) builds `--target web` and copies the four wasm-bindgen files
+    plus a `BUILD.json` (rustc, wasm-bindgen, every file's sha-256) to
+    `frontend/src/lib/wasm/rail-core/` (`.gitattributes`: `-text`, the
+    `.wasm` `-diff`; ESLint ignores it). CI's `wasm` job builds both targets,
+    runs `npm run wasm:web-check` - fails when the committed bytes are not
+    the fresh build, uploading the fresh `pkg/web` as `rail-core-web` - then
+    shadow mode. **Reproducibility**: the module carried absolute paths of
+    the machine's cargo registry in panic locations (78 of them); `wasm:build`
+    now passes `--remap-path-prefix` for the cargo home (`/cargo`) and the
+    repository (`/rail`) in `CARGO_ENCODED_RUSTFLAGS`. Measured: a copy of
+    the workspace at another path (with a space), built with a fresh cargo
+    home, gives byte-identical files; the nodejs and web targets' `.wasm`
+    are identical too. Linux (CI) against macOS (where it was committed) is
+    proved by the CI job itself; if it ever differs, the artefact is what to
+    commit, and the fallback option is CI publishing the package for the
+    deploy. Rejected: Rust + wasm-bindgen-cli in Vercel's build (minutes per
+    deploy, an unpinned toolchain install on someone else's image) and a
+    CI-published artefact the deploy downloads (a deploy that depends on a
+    workflow run and a token). Cost: ~0.8 MB of git objects per core
+    change.
+  - **Serving**: the bundler emits the `.wasm` as
+    `/_next/static/media/rail_core_wasm_bg.<hash>.wasm` - same origin,
+    content-hashed, `Content-Type: application/wasm`, `Cache-Control:
+    public, max-age=31536000, immutable` (checked on `next start`; Vercel
+    serves `_next/static` the same). Size unchanged: 2.28 MB raw, 0.77 MB
+    gzipped (budget 1.5 MB).
+  - **Zero server requests**: still true. The browser check: on `/convert`
+    (production build, no database) a pasted hand and a 6 000-hand file
+    picked through the converter's file input made only same-origin requests - the
+    app's JavaScript, the font, Next's route prefetches and the `.wasm`
+    once. Automated now too: `tests/test/wasmWeb.test.ts` loads the core
+    through the real loader with a recording `fetch` and asserts the only
+    request is the `.wasm` beside its own module.
+  - **Tests**: `tests/test/wasmWeb.test.ts` (in `npm test`, 32 tests, on the
+    committed package): pipeline WASM = TypeScript (starts, batches, hands,
+    failures, exactly) on one file of every sample directory and a
+    multi-batch WePlay file; the worker through its message protocol, with
+    the core and with the fallback; `convert` without a file name (single
+    hand, share); the TypeScript route for CRLF / BOM / whitespace text; the
+    loader's one request, and its fallback on a failed fetch and on a
+    response that is not WebAssembly. `tests/scripts/wasm/web.test.ts` (in
+    `npm run wasm:shadow`): **556 / 556** corpus files equal through the
+    web's pipeline and a whole-file convert - 578 batches, 8 422 hands, 196
+    failures.
+  - **Speed** (M-series Mac): in the browser (Chromium, production build,
+    the converter's worker) 6 000 PokerStars hands, 8.9 MB: **2.7 s, ~2 200
+    hands/s**, first batch after 0.6 s (worker start, instantiation and the
+    whole file's detection and split); three runs within 1 %. Node, the
+    web's pipeline over the corpus, first pass: TypeScript ~1 730 hands/s,
+    WASM ~1 440 - about the R0.13 gap (the regex engine), plus the second
+    detection each batch costs on both. Not measured: the TypeScript worker
+    in the same browser.
+  - **Left**:
+    - **Deleting the TypeScript parsers waits for the production period**:
+      `staging` is not promoted, so shadow mode has not been green *in
+      production* at all. After the owner promotes to `main`, agree the
+      period; then delete `lib/parsers/` and `convertAny`, move
+      `golden-fresh`'s oracle to the core (the goldens become the core's
+      own), and drop the fallback. Until then the parsers are the fallback
+      and the CI oracle, and a parser fix still lands in both.
+    - Display names still come from the TypeScript registry (`getParser`
+      in `ConverterTab`, `SingleHandPanel`, `HandList`), which keeps the
+      parsers in the main bundle; R0.12's note stands - take them from
+      `sites.json` (the pipeline's `siteName` is the core's now).
+    - Standard text (download, save) is still `lib/phf/serialize.ts`;
+      shadow mode proves the core's `serialize` equal, so it can move with
+      the deletion.
+    - Each conversion job starts a new worker, which instantiates the module
+      again (compiled from the HTTP cache); keeping one worker would save
+      that.
 
 ### R4.2 Bulk upload — M
 - Drag-and-drop files, folders and ZIPs (exists) at desktop scale: streaming
@@ -8604,11 +8720,12 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | Sync | Network cut mid-batch, duplicates, other user's keys | integration test against the local Supabase stack |
 | HUD | Simulator-driven: attach, follow, seat mapping, compliance refusal, latency | CI on both OSes (headless where possible) + manual real-client checklist |
 | Performance | 1M-hand benchmark, nightly, thresholds from guideline §1 | CI nightly |
-| Web | Existing Vitest harness, lint, typecheck, build; shadow mode until R4.1 | CI |
+| Web | Existing Vitest harness, lint, typecheck, build; shadow mode, and since R4.1 the web's conversion path WASM against TypeScript, until the TS parsers are deleted | CI |
 
-The TS harness (`tests/`) stays the oracle until R4.1. A parser fix lands in TS
-and Rust in the same PR during the port, with the goldens regenerated by
-`emit.ts`, never edited by hand.
+The TS harness (`tests/`) stays the oracle until the TS parsers are deleted
+(after R4.1's production period). A parser fix lands in TS and Rust in the same
+PR, with the goldens regenerated by `emit.ts`, never edited by hand, and the
+web's package rebuilt (`npm run wasm:web`).
 
 ---
 
@@ -8740,3 +8857,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-19 | **R3.13 done**: tracking on macOS. **Observers**: an `AXObserver` per poker process with a tracked table on a thread of its own with its own `CFRunLoop` (`rail-hud-ax`; not AppKit's: a busy client's 0.25 s must not stall the overlays) - on the application `AXWindowCreated` (`Appeared`), focused / main window changed, activated, hidden, shown; on each table's window `AXWindowMoved`, `AXWindowResized` (and the generic `AXMoved` / `AXResized`), miniaturised / deminiaturised, destroyed, title changed (`AxNote::effect`, data, unit-tested); made with a process's first table, let go with its last. **Follow first, tell the engine after**: each notification reads the table from the window server (one window, no message to the client; the whole list for an off-screen one - `OptionIncludingWindow` alone omits it, measured; after a move or resize again at 2 - 100 ms until the list shows it - CI found it lagging the notification), the client area exactly as the find computes it (`tracked_geometry`), and hands the AppKit thread the geometry at once (`Link::follow_at`); the engine gets R3.5's coalesced events (`tracking::events`, `Retitled` through the room's matcher) from the merged `Observed`. **No fight**: the AppKit thread places overlays only from the observers' latest reading, never a frame's description; the backend's `follow` with anything else makes the thread re-read (`Resync`); the 500 ms re-find stays as the fallback. **Restack** at once on activation, focus, main window and shown; R3.12's 100 ms stacking look slows to 250 ms when every shown overlay's client is observed. **Spaces**: `NSWorkspace.activeSpaceDidChangeNotification` on the AppKit thread makes the observers re-read every table (hide / show at once; simulated in CI - a runner cannot switch Spaces). **Exits**: a `kqueue` (`NOTE_EXIT`) per observed process removes its overlays at once. **Z-order fix**: R3.11's pairing fallback and ordering read `onscreen_order` (`z_ordered`), never the `OptionAll` list. **Revoked Accessibility**: the engine detaches every table on `PermissionNeeded` (overlays gone, `permission_needed` reported by R3.11's rule). **Popup on macOS**: the app places it in points (anchor / the table's scale, the screen's work area in its points, logical size), shown unfocused (the client keeps the keyboard). No new crate (`block2` 0.6.2 already locked; two lock edges); `unsafe` only in `platform/macos/{observe,appkit,ffi,drive}.rs`. Tests: unit (notifications, geometry, Spaces, z-order, restack interval, merge, revoked permission, popup in points) on every OS; `tests/macos_tracking.rs` on the macOS runner - without permission a wrong description, a simulated Space change, a killed simulator; with Accessibility a 40-move drag (the simulator's own moves), move, resize, minimise / restore, focus, a real click, table move, app hidden / shown, 100 moves in 1 s, close, and the HUD process with `scripts/tracking.txt`; measurements in the step's `R3.13` lines (R3.13 as built). macOS HUD status summary under R3.13. |
 | 2026-10-20 | **R3.14 done on the simulator; Phase 3's steps complete**: twelve tables. `hud/rail-hud/tests/twelve_tables.rs` (own `main`, `-- --run`) plays the app (store, watcher, statistics pass, real supervisor) with the HUD process on this system's backend over 12 simulator tables posing as PokerStars plus one ACR-titled table posing as GGPoker (`--sim-site` / `--sim-title` now once per room): attach, a minute of hands at 6/min/table with a recompute queued (must stay paused), every table moved twice, idle; JSON + markdown report written before the gates (`target/twelve-tables`, CI artefact `twelve-tables-<os>`). Gates: 12 attached and 12 overlays, none and no hand on the refused table, every hand shown, hand written -> frame p95 < 1 s (§3.3), paint p95 < 16.7 ms, follow p50 < 2 frames (p95 < 3 frames on Windows and `--real-hw`, recorded on a CI Mac), HUD idle / playing CPU 5 % / 15 % and the app's 20 % of one core scaled by a workload timed on the runner (never below the M2 Pro's), HUD memory 256 MiB. New in the HUD: `--perf-report` (paints, follows, re-reads, looks for tables at shutdown; `Platform::paint_times_us` / `follow_times_us`, `latency::summarize`), Windows `probe::memory` (`Win32_System_ProcessStatus`); **the macOS search slows to 2 s** while the observers follow every table and the client has posted a move (`Platform::notified`, `macos::fully_observed`; tested). CI step "HUD on twelve tables (R3.14 budget)" on macOS and Windows. Local (M2 Pro, release, no Accessibility so data-only, machine loaded): written -> frame p50 513 / p95 517 / max 524 ms, HUD 0.20 % idle / 0.29 % playing, app 0.69 %, HUD 14 MiB; overlay paint in-process p50 0.76 / p95 1.09 ms. Real-hardware kit: `cargo test --release -p rail-hud --test twelve_tables -- --run --real-hw --seconds 300`. Owner's procedure for the real clients: `docs/research/REAL-CLIENT-CHECK.md` (C1 - C15). Phase 3 summary in the R3.14 section: met on the simulator in CI; real clients pending the capture (no `tables` block yet), P5, P6 and the check. |
 | 2026-10-20 | **Phase 3 closed on staging** (#218, #221, #223, #224, #217): CI runs after R3.14 turned up two HUD fixes and the gates' noise. **macOS, a table seen before keeps its remembered title through a look without its Accessibility partner** (mid-move, or a client too busy to answer): it no longer drops out of the find and comes back as a new table (a tournament move was attached afresh). **macOS, a new window's title and title bar**: the window server lists a new window before the Accessibility API gives its title and close button; a window untitled or with an unmeasured bar (`Remembered::bar_known`) keeps the re-find at 500 ms for up to 3 s, and the engine picks the find's pace after the look - a new table's overlay covered its title bar until the next 2 s find before. **Gates**: paint p95 < 16.7 ms is gated on real hardware (the same debug build read 2.8 - 28 ms on Windows runners), recorded on CI under a three-frame ceiling; follow p50 recorded on a CI Mac. Tests made robust to slow runners: `in_play` checks the count only before the watcher's quiet period, Windows restack waits up to 3 s, the storm compares with the table's frame now, a table opened over another is checked against its own overlay, river solver tests 120 s; a failed `macos_tracking` window step prints every window and a timeline, HUD log lines carry their time. |
+| 2026-10-22 | **R4.1 done on staging**: the web converts with the WASM core. The converter's pipeline (worker and main-thread fallback), the single-hand box and shares of unsaved hands go through `lib/wasm/engine.ts`: the core (`rail-core-wasm --target web`), or - when it cannot load - the TypeScript parsers, loaded on demand, with one warning; output unchanged (`ConversionResult`, `parsedAt` from the caller). Core: new export `split` (the top parser's chunks, so batches of 100 stay) and an empty file name means none. `lib/phf/types.ts` re-exports the 36 generated types (192 importers unchanged; 30 hand-written declarations gone). **Deploy**: the web package is committed at `frontend/src/lib/wasm/rail-core/` (`npm run wasm:web`), CI rebuilds and fails on any byte difference (`wasm:web-check`, artefact `rail-core-web`); `wasm:build` remaps the cargo home and repository paths out of the module (78 absolute paths before), and a build from another path and cargo home is byte-identical. Served as `/_next/static/media/*.wasm`, `application/wasm`, immutable; 2.28 MB / 0.77 MB gzipped. Zero server requests holds (browser check; and a test that the loader fetches only its `.wasm`). Tests: `wasmWeb.test.ts` (32, `npm test`), `scripts/wasm/web.test.ts` - **556 / 556** files, 8 422 hands, 196 failures equal on the web's path. Browser worker: 6 000 hands in 2.7 s (~2 200 hands/s). **TS parsers kept** (fallback, oracle); deleting them waits for an agreed period of shadow mode green in production, after the owner promotes `staging`. |
