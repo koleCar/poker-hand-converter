@@ -355,6 +355,11 @@ A drop of any size converts and saves without holding the drop in the tab:
   downloads are off for that drop. The file list shows its first 200 rows. A
   guest's drop that is too big to hold until sign-in says so: sign in, then
   drop it again.
+- **The same rows as the app** (R4.4). A hand uploaded here and the same hand
+  synced by the desktop app are stored identically (every column, the PHF but
+  its conversion time, the statistics) and render identically; `npm run
+  parity` in `tests/` (CI job `parity`) checks it over the whole corpus against
+  a local stack.
 
 ### Live progress and arrival (R1.10, R4.3)
 

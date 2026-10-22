@@ -48,7 +48,8 @@
     "wasm:web": "node scripts/wasm/web.mjs",
     "wasm:web-check": "node scripts/wasm/web.mjs --check",
     "wasm:web-from-ci": "node scripts/wasm/web-from-ci.mjs",
-    "bulk-upload:measure": "vitest run --config scripts/bulk-upload/vitest.config.ts"
+    "bulk-upload:measure": "vitest run --config scripts/bulk-upload/vitest.config.ts",
+    "parity": "vitest run --config scripts/parity/vitest.config.ts"
   },
   "keywords": [],
   "author": "",
