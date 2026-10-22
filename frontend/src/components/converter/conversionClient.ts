@@ -14,7 +14,8 @@
 
 import type { ConvertOptions } from "../../lib/phf/detect";
 import type { EngineKind } from "../../lib/wasm/engine";
-import { runPipeline, type PipelineBatch, type PipelineSource, type SourceStart } from "./pipeline";
+import { startBulkRun, type BulkMessage, type BulkRequest, type SourceInfo } from "./bulkRun";
+import { runPipeline, type PipelineBatch, type PipelineSource, type SourceStart, type StreamBatch } from "./pipeline";
 import type { WorkerRequest, WorkerResponse } from "../../workers/convert.worker";
 
 export interface ConversionHandlers {
@@ -131,6 +132,125 @@ export function startConversion(
       worker.postMessage({ type: "cancel", jobId } satisfies WorkerRequest);
       // Belt and braces: if the worker is wedged, stop waiting for it.
       setTimeout(() => finish(true, null), 1500);
+    },
+  };
+}
+
+/* ------------------------------------------------------- bulk (R4.2) - */
+
+export interface BulkHandlers {
+  onSource(source: SourceInfo): void;
+  onSourceStart(start: SourceStart): void;
+  onBatch(batch: StreamBatch): void;
+  onSourceEnd(sourceId: string, key: string): void;
+  onConsumed(consumed: { bytes: number; done: number; other: number }): void;
+  onDone(info: { cancelled: boolean; usedWorker: boolean; engine: EngineKind | null }): void;
+  onError(message: string): void;
+}
+
+/** A running bulk conversion: cancel it, or acknowledge batches taken. */
+export interface BulkJob extends ConversionJob {
+  ack(batches: number): void;
+}
+
+/**
+ * Starts converting a drop on the bulk path (R4.2): the worker reads the files
+ * itself and waits for {@link BulkJob.ack} before running more than `window`
+ * batches ahead. Falls back to the page, with the same flow control, when no
+ * worker can start.
+ */
+export function startBulkConversion(
+  request: Omit<BulkRequest, "type" | "jobId">,
+  handlers: BulkHandlers,
+): BulkJob {
+  jobSequence += 1;
+  const jobId = jobSequence;
+  const full: BulkRequest = { ...request, type: "bulk", jobId };
+
+  const dispatch = (message: BulkMessage) => {
+    switch (message.type) {
+      case "bulk-source":
+        handlers.onSource(message.source);
+        break;
+      case "source-start":
+        handlers.onSourceStart(message);
+        break;
+      case "bulk-batch":
+        handlers.onBatch(message);
+        break;
+      case "bulk-source-end":
+        handlers.onSourceEnd(message.sourceId, message.key);
+        break;
+      case "bulk-consumed":
+        handlers.onConsumed(message);
+        break;
+    }
+  };
+
+  const worker = createWorker();
+  if (!worker) {
+    let cancelled = false;
+    const run = startBulkRun(full, dispatch, () => cancelled);
+    run.finished
+      .then((engine) => handlers.onDone({ cancelled, usedWorker: false, engine }))
+      .catch((error: unknown) => handlers.onError(error instanceof Error ? error.message : String(error)));
+    return {
+      cancel: () => {
+        cancelled = true;
+        run.wake();
+      },
+      ack: (batches) => run.ack(batches),
+    };
+  }
+
+  let finished = false;
+  const finish = (cancelled: boolean, engine: EngineKind | null) => {
+    if (finished) {
+      return;
+    }
+    finished = true;
+    worker.terminate();
+    handlers.onDone({ cancelled, usedWorker: true, engine });
+  };
+
+  worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+    const message = event.data;
+    if (message.jobId !== jobId) {
+      return;
+    }
+    if (message.type === "done") {
+      finish(message.cancelled, message.engine);
+    } else if (message.type === "error") {
+      if (!finished) {
+        finished = true;
+        worker.terminate();
+        handlers.onError(message.message);
+      }
+    } else if (message.type !== "batch" && message.type !== "source-end") {
+      dispatch(message);
+    }
+  };
+  worker.onerror = (event) => {
+    if (!finished) {
+      finished = true;
+      worker.terminate();
+      handlers.onError(event.message || "");
+    }
+  };
+  worker.postMessage(full satisfies WorkerRequest);
+
+  return {
+    cancel: () => {
+      if (finished) {
+        return;
+      }
+      worker.postMessage({ type: "cancel", jobId } satisfies WorkerRequest);
+      setTimeout(() => finish(true, null), 1500);
+    },
+    ack: (batches) => {
+      if (!finished) {
+        worker.postMessage({ type: "ack", jobId, batches } satisfies WorkerRequest);
+      }
     },
   };
 }

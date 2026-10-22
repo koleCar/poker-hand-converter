@@ -77,6 +77,37 @@ export const converterEn = {
     noWorker:
       "This browser would not start a background worker, so conversion ran on the page itself. Large files may have felt slow.",
     workerStopped: "The conversion worker stopped unexpectedly.",
+    /** The Storage opt-in next to "Save to my library" (A2, R4.2). Off by default. */
+    keepOriginals: "Also keep the original files",
+    keepOriginalsHint: "Compressed, private to your account. Off: only the converted hands are saved.",
+    /** Progress of a drop read as a stream (R4.2): `read` / `total` are formatted sizes. */
+    progressBulk: (handsDone: number, files: number, read: string, total: string, percent: number) =>
+      `${num(handsDone)} ${hands(handsDone)} converted · ${num(files)} ${files === 1 ? "file" : "files"} · ${read} of ${total} (${percent}%)`,
+    /** The save while it runs. */
+    saveLive: (inserted: number, duplicates: number, refused: number) =>
+      `${num(inserted)} saved to your library${duplicates ? ` · ${num(duplicates)} already there` : ""}${
+        refused ? ` · ${num(refused)} refused` : ""
+      }`,
+    originalsKept: (count: number, size: string) =>
+      `${num(count)} original ${count === 1 ? "file" : "files"} kept (${size})`,
+    saveRetrying: (seconds: number) => `Connection trouble — trying again in ${num(seconds)} s.`,
+    saveWaitingBudget: (time: string) =>
+      `This account's upload budget is used up for a few minutes — continuing at ${time}.`,
+    savePausedOffline: "Saving stopped: the server cannot be reached. The converted hands wait in this tab.",
+    savePausedSignedOut: "Your session ended. Sign in again, then try again.",
+    savePausedDayBudget:
+      "This account has saved as many hands as it can in one day. Drop the same files again tomorrow to finish; what is saved stays saved.",
+    saveRetry: "Try again",
+    /** An upload that stopped before it finished, offered when the page opens. */
+    resumeNotice: (date: string, files: number, inserted: number) =>
+      `An upload from ${date} did not finish: ${num(files)} ${files === 1 ? "file" : "files"} (${num(inserted)} ${hands(inserted)}) saved. Drop the same files or folder again to finish it — what is already saved is skipped.`,
+    resumeForget: "Forget it",
+    resumed: (files: number) =>
+      `Resuming: ${num(files)} ${files === 1 ? "file" : "files"} saved earlier ${files === 1 ? "is" : "are"} skipped.`,
+    skippedOther: (files: number) =>
+      `${num(files)} ${files === 1 ? "file that is not a hand history was" : "files that are not hand histories were"} left out.`,
+    heldTooMany: (count: number) =>
+      `${num(count)} ${hands(count)} converted — too many to hold in this tab until you sign in. Sign in, then drop the same files again to save them.`,
   },
 
   /** Why a file never reached the converter (`converter/inputs`). */
@@ -86,7 +117,6 @@ export const converterEn = {
     binary: "This looks like a binary file, not a hand history. Check you picked the right file.",
     notZip: "This is not a readable zip archive.",
     encryptedEntry: "Encrypted zip entries are not supported.",
-    zip64: "Zip64 archives are not supported. Unzip it and drop the files in.",
     cannotUnzip: "This browser cannot unzip files. Unzip it yourself and drop the .txt files in.",
     unreadableEntry: "Could not read this archive entry.",
     emptyArchive: "The archive has no files in it.",
@@ -127,6 +157,11 @@ export const converterEn = {
     detail: "Detail",
     hideDetail: "Hide detail",
     moreFailures: (count: number) => `${num(count)} more — see the panel below.`,
+    /** Past the file rows the list renders (R4.2). */
+    moreFiles: (count: number) => `…and ${num(count)} more ${count === 1 ? "file" : "files"}`,
+    /** A drop too big to keep every hand in the tab (R4.2). */
+    notAllKept: (kept: number) =>
+      `Too many hands to keep in this tab: the list shows the first ${num(kept)} and downloads are off for this drop.`,
     convertedHands: "Converted hands",
     showMore: (left: number) => `Show more — ${num(left)} left`,
     players: (count: number) => `${num(count)} ${count === 1 ? "player" : "players"}`,

@@ -8684,6 +8684,182 @@ produce identical `hands` rows and render identically.
 - Drag-and-drop files, folders and ZIPs (exists) at desktop scale: streaming
   unzip, chunked saves, resumable. Original files to Storage only when the user
   opts in (A2); bucket policy by owner folder; pgTAP/Storage policy tests.
+- *As built* (§15; on `staging`, not yet in production; migrations not
+  applied to the hosted project):
+  - **The worker reads the drop.** The converter used to decode every file
+    and every zip entry on the page and post all the text to the worker in
+    one message (the whole drop held twice; zips also capped at 100 MB and
+    folders at 500 files). Now the page posts the `File` handles (no bytes
+    copied) with a new `bulk` request, and the worker reads, unzips and
+    decodes **one file at a time** (`converter/bulkSource.ts`, an async
+    generator), converting each before reading the next
+    (`pipeline.ts`'s `runSourceStream`; same batches of 100 as R4.1's
+    `runPipeline`, which is unchanged and still serves the `convert`
+    request). The main-thread fallback runs the same code
+    (`converter/bulkRun.ts`). Folder drops keep their relative paths and now
+    take up to 100 000 files; screenshots, OS debris and other obvious
+    non-hand-histories in a folder or zip are left out silently and counted
+    (`skipReason`). A single file or entry over 100 MB is refused, as before;
+    an archive has no limit.
+  - **Streaming unzip, no library** (`converter/zipStream.ts`, 1.4 KB
+    minified and gzipped). The archive is read through `Blob.slice()` - on a `File` a
+    window onto the disk: its last 64 KiB for the end record, the central
+    directory, then each entry's compressed range, inflated by the browser's
+    own `DecompressionStream("deflate-raw")` into one buffer of the declared
+    size (an entry that inflates past it - a zip bomb, a lying directory - is
+    stopped). The most the tab holds for an archive is its directory plus one
+    entry. Zip64 is now supported (an export of more than 65 535 files);
+    encrypted entries and methods other than stored / deflate are refused per
+    entry; a zip inside a zip is followed one level. Rejected: fflate (~8 KB
+    gzipped) and zip.js (~25 KB, own workers) - both ship an inflate in
+    JavaScript that every supported browser already has natively. The
+    single-hand box's `readZip` uses the same reader.
+  - **Saving while converting** (`converter/bulkSaver.ts`). Signed in with
+    "Save to my library" on, each batch goes into a bounded queue (1 500
+    hands) and out in calls of at most 250 hands / 3 MB, one at a time. The
+    worker may run 4 batches ahead; past that it waits for the page's `ack`,
+    which the saver gives only while the queue has room - so a slow network
+    slows the conversion and the tab's memory stays flat. Retries: a
+    transient failure (no answer, timeout, 5xx, 408/429, `57014`) backs off
+    exponentially with jitter (1 s .. 30 s, 6 attempts) and then **pauses**
+    with everything queued ("Try again"); the account's 10-minute budget
+    waits a minute at a time (15 times, then pauses); its daily budget or an
+    ended session pauses; a call the server refuses outright counts its rows
+    as refused and the upload goes on. Progress: files, bytes of the drop
+    read, hands converted / saved / already in the library / refused, kept
+    originals; a retry countdown or the pause's reason. Refused hands go to
+    the failure corpus as before, now streamed and capped at 2 000 per upload.
+  - **Where the hands go: `ingest_hands`, not `save_hands`.** Through
+    `register_web_hand_source()` - the account's one `hand_sources` row of
+    kind `web`, which R1.8 reserved for this step - and `ingest_hands`, which
+    now accepts it besides the app's folders. Why: `save_hands` spends the
+    web's **global** budget (25 000 rows / 10 min for every account
+    together), so a 1M-hand upload would take seven hours and lock everyone
+    else out; `ingest_hands` spends the account's own (150 000 / 10 min, the
+    same `desktop_ingest` buckets: one budget per account). And a
+    `save_hands` row is ~7.3 KB with the original text twice in it, an
+    ingested one the PHF alone (A5, Q4) with its columns derived on the
+    server - the same row the app writes (R4.4). Rows from the web source are
+    **`origin = 'upload'`** (a new `hand_origin` value, in a migration of its
+    own because Postgres will not use an enum value in the transaction that
+    adds it): the desktop row's PHF-only shape, written from the browser; the
+    text CHECK now names both, the insert policy still admits only `web` on
+    the direct path, and `hand_arrivals` reports an upload as `web`. The
+    single-hand box and the replayer still save through `save_hands`.
+    **Dedupe** is the server's (`on conflict (owner_id, hand_key) do
+    nothing`): the same file twice inserts nothing and the page says "already
+    in your library".
+  - **Resume, defined.** A web page cannot reopen files after a reload, so an
+    upload stopped by a closed tab, a reload, a network gone longer than the
+    retries or the daily budget **resumes when the user drops the same files
+    or folder again**. An IndexedDB record per upload
+    (`converter/uploadManifest.ts`, database `rail-uploads`: the dropped
+    inputs' paths and sizes, counts, and per file or zip entry its key - path,
+    size and mtime; for an entry the archive's key plus name, CRC-32 and size
+    - the batches stored and whether it is done) is advanced after every
+    acknowledged call; a file is done when all its batches are stored and, if
+    kept, its original. A later drop that shares any input (path and size)
+    with the newest unfinished upload continues it: done files and entries
+    are skipped without being read (an entry without being inflated), and a
+    half-stored file skips its stored batches (the split is deterministic).
+    The page offers it when it opens ("An upload from … did not finish: 412
+    files (…) saved. Drop the same files or folder again …", with "Forget
+    it"); a paused upload of the same visit resumes the same way. The record
+    holds no hand text and is deleted when the upload finishes. Correctness
+    does not depend on it - the server dedupes - it saves the time, the
+    bandwidth and the budget.
+  - **Originals: opt-in only (A2).** A second switch next to "Save to my
+    library", **"Also keep the original files"**, off by default and not
+    remembered between visits, shown only when saving is possible. When on,
+    every file that decoded is gzipped in the worker (`CompressionStream`)
+    and stored at `hand-uploads/<uid>/<upload id>/<path>.<hash>.gz` (path
+    sanitised, the hash of the file's key keeps names unique and makes a
+    resumed upload hit the same object; "already exists" counts as stored;
+    a refused original - e.g. over the limit - is counted and does not hold
+    the hands up). The bucket (`20270609091000_web_bulk_upload.sql`) is
+    private, 50 MiB an object, `application/gzip` only; `storage.objects`
+    policies for `authenticated` allow select, insert and delete only where
+    the first path segment is `auth.uid()`; no update policy; nothing for
+    `anon`. Not signed in, or not saving: nothing leaves the tab, and the
+    page's privacy line and the `/convert` comment stand (the comment now
+    names the opt-in).
+  - **What the tab keeps.** The first 20 000 hands and 2 000 refused hands
+    of a drop, for the list, previews and downloads; past that only counts
+    grow, the downloads are off for that drop ("Too many hands to keep in this
+    tab …"), and the file list renders its first 200 rows. Results are kept
+    in a map published to React every 200 ms, not re-mapped per message. A
+    guest's drop over the cap cannot be held for after sign-in; the page says
+    to sign in and drop it again. Closing the tab mid-upload asks first.
+  - **Measured** (M2 Pro, Node 24, `npm run bulk-upload:measure`: a zip of
+    corpus files built in a temp dir, read through a file-backed `Blob` and
+    converted with the committed WASM core, batches dropped as counted):
+    **1 000 023 hands** in a 138 MB zip (20 618 entries, 1.39 GB
+    uncompressed): **545 s, ~1 830 hands/s**, first batch after 84 ms; peak
+    heap 68 MB (+45 MB over the baseline), peak RSS +71 MB, ArrayBuffers no
+    higher than before reading - flat for an archive ten times the heap
+    (7 496 refusals, the corpus's own). At the account's ingest budget (250
+    hands/s) saving, not converting, decides a desktop-sized upload: ~67
+    minutes for a million hands. The browser was not timed at that size; the
+    worker runs the same code.
+  - **Tests**: `tests/test/bulkUploadInputs.test.ts` (16: nested folders,
+    stored / deflate / zip64, refusals per entry, a zip bomb stopped, not a
+    zip, non-hand-history entries skipped, keys stable, every byte counted
+    once, **one entry at a time** - 40 entries of a ~2 MB archive, every
+    read recorded: none reaches past the entry being yielded except the
+    end-record scan and the directory, and no read is larger than one entry
+    -, stored entries skipped unread, originals gzipped under a safe path, the
+    pipeline's batch index and skipping stored batches);
+    `tests/test/bulkUploadSave.test.ts` (20, a fake server and a fake
+    Supabase client: bounded calls by count and bytes, no original text,
+    re-upload all duplicates, the worker held back while the queue is full,
+    backoff, pause and resume, budgets and lost session, refused calls and
+    rows, re-registering a lost source, the corpus sample, the manifest
+    after an interruption, a resumed run, originals under `<uid>/<upload>/`,
+    a source done only after its original, "exists" and refused originals,
+    error classification, the Storage call); `tests/test/bulkUploadWorker.test.ts`
+    (3: the worker's `bulk` request batch for batch equal to the R4.1
+    pipeline on the WASM core within its window, resume skipping, cancel
+    while waiting for an ack); `supabase/tests/database/web_bulk_upload.test.sql`
+    (37: the web source, upload rows, budgets, the text rule, the bucket and
+    its policies - own folder allowed, another's and anon's refused).
+    Local runs: the whole pgTAP suite on a fresh database with every
+    migration (`supabase db start` with CLI 2.75.0 as in CI: 34 files, 1 119
+    tests, pass) and the generated types identical to the committed file;
+    `npm test`; frontend lint, typecheck, stylelint, build. **End to end**
+    against a local stack (GoTrue, PostgREST, Storage; never the hosted
+    project): two test accounts, the real saver and Storage client - rows
+    `upload`, PHF only, a repeat all duplicates, the original stored then
+    "exists"; another account's download, list, upload into and delete of
+    the folder refused, `text/plain` refused by the bucket, `anon` refused.
+    This found one bug the fakes could not: storage-js sends a `Blob` with
+    the Blob's own type, so an untyped gzip arrived as
+    `application/octet-stream` and the bucket refused it (fixed: the gzip is
+    typed, and `storeOriginal` re-types it). In the browser (Chromium,
+    production build, no database): a zip with nested folders and a PNG
+    dropped on `/convert` converted in the worker, the PNG left out, and
+    every request same-origin. With a local stack: signed in, "Also keep the
+    original files" on, the drop saved (`upload` rows, two gzip objects under
+    the uid); a manifest left unfinished showed the resume notice after a
+    reload, and dropping the zip again converted only the file not yet
+    stored.
+  - **Left / for the owner**:
+    - **Converter saves are PHF-only now.** A drop saved from `/convert` no
+      longer stores `source_text` / `meta.rawText` / `standard_text` (the
+      standard text is derived on read, as for desktop rows; 220 corpus hands,
+      almost all GG, render with small presentational differences). Re-
+      converting after a parser fix then needs the kept original (opt-in) or
+      the user's file. Switching back is one line (`save_hands` instead of
+      `ingest_hands`) but brings back the global budget.
+    - The web's uploads share the account's `desktop_ingest` budget with the
+      app (by design: one ingest budget per account); the bucket names stay.
+    - Account deletion (not built yet) must also remove `hand-uploads/<uid>/`:
+      Storage objects do not cascade from `auth.users`. No UI lists or deletes
+      kept originals yet (the policies allow it).
+    - The bucket's 50 MiB matches the hosted project's current upload limit;
+      a larger single file (> ~500 MB of text) would need resumable (TUS)
+      uploads.
+    - R4.3 (live progress) can now read the saver's progress; the upload
+      already signals `hand_arrivals` once per call.
 
 ### R4.3 Live progress and arrival — S
 - Progress of a large upload and hands synced from the desktop appear live
@@ -8877,3 +9053,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-20 | **R3.14 done on the simulator; Phase 3's steps complete**: twelve tables. `hud/rail-hud/tests/twelve_tables.rs` (own `main`, `-- --run`) plays the app (store, watcher, statistics pass, real supervisor) with the HUD process on this system's backend over 12 simulator tables posing as PokerStars plus one ACR-titled table posing as GGPoker (`--sim-site` / `--sim-title` now once per room): attach, a minute of hands at 6/min/table with a recompute queued (must stay paused), every table moved twice, idle; JSON + markdown report written before the gates (`target/twelve-tables`, CI artefact `twelve-tables-<os>`). Gates: 12 attached and 12 overlays, none and no hand on the refused table, every hand shown, hand written -> frame p95 < 1 s (§3.3), paint p95 < 16.7 ms, follow p50 < 2 frames (p95 < 3 frames on Windows and `--real-hw`, recorded on a CI Mac), HUD idle / playing CPU 5 % / 15 % and the app's 20 % of one core scaled by a workload timed on the runner (never below the M2 Pro's), HUD memory 256 MiB. New in the HUD: `--perf-report` (paints, follows, re-reads, looks for tables at shutdown; `Platform::paint_times_us` / `follow_times_us`, `latency::summarize`), Windows `probe::memory` (`Win32_System_ProcessStatus`); **the macOS search slows to 2 s** while the observers follow every table and the client has posted a move (`Platform::notified`, `macos::fully_observed`; tested). CI step "HUD on twelve tables (R3.14 budget)" on macOS and Windows. Local (M2 Pro, release, no Accessibility so data-only, machine loaded): written -> frame p50 513 / p95 517 / max 524 ms, HUD 0.20 % idle / 0.29 % playing, app 0.69 %, HUD 14 MiB; overlay paint in-process p50 0.76 / p95 1.09 ms. Real-hardware kit: `cargo test --release -p rail-hud --test twelve_tables -- --run --real-hw --seconds 300`. Owner's procedure for the real clients: `docs/research/REAL-CLIENT-CHECK.md` (C1 - C15). Phase 3 summary in the R3.14 section: met on the simulator in CI; real clients pending the capture (no `tables` block yet), P5, P6 and the check. |
 | 2026-10-20 | **Phase 3 closed on staging** (#218, #221, #223, #224, #217): CI runs after R3.14 turned up two HUD fixes and the gates' noise. **macOS, a table seen before keeps its remembered title through a look without its Accessibility partner** (mid-move, or a client too busy to answer): it no longer drops out of the find and comes back as a new table (a tournament move was attached afresh). **macOS, a new window's title and title bar**: the window server lists a new window before the Accessibility API gives its title and close button; a window untitled or with an unmeasured bar (`Remembered::bar_known`) keeps the re-find at 500 ms for up to 3 s, and the engine picks the find's pace after the look - a new table's overlay covered its title bar until the next 2 s find before. **Gates**: paint p95 < 16.7 ms is gated on real hardware (the same debug build read 2.8 - 28 ms on Windows runners), recorded on CI under a three-frame ceiling; follow p50 recorded on a CI Mac. Tests made robust to slow runners: `in_play` checks the count only before the watcher's quiet period, Windows restack waits up to 3 s, the storm compares with the table's frame now, a table opened over another is checked against its own overlay, river solver tests 120 s; a failed `macos_tracking` window step prints every window and a timeline, HUD log lines carry their time. |
 | 2026-10-22 | **R4.1 done on staging**: the web converts with the WASM core. The converter's pipeline (worker and main-thread fallback), the single-hand box and shares of unsaved hands go through `lib/wasm/engine.ts`: the core (`rail-core-wasm --target web`), or - when it cannot load - the TypeScript parsers, loaded on demand, with one warning; output unchanged (`ConversionResult`, `parsedAt` from the caller). Core: new export `split` (the top parser's chunks, so batches of 100 stay) and an empty file name means none. `lib/phf/types.ts` re-exports the 36 generated types (192 importers unchanged; 30 hand-written declarations gone). **Deploy**: the web package committed at `frontend/src/lib/wasm/rail-core/` is CI's Linux x86_64 build (rust-lld on macOS lays the module out differently, so a Mac build can never be committed; `wasm:web` refuses there, `wasm:web-check` only checks the copy against its BUILD.json); the `wasm` job uploads its build as `rail-core-web` and fails on any byte difference, `npm run wasm:web-from-ci` installs the artefact; `wasm:build` remaps the cargo home and repository paths out of the module (78 absolute paths before). Served as `/_next/static/media/*.wasm`, `application/wasm`, immutable; 2.28 MB / 0.77 MB gzipped. Zero server requests holds (browser check; and a test that the loader fetches only its `.wasm`). Tests: `wasmWeb.test.ts` (32, `npm test`), `scripts/wasm/web.test.ts` - **556 / 556** files, 8 422 hands, 196 failures equal on the web's path. Browser worker: 6 000 hands in 2.7 s (~2 200 hands/s). **TS parsers kept** (fallback, oracle); deleting them waits for an agreed period of shadow mode green in production, after the owner promotes `staging`. |
+| 2026-10-22 | **R4.2 done on staging**: bulk upload at desktop scale. The converter's worker reads the drop itself, one file at a time (`bulkSource.ts`; folders up to 100 000 files, non-hand-history files skipped), zips through a streaming reader of its own (`zipStream.ts`: `Blob.slice` + the browser's `DecompressionStream`, zip64, no library, 1.4 KB gzipped), and a signed-in drop is saved while it converts (`bulkSaver.ts`: a 1 500-hand queue that holds the worker back, calls of 250 hands / 3 MB, backoff and pause, budgets) through `ingest_hands` from the account's web source - rows `origin = 'upload'`, PHF only, the account's budget instead of the web's global one (migrations `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql`: `register_web_hand_source`, `ingest_hands` for web sources, the text CHECK). Resume = drop the same files again: an IndexedDB manifest skips stored files, entries and batches. Originals to Storage only on the new opt-in "Also keep the original files" (off by default, per visit): private bucket `hand-uploads`, gzip, 50 MiB, owner-folder policies (select / insert / delete under `auth.uid()`, no update, nothing for anon). The tab keeps the first 20 000 hands. Measured: 1 000 023 hands, 138 MB zip, 545 s (~1 830 hands/s) in Node with the WASM core, heap +45 MB. Tests: 39 Vitest (inputs, save, worker), pgTAP `web_bulk_upload` (37); end to end against a local stack (found and fixed an untyped gzip the bucket refused). Not applied to production. |

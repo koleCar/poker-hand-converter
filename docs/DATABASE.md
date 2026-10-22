@@ -20,6 +20,7 @@ The schema is defined by four migrations:
 | `20270428090000_desktop_ingest.sql` | Rail R1.8: hands synced by the desktop app. `hands.origin`, `standard_text` nullable for desktop rows only (Q4: PHF only, no standard or source text), `hand_sources`, `register_hand_source`, `ingest_hands` (every search column derived from the PHF on the server), per-account desktop budgets. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). |
 | `20270505090000_desktop_pull.sql` | Rail R1.9: the desktop sync worker's pull. `hands_since(p_after_created, p_after_id, p_limit)` (invoker, the caller's rows by keyset `(created_at, id)`, ids / keys / origins only, rows at least a minute old) and its index `hands_owner_created_idx`. See [The desktop pull](#the-desktop-pull-hands_since). |
 | `20270602090000_hud_layouts.sql` | Rail R3.9: the desktop HUD's designs, assignments, dragged panel positions and per-room settings follow the account to another computer. `hud_layouts` (one row per owner, kind and key; a null body is a tombstone; last writer wins by the client's `updated_at`), select-own RLS, written only by `put_hud_layouts(p_rows)` (definer). See [The HUD's layouts](#the-huds-layouts-hud_layouts). Not applied to production. |
+| `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql` | Rail R4.2: the web's bulk upload. `hand_origin` gains `upload`; `register_web_hand_source()` (the account's one web source); `ingest_hands` takes it besides the app's folders and writes `origin = 'upload'` rows (PHF only, as desktop rows); the private bucket `hand-uploads` with owner-folder policies for the opt-in originals (A2). See [Web bulk upload](#web-bulk-upload-the-web-source-and-hand-uploads). Not applied to production. |
 | `20270512090000_hand_arrivals.sql` | Rail R1.10: live arrival on the web. `hand_arrivals` (one row per account, bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival`: a counter, how many hands, their origin, the time; no hand content), select-own RLS, in the `supabase_realtime` publication; `hands` stays out of it. See [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
@@ -79,7 +80,7 @@ The rules the schema holds to:
 | 7a | A capability URL means the **payload** is the boundary | There is no authentication step left to tighten once the slug is out, so the only control is what the function returns. `read_share` names every output key; it never does `select to_jsonb(row)`. See [Share resolution](#share-resolution-read_share--record_share_view). |
 | 8 | Raw uploads are not public | `unparsed_hands.raw_text` is verbatim hand history somebody uploaded. It is readable only by its submitter. The row itself stays globally deduped, because `occurrences` is the entire point of the table. |
 | 8a | A desktop sample leaves the machine only anonymised, and only with consent | A desktop row (`origin = 'desktop'`) must carry `consented_at`, `anonymiser_version`, `os` and `client_version` and be at most 64 KiB: the RPC skips a record without them and a `CHECK` constraint refuses such a row from any writer. The database cannot see that a text is anonymised; the client sends only `rail_core::anonymise` output (tested over the whole corpus), and `anonymiser_version` lets rows from a faulty version be found and deleted. |
-| 8b | A desktop hand is its PHF and nothing else, and only one door writes it | Q4: a row with `origin = 'desktop'` has no `standard_text`, no `source_text` and an empty `meta.rawText` (CHECK `hands_text_by_origin`, any writer). The insert policy admits `origin = 'web'` only, so `ingest_hands` (definer) is the one way in, and it derives every search column from the PHF itself: a desktop client cannot set them. |
+| 8b | A desktop hand is its PHF and nothing else, and only one door writes it | Q4: a row with `origin = 'desktop'` (or, since R4.2, `'upload'`: the web's bulk save) has no `standard_text`, no `source_text` and an empty `meta.rawText` (CHECK `hands_text_by_origin`, any writer). The insert policy admits `origin = 'web'` only, so `ingest_hands` (definer) is the one way in, and it derives every search column from the PHF itself: a desktop client cannot set them. |
 | 9 | Junk volume is bounded | `CHECK` constraints cap text sizes and validate shapes; a statement-level trigger enforces a global insert-rate budget. |
 
 Anything destructive (deleting junk, retiring corpus rows, editing triage
@@ -144,9 +145,9 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `lesson_cards:<user>` | 120 calls (≤ 20 cards each) / 10 min **per account** | `add_lesson_cards()` |
 | `lesson_review:<user>` | 600 reviews / 10 min **per account** | `review_lesson_card()` |
 | `desktop_sign_in:<user>` | 10 handoffs / hour **per account** | `claim_desktop_sign_in()`, called by the `desktop-handoff` Edge Function as the user |
-| `desktop_ingest:<user>` | 150 000 rows / 10 min **per account** | `ingest_hands()`, every row received (duplicates and rejections too) |
+| `desktop_ingest:<user>` | 150 000 rows / 10 min **per account** | `ingest_hands()`, every row received (duplicates and rejections too) - from the app's folders and from the web's bulk upload (R4.2) alike: one ingest budget per account |
 | `desktop_ingest_day:<user>` | 2 000 000 rows / day **per account** | `ingest_hands()` |
-| `hand_source:<user>` | 120 registrations / 10 min **per account** | `register_hand_source()` |
+| `hand_source:<user>` | 120 registrations / 10 min **per account** | `register_hand_source()`, and `register_web_hand_source()` when it creates the source |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -233,6 +234,7 @@ why:
 | `hands_rate_limit` (trigger) | **definer** | Has to call `enforce_rate_limit`, which anon cannot execute. |
 | `ingest_hands` | **definer** | Desktop rows may only be written here (the insert policy refuses them on the direct path) and the source counters have no client UPDATE grant. Owner from `auth.uid()`, source checked to be the caller's, budget spent first, every column but `hand_key` and `phf` derived on the server. `authenticated` only (R1.8). |
 | `register_hand_source` | **definer** | `hand_sources` has no client write grant. Owner from `auth.uid()`; updates only the descriptive columns of the caller's own row. `authenticated` only (R1.8). |
+| `register_web_hand_source` | **definer** | `hand_sources` has no client write grant. Owner from `auth.uid()`; returns (creating on first use) the caller's one `web` source. `authenticated` only (R4.2). |
 | `hand_row_from_phf`, `hand_row_problem`, `phf_*` helpers | invoker | Pure: the PHF-to-row mapping and the constraint mirror `ingest_hands` uses. No client may execute them. |
 | `hands_since` | invoker | Reads the caller's own rows (explicit `owner_id = auth.uid()` and RLS): ids, times, keys, origins. `authenticated` only (R1.9). |
 | `put_hud_layouts` | **definer** | `hud_layouts` has no client write grant. Owner from `auth.uid()` (the conflict target includes it, so another account's row with the same key is never touched); the batch validated whole (kinds, keys per kind, bodies, times) before anything is written; at most 500 rows a call and 5 000 an account; rate-limited (`hud_layouts:`). `authenticated` only (R3.9). |
@@ -1022,7 +1024,7 @@ stats engine (R2.1) the web's `/api/stats/rebuild` derives them from the PHF,
 which works for desktop rows unchanged.
 
 **`hand_sources`.** One row per folder the app watches on one device
-(`kind = 'folder'`; `web` is reserved for web uploads, R4.2). The app's
+(`kind = 'folder'`; one `web` source per account holds the web's bulk uploads, R4.2, [below](#web-bulk-upload-the-web-source-and-hand-uploads)). The app's
 random per-installation `device_id`, its own `local_id` for the folder, a
 device name, a label (room plus the folder's last component - **never a
 path**: `/` or `\` is refused) and the site; received / inserted / duplicate
@@ -1071,6 +1073,54 @@ reason in one mixed batch, the text rule from every writer, both budgets, a
 refused call writes nothing, the web's global budget untouched, the stats
 rebuild and `save_hand_stats` on desktop rows.
 `supabase/tests/database/desktop_ingest_parity.test.sql`: generated, above.
+
+### Web bulk upload: the web source and `hand-uploads`
+
+`20270609090000_hand_origin_upload.sql` and `20270609091000_web_bulk_upload.sql`
+(Rail R4.2). The converter saves a drop of any size while it converts it
+(`frontend/src/components/converter/bulkSaver.ts`), through **`ingest_hands`
+from the account's web source** rather than `save_hands`:
+
+- `save_hands` spends the web's **global** `hands_insert` budget (25 000 rows
+  per 10 minutes for everyone): a 1 000 000-hand upload would need seven
+  hours and lock every other account out meanwhile. `ingest_hands` spends the
+  account's own (the `desktop_ingest` buckets above).
+- A `save_hands` row carries the original text twice (`source_text`, the
+  PHF's `meta.rawText`) plus the standard text, ~7.3 KB; an ingested row is
+  the PHF alone, its columns derived here (A5, Q4). From the web the original
+  text leaves the tab only on the user's explicit opt-in (A2), below.
+- The same hand from the app and from the web is the same row (R4.4).
+
+`register_web_hand_source()` returns the caller's one `hand_sources` row of
+kind `web` (unique per account since R1.8), creating it on first use.
+`ingest_hands` accepts that source as well as folders; its rows are
+`origin = 'upload'` - the desktop row's shape (CHECK `hands_text_by_origin`
+now names both), written from the browser. The insert policy still admits
+`origin = 'web'` only, so neither shape can be written through PostgREST or
+`save_hands`; a hand saved one at a time (paste box, replayer) is still a
+`save_hands` web row. `hand_arrivals` reports an upload as `web`.
+
+**The bucket `hand-uploads`** holds the originals a user chose to keep
+("Also keep the original files", off by default, per visit): private, 50 MiB
+an object, `application/gzip` only; objects at `<uid>/<upload id>/<path>.<hash>.gz`.
+Policies on `storage.objects` (`hand_uploads_owner_select`, `_insert`,
+`_delete`, all `to authenticated`) require the first path segment to be
+`auth.uid()`: an account lists, reads, stores and deletes its own originals
+and nothing else; no UPDATE policy (an original is never rewritten; the
+client uploads with `upsert: false` and treats "already exists" as done);
+`anon` has no policy. Storage objects do not cascade from `auth.users`:
+account deletion, when it is built, must remove `hand-uploads/<uid>/`.
+
+#### Tests
+
+`supabase/tests/database/web_bulk_upload.test.sql`: the function's settings
+and grants, one stable web source per account, upload rows (shape, origin,
+derived columns), a repeat is all duplicates, the original text refused per
+row, the counters, the account's budget charged and the global one not,
+another account can neither send from the source nor see its rows, the text
+rule from every writer, the bucket's settings, and the policies: own folder
+insert / list / delete, another account's folder and a non-uid top folder
+refused, no update, another account and `anon` see and delete nothing.
 
 ### The desktop pull: `hands_since`
 
@@ -1347,7 +1397,7 @@ Everything after those three is a **denormalized search layer**: derivable from
 | `winners` | text[] | `results.winners` | Deduped player names. |
 | `source_filename` | text | `meta.originalFilename` | "Which file did this come from". |
 | `created_at` | timestamptz | server `now()` | Set by the normalizing trigger, not the client: a row cannot be backdated. |
-| `origin` | enum `hand_origin` | — | `web` (`save_hands`) or `desktop` (`ingest_hands`, R1.8). Decides the text rule below; the direct insert path can only write `web`. |
+| `origin` | enum `hand_origin` | — | `web` (`save_hands`), `desktop` (`ingest_hands` from an app folder, R1.8) or `upload` (`ingest_hands` from the account's web source: the converter's bulk save, R4.2). Decides the text rule below (`desktop` and `upload` rows are PHF only); the direct insert path can only write `web`. |
 
 **Triggers**
 
@@ -1557,6 +1607,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `phf_redact_private(jsonb)` | `service_role` | jsonb | Internal. Strips the private keys from a PHF document's `meta`. |
 | `register_hand_source(p_device_id, p_local_id, p_device_name, p_label, p_site)` | `authenticated` | uuid | Registers (or renames) a folder the desktop app watches; idempotent per account + device + local id. No paths: a label with `/` or `\` is 22023. R1.8. |
 | `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. |
+| `register_web_hand_source()` | `authenticated` | uuid | The caller's web hand source, created on first use; the converter's bulk save sends `ingest_hands` from it. R4.2. |
 | `hands_since(p_after_created timestamptz, p_after_id uuid, p_limit int)` | `authenticated` | `setof (id, created_at, hand_key, origin)` | The desktop pull: a keyset page of the caller's hands, oldest first, rows at least a minute old, at most 1 000. See [The desktop pull](#the-desktop-pull-hands_since). R1.9. |
 | `put_hud_layouts(p_rows jsonb)` | `authenticated` | jsonb `[{kind, key, applied}]` | The desktop HUD's layout rows `{kind, key, body, updatedAt}` (at most 500), each kept only when newer than the stored one. See [The HUD's layouts](#the-huds-layouts-hud_layouts). R3.9. |
 | `villain_counters(p_players jsonb, p_filters jsonb)` | `authenticated` | `setof (site, player, hands, vpip_opp, vpip, pfr)` | The caller's own counters for the named opponents (`{site, player}` keys, at most 500 per call), `none` rooms only, no bomb pots; invoker, read only. The analysis' per-villain ranges (analysis/20), without `stats_opponents`' cap of 200. See [Statistics](#statistics-hand_stats-coverage-and-rebuild). |

@@ -29,8 +29,18 @@ export interface SourceResult {
   total: number;
   /** Hands processed so far. */
   done: number;
+  /** Hands converted, all of them (`hands` may hold only the first). */
+  handCount: number;
+  /** Hands refused by the converter, all of them. */
+  failureCount: number;
+  /**
+   * The converted hands the tab kept, for the list, previews and downloads.
+   * All of them up to a few tens of thousands per drop; past that only the
+   * counts grow (R4.2), and `truncated` says so.
+   */
   hands: PhfHand[];
   failures: ConversionFailure[];
+  truncated: boolean;
 }
 
 /** Result of the automatic save, or the reason there is not one. */
