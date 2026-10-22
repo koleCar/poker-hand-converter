@@ -25,7 +25,7 @@
  * Environment (for experiments; the committed sets use the defaults):
  * `CHARTS_SETS`, `CHARTS_PARALLEL`, `CHARTS_ITERATIONS`, `CHARTS_BOARDS`,
  * `CHARTS_OUT` (one set only), `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`,
- * `CHARTS_MEASURE_BOARDS`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
+ * `CHARTS_MEASURE_BOARDS`, `CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_RAKE`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
  * realisation spots instead of reading `.cache/realisation-*.json` (keyed by
  * the jobs, not by the code).
  */
@@ -51,7 +51,7 @@ import {
   preflopEquityTable,
   type PreflopEquityTable,
 } from "../../../frontend/src/lib/solver/preflopEquity.js";
-import { CHARTS1_REALISATION, type RealisationModel } from "../../../frontend/src/lib/solver/preflopModel.js";
+import { CHARTS1_REALISATION, STANDARD_RAKE, type RakeProfile, type RealisationModel } from "../../../frontend/src/lib/solver/preflopModel.js";
 import { cachedRun, workerPool } from "./pool.js";
 import { report } from "./report.js";
 import { SET_CONFIGS, setConfig, type SetConfig } from "./sets.js";
@@ -63,7 +63,8 @@ const SETS = (process.env.CHARTS_SETS ?? SET_CONFIGS.map((c) => c.id).join(","))
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean)
-  .map(setConfig);
+  .map(setConfig)
+  .map(refit);
 const PARALLEL = Math.max(1, Number(process.env.CHARTS_PARALLEL ?? 1));
 /** `CHARTS_ITERATIONS` overrides every set's own count (`SetConfig.iterations`, default `PRODUCTION_ITERATIONS`). */
 const iterationsOf = (config: SetConfig) =>
@@ -71,7 +72,32 @@ const iterationsOf = (config: SetConfig) =>
 const BOARDS = Number(process.env.CHARTS_BOARDS ?? DEFAULT_EQUITY_BOARDS);
 const ROUND_ITERATIONS = Number(process.env.CHARTS_ROUND_ITERATIONS ?? PRODUCTION_ROUND_ITERATIONS);
 const MEASURE_BOARDS = Number(process.env.CHARTS_MEASURE_BOARDS ?? PRODUCTION_MEASURE.boards);
+const MEASURE_SEED = Number(process.env.CHARTS_MEASURE_SEED ?? PRODUCTION_MEASURE.seed);
+
+/**
+ * `CHARTS_REFIT=1` (an experiment, ANALYSIS-PLAN §10 2026-10-22): a `charts/4`
+ * set measured and fitted again, as `charts/2` was - its rounds, no limp tree -
+ * instead of reusing its committed fit; with `CHARTS_MEASURE_SEED` on another
+ * board sample, the fit's own sampling error.
+ */
+function refit(config: SetConfig): SetConfig {
+  if (!process.env.CHARTS_REFIT || !config.reuseFit) return config;
+  const { reuseFit: _reuse, maxLimpers: _max, limpFloor: _floor, minLimpReach: _reach, ...rest } = config;
+  return rest;
+}
 const THREADS = Number(process.env.CHARTS_THREADS ?? availableParallelism());
+
+/**
+ * `CHARTS_RAKE=<percent>:<cap bb>` (an experiment, ANALYSIS-PLAN §10
+ * 2026-10-22): a `reuseFit` set solved under another rake (`0:0` none,
+ * `0.05:1.5` a 1.5bb cap), the rest of the model unchanged.
+ */
+function rakeOverride(): RakeProfile | undefined {
+  const spec = process.env.CHARTS_RAKE;
+  if (!spec) return undefined;
+  const [percent, capBb] = spec.split(":").map(Number);
+  return { ...STANDARD_RAKE, name: percent === 0 ? "none" : `${percent * 100}%-cap${capBb}bb-nfnd`, percent, capBb };
+}
 
 function cachedEquity(): PreflopEquityTable {
   const dir = join(HERE, ".cache");
@@ -149,6 +175,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
       iterations: iterationsOf(config),
       realisation: fit.model,
       realisationFit: fit.record,
+      rake: rakeOverride(),
       onProgress,
     });
   } else result = await generateRealisedChartSet({
@@ -162,7 +189,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
     iterations: iterationsOf(config),
     rounds,
     roundIterations: ROUND_ITERATIONS,
-    measure: { boards: MEASURE_BOARDS },
+    measure: { boards: MEASURE_BOARDS, seed: MEASURE_SEED },
     start: config.start === "charts/1" ? CHARTS1_REALISATION : charts2Fit(),
     fitName: config.fitName,
     ...limps,

@@ -1518,6 +1518,16 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
 - **Class features, not classes.** Eleven features per seat describe 169
   classes; the fit's error is about 0.035 of the pot per class. Two hands with
   the same features (A7s and A6s) realise alike by construction.
+- **The fit's board sample is the EVs' largest noise** (ANALYSIS-PLAN §10,
+  2026-10-22, `npm run charts:precision`). The solve itself is precise to
+  the 0.01bb the file stores: classes that mix are indifferent to 0.01bb
+  (weighted p99, every set), and 9,000 iterations instead of 3,000 move an
+  unplayed action's EV loss by 0.01bb at p90. A 240,000-board equity table
+  moves it 0.06bb at p90. The `charts/2` pipeline rerun on another sample of
+  its 120 measurement boards per spot moves it 0.41bb at p90 (0.11bb at p90
+  over the stored hands' preflop Mistakes and Blunders of 0.25bb or less)
+  and changes a third of those grades. That error grows with the loss, so a
+  floor in big blinds does not remove it; more measurement boards would.
 - **Multiway pots** use the pairwise shares combined by `x_p + (1 − Σx)/n`;
   no multiway pot is measured.
 - **A fixed point, approximately.** Three rounds; between the last two the BB's
@@ -1599,6 +1609,9 @@ npm run charts:coverage      # §6.6: graded decisions on the corpora, 6-max 100
 npm run charts:compare       # §6.3: a native short-handed solve against a bigger set read short-handed
 CHARTS_LIBRARY=library.jsonl npm run charts:library   # §6.6: the same on an export of stored hands (one PHF JSON per line)
 CHARTS_LIBRARY=library.jsonl CHARTS_LIBRARY_DUMP=run.jsonl npm run charts:library   # also every decision's outcome (grade, set, line, rare-line-depth, EV loss), to diff two runs
+PRECISION_OLD=old/ PRECISION_HANDS=hands.jsonl npm run charts:precision   # §9: the EVs' precision - indifference gaps, pairs of sets differing in one thing, the stored hands' preflop grades under each
+CHARTS_SETS=nlhe-cash-6max-100bb CHARTS_REFIT=1 CHARTS_MEASURE_SEED=2 CHARTS_THREADS=1 CHARTS_OUT=old/seed2-nlhe-cash-6max-100bb.json npm run charts:generate   # the charts/2 pipeline on another measurement sample, ~2 h on one thread
+CHARTS_SETS=nlhe-cash-6max-100bb CHARTS_RAKE=0:0 CHARTS_OUT=old/rake-none-nlhe-cash-6max-100bb.json npm run charts:generate   # the committed fit under another rake (percent:cap bb), ~15 min
 ```
 
 `charts/4` (A2d) sets carry `reuseFit` in `sets.ts`: the generator solves

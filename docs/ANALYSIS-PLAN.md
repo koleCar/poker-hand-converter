@@ -172,7 +172,9 @@ loss of at most 0.25bb is never worse than Inaccurate and at most 1bb never a
 Blunder; the move score reads the same pot, and `evLossPot` shown is still
 the share of the real pot. Below about 10bb the range model's own error stops
 shrinking in big blinds (§10, 2026-10-20, the big-blind floor). Preflop
-grades keep the plain shares.
+grades keep the plain shares: the charts' own EV error grows with the loss
+instead of stopping at a fraction of a big blind, so a floor there would
+not remove it (§10, 2026-10-22, preflop precision).
 
 **Move score** (0–100, for averages): `100 · freq[chosen] / max(freq)` when
 `evLoss` is negligible, otherwise `max(0, 100 − 1000 · evLossPot)`. **Hand
@@ -5646,3 +5648,120 @@ Each phase appends what it learned that changed the plan.
       the step.
     - The error measured is version-to-version movement on 98 small-pot
       decisions, not a held-out error; remeasure as range changes ship.
+- 2026-10-22 — Preflop precision: are the charts' EVs precise enough for
+  the tiny preflop losses? **Nothing shipped** (study
+  `tests/scripts/preflop-charts/precision.test.ts`, `npm run
+  charts:precision`; `CHARTS_REFIT`, `CHARTS_MEASURE_SEED` and `CHARTS_RAKE`
+  for the experiments in `generate.test.ts`). `ANALYSIS_VERSION` stays
+  `analysis/33`; no migration, no behaviour change, nothing in `frontend/`.
+  - **Why.** The open item of `analysis/33`: 222 of the 295 preflop
+    Mistakes and Blunders lose 0.25bb or less. A preflop pot is 1.5-4bb, so
+    Inaccurate ends at 0.03-0.08bb and Mistake at 0.12-0.32bb. Are the
+    charts' EVs precise to that? The question comes before any preflop
+    floor.
+  - **Data.** Every hero preflop decision the charts grade in the 5,448
+    stored hands (5,145, `analyzeHand` with the shipped library, turn solves
+    off; `gradePreflop` reproduces every one), graded again with one set
+    swapped for a version that differs in one thing. Old sets come from git
+    (`charts/4` at 3,000 iterations for the two 200bb sets and the 9-max
+    150bb set, `charts/2`, `charts/1`). Six 6-max 100bb re-solves, `nice`,
+    one thread each, beside the flop batch: 9,000 iterations (41 min), a
+    240,000-board equity table (18 min), a 1.5bb rake cap and no rake
+    (15 min each), and the `charts/2` pipeline (three measurement rounds of
+    1,560 turn+river solves, no limp tree) rerun today on the default
+    measurement boards and on another sample (`CHARTS_MEASURE_SEED=2`, about
+    2 h each).
+  - **The grades** (`analysis/33`): Perfect 4,612, Good 17, Inaccurate 221,
+    Mistake 210, Blunder 85. Of the 295 Mistakes and Blunders, 286 are moves
+    the chart never plays (frequency 0) and 42 carry the implied-odds
+    caveat:
+
+    | EV loss | Mistake | Blunder | pot, median |
+    |---|---|---|---|
+    | 0.02-0.05bb | 54 | 0 | 1.5bb |
+    | 0.05-0.10bb | 67 | 0 | 1.5bb |
+    | 0.10-0.25bb | 64 | 37 | 2.5bb |
+    | 0.25-0.50bb | 19 | 25 | 4bb |
+    | 0.50-1bb | 5 | 11 | 4.4bb |
+    | over 1bb | 1 | 12 | 6.5bb |
+
+    By scenario (all / 0.25bb or less / 0.05bb or less): raise first in
+    145 / 138 / 53, facing an open 87 / 47 / 0, facing limps 41 / 33 / 1,
+    squeeze 13 / 4 / 0, the rest 9 / 0 / 0. The tiny ones are opening
+    decisions in a 1.5bb pot: opening a hand the chart folds 77 / 72 / 24,
+    raising where it limps 26 / 26 / 9, folding where it opens 22 / 20 / 9
+    and where it limps 20 / 20 / 11. Of the 145 opening Mistakes and
+    Blunders, 53 are from the small blind and 40 from the button.
+  - **The solve itself is precise.** Indifference gaps (a class that plays
+    two or more actions 10% or more should get the same EV from each,
+    weighted by reach): p99 at most 0.01bb in every set, the 0.01bb the
+    file stores; over 0.02bb on 0.1-0.5% of the weight. The worst nodes are
+    rare: squeezes (6-max 100bb: 13.8% over 0.02bb, p99 0.06bb) and 9-max
+    100bb facing a 4-bet or an all-in (p99 0.24 and 0.57bb).
+  - **What moves the EV losses.** |Δ evLoss| of actions played under 3.5%
+    at a loss (the moves grades are made of), per class, weighted by reach;
+    then on the stored hands, the 6-max 100bb set's preflop Mistakes and
+    Blunders (145 when both sets grade every decision) and the share whose
+    grade changes:
+
+    | pair (one thing differs) | p90, all nodes | over 0.05bb | Mistakes and Blunders of 0.25bb or less, \|Δ\| p50 / p90 | Mistakes and Blunders changed (no longer either) |
+    |---|---|---|---|---|
+    | 3,000 vs 9,000 iterations, 6-max 100bb | 0.01bb | 0.2% | 0 / 0bb | 1 of 145 (1) |
+    | the same, 6-max 200bb, 9-max 200bb, 9-max 150bb (history) | 0.01bb | 0.7-1.1% | 0 / 0.01bb | 0 of 7, 8, 10 |
+    | equity table 120,000 vs 240,000 boards | 0.06bb | 11.6% | 0.01 / 0.03bb | 7 of 145 (4) |
+    | `charts/2` as committed vs rerun today (code drift) | 0.08bb | 13.3% | 0 / 0.02bb | 5 of 131 (4) |
+    | **realisation fit, another measurement sample** | **0.41bb** | **60.6%** | **0.03 / 0.11bb** | **42 of 128 (20)** |
+    | rake cap 3bb vs 1.5bb (model) | 0.22bb | 32.2% | 0.01 / 0.04bb | 18 of 145 (8) |
+    | limp tree, `charts/4` vs `charts/2` (model) | 0.33bb | 34.3% | 0 / 0.03bb | 9 of 129 (3) |
+    | rake vs none (model) | 0.72bb | 84.2% | 0.07 / 0.21bb | 82 of 145 (35) |
+    | realisation, `charts/2` fit vs `charts/1` by hand (model) | 0.83bb | 75.7% | 0.06 / 0.21bb | 73 of 131 (55) |
+
+    Iterations and the equity sample are well under the thresholds: 9,000
+    iterations change one grade in 145. The **realisation fit's own
+    sampling error** is not. Each spot is measured on 120 boards, and
+    another 120 move a tiny Mistake's EV loss 0.11bb at p90, about the
+    whole Mistake band in a 1.5bb pot. That changes 42 of 128 Mistakes and
+    Blunders, 20 of them to Inaccurate or milder. Code drift since `charts/2`
+    is an eighth of that (5 of 131), so the rerun pair measures the sample,
+    not the code.
+  - **Why no floor.** That error is not a fraction of a big blind that
+    stops shrinking, as postflop it was (§10, 2026-10-20): it grows with
+    the loss. On the hands, by the base loss, the fit sample's |Δ| p50 /
+    p90 is 0.01 / 0.04bb at 0.02-0.05bb, 0.03 / 0.08bb at 0.05-0.10bb,
+    0.06 / 0.13bb at 0.10-0.25bb, 0.07 / 0.31bb at 0.25-0.50bb, 0.16 /
+    0.74bb at 0.5-1bb and 0.25 / 1.13bb over 1bb: a fifth to two fifths of
+    the loss at p50, about the whole loss at p90, in every band. A pot floor
+    (`max(pot, floor)`, the postflop rule's form) removes grades but leaves
+    the rest just as noisy:
+
+    | floor | Mistakes | Blunders | Mistakes and Blunders the other fit sample changes (no longer either) | the equity table changes |
+    |---|---|---|---|---|
+    | none | 210 | 85 | 42 of 128, 33% (20) | 7 of 145 |
+    | 2.5bb | 186 | 56 | 33 of 110, 30% (19) | 6 of 120 |
+    | 5bb | 142 | 32 | 24 of 83, 29% (18) | 3 of 90 |
+    | 8bb | 107 | 20 | 19 of 60, 32% (14) | 8 of 66 |
+    | 12.5bb | 61 | 12 | 10 of 34, 29% (6) | 2 of 42 |
+
+    A third of what is left changes under any floor up to the postflop
+    one's 12.5bb. A floor small enough to be a preflop number (2.5bb:
+    Inaccurate up to 0.05bb, Mistake up to 0.2bb) would take Mistakes from
+    210 to 186 and Blunders from 85 to 56, and the fit sample would still
+    change 30% of what is left. Calling a move under 0.05bb
+    negligible (Perfect) would move 177, 54 of them Mistakes. Neither one
+    measures the error. The grades stay as they are. Their caveat is the
+    model, not the solve, and it is the same at every size of loss.
+  - **Open.**
+    - **More measurement boards.** The realisation fit's 120 boards per
+      spot (`PRODUCTION_MEASURE.boards`) are the charts' largest noise
+      source. Four times the boards should halve it, at four times the
+      measurement (about 8 h for 6-max 100bb on one thread, an hour or two
+      on a free machine). Measure it with this script's pair (a second
+      seed at 480 boards) before regenerating any set. The 9-max and other
+      sets carry the same noise unmeasured: their fits came from the same
+      pipeline (`charts/3`, two rounds).
+    - **Rake.** The charts' rake (5%, cap 3bb, no flop no drop) is one room's.
+      A 1.5bb cap changes 18 of 145 Mistakes and Blunders, no rake 82.
+      Preflop chart grades do not carry the `rake-profile` flag the
+      postflop solver grades carry, and no grade reads the room's rake.
+    - The fit's error is measured on 6-max 100bb only (145 of the 295
+      preflop Mistakes and Blunders); the iteration pairs cover four sets.
