@@ -264,10 +264,25 @@
   color: var(--fg-dim);
 }
 
+/* The numbers behind the graph scroll inside their box where the page is
+   narrower than the table (R4.5d, a phone), never the page itself. */
+.stats-chart__table {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
 .stats-chart__table summary {
   cursor: pointer;
   font-size: var(--font-size-sm);
   color: var(--text-link);
+}
+
+/* A finger (R4.5d): the toggle a full 44 px row. */
+@media (pointer: coarse) {
+  .stats-chart__table summary {
+    /* Padding, not a flex box: the summary keeps its disclosure marker. */
+    padding-block: 13px;
+  }
 }
 
 .stats-chart__table table {

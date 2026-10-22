@@ -396,6 +396,24 @@ Realtime; signed out, or on `/convert` while not saving, no socket is opened.
   upload started elsewhere, finished, the desktop app syncing, new hands to
   show.
 
+### Phones (R4.5d)
+
+The library, `/stats` (with its opponents panel), a shared hand, its embed
+and the replayer work at 375 px on a touch phone, in both languages: no
+sideways page scroll (a wide table scrolls inside its own box), every
+control at least 44 px, fields at 16 px so the page does not zoom. The touch
+sizes are `@media (pointer: coarse)` rules (`packages/ui/styles/controls.css`
+for `.btn`, `.chip-btn`, `.btn--icon` and fields; a few components' own), so
+a mouse or a trackpad sees the old sizes. The one exception is the
+starting-hand grid on `/stats` (169 cells, 22 px each on a phone; every
+class is a row of the table under it). `packages/ui/screens/responsive.mjs`
+checks it against a local stack (it signs in with a test account and
+refuses any other host):
+
+    cd packages/ui/screens && npm ci && npx playwright install chromium
+    RAIL_CHECK_EMAIL=... RAIL_CHECK_PASSWORD=... RAIL_CHECK_SHARE=<slug> \
+      node responsive.mjs http://localhost:<port>
+
 ### The conversion core is WebAssembly (R4.1)
 
 Detection and parsing run in the Rust core (`core/rail-core`), built for the

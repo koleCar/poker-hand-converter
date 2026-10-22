@@ -458,6 +458,14 @@
   cursor: pointer;
 }
 
+/* A finger (R4.5d): the note link under an opponent's name a full 44 px
+   target, its text where it was. */
+@media (pointer: coarse) {
+  .stats-opponents__note {
+    min-block-size: 44px;
+  }
+}
+
 .stats-note {
   display: grid;
   gap: 8px;

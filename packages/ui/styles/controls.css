@@ -135,3 +135,27 @@
   border-color: var(--accent-border);
   color: var(--accent-on-subtle);
 }
+
+/* A finger (R4.5d, phones and tablets): every button, chip and field at
+   least 44 px tall (WCAG 2.5.5's size), an icon button as wide, and a field's
+   text at least 16 px so a phone does not zoom the page when it takes focus.
+   A mouse or a trackpad keeps the sizes above: the primary pointer decides,
+   so the desktop app and the web on a computer are unchanged. The replayer's
+   transport sizes itself (`--rp-hit`, replayer.css). */
+@media (pointer: coarse) {
+  .btn,
+  .chip-btn {
+    min-block-size: 44px;
+  }
+
+  .btn--icon {
+    min-inline-size: 44px;
+  }
+
+  select,
+  textarea,
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="hidden"], [type="file"]) {
+    min-block-size: 44px;
+    font-size: max(16px, 1em);
+  }
+}
