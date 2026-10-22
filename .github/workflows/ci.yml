@@ -695,14 +695,18 @@ jobs:
           version: 2.75.0
 
       # The image registry rate-limits shared runners now and then
-      # ("toomanyrequests"): retry the pull with backoff before failing.
+      # ("toomanyrequests", once for over 15 minutes on 2026-10-22): retry
+      # with backoff, alternating the registries Supabase publishes its
+      # images to.
       - name: Start Postgres and apply every migration
         run: |
+          registries=(public.ecr.aws ghcr.io docker.io public.ecr.aws ghcr.io)
           for attempt in 1 2 3 4 5; do
+            export SUPABASE_INTERNAL_IMAGE_REGISTRY=${registries[$((attempt - 1))]}
             supabase db start && exit 0
-            echo "::warning::supabase db start failed (attempt $attempt); retrying"
+            echo "::warning::supabase db start from $SUPABASE_INTERNAL_IMAGE_REGISTRY failed (attempt $attempt); retrying"
             supabase stop --no-backup || true
-            sleep $((attempt * 60))
+            sleep $((attempt * 30))
           done
           exit 1
 
@@ -764,13 +768,15 @@ jobs:
       - name: Start a local stack (db, auth, PostgREST)
         run: |
           rm -rf supabase/.temp
-          # Retried with backoff: the image registry rate-limits shared
-          # runners now and then ("toomanyrequests").
+          # Retried with backoff, alternating registries: the image registry
+          # rate-limits shared runners now and then ("toomanyrequests").
+          registries=(public.ecr.aws ghcr.io docker.io public.ecr.aws ghcr.io)
           for attempt in 1 2 3 4 5; do
+            export SUPABASE_INTERNAL_IMAGE_REGISTRY=${registries[$((attempt - 1))]}
             supabase start -x studio,imgproxy,logflare,vector,edge-runtime,supavisor,postgres-meta,realtime,storage-api,mailpit && exit 0
-            echo "::warning::supabase start failed (attempt $attempt); retrying"
+            echo "::warning::supabase start from $SUPABASE_INTERNAL_IMAGE_REGISTRY failed (attempt $attempt); retrying"
             supabase stop --no-backup || true
-            sleep $((attempt * 60))
+            sleep $((attempt * 30))
           done
           exit 1
 
