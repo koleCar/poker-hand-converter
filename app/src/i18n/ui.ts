@@ -33,6 +33,7 @@ function uiStrings(locale: Locale, dict: Dict, replayer: UiStrings["replayer"], 
       handsHead: stats.handsHead,
       bb: stats.bb,
     },
+    hands: dict.hands,
   };
 }
 

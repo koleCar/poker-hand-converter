@@ -1,0 +1,23 @@
+/* The library around the shared Hands screen (R4.5b). */
+
+/* The card holds the screen's own title, so its padding is the screen's. */
+.card {
+  min-width: 0;
+}
+
+/* The open hand: the shared replayer at its natural height. */
+.panel {
+  min-width: 0;
+  border-radius: var(--radius-3);
+  overflow: hidden;
+}
+
+.panelStatus {
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
+  padding: var(--space-6);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-3);
+  color: var(--text-tertiary);
+}

@@ -1,29 +1,31 @@
 /**
  * Saved filters (guideline §6): the row's first chip lists them - one click
  * applies a filter, × deletes it - and saves the filter in force under a
- * name (the same name replaces it). Kept in the local store
- * (`saved_filters`); a date preset stays relative ("last 7 days").
+ * name (the same name replaces it). Kept where the surface keeps them (the
+ * desktop app: its local store's `saved_filters`); a date preset stays
+ * relative ("last 7 days"). The desktop app's (R2.7a), shared since R4.5b.
  */
 import { useEffect, useRef, useState } from "react";
-import { Chip } from "@rail/ui/chips/Chip";
-
-import { useT } from "../../i18n";
-import { errorText, inApp, ipc, type FilterScreen, type SavedFilter } from "../../lib/ipc";
+import { Chip } from "../chips/Chip";
+import { useUiStrings } from "../i18n";
 import { activeGroups, fromSaved, toSaved, type FilterState } from "./filter";
 import styles from "./FilterBar.module.css";
+import { errorText, type FilterScreen, type SavedFilter, type SavedFiltersSource } from "./model";
 import { Popover } from "./Popover";
 
 export function SavedFilters({
   filter,
   onApply,
   screen,
+  source,
 }: {
   filter: FilterState;
   onApply: (filter: FilterState) => void;
   /** Whose saved filters: the Hands screen's or Reports' (R2.7b). */
   screen: FilterScreen;
+  source: SavedFiltersSource;
 }) {
-  const t = useT().hands.saved;
+  const t = useUiStrings().hands.saved;
   const anchor = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState<SavedFilter[]>([]);
@@ -31,17 +33,16 @@ export function SavedFilters({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!inApp) return;
-    ipc
-      .savedFilters(screen)
+    source
+      .list(screen)
       .then(setSaved)
       .catch(() => undefined);
-  }, [screen]);
+  }, [source, screen]);
 
   const save = () => {
     if (!name.trim()) return;
-    ipc
-      .saveFilter(name.trim(), toSaved(filter), screen)
+    source
+      .save(name.trim(), toSaved(filter), screen)
       .then((list) => {
         setSaved(list);
         setName("");
@@ -89,8 +90,8 @@ export function SavedFilters({
                   aria-label={t.remove(item.name)}
                   title={t.remove(item.name)}
                   onClick={() => {
-                    ipc
-                      .deleteSavedFilter(item.id, screen)
+                    source
+                      .remove(item.id, screen)
                       .then(setSaved)
                       .catch(() => undefined);
                   }}

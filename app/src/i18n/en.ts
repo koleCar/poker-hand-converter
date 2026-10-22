@@ -17,6 +17,7 @@
  * The tray menu is drawn by the Rust side, which has its own copy of the
  * `tray` strings (`src-tauri/src/strings.rs`); keep the two in step.
  */
+import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { countIn } from "./format";
 
 /** Counts in English digits ("1,204"), whatever the window's language. */
@@ -733,132 +734,13 @@ export const en = {
 
   /** The Hands screen (R2.7a). */
   hands: {
+    // The list, the filter row and the saved filters: the shared screen's words
+    // (R4.5b, `@rail/ui/strings/hands.en.ts`).
+    ...handsUiEn,
     unavailable: "Your hands are only available inside the Rail app.",
-    storeError: (reason: string) => `The hand list did not load: ${reason}`,
-    loading: "Loading hands…",
     empty: "No hands yet. They appear here as Rail imports them from your hand-history folders.",
-    noMatch: "No hand matches these filters.",
     rebuilding: (done: number, total: number) =>
       `Updating the hand list after an upgrade: ${n(done)} of ${hands(total)}. The list fills as it goes.`,
-    count: (shown: number) => hands(shown),
-    countOf: (matching: number, total: number) => `${n(matching)} of ${hands(total)}`,
-    loadingMore: "Loading more…",
-    listLabel: "Hands, newest first",
-    columns: {
-      date: "Date",
-      room: "Room",
-      stakes: "Stakes",
-      position: "Pos.",
-      cards: "Cards",
-      board: "Board",
-      result: "Result",
-      bigBlinds: "bb",
-      marks: "Marks",
-    },
-    noCards: "—",
-    preflop: "No flop",
-    noHero: "—",
-    handId: (id: string) => `#${id}`,
-    rowLabel: (date: string, room: string, stakes: string, result: string) =>
-      `${date}, ${room}, ${stakes}, ${result}`,
-    allIn: "All in",
-    allInEv: (ev: string) => `All in · EV ${ev} bb`,
-    evShort: (ev: string) => `EV ${ev}`,
-    allInPending: "All in · EV being computed",
-    showdown: "Showdown",
-    hasNote: "Has a note",
-    filters: {
-      label: "Filters",
-      clearAll: "Clear all",
-      clear: "Any",
-      groupLabel: (group: string) => `Filter: ${group}`,
-      summary: (group: string, values: string) => `${group}: ${values}`,
-      more: (first: string, more: number) => `${first} +${more}`,
-      groups: {
-        date: "Date",
-        site: "Room",
-        format: "Game",
-        variant: "Variant",
-        limit: "Limit",
-        size: "Table",
-        stakes: "Stakes",
-        position: "Position",
-        potType: "Pot",
-        result: "Result",
-        stack: "Stack",
-        allIn: "All-in",
-        notes: "Notes",
-        tags: "Tags",
-        player: "Player",
-      },
-      dates: {
-        today: "Today",
-        week: "Last 7 days",
-        month: "Last 30 days",
-        year: "Last 12 months",
-        custom: "Custom",
-        from: "From",
-        to: "To",
-      },
-      formats: {
-        cash: "Cash",
-        tournament: "Tournament",
-        sng: "Sit & Go",
-        spin: "Spin",
-      },
-      limits: {
-        nl: "No limit",
-        pl: "Pot limit",
-        fl: "Fixed limit",
-      },
-      sizes: {
-        hu: "Heads-up",
-        "6max": "6-max",
-        full: "Full ring",
-      },
-      potTypes: {
-        walk: "Walk",
-        bomb: "Bomb pot",
-        limped: "Limped",
-        "single-raised": "Single-raised",
-        "3bet": "3-bet",
-        "4bet+": "4-bet+",
-      },
-      results: {
-        won: "Won",
-        lost: "Lost",
-        even: "Broke even",
-      },
-      stacks: {
-        "0-40": "Under 40 bb",
-        "40-80": "40–80 bb",
-        "80-120": "80–120 bb",
-        "120+": "120 bb and more",
-      },
-      allIn: {
-        yes: "All in",
-        no: "Not all in",
-      },
-      notes: {
-        yes: "With a note",
-        no: "Without a note",
-      },
-      chips: "Chips",
-      removePlayer: (name: string) => `Player: ${name}. Remove this filter`,
-      noTags: "No tags yet. Tag a hand in the panel beside the replayer.",
-      count: (n: string) => n,
-    },
-    saved: {
-      button: "Saved filters",
-      title: "Saved filters",
-      none: "No saved filters yet.",
-      apply: (name: string) => `Apply “${name}”`,
-      remove: (name: string) => `Delete “${name}”`,
-      name: "Name",
-      namePlaceholder: "e.g. BTN 3-bet pots",
-      save: "Save current filters",
-      saveFailed: (reason: string) => `The filter was not saved: ${reason}`,
-    },
     panel: {
       label: "Hand",
       choose: "Choose a hand from the list to replay it here.",

@@ -1,10 +1,14 @@
 /* The virtualised list: a scroll box, a sticky header, and rows positioned
    absolutely in a spacer as tall as every loaded row. `--row` is the
-   density's (R2.8), which HandList.tsx reads back (`useRowHeight`). */
+   density's on the desktop (R2.8; `--density-row` is defined by the app's
+   `tokens/density.css` only, so the web gets the old 40 px), and a taller
+   two-line card where the list is narrow (R4.5b); HandList.tsx reads it back
+   through `.probe`. */
 
 .scroll {
-  --row: var(--density-row);
+  --row: var(--density-row, 40px);
 
+  container-type: inline-size;
   position: relative;
   overflow: auto;
   min-height: 0;
@@ -12,7 +16,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
   background: var(--surface-raised);
-  font-size: var(--density-table-font);
+  font-size: var(--density-table-font, var(--font-size-sm));
   font-variant-numeric: tabular-nums;
   overscroll-behavior: contain;
 }
@@ -52,6 +56,15 @@
 .body {
   position: relative;
   min-width: 62rem;
+}
+
+/* One row's height, measured by the list (HandList.tsx). */
+.probe {
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: var(--row);
+  pointer-events: none;
 }
 
 .body > .row {
@@ -147,4 +160,69 @@
 .tag {
   border-color: var(--accent-border);
   color: var(--accent-fg);
+}
+
+/* Narrow (a phone, or the list beside an open hand on a small window): each
+   row is a two-line card - when, the stakes, the room and the result on top;
+   position, cards and board under it (the big blinds and the marks are the
+   open hand's to say) - with no sideways scroll and a row well over the
+   44 px touch target. The header row says nothing a card does not, so it
+   goes. */
+@container (width < 40rem) {
+  .body {
+    --row: 4rem;
+
+    min-width: 0;
+  }
+
+  .head {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "date stakes room result"
+      "position cards board board";
+    row-gap: var(--space-1);
+    align-content: center;
+    min-width: 0;
+  }
+
+  .date {
+    grid-area: date;
+  }
+
+  .room {
+    grid-area: room;
+  }
+
+  .stakes {
+    grid-area: stakes;
+  }
+
+  .marks {
+    display: none;
+  }
+
+  .position {
+    grid-area: position;
+  }
+
+  .cards {
+    grid-area: cards;
+  }
+
+  .board {
+    grid-area: board;
+  }
+
+  .result {
+    grid-area: result;
+  }
+
+  /* The result in money says it; a column of big blinds does not fit. */
+  .bb {
+    display: none;
+  }
 }

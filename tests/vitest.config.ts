@@ -7,7 +7,14 @@ export default defineConfig({
     // words and the Croatian `plural` from the shared UI package by its name
     // (R2.7a); the web resolves it through its `file:` dependency, the
     // harness here.
-    alias: { "@rail/ui": fileURLToPath(new URL("../packages/ui", import.meta.url)) },
+    alias: {
+      "@rail/ui": fileURLToPath(new URL("../packages/ui", import.meta.url)),
+      // The shared package's screens rendered to markup (R4.5b,
+      // `sharedHandsScreen.test.ts`): React from the web's install, as the
+      // web bundles it (the package has none of its own).
+      react: fileURLToPath(new URL("../frontend/node_modules/react", import.meta.url)),
+      "react-dom": fileURLToPath(new URL("../frontend/node_modules/react-dom", import.meta.url)),
+    },
   },
   test: {
     include: ["test/**/*.test.ts"],

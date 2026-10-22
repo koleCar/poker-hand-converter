@@ -268,7 +268,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         onOpenHand(hand, standardText ?? "");
         return;
       }
-      // Park first, then navigate: `ReplayerTab` consumes the key on mount, so
+      // Park first, then navigate: `LibraryHands` consumes the key on mount, so
       // the hand has to be there before the route changes.
       parkHandForReplayer(hand, standardText);
       router.push(paths.library());

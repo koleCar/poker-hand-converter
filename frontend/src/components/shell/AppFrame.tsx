@@ -168,7 +168,7 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, childre
   /**
    * A hand the converter parked keeps the route open on its own.
    *
-   * Latched during render rather than in an effect, because `ReplayerTab`
+   * Latched during render rather than in an effect, because `LibraryHands`
    * consumes the `sessionStorage` key when it mounts — which is before any
    * effect here could look. Without the latch the hand would open and the
    * redirect below would close it again on the next render.

@@ -9193,6 +9193,91 @@ produce identical `hands` rows and render identically.
     `share_anonymised_phf` returns a scrubbed document for every hand.
     Browser: the owner's switch on `/h/:slug` at 375 px in Croatian, on and
     off.
+- *As built, R4.5b* (§15): **done** - the replayer and Hands on the web from
+  the shared package. The replayer was already one copy (R2.6); the Hands
+  screen now is: the desktop app's (R2.7a) moved into `packages/ui/hands/`
+  and rendered by both surfaces, each over its own data.
+  - **What moved** (`git mv` from `app/src/screens/hands/`, then made
+    surface-free): `HandList` (virtualised list), `FilterBar` + `Popover` +
+    `SavedFilters` (the chip row; the desktop's Reports keeps using it with
+    `REPORT_GROUPS`), `filter.ts` (state, presets, saved form, `toQuery`),
+    `format.ts` (locale passed in, not the app's live one), `useHandList`
+    (pages, counts, arrivals) and the screen's CSS; new `HandsScreen` (the
+    screen the app's `Hands.tsx` was, with the panel, the empty / loading /
+    error states and the title the surface's) and `model.ts`: **`HandsSource`**
+    (`page`, `facets`, `onChanged`, `features {annotations, search, sorts}`,
+    optional `savedFilters`) - what each surface implements - and the rows and
+    counts (the store's DTOs; `heroHandClass`, `positionalNames`, `library`
+    optional). The words moved to `packages/ui/strings/hands.{en,hr}.ts`
+    (`UiStrings.hands`); the app's dictionary spreads them and keeps its own
+    messages and the hand panel's. The app keeps `filter.ts` / `format.ts`
+    as re-exports (plus the hand-offs between its screens and its live
+    language), so Reports, Players, Today, the palette and the HUD popup are
+    unchanged; `app/src/lib/handsSource.ts` is its source over the store's
+    commands; its `ipc.ts` re-exports the shared types.
+  - **The web's data** (migration `20270630090000_library_list.sql`, pgTAP
+    `library_list` 40): `library_page(filter, after, limit)` - one page,
+    keyset after the last row, at most 500, newest first or `oldest` / `pot` /
+    `won` / `lost`; the predicates written only for the groups that are set,
+    so the plan is the owner's index in the sort's order - and
+    `library_facets(filter)` - per group every value present with the hands
+    it would match under the other groups (0 included, so a chosen value
+    keeps its chip), `total` and `library`, one grouping-sets pass over
+    `library_rows`. Security invoker under RLS; the hands, the hero's
+    `hand_stats` row and its `hand_stats_ev` row at the client's versions. The
+    groups are the store's, by its rules (`SizeClass`, `Stake::key`,
+    `STACK_DEPTHS`, `RESULTS`); the searches are the old filter bar's (hero
+    cards or a class, board cards, a player at the table, showdown). pgTAP:
+    every group and search, dates, every sort walked page by page, the row's
+    shape, the counts leaving their own group out, the page and the counts
+    agreeing group by group, RLS and anon. At 200 000 hands (local stack, a
+    rolled-back transaction): a page 9-25 ms (a pot-type filter, which reads
+    the statistics rows first, 0.4 s; the next page 24 ms), the counts
+    1.2 s; the first version, which paged through the counts' function, took
+    0.8 s a page and was rewritten.
+  - **The web's screen** (`components/library/LibraryHands.tsx`, replacing
+    `ReplayerTab`; `HandList.tsx`, `HandFiltersBar.tsx`, `handFilters.ts`
+    and their CSS in `app.css` deleted): `webHandsSource`
+    (`lib/db/handsSource.ts`) and `DataSourceProvider(webDataSource)` - the
+    web's `DataSource` mounted at last - the open hand in the shared replayer
+    with share and publish in its header, the converter's hand-off above the
+    screen with its save button, the sign-in gate, the desktop-sync line, and
+    live arrivals through `notifyHandsChanged`. `/library` unchanged; the open
+    hand is page state, as before.
+  - **Changed on purpose** (the web's library): the pager became the
+    virtualised list that pages as it scrolls; the filter form became the
+    chip row, with counts, and gained the store's groups (stakes as chips,
+    pot type, stack depth, all-in, variant, limit, table size); the order is a
+    chip (newest, oldest, biggest pots, best and worst result; the old
+    "biggest pots" button); the hand opens beside the list (above it where the
+    screen is under 50rem) instead of above the whole card; rows show the
+    result in big blinds and the all-in EV where the statistics are derived.
+    Not kept: the table-name search, the minimum pot, the showdown- and
+    winner-position filters and the anonymity select (positional rooms' hands
+    keep a mark in the list), and "N new hands - show" (arrivals go on top
+    without moving the rows in view - `HandList` now moves the view down by
+    what arrived, on both surfaces). The desktop app: the list beside an open
+    hand is narrower than 40rem at most window sizes, so its rows are now
+    two-line cards there instead of a 62rem row scrolling sideways; under
+    50rem the hand stacks above the list (it used to overflow).
+  - **Responsive** (375 px, both languages): no sideways page scroll; list
+    rows are 64 px two-line cards (date, stakes, room, result; position,
+    cards, board); the chip row scrolls sideways inside itself; on a coarse
+    pointer every chip, panel button and field is at least 44 px and the
+    fields 16 px (no zoom on focus); the hand opens above the list, full
+    width.
+  - **Tests.** Vitest `sharedHandsScreen` (17): the filter's searches and
+    order as a query and as a saved filter, the chips each source gets, the
+    web source against a faked `rpc` (what it asks for, the rows and counts
+    it returns, live arrivals), the list and the filter row rendered to
+    markup with desktop and web rows in English and Croatian (the harness
+    aliases React to the web's install for this). `appHandsFilter` unchanged
+    and green through the app's re-export. pgTAP `library_list` (40; suite
+    37 files). Browser, against an isolated local stack with the corpus
+    samples' 1 541 hands and `next start`: list, paging, room filter and
+    counts, a hand-class search, opening a hand, 375 px in Croatian; the
+    desktop screen against a mocked IPC (2 000 made-up hands) at 1 024 and
+    1 440 px. Screenshots (`screens.mjs`, base = R4.5a): SCREENS.
 
 ---
 

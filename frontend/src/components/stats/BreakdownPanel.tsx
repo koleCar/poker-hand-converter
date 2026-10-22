@@ -25,7 +25,7 @@ import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
 import { getParser } from "../../lib/phf";
 import { emptyMoney, rates, type StatsRates } from "../../lib/stats";
-import { POSITIONS } from "../handFilters";
+import { POSITION_ORDER as POSITIONS } from "@rail/ui/hands/filter";
 import { countIn, numberFormat, stakeLabel, useIntlLocale } from "./format";
 
 interface BreakdownPanelProps {

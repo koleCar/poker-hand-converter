@@ -250,108 +250,25 @@ export const converterEn = {
     fileName: (handId: string) => `hand-${handId}.txt`,
   },
 
-  /** `ReplayerTab`: the hand-history screen around the list. */
+  /** `library/LibraryHands`: the hand-history screen around the shared Hands screen (R4.5b). */
   library: {
     heading: "Hand history",
     noDatabase: "No database configured.",
     privateToAccount: "Private to your account.",
     count: (count: number) => `${num(count)} ${hands(count)}`,
-    loadFailed: "Could not load hands.",
-    parseFailed: "This hand could not be parsed.",
     loadHandFailed: "Could not load this hand.",
     fromConverter: "From the converter — not saved to your library.",
     signInPrompt: "Sign in to see the hands you have saved.",
     signInReason: "Sign in to open your hand library.",
     signIn: "Sign in",
-    previous: "← Previous",
-    next: "Next →",
-    page: (page: number, pages: number) => `Page ${num(page)} of ${num(pages)}`,
-    /** Hands that arrived live while the reader is past the first page (R1.10). */
-    liveNew: (count: number) => (count > 0 ? `${num(count)} new ${hands(count)} — show` : "New hands — show"),
     /** A desktop app synced into this account in the last few minutes. */
     syncing: (device: string | null) =>
       device ? `Hands arriving from ${device}` : "Hands arriving from the desktop app",
     syncingTitle: (time: string) => `Last sync: ${time}`,
-  },
-
-  /** `HandList`. */
-  list: {
-    loading: "Loading hands…",
-    empty:
-      "No hands match these filters. Convert your hand histories on the Converter tab, or upload a single hand above.",
-    columns: {
-      time: "Time",
-      hero: "Hero",
-      board: "Board",
-      stakes: "Stakes",
-      pot: "Pot",
-      heroNet: "Hero P/L",
-    },
+    /** No hand saved at all (the shared Hands screen, R4.5b). */
+    empty: "No hands saved yet. Convert your hand histories on the Converter tab, or upload a single hand there.",
+    loadingHand: "Loading the hand…",
+    /** Rail's own re-import format, in the Room column. */
     standardFormat: "Standard format",
-    preflop: "preflop",
-    anon: "ANON",
-    anonTitle:
-      "This room labels every seat by its position rather than naming the player, so the name filter cannot find this hand. Filter by position instead.",
-    showdown: "SD",
-    replay: "Replay",
-  },
-
-  /** `HandFiltersBar`. Position labels (UTG, BTN…) stay as poker writes them. */
-  filters: {
-    title: "Filters",
-    activeCount: (count: number) => `${num(count)} active`,
-    board: "Board",
-    boardPlaceholder: "e.g. Ah Kd 2c  or  AhKd",
-    boardMatches: "Hands whose board contains",
-    boardHint: "Every card you enter must appear on the board",
-    heroCards: "Hero hole cards",
-    heroCardsPlaceholder: "e.g. AhKs  or  AKs  or  TT",
-    handClass: (classes: string) => `Hand class: ${classes}`,
-    exactly: "Exactly",
-    heroCardsHint: "Exact cards (AhKs) or a hand class (AKs, AKo, AK, TT)",
-    search: "Search",
-    searching: "Searching…",
-    reset: "Reset",
-    moreFilters: "More filters",
-    fewerFilters: "Fewer filters",
-    quick: "Quick:",
-    showdownOnly: "Showdown only",
-    heroWon: "Hero in profit",
-    biggestPots: "Biggest pots",
-    heroPosition: "Hero position",
-    winnerPosition: "Winner position",
-    winnerHint:
-      "Who took the pot, by seat. This is the only way to ask that question of a room that does not give you names.",
-    clear: "Clear",
-    player: "Player at the table",
-    playerPlaceholder: "exact screen name",
-    playerHint: "Exact screen name, as the room wrote it.",
-    playerHintLossy: (count: number) =>
-      `Exact screen name. ${num(count)} ${hands(count)} from rooms that label seats by position cannot match it.`,
-    site: "Site",
-    everyRoom: "Every room",
-    siteOption: (name: string, count: number) => `${name} (${num(count)})`,
-    game: "Game",
-    gameAny: "Cash and tournament",
-    gameCash: "Cash only",
-    gameTournament: "Tournament only",
-    table: "Table",
-    tablePlaceholder: "e.g. NLHPurple",
-    minPot: "Min pot",
-    minPotChips: "In chips",
-    minPotCurrency: "In the table currency",
-    from: "From",
-    to: "To",
-    sortBy: "Sort by",
-    sort: {
-      played_desc: "Newest first",
-      played_asc: "Oldest first",
-      pot_desc: "Biggest pot",
-      profit_desc: "Hero's biggest win",
-      profit_asc: "Hero's biggest loss",
-    },
-    excluded: (count: number) => `${num(count)} ${hands(count)} ${count === 1 ? "is" : "are"} excluded by the name filter.`,
-    positionalNote:
-      "This room labels every seat by its position relative to the button, and the button moves every hand, so villain names are not people. Filter by position instead.",
   },
 } as const;
