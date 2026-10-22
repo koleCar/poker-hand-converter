@@ -6,7 +6,7 @@ import { ProgressTab } from "../../../components/analysis/progress/ProgressTab";
 /** Client half of `/analysis/progress`: the shell, with the Analysis tab selected. */
 export function ProgressScreen({ query }: { query: Record<string, string | string[] | undefined> }) {
   return (
-    <AppFrame tab="analysis">
+    <AppFrame tab="analysis" live="notify">
       {({ refreshToken }) => <ProgressTab initialQuery={query} refreshToken={refreshToken} />}
     </AppFrame>
   );

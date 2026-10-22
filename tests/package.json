@@ -40,6 +40,7 @@
     "desktop-ingest:parity": "vitest run --config scripts/desktop-ingest/vitest.config.ts",
     "supabase:perf": "vitest run --config scripts/supabase-perf/vitest.config.ts",
     "realtime:arrivals":"node scripts/realtime-arrivals/check.mjs",
+    "realtime:activity": "node scripts/realtime-activity/check.mjs",
     "hud:policy-check": "node scripts/hud-policy/check.mjs",
     "phf:dts-check": "tsc -p scripts/phf-dts",
     "wasm:build": "node scripts/wasm/build.mjs",

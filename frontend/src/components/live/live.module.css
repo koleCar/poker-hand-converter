@@ -1,5 +1,6 @@
 /* Live arrival on the web (Rail R1.10): the library's "a computer is syncing"
-   line and its "N new hands" button. */
+   line and its "N new hands" button. The shell's live strip (R4.3): uploads in
+   the account's other tabs, the desktop app's sync, "new hands - refresh". */
 
 .syncing {
   display: inline-flex;
@@ -18,8 +19,89 @@
   flex: none;
 }
 
+.dotWarn {
+  background: var(--warning-fg);
+}
+
+.dotDone {
+  background: var(--accent-border);
+}
+
 .fresh {
   justify-self: start;
   align-self: flex-start;
   border-color: var(--accent-border);
+}
+
+/* The library's live region around the button: out of the card's flow
+   (no empty grid row) while empty, still in the accessibility tree. */
+.freshSlot {
+  justify-self: start;
+  align-self: flex-start;
+}
+
+.freshSlot:empty {
+  position: absolute;
+}
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-inline-size: 0;
+}
+
+.text {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.bar {
+  position: relative;
+  flex: 1 1 8rem;
+  max-inline-size: 14rem;
+  block-size: 6px;
+  border-radius: 3px;
+  background: var(--surface-raised-2);
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: linear-gradient(90deg, var(--accent), var(--good));
+  transition: width 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    transition: none;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

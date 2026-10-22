@@ -61,6 +61,8 @@ const PAGE_SIZE = 25;
  * two, so ten quiet minutes means it has stopped.
  */
 const SYNC_FRESH_MS = 10 * 60 * 1000;
+/** Scrolled further than this, the reader is reading: live batches wait behind the button. */
+const READING_SCROLL_PX = 160;
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
@@ -205,7 +207,10 @@ export function ReplayerTab({ refreshToken, onHandsSaved, arrival = null }: Repl
       return;
     }
     handledArrival.current = arrival.seq;
-    if (page === 0) {
+    // In place only while the reader is at the top of the first page: rows
+    // must not move under someone reading down the list (R4.3). Anywhere
+    // else the batch becomes the "N new hands - show" button.
+    if (page === 0 && window.scrollY <= READING_SCROLL_PX) {
       void runSearch(filters, 0, true);
     } else {
       setFresh((current) => ({ hands: (current?.hands ?? 0) + arrival.hands }));
@@ -430,11 +435,14 @@ export function ReplayerTab({ refreshToken, onHandsSaved, arrival = null }: Repl
 
             {listError ? <p className="notice notice--error">{listError}</p> : null}
 
-            {fresh && auth.isSignedIn ? (
-              <button type="button" className={`btn btn--sm ${liveStyles.fresh}`} onClick={showFresh}>
-                {t.liveNew(fresh.hands)}
-              </button>
-            ) : null}
+            {/* Polite live region: the button is announced when it appears. */}
+            <div aria-live="polite" className={liveStyles.freshSlot}>
+              {fresh && auth.isSignedIn ? (
+                <button type="button" className={`btn btn--sm ${liveStyles.fresh}`} onClick={showFresh}>
+                  {t.liveNew(fresh.hands)}
+                </button>
+              ) : null}
+            </div>
 
             <HandList
               rows={rows}

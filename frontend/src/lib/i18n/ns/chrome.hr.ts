@@ -1,6 +1,11 @@
 import { plural } from "../plural";
 import type { Dict } from "../types";
 
+const liveNum = (value: number) => value.toLocaleString("hr-HR");
+/** "1 spremljena ruka", "2 spremljene ruke", "5 spremljenih ruku". */
+const liveSaved = (count: number) =>
+  `${liveNum(count)} ${plural(count, "spremljena ruka", "spremljene ruke", "spremljenih ruku")}`;
+
 /** Strings for the app's chrome, Croatian. Same shape as `chrome.en.ts`. */
 export const chromeHr: Dict["chrome"] = {
   intl: "hr-HR",
@@ -53,5 +58,31 @@ export const chromeHr: Dict["chrome"] = {
     offlineShort: "Offline",
     connected: "Baza povezana",
     stored: (count: string, n: number) => `${count} ${plural(n, "spremljena ruka", "spremljene ruke", "spremljenih ruku")}`,
+  },
+  live: {
+    region: "Aktivnost uživo",
+    elsewhere: "U drugoj kartici ili na drugom uređaju",
+    uploadSaving: (sent: number, total: number | null, estimated: boolean) =>
+      total
+        ? `Spremam ${liveNum(sent)} od ${estimated ? "~" : ""}${liveNum(total)} ${plural(total, "ruke", "ruke", "ruku")} s web učitavanja`
+        : `Spremam ${liveNum(sent)} ${plural(sent, "ruku", "ruke", "ruku")} s web učitavanja`,
+    uploadRetrying: (sent: number) =>
+      `Web učitavanje: problem s vezom, pokušavam ponovno (dosad ${liveSaved(sent)})`,
+    uploadWaiting: (sent: number) =>
+      `Web učitavanje čeka budžet učitavanja računa (dosad ${liveSaved(sent)})`,
+    uploadPaused: (sent: number) =>
+      `Web učitavanje pauzirano na ${liveNum(sent)} ${plural(sent, "ruci", "ruke", "ruku")} — nastavi ga u kartici u kojoj je pokrenuto`,
+    uploadDone: (inserted: number, duplicates: number) =>
+      `Web učitavanje gotovo: ${liveNum(inserted)} ${plural(inserted, "nova ruka spremljena", "nove ruke spremljene", "novih ruku spremljeno")}${
+        duplicates ? `, ${liveNum(duplicates)} ${plural(duplicates, "već postoji", "već postoje", "već postoji")} u biblioteci` : ""
+      }`,
+    desktopSyncing: (hands: number) =>
+      `Desktop aplikacija sinkronizira: dosad ${liveNum(hands)} ${plural(hands, "ruka", "ruke", "ruku")}`,
+    newHands: (count: number) =>
+      count > 0
+        ? `${plural(count, "Stigla je", "Stigle su", "Stiglo je")} ${liveNum(count)} ${plural(count, "nova ruka", "nove ruke", "novih ruku")} — osvježi`
+        : "Stigle su nove ruke — osvježi",
+    announceUpload: "U drugoj kartici traje web učitavanje.",
+    announceDesktop: "Desktop aplikacija sinkronizira ruke.",
   },
 };

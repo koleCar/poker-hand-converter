@@ -8864,6 +8864,122 @@ produce identical `hands` rows and render identically.
 ### R4.3 Live progress and arrival — S
 - Progress of a large upload and hands synced from the desktop appear live
   (Realtime).
+- *As built* (§15; on `staging`, not yet in production; the migration not
+  applied to the hosted project):
+  - **Arrival was R1.10's; R4.3 widens it.** `hand_arrivals` (one change per
+    save call, debounced 1.5 s / max 5 s backing off to 30 s, nothing while
+    hidden, resync on reconnect) already refreshed `/library` and `/stats`.
+    Now: **the analysis screens** (overview, reports, progress, leaks, plan)
+    subscribe too, as `AppFrame live="notify"`: their re-read is a visible
+    reload, so the screen is left alone and the shell offers "N new hands
+    arrived - refresh" (bumps `refreshToken`; a resync alone offers nothing).
+    **`/library` stops moving rows under a reader**: its first page updates
+    in place only while the window is scrolled less than 160 px, otherwise
+    the batch becomes "N new hands - show" (now inside a polite live
+    region). Token refresh needed no code: supabase-js 2.116 gives Realtime a
+    token callback, re-read on every heartbeat and pushed on
+    `TOKEN_REFRESHED`; the new channel also calls `setAuth()` (the callback)
+    before its join and again after a refused or failed one.
+    `ArrivalBatch` gained `desktopHands`.
+  - **Progress elsewhere: Presence on a private channel per account.** The
+    tab running an R4.2 upload publishes `{v, kind: "upload", id, state,
+    sent, inserted, duplicates, received, total, estimated, at}` - the
+    manifest's random id, the saver's state and counts, ~200 bytes; no hand,
+    no file name - as its presence on `activity:<uid>`
+    (`components/live/activityChannel.ts`: one channel per tab and account,
+    shared and reference-counted, presence key random per page load, what
+    the tab tracks re-tracked on every `SUBSCRIBED`; `useUploadPresence` in
+    `ConverterTab`). `lib/live/activity.ts`'s publisher sends a new state at
+    once, counts at most every 2 s, a heartbeat every 15 s while nothing
+    moves, and keeps "done" up 20 s before withdrawing; its board (the
+    viewer) shows the newest entry per upload, never its own tab's, drops an
+    entry whose tab left (unless finished: 20 s) or that has not changed for
+    45 s on the viewer's own clock. The total: a file's hands are known when
+    it is split, so the estimate is the opened files' hands scaled by the
+    bytes not opened yet ("~"), exact when conversion ends (first browser
+    run, which scaled by bytes *read*, showed "~800" growing with the save -
+    a file's bytes count only once it is finished - and was changed).
+    **Why Presence**: no database write per batch (Presence lives in
+    Realtime's memory; a progress row would be an UPDATE, a WAL decode and an
+    RLS check per subscriber for each of a 1M-hand upload's ~4 000 calls, the
+    cost `hand_arrivals` exists to avoid); stale progress expires with the
+    socket (measured ~0.6 s after a close; a killed process ~1 s); a tab
+    opened mid-upload gets the state on join. Broadcast would need a TTL for
+    everything and shows nothing until the next message; a table needs a
+    janitor. 4 000 calls at R4.2's rate cost ≤ ~2 000 presence messages
+    (unit-tested).
+  - **The desktop app syncing** (it does not announce a sync; Rust
+    untouched): "Desktop app syncing: 12 500 hands so far" from the arrivals
+    of desktop origin, gone after two quiet minutes (`noteDesktopBatch`). On
+    `/library` the R1.10 line naming the device stays instead.
+  - **UI** (`components/live/LiveStrip.tsx`, in `AppFrame` on every live
+    screen, signed in only): one line per upload elsewhere with a bar when
+    the total is known, the desktop line, the notify button; strings in
+    `chrome.live` (`en`, `hr`); wraps at 375 px. The counts are not a live
+    region (they tick every 2 s); a visually hidden `role="status"` region
+    announces only beginnings and ends (an upload started elsewhere,
+    finished with its counts, the desktop app syncing, new hands to show).
+  - **Authorisation** (`20270616090000_live_activity.sql`, the first
+    `realtime.messages` policies; RLS on that table had no policy, so every
+    private join was refused): `to authenticated`, topic
+    `activity:<auth.uid()>` and the row's topic equal to it; receive
+    presence + broadcast, send presence only. **Broadcast must be in the
+    receive policy**: with presence alone Realtime 2.73 refused the owner's
+    own join ("You do not have permissions to read from this Channel
+    topic"); with no broadcast send policy nothing can be broadcast there (a
+    control run with one delivered a probe). Not admitted: another account
+    (either way), `anon`, other topics, a topic that only starts with the
+    uid. A **public** channel named `activity:<A>` is a different channel
+    (nothing crosses either way). The bell's and the arrivals' channels are
+    public, guarded by table RLS, unaffected. Nothing to configure on the
+    hosted project; Realtime's "allow public access" must stay on for those
+    two.
+  - **The converter's privacy promise** gains one line (page comment,
+    `docs/WEB.md`): while a signed-in save runs, its counts go to the
+    account's own private channel. A guest, or a drop with saving off, still
+    makes no request.
+  - **Tests**: `tests/test/liveActivity.test.ts` (27: the payload read
+    defensively, the estimate, the mapping; the publisher's throttle,
+    immediate state changes, heartbeat, done-then-withdraw, dispose, a
+    million-hand upload's message count; the board's own-tab exclusion,
+    45 s staleness on its own clock, leave vs finished, newest entry wins,
+    junk skipped; the desktop line; the channel with a fake client: token
+    before join, private config with the tab key, one shared channel and
+    the last release removes it, per-account channels, empty state while
+    down and a token refresh after a failed join, re-track after a
+    reconnect, a viewer's release never untracks the uploader, released
+    before the join opens nothing); `liveArrivals.test.ts` (12, updated for
+    `desktopHands`). pgTAP `live_activity.test.sql` (27). **End to end**,
+    `npm run realtime:activity` (`tests/scripts/realtime-activity/check.mjs`,
+    local stacks only): 16 / 16 on an isolated stack (`rail-r43`, ports
+    5642x, CLI 2.75 / Realtime 2.73.2) - A's other device sees the upload at
+    once (194-byte entry), its update, and its leave 0.56 s after the tab
+    closes; B, anon and A-on-B refused; public same-name channels kept
+    apart; no broadcast delivered. `npm run realtime:arrivals` 15 / 15 on
+    the same stack. Whole pgTAP suite on it: 35 files, 1 146 tests, pass.
+    **Browser** (`next dev` against that stack, signed in as a test user):
+    `/stats` showed a simulated device's upload ("Saving 240,000 of
+    ~1,000,000 …", bar), then "finished", gone 20 s later; a killed
+    uploader's entry gone within ~1 s; on `/analysis/reports` three desktop
+    batches made one "Desktop app syncing: 1,500 hands so far" and one
+    "1,500 new hands arrived - refresh", which reloaded the tab; `/library`
+    scrolled down showed "500 new hands - show" with rows unmoved, at the
+    top re-read in place (2,500). A real 20 000-hand drop on `/convert` in
+    one tab showed in a second tab as "Saving 0 of ~20,000" climbing every
+    2 s to "Web učitavanje gotovo: 20.000 novih ruku spremljeno" (Croatian,
+    375 px wide), with the hidden status region announcing start and end.
+  - **Left / for the owner**:
+    - Apply `20270616090000_live_activity.sql` (after R4.2's migrations) -
+      until then private joins are refused, the strip shows no uploads and
+      the uploader's track fails silently; arrivals work regardless. Check
+      as two users on the hosted Realtime (newer than 2.73) that the join
+      still needs the broadcast read and nothing more (`npm run
+      realtime:activity` refuses non-local URLs; the same steps by hand).
+    - The desktop app could publish its own sync progress on the same
+      channel (presence from Rust, with the session's JWT) for a real
+      "N of M" and an end; today the web infers it from arrivals.
+    - A resumed upload's estimate counts the bytes of files skipped as
+      already stored (the "~" covers it; the counts are exact).
 
 ### R4.4 Parity test — S
 - Automated: the same corpus file through the app path and the web path gives
@@ -9054,3 +9170,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-20 | **Phase 3 closed on staging** (#218, #221, #223, #224, #217): CI runs after R3.14 turned up two HUD fixes and the gates' noise. **macOS, a table seen before keeps its remembered title through a look without its Accessibility partner** (mid-move, or a client too busy to answer): it no longer drops out of the find and comes back as a new table (a tournament move was attached afresh). **macOS, a new window's title and title bar**: the window server lists a new window before the Accessibility API gives its title and close button; a window untitled or with an unmeasured bar (`Remembered::bar_known`) keeps the re-find at 500 ms for up to 3 s, and the engine picks the find's pace after the look - a new table's overlay covered its title bar until the next 2 s find before. **Gates**: paint p95 < 16.7 ms is gated on real hardware (the same debug build read 2.8 - 28 ms on Windows runners), recorded on CI under a three-frame ceiling; follow p50 recorded on a CI Mac. Tests made robust to slow runners: `in_play` checks the count only before the watcher's quiet period, Windows restack waits up to 3 s, the storm compares with the table's frame now, a table opened over another is checked against its own overlay, river solver tests 120 s; a failed `macos_tracking` window step prints every window and a timeline, HUD log lines carry their time. |
 | 2026-10-22 | **R4.1 done on staging**: the web converts with the WASM core. The converter's pipeline (worker and main-thread fallback), the single-hand box and shares of unsaved hands go through `lib/wasm/engine.ts`: the core (`rail-core-wasm --target web`), or - when it cannot load - the TypeScript parsers, loaded on demand, with one warning; output unchanged (`ConversionResult`, `parsedAt` from the caller). Core: new export `split` (the top parser's chunks, so batches of 100 stay) and an empty file name means none. `lib/phf/types.ts` re-exports the 36 generated types (192 importers unchanged; 30 hand-written declarations gone). **Deploy**: the web package committed at `frontend/src/lib/wasm/rail-core/` is CI's Linux x86_64 build (rust-lld on macOS lays the module out differently, so a Mac build can never be committed; `wasm:web` refuses there, `wasm:web-check` only checks the copy against its BUILD.json); the `wasm` job uploads its build as `rail-core-web` and fails on any byte difference, `npm run wasm:web-from-ci` installs the artefact; `wasm:build` remaps the cargo home and repository paths out of the module (78 absolute paths before). Served as `/_next/static/media/*.wasm`, `application/wasm`, immutable; 2.28 MB / 0.77 MB gzipped. Zero server requests holds (browser check; and a test that the loader fetches only its `.wasm`). Tests: `wasmWeb.test.ts` (32, `npm test`), `scripts/wasm/web.test.ts` - **556 / 556** files, 8 422 hands, 196 failures equal on the web's path. Browser worker: 6 000 hands in 2.7 s (~2 200 hands/s). **TS parsers kept** (fallback, oracle); deleting them waits for an agreed period of shadow mode green in production, after the owner promotes `staging`. |
 | 2026-10-22 | **R4.2 done on staging**: bulk upload at desktop scale. The converter's worker reads the drop itself, one file at a time (`bulkSource.ts`; folders up to 100 000 files, non-hand-history files skipped), zips through a streaming reader of its own (`zipStream.ts`: `Blob.slice` + the browser's `DecompressionStream`, zip64, no library, 1.4 KB gzipped), and a signed-in drop is saved while it converts (`bulkSaver.ts`: a 1 500-hand queue that holds the worker back, calls of 250 hands / 3 MB, backoff and pause, budgets) through `ingest_hands` from the account's web source - rows `origin = 'upload'`, PHF only, the account's budget instead of the web's global one (migrations `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql`: `register_web_hand_source`, `ingest_hands` for web sources, the text CHECK). Resume = drop the same files again: an IndexedDB manifest skips stored files, entries and batches. Originals to Storage only on the new opt-in "Also keep the original files" (off by default, per visit): private bucket `hand-uploads`, gzip, 50 MiB, owner-folder policies (select / insert / delete under `auth.uid()`, no update, nothing for anon). The tab keeps the first 20 000 hands. Measured: 1 000 023 hands, 138 MB zip, 545 s (~1 830 hands/s) in Node with the WASM core, heap +45 MB. Tests: 39 Vitest (inputs, save, worker), pgTAP `web_bulk_upload` (37); end to end against a local stack (found and fixed an untyped gzip the bucket refused). Not applied to production. |
+| 2026-10-22 | **R4.3 done on staging**: live progress and arrival. An upload's progress shows in the account's other tabs and devices through **Realtime Presence on the private channel `activity:<uid>`** (state and counts, ~200 bytes, no hand or file name; at most every 2 s, heartbeat 15 s, "done" kept 20 s; no database write per batch; an entry leaves with its socket, ~0.6 s after a close, or after 45 s unchanged): "Saving 120 000 of ~1 000 000 hands from a web upload" with a bar, then "finished"; the total from the opened files' splits scaled by the unopened bytes. Migration `20270616090000_live_activity.sql`: the first `realtime.messages` policies - `authenticated`, own topic only, receive presence + broadcast (Realtime's join is a broadcast read; presence alone was refused), send presence only; B, anon, other topics and broadcasts refused; a public channel of the same name kept apart. Arrivals (R1.10's `hand_arrivals`) now also reach the analysis screens as "N new hands arrived - refresh" (`AppFrame live="notify"`), `/library` updates in place only while the reader is at the top, and "Desktop app syncing: N hands so far" comes from desktop-origin arrivals (two quiet minutes end it). Strip in `AppFrame` (`LiveStrip`, `en` + `hr`, a hidden status region announcing only starts and ends). Tests: Vitest `liveActivity` 27 (publisher, board, estimate, channel lifecycle with a fake client), `liveArrivals` 12; pgTAP `live_activity` 27 (suite 35 files / 1 146); `npm run realtime:activity` 16 / 16 and `realtime:arrivals` 15 / 15 on an isolated local stack; browser end to end (two tabs, a 20 000-hand drop, desktop batches, Croatian at 375 px). Not applied to production. |

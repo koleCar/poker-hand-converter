@@ -42,6 +42,8 @@ export interface ArrivalBatch {
   hands: number;
   /** At least one signal came from the desktop app. */
   desktop: boolean;
+  /** Of `hands`, those the desktop app's signals reported (R4.3's "desktop app syncing"). */
+  desktopHands: number;
   /** At least one signal was a resync: the count may be short. */
   resync: boolean;
 }
@@ -93,6 +95,7 @@ export function createArrivalBatcher(options: ArrivalBatcherOptions): ArrivalBat
   let pending = false;
   let firstAt = 0;
   let hands = 0;
+  let desktopHands = 0;
   let desktop = false;
   let resync = false;
   let timer: unknown = null;
@@ -112,9 +115,10 @@ export function createArrivalBatcher(options: ArrivalBatcherOptions): ArrivalBat
     // A flush forced by the max wait means the burst is still going on.
     maxWait = forced ? Math.min(capMaxWait, maxWait * 2) : baseMaxWait;
     seq += 1;
-    const batch: ArrivalBatch = { seq, hands, desktop, resync };
+    const batch: ArrivalBatch = { seq, hands, desktop, desktopHands, resync };
     pending = false;
     hands = 0;
+    desktopHands = 0;
     desktop = false;
     resync = false;
     options.onFlush(batch);
@@ -146,6 +150,9 @@ export function createArrivalBatcher(options: ArrivalBatcherOptions): ArrivalBat
         resync = true;
       } else if (Number.isFinite(signal.hands) && signal.hands > 0) {
         hands += Math.floor(signal.hands);
+        if (signal.origin === "desktop") {
+          desktopHands += Math.floor(signal.hands);
+        }
       }
       if (signal.origin === "desktop") {
         desktop = true;
@@ -185,4 +192,43 @@ export function arrivalSignalFromRow(row: unknown): ArrivalSignal {
     hands: Number.isFinite(count) && count > 0 ? count : null,
     origin: record.origin === "desktop" || record.origin === "web" ? record.origin : null,
   };
+}
+
+/**
+ * "Desktop app syncing: 12 500 hands so far" (R4.3), from the batches above.
+ *
+ * The app does not announce a sync's start or end; its rows do. Desktop
+ * hands accumulate while batches keep coming; a sync is over once none has
+ * come for `quietMs` (2 minutes - the app sends a batch every few seconds
+ * while it has work), and the next batch after that starts a new count.
+ */
+export const DESKTOP_SYNC_QUIET_MS = 2 * 60 * 1000;
+
+export interface DesktopSyncState {
+  /** Desktop hands since this sync's first batch reached the page. */
+  hands: number;
+  /** The viewer's clock at the last desktop batch. */
+  lastAt: number;
+}
+
+export function noteDesktopBatch(
+  current: DesktopSyncState | null,
+  batch: ArrivalBatch,
+  now: number,
+  quietMs = DESKTOP_SYNC_QUIET_MS,
+): DesktopSyncState | null {
+  if (batch.desktopHands <= 0) {
+    return current;
+  }
+  const running = current !== null && now - current.lastAt < quietMs;
+  return { hands: (running ? current.hands : 0) + batch.desktopHands, lastAt: now };
+}
+
+/** The sync to show at `now`, or null once it has gone quiet. */
+export function activeDesktopSync(
+  current: DesktopSyncState | null,
+  now: number,
+  quietMs = DESKTOP_SYNC_QUIET_MS,
+): DesktopSyncState | null {
+  return current !== null && now - current.lastAt < quietMs ? current : null;
 }
