@@ -1,13 +1,12 @@
 /**
- * The user's own preflop charts (R5.3): their chart sets and an editor per
- * set (the comparison with the hands they played comes with R5.3's second
- * part). Shared so the desktop app
+ * The user's own preflop charts (R5.3): their chart sets, an editor per set
+ * and the comparison with the hands they played. Shared so the desktop app
  * can render it once it has the analysis (R5.4); today the web does, at
  * `/analysis/my-charts`.
  *
  * What is the surface's: the data (`PreflopChartsSource`), where the screen
- * is (`selected`, `situation`, `onNavigate` - the web keeps them in the
- * address) and the states' look.
+ * is (`selected`, `view`, `onNavigate` - the web keeps them in the address),
+ * how a hand opens (`renderHandLink`, at the decision) and the states' look.
  * Off-table only (A10): `hiddenDuringPlay` renders a notice and reads nothing.
  */
 import { useCallback, useEffect, useState, type ReactNode } from "react";
@@ -15,12 +14,14 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { errorText } from "../hands/model";
 import { useUiStrings, type ChartsStrings } from "../i18n";
 import { dateFormat } from "../stats/format";
+import { ChartCompare, type ChartHandLinkProps } from "./ChartCompare";
 import { ChartEditor, strayKeys } from "./ChartEditor";
 import { exportRailJsonText, importRailJson, type ImportProblem } from "./exchange";
 import { LIMITS, newChartSet, validateChartSet, type ChartProblem, type ChartSet } from "./model";
-import type { ChartSummary, PreflopChartsSource } from "./source";
+import type { ChartSummary, ComparePeriod, PreflopChartsSource } from "./source";
 import styles from "./Charts.module.css";
 
+export type ChartsView = "edit" | "compare";
 /** A new, unsaved set in the address. */
 export const NEW_SET = "new";
 
@@ -31,11 +32,14 @@ export interface ChartsScreenProps {
   /** Under the title: the surface's own navigation. */
   notice?: ReactNode;
   renderState: (kind: "loading" | "empty" | "error", text: string) => ReactNode;
+  renderHandLink: (props: ChartHandLinkProps) => ReactNode;
   /** The open set's id, {@link NEW_SET}, or null for the list. */
   selected: string | null;
+  view: ChartsView;
   /** The situation the editor opens at (`model.ts`' key). */
   situation?: string | null;
-  onNavigate: (to: { selected: string | null; situation?: string | null }) => void;
+  period?: ComparePeriod;
+  onNavigate: (to: { selected: string | null; view: ChartsView; situation?: string | null; period?: ComparePeriod }) => void;
   hiddenDuringPlay?: boolean;
 }
 
@@ -77,8 +81,11 @@ export function ChartsScreen({
   titleTag: Title = "h1",
   notice,
   renderState,
+  renderHandLink,
   selected,
+  view,
   situation = null,
+  period,
   onNavigate,
   hiddenDuringPlay = false,
 }: ChartsScreenProps) {
@@ -145,7 +152,7 @@ export function ChartsScreen({
       setDraft({ id: saved.id, set, dirty: false, token: draft.token });
       setStatus({ kind: "saved", text: t.tools.saved });
       setReload((n) => n + 1);
-      if (draft.id === null && saved.id) onNavigate({ selected: saved.id });
+      if (draft.id === null && saved.id) onNavigate({ selected: saved.id, view });
     } catch (error) {
       setStatus({ kind: "error", text: t.error(errorText(error)) });
     }
@@ -164,7 +171,7 @@ export function ChartsScreen({
     }
     setDraft(null);
     setReload((n) => n + 1);
-    onNavigate({ selected: null });
+    onNavigate({ selected: null, view: "edit" });
   };
 
   const download = () => {
@@ -188,15 +195,15 @@ export function ChartsScreen({
       <Library
         list={list}
         renderState={renderState}
-        onOpen={(id) => onNavigate({ selected: id })}
+        onOpen={(id) => onNavigate({ selected: id, view: "edit" })}
         onCreate={() => {
           setDraft({ id: null, set: newChartSet({ name: t.library.newName }), dirty: true, token: nextToken++ });
-          onNavigate({ selected: NEW_SET });
+          onNavigate({ selected: NEW_SET, view: "edit" });
         }}
         onImported={(set) => {
           setDraft({ id: null, set, dirty: true, token: nextToken++ });
           setStatus({ kind: "saved", text: t.library.imported(set.name) });
-          onNavigate({ selected: NEW_SET });
+          onNavigate({ selected: NEW_SET, view: "edit" });
         }}
       />
     );
@@ -205,45 +212,78 @@ export function ChartsScreen({
   } else if (!draft || (selected !== NEW_SET && draft.id !== selected)) {
     body = renderState("loading", t.loading);
   } else {
+    const tab = draft.id === null ? "edit" : view;
     body = (
       <div className={styles.body}>
         <div className={styles.setHead}>
-          <button type="button" className="btn btn--sm btn--ghost" onClick={() => onNavigate({ selected: null })}>
+          <button type="button" className="btn btn--sm btn--ghost" onClick={() => onNavigate({ selected: null, view: "edit" })}>
             ← {t.back}
           </button>
           <h2 className={styles.setName}>{draft.set.name || t.library.newName}</h2>
         </div>
-        <ChartEditor
-          key={`${draft.token}|${situation ?? ""}`}
-          set={draft.set}
-          source={source}
-          initialKey={situation}
-          onChange={(set) => {
-            setDraft({ ...draft, set, dirty: true });
-            setStatus(null);
-          }}
-        />
-        <div className={styles.saveBar}>
-          <button type="button" className="btn btn--primary" disabled={status?.kind === "saving"} onClick={() => void save()}>
-            {t.tools.save}
-          </button>
-          <button type="button" className="btn" onClick={download}>
-            {t.tools.download}
-          </button>
-          <button type="button" className="btn btn--ghost" onClick={() => void remove()}>
-            {t.tools.delete}
-          </button>
-          <span className={styles.muted} role="status">
-            {status ? status.text : draft.dirty ? t.tools.unsaved : ""}
-          </span>
+        <div className={styles.tabs} role="tablist" aria-label={t.tabs.label}>
+          {(["edit", "compare"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              id={`charts-tab-${v}`}
+              aria-controls="charts-panel"
+              aria-selected={tab === v}
+              disabled={v === "compare" && draft.id === null}
+              className={`${styles.tab}${tab === v ? ` ${styles.tabActive}` : ""}`}
+              onClick={() => onNavigate({ selected, view: v })}
+            >
+              {t.tabs[v]}
+            </button>
+          ))}
         </div>
-        {problems.length > 0 ? (
-          <ul className={styles.problems} role="alert">
-            {problems.map((p, i) => (
-              <li key={i}>{p}</li>
-            ))}
-          </ul>
-        ) : null}
+        <div id="charts-panel" role="tabpanel" aria-labelledby={`charts-tab-${tab}`}>
+          {tab === "edit" ? (
+            <>
+              <ChartEditor
+                key={`${draft.token}|${situation ?? ""}`}
+                set={draft.set}
+                source={source}
+                initialKey={situation}
+                onChange={(set) => {
+                  setDraft({ ...draft, set, dirty: true });
+                  setStatus(null);
+                }}
+              />
+              <div className={styles.saveBar}>
+                <button type="button" className="btn btn--primary" disabled={status?.kind === "saving"} onClick={() => void save()}>
+                  {t.tools.save}
+                </button>
+                <button type="button" className="btn" onClick={download}>
+                  {t.tools.download}
+                </button>
+                <button type="button" className="btn btn--ghost" onClick={() => void remove()}>
+                  {t.tools.delete}
+                </button>
+                <span className={styles.muted} role="status">
+                  {status ? status.text : draft.dirty ? t.tools.unsaved : ""}
+                </span>
+              </div>
+              {problems.length > 0 ? (
+                <ul className={styles.problems} role="alert">
+                  {problems.map((p, i) => (
+                    <li key={i}>{p}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          ) : (
+            <ChartCompare
+              set={draft.set}
+              source={source}
+              renderHandLink={renderHandLink}
+              period={period}
+              onPeriod={(next) => onNavigate({ selected, view: "compare", period: next })}
+              onFill={(key) => onNavigate({ selected, view: "edit", situation: key })}
+            />
+          )}
+        </div>
       </div>
     );
   }

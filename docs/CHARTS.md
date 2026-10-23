@@ -1696,10 +1696,21 @@ only ones who raised and nobody limped or called. Lines with no key: a cold
 limpers, anything after an iso-raise but the limper's answer, and the
 straddle set (its seats are not the vocabulary's). Every node of every plain
 set is keyed consistently with its own `scenario`, `actor` and `facing`
-(`tests/test/preflopCharts.test.ts`).
+(`tests/test/preflopCharts.test.ts`), and the database's
+`preflop_chart_node_key` gives the same key for 966 shipped lines (pgTAP
+`preflop_charts_compare`).
 
 **Copying a shipped situation** (`shippedNodeOf`): of the set's lines with
 that key, the most reached; each class's options summed into raise, call,
 all-in and the rest, rounded to whole percents by largest remainder.
 
-**Comparing played hands** with a user's chart is R5.3's second part.
+**Comparing played hands** reads the stored analysis: a preflop decision the
+analysis located on this tree (`decision_analysis`, `source = 'chart'`, its
+`facts.chart.{set,line}`) is filed under the key of its line, with its class,
+its action (an all-in raise is `allin`), the set's table size and the
+effective stack in 10 bb steps (`preflop_decision_rows`). The user's chart
+"plays" the hero's action with that class when it takes it at least **3.5 %**
+of the time - §2's line between Good and Inaccurate - and a raise and an
+all-in stand for each other when the chart has only one of them. The only EV
+shown is this document's: what the analysis put on those decisions against
+the shipped charts.

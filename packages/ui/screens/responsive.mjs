@@ -2,7 +2,8 @@
 // Reports (`/stats`, the opponents panel in it), Players (`/players`, R4.5c),
 // the session review (`/analysis/session`, R5.1), the overview's three
 // biggest leaks (`/analysis`, R5.2), your own charts (`/analysis/my-charts`,
-// R5.3: the list, a set's editor and its tools), a shared hand and its
+// R5.3: the list, a set's editor and its tools, the comparison, a hand opened
+// from it), a shared hand and its
 // embed, and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
 // English and Croatian, against a running web - a local `next start` over a
 // local Supabase stack with a signed-in test account:
@@ -42,7 +43,8 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname)) {
  *   screen's since R4.5c; `.stats-matrix__cell` the web's own grid before):
  *   13 across a phone is 22 px each; every class is also a row of the table
  *   under the grid, which is the touch path; R5.3's chart grids are the same
- *   (the editor's touch path is the rank list under the grid, 44 px buttons);
+ *   (the editor's touch path is the rank list under the grid, 44 px buttons;
+ *   the comparison's, its list of deviations);
  * - a checkbox or radio inside a label: the label is the target (checked
  *   for 44 px separately when it is a toggle row);
  * - a link inside running text;
@@ -254,8 +256,9 @@ for (const locale of ["en", "hr"]) {
     await report("/analysis/h/<id> from the top three");
   }
 
-  // Your own charts (R5.3): the list and the first set's editor with every
-  // tool open. The account needs a saved chart set for the second.
+  // Your own charts (R5.3): the list, the first set's editor with every tool
+  // open, its comparison (all time) and a deviation's example hand opened at
+  // the decision. The account needs a saved chart set for all but the first.
   await page.goto(`${BASE}/analysis/my-charts`);
   const library = "main section[aria-labelledby=charts-library]";
   await page.locator(library).waitFor({ timeout: 60000 });
@@ -267,6 +270,24 @@ for (const locale of ["en", "hr"]) {
     await report("/analysis/my-charts, a set's editor");
     for (const summary of await page.locator("main section details > summary").all()) await summary.click();
     await report("/analysis/my-charts, the editor's tools open");
+    await page.locator("main [role=tablist] button[role=tab]").nth(1).click();
+    const compare = "main section[aria-labelledby=charts-compare]";
+    await page.locator(compare).waitFor({ timeout: 30000 });
+    await page.locator(`${compare} button[aria-pressed]`).last().click();
+    await page.waitForFunction((card) => !document.querySelector(`${card}[aria-busy=true]`), compare, { timeout: 60000 });
+    await report("/analysis/my-charts, the comparison (all time)");
+    const deviation = page.locator("main section[aria-labelledby=charts-detail] ul button").first();
+    if ((await deviation.count()) > 0) {
+      await deviation.click();
+      const example = page.locator("main a[href^='/analysis/h/']").first();
+      await example.waitFor({ timeout: 30000 }).catch(() => {});
+      await report("/analysis/my-charts, a deviation's examples");
+      if ((await example.count()) > 0) {
+        await example.click();
+        await page.locator(".rp").first().waitFor({ timeout: 60000 });
+        await report("/analysis/h/<id> from your charts");
+      }
+    }
   }
 
   if (SHARE) {

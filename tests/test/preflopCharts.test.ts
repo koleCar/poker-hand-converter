@@ -7,14 +7,20 @@
  *   malformed input; round trips.
  * - Rail JSON in and out, a situation's text import, over-100 refused.
  * - Situation keys of the shipped trees: every node of every plain shipped
- *   set keyed consistently with its own scenario facts (what "start from
- *   Rail's chart" copies).
+ *   set keyed consistently with its own scenario facts, and the cases pgTAP
+ *   checks the database's `preflop_chart_node_key` against are the
+ *   TypeScript's answers.
+ * - The comparison and the session review's own-chart deviation source.
  *
  * The screens are `preflopChartsScreen.test.ts`'s; the 375 px pass is
  * `responsive.mjs`'s.
  */
-import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
+import { describe, expect, it, vi } from "vitest";
+
+import { chartBest, chartPercent, compareChart, OFF_CHART_BELOW_PERCENT, type PlayedCell } from "@rail/ui/charts/compare";
 import { exportRailJson, exportRailJsonText, importNodeText, importRailJson, overHundred } from "@rail/ui/charts/exchange";
 import {
   CLASS_COUNT,
@@ -45,6 +51,8 @@ import {
 } from "@rail/ui/charts/model";
 import { nodeKeyOfLine, seatsOfShippedSet, shippedNodeKey } from "@rail/ui/charts/nodeKey";
 import { comboClass, expandToken, formatBrackets, formatCombos, formatRange, parseRange, shorthand } from "@rail/ui/charts/ranges";
+import { inChartScope, ownChartDecisions, ownChartDeviations, type SessionPreflopDecision } from "@rail/ui/charts/sessionSource";
+import type { ReviewHand, SessionReview } from "@rail/ui/review/model";
 
 import { CHART_SETS, handClassOf } from "../../frontend/src/lib/charts/index.js";
 import { chartSet } from "./charts/support.js";
@@ -379,6 +387,158 @@ describe("situation keys of the shipped trees", () => {
     }
   });
 
+  it("gives the answers the database is held to (pgTAP preflop_charts_compare's cases)", () => {
+    const sql = readFileSync(join(import.meta.dirname, "../../supabase/tests/database/preflop_charts_compare.test.sql"), "utf8");
+    const block = sql.slice(sql.indexOf("-- KEY CASES BEGIN"), sql.indexOf("-- KEY CASES END"));
+    const cases = [...block.matchAll(/\('([a-z0-9-]+)', '([fkcra]*)', (null|'[^']*')\)/g)];
+    expect(cases.length).toBeGreaterThan(900);
+    for (const [, set, line, key] of cases) {
+      expect(shippedNodeKey(set, line), `${set} ${line}`).toBe(key === "null" ? null : key.slice(1, -1));
+    }
+    // Every keyed node of the 6-max 100bb and heads-up sets is among them.
+    const listed = new Set(cases.map(([, set, line]) => `${set}|${line}`));
+    for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-hu-100bb"]) {
+      for (const node of chartSet(id).nodes.values()) expect(listed.has(`${id}|${node.line}`), `${id} ${node.line}`).toBe(true);
+    }
+  });
+});
+
+/* ------------------------------------------------------------- compare - */
+
+function chart(): ChartSet {
+  const set = newChartSet({ id: "c1", name: "Mine", tableSize: 6, stackMinBb: 80, stackMaxBb: 120 });
+  const rfi = emptyNode();
+  rfi.freq.raise.set(percents("22+,ATs+,KQs,AJo+"));
+  set.nodes.set("rfi:CO", rfi);
+  const bb = emptyNode();
+  bb.freq.raise.set(percents("QQ+,AKs"));
+  bb.freq.call.set(percents("JJ-22,AQs-A2s,AKo:0.5"));
+  set.nodes.set("vs-open:BB:BTN", bb);
+  const fiveBet = emptyNode();
+  fiveBet.freq.raise.set(percents("KK+")); // "raise" standing for the shove
+  set.nodes.set("vs-4bet:BTN:CO", fiveBet);
+  return set;
+}
+
+const cell = (key: string, name: string, action: PlayedCell["action"], decisions: number, evLossBb = 0): PlayedCell => ({
+  key,
+  cls: classIndex(name),
+  action,
+  decisions,
+  evLossBb,
+});
+
+describe("the comparison", () => {
+  it("reads the chart's percent for the hero's action, raise and all-in standing for each other", () => {
+    const c = chart();
+    const bb = c.nodes.get("vs-open:BB:BTN")!;
+    expect(chartPercent(bb, "vs-open:BB:BTN", "call", classIndex("AKo"))).toBe(50);
+    expect(chartPercent(bb, "vs-open:BB:BTN", "fold", classIndex("AKo"))).toBe(50);
+    expect(chartPercent(bb, "vs-open:BB:BTN", "check", classIndex("AKo"))).toBe(0);
+    expect(chartPercent(c.nodes.get("vs-4bet:BTN:CO")!, "vs-4bet:BTN:CO", "allin", classIndex("AA"))).toBe(100);
+    expect(chartBest(bb, "vs-open:BB:BTN", classIndex("72o"))).toBe("fold");
+    expect(chartBest(bb, "vs-open:BB:BTN", classIndex("AA"))).toBe("raise");
+    expect(OFF_CHART_BELOW_PERCENT).toBe(3.5);
+  });
+
+  it("counts the share played by the chart, the deviations, the mix, the missing and unnamed situations", () => {
+    const report = compareChart(chart(), [
+      cell("rfi:CO", "AA", "raise", 10),
+      cell("rfi:CO", "72o", "fold", 30),
+      cell("rfi:CO", "K9o", "raise", 4, 1.2), // off: the chart folds K9o
+      cell("rfi:CO", "AJo", "fold", 2, 0.4), // off: the chart raises AJo always
+      cell("vs-open:BB:BTN", "AKo", "call", 3),
+      cell("vs-open:BB:BTN", "AKo", "fold", 1, 0.5), // on: a 50 % fold
+      cell("vs-open:BB:BTN", "72o", "call", 5, 3), // off
+      cell("vs-4bet:BTN:CO", "AA", "allin", 2),
+      cell("rfi:UTG", "AA", "raise", 7), // the chart has no UTG
+      cell("", "AA", "raise", 4), // unnamed
+    ]);
+    expect(report.decisions).toBe(57);
+    expect(report.onChart).toBe(46);
+    expect(report.offEvLossBb).toBeCloseTo(4.6);
+    expect(report.missing).toEqual([{ key: "rfi:UTG", decisions: 7 }]);
+    expect(report.unnamed).toBe(4);
+    expect(report.deviations.map((d) => `${d.key} ${d.className} ${d.action} ${d.decisions} ${d.chartAction}`)).toEqual([
+      "vs-open:BB:BTN 72o call 5 fold",
+      "rfi:CO K9o raise 4 fold",
+      "rfi:CO AJo fold 2 raise",
+    ]);
+    const rfi = report.nodes.find((n) => n.key === "rfi:CO")!;
+    expect(rfi.decisions).toBe(46);
+    expect(rfi.classes[classIndex("K9o")]).toEqual({ decisions: 4, off: 4 });
+    const raise = rfi.mix.find((m) => m.action === "raise")!;
+    expect(raise.played).toBe(14);
+    expect(raise.expected).toBe(12); // AA 10 + AJo 2 the chart raises
+    expect(rfi.mix.map((m) => m.action)).toEqual(["fold", "call", "raise", "allin"]);
+  });
+});
+
+/* ------------------------------------------------- the session review source - */
+
+const decision = (extra: Partial<SessionPreflopDecision>): SessionPreflopDecision => ({
+  handId: "h1",
+  ord: 0,
+  actionIndex: 4,
+  playedAt: "2026-09-01T10:00:00Z",
+  key: "rfi:CO",
+  cls: classIndex("K9o"),
+  action: "raise",
+  scenario: "unopened",
+  position: "CO",
+  gameFormat: "cash",
+  tableSize: 6,
+  depthBandBb: 100,
+  evLossBb: 0.4,
+  ...extra,
+});
+
+describe("the session review's own-chart deviations", () => {
+  it("lists only covered decisions the chart plays under 3.5 %", () => {
+    const c = chart();
+    const out = ownChartDecisions(c, [
+      decision({}),
+      decision({ handId: "h2", cls: classIndex("AA") }), // on chart
+      decision({ handId: "h3", key: "rfi:UTG" }), // not in the chart
+      decision({ handId: "h4", tableSize: 9 }), // another table
+      decision({ handId: "h5", depthBandBb: 40 }), // too shallow
+      decision({ handId: "h6", gameFormat: "tournament" }),
+      decision({ handId: "h7", depthBandBb: 120 }), // 120-130 overlaps 80-120
+      decision({ handId: "h8", depthBandBb: 70 }), // 70-80 does not
+    ]);
+    expect(out.map((d) => d.handId)).toEqual(["h1", "h7"]);
+    expect(out[0]).toMatchObject({ street: "preflop", action: "raise", best: "fold", source: "own-chart", grade: null, chosenFreq: 0 });
+    expect(inChartScope(c, { gameFormat: null, tableSize: null, depthBandBb: null })).toBe(true);
+  });
+
+  it("ranks by EV, one per hand, and fetches the rows of the hands the review lacks", async () => {
+    const c = chart();
+    const hands = vi.fn((ids: string[]) =>
+      Promise.resolve(Object.fromEntries(ids.map((id) => [id, { handId: id } as unknown as ReviewHand]))),
+    );
+    const sessionDecisions = vi.fn(() =>
+      Promise.resolve([
+        decision({ handId: "a", evLossBb: 0.2 }),
+        decision({ handId: "b", evLossBb: 1.5 }),
+        decision({ handId: "b", ord: 1, evLossBb: 0.1 }),
+        decision({ handId: "c", evLossBb: 0.9 }),
+      ]),
+    );
+    const source = ownChartDeviations({ sessionDecisions, hands }, c, 2);
+    expect(source.kind).toBe("own");
+    expect(source.label).toBe("Mine");
+    const review = {
+      session: { startedAt: "2026-09-01T09:00:00Z", endedAt: "2026-09-01T11:00:00Z" },
+      hands: { c: { handId: "c" } },
+    } as unknown as SessionReview;
+    const query = { at: null, gapMinutes: 30, filter: {} };
+    const list = await source.deviations(review, query);
+    expect(list.decisions.map((d) => `${d.handId}:${d.ord}`)).toEqual(["b:0", "c:0"]);
+    expect(sessionDecisions).toHaveBeenCalledWith({ startedAt: "2026-09-01T09:00:00Z", endedAt: "2026-09-01T11:00:00Z" }, query);
+    expect(hands).toHaveBeenCalledWith(["b"], query);
+    expect(Object.keys(list.hands ?? {})).toEqual(["b"]);
+    expect((await source.deviations({ ...review, session: null }, query)).decisions).toEqual([]);
+  });
 });
 
 /* A sanity check of the positions table against the shipped sets' own. */

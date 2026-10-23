@@ -207,7 +207,7 @@ describe("ranking the lists", () => {
   it("a deviation source is pluggable: the shipped one answers the review's chart deviations", async () => {
     const review = reviewFromPayload({ deviations: [{ handId: "1", grade: "mistake", street: "preflop" }] }, 30);
     const query: SessionQuery = { at: null, gapMinutes: 30, filter: {} };
-    expect((await shippedChartDeviations.deviations(review, query)).map((row) => row.handId)).toEqual(["1"]);
+    expect((await shippedChartDeviations.deviations(review, query)).decisions.map((row) => row.handId)).toEqual(["1"]);
     expect(shippedChartDeviations.id).toBe("shipped-charts");
   });
 
