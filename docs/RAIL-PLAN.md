@@ -8545,7 +8545,7 @@ the web renders from them; the replayer that renders them is one copy
 (R2.6), and since R4.5b so is the Hands screen around it.
 
 *Exit status (2026-10-23, R4.5c on `staging`'s open PRs #239, #240 and
-R4.5c-3's):* **"one core and one look" is complete** - the Hands, Reports
+#241):* **"one core and one look" is complete** - the Hands, Reports
 and Players screens and the replayer are each one copy in `packages/ui/`
 with a source per surface (the web's Reports and Players over server
 summaries, R4.5c-1). What still differs is said by each source and decided
