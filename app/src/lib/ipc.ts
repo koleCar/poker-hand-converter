@@ -426,116 +426,34 @@ export interface Session {
 
 /* ------------------------------------------------------ Players (R2.7c) - */
 
-/** The colour tags, in the order the screen offers them (`rail_store::players::COLOURS`). */
-export const PLAYER_COLOURS = ["red", "orange", "yellow", "green", "blue", "purple"] as const;
-export type PlayerColour = (typeof PLAYER_COLOURS)[number];
-
-/** Which hands a players list counts: all, cash games, tournament chips. */
-export type GameKind = "all" | "cash" | "chips";
-
-/** `players::PlayerQueryDto`. */
-export interface PlayerQuery {
-  /** A prefix of the name, any case. */
-  search?: string;
-  site?: string | null;
-  kind?: GameKind;
-  colours?: string[];
-  labels?: string[];
-  noted?: boolean | null;
-  limit?: number;
-}
-
-/** `players::PlayerRowDto`: one opponent in the list. */
-export interface PlayerRow {
-  site: string;
-  siteName: string;
-  player: string;
-  /** Hands together in the list's kind. */
-  hands: number;
-  /** The hero's result against them, thousandths of a big blind; null when the list mixes chips with cash. */
-  netBbMilli: number | null;
-  moneyHands: number;
-  firstPlayedAt: string | null;
-  lastPlayedAt: string | null;
-  colour: PlayerColour | null;
-  labels: string[];
-  hasNote: boolean;
-}
-
-/** `players::PlayerListDto`. */
-export interface PlayerList {
-  rows: PlayerRow[];
-  /** Players the query matches (`rows` are the first of them). */
-  matching: number;
-  /** Players of the room and kind, before the search and the words. */
-  players: number;
-  cashHands: number;
-  chipsHands: number;
-  mixedKind: boolean;
-  /** Opponents' hands of rooms that hide names: counted, not listed. */
-  hiddenHands: number;
-}
-
-/** `players::TogetherDto`: the hero's hands with an opponent and result against them, one kind. */
-export interface Together {
-  hands: number;
-  moneyHands: number;
-  netBbMilli: number;
-}
-
-/** `players::SeenDto`. */
-export interface PlayerSeen {
-  /** Their hands counted in the statistics. */
-  hands: number;
-  firstPlayedAt: string | null;
-  lastPlayedAt: string | null;
-  cash: Together;
-  chips: Together;
-}
-
-/** `players::NotesDto`: the user's words on a player (local only for now). */
-export interface PlayerNotes {
-  colour: PlayerColour | null;
-  note: string;
-  labels: string[];
-}
-
-/** A stake's label parts (a hand of that stake). */
-export interface StakeSample {
-  key: string;
-  currency: string;
-  currencySymbol: string;
-  minorUnits: number;
-  smallBlind: number;
-  bigBlind: number;
-}
-
-/** `players::ProfileDto`: one opponent. */
-export interface PlayerProfile {
-  site: string;
-  siteName: string;
-  player: string;
-  /** null: not an opponent of a room with real names. */
-  seen: PlayerSeen | null;
-  notes: PlayerNotes;
-  /** The profile's sample mixes chips with cash: big-blind statistics withheld. */
-  mixedKind: boolean;
-  /** Every definition, in `statDefinitions()`' order; hero-only ones withheld. */
-  stats: Shown[];
-  columns: string[];
-  byPosition: StatGroup[];
-  byStake: StatGroup[];
-  bySize: StatGroup[];
-  byFormat: StatGroup[];
-  stakes: StakeSample[];
-  lastPlayedAt: string | null;
-}
-
-/** `players::SiteDto`. */
-export interface PlayerSite {
-  value: string;
-  name: string;
-}
+/**
+ * The Players screen's shapes (`players::*Dto`) are the shared screen's since
+ * R4.5c (`@rail/ui/players/model`).
+ */
+export { PLAYER_COLOURS } from "@rail/ui/players/model";
+export type {
+  GameKind,
+  PlayerColour,
+  PlayerList,
+  PlayerNotes,
+  PlayerProfile,
+  PlayerQuery,
+  PlayerRow,
+  PlayerSeen,
+  PlayerSite,
+  StakeSample,
+  Together,
+} from "@rail/ui/players/model";
+import type {
+  GameKind,
+  PlayerColour,
+  PlayerList,
+  PlayerNotes,
+  PlayerProfile,
+  PlayerQuery,
+  PlayerSeen,
+  PlayerSite,
+} from "@rail/ui/players/model";
 
 /** The screens with saved filters. */
 export type FilterScreen = "hands" | "reports";

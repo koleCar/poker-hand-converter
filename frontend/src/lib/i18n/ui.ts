@@ -1,6 +1,8 @@
 import type { UiStrings } from "@rail/ui/i18n";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
+import { playersUiEn } from "@rail/ui/strings/players.en";
+import { playersUiHr } from "@rail/ui/strings/players.hr";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
 import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { DICTIONARIES, INTL_LOCALE } from "./dictionaries";
@@ -34,6 +36,7 @@ function uiStrings(locale: Locale): UiStrings {
     },
     hands: locale === "hr" ? handsUiHr : handsUiEn,
     reports: locale === "hr" ? reportsUiHr : reportsUiEn,
+    players: locale === "hr" ? playersUiHr : playersUiEn,
   };
 }
 

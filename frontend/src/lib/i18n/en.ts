@@ -84,6 +84,10 @@ export const en = {
       description:
         "VPIP, PFR, 3-bet, continuation bets and a showdown / non-showdown win-rate graph, over every hand you have saved.",
     },
+    players: {
+      title: "Players | Rail",
+      description: "The opponents of your saved hands: their statistics, your result against each, your notes.",
+    },
     analysis: {
       title: "Hand analysis | Rail",
       description:
@@ -162,6 +166,7 @@ export const en = {
     convert: "Upload hand",
     library: "Hand history",
     stats: "Statistics",
+    players: "Players",
     analysis: "Analysis",
     learn: "Learn",
   },

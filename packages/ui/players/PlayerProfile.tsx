@@ -1,34 +1,34 @@
 /**
  * One opponent (R2.7c): when you met, how many hands together, your result
  * against them (big blinds, cash and tournaments apart - never added), their
- * statistics over every hand of theirs the store has (the R2.4 definitions
+ * statistics over every hand of theirs the surface has (the R2.4 definitions
  * for any player with R2.5 reliability; the hero-only all-in EV is not
  * theirs to show), their rows by position, stake, table size and game, and
- * the user's words - a colour, labels, a note - saved as they change. "Hands
- * with this player" opens Hands filtered to them.
+ * the user's words - a colour, labels (where the surface keeps them), a
+ * note - saved as they change. "Hands with this player" asks the surface to
+ * open its Hands filtered to them.
  */
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import type { StatDefinition, StatGroup as DefinitionGroup } from "@rail/ui/model/stats";
-import { StatTable } from "@rail/ui/stats/StatTable";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
-import { StateMessage } from "../../components/StateMessage";
-import { useLocale, useT } from "../../i18n";
+import { FORMAT_ORDER, POSITION_ORDER, SIZE_ORDER } from "../hands/filter";
+import { handFormat, stakeLabel } from "../hands/format";
+import type { PlayerRef } from "../hands/model";
+import { useUiStrings } from "../i18n";
+import type { StatDefinition, StatGroup as DefinitionGroup } from "../model/stats";
+import { GroupTable } from "../reports/Breakdown";
+import { statRows, textLocale } from "../reports/definitions";
+import type { Definition, StatGroup } from "../reports/model";
+import { StatTable } from "../stats/StatTable";
 import {
   PLAYER_COLOURS,
-  errorText,
-  ipc,
+  reasonText,
   type GameKind,
   type PlayerColour,
   type PlayerNotes,
   type PlayerProfile as Profile,
-  type StatGroup,
+  type PlayersSource,
   type Together,
-} from "../../lib/ipc";
-import { go } from "../../lib/router";
-import { statRows, useStatDefinitions } from "../../lib/useStatDefinitions";
-import { EMPTY_FILTER, FORMAT_ORDER, POSITION_ORDER, SIZE_ORDER, requestFilter } from "../hands/filter";
-import { bigBlinds, count, playedAt, stakeLabel } from "../hands/format";
-import { GroupTable } from "@rail/ui/reports/Breakdown";
+} from "./model";
 import styles from "./Players.module.css";
 
 const DEFINITION_GROUPS: DefinitionGroup[] = ["preflop", "postflop", "showdown", "results"];
@@ -37,25 +37,36 @@ type Tab = (typeof TABS)[number];
 /** How long typing pauses before the note is saved. */
 const NOTE_DEBOUNCE_MS = 700;
 
+type RenderState = (kind: "loading" | "empty" | "error", text: string, compact?: boolean) => ReactNode;
+
 export function PlayerProfile({
+  source,
   site,
   player,
   kind,
+  definitions,
+  notesFootnote,
+  renderState,
   onClose,
+  onHandsWith,
   onNotes,
 }: {
+  source: PlayersSource;
   site: string;
   player: string;
   kind: GameKind;
+  definitions: readonly Definition[] | null;
+  notesFootnote: string | null;
+  renderState: RenderState;
   onClose: () => void;
+  onHandsWith: (player: PlayerRef) => void;
   /** The colour, labels or note changed: the list shows it. */
   onNotes: (notes: PlayerNotes) => void;
 }) {
-  const players = useT().players;
+  const players = useUiStrings().players;
   const t = players.profile;
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const definitions = useStatDefinitions();
   const headingId = useId();
   // The profile's own game kind (R2.8): the list's until the reader picks
   // one here, for this player (a new player opens on the list's again).
@@ -64,20 +75,20 @@ export function PlayerProfile({
 
   useEffect(() => {
     let current = true;
-    ipc
-      .playerProfile(site, player, shownKind)
+    source
+      .profile(site, player, shownKind)
       .then((value) => {
         if (!current) return;
         setProfile(value);
         setError(null);
       })
       .catch((reason: unknown) => {
-        if (current) setError(errorText(reason));
+        if (current) setError(reasonText(reason));
       });
     return () => {
       current = false;
     };
-  }, [site, player, shownKind]);
+  }, [source, site, player, shownKind]);
 
   const kinds: GameKind[] = ["all", "cash", "chips"];
   return (
@@ -106,37 +117,46 @@ export function PlayerProfile({
           </button>
         ))}
       </div>
-      {error !== null ? (
-        <StateMessage kind="error" compact>
-          {t.failed(error)}
-        </StateMessage>
-      ) : profile === null || definitions === null ? (
-        <StateMessage kind="loading" compact>
-          {t.loading}
-        </StateMessage>
-      ) : profile.seen === null ? (
-        <StateMessage kind="empty" compact>
-          {t.notOpponent}
-        </StateMessage>
-      ) : (
-        <Body profile={profile} definitions={definitions} onNotes={onNotes} />
-      )}
+      {error !== null
+        ? renderState("error", t.failed(error), true)
+        : profile === null || definitions === null
+          ? renderState("loading", t.loading, true)
+          : profile.seen === null
+            ? renderState("empty", t.notOpponent, true)
+            : (
+              <ProfileBody
+                source={source}
+                profile={profile}
+                definitions={definitions}
+                notesFootnote={notesFootnote}
+                onHandsWith={onHandsWith}
+                onNotes={onNotes}
+              />
+            )}
     </section>
   );
 }
 
-function Body({
+/** A loaded opponent's profile under its heading (exported for the tests: a render needs no source call). */
+export function ProfileBody({
+  source,
   profile,
   definitions,
+  notesFootnote,
+  onHandsWith,
   onNotes,
 }: {
+  source: PlayersSource;
   profile: Profile;
-  definitions: StatDefinition[];
+  definitions: readonly Definition[];
+  notesFootnote: string | null;
+  onHandsWith: (player: PlayerRef) => void;
   onNotes: (notes: PlayerNotes) => void;
 }) {
-  const all = useT();
+  const all = useUiStrings();
   const t = all.players.profile;
-  const locale = useLocale();
+  const locale = textLocale(all.intlLocale);
+  const { bigBlinds, count, playedAt } = useMemo(() => handFormat(all.intlLocale), [all.intlLocale]);
   const seen = profile.seen;
   if (seen === null) return null;
   const together = seen.cash.hands + seen.chips.hands;
@@ -189,16 +209,20 @@ function Body({
       </div>
       <button
         type="button"
-        className="btn"
-        onClick={() => {
-          requestFilter({ ...EMPTY_FILTER, player: { site: profile.site, player: profile.player } });
-          go("hands");
-        }}
+        className={`btn ${styles.handsWith}`}
+        onClick={() => onHandsWith({ site: profile.site, player: profile.player })}
       >
         {t.handsWith(together)}
       </button>
 
-      <Words profile={profile} onNotes={onNotes} />
+      <PlayerWords
+        source={source}
+        site={profile.site}
+        player={profile.player}
+        initial={profile.notes}
+        onNotes={onNotes}
+        footnote={notesFootnote}
+      />
 
       <div>
         <h3 className={styles.subhead}>{t.stats}</h3>
@@ -227,31 +251,31 @@ function Body({
   );
 }
 
-/** The colour, the labels and the note. */
-function Words({ profile, onNotes }: { profile: Profile; onNotes: (notes: PlayerNotes) => void }) {
-  return <PlayerWords site={profile.site} player={profile.player} initial={profile.notes} onNotes={onNotes} />;
-}
-
 /**
- * A player's words, saved as they change: the colour (an ARIA radio group),
- * the labels and the note. (R3.8) The HUD popup shows it too, without the
- * "stays on this computer" footnote, on rooms that allow labelling players.
+ * A player's words, saved as they change: the colour (an ARIA radio group)
+ * and the labels where the surface keeps them, and the note. (R3.8) The
+ * app's HUD popup shows it too, without the footnote, on rooms that allow
+ * labelling players.
  */
 export function PlayerWords({
+  source,
   site,
   player,
   initial,
   onNotes,
-  footnote = true,
+  footnote = null,
 }: {
+  source: PlayersSource;
   site: string;
   player: string;
   initial: PlayerNotes;
   onNotes: (notes: PlayerNotes) => void;
-  footnote?: boolean;
+  /** Where the words are kept, under them (none to say nothing). */
+  footnote?: string | null;
 }) {
-  const p = useT().players;
+  const p = useUiStrings().players;
   const t = p.profile;
+  const { colours: hasColours, labels: hasLabels } = source.features;
   const [notes, setNotes] = useState(initial);
   const [note, setNote] = useState(initial.note);
   const [label, setLabel] = useState("");
@@ -267,15 +291,15 @@ export function PlayerWords({
     setError(null);
     onNotes(value);
   };
-  const failed = (reason: unknown) => setError(t.saveFailed(errorText(reason)));
+  const failed = (reason: unknown) => setError(t.saveFailed(reasonText(reason)));
 
   const saveNote = (text: string) => {
     window.clearTimeout(timer.current);
     timer.current = undefined;
     if (text === savedNote.current) return;
     setNoteState("saving");
-    ipc
-      .playerSetNote(site, player, text)
+    source
+      .setNote(site, player, text)
       .then((value) => {
         savedNote.current = text;
         pending.current = null;
@@ -293,14 +317,14 @@ export function PlayerWords({
     () => () => {
       window.clearTimeout(timer.current);
       if (pending.current !== null && pending.current !== savedNote.current) {
-        ipc.playerSetNote(site, player, pending.current).catch(() => undefined);
+        source.setNote(site, player, pending.current).catch(() => undefined);
       }
     },
-    [site, player],
+    [source, site, player],
   );
 
   const setColour = (colour: PlayerColour | null) => {
-    ipc.playerSetColour(site, player, colour).then(applied).catch(failed);
+    source.setColour(site, player, colour).then(applied).catch(failed);
   };
 
   // The colours as a radio group: arrow keys move and choose.
@@ -320,8 +344,8 @@ export function PlayerWords({
   const addLabel = () => {
     const value = label.trim();
     if (!value) return;
-    ipc
-      .playerAddLabel(site, player, value)
+    source
+      .addLabel(site, player, value)
       .then((result) => {
         setLabel("");
         applied(result);
@@ -331,71 +355,75 @@ export function PlayerWords({
 
   return (
     <div className={styles.words}>
-      <div className={styles.wordsRow}>
-        <span className={styles.wordsLabel} id={`${groupId}-colour`}>
-          {t.colour}
-        </span>
-        <div role="radiogroup" aria-labelledby={`${groupId}-colour`} className={styles.swatches} onKeyDown={onColourKey}>
-          {choices.map((colour) => {
-            const checked = notes.colour === colour;
-            const name = colour === null ? p.noColour : p.colours[colour];
-            return (
-              <button
-                key={colour ?? "none"}
-                type="button"
-                role="radio"
-                aria-checked={checked}
-                aria-label={name}
-                title={name}
-                tabIndex={checked ? 0 : -1}
-                className={`${styles.swatchButton}${checked ? ` ${styles.swatchOn}` : ""}`}
-                onClick={() => setColour(colour)}
-              >
-                <span className={styles.swatch} data-colour={colour ?? "none"} aria-hidden="true" />
-              </button>
-            );
-          })}
+      {hasColours ? (
+        <div className={styles.wordsRow}>
+          <span className={styles.wordsLabel} id={`${groupId}-colour`}>
+            {t.colour}
+          </span>
+          <div role="radiogroup" aria-labelledby={`${groupId}-colour`} className={styles.swatches} onKeyDown={onColourKey}>
+            {choices.map((colour) => {
+              const checked = notes.colour === colour;
+              const name = colour === null ? p.noColour : p.colours[colour];
+              return (
+                <button
+                  key={colour ?? "none"}
+                  type="button"
+                  role="radio"
+                  aria-checked={checked}
+                  aria-label={name}
+                  title={name}
+                  tabIndex={checked ? 0 : -1}
+                  className={`${styles.swatchButton}${checked ? ` ${styles.swatchOn}` : ""}`}
+                  onClick={() => setColour(colour)}
+                >
+                  <span className={styles.swatch} data-colour={colour ?? "none"} aria-hidden="true" />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
-      <div className={styles.wordsRow}>
-        <span className={styles.wordsLabel} id={`${groupId}-labels`}>
-          {t.labels}
-        </span>
-        <ul className={styles.labels} aria-labelledby={`${groupId}-labels`}>
-          {notes.labels.map((name) => (
-            <li key={name} className={styles.label}>
-              {name}
-              <button
-                type="button"
-                aria-label={t.removeLabel(name)}
-                title={t.removeLabel(name)}
-                onClick={() => ipc.playerRemoveLabel(site, player, name).then(applied).catch(failed)}
-              >
-                ×
-              </button>
-            </li>
-          ))}
-          {notes.labels.length < 8 ? (
-            <li>
-              <input
-                className={styles.labelInput}
-                value={label}
-                maxLength={24}
-                placeholder={t.labelPlaceholder}
-                aria-label={t.addLabel}
-                title={t.labelsHint}
-                onChange={(event) => setLabel(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    addLabel();
-                  }
-                }}
-              />
-            </li>
-          ) : null}
-        </ul>
-      </div>
+      ) : null}
+      {hasLabels ? (
+        <div className={styles.wordsRow}>
+          <span className={styles.wordsLabel} id={`${groupId}-labels`}>
+            {t.labels}
+          </span>
+          <ul className={styles.labels} aria-labelledby={`${groupId}-labels`}>
+            {notes.labels.map((name) => (
+              <li key={name} className={styles.label}>
+                {name}
+                <button
+                  type="button"
+                  aria-label={t.removeLabel(name)}
+                  title={t.removeLabel(name)}
+                  onClick={() => source.removeLabel(site, player, name).then(applied).catch(failed)}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+            {notes.labels.length < 8 ? (
+              <li>
+                <input
+                  className={styles.labelInput}
+                  value={label}
+                  maxLength={24}
+                  placeholder={t.labelPlaceholder}
+                  aria-label={t.addLabel}
+                  title={t.labelsHint}
+                  onChange={(event) => setLabel(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addLabel();
+                    }
+                  }}
+                />
+              </li>
+            ) : null}
+          </ul>
+        </div>
+      ) : null}
       <label className={styles.wordsRow}>
         <span className={styles.wordsLabel}>
           {t.note}
@@ -421,7 +449,7 @@ export function PlayerWords({
           onBlur={() => saveNote(note)}
         />
       </label>
-      {footnote ? <p className={styles.footnote}>{t.localOnly}</p> : null}
+      {footnote ? <p className={styles.footnote}>{footnote}</p> : null}
       {error ? (
         <p className={styles.errorText} role="alert">
           {error}
@@ -437,8 +465,8 @@ function rank(order: readonly string[], key: string): number {
 }
 
 /** Their rows by position, stake, table size or game: the Reports table. */
-function Breakdown({ profile, definitions }: { profile: Profile; definitions: StatDefinition[] }) {
-  const all = useT();
+function Breakdown({ profile, definitions }: { profile: Profile; definitions: readonly Definition[] }) {
+  const all = useUiStrings();
   const t = all.players.profile;
   const f = all.hands.filters;
   const [tab, setTab] = useState<Tab>("position");
@@ -446,7 +474,6 @@ function Breakdown({ profile, definitions }: { profile: Profile; definitions: St
   const tabsRef = useRef<HTMLDivElement>(null);
   const columns = profile.columns.map((id) => definitions.find((definition) => definition.id === id) ?? null);
 
-  const choose = (next: Tab) => setTab(next);
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const index = TABS.indexOf(tab);
     let next: number | null = null;
@@ -458,7 +485,7 @@ function Breakdown({ profile, definitions }: { profile: Profile; definitions: St
     event.preventDefault();
     const chosen = TABS[next];
     if (chosen) {
-      choose(chosen);
+      setTab(chosen);
       tabsRef.current?.querySelectorAll<HTMLButtonElement>("[role=tab]")[next]?.focus();
     }
   };
@@ -502,13 +529,13 @@ function Breakdown({ profile, definitions }: { profile: Profile; definitions: St
             aria-controls={`${panelId}-panel`}
             tabIndex={entry === tab ? 0 : -1}
             className={`chip-btn${entry === tab ? " is-active" : ""}`}
-            onClick={() => choose(entry)}
+            onClick={() => setTab(entry)}
           >
             {t.tabs[entry]}
           </button>
         ))}
       </div>
-      <div id={`${panelId}-panel`} role="tabpanel" aria-labelledby={`${panelId}-${tab}`}>
+      <div id={`${panelId}-panel`} role="tabpanel" aria-labelledby={`${panelId}-${tab}`} className={styles.tableScroll}>
         {rows.length === 0 ? (
           <p className={styles.muted}>{t.empty}</p>
         ) : (

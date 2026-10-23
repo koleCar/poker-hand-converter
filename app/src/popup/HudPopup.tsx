@@ -33,7 +33,8 @@ import { errorText, inApp, ipc, onHudPopupChanged, type HudPopup as Popup, type 
 import { statRows, useStatDefinitions } from "../lib/useStatDefinitions";
 import { POSITION_ORDER } from "../screens/hands/filter";
 import { bigBlinds, count } from "../screens/hands/format";
-import { PlayerWords } from "../screens/players/PlayerProfile";
+import { storePlayersSource } from "../lib/playersSource";
+import { PlayerWords } from "@rail/ui/players/PlayerProfile";
 import { GroupTable } from "@rail/ui/reports/Breakdown";
 import styles from "./HudPopup.module.css";
 
@@ -206,11 +207,11 @@ function PopupBody({ popup, onClose }: { popup: Popup; onClose: () => void }) {
       {popup.notes ? (
         <section className={styles.section} aria-label={t.note}>
           <PlayerWords
+            source={storePlayersSource}
             site={popup.storeSite}
             player={popup.player}
             initial={popup.notes}
             onNotes={() => undefined}
-            footnote={false}
           />
         </section>
       ) : popup.together && !popup.rules.words ? (

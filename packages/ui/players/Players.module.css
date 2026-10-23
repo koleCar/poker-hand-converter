@@ -1,22 +1,35 @@
-/* Players (R2.7c): title, the toolbar, notices, then the list and (with a
-   player open) the profile beside it, both scrolling inside. Semantic
-   tokens only; the colour tags are `--player-tag-*` (`index.css`). */
+/* Players (R2.7c; both surfaces since R4.5c): title, the toolbar, notices,
+   then the list and (with a player open) the profile beside it. On the
+   desktop the screen fills the main area and both scroll inside it
+   (`.fill`); on the web it sizes to the page and the list gets a window's
+   height of its own (`.page`). Where the screen is narrow (a phone) the
+   profile opens above the list, full width. Semantic tokens only (the
+   density's with the web's values as fallbacks: the web has no density
+   setting); the colour tags are the app's `--player-tag-*` (`index.css` -
+   the web keeps no colours). */
 
 .screen {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0;
+}
+
+.fill {
   height: 100%;
   min-height: 0;
 }
 
 .top {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-4);
+  gap: var(--space-1) var(--space-4);
 }
 
 .title {
+  margin: 0;
   font-size: var(--font-size-2xl);
 }
 
@@ -36,7 +49,7 @@
 }
 
 .search {
-  inline-size: 16rem;
+  inline-size: min(16rem, 100%);
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
@@ -51,6 +64,7 @@
 }
 
 .select {
+  max-inline-size: 100%;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -59,6 +73,9 @@
 }
 
 .select select {
+  inline-size: auto;
+  min-inline-size: 0;
+  max-inline-size: min(16rem, 100%);
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-2);
@@ -169,8 +186,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
-  flex: 1 1 auto;
   min-height: 0;
+}
+
+.fill .body {
+  flex: 1 1 auto;
 }
 
 .split {
@@ -181,7 +201,37 @@
 .panel {
   min-width: 0;
   min-height: 0;
+}
+
+.fill .list,
+.fill .panel {
   overflow: auto;
+}
+
+/* On the page, the list scrolls inside a box a window tall (less the bar). */
+.page .list {
+  height: min(75vh, 56rem);
+}
+
+/* The split's two minimums and the gap: under them, one column, the
+   profile first (it is what the reader just asked for). */
+@container (width < 52rem) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .split .panel {
+    order: -1;
+  }
+
+  .fill .split {
+    grid-template-rows: auto 28rem;
+    overflow-y: auto;
+  }
+
+  .page .split .list {
+    height: min(60vh, 40rem);
+  }
 }
 
 .message {
@@ -208,6 +258,8 @@
    header, rows positioned in a spacer, `--density-row` tall - the Hands
    list's shape. */
 .grid {
+  --row: var(--density-row, 40px);
+
   container-type: inline-size;
   position: relative;
   flex: 1 1 auto;
@@ -216,7 +268,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
   background: var(--surface-raised);
-  font-size: var(--density-table-font);
+  font-size: var(--density-table-font, var(--font-size-sm));
   font-variant-numeric: tabular-nums;
   overscroll-behavior: contain;
 }
@@ -226,7 +278,7 @@
   grid-template-columns: minmax(12rem, 2.4fr) minmax(6rem, 1fr) 6.5rem 7.5rem 8.5rem;
   align-items: center;
   column-gap: var(--space-3);
-  height: var(--density-row);
+  height: var(--row);
   padding: 0 var(--space-3);
   min-width: 46rem;
   white-space: nowrap;
@@ -253,6 +305,31 @@
   .grid .gridRow > :nth-child(2),
   .grid .gridRow > :nth-child(5) {
     display: none;
+  }
+}
+
+/* A phone's width: the name takes what the two numbers leave. */
+@container (width < 26rem) {
+  .grid .gridRow {
+    grid-template-columns: minmax(0, 1fr) 4.5rem 5.5rem;
+    column-gap: var(--space-2);
+    padding: 0 var(--space-2);
+  }
+}
+
+/* The row height as the stylesheet says it, read back by `PlayerTable`. */
+.probe {
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: var(--row);
+  pointer-events: none;
+}
+
+/* A finger's row (a phone, a tablet): the 44 px target. */
+@media (pointer: coarse) {
+  .grid {
+    --row: max(var(--density-row, 40px), 44px);
   }
 }
 
@@ -372,12 +449,22 @@
   align-self: center;
 }
 
+.handsWith {
+  align-self: flex-start;
+}
+
+/* A breakdown table wider than a phone scrolls inside its own box. */
+.tableScroll {
+  overflow-x: auto;
+}
+
 /* ------------------------------------------------------------- profile */
 
 .profile {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  min-width: 0;
   padding: var(--space-4) var(--space-5);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
@@ -526,4 +613,32 @@
 
 .words .errorText {
   grid-column: 1 / -1;
+}
+
+/* The swatches, the room select, the search and "clear" under a finger. */
+@media (pointer: coarse) {
+  .swatchButton {
+    inline-size: 44px;
+    block-size: 44px;
+  }
+
+  .clear {
+    min-block-size: 44px;
+  }
+
+  .label button {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+}
+
+/* A phone: the profile's padding gives way to its content. */
+@container (width < 30rem) {
+  .profile {
+    padding: var(--space-3);
+  }
+
+  .words {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

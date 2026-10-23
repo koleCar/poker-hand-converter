@@ -743,6 +743,36 @@ about T hands apart). At 1M hands a filter change (`report_open` +
 *As built* has the table. Costs: +10-12 ms on a 1 000-row `save_hand_stats`
 call (~60 ms), the backfill ~100 s for 6M rows.
 
+**The Players screen's readers** (`20270714090000`, RAIL-PLAN R4.5c-3), the
+shared Players screen's on the web, invoker, `search_path = ''`, for
+`authenticated` only:
+
+- `players_list(p_query)` - from `player_stats`: one line per opponent of a
+  room with real names (every segment summed), the hero's hands with them
+  and result against them per kind (cash / chips), first and last seen (read
+  again from the rows when a delete made them stale), whether
+  `player_notes` holds a note; filtered by room, kind (`all` / `cash` /
+  `chips`), a case-insensitive prefix of the name (LIKE's characters taken
+  literally) and "with a note"; most hands together first, at most 500. With
+  the scope's counts (`players`, `matching`, `cashHands`, `chipsHands`), no
+  result when the scope mixes chips with cash (`mixedKind`), the opaque-id
+  opponents' rows counted (`hiddenHands`). The desktop's
+  `Reader::player_list` rules.
+- `player_profile(site, player, kind, version)` - what `player_stats` holds
+  for them (`seen`), their note and tags, and their villain rows of the kind
+  summed (bomb pots out, an EV cashout's money out) in total and by
+  position, stake, table size and game (`hand_stats_villain_idx`), with a
+  sample per cash stake for its label; big blinds withheld when chips and
+  cash mix; `seen: null` for a name that is no opponent of a room with real
+  names. The client makes the statistics (`showStat` of the shipped
+  definitions, hero-only ones and money withheld).
+- `player_sites(version)` - the rooms with listed opponents.
+
+`players` is reserved as a username (`/players` is a top-level route). At 1M
+hands (74 305 opponents) the list answers in 0.26-0.29 s and the rooms in
+0.05 s; a profile reads the opponent's rows: 0.09 s for one with 20 368,
+1.3 s for the copied set's biggest (267 464 rows; 4 s cold).
+
 ### Tests
 
 `supabase/tests/database/stats_ev.test.sql`: the catch-up predicate, the
@@ -770,6 +800,13 @@ refusal on mixed units, isolation, anon.
 `supabase/tests/database/stats_rebuild.test.sql`: coverage arithmetic,
 keyset paging, clamping, cross-user isolation, anon refusal, prune, and the
 two reports running as a signed-in user.
+
+`supabase/tests/database/players_screen.test.sql` (46): `players_list`
+against the list written out over the villain and hero rows themselves (not
+over `player_stats`) for every filter and after deletes, `player_profile`'s
+sums by group against the rows, the note and its tags, the mixed-kind
+refusal, nobody's profile, RLS (B's answers over B's rows), anon refused,
+the `players` reservation.
 
 `supabase/tests/database/report_summaries.test.sql` (91): the three summaries
 equal a from-scratch aggregation of `hand_stats` for random rows (rooms of

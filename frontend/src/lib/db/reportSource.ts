@@ -48,16 +48,16 @@ import { rpc } from "./client";
 /** The graph's points: the server cuts them at day ends (`report_graph`); a phone's width is ~310 px. */
 export const WEB_GRAPH_POINTS = 150;
 
-type Row = Record<string, unknown>;
+export type Row = Record<string, unknown>;
 
-const num = (value: unknown): number =>
+export const num = (value: unknown): number =>
   typeof value === "number" && Number.isFinite(value)
     ? value
     : typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value))
       ? Number(value)
       : 0;
-const maybe = (row: Row, key: string): number | null => (key in row && row[key] !== null ? num(row[key]) : null);
-const str = (value: unknown): string | null => (typeof value === "string" && value.length > 0 ? value : null);
+export const maybe = (row: Row, key: string): number | null => (key in row && row[key] !== null ? num(row[key]) : null);
+export const str = (value: unknown): string | null => (typeof value === "string" && value.length > 0 ? value : null);
 
 /** The screen's filter as the readers take it (the versions the client reads). */
 function wire(filter: HandFilter): Record<string, unknown> {
@@ -81,7 +81,7 @@ export interface RawSums {
   evNetBbMilli: number | null;
 }
 
-function sumsOf(row: Row): RawSums {
+export function sumsOf(row: Row): RawSums {
   const counters = emptyCounters();
   for (const key of COUNTER_KEYS) counters[key] = num(row[key]);
   const money = emptyMoney();
@@ -94,7 +94,7 @@ function sumsOf(row: Row): RawSums {
   };
 }
 
-function show(stats: readonly DisplayStat[], sums: RawSums, minorUnits: number | null): Shown[] {
+export function show(stats: readonly DisplayStat[], sums: RawSums, minorUnits: number | null): Shown[] {
   const input: DisplaySums = {
     counters: sums.counters,
     money: sums.money,
@@ -116,12 +116,12 @@ function unitsOf(payload: Row): Units {
 }
 
 /** "PokerStars", not "pokerstars"; our own re-import format has no room. */
-function siteName(id: string, standardFormat: string): string {
+export function siteName(id: string, standardFormat: string): string {
   if (id === "standard") return standardFormat;
   return getParser(id)?.name ?? id;
 }
 
-function groupsOf(rows: unknown, minorUnits: number | null, label?: (key: string) => string | null): StatGroup[] {
+export function groupsOf(rows: unknown, minorUnits: number | null, label?: (key: string) => string | null): StatGroup[] {
   return (Array.isArray(rows) ? (rows as Row[]) : []).map((row) => {
     const sums = sumsOf(row);
     const key = str(row.key) ?? "";
