@@ -1,7 +1,8 @@
 // The phone check of R4.5 (docs/RAIL-PLAN.md R4.5b, R4.5d): the web's Hands,
 // Reports (`/stats`, the opponents panel in it), Players (`/players`, R4.5c),
 // the session review (`/analysis/session`, R5.1), the overview's three
-// biggest leaks (`/analysis`, R5.2), a shared hand and its
+// biggest leaks (`/analysis`, R5.2), your own charts (`/analysis/my-charts`,
+// R5.3: the list, a set's editor and its tools), a shared hand and its
 // embed, and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
 // English and Croatian, against a running web - a local `next start` over a
 // local Supabase stack with a signed-in test account:
@@ -40,7 +41,8 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname)) {
  * - the starting-hand grid's 169 cells (`[role=gridcell]`, the shared Reports
  *   screen's since R4.5c; `.stats-matrix__cell` the web's own grid before):
  *   13 across a phone is 22 px each; every class is also a row of the table
- *   under the grid, which is the touch path;
+ *   under the grid, which is the touch path; R5.3's chart grids are the same
+ *   (the editor's touch path is the rank list under the grid, 44 px buttons);
  * - a checkbox or radio inside a label: the label is the target (checked
  *   for 44 px separately when it is a toggle row);
  * - a link inside running text;
@@ -250,6 +252,21 @@ for (const locale of ["en", "hr"]) {
     await example.first().click();
     await page.locator(".rp").first().waitFor({ timeout: 60000 });
     await report("/analysis/h/<id> from the top three");
+  }
+
+  // Your own charts (R5.3): the list and the first set's editor with every
+  // tool open. The account needs a saved chart set for the second.
+  await page.goto(`${BASE}/analysis/my-charts`);
+  const library = "main section[aria-labelledby=charts-library]";
+  await page.locator(library).waitFor({ timeout: 60000 });
+  await report("/analysis/my-charts");
+  const firstSet = page.locator(`${library} li button`).first();
+  if ((await firstSet.count()) > 0) {
+    await firstSet.click();
+    await page.locator("main [role=grid]").first().waitFor({ timeout: 30000 });
+    await report("/analysis/my-charts, a set's editor");
+    for (const summary of await page.locator("main section details > summary").all()) await summary.click();
+    await report("/analysis/my-charts, the editor's tools open");
   }
 
   if (SHARE) {

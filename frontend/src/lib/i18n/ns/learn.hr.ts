@@ -49,6 +49,7 @@ export const learnHr: Dict["learn"] = {
     progress: "Napredak",
     reports: "Izvještaji",
     charts: "Chartovi",
+    myCharts: "Tvoji chartovi",
     learn: "Pojmovi",
     more: "Više",
   },

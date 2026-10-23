@@ -1115,6 +1115,36 @@ and anon.
 
 `learn_progress.test.sql` (Learn L1, 50 assertions): see below.
 
+## Your preflop charts: `preflop_chart_sets`
+
+`20270811090000` (R5.3; `docs/CHARTS.md` §11 is what a user chart is, and how
+it differs from the shipped ones).
+
+**`preflop_chart_sets`** - one row per chart set of a user's: `name` (1-80
+characters, trimmed), `game_format` (`cash` / `tournament`), `table_size`
+(2 / 6 / 9), `stack_min_bb` / `stack_max_bb` (1-1000, low to high),
+`format_version` (1; a later format migrates rows by it) and `nodes`, a JSON
+object keyed by situation (`rfi:CO`, `vs-open:BB:BTN`) whose values hold per
+action (`raise`, `call`, `allin`) base64 of 169 bytes - whole percents per
+class - and an optional `raiseBb`. **Unlike most tables here, the owner writes
+it directly** (PostgREST `insert` / `update` / `delete`): it holds nothing a
+server-computed aggregate depends on, only the user's own percents, so RLS
+(`owner_id = (select auth.uid())` for select, insert, update and delete; no
+`anon` grant) is the access rule, and a `before` trigger,
+`preflop_chart_sets_guard` (definer, so it can count and rate limit), is the
+shape and limit rule: the keys must be situations of the set's table
+(`preflop_chart_key_ok`, `isPlausible` in `model.ts`), only the actions a
+situation allows (the big blind facing limpers checks, so no `call`), each
+value base64 of exactly 169 bytes, every percent and each class's sum at most
+100, a raise size in (0, 1000]; at most 300 situations (and 400 KiB) a set,
+50 sets an account (counted under an advisory lock), 120 writes per 10
+minutes (`enforce_rate_limit`, `preflop_charts:<owner>`). An update keeps the
+row's id, owner and creation time whatever it sends.
+
+The played decisions a chart is compared with are R5.3's second part.
+
+Tests: `supabase/tests/database/preflop_charts.test.sql`.
+
 ## Learn: `lesson_progress`, `lesson_cards`
 
 Learn L1 (`20270317090000_learn_progress.sql`, `docs/LEARN-PLAN.md`). The
@@ -1951,6 +1981,7 @@ over-permissioned** and the migration revokes first, then grants.
 | `shares` | **none** | **none** | **none**. Sealed. `create_share` / `read_share` / `record_share_view` only. |
 | `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
 | `hand_sources` | **none** | `SELECT` | `hand_sources_owner_select` (`owner_id = (select auth.uid())`). Written only by `register_hand_source` and `ingest_hands`. |
+| `preflop_chart_sets` | **none** | `SELECT`, `INSERT`, `UPDATE`, `DELETE` | One owner-only policy per command, all `owner_id = (select auth.uid())`; `preflop_chart_sets_guard` (before insert or update) checks the nodes' shape and the limits and keeps an update's id and owner (R5.3). |
 | `hud_layouts` | **none** | `SELECT` | `hud_layouts_owner_select` (`owner_id = (select auth.uid())`). Written only by `put_hud_layouts` (R3.9). |
 | `hand_arrivals` | `SELECT` | `SELECT` | `hand_arrivals_own_select` (`to authenticated`, `owner_id = (select auth.uid())`); none for `anon`, so anon reads zero rows. Written only by the `hands_signal_arrival` trigger. The anon grant is for Realtime: see [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 

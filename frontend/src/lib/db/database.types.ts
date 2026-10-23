@@ -2473,6 +2473,48 @@ export type Database = {
           },
         ]
       }
+      preflop_chart_sets: {
+        Row: {
+          created_at: string
+          format_version: number
+          game_format: string
+          id: string
+          name: string
+          nodes: Json
+          owner_id: string
+          stack_max_bb: number
+          stack_min_bb: number
+          table_size: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          format_version?: number
+          game_format: string
+          id?: string
+          name: string
+          nodes?: Json
+          owner_id?: string
+          stack_max_bb: number
+          stack_min_bb: number
+          table_size: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          format_version?: number
+          game_format?: string
+          id?: string
+          name?: string
+          nodes?: Json
+          owner_id?: string
+          stack_max_bb?: number
+          stack_min_bb?: number
+          table_size?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ban_reason: string | null
@@ -3851,6 +3893,15 @@ export type Database = {
       poll_public: { Args: { p_post: string }; Returns: Json }
       post_status: { Args: { p_public_id: string }; Returns: string }
       posting_block_reason: { Args: { p_uid: string }; Returns: string }
+      preflop_chart_key_ok: {
+        Args: { p_key: string; p_table_size: number }
+        Returns: boolean
+      }
+      preflop_chart_nodes_problem: {
+        Args: { p_nodes: Json; p_table_size: number }
+        Returns: string
+      }
+      preflop_chart_seats: { Args: { p_table_size: number }; Returns: string[] }
       provisional_username: { Args: never; Returns: string }
       prune_hand_analysis: {
         Args: { p_keep_version: string; p_limit?: number }
