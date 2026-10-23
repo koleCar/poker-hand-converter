@@ -25,6 +25,7 @@ import type { ReplayStrings } from "./model/replay";
 import type { handsUiEn } from "./strings/hands.en";
 import type { playersUiEn } from "./strings/players.en";
 import type { reportsUiEn } from "./strings/reports.en";
+import type { chartsUiEn } from "./strings/charts.en";
 import type { reviewUiEn } from "./strings/review.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
@@ -339,6 +340,12 @@ export type PlayersStrings = typeof playersUiEn;
  */
 export type ReviewStrings = typeof reviewUiEn;
 
+/**
+ * The user's own preflop charts' (`charts/`, R5.3): the library, the editor,
+ * the comparison. `strings/charts.{en,hr}.ts` are the two languages.
+ */
+export type ChartsStrings = typeof chartsUiEn;
+
 export interface UiStrings {
   /** The reader's BCP 47 tag, for `Intl` ("en-GB", "hr-HR"). */
   intlLocale: string;
@@ -352,6 +359,7 @@ export interface UiStrings {
   reports: ReportsStrings;
   players: PlayersStrings;
   review: ReviewStrings;
+  charts: ChartsStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);

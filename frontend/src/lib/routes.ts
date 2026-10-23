@@ -52,6 +52,12 @@ export const paths = {
    * filter's groups (`components/analysis/session/sessionQuery.ts`).
    */
   analysisSession: (query?: string) => (query ? `/analysis/session?${query}` : "/analysis/session"),
+  /**
+   * Your own preflop charts (R5.3): the chart sets, the editor and the
+   * comparison with your hands. Private; `query` is the open set, the view,
+   * the situation and the period (`components/analysis/myCharts/`).
+   */
+  analysisMyCharts: (query?: string) => (query ? `/analysis/my-charts?${query}` : "/analysis/my-charts"),
   /** Progress (phase A6): score and EV lost over time. Private; `query` is its filters and view. */
   analysisProgress: (query?: string) => (query ? `/analysis/progress?${query}` : "/analysis/progress"),
   /**

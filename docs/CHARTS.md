@@ -1658,3 +1658,48 @@ experiments: `CHARTS_ITERATIONS`, `CHARTS_BOARDS`, `CHARTS_OUT`,
 Any change to a constant, size, cut or the engine changes the numbers; the
 set's `model.hash` changes with them, and the analysis version
 (`ANALYSIS_VERSION`) must be bumped when grades are stored from the new set.
+
+---
+
+## 11. The user's own charts (R5.3) - not these
+
+A user can keep **chart sets of their own** (`/analysis/my-charts`,
+`packages/ui/charts/`, `docs/RAIL-PLAN.md` R5.3): painted, imported from
+other tools' range text, or started from one of the sets above. They are the
+user's data - private to their account (`preflop_chart_sets`, owner-only
+RLS, `docs/DATABASE.md`) - and **nothing in this document reads them**:
+grading (§2), the lookup (§7), `CHARTS_VERSION`, `ANALYSIS_VERSION` and the
+committed sets are untouched by them. Rail ships no one else's charts; what a
+user imports is their own. Copying a shipped situation into one of theirs is
+allowed (it is Rail's own solver output, §5).
+
+**How they differ from the shipped sets:**
+
+| | Shipped (`charts/N`) | A user's |
+| --- | --- | --- |
+| A situation | a line of the tree (`fffrf`), every line kept | a key `scenario:hero[:villain]` (`vs-open:BB:BTN`), lines collapsed |
+| Per class | a frequency (uint8/255) and an EV per option, the range reaching the node | whole percents (0-100) for raise, call, all-in; the rest folds (checks for the big blind facing limpers); no EV, no range |
+| Sizes | the tree's (§1.1) | one optional raise size per situation, informational |
+| Game | one table and depth per set | cash or tournament, 2 / 6 / 9 seats, a range of stack depths |
+
+**The vocabulary** is this document's: the scenarios of §6.1 (`rfi`,
+`vs-limp`, `vs-open`, `squeeze`, `vs-iso`, `vs-3bet`, `vs-4bet`, `vs-allin`)
+and the stats engine's seat names, so a key is a shipped node's
+`scenario`, `actor` and `facing.position` (the first limper for `vs-limp`).
+`nodeKey.ts` reads a line into a key with the line alone (the set's seats in
+preflop order): unopened → `rfi`; limpers and no raise → `vs-limp`; one
+raise → `vs-open`, or `squeeze` with callers, or `vs-iso` for a limper facing
+the raise over its limp; two, three, four or more raises → `vs-3bet`,
+`vs-4bet`, `vs-allin`, **only** when the actor and the last raiser are the
+only ones who raised and nobody limped or called. Lines with no key: a cold
+3-bet or 4-bet, an opener facing a squeeze, a non-limper facing a raise over
+limpers, anything after an iso-raise but the limper's answer, and the
+straddle set (its seats are not the vocabulary's). Every node of every plain
+set is keyed consistently with its own `scenario`, `actor` and `facing`
+(`tests/test/preflopCharts.test.ts`).
+
+**Copying a shipped situation** (`shippedNodeOf`): of the set's lines with
+that key, the most reached; each class's options summed into raise, call,
+all-in and the rest, rounded to whole percents by largest remainder.
+
+**Comparing played hands** with a user's chart is R5.3's second part.
