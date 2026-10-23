@@ -9,6 +9,147 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_leak_day_hands: {
+        Row: {
+          analysis_version: string
+          day: string
+          game_format: string
+          hands: number
+          hero_position: string
+          owner_id: string
+          pot_type: string
+        }
+        Insert: {
+          analysis_version: string
+          day: string
+          game_format: string
+          hands: number
+          hero_position: string
+          owner_id: string
+          pot_type: string
+        }
+        Update: {
+          analysis_version?: string
+          day?: string
+          game_format?: string
+          hands?: number
+          hero_position?: string
+          owner_id?: string
+          pot_type?: string
+        }
+        Relationships: []
+      }
+      analysis_leak_days: {
+        Row: {
+          analysis_version: string
+          chart_set: string
+          day: string
+          decisions: number
+          ev_loss_bb: number
+          ev_loss_pot: number
+          game_format: string
+          hero_position: string
+          mistakes: number
+          non_perfect: number
+          owner_id: string
+          pot_type: string
+          score_sq: number
+          score_sum: number
+          spot_key: string
+        }
+        Insert: {
+          analysis_version: string
+          chart_set: string
+          day: string
+          decisions: number
+          ev_loss_bb: number
+          ev_loss_pot: number
+          game_format: string
+          hero_position: string
+          mistakes: number
+          non_perfect: number
+          owner_id: string
+          pot_type: string
+          score_sq: number
+          score_sum: number
+          spot_key: string
+        }
+        Update: {
+          analysis_version?: string
+          chart_set?: string
+          day?: string
+          decisions?: number
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          game_format?: string
+          hero_position?: string
+          mistakes?: number
+          non_perfect?: number
+          owner_id?: string
+          pot_type?: string
+          score_sq?: number
+          score_sum?: number
+          spot_key?: string
+        }
+        Relationships: []
+      }
+      analysis_leak_rows: {
+        Row: {
+          action_index: number
+          analysis_version: string
+          chart_set: string
+          day: string
+          ev_loss_bb: number
+          ev_loss_pot: number
+          game_format: string
+          grade: string
+          hand_id: string
+          hero_position: string
+          ord: number
+          owner_id: string
+          played_at: string | null
+          pot_type: string
+          score: number | null
+          spot_key: string
+        }
+        Insert: {
+          action_index: number
+          analysis_version: string
+          chart_set?: string
+          day: string
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          game_format?: string
+          grade: string
+          hand_id: string
+          hero_position?: string
+          ord: number
+          owner_id: string
+          played_at?: string | null
+          pot_type?: string
+          score?: number | null
+          spot_key: string
+        }
+        Update: {
+          action_index?: number
+          analysis_version?: string
+          chart_set?: string
+          day?: string
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          game_format?: string
+          grade?: string
+          hand_id?: string
+          hero_position?: string
+          ord?: number
+          owner_id?: string
+          played_at?: string | null
+          pot_type?: string
+          score?: number | null
+          spot_key?: string
+        }
+        Relationships: []
+      }
       analysis_shares: {
         Row: {
           created_at: string
@@ -3082,6 +3223,20 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_leak_chart_set: {
+        Args: { p_facts: Json; p_source: string }
+        Returns: string
+      }
+      analysis_leak_examples: {
+        Args: {
+          p_filters?: Json
+          p_from?: string
+          p_leaks?: Json
+          p_limit?: number
+          p_to?: string
+        }
+        Returns: Json
+      }
       analysis_leak_hands: {
         Args: {
           p_deviations?: boolean
@@ -3091,6 +3246,34 @@ export type Database = {
           p_offset?: number
           p_sort?: string
         }
+        Returns: Json
+      }
+      analysis_leak_sample: {
+        Args: {
+          p_format: string
+          p_from: string
+          p_owner: string
+          p_position: string
+          p_pot: string
+          p_to: string
+          p_version: string
+        }
+        Returns: Json
+      }
+      analysis_leak_spot_key: {
+        Args: {
+          p_action: string
+          p_facts: Json
+          p_hero_position: string
+          p_options: Json
+          p_scenario: string
+          p_source: string
+          p_street: string
+        }
+        Returns: string
+      }
+      analysis_leak_summaries_rebuild: {
+        Args: { p_owner: string }
         Returns: Json
       }
       analysis_leaks: { Args: { p_filters?: Json }; Returns: Json }
@@ -3160,6 +3343,10 @@ export type Database = {
           p_taken: string
         }
         Returns: string
+      }
+      analysis_top_leaks: {
+        Args: { p_filters?: Json; p_period?: string }
+        Returns: Json
       }
       analysis_trend: {
         Args: {

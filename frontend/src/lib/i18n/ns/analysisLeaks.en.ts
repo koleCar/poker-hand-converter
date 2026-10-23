@@ -386,3 +386,58 @@ export const summaryEn = {
   allLeaks: "All leaks",
   progress: "Progress over time",
 };
+
+/** "35% (95%: 19–54%)": a rate with its interval. */
+const rateWithInterval = (rate: number, low: number, high: number) => `${pct(rate)} (95%: ${pct(low)}–${pct(high)})`;
+
+/**
+ * The overview's top three (R5.2, `lib/analysis/topLeaks.ts`): the three most
+ * important leaks, each with its size, how sure the sample is of it, the
+ * target, whether it is moving and example hands. Spread as
+ * `analysis.topLeaks`.
+ */
+export const topLeaksEn = {
+  heading: "Your three biggest leaks",
+  period: "Period",
+  periods: { "30d": "Last 30 days", all: "All time" } as Record<string, string>,
+  loading: "Ranking your leaks…",
+  failed: (message: string) => `The leaks did not load: ${message}`,
+  notInstalledBefore: "The top three needs the leak summaries of ",
+  notInstalledAfter: ". Apply it and reload.",
+  /** "From 1,588 graded moves in 1,442 hands." */
+  sample: (graded: number, handCount: number) => `From ${moves(graded)} in ${hands(handCount)}.`,
+  /** The 30-day window, as dates. */
+  window: (from: string, to: string) => `Your last 30 days of play (${dateRange(from, to)}), counted back from the last day you played.`,
+  rule:
+    "Ranked by the EV each leak cost you in total: how often the spot came up, how often you went wrong there and what a mistake cost. A leak counts once its spot came up 20 times with 2 mistakes; a thinner one only fills an empty place, marked tentative.",
+  none: "No leak the sample can vouch for yet: no spot has two mistakes in it. Play and analyse more hands, or look at all time.",
+  noneInPeriod: "No graded decision in this period.",
+  rank: (index: number) => `#${num(index)}`,
+  tentative: "Tentative",
+  tentativeNote: "Few hands: look at them before changing anything.",
+  /** The headline number. */
+  per100: (value: number) => `${bb(value)} / 100 hands`,
+  per100Range: (low: number, high: number) => `95%: ${bb(low)}–${bb(high)}`,
+  total: (ev: number) => `${bb(ev)} lost in all`,
+  how: (mistakeCount: number, spotCount: number, rate: number, low: number, high: number) =>
+    `${mistakes(mistakeCount)} in ${decisions(spotCount)} here: ${rateWithInterval(rate, low, high)}`,
+  target: (action: string) => `Target: ${actionWords[action] ?? action}, the reference's best move here`,
+  you: "You",
+  reference: "The reference, with your hands",
+  /** Was / now: the last 30 days of play against the 30 before. */
+  trendLabel: "Last 30 days against the 30 before",
+  trend: (nowMade: number, nowN: number, wasMade: number, wasN: number) =>
+    `${nowN > 0 ? pct(nowMade / nowN) : "—"} (${num(nowMade)} of ${num(nowN)}) now, ${
+      wasN > 0 ? pct(wasMade / wasN) : "—"
+    } (${num(wasMade)} of ${num(wasN)}) before`,
+  examples: "Example hands",
+  examplesNote: "The costliest, one per hand. Each opens at the decision.",
+  examplesLoading: "Loading the hands…",
+  examplesNone: "No hand to show.",
+  examplesFailed: (message: string) => `The hands did not load: ${message}`,
+  openHand: (what: string, leak: string) => `Open the hand at the decision: ${what} (${leak})`,
+  evLoss: (value: number) => `−${bb(value)}`,
+  openLeak: "In the leak report",
+  openLeakLabel: (name: string) => `Open in the leak report: ${name}`,
+  allLeaks: "All leaks",
+};

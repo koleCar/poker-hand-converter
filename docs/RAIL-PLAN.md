@@ -9799,6 +9799,133 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
     million hands (1.6 s and 6.4 s without it; both past PostgREST's
     statement timeout in the first case, so `/library` fell back to the
     converter) - not changed here, a follow-up. Not applied to production.
+- *As built, R5.2* (§15): **done** - the three biggest leaks, a card on the
+  web's Analysis overview (`/analysis`), linking to the full leak report.
+  - **Which leaks**: A6's own (`groupLeaks` over the leak finder's rows,
+    unchanged: same ids, same merging of thin spots), so each of the three is
+    a row of `/analysis/leaks` and links to it. **Importance is the EV a leak
+    cost in total** - how often the spot came up x how often it went wrong
+    there x what a mistake cost, which is the leak's summed EV loss; within
+    one sample every leak divides by the same graded hands, so the order is
+    also EV lost per 100 hands, the figure shown. Why not EV per mistake or
+    the mistake rate: a leak that is badly played but almost never met costs
+    little, and one met constantly at a small loss each time costs a lot -
+    the total is what the bankroll feels. **The sample must vouch for it**:
+    A6's confidence rule (20 decisions in the spot and 2 mistakes for medium,
+    50 and 5 for high) - every medium or high leak ranks before any low one,
+    however costly; a low one fills a place only when fewer than three sure
+    ones exist and only with 2 mistakes or more, marked "Tentative" with "few
+    hands: look at them first". That is A8b's rule for the study plan
+    (`pickFocus`; `TOP_MIN_MISTAKES` = `TENTATIVE_MIN_MISTAKES`, held by a
+    test), so the top three and the week's plan cannot contradict each other;
+    a leak of one mistake never makes the list. Ties: the bigger sample (more
+    decisions in the spot), then more mistakes, then the id
+    (`lib/analysis/topLeaks.ts`, pure).
+  - **Per leak**: the report's words (title and spot, both languages); EV
+    lost per 100 hands with a 95% range - the mistake rate's Wilson interval
+    at the leak's own cost per mistake (the sums carry no EV variance, so the
+    range is the sampling of how often, which is what a small sample is
+    unsure about) - and EV lost in all; how often ("5 mistakes in 25
+    decisions here: 20% (95%: 9-39%)") with the confidence glyph and word;
+    the target (the reference's best move, then your actions against the
+    reference's for the hands you held - A6's mix); **was / now**: the
+    mistake rate in the leak's spots over the last 30 days of play against
+    the 30 before, A6's two-proportion z and words ("Too few to tell" under
+    10 decisions in either); up to **five example hands** - one decision per
+    hand, the costliest of each finer spot a merged leak gathers first (its
+    spread), then the costliest of the rest, ties to the newer hand - each
+    opening `/analysis/h/<id>?t=a<index>` at the decision, its Back link
+    returning to the overview with its filters; a link to the leak's row in
+    the report over the same days and seat.
+  - **Filters**: a period toggle - the last 30 days of play (default;
+    counted back from the last graded day, as "what changed" counts, and
+    said so) or all time - and the overview's own format, seat and pot type,
+    for the leaks, the was / now and the examples. The report link carries
+    the days and the seat; the report has no format or pot-type filter
+    (A6's open point: with those set it may group differently).
+  - **Why stored sums** (measured, below): `analysis_leaks` at 1M hands took
+    **240 s** for all time and 9-11 s for 30 days - it reads every
+    `decision_analysis` row and unpacks its options and facts on each call.
+    Migration `20270728090000_leak_summaries.sql` keeps the leak finder's
+    sums instead, R4.5c-1's way: `analysis_leak_rows` (one narrow row per
+    graded decision: spot key and chart set exactly as
+    `analysis_graded_decisions` computes them, UTC day, format, seat, pot
+    type, grade, score, EV loss, action index), `analysis_leak_days` (summed
+    per owner, version, day, format, seat, pot type, spot, set) and
+    `analysis_leak_day_hands` (graded hands per day and filters), kept by
+    two statement triggers on `decision_analysis` (insert: add; delete -
+    prune, a hand deleted, an account deleted - subtract, using the leak
+    rows' own day and filters since the hand may be gone), each one
+    statement under a per-account advisory lock; `analysis_leak_summaries_rebuild(owner)`
+    recounts (the repair, and the backfill). Readers, invoker and
+    owner-first (`owner_id = (select auth.uid())` before RLS):
+    `analysis_top_leaks(filters, period)` (the period's rows - in
+    `analysis_leaks`' shape - and the last 30 days of play and the 30
+    before, with the windows) and `analysis_leak_examples(filters, from,
+    to, leaks, limit)` (up to 10 leaks of up to 200 spot keys, worse than
+    Perfect, costliest first). No grading constant, chart or `analysis/N`
+    changed; `analysis_leaks` and the leak report are untouched.
+  - **The card** (`components/analysis/leaks/TopLeaks.tsx`, words
+    `topLeaks` in `ns/analysisLeaks.{en,hr}.ts`, data `lib/db/topLeaks.ts`)
+    sits under the overview's grades, above the plan. `ConfidenceTag` moved
+    out of `LeaksTab.tsx` into its own file (shared). **Web-only**: the leak
+    finder (`lib/analysis/leaks.ts`, its chart-line walking and its words)
+    is the web's analysis library, which R5.4 either opens in the app's
+    webview or moves into `packages/`; the card moves with it then (its data
+    already come from two RPCs and a pure module). No AI-written summary
+    and no stub for one (declined, ANALYSIS-PLAN A8c).
+  - **Measured at 1M hands** (R2.9's harness, `RAIL_PERF_ANALYSIS=1`:
+    974 180 hands, 1 948 360 graded decisions; psql on the M2 Pro with
+    other jobs running; ms, first call after a restart and the next two):
+
+    | | first | then |
+    | --- | ---: | ---: |
+    | `analysis_leaks`, all time (before) | 239 919 | - |
+    | `analysis_leaks`, 30 days (before) | 11 394 | 9 076 |
+    | `analysis_top_leaks` 30 days (+ 30 before) | 85 | 14 |
+    | `analysis_top_leaks` all time (+ the two windows) | 100 | 68-106 |
+    | ... all time, BB and cash | 29 | 31 |
+    | `analysis_leak_examples`, 3 leaks, all time | 69 | 2 |
+    | ... 3 leaks, 30 days | 3 | 1 |
+
+    A 30-day window first walked the costliest-first index past 133 000 rows
+    of other days (0.5-1.5 s); `analysis_leak_rows_days_idx` reads the
+    window's rows. Sizes: `analysis_leak_rows` 666 MB with its indexes (1.95M
+    rows), `analysis_leak_days` 19 MB (69 984 rows), 34 992 day-hand rows.
+    The backfill took 4 min 35 s for the 1.95M decisions. **What the
+    triggers cost a writer**: `save_hand_analysis` of 200 hands (400
+    decisions) 85 ms warm against 19 ms without them (127-270 ms on a
+    session's first call: the trigger's plans), deleting their analysis 21
+    ms against 3 ms - in a run that analyses those 200 hands in the browser
+    for seconds first.
+  - **Tests**: pgTAP `leak_summaries` (48): the tables' RLS and grants, the
+    definer triggers and rebuild granted to nobody, the invoker readers (anon
+    refused); `analysis_top_leaks` equal to `analysis_leaks` - every spot,
+    set, count and sum, graded hands and moves - all time, the 30 days and
+    the 30 before, under each filter, after inserts, after a prune of
+    another version, after a hand is deleted, and the rebuild equal to what
+    the triggers kept; the windows; examples (order, cap, window, filters,
+    Perfect never, validation); another account sees only its own; a
+    deleted account leaves nothing (suite 42 files / 1 494 on a fresh reset).
+    Vitest `topLeaks` (29): the ranking (sure before thin, the fill rule,
+    one mistake never, ties, on `groupLeaks`' own leaks), the Wilson
+    interval and the per-100 range, was / now, the example selection, the
+    web source against a faked `rpc`, the card in English and Croatian
+    (words, figures, the tentative mark, links at the decision and to the
+    report, the empty state, no AI text), the two languages' keys. The
+    tests' Vitest now compiles JSX with the automatic runtime (the web's
+    tsconfig keeps it for Next), so a web component renders to markup there.
+    `responsive.mjs` audits the card (both periods) and a hand opened from
+    it; `audit` takes a root so only the card's controls are checked - the
+    overview around it predates the check - 56 / 56 in `en` and `hr`; the
+    whole Vitest suite 102 files. Browser (local stack, the corpus's 7 496
+    hands as a test account, 940 analysed by the web's own run - the
+    triggers filling the sums as it saved): both periods, a leak's numbers
+    equal to its row in the report it links to (where, though of high
+    confidence, it ranks 18th behind costlier thin leaks), an example hand
+    opened at the decision and back. Not applied to production (prod
+    checklist: the migration; its backfill reads every account's analysis
+    once).
 
 ---
 
@@ -9977,3 +10104,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-23 | **R4.5c-2 done**: the web's `/stats` is the shared Reports screen (second of R4.5c's three PRs). The app's Reports, breakdown, starting-hand grid and their words moved to `packages/ui/reports/` with a `ReportSource` per surface (the app's over its commands, unchanged; the web's over R4.5c-1's `report_open` / `report_graph` / `report_situations` / `report_facets`, each statistic `showStat` of the shipped definitions over the server's sums). The web keeps its HUD tiles, coverage line, sessions (now `report_sessions`) and opponents inside the screen and over its filter; the format buttons and stakes select became the filter chips, the six breakdown panels the ten tabs, the graph the app's Winnings card (see *As built*). `BreakdownPanel.tsx` and the web's `HandMatrix.tsx` deleted. Vitest `sharedReportsScreen` 20 (both sources, both languages); `responsive.mjs` 30 / 30 at 375 px; `screens.mjs` 285 / 288 identical (replayer noise), DOM dumps identical. |
 | 2026-10-23 | **R4.5c-3 done; Phase 4's "one look" complete**: the shared Players screen (third of R4.5c's three PRs). The app's Players, its table, profile and `PlayerWords` moved to `packages/ui/players/` with a `PlayersSource` per surface (`features`: the app keeps colours and labels, the web neither - the owner's decision, no sync). Migration `20270714090000_players_screen.sql`: `players_list` (from `player_stats`, the desktop's list rules), `player_profile` (the opponent's villain rows of a kind summed by position, stake, size and game), `player_sites`; `players` reserved as a username. Web: `/players` under the Statistics tab (a Statistics / Players switch, not a seventh tab), the opt-in when opponent statistics are off, notes through `set_player_note` keeping their tags, "hands with this player" into `/library` via `sessionStorage`. At 1M hands the list answers in 0.26-0.29 s. pgTAP `players_screen` 46 (suite 40 files / 1 399); Vitest `sharedPlayersScreen` 19; `responsive.mjs` 44 / 44 at 375 px. Not applied to production. |
 | 2026-10-23 | **R5.1 done**: the session review. `/analysis/session` (a ninth Analysis section; a "Review" link on every row of Statistics -> Sessions) shows one session - by default the latest that has **ended**; one that may still be going on is named and reviewed only on request - with a summary (when, hands, length, tables, result in money and big blinds, bb/100, all-in EV) and three ranked, capped lists of hands worth a look: the worst graded decisions (Inaccurate or worse), the preflop decisions off the shipped charts (graded against them at Inaccurate or worse: the chart takes the action under 3.5 % of the time) and the biggest pots; each hand once, in the first list it is in, with badges for the others, opening in `/analysis/h/<id>` at the decision with a way back. A session is `report_sessions`' (gap rule over the shared filter): migration `20270721090000_session_review.sql` adds `session_review(filter, at, gap, limit)`, which walks the time index outwards from one instant in chunks and is held to `report_sessions` by pgTAP (47). The screen is `packages/ui/review/` (`SessionReviewSource`, a pluggable `DeviationSource` for R5.3's own charts, `hiddenDuringPlay` for A10 when R5.4 brings it to the app); web-only for now. At 1M hands with generated analysis rows: 2-19 ms warm, 4-229 ms cold for ordinary sessions, 1.65 s cold for an 862-hand one; the picker 1-2 ms (90 days). Vitest `sessionReview` (29), suite 101 files; `responsive.mjs` 36 / 36 with the new screen. Grading, charts and the analysis version untouched. Not applied to production (prod checklist: the migration). |
+| 2026-10-23 | **R5.2 done**: the three biggest leaks, a card on the Analysis overview linking to the full leak report. A6's own leaks (`groupLeaks`, unchanged), ranked by **EV lost in total** (= EV lost per 100 hands within one sample), the ones A6's confidence rule vouches for (20 decisions in the spot and 2 mistakes) before any thin one, a thin one with 2 mistakes or more only to fill a place and marked tentative (A8b's rule), ties to the bigger sample, then mistakes, then the id; each in words with EV lost per 100 hands and its 95% range (the mistake rate's Wilson interval), EV lost in all, how often, confidence, the target and the reference's mix, the last 30 days of play against the 30 before, up to five example hands opening at the decision, and a link to its report row. Period: last 30 days of play or all time, under the overview's format, seat and pot type. `analysis_leaks` took 240 s (all time) and 9-11 s (30 days) at 1M hands, so migration `20270728090000_leak_summaries.sql` keeps the leak finder's sums by triggers on `decision_analysis` (`analysis_leak_rows`, `analysis_leak_days`, `analysis_leak_day_hands`, a rebuild that is also the backfill) and reads them with `analysis_top_leaks` and `analysis_leak_examples` (invoker, owner-first): 14-106 ms warm, 29-100 ms first; examples 1-69 ms; a 200-hand `save_hand_analysis` 85 ms against 19 ms without the triggers. pgTAP `leak_summaries` (48) holds the sums equal to `analysis_leaks` under every filter after inserts, a prune, a hand deleted and a rebuild; Vitest `topLeaks`; `responsive.mjs` audits the card. Web-only (moves with the analysis library in R5.4); no AI-written summary. Grading, charts and the analysis version untouched. Not applied to production (prod checklist: the migration). |

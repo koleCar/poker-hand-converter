@@ -19,7 +19,7 @@ import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT } fro
 import { bbFloored, betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
 import type { DecisionAnalysis, Flag, OptionAnalysis, SensitivityFacts, SpotFacts } from "../../analysis/types";
 import { reportsEn } from "./analysisReports.en";
-import { leaksEn, progressEn, summaryEn } from "./analysisLeaks.en";
+import { leaksEn, progressEn, summaryEn, topLeaksEn } from "./analysisLeaks.en";
 import { trainEn } from "./analysisTrain.en";
 import { shareEn } from "./analysisShare.en";
 import { planEn } from "./analysisPlan.en";
@@ -1345,6 +1345,7 @@ export const analysisEn = {
   leaks: leaksEn,
   progress: progressEn,
   summary: summaryEn,
+  topLeaks: topLeaksEn,
 
   /** The trainer (phase A7): `analysisTrain.en.ts`. */
   train: trainEn,

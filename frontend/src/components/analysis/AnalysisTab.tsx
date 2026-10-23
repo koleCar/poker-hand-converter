@@ -54,6 +54,7 @@ import { FLAG_CONCEPTS } from "../../lib/learn/links";
 import { ActionStrip } from "./ActionStrip";
 import { AnalysisNav } from "./AnalysisNav";
 import { GradeIcon } from "./GradeIcon";
+import { TopLeaks } from "./leaks/TopLeaks";
 import { WhatChanged } from "./leaks/WhatChanged";
 import { DrillsDue } from "./train/DrillsDue";
 import { PlanCard } from "./plan/PlanCard";
@@ -313,6 +314,8 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
           }}
         />
       ) : null}
+
+      <TopLeaks scopeKey={scopeKey} generation={generation} backQuery={listQuery(state)} />
 
       <PlanCard generation={generation} />
 
