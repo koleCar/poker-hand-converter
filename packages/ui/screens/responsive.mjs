@@ -1,8 +1,9 @@
 // The phone check of R4.5 (docs/RAIL-PLAN.md R4.5b, R4.5d): the web's Hands,
-// Reports (`/stats`, the opponents panel in it), a shared hand and its embed,
-// and the replayer, at 375 x 812 as a touch phone (coarse pointer), in English
-// and Croatian, against a running web - a local `next start` over a local
-// Supabase stack with a signed-in test account:
+// Reports (`/stats`, the opponents panel in it), Players (`/players`, R4.5c),
+// a shared hand and its embed, and the replayer, at 375 x 812 as a touch
+// phone (coarse pointer), in English and Croatian, against a running web - a
+// local `next start` over a local Supabase stack with a signed-in test
+// account:
 //
 //   RAIL_CHECK_EMAIL=... RAIL_CHECK_PASSWORD=... RAIL_CHECK_SHARE=<slug> \
 //   node responsive.mjs http://localhost:3145
@@ -167,6 +168,30 @@ for (const locale of ["en", "hr"]) {
   for (let i = 0; i < (await tabs.count()); i++) {
     await tabs.nth(i).click();
     await report(`/stats, breakdown "${(await tabs.nth(i).innerText()).trim()}"`);
+  }
+
+  // Players (the shared screen since R4.5c): the opt-in when opponent
+  // statistics are off in this browser (turned on here, which reads the
+  // opponents of the hands stored), the list, a player open and each of the
+  // profile's tabs.
+  await page.goto(`${BASE}/players`);
+  const playerRows = page.locator("main [role=row][data-key]");
+  const optIn = page.locator("main .stats-empty .btn--primary");
+  await Promise.race([playerRows.first().waitFor({ timeout: 60000 }), optIn.waitFor({ timeout: 60000 })]);
+  if (await optIn.isVisible()) {
+    await report("/players, opponent statistics off");
+    await optIn.click();
+  }
+  await playerRows.first().waitFor({ timeout: 180000 });
+  await report("/players");
+  await playerRows.first().click();
+  await page.locator("main section[aria-labelledby]").first().waitFor({ timeout: 30000 });
+  await page.locator("main section[aria-labelledby] [role=tabpanel]").first().waitFor({ timeout: 30000 });
+  await report("/players, a player open");
+  const profileTabs = page.locator("main section[aria-labelledby] button[role=tab][aria-controls]");
+  for (let i = 0; i < (await profileTabs.count()); i++) {
+    await profileTabs.nth(i).click();
+    await report(`/players, profile "${(await profileTabs.nth(i).innerText()).trim()}"`);
   }
 
   if (SHARE) {

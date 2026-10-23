@@ -67,6 +67,10 @@ export const hr: Dict = {
       description:
         "VPIP, PFR, 3-bet, continuation betovi i graf dobitka sa showdownom i bez njega, za svaku spremljenu ruku.",
     },
+    players: {
+      title: "Igrači | Rail",
+      description: "Protivnici iz tvojih spremljenih ruku: njihova statistika, tvoj rezultat protiv svakog, tvoje bilješke.",
+    },
     analysis: {
       title: "Analiza ruku | Rail",
       description:
@@ -144,6 +148,7 @@ export const hr: Dict = {
     convert: "Učitaj ruku",
     library: "Povijest ruku",
     stats: "Statistika",
+    players: "Igrači",
     analysis: "Analiza",
     learn: "Učenje",
   },

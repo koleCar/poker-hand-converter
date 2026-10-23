@@ -26,6 +26,8 @@ export const paths = {
   convertManual: () => "/convert/manual",
   library: () => "/library",
   stats: () => "/stats",
+  /** The shared Players screen (R4.5c): the opponents of your hands. A top-level segment, so `players` is a reserved username (`20270714090000_players_screen.sql`). */
+  players: () => "/players",
   /**
    * The Analysis tab (`docs/ANALYSIS-PLAN.md` §6.0). `query` is the list's own
    * search string (filters, sort, page) without the `?`, so the hand panel's

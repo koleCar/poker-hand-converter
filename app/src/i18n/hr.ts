@@ -8,6 +8,7 @@
  * all-in, board) stay as Croatian players say them, as on the web.
  */
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
+import { playersUiHr } from "@rail/ui/strings/players.hr";
 import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { plural } from "@rail/ui/strings/plural";
 
@@ -761,111 +762,21 @@ export const hr: Dict = {
     },
   },
 
+  /**
+   * Players: the shared screen's words (`@rail/ui/strings/players.hr.ts`,
+   * R4.5c) and the app's own - only in the app, the empty list, the
+   * rebuild and indexing lines, where the words are kept.
+   */
   players: {
+    ...playersUiHr,
     unavailable: "Igrači su dostupni samo u aplikaciji Rail.",
-    storeError: (reason) => `Igrači se nisu učitali: ${reason}`,
-    loading: "Učitavam igrače…",
     empty: "Još nema protivnika. Pojavljuju se ovdje dok Rail uvozi ruke iz soba koje prikazuju korisnička imena.",
-    noMatch: "Nijedan protivnik ne odgovara.",
-    count: (players) => `${n(players)} ${plural(players, "protivnik", "protivnika", "protivnika")}`,
-    countOf: (matching, total) => `${n(matching)} od ${n(total)} protivnika`,
     rebuilding: (done, total) =>
       `Ažuriram igrače nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Popis se puni usput.`,
     indexing: (count) =>
       `Rail još razvrstava protivnike iz ${n(count)} ${plural(count, "nedavne ruke", "nedavne ruke", "nedavnih ruku")}; dok ne završi, „ruke s ovim igračem” i raščlamba po poziciji ${plural(count, "izostavljaju tu ruku", "izostavljaju te ruke", "izostavljaju te ruke")}.`,
-    search: "Traži igrače",
-    searchPlaceholder: "Ime počinje s…",
-    kinds: {
-      label: "Igra",
-      all: "Sve igre",
-      cash: "Cash",
-      chips: "Turniri",
-    },
-    room: "Soba",
-    anyRoom: "Sve sobe",
-    colourFilter: "Boja",
-    labelFilter: "Oznaka",
-    noted: "S bilješkom",
-    clearFilters: "Očisti filtre",
-    defaultKind: (kind) =>
-      `Prikazujem samo: ${kind}. Turnirski žetoni i novac ne zbrajaju se u jedan rezultat. Promijeni gumbima Igra.`,
-    mixedKind:
-      "Ove ruke miješaju turnirske žetone i novac, pa tvoj rezultat protiv pojedinog protivnika nije prikazan. Odaberi Cash ili Turniri.",
-    hidden: (count) =>
-      `${cap(ruku(count))} protivnika iz soba koje skrivaju korisnička imena (poput GGPokera) ${plural(count, "ulazi", "ulaze", "ulazi")} u tvoju statistiku, ali ${plural(count, "nije", "nisu", "nije")} na popisu: ime ondje traje jednu sesiju, pa ga se ne može pratiti iz sesije u sesiju.`,
-    listLabel: "Protivnici, najviše zajedničkih ruku prvo",
-    columns: {
-      name: "Igrač",
-      room: "Soba",
-      hands: "Zajedničke ruke",
-      result: "Tvoj rezultat (bb)",
-      lastSeen: "Zadnji put",
-    },
-    showMore: "Prikaži još",
-    colours: {
-      red: "Crvena",
-      orange: "Narančasta",
-      yellow: "Žuta",
-      green: "Zelena",
-      blue: "Plava",
-      purple: "Ljubičasta",
-    },
-    noColour: "Bez boje",
-    colourOf: (colour) => `Oznaka bojom: ${colour}`,
-    hasNote: "Ima bilješku",
     profile: {
-      label: "Profil igrača",
-      close: "Zatvori profil",
-      loading: "Učitavam profil…",
-      failed: (reason) => `Profil se nije učitao: ${reason}`,
-      notOpponent:
-        "Ovo ime nije protivnik iz sobe koja prikazuje korisnička imena, pa nema profil i ne prima bilješke.",
-      together: "Zajedničke ruke",
-      togetherCash: (count) => `${n(count)} u cash igrama`,
-      togetherChips: (count) => `${n(count)} na turnirima`,
-      firstSeen: "Prvi put",
-      lastSeen: "Zadnji put",
-      result: "Tvoj rezultat protiv tog igrača",
-      resultCash: "Cash",
-      resultChips: "Turniri",
-      resultLine: (bb, count) => `${bb} bb kroz ${rukuAcc(count)}`,
-      perHundred: (value) => `${value} bb/100`,
-      noHands: "Nema ruku",
-      handsWith: (count) => `Ruke s ovim igračem (${n(count)})`,
-      kind: "Igra",
-      kindHint: "Brojevi tog igrača u cash igrama, na turnirima ili u oboje; dok ovdje ne odabereš, vrijedi odabir s popisa.",
-      stats: "Statistika igrača",
-      sample: (count) => `Kroz ${rukuAcc(count)} tog igrača, s tobom ili bez tebe.`,
-      statsNote:
-        "Ovo su igračevi brojevi iz svake njegove ruke koju je Rail vidio. All-in EV računa se samo za tvoje ruke i ovdje nije prikazan. Vrijednost blijedi dok joj je uzorak malen; zadrži pokazivač na njoj za uzorak i 95 % interval.",
-      mixedKind:
-        "Ruke tog igrača miješaju turnirske žetone i novac, pa su brojevi u big blindovima izostavljeni. Odaberi Cash ili Turniri.",
-      breakdown: "Raščlamba",
-      tabs: {
-        position: "Pozicija",
-        stake: "Ulozi",
-        size: "Veličina stola",
-        format: "Igra",
-      },
-      heads: {
-        position: "Pozicija",
-        stake: "Ulozi",
-        size: "Stol",
-        format: "Igra",
-      },
-      noPosition: "Bez pozicije",
-      empty: "Nema ruku u ovoj raščlambi.",
-      colour: "Oznaka bojom",
-      labels: "Oznake",
-      addLabel: "Dodaj oznaku",
-      labelPlaceholder: "Oznaka, pa Enter",
-      removeLabel: (label) => `Ukloni oznaku „${label}”`,
-      labelsHint: "Do osam oznaka od najviše 24 znaka.",
-      note: "Bilješka",
-      notePlaceholder: "Kako igra, zapažanja, podsjetnici…",
-      noteSaved: "Spremljeno",
-      noteSaving: "Spremam…",
-      saveFailed: (reason) => `Nije spremljeno: ${reason}`,
+      ...playersUiHr.profile,
       localOnly:
         "Boje, oznake i bilješke zasad ostaju na ovom računalu; poslije će se sinkronizirati s tvojim bilješkama o igračima na webu.",
     },

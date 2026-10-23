@@ -35,6 +35,7 @@ function uiStrings(locale: Locale, dict: Dict, replayer: UiStrings["replayer"], 
     },
     hands: dict.hands,
     reports: dict.reports,
+    players: dict.players,
   };
 }
 

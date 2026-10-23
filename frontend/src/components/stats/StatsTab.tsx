@@ -51,6 +51,7 @@ import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { opponentsScope } from "./opponentsScope";
 import { SessionsPanel } from "./SessionsPanel";
+import { StatsNav } from "./StatsNav";
 import "../../styles/stats.css";
 
 interface StatsTabProps {
@@ -259,6 +260,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
 
   return (
     <div className="stats">
+      <StatsNav current="reports" />
       <ReportsScreen
         key={auth.user?.id ?? ""}
         source={source}

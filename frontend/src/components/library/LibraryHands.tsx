@@ -10,9 +10,11 @@
  *   (`webDataSource`, `get_hand`), mounted here.
  * - **The panel**: the shared replayer with this site's actions in its
  *   header - share, publish.
- * - **The hand-off**: the converter's "Replay" parks a hand in
+ * - **The hand-offs**: the converter's "Replay" parks a hand in
  *   `sessionStorage` and navigates here; a converted hand is not in the
- *   library, so it opens above the screen with a save button.
+ *   library, so it opens above the screen with a save button. Players'
+ *   "hands with this player" parks an opponent (`playerHandoff.ts`): the
+ *   list opens filtered to their room and name.
  * - **Live arrival** (R1.10, R4.3): each batch the shell hands over tells the
  *   list, which reads its first page again and puts what is newer on top -
  *   rows the reader is looking at do not move - and re-counts the chips. A
@@ -46,6 +48,7 @@ import liveStyles from "../live/live.module.css";
 import { PublishHandButton } from "../share/PublishHandButton";
 import { ShareHandButton } from "../share/ShareHandButton";
 import styles from "./library.module.css";
+import { takePlayerFilter } from "./playerHandoff";
 
 /**
  * How long after a desktop sync the "hands arriving" line stays up. The app
@@ -118,6 +121,13 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
   const locale = INTL_LOCALE[useLocale()];
   const source = useMemo(() => webHandsSource(t.standardFormat), [t.standardFormat]);
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
+
+  // "Hands with this player" from Players (R4.5c): the list opens on them, once.
+  useEffect(() => {
+    const parked = takePlayerFilter();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read once from the hand-off on mount
+    if (parked) setFilter(parked);
+  }, []);
   // The open hand, with the account it belongs to: another account (or
   // none) opens nothing.
   const [selection, setSelection] = useState<{ user: string | null; key: string } | null>(null);

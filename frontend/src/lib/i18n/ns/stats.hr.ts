@@ -247,5 +247,19 @@ export const statsHr: Dict["stats"] = {
     },
   },
 
+  players: {
+    heading: "Igrači",
+    signInHeading: "Prijavi se da vidiš svoje protivnike",
+    signInBody: "Protivnici se čitaju iz ruku u tvojoj biblioteci, pa trebaju račun kojem pripadaju.",
+    offHeading: "Statistika protivnika je isključena",
+    offBody:
+      "Igrači navode protivnike iz tvojih ruku u sobama koje prikazuju korisnička imena, njihovu statistiku i tvoj rezultat protiv svakog. Dolaze iz statistike protivnika: redak po protivniku po ruci, otprilike šest puta više prostora od tvoje vlastite statistike, pa je isključena dok je ne uključiš. Možeš je opet isključiti pod Statistika, Protivnici; tvoje ruke i tvoji brojevi ostaju netaknuti.",
+    empty:
+      "Još nema protivnika. Pojavljuju se ovdje kako tvoje ruke iz soba koje prikazuju korisnička imena dobivaju statistiku protivnika.",
+    notInstalledBefore: "Tvoje ruke su sigurne: ovaj zaslon čita sažetke protivnika koji stižu s vlastitom migracijom. Primijeni ",
+    notesFootnote:
+      "Bilješke su privatne, vezane uz tvoj račun. Oznake bojom i oznake pripadaju aplikaciji za računalo i ostaju u njoj.",
+  },
+
   graph: statsUiHr.graph,
 };

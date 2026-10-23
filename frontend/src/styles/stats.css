@@ -32,6 +32,13 @@
   flex-wrap: wrap;
 }
 
+/* Statistics' two screens, Reports and Players (R4.5c, `StatsNav`). */
+.stats-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .stats__head h2 {
   font-size: var(--font-size-3xl);
 }

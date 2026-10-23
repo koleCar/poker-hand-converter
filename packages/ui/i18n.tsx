@@ -23,6 +23,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import type { ReplayStrings } from "./model/replay";
 import type { handsUiEn } from "./strings/hands.en";
+import type { playersUiEn } from "./strings/players.en";
 import type { reportsUiEn } from "./strings/reports.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
@@ -324,6 +325,13 @@ export type HandsStrings = typeof handsUiEn;
  */
 export type ReportsStrings = typeof reportsUiEn;
 
+/**
+ * The Players screen's (`players/`, R4.5c): the list, its filters, the
+ * profile, the user's words on a player. `strings/players.{en,hr}.ts` are
+ * the two languages.
+ */
+export type PlayersStrings = typeof playersUiEn;
+
 export interface UiStrings {
   /** The reader's BCP 47 tag, for `Intl` ("en-GB", "hr-HR"). */
   intlLocale: string;
@@ -335,6 +343,7 @@ export interface UiStrings {
   winrateGraph: WinrateGraphStrings;
   hands: HandsStrings;
   reports: ReportsStrings;
+  players: PlayersStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);

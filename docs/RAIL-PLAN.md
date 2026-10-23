@@ -8542,10 +8542,16 @@ produce identical `hands` rows and render identically.
 for the whole corpus** - R4.4's parity test puts all 556 files through both
 paths with 0 differences in `hands`, `hand_stats`, `hand_stats_ev` and what
 the web renders from them; the replayer that renders them is one copy
-(R2.6), and since R4.5b so is the Hands screen around it. The goal's "one
-look" is not complete: Reports and Players are still a screen per surface
-(R4.5c - Reports after the web's server summaries, Players with
-opponent statistics opt-in - is decided and briefed separately, below).
+(R2.6), and since R4.5b so is the Hands screen around it.
+
+*Exit status (2026-10-23, R4.5c on `staging`'s open PRs #239, #240 and
+#241):* **"one core and one look" is complete** - the Hands, Reports
+and Players screens and the replayer are each one copy in `packages/ui/`
+with a source per surface (the web's Reports and Players over server
+summaries, R4.5c-1). What still differs is said by each source and decided
+by the owner: the web keeps no colour tags or labels (no sync), its opponent
+statistics are opt-in, its Reports keep their own panels (HUD tiles,
+sessions, opponents) beside the shared screen.
 
 ### R4.1 WASM core on the web — M
 - The conversion worker calls `rail-core-wasm`; `phf/types.ts` replaced by the
@@ -9327,7 +9333,7 @@ opponent statistics opt-in - is decided and briefed separately, below).
     after the review pass (one capture of each build, 2026-10-23): the same
     144 identical and the same 144 changed.
 - *R4.5c (Reports and Players from the shared package)*: **in three PRs -
-  R4.5c-1 (the server summaries) and R4.5c-2 (Reports) built, below; the owner decided
+  all three built (R4.5c-1 the server summaries, R4.5c-2 Reports, R4.5c-3 Players), below; the owner decided
   (2026-10-23)**: Reports - build the web's server summaries
   first (R2.9's recommendation), then the shared screen; Players - the shared
   screen, opponent statistics stay opt-in on the web, labels and colours stay
@@ -9539,6 +9545,82 @@ opponent statistics opt-in - is decided and briefed separately, below).
     no rule changed. (Signed in, `/stats` is the new screen: checked by
     hand and by `responsive.mjs` above, not by `screens.mjs`, which runs
     without a database.)
+- *As built, R4.5c-3* (§15): **done** - the shared Players screen, on the
+  web at `/players`.
+  - **What moved** (`git mv` from `app/src/screens/`, then made
+    surface-free): `PlayersScreen` (the app's `Players.tsx`: title and
+    count, the toolbar - search, game, room, colours, labels, "with a
+    note" -, the notices, the list and the open player), `PlayerTable`
+    (the virtualised grid; its row height is read back from the stylesheet,
+    as the Hands list's), `PlayerProfile` with `PlayerWords` (the app's HUD
+    popup uses it too, now with a source) and the CSS (the density's tokens
+    with the web's values as fallbacks; `fill` for the desktop, `page` for
+    the web; one column with the profile first under 52 rem; 44 px targets
+    under a coarse pointer) into `packages/ui/players/`; `model.ts`: the
+    app's player DTOs (`ipc.ts` re-exports them) and **`PlayersSource`**
+    (`features { colours, labels }`, `list`, `profile`, `sites`, `labels`,
+    `setNote`, `setColour`, `addLabel`, `removeLabel`, `onChanged`). The
+    words moved to `packages/ui/strings/players.{en,hr}.ts`
+    (`UiStrings.players`); the app's dictionary spreads them and keeps
+    "only in the app", the empty list, the rebuild and indexing lines and
+    its footnote. What a source does not keep, the screen leaves out: no
+    swatches, colour filter, labels or label filter on the web. What stays
+    the surface's: the open player (the app's route, the web's page state),
+    the notices, the empty text, the notes' footnote, the states' look and
+    "hands with this player". The app's `Players.tsx` is now that side only
+    (`app/src/lib/playersSource.ts` over its commands); its screen is
+    unchanged (checked against a mocked IPC with made-up players at
+    1 280 px: list, colours, labels, note mark, profile, words; no console
+    error).
+  - **The web's data**: migration `20270714090000_players_screen.sql` -
+    `players_list(p_query)` from R4.5c-1's `player_stats` (the desktop's
+    `Reader::player_list` rules: a prefix of the name, a room, a kind, "with
+    a note" from `player_notes`, most hands together first, at most 500, no
+    result when chips and cash mix, the opaque-id opponents counted not
+    listed), `player_profile(site, player, kind, version)` (what
+    `player_stats` holds for them, their note and tags, and their villain
+    rows of the kind summed in total and by position, stake, table size and
+    game, bomb pots out, an EV cashout's money out), `player_sites`; invoker,
+    `search_path = ''`, `authenticated` only; `players` reserved as a
+    username. `frontend/src/lib/db/playersSource.ts`: each statistic is
+    `showStat` of the shipped definitions over the server's sums with the
+    desktop's rule for an opponent (the hero-only all-in EV and money
+    withheld); `features` none; a note is saved through `set_player_note`
+    with the tags it already had (the opponents panel's).
+  - **The web's page** (`components/players/PlayersTab.tsx`, `/players`):
+    under the Statistics tab - a "Statistics / Players" switch on both pages
+    (`stats/StatsNav.tsx`) rather than a seventh tab, which pushed Analysis
+    and Learn out of the bar at 1 280 px. Opponent statistics off in this
+    browser: a card says what they cost and turns them on (the setting, then
+    the rebuild that reads the stored hands' opponents); on: the shared
+    screen, a catch-up rebuild on arrival and on first view, "not set up"
+    for a database without the readers. "Hands with this player" parks the
+    opponent in `sessionStorage` (`library/playerHandoff.ts`) and opens
+    `/library` filtered to their room and name - no screen name in the
+    address.
+  - **Measured at 1M hands** (R4.5c-1's stack, 74 305 opponents, second
+    call): `players_list` 0.26-0.29 s (every filter), `player_sites`
+    0.05 s, `player_profile` 0.09 s for an opponent with 20 368 rows, 1.3 s
+    for the copied set's biggest (267 464 rows; 4 s cold).
+  - **Tests**: pgTAP `players_screen` (46): `players_list` against the list
+    written out over the villain and hero rows themselves for 14 queries
+    (rooms, kinds, prefixes with LIKE's characters, notes, the limit) and
+    after deletes, the profile's sums by group against the rows, the note
+    and tags, mixed kinds, nobody's profile, B's answers over B's rows only,
+    anon refused, the reservation; suite 40 files / 1 399 on a fresh reset.
+    Vitest `sharedPlayersScreen` (19): the web source against a faked `rpc`
+    (what it asks, the opponent's statistics, the tags kept, colours and
+    labels refused), the hand-off, and the screen's first render, the list
+    and a profile on a source with colours and labels and one without, in
+    English and Croatian. `responsive.mjs` (now also `/players`: the opt-in,
+    the list, a player open, each profile tab): 44 / 44 at 375 px in both
+    languages. Screenshots (`screens.mjs`, base = R4.5c-2, offline builds,
+    two runs each): 288 / 288 identical, all 192 DOM dumps identical; the CSS
+    dumps differ only in which page carries which module's rules (Next's
+    chunks moved: the Reports screen's 39 rules now ride on most pages, the
+    Players screen's come to `/stats`; `.stats-nav` is new) - no rule of
+    a page changed. (A first capture run stopped after the dark theme and
+    caught `/stats` before its stylesheet loaded; rerun clean.)
 - *As built, R4.5d* (§15): **done** - the responsive pass. The web's Hands,
   Reports (`/stats`, its opponents panel), a shared hand and its embed, and
   the replayer, at 375 x 812 as a touch phone, in English and Croatian.
@@ -9766,3 +9848,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-23 | **macOS, a new table's overlay leaves its title bar promptly** (follow-up to #224; CI's `macos_tracking` "HUD tracking on macOS" failed again on table 4 of the script, run 39860845086 and the run before it). **Evidence**: the table was attached 7 ms after its window appeared and its overlay covered the whole window (title bar too) for the full 2 s until the scripted tile; it reached the client area only ~70 ms after the tile moved the window. So for 2 s neither a look nor the observers measured the bar - under #224 either every 500 ms look read no usable close button, or a look counted an unusable one as measured (#224's `bar_known` was "a close button is there", and a button whose frame gave a bar of 0 or less was clamped to 0 *and* measured, which slows the find to 2 s); the old logs could not tell which (neither the bar reading nor the find's pace was logged). The re-placement once a look measures the bar (the engine's `Moved` -> `follow` -> the observers' `Resync` with the bar) is sound and now unit-tested through the backend's look. An in-process probe of a winit window (no permission needed in-process) showed AppKit's own accessibility giving the close button at its place (a 32 pt bar) from the window's creation on, so the gap is in the cross-process reading of a just-created window. **Fix**: `title_bar` is `Option` - no close button, a button without a size, or a bar of nothing or of the whole window is *not measured*, never a bar of 0 (full screen is measured as 0); a look that cannot read a measured bar keeps it (a busy client no longer puts an overlay over the title bar for a look); the observers never replace a bar with an unreadable reading (a resize note used to set 0) and the `Resync` carries the bar only when measured (`MacosBackend::title_bar_of`); **the observers measure a new table's bar themselves** from its window's element when it is tracked, every 250 ms for 3 s (`BAR_CHECKS`) and on its client's notifications in that time, moving the overlay at once and handing the bar to the find's memory (`Tracker::measured_bars` -> `remember_bars`), whatever the find's pace; after 3 s every look still re-reads it, so an overlay never stays over a title bar while the bar can be read. A borderless window still gets 0 (nothing is borrowed). **Diagnostics** (HUD stderr, timed): `window N: title bar not measured yet (close button ... / no accessibility window this look)`, `window N: title bar 32 pt (measured)`, `window N: title bar 32 pt (measured by the observers on <what>, <ms> after tracking)`, `looking for tables every <ms> ms`. Tests: `title_bars`, `a_new_tables_title_bar_is_measured_late` (bar not readable, then an unlaid button, then measured, a busy look, full screen; the observers' bar taken by the next look; a borderless window), `title_bar_news`. |
 | 2026-10-23 | **R4.5c-1 done**: the web's report summaries (R2.9's recommendation; first of R4.5c's three PRs). Migration `20270707090000_report_summaries.sql`: `hero_rollups` (the hero's rows per owner, version, UTC day, segment, position, kind - the desktop's), `hero_report_rows` (a narrow row per hero row, covered in time order) and `player_stats` (opt-in villain rows per opponent and segment, with the hero's result in the hands shared), kept by statement triggers on `hand_stats` in the writer's transaction (every insert and delete path, the budget's refusal included; an advisory lock per account for the pairs), `refresh_report_summaries` / `report_summaries_rebuild` the repair and the backfill. Readers over the shared `HandFilter`: `report_open`, `report_graph` (points cut by hands at day ends, every one exact), `report_situations`, `report_sessions`, `report_facets`; `stats_opponents`, `stats_coverage`, `stats_ev_missing` read the summaries with the same answers. At 1M hands a filter change answers in 0.17-0.24 s (was > 4 s; a report 3-6 s, opponents 21-41 s, coverage 10 s); sessions 0.95 s. pgTAP `report_summaries` 91 (suite 39 files / 1 353). Not applied to production. |
 | 2026-10-23 | **R4.5c-2 done**: the web's `/stats` is the shared Reports screen (second of R4.5c's three PRs). The app's Reports, breakdown, starting-hand grid and their words moved to `packages/ui/reports/` with a `ReportSource` per surface (the app's over its commands, unchanged; the web's over R4.5c-1's `report_open` / `report_graph` / `report_situations` / `report_facets`, each statistic `showStat` of the shipped definitions over the server's sums). The web keeps its HUD tiles, coverage line, sessions (now `report_sessions`) and opponents inside the screen and over its filter; the format buttons and stakes select became the filter chips, the six breakdown panels the ten tabs, the graph the app's Winnings card (see *As built*). `BreakdownPanel.tsx` and the web's `HandMatrix.tsx` deleted. Vitest `sharedReportsScreen` 20 (both sources, both languages); `responsive.mjs` 30 / 30 at 375 px; `screens.mjs` 285 / 288 identical (replayer noise), DOM dumps identical. |
+| 2026-10-23 | **R4.5c-3 done; Phase 4's "one look" complete**: the shared Players screen (third of R4.5c's three PRs). The app's Players, its table, profile and `PlayerWords` moved to `packages/ui/players/` with a `PlayersSource` per surface (`features`: the app keeps colours and labels, the web neither - the owner's decision, no sync). Migration `20270714090000_players_screen.sql`: `players_list` (from `player_stats`, the desktop's list rules), `player_profile` (the opponent's villain rows of a kind summed by position, stake, size and game), `player_sites`; `players` reserved as a username. Web: `/players` under the Statistics tab (a Statistics / Players switch, not a seventh tab), the opt-in when opponent statistics are off, notes through `set_player_note` keeping their tags, "hands with this player" into `/library` via `sessionStorage`. At 1M hands the list answers in 0.26-0.29 s. pgTAP `players_screen` 46 (suite 40 files / 1 399); Vitest `sharedPlayersScreen` 19; `responsive.mjs` 44 / 44 at 375 px. Not applied to production. |

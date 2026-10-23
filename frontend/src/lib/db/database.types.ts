@@ -3644,6 +3644,17 @@ export type Database = {
         Returns: Database["public"]["Enums"]["site_anonymization"]
       }
       phf_text_array: { Args: { p_value: Json }; Returns: string[] }
+      player_profile: {
+        Args: {
+          p_kind?: string
+          p_player: string
+          p_site: string
+          p_stats_version?: string
+        }
+        Returns: Json
+      }
+      player_sites: { Args: { p_stats_version?: string }; Returns: Json }
+      players_list: { Args: { p_query?: Json }; Returns: Json }
       poll_hides_answer: { Args: { p_post: string }; Returns: boolean }
       poll_phf: {
         Args: { p_hide_hero: boolean; p_phf: Json; p_stop: number }

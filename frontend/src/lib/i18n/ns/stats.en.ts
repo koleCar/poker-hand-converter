@@ -259,5 +259,20 @@ export const statsEn = {
     },
   },
 
+  /** `/players` (R4.5c): the shared Players screen's page around it. */
+  players: {
+    heading: "Players",
+    signInHeading: "Sign in to see your opponents",
+    signInBody: "Opponents are read from the hands in your library, so they need an account to belong to.",
+    offHeading: "Opponent statistics are off",
+    offBody:
+      "Players lists the opponents of your hands from rooms that show screen names, their statistics and your result against each. They come from opponent statistics: a row per opponent per hand, roughly six times the space your own statistics take, so they are off until you turn them on. You can turn them off again under Statistics, Opponents; your hands and your own numbers are untouched either way.",
+    empty:
+      "No opponents yet. They appear here as your hands from rooms that show screen names get their opponent statistics.",
+    notInstalledBefore: "Your hands are safe: this screen reads opponent summaries that arrive with their own migration. Apply ",
+    notesFootnote:
+      "Notes are private to your account. Colour tags and labels are the desktop app's and stay there.",
+  },
+
   graph: statsUiEn.graph,
 } as const;
