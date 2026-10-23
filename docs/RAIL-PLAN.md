@@ -9085,7 +9085,8 @@ produce identical `hands` rows and render identically.
     auth, PostgREST and Kong only (CLI 2.75; `supabase/.temp` removed in the
     job, because its pinned GoTrue refuses the stack's HS256 service key on
     the admin API), a release build of the example, then `npm run parity`.
-  - **Findings for the owner** (not parity; neither changed here):
+  - **Findings for the owner** (not parity; neither changed in R4.4 itself;
+    **both fixed on `staging` by #235**, see below):
     - **F1, the statistics rebuild stops for good on an Ignition tournament
       hand.** Ignition's tournament seat numbers run past 24 (25-1 227 in
       the corpus: 15 hands in 5 MTT files), and `hand_stats_seat_ok` allows
@@ -9106,6 +9107,37 @@ produce identical `hands` rows and render identically.
       problem again. A per-account bucket, as `desktop_ingest`, would fix
       it. (The test resets the bucket on its local stack before the
       rebuild; a whole-corpus run writes ~88 000 rows.)
+    - ***Fixed* (#235, `20270623093000_stats_seats_and_budget.sql`; not
+      applied to production).** **F1**: PHF has no seat bound (a `u32` in
+      `rail-core`, a number in TypeScript; `hands.hero_seat` is a bare
+      `smallint`, `hand_row_problem` checks no seat), so `hand_stats.seat`,
+      `hand_stats_ev.seat` and `hand_analysis.hero_seat` now take any
+      `smallint` from 0 and `comments.anchor_seat` any from 1 - the same
+      assumption sat in the analysis (a tournament hand's "not-analysed" row
+      carries its hero seat) and in the forum's seat anchor. Counts
+      (`max_seats` 2-24, `player_count` 1-24) unchanged. The desktop side has
+      no such limit (`rail-store` seats are plain `INTEGER`, `rail-stats`
+      keeps the PHF's `u32`). The rebuild route no longer lets one hand stop
+      an account: a call `save_hand_stats` / `save_hand_ev` refuses for its
+      data (SQLSTATE 22xxx / 23xxx) is retried hand by hand
+      (`frontend/src/lib/db/statsSave.ts`, calls now hold whole hands), and
+      the hands still refused are skipped and counted in `failed` (the
+      coverage line's "could not be read"), to be tried again by the next
+      run; the budget or the session still fails the slice. **F2**: the
+      statistics buckets are per account - `hand_stats_insert:<uid>`
+      1 000 000 rows / 10 min, `hand_stats_insert_day:<uid>` 10 000 000 / day
+      - with the global `hand_stats_insert` kept as a ceiling at 3 000 000 /
+      10 min (was the only bucket, 200 000). The route writes ~1 250 rows/s
+      from one tab, below the account's budget, so a 1M-hand library rebuilds
+      at the route's pace (~30 min hero-only, ~1.5 h with villain rows)
+      without touching other accounts; the day budget bounds an account whose
+      rows are not bounded by its hands (`stats_version` is free text); the
+      ceiling is ~three accounts at full budget. The parity test no longer
+      deletes the Ignition hands nor resets the bucket, and checks those
+      hands get statistics on both sides: whole corpus, 7 270 hands rebuilt
+      a side, 0 failed; 43 942 `hand_stats` and 7 268 `hand_stats_ev` rows,
+      0 differences; 15 hands with seats past 24 on each side. pgTAP
+      `stats_seats_budget.test.sql` (24); the suite 36 files, 1 170 tests.
 
 ### R4.5 Screens from `packages/ui` — L
 - Hands, Reports, Players and the replayer on the web from the shared package;
@@ -9295,3 +9327,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-22 | **R4.2 done on staging**: bulk upload at desktop scale. The converter's worker reads the drop itself, one file at a time (`bulkSource.ts`; folders up to 100 000 files, non-hand-history files skipped), zips through a streaming reader of its own (`zipStream.ts`: `Blob.slice` + the browser's `DecompressionStream`, zip64, no library, 1.4 KB gzipped), and a signed-in drop is saved while it converts (`bulkSaver.ts`: a 1 500-hand queue that holds the worker back, calls of 250 hands / 3 MB, backoff and pause, budgets) through `ingest_hands` from the account's web source - rows `origin = 'upload'`, PHF only, the account's budget instead of the web's global one (migrations `20270609090000_hand_origin_upload.sql`, `20270609091000_web_bulk_upload.sql`: `register_web_hand_source`, `ingest_hands` for web sources, the text CHECK). Resume = drop the same files again: an IndexedDB manifest skips stored files, entries and batches. Originals to Storage only on the new opt-in "Also keep the original files" (off by default, per visit): private bucket `hand-uploads`, gzip, 50 MiB, owner-folder policies (select / insert / delete under `auth.uid()`, no update, nothing for anon). The tab keeps the first 20 000 hands. Measured: 1 000 023 hands, 138 MB zip, 545 s (~1 830 hands/s) in Node with the WASM core, heap +45 MB. Tests: 39 Vitest (inputs, save, worker), pgTAP `web_bulk_upload` (37); end to end against a local stack (found and fixed an untyped gzip the bucket refused). Not applied to production. |
 | 2026-10-22 | **R4.3 done on staging**: live progress and arrival. An upload's progress shows in the account's other tabs and devices through **Realtime Presence on the private channel `activity:<uid>`** (state and counts, ~200 bytes, no hand or file name; at most every 2 s, heartbeat 15 s, "done" kept 20 s; no database write per batch; an entry leaves with its socket, ~0.6 s after a close, or after 45 s unchanged): "Saving 120 000 of ~1 000 000 hands from a web upload" with a bar, then "finished"; the total from the opened files' splits scaled by the unopened bytes. Migration `20270616090000_live_activity.sql`: the first `realtime.messages` policies - `authenticated`, own topic only, receive presence + broadcast (Realtime's join is a broadcast read; presence alone was refused), send presence only; B, anon, other topics and broadcasts refused; a public channel of the same name kept apart. Arrivals (R1.10's `hand_arrivals`) now also reach the analysis screens as "N new hands arrived - refresh" (`AppFrame live="notify"`), `/library` updates in place only while the reader is at the top, and "Desktop app syncing: N hands so far" comes from desktop-origin arrivals (two quiet minutes end it). Strip in `AppFrame` (`LiveStrip`, `en` + `hr`, a hidden status region announcing only starts and ends). Tests: Vitest `liveActivity` 27 (publisher, board, estimate, channel lifecycle with a fake client), `liveArrivals` 12; pgTAP `live_activity` 27 (suite 35 files / 1 146); `npm run realtime:activity` 16 / 16 and `realtime:arrivals` 15 / 15 on an isolated local stack; browser end to end (two tabs, a 20 000-hand drop, desktop batches, Croatian at 375 px). Not applied to production. |
 | 2026-10-22 | **R4.4 done on staging; Phase 4's exit met for the corpus on a local stack**: the parity test. `npm run parity` (`tests/scripts/parity/`, CI job `parity`) puts every corpus file through the **app's path** - `core/rail-sync/examples/parity_app.rs`: `rail-watch` on a folder, a fresh `rail-store`, the sync worker with the real `Account` and `IngestClient` into `ingest_hands` (`desktop`) - and the **web's** - the converter's bulk run with the committed WASM core into the bulk saver and `ingest_hands` from the web source (`upload`) - as two users of a throwaway stack, runs the web's statistics rebuild route as each, and compares as `postgres`: every `hands` column but `id` / `owner_id` / `origin` / `created_at` byte for byte (`phf` with only `meta.parsedAt` masked), every `hand_stats` / `hand_stats_ev` column but `hand_id` / `owner_id` / `created_at`, and the web's rendering inputs (`get_hand` -> `toHandRecord`, the derived standard text, the replayer's frames from the text and from the PHF). Hands kept in several corpus files and stored from different copies are checked against the web's conversion of the app's file instead. A rolled-back control proves each kind of difference is reported. Result: **556 files, 7 496 hands, 43 923 statistics rows, 7 249 EV rows: 0 differences**; nothing fixed. Neither path writes `hand_stats` itself: both get them from the web's rebuild (an upload at once, a synced hand when `/stats` opens). Findings for the owner: **F1** - Ignition tournament seats past 24 (15 corpus hands) break `hand_stats_seat_ok`, and the rebuild then fails on that page forever, for the whole account, on both paths and on `main`; **F2** - statistics inserts spend the global `hand_stats_insert` (200 000 rows / 10 min for everyone), which a desktop-sized library would hold for ~100 min. Locally 3.3 min for the whole corpus (45 s for `RAIL_PARITY_CORPUS=sample`). |
+| 2026-10-22 | **R4.4's findings F1 and F2 fixed on staging** (#235, `20270623093000_stats_seats_and_budget.sql`, not applied to production): seat numbers past 24 (Ignition tournaments, to 1 227 in the corpus) are accepted by `hand_stats`, `hand_stats_ev`, `hand_analysis.hero_seat` (any `smallint` from 0) and the forum's `anchor_seat` (from 1) - PHF has no seat bound and `hands.hero_seat` never had one; the rebuild route retries a page the database refuses for its data hand by hand and skips and counts the hands still refused (`lib/db/statsSave.ts`), so one hand can no longer stop an account's statistics; statistics inserts are charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, 10 000 000 / day) with the global bucket a 3 000 000 / 10 min ceiling. The desktop store and `rail-stats` have no seat limit. Parity without its workarounds: whole corpus, 0 differences, the 15 wide-seat hands rebuilt on both sides; pgTAP 36 files / 1 170 tests. |
