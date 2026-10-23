@@ -243,11 +243,19 @@ pub struct Remembered {
     pub subrole: String,
     /// The title bar's height, thousandths of a point.
     pub title_bar: i64,
-    /// (R3.14) Whether it was measured: the window had its close button
-    /// (or is full screen). A window just created may not have the button
-    /// in the Accessibility API yet - its bar reads 0 then, as a borderless
-    /// window's does.
+    /// (R3.14) Whether it was measured ([`title_bar`] read it: a close
+    /// button where a title bar's is, or full screen) - by a look, or by
+    /// the observers ([`remember_bars`]). A window just created may not
+    /// show the button in the Accessibility API yet, or show it before it
+    /// is laid out; its bar is 0 until it is measured, as a borderless
+    /// window's is. Once measured, a look that cannot read it (a client
+    /// too busy to answer) keeps it.
     pub bar_known: bool,
+    /// The close button as the last look that read the window read it, and
+    /// whether the last look read the window at all (paired it with an
+    /// accessibility window) - for the log: why a bar is not measured.
+    pub close_button: Option<Frame>,
+    pub paired: bool,
 }
 
 /// A display mode's pixels per point, thousandths (1000 when unknown).
@@ -278,20 +286,90 @@ pub fn display_scale(bounds: &Frame, displays: &[Display]) -> u32 {
         .unwrap_or(1000)
 }
 
-/// The title bar's height in thousandths of a point (whole points): twice
-/// the close button's centre below the window's top, within the window;
-/// 0 for a window in full screen or without a close button.
-pub fn title_bar(ax: &AxWindow, bounds: &Frame) -> i64 {
+/// The title bar's height in thousandths of a point (whole points), when
+/// the Accessibility API shows it: twice the close button's centre below
+/// the window's top; 0 for a window in full screen. `None` - not
+/// measured - without a close button (a borderless window, a window just
+/// created whose button the API does not give yet, a client that did not
+/// answer in time), or with a button that cannot be a title bar's: no
+/// size, or a bar of nothing or of the whole window (a button not laid
+/// out yet). Such a reading is never taken for a bar of 0: the window
+/// keeps the bar measured before, or waits to be measured
+/// ([`untitled_waiting`], the observers' [`BAR_CHECKS`]).
+pub fn title_bar(ax: &AxWindow, bounds: &Frame) -> Option<i64> {
     if ax.fullscreen {
-        return 0;
+        return Some(0);
     }
-    let Some(button) = ax.close_button else {
-        return 0;
-    };
+    let button = ax.close_button?;
+    if button.width <= 0 || button.height <= 0 {
+        return None;
+    }
     let top = ax.frame.map_or(bounds.y, |f| f.y);
     let bar = 2 * (button.y - top) + button.height;
     let whole = (bar + MILLI / 2).div_euclid(MILLI) * MILLI;
-    whole.clamp(0, bounds.height.max(0))
+    (whole > 0 && whole < bounds.height).then_some(whole)
+}
+
+/// (R3.14) The title bar `memory` has measured for window `number`;
+/// `None` while it is not measured (a [`Remembered`] bar of 0 may mean
+/// either).
+pub fn known_title_bar(memory: &BTreeMap<u32, Remembered>, number: u32) -> Option<i64> {
+    memory
+        .get(&number)
+        .filter(|known| known.bar_known)
+        .map(|known| known.title_bar)
+}
+
+/// (R3.14) Title bars the observers measured (window number, bar) into
+/// the find's memory, so that the next look describes the table as they
+/// placed its overlay (and a look that cannot read the bar keeps theirs).
+pub fn remember_bars(memory: &mut BTreeMap<u32, Remembered>, bars: &[(u32, i64)]) {
+    for (number, bar) in bars {
+        if let Some(known) = memory.get_mut(number) {
+            known.title_bar = *bar;
+            known.bar_known = true;
+        }
+    }
+}
+
+/// (R3.14) A log line for each table window of `numbers` whose title bar
+/// is newly not measured, newly measured or measured at another height
+/// since `logged` last saw it (`logged` keeps to `numbers`).
+pub fn bar_news(
+    numbers: &[u32],
+    memory: &BTreeMap<u32, Remembered>,
+    logged: &mut BTreeMap<u32, String>,
+) -> Vec<String> {
+    logged.retain(|number, _| numbers.contains(number));
+    let mut out = Vec::new();
+    for number in numbers {
+        let Some(known) = memory.get(number) else {
+            continue;
+        };
+        let line = if known.bar_known {
+            format!(
+                "window {number}: title bar {} pt (measured)",
+                known.title_bar / MILLI
+            )
+        } else if !known.paired {
+            format!(
+                "window {number}: title bar not measured yet (no accessibility window this look): \
+                 0 until it is"
+            )
+        } else {
+            format!(
+                "window {number}: title bar not measured yet (close button {}): 0 until it is",
+                known
+                    .close_button
+                    .map_or_else(|| "none".to_owned(), |b| format!("{b:?}"))
+            )
+        };
+        if logged.get(number) != Some(&line) {
+            logged.insert(*number, line.clone());
+            out.push(line);
+        }
+    }
+    out
 }
 
 /// The client area: `bounds` less the title bar.
@@ -405,7 +483,12 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
         for (cg, paired) in windows.iter().zip(pairs) {
             let (title, subrole, bar, minimized) = match paired.map(|a| &ax[a]) {
                 Some(window) => {
-                    let bar = title_bar(window, &cg.bounds);
+                    // Measured now, else as measured before (a look the
+                    // client did not answer in time keeps the bar), else 0
+                    // until it is.
+                    let measured =
+                        title_bar(window, &cg.bounds).or_else(|| known_title_bar(memory, cg.id));
+                    let bar = measured.unwrap_or(0);
                     if !window.title.trim().is_empty() {
                         memory.insert(
                             cg.id,
@@ -413,7 +496,9 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
                                 title: window.title.clone(),
                                 subrole: window.subrole.clone(),
                                 title_bar: bar,
-                                bar_known: window.close_button.is_some() || window.fullscreen,
+                                bar_known: measured.is_some(),
+                                close_button: window.close_button,
+                                paired: true,
                             },
                         );
                     }
@@ -430,13 +515,18 @@ pub fn assemble(snapshot: &Snapshot, memory: &mut BTreeMap<u32, Remembered>) -> 
                 // Accessibility API. A table seen before keeps its title
                 // rather than drop out of the find and be attached again as
                 // a stranger; the next look reads it afresh.
-                None => match memory.get(&cg.id) {
-                    Some(known) => (
-                        known.title.clone(),
-                        known.subrole.clone(),
-                        known.title_bar,
-                        false,
-                    ),
+                None => match memory.get_mut(&cg.id) {
+                    Some(known) => {
+                        // (R3.14) For the log: a bar not measured because
+                        // the window was not read at all.
+                        known.paired = false;
+                        (
+                            known.title.clone(),
+                            known.subrole.clone(),
+                            known.title_bar,
+                            false,
+                        )
+                    }
                     // Off screen, unknown to the Accessibility API and
                     // never seen: nothing to show or match (AppKit keeps
                     // such helper windows for every app).
@@ -1029,6 +1119,28 @@ pub struct Effect {
 /// client's helper, a borderless window) stops counting after this.
 pub const UNTITLED_FOR: std::time::Duration = std::time::Duration::from_secs(3);
 
+/// (R3.14) When the observers read the title bar of a table tracked
+/// before it was measured (after it was tracked), until it is: the
+/// overlay leaves the title bar within a quarter of a second of the bar
+/// being readable, whatever the find's pace. The find measures it too,
+/// on every look, as long as it is not.
+pub const BAR_CHECKS: [std::time::Duration; 14] = [
+    std::time::Duration::from_millis(50),
+    std::time::Duration::from_millis(150),
+    std::time::Duration::from_millis(250),
+    std::time::Duration::from_millis(500),
+    std::time::Duration::from_millis(750),
+    std::time::Duration::from_millis(1000),
+    std::time::Duration::from_millis(1250),
+    std::time::Duration::from_millis(1500),
+    std::time::Duration::from_millis(1750),
+    std::time::Duration::from_millis(2000),
+    std::time::Duration::from_millis(2250),
+    std::time::Duration::from_millis(2500),
+    std::time::Duration::from_millis(2750),
+    std::time::Duration::from_millis(3000),
+];
+
 /// (R3.14) Keep `untitled` (window number -> first seen) to the on-screen
 /// windows of `windows` without a title, or whose title bar `memory` has
 /// not measured; whether one of them is newer than [`UNTITLED_FOR`].
@@ -1264,6 +1376,9 @@ pub struct MacosBackend {
     /// be read yet, by window number, and when a find first saw them
     /// ([`untitled_waiting`]).
     untitled: BTreeMap<u64, std::time::Instant>,
+    /// (R3.14) The title bar each table window had when it was last
+    /// logged ([`bar_news`]).
+    bars_logged: BTreeMap<u32, String>,
     /// (R3.12) The AppKit thread, which owns the overlays; `None`: this
     /// backend draws nothing (not the HUD process's main thread, or a
     /// backend made for finding only).
@@ -1286,6 +1401,7 @@ impl MacosBackend {
             memory: BTreeMap::new(),
             matchers: Vec::new(),
             untitled: BTreeMap::new(),
+            bars_logged: BTreeMap::new(),
             link,
             #[cfg(target_os = "macos")]
             tracker: None,
@@ -1363,12 +1479,49 @@ impl MacosBackend {
         }
     }
 
-    /// (R3.13) The title bar the find measured for window `id`, thousandths
-    /// of a point.
-    #[cfg(target_os = "macos")]
-    fn title_bar_of(&self, id: WindowId) -> Option<i64> {
-        let number = u32::try_from(id.0).ok()?;
-        self.memory.get(&number).map(|m| m.title_bar)
+    /// (R3.13) The title bar measured for window `id`, thousandths of a
+    /// point; `None` while it is not (R3.14: the observers then keep the
+    /// bar they have and read it themselves, [`BAR_CHECKS`]).
+    pub fn title_bar_of(&self, id: WindowId) -> Option<i64> {
+        known_title_bar(&self.memory, u32::try_from(id.0).ok()?)
+    }
+
+    /// One look's tables from `snapshot` (the find without the system: what
+    /// [`Platform::find_tables`] does with the snapshot it takes), at
+    /// `now`: the windows assembled with the titles and title bars
+    /// remembered, the quick re-find kept while a window's title or title
+    /// bar cannot be read yet ([`untitled_waiting`]), and a log line when a
+    /// table's title bar is measured or found not measurable yet
+    /// ([`bar_news`]). (R3.14) Title bars the observers measured since the
+    /// last look count first ([`remember_bars`]).
+    pub fn look(
+        &mut self,
+        snapshot: &Snapshot,
+        matchers: &[TableMatcher],
+        measured: &[(u32, i64)],
+        now: std::time::Instant,
+    ) -> Vec<TableWindow> {
+        remember_bars(&mut self.memory, measured);
+        let windows = assemble(snapshot, &mut self.memory);
+        untitled_waiting(&windows, &self.memory, &mut self.untitled, now);
+        let tables: Vec<TableWindow> = windows
+            .iter()
+            .filter_map(|window| table_of(window, matchers))
+            .collect();
+        let numbers: Vec<u32> = tables
+            .iter()
+            .filter_map(|t| u32::try_from(t.id.0).ok())
+            .collect();
+        for line in bar_news(&numbers, &self.memory, &mut self.bars_logged) {
+            eprintln!("rail-hud: {line}");
+        }
+        tables
+    }
+
+    /// (R3.14) Whether a window the last look saw still waits for its title
+    /// or title bar ([`untitled_waiting_now`]): the find stays quick.
+    pub fn waiting(&self, now: std::time::Instant) -> bool {
+        untitled_waiting_now(&self.untitled, now)
     }
 
     /// (R3.13) The observers' thread, started on first use; `None` when it
@@ -1504,17 +1657,15 @@ impl Platform for MacosBackend {
         }
         let wanted = |process: &str| matchers.iter().any(|m| m.takes_process(process));
         let snapshot = snapshot(&wanted)?;
-        let windows = assemble(&snapshot, &mut self.memory);
-        untitled_waiting(
-            &windows,
-            &self.memory,
-            &mut self.untitled,
-            std::time::Instant::now(),
-        );
-        Ok(windows
-            .iter()
-            .filter_map(|window| table_of(window, matchers))
-            .collect())
+        #[cfg(target_os = "macos")]
+        let measured = self
+            .tracker
+            .as_ref()
+            .map(observe::Tracker::measured_bars)
+            .unwrap_or_default();
+        #[cfg(not(target_os = "macos"))]
+        let measured = Vec::new();
+        Ok(self.look(&snapshot, matchers, &measured, std::time::Instant::now()))
     }
 
     /// Follow `window`: (R3.13) its process observed - one `AXObserver`
@@ -1555,7 +1706,9 @@ impl Platform for MacosBackend {
     /// screen already (R3.13); anything else - the re-find saw a change
     /// they did not report, or the backend was never told - makes them
     /// read the table again: an overlay is never placed from a
-    /// description, which can be older than what they saw. Without the
+    /// description, which can be older than what they saw. The read carries
+    /// the title bar only when it is measured ([`Self::title_bar_of`]): an
+    /// unmeasured 0 never replaces the bar the observers have. Without the
     /// observers' thread the overlay follows the description (R3.12).
     fn follow(&mut self, window: &TableWindow) {
         let Some(tracked) = self.tracked.get_mut(&window.id) else {
@@ -1677,7 +1830,7 @@ impl Platform for MacosBackend {
         #[cfg(target_os = "macos")]
         {
             !self.tracked.is_empty()
-                && !untitled_waiting_now(&self.untitled, std::time::Instant::now())
+                && !self.waiting(std::time::Instant::now())
                 && self
                     .tracker
                     .as_ref()
@@ -1857,21 +2010,22 @@ mod tests {
         assert_eq!(display_scale(&Frame::points(0, 0, 10, 10), &[]), 1000);
     }
 
-    /// The title bar from the close button; none in full screen or without
-    /// one; the client area below it.
+    /// The title bar from the close button; 0 in full screen; not
+    /// measured without a button or with one that cannot be a title bar's;
+    /// the client area below it.
     #[test]
     fn title_bars() {
         let bounds = Frame::points(100, 50, 640, 508);
         let window = ax("T", bounds);
-        assert_eq!(title_bar(&window, &bounds), 28 * MILLI);
+        assert_eq!(title_bar(&window, &bounds), Some(28 * MILLI));
         assert_eq!(
-            client_frame(&bounds, title_bar(&window, &bounds)),
+            client_frame(&bounds, 28 * MILLI),
             Frame::points(100, 78, 640, 480)
         );
         // A toolbar window: the buttons sit lower, the bar is taller.
         let mut tall = window.clone();
         tall.close_button = Some(Frame::points(107, 68, 14, 16));
-        assert_eq!(title_bar(&tall, &bounds), 52 * MILLI);
+        assert_eq!(title_bar(&tall, &bounds), Some(52 * MILLI));
         // A fraction of a point rounds to whole points.
         let mut odd = window.clone();
         odd.close_button = Some(Frame {
@@ -1880,19 +2034,28 @@ mod tests {
             width: 14_000,
             height: 16_000,
         });
-        assert_eq!(title_bar(&odd, &bounds), 29 * MILLI);
+        assert_eq!(title_bar(&odd, &bounds), Some(29 * MILLI));
         let mut full = window.clone();
         full.fullscreen = true;
-        assert_eq!(title_bar(&full, &bounds), 0);
+        assert_eq!(title_bar(&full, &bounds), Some(0));
+        // (R3.14) Not measured: no button (borderless, just created, a
+        // client that did not answer) - never a bar of 0.
         let mut borderless = window.clone();
         borderless.close_button = None;
-        assert_eq!(title_bar(&borderless, &bounds), 0);
-        // Never more than the window, never negative.
+        assert_eq!(title_bar(&borderless, &bounds), None);
+        // A button without a size (not laid out yet), at the window's top
+        // corner: not a title bar's.
+        let mut unlaid = window.clone();
+        unlaid.close_button = Some(Frame::points(100, 50, 0, 0));
+        assert_eq!(title_bar(&unlaid, &bounds), None);
+        // Nor one whose bar would be nothing, or the whole window.
         let mut wild = window;
         wild.close_button = Some(Frame::points(0, 5000, 1, 1));
-        assert_eq!(title_bar(&wild, &bounds), bounds.height);
+        assert_eq!(title_bar(&wild, &bounds), None);
         wild.close_button = Some(Frame::points(0, -100, 1, 1));
-        assert_eq!(title_bar(&wild, &bounds), 0);
+        assert_eq!(title_bar(&wild, &bounds), None);
+        wild.close_button = Some(Frame::points(0, 42, 14, 16));
+        assert_eq!(title_bar(&wild, &bounds), None, "a bar of 0");
         assert_eq!(
             client_frame(&Frame::points(0, 0, 10, 10), 20 * MILLI).height,
             0
@@ -2151,6 +2314,136 @@ mod tests {
         );
         assert!(memory[&303].bar_known);
         assert!(!untitled_waiting(&raw, &memory, &mut untitled, later));
+    }
+
+    /// (R3.14) CI's new table, through the backend's look: attached before
+    /// the Accessibility API gives a usable close button, its bar is not
+    /// measured (not 0) and the find stays quick; the first look that
+    /// measures it describes the client area (the engine's `Moved`, which
+    /// makes the observers read the table with that bar); a later look the
+    /// client does not answer keeps it; full screen is measured as 0. A bar
+    /// the observers measured counts at the next look, though the look
+    /// itself still cannot read it.
+    #[test]
+    fn a_new_tables_title_bar_is_measured_late() {
+        let frame = Frame::points(64, 62, 640, 512);
+        let matcher = TableMatcher::simulator(
+            "pokerstars",
+            regex::Regex::new(r"^(?P<table>.+?) - (?P<seats>\d+)-max$").expect("regex"),
+        );
+        let matchers = std::slice::from_ref(&matcher);
+        let whole = to_pixels(&frame, 2000);
+        let client = to_pixels(&client_frame(&frame, 28 * MILLI), 2000);
+        let id = WindowId(475);
+        let start = std::time::Instant::now();
+        let at = |ms: u64| start + std::time::Duration::from_millis(ms);
+        let titled = ax("Rosalind IV - 6-max", frame);
+        let mut bare = titled.clone();
+        bare.close_button = None;
+        let mut unlaid = titled.clone();
+        unlaid.close_button = Some(Frame::points(64, 62, 0, 0));
+        let look = |backend: &mut MacosBackend, window: &AxWindow, bars: &[(u32, i64)], ms| {
+            let found = backend.look(
+                &snapshot(vec![cg(475, 7, frame, true)], vec![window.clone()]),
+                matchers,
+                bars,
+                at(ms),
+            );
+            assert_eq!(found.len(), 1);
+            found[0].client
+        };
+
+        let mut backend = MacosBackend::default();
+        // Just created: no button, then one not laid out.
+        assert_eq!(look(&mut backend, &bare, &[], 0), whole);
+        assert_eq!(backend.title_bar_of(id), None, "not measured, not 0");
+        assert!(backend.waiting(at(0)));
+        assert_eq!(look(&mut backend, &unlaid, &[], 500), whole);
+        assert_eq!(backend.title_bar_of(id), None);
+        assert!(backend.waiting(at(500)));
+        // Readable: the client area, the bar measured, the find may slow.
+        assert_eq!(look(&mut backend, &titled, &[], 1000), client);
+        assert_eq!(backend.title_bar_of(id), Some(28 * MILLI));
+        assert!(!backend.waiting(at(1000)));
+        // A look the client does not answer in time keeps the bar.
+        assert_eq!(look(&mut backend, &bare, &[], 1500), client);
+        assert_eq!(backend.title_bar_of(id), Some(28 * MILLI));
+        assert!(!backend.waiting(at(1500)));
+        // Full screen: measured, no bar.
+        let mut full = bare.clone();
+        full.fullscreen = true;
+        assert_eq!(look(&mut backend, &full, &[], 2000), whole);
+        assert_eq!(backend.title_bar_of(id), Some(0));
+
+        // The observers measured it first: the next look agrees with them.
+        let mut backend = MacosBackend::default();
+        assert_eq!(look(&mut backend, &bare, &[], 0), whole);
+        assert_eq!(look(&mut backend, &bare, &[(475, 28 * MILLI)], 250), client);
+        assert_eq!(backend.title_bar_of(id), Some(28 * MILLI));
+        assert!(!backend.waiting(at(250)));
+
+        // A borderless window is never given a bar: 0, waited for
+        // `UNTITLED_FOR`, then not.
+        let mut backend = MacosBackend::default();
+        assert_eq!(look(&mut backend, &bare, &[], 0), whole);
+        let after = u64::try_from(UNTITLED_FOR.as_millis()).expect("ms");
+        assert_eq!(look(&mut backend, &bare, &[], after), whole);
+        assert!(!backend.waiting(at(after)));
+        assert_eq!(backend.title_bar_of(id), None);
+    }
+
+    /// (R3.14) The log says when a table's title bar is first seen not
+    /// measured, when it is measured, and when it changes - once each.
+    #[test]
+    fn title_bar_news() {
+        let remembered = |bar: i64, known: bool| Remembered {
+            title: "T".into(),
+            subrole: "AXStandardWindow".into(),
+            title_bar: bar,
+            bar_known: known,
+            close_button: None,
+            paired: true,
+        };
+        let mut memory = BTreeMap::from([(475, remembered(0, false))]);
+        let mut logged = BTreeMap::new();
+        assert_eq!(
+            bar_news(&[475], &memory, &mut logged),
+            ["window 475: title bar not measured yet (close button none): 0 until it is"]
+        );
+        assert!(bar_news(&[475], &memory, &mut logged).is_empty());
+        // Read with a button that cannot be a title bar's, then not read.
+        let unlaid = Frame::points(64, 62, 0, 0);
+        if let Some(m) = memory.get_mut(&475) {
+            m.close_button = Some(unlaid);
+        }
+        assert_eq!(
+            bar_news(&[475], &memory, &mut logged),
+            [format!(
+                "window 475: title bar not measured yet (close button {unlaid:?}): 0 until it is"
+            )]
+        );
+        if let Some(m) = memory.get_mut(&475) {
+            m.paired = false;
+        }
+        assert_eq!(
+            bar_news(&[475], &memory, &mut logged),
+            [
+                "window 475: title bar not measured yet (no accessibility window this look): 0 \
+                 until it is"
+            ]
+        );
+        remember_bars(&mut memory, &[(475, 32 * MILLI), (999, MILLI)]);
+        assert!(!memory.contains_key(&999), "only windows remembered");
+        assert_eq!(
+            bar_news(&[475], &memory, &mut logged),
+            ["window 475: title bar 32 pt (measured)"]
+        );
+        assert!(bar_news(&[475], &memory, &mut logged).is_empty());
+        // Not a table any more: forgotten.
+        assert!(bar_news(&[], &memory, &mut logged).is_empty());
+        assert!(logged.is_empty());
+        assert_eq!(known_title_bar(&memory, 475), Some(32 * MILLI));
+        assert_eq!(known_title_bar(&memory, 476), None);
     }
 
     /// Through a room's matcher: the backend's tables are `table_of` these
