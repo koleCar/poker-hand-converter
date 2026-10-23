@@ -1,4 +1,6 @@
 import type { UiStrings } from "@rail/ui/i18n";
+import { chartsUiEn } from "@rail/ui/strings/charts.en";
+import { chartsUiHr } from "@rail/ui/strings/charts.hr";
 import { replayerEn } from "@rail/ui/strings/replayer.en";
 import { replayerHr } from "@rail/ui/strings/replayer.hr";
 import { reviewUiEn } from "@rail/ui/strings/review.en";
@@ -27,6 +29,7 @@ function uiStrings(
   replayer: UiStrings["replayer"],
   stats: StatsUi,
   review: UiStrings["review"],
+  charts: UiStrings["charts"],
 ): UiStrings {
   return {
     intlLocale: INTL_LOCALE[locale],
@@ -46,10 +49,12 @@ function uiStrings(
     players: dict.players,
     // The session review (R5.1) is web-only until the analysis comes to the app (R5.4).
     review,
+    // The user's own charts (R5.3) likewise, until R5.4.
+    charts,
   };
 }
 
 export const UI_STRINGS: Record<Locale, UiStrings> = {
-  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn),
-  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr),
+  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn, chartsUiEn),
+  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr, chartsUiHr),
 };

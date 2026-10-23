@@ -32,6 +32,7 @@ import styles from "./analysis.module.css";
 import { ANALYSIS_SHEET_ICON as SHEET_ICON, gradeMarks } from "./SharedAnalysis";
 import { listQuery, parseListState } from "./listState";
 import { cameFromSession, parseSessionQuery, sessionQueryString } from "./session/sessionQuery";
+import { myChartsQueryString, parseMyChartsQuery } from "./myCharts/myChartsQuery";
 
 type Loaded =
   | { status: "loading" }
@@ -51,9 +52,13 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
   const [sheetOpen, setSheetOpen] = useState(true);
   const fromSession = cameFromSession(query);
+  // From your charts' comparison (R5.3): back to the chart, at the same view.
+  const fromCharts = !fromSession && (Array.isArray(query.from) ? query.from[0] : query.from) === "my-charts";
   const back = fromSession
     ? paths.analysisSession(sessionQueryString(parseSessionQuery(query)))
-    : paths.analysis(listQuery(parseListState(query)));
+    : fromCharts
+      ? paths.analysisMyCharts(myChartsQueryString(parseMyChartsQuery(query)))
+      : paths.analysis(listQuery(parseListState(query)));
   const linkedPosition = useMemo<ReplayPosition | null>(() => {
     const raw = query.t;
     return decodePosition(Array.isArray(raw) ? raw[0] : raw);
@@ -99,7 +104,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
 
   const backLink = (
     <Link href={back} className={`btn btn--ghost btn--sm ${styles.back}`}>
-      ← {fromSession ? t.hand.backToSession : t.hand.back}
+      ← {fromSession ? t.hand.backToSession : fromCharts ? t.hand.backToMyCharts : t.hand.back}
     </Link>
   );
 

@@ -113,7 +113,17 @@ export const reviewUiHr: typeof reviewUiEn = {
     blunder: "Gruba greška",
   },
   streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" },
-  actions: { fold: "Fold", check: "Check", call: "Call", bet: "Bet", raise: "Raise" },
+  actions: { fold: "Fold", check: "Check", call: "Call", bet: "Bet", raise: "Raise", allin: "All-in" },
+
+  deviationSource: {
+    label: "Usporedi s",
+    shipped: "Railovi chartovi",
+    description: (name) =>
+      `Preflop odluke koje tvoj chart „${name}” igra rijetko ili nikad (manje od 3,5 % vremena), po EV-u koji im daju Railovi chartovi.`,
+    empty: (name) => `Svaka preflop odluka ove sesije koju tvoj chart „${name}” pokriva prati ga.`,
+    freq: (percent) => `tvoj chart to igra ${percent} %`,
+    best: (action) => `tvoj chart: ${action}`,
+  },
   preflopSpots: {
     unopened: "Neotvoreni pot",
     "vs-limp": "Protiv limpera",

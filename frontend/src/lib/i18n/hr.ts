@@ -103,6 +103,11 @@ export const hr: Dict = {
       description:
         "Nakon sesije: tvoje najlošije ocijenjene odluke, preflop odluke izvan tvojih chartova i najveći potovi, uz rezultat sesije.",
     },
+    analysisMyCharts: {
+      title: "Tvoji preflop chartovi | Rail",
+      description:
+        "Napravi ili uvezi svoje preflop rangeove i usporedi ih s rukama koje si odigrao: koliko si ih pratio, gdje si od njih odstupio, s rukama.",
+    },
     analysisHand: {
       title: "Analiza ruke | Rail",
       description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",

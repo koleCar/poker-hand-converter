@@ -9986,6 +9986,225 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
     checklist: the migration; its backfill reads every account's analysis
     once).
 
+- *As built, R5.3a* (§15): **the user's own preflop charts, built and
+  imported** - the first of R5.3's two parts; comparing them with played
+  hands is R5.3b. On the web at `/analysis/my-charts` (a tenth Analysis
+  section, under "More" on a phone), from a screen in `packages/ui/charts/`
+  that the app can render once the analysis is there (R5.4).
+  - **What a chart set is** (`packages/ui/charts/model.ts`, pure): a name,
+    the game (cash or tournament; a table of 2, 6 or 9 seats - the shipped
+    sets' tables: 6-max reads 3-6 players, full ring 7-9; a range of stack
+    depths, 1-1000 bb) and, per **situation**, how often each of the 169
+    classes raises, calls and goes all in, in **whole percents**; the rest of
+    100 % folds (checks, for the big blind facing limpers). A situation is
+    keyed in **the shipped charts' vocabulary** (`docs/CHARTS.md` §6.1, §11):
+    `scenario:hero[:villain]` - `rfi:CO`, `vs-limp:BB:SB`, `vs-open:BB:BTN`,
+    `squeeze:BB:CO`, `vs-iso:SB:BB`, `vs-3bet:CO:BTN`, `vs-4bet:BTN:CO`,
+    `vs-allin:CO:BTN` - the villain the last raiser (the first limper for
+    `vs-limp`); only the keys a table can have (`isPlausible`: 105 at 6-max,
+    252 at full ring, 7 heads-up), and only the actions a situation allows.
+    An optional raise size per situation (informational). Stored as base64
+    of 169 bytes per action (`format_version` 1, for later migrations).
+  - **The editor** (`ChartEditor`, `ChartGrid`): the game's fields; the
+    situation by spot, seat and opponent, with every filled situation as a
+    chip; a **brush** - a mix of raise / call (limp) / all-in percents, with
+    quick mixes (raise 100, call 100, all-in 100, raise 50 / call 50, raise
+    50, fold) - painted on the 13 x 13 grid by a click, a drag (mouse, pen or
+    finger: the grid takes the gesture and paints every cell the pointer
+    crossed) or the keyboard (arrow keys, Enter); each cell drawn as its mix
+    and named by it for a screen reader; the combo share of each action.
+    Tools: **undo** (one step per stroke, 50 deep), clear the situation,
+    **copy from another situation** (actions the target cannot have move to
+    the rest), **start from Rail's chart** at a depth of the set's table
+    (`shippedNodeOf`: of the shipped set's lines with that key the most
+    reached, its options summed into raise / call / all-in and rounded to
+    whole percents by largest remainder - Rail's own solver output, never
+    anyone else's), **paste ranges** per action and **copy as text** in
+    three formats. **Touch** (R4.5d): 13 cells across 375 px are 25 px, so
+    under the grid a rank list - one rank's 25 hands as 44 px buttons - is
+    the touch path, and `responsive.mjs` takes the grid's `[role=gridcell]`
+    exception as for the Reports grid; the row of filled situations keeps
+    one height so the first painted cell does not move the grid under the
+    finger.
+  - **Import and export** (`ranges.ts`, `exchange.ts`): range text as PIO,
+    GTO+, Flopzilla and Equilab write it - classes and shorthand (`QQ+`,
+    `22-55`, `ATs+`, `A5s-A2s`, `K9o+`, `KT+`), weights `AKs:0.5` (a weight
+    over 1 up to 100 is a percent) and `[50]…[/50]` blocks, single combos
+    (`AhKh:0.25`, collapsed to the class: its combos' weights over its
+    combo count), one hand per line with a weight (`AKs 0.5`, `AKs\t50%`);
+    whatever cannot be read is named, never guessed, and a class over 100 %
+    across a situation's actions is refused. Out: the shorthand with `:0.5`
+    weights, GTO+ blocks, or every combo. A whole set: **Rail JSON**
+    (`rail-preflop-charts`, version 1; each situation's actions as range
+    strings, so it is readable and diffable) - downloaded, and imported as a
+    new unsaved set (file or pasted text) with its problems listed.
+  - **The database** (`20270811090000_preflop_charts.sql`):
+    `preflop_chart_sets`, **written directly** under owner-only RLS (one
+    policy per command, `owner_id = (select auth.uid())`; nothing for
+    `anon`), and a `before` trigger, `preflop_chart_sets_guard` (definer),
+    that holds what the client holds: situation keys of the set's table
+    (`preflop_chart_key_ok`, `isPlausible`'s rule), no `call` for the big
+    blind facing limpers, base64 of exactly 169 bytes, every percent and
+    each class's sum at most 100, a raise size in (0, 1000]; at most 300
+    situations and 400 KiB a set, **50 sets an account** (under an advisory
+    lock), **120 writes per 10 minutes** (`enforce_rate_limit`); an update
+    keeps the row's id, owner and creation time. No service key anywhere.
+  - **Tests**: pgTAP `preflop_charts` (33): RLS and grants, the guard
+    definer and granted to nobody, the key rule, the owner's insert / rename
+    and an attempt to hand the row to another account, another account
+    neither reading, changing, deleting nor planting a row, anon refused,
+    each refusal (another table's situation, a big-blind call, bad base64, a
+    class over 100 %, a percent over 100, a raise size of 0, an unknown
+    action, 301 situations, the name, the stack range, the table, the
+    format), 50 sets and not 51, 120 writes and not 121, a deleted account
+    leaving nothing (suite 44 files / 1 578 on a fresh reset with every
+    migration). Vitest `preflopCharts` (28): classes and keys,
+    plausibility per table, base64 against Node's and Postgres', the stored
+    shape and its refusals, `nodeFromMix`, every range syntax, combos,
+    malformed input, round trips of every text format (any percent
+    pattern), Rail JSON round trip and refusals, a situation's text import,
+    **every node of every plain shipped set keyed consistently with its own
+    scenario, actor and villain** (10 sets), the 100bb tables' RFI and
+    vs-open keys all present; `preflopChartsScreen` (7): the editor in
+    English and Croatian (169 grid cells, the rank list, the words, the
+    export text), the screen's first render and `hiddenDuringPlay` reading
+    nothing, a new set, the address, Rail's chart copied, the two languages'
+    keys; the whole suite 104 files. Browser (local stack, the corpus's 7 496 hands as a test account):
+    a set made, painted by drag and by a mix, started from Rail's button
+    open, saved, a Rail JSON pasted and saved. `responsive.mjs` covers the
+    list, the editor and the editor with every tool open.
+
+- *As built, R5.3b* (§15): **done, with it R5.3** - the user's chart
+  against the hands they played, at `/analysis/my-charts` (a set's
+  "Compare with your hands" tab), and R5.1's second deviation source.
+  - **What is compared** (`packages/ui/charts/compare.ts`, pure): the
+    preflop decisions the analysis located on the shipped charts' tree
+    (`decision_analysis`, `source = 'chart'`), each filed under the key of
+    its line (`nodeKey.ts`; the database's `preflop_chart_node_key` gives the
+    same answers for 966 shipped lines), in the chart's game - its format,
+    its table size (the shipped set the decision was read on: 6-max for 3-6
+    players, full ring for 7-9, heads-up) and its stack range (the effective
+    stack in 10 bb steps, a step counting when it overlaps the range) - over
+    30 / 90 / 365 days counted back from the last decision, or all time.
+    The chart **plays** the hero's action with that class when it takes it
+    at least **3.5 %** of the time - the shipped charts' own line between
+    Good and Inaccurate (ANALYSIS-PLAN §2): a 50 % mix is followed whichever
+    way the hand went, a class the chart never raises is a deviation when
+    raised; a raise and an all-in stand for each other where the chart has
+    only one of them. **EV impact** is the only EV there is: what the
+    analysis put on those decisions against Rail's charts
+    (`ev_loss_bb`), said so on the page ("your chart has no EVs").
+  - **The comparison** (`ChartCompare`): the period; tiles - decisions
+    compared, the share played as the chart plays it, off the chart, their
+    EV by Rail's charts; per situation (most played first) the decisions,
+    the share, the most frequent deviation; the situations played that the
+    chart leaves empty, each with "Fill it in" (the editor at that key); the
+    decisions in spots the vocabulary does not name (a cold 4-bet, a 3-bet
+    pot with a caller, after an iso-raise), counted and left out. A
+    situation's detail: your actions against the chart's for the hands you
+    held (the chart's expected count over the classes dealt), the grid
+    marked with the off-chart count per class, and the deviations - hand,
+    what you did, how often, what the chart does, the chart's percent for
+    your action, their EV - each opening up to five example hands at the
+    decision (`/analysis/h/<id>?t=a<index>&from=my-charts`, its Back link
+    returning to the chart at the same view and period).
+  - **The session review** (R5.1's `DeviationSource`, as planned): the
+    contract now returns `{ decisions, hands }` (a source of its own may name
+    hands the review does not carry) and says whose charts it reads
+    (`kind`, `label`); `ownChartDeviations` (`charts/sessionSource.ts`)
+    reads the session's preflop decisions (`preflop_chart_session`: the
+    session's window under the shared filter's groups, `session_review`'s
+    reading), keeps those the chart covers and plays under 3.5 %, ranks them
+    as the shipped list is (`rankDeviations`: EV by Rail's charts, then
+    newest; one per hand) and fetches the rows of the hands the review lacks
+    (`preflop_chart_review_hands`). The screen gains a "Compare with" choice
+    over the list when the reader has a chart set - Rail's charts or one of
+    theirs, remembered in this browser - and the list's words follow it
+    ("your chart plays it 0 %", "your chart: Fold"). The shipped list, its
+    server ranking and its grading are unchanged.
+  - **The database** (`20270811100000_preflop_charts_compare.sql`): R5.2's
+    way, narrow rows kept by triggers. `preflop_decision_rows` (one per
+    preflop chart decision: key - `''` when unnamed -, table, depth step,
+    class 0-168, action, scenario, seat, time, format, EV loss, grade) and
+    `preflop_decision_totals` (summed per owner, version, format, table,
+    depth step, key, class, action: all time), select-own; two statement
+    triggers on `decision_analysis` (insert adds; delete - a prune, a hand
+    or an account deleted - subtracts with the rows' own values), each under
+    a per-account advisory lock; `preflop_decision_rows_rebuild(owner)`
+    (definer, granted to nobody) recounts, and the migration backfills
+    every account with analysed decisions. Readers, invoker and owner-first:
+    `preflop_chart_played` (all time from the totals, a window from the
+    rows), `preflop_chart_examples`, `preflop_chart_session` (at most 7 days
+    and 5 000 decisions), `preflop_chart_review_hands` (at most 50). No
+    grading constant, chart or `analysis/N` changed; none of the readers
+    the multi-tenant work owns (`library_facets`, `report_*`, `stats_*`,
+    `session_review`, ...) touched.
+  - **Measured at 1M hands** (R2.9's harness, new set
+    `RAIL_PERF_SET=charts`: 1 004 464 hands, the generated analysis rows'
+    872 608 preflop decisions given generated chart facts - one of the ten
+    most reached keyed lines of the 6-max 100bb set from the hero's seat, the
+    hand's class, an action, a 60-140 bb stack -; psql on the M2 Pro; ms,
+    first call and best of the next two):
+
+    | | first | then |
+    | --- | ---: | ---: |
+    | `preflop_chart_played` all time, 80-120 bb | 216 | 145 |
+    | ... all time, 1-1000 bb (every row) | 373 | - |
+    | ... 365 days (179 696 decisions) | 962 | 264-274 |
+    | ... all time, 100-110 bb | 144 | 110 |
+    | ... 90 / 30 days (the history's newest days are thin) | 1 | 1 |
+    | `preflop_chart_examples` all time | 17 | 1 |
+    | `preflop_chart_session`, the biggest session (862 hands) | 122 | 14 |
+    | `preflop_chart_review_hands`, 20 hands | 25 | 1 |
+
+    All time reads the totals (240 248 rows for the account); a window reads
+    the rows by `preflop_decision_rows_time_idx`, so a year of a million-hand
+    account is the slowest case, under a second cold. Sizes: rows 340 MB with
+    their indexes, totals 50 MB. The backfill took 3 min 54 s for the 872 608
+    decisions. **What the triggers cost a writer**: 200 preflop decisions
+    deleted and inserted again, 45 + 76 ms warm against 6 + 47 ms with the
+    two triggers off (R5.2's leak triggers on in both), the first time 75 +
+    445 ms (the plans).
+  - **Tests**: pgTAP `preflop_charts_compare` (42): the tables' RLS and
+    grants, the definer triggers and rebuild granted to nobody, the invoker
+    readers (anon refused), the two triggers; `preflop_chart_node_key` equal
+    to the TypeScript's for 966 shipped lines (every node of the 6-max 100bb
+    and heads-up sets, the 200 most reached of the 9-max 100bb; the straddle
+    set unnamed), `preflop_class_index`; the rows (key, class, all-in raise
+    as `allin`, table, depth step, format; none for a heuristic, postflop or
+    straddled decision), totals equal to the rows after inserts, a deleted
+    hand, a pruned decision and a rebuild; played over all time and 30 days
+    (the window and its days), a stack range, a tournament 9-max chart,
+    another version; validation; examples (the decision, the stack range,
+    the class bound); the session reader (the window, the filter's groups,
+    7 days); the review's rows (own hands only, `session_review`'s fields,
+    50); another account reading nothing of the first's; a deleted account
+    leaving nothing (suite on a fresh reset with every migration: 45 files / 1 620).
+    Vitest: `preflopCharts` gains the comparison (the percent rule, raise /
+    all-in standing in, the share, deviations and their order, the mix, the
+    missing and unnamed), the own-chart deviation source (scope, ranking,
+    the hands fetched) and the check that pgTAP's cases are the
+    TypeScript's (33 in all); `preflopChartsScreen` gains the comparison in
+    English and Croatian, the empty comparison, the session review's list
+    against an own chart in both languages, the payload readers and the
+    calls against a faked `rpc` (14); `sessionReview` follows the new
+    contract; the whole suite 104 files / 4 577 tests. Browser (local stack,
+    the corpus's 7 496 hands as a test account, the newest 1 000 analysed by
+    the web's own run - the triggers filing 948 preflop decisions as it
+    saved): a chart compared over all time (91 decisions of its two
+    situations, 80 % as the chart, the 46 situations it leaves empty), a
+    deviation's example hands, one opened at the decision and back; the
+    session review against the chart (the 20 February session's own-chart
+    list). `responsive.mjs` now also covers the comparison (all time), a
+    deviation's examples and a hand opened from them: 66 / 66 in `en` and
+    `hr`. Not applied to production (prod checklist: the two migrations;
+    the second's backfill reads every account's preflop decisions once).
+  - **Open for the owner**: tournament charts can be built but find no hands
+    yet (the analysis reads cash NLHE only; R5.5); the 3.5 % line is the
+    shipped grading's, not a setting; situations the vocabulary does not name
+    (above) are counted, not compared - a "facing a raise over limpers" key
+    for non-limpers would cover the corpus's commonest unnamed spot.
+
 ---
 
 ## Phase 6 — Subscription
@@ -10165,4 +10384,6 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-23 | **R5.1 done**: the session review. `/analysis/session` (a ninth Analysis section; a "Review" link on every row of Statistics -> Sessions) shows one session - by default the latest that has **ended**; one that may still be going on is named and reviewed only on request - with a summary (when, hands, length, tables, result in money and big blinds, bb/100, all-in EV) and three ranked, capped lists of hands worth a look: the worst graded decisions (Inaccurate or worse), the preflop decisions off the shipped charts (graded against them at Inaccurate or worse: the chart takes the action under 3.5 % of the time) and the biggest pots; each hand once, in the first list it is in, with badges for the others, opening in `/analysis/h/<id>` at the decision with a way back. A session is `report_sessions`' (gap rule over the shared filter): migration `20270721090000_session_review.sql` adds `session_review(filter, at, gap, limit)`, which walks the time index outwards from one instant in chunks and is held to `report_sessions` by pgTAP (47). The screen is `packages/ui/review/` (`SessionReviewSource`, a pluggable `DeviationSource` for R5.3's own charts, `hiddenDuringPlay` for A10 when R5.4 brings it to the app); web-only for now. At 1M hands with generated analysis rows: 2-19 ms warm, 4-229 ms cold for ordinary sessions, 1.65 s cold for an 862-hand one; the picker 1-2 ms (90 days). Vitest `sessionReview` (29), suite 101 files; `responsive.mjs` 36 / 36 with the new screen. Grading, charts and the analysis version untouched. Not applied to production (prod checklist: the migration). |
 | 2026-10-23 | **R5.2 done**: the three biggest leaks, a card on the Analysis overview linking to the full leak report. A6's own leaks (`groupLeaks`, unchanged), ranked by **EV lost in total** (= EV lost per 100 hands within one sample), the ones A6's confidence rule vouches for (20 decisions in the spot and 2 mistakes) before any thin one, a thin one with 2 mistakes or more only to fill a place and marked tentative (A8b's rule), ties to the bigger sample, then mistakes, then the id; each in words with EV lost per 100 hands and its 95% range (the mistake rate's Wilson interval), EV lost in all, how often, confidence, the target and the reference's mix, the last 30 days of play against the 30 before, up to five example hands opening at the decision, and a link to its report row. Period: last 30 days of play or all time, under the overview's format, seat and pot type. `analysis_leaks` took 240 s (all time) and 9-11 s (30 days) at 1M hands, so migration `20270728090000_leak_summaries.sql` keeps the leak finder's sums by triggers on `decision_analysis` (`analysis_leak_rows`, `analysis_leak_days`, `analysis_leak_day_hands`, a rebuild that is also the backfill) and reads them with `analysis_top_leaks` and `analysis_leak_examples` (invoker, owner-first): 14-106 ms warm, 29-100 ms first; examples 1-69 ms; a 200-hand `save_hand_analysis` 85 ms against 19 ms without the triggers. pgTAP `leak_summaries` (48) holds the sums equal to `analysis_leaks` under every filter after inserts, a prune, a hand deleted and a rebuild; Vitest `topLeaks`; `responsive.mjs` audits the card. Web-only (moves with the analysis library in R5.4); no AI-written summary. Grading, charts and the analysis version untouched. Not applied to production (prod checklist: the migration). |
 | 2026-10-23 | **Owner first: owner-scoped readers stay fast whatever other accounts hold** (found while building R5.1: beside an account of 1M hands a 7 496-hand account's `library_facets` took 38 s and `hands_facets` 6.5 s, past the statement timeout, so `/library` fell back to the converter). **Cause**: the owner reached the planner only as `(select auth.uid())` - an InitPlan, unknown at planning - in RLS, in `library_rows` / `library_page` / `search_hands`, and in the SQL functions `stats_ev_missing`, `player_sites`, `my_player_notes`, `unparsed_summary`; `hands_facets` had no owner predicate at all (RLS only, thirteen scans of the whole table). The estimate for "the caller's rows" was rows / owners: 503 748 hands for a 7 496-hand account (`EXPLAIN`), so sequential scans and hash joins over every account's rows with the owner applied last (a seq scan of all 6M `hand_stats` rows for the small account's counts); and the global sort indexes (`hands_played_at_idx`, `hands_total_pot_idx`, `hands_hero_profit_idx`, `hands_created_at_idx`) let pages walk all accounts in order. Readers that did bind the owner could still cache a generic plan for "some owner" on a pooled connection. **Fix** (`20270804090000_owner_first_readers.sql`; docs/DATABASE.md "Owner first"): every owner-scoped reader is PL/pgSQL with `v_owner := auth.uid()`, `owner_id = v_owner` on every table it reads (joins included; `$4` / `$25` in dynamic SQL), `plan_cache_mode = force_custom_plan`; `hands_facets` one grouping-sets pass over the owner's rows; `unparsed_summary` writes `unparsed_gaps`' grouping over the caller's rows; owner-led sort indexes replace the global ones; `hands_owner_library_idx` and `hand_stats_owner_hero_cover_idx` (index-only counts, hero probes); statistics on the library's group expressions (`hands_library_groups`, `hand_stats_library_groups`). RLS stays on; signatures and answers unchanged (types identical; old and new bodies compared on 790 random filters and pages over both accounts, 0 differ). **Measured** (generated data on an isolated local stack: 1 000 000 hands, 6M `hand_stats` rows with opponents, 1M EV rows, 20 000 unparsed samples, beside 7 496 hands; ms, second call; first calls are cold-cache): the small account beside the big one - `hands_facets` 39 347 -> 16, `library_facets` 18 312 / 24 369 (filtered) -> 42 / 30, `library_page` "cash, 3-bet" 4 633 -> 5, table name 6 117 -> 10, by pot 359 -> 4, `hands_needing_stats` 619 -> 25, `stats_ev_missing` 167 -> 3, `player_sites` 75 -> 7; every reader under 300 ms from the second call (all but `stats_opponents`, 105-132, under 60), the same as with the big account removed (alone, before and after alike) - its time now depends on its own rows only; first calls right after the big account's run had emptied the cache 0.4-1.0 s (`hands_facets`, `stats_opponents`, `hands_needing_stats`), cold reads of its own pages. The 1M account: `hands_facets` 41 706 -> 4 873, `library_facets` 30 762 -> 7 690, `library_page` "cash, 3-bet" 361 885 -> 5, table name 18 756 -> 5 959, `search_hands` 204 -> 78; R4.5c-1's readers unchanged (they were owner-first already). Not changed and still slow for a 1M account, its own rows: the R2.9 `stats_summary` / `stats_graph` / `stats_breakdown` / `stats_sessions` (12-27 s; the shared Reports read R4.5c-1's summaries), a table-name page (a substring of every hand's name), `hands_needing_stats` on a finished account (it checks every hand). pgTAP `owner_first_readers` (51): every owner reader PL/pgSQL, invoker, planned per call; no `hands` sort index across accounts; measured not planned - a 30-hand account's call of each of 31 readers (R5.1's `session_review` included) returns at most ~200 tuples from the tables and their indexes (`pg_stat_get_xact_tuples_returned`) beside a 6 000-hand account, under a bound of 1 500 (the old definitions: 4 929-84 140, the test fails on them); the rewritten readers equal their previous bodies; owner only; anon refused. Suite 43 files / 1 545 on a fresh reset (rebased on R5.1 and R5.2). Not applied to production. |
+| 2026-10-23 | **R5.3a done** (R5.3 split in two: the charts, then the comparison): the user's own preflop charts at `/analysis/my-charts`, from `packages/ui/charts/`. A chart set is a name, a game (cash / tournament, 2 / 6 / 9 seats, a stack range) and per situation - keyed in the shipped charts' vocabulary, `scenario:hero[:villain]` (`rfi:CO`, `vs-open:BB:BTN`, `vs-3bet:CO:BTN`; 105 keys at 6-max, 252 at full ring, 7 heads-up) - whole percents of raise / call / all-in per class, the rest folding. The editor paints the 13 x 13 grid with a brush mix (click, drag with interpolation, keyboard; a 44 px rank list as the touch path), copies another situation or Rail's own chart at a depth (the most reached shipped line of the key), pastes and copies range text (PIO / Flopzilla `AKs:0.5`, GTO+ / Equilab `[50]…[/50]`, combos `AhKh:0.25` collapsed to classes, one hand per line), undoes; a whole set imports and downloads as Rail JSON (`rail-preflop-charts` v1, range strings per action). Migration `20270811090000_preflop_charts.sql`: `preflop_chart_sets`, written directly under owner-only RLS, a definer `before` trigger holding the shape (the table's keys, the allowed actions, 169-byte base64, no class over 100 %) and the limits (300 situations / 400 KiB a set, 50 sets an account, 120 writes per 10 minutes). Shipped charts, grading and `analysis/N` untouched. Tests: pgTAP `preflop_charts` (33), Vitest `preflopCharts` (28) and `preflopChartsScreen` (7), `responsive.mjs` (the list and the editor, `en` and `hr`), browser on a local stack. Not applied to production. |
+| 2026-10-23 | **R5.3b done, R5.3 complete**: a user's chart against the hands they played, and R5.1's second deviation source. `/analysis/my-charts` gains a set's "Compare with your hands" tab: over 30 / 90 / 365 days or all time, the preflop decisions the analysis placed on the shipped tree in the chart's game (format, table, stack range), filed under their line's situation key; the share the chart plays (an action it takes at least 3.5 % of the time - the shipped grading's Good / Inaccurate line; raise and all-in standing in for each other), per situation the mix against the chart's for the hands held, the deviations by hand and action with example hands opening at the decision (Back returns), the empty situations ("Fill it in"), the unnamed spots counted, and the EV Rail's charts put on the deviations (the user's chart has none). The session review's "off your preflop charts" can read one of the user's charts (`ownChartDeviations`; `DeviationSource` now returns `{ decisions, hands }` and its kind); the shipped list unchanged. Migration `20270811100000_preflop_charts_compare.sql`: `preflop_decision_rows` / `preflop_decision_totals` kept by statement triggers on `decision_analysis` (rebuild + backfill), `preflop_chart_node_key` held to the TypeScript over 966 shipped lines, invoker owner-first readers `preflop_chart_played` / `_examples` / `_session` / `_review_hands`. At 1M hands: all time 145-216 ms, a year 264-962 ms, the session reader 14-122 ms; the triggers add ~70 ms per 200 decisions to a writer. Tests: pgTAP `preflop_charts_compare` (42), Vitest `preflopCharts` (33), `preflopChartsScreen` (14), `responsive.mjs` 66 / 66. No shipped chart, grading constant or `analysis/N` changed; not applied to production. |
 | 2026-10-23 | **Big accounts' own readers under a second; R2.9's readers retired** (follow-up to #244). Migration `20270818090000_big_account_readers.sql`. **Retired**: `stats_summary`, `stats_graph`, `stats_breakdown`, `stats_sessions` and their helpers (`hand_stats_filter_sql`, `hand_stats_counter_keys`, `hand_stats_money_keys`, `stats_empty_summary`) - no caller since R4.5c-2 (the web's `/stats` reads `report_*`; their TS wrappers were exported, imported by nobody, deleted); `hands_facets`, whose one caller was the header badge's total (`countHands`), now `library_count()`. **`library_facets`** over two summaries kept by statement triggers on `hands`, `hand_stats`, `hand_stats_ev` (`library_hand_counts`, `library_hero_counts` per owner, UTC month and the library's groups; a signed sum equal to `library_rows`' left joins; whole months from the summaries, a range's partial months and the searches from the hands; R4.5c-1's account lock; a hand deleted while its account stays marks it `library_counts_stale` until `library_counts_rebuild`, which `refresh_report_summaries` runs too). **Table-name search**: under RLS a non-leakproof operator (`ilike`, `@>`, `&&`) is never an index condition, so the global trigram index had never been used; the part is matched against the caller's distinct table names (`library_table_names`, a skip scan of the new `hands_owner_table_idx`) and the hands read by name; `hands_table_trgm` dropped. **The rule for the readers #244 did not list** (no grading change: the policy's own `owner_id = v_owner` on every owner table read, the caller bound once, planned per call): every `analysis_*` reader (`analysis_graded_decisions` / `_facets` and R5.2's `analysis_leak_sample`, whose owner was an argument, now PL/pgSQL), `hands_needing_analysis*`, `drill_*`, `trainer_summary`, `study_plan`, `get_hand`, the forum's `my_post_state`, `my_saved_posts`, `my_notifications`, `unread_notification_count`. **Measured** (own isolated stack, generated, never committed: 1 000 000 hands over 35 months, 2.9M `hand_stats` rows, 0.9M EV rows, 300 000 graded hands / 0.9M decisions, beside 7 496 hands; ms, second call; this generator spreads a hand over far more groups than #244's - 293 119 hero count keys for 1M hands - so it is the hard case): the 1M account - `library_facets` {} 10 112 -> 869, cash + BTN 8 651 -> 696, last 365 days 4 364 -> 694, last 30 days 117 -> 11, table name 2 552 -> 117; `library_page` table name common / rare / none / + pot 3 797 / 2 399 / 2 247 / 3 260 -> 14 / 13 / 10 / 19; header count 3 785 (`hands_facets`) -> 4 (`library_count`); R2.9's readers 3 479-8 636 -> retired (`report_open` 1 559 -> 1 171, `report_sessions` 1 702 -> 1 787, unchanged); `analysis_top_leaks` 188 -> 58; the small account beside it - every reader 0-40 ms but the counts' ranges (24) and `analysis_leaks` / `_leak_hands` / `_trend` / `drill_due_by_spot` 160-219 (were 188-335: its own 6 804 decisions graded row by row; `analysis_top_leaks` 157 -> 8). **Left slow for the 1M account's own rows** (not touched: they compute over every graded decision, and grading is another program's): `analysis_overview` 15 s, `_node_actions` 12 s, `_breakdown` 10 s, `_hands` 7.5 s, `_node_hands` 4.7 s, `analysis_coverage` 3.6 s, `hands_needing_analysis_recent` 3.1 s, `analysis_leaks` / `_leak_hands` / `_trend` / `drill_due_by_spot` over 60 s (timed out at 120 s before and after) - they want summaries like R5.2's; the library's card, board, player and position searches (GIN indexes RLS cannot use). pgTAP: new `library_counts` (43), `owner_first_analysis` (8: every rewritten reader = its previous body on 300+ calls for two accounts, the previous bodies rebuilt from the current ones by undoing each edit); `owner_first_readers` (49) lists 51 readers (the rows-read guard measures the analysis readers beside a big account's 9 000 graded decisions); `stats_ev`, `stats_pot_type`, `stats_rebuild`, `sessions_notes` read `report_*`; `stats_breakdown.test.sql` removed. Suite 44 files / 1 580 on a fresh reset. Types regenerated. Not applied to production. |

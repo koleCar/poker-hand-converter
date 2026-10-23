@@ -2620,6 +2620,144 @@ export type Database = {
           },
         ]
       }
+      preflop_chart_sets: {
+        Row: {
+          created_at: string
+          format_version: number
+          game_format: string
+          id: string
+          name: string
+          nodes: Json
+          owner_id: string
+          stack_max_bb: number
+          stack_min_bb: number
+          table_size: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          format_version?: number
+          game_format: string
+          id?: string
+          name: string
+          nodes?: Json
+          owner_id?: string
+          stack_max_bb: number
+          stack_min_bb: number
+          table_size: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          format_version?: number
+          game_format?: string
+          id?: string
+          name?: string
+          nodes?: Json
+          owner_id?: string
+          stack_max_bb?: number
+          stack_min_bb?: number
+          table_size?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      preflop_decision_rows: {
+        Row: {
+          action: string
+          action_index: number
+          analysis_version: string
+          depth_band: number
+          ev_loss_bb: number
+          game_format: string
+          grade: string | null
+          hand_class: number
+          hand_id: string
+          hero_position: string
+          node_key: string
+          ord: number
+          owner_id: string
+          played_at: string | null
+          scenario: string
+          table_size: number
+        }
+        Insert: {
+          action: string
+          action_index: number
+          analysis_version: string
+          depth_band: number
+          ev_loss_bb: number
+          game_format: string
+          grade?: string | null
+          hand_class: number
+          hand_id: string
+          hero_position: string
+          node_key: string
+          ord: number
+          owner_id: string
+          played_at?: string | null
+          scenario: string
+          table_size: number
+        }
+        Update: {
+          action?: string
+          action_index?: number
+          analysis_version?: string
+          depth_band?: number
+          ev_loss_bb?: number
+          game_format?: string
+          grade?: string | null
+          hand_class?: number
+          hand_id?: string
+          hero_position?: string
+          node_key?: string
+          ord?: number
+          owner_id?: string
+          played_at?: string | null
+          scenario?: string
+          table_size?: number
+        }
+        Relationships: []
+      }
+      preflop_decision_totals: {
+        Row: {
+          action: string
+          analysis_version: string
+          decisions: number
+          depth_band: number
+          ev_loss_bb: number
+          game_format: string
+          hand_class: number
+          node_key: string
+          owner_id: string
+          table_size: number
+        }
+        Insert: {
+          action: string
+          analysis_version: string
+          decisions: number
+          depth_band: number
+          ev_loss_bb: number
+          game_format: string
+          hand_class: number
+          node_key: string
+          owner_id: string
+          table_size: number
+        }
+        Update: {
+          action?: string
+          analysis_version?: string
+          decisions?: number
+          depth_band?: number
+          ev_loss_bb?: number
+          game_format?: string
+          hand_class?: number
+          node_key?: string
+          owner_id?: string
+          table_size?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ban_reason: string | null
@@ -3997,6 +4135,78 @@ export type Database = {
       poll_public: { Args: { p_post: string }; Returns: Json }
       post_status: { Args: { p_public_id: string }; Returns: string }
       posting_block_reason: { Args: { p_uid: string }; Returns: string }
+      preflop_chart_examples: {
+        Args: {
+          p_action: string
+          p_class: number
+          p_format: string
+          p_key: string
+          p_limit?: number
+          p_max_bb: number
+          p_min_bb: number
+          p_period: string
+          p_table_size: number
+          p_version: string
+        }
+        Returns: Json
+      }
+      preflop_chart_key_ok: {
+        Args: { p_key: string; p_table_size: number }
+        Returns: boolean
+      }
+      preflop_chart_node_key: {
+        Args: { p_line: string; p_set: string }
+        Returns: string
+      }
+      preflop_chart_nodes_problem: {
+        Args: { p_nodes: Json; p_table_size: number }
+        Returns: string
+      }
+      preflop_chart_played: {
+        Args: {
+          p_format: string
+          p_max_bb: number
+          p_min_bb: number
+          p_period: string
+          p_table_size: number
+          p_version: string
+        }
+        Returns: Json
+      }
+      preflop_chart_review_hands: {
+        Args: { p_filter: Json; p_hand_ids: string[] }
+        Returns: Json
+      }
+      preflop_chart_seats: { Args: { p_table_size: number }; Returns: string[] }
+      preflop_chart_session: {
+        Args: { p_filter: Json; p_from: string; p_to: string }
+        Returns: Json
+      }
+      preflop_chart_set_table: { Args: { p_set: string }; Returns: number }
+      preflop_chart_window: {
+        Args: { p_owner: string; p_period: string; p_version: string }
+        Returns: string
+      }
+      preflop_class_index: { Args: { p_class: string }; Returns: number }
+      preflop_decision_fields: {
+        Args: {
+          p_action: string
+          p_facts: Json
+          p_source: string
+          p_street: string
+        }
+        Returns: {
+          depth_band: number
+          hand_class: number
+          node_key: string
+          played_action: string
+          table_size: number
+        }[]
+      }
+      preflop_decision_rows_rebuild: {
+        Args: { p_owner: string }
+        Returns: Json
+      }
       provisional_username: { Args: never; Returns: string }
       prune_hand_analysis: {
         Args: { p_keep_version: string; p_limit?: number }

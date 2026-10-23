@@ -76,7 +76,7 @@ function decisionOf(row: Row): ReviewDecision {
   };
 }
 
-function handOf(handId: string, row: Row): ReviewHand {
+export function handOf(handId: string, row: Row): ReviewHand {
   return {
     handId,
     playedAt: str(row.playedAt),

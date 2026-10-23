@@ -120,6 +120,11 @@ export const en = {
       description:
         "After a session: your worst graded decisions, the preflop decisions off your charts and the biggest pots, with the session's result.",
     },
+    analysisMyCharts: {
+      title: "Your preflop charts | Rail",
+      description:
+        "Build or import your own preflop ranges and compare them with the hands you played: how often you followed them, where you left them, with the hands.",
+    },
     analysisHand: {
       title: "Hand analysis — one hand | Rail",
       description: "One of your hands, decision by decision, in the replayer.",
