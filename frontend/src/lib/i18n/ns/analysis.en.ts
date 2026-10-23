@@ -1172,6 +1172,7 @@ export const analysisEn = {
 
   hand: {
     back: "Back to analysis",
+    backToSession: "Back to the session review",
     loading: "Loading the hand…",
     notFound: "This hand is not in your library.",
     fresh:

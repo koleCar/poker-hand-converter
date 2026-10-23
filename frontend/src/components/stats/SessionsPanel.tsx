@@ -12,14 +12,21 @@
  * is plotted per session, not per day or per hand, because the session is the
  * unit a player remembers — "the Tuesday I lost three buy-ins" — and the x-axis
  * should be something the reader can point at.
+ *
+ * Each session opens in its review (R5.1, `/analysis/session`): the link
+ * carries the session's start, the break and the filter's groups, so the
+ * review finds the same session.
  */
 
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HandFilter } from "@rail/ui/hands/model";
 import { fetchReportSessions, type StatsSessions } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
+import { paths } from "../../lib/routes";
+import { sessionFilterOf, sessionQueryString } from "../analysis/session/sessionQuery";
 import { countIn, dateFormat, money, numberFormat, useIntlLocale } from "./format";
 
 const GAPS = [15, 30, 60, 120];
@@ -56,6 +63,7 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
   const [error, setError] = useState<string | null>(null);
   const [all, setAll] = useState(false);
   const key = JSON.stringify(filter);
+  const reviewFilter = useMemo(() => sessionFilterOf(filter), [filter]);
 
   useEffect(() => {
     let live = true;
@@ -146,6 +154,7 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
               <th scope="col" className="num">{en.tables}</th>
               <th scope="col" className="num">{t.common.result}</th>
               <th scope="col" className="num">{t.common.bb100}</th>
+              <th scope="col">{en.reviewHead}</th>
             </tr>
           </thead>
           <tbody>
@@ -169,6 +178,19 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
                   </td>
                   <td className={`num ${session.hands < 100 ? "is-thin" : ""}`}>
                     {bb100 === null ? "—" : bb.format(bb100)}
+                  </td>
+                  <td>
+                    <Link
+                      className="btn btn--sm btn--ghost"
+                      href={paths.analysisSession(
+                        sessionQueryString({ at: session.startedAt, gapMinutes: gap, filter: reviewFilter }),
+                      )}
+                      aria-label={en.reviewLabel(
+                        `${day.format(new Date(session.startedAt))} ${time.format(new Date(session.startedAt))}`,
+                      )}
+                    >
+                      {en.review}
+                    </Link>
                   </td>
                 </tr>
               );

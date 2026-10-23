@@ -222,6 +222,10 @@ export const statsEn = {
       minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`,
     showLatest: "Show the latest only",
     showAll: (sessions: number) => `Show all ${num(sessions)} sessions`,
+    /** R5.1: a session opens in its review. */
+    review: "Review",
+    reviewHead: "Review",
+    reviewLabel: (when: string) => `Review the session of ${when}: its worst decisions, deviations and biggest pots`,
   },
 
   opponents: {

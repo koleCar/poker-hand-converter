@@ -46,6 +46,12 @@ export const paths = {
   analysisReports: (query?: string) => (query ? `/analysis/reports?${query}` : "/analysis/reports"),
   /** Leaks (phase A6): EV lost by spot, ranked. Private; `query` is its filters, sort and open leak. */
   analysisLeaks: (query?: string) => (query ? `/analysis/leaks?${query}` : "/analysis/leaks"),
+  /**
+   * Session review (R5.1): one session's hands worth a look. Private; `query`
+   * is the session (`at`), the break that ends one and the Statistics
+   * filter's groups (`components/analysis/session/sessionQuery.ts`).
+   */
+  analysisSession: (query?: string) => (query ? `/analysis/session?${query}` : "/analysis/session"),
   /** Progress (phase A6): score and EV lost over time. Private; `query` is its filters and view. */
   analysisProgress: (query?: string) => (query ? `/analysis/progress?${query}` : "/analysis/progress"),
   /**

@@ -3785,6 +3785,15 @@ export type Database = {
         Args: { p_filters?: Json; p_limit?: number; p_offset?: number }
         Returns: Json
       }
+      session_review: {
+        Args: {
+          p_at?: string
+          p_filter?: Json
+          p_gap_minutes?: number
+          p_limit?: number
+        }
+        Returns: Json
+      }
       set_analysis_share: {
         Args: { p_id: string; p_shared: boolean; p_surface: string }
         Returns: Json

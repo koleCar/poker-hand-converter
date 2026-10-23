@@ -45,6 +45,7 @@ export const learnEn = {
   nav: {
     label: "Analysis sections",
     overview: "Your analysis",
+    session: "Session review",
     train: "Train",
     plan: "Plan",
     leaks: "Leaks",

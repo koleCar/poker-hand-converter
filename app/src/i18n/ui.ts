@@ -1,6 +1,8 @@
 import type { UiStrings } from "@rail/ui/i18n";
 import { replayerEn } from "@rail/ui/strings/replayer.en";
 import { replayerHr } from "@rail/ui/strings/replayer.hr";
+import { reviewUiEn } from "@rail/ui/strings/review.en";
+import { reviewUiHr } from "@rail/ui/strings/review.hr";
 import { statsUiEn } from "@rail/ui/strings/stats.en";
 import { statsUiHr } from "@rail/ui/strings/stats.hr";
 
@@ -19,7 +21,13 @@ type StatsUi = typeof statsUiEn | typeof statsUiHr;
  * graph's "not enough hands" (the web's says "keep uploading") come from this
  * app's dictionaries. Built once per language; `I18nProvider` mounts them.
  */
-function uiStrings(locale: Locale, dict: Dict, replayer: UiStrings["replayer"], stats: StatsUi): UiStrings {
+function uiStrings(
+  locale: Locale,
+  dict: Dict,
+  replayer: UiStrings["replayer"],
+  stats: StatsUi,
+  review: UiStrings["review"],
+): UiStrings {
   return {
     intlLocale: INTL_LOCALE[locale],
     closeNamed: dict.ui.closeNamed,
@@ -36,10 +44,12 @@ function uiStrings(locale: Locale, dict: Dict, replayer: UiStrings["replayer"], 
     hands: dict.hands,
     reports: dict.reports,
     players: dict.players,
+    // The session review (R5.1) is web-only until the analysis comes to the app (R5.4).
+    review,
   };
 }
 
 export const UI_STRINGS: Record<Locale, UiStrings> = {
-  en: uiStrings("en", en, replayerEn, statsUiEn),
-  hr: uiStrings("hr", hr, replayerHr, statsUiHr),
+  en: uiStrings("en", en, replayerEn, statsUiEn, reviewUiEn),
+  hr: uiStrings("hr", hr, replayerHr, statsUiHr, reviewUiHr),
 };

@@ -560,6 +560,14 @@ A top-level tab next to Stats, and the home of everything below.
   not a new top-level tab: five tabs already scroll sideways at 375px (A1).
   The course built on it is the top-level Learn tab (`/learn`,
   `docs/LEARN-PLAN.md`), which links back here.
+- **Session review.** `/analysis/session` (`docs/RAIL-PLAN.md` R5.1, not an
+  `analysis/N` phase: it reads the stored grades and changes none): after a
+  session, its worst graded decisions (Inaccurate or worse), its preflop
+  decisions graded against the charts at Inaccurate or worse - "off your
+  charts", which R5.3's own charts will feed instead through the screen's
+  `DeviationSource` - and its biggest pots, each hand once, opening at the
+  decision in `/analysis/h/<id>`. Hands the analysis has not seen at the
+  current version are counted, not guessed at.
 - **Plan.** The week's study plan under `/analysis/plan` (A8b): the three
   costliest leaks the sample can vouch for, each with concepts to read, a
   trainer session set to the spot, its due drills and hands to review, a

@@ -1,9 +1,9 @@
 // The phone check of R4.5 (docs/RAIL-PLAN.md R4.5b, R4.5d): the web's Hands,
 // Reports (`/stats`, the opponents panel in it), Players (`/players`, R4.5c),
-// a shared hand and its embed, and the replayer, at 375 x 812 as a touch
-// phone (coarse pointer), in English and Croatian, against a running web - a
-// local `next start` over a local Supabase stack with a signed-in test
-// account:
+// the session review (`/analysis/session`, R5.1), a shared hand and its
+// embed, and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
+// English and Croatian, against a running web - a local `next start` over a
+// local Supabase stack with a signed-in test account:
 //
 //   RAIL_CHECK_EMAIL=... RAIL_CHECK_PASSWORD=... RAIL_CHECK_SHARE=<slug> \
 //   node responsive.mjs http://localhost:3145
@@ -42,9 +42,12 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname)) {
  *   under the grid, which is the touch path;
  * - a checkbox or radio inside a label: the label is the target (checked
  *   for 44 px separately when it is a toggle row);
- * - a link inside running text.
+ * - a link inside running text;
+ * - the replayer's rail pips (`.rp__mark`, 14 px on the scrub bar of a hand's
+ *   analysis): every pip is also a decision chip in the Analysis sheet beside
+ *   it, which is the touch path (R5.1 opens hands there).
  */
-const EXCEPTIONS = ["[role=gridcell]", ".stats-matrix__cell", "label input", "p a", "li a", "small a"];
+const EXCEPTIONS = ["[role=gridcell]", ".stats-matrix__cell", "label input", "p a", "li a", "small a", ".rp__mark"];
 
 async function audit(page) {
   return page.evaluate((exceptions) => {
@@ -192,6 +195,24 @@ for (const locale of ["en", "hr"]) {
   for (let i = 0; i < (await profileTabs.count()); i++) {
     await profileTabs.nth(i).click();
     await report(`/players, profile "${(await profileTabs.nth(i).innerText()).trim()}"`);
+  }
+
+  // The session review (R5.1): the latest finished session, the one before
+  // it, and a hand opened from a list (its analysis, at the decision).
+  await page.goto(`${BASE}/analysis/session`);
+  await page.locator("main section[aria-label], main .stats-empty").first().waitFor({ timeout: 60000 });
+  await report("/analysis/session");
+  const previous = page.getByRole("button", { name: locale === "en" ? /Previous session/ : /Prethodna sesija/ });
+  if ((await previous.count()) > 0 && (await previous.isEnabled())) {
+    await previous.click();
+    await page.waitForFunction(() => !document.querySelector("main [aria-busy=true]"), null, { timeout: 60000 });
+    await report("/analysis/session, the session before");
+  }
+  const listed = page.locator("main ol a[href^='/analysis/h/']");
+  if ((await listed.count()) > 0) {
+    await listed.first().click();
+    await page.locator(".rp").first().waitFor({ timeout: 60000 });
+    await report("/analysis/h/<id> from the session review");
   }
 
   if (SHARE) {

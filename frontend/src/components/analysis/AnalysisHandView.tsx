@@ -31,6 +31,7 @@ import { AnalysisShareToggle } from "./AnalysisShareToggle";
 import styles from "./analysis.module.css";
 import { ANALYSIS_SHEET_ICON as SHEET_ICON, gradeMarks } from "./SharedAnalysis";
 import { listQuery, parseListState } from "./listState";
+import { cameFromSession, parseSessionQuery, sessionQueryString } from "./session/sessionQuery";
 
 type Loaded =
   | { status: "loading" }
@@ -40,7 +41,7 @@ type Loaded =
 
 interface AnalysisHandViewProps {
   handId: string;
-  /** The page's `searchParams`: the list the reader came from, and `?t=`. */
+  /** The page's `searchParams`: the list (or the session review, `from=session`) the reader came from, and `?t=`. */
   query: Record<string, string | string[] | undefined>;
 }
 
@@ -49,7 +50,10 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   const auth = useAuth();
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
   const [sheetOpen, setSheetOpen] = useState(true);
-  const back = paths.analysis(listQuery(parseListState(query)));
+  const fromSession = cameFromSession(query);
+  const back = fromSession
+    ? paths.analysisSession(sessionQueryString(parseSessionQuery(query)))
+    : paths.analysis(listQuery(parseListState(query)));
   const linkedPosition = useMemo<ReplayPosition | null>(() => {
     const raw = query.t;
     return decodePosition(Array.isArray(raw) ? raw[0] : raw);
@@ -95,7 +99,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
 
   const backLink = (
     <Link href={back} className={`btn btn--ghost btn--sm ${styles.back}`}>
-      ← {t.hand.back}
+      ← {fromSession ? t.hand.backToSession : t.hand.back}
     </Link>
   );
 

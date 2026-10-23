@@ -773,6 +773,23 @@ hands (74 305 opponents) the list answers in 0.26-0.29 s and the rooms in
 0.05 s; a profile reads the opponent's rows: 0.09 s for one with 20 368,
 1.3 s for the copied set's biggest (267 464 rows; 4 s cold).
 
+**Session review** (`20270721090000`, RAIL-PLAN R5.1).
+`session_review(filter, at, gap, limit)` - invoker, `search_path = ''`,
+planned per call, anon refused - answers one session of the caller's:
+`report_sessions`' rule (the hero's hands under the shared filter in time
+order, a break longer than `gap` minutes starts the next), found by walking
+`hero_report_rows_time_idx` outwards from `at` (the latest session that has
+ended when `at` is null; a later one is returned as `ongoing`) in chunks of
+500, so it reads the session's hands and its two neighbours. It returns the
+summary (`report_sessions`' result, the all-in EV adjustment of
+`report_open`, money for one currency of cash only), the analysis counts at
+the `analysisVersion` the filter names, and three lists of at most `limit`
+(50): per hand its worst graded `decision_analysis` row of Inaccurate or
+worse; per hand its preflop `source = 'chart'` row of Inaccurate or worse;
+the biggest `hands.total_pot / big_blind`; with the listed hands described.
+Every other read is by key (`hands`, `hand_stats_ev`, `hand_analysis`,
+`decision_analysis`). At 1M hands: 2-19 ms warm.
+
 ### Tests
 
 `supabase/tests/database/stats_ev.test.sql`: the catch-up predicate, the
@@ -823,6 +840,14 @@ one bound, every group and option, the money refusals, the EV sum),
 `report_situations` = `stats_breakdown`, `report_sessions` = `stats_sessions`,
 and `stats_opponents`, `stats_coverage` (one version and two) and
 `stats_ev_missing` = their previous bodies. RLS, grants, anon.
+
+`supabase/tests/database/session_review.test.sql` (47): which session (the
+latest that has ended, an ongoing one named, an instant inside, before every
+hand, bomb pots, other gaps, a break of exactly the gap), every session equal
+to `report_sessions`' bounds, hands, tables and result under four settings,
+a 1 200-hand session walked across chunks, the summary's money and EV rules,
+the three lists' order, cap and contents, the analysis counts, another and a
+malformed analysis version, another account, anon.
 
 ## Hand analysis: `hand_analysis`, `decision_analysis`
 
