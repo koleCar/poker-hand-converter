@@ -16,7 +16,7 @@
 //! and preferred seat: 13; the observed part of the opponents' rollups, for
 //! rooms that allow statistics from the user's own hands only: 14; the HUD
 //! editor's designs and assignments, and sync marks on every HUD table:
-//! 15). A
+//! 15; the hand analysis and the user's own preflop charts: 16). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
 //! sums the seat rows' blobs), in the same transaction.
 
@@ -92,6 +92,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0015_hud_designs.sql",
         sql: include_str!("../migrations/0015_hud_designs.sql"),
+    },
+    Migration {
+        name: "0016_analysis.sql",
+        sql: include_str!("../migrations/0016_analysis.sql"),
     },
 ];
 

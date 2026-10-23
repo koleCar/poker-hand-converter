@@ -868,6 +868,118 @@ export interface CustomDraft {
   predicate: string | null;
 }
 
+/** `analysis::GateDto` (R5.4): whether the analysis may run now, and why not. */
+export interface AnalysisGate {
+  run: boolean;
+  reason: "paused" | "tables" | "backfill" | "statistics" | "store" | null;
+  paused: boolean;
+}
+
+/** `analysis::PendingDto`: a hand for the analysis runner. */
+export interface PendingHandDto {
+  handKey: string;
+  /** '' for a hand without a date. */
+  playedAt: string;
+  /** The PHF as JSON text. */
+  phf: string;
+}
+
+/** `analysis::CountsDto`: how far the analysis is at a version. */
+export interface AnalysisCounts {
+  hands: number;
+  current: number;
+  stale: number;
+  missing: number;
+  offline: number;
+  notAnalysable: number;
+}
+
+/** `analysis::VillainRowDto`: an opponent's counters (the web's `villain_counters`). */
+export interface VillainRowDto {
+  site: string;
+  player: string;
+  hands: number;
+  vpipOpp: number;
+  vpip: number;
+  pfr: number;
+}
+
+/** A chart set as the store keeps it (`analysis::ChartSetDto`, the web's row). */
+export interface StoredChartSetDto {
+  id: string | null;
+  name: string;
+  game_format: "cash" | "tournament";
+  table_size: number;
+  stack_min_bb: number;
+  stack_max_bb: number;
+  format_version: number;
+  nodes: Record<string, { raise?: string; call?: string; allin?: string; raiseBb?: number }>;
+  updated_at: string | null;
+}
+
+/** `analysis::ChartSummaryDto`. */
+export interface ChartSetSummaryDto {
+  id: string;
+  name: string;
+  gameFormat: "cash" | "tournament";
+  tableSize: number;
+  stackMinBb: number;
+  stackMaxBb: number;
+  nodes: number;
+  /** ms since the epoch. */
+  updatedAt: number;
+}
+
+/** `review::PreflopDto`: a session's preflop decision on the shipped tree (R5.4). */
+export interface SessionPreflopDto {
+  handId: string;
+  ord: number;
+  actionIndex: number;
+  playedAt: string;
+  key: string;
+  cls: number;
+  action: "fold" | "check" | "call" | "raise" | "allin";
+  scenario: string;
+  position: string | null;
+  gameFormat: string;
+  tableSize: number;
+  depthBandBb: number | null;
+  evLossBb: number | null;
+}
+
+/** `review::CompareDto`. */
+export interface CompareDto {
+  period: string;
+  gameFormat: string;
+  tableSize: number;
+  stackMinBb: number;
+  stackMaxBb: number;
+}
+
+/** `review::CellDto`. */
+export interface CompareCellDto {
+  key: string;
+  cls: number;
+  action: "fold" | "check" | "call" | "raise" | "allin";
+  decisions: number;
+  evLossBb: number;
+}
+
+/** `review::ExampleDto`. */
+export interface ChartExampleDto {
+  handId: string;
+  actionIndex: number;
+  playedAt: string;
+  heroCards: string[];
+  site: string;
+  currency: string;
+  currencySymbol: string;
+  minorUnits: number;
+  smallBlind: number;
+  bigBlind: number;
+  evLossBb: number | null;
+}
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -1007,6 +1119,45 @@ export const ipc = {
   /** R3.6's: the user's client rotates the table (`null`: as `sites.json` says). */
   hudSetPreferredSeat: (site: string, preferred: boolean | null) =>
     invoke<null>("hud_set_preferred_seat", { site, preferred }),
+  /** The hand analysis (R5.4). The runner asks the gate before every page. */
+  analysisGate: () => invoke<AnalysisGate>("analysis_gate"),
+  analysisSetPaused: (paused: boolean) => invoke<boolean>("analysis_set_paused", { paused }),
+  analysisPending: (version: string, after: { playedAt: string; handKey: string } | null, limit: number) =>
+    invoke<PendingHandDto[]>("analysis_pending", { version, after, limit }),
+  analysisOffline: (version: string, limit: number) => invoke<PendingHandDto[]>("analysis_offline", { version, limit }),
+  /** Rows in `rail_store::HandAnalysisIn`'s shape (`analysis/rows.ts`). */
+  analysisSave: (rows: unknown[]) => invoke<{ saved: number; missing: number }>("analysis_save", { rows }),
+  analysisCounts: (version: string) => invoke<AnalysisCounts>("analysis_counts", { version }),
+  /** A hand's stored analysis in the web's `analysis_hand` shape; `null` when none. */
+  handAnalysis: (handKey: string) => invoke<Record<string, unknown> | null>("hand_analysis", { handKey }),
+  analysisVillains: (players: { site: string; player: string }[], minHands: number) =>
+    invoke<VillainRowDto[]>("analysis_villains", { players, minHands }),
+  analysisClear: () => invoke<number>("analysis_clear"),
+  /** One flop library file's bytes; rejects with `absent`, `transient:<status>` or `offline`. */
+  flopLibraryFile: (path: string) => invoke<ArrayBuffer>("flop_library_file", { path }),
+  flopLibraryReachable: () => invoke<boolean>("flop_library_reachable"),
+  flopLibraryUsage: () => invoke<{ bytes: number; files: number }>("flop_library_usage"),
+  /** The user's own preflop charts (R5.3), kept in the store only. */
+  chartSetsList: () => invoke<ChartSetSummaryDto[]>("chart_sets_list"),
+  chartSetLoad: (id: string) => invoke<StoredChartSetDto | null>("chart_set_load", { id }),
+  chartSetSave: (set: StoredChartSetDto) => invoke<{ id: string; updatedAt: string }>("chart_set_save", { set }),
+  chartSetDelete: (id: string) => invoke<boolean>("chart_set_delete", { id }),
+  /** (R5.4) The session review over the store: `SessionReview`'s shape, each hand with its `smallBlind`. */
+  sessionReview: (version: string, at: string | null, gapMinutes: number, limit: number) =>
+    invoke<Record<string, unknown>>("session_review", { version, at, gapMinutes, limit }),
+  reviewSessions: (gapMinutes: number, since: string | null, limit: number) =>
+    invoke<{ startedAt: string; endedAt: string; hands: number; tables: number; netBbMilli: number | null }[]>(
+      "review_sessions",
+      { gapMinutes, since, limit },
+    ),
+  sessionPreflop: (version: string, startedAt: string, endedAt: string) =>
+    invoke<SessionPreflopDto[]>("session_preflop", { version, startedAt, endedAt }),
+  reviewHands: (version: string, keys: string[]) => invoke<Record<string, Record<string, unknown>>>("review_hands", { version, keys }),
+  /** (R5.4) The own charts against the hands played. */
+  chartPlayed: (version: string, query: CompareDto) =>
+    invoke<{ from: string | null; to: string | null; cells: CompareCellDto[] }>("chart_played", { version, query }),
+  chartExamples: (version: string, query: CompareDto, key: string, cls: number, action: string, limit: number) =>
+    invoke<ChartExampleDto[]>("chart_examples", { version, query, key, cls, action, limit }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

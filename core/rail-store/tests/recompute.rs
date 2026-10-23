@@ -193,6 +193,14 @@ const NOT_DERIVED: &[&str] = &[
     // R3.9: the user's HUD designs and where each is used.
     "hud_layouts",
     "hud_layout_assignments",
+    // R5.4: the hand analysis (derived from hands by the analysis library,
+    // versioned by its own `ANALYSIS_VERSION`, never by a statistics
+    // definition) and the user's own preflop charts.
+    "hand_analysis",
+    "decision_analysis",
+    "chart_sets",
+    "analysis_leak_rows",
+    "chart_decisions",
 ];
 
 #[test]

@@ -54,6 +54,8 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 14 | `0014_observed_rollups.sql` | (R3.7) `player_rollups_observed` (the part of `player_rollups` from hands without a hero seat), its twin `recompute_player_rollups_observed`, `custom_player_rollups_observed`; **filled in the migration's transaction** from the stored seat rows (`stats::fill_observed`: SQL cannot read the counter blob; at most a scan of `hand_stats` and the seat rows of the hands without a hero), and when there are such hands the user's own statistics are counted again; a rows job an older build left running is begun again (its twins had no observed part) |
 | 15 | `0015_hud_designs.sql` | (R3.9) `hud_layouts` (the user's HUD designs; a NULL design is a deleted one, kept for sync), `hud_layout_assignments` (which design per room, table size and format); `hud_seat_positions.cleared` (a reset keeps the row as a tombstone) and `dirty` on all four HUD tables (written here since the last sync; rows of an older store start dirty); empty otherwise, nothing to rebuild |
 
+| 16 | `0016_analysis.sql` | (R5.4) `hand_analysis`, `decision_analysis` (the web's analysis rows for the hands here, written by the app's analysis runner; one version per hand), `analysis_leak_rows` and `chart_decisions` (their narrow rows for the top three and the own charts' comparison) and `chart_sets` (the user's own preflop charts, R5.3, local only); empty, nothing to rebuild: the runner analyses every hand in the background |
+
 No migration is reserved for a later step today; each lands as the next
 free number.
 
@@ -1006,3 +1008,102 @@ Primary key (`site`, `size`, `format`); `STRICT, WITHOUT ROWID`.
 The worker (`rail_sync::worker`, R1.9's) sends the dirty rows every pass and
 takes the account's rows with each pull (Supabase `hud_layouts`,
 `docs/DATABASE.md`).
+
+## The hand analysis (version 16, R5.4)
+
+The web's analysis (`frontend/src/lib/analysis`, `docs/ANALYSIS-PLAN.md`)
+runs in the app's window, in a worker, over the hands here; this crate
+stores its rows and hands out the hands (`rail_store::analysis`). It grades
+nothing. The two tables are the web's `hand_analysis` and
+`decision_analysis` (`supabase/migrations/20261228090000_analysis.sql`)
+keyed by `hand_key`, with **one version per hand**: a row is replaced when
+its hand is analysed again (a version bump re-analyses every hand, newest
+first), so there is no prune. JSON columns hold what the web keeps as
+`jsonb`; numbers are written as the web's `numeric(p, s)` columns round
+them (`app/src/analysis/rows.ts`), so a row reads back as the web's.
+
+### `hand_analysis`
+
+| Column | Type | |
+| --- | --- | --- |
+| `hand_key` | TEXT → `hands` | PK; cascades with the hand |
+| `analysis_version` | TEXT | `analysis/N` |
+| `status`, `reason` | TEXT | `full` / `partial` / `not-analysed`, and why not |
+| `hero_seat` | INTEGER NULL | |
+| `grade`, `grade_rank` | TEXT NULL, INTEGER | the hand's grade; perfect 1 ... blunder 5, 0 none (`analysis_grade_rank`) |
+| `score`, `ev_loss_bb`, `ev_loss_pot` | REAL NULL | as the web's numeric(6,2), (12,3), (10,4) |
+| `decisions`, `analysed`, `graded`, `flag_count`, `worst_flag` | INTEGER / TEXT | computed here from the decisions on write, as `save_hand_analysis` computes them |
+| `approximations` | TEXT | JSON array |
+| `pot_type` | TEXT | |
+| `flop_library` | INTEGER | 1: analysed with the flop library at hand; 0: without it (offline) - graded as the web grades a hand whose chunks cannot be fetched, analysed again once the library answers if it has a flop decision |
+| `analysed_at` | INTEGER | ms |
+
+Index `hand_analysis_version_idx` (`analysis_version`, `flop_library`).
+
+### `decision_analysis`
+
+The web's columns (`ord`, `action_index`, `street`, `action`, `status`,
+`reason`, `node`, `scenario`, `source`, `grade`, `score`, `ev_loss_bb`,
+`ev_loss_pot`, `freq_diff`, `options` JSON, `chosen`, `flags` JSON,
+`worst_flag` (computed), `approximations` JSON, `facing_bet`, `pot_bb`,
+`pot_odds`, `mdf`, `facts` JSON), plus `grade_rank` and `best` (the
+reference's best action, `analysis_best_action`, `''` without options). PK
+(`hand_key`, `ord`), `WITHOUT ROWID`; cascades with its hand's row.
+
+### `analysis_leak_rows`, `chart_decisions`
+
+The narrow rows the web keeps by triggers on `decision_analysis` for its
+top three (R5.2, `analysis_leak_rows`) and the own charts' comparison (R5.3b,
+`preflop_decision_rows`), written here in the same transaction as the
+decisions, so the screens' sums read a narrow table instead of every
+decision's facts (measured at a million hands: the comparison over the wide
+table took 7-31 s).
+
+- `analysis_leak_rows`: one per graded decision - `analysis_version`, the
+  hand's `played_at` (`''` without one), `game_format` (`hands`), the
+  hero's seat (`hero_position`, sent by the runner as the web's
+  `hands.hero_position`), `pot_type`, `spot_key`
+  (`analysis_leak_spot_key`: `street|scenario|line|seat|taken|best`),
+  `chart_set` (`analysis_leak_chart_set`, `''` off the charts), `grade`,
+  `score`, `ev_loss_bb`, `ev_loss_pot` (0 when none), `action_index`.
+  Index (`analysis_version`, `played_at`).
+- `chart_decisions`: one per preflop decision graded on the shipped tree,
+  as `preflop_decision_fields` files it - `chart_key` (the situation, `''`
+  when the vocabulary does not name the line), `table_size` (2 / 6 / 9, the
+  shipped set's), `hand_class` (0-168), `action` (`fold` ... `allin`: an
+  all-in raise `allin`, a bet `raise`), `depth_band` (effective stack in 10
+  bb steps, -1 unknown) - with `analysis_version`, `played_at`,
+  `game_format`, `scenario`, `position` (the decision's seat as the leak key
+  files it), `ev_loss_bb`, `action_index`. Index (`analysis_version`,
+  `played_at`).
+
+Both `WITHOUT ROWID`, PK (`hand_key`, `ord`), cascading with the hand's
+analysis row; the keys are computed by the runner (`app/src/analysis/
+rows.ts`, held to the web's SQL by `tests/test/appAnalysisRows.test.ts`).
+
+
+### `chart_sets`
+
+The user's own preflop charts (R5.3): the web's `preflop_chart_sets` row
+(`id`, `name`, `game_format`, `table_size` 2 / 6 / 9, `stack_min_bb`,
+`stack_max_bb`, `format_version`, `nodes` - JSON, each situation's actions
+as base64 of 169 bytes -, `created_at`, `updated_at`). Local only (Q4: sync
+carries hands and statistics). The editor validates a set before it saves;
+the store holds 50 sets, 300 situations and 400 KiB of nodes a set.
+
+### Reading and writing them (`rail_store::analysis`)
+
+| Call | What |
+| --- | --- |
+| `Reader::analysis_pending(version, after, limit)` | hands without a row at `version` (none, or an older one), newest first, `limit` at most 200, with their PHF: `hand_list`'s order walked backwards from the cursor (a key range of its primary key; `hands` is looked up by key for the hands taken), then - only when `hand_list` has fewer rows than `hands`, i.e. while a statistics rebuild fills it - the hands without statistics by key (their `played_at` is `rest`) |
+| `Reader::analysis_offline(version, limit)` | hands analysed at `version` without the flop library that have a flop decision |
+| `Reader::analysis_counts(version)` | hands, at the version, of another version, offline, not analysable |
+| `Reader::hand_analysis(hand_key)` | one hand's row and decisions in the web's `analysis_hand` shape (camelCase), with `flopLibrary` and `analysedAt` |
+| `Reader::villain_counters(players, format, min)` | the web's `villain_counters` over this store: each named opponent's own seat rows (`player_hands`: rooms with real names, never the hero's rows), bomb pots out, in games of `format`, summed (hands, VPIP opportunities, VPIP, PFR) when at least `min` hands; 500 players a call |
+| `WriterHandle::save_analysis(rows, now)` | at most 200 rows; each replaces its hand's row and decisions; a hand gone meanwhile is skipped; a malformed row refuses the call |
+| `WriterHandle::clear_analysis()` | every row (all analysed again) |
+| `Reader::chart_sets()`, `chart_set(id)`, `WriterHandle::save_chart_set(row, now)`, `delete_chart_set(id)` | the chart sets |
+| `Reader::session_review(query)` (`rail_store::review`) | one session (the web's `session_review`: the hero's hands in `hand_list`'s order, bomb pots out, a break longer than the gap starting the next; found by walking outwards from one instant in chunks of 500; the latest **ended** one without an instant, the ongoing one named): summary, coverage at the version, the worst decisions, the shipped charts' deviations, the biggest pots, each ranked and capped, and the rows of the hands they name, as `packages/ui/review`'s `SessionReview` |
+| `Reader::review_sessions(gap, since, limit)` | the picker's sessions, newest first |
+| `Reader::session_preflop(version, start, end)`, `review_hands(keys, version)` | a session's `chart_decisions`, and the review's rows of given hands (the own charts' deviation source) |
+| `Reader::chart_played(query)`, `chart_examples(query, key, class, action, limit)` | the own charts' comparison over `chart_decisions` (`preflop_chart_played` / `_examples`' rules: a period counted back from the last decision; the chart's format, table and stack range) |

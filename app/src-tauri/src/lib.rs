@@ -52,7 +52,12 @@
 //!   statistics pass and sync slow down;
 //! - the HUD popup ([`popup`], R3.8): a click on a panel opens a small
 //!   window of the app's beside it, which never takes the keyboard from the
-//!   table when it opens.
+//!   table when it opens;
+//! - the hand analysis ([`analysis`], R5.4): the web's analysis library
+//!   runs in the window's worker over the store's hands, offline and with
+//!   no account; this side hands out hands, stores the rows, answers the
+//!   gate (never while a table is open, A10) and keeps the flop library's
+//!   files on disk.
 
 use std::sync::Mutex;
 
@@ -61,6 +66,7 @@ use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 
 pub mod account;
+pub mod analysis;
 pub mod commands;
 pub mod custom_stats;
 #[cfg(debug_assertions)]
@@ -75,6 +81,7 @@ pub mod policy;
 pub mod popup;
 pub mod quarantine;
 pub mod reports;
+pub mod review;
 pub mod settings;
 pub mod stats;
 pub mod strings;
@@ -192,6 +199,13 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
         stats.clone(),
         hud.feed(),
     );
+    // (R5.4) The analysis: the user's pause and the flop library's files,
+    // kept beside the store.
+    app.manage(analysis::AnalysisState::new(
+        &store,
+        app.path().app_local_data_dir()?.join("flop-library"),
+        &account::supabase_url(),
+    ));
     app.manage(hud);
     app.manage(stats);
     app.manage(store);
@@ -341,6 +355,28 @@ pub fn run() {
         popup::hud_popup,
         popup::hud_popup_close,
         popup::hud_popup_open_in_app,
+        analysis::analysis_gate,
+        analysis::analysis_set_paused,
+        analysis::analysis_pending,
+        analysis::analysis_offline,
+        analysis::analysis_save,
+        analysis::analysis_counts,
+        analysis::hand_analysis,
+        analysis::analysis_villains,
+        analysis::analysis_clear,
+        analysis::flop_library_file,
+        analysis::flop_library_reachable,
+        analysis::flop_library_usage,
+        analysis::chart_sets_list,
+        analysis::chart_set_load,
+        analysis::chart_set_save,
+        analysis::chart_set_delete,
+        review::session_review,
+        review::review_sessions,
+        review::session_preflop,
+        review::review_hands,
+        review::chart_played,
+        review::chart_examples,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -431,6 +467,28 @@ pub fn run() {
         popup::hud_popup,
         popup::hud_popup_close,
         popup::hud_popup_open_in_app,
+        analysis::analysis_gate,
+        analysis::analysis_set_paused,
+        analysis::analysis_pending,
+        analysis::analysis_offline,
+        analysis::analysis_save,
+        analysis::analysis_counts,
+        analysis::hand_analysis,
+        analysis::analysis_villains,
+        analysis::analysis_clear,
+        analysis::flop_library_file,
+        analysis::flop_library_reachable,
+        analysis::flop_library_usage,
+        analysis::chart_sets_list,
+        analysis::chart_set_load,
+        analysis::chart_set_save,
+        analysis::chart_set_delete,
+        review::session_review,
+        review::review_sessions,
+        review::session_preflop,
+        review::review_hands,
+        review::chart_played,
+        review::chart_examples,
     ]);
 
     let app = builder

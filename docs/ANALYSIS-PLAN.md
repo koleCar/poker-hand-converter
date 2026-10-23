@@ -511,6 +511,37 @@ Templates, not free text, because:
 | Flop strategies | Precomputed library (offline script, `tests/scripts/flop-library`); chunks fetched by the worker per hand (A5b) | Too slow per hand in the browser (§3.2, §10 A5a) |
 | Backfill of a user's whole database | The user's browser (Web Worker), resumable, like the stats rebuild; progress persisted per hand | No host to run; Vercel's function limit is far below a flop solve. A server worker is optional later |
 | Solved-spot cache | Postgres index + Storage blobs | Shared across users, deduped by `SpotKey` |
+| The same backfill in the desktop app (R5.4) | The app's window, one Web Worker, over its local store; offline, no account | The app works without an account (Q3); the library is used in place, so the grades are the web's |
+
+**A second runner: the desktop app** (`docs/RAIL-PLAN.md` R5.4). The app
+analyses the hands of its local store with **this library, in place** - an
+alias of `frontend/src/lib` in the app's build, one door
+(`app/src/analysis/library.ts`) that names what it uses, no copy - so a
+change here is the app's on its next build. What differs is only what the
+web's worker took from Supabase, which the app injects:
+
+- **the hands**: from the store (`rail_store::analysis`), newest first, the
+  PHF trimmed as `hands_needing_analysis_recent` trims it;
+- **the opponents' statistics** (analysis/20): `VillainCounters` over the
+  store's own `villain_counters` (each opponent's seat rows in cash games,
+  bomb pots out, `VILLAIN_MIN_HANDS`);
+- **the flop library**: the same files from the same public bucket, fetched
+  through the app's Rust side and kept on disk (a chunk is downloaded once);
+  **offline**, a hand whose chunk is not on disk is graded without it -
+  exactly as the web grades a hand whose chunk cannot be fetched (the
+  heuristic) - and its row is marked, to be analysed again once the bucket
+  answers. Nothing large is bundled except the preflop chart sets, which
+  the web bundles too (one lazily loaded chunk per set);
+- **the rows**: the writer's shape (`handAnalysisRow`) rounded as the web's
+  `numeric` columns round them, with the leak finder's spot key computed as
+  `analysis_leak_spot_key` computes it, in the store's `hand_analysis` /
+  `decision_analysis`.
+
+It runs in the background at low priority, a page of 20 hands at a time,
+and never while a poker table is open (A10), a backfill runs or the
+statistics pass works. `tests/test/appAnalysisParity.test.ts` holds the two
+runners to the same stored rows over corpus hands. No grade, constant,
+chart or version changed for it.
 
 **Security model unchanged.**
 - Analysis rows are written through SECURITY DEFINER RPCs as the user, as with
@@ -5930,3 +5961,17 @@ Each phase appends what it learned that changed the plan.
       rows alone do not settle.
     - **The half-strength walk** still halves the evidence after
       `BET_EVIDENCE` (`analysis/32`'s open item): the bound inherits it.
+- 2026-10-23 — The desktop app as a second runner (`docs/RAIL-PLAN.md`
+  R5.4, §5 above). The app analyses its local store's hands with this
+  library in place (an alias of `frontend/src/lib`, one door,
+  `app/src/analysis/library.ts`), in a worker of its window, offline and
+  without an account; what the web's worker read from Supabase is injected
+  (the store's hands and opponents' counters, the flop library through the
+  app's disk cache of the same bucket). Offline, a hand whose flop chunk is
+  not on disk grades as the web grades one whose chunk cannot be fetched,
+  and is analysed again once the bucket answers. The parity test
+  (`tests/test/appAnalysisParity.test.ts`: the web's converter, worker
+  steps and `numeric` rounding against the app's Rust core, worker and
+  rows, the flop library from the committed pilot) finds the two identical.
+  Nothing in the library changed; no grade, constant, chart or
+  `ANALYSIS_VERSION`.
