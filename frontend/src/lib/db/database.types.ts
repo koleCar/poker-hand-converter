@@ -1501,6 +1501,7 @@ export type Database = {
           rfi: number
           rfi_opp: number
           river_seen: number
+          sd_net: number
           sd_net_bb_milli: number
           site_id: string
           size: string
@@ -1616,6 +1617,7 @@ export type Database = {
           rfi?: number
           rfi_opp?: number
           river_seen?: number
+          sd_net?: number
           sd_net_bb_milli?: number
           site_id: string
           size: string
@@ -1731,6 +1733,7 @@ export type Database = {
           rfi?: number
           rfi_opp?: number
           river_seen?: number
+          sd_net?: number
           sd_net_bb_milli?: number
           site_id?: string
           size?: string
