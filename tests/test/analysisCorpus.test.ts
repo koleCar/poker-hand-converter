@@ -38,6 +38,7 @@ import {
   turnStudy,
   grade,
   gradeRank,
+  sensitivityGrade,
   worstGrade,
   type HandAnalysis,
 } from "../../frontend/src/lib/analysis/index.js";
@@ -344,7 +345,18 @@ describe("every record satisfies the database's own constraints", () => {
           // analysis/33: every postflop grade takes the big-blind floor, no preflop one.
           bbFloor: decision.street !== "preflop",
         });
-        expect(decision.grade).toBe(again.grade);
+        const sensitivity = decision.facts.river?.sensitivity ?? decision.facts.turn?.sensitivity ?? decision.facts.multiway?.ev?.sensitivity ?? null;
+        if (decision.approximations.includes("range-sensitive")) {
+          // analysis/34: the full narrowing's options, its grade bounded one class past the half-strength one.
+          expect(sensitivity?.full).toBe(again.grade);
+          expect(gradeRank(decision.grade!)).toBeLessThan(gradeRank(again.grade));
+          expect(gradeRank(decision.grade!)).toBe(gradeRank(sensitivity!.grade) + 1);
+          expect(decision.grade).toBe(sensitivityGrade(again.grade, sensitivity!.grade).grade);
+        } else {
+          expect(decision.grade).toBe(again.grade);
+        }
+        // The check runs only on grades of Inaccurate or worse.
+        if (sensitivity) expect(gradeRank(sensitivity.full!)).toBeGreaterThanOrEqual(gradeRank("inaccurate"));
         expect(decision.evLoss).toBeCloseTo(again.evLoss, 2);
         expect(decision.evLossPot).toBeGreaterThanOrEqual(0);
         expect(decision.freqDiff).toBeGreaterThanOrEqual(0);
@@ -361,11 +373,9 @@ describe("every record satisfies the database's own constraints", () => {
             if (decision.action === "fold") expect(decision.flags.map((f) => f.code)).toContain("fold-nuts");
           }
           if (decision.approximations.includes("range-cap")) {
-            expect(decision.grade).toBe("mistake");
+            if (decision.approximations.includes("range-sensitive")) expect(gradeRank(decision.grade!)).toBeLessThan(gradeRank("mistake"));
+            else expect(decision.grade).toBe("mistake");
             expect(ev.capped).toBe("blunder");
-          }
-          if (decision.approximations.includes("range-sensitive")) {
-            expect(gradeRank(ev.sensitivity!.grade) - gradeRank(ev.capped ?? decision.grade!)).toBeGreaterThan(1);
           }
         } else {
           // A river grade names its solve, and always admits to the narrowing.
@@ -383,9 +393,10 @@ describe("every record satisfies the database's own constraints", () => {
             if (decision.action === "fold") expect(decision.flags.map((f) => f.code)).toContain("fold-nuts");
           }
           if (decision.approximations.includes("range-sensitive")) {
-            // The milder of two narrowings, kept only when they were more than a class apart.
+            // analysis/34: the full narrowing's solve is kept, the half-strength grade more than a class milder.
             expect(river.sensitivity).toBeTruthy();
-            expect(gradeRank(river.sensitivity!.grade) - gradeRank(river.capped ?? decision.grade!)).toBeGreaterThan(1);
+            expect(river.sensitivity!.model).not.toBe(river.model);
+            expect(gradeRank(river.sensitivity!.full!) - gradeRank(river.sensitivity!.grade)).toBeGreaterThan(1);
           }
           if (decision.approximations.includes("range-cap")) {
             expect(decision.grade).toBe("mistake");

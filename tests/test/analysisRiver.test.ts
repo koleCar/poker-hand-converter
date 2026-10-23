@@ -649,6 +649,48 @@ describe("river grades with known answers", { timeout: 120_000 }, () => {
     expect(bbFloored({ ...floored, street: "preflop" })).toBeNull();
     expect(bbFloored({ ...mistake, approximations: [...mistake.approximations, "range-cap"] })).toBeNull();
     expect(en.analysis.explain({ ...floored, facts: { ...floored.facts, potBb: 12.5 } }).join(" ")).not.toContain("judged against");
+    // A grade the sensitivity check lowered gets its own sentence, not the floor's.
+    expect(bbFloored({ ...floored, approximations: [...floored.approximations, "range-sensitive"] })).toBeNull();
+  });
+
+  it("says what the sensitivity check read, in both languages (analysis/34)", () => {
+    const analysis = analyse(
+      headsUp({
+        hero: "Btn",
+        cards: "Ac Th",
+        board: ["3d", "Ks", "5d", "9s", "Kd"],
+        flop: ["Bb: checks", "Btn: bets $2", "Bb: calls $2"],
+        turn: ["Bb: checks", "Btn: checks"],
+        river: ["Bb: checks", "Btn: checks"],
+      }),
+    );
+    const check = river(analysis, "check");
+    const base = { ...check, approximations: check.approximations.filter((a) => a !== "range-cap" && a !== "off-tree-size") };
+    // A Blunder on the full narrowing, Good at half strength: shown one class past Good, Inaccurate.
+    const lowered = {
+      ...base,
+      grade: "inaccurate" as const,
+      evLoss: 2,
+      evLossPot: 0.1,
+      approximations: [...base.approximations, "range-sensitive" as const].sort(),
+      facts: {
+        ...base.facts,
+        potBb: 20,
+        river: { ...base.facts.river!, capped: null, sensitivity: { model: "heuristic/2-half", grade: "good" as const, evLoss: 0.1, full: "blunder" as const } },
+      },
+    };
+    expect(en.analysis.explain(lowered).join(" ")).toContain(
+      "With the ranges narrowed at full strength this grades Blunder; at half strength, Good. The grade rests on the narrowing more than on your hand, so it is shown at most one grade harsher than the half-strength one: Inaccurate.",
+    );
+    expect(hr.analysis.explain(lowered).join(" ")).toContain(
+      "S rasponima suženima punom snagom ovo je Gruba greška; upola slabije, Dobro. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana najviše jednu ocjenu strože od one upola slabije: Netočno.",
+    );
+    // A grade stored before analysis/34 keeps the class rule's sentence.
+    const old = { ...lowered, facts: { ...lowered.facts, river: { ...lowered.facts.river, sensitivity: { model: "heuristic/2", grade: "blunder" as const } } } };
+    expect(en.analysis.explain(old).join(" ")).toContain("so the milder one is shown");
+    // Not said when the check did not lower the grade.
+    const kept = { ...lowered, approximations: base.approximations };
+    expect(en.analysis.explain(kept).join(" ")).not.toContain("half strength");
   });
 
   it("caps at Mistake in grade() itself, after the off-tree cap", () => {

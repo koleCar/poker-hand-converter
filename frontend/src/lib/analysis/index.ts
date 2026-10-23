@@ -79,6 +79,7 @@ export {
   type PreflopScenario,
   type RangeShape,
   type RiverFacts,
+  type SensitivityFacts,
   type RiverRole,
   type RiverSkipReason,
   type SpotFacts,
@@ -100,13 +101,17 @@ export {
   PERFECT_EV_LOSS_POT,
   PERFECT_FREQ_BAND,
   SCORE_PER_POT,
+  SENSITIVE_FROM,
+  SENSITIVE_MAX_CLASSES,
   grade,
   gradeRank,
   meanScore,
+  sensitivityGrade,
   worstGrade,
   worstSeverity,
   type GradeInput,
   type GradeResult,
+  type SensitivityResult,
 } from "./grading";
 
 export { heroSpots, type Spot } from "./walk";

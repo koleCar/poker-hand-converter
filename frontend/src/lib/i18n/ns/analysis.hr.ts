@@ -1,6 +1,6 @@
 import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT } from "../../analysis/grading";
 import { bbFloored, betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
-import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
+import type { DecisionAnalysis, Flag, OptionAnalysis, SensitivityFacts, SpotFacts } from "../../analysis/types";
 import { plural } from "../plural";
 import type { Dict } from "../types";
 import { reportsHr } from "./analysisReports.hr";
@@ -165,6 +165,17 @@ const gradeWords = {
   mistake: "Greška",
   blunder: "Gruba greška",
 } as Record<string, string>;
+
+/**
+ * Rečenica provjere osjetljivosti (§3.5). Od `analysis/34` činjenice nose
+ * punu ocjenu, a prikazanu ograničava ocjena upola slabijeg sužavanja;
+ * ocjena spremljena prije toga dobiva `old`, rečenicu starog pravila.
+ */
+function sensitivitySentence(sensitivity: SensitivityFacts, shown: string | null, narrowed: string, old: string): string {
+  const { full, grade: half } = sensitivity;
+  if (full === undefined) return old;
+  return `${narrowed} punom snagom ovo je ${gradeWords[full] ?? full}; upola slabije, ${gradeWords[half] ?? half}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana najviše jednu ocjenu strože od one upola slabije: ${gradeWords[shown ?? ""] ?? shown}.`;
+}
 
 /** "raise na 2,5 bb", "bet 3,1 bb (33 %)", "call", "all-in". */
 function optionLabel(option: OptionAnalysis): string {
@@ -331,7 +342,12 @@ function approxSentences(decision: DecisionAnalysis): string[] {
   }
   if (decision.approximations.includes("range-sensitive") && ev.sensitivity) {
     out.push(
-      `S rasponima suženima punom snagom ovo je ${gradeWords[ev.sensitivity.grade] ?? ev.sensitivity.grade}; upola slabije, ${gradeWords[decision.grade] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+      sensitivitySentence(
+        ev.sensitivity,
+        decision.grade,
+        "S rasponima suženima",
+        `S rasponima suženima punom snagom ovo je ${gradeWords[ev.sensitivity.grade] ?? ev.sensitivity.grade}; upola slabije, ${gradeWords[decision.grade] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+      ),
     );
   }
   return out;
@@ -438,7 +454,12 @@ function turnSentences(decision: DecisionAnalysis): string[] {
   }
   if (decision.approximations.includes("range-sensitive") && turn.sensitivity) {
     out.push(
-      `Sa sužavanjem na flopu punom snagom solver ovo ocjenjuje kao ${gradeWords[turn.sensitivity.grade] ?? turn.sensitivity.grade}; upola slabije, kao ${gradeWords[decision.grade ?? ""] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+      sensitivitySentence(
+        turn.sensitivity,
+        decision.grade,
+        "Sa sužavanjem na flopu",
+        `Sa sužavanjem na flopu punom snagom solver ovo ocjenjuje kao ${gradeWords[turn.sensitivity.grade] ?? turn.sensitivity.grade}; upola slabije, kao ${gradeWords[decision.grade ?? ""] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+      ),
     );
   }
   out.push(
@@ -503,7 +524,12 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   }
   if (decision.approximations.includes("range-sensitive") && river.sensitivity) {
     out.push(
-      `S rasponima suženima punom snagom solver ovo ocjenjuje kao ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; upola slabije, kao ${gradeWords[decision.grade ?? ""] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+      sensitivitySentence(
+        river.sensitivity,
+        decision.grade,
+        "S rasponima suženima",
+        `S rasponima suženima punom snagom solver ovo ocjenjuje kao ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; upola slabije, kao ${gradeWords[decision.grade ?? ""] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+      ),
     );
   }
   const narrowed =
@@ -857,7 +883,7 @@ export const analysisHr: Dict["analysis"] = {
     "size-translated": "Veličine betova pročitane kao najbliže solverove veličine",
     "solver-unconverged": "Rješavanje je stalo iznad cilja (0,5 % pota na riveru, 1 % na turnu) od ravnoteže",
     "range-cap": "Solverova ocjena ograničena na Grešku: heuristički suženi rasponi ne mogu nositi Grubu grešku",
-    "range-sensitive": "Solverova ocjena ovisi o tome koliko se rasponi sužavaju: prikazana je blaža od dvije",
+    "range-sensitive": "Solverova ocjena ovisi o tome koliko se rasponi sužavaju: prikazana je najviše jednu ocjenu strože nego upola slabije",
     "limp-tremble": "Limpani pot: chartovi tu sami gotovo ne limpaju, pa pretpostavljaju da limper može imati bilo koju ruku",
     "rare-line-depth":
       "Linija je na ovoj dubini stacka prerijetka da bi bila u chartovima, pa je očitana na najbližoj dubini koja je ima; ocjena nije gora od Netočno",
