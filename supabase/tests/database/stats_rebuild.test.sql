@@ -112,14 +112,16 @@ select pg_temp.act_as('00000000-0000-0000-0000-0000000006a1');
 
 -- The reports run as the caller. Every one of their helpers must be callable
 -- by `authenticated`, or the screen fails for everyone but a superuser.
-select lives_ok($$ select public.stats_summary('{"statsVersion":"stats/9001"}') $$,
-  'stats_summary runs as a signed-in user');
-select is((public.stats_summary('{"statsVersion":"stats/9001"}') ->> 'hands')::int, 1,
+-- (R2.9's `stats_summary` / `stats_graph` were retired in 20270818090000;
+-- the reports are R4.5c-1's.)
+select lives_ok($$ select public.report_open('{"statsVersion":"stats/9001"}') $$,
+  'report_open runs as a signed-in user');
+select is((public.report_open('{"statsVersion":"stats/9001"}') ->> 'hands')::int, 1,
   '... and counts the caller''s hero rows at that version');
-select lives_ok($$ select public.stats_graph('{"statsVersion":"stats/9001"}', 10) $$,
-  'stats_graph runs as a signed-in user');
+select lives_ok($$ select public.report_graph('{"statsVersion":"stats/9001"}', 10) $$,
+  'report_graph runs as a signed-in user');
 select pg_temp.act_as_anon();
-select throws_ok($$ select public.stats_summary('{}') $$, '42501', null, 'anon still cannot');
+select throws_ok($$ select public.report_open('{}') $$, '42501', null, 'anon still cannot');
 select pg_temp.act_as('00000000-0000-0000-0000-0000000006a1');
 select is((public.prune_hand_stats('stats/9001') ->> 'deleted')::int, 2, 'A prunes the obsolete rows');
 select is(public.stats_coverage('stats/9001') ->> 'obsoleteRows', '0', 'nothing obsolete is left');

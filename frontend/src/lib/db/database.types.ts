@@ -2034,6 +2034,153 @@ export type Database = {
         }
         Relationships: []
       }
+      library_counts_stale: {
+        Row: {
+          owner_id: string
+          since: string
+        }
+        Insert: {
+          owner_id: string
+          since?: string
+        }
+        Update: {
+          owner_id?: string
+          since?: string
+        }
+        Relationships: []
+      }
+      library_hand_counts: {
+        Row: {
+          big_blind: number | null
+          currency: string
+          currency_minor_units: number
+          currency_symbol: string | null
+          game_format: Database["public"]["Enums"]["game_format"]
+          hands: number
+          limit_type: string
+          month: string
+          owner_id: string
+          position: string
+          result: string
+          site: string
+          site_anonymization: Database["public"]["Enums"]["site_anonymization"]
+          size: string
+          small_blind: number | null
+          stake: string
+          variant: string
+        }
+        Insert: {
+          big_blind?: number | null
+          currency: string
+          currency_minor_units: number
+          currency_symbol?: string | null
+          game_format: Database["public"]["Enums"]["game_format"]
+          hands: number
+          limit_type: string
+          month: string
+          owner_id: string
+          position: string
+          result: string
+          site: string
+          site_anonymization: Database["public"]["Enums"]["site_anonymization"]
+          size: string
+          small_blind?: number | null
+          stake: string
+          variant: string
+        }
+        Update: {
+          big_blind?: number | null
+          currency?: string
+          currency_minor_units?: number
+          currency_symbol?: string | null
+          game_format?: Database["public"]["Enums"]["game_format"]
+          hands?: number
+          limit_type?: string
+          month?: string
+          owner_id?: string
+          position?: string
+          result?: string
+          site?: string
+          site_anonymization?: Database["public"]["Enums"]["site_anonymization"]
+          size?: string
+          small_blind?: number | null
+          stake?: string
+          variant?: string
+        }
+        Relationships: []
+      }
+      library_hero_counts: {
+        Row: {
+          big_blind: number | null
+          currency: string
+          currency_minor_units: number
+          currency_symbol: string | null
+          ev_version: string
+          game_format: Database["public"]["Enums"]["game_format"]
+          hands: number
+          limit_type: string
+          month: string
+          owner_id: string
+          position: string
+          pot_type: string
+          result: string
+          site: string
+          site_anonymization: Database["public"]["Enums"]["site_anonymization"]
+          size: string
+          small_blind: number | null
+          stack: string
+          stake: string
+          stats_version: string
+          variant: string
+        }
+        Insert: {
+          big_blind?: number | null
+          currency: string
+          currency_minor_units: number
+          currency_symbol?: string | null
+          ev_version: string
+          game_format: Database["public"]["Enums"]["game_format"]
+          hands: number
+          limit_type: string
+          month: string
+          owner_id: string
+          position: string
+          pot_type: string
+          result: string
+          site: string
+          site_anonymization: Database["public"]["Enums"]["site_anonymization"]
+          size: string
+          small_blind?: number | null
+          stack: string
+          stake: string
+          stats_version: string
+          variant: string
+        }
+        Update: {
+          big_blind?: number | null
+          currency?: string
+          currency_minor_units?: number
+          currency_symbol?: string | null
+          ev_version?: string
+          game_format?: Database["public"]["Enums"]["game_format"]
+          hands?: number
+          limit_type?: string
+          month?: string
+          owner_id?: string
+          position?: string
+          pot_type?: string
+          result?: string
+          site?: string
+          site_anonymization?: Database["public"]["Enums"]["site_anonymization"]
+          size?: string
+          small_blind?: number | null
+          stack?: string
+          stake?: string
+          stats_version?: string
+          variant?: string
+        }
+        Relationships: []
+      }
       moderation_actions: {
         Row: {
           action: string
@@ -3718,10 +3865,6 @@ export type Database = {
         Args: { p_owner: string; p_rows: number }
         Returns: undefined
       }
-      hand_stats_counter_keys: { Args: never; Returns: string[] }
-      hand_stats_filter_sql: { Args: never; Returns: string }
-      hand_stats_money_keys: { Args: never; Returns: string[] }
-      hands_facets: { Args: never; Returns: Json }
       hands_needing_analysis: {
         Args: { p_after?: string; p_limit?: number; p_version: string }
         Returns: {
@@ -3774,6 +3917,8 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      library_count: { Args: never; Returns: number }
+      library_counts_rebuild: { Args: { p_owner: string }; Returns: Json }
       library_facets: { Args: { p_filter?: Json }; Returns: Json }
       library_list: {
         Args: { p_filter: Json; p_key: string }
@@ -3838,6 +3983,7 @@ export type Database = {
         }
         Returns: string
       }
+      library_table_names: { Args: { p_table: string }; Returns: string[] }
       mark_notifications_read: { Args: { p_ids?: number[] }; Returns: number }
       mod_ban: {
         Args: { p_days: number; p_reason: string; p_username: string }
@@ -4219,30 +4365,16 @@ export type Database = {
       set_username: { Args: { p_username: string }; Returns: Json }
       share_anonymised_phf: { Args: { p_phf: Json }; Returns: Json }
       share_names_state: { Args: { p_slug: string }; Returns: Json }
-      stats_breakdown: {
-        Args: { p_filters?: Json; p_group?: string }
-        Returns: Json
-      }
       stats_coverage: { Args: { p_version: string }; Returns: Json }
       stats_empty_graph: { Args: { p_version: string }; Returns: Json }
-      stats_empty_summary: { Args: { p_version: string }; Returns: Json }
       stats_ev_missing: {
         Args: { p_ev_version: string; p_version: string }
         Returns: number
-      }
-      stats_graph: {
-        Args: { p_buckets?: number; p_filters?: Json }
-        Returns: Json
       }
       stats_opponents: {
         Args: { p_filters?: Json; p_limit?: number; p_search?: string }
         Returns: Json
       }
-      stats_sessions: {
-        Args: { p_filters?: Json; p_gap_minutes?: number }
-        Returns: Json
-      }
-      stats_summary: { Args: { p_filters?: Json }; Returns: Json }
       study_plan: {
         Args: { p_from?: string; p_week_start: string }
         Returns: Json

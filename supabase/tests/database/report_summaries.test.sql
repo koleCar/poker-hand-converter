@@ -756,6 +756,518 @@ begin
     false);
 end;
 $$;
+-- R2.9's readers, retired in 20270818090000, kept here as the oracle they
+-- were (their last bodies, verbatim, and the helper they shared).
+select pg_temp.as_postgres();
+create function pg_temp.old_hand_stats_filter_sql()
+returns text
+language sql
+immutable
+set search_path = ''
+as $fn$
+  select $w$
+    where hs.owner_id      = $1::uuid
+      and hs.stats_version = $2::text
+      and hs.is_hero
+      and ($3::timestamptz is null or hs.played_at >= $3::timestamptz)
+      and ($4::timestamptz is null or hs.played_at <= $4::timestamptz)
+      and ($5::text is null or hs.site_id    = $5::text)
+      and ($6::text is null or hs.variant    = $6::text)
+      and ($7::text is null or hs.limit_type = $7::text)
+      and ($8::public.game_format is null or hs.game_format = $8::public.game_format)
+      and ($9::text   is null or hs.currency  = $9::text)
+      and ($10::bigint is null or hs.big_blind = $10::bigint)
+      and (cardinality($11::text[]) = 0 or hs.position   = any($11::text[]))
+      and (cardinality($12::text[]) = 0 or hs.hand_class = any($12::text[]))
+      and ($13::text is null or hs.tournament_id = $13::text)
+      and ($14::text is null or hs.fast_fold     = $14::text)
+      and ($15::boolean is null or (hs.fast_fold is not null) = $15::boolean)
+      and ($16::integer is null or hs.player_count >= $16::integer)
+      and ($17::integer is null or hs.player_count <= $17::integer)
+      -- Bomb pots are excluded from everything by default. Every preflop
+      -- opportunity in one is 0 by construction, so including them dilutes
+      -- nothing but `hands` -- which is the denominator of bb/100, so a table
+      -- setting would move a player's win rate.
+      and ($18::boolean is true or not hs.is_bomb_pot)
+      -- Straddled hands are included by default. Their counters are honest
+      -- under the "a straddle is a blind" rule, but the positions mean
+      -- something different when a player behind the blinds has a live blind,
+      -- so a position report over a mixed sample is muddy. The key exists so
+      -- they can be dropped wholesale.
+      and ($19::boolean is true or not hs.has_straddle)
+      -- $20 is bound but never filtered on here. EV-cashout hands are
+      -- excluded from the *money* series only, as a `filter` on each
+      -- aggregate in the two callers, never from the counters and never from
+      -- the sample -- the hand was still played, it is only its result that is
+      -- not what the pot says.
+  $w$;
+$fn$;
+
+create function pg_temp.old_stats_graph(
+  p_filters jsonb    default '{}'::jsonb,
+  p_buckets integer  default 60
+)
+returns jsonb
+language plpgsql
+stable
+security invoker
+set search_path = ''
+as $$
+declare
+  v_owner    uuid := (select auth.uid());
+  v_version  text := coalesce(nullif(btrim(coalesce(p_filters ->> 'statsVersion', '')), ''), 'stats/1');
+  v_from     timestamptz := nullif(btrim(coalesce(p_filters ->> 'from', '')), '')::timestamptz;
+  v_to       timestamptz := nullif(btrim(coalesce(p_filters ->> 'to', '')), '')::timestamptz;
+  v_site     text := nullif(btrim(coalesce(p_filters ->> 'site', '')), '');
+  v_variant  text := nullif(btrim(coalesce(p_filters ->> 'variant', '')), '');
+  v_limit    text := nullif(lower(btrim(coalesce(p_filters ->> 'limitType', ''))), '');
+  v_format   public.game_format;
+  v_currency text := nullif(upper(btrim(coalesce(p_filters ->> 'currency', ''))), '');
+  v_big_blind bigint := nullif(btrim(coalesce(p_filters ->> 'bigBlind', '')), '')::bigint;
+  v_positions text[];
+  v_classes   text[];
+  v_tourney  text := nullif(btrim(coalesce(p_filters ->> 'tournamentId', '')), '');
+  v_fast     text := nullif(btrim(coalesce(p_filters ->> 'fastFold', '')), '');
+  v_fast_only boolean := nullif(btrim(coalesce(p_filters ->> 'fastFoldOnly', '')), '')::boolean;
+  v_min_players integer := nullif(btrim(coalesce(p_filters ->> 'minPlayers', '')), '')::integer;
+  v_max_players integer := nullif(btrim(coalesce(p_filters ->> 'maxPlayers', '')), '')::integer;
+  v_bomb     boolean := coalesce(nullif(btrim(coalesce(p_filters ->> 'includeBombPots', '')), '')::boolean, false);
+  v_straddle boolean := coalesce(nullif(btrim(coalesce(p_filters ->> 'includeStraddled', '')), '')::boolean, true);
+  v_cashouts boolean := coalesce(nullif(btrim(coalesce(p_filters ->> 'includeCashouts', '')), '')::boolean, false);
+  v_where    text := pg_temp.old_hand_stats_filter_sql();
+  -- Bounded: one bucket is a single point and 400 is already more than there
+  -- are pixels across a chart on a phone. A caller asking for 100 000 would
+  -- otherwise be asking for a sort with 100 000 groups.
+  v_buckets  integer := least(greatest(coalesce(p_buckets, 60), 1), 400);
+  v_ev_version text := coalesce(nullif(btrim(coalesce(p_filters ->> 'evVersion', '')), ''), 'ev/1');
+  v_ev       jsonb;
+  v_meta     jsonb;
+  v_rows     jsonb;
+  v_mixed_currency boolean;
+  v_mixed_kind     boolean;
+  v_total    bigint;
+begin
+  if v_owner is null then
+    return public.stats_empty_graph(v_version);
+  end if;
+
+  if nullif(btrim(coalesce(p_filters ->> 'gameFormat', '')), '') is not null then
+    v_format := (p_filters ->> 'gameFormat')::public.game_format;
+  end if;
+
+  v_positions := coalesce(
+    public.normalize_positions(
+      (select array_agg(value) from jsonb_array_elements_text(coalesce(p_filters -> 'positions', '[]'::jsonb)))
+    ), '{}'::text[]);
+  v_classes := coalesce(
+    (select array_agg(value) from jsonb_array_elements_text(coalesce(p_filters -> 'handClasses', '[]'::jsonb))),
+    '{}'::text[]);
+
+  execute format($q$
+    select to_jsonb(t) from (
+      select
+        count(*)::bigint                                   as row_count,
+        count(distinct hs.currency)::integer               as currency_count,
+        count(distinct (hs.game_format = 'cash'))::integer as unit_kind_count,
+        min(hs.currency)                                   as currency,
+        min(hs.currency_minor_units)::integer              as currency_minor_units,
+        count(*) filter (where $20::boolean or not hs.has_cashout)::bigint as money_hands
+      from public.hand_stats hs
+      %1$s
+    ) t
+  $q$, v_where)
+    into v_meta
+    using v_owner, v_version, v_from, v_to, v_site, v_variant, v_limit, v_format,
+          v_currency, v_big_blind, v_positions, v_classes, v_tourney, v_fast,
+          v_fast_only, v_min_players, v_max_players, v_bomb, v_straddle, v_cashouts;
+
+  v_total := coalesce((v_meta ->> 'row_count')::bigint, 0);
+  if v_total = 0 then
+    return public.stats_empty_graph(v_version);
+  end if;
+
+  v_mixed_currency := (v_meta ->> 'currency_count')::integer > 1;
+  v_mixed_kind     := (v_meta ->> 'unit_kind_count')::integer > 1;
+
+  if v_mixed_kind then
+    -- Refused outright. Every series on this chart is money.
+    return jsonb_build_object(
+      'statsVersion',       v_version,
+      'buckets',            '[]'::jsonb,
+      'hands',              v_total,
+      'moneyHands',         coalesce((v_meta ->> 'money_hands')::bigint, 0),
+      'currency',           null,
+      'currencyMinorUnits', null,
+      'mixedCurrency',      v_mixed_currency,
+      'mixedUnitKind',      true,
+      'moneyAvailable',     false,
+      'allInEv',            null
+    );
+  end if;
+
+  execute format($q$
+    with base as (
+      select hs.played_at, hs.hand_key, hs.wtsd, hs.net, hs.net_bb_milli, hs.has_cashout,
+             -- A hand with no all-in has no variance to take out: its EV line
+             -- is its result. A hand not evaluated yet is the same, and is
+             -- counted, so the screen can say how much of the line is real.
+             coalesce(ev.ev_net_bb_milli, hs.net_bb_milli) as ev_bb_milli,
+             ev.hand_id is not null                        as ev_known,
+             coalesce(ev.applicable, false)                as ev_applicable
+      from public.hand_stats hs
+      left join public.hand_stats_ev ev
+        on ev.hand_id = hs.hand_id and ev.seat = hs.seat and ev.ev_version = $22::text
+      %1$s
+    ),
+    ordered as (
+      -- `hand_key` breaks the tie so the bucketing is deterministic: two hands
+      -- with the same timestamp (common -- a fast-fold pool deals several a
+      -- second) must not land in different buckets on two different runs, or
+      -- the graph would shimmer between reloads.
+      select b.*, ntile($21::integer) over (order by b.played_at asc nulls last, b.hand_key) as bucket
+      from base b
+    ),
+    per_bucket as (
+      select
+        o.bucket,
+        count(*)::bigint as hands,
+        count(*) filter (where $20::boolean or not o.has_cashout)::bigint as money_hands,
+        coalesce(sum(o.net_bb_milli)
+                 filter (where $20::boolean or not o.has_cashout), 0)::bigint as net_bb_milli,
+        coalesce(sum(o.net_bb_milli)
+                 filter (where ($20::boolean or not o.has_cashout) and o.wtsd = 1), 0)::bigint as sd_bb_milli,
+        coalesce(sum(o.net_bb_milli)
+                 filter (where ($20::boolean or not o.has_cashout) and o.wtsd = 0), 0)::bigint as nsd_bb_milli,
+        coalesce(sum(o.net)
+                 filter (where $20::boolean or not o.has_cashout), 0)::bigint as net,
+        coalesce(sum(o.ev_bb_milli)
+                 filter (where $20::boolean or not o.has_cashout), 0)::bigint as ev_bb_milli,
+        count(*) filter (where o.ev_known)::bigint      as ev_known,
+        count(*) filter (where o.ev_applicable)::bigint as ev_applicable,
+        min(o.played_at) as first_played_at,
+        max(o.played_at) as last_played_at
+      from ordered o
+      group by o.bucket
+    )
+    select coalesce(jsonb_agg(to_jsonb(t) order by t.bucket), '[]'::jsonb) from (
+      select
+        p.bucket,
+        p.hands,
+        p.money_hands,
+        p.first_played_at,
+        p.last_played_at,
+        sum(p.hands)        over o as cum_hands,
+        sum(p.money_hands)  over o as cum_money_hands,
+        sum(p.net_bb_milli) over o as cum_net_bb_milli,
+        sum(p.sd_bb_milli)  over o as cum_sd_bb_milli,
+        sum(p.nsd_bb_milli) over o as cum_nsd_bb_milli,
+        sum(p.net)          over o as cum_net,
+        sum(p.ev_bb_milli)  over o as cum_ev_bb_milli,
+        p.ev_known,
+        p.ev_applicable
+      from per_bucket p
+      window o as (order by p.bucket rows between unbounded preceding and current row)
+    ) t
+  $q$, v_where)
+    into v_rows
+    using v_owner, v_version, v_from, v_to, v_site, v_variant, v_limit, v_format,
+          v_currency, v_big_blind, v_positions, v_classes, v_tourney, v_fast,
+          v_fast_only, v_min_players, v_max_players, v_bomb, v_straddle, v_cashouts,
+          v_buckets, v_ev_version;
+
+  select jsonb_build_object(
+           'evVersion',      v_ev_version,
+           'evaluatedHands', coalesce(sum((e ->> 'ev_known')::bigint), 0),
+           'allInHands',     coalesce(sum((e ->> 'ev_applicable')::bigint), 0))
+    into v_ev
+    from jsonb_array_elements(coalesce(v_rows, '[]'::jsonb)) e;
+
+  if v_mixed_currency then
+    -- Dollars and euros in one sample: the big-blind series survive, the
+    -- currency one is removed rather than rendered as a number with no unit.
+    select coalesce(jsonb_agg(e - 'cum_net'), '[]'::jsonb)
+      into v_rows
+      from jsonb_array_elements(coalesce(v_rows, '[]'::jsonb)) e;
+  end if;
+
+  return jsonb_build_object(
+    'statsVersion',       v_version,
+    'buckets',            coalesce(v_rows, '[]'::jsonb),
+    'hands',              v_total,
+    'moneyHands',         coalesce((v_meta ->> 'money_hands')::bigint, 0),
+    'currency',           case when v_mixed_currency then null else v_meta ->> 'currency' end,
+    'currencyMinorUnits', case when v_mixed_currency then null else (v_meta ->> 'currency_minor_units')::integer end,
+    'mixedCurrency',      v_mixed_currency,
+    'mixedUnitKind',      false,
+    'moneyAvailable',     true,
+    -- The fourth series (20261207090000): cum_ev_bb_milli on every bucket, and
+    -- how much of the sample it actually covers.
+    'allInEv',            v_ev
+  );
+end;
+$$;
+
+create function pg_temp.old_stats_breakdown(
+  p_filters jsonb default '{}'::jsonb,
+  p_group   text  default 'position'
+)
+returns jsonb
+language plpgsql
+stable
+security invoker
+set search_path = ''
+as $$
+declare
+  v_owner    uuid := (select auth.uid());
+  v_version  text := coalesce(nullif(btrim(coalesce(p_filters ->> 'statsVersion', '')), ''), 'stats/1');
+  v_from     timestamptz := nullif(btrim(coalesce(p_filters ->> 'from', '')), '')::timestamptz;
+  v_to       timestamptz := nullif(btrim(coalesce(p_filters ->> 'to', '')), '')::timestamptz;
+  v_site     text := nullif(btrim(coalesce(p_filters ->> 'site', '')), '');
+  v_variant  text := nullif(btrim(coalesce(p_filters ->> 'variant', '')), '');
+  v_limit    text := nullif(lower(btrim(coalesce(p_filters ->> 'limitType', ''))), '');
+  v_format   public.game_format;
+  v_currency text := nullif(upper(btrim(coalesce(p_filters ->> 'currency', ''))), '');
+  v_big_blind bigint := nullif(btrim(coalesce(p_filters ->> 'bigBlind', '')), '')::bigint;
+  v_positions text[];
+  v_classes   text[];
+  v_tourney  text := nullif(btrim(coalesce(p_filters ->> 'tournamentId', '')), '');
+  v_fast     text := nullif(btrim(coalesce(p_filters ->> 'fastFold', '')), '');
+  v_fast_only boolean := nullif(btrim(coalesce(p_filters ->> 'fastFoldOnly', '')), '')::boolean;
+  v_min_players integer := nullif(btrim(coalesce(p_filters ->> 'minPlayers', '')), '')::integer;
+  v_max_players integer := nullif(btrim(coalesce(p_filters ->> 'maxPlayers', '')), '')::integer;
+  v_bomb     boolean := coalesce(nullif(btrim(coalesce(p_filters ->> 'includeBombPots', '')), '')::boolean, false);
+  v_straddle boolean := coalesce(nullif(btrim(coalesce(p_filters ->> 'includeStraddled', '')), '')::boolean, true);
+  v_cashouts boolean := coalesce(nullif(btrim(coalesce(p_filters ->> 'includeCashouts', '')), '')::boolean, false);
+  v_where    text := pg_temp.old_hand_stats_filter_sql();
+  v_key      text;
+  v_head     jsonb;
+  v_rows     jsonb;
+  v_mixed_currency boolean;
+  v_mixed_kind     boolean;
+begin
+  -- The whitelist. Each branch is a literal; see the header.
+  v_key := case p_group
+    when 'position'   then 'hs.position'
+    when 'table_size' then 'hs.player_count::text'
+    when 'site'       then 'hs.site_id'
+    when 'stakes'     then $k$hs.currency || ':' || coalesce(hs.small_blind::text, '') || ':' || coalesce(hs.big_blind::text, '')$k$
+    when 'hand_class' then 'hs.hand_class'
+    -- stats/2: limped, single-raised, 3bet, 4bet+, walk, bomb.
+    when 'pot_type'   then 'hs.pot_type'
+    -- The hero's own stack in big blinds, in the bands a cash player thinks
+    -- in. Not *effective* stack -- that needs every opponent's stack at the
+    -- moment of each decision, which is a derivation change and belongs to
+    -- the villain-rows milestone.
+    when 'stack_bb'   then $k$case
+        when hs.starting_stack_bb_tenths is null then null
+        when hs.starting_stack_bb_tenths <  200  then '0-20'
+        when hs.starting_stack_bb_tenths <  400  then '20-40'
+        when hs.starting_stack_bb_tenths <  700  then '40-70'
+        when hs.starting_stack_bb_tenths < 1000  then '70-100'
+        when hs.starting_stack_bb_tenths < 1500  then '100-150'
+        when hs.starting_stack_bb_tenths < 2500  then '150-250'
+        else '250+' end$k$
+    else null
+  end;
+  if v_key is null then
+    raise exception 'stats_breakdown: unknown group "%"', p_group
+      using errcode = '22023',
+            hint = 'One of position, table_size, site, stakes, hand_class, stack_bb, pot_type.';
+  end if;
+
+  if v_owner is null then
+    return jsonb_build_object('statsVersion', v_version, 'group', p_group, 'rows', '[]'::jsonb,
+                              'mixedCurrency', false, 'mixedUnitKind', false,
+                              'currency', null, 'currencyMinorUnits', null);
+  end if;
+
+  if nullif(btrim(coalesce(p_filters ->> 'gameFormat', '')), '') is not null then
+    v_format := (p_filters ->> 'gameFormat')::public.game_format;
+  end if;
+  v_positions := coalesce(
+    public.normalize_positions(
+      (select array_agg(value) from jsonb_array_elements_text(coalesce(p_filters -> 'positions', '[]'::jsonb)))
+    ), '{}'::text[]);
+  v_classes := coalesce(
+    (select array_agg(value) from jsonb_array_elements_text(coalesce(p_filters -> 'handClasses', '[]'::jsonb))),
+    '{}'::text[]);
+
+  -- Pass 1: is the whole sample one unit? Decides what money survives.
+  execute format($q$
+    select jsonb_build_object(
+      'currency_count',  count(distinct hs.currency),
+      'unit_kind_count', count(distinct (hs.game_format = 'cash')),
+      'currency',        min(hs.currency),
+      'minor_units',     min(hs.currency_minor_units))
+    from public.hand_stats hs
+    %1$s
+  $q$, v_where)
+    into v_head
+    using v_owner, v_version, v_from, v_to, v_site, v_variant, v_limit, v_format,
+          v_currency, v_big_blind, v_positions, v_classes, v_tourney, v_fast,
+          v_fast_only, v_min_players, v_max_players, v_bomb, v_straddle, v_cashouts;
+
+  v_mixed_currency := coalesce((v_head ->> 'currency_count')::integer, 0) > 1;
+  v_mixed_kind     := coalesce((v_head ->> 'unit_kind_count')::integer, 0) > 1;
+
+  -- Pass 2: the split. `to_jsonb(t)` over an explicit projection, the shape
+  -- every report in this schema uses.
+  execute format($q$
+    select coalesce(jsonb_agg(to_jsonb(t) order by t.hands desc, t.key), '[]'::jsonb) from (
+      select
+        %2$s                                                  as key,
+        coalesce(sum(hs.hands), 0)::bigint                    as hands,
+        count(*) filter (where $20::boolean or not hs.has_cashout)::bigint as money_hands,
+        coalesce(sum(hs.vpip_opp), 0)::bigint                 as vpip_opp,
+        coalesce(sum(hs.vpip), 0)::bigint                     as vpip,
+        coalesce(sum(hs.pfr_opp), 0)::bigint                  as pfr_opp,
+        coalesce(sum(hs.pfr), 0)::bigint                      as pfr,
+        coalesce(sum(hs.rfi_opp), 0)::bigint                  as rfi_opp,
+        coalesce(sum(hs.rfi), 0)::bigint                      as rfi,
+        coalesce(sum(hs.three_bet_opp), 0)::bigint            as three_bet_opp,
+        coalesce(sum(hs.three_bet), 0)::bigint                as three_bet,
+        coalesce(sum(hs.fold_to_three_bet_opp), 0)::bigint    as fold_to_three_bet_opp,
+        coalesce(sum(hs.fold_to_three_bet), 0)::bigint        as fold_to_three_bet,
+        coalesce(sum(hs.steal_opp), 0)::bigint                as steal_opp,
+        coalesce(sum(hs.steal), 0)::bigint                    as steal,
+        coalesce(sum(hs.cbet_flop_opp), 0)::bigint            as cbet_flop_opp,
+        coalesce(sum(hs.cbet_flop), 0)::bigint                as cbet_flop,
+        coalesce(sum(hs.wtsd_opp), 0)::bigint                 as wtsd_opp,
+        coalesce(sum(hs.wtsd), 0)::bigint                     as wtsd,
+        coalesce(sum(hs.wsd_opp), 0)::bigint                  as wsd_opp,
+        coalesce(sum(hs.wsd), 0)::bigint                      as wsd,
+        coalesce(sum(hs.wwsf_opp), 0)::bigint                 as wwsf_opp,
+        coalesce(sum(hs.wwsf), 0)::bigint                     as wwsf,
+        coalesce(sum(hs.net_bb_milli) filter (where $20::boolean or not hs.has_cashout), 0)::bigint as net_bb_milli,
+        coalesce(sum(hs.net) filter (where $20::boolean or not hs.has_cashout), 0)::bigint         as net
+      from public.hand_stats hs
+      %1$s
+      group by 1
+    ) t
+  $q$, v_where, v_key)
+    into v_rows
+    using v_owner, v_version, v_from, v_to, v_site, v_variant, v_limit, v_format,
+          v_currency, v_big_blind, v_positions, v_classes, v_tourney, v_fast,
+          v_fast_only, v_min_players, v_max_players, v_bomb, v_straddle, v_cashouts;
+
+  if v_mixed_kind then
+    v_rows := (select coalesce(jsonb_agg(r - 'net' - 'net_bb_milli'), '[]'::jsonb)
+               from jsonb_array_elements(v_rows) r);
+  elsif v_mixed_currency then
+    v_rows := (select coalesce(jsonb_agg(r - 'net'), '[]'::jsonb)
+               from jsonb_array_elements(v_rows) r);
+  end if;
+
+  return jsonb_build_object(
+    'statsVersion',       v_version,
+    'group',              p_group,
+    'rows',               v_rows,
+    'mixedCurrency',      v_mixed_currency,
+    'mixedUnitKind',      v_mixed_kind,
+    'currency',           case when v_mixed_currency or v_mixed_kind then null else v_head ->> 'currency' end,
+    'currencyMinorUnits', case when v_mixed_currency or v_mixed_kind then null else (v_head ->> 'minor_units')::integer end
+  );
+end;
+$$;
+
+create function pg_temp.old_stats_sessions(
+  p_filters     jsonb   default '{}'::jsonb,
+  p_gap_minutes integer default 30
+)
+returns jsonb
+language plpgsql
+stable
+security invoker
+set search_path = ''
+as $$
+declare
+  v_owner    uuid := (select auth.uid());
+  v_version  text := coalesce(nullif(btrim(coalesce(p_filters ->> 'statsVersion', '')), ''), 'stats/1');
+  v_format   public.game_format;
+  v_currency text := nullif(upper(btrim(coalesce(p_filters ->> 'currency', ''))), '');
+  v_big_blind bigint := nullif(btrim(coalesce(p_filters ->> 'bigBlind', '')), '')::bigint;
+  v_gap      interval := make_interval(mins => least(greatest(coalesce(p_gap_minutes, 30), 5), 720));
+  v_rows     jsonb;
+  v_kinds    integer;
+  v_currencies integer;
+  v_currency_out text;
+  v_minor    integer;
+begin
+  if v_owner is null then
+    raise exception 'You must be signed in to read statistics.' using errcode = '42501';
+  end if;
+  if nullif(btrim(coalesce(p_filters ->> 'gameFormat', '')), '') is not null then
+    v_format := (p_filters ->> 'gameFormat')::public.game_format;
+  end if;
+
+  select count(distinct (hs.game_format = 'cash')), count(distinct hs.currency),
+         min(hs.currency), min(hs.currency_minor_units)
+  into v_kinds, v_currencies, v_currency_out, v_minor
+  from public.hand_stats hs
+  where hs.owner_id = v_owner and hs.stats_version = v_version and hs.is_hero
+    and hs.played_at is not null
+    and (v_format is null or hs.game_format = v_format)
+    and (v_currency is null or hs.currency = v_currency)
+    and (v_big_blind is null or hs.big_blind = v_big_blind);
+
+  with h as (
+    select hs.played_at, hs.table_name, hs.has_cashout, hs.net, hs.net_bb_milli
+    from public.hand_stats hs
+    where hs.owner_id = v_owner and hs.stats_version = v_version and hs.is_hero
+      and hs.played_at is not null
+      and (v_format is null or hs.game_format = v_format)
+      and (v_currency is null or hs.currency = v_currency)
+      and (v_big_blind is null or hs.big_blind = v_big_blind)
+  ),
+  marked as (
+    select h.*,
+           case when lag(h.played_at) over w is null
+                  or h.played_at - lag(h.played_at) over w > v_gap
+                then 1 else 0 end as starts
+    from h
+    window w as (order by h.played_at)
+  ),
+  numbered as (
+    select m.*, sum(m.starts) over (order by m.played_at rows unbounded preceding) as session
+    from marked m
+  ),
+  sessions as (
+    select n.session,
+           min(n.played_at) as started_at,
+           max(n.played_at) as ended_at,
+           count(*) as hands,
+           count(distinct n.table_name) as tables,
+           -- An EV-cashout hand's pot is not its result; same rule as the graph.
+           coalesce(sum(n.net_bb_milli) filter (where not n.has_cashout), 0) as net_bb_milli,
+           coalesce(sum(n.net) filter (where not n.has_cashout), 0) as net
+    from numbered n
+    group by n.session
+  )
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'startedAt',  s.started_at,
+           'endedAt',    s.ended_at,
+           'hands',      s.hands,
+           'tables',     s.tables,
+           'netBbMilli', case when v_kinds > 1 then null else s.net_bb_milli end,
+           'net',        case when v_kinds > 1 or v_currencies > 1 then null else s.net end
+         ) order by s.session desc), '[]'::jsonb)
+  into v_rows
+  from (select * from sessions order by session desc limit 2000) s;
+
+  return jsonb_build_object(
+    'gapMinutes',         extract(epoch from v_gap)::integer / 60,
+    'sessions',           v_rows,
+    'mixedUnitKind',      coalesce(v_kinds, 0) > 1,
+    'mixedCurrency',      coalesce(v_currencies, 0) > 1,
+    'currency',           case when coalesce(v_kinds, 0) > 1 or coalesce(v_currencies, 0) > 1 then null else v_currency_out end,
+    'currencyMinorUnits', case when coalesce(v_kinds, 0) > 1 or coalesce(v_currencies, 0) > 1 then null else v_minor end
+  );
+end;
+$$;
+grant execute on function pg_temp.old_hand_stats_filter_sql(), pg_temp.old_stats_graph(jsonb, integer),
+  pg_temp.old_stats_breakdown(jsonb, text), pg_temp.old_stats_sessions(jsonb, integer) to authenticated;
+select pg_temp.act_as('00000000-0000-0000-0000-0000000045a1');
+
 select ok(pg_temp.graph_same('{"formats":["cash"]}', 37), 'report_graph: 37 points, cash (the rule, hand by hand)');
 select ok(pg_temp.graph_same('{"formats":["cash"],"sites":["pokerstars"],"from":"2026-10-06T05:00:00Z"}', 400), '... a room from a time, more points than hands');
 select ok(pg_temp.graph_same('{"formats":["cash"],"positions":["BTN","SB","BB"]}', 4), '... four points (whole days)');
@@ -765,19 +1277,19 @@ select is((select sum((b ->> 'hands')::bigint)::bigint from jsonb_array_elements
           (public.report_open('{"statsVersion":"stats/2","formats":["cash"]}') ->> 'hands')::bigint,
           '... every hand of the sample in one point');
 select is((public.report_graph('{"statsVersion":"stats/2","formats":["cash"]}', 37) -> 'buckets' -> -1 ->> 'cum_net_bb_milli')::bigint,
-          (public.stats_graph('{"statsVersion":"stats/2","gameFormat":"cash"}', 37) -> 'buckets' -> -1 ->> 'cum_net_bb_milli')::bigint,
+          (pg_temp.old_stats_graph('{"statsVersion":"stats/2","gameFormat":"cash"}', 37) -> 'buckets' -> -1 ->> 'cum_net_bb_milli')::bigint,
           '... and the same end as stats_graph''s');
 select is((public.report_graph('{"statsVersion":"stats/2","formats":["cash"]}', 37) -> 'allInEv' ->> 'allInHands')::bigint,
-          (public.stats_graph('{"statsVersion":"stats/2","gameFormat":"cash"}', 37) -> 'allInEv' ->> 'allInHands')::bigint,
+          (pg_temp.old_stats_graph('{"statsVersion":"stats/2","gameFormat":"cash"}', 37) -> 'allInEv' ->> 'allInHands')::bigint,
           '... the same all-in hands');
 select is(public.report_graph('{"statsVersion":"stats/2"}', 37) - 'allInEv' - 'buckets',
-          public.stats_graph('{"statsVersion":"stats/2"}', 37) - 'allInEv' - 'buckets',
+          pg_temp.old_stats_graph('{"statsVersion":"stats/2"}', 37) - 'allInEv' - 'buckets',
           '... and the same refusal for chips with cash');
 
 -- Situations: stats_breakdown's rows.
 create function pg_temp.sit_same(p_group text, p_dim text) returns boolean language sql as $$
   select coalesce(
-    (select jsonb_object_agg(coalesce(r ->> 'key', ''), r - 'key') from jsonb_array_elements(public.stats_breakdown('{"statsVersion":"stats/2","gameFormat":"cash"}', p_group) -> 'rows') r)
+    (select jsonb_object_agg(coalesce(r ->> 'key', ''), r - 'key') from jsonb_array_elements(pg_temp.old_stats_breakdown('{"statsVersion":"stats/2","gameFormat":"cash"}', p_group) -> 'rows') r)
     = (select jsonb_object_agg(r ->> 'key', r - 'key') from jsonb_array_elements(public.report_situations('{"statsVersion":"stats/2","formats":["cash"]}') -> 'groups' -> p_dim) r),
     false);
 $$;
@@ -791,10 +1303,10 @@ select is((select sum((r ->> 'hands')::bigint)::bigint from jsonb_array_elements
 
 -- Sessions: stats_sessions' answer (which counts bomb pots).
 select is(public.report_sessions('{"statsVersion":"stats/2","formats":["cash"],"includeBombPots":true}', 30),
-          public.stats_sessions('{"statsVersion":"stats/2","gameFormat":"cash"}', 30),
+          pg_temp.old_stats_sessions('{"statsVersion":"stats/2","gameFormat":"cash"}', 30),
           'report_sessions = stats_sessions, cash');
 select is(public.report_sessions('{"statsVersion":"stats/2","formats":["tournament"],"stakes":["chips"],"includeBombPots":true}', 45),
-          public.stats_sessions('{"statsVersion":"stats/2","gameFormat":"tournament"}', 45),
+          pg_temp.old_stats_sessions('{"statsVersion":"stats/2","gameFormat":"tournament"}', 45),
           '... tournaments, another gap');
 
 -- stats_opponents: its previous body over every villain row.

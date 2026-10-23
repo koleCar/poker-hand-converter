@@ -8,14 +8,12 @@ import type { PhfHand } from "../phf/types";
 import { currentUserId, isDatabaseConfigured, requireDb, requireUserId, rpc } from "./client";
 import { handInsertFromPhf, handKeyOf, toHandRecord, toHandSummary, type HandInsert } from "./mapping";
 import type {
-  HandFacets,
   HandFilterForm,
   HandFilters,
   HandRecord,
   HandSearchResult,
   HandSummary,
   SaveHandsResult,
-  StreetReached,
 } from "./types";
 
 export { handKeyOf };
@@ -240,68 +238,21 @@ export async function findHandId(handKey: string): Promise<string | null> {
   return (data?.id as string | undefined) ?? null;
 }
 
-/** An empty facet set, so a signed-out filter bar renders instead of erroring. */
-const NO_FACETS: HandFacets = {
-  total: 0,
-  sites: [],
-  heroes: [],
-  tables: [],
-  stakes: [],
-  variants: [],
-  limitTypes: [],
-  gameFormats: [],
-  heroHandClasses: [],
-  streets: [],
-  heroPositions: [],
-  showdownPositions: [],
-  anonymizations: [],
-  playedAtRange: { min: null, max: null },
-  unparsedTotal: 0,
-};
-
 /**
- * Every distinct filter value the browse UI offers, in one request.
- *
- * Scoped to the caller's own hands, because `hands_facets()` is
- * `security invoker` and every subquery in it reads `public.hands`. That is the
- * behaviour the UI wants anyway: a site or a hero you have never played is not
- * a useful thing to offer as a filter.
- */
-export async function fetchHandFacets(): Promise<HandFacets> {
-  if (!(await currentUserId())) {
-    return NO_FACETS;
-  }
-  const payload = await rpc<Record<string, unknown>>("hands_facets");
-  return {
-    total: Number(payload.total ?? 0),
-    sites: (payload.sites ?? []) as HandFacets["sites"],
-    heroes: (payload.heroes ?? []) as HandFacets["heroes"],
-    tables: (payload.tables ?? []) as string[],
-    stakes: (payload.stakes ?? []) as HandFacets["stakes"],
-    variants: (payload.variants ?? []) as string[],
-    limitTypes: (payload.limitTypes ?? []) as string[],
-    gameFormats: (payload.gameFormats ?? []) as HandFacets["gameFormats"],
-    heroHandClasses: (payload.heroHandClasses ?? []) as string[],
-    streets: (payload.streets ?? []) as StreetReached[],
-    heroPositions: (payload.heroPositions ?? []) as HandFacets["heroPositions"],
-    showdownPositions: (payload.showdownPositions ?? []) as HandFacets["showdownPositions"],
-    anonymizations: (payload.anonymizations ?? []) as HandFacets["anonymizations"],
-    playedAtRange: (payload.playedAtRange ?? { min: null, max: null }) as HandFacets["playedAtRange"],
-    unparsedTotal: Number(payload.unparsedTotal ?? 0),
-  };
-}
-
-/**
- * How many hands are stored. Returns 0 rather than throwing when the database
- * is not configured, because this is used for a passive status badge.
+ * How many hands are stored (`library_count`: the account's library counts,
+ * not a pass over its hands). Returns 0 rather than throwing when the database
+ * is not configured or nobody is signed in, because this is used for a
+ * passive status badge.
  */
 export async function countHands(): Promise<number> {
   if (!isDatabaseConfigured) {
     return 0;
   }
   try {
-    const facets = await fetchHandFacets();
-    return facets.total;
+    if (!(await currentUserId())) {
+      return 0;
+    }
+    return Number((await rpc<number | string | null>("library_count")) ?? 0);
   } catch {
     return 0;
   }

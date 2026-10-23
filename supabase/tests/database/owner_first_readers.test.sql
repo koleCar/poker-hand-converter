@@ -1,5 +1,7 @@
 -- pgTAP: owner first - a reader's work depends only on the caller's own rows
--- (`20270804090000_owner_first_readers.sql`).
+-- (`20270804090000_owner_first_readers.sql`; the readers it did not list -
+-- analysis, drill, trainer, study, `get_hand`, the forum's own-state ones -
+-- and the library's counts, `20270818090000_big_account_readers.sql`).
 --
 -- What has to hold:
 --
@@ -13,11 +15,15 @@
 --     fix the most any reader returns is ~200; the previous definitions of
 --     `hands_facets`, `library_facets`, `library_page`, `search_hands`,
 --     `hands_needing_stats` and `stats_ev_missing` returned 4 929-84 140 here
---     (plans from "rows / owners", see the migration);
+--     (plans from "rows / owners", see the migration). The analysis readers
+--     read beside a big account's 9 000 graded decisions and their leak
+--     summaries;
 --   * every owner-scoped reader plans each call (`force_custom_plan`) and
 --     none is a SQL function (whose owner would be an InitPlan again);
 --   * the rewritten readers answer as their previous bodies did (kept here
---     as pg_temp copies), for both accounts;
+--     as pg_temp copies), for both accounts (the analysis readers: in
+--     `owner_first_analysis`; `library_facets` since its counts: in
+--     `library_counts`);
 --   * owner only, and anon refused (or, for `unparsed_summary`, shown
 --     nothing).
 
@@ -26,7 +32,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(51);
+select plan(49);
 
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-0000000061a1', 'ownerfirst.small@example.com', now(), now()),
@@ -147,10 +153,53 @@ $$;
 select pg_temp.make_hands('00000000-0000-0000-0000-0000000061b1', 6000, 'big');
 select pg_temp.make_hands('00000000-0000-0000-0000-0000000061a1', 30, 'small');
 
+-- Graded hands: half the big account's, all the small one's; three
+-- decisions each, drill items, trainer results.
+create function pg_temp.make_analysis(p_owner uuid, p_every integer) returns void language sql as $$
+  insert into public.hand_analysis (hand_id, owner_id, analysis_version, status, hero_seat, grade, score, ev_loss_bb,
+                                    ev_loss_pot, decisions, analysed, flag_count, pot_type)
+  select h.id, h.owner_id, 'analysis/7', 'full', 0,
+         (array['perfect', 'good', 'inaccurate', 'mistake', 'blunder'])[1 + pg_temp.r(5, h.hand_key) % 5],
+         pg_temp.r(6, h.hand_key) % 100, (pg_temp.r(7, h.hand_key) % 300) / 100.0, 0.01, 3, 3,
+         pg_temp.r(9, h.hand_key) % 2, (array['limped', 'single-raised', '3bet'])[1 + pg_temp.r(1, h.hand_key) % 3]
+  from public.hands h
+  where h.owner_id = p_owner and pg_temp.r(10, h.hand_key) % p_every = 0;
+
+  insert into public.decision_analysis (hand_id, owner_id, analysis_version, ord, action_index, street, action, status,
+                                        node, scenario, source, grade, score, ev_loss_bb, ev_loss_pot, options, chosen,
+                                        flags, facts)
+  select a.hand_id, a.owner_id, a.analysis_version, d.ord, d.ord * 2, (array['preflop', 'flop', 'turn'])[1 + d.ord],
+         (array['fold', 'call', 'raise'])[1 + pg_temp.r(d.ord, a.hand_id::text) % 3], 'analysed', 'node', 'srp',
+         case when d.ord = 0 then 'chart' else 'heuristic' end,
+         (array['perfect', 'good', 'inaccurate', 'mistake', 'blunder'])[1 + pg_temp.r(d.ord, a.hand_id::text || 'g') % 5],
+         50, (pg_temp.r(d.ord, a.hand_id::text || 'e') % 200) / 100.0, 0.01,
+         '[{"action":"fold","ev":0},{"action":"call","ev":0.1},{"action":"raise","ev":0.2}]'::jsonb, 1,
+         case when d.ord = 1 then '[{"code":"overbet","severity":"note"}]'::jsonb else '[]'::jsonb end,
+         case when d.ord = 0 then '{"chart":{"set":"cash-6max","line":"r"},"handClass":"AKo"}'::jsonb else '{}'::jsonb end
+  from public.hand_analysis a
+  cross join (values (0), (1), (2)) d(ord)
+  where a.owner_id = p_owner;
+
+  insert into public.drill_items (owner_id, hand_id, action_index, analysis_version, ord, street, spot_key, source_grade)
+  select d.owner_id, d.hand_id, d.action_index, d.analysis_version, d.ord, d.street, 'flop|srp||BTN|call|raise', d.grade
+  from public.decision_analysis d
+  where d.owner_id = p_owner and d.grade in ('mistake', 'blunder');
+
+  insert into public.trainer_results (owner_id, mode, family, position, hand_class, grade, ev_loss_bb, ev_loss_pot, score)
+  select p_owner, 'preflop', 'open', 'BTN', 'AKo', 'good', 0.1, 0.01, 80
+  from generate_series(1, 10);
+$$;
+select pg_temp.make_analysis('00000000-0000-0000-0000-0000000061b1', 2);
+select pg_temp.make_analysis('00000000-0000-0000-0000-0000000061a1', 1);
+
 set local session_replication_role = origin;
 
 select public.report_summaries_rebuild('00000000-0000-0000-0000-0000000061b1');
 select public.report_summaries_rebuild('00000000-0000-0000-0000-0000000061a1');
+select public.library_counts_rebuild('00000000-0000-0000-0000-0000000061b1');
+select public.library_counts_rebuild('00000000-0000-0000-0000-0000000061a1');
+select public.analysis_leak_summaries_rebuild('00000000-0000-0000-0000-0000000061b1');
+select public.analysis_leak_summaries_rebuild('00000000-0000-0000-0000-0000000061a1');
 
 analyze public.hands;
 analyze public.hand_stats;
@@ -160,6 +209,15 @@ analyze public.hero_report_rows;
 analyze public.player_stats;
 analyze public.player_notes;
 analyze public.unparsed_hands;
+analyze public.library_hand_counts;
+analyze public.library_hero_counts;
+analyze public.hand_analysis;
+analyze public.decision_analysis;
+analyze public.analysis_leak_rows;
+analyze public.analysis_leak_days;
+analyze public.analysis_leak_day_hands;
+analyze public.drill_items;
+analyze public.trainer_results;
 
 -- ---------------------------------------------------------------------------
 -- 2. Every owner reader plans each call and is PL/pgSQL
@@ -167,17 +225,12 @@ analyze public.unparsed_hands;
 
 create temp table readers (fn regprocedure primary key);
 insert into readers values
-  ('public.hands_facets()'),
   ('public.library_rows(jsonb)'),
   ('public.library_page(jsonb, jsonb, integer)'),
   ('public.library_facets(jsonb)'),
   ('public.search_hands(jsonb, integer, integer)'),
   ('public.hands_since(timestamptz, uuid, integer)'),
   ('public.hands_needing_stats(text, uuid, integer, boolean, text)'),
-  ('public.stats_summary(jsonb)'),
-  ('public.stats_graph(jsonb, integer)'),
-  ('public.stats_breakdown(jsonb, text)'),
-  ('public.stats_sessions(jsonb, integer)'),
   ('public.stats_coverage(text)'),
   ('public.stats_ev_missing(text, text)'),
   ('public.stats_opponents(jsonb, text, integer)'),
@@ -192,7 +245,38 @@ insert into readers values
   ('public.player_sites(text)'),
   ('public.my_player_notes(text)'),
   ('public.villain_counters(jsonb, jsonb)'),
-  ('public.unparsed_summary(integer)');
+  ('public.unparsed_summary(integer)'),
+  -- 20270818090000: the readers #244 did not list
+  ('public.library_count()'),
+  ('public.library_table_names(text)'),
+  ('public.analysis_scope(jsonb)'),
+  ('public.analysis_graded_decisions(jsonb)'),
+  ('public.analysis_graded_facets(text)'),
+  ('public.analysis_leak_sample(uuid, text, text, text, text, date, date)'),
+  ('public.analysis_overview(jsonb)'),
+  ('public.analysis_breakdown(jsonb, text)'),
+  ('public.analysis_hands(jsonb, text, integer, integer)'),
+  ('public.analysis_hand(uuid, text)'),
+  ('public.analysis_node_actions(jsonb)'),
+  ('public.analysis_node_hands(jsonb, text[], text, boolean, text, integer, integer)'),
+  ('public.analysis_leaks(jsonb)'),
+  ('public.analysis_leak_hands(jsonb, text[], boolean, text, integer, integer)'),
+  ('public.analysis_trend(jsonb, text, text, integer)'),
+  ('public.analysis_top_leaks(jsonb, text)'),
+  ('public.analysis_leak_examples(jsonb, date, date, jsonb, integer)'),
+  ('public.analysis_coverage(text)'),
+  ('public.hands_needing_analysis(text, uuid, integer)'),
+  ('public.hands_needing_analysis_recent(text, timestamptz, uuid, integer)'),
+  ('public.drill_queue(text, text[], boolean, integer)'),
+  ('public.drill_summary(text, timestamptz)'),
+  ('public.drill_due_by_spot(text, timestamptz)'),
+  ('public.trainer_summary(integer)'),
+  ('public.study_plan(date, timestamptz)'),
+  ('public.get_hand(uuid)'),
+  ('public.my_post_state(text)'),
+  ('public.my_saved_posts(integer, timestamptz)'),
+  ('public.my_notifications(integer, bigint)'),
+  ('public.unread_notification_count()');
 grant select on readers to authenticated, anon;
 
 select is(
@@ -236,12 +320,18 @@ create function pg_temp.tuples_read() returns bigint language sql as $$
     select t.oid from pg_class t
     where t.relnamespace = 'public'::regnamespace
       and t.relname in ('hands', 'hand_stats', 'hand_stats_ev', 'hero_rollups', 'hero_report_rows',
-                        'player_stats', 'player_notes', 'unparsed_hands')
+                        'player_stats', 'player_notes', 'unparsed_hands', 'library_hand_counts',
+                        'library_hero_counts', 'hand_analysis', 'decision_analysis', 'analysis_leak_rows',
+                        'analysis_leak_days', 'analysis_leak_day_hands', 'drill_items', 'trainer_results',
+                        'study_plans', 'study_tasks', 'notifications', 'saved_posts', 'thread_subscriptions')
     union
     select i.indexrelid from pg_index i join pg_class t on t.oid = i.indrelid
     where t.relnamespace = 'public'::regnamespace
       and t.relname in ('hands', 'hand_stats', 'hand_stats_ev', 'hero_rollups', 'hero_report_rows',
-                        'player_stats', 'player_notes', 'unparsed_hands'));
+                        'player_stats', 'player_notes', 'unparsed_hands', 'library_hand_counts',
+                        'library_hero_counts', 'hand_analysis', 'decision_analysis', 'analysis_leak_rows',
+                        'analysis_leak_days', 'analysis_leak_day_hands', 'drill_items', 'trainer_results',
+                        'study_plans', 'study_tasks', 'notifications', 'saved_posts', 'thread_subscriptions'));
 $$;
 -- What one call reads (the second call: the first warms nothing that
 -- matters here, but a reader's plan is the steady state's).
@@ -264,7 +354,6 @@ select pg_temp.act_as('00000000-0000-0000-0000-0000000061a1');
 create temp table small_reads (reader text, n bigint);
 grant all on small_reads to authenticated;
 insert into small_reads values
-  ('hands_facets',              pg_temp.reads($q$select public.hands_facets()$q$)),
   ('library_facets {}',         pg_temp.reads($q$select public.library_facets('{}')$q$)),
   ('library_facets filtered',   pg_temp.reads($q$select public.library_facets('{"formats":["cash"],"positions":["BTN"],"anonymizations":["none"]}')$q$)),
   ('library_page {}',           pg_temp.reads($q$select public.library_page('{}', null, 100)$q$)),
@@ -276,10 +365,6 @@ insert into small_reads values
   ('search_hands site',         pg_temp.reads($q$select public.search_hands('{"site":"pokerstars","sort":"pot_desc"}', 50, 0)$q$)),
   ('hands_since',               pg_temp.reads($q$select count(*) from public.hands_since(null, null, 500)$q$)),
   ('hands_needing_stats',       pg_temp.reads($q$select count(*) from public.hands_needing_stats('stats/1', null, 200, true, 'ev/1')$q$)),
-  ('stats_summary',             pg_temp.reads($q$select public.stats_summary('{"statsVersion":"stats/1"}')$q$)),
-  ('stats_graph',               pg_temp.reads($q$select public.stats_graph('{"statsVersion":"stats/1"}', 60)$q$)),
-  ('stats_breakdown',           pg_temp.reads($q$select public.stats_breakdown('{"statsVersion":"stats/1"}', 'position')$q$)),
-  ('stats_sessions',            pg_temp.reads($q$select public.stats_sessions('{"statsVersion":"stats/1"}', 30)$q$)),
   ('stats_coverage',            pg_temp.reads($q$select public.stats_coverage('stats/1')$q$)),
   ('stats_ev_missing',          pg_temp.reads($q$select public.stats_ev_missing('stats/1', 'ev/1')$q$)),
   ('stats_opponents',           pg_temp.reads($q$select public.stats_opponents('{"statsVersion":"stats/1"}', null, 50)$q$)),
@@ -294,12 +379,40 @@ insert into small_reads values
   ('player_sites',              pg_temp.reads($q$select public.player_sites('stats/1')$q$)),
   ('my_player_notes',           pg_temp.reads($q$select public.my_player_notes(null)$q$)),
   ('villain_counters',          pg_temp.reads($q$select count(*) from public.villain_counters('[{"site":"pokerstars","player":"v1"},{"site":"ggpoker","player":"v2"}]', '{"statsVersion":"stats/1"}')$q$)),
-  ('unparsed_summary',          pg_temp.reads($q$select public.unparsed_summary(50)$q$));
+  ('unparsed_summary',          pg_temp.reads($q$select public.unparsed_summary(50)$q$)),
+  ('library_count',             pg_temp.reads($q$select public.library_count()$q$)),
+  ('library_table_names',       pg_temp.reads($q$select public.library_table_names('table 1')$q$)),
+  ('library_page table name',   pg_temp.reads($q$select public.library_page('{"tableName":"table 1","sort":"pot"}', null, 100)$q$)),
+  ('library_facets range',         pg_temp.reads($q$select public.library_facets('{"from":"2026-01-02T00:00:00Z","statsVersion":"stats/1"}')$q$)),
+  ('analysis_overview',            pg_temp.reads($q$select public.analysis_overview('{"analysisVersion":"analysis/7"}')$q$)),
+  ('analysis_breakdown',           pg_temp.reads($q$select public.analysis_breakdown('{"analysisVersion":"analysis/7"}', 'position')$q$)),
+  ('analysis_hands',               pg_temp.reads($q$select public.analysis_hands('{"analysisVersion":"analysis/7"}', 'recent', 25, 0)$q$)),
+  ('analysis_hand',                pg_temp.reads($q$select public.analysis_hand((select id from public.hands where owner_id = auth.uid() order by id limit 1), 'analysis/7')$q$)),
+  ('analysis_node_actions',        pg_temp.reads($q$select public.analysis_node_actions('{"analysisVersion":"analysis/7"}')$q$)),
+  ('analysis_node_hands',          pg_temp.reads($q$select public.analysis_node_hands('{"analysisVersion":"analysis/7"}', array['cash-6max:r'], null, false, 'ev_loss', 25, 0)$q$)),
+  ('analysis_leaks',               pg_temp.reads($q$select public.analysis_leaks('{"analysisVersion":"analysis/7"}')$q$)),
+  ('analysis_leak_hands',          pg_temp.reads($q$select public.analysis_leak_hands('{"analysisVersion":"analysis/7"}', array['flop|srp||BTN|call|raise'], false, 'ev_loss', 25, 0)$q$)),
+  ('analysis_trend',               pg_temp.reads($q$select public.analysis_trend('{"analysisVersion":"analysis/7"}', 'session', 'position', 30)$q$)),
+  ('analysis_top_leaks',           pg_temp.reads($q$select public.analysis_top_leaks('{"analysisVersion":"analysis/7"}', 'all')$q$)),
+  ('analysis_leak_examples',       pg_temp.reads($q$select public.analysis_leak_examples('{"analysisVersion":"analysis/7"}', null, null, '[{"id":"a","keys":["flop|srp||BTN|call|raise"]}]', 15)$q$)),
+  ('analysis_coverage',            pg_temp.reads($q$select public.analysis_coverage('analysis/7')$q$)),
+  ('hands_needing_analysis',       pg_temp.reads($q$select count(*) from public.hands_needing_analysis('analysis/7', null, 100)$q$)),
+  ('hands_needing_analysis_recent', pg_temp.reads($q$select count(*) from public.hands_needing_analysis_recent('analysis/7', null, null, 100)$q$)),
+  ('drill_queue',                  pg_temp.reads($q$select public.drill_queue('analysis/7', null, false, 50)$q$)),
+  ('drill_summary',                pg_temp.reads($q$select public.drill_summary('analysis/7', null)$q$)),
+  ('drill_due_by_spot',            pg_temp.reads($q$select public.drill_due_by_spot('analysis/7', null)$q$)),
+  ('trainer_summary',              pg_temp.reads($q$select public.trainer_summary(30)$q$)),
+  ('study_plan',                   pg_temp.reads($q$select public.study_plan(public.study_week(), null)$q$)),
+  ('get_hand',                     pg_temp.reads($q$select public.get_hand((select id from public.hands where owner_id = auth.uid() order by id limit 1))$q$)),
+  ('my_notifications',             pg_temp.reads($q$select public.my_notifications(30, null)$q$)),
+  ('unread_notification_count',    pg_temp.reads($q$select public.unread_notification_count()$q$)),
+  ('my_saved_posts',               pg_temp.reads($q$select public.my_saved_posts(25, null)$q$));
 
 -- The counters move at all (the measure works): the small account's own
 -- library is read.
-select ok((select n from small_reads where reader = 'hands_facets') >= 30,
-          'the measure counts a reader''s reads (hands_facets reads the small account''s 30 hands)');
+select ok((select n from small_reads where reader = 'library_page {}') >= 30
+          and (select n from small_reads where reader = 'analysis_overview') >= 90,
+          'the measure counts a reader''s reads (the small account''s 30 hands, its 90 graded decisions)');
 
 select is(
   (select array_agg(reader || ': ' || n order by reader) from small_reads where n >= 1500),
@@ -311,70 +424,6 @@ select pg_temp.as_postgres();
 -- ---------------------------------------------------------------------------
 -- 4. The same answers as the previous bodies
 -- ---------------------------------------------------------------------------
-
-create function pg_temp.old_hands_facets() returns jsonb language sql stable set search_path = '' as $$
-  select jsonb_build_object(
-    'total', (select count(*) from public.hands),
-    'sites', (
-      select coalesce(jsonb_agg(jsonb_build_object('value', site, 'count', n) order by n desc, site), '[]'::jsonb)
-      from (select site, count(*) as n from public.hands group by site) s
-    ),
-    'heroes', (
-      select coalesce(jsonb_agg(jsonb_build_object('value', hero_name, 'count', n) order by n desc, hero_name), '[]'::jsonb)
-      from (select hero_name, count(*) as n from public.hands where hero_name is not null group by hero_name) s
-    ),
-    'tables', (
-      select coalesce(jsonb_agg(distinct table_name order by table_name), '[]'::jsonb)
-      from public.hands where table_name is not null
-    ),
-    'stakes', (
-      select coalesce(jsonb_agg(jsonb_build_object(
-               'bigBlind', big_blind, 'label', label, 'currency', currency, 'count', n
-             ) order by big_blind), '[]'::jsonb)
-      from (
-        select big_blind, max(stakes_label) as label, max(currency) as currency, count(*) as n
-        from public.hands where big_blind is not null group by big_blind
-      ) s
-    ),
-    'variants', (
-      select coalesce(jsonb_agg(distinct variant order by variant), '[]'::jsonb)
-      from public.hands where variant is not null
-    ),
-    'limitTypes', (
-      select coalesce(jsonb_agg(distinct limit_type order by limit_type), '[]'::jsonb)
-      from public.hands where limit_type is not null
-    ),
-    'gameFormats', (
-      select coalesce(jsonb_agg(distinct game_format::text order by game_format::text), '[]'::jsonb)
-      from public.hands
-    ),
-    'heroHandClasses', (
-      select coalesce(jsonb_agg(distinct hero_hand_class order by hero_hand_class), '[]'::jsonb)
-      from public.hands where hero_hand_class is not null
-    ),
-    'streets', (
-      select coalesce(jsonb_agg(distinct street_reached order by street_reached), '[]'::jsonb)
-      from public.hands where street_reached is not null
-    ),
-    'heroPositions', (
-      select coalesce(jsonb_agg(jsonb_build_object('value', hero_position, 'count', n) order by n desc, hero_position), '[]'::jsonb)
-      from (select hero_position, count(*) as n from public.hands where hero_position is not null group by hero_position) s
-    ),
-    'showdownPositions', (
-      select coalesce(jsonb_agg(distinct p order by p), '[]'::jsonb)
-      from public.hands, unnest(showdown_positions) as p
-    ),
-    'anonymizations', (
-      select coalesce(jsonb_agg(jsonb_build_object('value', site_anonymization::text, 'count', n)
-                                order by n desc, site_anonymization::text), '[]'::jsonb)
-      from (select site_anonymization, count(*) as n from public.hands group by site_anonymization) s
-    ),
-    'playedAtRange', (
-      select jsonb_build_object('min', min(played_at), 'max', max(played_at)) from public.hands
-    ),
-    'unparsedTotal', (select count(*) from public.unparsed_hands)
-  );
-$$;
 
 create function pg_temp.old_unparsed_summary(p_limit integer default 50) returns jsonb language sql stable set search_path = '' as $$
   select jsonb_build_object(
@@ -437,7 +486,6 @@ $$;
 grant execute on function pg_temp.sorted_gaps(jsonb) to authenticated;
 
 select pg_temp.act_as('00000000-0000-0000-0000-0000000061a1');
-select is(public.hands_facets(), pg_temp.old_hands_facets(), 'hands_facets: the previous answer (small account)');
 select is(pg_temp.sorted_gaps(public.unparsed_summary(50)), pg_temp.sorted_gaps(pg_temp.old_unparsed_summary(50)),
           'unparsed_summary: the previous answer (small account)');
 select is(public.stats_ev_missing('stats/1', 'ev/1'), pg_temp.old_stats_ev_missing('stats/1', 'ev/1'),
@@ -448,7 +496,6 @@ select is(public.my_player_notes('pokerstars'), pg_temp.old_my_player_notes('pok
           'my_player_notes for a room: the previous answer (small account)');
 
 select pg_temp.act_as('00000000-0000-0000-0000-0000000061b1');
-select is(public.hands_facets(), pg_temp.old_hands_facets(), 'hands_facets: the previous answer (big account)');
 select is(pg_temp.sorted_gaps(public.unparsed_summary(50)), pg_temp.sorted_gaps(pg_temp.old_unparsed_summary(50)),
           'unparsed_summary: the previous answer (big account)');
 select is(public.stats_ev_missing('stats/1', 'ev/1'), pg_temp.old_stats_ev_missing('stats/1', 'ev/1'),
@@ -456,12 +503,11 @@ select is(public.stats_ev_missing('stats/1', 'ev/1'), pg_temp.old_stats_ev_missi
 select is(public.player_sites('stats/1'), pg_temp.old_player_sites('stats/1'), 'player_sites: the previous answer (big account)');
 select is(public.my_player_notes(null), pg_temp.old_my_player_notes(null), 'my_player_notes: the previous answer (big account)');
 
--- hands_facets on an empty library: the shape of no hands.
+-- An empty library.
 select pg_temp.as_postgres();
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-0000000061c1', 'ownerfirst.empty@example.com', now(), now());
 select pg_temp.act_as('00000000-0000-0000-0000-0000000061c1');
-select is(public.hands_facets(), pg_temp.old_hands_facets(), 'hands_facets: the previous answer (an empty library)');
 select is(public.unparsed_summary(50), pg_temp.old_unparsed_summary(50), 'unparsed_summary: the previous answer (nothing submitted)');
 
 -- ---------------------------------------------------------------------------
@@ -469,8 +515,8 @@ select is(public.unparsed_summary(50), pg_temp.old_unparsed_summary(50), 'unpars
 -- ---------------------------------------------------------------------------
 
 select pg_temp.act_as('00000000-0000-0000-0000-0000000061a1');
-select is((public.hands_facets() ->> 'total')::int, 30, 'hands_facets: the small account''s 30 hands');
-select is((public.hands_facets() ->> 'unparsedTotal')::int, 10, 'hands_facets: the small account''s 10 unparsed samples');
+select is((public.analysis_overview('{"analysisVersion":"analysis/7"}') ->> 'hands')::int, 30,
+          'analysis_overview: the small account''s 30 graded hands');
 select is((public.library_facets('{}') ->> 'library')::int, 30, 'library_facets: library is the small account''s 30 hands');
 select is((public.library_facets('{}') ->> 'total')::int, 30, 'library_facets: total is the small account''s 30 hands');
 select is(jsonb_array_length(public.library_page('{}', null, 500) -> 'rows'), 30, 'library_page: the small account''s 30 rows');
@@ -488,7 +534,9 @@ select is(public.stats_ev_missing('stats/1', 'ev/1'),
           'stats_ev_missing: the small account''s hands without an EV row');
 
 select pg_temp.act_as('00000000-0000-0000-0000-0000000061b1');
-select is((public.hands_facets() ->> 'total')::int, 6000, 'hands_facets: the big account''s 6 000 hands');
+select is((public.analysis_overview('{"analysisVersion":"analysis/7"}') ->> 'hands')::int,
+          (select count(*)::int from public.hand_analysis where owner_id = '00000000-0000-0000-0000-0000000061b1'),
+          'analysis_overview: the big account''s graded hands');
 select is((public.library_facets('{}') ->> 'library')::int, 6000, 'library_facets: the big account''s 6 000 hands');
 select is((public.search_hands('{}', 10, 0) ->> 'total')::int, 6000, 'search_hands: the big account''s 6 000');
 select is((public.unparsed_summary(50) ->> 'total')::int, 2000, 'unparsed_summary: the big account''s 2 000');
@@ -525,7 +573,10 @@ select is(public.stats_ev_missing('stats/1', 'ev/1'), 0::bigint, 'stats_ev_missi
 -- ---------------------------------------------------------------------------
 
 select pg_temp.act_as_anon();
-select throws_ok($q$select public.hands_facets()$q$, '42501', null, 'anon: hands_facets refused');
+select throws_ok($q$select public.analysis_overview('{}')$q$, '42501', null, 'anon: analysis_overview refused');
+select throws_ok($q$select public.analysis_leak_sample('00000000-0000-0000-0000-0000000061a1', 'analysis/7', null, null, null, null, null)$q$,
+                 '42501', null, 'anon: analysis_leak_sample refused');
+select throws_ok($q$select public.get_hand(extensions.gen_random_uuid())$q$, '42501', null, 'anon: get_hand refused');
 select throws_ok($q$select public.library_facets('{}')$q$, '42501', null, 'anon: library_facets refused');
 select throws_ok($q$select public.library_page('{}', null, 10)$q$, '42501', null, 'anon: library_page refused');
 select throws_ok($q$select public.search_hands('{}', 10, 0)$q$, '42501', null, 'anon: search_hands refused');

@@ -229,7 +229,7 @@ why:
 | Function | Security | Reason |
 | --- | --- | --- |
 | `save_hands` | invoker | Inserts must stay subject to the `hands` RLS policy and the rate-limit trigger. |
-| `search_hands`, `get_hand`, `hands_facets`, `unparsed_summary` | invoker | Read-only; RLS already allows public select. |
+| `search_hands`, `get_hand`, `library_facets`, `library_count`, `unparsed_summary` | invoker | Read-only; RLS already allows public select. |
 | `record_conversion_failures` | **definer** | Anon has `SELECT` but no `INSERT`/`UPDATE` on `unparsed_hands`, precisely so a caller cannot forge an occurrence count or flip `status`. This is the only write path and it whitelists the columns it touches. Since R0.11 it also cannot be made to forge `origin` or `consented_at` on an existing row: a repeat never rewrites them. |
 | `unparsed_consent_instant` | invoker | Parses a client's consent time without raising (ISO 8601 with a zone, not in the future, not before 2026). No client may execute it; only the definer above calls it. |
 | `create_share` | **definer** | `shares` is sealed from clients. The function generates the slug itself, so a caller cannot choose one — and because being definer means RLS on `hands` does not apply inside it, it checks `owner_id` by hand. |
@@ -539,7 +539,8 @@ Tests: `supabase/tests/database/moderation.test.sql` — 58 assertions.
 ## Sessions, bankroll and opponent notes
 
 `20261214090000`. **Sessions are computed, not stored:** `stats_sessions`
-groups the caller's hero rows into runs with no gap longer than
+(retired in `20270818090000`; the web reads R4.5c-1's `report_sessions`, the
+same rule over the shared filter) grouped the caller's hero rows into runs with no gap longer than
 `p_gap_minutes` (default 30, across every table at once) with a window
 function over `played_at`; the bankroll is their running sum. Bomb pots and
 straddles count here (a bankroll is what happened to the money); the usual
@@ -644,15 +645,20 @@ forever. `stakes` (format × currency × blinds, by volume) drives the screen's
 format/stake picker: a sample mixing cash and chips has no win rate, so the
 screen opens on the biggest format instead of an empty headline.
 
-**Reports.** `stats_summary` and `stats_graph` are invoker functions that sum
-under RLS. Their helpers (`hand_stats_filter_sql`, `hand_stats_counter_keys`,
+**Reports.** *Retired in `20270818090000`* - nothing called them after
+R4.5c-2 (the web's `/stats` is the shared Reports screen over R4.5c-1's
+`report_*` readers), and over an account's own million hands they took
+12-27 s. `report_summaries.test.sql` keeps their last bodies as pg_temp
+copies, the oracle they are for `report_graph`, `report_situations` and
+`report_sessions`. What follows is their history. `stats_summary` and
+`stats_graph` were invoker functions that summed under RLS. Their helpers (`hand_stats_filter_sql`, `hand_stats_counter_keys`,
 `hand_stats_money_keys`, `stats_empty_*`) must be executable by
 `authenticated`: an invoker function runs with the caller's privileges, and
 revoking them (as `20261005090000` did) broke the screen for every real user.
 They read no table, so there is nothing to protect. `20261109090000` restores
 the grants and fixes `prune_hand_stats`, which joined on a non-existent `id`.
 
-**Breakdown.** `stats_breakdown(filters, group)` (`20261116090000`) is the
+**Breakdown** (retired with the reports above). `stats_breakdown(filters, group)` (`20261116090000`) was the
 summary split by one dimension: `position`, `table_size`, `site`, `stakes`,
 `hand_class` (the 13x13 matrix) or `stack_bb` (the hero's own stack in bands —
 not effective stack, which needs villain stacks). The group key picks a literal
@@ -698,8 +704,8 @@ Every evaluated hero hand gets a row — `applicable = false, ev_net = net` for
 the ~95% with no all-in — so "not evaluated yet" is computed
 (`stats_ev_missing`, `hands_needing_stats(..., p_ev_version)`) and the existing
 rebuild route catches a library up without re-deriving it to find the hands
-that matter. `stats_graph` joins it in and returns `cum_ev_bb_milli` per bucket
-plus `allInEv: {evVersion, evaluatedHands, allInHands}`; the EV line is the
+that matter. `report_graph` (before it, `stats_graph`) joins it in and returns
+`cum_ev_bb_milli` per point plus `allInEv: {evVersion, allInHands}`; the EV line is the
 total line with each all-in paid at the equity the hands had when the money
 went in.
 
@@ -810,13 +816,9 @@ the room as part of the key; the version default; a key named twice counted
 once; 500 keys accepted and 501 refused; malformed input refused; a second
 user sees only their own; anon cannot execute it.
 
-`supabase/tests/database/stats_breakdown.test.sql`: grouping, ordering,
-filters before grouping, the whitelist (including a SQL-shaped key), money
-refusal on mixed units, isolation, anon.
-
 `supabase/tests/database/stats_rebuild.test.sql`: coverage arithmetic,
 keyset paging, clamping, cross-user isolation, anon refusal, prune, and the
-two reports running as a signed-in user.
+reports (`report_open`, `report_graph`) running as a signed-in user.
 
 `supabase/tests/database/players_screen.test.sql` (46): `players_list`
 against the list written out over the villain and hero rows themselves (not
@@ -837,7 +839,8 @@ of broken summaries and an UPDATE. The readers against a scan of the rows:
 `report_open`'s totals and five breakdowns (dates cut inside days, whole days,
 one bound, every group and option, the money refusals, the EV sum),
 `report_facets`, `report_graph` against its rule written out hand by hand,
-`report_situations` = `stats_breakdown`, `report_sessions` = `stats_sessions`,
+`report_situations` = `stats_breakdown`, `report_sessions` = `stats_sessions`
+(both kept there as pg_temp copies since they were retired),
 and `stats_opponents`, `stats_coverage` (one version and two) and
 `stats_ev_missing` = their previous bodies. RLS, grants, anon.
 
@@ -1868,7 +1871,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `save_hands(p_hands jsonb)` | `authenticated` | `{received, inserted, duplicates}` | Batch-inserts hands **into the caller's library**, deduping on `(owner_id, hand_key)` with `ON CONFLICT DO NOTHING`. Returns exact counts, which is what removes the old "probe which of these already exist" round trips. Ignores any `owner_id` in the payload. Max 500 per call. |
 | `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `authenticated` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Scoped to the caller by RLS and, since `20270804090000`, by an explicit bound owner as well ([Owner first](#owner-first-a-readers-work-is-the-callers-rows)) — there is no filter key that could ask for anyone else's hands. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
 | `get_hand(p_id uuid)` | `authenticated` | full row as jsonb | The payload, fetched only when a hand is actually opened. `null` for an unknown id *and* for another account's id — indistinguishable by design. |
-| `hands_facets()` | `authenticated` | jsonb | Every distinct filter value the browse UI offers — sites, heroes, tables, stakes, variants, limit types, formats, hand classes, streets, the `played_at` range — for the caller's own hands. A site you have never played is not a useful filter to offer. One grouping-sets pass over the caller's rows (`20270804090000`; it was thirteen scans of the whole table under RLS). |
+| `library_count()` | `authenticated` | bigint | How many hands the caller has stored (the web's header badge). From `library_hand_counts`, not a pass over the hands (`20270818090000`). It replaced the badge's read of `hands_facets()` - every distinct filter value of the library, computed to show one number - which was retired with it (the browse UI's counts are `library_facets` since R4.5b). |
 | `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. Optional keys since R0.11: `origin` (`web` when absent; an unknown value skips the record), `os`, `clientVersion`, `consentedAt`, `anonymiserVersion`, `guessedSite`, `guessConfidence`. A `desktop` record without a valid `consentedAt`, `anonymiserVersion`, `os` and `clientVersion`, or over 64 KiB, is skipped. |
 | `unparsed_summary(p_limit int)` | `anon`, `authenticated` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. `security invoker`, so a client sees only its own submissions; the cross-corpus answer to "which converter next" is a service-role query. |
 | `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. |
@@ -1900,10 +1903,11 @@ The three position filters use **overlap (`&&`), not containment (`@>`)**:
 cutoff". Containment would be wrong — a hand has exactly one hero position, so
 containment of a two-element array would match nothing at all.
 
-`hands_facets()` additionally returns `heroPositions` (with counts — a lopsided
-distribution is itself informative), `showdownPositions`, and `anonymizations`
-(with counts, so the UI can tell whether the name filter is safe to offer at
-all).
+`hands_facets()` (retired in `20270818090000`) additionally returned
+`heroPositions` (with counts — a lopsided distribution is itself informative),
+`showdownPositions`, and `anonymizations` (with counts, so the UI could tell
+whether the name filter is safe to offer at all); `library_facets` carries
+the same groups.
 
 ### Share resolution: `read_share` + `record_share_view`
 
@@ -2030,7 +2034,7 @@ instead of once per row.
 ### `owner_id` is checked twice, on purpose
 
 RLS covers the `security invoker` functions — `save_hands`, `search_hands`,
-`get_hand`, `hands_facets` all inherit the owner policy for free. Readers that
+`get_hand`, `library_facets` all inherit the owner policy for free. Readers that
 aggregate or page over an account's rows filter by the owner explicitly as
 well, for speed rather than for safety: see [Owner first](#owner-first-a-readers-work-is-the-callers-rows).
 
@@ -2056,10 +2060,15 @@ beside a 1 000 000-hand account, a 7 496-hand account's `library_facets` took
 rows, estimated 503 748 hands for 7 496), `hands_facets` 39-62 s (thirteen
 sequential scans of the whole 2 GB `hands` table), a filtered `library_page`
 4-9 s (a global sort index walked across both accounts). The rule for every
-owner-scoped reader (`hands_facets`, `library_*`, `search_hands`, `stats_*`,
+owner-scoped reader (`library_*`, `search_hands`, `stats_*`,
 `report_*`, `players_list`, `player_profile`, `player_sites`,
 `my_player_notes`, `villain_counters`, `hands_needing_stats`, `hands_since`,
-`unparsed_summary`, R5.1's `session_review`, R5.2's `analysis_top_leaks` and `analysis_leak_examples`):
+`unparsed_summary`, R5.1's `session_review`, R5.2's `analysis_top_leaks` and `analysis_leak_examples`;
+since `20270818090000` also every `analysis_*` reader, `hands_needing_analysis*`,
+`drill_*`, `trainer_summary`, `study_plan`, `get_hand` and the forum's
+`my_post_state`, `my_saved_posts`, `my_notifications`,
+`unread_notification_count` - RLS alone, an InitPlan, or for
+`analysis_leak_sample` the owner as an argument, before):
 
 1. **PL/pgSQL, the caller in a variable**: `v_owner uuid := auth.uid();` -
    never a SQL function, whose owner would be the InitPlan again.
@@ -2086,6 +2095,23 @@ owner-scoped reader (`hands_facets`, `library_*`, `search_hands`, `stats_*`,
    `hand_stats_library_groups`, `create statistics` on the expressions);
    with the guess a big account's page sorted a million rows instead of
    walking its index to the first hundred.
+6. **Under RLS only a leakproof operator is an index condition.** The policy
+   runs before the query's own predicates, so `ilike`, `@>`, `&&` (not
+   leakproof) are filters on rows already fetched, never index conditions,
+   whatever index exists: the trigram index on `table_name` was never used
+   by a reader. A search by a part of something is answered by leakproof
+   operators instead - the library's table-name search matches the part
+   against the caller's distinct table names (a skip scan of
+   `hands_owner_table_idx`, `=` and `>` on text) and reads the hands by those
+   names (`20270818090000`). (`hands_board_gin`, `hands_hero_cards_gin`,
+   `hands_players_gin`, `hands_showdown_positions_gin`,
+   `hands_winner_positions_gin` are in the same position: the library's card,
+   board, player and position searches filter the owner's rows in the page's
+   order.)
+7. **An account's own million rows**: a reader that counts or groups every
+   hand of the caller reads a summary kept by triggers in the writer's
+   transaction, as R4.5c-1's `hero_rollups`, R5.2's leak summaries and the
+   library's counts ([below](#the-librarys-counts-library_hand_counts-library_hero_counts)) do.
 
 pgTAP `owner_first_readers` holds the rule: every reader above is PL/pgSQL,
 invoker and `force_custom_plan`; no `hands` index sorts all accounts
@@ -2093,7 +2119,51 @@ together; and, measured rather than planned, a 30-hand account's call of
 each reader returns under 1 500 tuples from the tables' heaps and indexes
 (this transaction's `pg_stat_get_xact_tuples_returned`) beside a 6 000-hand
 account - the old definitions read every account's rows there. A new
-owner-scoped reader joins its list.
+owner-scoped reader joins its list. Since `20270818090000` the list holds the
+analysis, drill, trainer, study and forum readers too (beside the big
+account's 9 000 graded decisions), and `owner_first_analysis` holds each of
+them to its previous body on two accounts.
+
+### The library's counts: `library_hand_counts`, `library_hero_counts`
+
+`library_facets` (the counts beside the library's chips, each group's values
+under the other groups' filters) read every hand joined to its hero row and
+EV row: 7.7-10 s at 1M hands. Since `20270818090000` it reads two summaries
+per (owner, UTC month, the library's groups):
+
+| Table | Counts |
+| --- | --- |
+| `library_hand_counts` | hands per room, format, variant, limit, size, stake (with the currency and blinds the chip shows), position, result, anonymity |
+| `library_hero_counts` | per statistics version and the same groups plus pot type and stack band: with `ev_version = ''` every hero row, with `'ev/N'` the hero rows whose EV row at N is an all-in |
+| `library_counts_stale` | accounts whose counts could not be kept exactly (below) |
+
+A filter's rows are a signed sum: each hand once without pot type, stack or
+all-in; minus, plus each hero row moving its hand to its pot type and stack;
+minus, plus each all-in pair moving it to all-in - exactly `library_rows`'
+left joins. A range reads its whole months from the counts and the hands of
+its partial months from `library_rows`; a search the counts do not hold (hero
+cards or class, board, a player, showdown, table name, minimum pot, showdown
+or winner positions) reads every hand as before. `library_count()` is the
+sum of `library_hand_counts`.
+
+Kept by statement triggers on `hands`, `hand_stats` (hero rows) and
+`hand_stats_ev` (all-ins), in the writer's transaction, under R4.5c-1's
+account lock (so a hero row and its EV row written by two transactions are
+paired by the later one). A hand deleted while its account stays (no path
+does that today) cascades to its hero rows before its own trigger runs, and
+they can no longer say which counts they were in: the account is marked in
+`library_counts_stale` and its readers read the hands until
+`library_counts_rebuild(owner)` (also run by `refresh_report_summaries`)
+counts it again. An UPDATE of any of the three tables recounts its accounts;
+an account deleted takes its counts with it. RLS select-own on the three
+tables; the triggers and the rebuild are definer, granted to nobody.
+
+pgTAP `library_counts` (43): kept = recounted after every write path,
+`library_facets` = its previous body on 177 random filters for two accounts
+(ranges on and across UTC month bounds, hands without a time, every group,
+versions, searches) and stale; `library_page` = its previous body for table
+names (`%`, `_`, `\` literal) and every order; an unfiltered call reads no hand,
+statistics or EV row.
 
 ### Data-shape invariants are enforced, not conventional
 
@@ -2143,7 +2213,8 @@ two filters plus a sort", not by reflexively indexing every column.
 | `hands_owner_created_idx` (`(owner_id, created_at, id)`) | The desktop pull's keyset, `hands_since` (R1.9): one range scan per page, the row comparison `(created_at, id) > cursor` included. |
 | `hands_site_played_idx`, `hands_hero_played_idx`, `hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`, `hands_tournament_idx` | Composite `(filter column, played_at desc)`. Every one of these is "filter by a low-cardinality column, then sort by time". A single-column index would force a sort of the whole matching set; the composite serves filter and order in one scan. The hero / class / stakes / tournament ones are partial (`WHERE … IS NOT NULL`) because the null side is never filtered on. |
 | `hands_showdown_idx` | `showdownOnly`. Partial on the selective side, so it is far smaller than indexing a skewed boolean. |
-| `hands_table_trgm` | `tableName` is filtered with a substring `ILIKE`; only a trigram GIN index can accelerate that. |
+| `hands_owner_table_idx` (`(owner_id, table_name) where table_name is not null`) | The library's table-name search: the caller's distinct table names by a skip scan, then the hands by name (`20270818090000`). Replaced `hands_table_trgm`, a global trigram index no reader could use under RLS ([rule 6](#owner-first-a-readers-work-is-the-callers-rows)). |
+| `library_hand_counts_key`, `library_hero_counts_key` (unique, owner first) | `library_facets` and `library_count` read an owner's (version's) counts by range. |
 | `hands_hero_position_played_idx` | "Hero was on the button", the most common position filter, plus the default sort. Partial on `hero_position IS NOT NULL`. |
 | `hands_showdown_positions_gin`, `hands_winner_positions_gin` | Overlap (`&&`) filters. Selective: a showdown involves 0–2 seats and a pot usually has one winner. |
 
@@ -2261,7 +2332,7 @@ superuser and proves nothing about RLS:
 
 ```bash
 # frontend/.env.local has the values; `supabase projects api-keys --project-ref riybwcfnclphacnfawiq` prints them
-curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/rpc/hands_facets" \
+curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/rpc/unparsed_summary" \
   -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $NEXT_PUBLIC_SUPABASE_ANON_KEY"
 ```
 

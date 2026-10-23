@@ -1,5 +1,6 @@
 -- pgTAP: all-in EV storage and the graph's fourth line (F13 / M5, #50) --
--- `20261207090000_stats_ev.sql`.
+-- `20261207090000_stats_ev.sql`. The graph is `report_graph` (R4.5c-1) since
+-- R2.9's `stats_graph` was retired (`20270818090000`).
 
 begin;
 
@@ -51,9 +52,9 @@ select is((select count(*)::int from public.hands_needing_stats('stats/1', null,
   'the backfill offers them although their statistics are current');
 select is((select count(*)::int from public.hands_needing_stats('stats/1', null, 100, false)), 0,
   '... and does not without an EV version (the old call)');
-select is((public.stats_graph('{"gameFormat":"cash"}', 3) -> 'allInEv' ->> 'evaluatedHands')::int, 0,
-  'before evaluation the graph says nothing is evaluated');
-select is((public.stats_graph('{"gameFormat":"cash"}', 3) -> 'buckets' -> 2 ->> 'cum_ev_bb_milli')::bigint, -80000::bigint,
+select is((public.report_graph('{"statsVersion":"stats/1","formats":["cash"]}', 3) -> 'allInEv' ->> 'allInHands')::int, 0,
+  'before evaluation the graph knows no all-in');
+select is((public.report_graph('{"statsVersion":"stats/1","formats":["cash"]}', 3) -> 'buckets' -> -1 ->> 'cum_ev_bb_milli')::bigint, -80000::bigint,
   '... and the EV line equals the result');
 
 -- The rebuild writes one row per hand: the all-in at equity (+60 bb: 80% of a
@@ -66,12 +67,12 @@ select is(public.save_hand_ev('[
 ]'::jsonb) ->> 'inserted', '3', 'rows resolve under RLS: B''s hand key is silently skipped');
 
 select is(public.stats_ev_missing('stats/1', 'ev/1'), 0::bigint, 'nothing left to evaluate');
-select is((public.stats_graph('{"gameFormat":"cash"}', 3) -> 'buckets' -> 2 ->> 'cum_ev_bb_milli')::bigint, 80000::bigint,
+select is((public.report_graph('{"statsVersion":"stats/1","formats":["cash"]}', 3) -> 'buckets' -> -1 ->> 'cum_ev_bb_milli')::bigint, 80000::bigint,
   'the EV line pays the all-in at equity: +60 +10 +10 bb');
-select is((public.stats_graph('{"gameFormat":"cash"}', 3) -> 'buckets' -> 2 ->> 'cum_net_bb_milli')::bigint, -80000::bigint,
+select is((public.report_graph('{"statsVersion":"stats/1","formats":["cash"]}', 3) -> 'buckets' -> -1 ->> 'cum_net_bb_milli')::bigint, -80000::bigint,
   '... while the total line is unchanged');
-select is(public.stats_graph('{"gameFormat":"cash"}', 3) -> 'allInEv',
-  '{"evVersion": "ev/1", "allInHands": 1, "evaluatedHands": 3}'::jsonb, 'and it says how much of the sample is real');
+select is(public.report_graph('{"statsVersion":"stats/1","formats":["cash"]}', 3) -> 'allInEv',
+  '{"evVersion": "ev/1", "allInHands": 1}'::jsonb, 'and it says how many hands the all-in line moved');
 select is((public.save_hand_ev('[{"hand_key":"pokerstars:ev1","seat":1,"ev_version":"ev/1","applicable":true,"ev_net":1,"ev_net_bb_milli":1}]'::jsonb) ->> 'inserted')::int,
   0, 'a second write of the same row is a no-op, never an update');
 
