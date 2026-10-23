@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { storedStandardText } from "../db/mapping";
+import { parseHand } from "../phf";
 import type { PhfHand } from "../phf/types";
 import { getServerSupabase } from "../supabase/server";
 
@@ -50,6 +51,11 @@ export interface ServerShare {
   title: string | null;
   /** Whether this link's copy may reveal how the hand ended. Defaults closed. */
   spoilers: boolean;
+  /**
+   * Whether the owner chose to show screen names (R4.5). False by default:
+   * `phf` is then the server's anonymised copy and there is no stored text.
+   */
+  showNames: boolean;
   views: number;
   createdAt: string | null;
   storedHandId: string | null;
@@ -96,6 +102,8 @@ export const readShare = cache(async (slug: string): Promise<ShareReadResult> =>
       // a deployment where the migration has not landed, must not start leaking
       // the result into unfurls because a key was missing.
       spoilers: payload.spoilers === true,
+      // Only an explicit `true` is the owner's opt-in.
+      showNames: payload.showNames === true,
       views: Number(payload.views ?? 0),
       createdAt: (payload.createdAt as string | null) ?? null,
       storedHandId: (payload.handId as string | null) ?? null,
@@ -104,3 +112,27 @@ export const readShare = cache(async (slug: string): Promise<ShareReadResult> =>
     },
   };
 });
+
+/**
+ * The hand a share page renders, the same way for `/h/:slug`, its metadata
+ * and `/embed/h/:slug`.
+ *
+ * Names hidden (the default, R4.5): the server's anonymised document as it
+ * came - Hero, Villain1..n, no table, room hand number or time - exactly as a
+ * published hand (`/p/:id`) is drawn. There is no stored text to read (the
+ * room's dialect carries every name), and nothing here may put names back.
+ * Null when the server withheld the hand (a name its scrubber could not
+ * place: fail closed).
+ *
+ * Names shown (the owner's opt-in): the stored standard text, re-read, as
+ * before.
+ */
+export function shareHand(share: ServerShare | null): PhfHand | null {
+  if (!share) {
+    return null;
+  }
+  if (!share.showNames) {
+    return share.phf && typeof share.phf === "object" && Array.isArray(share.phf.players) ? share.phf : null;
+  }
+  return share.standardText ? parseHand(share.standardText) : null;
+}
