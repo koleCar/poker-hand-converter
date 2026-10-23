@@ -54,3 +54,15 @@
   margin: 0;
   color: var(--danger-fg);
 }
+
+/* A finger (R4.5d): the whole label is the target, 44 px tall. */
+@media (pointer: coarse) {
+  .row {
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  .row input {
+    margin: 0;
+  }
+}

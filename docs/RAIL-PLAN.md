@@ -8538,6 +8538,15 @@ within budget (§3.3), only on rooms whose `hud.allowed` is `true`."
 **Exit.** A hand uploaded on the web and the same hand imported by the app
 produce identical `hands` rows and render identically.
 
+*Exit status (2026-10-22, on `staging` and its open PRs):* **the exit holds
+for the whole corpus** - R4.4's parity test puts all 556 files through both
+paths with 0 differences in `hands`, `hand_stats`, `hand_stats_ev` and what
+the web renders from them; the replayer that renders them is one copy
+(R2.6), and since R4.5b so is the Hands screen around it. The goal's "one
+look" is not complete: Reports and Players are still a screen per surface
+(R4.5c - Reports after the web's server summaries, Players with
+opponent statistics opt-in - is decided and briefed separately, below).
+
 ### R4.1 WASM core on the web — M
 - The conversion worker calls `rail-core-wasm`; `phf/types.ts` replaced by the
   generated declarations; TS parsers deleted once shadow mode (R0.13) has been
@@ -9145,7 +9154,8 @@ produce identical `hands` rows and render identically.
   (today's `/h/:slug` page does not obviously do this — check and change).
 - Split when picked up (2026-10-22): **R4.5a** share links hide names,
   **R4.5b** the replayer and Hands from the package, **R4.5c** Reports and
-  Players, **R4.5d** the responsive pass - one PR each, in that order.
+  Players, **R4.5d** the responsive pass - one PR each (R4.5c is its own,
+  later step: see below).
 - *As built, R4.5a* (§15): **done** - share links hide the players' names
   unless the owner opts in, enforced by the database.
   - **What was there.** `/h/:slug`, its metadata and `/embed/h/:slug` showed
@@ -9316,6 +9326,73 @@ produce identical `hands` rows and render identically.
     filter form's rules, which no element on those pages matched. Rerun
     after the review pass (one capture of each build, 2026-10-23): the same
     144 identical and the same 144 changed.
+- *R4.5c (Reports and Players from the shared package)*: **not built; the
+  owner decided (2026-10-23)**: Reports - build the web's server summaries
+  first (R2.9's recommendation), then the shared screen; Players - the shared
+  screen, opponent statistics stay opt-in on the web, labels and colours stay
+  in the app (no sync). Briefed as its own step. What it takes, as found on
+  2026-10-22:
+  - **Reports.** The desktop's Reports (`app/src/screens/Reports.tsx`,
+    R2.7b) reads one report per filter from its store - every definition's
+    `Shown`, the graph, five rollup breakdowns - and the situation tabs on
+    demand. The web's `/stats` reads `stats_summary`, `stats_graph` and a
+    `stats_breakdown` per panel, by format and one stake only. Putting the
+    shared screen on the web means a `ReportSource` over five to seven of
+    those scans per filter change, with the store's multi-value groups added
+    to `hand_stats_filter_sql`, and the web's own panels (HUD grid, sessions,
+    opponents) placed in or beside it. R2.9 measured those scans at **5-44 s
+    each for a 1M-hand account** and recommended a hero rollup and
+    `player_stats` before the web shows desktop-sized reports (§3.5); the
+    shared screen would multiply that wait. Decided: the web's server
+    summaries first (R2.9's recommendation), then the shared screen.
+  - **Players.** The desktop's Players (R2.7c: list, profile, colour,
+    labels, note, "hands with this player") reads `player_summary` /
+    `player_hands` the store keeps for every opponent. The web's opponents
+    report is opt-in per account (`hand_stats` villain rows, "about six times
+    the storage" - `20261123090000_villain_stats.sql`) and its notes are `player_notes`; colours and labels
+    exist only in the app, and syncing notes, tags and labels between the two
+    is an open step (R2.7a/c "Later"). Decided: villain rows stay opt-in on
+    the web, labels and colours stay in the app (no sync) - a `PlayersSource`
+    like `HandsSource`, the web's declaring no labels or colours.
+  - Both would follow R4.5b's pattern: the app's screen into
+    `packages/ui/`, a source per surface, one migration and pgTAP for what
+    the web lacks.
+- *As built, R4.5d* (§15): **done** - the responsive pass. The web's Hands,
+  Reports (`/stats`, its opponents panel), a shared hand and its embed, and
+  the replayer, at 375 x 812 as a touch phone, in English and Croatian.
+  - **Measured by a script** (`packages/ui/screens/responsive.mjs`, beside
+    `screens.mjs`; local only - it signs in with a test account): no
+    sideways page scroll on any of them (wide tables scroll inside their own
+    box), every button, chip, field, slider, row and toggle at least 44 px,
+    every filter panel of the Hands screen inside the screen. The one
+    exception is listed in the script: the starting-hand grid's 169 cells
+    (13 across a phone is 22 px each; every class is also a row of the table
+    under it). Before this step `/stats` had 188 controls under 44 px (the
+    `btn--sm` buttons at 30 px, selects at 37, the graph's toggle at 18, an
+    opponent's note link at 17) and the graph's table of numbers ran 40 px
+    past its card.
+  - **What changed**, all of it inside `@media (pointer: coarse)` except one
+    line: `packages/ui/styles/controls.css` - `.btn`, `.chip-btn` at least
+    44 px tall, `.btn--icon` as wide, fields 44 px with at least 16 px text
+    (a phone does not zoom on focus); the graph's "show the numbers" a 44 px
+    row; the analysis- and names-sharing toggles' rows (`AnalysisShareToggle`
+    module, which `ShareNamesToggle` shares) and an opponent's note link
+    44 px. The line outside it: `.stats-chart__table` scrolls inside its
+    box (`overflow-x: auto`), on any pointer. The replayer already sized its
+    transport for a finger (`--rp-hit`); the Hands screen's own pass is
+    R4.5b's.
+  - **No change on a mouse or a trackpad, by construction**: the primary
+    pointer decides, so the desktop app and the web on a computer render as
+    before, and `screens.mjs` (a desktop Chromium) cannot see these rules;
+    the one unconditional rule only acts on a table wider than its card,
+    which no page `screens.mjs` captures shows (offline, `/stats` has no
+    graph). Not rerun for this step.
+  - Results (local stack, the corpus samples' hands, `next start`): 12 / 12
+    checks pass - `/library` (list, a hand open, its 15 filter panels),
+    `/stats` with the opponents panel on, `/h/:slug`, `/embed/h/:slug`, each
+    in `en` and `hr`. Rerun on 2026-10-23 over R4.5b's review pass (18 filter
+    panels with the restored filters; a fresh account, the opponents panel
+    off; Ignition hands included since #235): 12 / 12.
 
 ---
 
@@ -9503,4 +9580,5 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-22 | **R4.4's findings F1 and F2 fixed on staging** (#235, `20270623093000_stats_seats_and_budget.sql`, not applied to production): seat numbers past 24 (Ignition tournaments, to 1 227 in the corpus) are accepted by `hand_stats`, `hand_stats_ev`, `hand_analysis.hero_seat` (any `smallint` from 0) and the forum's `anchor_seat` (from 1) - PHF has no seat bound and `hands.hero_seat` never had one; the rebuild route retries a page the database refuses for its data hand by hand and skips and counts the hands still refused (`lib/db/statsSave.ts`), so one hand can no longer stop an account's statistics; statistics inserts are charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, 10 000 000 / day) with the global bucket a 3 000 000 / 10 min ceiling. The desktop store and `rail-stats` have no seat limit. Parity without its workarounds: whole corpus, 0 differences, the 15 wide-seat hands rebuilt on both sides; pgTAP 36 files / 1 170 tests. |
 | 2026-10-22 | **R4.5a done** (R4.5 split: a = share links hide names, b = replayer + Hands, c = Reports + Players, d = responsive pass): share links hide the players' names unless the owner opts in, enforced by the database. Migration `20270623090000_share_names.sql`: `shares.show_names not null default false` (every existing link becomes anonymised: nothing earlier recorded a choice about names); `read_share` / `resolve_share` return for a hidden link the forum's `scrub_phf(.., 'pseudonyms')` (Hero, Villain1..n; no raw lines, table, tournament id, room hand number or time), null if any original name survives as a whole token (`share_anonymised_phf`, `publish_hand`'s leak check, positional rooms excepted), no `standardText`, no `title`; `create_share(.., p_show_names)`, owner-only `share_names_state` / `set_share_names`. Web: `/h/:slug`, its metadata and `/embed/h/:slug` render the payload's `phf` (`shareHand`); `ShareNamesToggle` (`en` + `hr`) in the share dialog and on the page for the owner. Tests: pgTAP `share_names` 40 (suite 36 files / 1 186); `npm run share:names` end to end against an isolated stack and `next start` (six corpus hands with awkward names, stored and never saved, page and embed: no name in the HTML; names on and off) 3 / 3; `share_anonymised_phf` over the corpus's 8 367 hands withholds none. Not applied to production. |
 | 2026-10-22 | **R4.5b done**: the web's library is the shared Hands screen. The desktop app's screen (R2.7a) moved into `packages/ui/hands/` (`HandsScreen`, `HandList`, `FilterBar`, `Popover`, `SavedFilters`, `filter`, `format`, `useHandList`; words in `strings/hands.{en,hr}.ts`) behind `HandsSource` (`page`, `facets`, `onChanged`, `features`, `savedFilters`), which the app implements over its store and the web over two new functions (`20270630090000_library_list.sql`): `library_page` (keyset, the store's filter groups by its rules plus the library's searches - hero cards or class, board, a player, showdown - and orders: newest, oldest, pot, best and worst result) and `library_facets` (each group's values with the hands they would match under the other groups). `/library` renders it with the shared replayer, share and publish, the converter's hand-off and live arrivals; `ReplayerTab`, `HandList`, `HandFiltersBar`, `handFilters` and their CSS deleted; the web's `DataSource` mounted. Every filter the old bar had is kept (after review: table name, minimum pot - now in the hand's own unit -, showdown and winner positions, the anonymity select; web only, the app's source declares them unsupported); the pager became scrolling (it never had an address to map) and "N new hands - show" became arrivals on top. Phones: two-line card rows under 40rem, the hand above the list under 50rem, 44 px controls on a coarse pointer; arrivals on top no longer move the rows in view (both surfaces). Tests: pgTAP `library_list` 52 (suite 38 files / 1 262); Vitest `sharedHandsScreen` 20; at 200 000 hands a page 4-18 ms (table name 0.22 s, pot type 0.45 s), the counts 0.9-1.15 s, both functions planned per call; screenshots: 144 of 288 identical (every page but the library's, every replayer element capture), the library's 144 changed on purpose. Not applied to production. |
+| 2026-10-22 | **R4.5d done; R4.5c decided, not built**: the responsive pass. At 375 x 812 as a touch phone, in `en` and `hr`, the web's Hands, Reports (`/stats` with the opponents panel), a shared hand and its embed, and the replayer: no sideways page scroll, every control at least 44 px (the starting-hand grid's cells excepted), every filter panel on screen - measured by `packages/ui/screens/responsive.mjs` (local, signed in), 12 / 12; before, `/stats` had 188 controls under 44 px and a table running past its card. All rules inside `@media (pointer: coarse)` (`controls.css`: `.btn`, `.chip-btn`, `.btn--icon`, fields at 16 px; the graph's toggle; the share toggles' rows; an opponent's note link) but one (`.stats-chart__table` scrolls in its box): nothing changes on a mouse, so the desktop app and `screens.mjs` see no difference. R4.5c (Reports and Players from the package): the owner decided (2026-10-23) - Reports after the web's server summaries (R2.9's recommendation; 5-44 s per scan at 1M hands today), Players as a shared screen with opponent statistics opt-in on the web and labels and colours in the app only (no sync); briefed separately. |
 | 2026-10-23 | **macOS, a new table's overlay leaves its title bar promptly** (follow-up to #224; CI's `macos_tracking` "HUD tracking on macOS" failed again on table 4 of the script, run 39860845086 and the run before it). **Evidence**: the table was attached 7 ms after its window appeared and its overlay covered the whole window (title bar too) for the full 2 s until the scripted tile; it reached the client area only ~70 ms after the tile moved the window. So for 2 s neither a look nor the observers measured the bar - under #224 either every 500 ms look read no usable close button, or a look counted an unusable one as measured (#224's `bar_known` was "a close button is there", and a button whose frame gave a bar of 0 or less was clamped to 0 *and* measured, which slows the find to 2 s); the old logs could not tell which (neither the bar reading nor the find's pace was logged). The re-placement once a look measures the bar (the engine's `Moved` -> `follow` -> the observers' `Resync` with the bar) is sound and now unit-tested through the backend's look. An in-process probe of a winit window (no permission needed in-process) showed AppKit's own accessibility giving the close button at its place (a 32 pt bar) from the window's creation on, so the gap is in the cross-process reading of a just-created window. **Fix**: `title_bar` is `Option` - no close button, a button without a size, or a bar of nothing or of the whole window is *not measured*, never a bar of 0 (full screen is measured as 0); a look that cannot read a measured bar keeps it (a busy client no longer puts an overlay over the title bar for a look); the observers never replace a bar with an unreadable reading (a resize note used to set 0) and the `Resync` carries the bar only when measured (`MacosBackend::title_bar_of`); **the observers measure a new table's bar themselves** from its window's element when it is tracked, every 250 ms for 3 s (`BAR_CHECKS`) and on its client's notifications in that time, moving the overlay at once and handing the bar to the find's memory (`Tracker::measured_bars` -> `remember_bars`), whatever the find's pace; after 3 s every look still re-reads it, so an overlay never stays over a title bar while the bar can be read. A borderless window still gets 0 (nothing is borrowed). **Diagnostics** (HUD stderr, timed): `window N: title bar not measured yet (close button ... / no accessibility window this look)`, `window N: title bar 32 pt (measured)`, `window N: title bar 32 pt (measured by the observers on <what>, <ms> after tracking)`, `looking for tables every <ms> ms`. Tests: `title_bars`, `a_new_tables_title_bar_is_measured_late` (bar not readable, then an unlaid button, then measured, a busy look, full screen; the observers' bar taken by the next look; a borderless window), `title_bar_news`. |
