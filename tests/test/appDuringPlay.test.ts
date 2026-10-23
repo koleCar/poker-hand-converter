@@ -55,7 +55,10 @@ describe("A10: no help during play", () => {
   it("puts the pot odds and the starting-hand chart behind the gate wherever they are drawn", () => {
     const files = sources(APP_SRC).map((path) => ({ path, text: readFileSync(path, "utf8") }));
     const replayers = files.filter((f) => f.text.includes("<ReplayViewer"));
-    const charts = files.filter((f) => f.text.includes("<HandMatrix"));
+    // The starting-hand chart is the shared Reports screen's since R4.5c
+    // (`packages/ui/reports/Breakdown.tsx`, behind its `hideHandChart`): every
+    // app screen that renders it passes the gate.
+    const charts = files.filter((f) => f.text.includes("<HandMatrix") || f.text.includes("<ReportsScreen"));
     expect(replayers.length).toBeGreaterThan(0);
     expect(charts.length).toBeGreaterThan(0);
     for (const { path, text } of replayers) {
@@ -65,6 +68,8 @@ describe("A10: no help during play", () => {
     for (const { path, text } of charts) {
       expect(text, path).toMatch(/hiddenDuringPlay\("handChart"/);
     }
+    const breakdown = readFileSync(join(APP_SRC, "../../packages/ui/reports/Breakdown.tsx"), "utf8");
+    expect(breakdown).toMatch(/const hidden = hideHandChart && tab === "handClass";/);
     // The shell gates whole screens.
     const app = readFileSync(join(APP_SRC, "App.tsx"), "utf8");
     expect(app).toMatch(/screenHiddenDuringPlay\(route, tablesOpen\)/);

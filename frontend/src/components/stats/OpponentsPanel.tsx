@@ -52,9 +52,12 @@ type Phase =
 export function OpponentsPanel({
   filters,
   refreshToken,
+  partial = false,
 }: {
   filters: StatsFilters;
-  refreshToken: number;
+  refreshToken: unknown;
+  /** The Reports filter has chips this table does not follow (it says so). */
+  partial?: boolean;
 }) {
   const t = useDict().stats;
   const en = t.opponents;
@@ -328,6 +331,7 @@ export function OpponentsPanel({
       </div>
 
       <p className="muted stats-breakdown__note">
+        {partial ? `${en.scopeNote} ` : ""}
         {data && data.opaqueRows > 0 ? `${en.opaque(data.opaqueRows)} ` : ""}
         {en.positional}{" "}
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => void turnOff()}>

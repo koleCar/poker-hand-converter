@@ -40,6 +40,7 @@ export {
   fetchStatsGraph,
   fetchStatsOpponents,
   fetchStatsSessions,
+  fetchReportSessions,
   myPlayerNotes,
   setPlayerNote,
   fetchStatsSummary,

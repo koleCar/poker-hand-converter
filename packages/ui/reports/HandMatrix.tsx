@@ -1,6 +1,7 @@
 /**
- * The 13 x 13 starting-hand grid, as on the web (`components/stats/HandMatrix.tsx`):
- * pairs on the diagonal, suited above it, offsuit below. Each cell is a
+ * The 13 x 13 starting-hand grid, as the web's own grid drew it before R4.5c
+ * (the desktop app's since R2.7b, shared since R4.5c): pairs on the
+ * diagonal, suited above it, offsuit below. Each cell is a
  * button (focusable, announced) showing the chosen statistic's value - the
  * R2.4 definition's text, faded by its reliability - and tinted by it; the
  * one selected lists every column under the grid. Hold'em classes only: an
@@ -13,11 +14,12 @@
  * per combination against the most dealt.
  */
 import { useMemo, useState } from "react";
-import type { Shown, StatDefinition } from "@rail/ui/model/stats";
-import { StatValue } from "@rail/ui/stats/StatValue";
 
-import { useLocale, useT } from "../../i18n";
-import type { StatGroup } from "../../lib/ipc";
+import { useUiStrings } from "../i18n";
+import type { Shown, StatDefinition } from "../model/stats";
+import { StatValue } from "../stats/StatValue";
+import { textLocale } from "./definitions";
+import type { StatGroup } from "./model";
 import styles from "./Reports.module.css";
 
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"] as const;
@@ -48,9 +50,9 @@ interface HandMatrixProps {
 }
 
 export function HandMatrix({ rows, columns }: HandMatrixProps) {
-  const t = useT();
+  const t = useUiStrings();
   const m = t.reports.matrix;
-  const locale = useLocale();
+  const locale = textLocale(t.intlLocale);
   const [metric, setMetric] = useState<Metric>("bb_per_100");
   const [selected, setSelected] = useState<string | null>(null);
   const byClass = useMemo(() => new Map(rows.map((row) => [row.key, row])), [rows]);

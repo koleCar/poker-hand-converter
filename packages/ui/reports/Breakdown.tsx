@@ -9,23 +9,26 @@
  * thin sample, the sample and interval in its tooltip). Starting hands are
  * the web's 13 x 13 grid as well.
  *
- * The tab is the route's parameter (`#/reports/<tab>`), which is how the
- * command palette opens one.
+ * The tab is the surface's (the app's route parameter, `#/reports/<tab>`,
+ * which is how its command palette opens one; the web's page state).
  *
- * (R3.8, A10) While the HUD has a poker table open, the starting hands -
- * the 13 x 13 chart and its rows - are hidden: no hand charts during play.
+ * (R3.8, A10) While the desktop's HUD has a poker table open, the starting
+ * hands - the 13 x 13 chart and its rows - are hidden (`hideHandChart`): no
+ * hand charts during play.
+ *
+ * Moved from the desktop app (R2.7b) into the shared package (R4.5c).
  */
 import { useId, useRef, type KeyboardEvent } from "react";
-import type { StatDefinition } from "@rail/ui/model/stats";
-import { StatValue } from "@rail/ui/stats/StatValue";
 
-import { useLocale, useT } from "../../i18n";
-import type { Breakdowns, HandFacets, Report, StatGroup } from "../../lib/ipc";
-import { hiddenDuringPlay } from "../../lib/duringPlay";
-import { useTablesOpen } from "../../lib/useTablesOpen";
 import { FORMAT_ORDER, POSITION_ORDER, POT_TYPE_ORDER, SIZE_ORDER } from "../hands/filter";
 import { stakeLabel } from "../hands/format";
+import type { HandFacets } from "../hands/model";
+import { useUiStrings } from "../i18n";
+import type { StatDefinition } from "../model/stats";
+import { StatValue } from "../stats/StatValue";
+import { textLocale } from "./definitions";
 import { HandMatrix } from "./HandMatrix";
+import type { Breakdowns, Report, StatGroup } from "./model";
 import styles from "./Reports.module.css";
 
 export const TABS = [
@@ -114,7 +117,7 @@ function rowsOf(tab: Tab, report: Report, breakdowns: Breakdowns | null): StatGr
 
 /** A row's first cell. */
 function useLabel(tab: Tab, facets: HandFacets | null): (row: StatGroup) => string {
-  const t = useT();
+  const t = useUiStrings();
   const f = t.hands.filters;
   const b = t.reports.breakdown;
   return (row) => {
@@ -155,10 +158,21 @@ interface BreakdownProps {
   facets: HandFacets | null;
   tab: Tab;
   onTab: (tab: Tab) => void;
+  /** Hide the starting hands (the desktop while a poker table is open, A10). */
+  hideHandChart?: boolean;
 }
 
-export function Breakdown({ report, breakdowns, loading, definitions, facets, tab, onTab }: BreakdownProps) {
-  const t = useT();
+export function Breakdown({
+  report,
+  breakdowns,
+  loading,
+  definitions,
+  facets,
+  tab,
+  onTab,
+  hideHandChart = false,
+}: BreakdownProps) {
+  const t = useUiStrings();
   const b = t.reports.breakdown;
   const label = useLabel(tab, facets);
   const rows = rowsOf(tab, report, breakdowns);
@@ -168,7 +182,7 @@ export function Breakdown({ report, breakdowns, loading, definitions, facets, ta
   const tabsRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
   // A10: no hand charts while a poker table is open.
-  const hidden = hiddenDuringPlay("handChart", useTablesOpen()) && tab === "handClass";
+  const hidden = hideHandChart && tab === "handClass";
 
   // Arrow keys move between tabs (the ARIA tabs pattern).
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -245,7 +259,7 @@ export function GroupTable({
   columns: (StatDefinition | null)[];
   label: (row: StatGroup) => string;
 }) {
-  const locale = useLocale();
+  const locale = textLocale(useUiStrings().intlLocale);
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>

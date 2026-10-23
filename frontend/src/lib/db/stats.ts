@@ -30,6 +30,7 @@ import {
 } from "../stats";
 import { EV_VERSION } from "../equity";
 import type { PhfHand } from "../phf/types";
+import type { HandFilter } from "@rail/ui/hands/model";
 import { currentUserId, requireUserId, rpc } from "./client";
 import {
   handStatsRows,
@@ -744,9 +745,38 @@ export async function fetchStatsSessions(filters: StatsFilters, gapMinutes = 30)
     return empty;
   }
   const payload = await rpc<Row | null>("stats_sessions", { p_filters: withVersion(filters), p_gap_minutes: gapMinutes });
+  return sessionsOf(payload, empty);
+}
+
+/**
+ * The same sessions over the shared screens' filter (`report_sessions`,
+ * R4.5c): every chip of the Reports screen, the dates and the options, read
+ * from the hero's report rows in time order.
+ */
+export async function fetchReportSessions(filter: HandFilter, gapMinutes = 30): Promise<StatsSessions> {
+  const empty: StatsSessions = {
+    gapMinutes,
+    sessions: [],
+    mixedUnitKind: false,
+    mixedCurrency: false,
+    currency: null,
+    currencyMinorUnits: null,
+  };
+  if (!(await currentUserId())) {
+    return empty;
+  }
+  const payload = await rpc<Row | null>("report_sessions", {
+    p_filter: { ...filter, statsVersion: STATS_VERSION },
+    p_gap_minutes: gapMinutes,
+  });
+  return sessionsOf(payload, empty);
+}
+
+function sessionsOf(payload: Row | null, empty: StatsSessions): StatsSessions {
   if (!payload) {
     return empty;
   }
+  const gapMinutes = empty.gapMinutes;
   return {
     gapMinutes: num(payload.gapMinutes) || gapMinutes,
     sessions: (Array.isArray(payload.sessions) ? (payload.sessions as Row[]) : []).map((row) => ({

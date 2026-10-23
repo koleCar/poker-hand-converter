@@ -34,7 +34,7 @@ import { statRows, useStatDefinitions } from "../lib/useStatDefinitions";
 import { POSITION_ORDER } from "../screens/hands/filter";
 import { bigBlinds, count } from "../screens/hands/format";
 import { PlayerWords } from "../screens/players/PlayerProfile";
-import { GroupTable } from "../screens/reports/Breakdown";
+import { GroupTable } from "@rail/ui/reports/Breakdown";
 import styles from "./HudPopup.module.css";
 
 const GROUPS: DefinitionGroup[] = ["preflop", "postflop", "showdown", "results"];

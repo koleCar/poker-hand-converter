@@ -35,7 +35,7 @@ import { SCREENS, go, type Screen } from "../lib/router";
 import { fromSaved, requestFilter, type FilterTarget } from "../screens/hands/filter";
 import { playedAt, stakes } from "../screens/hands/format";
 import { playerParam } from "../screens/players/param";
-import { TABS } from "../screens/reports/Breakdown";
+import { TABS } from "@rail/ui/reports/Breakdown";
 import type { Locale } from "../i18n/types";
 
 /** Hands listed for a query. */

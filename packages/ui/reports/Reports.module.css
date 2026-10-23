@@ -1,7 +1,9 @@
-/* Reports (R2.7b): the filter row, the summary tiles, the graph, the
-   statistics and the breakdowns, one column scrolling with the page.
-   Semantic tokens only; the graph's own rules are the shared package's
-   (`@rail/ui/stats/winrate-graph.css`, imported by `index.css`). */
+/* Reports (R2.7b; both surfaces since R4.5c): the filter row, the summary
+   tiles, the graph, the statistics and the breakdowns, one column scrolling
+   with the page. Semantic tokens only (the density's with the web's values
+   as fallbacks: the web has no density setting); the graph's own rules are
+   the package's (`@rail/ui/stats/winrate-graph.css`, imported by the app's
+   `index.css` and the web's `stats.css`). */
 
 .screen {
   display: flex;
@@ -160,13 +162,13 @@
 .table {
   inline-size: 100%;
   border-collapse: collapse;
-  font-size: var(--density-table-font);
+  font-size: var(--density-table-font, var(--font-size-sm));
   font-variant-numeric: tabular-nums;
 }
 
 .table th,
 .table td {
-  padding: var(--density-cell-block) var(--density-cell-inline);
+  padding: var(--density-cell-block, var(--space-1)) var(--density-cell-inline, var(--space-2));
   border-block-end: 1px solid var(--border-subtle);
   text-align: start;
   white-space: nowrap;

@@ -1,6 +1,8 @@
 import type { UiStrings } from "@rail/ui/i18n";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
+import { reportsUiEn } from "@rail/ui/strings/reports.en";
+import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { DICTIONARIES, INTL_LOCALE } from "./dictionaries";
 import type { Locale } from "./types";
 
@@ -31,6 +33,7 @@ function uiStrings(locale: Locale): UiStrings {
       bb: dict.stats.common.bb,
     },
     hands: locale === "hr" ? handsUiHr : handsUiEn,
+    reports: locale === "hr" ? reportsUiHr : reportsUiEn,
   };
 }
 
