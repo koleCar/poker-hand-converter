@@ -757,11 +757,20 @@ impl Hud {
             // not observed - a new one, a client that stopped posting, a
             // window whose title is not readable yet - brings the pace
             // back).
-            self.find_interval = if self.platform.notified() {
+            let interval = if self.platform.notified() {
                 self.settings.find_every_notified
             } else {
                 self.settings.find_every
             };
+            if interval != self.find_interval {
+                // (R3.14) The find's pace in the log (a new table waits for
+                // the quick one until its title bar is measured).
+                eprintln!(
+                    "rail-hud: looking for tables every {} ms",
+                    interval.as_millis()
+                );
+            }
+            self.find_interval = interval;
             self.next_find = now + self.find_interval;
         }
         if now >= self.next_store {
