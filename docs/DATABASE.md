@@ -711,6 +711,38 @@ the last slice — measured locally on 5,448 hands, no button pressed. Every
 report defaults to `stats/1` when not told otherwise, so the client always
 sends `statsVersion` (`withVersion` in `lib/db/stats.ts`).
 
+**Report summaries** (`20270707090000`, RAIL-PLAN R4.5c-1). A report over
+one account's 1 000 000 hands read the account's whole `hand_stats` heap
+(3-7 s a report, `stats_opponents` 21-41 s, `stats_coverage` 10 s), so three
+tables now summarise it, kept by statement triggers on `hand_stats`
+(`hand_stats_summaries_*`: AFTER INSERT adds the statement's rows, AFTER
+DELETE subtracts them, in the writer's own transaction; an UPDATE recounts its
+owners, a TRUNCATE empties them):
+
+| Table | Per | Holds | Read by |
+| --- | --- | --- | --- |
+| `hero_rollups` | owner, version, UTC day, segment (room, format, variant, limit, size class, currency, minor units, blinds, stake), hero position, kind (bomb 1, straddle 2, cashout 4) | every counter and money sum, the showdown share of the result (big blinds and money: the graph's lines) | `report_open`, `report_facets`, `report_graph` (its days), `stats_coverage` |
+| `hero_report_rows` | hero row | the segment's derived values, the result, the situation (pot type, stack band, hand class, players, street), the breakdown columns' counters; `hero_report_rows_time_idx` covers the graph's and sessions' columns in time order | `report_graph` (the days it cuts inside), `report_situations`, `report_sessions`, `stats_ev_missing` |
+| `player_stats` | owner, version, room, opponent (opaque-id rooms under ''), segment | `stats_opponents`' counters, the hero's result in the hands shared, first / last hand (stale after a delete: read again) | `stats_opponents` |
+
+RLS select for the owner on all three, no writes for anyone; the trigger
+functions and `report_summaries_rebuild(owner)` are definer with an empty
+`search_path` and granted to nobody; `refresh_report_summaries()` recounts the
+caller's own (rate limited, the repair). The readers - `report_open`,
+`report_graph`, `report_situations`, `report_sessions`, `report_facets` - are
+invoker functions over the shared screens' `HandFilter` (sites, formats,
+variants, limits, sizes, stakes, positions, from / to and the bomb / straddle
+/ cashout options), with the `stats_*` money refusals; a date range is whole
+days from the rollup and its partial days from the rows. `stats_opponents`,
+`stats_coverage` and `stats_ev_missing` keep their answers and read the
+summaries. The graph cuts its points by hands but at day ends: with T =
+hands / points, a day of at most T hands goes whole to one point, a bigger day
+is read hand by hand (every point is an exact cumulative sum; the points are
+about T hands apart). At 1M hands a filter change (`report_open` +
+`report_graph` + `report_facets`) answers in 0.1-0.3 s; the plan's R4.5c-1
+*As built* has the table. Costs: +10-12 ms on a 1 000-row `save_hand_stats`
+call (~60 ms), the backfill ~100 s for 6M rows.
+
 ### Tests
 
 `supabase/tests/database/stats_ev.test.sql`: the catch-up predicate, the
@@ -738,6 +770,22 @@ refusal on mixed units, isolation, anon.
 `supabase/tests/database/stats_rebuild.test.sql`: coverage arithmetic,
 keyset paging, clamping, cross-user isolation, anon refusal, prune, and the
 two reports running as a signed-in user.
+
+`supabase/tests/database/report_summaries.test.sql` (91): the three summaries
+equal a from-scratch aggregation of `hand_stats` for random rows (rooms of
+every anonymisation, cash in two currencies and three chip formats, bomb pots,
+straddles, cashouts, two versions) written in statements of every size, as
+the user through `save_hand_stats` and directly; and again after a hand's
+cascade, an old version pruned in slices, the hero's row alone, an opponent
+row alone, opponent rows pruned and written again, a hero row after its
+opponents, a write refused by the budget (nothing moved), a rebuild, a repair
+of broken summaries and an UPDATE. The readers against a scan of the rows:
+`report_open`'s totals and five breakdowns (dates cut inside days, whole days,
+one bound, every group and option, the money refusals, the EV sum),
+`report_facets`, `report_graph` against its rule written out hand by hand,
+`report_situations` = `stats_breakdown`, `report_sessions` = `stats_sessions`,
+and `stats_opponents`, `stats_coverage` (one version and two) and
+`stats_ev_missing` = their previous bodies. RLS, grants, anon.
 
 ## Hand analysis: `hand_analysis`, `decision_analysis`
 

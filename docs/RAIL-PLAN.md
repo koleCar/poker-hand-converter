@@ -234,7 +234,7 @@ marks on all four HUD tables, with R3.9 (migration 15: `hud_layouts`,
 | `hands` | existing; key `(owner_id, hand_key)` with `hand_key = site:hand id` | — |
 | `hand_players` | not added; `hand_stats` has one row per dealt-in seat | — |
 | `players` | new: tags and colours; `player_notes` stays (or is folded in) | R2.7 |
-| `player_stats` | only if R2.9 shows server-side reports need it - **it does** (R2.9 *As built*: the web's reports over 1M hands of one user take 5-44 s; a hero rollup, `player_stats` and a covering index recommended, not built) | R2.9 (measured), R4.x |
+| `player_stats` | only if R2.9 shows server-side reports need it - **it does** (R2.9 *As built*: the web's reports over 1M hands of one user take 5-44 s; a hero rollup, `player_stats` and a covering index recommended). **Built in R4.5c-1** with `hero_rollups` and `hero_report_rows` (`20270707090000`, kept by triggers on `hand_stats`): a filter change over 1M hands 0.1-0.3 s | R2.9 (measured), R4.5c-1 |
 | `hud_layouts` | new; synced so layouts follow the user to a second machine (built: one table for designs, assignments, seat positions and room settings, keyed (owner, kind, key), last writer wins by the client's `updated_at`, written only by `put_hud_layouts`) | R3.9 |
 | `unsupported_formats` | extend `unparsed_hands`: `origin` (web/desktop), `os`, `client_version`, `consented_at` | R0.11 |
 
@@ -9326,8 +9326,9 @@ opponent statistics opt-in - is decided and briefed separately, below).
     filter form's rules, which no element on those pages matched. Rerun
     after the review pass (one capture of each build, 2026-10-23): the same
     144 identical and the same 144 changed.
-- *R4.5c (Reports and Players from the shared package)*: **not built; the
-  owner decided (2026-10-23)**: Reports - build the web's server summaries
+- *R4.5c (Reports and Players from the shared package)*: **in three PRs -
+  R4.5c-1 (the server summaries) built, below; the owner decided
+  (2026-10-23)**: Reports - build the web's server summaries
   first (R2.9's recommendation), then the shared screen; Players - the shared
   screen, opponent statistics stay opt-in on the web, labels and colours stay
   in the app (no sync). Briefed as its own step. What it takes, as found on
@@ -9357,6 +9358,104 @@ opponent statistics opt-in - is decided and briefed separately, below).
   - Both would follow R4.5b's pattern: the app's screen into
     `packages/ui/`, a source per surface, one migration and pgTAP for what
     the web lacks.
+- *As built, R4.5c-1* (§15): **done** - the web's report summaries (R2.9's
+  recommendation), the first of R4.5c's three PRs (summaries, then the shared
+  Reports, then the shared Players). Migration
+  `20270707090000_report_summaries.sql`; nothing on the web renders
+  differently yet.
+  - **What is summarised.** `hero_rollups` - the hero's `hand_stats` rows
+    summed per (owner, version, UTC day, segment, hero position, kind), every
+    counter and money column and the showdown share of the result: the
+    desktop store's `hero_rollups` (segment = room, format, variant, limit,
+    size class, currency, minor units, blinds, and the stake they make,
+    `USD:200` / `chips`; kind = bomb pot 1, straddled 2, EV cashout 4, so the
+    reports' options are sums over rows). `hero_report_rows` - one narrow row
+    per hero row (derived segment, result, situation, the breakdown columns'
+    counters) with a covering index in time order. `player_stats` - the
+    opt-in villain rows summed per (owner, version, room, opponent,
+    segment) with the hero's result in the hands shared; opaque-id rooms
+    under the name '' (counted, never listed), bomb pots out. A covering
+    index on `hand_stats` itself was the first try and does not fit (an
+    index takes 32 columns; the breakdowns by situation alone need 36).
+  - **How they stay right**: statement triggers on `hand_stats` in the
+    writer's own transaction (AFTER INSERT adds `inserted`, AFTER DELETE
+    subtracts `deleted` and drops rows that reach no hands; UPDATE recounts
+    the owners, TRUNCATE empties) - so `save_hand_stats` from the rebuild
+    route or the browser, a hand's or an account's cascade,
+    `prune_hand_stats` (a version bump's old rows), `prune_villain_stats` and
+    a write the per-account budget refuses (it raises in the same statement,
+    everything rolls back) all keep them without anyone calling anything. A
+    refresh RPC called by the route was the alternative and was not taken:
+    every writer would have to call it, and the numbers would disagree with
+    the rows in between. An opponent's summary pairs two rows of a hand (the
+    opponent's and the hero's): a statement adds or removes every pair with
+    one of its own rows in it, and a per-account advisory lock (to commit)
+    makes concurrent writers of one account take turns. A delete marks an
+    opponent's first / last time stale (`seen_exact`), read again on demand.
+    `refresh_report_summaries()` (own account, rate limited) /
+    `report_summaries_rebuild(owner)` recount from the rows: the repair and
+    the backfill (~100 s for 6M rows).
+  - **Readers** (invoker, `search_path = ''`, planned per call, `work_mem`
+    64 MB), over the shared screens' `HandFilter` (sites, formats, variants,
+    limits, sizes, stakes, positions, from / to, the bomb / straddle /
+    cashout options) with the `stats_*` money refusals: `report_open` (the
+    summary - every counter, the money, the all-in EV sum - and the rollups'
+    breakdowns by position, stake, size, room, format), `report_graph`
+    (every line in big blinds and, in one currency, in money - the shared
+    screen's money view; `stats_graph` had the total's money only),
+    `report_situations` (pot type, stack, starting hand, players, street),
+    `report_sessions`, `report_facets` (each group's values counted under the
+    others). A date range is whole UTC days from the rollup and its partial
+    days from the rows, so any instants are exact. `stats_opponents`,
+    `stats_coverage` and `stats_ev_missing` keep their signatures and answers
+    and now read the summaries (pgTAP holds each to its previous body).
+  - **Changed on purpose**: the graph's points are cut by hands at day ends
+    (T = hands / points; a day of at most T hands goes whole to one point,
+    a bigger day is read hand by hand and cut inside): every point is an
+    exact cumulative sum, but they are about, not exactly, T hands apart -
+    `stats_graph`'s `ntile` needs every hand in order, which is the 1M-row
+    scan this step removes. `report_sessions` leaves bomb pots out by
+    default like every other report (`stats_sessions` counted them).
+  - **Single process**: Postgres launches no parallel workers for a query
+    inside a function ("Workers Launched: 0", measured), so the readers sum
+    the rollups per branch before adding them, use predicates the planner
+    can estimate (`kind = any`, formats as the enum, the stake a column),
+    extended statistics on what they group by, and key lookups for the few
+    all-in hands - each found by a plan that sorted a million rows on disk.
+  - **Measured at 1M hands** (`npm run supabase:perf`, extended: R2.9's
+    harness - the corpus through the RPCs as the user, copied to 1 004 464
+    hands / 6.0M `hand_stats` rows on an isolated local stack, Postgres in
+    Docker on the M2 Pro; ms, the second of two calls):
+
+    | | before (R2.9's functions) | after |
+    | --- | ---: | ---: |
+    | summary, everything / cash | 6 371 / 3 369 | 244 / 191 (`report_open`, with the five rollup breakdowns) |
+    | graph, everything / cash | 4 414 / 4 637 | 43 / 220 (150 points) |
+    | a breakdown (each of 7), cash | 3 603-3 987 | in `report_open`; by situation 190-549 (all five at once) |
+    | the filter's counts | - | 6-66 (`report_facets`) |
+    | **a filter change** (summary, graph, breakdowns, counts - in parallel) | **> 4 s** | **0.17-0.24 s** (everything, cash, one stake, cash BTN, dates cut inside days) |
+    | `stats_opponents`, everything / cash / a search | 20 779 / 40 772 / 12 196 | 468 / 398 / 125 |
+    | `stats_sessions` / `report_sessions`, cash | 4 339 | 946 |
+    | `stats_coverage` (opens the screen) | 9 742 | 147 |
+    | `stats_ev_missing` | 1 956 | 369 |
+
+    A reader's first call on a new connection is slower (`report_open`
+    0.9 s: its plan and the function itself are built per connection;
+    PostgREST keeps its connections); the sessions (every hand in time
+    order, two windows) stay near the 1 s target. Writes: +10-12 ms on a
+    1 000-row `save_hand_stats` call of ~60 ms; deleting an account of
+    7 500 hands 0.4 s (0.29 s without the triggers).
+  - **Tests**: pgTAP `report_summaries` (91; suite 39 files / 1 353 on a fresh
+    reset): the three summaries equal a from-scratch aggregation of random
+    rows after inserts of every size (as the user through `save_hand_stats`
+    and directly), a cascade, a version pruned in slices, hero and opponent
+    rows deleted alone, opponents pruned and written again, a hero row after
+    its opponents, a refused write, a rebuild, a repair, an UPDATE; the
+    readers against scans of the rows (`report_graph` against its rule written
+    out hand by hand), `report_situations` / `report_sessions` against
+    `stats_breakdown` / `stats_sessions`, the three rewritten functions
+    against their previous bodies; RLS, grants, anon. Types regenerated. Not
+    applied to production.
 - *As built, R4.5d* (§15): **done** - the responsive pass. The web's Hands,
   Reports (`/stats`, its opponents panel), a shared hand and its embed, and
   the replayer, at 375 x 812 as a touch phone, in English and Croatian.
@@ -9582,3 +9681,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-22 | **R4.5b done**: the web's library is the shared Hands screen. The desktop app's screen (R2.7a) moved into `packages/ui/hands/` (`HandsScreen`, `HandList`, `FilterBar`, `Popover`, `SavedFilters`, `filter`, `format`, `useHandList`; words in `strings/hands.{en,hr}.ts`) behind `HandsSource` (`page`, `facets`, `onChanged`, `features`, `savedFilters`), which the app implements over its store and the web over two new functions (`20270630090000_library_list.sql`): `library_page` (keyset, the store's filter groups by its rules plus the library's searches - hero cards or class, board, a player, showdown - and orders: newest, oldest, pot, best and worst result) and `library_facets` (each group's values with the hands they would match under the other groups). `/library` renders it with the shared replayer, share and publish, the converter's hand-off and live arrivals; `ReplayerTab`, `HandList`, `HandFiltersBar`, `handFilters` and their CSS deleted; the web's `DataSource` mounted. Every filter the old bar had is kept (after review: table name, minimum pot - now in the hand's own unit -, showdown and winner positions, the anonymity select; web only, the app's source declares them unsupported); the pager became scrolling (it never had an address to map) and "N new hands - show" became arrivals on top. Phones: two-line card rows under 40rem, the hand above the list under 50rem, 44 px controls on a coarse pointer; arrivals on top no longer move the rows in view (both surfaces). Tests: pgTAP `library_list` 52 (suite 38 files / 1 262); Vitest `sharedHandsScreen` 20; at 200 000 hands a page 4-18 ms (table name 0.22 s, pot type 0.45 s), the counts 0.9-1.15 s, both functions planned per call; screenshots: 144 of 288 identical (every page but the library's, every replayer element capture), the library's 144 changed on purpose. Not applied to production. |
 | 2026-10-22 | **R4.5d done; R4.5c decided, not built**: the responsive pass. At 375 x 812 as a touch phone, in `en` and `hr`, the web's Hands, Reports (`/stats` with the opponents panel), a shared hand and its embed, and the replayer: no sideways page scroll, every control at least 44 px (the starting-hand grid's cells excepted), every filter panel on screen - measured by `packages/ui/screens/responsive.mjs` (local, signed in), 12 / 12; before, `/stats` had 188 controls under 44 px and a table running past its card. All rules inside `@media (pointer: coarse)` (`controls.css`: `.btn`, `.chip-btn`, `.btn--icon`, fields at 16 px; the graph's toggle; the share toggles' rows; an opponent's note link) but one (`.stats-chart__table` scrolls in its box): nothing changes on a mouse, so the desktop app and `screens.mjs` see no difference. R4.5c (Reports and Players from the package): the owner decided (2026-10-23) - Reports after the web's server summaries (R2.9's recommendation; 5-44 s per scan at 1M hands today), Players as a shared screen with opponent statistics opt-in on the web and labels and colours in the app only (no sync); briefed separately. |
 | 2026-10-23 | **macOS, a new table's overlay leaves its title bar promptly** (follow-up to #224; CI's `macos_tracking` "HUD tracking on macOS" failed again on table 4 of the script, run 39860845086 and the run before it). **Evidence**: the table was attached 7 ms after its window appeared and its overlay covered the whole window (title bar too) for the full 2 s until the scripted tile; it reached the client area only ~70 ms after the tile moved the window. So for 2 s neither a look nor the observers measured the bar - under #224 either every 500 ms look read no usable close button, or a look counted an unusable one as measured (#224's `bar_known` was "a close button is there", and a button whose frame gave a bar of 0 or less was clamped to 0 *and* measured, which slows the find to 2 s); the old logs could not tell which (neither the bar reading nor the find's pace was logged). The re-placement once a look measures the bar (the engine's `Moved` -> `follow` -> the observers' `Resync` with the bar) is sound and now unit-tested through the backend's look. An in-process probe of a winit window (no permission needed in-process) showed AppKit's own accessibility giving the close button at its place (a 32 pt bar) from the window's creation on, so the gap is in the cross-process reading of a just-created window. **Fix**: `title_bar` is `Option` - no close button, a button without a size, or a bar of nothing or of the whole window is *not measured*, never a bar of 0 (full screen is measured as 0); a look that cannot read a measured bar keeps it (a busy client no longer puts an overlay over the title bar for a look); the observers never replace a bar with an unreadable reading (a resize note used to set 0) and the `Resync` carries the bar only when measured (`MacosBackend::title_bar_of`); **the observers measure a new table's bar themselves** from its window's element when it is tracked, every 250 ms for 3 s (`BAR_CHECKS`) and on its client's notifications in that time, moving the overlay at once and handing the bar to the find's memory (`Tracker::measured_bars` -> `remember_bars`), whatever the find's pace; after 3 s every look still re-reads it, so an overlay never stays over a title bar while the bar can be read. A borderless window still gets 0 (nothing is borrowed). **Diagnostics** (HUD stderr, timed): `window N: title bar not measured yet (close button ... / no accessibility window this look)`, `window N: title bar 32 pt (measured)`, `window N: title bar 32 pt (measured by the observers on <what>, <ms> after tracking)`, `looking for tables every <ms> ms`. Tests: `title_bars`, `a_new_tables_title_bar_is_measured_late` (bar not readable, then an unlaid button, then measured, a busy look, full screen; the observers' bar taken by the next look; a borderless window), `title_bar_news`. |
+| 2026-10-23 | **R4.5c-1 done**: the web's report summaries (R2.9's recommendation; first of R4.5c's three PRs). Migration `20270707090000_report_summaries.sql`: `hero_rollups` (the hero's rows per owner, version, UTC day, segment, position, kind - the desktop's), `hero_report_rows` (a narrow row per hero row, covered in time order) and `player_stats` (opt-in villain rows per opponent and segment, with the hero's result in the hands shared), kept by statement triggers on `hand_stats` in the writer's transaction (every insert and delete path, the budget's refusal included; an advisory lock per account for the pairs), `refresh_report_summaries` / `report_summaries_rebuild` the repair and the backfill. Readers over the shared `HandFilter`: `report_open`, `report_graph` (points cut by hands at day ends, every one exact), `report_situations`, `report_sessions`, `report_facets`; `stats_opponents`, `stats_coverage`, `stats_ev_missing` read the summaries with the same answers. At 1M hands a filter change answers in 0.17-0.24 s (was > 4 s; a report 3-6 s, opponents 21-41 s, coverage 10 s); sessions 0.95 s. pgTAP `report_summaries` 91 (suite 39 files / 1 353). Not applied to production. |
