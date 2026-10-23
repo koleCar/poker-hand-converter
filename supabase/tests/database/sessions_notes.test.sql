@@ -1,5 +1,6 @@
 -- pgTAP: sessions, bankroll and opponent notes (F14, #54) --
--- `20261214090000_sessions_notes.sql`.
+-- `20261214090000_sessions_notes.sql`. Sessions are read by `report_sessions`
+-- (R4.5c-1, the same rule) since `stats_sessions` was retired (`20270818090000`).
 
 begin;
 
@@ -57,13 +58,13 @@ select pg_temp.hand('00000000-0000-0000-0000-00000000bbb1', 1,   0, 'Alpha', 500
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000000aaa1');
 
-select is(jsonb_array_length(public.stats_sessions('{"gameFormat":"cash"}') -> 'sessions'), 3,
+select is(jsonb_array_length(public.report_sessions('{"statsVersion":"stats/1","formats":["cash"],"includeBombPots":true}') -> 'sessions'), 3,
   'two hours apart is two sessions (and the ignition hand a third)');
-select is(public.stats_sessions('{"gameFormat":"cash"}') -> 'sessions' -> 2 ->> 'hands', '3', 'the first session holds three hands');
-select is(public.stats_sessions('{"gameFormat":"cash"}') -> 'sessions' -> 2 ->> 'tables', '2', '... across two tables');
-select is(public.stats_sessions('{"gameFormat":"cash"}') -> 'sessions' -> 2 ->> 'net', '400', '... and nets +$4');
-select is(public.stats_sessions('{"gameFormat":"cash"}') -> 'sessions' -> 1 ->> 'net', '-900', 'the second session is its own');
-select is(jsonb_array_length(public.stats_sessions('{"gameFormat":"cash"}', 180) -> 'sessions'), 2,
+select is(public.report_sessions('{"statsVersion":"stats/1","formats":["cash"],"includeBombPots":true}') -> 'sessions' -> 2 ->> 'hands', '3', 'the first session holds three hands');
+select is(public.report_sessions('{"statsVersion":"stats/1","formats":["cash"],"includeBombPots":true}') -> 'sessions' -> 2 ->> 'tables', '2', '... across two tables');
+select is(public.report_sessions('{"statsVersion":"stats/1","formats":["cash"],"includeBombPots":true}') -> 'sessions' -> 2 ->> 'net', '400', '... and nets +$4');
+select is(public.report_sessions('{"statsVersion":"stats/1","formats":["cash"],"includeBombPots":true}') -> 'sessions' -> 1 ->> 'net', '-900', 'the second session is its own');
+select is(jsonb_array_length(public.report_sessions('{"statsVersion":"stats/1","formats":["cash"],"includeBombPots":true}', 180) -> 'sessions'), 2,
   'a wider gap merges the first two');
 
 -- ----------------------------------------------------------------- notes --
@@ -83,7 +84,7 @@ select pg_temp.act_as('00000000-0000-0000-0000-00000000bbb1');
 select is(jsonb_array_length(public.my_player_notes()), 0, 'notes are private');
 
 select pg_temp.act_as_anon();
-select throws_ok($$ select public.stats_sessions() $$, '42501', null, 'anon has no sessions');
+select throws_ok($$ select public.report_sessions() $$, '42501', null, 'anon has no sessions');
 
 select * from finish();
 rollback;

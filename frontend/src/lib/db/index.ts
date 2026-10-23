@@ -33,17 +33,11 @@ export {
 } from "./client";
 
 export {
-  emptyStatsGraph,
-  emptyStatsSummary,
-  fetchStatsBreakdown,
   fetchStatsCoverage,
-  fetchStatsGraph,
   fetchStatsOpponents,
-  fetchStatsSessions,
   fetchReportSessions,
   myPlayerNotes,
   setPlayerNote,
-  fetchStatsSummary,
   pruneVillainStats,
   rebuildStats,
   setVillainRowsEnabled,
@@ -51,8 +45,6 @@ export {
   saveHandStats,
   villainRowsEnabled,
   type HandStatsInsert,
-  type BreakdownGroup,
-  type BreakdownRow,
   type MoneyUnitState,
   type OpponentFilters,
   type OpponentRow,
@@ -62,13 +54,9 @@ export {
   type RebuildProgress,
   type SaveHandStatsResult,
   type StatsFilters,
-  type StatsGraph,
   type StatsOpponents,
-  type StatsGraphBucket,
   type StakeVolume,
-  type StatsBreakdown,
   type StatsCoverage,
-  type StatsSummary,
 } from "./stats";
 
 export {
@@ -100,7 +88,6 @@ export {
 
 export {
   countHands,
-  fetchHandFacets,
   findHandId,
   getHand,
   handFiltersFromForm,

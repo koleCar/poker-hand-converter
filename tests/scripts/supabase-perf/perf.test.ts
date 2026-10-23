@@ -41,10 +41,10 @@
  *    for a fully analysed account. Made once; later runs keep them.
  * 3. **The reports**, as the user, each three times (the first is what a
  *    user opening `/stats` waits for; Postgres has no result cache, so the
- *    others differ only by the buffer cache). `RAIL_PERF_SET=old`: R2.9's
- *    `stats_summary`, `stats_graph` (60 buckets, the web's default),
- *    `stats_breakdown` by every group, `stats_opponents` (50 rows, and a
- *    search), `stats_sessions`; everything and cash only. `review`: the
+ *    others differ only by the buffer cache). `RAIL_PERF_SET=old`:
+ *    `stats_opponents` (50 rows, and a search), everything and cash only
+ *    (R2.9's `stats_summary`, `stats_graph`, `stats_breakdown` and
+ *    `stats_sessions` were retired in `20270818090000`). `review`: the
  *    session review (R5.1) - `session_review` for the latest session, the
  *    session in the middle of the history, the biggest session and the
  *    latest cash one, and the picker's `report_sessions` over its 90-day
@@ -320,13 +320,7 @@ function measureSql(): string {
     calls.push(...newCalls(v));
   }
   for (const [scope, f] of SET === "new" || SET === "review" ? [] : [["everything", all], ["cash", cash]]) {
-    calls.push([`stats_summary ${scope}`, `public.stats_summary('${f}'::jsonb)`]);
-    calls.push([`stats_graph ${scope}`, `public.stats_graph('${f}'::jsonb, 60)`]);
-    for (const group of ["position", "pot_type", "stack_bb", "hand_class", "stakes", "site", "table_size"]) {
-      calls.push([`stats_breakdown ${group} ${scope}`, `public.stats_breakdown('${f}'::jsonb, '${group}')`]);
-    }
     calls.push([`stats_opponents ${scope}`, `public.stats_opponents('${f}'::jsonb, null, 50)`]);
-    calls.push([`stats_sessions ${scope}`, `public.stats_sessions('${f}'::jsonb, 30)`]);
   }
   if (SET !== "new" && SET !== "review") {
     calls.push(["stats_opponents search", `public.stats_opponents('${all}'::jsonb, 'a', 50)`]);

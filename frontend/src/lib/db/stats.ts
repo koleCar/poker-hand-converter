@@ -22,11 +22,8 @@
 import {
   STATS_VERSION,
   emptyCounters,
-  emptyMoney,
   COUNTER_KEYS,
-  MONEY_KEYS,
   type SeatCounters,
-  type SeatMoney,
 } from "../stats";
 import { EV_VERSION } from "../equity";
 import type { PhfHand } from "../phf/types";
@@ -199,63 +196,6 @@ export interface MoneyUnitState {
   currencyMinorUnits: number | null;
 }
 
-export interface StatsSummary extends MoneyUnitState {
-  statsVersion: string;
-  hands: number;
-  /**
-   * Hands whose money was counted. Lower than `hands` whenever the sample holds
-   * EV cashouts, which is why bb/100 divides by this and not by the hand count.
-   */
-  moneyHands: number;
-  counters: SeatCounters;
-  /** Null when the units refuse to be summed; see {@link MoneyUnitState}. */
-  money: SeatMoney | null;
-  firstHandAt: string | null;
-  lastHandAt: string | null;
-}
-
-export interface StatsGraphBucket {
-  bucket: number;
-  hands: number;
-  moneyHands: number;
-  firstPlayedAt: string | null;
-  lastPlayedAt: string | null;
-  cumHands: number;
-  cumMoneyHands: number;
-  /** Cumulative result, in thousandths of a big blind. */
-  cumNetBbMilli: number;
-  /** ...of it won in hands that reached showdown. */
-  cumSdBbMilli: number;
-  /** ...and in hands that did not. The two sum to `cumNetBbMilli`. */
-  cumNsdBbMilli: number;
-  /** Cumulative result in minor units, or null across mixed currencies. */
-  cumNet: number | null;
-  /**
-   * Cumulative all-in-EV result in thousandths of a big blind: the total line
-   * with the luck of all-in runouts taken out. Equals `cumNetBbMilli` until a
-   * hand with an all-in is evaluated.
-   */
-  cumEvBbMilli: number;
-}
-
-/** How much of the sample the EV line is actually about. */
-export interface AllInEvSummary {
-  evVersion: string;
-  /** Hands with an EV row: the line is exact for these. */
-  evaluatedHands: number;
-  /** Of those, hands with an all-in and cards to come. */
-  allInHands: number;
-}
-
-export interface StatsGraph extends MoneyUnitState {
-  statsVersion: string;
-  hands: number;
-  moneyHands: number;
-  buckets: StatsGraphBucket[];
-  /** Null when the server predates EV, or the sample has no money. */
-  allInEv: AllInEvSummary | null;
-}
-
 type Row = Record<string, unknown>;
 
 const num = (value: unknown): number =>
@@ -285,149 +225,6 @@ function toCounters(payload: unknown): SeatCounters {
     counters[key] = num(row[key]);
   }
   return counters;
-}
-
-function toMoney(payload: unknown): SeatMoney | null {
-  if (payload === null || payload === undefined) {
-    return null;
-  }
-  const row = payload as Row;
-  const money = emptyMoney();
-  for (const key of MONEY_KEYS) {
-    money[key] = num(row[key]);
-  }
-  return money;
-}
-
-function toUnitState(payload: Row): MoneyUnitState {
-  return {
-    mixedCurrency: payload.mixedCurrency === true,
-    mixedUnitKind: payload.mixedUnitKind === true,
-    moneyAvailable: payload.moneyAvailable !== false,
-    currency: str(payload.currency),
-    currencyMinorUnits: maybeNum(payload.currencyMinorUnits),
-  };
-}
-
-/** Everything at zero, for the signed-out and not-configured paths. */
-export function emptyStatsSummary(): StatsSummary {
-  return {
-    statsVersion: STATS_VERSION,
-    hands: 0,
-    moneyHands: 0,
-    counters: emptyCounters(),
-    money: emptyMoney(),
-    mixedCurrency: false,
-    mixedUnitKind: false,
-    moneyAvailable: true,
-    currency: null,
-    currencyMinorUnits: null,
-    firstHandAt: null,
-    lastHandAt: null,
-  };
-}
-
-export function emptyStatsGraph(): StatsGraph {
-  return {
-    statsVersion: STATS_VERSION,
-    hands: 0,
-    moneyHands: 0,
-    buckets: [],
-    mixedCurrency: false,
-    mixedUnitKind: false,
-    moneyAvailable: true,
-    currency: null,
-    currencyMinorUnits: null,
-    allInEv: null,
-  };
-}
-
-/**
- * Every counter, summed over the caller's own hands.
- *
- * Returns the empty summary rather than throwing when signed out, for the same
- * reason `searchHands` returns an empty page: the statistics screen is a place
- * a signed-out visitor is allowed to be, and "0 hands" under a sign-in prompt
- * reads better than a red error about a session.
- *
- * Note what is *not* here: no rate, no percentage, no average. The server
- * returns sums; `rates()` from `lib/stats` divides them. That is the only
- * arrangement in which two samples can be combined, and it is why nothing in
- * this file does arithmetic.
- */
-export async function fetchStatsSummary(filters: StatsFilters = {}): Promise<StatsSummary> {
-  if (!(await currentUserId())) {
-    return emptyStatsSummary();
-  }
-  const payload = await rpc<Row | null>("stats_summary", { p_filters: withVersion(filters) });
-  if (!payload) {
-    return emptyStatsSummary();
-  }
-  return {
-    statsVersion: String(payload.statsVersion ?? STATS_VERSION),
-    hands: num(payload.hands),
-    moneyHands: num(payload.moneyHands),
-    counters: toCounters(payload.counters),
-    money: toMoney(payload.money),
-    firstHandAt: str(payload.firstHandAt),
-    lastHandAt: str(payload.lastHandAt),
-    ...toUnitState(payload),
-  };
-}
-
-/**
- * The cumulative win-rate series, bucketed by hand count.
- *
- * `buckets` is a resolution, not a time step. The server uses `ntile()` over
- * the hand ordering rather than `date_trunc()`, so a three-month break does not
- * get three months of x-axis for zero volume — the x-axis is cumulative hands,
- * and the date range of each bucket comes back alongside for the tooltip.
- */
-export async function fetchStatsGraph(
-  filters: StatsFilters = {},
-  buckets = 60,
-): Promise<StatsGraph> {
-  if (!(await currentUserId())) {
-    return emptyStatsGraph();
-  }
-  const payload = await rpc<Row | null>("stats_graph", {
-    p_filters: withVersion(filters),
-    p_buckets: buckets,
-  });
-  if (!payload) {
-    return emptyStatsGraph();
-  }
-  const rows = Array.isArray(payload.buckets) ? (payload.buckets as Row[]) : [];
-  return {
-    statsVersion: String(payload.statsVersion ?? STATS_VERSION),
-    hands: num(payload.hands),
-    moneyHands: num(payload.moneyHands),
-    buckets: rows.map((row) => ({
-      bucket: num(row.bucket),
-      hands: num(row.hands),
-      moneyHands: num(row.money_hands),
-      firstPlayedAt: str(row.first_played_at),
-      lastPlayedAt: str(row.last_played_at),
-      cumHands: num(row.cum_hands),
-      cumMoneyHands: num(row.cum_money_hands),
-      cumNetBbMilli: num(row.cum_net_bb_milli),
-      cumSdBbMilli: num(row.cum_sd_bb_milli),
-      cumNsdBbMilli: num(row.cum_nsd_bb_milli),
-      // Absent, not zero, when the sample spans currencies: the server removes
-      // the key rather than returning a sum with no unit.
-      cumNet: "cum_net" in row ? maybeNum(row.cum_net) : null,
-      cumEvBbMilli: "cum_ev_bb_milli" in row ? num(row.cum_ev_bb_milli) : num(row.cum_net_bb_milli),
-    })),
-    allInEv:
-      payload.allInEv && typeof payload.allInEv === "object"
-        ? {
-            evVersion: str((payload.allInEv as Row).evVersion) ?? "ev/1",
-            evaluatedHands: num((payload.allInEv as Row).evaluatedHands),
-            allInHands: num((payload.allInEv as Row).allInHands),
-          }
-        : null,
-    ...toUnitState(payload),
-  };
 }
 
 /* -------------------------------------------------------------- rebuild - */
@@ -544,84 +341,6 @@ export async function rebuildStats(
   return total;
 }
 
-/* ------------------------------------------------------------ breakdown - */
-
-/** The dimensions `stats_breakdown` will split by. Anything else is a 22023. */
-export type BreakdownGroup =
-  | "position"
-  | "table_size"
-  | "site"
-  | "stakes"
-  | "hand_class"
-  | "stack_bb"
-  | "pot_type";
-
-export interface BreakdownRow {
-  /** The group value: "BTN", "AKs", "6", "USD:50:100", "100-150"; null when unknown. */
-  key: string | null;
-  /**
-   * The row as the HUD's own types, so `rates()` divides it. Only the counters
-   * a breakdown carries are filled; the rest are zero, and the table shows
-   * only the ones that are filled.
-   */
-  counters: SeatCounters;
-  /** Null when the sample's units refuse to be summed (chips with cash). */
-  money: SeatMoney | null;
-  moneyHands: number;
-}
-
-export interface StatsBreakdown {
-  group: BreakdownGroup;
-  rows: BreakdownRow[];
-  mixedCurrency: boolean;
-  mixedUnitKind: boolean;
-  currency: string | null;
-  currencyMinorUnits: number | null;
-}
-
-/**
- * Same filters as the summary, split by one dimension. The split is a `group
- * by` over columns already on the row; the dimension is whitelisted server-side.
- */
-export async function fetchStatsBreakdown(
-  filters: StatsFilters,
-  group: BreakdownGroup,
-): Promise<StatsBreakdown> {
-  const empty: StatsBreakdown = {
-    group,
-    rows: [],
-    mixedCurrency: false,
-    mixedUnitKind: false,
-    currency: null,
-    currencyMinorUnits: null,
-  };
-  if (!(await currentUserId())) {
-    return empty;
-  }
-  const payload = await rpc<Row | null>("stats_breakdown", { p_filters: withVersion(filters), p_group: group });
-  if (!payload) {
-    return empty;
-  }
-  const rows = Array.isArray(payload.rows) ? (payload.rows as Row[]) : [];
-  return {
-    group,
-    rows: rows.map((row) => {
-      const counters = toCounters(row);
-      const hasMoney = "net_bb_milli" in row;
-      const money = hasMoney ? emptyMoney() : null;
-      if (money) {
-        money.net_bb_milli = num(row.net_bb_milli);
-        money.net = num(row.net);
-      }
-      return { key: str(row.key), counters, money, moneyHands: num(row.money_hands) };
-    }),
-    mixedCurrency: payload.mixedCurrency === true,
-    mixedUnitKind: payload.mixedUnitKind === true,
-    currency: str(payload.currency),
-    currencyMinorUnits: maybeNum(payload.currencyMinorUnits),
-  };
-}
-
 /* ------------------------------------------------------------ opponents - */
 
 export interface OpponentRow {
@@ -729,23 +448,6 @@ export interface StatsSessions {
   mixedCurrency: boolean;
   currency: string | null;
   currencyMinorUnits: number | null;
-}
-
-/** The caller's hands grouped into sessions by time gap, across tables. */
-export async function fetchStatsSessions(filters: StatsFilters, gapMinutes = 30): Promise<StatsSessions> {
-  const empty: StatsSessions = {
-    gapMinutes,
-    sessions: [],
-    mixedUnitKind: false,
-    mixedCurrency: false,
-    currency: null,
-    currencyMinorUnits: null,
-  };
-  if (!(await currentUserId())) {
-    return empty;
-  }
-  const payload = await rpc<Row | null>("stats_sessions", { p_filters: withVersion(filters), p_gap_minutes: gapMinutes });
-  return sessionsOf(payload, empty);
 }
 
 /**

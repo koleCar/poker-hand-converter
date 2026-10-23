@@ -1,4 +1,6 @@
--- pgTAP: stats/2 pot_type -- `20261221090000_stats_pot_type.sql`.
+-- pgTAP: stats/2 pot_type -- `20261221090000_stats_pot_type.sql`. The
+-- breakdown is `report_situations` (R4.5c-1) since R2.9's `stats_breakdown`
+-- was retired (`20270818090000`).
 
 begin;
 
@@ -37,10 +39,10 @@ select is((public.save_hand_stats(jsonb_build_array(
 select is((select pot_type from public.hand_stats where hand_key = 'pokerstars:pt2'), 'limped', '... and stores it');
 
 select is((select string_agg(r ->> 'key', ',' order by r ->> 'key')
-           from jsonb_array_elements(public.stats_breakdown('{"statsVersion":"stats/2"}', 'pot_type') -> 'rows') r),
+           from jsonb_array_elements(public.report_situations('{"statsVersion":"stats/2"}') -> 'groups' -> 'potType') r),
   '3bet,limped', 'the breakdown splits by pot type');
 
-select is(jsonb_array_length(public.stats_breakdown('{}', 'pot_type') -> 'rows'), 0,
+select is(coalesce(jsonb_array_length(public.report_situations('{}') -> 'groups' -> 'potType'), 0), 0,
   'a caller that does not name a version reads stats/1, which is why the client always names one');
 
 select throws_ok($$ insert into public.hand_stats (hand_id, owner_id, stats_version, seat, hand_key, site_id, is_hero, hands, pot_type)
