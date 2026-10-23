@@ -1807,9 +1807,9 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | Function | Callable by | Returns | What it does |
 | --- | --- | --- | --- |
 | `save_hands(p_hands jsonb)` | `authenticated` | `{received, inserted, duplicates}` | Batch-inserts hands **into the caller's library**, deduping on `(owner_id, hand_key)` with `ON CONFLICT DO NOTHING`. Returns exact counts, which is what removes the old "probe which of these already exist" round trips. Ignores any `owner_id` in the payload. Max 500 per call. |
-| `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `authenticated` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Scoped to the caller by RLS, not by a filter — there is no filter key that could ask for anyone else's hands. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
+| `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `authenticated` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Scoped to the caller by RLS and, since `20270804090000`, by an explicit bound owner as well ([Owner first](#owner-first-a-readers-work-is-the-callers-rows)) — there is no filter key that could ask for anyone else's hands. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
 | `get_hand(p_id uuid)` | `authenticated` | full row as jsonb | The payload, fetched only when a hand is actually opened. `null` for an unknown id *and* for another account's id — indistinguishable by design. |
-| `hands_facets()` | `authenticated` | jsonb | Every distinct filter value the browse UI offers — sites, heroes, tables, stakes, variants, limit types, formats, hand classes, streets, the `played_at` range — for the caller's own hands. A site you have never played is not a useful filter to offer. |
+| `hands_facets()` | `authenticated` | jsonb | Every distinct filter value the browse UI offers — sites, heroes, tables, stakes, variants, limit types, formats, hand classes, streets, the `played_at` range — for the caller's own hands. A site you have never played is not a useful filter to offer. One grouping-sets pass over the caller's rows (`20270804090000`; it was thirteen scans of the whole table under RLS). |
 | `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. Optional keys since R0.11: `origin` (`web` when absent; an unknown value skips the record), `os`, `clientVersion`, `consentedAt`, `anonymiserVersion`, `guessedSite`, `guessConfidence`. A `desktop` record without a valid `consentedAt`, `anonymiserVersion`, `os` and `clientVersion`, or over 64 KiB, is skipped. |
 | `unparsed_summary(p_limit int)` | `anon`, `authenticated` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. `security invoker`, so a client sees only its own submissions; the cross-corpus answer to "which converter next" is a service-role query. |
 | `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. |
@@ -1969,8 +1969,9 @@ instead of once per row.
 ### `owner_id` is checked twice, on purpose
 
 RLS covers the `security invoker` functions — `save_hands`, `search_hands`,
-`get_hand`, `hands_facets` all inherit the owner policy for free, and that is
-why none of them contains an owner filter.
+`get_hand`, `hands_facets` all inherit the owner policy for free. Readers that
+aggregate or page over an account's rows filter by the owner explicitly as
+well, for speed rather than for safety: see [Owner first](#owner-first-a-readers-work-is-the-callers-rows).
 
 It does **not** cover `create_share`, which is `security definer` and therefore
 runs with the function owner's privileges, seeing every row in `hands`. Without
@@ -1979,6 +1980,59 @@ mint a public link to a stranger's hand by guessing a uuid. That check is the
 single most load-bearing line in the migration, and it returns the same error
 for "no such hand" as for "not your hand" so it cannot be used to probe which
 uuids exist.
+
+### Owner first: a reader's work is the caller's rows
+
+Every table here holds every account's rows, and one account may hold a
+million hands. A reader's time must depend only on the caller's rows - not on
+what other accounts hold. RLS alone does not give that: the policy's
+`owner_id = (select auth.uid())` is an InitPlan, a value the planner does not
+know when it plans, so it estimates "the caller's rows" as rows / distinct
+owners - half of every table when there are two accounts, for the small one
+as for the big one. Found in R5.1 (`20270804090000_owner_first_readers.sql`):
+beside a 1 000 000-hand account, a 7 496-hand account's `library_facets` took
+16-24 s (a hash join over all 6M `hand_stats` rows and 1M `hand_stats_ev`
+rows, estimated 503 748 hands for 7 496), `hands_facets` 39-62 s (thirteen
+sequential scans of the whole 2 GB `hands` table), a filtered `library_page`
+4-9 s (a global sort index walked across both accounts). The rule for every
+owner-scoped reader (`hands_facets`, `library_*`, `search_hands`, `stats_*`,
+`report_*`, `players_list`, `player_profile`, `player_sites`,
+`my_player_notes`, `villain_counters`, `hands_needing_stats`, `hands_since`,
+`unparsed_summary`, R5.1's `session_review`, R5.2's `analysis_top_leaks` and `analysis_leak_examples`):
+
+1. **PL/pgSQL, the caller in a variable**: `v_owner uuid := auth.uid();` -
+   never a SQL function, whose owner would be the InitPlan again.
+2. **`owner_id = v_owner` on every owner table the statement reads, joins
+   included** (`left join hand_stats hs on hs.hand_id = h.id and hs.owner_id =
+   v_owner ...`). In dynamic SQL the owner is a bound parameter (`$4`), never
+   `(select auth.uid())`. The predicate equals the policy's, so no answer
+   changes; RLS stays on every table (defence in depth).
+3. **Planned per call**: `set plan_cache_mode = force_custom_plan`. A custom
+   plan sees the owner's value and its row count (the column's statistics);
+   a cached generic plan is planned for "some owner", and PostgREST's pooled
+   connections serve every account. (A `create or replace` drops `set`
+   clauses it does not repeat: repeat it.)
+4. **Indexes lead with `owner_id`**, sort indexes included
+   (`hands_owner_played_idx`, `hands_owner_played_asc_idx`,
+   `hands_owner_pot_idx`, `hands_owner_profit_desc_idx` / `_asc_idx`,
+   `hands_owner_created_idx`); the global `hands_played_at_idx`,
+   `hands_total_pot_idx`, `hands_hero_profit_idx` and `hands_created_at_idx`
+   are gone - a page walked them across every account and filtered the owner
+   out.
+5. **Expressions the planner can estimate**: a filter on a cast or a helper
+   (`game_format::text`, `library_size(...)`) gets a guess of half a percent
+   per value unless there are statistics on it (`hands_library_groups`,
+   `hand_stats_library_groups`, `create statistics` on the expressions);
+   with the guess a big account's page sorted a million rows instead of
+   walking its index to the first hundred.
+
+pgTAP `owner_first_readers` holds the rule: every reader above is PL/pgSQL,
+invoker and `force_custom_plan`; no `hands` index sorts all accounts
+together; and, measured rather than planned, a 30-hand account's call of
+each reader returns under 1 500 tuples from the tables' heaps and indexes
+(this transaction's `pg_stat_get_xact_tuples_returned`) beside a 6 000-hand
+account - the old definitions read every account's rows there. A new
+owner-scoped reader joins its list.
 
 ### Data-shape invariants are enforced, not conventional
 
@@ -2021,11 +2075,12 @@ two filters plus a sort", not by reflexively indexing every column.
 | `hands_owner_hand_key_uidx` (unique, `(owner_id, hand_key)`) | Dedupe on insert, per library; `findHandId()`. Replaced the globally-unique `hands_hand_key_uidx` when accounts landed — see rule 3 of the threat model for why a global key is a correctness bug, not just a policy choice. |
 | `hands_owner_played_idx` (`(owner_id, played_at desc)`) | The default list order, which is now always "my hands, newest first". The owner predicate is on every single query, so it belongs at the front of the sort index. |
 | `hands_board_gin`, `hands_hero_cards_gin`, `hands_players_gin` | Containment (`@>`) predicates: "board contains these cards", "hero holds these cards", "player X was at the table". These are the filters that need GIN — btree cannot answer them. |
-| `hands_played_at_idx` | The default list order. |
-| `hands_created_at_idx` | "Recently imported". |
+| `hands_owner_played_asc_idx` (`(owner_id, played_at asc nulls last, id)`) | "Oldest first" (`library_page`, `search_hands`): a backward scan of the descending index gives nulls first. `20270804090000`; the global `hands_played_at_idx` it and `hands_owner_played_idx` replace was dropped — see [Owner first](#owner-first-a-readers-work-is-the-callers-rows). |
+| `hands_owner_pot_idx`, `hands_owner_profit_desc_idx`, `hands_owner_profit_asc_idx` | The "biggest pot", "best result" and "worst result" orders, and `minPot`, per owner (`20270804090000`; replaced the global `hands_total_pot_idx` and `hands_hero_profit_idx`). |
+| `hands_owner_library_idx` (`(owner_id)` including the library's group columns) | `library_facets`' counts read the owner's hands index-only instead of every column (`20270804090000`). |
+| `hand_stats_owner_hero_cover_idx` (`(owner_id, stats_version, hand_id) include (seat, net_bb_milli, pot_type, starting_stack_bb_tenths) where is_hero`) | The hero's row by hand within the owner's range: the library's counts (index only) and pages, `hands_needing_stats` (`20270804090000`). |
 | `hands_owner_created_idx` (`(owner_id, created_at, id)`) | The desktop pull's keyset, `hands_since` (R1.9): one range scan per page, the row comparison `(created_at, id) > cursor` included. |
 | `hands_site_played_idx`, `hands_hero_played_idx`, `hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`, `hands_tournament_idx` | Composite `(filter column, played_at desc)`. Every one of these is "filter by a low-cardinality column, then sort by time". A single-column index would force a sort of the whole matching set; the composite serves filter and order in one scan. The hero / class / stakes / tournament ones are partial (`WHERE … IS NOT NULL`) because the null side is never filtered on. |
-| `hands_total_pot_idx`, `hands_hero_profit_idx` | The "biggest pot" and "best/worst result" sort orders, and the `minPot` filter. |
 | `hands_showdown_idx` | `showdownOnly`. Partial on the selective side, so it is far smaller than indexing a skewed boolean. |
 | `hands_table_trgm` | `tableName` is filtered with a substring `ILIKE`; only a trigram GIN index can accelerate that. |
 | `hands_hero_position_played_idx` | "Hero was on the button", the most common position filter, plus the default sort. Partial on `hero_position IS NOT NULL`. |
