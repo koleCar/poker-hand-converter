@@ -30,14 +30,24 @@
  *    every copy). Triggers off for the copy (`session_replication_role =
  *    replica`; the rows are copies of rows the RPCs checked); the table
  *    checks and every index stay on. Then `ANALYZE`.
+ *    The copies bypass the triggers, so the report summaries (R4.5c-1,
+ *    `20270707090000_report_summaries.sql`) are counted again after them with
+ *    `report_summaries_rebuild` - the migration's backfill, timed.
  * 3. **The reports**, as the user, each three times (the first is what a
  *    user opening `/stats` waits for; Postgres has no result cache, so the
- *    others differ only by the buffer cache): `stats_summary`, `stats_graph`
- *    (60 buckets, the web's default), `stats_breakdown` by every group,
- *    `stats_opponents` (50 rows, and a search), `stats_sessions`; everything
- *    and cash only. psql's `\timing` gives the server's time plus the local
- *    round trip (sub-millisecond); PostgREST and the network add to it in
- *    production.
+ *    others differ only by the buffer cache). `RAIL_PERF_SET=old`: R2.9's
+ *    `stats_summary`, `stats_graph` (60 buckets, the web's default),
+ *    `stats_breakdown` by every group, `stats_opponents` (50 rows, and a
+ *    search), `stats_sessions`; everything and cash only. `new`: what the
+ *    shared Reports screen asks on a filter change (R4.5c) - `report_open`,
+ *    `report_graph` (150 points, what the web asks for), `report_facets`, `report_situations` -
+ *    over everything, cash, one stake, a position and a date range cut
+ *    inside days; `report_sessions`, `stats_opponents` (now over
+ *    `player_stats`), `stats_coverage` and `stats_ev_missing`. Default: both.
+ *    `RAIL_PERF_VACUUM=1` vacuums the tables first (index-only scans need the
+ *    visibility map; without it the first numbers are a fresh upload's).
+ *    psql's `\timing` gives the server's time plus the local round trip
+ *    (sub-millisecond); PostgREST and the network add to it in production.
  *
  * Prints a table; nothing is asserted (the decision is the plan's).
  */
@@ -61,6 +71,8 @@ const DEVICE = "00000000-0000-0000-0000-00000000e291";
 const PSQL = process.env.RAIL_PERF_PSQL ?? "";
 const HANDS = Number(process.env.RAIL_PERF_HANDS ?? "1000000");
 const SKIP_LOAD = process.env.RAIL_PERF_SKIP_LOAD === "1";
+const SET = process.env.RAIL_PERF_SET ?? "all";
+const VACUUM = process.env.RAIL_PERF_VACUUM === "1";
 
 /** A dollar-quote tag that does not occur in the text. */
 function dollar(text: string, base: string): string {
@@ -220,6 +232,17 @@ select count(*) as stats_rows, count(*) filter (where is_hero) as hero_rows,
   from public.hand_stats where owner_id = '${USER}';
 select pg_size_pretty(pg_total_relation_size('public.hands')) as hands_size,
        pg_size_pretty(pg_total_relation_size('public.hand_stats')) as hand_stats_size;
+\\timing on
+select public.report_summaries_rebuild('${USER}') as summaries;
+\\timing off
+analyze public.hero_rollups;
+analyze public.hero_report_rows;
+analyze public.player_stats;
+select pg_size_pretty(pg_total_relation_size('public.hero_rollups')) as hero_rollups_size,
+       (select count(*) from public.hero_rollups where owner_id = '${USER}') as hero_rollups_rows,
+       pg_size_pretty(pg_total_relation_size('public.hero_report_rows')) as hero_report_rows_size,
+       pg_size_pretty(pg_total_relation_size('public.player_stats')) as player_stats_size,
+       (select count(*) from public.player_stats where owner_id = '${USER}') as player_stats_rows;
 `;
 }
 
@@ -228,7 +251,10 @@ function measureSql(): string {
   const all = `{"statsVersion":"${v}"}`;
   const cash = `{"statsVersion":"${v}","gameFormat":"cash"}`;
   const calls: [string, string][] = [];
-  for (const [scope, f] of [["everything", all], ["cash", cash]]) {
+  if (SET !== "old") {
+    calls.push(...newCalls(v));
+  }
+  for (const [scope, f] of SET === "new" ? [] : [["everything", all], ["cash", cash]]) {
     calls.push([`stats_summary ${scope}`, `public.stats_summary('${f}'::jsonb)`]);
     calls.push([`stats_graph ${scope}`, `public.stats_graph('${f}'::jsonb, 60)`]);
     for (const group of ["position", "pot_type", "stack_bb", "hand_class", "stakes", "site", "table_size"]) {
@@ -237,8 +263,19 @@ function measureSql(): string {
     calls.push([`stats_opponents ${scope}`, `public.stats_opponents('${f}'::jsonb, null, 50)`]);
     calls.push([`stats_sessions ${scope}`, `public.stats_sessions('${f}'::jsonb, 30)`]);
   }
-  calls.push(["stats_opponents search", `public.stats_opponents('${all}'::jsonb, 'a', 50)`]);
-  const lines = ["\\set ON_ERROR_STOP on", AS_USER, "\\timing on"];
+  if (SET !== "new") {
+    calls.push(["stats_opponents search", `public.stats_opponents('${all}'::jsonb, 'a', 50)`]);
+  }
+  const lines = ["\\set ON_ERROR_STOP on"];
+  if (VACUUM) {
+    lines.push("vacuum (analyze) public.hands, public.hand_stats, public.hand_stats_ev, public.hero_rollups, public.hero_report_rows, public.player_stats;");
+  }
+  lines.push(
+    AS_USER,
+    // The biggest cash stake, for the one-stake filters.
+    `select f ->> 'value' as stake from jsonb_array_elements(public.report_facets('{"statsVersion":"${v}","formats":["cash"]}') -> 'stakes') f order by (f ->> 'count')::bigint desc limit 1 \\gset`,
+    "\\timing on",
+  );
   for (const [label, call] of calls) {
     for (const run of [1, 2, 3]) {
       lines.push(`\\echo MARK ${label} #${run}`);
@@ -247,6 +284,32 @@ function measureSql(): string {
   }
   lines.push("\\timing off", "reset role;");
   return lines.join("\n");
+}
+
+/** The shared Reports screen's calls (R4.5c): what a filter change asks for, and the rest. */
+function newCalls(v: string): [string, string][] {
+  const ev = `"evVersion":"ev/1"`;
+  const filters: [string, string][] = [
+    ["everything", `'{"statsVersion":"${v}",${ev}}'::jsonb`],
+    ["cash", `'{"statsVersion":"${v}",${ev},"formats":["cash"]}'::jsonb`],
+    ["one stake", `jsonb_build_object('statsVersion', '${v}', 'evVersion', 'ev/1', 'formats', jsonb_build_array('cash'), 'stakes', jsonb_build_array(:'stake'))`],
+    ["cash BTN", `'{"statsVersion":"${v}",${ev},"formats":["cash"],"positions":["BTN"]}'::jsonb`],
+    ["dates cut in days", `'{"statsVersion":"${v}",${ev},"formats":["cash"],"from":"2025-10-01T07:30:00Z","to":"2026-04-15T18:45:00Z"}'::jsonb`],
+  ];
+  const calls: [string, string][] = [];
+  for (const [scope, f] of filters) {
+    calls.push([`report_open ${scope}`, `public.report_open(${f})`]);
+    calls.push([`report_graph ${scope}`, `public.report_graph(${f}, 150)`]);
+    calls.push([`report_facets ${scope}`, `public.report_facets(${f})`]);
+    calls.push([`report_situations ${scope}`, `public.report_situations(${f})`]);
+  }
+  calls.push(["report_sessions cash", `public.report_sessions(${filters[1][1]}, 30)`]);
+  calls.push(["stats_opponents (player_stats) everything", `public.stats_opponents('{"statsVersion":"${v}"}'::jsonb, null, 50)`]);
+  calls.push(["stats_opponents (player_stats) cash", `public.stats_opponents('{"statsVersion":"${v}","gameFormat":"cash"}'::jsonb, null, 50)`]);
+  calls.push(["stats_opponents (player_stats) search", `public.stats_opponents('{"statsVersion":"${v}"}'::jsonb, 'a', 50)`]);
+  calls.push(["stats_coverage", `public.stats_coverage('${v}')`]);
+  calls.push(["stats_ev_missing", `public.stats_ev_missing('${v}', 'ev/1')`]);
+  return calls;
 }
 
 describe.skipIf(!PSQL)("the web's reports over a million hands", () => {
