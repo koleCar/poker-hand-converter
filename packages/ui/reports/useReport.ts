@@ -1,28 +1,18 @@
 /**
- * Reports' data (R2.7b): the report over the filter (`report`: the hero's
- * statistics, the graph, the rollups' breakdowns), the chips' counts
- * (`hands_facets`, the Hands screen's), and the breakdowns by situation
- * when a tab asks for them (`report_breakdowns`, one pass over the hero's
- * rows, cached by the store until the next commit). Hands arriving while
- * the screen is open read the report again, at most every few seconds: a
- * backfill streaming in costs a report per pause, not per file.
+ * Reports' data (R2.7b; shared since R4.5c): the report over the filter (the
+ * hero's statistics, the graph, the rollups' breakdowns), the chips' counts,
+ * and the breakdowns by situation when a tab asks for them - from the
+ * surface's `ReportSource`. Hands arriving while the screen is open read
+ * everything again, at most every few seconds: a backfill streaming in costs
+ * a report per pause, not per file. `reloadToken` reads it all again too (the
+ * web's rebuild finishing).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  errorText,
-  inApp,
-  ipc,
-  onStatsDataChanged,
-  type Breakdowns,
-  type HandFacets,
-  type HandFilter,
-  type Report,
-} from "../../lib/ipc";
+import { errorText, type HandFacets, type HandFilter } from "../hands/model";
+import type { Breakdowns, Report, ReportSource } from "./model";
 
-/** The graph's resolution: about a point per pixel on a wide window (the store caps it). */
-export const GRAPH_POINTS = 1200;
-/** At most once per this many ms after the watcher reports an import. */
+/** At most once per this many ms after the source reports new hands. */
 const ARRIVAL_THROTTLE_MS = 5000;
 
 export interface ReportState {
@@ -39,9 +29,9 @@ export interface ReportState {
 }
 
 /** `ready`: whether to read the report yet (the counts are read either way). */
-export function useReport(query: HandFilter, ready = true): ReportState {
+export function useReport(source: ReportSource, query: HandFilter, ready = true, reloadToken: unknown = 0): ReportState {
   const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState(inApp);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [facets, setFacets] = useState<HandFacets | null>(null);
   const [breakdowns, setBreakdowns] = useState<{ key: string; value: Breakdowns } | null>(null);
@@ -51,13 +41,13 @@ export function useReport(query: HandFilter, ready = true): ReportState {
   const [arrivals, setArrivals] = useState(0);
   const generation = useRef(0);
   const queryKey = JSON.stringify(query);
+  const reloadKey = `${arrivals}|${String(reloadToken)}`;
 
   useEffect(() => {
-    if (!inApp) return;
     const mine = ++generation.current;
     const filter = JSON.parse(queryKey) as HandFilter;
-    ipc
-      .handsFacets(filter)
+    source
+      .facets(filter)
       .then((next) => {
         if (mine === generation.current) setFacets(next);
       })
@@ -65,8 +55,8 @@ export function useReport(query: HandFilter, ready = true): ReportState {
     if (!ready) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a new filter starts loading
     setLoading(true);
-    ipc
-      .report(filter, GRAPH_POINTS)
+    source
+      .report(filter, source.graphPoints)
       .then((next) => {
         if (mine !== generation.current) return;
         setReport(next);
@@ -78,16 +68,16 @@ export function useReport(query: HandFilter, ready = true): ReportState {
       .finally(() => {
         if (mine === generation.current) setLoading(false);
       });
-  }, [queryKey, arrivals, ready]);
+  }, [source, queryKey, reloadKey, ready]);
 
-  const breakdownKey = `${queryKey}#${arrivals}`;
+  const breakdownKey = `${queryKey}#${reloadKey}`;
   useEffect(() => {
-    if (!inApp || !wanted || breakdowns?.key === breakdownKey) return;
+    if (!wanted || breakdowns?.key === breakdownKey) return;
     let current = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a tab asked for them
     setBreakdownsLoading(true);
-    ipc
-      .reportBreakdowns(JSON.parse(queryKey) as HandFilter)
+    source
+      .breakdowns(JSON.parse(queryKey) as HandFilter)
       .then((value) => {
         if (current) setBreakdowns({ key: breakdownKey, value });
       })
@@ -100,24 +90,24 @@ export function useReport(query: HandFilter, ready = true): ReportState {
     return () => {
       current = false;
     };
-  }, [wanted, breakdownKey, breakdowns?.key, queryKey]);
+  }, [source, wanted, breakdownKey, breakdowns?.key, queryKey]);
 
   // New hands: read everything again, throttled.
   useEffect(() => {
-    if (!inApp) return;
-    let timer: number | undefined;
-    const stop = onStatsDataChanged(() => {
+    if (!source.onChanged) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const stop = source.onChanged(() => {
       if (timer !== undefined) return;
-      timer = window.setTimeout(() => {
+      timer = setTimeout(() => {
         timer = undefined;
         setArrivals((n) => n + 1);
       }, ARRIVAL_THROTTLE_MS);
     });
     return () => {
       stop();
-      window.clearTimeout(timer);
+      clearTimeout(timer);
     };
-  }, []);
+  }, [source]);
 
   const wantBreakdowns = useCallback(() => setWanted(true), []);
   return {

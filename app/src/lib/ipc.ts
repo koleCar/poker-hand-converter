@@ -10,7 +10,6 @@ import type {
   StatTone,
   StatUnit,
 } from "@rail/ui/model/stats";
-import type { WinrateGraphBucket, WinrateGraphData } from "@rail/ui/stats/WinrateGraph";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
@@ -400,79 +399,13 @@ export interface SavedFilter {
 
 /* ------------------------------------------------ Today, Reports (R2.7b) - */
 
-/** `reports::UnitsDto`: what a sample's money can be summed in (the web's refusals). */
-export interface Units {
-  /** Tournament chips with cash: no money and no big blinds. */
-  mixedKind: boolean;
-  /** Two currencies or more: big blinds only. */
-  mixedCurrency: boolean;
-  currency: string | null;
-  symbol: string | null;
-  /** Minor units per unit (100 for cents). */
-  minorUnits: number | null;
-}
-
-/** `reports::GroupDto`: a group of the hero's hands (a position, a stake, a pot type...). */
-export interface StatGroup {
-  key: string;
-  /** A room's name, for the rows by room. */
-  label: string | null;
-  hands: number;
-  moneyHands: number;
-  /** Minor units; null when refused. */
-  net: number | null;
-  /** Thousandths of a big blind; null when refused. */
-  netBbMilli: number | null;
-  /** `Report.columns`, in that order. */
-  stats: Shown[];
-}
-
-/** `reports::BucketDto`: the shared graph's `WinrateGraphBucket`. */
-export interface GraphBucket extends WinrateGraphBucket {
-  moneyHands: number;
-  cumMoneyHands: number;
-}
-
-/** `reports::GraphDto`. */
-export interface Graph extends WinrateGraphData {
-  moneyHands: number;
-  buckets: GraphBucket[];
-  allInEv: { allInHands: number; pending: number };
-}
-
-/** `reports::ReportDto`: what opening Reports shows. */
-export interface Report {
-  units: Units;
-  summary: {
-    hands: number;
-    moneyHands: number;
-    net: number | null;
-    netBbMilli: number | null;
-    evNetBbMilli: number | null;
-    /** Every definition, in `statDefinitions()`' order: the shipped ones, then the user's own (R2.10). */
-    stats: Shown[];
-    /** The definition id of each of `stats` (match by id: the user's statistics change while the app runs). */
-    ids: string[];
-  };
-  graph: Graph;
-  /** The definition ids of every group row's `stats`. */
-  columns: string[];
-  byPosition: StatGroup[];
-  byStake: StatGroup[];
-  bySite: StatGroup[];
-  bySize: StatGroup[];
-  byFormat: StatGroup[];
-}
-
-/** `reports::BreakdownsDto`: the breakdowns by situation. */
-export interface Breakdowns {
-  columns: string[];
-  potType: StatGroup[];
-  stack: StatGroup[];
-  handClass: StatGroup[];
-  players: StatGroup[];
-  street: StatGroup[];
-}
+/**
+ * The Reports screen's shapes (`reports::UnitsDto`, `GroupDto`, `BucketDto`,
+ * `GraphDto`, `ReportDto`, `BreakdownsDto`) are the shared screen's since
+ * R4.5c (`@rail/ui/reports/model`).
+ */
+export type { Breakdowns, Graph, GraphBucket, Report, StatGroup, Units } from "@rail/ui/reports/model";
+import type { Breakdowns, Report, StatGroup, Units } from "@rail/ui/reports/model";
 
 /** `reports::SessionDto`: the latest session. */
 export interface Session {

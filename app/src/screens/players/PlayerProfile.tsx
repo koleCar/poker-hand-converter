@@ -28,7 +28,7 @@ import { go } from "../../lib/router";
 import { statRows, useStatDefinitions } from "../../lib/useStatDefinitions";
 import { EMPTY_FILTER, FORMAT_ORDER, POSITION_ORDER, SIZE_ORDER, requestFilter } from "../hands/filter";
 import { bigBlinds, count, playedAt, stakeLabel } from "../hands/format";
-import { GroupTable } from "../reports/Breakdown";
+import { GroupTable } from "@rail/ui/reports/Breakdown";
 import styles from "./Players.module.css";
 
 const DEFINITION_GROUPS: DefinitionGroup[] = ["preflop", "postflop", "showdown", "results"];

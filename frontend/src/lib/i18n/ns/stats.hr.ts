@@ -234,6 +234,8 @@ export const statsHr: Dict["stats"] = {
     opaque: (count: number) =>
       `Protivničke ruke iz soba koje skrivaju imena između sesija (GGPoker) nisu prikazane, njih ${num(count)} — isti nadimak u dvije sesije mogu biti dvije različite osobe.`,
     positional: "Sobe koje sjedala označavaju pozicijom (Ignition) nikad ne bilježe protivnike.",
+    scopeNote:
+      "Ova tablica prati čipove Soba, Igra i Ulozi kad je odabran po jedan; datumi, pozicije i ostali čipovi je ne sužavaju.",
     turnOff: "Isključi i obriši statistiku protivnika",
     note: {
       label: "Bilješka (vidiš je samo ti)",

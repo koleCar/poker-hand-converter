@@ -35,14 +35,15 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname)) {
 
 /**
  * Controls that may be under 44 px, and why:
- * - the starting-hand grid's 169 cells (`.stats-matrix__cell`): 13 across a
- *   phone is 22 px each; every class is also a row of the table under the
- *   grid, which is the touch path;
+ * - the starting-hand grid's 169 cells (`[role=gridcell]`, the shared Reports
+ *   screen's since R4.5c; `.stats-matrix__cell` the web's own grid before):
+ *   13 across a phone is 22 px each; every class is also a row of the table
+ *   under the grid, which is the touch path;
  * - a checkbox or radio inside a label: the label is the target (checked
  *   for 44 px separately when it is a toggle row);
  * - a link inside running text.
  */
-const EXCEPTIONS = [".stats-matrix__cell", "label input", "p a", "li a", "small a"];
+const EXCEPTIONS = ["[role=gridcell]", ".stats-matrix__cell", "label input", "p a", "li a", "small a"];
 
 async function audit(page) {
   return page.evaluate((exceptions) => {
@@ -144,9 +145,29 @@ for (const locale of ["en", "hr"]) {
   }
   console.log(`ok - ${locale} /library: ${await chips.count()} filter panels inside the screen`);
 
+  // Reports (the shared screen since R4.5c): the screen, each breakdown tab
+  // (the starting hands' grid among them) and every filter panel.
   await page.goto(`${BASE}/stats`);
-  await page.locator(".stats-group").first().waitFor({ timeout: 60000 });
+  await page.locator("main button[role=tab][aria-controls]").first().waitFor({ timeout: 60000 });
   await report("/stats");
+  const statsChips = page.getByRole("toolbar").locator("button[aria-haspopup=dialog]");
+  for (let i = 0; i < (await statsChips.count()); i++) {
+    await statsChips.nth(i).click();
+    await page.locator("div[role=dialog]").last().waitFor();
+    const box = await page.locator("div[role=dialog]").last().boundingBox();
+    if (!box || box.x < 0 || box.x + box.width > 375.5) {
+      failures++;
+      console.log(`NOT OK - ${locale} /stats filter panel ${i} is outside the screen`);
+    }
+    await page.keyboard.press("Escape");
+  }
+  console.log(`ok - ${locale} /stats: ${await statsChips.count()} filter panels inside the screen`);
+  // The breakdown's tabs (they control a panel; the shell's own navigation does not).
+  const tabs = page.locator("main button[role=tab][aria-controls]");
+  for (let i = 0; i < (await tabs.count()); i++) {
+    await tabs.nth(i).click();
+    await report(`/stats, breakdown "${(await tabs.nth(i).innerText()).trim()}"`);
+  }
 
   if (SHARE) {
     await page.goto(`${BASE}/h/${SHARE}`);

@@ -307,9 +307,8 @@ function hardCodedStats(line: string): string[] {
  * `STANDARD_STATS`; until then a number here may only go down.
  */
 const KNOWN: Record<string, number> = {
-  // Table columns: each rate from rates(), each opportunity counter read for
-  // its sample size.
-  "frontend/src/components/stats/BreakdownPanel.tsx": 6,
+  // (R4.5c: the web's breakdown table, 6, went with the shared Reports
+  // screen, whose columns are definitions.)
   // Opponents table: thin-sample marks from opportunity counters (`< 20`; the
   // scan sees the line that names the pair).
   "frontend/src/components/stats/OpponentsPanel.tsx": 1,

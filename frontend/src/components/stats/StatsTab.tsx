@@ -1,56 +1,56 @@
 /**
- * The statistics screen.
+ * The statistics screen (`/stats`).
  *
- * Two RPCs, four ways of having nothing to show, and one rule running through
- * all of them: **say which nothing it is.** A blank HUD is the same pixels
+ * Since R4.5c the report itself is the shared Reports screen
+ * (`@rail/ui/reports/ReportsScreen`, the desktop app's since R2.7b) over the
+ * web's report summaries (`lib/db/reportSource.ts`): the filter chips, the
+ * summary, the win-rate graph (with its all-in EV line, in big blinds or
+ * money), every statistic by group and the breakdowns - by position, stake,
+ * table size, room and game, and by pot type, stack depth, starting hand
+ * (the 13 x 13 grid), players dealt in and street. Around it, this page's
+ * own: the four ways of having nothing to show, the coverage line and its
+ * rebuild, live arrivals, and its panels over the same filter - the HUD
+ * tiles under the summary, the sessions and the opponents after the
+ * breakdowns.
+ *
+ * Four ways of having nothing to show, and one rule running through all of
+ * them: **say which nothing it is.** A blank screen is the same pixels
  * whether the user is signed out, has no hands, has a database without the
- * statistics migration on it, or hit a real error — and those need four
- * different actions from the reader. A page that renders identically for all
- * four is a page that turns a two-second fix into a support thread.
- *
- * The one worth naming is the schema case. `hand_stats` arrives in its own
- * migration, so there is a real window in which a deployed client is talking to
- * a database that does not have it. PostgREST answers `PGRST202` for a function
- * missing from its schema cache; `isMissingSchemaError` is that check, and it is
- * a code rather than a string match so the first PostgREST rewording does not
- * turn a clear explanation back into a stack trace.
+ * statistics migrations on it, or hit a real error — and those need four
+ * different actions from the reader. PostgREST answers `PGRST202` for a
+ * function missing from its schema cache; `isMissingSchemaError` is that
+ * check, a code rather than a string match.
  *
  * Live arrival (Rail R1.10): hands synced by the desktop app while the screen
- * is open re-read the numbers in place - no "Loading…" in between - and the
- * ones without statistics get them derived (`/api/stats/rebuild`) without a
- * click. A desktop row is PHF only, which is all the rebuild reads. One
- * catch-up at a time: batches that land during one fold into a single next
- * round.
+ * is open re-read the numbers in place, and the ones without statistics get
+ * them derived (`/api/stats/rebuild`) without a click. One catch-up at a
+ * time: batches that land during one fold into a single next round.
  */
 
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { FilterState } from "@rail/ui/hands/filter";
+import type { HandFilter } from "@rail/ui/hands/model";
+import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
+import type { Report } from "@rail/ui/reports/model";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   fetchStatsCoverage,
-  fetchStatsGraph,
-  fetchStatsSummary,
   isDatabaseConfigured,
   isMissingSchemaError,
   rebuildStats,
   type RebuildProgress,
-  type StakeVolume,
   type StatsCoverage,
-  type StatsFilters,
-  type StatsGraph,
-  type StatsSummary,
 } from "../../lib/db";
+import { reportTotals, WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
-import { BreakdownPanel } from "./BreakdownPanel";
-import { HandMatrix } from "./HandMatrix";
 import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
+import { opponentsScope } from "./opponentsScope";
 import { SessionsPanel } from "./SessionsPanel";
-import { countIn, stakeLabel, useIntlLocale } from "./format";
-import { WinrateGraph } from "@rail/ui/stats/WinrateGraph";
 import "../../styles/stats.css";
 
 interface StatsTabProps {
@@ -60,79 +60,56 @@ interface StatsTabProps {
   arrival?: ArrivalBatch | null;
 }
 
-type Status = "idle" | "loading" | "ready" | "not-installed" | "error";
-
-/**
- * Resolution of the graph. Sixty is chosen against the narrow case rather than
- * the wide one: on a 390px phone the plot is ~310px across, so sixty buckets is
- * about five pixels a point — dense enough to look continuous, sparse enough
- * that the hover target is still hittable with a thumb.
- */
-const GRAPH_BUCKETS = 60;
+type Status = "ready" | "not-installed" | "error";
 
 /** Identifiers in the "not set up" notice: names, not prose, so not translated. */
 const STATS_TABLE = "hand_stats";
 const STATS_MIGRATION = "supabase/migrations/20261005090000_hand_stats.sql";
 
+
 export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
-  const t = useDict().stats;
+  const dict = useDict();
+  const t = dict.stats;
   const en = t.tab;
   const auth = useAuth();
-  const [status, setStatus] = useState<Status>("idle");
+  const [status, setStatus] = useState<Status>("ready");
   const [message, setMessage] = useState<string | null>(null);
-  const [summary, setSummary] = useState<StatsSummary | null>(null);
-  const [graph, setGraph] = useState<StatsGraph | null>(null);
   const [coverage, setCoverage] = useState<StatsCoverage | null>(null);
   const [rebuild, setRebuild] = useState<RebuildState>({ status: "idle" });
   /** One automatic rebuild per visit; after that it is the button's job. */
   const autoRebuilt = useRef(false);
-  /** What the reader picked; null until they pick, which means "the default". */
-  const chosen = useRef<Scope | null>(null);
-  const [scope, setScope] = useState<Scope>(ALL);
-  /** Bumped on every successful load, so the panels below reload with the numbers. */
+  /** Bumped when the numbers change under the screen (a rebuild, an arrival, an upload): it reads again. */
   const [generation, setGeneration] = useState(0);
+  const [chosen, setChosen] = useState<FilterState | null>(null);
+  const [tab, setTab] = useState<Tab>("position");
 
-  /**
-   * `quiet` re-reads behind the numbers on screen (the live path, and after a
-   * rebuild): no "Loading…" in between, and a failure keeps what is shown.
-   */
-  const load = useCallback(async (quiet = false): Promise<StatsCoverage | null> => {
-    if (!quiet) {
-      setStatus("loading");
-      setMessage(null);
-    }
+  const base = useMemo(() => webReportSource(dict.converter.library.standardFormat), [dict]);
+  // A database without the summaries' readers (PGRST202) says "not set up", not a stack trace.
+  const source = useMemo(
+    () => ({
+      ...base,
+      report: (filter: HandFilter, points: number) =>
+        base.report(filter, points).catch((error: unknown) => {
+          if (isMissingSchemaError(error)) setStatus("not-installed");
+          throw error;
+        }),
+    }),
+    [base],
+  );
+
+  /** The coverage line: how much of the library the numbers are about. */
+  const load = useCallback(async (): Promise<StatsCoverage | null> => {
     try {
-      // Coverage first: it is one small grouped count, and it is what decides
-      // the default scope. Then the two reports in parallel — they read the
-      // same rows under the same filters, and a sequential pair would make the
-      // slowest path the sum of two aggregate scans for no reason.
-      //
-      // Coverage arrived in a later migration than the numbers; a database
-      // without it still shows the numbers, just without the badge or filter.
-      const nextCoverage = await fetchStatsCoverage().catch(() => null);
-      const nextScope = chosen.current ?? defaultScope(nextCoverage?.stakes ?? []);
-      const filters = scopeFilters(nextScope, nextCoverage?.stakes ?? []);
-      const [nextSummary, nextGraph] = await Promise.all([
-        fetchStatsSummary(filters),
-        fetchStatsGraph(filters, GRAPH_BUCKETS),
-      ]);
-      setSummary(nextSummary);
-      setGraph(nextGraph);
-      setCoverage(nextCoverage);
-      setScope(nextScope);
-      setGeneration((value) => value + 1);
-      setStatus("ready");
-      return nextCoverage;
+      const next = await fetchStatsCoverage();
+      setCoverage(next);
+      return next;
     } catch (error) {
-      if (quiet) {
-        return null;
-      }
       if (isMissingSchemaError(error)) {
         setStatus("not-installed");
-        return null;
+      } else {
+        setStatus("error");
+        setMessage(error instanceof Error ? error.message : String(error));
       }
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : String(error));
       return null;
     }
   }, []);
@@ -143,11 +120,10 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
       progress: { processed: 0, inserted: 0, failed: 0, pruned: 0 },
     });
     try {
-      const progress = await rebuildStats((next) =>
-        setRebuild({ status: "running", progress: next }),
-      );
+      const progress = await rebuildStats((next) => setRebuild({ status: "running", progress: next }));
       setRebuild({ status: "done", progress });
-      await load(true);
+      await load();
+      setGeneration((value) => value + 1);
     } catch (error) {
       setRebuild({
         status: "error",
@@ -164,6 +140,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
     if (!isDatabaseConfigured || !auth.isSignedIn) {
       return;
     }
+    setGeneration((value) => value + 1);
     void load().then((loaded) => {
       if (loaded && loaded.missing + loaded.stale + loaded.evMissing > 0 && !autoRebuilt.current) {
         autoRebuilt.current = true;
@@ -186,9 +163,11 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
     try {
       do {
         catchUpAgain.current = false;
-        const loaded = await load(true);
+        const loaded = await load();
         if (loaded && loaded.missing + loaded.stale + loaded.evMissing > 0) {
           await runRebuild();
+        } else {
+          setGeneration((value) => value + 1);
         }
       } while (catchUpAgain.current);
     } finally {
@@ -206,17 +185,6 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
       void catchUp();
     }
   }, [arrival, auth.isSignedIn, catchUp]);
-
-  const behind = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
-  const filters = useMemo(() => scopeFilters(scope, coverage?.stakes ?? []), [scope, coverage]);
-
-  const pickScope = useCallback(
-    (next: Scope) => {
-      chosen.current = next;
-      void load();
-    },
-    [load],
-  );
 
   if (!isDatabaseConfigured) {
     return (
@@ -255,7 +223,14 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
             <code>{STATS_MIGRATION}</code>
             {en.notInstalledBody.afterFile}
           </p>
-          <button type="button" className="btn" onClick={() => void load()}>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setStatus("ready");
+              void load();
+            }}
+          >
             {t.common.tryAgain}
           </button>
         </div>
@@ -268,89 +243,80 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
       <div className="stats">
         <Header />
         <p className="notice notice--error">{message}</p>
-        <button type="button" className="btn" onClick={() => void load()}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setStatus("ready");
+            void load();
+          }}
+        >
           {t.common.tryAgain}
         </button>
       </div>
     );
   }
 
-  if (status === "idle" || status === "loading" || !summary || !graph) {
-    return (
-      <div className="stats">
-        <Header />
-        <p className="muted">{en.loading}</p>
-      </div>
-    );
-  }
-
-  const coverageBar = (
-    <CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />
-  );
-
-  if (summary.hands === 0) {
-    if (rebuild.status === "running" || behind > 0) {
-      return (
-        <div className="stats">
-          <Header />
-          {coverageBar}
-        </div>
-      );
-    }
-    return (
-      <div className="stats">
-        <Header />
-        <div className="card stats-empty">
-          <h3>{en.emptyHeading}</h3>
-          <p className="muted">{en.emptyBody}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="stats">
-      <Header sample={en.sample(summary.hands, summary.statsVersion)} />
-
-      {coverageBar}
-
-      <ScopeBar stakes={coverage?.stakes ?? []} scope={scope} onChange={pickScope} />
-
-      <HudGrid
-        counters={summary.counters}
-        money={summary.money}
-        moneyHands={summary.moneyHands}
-        currency={summary.currency}
-        currencyMinorUnits={summary.currencyMinorUnits}
-        mixedCurrency={summary.mixedCurrency}
-        mixedUnitKind={summary.mixedUnitKind}
+      <ReportsScreen
+        key={auth.user?.id ?? ""}
+        source={source}
+        definitions={WEB_DEFINITIONS}
+        chosen={chosen}
+        onChoose={setChosen}
+        tab={tab}
+        onTab={setTab}
+        title={en.heading}
+        titleTag="h2"
+        notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
+        emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
+        reloadToken={generation}
+        renderState={(kind, text) => (
+          <div
+            className={kind === "error" ? "notice notice--error" : "card stats-empty"}
+            role={kind === "error" ? "alert" : "status"}
+          >
+            {kind === "error" ? text : <p className="muted">{text}</p>}
+          </div>
+        )}
+        afterSummary={(report) => <Tiles report={report} />}
+        footer={(query) => {
+          const opponents = opponentsScope(query);
+          return (
+            <>
+              <SessionsPanel filter={query} refreshToken={generation} />
+              <OpponentsPanel filters={opponents.filters} partial={opponents.partial} refreshToken={generation} />
+            </>
+          );
+        }}
       />
-
-      <section className="card stats-group">
-        <div className="card__head">
-          <h3>{t.common.winRate}</h3>
-          <p className="muted">{en.winRateNote}</p>
-        </div>
-        <WinrateGraph graph={graph} />
-      </section>
-
-      <BreakdownPanel filters={filters} stakes={coverage?.stakes ?? []} refreshToken={generation} />
-
-      <HandMatrix filters={filters} refreshToken={generation} />
-
-      <SessionsPanel filters={filters} refreshToken={generation} />
-
-      <OpponentsPanel filters={filters} refreshToken={generation} />
     </div>
   );
 }
 
-function Header({ sample }: { sample?: string }) {
+/** The HUD tiles (the web's own panel) over the report's sums. */
+function Tiles({ report }: { report: Report }) {
+  const totals = reportTotals(report);
+  if (!totals) return null;
+  return (
+    <HudGrid
+      counters={totals.counters}
+      money={report.units.mixedKind ? null : totals.money}
+      moneyHands={totals.moneyHands}
+      currency={report.units.mixedCurrency || report.units.mixedKind ? null : report.units.currency}
+      currencyMinorUnits={report.units.mixedCurrency || report.units.mixedKind ? null : report.units.minorUnits}
+      mixedCurrency={report.units.mixedCurrency}
+      mixedUnitKind={report.units.mixedKind}
+    />
+  );
+}
+
+function Header() {
   const en = useDict().stats.tab;
   return (
     <header className="stats__head">
       <h2>{en.heading}</h2>
-      {sample ? <span className="stats__sample">{sample}</span> : null}
     </header>
   );
 }
@@ -418,154 +384,3 @@ function CoverageBar({
   );
 }
 
-/* ----------------------------------------------------------------- scope - */
-
-/**
- * Which slice of the library the screen is about.
- *
- * Only two dimensions, on purpose: format and, for cash, the stake. Those are
- * the two that change what a number *means* — chips are not money, so a cash
- * and tournament sample together has no win rate at all, and a bb/100 across
- * stakes is an average of different games. Every other filter `stats_summary`
- * accepts is a refinement; these two decide whether the headline exists.
- */
-interface Scope {
-  /** null = every format. */
-  gameFormat: string | null;
-  /** `stakeKey()` of one cash stake; null = every stake in the format. */
-  stake: string | null;
-}
-
-const ALL: Scope = { gameFormat: null, stake: null };
-
-function stakeKey(stake: StakeVolume): string {
-  return `${stake.currency}:${stake.smallBlind ?? ""}:${stake.bigBlind ?? ""}`;
-}
-
-/**
- * The scope a first visit opens on: everything, unless everything mixes
- * formats — then the format with the most hands, so the win rate the reader
- * came for is on screen instead of a note explaining why it is not.
- */
-function defaultScope(stakes: StakeVolume[]): Scope {
-  const formats = new Set(stakes.map((stake) => stake.gameFormat));
-  if (formats.size <= 1) {
-    return ALL;
-  }
-  return { gameFormat: stakes[0].gameFormat, stake: null };
-}
-
-function scopeFilters(scope: Scope, stakes: StakeVolume[]): StatsFilters {
-  const filters: StatsFilters = {};
-  if (scope.gameFormat) {
-    filters.gameFormat = scope.gameFormat;
-  }
-  const stake = scope.stake ? stakes.find((entry) => stakeKey(entry) === scope.stake) : null;
-  if (stake) {
-    filters.currency = stake.currency;
-    if (stake.bigBlind !== null) {
-      filters.bigBlind = stake.bigBlind;
-    }
-  }
-  return filters;
-}
-
-/**
- * The format and stake picker. Renders nothing for a library with a single
- * stake — there is no choice to offer, and an inert control is clutter.
- */
-function ScopeBar({
-  stakes,
-  scope,
-  onChange,
-}: {
-  stakes: StakeVolume[];
-  scope: Scope;
-  onChange: (scope: Scope) => void;
-}) {
-  const t = useDict().stats;
-  const en = t.scope;
-  /** A format the dictionary does not know (a new room's) is shown as its id. */
-  const formatLabels: Partial<Record<string, string>> = en.formats;
-  if (stakes.length <= 1) {
-    return null;
-  }
-
-  const formats = new Map<string, number>();
-  for (const stake of stakes) {
-    formats.set(stake.gameFormat, (formats.get(stake.gameFormat) ?? 0) + stake.hands);
-  }
-  // Only cash has stakes worth splitting by: a tournament's blinds rise every
-  // level, so "hands at 400/800" is a slice of one tournament, not a game.
-  const cashStakes =
-    scope.gameFormat === "cash" ? stakes.filter((stake) => stake.gameFormat === "cash") : [];
-
-  return (
-    <div className="stats-scope" role="group" aria-label={en.ariaLabel}>
-      {formats.size > 1 ? (
-        <div className="stats-scope__formats">
-          <ScopeButton
-            active={scope.gameFormat === null}
-            onClick={() => onChange(ALL)}
-            label={en.allFormats}
-            count={stakes.reduce((sum, stake) => sum + stake.hands, 0)}
-          />
-          {[...formats.entries()].map(([format, hands]) => (
-            <ScopeButton
-              key={format}
-              active={scope.gameFormat === format}
-              onClick={() => onChange({ gameFormat: format, stake: null })}
-              label={formatLabels[format] ?? format}
-              count={hands}
-            />
-          ))}
-        </div>
-      ) : null}
-      {cashStakes.length > 1 ? (
-        <label className="field">
-          <span className="field__label">{en.stakes}</span>
-          <select
-            value={scope.stake ?? ""}
-            onChange={(event) =>
-              onChange({
-                gameFormat: "cash",
-                stake: event.target.value || null,
-              })
-            }
-          >
-            <option value="">{en.allStakes}</option>
-            {cashStakes.map((stake) => (
-              <option key={stakeKey(stake)} value={stakeKey(stake)}>
-                {en.stakeOption(stakeLabel(stake, t.common.unknownStakes), stake.hands)}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
-    </div>
-  );
-}
-
-function ScopeButton({
-  active,
-  onClick,
-  label,
-  count: hands,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  count: number;
-}) {
-  const count = countIn(useIntlLocale());
-  return (
-    <button
-      type="button"
-      className={`btn btn--sm${active ? " btn--primary" : ""}`}
-      aria-pressed={active}
-      onClick={onClick}
-    >
-      {label} <span className="stats-scope__count">{count(hands)}</span>
-    </button>
-  );
-}

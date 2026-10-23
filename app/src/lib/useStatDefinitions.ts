@@ -8,11 +8,11 @@
  * (`refreshStatDefinitions`).
  */
 import { useEffect, useState } from "react";
-import type { Shown, StatDefinition } from "@rail/ui/model/stats";
-import type { StatTableRow } from "@rail/ui/stats/StatTable";
 
-import type { Locale } from "../i18n";
 import { inApp, ipc, type Definition } from "./ipc";
+
+/** The rows and values of a `stats` list: the shared Reports screen's helpers (R4.5c). */
+export { shownOf, statRows } from "@rail/ui/reports/definitions";
 
 let cached: Promise<Definition[]> | null = null;
 const listeners = new Set<() => void>();
@@ -51,44 +51,4 @@ export function useStatDefinitions(): Definition[] | null {
     };
   }, [generation]);
   return definitions;
-}
-
-/**
- * `StatTable` rows: every definition `keep` keeps that has a value, in the
- * definitions' order. `stats` is in the definitions' order, or - with `ids`,
- * the definition id of each of `stats` - matched by id.
- */
-export function statRows(
-  definitions: readonly StatDefinition[],
-  stats: readonly Shown[],
-  locale: Locale,
-  keep: (definition: StatDefinition) => boolean = () => true,
-  ids?: readonly string[],
-): StatTableRow[] {
-  const rows: StatTableRow[] = [];
-  definitions.forEach((definition, index) => {
-    const shown = ids ? stats[ids.indexOf(definition.id)] : stats[index];
-    if (shown && keep(definition)) {
-      rows.push({
-        id: definition.id,
-        label: definition.name[locale],
-        description: definition.description[locale],
-        unit: definition.format.unit,
-        shown,
-      });
-    }
-  });
-  return rows;
-}
-
-/** The value of definition `id` in a list in `definitions`' order. */
-export function shownOf(
-  definitions: readonly StatDefinition[],
-  stats: readonly Shown[],
-  id: string,
-): { definition: StatDefinition; shown: Shown } | null {
-  const index = definitions.findIndex((definition) => definition.id === id);
-  const shown = index < 0 ? undefined : stats[index];
-  const definition = definitions[index];
-  return shown && definition ? { definition, shown } : null;
 }

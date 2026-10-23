@@ -246,6 +246,8 @@ export const statsEn = {
     opaque: (count: number) =>
       `${num(count)} opponent-hands from rooms that hide names between sessions (GGPoker) are not listed — the same tag in two sessions may be two people.`,
     positional: "Rooms that label seats by position (Ignition) never record opponents.",
+    scopeNote:
+      "This table follows the Room, Game and Stakes chips when one of each is chosen; the dates, positions and the other chips do not narrow it.",
     turnOff: "Turn off and delete opponent statistics",
     note: {
       label: "Note (only you see it)",

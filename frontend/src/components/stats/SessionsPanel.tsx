@@ -4,7 +4,8 @@
  *
  * A session is a run of hands with no gap longer than the chosen break, across
  * every table — a multi-tabler's night is one session. The server groups them
- * (`stats_sessions`); this draws the list and the running total.
+ * (`report_sessions`, over the Reports screen's filter since R4.5c); this
+ * draws the list and the running total.
  *
  * The bankroll line is in money when the scope is one currency of cash, and in
  * big blinds otherwise: chips are not money and two currencies do not add. It
@@ -16,7 +17,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fetchStatsSessions, type StatsFilters, type StatsSessions } from "../../lib/db";
+import type { HandFilter } from "@rail/ui/hands/model";
+import { fetchReportSessions, type StatsSessions } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import { countIn, dateFormat, money, numberFormat, useIntlLocale } from "./format";
 
@@ -41,7 +43,7 @@ function minutesBetween(start: string, end: string): number {
   return Math.max(1, Math.round((Date.parse(end) - Date.parse(start)) / 60000));
 }
 
-export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters; refreshToken: number }) {
+export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; refreshToken: unknown }) {
   const t = useDict().stats;
   const en = t.sessions;
   const locale = useIntlLocale();
@@ -53,11 +55,11 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
   const [data, setData] = useState<StatsSessions | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [all, setAll] = useState(false);
-  const key = JSON.stringify(filters);
+  const key = JSON.stringify(filter);
 
   useEffect(() => {
     let live = true;
-    fetchStatsSessions(JSON.parse(key) as StatsFilters, gap).then(
+    fetchReportSessions(JSON.parse(key) as HandFilter, gap).then(
       (next) => {
         if (live) {
           setData(next);
