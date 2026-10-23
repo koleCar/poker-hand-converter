@@ -35,10 +35,18 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: |
+            tests/package-lock.json
+            frontend/package-lock.json
 
       - run: npm ci
         working-directory: tests
+
+      # The shared screens' tests (tests/test/sharedHandsScreen.test.ts)
+      # render `packages/ui` with React from the web's install
+      # (tests/vitest.config.ts aliases it there).
+      - run: npm ci
+        working-directory: frontend
 
       - name: Vitest over the real corpus
         run: npm test

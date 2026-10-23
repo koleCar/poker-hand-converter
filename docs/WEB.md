@@ -287,7 +287,7 @@ does this path mean" alongside the framework's is how the two drift apart.
 | --- | --- |
 | `/` | **The feed.** Placeholder for now: it says so, and points at the two things that work. This is where the product is going, which is why the converter had to move off it. |
 | `/convert` | **Converter.** Drop files, a folder, a zip, or paste text — at desktop scale (R4.2: a folder of tens of thousands of files, a zip of hundreds of MB). Reading, unzipping, detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library while they convert (toggleable; chunked, retried, resumable), refused hands go to the corpus, the original files only on an explicit opt-in, and the output is downloadable per file or combined (up to 20 000 hands per drop). **This route makes zero server requests** unless you save; see below. |
-| `/library` | **Library and replayer.** Pick a hand from your library with filters, or upload/paste a single one. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
+| `/library` | **Library and replayer** - the shared Hands screen (R4.5b, the desktop app's): your hands newest first (or by pot, result, oldest), a virtualised list that pages as you scroll, filters as chips with how many hands each would match (date, room, stakes, position, pot type, result, stack depth, all-in, game, variant, limit, table size), the searches (hero cards or a hand class, board cards, a player at the table, a part of the table's name, a minimum pot), showdown, showdown and winning positions, and what the room's names are; the hand you pick opens beside the list (above it on a phone). A hand the converter hands over opens above the screen, with a save button. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
 | `/stats` | **Statistics.** VPIP, PFR, 3-bet, c-bets and a showdown / non-showdown win-rate graph over your library. Renders and explains itself when signed out rather than bouncing you somewhere else. |
 | `/analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`, phase A1). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — and the heuristic checks that hold whatever the strategy. Runs in the browser; `/analysis/h/<id>` opens a hand in the replayer with the Analysis sheet. No grades until the preflop charts (A2). |
 | `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. **Names hidden by default** (R4.5): Hero, Villain1, Villain2… and no table, room hand number or time, unless the link's owner ticks "Show the players' names" (in the share dialog or on the page); `/embed/h/:slug` follows the same setting. See "Share links and names" below. |
@@ -372,8 +372,10 @@ Realtime; signed out, or on `/convert` while not saving, no socket is opened.
   `components/live/useHandArrivals.ts`), coalesced by `lib/live/arrivals.ts`
   - a refresh 1.5 s after a burst goes quiet, at most every 5 s backing off
   to 30 s while one never does, nothing while the tab is hidden, one resync
-  after a reconnect. `/library` updates its first page in place while you
-  are at the top of it and otherwise shows "N new hands - show"; `/stats`
+  after a reconnect. `/library` reads its first page again and puts the
+  hands newer than its top row on top, so the rows in view do not move, and
+  counts its chips again (R4.5b; until then: in place at the top, otherwise
+  "N new hands - show"); `/stats`
   re-reads and derives statistics for the new hands; the analysis screens
   (`AppFrame live="notify"`) are left alone and offer "N new hands arrived -
   refresh".
@@ -648,12 +650,13 @@ this app with no visual change.
 | `replayer/` | The replayer: `ReplayViewer`, table, seats, bets, pot, board, controls, sheets; `position.ts`, `potOdds.ts`, `seatLayout.ts` | `replayer/replayer.css`, global — the container-query layout, unchanged |
 | `overlay/Overlay.tsx`, `icon/Icon.tsx` | The modal / non-modal `<dialog>` overlay the replayer's sheets use; the stroke icon set | `overlay/overlay.css`, global |
 | `dialog/Dialog.tsx` | The desktop app's modal `<dialog>` | CSS Module |
+| `hands/` | The Hands screen (R4.5b, moved from the desktop app): `HandsScreen` (title and count, the filter row, the list, the open hand's panel - the surface draws the panel), `HandList` (virtualised; a two-line card per row where the list is under 40rem wide), `FilterBar` / `Popover` / `SavedFilters` (the chip row; the desktop's Reports uses it with its own groups), `filter.ts` (the filter state, presets, saved form, `toQuery`), `format.ts`, `useHandList` (pages, counts, arrivals), `model.ts` (`HandsSource` - what a surface implements - and the rows and counts it returns) | CSS Modules |
 | `stats/StatTile.tsx`, `stats/StatTable.tsx`, `stats/StatValue.tsx` | A statistic's tile (value, sample, interval band); a table of statistics; one value faded by its reliability with its sample and interval in the tooltip (R2.7b, the desktop's report cells). All show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
 | `stats/WinrateGraph.tsx`, `stats/chartScale.ts` | The win-rate graph (R2.7b moved it from `components/stats/`): total, showdown, non-showdown and all-in EV over hands, hand-written SVG, its legend and table view; `unit="money"` (the desktop's) draws the same lines in the currency. `chartScale` is its axis arithmetic, which `TrendChart` shares | `stats/winrate-graph.css`, global (`.stats-chart*`, `.stats-legend*`, `.stats-key*`), imported by the component and by `TrendChart` |
 | `palette/CommandPalette.tsx` | The command palette's shell: field, list in labelled groups, keys (↑/↓, Tab, Page Up/Down, Enter, Escape), matched letters marked, an item's shortcut and the footer's key hints, a live result count (R2.8). What it finds is the surface's | CSS Module |
 | `palette/fuzzy.ts` | `fuzzyMatch` / `rankItems` (R2.8): the query's letters in order, case and diacritics ignored, word starts and prefixes first; for a surface to rank its own items | — |
 | `i18n.tsx` | `UiStrings` (the words the components show) and `UiStringsProvider` | — |
-| `strings/` | Data, not components (R2.7a): the replayer's dictionaries `replayer.en.ts` / `replayer.hr.ts` (`ReplayerStrings`) and the Croatian `plural` they use; this app's `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export them, so `en.ts` / `hr.ts` are unchanged; the desktop app hands them to its `UiStringsProvider`. `model/replayStrings.ts` brings the frames' English. Since R2.7b also `stats.en.ts` / `stats.hr.ts`: the stat tile's, the statistics table's and the win-rate graph's words (and `hands`, `handsHead`, `bb`, `sampleOnly`), which this app's `ns/stats.{en,hr}.ts` take block by block - the text unchanged | — |
+| `strings/` | Data, not components (R2.7a): the replayer's dictionaries `replayer.en.ts` / `replayer.hr.ts` (`ReplayerStrings`) and the Croatian `plural` they use; this app's `lib/i18n/ns/replayer.{en,hr}.ts` and `lib/i18n/plural.ts` re-export them, so `en.ts` / `hr.ts` are unchanged; the desktop app hands them to its `UiStringsProvider`. `model/replayStrings.ts` brings the frames' English. Since R2.7b also `stats.en.ts` / `stats.hr.ts`: the stat tile's, the statistics table's and the win-rate graph's words (and `hands`, `handsHead`, `bb`, `sampleOnly`), which this app's `ns/stats.{en,hr}.ts` take block by block - the text unchanged. Since R4.5b `hands.en.ts` / `hands.hr.ts`, the Hands screen's words (the desktop's dictionary spreads them; this app hands them to the provider as they are) | — |
 | `data.tsx` | `DataSource` (where a component that fetches gets data), `DataSourceProvider`, `useHand` | — |
 | `model/` | The one door out: re-exports of this app's pure library (PHF, replay frames, cards, statistics types) | — |
 
@@ -692,8 +695,29 @@ analysis pages' modules, so `.leaks_summary` came after `.stats-group` and
 its gap won on `WhatChanged`'s card.
 
 **Data.** `lib/db/dataSource.ts` implements `DataSource` over Supabase
-(`hand(id)` = `getHand`). Not mounted yet: nothing on the web renders a package
-component that fetches for itself.
+(`hand(id)` = `getHand`), mounted by the library (R4.5b) for the open hand.
+`lib/db/handsSource.ts` is the library's `HandsSource`: `library_page` (one
+page, keyset after the last row, at most 500; newest first or by pot, result
+or oldest) and `library_facets` (each filter group's values with the hands
+each would match under the other groups, `total` and `library`), security
+invoker under RLS (`20270630090000_library_list.sql`, pgTAP `library_list`),
+reading the hands, the hero's `hand_stats` row and its `hand_stats_ev` row at
+the client's `STATS_VERSION` / `EV_VERSION` (a hand whose statistics are not
+derived yet lists, with no big blinds, pot type or stack). The filter groups
+are the desktop store's, by the same rules (`rail_stats::segment` sizes and
+stakes, `STACK_DEPTHS`); everything the old filter bar had is kept: the
+searches (hero cards or class, board, a player), showdown, a part of the
+table's name, the minimum pot (now in each hand's own unit: 25 is $25 at a
+dollar table, 25 chips in a tournament), the showdown and winner positions
+and the anonymity select ("Names", a counted group). The table, the pot and
+the positions narrow the counts without counts of their own. The desktop
+app's source declares none of these (`features.more`), so the shared screen
+hides them there. The pager is gone (the list pages as it scrolls); it never
+put a page or a filter in the address, so there are no old links to map.
+Live arrivals reach the list through `notifyHandsChanged`. Both functions
+plan every call (`plan_cache_mode = force_custom_plan`). At 200 000 hands on
+the local stack a page takes 4-18 ms (a table name 0.22 s, a pot type
+0.45 s) and the counts 0.9-1.15 s.
 
 **Checks.** CI job "Shared UI package" runs the package's ESLint, stylelint
 and `tsc`; this app's jobs typecheck and bundle it again under its settings,

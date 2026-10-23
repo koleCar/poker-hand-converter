@@ -1,0 +1,36 @@
+/* The app's own pieces around the shared Hands screen
+   (`@rail/ui/hands/Hands.module.css` is the screen's): the rebuild notice
+   and the page outside the app. */
+
+.notice {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-2);
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: var(--font-size-sm);
+}
+
+.unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.message {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 12rem;
+  padding: var(--space-6);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-3);
+  color: var(--text-tertiary);
+  text-align: center;
+}

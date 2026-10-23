@@ -2831,6 +2831,70 @@ export type Database = {
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
       is_moderator: { Args: never; Returns: boolean }
       is_position_array: { Args: { p_positions: string[] }; Returns: boolean }
+      library_facets: { Args: { p_filter?: Json }; Returns: Json }
+      library_list: {
+        Args: { p_filter: Json; p_key: string }
+        Returns: string[]
+      }
+      library_page: {
+        Args: { p_after?: Json; p_filter?: Json; p_limit?: number }
+        Returns: Json
+      }
+      library_result: { Args: { p_profit: number }; Returns: string }
+      library_rows: {
+        Args: { p_filter: Json }
+        Returns: {
+          all_in: boolean
+          anonymization: string
+          big_blind: number
+          currency: string
+          currency_symbol: string
+          ev_net: number
+          ev_net_bb_milli: number
+          format: string
+          hero_profit: number
+          id: string
+          limit_type: string
+          m_all_in: boolean
+          m_anon: boolean
+          m_format: boolean
+          m_limit: boolean
+          m_position: boolean
+          m_pot_type: boolean
+          m_result: boolean
+          m_site: boolean
+          m_size: boolean
+          m_stack: boolean
+          m_stake: boolean
+          m_variant: boolean
+          minor_units: number
+          net_bb_milli: number
+          played_at: string
+          position: string
+          pot_type: string
+          result: string
+          site: string
+          size: string
+          small_blind: number
+          stack: string
+          stake: string
+          total_pot: number
+          variant: string
+        }[]
+      }
+      library_size: {
+        Args: { p_max_seats: number; p_players: number }
+        Returns: string
+      }
+      library_stack: { Args: { p_tenths: number }; Returns: string }
+      library_stake: {
+        Args: {
+          p_big_blind: number
+          p_currency: string
+          p_format: Database["public"]["Enums"]["game_format"]
+        }
+        Returns: string
+      }
       mark_notifications_read: { Args: { p_ids?: number[] }; Returns: number }
       mod_ban: {
         Args: { p_days: number; p_reason: string; p_username: string }

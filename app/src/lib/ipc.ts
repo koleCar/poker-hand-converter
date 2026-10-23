@@ -359,37 +359,21 @@ export interface StatsStatus {
 
 /* ------------------------------------------------------- Hands (R2.7a) - */
 
-/** `hands::FilterDto`: every group "any" when empty or absent. */
-export interface HandFilter {
-  sites?: string[];
-  formats?: string[];
-  variants?: string[];
-  limits?: string[];
-  /** `hu`, `6max`, `full`. */
-  sizes?: string[];
-  /** `USD:200`, `chips`. */
-  stakes?: string[];
-  positions?: string[];
-  potTypes?: string[];
-  /** `won`, `lost`, `even`. */
-  results?: string[];
-  /** `0-40`, `40-80`, `80-120`, `120+` (big blinds). */
-  stacks?: string[];
-  allIn?: boolean | null;
-  hasNote?: boolean | null;
-  tags?: string[];
-  /** ISO instants: from (inclusive), to (exclusive). */
-  from?: string | null;
-  to?: string | null;
-  /** Hands this opponent was dealt into (R2.7c): their room's site key and name. */
-  player?: PlayerRef | null;
-}
-
-/** An opponent of a room with real screen names (R2.7c). */
-export interface PlayerRef {
-  site: string;
-  player: string;
-}
+/**
+ * The Hands screen's shapes (`hands::FilterDto`, `HandRowDto`, `FacetsDto`)
+ * are the shared screen's since R4.5b (`@rail/ui/hands/model`): the store's
+ * DTOs, with the web-only fields optional.
+ */
+export type {
+  FacetCount,
+  HandFacets,
+  HandFilter,
+  HandRow,
+  PlayerRef,
+  SiteFacet,
+  StakeFacet,
+} from "@rail/ui/hands/model";
+import type { FacetCount, HandFacets, HandFilter, HandRow } from "@rail/ui/hands/model";
 
 /** `hands::CursorDto`: where the next page starts. */
 export interface HandCursor {
@@ -397,84 +381,9 @@ export interface HandCursor {
   handKey: string;
 }
 
-/** `hands::HandRowDto`: one row of the list. Money in minor units. */
-export interface HandRow {
-  handKey: string;
-  site: string;
-  siteName: string;
-  siteHandId: string;
-  playedAt: string | null;
-  gameFormat: string;
-  variant: string;
-  limitType: string;
-  currency: string;
-  currencySymbol: string;
-  minorUnits: number;
-  smallBlind: number;
-  bigBlind: number;
-  ante: number;
-  maxSeats: number;
-  tableName: string | null;
-  heroPosition: string | null;
-  heroCards: string[];
-  board: string[];
-  heroNet: number | null;
-  /** Thousandths of a big blind. */
-  heroNetBbMilli: number | null;
-  /** All in with cards to come. */
-  allIn: boolean;
-  /** The all-in EV result where it differs from the result. */
-  evNet: number | null;
-  evNetBbMilli: number | null;
-  /** Waiting for the background EV pass. */
-  evPending: boolean;
-  potType: string;
-  totalPot: number;
-  showdown: boolean;
-  hasNote: boolean;
-  tags: string[];
-}
-
 export interface HandPage {
   rows: HandRow[];
   next: HandCursor | null;
-}
-
-export interface FacetCount {
-  value: string;
-  count: number;
-}
-
-export interface SiteFacet extends FacetCount {
-  name: string;
-}
-
-export interface StakeFacet extends FacetCount {
-  currency: string | null;
-  currencySymbol: string | null;
-  minorUnits: number | null;
-  smallBlind: number | null;
-  bigBlind: number | null;
-}
-
-/** `hands::FacetsDto`: each group counted as if its own selection were left out. */
-export interface HandFacets {
-  total: number;
-  sites: SiteFacet[];
-  formats: FacetCount[];
-  variants: FacetCount[];
-  limits: FacetCount[];
-  sizes: FacetCount[];
-  stakes: StakeFacet[];
-  positions: FacetCount[];
-  potTypes: FacetCount[];
-  results: FacetCount[];
-  stacks: FacetCount[];
-  allIn: FacetCount[];
-  /** Every tag in use, with its hands. */
-  tags: FacetCount[];
-  /** Hands with a note. */
-  noted: number;
 }
 
 export interface HandAnnotations {

@@ -24,7 +24,7 @@ import {
 } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import { emptyMoney, rates } from "../../lib/stats";
-import { POSITIONS } from "../handFilters";
+import { POSITION_ORDER as POSITIONS } from "@rail/ui/hands/filter";
 import { countIn, numberFormat, useIntlLocale } from "./format";
 
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"] as const;

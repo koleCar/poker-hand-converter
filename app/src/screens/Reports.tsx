@@ -39,7 +39,8 @@ import {
   toQuery,
   type FilterState,
 } from "./hands/filter";
-import { FilterBar, REPORT_GROUPS } from "./hands/FilterBar";
+import { FilterBar, REPORT_GROUPS } from "@rail/ui/hands/FilterBar";
+import { storeHandsSource } from "../lib/handsSource";
 import { bigBlinds, count, signedMoney, unitOf } from "./hands/format";
 import { Breakdown, isTab, needsBreakdowns, type Tab } from "./reports/Breakdown";
 import styles from "./reports/Reports.module.css";
@@ -162,7 +163,14 @@ export function Reports() {
           </span>
         ) : null}
       </header>
-      <FilterBar filter={filter} facets={facets} onChange={setFilter} groups={REPORT_GROUPS} screen="reports" />
+      <FilterBar
+        filter={filter}
+        facets={facets}
+        onChange={setFilter}
+        groups={REPORT_GROUPS}
+        screen="reports"
+        saved={storeHandsSource.savedFilters}
+      />
       {defaultFormat !== null ? (
         <p className={styles.notice}>
           {r.defaultFormat((t.hands.filters.formats as Record<string, string>)[defaultFormat] ?? defaultFormat)}

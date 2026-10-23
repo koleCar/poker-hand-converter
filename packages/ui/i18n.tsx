@@ -22,6 +22,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 import type { ReplayStrings } from "./model/replay";
+import type { handsUiEn } from "./strings/hands.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
 export interface ReplayerStrings {
@@ -309,6 +310,12 @@ export interface WinrateGraphStrings {
   to: string;
 }
 
+/**
+ * The Hands screen's (`hands/`, R4.5b): the list, the filter row, the saved
+ * filters. `strings/hands.{en,hr}.ts` are the two languages.
+ */
+export type HandsStrings = typeof handsUiEn;
+
 export interface UiStrings {
   /** The reader's BCP 47 tag, for `Intl` ("en-GB", "hr-HR"). */
   intlLocale: string;
@@ -318,6 +325,7 @@ export interface UiStrings {
   statTile: StatTileStrings;
   statTable: StatTableStrings;
   winrateGraph: WinrateGraphStrings;
+  hands: HandsStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);
