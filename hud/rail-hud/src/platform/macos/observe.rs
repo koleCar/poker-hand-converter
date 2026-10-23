@@ -39,6 +39,14 @@
 //! places an overlay from that, never from an older description in a
 //! frame.
 //!
+//! **A new table's title bar** (R3.14): a table the find attached before
+//! the Accessibility API gave a usable close button has its bar not
+//! measured; this thread reads it from the window's element when it is
+//! tracked, on [`BAR_CHECKS`] and on its client's notifications for
+//! [`UNTITLED_FOR`], until it is - then the overlay leaves the title bar
+//! at once and the find's memory takes the bar. A reading without a
+//! usable button never replaces a bar (`measure_bar`).
+//!
 //! **No fight with the re-find.** The engine's periodic find (500 ms)
 //! stays, the safety net for a client with poor accessibility; when it
 //! describes a table otherwise than the observers reported, the backend
@@ -82,8 +90,8 @@ use objc2_core_foundation::{
 use super::super::WindowId;
 use super::super::tracking::{Geometry, Observed};
 use super::{
-    AxNote, Frame, Link, MINIMIZING, RECHECKS, Read, SETTLE, TrackerInfo, ffi, fully_observed,
-    shows_moves, title_bar, title_bar_between, tracked_geometry,
+    AxNote, BAR_CHECKS, Frame, Link, MINIMIZING, RECHECKS, Read, SETTLE, TrackerInfo, UNTITLED_FOR,
+    ffi, fully_observed, shows_moves, title_bar, title_bar_between, tracked_geometry,
 };
 
 /// How long the thread sleeps with nothing to do (a command or a
@@ -155,6 +163,9 @@ pub(super) struct Tracker {
     /// (R3.14) Every tracked table followed by notifications alone
     /// ([`fully_observed`]), as the thread last saw it.
     all_observed: Arc<AtomicBool>,
+    /// (R3.14) Title bars the thread measured (window number, bar) since
+    /// the backend last took them ([`Tracker::measured_bars`]).
+    bars: Arc<Mutex<Vec<(u32, i64)>>>,
     thread: Option<JoinHandle<()>>,
     exits: Option<Exits>,
 }
@@ -175,11 +186,13 @@ impl Tracker {
         let shared = Arc::clone(&observed);
         let all_observed = Arc::new(AtomicBool::new(false));
         let all_shared = Arc::clone(&all_observed);
+        let bars: Arc<Mutex<Vec<(u32, i64)>>> = Arc::default();
+        let bars_shared = Arc::clone(&bars);
         let exits = Exits::new()?;
         let kq = exits.kq;
         let thread = std::thread::Builder::new()
             .name("rail-hud-ax".to_owned())
-            .spawn(move || run(rx, &ready_tx, link, shared, all_shared, kq))
+            .spawn(move || run(rx, &ready_tx, link, shared, all_shared, bars_shared, kq))
             .map_err(|e| e.to_string())?;
         let waker = ready_rx
             .recv_timeout(Duration::from_secs(10))
@@ -191,9 +204,17 @@ impl Tracker {
             waker,
             observed,
             all_observed,
+            bars,
             thread: Some(thread),
             exits: Some(exits),
         })
+    }
+
+    /// (R3.14) The title bars the thread measured since the last call
+    /// (window number, bar; oldest first), for the find's memory
+    /// ([`super::remember_bars`]).
+    pub(super) fn measured_bars(&self) -> Vec<(u32, i64)> {
+        std::mem::take(&mut *self.bars.lock().unwrap_or_else(PoisonError::into_inner))
     }
 
     fn send(&self, command: Cmd) {
@@ -339,6 +360,7 @@ fn run(
     link: Option<Link>,
     observed: Arc<Mutex<Observed>>,
     all_observed: Arc<AtomicBool>,
+    bars: Arc<Mutex<Vec<(u32, i64)>>>,
     kq: i32,
 ) {
     let (Some(run_loop), Some(source)) = (CFRunLoop::current(), wake_source()) else {
@@ -359,11 +381,13 @@ fn run(
             link,
             observed,
             all_observed,
+            bars,
             kq,
             run_loop,
             tables: BTreeMap::new(),
             apps: BTreeMap::new(),
             rechecks: Vec::new(),
+            bar_checks: Vec::new(),
             notes: 0,
             by_note: BTreeMap::new(),
             slowest_note_us: 0,
@@ -441,6 +465,13 @@ struct Followed {
     title: String,
     /// Thousandths of a point.
     title_bar: i64,
+    /// (R3.14) Whether `title_bar` was measured (here, or by the find and
+    /// handed over with `Track` / `Resync`); until it is, the thread reads
+    /// it again ([`BAR_CHECKS`], and on its client's notifications for
+    /// [`UNTITLED_FOR`]). An unreadable bar never replaces a measured one.
+    bar_known: bool,
+    /// When it was tracked.
+    since: Instant,
     /// `AXWindowMiniaturized` seen, not `Deminiaturized` since.
     minimized: bool,
     /// When `AXWindowMiniaturized` came (the window server may still show
@@ -489,6 +520,8 @@ struct State {
     observed: Arc<Mutex<Observed>>,
     /// (R3.14) Published after every step ([`State::publish_observed`]).
     all_observed: Arc<AtomicBool>,
+    /// (R3.14) Title bars measured here, for the find's memory.
+    bars: Arc<Mutex<Vec<(u32, i64)>>>,
     kq: i32,
     run_loop: CFRetained<CFRunLoop>,
     tables: BTreeMap<WindowId, Followed>,
@@ -496,6 +529,8 @@ struct State {
     /// Reads due later (after a notification an animation may outrun).
     /// (due, table, the notification it answers).
     rechecks: Vec<(Instant, WindowId, Option<Instant>)>,
+    /// (R3.14) Title bar reads due for tables whose bar is not measured.
+    bar_checks: Vec<(Instant, WindowId)>,
     notes: u64,
     by_note: BTreeMap<String, u64>,
     slowest_note_us: u64,
@@ -545,8 +580,29 @@ impl State {
                     .retain(|(_, t, at)| *t != table || at.is_none());
             }
         }
+        let due: Vec<WindowId> = self
+            .bar_checks
+            .iter()
+            .filter(|(due, _)| *due <= now)
+            .map(|(_, t)| *t)
+            .collect();
+        self.bar_checks.retain(|(due, _)| *due > now);
+        for table in due {
+            if self.measure_bar(table, "a check") {
+                self.follow(table, None);
+            }
+        }
+        // Measured (or gone): no more reads for it.
+        let tables = &self.tables;
+        self.bar_checks
+            .retain(|(_, t)| tables.get(t).is_some_and(|f| !f.bar_known && !f.gone));
         self.publish_observed();
-        let next = self.rechecks.iter().map(|(due, _, _)| *due).min();
+        let next = self
+            .rechecks
+            .iter()
+            .map(|(due, _, _)| *due)
+            .chain(self.bar_checks.iter().map(|(due, _)| *due))
+            .min();
         Some(next.map_or(IDLE, |at| at.saturating_duration_since(now)))
     }
 
@@ -587,8 +643,11 @@ impl State {
                 self.displays = None;
                 if let Some(f) = self.tables.get_mut(&table) {
                     f.last = Some(known);
+                    // Only a measured bar comes (the backend's
+                    // `title_bar_of`); without one the bar stays as it is.
                     if let Some(bar) = title_bar {
                         f.title_bar = bar;
+                        f.bar_known = true;
                     }
                     // The find's minimised (an empty client area) - which
                     // only counts while the window server does not show
@@ -641,6 +700,9 @@ impl State {
             return;
         };
         self.observe_process(pid);
+        // (R3.14) Not measured by the find: what the engine's description
+        // says for now (0 for a window the find could not measure), read
+        // from the window's element below and again until it is measured.
         let bar = title_bar.or_else(|| {
             let cg = ffi::cg_window(window)?;
             (known.client.width > 0)
@@ -653,6 +715,8 @@ impl State {
                 window,
                 title,
                 title_bar: bar.unwrap_or(0),
+                bar_known: title_bar.is_some(),
+                since: Instant::now(),
                 minimized: known.hidden && known.client.width == 0,
                 minimizing: None,
                 last: Some(known),
@@ -664,6 +728,14 @@ impl State {
             },
         );
         self.resolve(table);
+        if title_bar.is_none() {
+            self.measure_bar(table, "tracked");
+        }
+        if self.tables.get(&table).is_some_and(|f| !f.bar_known) {
+            let now = Instant::now();
+            self.bar_checks
+                .extend(BAR_CHECKS.iter().map(|after| (now + *after, table)));
+        }
         if let Some(link) = &self.link {
             let watched = self.apps.get(&pid).is_some_and(App::watched);
             let _ = link.watched(table, watched);
@@ -677,6 +749,7 @@ impl State {
         };
         self.unregister(&mut followed);
         self.rechecks.retain(|(_, t, _)| *t != table);
+        self.bar_checks.retain(|(_, t)| *t != table);
         let pid = followed.pid;
         if !self.tables.values().any(|f| f.pid == pid)
             && let Some(app) = self.apps.remove(&pid)
@@ -891,7 +964,30 @@ impl State {
                 self.title(table);
             }
             if effect.title_bar {
-                self.title_bar(table);
+                self.measure_bar(table, "a resize");
+            }
+        }
+        // (R3.14) A new table whose title bar could not be read yet: read
+        // it again on what its client posts meanwhile (its window shown,
+        // focused, made main, its application activated), not only on the
+        // checks.
+        let unmeasured: Vec<WindowId> = self
+            .tables
+            .iter()
+            .filter(|(id, f)| {
+                f.pid == pid
+                    // Read just above.
+                    && !(effect.title_bar && table == Some(**id))
+                    && !f.bar_known
+                    && !f.gone
+                    && f.element.is_some()
+                    && f.since.elapsed() < UNTITLED_FOR
+            })
+            .map(|(id, _)| *id)
+            .collect();
+        for table in unmeasured {
+            if self.measure_bar(table, &note.name) {
+                self.follow(table, Some(note.at));
             }
         }
         let targets: Vec<WindowId> = match effect.read {
@@ -1067,23 +1163,51 @@ impl State {
         }
     }
 
-    /// The title bar again (a resize: full screen in or out, a toolbar).
-    fn title_bar(&mut self, table: WindowId) {
+    /// The title bar again, from the window's element (a resize: full
+    /// screen in or out, a toolbar; R3.14: a table tracked before its bar
+    /// was measured). A reading that measures nothing ([`title_bar`]: no
+    /// close button yet, a client too busy to answer) changes nothing - it
+    /// never puts the overlay over the title bar. A bar measured is handed
+    /// to the find ([`Tracker::measured_bars`]); the first is logged.
+    /// Whether the bar changed (the overlay must move).
+    fn measure_bar(&mut self, table: WindowId, why: &str) -> bool {
         let Some(f) = self.tables.get(&table) else {
-            return;
+            return false;
         };
         let Some(element) = f.element.as_deref() else {
-            return;
+            return false;
         };
         // The client's own frame: the window server's may lag a resize.
         let ax = ffi::ax_window(element);
         let Some(frame) = ax.frame else {
-            return;
+            return false;
         };
-        let bar = title_bar(&ax, &frame);
-        if let Some(f) = self.tables.get_mut(&table) {
-            f.title_bar = bar;
+        let Some(bar) = title_bar(&ax, &frame) else {
+            return false;
+        };
+        let Some(f) = self.tables.get_mut(&table) else {
+            return false;
+        };
+        let first = !f.bar_known;
+        let changed = f.title_bar != bar;
+        f.title_bar = bar;
+        f.bar_known = true;
+        let (window, since) = (f.window, f.since);
+        if first || changed {
+            self.bars
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .push((window, bar));
         }
+        if first {
+            eprintln!(
+                "rail-hud: window {window}: title bar {} pt (measured by the observers on {why}, \
+                 {} ms after tracking)",
+                bar / super::MILLI,
+                since.elapsed().as_millis()
+            );
+        }
+        changed
     }
 
     /// Process `pid` exited: its tables are gone.
