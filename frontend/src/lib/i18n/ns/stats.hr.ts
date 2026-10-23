@@ -210,6 +210,9 @@ export const statsHr: Dict["stats"] = {
       minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`,
     showLatest: "Prikaži samo najnovije",
     showAll: (sessions: number) => `Prikaži sve sesije (${num(sessions)})`,
+    review: "Pregled",
+    reviewHead: "Pregled",
+    reviewLabel: (when: string) => `Pregledaj sesiju od ${when}: najlošije odluke, odstupanja i najveće potove`,
   },
 
   opponents: {

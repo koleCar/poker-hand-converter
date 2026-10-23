@@ -1139,6 +1139,7 @@ export const analysisHr: Dict["analysis"] = {
 
   hand: {
     back: "Natrag na analizu",
+    backToSession: "Natrag na pregled sesije",
     loading: "Učitavam ruku…",
     notFound: "Ova ruka nije u tvojoj biblioteci.",
     fresh:

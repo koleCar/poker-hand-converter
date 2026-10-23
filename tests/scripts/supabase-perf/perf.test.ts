@@ -33,12 +33,22 @@
  *    The copies bypass the triggers, so the report summaries (R4.5c-1,
  *    `20270707090000_report_summaries.sql`) are counted again after them with
  *    `report_summaries_rebuild` - the migration's backfill, timed.
+ * 2b. **Analysis rows** (`RAIL_PERF_ANALYSIS=1`, R5.1): GENERATED
+ *    `hand_analysis` / `decision_analysis` rows at this build's
+ *    `ANALYSIS_VERSION` for every hand with a hero - a preflop chart decision
+ *    and a flop solver decision each, grades spread by a hash of the id - as
+ *    `postgres`, triggers off: what the in-browser analysis would have saved
+ *    for a fully analysed account. Made once; later runs keep them.
  * 3. **The reports**, as the user, each three times (the first is what a
  *    user opening `/stats` waits for; Postgres has no result cache, so the
  *    others differ only by the buffer cache). `RAIL_PERF_SET=old`: R2.9's
  *    `stats_summary`, `stats_graph` (60 buckets, the web's default),
  *    `stats_breakdown` by every group, `stats_opponents` (50 rows, and a
- *    search), `stats_sessions`; everything and cash only. `new`: what the
+ *    search), `stats_sessions`; everything and cash only. `review`: the
+ *    session review (R5.1) - `session_review` for the latest session, the
+ *    session in the middle of the history, the biggest session and the
+ *    latest cash one, and the picker's `report_sessions` over its 90-day
+ *    window (and without one, its fallback). `new`: what the
  *    shared Reports screen asks on a filter change (R4.5c) - `report_open`,
  *    `report_graph` (150 points, what the web asks for), `report_facets`, `report_situations` -
  *    over everything, cash, one stake, a position and a date range cut
@@ -63,6 +73,7 @@ import { handKeyOf } from "../../../frontend/src/lib/db/mapping.js";
 import { handEvRow, handStatsRows } from "../../../frontend/src/lib/db/statsRows.js";
 import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
 import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+import { ANALYSIS_VERSION } from "../../../frontend/src/lib/analysis/types.js";
 import { STATS_VERSION } from "../../../frontend/src/lib/stats/types.js";
 import { PINNED_PARSED_AT, ROOT, listInputs } from "../golden/emit.js";
 
@@ -73,6 +84,7 @@ const HANDS = Number(process.env.RAIL_PERF_HANDS ?? "1000000");
 const SKIP_LOAD = process.env.RAIL_PERF_SKIP_LOAD === "1";
 const SET = process.env.RAIL_PERF_SET ?? "all";
 const VACUUM = process.env.RAIL_PERF_VACUUM === "1";
+const ANALYSIS = process.env.RAIL_PERF_ANALYSIS === "1";
 
 /** A dollar-quote tag that does not occur in the text. */
 function dollar(text: string, base: string): string {
@@ -246,15 +258,68 @@ select pg_size_pretty(pg_total_relation_size('public.hero_rollups')) as hero_rol
 `;
 }
 
+/** GENERATED analysis rows for every hand with a hero (step 2b of the header). */
+function analysisSql(): string {
+  const grade = (salt: string) =>
+    `(array['perfect','good','good','perfect','inaccurate','mistake','blunder','good'])[1 + abs(hashtext(h.id::text || '${salt}')) % 8]`;
+  return [
+    "\\set ON_ERROR_STOP on",
+    "reset role;",
+    "set session_replication_role = replica;",
+    `delete from public.hand_analysis where owner_id = '${USER}';`,
+    "\\timing on",
+    `insert into public.hand_analysis (hand_id, owner_id, analysis_version, status, hero_seat, grade, score, ev_loss_bb,
+                                       ev_loss_pot, decisions, analysed, pot_type)
+     select h.id, h.owner_id, '${ANALYSIS_VERSION}', 'full', h.hero_seat, ${grade("w")}, 50,
+            (abs(hashtext(h.id::text || 'l')) % 500) / 100.0, (abs(hashtext(h.id::text || 'p')) % 50) / 1000.0, 2, 2,
+            'single-raised'
+     from public.hands h
+     where h.owner_id = '${USER}' and h.hero_seat is not null;`,
+    `insert into public.decision_analysis (hand_id, owner_id, analysis_version, ord, action_index, street, action, status,
+                                           node, scenario, source, grade, score, ev_loss_bb, ev_loss_pot, freq_diff, options,
+                                           chosen, facts)
+     select h.id, h.owner_id, '${ANALYSIS_VERSION}', d.ord, d.ord * 6 + 3, d.street, 'call', 'analysed', 'perf',
+            d.scenario, d.source, ${grade("d")}, 50,
+            (abs(hashtext(h.id::text || d.street)) % 500) / 100.0, (abs(hashtext(h.id::text || 'q' || d.street)) % 50) / 1000.0,
+            0.5, '[{"action":"fold","freq":0.9,"ev":0},{"action":"call","freq":0.1,"ev":-0.5}]'::jsonb, 1,
+            jsonb_build_object('position', coalesce(h.hero_position, ''))
+     from public.hands h
+     cross join (values (0, 'preflop', 'vs-open', 'chart'), (1, 'flop', 'pfr-ip-vs-bet', 'solver')) as d(ord, street, scenario, source)
+     where h.owner_id = '${USER}' and h.hero_seat is not null;`,
+    "\\timing off",
+    "set session_replication_role = origin;",
+    "analyze public.hand_analysis;",
+    "analyze public.decision_analysis;",
+    `select count(*) as analysed_hands from public.hand_analysis where owner_id = '${USER}';`,
+  ].join("\n");
+}
+
+/** The session review's calls (R5.1); `:'mid'`, `:'big'` and `:'pick_from'` are set by `measureSql`. */
+function reviewCalls(v: string): [string, string][] {
+  const base = `"statsVersion":"${v}","evVersion":"ev/1","analysisVersion":"${ANALYSIS_VERSION}"`;
+  const all = `'{${base}}'::jsonb`;
+  const cash = `'{${base},"formats":["cash"]}'::jsonb`;
+  return [
+    ["session_review latest", `public.session_review(${all}, null, 30, 20)`],
+    ["session_review middle of the history", `public.session_review(${all}, :'mid'::timestamptz, 30, 20)`],
+    ["session_review biggest session", `public.session_review(${all}, :'big'::timestamptz, 30, 20)`],
+    ["session_review latest, cash", `public.session_review(${cash}, null, 30, 20)`],
+    ["report_sessions picker (90 days)", `public.report_sessions(jsonb_build_object('statsVersion', '${v}', 'from', :'pick_from'), 30)`],
+    ["report_sessions everything (picker fallback)", `public.report_sessions('{"statsVersion":"${v}"}'::jsonb, 30)`],
+  ];
+}
+
 function measureSql(): string {
   const v = STATS_VERSION;
   const all = `{"statsVersion":"${v}"}`;
   const cash = `{"statsVersion":"${v}","gameFormat":"cash"}`;
   const calls: [string, string][] = [];
-  if (SET !== "old") {
+  if (SET === "review") {
+    calls.push(...reviewCalls(v));
+  } else if (SET !== "old") {
     calls.push(...newCalls(v));
   }
-  for (const [scope, f] of SET === "new" ? [] : [["everything", all], ["cash", cash]]) {
+  for (const [scope, f] of SET === "new" || SET === "review" ? [] : [["everything", all], ["cash", cash]]) {
     calls.push([`stats_summary ${scope}`, `public.stats_summary('${f}'::jsonb)`]);
     calls.push([`stats_graph ${scope}`, `public.stats_graph('${f}'::jsonb, 60)`]);
     for (const group of ["position", "pot_type", "stack_bb", "hand_class", "stakes", "site", "table_size"]) {
@@ -263,7 +328,7 @@ function measureSql(): string {
     calls.push([`stats_opponents ${scope}`, `public.stats_opponents('${f}'::jsonb, null, 50)`]);
     calls.push([`stats_sessions ${scope}`, `public.stats_sessions('${f}'::jsonb, 30)`]);
   }
-  if (SET !== "new") {
+  if (SET !== "new" && SET !== "review") {
     calls.push(["stats_opponents search", `public.stats_opponents('${all}'::jsonb, 'a', 50)`]);
   }
   const lines = ["\\set ON_ERROR_STOP on"];
@@ -274,8 +339,20 @@ function measureSql(): string {
     AS_USER,
     // The biggest cash stake, for the one-stake filters.
     `select f ->> 'value' as stake from jsonb_array_elements(public.report_facets('{"statsVersion":"${v}","formats":["cash"]}') -> 'stakes') f order by (f ->> 'count')::bigint desc limit 1 \\gset`,
-    "\\timing on",
   );
+  if (SET === "review") {
+    lines.push(
+      // The session review's instants: the middle of the history, the start
+      // of the session with the most hands, and the picker's window.
+      `select percentile_disc(0.5) within group (order by played_at) as mid, max(played_at) - interval '90 days' as pick_from
+         from public.hero_report_rows where stats_version = '${v}' \\gset`,
+      `select s ->> 'startedAt' as big, s ->> 'hands' as big_hands
+         from jsonb_array_elements(public.report_sessions('{"statsVersion":"${v}"}'::jsonb, 30) -> 'sessions') s
+        order by (s ->> 'hands')::integer desc limit 1 \\gset`,
+      `\\echo SESSIONS middle :mid biggest :big (:big_hands hands) window from :pick_from`,
+    );
+  }
+  lines.push("\\timing on");
   for (const [label, call] of calls) {
     for (const run of [1, 2, 3]) {
       lines.push(`\\echo MARK ${label} #${run}`);
@@ -324,10 +401,18 @@ describe.skipIf(!PSQL)("the web's reports over a million hands", () => {
       console.log(psql(copySql(hands.length)));
       console.log(`copied to ~${HANDS} hands in ${((Date.now() - started) / 1000).toFixed(1)} s`);
     }
+    if (ANALYSIS) {
+      const started = Date.now();
+      console.log(psql(analysisSql()));
+      console.log(`analysis rows generated in ${((Date.now() - started) / 1000).toFixed(1)} s`);
+    }
     const out = psql(measureSql());
     const results = new Map<string, number[]>();
     let label = "";
     for (const line of out.split("\n")) {
+      if (line.startsWith("SESSIONS ")) {
+        console.log(line);
+      }
       const mark = /^MARK (.*) #\d+$/.exec(line);
       if (mark) {
         label = mark[1];

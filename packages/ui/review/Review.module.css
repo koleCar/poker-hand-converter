@@ -1,0 +1,355 @@
+/* Session review (R5.1): the picker, the summary tiles and the three lists of
+   hands, one column scrolling with the page. Semantic tokens only; the grade
+   colours are the analysis's `--grade-*`. On a phone (375 px) a row stacks:
+   the hand, then why it is listed, then the result; every link and button is
+   at least 44 px tall on a coarse pointer (R4.5d). */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1200px;
+  min-width: 0;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.intro {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  transition: opacity 120ms ease;
+}
+
+.stale {
+  opacity: 0.6;
+}
+
+.notice,
+.warning {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-2);
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: var(--font-size-sm);
+}
+
+.warning {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* -------------------------------------------------------------- picker */
+
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pickerField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 18rem;
+  max-width: 32rem;
+}
+
+.pickerField select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pickerLabel {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.walk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.picker .muted {
+  flex-basis: 100%;
+}
+
+/* ------------------------------------------------------------- summary */
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  min-width: 0;
+}
+
+.tileWide {
+  grid-column: span 2;
+}
+
+.tile dt {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.tile dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile dd.when {
+  font-size: var(--font-size-md);
+}
+
+.tile dd.tileNote {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+}
+
+.up {
+  color: var(--profit-fg);
+}
+
+.down {
+  color: var(--loss-fg);
+}
+
+.tile dd.up {
+  color: var(--profit-fg);
+}
+
+.tile dd.down {
+  color: var(--loss-fg);
+}
+
+/* --------------------------------------------------------------- lists */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  min-width: 0;
+}
+
+.cardHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cardTitle {
+  font-size: var(--font-size-lg);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list > li + li {
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1.2fr) minmax(12rem, 2fr) minmax(6rem, auto);
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-2);
+  margin-inline: calc(var(--space-2) * -1);
+  border-radius: var(--radius-2);
+  color: inherit;
+  text-decoration: none;
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--border-focus, var(--border-strong));
+  outline-offset: 1px;
+}
+
+.rowHand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.rowMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.rowWhy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.rowLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rowDetail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.rowDetail > span + span::before {
+  content: "· ";
+  color: var(--text-tertiary);
+}
+
+.rowResult {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.loss {
+  color: var(--loss-fg);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.grade {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+}
+
+.glyph {
+  font-variant-numeric: tabular-nums;
+}
+
+.grade_perfect { color: var(--grade-perfect); }
+.grade_good { color: var(--grade-good); }
+.grade_inaccurate { color: var(--grade-inaccurate); }
+.grade_mistake { color: var(--grade-mistake); }
+.grade_blunder { color: var(--grade-blunder); }
+
+.badges {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.badge {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.badge_worst {
+  border-color: var(--grade-mistake);
+}
+
+.badge_deviations {
+  border-color: var(--grade-inaccurate);
+}
+
+/* A phone: the hand, why, and the result stack. */
+@media (max-width: 40rem) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .rowWhy {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .rowResult {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .tileWide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (pointer: coarse) {
+  .row {
+    min-height: 56px;
+  }
+}

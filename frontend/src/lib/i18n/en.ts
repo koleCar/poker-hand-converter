@@ -115,6 +115,11 @@ export const en = {
       title: "Progress — your score over time | Rail",
       description: "Your analysis score and EV lost per 100 hands by week, month or session, by street, seat and pot type.",
     },
+    analysisSession: {
+      title: "Session review — the hands worth a look | Rail",
+      description:
+        "After a session: your worst graded decisions, the preflop decisions off your charts and the biggest pots, with the session's result.",
+    },
     analysisHand: {
       title: "Hand analysis — one hand | Rail",
       description: "One of your hands, decision by decision, in the replayer.",

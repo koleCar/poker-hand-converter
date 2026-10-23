@@ -1027,3 +1027,19 @@
     forced-color-adjust: none;
   }
 }
+
+/* A phone (R5.1: the session review sits in this sub-navigation and opens
+   its hands here; R4.5d's rule): under a coarse pointer the sub-navigation's
+   tabs and "More", and the Analysis sheet's decision chips, are at least
+   44 px tall. A mouse or a trackpad sees no change. */
+@media (pointer: coarse) {
+  .subnavLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  .chip {
+    min-block-size: 44px;
+  }
+}

@@ -98,6 +98,11 @@ export const hr: Dict = {
       title: "Napredak — tvoj score kroz vrijeme | Rail",
       description: "Score analize i izgubljeni EV na 100 ruku po tjednu, mjesecu ili sesiji, po streetu, poziciji i vrsti pota.",
     },
+    analysisSession: {
+      title: "Pregled sesije — ruke vrijedne pogleda | Rail",
+      description:
+        "Nakon sesije: tvoje najlošije ocijenjene odluke, preflop odluke izvan tvojih chartova i najveći potovi, uz rezultat sesije.",
+    },
     analysisHand: {
       title: "Analiza ruke | Rail",
       description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",

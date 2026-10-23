@@ -25,6 +25,7 @@ import type { ReplayStrings } from "./model/replay";
 import type { handsUiEn } from "./strings/hands.en";
 import type { playersUiEn } from "./strings/players.en";
 import type { reportsUiEn } from "./strings/reports.en";
+import type { reviewUiEn } from "./strings/review.en";
 
 /** The replayer's strings: `strings/replayer.en.ts` is the English. */
 export interface ReplayerStrings {
@@ -332,6 +333,12 @@ export type ReportsStrings = typeof reportsUiEn;
  */
 export type PlayersStrings = typeof playersUiEn;
 
+/**
+ * The session review's (`review/`, R5.1): the picker, the summary, the three
+ * lists. `strings/review.{en,hr}.ts` are the two languages.
+ */
+export type ReviewStrings = typeof reviewUiEn;
+
 export interface UiStrings {
   /** The reader's BCP 47 tag, for `Intl` ("en-GB", "hr-HR"). */
   intlLocale: string;
@@ -344,6 +351,7 @@ export interface UiStrings {
   hands: HandsStrings;
   reports: ReportsStrings;
   players: PlayersStrings;
+  review: ReviewStrings;
 }
 
 const UiStringsContext = createContext<UiStrings | null>(null);

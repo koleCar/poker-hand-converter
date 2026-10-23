@@ -1,5 +1,5 @@
 /**
- * The Analysis tab's own navigation: your analysis, the study plan, the
+ * The Analysis tab's own navigation: your analysis, the session review, the study plan, the
  * trainer, leaks, progress, the reports, the preflop charts, and the concept
  * library.
  *
@@ -8,7 +8,7 @@
  * part of analysis — every explanation links into it. Rendered on every
  * Analysis screen, signed in or not, so the library is always one click away.
  *
- * Eight sections do not fit a phone's width on one line, and two lines of
+ * Nine sections do not fit a phone's width on one line, and two lines of
  * tabs read as two rows of something else. So on a narrow screen three stay
  * as tabs (your analysis, the trainer, leaks) and the rest — the plan among
  * them; the overview's plan card links to it — go under a "More" disclosure — a native
@@ -26,7 +26,7 @@ import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import styles from "./analysis.module.css";
 
-export type AnalysisSection = "overview" | "plan" | "train" | "leaks" | "progress" | "reports" | "charts" | "learn";
+export type AnalysisSection = "overview" | "session" | "plan" | "train" | "leaks" | "progress" | "reports" | "charts" | "learn";
 
 /** Sections that stay tabs on a narrow screen. */
 const PRIMARY: readonly AnalysisSection[] = ["overview", "train", "leaks"];
@@ -36,6 +36,7 @@ export function AnalysisNav({ current }: { current: AnalysisSection }) {
   const more = useRef<HTMLDetailsElement>(null);
   const items: ReadonlyArray<{ id: AnalysisSection; href: string; label: string }> = [
     { id: "overview", href: paths.analysis(), label: t.overview },
+    { id: "session", href: paths.analysisSession(), label: t.session },
     { id: "plan", href: paths.analysisPlan(), label: t.plan },
     { id: "train", href: paths.analysisTrain(), label: t.train },
     { id: "leaks", href: paths.analysisLeaks(), label: t.leaks },

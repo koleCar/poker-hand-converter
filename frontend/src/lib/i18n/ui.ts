@@ -5,6 +5,8 @@ import { playersUiEn } from "@rail/ui/strings/players.en";
 import { playersUiHr } from "@rail/ui/strings/players.hr";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
 import { reportsUiHr } from "@rail/ui/strings/reports.hr";
+import { reviewUiEn } from "@rail/ui/strings/review.en";
+import { reviewUiHr } from "@rail/ui/strings/review.hr";
 import { DICTIONARIES, INTL_LOCALE } from "./dictionaries";
 import type { Locale } from "./types";
 
@@ -13,7 +15,8 @@ import type { Locale } from "./types";
  * R2.6), cut from this site's dictionaries: the replayer's words, the
  * statistic tile's and table's, the win-rate graph's (R2.7b), and the
  * overlays' close label; the Hands screen's words (R4.5b) are the package's
- * own dictionaries (`strings/hands.{en,hr}.ts`), as the app's are. Same objects as
+ * own dictionaries (`strings/hands.{en,hr}.ts`), as the app's are, and so are
+ * Reports' (R4.5c) and the session review's (R5.1). Same objects as
  * `DICTIONARIES`, built once per language, so a component that memoises on
  * them sees the same identity it always did. `I18nProvider` mounts them.
  *
@@ -37,6 +40,7 @@ function uiStrings(locale: Locale): UiStrings {
     hands: locale === "hr" ? handsUiHr : handsUiEn,
     reports: locale === "hr" ? reportsUiHr : reportsUiEn,
     players: locale === "hr" ? playersUiHr : playersUiEn,
+    review: locale === "hr" ? reviewUiHr : reviewUiEn,
   };
 }
 

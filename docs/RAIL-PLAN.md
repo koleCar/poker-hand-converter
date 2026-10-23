@@ -9673,6 +9673,133 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | R5.5 | **ICM** for MTT and SNG decisions | L |
 | R5.6 | GTO tool integration (later) | — |
 
+- *As built, R5.1* (§15): **done** - the session review, on the web
+  (`/analysis/session`), from a screen in `packages/ui/review/` that the app
+  can render once the analysis is there (R5.4).
+  - **What a session is**: `report_sessions`' rule (R4.5c-1, from
+    `stats_sessions`): the hero's hands under the shared filter (bomb pots
+    out), in time order across every table, a break longer than the gap
+    (30 minutes by default; the Sessions panel's 15 / 30 / 60 / 120 carry
+    over) starting the next. Not re-defined: migration
+    `20270721090000_session_review.sql` adds one reader,
+    `session_review(filter, at, gap, limit)`, which walks
+    `hero_report_rows_time_idx` outwards from one instant until it meets a
+    break on each side - in chunks of 500 with a LIMIT, so it reads the
+    session's own hands and two neighbours, not the account - and pgTAP holds
+    it to `report_sessions`' bounds, hands, tables and result for every
+    session (default filter, bomb pots, 15- and 120-minute gaps; a break of
+    exactly the gap does not split). Without `at` it opens the latest session
+    that has **ended** (its last hand more than the gap ago); one that may
+    still be going on comes back as `ongoing` and is reviewed only when asked
+    for ("Review it now") - A10 on a surface that cannot see tables.
+  - **What it returns**, for one session: the summary (bounds, hands,
+    tables, the result in big blinds - EV-cashout hands left out, as
+    `report_sessions` does - and in money for one currency of cash, the
+    all-in EV adjusted result as `report_open` adjusts it, `finished`, and
+    `previousAt` / `nextAt` to walk to); the analysis counts at the client's
+    `ANALYSIS_VERSION` (hands, analysed, graded, not analysable); and three
+    lists, each ranked and capped (`limit`, at most 50): **worst** - per hand
+    its worst graded decision of Inaccurate or worse, worse grade first, then
+    the EV it cost; **deviations** - per hand its preflop decision graded
+    against the shipped charts (`source = 'chart'`) at Inaccurate or worse,
+    i.e. the chart takes the hero's action under 3.5 % of the time
+    (ANALYSIS-PLAN §2), by EV lost, with the chart's best action and how
+    often it takes the hero's; **pots** - the biggest in big blinds. With
+    them a map of every hand they name (cards, seat, stakes, pot, result,
+    all-in EV, grade). Grades are read as stored: nothing is graded, and no
+    grading constant, chart or `analysis/N` changed.
+  - **De-duplication** (`packages/ui/review/select.ts`, pure): a hand is shown
+    once, in the first list it is in - worst decisions, then chart
+    deviations, then pots - with a badge for each other list it is in ("Off
+    chart #2", "Big pot #1"), and each list fills up to its cap (6) from the
+    hands not shown above it (the source asks for 20 per list), saying how
+    many are in the lists above. The client ranks again (stable ties: newest
+    first), so a source that does not rank - R5.3's - still lists right.
+  - **Pluggable deviations**: the screen takes a `DeviationSource`
+    (`deviations(review, query)`); `shippedChartDeviations` answers the
+    server's list. R5.3's own charts become a second source - comparing the
+    session's preflop decisions with the user's ranges - without touching the
+    screen or the function.
+  - **The screen** (`SessionReviewScreen`, `SessionReviewView`,
+    `Review.module.css`, words in `strings/review.{en,hr}.ts`): a picker
+    (the latest finished session, then the sessions of the last 90 days from
+    `report_sessions` - the window's oldest left out since it may begin
+    before it; the whole history when the window has fewer than two),
+    Previous / Next, the gap, the summary tiles (when, hands, length, tables,
+    result, big blinds, bb/100, all-in EV), "N of the M hands are not
+    analysed yet" with the surface's action beside it (the web: a link to
+    `/analysis`, where the run button is), and the three lists. Each row
+    opens the hand through the surface's `renderHandLink`. `hiddenDuringPlay`
+    renders a notice and reads nothing - what R5.4 passes from the app's
+    `useTablesOpen` (and classifies the route `analysis` in
+    `duringPlay.ts`' `SCREEN_HELP`). The app's `UiStrings` carries the words
+    already; the app has no route for it yet.
+  - **The web** (`components/analysis/session/`, `lib/db/sessionReview.ts`):
+    a ninth Analysis section ("Session review", under "More" on a phone), the
+    session and the Statistics filter's groups in the address
+    (`?at=&gap=&site=&fmt=&...`, a whitelist; dates never - a session is not
+    cut by them), written as the reader walks; a hand opens at
+    `/analysis/h/<id>?t=a<index>` - at the decision listed - with
+    `from=session`, and its Back link returns to that session ("Back to the
+    session review"). Statistics -> Sessions gains a "Review" link per row
+    carrying the session's start, the gap and the filter's groups.
+  - **Changed on purpose (the web)**: the Analysis sub-navigation has a
+    ninth entry; Statistics -> Sessions has a seventh column; on a coarse
+    pointer the Analysis sub-navigation's tabs and the Analysis sheet's
+    decision chips are 44 px tall (they were 36 and 32 px - found by
+    `responsive.mjs` on the hand page the review opens). Nothing else moved.
+  - **Measured at 1M hands** (`RAIL_PERF_SET=review RAIL_PERF_ANALYSIS=1 npm
+    run supabase:perf`: R2.9's harness with GENERATED analysis rows for
+    every hand - 974 180 hands, two graded decisions each; ms, the first
+    call and the best of the next two, psql on the M2 Pro):
+
+    | | first | then |
+    | --- | ---: | ---: |
+    | `session_review` latest session | 16 | 2 |
+    | ... the session in the middle of the history | 229 | 4 |
+    | ... the biggest session (862 hands) | 1 654 | 19 |
+    | ... latest, cash only | 4 | 2 |
+    | the picker, `report_sessions` over 90 days | 2 | 1 |
+    | its fallback, `report_sessions` over everything | 1 739 | 1 397 |
+
+    The "first" column is a cold cache straight after loading a million
+    rows: an 862-hand session reads ~860 `hands` rows and ~1 700 decisions
+    from disk once. The first version walked the bounds with a plpgsql
+    cursor over "every hand before the anchor", which Postgres plans for
+    all of them: 290 ms warm and 2 s cold for a one-hand session; the
+    chunked walk replaced it. The picker's fallback is the whole history
+    (when the last 90 days hold under two sessions), near R4.5c-1's
+    `report_sessions`.
+  - **Tests**: pgTAP `session_review` (47): the function, invoker, grants,
+    anon refused; which session (latest ended, ongoing named, asked for,
+    inside, before every hand, bomb pots, gaps); every session equal to
+    `report_sessions`' under four settings; a 1 200-hand session walked
+    across chunks; the summary (money for one currency of cash only, the
+    cashout left out, the EV adjustment, the symbol); the three lists, their
+    order, cap and contents; the analysis counts; another version; a bad
+    version refused; another account sees only its own (suite 41 files / 1 446
+    on a fresh reset with every migration). Vitest
+    `sessionReview` (29): ranking, de-duplication and badges, caps filled
+    from below, the shipped deviation source, the address (whitelist, round
+    trip, Back link), the web source against a faked `rpc` (versions, no
+    dates, the picker's window and fallback), the view in English and
+    Croatian (lists in order, each hand once, links at the decision, badges,
+    the coverage note and its action, the ongoing and unfinished notes, the
+    money withheld, the empty states), the screen's first render and
+    `hiddenDuringPlay` reading nothing, the two languages' keys; the whole
+    suite 101 files. Browser (local stack, the corpus's 7 496 hands copied to
+    a test account, 500 of them analysed by the web's own run): the picker,
+    a 345-hand session's lists, a hand opened at its decision and back,
+    Statistics -> Sessions' links; `responsive.mjs` now also covers
+    `/analysis/session`, the session before it and a hand opened from it -
+    36 / 36 in `en` and `hr` (the rail's 14 px pips listed as an exception:
+    each is also a chip in the sheet). Measuring it found R4.5b's
+    `library_facets` at 38 s and the old `hands_facets` at 6.5 s for this
+    7 496-hand account while another account in the same database held a
+    million hands (1.6 s and 6.4 s without it; both past PostgREST's
+    statement timeout in the first case, so `/library` fell back to the
+    converter) - not changed here, a follow-up. Not applied to production.
+
 ---
 
 ## Phase 6 — Subscription
@@ -9849,3 +9976,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-23 | **R4.5c-1 done**: the web's report summaries (R2.9's recommendation; first of R4.5c's three PRs). Migration `20270707090000_report_summaries.sql`: `hero_rollups` (the hero's rows per owner, version, UTC day, segment, position, kind - the desktop's), `hero_report_rows` (a narrow row per hero row, covered in time order) and `player_stats` (opt-in villain rows per opponent and segment, with the hero's result in the hands shared), kept by statement triggers on `hand_stats` in the writer's transaction (every insert and delete path, the budget's refusal included; an advisory lock per account for the pairs), `refresh_report_summaries` / `report_summaries_rebuild` the repair and the backfill. Readers over the shared `HandFilter`: `report_open`, `report_graph` (points cut by hands at day ends, every one exact), `report_situations`, `report_sessions`, `report_facets`; `stats_opponents`, `stats_coverage`, `stats_ev_missing` read the summaries with the same answers. At 1M hands a filter change answers in 0.17-0.24 s (was > 4 s; a report 3-6 s, opponents 21-41 s, coverage 10 s); sessions 0.95 s. pgTAP `report_summaries` 91 (suite 39 files / 1 353). Not applied to production. |
 | 2026-10-23 | **R4.5c-2 done**: the web's `/stats` is the shared Reports screen (second of R4.5c's three PRs). The app's Reports, breakdown, starting-hand grid and their words moved to `packages/ui/reports/` with a `ReportSource` per surface (the app's over its commands, unchanged; the web's over R4.5c-1's `report_open` / `report_graph` / `report_situations` / `report_facets`, each statistic `showStat` of the shipped definitions over the server's sums). The web keeps its HUD tiles, coverage line, sessions (now `report_sessions`) and opponents inside the screen and over its filter; the format buttons and stakes select became the filter chips, the six breakdown panels the ten tabs, the graph the app's Winnings card (see *As built*). `BreakdownPanel.tsx` and the web's `HandMatrix.tsx` deleted. Vitest `sharedReportsScreen` 20 (both sources, both languages); `responsive.mjs` 30 / 30 at 375 px; `screens.mjs` 285 / 288 identical (replayer noise), DOM dumps identical. |
 | 2026-10-23 | **R4.5c-3 done; Phase 4's "one look" complete**: the shared Players screen (third of R4.5c's three PRs). The app's Players, its table, profile and `PlayerWords` moved to `packages/ui/players/` with a `PlayersSource` per surface (`features`: the app keeps colours and labels, the web neither - the owner's decision, no sync). Migration `20270714090000_players_screen.sql`: `players_list` (from `player_stats`, the desktop's list rules), `player_profile` (the opponent's villain rows of a kind summed by position, stake, size and game), `player_sites`; `players` reserved as a username. Web: `/players` under the Statistics tab (a Statistics / Players switch, not a seventh tab), the opt-in when opponent statistics are off, notes through `set_player_note` keeping their tags, "hands with this player" into `/library` via `sessionStorage`. At 1M hands the list answers in 0.26-0.29 s. pgTAP `players_screen` 46 (suite 40 files / 1 399); Vitest `sharedPlayersScreen` 19; `responsive.mjs` 44 / 44 at 375 px. Not applied to production. |
+| 2026-10-23 | **R5.1 done**: the session review. `/analysis/session` (a ninth Analysis section; a "Review" link on every row of Statistics -> Sessions) shows one session - by default the latest that has **ended**; one that may still be going on is named and reviewed only on request - with a summary (when, hands, length, tables, result in money and big blinds, bb/100, all-in EV) and three ranked, capped lists of hands worth a look: the worst graded decisions (Inaccurate or worse), the preflop decisions off the shipped charts (graded against them at Inaccurate or worse: the chart takes the action under 3.5 % of the time) and the biggest pots; each hand once, in the first list it is in, with badges for the others, opening in `/analysis/h/<id>` at the decision with a way back. A session is `report_sessions`' (gap rule over the shared filter): migration `20270721090000_session_review.sql` adds `session_review(filter, at, gap, limit)`, which walks the time index outwards from one instant in chunks and is held to `report_sessions` by pgTAP (47). The screen is `packages/ui/review/` (`SessionReviewSource`, a pluggable `DeviationSource` for R5.3's own charts, `hiddenDuringPlay` for A10 when R5.4 brings it to the app); web-only for now. At 1M hands with generated analysis rows: 2-19 ms warm, 4-229 ms cold for ordinary sessions, 1.65 s cold for an 862-hand one; the picker 1-2 ms (90 days). Vitest `sessionReview` (29), suite 101 files; `responsive.mjs` 36 / 36 with the new screen. Grading, charts and the analysis version untouched. Not applied to production (prod checklist: the migration). |
