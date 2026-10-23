@@ -721,7 +721,7 @@ owners, a TRUNCATE empties them):
 
 | Table | Per | Holds | Read by |
 | --- | --- | --- | --- |
-| `hero_rollups` | owner, version, UTC day, segment (room, format, variant, limit, size class, currency, minor units, blinds, stake), hero position, kind (bomb 1, straddle 2, cashout 4) | every counter and money sum, the showdown share of the result | `report_open`, `report_facets`, `report_graph` (its days), `stats_coverage` |
+| `hero_rollups` | owner, version, UTC day, segment (room, format, variant, limit, size class, currency, minor units, blinds, stake), hero position, kind (bomb 1, straddle 2, cashout 4) | every counter and money sum, the showdown share of the result (big blinds and money: the graph's lines) | `report_open`, `report_facets`, `report_graph` (its days), `stats_coverage` |
 | `hero_report_rows` | hero row | the segment's derived values, the result, the situation (pot type, stack band, hand class, players, street), the breakdown columns' counters; `hero_report_rows_time_idx` covers the graph's and sessions' columns in time order | `report_graph` (the days it cuts inside), `report_situations`, `report_sessions`, `stats_ev_missing` |
 | `player_stats` | owner, version, room, opponent (opaque-id rooms under ''), segment | `stats_opponents`' counters, the hero's result in the hands shared, first / last hand (stale after a delete: read again) | `stats_opponents` |
 
@@ -771,7 +771,7 @@ refusal on mixed units, isolation, anon.
 keyset paging, clamping, cross-user isolation, anon refusal, prune, and the
 two reports running as a signed-in user.
 
-`supabase/tests/database/report_summaries.test.sql` (90): the three summaries
+`supabase/tests/database/report_summaries.test.sql` (91): the three summaries
 equal a from-scratch aggregation of `hand_stats` for random rows (rooms of
 every anonymisation, cash in two currencies and three chip formats, bomb pots,
 straddles, cashouts, two versions) written in statements of every size, as

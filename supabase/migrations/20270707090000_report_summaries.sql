@@ -266,6 +266,7 @@ create table public.hero_rollups (
   out_of_pot bigint not null default 0,
   cashout_risk bigint not null default 0,
   sd_net_bb_milli bigint not null default 0,
+  sd_net bigint not null default 0,
   constraint hero_rollups_key unique (owner_id, stats_version, day, site_id, game_format, variant, limit_type, size, currency, currency_minor_units, small_blind, big_blind, stake, "position", kind)
 );
 
@@ -470,7 +471,7 @@ begin
     bet_river, raise_river, call_river, check_river, fold_river, wwsf_opp,
     wwsf, wtsd_opp, wtsd, wsd_opp, wsd, cashed_out,
     won, contributed, net, net_bb_milli, rake_paid, out_of_pot,
-    cashout_risk, sd_net_bb_milli
+    cashout_risk, sd_net_bb_milli, sd_net
   )
   select
     x.owner_id as owner_id,
@@ -516,7 +517,7 @@ begin
     sum(x.wwsf)::bigint, sum(x.wtsd_opp)::bigint, sum(x.wtsd)::bigint, sum(x.wsd_opp)::bigint,
     sum(x.wsd)::bigint, sum(x.cashed_out)::bigint, sum(x.won)::bigint, sum(x.contributed)::bigint,
     sum(x.net)::bigint, sum(x.net_bb_milli)::bigint, sum(x.rake_paid)::bigint, sum(x.out_of_pot)::bigint,
-    sum(x.cashout_risk)::bigint, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint
+    sum(x.cashout_risk)::bigint, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint, sum((case when x.wtsd > 0 then x.net else 0 end))::bigint
   from (select * from public.hand_stats where owner_id = p_owner) x
   where x.is_hero
   group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -716,7 +717,7 @@ begin
     bet_river, raise_river, call_river, check_river, fold_river, wwsf_opp,
     wwsf, wtsd_opp, wtsd, wsd_opp, wsd, cashed_out,
     won, contributed, net, net_bb_milli, rake_paid, out_of_pot,
-    cashout_risk, sd_net_bb_milli
+    cashout_risk, sd_net_bb_milli, sd_net
   )
   select
     x.owner_id as owner_id,
@@ -762,7 +763,7 @@ begin
     sum(x.wwsf)::bigint, sum(x.wtsd_opp)::bigint, sum(x.wtsd)::bigint, sum(x.wsd_opp)::bigint,
     sum(x.wsd)::bigint, sum(x.cashed_out)::bigint, sum(x.won)::bigint, sum(x.contributed)::bigint,
     sum(x.net)::bigint, sum(x.net_bb_milli)::bigint, sum(x.rake_paid)::bigint, sum(x.out_of_pot)::bigint,
-    sum(x.cashout_risk)::bigint, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint
+    sum(x.cashout_risk)::bigint, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint, sum((case when x.wtsd > 0 then x.net else 0 end))::bigint
   from inserted x
   where x.is_hero
   group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -816,7 +817,8 @@ begin
     won = r.won + excluded.won, contributed = r.contributed + excluded.contributed,
     net = r.net + excluded.net, net_bb_milli = r.net_bb_milli + excluded.net_bb_milli,
     rake_paid = r.rake_paid + excluded.rake_paid, out_of_pot = r.out_of_pot + excluded.out_of_pot,
-    cashout_risk = r.cashout_risk + excluded.cashout_risk, sd_net_bb_milli = r.sd_net_bb_milli + excluded.sd_net_bb_milli;
+    cashout_risk = r.cashout_risk + excluded.cashout_risk, sd_net_bb_milli = r.sd_net_bb_milli + excluded.sd_net_bb_milli,
+    sd_net = r.sd_net + excluded.sd_net;
 
   insert into public.hero_report_rows (
     hand_id, stats_version, seat, owner_id, played_at, hand_key, site_id, game_format, variant,
@@ -1041,7 +1043,7 @@ begin
       sum(x.wsd_opp)::bigint as wsd_opp, sum(x.wsd)::bigint as wsd, sum(x.cashed_out)::bigint as cashed_out,
       sum(x.won)::bigint as won, sum(x.contributed)::bigint as contributed, sum(x.net)::bigint as net,
       sum(x.net_bb_milli)::bigint as net_bb_milli, sum(x.rake_paid)::bigint as rake_paid, sum(x.out_of_pot)::bigint as out_of_pot,
-      sum(x.cashout_risk)::bigint as cashout_risk, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint as sd_net_bb_milli
+      sum(x.cashout_risk)::bigint as cashout_risk, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint as sd_net_bb_milli, sum((case when x.wtsd > 0 then x.net else 0 end))::bigint as sd_net
     from deleted x
     where x.is_hero
     group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -1112,7 +1114,8 @@ begin
     won = r.won - d.won, contributed = r.contributed - d.contributed,
     net = r.net - d.net, net_bb_milli = r.net_bb_milli - d.net_bb_milli,
     rake_paid = r.rake_paid - d.rake_paid, out_of_pot = r.out_of_pot - d.out_of_pot,
-    cashout_risk = r.cashout_risk - d.cashout_risk, sd_net_bb_milli = r.sd_net_bb_milli - d.sd_net_bb_milli;
+    cashout_risk = r.cashout_risk - d.cashout_risk, sd_net_bb_milli = r.sd_net_bb_milli - d.sd_net_bb_milli,
+    sd_net = r.sd_net - d.sd_net;
 
   delete from public.hero_report_rows r
   using deleted d
@@ -1814,9 +1817,9 @@ begin
   with days0 as (
     -- Each day of the sample summed: whole days from `hero_rollups`, the
     -- partial ones at a date range's ends from the rows.
-    select z.day, sum(z.n) as n, sum(z.money_n) as money_n, sum(z.net_bb) as net_bb, sum(z.sd_bb) as sd_bb, sum(z.net) as net
+    select z.day, sum(z.n) as n, sum(z.money_n) as money_n, sum(z.net_bb) as net_bb, sum(z.sd_bb) as sd_bb, sum(z.net) as net, sum(z.sd_net) as sd_net
       from (
-        select r.day, sum(r.hands) as n, sum(r.hands) filter (where (v_cashouts or r.kind & 4 = 0)) as money_n, sum(r.net_bb_milli) filter (where (v_cashouts or r.kind & 4 = 0)) as net_bb, sum(r.sd_net_bb_milli) filter (where (v_cashouts or r.kind & 4 = 0)) as sd_bb, sum(r.net) filter (where (v_cashouts or r.kind & 4 = 0)) as net
+        select r.day, sum(r.hands) as n, sum(r.hands) filter (where (v_cashouts or r.kind & 4 = 0)) as money_n, sum(r.net_bb_milli) filter (where (v_cashouts or r.kind & 4 = 0)) as net_bb, sum(r.sd_net_bb_milli) filter (where (v_cashouts or r.kind & 4 = 0)) as sd_bb, sum(r.net) filter (where (v_cashouts or r.kind & 4 = 0)) as net, sum(r.sd_net) filter (where (v_cashouts or r.kind & 4 = 0)) as sd_net
         from public.hero_rollups r
         where r.owner_id = v_owner and r.stats_version = v_version
           and ((v_from is null and v_to is null)
@@ -1833,7 +1836,7 @@ begin
         and r.kind = any (v_kinds)
         group by 1
         union all
-        select coalesce((x.played_at at time zone 'UTC')::date, '-infinity'::date) as day, sum(x.hands) as n, sum(x.hands) filter (where (v_cashouts or not x.has_cashout)) as money_n, sum(x.net_bb_milli) filter (where (v_cashouts or not x.has_cashout)) as net_bb, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end)) filter (where (v_cashouts or not x.has_cashout)) as sd_bb, sum(x.net) filter (where (v_cashouts or not x.has_cashout)) as net
+        select coalesce((x.played_at at time zone 'UTC')::date, '-infinity'::date) as day, sum(x.hands) as n, sum(x.hands) filter (where (v_cashouts or not x.has_cashout)) as money_n, sum(x.net_bb_milli) filter (where (v_cashouts or not x.has_cashout)) as net_bb, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end)) filter (where (v_cashouts or not x.has_cashout)) as sd_bb, sum(x.net) filter (where (v_cashouts or not x.has_cashout)) as net, sum((case when x.wtsd > 0 then x.net else 0 end)) filter (where (v_cashouts or not x.has_cashout)) as sd_net
         from public.hand_stats x
         where x.owner_id = v_owner and x.stats_version = v_version and x.is_hero
           and (v_from is not null or v_to is not null)
@@ -1866,7 +1869,7 @@ begin
     from (
       select days0.day, coalesce(days0.n, 0)::bigint as n, coalesce(days0.money_n, 0)::bigint as money_n,
              coalesce(days0.net_bb, 0)::bigint as net_bb, coalesce(days0.sd_bb, 0)::bigint as sd_bb,
-             coalesce(days0.net, 0)::bigint as net,
+             coalesce(days0.net, 0)::bigint as net, coalesce(days0.sd_net, 0)::bigint as sd_net,
              coalesce(sum(days0.n) over (order by days0.day = '-infinity'::date, days0.day
                                          rows between unbounded preceding and 1 preceding), 0)::bigint as s
       from days0
@@ -1921,13 +1924,14 @@ begin
     ) h
   ),
   parts as (
-    select d.b, d.n as hands, d.money_n as money_hands, d.net_bb, d.sd_bb, d.net, d.day
+    select d.b, d.n as hands, d.money_n as money_hands, d.net_bb, d.sd_bb, d.net, d.sd_net, d.day
     from d where not d.fat
     union all
     select h.b, 1, case when (v_cashouts or h.kind & 4 = 0) then 1 else 0 end,
            case when (v_cashouts or h.kind & 4 = 0) then h.net_bb_milli else 0 end,
            case when (v_cashouts or h.kind & 4 = 0) and h.wtsd > 0 then h.net_bb_milli else 0 end,
            case when (v_cashouts or h.kind & 4 = 0) then h.net else 0 end,
+           case when (v_cashouts or h.kind & 4 = 0) and h.wtsd > 0 then h.net else 0 end,
            null::date
     from hands h
   ),
@@ -1938,6 +1942,7 @@ begin
            sum(p.net_bb)::bigint as net_bb_milli,
            sum(p.sd_bb)::bigint as sd_bb_milli,
            sum(p.net)::bigint as net,
+           sum(p.sd_net)::bigint as sd_net,
            min(p.day) filter (where p.day > '-infinity'::date) as first_day,
            max(p.day) filter (where p.day > '-infinity'::date) as last_day
     from parts p
@@ -1990,10 +1995,10 @@ begin
   ev_rows as materialized (
     -- The all-in hands of the sample (few), each looked up by key.
     select r.hand_id, r.seat, coalesce((r.played_at at time zone 'UTC')::date, '-infinity'::date) as day,
-           e.ev_net_bb_milli - r.net_bb_milli as delta, (v_cashouts or r.kind & 4 = 0) as money
+           e.ev_net_bb_milli - r.net_bb_milli as delta, e.ev_net - r.net as delta_net, (v_cashouts or r.kind & 4 = 0) as money
     from public.hand_stats_ev e
     cross join lateral (
-      select r.hand_id, r.seat, r.played_at, r.net_bb_milli, r.kind
+      select r.hand_id, r.seat, r.played_at, r.net_bb_milli, r.net, r.kind
       from public.hero_report_rows r
       where r.hand_id = e.hand_id and r.stats_version = v_version and r.seat = e.seat
         and r.owner_id = v_owner and r.stats_version = v_version
@@ -2016,6 +2021,7 @@ begin
     -- Each in its day's point, or on a day read hand by hand, in its own.
     select coalesce(hb.b, dd.b) as b,
            coalesce(sum(er.delta) filter (where er.money), 0)::bigint as delta,
+           coalesce(sum(er.delta_net) filter (where er.money), 0)::bigint as delta_net,
            count(*)::bigint as all_in
     from ev_rows er
     join d dd on dd.day = er.day
@@ -2035,7 +2041,10 @@ begin
       sum(p.sd_bb_milli)  over o as cum_sd_bb_milli,
       sum(p.net_bb_milli - p.sd_bb_milli) over o as cum_nsd_bb_milli,
       sum(p.net)          over o as cum_net,
+      sum(p.sd_net)       over o as cum_sd_net,
+      sum(p.net - p.sd_net) over o as cum_nsd_net,
       sum(p.net_bb_milli + coalesce(ev.delta, 0)) over o as cum_ev_bb_milli,
+      sum(p.net + coalesce(ev.delta_net, 0)) over o as cum_ev_net,
       coalesce(ev.all_in, 0) as ev_applicable
     from per_point p
     join times tm on tm.b = p.b
@@ -2044,7 +2053,8 @@ begin
   ) t;
 
   if v_mixed_currency then
-    select coalesce(jsonb_agg(e - 'cum_net'), '[]'::jsonb) into v_rows from jsonb_array_elements(v_rows) e;
+    select coalesce(jsonb_agg(e - 'cum_net' - 'cum_sd_net' - 'cum_nsd_net' - 'cum_ev_net'), '[]'::jsonb)
+      into v_rows from jsonb_array_elements(v_rows) e;
   end if;
 
   return jsonb_build_object(

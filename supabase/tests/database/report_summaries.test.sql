@@ -22,7 +22,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(90);
+select plan(91);
 
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-0000000045a1', 'summaries.a@example.com', now(), now()),
@@ -268,7 +268,7 @@ create function pg_temp.hero_scratch() returns setof public.hero_rollups languag
     sum(x.bet_river)::bigint, sum(x.raise_river)::bigint, sum(x.call_river)::bigint, sum(x.check_river)::bigint, sum(x.fold_river)::bigint, sum(x.wwsf_opp)::bigint,
     sum(x.wwsf)::bigint, sum(x.wtsd_opp)::bigint, sum(x.wtsd)::bigint, sum(x.wsd_opp)::bigint, sum(x.wsd)::bigint, sum(x.cashed_out)::bigint,
     sum(x.won)::bigint, sum(x.contributed)::bigint, sum(x.net)::bigint, sum(x.net_bb_milli)::bigint, sum(x.rake_paid)::bigint, sum(x.out_of_pot)::bigint,
-    sum(x.cashout_risk)::bigint, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint
+    sum(x.cashout_risk)::bigint, sum((case when x.wtsd > 0 then x.net_bb_milli else 0 end))::bigint, sum((case when x.wtsd > 0 then x.net else 0 end))::bigint
   from public.hand_stats x
   where x.is_hero
   group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -701,6 +701,7 @@ create function pg_temp.graph_oracle(p_filter jsonb, p_points integer) returns j
            row_number() over (order by h.played_at asc nulls last, h.hand_key) - 1 as i,
            count(*) over () as total,
            coalesce(case when e.applicable then e.ev_net_bb_milli end, h.net_bb_milli) as ev_bb,
+           coalesce(case when e.applicable then e.ev_net end, h.net) as ev_net,
            coalesce(e.applicable, false) as all_in
     from public.hand_stats h
     left join public.hand_stats_ev e on e.hand_id = h.hand_id and e.seat = h.seat and e.ev_version = 'ev/1'
@@ -708,6 +709,9 @@ create function pg_temp.graph_oracle(p_filter jsonb, p_points integer) returns j
       and (p_filter -> 'formats' is null or h.game_format::text in (select jsonb_array_elements_text(p_filter -> 'formats')))
       and (p_filter -> 'sites' is null or h.site_id in (select jsonb_array_elements_text(p_filter -> 'sites')))
       and (p_filter -> 'positions' is null or coalesce(h."position", '') in (select jsonb_array_elements_text(p_filter -> 'positions')))
+      and (p_filter -> 'stakes' is null
+           or (case when h.game_format = 'cash' then h.currency || ':' || coalesce(h.big_blind, 0) else 'chips' end)
+              in (select jsonb_array_elements_text(p_filter -> 'stakes')))
       and (p_filter ->> 'from' is null or h.played_at >= (p_filter ->> 'from')::timestamptz)
       and (p_filter ->> 'to' is null or h.played_at < (p_filter ->> 'to')::timestamptz)
   ),
@@ -722,7 +726,9 @@ create function pg_temp.graph_oracle(p_filter jsonb, p_points integer) returns j
            coalesce(sum(net_bb_milli) filter (where not has_cashout), 0) as net_bb,
            coalesce(sum(net_bb_milli) filter (where not has_cashout and wtsd > 0), 0) as sd_bb,
            coalesce(sum(net) filter (where not has_cashout), 0) as net,
-           coalesce(sum(ev_bb) filter (where not has_cashout), 0) as ev_bb
+           coalesce(sum(net) filter (where not has_cashout and wtsd > 0), 0) as sd_net,
+           coalesce(sum(ev_bb) filter (where not has_cashout), 0) as ev_bb,
+           coalesce(sum(ev_net) filter (where not has_cashout), 0) as ev_net
     from y group by b
   )
   select jsonb_agg(to_jsonb(t) - 'b' order by t.b) from (
@@ -730,19 +736,30 @@ create function pg_temp.graph_oracle(p_filter jsonb, p_points integer) returns j
            sum(p.hands) over o as cum_hands, sum(p.money_hands) over o as cum_money_hands,
            sum(p.net_bb) over o as cum_net_bb_milli, sum(p.sd_bb) over o as cum_sd_bb_milli,
            sum(p.net_bb - p.sd_bb) over o as cum_nsd_bb_milli, sum(p.net) over o as cum_net,
-           sum(p.ev_bb) over o as cum_ev_bb_milli
+           sum(p.sd_net) over o as cum_sd_net, sum(p.net - p.sd_net) over o as cum_nsd_net,
+           sum(p.ev_bb) over o as cum_ev_bb_milli, sum(p.ev_net) over o as cum_ev_net
     from p window o as (order by p.b rows between unbounded preceding and current row)
   ) t;
 $$;
-create function pg_temp.graph_same(p_filter jsonb, p_points integer) returns boolean language sql as $$
-  select coalesce(
-    (select jsonb_agg(b - 'ev_applicable' - 'cum_net') from jsonb_array_elements(public.report_graph(p_filter || '{"statsVersion":"stats/2","evVersion":"ev/1"}', p_points) -> 'buckets') b)
-    = (select jsonb_agg(b - 'cum_net') from jsonb_array_elements(pg_temp.graph_oracle(p_filter, p_points)) b),
+create function pg_temp.graph_same(p_filter jsonb, p_points integer) returns boolean language plpgsql as $$
+declare
+  v_graph jsonb := public.report_graph(p_filter || '{"statsVersion":"stats/2","evVersion":"ev/1"}', p_points);
+  v_drop  text[] := array['ev_applicable'];
+begin
+  -- Two currencies: the money lines are withheld, so compared without them.
+  if (v_graph ->> 'mixedCurrency')::boolean then
+    v_drop := v_drop || array['cum_net', 'cum_sd_net', 'cum_nsd_net', 'cum_ev_net'];
+  end if;
+  return coalesce(
+    (select jsonb_agg(b - v_drop) from jsonb_array_elements(v_graph -> 'buckets') b)
+    = (select jsonb_agg(b - v_drop) from jsonb_array_elements(pg_temp.graph_oracle(p_filter, p_points)) b),
     false);
+end;
 $$;
 select ok(pg_temp.graph_same('{"formats":["cash"]}', 37), 'report_graph: 37 points, cash (the rule, hand by hand)');
 select ok(pg_temp.graph_same('{"formats":["cash"],"sites":["pokerstars"],"from":"2026-10-06T05:00:00Z"}', 400), '... a room from a time, more points than hands');
 select ok(pg_temp.graph_same('{"formats":["cash"],"positions":["BTN","SB","BB"]}', 4), '... four points (whole days)');
+select ok(pg_temp.graph_same('{"formats":["cash"],"stakes":["USD:200","USD:10","USD:5"]}', 25), '... dollars only: the money lines too');
 select ok(pg_temp.graph_same('{"formats":["tournament","sng","spin"],"to":"2026-10-15T09:30:00Z"}', 9), '... chips, up to a time inside a day');
 select is((select sum((b ->> 'hands')::bigint)::bigint from jsonb_array_elements(public.report_graph('{"statsVersion":"stats/2","formats":["cash"]}', 37) -> 'buckets') b),
           (public.report_open('{"statsVersion":"stats/2","formats":["cash"]}') ->> 'hands')::bigint,
