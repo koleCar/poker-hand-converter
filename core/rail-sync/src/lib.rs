@@ -8,9 +8,12 @@
 //! - [`worker`]: the sync worker that drains the outbox with them and pulls
 //!   the account's other hands into the store (R1.9);
 //! - [`policy`]: the remote `sites.json` from the web origin - fetched,
-//!   checked, merged stricter-only over the shipped copy and cached (R3.10).
+//!   checked, merged stricter-only over the shipped copy and cached (R3.10);
+//! - [`floplib`]: the flop library's files for the app's analysis, fetched
+//!   from the web's public bucket and kept on disk (R5.4).
 
 pub mod auth;
+pub mod floplib;
 pub mod ingest;
 pub mod policy;
 pub mod worker;

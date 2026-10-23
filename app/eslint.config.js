@@ -84,4 +84,23 @@ export default defineConfig([
     files: ["vite.config.ts"],
     languageOptions: { globals: globals.node },
   },
+  // (R5.4) The web's library is reached through one door,
+  // `src/analysis/library.ts`, which names exactly what the app uses of it.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/analysis/library.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@rail/web-lib", "@rail/web-lib/*", "**/frontend/src/**"],
+              message: "The web's library is the app's through `src/analysis/library.ts` only (R5.4).",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
