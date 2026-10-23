@@ -45,11 +45,9 @@
  * rebuild. Both get their rows from the web's rebuild route
  * (`app/api/stats/rebuild/route.ts`: `hands_needing_stats` -> TypeScript
  * `handStatsRows` / `handEvRow` -> `save_hand_stats` / `save_hand_ev`), run
- * here as each user with villain rows on, so every seat is compared. Hands
- * with a seat number outside `hand_stats_seat_ok` (0-24; Ignition's
- * tournament seats run past 100) make the route fail for the whole account,
- * on either path alike - R4.4's finding F1 - so they are taken out of both
- * accounts before the rebuild, listed and counted.
+ * here as each user with villain rows on, so every seat is compared -
+ * Ignition's tournament seats past 24 included (R4.4's finding F1, fixed by
+ * `20270623093000_stats_seats_and_budget.sql`).
  *
  * **Compared** (`psql` as `postgres`): every `hands` column but `id`,
  * `owner_id`, `origin` and `created_at`, as jsonb text - byte for byte - with
@@ -118,9 +116,6 @@ const NOT_COMPARED = {
   hands: ["id", "owner_id", "origin", "created_at"],
   stats: ["hand_id", "owner_id", "created_at"],
 } as const;
-
-/** `hand_stats_seat_ok` (migration 20261005090000): the seats a statistics row may have. */
-const STATS_SEATS = { min: 0, max: 24 };
 
 type SupabaseClient = UploadClient & {
   rpc(fn: string, args: Record<string, unknown>): PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -570,27 +565,6 @@ describeStack("web/app parity (R4.4)", () => {
   });
 
   it("statistics: the web's rebuild route as each user", async () => {
-    // F1: a hand with a seat outside hand_stats_seat_ok fails its page of the
-    // rebuild and stops it for the whole account, whichever path stored it.
-    // F2: `save_hand_stats` spends one budget for every account together
-    // (`hand_stats_insert`, 200 000 rows / 10 min); a whole-corpus run writes
-    // ~88 000, so a second run within ten minutes on the same stack would
-    // be refused - the budget is reset first (a local stack only).
-    const blocked = await psql(`
-delete from public.ingest_rate_limit where bucket = 'hand_stats_insert';
-select 'blocked ' || jsonb_build_object('handKey', hand_key, 'owner', owner_id, 'file', source_filename)::text from public.hands h
- where owner_id in ('${appUser.id}', '${webUser.id}')
-   and exists (select 1 from jsonb_array_elements(h.phf -> 'players') p
-                where (p ->> 'seat')::bigint not between ${STATS_SEATS.min} and ${STATS_SEATS.max});
-delete from public.hands h
- where owner_id in ('${appUser.id}', '${webUser.id}')
-   and exists (select 1 from jsonb_array_elements(h.phf -> 'players') p
-                where (p ->> 'seat')::bigint not between ${STATS_SEATS.min} and ${STATS_SEATS.max});`);
-    const out = tagged(blocked, "blocked");
-    const perSide = (owner: string) => out.filter((b) => b.owner === owner).map((b) => String(b.handKey)).sort();
-    expect(perSide(appUser.id)).toEqual(perSide(webUser.id));
-    report.statsBlocked = { hands: perSide(appUser.id).length, files: [...new Set(out.map((b) => String(b.file)))].sort() };
-
     const { POST } = await import("../../../frontend/src/app/api/stats/rebuild/route");
     const started = Date.now();
     const stats: Record<string, { processed: number; inserted: number; failed: number }> = {};
@@ -620,6 +594,22 @@ delete from public.hands h
     route.client = null;
     timings.statsMs = Date.now() - started;
     report.stats = stats;
+    // R4.4's F1, fixed: Ignition's tournament seat numbers run past 24 (to
+    // 1 227 in the corpus), and their hands get statistics like any other.
+    const wide = tagged(await psql(`
+select 'wide ' || jsonb_build_object('owner', owner_id, 'hands', count(distinct hand_id), 'rows', count(*))::text
+  from public.hand_stats
+ where owner_id in ('${appUser.id}', '${webUser.id}') and seat > 24
+ group by owner_id;`), "wide");
+    const wideOf = (owner: string) => {
+      const row = wide.find((w) => w.owner === owner);
+      return { hands: Number(row?.hands ?? 0), rows: Number(row?.rows ?? 0) };
+    };
+    report.statsSeatsAbove24 = { app: wideOf(appUser.id), web: wideOf(webUser.id) };
+    expect(wideOf(appUser.id)).toEqual(wideOf(webUser.id));
+    if (CORPUS === "all") {
+      expect(wideOf(appUser.id).hands).toBeGreaterThan(0);
+    }
     expect(stats.app.processed).toBe(stats.web.processed);
     expect(stats.app.failed).toBe(0);
     expect(stats.web.failed).toBe(0);

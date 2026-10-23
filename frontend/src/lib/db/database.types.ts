@@ -2771,6 +2771,10 @@ export type Database = {
         Args: { r: Database["public"]["Tables"]["hands"]["Row"] }
         Returns: string
       }
+      hand_stats_charge_budget: {
+        Args: { p_owner: string; p_rows: number }
+        Returns: undefined
+      }
       hand_stats_counter_keys: { Args: never; Returns: string[] }
       hand_stats_filter_sql: { Args: never; Returns: string }
       hand_stats_money_keys: { Args: never; Returns: string[] }
