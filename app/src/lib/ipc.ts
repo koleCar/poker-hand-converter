@@ -980,6 +980,56 @@ export interface ChartExampleDto {
   evLossBb: number | null;
 }
 
+/** `review::LeakFiltersDto` (R5.4): the top three's scope. */
+export interface LeakFiltersDto {
+  gameFormat?: string | null;
+  position?: string | null;
+  potType?: string | null;
+}
+
+/** `review::SpotSumsDto`: one finest spot's sums, as summed. */
+export interface SpotSumsDto {
+  key: string;
+  set: string | null;
+  decisions: number;
+  nonPerfect: number;
+  mistakes: number;
+  evLossBb: number;
+  evLossPot: number;
+  scoreSum: number;
+  scoreSq: number;
+}
+
+/** `review::TopLeaksDto`. */
+export interface TopLeaksDto {
+  last: string | null;
+  current: { from: string; to: string } | null;
+  prior: { from: string; to: string } | null;
+  sample: { hands: number; graded: number; rows: SpotSumsDto[] };
+  now: { hands: number; graded: number; rows: SpotSumsDto[] };
+  was: { hands: number; graded: number; rows: SpotSumsDto[] };
+}
+
+/** `review::LeakExampleDto`. */
+export interface LeakExampleDto {
+  handId: string;
+  ord: number;
+  actionIndex: number;
+  playedAt: string | null;
+  site: string;
+  currency: string;
+  currencySymbol: string;
+  minorUnits: number;
+  smallBlind: number;
+  bigBlind: number;
+  heroCards: string[];
+  handClass: string | null;
+  spotKey: string;
+  grade: string;
+  evLossBb: number;
+  evLossPot: number;
+}
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -1158,6 +1208,11 @@ export const ipc = {
     invoke<{ from: string | null; to: string | null; cells: CompareCellDto[] }>("chart_played", { version, query }),
   chartExamples: (version: string, query: CompareDto, key: string, cls: number, action: string, limit: number) =>
     invoke<ChartExampleDto[]>("chart_examples", { version, query, key, cls, action, limit }),
+  /** (R5.4) The leak finder's top three: three samples of spot sums, and a leak's costliest decisions. */
+  topLeaks: (version: string, filters: LeakFiltersDto, period: string) =>
+    invoke<TopLeaksDto>("top_leaks", { version, filters, period }),
+  leakExamples: (version: string, filters: LeakFiltersDto, days: { from: string; to: string } | null, keys: string[], limit: number) =>
+    invoke<LeakExampleDto[]>("leak_examples", { version, filters, days, keys, limit }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

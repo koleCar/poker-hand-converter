@@ -21,11 +21,15 @@ const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
  */
 export function I18nProvider({ locale, children }: { locale?: Locale; children: ReactNode }) {
   const chosen = useAppearance().locale;
-  const active = locale ?? chosen;
+  return <DictProvider locale={locale ?? chosen}>{children}</DictProvider>;
+}
+
+/** One language's dictionaries, whatever Settings says (the tests render screens in each). */
+export function DictProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
   return (
-    <LocaleContext.Provider value={active}>
-      <I18nContext.Provider value={DICTIONARIES[active]}>
-        <UiStringsProvider strings={UI_STRINGS[active]}>{children}</UiStringsProvider>
+    <LocaleContext.Provider value={locale}>
+      <I18nContext.Provider value={DICTIONARIES[locale]}>
+        <UiStringsProvider strings={UI_STRINGS[locale]}>{children}</UiStringsProvider>
       </I18nContext.Provider>
     </LocaleContext.Provider>
   );

@@ -66,7 +66,7 @@ describe("the app's analysis and the web's library", () => {
     }
   });
 
-  it("only library.ts imports the web's library; no app file copies it", () => {
+  it("only the two doors import the web's library; no app file copies it", () => {
     const files: string[] = [];
     const walk = (dir: string) => {
       for (const name of readdirSync(dir)) {
@@ -78,7 +78,7 @@ describe("the app's analysis and the web's library", () => {
     walk(APP);
     const imports = /(?:from|import)\s*\(?\s*"(?:@rail\/web-lib[^"]*|[^"]*frontend\/src\/[^"]*)"/;
     const importers = files.filter((path) => imports.test(readFileSync(path, "utf8")));
-    expect(importers.map((path) => relative(ROOT, path))).toEqual(["app/src/analysis/library.ts"]);
+    expect(importers.map((path) => relative(ROOT, path)).sort()).toEqual(["app/src/analysis/leakWords.ts", "app/src/analysis/library.ts"]);
     // The analysis is not copied: no app file defines the library's entry points.
     for (const path of files) {
       const text = readFileSync(path, "utf8");

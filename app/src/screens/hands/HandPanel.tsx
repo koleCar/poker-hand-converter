@@ -11,7 +11,9 @@ import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { useT } from "../../i18n";
 import { errorText, ipc, type HandAnnotations, type HandRow } from "../../lib/ipc";
 import { hiddenDuringPlay } from "../../lib/duringPlay";
+import { screenHref } from "../../lib/router";
 import { useTablesOpen } from "../../lib/useTablesOpen";
+import { viewParam } from "../analysis/view";
 import styles from "./HandPanel.module.css";
 
 /** How long typing pauses before the note is saved. */
@@ -29,10 +31,14 @@ interface HandPanelProps {
 }
 
 export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: HandPanelProps) {
-  const t = useT().hands.panel;
+  const dict = useT();
+  const t = dict.hands.panel;
   const state = useHand(handKey);
+  const tablesOpen = useTablesOpen();
   // A10: no pot odds while a poker table is open.
-  const noPotOdds = hiddenDuringPlay("potOdds", useTablesOpen());
+  const noPotOdds = hiddenDuringPlay("potOdds", tablesOpen);
+  // (R5.4) Nor the way into the hand's analysis.
+  const noAnalysis = hiddenDuringPlay("analysis", tablesOpen);
 
   return (
     <section className={styles.panel} aria-label={t.label}>
@@ -46,15 +52,26 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
             urlSync={false}
             potOdds={!noPotOdds}
             headerExtra={
-              <button
-                type="button"
-                className="btn btn--icon"
-                disabled
-                aria-label={t.openInWeb}
-                title={t.openInWebSoon}
-              >
-                <Icon name="globe" />
-              </button>
+              <>
+                {noAnalysis ? null : (
+                  <a
+                    className="btn btn--sm"
+                    href={screenHref("analysis", viewParam({ kind: "hand", key: handKey, actionIndex: null, back: null }))}
+                    title={dict.analysis.hand.openTitle}
+                  >
+                    {dict.analysis.hand.open}
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="btn btn--icon"
+                  disabled
+                  aria-label={t.openInWeb}
+                  title={t.openInWebSoon}
+                >
+                  <Icon name="globe" />
+                </button>
+              </>
             }
           />
         ) : (

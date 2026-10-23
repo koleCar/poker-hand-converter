@@ -12,6 +12,10 @@ export default defineConfig({
       // The desktop app's analysis (R5.4) reaches the web's library through
       // this alias (`app/vite.config.ts`); its tests run the app's files here.
       "@rail/web-lib": fileURLToPath(new URL("../frontend/src/lib", import.meta.url)),
+      // The app's IPC (R5.4's screens rendered here): Tauri stubbed, the
+      // commands answered by each test (`test/support/tauriCore.ts`).
+      "@tauri-apps/api/core": fileURLToPath(new URL("./test/support/tauriCore.ts", import.meta.url)),
+      "@tauri-apps/api/event": fileURLToPath(new URL("./test/support/tauriEvent.ts", import.meta.url)),
       // The shared package's screens rendered to markup (R4.5b,
       // `sharedHandsScreen.test.ts`): React from the web's install, as the
       // web bundles it (the package has none of its own).
