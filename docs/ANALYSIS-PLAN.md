@@ -568,6 +568,20 @@ A top-level tab next to Stats, and the home of everything below.
   `DeviationSource` - and its biggest pots, each hand once, opening at the
   decision in `/analysis/h/<id>`. Hands the analysis has not seen at the
   current version are counted, not guessed at.
+- **Three biggest leaks.** A card on the overview (`docs/RAIL-PLAN.md` R5.2,
+  not an `analysis/N` phase: it reads the stored grades and changes none):
+  A6's leak finder framed as the three most important leaks - `groupLeaks`'
+  own leaks, ranked by EV lost in total, the ones A6's confidence rule
+  vouches for (medium or high) first and a thin one with two mistakes only
+  to fill a place, marked tentative (A8b's rule) - each with EV lost per 100
+  hands and its range from the mistake rate's 95% interval, how often, the
+  target (the reference's best move, and the reference's actions for the
+  hands held), the last 30 days of play against the 30 before (A6's
+  comparison), up to five example hands opening at the decision, and a link
+  to its row in Leaks. The last 30 days of play or all time, under the
+  overview's filters. Read from leak sums kept by triggers
+  (`20270728090000_leak_summaries.sql`, held to `analysis_leaks` by pgTAP).
+  No AI-written summary (A8c; declined for now).
 - **Plan.** The week's study plan under `/analysis/plan` (A8b): the three
   costliest leaks the sample can vouch for, each with concepts to read, a
   trainer session set to the spot, its due drills and hands to review, a
@@ -647,7 +661,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A3 — reports vs reference** | Reference frequencies per stat, position and role, from the charts. Reports panel in the Analysis tab: yours, reference, the difference, and the deviating hands. | A2 |
 | **A4 — river grading** | <ul><li>Range narrowing along the hand: preflop chart, then postflop heuristics until A5</li><li>river solve in a Web Worker</li><li>`spot_solutions` cache (index row + Storage blob, RPC-written)</li><li>river grades and the study grid for river nodes</li></ul> | A2, S |
 | **A5 — turn and flop** (A5a turn: isomorphism, sampling, cache; A5b flop: offline precomputed library) | Sizing abstraction, action translation (§3.3), turn and flop solves with caching, full heads-up postflop grading, flop reports by role. | A4 |
-| **A6 — leaks and progress** | <ul><li>Leak finder: EV lost grouped by spot, ranked</li><li>score trend</li><li>per-street, position and pot-type breakdowns</li><li>a weekly "what improved / what to work on" summary</li></ul> | A3, A5 |
+| **A6 — leaks and progress** | <ul><li>Leak finder: EV lost grouped by spot, ranked</li><li>score trend</li><li>per-street, position and pot-type breakdowns</li><li>a weekly "what improved / what to work on" summary</li><li>(later, `RAIL-PLAN.md` R5.2: the three biggest leaks on the overview, with example hands, §6.0)</li></ul> | A3, A5 |
 | **A7 — training** | <ul><li>**Spot trainer**: play the hero's side of a stored strategy and be graded per move</li><li>**mistake drills**: your own worst spots, replayed until right (spaced repetition)</li><li>"what would you do?" (#51) graded against the reference</li></ul> | A5 |
 | **A8 — learning layer** (A8a: the concept library) | <ul><li>**A8a** — a concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>**A8b** — a study plan built from the leak finder</li><li>**A8c** — the optional AI-written review, grounded on facts</li></ul> | A8a: A1. A8b: A6, A7 |
 | **A9 — multiway** | Approximate grading for 3-way postflop pots, about 9% of decisions in a real library: heuristics + MDF split, and solver-based later if feasible. | A4 |

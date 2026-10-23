@@ -62,6 +62,7 @@ import { reportsFilters } from "../reports/reportsState";
 import analysisStyles from "../analysis.module.css";
 import reportStyles from "../reports/reports.module.css";
 import { drillQuery } from "../train/trainState";
+import { ConfidenceTag } from "./ConfidenceTag";
 import { leaksQuery, parseLeaksState, type LeaksState } from "./leaksState";
 import styles from "./leaks.module.css";
 import "../../../styles/stats.css";
@@ -71,7 +72,6 @@ const LEAKS_MIGRATION = "supabase/migrations/20270201090000_analysis_leaks.sql";
 const PREVIEW = 10;
 const HANDS_PAGE = 8;
 const HOW_ID = "leaks-how";
-const CONFIDENCE_GLYPH = { low: "●○○", medium: "●●○", high: "●●●" } as const;
 
 type Status = "loading" | "ready" | "not-installed" | "error";
 
@@ -390,18 +390,6 @@ function useLeakWords() {
       return { title, context, street: t.streets[leak.attrs.street] ?? leak.attrs.street, name: t.name(title, context, leak.attrs.street) };
     },
     [t],
-  );
-}
-
-function ConfidenceTag({ leak }: { leak: Leak }) {
-  const t = useDict().analysis.leaks;
-  return (
-    <span className={`${styles.confidence} ${styles[leak.confidence]}`}>
-      <span aria-hidden="true" className={styles.confidenceGlyph}>
-        {CONFIDENCE_GLYPH[leak.confidence]}
-      </span>
-      {t.confidence[leak.confidence]}
-    </span>
   );
 }
 

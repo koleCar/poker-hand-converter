@@ -374,3 +374,51 @@ export const summaryHr = {
   allLeaks: "Svi leakovi",
   progress: "Napredak kroz vrijeme",
 };
+
+/** "35 % (95 %: 19–54 %)": udio s intervalom. */
+const rateWithInterval = (rate: number, low: number, high: number) =>
+  `${pct(rate)} (95 %: ${pct(low)}–${pct(high)})`;
+
+/** Tri najveća leaka na pregledu (R5.2). Isti oblik kao `topLeaksEn`. */
+export const topLeaksHr = {
+  heading: "Tvoja tri najveća leaka",
+  period: "Razdoblje",
+  periods: { "30d": "Zadnjih 30 dana", all: "Cijela povijest" } as Record<string, string>,
+  loading: "Rangiram tvoje leakove…",
+  failed: (message: string) => `Leakovi se nisu učitali: ${message}`,
+  notInstalledBefore: "Za tri najveća leaka trebaju sažeci leakova iz ",
+  notInstalledAfter: ". Primijeni je i ponovo učitaj.",
+  sample: (graded: number, handCount: number) => `Iz ${moves(graded)} u ${handsLoc(handCount)}.`,
+  window: (from: string, to: string) =>
+    `Tvojih zadnjih 30 dana igre (${dateRange(from, to)}), unatrag od zadnjeg dana kad si igrao.`,
+  rule:
+    "Poredano po EV-u koji te je svaki leak ukupno stajao: koliko se često situacija pojavila, koliko si često u njoj pogriješio i koliko je greška koštala. Leak se računa kad se njegova situacija pojavila 20 puta s 2 greške; tanji samo popunjava prazno mjesto, označen kao okviran.",
+  none: "Još nema leaka za koji uzorak može jamčiti: nijedna situacija nema dvije greške. Igraj i analiziraj više ruku ili pogledaj cijelu povijest.",
+  noneInPeriod: "U ovom razdoblju nema ocijenjenih odluka.",
+  rank: (index: number) => `#${num(index)}`,
+  tentative: "Okvirno",
+  tentativeNote: "Malo ruku: pogledaj ih prije nego što išta mijenjaš.",
+  per100: (value: number) => `${bb(value)} / 100 ruku`,
+  per100Range: (low: number, high: number) => `95 %: ${bb(low)}–${bb(high)}`,
+  total: (ev: number) => `ukupno ${bb(ev)} izgubljeno`,
+  how: (mistakeCount: number, spotCount: number, rate: number, low: number, high: number) =>
+    `${mistakes(mistakeCount)} u ${decisionsLoc(spotCount)} ovdje: ${rateWithInterval(rate, low, high)}`,
+  target: (action: string) => `Cilj: ${actionWords[action] ?? action}, najbolji potez reference ovdje`,
+  you: "Ti",
+  reference: "Referenca, s tvojim rukama",
+  trendLabel: "Zadnjih 30 dana prema 30 prije",
+  trend: (nowMade: number, nowN: number, wasMade: number, wasN: number) =>
+    `${nowN > 0 ? pct(nowMade / nowN) : "—"} (${num(nowMade)} od ${num(nowN)}) sada, ${
+      wasN > 0 ? pct(wasMade / wasN) : "—"
+    } (${num(wasMade)} od ${num(wasN)}) prije`,
+  examples: "Primjeri ruku",
+  examplesNote: "Najskuplje, jedna po ruci. Svaka se otvara na odluci.",
+  examplesLoading: "Učitavam ruke…",
+  examplesNone: "Nema ruku za prikaz.",
+  examplesFailed: (message: string) => `Ruke se nisu učitale: ${message}`,
+  openHand: (what: string, leak: string) => `Otvori ruku na odluci: ${what} (${leak})`,
+  evLoss: (value: number) => `−${bb(value)}`,
+  openLeak: "U izvještaju o leakovima",
+  openLeakLabel: (name: string) => `Otvori u izvještaju o leakovima: ${name}`,
+  allLeaks: "Svi leakovi",
+};

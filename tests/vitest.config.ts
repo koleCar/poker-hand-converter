@@ -16,6 +16,10 @@ export default defineConfig({
       "react-dom": fileURLToPath(new URL("../frontend/node_modules/react-dom", import.meta.url)),
     },
   },
+  // The web's components rendered to markup (R5.2, `topLeaks.test.ts`): the
+  // web's tsconfig keeps JSX for Next (`preserve`), so say how to compile it
+  // here - the automatic runtime, as the shared package's `react-jsx`.
+  esbuild: { jsx: "automatic" },
   test: {
     include: ["test/**/*.test.ts"],
     exclude: ["dist/**", "node_modules/**"],

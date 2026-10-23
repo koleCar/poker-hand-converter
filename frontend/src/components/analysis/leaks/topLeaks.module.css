@@ -1,0 +1,172 @@
+/* The overview's "three biggest leaks" card (R5.2). Built on the statistics
+   skeleton (`.card`, `.stats-group`) and the Reports module's hand rows like
+   the rest of the Analysis tab; colours are semantic tokens. */
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.card p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.heading {
+  margin: 0;
+}
+
+.periods {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.periods button[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.sample {
+  font-size: var(--font-size-sm);
+}
+
+.rule {
+  font-size: var(--font-size-sm);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leak {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  padding: var(--space-3);
+}
+
+.leakHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  font-size: inherit;
+}
+
+.rank {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+}
+
+.name {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.context {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  overflow-wrap: anywhere;
+}
+
+/* Tentative: a word with a border, never colour alone. */
+.tentative {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  padding: 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.big {
+  font-size: var(--font-size-lg);
+}
+
+.line {
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.mixes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.mixes dt {
+  color: var(--text-secondary);
+}
+
+.mixes dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.examples {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.examplesHead {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+/* A finger: the period buttons a full 44 px target. */
+@media (pointer: coarse) {
+  .periods button {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+}
+
+@media (forced-colors: active) {
+  .leak,
+  .tentative {
+    border-color: CanvasText;
+  }
+}

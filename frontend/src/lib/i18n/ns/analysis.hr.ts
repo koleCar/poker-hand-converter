@@ -4,7 +4,7 @@ import type { DecisionAnalysis, Flag, OptionAnalysis, SensitivityFacts, SpotFact
 import { plural } from "../plural";
 import type { Dict } from "../types";
 import { reportsHr } from "./analysisReports.hr";
-import { leaksHr, progressHr, summaryHr } from "./analysisLeaks.hr";
+import { leaksHr, progressHr, summaryHr, topLeaksHr } from "./analysisLeaks.hr";
 import { trainHr } from "./analysisTrain.hr";
 import { shareHr } from "./analysisShare.hr";
 import { planHr } from "./analysisPlan.hr";
@@ -1302,6 +1302,7 @@ export const analysisHr: Dict["analysis"] = {
   leaks: leaksHr,
   progress: progressHr,
   summary: summaryHr,
+  topLeaks: topLeaksHr,
 
   train: trainHr,
 

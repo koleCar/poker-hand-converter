@@ -1,6 +1,7 @@
 // The phone check of R4.5 (docs/RAIL-PLAN.md R4.5b, R4.5d): the web's Hands,
 // Reports (`/stats`, the opponents panel in it), Players (`/players`, R4.5c),
-// the session review (`/analysis/session`, R5.1), a shared hand and its
+// the session review (`/analysis/session`, R5.1), the overview's three
+// biggest leaks (`/analysis`, R5.2), a shared hand and its
 // embed, and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
 // English and Croatian, against a running web - a local `next start` over a
 // local Supabase stack with a signed-in test account:
@@ -49,13 +50,31 @@ if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(BASE).hostname)) {
  */
 const EXCEPTIONS = ["[role=gridcell]", ".stats-matrix__cell", "label input", "p a", "li a", "small a", ".rp__mark"];
 
-async function audit(page) {
-  return page.evaluate((exceptions) => {
+/**
+ * The page's sideways scroll, and the small controls inside `root` (`main`;
+ * a part of a page names its own box - the overview's top three, R5.2,
+ * whose page around it is not this check's yet).
+ */
+async function audit(page, root = "main") {
+  return page.evaluate(([exceptions, scope]) => {
     const doc = document.documentElement;
     const sideways = doc.scrollWidth > doc.clientWidth;
     const controls = [
       ...document.querySelectorAll(
-        "main button, main select, main input, main textarea, main a.btn, main [role=slider], main [role=tab], main summary, main [role=row][tabindex], main label:has(> input[type=checkbox])",
+        [
+          "button",
+          "select",
+          "input",
+          "textarea",
+          "a.btn",
+          "[role=slider]",
+          "[role=tab]",
+          "summary",
+          "[role=row][tabindex]",
+          "label:has(> input[type=checkbox])",
+        ]
+          .map((control) => `${scope} ${control}`)
+          .join(", "),
       ),
     ];
     const small = [];
@@ -77,7 +96,7 @@ async function audit(page) {
       }
     }
     return { sideways, width: doc.scrollWidth, small: [...new Set(small)] };
-  }, EXCEPTIONS);
+  }, [EXCEPTIONS, root]);
 }
 
 const browser = await chromium.launch();
@@ -111,10 +130,10 @@ for (const locale of ["en", "hr"]) {
   await page.locator('form button[type="submit"]').first().click();
   await email.waitFor({ state: "hidden", timeout: 30000 });
 
-  const report = async (label) => {
+  const report = async (label, root = "main") => {
     await page.waitForLoadState("networkidle").catch(() => {});
     await page.waitForTimeout(800);
-    const result = await audit(page);
+    const result = await audit(page, root);
     const ok = !result.sideways && result.small.length === 0;
     if (!ok) failures++;
     console.log(`${ok ? "ok" : "NOT OK"} - ${locale} ${label}: ${result.sideways ? `scrolls sideways (${result.width}px)` : "no sideways scroll"}, ${result.small.length} small controls`);
@@ -213,6 +232,24 @@ for (const locale of ["en", "hr"]) {
     await listed.first().click();
     await page.locator(".rp").first().waitFor({ timeout: 60000 });
     await report("/analysis/h/<id> from the session review");
+  }
+
+  // The overview's three biggest leaks (R5.2): the card in each period, and a
+  // hand opened from its examples (its analysis, at the decision). Only the
+  // card's own controls are audited: the overview around it predates the check.
+  await page.goto(`${BASE}/analysis`);
+  const topCard = "main section[aria-labelledby=top-leaks]";
+  await page.locator(topCard).waitFor({ timeout: 60000 });
+  await page.waitForFunction((card) => !document.querySelector(`${card}[aria-busy=true]`), topCard, { timeout: 60000 });
+  await report("/analysis, the three biggest leaks (30 days)", topCard);
+  await page.locator(`${topCard} button[aria-pressed=false]`).first().click();
+  await page.waitForFunction((card) => !document.querySelector(`${card}[aria-busy=true]`), topCard, { timeout: 60000 });
+  await report("/analysis, the three biggest leaks (all time)", topCard);
+  const example = page.locator(`${topCard} a[href^='/analysis/h/']`);
+  if ((await example.count()) > 0) {
+    await example.first().click();
+    await page.locator(".rp").first().waitFor({ timeout: 60000 });
+    await report("/analysis/h/<id> from the top three");
   }
 
   if (SHARE) {
