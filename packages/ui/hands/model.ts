@@ -46,12 +46,27 @@ export interface HandFilter {
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
+  /**
+   * The web library's other filters (`HandsSource.features.more`): a part of
+   * the table's name; the smallest total pot in the hand's own unit (25 is
+   * $25 at a dollar table, 25 chips in a tournament); any of these positions
+   * reached showdown / won a pot; what the room's names are
+   * (`none`, `positional`, `opaque-id`).
+   */
+  tableName?: string | null;
+  minPot?: number | null;
+  showdownPositions?: string[];
+  winnerPositions?: string[];
+  anonymizations?: string[];
   /** `HandsSource.features.sorts`; newest first when absent. */
   sort?: HandSort;
 }
 
 /** The list's orders. `newest` is the only one every source has. */
 export type HandSort = "newest" | "oldest" | "pot" | "won" | "lost";
+
+/** Filters a source may offer beyond the common groups (the web library's). */
+export type MoreFilter = "tableName" | "minPot" | "showdownPositions" | "winnerPositions" | "anonymization";
 
 /** An opponent of a room with real screen names: the site key and the name as printed. */
 export interface PlayerRef {
@@ -147,6 +162,8 @@ export interface HandFacets {
   tags: FacetCount[];
   /** Hands with a note (a source with notes). */
   noted: number;
+  /** What the rooms' names are, `none` / `positional` / `opaque-id` (a source with that filter). */
+  anonymizations?: FacetCount[];
 }
 
 /** A saved filter: its id, its name and the screen's state as JSON. */
@@ -189,6 +206,12 @@ export interface HandsFeatures {
   search: boolean;
   /** The orders it can list in, besides newest first. */
   sorts: HandSort[];
+  /**
+   * The other filters it has; the screen hides the rest. The position lists,
+   * the table and the minimum pot narrow the counts and have none of their
+   * own; the names group is counted.
+   */
+  more: MoreFilter[];
 }
 
 /** The text a surface reports for a failed call. */

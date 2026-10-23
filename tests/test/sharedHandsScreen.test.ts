@@ -134,25 +134,61 @@ describe("the filter: the web's searches and order", () => {
     expect(old).toEqual({ ...EMPTY_FILTER, positions: ["CO"], date: "week" });
     expect(fromSaved(JSON.stringify({ sort: "sideways" }))?.sort).toBe("newest");
   });
+
+  it("the library's other filters: table, minimum pot, positions, names", () => {
+    const filter: FilterState = {
+      ...EMPTY_FILTER,
+      tableName: "  Zeta ",
+      minPot: "2,5",
+      showdownPositions: ["BB"],
+      winnerPositions: ["BTN", "CO"],
+      anonymizations: ["positional"],
+    };
+    const query = toQuery(filter, NOW);
+    expect(query.tableName).toBe("Zeta");
+    expect(query.minPot).toBe(2.5);
+    expect(query.showdownPositions).toEqual(["BB"]);
+    expect(query.winnerPositions).toEqual(["BTN", "CO"]);
+    expect(query.anonymizations).toEqual(["positional"]);
+    expect(activeGroups(filter)).toBe(5);
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    // A pot that is not a positive number is no filter.
+    for (const minPot of ["", "abc", "0", "-3"]) {
+      expect(toQuery({ ...EMPTY_FILTER, minPot }, NOW)).not.toHaveProperty("minPot");
+    }
+    expect(toQuery(EMPTY_FILTER, NOW)).not.toHaveProperty("showdownPositions");
+    expect(toQuery(EMPTY_FILTER, NOW)).not.toHaveProperty("anonymizations");
+  });
 });
 
 describe("the chips each source gets", () => {
-  it("the desktop's: tags and notes, no searches, no order", () => {
-    const groups = handGroups({ annotations: true, search: false, sorts: [] });
+  it("the desktop's: tags and notes, no searches, no order, none of the library's other filters", () => {
+    const groups = handGroups({ annotations: true, search: false, sorts: [], more: [] });
     expect(groups).toEqual(HAND_GROUPS);
     expect(groups).toContain("tags");
     expect(groups).not.toContain("search");
     expect(groups).not.toContain("sort");
+    expect(groups).not.toContain("showdownPositions");
+    expect(groups).not.toContain("anonymization");
   });
 
-  it("the web's: the order first, the searches, showdown; no tags or notes", () => {
-    const groups = handGroups({ annotations: false, search: true, sorts: ["oldest", "pot"] });
+  it("the web's: the order first, the searches, showdown and the other filters; no tags or notes", () => {
+    const groups = handGroups({
+      annotations: false,
+      search: true,
+      sorts: ["oldest", "pot"],
+      more: ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"],
+    });
     expect(groups[0]).toBe("sort");
     expect(groups[1]).toBe("date");
     expect(groups[2]).toBe("search");
-    expect(groups).toContain("showdown");
+    expect(groups.slice(-4)).toEqual(["showdown", "showdownPositions", "winnerPositions", "anonymization"]);
     expect(groups).not.toContain("tags");
     expect(groups).not.toContain("notes");
+  });
+
+  it("a source with only the table or the pot still gets the search sheet", () => {
+    expect(handGroups({ annotations: false, search: false, sorts: [], more: ["minPot"] })).toContain("search");
   });
 
   it("Reports keeps its own row", () => {
@@ -207,8 +243,30 @@ describe("the web's source", () => {
       { value: "standard", count: 1, name: "Standard format" },
     ]);
     expect(facets.formats).toEqual([]);
+    expect(facets.anonymizations).toEqual([]);
     expect(facets.tags).toEqual([]);
     expect(facets.noted).toBe(0);
+  });
+
+  it("passes the library's other filters as they are, counts the names, and says it has them", async () => {
+    const { webHandsSource } = await import("../../frontend/src/lib/db/handsSource.js");
+    rpc.mockResolvedValueOnce({ rows: [], next: null });
+    rpc.mockResolvedValueOnce({ total: 1, anonymizations: [{ value: "positional", count: 1 }] });
+    const source = webHandsSource("x");
+    const filter = {
+      tableName: "Zeta",
+      minPot: 2.5,
+      showdownPositions: ["BB"],
+      winnerPositions: ["BTN"],
+      anonymizations: ["positional"],
+    };
+    await source.page(filter, null, 100);
+    const facets = await source.facets(filter);
+    for (const [, args] of rpc.mock.calls as [string, Record<string, Record<string, unknown>>][]) {
+      expect(args.p_filter).toMatchObject(filter);
+    }
+    expect(facets.anonymizations).toEqual([{ value: "positional", count: 1 }]);
+    expect(source.features.more).toEqual(["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"]);
   });
 
   it("passes live arrivals to the list", async () => {
@@ -297,7 +355,7 @@ describe("the filter row, rendered", () => {
         filter: { ...EMPTY_FILTER, positions: ["BTN"], heroCards: "AKs", sort: "pot" },
         facets,
         onChange: () => undefined,
-        groups: handGroups({ annotations: false, search: true, sorts: ["pot"] }),
+        groups: handGroups({ annotations: false, search: true, sorts: ["pot"], more: [] }),
         sorts: ["pot"],
       }),
     );
@@ -307,6 +365,58 @@ describe("the filter row, rendered", () => {
     expect(html).toContain("Clear all");
     expect(html).not.toContain("Saved filters");
     expect(html).not.toContain("Tags");
+  });
+
+  const MORE = ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"] as const;
+  const withNames: HandFacets = {
+    ...facets,
+    anonymizations: [
+      { value: "none", count: 1 },
+      { value: "positional", count: 1 },
+    ],
+  };
+
+  for (const [locale, words] of [
+    ["en", { search: "Search", sd: "Showdown positions", win: "Winning positions", names: "Names", seats: "Seat labels (Ignition)" }],
+    ["hr", { search: "Pretraga", sd: "Pozicije na showdownu", win: "Pozicije koje su dobile", names: "Imena", seats: "Oznake mjesta (Ignition)" }],
+  ] as const) {
+    it(`the web's other filters as chips, ${locale}: table and pot in the search's summary, positions, names`, () => {
+      const html = render(
+        locale,
+        createElement(FilterBar, {
+          filter: {
+            ...EMPTY_FILTER,
+            tableName: "Zeta",
+            minPot: "25",
+            showdownPositions: ["BB"],
+            winnerPositions: ["BTN", "CO"],
+            anonymizations: ["positional"],
+          },
+          facets: withNames,
+          onChange: () => undefined,
+          groups: handGroups({ annotations: false, search: true, sorts: [], more: [...MORE] }),
+        }),
+      );
+      expect(html).toContain(`${words.search}: Zeta +1`);
+      expect(html).toContain(`${words.sd}: BB`);
+      expect(html).toContain(`${words.win}: BTN +1`);
+      expect(html).toContain(`${words.names}: ${words.seats}`);
+    });
+  }
+
+  it("the desktop's row has none of them", () => {
+    const html = render(
+      "en",
+      createElement(FilterBar, {
+        filter: EMPTY_FILTER,
+        facets,
+        onChange: () => undefined,
+        groups: handGroups({ annotations: true, search: false, sorts: [], more: [] }),
+      }),
+    );
+    for (const word of ["Search", "Showdown positions", "Winning positions", "Names"]) {
+      expect(html).not.toContain(word);
+    }
   });
 
   it("the desktop's row in Croatian, with saved filters, tags and notes", () => {

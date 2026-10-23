@@ -31,7 +31,10 @@ export type ListGroup =
   | "potTypes"
   | "results"
   | "stacks"
-  | "tags";
+  | "tags"
+  | "showdownPositions"
+  | "winnerPositions"
+  | "anonymizations";
 
 const LIST_GROUPS: ListGroup[] = [
   "sites",
@@ -45,6 +48,9 @@ const LIST_GROUPS: ListGroup[] = [
   "results",
   "stacks",
   "tags",
+  "showdownPositions",
+  "winnerPositions",
+  "anonymizations",
 ];
 
 export interface FilterState {
@@ -72,6 +78,13 @@ export interface FilterState {
   board: string;
   playerName: string;
   showdown: boolean | null;
+  /** The web library's other filters, as typed or chosen (`HandsSource.features.more`). */
+  tableName: string;
+  /** The smallest pot in the hand's own unit, as typed ("25", "2,5"). */
+  minPot: string;
+  showdownPositions: string[];
+  winnerPositions: string[];
+  anonymizations: string[];
   sort: HandSort;
 }
 
@@ -97,6 +110,11 @@ export const EMPTY_FILTER: FilterState = {
   board: "",
   playerName: "",
   showdown: null,
+  tableName: "",
+  minPot: "",
+  showdownPositions: [],
+  winnerPositions: [],
+  anonymizations: [],
   sort: "newest",
 };
 
@@ -108,6 +126,13 @@ export const STACK_ORDER = ["0-40", "40-80", "80-120", "120+"];
 export const FORMAT_ORDER = ["cash", "tournament", "sng", "spin"];
 export const LIMIT_ORDER = ["nl", "pl", "fl"];
 export const SIZE_ORDER = ["hu", "6max", "full"];
+export const ANONYMIZATION_ORDER = ["none", "opaque-id", "positional"];
+
+/** A typed minimum pot as a number, or null ("", "abc", 0 and below). */
+export function parseMinPot(text: string): number | null {
+  const value = Number(text.trim().replace(",", "."));
+  return text.trim() !== "" && Number.isFinite(value) && value > 0 ? value : null;
+}
 
 /** How many of the searches are set. */
 export function activeSearches(filter: FilterState): number {
@@ -115,7 +140,9 @@ export function activeSearches(filter: FilterState): number {
     (filter.heroCards.trim() ? 1 : 0) +
     (filter.board.trim() ? 1 : 0) +
     (filter.playerName.trim() ? 1 : 0) +
-    (filter.showdown === null ? 0 : 1)
+    (filter.showdown === null ? 0 : 1) +
+    (filter.tableName.trim() ? 1 : 0) +
+    (parseMinPot(filter.minPot) === null ? 0 : 1)
   );
 }
 
@@ -201,6 +228,12 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (board.length > 0) query.board = board;
   if (filter.playerName.trim()) query.playerName = filter.playerName.trim();
   if (filter.showdown !== null) query.showdown = filter.showdown;
+  if (filter.tableName.trim()) query.tableName = filter.tableName.trim();
+  const minPot = parseMinPot(filter.minPot);
+  if (minPot !== null) query.minPot = minPot;
+  if (filter.showdownPositions.length > 0) query.showdownPositions = filter.showdownPositions;
+  if (filter.winnerPositions.length > 0) query.winnerPositions = filter.winnerPositions;
+  if (filter.anonymizations.length > 0) query.anonymizations = filter.anonymizations;
   if (filter.sort !== "newest") query.sort = filter.sort;
   return query;
 }
@@ -226,7 +259,7 @@ export function fromSaved(json: string): FilterState | null {
     return typeof item === "boolean" ? item : null;
   };
   const date = saved.date;
-  const text = (key: "dateFrom" | "dateTo" | "heroCards" | "board" | "playerName"): string => {
+  const text = (key: "dateFrom" | "dateTo" | "heroCards" | "board" | "playerName" | "tableName" | "minPot"): string => {
     const item = saved[key];
     return typeof item === "string" ? item : "";
   };
@@ -261,6 +294,11 @@ export function fromSaved(json: string): FilterState | null {
     board: text("board"),
     playerName: text("playerName"),
     showdown: flag("showdown"),
+    tableName: text("tableName"),
+    minPot: text("minPot"),
+    showdownPositions: list("showdownPositions"),
+    winnerPositions: list("winnerPositions"),
+    anonymizations: list("anonymizations"),
     sort: typeof sort === "string" && (SORTS as string[]).includes(sort) ? (sort as HandSort) : "newest",
   };
 }

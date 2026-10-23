@@ -21,7 +21,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(40);
+select plan(52);
 
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-00000000b5a1', 'library.a@example.com', now(), now()),
@@ -89,6 +89,23 @@ insert into public.hand_stats_ev (hand_id, owner_id, seat, ev_version, hand_key,
   ('00000000-0000-0000-0000-00000000b501', '00000000-0000-0000-0000-00000000b5a1', 1, 'ev/1', 'pokerstars:l1', true, 300, 1500),
   ('00000000-0000-0000-0000-00000000b502', '00000000-0000-0000-0000-00000000b5a1', 1, 'ev/1', 'pokerstars:l2', false, -300, -1500);
 
+-- The web library's other filters (tables, positions at showdown and among
+-- the winners, what the names are).
+update public.hands h set
+  table_name = v.table_name,
+  showdown_positions = v.sd,
+  winner_positions = v.won,
+  site_anonymization = v.anon::public.site_anonymization
+from (values
+  ('00000000-0000-0000-0000-00000000b501'::uuid, 'Zeta Polaris', '{BTN,BB}'::text[], '{BTN}'::text[], 'none'),
+  ('00000000-0000-0000-0000-00000000b502'::uuid, 'Zeta 100%', '{BB,CO}', '{CO}', 'none'),
+  ('00000000-0000-0000-0000-00000000b503'::uuid, 'Alpha', '{}', '{}', 'positional'),
+  ('00000000-0000-0000-0000-00000000b504'::uuid, 'Final table', '{}', '{}', 'opaque-id'),
+  ('00000000-0000-0000-0000-00000000b505'::uuid, 'zeta_ii', '{}', '{BTN}', 'none'),
+  ('00000000-0000-0000-0000-00000000b506'::uuid, null, '{}', '{}', 'none')
+) as v(id, table_name, sd, won, anon)
+where h.id = v.id;
+
 -- The ids of a page's rows, as the last digit ('1'..'6'), in order.
 create function pg_temp.ids(p_filter jsonb, p_after jsonb default null, p_limit integer default 100) returns text
 language sql as $$
@@ -142,7 +159,7 @@ select is(
   '{"site": "pokerstars", "ante": 0, "tags": [], "board": ["2c", "7d", "Kd"], "allIn": true, "evNet": 300,
     "heroNet": 500, "hasNote": false, "potType": "single-raised", "variant": "holdem", "bigBlind": 200,
     "currency": "USD", "maxSeats": 6, "showdown": true, "totalPot": 1500, "heroCards": ["Ah", "Kh"],
-    "limitType": "nl", "tableName": null, "evPending": false, "gameFormat": "cash", "minorUnits": 100,
+    "limitType": "nl", "tableName": "Zeta Polaris", "evPending": false, "gameFormat": "cash", "minorUnits": 100,
     "siteHandId": "l1", "smallBlind": 100, "evNetBbMilli": 1500, "heroPosition": "BTN", "anonymization": "none",
     "heroHandClass": "AKs", "currencySymbol": "$", "heroNetBbMilli": 2500}'::jsonb,
   'a row in the screen''s shape');
@@ -177,6 +194,24 @@ select is(pg_temp.ids('{"board":["Kd","2c"]}'), '1', 'board cards, all of them')
 select is(pg_temp.ids('{"player":"Villain_X"}'), '5', 'a player at the table');
 select is(pg_temp.ids('{"showdown":true}'), '1', 'showdown');
 
+-- ------------------------------------------- the library's other filters --
+
+select is(pg_temp.ids('{"tableName":"ZETA"}'), '125', 'table: a part of the name, any case');
+select is(pg_temp.ids('{"tableName":"eta_"}'), '5', 'table: _ and % are letters, not wildcards');
+select is(pg_temp.ids('{"minPot":9}'), '124', 'minimum pot in the hand''s own unit: $9 at the dollar tables, 9 chips in the tournament');
+select is(pg_temp.ids('{"minPot":0.2}'), '123465', '... and EUR 0.20 at the euro table');
+select is(pg_temp.ids('{"minPot":5000}'), '', '... none past the biggest');
+select is(pg_temp.ids('{"showdownPositions":["CO","UTG"]}'), '2', 'showdown positions: any of them');
+select is(pg_temp.ids('{"winnerPositions":["BTN"]}'), '15', 'winner positions: any of them');
+select is(pg_temp.ids('{"anonymizations":["positional","opaque-id"]}'), '34', 'names: positional and opaque-id rooms');
+select is(pg_temp.counts(pg_temp.facets('{}') -> 'anonymizations'), 'none=4,opaque-id=1,positional=1', 'the names group is counted');
+select is(pg_temp.counts(pg_temp.facets('{"anonymizations":["positional"]}') -> 'anonymizations'), 'none=4,opaque-id=1,positional=1',
+  '... leaving its own selection out');
+select is(pg_temp.counts(pg_temp.facets('{"anonymizations":["positional"]}') -> 'sites'), 'ggpoker=1,pokerstars=0,winamax=0',
+  '... and narrowing the other groups');
+select is(pg_temp.counts(pg_temp.facets('{"winnerPositions":["BTN"]}') -> 'sites'), 'pokerstars=2',
+  'the uncounted filters narrow every group''s counts, as the dates do');
+
 -- ---------------------------------------------------------- the counts --
 
 select is(pg_temp.facets('{}') ->> 'total', '6', 'total: every hand');
@@ -197,13 +232,15 @@ select is(
      from unnest(array[
        '{"sizes":["6max"],"results":["won"]}'::jsonb, '{"stakes":["USD:200"],"stacks":["80-120"]}',
        '{"potTypes":["limped","3bet"],"allIn":false}', '{"formats":["cash"],"positions":["BTN","SB"]}',
-       '{"variants":["holdem"],"limits":["nl"],"sites":["pokerstars"],"from":"2026-10-03T00:00:00Z"}']) f),
+       '{"variants":["holdem"],"limits":["nl"],"sites":["pokerstars"],"from":"2026-10-03T00:00:00Z"}',
+       '{"tableName":"zeta","anonymizations":["none"]}', '{"minPot":5,"winnerPositions":["BTN","CO"]}']) f),
   (select string_agg(f::text || '=' || n || '/' || n, ' ')
      from unnest(array[
        '{"sizes":["6max"],"results":["won"]}'::jsonb, '{"stakes":["USD:200"],"stacks":["80-120"]}',
        '{"potTypes":["limped","3bet"],"allIn":false}', '{"formats":["cash"],"positions":["BTN","SB"]}',
-       '{"variants":["holdem"],"limits":["nl"],"sites":["pokerstars"],"from":"2026-10-03T00:00:00Z"}'],
-       array['3', '3', '3', '4', '2']) as t(f, n)),
+       '{"variants":["holdem"],"limits":["nl"],"sites":["pokerstars"],"from":"2026-10-03T00:00:00Z"}',
+       '{"tableName":"zeta","anonymizations":["none"]}', '{"minPot":5,"winnerPositions":["BTN","CO"]}'],
+       array['3', '3', '3', '4', '2', '3', '3']) as t(f, n)),
   'the page and the counts agree, group by group');
 
 -- ---------------------------------------------------------- RLS --

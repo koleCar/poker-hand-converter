@@ -92,6 +92,7 @@ export function webHandsSource(standardFormat: string): HandsSource {
         results: list("results"),
         stacks: list("stacks"),
         allIn: list("allIn"),
+        anonymizations: list("anonymizations"),
         tags: [],
         noted: 0,
       };
@@ -100,6 +101,12 @@ export function webHandsSource(standardFormat: string): HandsSource {
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    features: { annotations: false, search: true, sorts: ["oldest", "pot", "won", "lost"] },
+    features: {
+      annotations: false,
+      search: true,
+      sorts: ["oldest", "pot", "won", "lost"],
+      // Everything the library's old filter bar had (R4.5b restores it).
+      more: ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"],
+    },
   };
 }

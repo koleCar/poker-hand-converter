@@ -79,6 +79,14 @@ export function HandsScreen({
   const query = useMemo(() => toQuery(filter), [filter]);
   const list = useHandList(source, query);
   const groups = useMemo(() => handGroups(source.features), [source.features]);
+  const searchFields = useMemo(
+    () => ({
+      search: source.features.search,
+      tableName: source.features.more.includes("tableName"),
+      minPot: source.features.more.includes("minPot"),
+    }),
+    [source.features],
+  );
 
   const { reload } = list;
   const firstToken = useRef(reloadToken);
@@ -140,6 +148,7 @@ export function HandsScreen({
         groups={groups}
         saved={source.savedFilters}
         sorts={source.features.sorts}
+        search={searchFields}
       />
       {notice}
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>

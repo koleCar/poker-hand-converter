@@ -9205,8 +9205,11 @@ produce identical `hands` rows and render identically.
     (pages, counts, arrivals) and the screen's CSS; new `HandsScreen` (the
     screen the app's `Hands.tsx` was, with the panel, the empty / loading /
     error states and the title the surface's) and `model.ts`: **`HandsSource`**
-    (`page`, `facets`, `onChanged`, `features {annotations, search, sorts}`,
-    optional `savedFilters`) - what each surface implements - and the rows and
+    (`page`, `facets`, `onChanged`, `features {annotations, search, sorts,
+    more}`, optional `savedFilters`) - what each surface implements; a filter
+    a source does not declare is hidden (the app declares none of the web
+    library's searches, orders, table, minimum pot, positions or names: its
+    store has no column for them yet) - and the rows and
     counts (the store's DTOs; `heroHandClass`, `positionalNames`, `library`
     optional). The words moved to `packages/ui/strings/hands.{en,hr}.ts`
     (`UiStrings.hands`); the app's dictionary spreads them and keeps its own
@@ -9226,8 +9229,14 @@ produce identical `hands` rows and render identically.
     `library_rows`. Security invoker under RLS; the hands, the hero's
     `hand_stats` row and its `hand_stats_ev` row at the client's versions. The
     groups are the store's, by its rules (`SizeClass`, `Stake::key`,
-    `STACK_DEPTHS`, `RESULTS`); the searches are the old filter bar's (hero
-    cards or a class, board cards, a player at the table, showdown). pgTAP:
+    `STACK_DEPTHS`, `RESULTS`); the rest is the old filter bar's: the
+    searches (hero cards or a class, board cards, a player at the table,
+    showdown), a part of the table's name, the minimum pot, the showdown and
+    winner positions (any of them) and what the names are
+    (`anonymizations`, a counted group). The searches, the table, the pot and
+    the two position lists narrow the counts and have none of their own -
+    counting the position arrays would unnest every hand's arrays on every
+    change. pgTAP:
     every group and search, dates, every sort walked page by page, the row's
     shape, the counts leaving their own group out, the page and the counts
     agreeing group by group, RLS and anon. At 200 000 hands (local stack, a
@@ -9252,11 +9261,17 @@ produce identical `hands` rows and render identically.
     "biggest pots" button); the hand opens beside the list (above it where the
     screen is under 50rem) instead of above the whole card; rows show the
     result in big blinds and the all-in EV where the statistics are derived.
-    Not kept: the table-name search, the minimum pot, the showdown- and
-    winner-position filters and the anonymity select (positional rooms' hands
-    keep a mark in the list), and "N new hands - show" (arrivals go on top
-    without moving the rows in view - `HandList` now moves the view down by
-    what arrived, on both surfaces). The desktop app: the list beside an open
+    Kept (restored after review): the table-name search and the minimum pot
+    are fields of the search sheet; the showdown- and winner-position filters
+    and the anonymity select are chips ("Showdown positions", "Winning
+    positions", "Names"). The minimum pot is now in each hand's own unit (25
+    is $25 at a dollar table, 25 chips in a tournament) where the old form
+    scaled one number by the game filter. Not kept: "N new hands - show" -
+    arrivals go on top without moving the rows in view (`HandList` moves the
+    view down by what arrived, on both surfaces). The old pager kept its page
+    in component state only - `/library` never had a page or filter in its
+    address - so there are no old links to map; `/replay`, `/replayer` and
+    `/hands` still redirect to `/library`. The desktop app: the list beside an open
     hand is narrower than 40rem at most window sizes, so its rows are now
     two-line cards there instead of a 62rem row scrolling sideways; under
     50rem the hand stacks above the list (it used to overflow).
@@ -9472,4 +9487,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-22 | **R4.4 done on staging; Phase 4's exit met for the corpus on a local stack**: the parity test. `npm run parity` (`tests/scripts/parity/`, CI job `parity`) puts every corpus file through the **app's path** - `core/rail-sync/examples/parity_app.rs`: `rail-watch` on a folder, a fresh `rail-store`, the sync worker with the real `Account` and `IngestClient` into `ingest_hands` (`desktop`) - and the **web's** - the converter's bulk run with the committed WASM core into the bulk saver and `ingest_hands` from the web source (`upload`) - as two users of a throwaway stack, runs the web's statistics rebuild route as each, and compares as `postgres`: every `hands` column but `id` / `owner_id` / `origin` / `created_at` byte for byte (`phf` with only `meta.parsedAt` masked), every `hand_stats` / `hand_stats_ev` column but `hand_id` / `owner_id` / `created_at`, and the web's rendering inputs (`get_hand` -> `toHandRecord`, the derived standard text, the replayer's frames from the text and from the PHF). Hands kept in several corpus files and stored from different copies are checked against the web's conversion of the app's file instead. A rolled-back control proves each kind of difference is reported. Result: **556 files, 7 496 hands, 43 923 statistics rows, 7 249 EV rows: 0 differences**; nothing fixed. Neither path writes `hand_stats` itself: both get them from the web's rebuild (an upload at once, a synced hand when `/stats` opens). Findings for the owner: **F1** - Ignition tournament seats past 24 (15 corpus hands) break `hand_stats_seat_ok`, and the rebuild then fails on that page forever, for the whole account, on both paths and on `main`; **F2** - statistics inserts spend the global `hand_stats_insert` (200 000 rows / 10 min for everyone), which a desktop-sized library would hold for ~100 min. Locally 3.3 min for the whole corpus (45 s for `RAIL_PARITY_CORPUS=sample`). |
 | 2026-10-22 | **R4.4's findings F1 and F2 fixed on staging** (#235, `20270623093000_stats_seats_and_budget.sql`, not applied to production): seat numbers past 24 (Ignition tournaments, to 1 227 in the corpus) are accepted by `hand_stats`, `hand_stats_ev`, `hand_analysis.hero_seat` (any `smallint` from 0) and the forum's `anchor_seat` (from 1) - PHF has no seat bound and `hands.hero_seat` never had one; the rebuild route retries a page the database refuses for its data hand by hand and skips and counts the hands still refused (`lib/db/statsSave.ts`), so one hand can no longer stop an account's statistics; statistics inserts are charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, 10 000 000 / day) with the global bucket a 3 000 000 / 10 min ceiling. The desktop store and `rail-stats` have no seat limit. Parity without its workarounds: whole corpus, 0 differences, the 15 wide-seat hands rebuilt on both sides; pgTAP 36 files / 1 170 tests. |
 | 2026-10-22 | **R4.5a done** (R4.5 split: a = share links hide names, b = replayer + Hands, c = Reports + Players, d = responsive pass): share links hide the players' names unless the owner opts in, enforced by the database. Migration `20270623090000_share_names.sql`: `shares.show_names not null default false` (every existing link becomes anonymised: nothing earlier recorded a choice about names); `read_share` / `resolve_share` return for a hidden link the forum's `scrub_phf(.., 'pseudonyms')` (Hero, Villain1..n; no raw lines, table, tournament id, room hand number or time), null if any original name survives as a whole token (`share_anonymised_phf`, `publish_hand`'s leak check, positional rooms excepted), no `standardText`, no `title`; `create_share(.., p_show_names)`, owner-only `share_names_state` / `set_share_names`. Web: `/h/:slug`, its metadata and `/embed/h/:slug` render the payload's `phf` (`shareHand`); `ShareNamesToggle` (`en` + `hr`) in the share dialog and on the page for the owner. Tests: pgTAP `share_names` 40 (suite 36 files / 1 186); `npm run share:names` end to end against an isolated stack and `next start` (six corpus hands with awkward names, stored and never saved, page and embed: no name in the HTML; names on and off) 3 / 3; `share_anonymised_phf` over the corpus's 8 367 hands withholds none. Not applied to production. |
-| 2026-10-22 | **R4.5b done**: the web's library is the shared Hands screen. The desktop app's screen (R2.7a) moved into `packages/ui/hands/` (`HandsScreen`, `HandList`, `FilterBar`, `Popover`, `SavedFilters`, `filter`, `format`, `useHandList`; words in `strings/hands.{en,hr}.ts`) behind `HandsSource` (`page`, `facets`, `onChanged`, `features`, `savedFilters`), which the app implements over its store and the web over two new functions (`20270630090000_library_list.sql`): `library_page` (keyset, the store's filter groups by its rules plus the library's searches - hero cards or class, board, a player, showdown - and orders: newest, oldest, pot, best and worst result) and `library_facets` (each group's values with the hands they would match under the other groups). `/library` renders it with the shared replayer, share and publish, the converter's hand-off and live arrivals; `ReplayerTab`, `HandList`, `HandFiltersBar`, `handFilters` and their CSS deleted; the web's `DataSource` mounted. Not kept: table-name search, minimum pot, showdown/winner-position filters, the anonymity select, the pager. Phones: two-line card rows under 40rem, the hand above the list under 50rem, 44 px controls on a coarse pointer; arrivals on top no longer move the rows in view (both surfaces). Tests: pgTAP `library_list` 40 (suite 37 files / 1 226); Vitest `sharedHandsScreen` 14; at 200 000 hands a page 9-25 ms, the counts 1.2 s; screenshots: 144 of 288 identical (every page but the library's, every replayer element capture), the library's 144 changed on purpose. Not applied to production. |
+| 2026-10-22 | **R4.5b done**: the web's library is the shared Hands screen. The desktop app's screen (R2.7a) moved into `packages/ui/hands/` (`HandsScreen`, `HandList`, `FilterBar`, `Popover`, `SavedFilters`, `filter`, `format`, `useHandList`; words in `strings/hands.{en,hr}.ts`) behind `HandsSource` (`page`, `facets`, `onChanged`, `features`, `savedFilters`), which the app implements over its store and the web over two new functions (`20270630090000_library_list.sql`): `library_page` (keyset, the store's filter groups by its rules plus the library's searches - hero cards or class, board, a player, showdown - and orders: newest, oldest, pot, best and worst result) and `library_facets` (each group's values with the hands they would match under the other groups). `/library` renders it with the shared replayer, share and publish, the converter's hand-off and live arrivals; `ReplayerTab`, `HandList`, `HandFiltersBar`, `handFilters` and their CSS deleted; the web's `DataSource` mounted. Every filter the old bar had is kept (after review: table name, minimum pot - now in the hand's own unit -, showdown and winner positions, the anonymity select; web only, the app's source declares them unsupported); the pager became scrolling (it never had an address to map) and "N new hands - show" became arrivals on top. Phones: two-line card rows under 40rem, the hand above the list under 50rem, 44 px controls on a coarse pointer; arrivals on top no longer move the rows in view (both surfaces). Tests: pgTAP `library_list` 40 (suite 37 files / 1 226); Vitest `sharedHandsScreen` 14; at 200 000 hands a page 9-25 ms, the counts 1.2 s; screenshots: 144 of 288 identical (every page but the library's, every replayer element capture), the library's 144 changed on purpose. Not applied to production. |

@@ -41,8 +41,20 @@
 --   player           an exact name at the table (`player_names`; never a
 --                    positional room's row, which has none)
 --   showdown         true: the hand went to showdown
+--   tableName        a case-insensitive part of the table's name
+--   minPot           the smallest total pot, in the hand's own unit (25 is
+--                    $25 at a dollar table, 25 chips in a tournament)
+--   showdownPositions  any of these positions reached showdown
+--   winnerPositions    any of these positions won a pot
+--   anonymizations   `none`, `positional`, `opaque-id`
+--                    (`hands.site_anonymization`): a group with counts
 --   sort             `newest` (default), `oldest`, `pot` (biggest first),
 --                    `won` (best result first), `lost` (worst first)
+--
+-- The searches, the table, the minimum pot and the two position lists narrow
+-- the counts like the dates do, and have none of their own: counting the
+-- position arrays would mean unnesting every hand's arrays on every filter
+-- change, for chips a reader picks from a fixed list of ten.
 --
 -- `statsVersion` / `evVersion` name the rows to read, as the statistics
 -- functions take them (the client's `STATS_VERSION`, `EV_VERSION`). A hand
@@ -178,6 +190,7 @@ returns table (
   minor_units      smallint,
   small_blind      bigint,
   big_blind        bigint,
+  anonymization    text,
   m_site           boolean,
   m_format         boolean,
   m_variant        boolean,
@@ -188,15 +201,25 @@ returns table (
   m_pot_type       boolean,
   m_result         boolean,
   m_stack          boolean,
-  m_all_in         boolean
+  m_all_in         boolean,
+  m_anon           boolean
 )
 language plpgsql
 stable
 security invoker
 set search_path = ''
+-- Planned for each filter: a cached generic plan cannot drop the predicates
+-- of the groups that are not set, and at 200 000 hands it made the counts
+-- 3-9 times slower from a session's sixth call on.
+set plan_cache_mode = force_custom_plan
 as $$
 declare
   v_filter     jsonb   := case when jsonb_typeof(p_filter) = 'object' then p_filter else '{}'::jsonb end;
+  v_anons      text[]  := public.library_list(case when jsonb_typeof(p_filter) = 'object' then p_filter else '{}'::jsonb end, 'anonymizations');
+  v_sd_pos     text[]  := public.library_list(case when jsonb_typeof(p_filter) = 'object' then p_filter else '{}'::jsonb end, 'showdownPositions');
+  v_win_pos    text[]  := public.library_list(case when jsonb_typeof(p_filter) = 'object' then p_filter else '{}'::jsonb end, 'winnerPositions');
+  v_table      text    := nullif(btrim(coalesce(p_filter ->> 'tableName', '')), '');
+  v_min_pot    numeric := case when jsonb_typeof(p_filter -> 'minPot') = 'number' then (p_filter ->> 'minPot')::numeric end;
   v_stats      text    := coalesce(nullif(btrim(coalesce(v_filter ->> 'statsVersion', '')), ''), 'stats/1');
   v_ev         text    := coalesce(nullif(btrim(coalesce(v_filter ->> 'evVersion', '')), ''), 'ev/1');
   v_sites      text[];
@@ -278,7 +301,8 @@ begin
       h.currency_symbol,
       h.currency_minor_units as minor_units,
       h.small_blind,
-      h.big_blind
+      h.big_blind,
+      h.site_anonymization::text as anonymization
     from public.hands h
     left join public.hand_stats hs
       on hs.hand_id = h.id and hs.stats_version = v_stats and hs.is_hero
@@ -292,6 +316,11 @@ begin
       and (cardinality(v_board) = 0 or h.board_cards @> v_board)
       and (v_player is null or v_player = any (h.player_names))
       and (v_showdown is null or h.went_to_showdown = v_showdown)
+      and (v_table is null
+           or h.table_name ilike '%' || regexp_replace(v_table, '([%_\\])', '\\\1', 'g') || '%')
+      and (v_min_pot is null or h.total_pot >= v_min_pot * h.currency_minor_units)
+      and (cardinality(v_sd_pos) = 0 or h.showdown_positions && v_sd_pos)
+      and (cardinality(v_win_pos) = 0 or h.winner_positions && v_win_pos)
   )
   select
     d.*,
@@ -305,7 +334,8 @@ begin
     cardinality(v_pot_types) = 0 or d.pot_type = any (v_pot_types),
     cardinality(v_results) = 0 or d.result = any (v_results),
     cardinality(v_stacks) = 0 or d.stack = any (v_stacks),
-    v_all_in is null or d.all_in = v_all_in
+    v_all_in is null or d.all_in = v_all_in,
+    cardinality(v_anons) = 0 or d.anonymization = any (v_anons)
   from d;
 end;
 $$;
@@ -424,6 +454,21 @@ begin
   if cardinality(public.library_list(v_filter, 'stacks')) > 0 then
     v_where := v_where || $w$ and public.library_stack(hs.starting_stack_bb_tenths) = any (public.library_list($1, 'stacks'))$w$;
   end if;
+  if coalesce(btrim(v_filter ->> 'tableName'), '') <> '' then
+    v_where := v_where || $w$ and h.table_name ilike '%' || regexp_replace(btrim($1 ->> 'tableName'), '([%_\\])', '\\\1', 'g') || '%'$w$;
+  end if;
+  if jsonb_typeof(v_filter -> 'minPot') = 'number' then
+    v_where := v_where || $w$ and h.total_pot >= ($1 ->> 'minPot')::numeric * h.currency_minor_units$w$;
+  end if;
+  if cardinality(public.library_list(v_filter, 'showdownPositions')) > 0 then
+    v_where := v_where || $w$ and h.showdown_positions && public.library_list($1, 'showdownPositions')$w$;
+  end if;
+  if cardinality(public.library_list(v_filter, 'winnerPositions')) > 0 then
+    v_where := v_where || $w$ and h.winner_positions && public.library_list($1, 'winnerPositions')$w$;
+  end if;
+  if cardinality(public.library_list(v_filter, 'anonymizations')) > 0 then
+    v_where := v_where || $w$ and h.site_anonymization::text = any (public.library_list($1, 'anonymizations'))$w$;
+  end if;
   if jsonb_typeof(v_filter -> 'allIn') = 'boolean' then
     v_where := v_where || $w$ and coalesce(e.applicable, false) = ($1 ->> 'allIn')::boolean$w$;
   end if;
@@ -538,6 +583,7 @@ language plpgsql
 stable
 security invoker
 set search_path = ''
+set plan_cache_mode = force_custom_plan
 as $$
 declare
   v_result jsonb;
@@ -551,55 +597,57 @@ begin
   ),
   g as (
     select
-      grouping(site, format, variant, limit_type, size, stake, "position", pot_type, result, stack, all_in) as gid,
-      site, format, variant, limit_type, size, stake, "position", pot_type, result, stack, all_in,
+      grouping(site, format, variant, limit_type, size, stake, "position", pot_type, result, stack, all_in, anonymization) as gid,
+      site, format, variant, limit_type, size, stake, "position", pot_type, result, stack, all_in, anonymization,
       count(*) filter (where m_format and m_variant and m_limit and m_size and m_stake and m_position
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_site,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_site,
       count(*) filter (where m_site and m_variant and m_limit and m_size and m_stake and m_position
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_format,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_format,
       count(*) filter (where m_site and m_format and m_limit and m_size and m_stake and m_position
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_variant,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_variant,
       count(*) filter (where m_site and m_format and m_variant and m_size and m_stake and m_position
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_limit,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_limit_type,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_stake and m_position
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_size,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_size,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_position
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_stake,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_stake,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
-                         and m_pot_type and m_result and m_stack and m_all_in) as c_position,
+                         and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_position,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
-                         and m_position and m_result and m_stack and m_all_in) as c_pot_type,
+                         and m_position and m_result and m_stack and m_all_in and m_anon) as c_pot_type,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
-                         and m_position and m_pot_type and m_stack and m_all_in) as c_result,
+                         and m_position and m_pot_type and m_stack and m_all_in and m_anon) as c_result,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
-                         and m_position and m_pot_type and m_result and m_all_in) as c_stack,
+                         and m_position and m_pot_type and m_result and m_all_in and m_anon) as c_stack,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
-                         and m_position and m_pot_type and m_result and m_stack) as c_all_in,
+                         and m_position and m_pot_type and m_result and m_stack and m_anon) as c_all_in,
       count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
-                         and m_position and m_pot_type and m_result and m_stack and m_all_in) as c_total,
+                         and m_position and m_pot_type and m_result and m_stack and m_all_in) as c_anonymization,
+      count(*) filter (where m_site and m_format and m_variant and m_limit and m_size and m_stake
+                         and m_position and m_pot_type and m_result and m_stack and m_all_in and m_anon) as c_total,
       min(currency) as currency,
       min(currency_symbol) as currency_symbol,
       min(minor_units) as minor_units,
       min(small_blind) as small_blind,
       min(big_blind) as big_blind
     from r
-    group by grouping sets ((site), (format), (variant), (limit_type), (size), (stake), ("position"),
-                            (pot_type), (result), (stack), (all_in), ())
+    group by grouping sets ((site), (format), (variant), (limit_type), (size), (stake), ("position"), (pot_type), (result), (stack), (all_in), (anonymization), ())
   ),
   -- `grouping()` sets a bit per argument *not* in the row's set, the first
-  -- argument highest: the set of argument i (0-based, of 11) is 2047 - 2^(10 - i).
+  -- argument highest: the set of argument i (0-based, of 12) is
+  -- 4095 - 2^(11 - i).
   f as (
     select
       jsonb_agg(jsonb_build_object('value', site, 'count', c_site) order by c_site desc, site)
-        filter (where gid = 2047 - 1024 and site <> '') as sites,
+        filter (where gid = 4095 - 2048 and site <> '') as sites,
       jsonb_agg(jsonb_build_object('value', format, 'count', c_format) order by c_format desc, format)
-        filter (where gid = 2047 - 512 and format <> '') as formats,
+        filter (where gid = 4095 - 1024 and format <> '') as formats,
       jsonb_agg(jsonb_build_object('value', variant, 'count', c_variant) order by c_variant desc, variant)
-        filter (where gid = 2047 - 256 and variant <> '') as variants,
-      jsonb_agg(jsonb_build_object('value', limit_type, 'count', c_limit) order by c_limit desc, limit_type)
-        filter (where gid = 2047 - 128 and limit_type <> '') as limits,
+        filter (where gid = 4095 - 512 and variant <> '') as variants,
+      jsonb_agg(jsonb_build_object('value', limit_type, 'count', c_limit_type) order by c_limit_type desc, limit_type)
+        filter (where gid = 4095 - 256 and limit_type <> '') as limits,
       jsonb_agg(jsonb_build_object('value', size, 'count', c_size) order by c_size desc, size)
-        filter (where gid = 2047 - 64 and size <> '') as sizes,
+        filter (where gid = 4095 - 128 and size <> '') as sizes,
       jsonb_agg(jsonb_build_object('value', stake, 'count', c_stake,
                                    'currency', case when stake <> 'chips' then currency end,
                                    'currencySymbol', case when stake <> 'chips' then coalesce(currency_symbol, '') end,
@@ -607,19 +655,21 @@ begin
                                    'smallBlind', case when stake <> 'chips' then small_blind end,
                                    'bigBlind', case when stake <> 'chips' then big_blind end)
                 order by stake = 'chips', currency, big_blind)
-        filter (where gid = 2047 - 32 and stake <> '') as stakes,
+        filter (where gid = 4095 - 64 and stake <> '') as stakes,
       jsonb_agg(jsonb_build_object('value', "position", 'count', c_position) order by c_position desc, "position")
-        filter (where gid = 2047 - 16 and "position" <> '') as positions,
+        filter (where gid = 4095 - 32 and "position" <> '') as positions,
       jsonb_agg(jsonb_build_object('value', pot_type, 'count', c_pot_type) order by c_pot_type desc, pot_type)
-        filter (where gid = 2047 - 8 and pot_type <> '') as pot_types,
+        filter (where gid = 4095 - 16 and pot_type <> '') as pot_types,
       jsonb_agg(jsonb_build_object('value', result, 'count', c_result) order by c_result desc, result)
-        filter (where gid = 2047 - 4 and result <> '') as results,
+        filter (where gid = 4095 - 8 and result <> '') as results,
       jsonb_agg(jsonb_build_object('value', stack, 'count', c_stack) order by c_stack desc, stack)
-        filter (where gid = 2047 - 2 and stack <> '') as stacks,
+        filter (where gid = 4095 - 4 and stack <> '') as stacks,
       jsonb_agg(jsonb_build_object('value', case when all_in then '1' else '0' end, 'count', c_all_in)
                 order by all_in desc)
-        filter (where gid = 2047 - 1) as all_in,
-      max(c_total) filter (where gid = 2047) as total
+        filter (where gid = 4095 - 2) as all_in,
+      jsonb_agg(jsonb_build_object('value', anonymization, 'count', c_anonymization) order by c_anonymization desc, anonymization)
+        filter (where gid = 4095 - 1 and anonymization <> '') as anonymizations,
+      max(c_total) filter (where gid = 4095) as total
     from g
   )
   select jsonb_build_object(
@@ -635,7 +685,8 @@ begin
     'potTypes', coalesce(f.pot_types, '[]'::jsonb),
     'results', coalesce(f.results, '[]'::jsonb),
     'stacks', coalesce(f.stacks, '[]'::jsonb),
-    'allIn', coalesce(f.all_in, '[]'::jsonb)
+    'allIn', coalesce(f.all_in, '[]'::jsonb),
+    'anonymizations', coalesce(f.anonymizations, '[]'::jsonb)
   ) into v_result
   from f;
 

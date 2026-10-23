@@ -2845,6 +2845,7 @@ export type Database = {
         Args: { p_filter: Json }
         Returns: {
           all_in: boolean
+          anonymization: string
           big_blind: number
           currency: string
           currency_symbol: string
@@ -2855,6 +2856,7 @@ export type Database = {
           id: string
           limit_type: string
           m_all_in: boolean
+          m_anon: boolean
           m_format: boolean
           m_limit: boolean
           m_position: boolean

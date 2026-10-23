@@ -22,6 +22,7 @@ import {
   LIMIT_ORDER,
   POSITION_ORDER,
   POT_TYPE_ORDER,
+  ANONYMIZATION_ORDER,
   RESULT_ORDER,
   SIZE_ORDER,
   STACK_ORDER,
@@ -33,7 +34,7 @@ import {
 } from "./filter";
 import { handFormat, stakeLabel } from "./format";
 import styles from "./FilterBar.module.css";
-import type { FacetCount, FilterScreen, HandFacets, HandSort, SavedFiltersSource } from "./model";
+import type { FacetCount, FilterScreen, HandFacets, HandSort, MoreFilter, SavedFiltersSource } from "./model";
 import { Popover } from "./Popover";
 import { SavedFilters } from "./SavedFilters";
 
@@ -54,6 +55,9 @@ export type GroupId =
   | "tags"
   | "search"
   | "showdown"
+  | "showdownPositions"
+  | "winnerPositions"
+  | "anonymization"
   | "sort";
 
 const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
@@ -68,6 +72,16 @@ const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
   result: "results",
   stack: "stacks",
   tags: "tags",
+  showdownPositions: "showdownPositions",
+  winnerPositions: "winnerPositions",
+  anonymization: "anonymizations",
+};
+
+/** Groups a source offers or not (`HandsSource.features.more`). */
+const MORE_GROUPS: Partial<Record<MoreFilter, GroupId>> = {
+  showdownPositions: "showdownPositions",
+  winnerPositions: "winnerPositions",
+  anonymization: "anonymization",
 };
 
 /** The row's order: what a player narrows by first. */
@@ -93,11 +107,23 @@ export const HAND_GROUPS: GroupId[] = [
  * keeps them, the searches and showdown where it can search, the order
  * where it can sort (first, so the row says how it is listed).
  */
-export function handGroups(features: { annotations: boolean; search: boolean; sorts: HandSort[] }): GroupId[] {
+export function handGroups(features: {
+  annotations: boolean;
+  search: boolean;
+  sorts: HandSort[];
+  more: MoreFilter[];
+}): GroupId[] {
   const groups = HAND_GROUPS.filter((group) => features.annotations || (group !== "tags" && group !== "notes"));
-  if (features.search) {
+  // The searches' sheet also holds the table and the minimum pot.
+  if (features.search || features.more.includes("tableName") || features.more.includes("minPot")) {
     groups.splice(1, 0, "search");
+  }
+  if (features.search) {
     groups.push("showdown");
+  }
+  for (const more of features.more) {
+    const group = MORE_GROUPS[more];
+    if (group) groups.push(group);
   }
   if (features.sorts.length > 0) {
     groups.unshift("sort");
@@ -124,7 +150,18 @@ interface FilterBarProps {
   saved?: SavedFiltersSource;
   /** The orders the `sort` group offers besides newest first. */
   sorts?: HandSort[];
+  /** What the search sheet holds: the searches, the table, the minimum pot. */
+  search?: SearchFields;
 }
+
+/** The fields of the search sheet a source has. */
+export interface SearchFields {
+  search: boolean;
+  tableName: boolean;
+  minPot: boolean;
+}
+
+const ALL_SEARCH: SearchFields = { search: true, tableName: true, minPot: true };
 
 /** The labelled options of a list group, with counts. */
 function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | null): FilterChipOption<string>[] {
@@ -146,8 +183,19 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
       case "tags":
         counts = facets.tags;
         break;
+      case "anonymization":
+        counts = facets.anonymizations ?? [];
+        break;
+      case "showdownPositions":
+      case "winnerPositions":
+        // Not counted (the source would unnest every hand's positions per
+        // change): the positions are offered as they are.
+        counts = POSITION_ORDER.map((value) => ({ value, count: 0 }));
+        break;
       default:
-        counts = facets[list as Exclude<ListGroup, "sites" | "stakes" | "tags">].filter((f) => f.value !== "");
+        counts = facets[
+          list as Exclude<ListGroup, "sites" | "stakes" | "tags" | "showdownPositions" | "winnerPositions" | "anonymizations">
+        ].filter((f) => f.value !== "");
     }
   }
   // The values chosen stay listed even when nothing has them now.
@@ -165,6 +213,7 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
       result: t.results,
       stack: t.stacks,
       variant: variants,
+      anonymization: t.anonymizations,
     };
     return maps[group]?.[value] ?? fallback ?? value;
   };
@@ -176,6 +225,9 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
     format: FORMAT_ORDER,
     limit: LIMIT_ORDER,
     size: SIZE_ORDER,
+    showdownPositions: POSITION_ORDER,
+    winnerPositions: POSITION_ORDER,
+    anonymization: ANONYMIZATION_ORDER,
   };
   const sorted = group === "stakes" ? counts : ordered(counts, order[group] ?? []);
   return sorted.map((c) => ({
@@ -183,7 +235,7 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
     label: labelOf(c.value, c.label),
     // Tags count every hand that carries them; the other groups, the hands
     // the rest of the filter leaves.
-    detail: facets ? format.count(c.count) : undefined,
+    detail: facets && group !== "showdownPositions" && group !== "winnerPositions" ? format.count(c.count) : undefined,
   }));
 }
 
@@ -195,6 +247,7 @@ export function FilterBar({
   screen = "hands",
   saved,
   sorts = [],
+  search = ALL_SEARCH,
 }: FilterBarProps) {
   const t = useUiStrings().hands;
   const active = activeGroups(filter);
@@ -226,6 +279,7 @@ export function FilterBar({
             facets={facets}
             onChange={onChange}
             sorts={sorts}
+            search={search}
           />
         ))}
       </div>
@@ -248,12 +302,14 @@ function GroupChip({
   facets,
   onChange,
   sorts,
+  search,
 }: {
   group: GroupId;
   filter: FilterState;
   facets: HandFacets | null;
   onChange: (filter: FilterState) => void;
   sorts: HandSort[];
+  search: SearchFields;
 }) {
   const strings = useUiStrings();
   const t = strings.hands.filters;
@@ -279,7 +335,9 @@ function GroupChip({
   } else if (group === "showdown" && filter.showdown !== null) {
     summary = filter.showdown ? t.showdownValues.yes : t.showdownValues.no;
   } else if (group === "search") {
-    const terms = [filter.heroCards, filter.board, filter.playerName].map((term) => term.trim()).filter(Boolean);
+    const terms = [filter.heroCards, filter.board, filter.playerName, filter.tableName, filter.minPot && `≥ ${filter.minPot}`]
+      .map((term) => term.trim())
+      .filter(Boolean);
     summary = terms.length === 0 ? null : terms.length === 1 ? (terms[0] ?? "") : t.more(terms[0] ?? "", terms.length - 1);
   } else if (group === "sort" && filter.sort !== "newest") {
     summary = t.sorts[filter.sort];
@@ -373,7 +431,7 @@ function GroupChip({
       />
     );
   } else if (group === "search") {
-    body = <SearchForm filter={filter} onChange={onChange} onDone={close} />;
+    body = <SearchForm filter={filter} onChange={onChange} onDone={close} fields={search} />;
   }
 
   return (
@@ -405,22 +463,29 @@ function SearchForm({
   filter,
   onChange,
   onDone,
+  fields,
 }: {
   filter: FilterState;
   onChange: (filter: FilterState) => void;
   onDone: () => void;
+  fields: SearchFields;
 }) {
   const t = useUiStrings().hands.filters.search;
   const [heroCards, setHeroCards] = useState(filter.heroCards);
   const [board, setBoard] = useState(filter.board);
   const [playerName, setPlayerName] = useState(filter.playerName);
+  const [tableName, setTableName] = useState(filter.tableName);
+  const [minPot, setMinPot] = useState(filter.minPot);
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    onChange({ ...filter, heroCards, board, playerName });
+    onChange({ ...filter, heroCards, board, playerName, tableName, minPot });
     onDone();
   };
+  const set = filter.heroCards || filter.board || filter.playerName || filter.tableName || filter.minPot;
   return (
     <form className={styles.search} onSubmit={submit}>
+      {fields.search ? (
+        <>
       <label>
         {t.heroCards}
         <input value={heroCards} onChange={(event) => setHeroCards(event.target.value)} spellCheck={false} />
@@ -436,16 +501,32 @@ function SearchForm({
         <input value={playerName} onChange={(event) => setPlayerName(event.target.value)} spellCheck={false} />
         <small>{t.playerHint}</small>
       </label>
+        </>
+      ) : null}
+      {fields.tableName ? (
+        <label>
+          {t.tableName}
+          <input value={tableName} onChange={(event) => setTableName(event.target.value)} spellCheck={false} />
+          <small>{t.tableNameHint}</small>
+        </label>
+      ) : null}
+      {fields.minPot ? (
+        <label>
+          {t.minPot}
+          <input value={minPot} inputMode="decimal" onChange={(event) => setMinPot(event.target.value)} />
+          <small>{t.minPotHint}</small>
+        </label>
+      ) : null}
       <div className={styles.searchActions}>
         <button type="submit" className="btn btn--primary btn--sm">
           {t.apply}
         </button>
-        {filter.heroCards || filter.board || filter.playerName ? (
+        {set ? (
           <button
             type="button"
             className="btn btn--ghost btn--sm"
             onClick={() => {
-              onChange({ ...filter, heroCards: "", board: "", playerName: "" });
+              onChange({ ...filter, heroCards: "", board: "", playerName: "", tableName: "", minPot: "" });
               onDone();
             }}
           >

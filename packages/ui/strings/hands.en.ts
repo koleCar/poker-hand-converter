@@ -69,7 +69,16 @@ export const handsUiEn = {
       player: "Player",
       search: "Search",
       showdown: "Showdown",
+      showdownPositions: "Showdown positions",
+      winnerPositions: "Winning positions",
+      anonymization: "Names",
       sort: "Order",
+    },
+    /** What a room's player names are (`hands.site_anonymization`). */
+    anonymizations: {
+      none: "Screen names",
+      "opaque-id": "Session ids (GGPoker)",
+      positional: "Seat labels (Ignition)",
     },
     dates: {
       today: "Today",
@@ -141,6 +150,10 @@ export const handsUiEn = {
       boardHint: "Cards that are all on the board (Kd 7c).",
       player: "Player at the table",
       playerHint: "The exact screen name. Rooms that hide names never match.",
+      tableName: "Table",
+      tableNameHint: "Part of the table's name.",
+      minPot: "Minimum pot",
+      minPotHint: "In the hand's own unit: 25 is $25 at a dollar table, 25 chips in a tournament.",
       apply: "Search",
       cleared: "Clear the search",
     },
