@@ -153,15 +153,26 @@ export interface SessionReviewSource {
   sessions(query: SessionQuery): Promise<SessionListItem[]>;
 }
 
+/** What a {@link DeviationSource} answers: the decisions, and the hands they name that the review does not carry. */
+export interface DeviationList {
+  decisions: ReviewDecision[];
+  /** Hands not in `SessionReview.hands` (a source of its own fetches them). */
+  hands?: Record<string, ReviewHand>;
+}
+
 /**
- * Where "deviations from the user's preflop charts" come from. Today the
- * shipped charts the analysis grades by ({@link shippedChartDeviations});
- * R5.3's own charts become another source - comparing the session's preflop
- * decisions with the user's ranges - and the screen does not change.
+ * Where "deviations from the user's preflop charts" come from: the shipped
+ * charts the analysis grades by ({@link shippedChartDeviations}), or one of
+ * the user's own (R5.3, `charts/sessionSource.ts`' `ownChartDeviations`),
+ * comparing the session's preflop decisions with the user's ranges. The
+ * screen does not change with the source; its words do (`kind`).
  */
 export interface DeviationSource {
   id: string;
-  deviations(review: SessionReview, query: SessionQuery): Promise<ReviewDecision[]>;
+  /** Rail's charts, or one of the user's (named by `label`). */
+  kind: "shipped" | "own";
+  label?: string;
+  deviations(review: SessionReview, query: SessionQuery): Promise<DeviationList>;
 }
 
 /**
@@ -172,5 +183,6 @@ export interface DeviationSource {
  */
 export const shippedChartDeviations: DeviationSource = {
   id: "shipped-charts",
-  deviations: (review) => Promise.resolve(review.chartDeviations),
+  kind: "shipped",
+  deviations: (review) => Promise.resolve({ decisions: review.chartDeviations }),
 };

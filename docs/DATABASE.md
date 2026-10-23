@@ -1115,10 +1115,10 @@ and anon.
 
 `learn_progress.test.sql` (Learn L1, 50 assertions): see below.
 
-## Your preflop charts: `preflop_chart_sets`
+## Your preflop charts: `preflop_chart_sets`, `preflop_decision_rows`
 
-`20270811090000` (R5.3; `docs/CHARTS.md` §11 is what a user chart is, and how
-it differs from the shipped ones).
+`20270811090000`, `20270811100000` (R5.3; `docs/CHARTS.md` §11 is what a user
+chart is, and how it differs from the shipped ones).
 
 **`preflop_chart_sets`** - one row per chart set of a user's: `name` (1-80
 characters, trimmed), `game_format` (`cash` / `tournament`), `table_size`
@@ -1141,9 +1141,38 @@ value base64 of exactly 169 bytes, every percent and each class's sum at most
 minutes (`enforce_rate_limit`, `preflop_charts:<owner>`). An update keeps the
 row's id, owner and creation time whatever it sends.
 
-The played decisions a chart is compared with are R5.3's second part.
+**`preflop_decision_rows` / `preflop_decision_totals`** - the played side,
+R5.2's way: one narrow row per preflop decision the analysis graded on the
+shipped tree (`street = 'preflop' and source = 'chart'`, a plain set - not
+the straddle set - a line and a hand class in `facts`): situation key
+(`preflop_chart_node_key`; `''` when the vocabulary does not name the line),
+table size of the set read, effective stack in 10 bb steps (`-1` unknown),
+class (0-168, `preflop_class_index`), action (`fold`, `check`, `call`,
+`raise`, `allin`), scenario, seat, time, format, EV loss against Rail's
+charts and grade; the totals sum them per (owner, version, format, table,
+depth step, key, class, action). Select-own, no client write. Kept by two
+statement triggers on `decision_analysis` (`decision_analysis_preflop_rows_*`:
+insert adds; delete - a prune, a hand or an account deleted - subtracts using
+the rows' own values), each under a per-account advisory lock;
+`preflop_decision_rows_rebuild(owner)` (definer, granted to nobody) recounts
+one account, and the migration backfills every account with analysed
+decisions. Nothing here changes a decision, a grade or `analysis/N`.
 
-Tests: `supabase/tests/database/preflop_charts.test.sql`.
+**Readers** (invoker, `search_path = ''`, `authenticated` only, owner-first
+as `20270804090000_owner_first_readers.sql` has every reader be: the owner
+bound once, `owner_id` on every table read, a plan per call):
+`preflop_chart_played(version, period, format, table, min_bb, max_bb)` -
+`[key, class, action, decisions, EV loss]` cells for a chart's game, all
+time from the totals, 30 / 90 / 365 days (counted back from the last
+decision's day) from the rows; `preflop_chart_examples(..., key, class,
+action, limit)` - the hands behind one cell, newest first, at most 50;
+`preflop_chart_session(filter, from, to)` - one session's decisions under the
+shared filter's groups (as `session_review` reads them, through
+`hero_report_rows`), at most 7 days and 5,000 decisions;
+`preflop_chart_review_hands(filter, hand_ids)` - `session_review`'s hand row
+for up to 50 of the caller's hands.
+
+Tests: `supabase/tests/database/preflop_charts.test.sql` (the sets) and `preflop_charts_compare.test.sql` (the played side).
 
 ## Learn: `lesson_progress`, `lesson_cards`
 
@@ -1982,6 +2011,7 @@ over-permissioned** and the migration revokes first, then grants.
 | `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
 | `hand_sources` | **none** | `SELECT` | `hand_sources_owner_select` (`owner_id = (select auth.uid())`). Written only by `register_hand_source` and `ingest_hands`. |
 | `preflop_chart_sets` | **none** | `SELECT`, `INSERT`, `UPDATE`, `DELETE` | One owner-only policy per command, all `owner_id = (select auth.uid())`; `preflop_chart_sets_guard` (before insert or update) checks the nodes' shape and the limits and keeps an update's id and owner (R5.3). |
+| `preflop_decision_rows`, `preflop_decision_totals` | **none** | `SELECT` | Select-own. Written only by the triggers on `decision_analysis` and `preflop_decision_rows_rebuild` (R5.3). |
 | `hud_layouts` | **none** | `SELECT` | `hud_layouts_owner_select` (`owner_id = (select auth.uid())`). Written only by `put_hud_layouts` (R3.9). |
 | `hand_arrivals` | `SELECT` | `SELECT` | `hand_arrivals_own_select` (`to authenticated`, `owner_id = (select auth.uid())`); none for `anon`, so anon reads zero rows. Written only by the `hands_signal_arrival` trigger. The anon grant is for Realtime: see [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 

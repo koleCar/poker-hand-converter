@@ -4,14 +4,18 @@
  * (`lib/db/preflopCharts.ts`), inside the Analysis tab.
  *
  * What is the web's: the address (`myChartsQuery.ts`, written with
- * `replaceState` as the reader moves, so a reload lands where they were) and
- * the sign-in gate.
+ * `replaceState` as the reader moves, so a reload and a hand's Back link land
+ * where they were), the sign-in gate, and how a hand opens (its analysis at
+ * `/analysis/h/<id>`, at the decision, with a Back link to the chart).
  */
 
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { ChartsScreen } from "@rail/ui/charts/ChartsScreen";
+import type { ChartHandLinkProps } from "@rail/ui/charts/ChartCompare";
+import { encodePosition } from "@rail/ui/replayer/position";
 import { useAuth } from "../../../lib/auth";
 import { DATABASE_NOT_CONFIGURED_MESSAGE, isDatabaseConfigured } from "../../../lib/db/client";
 import { webPreflopChartsSource } from "../../../lib/db/preflopCharts";
@@ -34,6 +38,23 @@ export function MyChartsTab({ initialQuery }: { initialQuery: Record<string, str
       window.history.replaceState(window.history.state, "", paths.analysisMyCharts(myChartsQueryString(next)));
     }
   }, []);
+
+  const renderHandLink = useCallback(
+    ({ handId, actionIndex, label, className, children }: ChartHandLinkProps) => {
+      const back = myChartsQueryString(query);
+      const position = `t=${encodePosition({ kind: "action", actionIndex })}`;
+      return (
+        <Link
+          href={paths.analysisHand(handId, `${position}&from=my-charts${back ? `&${back}` : ""}`)}
+          className={className}
+          aria-label={label}
+        >
+          {children}
+        </Link>
+      );
+    },
+    [query],
+  );
 
   if (!isDatabaseConfigured) {
     return <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>;
@@ -64,8 +85,13 @@ export function MyChartsTab({ initialQuery }: { initialQuery: Record<string, str
       titleTag="h2"
       notice={<AnalysisNav current="my-charts" />}
       selected={query.selected}
+      view={query.view}
       situation={query.situation}
-      onNavigate={(to) => onNavigate({ selected: to.selected, situation: to.situation ?? null })}
+      period={query.period}
+      onNavigate={(to) =>
+        onNavigate({ selected: to.selected, view: to.view, situation: to.situation ?? null, period: to.period ?? query.period })
+      }
+      renderHandLink={renderHandLink}
       renderState={(kind, text) => (
         <div
           className={kind === "error" ? "notice notice--error" : "card stats-empty"}

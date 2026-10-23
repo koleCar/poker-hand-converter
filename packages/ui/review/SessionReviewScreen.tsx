@@ -27,6 +27,7 @@ import {
   shippedChartDeviations,
   type DeviationSource,
   type ReviewDecision,
+  type ReviewHand,
   type SessionListItem,
   type SessionQuery,
   type SessionReview,
@@ -65,6 +66,13 @@ export interface SessionReviewScreenProps {
   source: SessionReviewSource;
   /** Where the preflop deviations come from; the shipped charts by default. */
   deviationSource?: DeviationSource;
+  /**
+   * The sources the reader may pick from (R5.3: Rail's charts and the user's
+   * own), shown as a choice over the deviations list when there is more
+   * than one; `onDeviationSource` gets the picked id.
+   */
+  deviationChoices?: ReadonlyArray<{ id: string; label: string }> | undefined;
+  onDeviationSource?: ((id: string) => void) | undefined;
   query: SessionQuery;
   /** Another session (an instant in it), or the same one without the filter. */
   onQuery: (query: SessionQuery) => void;
@@ -86,7 +94,14 @@ export interface SessionReviewScreenProps {
 type Loaded =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; key: string; review: SessionReview; deviations: ReviewDecision[] };
+  | {
+      status: "ready";
+      key: string;
+      review: SessionReview;
+      deviations: ReviewDecision[];
+      deviationHands: Record<string, ReviewHand>;
+      source: DeviationSource;
+    };
 
 const keyOf = (query: SessionQuery) => JSON.stringify([query.at, query.gapMinutes, query.filter]);
 const listKeyOf = (query: SessionQuery) => JSON.stringify([query.gapMinutes, query.filter]);
@@ -94,6 +109,8 @@ const listKeyOf = (query: SessionQuery) => JSON.stringify([query.gapMinutes, que
 export function SessionReviewScreen({
   source,
   deviationSource = shippedChartDeviations,
+  deviationChoices,
+  onDeviationSource,
   query,
   onQuery,
   renderHandLink,
@@ -119,8 +136,17 @@ export function SessionReviewScreen({
     void (async () => {
       try {
         const review = await source.review(current, REVIEW_FETCHED);
-        const deviations = review.session ? await deviationSource.deviations(review, current) : [];
-        if (live) setLoaded({ status: "ready", key, review, deviations });
+        const list = review.session ? await deviationSource.deviations(review, current) : { decisions: [] };
+        if (live) {
+          setLoaded({
+            status: "ready",
+            key,
+            review,
+            deviations: list.decisions,
+            deviationHands: list.hands ?? {},
+            source: deviationSource,
+          });
+        }
       } catch (error) {
         if (live) setLoaded({ status: "error", message: errorText(error) });
       }
@@ -160,6 +186,12 @@ export function SessionReviewScreen({
       <SessionReviewView
         review={loaded.review}
         deviations={loaded.deviations}
+        deviationHands={loaded.deviationHands}
+        deviationKind={loaded.source.kind}
+        deviationLabel={loaded.source.label ?? null}
+        deviationChoices={deviationChoices}
+        deviationChoice={deviationSource.id}
+        onDeviationSource={onDeviationSource}
         sessions={sessions?.key === listKey ? sessions.items : null}
         query={query}
         onQuery={onQuery}
@@ -186,6 +218,14 @@ export function SessionReviewScreen({
 export interface SessionReviewViewProps {
   review: SessionReview;
   deviations: readonly ReviewDecision[];
+  /** Hands the deviation source named that the review does not carry. */
+  deviationHands?: Readonly<Record<string, ReviewHand>>;
+  /** Whose charts the deviations are from: Rail's, or the user's chart named `deviationLabel`. */
+  deviationKind?: DeviationSource["kind"];
+  deviationLabel?: string | null;
+  deviationChoices?: ReadonlyArray<{ id: string; label: string }> | undefined;
+  deviationChoice?: string | undefined;
+  onDeviationSource?: ((id: string) => void) | undefined;
   /** The picker's sessions, newest first; null while they load. */
   sessions: readonly SessionListItem[] | null;
   query: SessionQuery;
@@ -203,6 +243,12 @@ export interface SessionReviewViewProps {
 export function SessionReviewView({
   review,
   deviations,
+  deviationHands,
+  deviationKind = "shipped",
+  deviationLabel = null,
+  deviationChoices,
+  deviationChoice,
+  onDeviationSource,
   sessions,
   query,
   onQuery,
@@ -215,9 +261,13 @@ export function SessionReviewView({
   const ui = useUiStrings();
   const r = ui.review;
   const locale = ui.intlLocale;
+  const hands = useMemo(
+    () => (deviationHands && Object.keys(deviationHands).length > 0 ? { ...deviationHands, ...review.hands } : review.hands),
+    [review, deviationHands],
+  );
   const sections = useMemo(
-    () => selectWorthALook({ worst: review.worst, deviations, pots: review.pots, hands: review.hands }, cap),
-    [review, deviations, cap],
+    () => selectWorthALook({ worst: review.worst, deviations, pots: review.pots, hands }, cap),
+    [review, deviations, hands, cap],
   );
   const filtered = Object.values(query.filter).some((value) => (Array.isArray(value) ? value.length > 0 : value != null));
   const session = review.session;
@@ -267,6 +317,21 @@ export function SessionReviewView({
         <ListSection
           key={section.kind}
           section={section}
+          own={section.kind === "deviations" && deviationKind === "own" ? (deviationLabel ?? "") : null}
+          choice={
+            section.kind === "deviations" && deviationChoices && deviationChoices.length > 1 && onDeviationSource ? (
+              <label className={styles.pickerField}>
+                <span className={styles.pickerLabel}>{r.deviationSource.label}</span>
+                <select value={deviationChoice} onChange={(event) => onDeviationSource(event.target.value)}>
+                  {deviationChoices.map((choice) => (
+                    <option key={choice.id} value={choice.id}>
+                      {choice.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null
+          }
           graded={review.coverage.graded}
           dayTime={(iso) => (iso ? `${day.format(new Date(iso))} ${time.format(new Date(iso))}` : "—")}
           renderHandLink={(props) => renderHandLink({ ...props, sessionAt: session.startedAt })}
@@ -426,11 +491,17 @@ function Summary({ review }: { review: SessionReview }) {
 
 function ListSection({
   section,
+  own,
+  choice,
   graded,
   dayTime,
   renderHandLink,
 }: {
   section: ReviewSection;
+  /** The deviations come from the user's own chart of this name. */
+  own: string | null;
+  /** The surface's choice of deviation source, over the list. */
+  choice: ReactNode;
   graded: number;
   dayTime: (iso: string | null) => string;
   renderHandLink: (props: Omit<HandLinkProps, "sessionAt">) => ReactNode;
@@ -443,7 +514,9 @@ function ListSection({
     empty =
       section.kind !== "pots" && graded === 0
         ? (words as typeof r.lists.worst).emptyUnanalysed
-        : words.empty;
+        : own !== null
+          ? r.deviationSource.empty(own)
+          : words.empty;
   }
   return (
     <section className={styles.card} aria-labelledby={id}>
@@ -451,14 +524,15 @@ function ListSection({
         <h2 id={id} className={styles.cardTitle}>
           {words.heading}
         </h2>
-        <p className={styles.muted}>{words.description}</p>
+        <p className={styles.muted}>{own !== null ? r.deviationSource.description(own) : words.description}</p>
+        {choice}
       </div>
       {empty !== null ? <p className={styles.muted}>{empty}</p> : null}
       {section.items.length > 0 ? (
         <ol className={styles.list}>
           {section.items.map((item) => (
             <li key={item.handId}>
-              <Row item={item} dayTime={dayTime} renderHandLink={renderHandLink} />
+              <Row item={item} own={own !== null} dayTime={dayTime} renderHandLink={renderHandLink} />
             </li>
           ))}
         </ol>
@@ -483,10 +557,13 @@ function GradeChip({ grade }: { grade: string | null }) {
 
 function Row({
   item,
+  own,
   dayTime,
   renderHandLink,
 }: {
   item: ReviewItem;
+  /** A deviation from the user's own chart (its words, not the shipped chart's). */
+  own: boolean;
   dayTime: (iso: string | null) => string;
   renderHandLink: (props: Omit<HandLinkProps, "sessionAt">) => ReactNode;
 }) {
@@ -507,13 +584,16 @@ function Row({
       <span key="took">{r.row.took(r.streets[decision.street] ?? decision.street, action(decision.action))}</span>,
     );
     if (decision.best && decision.best !== decision.action) {
-      detail.push(<span key="best">{r.row.best(action(decision.best))}</span>);
+      detail.push(
+        <span key="best">{own ? r.deviationSource.best(action(decision.best)) : r.row.best(action(decision.best))}</span>,
+      );
     }
     if (decision.street === "preflop" && decision.scenario && r.preflopSpots[decision.scenario]) {
       detail.push(<span key="spot">{r.preflopSpots[decision.scenario]}</span>);
     }
     if (item.kind === "deviations" && decision.chosenFreq !== null) {
-      detail.push(<span key="freq">{r.row.chartFreq(percent.format(decision.chosenFreq * 100))}</span>);
+      const value = percent.format(decision.chosenFreq * 100);
+      detail.push(<span key="freq">{own ? r.deviationSource.freq(value) : r.row.chartFreq(value)}</span>);
     }
   }
 

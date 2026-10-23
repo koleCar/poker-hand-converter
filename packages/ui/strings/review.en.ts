@@ -115,7 +115,18 @@ export const reviewUiEn = {
     blunder: "Blunder",
   } as Record<string, string>,
   streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
-  actions: { fold: "Fold", check: "Check", call: "Call", bet: "Bet", raise: "Raise" } as Record<string, string>,
+  actions: { fold: "Fold", check: "Check", call: "Call", bet: "Bet", raise: "Raise", allin: "All-in" } as Record<string, string>,
+
+  /** The deviations list read against one of the user's own charts (R5.3). */
+  deviationSource: {
+    label: "Compare with",
+    shipped: "Rail's charts",
+    description: (name: string) =>
+      `Preflop decisions your chart "${name}" plays rarely or never (under 3.5 % of the time), by the EV Rail's charts put on them.`,
+    empty: (name: string) => `Every preflop decision of this session that your chart "${name}" covers follows it.`,
+    freq: (percent: string) => `your chart plays it ${percent} %`,
+    best: (action: string) => `your chart: ${action}`,
+  },
   preflopSpots: {
     unopened: "Unopened pot",
     "vs-limp": "Facing limpers",

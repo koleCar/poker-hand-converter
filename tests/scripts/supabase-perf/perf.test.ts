@@ -48,7 +48,15 @@
  *    session review (R5.1) - `session_review` for the latest session, the
  *    session in the middle of the history, the biggest session and the
  *    latest cash one, and the picker's `report_sessions` over its 90-day
- *    window (and without one, its fallback). `new`: what the
+ *    window (and without one, its fallback). `charts` (R5.3, with
+ *    `RAIL_PERF_ANALYSIS=1`): the generated preflop decisions are given
+ *    GENERATED chart facts (a line of the 6-max 100bb set from the hero's
+ *    seat - the ten most reached per seat -, the hand's class, an action and
+ *    a stack) and `preflop_decision_rows_rebuild` files them (the backfill,
+ *    timed); then the user's charts' readers: `preflop_chart_played` all
+ *    time, a year, 90 and 30 days, a narrow stack range; an example cell;
+ *    `preflop_chart_session` for the biggest session and
+ *    `preflop_chart_review_hands` for 20 hands. `new`: what the
  *    shared Reports screen asks on a filter change (R4.5c) - `report_open`,
  *    `report_graph` (150 points, what the web asks for), `report_facets`, `report_situations` -
  *    over everything, cash, one stake, a position and a date range cut
@@ -74,6 +82,8 @@ import { handEvRow, handStatsRows } from "../../../frontend/src/lib/db/statsRows
 import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
 import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
 import { ANALYSIS_VERSION } from "../../../frontend/src/lib/analysis/types.js";
+import { loadCharts } from "../../../frontend/src/lib/charts/index.js";
+import { shippedNodeKey } from "../../../packages/ui/charts/nodeKey.js";
 import { STATS_VERSION } from "../../../frontend/src/lib/stats/types.js";
 import { PINNED_PARSED_AT, ROOT, listInputs } from "../golden/emit.js";
 
@@ -294,6 +304,85 @@ function analysisSql(): string {
   ].join("\n");
 }
 
+/**
+ * GENERATED chart facts for the generated preflop decisions (`charts`, R5.3):
+ * per hand, one of the ten most reached keyed lines of the 6-max 100bb set
+ * whose actor is the hero's seat (hands at a seat the set has not: none),
+ * the hand's class, an action (fold half the time, then call, raise, an
+ * all-in raise) and an effective stack of 60-140 bb, all by a hash of the
+ * id; then the backfill, timed.
+ */
+function chartFactsSql(): string {
+  const set = loadCharts(JSON.parse(readFileSync(join(ROOT, "frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+  const byActor = new Map<string, { line: string; reach: number }[]>();
+  for (const node of set.nodes.values()) {
+    if (!shippedNodeKey(set.id, node.line)) continue;
+    const list = byActor.get(node.actor) ?? [];
+    list.push({ line: node.line, reach: node.reach });
+    byActor.set(node.actor, list);
+  }
+  const values: string[] = [];
+  for (const [actor, list] of byActor) {
+    list
+      .sort((a, b) => b.reach - a.reach)
+      .slice(0, 10)
+      .forEach((entry, i) => values.push(`('${actor}', ${i}, '${entry.line}')`));
+  }
+  return [
+    "\\set ON_ERROR_STOP on",
+    "reset role;",
+    `create temp table perf_lines (pos text, n int, line text);`,
+    `insert into perf_lines values ${values.join(", ")};`,
+    `create temp table perf_counts as select pos, count(*)::int as k from perf_lines group by pos;`,
+    "set session_replication_role = replica;",
+    "\\timing on",
+    `update public.decision_analysis d
+        set action = (array['fold','fold','call','raise','raise','fold'])[1 + abs(hashtext(d.hand_id::text || 'a')) % 6],
+            facts = jsonb_build_object(
+              'position', h.hero_position, 'handClass', h.hero_hand_class,
+              'effStackBb', 60 + abs(hashtext(d.hand_id::text || 's')) % 81,
+              'allIn', abs(hashtext(d.hand_id::text || 'x')) % 40 = 0,
+              'chart', jsonb_build_object('set', 'nlhe-cash-6max-100bb', 'line', l.line))
+       from public.hands h, perf_lines l, perf_counts c
+      where d.owner_id = '${USER}' and d.street = 'preflop' and h.id = d.hand_id and h.hero_hand_class is not null
+        and l.pos = h.hero_position
+        and l.n = abs(hashtext(d.hand_id::text || 'l')) % c.k and c.pos = h.hero_position;`,
+    "set session_replication_role = origin;",
+    `select public.preflop_decision_rows_rebuild('${USER}') as backfill;`,
+    "\\timing off",
+    "analyze public.preflop_decision_rows;",
+    "analyze public.preflop_decision_totals;",
+    `select count(*) as preflop_rows, count(*) filter (where node_key <> '') as keyed from public.preflop_decision_rows where owner_id = '${USER}';`,
+    `select count(*) as total_rows from public.preflop_decision_totals where owner_id = '${USER}';`,
+    `select pg_size_pretty(pg_total_relation_size('public.preflop_decision_rows')) as rows_size,
+            pg_size_pretty(pg_total_relation_size('public.preflop_decision_totals')) as totals_size;`,
+  ].join("\n");
+}
+
+/** The user's charts' calls (R5.3); `:'big'` is set by `measureSql`. */
+function chartCalls(v: string): [string, string][] {
+  const played = (period: string, min = 80, max = 120) =>
+    `public.preflop_chart_played('${ANALYSIS_VERSION}', '${period}', 'cash', 6, ${min}, ${max})`;
+  const filter = `'{"statsVersion":"${v}","evVersion":"ev/1","analysisVersion":"${ANALYSIS_VERSION}"}'::jsonb`;
+  return [
+    ["preflop_chart_played all time", played("all")],
+    ["preflop_chart_played 365 days", played("365d")],
+    ["preflop_chart_played 90 days", played("90d")],
+    ["preflop_chart_played 30 days", played("30d")],
+    ["preflop_chart_played all time, 100-110 bb", played("all", 100, 110)],
+    ["preflop_chart_examples all time", `public.preflop_chart_examples('${ANALYSIS_VERSION}', 'all', 'cash', 6, 80, 120, 'vs-open:BB:BTN', 0, 'fold', 5)`],
+    ["preflop_chart_examples 30 days", `public.preflop_chart_examples('${ANALYSIS_VERSION}', '30d', 'cash', 6, 80, 120, 'rfi:BTN', 163, 'raise', 5)`],
+    [
+      "preflop_chart_session biggest session",
+      `public.preflop_chart_session(${filter}, :'big'::timestamptz, :'big'::timestamptz + interval '1 day')`,
+    ],
+    [
+      "preflop_chart_review_hands 20 hands",
+      `public.preflop_chart_review_hands(${filter}, (select array_agg(hand_id) from (select hand_id from public.preflop_decision_rows order by played_at desc nulls last limit 20) x))`,
+    ],
+  ];
+}
+
 /** The session review's calls (R5.1); `:'mid'`, `:'big'` and `:'pick_from'` are set by `measureSql`. */
 function reviewCalls(v: string): [string, string][] {
   const base = `"statsVersion":"${v}","evVersion":"ev/1","analysisVersion":"${ANALYSIS_VERSION}"`;
@@ -316,10 +405,12 @@ function measureSql(): string {
   const calls: [string, string][] = [];
   if (SET === "review") {
     calls.push(...reviewCalls(v));
+  } else if (SET === "charts") {
+    calls.push(...chartCalls(v));
   } else if (SET !== "old") {
     calls.push(...newCalls(v));
   }
-  for (const [scope, f] of SET === "new" || SET === "review" ? [] : [["everything", all], ["cash", cash]]) {
+  for (const [scope, f] of SET === "new" || SET === "review" || SET === "charts" ? [] : [["everything", all], ["cash", cash]]) {
     calls.push([`stats_summary ${scope}`, `public.stats_summary('${f}'::jsonb)`]);
     calls.push([`stats_graph ${scope}`, `public.stats_graph('${f}'::jsonb, 60)`]);
     for (const group of ["position", "pot_type", "stack_bb", "hand_class", "stakes", "site", "table_size"]) {
@@ -328,7 +419,7 @@ function measureSql(): string {
     calls.push([`stats_opponents ${scope}`, `public.stats_opponents('${f}'::jsonb, null, 50)`]);
     calls.push([`stats_sessions ${scope}`, `public.stats_sessions('${f}'::jsonb, 30)`]);
   }
-  if (SET !== "new" && SET !== "review") {
+  if (SET !== "new" && SET !== "review" && SET !== "charts") {
     calls.push(["stats_opponents search", `public.stats_opponents('${all}'::jsonb, 'a', 50)`]);
   }
   const lines = ["\\set ON_ERROR_STOP on"];
@@ -340,7 +431,7 @@ function measureSql(): string {
     // The biggest cash stake, for the one-stake filters.
     `select f ->> 'value' as stake from jsonb_array_elements(public.report_facets('{"statsVersion":"${v}","formats":["cash"]}') -> 'stakes') f order by (f ->> 'count')::bigint desc limit 1 \\gset`,
   );
-  if (SET === "review") {
+  if (SET === "review" || SET === "charts") {
     lines.push(
       // The session review's instants: the middle of the history, the start
       // of the session with the most hands, and the picker's window.
@@ -405,6 +496,11 @@ describe.skipIf(!PSQL)("the web's reports over a million hands", () => {
       const started = Date.now();
       console.log(psql(analysisSql()));
       console.log(`analysis rows generated in ${((Date.now() - started) / 1000).toFixed(1)} s`);
+    }
+    if (SET === "charts") {
+      const started = Date.now();
+      console.log(psql(chartFactsSql()));
+      console.log(`chart facts and the preflop rows' backfill in ${((Date.now() - started) / 1000).toFixed(1)} s`);
     }
     const out = psql(measureSql());
     const results = new Map<string, number[]>();
