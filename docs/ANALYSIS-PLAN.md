@@ -5930,3 +5930,115 @@ Each phase appends what it learned that changed the plan.
       rows alone do not settle.
     - **The half-strength walk** still halves the evidence after
       `BET_EVIDENCE` (`analysis/32`'s open item): the bound inherits it.
+- 2026-10-23 — More measurement boards: does a realisation fit on 480 boards
+  per spot instead of 120 halve the preflop charts' noise? **Yes where the
+  grades are made; nothing shipped** (`ANALYSIS_VERSION` stays
+  `analysis/34` (measured at `analysis/33`; #237 does not touch preflop), the charts `charts/9`; no migration, nothing in
+  `frontend/`). Study: `precision.test.ts` gains the 480-board pairs and a
+  per-scenario breakdown of each pair; `CHARTS_FIT_FROM` in
+  `generate.test.ts` solves a `reuseFit` set's limp tree with the fit of
+  another file (`CHARTS_MEASURE_BOARDS` already existed).
+  - **Why.** The open item of the entry before: the fit's own board sample
+    is the charts' largest noise (another 120 boards move a tiny Mistake's
+    EV loss 0.11bb at p90 and change 42 of 128 6-max 100bb Mistakes and
+    Blunders). Four times the boards should halve a sampling error.
+  - **Data.** The `charts/2` pipeline (three measurement rounds from
+    `charts/1`, no limp tree; `CHARTS_REFIT=1`) rerun on 480 boards per spot
+    on the default measurement seed and on seed 2, side by side, one thread
+    each, `nice`, beside the flop batch: 3 × 6,240 turn+river solves, 8.0 h
+    and 7.8 h (rounds of 2.6 h). Then the committed set's limp tree solved
+    once with the default-seed fit (`CHARTS_FIT_FROM`, 15 min): the set this
+    would ship. The same 5,448 stored hands as before (5,145 chart-graded
+    preflop decisions, 2,043 on the 6-max 100bb set), graded with each
+    pair's other set swapped in (`analyzeHand`, turn solves off).
+  - **The noise**, in the columns of the entry before (|Δ evLoss| of
+    actions played under 3.5% at a loss, reach-weighted; then the stored
+    hands' Mistakes and Blunders):
+
+    | pair (one thing differs) | p90, all nodes | over 0.05bb | Mistakes and Blunders of 0.25bb or less, \|Δ\| p50 / p90 | Mistakes and Blunders changed (no longer either) |
+    |---|---|---|---|---|
+    | fit on another sample, **120 boards** (2026-10-22) | 0.41bb | 60.6% | 0.03 / 0.11bb | 42 of 128 (20) |
+    | fit on another sample, **480 boards** | 0.40bb | 44.4% | 0.02 / 0.06bb | 18 of 108 (7) |
+    | 120 against 480 boards, the same seed | 0.41bb | 47.1% | 0.02 / 0.11bb | 43 of 128 (27) |
+    | committed set against the limp tree on the 480-board fit (what shipping would change) | 0.25bb | 35.8% | 0.02 / 0.10bb | 53 of 145 (34) |
+
+    Where the grades are made it halves: a tiny Mistake's |Δ| p90 0.11 →
+    0.06bb, the Mistakes and Blunders that change 33% → 17%, those that stop
+    being one 20 → 7. Per node by the base loss (Δ p90): 0.06 → 0.03bb at
+    0.02-0.05bb, 0.10 → 0.07bb at 0.05-0.10bb, 0.18 → 0.10bb at
+    0.10-0.25bb, 0.69 → 0.31bb at 0.25-0.50bb, 0.90 → 0.53bb at 0.5-1bb.
+    **The all-nodes p90 does not move** (0.41 → 0.40bb): it is the tail of
+    actions losing several big blinds in raised pots (vs-3bet |Δ| p90 5.4 →
+    4.7bb, vs-4bet 2.9 → 2.2bb, vs-all-in 5.0 → 1.9bb), where a grade is a
+    Blunder either way (0.2-0.4% of them change). Per-node grade changes
+    at losses under 0.05bb barely move (47.5 → 37.8% and 36.8 → 38.5%,
+    weighted): there |Δ| is at the 0.01bb the file stores. All grade moves
+    on the stored hands, 72 of 1,729 → 54, mostly Perfect ↔ Inaccurate.
+  - **The fit.** The residual rmse falls about a fifth, not a half
+    (srp 0.037 / 0.032 → 0.029 / 0.028, 3-bet 0.036 / 0.030 → 0.029 / 0.028,
+    limped 0.034 / 0.030 → 0.025 / 0.024, 4-bet 0.043 / 0.043 → 0.037 /
+    0.036): most of it is the class features, not the boards. Position
+    edges, default / seed 2: srp 1.20 / 1.19 → 1.19 / 1.18, 3-bet 1.29 /
+    1.24 → 1.20 / 1.21 (both 120-board fits above both 480-board ones),
+    limped 1.08 / 1.06 → 1.09 / 1.06; the 4-bet pot's stays unstable (1.10 /
+    1.03 → 0.94 / 1.07, initiative 1.24 / 1.22): two spots do not separate
+    position from initiative, though the measured realisations agree within
+    0.03. The strategy the fit moves most is the small blind's: limp 41.4%
+    / 35.0% of hands on 120 boards, **30.1% / 32.2% on 480**; the committed
+    set limps 42.1%. UTG opens 15.4 / 15.9% → 15.8 / 16.0%, the big blind
+    defends 61.8 / 60.4% → 60.2 / 59.3% against the button.
+  - **The candidate** (the committed limp tree on the default-seed 480-board
+    fit, 3,000 iterations): NashConv 0.109 mbb/hand (committed 0.094), the
+    blind-against-blind check 0.104 (0.025); 747 nodes (752), 3 left out as
+    unconverged (4). Indifference p99 0.01bb as before (0.5% of the weight
+    over 0.02bb, committed 0.4%), but **vs-iso is worse**: p99 0.17bb, 13.1%
+    over 0.02bb (committed 0.00bb, 0.1%); squeezes better (9.6%, 13.8%).
+    The sanity bands (`data.test.ts`, `sets.test.ts`) pass but one: **UTG
+    opens K7s 3%** (band over 50%; the committed set 100%, the two 120-board
+    fits 99-100%, the 480-board ones 14% and 97%: the marginal suited king
+    sits at the edge). The other two failures were labels the run carried
+    as a draft `charts/10` (fit name, `reusedBy`). Report: SB raises 18.0 → 25.5% and limps 42.1 → 30.1%, the
+    big blind raises the SB's limp 41.7 → 44.2%.
+  - **What shipping it would do to the grades** (stored hands, preflop):
+    110 of the 2,042 6-max 100bb decisions change, 77 milder, 33 harsher:
+    Inaccurate → Perfect 23, Mistake → Inaccurate 21, Blunder → Mistake 12,
+    Mistake → Perfect 11, Perfect → Inaccurate 11, Inaccurate → Mistake 8,
+    Mistake → Blunder 7, Perfect → Good 6, Good → Perfect 5, Inaccurate →
+    Good 3, Blunder → Inaccurate 1, Good → Inaccurate 1, Blunder → Perfect 1.
+    Mistakes 210 → 191, Blunders 85 → 78 (the set's own 145 → 119). As
+    much as another 120-board sample moves them (43 of 128 against the
+    480-board fit): the committed grades carry that noise.
+  - **Why not shipped.**
+    - **The flop library.** Every 6-max 100bb chunk records the chart set's
+      `model.hash` (`ecad38d0`), and `libraryEntry` refuses a chunk whose
+      hash is not the hand's set (`charts-differ`). A new set retires the
+      1,200 live chunks: the main set's flop decisions would fall back to the
+      heuristic until the library is solved again on its ranges (~281
+      core-hours, 2026-10-08) and uploaded (the owner's step), and the pilot
+      chunks' grading test skips. That is a bigger loss than the preflop
+      noise this removes.
+    - **The candidate converged worse** at 3,000 iterations (vs-iso, the
+      blind-against-blind check) and fails the K7s band.
+  - **Open.**
+    - **Ship the 480-board fit with its flop library.** In order: solve the
+      candidate at 9,000 iterations (`CHARTS_ITERATIONS=9000`, ~45 min) and
+      check vs-iso and K7s; solve the 6-max 100bb flop library on its hash
+      (~281 core-hours) and refresh the pilot; upload; then commit the set
+      as `charts/10` with the next free `ANALYSIS_VERSION`. `charts2Fit()`
+      reads the committed 6-max 100bb file for the straddle, heads-up and
+      A2c sets' starting model: keep `charts/2`'s fit in a file of its own
+      first, or their reruns stop reproducing.
+    - **The other sets** carry the same noise unmeasured. At 480 boards one
+      thread (beside the flop batch, ~1.5 s a solve): 6-max 150bb, 200bb
+      and 60bb, 9-max 100, 150 and 200bb two rounds of 6,240 solves, ~5-6 h
+      each (9-max and the 9,000-iteration sets longer for their preflop
+      solves); 6-max 40bb (5,280) ~4.5 h; the straddle set (7,200) ~6 h;
+      the heads-up sets (3,360) ~3 h each: ~55 thread-hours, a day on two
+      threads, a few hours on a free machine. The 9-max 100bb and 6-max
+      150bb sets also have live flop libraries (~347 and ~558 core-hours).
+    - **The 4-bet pot's fit** separates position from initiative on two
+      spots; more 4-bet spots, or one position edge across pot types, would
+      steady it. The 3-bet position edge reads higher on 120 boards than on
+      480 in both samples: possibly a small-sample bias, unmeasured.
+    - One pair per board count; the halving is one sample against another,
+      not a held-out error.

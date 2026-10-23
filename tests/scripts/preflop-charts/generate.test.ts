@@ -25,7 +25,7 @@
  * Environment (for experiments; the committed sets use the defaults):
  * `CHARTS_SETS`, `CHARTS_PARALLEL`, `CHARTS_ITERATIONS`, `CHARTS_BOARDS`,
  * `CHARTS_OUT` (one set only), `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`,
- * `CHARTS_MEASURE_BOARDS`, `CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_RAKE`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
+ * `CHARTS_MEASURE_BOARDS`, `CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_FIT_FROM`, `CHARTS_RAKE`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
  * realisation spots instead of reading `.cache/realisation-*.json` (keyed by
  * the jobs, not by the code).
  */
@@ -129,9 +129,12 @@ function charts2Fit(): RealisationModel {
  * `reuseFit` set (`charts/4`): solved once with it, no new rounds. The record
  * is carried over with `reusedBy` set (replaced, never nested), so the
  * regenerated file reads back the same model and a rerun writes the same bytes.
+ * `CHARTS_FIT_FROM=<set file>` (an experiment, ANALYSIS-PLAN §10 2026-10-23)
+ * takes the fit and its record from another file instead, a `CHARTS_REFIT=1`
+ * output: the limp tree solved once with a fit measured again.
  */
 function committedFit(config: SetConfig): { model: RealisationModel; record: Record<string, unknown> } {
-  const json = JSON.parse(readFileSync(join(DATA, `${config.id}.json`), "utf8"));
+  const json = JSON.parse(readFileSync(process.env.CHARTS_FIT_FROM ?? join(DATA, `${config.id}.json`), "utf8"));
   const recorded = json.model.realisation as RealisationModel;
   const record = { ...(json.model.realisationFit as Record<string, unknown>) };
   record.reusedBy =
