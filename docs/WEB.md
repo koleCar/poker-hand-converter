@@ -287,7 +287,7 @@ does this path mean" alongside the framework's is how the two drift apart.
 | --- | --- |
 | `/` | **The feed.** Placeholder for now: it says so, and points at the two things that work. This is where the product is going, which is why the converter had to move off it. |
 | `/convert` | **Converter.** Drop files, a folder, a zip, or paste text — at desktop scale (R4.2: a folder of tens of thousands of files, a zip of hundreds of MB). Reading, unzipping, detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library while they convert (toggleable; chunked, retried, resumable), refused hands go to the corpus, the original files only on an explicit opt-in, and the output is downloadable per file or combined (up to 20 000 hands per drop). **This route makes zero server requests** unless you save; see below. |
-| `/library` | **Library and replayer** - the shared Hands screen (R4.5b, the desktop app's): your hands newest first (or by pot, result, oldest), a virtualised list that pages as you scroll, filters as chips with how many hands each would match (date, room, stakes, position, pot type, result, stack depth, all-in, game, variant, limit, table size), the searches (hero cards or a hand class, board cards, a player at the table) and showdown; the hand you pick opens beside the list (above it on a phone). A hand the converter hands over opens above the screen, with a save button. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
+| `/library` | **Library and replayer** - the shared Hands screen (R4.5b, the desktop app's): your hands newest first (or by pot, result, oldest), a virtualised list that pages as you scroll, filters as chips with how many hands each would match (date, room, stakes, position, pot type, result, stack depth, all-in, game, variant, limit, table size), the searches (hero cards or a hand class, board cards, a player at the table, a part of the table's name, a minimum pot), showdown, showdown and winning positions, and what the room's names are; the hand you pick opens beside the list (above it on a phone). A hand the converter hands over opens above the screen, with a save button. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
 | `/stats` | **Statistics.** VPIP, PFR, 3-bet, c-bets and a showdown / non-showdown win-rate graph over your library. Renders and explains itself when signed out rather than bouncing you somewhere else. |
 | `/analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`, phase A1). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — and the heuristic checks that hold whatever the strategy. Runs in the browser; `/analysis/h/<id>` opens a hand in the replayer with the Analysis sheet. No grades until the preflop charts (A2). |
 | `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. **Names hidden by default** (R4.5): Hero, Villain1, Villain2… and no table, room hand number or time, unless the link's owner ticks "Show the players' names" (in the share dialog or on the page); `/embed/h/:slug` follows the same setting. See "Share links and names" below. |
@@ -705,13 +705,19 @@ reading the hands, the hero's `hand_stats` row and its `hand_stats_ev` row at
 the client's `STATS_VERSION` / `EV_VERSION` (a hand whose statistics are not
 derived yet lists, with no big blinds, pot type or stack). The filter groups
 are the desktop store's, by the same rules (`rail_stats::segment` sizes and
-stakes, `STACK_DEPTHS`); the searches are what the old filter bar had. Not
-kept from it: the table-name search, the minimum pot, the showdown- and
-winner-position filters and the anonymity select (the list marks a
-positional room's hands instead), and the pager (the list pages as it
-scrolls). Live arrivals reach the list through `notifyHandsChanged`. At 200 000
-hands on the local stack a page takes 9-25 ms (a pot-type filter, which reads
-the statistics rows, 0.4 s) and the counts 1.2 s.
+stakes, `STACK_DEPTHS`); everything the old filter bar had is kept: the
+searches (hero cards or class, board, a player), showdown, a part of the
+table's name, the minimum pot (now in each hand's own unit: 25 is $25 at a
+dollar table, 25 chips in a tournament), the showdown and winner positions
+and the anonymity select ("Names", a counted group). The table, the pot and
+the positions narrow the counts without counts of their own. The desktop
+app's source declares none of these (`features.more`), so the shared screen
+hides them there. The pager is gone (the list pages as it scrolls); it never
+put a page or a filter in the address, so there are no old links to map.
+Live arrivals reach the list through `notifyHandsChanged`. Both functions
+plan every call (`plan_cache_mode = force_custom_plan`). At 200 000 hands on
+the local stack a page takes 4-18 ms (a table name 0.22 s, a pot type
+0.45 s) and the counts 0.9-1.15 s.
 
 **Checks.** CI job "Shared UI package" runs the package's ESLint, stylelint
 and `tsc`; this app's jobs typecheck and bundle it again under its settings,
