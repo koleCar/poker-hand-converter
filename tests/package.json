@@ -42,6 +42,7 @@
     "supabase:perf": "vitest run --config scripts/supabase-perf/vitest.config.ts",
     "realtime:arrivals":"node scripts/realtime-arrivals/check.mjs",
     "realtime:activity": "node scripts/realtime-activity/check.mjs",
+    "share:names": "vitest run --config scripts/share-names/vitest.config.ts",
     "hud:policy-check": "node scripts/hud-policy/check.mjs",
     "phf:dts-check": "tsc -p scripts/phf-dts",
     "wasm:build": "node scripts/wasm/build.mjs",

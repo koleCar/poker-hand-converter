@@ -51,6 +51,15 @@ export const chromeHr: Dict["chrome"] = {
     webShareTitle: "Replay pokerske ruke",
     copied: "Link je kopiran.",
     copyBlocked: "Preglednik je blokirao kopiranje. Označi link iznad i kopiraj ga ručno.",
+    names: {
+      label: "Prikaži imena igrača",
+      explain:
+        "Isključeno: svi s ovim linkom vide Hero, Villain1, Villain2… bez stola, broja ruke i vremena igre. Uključeno: nadimci kako ih je soba ispisala.",
+      hidden: "Imena su na ovom linku skrivena",
+      shown: "Imena su na ovom linku prikazana",
+      saving: "Spremam…",
+      failed: (reason: string) => `Promjena nije spremljena: ${reason}`,
+    },
   },
   db: {
     offlineTitle: "Baza podataka nije postavljena. Konverter radi bez nje; spremljene ruke i dijeljenje nisu dostupni.",

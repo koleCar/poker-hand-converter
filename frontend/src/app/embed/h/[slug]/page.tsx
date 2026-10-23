@@ -3,13 +3,13 @@ import { EmbedFrame, EmbedGone } from "../../../../components/embed/EmbedFrame";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { decodePosition, POSITION_PARAM } from "@rail/ui/replayer/position";
 import { getDict } from "../../../../lib/i18n/server";
-import { parseHand } from "../../../../lib/phf";
 import { sharedHandUrl } from "../../../../lib/routes";
-import { readShare } from "../../../../lib/server/shares";
+import { readShare, shareHand } from "../../../../lib/server/shares";
 
 /**
  * A share link, embeddable (#52). Same capability as `/h/:slug` — whoever has
- * the slug can see the hand — so embedding it grants nothing the link did not.
+ * the slug can see the hand — so embedding it grants nothing the link did not,
+ * and it shows names only when the link does (R4.5).
  * Never indexed, like the page it mirrors.
  */
 interface PageProps {
@@ -31,8 +31,8 @@ export default async function EmbedSharedHand({ params, searchParams }: PageProp
   const rawT = (await searchParams)[POSITION_PARAM];
   const initialPosition = decodePosition(Array.isArray(rawT) ? rawT[0] : rawT);
   const result = await readShare(slug);
-  const text = result.share?.standardText;
-  const hand = text ? parseHand(text) : null;
+  // Names hidden unless the owner turned them on (R4.5): see `shareHand`.
+  const hand = shareHand(result.share);
   const href = sharedHandUrl(slug);
 
   if (!hand) {

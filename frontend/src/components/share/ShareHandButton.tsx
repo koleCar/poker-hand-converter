@@ -7,6 +7,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
+import { ShareNamesToggle } from "./ShareNamesToggle";
 import { Icon } from "@rail/ui/icon/Icon";
 
 interface ShareHandButtonProps {
@@ -70,6 +71,8 @@ export function ShareHandButton({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [url, setUrl] = useState<string | null>(presetUrl ?? null);
+  /** The link made here, for its names switch (R4.5); none for a preset URL. */
+  const [slug, setSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +82,7 @@ export function ShareHandButton({
   // A new hand invalidates the previous link.
   useEffect(() => {
     setUrl(presetUrl ?? null);
+    setSlug(null);
     setOpen(false);
     setError(null);
     setCopyState("idle");
@@ -136,6 +140,7 @@ export function ShareHandButton({
         preview: buildSharePreview(hand),
       });
       setUrl(result.url);
+      setSlug(result.slug);
       setCopyState((await copyToClipboard(result.url, inputRef.current)) ? "copied" : "failed");
     } catch (err) {
       setError(err instanceof Error ? err.message : t.failed);
@@ -247,6 +252,8 @@ export function ShareHandButton({
                 </p>
               ) : null}
 
+              {/* R4.5: the link hides the players' names unless this is ticked. */}
+              {slug ? <ShareNamesToggle slug={slug} /> : null}
               {/* A7.1: a stored hand's analysis stays private unless this is ticked. */}
               {storedHandId && !presetUrl ? <AnalysisShareToggle surface="hand" id={storedHandId} /> : null}
             </>
