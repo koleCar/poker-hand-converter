@@ -114,6 +114,13 @@ export const paths = {
    */
   profile: (username: string) => `/u/${encodeURIComponent(username)}`,
   settings: () => "/settings",
+  /** Account -> Plan: the plan, its limits and usage (R6.2). */
+  settingsPlan: () => "/settings#plan",
+  /**
+   * Where "Upgrade to Pro" leads. A placeholder until R6.3's checkout: the
+   * Plan panel, which says paid plans are not open yet.
+   */
+  upgrade: () => "/settings#plan",
   /**
    * Signs the Rail desktop app in through this browser (R1.7). The app opens it
    * with `?v=1&pub=..&state=..&t=..`; see `lib/auth/desktop.ts`.

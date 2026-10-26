@@ -728,6 +728,36 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_settings: {
+        Row: {
+          early_user_cutoff: string | null
+          early_user_discount_percent: number
+          enforcement_enabled: boolean
+          id: boolean
+          offline_grace_days: number
+          payment_grace_days: number
+          updated_at: string
+        }
+        Insert: {
+          early_user_cutoff?: string | null
+          early_user_discount_percent?: number
+          enforcement_enabled?: boolean
+          id?: boolean
+          offline_grace_days?: number
+          payment_grace_days?: number
+          updated_at?: string
+        }
+        Update: {
+          early_user_cutoff?: string | null
+          early_user_discount_percent?: number
+          enforcement_enabled?: boolean
+          id?: boolean
+          offline_grace_days?: number
+          payment_grace_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       board_moderators: {
         Row: {
           board_id: string
@@ -1181,6 +1211,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      entitlement_gates: {
+        Row: {
+          feature: string
+          function_sig: string
+          note: string | null
+        }
+        Insert: {
+          feature: string
+          function_sig: string
+          note?: string | null
+        }
+        Update: {
+          feature?: string
+          function_sig?: string
+          note?: string | null
+        }
+        Relationships: []
       }
       hand_analysis: {
         Row: {
@@ -2811,6 +2859,27 @@ export type Database = {
           },
         ]
       }
+      plan_limits: {
+        Row: {
+          features: string[]
+          hand_cap: number | null
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          features?: string[]
+          hand_cap?: number | null
+          plan: string
+          updated_at?: string
+        }
+        Update: {
+          features?: string[]
+          hand_cap?: number | null
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       player_notes: {
         Row: {
           note: string
@@ -3308,11 +3377,20 @@ export type Database = {
         Row: {
           ban_reason: string | null
           banned_until: string | null
+          billing_customer_id: string | null
+          billing_subscription_id: string | null
           created_at: string
+          current_period_end: string | null
           digest: string
+          early_user: boolean
+          early_user_since: string | null
           id: string
           is_shadowbanned: boolean
           karma: number
+          plan: string
+          plan_period: string | null
+          plan_status: string | null
+          plan_updated_at: string | null
           role: Database["public"]["Enums"]["profile_role"]
           unsubscribe_token: string
           username: string
@@ -3322,11 +3400,20 @@ export type Database = {
         Insert: {
           ban_reason?: string | null
           banned_until?: string | null
+          billing_customer_id?: string | null
+          billing_subscription_id?: string | null
           created_at?: string
+          current_period_end?: string | null
           digest?: string
+          early_user?: boolean
+          early_user_since?: string | null
           id: string
           is_shadowbanned?: boolean
           karma?: number
+          plan?: string
+          plan_period?: string | null
+          plan_status?: string | null
+          plan_updated_at?: string | null
           role?: Database["public"]["Enums"]["profile_role"]
           unsubscribe_token?: string
           username: string
@@ -3336,11 +3423,20 @@ export type Database = {
         Update: {
           ban_reason?: string | null
           banned_until?: string | null
+          billing_customer_id?: string | null
+          billing_subscription_id?: string | null
           created_at?: string
+          current_period_end?: string | null
           digest?: string
+          early_user?: boolean
+          early_user_since?: string | null
           id?: string
           is_shadowbanned?: boolean
           karma?: number
+          plan?: string
+          plan_period?: string | null
+          plan_status?: string | null
+          plan_updated_at?: string | null
           role?: Database["public"]["Enums"]["profile_role"]
           unsubscribe_token?: string
           username?: string
@@ -4304,6 +4400,29 @@ export type Database = {
         Returns: Json
       }
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
+      billing_mark_early_users: { Args: never; Returns: number }
+      billing_plan_state: {
+        Args: { p_owner: string }
+        Returns: {
+          enforced: boolean
+          plan: string
+          reason: string
+          valid_until: string
+        }[]
+      }
+      billing_set_plan: {
+        Args: {
+          p_current_period_end?: string
+          p_customer_id?: string
+          p_period?: string
+          p_plan: string
+          p_status?: string
+          p_subscription_id?: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      billing_stored_hands: { Args: { p_owner: string }; Returns: number }
       can_moderate_board: { Args: { p_board_id: string }; Returns: boolean }
       can_moderate_post: { Args: { p_public_id: string }; Returns: boolean }
       claim_desktop_sign_in: { Args: never; Returns: undefined }
@@ -4407,6 +4526,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      entitlement_gates_apply: { Args: never; Returns: number }
       fan_out_comment_notifications: {
         Args: { p_comment_id: string }
         Returns: number
@@ -4585,6 +4705,11 @@ export type Database = {
           origin: Database["public"]["Enums"]["hand_origin"]
         }[]
       }
+      has_entitlement: {
+        Args: { p_feature: string; p_owner: string }
+        Returns: boolean
+      }
+      has_my_entitlement: { Args: { p_feature: string }; Returns: boolean }
       ingest_hands: { Args: { p_rows: Json; p_source: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_board_moderator: { Args: { p_board_id: string }; Returns: boolean }
@@ -4749,6 +4874,7 @@ export type Database = {
       mod_user: { Args: { p_username: string }; Returns: Json }
       mod_vote_overlap_for: { Args: { p_username: string }; Returns: Json }
       my_comment_votes: { Args: { p_post_public_id: string }; Returns: Json }
+      my_entitlements: { Args: never; Returns: Json }
       my_notifications: {
         Args: { p_before?: number; p_limit?: number }
         Returns: Json
@@ -4953,6 +5079,7 @@ export type Database = {
       }
       report_situations: { Args: { p_filter?: Json }; Returns: Json }
       report_summaries_rebuild: { Args: { p_owner: string }; Returns: Json }
+      require_entitlement: { Args: { p_feature: string }; Returns: undefined }
       resolve_share: { Args: { p_slug: string }; Returns: Json }
       resolve_username: { Args: { p_username: string }; Returns: Json }
       review_drill: {

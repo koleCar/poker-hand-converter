@@ -119,6 +119,13 @@ const HR: Record<string, string> = {
   "A board with that address already exists.": "Board s tom adresom već postoji.",
   "That report does not exist.": "Ta prijava ne postoji.",
 
+  // plans (R6.2, `20270908090000_entitlements.sql`; SQLSTATE PT402)
+  "This is a Pro feature. Upgrade to Pro to use it.": "Ovo je Pro značajka. Prijeđi na Pro da je koristiš.",
+  "Your library is full on the Free plan. Upgrade to Pro to keep saving hands.":
+    "Biblioteka ti je puna na Free planu. Prijeđi na Pro da nastaviš spremati ruke.",
+  "Syncing hands from the desktop app is a Pro feature. Upgrade to Pro to sync.":
+    "Sinkronizacija ruku iz desktop aplikacije je Pro značajka. Prijeđi na Pro za sinkronizaciju.",
+
   // Supabase Auth
   "Invalid login credentials": "Pogrešan e-mail ili lozinka.",
   "Email not confirmed": "E-mail adresa još nije potvrđena. Link je u e-mailu koji smo poslali.",

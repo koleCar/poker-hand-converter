@@ -1,0 +1,98 @@
+/* Plans (R6.2): the Pro badge, the lock on a Pro feature, the usage bar. Tokens only. */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm);
+  color: var(--accent-fg);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.panel {
+  gap: 12px;
+  max-width: 62ch;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.subheading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.small {
+  margin: 0;
+  font-size: 13px;
+}
+
+.lock {
+  display: grid;
+  gap: 10px;
+  max-width: 62ch;
+}
+
+.lockHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.lockBody {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.meter {
+  width: 100%;
+  max-width: 420px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--line);
+}
+
+.meterFill {
+  height: 100%;
+  background: var(--accent-bg);
+}
+
+.meterFull {
+  background: var(--danger-fg);
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 4px;
+}

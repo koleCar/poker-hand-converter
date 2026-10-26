@@ -228,7 +228,7 @@ marks on all four HUD tables, with R3.9 (migration 15: `hud_layouts`,
 
 | Guideline | Decision | Step |
 | --- | --- | --- |
-| `profiles` | existing; add `plan`, `plan_until` in Phase 6 | R6.2 |
+| `profiles` | existing; add `plan`, `plan_until` in Phase 6 (built: `plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user`, the provider's ids; the effective plan from `my_entitlements()` / `has_entitlement()`, `20270908090000`) | R6.2 |
 | `hand_sources` | new: folder or web upload, owner, device, status counters (built: a watched folder per device; no paths) | R1.8 |
 | `hand_arrivals` | new (not in the guideline): one row per account, bumped once per insert statement on `hands`; the web's Realtime signal, so `hands` stays out of the publication | R1.10 |
 | `hands` | existing; key `(owner_id, hand_key)` with `hand_key = site:hand id` | — |
@@ -10703,6 +10703,92 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | R6.4 | App and web read entitlements; an offline grace period in the app |
 | R6.5 | Terms of use and a GDPR privacy policy; data export and account deletion (deletion already cascades) |
 
+### R6.2 *As built* (2026-10-26)
+
+Migration `20270908090000_entitlements.sql`, after the owner's R6.1
+decisions (Free + one Pro plan, monthly or yearly; early users keep a
+lifetime discount while subscribed). **Enforcement is off**: nobody can pay
+before R6.3, so every account's effective plan is Pro until the owner turns
+it on (launch checklist below).
+
+- **Data, not constants.** `billing_settings` (one row: `enforcement_enabled`
+  false, `early_user_cutoff` null = not launched, `early_user_discount_percent`
+  30, `payment_grace_days` 7, `offline_grace_days` 14) and `plan_limits`
+  (`free`: 10 000 hands, no feature; `pro`: unlimited, `desktop_sync`, `hud`,
+  `reports_full`, `analysis`, `learn`). Both sealed; the owner edits them in
+  SQL. Prices live in Stripe (R6.3), not here.
+- **`profiles`** (still sealed - no client reads or writes any column;
+  `profiles_public` unchanged): `plan`, `plan_period`, `plan_status`
+  (active / trialing / past_due / canceled), `current_period_end`,
+  `plan_updated_at`, `early_user` + `early_user_since`,
+  `billing_customer_id` / `billing_subscription_id` (R6.3). The one writer is
+  `billing_set_plan(...)`, **service role only** (R6.3's webhook).
+- **Early users**: every account that exists, and every account created
+  before `early_user_cutoff` (a before-insert trigger on `profiles`; the
+  signup trigger is unchanged), is marked; `billing_mark_early_users()`
+  re-marks after the cutoff moves.
+- **One source of truth**: `billing_plan_state(owner)` (the rules: off ->
+  Pro; active / trialing to the period end + 7 days; past_due within 7 days;
+  canceled to the period end; a Pro with no status = granted by hand; else
+  Free), `has_entitlement(owner, feature)` (internal), `has_my_entitlement`
+  and `require_entitlement(feature)` (the caller), and `my_entitlements()`:
+  effective plan, reason, `enforced`, the features (`library_unlimited`,
+  `hand_cap`, `desktop_sync`, `hud`, `reports_full`, `analysis`, `learn`),
+  hands stored (from the library's counts), the Free cap, the subscription,
+  early-user state and discount, `validUntil`, `graceUntil`,
+  `offlineGraceDays` (for R6.4's app cache).
+- **Enforced in the database** (each a no-op while off): 55 client-callable
+  functions open with `perform public.require_entitlement('<feature>');`,
+  written into their bodies by the migration from the table
+  `entitlement_gates` (pgTAP checks each still has it - a migration that
+  re-creates one keeps the line, and every client-callable function must be
+  gated or on the test's free list); a statement trigger on `hands` after the
+  library's counts refuses rows of origin `desktop` without `desktop_sync` and
+  any insert that would put a capped account over its cap (the statement
+  whole; duplicates cost nothing; every path - `save_hands`, `ingest_hands`,
+  a direct insert); own chart sets refuse writes without `analysis`;
+  `hud_layouts`' select policy needs `desktop_sync`. A refusal is SQLSTATE
+  `PT402` -> **HTTP 402** from PostgREST (checked end to end), a fixed
+  sentence, the feature as the hint, the cap's numbers as JSON detail.
+- **The Free / Pro line** (owner, please confirm): Free keeps the converter,
+  replayer, sharing and publishing, the forum, the library under the cap,
+  notes, a shared analysis, and **basic statistics** = everything Reports
+  opens with (`report_open`: summary, every statistic, HUD tiles, breakdowns
+  by position, stake, room, table size and format; `report_graph`: the
+  win-rate graph; `report_facets`) and the statistics' upkeep. **Full
+  reports** (Pro) = the situation breakdowns (`report_situations`: pot type,
+  stack depth, starting-hand grid, players, street), sessions, the opponents
+  panel and the Players screen. **Analysis** (Pro) = every analysis reader and
+  save, session review, own charts, drills, trainer, study plan. **Learn**
+  (Pro) = the course's server writes; the pages themselves are public and
+  static (signed-out visitors still read them). **Desktop sync** (Pro) =
+  registering folders, `ingest_hands` from a folder source, `hands_since`,
+  HUD layouts; the desktop app still signs in on Free (it reads its plan).
+  The HUD itself is local: R6.4.
+- **Web (minimal)**: `EntitlementsProvider` reads `my_entitlements()` once per
+  account; Settings -> **Plan** (`/settings#plan`): plan, status and renewal,
+  hands stored against the cap (a meter), the early-user discount, what each
+  plan includes, "Upgrade to Pro" (disabled, "paid plans open soon" until
+  R6.3; `paths.upgrade()` is the placeholder). **Only while enforcement is
+  on** and the plan lacks the feature: Pro badges on the Analysis and Learn
+  tabs, a lock in place of the Analysis and Learn screens and of `/players`,
+  of the sessions / opponents panels and the situation tabs on `/stats`.
+  `en` + `hr`; refusals translated in `serverErrors.ts`.
+- **Zero change today**: the existing pgTAP suite (47 files, 1 679) passes
+  unchanged with the migration applied; with enforcement off no gated
+  function refuses, no cap is checked, every lock is hidden.
+- Tests: pgTAP `entitlements` (66), Vitest `entitlements` (12).
+- **Launch checklist (the owner's decision, after R6.3 is live)**:
+  1. set the launch date: `update public.billing_settings set
+     early_user_cutoff = '<launch instant>';` then
+     `select public.billing_mark_early_users();`;
+  2. check `plan_limits` (Free cap, Pro features) and the discount;
+  3. grant Pro by hand where wanted (`billing_set_plan(id, 'pro')`, service
+     role / SQL) - e.g. the owner's own account;
+  4. **turn enforcement on**: `update public.billing_settings set
+     enforcement_enabled = true;` (off again the same way).
+- Not applied to production (prod checklist: the migration).
+
 ---
 
 ## 11. Testing strategy
@@ -10878,3 +10964,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **The analysis screens under a second at 1M hands** (follow-up to #247, whose "left slow" list this closes). Migration `20270825090000_analysis_screen_summaries.sql`: the Analysis readers read narrow rows and sums kept by statement triggers on `hand_analysis` and `decision_analysis` (R4.5c-1's / R5.2's way, R5.2's per-account lock; `analysis_leak_summaries_rebuild` recounts all of it and is the backfill) instead of every graded decision joined to `hands` with its options and facts unpacked. **Kept**: `analysis_hand_rows` (one per analysis row: the hand's groups, the analysis columns, what its decisions add up to), `analysis_month_hands`, R5.2's `analysis_leak_rows` now holding every decision (with room, stake, street, status, source, chart node), `analysis_leak_totals` and `analysis_leak_stake_totals` (all time; they **replace R5.2's daily sums**, which at varied spot keys held one row per decision - 1.94M for 1.98M), `analysis_trend_days`, the overview's `analysis_overview_hands` / `_decisions` / `_flags` / `_keys`, `analysis_node_totals`, `analysis_graded_sites`. **Readers** (signatures, grants and answers unchanged; invoker, owner-first, planned per call): the overview, breakdown, coverage, hands to analyse (the months whose library count exceeds the analysed count), drill spots, facets and node report from sums; the hand list from the hand rows under every filter; leaks, leak hands, node hands, the trend's filtered weeks / months and its sessions from the leak or hand rows in scope (a leak report over most of the history as totals less the rows outside it); a filter the web never sends to a report (status, grade, street, flag on a report) from the previous body, kept as `<reader>_scan`. No grade, chart, constant or `analysis/N` changed. **Measured** (own isolated stack, GENERATED, never committed: 1 000 000 hands over 35 months, 2.15M decisions, 1.98M graded, ~16 500 spot keys, beside a 7 500-hand account with 16 000 decisions; ms, second call, before -> after): the 1M account - `analysis_overview` {} 57 957 -> 189, cash + BTN 9 759 -> 17; `analysis_breakdown` street 43 014 -> 49, scenario 44 287 -> 56; `analysis_hands` recent 30 571 -> 3, bad hands by EV 11 457 -> 10, flop + flag 34 083 -> 181, by score - -> 370; `analysis_node_actions` {} 90 780 -> 284, BTN 979, 90 days 293; `analysis_node_hands` 31 906 -> 196; `analysis_coverage` 6 541 -> 2; `hands_needing_analysis_recent` 5 781 -> 2; `analysis_leaks` {} >130 000 -> 371, BTN 64, 30 days 309, one stake 220, before a day (Learn) 1 207; `analysis_leak_hands` >130 000 -> 2; `analysis_trend` week >130 000 -> 4, month by street 8, week BTN 438, **session 2 111, session by street 6 042** (left: a session needs every hand in time order; the default view is weeks); `drill_due_by_spot` >130 000 -> 57; `analysis_top_leaks` all 4 174 -> 869, 30 days 481. The small account beside it: overview 4 418 -> 27, node report 1 905 -> 39, leaks 528 -> 107 (its ~10 000 spot rows are the payload), trend 398 -> 1, session 434 -> 16, drill spots 352 -> 11, every other reader 0-46 (top three 184-262: three samples of its spot rows). **Write cost**: `save_hand_analysis` of 200 hands (~430 decisions) 160-234 ms warm (327 first) against 17-25 ms with the analysis summary triggers off (R5.2 alone was 85 against 19); their prune 130 against 67. **Storage**: 1.85 GB for the 1M account (≈ 860 MB per million decisions: leak rows 1 144 MB, hand rows 561 MB, every sum table 140 MB together); backfill 10 min 45 s. pgTAP: new `analysis_screen_summaries` (24: security; every reader equal to its previous body on 1 406 calls - 28 filter sets, every group, sort, bucket and gap - for two accounts after the first writes, a re-analysis at a new version, a prune, a hand and a decision deleted and decisions added; the triggers' sums equal to a rebuild after each; a deleted account leaves nothing); `owner_first_analysis` now rebuilds the previous bodies from the `_scan` copies and verbatim `20270818090000` text and holds the summed readers to them too; `owner_first_readers` lists the scans and guards the new paths and tables; `leak_summaries` reads the new tables. Suite 47 files / 1 679 on a fresh reset. Types regenerated. Not applied to production (prod checklist: the migration; its backfill reads every account's analysis once). |
 | 2026-10-26 | **R5.5a** (R5.5 split in three: engine, grading, screens): the **ICM engine** in the analysis library - Malmuth-Harville exact over the sets already placed (0.01 ms for nine paying three), seeded Monte-Carlo beyond 250 000 steps (exponential clocks, common random numbers, standard error at most `z_1/(2√n)`: 0.35 % of first prize at 20 000 samples), bubble factor, risk premium, chips <-> $EV; **payout models** with missing data handled and labelled (no room writes payouts, field or players left: sit-and-go 50/30/20, 65/35, winner-take-all; multi-table top 15 % weighted `1/p` from a field size; a multi-table hand without players left graded in chip EV); the **push/fold game** solved per hand by CFR+ over a 169x169 equity table of our own (1M boards, docs/CHARTS.md §12). Library only: no grade, row, chart or `analysis/N` changes. |
 | 2026-10-26 | **R5.5b**: **tournament decisions graded by ICM**, `analysis/35` (web and app, one library). A No-Limit Hold'em tournament's preflop push or fold and call or fold facing a first-in push at 20bb or less are graded against the push/fold game's equilibrium (R5.5a) in prize equity - in chips for a multi-table hand whose players left nobody gave - `source: "icm"`, EVs in bb at the tournament's average chip price, §2's bands; `facts.icm` carries the model and its sources, stacks, payouts, prize equities, ranges, bubble factor and risk premium. Every other tournament decision is `tournament-*` with its reason. The user's payouts / field / players left per tournament: `tournament_settings` (owner-only, guard + a trigger that re-queues the tournament's hands; pgTAP 41) and store migration 17 (local). `decision_analysis.source` takes `icm`; the own charts file push/fold decisions (`icm-pushfold-*` tables). **Cash unchanged**: 7 796 corpus cash hands (194 with turn solves) byte-identical record by record before and after. Corpus: 91 tournament hands graded (84 in chips, 7 by ICM), 61 tournament hands a second. Not applied to production. |
+| 2026-10-26 | **R6.2 done**: plans and entitlements in the database, **enforcement off** until the owner launches (R6.2 *As built*, with the launch checklist). Migration `20270908090000_entitlements.sql`: `profiles.plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user` (+ since; every existing account and every account until the cutoff), provider ids (written only by the service role's `billing_set_plan`); `billing_settings` (switch off, early-user cutoff, 30 % discount, 7-day payment grace, 14-day offline grace) and `plan_limits` (Free 10 000 hands; Pro unlimited + desktop sync, HUD, full reports, analysis, Learn) as data; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`. 55 functions gated in their bodies from `entitlement_gates`; the cap and desktop rows by a statement trigger on `hands`; own chart sets and HUD layouts by trigger / policy; refusals `PT402` = HTTP 402. Web: Settings -> Plan, Pro badges and locks only while enforced. pgTAP `entitlements` 66 (suite 48 files on a fresh reset, the 47 earlier files unchanged), Vitest 12. Types regenerated. Not applied to production. |
