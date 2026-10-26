@@ -4,7 +4,9 @@
 // biggest leaks (`/analysis`, R5.2), your own charts (`/analysis/my-charts`,
 // R5.3: the list, a set's editor and its tools, the comparison, a hand opened
 // from it), a shared hand and its
-// embed, and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
+// embed, a tournament hand's push/fold panel and its settings form (R5.5,
+// `RAIL_CHECK_ICM=<hand id>:<action index>` - a decision the push/fold game
+// graded), and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
 // English and Croatian, against a running web - a local `next start` over a
 // local Supabase stack with a signed-in test account:
 //
@@ -28,6 +30,7 @@ const BASE = process.argv[2];
 const EMAIL = process.env.RAIL_CHECK_EMAIL ?? "";
 const PASSWORD = process.env.RAIL_CHECK_PASSWORD ?? "";
 const SHARE = process.env.RAIL_CHECK_SHARE ?? "";
+const ICM = process.env.RAIL_CHECK_ICM ?? "";
 if (!BASE || !EMAIL || !PASSWORD) {
   console.error("usage: RAIL_CHECK_EMAIL=... RAIL_CHECK_PASSWORD=... [RAIL_CHECK_SHARE=slug] node responsive.mjs <baseUrl>");
   process.exit(2);
@@ -288,6 +291,17 @@ for (const locale of ["en", "hr"]) {
         await report("/analysis/h/<id> from your charts");
       }
     }
+  }
+
+  if (ICM) {
+    // R5.5: the push/fold panel of a tournament decision, then its settings form open.
+    const [handId, actionIndex] = ICM.split(":");
+    await page.goto(`${BASE}/analysis/h/${handId}?t=a${actionIndex}`);
+    await page.locator("main #icm-panel").waitFor({ timeout: 60000 });
+    await report("/analysis/h/<id>, a push/fold decision");
+    await page.locator("main #icm-panel button[aria-expanded]").click();
+    await page.locator("main #icm-panel form").waitFor({ timeout: 30000 });
+    await report("/analysis/h/<id>, the tournament's settings open", "main #icm-panel");
   }
 
   if (SHARE) {

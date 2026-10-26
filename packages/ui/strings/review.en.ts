@@ -136,5 +136,7 @@ export const reviewUiEn = {
     "vs-3bet": "Facing a 3-bet after opening",
     "vs-3bet-cold": "Facing a 3-bet, cold",
     "vs-4bet": "Facing a 4-bet or more",
+    "push-fold": "Push or fold (tournament)",
+    "push-fold-call": "Facing a push (tournament)",
   } as Record<string, string>,
 };
