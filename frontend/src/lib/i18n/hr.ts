@@ -9,6 +9,7 @@
  * 5 glasova.
  */
 
+import { yourDataHr } from "./ns/yourData.hr";
 import { analysisHr } from "./ns/analysis.hr";
 import { chromeHr } from "./ns/chrome.hr";
 import { converterHr } from "./ns/converter.hr";
@@ -42,6 +43,7 @@ export const hr: Dict = {
   desktop: desktopHr,
   plan: planHr,
   planNotice: planNoticeHr,
+  yourData: yourDataHr,
 
   brand: {
     name: "Rail",

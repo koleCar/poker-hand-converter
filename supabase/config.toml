@@ -462,3 +462,16 @@ verify_jwt = false
 [functions.billing-cancel]
 enabled = true
 verify_jwt = false
+
+# R6.5: the account deletion. `verify_jwt = false` for the same reason as
+# `desktop-handoff` above: the function verifies the caller's token with
+# GoTrue itself (`GET /auth/v1/user`) and starts the deletion as that user.
+# Deploy with `supabase functions deploy account-delete --no-verify-jwt`.
+# It cancels a paying account's subscriptions first with R6.3's
+# `cancelOwnerSubscriptions` (the Stripe secrets above). Optional:
+# ACCOUNT_DELETE_TIME_BUDGET_MS (default 60000: well inside the wall clock),
+# ACCOUNT_DELETE_HANDS_BATCH
+# (default 200: a cold batch is random I/O; 500 could pass the 8 s statement timeout).
+[functions.account-delete]
+enabled = true
+verify_jwt = false

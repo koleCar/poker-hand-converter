@@ -72,6 +72,9 @@ pub struct AppInfo {
     identifier: String,
     log_dir: Option<String>,
     settings_file: String,
+    /// (R6.5) Where the local store, the flop library and the HUD policy
+    /// live: what "delete the local data" means.
+    data_dir: Option<String>,
     /// A debug build: the dev-only commands exist.
     debug: bool,
 }
@@ -88,6 +91,11 @@ pub fn app_info<R: Runtime>(app: AppHandle<R>, settings: State<'_, SettingsState
             .ok()
             .map(|dir| dir.display().to_string()),
         settings_file: settings.with(|store| store.path().display().to_string()),
+        data_dir: app
+            .path()
+            .app_local_data_dir()
+            .ok()
+            .map(|dir| dir.display().to_string()),
         debug: cfg!(debug_assertions),
     }
 }

@@ -31,6 +31,7 @@
  * apply the plural rules of their own language (`plural()` in `hr.ts`).
  */
 
+import { yourDataEn } from "./ns/yourData.en";
 import { analysisEn } from "./ns/analysis.en";
 import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
@@ -58,6 +59,7 @@ export const en = {
   desktop: desktopEn,
   plan: planEn,
   planNotice: planNoticeEn,
+  yourData: yourDataEn,
 
   brand: {
     name: "Rail",

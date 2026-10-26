@@ -295,7 +295,11 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- the entitlements themselves
                 'my_entitlements', 'has_my_entitlement', 'require_entitlement',
                 -- R6.4: whether enforcement is on, for an app with no account (the switch only)
-                'billing_enforced')),
+                'billing_enforced',
+                -- R6.5: every account may export its data and delete itself
+                'export_my_manifest', 'export_my_profile', 'export_my_hands', 'export_my_rows', 'export_my_sealed',
+                'account_export_page', 'account_export_entry', 'account_export_charge',
+                'begin_account_deletion', 'my_account_deletion')),
   null, 'every client-callable function is gated or named free here');
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
