@@ -10766,6 +10766,69 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | R6.4 | App and web read entitlements; an offline grace period in the app |
 | R6.5 | Terms of use and a GDPR privacy policy; data export and account deletion (deletion already cascades) |
 
+### R6.5 *As built*, legal: the terms and the privacy policy (2026-10-26)
+
+Drafts for the owner's and the legal review - **not in force**, and every
+page says so. **Not legal advice.**
+
+- **Where**: `docs/legal/TERMS.md`, `PRIVACY.md` and the Croatian
+  `TERMS.hr.md`, `PRIVACY.hr.md` (the same sections). Served at `/terms` and
+  `/privacy` in the reader's language, under a "Draft - not yet in force"
+  banner, `noindex`; linked from a quiet footer on every page (Terms, Privacy,
+  Takedown). `frontend/scripts/legal-docs.mjs` copies the four documents into
+  `src/lib/legal/texts.generated.ts` before dev and build (committed; Vitest
+  `legalPages` fails when it drifts); a ~150-line renderer
+  (`lib/legal/markdown.tsx`: headings, paragraphs, lists, quotes, tables;
+  bold, code, links to this site or `https://` only, no HTML). `terms` and
+  `privacy` reserved as route usernames (`20271006110000_legal_routes.sql`).
+- **Written from the data flows as built**: the web converter in the browser
+  (a dropped file never leaves the tab unless saved); what a save stores
+  (PHF, search fields, the file name, and for the converter's single run the
+  standard and source text; bulk upload PHF only; originals only on the
+  opt-in, R4.2); the desktop's local store and what syncs (Q4: PHF and per-seat
+  statistics, HUD layouts; never the originals); conversion failures (the
+  web's on a signed-in save, the desktop's anonymised with consent); opponents'
+  names (owner-only, hidden on share, pseudonymised on publish); the forum and
+  moderation; payments (R6.2/R6.3, Stripe never shows us cards); technical
+  logs, rate-limit counters, Turnstile; the browser's storage (session and
+  language cookies, local storage - **no analytics or trackers**, none in the
+  code, so no cookie banner); the HUD's compliance per room (R3.0/R3.10, A10);
+  processors - Supabase (project in **eu-central-1, Frankfurt**), Vercel,
+  Stripe (the customer and its invoices kept as tax records, also after an
+  account is deleted), Resend, Cloudflare Turnstile, [GitHub for releases]; retention;
+  rights, with the self-service export and deletion (R6.5's other half) and
+  what deletion does to public content; the desktop's local data and where it
+  lives on macOS and Windows; AZOP as the supervisory authority.
+- **Terms**: the service and that Rail is not a gambling operator; 18+; the
+  account; your content (yours; a licence to run the service; public content;
+  hands you may upload; no data mining); the HUD and the rooms' rules (yours to
+  follow, compliance mode on, no live assistance); acceptable use; **plans per
+  R6.1/R6.2** (Free with the hand cap, Pro monthly / yearly, the early-user
+  discount while subscribed, auto-renewal and cancellation to the period end,
+  7-day payment grace, 14-day offline grace, moving to Free deletes nothing,
+  price-change notice); **the EU right of withdrawal** - 14 days, Pro starts
+  at once **on the consumer's express request at checkout (R6.3's Checkout
+  does not record it yet: a required consent and its time, before launch)**,
+  a withdrawal refunds the price minus the
+  days used (Art. 14(3) CRD; the treatment as a service, not digital content,
+  is for the lawyer to confirm); availability; liability (consumer law kept);
+  termination; governing law; changes.
+- **Placeholders the owner fills** (`[OWNER: ...]` / `[VLASNIK: ...]`, never
+  invented): the legal name, address and OIB; the contact and privacy
+  e-mail; the domain (Q2); the date in force; whether a DPO is needed; the
+  backup / PITR window of the Supabase plan and the providers' log retention;
+  the moderation log's retention; invoice retention (accounting law); the
+  transfer basis per US processor (SCCs / DPF); whether GitHub distributes the
+  app; the age limit; the early-user discount and what breaks "continuous";
+  the Free cap figure; notice periods; the model withdrawal form; the
+  liability cap; governing law and courts; an ADR body.
+- Tests: Vitest `legalPages` (10: generated module up to date, the draft
+  notice first in all four, the Croatian sections match the English, the
+  placeholders kept, the privacy policy names each data flow, the renderer's
+  subset and its refusals, the page in both languages), pgTAP `legal_routes`
+  (3). `responsive.mjs` checks `/terms` and `/privacy` at 375 px (a table
+  scrolls in its own box).
+
 ### R6.2 *As built* (2026-10-26)
 
 Migration `20270908090000_entitlements.sql`, after the owner's R6.1
@@ -11259,3 +11322,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **Windows: an overlay is put back directly above its table after any raise or focus** (R3.5 fix). `windows_tracking` step 5 ("an overlay is below its table", #255; relaxed from 500 ms to 3 s in #224 on a slow-runner guess) has failed **six times since R3.5, always the same way**: the third table (the one the test never raises or focuses) had its overlay at the **bottom of the z-order, directly under the runner's foreground window** (Windows Terminal), while the table sat above it; in two of the six the focused table's overlay had been restacked once, i.e. it too started below its table. Cause: an overlay is shown with `SW_SHOWNOACTIVATE` from a process that is not in the foreground, and Windows places such a window by its own rules (behind the foreground window), not above its owner; it carries an owned window along only when the **owner** moves in the z-order, and the overlay thread restacked only on its table's own `EVENT_SYSTEM_FOREGROUND` - a table never activated after its overlay appeared kept it underneath for good (in real use: a HUD hidden under its table until the user clicks that table). **Fix**: the overlay thread checks an overlay's place (`tracking::stacking`, unit-tested: directly above = nothing that shows between, the table's own owned windows and hidden, cloaked or empty windows not counted; one `GetWindow` when in place) and puts it right after the window above the table (`HWND_TOP` when that window is topmost) **when it is shown**, on its table's events and foreground, and in a **250 ms look** over every shown overlay (a thread timer, only while there are overlays) for an order change no hooked event reports. Each restack is counted and noted with its time since the thread started, reason, before / after and what it was put after (`OverlayInfo::restacks`, stderr: the first twenty, then every hundredth). **Test**: a new step 0 (every overlay directly above its table within 1 s of being shown), step 5 requires *directly* above within 2 s, and a new step 5b slips one table under another table's overlay (a z-order change only, no hooked event) and waits for the look; failures print each misplaced overlay, every restack and the z-order. Cross-target clippy for `x86_64-pc-windows-msvc` passes locally; the Windows steps run only on CI. |
 | 2026-10-26 | **R6.3 done**: Stripe Billing with EU VAT, **test mode first, configured only by secrets** (none set; nothing deployed; unset = "paid plans open soon", nothing breaks). Edge Functions `billing-checkout` (prices from Stripe; Checkout with `automatic_tax`, billing address and tax ids, the early users' coupon, the verified account as reference; 20 sessions an hour; no second subscription), `billing-portal`, `billing-webhook` (Stripe signature over the raw body; the six events; the subscription read back from Stripe; idempotent and out-of-order safe in one transaction) and `billing-cancel` (service role; for R6.5's account deletion, also importable). Stripe over `fetch` with a pinned API version, no SDK; signature check held to a header from the official SDK. Migration `20270915090000_billing_stripe.sql` (service role only: `billing_events`, `profiles.billing_event_at`, `billing_account`, `billing_set_customer`, `billing_owner_of_customer`, `billing_claim`, `billing_apply_subscription`, `billing_events_prune`; route `billing` reserved). Web: monthly / yearly with Stripe's prices and the early-user price, Manage subscription, past due / canceled / ended notices, `/billing/success` and `/billing/cancel`, `en` + `hr`. Owner's guide `docs/BILLING.md`. Deno 73 (+ a local end-to-end run), pgTAP `billing_stripe` 44, Vitest `billing` 17. Types regenerated. Not applied to production. |
 | 2026-10-26 | **R6.4 done**: the app and the web read entitlements, the app keeps Pro offline for the grace period (R6.4 *As built*). **Owner's rule**: with enforcement on, the app without an account is Free; the HUD, the analysis and the full reports need a Pro sign-in; a successful check holds offline for 14 days (`offline_grace_days`). **Enforcement off: nothing changes** (tested). Rules in `rail_sync::entitlements` (newest word on enforcement wins, never told = off; signed out = Free; a check of this account within its grace = its plan; past it = "Reconnect"); the app's cache in the store's `kv`, checked at start, on account changes, every 4 h, on sync; a never-signed-in app asks `billing_enforced()` (migration `20270929090000`, anon, the switch only). Gates: the HUD starts only when allowed and is never stopped while running (`locked` phase), the analysis screen and runner (`plan`), Players and Reports' situation tabs (`situationsLock` in `packages/ui`), sync held on the check and on a server `PT402` (`SyncPhase::PlanRequired`, nothing sent, nothing lost); the local library is **not** capped. Web: one upgrade prompt for every `PT402` (`planRefusal.ts`, `PlanRefusalPrompt`), the converter's notices near / at the Free cap and the bulk save trimmed to the room left, then paused `cap`. Tests: Rust 13 + 3 + 2 + app 3, Vitest `appPlan` 10, `planRefusal` 10, the situation lock; pgTAP 51 files / 1 842 on R6.3's staging (`billing_enforced` 10). Types regenerated. Not applied to production. |
+| 2026-10-26 | **R6.5 (legal)**: drafts of the **terms of use and the privacy policy**, English and Croatian (`docs/legal/`), served at `/terms` and `/privacy` under a "Draft - not yet in force; pending the owner's and legal review" banner (`noindex`), a footer link on every page. Written from the data flows as built (browser-side conversion, what a save stores, the desktop's local data and what syncs, conversion failures, opponents' names, the forum, payments, logs, no trackers, Supabase in Frankfurt and the other processors, retention, rights with the self-service export and deletion, the HUD's per-room compliance) and R6.1/R6.2's plans (Free / Pro, early-user discount, grace periods, the EU withdrawal right with the consent to immediate performance, which R6.3's Checkout does not record yet - a launch item). The owner's details, retention periods, transfer bases and governing law are placeholders, never invented. `terms` and `privacy` reserved as usernames (`20271006110000_legal_routes.sql`). Vitest `legalPages` (10), pgTAP `legal_routes` (3). Not legal advice; not applied to production. |

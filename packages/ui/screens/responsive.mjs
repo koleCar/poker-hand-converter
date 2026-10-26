@@ -304,6 +304,13 @@ for (const locale of ["en", "hr"]) {
     await report("/analysis/h/<id>, the tournament's settings open", "main #icm-panel");
   }
 
+  // R6.5: the terms and the privacy policy (a table scrolls inside its own box).
+  for (const path of ["/terms", "/privacy"]) {
+    await page.goto(`${BASE}${path}`);
+    await page.locator("main article").waitFor({ timeout: 30000 });
+    await report(path);
+  }
+
   if (SHARE) {
     await page.goto(`${BASE}/h/${SHARE}`);
     await page.locator(".rp").first().waitFor({ timeout: 30000 });

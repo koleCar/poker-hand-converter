@@ -141,6 +141,15 @@ export function AppShell({
       {!dbConfigured ? <p className="shell__offline-banner">{en.shell.offlineBanner}</p> : null}
 
       <main className="shell__main">{children}</main>
+
+      {/* R6.5: the terms, the privacy policy and the takedown path, from every page. */}
+      <footer className="shell__footer">
+        <nav aria-label={en.legal.links.label} className="shell__footer-links">
+          <Link href={paths.terms()}>{en.legal.links.terms}</Link>
+          <Link href={paths.privacy()}>{en.legal.links.privacy}</Link>
+          <Link href={paths.takedown()}>{en.legal.links.takedown}</Link>
+        </nav>
+      </footer>
     </div>
   );
 }

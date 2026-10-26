@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/sites-json.mjs && next dev --turbopack",
-    "build": "node scripts/sites-json.mjs && next build",
+    "dev": "node scripts/sites-json.mjs && node scripts/legal-docs.mjs && next dev --turbopack",
+    "build": "node scripts/sites-json.mjs && node scripts/legal-docs.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:css": "stylelint \"src/**/*.css\"",
     "typecheck": "tsc --noEmit",
-    "dev:webpack": "node scripts/sites-json.mjs && next dev"
+    "dev:webpack": "node scripts/sites-json.mjs && node scripts/legal-docs.mjs && next dev"
   },
   "dependencies": {
     "@rail/ui": "file:../packages/ui",

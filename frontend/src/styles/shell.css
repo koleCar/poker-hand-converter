@@ -20,6 +20,35 @@
   min-height: 60vh;
 }
 
+/* R6.5: the legal links, quiet, under every page. */
+.shell__footer {
+  width: min(1420px, 100%);
+  margin: -48px auto 0;
+  padding: 0 max(14px, env(safe-area-inset-left)) max(24px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-right));
+}
+
+.shell__footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+  font-size: 13px;
+}
+
+.shell__footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.shell__footer-links a:hover,
+.shell__footer-links a:focus-visible {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
 /* ------------------------------------------------------------------- bar */
 
 .shell__bar {
