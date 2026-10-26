@@ -1,4 +1,4 @@
-import { useEffect, type JSX } from "react";
+import { lazy, Suspense, useEffect, type JSX } from "react";
 
 import styles from "./App.module.css";
 import { Palette } from "./components/Palette";
@@ -19,11 +19,25 @@ import { Settings } from "./screens/settings/Settings";
 import { Today } from "./screens/Today";
 import { useTablesOpen } from "./lib/useTablesOpen";
 
+// (R5.4) The analysis screens are loaded when first opened: their code (the
+// shared review and charts screens) stays out of the window's first load.
+const Analysis = lazy(() => import("./screens/Analysis").then((m) => ({ default: m.Analysis })));
+
+function AnalysisScreen() {
+  const t = useT();
+  return (
+    <Suspense fallback={<StateMessage kind="loading">{t.analysis.loading}</StateMessage>}>
+      <Analysis />
+    </Suspense>
+  );
+}
+
 const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   today: Today,
   hands: Hands,
   reports: Reports,
   players: Players,
+  analysis: AnalysisScreen,
   hud: Hud,
   settings: Settings,
   [SETUP]: FirstRun,

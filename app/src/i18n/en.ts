@@ -41,6 +41,7 @@ export const en = {
     hands: "Hands",
     reports: "Reports",
     players: "Players",
+    analysis: "Analysis",
     hud: "HUD",
     settings: "Settings",
     search: "Search…",
@@ -65,6 +66,10 @@ export const en = {
     players: {
       title: "Players",
       lead: "Opponent profiles, notes and colour labels.",
+    },
+    analysis: {
+      title: "Analysis",
+      lead: "Your decisions graded after the session: the session review, your top leaks, your own charts.",
     },
     hud: {
       title: "HUD",
@@ -866,6 +871,78 @@ export const en = {
   /** A10 (R3.8): what the app hides while a poker table is open. */
   duringPlay: {
     hidden: "Hidden while a poker table is open: Rail gives no help during play. It is back when the tables close.",
+  },
+
+  /** The analysis (R5.4): its screen, the background run's status, a hand's grades. */
+  analysis: {
+    tabsLabel: "Analysis sections",
+    tabs: { session: "Session review", leaks: "Top leaks", charts: "My charts" },
+    unavailable: "The analysis is only available inside the Rail app.",
+    loading: "Opening the analysis…",
+    status: {
+      label: "The analysis",
+      starting: "The analysis starts shortly after Rail opens.",
+      running: (done: number, total: number) => `Analysing your hands: ${n(done)} of ${hands(total)} done.`,
+      idle: (total: number) => `Every hand is analysed (${hands(total)}).`,
+      empty: "No hands to analyse yet.",
+      waiting: {
+        paused: "The analysis is paused.",
+        tables: "The analysis waits while a poker table is open.",
+        backfill: "The analysis waits while your folders are imported.",
+        statistics: "The analysis waits for the statistics to be worked out.",
+        store: "The hand store did not open.",
+      },
+      offline: "The flop library cannot be reached: flops are graded without it for now, and those hands are analysed again once it answers.",
+      pace: (perSecond: string) => `${perSecond} hands a second`,
+      notAnalysable: (count: number) => `${hands(count)} cannot be analysed (another game, or no hero).`,
+      error: (message: string) => `The last page did not finish: ${message}`,
+      pause: "Pause",
+      resume: "Resume",
+    },
+    session: {
+      notAnalysed: "Analysed in the background",
+    },
+    hand: {
+      title: "Hand analysis",
+      open: "Analysis",
+      openTitle: "Open this hand's decision-by-decision grades",
+      back: "Open in Hands",
+      backToList: "Back",
+      loading: "Analysing the hand…",
+      notFound: "This hand is not in your store.",
+      notStored: "Analysed now; the background run stores it when it gets there.",
+      failed: (message: string) => `The hand could not be analysed: ${message}`,
+      notAnalysed: (reason: string) => `Not analysed: ${reason}.`,
+      summary: (grade: string, evLoss: string) => `Worst grade ${grade}, ${evLoss} lost in all.`,
+      noGrade: "No decision of this hand has a reference to grade it by.",
+      decisions: "Your decisions",
+      street: "Street",
+      action: "You",
+      best: "Best",
+      grade: "Grade",
+      evLoss: "EV lost",
+      source: "Graded by",
+      ungraded: "Not graded",
+      skipped: (reason: string) => `Not analysed (${reason})`,
+      options: "What the reference plays here",
+      option: "Action",
+      frequency: "How often",
+      ev: "EV",
+      notes: (count: number) => (count === 1 ? "1 note" : `${count} notes`),
+      bb: (value: string) => `${value} bb`,
+      streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
+      actions: { fold: "Fold", check: "Check", call: "Call", bet: "Bet", raise: "Raise" } as Record<string, string>,
+      grades: { perfect: "Perfect", good: "Good", inaccurate: "Inaccurate", mistake: "Mistake", blunder: "Blunder" } as Record<
+        string,
+        string
+      >,
+      sources: {
+        chart: "Rail's preflop charts",
+        solver: "Rail's solver",
+        heuristic: "Checks only",
+        multiway: "Multiway checks",
+      } as Record<string, string>,
+    },
   },
 
   /** Compliance mode (R3.10): the HUD at the tables, and why it stays off where a room does not allow it. */

@@ -84,11 +84,12 @@ export default defineConfig([
     files: ["vite.config.ts"],
     languageOptions: { globals: globals.node },
   },
-  // (R5.4) The web's library is reached through one door,
-  // `src/analysis/library.ts`, which names exactly what the app uses of it.
+  // (R5.4) The web's library is reached through two doors,
+  // `src/analysis/library.ts` (the analysis) and `src/analysis/leakWords.ts` (the
+  // top leaks' ranking and words), which name exactly what the app uses of it.
   {
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/analysis/library.ts"],
+    ignores: ["src/analysis/library.ts", "src/analysis/leakWords.ts"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -96,7 +97,7 @@ export default defineConfig([
           patterns: [
             {
               group: ["@rail/web-lib", "@rail/web-lib/*", "**/frontend/src/**"],
-              message: "The web's library is the app's through `src/analysis/library.ts` only (R5.4).",
+              message: "The web's library is the app's through `src/analysis/library.ts` and `leakWords.ts` only (R5.4).",
             },
           ],
         },

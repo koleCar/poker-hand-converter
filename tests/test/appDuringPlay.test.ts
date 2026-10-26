@@ -1,10 +1,10 @@
 /**
  * A10 in the desktop app (guideline §7; plan R3.8): while the HUD has a
  * poker table open, nothing that helps with play is shown - analysis,
- * solver, equity and chart screens (none exists in the app yet: the gate is
- * where they will be classified, `app/src/lib/duringPlay.ts`), the
- * replayer's pot odds and the starting-hand chart. Pure TypeScript and the
- * app's sources, so it runs here; the app has no test runner of its own.
+ * solver, equity and chart screens (R5.4: the Analysis screen, classified
+ * in `app/src/lib/duringPlay.ts`), the replayer's pot odds and the
+ * starting-hand chart. Pure TypeScript and the app's sources, so it runs
+ * here; the app has no test runner of its own.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -21,7 +21,7 @@ import {
 } from "../../app/src/lib/duringPlay.js";
 
 /** The sidebar's screens (`app/src/lib/router.ts`'s `SCREENS`; that module needs React, which this harness does not install). */
-const SCREENS = ["today", "hands", "reports", "players", "hud", "settings"] as const;
+const SCREENS = ["today", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
 
 const APP_SRC = join(__dirname, "../../app/src");
 
@@ -42,17 +42,19 @@ describe("A10: no help during play", () => {
     expect(hiddenDuringPlay(null, true)).toBe(false);
   });
 
-  it("classifies every route, and no screen of today's app is analysis, solver, equity or charts", () => {
+  it("classifies every route: (R5.4) the analysis is analysis, the rest give no help", () => {
     expect(Object.keys(SCREEN_HELP).sort()).toEqual(
-      ["hands", "hud", "players", "reports", "settings", "setup", "today"].sort(),
+      ["analysis", "hands", "hud", "players", "reports", "settings", "setup", "today"].sort(),
     );
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
-      expect(SCREEN_HELP[route], route).toBeNull();
-      expect(screenHiddenDuringPlay(route, true), route).toBe(false);
+      const analysis = route === "analysis";
+      expect(SCREEN_HELP[route], route).toBe(analysis ? "analysis" : null);
+      expect(screenHiddenDuringPlay(route, true), route).toBe(analysis);
+      expect(screenHiddenDuringPlay(route, false), route).toBe(false);
     }
   });
 
-  it("puts the pot odds and the starting-hand chart behind the gate wherever they are drawn", () => {
+  it("puts the pot odds, the starting-hand chart and the way into a hand's analysis behind the gate wherever they are drawn", () => {
     const files = sources(APP_SRC).map((path) => ({ path, text: readFileSync(path, "utf8") }));
     const replayers = files.filter((f) => f.text.includes("<ReplayViewer"));
     // The starting-hand chart is the shared Reports screen's since R4.5c
@@ -73,24 +75,33 @@ describe("A10: no help during play", () => {
     // The shell gates whole screens.
     const app = readFileSync(join(APP_SRC, "App.tsx"), "utf8");
     expect(app).toMatch(/screenHiddenDuringPlay\(route, tablesOpen\)/);
+    // (R5.4) Every link into the analysis is drawn only when it may be
+    // followed, and the shared analysis screens are told too (they read
+    // nothing then).
+    const links = files.filter((f) => /screenHref\("analysis"/.test(f.text) && !f.path.includes("/screens/analysis/") && !f.path.endsWith("Analysis.tsx"));
+    expect(links.length).toBeGreaterThan(0);
+    for (const { path, text } of links) expect(text, path).toMatch(/hiddenDuringPlay\("analysis"/);
+    const screen = readFileSync(join(APP_SRC, "screens/Analysis.tsx"), "utf8");
+    expect(screen).toMatch(/const hidden = hiddenDuringPlay\("analysis", tablesOpen\);/);
+    expect(screen.match(/hiddenDuringPlay=\{hidden\}/g)?.length).toBe(2);
   });
 
   it("(R3.10) leaves a helping screen out of the sidebar and the palette while a table is open", () => {
     expect(readFileSync(join(APP_SRC, "lib/router.ts"), "utf8")).toContain(
       `export const SCREENS = ${JSON.stringify(SCREENS).replaceAll(",", ", ")} as const;`,
     );
-    // Today no screen helps with play: every one is offered, open or not.
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
-      expect(screenOffered(route, true), route).toBe(true);
+      expect(screenOffered(route, true), route).toBe(route !== "analysis");
+      expect(screenOffered(route, false), route).toBe(true);
     }
-    expect(offeredScreens(SCREENS, true)).toEqual([...SCREENS]);
-    // A screen classified as analysis (R5.4's, say) goes while a table is
-    // open and comes back when the tables close; the others keep their order.
+    // (R5.4) The analysis goes while a table is open and comes back when the
+    // tables close; the others keep their order.
+    expect(offeredScreens(SCREENS, true)).toEqual(SCREENS.filter((s) => s !== "analysis"));
+    expect(offeredScreens(SCREENS, false)).toEqual([...SCREENS]);
+    // A classification of another screen (a test's) is honoured the same way.
     const help = { ...SCREEN_HELP, reports: "analysis" as const };
     expect(screenOffered("reports", true, help)).toBe(false);
-    expect(screenOffered("reports", false, help)).toBe(true);
-    expect(offeredScreens(SCREENS, true, help)).toEqual(SCREENS.filter((s) => s !== "reports"));
-    expect(offeredScreens(SCREENS, false, help)).toEqual([...SCREENS]);
+    expect(offeredScreens(SCREENS, true, help)).toEqual(SCREENS.filter((s) => s !== "reports" && s !== "analysis"));
   });
 
   it("(R3.10) the sidebar, the palette's list and its shortcuts all ask the gate", () => {
@@ -103,5 +114,12 @@ describe("A10: no help during play", () => {
     const app = readFileSync(join(APP_SRC, "App.tsx"), "utf8");
     expect(app).toMatch(/<Sidebar [^>]*tablesOpen=\{tablesOpen\}/);
     expect(app).toMatch(/<Palette tablesOpen=\{tablesOpen\}/);
+  });
+
+  it("(R5.4) stops the background analysis while a table is open", () => {
+    const service = readFileSync(join(APP_SRC, "analysis/service.ts"), "utf8");
+    expect(service).toMatch(/onTablesOpen\(\(open\) => runner\.tablesOpen\(open\)\)/);
+    const gate = readFileSync(join(APP_SRC, "../src-tauri/src/analysis.rs"), "utf8");
+    expect(gate).toMatch(/hud\.tables_open\(\)/);
   });
 });

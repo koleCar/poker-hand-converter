@@ -18,6 +18,9 @@ export default defineConfig({
     // library.ts` is the only door (ESLint keeps every other file away).
     alias: {
       "@rail/web-lib": fileURLToPath(new URL("../frontend/src/lib", import.meta.url)),
+      // The web's files it brings in import `@rail/ui` as well: resolved to
+      // this app's own link, not next to the web (not installed here).
+      "@rail/ui": fileURLToPath(new URL("./node_modules/@rail/ui", import.meta.url)),
     },
   },
   // (R5.4) The analysis worker loads each preflop chart set as its own chunk

@@ -55,6 +55,7 @@ pub mod error;
 pub mod hand_list;
 pub mod hud;
 pub mod import;
+pub mod leaks;
 pub mod migrate;
 pub mod players;
 pub mod read;

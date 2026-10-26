@@ -1,9 +1,10 @@
 //! The analysis screens' readers (docs/RAIL-PLAN.md R5.4): the session
-//! review (R5.1) and the own charts' comparison (R5.3b) over the local
-//! store (`rail_store::review`). Thin: the queries are the store's, the
-//! screens are the shared package's (`packages/ui/review`,
-//! `packages/ui/charts`) with the app's sources (`src/lib/reviewSource.ts`,
-//! `src/lib/chartsSource.ts`).
+//! review (R5.1), the own charts' comparison (R5.3b) and the top three leaks
+//! (R5.2) over the local store (`rail_store::review`, `rail_store::leaks`).
+//! Thin: the queries are the store's, the screens are the shared package's
+//! (`packages/ui/review`, `packages/ui/charts`) and the app's own top leaks
+//! card, with the app's sources (`src/lib/reviewSource.ts`,
+//! `src/lib/chartsSource.ts`, `src/lib/leaksSource.ts`).
 
 use rail_store::review::{CompareQuery, ReviewQuery};
 use serde::{Deserialize, Serialize};
@@ -263,6 +264,182 @@ pub async fn chart_examples(
             small_blind: e.small_blind,
             big_blind: e.big_blind,
             ev_loss_bb: e.ev_loss_bb,
+        })
+        .collect())
+}
+
+/* ------------------------------------------------------ the top leaks - */
+
+/// The top three's filters as the window sends them.
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct LeakFiltersDto {
+    game_format: Option<String>,
+    position: Option<String>,
+    pot_type: Option<String>,
+}
+
+impl From<LeakFiltersDto> for rail_store::leaks::LeakFilters {
+    fn from(dto: LeakFiltersDto) -> Self {
+        let keep = |v: Option<String>| v.filter(|v| !v.trim().is_empty());
+        Self {
+            game_format: keep(dto.game_format),
+            position: keep(dto.position).map(|p| p.trim().to_uppercase()),
+            pot_type: keep(dto.pot_type),
+        }
+    }
+}
+
+/// One spot's sums (`analysis_leaks`' row, sums as summed).
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SpotSumsDto {
+    key: String,
+    set: Option<String>,
+    decisions: i64,
+    non_perfect: i64,
+    mistakes: i64,
+    ev_loss_bb: f64,
+    ev_loss_pot: f64,
+    score_sum: f64,
+    score_sq: f64,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LeakSampleDto {
+    hands: i64,
+    graded: i64,
+    rows: Vec<SpotSumsDto>,
+}
+
+impl From<rail_store::leaks::LeakSample> for LeakSampleDto {
+    fn from(sample: rail_store::leaks::LeakSample) -> Self {
+        Self {
+            hands: sample.hands,
+            graded: sample.graded,
+            rows: sample
+                .rows
+                .into_iter()
+                .map(|r| SpotSumsDto {
+                    key: r.key,
+                    set: r.set,
+                    decisions: r.decisions,
+                    non_perfect: r.non_perfect,
+                    mistakes: r.mistakes,
+                    ev_loss_bb: r.ev_loss_bb,
+                    ev_loss_pot: r.ev_loss_pot,
+                    score_sum: r.score_sum,
+                    score_sq: r.score_sq,
+                })
+                .collect(),
+        }
+    }
+}
+
+/// UTC days, inclusive.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DaysDto {
+    from: String,
+    to: String,
+}
+
+/// `analysis_top_leaks`' answer.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TopLeaksDto {
+    last: Option<String>,
+    current: Option<DaysDto>,
+    prior: Option<DaysDto>,
+    sample: LeakSampleDto,
+    now: LeakSampleDto,
+    was: LeakSampleDto,
+}
+
+/// The top three's samples: the period (`30d`, `all`), the last 30 days of
+/// play and the 30 before.
+#[tauri::command]
+pub async fn top_leaks(
+    store: State<'_, StoreState>,
+    version: String,
+    filters: LeakFiltersDto,
+    period: String,
+) -> Result<TopLeaksDto, String> {
+    let top = open(&store)?
+        .reader()
+        .top_leaks(&version, &filters.into(), &period)
+        .map_err(text)?;
+    let days = |w: Option<(String, String)>| w.map(|(from, to)| DaysDto { from, to });
+    Ok(TopLeaksDto {
+        last: top.last,
+        current: days(top.current),
+        prior: days(top.prior),
+        sample: top.sample.into(),
+        now: top.now.into(),
+        was: top.was.into(),
+    })
+}
+
+/// A decision behind a leak (the stakes label left to the window).
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LeakExampleDto {
+    hand_id: String,
+    ord: i64,
+    action_index: i64,
+    played_at: Option<String>,
+    site: String,
+    currency: String,
+    currency_symbol: String,
+    minor_units: i64,
+    small_blind: i64,
+    big_blind: i64,
+    hero_cards: Vec<String>,
+    hand_class: Option<String>,
+    spot_key: String,
+    grade: String,
+    ev_loss_bb: f64,
+    ev_loss_pot: f64,
+}
+
+/// The costliest decisions behind one leak (its finest spot keys).
+#[tauri::command]
+pub async fn leak_examples(
+    store: State<'_, StoreState>,
+    version: String,
+    filters: LeakFiltersDto,
+    days: Option<DaysDto>,
+    keys: Vec<String>,
+    limit: usize,
+) -> Result<Vec<LeakExampleDto>, String> {
+    Ok(open(&store)?
+        .reader()
+        .leak_examples(
+            &version,
+            &filters.into(),
+            days.as_ref().map(|d| (d.from.as_str(), d.to.as_str())),
+            &keys,
+            limit,
+        )
+        .map_err(text)?
+        .into_iter()
+        .map(|e| LeakExampleDto {
+            hand_id: e.hand_key,
+            ord: e.ord,
+            action_index: e.action_index,
+            played_at: (!e.played_at.is_empty()).then_some(e.played_at),
+            site: e.site,
+            currency: e.currency,
+            currency_symbol: e.currency_symbol,
+            minor_units: e.minor_units,
+            small_blind: e.small_blind,
+            big_blind: e.big_blind,
+            hero_cards: e.hero_cards,
+            hand_class: e.hand_class,
+            spot_key: e.spot_key,
+            grade: e.grade,
+            ev_loss_bb: e.ev_loss_bb,
+            ev_loss_pot: e.ev_loss_pot,
         })
         .collect())
 }
