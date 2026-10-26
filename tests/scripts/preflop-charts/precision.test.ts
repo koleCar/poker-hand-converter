@@ -29,7 +29,14 @@
  *    - `refit-` / `seed2-nlhe-cash-6max-100bb.json`: the `charts/2` pipeline
  *      (three measurement rounds, no limp tree) rerun on the default board
  *      sample and on another (`CHARTS_REFIT=1`, `CHARTS_MEASURE_SEED=2`):
- *      the realisation fit's own sampling error.
+ *      the realisation fit's own sampling error;
+ *    - `refit480-` / `seed2-480-nlhe-cash-6max-100bb.json`: the same pair at
+ *      480 measurement boards per spot (`CHARTS_MEASURE_BOARDS=480`, about
+ *      8 h each on one thread), and `refit-` against `refit480-` (120 against
+ *      480 boards on the default seed);
+ *    - `fit480-nlhe-cash-6max-100bb.json`: the committed set's limp tree
+ *      solved once with `refit480-`'s fit (`CHARTS_FIT_FROM=<refit480 file>
+ *      CHARTS_OUT=...`, about 25 min): what shipping that fit would change.
  *    Old sets come from the repository's history (`show <commit>:<path>`):
  *    `charts/4`'s 200bb files before #122, its 9-max 150bb before #125,
  *    `charts/2` at #106, `charts/1` at #95. The re-solves are
@@ -182,6 +189,14 @@ function pairs(): Pair[] {
     if (existsSync(c2)) add("charts/2 as committed vs rerun today (reproduction check): nlhe-cash-6max-100bb", () => load(c2), "refit-nlhe-cash-6max-100bb.json");
     add("realisation fit on another board sample (charts/2 pipeline, measurement seed changed): nlhe-cash-6max-100bb", () => load(refit), "seed2-nlhe-cash-6max-100bb.json");
   }
+  // The same pair at four times the measurement boards (CHARTS_MEASURE_BOARDS=480, §10 2026-10-23), and 120 against 480 on the default seed.
+  const refit480 = join(OLD, "refit480-nlhe-cash-6max-100bb.json");
+  if (existsSync(refit480)) {
+    add("realisation fit on another board sample at 480 boards (charts/2 pipeline, measurement seed changed): nlhe-cash-6max-100bb", () => load(refit480), "seed2-480-nlhe-cash-6max-100bb.json");
+    if (existsSync(refit)) add("realisation fit 120 vs 480 boards, default seed (charts/2 pipeline): nlhe-cash-6max-100bb", () => load(refit), "refit480-nlhe-cash-6max-100bb.json");
+  }
+  // What shipping the 480-board fit would change: the committed set against its limp tree solved with that fit (CHARTS_FIT_FROM).
+  add("committed vs the limp tree on the 480-board fit (candidate): nlhe-cash-6max-100bb", () => committed("nlhe-cash-6max-100bb"), "fit480-nlhe-cash-6max-100bb.json");
   return out;
 }
 
@@ -189,6 +204,7 @@ function comparePair(pair: Pair): string[] {
   const all: W[] = [];
   const notPlayed: W[] = [];
   const bands = new Map<string, { d: W[]; flip: number; w: number }>();
+  const byScenario = new Map<string, W[]>();
   let nodes = 0;
   let matched = 0;
   for (const node of pair.base.nodes.values()) {
@@ -214,6 +230,9 @@ function comparePair(pair: Pair): string[] {
         // What a grade is made of: an action the base set rarely plays, at a loss.
         if (node.freq[a * 169 + i] >= 0.035 || lossA <= 0) continue;
         notPlayed.push([d, w]);
+        const scenario = byScenario.get(node.scenario) ?? [];
+        scenario.push([d, w]);
+        byScenario.set(node.scenario, scenario);
         const band = bandOf(lossA);
         const b = bands.get(band) ?? { d: [], flip: 0, w: 0 };
         b.d.push([d, w]);
@@ -230,6 +249,8 @@ function comparePair(pair: Pair): string[] {
     if (!b) continue;
     lines.push(`| ${band} | ${b.d.length} | ${f3(quantile(b.d, 0.5))} | ${f3(quantile(b.d, 0.9))} | ${pc(b.flip / b.w)} |`);
   }
+  lines.push("actions played under 3.5% at a loss, by scenario:");
+  for (const [scenario, items] of [...byScenario].sort((a, b) => b[1].length - a[1].length)) lines.push(`- ${scenario}: ${summary(items)}`);
   return lines;
 }
 
@@ -381,6 +402,12 @@ function storedHands(pairList: Pair[]): string[] {
       return (o.baseGrade === "mistake" || o.baseGrade === "blunder") && o.baseLoss <= 0.25;
     });
     out.push(`Mistakes and Blunders ≤ 0.25bb: ${tiny.length}, grade changes ${tiny.filter((r) => r.other.get(s.name)!.grade !== r.other.get(s.name)!.baseGrade).length}`);
+    const moves = new Map<string, number>();
+    for (const r of graded) {
+      const o = r.other.get(s.name)!;
+      if (o.grade !== o.baseGrade) moves.set(`${o.baseGrade} → ${o.grade}`, (moves.get(`${o.baseGrade} → ${o.grade}`) ?? 0) + 1);
+    }
+    out.push(`grade moves: ${[...moves].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
   }
 
   // Floors against the noise: per pot floor, the Mistakes and Blunders left, and how many of them a pair's other set grades differently (floored the same way).

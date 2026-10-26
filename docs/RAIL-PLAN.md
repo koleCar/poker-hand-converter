@@ -9738,7 +9738,7 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | R5.3 | **Own preflop charts**: import or build charts, compare against played hands | M |
 | R5.4 | **Analysis in the app** (off-table only, A10): open the web analysis inside the app's webview with the same account, or move the analysis library into `packages/` | M |
 | R5.5 | **ICM** for MTT and SNG decisions | L |
-| R5.6 | GTO tool integration (later) | — |
+| R5.6 | GTO tool integration (later) - **proposal** in `docs/research/GTO-INTEGRATION.md` (2026-10-26): export a spot to the user's own solver first, private import of their solutions next; no vendor API / copying; awaiting the owner | — |
 
 - *As built, R5.1* (§15): **done** - the session review, on the web
   (`/analysis/session`), from a screen in `packages/ui/review/` that the app

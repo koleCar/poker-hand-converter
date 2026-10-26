@@ -1528,6 +1528,13 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
   over the stored hands' preflop Mistakes and Blunders of 0.25bb or less)
   and changes a third of those grades. That error grows with the loss, so a
   floor in big blinds does not remove it; more measurement boards would.
+  Measured (ANALYSIS-PLAN §10, 2026-10-23): on 480 boards per spot the same
+  pair moves those Mistakes and Blunders 0.06bb at p90 instead of 0.11bb and
+  changes 18 of 108 instead of 42 of 128, and the SB's limp share differs by
+  2 points between samples instead of 6 (the committed 42% sits above both
+  480-board fits, 30% and 32%). Not shipped: a new 6-max 100bb set retires
+  its flop library (the chunks are checked against `model.hash`), and the
+  limp tree on the 480-board fit converged worse at 3,000 iterations.
 - **Multiway pots** use the pairwise shares combined by `x_p + (1 − Σx)/n`;
   no multiway pot is measured.
 - **A fixed point, approximately.** Three rounds; between the last two the BB's
@@ -1612,6 +1619,8 @@ CHARTS_LIBRARY=library.jsonl CHARTS_LIBRARY_DUMP=run.jsonl npm run charts:librar
 PRECISION_OLD=old/ PRECISION_HANDS=hands.jsonl npm run charts:precision   # §9: the EVs' precision - indifference gaps, pairs of sets differing in one thing, the stored hands' preflop grades under each
 CHARTS_SETS=nlhe-cash-6max-100bb CHARTS_REFIT=1 CHARTS_MEASURE_SEED=2 CHARTS_THREADS=1 CHARTS_OUT=old/seed2-nlhe-cash-6max-100bb.json npm run charts:generate   # the charts/2 pipeline on another measurement sample, ~2 h on one thread
 CHARTS_SETS=nlhe-cash-6max-100bb CHARTS_RAKE=0:0 CHARTS_OUT=old/rake-none-nlhe-cash-6max-100bb.json npm run charts:generate   # the committed fit under another rake (percent:cap bb), ~15 min
+CHARTS_SETS=nlhe-cash-6max-100bb CHARTS_REFIT=1 CHARTS_MEASURE_BOARDS=480 CHARTS_THREADS=1 CHARTS_OUT=old/refit480-nlhe-cash-6max-100bb.json npm run charts:generate   # the same pipeline on 480 boards per spot, ~8 h on one thread (CHARTS_MEASURE_SEED=2 for seed2-480-)
+CHARTS_SETS=nlhe-cash-6max-100bb CHARTS_FIT_FROM=old/refit480-nlhe-cash-6max-100bb.json CHARTS_THREADS=1 CHARTS_OUT=old/fit480-nlhe-cash-6max-100bb.json npm run charts:generate   # the limp tree solved once with that fit, ~15 min
 ```
 
 `charts/4` (A2d) sets carry `reuseFit` in `sets.ts`: the generator solves
@@ -1653,7 +1662,9 @@ bytes (checked on the full run, cached and uncached; a small configuration is
 checked in `tests/test/charts/realisation.test.ts`). Overrides for
 experiments: `CHARTS_ITERATIONS`, `CHARTS_BOARDS`, `CHARTS_OUT`,
 `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`, `CHARTS_MEASURE_BOARDS`,
-`CHARTS_THREADS`, `CHARTS_SETS`, `CHARTS_PARALLEL`. Not part of `npm test`.
+`CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_FIT_FROM` (a `reuseFit` set
+solved with the fit of another file), `CHARTS_RAKE`, `CHARTS_THREADS`,
+`CHARTS_SETS`, `CHARTS_PARALLEL`. Not part of `npm test`.
 
 Any change to a constant, size, cut or the engine changes the numbers; the
 set's `model.hash` changes with them, and the analysis version
