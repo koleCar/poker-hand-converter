@@ -809,6 +809,63 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_consents: {
+        Row: {
+          checkout_session_id: string | null
+          consented_at: string
+          id: string
+          kinds: string[]
+          locale: string
+          owner_id: string | null
+          period: string
+          terms_sha256: string
+          terms_version: string
+          text_sha256: string
+          text_version: string
+        }
+        Insert: {
+          checkout_session_id?: string | null
+          consented_at?: string
+          id?: string
+          kinds: string[]
+          locale: string
+          owner_id?: string | null
+          period: string
+          terms_sha256: string
+          terms_version: string
+          text_sha256: string
+          text_version: string
+        }
+        Update: {
+          checkout_session_id?: string | null
+          consented_at?: string
+          id?: string
+          kinds?: string[]
+          locale?: string
+          owner_id?: string | null
+          period?: string
+          terms_sha256?: string
+          terms_version?: string
+          text_sha256?: string
+          text_version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_consents_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_consents_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_events: {
         Row: {
           event_created: string
@@ -4605,6 +4662,10 @@ export type Database = {
         Args: { p_kind: string; p_owner: string }
         Returns: undefined
       }
+      billing_consent_set_session: {
+        Args: { p_consent: string; p_owner: string; p_session_id: string }
+        Returns: boolean
+      }
       billing_enforced: { Args: never; Returns: boolean }
       billing_events_prune: { Args: { p_keep?: string }; Returns: number }
       billing_mark_early_users: { Args: never; Returns: number }
@@ -4620,6 +4681,19 @@ export type Database = {
           reason: string
           valid_until: string
         }[]
+      }
+      billing_record_consent: {
+        Args: {
+          p_kinds: string[]
+          p_locale: string
+          p_owner: string
+          p_period: string
+          p_terms_sha256: string
+          p_terms_version: string
+          p_text_sha256: string
+          p_text_version: string
+        }
+        Returns: string
       }
       billing_set_customer: {
         Args: { p_customer_id: string; p_owner: string }

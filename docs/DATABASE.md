@@ -27,6 +27,7 @@ The schema is defined by four migrations:
 | `20270908090000_entitlements.sql` | Rail R6.2: plans and entitlements, **enforcement off** until launch. `profiles.plan` and its subscription fields, `billing_settings`, `plan_limits`, `entitlement_gates`; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`; the cap and desktop rows on `hands`. See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
 | `20270929090000_billing_enforced.sql` | Rail R6.4: `billing_enforced()` - whether paid plans are enforced, for a desktop app with no account (anon-callable definer; the switch only, no user data). See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
 | `20271006090000_account_export.sql`, `20271006100000_account_deletion.sql` | Rail R6.5: the account's data. `account_data_inventory` (every place that holds an account's rows: export and deletion decided per row; pgTAP fails on a table missing from it); the owner-only export readers (`export_my_manifest`, `export_my_profile`, `export_my_hands`, `export_my_rows`, `export_my_sealed`); the deletion's request and steps (`begin_account_deletion` as the user, then `account_deletion_state` / `_mark`, `account_storage_objects`, `erase_account_content`, `erase_account_hands` for the Edge Function `account-delete`); the moderation log's erasure exception. See [Your data](#your-data-export-and-deletion). Not applied to production. |
+| `20271013090000_billing_consents.sql` | Rail R6.3 addendum: the consent recorded before Stripe Checkout opens (the terms; the request that Pro start at once and the acknowledgement about the right of withdrawal). `billing_consents` (sealed, evidence: only the session id - once - and the owner - cleared on deletion - can change), `billing_record_consent()`, `billing_consent_set_session()`, all service role only; exported to the account (`billing/consents.ndjson`), kept without the owner on deletion. See [Stripe Billing (R6.3)](#stripe-billing-r63). Not applied to production. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -1718,6 +1719,9 @@ of it**, so nothing new is client-callable.
 | `billing_claim(owner, kind)` | `checkout` / `portal`: 20 sessions an hour each (`enforce_rate_limit`, `53400` over). |
 | `billing_apply_subscription(event_id, type, created, customer, subscription, plan, period, status, period_end)` | One webhook event, whole, in one transaction: claims the id (a second delivery waits, then answers `duplicate`); no subscription -> `ignored`; unknown customer -> `unknown_customer`; created before `billing_event_at` -> `stale` (the same second applies); a dead subscription that is not the account's live one -> `not_current`; else R6.2's `billing_set_plan(...)` -> `applied`. Every outcome but `duplicate` is logged. |
 | `billing_events_prune(keep default 90 days)` | Deletes older log rows (at least 7 days kept). |
+| `billing_consents` (`20271013090000`) | One row per consent given before Checkout: `owner_id` (set null when the account is deleted), `kinds` (always `{terms,immediate_performance}`), `terms_version` / `terms_sha256` and `text_version` / `text_sha256` (the terms and the checkbox wording, in `locale`), `locale`, `period`, `consented_at` (the server's clock), `checkout_session_id` (unique, set once). No IP address or user agent. RLS on, no policy, no client grant; a trigger refuses any other change (evidence). |
+| `billing_record_consent(owner, kinds, terms_version, terms_sha256, text_version, text_sha256, locale, period)` | Records one before the Checkout Session is created; returns its id (`P0002` without a profile). |
+| `billing_consent_set_session(consent, owner, session)` | The `cs_...` id onto the account's own record, once; false otherwise. |
 
 What the webhook passes is Stripe's subscription read back with the secret
 key, never the request's content; the mapping (past due counted from the
@@ -1726,7 +1730,10 @@ unpaid period's start, canceled to `ended_at`, incomplete = Free) is in
 
 Tests: `billing_stripe.test.sql` (44): the grants and the sealed log, the
 customer link, the budget, every outcome, the effective plan following under
-enforcement, deletion and the prune.
+enforcement, deletion and the prune. `billing_consents.test.sql` (30): sealed,
+service role only, recorded whole or refused, the session id once and on the
+account's own record, nothing rewritable, exported to its owner only, kept
+without the owner on deletion.
 
 ---
 
@@ -1776,6 +1783,7 @@ account), `retain` (kept, for the reason given).
 | `public.analysis_shares` | owner_id | `analysis_shares.ndjson` | cascade | Which hands' analyses the account shared. |
 | `public.analysis_trend_days` | owner_id | derived | cascade | Summary of decision_analysis. |
 | `public.billing_events` | owner_id | internal | anonymise | Stripe webhook events handled for the account (event id, type, time, outcome; no payload, no amount) - the idempotency log. owner_id is set null when the profile is deleted; rows are pruned after 90 days. |
+| `public.billing_consents` | owner_id | `billing/consents.ndjson` | anonymise | Consents given at checkout: the terms, and the request that Pro start at once with the acknowledgement about the right of withdrawal - wording and terms versions and hashes, language, period, time, the Stripe Checkout Session. No IP address. On deletion the row stays without the account (owner_id set null): it proves the request, tied to the Stripe records kept as tax records. |
 | `public.board_moderators` | user_id, granted_by | `profile.json` | cascade | Boards the account moderates. granted_by is set null on others' rows. |
 | `public.comment_votes` | user_id | `forum/comment_votes.ndjson` | erase | Votes on comments. Deleted, and the counts and karma recounted. |
 | `public.comments` | author_id | `forum/comments.ndjson` | anonymise | Comments, including removed ones. On deletion each becomes a tombstone (no words, no author), as a deleted comment does, so the replies under it stay in place. |

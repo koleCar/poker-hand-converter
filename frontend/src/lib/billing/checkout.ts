@@ -13,6 +13,12 @@
  *
  * Until the owner configures Stripe (or deploys the functions), the offer is
  * `available: false` and the Plan panel says paid plans open soon.
+ *
+ * Before Checkout the page asks for two consents (EU consumer law: Pro
+ * starts at once, R6.3 addendum): the terms, and the request that Pro start
+ * immediately with the acknowledgement about the right of withdrawal. Both
+ * boxes start unticked and both are required; the function refuses without
+ * them and records them before it opens the session.
  */
 
 import type { Entitlements } from "../db/entitlements";
@@ -49,6 +55,8 @@ export type BillingError =
   | "unavailable"
   | "already_subscribed"
   | "no_customer"
+  | "consent_required"
+  | "consent_outdated"
   | "failed";
 
 const KNOWN = new Set<BillingError>([
@@ -60,7 +68,40 @@ const KNOWN = new Set<BillingError>([
   "unavailable",
   "already_subscribed",
   "no_customer",
+  "consent_required",
+  "consent_outdated",
 ]);
+
+/**
+ * The wording of the two checkboxes (`plan.*.ts`, `billing.consent`) the
+ * function records with the consent. Bump it with any change to that
+ * wording, and add the new version to `CONSENT_TEXTS` in
+ * `supabase/functions/_shared/billing/consent.ts` (deployed first) - Vitest
+ * `checkoutConsent` holds the two together.
+ */
+export const CHECKOUT_CONSENT_VERSION = "2026-10-26";
+
+/** The two boxes of the upgrade step. */
+export interface CheckoutConsent {
+  terms: boolean;
+  immediatePerformance: boolean;
+}
+
+export const NO_CONSENT: CheckoutConsent = { terms: false, immediatePerformance: false };
+
+/** Both ticked: only then does the page offer Checkout. */
+export function consentComplete(consent: CheckoutConsent): boolean {
+  return consent.terms === true && consent.immediatePerformance === true;
+}
+
+/** The checkboxes' words as one plain text per box (what the server's hash is of). */
+export function consentStatements(words: {
+  termsBefore: string;
+  termsLink: string;
+  immediate: string;
+}): [string, string] {
+  return [`${words.termsBefore}${words.termsLink}`, words.immediate];
+}
 
 type Row = Record<string, unknown>;
 const obj = (value: unknown): Row => (value && typeof value === "object" && !Array.isArray(value) ? (value as Row) : {});
@@ -210,9 +251,17 @@ async function invokeForUrl(name: string, body: Record<string, unknown>): Promis
   }
 }
 
-/** A Checkout Session for Pro billed per `period`; the page then goes to the URL. */
-export function startCheckout(period: Period, locale: "en" | "hr"): Promise<Redirect> {
-  return invokeForUrl("billing-checkout", { period, locale });
+/**
+ * A Checkout Session for Pro billed per `period`; the page then goes to the
+ * URL. Refused here, before any call, unless both boxes are ticked.
+ */
+export async function startCheckout(period: Period, locale: "en" | "hr", consent: CheckoutConsent): Promise<Redirect> {
+  if (!consentComplete(consent)) return { ok: false, error: "consent_required" };
+  return invokeForUrl("billing-checkout", {
+    period,
+    locale,
+    consent: { terms: true, immediatePerformance: true, version: CHECKOUT_CONSENT_VERSION },
+  });
 }
 
 /** A Customer Portal session for the caller's own customer. */

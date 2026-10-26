@@ -10807,8 +10807,10 @@ page says so. **Not legal advice.**
   discount while subscribed, auto-renewal and cancellation to the period end,
   7-day payment grace, 14-day offline grace, moving to Free deletes nothing,
   price-change notice); **the EU right of withdrawal** - 14 days, Pro starts
-  at once **on the consumer's express request at checkout (R6.3's Checkout
-  does not record it yet: a required consent and its time, before launch)**,
+  at once **on the consumer's express request at checkout** (the open item
+  "R6.3's Checkout does not record it yet" is **resolved** by R6.3's consent
+  at checkout - R6.3 *As built*, "Consent at checkout" - pending the legal
+  review of its wording),
   a withdrawal refunds the price minus the
   days used (Art. 14(3) CRD; the treatment as a service, not digital content,
   is for the lawyer to confirm); availability; liability (consumer law kept);
@@ -11031,6 +11033,84 @@ the launch order, cancelling for an account).
   6. R6.2's checklist (cutoff, limits, grants), then enforcement on.
 - Not applied to production (prod checklist: the migration and the four
   functions).
+
+#### Consent at checkout (addendum, 2026-10-26)
+
+R6.5's terms (section 9) rely on EU consumer law's exception for services
+and content supplied at once (Directive 2011/83/EU art. 16(m) as amended;
+the Croatian ZZP): before Pro starts the consumer **expressly asks for it to
+start and acknowledges losing the right of withdrawal**, and the trader
+confirms it on a durable medium. Checkout now collects it. **Not legal
+advice**: the wording is a draft for the owner's and the lawyer's review.
+
+- **Web**: Settings -> Plan's upgrade step shows, after the period, two
+  **unticked, required** checkboxes - "I agree to the Terms of Use" (link
+  `/terms`, new tab) and "I ask for Rail Pro to start immediately and I
+  acknowledge that I thereby lose my right of withdrawal once it has
+  started" - in English and Croatian (`plan.*.ts`, `billing.consent`, with a
+  comment that the legal text needs review). Upgrade stays disabled until
+  both are ticked; `startCheckout` refuses before any call without them; it
+  sends both flags and `CHECKOUT_CONSENT_VERSION`. `/billing/success`
+  repeats the confirmation (and where the record is).
+- **`billing-checkout`** requires `consent: {terms: true,
+  immediatePerformance: true, version}` and `locale` `en` / `hr` (400
+  `consent_required`, `consent_outdated` for a wording it does not know,
+  before any call). **Before** the Checkout Session it records the consent
+  (`billing_record_consent`): the verified account, both kinds, the
+  wording's version and the SHA-256 of its text, the terms' version and the
+  SHA-256 of `docs/legal/TERMS*.md`, both in the language shown (from the
+  server's own table, `_shared/billing/consent.ts` - nothing but the boxes,
+  the version and the language comes from the browser), the period, the
+  server's time. No record, no session (503). The record's id goes into the
+  session's and the subscription's metadata (`consent_id`); Stripe shows the
+  same words above Pay (`custom_text.submit`); the session id is written
+  back (`billing_consent_set_session`; best effort - the metadata already
+  links them). **Not** Stripe's `consent_collection.terms_of_service`: a
+  second terms checkbox on Stripe's page after ours, it needs a terms URL in
+  the Dashboard or session creation fails, and it does not carry the
+  withdrawal acknowledgement.
+- **Database**: migration `20271013090000_billing_consents.sql`:
+  `billing_consents` (sealed, service role only - nothing new client-callable,
+  `entitlements`' free list unchanged; a trigger keeps it evidence: only the
+  session id, once, and the owner, cleared on deletion, may change; **no IP
+  address or user agent** - the account and the server's clock prove who and
+  when, an IP would add personal data without proving more),
+  `billing_record_consent`, `billing_consent_set_session`; in R6.5's
+  inventory as `file` (`billing/consents.ndjson`, the sealed reader) and
+  `anonymise` (kept without the owner: the proof of the request, tied to the
+  Stripe records kept as tax records).
+- **Durable medium**: Rail sends no email; Stripe's receipt carries the
+  confirmation once the owner sets the invoice footer (both languages) and
+  receipts on - `docs/BILLING.md` section 13 (with the check in test mode).
+  The success page and the data download are the account's own copies.
+- **Keeping the wording and the record together**: Vitest `checkoutConsent`
+  fails when a word of either language changes without a new version in
+  both `CHECKOUT_CONSENT_VERSION` and the server's `CONSENT_TEXTS`, or when
+  `docs/legal/TERMS*.md` changes without `TERMS` (version and hashes). A new
+  wording is deployed function first (it accepts old and new versions).
+- **For the lawyer** (also bracketed in the terms' section 9): the checkbox
+  says the right is lost once Pro has started (art. 16(m), digital content);
+  section 9 keeps it with a proportional refund (art. 14(3), services). One
+  treatment, then the checkbox, section 9 and the receipt footer aligned.
+- **Tests**: Deno 93 (checkout 16, +4: refusal without consent - 13
+  shapes, none calls anything -, the record before the session with the
+  server's hashes and the verified account, no session without a record,
+  the session id written back or not; metadata and `custom_text` in the
+  session's exact parameters); the local end-to-end run (the record, its
+  session id, sealed from the client, kept without the owner after
+  deletion) passed. pgTAP `billing_consents` (30): sealed, service role only,
+  no client-callable function, recorded whole or refused, the session id
+  once and own record only, nothing rewritable, the export to its owner
+  only, the inventory row, kept without the owner on deletion; full suite
+  54 files / 1 959 on a fresh reset. Vitest `checkoutConsent` (11: the
+  boxes unticked and required, the link, the button per state, Croatian, the
+  hashes, the terms, the success page) and `billing` updated. Types
+  regenerated.
+- **Launch checklist** (adds to the above): apply `20271013090000` with the
+  billing migrations; deploy `billing-checkout` with the web; the owner's and
+  the lawyer's review of the wording, section 9 and the footer, aligned; the
+  footer set in test and live mode and seen on a test receipt.
+  Not applied to production.
 
 ### R6.4 *As built* (2026-10-26)
 
@@ -11466,3 +11546,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **R6.4 done**: the app and the web read entitlements, the app keeps Pro offline for the grace period (R6.4 *As built*). **Owner's rule**: with enforcement on, the app without an account is Free; the HUD, the analysis and the full reports need a Pro sign-in; a successful check holds offline for 14 days (`offline_grace_days`). **Enforcement off: nothing changes** (tested). Rules in `rail_sync::entitlements` (newest word on enforcement wins, never told = off; signed out = Free; a check of this account within its grace = its plan; past it = "Reconnect"); the app's cache in the store's `kv`, checked at start, on account changes, every 4 h, on sync; a never-signed-in app asks `billing_enforced()` (migration `20270929090000`, anon, the switch only). Gates: the HUD starts only when allowed and is never stopped while running (`locked` phase), the analysis screen and runner (`plan`), Players and Reports' situation tabs (`situationsLock` in `packages/ui`), sync held on the check and on a server `PT402` (`SyncPhase::PlanRequired`, nothing sent, nothing lost); the local library is **not** capped. Web: one upgrade prompt for every `PT402` (`planRefusal.ts`, `PlanRefusalPrompt`), the converter's notices near / at the Free cap and the bulk save trimmed to the room left, then paused `cap`. Tests: Rust 13 + 3 + 2 + app 3, Vitest `appPlan` 10, `planRefusal` 10, the situation lock; pgTAP 51 files / 1 842 on R6.3's staging (`billing_enforced` 10). Types regenerated. Not applied to production. |
 | 2026-10-26 | **R6.5 (your data)**: every account can **download all its data** and **delete itself** (R6.5 *As built*, your data). `account_data_inventory`: every place that holds an account's rows (62, R6.3's `billing_events` among them), export and deletion decided per row, pgTAP failing on a table missing from it. Export built in the browser over owner-first readers (`export_my_manifest`, `_profile`, `_hands`, `_rows`, `_sealed`; nothing stored server-side), a streaming ZIP of our own (zip64), README in the reader's language; 1M hands in ~25 min / 706 MB (derived rows optional, off by default). Deletion: username + a fresh sign-in, then the Edge Function `account-delete` (service role, the user's JWT) - R6.3's `cancelOwnerSubscriptions` first, Storage, the forum's content (kept threads anonymised, the rest deleted, the moderation log's words erased), the hands in batches with the summary triggers skipping the erasure, the auth user; resumable, and finished by pg_cron if the tab closes (1M hands ~80 min). Settings panels `en` + `hr`; the desktop app's Your data (local data, where, how to remove; web export / deletion / privacy). pgTAP `account_data` (84), Deno 16 + e2e, Vitest 19 + 3. Migrations `20271006090000`, `20271006100000`; not applied to production. |
 | 2026-10-26 | **R6.5 (legal)**: drafts of the **terms of use and the privacy policy**, English and Croatian (`docs/legal/`), served at `/terms` and `/privacy` under a "Draft - not yet in force; pending the owner's and legal review" banner (`noindex`), a footer link on every page. Written from the data flows as built (browser-side conversion, what a save stores, the desktop's local data and what syncs, conversion failures, opponents' names, the forum, payments, logs, no trackers, Supabase in Frankfurt and the other processors, retention, rights with the self-service export and deletion, the HUD's per-room compliance) and R6.1/R6.2's plans (Free / Pro, early-user discount, grace periods, the EU withdrawal right with the consent to immediate performance, which R6.3's Checkout does not record yet - a launch item). The owner's details, retention periods, transfer bases and governing law are placeholders, never invented. `terms` and `privacy` reserved as usernames (`20271006110000_legal_routes.sql`). Vitest `legalPages` (10), pgTAP `legal_routes` (3). Not legal advice; not applied to production. |
+| 2026-10-26 | **R6.3 addendum: consent at checkout** (R6.3 *As built*, "Consent at checkout"; resolves R6.5's open item, pending the legal wording review). The upgrade step's two unticked, required checkboxes (the Terms of Use, linked; the request that Pro start immediately with the acknowledgement of losing the right of withdrawal), `en` + `hr`, the button disabled until both; `billing-checkout` refuses without them (`consent_required` / `consent_outdated`) and **records the consent before the session** (`billing_consents`: account, kinds, wording and terms versions and SHA-256 from the server's table, language, period, time, then the session id; no IP), `consent_id` in the session's and subscription's metadata, the same words above Stripe's Pay button; not Stripe's `consent_collection` (a duplicate box, needs a Dashboard terms URL, no withdrawal acknowledgement). Durable medium: Stripe's receipt with the invoice footer the owner sets (`docs/BILLING.md` section 13); the success page and the data download as the account's copies. Migration `20271013090000_billing_consents.sql` (service role only; evidence trigger; exported, kept without the owner on deletion). Terms section 9's bracket updated: the checkbox (art. 16(m)) and the refund sentence (art. 14(3)) are for the lawyer to align. Deno 93 (checkout 16, +4) + e2e, pgTAP `billing_consents` 30 (54 files / 1 959), Vitest `checkoutConsent` 11. Types regenerated. Not legal advice; not applied to production. |

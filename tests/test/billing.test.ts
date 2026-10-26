@@ -155,7 +155,9 @@ describe("the Plan panel with checkout", () => {
     expect(html).toContain("€4.89 / month with your 30% early-user discount");
     expect(html).toContain("Prices include VAT.");
     expect(html).toContain("Subscribing now starts Pro billing today.");
-    expect(html).toMatch(/<button type="button" class="btn btn--primary">Upgrade to Pro<\/button>/);
+    // Offered, behind the two consents (`checkoutConsent.test.ts`).
+    expect(html).toMatch(/<button type="button" class="btn btn--primary" disabled="" [^>]*>Upgrade to Pro<\/button>/);
+    expect(html).toContain("Before you pay");
     expect(html).not.toContain("Paid plans open soon.");
     expect(html).not.toContain("Manage subscription");
   });
