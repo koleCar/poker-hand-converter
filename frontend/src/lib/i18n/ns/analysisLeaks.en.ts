@@ -72,6 +72,8 @@ const known = (part: string) => part !== ANY && part !== NONE;
 /** "Folding too much", with the preflop special cases players actually say. */
 function title(kind: LeakKind, where: Where): string {
   if (where.street === "preflop") {
+    if (where.scenario === "push-fold" && kind === "raise-too-wide") return "Pushing too wide";
+    if (where.scenario === "push-fold" && kind === "fold-too-much") return "Pushing too tight";
     if (kind === "raise-too-wide" && (where.scenario === "unopened" || where.family === "first-in")) return "Opening too wide";
     if (kind === "fold-too-much" && where.scenario === "unopened") return "Opening too tight";
     if (kind === "raise-too-wide") return "3-betting too wide";
@@ -115,9 +117,16 @@ function spotContext(where: Where): string {
         return villain && villain !== "SB" ? `BB option after ${villain} limps` : "BB option after limps";
       case "vs-limp":
         return `${who ? `${who} ` : ""}vs ${villain ? `${villain} limp` : "limpers"}`.replace(/^vs/, "Vs");
+      // R5.5: a tournament's push/fold spots, never merged with a cash open.
+      case "push-fold":
+        return hero ? `${hero} push or fold (tournament)` : "Push or fold (tournament)";
+      case "push-fold-call":
+        return hero ? `${hero} vs a push (tournament)` : "Facing a push (tournament)";
       default:
         break;
     }
+    if (where.family === "push-fold") return "Push or fold (tournament)";
+    if (where.family === "push-fold-call") return "Facing a push (tournament)";
     if (where.family === "first-in") return "First in";
     if (where.family === "vs-raise") return "Facing an open";
     if (where.family === "vs-reraise") return "Facing a 3-bet or more";

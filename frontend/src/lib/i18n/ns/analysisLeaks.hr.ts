@@ -68,6 +68,8 @@ const known = (part: string) => part !== ANY && part !== NONE;
 
 function title(kind: LeakKind, where: Where): string {
   if (where.street === "preflop") {
+    if (where.scenario === "push-fold" && kind === "raise-too-wide") return "Pushaš preširoko";
+    if (where.scenario === "push-fold" && kind === "fold-too-much") return "Pushaš preusko";
     if (kind === "raise-too-wide" && (where.scenario === "unopened" || where.family === "first-in")) return "Otvaraš preširoko";
     if (kind === "fold-too-much" && where.scenario === "unopened") return "Otvaraš preusko";
     if (kind === "raise-too-wide") return "3-betaš preširoko";
@@ -113,9 +115,16 @@ function spotContext(where: Where): string {
         return villain && villain !== "SB" ? `Opcija BB-a nakon ${villain} limpa` : "Opcija BB-a nakon limpova";
       case "vs-limp":
         return capital(`${lead}protiv ${villain ? `${villain} limpa` : "limpera"}`);
+      // R5.5: turnirske push/fold situacije, nikad spojene s cash openom.
+      case "push-fold":
+        return hero ? `${hero} push ili fold (turnir)` : "Push ili fold (turnir)";
+      case "push-fold-call":
+        return hero ? `${hero} protiv pusha (turnir)` : "Protiv pusha (turnir)";
       default:
         break;
     }
+    if (where.family === "push-fold") return "Push ili fold (turnir)";
+    if (where.family === "push-fold-call") return "Protiv pusha (turnir)";
     if (where.family === "first-in") return "Prvi ulaziš";
     if (where.family === "vs-raise") return "Protiv opena";
     if (where.family === "vs-reraise") return "Protiv 3-beta ili više";

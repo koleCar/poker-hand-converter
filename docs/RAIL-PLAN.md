@@ -10691,6 +10691,61 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
     share page then shows the hand without its analysis). pgTAP 48 files /
     1 720 on a fresh reset with every migration (after #252).
 
+- *As built, R5.5c* (§15): **done, with it R5.5** - the push/fold grade on
+  screen, on the web and in the app, in English and Croatian.
+  - **The web** (`components/analysis/IcmPanel.tsx`, `icm.module.css`,
+    words `analysisIcm.{en,hr}.ts`): a tournament decision's analysis sheet
+    shows, under its options, the **ICM panel** - what it was measured in
+    (prize equity, or chip EV and why), every stack (the hero's marked; the
+    players off the table at their average), the payouts used and players
+    left with where each came from and the kind of tournament, the hero's
+    prize equity at the start and after each option (in money too when the
+    prize pool is known: buy-ins x entrants, or the room's stated pool),
+    a big blind's worth, the pusher's equilibrium range, and per player the
+    share calling, the hero's **bubble factor** and **risk premium**, the
+    sampling error and the equilibrium's gap. The owner (not a shared hand)
+    opens **Payouts and players left**: kind, payouts in percent, entrants,
+    starting stack, players left at this hand (a point at its time, kept
+    with the others) - checked by `settingsProblem` in the page, saved to
+    `tournament_settings`, the tournament's hands then analysed again on
+    the next run; "Back to the assumptions" deletes them. The sheet's source
+    line names the push/fold game; the *why* says the grade, the
+    equilibrium's frequency and the model.
+  - **The app** (`screens/analysis/IcmBlock.tsx`, R5.4b's hand analysis):
+    each push/fold decision opens the same facts - model and why, stacks,
+    payouts and players left, prize equity per option, the matchups - and
+    the same settings form over the store (`tournament_settings_*`), the
+    background run woken after a save.
+  - **Leaks and the session review**: the push/fold spots are their own
+    (`push-fold`, `push-fold-call`), so the leak finder and the top three
+    name them "BTN push or fold (tournament)", "Pushing too wide / too
+    tight", "Facing a push (tournament)" - in the app too, through R5.4b's
+    door to the web's words - and never merge them with a cash open; the
+    overview's and the top three's format filter and the session review's
+    filter groups already separate tournaments. The own charts (R5.3) of a
+    tournament game now find the pushes and calls of their table and
+    depth (R5.5b's filing).
+  - **Responsive** (R4.5d): `responsive.mjs` gains `RAIL_CHECK_ICM` - a
+    push/fold decision's sheet, then its settings form open - and the whole
+    run passes on a local stack (a test account, 172 corpus tournament
+    hands uploaded through the web's ingest and analysed by the library):
+    no sideways scroll and no control under 44 px, in `en` and `hr`.
+  - **Tests**: Vitest `icmScreens` (4): the web panel in both languages
+    (model, stacks, payouts, money, matchups, the form; chips and its
+    reason; none of the form on a shared hand), the app's block in both
+    languages, the leak and review words; `appI18n` allows "Push" and
+    "Sit-and-go" as Croatian poker words.
+  - **Open for the owner**: (1) multi-table hands are graded in chips until
+    players left are entered per tournament - should a lobby's count be
+    asked for on import, or a default curve of players left over a
+    tournament's hands be assumed?; (2) postflop tournament decisions are
+    not graded (an ICM-aware solve per spot is the next step, and costly);
+    (3) the one-caller model and the 20bb line are Rail's choices, shown
+    on every grade; (4) the full leak report has no format filter yet
+    (push/fold spots are separate rows); (5) Run It Once's all-dealt
+    tournament sample cannot name its hero in the standard text, so its
+    shared copy shows no analysis (a converter limit).
+
 ---
 
 ## Phase 6 — Subscription
@@ -10966,4 +11021,5 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **The analysis screens under a second at 1M hands** (follow-up to #247, whose "left slow" list this closes). Migration `20270825090000_analysis_screen_summaries.sql`: the Analysis readers read narrow rows and sums kept by statement triggers on `hand_analysis` and `decision_analysis` (R4.5c-1's / R5.2's way, R5.2's per-account lock; `analysis_leak_summaries_rebuild` recounts all of it and is the backfill) instead of every graded decision joined to `hands` with its options and facts unpacked. **Kept**: `analysis_hand_rows` (one per analysis row: the hand's groups, the analysis columns, what its decisions add up to), `analysis_month_hands`, R5.2's `analysis_leak_rows` now holding every decision (with room, stake, street, status, source, chart node), `analysis_leak_totals` and `analysis_leak_stake_totals` (all time; they **replace R5.2's daily sums**, which at varied spot keys held one row per decision - 1.94M for 1.98M), `analysis_trend_days`, the overview's `analysis_overview_hands` / `_decisions` / `_flags` / `_keys`, `analysis_node_totals`, `analysis_graded_sites`. **Readers** (signatures, grants and answers unchanged; invoker, owner-first, planned per call): the overview, breakdown, coverage, hands to analyse (the months whose library count exceeds the analysed count), drill spots, facets and node report from sums; the hand list from the hand rows under every filter; leaks, leak hands, node hands, the trend's filtered weeks / months and its sessions from the leak or hand rows in scope (a leak report over most of the history as totals less the rows outside it); a filter the web never sends to a report (status, grade, street, flag on a report) from the previous body, kept as `<reader>_scan`. No grade, chart, constant or `analysis/N` changed. **Measured** (own isolated stack, GENERATED, never committed: 1 000 000 hands over 35 months, 2.15M decisions, 1.98M graded, ~16 500 spot keys, beside a 7 500-hand account with 16 000 decisions; ms, second call, before -> after): the 1M account - `analysis_overview` {} 57 957 -> 189, cash + BTN 9 759 -> 17; `analysis_breakdown` street 43 014 -> 49, scenario 44 287 -> 56; `analysis_hands` recent 30 571 -> 3, bad hands by EV 11 457 -> 10, flop + flag 34 083 -> 181, by score - -> 370; `analysis_node_actions` {} 90 780 -> 284, BTN 979, 90 days 293; `analysis_node_hands` 31 906 -> 196; `analysis_coverage` 6 541 -> 2; `hands_needing_analysis_recent` 5 781 -> 2; `analysis_leaks` {} >130 000 -> 371, BTN 64, 30 days 309, one stake 220, before a day (Learn) 1 207; `analysis_leak_hands` >130 000 -> 2; `analysis_trend` week >130 000 -> 4, month by street 8, week BTN 438, **session 2 111, session by street 6 042** (left: a session needs every hand in time order; the default view is weeks); `drill_due_by_spot` >130 000 -> 57; `analysis_top_leaks` all 4 174 -> 869, 30 days 481. The small account beside it: overview 4 418 -> 27, node report 1 905 -> 39, leaks 528 -> 107 (its ~10 000 spot rows are the payload), trend 398 -> 1, session 434 -> 16, drill spots 352 -> 11, every other reader 0-46 (top three 184-262: three samples of its spot rows). **Write cost**: `save_hand_analysis` of 200 hands (~430 decisions) 160-234 ms warm (327 first) against 17-25 ms with the analysis summary triggers off (R5.2 alone was 85 against 19); their prune 130 against 67. **Storage**: 1.85 GB for the 1M account (≈ 860 MB per million decisions: leak rows 1 144 MB, hand rows 561 MB, every sum table 140 MB together); backfill 10 min 45 s. pgTAP: new `analysis_screen_summaries` (24: security; every reader equal to its previous body on 1 406 calls - 28 filter sets, every group, sort, bucket and gap - for two accounts after the first writes, a re-analysis at a new version, a prune, a hand and a decision deleted and decisions added; the triggers' sums equal to a rebuild after each; a deleted account leaves nothing); `owner_first_analysis` now rebuilds the previous bodies from the `_scan` copies and verbatim `20270818090000` text and holds the summed readers to them too; `owner_first_readers` lists the scans and guards the new paths and tables; `leak_summaries` reads the new tables. Suite 47 files / 1 679 on a fresh reset. Types regenerated. Not applied to production (prod checklist: the migration; its backfill reads every account's analysis once). |
 | 2026-10-26 | **R5.5a** (R5.5 split in three: engine, grading, screens): the **ICM engine** in the analysis library - Malmuth-Harville exact over the sets already placed (0.01 ms for nine paying three), seeded Monte-Carlo beyond 250 000 steps (exponential clocks, common random numbers, standard error at most `z_1/(2√n)`: 0.35 % of first prize at 20 000 samples), bubble factor, risk premium, chips <-> $EV; **payout models** with missing data handled and labelled (no room writes payouts, field or players left: sit-and-go 50/30/20, 65/35, winner-take-all; multi-table top 15 % weighted `1/p` from a field size; a multi-table hand without players left graded in chip EV); the **push/fold game** solved per hand by CFR+ over a 169x169 equity table of our own (1M boards, docs/CHARTS.md §12). Library only: no grade, row, chart or `analysis/N` changes. |
 | 2026-10-26 | **R5.5b**: **tournament decisions graded by ICM**, `analysis/35` (web and app, one library). A No-Limit Hold'em tournament's preflop push or fold and call or fold facing a first-in push at 20bb or less are graded against the push/fold game's equilibrium (R5.5a) in prize equity - in chips for a multi-table hand whose players left nobody gave - `source: "icm"`, EVs in bb at the tournament's average chip price, §2's bands; `facts.icm` carries the model and its sources, stacks, payouts, prize equities, ranges, bubble factor and risk premium. Every other tournament decision is `tournament-*` with its reason. The user's payouts / field / players left per tournament: `tournament_settings` (owner-only, guard + a trigger that re-queues the tournament's hands; pgTAP 41) and store migration 17 (local). `decision_analysis.source` takes `icm`; the own charts file push/fold decisions (`icm-pushfold-*` tables). **Cash unchanged**: 7 796 corpus cash hands (194 with turn solves) byte-identical record by record before and after. Corpus: 91 tournament hands graded (84 in chips, 7 by ICM), 61 tournament hands a second. Not applied to production. |
+| 2026-10-26 | **R5.5c done, R5.5 complete**: the push/fold grade on screen. The web's analysis sheet shows a tournament decision's **ICM panel** (model and why, stacks, payouts and players left with their sources, prize equity per option - in money when the pool is known -, a big blind's worth, the equilibrium's ranges, bubble factor and risk premium per player) and, for the owner, **Payouts and players left** (`tournament_settings`; the tournament's hands re-graded on the next run); the app's hand analysis the same over its store. Leak finder and session review name the push/fold spots apart from cash opens (both languages, the app through R5.4b's door). `responsive.mjs` gains `RAIL_CHECK_ICM`; the whole run passes at 375 px in `en` and `hr` on a local stack. Vitest `icmScreens` (4). |
 | 2026-10-26 | **R6.2 done**: plans and entitlements in the database, **enforcement off** until the owner launches (R6.2 *As built*, with the launch checklist). Migration `20270908090000_entitlements.sql`: `profiles.plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user` (+ since; every existing account and every account until the cutoff), provider ids (written only by the service role's `billing_set_plan`); `billing_settings` (switch off, early-user cutoff, 30 % discount, 7-day payment grace, 14-day offline grace) and `plan_limits` (Free 10 000 hands; Pro unlimited + desktop sync, HUD, full reports, analysis, Learn) as data; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`. 55 functions gated in their bodies from `entitlement_gates`; the cap and desktop rows by a statement trigger on `hands`; own chart sets, tournament settings and HUD layouts by trigger / policy; refusals `PT402` = HTTP 402. Web: Settings -> Plan, Pro badges and locks only while enforced. pgTAP `entitlements` 68 (on R5.5's staging: suite 49 files on a fresh reset, the 48 earlier files unchanged; R5.5's `tournament_settings` writes gated, its pure validator free), Vitest 12. Types regenerated. Not applied to production. |
