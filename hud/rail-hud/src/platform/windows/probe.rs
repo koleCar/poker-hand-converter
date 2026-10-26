@@ -3,7 +3,8 @@
 //! visibility; which window a screen point hits; a screen pixel as
 //! composed (layered windows included); a process's top-level windows and
 //! its CPU time; since R3.5 a window's client area, whether it exists, the
-//! z-order of two windows and a thread's CPU time; since R3.14 a
+//! z-order of two windows (and an overlay against its table by the
+//! overlay thread's restack rule) and a thread's CPU time; since R3.14 a
 //! process's memory (working set, now and at its peak). Each call switches its
 //! thread to per-monitor DPI awareness (v2) where coordinates are read,
 //! so every coordinate is physical pixels.
@@ -26,8 +27,11 @@ use windows::Win32::UI::WindowsAndMessaging::{
 };
 use windows::core::BOOL;
 
+use super::super::tracking::Stacking;
 use super::super::{Rect, WindowId};
-use super::ffi::{ThreadDpi, class_name, client_rect, hwnd_of, id_of, is_window, process_id};
+use super::ffi::{
+    ThreadDpi, class_name, client_rect, hwnd_of, id_of, is_window, process_id, stacking_of,
+};
 
 /// The window that owns `id` (`GetWindow(GW_OWNER)`).
 #[allow(unsafe_code)]
@@ -250,6 +254,15 @@ pub fn is_above(upper: WindowId, lower: WindowId) -> bool {
         }
     }
     false
+}
+
+/// Where `overlay` is in the z-order against its `table`, by the rule the
+/// overlay thread restacks by ([`super::super::tracking::stacking`]:
+/// directly above it, above it over other windows, or below it), and the
+/// first window it covers that it should not.
+pub fn stacking(overlay: WindowId, table: WindowId) -> (Stacking, Option<WindowId>) {
+    let (stacking, covered) = stacking_of(hwnd_of(overlay), hwnd_of(table));
+    (stacking, covered.map(id_of))
 }
 
 /// The CPU time (kernel + user) thread `tid` has used so far.

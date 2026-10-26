@@ -102,3 +102,23 @@ pub fn raise(id: WindowId) -> Result<(), String> {
     }
     .map_err(|e| format!("SetWindowPos: {e}"))
 }
+
+/// Put window `id` directly below window `after` in the z-order without
+/// activating it (R3.5: something slipped in between an overlay and its
+/// table with no event about the table).
+#[allow(unsafe_code)]
+pub fn place_below(id: WindowId, after: WindowId) -> Result<(), String> {
+    // SAFETY: no pointers; a stale handle is an `Err`.
+    unsafe {
+        SetWindowPos(
+            hwnd_of(id),
+            Some(hwnd_of(after)),
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE,
+        )
+    }
+    .map_err(|e| format!("SetWindowPos: {e}"))
+}

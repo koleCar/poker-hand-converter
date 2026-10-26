@@ -9,7 +9,9 @@
 //!   never repainted, the other tables' overlays untouched, and
 //!   `poll_events` gives the engine one `Moved`. Then the simulator's own
 //!   `move`, a resize (one repaint at the new size), minimise and restore,
-//!   z-order after a raise and a focus, a tournament-style table move (the
+//!   each overlay directly above its table once shown and after a raise
+//!   and a focus, and put back by the overlay thread's 250 ms look when a
+//!   window slips in between, a tournament-style table move (the
 //!   new table's name through the room's matcher, long before any re-find
 //!   would), a hidden and shown table (gone, then `Appeared`), a storm of a
 //!   hundred moves in one second (lag, the overlay thread's CPU), a closed
@@ -42,6 +44,7 @@ use std::path::Path;
 use std::time::{Duration, Instant};
 
 use rail_hud::compliance::Compliance;
+use rail_hud::platform::tracking::Stacking;
 use rail_hud::platform::windows::{OVERLAY_CLASS, WindowsBackend, drive, enumerate, probe};
 use rail_hud::platform::{OverlayFrame, Platform, Rect, TableEvent, TableWindow, WindowId};
 use serde_json::Value;
@@ -188,6 +191,66 @@ fn state(backend: &WindowsBackend, tables: &[Table]) -> String {
         .join("\n")
 }
 
+/// The tables whose overlay is not directly above them (the overlay
+/// thread's own rule, `tracking::stacking`), each with where it is and
+/// the first window it covers; empty when every overlay is in place.
+fn misstacked(tables: &[Table]) -> Vec<String> {
+    tables
+        .iter()
+        .filter_map(|t| {
+            let (stacking, covered) = probe::stacking(t.overlay, t.window.id);
+            (stacking != Stacking::Directly).then(|| {
+                format!(
+                    "table {}: overlay {:#x} {stacking}{}",
+                    t.number,
+                    t.overlay.0,
+                    covered.map_or_else(String::new, |w| format!(" (first covered: {:#x})", w.0))
+                )
+            })
+        })
+        .collect()
+}
+
+/// Every overlay's restacks so far (when, why, where it was, what it was
+/// put after, where it is then), for the step's output.
+fn restacks(backend: &WindowsBackend, tables: &[Table]) -> String {
+    tables
+        .iter()
+        .map(|t| {
+            let info = backend.overlay_info(t.window.id).unwrap_or_default();
+            format!(
+                "  table {}: restacked {}{}",
+                t.number,
+                info.restacked,
+                info.restacks
+                    .iter()
+                    .map(|line| format!("\n    {line}"))
+                    .collect::<String>()
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// Wait up to `limit` for every overlay to be directly above its table;
+/// how long that took, or a failure naming each misplaced overlay, every
+/// restack the overlay thread made and the whole z-order.
+fn until_stacked(
+    backend: &WindowsBackend,
+    tables: &[Table],
+    limit: Duration,
+    context: impl Fn() -> String,
+) -> Duration {
+    until(limit, || misstacked(tables).is_empty()).unwrap_or_else(|| {
+        panic!(
+            "an overlay is not directly above its table after {limit:?}:\n  {}\nrestacks:\n{}\n{}",
+            misstacked(tables).join("\n  "),
+            restacks(backend, tables),
+            context()
+        )
+    })
+}
+
 #[test]
 fn hooks_follow_every_change() {
     let _serial = serial();
@@ -273,6 +336,19 @@ fn hooks_follow_every_change() {
     // Whatever tracking found so far (nothing should have moved).
     eprintln!("after tracking: {:?}", backend.poll_events());
     eprintln!("step ok: three tables tracked, overlays shown");
+
+    // 0. Each overlay directly above its own table as soon as it shows.
+    //    Windows shows a window that does not activate where its own rules
+    //    say (CI: under the runner's terminal, far below the table, #255),
+    //    so the overlay thread puts it there itself; its restacks say
+    //    whether it had to.
+    let lag = until_stacked(&backend, &tables, Duration::from_secs(1), || {
+        context(&backend, &tables, &seen)
+    });
+    eprintln!(
+        "step ok: every overlay directly above its table once shown ({lag:?}); restacks:\n{}",
+        restacks(&backend, &tables)
+    );
 
     // 1. A scripted SetWindowPos sequence on table A: its overlay follows
     //    each move at once, as a move (no repaint); B and C stay put.
@@ -421,32 +497,50 @@ fn hooks_follow_every_change() {
 
     // 5. Z-order: each overlay directly above its own table, after one is
     //    raised and another focused.
+    //    Directly above: nothing that shows between the two. (Up to #255
+    //    this only asked for "above", over 3 s, and still failed: the table
+    //    never raised kept its overlay at the bottom of the z-order, where
+    //    Windows had shown it, since the overlay thread only looked on its
+    //    own table's foreground.)
     drive::raise(b.window.id).expect("raise");
     sim.command(&format!("focus {}", a.number));
-    // Given up to 3 s (a slow CI runner had not restacked one within a fixed
-    // 500 ms).
-    let stacked = until(Duration::from_secs(3), || {
-        tables
-            .iter()
-            .all(|t| probe::is_above(t.overlay, t.window.id))
+    let lag = until_stacked(&backend, &tables, Duration::from_secs(2), || {
+        context(&backend, &tables, &seen)
     });
-    if stacked.is_none() {
-        let below: Vec<u64> = tables
-            .iter()
-            .filter(|t| !probe::is_above(t.overlay, t.window.id))
-            .map(|t| t.number)
-            .collect();
-        panic!(
-            "tables {below:?}: an overlay is below its table\n{}",
-            context(&backend, &tables, &seen)
+    eprintln!(
+        "step ok: z-order after a raise and a focus ({lag:?}); restacks:\n{}",
+        restacks(&backend, &tables)
+    );
+
+    // 5b. Something slips in between an overlay and its table with no
+    //     event about that table (B put directly under C's overlay: a
+    //     z-order change only, which the hooks do not take): the overlay
+    //     thread's 250 ms look puts C's overlay back directly above C.
+    let c = &tables[2];
+    let before = backend.overlay_info(c.window.id).expect("info").restacked;
+    drive::place_below(b.window.id, c.overlay).expect("place B under C's overlay");
+    let (slipped, _) = probe::stacking(c.overlay, c.window.id);
+    let lag = until_stacked(&backend, &tables, Duration::from_secs(2), || {
+        context(&backend, &tables, &seen)
+    });
+    let after = backend.overlay_info(c.window.id).expect("info").restacked;
+    if slipped == Stacking::Directly {
+        // Windows did not take the order (or the look ran in between).
+        eprintln!("R3.5 restack look: B under C's overlay left C's overlay directly above C");
+    } else {
+        assert!(
+            after > before,
+            "C's overlay was {slipped} and is in place again, but not restacked by the HUD\n{}",
+            restacks(&backend, &tables)
+        );
+        eprintln!(
+            "R3.5 restack look: C's overlay {slipped} -> directly above C again in {lag:?} \
+             (the look runs every 250 ms)"
         );
     }
     eprintln!(
-        "step ok: z-order (restacked: {:?})",
-        tables
-            .iter()
-            .map(|t| backend.overlay_info(t.window.id).map_or(0, |i| i.restacked))
-            .collect::<Vec<_>>()
+        "step ok: a window slipped between an overlay and its table; restacks:\n{}",
+        restacks(&backend, &tables)
     );
 
     // 6. A tournament-style table move: the title changes; the hooks say

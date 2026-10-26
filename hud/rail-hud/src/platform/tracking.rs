@@ -12,6 +12,10 @@
 //!   new scale (the table went to a monitor of another dpi, or the
 //!   monitor's scale changed) is a repaint at that size and scale, a
 //!   minimised or cloaked table hides it.
+//! - [`Beneath`], [`stacking`] and [`Restack`]: whether an overlay is
+//!   directly above its table in the z-order, and why the overlay thread
+//!   looked (Windows: shown, the table's events, the table in the
+//!   foreground, the 250 ms look - [`RESTACK_LOOK`]).
 //! - [`Observed`] and [`events`]: what the hook thread saw, turned into the
 //!   engine's [`TableEvent`]s - **coalesced per window** (a drag's hundred
 //!   locations are one `Moved` with the last one: the overlay itself has
@@ -197,6 +201,110 @@ pub fn plan(placed: &Placed, now: &Geometry, dirty: bool) -> Plan {
     } else {
         Plan::Show
     }
+}
+
+/// How often the overlay thread checks every shown overlay's place in the
+/// z-order (Windows): the safety net for a change no event told it about.
+pub const RESTACK_LOOK: std::time::Duration = std::time::Duration::from_millis(250);
+
+/// How many z-order walk steps are taken before giving up (the order can
+/// change during the walk).
+pub const STACKING_WALK: usize = 8192;
+
+/// A window met walking down the z-order from an overlay (Windows,
+/// `GW_HWNDNEXT`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Beneath {
+    /// The overlay's table.
+    Table,
+    /// Nothing that shows between them: hidden, cloaked or empty, or owned
+    /// by the table itself (the client's own dialogs, another program's
+    /// overlay). Windows keeps every window the table owns above it, in
+    /// any order among themselves, so an overlay never fights them.
+    Passable,
+    /// Something else that shows: the overlay would draw over it.
+    Other,
+}
+
+/// Where an overlay is in the z-order against its table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Stacking {
+    /// Directly above it: nothing but passable windows between.
+    Directly,
+    /// Above it, but over this many other windows that are above the
+    /// table: it draws over them.
+    Covering(usize),
+    /// Not above it (the walk down from the overlay never met the table):
+    /// the table hides it.
+    Below,
+}
+
+impl Stacking {
+    /// Whether the overlay must be put back directly above its table.
+    pub fn needs_restack(self) -> bool {
+        self != Self::Directly
+    }
+}
+
+impl std::fmt::Display for Stacking {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Directly => f.write_str("directly above its table"),
+            Self::Covering(n) => write!(f, "above its table over {n} other window(s)"),
+            Self::Below => f.write_str("below its table"),
+        }
+    }
+}
+
+/// Where an overlay is, from the windows below it in z-order (nearest
+/// first, as [`Beneath`]): the first non-passable window decides whether
+/// it is directly above; other windows met before the table are counted.
+/// The walk stops at the table, so an overlay in place costs one step.
+pub fn stacking(beneath: impl IntoIterator<Item = Beneath>) -> Stacking {
+    let mut others = 0;
+    for window in beneath {
+        match window {
+            Beneath::Table if others == 0 => return Stacking::Directly,
+            Beneath::Table => return Stacking::Covering(others),
+            Beneath::Passable => {}
+            Beneath::Other => others += 1,
+        }
+    }
+    Stacking::Below
+}
+
+/// Why the overlay thread looked at an overlay's place in the z-order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Restack {
+    /// The overlay was just shown (first paint, or after a hide): Windows
+    /// puts a window shown without activation where its own rules say -
+    /// behind the foreground window when another process has the
+    /// foreground - not above its owner.
+    Shown,
+    /// The table came to the foreground.
+    Foreground,
+    /// The table moved, was shown, restored or uncloaked.
+    Event,
+    /// The periodic look ([`RESTACK_LOOK`]).
+    Look,
+}
+
+impl std::fmt::Display for Restack {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Shown => "shown",
+            Self::Foreground => "foreground",
+            Self::Event => "table event",
+            Self::Look => "look",
+        })
+    }
+}
+
+/// Whether the `n`th restack of one overlay (1-based) is written to
+/// stderr: the first twenty, then every hundredth - a window that keeps
+/// pushing in between must not flood the log.
+pub fn logs_restack(n: u64) -> bool {
+    n <= 20 || n.is_multiple_of(100)
 }
 
 /// What the hooks saw of one window since the last poll: only the latest
@@ -429,6 +537,52 @@ mod tests {
         assert_eq!(hooked, 12, "the twelve events of R3.5");
         assert!(!Hooked::Name.moves() && !Hooked::Destroyed.moves());
         assert!(Hooked::Location.moves() && Hooked::Foreground.moves());
+    }
+
+    /// An overlay is in place only directly above its table: hidden, empty
+    /// or cloaked windows and the table's own owned windows between them
+    /// do not count, anything else that shows does; never meeting the
+    /// table is below it. The walk stops at the table or the end.
+    #[test]
+    fn where_an_overlay_stacks() {
+        use Beneath::{Other, Passable, Table};
+        assert_eq!(stacking([Table]), Stacking::Directly);
+        assert_eq!(stacking([Passable, Passable, Table]), Stacking::Directly);
+        assert_eq!(stacking([Other, Table]), Stacking::Covering(1));
+        assert_eq!(
+            stacking([Passable, Other, Passable, Other, Table]),
+            Stacking::Covering(2)
+        );
+        // The CI failure (#255): the overlay at the bottom of the z-order,
+        // under the runner's terminal, its table far above it.
+        assert_eq!(stacking([Other, Passable, Passable]), Stacking::Below);
+        assert_eq!(stacking([]), Stacking::Below);
+        // What comes after the table is never read.
+        let mut read = 0;
+        let walk = [Table, Other, Other].into_iter().inspect(|_| read += 1);
+        assert_eq!(stacking(walk), Stacking::Directly);
+        assert_eq!(read, 1);
+        assert!(!Stacking::Directly.needs_restack());
+        assert!(Stacking::Covering(1).needs_restack());
+        assert!(Stacking::Below.needs_restack());
+        assert_eq!(Stacking::Below.to_string(), "below its table");
+        assert_eq!(
+            Stacking::Covering(3).to_string(),
+            "above its table over 3 other window(s)"
+        );
+        assert_eq!(Restack::Shown.to_string(), "shown");
+        assert_eq!(Restack::Look.to_string(), "look");
+        assert!(RESTACK_LOOK <= std::time::Duration::from_millis(500));
+    }
+
+    /// A restack is logged the first twenty times, then every hundredth.
+    #[test]
+    fn restacks_logged_sparingly() {
+        let logged: Vec<u64> = (1..=1000).filter(|&n| logs_restack(n)).collect();
+        assert_eq!(logged.len(), 20 + 10);
+        assert_eq!(logged[19], 20);
+        assert_eq!(logged[20], 100);
+        assert!(!logs_restack(21) && !logs_restack(150));
     }
 
     /// The scale is the monitor's; a client that is not per-monitor aware
