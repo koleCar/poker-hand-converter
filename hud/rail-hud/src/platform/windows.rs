@@ -20,15 +20,20 @@
 //!   compliance mode in the engine decides.
 //! - **R3.4 `overlay`** (done; `overlay.rs`): one window per table,
 //!   `WS_POPUP` with `WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE`,
-//!   **owned by the table window** (its owner at creation): Windows keeps an
-//!   owned window directly above its owner, hides it while the owner is
-//!   minimised and destroys it with the owner; the tool style keeps it off
-//!   the taskbar and Alt+Tab, no-activate (and `MA_NOACTIVATE`) keeps a
-//!   click from taking focus from the table. It covers the table's client
-//!   area exactly, in physical pixels, from a thread that is per-monitor
-//!   DPI aware (v2). Its pixels are a premultiplied 32-bit DIB painted by
-//!   **Direct2D** (a software DC render target) with **DirectWrite** text
-//!   (grayscale anti-aliasing: ClearType needs an opaque background) and
+//!   **owned by the table window** (its owner at creation): Windows takes an
+//!   owned window along when its owner moves in the z-order, hides it
+//!   while the owner is minimised and destroys it with the owner - but it
+//!   shows a window that does not activate where its own rules say (behind
+//!   another process's foreground window), so the overlay thread puts each
+//!   overlay directly above its table itself (R3.5: when shown, on the
+//!   table's events and foreground, and a look every 250 ms); the tool
+//!   style keeps it off the taskbar and Alt+Tab, no-activate (and
+//!   `MA_NOACTIVATE`) keeps a click from taking focus from the table. It
+//!   covers the table's client area exactly, in physical pixels, from a
+//!   thread that is per-monitor DPI aware (v2). Its pixels are a
+//!   premultiplied 32-bit DIB painted by **Direct2D** (a software DC
+//!   render target) with **DirectWrite** text (grayscale anti-aliasing:
+//!   ClearType needs an opaque background) and
 //!   shown with `UpdateLayeredWindow` (`ULW_ALPHA`): everything but the
 //!   panels is alpha 0, and Windows hit-tests a layered window by its
 //!   alpha, so a click anywhere but on a panel reaches the table (the
@@ -164,10 +169,16 @@ pub struct OverlayInfo {
     pub dropped: Vec<String>,
     /// How many times it was moved without a repaint (R3.5: a drag).
     pub moves: u64,
-    /// How many times it was put back directly above its table when the
-    /// table came to the foreground (z-order sanity, R3.5; Windows keeps an
-    /// owned window above its owner, so this should stay 0).
+    /// How many times it was put back directly above its table (R3.5):
+    /// when it was shown, on its table's events and foreground, or by the
+    /// 250 ms look. Windows keeps an owned window above its owner only
+    /// when the owner moves in the z-order, and shows a window that does
+    /// not activate where its own rules say, so this is not always 0.
     pub restacked: u64,
+    /// The last few restacks, oldest first: when (seconds since the
+    /// overlay thread started), why, where the overlay was, what it was
+    /// put after and where it is then.
+    pub restacks: Vec<String>,
     /// The last failure, if any.
     pub error: Option<String>,
 }
@@ -504,11 +515,14 @@ mod ffi {
         SetThreadDpiAwarenessContext,
     };
     use windows::Win32::UI::WindowsAndMessaging::{
-        EnumWindows, GA_ROOT, GetAncestor, GetClassNameW, GetClientRect, GetWindowTextLengthW,
+        EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GetAncestor, GetClassNameW,
+        GetClientRect, GetWindow, GetWindowLongPtrW, GetWindowRect, GetWindowTextLengthW,
         GetWindowTextW, GetWindowThreadProcessId, IsIconic, IsWindow, IsWindowVisible,
+        WS_EX_TOPMOST,
     };
     use windows::core::{BOOL, PWSTR};
 
+    use super::super::tracking::{self, Beneath, STACKING_WALK, Stacking};
     use super::super::{DpiAwareness, PlatformError, RawWindow, Rect, WindowId};
 
     pub(super) fn enumerate() -> Result<Vec<RawWindow>, PlatformError> {
@@ -749,6 +763,81 @@ mod ffi {
             )
         };
         read.is_ok() && cloaked != 0
+    }
+
+    /// The window below `hwnd` in the z-order; `None` at the end (or for
+    /// a stale handle).
+    #[allow(unsafe_code)]
+    pub(super) fn next_below(hwnd: HWND) -> Option<HWND> {
+        // SAFETY: reads a relation; the end of the list or a stale handle
+        // is an `Err`.
+        unsafe { GetWindow(hwnd, GW_HWNDNEXT) }
+            .ok()
+            .filter(|h| !h.is_invalid())
+    }
+
+    /// The window that owns `hwnd` (`GW_OWNER`), if any.
+    #[allow(unsafe_code)]
+    pub(super) fn owner_of(hwnd: HWND) -> Option<HWND> {
+        // SAFETY: reads a relation; no owner or a stale handle is an `Err`.
+        unsafe { GetWindow(hwnd, GW_OWNER) }
+            .ok()
+            .filter(|h| !h.is_invalid())
+    }
+
+    /// Whether it is in the topmost band (`WS_EX_TOPMOST`).
+    #[allow(unsafe_code)]
+    pub(super) fn is_topmost(hwnd: HWND) -> bool {
+        // SAFETY: reads a window long; a stale handle gives 0.
+        let style = unsafe { GetWindowLongPtrW(hwnd, GWL_EXSTYLE) };
+        style & isize::try_from(WS_EX_TOPMOST.0).unwrap_or(0) != 0
+    }
+
+    /// Whether its window rectangle is empty (a zero-size helper window
+    /// such as winit's thread event target).
+    #[allow(unsafe_code)]
+    fn is_empty(hwnd: HWND) -> bool {
+        let mut r = RECT::default();
+        // SAFETY: `r` is a valid out pointer; a stale handle is an `Err`.
+        if unsafe { GetWindowRect(hwnd, &mut r) }.is_err() {
+            return true;
+        }
+        r.right <= r.left || r.bottom <= r.top
+    }
+
+    /// What window `below` is to an overlay over `table` (R3.5's restack):
+    /// the table, nothing that shows, or something it would cover.
+    fn beneath(below: HWND, table: HWND) -> Beneath {
+        if below == table {
+            Beneath::Table
+        } else if !is_visible(below)
+            || owner_of(below) == Some(table)
+            || is_empty(below)
+            || is_cloaked(below)
+        {
+            Beneath::Passable
+        } else {
+            Beneath::Other
+        }
+    }
+
+    /// Where `overlay` is in the z-order against `table`
+    /// ([`tracking::stacking`]), and the first window it covers that it
+    /// should not (for the diagnostics). Walks down from the overlay: one
+    /// step when it is in place.
+    pub(super) fn stacking_of(overlay: HWND, table: HWND) -> (Stacking, Option<HWND>) {
+        let mut first_other = None;
+        let walk = std::iter::successors(next_below(overlay), |&h| next_below(h))
+            .take(STACKING_WALK)
+            .map(|below| {
+                let kind = beneath(below, table);
+                if kind == Beneath::Other && first_other.is_none() {
+                    first_other = Some(below);
+                }
+                kind
+            });
+        let stacking = tracking::stacking(walk);
+        (stacking, first_other)
     }
 
     /// (the window's dpi, its monitor's effective dpi, its awareness); 0

@@ -65,6 +65,22 @@
 //! (for a new frame, a hook event, the engine's `follow`), never taken
 //! from a description handed over, which can be older than what the hooks
 //! have shown: the engine's periodic re-find cannot move an overlay back.
+//!
+//! **Z-order (R3.5).** Each shown overlay must be directly above its
+//! table: nothing that shows between them ([`tracking::stacking`]; the
+//! table's own owned windows and hidden, cloaked or empty ones do not
+//! count). Windows takes an owned window along when its owner moves in
+//! the z-order, but shows a window that does not activate where its own
+//! rules say - on CI, under the runner's terminal (the foreground window),
+//! far below its table, which stayed there until the table itself was
+//! raised (#255's failure, six times since R3.5). So the thread checks
+//! (one `GetWindow` when in place) and puts it back right after the window
+//! above the table ([`Overlays::restack`]) when it is shown, on its
+//! table's events and foreground, and every 250 ms for every shown overlay
+//! (a thread timer, running only while there are overlays): the safety net
+//! for an order change no hooked event reports. Each restack is counted
+//! and noted with its time, reason and before / after
+//! (`OverlayInfo::restacks`, stderr).
 
 use std::cell::{Cell, RefCell};
 use std::collections::hash_map::Entry;
@@ -101,21 +117,27 @@ use windows::Win32::System::Threading::GetCurrentThreadId;
 use windows::Win32::UI::Accessibility::{HWINEVENTHOOK, SetWinEventHook, UnhookWinEvent};
 use windows::Win32::UI::Input::KeyboardAndMouse::{ReleaseCapture, SetCapture};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GW_HWNDNEXT, GW_HWNDPREV,
-    GetMessageW, GetWindow, HTTRANSPARENT, HWND_TOP, IsWindowVisible, MA_NOACTIVATE, MSG,
+    CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GW_HWNDPREV, GetMessageW,
+    GetWindow, HTTRANSPARENT, HWND_TOP, IsWindowVisible, KillTimer, MA_NOACTIVATE, MSG,
     PM_NOREMOVE, PeekMessageW, PostThreadMessageW, RegisterClassExW, SW_HIDE, SW_SHOWNOACTIVATE,
-    SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SetWindowPos, ShowWindow, ULW_ALPHA,
-    UpdateLayeredWindow, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WM_APP, WM_CAPTURECHANGED,
-    WM_DESTROY, WM_DPICHANGED, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEACTIVATE, WM_MOUSEMOVE,
-    WM_NCHITTEST, WNDCLASSEXW, WS_EX_LAYERED, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_POPUP,
+    SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SetTimer, SetWindowPos, ShowWindow,
+    ULW_ALPHA, UpdateLayeredWindow, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WM_APP,
+    WM_CAPTURECHANGED, WM_DESTROY, WM_DPICHANGED, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEACTIVATE,
+    WM_MOUSEMOVE, WM_NCHITTEST, WM_TIMER, WNDCLASSEXW, WS_EX_LAYERED, WS_EX_NOACTIVATE,
+    WS_EX_TOOLWINDOW, WS_POPUP,
 };
 use windows::core::{PCWSTR, w};
 
 use super::super::drag::{self, Drag};
-use super::super::tracking::{self, Geometry, Hooked, Observed, Placed, Plan, win_event};
+use super::super::tracking::{
+    self, Geometry, Hooked, Observed, Placed, Plan, RESTACK_LOOK, Restack, logs_restack, win_event,
+};
 use super::super::{OverlayFrame, PlatformError, Rect, TableEvent, TableWindow, WindowId};
 use super::OverlayInfo;
-use super::ffi::{ThreadDpi, hwnd_of, id_of, is_top_level, is_window, state_of, window_text};
+use super::ffi::{
+    ThreadDpi, class_name as class_of, hwnd_of, id_of, is_top_level, is_topmost, is_window,
+    stacking_of, state_of, window_text,
+};
 use crate::layout::{self, Positions};
 use crate::scene::{Item, Rgba, Scene, compose_with};
 
@@ -139,6 +161,9 @@ const LEFT_BUTTON: usize = 0x0001;
 /// `EVENT_SYSTEM_MINIMIZESTART` while `IsIconic` does not say so yet: a
 /// missed `MINIMIZEEND` must not hide an overlay for good.
 const MINIMIZING: Duration = Duration::from_secs(2);
+
+/// The restacks kept per overlay for `OverlayInfo::restacks`.
+const KEEP_RESTACKS: usize = 8;
 
 enum Command {
     Frame {
@@ -460,6 +485,8 @@ fn run(
         observed,
         follow_times: Vec::new(),
         drag_seq: 0,
+        started: Instant::now(),
+        look: None,
     };
     'pump: while let Some(message) = next_message() {
         if message.hwnd.is_invalid() && message.message == WAKE {
@@ -471,9 +498,12 @@ fn run(
             }
         } else if message.hwnd.is_invalid() && message.message == HOOKED {
             state.hooked();
+        } else if message.hwnd.is_invalid() && message.message == WM_TIMER {
+            state.look();
         } else if !state.mouse(&message) {
             dispatch(&message);
         }
+        state.pace_look();
     }
     state.close_all();
 }
@@ -627,6 +657,8 @@ struct Overlay {
     last_render_us: u64,
     moves: u64,
     restacked: u64,
+    /// The last restacks (`KEEP_RESTACKS`), for `OverlayInfo::restacks`.
+    restacks: Vec<String>,
     error: Option<String>,
     /// A press on a seat's panel being followed (R3.6).
     drag: Option<Drag>,
@@ -679,6 +711,11 @@ struct Overlays {
     /// Drags dropped so far, on every overlay (R3.6): each drop's number,
     /// which the engine hands back in its frames.
     drag_seq: u64,
+    /// When the thread started: the restack log's clock.
+    started: Instant,
+    /// The thread timer of the z-order look (R3.5), while there are
+    /// overlays.
+    look: Option<usize>,
 }
 
 fn keep(times: &mut Vec<u64>, us: u64) {
@@ -855,7 +892,9 @@ impl Overlays {
             self.follow(table, Some(at));
         }
         if foreground {
-            self.restack(table);
+            self.restack(table, Restack::Foreground);
+        } else if moves {
+            self.restack(table, Restack::Event);
         }
     }
 
@@ -946,20 +985,79 @@ impl Overlays {
         }
     }
 
-    /// The table came to the foreground: its overlay must be directly
-    /// above it. Windows keeps an owned window above its owner, so this
-    /// is a check that should never have to act; when it does, it is
-    /// counted (`OverlayInfo::restacked`).
-    fn restack(&mut self, table: WindowId) {
+    /// A shown overlay must be directly above its table
+    /// ([`tracking::stacking`]); if it is not, it is put there, counted
+    /// (`OverlayInfo::restacked`) and the restack noted - when, `why`,
+    /// where it was, what it was put after, where it is then - in
+    /// `OverlayInfo::restacks` and on stderr. Windows takes an owned
+    /// window along only when its owner moves in the z-order, and shows a
+    /// window that does not activate where its own rules say (CI: under
+    /// the runner's terminal, the foreground window, far below its table,
+    /// which nothing then raised): this check is what keeps the overlay
+    /// on its table. One `GetWindow` when the overlay is in place.
+    fn restack(&mut self, table: WindowId, why: Restack) {
+        let since = self.started.elapsed();
         let Some(overlay) = self.windows.get_mut(&table) else {
             return;
         };
-        if !is_visible(overlay.hwnd) || above(overlay.hwnd, hwnd_of(table)) {
+        if !is_visible(overlay.hwnd) {
             return;
         }
-        match put_above(overlay.hwnd, hwnd_of(table)) {
-            Ok(()) => overlay.restacked += 1,
-            Err(error) => overlay.error = Some(error),
+        let owner = hwnd_of(table);
+        let (was, covered) = stacking_of(overlay.hwnd, owner);
+        if !was.needs_restack() {
+            return;
+        }
+        let put = put_above(overlay.hwnd, owner);
+        let (now, _) = stacking_of(overlay.hwnd, owner);
+        overlay.restacked += 1;
+        let line = format!(
+            "+{:.3}s {why}: overlay {:#x} of table {:#x} was {was}{}; put {}; now {now}",
+            since.as_secs_f64(),
+            id_of(overlay.hwnd).0,
+            table.0,
+            covered.map_or_else(String::new, |h| format!(
+                " (first covered: {})",
+                describe(Some(h))
+            )),
+            match &put {
+                Ok(after) => format!("after {}", describe(*after)),
+                Err(error) => format!("failed: {error}"),
+            },
+        );
+        if logs_restack(overlay.restacked) {
+            eprintln!("rail-hud: restack #{} {line}", overlay.restacked);
+        }
+        if overlay.restacks.len() >= KEEP_RESTACKS {
+            overlay.restacks.remove(0);
+        }
+        overlay.restacks.push(line);
+        if let Err(error) = put {
+            overlay.error = Some(error);
+        }
+    }
+
+    /// The safety net (every [`RESTACK_LOOK`]): every shown overlay is
+    /// checked, in case the z-order changed with no event about its table
+    /// (a window put between them, an owner's move Windows did not carry
+    /// the overlay along with).
+    fn look(&mut self) {
+        let tables: Vec<WindowId> = self.windows.keys().copied().collect();
+        for table in tables {
+            self.restack(table, Restack::Look);
+        }
+    }
+
+    /// Run the look's timer while there are overlays, and only then (no
+    /// overlay, no wake-ups).
+    fn pace_look(&mut self) {
+        match (self.look, self.windows.is_empty()) {
+            (None, false) => self.look = start_timer(RESTACK_LOOK),
+            (Some(timer), true) => {
+                stop_timer(timer);
+                self.look = None;
+            }
+            _ => {}
         }
     }
 
@@ -982,6 +1080,7 @@ impl Overlays {
                     last_render_us: 0,
                     moves: 0,
                     restacked: 0,
+                    restacks: Vec::new(),
                     error: None,
                     drag: None,
                     clicks: 0,
@@ -1051,6 +1150,11 @@ impl Overlays {
                 show(overlay.hwnd, true);
             }
             Plan::Show => show(overlay.hwnd, true),
+        }
+        // Just shown: Windows put it where its rules for a window shown
+        // without activation say, not necessarily above its table.
+        if !placed.shown && is_visible(overlay.hwnd) {
+            self.restack(table, Restack::Shown);
         }
         plan
     }
@@ -1228,6 +1332,7 @@ fn info(overlay: &Overlay) -> OverlayInfo {
         dropped: overlay.scene.dropped.clone(),
         moves: overlay.moves,
         restacked: overlay.restacked,
+        restacks: overlay.restacks.clone(),
         error: overlay.error.clone(),
     }
 }
@@ -1345,35 +1450,16 @@ fn unhook(hooks: Vec<HWINEVENTHOOK>) {
     }
 }
 
-/// Whether `upper` is above `lower` in the z-order (walking down from
-/// `upper`; bounded, as the order can change during the walk).
-#[allow(unsafe_code)]
-fn above(upper: HWND, lower: HWND) -> bool {
-    let mut next = upper;
-    for _ in 0..8192 {
-        // SAFETY: reads a relation; the end of the list or a stale handle
-        // is an `Err`.
-        match unsafe { GetWindow(next, GW_HWNDNEXT) } {
-            Ok(below) if !below.is_invalid() => {
-                if below == lower {
-                    return true;
-                }
-                next = below;
-            }
-            _ => return false,
-        }
-    }
-    false
-}
-
 /// Put `overlay` directly above `table`: after the window just above the
-/// table, or on top when the table is.
+/// table, or on top of the (non-topmost) z-order when the table is - or
+/// when the window above it is a topmost one, which a non-topmost window
+/// cannot follow. What it was put after (`None`: on top).
 #[allow(unsafe_code)]
-fn put_above(overlay: HWND, table: HWND) -> Result<(), String> {
+fn put_above(overlay: HWND, table: HWND) -> Result<Option<HWND>, String> {
     // SAFETY: reads a relation; none above (or a stale handle) is an `Err`.
     let previous = unsafe { GetWindow(table, GW_HWNDPREV) }
         .ok()
-        .filter(|h| !h.is_invalid() && *h != overlay);
+        .filter(|h| !h.is_invalid() && *h != overlay && !is_topmost(*h));
     // SAFETY: a window of this thread; no pointers; neither moved, sized
     // nor activated.
     unsafe {
@@ -1387,7 +1473,34 @@ fn put_above(overlay: HWND, table: HWND) -> Result<(), String> {
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE,
         )
     }
-    .map_err(|e| format!("SetWindowPos (z-order): {e}"))
+    .map_err(|e| format!("SetWindowPos (z-order): {e}"))?;
+    Ok(previous)
+}
+
+/// A window for the restack log: handle and class; `None` is the top.
+fn describe(window: Option<HWND>) -> String {
+    window.map_or_else(
+        || "on top".to_owned(),
+        |h| format!("{:#x} ({})", id_of(h).0, class_of(h)),
+    )
+}
+
+/// Start a thread timer (no window: `WM_TIMER` comes to the thread's
+/// queue with no window); its id, `None` if it could not be made (then
+/// the events alone keep the overlays in place).
+#[allow(unsafe_code)]
+fn start_timer(every: Duration) -> Option<usize> {
+    let ms = u32::try_from(every.as_millis()).unwrap_or(u32::MAX);
+    // SAFETY: no window and no callback: the system picks the id and
+    // posts `WM_TIMER` to this thread.
+    let id = unsafe { SetTimer(None, 0, ms, None) };
+    (id != 0).then_some(id)
+}
+
+#[allow(unsafe_code)]
+fn stop_timer(id: usize) {
+    // SAFETY: a thread timer this thread started and has not stopped.
+    let _ = unsafe { KillTimer(None, id) };
 }
 
 /// The overlay window for `table`: owned by it, layered, a tool window
