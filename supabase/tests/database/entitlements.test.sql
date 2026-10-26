@@ -15,7 +15,8 @@
 --   * **enforcement off (the default): nothing changes** - no gated
 --     function refuses a Free account, no cap is checked;
 --   * enforcement on: a Free account is refused every gated function, its
---     desktop rows and its HUD layouts, and a save past the cap - at the
+--     desktop rows, its HUD layouts, its own chart sets and tournament
+--     settings, and a save past the cap - at the
 --     boundary, the statement whole, duplicates free; basic statistics stay
 --     open; a Pro account (and its grace states) is allowed everything.
 
@@ -24,7 +25,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(66);
+select plan(68);
 
 -- Free, Pro, and the Pro states; created a while ago.
 insert into auth.users (id, email, email_confirmed_at, created_at) values
@@ -213,7 +214,7 @@ select is((select array_agg(p.proname::text order by p.proname) from pg_proc p
             where p.pronamespace = 'public'::regnamespace
               and p.proname in ('billing_plan_state', 'has_entitlement', 'has_my_entitlement', 'require_entitlement',
                                 'billing_stored_hands', 'my_entitlements', 'billing_set_plan', 'billing_mark_early_users',
-                                'profiles_mark_early_user', 'hands_enforce_plan', 'preflop_chart_sets_entitlement')
+                                'profiles_mark_early_user', 'hands_enforce_plan', 'entitlement_row_guard')
               and not (p.prosecdef and p.proconfig @> array['search_path=""'])),
   null, 'every new definer pins search_path to empty');
 
@@ -287,6 +288,10 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'preflop_chart_key_ok', 'preflop_chart_node_key', 'preflop_chart_nodes_problem',
                 'preflop_chart_seats', 'preflop_chart_set_table', 'preflop_chart_window', 'preflop_class_index',
                 'preflop_decision_fields', 'study_week', 'study_week_valid',
+                -- R5.5: the settings validator is pure (immutable, no table) and
+                -- answers the shape before a save; the writes it checks are gated
+                -- by `tournament_settings_entitlement`
+                'tournament_settings_problem',
                 -- the entitlements themselves
                 'my_entitlements', 'has_my_entitlement', 'require_entitlement')),
   null, 'every client-callable function is gated or named free here');
@@ -422,6 +427,9 @@ select is((select count(*)::int from public.hud_layouts), 0, 'a Free account rea
 select is(pg_temp.refusal($$ insert into public.preflop_chart_sets (name, game_format, table_size, stack_min_bb, stack_max_bb)
                                values ('Mine', 'cash', 6, 80, 120) $$),
   'PT402:analysis', 'a Free account cannot write an own chart set');
+select is(pg_temp.refusal($$ insert into public.tournament_settings (site, tournament_id, settings)
+                               values ('weplay', 't1', '{}') $$),
+  'PT402:analysis', 'nor tournament settings (ICM grading)');
 
 -- Pro: everything, past the cap.
 select pg_temp.act_as('00000000-0000-0000-0000-00000062a001');
@@ -435,6 +443,8 @@ $$, 'it syncs from the desktop');
 select is((select count(*)::int from public.hud_layouts), 1, 'it reads its HUD layouts');
 select lives_ok($$ insert into public.preflop_chart_sets (name, game_format, table_size, stack_min_bb, stack_max_bb)
                    values ('Mine', 'cash', 6, 80, 120) $$, 'it writes own chart sets');
+select lives_ok($$ insert into public.tournament_settings (site, tournament_id, settings)
+                   values ('weplay', 't1', '{}') $$, 'and tournament settings');
 
 -- The plan states (enforcement on).
 create function pg_temp.state_of(p_plan text, p_status text, p_end timestamptz) returns text language plpgsql as $$

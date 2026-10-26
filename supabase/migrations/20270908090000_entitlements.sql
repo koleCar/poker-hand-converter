@@ -49,7 +49,8 @@
 --     enforcement, expiry and grace).
 --   * Data-level checks that no client path can go around: the hand cap and
 --     desktop-origin rows on `hands` (a statement trigger after the library's
---     counts), own chart sets (a row trigger), the HUD layouts' select policy.
+--     counts), own chart sets and tournament settings (a row trigger), the
+--     HUD layouts' select policy.
 --
 -- ## The Free / Pro line
 --
@@ -70,7 +71,8 @@
 --                   `stats_opponents`, the Players screen's readers
 --     analysis      every analysis reader and save, session review, own
 --                   charts (readers, and writes to `preflop_chart_sets`),
---                   drills, the trainer, the study plan, `villain_counters`
+--                   ICM (writes to `tournament_settings`), drills, the
+--                   trainer, the study plan, `villain_counters`
 --     learn         the course's server writes (`record_lesson_results`,
 --                   `add_lesson_cards`, `review_lesson_card`)
 --     desktop_sync  `register_hand_source`, `hands_since`, `put_hud_layouts`,
@@ -624,29 +626,38 @@ create trigger hands_plan_after_insert
   referencing new table as inserted
   for each statement execute function public.hands_enforce_plan();
 
--- 7b. Own chart sets are written directly under RLS (`20270811090000`).
-create or replace function public.preflop_chart_sets_entitlement()
+-- 7b. Tables a client writes directly under RLS: own chart sets
+-- (`20270811090000`) and tournament settings (`20270901090000`, R5.5's ICM
+-- grading). A row trigger, the feature its argument; named to fire before
+-- each table's own guard (before-triggers fire in name order). Deleting
+-- one's own row stays allowed.
+create or replace function public.entitlement_row_guard()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
 as $$
 begin
-  if not public.has_entitlement(new.owner_id, 'analysis') then
+  if not public.has_entitlement(new.owner_id, tg_argv[0]) then
     raise exception 'This is a Pro feature. Upgrade to Pro to use it.'
-      using errcode = 'PT402', hint = 'analysis';
+      using errcode = 'PT402', hint = tg_argv[0];
   end if;
   return new;
 end;
 $$;
 
-revoke all on function public.preflop_chart_sets_entitlement() from public;
-revoke execute on function public.preflop_chart_sets_entitlement() from anon, authenticated;
+revoke all on function public.entitlement_row_guard() from public;
+revoke execute on function public.entitlement_row_guard() from anon, authenticated;
 
 drop trigger if exists preflop_chart_sets_entitlement on public.preflop_chart_sets;
 create trigger preflop_chart_sets_entitlement
   before insert or update on public.preflop_chart_sets
-  for each row execute function public.preflop_chart_sets_entitlement();
+  for each row execute function public.entitlement_row_guard('analysis');
+
+drop trigger if exists tournament_settings_entitlement on public.tournament_settings;
+create trigger tournament_settings_entitlement
+  before insert or update on public.tournament_settings
+  for each row execute function public.entitlement_row_guard('analysis');
 
 -- 7c. The HUD's layouts are read with a plain select (`20270602090000`):
 -- a Free account under enforcement reads none.

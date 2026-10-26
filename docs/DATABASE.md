@@ -252,7 +252,7 @@ why:
 | `require_entitlement`, `has_my_entitlement` | **definer** | The guard every gated function opens with, and its boolean for policies: read the sealed tables for the caller only. `require_entitlement` is executable by `anon` too (an invoker reader calls it as whoever calls the reader; it refuses `anon` under enforcement). |
 | `has_entitlement`, `billing_plan_state`, `billing_stored_hands` | **definer** | Take an owner - an oracle on other accounts' plans - so no client may execute them; the triggers and the functions above call them. |
 | `billing_set_plan` | **definer** | The only writer of the plan fields; `service_role` only (R6.3's webhook). |
-| `hands_enforce_plan`, `preflop_chart_sets_entitlement`, `profiles_mark_early_user` (triggers) | **definer** | Read the sealed plan tables for the rows' owners. No client may execute them. |
+| `hands_enforce_plan`, `entitlement_row_guard`, `profiles_mark_early_user` (triggers) | **definer** | Read the sealed plan tables for the rows' owners. No client may execute them. |
 | `hands_signal_arrival` (trigger) | **definer** | `hand_arrivals` has no client write grant and `save_hands` runs as the caller. Reads only the statement's transition table, upserts one row per owner in it; a failure is swallowed so it never fails a save. No client may execute it (R1.10). |
 
 ---
@@ -1642,7 +1642,7 @@ Pro within the grace; canceled -> Pro to the period end; otherwise Free.
 | A Pro function | First statement of its body: `perform public.require_entitlement('<feature>');`. The list is the table `entitlement_gates` (function signature, feature); the migration wrote the line into each body (`entitlement_gates_apply()`, from `pg_get_functiondef`, grants and settings kept). **A migration that re-creates a gated function keeps the line**; pgTAP `entitlements` fails otherwise. A new client-callable function must be added to `entitlement_gates` (and given the line) or to the test's free list - the test fails until it is on one side. |
 | The hand cap | `hands_plan_after_insert`, a statement trigger on `hands` named to fire after `hands_library_counts_after_insert`, so the library's counts already hold the statement's rows: over the cap, the statement is refused whole. Every path (`save_hands`, `ingest_hands`, a direct insert); duplicates never reach the trigger. |
 | Desktop sync | The same trigger refuses rows of origin `desktop` without `desktop_sync`; `register_hand_source`, `hands_since`, `put_hud_layouts` are gated; `hud_layouts`' select policy adds `(select public.has_my_entitlement('desktop_sync'))`. The web's bulk upload (`upload` origin) is not desktop sync. |
-| Own chart sets | Written directly under RLS, so a before-insert-or-update trigger (`preflop_chart_sets_entitlement`). |
+| Own chart sets, tournament settings | Written directly under RLS (`preflop_chart_sets`, R5.5's `tournament_settings`), so a before-insert-or-update row trigger, `entitlement_row_guard('analysis')`, named to fire before each table's own guard. Deleting one's own row stays allowed. |
 
 A refusal is SQLSTATE `PT402`, which PostgREST answers as **HTTP 402**, with a
 fixed English sentence (Croatian in `frontend/src/lib/i18n/serverErrors.ts`),
@@ -1656,7 +1656,8 @@ shared analysis, and basic statistics - `report_open`, `report_graph`,
 `report_facets` and the statistics' own writers, coverage and prunes. Pro:
 `reports_full` (`report_situations`, `report_sessions`, `stats_opponents`,
 the Players screen), `analysis` (every analysis reader and save, session
-review, own charts, drills, trainer, study plan, `villain_counters`),
+review, own charts, ICM tournament settings, drills, trainer, study plan,
+`villain_counters`),
 `learn` (the course's server writes), `desktop_sync` (above). Your own rows
 of a Pro table stay readable by a plain select under RLS (R6.5's export reads
 them); what is gated is the feature's functions.
@@ -1668,7 +1669,7 @@ it once per account (`lib/entitlements/`), the desktop app will in R6.4.
 
 ### Tests
 
-`supabase/tests/database/entitlements.test.sql` (66): the plan fields not
+`supabase/tests/database/entitlements.test.sql` (68): the plan fields not
 client-readable or -writable, the sealed tables, the writer's grant; every
 gate in place and every client-callable function classified; early users
 before and after the cutoff; `my_entitlements` per state (off, Free, Pro,
@@ -1677,7 +1678,7 @@ and after the period end, granted); enforcement off -> no gated function
 refuses a Free account and the cap is not checked; on -> every gated function
 refuses Free with `PT402`, basic statistics and the library stay open, the
 cap at the boundary (the statement whole, duplicates free, direct insert and
-bulk upload too), desktop rows, HUD layouts and chart sets refused, Pro
+bulk upload too), desktop rows, HUD layouts, chart sets and tournament settings refused, Pro
 allowed everything; anon refused; the service role passes.
 
 ---
