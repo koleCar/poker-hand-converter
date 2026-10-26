@@ -6238,3 +6238,127 @@ Each phase appends what it learned that changed the plan.
     - Why one river decision lost its grade (`river-unreached`).
     - The 4-bet and limp-raise lines carry one hand each on the owner's
       corpus: their solves are checked only by the held-out medians.
+- 2026-10-26 — The field's calling width against raisers: is the isolators'
+  and 3-bettors' excess of mucks in how wide they are called? **Nothing
+  shipped** (study `tests/scripts/flop-library/callerWidth.test.ts`, `npm run
+  floplib:caller-width`). `ANALYSIS_VERSION` stays `analysis/36`; no
+  migration, nothing in `frontend/`, no grade moves, so no census.
+  - **Why.** The open item of `analysis/32`: in isolated and 3-bet pots the
+    opponents' ranges still explain what they show too strongly - the
+    isolators and 3-bettors walked to a river showdown muck **+0.134 ±
+    0.040** (85) more than their ranges say, and neither their preflop
+    order (#219) nor the reading of their bets (#221) explains the rest.
+    The next candidate named there: the field's calling width against
+    raisers - the callers of an isolation or a 3-bet, preflop and in their
+    calls of the raiser's postflop bets.
+  - **Data and score.** As `analysis/32`: the 5,448 stored hands, the 857
+    river showdowns (one pot, nobody all-in), the unselected score (the
+    first to show by their combo in their own walked range; each later
+    player by their combo when shown, else by the range's chance of losing
+    to the best hand shown before them), clustered by hand. The shipped
+    ranges and narrowing as the reference (`analysis/32`'s narrowing,
+    `analysis/31`'s preflop ranges; nothing since changed either: the
+    study reproduces `analysis/32`'s R2 row exactly); the multiway walk
+    from the hero's seat, no flop library (library flops keep the charts'
+    ranges, untouched by any candidate). Roles from the preflop action: the
+    pot is limped, opened, isolated, 3-bet or 4-bet; a seat opened (R1),
+    isolated or 3-bet (R2), 4-bet (R4), called the single raise of an
+    opened pot (C-open) or of an isolated one (C-iso, a limper's call
+    included), called a 3-bet (C-3bet) or a 4-bet, limped, or checked its
+    big blind. Held out four ways: five folds by hand and by the first to
+    show (as before), and a half split by hand and by player, fitted on one
+    half and scored on the other, in both directions.
+  - **Measured 0: where the excess is** (shipped, later players, mucked −
+    predicted): R2 **+0.134 ± 0.040** (85; isolators +0.155 ± 0.048 of 61,
+    3-bettors +0.082 ± 0.075 of 24), C-iso +0.079 ± 0.051 (55), C-3bet
+    +0.066 ± 0.066 (29); against C-open −0.028 ± 0.027 (205), R1 −0.022 ±
+    0.025 (211), limpers +0.017 ± 0.026 (209). By pot: isolated +0.119 ±
+    0.038 (116), 3-bet +0.073 ± 0.048 (53), opened −0.025 ± 0.018, limped
+    +0.007 ± 0.021. The first to show wins more than predicted in those
+    pots too (+0.107 ± 0.029 of 166, other pots +0.006 ± 0.013). The
+    callers lean the same way as the raisers but at half the size and
+    within 1.5 SE; the raisers' row is the one that is out.
+  - **Measured 1: the callers - nothing.** In sample, gain per spot over
+    shipped (all 857; iso and 3-bet pots, 166):
+    - C-iso's preflop range at k × its width in its own order (every
+      combo's logit shifted by one number; for the population's
+      `limp-call`, `cold-call` and `bb-defence` ranges that moves their
+      intercept): k 0.67 −0.009 ± 0.004, 0.8 −0.003, 1.25 −0.002, 1.5
+      −0.006, 2 **−0.019 ± 0.006** (pots −0.100 ± 0.030), 3 −0.021. The
+      population range is best at its own width, as fitted.
+    - C-3bet's (the chart's call of a 3-bet in the population order): k
+      0.67 −0.001, 0.8 −0.000, 1.25 +0.000, 1.5 +0.000, 2 +0.001 ± 0.002,
+      3 −0.001 - flat. Both together, the same as C-iso; any two cards
+      mixed into both at 0.05 / 0.1 / 0.2: −0.005 / −0.012 / −0.021.
+      Widening them moves their own mucks (+0.074 → +0.043 at k 2) and
+      leaves R2's at +0.134 to +0.135: a caller's range does not reach the
+      raiser's mucks (the raiser's range is ranked within itself; the
+      opponent only reorders it a little).
+    - Control, C-open: k 0.8 +0.001, 1.25 −0.013, 1.5 −0.032.
+    - The callers' postflop reading (C-iso and C-3bet; L^t, t < 1 says
+      less): calls t 0.5 +0.001 ± 0.003, 0.75 +0.001; checks 0.5 −0.007,
+      1.5 +0.001, 2 −0.005; bets 0.5 −0.001; every action 0.5 −0.004.
+      **The field does not call the raiser wider than `MDF` says** - not
+      measurably on this score.
+  - **Measured 2: the raisers' own postflop line.** R2's actions, L^t:
+    - calls t 0.25 **+0.012 ± 0.006** (pots +0.063 ± 0.031; R2 mucks
+      +0.103), 0.5 +0.008, 0.75 +0.004; raises 0.25 +0.008, 0.5 +0.006;
+      bets (on top of `BET_EVIDENCE`) 0.25 +0.004, 0.5 +0.004; checks 0.5
+      −0.007, 1.5 −0.001, 2 −0.011, 3 −0.040 (mucks +0.077: the harder
+      give-up fixes the mucks and costs the shown hands); every action 0.5
+      +0.012 ± 0.007, 0.25 +0.011, 1.5 −0.013.
+    - every opponent in iso and 3-bet pots, calls 0.5 +0.009 ± 0.005,
+      every action 0.5 +0.007 ± 0.011; every raiser's calls (R1, R2, R4)
+      0.25 +0.009 ± 0.009 (other pots −0.004: openers do not want it).
+    - R2's own preflop range (as #219, a different operator): k 1.25
+      +0.002, 1.5 +0.002, 2 +0.003 ± 0.007 (mucks +0.085); any two cards
+      at 0.1 −0.005, 0.2 −0.021 ± 0.013, 0.3 −0.033. Any two at 0.2 brings
+      the mucks to +0.017 ± 0.040 but puts the 3-bettors who show first
+      at PIT − 0.5 +0.054 → +0.137 ± 0.047 (isolators −0.020 → +0.067):
+      the mucks and the shown hands pull apart, as #219 found.
+    - the second grid (21, built after the first: restricted in sample),
+      combinations: R2 calls 0.1 with raises 0.5 **+0.020 ± 0.008** (pots
+      +0.104 ± 0.041; R2 mucks +0.087 ± 0.039), calls 0.1 with bets 0.5
+      +0.017, calls 0.25 with raises 0.5 +0.018 ± 0.007, R2's range at k
+      1.5 with calls 0.25 +0.013, any two at 0.05 with calls 0.25 +0.004.
+  - **Held out** (gain per spot over shipped, all 857):
+
+    | family | 5 folds by hand | 5 folds by player | half by hand, 0 → 1 | 1 → 0 | half by player, 0 → 1 | 1 → 0 |
+    |---|---|---|---|---|---|---|
+    | first grid, 60 + shipped | +0.004 ± 0.006 (0.6 SE) | +0.008 ± 0.007 (1.1 SE) | −0.002 ± 0.012 (−0.2) | +0.014 ± 0.008 (1.7) | +0.004 ± 0.013 (0.3) | +0.009 ± 0.007 (1.3) |
+    | second grid, 21 + shipped | +0.016 ± 0.008 (2.1 SE) | +0.020 ± 0.008 (2.4 SE) | +0.012 ± 0.011 (1.1) | +0.022 ± 0.011 (1.9) | +0.018 ± 0.013 (1.3) | −0.001 ± 0.009 (−0.1) |
+
+    The first grid's folds chose R2's calls at 0.25 or every R2 action at
+    0.25-0.5, never a caller candidate. The second grid's folds chose R2
+    calls 0.1 with raises 0.5 in nine of ten (once with bets 0.5; one half
+    chose every raiser's calls at 0.25, which loses on the other half's
+    opened pots). In iso and 3-bet pots alone it is +0.083 ± 0.039 (2.1
+    SE) / +0.104 ± 0.042 (2.5 SE) on five folds.
+  - **Why not shipped.**
+    - **Not > 2 SE on the half splits** (1.1, 1.9, 1.3, −0.1 SE), and the
+      five-fold 2.1 / 2.4 SE belongs to a family picked after the first
+      grid showed R2's calls ahead - restricted in sample, so it overstates.
+    - **A guard row is worse** (the earlier studies' shown-hand rows,
+      candidate − shipped per combo, clustered by player, for R2 calls 0.1
+      with raises 0.5): turn three or more **−0.005 ± 0.002** (417, 2.5
+      SE); flop three or more −0.002 ± 0.003, heads-up +0.001; turn
+      heads-up +0.007 ± 0.006; river three or more −0.010 ± 0.009, checked
+      only −0.011 ± 0.008, heads-up +0.010 ± 0.012, all +0.004 ± 0.005;
+      bomb pots 0. R2 calls 0.25 alone: flop three or more −0.003 ± 0.001.
+    - **It is small where it is right.** It moves R2's mucks +0.134 →
+      +0.087 and leaves isolators at +0.105 ± 0.046; the checked-down
+      isolators three or more ways (+0.249 → +0.204, 15) do not move.
+  - **Open.**
+    - **The callers are ruled out**; the rest of the excess is the
+      isolators' own range (the 3-bettors' is within 1.1 SE). The raisers'
+      postflop calls and raises reading as weaker evidence is the one
+      direction that gains; re-run (`CW_CANDS` with `{"post":{"R2":{"call":
+      0.1,"raise":0.5}}}`) as the library of river showdowns grows - 85 R2
+      rows and 166 iso and 3-bet spots are too few to separate it from
+      the guard's three-way turn row.
+    - **Isolators who check it down three or more ways** muck +0.249 ±
+      0.092 (15); no candidate here moves them without losing the shown
+      hands. An isolation's preflop range over limpers (the chart's iso
+      node in the population order) may be the place, but with the shown
+      isolators already at PIT −0.020 it would have to be a change in
+      shape, not width.
