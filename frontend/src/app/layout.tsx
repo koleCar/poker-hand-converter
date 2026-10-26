@@ -54,6 +54,7 @@ import { SessionImport } from "../components/auth/SessionImport";
 import { ServiceWorker } from "../components/shell/ServiceWorker";
 import { AuthProvider } from "../lib/auth/AuthProvider";
 import { ProfileProvider } from "../lib/profile/ProfileProvider";
+import { EntitlementsProvider } from "../lib/entitlements/EntitlementsProvider";
 import { toAuthUser } from "../lib/auth/user";
 import { I18nProvider } from "../lib/i18n/client";
 import { getDict, getLocale } from "../lib/i18n/server";
@@ -163,7 +164,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             {/* Inside the session, because a profile is a function of it. A
                 database without the identity migration leaves this empty and
                 sign-in untouched — see ProfileProvider. */}
-            <ProfileProvider>{children}</ProfileProvider>
+            <ProfileProvider>
+              {/* The plan, read once per account (R6.2): what the screens
+                  lock while paid plans are enforced. */}
+              <EntitlementsProvider>{children}</EntitlementsProvider>
+            </ProfileProvider>
           </AuthProvider>
           </I18nProvider>
         </div>

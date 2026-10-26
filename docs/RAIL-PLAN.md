@@ -228,7 +228,7 @@ marks on all four HUD tables, with R3.9 (migration 15: `hud_layouts`,
 
 | Guideline | Decision | Step |
 | --- | --- | --- |
-| `profiles` | existing; add `plan`, `plan_until` in Phase 6 | R6.2 |
+| `profiles` | existing; add `plan`, `plan_until` in Phase 6 (built: `plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user`, the provider's ids; the effective plan from `my_entitlements()` / `has_entitlement()`, `20270908090000`) | R6.2 |
 | `hand_sources` | new: folder or web upload, owner, device, status counters (built: a watched folder per device; no paths) | R1.8 |
 | `hand_arrivals` | new (not in the guideline): one row per account, bumped once per insert statement on `hands`; the web's Realtime signal, so `hands` stays out of the publication | R1.10 |
 | `hands` | existing; key `(owner_id, hand_key)` with `hand_key = site:hand id` | — |
@@ -10766,6 +10766,94 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
 | R6.4 | App and web read entitlements; an offline grace period in the app |
 | R6.5 | Terms of use and a GDPR privacy policy; data export and account deletion (deletion already cascades) |
 
+### R6.2 *As built* (2026-10-26)
+
+Migration `20270908090000_entitlements.sql`, after the owner's R6.1
+decisions (Free + one Pro plan, monthly or yearly; early users keep a
+lifetime discount while subscribed). **Enforcement is off**: nobody can pay
+before R6.3, so every account's effective plan is Pro until the owner turns
+it on (launch checklist below).
+
+- **Data, not constants.** `billing_settings` (one row: `enforcement_enabled`
+  false, `early_user_cutoff` null = not launched, `early_user_discount_percent`
+  30, `payment_grace_days` 7, `offline_grace_days` 14) and `plan_limits`
+  (`free`: 10 000 hands, no feature; `pro`: unlimited, `desktop_sync`, `hud`,
+  `reports_full`, `analysis`, `learn`). Both sealed; the owner edits them in
+  SQL. Prices live in Stripe (R6.3), not here.
+- **`profiles`** (still sealed - no client reads or writes any column;
+  `profiles_public` unchanged): `plan`, `plan_period`, `plan_status`
+  (active / trialing / past_due / canceled), `current_period_end`,
+  `plan_updated_at`, `early_user` + `early_user_since`,
+  `billing_customer_id` / `billing_subscription_id` (R6.3). The one writer is
+  `billing_set_plan(...)`, **service role only** (R6.3's webhook).
+- **Early users**: every account that exists, and every account created
+  before `early_user_cutoff` (a before-insert trigger on `profiles`; the
+  signup trigger is unchanged), is marked; `billing_mark_early_users()`
+  re-marks after the cutoff moves.
+- **One source of truth**: `billing_plan_state(owner)` (the rules: off ->
+  Pro; active / trialing to the period end + 7 days; past_due within 7 days;
+  canceled to the period end; a Pro with no status = granted by hand; else
+  Free), `has_entitlement(owner, feature)` (internal), `has_my_entitlement`
+  and `require_entitlement(feature)` (the caller), and `my_entitlements()`:
+  effective plan, reason, `enforced`, the features (`library_unlimited`,
+  `hand_cap`, `desktop_sync`, `hud`, `reports_full`, `analysis`, `learn`),
+  hands stored (from the library's counts), the Free cap, the subscription,
+  early-user state and discount, `validUntil`, `graceUntil`,
+  `offlineGraceDays` (for R6.4's app cache).
+- **Enforced in the database** (each a no-op while off): 55 client-callable
+  functions open with `perform public.require_entitlement('<feature>');`,
+  written into their bodies by the migration from the table
+  `entitlement_gates` (pgTAP checks each still has it - a migration that
+  re-creates one keeps the line, and every client-callable function must be
+  gated or on the test's free list); a statement trigger on `hands` after the
+  library's counts refuses rows of origin `desktop` without `desktop_sync` and
+  any insert that would put a capped account over its cap (the statement
+  whole; duplicates cost nothing; every path - `save_hands`, `ingest_hands`,
+  a direct insert); own chart sets and R5.5's tournament settings refuse
+  writes without `analysis` (`entitlement_row_guard`);
+  `hud_layouts`' select policy needs `desktop_sync`. A refusal is SQLSTATE
+  `PT402` -> **HTTP 402** from PostgREST (checked end to end), a fixed
+  sentence, the feature as the hint, the cap's numbers as JSON detail.
+- **The Free / Pro line** (owner, please confirm): Free keeps the converter,
+  replayer, sharing and publishing, the forum, the library under the cap,
+  notes, a shared analysis, and **basic statistics** = everything Reports
+  opens with (`report_open`: summary, every statistic, HUD tiles, breakdowns
+  by position, stake, room, table size and format; `report_graph`: the
+  win-rate graph; `report_facets`) and the statistics' upkeep. **Full
+  reports** (Pro) = the situation breakdowns (`report_situations`: pot type,
+  stack depth, starting-hand grid, players, street), sessions, the opponents
+  panel and the Players screen. **Analysis** (Pro) = every analysis reader and
+  save, session review, own charts, ICM (tournament settings), drills, trainer, study plan. **Learn**
+  (Pro) = the course's server writes; the pages themselves are public and
+  static (signed-out visitors still read them). **Desktop sync** (Pro) =
+  registering folders, `ingest_hands` from a folder source, `hands_since`,
+  HUD layouts; the desktop app still signs in on Free (it reads its plan).
+  The HUD itself is local: R6.4.
+- **Web (minimal)**: `EntitlementsProvider` reads `my_entitlements()` once per
+  account; Settings -> **Plan** (`/settings#plan`): plan, status and renewal,
+  hands stored against the cap (a meter), the early-user discount, what each
+  plan includes, "Upgrade to Pro" (disabled, "paid plans open soon" until
+  R6.3; `paths.upgrade()` is the placeholder). **Only while enforcement is
+  on** and the plan lacks the feature: Pro badges on the Analysis and Learn
+  tabs, a lock in place of the Analysis and Learn screens and of `/players`,
+  of the sessions / opponents panels and the situation tabs on `/stats`.
+  `en` + `hr`; refusals translated in `serverErrors.ts`.
+- **Zero change today**: the existing pgTAP suite (48 files, 1 720, with
+  R5.5's `tournament_icm`) passes unchanged on a fresh reset with the
+  migration applied (49 files, 1 788 with `entitlements`); with enforcement off no gated
+  function refuses, no cap is checked, every lock is hidden.
+- Tests: pgTAP `entitlements` (68), Vitest `entitlements` (12).
+- **Launch checklist (the owner's decision, after R6.3 is live)**:
+  1. set the launch date: `update public.billing_settings set
+     early_user_cutoff = '<launch instant>';` then
+     `select public.billing_mark_early_users();`;
+  2. check `plan_limits` (Free cap, Pro features) and the discount;
+  3. grant Pro by hand where wanted (`billing_set_plan(id, 'pro')`, service
+     role / SQL) - e.g. the owner's own account;
+  4. **turn enforcement on**: `update public.billing_settings set
+     enforcement_enabled = true;` (off again the same way).
+- Not applied to production (prod checklist: the migration).
+
 ---
 
 ## 11. Testing strategy
@@ -10942,4 +11030,5 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **R5.5a** (R5.5 split in three: engine, grading, screens): the **ICM engine** in the analysis library - Malmuth-Harville exact over the sets already placed (0.01 ms for nine paying three), seeded Monte-Carlo beyond 250 000 steps (exponential clocks, common random numbers, standard error at most `z_1/(2√n)`: 0.35 % of first prize at 20 000 samples), bubble factor, risk premium, chips <-> $EV; **payout models** with missing data handled and labelled (no room writes payouts, field or players left: sit-and-go 50/30/20, 65/35, winner-take-all; multi-table top 15 % weighted `1/p` from a field size; a multi-table hand without players left graded in chip EV); the **push/fold game** solved per hand by CFR+ over a 169x169 equity table of our own (1M boards, docs/CHARTS.md §12). Library only: no grade, row, chart or `analysis/N` changes. |
 | 2026-10-26 | **R5.5b**: **tournament decisions graded by ICM**, `analysis/35` (web and app, one library). A No-Limit Hold'em tournament's preflop push or fold and call or fold facing a first-in push at 20bb or less are graded against the push/fold game's equilibrium (R5.5a) in prize equity - in chips for a multi-table hand whose players left nobody gave - `source: "icm"`, EVs in bb at the tournament's average chip price, §2's bands; `facts.icm` carries the model and its sources, stacks, payouts, prize equities, ranges, bubble factor and risk premium. Every other tournament decision is `tournament-*` with its reason. The user's payouts / field / players left per tournament: `tournament_settings` (owner-only, guard + a trigger that re-queues the tournament's hands; pgTAP 41) and store migration 17 (local). `decision_analysis.source` takes `icm`; the own charts file push/fold decisions (`icm-pushfold-*` tables). **Cash unchanged**: 7 796 corpus cash hands (194 with turn solves) byte-identical record by record before and after. Corpus: 91 tournament hands graded (84 in chips, 7 by ICM), 61 tournament hands a second. Not applied to production. |
 | 2026-10-26 | **R5.5c done, R5.5 complete**: the push/fold grade on screen. The web's analysis sheet shows a tournament decision's **ICM panel** (model and why, stacks, payouts and players left with their sources, prize equity per option - in money when the pool is known -, a big blind's worth, the equilibrium's ranges, bubble factor and risk premium per player) and, for the owner, **Payouts and players left** (`tournament_settings`; the tournament's hands re-graded on the next run); the app's hand analysis the same over its store. Leak finder and session review name the push/fold spots apart from cash opens (both languages, the app through R5.4b's door). `responsive.mjs` gains `RAIL_CHECK_ICM`; the whole run passes at 375 px in `en` and `hr` on a local stack. Vitest `icmScreens` (4). |
+| 2026-10-26 | **R6.2 done**: plans and entitlements in the database, **enforcement off** until the owner launches (R6.2 *As built*, with the launch checklist). Migration `20270908090000_entitlements.sql`: `profiles.plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user` (+ since; every existing account and every account until the cutoff), provider ids (written only by the service role's `billing_set_plan`); `billing_settings` (switch off, early-user cutoff, 30 % discount, 7-day payment grace, 14-day offline grace) and `plan_limits` (Free 10 000 hands; Pro unlimited + desktop sync, HUD, full reports, analysis, Learn) as data; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`. 55 functions gated in their bodies from `entitlement_gates`; the cap and desktop rows by a statement trigger on `hands`; own chart sets, tournament settings and HUD layouts by trigger / policy; refusals `PT402` = HTTP 402. Web: Settings -> Plan, Pro badges and locks only while enforced. pgTAP `entitlements` 68 (on R5.5's staging: suite 49 files on a fresh reset, the 48 earlier files unchanged; R5.5's `tournament_settings` writes gated, its pure validator free), Vitest 12. Types regenerated. Not applied to production. |
 | 2026-10-26 | **Windows: an overlay is put back directly above its table after any raise or focus** (R3.5 fix). `windows_tracking` step 5 ("an overlay is below its table", #255; relaxed from 500 ms to 3 s in #224 on a slow-runner guess) has failed **six times since R3.5, always the same way**: the third table (the one the test never raises or focuses) had its overlay at the **bottom of the z-order, directly under the runner's foreground window** (Windows Terminal), while the table sat above it; in two of the six the focused table's overlay had been restacked once, i.e. it too started below its table. Cause: an overlay is shown with `SW_SHOWNOACTIVATE` from a process that is not in the foreground, and Windows places such a window by its own rules (behind the foreground window), not above its owner; it carries an owned window along only when the **owner** moves in the z-order, and the overlay thread restacked only on its table's own `EVENT_SYSTEM_FOREGROUND` - a table never activated after its overlay appeared kept it underneath for good (in real use: a HUD hidden under its table until the user clicks that table). **Fix**: the overlay thread checks an overlay's place (`tracking::stacking`, unit-tested: directly above = nothing that shows between, the table's own owned windows and hidden, cloaked or empty windows not counted; one `GetWindow` when in place) and puts it right after the window above the table (`HWND_TOP` when that window is topmost) **when it is shown**, on its table's events and foreground, and in a **250 ms look** over every shown overlay (a thread timer, only while there are overlays) for an order change no hooked event reports. Each restack is counted and noted with its time since the thread started, reason, before / after and what it was put after (`OverlayInfo::restacks`, stderr: the first twenty, then every hundredth). **Test**: a new step 0 (every overlay directly above its table within 1 s of being shown), step 5 requires *directly* above within 2 s, and a new step 5b slips one table under another table's overlay (a z-order change only, no hooked event) and waits for the look; failures print each misplaced overlay, every restack and the z-order. Cross-target clippy for `x86_64-pc-windows-msvc` passes locally; the Windows steps run only on CI. |

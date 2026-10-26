@@ -11,6 +11,7 @@ import { NotificationsBell } from "../forum/NotificationsBell";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 import { LanguageSwitch } from "./LanguageSwitch";
+import { ProBadge } from "../plan/ProLock";
 
 /**
  * The bar, the tabs and the dialog — everything a signed-in screen has above
@@ -63,6 +64,8 @@ interface AppShellProps {
   showHistoryTab: boolean;
   dbConfigured: boolean;
   storedCount: number | null;
+  /** Tabs whose feature the account's plan lacks (R6.2): marked Pro. Empty while enforcement is off. */
+  lockedTabs?: readonly ShellTab[];
   children: ReactNode;
 }
 
@@ -71,6 +74,7 @@ export function AppShell({
   showHistoryTab,
   dbConfigured,
   storedCount,
+  lockedTabs = [],
   children,
 }: AppShellProps) {
   const en = useDict();
@@ -108,6 +112,12 @@ export function AppShell({
                   className={`shell__tab ${tab === entry.id ? "is-active" : ""}`}
                 >
                   <span className="shell__tab-label">{entry.label(en)}</span>
+                  {lockedTabs.includes(entry.id) ? (
+                    <>
+                      {" "}
+                      <ProBadge />
+                    </>
+                  ) : null}
                 </Link>
               ))}
             </nav>
