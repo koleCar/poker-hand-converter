@@ -6,9 +6,13 @@
  *          open, each period's price (amount, currency, whether VAT is
  *          included) as Stripe has it, and the early-user discount's percent.
  *          No secret and nothing about the account; cached for ten minutes.
- * `POST` `{ period: "month" | "year", locale?: "en" | "hr" }` - a Stripe
+ * `POST` `{ period: "month" | "year", locale: "en" | "hr", consent: { terms:
+ *          true, immediatePerformance: true, version } }` - a Stripe
  *          Checkout Session for Pro, and its URL:
  *
+ *  0. both checkboxes of the upgrade step ticked, in a wording this server
+ *     knows (`_shared/billing/consent.ts`), or 400 `consent_required` /
+ *     `consent_outdated` before anything is called;
  *  1. the caller is verified with GoTrue (its own bearer token; an anonymous
  *     or unconfirmed account cannot buy);
  *  2. one of the account's 20 sessions an hour (`billing_claim`);
@@ -21,7 +25,15 @@
  *     collected for businesses, both saved on the customer), the early-user
  *     coupon when the account is an early user (else none),
  *     `client_reference_id` and the subscription's metadata = the account id
- *     (from the verified token, never from the body).
+ *     (from the verified token, never from the body);
+ *  6. **the consent is recorded before the session exists**
+ *     (`billing_record_consent`: the account, both kinds, the wording's and
+ *     the terms' versions and hashes, the language, the period, the time);
+ *     its id goes into the session's and the subscription's metadata
+ *     (`consent_id`), Stripe shows the same words above its Pay button
+ *     (`custom_text.submit`), and the session id is written back onto the
+ *     record (`billing_consent_set_session`; best effort - the metadata
+ *     already links the two).
  *
  * With the Stripe configuration unset, `GET` says `available: false` and
  * `POST` answers 503 `unavailable`: the page says paid plans open soon.
@@ -50,6 +62,7 @@ import {
   verifyCaller,
 } from "../_shared/billing/http.ts";
 import { type StripeOptions, stripeRequest } from "../_shared/billing/stripe.ts";
+import { type CheckoutConsent, readConsent, SUBMIT_MESSAGE } from "../_shared/billing/consent.ts";
 
 const FN = "billing-checkout";
 export const MAX_BODY_BYTES = 1024;
@@ -154,7 +167,8 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
   if (!jwt) return refuse(FN, 401, "not_signed_in", "no bearer token");
   if (!supabaseReady(env)) return refuse(FN, 503, "unavailable", "function environment incomplete");
 
-  let body: { period?: unknown; locale?: unknown } = {};
+  let body: { period?: unknown; locale?: unknown; consent?: unknown } = {};
+  let consent: CheckoutConsent | null = null;
   if (request.method === "POST") {
     const parsed = await readJson(request, MAX_BODY_BYTES);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
@@ -164,6 +178,9 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
     if (body.period !== "month" && body.period !== "year") {
       return refuse(FN, 400, "invalid_request", "period");
     }
+    const read = readConsent(body);
+    if (!read.ok) return refuse(FN, 400, read.error, read.detail);
+    consent = read.consent;
   }
 
   const who = await verifyCaller(env, jwt, fetchFn);
@@ -181,6 +198,7 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
   const period = body.period as Period;
   const price = priceFor(env, period);
   if (!checkoutReady(env) || !price) return refuse(FN, 503, "unavailable", "checkout not configured");
+  if (!consent) return refuse(FN, 400, "consent_required");
   const owner = who.caller.id;
 
   try {
@@ -208,8 +226,21 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
       });
     }
 
+    // The request and the acknowledgement, recorded before anything starts.
+    const consentId = await serviceRpc<string>(env, fetchFn, "billing_record_consent", {
+      p_owner: owner,
+      p_kinds: consent.kinds,
+      p_terms_version: consent.termsVersion,
+      p_terms_sha256: consent.termsSha256,
+      p_text_version: consent.textVersion,
+      p_text_sha256: consent.textSha256,
+      p_locale: consent.locale,
+      p_period: period,
+    });
+    if (typeof consentId !== "string") return refuse(FN, 503, "unavailable", "consent not recorded");
+
     const discount = account.early_user ? earlyDiscount(env) : null;
-    const session = await stripeRequest<{ url?: unknown }>(stripe, "POST", "/v1/checkout/sessions", {
+    const session = await stripeRequest<{ id?: unknown; url?: unknown }>(stripe, "POST", "/v1/checkout/sessions", {
       mode: "subscription",
       customer,
       client_reference_id: owner,
@@ -219,14 +250,27 @@ export async function handle(request: Request, env: BillingEnv, fetchFn: typeof 
       tax_id_collection: { enabled: true },
       customer_update: { address: "auto", name: "auto" },
       discounts: discount ? [discount] : undefined,
-      subscription_data: { metadata: { owner_id: owner } },
-      metadata: { owner_id: owner },
+      subscription_data: { metadata: { owner_id: owner, consent_id: consentId } },
+      metadata: { owner_id: owner, consent_id: consentId },
+      custom_text: { submit: { message: SUBMIT_MESSAGE[consent.locale] } },
       locale: stripeLocale(body.locale),
       success_url: env.successUrl,
       cancel_url: env.cancelUrl,
     });
     if (typeof session.url !== "string" || !session.url.startsWith("https://")) {
       return refuse(FN, 502, "unavailable", "session without a URL");
+    }
+    if (typeof session.id === "string") {
+      try {
+        await serviceRpc(env, fetchFn, "billing_consent_set_session", {
+          p_consent: consentId,
+          p_owner: owner,
+          p_session_id: session.id,
+        });
+      } catch {
+        // The session's metadata names the consent; the link is a convenience.
+        console.log(`${FN}: the session id was not written onto the consent`);
+      }
     }
     console.log(`${FN}: session created (${period}${discount ? ", early-user discount" : ""})`);
     return json(200, { url: session.url });

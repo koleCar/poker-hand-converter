@@ -114,9 +114,14 @@ navođenja razloga, tako da nam to javiš na [VLASNIK: e-adresa] ili
 [obrascem za jednostrani raskid - VLASNIK/pravnik: dodati kao prilog].
 
 Budući da Pro počinje čim platiš, **pri plaćanju izričito tražiš da počne
-tijekom roka za raskid** [prije pokretanja: R6.3-ov Checkout to još ne
-bilježi - dodati obavezni pristanak pri plaćanju koji bilježi zahtjev i
-vrijeme]. Ako zatim odustaneš unutar 14 dana,
+tijekom roka za raskid**: prije plaćanja označiš polje kojim tražiš da Pro
+počne odmah i potvrđuješ što to znači za tvoje pravo na jednostrani raskid.
+Taj zahtjev, njegovo vrijeme i tekst koji si vidio bilježimo uz tvoj račun i
+potvrđujemo ga u potvrdi o plaćanju. [pravnik: polje kaže da se pravo na
+raskid gubi kad Pro počne (formulacija čl. 16. t. (m), digitalni sadržaj), a
+sljedeća rečenica ga zadržava uz razmjerni povrat (čl. 14. st. 3., usluge) -
+odabrati jedno i uskladiti polje, ovaj odjeljak i tekst potvrde (R6.3
+dodatak, `docs/BILLING.md`).] Ako zatim odustaneš unutar 14 dana,
 vraćamo ti plaćeni iznos **umanjen za dio koji odgovara danima u kojima si
 imao Pro** (čl. 14. st. 3. Direktive 2011/83/EU) [pravnik: potvrditi
 tretiranje Pro plana kao usluge, a ne digitalnog sadržaja, i formulaciju

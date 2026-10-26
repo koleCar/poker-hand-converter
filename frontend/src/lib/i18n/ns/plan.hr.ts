@@ -58,6 +58,16 @@ export const planHr: Dict["plan"] = {
     earlyAccessNote:
       "Pretplatom sada naplata Pro plana počinje danas. Sve ostaje otvoreno dok je Rail u ranom pristupu.",
     continue: "Nastavi na plaćanje",
+    // PRAVNI TEKST - NACRT: prije pokretanja treba pregled vlasnika i pravnika
+    // (vidi komentar u `plan.en.ts`). Svaka izmjena je nova verzija teksta.
+    consent: {
+      legend: "Prije plaćanja",
+      termsBefore: "Prihvaćam ",
+      termsLink: "Uvjete korištenja",
+      immediate:
+        "Tražim da Rail Pro počne odmah i potvrđujem da time gubim pravo na jednostrani raskid ugovora nakon što počne.",
+      required: "Za nastavak na plaćanje označi oba polja.",
+    },
     working: "Otvaram stranicu za plaćanje…",
     manage: "Upravljaj pretplatom",
     manageHint: "Promijeni karticu, prebaci se između mjesečne i godišnje naplate, preuzmi račune ili otkaži.",
@@ -78,11 +88,16 @@ export const planHr: Dict["plan"] = {
       already_subscribed: "Već imaš pretplatu. Promijeni je preko Upravljaj pretplatom.",
       no_customer: "Još nema pretplate kojom bi se upravljalo.",
       failed: "Nešto je pošlo po zlu. Ništa nije naplaćeno. Pokušaj ponovno.",
+      consent_required: "Prije nastavka na plaćanje označi oba polja.",
+      consent_outdated: "Tekst na ovoj stranici je promijenjen. Osvježi stranicu, ponovno ga pročitaj i označi oba polja.",
     },
     success: {
       metaTitle: "Plaćanje primljeno | Rail",
       heading: "Hvala",
       body: "Plaćanje je prošlo. Pro se uključuje čim ga Stripe potvrdi, obično za nekoliko sekundi.",
+      // PRAVNI TEKST - nacrt za pregled vlasnika i pravnika.
+      confirmation:
+        "Na tvoj zahtjev Pro počinje odmah. Prihvaćanje Uvjeta korištenja i potvrda da gubiš pravo na jednostrani raskid ugovora nakon što Pro počne zabilježeni su uz tvoj račun - nalaze se u preuzimanju tvojih podataka (Postavke, Tvoji podaci) - a ponavlja ih i potvrda o plaćanju koju ti Stripe šalje emailom.",
       waiting: "Čekam potvrdu…",
       active: "Pro je uključen za tvoj račun.",
       slow: "Potvrda traje duže nego inače. Plan će se sam ažurirati; ovu stranicu možeš napustiti.",

@@ -119,6 +119,9 @@ export function fakeFetch(routes: Record<string, Route>): { fetchFn: typeof fetc
   return { fetchFn, calls };
 }
 
+/** Both checkboxes ticked, in the wording the web ships (`consent.ts`). */
+export const CONSENT = { terms: true, immediatePerformance: true, version: "2026-10-26" } as const;
+
 export const CONFIRMED_USER = {
   id: USER_ID,
   email: "player@example.test",

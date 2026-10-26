@@ -111,9 +111,15 @@ without giving a reason, by telling us at [OWNER: contact email] or with the
 [model withdrawal form - OWNER/legal: add as an annex].
 
 Because Pro starts as soon as you pay, **at checkout you ask us expressly to
-start it during the withdrawal period** [before launch: R6.3's Checkout does
-not record this yet - add a required consent at checkout that records the
-request and its time]. If you then withdraw within the 14
+start it during the withdrawal period**: before you pay, you tick a box asking
+for Pro to start immediately and acknowledging what that does to your right of
+withdrawal. We record that request, its time and the wording you saw with your
+account, and confirm it in the receipt for your payment. [legal: the checkbox
+says the right of withdrawal is lost once Pro has started (Art. 16(m) wording,
+digital content), while the next sentence keeps it with a proportional refund
+(Art. 14(3), services) - choose one treatment and align the checkbox, this
+section and the receipt text (R6.3 addendum, `docs/BILLING.md`).] If you then
+withdraw within the 14
 days, we refund what you paid **minus the part for the days you had Pro**
 (Art. 14(3) of Directive 2011/83/EU) [legal: confirm the treatment of Pro as a
 service rather than digital content, and the Croatian Consumer Protection

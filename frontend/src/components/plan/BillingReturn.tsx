@@ -69,6 +69,7 @@ export function BillingSuccessView({ running, slow }: { running: boolean; slow: 
         {b.heading}
       </h1>
       <p>{b.body}</p>
+      <p className={styles.small}>{b.confirmation}</p>
       {running ? (
         <p className="notice notice--info">{b.active}</p>
       ) : slow ? (

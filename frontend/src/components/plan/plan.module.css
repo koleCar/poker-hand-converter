@@ -137,6 +137,35 @@
   min-width: 0;
 }
 
+/* The two consents before Checkout (R6.3 addendum): native checkboxes, the text wraps beside them. */
+
+.consent {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.consentItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.consentItem input {
+  flex: none;
+  margin-top: 2px;
+}
+
+.consentItem span {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
 /* `/billing/success` and `/billing/cancel`: one card. */
 
 .returnCard {

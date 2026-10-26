@@ -14,14 +14,16 @@
  * Checkout links a customer and opens a session; signed events then move the
  * plan (incomplete -> active -> a late older event ignored -> the same
  * event again ignored -> past due -> canceled) and `my_entitlements()` shows
- * each state to the user; the portal opens; the cancel path cancels.
+ * each state to the user; the portal opens; the cancel path cancels. The
+ * checkout's consent is recorded (sealed from the client), linked to the
+ * session, and loses its owner when the account is deleted.
  */
 
 import { handle as checkout } from "../../billing-checkout/handler.ts";
 import { handle as portal } from "../../billing-portal/handler.ts";
 import { handle as webhook } from "../../billing-webhook/handler.ts";
 import { handle as cancel } from "../../billing-cancel/handler.ts";
-import { assert, assertEquals, newWebhookSecret, stripeSubscription, testEnv } from "./test_util.ts";
+import { assert, assertEquals, CONSENT, newWebhookSecret, stripeSubscription, testEnv } from "./test_util.ts";
 import { signPayload } from "./stripe.ts";
 
 const granted = (variable: string) => Deno.permissions.querySync({ name: "env", variable }).state === "granted";
@@ -70,7 +72,9 @@ Deno.test({
       stripeCalls.push(key);
       const reply = (body: unknown) => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
       if (key === "POST /v1/customers") return reply({ id: customer });
-      if (key === "POST /v1/checkout/sessions") return reply({ url: "https://checkout.stripe.com/c/pay/cs_test_e2e" });
+      if (key === "POST /v1/checkout/sessions") {
+        return reply({ id: "cs_test_e2e", url: "https://checkout.stripe.com/c/pay/cs_test_e2e" });
+      }
       if (key === "POST /v1/billing_portal/sessions") return reply({ url: "https://billing.stripe.com/p/session/e2e" });
       if (key === "GET /v1/subscriptions/sub_rail1") return reply(stripeState);
       if (key === "GET /v1/subscriptions") return reply({ has_more: false, data: [stripeState] });
@@ -91,7 +95,15 @@ Deno.test({
 
     // A client cannot reach the service-role functions (PostgREST: 401 or 403
     // for a missing privilege, depending on its version).
-    for (const name of ["billing_account", "billing_set_customer", "billing_apply_subscription"]) {
+    for (
+      const name of [
+        "billing_account",
+        "billing_set_customer",
+        "billing_apply_subscription",
+        "billing_record_consent",
+        "billing_consent_set_session",
+      ]
+    ) {
       const status = (await rpc(name, { p_owner: userId }, jwt)).status;
       assert(status === 401 || status === 403 || status === 404, `${name}: client refused (${status})`);
     }
@@ -101,13 +113,36 @@ Deno.test({
       new Request("http://local/billing-checkout", {
         method: "POST",
         headers: { Authorization: `Bearer ${jwt}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ period: "month", locale: "hr" }),
+        body: JSON.stringify({ period: "month", locale: "hr", consent: CONSENT }),
       }),
       env,
       fetchFn,
     );
     assertEquals(opened.status, 200, "checkout opens");
     assertEquals((await account()).customer_id, customer);
+
+    // The consent: recorded for this account, linked to the session; the
+    // client can neither read nor write it.
+    const consents = async (bearer = serviceKey) => {
+      const response = await fetch(
+        `${url}/rest/v1/billing_consents?select=owner_id,kinds,locale,period,text_version,checkout_session_id` +
+          `&owner_id=eq.${userId}&order=consented_at`,
+        { headers: { apikey: anonKey, Authorization: `Bearer ${bearer}` } },
+      );
+      return { status: response.status, body: await response.json().catch(() => null) };
+    };
+    const recorded = await consents();
+    assertEquals(recorded.status, 200, "the service role reads the consents");
+    assertEquals(recorded.body, [{
+      owner_id: userId,
+      kinds: ["terms", "immediate_performance"],
+      locale: "hr",
+      period: "month",
+      text_version: CONSENT.version,
+      checkout_session_id: "cs_test_e2e",
+    }]);
+    const sealed = await consents(jwt);
+    assert(sealed.status === 401 || sealed.status === 403, `consents sealed from the client (${sealed.status})`);
 
     let now = Math.floor(Date.now() / 1000);
     const deliver = async (id: string, type: string, created: number, object: Record<string, unknown>) => {
@@ -203,7 +238,7 @@ Deno.test({
       new Request("http://local/billing-checkout", {
         method: "POST",
         headers: { Authorization: `Bearer ${jwt}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ period: "year" }),
+        body: JSON.stringify({ period: "year", locale: "en", consent: CONSENT }),
       }),
       env,
       fetchFn,
@@ -212,5 +247,13 @@ Deno.test({
 
     // Clean up the user (cascades to the profile; the log keeps no owner).
     await (await fetch(`${url}/auth/v1/admin/users/${userId}`, { method: "DELETE", headers: admin })).body?.cancel();
+    // The fake Stripe answers every session with the same id: the second
+    // checkout's consent keeps no session id (the column is unique), the
+    // first keeps its own - both stay, without their owner.
+    const kept = await fetch(
+      `${url}/rest/v1/billing_consents?select=owner_id,period&checkout_session_id=eq.cs_test_e2e`,
+      { headers: { apikey: anonKey, Authorization: `Bearer ${serviceKey}` } },
+    );
+    assertEquals(await kept.json(), [{ owner_id: null, period: "month" }], "the consent stays, without its owner");
   },
 });

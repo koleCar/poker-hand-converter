@@ -10,21 +10,26 @@
  * configures Stripe, the upgrade is disabled: "paid plans open soon".
  */
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   billingView,
+  consentComplete,
   discounted,
   fetchBillingOffer,
   formatPrice,
   openBillingPortal,
   startCheckout,
+  NO_CONSENT,
   type BillingError,
   type BillingOffer,
+  type CheckoutConsent,
   type Period,
 } from "../../lib/billing/checkout";
 import type { Entitlements } from "../../lib/db/entitlements";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict, useLocale } from "../../lib/i18n/client";
+import { paths } from "../../lib/routes";
 import { ProBadge } from "./ProLock";
 import styles from "./plan.module.css";
 
@@ -247,15 +252,21 @@ function ManageButton() {
   );
 }
 
-/** Monthly or yearly, each with Stripe's price (and the early-user price), then Checkout. */
+/**
+ * Monthly or yearly, each with Stripe's price (and the early-user price), the
+ * two consents, then Checkout. `initialConsent` is for the tests (the page
+ * always starts with both boxes unticked).
+ */
 export function UpgradeChooser({
   offer,
   earlyUser,
   enforced,
+  initialConsent = NO_CONSENT,
 }: {
   offer: BillingOffer;
   earlyUser: boolean;
   enforced: boolean;
+  initialConsent?: CheckoutConsent;
 }) {
   const en = useDict();
   const t = en.plan;
@@ -265,13 +276,16 @@ export function UpgradeChooser({
   const [period, setPeriod] = useState<Period>(periods[0] ?? "month");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<BillingError | null>(null);
+  const [consent, setConsent] = useState<CheckoutConsent>(initialConsent);
   const percent = earlyUser ? offer.earlyDiscountPercent : null;
   const chosen = offer.prices[period];
+  const agreed = consentComplete(consent);
 
   const go = async () => {
+    if (!agreed) return;
     setBusy(true);
     setError(null);
-    const result = await startCheckout(period, locale);
+    const result = await startCheckout(period, locale, consent);
     if (result.ok) {
       window.location.assign(result.url);
       return;
@@ -307,10 +321,29 @@ export function UpgradeChooser({
         {chosen?.taxInclusive ? b.vatIncluded : b.vatAdded} {b.vatNote}
       </p>
       {!enforced ? <p className={styles.small}>{b.earlyAccessNote}</p> : null}
+      <ConsentFields
+        consent={consent}
+        disabled={busy}
+        onChange={(next) => {
+          setConsent(next);
+          if (error === "consent_required" || error === "consent_outdated") setError(null);
+        }}
+      />
       <div className={styles.actions}>
-        <button type="button" className="btn btn--primary" onClick={go} disabled={busy || !chosen}>
+        <button
+          type="button"
+          className="btn btn--primary"
+          onClick={go}
+          disabled={busy || !chosen || !agreed}
+          aria-describedby={agreed ? undefined : "plan-consent-required"}
+        >
           {busy ? b.working : t.upgrade}
         </button>
+        {agreed ? null : (
+          <span id="plan-consent-required" className={styles.small}>
+            {b.consent.required}
+          </span>
+        )}
       </div>
       {error ? (
         <p className="notice notice--error" role="alert">
@@ -318,5 +351,53 @@ export function UpgradeChooser({
         </p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The two consents before Checkout (R6.3 addendum): the terms (a link to
+ * `/terms`), and the request that Pro start immediately with the
+ * acknowledgement about the right of withdrawal. Plain native checkboxes,
+ * unticked until the person ticks them; each required.
+ */
+export function ConsentFields({
+  consent,
+  disabled = false,
+  onChange,
+}: {
+  consent: CheckoutConsent;
+  disabled?: boolean;
+  onChange: (next: CheckoutConsent) => void;
+}) {
+  const c = useDict().plan.billing.consent;
+  return (
+    <fieldset className={styles.consent} disabled={disabled}>
+      <legend className={styles.subheading}>{c.legend}</legend>
+      <label className={styles.consentItem}>
+        <input
+          type="checkbox"
+          name="plan-consent-terms"
+          required
+          checked={consent.terms}
+          onChange={(event) => onChange({ ...consent, terms: event.target.checked })}
+        />
+        <span>
+          {c.termsBefore}
+          <Link href={paths.terms()} target="_blank" rel="noopener">
+            {c.termsLink}
+          </Link>
+        </span>
+      </label>
+      <label className={styles.consentItem}>
+        <input
+          type="checkbox"
+          name="plan-consent-immediate"
+          required
+          checked={consent.immediatePerformance}
+          onChange={(event) => onChange({ ...consent, immediatePerformance: event.target.checked })}
+        />
+        <span>{c.immediate}</span>
+      </label>
+    </fieldset>
   );
 }

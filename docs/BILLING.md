@@ -17,9 +17,10 @@ or webhook exists yet, and no function is deployed.
 ## 1. How it fits together
 
 ```
-Settings -> Plan (web)
+Settings -> Plan (web): period, then two required consents (section 13)
    |  GET  billing-checkout  -> prices as Stripe has them (no secret)
-   |  POST billing-checkout  -> Stripe Checkout Session (Stripe Tax on) -> URL
+   |  POST billing-checkout  -> consent recorded (billing_consents), then
+   |                            Stripe Checkout Session (Stripe Tax on) -> URL
    |  POST billing-portal    -> Stripe Customer Portal session -> URL
    v
 Stripe Checkout / Customer Portal (Stripe's pages)
@@ -143,7 +144,9 @@ Rail keeps Pro for `billing_settings.payment_grace_days` (7) after a renewal
 falls due and is not paid, then shows Free with "Payment overdue".
 
 **Settings -> Payments -> Checkout and Payment Links / Emails**: send email
-receipts for successful payments.
+receipts for successful payments. The receipt is how the consent at checkout
+is confirmed to the customer on a durable medium - set its text as in
+**section 13** (invoice footer) before the first live sale.
 
 ---
 
@@ -240,12 +243,16 @@ and the two the web calls check the user's token themselves with GoTrue.
 
 ### With the web (the real path)
 
-1. Settings -> Plan: choose monthly or yearly, **Upgrade to Pro**.
+1. Settings -> Plan: choose monthly or yearly, tick **both** consent boxes
+   (the button stays disabled until then), **Upgrade to Pro**. Stripe's page
+   shows the reminder above its Pay button (section 13).
 2. Pay with Stripe's test card `4242 4242 4242 4242` (any future date, any
    CVC), a Croatian or other EU address; try a VAT number like
    `HR12345678901` for the business path.
 3. Back on `/billing/success`, the page waits for the webhook and says Pro is
-   on. Settings -> Plan shows "Active", the period and the renewal date, and
+   on, and repeats the confirmation of the consent. Check the test-mode
+   receipt email (and its invoice) carries the footer of section 13, and that
+   the consent is recorded (section 13, "What was recorded"). Settings -> Plan shows "Active", the period and the renewal date, and
    **Manage subscription** opens the portal.
 4. Failures: `4000 0000 0000 0341` attaches but fails at the next charge;
    with a **test clock** (Billing -> Test clocks) you can move a customer's time
@@ -307,7 +314,12 @@ logs (Dashboard -> Edge Functions -> Logs) show the event id, type and outcome
 ## 10. Launch order
 
 1. Test mode end to end (section 9) against production's functions, with test
-   keys.
+   keys. Apply `20271013090000_billing_consents.sql` with the other billing
+   migrations, and deploy `billing-checkout` from the same commit as the web
+   (the page sends the consent the function requires). **Before live mode**:
+   your and your lawyer's review of the consent wording, the terms' section 9
+   and the receipt footer, made consistent (section 13), and the footer set
+   in both modes.
 2. In **live mode**, repeat sections 2-6: product and prices, Stripe Tax
    registrations, coupon, portal, webhook endpoint (each has its own ids and
    secret in live mode).
@@ -372,3 +384,105 @@ Nothing until enforcement is on. After that (`docs/RAIL-PLAN.md` R6.4
   upgrades.
 - After a purchase, the app's Pro arrives with its next check (or "Check
   again" in Settings -> Account -> Plan).
+
+---
+
+## 13. The consent at checkout and its confirmation (EU withdrawal right)
+
+**Not legal advice** - the wording below and in the code is a draft for your
+and your lawyer's review.
+
+Pro starts as soon as the customer pays. Under EU consumer law (Directive
+2011/83/EU art. 16(m) as amended; the Croatian Zakon o zaštiti potrošača) a
+consumer keeps a 14-day right of withdrawal unless, **before** performance
+starts, they expressly ask for it to start and acknowledge losing that right,
+and the trader **confirms this on a durable medium**. The terms' section 9
+relies on it (`docs/legal/TERMS*.md`).
+
+### What the web and the function do (already coded)
+
+1. Settings -> Plan, after the period: two **unticked** checkboxes, both
+   required - "I agree to the Terms of Use" (a link to `/terms`) and "I ask
+   for Rail Pro to start immediately and I acknowledge that I thereby lose my
+   right of withdrawal once it has started" (Croatian beside it). Until both
+   are ticked the Upgrade button is disabled.
+2. `billing-checkout` refuses a `POST` without both (`400 consent_required`,
+   or `consent_outdated` for a wording it does not know), before it calls
+   anything.
+3. It **records the consent before it creates the Checkout Session**
+   (`billing_consents`, service role only): the account, both kinds, the
+   version and SHA-256 of the checkbox wording and of the terms in the
+   language shown, the language, the period, the server's time. **No IP
+   address or user agent** - the verified account says who and the server's
+   clock says when; an IP would add personal data without proving more.
+4. The record's id goes into the session's and the subscription's
+   **metadata** (`consent_id`; visible on both in the Dashboard), and the
+   session id is written back onto the record.
+5. Stripe Checkout shows the same request above its Pay button
+   (`custom_text.submit`, in the page's language).
+6. The success page repeats the confirmation; the record is in the
+   customer's data download (`billing/consents.ndjson`). When an account is
+   deleted the record stays without the account (it proves the request, tied
+   to the Stripe records you keep as tax records).
+
+**Not used: Stripe's own `consent_collection.terms_of_service`.** It would put
+a second "I agree to the Terms" checkbox on Stripe's page after ours (two
+boxes for one agreement), Stripe refuses to create the session until a terms
+URL is set in the Dashboard's public details (checkout would break until
+then), and it does not cover the withdrawal acknowledgement, which is the
+part the law asks for.
+
+### What you configure: the durable-medium confirmation
+
+Rail sends no email itself; **Stripe's receipt is the confirmation**. In both
+test and live mode:
+
+1. **Settings -> Billing -> Invoices -> Default footer** (the invoice
+   template): the confirmation in both languages, for example (your lawyer's
+   wording replaces it, and it must match the checkbox and the terms' section
+   9):
+
+   > Rail Pro started immediately at your express request. Before paying you
+   > acknowledged that you thereby lose your right of withdrawal once it has
+   > started. / Rail Pro pokrenut je odmah na tvoj izričit zahtjev. Prije
+   > plaćanja potvrdio/la si da time gubiš pravo na jednostrani raskid
+   > ugovora nakon što počne.
+
+2. **Settings -> Customer emails** (Payments and Billing): **successful
+   payments** on (receipts), and, where offered, attach or link the invoice
+   PDF. The footer is on every invoice (PDF and hosted page) the receipt
+   links to.
+3. In test mode, buy once (section 9) and **check the receipt email and its
+   invoice show the footer**. If your Stripe settings do not carry it into
+   the email, add the same text under the receipt's custom message or the
+   account's email branding, and check again.
+
+A web page alone is not a durable medium; keep the receipt step.
+
+### The terms and the wording change
+
+- **The checkbox wording** lives in `frontend/src/lib/i18n/ns/plan.en.ts` and
+  `plan.hr.ts` (`billing.consent`). A change is a new version: bump
+  `CHECKOUT_CONSENT_VERSION` (`frontend/src/lib/billing/checkout.ts`), add the
+  version and its hashes to `CONSENT_TEXTS`
+  (`supabase/functions/_shared/billing/consent.ts`; Vitest `checkoutConsent`
+  prints the hashes it expects), keep the old version a day, and **deploy
+  `billing-checkout` before the web**. The reminder on Stripe's page is
+  `SUBMIT_MESSAGE` in the same file.
+- **The terms**: any edit of `docs/legal/TERMS*.md` changes their hash -
+  update `TERMS` in `consent.ts` (the test fails until then); when the terms
+  come into force, change its version from `draft-...` to the date in force.
+- **Open for the lawyer**: the checkbox says the right is lost once Pro has
+  started (art. 16(m), digital content), while the terms' section 9 keeps it
+  with a proportional refund (art. 14(3), services). Choose one treatment and
+  align the checkbox, section 9 and the receipt footer.
+
+### What was recorded
+
+```sql
+select id, owner_id, kinds, text_version, terms_version, locale, period, consented_at, checkout_session_id
+  from public.billing_consents order by consented_at desc limit 20;
+```
+
+The Dashboard shows the same `consent_id` in the Checkout Session's and the
+subscription's metadata.
