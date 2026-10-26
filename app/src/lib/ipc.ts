@@ -1192,6 +1192,12 @@ export const ipc = {
   chartSetLoad: (id: string) => invoke<StoredChartSetDto | null>("chart_set_load", { id }),
   chartSetSave: (set: StoredChartSetDto) => invoke<{ id: string; updatedAt: string }>("chart_set_save", { set }),
   chartSetDelete: (id: string) => invoke<boolean>("chart_set_delete", { id }),
+  /** (R5.5) The user's settings per tournament (`site:id` keys), kept in the store only; a save or delete re-queues its hands. */
+  tournamentSettingsList: () =>
+    invoke<{ key: string; settings: Record<string, unknown>; updatedAt: string }[]>("tournament_settings_list"),
+  tournamentSettingsSave: (key: string, settings: Record<string, unknown>) =>
+    invoke<number>("tournament_settings_save", { key, settings }),
+  tournamentSettingsDelete: (key: string) => invoke<boolean>("tournament_settings_delete", { key }),
   /** (R5.4) The session review over the store: `SessionReview`'s shape, each hand with its `smallBlind`. */
   sessionReview: (version: string, at: string | null, gapMinutes: number, limit: number) =>
     invoke<Record<string, unknown>>("session_review", { version, at, gapMinutes, limit }),

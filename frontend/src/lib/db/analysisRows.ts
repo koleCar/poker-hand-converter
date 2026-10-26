@@ -20,6 +20,7 @@ import {
   type FlopLibrary,
   type HandAnalysis,
   type SpotFacts,
+  type TournamentSettingsMap,
   type VillainStatsMap,
 } from "../analysis";
 import type { ChartSet } from "../charts";
@@ -148,13 +149,15 @@ export function analyseStoredHands(
   flopLibrary: FlopLibrary | null = null,
   /** The run's snapshot of the opponents' statistics (analysis/20); each row records the sample it read. */
   villains: VillainStatsMap | null = null,
+  /** The user's settings for the page's tournaments (R5.5); cash hands never read them. */
+  tournaments: TournamentSettingsMap | null = null,
 ): AnalysedBatch {
   const rows: HandAnalysisInsert[] = [];
   const failed: string[] = [];
   let done = 0;
   for (const { id, phf } of page) {
     try {
-      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts, flopLibrary, villains })));
+      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts, flopLibrary, villains, tournaments })));
     } catch {
       failed.push(id);
     }

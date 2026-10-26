@@ -55,6 +55,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 15 | `0015_hud_designs.sql` | (R3.9) `hud_layouts` (the user's HUD designs; a NULL design is a deleted one, kept for sync), `hud_layout_assignments` (which design per room, table size and format); `hud_seat_positions.cleared` (a reset keeps the row as a tombstone) and `dirty` on all four HUD tables (written here since the last sync; rows of an older store start dirty); empty otherwise, nothing to rebuild |
 
 | 16 | `0016_analysis.sql` | (R5.4) `hand_analysis`, `decision_analysis` (the web's analysis rows for the hands here, written by the app's analysis runner; one version per hand), `analysis_leak_rows` and `chart_decisions` (their narrow rows for the top three and the own charts' comparison) and `chart_sets` (the user's own preflop charts, R5.3, local only); empty, nothing to rebuild: the runner analyses every hand in the background |
+| 17 | `0017_tournament_settings.sql` | (R5.5) `tournament_settings` (the user's payouts, field and players left per tournament, local only) and `hand_stats_tournament_idx` (a tournament's hands, for sending them back to the analysis when its settings change); empty, nothing to rebuild |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1091,6 +1092,18 @@ as base64 of 169 bytes -, `created_at`, `updated_at`). Local only (Q4: sync
 carries hands and statistics). The editor validates a set before it saves;
 the store holds 50 sets, 300 situations and 400 KiB of nodes a set.
 
+### `tournament_settings`
+
+The user's settings per tournament (R5.5): the web's `tournament_settings`
+row (`site` lower-cased, `tournament_id`, `settings` - the JSON object the
+analysis library reads, `TournamentSettings` -, `created_at`, `updated_at`),
+`WITHOUT ROWID`, PK (`site`, `tournament_id`). Local only. The screen checks
+the settings with the library's `settingsProblem` before it saves; the
+store holds 2 000 tournaments and 64 KiB a row. Saving or deleting a row
+deletes the stored analysis of that tournament's hands (`hand_stats`'
+`site_id`, `tournament_id`; indexed by `hand_stats_tournament_idx`), so the
+runner grades them again with the new settings.
+
 ### Reading and writing them (`rail_store::analysis`)
 
 | Call | What |
@@ -1103,6 +1116,7 @@ the store holds 50 sets, 300 situations and 400 KiB of nodes a set.
 | `WriterHandle::save_analysis(rows, now)` | at most 200 rows; each replaces its hand's row and decisions; a hand gone meanwhile is skipped; a malformed row refuses the call |
 | `WriterHandle::clear_analysis()` | every row (all analysed again) |
 | `Reader::chart_sets()`, `chart_set(id)`, `WriterHandle::save_chart_set(row, now)`, `delete_chart_set(id)` | the chart sets |
+| `Reader::tournament_settings()`, `WriterHandle::save_tournament_settings(row, now)`, `delete_tournament_settings(site, id)` | the tournaments' settings; a save or a delete returns the tournament's hands to the analysis queue (R5.5) |
 | `Reader::session_review(query)` (`rail_store::review`) | one session (the web's `session_review`: the hero's hands in `hand_list`'s order, bomb pots out, a break longer than the gap starting the next; found by walking outwards from one instant in chunks of 500; the latest **ended** one without an instant, the ongoing one named): summary, coverage at the version, the worst decisions, the shipped charts' deviations, the biggest pots, each ranked and capped, and the rows of the hands they name, as `packages/ui/review`'s `SessionReview` |
 | `Reader::review_sessions(gap, since, limit)` | the picker's sessions, newest first |
 | `Reader::session_preflop(version, start, end)`, `review_hands(keys, version)` | a session's `chart_decisions`, and the review's rows of given hands (the own charts' deviation source) |

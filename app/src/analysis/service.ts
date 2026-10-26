@@ -10,7 +10,17 @@ import { useSyncExternalStore } from "react";
 
 import { errorText, inApp, ipc, onTablesOpen, onWatcherChanged } from "../lib/ipc";
 import type { PageHand } from "./engine";
-import { ANALYSIS_VERSION, handAnalysisFromStored, VILLAIN_MIN_HANDS, VillainCounters, type HandAnalysis, type PhfHand } from "./library";
+import {
+  ANALYSIS_VERSION,
+  handAnalysisFromStored,
+  settingsProblem,
+  VILLAIN_MIN_HANDS,
+  VillainCounters,
+  type HandAnalysis,
+  type PhfHand,
+  type TournamentSettings,
+  type TournamentSettingsMap,
+} from "./library";
 import { AnalysisRunner, type RunnerDeps, type RunnerStatus } from "./runner";
 import type { FetchOutcome } from "./worker";
 import { fetchOutcomeOfError, workerAnalyser } from "./workerClient";
@@ -42,6 +52,20 @@ async function fetchLibraryFile(path: string): Promise<FetchOutcome> {
 
 const pageWorker = workerAnalyser(fetchLibraryFile);
 
+/**
+ * (R5.5) The user's tournament settings from the store, those the library's
+ * own check accepts (`settingsProblem`), by `tournamentKey`; null when none.
+ */
+export async function tournamentSettings(): Promise<TournamentSettingsMap | null> {
+  const rows = await ipc.tournamentSettingsList();
+  const out = new Map<string, TournamentSettings>();
+  for (const row of rows) {
+    const settings = row.settings as TournamentSettings;
+    if (settingsProblem(settings) === null) out.set(row.key, settings);
+  }
+  return out.size > 0 ? out : null;
+}
+
 /** The runner's dependencies in the app. */
 export const appDeps: RunnerDeps = {
   gate: () => ipc.analysisGate(),
@@ -50,7 +74,8 @@ export const appDeps: RunnerDeps = {
   offline: (version, limit) => ipc.analysisOffline(version, limit),
   reachable: () => ipc.flopLibraryReachable().catch(() => false),
   villains: (players, minHands) => ipc.analysisVillains(players, minHands),
-  analyse: (page, villains, library, signal) => pageWorker.analyse(page, villains, library, signal),
+  analyse: (page, villains, library, signal, tournaments) => pageWorker.analyse(page, villains, library, signal, undefined, tournaments),
+  tournaments: () => tournamentSettings(),
   save: (rows) => ipc.analysisSave(rows),
   sleep,
   now: () => Date.now(),
@@ -114,5 +139,6 @@ export async function handAnalysisOf(handKey: string, phf: PhfHand): Promise<{ a
   const villains = await handVillains.counters.statsFor([phf]).catch(() => null);
   const hand: PageHand = { handKey, phf };
   const library = runner.current().library;
-  return { analysis: await handWorker.hand(hand, villains, library), stored: false };
+  const tournaments = await tournamentSettings().catch(() => null);
+  return { analysis: await handWorker.hand(hand, villains, library, tournaments), stored: false };
 }

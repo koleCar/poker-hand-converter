@@ -10580,6 +10580,117 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
     solved calling range, chips = ICM with two left, the bubble's direction,
     the sub-game, refusals. No number from any commercial tool.
 
+- *As built, R5.5b* (§15): **tournament decisions graded by ICM**,
+  `analysis/35` - on the web and in the app (the same library, R5.4).
+  - **What is graded** (`lib/analysis/pushFoldGrade.ts`, `analyzeTournament`
+    in `analyze.ts`; ANALYSIS-PLAN §3.7): a No-Limit Hold'em tournament
+    hand's preflop **push or fold** (everyone in front folded) and **call or
+    fold facing a push** (one player all in first in, everyone between
+    folded), at **20bb effective or less**, against the push/fold game's
+    equilibrium (R5.5a) from the first pusher on, every end valued in prize
+    equity (or chips). Options fold / all in (call), each the hero's EV for
+    their class against the equilibrium, in **big blinds at the
+    tournament's average price of a chip** (the prize pool still to be paid
+    over the chips in play: in chips exactly big blinds), net from the
+    start of the hand like a chart's, and the equilibrium's frequency; §2's
+    bands on the pot before the decision, no big-blind floor - the same
+    vocabulary as cash (`source: "icm"`). Everything the grade read is in
+    `facts.icm`: the model and why, payouts used, players left and the
+    source of each, every stack, the hero's prize equity at the start and
+    after each option, a big blind's worth, the pusher's and each caller's
+    equilibrium range, the hero's **bubble factor** and **risk premium**
+    against each, the CFR+ gap, and the line in the shared chart
+    vocabulary (`icm-pushfold-hu` / `-6max` / `-9max`, earliest seats
+    folded) for the own charts. **Approximations, always shown**:
+    `push-fold` (a min-raise or limp is not compared: a fold's loss is a
+    floor), `one-caller`, `icm-chip-ev`, `icm-payouts-assumed`,
+    `icm-players-left`, `icm-field-average`, `icm-monte-carlo`.
+  - **Not graded**, with reasons replacing the old blanket `tournament`:
+    `tournament-deep` (over 20bb), `tournament-not-push-fold` (a limp, a
+    raise short of all in, facing an open that is not an all-in first in,
+    a straddle or dead blind), `tournament-postflop`,
+    `tournament-side-pot` (a caller with players behind and under half the
+    push behind: the one-caller game would let a 0.3bb stack end the
+    action - found on the corpus), `tournament-posted-all-in`,
+    `tournament-players`. Their facts are the cash path's without equities;
+    of the heuristic checks only the free fold. Postflop tournament play
+    has no cheap sound reference (no tournament ranges, ICM changes every
+    solve), so nothing is said there.
+  - **Missing data, the user's settings** (`tournament_settings`, owner-only,
+    `20270901090000_tournament_icm.sql`; the app: store migration 17,
+    local only per Q4): kind, payouts in percent, field, starting stack,
+    players-left points. Written directly under RLS; a `before` guard
+    holds `settingsProblem`'s shape (`tournament_settings_problem`, the
+    same codes) and the limits (2 000 an account, 120 writes per 10
+    minutes); an `after` trigger deletes the stored analysis of that
+    tournament's hands on every write, so the next run grades them with
+    the settings (the app's store does the same on save and delete, by
+    `hand_stats.tournament_id`). The runners read the settings once per run
+    (web) or per page (app) and pass them to the worker
+    (`AnalyzeOptions.tournaments`); cash hands never read them. The screen
+    that edits them is R5.5c.
+  - **The database** (same migration): `decision_analysis.source` takes
+    `icm`; the own charts' filing (`preflop_decision_fields`, the two
+    triggers and the rebuild) takes `source in ('chart', 'icm')` and reads
+    `facts.icm.chart`, so a tournament chart (R5.3) now finds the pushes
+    and calls of its table and depth (keys `rfi:<seat>`,
+    `vs-open:<seat>:<pusher>`); `analysis_public_facts` keeps `icm` (no
+    tournament key) in a shared hand. The leak finder needs nothing: a
+    push/fold decision is its own spot (`facts.scenario` `push-fold` /
+    `push-fold-call`), never merged with a cash open, and the leak rows
+    carry the format. Types regenerated.
+  - **Cash unchanged, proved**: every corpus cash hand analysed on the
+    branch and on R5.5a (cash code identical to staging) with all eleven
+    chart sets - 7 796 hands, 194 of them with turn solves, 10 941
+    decisions, 8 033 graded (7 137 Perfect, 108 Good, 333 Inaccurate, 343
+    Mistake, 112 Blunder) - gives byte-identical records hand by hand
+    (sha-256 of each record without its version; the whole set
+    `725733b4…`). The cash path in `analyze.ts` gained one branch, taken
+    only when `handSkip` says `tournament`. The app/web parity test runs
+    unchanged.
+  - **The corpus's tournaments** (574 hands, all `tournament` before):
+    71 not Hold'em, 3 not
+    No-Limit, 3 without a hero, 7 without a decision; of the rest, **91
+    hands fully graded** (91 decisions: 84 pushes and calls of multi-table
+    hands in chips - no room says the players left -, 7 at the ACR
+    sit-and-goes by ICM on the assumed 50/30/20; 86 Perfect, 1 Good, 4
+    Blunder), and 580 decisions not graded: 319 not push/fold (mostly
+    facing a min-raise or opening one), 92 deeper than 20bb, 157 after the
+    flop, 12 side pots.
+  - **Performance** (M2 Pro, Node, one thread, the machine busy):
+    the 574 tournament
+    hands at **61 hands a second** through `analyzeHand` (56 through the
+    worker's `analyseStoredHands` in pages of 20) - a graded hand 82 ms at
+    the median, 188 ms at the 90th percentile, 357 ms at most (a nine-handed
+    push from under the gun: the CFR+ solve of the whole table). The cash
+    rate (1.8-2.1 hands a second, the turn and river solves) is unchanged,
+    so a library's tournaments add little to a run. The app's worker runs
+    the same engine (R5.4a): the same per-hand cost there.
+  - **Tests**: Vitest `analysisTournament` (13): a sit-and-go push (ICM,
+    standard payouts, everyone at the table, the facts, EVs as prize equity
+    at the bb's price, §2's own grade, aces folded a Blunder,
+    deterministic), a call-off (call or fold, the pusher, the matchup, no
+    one-caller as the last to act, trash folded and aces called), a
+    multi-table hand in chips and with the user's players left, payouts
+    and an off-table field, every reason, a postflop decision, the own
+    charts' keys, and the corpus's tournament hands (grades §2's from their
+    options, reasons named, explained in both languages, chips for the
+    multi-table ones, ICM at the sit-and-goes, equilibrium within 0.5bb);
+    `analysisCorpus` now sweeps cash hands (tournaments are the new suite's).
+    pgTAP `tournament_icm` (41). Rust `rail-store`
+    `tournament_settings_send_their_hands_back_to_the_analysis` (the save,
+    update and delete re-queue exactly the tournament's hands, the
+    listing, refusals, the 2 000 limit); the downgrade scripts of the older-store
+    tests drop migration 17's table and index, and the recompute map lists
+    the table as not derived; the whole `rail-store` suite passes. The whole Vitest suite: 112 files, 4 667 tests
+    (one skipped, as before; three suites adjusted - R5.4b's
+    `appAnalysisScreens` no longer pins `analysis/34`; `analysisSpots`' tournament case now reads the
+    tournament path; `analysisShare` exempts a copy whose standard text
+    cannot name the hero - every seat dealt face up, Run It Once's
+    tournament sample, which now has decisions: a converter limit, the
+    share page then shows the hand without its analysis). pgTAP 48 files /
+    1 720 on a fresh reset with every migration (after #252).
+
 ---
 
 ## Phase 6 — Subscription
@@ -10766,3 +10877,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **R5.4b done, R5.4 complete**: the analysis screens in the app, offline over R5.4a's store. A seventh sidebar entry, **Analysis** (`#/analysis`, Cmd/Ctrl + 5; HUD and Settings move to 6 and 7): the **session review** (`packages/ui/review` with the app's source, its deviations from Rail's charts or one of the user's own), the **top three leaks** (the app's card with the web's own ranking and words through a second door, `app/src/analysis/leakWords.ts`, over `rail_store::leaks`' sums of `analysis_leak_rows`, rounded as the web's `numeric` sums), **my charts** (`packages/ui/charts`, sets kept on this computer only, compared over `chart_decisions`) and **one hand's decisions** (the stored row, else analysed there and then), reached from Hands ("Analysis" in a hand's panel) and from every list's examples, with Back. Above them the background run's line with Pause / Resume. A10: the route is `analysis` in `duringPlay.ts` - hidden, left out of the sidebar, the palette and the shortcuts, and the panel's link gone, while a poker table is open. The shared screens compiled under the app's flags unchanged. The window's first chunk +8 KB; the screen 115 KB (37.6 KB gzip) on first visit; the top leaks' readers not yet measured at 1M. Tests: Rust `the_top_leaks_sum_the_leak_rows_by_spot`; Vitest `appAnalysisScreens` (`en` / `hr`), `appDuringPlay`, `appI18n`, `appAnalysisLibrary`. Grading, charts and `analysis/34` untouched. |
 | 2026-10-26 | **The analysis screens under a second at 1M hands** (follow-up to #247, whose "left slow" list this closes). Migration `20270825090000_analysis_screen_summaries.sql`: the Analysis readers read narrow rows and sums kept by statement triggers on `hand_analysis` and `decision_analysis` (R4.5c-1's / R5.2's way, R5.2's per-account lock; `analysis_leak_summaries_rebuild` recounts all of it and is the backfill) instead of every graded decision joined to `hands` with its options and facts unpacked. **Kept**: `analysis_hand_rows` (one per analysis row: the hand's groups, the analysis columns, what its decisions add up to), `analysis_month_hands`, R5.2's `analysis_leak_rows` now holding every decision (with room, stake, street, status, source, chart node), `analysis_leak_totals` and `analysis_leak_stake_totals` (all time; they **replace R5.2's daily sums**, which at varied spot keys held one row per decision - 1.94M for 1.98M), `analysis_trend_days`, the overview's `analysis_overview_hands` / `_decisions` / `_flags` / `_keys`, `analysis_node_totals`, `analysis_graded_sites`. **Readers** (signatures, grants and answers unchanged; invoker, owner-first, planned per call): the overview, breakdown, coverage, hands to analyse (the months whose library count exceeds the analysed count), drill spots, facets and node report from sums; the hand list from the hand rows under every filter; leaks, leak hands, node hands, the trend's filtered weeks / months and its sessions from the leak or hand rows in scope (a leak report over most of the history as totals less the rows outside it); a filter the web never sends to a report (status, grade, street, flag on a report) from the previous body, kept as `<reader>_scan`. No grade, chart, constant or `analysis/N` changed. **Measured** (own isolated stack, GENERATED, never committed: 1 000 000 hands over 35 months, 2.15M decisions, 1.98M graded, ~16 500 spot keys, beside a 7 500-hand account with 16 000 decisions; ms, second call, before -> after): the 1M account - `analysis_overview` {} 57 957 -> 189, cash + BTN 9 759 -> 17; `analysis_breakdown` street 43 014 -> 49, scenario 44 287 -> 56; `analysis_hands` recent 30 571 -> 3, bad hands by EV 11 457 -> 10, flop + flag 34 083 -> 181, by score - -> 370; `analysis_node_actions` {} 90 780 -> 284, BTN 979, 90 days 293; `analysis_node_hands` 31 906 -> 196; `analysis_coverage` 6 541 -> 2; `hands_needing_analysis_recent` 5 781 -> 2; `analysis_leaks` {} >130 000 -> 371, BTN 64, 30 days 309, one stake 220, before a day (Learn) 1 207; `analysis_leak_hands` >130 000 -> 2; `analysis_trend` week >130 000 -> 4, month by street 8, week BTN 438, **session 2 111, session by street 6 042** (left: a session needs every hand in time order; the default view is weeks); `drill_due_by_spot` >130 000 -> 57; `analysis_top_leaks` all 4 174 -> 869, 30 days 481. The small account beside it: overview 4 418 -> 27, node report 1 905 -> 39, leaks 528 -> 107 (its ~10 000 spot rows are the payload), trend 398 -> 1, session 434 -> 16, drill spots 352 -> 11, every other reader 0-46 (top three 184-262: three samples of its spot rows). **Write cost**: `save_hand_analysis` of 200 hands (~430 decisions) 160-234 ms warm (327 first) against 17-25 ms with the analysis summary triggers off (R5.2 alone was 85 against 19); their prune 130 against 67. **Storage**: 1.85 GB for the 1M account (≈ 860 MB per million decisions: leak rows 1 144 MB, hand rows 561 MB, every sum table 140 MB together); backfill 10 min 45 s. pgTAP: new `analysis_screen_summaries` (24: security; every reader equal to its previous body on 1 406 calls - 28 filter sets, every group, sort, bucket and gap - for two accounts after the first writes, a re-analysis at a new version, a prune, a hand and a decision deleted and decisions added; the triggers' sums equal to a rebuild after each; a deleted account leaves nothing); `owner_first_analysis` now rebuilds the previous bodies from the `_scan` copies and verbatim `20270818090000` text and holds the summed readers to them too; `owner_first_readers` lists the scans and guards the new paths and tables; `leak_summaries` reads the new tables. Suite 47 files / 1 679 on a fresh reset. Types regenerated. Not applied to production (prod checklist: the migration; its backfill reads every account's analysis once). |
 | 2026-10-26 | **R5.5a** (R5.5 split in three: engine, grading, screens): the **ICM engine** in the analysis library - Malmuth-Harville exact over the sets already placed (0.01 ms for nine paying three), seeded Monte-Carlo beyond 250 000 steps (exponential clocks, common random numbers, standard error at most `z_1/(2√n)`: 0.35 % of first prize at 20 000 samples), bubble factor, risk premium, chips <-> $EV; **payout models** with missing data handled and labelled (no room writes payouts, field or players left: sit-and-go 50/30/20, 65/35, winner-take-all; multi-table top 15 % weighted `1/p` from a field size; a multi-table hand without players left graded in chip EV); the **push/fold game** solved per hand by CFR+ over a 169x169 equity table of our own (1M boards, docs/CHARTS.md §12). Library only: no grade, row, chart or `analysis/N` changes. |
+| 2026-10-26 | **R5.5b**: **tournament decisions graded by ICM**, `analysis/35` (web and app, one library). A No-Limit Hold'em tournament's preflop push or fold and call or fold facing a first-in push at 20bb or less are graded against the push/fold game's equilibrium (R5.5a) in prize equity - in chips for a multi-table hand whose players left nobody gave - `source: "icm"`, EVs in bb at the tournament's average chip price, §2's bands; `facts.icm` carries the model and its sources, stacks, payouts, prize equities, ranges, bubble factor and risk premium. Every other tournament decision is `tournament-*` with its reason. The user's payouts / field / players left per tournament: `tournament_settings` (owner-only, guard + a trigger that re-queues the tournament's hands; pgTAP 41) and store migration 17 (local). `decision_analysis.source` takes `icm`; the own charts file push/fold decisions (`icm-pushfold-*` tables). **Cash unchanged**: 7 796 corpus cash hands (194 with turn solves) byte-identical record by record before and after. Corpus: 91 tournament hands graded (84 in chips, 7 by ICM), 61 tournament hands a second. Not applied to production. |

@@ -18,7 +18,8 @@ pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 /// Back from the latest version to 14 (R3.9's designs and assignments, and
 /// the sync marks it added to R3.6's tables).
 pub const DOWN_TO_14: &str =
-    "DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
+    "DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
+     DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
      DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
      ALTER TABLE hud_seat_positions DROP COLUMN cleared;
      ALTER TABLE hud_seat_positions DROP COLUMN dirty;
@@ -28,7 +29,8 @@ pub const DOWN_TO_14: &str =
 /// layouts; R2.11's staging tables and the twins of the rollups, and its
 /// `kv` keys).
 pub const DOWN_FROM_12: &str =
-    "DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
+    "DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
+     DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
      DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
      DROP TABLE player_rollups_observed;
      DROP TABLE recompute_player_rollups_observed; DROP TABLE custom_player_rollups_observed;
@@ -46,7 +48,8 @@ pub const DOWN_FROM_12: &str =
 /// R2.11, and version 11's custom statistics, R2.10, go first, version 10
 /// only dropped an index): what the older-store tests run first.
 pub const DOWN_FROM_9: &str =
-    "DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
+    "DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
+     DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
      DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
      DROP TABLE player_rollups_observed;
      DROP TABLE recompute_player_rollups_observed; DROP TABLE custom_player_rollups_observed;

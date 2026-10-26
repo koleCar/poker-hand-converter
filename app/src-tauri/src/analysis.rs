@@ -30,6 +30,7 @@
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use rail_store::analysis::TournamentSettingsRow;
 use rail_store::{ChartSetRow, HandAnalysisIn, PendingCursor, PendingHand};
 use rail_sync::floplib::{FileOutcome, FlopLibraryCache};
 use serde::{Deserialize, Serialize};
@@ -533,6 +534,83 @@ pub async fn chart_set_delete(store: State<'_, StoreState>, id: String) -> Resul
         .writer()
         .map_err(text)?
         .delete_chart_set(&id)
+        .map_err(text)
+}
+
+/// One tournament's settings (R5.5), keyed as `tournamentKey` keys them.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TournamentSettingsDto {
+    /// `site:tournament id`.
+    key: String,
+    settings: serde_json::Value,
+    updated_at: String,
+}
+
+/// `site:tournament id` as its two parts: the site lower-cased, the id trimmed.
+fn tournament_key(key: &str) -> Result<(String, String), String> {
+    match key.split_once(':') {
+        Some((site, id)) if !site.is_empty() && !id.trim().is_empty() => {
+            Ok((site.to_lowercase(), id.trim().to_owned()))
+        }
+        _ => Err("not a tournament key".to_owned()),
+    }
+}
+
+#[tauri::command]
+pub async fn tournament_settings_list(
+    store: State<'_, StoreState>,
+) -> Result<Vec<TournamentSettingsDto>, String> {
+    open(&store)?
+        .reader()
+        .tournament_settings()
+        .map_err(text)?
+        .into_iter()
+        .map(|row| {
+            Ok(TournamentSettingsDto {
+                key: format!("{}:{}", row.site, row.tournament_id),
+                settings: serde_json::from_str(&row.settings).map_err(|error| error.to_string())?,
+                updated_at: iso(row.updated_at),
+            })
+        })
+        .collect()
+}
+
+/// Saves one tournament's settings (the library checked them) and sends its
+/// hands back to the analysis; how many hands went back.
+#[tauri::command]
+pub async fn tournament_settings_save(
+    store: State<'_, StoreState>,
+    key: String,
+    settings: serde_json::Value,
+) -> Result<u64, String> {
+    let (site, tournament_id) = tournament_key(&key)?;
+    let settings = serde_json::to_string(&settings).map_err(|error| error.to_string())?;
+    open(&store)?
+        .writer()
+        .map_err(text)?
+        .save_tournament_settings(
+            TournamentSettingsRow {
+                site,
+                tournament_id,
+                settings,
+                updated_at: 0,
+            },
+            rail_store::time::now_ms(),
+        )
+        .map_err(text)
+}
+
+#[tauri::command]
+pub async fn tournament_settings_delete(
+    store: State<'_, StoreState>,
+    key: String,
+) -> Result<bool, String> {
+    let (site, tournament_id) = tournament_key(&key)?;
+    open(&store)?
+        .writer()
+        .map_err(text)?
+        .delete_tournament_settings(&site, &tournament_id)
         .map_err(text)
 }
 

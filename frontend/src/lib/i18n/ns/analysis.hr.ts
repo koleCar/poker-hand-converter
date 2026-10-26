@@ -4,6 +4,7 @@ import type { DecisionAnalysis, Flag, OptionAnalysis, SensitivityFacts, SpotFact
 import { plural } from "../plural";
 import type { Dict } from "../types";
 import { reportsHr } from "./analysisReports.hr";
+import { icmHr, icmFormHr, icmApproximationsHr, icmSentencesHr, tournamentReasonLabelsHr, tournamentReasonsHr } from "./analysisIcm.hr";
 import { leaksHr, progressHr, summaryHr, topLeaksHr } from "./analysisLeaks.hr";
 import { trainHr } from "./analysisTrain.hr";
 import { shareHr } from "./analysisShare.hr";
@@ -666,7 +667,7 @@ function explain(decision: DecisionAnalysis): string[] {
   const out: string[] = [];
   if (decision.status === "not-analysed") {
     const chartReason = decision.reason
-      ? (chartReasons[decision.reason] ?? riverReasons[decision.reason] ?? turnReasons[decision.reason])
+      ? (chartReasons[decision.reason] ?? riverReasons[decision.reason] ?? turnReasons[decision.reason] ?? tournamentReasonsHr[decision.reason])
       : undefined;
     const multiwayReason = decision.reason ? multiwayReasons[decision.reason] : undefined;
     out.push(
@@ -688,6 +689,7 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   out.push(...chartSentences(decision));
+  out.push(...icmSentencesHr(decision));
   out.push(...approxSentences(decision));
   out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
@@ -863,6 +865,7 @@ export const analysisHr: Dict["analysis"] = {
     "turn-off-tree": "Turn: izvan solverova stabla",
     "turn-unreached": "Turn: linija koju rješenje ne igra",
     "turn-solve-failed": "Turn: solver je odbio situaciju",
+    ...tournamentReasonLabelsHr,
   } as Record<string, string>,
 
   approximations: {
@@ -913,7 +916,11 @@ export const analysisHr: Dict["analysis"] = {
       "Igrač je postao big blind da uđe u igru i checkao: čitano kao limp od jednog big blinda, iako takav igrač ima bilo koje dvije karte, a limper iz chartova nema; ocjena nije gora od Netočno",
     "bomb-pot":
       "Bomb pot: svi su uložili ante i vidjeli flop, pa svaki raspon kreće od bilo koje dvije karte i sužava ga Railov model za multiway, ne solver; ocjenjuju se samo call i fold protiv beta te heads-up turn i river, nikad gore od Greška",
+    ...icmApproximationsHr,
   } as Record<string, string>,
+
+  icm: icmHr,
+  icmForm: icmFormHr,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,
 
@@ -1074,6 +1081,7 @@ export const analysisHr: Dict["analysis"] = {
       heuristic: "Samo heurističke provjere — bez ocjene",
       solver: "Ocijenjeno prema solveru",
       approx: "Približno (multiway): call u odnosu na fold po EV-u na suženim rasponima",
+      icm: "Turnir: ocijenjeno prema ravnoteži igre push/fold (ICM ili žetoni)",
     } as Record<string, string>,
     optionsHeadingApprox: "Približni EV protiv suženih raspona",
     approxMark: "(približno)",

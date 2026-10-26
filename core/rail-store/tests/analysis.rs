@@ -12,7 +12,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-use rail_store::analysis::{CHART_SETS_MAX, PENDING_MAX};
+use rail_store::analysis::{
+    CHART_SETS_MAX, PENDING_MAX, TOURNAMENT_SETTINGS_MAX, TournamentSettingsRow,
+};
 use rail_store::import::ImportOptions;
 use rail_store::{
     ChartSetRow, DecisionRowIn, Error, HandAnalysisIn, PendingCursor, Store, background,
@@ -704,6 +706,156 @@ fn chart_sets_are_kept_with_their_limits() {
     assert!(writer.delete_chart_set("a").expect("delete"));
     assert!(!writer.delete_chart_set("a").expect("delete again"));
     assert!(store.reader().chart_set("a").expect("load").is_none());
+    drop(writer);
+    store.close();
+}
+
+/// R5.5: a tournament's settings are kept, and saving or deleting them
+/// sends that tournament's hands - and only those - back to the analysis.
+#[test]
+fn tournament_settings_send_their_hands_back_to_the_analysis() {
+    let path = copy_of_corpus("analysis-tournaments");
+    let store = Store::open(&path).expect("open");
+    let conn = Connection::open(&path).expect("conn");
+    let (site, tid): (String, String) = conn
+        .query_row(
+            "SELECT lower(site_id), tournament_id FROM hand_stats WHERE tournament_id IS NOT NULL
+             GROUP BY 1, 2 HAVING count(*) >= 2 ORDER BY count(*) DESC, 1, 2 LIMIT 1",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .expect("a tournament of the corpus");
+    let keys = |sql: &str| -> Vec<String> {
+        let mut stmt = conn.prepare(sql).expect("prepare");
+        stmt.query_map(rusqlite::params![site, tid], |r| r.get(0))
+            .expect("query")
+            .collect::<Result<_, _>>()
+            .expect("keys")
+    };
+    let inside = keys(
+        "SELECT hand_key FROM hand_stats WHERE lower(site_id) = ?1 AND tournament_id = ?2 ORDER BY hand_key LIMIT 5",
+    );
+    let outside = keys(
+        "SELECT hand_key FROM hand_stats WHERE NOT (lower(site_id) = ?1 AND coalesce(tournament_id, '') = ?2)
+         ORDER BY hand_key LIMIT 5",
+    );
+    assert!(inside.len() >= 2 && outside.len() == 5);
+    let writer = store.writer().expect("writer");
+    let analyse = || {
+        let rows = inside
+            .iter()
+            .chain(outside.iter())
+            .map(|key| {
+                row(
+                    key,
+                    V2,
+                    true,
+                    vec![decision(0, "preflop", Some("good"), json!([]))],
+                )
+            })
+            .collect();
+        writer.save_analysis(rows, 1_000).expect("save");
+    };
+    let analysed = |keys: &[String]| -> usize {
+        keys.iter()
+            .filter(|key| store.reader().hand_analysis(key).expect("read").is_some())
+            .count()
+    };
+    let settings = |json: &str| TournamentSettingsRow {
+        site: site.clone(),
+        tournament_id: tid.clone(),
+        settings: json.to_owned(),
+        updated_at: 0,
+    };
+
+    analyse();
+    let all_inside = conn
+        .query_row(
+            "SELECT count(*) FROM hand_analysis a JOIN hand_stats s ON s.hand_key = a.hand_key
+             WHERE lower(s.site_id) = ?1 AND s.tournament_id = ?2",
+            rusqlite::params![site, tid],
+            |r| r.get::<_, i64>(0),
+        )
+        .expect("count");
+    let requeued = writer
+        .save_tournament_settings(settings(r#"{"kind":"mtt","payouts":[50,30,20]}"#), 10)
+        .expect("save");
+    assert_eq!(requeued, u64::try_from(all_inside).expect("count"));
+    assert_eq!(
+        analysed(&inside),
+        0,
+        "the tournament's hands go back to the queue"
+    );
+    assert_eq!(analysed(&outside), 5, "nothing else does");
+    let listed = store.reader().tournament_settings().expect("list");
+    assert_eq!(listed.len(), 1);
+    assert_eq!(
+        (
+            listed[0].site.as_str(),
+            listed[0].tournament_id.as_str(),
+            listed[0].updated_at
+        ),
+        (site.as_str(), tid.as_str(), 10)
+    );
+    assert_eq!(listed[0].settings, r#"{"kind":"mtt","payouts":[50,30,20]}"#);
+
+    // An update re-queues too; a delete as well, once.
+    analyse();
+    writer
+        .save_tournament_settings(settings(r#"{"kind":"sng"}"#), 20)
+        .expect("update");
+    assert_eq!(analysed(&inside), 0);
+    assert_eq!(
+        store.reader().tournament_settings().expect("list")[0].updated_at,
+        20
+    );
+    analyse();
+    assert!(
+        writer
+            .delete_tournament_settings(&site, &tid)
+            .expect("delete")
+    );
+    assert_eq!(analysed(&inside), 0);
+    assert_eq!(analysed(&outside), 5);
+    assert!(
+        !writer
+            .delete_tournament_settings(&site, &tid)
+            .expect("delete again")
+    );
+    assert!(
+        store
+            .reader()
+            .tournament_settings()
+            .expect("list")
+            .is_empty()
+    );
+
+    // Refusals: not an object, too big, a site not lower-cased, an empty id.
+    assert!(writer.save_tournament_settings(settings("[]"), 0).is_err());
+    let big = format!(r#"{{"payouts":[{}]}}"#, vec!["1"; 40_000].join(","));
+    assert!(writer.save_tournament_settings(settings(&big), 0).is_err());
+    let mut upper = settings("{}");
+    upper.site = site.to_uppercase();
+    assert!(writer.save_tournament_settings(upper, 0).is_err());
+    let mut empty = settings("{}");
+    empty.tournament_id = String::new();
+    assert!(writer.save_tournament_settings(empty, 0).is_err());
+
+    // The limit counts tournaments, not saves.
+    let other = |n: i64| TournamentSettingsRow {
+        site: "x".to_owned(),
+        tournament_id: format!("t{n}"),
+        settings: "{}".to_owned(),
+        updated_at: 0,
+    };
+    for n in 0..TOURNAMENT_SETTINGS_MAX {
+        writer.save_tournament_settings(other(n), 30).expect("save");
+    }
+    assert!(writer.save_tournament_settings(other(-1), 40).is_err());
+    assert!(
+        writer.save_tournament_settings(other(1), 50).is_ok(),
+        "an update is not a new tournament"
+    );
     drop(writer);
     store.close();
 }

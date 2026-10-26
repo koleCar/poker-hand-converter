@@ -424,7 +424,8 @@ A decision is **not analysed** (`status: partial`) when:
   and turn checks and bets, river bets and checks) keeps its multiway facts
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
-- the game is MTT with ICM;
+- a tournament decision outside the push/fold game, or after the flop
+  (§3.7; since `analysis/35` tournament push/fold decisions are graded);
 - it is a bomb pot on two boards (since `analysis/28` a bomb pot on one
   board is analysed: every range starts from any two cards, the rules of
   the game, and the multiway rules above apply - approximate calls and
@@ -453,6 +454,68 @@ frequencies; only checks that are true regardless of strategy:
 Heuristic grades never go above "Inaccurate" in the bad direction and never
 produce "Perfect". They produce **flags**, which the UI renders as notes, not
 grades.
+
+### 3.7 Tournaments: ICM and the push/fold game (`source: "icm"`, R5.5)
+
+A tournament's chips are not money: what a stack is worth is its share of
+the prizes still to be paid, which falls slower than the chips do (the
+**Independent Chip Model**, Malmuth-Harville: `lib/analysis/icm.ts`). So a
+tournament decision cannot be read off the cash charts, and since
+`analysis/35` No-Limit Hold'em tournament hands are analysed on their own
+path (`analyzeTournament` in `analyze.ts`, `pushFoldGrade.ts`):
+
+- **Graded: preflop push or fold, and call or fold facing a push**, at
+  **20bb effective or less** (`PUSH_FOLD_MAX_BB`) - the hero first in going
+  all in or folding, or facing one player's all-in first in (everyone
+  between folded) calling or folding. That is the **push/fold game**
+  (`pushFold.ts`): first in pushes or folds, a player facing a push calls
+  or folds, the first caller plays it heads-up; its equilibrium is solved
+  per hand by CFR+ (200 iterations) over a 169x169 equity table of our own
+  (`docs/CHARTS.md` §12), from the first pusher on, with **every end of the
+  hand valued in prize equity** (`icm` over the players left) - folds too.
+  The hero's options are fold and all in (call), each with the hero's EV
+  against the equilibrium and the equilibrium's frequency for the hero's
+  class; §2 grades them as it grades a chart (the share of the pot before
+  the decision, no big-blind floor). The EVs are **big blinds at the
+  tournament's average price of a chip** (prize pool still to be paid over
+  the chips in play; in chips exactly big blinds), net from the start of
+  the hand, so they read like a chart's and sum like one.
+- **The reference is a floor of the loss.** Pushing or folding is a subset
+  of what the hero could do: a fold graded against a push may have been
+  worse still against the best min-raise, never better, and a push is
+  graded only against folding. Said on every grade (`push-fold`), with
+  `one-caller` when more than one player could call.
+- **What the model knows** (`tournament.ts`): no room in the corpus writes
+  the payouts, the field or the players left. At a **sit-and-go** everyone
+  left is at the table, so ICM is exact; the payouts are the user's or the
+  standard ones (`icm-payouts-assumed`: 50/30/20 at 7-10 seats, 65/35 at
+  4-6, winner takes all heads-up, at three seats and in a spin). At a
+  **multi-table tournament** the hand says neither, so it is graded in
+  **chip EV** (`icm-chip-ev`, `facts.icm.chipsReason`) - what ICM reduces to
+  far from the money - unless the user said how many were left
+  (`icm-players-left`: a point in time, the latest at or before the hand),
+  then by ICM with the payouts they gave (or the generic top-15 % curve
+  from a field size), the players off the table at the average stack
+  (`icm-field-average`), up to 30 left; past that, chips (`far-field`).
+  Big fields' equities are sampled (`icm-monte-carlo`, the bound shown).
+  The user's settings are kept per tournament (owner-only, `tournament_settings`;
+  the app's store), and saving them sends the tournament's hands back to
+  the analysis.
+- **What the grade shows** (`facts.icm`): the model and why, the payouts
+  used, the players left and where each came from, every stack at the
+  table, the hero's prize equity at the start and after each option, what
+  a big blind is worth, the pusher's equilibrium range and each caller's,
+  and the hero's **bubble factor** and **risk premium** against each of
+  them.
+- **Not graded**, each with its reason: deeper than 20bb
+  (`tournament-deep`), a limp, a raise short of all in, facing an open that
+  is not an all-in (`tournament-not-push-fold`), after the flop
+  (`tournament-postflop`), a caller with players behind and less than half
+  the push behind - a side pot the one-caller game does not read
+  (`tournament-side-pot`), all in from the posts, more than ten players.
+  Their facts are the cash path's without equities (a pot-odds equity in
+  chips would mislead), and of the heuristic checks only the free fold.
+  Cash hands are untouched.
 
 ---
 
@@ -5983,3 +6046,33 @@ Each phase appends what it learned that changed the plan.
   rows, the flop library from the committed pilot) finds the two identical.
   Nothing in the library changed; no grade, constant, chart or
   `ANALYSIS_VERSION`.
+- 2026-10-26 — **Tournaments: ICM and the push/fold game** (`docs/RAIL-PLAN.md`
+  R5.5, §3.7 above). `analysis/35`.
+  - **Why only push/fold.** It is the tournament decision ICM moves most
+    and the one that can be answered exactly: two actions, one street, an
+    equilibrium a per-hand CFR+ solve reaches in 45-200 ms with every end
+    valued by ICM. Deeper play would need tournament preflop ranges and
+    ICM inside every postflop solve - not cheap, not sound yet - so it says
+    nothing (`tournament-deep`, `tournament-not-push-fold`,
+    `tournament-postflop`).
+  - **What the hand does not say.** No room in the corpus writes the
+    payouts, the field or the players left (574 tournament hands; one
+    stated prize pool). A sit-and-go is graded by ICM on its own table and
+    the standard payouts, said so; a multi-table hand in chips unless the
+    user gives the players left. The settings are the user's, per
+    tournament, and saving them re-grades that tournament's hands.
+  - **Found on the corpus.** The one-caller game let a 0.3bb stack, calling
+    every hand, end the action for the whole table, so a 15bb push of Q6o
+    from the lojack read as a 100% push: a caller with players behind and
+    less than half the push behind is now refused (`tournament-side-pot`,
+    12 decisions).
+  - **Corpus**: 91 tournament decisions graded (84 in chips, 7 by ICM;
+    86 Perfect, 1 Good, 4 Blunder); 580 not, each with its reason.
+  - **Cash unchanged**, checked record by record on all 7 796 corpus cash
+    hands (194 with turn solves) before and after: identical but for the
+    version. The bump re-analyses everything once.
+  - **Open.** Postflop tournament play; the owner's multi-table hands stay
+    in chips until players left are given per tournament (a lobby's
+    numbers per hand are not in any history); the one-caller model against
+    real overcalls; ICM's own blind spots (no future blinds or skill: the
+    "future game" is not modelled).

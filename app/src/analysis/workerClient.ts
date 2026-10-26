@@ -10,7 +10,7 @@
  * bucket; `service.ts`).
  */
 import type { PageHand, PageResult } from "./engine";
-import type { HandAnalysis, VillainStatsMap } from "./library";
+import type { HandAnalysis, TournamentSettingsMap, VillainStatsMap } from "./library";
 import type { FetchOutcome, WorkerRequest, WorkerResponse } from "./worker";
 
 /** Thrown out of a page that was stopped. */
@@ -30,8 +30,15 @@ export function fetchOutcomeOfError(text: string): FetchOutcome {
 
 /** What the runner needs of the worker. */
 export interface Analyser {
-  analyse(page: PageHand[], villains: VillainStatsMap | null, library: boolean, signal?: AbortSignal, onDone?: (done: number) => void): Promise<PageResult>;
-  hand(hand: PageHand, villains: VillainStatsMap | null, library: boolean): Promise<HandAnalysis>;
+  analyse(
+    page: PageHand[],
+    villains: VillainStatsMap | null,
+    library: boolean,
+    signal?: AbortSignal,
+    onDone?: (done: number) => void,
+    tournaments?: TournamentSettingsMap | null,
+  ): Promise<PageResult>;
+  hand(hand: PageHand, villains: VillainStatsMap | null, library: boolean, tournaments?: TournamentSettingsMap | null): Promise<HandAnalysis>;
   /** Terminate the worker (the next call makes a new one). */
   stop(): void;
 }
@@ -97,22 +104,22 @@ export function workerAnalyser(fetchFile: (path: string) => Promise<FetchOutcome
     });
 
   return {
-    async analyse(page, villains, library, signal, onDone) {
+    async analyse(page, villains, library, signal, onDone, tournaments = null) {
       if (signal?.aborted) throw new Stopped();
       const onAbort = () => stop();
       signal?.addEventListener("abort", onAbort, { once: true });
       try {
         jobSeq += 1;
-        const message = await ask({ type: "analyse", jobId: jobSeq, page, villains, library }, onDone);
+        const message = await ask({ type: "analyse", jobId: jobSeq, page, villains, library, tournaments }, onDone);
         if (message.type !== "analysed") throw new Error(`unexpected ${message.type} from the analysis worker`);
         return { rows: message.rows, failed: message.failed };
       } finally {
         signal?.removeEventListener("abort", onAbort);
       }
     },
-    async hand(hand, villains, library) {
+    async hand(hand, villains, library, tournaments = null) {
       jobSeq += 1;
-      const message = await ask({ type: "hand", jobId: jobSeq, hand, villains, library });
+      const message = await ask({ type: "hand", jobId: jobSeq, hand, villains, library, tournaments });
       if (message.type !== "hand") throw new Error(`unexpected ${message.type} from the analysis worker`);
       return message.analysis;
     },

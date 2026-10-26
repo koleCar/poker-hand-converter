@@ -26,6 +26,7 @@ import {
   type ChartLibrary,
   type HandAnalysis,
   type LibraryFetch,
+  type TournamentSettingsMap,
   type VillainStatsMap,
 } from "./library";
 
@@ -36,6 +37,8 @@ export interface AnalyseRequest {
   villains: VillainStatsMap | null;
   /** Read the flop library (false: known to be offline, or switched off). */
   library: boolean;
+  /** The user's settings for the page's tournaments (R5.5); absent: none. */
+  tournaments?: TournamentSettingsMap | null;
 }
 
 /** One hand for the hand view, analysed now and not stored. */
@@ -45,6 +48,8 @@ export interface HandRequest {
   hand: PageHand;
   villains: VillainStatsMap | null;
   library: boolean;
+  /** The user's settings for the hand's tournament (R5.5); absent: none. */
+  tournaments?: TournamentSettingsMap | null;
 }
 
 /** The window's answer to a {@link FetchRequest}. */
@@ -172,18 +177,30 @@ export function createWorker(scope: Scope, clock: () => number = Date.now): { fe
         const prepared = await preparePage([request.hand], set, request.library ? library : null);
         const hand = prepared.hands[0];
         if (!hand) throw new Error("no hand");
-        const analysis = analyzeHand(hand.phf, { charts: set, flopLibrary: prepared.loader, villains: request.villains });
+        const analysis = analyzeHand(hand.phf, {
+          charts: set,
+          flopLibrary: prepared.loader,
+          villains: request.villains,
+          tournaments: request.tournaments ?? null,
+        });
         scope.postMessage({ type: "hand", jobId, analysis });
         return;
       }
       let last = clock();
-      const result = await analysePage(request.page, set, request.library ? library : null, request.villains, (done) => {
-        const now = clock();
-        if (now - last >= PROGRESS_MS) {
-          last = now;
-          scope.postMessage({ type: "progress", jobId, done });
-        }
-      });
+      const result = await analysePage(
+        request.page,
+        set,
+        request.library ? library : null,
+        request.villains,
+        (done) => {
+          const now = clock();
+          if (now - last >= PROGRESS_MS) {
+            last = now;
+            scope.postMessage({ type: "progress", jobId, done });
+          }
+        },
+        request.tournaments ?? null,
+      );
       scope.postMessage({ type: "analysed", jobId, ...result });
     } catch (error) {
       scope.postMessage({ type: "error", jobId, message: error instanceof Error ? error.message : String(error) });

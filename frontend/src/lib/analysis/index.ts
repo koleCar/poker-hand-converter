@@ -24,6 +24,7 @@
  * icm.ts         R5.5: Malmuth-Harville ICM (exact; seeded Monte-Carlo), bubble factor, risk premium, chips <-> $EV
  * tournament.ts  R5.5: payout models; a tournament's kind, players left and stacks; the user's settings
  * pushFold.ts    R5.5: the push/fold game's equilibrium (CFR+) in prize equity or chips; the hero's EVs
+ * pushFoldGrade.ts R5.5: a tournament decision read as push/fold and graded by it (`source: "icm"`)
  * reports.ts     A3: range and hand-adjusted reference frequencies, stats rolled up from nodes
  * ```
  *
@@ -92,9 +93,13 @@ export {
   type FlopFacts,
   type TurnRole,
   type TurnSkipReason,
+  type IcmFacts,
+  type TournamentSkipReason,
   RIVER_SKIP_REASONS,
   TURN_SKIP_REASONS,
+  TOURNAMENT_SKIP_REASONS,
 } from "./types";
+export { PUSH_FOLD_MAX_BB, SIDE_POT_SHARE, gradePushFold, pushFoldSpot, type PushFoldGrade, type PushFoldSpot } from "./pushFoldGrade";
 
 export {
   FLOOR_POT_BB,

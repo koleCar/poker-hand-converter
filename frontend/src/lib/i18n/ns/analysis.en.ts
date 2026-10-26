@@ -19,6 +19,7 @@ import { FLOOR_POT_BB, INACCURATE_MAX_EV_LOSS_POT, MISTAKE_MAX_EV_LOSS_POT } fro
 import { bbFloored, betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
 import type { DecisionAnalysis, Flag, OptionAnalysis, SensitivityFacts, SpotFacts } from "../../analysis/types";
 import { reportsEn } from "./analysisReports.en";
+import { icmEn, icmFormEn, icmApproximationsEn, icmSentencesEn, tournamentReasonLabelsEn, tournamentReasonsEn } from "./analysisIcm.en";
 import { leaksEn, progressEn, summaryEn, topLeaksEn } from "./analysisLeaks.en";
 import { trainEn } from "./analysisTrain.en";
 import { shareEn } from "./analysisShare.en";
@@ -687,7 +688,7 @@ function explain(decision: DecisionAnalysis): string[] {
   const out: string[] = [];
   if (decision.status === "not-analysed") {
     const chartReason = decision.reason
-      ? (chartReasons[decision.reason] ?? riverReasons[decision.reason] ?? turnReasons[decision.reason])
+      ? (chartReasons[decision.reason] ?? riverReasons[decision.reason] ?? turnReasons[decision.reason] ?? tournamentReasonsEn[decision.reason])
       : undefined;
     const multiwayReason = decision.reason ? multiwayReasons[decision.reason] : undefined;
     out.push(
@@ -709,6 +710,7 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   out.push(...chartSentences(decision));
+  out.push(...icmSentencesEn(decision));
   out.push(...approxSentences(decision));
   out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
@@ -889,6 +891,7 @@ export const analysisEn = {
     "turn-off-tree": "Turn: off the solver's tree",
     "turn-unreached": "Turn: a line the solve never takes",
     "turn-solve-failed": "Turn: the solver refused the spot",
+    ...tournamentReasonLabelsEn,
   } as Record<string, string>,
 
   approximations: {
@@ -939,7 +942,11 @@ export const analysisEn = {
       "A player posted a big blind to sit in and checked: read as a one-big-blind limp, though a poster holds any two cards and the charts' limper does not; graded no worse than Inaccurate",
     "bomb-pot":
       "A bomb pot: everyone anted and saw the flop, so every range starts from any two cards and is narrowed by Rail's multiway model, not a solver; only calls and folds facing a bet, and heads-up turns and rivers, are graded, never worse than Mistake",
+    ...icmApproximationsEn,
   } as Record<string, string>,
+
+  icm: icmEn,
+  icmForm: icmFormEn,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
 
@@ -1103,6 +1110,7 @@ export const analysisEn = {
       heuristic: "Heuristic checks only — no grade",
       solver: "Graded against the solver",
       approx: "Approximate (multiway): calling against folding by EV on narrowed ranges",
+      icm: "Tournament: graded by the push/fold game's equilibrium (ICM or chips)",
     } as Record<string, string>,
     /** Above the options table of an approximate multiway grade (A9). */
     optionsHeadingApprox: "Approximate EV against the narrowed ranges",

@@ -456,14 +456,21 @@ describe("what is not analysed", () => {
     ["variant", (hand: PhfHand) => void (hand.game.variant = "omaha")],
     ["hi-lo", (hand: PhfHand) => void (hand.game.hiLo = true)],
     ["limit", (hand: PhfHand) => void (hand.game.limit = "pl")],
-    ["tournament", (hand: PhfHand) => void (hand.game.format = "tournament")],
-    ["no-hero", (hand: PhfHand) => hand.players.forEach((player) => (player.isHero = false))],
+    ["no-hero",(hand: PhfHand) => hand.players.forEach((player) => (player.isHero = false))],
     ["hero-cards-unknown", (hand: PhfHand) => hand.players.forEach((player) => (player.holeCards = []))],
   ] as const)("refuses %s by name", (reason, fn) => {
     const analysis = mutate(fn);
     expect(analysis.status).toBe("not-analysed");
     expect(analysis.reason).toBe(reason);
     expect(analysis.decisions).toEqual([]);
+  });
+
+  it("reads a tournament hand on its own path (analysis/35): a defence of an open is not push/fold, nothing graded, each decision says why", () => {
+    const analysis = mutate((hand) => void (hand.game.format = "tournament"));
+    expect(analysis.status).toBe("not-analysed");
+    expect(analysis.reason).toBe("tournament-not-push-fold");
+    expect(analysis.decisions.length).toBeGreaterThan(0);
+    expect(analysis.decisions.every((d) => d.grade === null && d.reason?.startsWith("tournament-"))).toBe(true);
   });
 
   it("refuses a hand where the hero made no decision", () => {

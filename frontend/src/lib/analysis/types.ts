@@ -259,8 +259,17 @@ import type { Position, Street } from "../phf/types";
  *               solve. Monotone: a milder full grade can no longer make the
  *               shown grade harsher (ANALYSIS-PLAN §10 2026-10-23, the
  *               sensitivity check's two-class rule).
+ *   analysis/35 (R5.5) No-Limit Hold'em tournament hands are analysed: a
+ *               preflop push or fold, or call or fold facing a first-in
+ *               push, at 20bb or less is graded against the push/fold
+ *               game's equilibrium in prize equity (ICM) or chips
+ *               (`source: "icm"`, `facts.icm`, `pushFoldGrade.ts`); every
+ *               other tournament decision is not analysed with a
+ *               `tournament-*` reason (they were all `tournament` before).
+ *               Cash hands are untouched: the same rows as analysis/34
+ *               (ANALYSIS-PLAN §3.7, §10 2026-10-26).
  */
-export const ANALYSIS_VERSION = "analysis/34" as const;
+export const ANALYSIS_VERSION = "analysis/35" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -279,7 +288,12 @@ export type Grade = (typeof GRADES)[number];
  * strategy — a multiway river call or fold. Graded on §2's thresholds,
  * capped at Mistake, always labelled "approximate (multiway)".
  */
-export type AnalysisSource = "chart" | "solver" | "heuristic" | "approx";
+/**
+ * `icm` (R5.5): a tournament's preflop push or fold, or call or fold facing
+ * a push, graded against the push/fold game's equilibrium in prize equity
+ * (or chips, when the payouts or players left are not known) - `facts.icm`.
+ */
+export type AnalysisSource = "chart" | "solver" | "heuristic" | "approx" | "icm";
 
 /** One option at a node, as the reference strategy plays it (§1). */
 export interface OptionAnalysis {
@@ -530,6 +544,25 @@ export interface Flag {
  *                       but three or more saw the flop: the ranges were
  *                       narrowed through the multiway streets, with card
  *                       removal between opponents only approximate.
+ *
+ * Tournament grades (R5.5, `source: "icm"`):
+ *
+ * - `push-fold`         the reference is the push/fold game: going all in
+ *                       or folding (calling or folding facing a push), no
+ *                       smaller raise and no limp. Always on.
+ * - `one-caller`        more than one player could have called the push:
+ *                       the first caller plays it heads-up, the rest fold.
+ * - `icm-chip-ev`       graded in chips, not prize equity: a multi-table
+ *                       tournament whose players left (or payouts) are not
+ *                       known, or more than 30 left (`facts.icm.chipsReason`).
+ * - `icm-payouts-assumed` the payout structure is the standard one for the
+ *                       game, not one the user gave.
+ * - `icm-players-left`  the players left are the user's count at a time at
+ *                       or before the hand (an upper bound).
+ * - `icm-field-average` the players at other tables are taken at an average
+ *                       stack.
+ * - `icm-monte-carlo`   the prize equities were sampled (a big field), within
+ *                       the bound in `facts.icm.icmError`.
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -567,6 +600,13 @@ export const APPROXIMATIONS = [
   "dead-button",
   "posted-blind",
   "bomb-pot",
+  "push-fold",
+  "one-caller",
+  "icm-chip-ev",
+  "icm-payouts-assumed",
+  "icm-players-left",
+  "icm-field-average",
+  "icm-monte-carlo",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -683,11 +723,40 @@ export type TurnSkipReason = (typeof TURN_SKIP_REASONS)[number];
 export const MULTIWAY_SKIP_REASONS = ["multiway", "multiway-side-pot", "multiway-crowded", "multiway-range-unknown", "multiway-reraise"] as const;
 export type MultiwaySkipReason = (typeof MULTIWAY_SKIP_REASONS)[number];
 
+/**
+ * Why a tournament decision has no grade (R5.5). Only preflop push/fold
+ * decisions are graded:
+ *
+ * - `tournament-deep`          the effective stack is over 20bb: deeper than
+ *                              push/fold;
+ * - `tournament-not-push-fold` a line or action outside it: a limp, a raise
+ *                              short of all in, facing a raise that is not an
+ *                              all-in first in, a straddle or a dead blind;
+ * - `tournament-postflop`      after the flop;
+ * - `tournament-posted-all-in` a player was all in from the blinds or antes;
+ * - `tournament-players`       more than ten players dealt in;
+ * - `tournament-side-pot`      a player who could call the push, with players
+ *                              still behind them, has less than half of it
+ *                              behind: their call would leave a side pot the
+ *                              others contest, which the one-caller game does
+ *                              not read.
+ */
+export const TOURNAMENT_SKIP_REASONS = [
+  "tournament-deep",
+  "tournament-not-push-fold",
+  "tournament-postflop",
+  "tournament-posted-all-in",
+  "tournament-players",
+  "tournament-side-pot",
+] as const;
+export type TournamentSkipReason = (typeof TOURNAMENT_SKIP_REASONS)[number];
+
 export const DECISION_SKIP_REASONS = [
   ...MULTIWAY_SKIP_REASONS,
   ...CHART_SKIP_REASONS,
   ...RIVER_SKIP_REASONS,
   ...TURN_SKIP_REASONS,
+  ...TOURNAMENT_SKIP_REASONS,
 ] as const;
 export type DecisionSkipReason = (typeof DECISION_SKIP_REASONS)[number];
 
@@ -888,6 +957,67 @@ export interface SpotFacts {
    * when no range read any.
    */
   villain?: VillainFact | null;
+
+  /** (R5.5) A tournament's push/fold decision: the model, the stacks, the payouts and each option's prize equity. */
+  icm?: IcmFacts | null;
+}
+
+/**
+ * What a tournament push/fold grade read (R5.5, `pushFoldGrade.ts`). Every
+ * assumption says where it came from; equities are shares of the whole prize
+ * pool (in chips: of the chips in play), 0..1.
+ */
+export interface IcmFacts {
+  model: "icm" | "chips";
+  /** Why chips: `players-left-unknown`, `payouts-unknown`, `far-field`. */
+  chipsReason: string | null;
+  /** `tournamentKey`: where the user's settings for this tournament are kept; null without an id. */
+  key: string | null;
+  kind: "sng" | "spin" | "mtt";
+  kindSource: "phf" | "name" | "assumed" | "user";
+  /** Percent of the pool for each place still to be paid (1 .. players left), as used; null in chips. */
+  payouts: number[] | null;
+  payoutsSource: "standard" | "user" | null;
+  playersLeft: number | null;
+  playersLeftSource: "table" | "user" | null;
+  entrants: number | null;
+  entrantsSource: "assumed" | "user" | null;
+  /** The prize pool, in the buy-in's minor units, when stated (`phf`) or `buy-ins` x entrants; null otherwise. */
+  prizePool: { amount: number; source: "phf" | "buy-ins" } | null;
+  /** `exact`, `monte-carlo` (with `icmError`, the bound on an equity's standard error, as a share of the pool) or `chips`. */
+  method: "exact" | "monte-carlo" | "chips";
+  icmError: number | null;
+  /** Every stack at the table at the start of the hand, the hero's marked. */
+  stacks: Array<{ seat: number; position: Position | null; stackBb: number; hero: boolean }>;
+  /** The players left at other tables, each at an average stack. */
+  others: { count: number; stackBb: number; source: "field" | "table" } | null;
+  /** `push` (first in: all in or fold) or `call` (facing a push: call or fold). */
+  scenario: "push" | "call";
+  /** The player who pushed (`call`); null for the hero's own push. */
+  pusher: Position | null;
+  effBb: number;
+  /** The hero's equity at the start of the hand and after each option, in the options' order. */
+  equity: { start: number; options: number[] };
+  /** What one big blind is worth, on average, as a share of the pool: the options' EVs are bb at this price. */
+  bbValue: number;
+  /** The pusher's equilibrium range (the hero's own for a push), as a share of all hands. */
+  pushShare: number;
+  /** Each player behind the pusher: how much of their range calls it, and the hero's matchup with them. */
+  players: Array<{
+    seat: number;
+    position: Position | null;
+    /** Share of hands calling the push. */
+    callShare: number;
+    /** The hero against this player all in, nothing else in the pot (1 in chips); null for the hero. */
+    bubbleFactor: number | null;
+    /** The equity over 50 % that such an all-in needs under ICM; null for the hero. */
+    riskPremium: number | null;
+  }>;
+  /** CFR+ iterations and the equilibrium's distance from Nash (summed best-response gain), in bb at `bbValue`. */
+  iterations: number;
+  gapBb: number;
+  /** The decision as a line of the 2-, 6- or 9-seat chart vocabulary (`docs/CHARTS.md` 6.1), for the user's own charts (R5.3); null at 10 seats. */
+  chart: { set: string; line: string } | null;
 }
 
 /** An opponent's own statistics a range was moved on (analysis/20, `villain.ts`). */
