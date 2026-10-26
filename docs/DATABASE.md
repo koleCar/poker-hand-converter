@@ -1118,6 +1118,43 @@ and anon.
 
 `learn_progress.test.sql` (Learn L1, 50 assertions): see below.
 
+## Your tournaments' settings: `tournament_settings`
+
+`20270901090000` (R5.5; `docs/ANALYSIS-PLAN.md` §3.7 is how a tournament is
+graded). **`tournament_settings`** - one row per tournament a user described:
+`site` (lower-cased, as `hands.site`) and `tournament_id` (as
+`hands.tournament_id`) are the key with `owner_id`, and `settings` a JSON
+object (`TournamentSettings` in `frontend/src/lib/analysis/tournament.ts`:
+`kind` sng / spin / mtt, `payouts` in percent, `entrants`, `startingStack`,
+`playersLeft` points `{at, left}`), at most 64 KiB. **Written directly** by
+the owner under RLS (one owner-only policy per command; nothing for `anon`),
+R5.3's way: a `before` trigger, `tournament_settings_guard` (definer),
+checks the shape with `tournament_settings_problem` - the same rules and
+codes as the library's `settingsProblem` - and the limits (2 000 tournaments
+an account under an advisory lock, 120 writes per 10 minutes,
+`tournament_settings:<owner>`), and keeps an update's owner, site and id; an
+`after` trigger, `tournament_settings_requeue` (definer), deletes the stored
+analysis of the owner's hands of that tournament on every insert, update and
+delete, so the next run grades them with the settings (the decisions'
+statement triggers subtract their leak and own-chart rows as for a prune).
+
+The same migration lets `decision_analysis.source` be `icm`, files a
+push/fold decision for the user's own charts by its `facts.icm.chart`
+(`preflop_chart_set_table` knows `icm-pushfold-hu` / `-6max` / `-9max`;
+`preflop_decision_fields` and the two triggers and the rebuild take `source
+in ('chart', 'icm')`), and keeps `facts.icm` - without the tournament key -
+in a shared hand (`analysis_public_facts`).
+
+`tournament_icm.test.sql` (41): RLS, grants, the definer triggers granted to
+nobody; every refusal of the shape check by its code; the owner's insert,
+update and delete, another account seeing and changing nothing, anon
+refused, a row not planted in another account, an update pinning the key
+and owner; each write deleting every version of the tournament's hands'
+analysis and nothing else (another tournament, a cash hand, another
+account's hand of the same id), their decisions and own-chart rows with it;
+2 000 tournaments and not 2 001, 120 writes and not 121; `icm` as a source,
+the push/fold tables' seats and keys; the shared facts; a deleted account.
+
 ## Your preflop charts: `preflop_chart_sets`, `preflop_decision_rows`
 
 `20270811090000`, `20270811100000` (R5.3; `docs/CHARTS.md` §11 is what a user
@@ -2016,6 +2053,7 @@ over-permissioned** and the migration revokes first, then grants.
 | `hand_sources` | **none** | `SELECT` | `hand_sources_owner_select` (`owner_id = (select auth.uid())`). Written only by `register_hand_source` and `ingest_hands`. |
 | `preflop_chart_sets` | **none** | `SELECT`, `INSERT`, `UPDATE`, `DELETE` | One owner-only policy per command, all `owner_id = (select auth.uid())`; `preflop_chart_sets_guard` (before insert or update) checks the nodes' shape and the limits and keeps an update's id and owner (R5.3). |
 | `preflop_decision_rows`, `preflop_decision_totals` | **none** | `SELECT` | Select-own. Written only by the triggers on `decision_analysis` and `preflop_decision_rows_rebuild` (R5.3). |
+| `tournament_settings` | **none** | `SELECT`, `INSERT`, `UPDATE`, `DELETE` | One owner-only policy per command, all `owner_id = (select auth.uid())`; `tournament_settings_guard` (before insert or update) checks the shape and the limits and keeps an update's owner, site and id; `tournament_settings_requeue` (after any write) deletes the tournament's hands' analysis (R5.5). |
 | `hud_layouts` | **none** | `SELECT` | `hud_layouts_owner_select` (`owner_id = (select auth.uid())`). Written only by `put_hud_layouts` (R3.9). |
 | `hand_arrivals` | `SELECT` | `SELECT` | `hand_arrivals_own_select` (`to authenticated`, `owner_id = (select auth.uid())`); none for `anon`, so anon reads zero rows. Written only by the `hands_signal_arrival` trigger. The anon grant is for Realtime: see [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 

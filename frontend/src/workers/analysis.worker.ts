@@ -36,6 +36,7 @@ import {
   type HandAnalysis,
   type RiverFailure,
   type RiverStudy,
+  type TournamentSettingsMap,
   type TurnFailure,
   type VillainStatsMap,
 } from "../lib/analysis";
@@ -50,6 +51,8 @@ export interface AnalyseRequest {
   page: Array<{ id: string; phf: PhfHand }>;
   /** The run's snapshot of the opponents' statistics (analysis/20); null or absent: none. */
   villains?: VillainStatsMap | null;
+  /** The user's settings for the page's tournaments (R5.5); null or absent: none. */
+  tournaments?: TournamentSettingsMap | null;
 }
 
 export interface StudyRequest {
@@ -71,6 +74,8 @@ export interface HandRequest {
   phf: PhfHand;
   /** The opponents' statistics (analysis/20). */
   villains?: VillainStatsMap | null;
+  /** The user's settings for the hand's tournament (R5.5). */
+  tournaments?: TournamentSettingsMap | null;
 }
 
 export type AnalysisWorkerRequest = AnalyseRequest | StudyRequest | HandRequest;
@@ -119,7 +124,12 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
     await ensureChartSets(set, hands.flatMap((hand) => rareLineChartSets(hand, set)));
     if (request.type === "hand") {
       const library = await libraryFor(set, [request.phf]);
-      const analysis = analyzeHand(request.phf, { charts: set, flopLibrary: library, villains: request.villains ?? null });
+      const analysis = analyzeHand(request.phf, {
+        charts: set,
+        flopLibrary: library,
+        villains: request.villains ?? null,
+        tournaments: request.tournaments ?? null,
+      });
       self.postMessage({ type: "hand", jobId, analysis } satisfies AnalysisWorkerResponse);
       return;
     }
@@ -147,6 +157,7 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
       },
       library,
       request.villains ?? null,
+      request.tournaments ?? null,
     );
     self.postMessage({ type: "analysed", jobId, ...batch } satisfies AnalysisWorkerResponse);
   } catch (error) {

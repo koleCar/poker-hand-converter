@@ -26,6 +26,7 @@ import {
   type ChartLibrary,
   type FlopLibraryLoader,
   type PhfHand,
+  type TournamentSettingsMap,
   type VillainStatsMap,
 } from "./library";
 import { heroPositionOf, storeRow, trimPhf, type StoreHandRow } from "./rows";
@@ -89,6 +90,8 @@ export async function analysePage(
   library: PageLibrary | null,
   villains: VillainStatsMap | null,
   onHand?: (done: number) => void,
+  /** The user's settings for the page's tournaments (R5.5); null: none. */
+  tournaments: TournamentSettingsMap | null = null,
 ): Promise<PageResult> {
   const { hands, loader, complete } = await preparePage(page, charts, library);
   const batch = analyseStoredHands(
@@ -97,6 +100,7 @@ export async function analysePage(
     onHand,
     loader,
     villains,
+    tournaments,
   );
   const byKey = new Map(hands.map((item) => [item.handKey, item.phf]));
   return {

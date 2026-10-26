@@ -30,12 +30,17 @@
  */
 import { formatNodeKey, TABLE_POSITIONS, type NodeKey, type Position, type TableSize } from "./model";
 
-/** The seats of a shipped set (`nlhe-cash-6max-100bb`, …) in preflop order; null for the straddle set and anything unknown. */
+/**
+ * The seats of a shipped set (`nlhe-cash-6max-100bb`, …) in preflop order;
+ * null for the straddle set and anything unknown. The push/fold game's
+ * tables (R5.5: `icm-pushfold-hu`, `-6max`, `-9max` - a tournament
+ * decision read on 2, 6 or 9 seats, earliest seats folded) read the same.
+ */
 export function seatsOfShippedSet(setId: string): { tableSize: TableSize; seats: readonly Position[] } | null {
   if (/-straddle$/.test(setId)) return null;
-  if (/^nlhe-cash-6max-\d+bb$/.test(setId)) return { tableSize: 6, seats: TABLE_POSITIONS[6] };
-  if (/^nlhe-cash-9max-\d+bb$/.test(setId)) return { tableSize: 9, seats: TABLE_POSITIONS[9] };
-  if (/^nlhe-cash-hu-\d+bb$/.test(setId)) return { tableSize: 2, seats: TABLE_POSITIONS[2] };
+  if (/^nlhe-cash-6max-\d+bb$/.test(setId) || setId === "icm-pushfold-6max") return { tableSize: 6, seats: TABLE_POSITIONS[6] };
+  if (/^nlhe-cash-9max-\d+bb$/.test(setId) || setId === "icm-pushfold-9max") return { tableSize: 9, seats: TABLE_POSITIONS[9] };
+  if (/^nlhe-cash-hu-\d+bb$/.test(setId) || setId === "icm-pushfold-hu") return { tableSize: 2, seats: TABLE_POSITIONS[2] };
   return null;
 }
 

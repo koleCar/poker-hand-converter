@@ -201,6 +201,8 @@ const NOT_DERIVED: &[&str] = &[
     "chart_sets",
     "analysis_leak_rows",
     "chart_decisions",
+    // R5.5: the user's settings per tournament, read by the analysis.
+    "tournament_settings",
 ];
 
 #[test]

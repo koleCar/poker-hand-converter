@@ -139,6 +139,8 @@ import {
   type VillainFact,
 } from "./types";
 import { heroSpots, type Spot } from "./walk";
+import { gradePushFold, type PushFoldGrade } from "./pushFoldGrade";
+import { tournamentKey, type TournamentSettings, type TournamentSettingsMap } from "./tournament";
 import {
   gradeFlop,
   libraryEntry,
@@ -202,6 +204,13 @@ export interface AnalyzeOptions {
    * `modelResponders` for the narrowing model's MDF split, or a held-out fit.
    */
   responders?: ResponderFrequency | null;
+  /**
+   * (R5.5) The user's settings per tournament (`tournamentKey`): payouts,
+   * field, players left. Absent, a tournament is graded on what its hand
+   * says and the standard assumptions (`tournament.ts`). Cash hands never
+   * read it.
+   */
+  tournaments?: TournamentSettingsMap | null;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -222,7 +231,7 @@ const ANY_TWO: ClassWeights = parseRange("*");
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
-type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary" | "villains" | "responders">> & {
+type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary" | "villains" | "responders" | "tournaments">> & {
   charts: ChartSet | null;
   responders: ResponderFrequency | null;
   only: number | null;
@@ -1246,6 +1255,12 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   const hero = heroSeatOf(context);
   const skip = handSkip(hand, context, hero);
   const potType = potTypeOf(context);
+  // R5.5: a No-Limit Hold'em tournament hand is graded by the push/fold game where it can be (`analyzeTournament`).
+  if (skip === "tournament" && hero !== null) {
+    if (!tournamentReadable(context, hero)) return emptyAnalysis(context.isBombPot ? "tournament" : "hero-cards-unknown", hero, potType);
+    const key = tournamentKey(hand);
+    return analyzeTournament(hand, context, hero, potType, resolved, key ? (options.tournaments?.get(key) ?? null) : null);
+  }
   if (skip !== null || hero === null) {
     return emptyAnalysis(skip ?? "no-hero", hero, potType);
   }
@@ -1549,6 +1564,114 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     decisions,
     approximations: [...allApprox].sort(),
     flagCount,
+    worstFlag: worstSeverity(decisions.map((decision) => decision.worstFlag)),
+  };
+}
+
+/* ----------------------------------------------------------- tournaments - */
+
+/** The heuristic checks a tournament decision keeps: those that hold whatever chips are worth. */
+const TOURNAMENT_FLAGS = new Set<string>(["free-fold"]);
+
+/** The hero's two cards are readable, and no bomb pot: a tournament hand the push/fold game can read. */
+function tournamentReadable(context: StatsContext, hero: number): boolean {
+  if (context.isBombPot) return false;
+  const cards = context.players.get(hero)?.holeCards ?? [];
+  return cards.length === 2 && toSafeIndices(cards) !== null;
+}
+
+/**
+ * A No-Limit Hold'em tournament hand (R5.5): each hero preflop decision the
+ * push/fold game reads is graded by it (`pushFoldGrade.ts`, `source:
+ * "icm"`), with the model, the stacks and the payouts in `facts.icm`; every
+ * other decision is not analysed, with the reason (`tournament-deep`,
+ * `tournament-not-push-fold`, `tournament-postflop`, ...). The facts are the
+ * cash path's without equities (chips are not money here, so a pot-odds
+ * equity would mislead), and of the heuristic checks only the free fold.
+ */
+function analyzeTournament(
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  potType: string,
+  resolved: ResolvedOptions,
+  settings: TournamentSettings | null,
+): HandAnalysis {
+  const spots = heroSpots(context, hero);
+  if (spots.length === 0) return emptyAnalysis("no-decisions", hero, potType);
+  const bb = Math.max(1, hand.game.bigBlind);
+  const heroStack = context.players.get(hero)?.startingStack ?? 0;
+  const effectiveBb = effectiveStackBb(context, hero);
+  const plain: ResolvedOptions = { ...resolved, equity: false, charts: null, flopLibrary: null, villains: null };
+
+  const decisions: DecisionAnalysis[] = spots.flatMap((spot) => {
+    if (resolved.only !== null && spot.action.index !== resolved.only) return [];
+    const street = spot.street as DecisionStreet;
+    const multiway = street !== "preflop" && spot.opponents.length >= 2;
+    const { facts, cannotLose, beatsNoHolding, noMoreCards } = buildFacts(spot, context, hero, multiway, plain, null, null);
+    const graded: PushFoldGrade =
+      street === "preflop" ? gradePushFold(hand, context, hero, spot, facts.potBb, settings) : { ok: false, reason: "tournament-postflop" };
+    if (graded.ok) {
+      facts.icm = graded.icm;
+      // Its own spot in the leak finder: the push/fold game is not the cash charts' unopened pot.
+      facts.scenario = graded.icm.scenario === "push" ? "push-fold" : "push-fold-call";
+    }
+    const flags = heuristicFlags({ spot, facts, cannotLose, beatsNoHolding, noMoreCards, startingStack: heroStack, bigBlind: bb }).filter((flag) =>
+      TOURNAMENT_FLAGS.has(flag.code),
+    );
+    return {
+      order: spot.decision.order,
+      actionIndex: spot.action.index,
+      street,
+      action: spot.decision.type as DecisionAnalysis["action"],
+      status: graded.ok ? "analysed" : "not-analysed",
+      reason: graded.ok ? null : graded.reason,
+      node: [
+        "nlhe",
+        hand.game.format,
+        `${hand.table.maxSeats}max`,
+        `${stackBucket(effectiveBb)}bb`,
+        potType,
+        street,
+        facts.scenario,
+        facts.position ?? "?",
+      ].join("/"),
+      options: graded.ok ? graded.options : [],
+      chosen: graded.ok ? graded.chosen : null,
+      evLoss: graded.ok ? graded.evLoss : null,
+      evLossPot: graded.ok ? graded.evLossPot : null,
+      freqDiff: graded.ok ? graded.freqDiff : null,
+      grade: graded.ok ? graded.grade : null,
+      score: graded.ok ? graded.score : null,
+      source: graded.ok ? "icm" : "heuristic",
+      approximations: graded.ok ? graded.approximations : [],
+      facts,
+      flags,
+      worstFlag: worstSeverity(flags.map((flag) => flag.severity)),
+    };
+  });
+
+  if (decisions.length === 0) return emptyAnalysis("no-decisions", hero, potType);
+  const analysed = decisions.filter((decision) => decision.status === "analysed");
+  const allApprox = new Set<Approximation>();
+  for (const decision of analysed) for (const value of decision.approximations) allApprox.add(value);
+  const graded = decisions.filter((decision) => decision.evLoss !== null);
+  const evLoss = graded.length > 0 ? round3(graded.reduce((sum, decision) => sum + (decision.evLoss ?? 0), 0)) : null;
+  const finalPotBb = Math.max(hand.results.totalPot / bb, ...decisions.map((decision) => decision.facts.potBb));
+  const score = meanScore(decisions.map((decision) => decision.score));
+  return {
+    version: ANALYSIS_VERSION,
+    status: analysed.length === 0 ? "not-analysed" : analysed.length === decisions.length ? "full" : "partial",
+    reason: analysed.length === 0 ? (decisions[0].reason ?? "tournament") : null,
+    heroSeat: hero,
+    potType,
+    grade: worstGrade(decisions.map((decision) => decision.grade)),
+    score: score === null ? null : round2(score),
+    evLoss,
+    evLossPot: evLoss === null ? null : finalPotBb > 0 ? round4(evLoss / finalPotBb) : 0,
+    decisions,
+    approximations: [...allApprox].sort(),
+    flagCount: decisions.reduce((sum, decision) => sum + decision.flags.length, 0),
     worstFlag: worstSeverity(decisions.map((decision) => decision.worstFlag)),
   };
 }

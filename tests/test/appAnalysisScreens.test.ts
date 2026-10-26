@@ -26,7 +26,7 @@ import { HandAnalysisView, type Loaded } from "../../app/src/screens/analysis/Ha
 import { TopLeaksBody } from "../../app/src/screens/analysis/TopLeaks";
 import { describeStatus } from "../../app/src/screens/analysis/status";
 import { parseView, tabOf, viewParam, type AnalysisView } from "../../app/src/screens/analysis/view";
-import { analyzeHand, type HandAnalysis } from "../../frontend/src/lib/analysis/index";
+import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../../frontend/src/lib/analysis/index";
 import { loadCharts } from "../../frontend/src/lib/charts/index";
 import { convertAny } from "../../frontend/src/lib/parsers/index";
 import { newChartSet } from "../../packages/ui/charts/model";
@@ -192,7 +192,7 @@ describe("the app's sources for the shared screens", () => {
     answers.session_review = { gapMinutes: 30, session: null, ongoing: null, coverage: { hands: 0, analysed: 0, graded: 0, notAnalysed: 0 }, worst: [], chartDeviations: [], pots: [], hands: { k1: storeHand } };
     const review = await storeReviewSource.review({ at: "2026-02-20T21:00:00.000Z", gapMinutes: 60, filter: {} as never }, 20);
     expect(review.hands.k1.stakesLabel).toBe("$0.50/$1");
-    expect(calls[0]).toMatchObject({ command: "session_review", args: { version: "analysis/34", at: "2026-02-20T21:00:00.000Z", gapMinutes: 60, limit: 20 } });
+    expect(calls[0]).toMatchObject({ command: "session_review", args: { version: ANALYSIS_VERSION, at: "2026-02-20T21:00:00.000Z", gapMinutes: 60, limit: 20 } });
 
     const item = (n: number) => ({ startedAt: `2026-0${n}-01T00:00:00.000Z`, endedAt: `2026-0${n}-01T01:00:00.000Z`, hands: 10, tables: 1, netBbMilli: 0 });
     answers.review_sessions = (args: Record<string, unknown>) => (args.since === null ? [item(1), item(2)] : [item(3)]);
@@ -236,12 +236,12 @@ describe("the app's sources for the shared screens", () => {
     answers.chart_played = { from: "2026-07-26", to: "2026-10-23", cells: [{ key: "vs-open:BB:BTN", cls: 21, action: "call", decisions: 4, evLossBb: 1.5 }] };
     const query = { period: "90d", gameFormat: "cash", tableSize: 6, stackMinBb: 80, stackMaxBb: 120 } as const;
     expect(await storeChartsSource.played(query)).toEqual({
-      analysisVersion: "analysis/34",
+      analysisVersion: ANALYSIS_VERSION,
       from: "2026-07-26",
       to: "2026-10-23",
       cells: [{ key: "vs-open:BB:BTN", cls: 21, action: "call", decisions: 4, evLossBb: 1.5 }],
     });
-    expect(calls.at(-1)?.args).toEqual({ version: "analysis/34", query });
+    expect(calls.at(-1)?.args).toEqual({ version: ANALYSIS_VERSION, query });
     answers.chart_examples = [
       { handId: "k1", actionIndex: 4, playedAt: "2026-10-23T10:00:00.000Z", heroCards: ["Ah", "9h"], site: "pokerstars", currency: "EUR", currencySymbol: "€", minorUnits: 100, smallBlind: 5, bigBlind: 10, evLossBb: 0.25 },
     ];
@@ -288,7 +288,7 @@ describe("the top three leaks", () => {
       return command === "top_leaks" ? dto : [];
     });
     const report = await fetchTopLeaks({}, "30d");
-    expect(asked[0]).toEqual({ command: "top_leaks", version: "analysis/34", filters: {}, period: "30d" });
+    expect(asked[0]).toEqual({ command: "top_leaks", version: ANALYSIS_VERSION, filters: {}, period: "30d" });
     const row = spotRow(sample.rows[0]);
     expect(row).toMatchObject({ street: "preflop", scenario: "vs-open", line: "fffrf", position: "BB", taken: "fold", best: "call", hands: 30 });
     expect([row.evLossBb, spotRow(sample.rows[1]).evLossBb, row.scoreSum]).toEqual([4.123, 2, 2403.7]);

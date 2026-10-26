@@ -227,6 +227,24 @@ pub struct ChartSetRow {
     pub updated_at: i64,
 }
 
+/// The most tournaments with settings (R5.5), as the web's guard.
+pub const TOURNAMENT_SETTINGS_MAX: i64 = 2_000;
+
+/// The largest settings JSON (R5.5), as the web's column check.
+pub const TOURNAMENT_SETTINGS_BYTES: usize = 65_536;
+
+/// One tournament's settings (R5.5, migration 17): the JSON object the
+/// library reads (`TournamentSettings`), as the screen hands it over.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TournamentSettingsRow {
+    /// Lower-cased, as `hands.site` on the web.
+    pub site: String,
+    pub tournament_id: String,
+    /// JSON object.
+    pub settings: String,
+    pub updated_at: i64,
+}
+
 /* ----------------------------------------------------------- validation - */
 
 fn check(ok: bool, what: &'static str) -> Result<()> {
@@ -547,6 +565,85 @@ impl WriterHandle {
         let id = id.to_owned();
         self.write(move |tx| Ok(tx.execute("DELETE FROM chart_sets WHERE id = ?1", [&id])? == 1))
     }
+
+    /// Insert or replace one tournament's settings (R5.5) and send its
+    /// hands back to the analysis: their stored rows go, so the next page
+    /// grades them with these settings. `settings` is a JSON object the
+    /// library checked (`settingsProblem`); the store holds the size and
+    /// count limits. Returns how many hands' analysis went.
+    pub fn save_tournament_settings(&self, row: TournamentSettingsRow, now_ms: i64) -> Result<u64> {
+        let parsed: Value = serde_json::from_str(&row.settings)
+            .map_err(|_| Error::OutOfRange("tournament settings"))?;
+        check(parsed.is_object(), "tournament settings")?;
+        check(
+            row.settings.len() <= TOURNAMENT_SETTINGS_BYTES,
+            "tournament settings size",
+        )?;
+        check(
+            tournament_key_ok(&row.site, &row.tournament_id),
+            "tournament",
+        )?;
+        self.write(move |tx| {
+            let existing: Option<i64> = tx
+                .query_row(
+                    "SELECT created_at FROM tournament_settings WHERE site = ?1 AND tournament_id = ?2",
+                    params![row.site, row.tournament_id],
+                    |r| r.get(0),
+                )
+                .optional()?;
+            if existing.is_none() {
+                let count: i64 =
+                    tx.query_row("SELECT count(*) FROM tournament_settings", [], |r| r.get(0))?;
+                check(count < TOURNAMENT_SETTINGS_MAX, "tournament settings")?;
+            }
+            tx.execute(
+                "INSERT OR REPLACE INTO tournament_settings (site, tournament_id, settings, created_at, updated_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    row.site,
+                    row.tournament_id,
+                    row.settings,
+                    existing.unwrap_or(now_ms),
+                    now_ms
+                ],
+            )?;
+            requeue_tournament(tx, &row.site, &row.tournament_id)
+        })
+    }
+
+    /// Forget one tournament's settings; its hands are analysed again on
+    /// the standard assumptions. Whether there were any.
+    pub fn delete_tournament_settings(&self, site: &str, tournament_id: &str) -> Result<bool> {
+        let (site, tournament_id) = (site.to_owned(), tournament_id.to_owned());
+        self.write(move |tx| {
+            let gone = tx.execute(
+                "DELETE FROM tournament_settings WHERE site = ?1 AND tournament_id = ?2",
+                params![site, tournament_id],
+            )? == 1;
+            requeue_tournament(tx, &site, &tournament_id)?;
+            Ok(gone)
+        })
+    }
+}
+
+/// A tournament key's parts as the web's columns hold them: the site
+/// lower-cased, the id trimmed, each 1-64 characters.
+fn tournament_key_ok(site: &str, tournament_id: &str) -> bool {
+    (1..=64).contains(&site.chars().count())
+        && site == site.to_lowercase()
+        && (1..=64).contains(&tournament_id.chars().count())
+        && tournament_id == tournament_id.trim()
+}
+
+/// Deletes the stored analysis of a tournament's hands (every version): the
+/// rows cascade to the decisions and the narrow rows. How many hands.
+fn requeue_tournament(tx: &Transaction<'_>, site: &str, tournament_id: &str) -> Result<u64> {
+    let gone = tx.execute(
+        "DELETE FROM hand_analysis WHERE hand_key IN (
+           SELECT hand_key FROM hand_stats WHERE tournament_id = ?2 AND lower(site_id) = ?1)",
+        params![site, tournament_id],
+    )?;
+    Ok(u64::try_from(gone).unwrap_or(0))
 }
 
 /* -------------------------------------------------------------- reading - */
@@ -917,6 +1014,25 @@ impl Reader {
                 Some(row) => Ok(Some(chart_row(row)?)),
                 None => Ok(None),
             }
+        })
+    }
+
+    /// Every tournament's settings (R5.5), newest change first.
+    pub fn tournament_settings(&self) -> Result<Vec<TournamentSettingsRow>> {
+        self.with(|conn| {
+            let mut stmt = conn.prepare_cached(
+                "SELECT site, tournament_id, settings, updated_at FROM tournament_settings
+                 ORDER BY updated_at DESC, site, tournament_id",
+            )?;
+            let rows = stmt.query_map([], |r| {
+                Ok(TournamentSettingsRow {
+                    site: r.get(0)?,
+                    tournament_id: r.get(1)?,
+                    settings: r.get(2)?,
+                    updated_at: r.get(3)?,
+                })
+            })?;
+            Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
         })
     }
 }

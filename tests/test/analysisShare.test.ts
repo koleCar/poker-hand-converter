@@ -54,8 +54,16 @@ describe("analysisFitsHand", () => {
   });
 
   it("fits the share page's copy: the hand re-read from its standard text", () => {
+    // The standard text cannot say who the hero is when every seat's cards
+    // were dealt face up (Run It Once's tournament sample, analysed since
+    // analysis/35): its copy takes the first dealt seat for the hero, so the
+    // guard rightly refuses it and the share page shows the hand without
+    // the analysis. A converter limit, noted in RAIL-PLAN R5.5b.
+    const allDealt = (hand: PhfHand) => hand.players.every((player) => player.dealtCards.length > 0);
+    const heroOf = (hand: PhfHand) => hand.players.find((player) => player.isHero)?.seat ?? null;
     const misfits = analysed.filter(({ hand, analysis }) => {
       const copy = parseHand(toStandardText(hand));
+      if (copy && allDealt(hand) && heroOf(copy) !== heroOf(hand)) return false;
       return !copy || !analysisFitsHand(analysis, copy);
     });
     expect(misfits.map(({ hand }) => hand.meta.handKey)).toEqual([]);

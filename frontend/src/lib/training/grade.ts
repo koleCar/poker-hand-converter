@@ -27,6 +27,7 @@ import type { ChartSet } from "../charts";
 import {
   analyzeHand,
   grade,
+  type AnalysisSource,
   type Approximation,
   type DecisionAnalysis,
   type FlopLibrary,
@@ -72,7 +73,7 @@ export interface DrillDecision {
   score: number;
   /** Pot before the decision, bb: EV loss is quoted against it. */
   potBb: number;
-  source: "chart" | "solver" | "heuristic" | "approx";
+  source: AnalysisSource;
   approximations: readonly (Approximation | string)[];
 }
 
@@ -94,8 +95,8 @@ export function gradeDrill(decision: DrillDecision, answer: number): GradeResult
     capAtInaccurate: decision.approximations.includes("off-tree-size"),
     // A solver grade and an approximate multiway one (A9) rest on narrowed ranges.
     capAtMistake: decision.source === "solver" || decision.source === "approx",
-    // Every grade but the charts' is postflop: the big-blind floor (analysis/33).
-    bbFloor: decision.source !== "chart",
+    // Every grade but the charts' and the push/fold game's (R5.5) is postflop: the big-blind floor (analysis/33).
+    bbFloor: decision.source !== "chart" && decision.source !== "icm",
   });
 }
 

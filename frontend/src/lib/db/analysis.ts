@@ -30,6 +30,7 @@ import {
   type HandAnalysis,
   type RiverFailure,
   type RiverStudy,
+  type TournamentSettingsMap,
   type TurnFailure,
   type VillainStats,
   type VillainStatsMap,
@@ -42,6 +43,7 @@ import { STATS_VERSION } from "../stats";
 import { currentUserId, rpc } from "./client";
 import { fetchStatsOpponents } from "./stats";
 import { VillainCounters, type VillainCountersRow, type VillainPlayer } from "./villainCounters";
+import { fetchTournamentSettings } from "./tournamentSettings";
 import {
   analyseStoredHands,
   handAnalysisFromStored,
@@ -289,11 +291,12 @@ function newWorker(): Worker | null {
  * written is simply missing next time.
  */
 function analyser(signal?: AbortSignal): {
-  /** `villains`: the opponents' statistics for this page's hands (analysis/20). */
+  /** `villains`: the opponents' statistics for this page's hands (analysis/20); `tournaments`: the user's tournament settings (R5.5). */
   run: (
     page: AnalyseRequest["page"],
     onHand?: (done: number) => void,
     villains?: VillainStatsMap | null,
+    tournaments?: TournamentSettingsMap | null,
   ) => Promise<AnalysedBatch>;
   close: () => void;
   /** In a worker; false when it fell back to the main thread (then the pool is just this one). */
@@ -303,10 +306,10 @@ function analyser(signal?: AbortSignal): {
   if (!worker) {
     return {
       threaded: false,
-      run: async (page, onHand, villains = null) => {
+      run: async (page, onHand, villains = null, tournaments = null) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        return analyseStoredHands(page, await preflopChartsFor(page.map((item) => item.phf)), onHand, null, villains);
+        return analyseStoredHands(page, await preflopChartsFor(page.map((item) => item.phf)), onHand, null, villains, tournaments);
       },
       close: () => {},
     };
@@ -320,7 +323,7 @@ function analyser(signal?: AbortSignal): {
   signal?.addEventListener("abort", onAbort, { once: true });
   return {
     threaded: true,
-    run: (page, onHand, villains = null) =>
+    run: (page, onHand, villains = null, tournaments = null) =>
       new Promise<AnalysedBatch>((resolve, reject) => {
         if (signal?.aborted) {
           reject(new Stopped("stopped"));
@@ -337,13 +340,27 @@ function analyser(signal?: AbortSignal): {
           else if (message.type === "error") reject(new Error(message.message));
         };
         live.onerror = (event) => reject(new Error(event.message || "analysis worker failed"));
-        live.postMessage({ type: "analyse", jobId, page, villains } satisfies AnalyseRequest);
+        live.postMessage({ type: "analyse", jobId, page, villains, tournaments } satisfies AnalyseRequest);
       }),
     close: () => {
       signal?.removeEventListener("abort", onAbort);
       live.terminate();
     },
   };
+}
+
+/**
+ * The user's tournament settings (R5.5), or none when they cannot be read (a
+ * database without `tournament_settings`): the tournaments are then graded on
+ * the standard assumptions, and say so.
+ */
+async function tournamentSettingsOrNone(): Promise<TournamentSettingsMap | null> {
+  try {
+    const settings = await fetchTournamentSettings();
+    return settings.size > 0 ? settings : null;
+  } catch {
+    return null;
+  }
 }
 
 /* ------------------------------------------------------------- hand view - */
@@ -383,10 +400,11 @@ function askViewWorker<T>(
  */
 export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
   const villains = await viewVillainStats([phf]);
+  const tournaments = await tournamentSettingsOrNone();
   if (viewWorker === undefined) viewWorker = newWorker();
-  if (!viewWorker) return analyzeHand(phf, { charts: await preflopChartsFor([phf]), villains });
+  if (!viewWorker) return analyzeHand(phf, { charts: await preflopChartsFor([phf]), villains, tournaments });
   jobSequence += 1;
-  return askViewWorker({ type: "hand", jobId: jobSequence, phf, villains }, (message) =>
+  return askViewWorker({ type: "hand", jobId: jobSequence, phf, villains, tournaments }, (message) =>
     message.type === "hand" ? message.analysis : undefined,
   );
 }
@@ -482,6 +500,8 @@ export async function runAnalysis(
 
   // The opponents' statistics, read per chunk for its hands and kept for the run (analysis/20).
   const villainsFor = villainSource();
+  // The user's tournament settings (R5.5), read once for the run: a save re-queues its hands for the next.
+  const tournaments = await tournamentSettingsOrNone();
   const first = analyser(inner.signal);
   const engines = [first];
   if (first.threaded) {
@@ -579,6 +599,7 @@ export async function runAnalysis(
             report();
           },
           villains,
+          tournaments,
         );
       } catch (error) {
         inChunk.delete(k);

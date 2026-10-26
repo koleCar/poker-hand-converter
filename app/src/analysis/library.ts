@@ -33,7 +33,10 @@ export {
   type FlopLibrary,
   type HandAnalysis,
   type LibraryFetch,
+  settingsProblem,
   type LoaderOptions,
+  type TournamentSettings,
+  type TournamentSettingsMap,
   type VillainStatsMap,
 } from "@rail/web-lib/analysis";
 export {

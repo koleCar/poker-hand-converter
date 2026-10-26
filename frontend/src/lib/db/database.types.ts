@@ -3766,6 +3766,33 @@ export type Database = {
           },
         ]
       }
+      tournament_settings: {
+        Row: {
+          created_at: string
+          owner_id: string
+          settings: Json
+          site: string
+          tournament_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          owner_id?: string
+          settings?: Json
+          site: string
+          tournament_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          owner_id?: string
+          settings?: Json
+          site?: string
+          tournament_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trainer_results: {
         Row: {
           created_at: string
@@ -5032,6 +5059,10 @@ export type Database = {
       sync_drill_items: {
         Args: { p_min_grade?: string; p_version: string }
         Returns: Json
+      }
+      tournament_settings_problem: {
+        Args: { p_settings: Json }
+        Returns: string
       }
       trainer_summary: { Args: { p_days?: number }; Returns: Json }
       unparsed_consent_instant: { Args: { p_value: string }; Returns: string }

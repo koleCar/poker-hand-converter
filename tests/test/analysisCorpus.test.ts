@@ -76,7 +76,9 @@ const HANDS: PhfHand[] = (
   )
 ).flat();
 
-const RESULTS: Array<{ hand: PhfHand; analysis: HandAnalysis }> = HANDS.map((hand) => ({
+// Cash hands: a tournament's are graded by the push/fold game since analysis/35
+// (R5.5), held to their own rules by `analysisTournament.test.ts`' sweep.
+const RESULTS: Array<{ hand: PhfHand; analysis: HandAnalysis }> = HANDS.filter((hand) => hand.game.format === "cash").map((hand) => ({
   hand,
   analysis: analyzeHand(structuredClone(hand), { charts: CHARTS, turn: false }),
 }));

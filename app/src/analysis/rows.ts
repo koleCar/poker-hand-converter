@@ -188,27 +188,32 @@ export interface PreflopFields {
 
 const DECISION_ACTIONS = new Set(["fold", "check", "call", "raise", "bet"]);
 
-/** A shipped set's table (`preflop_chart_set_table`): plain cash sets only. */
+/** A shipped set's table (`preflop_chart_set_table`): plain cash sets, and the push/fold game's tables (R5.5). */
 function setTable(set: string | null): number | null {
   if (set === null) return null;
-  if (/^nlhe-cash-6max-[0-9]{1,3}bb$/.test(set)) return 6;
-  if (/^nlhe-cash-9max-[0-9]{1,3}bb$/.test(set)) return 9;
-  if (/^nlhe-cash-hu-[0-9]{1,3}bb$/.test(set)) return 2;
+  if (/^nlhe-cash-6max-[0-9]{1,3}bb$/.test(set) || set === "icm-pushfold-6max") return 6;
+  if (/^nlhe-cash-9max-[0-9]{1,3}bb$/.test(set) || set === "icm-pushfold-9max") return 9;
+  if (/^nlhe-cash-hu-[0-9]{1,3}bb$/.test(set) || set === "icm-pushfold-hu") return 2;
   return null;
 }
 
 /**
- * `preflop_decision_fields` (R5.3b, `20270811100000_preflop_charts_compare.sql`):
- * a preflop decision graded on the shipped tree, filed by its situation key,
- * the set's table, its class, the action as a chart names it and the
- * effective stack in 10 bb steps; null for any other decision.
+ * `preflop_decision_fields` (R5.3b, `20270811100000_preflop_charts_compare.sql`;
+ * R5.5, `20270901090000_tournament_icm.sql`): a preflop decision graded on
+ * the shipped tree (`facts.chart`) or by the push/fold game (`source:
+ * "icm"`, `facts.icm.chart`), filed by its situation key, the table, its
+ * class, the action as a chart names it and the effective stack in 10 bb
+ * steps; null for any other decision.
  */
 export function preflopFields(decision: DecisionAnalysisInsert): PreflopFields | null {
-  if (decision.street !== "preflop" || decision.source !== "chart" || !DECISION_ACTIONS.has(decision.action)) return null;
+  if (decision.street !== "preflop" || (decision.source !== "chart" && decision.source !== "icm") || !DECISION_ACTIONS.has(decision.action)) {
+    return null;
+  }
   const facts = decision.facts as unknown as Record<string, unknown>;
-  const set = textAt(facts, "chart", "set");
+  const chart = decision.source === "icm" ? ["icm", "chart"] : ["chart"];
+  const set = textAt(facts, ...chart, "set");
   const table = setTable(set);
-  const line = textAt(facts, "chart", "line") ?? "";
+  const line = textAt(facts, ...chart, "line") ?? "";
   const handClass = textAt(facts, "handClass");
   const cls = handClass === null ? -1 : classIndex(handClass);
   if (table === null || !LINE.test(line) || cls < 0) return null;

@@ -37,7 +37,7 @@
  * replace.
  */
 import type { PageHand, PageResult } from "./engine";
-import { ANALYSIS_VERSION, VILLAIN_MIN_HANDS, VillainCounters, type PhfHand, type VillainStatsMap } from "./library";
+import { ANALYSIS_VERSION, VILLAIN_MIN_HANDS, VillainCounters, type PhfHand, type TournamentSettingsMap, type VillainStatsMap } from "./library";
 import type { StoreHandRow } from "./rows";
 
 /** Hands per page (one worker job). */
@@ -89,7 +89,15 @@ export interface RunnerDeps {
     players: { site: string; player: string }[],
     minHands: number,
   ): Promise<{ site: string; player: string; vpipOpp: number; vpip: number; pfr: number }[]>;
-  analyse(page: PageHand[], villains: VillainStatsMap | null, library: boolean, signal: AbortSignal): Promise<PageResult>;
+  analyse(
+    page: PageHand[],
+    villains: VillainStatsMap | null,
+    library: boolean,
+    signal: AbortSignal,
+    tournaments?: TournamentSettingsMap | null,
+  ): Promise<PageResult>;
+  /** (R5.5) The user's settings per tournament; absent or failing: none (the standard assumptions). */
+  tournaments?(): Promise<TournamentSettingsMap | null>;
   save(rows: StoreHandRow[]): Promise<{ saved: number; missing: number }>;
   /** Wait `ms`, or less when the signal fires. */
   sleep(ms: number, signal: AbortSignal): Promise<void>;
@@ -309,6 +317,8 @@ export class AnalysisRunner {
       // The store did not answer: the population ranges.
       villains = null;
     }
+    // R5.5: read per page - a save re-queues its tournament's hands, which the next pages then read with it.
+    const tournaments = this.deps.tournaments ? await this.deps.tournaments().catch(() => null) : null;
     const library = this.reachable;
     this.set({ phase: "running", reason: null, library });
     const controller = new AbortController();
@@ -316,7 +326,7 @@ export class AnalysisRunner {
     const started = this.deps.now();
     let result: PageResult;
     try {
-      result = await this.deps.analyse(page, villains, library, controller.signal);
+      result = await this.deps.analyse(page, villains, library, controller.signal, tournaments);
     } catch (error) {
       // Stopped (a table opened, a pause, quitting): analysed again later.
       if (controller.signal.aborted) return;
