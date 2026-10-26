@@ -37,6 +37,7 @@
     "learn:directions": "vitest run --config scripts/learn-directions/vitest.config.ts directions",
     "learn:lab": "vitest run --config scripts/learn-directions/vitest.config.ts lab",
     "golden:emit": "vitest run --config scripts/golden/vitest.config.ts",
+    "icm:equity": "vitest run --config scripts/icm/vitest.config.ts",
     "desktop-ingest:fixture": "RAIL_PARITY_FIXTURE=1 vitest run --config scripts/desktop-ingest/vitest.config.ts",
     "desktop-ingest:parity": "vitest run --config scripts/desktop-ingest/vitest.config.ts",
     "supabase:perf": "vitest run --config scripts/supabase-perf/vitest.config.ts",

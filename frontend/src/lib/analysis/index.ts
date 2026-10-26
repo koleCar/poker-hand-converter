@@ -21,6 +21,9 @@
  * turn.ts        A5a: the turn + river solve, turn grades, the turn study, the river's solved ranges
  * multiway.ts    A9: every range through a multiway hand, multiway facts and flags, the approximate river call
  * analyze.ts     analyzeHand(hand) -> HandAnalysis; riverStudy / turnStudy(hand, action)
+ * icm.ts         R5.5: Malmuth-Harville ICM (exact; seeded Monte-Carlo), bubble factor, risk premium, chips <-> $EV
+ * tournament.ts  R5.5: payout models; a tournament's kind, players left and stacks; the user's settings
+ * pushFold.ts    R5.5: the push/fold game's equilibrium (CFR+) in prize equity or chips; the hero's EVs
  * reports.ts     A3: range and hand-adjusted reference frequencies, stats rolled up from nodes
  * ```
  *
@@ -360,6 +363,56 @@ export {
   outOfRange,
   referenceMix,
 } from "./reference";
+export {
+  DEFAULT_ICM_SAMPLES,
+  DEFAULT_ICM_SEED,
+  EXACT_BUDGET,
+  allInPrice,
+  chipEquity,
+  chipsForEquity,
+  exactCost,
+  icm,
+  transfer,
+  type AllInPrice,
+  type IcmOptions,
+  type IcmResult,
+} from "./icm";
+export {
+  MTT_ICM_MAX_LEFT,
+  MTT_PAID_SHARE,
+  SETTINGS_LIMITS,
+  TOURNAMENT_KINDS,
+  mttPayouts,
+  remainingPrizes,
+  settingsProblem,
+  standardPayouts,
+  tableStacks,
+  tournamentKey,
+  tournamentKind,
+  tournamentModel,
+  type ChipsReason,
+  type KindSource,
+  type TournamentKind,
+  type TournamentModel,
+  type TournamentSettings,
+  type TournamentSettingsMap,
+} from "./tournament";
+export {
+  PUSH_FOLD_EQUITY_BOARDS,
+  PUSH_FOLD_EQUITY_SEED,
+  PUSH_FOLD_ITERATIONS,
+  callValues,
+  decodePushFoldEquity,
+  encodePushFoldEquity,
+  pushFoldPlayable,
+  pushValues,
+  rangeShare,
+  solvePushFold,
+  type PushFoldGame,
+  type PushFoldOptionValues,
+  type PushFoldPlayer,
+  type PushFoldSolution,
+} from "./pushFold";
 export { WEAK_CHART_VERSIONS, WALK_RANGE_OPTIONS, chartRange, gradePreflop, type ChartRange, type ChartRangeApprox, type ChartRangeOptions, type PreflopGrade, type PreflopGradeInput } from "./preflop";
 export {
   CHART_ACTIONS,
