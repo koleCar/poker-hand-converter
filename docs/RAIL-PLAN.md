@@ -11079,6 +11079,148 @@ off, so nothing changes today** - signed in or not, every feature is open
 - Not applied to production (prod checklist: `20270929090000`, after
   R6.2's migration).
 
+### R6.5 *As built*, your data: export and account deletion (2026-10-26)
+
+Migrations `20271006090000_account_export.sql`,
+`20271006100000_account_deletion.sql`, the Edge Function
+`supabase/functions/account-delete`, Settings -> **Your data** and
+**Delete account** on the web, Settings -> Account -> **Your data** in the
+app. GDPR Art. 15 / 20 / 17 for every account: nothing here is gated by a
+plan (pgTAP `entitlements`' free list). The terms and the privacy policy are
+R6.5's other half, with their own *As built*.
+
+- **The owner data inventory** (`account_data_inventory`, sealed; the table
+  in `docs/DATABASE.md` "Your data"): one row per place holding an account's
+  rows - 62 today: `auth.users`, 60 public tables (R6.3's `billing_events`
+  among them), the `hand-uploads` bucket - with its account columns, whether and where the export carries it
+  (a file, `profile.json`, or not: `derived` summaries rebuilt from exported
+  rows, `internal` counters, `on_request` moderation records naming others)
+  and what deletion does (`cascade`, `erase`, `anonymise`, `retain`). The
+  export readers are driven by it, and **pgTAP fails when a new table with an
+  account column, or a private bucket, is not in it**.
+- **Export, built in the browser** (`frontend/src/lib/account/`): an Edge
+  Function would hit its wall clock and memory on a big account, and a stored
+  copy would be one more place holding the data - **nothing is stored on the
+  server**. The page pages through owner-only readers (owner first:
+  PL/pgSQL, `owner = auth.uid()` bound on every table, planned per call,
+  keyset on an owner-leading index): `export_my_manifest` (counts, the
+  inventory; 10 a day), `export_my_profile` (definer: the account, profile -
+  never the unsubscribe token or the shadowban flag -, plan and provider ids,
+  roles, reserved names), `export_my_hands` (invoker; 2 000 hands a page by
+  `(created_at, id)`, their PHF as stored and texts - 1 000 when asked for
+  every version of their statistics, EV and analysis rows by hand id, off by
+  default: rebuilt from the hands, ~3x the file, ~4x the wait), `export_my_rows`
+  (invoker, tables RLS opens; and the kept originals' names) and
+  `export_my_sealed` (definer: shares, HUD layouts, the forum's own rows in
+  every state, votes, reports). 5 000 pages an hour. A streaming ZIP writer of
+  our own (`zipWriter.ts`: `CompressionStream("deflate-raw")`, CRC-32, data
+  descriptors, zip64 past 65 535 entries or 4 GiB; read back by the
+  converter's `zipStream.ts` in the tests) writes straight to a file the user
+  picks (File System Access, Chrome / Edge) or to Blob parts the browser keeps
+  on disk. Contents: `README.md` (the reader's language: formats, then every
+  inventory row - where it is or why not), `manifest.json` (files and row
+  counts, the server's counts, the inventory), `profile.json`, hands a page a
+  file (`hands/hands-00001.ndjson`, PHF as stored) with their derived rows
+  beside them, one NDJSON file per other section, `originals/` (optional, as
+  stored). Retries a blip, not the budget; cancel between pages.
+- **1 000 000 hands** (generated, `npm run supabase:perf` with the analysis
+  rows: 6.0 M statistics, 0.97 M EV, 0.97 M hand and 1.95 M decision
+  analyses; then `npm run account:measure`, on the owner's laptop through
+  Docker Desktop while other agents' jobs held two cores). **Export, hands
+  only**: 1 004 464 hands in **1 488 s (~25 min, 675 hands/s)**, 507 files,
+  a **706 MB ZIP** from ~8.9 GB of JSON, the exporting process's heap 93 MB
+  (one page at a time). A 2 000-hand page is 0.7-1.2 s in the database and
+  ~3.3 s through the local gateway - fetch-bound; parsing, NDJSON and deflate
+  ~0.3 s. **With the derived rows**: 1 000-hand pages (~25 MB, a 2 000-hand
+  one nears the 8 s statement timeout - found here, hence the smaller page),
+  ~5.4 s each: ~1.5 h and ~3x the file for 1M (from 10 pages; the keyset cost
+  is flat), so it is off by default. **Deletion**: billing, storage and
+  content under a second; the hands at **~210 hands/s** (an I/O-bound cascade:
+  a cold batch of 500 took 3-6 s, a warm one 0.2 s; batches of 500 hit the
+  8 s timeout under load - hence 200), whether the page or pg_cron drives
+  them: the last 511 000 went in 40.6 min with the tab closed, pg_cron's
+  finisher then deleting the auth user - **~80 min for 1M**. Before the
+  summary triggers learnt to skip an erasure, ~160 hands/s.
+- **Deletion** (`account-delete`, service role, invoked with the user's JWT;
+  never a service key in a client): the user types the username and the
+  password again (the page signs in afresh, Turnstile included); the database
+  refuses a start whose session signed in more than 15 minutes ago (the JWT's
+  `amr`) or with another name, 5 starts an hour, and resumes one in progress
+  without either. Then, each step marked in `account_deletions` and resumed
+  where a failed or timed-out call stopped: **billing** (an account with a
+  Stripe customer: R6.3's `cancelOwnerSubscriptions`, imported, cancels every
+  live subscription now; Stripe or the database failing stops the deletion
+  before anything is touched and the next call retries; Stripe not configured
+  - nobody can bill it - or no profile lets it go on; no customer, no call;
+  the customer and its invoices stay at Stripe as tax records), **storage** (every object under `<id>/` in the
+  inventory's buckets, through the Storage API - the cascade does not reach
+  stored files, and Storage refuses a direct delete), **content**
+  (`erase_account_content`), **hands** (`erase_account_hands`, 200 a call,
+  `skip locked`; a call answers 202 after 60 s and the page calls again), then
+  the auth user (Auth admin API; a 404 is "already done") and every remaining
+  row cascades. While hands go, the **summary triggers skip the erased
+  account's statements** (a `WHEN` on `rail.erasing_account` added to the seven
+  statement-level delete triggers of the hand tables; measured: they were ~1 s
+  of a 1.7 s batch). **The server finishes on its own**: once billing, storage
+  and content are done, pg_cron's `finish_account_deletions` (every minute,
+  ~50 s, a commit per step) deletes the remaining hands and then the auth user
+  from SQL - the tab can be closed; the page counts "signed out" after the
+  deletion was under way as done.
+  **No grace period**: confirmed with the username and a fresh sign-in, the
+  export offered first, deleted "without undue delay"; backups expire on the
+  provider's schedule (the privacy policy says so).
+- **Public content** - personal data goes, others' contributions stay: a post
+  someone else replied to stays as "[deleted]" (empty body, no author, its
+  revisions deleted), every other post is deleted; comments become the
+  tombstones a deleted comment already is (replies stay attached); published
+  hands under a kept thread stay without author or title, re-scrubbed with
+  pseudonyms if published "as imported", the rest deleted; votes deleted and
+  counts / karma recounted at once; notifications the account caused deleted;
+  reports it filed kept without reporter or details; the moderation log keeps
+  its records but the words of the account's own content go
+  (`{"erased": "account-deleted"}` - the append-only trigger allows exactly
+  this, only inside the erasure); web conversion failures (verbatim) deleted,
+  desktop samples (anonymised, consented) kept unlinked; rate-limit windows
+  and Auth's audit lines naming it removed. Kept on purpose (`retain`): the
+  username reserved for nobody for a year, the moderation records, and the
+  deletion's own row (id and times, no content) for 30 days
+  (`purge_account_deletions`, pg_cron daily).
+- **Web**: Settings -> Your data (statistics and analysis rows and the
+  originals off by default; progress per phase, bytes written, cancel; "Save the file"
+  when the browser could not write as it went) and Delete account (what
+  happens - the forum and the desktop app's local data spelled out -, a link
+  to the export, username, password, Turnstile; the step in progress; a
+  half-done deletion shows and continues; afterwards the signed-out page says
+  it is done). `en` + `hr`, 44 px controls at 375 px.
+- **Desktop app**: Settings -> Account -> **Your data**: what this computer
+  keeps and where (the store's folder, the settings file, the logs - new
+  `AppInfo.dataDir`), how to remove it (quit, uninstall, delete the folders;
+  signing out removes the keychain session), and buttons that open the web's
+  export, deletion and privacy pages (`account_open_web_page`, a fixed list of
+  pages on the configured web origin). The app never deletes an account and
+  the deletion never reaches its data.
+- Tests: pgTAP `account_data` (84), `entitlements` (free list +10 names;
+  the suite 52 files / 1 926 on a fresh reset with R6.3 and R6.4);
+  Deno `account-delete` (16: steps in order and each marked; idempotent;
+  storage, content and auth failures recorded and resumed; the time budget's
+  202; a slow batch after progress a 202, hands held by another call waited
+  for; billing first, failing closed when Stripe fails, going on when it
+  is not configured, no call without a customer, the production canceller
+  being R6.3's own code; the user-side
+  refusals; an object outside the folder never deleted); `e2e.sh` against a
+  local stack serving the function (15 checks: wrong name refused and nothing
+  started, deleted in one call, user, hands, notes, sources, profile and
+  stored object gone, completed recorded, the token refused after); Vitest
+  `accountData` (19: the ZIP read back, zip64, a failing sink, the export's
+  files and pages, options, retry and budget, cancel, the deletion loop, the
+  panels in both languages) and `appYourData` (3); Rust
+  `the_web_pages_are_a_fixed_list_on_the_web_origin`; `responsive.mjs` audits
+  both panels; checked in the browser end to end (export downloaded and read,
+  account deleted through the page, both languages at 375 px);
+  `npm run account:measure` (new, not CI) for the numbers above.
+- Not applied to production (prod checklist: the two migrations; deploy
+  `account-delete` with `--no-verify-jwt`, with R6.3's Stripe secrets).
+
 ---
 
 ## 11. Testing strategy
@@ -11259,3 +11401,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **Windows: an overlay is put back directly above its table after any raise or focus** (R3.5 fix). `windows_tracking` step 5 ("an overlay is below its table", #255; relaxed from 500 ms to 3 s in #224 on a slow-runner guess) has failed **six times since R3.5, always the same way**: the third table (the one the test never raises or focuses) had its overlay at the **bottom of the z-order, directly under the runner's foreground window** (Windows Terminal), while the table sat above it; in two of the six the focused table's overlay had been restacked once, i.e. it too started below its table. Cause: an overlay is shown with `SW_SHOWNOACTIVATE` from a process that is not in the foreground, and Windows places such a window by its own rules (behind the foreground window), not above its owner; it carries an owned window along only when the **owner** moves in the z-order, and the overlay thread restacked only on its table's own `EVENT_SYSTEM_FOREGROUND` - a table never activated after its overlay appeared kept it underneath for good (in real use: a HUD hidden under its table until the user clicks that table). **Fix**: the overlay thread checks an overlay's place (`tracking::stacking`, unit-tested: directly above = nothing that shows between, the table's own owned windows and hidden, cloaked or empty windows not counted; one `GetWindow` when in place) and puts it right after the window above the table (`HWND_TOP` when that window is topmost) **when it is shown**, on its table's events and foreground, and in a **250 ms look** over every shown overlay (a thread timer, only while there are overlays) for an order change no hooked event reports. Each restack is counted and noted with its time since the thread started, reason, before / after and what it was put after (`OverlayInfo::restacks`, stderr: the first twenty, then every hundredth). **Test**: a new step 0 (every overlay directly above its table within 1 s of being shown), step 5 requires *directly* above within 2 s, and a new step 5b slips one table under another table's overlay (a z-order change only, no hooked event) and waits for the look; failures print each misplaced overlay, every restack and the z-order. Cross-target clippy for `x86_64-pc-windows-msvc` passes locally; the Windows steps run only on CI. |
 | 2026-10-26 | **R6.3 done**: Stripe Billing with EU VAT, **test mode first, configured only by secrets** (none set; nothing deployed; unset = "paid plans open soon", nothing breaks). Edge Functions `billing-checkout` (prices from Stripe; Checkout with `automatic_tax`, billing address and tax ids, the early users' coupon, the verified account as reference; 20 sessions an hour; no second subscription), `billing-portal`, `billing-webhook` (Stripe signature over the raw body; the six events; the subscription read back from Stripe; idempotent and out-of-order safe in one transaction) and `billing-cancel` (service role; for R6.5's account deletion, also importable). Stripe over `fetch` with a pinned API version, no SDK; signature check held to a header from the official SDK. Migration `20270915090000_billing_stripe.sql` (service role only: `billing_events`, `profiles.billing_event_at`, `billing_account`, `billing_set_customer`, `billing_owner_of_customer`, `billing_claim`, `billing_apply_subscription`, `billing_events_prune`; route `billing` reserved). Web: monthly / yearly with Stripe's prices and the early-user price, Manage subscription, past due / canceled / ended notices, `/billing/success` and `/billing/cancel`, `en` + `hr`. Owner's guide `docs/BILLING.md`. Deno 73 (+ a local end-to-end run), pgTAP `billing_stripe` 44, Vitest `billing` 17. Types regenerated. Not applied to production. |
 | 2026-10-26 | **R6.4 done**: the app and the web read entitlements, the app keeps Pro offline for the grace period (R6.4 *As built*). **Owner's rule**: with enforcement on, the app without an account is Free; the HUD, the analysis and the full reports need a Pro sign-in; a successful check holds offline for 14 days (`offline_grace_days`). **Enforcement off: nothing changes** (tested). Rules in `rail_sync::entitlements` (newest word on enforcement wins, never told = off; signed out = Free; a check of this account within its grace = its plan; past it = "Reconnect"); the app's cache in the store's `kv`, checked at start, on account changes, every 4 h, on sync; a never-signed-in app asks `billing_enforced()` (migration `20270929090000`, anon, the switch only). Gates: the HUD starts only when allowed and is never stopped while running (`locked` phase), the analysis screen and runner (`plan`), Players and Reports' situation tabs (`situationsLock` in `packages/ui`), sync held on the check and on a server `PT402` (`SyncPhase::PlanRequired`, nothing sent, nothing lost); the local library is **not** capped. Web: one upgrade prompt for every `PT402` (`planRefusal.ts`, `PlanRefusalPrompt`), the converter's notices near / at the Free cap and the bulk save trimmed to the room left, then paused `cap`. Tests: Rust 13 + 3 + 2 + app 3, Vitest `appPlan` 10, `planRefusal` 10, the situation lock; pgTAP 51 files / 1 842 on R6.3's staging (`billing_enforced` 10). Types regenerated. Not applied to production. |
+| 2026-10-26 | **R6.5 (your data)**: every account can **download all its data** and **delete itself** (R6.5 *As built*, your data). `account_data_inventory`: every place that holds an account's rows (62, R6.3's `billing_events` among them), export and deletion decided per row, pgTAP failing on a table missing from it. Export built in the browser over owner-first readers (`export_my_manifest`, `_profile`, `_hands`, `_rows`, `_sealed`; nothing stored server-side), a streaming ZIP of our own (zip64), README in the reader's language; 1M hands in ~25 min / 706 MB (derived rows optional, off by default). Deletion: username + a fresh sign-in, then the Edge Function `account-delete` (service role, the user's JWT) - R6.3's `cancelOwnerSubscriptions` first, Storage, the forum's content (kept threads anonymised, the rest deleted, the moderation log's words erased), the hands in batches with the summary triggers skipping the erasure, the auth user; resumable, and finished by pg_cron if the tab closes (1M hands ~80 min). Settings panels `en` + `hr`; the desktop app's Your data (local data, where, how to remove; web export / deletion / privacy). pgTAP `account_data` (84), Deno 16 + e2e, Vitest 19 + 3. Migrations `20271006090000`, `20271006100000`; not applied to production. |

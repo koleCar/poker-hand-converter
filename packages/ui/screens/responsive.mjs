@@ -6,7 +6,7 @@
 // from it), a shared hand and its
 // embed, a tournament hand's push/fold panel and its settings form (R5.5,
 // `RAIL_CHECK_ICM=<hand id>:<action index>` - a decision the push/fold game
-// graded), and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
+// graded), Settings' Your data and Delete account (R6.5), and the replayer, at 375 x 812 as a touch phone (coarse pointer), in
 // English and Croatian, against a running web - a local `next start` over a
 // local Supabase stack with a signed-in test account:
 //
@@ -292,6 +292,14 @@ for (const locale of ["en", "hr"]) {
       }
     }
   }
+
+  // R6.5: Settings -> Your data (the export) and Delete account. Only their
+  // own controls: the settings page around them predates the check.
+  await page.goto(`${BASE}/settings`);
+  await page.locator("main #your-data").waitFor({ timeout: 30000 });
+  await report("/settings, your data", "main #your-data");
+  await page.locator("main #delete-account").waitFor({ timeout: 30000 });
+  await report("/settings, delete account", "main #delete-account");
 
   if (ICM) {
     // R5.5: the push/fold panel of a tournament decision, then its settings form open.

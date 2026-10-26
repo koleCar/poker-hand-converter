@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LanguageSwitch } from "../../components/shell/LanguageSwitch";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { Turnstile } from "../../components/auth/Turnstile";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
@@ -13,6 +13,12 @@ import type { Dict } from "../../lib/i18n/types";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import { PlanPanel } from "../../components/plan/PlanPanel";
+import { YourDataPanel } from "../../components/account/YourDataPanel";
+import {
+  ACCOUNT_DELETED_FLAG,
+  AccountDeletedNotice,
+  DeleteAccountPanel,
+} from "../../components/account/DeleteAccountPanel";
 import styles from "./settings.module.css";
 
 /** Client half of `/settings`. */
@@ -38,18 +44,18 @@ function SettingsBody() {
   const auth = useAuth();
   const { status, profile, refresh } = useMyProfile();
 
+  // Signed in (again): a deletion notice from earlier in this tab is over.
+  useEffect(() => {
+    if (!auth.isSignedIn) return;
+    try {
+      window.sessionStorage.removeItem(ACCOUNT_DELETED_FLAG);
+    } catch {
+      // Storage off: nothing to clear.
+    }
+  }, [auth.isSignedIn]);
+
   if (!auth.isSignedIn) {
-    return (
-      <section className={`card ${styles.section}`}>
-        <h1 className={styles.heading}>{en.settings.heading}</h1>
-        <p className="muted">{en.settings.signedOut}</p>
-        <div>
-          <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
-            {en.settings.signInCta}
-          </button>
-        </div>
-      </section>
-    );
+    return <SignedOut />;
   }
 
   return (
@@ -74,7 +80,42 @@ function SettingsBody() {
       {/* Outside the profile gate: the password belongs to the auth account,
           which exists even when the profile row failed to load. */}
       <PasswordSection />
+      {/* R6.5: the export, and the deletion (it confirms with the username). */}
+      <YourDataPanel username={profile?.username ?? null} />
+      {status === "ready" && profile ? <DeleteAccountPanel username={profile.username} /> : null}
     </div>
+  );
+}
+
+const noSubscription = () => () => undefined;
+
+function readDeletedFlag(): boolean {
+  try {
+    return window.sessionStorage.getItem(ACCOUNT_DELETED_FLAG) === "1";
+  } catch {
+    return false; // Storage off: the plain signed-out page.
+  }
+}
+
+/** Signed out: the sign-in prompt, or - right after a deletion - that it is done. */
+function SignedOut() {
+  const en = useDict();
+  const auth = useAuth();
+  // The tab's own storage: false on the server render, the flag after hydration.
+  const deleted = useSyncExternalStore(noSubscription, readDeletedFlag, () => false);
+  if (deleted) {
+    return <AccountDeletedNotice t={en.yourData.delete} />;
+  }
+  return (
+    <section className={`card ${styles.section}`}>
+      <h1 className={styles.heading}>{en.settings.heading}</h1>
+      <p className="muted">{en.settings.signedOut}</p>
+      <div>
+        <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
+          {en.settings.signInCta}
+        </button>
+      </div>
+    </section>
   );
 }
 

@@ -269,6 +269,23 @@ export const en = {
       signedOutLocally: "Signed out on this computer. Rail could not reach the server to end the session there.",
       browserFailed: "Rail could not open your browser. Use Open the page again.",
     },
+    /** (R6.5) What this computer keeps, and the account's export and deletion on the web. */
+    yourData: {
+      heading: "Your data",
+      local:
+        "Rail keeps your hands, statistics, settings and HUD layouts in a database on this computer. They stay here whether you are signed in or not; the hands that synced are also on your account.",
+      dataDir: "Local data",
+      settingsFile: "Settings file",
+      logs: "Log files",
+      removeLocal:
+        "To remove them from this computer: quit Rail (also from the tray), uninstall it, then delete the folders above. Signing out keeps them, and removes the session Rail kept in the system keychain.",
+      export: "Download my account's data",
+      delete: "Delete my account…",
+      deleteHint:
+        "Both open the account settings on the web, where you sign in and confirm. Deleting the account does not touch the data on this computer.",
+      privacy: "Privacy policy",
+      openFailed: (reason: string) => `The browser did not open: ${reason}`,
+    },
   },
 
   /** Sync with the web (R1.9): Settings, Account; Today; the tray. */

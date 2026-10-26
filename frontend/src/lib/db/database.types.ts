@@ -9,6 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      account_data_inventory: {
+        Row: {
+          export: string
+          export_file: string | null
+          export_key: string[] | null
+          export_omit: string[]
+          export_reader: string | null
+          export_section: string | null
+          kind: string
+          name: string
+          note: string
+          on_delete: string
+          owner_columns: string[]
+        }
+        Insert: {
+          export: string
+          export_file?: string | null
+          export_key?: string[] | null
+          export_omit?: string[]
+          export_reader?: string | null
+          export_section?: string | null
+          kind: string
+          name: string
+          note: string
+          on_delete: string
+          owner_columns: string[]
+        }
+        Update: {
+          export?: string
+          export_file?: string | null
+          export_key?: string[] | null
+          export_omit?: string[]
+          export_reader?: string | null
+          export_section?: string | null
+          kind?: string
+          name?: string
+          note?: string
+          on_delete?: string
+          owner_columns?: string[]
+        }
+        Relationships: []
+      }
+      account_deletions: {
+        Row: {
+          attempts: number
+          billing_done_at: string | null
+          completed_at: string | null
+          content_done_at: string | null
+          hands_done_at: string | null
+          last_error: string | null
+          requested_at: string
+          storage_done_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          billing_done_at?: string | null
+          completed_at?: string | null
+          content_done_at?: string | null
+          hands_done_at?: string | null
+          last_error?: string | null
+          requested_at?: string
+          storage_done_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          billing_done_at?: string | null
+          completed_at?: string | null
+          content_done_at?: string | null
+          hands_done_at?: string | null
+          last_error?: string | null
+          requested_at?: string
+          storage_done_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analysis_graded_sites: {
         Row: {
           analysis_version: string
@@ -4148,6 +4229,55 @@ export type Database = {
       }
     }
     Functions: {
+      account_deletion_continue: { Args: { p_user: string }; Returns: string }
+      account_deletion_json: {
+        Args: { p: Database["public"]["Tables"]["account_deletions"]["Row"] }
+        Returns: Json
+      }
+      account_deletion_mark: {
+        Args: { p_error?: string; p_step: string; p_user: string }
+        Returns: Json
+      }
+      account_deletion_state: { Args: { p_user: string }; Returns: Json }
+      account_export_charge: { Args: never; Returns: undefined }
+      account_export_entry: {
+        Args: { p_reader: string; p_section: string }
+        Returns: {
+          export: string
+          export_file: string | null
+          export_key: string[] | null
+          export_omit: string[]
+          export_reader: string | null
+          export_section: string | null
+          kind: string
+          name: string
+          note: string
+          on_delete: string
+          owner_columns: string[]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_data_inventory"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      account_export_page: {
+        Args: {
+          p_after: Json
+          p_limit: number
+          p_reader: string
+          p_section: string
+        }
+        Returns: Json
+      }
+      account_storage_objects: {
+        Args: { p_limit?: number; p_user: string }
+        Returns: {
+          bucket_id: string
+          name: string
+        }[]
+      }
       add_lesson_cards: { Args: { p_cards: Json }; Returns: Json }
       admin_create_board: {
         Args: { p_description?: string; p_name: string; p_slug: string }
@@ -4445,6 +4575,7 @@ export type Database = {
         Returns: Json
       }
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
+      begin_account_deletion: { Args: { p_confirm: string }; Returns: Json }
       billing_account: {
         Args: { p_owner: string }
         Returns: {
@@ -4611,6 +4742,25 @@ export type Database = {
         Returns: undefined
       }
       entitlement_gates_apply: { Args: never; Returns: number }
+      erase_account_content: { Args: { p_user: string }; Returns: Json }
+      erase_account_hands: {
+        Args: { p_limit?: number; p_user: string }
+        Returns: number
+      }
+      export_my_hands: {
+        Args: { p_after?: Json; p_derived?: boolean; p_limit?: number }
+        Returns: Json
+      }
+      export_my_manifest: { Args: never; Returns: Json }
+      export_my_profile: { Args: never; Returns: Json }
+      export_my_rows: {
+        Args: { p_after?: Json; p_limit?: number; p_section: string }
+        Returns: Json
+      }
+      export_my_sealed: {
+        Args: { p_after?: Json; p_limit?: number; p_section: string }
+        Returns: Json
+      }
       fan_out_comment_notifications: {
         Args: { p_comment_id: string }
         Returns: number
@@ -4957,6 +5107,7 @@ export type Database = {
       }
       mod_user: { Args: { p_username: string }; Returns: Json }
       mod_vote_overlap_for: { Args: { p_username: string }; Returns: Json }
+      my_account_deletion: { Args: never; Returns: Json }
       my_comment_votes: { Args: { p_post_public_id: string }; Returns: Json }
       my_entitlements: { Args: never; Returns: Json }
       my_notifications: {
@@ -5114,6 +5265,7 @@ export type Database = {
         Args: { p_before?: string; p_limit?: number; p_username: string }
         Returns: Json
       }
+      purge_account_deletions: { Args: never; Returns: number }
       put_hud_layouts: { Args: { p_rows: Json }; Returns: Json }
       read_poll: { Args: { p_post: string }; Returns: Json }
       read_published_hand: { Args: { p_public_id: string }; Returns: Json }
@@ -5213,6 +5365,7 @@ export type Database = {
         Args: { p_filters?: Json; p_limit?: number; p_offset?: number }
         Returns: Json
       }
+      session_authenticated_at: { Args: never; Returns: string }
       session_review: {
         Args: {
           p_at?: string

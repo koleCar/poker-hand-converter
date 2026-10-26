@@ -309,6 +309,38 @@ pub async fn account_sign_out(state: State<'_, AccountState>) -> Result<AccountS
     Ok(account.status())
 }
 
+/// (R6.5) A page of the web in the default browser: the account's data
+/// export, its deletion, the privacy policy. Only the pages of
+/// [`web_page_path`], on the configured web origin - never a URL from the
+/// window. Signed in or not: the web asks for its own sign-in.
+#[tauri::command]
+pub fn account_open_web_page(page: String) -> Result<(), String> {
+    let url = web_page_url(&web_url(), &page)?;
+    open::that_detached(url.as_str()).map_err(|error| error.to_string())
+}
+
+/// The web pages the app opens, by name.
+fn web_page_path(page: &str) -> Option<&'static str> {
+    match page {
+        "delete-account" => Some("/settings#delete-account"),
+        "your-data" => Some("/settings#your-data"),
+        "privacy" => Some("/privacy"),
+        _ => None,
+    }
+}
+
+fn web_page_url(origin: &str, page: &str) -> Result<url::Url, String> {
+    let path = web_page_path(page).ok_or_else(|| format!("{page}: not a page Rail opens"))?;
+    let base = url::Url::parse(origin).map_err(|error| format!("{origin}: {error}"))?;
+    if base.scheme() != "https"
+        && base.host_str() != Some("localhost")
+        && base.host_str() != Some("127.0.0.1")
+    {
+        return Err(format!("{origin}: not https"));
+    }
+    base.join(path).map_err(|error| error.to_string())
+}
+
 fn open_in_browser(account: &Account<GoTrue>, url: &str) {
     // `url` is ours (`PendingSignIn::authorize_url` over the configured
     // https origin), never text from outside.
@@ -331,6 +363,32 @@ mod tests {
             config.web_url.as_str(),
             "https://poker-hand-converter.vercel.app/"
         );
+    }
+
+    /// (R6.5) Only the listed pages, on the web origin.
+    #[test]
+    fn the_web_pages_are_a_fixed_list_on_the_web_origin() {
+        assert_eq!(
+            web_page_url(DEFAULT_WEB_URL, "delete-account")
+                .expect("delete-account")
+                .as_str(),
+            "https://poker-hand-converter.vercel.app/settings#delete-account"
+        );
+        assert_eq!(
+            web_page_url("https://rail.example/", "your-data")
+                .expect("your-data")
+                .as_str(),
+            "https://rail.example/settings#your-data"
+        );
+        assert_eq!(
+            web_page_url("http://localhost:3000", "privacy")
+                .expect("privacy")
+                .as_str(),
+            "http://localhost:3000/privacy"
+        );
+        assert!(web_page_url(DEFAULT_WEB_URL, "https://evil.example/").is_err());
+        assert!(web_page_url(DEFAULT_WEB_URL, "../admin").is_err());
+        assert!(web_page_url("http://rail.example", "privacy").is_err());
     }
 
     #[test]

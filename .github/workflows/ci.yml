@@ -830,7 +830,7 @@ jobs:
       - name: Type check
         # `_shared/billing/testdata/make_sdk_vector.ts` imports the Stripe SDK
         # from npm and is run by hand only (it is not checked here).
-        run: deno check desktop-handoff/*.ts desktop-handoff/testdata/*.ts billing-*/*.ts _shared/billing/*.ts
+        run: deno check desktop-handoff/*.ts desktop-handoff/testdata/*.ts billing-*/*.ts _shared/billing/*.ts account-delete/*.ts
 
       - name: Test
         run: deno test --allow-read=.

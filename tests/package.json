@@ -42,6 +42,7 @@
     "desktop-ingest:fixture": "RAIL_PARITY_FIXTURE=1 vitest run --config scripts/desktop-ingest/vitest.config.ts",
     "desktop-ingest:parity": "vitest run --config scripts/desktop-ingest/vitest.config.ts",
     "supabase:perf": "vitest run --config scripts/supabase-perf/vitest.config.ts",
+    "account:measure": "vitest run --config scripts/account-data/vitest.config.ts",
     "realtime:arrivals":"node scripts/realtime-arrivals/check.mjs",
     "realtime:activity": "node scripts/realtime-activity/check.mjs",
     "share:names": "vitest run --config scripts/share-names/vitest.config.ts",
