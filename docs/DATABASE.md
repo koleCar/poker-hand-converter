@@ -2110,8 +2110,10 @@ since `20270818090000` also every `analysis_*` reader, `hands_needing_analysis*`
    order.)
 7. **An account's own million rows**: a reader that counts or groups every
    hand of the caller reads a summary kept by triggers in the writer's
-   transaction, as R4.5c-1's `hero_rollups`, R5.2's leak summaries and the
-   library's counts ([below](#the-librarys-counts-library_hand_counts-library_hero_counts)) do.
+   transaction, as R4.5c-1's `hero_rollups`, the library's counts
+   ([below](#the-librarys-counts-library_hand_counts-library_hero_counts))
+   and the analysis screens' summaries
+   ([below](#the-analysis-screens-summaries)) do.
 
 pgTAP `owner_first_readers` holds the rule: every reader above is PL/pgSQL,
 invoker and `force_custom_plan`; no `hands` index sorts all accounts
@@ -2122,7 +2124,9 @@ account - the old definitions read every account's rows there. A new
 owner-scoped reader joins its list. Since `20270818090000` the list holds the
 analysis, drill, trainer, study and forum readers too (beside the big
 account's 9 000 graded decisions), and `owner_first_analysis` holds each of
-them to its previous body on two accounts.
+them to its previous body on two accounts. Since `20270825090000` the list
+holds the `<reader>_scan` bodies as well, and the guard measures the
+summaries' other paths (a range, a seat, the hand rows, a scan).
 
 ### The library's counts: `library_hand_counts`, `library_hero_counts`
 
@@ -2164,6 +2168,91 @@ pgTAP `library_counts` (43): kept = recounted after every write path,
 versions, searches) and stale; `library_page` = its previous body for table
 names (`%`, `_`, `\` literal) and every order; an unfiltered call reads no hand,
 statistics or EV row.
+
+### The analysis screens' summaries
+
+The Analysis screens' readers computed over every graded decision of the
+account on each call - `decision_analysis` joined to `hands`, each row's
+options and facts unpacked: at a generated 1M-hand account (2.15M
+decisions) `analysis_overview` took 58 s, the leak finder, its hands, the
+trend and the drill spots over two minutes. Since `20270825090000` they read
+narrow rows and sums kept by statement triggers on `hand_analysis` and
+`decision_analysis`, R4.5c-1's and R5.2's way. No grade, chart, constant or
+`analysis/N` changed: the stored grades are summed.
+
+| Table | Holds | Read by |
+| --- | --- | --- |
+| `analysis_hand_rows` | one row per `hand_analysis` row: the hand's groups (time, room, format, stake, seat), the analysis columns, and what its decisions add up to (streets, flag codes, graded / chart / node counts, graded grade counts and sums) | `analysis_hands` (every filter), the session trend, facets' first and last |
+| `analysis_month_hands` | analysed hands per (owner, version, UTC month); version `''` = at any version, each hand once | `analysis_coverage`, `hands_needing_analysis_recent` |
+| `analysis_leak_rows` (R5.2's) | one row per decision - **every** decision since `20270825090000`, graded or not - with its hand's day, room, stake, format, seat, pot type, street, status, source, spot key, chart set, grade, score, EV loss (and whether it was none), and for a graded preflop chart decision its node and chosen action | a date range, a room or a stake (the readers' rows path); example hands of the leak list and the chart nodes |
+| `analysis_leak_totals` | graded decisions per (owner, version, format, seat, pot type, spot key, chart set), all time, with distinct hands | `analysis_leaks`, `analysis_leak_sample`, `drill_due_by_spot` |
+| `analysis_leak_stake_totals` | the same per (owner, version, room, currency, big blind, spot key, chart set) | `analysis_leaks` under a room or stake chip |
+| `analysis_trend_days` | graded decisions of dated hands per (owner, version, UTC day, group: all / street / position / pot type, key) with distinct hands and first / last time | `analysis_trend` week and month |
+| `analysis_overview_hands`, `_decisions`, `_flags`, `_keys` | per (owner, version, format, seat, pot type): hands by status, reason, grade, flagged, approximations; decisions by street, scenario, status, reason, grade, worst flag (facing, defended, MDF, score, EV sums); flags by street, code, severity; hands with a (graded) decision per street, scenario, preflop scenario | `analysis_overview`, `analysis_breakdown`, `analysis_hands`' count |
+| `analysis_node_totals` | node decisions with a chosen action per (set, line, scenario, hand class, action); analysed postflop decisions per (street, scenario, action); all time | `analysis_node_actions` |
+| `analysis_graded_sites` | hands with a graded / graded preflop chart / node decision per (owner, version, room, stake) | `analysis_graded_facets`, the node report's facets and hand count |
+
+R5.2's `analysis_leak_days` and `analysis_leak_day_hands` are gone: once spot
+keys are as varied as play, a day held about one sum row per decision (1.94M
+rows for 1.98M decisions at 1M hands), no cheaper than the decisions; the
+all-time totals and the windows' rows replace them (`analysis_top_leaks`
+and `analysis_leak_sample` read those).
+
+**Which path a reader takes** (`analysis_filter_of` reads the filters
+exactly as `analysis_scope` did; `analysis_filter_sums_ok` /
+`_rows_ok` route): the overview's own filters (format, seat, pot type) are
+answered from the sums (the leak report under a room or stake from the
+stake totals); a date range, a room or a stake otherwise from the leak rows
+or hand rows in scope (bounded by the scope, not the account) - a leak
+report over a range holding most of the history (Learn's "before you passed
+the lesson") as the totals less the rows outside it; a filter the
+web never sends to a report (status, grade, minimum grade, flagged, street,
+flag) from the reader's previous body, kept as `<reader>_scan`
+(`analysis_overview_scan`, `_breakdown_scan`, `_node_actions_scan`,
+`_node_hands_scan`, `_leaks_scan`, `_leak_hands_scan`, `_trend_scan`,
+`hands_needing_analysis_recent_scan`) - so every input keeps its previous
+answer. `analysis_hands` answers every filter from the hand rows (its count
+from the overview's hand counts when they hold the filter).
+`hands_needing_analysis_recent` walks only the months whose library count
+(`library_hand_counts`) exceeds the analysed count at the version (the
+previous walk when the library counts are stale).
+
+**Kept** by four statement triggers in the writer's transaction, under
+R5.2's per-account lock: `hand_analysis` insert / delete (hand rows, month
+and overview hand counts) and `decision_analysis` insert / delete (leak rows
+and every other sum; delete - a prune, a hand or an account deleted -
+subtracts with the leak rows' own groups, the hand may be gone). "A hand
+counted once in a group" is decided against the statement's hands' leak rows
+before it. A trend day whose first or last time goes is looked up again
+among the rows it keeps. Two invariants of the only writer
+(`save_hand_analysis`) are relied on, as R5.2 did: an analysis row's owner is
+its hand's owner, and a hand's time, room, stake and seat do not change.
+`analysis_leak_summaries_rebuild(owner)` (definer, granted to nobody)
+recounts all of it - the repair after a write that bypassed the triggers,
+and the migration's backfill. RLS select-own on every table, no client
+write grant.
+
+**Cost** (`20270825090000` at a generated 1M-hand account, details in
+docs/RAIL-PLAN.md §15): every listed reader under ~0.4 s on its default
+call (overview 0.19 s, node report 0.28 s, leaks 0.37 s, hand list 3 ms)
+except the trend by **session** (2.1 s; 6 s by street): a session needs
+every hand of the scope in time order, so it reads the hand rows whole (the
+Progress view's default, weeks, takes 4 ms). A writer pays ~150-200 ms more
+per 200 analysed hands (`save_hand_analysis` 160-234 ms against 17-25 ms
+without the summary triggers); the summaries take ≈ 860 MB per million
+decisions (leak rows 530 MB, hand rows ~260 MB, the sums ~65 MB).
+
+pgTAP `analysis_screen_summaries` (24): the tables' RLS and grants, the
+definer triggers and rebuild, the invoker readers; every reader equal to
+its previous body (the `_scan` copies, and verbatim `20270818090000` bodies
+for those with no scan) on 1 400+ calls - 28 filter sets (each alone,
+combined, empty strings, case and spaces, ranges on and off UTC midnight,
+the scan filters), every group, sort, bucket and gap - for two accounts
+after the first writes (in batches), after a re-analysis at a new version,
+after a prune, after a hand and a decision deleted and decisions added to a
+stored hand; the triggers' sums equal to a rebuild after each of those; a
+deleted account leaving nothing. `owner_first_analysis` holds the summed
+readers to their bodies before `20270818090000` too.
 
 ### Data-shape invariants are enforced, not conventional
 

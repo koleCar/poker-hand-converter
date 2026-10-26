@@ -143,6 +143,9 @@ select pg_temp.make('00000000-0000-0000-0000-0000000081b1', 160, 'two');
 set local session_replication_role = origin;
 select public.analysis_leak_summaries_rebuild('00000000-0000-0000-0000-0000000081a1');
 select public.analysis_leak_summaries_rebuild('00000000-0000-0000-0000-0000000081b1');
+-- The library's counts too: coverage and "analyse my newest" read them.
+select public.library_counts_rebuild('00000000-0000-0000-0000-0000000081a1');
+select public.library_counts_rebuild('00000000-0000-0000-0000-0000000081b1');
 analyze public.hands;
 analyze public.hand_analysis;
 analyze public.decision_analysis;
@@ -319,9 +322,6 @@ $o$,
   ('study_plan', array[
     $n$  v_owner uuid := auth.uid();$n$,
     $o$  v_owner uuid := (select auth.uid());$o$]),
-  ('analysis_top_leaks', array[
-    $n$  v_owner    uuid := auth.uid();$n$,
-    $o$  v_owner    uuid := (select auth.uid());$o$]),
   ('analysis_leak_examples', array[
     $n$  v_owner    uuid := auth.uid();$n$,
     $o$  v_owner    uuid := (select auth.uid());$o$,
@@ -329,6 +329,220 @@ $o$,
 $n$,
     $o$        on dd.hand_id = p.hand_id and dd.analysis_version = v_version and dd.ord = p.ord
 $o$]);
+
+-- Since `20270825090000_analysis_screen_summaries.sql` most of these readers
+-- answer from sums, so their `20270818090000` definitions - what the edits
+-- are undone from - are read elsewhere: those that still fall back to it
+-- keep it as `<reader>_scan`; the others' are kept here, verbatim. The
+-- comparison below then holds the summed readers to the bodies before
+-- `20270818090000` as well.
+create temp table defs (fn text primary key, def text);
+insert into defs
+select replace(p.proname, '_scan', ''),
+       replace(pg_get_functiondef(p.oid), 'FUNCTION public.' || p.proname || '(',
+               'FUNCTION public.' || replace(p.proname, '_scan', '') || '(')
+from pg_proc p
+where p.pronamespace = 'public'::regnamespace
+  and p.proname in ('analysis_overview_scan', 'analysis_breakdown_scan', 'analysis_node_actions_scan',
+                    'analysis_node_hands_scan', 'analysis_leaks_scan', 'analysis_leak_hands_scan',
+                    'analysis_trend_scan', 'hands_needing_analysis_recent_scan');
+insert into defs values
+  ('analysis_hands', $d$
+CREATE OR REPLACE FUNCTION public.analysis_hands(p_filters jsonb DEFAULT '{}'::jsonb, p_sort text DEFAULT 'recent'::text, p_limit integer DEFAULT 25, p_offset integer DEFAULT 0)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO ''
+ SET plan_cache_mode TO 'force_custom_plan'
+AS $function$
+declare
+  v_owner  uuid := auth.uid();
+  v_limit  integer := least(greatest(coalesce(p_limit, 25), 1), 100);
+  v_offset integer := least(greatest(coalesce(p_offset, 0), 0), 100000);
+  v_sort   text := coalesce(p_sort, 'recent');
+  v_total  bigint;
+  v_rows   jsonb;
+begin
+  if v_owner is null then
+    raise exception 'You must be signed in to read the analysis.' using errcode = '42501';
+  end if;
+  if v_sort not in ('recent', 'oldest', 'flags', 'ev_loss', 'ev_loss_pot', 'score', 'result') then
+    raise exception 'Unknown analysis sort: %', v_sort using errcode = '22023';
+  end if;
+
+  select count(*) into v_total from public.analysis_scope(p_filters);
+
+  select coalesce(jsonb_agg(row_json order by rn), '[]'::jsonb)
+    into v_rows
+  from (
+    select
+      row_number() over (
+        order by
+          case when v_sort = 'oldest' then h.played_at end asc nulls last,
+          case when v_sort = 'flags' then a.flag_count end desc,
+          case when v_sort = 'flags' then a.worst_flag end asc nulls last,
+          case when v_sort = 'ev_loss' then a.ev_loss_bb end desc nulls last,
+          case when v_sort = 'ev_loss_pot' then a.ev_loss_pot end desc nulls last,
+          case when v_sort = 'score' then a.score end asc nulls last,
+          case when v_sort = 'result' and h.big_blind > 0
+               then h.hero_profit::numeric / h.big_blind end asc nulls last,
+          h.played_at desc nulls last,
+          a.hand_id
+      ) as rn,
+      jsonb_build_object(
+        'handId',             a.hand_id,
+        'playedAt',           h.played_at,
+        'site',               h.site,
+        'stakesLabel',        h.stakes_label,
+        'gameFormat',         h.game_format,
+        'currency',           h.currency,
+        'currencyMinorUnits', h.currency_minor_units,
+        'bigBlind',           h.big_blind,
+        'position',           h.hero_position,
+        'heroCards',          to_jsonb(h.hero_cards),
+        'handClass',          h.hero_hand_class,
+        'potType',            a.pot_type,
+        'status',             a.status,
+        'reason',             a.reason,
+        'grade',              a.grade,
+        'score',              a.score,
+        'evLossBb',           a.ev_loss_bb,
+        'evLossPot',          a.ev_loss_pot,
+        'flagCount',          a.flag_count,
+        'worstFlag',          a.worst_flag,
+        'netBb', case when h.big_blind > 0 and h.hero_profit is not null
+                      then round(h.hero_profit::numeric / h.big_blind, 2) end,
+        'decisions', coalesce((
+          select jsonb_agg(jsonb_build_object(
+                   'ord',         d.ord,
+                   'actionIndex', d.action_index,
+                   'street',      d.street,
+                   'action',      d.action,
+                   'status',      d.status,
+                   'grade',       d.grade,
+                   'evLossBb',    d.ev_loss_bb,
+                   'worstFlag',   d.worst_flag) order by d.ord)
+          from public.decision_analysis d
+          where d.hand_id = a.hand_id and d.analysis_version = a.analysis_version and d.owner_id = v_owner), '[]'::jsonb)
+      ) as row_json
+    from public.analysis_scope(p_filters) a
+    join public.hands h on h.id = a.hand_id and h.owner_id = v_owner
+    order by rn
+    offset v_offset
+    limit v_limit
+  ) page;
+
+  return jsonb_build_object(
+    'total',  v_total,
+    'limit',  v_limit,
+    'offset', v_offset,
+    'sort',   v_sort,
+    'rows',   v_rows
+  );
+end;
+$function$;
+$d$),
+  ('analysis_coverage', $d$
+CREATE OR REPLACE FUNCTION public.analysis_coverage(p_version text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO ''
+ SET plan_cache_mode TO 'force_custom_plan'
+AS $function$
+declare
+  v_owner uuid := auth.uid();
+  v_out   jsonb;
+begin
+  if v_owner is null then
+    raise exception 'You must be signed in to read the analysis.' using errcode = '42501';
+  end if;
+  if p_version is null or p_version !~ '^analysis/[0-9]+$' then
+    raise exception 'analysis_coverage needs an analysis_version.' using errcode = '22023';
+  end if;
+
+  with h as (
+    select
+      exists (select 1 from public.hand_analysis a
+              where a.hand_id = hd.id and a.owner_id = v_owner and a.analysis_version = p_version) as is_current,
+      exists (select 1 from public.hand_analysis a
+              where a.hand_id = hd.id and a.owner_id = v_owner and a.analysis_version <> p_version) as has_old
+    from public.hands hd
+    where hd.owner_id = v_owner
+  )
+  select jsonb_build_object(
+    'analysisVersion', p_version,
+    'hands',           count(*),
+    'atVersion',       count(*) filter (where is_current),
+    'stale',           count(*) filter (where not is_current and has_old),
+    'missing',         count(*) filter (where not is_current and not has_old),
+    'obsoleteRows', (
+      select count(*) from public.hand_analysis a
+      where a.owner_id = v_owner and a.analysis_version <> p_version)
+  )
+  into v_out
+  from h;
+
+  return v_out;
+end;
+$function$;
+$d$),
+  ('drill_due_by_spot', $d$
+CREATE OR REPLACE FUNCTION public.drill_due_by_spot(p_version text, p_until timestamp with time zone DEFAULT NULL::timestamp with time zone)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO ''
+ SET plan_cache_mode TO 'force_custom_plan'
+AS $function$
+declare
+  v_owner uuid := auth.uid();
+  v_until timestamptz := coalesce(p_until, now() + interval '1 day');
+  v_out   jsonb;
+begin
+  if v_owner is null then
+    raise exception 'You must be signed in to drill your hands.' using errcode = '42501';
+  end if;
+  if p_version is null or p_version !~ '^analysis/[0-9]+$' then
+    raise exception 'drill_due_by_spot needs an analysis_version.' using errcode = '22023';
+  end if;
+
+  with drilled as (
+    select di.spot_key, count(*) as items, count(*) filter (where di.due_at <= v_until) as due
+    from public.drill_items di
+    where di.owner_id = v_owner
+      and di.analysis_version = p_version
+      and exists (
+        select 1 from public.decision_analysis d
+        where d.hand_id = di.hand_id and d.analysis_version = di.analysis_version and d.ord = di.ord
+          and d.owner_id = v_owner)
+    group by di.spot_key
+  ),
+  fresh as (
+    select g.spot_key, count(*) as items
+    from public.analysis_graded_decisions(jsonb_build_object('analysisVersion', p_version)) g
+    where public.analysis_grade_rank(g.grade) >= public.analysis_grade_rank('mistake')
+      and not exists (
+        select 1 from public.drill_items x
+        where x.owner_id = v_owner and x.hand_id = g.hand_id and x.action_index = g.action_index)
+    group by g.spot_key
+  ),
+  keys as (
+    select spot_key from drilled union select spot_key from fresh
+  )
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'key',   k.spot_key,
+           'items', coalesce(d.items, 0) + coalesce(f.items, 0),
+           'due',   coalesce(d.due, 0) + coalesce(f.items, 0)) order by k.spot_key), '[]'::jsonb)
+  into v_out
+  from keys k
+  left join drilled d on d.spot_key = k.spot_key
+  left join fresh f on f.spot_key = k.spot_key;
+
+  return v_out;
+end;
+$function$;
+$d$);
 
 -- The current definition with each edit undone: (new, old) pairs, each of
 -- which must be found. Calls of the rewritten helpers go to their previous
@@ -338,8 +552,11 @@ declare
   v_def text;
   i     integer;
 begin
-  select pg_get_functiondef(p.oid) into v_def
-  from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname = p_fn;
+  v_def := (select d.def from defs d where d.fn = p_fn);
+  if v_def is null then
+    select pg_get_functiondef(p.oid) into v_def
+    from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname = p_fn;
+  end if;
   for i in 1 .. coalesce(array_length(p_back, 1), 0) by 2 loop
     if position(p_back[i] in v_def) = 0 then
       return p_fn || ': an edit is not in the current definition: ' || left(p_back[i], 80);
@@ -608,8 +825,6 @@ select pg_temp.call('analysis_leak_hands', quote_literal(f) || '::jsonb, (select
 select pg_temp.call('analysis_trend', quote_literal(f) || '::jsonb, ' || quote_literal(b) || ', ' || quote_literal(g) || ', 45')
   from filters, unnest(array['week', 'month', 'session']) b, unnest(array['all', 'street', 'position', 'pot_type']) g
   where filters.i % 3 = 1;
-select pg_temp.call('analysis_top_leaks', quote_literal(f) || '::jsonb, ' || quote_literal(p))
-  from filters, unnest(array['30d', 'all']) p;
 select pg_temp.call('analysis_leak_examples', quote_literal(f) || '::jsonb, ' || fr || ', ' || tt
                     || ', (select jsonb_agg(jsonb_build_object(''id'', k, ''keys'', jsonb_build_array(k))) from (select distinct spot_key k from public.analysis_leak_rows order by 1 limit 8) z), 5')
   from filters, (values ('null', 'null'), ('''2026-02-01''::date', '''2026-04-30''::date')) v(fr, tt);
@@ -674,14 +889,16 @@ select pg_temp.as_postgres();
 select ok((select count(*) from calls) > 300, 'many calls compared: ' || (select count(*) from calls));
 
 -- R5.2's sample: the owner argument must be the caller (the policy's answer
--- for anyone else was nothing).
+-- for anyone else was nothing). Its previous body read R5.2's daily sums,
+-- which `20270825090000` replaced; the top three's equality with the leak
+-- finder (whose previous body is compared above) is `leak_summaries`'.
 select pg_temp.act_as('00000000-0000-0000-0000-0000000081b1');
 select is(public.analysis_leak_sample('00000000-0000-0000-0000-0000000081a1', 'analysis/7', null, null, null, null, null),
-          pg_temp.old_analysis_leak_sample('00000000-0000-0000-0000-0000000081a1', 'analysis/7', null, null, null, null, null),
+          '{"hands": 0, "graded": 0, "rows": []}'::jsonb,
           'analysis_leak_sample: another account''s owner reads nothing, as before');
-select is(public.analysis_leak_sample('00000000-0000-0000-0000-0000000081b1', 'analysis/7', 'cash', null, null, null, null),
-          pg_temp.old_analysis_leak_sample('00000000-0000-0000-0000-0000000081b1', 'analysis/7', 'cash', null, null, null, null),
-          'analysis_leak_sample: the caller''s own sample, as before');
+select is((public.analysis_leak_sample('00000000-0000-0000-0000-0000000081b1', 'analysis/7', 'cash', null, null, null, null) ->> 'graded')::int,
+          (pg_temp.old_analysis_leaks('{"analysisVersion":"analysis/7","gameFormat":"cash"}') ->> 'graded')::int,
+          'analysis_leak_sample: the caller''s own sample, its graded decisions the leak finder''s');
 
 select * from finish();
 rollback;

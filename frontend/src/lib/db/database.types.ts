@@ -9,45 +9,332 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      analysis_leak_day_hands: {
+      analysis_graded_sites: {
         Row: {
           analysis_version: string
-          day: string
-          game_format: string
-          hands: number
-          hero_position: string
+          big_blind: number | null
+          chart_hands: number
+          currency: string
+          currency_minor_units: number
+          graded_hands: number
+          node_hands: number
           owner_id: string
-          pot_type: string
+          site: string
+          small_blind: number | null
         }
         Insert: {
           analysis_version: string
-          day: string
-          game_format: string
-          hands: number
-          hero_position: string
+          big_blind?: number | null
+          chart_hands: number
+          currency: string
+          currency_minor_units: number
+          graded_hands: number
+          node_hands: number
           owner_id: string
-          pot_type: string
+          site: string
+          small_blind?: number | null
         }
         Update: {
           analysis_version?: string
-          day?: string
-          game_format?: string
-          hands?: number
-          hero_position?: string
+          big_blind?: number | null
+          chart_hands?: number
+          currency?: string
+          currency_minor_units?: number
+          graded_hands?: number
+          node_hands?: number
           owner_id?: string
-          pot_type?: string
+          site?: string
+          small_blind?: number | null
         }
         Relationships: []
       }
-      analysis_leak_days: {
+      analysis_hand_rows: {
         Row: {
           analysis_version: string
+          approximations: string[]
+          big_blind: number | null
+          chart_graded: number
+          currency: string
+          currency_minor_units: number
+          ev_loss_bb: number | null
+          ev_loss_pot: number | null
+          flag_codes: string[]
+          flag_count: number
+          g_blunder: number
+          g_ev_bb: number
+          g_ev_pot: number
+          g_mistake: number
+          g_mistakes: number
+          g_non_perfect: number
+          g_score_sq: number
+          g_score_sum: number
+          game_format: string
+          grade: string | null
+          graded: number
+          hand_id: string
+          hero_position: string | null
+          hero_profit: number | null
+          node_decisions: number
+          owner_id: string
+          played_at: string | null
+          pot_type: string | null
+          reason: string | null
+          score: number | null
+          site: string
+          small_blind: number | null
+          status: string
+          streets: number
+          worst_flag: string | null
+        }
+        Insert: {
+          analysis_version: string
+          approximations: string[]
+          big_blind?: number | null
+          chart_graded?: number
+          currency: string
+          currency_minor_units: number
+          ev_loss_bb?: number | null
+          ev_loss_pot?: number | null
+          flag_codes?: string[]
+          flag_count: number
+          g_blunder?: number
+          g_ev_bb?: number
+          g_ev_pot?: number
+          g_mistake?: number
+          g_mistakes?: number
+          g_non_perfect?: number
+          g_score_sq?: number
+          g_score_sum?: number
+          game_format: string
+          grade?: string | null
+          graded?: number
+          hand_id: string
+          hero_position?: string | null
+          hero_profit?: number | null
+          node_decisions?: number
+          owner_id: string
+          played_at?: string | null
+          pot_type?: string | null
+          reason?: string | null
+          score?: number | null
+          site: string
+          small_blind?: number | null
+          status: string
+          streets?: number
+          worst_flag?: string | null
+        }
+        Update: {
+          analysis_version?: string
+          approximations?: string[]
+          big_blind?: number | null
+          chart_graded?: number
+          currency?: string
+          currency_minor_units?: number
+          ev_loss_bb?: number | null
+          ev_loss_pot?: number | null
+          flag_codes?: string[]
+          flag_count?: number
+          g_blunder?: number
+          g_ev_bb?: number
+          g_ev_pot?: number
+          g_mistake?: number
+          g_mistakes?: number
+          g_non_perfect?: number
+          g_score_sq?: number
+          g_score_sum?: number
+          game_format?: string
+          grade?: string | null
+          graded?: number
+          hand_id?: string
+          hero_position?: string | null
+          hero_profit?: number | null
+          node_decisions?: number
+          owner_id?: string
+          played_at?: string | null
+          pot_type?: string | null
+          reason?: string | null
+          score?: number | null
+          site?: string
+          small_blind?: number | null
+          status?: string
+          streets?: number
+          worst_flag?: string | null
+        }
+        Relationships: []
+      }
+      analysis_leak_rows: {
+        Row: {
+          action_index: number
+          analysis_version: string
+          big_blind: number | null
           chart_set: string
+          chosen_action: string | null
+          currency: string
+          currency_minor_units: number
           day: string
+          ev_bb_null: boolean
+          ev_loss_bb: number
+          ev_loss_pot: number
+          ev_pot_null: boolean
+          game_format: string
+          grade: string | null
+          hand_class: string | null
+          hand_id: string
+          hero_position: string
+          node_line: string | null
+          node_scenario: string | null
+          node_set: string | null
+          ord: number
+          owner_id: string
+          played_at: string | null
+          pot_type: string
+          score: number | null
+          site: string
+          small_blind: number | null
+          source: string
+          spot_key: string
+          status: string
+          street: string
+        }
+        Insert: {
+          action_index: number
+          analysis_version: string
+          big_blind?: number | null
+          chart_set: string
+          chosen_action?: string | null
+          currency: string
+          currency_minor_units: number
+          day: string
+          ev_bb_null: boolean
+          ev_loss_bb: number
+          ev_loss_pot: number
+          ev_pot_null: boolean
+          game_format: string
+          grade?: string | null
+          hand_class?: string | null
+          hand_id: string
+          hero_position: string
+          node_line?: string | null
+          node_scenario?: string | null
+          node_set?: string | null
+          ord: number
+          owner_id: string
+          played_at?: string | null
+          pot_type: string
+          score?: number | null
+          site: string
+          small_blind?: number | null
+          source: string
+          spot_key: string
+          status: string
+          street: string
+        }
+        Update: {
+          action_index?: number
+          analysis_version?: string
+          big_blind?: number | null
+          chart_set?: string
+          chosen_action?: string | null
+          currency?: string
+          currency_minor_units?: number
+          day?: string
+          ev_bb_null?: boolean
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          ev_pot_null?: boolean
+          game_format?: string
+          grade?: string | null
+          hand_class?: string | null
+          hand_id?: string
+          hero_position?: string
+          node_line?: string | null
+          node_scenario?: string | null
+          node_set?: string | null
+          ord?: number
+          owner_id?: string
+          played_at?: string | null
+          pot_type?: string
+          score?: number | null
+          site?: string
+          small_blind?: number | null
+          source?: string
+          spot_key?: string
+          status?: string
+          street?: string
+        }
+        Relationships: []
+      }
+      analysis_leak_stake_totals: {
+        Row: {
+          analysis_version: string
+          big_blind: number | null
+          chart_set: string
+          currency: string
           decisions: number
           ev_loss_bb: number
           ev_loss_pot: number
+          g_blunder: number
+          g_mistake: number
+          hands: number
+          mistakes: number
+          non_perfect: number
+          owner_id: string
+          score_sq: number
+          score_sum: number
+          site: string
+          spot_key: string
+        }
+        Insert: {
+          analysis_version: string
+          big_blind?: number | null
+          chart_set: string
+          currency: string
+          decisions: number
+          ev_loss_bb: number
+          ev_loss_pot: number
+          g_blunder: number
+          g_mistake: number
+          hands: number
+          mistakes: number
+          non_perfect: number
+          owner_id: string
+          score_sq: number
+          score_sum: number
+          site: string
+          spot_key: string
+        }
+        Update: {
+          analysis_version?: string
+          big_blind?: number | null
+          chart_set?: string
+          currency?: string
+          decisions?: number
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          g_blunder?: number
+          g_mistake?: number
+          hands?: number
+          mistakes?: number
+          non_perfect?: number
+          owner_id?: string
+          score_sq?: number
+          score_sum?: number
+          site?: string
+          spot_key?: string
+        }
+        Relationships: []
+      }
+      analysis_leak_totals: {
+        Row: {
+          analysis_version: string
+          chart_set: string
+          decisions: number
+          ev_loss_bb: number
+          ev_loss_pot: number
+          g_blunder: number
+          g_mistake: number
           game_format: string
+          hands: number
           hero_position: string
           mistakes: number
           non_perfect: number
@@ -60,11 +347,13 @@ export type Database = {
         Insert: {
           analysis_version: string
           chart_set: string
-          day: string
           decisions: number
           ev_loss_bb: number
           ev_loss_pot: number
+          g_blunder: number
+          g_mistake: number
           game_format: string
+          hands: number
           hero_position: string
           mistakes: number
           non_perfect: number
@@ -77,11 +366,13 @@ export type Database = {
         Update: {
           analysis_version?: string
           chart_set?: string
-          day?: string
           decisions?: number
           ev_loss_bb?: number
           ev_loss_pot?: number
+          g_blunder?: number
+          g_mistake?: number
           game_format?: string
+          hands?: number
           hero_position?: string
           mistakes?: number
           non_perfect?: number
@@ -93,60 +384,255 @@ export type Database = {
         }
         Relationships: []
       }
-      analysis_leak_rows: {
+      analysis_month_hands: {
         Row: {
-          action_index: number
           analysis_version: string
-          chart_set: string
-          day: string
-          ev_loss_bb: number
-          ev_loss_pot: number
-          game_format: string
-          grade: string
-          hand_id: string
-          hero_position: string
-          ord: number
+          hands: number
+          month: string
           owner_id: string
-          played_at: string | null
-          pot_type: string
-          score: number | null
-          spot_key: string
         }
         Insert: {
-          action_index: number
           analysis_version: string
-          chart_set?: string
-          day: string
-          ev_loss_bb?: number
-          ev_loss_pot?: number
-          game_format?: string
-          grade: string
-          hand_id: string
-          hero_position?: string
-          ord: number
+          hands: number
+          month: string
           owner_id: string
-          played_at?: string | null
-          pot_type?: string
-          score?: number | null
-          spot_key: string
         }
         Update: {
-          action_index?: number
           analysis_version?: string
-          chart_set?: string
-          day?: string
+          hands?: number
+          month?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      analysis_node_totals: {
+        Row: {
+          action: string
+          analysis_version: string
+          decisions: number
+          deviations: number
+          ev_loss_bb: number
+          hand_class: string | null
+          line: string
+          node_set: string | null
+          owner_id: string
+          scenario: string | null
+          street: string
+        }
+        Insert: {
+          action: string
+          analysis_version: string
+          decisions: number
+          deviations: number
+          ev_loss_bb: number
+          hand_class?: string | null
+          line: string
+          node_set?: string | null
+          owner_id: string
+          scenario?: string | null
+          street: string
+        }
+        Update: {
+          action?: string
+          analysis_version?: string
+          decisions?: number
+          deviations?: number
           ev_loss_bb?: number
-          ev_loss_pot?: number
+          hand_class?: string | null
+          line?: string
+          node_set?: string | null
+          owner_id?: string
+          scenario?: string | null
+          street?: string
+        }
+        Relationships: []
+      }
+      analysis_overview_decisions: {
+        Row: {
+          analysis_version: string
+          decisions: number
+          defended: number
+          ev_bb_n: number
+          ev_bb_sum: number
+          ev_pot_n: number
+          ev_pot_sum: number
+          facing: number
+          game_format: string
+          grade: string
+          hero_position: string
+          mdf_n: number
+          mdf_sum: number
+          owner_id: string
+          pot_type: string
+          reason: string
+          scenario: string
+          score_n: number
+          score_sum: number
+          status: string
+          street: string
+          worst_flag: string
+        }
+        Insert: {
+          analysis_version: string
+          decisions: number
+          defended: number
+          ev_bb_n: number
+          ev_bb_sum: number
+          ev_pot_n: number
+          ev_pot_sum: number
+          facing: number
+          game_format: string
+          grade: string
+          hero_position: string
+          mdf_n: number
+          mdf_sum: number
+          owner_id: string
+          pot_type: string
+          reason: string
+          scenario: string
+          score_n: number
+          score_sum: number
+          status: string
+          street: string
+          worst_flag: string
+        }
+        Update: {
+          analysis_version?: string
+          decisions?: number
+          defended?: number
+          ev_bb_n?: number
+          ev_bb_sum?: number
+          ev_pot_n?: number
+          ev_pot_sum?: number
+          facing?: number
           game_format?: string
           grade?: string
-          hand_id?: string
           hero_position?: string
-          ord?: number
+          mdf_n?: number
+          mdf_sum?: number
           owner_id?: string
-          played_at?: string | null
           pot_type?: string
-          score?: number | null
-          spot_key?: string
+          reason?: string
+          scenario?: string
+          score_n?: number
+          score_sum?: number
+          status?: string
+          street?: string
+          worst_flag?: string
+        }
+        Relationships: []
+      }
+      analysis_overview_flags: {
+        Row: {
+          analysis_version: string
+          code: string
+          flags: number
+          game_format: string
+          hero_position: string
+          owner_id: string
+          pot_type: string
+          severity: string
+          street: string
+        }
+        Insert: {
+          analysis_version: string
+          code: string
+          flags: number
+          game_format: string
+          hero_position: string
+          owner_id: string
+          pot_type: string
+          severity: string
+          street: string
+        }
+        Update: {
+          analysis_version?: string
+          code?: string
+          flags?: number
+          game_format?: string
+          hero_position?: string
+          owner_id?: string
+          pot_type?: string
+          severity?: string
+          street?: string
+        }
+        Relationships: []
+      }
+      analysis_overview_hands: {
+        Row: {
+          analysis_version: string
+          approximations: string[]
+          flagged: boolean
+          game_format: string
+          grade: string
+          hands: number
+          hero_position: string
+          owner_id: string
+          pot_type: string
+          reason: string
+          status: string
+        }
+        Insert: {
+          analysis_version: string
+          approximations: string[]
+          flagged: boolean
+          game_format: string
+          grade: string
+          hands: number
+          hero_position: string
+          owner_id: string
+          pot_type: string
+          reason: string
+          status: string
+        }
+        Update: {
+          analysis_version?: string
+          approximations?: string[]
+          flagged?: boolean
+          game_format?: string
+          grade?: string
+          hands?: number
+          hero_position?: string
+          owner_id?: string
+          pot_type?: string
+          reason?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      analysis_overview_keys: {
+        Row: {
+          analysis_version: string
+          game_format: string
+          graded_hands: number
+          hands: number
+          hero_position: string
+          key: string
+          kind: string
+          owner_id: string
+          pot_type: string
+        }
+        Insert: {
+          analysis_version: string
+          game_format: string
+          graded_hands: number
+          hands: number
+          hero_position: string
+          key: string
+          kind: string
+          owner_id: string
+          pot_type: string
+        }
+        Update: {
+          analysis_version?: string
+          game_format?: string
+          graded_hands?: number
+          hands?: number
+          hero_position?: string
+          key?: string
+          kind?: string
+          owner_id?: string
+          pot_type?: string
         }
         Relationships: []
       }
@@ -181,6 +667,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      analysis_trend_days: {
+        Row: {
+          analysis_version: string
+          day: string
+          decisions: number
+          ev_loss_bb: number
+          ev_loss_pot: number
+          first_at: string
+          g_blunder: number
+          g_mistake: number
+          grp: string
+          hands: number
+          key: string
+          last_at: string
+          mistakes: number
+          non_perfect: number
+          owner_id: string
+          score_sq: number
+          score_sum: number
+        }
+        Insert: {
+          analysis_version: string
+          day: string
+          decisions: number
+          ev_loss_bb: number
+          ev_loss_pot: number
+          first_at: string
+          g_blunder: number
+          g_mistake: number
+          grp: string
+          hands: number
+          key: string
+          last_at: string
+          mistakes: number
+          non_perfect: number
+          owner_id: string
+          score_sq: number
+          score_sum: number
+        }
+        Update: {
+          analysis_version?: string
+          day?: string
+          decisions?: number
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          first_at?: string
+          g_blunder?: number
+          g_mistake?: number
+          grp?: string
+          hands?: number
+          key?: string
+          last_at?: string
+          mistakes?: number
+          non_perfect?: number
+          owner_id?: string
+          score_sq?: number
+          score_sum?: number
+        }
+        Relationships: []
       }
       board_moderators: {
         Row: {
@@ -3465,11 +4011,33 @@ export type Database = {
         Args: { p_filters?: Json; p_group?: string }
         Returns: Json
       }
+      analysis_breakdown_scan: {
+        Args: { p_filters?: Json; p_group?: string }
+        Returns: Json
+      }
       analysis_chosen_action: {
         Args: { p_chosen: number; p_options: Json }
         Returns: string
       }
       analysis_coverage: { Args: { p_version: string }; Returns: Json }
+      analysis_filter_of: {
+        Args: { p_filters: Json }
+        Returns: Database["public"]["CompositeTypes"]["analysis_filter"]
+        SetofOptions: {
+          from: "*"
+          to: "analysis_filter"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      analysis_filter_rows_ok: {
+        Args: { q: Database["public"]["CompositeTypes"]["analysis_filter"] }
+        Returns: boolean
+      }
+      analysis_filter_sums_ok: {
+        Args: { q: Database["public"]["CompositeTypes"]["analysis_filter"] }
+        Returns: boolean
+      }
       analysis_grade_rank: { Args: { p_grade: string }; Returns: number }
       analysis_graded_decisions: {
         Args: { p_filters?: Json }
@@ -3508,6 +4076,25 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_is_node: {
+        Args: {
+          p_chosen: number
+          p_facts: Json
+          p_grade: string
+          p_source: string
+          p_street: string
+        }
+        Returns: boolean
+      }
+      analysis_key_matches: {
+        Args: {
+          p_key: string
+          p_kind: string
+          p_spot_key: string
+          p_street: string
+        }
+        Returns: boolean
+      }
       analysis_leak_chart_set: {
         Args: { p_facts: Json; p_source: string }
         Returns: string
@@ -3523,6 +4110,17 @@ export type Database = {
         Returns: Json
       }
       analysis_leak_hands: {
+        Args: {
+          p_deviations?: boolean
+          p_filters?: Json
+          p_keys?: string[]
+          p_limit?: number
+          p_offset?: number
+          p_sort?: string
+        }
+        Returns: Json
+      }
+      analysis_leak_hands_scan: {
         Args: {
           p_deviations?: boolean
           p_filters?: Json
@@ -3562,7 +4160,10 @@ export type Database = {
         Returns: Json
       }
       analysis_leaks: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_leaks_scan: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_month_of: { Args: { p_at: string }; Returns: string }
       analysis_node_actions: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_node_actions_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_hands: {
         Args: {
           p_action?: string
@@ -3575,7 +4176,20 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_node_hands_scan: {
+        Args: {
+          p_action?: string
+          p_deviations?: boolean
+          p_filters?: Json
+          p_limit?: number
+          p_nodes?: string[]
+          p_offset?: number
+          p_sort?: string
+        }
+        Returns: Json
+      }
       analysis_overview: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_overview_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_public_facts: { Args: { p_facts: Json }; Returns: Json }
       analysis_public_flags: { Args: { p_flags: Json }; Returns: Json }
       analysis_public_options: { Args: { p_options: Json }; Returns: Json }
@@ -3629,11 +4243,31 @@ export type Database = {
         }
         Returns: string
       }
+      analysis_street_bit: { Args: { p_street: string }; Returns: number }
       analysis_top_leaks: {
         Args: { p_filters?: Json; p_period?: string }
         Returns: Json
       }
       analysis_trend: {
+        Args: {
+          p_bucket?: string
+          p_filters?: Json
+          p_gap_minutes?: number
+          p_group?: string
+        }
+        Returns: Json
+      }
+      analysis_trend_matches: {
+        Args: {
+          p_grp: string
+          p_key: string
+          p_position: string
+          p_pot: string
+          p_street: string
+        }
+        Returns: boolean
+      }
+      analysis_trend_scan: {
         Args: {
           p_bucket?: string
           p_filters?: Json
@@ -3873,6 +4507,19 @@ export type Database = {
         }[]
       }
       hands_needing_analysis_recent: {
+        Args: {
+          p_before_id?: string
+          p_before_played?: string
+          p_limit?: number
+          p_version: string
+        }
+        Returns: {
+          id: string
+          phf: Json
+          played_at: string
+        }[]
+      }
+      hands_needing_analysis_recent_scan: {
         Args: {
           p_before_id?: string
           p_before_played?: string
@@ -4430,7 +5077,23 @@ export type Database = {
       unparsed_status: "new" | "triaged" | "parser-written" | "wontfix"
     }
     CompositeTypes: {
-      [_ in never]: never
+      analysis_filter: {
+        version: string | null
+        from_at: string | null
+        to_at: string | null
+        site: string | null
+        format: string | null
+        currency: string | null
+        big_blind: number | null
+        position: string | null
+        pot_type: string | null
+        status: string | null
+        flagged: boolean | null
+        grade: string | null
+        min_grade: string | null
+        street: string | null
+        flag: string | null
+      }
     }
   }
 }
