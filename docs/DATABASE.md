@@ -24,6 +24,7 @@ The schema is defined by four migrations:
 | `20270512090000_hand_arrivals.sql` | Rail R1.10: live arrival on the web. `hand_arrivals` (one row per account, bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival`: a counter, how many hands, their origin, the time; no hand content), select-own RLS, in the `supabase_realtime` publication; `hands` stays out of it. See [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 | `20270616090000_live_activity.sql` | Rail R4.3: live progress of an upload in the account's other tabs and devices. The first `realtime.messages` policies: on the private channel `activity:<uid>`, the account itself may receive (presence, broadcast) and send presence; nobody else, not `anon`, no broadcast sent. No table, no function, no per-batch write (Presence lives in Realtime's memory). See [Live progress across tabs](#live-progress-across-tabs-activityuid). Not applied to production. |
 | `20270623093000_stats_seats_and_budget.sql` | Rail R4.4 findings F1, F2: seat numbers past 24 (Ignition tournaments) - `hand_stats.seat`, `hand_stats_ev.seat`, `hand_analysis.hero_seat` any `smallint` from 0, `comments.anchor_seat` from 1; statistics inserts charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, `hand_stats_insert_day:<uid>` 10 000 000 / day) with the global `hand_stats_insert` a 3 000 000 / 10 min ceiling, through `hand_stats_charge_budget()` (no client grant). See [Rate limiting](#rate-limiting) and the statistics rebuild. Not applied to production. |
+| `20270908090000_entitlements.sql` | Rail R6.2: plans and entitlements, **enforcement off** until launch. `profiles.plan` and its subscription fields, `billing_settings`, `plan_limits`, `entitlement_gates`; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`; the cap and desktop rows on `hands`. See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -43,6 +44,7 @@ the app touches Supabase.
 - [Moderation and anti-abuse](#moderation-and-anti-abuse)
 - [Hand analysis](#hand-analysis-hand_analysis-decision_analysis)
 - [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands)
+- [Plans and entitlements](#plans-and-entitlements)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -246,6 +248,11 @@ why:
 | `hand_row_from_phf`, `hand_row_problem`, `phf_*` helpers | invoker | Pure: the PHF-to-row mapping and the constraint mirror `ingest_hands` uses. No client may execute them. |
 | `hands_since` | invoker | Reads the caller's own rows (explicit `owner_id = auth.uid()` and RLS): ids, times, keys, origins. `authenticated` only (R1.9). |
 | `put_hud_layouts` | **definer** | `hud_layouts` has no client write grant. Owner from `auth.uid()` (the conflict target includes it, so another account's row with the same key is never touched); the batch validated whole (kinds, keys per kind, bodies, times) before anything is written; at most 500 rows a call and 5 000 an account; rate-limited (`hud_layouts:`). `authenticated` only (R3.9). |
+| `my_entitlements` | **definer** | Reads the sealed `profiles`, `billing_settings` and `plan_limits`; the caller's own (`auth.uid()`) only, never the provider's ids. `authenticated` only (R6.2). |
+| `require_entitlement`, `has_my_entitlement` | **definer** | The guard every gated function opens with, and its boolean for policies: read the sealed tables for the caller only. `require_entitlement` is executable by `anon` too (an invoker reader calls it as whoever calls the reader; it refuses `anon` under enforcement). |
+| `has_entitlement`, `billing_plan_state`, `billing_stored_hands` | **definer** | Take an owner - an oracle on other accounts' plans - so no client may execute them; the triggers and the functions above call them. |
+| `billing_set_plan` | **definer** | The only writer of the plan fields; `service_role` only (R6.3's webhook). |
+| `hands_enforce_plan`, `entitlement_row_guard`, `profiles_mark_early_user` (triggers) | **definer** | Read the sealed plan tables for the rows' owners. No client may execute them. |
 | `hands_signal_arrival` (trigger) | **definer** | `hand_arrivals` has no client write grant and `save_hands` runs as the caller. Reads only the statement's transition table, upserts one row per owner in it; a failure is swallowed so it never fails a save. No client may execute it (R1.10). |
 
 ---
@@ -1590,6 +1597,91 @@ malformed keys of each kind, a non-object or oversized body, a time before
 2020 or days ahead, one bad row refusing the batch, 500 a call, 5 000 an
 account); two accounts with the same key apart; anon reads and writes
 nothing.
+
+## Plans and entitlements
+
+`20270908090000_entitlements.sql` (Rail R6.2; `docs/RAIL-PLAN.md` R6.2 *As
+built*). The database is where a plan is enforced; the web and the app only
+show it first.
+
+**The switch.** `billing_settings.enforcement_enabled` is **false** until the
+owner launches paid plans (R6.3). While it is false every account's
+effective plan is Pro: every guard returns after reading one row, no cap is
+checked, `my_entitlements()` says `enforced: false`, the UI locks nothing.
+Turning it on is one statement (launch checklist in the plan):
+
+```sql
+update public.billing_settings set enforcement_enabled = true;
+```
+
+**Data.** `billing_settings` (one row: the switch, `early_user_cutoff`,
+`early_user_discount_percent`, `payment_grace_days`, `offline_grace_days`) and
+`plan_limits` (per plan: `hand_cap`, null = unlimited, and `features` from the
+fixed set `desktop_sync`, `hud`, `reports_full`, `analysis`, `learn`). Both
+sealed (RLS, no policies, no grants); the owner edits them in SQL.
+
+**The plan on the profile.** `plan`, `plan_period`, `plan_status`,
+`current_period_end`, `plan_updated_at`, `early_user`, `early_user_since`,
+`billing_customer_id`, `billing_subscription_id`. `profiles` stays sealed, so
+no client reads or writes any of it; `profiles_public` is unchanged. Written
+only by `billing_set_plan(...)` (service role). Accounts created before
+`early_user_cutoff` (all of them while it is null) are early users, marked by
+a before-insert trigger on `profiles` and, after the cutoff moves, by
+`billing_mark_early_users()`.
+
+**The effective plan** (`billing_plan_state`): off -> Pro; no profile ->
+Free; `pro` with no status (granted by hand) -> Pro until
+`current_period_end` (null = no end); active / trialing -> Pro to the period
+end plus `payment_grace_days` (a late renewal cuts nobody off); past_due ->
+Pro within the grace; canceled -> Pro to the period end; otherwise Free.
+
+**Where it is checked.**
+
+| Check | How |
+| --- | --- |
+| A Pro function | First statement of its body: `perform public.require_entitlement('<feature>');`. The list is the table `entitlement_gates` (function signature, feature); the migration wrote the line into each body (`entitlement_gates_apply()`, from `pg_get_functiondef`, grants and settings kept). **A migration that re-creates a gated function keeps the line**; pgTAP `entitlements` fails otherwise. A new client-callable function must be added to `entitlement_gates` (and given the line) or to the test's free list - the test fails until it is on one side. |
+| The hand cap | `hands_plan_after_insert`, a statement trigger on `hands` named to fire after `hands_library_counts_after_insert`, so the library's counts already hold the statement's rows: over the cap, the statement is refused whole. Every path (`save_hands`, `ingest_hands`, a direct insert); duplicates never reach the trigger. |
+| Desktop sync | The same trigger refuses rows of origin `desktop` without `desktop_sync`; `register_hand_source`, `hands_since`, `put_hud_layouts` are gated; `hud_layouts`' select policy adds `(select public.has_my_entitlement('desktop_sync'))`. The web's bulk upload (`upload` origin) is not desktop sync. |
+| Own chart sets, tournament settings | Written directly under RLS (`preflop_chart_sets`, R5.5's `tournament_settings`), so a before-insert-or-update row trigger, `entitlement_row_guard('analysis')`, named to fire before each table's own guard. Deleting one's own row stays allowed. |
+
+A refusal is SQLSTATE `PT402`, which PostgREST answers as **HTTP 402**, with a
+fixed English sentence (Croatian in `frontend/src/lib/i18n/serverErrors.ts`),
+the feature (or `hand_cap`) as the HINT, and for the cap a JSON DETAIL
+`{"cap", "stored", "attempted"}`. A caller with no user and no client role
+(the service role, plain SQL) passes the guard; `anon` is refused.
+
+**The Free / Pro line.** Free, never gated: the library's readers and
+writers under the cap, sharing, publishing, the forum, notes, reading a
+shared analysis, and basic statistics - `report_open`, `report_graph`,
+`report_facets` and the statistics' own writers, coverage and prunes. Pro:
+`reports_full` (`report_situations`, `report_sessions`, `stats_opponents`,
+the Players screen), `analysis` (every analysis reader and save, session
+review, own charts, ICM tournament settings, drills, trainer, study plan,
+`villain_counters`),
+`learn` (the course's server writes), `desktop_sync` (above). Your own rows
+of a Pro table stay readable by a plain select under RLS (R6.5's export reads
+them); what is gated is the feature's functions.
+
+`my_entitlements()` answers the effective plan, why, `enforced`, the
+features, hands stored, the Free cap, the subscription, the early-user state
+and discount, `validUntil`, `graceUntil` and `offlineGraceDays`; the web reads
+it once per account (`lib/entitlements/`), the desktop app will in R6.4.
+
+### Tests
+
+`supabase/tests/database/entitlements.test.sql` (68): the plan fields not
+client-readable or -writable, the sealed tables, the writer's grant; every
+gate in place and every client-callable function classified; early users
+before and after the cutoff; `my_entitlements` per state (off, Free, Pro,
+trialing, late renewal, past due within and past the grace, canceled before
+and after the period end, granted); enforcement off -> no gated function
+refuses a Free account and the cap is not checked; on -> every gated function
+refuses Free with `PT402`, basic statistics and the library stay open, the
+cap at the boundary (the statement whole, duplicates free, direct insert and
+bulk upload too), desktop rows, HUD layouts, chart sets and tournament settings refused, Pro
+allowed everything; anon refused; the service role passes.
+
+---
 
 ## Verifying the isolation
 

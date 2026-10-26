@@ -12,6 +12,7 @@ import { localizeServerMessage } from "../../lib/i18n/serverErrors";
 import type { Dict } from "../../lib/i18n/types";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
+import { PlanPanel } from "../../components/plan/PlanPanel";
 import styles from "./settings.module.css";
 
 /** Client half of `/settings`. */
@@ -69,6 +70,7 @@ function SettingsBody() {
               : en.settings.loadFailed}
         </p>
       )}
+      <PlanPanel />
       {/* Outside the profile gate: the password belongs to the auth account,
           which exists even when the profile row failed to load. */}
       <PasswordSection />

@@ -38,6 +38,7 @@ import { courseEn } from "./ns/course.en";
 import { desktopEn } from "./ns/desktop.en";
 import { learnEn } from "./ns/learn.en";
 import { manualEn } from "./ns/manual.en";
+import { planEn } from "./ns/plan.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 
@@ -52,6 +53,7 @@ export const en = {
   manual: manualEn,
   chrome: chromeEn,
   desktop: desktopEn,
+  plan: planEn,
 
   brand: {
     name: "Rail",

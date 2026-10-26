@@ -45,7 +45,9 @@ import {
 } from "../../lib/db";
 import { reportTotals, WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
+import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
+import { ProLock } from "../plan/ProLock";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
 import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
@@ -73,6 +75,8 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const t = dict.stats;
   const en = t.tab;
   const auth = useAuth();
+  const { locked, status: planStatus } = useEntitlements();
+  const planPending = planStatus === "loading";
   const [status, setStatus] = useState<Status>("ready");
   const [message, setMessage] = useState<string | null>(null);
   const [coverage, setCoverage] = useState<StatsCoverage | null>(null);
@@ -85,6 +89,11 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const [tab, setTab] = useState<Tab>("position");
 
   const base = useMemo(() => webReportSource(dict.converter.library.standardFormat), [dict]);
+  // Full reports (situations, sessions, opponents) are Pro (R6.2); basic
+  // statistics - the report, the graph, the chips - are not. Locked only
+  // while enforcement is on and the plan lacks them; the server refuses
+  // them on its own (PT402) either way.
+  const fullLocked = locked("reports_full");
   // A database without the summaries' readers (PGRST202) says "not set up", not a stack trace.
   const source = useMemo(
     () => ({
@@ -94,8 +103,10 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
           if (isMissingSchemaError(error)) setStatus("not-installed");
           throw error;
         }),
+      breakdowns: (filter: HandFilter) =>
+        fullLocked ? Promise.reject(new Error(dict.plan.lock.body.reports_full)) : base.breakdowns(filter),
     }),
-    [base],
+    [base, fullLocked, dict],
   );
 
   /** The coverage line: how much of the library the numbers are about. */
@@ -284,6 +295,12 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         )}
         afterSummary={(report) => <Tiles report={report} />}
         footer={(query) => {
+          if (fullLocked) {
+            return <ProLock feature="reports_full" />;
+          }
+          if (planPending) {
+            return null;
+          }
           const opponents = opponentsScope(query);
           return (
             <>

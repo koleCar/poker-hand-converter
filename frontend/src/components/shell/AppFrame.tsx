@@ -15,6 +15,9 @@ import {
   type DesktopSyncState,
 } from "../../lib/live/arrivals";
 import { LiveStrip } from "../live/LiveStrip";
+import { ProLock } from "../plan/ProLock";
+import type { Feature } from "../../lib/db/entitlements";
+import { useEntitlements } from "../../lib/entitlements/context";
 import { useHandArrivals } from "../live/useHandArrivals";
 import { useOtherUploads } from "../live/useLiveActivity";
 
@@ -78,11 +81,32 @@ interface AppFrameProps {
    * publishes itself, `useUploadPresence`).
    */
   live?: boolean | "notify";
+  /**
+   * The Pro feature the screen is (R6.2). When the database would refuse it
+   * - enforcement on and the account's plan without it - the screen shows
+   * the lock instead of a page of refusals. Defaults from the tab: Analysis
+   * is `analysis`, Learn is `learn`; `null` opts out. Never shown while
+   * enforcement is off.
+   */
+  feature?: Feature | null;
   children: (context: AppFrameContext) => ReactNode;
 }
 
-export function AppFrame({ tab, redirectWhenEmpty = false, live = false, children }: AppFrameProps) {
+/** The Pro feature each tab is, unless the screen says otherwise. */
+const TAB_FEATURE: Partial<Record<ShellTab, Feature>> = { analysis: "analysis", learn: "learn" };
+
+export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature, children }: AppFrameProps) {
   const router = useRouter();
+  const entitlements = useEntitlements();
+  const screenFeature = feature === undefined ? (tab ? (TAB_FEATURE[tab] ?? null) : null) : feature;
+  const screenLocked = screenFeature !== null && entitlements.locked(screenFeature);
+  // A Pro screen waits for the answer (once per page load) rather than
+  // firing its readers into refusals the lock then covers.
+  const screenPending = screenFeature !== null && entitlements.status === "loading";
+  const lockedTabs = (Object.keys(TAB_FEATURE) as ShellTab[]).filter((id) => {
+    const tabFeature = TAB_FEATURE[id];
+    return tabFeature !== undefined && entitlements.locked(tabFeature);
+  });
   const [refreshToken, setRefreshToken] = useState(0);
   const [storedCount, setStoredCount] = useState<number | null>(null);
   const auth = useAuth();
@@ -209,9 +233,12 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, childre
     auth.requestSignIn();
   }, [auth]);
 
+  const refreshEntitlements = entitlements.refresh;
   const onHandsSaved = useCallback(() => {
     setRefreshToken((current) => current + 1);
-  }, []);
+    // The plan's usage (hands stored against the cap) follows a save.
+    void refreshEntitlements();
+  }, [refreshEntitlements]);
 
   /** True while the library route is still deciding whether to bounce. */
   const holdForRedirect = redirectWhenEmpty && !historyOpen && settled;
@@ -225,6 +252,7 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, childre
       // one. Derived rather than cleared on sign-out, so the last account's
       // number can never be left sitting in the bar for the next visitor.
       storedCount={auth.isSignedIn ? storedCount : null}
+      lockedTabs={lockedTabs}
     >
       {/* Rendered while the answer is still unknown — the tabs have their own
           loading states, and unmounting once `settled` says no keeps the
@@ -232,7 +260,11 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, childre
       {holdForRedirect || !liveUser ? null : (
         <LiveStrip uploads={otherUploads} desktop={shownDesktop} newHands={unseenHands} onRefresh={showUnseen} />
       )}
-      {holdForRedirect ? null : children({ refreshToken, onHandsSaved, arrival: currentArrival })}
+      {holdForRedirect || screenPending ? null : screenLocked && screenFeature ? (
+        <ProLock feature={screenFeature} />
+      ) : (
+        children({ refreshToken, onHandsSaved, arrival: currentArrival })
+      )}
     </AppShell>
   );
 }
