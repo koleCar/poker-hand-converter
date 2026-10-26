@@ -237,6 +237,19 @@ the first to show), the shown-hand guard (`RN_GUARD`) and a fidelity line
 candidate. Console only. `docs/ANALYSIS-PLAN.md` §10 2026-10-20 (bets and
 the initiative).
 
+**Calling width against raisers (2026-10-26, nothing shipped).**
+`FLOPLIB_HANDS=... npm run floplib:caller-width` scores the same 857 river
+showdowns on the shipped ranges and narrowing, by preflop role (opener,
+isolator or 3-bettor, 4-bettor, the callers of an open, an isolation, a
+3-bet or a 4-bet, limpers) and pot type. Candidates (`CW_CANDS='[...]'` or a
+JSON file) widen a role's preflop range (`k` times its width in its own
+order, or `m` of any two cards) or raise its postflop likelihoods per action
+kind to a power; it prints mucks by role and pot, the held-out choice (five
+folds by hand and by the first to show, and a half split by hand and by
+player in both directions) and the shown-hand guard (`CW_GUARD`). About
+eleven seconds a candidate. Console only. `docs/ANALYSIS-PLAN.md` §10
+2026-10-26 (calling width against raisers).
+
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity

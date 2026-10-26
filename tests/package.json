@@ -30,6 +30,7 @@
     "floplib:checked-ranges": "vitest run --config scripts/flop-library/vitest.config.ts checkedRanges",
     "floplib:preflop-width": "vitest run --config scripts/flop-library/vitest.config.ts preflopWidth",
     "floplib:raiser-narrowing": "vitest run --config scripts/flop-library/vitest.config.ts raiserNarrowing",
+    "floplib:caller-width": "vitest run --config scripts/flop-library/vitest.config.ts callerWidth",
     "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets",
     "ranges:extract": "vitest run --config scripts/caller-ranges/vitest.config.ts extract",
     "ranges:measure": "vitest run --config scripts/caller-ranges/vitest.config.ts measure",
