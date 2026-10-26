@@ -16,6 +16,7 @@ import { converterHr } from "./ns/converter.hr";
 import { courseHr } from "./ns/course.hr";
 import { desktopHr } from "./ns/desktop.hr";
 import { learnHr } from "./ns/learn.hr";
+import { legalHr } from "./ns/legal.hr";
 import { manualHr } from "./ns/manual.hr";
 import { planHr } from "./ns/plan.hr";
 import { planNoticeHr } from "./ns/planNotice.hr";
@@ -33,6 +34,7 @@ export const hr: Dict = {
   stats: statsHr,
   analysis: analysisHr,
   learn: learnHr,
+  legal: legalHr,
   course: courseHr,
   replayer: replayerHr,
   converter: converterHr,

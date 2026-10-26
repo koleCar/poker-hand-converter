@@ -150,6 +150,10 @@ export const paths = {
   saved: () => "/saved",
   mod: () => "/mod",
   takedown: () => "/takedown",
+  /** The terms of use (R6.5, `docs/legal/TERMS*.md`). Top-level: `terms` is a reserved username. */
+  terms: () => "/terms",
+  /** The privacy policy (R6.5, `docs/legal/PRIVACY*.md`). Top-level: `privacy` is a reserved username. */
+  privacy: () => "/privacy",
   search: (query?: string) => (query ? `/search?q=${encodeURIComponent(query)}` : "/search"),
   /** A published hand. Public, indexable — unlike `/h/:slug`. */
   publishedHand: (publicId: string) => `/p/${encodeURIComponent(publicId)}`,

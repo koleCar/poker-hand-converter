@@ -298,7 +298,7 @@ your own row, because a self-select policy would hand an account its own
 | `user_…` cannot be chosen | `username_shape_problem()` |
 | Once per 30 days; a capitalisation-only change is free; the provisional name does not count | `set_username()` |
 | Old name reserved **for the same account** for a year; `/u/<old>` redirects for that year; the owner can take it back | `username_reservations` + `set_username()` + `resolve_username()` |
-| Route segments and staff-sounding names reserved for nobody | seeded into `username_reservations` — **a new top-level route belongs in that seed** |
+| Route segments and staff-sounding names reserved for nobody | seeded into `username_reservations` — **a new top-level route belongs in that seed** (later routes in their own migrations, e.g. `terms` and `privacy`: `20271006110000_legal_routes.sql`, R6.5) |
 | Slurs, matched after folding `_` and `0 1 3 4 5 7` → `o i e a s t`; short terms that are innocent fragments match `exact` only | `username_blocked_terms` — data, extended by the service role |
 | A deleted account's name is reserved for nobody for a year | `profiles_reserve_on_delete` trigger |
 

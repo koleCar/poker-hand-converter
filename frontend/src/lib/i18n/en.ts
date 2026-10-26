@@ -38,6 +38,7 @@ import { converterEn } from "./ns/converter.en";
 import { courseEn } from "./ns/course.en";
 import { desktopEn } from "./ns/desktop.en";
 import { learnEn } from "./ns/learn.en";
+import { legalEn } from "./ns/legal.en";
 import { manualEn } from "./ns/manual.en";
 import { planEn } from "./ns/plan.en";
 import { planNoticeEn } from "./ns/planNotice.en";
@@ -49,6 +50,7 @@ export const en = {
   stats: statsEn,
   analysis: analysisEn,
   learn: learnEn,
+  legal: legalEn,
   course: courseEn,
   replayer: replayerEn,
   converter: converterEn,
