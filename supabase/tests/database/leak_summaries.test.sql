@@ -1,4 +1,7 @@
--- pgTAP: the leak finder's top three (R5.2) -- `20270728090000_leak_summaries.sql`.
+-- pgTAP: the leak finder's top three (R5.2) -- `20270728090000_leak_summaries.sql`;
+-- since `20270825090000_analysis_screen_summaries.sql` the leak rows hold
+-- every decision and the sums are all-time totals and trend days (that
+-- migration's own checks: `analysis_screen_summaries`).
 --
 -- The leak sums are kept by triggers on `decision_analysis` and read by
 -- `analysis_top_leaks` and `analysis_leak_examples`. What has to hold:
@@ -125,21 +128,21 @@ insert into public.hands (id, owner_id, hand_key, phf, standard_text, site, hero
 select ok(
   (select bool_and(c.relrowsecurity) and count(*) = 3 from pg_class c
    where c.relnamespace = 'public'::regnamespace
-     and c.relname in ('analysis_leak_rows', 'analysis_leak_days', 'analysis_leak_day_hands')),
-  'the three leak tables exist with row level security');
+     and c.relname in ('analysis_leak_rows', 'analysis_leak_totals', 'analysis_trend_days')),
+  'the leak tables (rows, totals, trend days) exist with row level security');
 select is(
   (select count(*)::int from information_schema.role_table_grants
-   where table_schema = 'public' and table_name in ('analysis_leak_rows', 'analysis_leak_days', 'analysis_leak_day_hands')
+   where table_schema = 'public' and table_name in ('analysis_leak_rows', 'analysis_leak_totals', 'analysis_trend_days')
      and grantee in ('anon', 'authenticated') and privilege_type <> 'SELECT'),
   0, 'no client write grant on them');
 select is(
   (select count(*)::int from information_schema.role_table_grants
-   where table_schema = 'public' and table_name in ('analysis_leak_rows', 'analysis_leak_days', 'analysis_leak_day_hands')
+   where table_schema = 'public' and table_name in ('analysis_leak_rows', 'analysis_leak_totals', 'analysis_trend_days')
      and grantee = 'anon'),
   0, '... and nothing at all for anon');
 select is(
   (select count(*)::int from pg_policies
-   where schemaname = 'public' and tablename in ('analysis_leak_rows', 'analysis_leak_days', 'analysis_leak_day_hands')
+   where schemaname = 'public' and tablename in ('analysis_leak_rows', 'analysis_leak_totals', 'analysis_trend_days')
      and cmd = 'SELECT' and qual like '%auth.uid()%'),
   3, 'each is readable by its owner only');
 select ok(
@@ -239,9 +242,10 @@ select is((public.save_hand_analysis(jsonb_build_array(
     pg_temp.dec(0, 13, 'river', 'bet', 'pfr-oop-first', 'solver', 'inaccurate', 0.5, 'check', '{"position":"CO"}')))
 )) ->> 'decisions')::int, 8, 'A''s six hands are saved through save_hand_analysis (8 decisions, 7 graded)');
 
-select is((select count(*)::int from public.analysis_leak_rows), 7,
-  'the insert trigger made one leak row per graded decision');
-select is((select sum(hands)::int from public.analysis_leak_day_hands), 6, '... and counted six graded hands');
+select is((select count(*)::int || '/' || count(grade)::int from public.analysis_leak_rows), '8/7',
+  'the insert trigger made one leak row per decision (7 of them graded; every decision since 20270825090000)');
+select is((select sum(graded_hands)::int from public.analysis_overview_keys where kind = 'all'), 6,
+  '... and counted six graded hands');
 
 -- ------------------------------------------------- equal to the finder --
 
@@ -353,8 +357,8 @@ select pg_temp.act_as('00000000-0000-0000-0000-0000000b52a1');
 select is((public.prune_hand_analysis('analysis/3') ->> 'deleted')::int, 1, 'A prunes the other version');
 reset role;
 select is((select count(*)::int from public.analysis_leak_rows where analysis_version = 'analysis/2')
-        + (select count(*)::int from public.analysis_leak_days where analysis_version = 'analysis/2')
-        + (select count(*)::int from public.analysis_leak_day_hands where analysis_version = 'analysis/2'),
+        + (select count(*)::int from public.analysis_leak_totals where analysis_version = 'analysis/2')
+        + (select count(*)::int from public.analysis_trend_days where analysis_version = 'analysis/2'),
   0, '... and its leak rows and sums go with it');
 
 -- A hand deleted: its decisions cascade away after it, the leak rows still know their day.
@@ -369,21 +373,21 @@ select is((public.analysis_top_leaks('{"analysisVersion":"analysis/3"}', 'all') 
 
 -- The rebuild recounts the same.
 reset role;
-create temp table before_days as select * from public.analysis_leak_days;
-create temp table before_hands as select * from public.analysis_leak_day_hands;
+create temp table before_days as select * from public.analysis_leak_totals;
+create temp table before_hands as select * from public.analysis_trend_days;
 select public.analysis_leak_summaries_rebuild('00000000-0000-0000-0000-0000000b52a1');
 select ok(
-  not exists (select * from before_days except select * from public.analysis_leak_days)
-  and not exists (select * from public.analysis_leak_days except select * from before_days)
-  and not exists (select * from before_hands except select * from public.analysis_leak_day_hands)
-  and not exists (select * from public.analysis_leak_day_hands except select * from before_hands),
+  not exists (select * from before_days except select * from public.analysis_leak_totals)
+  and not exists (select * from public.analysis_leak_totals except select * from before_days)
+  and not exists (select * from before_hands except select * from public.analysis_trend_days)
+  and not exists (select * from public.analysis_trend_days except select * from before_hands),
   'the rebuild recounts exactly what the triggers kept');
 
 -- An account deleted takes its sums with it.
 delete from auth.users where id = '00000000-0000-0000-0000-0000000b52b1';
 select is((select count(*)::int from public.analysis_leak_rows where owner_id = '00000000-0000-0000-0000-0000000b52b1')
-        + (select count(*)::int from public.analysis_leak_days where owner_id = '00000000-0000-0000-0000-0000000b52b1')
-        + (select count(*)::int from public.analysis_leak_day_hands where owner_id = '00000000-0000-0000-0000-0000000b52b1'),
+        + (select count(*)::int from public.analysis_leak_totals where owner_id = '00000000-0000-0000-0000-0000000b52b1')
+        + (select count(*)::int from public.analysis_trend_days where owner_id = '00000000-0000-0000-0000-0000000b52b1'),
   0, 'a deleted account leaves no leak rows or sums');
 
 select * from finish();

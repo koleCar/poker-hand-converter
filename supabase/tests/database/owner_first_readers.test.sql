@@ -214,8 +214,16 @@ analyze public.library_hero_counts;
 analyze public.hand_analysis;
 analyze public.decision_analysis;
 analyze public.analysis_leak_rows;
-analyze public.analysis_leak_days;
-analyze public.analysis_leak_day_hands;
+analyze public.analysis_leak_totals;
+analyze public.analysis_trend_days;
+analyze public.analysis_hand_rows;
+analyze public.analysis_month_hands;
+analyze public.analysis_overview_hands;
+analyze public.analysis_overview_decisions;
+analyze public.analysis_overview_flags;
+analyze public.analysis_overview_keys;
+analyze public.analysis_node_totals;
+analyze public.analysis_graded_sites;
 analyze public.drill_items;
 analyze public.trainer_results;
 
@@ -270,6 +278,15 @@ insert into readers values
   ('public.drill_queue(text, text[], boolean, integer)'),
   ('public.drill_summary(text, timestamptz)'),
   ('public.drill_due_by_spot(text, timestamptz)'),
+  -- 20270825090000: the previous bodies, kept for the filters the sums do not hold
+  ('public.analysis_overview_scan(jsonb)'),
+  ('public.analysis_breakdown_scan(jsonb, text)'),
+  ('public.analysis_node_actions_scan(jsonb)'),
+  ('public.analysis_node_hands_scan(jsonb, text[], text, boolean, text, integer, integer)'),
+  ('public.analysis_leaks_scan(jsonb)'),
+  ('public.analysis_leak_hands_scan(jsonb, text[], boolean, text, integer, integer)'),
+  ('public.analysis_trend_scan(jsonb, text, text, integer)'),
+  ('public.hands_needing_analysis_recent_scan(text, timestamptz, uuid, integer)'),
   ('public.trainer_summary(integer)'),
   ('public.study_plan(date, timestamptz)'),
   ('public.get_hand(uuid)'),
@@ -313,25 +330,29 @@ select is(
 -- Tuples returned by sequential scans of the owner tables plus index entries
 -- returned by their indexes, in this transaction so far.
 
+create temp table owner_tables (relname text primary key);
+insert into owner_tables values
+  ('hands'), ('hand_stats'), ('hand_stats_ev'), ('hero_rollups'), ('hero_report_rows'), ('player_stats'),
+  ('player_notes'), ('unparsed_hands'), ('library_hand_counts'), ('library_hero_counts'), ('hand_analysis'),
+  ('decision_analysis'), ('analysis_leak_rows'), ('drill_items'), ('trainer_results'), ('study_plans'),
+  ('study_tasks'), ('notifications'), ('saved_posts'), ('thread_subscriptions'),
+  -- 20270825090000's summaries (R5.2's daily sums replaced)
+  ('analysis_leak_totals'), ('analysis_leak_stake_totals'), ('analysis_trend_days'), ('analysis_hand_rows'), ('analysis_month_hands'),
+  ('analysis_overview_hands'), ('analysis_overview_decisions'), ('analysis_overview_flags'),
+  ('analysis_overview_keys'), ('analysis_node_totals'), ('analysis_graded_sites');
+grant select on owner_tables to authenticated;
+
 create function pg_temp.tuples_read() returns bigint language sql as $$
   select coalesce(sum(pg_stat_get_xact_tuples_returned(c.oid)), 0)::bigint
   from pg_class c
   where c.oid in (
     select t.oid from pg_class t
     where t.relnamespace = 'public'::regnamespace
-      and t.relname in ('hands', 'hand_stats', 'hand_stats_ev', 'hero_rollups', 'hero_report_rows',
-                        'player_stats', 'player_notes', 'unparsed_hands', 'library_hand_counts',
-                        'library_hero_counts', 'hand_analysis', 'decision_analysis', 'analysis_leak_rows',
-                        'analysis_leak_days', 'analysis_leak_day_hands', 'drill_items', 'trainer_results',
-                        'study_plans', 'study_tasks', 'notifications', 'saved_posts', 'thread_subscriptions')
+      and t.relname in (select relname from owner_tables)
     union
     select i.indexrelid from pg_index i join pg_class t on t.oid = i.indrelid
     where t.relnamespace = 'public'::regnamespace
-      and t.relname in ('hands', 'hand_stats', 'hand_stats_ev', 'hero_rollups', 'hero_report_rows',
-                        'player_stats', 'player_notes', 'unparsed_hands', 'library_hand_counts',
-                        'library_hero_counts', 'hand_analysis', 'decision_analysis', 'analysis_leak_rows',
-                        'analysis_leak_days', 'analysis_leak_day_hands', 'drill_items', 'trainer_results',
-                        'study_plans', 'study_tasks', 'notifications', 'saved_posts', 'thread_subscriptions'));
+      and t.relname in (select relname from owner_tables));
 $$;
 -- What one call reads (the second call: the first warms nothing that
 -- matters here, but a reader's plan is the steady state's).
@@ -401,6 +422,14 @@ insert into small_reads values
   ('drill_queue',                  pg_temp.reads($q$select public.drill_queue('analysis/7', null, false, 50)$q$)),
   ('drill_summary',                pg_temp.reads($q$select public.drill_summary('analysis/7', null)$q$)),
   ('drill_due_by_spot',            pg_temp.reads($q$select public.drill_due_by_spot('analysis/7', null)$q$)),
+  -- 20270825090000's other paths: the leak rows, the hand rows, the scans.
+  ('analysis_leaks range',         pg_temp.reads($q$select public.analysis_leaks('{"analysisVersion":"analysis/7","from":"2026-01-01T00:00:00Z","site":"pokerstars"}')$q$)),
+  ('analysis_trend week',          pg_temp.reads($q$select public.analysis_trend('{"analysisVersion":"analysis/7"}', 'week', 'street', 30)$q$)),
+  ('analysis_trend filtered',      pg_temp.reads($q$select public.analysis_trend('{"analysisVersion":"analysis/7","position":"BTN"}', 'month', 'street', 30)$q$)),
+  ('analysis_node_actions seat',   pg_temp.reads($q$select public.analysis_node_actions('{"analysisVersion":"analysis/7","position":"BTN"}')$q$)),
+  ('analysis_hands flag',          pg_temp.reads($q$select public.analysis_hands('{"analysisVersion":"analysis/7","flag":"overbet","street":"flop"}', 'ev_loss', 25, 0)$q$)),
+  ('analysis_overview scan',       pg_temp.reads($q$select public.analysis_overview('{"analysisVersion":"analysis/7","street":"flop"}')$q$)),
+  ('analysis_leaks scan',          pg_temp.reads($q$select public.analysis_leaks('{"analysisVersion":"analysis/7","grade":"blunder"}')$q$)),
   ('trainer_summary',              pg_temp.reads($q$select public.trainer_summary(30)$q$)),
   ('study_plan',                   pg_temp.reads($q$select public.study_plan(public.study_week(), null)$q$)),
   ('get_hand',                     pg_temp.reads($q$select public.get_hand((select id from public.hands where owner_id = auth.uid() order by id limit 1))$q$)),
