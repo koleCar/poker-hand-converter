@@ -50,7 +50,8 @@ nice -n 10 npm run floplib -- --out ~/Projects/rail-floplib-out --set nlhe-cash-
 
 Nothing reads them until a set's manifest is uploaded (`upload.sh <out>
 nlhe-cash-hu-100bb`); the analysis already maps a heads-up hand to its line
-(`chunkFor`).
+(`chunkFor`). The 100bb set is uploaded and live since `analysis/36`; the
+150bb set is not yet.
 
 **Resumable.** Each solve runs in its own process and writes its chunk and a
 stats file (`<flop>.json`: iterations, exploitability, time, memory)
@@ -76,8 +77,8 @@ copy the same ten chunks from a new full run (or re-solve them with
 `--lines btn-bb,btn-bb-3bet --flops Ts7h4d,AsKh7d,Qs8s4h,Ks6s3s,KhKs9d`).
 
 **Serving.** The full 6-max 100bb run (1,200 chunks, 86 MB), the 9-max
-100bb run (1,300 chunks, 92 MB) and the 6-max 150bb run (1,200 chunks,
-81 MB) are in the public, read-only Storage bucket `flop-library` (migration
+100bb run (1,300 chunks, 92 MB), the 6-max 150bb run (1,200 chunks,
+81 MB) and the heads-up 100bb run (500 chunks, 43 MB) are in the public, read-only Storage bucket `flop-library` (migration
 `20270331090000_flop_library_bucket.sql`: no client policy, so nobody but
 the service role can list or write). The analysis worker fetches
 `<supabase>/storage/v1/object/public/flop-library/<set>/<tree>/manifest.json`

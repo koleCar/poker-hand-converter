@@ -268,8 +268,14 @@ import type { Position, Street } from "../phf/types";
  *               `tournament-*` reason (they were all `tournament` before).
  *               Cash hands are untouched: the same rows as analysis/34
  *               (ANALYSIS-PLAN §3.7, §10 2026-10-26).
+ *   analysis/36 The heads-up 100bb flop library is live: the five heads-up
+ *               lines × 100 flops of `nlhe-cash-hu-100bb` (`FLOP_LINES_HU`)
+ *               in the `flop-library` bucket, so flops of heads-up tables
+ *               placed on that set are graded from its solves like the
+ *               other sets' (ANALYSIS-PLAN §10 2026-10-26, the heads-up
+ *               100bb flop library).
  */
-export const ANALYSIS_VERSION = "analysis/35" as const;
+export const ANALYSIS_VERSION = "analysis/36" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
