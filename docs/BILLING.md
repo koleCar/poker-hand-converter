@@ -319,6 +319,10 @@ logs (Dashboard -> Edge Functions -> Logs) show the event id, type and outcome
    (`billing_settings.early_user_cutoff` + `billing_mark_early_users()`),
    `plan_limits`, Pro by hand where wanted, and last **enforcement on**
    (`update public.billing_settings set enforcement_enabled = true;`).
+   Before that last step, run R6.4's launch check (`docs/RAIL-PLAN.md`
+   R6.4 *As built*, "Launch checklist addition"): the desktop app signed
+   out, on Free and on Pro (online and offline) against a test project with
+   enforcement on, and the web's converter at the Free cap - see section 12.
 
 Buying Pro while enforcement is still off is allowed and recorded (the
 subscription is real; everything is open to everyone anyway).
@@ -345,3 +349,26 @@ the account then**. The Stripe customer and its invoices are kept (tax
 records); deleting the customer is your decision. After deletion, the log rows
 lose their owner (`owner_id` set null); later events for that customer are
 `unknown_customer`.
+
+---
+
+## 12. What the plan changes in the app and on the web (R6.4)
+
+Nothing until enforcement is on. After that (`docs/RAIL-PLAN.md` R6.4
+*As built*):
+
+- **The desktop app** reads `my_entitlements()` when signed in (at start, on
+  sign-in, every 4 hours, on sync) and keeps the answer for
+  `billing_settings.offline_grace_days` (14) offline; signed out, it asks the
+  public `billing_enforced()` (the switch only). Without an account, or on
+  Free, the HUD does not start (a running one is never stopped mid-session),
+  the analysis and the full reports are locked, and sync waits ("Upgrade to
+  Pro" opens `<web>/settings#plan`). Import, the local library (never
+  capped), the replayer and basic statistics stay. Changing
+  `offline_grace_days` reaches each app at its next check.
+- **The web** shows one upgrade prompt for any refused Pro call (HTTP 402)
+  and, in the converter, notices near and at the Free cap; a bulk upload
+  past the cap saves every hand that fits and then pauses until the account
+  upgrades.
+- After a purchase, the app's Pro arrives with its next check (or "Check
+  again" in Settings -> Account -> Plan).

@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { ReportsScreen, isTab, type Tab } from "@rail/ui/reports/ReportsScreen";
 import styles from "@rail/ui/reports/Reports.module.css";
 
+import { ProLockView } from "../components/ProLock";
 import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
@@ -19,6 +20,7 @@ import { hiddenDuringPlay } from "../lib/duringPlay";
 import { inApp } from "../lib/ipc";
 import { storeReportSource } from "../lib/reportSource";
 import { replaceParam, useRouteParam } from "../lib/router";
+import { useEntitlements } from "../lib/useEntitlements";
 import { useStatDefinitions } from "../lib/useStatDefinitions";
 import { useTablesOpen } from "../lib/useTablesOpen";
 import { onFilterRequested, takeRequestedFilter, type FilterState } from "./hands/filter";
@@ -57,6 +59,21 @@ export function Reports() {
   const definitions = useStatDefinitions();
   const rebuild = useRecompute();
   const tablesOpen = useTablesOpen();
+  // (R6.4) The breakdowns by situation are full reports (Pro); the rest of
+  // the screen is the basic statistics, free on every plan.
+  const plan = useEntitlements();
+  const situationsLock =
+    plan.status !== null && plan.locked("reportsFull") ? (
+      <ProLockView
+        feature="reportsFull"
+        status={plan.status}
+        onSignIn={plan.signIn}
+        onUpgrade={plan.upgrade}
+        onCheck={plan.checkNow}
+        checking={plan.checking}
+        compact
+      />
+    ) : undefined;
 
   if (!inApp) {
     return (
@@ -80,6 +97,7 @@ export function Reports() {
       emptyText={r.empty}
       renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
       hideHandChart={hiddenDuringPlay("handChart", tablesOpen)}
+      situationsLock={situationsLock}
     />
   );
 }

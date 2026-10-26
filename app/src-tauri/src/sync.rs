@@ -49,6 +49,13 @@ impl SyncState {
         }
     }
 
+    /// (R6.4) The plan's word on desktop sync (`crate::entitlements`).
+    pub fn set_plan_allows(&self, allows: bool) {
+        if let Some(worker) = &self.worker {
+            worker.set_plan_allows(allows);
+        }
+    }
+
     /// Stop the worker (on exit): it lets go of the store's writer at once.
     pub fn stop(&self) {
         if let Some(worker) = &self.worker {
@@ -147,6 +154,7 @@ fn spawn_refresher<R: Runtime>(app: &AppHandle<R>) {
     let spawned = std::thread::Builder::new()
         .name("rail-sync-status".to_owned())
         .spawn(move || {
+            let mut held_by_plan = false;
             loop {
                 let Some(state) = app.try_state::<SyncState>() else {
                     return;
@@ -156,6 +164,17 @@ fn spawn_refresher<R: Runtime>(app: &AppHandle<R>) {
                     if let Err(error) = app.emit(CHANGED_EVENT, ()) {
                         log::debug!("{CHANGED_EVENT}: {error}");
                     }
+                    // (R6.4) Sync just became held by the plan (the server
+                    // refused, or the last check said so): look at the plan
+                    // again now, so the screens say why at once.
+                    let held = matches!(
+                        state.status().map(|s| s.phase),
+                        Some(SyncPhase::PlanRequired { .. })
+                    );
+                    if held && !held_by_plan {
+                        crate::entitlements::check_soon(&app);
+                    }
+                    held_by_plan = held;
                 }
                 std::thread::sleep(Duration::from_secs(1));
             }
@@ -182,6 +201,7 @@ pub fn tray_line(status: Option<&SyncStatus>) -> String {
         SyncPhase::Offline { .. } => (text.sync_offline)(status.outbox),
         SyncPhase::RateLimited { .. } => text.sync_rate_limited.to_owned(),
         SyncPhase::Failed { .. } => text.sync_failed.to_owned(),
+        SyncPhase::PlanRequired { .. } => text.sync_plan.to_owned(),
     }
 }
 
@@ -209,8 +229,13 @@ pub fn sync_status(state: State<'_, SyncState>) -> Option<SyncStatus> {
 
 /// "Sync now": retry what waits and pull, at once.
 #[tauri::command]
-pub fn sync_now(state: State<'_, SyncState>) -> Result<SyncStatus, String> {
+pub fn sync_now<R: Runtime>(
+    app: AppHandle<R>,
+    state: State<'_, SyncState>,
+) -> Result<SyncStatus, String> {
     let worker = worker(&state)?;
+    // (R6.4) The plan is looked at again too.
+    crate::entitlements::check_soon(&app);
     worker.sync_now();
     Ok(worker.status())
 }

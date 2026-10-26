@@ -9,6 +9,7 @@
  * `hands.site` stores it.
  */
 import { settingsProblem, type TournamentSettings } from "../analysis/tournament";
+import { reportPlanRefusal } from "../entitlements/planRefusal";
 import { requireDb } from "./client";
 
 type Row = Record<string, unknown>;
@@ -68,10 +69,18 @@ export async function saveTournamentSettings(key: string, settings: TournamentSe
   // Update, else insert: an upsert would run the guard's insert half (the count, the rate) for an update too.
   const table = () => requireDb().from("tournament_settings");
   const updated = await table().update({ settings: stored }).eq("site", parts.site).eq("tournament_id", parts.tournamentId).select("site");
-  if (updated.error) throw new Error(updated.error.message);
+  // (R6.4) Tournament settings are part of the analysis (Pro): a refusal
+  // reaches the upgrade prompt too.
+  if (updated.error) {
+    reportPlanRefusal(updated.error);
+    throw new Error(updated.error.message);
+  }
   if ((updated.data ?? []).length > 0) return;
   const { error } = await table().insert({ site: parts.site, tournament_id: parts.tournamentId, settings: stored });
-  if (error) throw new Error(error.message);
+  if (error) {
+    reportPlanRefusal(error);
+    throw new Error(error.message);
+  }
 }
 
 /** Forgets one tournament's settings (its hands are analysed again on the assumptions). */

@@ -170,6 +170,9 @@ function SyncLine() {
     case "failed":
       text = d.problem;
       break;
+    case "planRequired":
+      text = d.plan;
+      break;
   }
   return (
     <p className={styles.account}>
@@ -196,15 +199,17 @@ function HudLine() {
   let text =
     state === "off"
       ? d.off
-      : state === "starting"
-        ? d.starting
-        : status.tables.length === 0
-          ? permissionNeeded(status) !== null
-            ? d.permission
-            : noSupportedClient(status)
-              ? d.noClient
-              : d.none
-          : d.tables(status.tables.length);
+      : state === "locked"
+        ? d.locked
+        : state === "starting"
+          ? d.starting
+          : status.tables.length === 0
+            ? permissionNeeded(status) !== null
+              ? d.permission
+              : noSupportedClient(status)
+                ? d.noClient
+                : d.none
+            : d.tables(status.tables.length);
   if (status.refused.length > 0) {
     text = `${text} · ${d.refused(status.refused.length, rooms.join(", "))}`;
   }

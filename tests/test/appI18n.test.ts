@@ -53,6 +53,8 @@ describe("dictionaries", () => {
       "Street", "Fold", "Check", "Call", "Bet", "Raise",
       // R5.5's push/fold words: "push" and "sit-and-go" are Croatian poker too.
       "Push", "Sit-and-go",
+      // R6.4: the plan's name, and "plan" is Croatian too.
+      "Plan", "Rail Pro.",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

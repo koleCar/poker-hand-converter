@@ -55,6 +55,7 @@ import { ServiceWorker } from "../components/shell/ServiceWorker";
 import { AuthProvider } from "../lib/auth/AuthProvider";
 import { ProfileProvider } from "../lib/profile/ProfileProvider";
 import { EntitlementsProvider } from "../lib/entitlements/EntitlementsProvider";
+import { PlanRefusalPrompt } from "../components/plan/PlanRefusalPrompt";
 import { toAuthUser } from "../lib/auth/user";
 import { I18nProvider } from "../lib/i18n/client";
 import { getDict, getLocale } from "../lib/i18n/server";
@@ -166,8 +167,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 sign-in untouched — see ProfileProvider. */}
             <ProfileProvider>
               {/* The plan, read once per account (R6.2): what the screens
-                  lock while paid plans are enforced. */}
-              <EntitlementsProvider>{children}</EntitlementsProvider>
+                  lock while paid plans are enforced; (R6.4) and the one
+                  prompt every plan refusal (HTTP 402) reaches. */}
+              <EntitlementsProvider>
+                {children}
+                <PlanRefusalPrompt />
+              </EntitlementsProvider>
             </ProfileProvider>
           </AuthProvider>
           </I18nProvider>

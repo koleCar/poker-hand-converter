@@ -294,6 +294,9 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
           </div>
         )}
         afterSummary={(report) => <Tiles report={report} />}
+        // (R6.4) The situation tabs say why instead of an error (the full
+        // lock with the upgrade is the footer's).
+        situationsLock={fullLocked ? <p className="muted">{dict.plan.lock.body.reports_full}</p> : undefined}
         footer={(query) => {
           if (fullLocked) {
             return <ProLock feature="reports_full" />;

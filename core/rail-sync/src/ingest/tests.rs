@@ -212,6 +212,43 @@ fn errors_map_to_what_the_worker_does_next() {
             code: "unknown".into()
         }
     );
+    // (R6.4) R6.2's refusal: PT402 / HTTP 402, the feature from the hint.
+    let plan = |hint: &str| {
+        format!(
+            r#"{{"code":"PT402","message":"This is a Pro feature.","details":null,"hint":{hint}}}"#
+        )
+    };
+    assert_eq!(
+        error_of(402, plan(r#""desktop_sync""#).as_bytes()),
+        IngestError::PlanRequired {
+            feature: "desktop_sync".into()
+        }
+    );
+    assert_eq!(
+        error_of(400, plan(r#""hand_cap""#).as_bytes()),
+        IngestError::PlanRequired {
+            feature: "hand_cap".into()
+        }
+    );
+    assert_eq!(
+        error_of(402, plan("null").as_bytes()),
+        IngestError::PlanRequired {
+            feature: "unknown".into()
+        }
+    );
+    assert_eq!(
+        error_of(402, plan(r#""<script>""#).as_bytes()),
+        IngestError::PlanRequired {
+            feature: "unknown".into()
+        },
+        "only a plain feature name is kept"
+    );
+    assert_eq!(
+        error_of(402, b""),
+        IngestError::PlanRequired {
+            feature: "unknown".into()
+        }
+    );
     assert!(matches!(error_of(503, b""), IngestError::Transient(_)));
     assert!(matches!(error_of(429, b""), IngestError::Transient(_)));
     assert!(matches!(
@@ -428,4 +465,67 @@ async fn registering_returns_the_source_id() {
         seen.lock().unwrap()[0].0,
         "/rest/v1/rpc/register_hand_source"
     );
+}
+
+// ------------------------------------------------------ the plan (R6.4) --
+
+#[tokio::test]
+async fn the_accounts_entitlements_are_read_with_its_token() {
+    let answer = r#"{"plan":"pro","reason":"subscription","enforced":true,
+        "features":{"library_unlimited":true,"hand_cap":null,"desktop_sync":true,"hud":true,
+                    "reports_full":true,"analysis":true,"learn":true},
+        "usage":{"handsStored":12},"limits":{"freeHandCap":10000},
+        "validUntil":"2027-01-01T00:00:00+00:00","graceUntil":null,"offlineGraceDays":14,
+        "checkedAt":"2026-10-26T10:00:00+00:00"}"#;
+    let (url, seen) = server(vec![(401, UNAUTHORIZED.into()), (200, answer.into())]).await;
+    let account = FakeAccount::new(Some("token-1"), Ok(()));
+    let got = client(&url).my_entitlements_as(&account).await.unwrap();
+    assert_eq!(got.plan, crate::entitlements::Plan::Pro);
+    assert!(got.enforced && got.features.hud);
+    assert_eq!(got.offline_grace_days, 14);
+    let seen = seen.lock().unwrap().clone();
+    assert_eq!(
+        seen[0],
+        ("/rest/v1/rpc/my_entitlements".into(), "token-1".into())
+    );
+    assert_eq!(seen[1].1, "token-2", "refreshed once after the 401");
+}
+
+#[tokio::test]
+async fn the_public_flag_is_read_with_the_anon_key_only() {
+    let (url, seen) = server(vec![
+        (200, "true".into()),
+        (200, "false".into()),
+        (404, r#"{"code":"PGRST202"}"#.into()),
+    ])
+    .await;
+    let ingest = client(&url);
+    assert_eq!(ingest.billing_enforced().await, Ok(true));
+    assert_eq!(ingest.billing_enforced().await, Ok(false));
+    // A server without the function (production before R6.4): not an
+    // answer - the app keeps "unknown".
+    assert!(matches!(
+        ingest.billing_enforced().await,
+        Err(IngestError::Refused { status: 404, .. })
+    ));
+    let seen = seen.lock().unwrap().clone();
+    assert!(
+        seen.iter()
+            .all(|(path, token)| path == "/rest/v1/rpc/billing_enforced" && token == "anon-key")
+    );
+}
+
+#[tokio::test]
+async fn an_unreadable_answer_is_not_an_answer() {
+    let (url, _) = server(vec![(200, "[]".into()), (200, r#""yes""#.into())]).await;
+    let account = FakeAccount::new(Some("token-1"), Ok(()));
+    let ingest = client(&url);
+    assert!(matches!(
+        ingest.my_entitlements_as(&account).await,
+        Err(IngestError::Transient(_))
+    ));
+    assert!(matches!(
+        ingest.billing_enforced().await,
+        Err(IngestError::Transient(_))
+    ));
 }

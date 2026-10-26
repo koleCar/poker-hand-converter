@@ -50,8 +50,12 @@ pub struct Tray {
     pub sync_offline: fn(u64) -> String,
     pub sync_rate_limited: &'static str,
     pub sync_failed: &'static str,
+    /// (R6.4) The plan does not include sync.
+    pub sync_plan: &'static str,
     /// (R3.10) The HUD line: the HUD process is not running.
     pub hud_off: &'static str,
+    /// (R6.4) The plan does not include the HUD.
+    pub hud_locked: &'static str,
     /// Starting, or starting again.
     pub hud_starting: &'static str,
     /// Running: tables attached, windows refused by compliance mode.
@@ -196,7 +200,9 @@ pub const TRAY_EN: Tray = Tray {
     sync_offline: sync_offline_en,
     sync_rate_limited: "Sync waits: the account's limit for now",
     sync_failed: "Sync problem: see Settings",
+    sync_plan: "Sync needs Rail Pro",
     hud_off: "HUD off",
+    hud_locked: "HUD: needs Rail Pro",
     hud_starting: "HUD starting…",
     hud_tables: hud_tables_en,
     hud_permission: "HUD: needs the Accessibility permission",
@@ -231,7 +237,9 @@ pub const TRAY_HR: Tray = Tray {
     sync_offline: sync_offline_hr,
     sync_rate_limited: "Sinkronizacija čeka: ograničenje računa",
     sync_failed: "Problem sa sinkronizacijom: vidi Postavke",
+    sync_plan: "Sinkronizacija traži Rail Pro",
     hud_off: "HUD isključen",
+    hud_locked: "HUD: traži Rail Pro",
     hud_starting: "HUD se pokreće…",
     hud_tables: hud_tables_hr,
     hud_permission: "HUD: treba dopuštenje Pristupačnost",

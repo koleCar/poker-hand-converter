@@ -18,7 +18,7 @@
  *
  * Moved from the desktop app (R2.7b) into the shared package (R4.5c).
  */
-import { useId, useRef, type KeyboardEvent } from "react";
+import { useId, useRef, type KeyboardEvent, type ReactNode } from "react";
 
 import { FORMAT_ORDER, POSITION_ORDER, POT_TYPE_ORDER, SIZE_ORDER } from "../hands/filter";
 import { stakeLabel } from "../hands/format";
@@ -160,6 +160,8 @@ interface BreakdownProps {
   onTab: (tab: Tab) => void;
   /** Hide the starting hands (the desktop while a poker table is open, A10). */
   hideHandChart?: boolean;
+  /** (R6.4) Shown in the situation tabs instead of their rows (full reports are Pro). */
+  situationsLock?: ReactNode;
 }
 
 export function Breakdown({
@@ -171,6 +173,7 @@ export function Breakdown({
   tab,
   onTab,
   hideHandChart = false,
+  situationsLock,
 }: BreakdownProps) {
   const t = useUiStrings();
   const b = t.reports.breakdown;
@@ -226,7 +229,9 @@ export function Breakdown({
         ))}
       </div>
       <div id={`${panelId}-panel`} role="tabpanel" aria-labelledby={`${panelId}-${tab}`} className={styles.panel}>
-        {hidden ? (
+        {situationsLock !== undefined && situationsLock !== null && needsBreakdowns(tab) ? (
+          situationsLock
+        ) : hidden ? (
           <p className={styles.muted} role="note">
             {b.handClassHidden}
           </p>

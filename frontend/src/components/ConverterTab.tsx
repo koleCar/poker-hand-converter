@@ -44,8 +44,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/auth";
+import { handsLeft } from "../lib/db/entitlements";
+import { useEntitlements } from "../lib/entitlements/context";
 import { isDatabaseConfigured, rebuildStats, recordConversionFailures } from "../lib/db";
 import { currentUserId, requireDb } from "../lib/db/client";
 import { createUploadApi, type UploadClient } from "../lib/db/upload";
@@ -102,6 +105,13 @@ const RETAIN_FAILURES = 2_000;
 
 /** Batches the worker may convert ahead of the save. */
 const WORKER_WINDOW = 4;
+
+/**
+ * (R6.4) "Room for N more hands" shows once the room left under the Free cap
+ * is at most a tenth of the cap, or 500 hands, whichever is more.
+ */
+const CAP_NEAR_SHARE = 0.1;
+const CAP_NEAR_MIN = 500;
 
 interface ConverterTabProps {
   /** Lets the shell refresh its stored-hand counter. Optional; defaults to a no-op. */
@@ -194,9 +204,14 @@ function toSaveState(progress: SaveProgress | null, pausedMessage: string | null
 }
 
 export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
-  const t = useDict().converter.batch;
+  const dict = useDict();
+  const t = dict.converter.batch;
+  const capText = dict.planNotice.converter;
   const locale = INTL_LOCALE[useLocale()];
+  const count = (n: number) => n.toLocaleString(locale);
   const router = useRouter();
+  // (R6.4) The plan's cap, for the notices near and at it.
+  const { entitlements } = useEntitlements();
 
   // Results live in a map mutated as messages arrive and are published to
   // React at most every FLUSH_MS (`publish`): a drop of 30 000 files would
@@ -733,8 +748,31 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         ? t.savePausedSignedOut
         : upload.pauseReason === "day-budget"
           ? t.savePausedDayBudget
-          : t.savePausedOffline
+          : upload.pauseReason === "cap"
+            ? capText.pausedCap(count(upload.cap?.cap ?? entitlements?.features.hand_cap ?? 0))
+            : upload.pauseReason === "plan"
+              ? capText.pausedPlan
+              : t.savePausedOffline
       : null;
+  // (R6.4) Near or at the Free cap (only while enforcement is on and the
+  // plan has one): said before the save, with the way to upgrade.
+  const capNotice = (() => {
+    if (upload?.state === "paused" && (upload.pauseReason === "cap" || upload.pauseReason === "plan")) {
+      return null;
+    }
+    const left = handsLeft(entitlements);
+    const cap = entitlements?.features.hand_cap ?? null;
+    if (left === null || cap === null) {
+      return upload?.trimmed ? capText.trimmed : null;
+    }
+    if (left === 0) {
+      return capText.capFull(count(cap));
+    }
+    if (left <= Math.max(CAP_NEAR_MIN, Math.floor(cap * CAP_NEAR_SHARE))) {
+      return capText.capNear(count(left), count(cap));
+    }
+    return upload?.trimmed ? capText.trimmed : null;
+  })();
   const saveState = upload ? toSaveState(upload, pausedMessage) : legacySave;
 
   const saveLine = (() => {
@@ -894,6 +932,13 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
               </button>
             </span>
           </div>
+        ) : null}
+
+        {capNotice ? (
+          <p className="notice notice--warn">
+            {capNotice}{" "}
+            <Link href={paths.upgrade()}>{capText.upgrade}</Link>
+          </p>
         ) : null}
 
         {error ? <p className="notice notice--error">{error}</p> : null}

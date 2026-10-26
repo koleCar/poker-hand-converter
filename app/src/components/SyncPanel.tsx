@@ -4,7 +4,7 @@
  * answer after another account signed in), the hands the server refused
  * per reason, and the controls: Sync now, Pause, the upload limit for a
  * large backlog, and the answer to "upload this computer's hands to the new
- * account?".
+ * account?". (R6.4) Held by the plan: why, and "Upgrade to Pro".
  */
 import { useT } from "../i18n";
 import { ipc, type SyncStatus } from "../lib/ipc";
@@ -95,6 +95,10 @@ export function SyncPanel({
       line = d.failed(phase.message, clock(phase.retryAtMs));
       tone = styles.error;
       break;
+    case "planRequired":
+      line = d.planRequired(sync.outbox);
+      tone = styles.notice;
+      break;
   }
 
   const details: string[] = [];
@@ -154,6 +158,13 @@ export function SyncPanel({
             </button>
           </div>
         </>
+      )}
+      {phase.state === "planRequired" && (
+        <div className={styles.actions}>
+          <button type="button" className={styles.button} onClick={() => void ipc.entitlementsOpenUpgrade()}>
+            {t.plan.upgrade}
+          </button>
+        </div>
       )}
       {phase.state === "declined" && (
         <div className={styles.actions}>

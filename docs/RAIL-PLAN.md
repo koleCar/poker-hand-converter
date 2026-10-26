@@ -10969,6 +10969,116 @@ the launch order, cancelling for an account).
 - Not applied to production (prod checklist: the migration and the four
   functions).
 
+### R6.4 *As built* (2026-10-26)
+
+The app and the web read entitlements; the app keeps Pro offline for the
+grace period. Owner's decision (2026-10-26): **once enforcement is on, the
+app without an account is Free** (import, local library, replayer, basic
+statistics); **the HUD, the analysis and the full reports need signing in
+with a Pro account**; after a successful check Pro holds offline for
+`billing_settings.offline_grace_days` (14) between checks. **Enforcement is
+off, so nothing changes today** - signed in or not, every feature is open
+(tested in Rust, in the window and on the web).
+
+- **The rules** (`rail_sync::entitlements::effective`, pure, tested in every
+  state): (1) is enforcement on? - the newest answer wins, an account's
+  `my_entitlements().enforced` or the public flag; **never told = off**;
+  (2) off -> everything open (`plan: open`); (3) on and signed out -> Free
+  (`signedOut`: "Sign in"); (4) on, signed in, no usable check of this
+  account (none, another account's, or one taken while enforcement was off)
+  -> Free until a check (`notChecked`); (5) a check of this account within
+  `offlineGraceDays` of its fetch -> what it said (`pro`, or `free`:
+  "Upgrade"); past it, or a clock set back more than a day before it -> Free
+  (`graceExpired`: "Reconnect to keep Pro"). A failed check changes nothing.
+- **How a never-signed-in app learns enforcement**: `billing_enforced()`
+  (migration `20270929090000_billing_enforced.sql`) - a definer returning
+  the switch alone, executable by `anon` (no account, no user data; on the
+  pgTAP free list; `billing_enforced.test.sql` 10). The app asks it with the
+  anon key when signed out and online, and keeps the answer. **Offline and
+  never told -> off** (today's behaviour). Trade-off, accepted: a machine
+  kept offline from the day it was installed keeps the local Pro features
+  after launch, in exchange for never locking anyone out of what works
+  today because the network was down at first start; its first look online
+  settles it, and every cloud feature is refused by the server regardless.
+  A server without the function (production before this migration) is
+  "never told" too.
+- **The app's cache** (`app/src-tauri/src/entitlements.rs`): checks at
+  start, on every account change, every 4 h, on "Sync now", when sync is
+  held by the plan and on "Check again"; a failure retries after 15 min (a
+  server without the function: 4 h); the answer is worked out every minute
+  too, so the grace period ends on time offline. Kept in the local store's
+  `kv` (`entitlements.account`, `entitlements.public`) - the SQLite
+  database, not a settings file, and unsigned: it is the user's machine,
+  and **the server is the real gate for everything that reaches the
+  account** (R6.2's `PT402`); the local Pro features (HUD, analysis, full
+  reports) are the app's to hold back.
+- **Gated in the app** (only while the effective plan is Free): **the HUD**
+  - prepared at start but started by the plan's first answer (from the
+  kept check, no network, so a Pro HUD starts offline; at once while
+  enforcement is off, as before); held back it reports `locked` (the HUD
+  screen's lock with Sign in / Check again / Upgrade, Today, the tray "HUD:
+  needs Rail Pro"); **a running HUD is never stopped** - a plan that ends
+  mid-session applies at the next start; a plan that allows it later starts
+  it at once. **The analysis**: the screen is a lock and the background
+  runner's gate answers `plan` (it waits). **Full reports**: the Players
+  screen is a lock, Reports' situation tabs (pot type, stack, starting
+  hands, players, street) show the lock and are never computed; the rest of
+  Reports (summary, every statistic, graph, by position / stake / room /
+  size / format) is basic statistics, free - the web's R6.2 line.
+  **Desktop sync**: the worker holds with `PlanRequired` (no call at all,
+  hands queued and unharmed, no attempt counted) when the check says so, and
+  on a server `PT402` (`IngestError::PlanRequired`, the feature from the
+  hint) for that account until the plan is checked again, "Sync now" or
+  another account; Settings and Today say why with "Upgrade to Pro".
+  **"Upgrade"** opens the web's Plan panel (`<web>/settings#plan`, R6.3's
+  checkout). Settings -> Account -> **Plan**: what the plan allows, until
+  when offline, hands stored against the cap, when last checked. en + hr.
+- **The local library is not capped**: the Free cap applies to the cloud
+  library (the server's), never to the store on the user's disk - import,
+  the local library, the replayer and basic statistics stay whole on Free.
+  Only sync is held.
+- **Web**: every `PT402` reaches **one prompt** (`lib/entitlements/
+  planRefusal.ts`: `rpc()` and the direct writes of own chart sets and
+  tournament settings report it; `PlanRefusalPrompt`, mounted once in the
+  root layout, says why - the feature's sentence or the cap with its number -
+  links to the upgrade and re-reads the entitlements). Callers still get
+  their error. The upgrade link is `paths.upgrade()` (the Plan panel, which
+  opens R6.3's checkout). **The converter at the Free cap**: "room for N more
+  hands" when little is left, "your library is full" at the cap; the bulk
+  saver treats a cap refusal (refused whole by R6.2) by **cutting its calls
+  to the room the refusal reports**, so every hand that fits is saved, then
+  pauses with `cap` (the rest wait in the tab; "Try again" after an
+  upgrade); duplicates cost nothing, so a re-upload past the cap is not
+  refused. Another plan refusal pauses with `plan`. Reports' situation tabs
+  on the web show the reason instead of an error (`situationsLock`, shared
+  with the app).
+- Tests: Rust `rail-sync` entitlements (13: every state - unknown, off, on
+  signed out, Pro fresh / at the edge / expired, the server's grace, Free,
+  another account, a check from before enforcement, newest word wins, clock
+  set back, unreachable server for 14 days), the calls against a scripted
+  server (3), the 402 mapping, the worker held by a 402 and by the check
+  (2); `rail-app`: the HUD held and started by the plan and never stopped
+  while running, the kept answers read back offline, nothing kept = open.
+  Vitest: `appPlan` (10: nothing locked while off or unknown, the locks and
+  their actions in en and hr per reason, Settings' lines, the HUD's
+  `locked`, the analysis waiting, sync held), `sharedReportsScreen` (the
+  situation lock), `planRefusal` (10: the refusal read, the one handler via
+  `rpc()`, the prompt's words in both languages, the bulk save trimmed to
+  the cap, duplicates free, `plan` pause). pgTAP: suite 51 files / 1 842 on
+  a fresh reset (`entitlements` unchanged at 68 with the new name on its
+  free list). Types regenerated.
+- **Launch checklist addition** (before R6.2's step 4): in a test build
+  against a test project with enforcement on, confirm the app (a) signed
+  out: HUD locked, Analysis and Players locks, situation tabs locked,
+  import / library / replayer / basic statistics working; (b) signed in
+  Free: the same, sync held with "Upgrade"; (c) signed in Pro: everything,
+  then offline - Pro holds, and with the clock moved past 14 days the locks
+  say "Reconnect"; (d) enforcement off again: everything open after the next
+  check. On the web: a Free account's converter near and at the cap, the
+  prompt after a refused Pro call.
+- Not applied to production (prod checklist: `20270929090000`, after
+  R6.2's migration).
+
 ---
 
 ## 11. Testing strategy
@@ -11148,3 +11258,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **R6.2 done**: plans and entitlements in the database, **enforcement off** until the owner launches (R6.2 *As built*, with the launch checklist). Migration `20270908090000_entitlements.sql`: `profiles.plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user` (+ since; every existing account and every account until the cutoff), provider ids (written only by the service role's `billing_set_plan`); `billing_settings` (switch off, early-user cutoff, 30 % discount, 7-day payment grace, 14-day offline grace) and `plan_limits` (Free 10 000 hands; Pro unlimited + desktop sync, HUD, full reports, analysis, Learn) as data; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`. 55 functions gated in their bodies from `entitlement_gates`; the cap and desktop rows by a statement trigger on `hands`; own chart sets, tournament settings and HUD layouts by trigger / policy; refusals `PT402` = HTTP 402. Web: Settings -> Plan, Pro badges and locks only while enforced. pgTAP `entitlements` 68 (on R5.5's staging: suite 49 files on a fresh reset, the 48 earlier files unchanged; R5.5's `tournament_settings` writes gated, its pure validator free), Vitest 12. Types regenerated. Not applied to production. |
 | 2026-10-26 | **Windows: an overlay is put back directly above its table after any raise or focus** (R3.5 fix). `windows_tracking` step 5 ("an overlay is below its table", #255; relaxed from 500 ms to 3 s in #224 on a slow-runner guess) has failed **six times since R3.5, always the same way**: the third table (the one the test never raises or focuses) had its overlay at the **bottom of the z-order, directly under the runner's foreground window** (Windows Terminal), while the table sat above it; in two of the six the focused table's overlay had been restacked once, i.e. it too started below its table. Cause: an overlay is shown with `SW_SHOWNOACTIVATE` from a process that is not in the foreground, and Windows places such a window by its own rules (behind the foreground window), not above its owner; it carries an owned window along only when the **owner** moves in the z-order, and the overlay thread restacked only on its table's own `EVENT_SYSTEM_FOREGROUND` - a table never activated after its overlay appeared kept it underneath for good (in real use: a HUD hidden under its table until the user clicks that table). **Fix**: the overlay thread checks an overlay's place (`tracking::stacking`, unit-tested: directly above = nothing that shows between, the table's own owned windows and hidden, cloaked or empty windows not counted; one `GetWindow` when in place) and puts it right after the window above the table (`HWND_TOP` when that window is topmost) **when it is shown**, on its table's events and foreground, and in a **250 ms look** over every shown overlay (a thread timer, only while there are overlays) for an order change no hooked event reports. Each restack is counted and noted with its time since the thread started, reason, before / after and what it was put after (`OverlayInfo::restacks`, stderr: the first twenty, then every hundredth). **Test**: a new step 0 (every overlay directly above its table within 1 s of being shown), step 5 requires *directly* above within 2 s, and a new step 5b slips one table under another table's overlay (a z-order change only, no hooked event) and waits for the look; failures print each misplaced overlay, every restack and the z-order. Cross-target clippy for `x86_64-pc-windows-msvc` passes locally; the Windows steps run only on CI. |
 | 2026-10-26 | **R6.3 done**: Stripe Billing with EU VAT, **test mode first, configured only by secrets** (none set; nothing deployed; unset = "paid plans open soon", nothing breaks). Edge Functions `billing-checkout` (prices from Stripe; Checkout with `automatic_tax`, billing address and tax ids, the early users' coupon, the verified account as reference; 20 sessions an hour; no second subscription), `billing-portal`, `billing-webhook` (Stripe signature over the raw body; the six events; the subscription read back from Stripe; idempotent and out-of-order safe in one transaction) and `billing-cancel` (service role; for R6.5's account deletion, also importable). Stripe over `fetch` with a pinned API version, no SDK; signature check held to a header from the official SDK. Migration `20270915090000_billing_stripe.sql` (service role only: `billing_events`, `profiles.billing_event_at`, `billing_account`, `billing_set_customer`, `billing_owner_of_customer`, `billing_claim`, `billing_apply_subscription`, `billing_events_prune`; route `billing` reserved). Web: monthly / yearly with Stripe's prices and the early-user price, Manage subscription, past due / canceled / ended notices, `/billing/success` and `/billing/cancel`, `en` + `hr`. Owner's guide `docs/BILLING.md`. Deno 73 (+ a local end-to-end run), pgTAP `billing_stripe` 44, Vitest `billing` 17. Types regenerated. Not applied to production. |
+| 2026-10-26 | **R6.4 done**: the app and the web read entitlements, the app keeps Pro offline for the grace period (R6.4 *As built*). **Owner's rule**: with enforcement on, the app without an account is Free; the HUD, the analysis and the full reports need a Pro sign-in; a successful check holds offline for 14 days (`offline_grace_days`). **Enforcement off: nothing changes** (tested). Rules in `rail_sync::entitlements` (newest word on enforcement wins, never told = off; signed out = Free; a check of this account within its grace = its plan; past it = "Reconnect"); the app's cache in the store's `kv`, checked at start, on account changes, every 4 h, on sync; a never-signed-in app asks `billing_enforced()` (migration `20270929090000`, anon, the switch only). Gates: the HUD starts only when allowed and is never stopped while running (`locked` phase), the analysis screen and runner (`plan`), Players and Reports' situation tabs (`situationsLock` in `packages/ui`), sync held on the check and on a server `PT402` (`SyncPhase::PlanRequired`, nothing sent, nothing lost); the local library is **not** capped. Web: one upgrade prompt for every `PT402` (`planRefusal.ts`, `PlanRefusalPrompt`), the converter's notices near / at the Free cap and the bulk save trimmed to the room left, then paused `cap`. Tests: Rust 13 + 3 + 2 + app 3, Vitest `appPlan` 10, `planRefusal` 10, the situation lock; pgTAP 51 files / 1 842 on R6.3's staging (`billing_enforced` 10). Types regenerated. Not applied to production. |

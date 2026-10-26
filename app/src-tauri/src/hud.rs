@@ -61,9 +61,9 @@
 //!   change - stricter only, merged by the HUD itself.
 
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{self, SyncSender, TrySendError};
-use std::sync::{Arc, Mutex, PoisonError};
+use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use rail_hud_ipc::protocol::{
@@ -323,19 +323,41 @@ impl LayoutWrites {
     }
 }
 
+/// Where the supervisor is once it started (R6.4: it may start after the
+/// app did, when the plan allows the HUD); the feeder looks here.
+type SupervisorSlot = Arc<OnceLock<Arc<Supervisor>>>;
+
+/// (R6.4) What starting the HUD needs, kept until the plan allows it.
+struct Pending {
+    config: SupervisorConfig,
+    on_event: Box<dyn Fn(Event) + Send + Sync>,
+}
+
+impl std::fmt::Debug for Pending {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Pending").finish_non_exhaustive()
+    }
+}
+
 /// The HUD, as app state.
 #[derive(Debug)]
 pub struct HudState {
-    supervisor: Option<Arc<Supervisor>>,
-    error: Option<String>,
+    supervisor: SupervisorSlot,
+    /// (R6.4) Not started yet: what it takes. Taken by the first
+    /// [`HudState::apply_plan`] that allows the HUD.
+    pending: Mutex<Option<Pending>>,
+    /// (R6.4) The plan held the start back (enforcement on, no Pro).
+    locked: AtomicBool,
+    error: Mutex<Option<String>>,
     shared: Arc<Shared>,
     feed: HudFeed,
     sync: SyncSlot,
 }
 
 impl HudState {
-    /// Start supervising the HUD (unless switched off or there is no
-    /// store).
+    /// Prepare the HUD (unless switched off or there is no store). It
+    /// starts at the first [`HudState::apply_plan`] that allows it (R6.4):
+    /// at once while enforcement is off, as today.
     pub fn start<R: Runtime>(
         app: &AppHandle<R>,
         store: &StoreState,
@@ -345,8 +367,10 @@ impl HudState {
     ) -> Self {
         let shared = Arc::new(Shared::default());
         let off = |error: String| Self {
-            supervisor: None,
-            error: Some(error),
+            supervisor: SupervisorSlot::default(),
+            pending: Mutex::new(None),
+            locked: AtomicBool::new(false),
+            error: Mutex::new(Some(error)),
             shared: Arc::clone(&shared),
             feed: HudFeed::default(),
             sync: Arc::clone(&sync),
@@ -380,20 +404,62 @@ impl HudState {
             let sync = Arc::clone(&sync);
             move |event: Event| on_event(&app, &shared, &stats, &sync, &layouts, event)
         };
-        let supervisor = match Supervisor::start(config, on_event) {
-            Ok(supervisor) => Arc::new(supervisor),
-            Err(error) => {
-                log::error!("hud: the supervisor did not start: {error}");
-                return off(error.to_string());
-            }
-        };
+        let supervisor = SupervisorSlot::default();
         let feed = start_feeder(&store.path, Arc::clone(&supervisor));
         Self {
-            supervisor: Some(supervisor),
-            error: None,
+            supervisor,
+            pending: Mutex::new(Some(Pending {
+                config,
+                on_event: Box::new(on_event),
+            })),
+            locked: AtomicBool::new(false),
+            error: Mutex::new(None),
             shared,
             feed,
             sync,
+        }
+    }
+
+    fn supervisor(&self) -> Option<&Arc<Supervisor>> {
+        self.supervisor.get()
+    }
+
+    /// (R6.4) The plan's word on the HUD (`crate::entitlements`), on every
+    /// change of it. Allowed: the HUD starts if it has not. Not allowed: a
+    /// HUD not started stays so (the screen shows the lock); **one already
+    /// running is never stopped** - a session at the tables is not cut
+    /// mid-hand; the plan applies from the app's next start.
+    pub fn apply_plan(&self, allowed: bool) {
+        if self.supervisor().is_some() {
+            if !allowed {
+                log::info!("hud: the plan no longer includes the HUD; it stops at the next start");
+            }
+            return;
+        }
+        self.locked.store(!allowed, Ordering::SeqCst);
+        if !allowed {
+            return;
+        }
+        let Some(pending) = self
+            .pending
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take()
+        else {
+            return;
+        };
+        let Pending { config, on_event } = pending;
+        match Supervisor::start(config, on_event) {
+            Ok(supervisor) => {
+                let _ = self.supervisor.set(Arc::new(supervisor));
+                // The sync worker may have started first.
+                self.sync_started();
+            }
+            Err(error) => {
+                log::error!("hud: the supervisor did not start: {error}");
+                *self.error.lock().unwrap_or_else(PoisonError::into_inner) =
+                    Some(error.to_string());
+            }
         }
     }
 
@@ -414,7 +480,7 @@ impl HudState {
 
     /// A recompute swapped new statistics in.
     pub fn stats_changed(&self, epoch: i64) {
-        if let Some(supervisor) = &self.supervisor {
+        if let Some(supervisor) = self.supervisor() {
             supervisor.send(AppMessage::StatsChanged { epoch });
         }
     }
@@ -422,7 +488,7 @@ impl HudState {
     /// The user changed a HUD setting (R3.6: the preferred seat): the HUD
     /// reads them again.
     pub fn settings_changed(&self) {
-        if let Some(supervisor) = &self.supervisor {
+        if let Some(supervisor) = self.supervisor() {
             supervisor.send(AppMessage::SettingsChanged);
         }
     }
@@ -430,7 +496,7 @@ impl HudState {
     /// The user's panel positions changed outside the HUD (a reset): the
     /// HUD reads them again.
     pub fn layout_changed(&self) {
-        if let Some(supervisor) = &self.supervisor {
+        if let Some(supervisor) = self.supervisor() {
             supervisor.send(AppMessage::LayoutChanged);
         }
     }
@@ -458,7 +524,7 @@ impl HudState {
     /// (R3.10) A new policy is in force: the HUD merges it (stricter only)
     /// and detaches what it no longer allows.
     pub fn policy_changed(&self, remote: Option<String>) {
-        if let Some(supervisor) = &self.supervisor {
+        if let Some(supervisor) = self.supervisor() {
             supervisor.send(AppMessage::Policy { remote });
         }
     }
@@ -467,7 +533,7 @@ impl HudState {
     /// missing: the HUD asks the system for its own prompt (macOS: it also
     /// lists Rail in System Settings, switched off). Whether it was sent.
     pub fn request_permission(&self, permission: &str) -> bool {
-        match &self.supervisor {
+        match self.supervisor() {
             Some(supervisor) => supervisor.send(AppMessage::RequestPermission {
                 permission: permission.to_owned(),
             }),
@@ -483,7 +549,7 @@ impl HudState {
 
     /// Shut the HUD down (on exit, first).
     pub fn stop(&self) {
-        if let Some(supervisor) = &self.supervisor {
+        if let Some(supervisor) = self.supervisor() {
             supervisor.stop();
             log::info!("hud: stopped");
         }
@@ -492,10 +558,28 @@ impl HudState {
     pub fn status(&self) -> HudStatusDto {
         let windows = self.shared.windows().clone();
         let tables_open = self.shared.tables_open.load(Ordering::SeqCst);
-        let Some(supervisor) = &self.supervisor else {
+        let Some(supervisor) = self.supervisor() else {
+            let error = self
+                .error
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clone();
+            let waiting = error.is_none()
+                && self
+                    .pending
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .is_some();
+            // (R6.4) Held by the plan, or about to start (the plan is read
+            // right after the account, a moment into the app's start).
+            let phase = match (waiting, self.locked.load(Ordering::SeqCst)) {
+                (true, true) => "locked",
+                (true, false) => "starting",
+                _ => "off",
+            };
             return HudStatusDto {
-                phase: "off",
-                error: self.error.clone(),
+                phase,
+                error,
                 tables_open,
                 ..HudStatusDto::default()
             };
@@ -572,6 +656,8 @@ pub fn tray_line(status: &HudStatusDto) -> String {
     let text = crate::strings::tray();
     match status.phase {
         "off" | "not-installed" | "stopped" => text.hud_off.to_owned(),
+        // (R6.4) The plan held it back.
+        "locked" => text.hud_locked.to_owned(),
         "starting" | "backoff" => text.hud_starting.to_owned(),
         // (R3.11) It runs but cannot see a table until the user grants it.
         _ if status.permission_needed.is_some() && status.tables_open == 0 => {
@@ -753,7 +839,7 @@ fn on_event<R: Runtime>(
 
 /// The feeder: imports in, `hand_imported` out, with its own read-only
 /// connection. Waiting imports of one file are folded into one look.
-fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> HudFeed {
+fn start_feeder(store_path: &std::path::Path, supervisor: SupervisorSlot) -> HudFeed {
     let (tx, rx) = mpsc::sync_channel::<Fed>(FEED_QUEUE);
     let path = store_path.to_owned();
     let spawned = std::thread::Builder::new()
@@ -771,6 +857,9 @@ fn start_feeder(store_path: &std::path::Path, supervisor: Arc<Supervisor>) -> Hu
                 while let Ok(more) = rx.try_recv() {
                     files.push(more);
                 }
+                let Some(supervisor) = supervisor.get() else {
+                    continue;
+                };
                 if !supervisor.is_connected() {
                     continue;
                 }
@@ -857,7 +946,8 @@ impl OpenPlayer {
 #[derive(Debug, Default, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct HudStatusDto {
-    /// `off`, `not-installed`, `starting`, `running`, `backoff`, `stopped`.
+    /// `off`, `not-installed`, `starting`, `running`, `backoff`, `stopped`;
+    /// (R6.4) `locked`: not started, the plan does not include the HUD.
     phase: &'static str,
     error: Option<String>,
     pid: Option<u32>,
@@ -1380,5 +1470,49 @@ mod tests {
         assert!(fed.timing.imported_us.is_some_and(|at| at >= before));
         assert_eq!(fed.timing.sent_us, None, "stamped when sent");
         assert!(rx.try_recv().is_err());
+    }
+
+    /// (R6.4) The HUD waits for the plan's first answer; a plan without the
+    /// HUD keeps it from starting (the screen and the tray say why), a plan
+    /// with it starts it, and a running HUD is never stopped by the plan -
+    /// it applies at the next start.
+    #[test]
+    fn the_plan_holds_the_hud_back_and_never_stops_a_running_one() {
+        if std::env::var(DISABLE_VAR).is_ok_and(|v| v.eq_ignore_ascii_case("off")) {
+            return;
+        }
+        let dir = std::env::temp_dir().join(format!("rail-app-hud-plan-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let store = StoreState::open(dir.join(rail_store::FILE_NAME));
+        let stats = StatsState::start(&store);
+        let app = tauri::test::mock_builder()
+            .build(tauri::test::mock_context(tauri::test::noop_assets()))
+            .expect("a mock app");
+        let hud = HudState::start(
+            app.handle(),
+            &store,
+            stats.clone(),
+            SyncSlot::default(),
+            None,
+        );
+        assert_eq!(hud.status().phase, "starting", "prepared, not started");
+        hud.apply_plan(false);
+        assert_eq!(hud.status().phase, "locked");
+        assert_eq!(tray_line(&hud.status()), "HUD: needs Rail Pro");
+        hud.apply_plan(false);
+        assert_eq!(hud.status().phase, "locked", "still held");
+        hud.apply_plan(true);
+        let started = hud.status().phase;
+        assert!(!matches!(started, "locked" | "off"), "started: {started}");
+        assert!(hud.supervisor().is_some());
+        hud.apply_plan(false);
+        assert!(
+            hud.supervisor().is_some() && hud.status().phase != "locked",
+            "a running HUD is not stopped"
+        );
+        hud.stop();
+        stats.stop();
+        drop(store);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

@@ -237,6 +237,8 @@ fn changed<R: Runtime>(app: &AppHandle<R>) {
     if let Some(sync) = app.try_state::<crate::sync::SyncState>() {
         sync.account_changed();
     }
+    // (R6.4) And the plan: another account, or none, has another one.
+    crate::entitlements::check_soon(app);
 }
 
 /// The tray's account line.

@@ -128,23 +128,31 @@ pub fn gate(
 #[serde(rename_all = "camelCase")]
 pub struct GateDto {
     run: bool,
-    /// `paused`, `tables`, `backfill`, `statistics`, `store`; `null` when
-    /// it may run.
+    /// `paused`, `tables`, `backfill`, `statistics`, `store`, (R6.4)
+    /// `plan` (enforcement on and the plan without the analysis); `null`
+    /// when it may run.
     reason: Option<&'static str>,
     paused: bool,
 }
 
 /// May the analysis run now?
 #[tauri::command]
-pub fn analysis_gate(
+pub fn analysis_gate<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
     store: State<'_, StoreState>,
     state: State<'_, AnalysisState>,
     stats: State<'_, StatsState>,
     hud: State<'_, HudState>,
 ) -> GateDto {
     let paused = state.paused.load(Ordering::SeqCst);
+    // (R6.4) The plan, as `crate::entitlements` last worked it out: open
+    // while enforcement is off.
+    let plan_allows = tauri::Manager::try_state::<crate::entitlements::EntitlementsState>(&app)
+        .is_none_or(|plan| plan.allows_analysis());
     let reason = if store.store.is_none() {
         Some("store")
+    } else if !plan_allows {
+        Some("plan")
     } else {
         let (activity, backfilling) = stats.activity();
         gate(paused, hud.tables_open(), activity, backfilling)

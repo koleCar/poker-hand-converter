@@ -440,6 +440,42 @@ describe("the breakdown table and the grid, rendered", () => {
       expect(hidden).not.toContain("role=\"grid\"");
     });
 
+    it(`(R6.4) full reports held back: the lock in the situation tabs only, ${locale}`, () => {
+      const r = locale === "en" ? reportsUiEn : reportsUiHr;
+      const lock = createElement("p", { "data-lock": "reports" }, "LOCKED");
+      const situation = render(
+        locale,
+        createElement(Breakdown, {
+          report: APP_REPORT,
+          breakdowns: null,
+          loading: false,
+          definitions: DEFINITIONS,
+          facets: FACETS,
+          tab: "potType",
+          onTab: () => undefined,
+          situationsLock: lock,
+        }),
+      );
+      expect(situation).toContain("data-lock=\"reports\"");
+      expect(situation).not.toContain(r.breakdown.computing);
+      // The basic breakdowns stay: no lock by position.
+      const basic = render(
+        locale,
+        createElement(Breakdown, {
+          report: APP_REPORT,
+          breakdowns: null,
+          loading: false,
+          definitions: DEFINITIONS,
+          facets: FACETS,
+          tab: "position",
+          onTab: () => undefined,
+          situationsLock: lock,
+        }),
+      );
+      expect(basic).not.toContain("data-lock");
+      expect(basic).toContain(">BTN<");
+    });
+
     it(`the 13 x 13 grid, ${locale}`, () => {
       const columns = BREAKDOWN_COLUMNS.map((id) => statById(STANDARD_STATS, id).def);
       const grid = render(locale, createElement(HandMatrix, { rows: [group("AKs", 8), group("72o", 3)], columns }));

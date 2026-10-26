@@ -350,9 +350,50 @@ export const hr: Dict = {
       paused: "Sinkronizacija je pauzirana.",
       question: "Sinkronizacija čeka tvoj odgovor.",
       problem: "Sinkronizacija ima problem.",
+      plan: "Sinkronizacija traži Rail Pro.",
       details: "Postavke sinkronizacije",
     },
     failedAction: (reason) => `Nije uspjelo: ${reason}`,
+    planRequired: (waiting) =>
+      waiting === 0
+        ? "Sinkronizacija s webom dio je Rail Pro plana. Tvoje ruke ostaju na ovom računalu."
+        : `Sinkronizacija s webom dio je Rail Pro plana. ${cap(ruku(waiting))} ${plural(waiting, "čeka", "čekaju", "čeka")} na ovom računalu, neposlano, dok tvoj plan to ne uključi.`,
+  },
+
+  plan: {
+    heading: "Dio Rail Pro plana",
+    features: {
+      hud: "HUD za tvojim poker stolovima dio je Rail Pro plana.",
+      analysis: "Analiza tvojih ruku - ocjene, propusti, pregled sesije i tvoje vlastite tablice - dio je Rail Pro plana.",
+      reportsFull:
+        "Izvještaji po situacijama i ekran Igrači dio su Rail Pro plana. Osnovna statistika ostaje besplatna: sažetak, sve statistike, graf i podjele po poziciji, ulogu, sobi, veličini stola i formatu.",
+      desktopSync: "Sinkronizacija tvojih ruku s webom dio je Rail Pro plana.",
+      learn: "Učenje je dio Rail Pro plana.",
+    },
+    reasons: {
+      signedOut:
+        "Prijavi se računom s Rail Pro planom da bi ovo koristio/la. Bez računa Rail i dalje uvozi tvoje ruke, vodi knjižnicu, replayer i osnovnu statistiku.",
+      notChecked: "Rail provjerava tvoj plan kad je na mreži. Spoji se na internet ili provjeri ponovno.",
+      free: "Tvoj račun je na Free planu.",
+      graceExpired: (days) =>
+        `Spoji se da zadržiš Pro: Rail već više od ${days} dana nije mogao provjeriti tvoj plan na poslužitelju.`,
+    },
+    signIn: "Prijavi se",
+    upgrade: "Prijeđi na Pro",
+    checkAgain: "Provjeri ponovno",
+    checking: "Provjera…",
+    settings: {
+      heading: "Plan",
+      loading: "Čitanje plana…",
+      open: "Sve u Railu je dostupno.",
+      pro: "Rail Pro.",
+      proUntil: (date) =>
+        `Rail Pro. Radi i izvan mreže do ${date}; Rail sam ponovno provjerava kad god je na mreži.`,
+      free: "Free: uvoz, tvoja knjižnica, replayer i osnovna statistika. HUD, analiza i puni izvještaji traže Rail Pro.",
+      handsStored: (count, total) => `${cap(ruku(count))} u tvojoj web knjižnici od ${n(total)} na Free planu.`,
+      lastChecked: (time) => `Plan zadnji put provjeren: ${time}.`,
+      offline: "Poslužitelj nije dostupan za provjeru; Rail koristi zadnji odgovor.",
+    },
   },
 
   settings: {
@@ -886,6 +927,7 @@ export const hr: Dict = {
         backfill: "Analiza čeka dok se uvoze tvoje mape.",
         statistics: "Analiza čeka da se izračunaju statistike.",
         store: "Spremište ruku se nije otvorilo.",
+        plan: "Analiza je dio Rail Pro plana.",
       },
       offline:
         "Flop biblioteka nije dostupna: flopovi se zasad ocjenjuju bez nje, a te se ruke ponovno analiziraju kad bude dostupna.",
@@ -994,6 +1036,7 @@ export const hr: Dict = {
     off: "HUD nije pokrenut.",
     offWhy: (reason) => `HUD nije pokrenut: ${reason}`,
     starting: "HUD se pokreće…",
+    locked: "HUD je dio Rail Pro plana: na ovom planu se ne pokreće.",
     running: "HUD radi.",
     noTables: "Nije otvoren nijedan stol sobe koju Rail poznaje.",
     attached: (count) => `Na ${n(count)} ${plural(count, "stolu", "stola", "stolova")}:`,
@@ -1059,6 +1102,7 @@ export const hr: Dict = {
     today: {
       off: "HUD: nije pokrenut",
       starting: "HUD: pokreće se…",
+      locked: "HUD: traži Rail Pro",
       none: "HUD: nema otvorenog stola",
       permission: "HUD: treba dopuštenje Pristupačnost",
       noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent",
