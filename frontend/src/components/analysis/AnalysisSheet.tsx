@@ -38,6 +38,7 @@ import type { ReplayPosition } from "@rail/ui/replayer/position";
 import styles from "./analysis.module.css";
 import { ChartGrid } from "./ChartGrid";
 import { GradeIcon } from "./GradeIcon";
+import { IcmPanel } from "./IcmPanel";
 import { LearnLinks } from "./LearnLinks";
 import { RiverStudy } from "./RiverStudy";
 import { loudness, toneOf } from "./tone";
@@ -392,7 +393,7 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
             <h4 className={styles.subhead}>{decision.source === "approx" ? s.optionsHeadingApprox : s.optionsHeading}</h4>
             {decision.source === "approx" ? <p className={styles.hint}>{s.approxNote}</p> : null}
             <OptionsTable decision={decision} readOnly={readOnly} />
-            {decision.source === "solver" ? (
+            {decision.source === "icm" ? null : decision.source === "solver" ? (
               hand ? (
                 <RiverStudy
                   key={`${decision.street}-${decision.actionIndex}`}
@@ -407,6 +408,9 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
           </>
         ) : null}
       </section>
+
+      {/* R5.5: a tournament push/fold grade's model, stacks, payouts, prize equities and matchups. */}
+      {decision.facts.icm ? <IcmPanel decision={decision} hand={hand} readOnly={readOnly} /> : null}
 
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>{s.whyHeading}</h3>

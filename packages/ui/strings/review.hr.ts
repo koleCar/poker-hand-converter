@@ -133,5 +133,7 @@ export const reviewUiHr: typeof reviewUiEn = {
     "vs-3bet": "Protiv 3-beta nakon otvaranja",
     "vs-3bet-cold": "Protiv 3-beta, hladno",
     "vs-4bet": "Protiv 4-beta ili više",
+    "push-fold": "Push ili fold (turnir)",
+    "push-fold-call": "Protiv pusha (turnir)",
   },
 };

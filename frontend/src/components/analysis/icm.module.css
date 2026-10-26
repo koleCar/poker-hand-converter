@@ -1,0 +1,70 @@
+/* The ICM panel of a tournament decision (R5.5c, IcmPanel.tsx). */
+
+.stacks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.stacks li {
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.stacks li span:first-child {
+  color: var(--text-primary);
+}
+
+.hero {
+  font-weight: var(--font-weight-semibold);
+}
+
+.caption {
+  caption-side: top;
+  text-align: start;
+  padding-block-end: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-2) var(--space-3);
+  inline-size: 100%;
+}
+
+.fields > p,
+.fields > .actions {
+  grid-column: 1 / -1;
+}
+
+.fields input,
+.fields select {
+  inline-size: 100%;
+  min-block-size: 2.25rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (pointer: coarse) {
+  .fields input,
+  .fields select,
+  .form button {
+    min-block-size: 44px;
+  }
+}

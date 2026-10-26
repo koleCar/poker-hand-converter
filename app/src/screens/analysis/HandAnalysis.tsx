@@ -19,12 +19,13 @@ import { bestAction } from "../../analysis/rows";
 import { handAnalysisOf } from "../../analysis/service";
 import { go, screenHref } from "../../lib/router";
 import styles from "./Analysis.module.css";
+import { IcmBlock } from "./IcmBlock";
 
 export type Loaded =
   | { status: "loading" }
   | { status: "missing" }
   | { status: "error"; message: string }
-  | { status: "ready"; analysis: Analysis; stored: boolean };
+  | { status: "ready"; analysis: Analysis; stored: boolean; /** (R5.5) When the hand was played: a players-left point is kept at it. */ playedAt?: string | null };
 
 const TWO = liveNumberFormat({ minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const ONE = liveNumberFormat({ minimumFractionDigits: 0, maximumFractionDigits: 1 });
@@ -54,7 +55,7 @@ export function HandAnalysis({
           return;
         }
         const result = await handAnalysisOf(handKey, phf as never);
-        if (live) setLoaded(result ? { status: "ready", ...result } : { status: "missing" });
+        if (live) setLoaded(result ? { status: "ready", ...result, playedAt: phf.playedAt ?? null } : { status: "missing" });
       } catch (error) {
         if (live) setLoaded({ status: "error", message: error instanceof Error ? error.message : String(error) });
       }
@@ -110,6 +111,7 @@ export function HandAnalysisView({
               bb={bb}
               percent={percent}
               word={word}
+              playedAt={loaded.playedAt ?? null}
             />
           ))}
         </ol>
@@ -145,9 +147,11 @@ function DecisionRow({
   bb,
   percent,
   word,
+  playedAt,
 }: {
   decision: DecisionAnalysis;
   open: boolean;
+  playedAt: string | null;
   bb: (value: number | null) => string;
   percent: (value: number) => string;
   word: (map: Record<string, string>, key: string | null) => string;
@@ -210,6 +214,12 @@ function DecisionRow({
               ))}
             </tbody>
           </table>
+        </details>
+      )}
+      {d.facts.icm && (
+        <details className={styles.options} open={open}>
+          <summary>{h.icm.heading}</summary>
+          <IcmBlock decision={d} playedAt={playedAt} />
         </details>
       )}
     </li>
