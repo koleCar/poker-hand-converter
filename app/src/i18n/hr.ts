@@ -57,6 +57,7 @@ export const hr: Dict = {
     hands: "Ruke",
     reports: "Izvještaji",
     players: "Igrači",
+    analysis: "Analiza",
     hud: "HUD",
     settings: "Postavke",
     search: "Traži…",
@@ -81,6 +82,10 @@ export const hr: Dict = {
     players: {
       title: "Igrači",
       lead: "Profili protivnika, bilješke i oznake bojom.",
+    },
+    analysis: {
+      title: "Analiza",
+      lead: "Tvoje odluke ocijenjene nakon sessiona: pregled sessiona, najveći leakovi, tvoji chartovi.",
     },
     hud: {
       title: "HUD",
@@ -862,6 +867,78 @@ export const hr: Dict = {
 
   duringPlay: {
     hidden: "Skriveno dok je otvoren poker stol: Rail ne pomaže tijekom igre. Vraća se kad se stolovi zatvore.",
+  },
+
+  analysis: {
+    tabsLabel: "Dijelovi analize",
+    tabs: { session: "Pregled sessiona", leaks: "Najveći leakovi", charts: "Moji chartovi" },
+    unavailable: "Analiza je dostupna samo u aplikaciji Rail.",
+    loading: "Otvaram analizu…",
+    status: {
+      label: "Analiza",
+      starting: "Analiza počinje malo nakon što se Rail otvori.",
+      running: (done: number, total: number) => `Analiziram tvoje ruke: gotovo ${n(done)} od ${ruku(total)}.`,
+      idle: (total: number) => `Sve ruke su analizirane (${ruku(total)}).`,
+      empty: "Još nema ruku za analizu.",
+      waiting: {
+        paused: "Analiza je pauzirana.",
+        tables: "Analiza čeka dok je otvoren poker stol.",
+        backfill: "Analiza čeka dok se uvoze tvoje mape.",
+        statistics: "Analiza čeka da se izračunaju statistike.",
+        store: "Spremište ruku se nije otvorilo.",
+      },
+      offline:
+        "Flop biblioteka nije dostupna: flopovi se zasad ocjenjuju bez nje, a te se ruke ponovno analiziraju kad bude dostupna.",
+      pace: (perSecond: string) => `${perSecond} ruku u sekundi`,
+      notAnalysable: (count: number) => `${cap(ruku(count))} se ne može analizirati (druga igra ili nema heroja).`,
+      error: (message: string) => `Zadnja stranica nije dovršena: ${message}`,
+      pause: "Pauziraj",
+      resume: "Nastavi",
+    },
+    session: {
+      notAnalysed: "Analizira se u pozadini",
+    },
+    hand: {
+      title: "Analiza ruke",
+      open: "Analiza",
+      openTitle: "Otvori ocjene ove ruke, odluku po odluku",
+      back: "Otvori u Rukama",
+      backToList: "Natrag",
+      loading: "Analiziram ruku…",
+      notFound: "Ova ruka nije u tvom spremištu.",
+      notStored: "Analizirano sada; pozadinska analiza je spremi kad dođe do nje.",
+      failed: (message: string) => `Ruka se nije mogla analizirati: ${message}`,
+      notAnalysed: (reason: string) => `Nije analizirano: ${reason}.`,
+      summary: (grade: string, evLoss: string) => `Najlošija ocjena ${grade}, ukupno izgubljeno ${evLoss}.`,
+      noGrade: "Nijedna odluka ove ruke nema referencu po kojoj bi se ocijenila.",
+      decisions: "Tvoje odluke",
+      street: "Street",
+      action: "Ti",
+      best: "Najbolje",
+      grade: "Ocjena",
+      evLoss: "Izgubljeni EV",
+      source: "Ocijenjeno prema",
+      ungraded: "Nije ocijenjeno",
+      skipped: (reason: string) => `Nije analizirano (${reason})`,
+      options: "Što referenca ovdje igra",
+      option: "Akcija",
+      frequency: "Koliko često",
+      ev: "EV",
+      notes: (count: number) => `${n(count)} ${plural(count, "bilješka", "bilješke", "bilješki")}`,
+      bb: (value: string) => `${value} bb`,
+      streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" } as Record<string, string>,
+      actions: { fold: "Fold", check: "Check", call: "Call", bet: "Bet", raise: "Raise" } as Record<string, string>,
+      grades: { perfect: "Savršeno", good: "Dobro", inaccurate: "Netočno", mistake: "Greška", blunder: "Gruba greška" } as Record<
+        string,
+        string
+      >,
+      sources: {
+        chart: "Railovi preflop chartovi",
+        solver: "Railov solver",
+        heuristic: "Samo provjere",
+        multiway: "Multiway provjere",
+      } as Record<string, string>,
+    },
   },
 
   hudStatus: {

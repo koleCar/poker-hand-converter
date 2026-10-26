@@ -1,13 +1,14 @@
 /**
- * The six screens of guideline §6, as hash routes (`#/hands`), plus the
- * first-run screen (`#/setup`, R1.4), which is not in the sidebar. A hash
- * keeps the router a few lines long and needs nothing from the Tauri asset
- * protocol. A screen may take one parameter after its name: the Hands
- * screen's open hand (`#/hands/<hand key>`, R2.7a).
+ * The six screens of guideline §6 and (R5.4) the analysis, as hash routes
+ * (`#/hands`), plus the first-run screen (`#/setup`, R1.4), which is not in
+ * the sidebar. A hash keeps the router a few lines long and needs nothing
+ * from the Tauri asset protocol. A screen may take one parameter after its
+ * name: the Hands screen's open hand (`#/hands/<hand key>`, R2.7a), the
+ * analysis' view (`#/analysis/session`, `.../hand/<hand key>`, R5.4).
  */
 import { useSyncExternalStore } from "react";
 
-export const SCREENS = ["today", "hands", "reports", "players", "hud", "settings"] as const;
+export const SCREENS = ["today", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
 
 export type Screen = (typeof SCREENS)[number];
 

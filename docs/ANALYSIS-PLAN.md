@@ -543,6 +543,14 @@ statistics pass works. `tests/test/appAnalysisParity.test.ts` holds the two
 runners to the same stored rows over corpus hands. No grade, constant,
 chart or version changed for it.
 
+The app shows its rows on an Analysis screen (R5.4b): the session review
+and the own charts from `packages/ui`, one hand's decisions, and the top
+three leaks - this library's `groupLeaks` / `rankTopLeaks` / `leakTrend`
+and its words (`analysisLeaks.{en,hr}`), reached through a second door
+(`app/src/analysis/leakWords.ts`), over the store's sums of the same rows
+`analysis_top_leaks` reads. The full leak report, the drills and the
+overview stay on the web.
+
 **Security model unchanged.**
 - Analysis rows are written through SECURITY DEFINER RPCs as the user, as with
   `save_hand_stats`.

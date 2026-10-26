@@ -1,0 +1,240 @@
+/* The app's Analysis screen (R5.4): its sections' tabs and the background
+   run's status line over the shared screens, and one hand's grades.
+   Semantic tokens only; the grade colours are the analysis' `--grade-*`. */
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tab {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab[aria-current="page"] {
+  border-bottom-color: var(--accent-fg);
+  color: var(--text-primary);
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.statusWarn {
+  color: var(--warning-fg);
+}
+
+.button {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--surface-hover);
+}
+
+.hand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 64rem;
+}
+
+.handHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.subheading {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-lg);
+}
+
+.links {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-fg);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.note {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-2);
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: var(--font-size-sm);
+}
+
+.summary {
+  color: var(--text-secondary);
+}
+
+.decisions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.decision {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+}
+
+.focused {
+  border-color: var(--accent-fg);
+}
+
+.decisionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+}
+
+.street {
+  min-width: 4rem;
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--text-tertiary);
+}
+
+.grade {
+  font-weight: 600;
+}
+
+.grade-perfect { color: var(--grade-perfect); }
+.grade-good { color: var(--grade-good); }
+.grade-inaccurate { color: var(--grade-inaccurate); }
+.grade-mistake { color: var(--grade-mistake); }
+.grade-blunder { color: var(--grade-blunder); }
+
+.options {
+  margin-top: var(--space-2);
+}
+
+.options summary {
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.table {
+  margin-top: var(--space-2);
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: var(--space-1) var(--space-3) var(--space-1) 0;
+  text-align: left;
+}
+
+.table th {
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.chosen td {
+  font-weight: 600;
+}
+
+/* The top three leaks (R5.2's card). */
+.leaks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 64rem;
+}
+
+.leaksHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.periods {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.periods [aria-pressed="true"] {
+  border-color: var(--accent-fg);
+  color: var(--accent-fg);
+}
+
+.leakTitle {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.examplesHead {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}
+
+.example {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}

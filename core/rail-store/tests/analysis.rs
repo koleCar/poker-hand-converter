@@ -1043,3 +1043,319 @@ fn the_session_review_reads_the_webs_sessions_and_lists() {
     drop(writer);
     store.close();
 }
+
+/// One leak row as the test saved it.
+struct Saved {
+    hand_key: String,
+    played_at: String,
+    format: String,
+    position: String,
+    pot: String,
+    ord: i64,
+    spot: String,
+    set: String,
+    grade: String,
+    score: f64,
+    ev: f64,
+    ev_pot: f64,
+}
+
+const LEAK_SPOTS: [(&str, &str); 3] = [
+    ("preflop|vs-open|ffffr|BB|fold|call", "nlhe-cash-6max-100bb"),
+    ("flop|ip-pfr||BTN|check|bet", ""),
+    ("river|oop-caller||BB|call|fold", ""),
+];
+const LEAK_GRADES: [&str; 5] = ["perfect", "good", "inaccurate", "mistake", "blunder"];
+
+/// The sums the web's `analysis_leaks` returns, from the saved rows.
+#[allow(clippy::float_arithmetic)] // the sums the store adds up
+fn expected_sample(
+    saved: &[Saved],
+    keep: &dyn Fn(&Saved) -> bool,
+) -> rail_store::leaks::LeakSample {
+    let mut spots: BTreeMap<(String, String), rail_store::leaks::SpotSums> = BTreeMap::new();
+    let mut hands = BTreeSet::new();
+    for s in saved.iter().filter(|s| keep(s)) {
+        hands.insert(s.hand_key.clone());
+        let sums = spots
+            .entry((s.spot.clone(), s.set.clone()))
+            .or_insert_with(|| rail_store::leaks::SpotSums {
+                key: s.spot.clone(),
+                set: (!s.set.is_empty()).then(|| s.set.clone()),
+                decisions: 0,
+                non_perfect: 0,
+                mistakes: 0,
+                ev_loss_bb: 0.0,
+                ev_loss_pot: 0.0,
+                score_sum: 0.0,
+                score_sq: 0.0,
+            });
+        sums.decisions += 1;
+        sums.non_perfect += i64::from(s.grade != "perfect");
+        sums.mistakes += i64::from(matches!(
+            s.grade.as_str(),
+            "inaccurate" | "mistake" | "blunder"
+        ));
+        sums.ev_loss_bb += s.ev;
+        sums.ev_loss_pot += s.ev_pot;
+        sums.score_sum += s.score;
+        sums.score_sq += s.score * s.score;
+    }
+    let rows: Vec<_> = spots.into_values().collect();
+    rail_store::leaks::LeakSample {
+        hands: i64::try_from(hands.len()).expect("hands"),
+        graded: rows.iter().map(|r| r.decisions).sum(),
+        rows,
+    }
+}
+
+#[allow(clippy::float_arithmetic)] // a tolerance
+fn assert_sample(
+    got: &rail_store::leaks::LeakSample,
+    want: &rail_store::leaks::LeakSample,
+    what: &str,
+) {
+    assert_eq!(
+        (got.hands, got.graded, got.rows.len()),
+        (want.hands, want.graded, want.rows.len()),
+        "{what}"
+    );
+    for (g, w) in got.rows.iter().zip(&want.rows) {
+        assert_eq!(
+            (&g.key, &g.set, g.decisions, g.non_perfect, g.mistakes),
+            (&w.key, &w.set, w.decisions, w.non_perfect, w.mistakes),
+            "{what}"
+        );
+        for (a, b) in [
+            (g.ev_loss_bb, w.ev_loss_bb),
+            (g.ev_loss_pot, w.ev_loss_pot),
+            (g.score_sum, w.score_sum),
+            (g.score_sq, w.score_sq),
+        ] {
+            assert!(
+                (a - b).abs() < 1e-6 * b.abs().max(1.0),
+                "{what}: {a} != {b}"
+            );
+        }
+    }
+}
+
+fn day_before(day: &str, days: i64) -> String {
+    let ms = rail_store::time::ms_from_iso(&format!("{day}T00:00:00.000Z")).expect("day");
+    rail_store::time::iso_from_ms(ms - days * 86_400_000)[..10].to_owned()
+}
+
+#[test]
+#[allow(clippy::float_arithmetic)] // the saved EV and scores
+fn the_top_leaks_sum_the_leak_rows_by_spot() {
+    use rail_store::leaks::LeakFilters;
+    let path = copy_of_corpus("analysis-leaks");
+    let store = Store::open(&path).expect("open");
+    let conn = Connection::open(&path).expect("open");
+    // Every 15th hand played before March 2026 (the corpus's January and
+    // February fill both 30-day windows); the last one goes to V2.
+    let hands: Vec<(String, String, String)> = conn
+        .prepare(
+            "SELECT hand_key, played_at, game_format FROM hands
+             WHERE played_at < '2026-03' ORDER BY played_at DESC, hand_key DESC",
+        )
+        .expect("prepare")
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+        .expect("query")
+        .collect::<Result<Vec<_>, _>>()
+        .expect("rows")
+        .into_iter()
+        .step_by(15)
+        .collect();
+    assert!(hands.len() > 300, "hands: {}", hands.len());
+
+    let mut saved = Vec::new();
+    let mut rows = Vec::new();
+    for (i, (key, played_at, format)) in hands.iter().enumerate() {
+        let position = if i % 2 == 0 { "BB" } else { "BTN" };
+        let pot = if i % 4 < 2 { "single-raised" } else { "3-bet" };
+        let mut decisions = Vec::new();
+        for ord in 0..2_i64 {
+            let n = i + usize::try_from(ord).expect("ord");
+            let (spot, set) = LEAK_SPOTS[n % 3];
+            let grade = LEAK_GRADES[(n * 7 / 3) % 5];
+            let street = spot.split('|').next().expect("street");
+            let mut d = decision(ord, street, Some(grade), json!([]));
+            let ev = f64::from(u32::try_from(n % 9).expect("n")) * 0.25;
+            let score = 100.0 - 7.5 * f64::from(u32::try_from(n % 5).expect("n"));
+            d.spot_key = spot.to_owned();
+            d.chart_set = set.to_owned();
+            d.ev_loss_bb = Some(ev);
+            d.ev_loss_pot = Some(ev / 8.0);
+            d.score = Some(score);
+            saved.push(Saved {
+                hand_key: key.clone(),
+                played_at: played_at.clone(),
+                format: format.clone(),
+                position: position.to_owned(),
+                pot: pot.to_owned(),
+                ord,
+                spot: spot.to_owned(),
+                set: set.to_owned(),
+                grade: grade.to_owned(),
+                score,
+                ev,
+                ev_pot: ev / 8.0,
+            });
+            decisions.push(d);
+        }
+        // A decision the analysis did not grade is no leak row.
+        decisions.push(decision(2, "turn", None, json!([])));
+        let mut r = row(key, V1, true, decisions);
+        r.hero_position = Some(position.to_owned());
+        r.pot_type = pot.to_owned();
+        rows.push(r);
+    }
+    // The last hand at another version: not in V1's leaks.
+    let mut other = rows.pop().expect("a hand");
+    let other_key = other.hand_key.clone();
+    saved.retain(|s| s.hand_key != other_key);
+    other.analysis_version = V2.to_owned();
+    rows.push(other);
+    let writer = store.writer().expect("writer");
+    for chunk in rows.chunks(50) {
+        writer.save_analysis(chunk.to_vec(), 1_000).expect("save");
+    }
+
+    let reader = store.reader();
+    let all = LeakFilters::default();
+    let day = |s: &Saved| s.played_at[..10].to_owned();
+    let last = saved.iter().map(day).max().expect("a day");
+    let current = (day_before(&last, 29), last.clone());
+    let prior = (day_before(&last, 59), day_before(&last, 30));
+    let within = |s: &Saved, w: &(String, String)| day(s) >= w.0 && day(s) <= w.1;
+
+    let top = reader.top_leaks(V1, &all, "all").expect("top");
+    assert_eq!(top.last.as_deref(), Some(last.as_str()));
+    assert_eq!(top.current, Some(current.clone()));
+    assert_eq!(top.prior, Some(prior.clone()));
+    assert_sample(&top.sample, &expected_sample(&saved, &|_| true), "all time");
+    assert_sample(
+        &top.now,
+        &expected_sample(&saved, &|s| within(s, &current)),
+        "the last 30 days",
+    );
+    assert_sample(
+        &top.was,
+        &expected_sample(&saved, &|s| within(s, &prior)),
+        "the 30 before",
+    );
+    assert!(
+        top.now.graded > 0 && top.was.graded > 0 && top.sample.graded > top.now.graded,
+        "the sample spans both windows and more"
+    );
+    let thirty = reader.top_leaks(V1, &all, "30d").expect("top");
+    assert_eq!(thirty.sample, thirty.now);
+    assert_eq!(thirty.now, top.now);
+
+    // The filters: the hand's format, the hero's seat, the pot type.
+    let format = saved[0].format.clone();
+    let filters = LeakFilters {
+        game_format: Some(format.clone()),
+        position: Some("BTN".to_owned()),
+        pot_type: Some("3-bet".to_owned()),
+    };
+    let filtered = reader.top_leaks(V1, &filters, "all").expect("top");
+    let keep = |s: &Saved| s.format == format && s.position == "BTN" && s.pot == "3-bet";
+    let want = expected_sample(&saved, &keep);
+    assert!(want.graded > 0, "the filters keep some rows");
+    assert_sample(&filtered.sample, &want, "filtered");
+    // Another version has no rows.
+    let none = reader.top_leaks("analysis/1", &all, "all").expect("top");
+    assert_eq!(none.last, None);
+    assert_eq!(none.sample.graded, 0);
+    assert_eq!(none.current, None);
+
+    // The examples: worse than Perfect at the leak's keys, costliest first.
+    let keys = vec![LEAK_SPOTS[0].0.to_owned(), LEAK_SPOTS[2].0.to_owned()];
+    let examples_of = |days: Option<&(String, String)>| -> Vec<(String, i64)> {
+        let mut want: Vec<&Saved> = saved
+            .iter()
+            .filter(|s| {
+                s.grade != "perfect" && keys.contains(&s.spot) && days.is_none_or(|w| within(s, w))
+            })
+            .collect();
+        want.sort_by(|a, b| {
+            b.ev.total_cmp(&a.ev)
+                .then_with(|| b.played_at.cmp(&a.played_at))
+                .then_with(|| a.hand_key.cmp(&b.hand_key))
+                .then_with(|| a.ord.cmp(&b.ord))
+        });
+        want.into_iter()
+            .take(30)
+            .map(|s| (s.hand_key.clone(), s.ord))
+            .collect()
+    };
+    let examples = reader
+        .leak_examples(V1, &all, None, &keys, 100)
+        .expect("examples");
+    assert_eq!(
+        examples
+            .iter()
+            .map(|e| (e.hand_key.clone(), e.ord))
+            .collect::<Vec<_>>(),
+        examples_of(None)
+    );
+    assert_eq!(examples.len(), 30);
+    for e in &examples {
+        let s = saved
+            .iter()
+            .find(|s| s.hand_key == e.hand_key && s.ord == e.ord)
+            .expect("saved");
+        assert_eq!(
+            (&e.played_at, &e.spot_key, &e.grade),
+            (&s.played_at, &s.spot, &s.grade)
+        );
+        assert_eq!(e.action_index, e.ord * 2 + 3);
+        assert!(!e.site.is_empty() && e.big_blind > 0);
+    }
+    let recent = reader
+        .leak_examples(
+            V1,
+            &all,
+            Some((current.0.as_str(), current.1.as_str())),
+            &keys,
+            5,
+        )
+        .expect("examples");
+    let want: Vec<_> = examples_of(Some(&current)).into_iter().take(5).collect();
+    assert_eq!(
+        recent
+            .iter()
+            .map(|e| (e.hand_key.clone(), e.ord))
+            .collect::<Vec<_>>(),
+        want
+    );
+
+    // Refusals.
+    assert!(matches!(
+        reader.top_leaks(V1, &all, "90d"),
+        Err(Error::OutOfRange(_))
+    ));
+    assert!(matches!(
+        reader.leak_examples(V1, &all, None, &["preflop|x".to_owned()], 5),
+        Err(Error::OutOfRange(_))
+    ));
+    assert!(matches!(
+        reader.leak_examples(V1, &all, Some(("2026-13-01", "2026-12-31")), &keys, 5),
+        Err(Error::OutOfRange(_))
+    ));
+    let many = vec![LEAK_SPOTS[1].0.to_owned(); 201];
+    assert!(matches!(
+        reader.leak_examples(V1, &all, None, &many, 5),
+        Err(Error::OutOfRange(_))
+    ));
+    assert!(
+        reader
+            .leak_examples(V1, &all, None, &[], 5)
+            .expect("none")
+            .is_empty()
+    );
+    drop(writer);
+    store.close();
+}

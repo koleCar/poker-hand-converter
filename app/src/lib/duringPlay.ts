@@ -2,12 +2,12 @@
  * A10 (guideline §7; plan R3.8, R3.10): no help during play. While the HUD
  * has any poker table open, the app hides whatever could help with the hand
  * being played - analysis, solver, equity and chart screens, and inside the
- * other screens the replayer's pot odds and the starting-hand chart. The
- * desktop app has no analysis, solver, equity or chart screen yet (R5.4
- * brings the analysis in): a route that is one says so in
- * {@link SCREEN_HELP}, and the shell (`App.tsx`) shows a notice in its
- * place while tables are open; (R3.10) the sidebar and the command palette
- * leave such a screen out, and its shortcut does nothing. Pure, so the tests run it
+ * other screens the replayer's pot odds and the starting-hand chart. A
+ * route that is one says so in {@link SCREEN_HELP} - (R5.4) the analysis:
+ * the session review, the top leaks, the user's own charts and a hand's
+ * decision-by-decision grades - and the shell (`App.tsx`) shows a notice in
+ * its place while tables are open; (R3.10) the sidebar and the command
+ * palette leave such a screen out, and its shortcut does nothing. Pure, so the tests run it
  * (`tests/test/appDuringPlay.test.ts`); whether tables are open is
  * `useTablesOpen`.
  */
@@ -27,6 +27,8 @@ export const SCREEN_HELP: Readonly<Record<Route, PlayHelp | null>> = {
   hands: null,
   reports: null,
   players: null,
+  // (R5.4) The session review, the top leaks, the own charts and a hand's grades.
+  analysis: "analysis",
   hud: null,
   settings: null,
   setup: null,

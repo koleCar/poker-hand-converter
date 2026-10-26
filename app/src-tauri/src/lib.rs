@@ -377,6 +377,8 @@ pub fn run() {
         review::review_hands,
         review::chart_played,
         review::chart_examples,
+        review::top_leaks,
+        review::leak_examples,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -489,6 +491,8 @@ pub fn run() {
         review::review_hands,
         review::chart_played,
         review::chart_examples,
+        review::top_leaks,
+        review::leak_examples,
     ]);
 
     let app = builder

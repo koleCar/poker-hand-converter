@@ -8,7 +8,7 @@
  *   prefix match, R2.7a) and **players** by the start of their name (the
  *   store's prefix search, most hands together first, R2.7c) - asked of the
  *   store as the reader types (debounced);
- * - **screens** (each with its Cmd/Ctrl + 1-6 shortcut), the **reports'**
+ * - **screens** (each with its Cmd/Ctrl + 1-7 shortcut), the **reports'**
  *   breakdowns (`#/reports/<tab>`, R2.7b), **saved filters** of Hands and
  *   Reports (applied to their screen), the **Settings sections**
  *   (`#/settings/<section>`, the refused hands among them) and the
@@ -20,7 +20,7 @@
  *   `localStorage`, a per-reader convenience) when nothing is typed.
  *
  * Keys: Cmd/Ctrl + K opens and closes it from anywhere (the sidebar's search
- * button too), Cmd/Ctrl + 1-6 go to the screens without it; inside, the
+ * button too), Cmd/Ctrl + 1-7 go to the screens without it; inside, the
  * shell's ↑/↓, Tab, Page Up/Down, Enter and Escape.
  */
 import { useEffect, useMemo, useState } from "react";
@@ -93,7 +93,7 @@ function remember(entry: Recent): void {
 }
 
 /**
- * Mounted once by the app: listens for Cmd/Ctrl + K (and + 1-6) and opens the
+ * Mounted once by the app: listens for Cmd/Ctrl + K (and + 1-7) and opens the
  * palette. (A10, R3.10) While a poker table is open (`tablesOpen`), a screen
  * that helps with play is not listed and its shortcut does nothing.
  */

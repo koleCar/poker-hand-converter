@@ -1,7 +1,8 @@
 //! The analysis runner's store calls on a large store (docs/RAIL-PLAN.md
 //! R5.4): the next page of hands to analyse (first, and deep into the walk
 //! once most hands are analysed), the counts, a page of rows written, one
-//! hand's analysis read back, and the opponents' counters of a page.
+//! hand's analysis read back, the opponents' counters of a page, and the
+//! screens' readers (session review, own charts compared, top leaks).
 //!
 //! ```text
 //! cargo run --release -p rail-watch --example import_bench -- \
@@ -311,6 +312,24 @@ fn main() {
         &times(runs, || {
             reader
                 .chart_examples(&compare("all"), "vs-open:BB:BTN", 21, "call", 5)
+                .expect("examples");
+        }),
+    );
+    let filters = rail_store::leaks::LeakFilters::default();
+    for period in ["30d", "all"] {
+        report(
+            &format!("top leaks, {period}"),
+            &times(runs.min(5), || {
+                reader.top_leaks(VERSION, &filters, period).expect("top");
+            }),
+        );
+    }
+    let keys = ["preflop|vs-open|ffffr|BB|call|call".to_owned()];
+    report(
+        "a leak's examples, all time",
+        &times(runs, || {
+            reader
+                .leak_examples(VERSION, &filters, None, &keys, 30)
                 .expect("examples");
         }),
     );

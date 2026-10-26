@@ -49,6 +49,8 @@ describe("dictionaries", () => {
       "Formula",
       // The same words in Croatian (R3.9's HUD editor).
       "Panel", "x (preset)", "x-max",
+      // Poker's actions and "street", in Croatian as the web says them (R5.4's grades).
+      "Street", "Fold", "Check", "Call", "Bet", "Raise",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {
