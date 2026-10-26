@@ -18,6 +18,7 @@ import {
   assertEquals,
   type Call,
   fakeFetch,
+  fakeKey,
   newWebhookSecret,
   type Route,
   stripeSubscription,
@@ -204,7 +205,7 @@ Deno.test("other event types are acknowledged and dropped", async () => {
 Deno.test("an event of the other mode (live with a test key) is dropped", async () => {
   const { response, body, calls } = await deliver(await signed({ ...event("invoice.paid"), livemode: true }), {});
   assertEquals([response.status, body.outcome, calls.length], [200, "other_mode", 0]);
-  const live = testEnv({ stripeWebhookSecret: SECRET, stripeSecretKey: "sk_live_0000000000000000rail" });
+  const live = testEnv({ stripeWebhookSecret: SECRET, stripeSecretKey: fakeKey("live") });
   const test = await deliver(await signed(event("invoice.paid")), {}, live);
   assertEquals([test.response.status, test.body.outcome], [200, "other_mode"]);
 });

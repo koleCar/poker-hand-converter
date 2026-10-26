@@ -5,7 +5,7 @@
  * with another secret, too old, too new, malformed).
  */
 
-import { assert, assertEquals, fakeFetch, newWebhookSecret } from "./test_util.ts";
+import { assert, assertEquals, fakeFetch, fakeKey, newWebhookSecret } from "./test_util.ts";
 import {
   encodeForm,
   keyMode,
@@ -17,6 +17,7 @@ import {
 } from "./stripe.ts";
 
 const enc = (text: string) => new TextEncoder().encode(text);
+const KEY = fakeKey("test");
 
 Deno.test("form encoding: nested objects and arrays in Stripe's bracket form; null and undefined left out", () => {
   assertEquals(
@@ -33,8 +34,8 @@ Deno.test("form encoding: nested objects and arrays in Stripe's bracket form; nu
 });
 
 Deno.test("key mode: test, live, restricted; anything else is no key", () => {
-  assertEquals(keyMode("sk_test_abcdefgh123"), "test");
-  assertEquals(keyMode("rk_live_abcdefgh123"), "live");
+  assertEquals(keyMode(fakeKey("test")), "test");
+  assertEquals(keyMode(fakeKey("live", "rk")), "live");
   assertEquals(keyMode(""), null);
   assertEquals(keyMode("pk_test_abcdefgh123"), null);
   assertEquals(keyMode("sk_test_short"), null);
@@ -46,13 +47,13 @@ Deno.test("requests pin the API version, send the key only as a bearer, put GET 
     calls.push({ url, init });
     return Promise.resolve(new Response(JSON.stringify({ id: "x" }), { status: 200 }));
   }) as unknown as typeof fetch;
-  const options = { secretKey: "sk_test_secretsecret", apiVersion: "2025-03-31.basil", fetchFn };
+  const options = { secretKey: KEY, apiVersion: "2025-03-31.basil", fetchFn };
   await stripeRequest(options, "GET", "/v1/subscriptions", { customer: "cus_1", status: "all" });
   await stripeRequest(options, "POST", "/v1/customers", { email: "e@x.test" }, "idem-1");
   const get = new Headers(calls[0].init.headers);
   assertEquals(calls[0].url, "https://api.stripe.com/v1/subscriptions?customer=cus_1&status=all");
   assertEquals(get.get("stripe-version"), "2025-03-31.basil");
-  assertEquals(get.get("authorization"), "Bearer sk_test_secretsecret");
+  assertEquals(get.get("authorization"), `Bearer ${KEY}`);
   assertEquals(calls[0].init.body, undefined);
   const post = new Headers(calls[1].init.headers);
   assertEquals(calls[1].url, "https://api.stripe.com/v1/customers");
@@ -69,7 +70,7 @@ Deno.test("a Stripe refusal becomes a StripeError with status, type and code - n
     },
   }).fetchFn;
   try {
-    await stripeRequest({ secretKey: "sk_test_secretsecret", apiVersion: "v", fetchFn }, "GET", "/v1/prices/price_x");
+    await stripeRequest({ secretKey: KEY, apiVersion: "v", fetchFn }, "GET", "/v1/prices/price_x");
     throw new Error("no error");
   } catch (error) {
     assert(error instanceof StripeError, "a StripeError");
@@ -78,7 +79,7 @@ Deno.test("a Stripe refusal becomes a StripeError with status, type and code - n
   }
   const down = (() => Promise.reject(new TypeError("dns"))) as unknown as typeof fetch;
   try {
-    await stripeRequest({ secretKey: "sk_test_secretsecret", apiVersion: "v", fetchFn: down }, "GET", "/v1/x");
+    await stripeRequest({ secretKey: KEY, apiVersion: "v", fetchFn: down }, "GET", "/v1/x");
     throw new Error("no error");
   } catch (error) {
     assert(error instanceof StripeError && error.status === 0, "unreachable is status 0");
