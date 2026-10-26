@@ -1681,6 +1681,34 @@ cap at the boundary (the statement whole, duplicates free, direct insert and
 bulk upload too), desktop rows, HUD layouts, chart sets and tournament settings refused, Pro
 allowed everything; anon refused; the service role passes.
 
+### Stripe Billing (R6.3)
+
+`20270915090000_billing_stripe.sql` (`docs/RAIL-PLAN.md` R6.3 *As built*;
+the owner's setup is `docs/BILLING.md`). The Edge Functions
+`billing-checkout`, `billing-portal`, `billing-webhook` and `billing-cancel`
+call these with the service role; **no client can execute, read or write any
+of it**, so nothing new is client-callable.
+
+| Object | What |
+| --- | --- |
+| `profiles.billing_event_at` | Stripe's `created` of the newest event applied to the account. |
+| `billing_events` | One row per Stripe event id handled: type, `event_created`, `owner_id` (set null when the account is deleted), `outcome`, `received_at`. No payload. RLS on, no policy, no client grant. |
+| `billing_account(owner)` | Customer, subscription, plan, status, period end, early-user mark. |
+| `billing_set_customer(owner, customer)` | Links a `cus_...` id; first writer wins (returns the stored one); one customer per account (unique index). |
+| `billing_owner_of_customer(customer)` | The account, or null. |
+| `billing_claim(owner, kind)` | `checkout` / `portal`: 20 sessions an hour each (`enforce_rate_limit`, `53400` over). |
+| `billing_apply_subscription(event_id, type, created, customer, subscription, plan, period, status, period_end)` | One webhook event, whole, in one transaction: claims the id (a second delivery waits, then answers `duplicate`); no subscription -> `ignored`; unknown customer -> `unknown_customer`; created before `billing_event_at` -> `stale` (the same second applies); a dead subscription that is not the account's live one -> `not_current`; else R6.2's `billing_set_plan(...)` -> `applied`. Every outcome but `duplicate` is logged. |
+| `billing_events_prune(keep default 90 days)` | Deletes older log rows (at least 7 days kept). |
+
+What the webhook passes is Stripe's subscription read back with the secret
+key, never the request's content; the mapping (past due counted from the
+unpaid period's start, canceled to `ended_at`, incomplete = Free) is in
+`supabase/functions/_shared/billing/subscription.ts`.
+
+Tests: `billing_stripe.test.sql` (44): the grants and the sealed log, the
+customer link, the budget, every outcome, the effective plan following under
+enforcement, deletion and the prune.
+
 ---
 
 ## Verifying the isolation

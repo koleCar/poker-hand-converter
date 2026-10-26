@@ -1,0 +1,8 @@
+{
+  "sdk": "stripe@17.7.0",
+  "secret": "whsec_rail_sdk_vector_not_a_real_secret_0001",
+  "timestamp": 1790000100,
+  "payload": "{\"id\":\"evt_sdk_vector_1\",\"object\":\"event\",\"type\":\"customer.subscription.updated\",\"created\":1790000000,\"livemode\":false,\"data\":{\"object\":{\"id\":\"sub_sdkvector\",\"object\":\"subscription\",\"customer\":\"cus_sdkvector\",\"note\":\"žćš ünïcode\"}}}",
+  "header": "t=1790000100,v1=a6fd4fe14ea0e7c51e8a9576761e0d09436ea53cb3b83a71de1a63f626d4726f",
+  "acceptedBySdk": "evt_sdk_vector_1"
+}

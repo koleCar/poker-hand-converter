@@ -96,3 +96,59 @@
   display: grid;
   gap: 4px;
 }
+
+/* Paying (R6.3): the period chooser and the portal button. */
+
+.billing {
+  display: grid;
+  gap: 10px;
+}
+
+.periods {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.period {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.periodOn {
+  border-color: var(--accent-border);
+}
+
+.period input {
+  margin-top: 3px;
+}
+
+.periodText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* `/billing/success` and `/billing/cancel`: one card. */
+
+.returnCard {
+  display: grid;
+  gap: 12px;
+  max-width: 62ch;
+  margin: 0 auto;
+}
+
+.returnHeading {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-tight);
+}

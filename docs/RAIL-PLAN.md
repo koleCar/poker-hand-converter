@@ -10846,6 +10846,121 @@ it on (launch checklist below).
      enforcement_enabled = true;` (off again the same way).
 - Not applied to production (prod checklist: the migration).
 
+### R6.3 *As built* (2026-10-26)
+
+Stripe Billing with EU VAT (Stripe Tax), built for **test mode first and
+configured entirely by secrets** the owner sets later: no Stripe account, key,
+product or webhook exists, nothing was deployed, and with the secrets unset
+every function answers "unavailable" and the web still says "paid plans open
+soon". The owner's guide is **`docs/BILLING.md`** (products and prices,
+Stripe Tax and the EU OSS registration, the early users' coupon, the Customer
+Portal, the webhook and its six events, the exact secrets, Stripe CLI tests,
+the launch order, cancelling for an account).
+
+- **Four Edge Functions** (`supabase/functions/billing-*`, shared code in
+  `_shared/billing/`; all `verify_jwt = false` in `config.toml`, each for its
+  reason):
+  - `billing-checkout` - `GET`: what is on sale, read from Stripe (amount,
+    currency, VAT inclusive or not, the coupon's percent; cached 10 min; no
+    id or secret leaves). `POST {period, locale}`: the caller verified with
+    GoTrue (anonymous / unconfirmed refused), 20 sessions an hour
+    (`billing_claim`), refused when a subscription still runs
+    (`already_subscribed`: renewing is the portal's job), the Stripe customer
+    reused or created (idempotency key per account and email) and linked
+    (`billing_set_customer`, first writer wins), then a Checkout Session:
+    mode subscription, the period's price from configuration,
+    **`automatic_tax`**, billing address required, **tax ids** collected,
+    both saved on the customer, the **early users' coupon** when the
+    database says the account is one, `client_reference_id` and metadata =
+    the verified account id. Returns the URL.
+  - `billing-portal` - the caller's own customer only (`no_customer`
+    otherwise), the configured return URL and optional portal configuration.
+  - `billing-webhook` - Stripe only: `Stripe-Signature` checked over the raw
+    bytes (HMAC-SHA256, any `v1`, 5-minute tolerance both ways) before
+    anything is read; an event of the other mode (live vs test key) dropped;
+    of `checkout.session.completed`, `customer.subscription.created /
+    updated / deleted`, `invoice.paid`, `invoice.payment_failed` only the
+    subscription's **id** is taken - the subscription is **read back from
+    Stripe**, mapped (`planFromSubscription`) and applied in one transaction
+    (`billing_apply_subscription`). 200 for applied, duplicate, stale,
+    unknown customer, ignored; 400 bad signature or body; 5xx when Stripe or
+    the database is down (Stripe retries). Logs: event id, type, outcome.
+  - `billing-cancel` - for **R6.5's account deletion**: the service role key
+    as bearer, `{owner}`; every live subscription of the account's customer
+    cancelled now. Also importable: `cancelOwnerSubscriptions(env, owner)`
+    from `_shared/billing/cancel.ts`. 503 when the account has a customer but
+    Stripe is unreachable or unset - the deletion should wait.
+- **Stripe without the SDK**: `fetch` + form encoding + `Stripe-Version`
+  pinned to `2025-03-31.basil` (`STRIPE_API_VERSION` overrides); the
+  signature check is Stripe's documented scheme in WebCrypto. Why: five
+  endpoints and one check; no third-party code beside the key; nothing
+  fetched from npm at deploy or in CI; tests offline. Checked against a
+  header made by the official SDK (`stripe@17.7.0`,
+  `_shared/billing/testdata/sdk_vector.json`, generator beside it, run by
+  hand). Both API shapes are read (the period on the subscription or on its
+  items; the invoice's subscription top-level or under `parent`).
+- **The mapping** (Stripe -> `billing_set_plan`): active / trialing -> Pro to
+  the period's end (+ R6.2's grace); set to cancel -> `canceled` to when it
+  ends; **past_due / unpaid -> `past_due` from the period's start** (Stripe
+  moves the period on before the renewal is paid, so its end would give a
+  whole unpaid period plus the grace); canceled -> `canceled` to `ended_at`;
+  incomplete / incomplete_expired / paused -> Free. The period from the
+  price's interval; any price of the account is accepted (old prices keep
+  working after a price change).
+- **Database**: migration `20270915090000_billing_stripe.sql`, everything
+  **service role only** (nothing new is client-callable, so `entitlements`'
+  free list is unchanged): `profiles.billing_event_at` (the newest applied
+  event's time), `billing_events` (sealed log: event id, type, created,
+  owner - set null when the account is deleted -, outcome; no payload),
+  `billing_account`, `billing_set_customer`, `billing_owner_of_customer`,
+  `billing_claim` (20 checkout and 20 portal sessions an hour),
+  `billing_apply_subscription` (claims the event id first - a duplicate
+  waits for the first delivery's commit, then returns `duplicate`; unknown
+  customer and no subscription are logged; an event **older** than the
+  account's newest is `stale`, the same second applies; a dead subscription
+  that is not the account's live one is `not_current`, a live one replaces
+  it), `billing_events_prune(keep)` (90 days by default, at least 7); route
+  `billing` reserved.
+- **Web**: Settings -> Plan offers **monthly or yearly** with Stripe's prices,
+  the early-user price, VAT inclusive / added, then Checkout; **Manage
+  subscription** (the portal) for any account with a subscription; notices
+  for past due (with the grace date), canceled with time left (renew in the
+  portal), ended (subscribe again); Pro granted by hand is offered nothing.
+  Buying while enforcement is off is allowed and says so. The browser is only
+  ever sent to `*.stripe.com`. `/billing/success` grants nothing: it re-reads
+  `my_entitlements()` every 2 s for 30 s and says when Pro is on;
+  `/billing/cancel` says nothing was charged. No new web variable and no
+  secret in the web. `en` + `hr`, checked at 375 px. (Fixed on the way: a
+  Croatian date ended in two full stops; past due no longer says "renews on"
+  a past date.)
+- **Tests**: Deno 73 (+1 end to end, skipped in CI): signature (SDK vector,
+  tampered, other secret, re-timed, expired, future, malformed, rolled
+  secrets), every event type -> the exact `billing_apply_subscription` call,
+  the state read back from Stripe, other mode / types, the database's
+  outcomes, Stripe or the database down, logs without payload or secret;
+  checkout (Tax params, coupon or promotion code, customer reuse and race,
+  no second subscription, unconfigured, auth, budget, config and its cache);
+  portal; cancel. `_shared/billing/e2e_test.ts` runs the four handlers
+  against a **local** stack's real GoTrue and PostgREST with a fake Stripe
+  (checkout -> incomplete -> paid -> a late older event `stale` -> a
+  redelivery `duplicate` -> past due -> portal -> cancel -> deleted ->
+  checkout again): passed on the R6.3 stack. pgTAP `billing_stripe` (44).
+  Vitest `billing` (17) in both languages; `entitlements` (12) unchanged.
+- **Launch checklist** (adds to R6.2's, before "enforcement on"; nothing of it
+  has been run):
+  1. Stripe in test mode per `docs/BILLING.md` sections 2-6; secrets per
+     section 7 (`supabase secrets set ...`; Vercel needs nothing);
+  2. apply `20270908090000_entitlements.sql` and
+     `20270915090000_billing_stripe.sql` to production;
+  3. deploy the functions:
+     `supabase functions deploy billing-checkout --project-ref riybwcfnclphacnfawiq --no-verify-jwt`,
+     the same for `billing-portal`, `billing-webhook`, `billing-cancel`;
+  4. test end to end in test mode (section 9);
+  5. live mode: repeat 1 with live objects and secrets;
+  6. R6.2's checklist (cutoff, limits, grants), then enforcement on.
+- Not applied to production (prod checklist: the migration and the four
+  functions).
+
 ---
 
 ## 11. Testing strategy
@@ -11023,3 +11138,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-26 | **R5.5b**: **tournament decisions graded by ICM**, `analysis/35` (web and app, one library). A No-Limit Hold'em tournament's preflop push or fold and call or fold facing a first-in push at 20bb or less are graded against the push/fold game's equilibrium (R5.5a) in prize equity - in chips for a multi-table hand whose players left nobody gave - `source: "icm"`, EVs in bb at the tournament's average chip price, §2's bands; `facts.icm` carries the model and its sources, stacks, payouts, prize equities, ranges, bubble factor and risk premium. Every other tournament decision is `tournament-*` with its reason. The user's payouts / field / players left per tournament: `tournament_settings` (owner-only, guard + a trigger that re-queues the tournament's hands; pgTAP 41) and store migration 17 (local). `decision_analysis.source` takes `icm`; the own charts file push/fold decisions (`icm-pushfold-*` tables). **Cash unchanged**: 7 796 corpus cash hands (194 with turn solves) byte-identical record by record before and after. Corpus: 91 tournament hands graded (84 in chips, 7 by ICM), 61 tournament hands a second. Not applied to production. |
 | 2026-10-26 | **R5.5c done, R5.5 complete**: the push/fold grade on screen. The web's analysis sheet shows a tournament decision's **ICM panel** (model and why, stacks, payouts and players left with their sources, prize equity per option - in money when the pool is known -, a big blind's worth, the equilibrium's ranges, bubble factor and risk premium per player) and, for the owner, **Payouts and players left** (`tournament_settings`; the tournament's hands re-graded on the next run); the app's hand analysis the same over its store. Leak finder and session review name the push/fold spots apart from cash opens (both languages, the app through R5.4b's door). `responsive.mjs` gains `RAIL_CHECK_ICM`; the whole run passes at 375 px in `en` and `hr` on a local stack. Vitest `icmScreens` (4). |
 | 2026-10-26 | **R6.2 done**: plans and entitlements in the database, **enforcement off** until the owner launches (R6.2 *As built*, with the launch checklist). Migration `20270908090000_entitlements.sql`: `profiles.plan`, `plan_period`, `plan_status`, `current_period_end`, `early_user` (+ since; every existing account and every account until the cutoff), provider ids (written only by the service role's `billing_set_plan`); `billing_settings` (switch off, early-user cutoff, 30 % discount, 7-day payment grace, 14-day offline grace) and `plan_limits` (Free 10 000 hands; Pro unlimited + desktop sync, HUD, full reports, analysis, Learn) as data; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`. 55 functions gated in their bodies from `entitlement_gates`; the cap and desktop rows by a statement trigger on `hands`; own chart sets, tournament settings and HUD layouts by trigger / policy; refusals `PT402` = HTTP 402. Web: Settings -> Plan, Pro badges and locks only while enforced. pgTAP `entitlements` 68 (on R5.5's staging: suite 49 files on a fresh reset, the 48 earlier files unchanged; R5.5's `tournament_settings` writes gated, its pure validator free), Vitest 12. Types regenerated. Not applied to production. |
+| 2026-10-26 | **R6.3 done**: Stripe Billing with EU VAT, **test mode first, configured only by secrets** (none set; nothing deployed; unset = "paid plans open soon", nothing breaks). Edge Functions `billing-checkout` (prices from Stripe; Checkout with `automatic_tax`, billing address and tax ids, the early users' coupon, the verified account as reference; 20 sessions an hour; no second subscription), `billing-portal`, `billing-webhook` (Stripe signature over the raw body; the six events; the subscription read back from Stripe; idempotent and out-of-order safe in one transaction) and `billing-cancel` (service role; for R6.5's account deletion, also importable). Stripe over `fetch` with a pinned API version, no SDK; signature check held to a header from the official SDK. Migration `20270915090000_billing_stripe.sql` (service role only: `billing_events`, `profiles.billing_event_at`, `billing_account`, `billing_set_customer`, `billing_owner_of_customer`, `billing_claim`, `billing_apply_subscription`, `billing_events_prune`; route `billing` reserved). Web: monthly / yearly with Stripe's prices and the early-user price, Manage subscription, past due / canceled / ended notices, `/billing/success` and `/billing/cancel`, `en` + `hr`. Owner's guide `docs/BILLING.md`. Deno 73 (+ a local end-to-end run), pgTAP `billing_stripe` 44, Vitest `billing` 17. Types regenerated. Not applied to production. |

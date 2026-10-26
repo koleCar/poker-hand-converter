@@ -1,30 +1,65 @@
 "use client";
 
 /**
- * Account -> Plan (Rail R6.2), on `/settings#plan`: the plan in effect, what
- * the account pays for, the library against the Free cap, the early-user
- * discount, and "Upgrade" (disabled until R6.3's checkout). While
- * enforcement is off it says so: everything is open and no limit applies.
+ * Account -> Plan (Rail R6.2, R6.3), on `/settings#plan`: the plan in effect,
+ * what the account pays for, the library against the Free cap, the
+ * early-user discount, and paying: "Upgrade to Pro" (monthly or yearly, to
+ * Stripe Checkout) or "Manage subscription" (Stripe's Customer Portal).
+ * While enforcement is off it says so: everything is open and no limit
+ * applies - buying Pro early is allowed and recorded. Until the owner
+ * configures Stripe, the upgrade is disabled: "paid plans open soon".
  */
 
+import { useEffect, useState } from "react";
+import {
+  billingView,
+  discounted,
+  fetchBillingOffer,
+  formatPrice,
+  openBillingPortal,
+  startCheckout,
+  type BillingError,
+  type BillingOffer,
+  type Period,
+} from "../../lib/billing/checkout";
 import type { Entitlements } from "../../lib/db/entitlements";
 import { useEntitlements } from "../../lib/entitlements/context";
-import { useDict } from "../../lib/i18n/client";
+import { useDict, useLocale } from "../../lib/i18n/client";
 import { ProBadge } from "./ProLock";
 import styles from "./plan.module.css";
 
-/** `2026-10-29T08:02:17Z` -> `29 October 2026`, as the settings screen words dates. */
+/**
+ * `2026-10-29T08:02:17Z` -> `29 October 2026`, as the settings screen words
+ * dates. Croatian writes `29. listopada 2026.`; the closing dot is dropped
+ * because every sentence that carries a date ends with its own.
+ */
 function formatDay(iso: string, intl: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return iso;
   }
-  return new Intl.DateTimeFormat(intl, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+  return new Intl.DateTimeFormat(intl, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+    .format(date)
+    .replace(/\.$/, "");
 }
 
 export function PlanPanel() {
   const t = useDict().plan;
   const { status, entitlements } = useEntitlements();
+  // What is on sale, as Stripe has it (no secret; null while asking).
+  const [offer, setOffer] = useState<BillingOffer | null>(null);
+  const signedIn = status !== "none";
+
+  useEffect(() => {
+    if (!signedIn) return;
+    let active = true;
+    void fetchBillingOffer().then((value) => {
+      if (active) setOffer(value);
+    });
+    return () => {
+      active = false;
+    };
+  }, [signedIn]);
 
   if (status === "none") {
     return null;
@@ -40,14 +75,17 @@ export function PlanPanel() {
           {status === "loading" ? t.loading : status === "unavailable" ? t.unavailable : t.loadFailed}
         </p>
       ) : (
-        <PlanDetails entitlements={entitlements} />
+        <PlanDetails entitlements={entitlements} offer={offer} />
       )}
     </section>
   );
 }
 
-/** The panel's body for one answer of `my_entitlements()`. */
-export function PlanDetails({ entitlements: e }: { entitlements: Entitlements }) {
+/**
+ * The panel's body for one answer of `my_entitlements()`, and what is on sale
+ * (`offer`: null = not known yet or not on sale).
+ */
+export function PlanDetails({ entitlements: e, offer = null }: { entitlements: Entitlements; offer?: BillingOffer | null }) {
   const en = useDict();
   const t = en.plan;
   const count = (value: number) => value.toLocaleString(en.chrome.intl);
@@ -63,20 +101,25 @@ export function PlanDetails({ entitlements: e }: { entitlements: Entitlements })
         <strong>{t.current(t.name[e.plan])}</strong>
         {e.plan === "pro" && e.enforced ? <ProBadge /> : null}
       </p>
-      {!e.enforced ? <p className="notice notice--info">{t.notEnforced}</p> : null}
+      {!e.enforced ? (
+        <p className="notice notice--info">{offer?.available ? t.billing.notEnforcedOnSale : t.notEnforced}</p>
+      ) : null}
 
       {sub.plan === "pro" ? (
         <p className="muted">
           {[
             sub.status ? t.status[sub.status] : t.granted,
             sub.period === "month" ? t.billedMonthly : sub.period === "year" ? t.billedYearly : null,
-            e.graceUntil
-              ? t.graceUntil(day(e.graceUntil))
-              : sub.currentPeriodEnd
-                ? sub.status === "canceled" || sub.status === null
-                  ? t.endsOn(day(sub.currentPeriodEnd))
-                  : t.renews(day(sub.currentPeriodEnd))
-                : null,
+            // Past due and canceled have their own notice below (`Billing`).
+            sub.status === "past_due" || sub.status === "canceled"
+              ? null
+              : e.graceUntil
+                ? t.graceUntil(day(e.graceUntil))
+                : sub.currentPeriodEnd
+                  ? sub.status === null
+                    ? t.endsOn(day(sub.currentPeriodEnd))
+                    : t.renews(day(sub.currentPeriodEnd))
+                  : null,
           ]
             .filter(Boolean)
             .join(" · ")}
@@ -119,8 +162,40 @@ export function PlanDetails({ entitlements: e }: { entitlements: Entitlements })
         <li>{t.proIncludes}</li>
       </ul>
 
-      {/* Checkout is R6.3: until then the button says plans open soon. */}
-      {e.enforced && e.plan !== "pro" ? (
+      <Billing entitlements={e} offer={offer} />
+    </>
+  );
+}
+
+/**
+ * Paying (R6.3): the subscription's notices, "Manage subscription" (the
+ * Stripe portal) for an account with a subscription, and "Upgrade to Pro"
+ * (monthly or yearly, prices from Stripe) for one without. With checkout
+ * not configured, the upgrade stays disabled - "paid plans open soon" - and
+ * only where R6.2 showed it (enforcement on, the plan without Pro).
+ */
+function Billing({ entitlements: e, offer }: { entitlements: Entitlements; offer: BillingOffer | null }) {
+  const en = useDict();
+  const t = en.plan;
+  const b = t.billing;
+  const view = billingView(e);
+  const day = (iso: string) => formatDay(iso, en.chrome.intl);
+  const end = e.subscription.currentPeriodEnd;
+  const onSale = offer !== null && offer.available;
+
+  return (
+    <>
+      {view.notice === "past_due" ? (
+        <p className="notice notice--warn">{e.graceUntil ? b.pastDueUntil(day(e.graceUntil)) : b.pastDue}</p>
+      ) : null}
+      {view.notice === "canceled_until" && end ? <p className="notice notice--info">{b.canceledUntil(day(end))}</p> : null}
+      {view.notice === "ended" && end ? <p className="muted">{b.ended(day(end))}</p> : null}
+
+      {view.manage ? <ManageButton /> : null}
+
+      {view.upgrade && onSale ? (
+        <UpgradeChooser offer={offer} earlyUser={e.earlyUser.is} enforced={e.enforced} />
+      ) : view.upgrade && e.enforced && e.plan !== "pro" ? (
         <div className={styles.actions}>
           <button type="button" className="btn btn--primary" disabled aria-describedby="settings-plan-soon">
             {t.upgrade}
@@ -131,5 +206,117 @@ export function PlanDetails({ entitlements: e }: { entitlements: Entitlements })
         </div>
       ) : null}
     </>
+  );
+}
+
+function ManageButton() {
+  const en = useDict();
+  const b = en.plan.billing;
+  const locale = useLocale();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<BillingError | null>(null);
+
+  const open = async () => {
+    setBusy(true);
+    setError(null);
+    const result = await openBillingPortal(locale);
+    if (result.ok) {
+      window.location.assign(result.url);
+      return;
+    }
+    setBusy(false);
+    setError(result.error);
+  };
+
+  return (
+    <div className={styles.billing}>
+      <div className={styles.actions}>
+        <button type="button" className="btn btn--ghost" onClick={open} disabled={busy} aria-describedby="plan-manage-hint">
+          {busy ? b.opening : b.manage}
+        </button>
+      </div>
+      <p id="plan-manage-hint" className={styles.small}>
+        {b.manageHint}
+      </p>
+      {error ? (
+        <p className="notice notice--error" role="alert">
+          {b.errors[error]}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** Monthly or yearly, each with Stripe's price (and the early-user price), then Checkout. */
+export function UpgradeChooser({
+  offer,
+  earlyUser,
+  enforced,
+}: {
+  offer: BillingOffer;
+  earlyUser: boolean;
+  enforced: boolean;
+}) {
+  const en = useDict();
+  const t = en.plan;
+  const b = t.billing;
+  const locale = useLocale();
+  const periods = (["month", "year"] as const).filter((p) => offer.prices[p] !== null);
+  const [period, setPeriod] = useState<Period>(periods[0] ?? "month");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<BillingError | null>(null);
+  const percent = earlyUser ? offer.earlyDiscountPercent : null;
+  const chosen = offer.prices[period];
+
+  const go = async () => {
+    setBusy(true);
+    setError(null);
+    const result = await startCheckout(period, locale);
+    if (result.ok) {
+      window.location.assign(result.url);
+      return;
+    }
+    setBusy(false);
+    setError(result.error);
+  };
+
+  return (
+    <div className={styles.billing}>
+      <fieldset className={styles.periods} disabled={busy}>
+        <legend className={styles.subheading}>{b.choose}</legend>
+        {periods.map((p) => {
+          const price = offer.prices[p];
+          if (!price) return null;
+          const money = (amount: number) => formatPrice(amount, price.currency, en.chrome.intl);
+          const per = p === "month" ? b.perMonth : b.perYear;
+          return (
+            <label key={p} className={`${styles.period} ${period === p ? styles.periodOn : ""}`}>
+              <input type="radio" name="plan-period" value={p} checked={period === p} onChange={() => setPeriod(p)} />
+              <span className={styles.periodText}>
+                <strong>{p === "month" ? b.monthly : b.yearly}</strong>
+                <span>{per(money(price.amount))}</span>
+                {percent ? (
+                  <span className={styles.small}>{b.withDiscount(per(money(discounted(price.amount, percent))), percent)}</span>
+                ) : null}
+              </span>
+            </label>
+          );
+        })}
+      </fieldset>
+      <p className={styles.small}>
+        {chosen?.taxInclusive ? b.vatIncluded : b.vatAdded} {b.vatNote}
+      </p>
+      {!enforced ? <p className={styles.small}>{b.earlyAccessNote}</p> : null}
+      <div className={styles.actions}>
+        <button type="button" className="btn btn--primary" onClick={go} disabled={busy || !chosen}>
+          {busy ? b.working : t.upgrade}
+        </button>
+      </div>
+      {error ? (
+        <p className="notice notice--error" role="alert">
+          {b.errors[error]}
+        </p>
+      ) : null}
+    </div>
   );
 }
