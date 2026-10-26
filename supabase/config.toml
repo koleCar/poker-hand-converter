@@ -434,3 +434,31 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 [functions.desktop-handoff]
 enabled = true
 verify_jwt = false
+
+# Stripe Billing (docs/RAIL-PLAN.md R6.3, docs/BILLING.md). Every Stripe value
+# is a secret the owner sets (`supabase secrets set`); unset, the functions
+# answer "unavailable" and the web says paid plans open soon.
+#
+# `verify_jwt = false` for all four, each for its own reason:
+#   billing-checkout, billing-portal  the user's token is verified with GoTrue
+#                                     inside (as desktop-handoff, above: the
+#                                     gateway only knows the legacy HS256 secret)
+#   billing-webhook                   Stripe sends no JWT; the request is trusted
+#                                     because of its Stripe-Signature
+#   billing-cancel                    the service role key, compared inside
+# Deploy each with `--no-verify-jwt` (or let this file set it).
+[functions.billing-checkout]
+enabled = true
+verify_jwt = false
+
+[functions.billing-portal]
+enabled = true
+verify_jwt = false
+
+[functions.billing-webhook]
+enabled = true
+verify_jwt = false
+
+[functions.billing-cancel]
+enabled = true
+verify_jwt = false

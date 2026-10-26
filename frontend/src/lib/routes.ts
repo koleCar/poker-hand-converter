@@ -117,10 +117,18 @@ export const paths = {
   /** Account -> Plan: the plan, its limits and usage (R6.2). */
   settingsPlan: () => "/settings#plan",
   /**
-   * Where "Upgrade to Pro" leads. A placeholder until R6.3's checkout: the
-   * Plan panel, which says paid plans are not open yet.
+   * Where "Upgrade to Pro" leads: the Plan panel, which offers monthly or
+   * yearly and opens Stripe Checkout (R6.3) - or says paid plans open soon
+   * while Stripe is not configured.
    */
   upgrade: () => "/settings#plan",
+  /**
+   * Where Stripe Checkout returns (R6.3): after paying, and when the buyer
+   * goes back. The owner sets these as `BILLING_SUCCESS_URL` and
+   * `BILLING_CANCEL_URL` (docs/BILLING.md) on the site's origin.
+   */
+  billingSuccess: () => "/billing/success",
+  billingCancel: () => "/billing/cancel",
   /**
    * Signs the Rail desktop app in through this browser (R1.7). The app opens it
    * with `?v=1&pub=..&state=..&t=..`; see `lib/auth/desktop.ts`.

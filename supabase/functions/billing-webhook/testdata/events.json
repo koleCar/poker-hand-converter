@@ -1,0 +1,173 @@
+[
+  {
+    "id": "evt_checkout_completed",
+    "object": "event",
+    "api_version": "2025-03-31.basil",
+    "type": "checkout.session.completed",
+    "created": 1790000001,
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": { "id": null, "idempotency_key": null },
+    "data": {
+      "object": {
+        "id": "cs_test_rail1",
+        "object": "checkout.session",
+        "mode": "subscription",
+        "status": "complete",
+        "payment_status": "paid",
+        "customer": "cus_rail1",
+        "subscription": "sub_rail1",
+        "client_reference_id": "00000000-0000-0000-0000-0000000b1001",
+        "customer_details": { "email": "player@example.test", "address": { "country": "HR" }, "tax_exempt": "none" },
+        "automatic_tax": { "enabled": true, "status": "complete" }
+      }
+    }
+  },
+  {
+    "id": "evt_subscription_created",
+    "object": "event",
+    "api_version": "2025-03-31.basil",
+    "type": "customer.subscription.created",
+    "created": 1790000000,
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": { "id": null, "idempotency_key": null },
+    "data": {
+      "object": {
+        "id": "sub_rail1",
+        "object": "subscription",
+        "customer": "cus_rail1",
+        "status": "incomplete",
+        "cancel_at_period_end": false,
+        "metadata": { "owner_id": "00000000-0000-0000-0000-0000000b1001" },
+        "items": {
+          "object": "list",
+          "data": [
+            {
+              "id": "si_1",
+              "object": "subscription_item",
+              "current_period_start": 1790000000,
+              "current_period_end": 1792592000,
+              "price": { "id": "price_promonth", "object": "price", "recurring": { "interval": "month" } }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "evt_subscription_updated",
+    "object": "event",
+    "api_version": "2025-03-31.basil",
+    "type": "customer.subscription.updated",
+    "created": 1790000002,
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": { "id": null, "idempotency_key": null },
+    "data": {
+      "object": {
+        "id": "sub_rail1",
+        "object": "subscription",
+        "customer": "cus_rail1",
+        "status": "active",
+        "cancel_at_period_end": false,
+        "metadata": { "owner_id": "00000000-0000-0000-0000-0000000b1001" },
+        "items": {
+          "object": "list",
+          "data": [
+            {
+              "id": "si_1",
+              "object": "subscription_item",
+              "current_period_start": 1790000000,
+              "current_period_end": 1792592000,
+              "price": { "id": "price_promonth", "object": "price", "recurring": { "interval": "month" } }
+            }
+          ]
+        }
+      },
+      "previous_attributes": { "status": "incomplete" }
+    }
+  },
+  {
+    "id": "evt_subscription_deleted",
+    "object": "event",
+    "api_version": "2025-03-31.basil",
+    "type": "customer.subscription.deleted",
+    "created": 1791000000,
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": { "id": null, "idempotency_key": null },
+    "data": {
+      "object": {
+        "id": "sub_rail1",
+        "object": "subscription",
+        "customer": "cus_rail1",
+        "status": "canceled",
+        "canceled_at": 1791000000,
+        "ended_at": 1791000000,
+        "cancel_at_period_end": false,
+        "items": {
+          "object": "list",
+          "data": [
+            {
+              "id": "si_1",
+              "object": "subscription_item",
+              "current_period_start": 1790000000,
+              "current_period_end": 1792592000,
+              "price": { "id": "price_promonth", "object": "price", "recurring": { "interval": "month" } }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "evt_invoice_paid",
+    "object": "event",
+    "api_version": "2025-03-31.basil",
+    "type": "invoice.paid",
+    "created": 1790000002,
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": { "id": null, "idempotency_key": null },
+    "data": {
+      "object": {
+        "id": "in_rail1",
+        "object": "invoice",
+        "customer": "cus_rail1",
+        "status": "paid",
+        "billing_reason": "subscription_create",
+        "parent": {
+          "type": "subscription_details",
+          "subscription_details": { "subscription": "sub_rail1", "metadata": {} }
+        },
+        "customer_email": "player@example.test",
+        "total": 699,
+        "currency": "eur"
+      }
+    }
+  },
+  {
+    "id": "evt_invoice_payment_failed",
+    "object": "event",
+    "api_version": "2024-06-20",
+    "type": "invoice.payment_failed",
+    "created": 1792592100,
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": { "id": null, "idempotency_key": null },
+    "data": {
+      "object": {
+        "id": "in_rail2",
+        "object": "invoice",
+        "customer": "cus_rail1",
+        "status": "open",
+        "billing_reason": "subscription_cycle",
+        "subscription": "sub_rail1",
+        "customer_email": "player@example.test",
+        "total": 699,
+        "currency": "eur"
+      }
+    }
+  }
+]

@@ -728,6 +728,48 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_events: {
+        Row: {
+          event_created: string
+          id: string
+          outcome: string
+          owner_id: string | null
+          received_at: string
+          type: string
+        }
+        Insert: {
+          event_created: string
+          id: string
+          outcome: string
+          owner_id?: string | null
+          received_at?: string
+          type: string
+        }
+        Update: {
+          event_created?: string
+          id?: string
+          outcome?: string
+          owner_id?: string | null
+          received_at?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_events_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_settings: {
         Row: {
           early_user_cutoff: string | null
@@ -3378,6 +3420,7 @@ export type Database = {
           ban_reason: string | null
           banned_until: string | null
           billing_customer_id: string | null
+          billing_event_at: string | null
           billing_subscription_id: string | null
           created_at: string
           current_period_end: string | null
@@ -3401,6 +3444,7 @@ export type Database = {
           ban_reason?: string | null
           banned_until?: string | null
           billing_customer_id?: string | null
+          billing_event_at?: string | null
           billing_subscription_id?: string | null
           created_at?: string
           current_period_end?: string | null
@@ -3424,6 +3468,7 @@ export type Database = {
           ban_reason?: string | null
           banned_until?: string | null
           billing_customer_id?: string | null
+          billing_event_at?: string | null
           billing_subscription_id?: string | null
           created_at?: string
           current_period_end?: string | null
@@ -4400,7 +4445,41 @@ export type Database = {
         Returns: Json
       }
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
+      billing_account: {
+        Args: { p_owner: string }
+        Returns: {
+          current_period_end: string
+          customer_id: string
+          early_user: boolean
+          plan: string
+          plan_status: string
+          subscription_id: string
+        }[]
+      }
+      billing_apply_subscription: {
+        Args: {
+          p_current_period_end: string
+          p_customer_id: string
+          p_event_created: string
+          p_event_id: string
+          p_event_type: string
+          p_period: string
+          p_plan: string
+          p_status: string
+          p_subscription_id: string
+        }
+        Returns: string
+      }
+      billing_claim: {
+        Args: { p_kind: string; p_owner: string }
+        Returns: undefined
+      }
+      billing_events_prune: { Args: { p_keep?: string }; Returns: number }
       billing_mark_early_users: { Args: never; Returns: number }
+      billing_owner_of_customer: {
+        Args: { p_customer_id: string }
+        Returns: string
+      }
       billing_plan_state: {
         Args: { p_owner: string }
         Returns: {
@@ -4409,6 +4488,10 @@ export type Database = {
           reason: string
           valid_until: string
         }[]
+      }
+      billing_set_customer: {
+        Args: { p_customer_id: string; p_owner: string }
+        Returns: string
       }
       billing_set_plan: {
         Args: {

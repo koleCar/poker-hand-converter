@@ -43,6 +43,59 @@ export const planHr: Dict["plan"] = {
   upgrade: "Prijeđi na Pro",
   upgradeSoon: "Plaćeni planovi uskoro.",
 
+  billing: {
+    notEnforcedOnSale:
+      "Rail je u ranom pristupu: sve je otvoreno svakom računu i nijedno ograničenje ne vrijedi. Na Pro se već možeš pretplatiti.",
+    choose: "Razdoblje naplate",
+    monthly: "Mjesečno",
+    yearly: "Godišnje",
+    perMonth: (price: string) => `${price} / mjesec`,
+    perYear: (price: string) => `${price} / godina`,
+    withDiscount: (price: string, percent: number) => `${price} uz tvoj popust ranog korisnika od ${percent}%`,
+    vatIncluded: "Cijene uključuju PDV.",
+    vatAdded: "PDV se dodaje pri plaćanju gdje se primjenjuje.",
+    vatNote: "Porez se računa prema adresi za naplatu pri plaćanju; tvrtka može upisati svoj PDV broj.",
+    earlyAccessNote:
+      "Pretplatom sada naplata Pro plana počinje danas. Sve ostaje otvoreno dok je Rail u ranom pristupu.",
+    continue: "Nastavi na plaćanje",
+    working: "Otvaram stranicu za plaćanje…",
+    manage: "Upravljaj pretplatom",
+    manageHint: "Promijeni karticu, prebaci se između mjesečne i godišnje naplate, preuzmi račune ili otkaži.",
+    opening: "Otvaram…",
+    pastDue: "Zadnje plaćanje nije prošlo. Ažuriraj način plaćanja da zadržiš Pro.",
+    pastDueUntil: (date: string) =>
+      `Zadnje plaćanje nije prošlo. Pro ostaje uključen do ${date}; ažuriraj način plaćanja da ga zadržiš.`,
+    canceledUntil: (date: string) =>
+      `Pretplata je otkazana. Pro ostaje uključen do ${date}; do tada je možeš obnoviti.`,
+    ended: (date: string) => `Pretplata je završila ${date}.`,
+    errors: {
+      not_signed_in: "Ponovno se prijavi pa pokušaj još jednom.",
+      invalid_request: "Nije uspjelo. Osvježi stranicu i pokušaj ponovno.",
+      email_unconfirmed: "Najprije potvrdi svoju email adresu: potvrda o plaćanju stiže na nju.",
+      account_not_supported: "Ovaj račun se ne može pretplatiti. Prijavi se računom s emailom.",
+      rate_limited: "Previše pokušaja u kratkom vremenu. Pričekaj malo pa pokušaj ponovno.",
+      unavailable: "Plaćanje trenutno nije dostupno. Pokušaj kasnije.",
+      already_subscribed: "Već imaš pretplatu. Promijeni je preko Upravljaj pretplatom.",
+      no_customer: "Još nema pretplate kojom bi se upravljalo.",
+      failed: "Nešto je pošlo po zlu. Ništa nije naplaćeno. Pokušaj ponovno.",
+    },
+    success: {
+      metaTitle: "Plaćanje primljeno | Rail",
+      heading: "Hvala",
+      body: "Plaćanje je prošlo. Pro se uključuje čim ga Stripe potvrdi, obično za nekoliko sekundi.",
+      waiting: "Čekam potvrdu…",
+      active: "Pro je uključen za tvoj račun.",
+      slow: "Potvrda traje duže nego inače. Plan će se sam ažurirati; ovu stranicu možeš napustiti.",
+      back: "Natrag na tvoj plan",
+    },
+    cancel: {
+      metaTitle: "Plaćanje otkazano | Rail",
+      heading: "Plaćanje otkazano",
+      body: "Ništa nije naplaćeno. Pretplatiti se možeš kad god želiš.",
+      back: "Natrag na tvoj plan",
+    },
+  },
+
   lock: {
     heading: "Ovo je Pro značajka",
     body: {
