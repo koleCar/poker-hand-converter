@@ -139,3 +139,22 @@
 .section:focus {
   outline: none;
 }
+
+/* (R6.5) Account, Your data: the web's export and deletion, and a quiet link. */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.linkButton {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}

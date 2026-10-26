@@ -26,6 +26,7 @@ The schema is defined by four migrations:
 | `20270623093000_stats_seats_and_budget.sql` | Rail R4.4 findings F1, F2: seat numbers past 24 (Ignition tournaments) - `hand_stats.seat`, `hand_stats_ev.seat`, `hand_analysis.hero_seat` any `smallint` from 0, `comments.anchor_seat` from 1; statistics inserts charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, `hand_stats_insert_day:<uid>` 10 000 000 / day) with the global `hand_stats_insert` a 3 000 000 / 10 min ceiling, through `hand_stats_charge_budget()` (no client grant). See [Rate limiting](#rate-limiting) and the statistics rebuild. Not applied to production. |
 | `20270908090000_entitlements.sql` | Rail R6.2: plans and entitlements, **enforcement off** until launch. `profiles.plan` and its subscription fields, `billing_settings`, `plan_limits`, `entitlement_gates`; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`; the cap and desktop rows on `hands`. See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
 | `20270929090000_billing_enforced.sql` | Rail R6.4: `billing_enforced()` - whether paid plans are enforced, for a desktop app with no account (anon-callable definer; the switch only, no user data). See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
+| `20271006090000_account_export.sql`, `20271006100000_account_deletion.sql` | Rail R6.5: the account's data. `account_data_inventory` (every place that holds an account's rows: export and deletion decided per row; pgTAP fails on a table missing from it); the owner-only export readers (`export_my_manifest`, `export_my_profile`, `export_my_hands`, `export_my_rows`, `export_my_sealed`); the deletion's request and steps (`begin_account_deletion` as the user, then `account_deletion_state` / `_mark`, `account_storage_objects`, `erase_account_content`, `erase_account_hands` for the Edge Function `account-delete`); the moderation log's erasure exception. See [Your data](#your-data-export-and-deletion). Not applied to production. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -46,6 +47,7 @@ the app touches Supabase.
 - [Hand analysis](#hand-analysis-hand_analysis-decision_analysis)
 - [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands)
 - [Plans and entitlements](#plans-and-entitlements)
+- [Your data: export and deletion](#your-data-export-and-deletion)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -69,7 +71,7 @@ There are exactly three kinds of caller:
 | --- | --- | --- |
 | **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`), and `read_shared_analysis(surface, id, version)` — a hand's analysis, only where its owner shared it and the hand is already public to the caller. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
-| **`service_role`** | Us, from the dashboard or the Management API; and one Edge Function, `desktop-handoff` (R1.7), with the runtime's own key | Everything. Triage, cleanup, backfills. The function uses it for exactly one call: minting a one-time sign-in token for the account whose JWT called it ([Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff)). |
+| **`service_role`** | Us, from the dashboard or the Management API; and two Edge Functions with the runtime's own key: `desktop-handoff` (R1.7) and `account-delete` (R6.5) | Everything. Triage, cleanup, backfills. `desktop-handoff` uses it for exactly one call: minting a one-time sign-in token for the account whose JWT called it ([Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff)). `account-delete` deletes the account whose JWT called it, after that account started the deletion itself ([Your data](#your-data-export-and-deletion)). |
 
 The rules the schema holds to:
 
@@ -159,6 +161,9 @@ library would otherwise hold a shared budget for hours.
 | `desktop_ingest:<user>` | 150 000 rows / 10 min **per account** | `ingest_hands()`, every row received (duplicates and rejections too) - from the app's folders and from the web's bulk upload (R4.2) alike: one ingest budget per account |
 | `desktop_ingest_day:<user>` | 2 000 000 rows / day **per account** | `ingest_hands()` |
 | `hand_source:<user>` | 120 registrations / 10 min **per account** | `register_hand_source()`, and `register_web_hand_source()` when it creates the source |
+| `account_export:<user>` | 10 exports / day **per account** | `export_my_manifest()` (R6.5) |
+| `account_export_page:<user>` | 5 000 pages / hour **per account** | every export reader's page (R6.5) |
+| `account_delete:<user>` | 5 deletion starts / hour **per account** | `begin_account_deletion()` (R6.5; resuming one in progress is free) |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -255,6 +260,9 @@ why:
 | `has_entitlement`, `billing_plan_state`, `billing_stored_hands` | **definer** | Take an owner - an oracle on other accounts' plans - so no client may execute them; the triggers and the functions above call them. |
 | `billing_set_plan` | **definer** | The only writer of the plan fields; `service_role` only (R6.3's webhook). |
 | `hands_enforce_plan`, `entitlement_row_guard`, `profiles_mark_early_user` (triggers) | **definer** | Read the sealed plan tables for the rows' owners. No client may execute them. |
+| `export_my_manifest`, `export_my_profile`, `export_my_sealed`, `account_export_entry`, `account_export_charge` | **definer** | R6.5's export: read sealed tables (`profiles`, `auth.users`, `shares`, the forum's own rows in every state, votes, reports, the inventory) for the caller only, `auth.uid()` bound on every table; the charge reaches `enforce_rate_limit`. `authenticated` only. `export_my_hands`, `export_my_rows` and `account_export_page` are invoker (RLS applies too). |
+| `begin_account_deletion`, `my_account_deletion` | **definer** | R6.5: write and read the sealed `account_deletions` row of the caller; the start checks the typed username and the JWT's `amr`. `authenticated` only. |
+| `account_deletion_state`, `account_deletion_mark`, `account_storage_objects`, `erase_account_content`, `erase_account_hands` | **definer** | R6.5: the deletion's steps for one account id. **`service_role` only** (the Edge Function `account-delete`, after the account started the deletion as itself). |
 | `hands_signal_arrival` (trigger) | **definer** | `hand_arrivals` has no client write grant and `save_hands` runs as the caller. Reads only the statement's transition table, upserts one row per owner in it; a failure is swallowed so it never fails a save. No client may execute it (R1.10). |
 
 ---
@@ -1719,6 +1727,208 @@ unpaid period's start, canceled to `ended_at`, incomplete = Free) is in
 Tests: `billing_stripe.test.sql` (44): the grants and the sealed log, the
 customer link, the budget, every outcome, the effective plan following under
 enforcement, deletion and the prune.
+
+---
+
+## Your data: export and deletion
+
+`20271006090000_account_export.sql`, `20271006100000_account_deletion.sql`
+and the Edge Function `supabase/functions/account-delete` (Rail R6.5;
+`docs/RAIL-PLAN.md` R6.5 *As built*). GDPR Art. 15 / 20 (a copy of
+everything, machine-readable) and Art. 17 (erasure), for every account:
+none of it is gated by a plan (pgTAP `entitlements`' free list).
+
+### The owner data inventory
+
+`account_data_inventory` (sealed) has one row per place that holds an
+account's rows: which columns hold the account id, whether and where the
+export carries it, and what the deletion does to it. The export readers are
+driven by it (a section exists only if it is listed) and pgTAP
+`account_data` fails when a public table with an account column (a foreign
+key to `auth.users`, or a column named `owner_id`, `user_id`, `author_id`,
+`submitted_by`, `reserved_for`, `reporter_id`, `actor_id`, `edited_by`,
+`granted_by`) or a private Storage bucket is not in it, when a listed column
+does not exist, or when a row marked `cascade` does not cascade. **A
+migration that adds such a table adds its row**, deciding both questions.
+
+Export: a file of the ZIP, `profile.json`, or not exported - `derived` (a
+summary rebuilt from rows that are exported), `internal` (operational state
+with nothing of the account's own), `on_request` (records naming other
+people). Deletion: `cascade` (foreign key from `auth.users`), `erase`
+(removed by the deletion before the auth user), `anonymise` (kept without the
+account), `retain` (kept, for the reason given).
+
+| Where | Account columns | Export | Deletion | Note |
+| --- | --- | --- | --- | --- |
+| `auth.users` | id | `profile.json` | erase | Email, sign-up and last sign-in times. Deleted last, through the Auth admin API; GoTrue's own tables (identities, sessions, refresh tokens, MFA factors, one-time tokens) cascade with it. |
+| `public.account_deletions` | user_id | internal | retain | The deletion's own progress: the account id and the time of each step, no content. Kept 30 days after completion as the record that the request was carried out, then purged. |
+| `public.analysis_graded_sites` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_hand_rows` | owner_id | derived | cascade | Summary of hand_analysis. |
+| `public.analysis_leak_rows` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_leak_stake_totals` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_leak_totals` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_month_hands` | owner_id | derived | cascade | Summary of hand_analysis. |
+| `public.analysis_node_totals` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_overview_decisions` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_overview_flags` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_overview_hands` | owner_id | derived | cascade | Summary of hand_analysis. |
+| `public.analysis_overview_keys` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.analysis_shares` | owner_id | `analysis_shares.ndjson` | cascade | Which hands' analyses the account shared. |
+| `public.analysis_trend_days` | owner_id | derived | cascade | Summary of decision_analysis. |
+| `public.billing_events` | owner_id | internal | anonymise | Stripe webhook events handled for the account (event id, type, time, outcome; no payload, no amount) - the idempotency log. owner_id is set null when the profile is deleted; rows are pruned after 90 days. |
+| `public.board_moderators` | user_id, granted_by | `profile.json` | cascade | Boards the account moderates. granted_by is set null on others' rows. |
+| `public.comment_votes` | user_id | `forum/comment_votes.ndjson` | erase | Votes on comments. Deleted, and the counts and karma recounted. |
+| `public.comments` | author_id | `forum/comments.ndjson` | anonymise | Comments, including removed ones. On deletion each becomes a tombstone (no words, no author), as a deleted comment does, so the replies under it stay in place. |
+| `public.content_revisions` | edited_by | `forum/revisions.ndjson` | erase | Earlier versions of what the account edited. On deletion the revisions of the account's own posts and comments are deleted; edited_by is set null on others'. |
+| `public.decision_analysis` | owner_id | `analysis/decision_analysis-NNNN.ndjson` | cascade | Each graded decision of each hand. |
+| `public.drill_items` | owner_id | `learning/drill_items.ndjson` | cascade | Drill cards made from the account's decisions. |
+| `public.drill_reviews` | owner_id | `learning/drill_reviews.ndjson` | cascade | Drill answers. |
+| `public.hand_analysis` | owner_id | `analysis/hand_analysis-NNNN.ndjson` | cascade | Each hand's analysis, every stored version. |
+| `public.hand_arrivals` | owner_id | internal | cascade | One counter row: when hands last arrived and how many, for the live strip. No hand content. |
+| `public.hand_sources` | owner_id | `hand_sources.ndjson` | cascade | The desktop app's folders (device, label, counters) and the web's upload source. |
+| `public.hand_stats` | owner_id | `hand_stats/hand_stats-NNNN.ndjson` | cascade | Per-seat statistics of each hand, every stored version. Derived from the PHF; exported because it is held. |
+| `public.hand_stats_ev` | owner_id | `hand_stats/hand_stats_ev-NNNN.ndjson` | cascade | All-in EV per seat. Derived from the PHF. |
+| `public.hands` | owner_id | `hands/hands-NNNN.ndjson` | erase | Every stored hand: its PHF as stored, key, origin, times, and the standard / source text where the web kept it. The search columns are derived from the PHF and not repeated. Deleted in batches before the account. |
+| `public.hero_report_rows` | owner_id | derived | cascade | The hero's rows of hand_stats, for the reports. |
+| `public.hero_rollups` | owner_id | derived | cascade | Summary of hand_stats. |
+| `public.hud_layouts` | owner_id | `hud_layouts.ndjson` | cascade | The desktop HUD's designs, assignments and positions (sealed here: the select policy needs desktop_sync). |
+| `public.ingest_rate_limit` |  | internal | erase | Rate-limit windows, some named after the account ('comment:<id>'). Swept after two days; the deletion removes the account's at once. |
+| `public.lesson_cards` | owner_id | `learning/lesson_cards.ndjson` | cascade | Course review cards. |
+| `public.lesson_progress` | owner_id | `learning/lesson_progress.ndjson` | cascade | Course progress. |
+| `public.library_counts_stale` | owner_id | derived | cascade | A flag: the counts above need a rebuild. |
+| `public.library_hand_counts` | owner_id | derived | cascade | Counts of hands. |
+| `public.library_hero_counts` | owner_id | derived | cascade | Counts of hands. |
+| `public.moderation_actions` | actor_id, target_id, subject_id | on_request | retain | The append-only moderation log. On deletion the words of the account's own posts, comments and hands are removed from it (R6.5) and actor_id is set null; the record of what was done stays, for the forum's safety and legal claims. |
+| `public.notifications` | user_id, actor_id | `forum/notifications.ndjson` | erase | Notifications the account received (cascade), and those its comments caused others (deleted). |
+| `public.player_notes` | owner_id | `player_notes.ndjson` | cascade | Notes on opponents. |
+| `public.player_stats` | owner_id | derived | cascade | Opponents' statistics, summed from hand_stats. |
+| `public.poll_votes` | user_id | `forum/poll_votes.ndjson` | cascade | Answers to "what would you do?" polls. |
+| `public.post_votes` | user_id | `forum/post_votes.ndjson` | erase | Votes on posts. Deleted, and the posts' counts and their authors' karma recounted. |
+| `public.posts` | author_id | `forum/posts.ndjson` | anonymise | Posts, including removed and deleted ones. On deletion: a post others replied to stays with its title and body replaced and no author; any other post is deleted. |
+| `public.preflop_chart_sets` | owner_id | `preflop_charts.ndjson` | cascade | Own preflop charts. |
+| `public.preflop_decision_rows` | owner_id | derived | cascade | Preflop decisions of decision_analysis, for the own-chart comparison. |
+| `public.preflop_decision_totals` | owner_id | derived | cascade | Summary of preflop_decision_rows. |
+| `public.profiles` | id | `profile.json` | cascade | Username, role, karma, digest choice, ban state, plan and subscription fields. Not exported: the unsubscribe token (a capability) and the shadowban flag (a moderation measure). |
+| `public.published_hand_sources` | author_id | `forum/published_hand_sources.ndjson` | cascade | Which stored hand each publication came from. |
+| `public.published_hands` | author_id | `forum/published_hands.ndjson` | anonymise | Published (scrubbed) copies of hands. On deletion: a hand under a kept thread stays, re-scrubbed with pseudonyms and without an author; every other one is deleted. |
+| `public.reports` | reporter_id, resolved_by, subject_id | `forum/reports.ndjson` | anonymise | Reports the account filed. On deletion they stay for the moderators without the reporter and without the free-text details. |
+| `public.saved_posts` | user_id | `forum/saved_posts.ndjson` | cascade | Saved posts. |
+| `public.shares` | owner_id | `shares.ndjson` | cascade | Share links the account made, with their payload and view counts. The links stop working. |
+| `public.study_plans` | owner_id | `learning/study_plans.ndjson` | cascade | Weekly study plans. |
+| `public.study_tasks` | owner_id | `learning/study_tasks.ndjson` | cascade | Study plan tasks. |
+| `public.thread_subscriptions` | user_id | `forum/thread_subscriptions.ndjson` | cascade | Watched and muted threads. |
+| `public.tournament_settings` | owner_id | `tournament_settings.ndjson` | cascade | Payouts, field and players left the account entered per tournament. |
+| `public.trainer_results` | owner_id | `learning/trainer_results.ndjson` | cascade | Trainer answers. |
+| `public.unparsed_hands` | submitted_by | `conversion_failures.ndjson` | erase | Hand histories the converter could not read, sent signed in. Web samples are verbatim text and are deleted; desktop samples were anonymised on the computer with consent and stay, unlinked (submitted_by set null). |
+| `public.username_reservations` | reserved_for | `profile.json` | retain | An old username stays reserved: for the account for a year after a rename, and for nobody for a year after the account is deleted (profiles_reserve_on_delete), so nobody can take over a known name. |
+| `storage.hand-uploads` | name | `originals/<path>` | erase | Original files the account chose to keep on a web upload (gzip, under <id>/). Deleted through the Storage API before the account; the database cascade does not remove stored files. |
+
+### Export
+
+The browser builds the ZIP (`frontend/src/lib/account/`): an Edge Function
+has a wall-clock limit and ~256 MB of memory, a 1 000 000-hand account is
+gigabytes of JSON, and a stored copy would be one more place holding the data.
+No copy is stored on the server, temporarily or otherwise.
+
+| Reader | Security | What |
+| --- | --- | --- |
+| `export_my_manifest()` | definer | The format version, the account id, a row count per exported section (derived rows are not counted: they ride with the hands), the original files' total size, the inventory. **Charged 10 a day** (`account_export:<uid>`). |
+| `export_my_profile()` | definer | `profile.json`: the account (email, sign-up, last sign-in, confirmation), the profile by named keys (never the unsubscribe token or the shadowban flag), the plan and the payment provider's ids, boards moderated, usernames reserved for the account. |
+| `export_my_hands(after, n ≤ 2000, derived)` | invoker | A page of hands by keyset on `(created_at, id)` (`hands_owner_created_idx`): id, key, origin, times, stored texts, the PHF as stored; with `derived`, the same hands' `hand_stats`, `hand_stats_ev`, `hand_analysis`, `decision_analysis` rows (every version) by hand id (their primary keys start with it). |
+| `export_my_rows(section, after, n ≤ 5000)` | invoker | A page of an inventory table RLS already lets the owner read, keyset on the inventory's key columns; `hand_uploads`: the kept original files' names and sizes (the files are downloaded through Storage under the owner-folder policy). |
+| `export_my_sealed(section, after, n ≤ 5000)` | **definer** | The same for tables clients cannot select, or not all of their own rows: `shares`, `hud_layouts` (its select policy needs `desktop_sync`), `published_hands` (+ `published_hand_sources`), `posts` and `comments` (removed and deleted ones too), `content_revisions`, the three vote tables, `reports`. |
+
+Owner first, as every reader: PL/pgSQL, the caller read once
+(`auth.uid()`), the owner bound on every table, `plan_cache_mode =
+force_custom_plan`. The generic page (`account_export_page`, invoker) takes
+the table, owner column, key and omitted columns from the sealed inventory,
+never from the caller; the cursor's values are cast to the key columns' own
+types, and a cursor missing a key column is refused. Called directly by a
+client it gives no more than `export_my_rows`: a sealed section is refused
+by the missing grant. Every page is charged to `account_export_page:<uid>`
+(5 000 an hour). New indexes for the forum's author-wide reads (the existing
+ones are partial on visible rows): `posts_author_all_idx`,
+`comments_author_all_idx`, `published_hands_author_all_idx`,
+`content_revisions_edited_by_idx`, `poll_votes_user_idx` (also what the
+cascade of a deleted account looks up), `published_hand_sources_author_idx`,
+`analysis_shares_owner_all_idx` (the existing one covers shared rows only).
+
+### Deletion
+
+Run by the Edge Function `account-delete` (service role), invoked with the
+user's own JWT; no client holds the service key. Each step is idempotent and
+marked in `account_deletions` (sealed; the account id - no foreign key, it
+outlives the account - and the time of each step), so a failed or timed-out
+call resumes where it stopped:
+
+| Step | Who | What |
+| --- | --- | --- |
+| start | **the user** | `begin_account_deletion(confirm)`: the typed username (any case) must match; the session must have signed in within 15 minutes (the JWT's `amr`, `session_authenticated_at()`; else `28000`, hint `reauth_required`); 5 starts an hour. A deletion already in progress is resumed without either. `my_account_deletion()` shows it. |
+| billing | function | An account with a payment-provider customer: every live subscription canceled now by R6.3's `cancelOwnerSubscriptions` (the code `billing-cancel` runs). Stripe or the database failing stops the deletion before anything is deleted (retried next call); Stripe not configured (nobody can bill it) or no profile lets it go on; no customer, no call. The Stripe customer and its invoices stay as tax records. |
+| storage | function | `account_storage_objects(id)` lists every object under `<id>/` in the inventory's buckets; the function deletes them through the Storage API (a direct delete from `storage.objects` is refused by Storage, and would orphan the files). |
+| content | function | `erase_account_content(id)`, one transaction (below). |
+| hands | function, then pg_cron | `erase_account_hands(id, n)`, 200 hands a call by default (a cold batch is random I/O; 500 could pass the 8 s statement timeout; a slow batch after progress answers 202, not an error) (their statistics, analysis, shares and drills cascade; rows another call holds are skipped - `for update skip locked` - and -1 says so); 0 marks the step done. While it runs, the summary triggers on the hand tables skip the statements (`WHEN` on `rail.erasing_account`): the account's summaries go with it, and its library counts are marked stale should the deletion stall. |
+| account | function | `DELETE /auth/v1/admin/users/<id>` (a 404 is "already done"); every remaining row cascades; the request is marked completed. |
+
+`erase_account_content` - personal data goes, other people's contributions
+stay where they were:
+
+- **posts**: one another account replied to (a visible comment of someone
+  else) stays so the thread does - title `[deleted]`, empty body, no author,
+  its revisions deleted; every other post is deleted (its own comments,
+  votes, saves, polls and notifications cascade);
+- **comments**: each becomes the tombstone a deleted comment already is (no
+  body, no author; the post's count one less), so replies stay attached;
+  revisions deleted;
+- **published hands**: one under a kept thread stays without author or
+  title, re-scrubbed with `scrub_phf(..., 'pseudonyms')` if it was published
+  "as imported"; every other one is deleted;
+- **votes**: deleted, and the posts', comments' and their authors' counts and
+  karma recounted at once;
+- **notifications** its comments caused others: deleted;
+- **reports** it filed: kept for the moderators without reporter or details;
+- **the moderation log**: `details` (where a removed or deleted post keeps its
+  words) of the rows about its own content replaced by `{"erased":
+  "account-deleted"}`. `moderation_actions_append_only` allows exactly that
+  change, only while `rail.erasing_account` is the row's subject (set inside
+  the function); every other update is still refused;
+- **conversion failures** sent from the web (verbatim text): deleted;
+  desktop samples (anonymised, consented) stay, unlinked by the cascade;
+- **rate-limit windows** named after it, and Auth's audit-log lines naming it
+  as the actor where the role may delete them.
+
+**The server finishes what the page started.** Once billing, storage and
+content are done (the steps that need the Edge Function), pg_cron's
+`account-deletions-finish` calls the procedure `finish_account_deletions(50)`
+every minute: `account_deletion_continue(id)` a step at a time with a commit
+after each - a batch of hands, then, with none left, `delete from auth.users`
+(every remaining row cascades) and the request completed. So a 1 000 000-hand
+deletion (the better part of an hour, I/O-bound) does not need the tab open;
+a call of the function meanwhile works beside it or finds the account gone
+(the page counts "signed out" after the deletion was under way as done).
+Neither is executable by a client.
+
+What stays is the inventory's `retain` rows. `purge_account_deletions()`
+(pg_cron `account-deletions-purge`, daily 04:23) removes a request 30 days
+after it finished (or stalled).
+
+### Tests
+
+`supabase/tests/database/account_data.test.sql` (84): the inventory complete
+and true (every account table and private bucket, its columns, its cascades, its key columns not null);
+every section exports every row the account holds there and nothing else, in
+two-row pages, for two accounts; the hands' pages and cursors, derived rows
+on request; refused cursors and sections; `profile.json` without the token
+and the flag; the manifest; anon refused everywhere; the readers owner first;
+the deletion's grants; the start refused without a recent sign-in or with
+another username, resumed without either; each erasure rule above, its
+idempotency, the moderation log still append-only outside it; every summary
+delete trigger on the hand tables skipping an erasure; the hands in batches;
+the server's finisher waiting for the function's steps, then finishing the
+hands and the account; after the auth user is deleted, no inventory table holds a row of
+the account but the retained ones; the purge. `supabase/functions/
+account-delete/handler_test.ts` (Deno, against a fake GoTrue, PostgREST and
+Storage) and `e2e.sh` (a local stack serving the function).
 
 ---
 

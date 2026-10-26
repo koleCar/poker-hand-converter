@@ -94,6 +94,8 @@ export interface AppInfo {
   version: string;
   identifier: string;
   logDir: string | null;
+  /** (R6.5) The local store's folder: what removing the local data means. */
+  dataDir: string | null;
   settingsFile: string;
   debug: boolean;
 }
@@ -350,6 +352,9 @@ export interface SyncStatus {
   capNow: number | null;
   tablesOpen: boolean;
 }
+
+/** (R6.5) The web pages the app opens (`account::web_page_path`). */
+export type WebPage = "your-data" | "delete-account" | "privacy";
 
 /** `rail_sync::auth::AccountStatus`: the desktop account (R1.7). */
 export type AccountStatus =
@@ -1116,6 +1121,8 @@ export const ipc = {
   accountOpenSignInPage: () => invoke<AccountStatus>("account_open_sign_in_page"),
   accountCancelSignIn: () => invoke<AccountStatus>("account_cancel_sign_in"),
   accountSignOut: () => invoke<AccountStatus>("account_sign_out"),
+  /** (R6.5) The web's data export, account deletion or privacy policy, in the default browser. */
+  accountOpenWebPage: (page: WebPage) => invoke<null>("account_open_web_page", { page }),
   /** Sync with the web (R1.9). `null`: sync is off in this build. */
   syncStatus: () => invoke<SyncStatus | null>("sync_status"),
   syncNow: () => invoke<SyncStatus>("sync_now"),

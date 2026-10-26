@@ -1,0 +1,131 @@
+/* Your data (R6.5): the export and the account deletion. Tokens only. */
+
+.panel {
+  gap: 12px;
+  max-width: 62ch;
+  scroll-margin-block-start: 8rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.subheading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.small {
+  margin: 0;
+  font-size: 13px;
+}
+
+.options {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* A whole row is the target: 44 px tall at least (R4.5's phone rule). */
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress {
+  display: grid;
+  gap: 6px;
+}
+
+.meter {
+  width: 100%;
+  max-width: 420px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--line);
+}
+
+.meterFill {
+  height: 100%;
+  background: var(--accent-bg);
+  transition: width 0.3s ease;
+}
+
+.list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.field input {
+  width: 100%;
+  max-width: 320px;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-weight: normal;
+}
+
+.field input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.danger {
+  border-color: color-mix(in srgb, var(--danger-fg) 45%, transparent);
+  background: color-mix(in srgb, var(--danger-fg) 12%, transparent);
+  color: var(--danger-on-tint);
+}
+
+.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger-fg) 20%, transparent);
+}
+
+.dangerZone {
+  border-color: color-mix(in srgb, var(--danger-fg) 30%, var(--line));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meterFill {
+    transition: none;
+  }
+}

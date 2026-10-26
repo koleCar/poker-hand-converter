@@ -277,6 +277,22 @@ export const hr: Dict = {
       signedOutLocally: "Odjava na ovom računalu je izvršena. Rail nije mogao doći do poslužitelja da ondje završi sesiju.",
       browserFailed: "Rail nije mogao otvoriti preglednik. Upotrijebi Ponovno otvori stranicu.",
     },
+    yourData: {
+      heading: "Tvoji podaci",
+      local:
+        "Rail čuva tvoje ruke, statistiku, postavke i HUD rasporede u bazi na ovom računalu. Ostaju ovdje bez obzira jesi li prijavljen; sinkronizirane ruke su i na tvom računu.",
+      dataDir: "Lokalni podaci",
+      settingsFile: "Datoteka postavki",
+      logs: "Datoteke zapisnika",
+      removeLocal:
+        "Da ih ukloniš s ovog računala: zatvori Rail (i iz trake sustava), deinstaliraj ga, pa obriši gornje mape. Odjava ih zadržava, a uklanja sesiju koju je Rail čuvao u sistemskom privjesku ključeva.",
+      export: "Preuzmi podatke svog računa",
+      delete: "Obriši moj račun…",
+      deleteHint:
+        "Oboje otvara postavke računa na webu, gdje se prijaviš i potvrdiš. Brisanje računa ne dira podatke na ovom računalu.",
+      privacy: "Pravila privatnosti",
+      openFailed: (reason: string) => `Preglednik se nije otvorio: ${reason}`,
+    },
   },
 
   sync: {

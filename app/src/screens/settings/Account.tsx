@@ -5,9 +5,11 @@ import { useT } from "../../i18n";
 import { useAccount } from "../../lib/useAccount";
 import { useSync } from "../../lib/useSync";
 import styles from "./Settings.module.css";
+import { YourData } from "./YourData";
 
-/** Settings, Account (R1.7): who is signed in, sign in or out; and sync
- * with the web under it (R1.9). */
+/** Settings, Account (R1.7): who is signed in, sign in or out; sync with
+ * the web under it (R1.9); and what this computer keeps, with the account's
+ * export and deletion on the web (R6.5). */
 export function Account() {
   const t = useT();
   const { account, error, busy, run } = useAccount();
@@ -31,6 +33,8 @@ export function Account() {
           <SyncPanel sync={sync.sync} error={sync.error} busy={sync.busy} run={sync.run} />
         </>
       )}
+      {/* Shown in every build: the local data is here with or without an account. */}
+      <YourData />
     </section>
   );
 }
