@@ -13,8 +13,9 @@
  * the 6-max 100bb set (12 lines × 100 flops) is in the public Storage bucket
  * `flop-library` (§10 A5b), with the 9-max 100bb set (13 lines, since
  * `analysis/21`) and the 6-max 150bb set (12 lines, since `analysis/25`)
- * beside it; a set is live once its manifest is there. The heads-up sets
- * have lines (`FLOP_LINES_HU`) the runner solves; none is uploaded yet. The analysis reads the library only when it is
+ * beside it, and the heads-up 100bb set (the five `FLOP_LINES_HU`, since
+ * `analysis/36`); a set is live once its manifest is there. The heads-up
+ * 150bb set is still being solved. The analysis reads the library only when it is
  * handed one (`AnalyzeOptions.flopLibrary`); the worker hands it one while the
  * flag is on and a Supabase URL is configured. Tests hand it the pilot's
  * chunks or a small solve of their own.
