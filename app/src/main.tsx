@@ -33,6 +33,13 @@ if (inApp) {
     .catch(() => undefined);
 }
 
+// (R5.4) The hand analysis in the background: its first look waits
+// (`START_DELAY_MS`), then a page at a time, never while a table is open.
+// The main window only (the HUD popup is a window of its own).
+if (inApp && !popup) {
+  void import("./analysis/service").then(({ startAnalysis }) => startAnalysis());
+}
+
 const root = document.getElementById("root");
 if (root) {
   createRoot(root).render(

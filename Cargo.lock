@@ -3792,6 +3792,7 @@ dependencies = [
  "rail-equity",
  "rail-stats",
  "rusqlite",
+ "serde",
  "serde_json",
  "zstd",
 ]

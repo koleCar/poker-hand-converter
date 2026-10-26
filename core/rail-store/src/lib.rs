@@ -36,6 +36,9 @@
 //! - **The HUD's layouts** (R3.6, [`hud`]): where the user dragged a seat's
 //!   panel and whether their client rotates the table; written by the app
 //!   for the HUD process, which only reads.
+//! - **The hand analysis** (R5.4, [`analysis`]): the web's analysis rows
+//!   for the hands here, written by the app's analysis runner (the web's
+//!   library in the window), and the user's own preflop charts (R5.3).
 //!
 //! The schema is documented table by table in `SCHEMA.md`.
 
@@ -44,6 +47,7 @@ use std::time::Duration;
 
 use rusqlite::{Connection, OpenFlags, params};
 
+pub mod analysis;
 pub mod background;
 pub mod batch;
 pub mod custom;
@@ -56,6 +60,7 @@ pub mod players;
 pub mod read;
 pub mod recompute;
 pub mod report;
+pub mod review;
 pub mod sources;
 pub mod stats;
 pub mod stats_read;
@@ -63,6 +68,10 @@ pub mod sync;
 pub mod time;
 pub mod writer;
 
+pub use analysis::{
+    AnalysisCounts, ChartSetRow, DecisionRowIn, HandAnalysisIn, PendingCursor, PendingHand,
+    PreflopFields, SaveOutcome, VillainCounters,
+};
 pub use background::{Activity, StatsWorker, WorkerStatus};
 pub use batch::{
     EvPlan, FileState, ImportBatch, ImportOutcome, ListFacts, PreparedHand, PreparedSeat,

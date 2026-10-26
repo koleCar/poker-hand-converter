@@ -9,6 +9,9 @@ export default defineConfig({
     // harness here.
     alias: {
       "@rail/ui": fileURLToPath(new URL("../packages/ui", import.meta.url)),
+      // The desktop app's analysis (R5.4) reaches the web's library through
+      // this alias (`app/vite.config.ts`); its tests run the app's files here.
+      "@rail/web-lib": fileURLToPath(new URL("../frontend/src/lib", import.meta.url)),
       // The shared package's screens rendered to markup (R4.5b,
       // `sharedHandsScreen.test.ts`): React from the web's install, as the
       // web bundles it (the package has none of its own).

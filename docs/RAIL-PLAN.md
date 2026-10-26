@@ -10205,6 +10205,210 @@ Most of guideline §9 exists on the web (`ANALYSIS-PLAN.md`). What is left:
     (above) are counted, not compared - a "facing a raise over limpers" key
     for non-limpers would cover the corpus's commonest unnamed spot.
 
+- *As built, R5.4a* (§15): **the analysis runs in the app** - over the
+  local store, offline and with no account (Q3) - with the readers its
+  screens need; the screens are R5.4b.
+  - **Which of the two options**: neither the webview nor a move. The
+    coordinator's decision (the owner's Q3: the app works offline without
+    an account) rules out the web's analysis in a webview, which needs the
+    account and the network; and `frontend/src/lib/analysis/` stays where it
+    is - a separate analysis program keeps merging `analysis/*` and
+    `charts/*` there, and a move would collide with every one of them. So
+    the library is **used in place**: `@rail/web-lib` is an alias of
+    `frontend/src/lib` in the app's build (`app/vite.config.ts`,
+    `tsconfig.app.json`, `tests/vitest.config.ts`), reached through **one
+    door**, `app/src/analysis/library.ts`, which names exactly what the app
+    uses (`analyzeHand`, `analyseStoredHands` / `handAnalysisRow` /
+    `handAnalysisFromStored`, the chart library's loaders, `CHART_SETS`,
+    `FlopLibraryLoader`, `VillainCounters`, `ANALYSIS_VERSION`,
+    `VILLAIN_MIN_HANDS`). ESLint (`no-restricted-imports`) keeps every
+    other app file away from `@rail/web-lib` and `frontend/src`, and
+    `tests/test/appAnalysisLibrary.test.ts` bundles the app's worker with
+    esbuild and fails on any module outside `lib/analysis`, `lib/charts`,
+    `lib/solver`, `lib/equity`, `lib/stats`, `lib/phf/types`, `lib/cards`,
+    `lib/db/analysisRows`, `lib/db/villainCounters` and the chart sets' JSON
+    (plus the shared package's chart vocabulary, below) - no Supabase, no
+    Next, no npm package. The library already compiled under the app's
+    flags (`noUnusedLocals`, `verbatimModuleSyntax`; since R2.7a the
+    app's strictness is the web's): no change to it. The chart sets' JSON is
+    `unknown` to the app's typecheck (`src/json.d.ts`; the library types
+    what it reads itself), so `tsc` does not read 31 MB of JSON.
+  - **What the web's worker took from Supabase, injected**: the web's
+    `workers/analysis.worker.ts` reads the Supabase URL for the flop
+    library and its rebuild (`lib/db/analysis.ts`) the browser client, so
+    the app has a worker and a runner of its own (`app/src/analysis/`):
+    - `engine.ts` - a page through the **web worker's own steps** in the
+      same order: the chart sets the page needs (`requiredChartSets`, then
+      `rareLineChartSets`), `FlopLibraryLoader.prefetch` per hand, then the
+      web's `analyseStoredHands`; the PHF trimmed first as
+      `hands_needing_analysis_recent` trims it (`meta.rawText`, actions'
+      `rawLine` and `label`);
+    - `rows.ts` - the writer's rows as the web's database stores them:
+      numbers rounded as the `numeric(p, s)` columns round the JSON number's
+      shortest spelling, half away from zero (held to an `Intl`
+      `halfExpand` over the decimal string on 26 000 values), the leak
+      finder's `spot_key` / `chart_set` / `best` (`analysis_leak_spot_key`,
+      `analysis_leak_chart_set`, `analysis_best_action`, R5.2) and the own
+      charts' fields (`preflop_decision_fields`, R5.3b, through the same
+      `packages/ui/charts/nodeKey.ts` the web's SQL twin is held to);
+    - `worker.ts` - the Web Worker: its flop library fetches go to the
+      window (a webview's worker has no Tauri IPC), which asks Rust;
+    - `runner.ts` - the background job (below); `service.ts` wires it to
+      the app.
+  - **What runs where**: Rust hands out hands and stores rows
+    (`rail_store::analysis`, migration 16, `src-tauri/src/analysis.rs`);
+    the window's runner asks the gate, reads a page, reads the page's
+    opponents' statistics, sends the page to **one** worker (the analysis
+    is a background job: one core) and writes the rows. The opponents'
+    statistics (analysis/20) are the web's `VillainCounters` (its batching
+    and cache) over the store's own `villain_counters`: each named
+    opponent's seat rows (`player_hands`: rooms with real names, never the
+    hero's rows), cash games, bomb pots out, at least `VILLAIN_MIN_HANDS`.
+  - **The background job** (`runner.ts`): pages of 20 hands, newest first
+    (the web's "recent first" read: `hand_list`'s order walked backwards
+    from a keyset cursor; a hand without statistics - a rebuild filling
+    them - comes last), a 250 ms breather between pages, **nothing on
+    startup** (the first look 20 s after the window opens, its code loaded
+    then). Before every page it asks **the gate** (`analysis_gate`): not
+    while the user has paused it (Pause on the Analysis screen, R5.4b; kept in the store's `kv`), not
+    while the HUD has a table open (A10), not while a folder's backfill runs
+    or the statistics pass works (R2.3's own rule for the pass: import and
+    statistics first; the analysis also reads the opponents' statistics). A
+    table opening also **stops the page in flight**: the worker is
+    terminated, and the page is analysed again after. New hands imported
+    start the walk again from the newest. A hand the engine throws on is
+    left unanalysed (as on the web) and not tried again until Rail starts
+    again. A version bump re-analyses every hand: a row is replaced, never
+    kept beside an older one.
+  - **Offline and the flop library**: nothing large is bundled but the
+    preflop chart sets (which the web bundles too: grading without them is
+    no grading). The flop library's files come from the **same public
+    bucket** the web's worker reads, through Rust (`rail_sync::floplib`):
+    a chunk is downloaded once and kept on disk for good (a new solve is a
+    new tree name), a set's manifest is kept and fetched again after a day,
+    and while the bucket cannot be reached the copy on disk answers; a file
+    the bucket does not hold is not remembered (a set uploaded later is read
+    then); paths are checked part by part (`chunkPath`'s rule). A hand whose
+    chunk is not on disk while offline is graded **exactly as the web
+    grades one whose chunk cannot be fetched** (the heuristic, the same
+    `FlopLibraryLoader` failure path; no new semantics), and its row says so
+    (`flop_library = 0`): for the next pages the runner goes without the
+    library until a probe (every 10 minutes) finds the bucket, then
+    analyses those hands again (the ones with a flop decision). Offline, a
+    fetch fails at once for a minute and the loader does not wait between
+    its tries, so an offline page is not slower.
+  - **The store** (migration 16, `rail_store::analysis`, `SCHEMA.md`):
+    `hand_analysis` and `decision_analysis` - the web's tables keyed by
+    `hand_key`, one version per hand, the aggregates computed on write as
+    `save_hand_analysis` computes them, plus `grade_rank` and the best
+    action; `analysis_leak_rows` and `chart_decisions`, the narrow rows the
+    web keeps by triggers for its top three and the own charts' comparison
+    (R5.2, R5.3b), written with the decisions; `chart_sets` (R5.3's
+    charts, local only: Q4's sync carries hands and statistics). Readers
+    for the screens
+    (`rail_store::review`): the session review (the web's `session_review`
+    over `hand_list`: a session found by walking outwards from one instant
+    in chunks, the latest **ended** one by default, the ongoing one named;
+    summary, coverage, the three ranked lists and the rows of the hands
+    they name), the picker's sessions, a session's preflop chart decisions,
+    the review's rows of given hands, and the own charts' comparison and
+    examples (`preflop_chart_played` / `_examples`' rules: a period counted
+    back from the last decision, the chart's format, table and stack
+    range).
+  - **Tauri commands** (`src-tauri/src/analysis.rs`, `review.rs`):
+    `analysis_gate`, `analysis_set_paused`, `analysis_pending`,
+    `analysis_offline`, `analysis_save`, `analysis_counts`, `hand_analysis`
+    (the web's `analysis_hand` shape), `analysis_villains`,
+    `analysis_clear`, `flop_library_file` (raw bytes, or `absent` /
+    `transient:<status>` / `offline`), `flop_library_reachable`,
+    `flop_library_usage`, `chart_sets_list` / `_load` / `_save` /
+    `_delete`, `session_review`, `review_sessions`, `session_preflop`,
+    `review_hands`, `chart_played`, `chart_examples`.
+  - **Parity** (`tests/test/appAnalysisParity.test.ts`, in `npm test`):
+    the web's path - the TypeScript converter's PHF read back as
+    `hands_needing_analysis_recent` hands it over (re-implemented from the
+    SQL, not the app's function), the web worker's steps with
+    `FlopLibraryLoader` over `fetch`, `analyseStoredHands`, the rows rounded
+    as Postgres' `numeric` would (by `Intl`, not the app's function) -
+    against the app's path - the Rust core's PHF (the committed WebAssembly
+    build of `rail-core`, byte-equal to the native store's by R4.4), the
+    app's worker itself driven through its messages with its fetches
+    answered as the window answers them, `storeRow`. Both read the flop
+    library from the committed pilot served as the bucket serves it.
+    Every corpus hand's PHF is the same in both (8 443 hands, canonical
+    JSON); a sample of the corpus and heads-up hands scripted on the
+    pilot's lines and flops (exact, relabelled and mapped flops, both
+    seats, single-raised and 3-bet pots) get **the same rows** - every
+    column the web stores, every decision, options, flags and facts - with
+    no opponents' statistics and with one map handed to both; offline, the
+    app's rows equal the web's with no flop library and are marked to be
+    analysed again (and differ from online where the library answers a
+    flop). Default run: 55 hands, 103 decisions, 88 graded, 23 flop
+    decisions from the library, 87 s; `RAIL_APP_PARITY_STRIDE=10` (every
+    10th corpus hand): 864 hands, 1 116 decisions, 904 graded - identical
+    (web path 665 s, app path 598 s, one thread each); `RAIL_APP_PARITY=all`
+    runs every corpus
+    hand and plays the scripted hands to the river.
+  - **Measured** (M2 Pro, with the flop library's solves and other jobs
+    running on the machine):
+    - **The store at a million hands** (`cargo run --release -p
+      rail-store --example analysis_queries` on R1.6's generated 982 297
+      hands, given a synthetic analysis row each - two decisions, one of
+      them a preflop chart decision; median of 11, ms):
+
+      | | ms |
+      | --- | ---: |
+      | the next page (20 hands), nothing analysed / 1 000 left | 0.2 / 0.2 |
+      | the counts, nothing / all but 1 000 analysed (first: 1.5 s) | 1.3 / 121 |
+      | a page of 20 rows written | 1.2 |
+      | one hand's analysis read back | 0.02 |
+      | the opponents' counters of a page (61 players) | 0.02 |
+      | session review: the latest / a middle / the biggest session (7 074 hands) | 0.2 / 0.3 / 192 |
+      | the picker, every session (19 361) | 41 |
+      | own chart compared: 30 days / 365 days / all time (first: 3.3 s) | 96 / 272 / 1 021 |
+      | own chart examples, all time | 110 |
+
+      The 981 297 rows took 89 s to write; the analysis tables take 2.5 GB
+      (~2.7 KB a hand, with the narrow rows; a real row is ~2.1 KB of JSON
+      a hand, 1.15 decisions and ~0.7 KB of facts each). The comparison
+      first read the wide table: 7-31 s, hence `chart_decisions` and
+      `analysis_leak_rows`.
+  - **Bundle** (the app's `dist`; Tauri embeds it brotli-compressed): the
+    window's first chunk +3.3 KB (620 KB, 196 KB gzip: the IPC wrappers);
+    loaded later, the analysis service 13.8 KB and the worker 181 KB
+    (59 KB brotli); the eleven preflop chart sets 31.6 MB of JSON as
+    lazily loaded chunks (7.45 MB brotli) - in all the embedded assets
+    grow from 0.34 to 7.86 MB brotli. The flop library is never bundled.
+  - **Throughput and memory** (the app's page code, `engine.ts`, in Node
+    on one thread as the app's one worker runs it, corpus hands, no flop
+    library, the machine busy): 1.8-2.1 hands a second - a page of 20
+    hands in 9-12 s, the slowest 19-35 s (turn and river solves) - so a
+    library of 50 000 hands is ~7 hours of background work and a million
+    ~6 days. The worker holds the chart sets it loaded: up to ~0.7 GB with
+    nine of them, so it is let go whenever the run goes idle. Nothing runs
+    in the window's first 20 s; the window's own first load is 3.3 KB
+    bigger.
+  - **Tests**: Rust `rail-store` `tests/analysis.rs` (the walk over the
+    corpus newest first across page sizes and versions, the rest of a
+    statistics rebuild last; a save's aggregates, `analysis_hand`'s shape,
+    replacement, offline rows, a deleted hand's cascade, refusals; the
+    opponents' counters equal to their rollups; chart sets and their
+    limits; the session review against sessions cut from `hand_list` -
+    bounds, neighbours, latest ended / ongoing, the lists' order, caps,
+    contents and rows -, a session's preflop decisions, the comparison and
+    its examples) and unit tests; `rail-sync` `floplib` against a local
+    HTTP server (a chunk fetched once, a manifest refreshed when old and
+    kept for offline, 404 / 400 / 429 / 5xx / no network, paths outside the
+    library refused); the app crate's gate. Vitest:
+    `appAnalysisRows` (numeric rounding, the leak and preflop columns, the
+    trimmed PHF, the row's fields), `appAnalysisRunner` (the queue, the
+    gate, a table stopping a page, waking, failed hands, offline and the
+    probe, the opponents' statistics; the worker's fetch bridge and its
+    offline minute; the worker client), `appAnalysisLibrary` (the door),
+    `appAnalysisParity`.
+  - **No grading semantics, constant, chart or `ANALYSIS_VERSION`
+    changed; no file of `frontend/src/lib/analysis/` moved or edited.**
+
 ---
 
 ## Phase 6 — Subscription
@@ -10387,3 +10591,4 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 | 2026-10-23 | **R5.3a done** (R5.3 split in two: the charts, then the comparison): the user's own preflop charts at `/analysis/my-charts`, from `packages/ui/charts/`. A chart set is a name, a game (cash / tournament, 2 / 6 / 9 seats, a stack range) and per situation - keyed in the shipped charts' vocabulary, `scenario:hero[:villain]` (`rfi:CO`, `vs-open:BB:BTN`, `vs-3bet:CO:BTN`; 105 keys at 6-max, 252 at full ring, 7 heads-up) - whole percents of raise / call / all-in per class, the rest folding. The editor paints the 13 x 13 grid with a brush mix (click, drag with interpolation, keyboard; a 44 px rank list as the touch path), copies another situation or Rail's own chart at a depth (the most reached shipped line of the key), pastes and copies range text (PIO / Flopzilla `AKs:0.5`, GTO+ / Equilab `[50]…[/50]`, combos `AhKh:0.25` collapsed to classes, one hand per line), undoes; a whole set imports and downloads as Rail JSON (`rail-preflop-charts` v1, range strings per action). Migration `20270811090000_preflop_charts.sql`: `preflop_chart_sets`, written directly under owner-only RLS, a definer `before` trigger holding the shape (the table's keys, the allowed actions, 169-byte base64, no class over 100 %) and the limits (300 situations / 400 KiB a set, 50 sets an account, 120 writes per 10 minutes). Shipped charts, grading and `analysis/N` untouched. Tests: pgTAP `preflop_charts` (33), Vitest `preflopCharts` (28) and `preflopChartsScreen` (7), `responsive.mjs` (the list and the editor, `en` and `hr`), browser on a local stack. Not applied to production. |
 | 2026-10-23 | **R5.3b done, R5.3 complete**: a user's chart against the hands they played, and R5.1's second deviation source. `/analysis/my-charts` gains a set's "Compare with your hands" tab: over 30 / 90 / 365 days or all time, the preflop decisions the analysis placed on the shipped tree in the chart's game (format, table, stack range), filed under their line's situation key; the share the chart plays (an action it takes at least 3.5 % of the time - the shipped grading's Good / Inaccurate line; raise and all-in standing in for each other), per situation the mix against the chart's for the hands held, the deviations by hand and action with example hands opening at the decision (Back returns), the empty situations ("Fill it in"), the unnamed spots counted, and the EV Rail's charts put on the deviations (the user's chart has none). The session review's "off your preflop charts" can read one of the user's charts (`ownChartDeviations`; `DeviationSource` now returns `{ decisions, hands }` and its kind); the shipped list unchanged. Migration `20270811100000_preflop_charts_compare.sql`: `preflop_decision_rows` / `preflop_decision_totals` kept by statement triggers on `decision_analysis` (rebuild + backfill), `preflop_chart_node_key` held to the TypeScript over 966 shipped lines, invoker owner-first readers `preflop_chart_played` / `_examples` / `_session` / `_review_hands`. At 1M hands: all time 145-216 ms, a year 264-962 ms, the session reader 14-122 ms; the triggers add ~70 ms per 200 decisions to a writer. Tests: pgTAP `preflop_charts_compare` (42), Vitest `preflopCharts` (33), `preflopChartsScreen` (14), `responsive.mjs` 66 / 66. No shipped chart, grading constant or `analysis/N` changed; not applied to production. |
 | 2026-10-23 | **Big accounts' own readers under a second; R2.9's readers retired** (follow-up to #244). Migration `20270818090000_big_account_readers.sql`. **Retired**: `stats_summary`, `stats_graph`, `stats_breakdown`, `stats_sessions` and their helpers (`hand_stats_filter_sql`, `hand_stats_counter_keys`, `hand_stats_money_keys`, `stats_empty_summary`) - no caller since R4.5c-2 (the web's `/stats` reads `report_*`; their TS wrappers were exported, imported by nobody, deleted); `hands_facets`, whose one caller was the header badge's total (`countHands`), now `library_count()`. **`library_facets`** over two summaries kept by statement triggers on `hands`, `hand_stats`, `hand_stats_ev` (`library_hand_counts`, `library_hero_counts` per owner, UTC month and the library's groups; a signed sum equal to `library_rows`' left joins; whole months from the summaries, a range's partial months and the searches from the hands; R4.5c-1's account lock; a hand deleted while its account stays marks it `library_counts_stale` until `library_counts_rebuild`, which `refresh_report_summaries` runs too). **Table-name search**: under RLS a non-leakproof operator (`ilike`, `@>`, `&&`) is never an index condition, so the global trigram index had never been used; the part is matched against the caller's distinct table names (`library_table_names`, a skip scan of the new `hands_owner_table_idx`) and the hands read by name; `hands_table_trgm` dropped. **The rule for the readers #244 did not list** (no grading change: the policy's own `owner_id = v_owner` on every owner table read, the caller bound once, planned per call): every `analysis_*` reader (`analysis_graded_decisions` / `_facets` and R5.2's `analysis_leak_sample`, whose owner was an argument, now PL/pgSQL), `hands_needing_analysis*`, `drill_*`, `trainer_summary`, `study_plan`, `get_hand`, the forum's `my_post_state`, `my_saved_posts`, `my_notifications`, `unread_notification_count`. **Measured** (own isolated stack, generated, never committed: 1 000 000 hands over 35 months, 2.9M `hand_stats` rows, 0.9M EV rows, 300 000 graded hands / 0.9M decisions, beside 7 496 hands; ms, second call; this generator spreads a hand over far more groups than #244's - 293 119 hero count keys for 1M hands - so it is the hard case): the 1M account - `library_facets` {} 10 112 -> 869, cash + BTN 8 651 -> 696, last 365 days 4 364 -> 694, last 30 days 117 -> 11, table name 2 552 -> 117; `library_page` table name common / rare / none / + pot 3 797 / 2 399 / 2 247 / 3 260 -> 14 / 13 / 10 / 19; header count 3 785 (`hands_facets`) -> 4 (`library_count`); R2.9's readers 3 479-8 636 -> retired (`report_open` 1 559 -> 1 171, `report_sessions` 1 702 -> 1 787, unchanged); `analysis_top_leaks` 188 -> 58; the small account beside it - every reader 0-40 ms but the counts' ranges (24) and `analysis_leaks` / `_leak_hands` / `_trend` / `drill_due_by_spot` 160-219 (were 188-335: its own 6 804 decisions graded row by row; `analysis_top_leaks` 157 -> 8). **Left slow for the 1M account's own rows** (not touched: they compute over every graded decision, and grading is another program's): `analysis_overview` 15 s, `_node_actions` 12 s, `_breakdown` 10 s, `_hands` 7.5 s, `_node_hands` 4.7 s, `analysis_coverage` 3.6 s, `hands_needing_analysis_recent` 3.1 s, `analysis_leaks` / `_leak_hands` / `_trend` / `drill_due_by_spot` over 60 s (timed out at 120 s before and after) - they want summaries like R5.2's; the library's card, board, player and position searches (GIN indexes RLS cannot use). pgTAP: new `library_counts` (43), `owner_first_analysis` (8: every rewritten reader = its previous body on 300+ calls for two accounts, the previous bodies rebuilt from the current ones by undoing each edit); `owner_first_readers` (49) lists 51 readers (the rows-read guard measures the analysis readers beside a big account's 9 000 graded decisions); `stats_ev`, `stats_pot_type`, `stats_rebuild`, `sessions_notes` read `report_*`; `stats_breakdown.test.sql` removed. Suite 44 files / 1 580 on a fresh reset. Types regenerated. Not applied to production. |
+| 2026-10-24 | **R5.4a done** (R5.4 split in two: the analysis runs in the app, then its screens): the web's analysis runs **in the app, over the local store, offline and without an account** (Q3). Neither of the step's two options: `frontend/src/lib/analysis/` is **used in place** (an alias, `@rail/web-lib`, reached through one door, `app/src/analysis/library.ts`; ESLint and a bundling test keep the app's worker free of Supabase, Next and anything outside the analysis' own modules; no file of the library moved or changed). A background job (`app/src/analysis/`: one Web Worker running the web worker's own steps, pages of 20 hands newest first, a breather between pages, nothing in the first 20 s) asks a gate before every page - paused, a HUD table open (A10: an open table also stops the page in flight), a backfill or the statistics pass working - and writes the web's rows, rounded as Postgres' `numeric` columns round them, into migration 16's `hand_analysis` / `decision_analysis` (plus the narrow `analysis_leak_rows` / `chart_decisions` rows the web keeps by triggers, and `chart_sets`, local only). The opponents' statistics are the web's `VillainCounters` over the store's `player_hands`. The flop library is never bundled: `rail_sync::floplib` fetches the public bucket's files the web reads, keeps chunks on disk for good and manifests for a day (stale ones offline); a hand whose chunk is not on disk offline is graded as the web grades one whose chunk cannot be fetched and analysed again when the bucket answers. Readers for R5.4b's screens: the session review, its picker, preflop decisions and rows, the own charts' comparison and examples. Parity with the web's path (`appAnalysisParity`): every corpus hand's PHF the same (8 443); 864 corpus and scripted hands, 1 116 decisions - identical rows. At 1M hands: a page 0.2 ms, 20 rows written 1.2 ms, session review 0.2-192 ms, own chart compared 96 ms-1.0 s; ~2.7 KB a hand. 1.8-2.1 hands a second on one worker; the window's first chunk +3.3 KB, the chart sets 7.45 MB brotli loaded lazily. Grading, charts and `analysis/34` untouched. |

@@ -475,6 +475,12 @@ impl HudState {
         }
     }
 
+    /// (R5.4, A10) The poker tables the HUD has open now: the analysis does
+    /// not run while there is one.
+    pub fn tables_open(&self) -> u32 {
+        self.shared.tables_open.load(Ordering::SeqCst)
+    }
+
     /// Shut the HUD down (on exit, first).
     pub fn stop(&self) {
         if let Some(supervisor) = &self.supervisor {

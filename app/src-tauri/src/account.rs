@@ -76,9 +76,16 @@ pub fn web_url() -> String {
         .unwrap_or_else(|| DEFAULT_WEB_URL.to_owned())
 }
 
+/// The Supabase project: `RAIL_SUPABASE_URL` at build time (a debug build
+/// also at run time), else production. (R5.4) The analysis reads the flop
+/// library from its public bucket - no account, no key.
+pub fn supabase_url() -> String {
+    setting("RAIL_SUPABASE_URL", option_env!("RAIL_SUPABASE_URL"))
+        .unwrap_or_else(|| DEFAULT_SUPABASE_URL.to_owned())
+}
+
 fn config() -> Option<AuthConfig> {
-    let supabase_url = setting("RAIL_SUPABASE_URL", option_env!("RAIL_SUPABASE_URL"))
-        .unwrap_or_else(|| DEFAULT_SUPABASE_URL.to_owned());
+    let supabase_url = supabase_url();
     let web_url = web_url();
     let Some(anon_key) = setting(
         "RAIL_SUPABASE_ANON_KEY",

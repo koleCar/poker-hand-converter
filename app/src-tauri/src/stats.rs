@@ -119,6 +119,23 @@ impl StatsState {
         }
     }
 
+    /// (R5.4) What the pass is doing (`WorkerStatus::activity`), `None`
+    /// without a pass; and whether a folder's backfill runs. The analysis
+    /// waits while the pass works or a backfill runs.
+    pub fn activity(&self) -> (Option<&'static str>, bool) {
+        let backfilling = !self
+            .backfilling
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .is_empty();
+        (
+            self.worker
+                .as_ref()
+                .map(|worker| worker.status().activity.as_str()),
+            backfilling,
+        )
+    }
+
     /// The pass itself, for tests.
     #[cfg(test)]
     pub(crate) fn worker(&self) -> Option<Arc<StatsWorker>> {
