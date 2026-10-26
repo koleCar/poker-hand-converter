@@ -25,6 +25,7 @@ The schema is defined by four migrations:
 | `20270616090000_live_activity.sql` | Rail R4.3: live progress of an upload in the account's other tabs and devices. The first `realtime.messages` policies: on the private channel `activity:<uid>`, the account itself may receive (presence, broadcast) and send presence; nobody else, not `anon`, no broadcast sent. No table, no function, no per-batch write (Presence lives in Realtime's memory). See [Live progress across tabs](#live-progress-across-tabs-activityuid). Not applied to production. |
 | `20270623093000_stats_seats_and_budget.sql` | Rail R4.4 findings F1, F2: seat numbers past 24 (Ignition tournaments) - `hand_stats.seat`, `hand_stats_ev.seat`, `hand_analysis.hero_seat` any `smallint` from 0, `comments.anchor_seat` from 1; statistics inserts charged per account (`hand_stats_insert:<uid>` 1 000 000 / 10 min, `hand_stats_insert_day:<uid>` 10 000 000 / day) with the global `hand_stats_insert` a 3 000 000 / 10 min ceiling, through `hand_stats_charge_budget()` (no client grant). See [Rate limiting](#rate-limiting) and the statistics rebuild. Not applied to production. |
 | `20270908090000_entitlements.sql` | Rail R6.2: plans and entitlements, **enforcement off** until launch. `profiles.plan` and its subscription fields, `billing_settings`, `plan_limits`, `entitlement_gates`; `my_entitlements()`, `has_entitlement()`, `require_entitlement()`; the cap and desktop rows on `hands`. See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
+| `20270929090000_billing_enforced.sql` | Rail R6.4: `billing_enforced()` - whether paid plans are enforced, for a desktop app with no account (anon-callable definer; the switch only, no user data). See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -249,6 +250,7 @@ why:
 | `hands_since` | invoker | Reads the caller's own rows (explicit `owner_id = auth.uid()` and RLS): ids, times, keys, origins. `authenticated` only (R1.9). |
 | `put_hud_layouts` | **definer** | `hud_layouts` has no client write grant. Owner from `auth.uid()` (the conflict target includes it, so another account's row with the same key is never touched); the batch validated whole (kinds, keys per kind, bodies, times) before anything is written; at most 500 rows a call and 5 000 an account; rate-limited (`hud_layouts:`). `authenticated` only (R3.9). |
 | `my_entitlements` | **definer** | Reads the sealed `profiles`, `billing_settings` and `plan_limits`; the caller's own (`auth.uid()`) only, never the provider's ids. `authenticated` only (R6.2). |
+| `billing_enforced` | **definer** | Reads the sealed `billing_settings` and returns `enforcement_enabled` alone - a boolean, nothing of any account. `anon` and `authenticated` (R6.4: the desktop app with no account). |
 | `require_entitlement`, `has_my_entitlement` | **definer** | The guard every gated function opens with, and its boolean for policies: read the sealed tables for the caller only. `require_entitlement` is executable by `anon` too (an invoker reader calls it as whoever calls the reader; it refuses `anon` under enforcement). |
 | `has_entitlement`, `billing_plan_state`, `billing_stored_hands` | **definer** | Take an owner - an oracle on other accounts' plans - so no client may execute them; the triggers and the functions above call them. |
 | `billing_set_plan` | **definer** | The only writer of the plan fields; `service_role` only (R6.3's webhook). |
@@ -1665,7 +1667,13 @@ them); what is gated is the feature's functions.
 `my_entitlements()` answers the effective plan, why, `enforced`, the
 features, hands stored, the Free cap, the subscription, the early-user state
 and discount, `validUntil`, `graceUntil` and `offlineGraceDays`; the web reads
-it once per account (`lib/entitlements/`), the desktop app will in R6.4.
+it once per account (`lib/entitlements/`), the desktop app at start, on
+sign-in and every four hours, and keeps it for the offline grace period
+(R6.4, `rail_sync::entitlements`). `billing_enforced()` (R6.4,
+`20270929090000`) answers only whether enforcement is on, to anyone: an app
+that never signed in asks it. Every `PT402` reaches the web's one upgrade
+prompt (`lib/entitlements/planRefusal.ts`); the bulk upload trims a save to
+the room the cap refusal reports.
 
 ### Tests
 
@@ -1680,6 +1688,9 @@ refuses Free with `PT402`, basic statistics and the library stay open, the
 cap at the boundary (the statement whole, duplicates free, direct insert and
 bulk upload too), desktop rows, HUD layouts, chart sets and tournament settings refused, Pro
 allowed everything; anon refused; the service role passes.
+`billing_enforced.test.sql` (10, R6.4): anyone may call it, a boolean from no
+argument, it follows the switch (off, on, off, no row = off), and it opens
+nothing else (`my_entitlements` and the settings stay closed to anon).
 
 ### Stripe Billing (R6.3)
 

@@ -35,6 +35,7 @@ import type { ReviewHand } from "@rail/ui/review/model";
 
 import { ANALYSIS_VERSION } from "../analysis/types";
 import { CHART_SETS, loadChartSet } from "../charts/registry";
+import { reportPlanRefusal } from "../entitlements/planRefusal";
 import { requireDb, rpc } from "./client";
 import { handOf, serverFilter } from "./sessionReview";
 
@@ -150,7 +151,11 @@ export const webPreflopChartsSource: PreflopChartsSource = {
       set.id === null
         ? await client.insert(fields).select("id, updated_at").single()
         : await client.update(fields).eq("id", set.id).select("id, updated_at").single();
-    if (error) throw new Error(error.message);
+    if (error) {
+      // (R6.4) Own charts are Pro: a refusal reaches the upgrade prompt too.
+      reportPlanRefusal(error);
+      throw new Error(error.message);
+    }
     return { id: String((data as Row).id), updatedAt: str((data as Row).updated_at) };
   },
 

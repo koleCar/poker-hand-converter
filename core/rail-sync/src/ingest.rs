@@ -338,6 +338,11 @@ pub enum IngestError {
     /// The source id is unknown or not this account's (`23503`): register
     /// the folder again.
     UnknownSource,
+    /// (R6.4) The account's plan does not include this: R6.2's refusal,
+    /// SQLSTATE `PT402` (HTTP 402), `feature` from its hint
+    /// (`desktop_sync`, `hand_cap`, ...). Nothing is wrong with the hands:
+    /// they wait, unsent, until the plan changes - resending cannot help.
+    PlanRequired { feature: String },
     /// The server refused the call itself (`4xx`: a batch over the limits,
     /// a malformed body). A bug: do not resend the same batch.
     Refused { status: u16, code: String },
@@ -353,6 +358,9 @@ impl std::fmt::Display for IngestError {
             Self::Unauthorized => f.write_str("the server does not accept this session"),
             Self::RateLimited { .. } => f.write_str("the account's sync budget is spent for now"),
             Self::UnknownSource => f.write_str("the server does not know this folder"),
+            Self::PlanRequired { feature } => {
+                write!(f, "the account's plan does not include this ({feature})")
+            }
             Self::Refused { status, code } => write!(f, "refused ({status} {code})"),
             Self::Transient(why) => write!(f, "not reachable: {why}"),
         }
@@ -568,6 +576,19 @@ where
 struct PostgrestError {
     code: Option<String>,
     message: Option<String>,
+    /// (R6.4) A `PT402` refusal names the feature here.
+    hint: Option<String>,
+}
+
+/// The feature a `PT402` names: lower-case words only, else `unknown`.
+fn feature_of(hint: Option<&str>) -> String {
+    hint.filter(|hint| {
+        !hint.is_empty()
+            && hint.len() <= 32
+            && hint.bytes().all(|b| b.is_ascii_lowercase() || b == b'_')
+    })
+    .unwrap_or("unknown")
+    .to_owned()
 }
 
 fn error_of(status: u16, body: &[u8]) -> IngestError {
@@ -576,12 +597,18 @@ fn error_of(status: u16, body: &[u8]) -> IngestError {
         .as_ref()
         .and_then(|error| error.message.clone())
         .unwrap_or_default();
+    let hint = error.as_ref().and_then(|error| error.hint.clone());
     let code = error
         .and_then(|error| error.code)
         .filter(|code| code.len() <= 16 && code.bytes().all(|b| b.is_ascii_alphanumeric()))
         .unwrap_or_default();
     match (status, code.as_str()) {
         (401, _) => IngestError::Unauthorized,
+        // (R6.4) R6.2's refusal: SQLSTATE PT402, which PostgREST answers
+        // with HTTP 402.
+        (402, _) | (_, "PT402") => IngestError::PlanRequired {
+            feature: feature_of(hint.as_deref()),
+        },
         (_, "53400") => IngestError::RateLimited {
             window: RateWindow::of(&message),
         },
@@ -670,6 +697,7 @@ fn is_uuid(text: &str) -> bool {
 }
 
 mod hud;
+mod plan;
 mod pull;
 
 pub use hud::{HUD_ROWS_PER_PAGE, HUD_ROWS_PER_PUT, PutOutcome};

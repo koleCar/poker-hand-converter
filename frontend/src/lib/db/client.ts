@@ -20,6 +20,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
+import { reportPlanRefusal } from "../entitlements/planRefusal";
 import { activeLocale } from "../i18n/active";
 import { localizeServerMessage } from "../i18n/serverErrors";
 import {
@@ -170,7 +171,11 @@ export async function rpc<T>(fn: RpcName, args?: Record<string, unknown>): Promi
   const { data, error } = await client.rpc(fn, (args ?? {}) as never);
   if (error) {
     // The server writes its refusals in English; the reader may not read it.
-    throw new DatabaseRpcError(fn, localizeServerMessage(error.message, activeLocale()), error.code ?? null);
+    const message = localizeServerMessage(error.message, activeLocale());
+    // (R6.4) A plan refusal (PT402, HTTP 402) also reaches the one upgrade
+    // prompt (`lib/entitlements/planRefusal.ts`); the caller still gets it.
+    reportPlanRefusal({ ...error, message });
+    throw new DatabaseRpcError(fn, message, error.code ?? null);
   }
   return data as T;
 }

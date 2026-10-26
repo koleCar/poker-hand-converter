@@ -236,6 +236,12 @@ pub enum SyncPhase {
     Offline { retry_at_ms: i64 },
     /// The account's sync budget is spent for now.
     RateLimited { retry_at_ms: i64 },
+    /// (R6.4) The account's plan does not include desktop sync: the app's
+    /// own check said so ([`SyncWorker::set_plan_allows`]), or the server
+    /// refused with `PT402` (`feature`). Hands stay queued here, unsent and
+    /// unharmed; sync resumes by itself when the plan allows it (a new
+    /// check, "Sync now", another account).
+    PlanRequired { feature: String },
     /// Something that needs a look (a session the server refuses, a store
     /// error); retried later.
     Failed { message: String, retry_at_ms: i64 },
@@ -363,6 +369,12 @@ struct Shared {
     now: AtomicBool,
     answer: Mutex<Option<Answer>>,
     retry_rejected: AtomicBool,
+    /// (R6.4) The app's last word on the plan: does it include desktop
+    /// sync? True until told otherwise (enforcement off or unknown).
+    plan_allows: AtomicBool,
+    /// (R6.4) Set when the plan was re-checked and allows sync: forget a
+    /// server refusal and try again.
+    plan_retry: AtomicBool,
     on_change: Box<dyn Fn() + Send + Sync>,
     /// (R3.9) Called when a pull changed the HUD's layouts here.
     on_hud: Mutex<Option<Arc<dyn Fn() + Send + Sync>>>,
@@ -435,6 +447,8 @@ impl SyncWorker {
             now: AtomicBool::new(true),
             answer: Mutex::new(None),
             retry_rejected: AtomicBool::new(false),
+            plan_allows: AtomicBool::new(true),
+            plan_retry: AtomicBool::new(false),
             on_change,
             on_hud: Mutex::new(None),
         });
@@ -455,6 +469,7 @@ impl SyncWorker {
             hud_at: None,
             hud_failures: 0,
             hud_pull_at: None,
+            plan_refused: None,
             pacer: Pacer::default(),
             meter: Meter::default(),
         };
@@ -544,6 +559,19 @@ impl SyncWorker {
         self.shared.poke();
     }
 
+    /// (R6.4) The app checked the account's plan: whether it includes
+    /// desktop sync. `false` holds sync with [`SyncPhase::PlanRequired`] and
+    /// sends nothing; `true` (also after a server refusal) syncs again.
+    pub fn set_plan_allows(&self, allows: bool) {
+        let before = self.shared.plan_allows.swap(allows, Ordering::SeqCst);
+        if allows {
+            self.shared.plan_retry.store(true, Ordering::SeqCst);
+        }
+        if before != allows {
+            self.shared.poke();
+        }
+    }
+
     /// Queue the refused hands again (after an update).
     pub fn retry_rejected(&self) {
         self.shared.retry_rejected.store(true, Ordering::SeqCst);
@@ -588,6 +616,10 @@ pub struct SyncTask<A> {
     hud_failures: u32,
     /// (R3.9) The next pull of the HUD's layouts (`None`: at the next pass).
     hud_pull_at: Option<Instant>,
+    /// (R6.4) The server refused this account with `PT402`: (user id,
+    /// feature). Nothing is sent for that account until the plan is checked
+    /// again, "Sync now", or another account signs in.
+    plan_refused: Option<(String, String)>,
     pacer: Pacer,
     meter: Meter,
 }
@@ -768,10 +800,14 @@ impl<A: SyncAccount> SyncTask<A> {
                 Err(error) => log::warn!("sync: queueing refused hands again: {error}"),
             }
         }
+        if self.shared.plan_retry.swap(false, Ordering::SeqCst) {
+            self.plan_refused = None;
+        }
         if self.shared.now.swap(false, Ordering::SeqCst) {
             self.retry_at = None;
             self.pull_at = None;
             self.probe = false;
+            self.plan_refused = None;
             let at = now_ms();
             if let Err(error) =
                 blocking(&self.store, move |s| s.writer()?.outbox_retry_now(at)).await
@@ -796,6 +832,21 @@ impl<A: SyncAccount> SyncTask<A> {
             Ok(false) => return Halt::Until(self.idle()),
             Err(error) => return self.fail(format!("the local store: {error}")),
         }
+        // (R6.4) The plan: the app's check, then a refusal the server gave
+        // this account. Nothing is sent or pulled; the outbox waits.
+        let refused = match &self.plan_refused {
+            Some((id, feature)) if *id == user.user_id => Some(feature.clone()),
+            _ => None,
+        };
+        let held = if self.shared.plan_allows.load(Ordering::SeqCst) {
+            refused
+        } else {
+            Some("desktop_sync".to_owned())
+        };
+        if let Some(feature) = held {
+            self.set_phase(SyncPhase::PlanRequired { feature });
+            return Halt::Until(self.idle());
+        }
         if let Some(at) = self.retry_at
             && at > Instant::now()
         {
@@ -810,6 +861,9 @@ impl<A: SyncAccount> SyncTask<A> {
         let pull_due = self.pull_at.is_none_or(|at| at <= Instant::now());
         if pull_due {
             self.pull(&user).await;
+            if self.plan_refused.is_some() {
+                return Halt::Until(self.idle());
+            }
         }
         let hud_pull_due = pull_due || self.hud_pull_at.is_none_or(|at| at <= Instant::now());
         self.sync_hud(&user, hud_pull_due).await;
@@ -1204,7 +1258,26 @@ impl<A: SyncAccount> SyncTask<A> {
                 }
             }
             IngestError::UnknownSource => self.fail("the server does not know a folder".into()),
+            IngestError::PlanRequired { feature } => {
+                // R6.2's refusal (a Free account, enforcement on): not the
+                // hands' fault, so no attempt is counted and they stay
+                // queued; nothing is sent until the plan changes.
+                log::info!(
+                    "sync: the account's plan does not include {feature}; holding {} hands",
+                    keys.len()
+                );
+                self.refused_by_plan(feature);
+                Halt::Until(self.idle())
+            }
         }
+    }
+
+    /// (R6.4) The server refused the signed-in account with `PT402`.
+    fn refused_by_plan(&mut self, feature: String) {
+        if let Some(user) = self.account.user() {
+            self.plan_refused = Some((user.user_id, feature.clone()));
+        }
+        self.set_phase(SyncPhase::PlanRequired { feature });
     }
 
     /// The `hand_sources` id of a folder (`None`: files in no folder) for
@@ -1374,6 +1447,11 @@ impl<A: SyncAccount> SyncTask<A> {
             Ok(()) => {
                 self.pull_failures = 0;
                 self.pull_at = Some(Instant::now() + self.config.pull_every);
+            }
+            Err(IngestError::PlanRequired { feature }) => {
+                log::info!("sync: pull: the account's plan does not include {feature}");
+                self.pull_at = Some(Instant::now() + self.config.pull_every);
+                self.refused_by_plan(feature);
             }
             Err(error) => {
                 log::info!("sync: pull: {error}");

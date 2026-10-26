@@ -293,7 +293,9 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- by `tournament_settings_entitlement`
                 'tournament_settings_problem',
                 -- the entitlements themselves
-                'my_entitlements', 'has_my_entitlement', 'require_entitlement')),
+                'my_entitlements', 'has_my_entitlement', 'require_entitlement',
+                -- R6.4: whether enforcement is on, for an app with no account (the switch only)
+                'billing_enforced')),
   null, 'every client-callable function is gated or named free here');
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)

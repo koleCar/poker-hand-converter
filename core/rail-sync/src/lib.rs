@@ -10,9 +10,12 @@
 //! - [`policy`]: the remote `sites.json` from the web origin - fetched,
 //!   checked, merged stricter-only over the shipped copy and cached (R3.10);
 //! - [`floplib`]: the flop library's files for the app's analysis, fetched
-//!   from the web's public bucket and kept on disk (R5.4).
+//!   from the web's public bucket and kept on disk (R5.4);
+//! - [`entitlements`]: the account's plan as the app keeps it for offline
+//!   use, and the rules that make the app's effective entitlements (R6.4).
 
 pub mod auth;
+pub mod entitlements;
 pub mod floplib;
 pub mod ingest;
 pub mod policy;

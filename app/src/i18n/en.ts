@@ -340,9 +340,56 @@ export const en = {
       paused: "Sync is paused.",
       question: "Sync waits for your answer.",
       problem: "Sync has a problem.",
+      /** (R6.4) */
+      plan: "Sync needs Rail Pro.",
       details: "Sync settings",
     },
     failedAction: (reason: string) => `That did not work: ${reason}`,
+    /** (R6.4) The account's plan does not include desktop sync. */
+    planRequired: (waiting: number) =>
+      waiting === 0
+        ? "Syncing with the web is part of Rail Pro. Your hands stay on this computer."
+        : `Syncing with the web is part of Rail Pro. ${hands(waiting)} ${waiting === 1 ? "waits" : "wait"} on this computer, unsent, until your plan includes it.`,
+  },
+
+  /**
+   * (R6.4) The plan: the lock in place of a Pro feature (the HUD, the
+   * analysis, full reports, sync) and its lines in Settings, Account.
+   */
+  plan: {
+    heading: "Part of Rail Pro",
+    features: {
+      hud: "The HUD at your poker tables is part of Rail Pro.",
+      analysis: "The analysis of your hands - grades, leaks, session review and your own charts - is part of Rail Pro.",
+      reportsFull:
+        "Reports by situation and the Players screen are part of Rail Pro. Your basic statistics stay free: the summary, every statistic, the graph and the breakdowns by position, stake, room, table size and format.",
+      desktopSync: "Syncing your hands with the web is part of Rail Pro.",
+      learn: "Learn is part of Rail Pro.",
+    },
+    reasons: {
+      signedOut:
+        "Sign in with a Rail Pro account to use it. Without an account Rail keeps importing your hands, your library, the replayer and your basic statistics.",
+      notChecked: "Rail checks your plan when it is online. Connect to the internet, or check again.",
+      free: "Your account is on the Free plan.",
+      graceExpired: (days: number) =>
+        `Reconnect to keep Pro: Rail has not reached the server to check your plan for more than ${days} days.`,
+    },
+    signIn: "Sign in",
+    upgrade: "Upgrade to Pro",
+    checkAgain: "Check again",
+    checking: "Checking…",
+    settings: {
+      heading: "Plan",
+      loading: "Reading your plan…",
+      open: "Everything in Rail is available.",
+      pro: "Rail Pro.",
+      proUntil: (date: string) =>
+        `Rail Pro. It keeps working offline until ${date}; Rail checks again by itself whenever it is online.`,
+      free: "Free: importing, your library, the replayer and basic statistics. The HUD, the analysis and full reports need Rail Pro.",
+      handsStored: (count: number, total: number) => `${hands(count)} in your web library of ${n(total)} on the Free plan.`,
+      lastChecked: (time: string) => `Plan last checked ${time}.`,
+      offline: "The server could not be reached to check; Rail uses the last answer.",
+    },
   },
 
   settings: {
@@ -891,6 +938,7 @@ export const en = {
         backfill: "The analysis waits while your folders are imported.",
         statistics: "The analysis waits for the statistics to be worked out.",
         store: "The hand store did not open.",
+        plan: "The analysis is part of Rail Pro.",
       },
       offline: "The flop library cannot be reached: flops are graded without it for now, and those hands are analysed again once it answers.",
       pace: (perSecond: string) => `${perSecond} hands a second`,
@@ -1000,6 +1048,7 @@ export const en = {
     off: "The HUD is not running.",
     offWhy: (reason: string) => `The HUD is not running: ${reason}`,
     starting: "The HUD is starting…",
+    locked: "The HUD is part of Rail Pro: it does not start on this plan.",
     running: "The HUD is running.",
     noTables: "No table of a room Rail knows is open.",
     attached: (count: number) => (count === 1 ? "On 1 table:" : `On ${n(count)} tables:`),
@@ -1065,6 +1114,7 @@ export const en = {
     today: {
       off: "HUD: not running",
       starting: "HUD: starting…",
+      locked: "HUD: needs Rail Pro",
       none: "HUD: no table open",
       permission: "HUD: needs the Accessibility permission",
       noClient: "HUD on macOS: no supported poker client running",

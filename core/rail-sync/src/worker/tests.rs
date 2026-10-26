@@ -981,6 +981,96 @@ async fn pause_holds_everything_and_survives_a_restart() {
     rig.stop().await;
 }
 
+/// (R6.4) The server refuses a Free account's desktop rows with `PT402`
+/// (HTTP 402, R6.2): sync holds with the feature, counts no attempt, sends
+/// nothing more, keeps every hand queued - and goes on once the app's next
+/// plan check allows it.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_402_holds_sync_with_the_hands_queued_until_the_plan_allows_it() {
+    let files = stars_files();
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    server.script.lock().unwrap().push_back(Act::Answer(
+        402,
+        r#"{"code":"PT402","message":"Syncing hands from the desktop app is a Pro feature. Upgrade to Pro to sync.","details":null,"hint":"desktop_sync"}"#.into(),
+    ));
+    let dir = scratch("plan402");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    import(&store, &files[..3]);
+    let hands = store.status().unwrap().hands;
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        FakeAccount::signed_in("a"),
+        config(),
+    );
+    let status = rig
+        .until("held by the plan", |s| {
+            s.phase
+                == SyncPhase::PlanRequired {
+                    feature: "desktop_sync".into(),
+                }
+        })
+        .await;
+    assert_eq!(status.retrying, 0, "no attempt counted");
+    // Several idle polls: nothing more is sent, every hand still waits.
+    tokio::time::sleep(Duration::from_millis(700)).await;
+    assert_eq!(server.ingest_calls().len(), 1, "the refused call only");
+    let status = rig.worker.status();
+    assert_eq!(status.outbox, hands);
+    assert!(matches!(status.phase, SyncPhase::PlanRequired { .. }));
+    assert!(server.rows_of("a").is_empty());
+    // The plan was checked again and allows sync.
+    rig.worker.set_plan_allows(true);
+    rig.drained().await;
+    assert_eq!(server.rows_of("a").len(), usize::try_from(hands).unwrap());
+    rig.stop().await;
+}
+
+/// (R6.4) The app's own check said the plan lacks desktop sync: nothing is
+/// sent or pulled - no call at all - until it says otherwise.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_apps_plan_check_holds_sync_without_a_call() {
+    let files = stars_files();
+    let server = Arc::new(Server::default());
+    let url = serve(Arc::clone(&server)).await;
+    let dir = scratch("plancheck");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    import(&store, &files[..3]);
+    let account = Arc::new(FakeAccount::default());
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        Arc::clone(&account),
+        config(),
+    );
+    rig.until("signed out", |s| s.phase == SyncPhase::SignedOut)
+        .await;
+    rig.worker.set_plan_allows(false);
+    account.sign_in("a");
+    rig.worker.account_changed();
+    rig.until(
+        "held by the plan",
+        |s| matches!(&s.phase, SyncPhase::PlanRequired { feature } if feature == "desktop_sync"),
+    )
+    .await;
+    tokio::time::sleep(Duration::from_millis(500)).await;
+    assert_eq!(server.calls.lock().unwrap().len(), 0, "no call at all");
+    // Signed out again: the usual phase, not the plan's.
+    account.sign_out();
+    rig.worker.account_changed();
+    rig.until("signed out", |s| s.phase == SyncPhase::SignedOut)
+        .await;
+    account.sign_in("a");
+    rig.worker.set_plan_allows(true);
+    rig.drained().await;
+    rig.stop().await;
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn an_unknown_source_is_registered_again() {
     let files = stars_files();

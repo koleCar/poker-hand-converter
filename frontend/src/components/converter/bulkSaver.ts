@@ -22,6 +22,13 @@
  *    is a bug, not a reason to stop: its rows count as refused.
  *  * **Dedupe.** The server's: `on conflict (owner_id, hand_key) do nothing`,
  *    reported per row. Re-uploading a file inserts nothing and says so.
+ *  * **The Free cap** (R6.4). Once paid plans are enforced, the server
+ *    refuses a call that would put a Free library over its cap *whole*
+ *    (`PT402`, R6.2) and says how much room is left. The saver then cuts its
+ *    calls to that room, so every hand that fits is saved, and pauses with
+ *    `cap` when nothing more fits ("Try again" after an upgrade). Any other
+ *    plan refusal pauses with `plan`. The server stays the gate: nothing
+ *    here counts hands itself.
  *  * **Resume.** Every acknowledged call advances the manifest
  *    (`uploadManifest.ts`): per source, the batches stored and, once all are
  *    (and its original, when kept), done. A later drop of the same files
@@ -35,6 +42,7 @@ import type { ConversionFailure } from "../../lib/phf/detect";
 import type { PhfHand } from "../../lib/phf/types";
 import { handKeyOf } from "../../lib/db/mapping";
 import { UploadError, type IngestRow, type UploadApi } from "../../lib/db/upload";
+import { allowanceOf } from "../../lib/entitlements/planRefusal";
 import type { SourceInfo } from "./bulkRun";
 import type { StreamBatch } from "./pipeline";
 import type { ManifestStore, UploadManifest } from "./uploadManifest";
@@ -53,7 +61,12 @@ export type SaveStateName =
   /** `cancel()`: stopped for good. */
   | "cancelled";
 
-export type PauseReason = "offline" | "signed-out" | "day-budget";
+/**
+ * Why a save stopped. (R6.4) `cap`: the library is full on the Free plan -
+ * everything that fit was saved; `plan`: the plan refused the save for
+ * another reason. Both resume after an upgrade ("Try again").
+ */
+export type PauseReason = "offline" | "signed-out" | "day-budget" | "cap" | "plan";
 
 export interface SaveProgress {
   state: SaveStateName;
@@ -77,6 +90,13 @@ export interface SaveProgress {
   originalsFailed: number;
   /** What the failure corpus made of the refused hands sent so far; null before any. */
   failuresRecorded: { created: number; updated: number } | null;
+  /**
+   * (R6.4) The Free hand cap was met: its size and the hands stored before
+   * the refused call. Null until then (and after a resume).
+   */
+  cap: { cap: number; stored: number } | null;
+  /** (R6.4) Calls were cut to what still fit under the cap. */
+  trimmed: boolean;
   /** The last failure's message, technical. */
   lastError: string | null;
 }
@@ -206,8 +226,17 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     originalsBytes: 0,
     originalsFailed: 0,
     failuresRecorded: null,
+    cap: null,
+    trimmed: false,
     lastError: null,
   };
+  /**
+   * (R6.4) Rows the next call may carry while the Free cap is near: the
+   * server refuses a save over the cap *whole* (R6.2), so after its refusal
+   * the calls are cut to the room it reported and what fits is saved; null
+   * = the usual size.
+   */
+  let callLimit: number | null = null;
 
   const snapshot = (): SaveProgress => ({ ...state, refusedReasons: { ...state.refusedReasons }, queued: queuedHands });
   const changed = () => options.onChange?.(snapshot());
@@ -347,6 +376,7 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
             }
             break;
           case "refused":
+          case "plan":
             throw failure;
         }
       }
@@ -391,12 +421,13 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     const rows: IngestRow[] = [];
     let bytes = 0;
     let taken = 0;
+    const limit = callLimit === null ? maxHands : Math.min(maxHands, callLimit);
     for (let i = 0; i < queue.length; i += 1) {
       const item = queue[i];
       if (item.kind === "mark") {
         continue;
       }
-      if (rows.length > 0 && (rows.length >= maxHands || bytes + item.bytes > maxBytes)) {
+      if (rows.length > 0 && (rows.length >= limit || bytes + item.bytes > maxBytes)) {
         break;
       }
       rows.push(item.row);
@@ -415,9 +446,32 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
       }
       report = answer;
     } catch (error) {
+      state.lastError = error instanceof Error ? error.message : String(error);
+      if (error instanceof UploadError && error.kind === "plan") {
+        // (R6.4) The plan refused the call whole. Nothing of it was stored
+        // and its rows stay queued.
+        const refusal = error.refusal;
+        if (refusal?.feature === "hand_cap" || refusal?.cap) {
+          if (refusal.cap) {
+            state.cap = { cap: refusal.cap.cap, stored: refusal.cap.stored };
+          }
+          // Send what still fits (duplicates cost nothing, so this is at
+          // least the room left); always a smaller call than the refused one.
+          const fit = Math.min(allowanceOf(refusal), rows.length - 1);
+          if (fit > 0) {
+            callLimit = fit;
+            state.trimmed = true;
+            changed();
+            return true;
+          }
+          pause("cap");
+          return false;
+        }
+        pause("plan");
+        return false;
+      }
       // Refused outright: a bug in what we sent, not in the network. Count
       // the rows as refused, keep going with the rest.
-      state.lastError = error instanceof Error ? error.message : String(error);
       report = null;
     }
     if (state.state === "cancelled") {
@@ -429,6 +483,14 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
     queue.splice(0, taken);
     queuedHands -= rows.length;
     state.sent += rows.length;
+    if (report && callLimit !== null) {
+      // The room left under the cap; spent, the usual size again (the next
+      // refusal, if any, says the library is full).
+      callLimit -= report.inserted;
+      if (callLimit <= 0) {
+        callLimit = null;
+      }
+    }
     if (report) {
       state.inserted += report.inserted;
       state.duplicates += report.duplicates;
@@ -611,6 +673,9 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
       }
       state.state = "saving";
       state.pauseReason = null;
+      // (R6.4) After an upgrade the cap is gone: full calls again.
+      state.cap = null;
+      callLimit = null;
       changed();
       poke();
     },

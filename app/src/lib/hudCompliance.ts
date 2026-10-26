@@ -24,7 +24,7 @@ export type RefusalWhy =
   | "unknownSite";
 
 /** The HUD process, in a word. */
-export type HudState = "off" | "starting" | "running";
+export type HudState = "off" | "starting" | "running" | "locked";
 
 /** The entry `site` of the room list, if any. */
 export function roomOf(policy: HudPolicy | null, site: string): RoomPolicy | null {
@@ -59,7 +59,10 @@ export function checkedOn(room: RoomPolicy | null): Date | null {
   return Number.isNaN(at) ? null : new Date(at);
 }
 
-/** The HUD process in a word: off (not installed, switched off, stopped), starting (or starting again), running. */
+/**
+ * The HUD process in a word: off (not installed, switched off, stopped), starting (or starting again), running,
+ * (R6.4) locked - not started, the plan does not include the HUD.
+ */
 export function hudState(status: HudStatus | null): HudState {
   switch (status?.phase) {
     case "running":
@@ -67,6 +70,8 @@ export function hudState(status: HudStatus | null): HudState {
     case "starting":
     case "backoff":
       return "starting";
+    case "locked":
+      return "locked";
     default:
       return "off";
   }

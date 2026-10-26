@@ -288,7 +288,44 @@ export type SyncPhase =
   /** Not an error: the server cannot be reached; retried by itself. */
   | { state: "offline"; retryAtMs: number }
   | { state: "rateLimited"; retryAtMs: number }
-  | { state: "failed"; message: string; retryAtMs: number };
+  | { state: "failed"; message: string; retryAtMs: number }
+  /** (R6.4) The account's plan does not include desktop sync; hands wait, unsent. */
+  | { state: "planRequired"; feature: string };
+
+/** (R6.4) `rail_sync::entitlements::Features`. */
+export interface PlanFeatures {
+  desktopSync: boolean;
+  hud: boolean;
+  reportsFull: boolean;
+  analysis: boolean;
+  learn: boolean;
+}
+
+/** (R6.4) A Pro feature of the app. */
+export type PlanFeature = keyof PlanFeatures;
+
+/** (R6.4) `rail_sync::entitlements::Effective`: what the app may use now, and why. */
+export interface EffectivePlan {
+  /** `open`: enforcement off (or never heard of) - everything is available. */
+  plan: "open" | "pro" | "free";
+  reason: "enforcementUnknown" | "notEnforced" | "signedOut" | "notChecked" | "pro" | "free" | "graceExpired";
+  enforcement: "unknown" | "off" | "on";
+  features: PlanFeatures;
+  /** Pro holds offline until then (ms). */
+  proUntilMs: number | null;
+  checkedAtMs: number | null;
+}
+
+/** (R6.4) `entitlements::EntitlementsDto`. */
+export interface EntitlementsStatus {
+  effective: EffectivePlan;
+  check: { attemptedAtMs: number | null; succeededAtMs: number | null; failing: boolean };
+  handsStored: number | null;
+  handCap: number | null;
+  serverReason: string | null;
+  offlineGraceDays: number | null;
+  upgradeUrl: string;
+}
 
 /** `rail_sync::worker::SyncStatus`. */
 export interface SyncStatus {
@@ -696,7 +733,7 @@ export interface HudRefused {
 
 /** `hud::HudStatusDto`, the part the window reads: the HUD process and its tables. */
 export interface HudStatus {
-  /** `off`, `not-installed`, `starting`, `running`, `backoff`, `stopped`. */
+  /** `off`, `not-installed`, `starting`, `running`, `backoff`, `stopped`; (R6.4) `locked`: the plan does not include the HUD. */
   phase: string;
   /** Why the HUD is off (`off` only). */
   error: string | null;
@@ -871,7 +908,8 @@ export interface CustomDraft {
 /** `analysis::GateDto` (R5.4): whether the analysis may run now, and why not. */
 export interface AnalysisGate {
   run: boolean;
-  reason: "paused" | "tables" | "backfill" | "statistics" | "store" | null;
+  /** (R6.4) `plan`: enforcement on and the plan without the analysis. */
+  reason: "paused" | "tables" | "backfill" | "statistics" | "store" | "plan" | null;
   paused: boolean;
 }
 
@@ -1087,6 +1125,10 @@ export const ipc = {
   /** Upload this computer's hands to the account signed in now, or keep them apart. */
   syncAnswerAccount: (upload: boolean) => invoke<SyncStatus>("sync_answer_account", { upload }),
   syncRetryRejected: () => invoke<SyncStatus>("sync_retry_rejected"),
+  /** (R6.4) The plan: what the app may use, the last check; check again; the web's upgrade page. */
+  entitlementsStatus: () => invoke<EntitlementsStatus>("entitlements_status"),
+  entitlementsCheckNow: () => invoke<void>("entitlements_check_now"),
+  entitlementsOpenUpgrade: () => invoke<void>("entitlements_open_upgrade"),
   /** The statistics pass (R2.3). */
   statsStatus: () => invoke<StatsStatus>("stats_status"),
   /** Rebuild every hand's statistics in the background; returns the hands to go through. */
@@ -1256,6 +1298,11 @@ export function onSyncChanged(onChange: () => void): () => void {
 /** Call `onChange` whenever the account's status changed (R1.7). */
 export function onAccountChanged(onChange: () => void): () => void {
   return onAppEvent("account-changed", onChange);
+}
+
+/** (R6.4) Call `onChange` whenever what the plan allows changed. */
+export function onEntitlementsChanged(onChange: () => void): () => void {
+  return onAppEvent("entitlements-changed", onChange);
 }
 
 /** (R3.8) The HUD popup was moved to another panel: read it again. */

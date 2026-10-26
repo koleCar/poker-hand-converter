@@ -53,7 +53,8 @@ export const IDLE_POLL_MS = 60_000;
 /** How often, while offline, the runner looks whether the flop library answers again. */
 export const PROBE_MS = 10 * 60_000;
 
-export type GateReason = "paused" | "tables" | "backfill" | "statistics" | "store";
+/** (R6.4) `plan`: enforcement on and the plan without the analysis. */
+export type GateReason = "paused" | "tables" | "backfill" | "statistics" | "store" | "plan";
 
 export interface RunnerGate {
   run: boolean;

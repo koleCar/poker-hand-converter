@@ -84,6 +84,11 @@ export interface ReportsScreenProps {
   renderState: (kind: "loading" | "empty" | "error", text: string) => ReactNode;
   /** Hide the starting hands (the desktop while a poker table is open). */
   hideHandChart?: boolean;
+  /**
+   * (R6.4) The breakdowns by situation are held back (full reports are Pro):
+   * this shows in their tabs instead, and they are never asked for.
+   */
+  situationsLock?: ReactNode;
   /** Between the summary and the graph: the surface's own panel (the web's HUD tiles). */
   afterSummary?: (report: Report) => ReactNode;
   /** After the breakdowns: the surface's own panels over the same filter (the web's sessions and opponents). */
@@ -105,6 +110,7 @@ export function ReportsScreen({
   emptyText,
   renderState,
   hideHandChart = false,
+  situationsLock,
   afterSummary,
   footer,
   reloadToken = 0,
@@ -128,9 +134,10 @@ export function ReportsScreen({
   }
   const [unit, setUnit] = useState<"bb" | "money">("bb");
 
+  const situationsLocked = situationsLock !== undefined && situationsLock !== null;
   useEffect(() => {
-    if (needsBreakdowns(tab)) wantBreakdowns();
-  }, [tab, wantBreakdowns]);
+    if (needsBreakdowns(tab) && !situationsLocked) wantBreakdowns();
+  }, [tab, wantBreakdowns, situationsLocked]);
 
   const money = report ? moneyOf(report.units) : null;
   const shownUnit = unit === "money" && money ? "money" : "bb";
@@ -200,6 +207,7 @@ export function ReportsScreen({
           tab={tab}
           onTab={onTab}
           hideHandChart={hideHandChart}
+          situationsLock={situationsLocked ? situationsLock : undefined}
         />
       ) : null}
       {footer ? footer(query, report) : null}

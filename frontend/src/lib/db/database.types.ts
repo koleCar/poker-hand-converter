@@ -4474,6 +4474,7 @@ export type Database = {
         Args: { p_kind: string; p_owner: string }
         Returns: undefined
       }
+      billing_enforced: { Args: never; Returns: boolean }
       billing_events_prune: { Args: { p_keep?: string }; Returns: number }
       billing_mark_early_users: { Args: never; Returns: number }
       billing_owner_of_customer: {

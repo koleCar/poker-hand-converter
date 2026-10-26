@@ -17,6 +17,7 @@ import { desktopHr } from "./ns/desktop.hr";
 import { learnHr } from "./ns/learn.hr";
 import { manualHr } from "./ns/manual.hr";
 import { planHr } from "./ns/plan.hr";
+import { planNoticeHr } from "./ns/planNotice.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import type { Dict } from "./types";
@@ -38,6 +39,7 @@ export const hr: Dict = {
   chrome: chromeHr,
   desktop: desktopHr,
   plan: planHr,
+  planNotice: planNoticeHr,
 
   brand: {
     name: "Rail",

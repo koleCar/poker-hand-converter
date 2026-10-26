@@ -33,6 +33,7 @@
  * an account read, write and delete only under its own uid.
  */
 
+import { planRefusalOf, type PlanRefusal } from "../entitlements/planRefusal";
 import type { ConversionFailure } from "../phf/detect";
 
 /** The private bucket for originals the user chose to keep. */
@@ -72,15 +73,24 @@ export type UploadErrorKind =
   | "unknown-source"
   /** The server refused the call itself - a bug; do not resend it. */
   | "refused"
+  /**
+   * (R6.4) The account's plan refused it (`PT402`, HTTP 402, R6.2): the Free
+   * hand cap (the whole statement; `refusal.cap` has the numbers), or a Pro
+   * feature. Resending the same call cannot help.
+   */
+  | "plan"
   /** No answer, a timeout, a 5xx: retry with backoff. */
   | "transient";
 
 export class UploadError extends Error {
   readonly kind: UploadErrorKind;
-  constructor(kind: UploadErrorKind, message: string) {
+  /** (R6.4) For `plan`: what the server said (the feature, the cap's numbers). */
+  readonly refusal: PlanRefusal | null;
+  constructor(kind: UploadErrorKind, message: string, refusal: PlanRefusal | null = null) {
     super(message);
     this.name = "UploadError";
     this.kind = kind;
+    this.refusal = refusal;
   }
 }
 
@@ -91,6 +101,9 @@ export class UploadError extends Error {
 export function classifyFailure(code: string | null | undefined, status: number | null | undefined, message: string): UploadErrorKind {
   const c = code ?? "";
   const s = status ?? 0;
+  if (c === "PT402" || s === 402) {
+    return "plan";
+  }
   if (c === "53400") {
     return /_day:/.test(message) ? "rate-limited-day" : "rate-limited";
   }
@@ -128,7 +141,7 @@ export interface UploadClient {
   auth: { getSession(): Promise<{ data: { session: { user?: { id?: string } } | null } }> };
   rpc(fn: string, args: Record<string, unknown>): PromiseLike<{
     data: unknown;
-    error: { message: string; code?: string | null } | null;
+    error: RpcFailure | null;
     status?: number;
   }>;
   storage: {
@@ -141,8 +154,18 @@ export interface UploadClient {
   };
 }
 
-function rpcError(fn: string, error: { message: string; code?: string | null }, status: number | undefined): UploadError {
-  return new UploadError(classifyFailure(error.code, status, error.message), `${fn}: ${error.message}`);
+/** A PostgREST error as supabase-js hands it over. */
+interface RpcFailure {
+  message: string;
+  code?: string | null;
+  hint?: string | null;
+  details?: string | null;
+}
+
+function rpcError(fn: string, error: RpcFailure, status: number | undefined): UploadError {
+  const kind = classifyFailure(error.code, status, error.message);
+  const refusal = kind === "plan" ? (planRefusalOf({ ...error, code: "PT402" }) ?? null) : null;
+  return new UploadError(kind, `${fn}: ${error.message}`, refusal);
 }
 
 /** {@link UploadApi} over a Supabase client (the tab's own; never a service key). */

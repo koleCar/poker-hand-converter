@@ -1,0 +1,91 @@
+/* (R6.4) The lock in place of a Pro feature, and the plan in Settings. */
+
+.lock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 40rem;
+  margin: var(--space-6) 0;
+  padding: var(--space-6);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.compact {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+}
+
+.heading {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.reason {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-2);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--accent-bg-hover);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.secondary {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.secondary:hover {
+  border-color: var(--border-strong);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.line {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}

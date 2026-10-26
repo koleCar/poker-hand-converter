@@ -57,7 +57,12 @@
 //!   runs in the window's worker over the store's hands, offline and with
 //!   no account; this side hands out hands, stores the rows, answers the
 //!   gate (never while a table is open, A10) and keeps the flop library's
-//!   files on disk.
+//!   files on disk;
+//! - the plan ([`entitlements`], R6.4): the account's entitlements, checked
+//!   with the server and kept for the offline grace period; once paid plans
+//!   are enforced, a Free (or signed-out) app does not start the HUD, does
+//!   not run the analysis, locks the full reports and holds sync. While
+//!   enforcement is off (today) everything is open.
 
 use std::sync::Mutex;
 
@@ -71,6 +76,7 @@ pub mod commands;
 pub mod custom_stats;
 #[cfg(debug_assertions)]
 pub mod dev;
+pub mod entitlements;
 pub mod folder_settings;
 pub mod folders;
 pub mod hands;
@@ -185,7 +191,8 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // (R3.10) The HUD policy: the shipped sites.json and the cached remote
     // copy over it, before the HUD (which reads the same cache at start).
     let policy = policy::init(&app.path().app_local_data_dir()?.join("policy"));
-    // The HUD (R3.2), before the watcher: imports feed it.
+    // The HUD (R3.2), before the watcher: imports feed it. (R6.4) Prepared
+    // here, started by the plan's first answer (`entitlements::setup`).
     let hud = hud::HudState::start(
         app,
         &store,
@@ -230,6 +237,11 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     if let Some(hud) = app.try_state::<hud::HudState>() {
         hud.sync_started();
     }
+    // (R6.4) The plan: after the account and sync. Its first answer (from
+    // what the store kept, no network) starts the HUD when the plan allows
+    // it - at once while enforcement is off, as before - and holds sync
+    // when it does not; then it checks with the server.
+    entitlements::setup(app);
     // A recompute's swap tells the window (R2.11).
     stats::spawn_refresher(app);
     // (R3.10) The remote sites.json: a look shortly after start, then every
@@ -308,6 +320,9 @@ pub fn run() {
         sync::sync_set_cap,
         sync::sync_answer_account,
         sync::sync_retry_rejected,
+        entitlements::entitlements_status,
+        entitlements::entitlements_check_now,
+        entitlements::entitlements_open_upgrade,
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,
@@ -425,6 +440,9 @@ pub fn run() {
         sync::sync_set_cap,
         sync::sync_answer_account,
         sync::sync_retry_rejected,
+        entitlements::entitlements_status,
+        entitlements::entitlements_check_now,
+        entitlements::entitlements_open_upgrade,
         stats::stats_status,
         stats::stats_rebuild,
         stats::stats_recompute_ev,

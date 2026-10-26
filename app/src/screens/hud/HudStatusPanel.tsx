@@ -236,11 +236,13 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
       <p className={styles.state} data-state={state}>
         {state === "running"
           ? s.running
-          : state === "starting"
-            ? s.starting
-            : status.error
-              ? s.offWhy(status.error)
-              : s.off}
+          : state === "locked"
+            ? s.locked
+            : state === "starting"
+              ? s.starting
+              : status.error
+                ? s.offWhy(status.error)
+                : s.off}
       </p>
 
       <PermissionCard status={status} />

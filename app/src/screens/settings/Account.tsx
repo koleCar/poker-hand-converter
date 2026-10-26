@@ -1,4 +1,5 @@
 import { AccountPanel } from "../../components/AccountPanel";
+import { PlanPanel } from "../../components/ProLock";
 import { SyncPanel } from "../../components/SyncPanel";
 import { useT } from "../../i18n";
 import { useAccount } from "../../lib/useAccount";
@@ -19,6 +20,11 @@ export function Account() {
       <AccountPanel account={account} error={error} busy={busy} run={run} />
       {account !== null && account.state !== "notConfigured" && (
         <>
+          {/* (R6.4) What the plan allows, when it was checked; check again, upgrade. */}
+          <h3 id="settings-plan" className={styles.subheading}>
+            {t.plan.settings.heading}
+          </h3>
+          <PlanPanel />
           <h3 id="settings-sync" className={styles.subheading}>
             {t.sync.heading}
           </h3>

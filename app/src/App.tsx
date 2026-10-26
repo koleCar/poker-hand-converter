@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect, type JSX } from "react";
 
 import styles from "./App.module.css";
 import { Palette } from "./components/Palette";
+import { ProLockView } from "./components/ProLock";
+import { ROUTE_FEATURE, useEntitlements } from "./lib/useEntitlements";
 import { useLocale } from "./i18n";
 import { Sidebar } from "./components/Sidebar";
 import { StateMessage } from "./components/StateMessage";
@@ -51,6 +53,20 @@ export function App() {
   const tablesOpen = useTablesOpen();
   // (R3.8) "Open in Rail" from the HUD popup: the player's profile.
   useEffect(() => onOpenPlayer((player) => go("players", playerParam(player.site, player.name))), []);
+  // (R6.4) A Pro screen the plan holds back shows its lock instead.
+  const plan = useEntitlements();
+  const feature = ROUTE_FEATURE[route];
+  const lock =
+    feature !== undefined && plan.status !== null && plan.locked(feature) ? (
+      <ProLockView
+        feature={feature}
+        status={plan.status}
+        onSignIn={plan.signIn}
+        onUpgrade={plan.upgrade}
+        onCheck={plan.checkNow}
+        checking={plan.checking}
+      />
+    ) : null;
   const Current = SCREEN_COMPONENTS[route];
   return (
     <div className={styles.shell}>
@@ -63,7 +79,7 @@ export function App() {
         {screenHiddenDuringPlay(route, tablesOpen) ? (
           <StateMessage kind="empty">{t.duringPlay.hidden}</StateMessage>
         ) : (
-          <Current key={locale} />
+          (lock ?? <Current key={locale} />)
         )}
       </main>
       <Palette tablesOpen={tablesOpen} />
