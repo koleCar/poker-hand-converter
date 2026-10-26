@@ -1714,3 +1714,35 @@ of the time - §2's line between Good and Inaccurate - and a raise and an
 all-in stand for each other when the chart has only one of them. The only EV
 shown is this document's: what the analysis put on those decisions against
 the shipped charts.
+
+---
+
+## 12. Push/fold for tournaments (R5.5) - solved per hand, not shipped
+
+Tournament decisions are graded by the **push/fold game** (`docs/RAIL-PLAN.md`
+R5.5): at 20bb effective or less, a player first in
+goes all in or folds, a player facing a first-in all-in calls or folds, the
+first caller plays it heads-up. Its equilibrium depends on every stack at the
+table and, under ICM, on the payouts and the players left - a table of it per
+spot would be a table per hand - so **nothing is precomputed but the equity
+table**, and the ranges are solved for each graded decision
+(`lib/analysis/pushFold.ts`, CFR+, 200 iterations; `lib/analysis/icm.ts` for
+the payoffs). No push/fold chart is shipped, and none is copied from anyone.
+
+**The equity table** (`lib/analysis/data/pushFoldEquity.ts`, generated): §3's
+`preflopEquityTable` - the same code, our own computation - at **1,000,000
+seeded boards** (seed `0x9f0`), conservative standard error per entry
+**0.00037** (§3's 120,000 boards: 0.0011). Stored as the 14,196 cells above
+the diagonal as 16-bit fractions (quantum 1.5e-5), base64, 37.9 KB; the
+diagonal is 0.5 and `E[j][i] = 1 − E[i][j]` exactly. 704 s on one core of the
+M2 Pro:
+
+    cd tests && npm run icm:equity        # ICM_EQUITY_BOARDS=60000 for a quick one
+
+`tests/test/analysisPushFold.test.ts` holds it to `lib/equity`'s own range
+equity (400,000 boards per pair, six pairs, within 0.004), and the solver to
+its properties: a best response gains under a thousandth of a big blind
+heads-up at 10bb; more hands pushed the shorter the stacks; a push's EV equal
+to one built by hand from the caller's solved range and `lib/equity`; two
+players left solve the same in chips and by ICM (ICM is linear there); a
+sit-and-go bubble calls far tighter than chips and so pushes wider.
