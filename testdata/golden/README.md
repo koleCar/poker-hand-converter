@@ -75,7 +75,7 @@ Exactly what the converter tab does with a dropped file
 bytes ─ decodeSource ─ convertAny(text, { sourceFilename: <file name>, validate: true })
 ```
 
-- `decodeSource` (`frontend/src/components/converter/inputs.ts`): BOM sniff,
+- `decodeSource` (`web/src/components/converter/inputs.ts`): BOM sniff,
   UTF-16 without a BOM by NUL pattern, strict UTF-8, then the WHATWG
   `windows-1252` decoder (what `encoding_rs` implements) with its own
   plausibility guard; strips a BOM; turns CRLF and lone CR into LF. Note that
@@ -85,7 +85,7 @@ bytes ─ decodeSource ─ convertAny(text, { sourceFilename: <file name>, valid
   Entraction and Ongame samples start with a UTF-8 BOM, which a raw read keeps
   and detection then does not match, and three Winamax files and one Unibet
   file are Windows-1252 - and the goldens follow the app.
-- `convertAny` (`frontend/src/lib/phf/detect.ts`): detect on the whole text,
+- `convertAny` (`web/src/lib/phf/detect.ts`): detect on the whole text,
   split with the best parser, detect again per chunk, parse, the hi/lo and
   short-deck backstops, `assignPositions`, `validateHand`.
 - The converter feeds `convertAny` 100 chunks at a time (`BATCH_SIZE`) to keep
@@ -197,7 +197,7 @@ full-tree file it appears in.
 
 ## Stats goldens (R2.1)
 
-What the TypeScript stats engine (`frontend/src/lib/stats`, docs/STATS-SPEC.md)
+What the TypeScript stats engine (`web/src/lib/stats`, docs/STATS-SPEC.md)
 derives from every accepted hand: `statsRows(handFacts(hand))`, one row per
 dealt-in seat, hero and villains alike, in the canonical JSON above.
 `core/rail-stats` is correct for a hand when its rows are the same bytes
@@ -251,7 +251,7 @@ goldens.
 
 ## All-in EV goldens (R2.2)
 
-What the TypeScript equity engine (`frontend/src/lib/equity`) concludes about
+What the TypeScript equity engine (`web/src/lib/equity`) concludes about
 every accepted hand, written by `tests/scripts/golden/ev.ts` in the same
 `npm run golden:emit` run, at `testdata/golden-ev/<input path>.json`.
 `core/rail-equity` is correct for a hand when both hashes match
