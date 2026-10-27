@@ -142,8 +142,8 @@ Limits:
 
 ### Saving to your library
 
-Signed in, **Save to my library** (on by default) saves hands while they
-convert. The line under the progress shows how many were saved, how many were
+Signed in, **Save to my library** (on by default; the browser remembers your
+choice) saves hands while they convert. The line under the progress shows how many were saved, how many were
 already in your library, and how many the server refused.
 
 - Saving the same files again adds nothing: duplicates are recognised.
