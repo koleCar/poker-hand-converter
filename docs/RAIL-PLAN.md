@@ -1970,7 +1970,7 @@ under WASM; the registry records an unknown file end to end.
 - User-facing name "Rail" everywhere (app copy, metadata, package names). GitHub
   repo rename optional (GitHub redirects the old URL).
 - npm workspaces at the root: `web`, `app`, `packages/ui`, `tests`.
-- `web/` → `web/`, in one PR together with the Vercel root-directory change
+- `frontend/` → `web/`, in one PR together with the Vercel root-directory change
   (the deploy breaks between the two otherwise).
 - Fixture trees → `testdata/`, in one commit together with `.gitattributes`,
   with a SHA-256 manifest of every file before and after the move; CI compares

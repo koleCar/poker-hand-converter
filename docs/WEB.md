@@ -230,8 +230,10 @@ detail lives in the 22 documents under `docs/research/hh-formats/`.
 
 ### The corpus
 
-**413 real hand-history files across 22 site directories**, in
-`fixtures/samples/`. **There are no synthetic fixtures.** Every file is a real
+**Over 400 real hand-history files across 22 site directories**, in
+`fixtures/samples/` (408 `.txt` and `.xml` files that the tests and goldens
+read, plus four `.phh` examples of the PHH spec and one HTML summary, which
+are not inputs). **There are no synthetic fixtures there.** Every file is a real
 export or a real data-mined sample, and each site directory carries a
 `SOURCES.md` recording where its files came from and what is verified about
 them. Two directories are deliberately special: `wpt-global/` is empty and its
@@ -243,8 +245,18 @@ Alongside that sit the two original corpora the project started from —
 `weplay-hh/` (104 real WePlay exports, across two account folders) and
 `gg-hh/` (10 reference files in the GG format, used as the byte-exactness
 target for what the serializer must produce) — plus
-`tests/test/fixtures/`, which holds regression cases that each exist because
-a specific real hand broke something.
+`tests/test/fixtures/`, whose `gg/` and `weplay/` hold regression cases that
+each exist because a specific real hand broke something. 556 files in all.
+
+**The one known, labelled exception** is `tests/test/fixtures/stats/`: 17
+deliberately minimal hand-written hands in standard text, one per hard
+statistics definition (a walk, a straddle open that is not a 3-bet, a
+squeeze, a donk bet removing the c-bet spot, ...), pinned counter by counter
+by `tests/test/statsSpots.test.ts`, so a failure points at the definition
+rather than at a parser. They are golden inputs too. Cases that cannot be
+written honestly by hand (a bomb pot, a GG EV cashout, run-it-twice, a WePlay
+straddle) are pinned against real corpus files instead
+([`tests/README.md`](../tests/README.md)).
 
 A caveat worth knowing before trusting a row in the matrix: the corpus is
 cash-heavy and era-skewed. Only a few rooms have verified tournament samples,
@@ -269,10 +281,15 @@ the original bytes. Removing these lines will corrupt the evidence the
 byte-exactness tests depend on, and it will not be obvious that it happened.
 
 Encoding is handled as a corpus-wide property rather than a per-site quirk: 22
-of the 413 files are not UTF-8, and you cannot tell which from the site, the
-era or a `0x80` sniff. See `FORMAT-MATRIX.md` §5 for why the only correct test
-is "attempt a strict UTF-8 decode, then check for a BOM, then try
-Windows-1252".
+of the 556 corpus files are not UTF-8 (14 UTF-16 LE, 8 Windows-1252), and you
+cannot tell which from the site, the era or a `0x80` sniff
+(`FORMAT-MATRIX.md` §5). The converter's `decodeSource`
+(`web/src/components/converter/inputs.ts`) and the Rust core's
+`rail_core::decode`, which ports it step for step, decide in this order: a
+byte-order mark (UTF-8, UTF-16 LE or BE); without one, UTF-16 when NULs sit at
+every other byte of the first KiB; else strict UTF-8, and on invalid bytes
+Windows-1252 (or UTF-8 with replacement characters when Windows-1252 reads as
+implausible); then binary is refused.
 
 ---
 
@@ -283,25 +300,74 @@ used to live in `web/src/routes/` is gone — Next's file-system router
 matches and `next.config.ts` redirects, and keeping a second answer to "what
 does this path mean" alongside the framework's is how the two drift apart.
 
-| Route | What it is |
-| --- | --- |
-| `/` | **The feed.** Placeholder for now: it says so, and points at the two things that work. This is where the product is going, which is why the converter had to move off it. |
-| `/convert` | **Converter.** Drop files, a folder, a zip, or paste text — at desktop scale (R4.2: a folder of tens of thousands of files, a zip of hundreds of MB). Reading, unzipping, detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library while they convert (toggleable; chunked, retried, resumable), refused hands go to the corpus, the original files only on an explicit opt-in, and the output is downloadable per file or combined (up to 20 000 hands per drop). **This route makes zero server requests** unless you save; see below. |
-| `/library` | **Library and replayer** - the shared Hands screen (R4.5b, the desktop app's): your hands newest first (or by pot, result, oldest), a virtualised list that pages as you scroll, filters as chips with how many hands each would match (date, room, stakes, position, pot type, result, stack depth, all-in, game, variant, limit, table size), the searches (hero cards or a hand class, board cards, a player at the table, a part of the table's name, a minimum pot), showdown, showdown and winning positions, and what the room's names are; the hand you pick opens beside the list (above it on a phone). A hand the converter hands over opens above the screen, with a save button. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
-| `/stats` | **Statistics.** The shared Reports screen (R4.5c, the desktop app's): the filter chips (date, room, stakes, position, game, variant, limit, table), the summary, the win-rate graph (total, showdown, non-showdown, all-in EV; big blinds or money), every statistic by group and the breakdowns (position, pot type, stack, starting hands' 13 x 13 grid, players, street, stakes, table size, room, game), with the web's own HUD tiles, sessions and opponents over the same filter. Read from the report summaries (`20270707090000`). Renders and explains itself when signed out rather than bouncing you somewhere else. |
-| `/players` | **Players** - the shared Players screen (R4.5c, the desktop app's), under the Statistics tab (a "Statistics / Players" switch on both pages, not a seventh tab in the bar): the opponents of your hands from rooms that show screen names, most hands together first, searched by the start of a name, by room, game and "with a note"; beside the list (above it on a phone) one opponent's profile - hands together, first and last seen, your result against them per kind, their statistics, their rows by position, stake, table size and game, your private note (`player_notes`; tags written in the opponents panel are kept), and "hands with this player", which opens `/library` filtered to their room and name (handed over in `sessionStorage`, never in the address). Opponents exist only while opponent statistics are on in this browser: off, the page says what they cost and turns them on. Colour tags and labels are the desktop app's and are not shown. Read from `players_list` / `player_profile` (`20270714090000`). |
-| `/analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`, phase A1). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — and the heuristic checks that hold whatever the strategy. Runs in the browser; `/analysis/h/<id>` opens a hand in the replayer with the Analysis sheet. No grades until the preflop charts (A2). |
-| `/analysis/session` | **Session review** (R5.1). After a session, the hands worth a look: the worst graded decisions (Inaccurate or worse, worst first, with the EV they cost), the preflop decisions off the charts the analysis grades by, and the biggest pots in big blinds - each hand once, in the first list it is in, with badges for the others - under a summary (when, hands, length, tables, result in money and big blinds, bb/100, all-in EV). Opens on the latest session that has **ended** (a break longer than 30 minutes; a session that may still be going on is named, and reviewed only on request); a picker of the last 90 days and Previous / Next walk to others, and every row of Statistics -> Sessions links here. A hand opens in its analysis at the decision listed, with a way back. Reads `session_review` (`20270721090000`); the screen is the shared package's (`packages/ui/review/`). |
-| `/analysis` (overview) | **Three biggest leaks** (R5.2), a card under the grades: the leak finder's (`/analysis/leaks`) three most important leaks - EV lost in total, the leaks the sample can vouch for first (20 decisions in the spot and 2 mistakes), a thinner one only to fill a place and marked tentative - each in words, with EV lost per 100 hands and its 95% range, EV lost in all, how often (mistakes in the spot, with the interval) and the confidence, the target (the reference's best move; your actions and the reference's for the hands you held), the last 30 days of play against the 30 before, up to five example hands opening at the decision (Back returns to the overview) and a link to its row in the leak report. The last 30 days of play (counted back from the last day played) or all time; the overview's format, seat and pot type apply. Reads `analysis_top_leaks` and `analysis_leak_examples` over leak sums kept by triggers on `decision_analysis` (`20270728090000`); no AI-written summary. |
-| `/analysis/my-charts` | **Your preflop charts** (R5.3). Chart sets of your own, private to your account: build one situation by situation (open, facing limpers, an open, an open and a call, a raise over your limp, a 3-bet, a 4-bet, a 5-bet - by seat and opponent, the shipped charts' vocabulary) on a 13 x 13 grid painted with a brush mix of raise / call / all-in percents (click, drag - a finger too - or the keyboard; under the grid the rank list's 44 px buttons are the phone's touch path), copy another situation, start from Rail's own chart at a depth, paste ranges as other tools write them (`AKs:0.5`, `[50]…[/50]`, `AhKh:0.25`, one hand per line) or copy them out, undo; import and download a whole set as Rail JSON. **Compare** it with your hands over 30 / 90 / 365 days or all time: how many preflop decisions it covers, the share played as the chart plays them (an action it takes at least 3.5 % of the time), the situations it leaves empty (with "Fill it in"), per situation your mix against the chart's for the hands you held and the deviations - hand, action, how often - each with its example hands opening at the decision (Back returns to the chart), and what they cost by Rail's charts' EVs. The session review can read its "off your preflop charts" list against one of these instead of Rail's. Data: `preflop_chart_sets` (direct, owner-only RLS) and `preflop_chart_played` / `preflop_chart_examples` (`20270811090000`, `20270811100000`); the screens are the shared package's (`packages/ui/charts/`). |
-| `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. **Names hidden by default** (R4.5): Hero, Villain1, Villain2… and no table, room hand number or time, unless the link's owner ticks "Show the players' names" (in the share dialog or on the page); `/embed/h/:slug` follows the same setting. See "Share links and names" below. |
-| `/terms`, `/privacy` | **The terms of use and the privacy policy** (R6.5): `docs/legal/*.md` in the reader's language, **drafts - not yet in force, pending the owner's and legal review** - and the page says so above the text; `noindex`. Linked from the footer of every page, with `/takedown`. |
-| `/auth/callback` | The one address every sign-in returns to. Exchanges `?code=` for a cookie session; `?next=` is validated against a fixed allow-list of relative paths. |
+Every route under `web/src/app/` (which files implement each:
+[`web/README.md`](../web/README.md#routes)). **Access**: *Public* needs no
+account; *Account* needs a signed-in user - signed out, the page explains
+itself and offers sign-in (only `/library` sends you to the converter
+instead); *Pro `<feature>`* is
+locked for a Free account once plans are enforced (enforcement is off today,
+[`web/README.md`](../web/README.md#plans-and-the-pro-lock)). The database
+enforces all of it; the page only says it first.
+
+| Route | Access | What it is |
+| --- | --- | --- |
+| **Community** | | |
+| `/` | Public | **The forum**: every board's threads, server-rendered as `anon` (the same HTML for every visitor; your own votes are an island). RSS at `/feed.xml`. The first ten pages are indexable. |
+| `/f` | Public | Redirects (308) to `/`. |
+| `/f/[board]` | Public | One board's threads; RSS at `/f/[board]/feed.xml`. |
+| `/f/[board]/[publicId]/[[...slug]]` | Public | A thread. The id is the key; a stale board or slug redirects (308) to the canonical address. |
+| `/submit` | Account | A new post (posting gates apply); `?hand=<published id>` attaches one of your published hands, which `create_post` re-checks is yours. |
+| `/p/[publicId]` | Public | **A published hand**: a scrubbed copy its owner chose to make public (no raw text, table or hand number, and by default no opponent names). Server-rendered and, unlike `/h/`, indexable. |
+| `/embed/p/[publicId]` | Public | A published hand as a bare replayer for an `<iframe>`; `noindex`. |
+| `/u/[username]` | Public | A public profile (`profiles_public`); an old name redirects to the current one. |
+| `/search` | Public | Full-text search over the forum (`?q=`); `noindex`. |
+| `/saved` | Account | Your bookmarked posts. |
+| `/notifications` | Account | Your notifications. |
+| `/mod` | Moderators | The moderation queue; every action is gated per caller by the RPCs. |
+| `/takedown` | Public | How a room or a player asks for a hand to be taken down (the `hh-takedown` report reason and the mod queue). |
+| **Converting and your hands** | | |
+| `/convert` | Public | **Converter.** Drop files, a folder, a zip, or paste text — at desktop scale (R4.2: a folder of tens of thousands of files, a zip of hundreds of MB). Reading, unzipping, detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library while they convert (toggleable; chunked, retried, resumable), refused hands go to the corpus, the original files only on an explicit opt-in, and the output is downloadable per file or combined (up to 20 000 hands per drop). **This route makes zero server requests** unless you save; see below. |
+| `/convert/manual` | Public | **Manual hand entry**: build a hand action by action; kept in this browser until finished, it leaves the tab only on an explicit save (which needs an account). |
+| `/library` | Account | **Library and replayer** - the shared Hands screen (R4.5b, the desktop app's): your hands newest first (or by pot, result, oldest), a virtualised list that pages as you scroll, filters as chips with how many hands each would match (date, room, stakes, position, pot type, result, stack depth, all-in, game, variant, limit, table size), the searches (hero cards or a hand class, board cards, a player at the table, a part of the table's name, a minimum pot), showdown, showdown and winning positions, and what the room's names are; the hand you pick opens beside the list (above it on a phone). A hand the converter hands over opens above the screen, with a save button. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. With no library and no hand handed over, the address redirects to `/convert`. |
+| `/stats` | Account; the situation breakdowns, sessions and opponents Pro `reports_full` | **Statistics.** The shared Reports screen (R4.5c, the desktop app's): the filter chips (date, room, stakes, position, game, variant, limit, table), the summary, the win-rate graph (total, showdown, non-showdown, all-in EV; big blinds or money), every statistic by group and the breakdowns (position, pot type, stack, starting hands' 13 x 13 grid, players, street, stakes, table size, room, game), with the web's own HUD tiles, sessions and opponents over the same filter. Read from the report summaries (`20270707090000`). Renders and explains itself when signed out rather than bouncing you somewhere else. |
+| `/players` | Account; Pro `reports_full` | **Players** - the shared Players screen (R4.5c, the desktop app's), under the Statistics tab (a "Statistics / Players" switch on both pages, not a seventh tab in the bar): the opponents of your hands from rooms that show screen names, most hands together first, searched by the start of a name, by room, game and "with a note"; beside the list (above it on a phone) one opponent's profile - hands together, first and last seen, your result against them per kind, their statistics, their rows by position, stake, table size and game, your private note (`player_notes`; tags written in the opponents panel are kept), and "hands with this player", which opens `/library` filtered to their room and name (handed over in `sessionStorage`, never in the address). Opponents exist only while opponent statistics are on in this browser: off, the page says what they cost and turns them on. Colour tags and labels are the desktop app's and are not shown. Read from `players_list` / `player_profile` (`20270714090000`). |
+| `/h/:slug` | Public (capability URL) | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. **Names hidden by default** (R4.5): Hero, Villain1, Villain2… and no table, room hand number or time, unless the link's owner ticks "Show the players' names" (in the share dialog or on the page); `/embed/h/:slug` follows the same setting. See "Share links and names" below. |
+| `/embed/h/:slug` | Public (capability URL) | The same share as a bare replayer for an `<iframe>`; never indexed; names follow the link's setting. |
+| **Analysis** | | |
+| `/analysis` | Account; Pro `analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — the heuristic checks that hold whatever the strategy, and a grade where Rail has a reference: preflop against its charts, turn and river in heads-up pots against its own solver, multiway calls and folds facing a bet approximately, a tournament's push or fold by ICM (R5.5). The analysis runs in the browser. Under the grades, the **three biggest leaks** card (R5.2): the leak finder's (`/analysis/leaks`) three most important leaks - EV lost in total, the leaks the sample can vouch for first (20 decisions in the spot and 2 mistakes), a thinner one only to fill a place and marked tentative - each in words, with EV lost per 100 hands and its 95% range, EV lost in all, how often (mistakes in the spot, with the interval) and the confidence, the target (the reference's best move; your actions and the reference's for the hands you held), the last 30 days of play against the 30 before, up to five example hands opening at the decision (Back returns to the overview) and a link to its row in the leak report. The last 30 days of play (counted back from the last day played) or all time; the overview's format, seat and pot type apply. Reads `analysis_top_leaks` and `analysis_leak_examples` over leak sums kept by triggers on `decision_analysis` (`20270728090000`); no AI-written summary. |
+| `/analysis/h/[handId]` | Account; Pro `analysis` | One hand in the replayer with the Analysis sheet (and the ICM panel for a tournament decision). |
+| `/analysis/session` | Account; Pro `analysis` | **Session review** (R5.1). After a session, the hands worth a look: the worst graded decisions (Inaccurate or worse, worst first, with the EV they cost), the preflop decisions off the charts the analysis grades by, and the biggest pots in big blinds - each hand once, in the first list it is in, with badges for the others - under a summary (when, hands, length, tables, result in money and big blinds, bb/100, all-in EV). Opens on the latest session that has **ended** (a break longer than 30 minutes; a session that may still be going on is named, and reviewed only on request); a picker of the last 90 days and Previous / Next walk to others, and every row of Statistics -> Sessions links here. A hand opens in its analysis at the decision listed, with a way back. Reads `session_review` (`20270721090000`); the screen is the shared package's (`packages/ui/review/`). |
+| `/analysis/leaks` | Account; Pro `analysis` | **Leaks**: the spots that cost the most EV, ranked. |
+| `/analysis/reports` | Account; Pro `analysis` | Your frequencies against the reference. |
+| `/analysis/progress` | Account; Pro `analysis` | Score and EV lost over time. |
+| `/analysis/train` | Account; Pro `analysis` | **The trainer**: preflop and river spots, drills of your own mistakes. |
+| `/analysis/plan` | Account; Pro `analysis` | **The study plan**: this week's focus from the leak finder, with a checklist. |
+| `/analysis/my-charts` | Account; Pro `analysis` | **Your preflop charts** (R5.3). Chart sets of your own, private to your account: build one situation by situation (open, facing limpers, an open, an open and a call, a raise over your limp, a 3-bet, a 4-bet, a 5-bet - by seat and opponent, the shipped charts' vocabulary) on a 13 x 13 grid painted with a brush mix of raise / call / all-in percents (click, drag - a finger too - or the keyboard; under the grid the rank list's 44 px buttons are the phone's touch path), copy another situation, start from Rail's own chart at a depth, paste ranges as other tools write them (`AKs:0.5`, `[50]…[/50]`, `AhKh:0.25`, one hand per line) or copy them out, undo; import and download a whole set as Rail JSON. **Compare** it with your hands over 30 / 90 / 365 days or all time: how many preflop decisions it covers, the share played as the chart plays them (an action it takes at least 3.5 % of the time), the situations it leaves empty (with "Fill it in"), per situation your mix against the chart's for the hands you held and the deviations - hand, action, how often - each with its example hands opening at the decision (Back returns to the chart), and what they cost by Rail's charts' EVs. The session review can read its "off your preflop charts" list against one of these instead of Rail's. Data: `preflop_chart_sets` (direct, owner-only RLS) and `preflop_chart_played` / `preflop_chart_examples` (`20270811090000`, `20270811100000`); the screens are the shared package's (`packages/ui/charts/`). |
+| `/analysis/charts` | Public, indexable | Rail's preflop chart browser ([`docs/CHARTS.md`](CHARTS.md)). |
+| `/analysis/learn`, `/analysis/learn/[concept]` | Public, indexable | The concept library. |
+| **Learn** ([`docs/LEARN-PLAN.md`](LEARN-PLAN.md)) | | |
+| `/learn` | Public | The course map, how Rail teaches, and the reference pages. Progress is the account's when signed in (recording it is Pro `learn`), this browser's otherwise. |
+| `/learn/[lesson]` | Public | One lesson: sections, checkpoints, practice graded by Rail's engine. |
+| `/learn/placement` | Public | The placement test: a module passed marks its lessons "tested out"; `noindex`. |
+| `/learn/review` | Public | The review queue of missed quiz items and the daily dose; `noindex`. |
+| `/learn/reference/[page]` | Public | One reference page; `/learn/reference` itself redirects to `/learn`. |
+| **Account, billing and legal** | | |
+| `/settings` | Account | Language, username, posting, the plan (`#plan`), password, your data (export) and account deletion (R6.5). |
+| `/billing/success`, `/billing/cancel` | Account | Where Stripe Checkout returns (R6.3). They grant nothing - the webhook does - and the success page waits for the plan to show it. |
+| `/terms`, `/privacy` | Public | **The terms of use and the privacy policy** (R6.5): `docs/legal/*.md` in the reader's language, **drafts - not yet in force, pending the owner's and legal review** - and the page says so above the text; `noindex`. Linked from the footer of every page, with `/takedown`. |
+| `/auth/callback` | Public (route handler) | The one address every sign-in returns to. Exchanges `?code=` for a cookie session; `?next=` is validated against a fixed allow-list of relative paths. |
+| `/auth/desktop` | Sign-in on the page | The desktop app signs in through this browser (R1.7): sign in here if needed, confirm, and the page hands the app an encrypted one-time sign-in through a `rail://` link. |
+| **Machine-facing** | | |
+| `/api/oembed` | Public | oEmbed for this site's own `/p/` and `/h/` links only; never fetches the given URL. |
+| `/api/stats/rebuild` | Account | Derives statistics for the caller's hands that have none at the current `stats_version`, as the user (security-invoker RPCs, RLS). |
+| `/og/p/[publicId]`, `/og/post/[publicId]` | Public | Open Graph images for a published hand and a forum thread. |
+| `/icons/[size]`, `/manifest.webmanifest`, `/sitemap.xml`, `/robots.txt`, `/apple-icon` | Public | The PWA's icons and manifest, the sitemap (public, stable pages only) and robots (`/h/` and the private screens disallowed). |
+| `/sites.json`, `/sw.js` | Public (static) | The room list the desktop app keeps current from (R3.10; copied from `config/sites.json` at build) and the service worker that keeps the converter working offline. |
 
 Permanent (308) redirects, in `next.config.ts`, for every address these screens
 used to have: `/upload` and `/converter` → `/convert`; `/replay`, `/replayer`
 and `/hands` → `/library`; `/statistics` and `/graph` → `/stats`. `/` is
-deliberately not redirected — it is the feed now.
+deliberately not redirected — it is the forum now.
 
 ### The converter makes no server requests
 
@@ -485,9 +551,11 @@ cd tests
 npm test
 ```
 
-**3188 tests across 29 files.** `tests/` is a test harness with no runtime of
-its own — it exercises the frontend libraries directly against the real corpus.
-Nothing is asserted against a hand somebody made up.
+**121 test files, over 4 700 tests** (CI, 2026-10-27). `tests/` is a test
+harness with no runtime of its own — it exercises the web's libraries
+directly against the real corpus ([`tests/README.md`](../tests/README.md)
+maps the suite). Nothing is asserted against a hand somebody made up, except
+the 17 labelled statistics spot hands described under "The corpus" above.
 
 What they actually check, per hand, over every sample file:
 
@@ -676,8 +744,8 @@ this app with no visual change.
 | `replayer/` | The replayer: `ReplayViewer`, table, seats, bets, pot, board, controls, sheets; `position.ts`, `potOdds.ts`, `seatLayout.ts` | `replayer/replayer.css`, global — the container-query layout, unchanged |
 | `overlay/Overlay.tsx`, `icon/Icon.tsx` | The modal / non-modal `<dialog>` overlay the replayer's sheets use; the stroke icon set | `overlay/overlay.css`, global |
 | `dialog/Dialog.tsx` | The desktop app's modal `<dialog>` | CSS Module |
-| `review/` | The session review (R5.1, web-only until the analysis reaches the app, R5.4): `SessionReviewScreen` (the picker, Previous / Next, the summary, the three lists; `hiddenDuringPlay` for A10) and the pure `SessionReviewView`, `select.ts` (each list ranked, a hand shown once in the first list it is in - worst decisions, then chart deviations, then pots - with badges for the others, each list filled to its cap), `model.ts` (`SessionReviewSource` - what a surface implements - and `DeviationSource`: where "off your preflop charts" comes from, the shipped charts today, the user's own with R5.3) | CSS Module |
-| `charts/` | The user's own preflop charts (R5.3, web-only until the analysis reaches the app, R5.4): `model.ts` (classes, the situation keys and which a table can have, the stored shape - whole percents as base64 of 169 bytes per action - and its checks), `nodeKey.ts` (a shipped chart line as a situation; the database's `preflop_chart_node_key` is held to it), `ranges.ts` (range text in and out: shorthand, weights, GTO+ brackets, combos, lists), `exchange.ts` (Rail JSON, a situation's text), `compare.ts` (the comparison, pure), `sessionSource.ts` (`ownChartDeviations`: the session review's second `DeviationSource`), `source.ts` (`PreflopChartsSource`: what a surface implements); `ChartsScreen` (the list, import, a set's Edit / Compare tabs, save / download / delete), `ChartEditor`, `ChartGrid` (the painted grid and the rank list), `ChartCompare` | CSS Module |
+| `review/` | The session review (R5.1; rendered by the web at `/analysis/session` and by the desktop app's Analysis screen since R5.4b): `SessionReviewScreen` (the picker, Previous / Next, the summary, the three lists; `hiddenDuringPlay` for A10) and the pure `SessionReviewView`, `select.ts` (each list ranked, a hand shown once in the first list it is in - worst decisions, then chart deviations, then pots - with badges for the others, each list filled to its cap), `model.ts` (`SessionReviewSource` - what a surface implements - and `DeviationSource`: where "off your preflop charts" comes from, the shipped charts, or the user's own since R5.3b) | CSS Module |
+| `charts/` | The user's own preflop charts (R5.3; rendered by the web at `/analysis/my-charts` and by the desktop app's Analysis screen since R5.4b): `model.ts` (classes, the situation keys and which a table can have, the stored shape - whole percents as base64 of 169 bytes per action - and its checks), `nodeKey.ts` (a shipped chart line as a situation; the database's `preflop_chart_node_key` is held to it), `ranges.ts` (range text in and out: shorthand, weights, GTO+ brackets, combos, lists), `exchange.ts` (Rail JSON, a situation's text), `compare.ts` (the comparison, pure), `sessionSource.ts` (`ownChartDeviations`: the session review's second `DeviationSource`), `source.ts` (`PreflopChartsSource`: what a surface implements); `ChartsScreen` (the list, import, a set's Edit / Compare tabs, save / download / delete), `ChartEditor`, `ChartGrid` (the painted grid and the rank list), `ChartCompare` | CSS Module |
 | `reports/` | The Reports screen (R4.5c, moved from the desktop app): `ReportsScreen` (title and count, the filter row with the groups a report sums by, the summary, the graph's card with its unit toggle, the statistics by group, the breakdowns; two slots for a surface's own panels), `Breakdown` (the tabs, the table, `GroupTable` - the app's player profile and HUD popup use it too), `HandMatrix` (the 13 x 13 grid), `useReport`, `definitions.ts` (`statRows`, `shownOf`), `model.ts` (`ReportSource` - what a surface implements - and the report, the breakdowns, `BREAKDOWN_COLUMNS`). Every value arrives as a `Shown`; it computes nothing | CSS Module |
 | `hands/` | The Hands screen (R4.5b, moved from the desktop app): `HandsScreen` (title and count, the filter row, the list, the open hand's panel - the surface draws the panel), `HandList` (virtualised; a two-line card per row where the list is under 40rem wide), `FilterBar` / `Popover` / `SavedFilters` (the chip row; the desktop's Reports uses it with its own groups), `filter.ts` (the filter state, presets, saved form, `toQuery`), `format.ts`, `useHandList` (pages, counts, arrivals), `model.ts` (`HandsSource` - what a surface implements - and the rows and counts it returns) | CSS Modules |
 | `stats/StatTile.tsx`, `stats/StatTable.tsx`, `stats/StatValue.tsx` | A statistic's tile (value, sample, interval band); a table of statistics; one value faded by its reliability with its sample and interval in the tooltip (R2.7b, the desktop's report cells). All show R2.4 definitions with their R2.5 reliability and compute nothing | `stats/stat-tile.css` (global); `StatTable.module.css` |
