@@ -2,7 +2,7 @@
 //! docs/STATS-SPEC.md §13): a 95% Wilson interval for a rate, and a
 //! reliability [`Level`] and an opacity for every value, from the
 //! definition's `sample.min`. The web computes the same in
-//! `frontend/src/lib/stats/reliability.ts`; `tests/reliability.rs` holds the
+//! `web/src/lib/stats/reliability.ts`; `tests/reliability.rs` holds the
 //! two to the same bits.
 //!
 //! **The interval** is the Wilson score interval - asymmetric, inside 0-100,

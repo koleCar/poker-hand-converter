@@ -1,5 +1,5 @@
 //! `microgaming`: the MicroGaming Poker Network
-//! (`frontend/src/lib/parsers/microgaming.ts`) - Betsafe, Ladbrokes,
+//! (`web/src/lib/parsers/microgaming.ts`) - Betsafe, Ladbrokes,
 //! Unibet's pre-2019 rooms and the other skins, shut down in 2016.
 //!
 //! One `<Game>` element per hand, everything in attributes, read with
@@ -561,7 +561,7 @@ impl SiteParser for MicroGamingParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/microgaming.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/microgaming.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {

@@ -15,8 +15,8 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { preflopClassRange } from "../../../frontend/src/lib/analysis/rangeWalk.js";
-import { defaultRange, preflopLine } from "../../../frontend/src/lib/analysis/ranges.js";
+import { preflopClassRange } from "../../../web/src/lib/analysis/rangeWalk.js";
+import { defaultRange, preflopLine } from "../../../web/src/lib/analysis/ranges.js";
 import {
   CHART_SETS,
   chartLibrary,
@@ -27,12 +27,12 @@ import {
   lookupPreflop,
   preflopSpotFromHand,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
-import { allClasses, type ClassWeights } from "../../../frontend/src/lib/equity/range.js";
-import type { PhfHand, Position } from "../../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
-import type { CounterKey } from "../../../frontend/src/lib/stats/types.js";
+} from "../../../web/src/lib/charts/index.js";
+import { allClasses, type ClassWeights } from "../../../web/src/lib/equity/range.js";
+import type { PhfHand, Position } from "../../../web/src/lib/phf/types.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
+import { handFacts } from "../../../web/src/lib/stats/derive.js";
+import type { CounterKey } from "../../../web/src/lib/stats/types.js";
 import { limpCounters } from "./limpCounters.js";
 
 /** The statistics counters the per-villain studies read (analysis/20; the raise-first-in and isolation counters for the limp study, 2026-10-11). */
@@ -56,7 +56,7 @@ const VILLAIN_COUNTERS: readonly CounterKey[] = [
   "call_steal",
 ];
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.CALLERS_HANDS ?? "";
 const OUT = process.env.CALLERS_OUT ?? "";
 const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);

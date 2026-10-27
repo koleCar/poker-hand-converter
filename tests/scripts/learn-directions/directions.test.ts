@@ -17,17 +17,17 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "vitest";
 
-import { riverCategory, turnCategory } from "../../../frontend/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { cardIndex } from "../../../frontend/src/lib/equity/evaluator.js";
-import { comboHi, comboLo, rangesAt, type SolveResult } from "../../../frontend/src/lib/solver/index.js";
-import { heroNode } from "../../../frontend/src/lib/training/flop.js";
-import { riverSetup, type RiverSpotOptions } from "../../../frontend/src/lib/training/river.js";
-import { seeded } from "../../../frontend/src/lib/training/rng.js";
-import { turnSetup, type TurnSpotOptions } from "../../../frontend/src/lib/training/turn.js";
+import { riverCategory, turnCategory } from "../../../web/src/lib/analysis/index.js";
+import { loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import { cardIndex } from "../../../web/src/lib/equity/evaluator.js";
+import { comboHi, comboLo, rangesAt, type SolveResult } from "../../../web/src/lib/solver/index.js";
+import { heroNode } from "../../../web/src/lib/training/flop.js";
+import { riverSetup, type RiverSpotOptions } from "../../../web/src/lib/training/river.js";
+import { seeded } from "../../../web/src/lib/training/rng.js";
+import { turnSetup, type TurnSpotOptions } from "../../../web/src/lib/training/turn.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 const RIVERS = Number(process.env.RIVERS ?? 30);

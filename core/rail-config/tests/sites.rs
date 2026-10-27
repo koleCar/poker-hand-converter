@@ -438,11 +438,11 @@ fn known_formats_without_a_parser_have_entries() {
 }
 
 /// `anonymisation` is the site-level default of
-/// `frontend/src/lib/db/anonymization.ts` (docs/DATABASE.md): positional and
+/// `web/src/lib/db/anonymization.ts` (docs/DATABASE.md): positional and
 /// opaque-id for the parsers in its two sets, none for every other parser.
 #[test]
 fn anonymisation_matches_the_web() {
-    let source = std::fs::read_to_string(repo().join("frontend/src/lib/db/anonymization.ts"))
+    let source = std::fs::read_to_string(repo().join("web/src/lib/db/anonymization.ts"))
         .expect("read anonymization.ts");
     let set = |name: &str| -> Vec<String> {
         let start = source

@@ -1,6 +1,6 @@
 /**
  * Plans and entitlements on the web (Rail R6.2,
- * `frontend/src/lib/db/entitlements.ts`, `components/plan/`):
+ * `web/src/lib/db/entitlements.ts`, `components/plan/`):
  *
  * - `my_entitlements()`'s JSON read field by field; while enforcement is off
  *   every feature is open whatever the payload says, and nothing is locked;
@@ -15,17 +15,17 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { DatabaseRpcError } from "../../frontend/src/lib/db/client.js";
+import { DatabaseRpcError } from "../../web/src/lib/db/client.js";
 import {
   handsLeft,
   isLocked,
   isPlanRequiredError,
   parseEntitlements,
-} from "../../frontend/src/lib/db/entitlements.js";
-import { PlanDetails } from "../../frontend/src/components/plan/PlanPanel.js";
-import { ProLock } from "../../frontend/src/components/plan/ProLock.js";
-import { I18nProvider } from "../../frontend/src/lib/i18n/client.js";
-import { localizeServerMessage } from "../../frontend/src/lib/i18n/serverErrors.js";
+} from "../../web/src/lib/db/entitlements.js";
+import { PlanDetails } from "../../web/src/components/plan/PlanPanel.js";
+import { ProLock } from "../../web/src/components/plan/ProLock.js";
+import { I18nProvider } from "../../web/src/lib/i18n/client.js";
+import { localizeServerMessage } from "../../web/src/lib/i18n/serverErrors.js";
 
 const features = (on: boolean, cap: number | null) => ({
   library_unlimited: cap === null,

@@ -25,10 +25,10 @@
  * `RIVER_BET_MARGIN_POT` of the pot, capped at Mistake.
  */
 
-import type { ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { equityVsRanges } from "../../../frontend/src/lib/equity/multiway.js";
-import type { PhfHand, Position } from "../../../frontend/src/lib/phf/types.js";
-import type { StatsContext } from "../../../frontend/src/lib/stats/context.js";
+import type { ChartSet } from "../../../web/src/lib/charts/index.js";
+import { equityVsRanges } from "../../../web/src/lib/equity/multiway.js";
+import type { PhfHand, Position } from "../../../web/src/lib/phf/types.js";
+import type { StatsContext } from "../../../web/src/lib/stats/context.js";
 import {
   effectiveStrength,
   grade,
@@ -51,9 +51,9 @@ import {
   type OptionAnalysis,
   type Spot,
   type StreetStrength,
-} from "../../../frontend/src/lib/analysis/index.js";
-import { RAMP } from "../../../frontend/src/lib/analysis/narrowing.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
+} from "../../../web/src/lib/analysis/index.js";
+import { RAMP } from "../../../web/src/lib/analysis/narrowing.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
 
 /* ------------------------------------------------- shares of a range - */
 

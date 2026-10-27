@@ -18,11 +18,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { storedStandardText, toHandRecord } from "../../frontend/src/lib/db/mapping.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { parseHand } from "../../frontend/src/lib/phf/index.js";
-import { toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+import { storedStandardText, toHandRecord } from "../../web/src/lib/db/mapping.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { parseHand } from "../../web/src/lib/phf/index.js";
+import { toStandardText } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { ggCorpusFiles, readTree } from "./support/psggCorpus.js";
 
 const ROOT = join(import.meta.dirname, "../..");

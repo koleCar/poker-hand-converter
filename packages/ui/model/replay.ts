@@ -1,2 +1,2 @@
-/** PHF -> replay frames (`frontend/src/lib/replay.ts`). See `phf.ts` for why `model/` exists. */
-export * from "../../../frontend/src/lib/replay";
+/** PHF -> replay frames (`web/src/lib/replay.ts`). See `phf.ts` for why `model/` exists. */
+export * from "../../../web/src/lib/replay";

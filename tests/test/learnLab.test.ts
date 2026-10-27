@@ -20,12 +20,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { clairvoyanceGame, exploitLab, groupShareOf, lockedStrategy, Solver } from "../../frontend/src/lib/solver/index.js";
-import { generateLab, gradeLab, LAB_PRESETS, LAB_TOLERANCE, type LabItem } from "../../frontend/src/lib/training/lab.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { clairvoyanceGame, exploitLab, groupShareOf, lockedStrategy, Solver } from "../../web/src/lib/solver/index.js";
+import { generateLab, gradeLab, LAB_PRESETS, LAB_TOLERANCE, type LabItem } from "../../web/src/lib/training/lab.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 describe("the lock", () => {

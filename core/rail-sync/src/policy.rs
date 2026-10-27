@@ -4,7 +4,7 @@
 //! switched off without waiting for a release.
 //!
 //! - **Where**: `<web origin>/sites.json` - a static file the web build copies
-//!   from `config/sites.json` (`frontend/scripts/sites-json.mjs`), so the
+//!   from `config/sites.json` (`web/scripts/sites-json.mjs`), so the
 //!   repository's file is the only source; the owner updates it with a normal
 //!   pull request, and it is live once the web deploys (no app release).
 //! - **Fetch** ([`PolicyFetcher`]): HTTPS only (plain HTTP only to a loopback

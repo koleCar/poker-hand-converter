@@ -70,14 +70,14 @@ import {
   walkRanges,
   type NarrowingModel,
   type NarrowInput,
-} from "../../../frontend/src/lib/analysis/index.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { comboIndex, NUM_COMBOS } from "../../../frontend/src/lib/solver/index.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
+} from "../../../web/src/lib/analysis/index.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { comboIndex, NUM_COMBOS } from "../../../web/src/lib/solver/index.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
 const FLOOR_LL = Math.log(1 / (20 * NUM_COMBOS));

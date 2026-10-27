@@ -1,4 +1,4 @@
-//! The counter set and the structural rulebook: `frontend/src/lib/stats/types.ts`.
+//! The counter set and the structural rulebook: `web/src/lib/stats/types.ts`.
 //!
 //! One counter per member of `ZERO_COUNTERS`, in its declaration order, which
 //! is the column order of `mapping.ts`. The names are the TypeScript (and

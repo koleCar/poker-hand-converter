@@ -2,7 +2,7 @@
  * What the desktop app takes of the web's analysis library (R5.4,
  * `app/src/analysis/library.ts`): the library is used in place, through one
  * door, and the app's analysis worker - bundled here as Vite bundles it -
- * reaches only pure TypeScript of `frontend/src/lib/` and the chart sets'
+ * reaches only pure TypeScript of `web/src/lib/` and the chart sets'
  * JSON. Nothing that knows about Supabase, Next, the browser client or the
  * web's own worker comes in, and no npm package at all.
  */
@@ -16,17 +16,17 @@ import { describe, expect, it } from "vitest";
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const APP = join(ROOT, "app/src");
 
-/** The folders of `frontend/src/lib/` the analysis may reach. */
+/** The folders of `web/src/lib/` the analysis may reach. */
 const ALLOWED = [
-  "frontend/src/lib/analysis/",
-  "frontend/src/lib/charts/",
-  "frontend/src/lib/solver/",
-  "frontend/src/lib/equity/",
-  "frontend/src/lib/stats/",
-  "frontend/src/lib/phf/types.ts",
-  "frontend/src/lib/cards.ts",
-  "frontend/src/lib/db/analysisRows.ts",
-  "frontend/src/lib/db/villainCounters.ts",
+  "web/src/lib/analysis/",
+  "web/src/lib/charts/",
+  "web/src/lib/solver/",
+  "web/src/lib/equity/",
+  "web/src/lib/stats/",
+  "web/src/lib/phf/types.ts",
+  "web/src/lib/cards.ts",
+  "web/src/lib/db/analysisRows.ts",
+  "web/src/lib/db/villainCounters.ts",
 ];
 
 function inputsOf(entry: string): string[] {
@@ -39,7 +39,7 @@ function inputsOf(entry: string): string[] {
     outdir: "out",
     metafile: true,
     logLevel: "silent",
-    alias: { "@rail/web-lib": join(ROOT, "frontend/src/lib"), "@rail/ui": join(ROOT, "packages/ui") },
+    alias: { "@rail/web-lib": join(ROOT, "web/src/lib"), "@rail/ui": join(ROOT, "packages/ui") },
     // React and Tauri are the app's own (`service.ts`); the worker has neither.
     external: ["react", "react-dom", "@tauri-apps/*"],
   });
@@ -49,11 +49,11 @@ function inputsOf(entry: string): string[] {
 describe("the app's analysis and the web's library", () => {
   it("the worker reaches only the library's pure TypeScript and the chart sets", () => {
     const inputs = inputsOf(join(APP, "analysis/worker.entry.ts"));
-    const web = inputs.filter((path) => path.startsWith("frontend/"));
+    const web = inputs.filter((path) => path.startsWith("web/"));
     const own = inputs.filter((path) => path.startsWith("app/"));
     // The shared package's chart vocabulary (R5.3), which files a preflop decision for the own charts.
     expect(inputs.filter((path) => path.startsWith("packages/")).sort()).toEqual(["packages/ui/charts/model.ts", "packages/ui/charts/nodeKey.ts"]);
-    expect(inputs.filter((path) => !/^(app|frontend|packages)\//.test(path))).toEqual([]);
+    expect(inputs.filter((path) => !/^(app|web|packages)\//.test(path))).toEqual([]);
     expect(web.length).toBeGreaterThan(40);
     expect(own.sort()).toEqual(
       ["app/src/analysis/engine.ts", "app/src/analysis/library.ts", "app/src/analysis/rows.ts", "app/src/analysis/worker.entry.ts", "app/src/analysis/worker.ts"].sort(),
@@ -76,7 +76,7 @@ describe("the app's analysis and the web's library", () => {
       }
     };
     walk(APP);
-    const imports = /(?:from|import)\s*\(?\s*"(?:@rail\/web-lib[^"]*|[^"]*frontend\/src\/[^"]*)"/;
+    const imports = /(?:from|import)\s*\(?\s*"(?:@rail\/web-lib[^"]*|[^"]*web\/src\/[^"]*)"/;
     const importers = files.filter((path) => imports.test(readFileSync(path, "utf8")));
     expect(importers.map((path) => relative(ROOT, path)).sort()).toEqual(["app/src/analysis/leakWords.ts", "app/src/analysis/library.ts"]);
     // The analysis is not copied: no app file defines the library's entry points.

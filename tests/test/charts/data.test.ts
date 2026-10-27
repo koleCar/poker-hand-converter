@@ -1,6 +1,6 @@
 /**
  * Sanity properties of the committed chart set
- * (`frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json`).
+ * (`web/src/lib/charts/data/nlhe-cash-6max-100bb.json`).
  *
  * A preflop chart from a six-player CFR has no closed-form answer to compare
  * against, and multi-player CFR has no equilibrium guarantee. These are the
@@ -40,10 +40,10 @@ import {
   loadCharts,
   MAX_SELF_LOSS,
   type ChartNode,
-} from "../../../frontend/src/lib/charts/index.js";
-import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/charts/index.js";
+import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../web/src/lib/solver/index.js";
 
-const FILE = join(import.meta.dirname, "../../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json");
+const FILE = join(import.meta.dirname, "../../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json");
 const text = readFileSync(FILE, "utf8");
 const charts = loadCharts(JSON.parse(text));
 const H = NUM_CLASSES;

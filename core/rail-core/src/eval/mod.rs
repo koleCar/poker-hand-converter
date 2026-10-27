@@ -1,5 +1,5 @@
 //! Poker hand evaluation, full deck and short deck: the port of
-//! `frontend/src/lib/equity/evaluator.ts` (and of `omaha.ts`, in
+//! `web/src/lib/equity/evaluator.ts` (and of `omaha.ts`, in
 //! [`omaha`]).
 //!
 //! It lives in the core rather than in `rail-equity` because the core needs

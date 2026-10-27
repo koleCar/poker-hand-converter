@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-//! All-in EV, ported from `frontend/src/lib/equity` (docs/RAIL-PLAN.md R2.2).
+//! All-in EV, ported from `web/src/lib/equity` (docs/RAIL-PLAN.md R2.2).
 //!
 //! ```text
 //! rail_core::eval   5-7 card values, full and short deck, Omaha (R0.5b)

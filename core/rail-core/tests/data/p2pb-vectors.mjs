@@ -1,5 +1,5 @@
 // Writes p2pb-vectors.json: what the TypeScript partypoker, 888poker and
-// PokerBros parsers (`frontend/src/lib/parsers/{partypoker,pokerstars888,
+// PokerBros parsers (`web/src/lib/parsers/{partypoker,pokerstars888,
 // pokerbros}.ts`) make of texts the corpus does not have, for
 // `rail_core::parsers` to replay (docs/RAIL-PLAN.md R0.8).
 //
@@ -47,9 +47,9 @@ const bundle = await esbuild.build({
   stdin: {
     contents: `
       export { partypokerParser, poker888Parser, pokerbrosParser, convertAny, detectSite }
-        from "./frontend/src/lib/parsers/index.ts";
-      export { ParseSkip } from "./frontend/src/lib/phf/detect.ts";
-      export { decodeSource } from "./frontend/src/components/converter/inputs.ts";
+        from "./web/src/lib/parsers/index.ts";
+      export { ParseSkip } from "./web/src/lib/phf/detect.ts";
+      export { decodeSource } from "./web/src/components/converter/inputs.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
     `,
     resolveDir: ROOT,

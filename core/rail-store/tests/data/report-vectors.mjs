@@ -55,10 +55,10 @@ const esbuild = require("esbuild");
 const bundle = await esbuild.build({
   stdin: {
     contents: `
-      export { aggregate } from "./frontend/src/lib/stats/rates.ts";
-      export { COUNTER_KEYS, MONEY_KEYS, STATS_VERSION } from "./frontend/src/lib/stats/types.ts";
-      export { compileStats, showStat } from "./frontend/src/lib/stats/display.ts";
-      export { EV_VERSION } from "./frontend/src/lib/equity/index.ts";
+      export { aggregate } from "./web/src/lib/stats/rates.ts";
+      export { COUNTER_KEYS, MONEY_KEYS, STATS_VERSION } from "./web/src/lib/stats/types.ts";
+      export { compileStats, showStat } from "./web/src/lib/stats/display.ts";
+      export { EV_VERSION } from "./web/src/lib/equity/index.ts";
     `,
     resolveDir: ROOT,
     loader: "ts",

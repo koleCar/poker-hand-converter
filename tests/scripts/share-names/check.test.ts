@@ -20,7 +20,7 @@
  *   RAIL_SHARE_WEB_URL=http://localhost:<port> \
  *   npm run share:names
  *
- * The web server is `next build && next start` of `frontend/` with
+ * The web server is `next build && next start` of `web/` with
  * `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` pointing at the
  * same stack. The stack needs Turnstile's test secret (as
  * `supabase/config.toml` has it) and its `supabase/.temp` removed (R1.7's
@@ -36,14 +36,14 @@ import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { createClient, type SupabaseClient } from "../../../frontend/node_modules/@supabase/supabase-js/dist/index.mjs";
+import { createClient, type SupabaseClient } from "../../../web/node_modules/@supabase/supabase-js/dist/index.mjs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { decodeSource } from "../../../frontend/src/components/converter/inputs.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import { handKeyOf } from "../../../frontend/src/lib/db/mapping.js";
-import { toStandardText } from "../../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+import { decodeSource } from "../../../web/src/components/converter/inputs.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import { handKeyOf } from "../../../web/src/lib/db/mapping.js";
+import { toStandardText } from "../../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import { ROOT } from "../golden/emit.js";
 
 const SUPABASE = process.env.RAIL_SHARE_SUPABASE_URL ?? "";

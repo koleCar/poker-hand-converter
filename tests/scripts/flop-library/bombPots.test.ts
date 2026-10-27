@@ -28,14 +28,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { analyzeHand, flopSeats, heroSeatOf, heuristicModel, walkMultiway } from "../../../frontend/src/lib/analysis/index.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { comboIndex, NUM_COMBOS } from "../../../frontend/src/lib/solver/index.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
+import { analyzeHand, flopSeats, heroSeatOf, heuristicModel, walkMultiway } from "../../../web/src/lib/analysis/index.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { comboIndex, NUM_COMBOS } from "../../../web/src/lib/solver/index.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const GRADES = process.env.BOMB_GRADES === "1";
 const FLOOR_LL = Math.log(1 / (20 * NUM_COMBOS));

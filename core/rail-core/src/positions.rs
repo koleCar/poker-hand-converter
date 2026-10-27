@@ -1,5 +1,5 @@
 //! Positions from the hand itself: `assignPositions` of
-//! `frontend/src/lib/phf/types.ts`.
+//! `web/src/lib/phf/types.ts`.
 //!
 //! The pure geometry it builds on is [`crate::phf::game`]
 //! (`position_ring`, `dealt_in_seats`, `has_dead_button`,

@@ -13,11 +13,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { analyzeHand, gradeRank, heroSeatOf, rangeWeight, walkMultiway, type HandAnalysis } from "../../frontend/src/lib/analysis/index.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { NUM_COMBOS } from "../../frontend/src/lib/solver/index.js";
-import { buildContext } from "../../frontend/src/lib/stats/context.js";
+import { analyzeHand, gradeRank, heroSeatOf, rangeWeight, walkMultiway, type HandAnalysis } from "../../web/src/lib/analysis/index.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { NUM_COMBOS } from "../../web/src/lib/solver/index.js";
+import { buildContext } from "../../web/src/lib/stats/context.js";
 import { fullLibrary } from "./charts/support.js";
 
 const CHARTS = fullLibrary();

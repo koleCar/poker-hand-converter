@@ -25,7 +25,7 @@
 //!   a chunk cannot be fetched, and marks it to be analysed again.
 //!
 //! Paths are checked part by part (`chunkPath`'s rule in
-//! `frontend/src/lib/solver/flopLibrary.ts`), so nothing outside the
+//! `web/src/lib/solver/flopLibrary.ts`), so nothing outside the
 //! library's folder can be read or written.
 
 use std::path::{Path, PathBuf};

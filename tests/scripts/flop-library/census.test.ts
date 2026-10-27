@@ -42,13 +42,13 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import * as analysis from "../../../frontend/src/lib/analysis/index.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
+import * as analysis from "../../../web/src/lib/analysis/index.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
+import { handFacts } from "../../../web/src/lib/stats/derive.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
 const OUT = process.env.CENSUS_OUT ?? "";

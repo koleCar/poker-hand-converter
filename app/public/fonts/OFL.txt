@@ -1,5 +1,5 @@
 Inter 4.1, subset to latin and latin-ext (the same files the web serves from
-frontend/public/fonts/), bundled with the Rail desktop app.
+web/public/fonts/), bundled with the Rail desktop app.
 
 Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
 

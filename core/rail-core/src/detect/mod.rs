@@ -1,5 +1,5 @@
 //! Site detection and the parser plug-in contract: the Rust side of
-//! `frontend/src/lib/phf/detect.ts` (the pipeline itself, `convertAny`, is
+//! `web/src/lib/phf/detect.ts` (the pipeline itself, `convertAny`, is
 //! [`crate::convert`](mod@crate::convert)).
 //!
 //! - [`SiteParser`] is the TypeScript `SiteParser` interface as a trait: `id`,
@@ -550,7 +550,7 @@ mod tests {
 
     /// Every `.ts` file below `dir`.
     fn ts_sources(dir: &Path, out: &mut Vec<String>) {
-        for entry in std::fs::read_dir(dir).expect("read frontend/src/lib") {
+        for entry in std::fs::read_dir(dir).expect("read web/src/lib") {
             let path = entry.expect("entry").path();
             if path.is_dir() {
                 ts_sources(&path, out);
@@ -563,7 +563,7 @@ mod tests {
     /// The reason enum is the TypeScript's reason set, no more and no less.
     #[test]
     fn skip_reasons_are_exactly_the_typescript_set() {
-        let lib = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../frontend/src/lib");
+        let lib = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../web/src/lib");
         let mut sources = Vec::new();
         ts_sources(&lib, &mut sources);
         let thrown = js_regex(r#"ParseSkip\(\s*"([a-z0-9-]+)""#, "g");
@@ -579,7 +579,7 @@ mod tests {
                 }
             }
         }
-        let detect_ts = include_str!("../../../../frontend/src/lib/phf/detect.ts");
+        let detect_ts = include_str!("../../../../web/src/lib/phf/detect.ts");
         assert!(detect_ts.contains(r#"export const HI_LO_SKIP_REASON = "unsupported-hi-lo";"#));
         codes.insert(HI_LO_SKIP_REASON.as_str().to_owned());
         let ours: BTreeSet<String> = SkipReason::ALL
@@ -597,7 +597,7 @@ mod tests {
 
     #[test]
     fn pipeline_reasons_and_stages_are_the_typescript_codes() {
-        let detect_ts = include_str!("../../../../frontend/src/lib/phf/detect.ts");
+        let detect_ts = include_str!("../../../../web/src/lib/phf/detect.ts");
         for reason in PipelineReason::ALL {
             assert!(
                 detect_ts.contains(&format!("\"{}\"", reason.as_str())),
@@ -624,7 +624,7 @@ mod tests {
 
     #[test]
     fn the_threshold_is_the_typescript_one() {
-        let detect_ts = include_str!("../../../../frontend/src/lib/phf/detect.ts");
+        let detect_ts = include_str!("../../../../web/src/lib/phf/detect.ts");
         assert!(detect_ts.contains("export const DETECTION_THRESHOLD = 0.2;"));
         assert_eq!(DETECTION_THRESHOLD_PERMILLE, 200);
     }

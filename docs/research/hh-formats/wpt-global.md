@@ -66,7 +66,7 @@ This follows the PokerStars-family convention of a brand token followed by
 
 **Independent corroboration that the brand token appears in the text:** our own
 GGPoker parser carries a `FOREIGN_BRANDING` guard
-(`frontend/src/lib/parsers/ggpoker.ts`) that lists `WPT Global` among the brands
+(`web/src/lib/parsers/ggpoker.ts`) that lists `WPT Global` among the brands
 it explicitly refuses. That guard exists because GG-family text is otherwise
 similar enough to be mistaken, which is evidence both that the literal string
 `WPT Global` occurs in these files and that the body resembles the family.

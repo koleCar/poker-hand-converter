@@ -28,10 +28,10 @@ import {
   houseIntoPot,
   totalFees,
   type PhfHand,
-} from "../../../frontend/src/lib/phf/types.js";
-import { parseStandardHand, toStandardText } from "../../../frontend/src/lib/phf/serialize.js";
-import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
-import { STATS_COLUMNS, statsRows } from "../../../frontend/src/lib/stats/mapping.js";
+} from "../../../web/src/lib/phf/types.js";
+import { parseStandardHand, toStandardText } from "../../../web/src/lib/phf/serialize.js";
+import { handFacts } from "../../../web/src/lib/stats/derive.js";
+import { STATS_COLUMNS, statsRows } from "../../../web/src/lib/stats/mapping.js";
 import {
   COUNTER_KEYS,
   LEG_SETS,
@@ -40,7 +40,7 @@ import {
   STREET_CHAINS,
   type CounterKey,
   type HandFacts,
-} from "../../../frontend/src/lib/stats/types.js";
+} from "../../../web/src/lib/stats/types.js";
 
 /** One minor unit of slack, the same tolerance the PHF validator uses. */
 const TOLERANCE = 1;

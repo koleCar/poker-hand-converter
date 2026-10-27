@@ -19,18 +19,18 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { flopBucket, FLOP_LINES, FLOP_PROFILE, FlopLibraryLoader, memoryLibrary } from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
-import { comboHi, comboLo, decodeChunk, flopKey, rangesAt, type FlopChunk, type FlopManifest } from "../../frontend/src/lib/solver/index.js";
-import { analysisReadsLine, flopAnswer, flopChunkFor, generateFlopSpot, heroNode, libraryFlops } from "../../frontend/src/lib/training/flop.js";
-import { gradeAnswer } from "../../frontend/src/lib/training/grade.js";
-import { prepareFlopLibrary, runTrainingJob, trainingChunk } from "../../frontend/src/lib/training/jobs.js";
-import { seeded } from "../../frontend/src/lib/training/rng.js";
-import { generateSplit, gradeSplit, rightGroups, SPLIT_PASS, splitTable } from "../../frontend/src/lib/training/split.js";
+import { flopBucket, FLOP_LINES, FLOP_PROFILE, FlopLibraryLoader, memoryLibrary } from "../../web/src/lib/analysis/index.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { cardIndex } from "../../web/src/lib/equity/evaluator.js";
+import { comboHi, comboLo, decodeChunk, flopKey, rangesAt, type FlopChunk, type FlopManifest } from "../../web/src/lib/solver/index.js";
+import { analysisReadsLine, flopAnswer, flopChunkFor, generateFlopSpot, heroNode, libraryFlops } from "../../web/src/lib/training/flop.js";
+import { gradeAnswer } from "../../web/src/lib/training/grade.js";
+import { prepareFlopLibrary, runTrainingJob, trainingChunk } from "../../web/src/lib/training/jobs.js";
+import { seeded } from "../../web/src/lib/training/rng.js";
+import { generateSplit, gradeSplit, rightGroups, SPLIT_PASS, splitTable } from "../../web/src/lib/training/split.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot", CHARTS.id, FLOP_PROFILE.tree);
 const PRESENT = existsSync(join(DIR, "manifest.json"));

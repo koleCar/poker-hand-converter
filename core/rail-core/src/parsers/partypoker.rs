@@ -1,4 +1,4 @@
-//! `partypoker`: partypoker (`frontend/src/lib/parsers/partypoker.ts`).
+//! `partypoker`: partypoker (`web/src/lib/parsers/partypoker.ts`).
 //!
 //! The PartyGaming skeleton 888 shares, with partypoker's own differences:
 //!
@@ -558,7 +558,7 @@ impl SiteParser for PartyPokerParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/partypoker.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/partypoker.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

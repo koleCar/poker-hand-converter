@@ -1,8 +1,8 @@
-//! The site parsers and the built-in registry (`frontend/src/lib/parsers/`).
+//! The site parsers and the built-in registry (`web/src/lib/parsers/`).
 //!
 //! Parsers arrive one step at a time (R0.7-R0.10). Each one is added to
 //! `ported()`; [`builtin`] orders them by [`REGISTRATION_ORDER`] - the order
-//! of the `registerParser` calls in `frontend/src/lib/parsers/index.ts` -
+//! of the `registerParser` calls in `web/src/lib/parsers/index.ts` -
 //! because detection ties keep registration order, so the Rust registry has to
 //! rank the same way whichever subset is ported. A parser id that is not in
 //! the list panics on first use, and a test fails when the list stops
@@ -35,7 +35,7 @@ use std::sync::LazyLock;
 
 use crate::detect::{Registry, SiteParser};
 
-/// Parser ids in the order `frontend/src/lib/parsers/index.ts` registers them.
+/// Parser ids in the order `web/src/lib/parsers/index.ts` registers them.
 pub const REGISTRATION_ORDER: [&str; 19] = [
     "weplay",
     "standard",
@@ -121,7 +121,7 @@ mod tests {
     /// `REGISTRATION_ORDER` is `index.ts`'s order, by parser id.
     #[test]
     fn registration_order_is_the_typescript_order() {
-        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../frontend/src/lib/parsers");
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../web/src/lib/parsers");
         let declaration = js_regex(r#"export const (\w+): SiteParser = \{\s*id: "([^"]+)""#, "");
         let mut ids = std::collections::HashMap::new();
         for entry in std::fs::read_dir(&dir).expect("read parsers/") {

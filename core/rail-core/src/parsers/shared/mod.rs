@@ -1,4 +1,4 @@
-//! Code the site parsers share (`frontend/src/lib/parsers/shared/`), ported as
+//! Code the site parsers share (`web/src/lib/parsers/shared/`), ported as
 //! the parsers that use it arrive. R0.5a: encoding recovery and the variant
 //! lock. R0.7a: the PokerStars-family draft (`ps-gg-hand.ts`), its
 //! re-export for the clone rooms (`p3-draft.ts`) and their line dispatcher

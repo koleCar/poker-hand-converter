@@ -3,7 +3,7 @@
  *
  * The screen (`SessionReviewScreen.tsx`) is the package's so the desktop app
  * can render it once it has the analysis (R5.4); today only the web does,
- * over `session_review` (`frontend/src/lib/db/sessionReview.ts`). A surface
+ * over `session_review` (`web/src/lib/db/sessionReview.ts`). A surface
  * implements {@link SessionReviewSource}; where the preflop deviations come
  * from is a {@link DeviationSource} of its own, so the user's own charts
  * (R5.3) can replace the shipped ones without touching the screen.

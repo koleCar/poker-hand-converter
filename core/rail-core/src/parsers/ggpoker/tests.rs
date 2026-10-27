@@ -4,7 +4,7 @@
 
 use super::*;
 
-const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/ggpoker.ts");
+const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/ggpoker.ts");
 
 const LITERALS: &[&str] = &[
     r"/^Poker Hand #\S+:\s*(?:ShortDeck|Hold'?em\s+Short\s*Deck|PLO(?:-\d)?|NLO\d?)\b/m",

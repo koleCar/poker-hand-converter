@@ -1,5 +1,5 @@
 //! The XML reader of iPoker and MicroGaming
-//! (`frontend/src/lib/parsers/shared/p2-xml.ts`).
+//! (`web/src/lib/parsers/shared/p2-xml.ts`).
 //!
 //! The TypeScript has two paths: the browser's `DOMParser` when the host has
 //! one, and otherwise a hand-written scanner for the subset these rooms emit
@@ -505,7 +505,7 @@ pub fn child_text<'a>(element: Option<&'a XmlElement>, tag: &str) -> &'a str {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/shared/p2-xml.ts");
+    const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/shared/p2-xml.ts");
 
     fn scan(source: &str) -> XmlElement {
         scan_xml(source)

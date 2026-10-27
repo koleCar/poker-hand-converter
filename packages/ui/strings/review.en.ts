@@ -2,7 +2,7 @@
  * The session review's words, English (`ReviewStrings`, R5.1). Data, like
  * `reports.en.ts`; `review.hr.ts` is the same shape. The grade, street,
  * action and preflop-spot words are the web analysis's own
- * (`frontend/src/lib/i18n/ns/analysis.en.ts`), so a hand reads the same here
+ * (`web/src/lib/i18n/ns/analysis.en.ts`), so a hand reads the same here
  * and in its Analysis sheet.
  */
 

@@ -9,17 +9,17 @@
 
 import { describe, expect, it } from "vitest";
 
-import { analyzeHand, ANALYSIS_VERSION, type DecisionAnalysis } from "../../../frontend/src/lib/analysis/index.js";
+import { analyzeHand, ANALYSIS_VERSION, type DecisionAnalysis } from "../../../web/src/lib/analysis/index.js";
 import {
   chartTree,
   IN_RANGE,
   MAX_SELF_LOSS,
   requiredChartSets,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
-import { parseStandardHand } from "../../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/charts/index.js";
+import { parseStandardHand } from "../../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../web/src/lib/solver/index.js";
 import { chartSet, fullLibrary } from "./support.js";
 
 import {
@@ -32,7 +32,7 @@ import {
   postflopRanks,
   potAt,
   type PreflopTree,
-} from "../../../frontend/src/lib/solver/preflopTree.js";
+} from "../../../web/src/lib/solver/preflopTree.js";
 
 /** The committed set's sizes (tests/scripts/preflop-charts/sets.ts). */
 const HU_SIZING = { sbOpen: 2.5, isoOop: 0, allInAbove: 0.4 };

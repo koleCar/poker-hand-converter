@@ -1,7 +1,7 @@
 /**
  * Runs the generator's turn+river realisation solves on worker threads.
  *
- * The worker (`worker.ts`) imports the frontend's TypeScript, which plain Node
+ * The worker (`worker.ts`) imports the web's TypeScript, which plain Node
  * cannot load from a worker (extensionless imports), so it is bundled once
  * with esbuild (vite's own dependency) into `.cache/`. Results are returned in
  * job order, so the outcome does not depend on which thread finished first.
@@ -14,7 +14,7 @@ import { availableParallelism } from "node:os";
 import { join } from "node:path";
 import { Worker } from "node:worker_threads";
 
-import type { RealisationSample, RealisationSpot } from "../../../frontend/src/lib/solver/preflopRealisation.js";
+import type { RealisationSample, RealisationSpot } from "../../../web/src/lib/solver/preflopRealisation.js";
 
 export function workerPool(threads = availableParallelism(), log = (line: string) => console.log(line), name = "") {
   // One bundle per name: sets generated in parallel processes must not

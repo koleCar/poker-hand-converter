@@ -10,9 +10,9 @@ import {
   registerParser,
   unregisterParser,
   type SiteParser,
-} from "../../frontend/src/lib/parsers/index.js";
-import { normalizeForFingerprint } from "../../frontend/src/lib/phf/detect.js";
-import { toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+} from "../../web/src/lib/parsers/index.js";
+import { normalizeForFingerprint } from "../../web/src/lib/phf/detect.js";
+import { toStandardText } from "../../web/src/lib/phf/serialize.js";
 import { ggFiles, weplayFiles } from "./support/corpus.js";
 
 describe("registry", () => {

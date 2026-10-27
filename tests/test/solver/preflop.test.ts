@@ -46,7 +46,7 @@ import {
   type PreflopEquityTable,
   type RealisationRole,
 
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 const H = NUM_CLASSES;
 

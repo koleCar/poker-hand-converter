@@ -1,7 +1,7 @@
 // The web/app parity test (`npm run parity` from `tests/`, docs/RAIL-PLAN.md
 // R4.4): the same corpus files through the desktop app's path and the web's
 // bulk upload into a local Supabase stack, the stored rows compared. Needs
-// the stack, `frontend/node_modules` and cargo, so not part of `npm test`;
+// the stack, `web/node_modules` and cargo, so not part of `npm test`;
 // CI runs it in its own job ("Web/app parity").
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";

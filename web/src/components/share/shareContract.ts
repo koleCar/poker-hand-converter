@@ -1,7 +1,7 @@
 /**
  * The shapes the share UI works in.
  *
- * `shareClient.ts` binds these to `frontend/src/lib/db/` (`createShare` /
+ * `shareClient.ts` binds these to `web/src/lib/db/` (`createShare` /
  * `resolveShare`), which is owned by the database layer. Nothing in this file
  * talks to Supabase; it exists so the share components depend on one small,
  * stable vocabulary rather than on the database row layout.

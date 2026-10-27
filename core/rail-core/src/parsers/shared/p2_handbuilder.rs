@@ -1,6 +1,6 @@
 //! The draft -> PHF builder of the rooms that state a hand as "who put how
 //! much in, and who took how much out"
-//! (`frontend/src/lib/parsers/shared/p2-handbuilder.ts`): 888poker,
+//! (`web/src/lib/parsers/shared/p2-handbuilder.ts`): 888poker,
 //! partypoker and PokerBros' party dialect (R0.8), iPoker and MicroGaming
 //! (R0.9), Ongame, Entraction and Unibet (R0.10).
 //!

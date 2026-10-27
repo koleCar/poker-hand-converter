@@ -2,7 +2,7 @@
    no Tailwind), from the shared UI package `packages/ui` (R2.6): the same
    four files the web imports, one copy for both surfaces.
 
-   Order is load-bearing, as on the web (`frontend/src/index.css`):
+   Order is load-bearing, as on the web (`web/src/index.css`):
    primitives, semantic (the dark default), theme-light (re-points the
    semantic layer under `[data-theme="light"]`, same specificity, so it must
    come later), motion, then density (R2.8: comfortable or compact lists and
@@ -17,14 +17,14 @@
    as the web loads them before its other sheets.
 
    After the tokens, the shared replayer's global sheets in the web's order
-   (`frontend/src/styles/app.css`): cards, the replayer, then the controls
+   (`web/src/styles/app.css`): cards, the replayer, then the controls
    (`.btn`, `.chip-btn`, ...), which must come after the replayer. They style
    only their own class names (`.rp`, `.pcard`, ...); the app's components
    use CSS Modules.
 
    Below, the web's notice classes the shared win-rate graph writes
    (`notice notice--info` / `--warn`: its "not enough hands" and refusals,
-   R2.7b), with the web's rules (`frontend/src/styles/app.css`); the graph
+   R2.7b), with the web's rules (`web/src/styles/app.css`); the graph
    imports its own sheet. */
 
 @import "./fonts.css";

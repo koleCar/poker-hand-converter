@@ -9,9 +9,9 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { analyzeHand } from "../../../frontend/src/lib/analysis/index.js";
-import { lineSeats } from "../../../frontend/src/lib/analysis/leaks.js";
-import { NINE_TABLE_ORDER, TABLE_ORDER, walkLine } from "../../../frontend/src/lib/analysis/reports.js";
+import { analyzeHand } from "../../../web/src/lib/analysis/index.js";
+import { lineSeats } from "../../../web/src/lib/analysis/leaks.js";
+import { NINE_TABLE_ORDER, TABLE_ORDER, walkLine } from "../../../web/src/lib/analysis/reports.js";
 import {
   CHART_SETS,
   chartLibrary,
@@ -27,9 +27,9 @@ import {
   type ChartSetSpec,
   type PreflopActionInput,
   type PreflopSpot,
-} from "../../../frontend/src/lib/charts/index.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import { positionRing, type PhfHand, type Position } from "../../../frontend/src/lib/phf/types.js";
+} from "../../../web/src/lib/charts/index.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import { positionRing, type PhfHand, type Position } from "../../../web/src/lib/phf/types.js";
 import { weplayFiles } from "../support/corpus.js";
 import { ggCorpusFiles } from "../support/psggCorpus.js";
 import { chartSet, fileOf, fullLibrary } from "./support.js";

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 

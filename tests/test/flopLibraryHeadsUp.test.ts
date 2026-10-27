@@ -28,19 +28,19 @@ import {
   sameLine,
   type FlopEntry,
   type FlopProfile,
-} from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { cardCode } from "../../frontend/src/lib/equity/evaluator.js";
-import { comboHi, comboLo, decodeChunk, parseCombo, type FlopChunk } from "../../frontend/src/lib/solver/index.js";
-import { buildContext } from "../../frontend/src/lib/stats/context.js";
-import { HEADS_UP_SCRIPT_POSITIONS, scriptHand, seatOf, type ScriptAct } from "../../frontend/src/lib/training/handText.js";
-import { lineActs } from "../../frontend/src/lib/training/preflop.js";
+} from "../../web/src/lib/analysis/index.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { cardCode } from "../../web/src/lib/equity/evaluator.js";
+import { comboHi, comboLo, decodeChunk, parseCombo, type FlopChunk } from "../../web/src/lib/solver/index.js";
+import { buildContext } from "../../web/src/lib/stats/context.js";
+import { HEADS_UP_SCRIPT_POSITIONS, scriptHand, seatOf, type ScriptAct } from "../../web/src/lib/training/handText.js";
+import { lineActs } from "../../web/src/lib/training/preflop.js";
 import { solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
 import { fullLibrary } from "./charts/support.js";
 
 const load = (id: string): ChartSet =>
-  loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, `../../frontend/src/lib/charts/data/${id}.json`), "utf8")));
+  loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, `../../web/src/lib/charts/data/${id}.json`), "utf8")));
 const HU100 = load("nlhe-cash-hu-100bb");
 const HU150 = load("nlhe-cash-hu-150bb");
 const SEATS = HEADS_UP_SCRIPT_POSITIONS;

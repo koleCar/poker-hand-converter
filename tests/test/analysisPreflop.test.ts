@@ -25,7 +25,7 @@ import {
   referenceMix,
   type DecisionAnalysis,
   type HandAnalysis,
-} from "../../frontend/src/lib/analysis/index.js";
+} from "../../web/src/lib/analysis/index.js";
 import {
   GRID_CELLS,
   SPOT_CATEGORIES,
@@ -33,7 +33,7 @@ import {
   categoriesOf,
   lineSteps,
   nodesIn,
-} from "../../frontend/src/components/analysis/chartSpots.js";
+} from "../../web/src/components/analysis/chartSpots.js";
 import {
   CHART_SETS,
   chartLibrary,
@@ -45,16 +45,16 @@ import {
   rareLineChartSets,
   rareLineDepthSets,
   type ChartSet,
-} from "../../frontend/src/lib/charts/index.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
-import { conceptsForDecision } from "../../frontend/src/lib/learn/links.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
+} from "../../web/src/lib/charts/index.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
+import { conceptsForDecision } from "../../web/src/lib/learn/links.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
 import { chartSet, fullLibrary } from "./charts/support.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

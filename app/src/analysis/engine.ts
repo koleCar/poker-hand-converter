@@ -1,6 +1,6 @@
 /**
  * One page of hands through the web's analysis, the way the web's worker
- * runs it (`frontend/src/workers/analysis.worker.ts`), with the app's rows
+ * runs it (`web/src/workers/analysis.worker.ts`), with the app's rows
  * out (docs/RAIL-PLAN.md R5.4).
  *
  * The same steps in the same order: the chart sets the page needs

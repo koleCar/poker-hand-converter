@@ -24,9 +24,9 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFile
 import { availableParallelism, cpus, totalmem } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
-import { FLOP_PROFILE, flopLinesFor, type FlopLine } from "../../../frontend/src/lib/analysis/flopLibrary.js";
-import { rakeOf } from "../../../frontend/src/lib/analysis/river.js";
-import { loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
+import { FLOP_PROFILE, flopLinesFor, type FlopLine } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { rakeOf } from "../../../web/src/lib/analysis/river.js";
+import { loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
 import {
   boardSymmetries,
   cardOrbit,
@@ -42,7 +42,7 @@ import {
   SOLVER_VERSION,
   type FlopManifest,
   type FlopManifestEntry,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 import type { Job } from "./job.js";
 import { lineSpot, type LineSpot } from "./spots.js";
 import { medians, validateDir, validateLeaveOneOut, type PairMetrics } from "./validate.js";
@@ -91,7 +91,7 @@ function parseArgs(argv: string[]): Options {
 }
 
 function loadSet(set: string): ChartSet {
-  const file = join(ROOT, "frontend/src/lib/charts/data", `${set}.json`);
+  const file = join(ROOT, "web/src/lib/charts/data", `${set}.json`);
   return loadCharts(JSON.parse(readFileSync(file, "utf8")));
 }
 

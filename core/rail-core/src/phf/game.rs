@@ -1,5 +1,5 @@
 //! Game descriptors and table geometry: the "descriptors" functions of
-//! `frontend/src/lib/phf/types.ts` - reading a variant and the hi/lo flag out
+//! `web/src/lib/phf/types.ts` - reading a variant and the hi/lo flag out
 //! of a room's game label, the deck and deal size of a variant, and the pure
 //! position geometry (`positionRing`, `resolvePositions`, `hasDeadButton`,
 //! `buttonBlindRing`).
@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn every_pattern_is_the_typescript_source_verbatim() {
-        let types_ts = include_str!("../../../../frontend/src/lib/phf/types.ts");
+        let types_ts = include_str!("../../../../web/src/lib/phf/types.ts");
         let patterns = VARIANT_PATTERNS
             .iter()
             .map(|(pattern, flags, _)| (*pattern, *flags))

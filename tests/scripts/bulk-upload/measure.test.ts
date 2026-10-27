@@ -27,10 +27,10 @@ import { deflateRawSync } from "node:zlib";
 
 import { expect, it } from "vitest";
 
-import { readInputs } from "../../../frontend/src/components/converter/bulkSource";
-import { decodeSource } from "../../../frontend/src/components/converter/inputs";
-import { runSourceStream } from "../../../frontend/src/components/converter/pipeline";
-import { wasmEngine } from "../../../frontend/src/lib/wasm/engine";
+import { readInputs } from "../../../web/src/components/converter/bulkSource";
+import { decodeSource } from "../../../web/src/components/converter/inputs";
+import { runSourceStream } from "../../../web/src/components/converter/pipeline";
+import { wasmEngine } from "../../../web/src/lib/wasm/engine";
 import { loadWebCore } from "../../test/support/webConversion";
 import { crc32 } from "../../test/support/zipWriter";
 

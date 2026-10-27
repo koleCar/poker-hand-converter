@@ -27,10 +27,10 @@ import {
   worstGrade,
   type DecisionAnalysis,
   type HandAnalysis,
-} from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts } from "../../frontend/src/lib/charts/index.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/analysis/index.js";
+import { loadCharts } from "../../web/src/lib/charts/index.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 
@@ -43,7 +43,7 @@ const CTX = { siteId: "standard", siteName: "standard", originalFilename: null }
  * `analysisPreflop.test.ts` pins the chart grades.
  */
 const CHARTS = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 const analyzeHand = (hand: PhfHand) => analyzeWith(hand, { charts: CHARTS });
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

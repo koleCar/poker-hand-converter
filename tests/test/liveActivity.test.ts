@@ -9,19 +9,19 @@ import {
   type ActivityTimers,
   type PresenceState,
   type UploadActivity,
-} from "../../frontend/src/lib/live/activity.js";
+} from "../../web/src/lib/live/activity.js";
 import {
   activeDesktopSync,
   noteDesktopBatch,
   type ArrivalBatch,
-} from "../../frontend/src/lib/live/arrivals.js";
+} from "../../web/src/lib/live/arrivals.js";
 import {
   activityTopic,
   openActivityChannel,
   resetActivityChannelsForTests,
   type ActivityChannelLike,
   type ActivityClientLike,
-} from "../../frontend/src/components/live/activityChannel.js";
+} from "../../web/src/components/live/activityChannel.js";
 
 /** A clock the test moves by hand. */
 function fakeTimers() {

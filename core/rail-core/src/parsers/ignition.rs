@@ -1,5 +1,5 @@
 //! `ignition`: Ignition / Bodog / Bovada, the PaiWangLuo network
-//! (`frontend/src/lib/parsers/ignition.ts`, R0.10b).
+//! (`web/src/lib/parsers/ignition.ts`, R0.10b).
 //!
 //! **There are no player names.** Every seat is printed as its position
 //! relative to the button (`Dealer`, `Small Blind`, `UTG+2`, ...) and the hero
@@ -1237,7 +1237,7 @@ impl SiteParser for IgnitionParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/ignition.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/ignition.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

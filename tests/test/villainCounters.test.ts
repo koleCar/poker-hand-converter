@@ -1,6 +1,6 @@
 /**
  * The opponents' counters an analysis run reads, by key and in batches
- * (`frontend/src/lib/db/villainCounters.ts`, analysis/20; ANALYSIS-PLAN §10
+ * (`web/src/lib/db/villainCounters.ts`, analysis/20; ANALYSIS-PLAN §10
  * 2026-10-15): every opponent of the hands analysed, not only the 200 biggest
  * samples.
  *
@@ -15,15 +15,15 @@
 
 import { describe, expect, it } from "vitest";
 
-import { villainKey } from "../../frontend/src/lib/analysis/villain.js";
+import { villainKey } from "../../web/src/lib/analysis/villain.js";
 import {
   opponentsOf,
   VILLAIN_COUNTERS_BATCH,
   VillainCounters,
   type VillainCountersRow,
   type VillainPlayer,
-} from "../../frontend/src/lib/db/villainCounters.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/db/villainCounters.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 
 /** Just the fields `opponentsOf` reads. */
 function hand(site: string, hero: string, villains: string[]): PhfHand {

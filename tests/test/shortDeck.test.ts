@@ -24,7 +24,7 @@
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 
-import { handClass } from "../../frontend/src/lib/cards.js";
+import { handClass } from "../../web/src/lib/cards.js";
 import {
   SHORT_DECK,
   SHORT_DECK_STRAIGHT_OVER_TRIPS,
@@ -34,18 +34,18 @@ import {
   evaluate,
   shortDeckRuleFor,
   shortDeckTable,
-} from "../../frontend/src/lib/equity/index.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+} from "../../web/src/lib/equity/index.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
 import {
   cardInDeck,
   isButtonBlind,
   variantFromLabel,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { buildReplay } from "../../frontend/src/lib/replay.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { buildReplay } from "../../web/src/lib/replay.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
 import { readTree, type CorpusFile } from "./support/psggCorpus.js";
 import { allInvariants } from "./support/psggInvariants.js";
 import { allStatsInvariants } from "./support/statsInvariants.js";

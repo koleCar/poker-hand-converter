@@ -21,7 +21,7 @@ import { getServerSupabase } from "../supabase/server";
  * (`app/h/[slug]/RecordShareView.tsx`).
  *
  * The same split is what makes it safe for metadata and body to share a read at
- * all — and it is why deleting `frontend/api/share-meta.ts` in #26 was possible
+ * all — and it is why deleting `web/api/share-meta.ts` in #26 was possible
  * rather than just desirable.
  *
  * ## Why React `cache()` and not Next's fetch memoisation

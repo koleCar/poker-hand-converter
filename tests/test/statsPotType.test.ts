@@ -6,8 +6,8 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
 import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles } from "./support/psggCorpus.js";
 

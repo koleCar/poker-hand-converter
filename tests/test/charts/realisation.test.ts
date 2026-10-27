@@ -20,8 +20,8 @@ import {
   prepareSpots,
   sampleDeals,
   type PreparedSpot,
-} from "../../../frontend/src/lib/charts/realisation.js";
-import { serializeCharts } from "../../../frontend/src/lib/charts/index.js";
+} from "../../../web/src/lib/charts/realisation.js";
+import { serializeCharts } from "../../../web/src/lib/charts/index.js";
 import {
   CHARTS1_REALISATION,
   classByName,
@@ -38,7 +38,7 @@ import {
   type PreflopEquityTable,
   type RealisationModel,
   type RealisationSample,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 const H = NUM_CLASSES;
 

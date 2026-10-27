@@ -7,7 +7,7 @@
  * the bytes depend only on the job.
  */
 
-import { FLOP_PROFILE, type FlopProfile } from "../../../frontend/src/lib/analysis/flopLibrary.js";
+import { FLOP_PROFILE, type FlopProfile } from "../../../web/src/lib/analysis/flopLibrary.js";
 import {
   encodeChunk,
   FLOPLIB_VERSION,
@@ -17,7 +17,7 @@ import {
   type FlopChunkHeader,
   type FlopProgress,
   type FlopSpot,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 export interface Job {
   /** `<line>/<flop>`: unique, and the chunk's path below the tree directory. */

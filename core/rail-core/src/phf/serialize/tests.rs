@@ -76,7 +76,7 @@ fn text_files(dir: &Path, matching: impl Fn(&str) -> bool) -> Vec<(String, Strin
 
 #[test]
 fn every_pattern_is_the_typescripts() {
-    let source = include_str!("../../../../../frontend/src/lib/phf/serialize.ts");
+    let source = include_str!("../../../../../web/src/lib/phf/serialize.ts");
     for pattern in READ_PATTERNS.iter().chain(WRITE_PATTERNS) {
         assert!(
             source.contains(pattern),

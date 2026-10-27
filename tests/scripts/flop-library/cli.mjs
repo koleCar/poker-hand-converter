@@ -1,5 +1,5 @@
 // `npm run floplib -- [options]`: bundles the runner and its worker with
-// esbuild (the frontend's TypeScript uses extensionless imports, which plain
+// esbuild (the web's TypeScript uses extensionless imports, which plain
 // Node cannot load) into `.cache/`, then runs the runner with the options.
 // See README.md.
 import { buildSync } from "esbuild";

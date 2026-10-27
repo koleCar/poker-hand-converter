@@ -3,28 +3,28 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { handClass, omahaHandClass } from "../../frontend/src/lib/cards.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { variantFromLabel as sharedVariantFromLabel } from "../../frontend/src/lib/parsers/shared/ps-gg-hand.js";
+import { handClass, omahaHandClass } from "../../web/src/lib/cards.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { variantFromLabel as sharedVariantFromLabel } from "../../web/src/lib/parsers/shared/ps-gg-hand.js";
 import {
   ParseSkip,
   registerParser,
   unregisterParser,
   unsupportedGameSkip,
   type SiteParser,
-} from "../../frontend/src/lib/phf/detect.js";
+} from "../../web/src/lib/phf/detect.js";
 import {
   parseStandardHand,
   splitStandardHands,
   toStandardText,
-} from "../../frontend/src/lib/phf/serialize.js";
+} from "../../web/src/lib/phf/serialize.js";
 import {
   holeCardCount,
   isHiLoLabel,
   variantFromLabel,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
 
 /**
  * Omaha, short deck and high-low split.

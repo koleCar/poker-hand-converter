@@ -578,7 +578,7 @@ Templates, not free text, because:
 
 **A second runner: the desktop app** (`docs/RAIL-PLAN.md` R5.4). The app
 analyses the hands of its local store with **this library, in place** - an
-alias of `frontend/src/lib` in the app's build, one door
+alias of `web/src/lib` in the app's build, one door
 (`app/src/analysis/library.ts`) that names what it uses, no copy - so a
 change here is the app's on its next build. What differs is only what the
 web's worker took from Supabase, which the app injects:
@@ -3473,7 +3473,7 @@ Each phase appends what it learned that changed the plan.
 - 2026-10-13 — Multiway flop narrowing from the library: **nothing shipped**
   (`tests/scripts/flop-library/multiwayNarrowing.test.ts`, study code
   `multiwayLibrary.ts` beside it). `ANALYSIS_VERSION` stays `analysis/21`; no
-  migration, no behaviour change, nothing in `frontend/`.
+  migration, no behaviour change, nothing in `web/`.
   - **Why.** The open item of `analysis/15` and `/16`: multiway flop and turn
     calls are graded against ranges the heuristic narrowed through the flop,
     and the narrowing was named the larger risk (4-4 on 2-2-2 calling a bet
@@ -4545,7 +4545,7 @@ Each phase appends what it learned that changed the plan.
   `tests/scripts/flop-library/multiwayBets.test.ts`,
   `npm run floplib:multiway-bets`; study code `multiwayRiver.ts` beside it).
   `ANALYSIS_VERSION` stays `analysis/28`; no migration, no behaviour change,
-  nothing in `frontend/`.
+  nothing in `web/`.
   - **Why.** The largest "not analysed" cause left after the bomb pots: the
     hero's checks, bets and raises three or more ways (`multiway`), **611**
     in the `analysis/28` census - flop 370 (check 339, bet 27, raise 4), turn
@@ -5353,7 +5353,7 @@ Each phase appends what it learned that changed the plan.
   **nothing shipped** (study `tests/scripts/flop-library/preflopWidth.test.ts`,
   `npm run floplib:preflop-width`, new candidate options `tauBy`, `termBy`,
   `kBy`, `sbWidth` and `PW_REF`, `PW_PICK`). `ANALYSIS_VERSION` stays
-  `analysis/31`; no migration, nothing in `frontend/`, no grade moves, so no
+  `analysis/31`; no migration, nothing in `web/`, no grade moves, so no
   census diff.
   - **Why.** The two open items of `analysis/31` with a preflop fix:
     (1) after the population order, the later players walked from an
@@ -5800,7 +5800,7 @@ Each phase appends what it learned that changed the plan.
   `tests/scripts/preflop-charts/precision.test.ts`, `npm run
   charts:precision`; `CHARTS_REFIT`, `CHARTS_MEASURE_SEED` and `CHARTS_RAKE`
   for the experiments in `generate.test.ts`). `ANALYSIS_VERSION` stays
-  `analysis/33`; no migration, no behaviour change, nothing in `frontend/`.
+  `analysis/33`; no migration, no behaviour change, nothing in `web/`.
   - **Why.** The open item of `analysis/33`: 222 of the 295 preflop
     Mistakes and Blunders lose 0.25bb or less. A preflop pot is 1.5-4bb, so
     Inaccurate ends at 0.03-0.08bb and Mistake at 0.12-0.32bb. Are the
@@ -6034,7 +6034,7 @@ Each phase appends what it learned that changed the plan.
       `BET_EVIDENCE` (`analysis/32`'s open item): the bound inherits it.
 - 2026-10-23 — The desktop app as a second runner (`docs/RAIL-PLAN.md`
   R5.4, §5 above). The app analyses its local store's hands with this
-  library in place (an alias of `frontend/src/lib`, one door,
+  library in place (an alias of `web/src/lib`, one door,
   `app/src/analysis/library.ts`), in a worker of its window, offline and
   without an account; what the web's worker read from Supabase is injected
   (the store's hands and opponents' counters, the flop library through the
@@ -6080,7 +6080,7 @@ Each phase appends what it learned that changed the plan.
   per spot instead of 120 halve the preflop charts' noise? **Yes where the
   grades are made; nothing shipped** (`ANALYSIS_VERSION` stays
   `analysis/34` (measured at `analysis/33`; #237 does not touch preflop), the charts `charts/9`; no migration, nothing in
-  `frontend/`). Study: `precision.test.ts` gains the 480-board pairs and a
+  `web/`). Study: `precision.test.ts` gains the 480-board pairs and a
   per-scenario breakdown of each pair; `CHARTS_FIT_FROM` in
   `generate.test.ts` solves a `reuseFit` set's limp tree with the fit of
   another file (`CHARTS_MEASURE_BOARDS` already existed).
@@ -6242,7 +6242,7 @@ Each phase appends what it learned that changed the plan.
   and 3-bettors' excess of mucks in how wide they are called? **Nothing
   shipped** (study `tests/scripts/flop-library/callerWidth.test.ts`, `npm run
   floplib:caller-width`). `ANALYSIS_VERSION` stays `analysis/36`; no
-  migration, nothing in `frontend/`, no grade moves, so no census.
+  migration, nothing in `web/`, no grade moves, so no census.
   - **Why.** The open item of `analysis/32`: in isolated and 3-bet pots the
     opponents' ranges still explain what they show too strongly - the
     isolators and 3-bettors walked to a river showdown muck **+0.134 ±

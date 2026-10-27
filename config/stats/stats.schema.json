@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/koleCar/poker-hand-converter/config/stats/stats.schema.json",
   "title": "Rail statistic display definitions",
-  "description": "The statistics Rail displays, as data (docs/RAIL-PLAN.md R2.4, amendment A11; docs/STATS-SPEC.md section 13). Each is a formula over the per-seat counters of stats/2, which stay code. Read by the app and the HUD (core/rail-config parses and validates, core/rail-stats evaluates) and by the web (frontend/src/lib/stats/display.ts); both give the same number. What a schema cannot check - the formula's grammar, that every name in it is a counter, unique ids, ascending bands - core/rail-config checks at load and in CI.",
+  "description": "The statistics Rail displays, as data (docs/RAIL-PLAN.md R2.4, amendment A11; docs/STATS-SPEC.md section 13). Each is a formula over the per-seat counters of stats/2, which stay code. Read by the app and the HUD (core/rail-config parses and validates, core/rail-stats evaluates) and by the web (web/src/lib/stats/display.ts); both give the same number. What a schema cannot check - the formula's grammar, that every name in it is a counter, unique ids, ascending bands - core/rail-config checks at load and in CI.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "stats"],

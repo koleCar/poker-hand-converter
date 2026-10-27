@@ -1,6 +1,6 @@
 /**
  * Bulk upload, the reading side (docs/RAIL-PLAN.md R4.2): the streaming zip
- * reader (`frontend/src/components/converter/zipStream.ts`), the lazy reader
+ * reader (`web/src/components/converter/zipStream.ts`), the lazy reader
  * of a drop (`bulkSource.ts`) and the pipeline over it.
  *
  * Archives are built here at test time (`support/zipWriter.ts`); the hand
@@ -19,11 +19,11 @@ import {
   storagePathFor,
   type BulkSource,
   type InputItem,
-} from "../../frontend/src/components/converter/bulkSource";
-import { readZip, skipReason } from "../../frontend/src/components/converter/inputs";
-import { runSourceStream, type StreamBatch } from "../../frontend/src/components/converter/pipeline";
-import { readZipDirectory, readZipEntry, ZipEntryError } from "../../frontend/src/components/converter/zipStream";
-import { typescriptEngine } from "../../frontend/src/lib/wasm/engine";
+} from "../../web/src/components/converter/bulkSource";
+import { readZip, skipReason } from "../../web/src/components/converter/inputs";
+import { runSourceStream, type StreamBatch } from "../../web/src/components/converter/pipeline";
+import { readZipDirectory, readZipEntry, ZipEntryError } from "../../web/src/components/converter/zipStream";
+import { typescriptEngine } from "../../web/src/lib/wasm/engine";
 import { buildZip, crc32, file, trackedFile } from "./support/zipWriter";
 
 const sample = (path: string) => readFileSync(new URL(`../../fixtures/samples/${path}`, import.meta.url), "utf8");

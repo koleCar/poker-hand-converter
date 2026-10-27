@@ -7,7 +7,7 @@
  * commands (`report`, `report_breakdowns`, `hands_facets`;
  * `app/src/lib/reportSource.ts`), the web over the server summaries
  * (`report_open`, `report_graph`, `report_situations`, `report_facets`;
- * `frontend/src/lib/db/reportSource.ts`). The shapes are the app's store
+ * `web/src/lib/db/reportSource.ts`). The shapes are the app's store
  * DTOs (`reports::ReportDto`, `BreakdownsDto`): every statistic arrives as
  * the R2.4 `Shown` (the app's from `rail_stats`, the web's from `showStat`
  * over the summed counters - the same digits).

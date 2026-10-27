@@ -1,5 +1,5 @@
 -- R5.5: the user's settings per tournament (`TournamentSettings` in
--- frontend/src/lib/analysis/tournament.ts): the kind, the payouts in percent,
+-- web/src/lib/analysis/tournament.ts): the kind, the payouts in percent,
 -- the field, the starting stack, players-left points. The ICM grading reads
 -- them; local only (Q4's sync carries hands and statistics), as `chart_sets`.
 --

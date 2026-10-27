@@ -17,12 +17,12 @@
 
 import { describe, expect, it } from "vitest";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
-import { STATS_COLUMNS, statsRows, type StatsRow } from "../../frontend/src/lib/stats/mapping.js";
-import { aggregate, rates } from "../../frontend/src/lib/stats/rates.js";
-import { COUNTER_KEYS, STATS_VERSION } from "../../frontend/src/lib/stats/types.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
+import { STATS_COLUMNS, statsRows, type StatsRow } from "../../web/src/lib/stats/mapping.js";
+import { aggregate, rates } from "../../web/src/lib/stats/rates.js";
+import { COUNTER_KEYS, STATS_VERSION } from "../../web/src/lib/stats/types.js";
 import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles, readTree, type CorpusFile } from "./support/psggCorpus.js";
 import { allStatsInvariants } from "./support/statsInvariants.js";
@@ -104,7 +104,7 @@ describe("the module stays importable from a server", () => {
    * `import { supabase }` would work fine in the browser and only fail later.
    */
   const ALLOWED = new Set(["../phf/types", "../phf/validate", "../cards"]);
-  const dir = join(import.meta.dirname, "../../frontend/src/lib/stats");
+  const dir = join(import.meta.dirname, "../../web/src/lib/stats");
   const sources = readdirSync(dir).filter((name) => name.endsWith(".ts"));
 
   it("has all its files", () => {

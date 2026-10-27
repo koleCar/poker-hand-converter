@@ -1,22 +1,22 @@
 /**
  * Bulk upload, the saving side (docs/RAIL-PLAN.md R4.2): the chunked,
- * retried, resumable save (`frontend/src/components/converter/bulkSaver.ts`),
+ * retried, resumable save (`web/src/components/converter/bulkSaver.ts`),
  * its manifest (`uploadManifest.ts`) and the calls it makes
- * (`frontend/src/lib/db/upload.ts`), against a fake server and a fake
+ * (`web/src/lib/db/upload.ts`), against a fake server and a fake
  * Supabase client.
  */
 
 import { describe, expect, it, vi } from "vitest";
 
-import { createBulkSaver, ingestRowOf, type SaverOptions } from "../../frontend/src/components/converter/bulkSaver";
-import type { SourceInfo } from "../../frontend/src/components/converter/bulkRun";
-import type { StreamBatch } from "../../frontend/src/components/converter/pipeline";
+import { createBulkSaver, ingestRowOf, type SaverOptions } from "../../web/src/components/converter/bulkSaver";
+import type { SourceInfo } from "../../web/src/components/converter/bulkRun";
+import type { StreamBatch } from "../../web/src/components/converter/pipeline";
 import {
   isSameUpload,
   memoryManifestStore,
   newManifest,
   resumeStateOf,
-} from "../../frontend/src/components/converter/uploadManifest";
+} from "../../web/src/components/converter/uploadManifest";
 import {
   classifyFailure,
   createUploadApi,
@@ -25,9 +25,9 @@ import {
   type UploadApi,
   type UploadClient,
   type UploadErrorKind,
-} from "../../frontend/src/lib/db/upload";
-import type { ConversionFailure } from "../../frontend/src/lib/phf/detect";
-import type { PhfHand } from "../../frontend/src/lib/phf/types";
+} from "../../web/src/lib/db/upload";
+import type { ConversionFailure } from "../../web/src/lib/phf/detect";
+import type { PhfHand } from "../../web/src/lib/phf/types";
 
 /* ------------------------------------------------------------- fixtures - */
 

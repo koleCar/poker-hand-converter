@@ -1412,7 +1412,7 @@ fn validate_rejects_every_weplay_hand_it_cannot_vouch_for_with_a_reason() {
 
 /* ======================================================= handParser.test */
 
-/// `convertCashWeplayFile` (`frontend/src/lib/converter.ts`): the UI's legacy
+/// `convertCashWeplayFile` (`web/src/lib/converter.ts`): the UI's legacy
 /// facade, as test support - the WePlay parser with cash only and no bomb
 /// pots, validated, joined with blank lines.
 fn convert_cash_weplay_file(file_name: &str, input: &str) -> Option<String> {

@@ -1,6 +1,6 @@
 //! PHF - Poker Hand Format, version `phf/1`, as Rust types.
 //!
-//! A field-for-field mirror of `frontend/src/lib/phf/types.ts`, which stays the
+//! A field-for-field mirror of `web/src/lib/phf/types.ts`, which stays the
 //! reference until the web app reads the generated declarations instead
 //! (docs/RAIL-PLAN.md R0.4, R4.1). Every JSON name, every string tag and every
 //! "absent versus `null`" distinction is the same as there; the golden

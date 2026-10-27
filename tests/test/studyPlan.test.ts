@@ -1,6 +1,6 @@
 /**
  * The study plan (phase A8b, `docs/ANALYSIS-PLAN.md` §7,
- * `frontend/src/lib/training/plan.ts`).
+ * `web/src/lib/training/plan.ts`).
  *
  * The database keeps plans and counts progress
  * (`20270215090000_analysis_study_plan.sql`, pinned by pgTAP); everything
@@ -15,9 +15,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { periodWindows, rateZ, type SpotRow } from "../../frontend/src/lib/analysis/leaks.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { CONCEPT_IDS } from "../../frontend/src/lib/learn/concepts.js";
+import { periodWindows, rateZ, type SpotRow } from "../../web/src/lib/analysis/leaks.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { CONCEPT_IDS } from "../../web/src/lib/learn/concepts.js";
 import {
   FUNDAMENTAL_CONCEPTS,
   MAX_DRILL_TARGET,
@@ -50,10 +50,10 @@ import {
   weekStart,
   withReviews,
   type PreviousPlan,
-} from "../../frontend/src/lib/training/index.js";
+} from "../../web/src/lib/training/index.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 /** A finest row; the key is built the way `analysis_spot_key` builds it. */

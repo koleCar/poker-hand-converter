@@ -9,7 +9,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
  * make it shareable.
  *
  * 1. **No backend, no framework.** The package runs in a Next.js page and in a
- *    Tauri webview. Supabase belongs to the web (`frontend/src/lib/db/`), Tauri
+ *    Tauri webview. Supabase belongs to the web (`web/src/lib/db/`), Tauri
  *    to the app (`app/src/lib/`); a component that fetches goes through the
  *    `DataSource` the surface provides (`data.tsx`).
  * 2. **One door out.** The package reaches outside itself only through
@@ -39,7 +39,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // As on the web (frontend/eslint.config.js): the replayer's effects that
+      // As on the web (web/eslint.config.js): the replayer's effects that
       // set state are tracked there (issues #14 and #18), not rewritten in a
       // move.
       "react-hooks/set-state-in-effect": "warn",
@@ -49,7 +49,7 @@ export default defineConfig([
           patterns: [
             BACKEND,
             {
-              group: ["**/frontend/**", "**/app/src/**", "@/*"],
+              group: ["**/web/**", "**/app/src/**", "@/*"],
               message: "@rail/ui reaches outside itself only through model/.",
             },
           ],

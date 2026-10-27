@@ -1,4 +1,4 @@
-//! All-in EV: `frontend/src/lib/equity/allInEv.ts`.
+//! All-in EV: `web/src/lib/equity/allInEv.ts`.
 //!
 //! What each seat would have netted had the pot been split by equity at the
 //! moment the money went in, rather than by the board that came:

@@ -6,7 +6,7 @@ use super::*;
 use crate::phf::money::EUR;
 
 const SOURCE: &str =
-    include_str!("../../../../../../frontend/src/lib/parsers/shared/p3-stars-dialect.ts");
+    include_str!("../../../../../../web/src/lib/parsers/shared/p3-stars-dialect.ts");
 
 const LITERALS: &[&str] = &[
     r"/^Table(?: ID)? '(.*)' (\d+)-max(?: \(([^)]*)\))?(?: Seat #(\d+) is the button)?\s*$/i",

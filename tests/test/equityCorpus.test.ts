@@ -21,10 +21,10 @@ import {
   analyzeAllIn,
   type AllInEvOptions,
   type AllInEvOutcome,
-} from "../../frontend/src/lib/equity/index.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
+} from "../../web/src/lib/equity/index.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
 import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles, readTree, type CorpusFile } from "./support/psggCorpus.js";
 

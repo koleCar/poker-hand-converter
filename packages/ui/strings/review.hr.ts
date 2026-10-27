@@ -1,7 +1,7 @@
 /**
  * The session review's words, Croatian. Same shape as `review.en.ts`; the
  * grade, street, action and preflop-spot words are the web analysis's
- * (`frontend/src/lib/i18n/ns/analysis.hr.ts`).
+ * (`web/src/lib/i18n/ns/analysis.hr.ts`).
  */
 
 import type { reviewUiEn } from "./review.en";

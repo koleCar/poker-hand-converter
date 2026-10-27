@@ -19,9 +19,9 @@ import {
   type ManualAction,
   type ManualMeta,
   type ManualSetup,
-} from "../../frontend/src/lib/manual/index.js";
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import { contributionsFromActions, totalFees, type PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/manual/index.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
+import { contributionsFromActions, totalFees, type PhfHand } from "../../web/src/lib/phf/types.js";
 
 const bb = 50; // $0.50 in cents
 

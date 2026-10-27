@@ -2,7 +2,7 @@
 //! what the web keeps in `hand_analysis` / `decision_analysis`, kept here
 //! for the hands of this store.
 //!
-//! The analysis itself is the web's library (`frontend/src/lib/analysis`),
+//! The analysis itself is the web's library (`web/src/lib/analysis`),
 //! run by the app's window in a worker: it asks for hands
 //! ([`Reader::analysis_pending`]), analyses them and sends the rows back
 //! ([`WriterHandle::save_analysis`]). This crate stores and reads; it grades

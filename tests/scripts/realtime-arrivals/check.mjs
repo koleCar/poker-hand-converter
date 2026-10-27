@@ -37,7 +37,7 @@ if (!["127.0.0.1", "localhost", "[::1]"].includes(new URL(URL_).hostname)) {
   process.exit(2);
 }
 
-const { createClient } = await import("../../../frontend/node_modules/@supabase/supabase-js/dist/index.mjs");
+const { createClient } = await import("../../../web/node_modules/@supabase/supabase-js/dist/index.mjs");
 
 const tag = randomBytes(3).toString("hex");
 const password = randomBytes(12).toString("base64url");

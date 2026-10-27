@@ -210,7 +210,7 @@ truth; the other columns are projections of it for lists, the HUD and sync.
 
 | Column | Type | |
 | --- | --- | --- |
-| `hand_key` | TEXT PK | `<siteId>:<handKey>`, the web's `handKeyOf` (`frontend/src/lib/db/mapping.ts`): site id trimmed and lower-cased, `meta.handKey` or `meta.handId` when empty. The same key as `public.hands.hand_key` |
+| `hand_key` | TEXT PK | `<siteId>:<handKey>`, the web's `handKeyOf` (`web/src/lib/db/mapping.ts`): site id trimmed and lower-cased, `meta.handKey` or `meta.handId` when empty. The same key as `public.hands.hand_key` |
 | `site` | TEXT | `meta.siteId` |
 | `site_hand_id` | TEXT | `meta.handId`, as the room wrote it |
 | `played_at` | TEXT NULL | `playedAt`, ISO |
@@ -471,7 +471,7 @@ recompute's comparison and (R2.7) reports by situation, all summed in Rust.
 
 Per (site, player, scope, segment) the sums of the current generation's
 seat rows **with `aggregate`'s default exclusions**
-(`frontend/src/lib/stats/rates.ts`): bomb pots left out of everything,
+(`web/src/lib/stats/rates.ts`): bomb pots left out of everything,
 EV-cashout hands left out of the money (`money_hands` counts the hands
 whose money is in). The HUD reads one row per player and segment; a
 player's segments of a site are one range of the key. `WITHOUT ROWID`.
@@ -1012,7 +1012,7 @@ takes the account's rows with each pull (Supabase `hud_layouts`,
 
 ## The hand analysis (version 16, R5.4)
 
-The web's analysis (`frontend/src/lib/analysis`, `docs/ANALYSIS-PLAN.md`)
+The web's analysis (`web/src/lib/analysis`, `docs/ANALYSIS-PLAN.md`)
 runs in the app's window, in a worker, over the hands here; this crate
 stores its rows and hands out the hands (`rail_store::analysis`). It grades
 nothing. The two tables are the web's `hand_analysis` and

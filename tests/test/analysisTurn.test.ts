@@ -34,18 +34,18 @@ import {
   type HandAnalysis,
   type StreetAct,
   type TurnSpotInput,
-} from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { evaluate } from "../../frontend/src/lib/equity/index.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
-import { conceptsForDecision } from "../../frontend/src/lib/learn/links.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { comboHi, comboLo, NUM_COMBOS, parseCards, parseRange, rangesAt } from "../../frontend/src/lib/solver/index.js";
+} from "../../web/src/lib/analysis/index.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { evaluate } from "../../web/src/lib/equity/index.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
+import { conceptsForDecision } from "../../web/src/lib/learn/links.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { comboHi, comboLo, NUM_COMBOS, parseCards, parseRange, rangesAt } from "../../web/src/lib/solver/index.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

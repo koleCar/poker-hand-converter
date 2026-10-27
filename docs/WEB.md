@@ -125,7 +125,7 @@ row is the answer to "which parser do we write next".
 
 ## Coverage
 
-**19 registered parsers** (`frontend/src/lib/parsers/`), covering rather more
+**19 registered parsers** (`web/src/lib/parsers/`), covering rather more
 than 19 rooms — the Ignition parser also handles Bodog and Bovada, the Chico
 parser handles its skins, and ACR/WPN covers the network:
 
@@ -147,7 +147,7 @@ still wrong.
 ### Variants
 
 Each parser carries its own variant allowlist
-(`frontend/src/lib/parsers/shared/variant-lock.ts`), and a variant goes on a
+(`web/src/lib/parsers/shared/variant-lock.ts`), and a variant goes on a
 room's list only once that room's own fixtures convert it cleanly. Reading a
 room's Hold'em says nothing about whether it reads that room's Omaha.
 
@@ -207,7 +207,7 @@ short-deck hand (`card-not-in-deck`), and all-in EV deals the runout from the
   straight) the pot over `Td Ts` (three tens). Every other room keeps the
   classic rule, trips over a straight, until a fixture of its own says
   otherwise. A flush beats a full house under both. The room-to-rule map is
-  `SHORT_DECK_RULE_BY_SITE` in `frontend/src/lib/equity/evaluator.ts`, and
+  `SHORT_DECK_RULE_BY_SITE` in `web/src/lib/equity/evaluator.ts`, and
   all-in EV reads it from the hand's room.
 
 And two of the Omaha rows:
@@ -278,8 +278,8 @@ Windows-1252".
 
 ## The app
 
-**Next.js 15, App Router**, in `frontend/src/app/`. The hand-rolled matcher that
-used to live in `frontend/src/routes/` is gone — Next's file-system router
+**Next.js 15, App Router**, in `web/src/app/`. The hand-rolled matcher that
+used to live in `web/src/routes/` is gone — Next's file-system router
 matches and `next.config.ts` redirects, and keeping a second answer to "what
 does this path mean" alongside the framework's is how the two drift apart.
 
@@ -313,7 +313,7 @@ origin, below) and an explicit, opt-in save to your own library when you are
 signed in.
 
 That is a promise the code has to keep, so it is written down three times: as a
-standing comment in `frontend/src/app/convert/page.tsx`, as a line of UI copy on
+standing comment in `web/src/app/convert/page.tsx`, as a line of UI copy on
 the page itself (so a change that breaks it also makes the app tell a visible
 lie), and here. It is verified by driving the real page with a browser and
 asserting that no request leaves the origin; `tests/test/wasmWeb.test.ts` also
@@ -425,7 +425,7 @@ refuses any other host):
 ### The conversion core is WebAssembly (R4.1)
 
 Detection and parsing run in the Rust core (`core/rail-core`), built for the
-browser as `rail-core-wasm` and committed at `frontend/src/lib/wasm/rail-core/`
+browser as `rail-core-wasm` and committed at `web/src/lib/wasm/rail-core/`
 (`.wasm`, wasm-bindgen's JS glue and declarations, `BUILD.json`). Vercel has no
 Rust, so the web ships that copy.
 
@@ -436,7 +436,7 @@ builds the package, uploads it as the artefact `rail-core-web` and fails when
 the committed copy differs. After a change to the core: push, let that check
 fail, then in `tests/` run `npm run wasm:web-from-ci` (it downloads this
 commit's artefact with `gh` and installs it, BUILD.json included) and commit
-`frontend/src/lib/wasm/rail-core/`. `npm run wasm:web` writes a local build
+`web/src/lib/wasm/rail-core/`. `npm run wasm:web` writes a local build
 only on Linux x86_64 and refuses elsewhere; `npm run wasm:web-check` off Linux
 only checks that the copy matches its BUILD.json.
 
@@ -461,7 +461,7 @@ explicitly rather than failing silently.
 ## Running it
 
 ```bash
-cd frontend
+cd web
 npm install
 cp .env.example .env.local   # then fill in the Supabase URL and anon key
 npm run dev
@@ -509,8 +509,8 @@ What they actually check, per hand, over every sample file:
 
 ## Adding a poker room
 
-1. Write `frontend/src/lib/parsers/<site>.ts` exporting a `SiteParser`.
-2. Add one `registerParser` call in `frontend/src/lib/parsers/index.ts`.
+1. Write `web/src/lib/parsers/<site>.ts` exporting a `SiteParser`.
+2. Add one `registerParser` call in `web/src/lib/parsers/index.ts`.
 3. Put real sample files in `fixtures/samples/<site>/` with a `SOURCES.md`, and
    add the site to `tests/test/support/corpus.ts` so the table-driven tests
    pick it up.
@@ -530,21 +530,21 @@ rules are where a new parser is most likely to go quietly wrong.
 
 | Path | What it is |
 | --- | --- |
-| `frontend/src/lib/phf/` | The format: `types.ts` (re-exports the types generated from the Rust model), `validate.ts`, `serialize.ts`, `detect.ts` |
-| `frontend/src/lib/parsers/` | One file per poker room, plus `shared/` helpers and the registry |
-| `frontend/src/lib/db/` | Supabase client layer — save, search, corpus, shares, anonymization |
-| `frontend/src/lib/replay.ts` | PHF → replay frames |
-| `frontend/src/lib/solver/` | Postflop solver (DCFR, heads-up river and turn). Pure TS, also runs in a Web Worker; benchmark: `cd tests && npm run bench:solver` |
-| `frontend/src/lib/supabase/` | `config`, `browser`, `server`, `middleware` — the only modules that construct a Supabase client |
-| `frontend/src/lib/server/` | Server-only readers. `server-only` imported, never reachable from the browser bundle |
-| `frontend/src/lib/i18n/` | `en.ts`. Every user-facing string on the App Router surfaces |
-| `frontend/src/lib/routes.ts` | `paths` and `sharedHandUrl`. What survived the old route table |
-| `frontend/src/app/` | The App Router: pages, layout, `sitemap.ts`, `robots.ts`, `auth/callback` |
-| `frontend/src/components/` | `converter/`, `share/`, `shell/`, `stats/`, `auth/` and the other screens. The replayer, cards, overlay, icons and the stat tile moved to `packages/ui` (R2.6) |
-| `frontend/src/styles/` | ~3800 lines of global CSS. The token layer, the replayer's and the cards' sheets and the base controls moved to `packages/ui` (R2.6). New components use CSS Modules |
+| `web/src/lib/phf/` | The format: `types.ts` (re-exports the types generated from the Rust model), `validate.ts`, `serialize.ts`, `detect.ts` |
+| `web/src/lib/parsers/` | One file per poker room, plus `shared/` helpers and the registry |
+| `web/src/lib/db/` | Supabase client layer — save, search, corpus, shares, anonymization |
+| `web/src/lib/replay.ts` | PHF → replay frames |
+| `web/src/lib/solver/` | Postflop solver (DCFR, heads-up river and turn). Pure TS, also runs in a Web Worker; benchmark: `cd tests && npm run bench:solver` |
+| `web/src/lib/supabase/` | `config`, `browser`, `server`, `middleware` — the only modules that construct a Supabase client |
+| `web/src/lib/server/` | Server-only readers. `server-only` imported, never reachable from the browser bundle |
+| `web/src/lib/i18n/` | `en.ts`. Every user-facing string on the App Router surfaces |
+| `web/src/lib/routes.ts` | `paths` and `sharedHandUrl`. What survived the old route table |
+| `web/src/app/` | The App Router: pages, layout, `sitemap.ts`, `robots.ts`, `auth/callback` |
+| `web/src/components/` | `converter/`, `share/`, `shell/`, `stats/`, `auth/` and the other screens. The replayer, cards, overlay, icons and the stat tile moved to `packages/ui` (R2.6) |
+| `web/src/styles/` | ~3800 lines of global CSS. The token layer, the replayer's and the cards' sheets and the base controls moved to `packages/ui` (R2.6). New components use CSS Modules |
 | `packages/ui/` | The shared UI package `@rail/ui`, linked as `file:../packages/ui` — see "Shared UI package" below |
-| `frontend/src/lib/wasm/` | The WebAssembly core: the committed build (`rail-core/`), its loader and the engine choice (R4.1) |
-| `frontend/src/workers/` | Conversion off the main thread |
+| `web/src/lib/wasm/` | The WebAssembly core: the committed build (`rail-core/`), its loader and the engine choice (R4.1) |
+| `web/src/workers/` | Conversion off the main thread |
 | `tests/` | Test harness only — no runtime backend |
 | `supabase/migrations/` | Schema |
 | `fixtures/samples/` | The real hand-history corpus, one directory per site |
@@ -561,19 +561,19 @@ and expensive to undo.
 
 ### 1. The pure-TypeScript layer may not import the framework
 
-**Nothing under `frontend/src/lib/{phf,parsers,replay,cards,format,stats}` may
+**Nothing under `web/src/lib/{phf,parsers,replay,cards,format,stats}` may
 import `next/*`, `server-only`, or read `process.env`.**
 
 `tests/test/*.ts` imports those modules directly, by relative path —
-`../../frontend/src/lib/phf/serialize.js` and a dozen more — under plain Node
+`../../web/src/lib/phf/serialize.js` and a dozen more — under plain Node
 with no bundler and no framework. **3114 tests across 435 fixtures hang off
 that.** A single framework import anywhere in that subtree breaks all of them at
 once, and the failure reads as an unrelated module-resolution error rather than
 as "somebody put a Next import in the parser layer".
 
-It is also why **the Vercel root directory stays `frontend`** and why
-`frontend/src/lib/**` did not move when the App Router arrived. The App Router
-lives at `frontend/src/app/`, which Next resolves natively, precisely so that
+It is also why the web kept its own folder (`frontend/` until R0.14, `web/` since) and why
+`web/src/lib/**` did not move when the App Router arrived. The App Router
+lives at `web/src/app/`, which Next resolves natively, precisely so that
 `lib/` could stay exactly where the test harness expects it.
 
 Anything Next-shaped goes in `lib/supabase/`, `lib/server/` or `app/`.
@@ -581,12 +581,12 @@ Anything Next-shaped goes in `lib/supabase/`, `lib/server/` or `app/`.
 configuration, not corpus code, and nothing in `tests/test` imports them.
 
 Enforced by `no-restricted-imports` and `no-restricted-properties` in
-`frontend/eslint.config.js`, scoped to exactly those paths.
+`web/eslint.config.js`, scoped to exactly those paths.
 
 ### 2. The CSS is an asset, not debt
 
 ~4400 lines of global CSS, imported in a **pinned order** from
-`frontend/src/app/layout.tsx`. That order is load-bearing and is documented in
+`web/src/app/layout.tsx`. That order is load-bearing and is documented in
 the file: `theme-light.css` overrides `:root` at the same specificity and only
 wins by arriving later, and `styles/app.css` has to come last because its
 `.btn` / `.card` families are the base the component sheets override. Sheets
@@ -757,7 +757,7 @@ package and the library behind `model/` were written without them).
 
 **Changing it.** Edit `packages/ui` and both surfaces see it on their next
 build or reload. After changing `packages/ui/package.json`, run `npm install`
-in `frontend/` and `app/` so their lockfiles carry its manifest (npm ci does
+in `web/` and `app/` so their lockfiles carry its manifest (npm ci does
 not fail when they drift, which is why it has to be remembered).
 
 ---
@@ -766,7 +766,7 @@ not fail when they drift, which is why it has to be remembered).
 
 Project `riybwcfnclphacnfawiq` (`poker converter`), Postgres 17. Baseline
 migration: `supabase/migrations/20260916190000_phf_baseline.sql`. Client layer:
-`frontend/src/lib/db/`. Nothing else in the app touches Supabase.
+`web/src/lib/db/`. Nothing else in the app touches Supabase.
 
 Every column, the RLS reasoning, which query each index serves, how to apply a
 migration and how to triage the corpus are in
@@ -804,7 +804,7 @@ the identity.
 
 Detection is per-hand and partly structural, not a hard-coded site list, so a
 future anonymizing room gets labelled correctly the first time someone uploads
-one. See `frontend/src/lib/db/anonymization.ts`.
+one. See `web/src/lib/db/anonymization.ts`.
 
 ### Accounts and RLS, briefly
 
@@ -913,7 +913,7 @@ through the *anon* key rather than the PAT, which proves nothing) are in
 Production is **https://poker-hand-converter.vercel.app**. Every push to `main`
 deploys.
 
-- **Root directory**: `frontend`. This is not cosmetic — see "The rule that
+- **Root directory**: `web` (`frontend` until R0.14). This is not cosmetic — see "The rule that
   keeps the test harness alive" below. Since R2.6 the build also needs one
   directory outside it, `packages/ui` (`file:../packages/ui` in
   `package.json`). Vercel clones the whole repository and, with the project
@@ -922,7 +922,7 @@ deploys.
   build all of it. If a deploy ever fails to find `@rail/ui` or
   `../packages/ui`, that setting is the first thing to check.
 - **Framework preset**: Next.js (build `npm run build`, output `.next`).
-  `frontend/vercel.json` pins `"framework": "nextjs"` so the project setting
+  `web/vercel.json` pins `"framework": "nextjs"` so the project setting
   cannot silently disagree with the repository; it also keeps the
   `deploymentEnabled.staging: false` guard. Everything else that file used to
   carry — the SPA rewrite and the User-Agent fork for `/h/:slug` — is gone,
@@ -956,7 +956,7 @@ Without those the deploy still works, as an offline converter.
 Manual deploy:
 
 ```bash
-cd frontend
+cd web
 npx vercel deploy --prod
 ```
 

@@ -1,4 +1,4 @@
-//! Showdown counters: `frontend/src/lib/stats/showdown.ts`.
+//! Showdown counters: `web/src/lib/stats/showdown.ts`.
 //!
 //! WWSF, WTSD and W$SD over `flop_seen`. Reaching a showdown is structural -
 //! two or more dealt-in seats never folded - never `results.wentToShowdown`

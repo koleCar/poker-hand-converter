@@ -8,7 +8,7 @@
 import { statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { analyzeHand, ANALYSIS_VERSION } from "../../../frontend/src/lib/analysis/index.js";
+import { analyzeHand, ANALYSIS_VERSION } from "../../../web/src/lib/analysis/index.js";
 import {
   CHART_SETS,
   chartTree,
@@ -22,13 +22,13 @@ import {
   type ChartSet,
   type PreflopActionInput,
   type PreflopSpot,
-} from "../../../frontend/src/lib/charts/index.js";
-import { positionRing, type Position } from "../../../frontend/src/lib/phf/types.js";
-import { buildPreflopTree, SIX_MAX } from "../../../frontend/src/lib/solver/preflopTree.js";
-import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../frontend/src/lib/solver/index.js";
-import { dealPreflop, preflopAnswer } from "../../../frontend/src/lib/training/preflop.js";
-import { gradeAnswer } from "../../../frontend/src/lib/training/grade.js";
-import { scriptHand } from "../../../frontend/src/lib/training/handText.js";
+} from "../../../web/src/lib/charts/index.js";
+import { positionRing, type Position } from "../../../web/src/lib/phf/types.js";
+import { buildPreflopTree, SIX_MAX } from "../../../web/src/lib/solver/preflopTree.js";
+import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../web/src/lib/solver/index.js";
+import { dealPreflop, preflopAnswer } from "../../../web/src/lib/training/preflop.js";
+import { gradeAnswer } from "../../../web/src/lib/training/grade.js";
+import { scriptHand } from "../../../web/src/lib/training/handText.js";
 import { chartSet, fileOf, fullLibrary } from "./support.js";
 
 const H = NUM_CLASSES;

@@ -2,14 +2,14 @@
  * What the population ranges change (analysis/19), decision by decision, on
  * a stored library: every hand where an opponent who saw the flop with the
  * hero starts from a population range is analysed by a base checkout of the
- * analysis (`CALLERS_BASE`, the `frontend/src` of the commit before) and by
+ * analysis (`CALLERS_BASE`, the `web/src` of the commit before) and by
  * this one, both with the flop library and turn solving on, and the hero's
  * decisions are compared one by one. Prints totals only; `CALLERS_DUMP`
  * also writes each changed decision (hand number, street, action, grades,
  * EV losses) to a LOCAL file for inspection - never commit it.
  *
  *     cd tests && CALLERS_HANDS=/path/library.jsonl FLOPLIB_DIR=/path/out \
- *       CALLERS_BASE=/path/base/frontend/src [CALLERS_SHARD=0/3] \
+ *       CALLERS_BASE=/path/base/web/src [CALLERS_SHARD=0/3] \
  *       npx vitest run --config scripts/caller-ranges/vitest.config.ts measure
  */
 
@@ -17,10 +17,10 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs
 import { join } from "node:path";
 import { it } from "vitest";
 
-import * as next from "../../../frontend/src/lib/analysis/index.js";
-import * as nextCharts from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
+import * as next from "../../../web/src/lib/analysis/index.js";
+import * as nextCharts from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
 
 const FILE = process.env.CALLERS_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
@@ -44,7 +44,7 @@ it("measures the population ranges on a stored library", { timeout: 24 * 60 * 60
   }
   const base = await import(join(BASE, "lib/analysis/index.ts"));
   const baseCharts = await import(join(BASE, "lib/charts/index.ts"));
-  const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+  const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
   const libraryOf = (mod: typeof nextCharts) => {
     const sets = mod.CHART_SETS.map((spec) => mod.loadCharts(JSON.parse(readFileSync(join(DATA, `${spec.id}.json`), "utf8"))));
     const single = sets.find((s) => s.id === mod.DEFAULT_CHART_SET)!;

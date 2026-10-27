@@ -30,13 +30,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { FLOP_PROFILE } from "../../../frontend/src/lib/analysis/flopLibrary.js";
-import { grade, gradeRank } from "../../../frontend/src/lib/analysis/grading.js";
-import { flopRealisationCategory } from "../../../frontend/src/lib/analysis/multiway.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
-import type { Grade } from "../../../frontend/src/lib/analysis/types.js";
-import { evaluateMasks, STANDARD } from "../../../frontend/src/lib/equity/evaluator.js";
-import { comboHi, comboLo, decodeChunk, rangesAt, type FlopChunk } from "../../../frontend/src/lib/solver/index.js";
+import { FLOP_PROFILE } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { grade, gradeRank } from "../../../web/src/lib/analysis/grading.js";
+import { flopRealisationCategory } from "../../../web/src/lib/analysis/multiway.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
+import type { Grade } from "../../../web/src/lib/analysis/types.js";
+import { evaluateMasks, STANDARD } from "../../../web/src/lib/equity/evaluator.js";
+import { comboHi, comboLo, decodeChunk, rangesAt, type FlopChunk } from "../../../web/src/lib/solver/index.js";
 
 /** Every `SAMPLE_EVERY`-th combo of a range is measured. */
 export const SAMPLE_EVERY = 3;

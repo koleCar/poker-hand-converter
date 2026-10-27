@@ -1,7 +1,7 @@
 //! Which rows of a hand a store keeps, and under which identity they are
 //! summed (docs/RAIL-PLAN.md R2.3). The engine derives a row per dealt-in
 //! seat ([`crate::rows_for`]); this is the writer's side of
-//! `frontend/src/lib/db/statsRows.ts` (`handStatsRows`), for the desktop's
+//! `web/src/lib/db/statsRows.ts` (`handStatsRows`), for the desktop's
 //! local store and anything that sums its rows (rollups, the HUD).
 //!
 //! - **Hero rows always.** Villain rows when the writer asks for them (the

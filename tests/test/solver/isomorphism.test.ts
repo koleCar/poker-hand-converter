@@ -19,8 +19,8 @@ import {
   solveRiver,
   SUIT_PERMUTATIONS,
   type BetMenu,
-} from "../../../frontend/src/lib/solver/index.js";
-import { cardCode, cardIndex } from "../../../frontend/src/lib/equity/index.js";
+} from "../../../web/src/lib/solver/index.js";
+import { cardCode, cardIndex } from "../../../web/src/lib/equity/index.js";
 
 const MENU: BetMenu = { bet: [0.5, 1], raise: [1], allIn: true };
 // Deliberately suit-asymmetric: specific suited combos, and a flush draw that got there.

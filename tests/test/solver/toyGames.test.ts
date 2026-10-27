@@ -19,7 +19,7 @@ import {
   leducGame,
   Solver,
   type FlatTree,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 /** Node reached from the root by following edge labels. */
 function nodeAt(tree: FlatTree, labels: string[]): number {

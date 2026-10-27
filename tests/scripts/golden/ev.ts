@@ -34,8 +34,8 @@
 
 import { createHash } from "node:crypto";
 
-import { handEvRow, handStatsRows } from "../../../frontend/src/lib/db/statsRows.js";
-import { EV_VERSION, analyzeAllIn, type AllInEvOutcome } from "../../../frontend/src/lib/equity/index.js";
+import { handEvRow, handStatsRows } from "../../../web/src/lib/db/statsRows.js";
+import { EV_VERSION, analyzeAllIn, type AllInEvOutcome } from "../../../web/src/lib/equity/index.js";
 import { canonicalJson } from "./canonical.js";
 import type { GoldenHandInput } from "./stats.js";
 

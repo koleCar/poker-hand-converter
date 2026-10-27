@@ -15,7 +15,7 @@ import {
   solveBuilt,
   solveTurn,
   type TurnSpot,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 import { naiveValues } from "../support/solverNaive.js";
 
 const SPOT: TurnSpot = {

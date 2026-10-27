@@ -51,7 +51,7 @@ pub struct FileState {
 /// One converted hand, ready for `hands`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PreparedHand {
-    /// `<siteId>:<handKey>`: the web's `handKeyOf` (`frontend/src/lib/db/mapping.ts`).
+    /// `<siteId>:<handKey>`: the web's `handKeyOf` (`web/src/lib/db/mapping.ts`).
     pub hand_key: String,
     pub site: String,
     pub site_hand_id: String,

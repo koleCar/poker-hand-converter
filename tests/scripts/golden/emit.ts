@@ -31,16 +31,16 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 
-import { decodeSource } from "../../../frontend/src/components/converter/inputs.js";
+import { decodeSource } from "../../../web/src/components/converter/inputs.js";
 import {
   convertAny,
   detectSite,
   type ConversionFailure,
-} from "../../../frontend/src/lib/parsers/index.js";
-import type { ConversionResult } from "../../../frontend/src/lib/phf/detect.js";
-import { toStandardText, toStandardTextFile } from "../../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../../frontend/src/lib/phf/validate.js";
+} from "../../../web/src/lib/parsers/index.js";
+import type { ConversionResult } from "../../../web/src/lib/phf/detect.js";
+import { toStandardText, toStandardTextFile } from "../../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { validateHand } from "../../../web/src/lib/phf/validate.js";
 import { canonicalJson, compareUtf8 } from "./canonical.js";
 import { evGoldenFor } from "./ev.js";
 import { statsGoldenFor, type GoldenHandInput } from "./stats.js";

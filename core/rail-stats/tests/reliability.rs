@@ -1,6 +1,6 @@
 //! Sample reliability (docs/RAIL-PLAN.md R2.5) against the web's:
 //! `tests/data/reliability-vectors.json`, written by `reliability-vectors.mjs`
-//! from `frontend/src/lib/stats/reliability.ts` and `display.ts`'s
+//! from `web/src/lib/stats/reliability.ts` and `display.ts`'s
 //! `statReliability` - which that script holds to `lib/analysis/reports.ts`'s
 //! independent Wilson interval (within 1e-9 points) and to R2.4's `full`
 //! before writing a case.

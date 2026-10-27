@@ -13,14 +13,14 @@
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 
-import { analyzeHand, grade, type DecisionAnalysis } from "../../frontend/src/lib/analysis/index.js";
-import { analysisFitsHand, withoutOwnerFacts } from "../../frontend/src/lib/analysis/share.js";
-import { optionsForChoice, pollReference } from "../../frontend/src/lib/forum/pollReference.js";
-import { gradeDrill } from "../../frontend/src/lib/training/grade.js";
-import { parseHand } from "../../frontend/src/lib/phf/index.js";
-import { toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+import { analyzeHand, grade, type DecisionAnalysis } from "../../web/src/lib/analysis/index.js";
+import { analysisFitsHand, withoutOwnerFacts } from "../../web/src/lib/analysis/share.js";
+import { optionsForChoice, pollReference } from "../../web/src/lib/forum/pollReference.js";
+import { gradeDrill } from "../../web/src/lib/training/grade.js";
+import { parseHand } from "../../web/src/lib/phf/index.js";
+import { toStandardText } from "../../web/src/lib/phf/serialize.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { ggCorpusFiles, readTree } from "./support/psggCorpus.js";
 
 const ROOT = join(import.meta.dirname, "../..");

@@ -16,11 +16,11 @@ import {
   equity,
   evNetBySeat,
   EV_VERSION,
-} from "../../frontend/src/lib/equity/index.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
-import { STATS_VERSION } from "../../frontend/src/lib/stats/types.js";
+} from "../../web/src/lib/equity/index.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
+import { STATS_VERSION } from "../../web/src/lib/stats/types.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

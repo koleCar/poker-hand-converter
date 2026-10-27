@@ -1,5 +1,5 @@
 /**
- * Writes `frontend/src/lib/learn/data/flop-bets.json` (Learn L2): how often
+ * Writes `web/src/lib/learn/data/flop-bets.json` (Learn L2): how often
  * the preflop raiser bets the flop on every flop of the full library, for the
  * lines in `FLOP_BET_SPOTS`, read at the raiser's first decision. Rail's own
  * solves only; `tests/test/flopBets.test.ts` recomputes every row the
@@ -15,14 +15,14 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, it } from "vitest";
 
-import { FLOP_PROFILE } from "../../../frontend/src/lib/analysis/index.js";
-import { loadCharts } from "../../../frontend/src/lib/charts/index.js";
-import { FLOP_BET_SPOTS, flopBetRow, type FlopBetData, type FlopBetRow } from "../../../frontend/src/lib/learn/flopBets.js";
-import { decodeChunk, type FlopManifest } from "../../../frontend/src/lib/solver/index.js";
+import { FLOP_PROFILE } from "../../../web/src/lib/analysis/index.js";
+import { loadCharts } from "../../../web/src/lib/charts/index.js";
+import { FLOP_BET_SPOTS, flopBetRow, type FlopBetData, type FlopBetRow } from "../../../web/src/lib/learn/flopBets.js";
+import { decodeChunk, type FlopManifest } from "../../../web/src/lib/solver/index.js";
 
 const DIR = process.env.FLOPLIB_DIR ?? "";
-const OUT = join(import.meta.dirname, "../../../frontend/src/lib/learn/data/flop-bets.json");
-const CHARTS = loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, "../../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+const OUT = join(import.meta.dirname, "../../../web/src/lib/learn/data/flop-bets.json");
+const CHARTS = loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, "../../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
 
 it.runIf(DIR !== "")("writes the raiser's flop bet frequencies from the full library", () => {
   const root = join(DIR, CHARTS.id, FLOP_PROFILE.tree);

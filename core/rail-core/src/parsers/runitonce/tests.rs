@@ -6,7 +6,7 @@
 use super::*;
 use crate::detect::ConvertOptions;
 
-const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/runitonce.ts");
+const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/runitonce.ts");
 
 const LITERALS: &[&str] = &[
     r"/^Run It Once Poker Hand #(\d+):\s*(.*)$/",

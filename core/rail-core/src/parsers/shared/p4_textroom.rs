@@ -1,5 +1,5 @@
 //! Helpers of the plain-text rooms of the fourth batch
-//! (`frontend/src/lib/parsers/shared/p4-textroom.ts`): MicroGaming (R0.9)
+//! (`web/src/lib/parsers/shared/p4-textroom.ts`): MicroGaming (R0.9)
 //! uses `decodeBase64Utf16` and `strictAmount`; Ongame, Entraction and
 //! Unibet (R0.10) use the rest - `leadingName` / `namesByLength` (names no
 //! regex can safely find the end of), `currencySymbolOf`, `expandMonth`,
@@ -256,8 +256,7 @@ mod tests {
     use super::*;
     use crate::phf::money::{EUR, USD};
 
-    const SOURCE: &str =
-        include_str!("../../../../../frontend/src/lib/parsers/shared/p4-textroom.ts");
+    const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/shared/p4-textroom.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {

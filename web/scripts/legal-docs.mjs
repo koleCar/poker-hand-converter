@@ -3,7 +3,7 @@
  * `docs/legal/` - English and Croatian, Markdown - and served at `/terms` and
  * `/privacy`. This copies them into `src/lib/legal/texts.generated.ts`, a
  * plain TypeScript module the pages import (no file system at request time,
- * nothing outside `frontend/` for the deployment to trace).
+ * nothing outside `web/` for the deployment to trace).
  *
  * Runs before `next dev` and `next build`, like `sites-json.mjs`. The
  * generated file is committed so the type check and the tests see it without

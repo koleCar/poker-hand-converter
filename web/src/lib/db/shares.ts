@@ -22,7 +22,7 @@
  * hand-shaped projection — never the `hands` row, which carried `source_text`,
  * `owner_id`, `hand_key` and `source_filename` to every stranger holding a
  * slug. `record_share_view` is the counter and nothing else, so a read-only
- * consumer (the Open Graph crawler function in `frontend/api/`) can exist
+ * consumer (the Open Graph crawler function in `web/api/`) can exist
  * without every Slack unfurl registering as a human view.
  */
 

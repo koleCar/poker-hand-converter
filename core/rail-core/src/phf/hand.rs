@@ -1,5 +1,5 @@
 //! Hand helpers: the action, board, chip-movement, fee and lookup functions of
-//! `frontend/src/lib/phf/types.ts`, with the same names in snake case.
+//! `web/src/lib/phf/types.ts`, with the same names in snake case.
 //!
 //! Where the TypeScript leans on JavaScript truthiness the port spells it out:
 //! a runout's `turn: ""` counts as no turn (`turn ? [turn] : []`), while a

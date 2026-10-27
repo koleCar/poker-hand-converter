@@ -33,9 +33,9 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { decodeSource } from "../../../frontend/src/components/converter/inputs.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+import { decodeSource } from "../../../web/src/components/converter/inputs.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import { railCore, type ConvertResult, type RailCoreWasm } from "../../../core/rail-core-wasm/js/index.js";
 import { canonicalJson } from "../golden/canonical.js";
 import { GOLDEN_FORMAT, PINNED_PARSED_AT, ROOT, goldenFor, listInputs, sha256 } from "../golden/emit.js";

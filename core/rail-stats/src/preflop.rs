@@ -1,4 +1,4 @@
-//! Preflop counters: `frontend/src/lib/stats/preflop.ts`.
+//! Preflop counters: `web/src/lib/stats/preflop.ts`.
 //!
 //! A preflop opportunity is 0 or 1 per hand, counted at the seat's first
 //! qualifying decision; the raise level (voluntary raises only - a straddle

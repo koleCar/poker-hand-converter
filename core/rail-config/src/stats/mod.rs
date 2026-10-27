@@ -11,7 +11,7 @@
 //! caller passes the [`Vocabulary`] - `rail_stats::display::vocabulary()` -
 //! so this crate stays free of the core (as `sites.json` takes the parser
 //! ids). Evaluation is `rail_stats::display`, in JavaScript's arithmetic, so
-//! the web's `frontend/src/lib/stats/display.ts` prints the same digits.
+//! the web's `web/src/lib/stats/display.ts` prints the same digits.
 //!
 //! - [`SHIPPED_STATS`]: `config/stats/standard.json`, the starting set.
 //! - [`load_stats`]: parse, check the version, validate every definition

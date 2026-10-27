@@ -15,7 +15,7 @@ import {
   decodeEntities,
   parseXml,
   scanXml,
-} from "../../frontend/src/lib/parsers/shared/p2-xml.js";
+} from "../../web/src/lib/parsers/shared/p2-xml.js";
 import { sampleFiles } from "./support/p2Corpus.js";
 
 describe("scanXml", () => {

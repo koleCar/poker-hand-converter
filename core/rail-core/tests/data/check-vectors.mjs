@@ -41,12 +41,12 @@ const esbuild = require("esbuild");
 const bundle = await esbuild.build({
   stdin: {
     contents: `
-      export { convertAny } from "./frontend/src/lib/parsers/index.ts";
-      export { parseStandardHand } from "./frontend/src/lib/phf/serialize.ts";
-      export { assignPositions } from "./frontend/src/lib/phf/types.ts";
-      export { validateHand } from "./frontend/src/lib/phf/validate.ts";
-      export { assignHiLoHalves } from "./frontend/src/lib/phf/hilo.ts";
-      export { decodeSource } from "./frontend/src/components/converter/inputs.ts";
+      export { convertAny } from "./web/src/lib/parsers/index.ts";
+      export { parseStandardHand } from "./web/src/lib/phf/serialize.ts";
+      export { assignPositions } from "./web/src/lib/phf/types.ts";
+      export { validateHand } from "./web/src/lib/phf/validate.ts";
+      export { assignHiLoHalves } from "./web/src/lib/phf/hilo.ts";
+      export { decodeSource } from "./web/src/components/converter/inputs.ts";
     `,
     resolveDir: ROOT,
     loader: "ts",

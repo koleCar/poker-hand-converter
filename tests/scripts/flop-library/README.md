@@ -2,7 +2,7 @@
 
 Solves the flop library offline: every (preflop line, representative flop)
 pair as a flop + turn + river game, keeping the flop-level strategies and EVs
-as one chunk per pair (`frontend/src/lib/solver/flopLibrary.ts` has the
+as one chunk per pair (`web/src/lib/solver/flopLibrary.ts` has the
 format, `docs/ANALYSIS-PLAN.md` §10 A5b the decisions and the pilot's numbers).
 
 Not part of `npm test`: a solve takes minutes and a full run takes days.
@@ -20,7 +20,7 @@ npm run floplib                                     # the full run: 12 lines x 1
 | Option | Default | |
 |---|---|---|
 | `--out DIR` | `tests/scripts/flop-library/out` (git-ignored) | where chunks go: `<out>/<set>/<tree>/<line>/<flop>.bin` |
-| `--set ID` | `nlhe-cash-6max-100bb` | the chart set (`frontend/src/lib/charts/data/<ID>.json`) the ranges come from |
+| `--set ID` | `nlhe-cash-6max-100bb` | the chart set (`web/src/lib/charts/data/<ID>.json`) the ranges come from |
 | `--lines a,b` | every line of the set's table (`flopLinesFor`: 12 for 6-max, 13 for the 9-max sets, 5 for the heads-up sets) | line ids |
 | `--flops a,b` | the 100 representatives, most-covering first | any flops (any suits; canonicalised) |
 | `--only N` | all | the first N jobs of the queue (flops in order, each with every line) |

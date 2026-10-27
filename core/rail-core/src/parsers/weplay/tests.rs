@@ -5,7 +5,7 @@
 
 use super::*;
 
-const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/weplay.ts");
+const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/weplay.ts");
 
 /// `/literal/flags` as the source writes them.
 const LITERALS: &[&str] = &[

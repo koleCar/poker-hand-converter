@@ -1,5 +1,5 @@
 //! Bytes to text: the converter's `decodeSource`
-//! (`frontend/src/components/converter/inputs.ts`), step for step.
+//! (`web/src/components/converter/inputs.ts`), step for step.
 //!
 //! Decoding is part of the oracle - every golden records `decode.encoding` and
 //! `decode.problem` - so this ports `decodeSource`'s order and guards, not a

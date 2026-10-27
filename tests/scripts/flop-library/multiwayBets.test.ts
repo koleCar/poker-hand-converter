@@ -59,7 +59,7 @@ import {
   weightedCombos,
   type NarrowingModel,
   type NarrowInput,
-} from "../../../frontend/src/lib/analysis/index.js";
+} from "../../../web/src/lib/analysis/index.js";
 import {
   answerFeatures,
   callAtShare,
@@ -74,19 +74,19 @@ import {
   type AnswerContext,
   type OpenContext,
 } from "./multiwayRiver.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
-import { equityVsRanges } from "../../../frontend/src/lib/equity/multiway.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
+import { equityVsRanges } from "../../../web/src/lib/equity/multiway.js";
 import {
   CHART_SETS,
   chartLibrary,
   DEFAULT_CHART_SET,
   loadCharts,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
+} from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const GRADES = process.env.MWBETS_GRADES === "1";
 const POSTFLOP = ["flop", "turn", "river"] as const;

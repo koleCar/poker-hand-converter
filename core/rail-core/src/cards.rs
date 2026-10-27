@@ -1,4 +1,4 @@
-//! Card codes: the parts of `frontend/src/lib/cards.ts` the core needs -
+//! Card codes: the parts of `web/src/lib/cards.ts` the core needs -
 //! reading a card (`parseCard`, which the validator and the evaluator use),
 //! pulling cards out of text (`extractCards`, which the parsers use) and rank
 //! order (`rankValue`). The starting-hand classes (`handClass`,

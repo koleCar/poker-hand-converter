@@ -26,12 +26,12 @@ import { HandAnalysisView, type Loaded } from "../../app/src/screens/analysis/Ha
 import { TopLeaksBody } from "../../app/src/screens/analysis/TopLeaks";
 import { describeStatus } from "../../app/src/screens/analysis/status";
 import { parseView, tabOf, viewParam, type AnalysisView } from "../../app/src/screens/analysis/view";
-import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../../frontend/src/lib/analysis/index";
-import { loadCharts } from "../../frontend/src/lib/charts/index";
-import { convertAny } from "../../frontend/src/lib/parsers/index";
+import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../../web/src/lib/analysis/index";
+import { loadCharts } from "../../web/src/lib/charts/index";
+import { convertAny } from "../../web/src/lib/parsers/index";
 import { newChartSet } from "../../packages/ui/charts/model";
-import { topLeaksEn } from "../../frontend/src/lib/i18n/ns/analysisLeaks.en";
-import { topLeaksHr } from "../../frontend/src/lib/i18n/ns/analysisLeaks.hr";
+import { topLeaksEn } from "../../web/src/lib/i18n/ns/analysisLeaks.en";
+import { topLeaksHr } from "../../web/src/lib/i18n/ns/analysisLeaks.hr";
 import { screenHref } from "../../app/src/lib/router";
 import { setInvokeHandler } from "./support/tauriCore";
 
@@ -95,7 +95,7 @@ describe("the background run's line", () => {
 
 /** A corpus hand the web's library grades preflop. */
 async function gradedHand(): Promise<HandAnalysis> {
-  const charts = loadCharts(JSON.parse(readFileSync(join(ROOT, "frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+  const charts = loadCharts(JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
   for (const dir of ["fixtures/samples/pokerstars", "fixtures/samples/ggpoker", "gg-hh"]) {
     for (const name of readdirSync(join(ROOT, dir)).sort()) {
       if (!name.endsWith(".txt")) continue;

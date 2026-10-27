@@ -11,10 +11,10 @@
  * game's precomputed orderings. Only the tree's stored payoffs are shared.
  */
 
-import { cardCode, evaluate } from "../../../frontend/src/lib/equity/index.js";
-import type { BuiltSubgame } from "../../../frontend/src/lib/solver/subgame.js";
-import { ACTION, CHANCE, FOLD, SHOWDOWN } from "../../../frontend/src/lib/solver/tree.js";
-import type { Solver } from "../../../frontend/src/lib/solver/cfr.js";
+import { cardCode, evaluate } from "../../../web/src/lib/equity/index.js";
+import type { BuiltSubgame } from "../../../web/src/lib/solver/subgame.js";
+import { ACTION, CHANCE, FOLD, SHOWDOWN } from "../../../web/src/lib/solver/tree.js";
+import type { Solver } from "../../../web/src/lib/solver/cfr.js";
 
 interface Hand {
   a: number;

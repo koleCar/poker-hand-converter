@@ -1,4 +1,4 @@
-//! `ongame`: the Ongame Network (`frontend/src/lib/parsers/ongame.ts`) -
+//! `ongame`: the Ongame Network (`web/src/lib/parsers/ongame.ts`) -
 //! bwin, Betsson, PokerRoom and the other skins.
 //!
 //! A small, closed grammar between `***** History for hand <id> *****` and
@@ -598,7 +598,7 @@ impl SiteParser for OngameParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/ongame.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/ongame.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {

@@ -1,5 +1,5 @@
 /**
- * The concept library (`frontend/src/lib/learn`), pinned.
+ * The concept library (`web/src/lib/learn`), pinned.
  *
  * Three kinds of check:
  *
@@ -18,13 +18,13 @@
 
 import { describe, expect, it } from "vitest";
 
-import { boardTexture, toIndices } from "../../frontend/src/lib/analysis/texture.js";
-import { grade } from "../../frontend/src/lib/analysis/grading.js";
-import { FLAG_CODES, type DecisionAnalysis, type SpotFacts } from "../../frontend/src/lib/analysis/types.js";
-import { equityVsRange, parseRange, rangeShare } from "../../frontend/src/lib/equity/range.js";
-import { CONCEPT_IDS, CONCEPTS, conceptsIn, CONCEPT_GROUPS, isConceptId } from "../../frontend/src/lib/learn/concepts.js";
-import { CONCEPT_TEXT } from "../../frontend/src/lib/learn/content/index.js";
-import { FLAG_CONCEPTS, conceptsForDecision } from "../../frontend/src/lib/learn/links.js";
+import { boardTexture, toIndices } from "../../web/src/lib/analysis/texture.js";
+import { grade } from "../../web/src/lib/analysis/grading.js";
+import { FLAG_CODES, type DecisionAnalysis, type SpotFacts } from "../../web/src/lib/analysis/types.js";
+import { equityVsRange, parseRange, rangeShare } from "../../web/src/lib/equity/range.js";
+import { CONCEPT_IDS, CONCEPTS, conceptsIn, CONCEPT_GROUPS, isConceptId } from "../../web/src/lib/learn/concepts.js";
+import { CONCEPT_TEXT } from "../../web/src/lib/learn/content/index.js";
+import { FLAG_CONCEPTS, conceptsForDecision } from "../../web/src/lib/learn/links.js";
 import {
   alpha,
   bluffCatcherEv,
@@ -43,7 +43,7 @@ import {
   spr,
   valueBetGain,
   valuePerBluff,
-} from "../../frontend/src/lib/learn/math.js";
+} from "../../web/src/lib/learn/math.js";
 import {
   BOARD_PRESETS,
   COMBO_PRESETS,
@@ -51,9 +51,9 @@ import {
   RANGE_TEXT,
   presetRange,
   type RangeId,
-} from "../../frontend/src/lib/learn/presets.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
+} from "../../web/src/lib/learn/presets.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
 
 const close = (actual: number, expected: number, digits = 3) => expect(actual).toBeCloseTo(expected, digits);
 const texture = (codes: string) => boardTexture(toIndices(codes.split(" ")))!;

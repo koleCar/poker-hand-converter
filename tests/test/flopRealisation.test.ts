@@ -12,10 +12,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { FLOP_PROFILE, FLOP_REALISATION, flopRealisation } from "../../frontend/src/lib/analysis/index.js";
-import { toIndices } from "../../frontend/src/lib/analysis/texture.js";
-import { cardCode, equityVsRange } from "../../frontend/src/lib/equity/index.js";
-import { comboHi, comboLo, decodeChunk, rangesAt } from "../../frontend/src/lib/solver/index.js";
+import { FLOP_PROFILE, FLOP_REALISATION, flopRealisation } from "../../web/src/lib/analysis/index.js";
+import { toIndices } from "../../web/src/lib/analysis/texture.js";
+import { cardCode, equityVsRange } from "../../web/src/lib/equity/index.js";
+import { comboHi, comboLo, decodeChunk, rangesAt } from "../../web/src/lib/solver/index.js";
 import { agreement, approxGrade, chunkSamples, fitRealisation, nodeEquities, runouts, type Sample } from "../scripts/flop-library/realisation.js";
 
 const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot/nlhe-cash-6max-100bb", FLOP_PROFILE.tree);

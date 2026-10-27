@@ -82,7 +82,7 @@ pub struct BoundsDto<T> {
     high: T,
 }
 
-/// `StatReliability` (`frontend/src/lib/stats/display.ts`).
+/// `StatReliability` (`web/src/lib/stats/display.ts`).
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ReliabilityDto {

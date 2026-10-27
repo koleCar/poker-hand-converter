@@ -45,7 +45,7 @@ coded_enum! {
     /// The reason a parser refuses a hand it recognises (`ParseSkip.reason`).
     ///
     /// The complete set of codes the TypeScript parsers throw - every
-    /// `new ParseSkip("…")` in `frontend/src/lib`, the WePlay normalizer's
+    /// `new ParseSkip("…")` in `web/src/lib`, the WePlay normalizer's
     /// `Skip` records, and `HI_LO_SKIP_REASON` - checked against the source by
     /// `detect::tests::skip_reasons_are_exactly_the_typescript_set`.
     SkipReason {

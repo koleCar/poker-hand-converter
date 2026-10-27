@@ -6,7 +6,7 @@
  * load the module itself, because how that is done depends on the
  * `wasm-bindgen` target: `--target nodejs` (the test harness) is a CommonJS
  * file that loads its `.wasm` synchronously, `--target web` (the web app,
- * R4.1; committed under `frontend/src/lib/wasm/rail-core/`) is an ES module
+ * R4.1; committed under `web/src/lib/wasm/rail-core/`) is an ES module
  * whose default export must be awaited first.
  * Either way the caller passes the loaded module to {@link railCore}.
  *

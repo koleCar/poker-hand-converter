@@ -2,17 +2,17 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { handClass, parseHandClassQuery, resolveHeroQuery } from "../../frontend/src/lib/cards";
-import { convertCashWeplayFile } from "../../frontend/src/lib/converter";
-import { parseHand, splitHands } from "../../frontend/src/lib/phf/index.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+import { handClass, parseHandClassQuery, resolveHeroQuery } from "../../web/src/lib/cards";
+import { convertCashWeplayFile } from "../../web/src/lib/converter";
+import { parseHand, splitHands } from "../../web/src/lib/phf/index.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import {
   heroOf,
   houseIntoPot,
   primaryBoard,
   toDisplayNumber,
-} from "../../frontend/src/lib/phf/types.js";
-import { buildReplay } from "../../frontend/src/lib/replay";
+} from "../../web/src/lib/phf/types.js";
+import { buildReplay } from "../../web/src/lib/replay";
 
 const GG_DIR = join(import.meta.dirname, "../../gg-hh");
 

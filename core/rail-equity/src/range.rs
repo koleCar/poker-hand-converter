@@ -1,4 +1,4 @@
-//! One exact hand against a weighted range: `frontend/src/lib/equity/range.ts`.
+//! One exact hand against a weighted range: `web/src/lib/equity/range.ts`.
 //!
 //! The range notation (`QQ+`, `ATs+`, `T9s-65s`, `A5s:0.5`), card removal,
 //! and the hero's equity against every holding the opponent could have,

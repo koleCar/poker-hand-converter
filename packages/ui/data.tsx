@@ -6,7 +6,7 @@
  * Most components take their data as props (the replayer takes a `PhfHand`, a
  * stat table its rows). The few that fetch for themselves go through this
  * interface, and each surface implements it over its own backend: the web over
- * Supabase (`frontend/src/lib/db/dataSource.ts`), the desktop app over Tauri
+ * Supabase (`web/src/lib/db/dataSource.ts`), the desktop app over Tauri
  * commands into its local store. `@rail/ui` imports neither - a lint rule
  * keeps `@supabase/*` and `@tauri-apps/*` out of the package.
  *

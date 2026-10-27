@@ -24,17 +24,17 @@ import {
   fulltiltParser,
   pokerbrosParser,
   runitonceParser,
-} from "../../frontend/src/lib/parsers/index.js";
-import { ParseSkip } from "../../frontend/src/lib/phf/detect.js";
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+} from "../../web/src/lib/parsers/index.js";
+import { ParseSkip } from "../../web/src/lib/phf/detect.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
 import {
   contributionsFromActions,
   houseIntoPot,
   totalFees,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { buildReplay } from "../../frontend/src/lib/replay.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { buildReplay } from "../../web/src/lib/replay.js";
 import { otherSampleSites, sampleFiles, type SampleFile } from "./support/p2Corpus.js";
 import { BLIND_SPOT_CODES, allInvariants } from "./support/psggInvariants.js";
 

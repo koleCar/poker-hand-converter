@@ -1,6 +1,6 @@
 /**
  * Reports: your frequencies against the reference (phase A3,
- * `docs/ANALYSIS-PLAN.md` §6.3, `frontend/src/lib/analysis/reports.ts`).
+ * `docs/ANALYSIS-PLAN.md` §6.3, `web/src/lib/analysis/reports.ts`).
  *
  * Like the preflop grading suite, **no chart number is pinned**: the chart
  * set is regenerated independently (`charts/2`). What is asserted holds for
@@ -44,14 +44,14 @@ import {
   type NodeActionCount,
   type NodeClassCount,
   type NodeSample,
-} from "../../frontend/src/lib/analysis/index.js";
-import { actionTotals, GRID_CELLS } from "../../frontend/src/components/analysis/chartSpots.js";
-import { wilson } from "../../frontend/src/lib/stats/reliability.js";
-import { chartLibrary, handClassOf, loadCharts, type ChartNode, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
+} from "../../web/src/lib/analysis/index.js";
+import { actionTotals, GRID_CELLS } from "../../web/src/components/analysis/chartSpots.js";
+import { wilson } from "../../web/src/lib/stats/reliability.js";
+import { chartLibrary, handClassOf, loadCharts, type ChartNode, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
 
-const FILE = join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json");
+const FILE = join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json");
 const charts: ChartSet = loadCharts(JSON.parse(readFileSync(FILE, "utf8")));
 const nodes = [...charts.nodes.values()];
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
@@ -433,7 +433,7 @@ describe("the words", () => {
 
 describe("several chart sets (A2d)", () => {
   const nine: ChartSet = loadCharts(
-    JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
+    JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
   );
   const library = chartLibrary([charts, nine]);
   const firstIn = (set: ChartSet, actor: string) =>

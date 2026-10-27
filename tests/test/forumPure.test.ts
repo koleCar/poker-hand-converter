@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { anchorLabel } from "../../frontend/src/lib/forum/anchor.js";
-import { jsonLdScript } from "../../frontend/src/lib/forum/jsonLd.js";
-import { excerpt, linkify, toParagraphs } from "../../frontend/src/lib/forum/text.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+import { anchorLabel } from "../../web/src/lib/forum/anchor.js";
+import { jsonLdScript } from "../../web/src/lib/forum/jsonLd.js";
+import { excerpt, linkify, toParagraphs } from "../../web/src/lib/forum/text.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 
 const hand = {
   actions: [
@@ -73,8 +73,8 @@ describe("pollSpots (#51)", () => {
   it("offers only the hero's own decisions, with sane options, across the samples", async () => {
     const { readFileSync, readdirSync } = await import("node:fs");
     const { join } = await import("node:path");
-    const { convertAny } = await import("../../frontend/src/lib/parsers/index.js");
-    const { pollSpots } = await import("../../frontend/src/lib/forum/poll.js");
+    const { convertAny } = await import("../../web/src/lib/parsers/index.js");
+    const { pollSpots } = await import("../../web/src/lib/forum/poll.js");
     const dir = join(import.meta.dirname, "../../fixtures/samples/pokerstars");
     let spots = 0;
     for (const file of readdirSync(dir).filter((name) => name.endsWith(".txt"))) {

@@ -5,7 +5,7 @@ import {
   createArrivalBatcher,
   type ArrivalBatch,
   type ArrivalTimers,
-} from "../../frontend/src/lib/live/arrivals.js";
+} from "../../web/src/lib/live/arrivals.js";
 
 /** A clock the test moves by hand. */
 function fakeTimers() {

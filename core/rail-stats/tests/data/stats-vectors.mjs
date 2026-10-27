@@ -1,5 +1,5 @@
 // Writes stats-vectors.json: what the TypeScript stats engine
-// (`frontend/src/lib/stats`) derives from golden hands it has never seen
+// (`web/src/lib/stats`) derives from golden hands it has never seen
 // whole, for `rail_stats` to replay (docs/RAIL-PLAN.md R2.1).
 //
 //     cd tests && npm ci && npm run golden:emit     (esbuild; testdata/golden-full/)
@@ -46,8 +46,8 @@ const esbuild = require("esbuild");
 const bundle = await esbuild.build({
   stdin: {
     contents: `
-      export { handFacts } from "./frontend/src/lib/stats/derive.ts";
-      export { statsRows } from "./frontend/src/lib/stats/mapping.ts";
+      export { handFacts } from "./web/src/lib/stats/derive.ts";
+      export { statsRows } from "./web/src/lib/stats/mapping.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
     `,
     resolveDir: ROOT,

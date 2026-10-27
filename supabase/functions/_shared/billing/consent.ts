@@ -13,11 +13,11 @@
  * wording, this language".
  *
  * Not legal advice: the wording is a draft for the owner's and the lawyer's
- * review (`frontend/src/lib/i18n/ns/plan.*.ts`, `billing.consent`).
+ * review (`web/src/lib/i18n/ns/plan.*.ts`, `billing.consent`).
  *
  * Changing the wording (Vitest `checkoutConsent` fails until this is done):
  *  1. edit both languages in `plan.en.ts` / `plan.hr.ts` and bump
- *     `CHECKOUT_CONSENT_VERSION` in `frontend/src/lib/billing/checkout.ts`;
+ *     `CHECKOUT_CONSENT_VERSION` in `web/src/lib/billing/checkout.ts`;
  *  2. add the new version and its hashes to `CONSENT_TEXTS` below - keep the
  *     old one until every open tab has reloaded (a day), so a page from the
  *     last deploy can still buy;
@@ -35,7 +35,7 @@ export type ConsentLocale = "en" | "hr";
  * Every wording of the two checkboxes the server accepts: version -> the
  * SHA-256 (hex) of the plain statements in each language, the terms line
  * then a newline then the immediate-performance line (`consentStatements` in
- * `frontend/src/lib/billing/checkout.ts`).
+ * `web/src/lib/billing/checkout.ts`).
  */
 export const CONSENT_TEXTS: Readonly<Record<string, Readonly<Record<ConsentLocale, string>>>> = {
   "2026-10-26": {

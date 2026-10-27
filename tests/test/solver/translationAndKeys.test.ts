@@ -23,7 +23,7 @@ import {
   toRange,
   translateSize,
   type SpotKeyParts,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 describe("pseudo-harmonic action translation", () => {
   it("maps the endpoints to themselves and is decreasing in between", () => {

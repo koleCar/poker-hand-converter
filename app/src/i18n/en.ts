@@ -3,7 +3,7 @@
  * locale. `hr.ts` has the same shape, checked against `Dict` (`types.ts`), so
  * a key cannot exist in one language and not the other.
  *
- * The same pattern as the web's `frontend/src/lib/i18n/en.ts`, much smaller:
+ * The same pattern as the web's `web/src/lib/i18n/en.ts`, much smaller:
  * nested plain objects, `as const`; a string that takes an argument is a
  * function, so the argument is type-checked and a translator sees the whole
  * sentence. Components get the dictionary from `useT()` (`index.tsx`); the

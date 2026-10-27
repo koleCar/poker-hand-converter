@@ -6,7 +6,7 @@
  *   2020-12), and the schema refuses what it promises to; the checks a
  *   schema cannot make (formula grammar, names, ids, bands) are
  *   `core/rail-config`'s under `cargo test`, and `compileStats`' here.
- * - The web's copy (`frontend/src/lib/stats/definitions.json`) is the file.
+ * - The web's copy (`web/src/lib/stats/definitions.json`) is the file.
  * - Every string is in every language the web and the app speak.
  * - **Parity.** `core/rail-stats/tests/data/display-vectors.json` holds the
  *   corpus summed as reports sum it plus synthetic totals, and what
@@ -43,11 +43,11 @@ import {
   statRate,
   type DisplaySums,
   type StatsFile,
-} from "../../frontend/src/lib/stats/display.js";
-import { STANDARD_STATS } from "../../frontend/src/lib/stats/definitions.js";
-import { rates } from "../../frontend/src/lib/stats/rates.js";
-import { COUNTER_KEYS, MONEY_KEYS, type SeatCounters, type SeatMoney } from "../../frontend/src/lib/stats/types.js";
-import { LOCALES } from "../../frontend/src/lib/i18n/types.js";
+} from "../../web/src/lib/stats/display.js";
+import { STANDARD_STATS } from "../../web/src/lib/stats/definitions.js";
+import { rates } from "../../web/src/lib/stats/rates.js";
+import { COUNTER_KEYS, MONEY_KEYS, type SeatCounters, type SeatMoney } from "../../web/src/lib/stats/types.js";
+import { LOCALES } from "../../web/src/lib/i18n/types.js";
 
 const ROOT = join(import.meta.dirname, "../..");
 const text = (path: string): string => readFileSync(join(ROOT, path), "utf8");
@@ -117,7 +117,7 @@ describe("config/stats/standard.json", () => {
   });
 
   it("the web bundles the same file", () => {
-    expect(text("frontend/src/lib/stats/definitions.json")).toBe(text("config/stats/standard.json"));
+    expect(text("web/src/lib/stats/definitions.json")).toBe(text("config/stats/standard.json"));
   });
 
   it("speaks every language the web and the app speak", () => {
@@ -253,13 +253,13 @@ describe("display parity (Rust replays the same vectors)", () => {
 
 /* ------------------------------------------------------ guideline §14 - */
 
-const SCANNED = ["frontend/src", "packages/ui", "app/src", "app/src-tauri/src", "hud"];
+const SCANNED = ["web/src", "packages/ui", "app/src", "app/src-tauri/src", "hud"];
 const NOT_SCANNED = [
   // The engine: the counters, `rates.ts` (the reference the definitions are
   // held to) and the evaluator itself.
-  "frontend/src/lib/stats/",
+  "web/src/lib/stats/",
   // Generated database types (column names, no arithmetic).
-  "frontend/src/lib/db/database.types.ts",
+  "web/src/lib/db/database.types.ts",
 ];
 
 function sources(dir: string, out: string[] = []): string[] {
@@ -311,11 +311,11 @@ const KNOWN: Record<string, number> = {
   // screen, whose columns are definitions.)
   // Opponents table: thin-sample marks from opportunity counters (`< 20`; the
   // scan sees the line that names the pair).
-  "frontend/src/components/stats/OpponentsPanel.tsx": 1,
+  "web/src/components/stats/OpponentsPanel.tsx": 1,
   // The learn module's pool statistics: [made, opp] pairs over population data.
-  "frontend/src/lib/learn/pool.ts": 8,
+  "web/src/lib/learn/pool.ts": 8,
   // A villain's VPIP inputs handed to the analysis's player-type heuristic.
-  "frontend/src/lib/db/analysis.ts": 1,
+  "web/src/lib/db/analysis.ts": 1,
 };
 
 describe("guideline §14: a new statistic is a definition in config/stats/", () => {

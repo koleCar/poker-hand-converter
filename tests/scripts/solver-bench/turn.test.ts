@@ -41,15 +41,15 @@ import {
   type BetMenu,
   type SolveResult,
   type TurnSpot,
-} from "../../../frontend/src/lib/solver/index.js";
-import { grade } from "../../../frontend/src/lib/analysis/grading.js";
+} from "../../../web/src/lib/solver/index.js";
+import { grade } from "../../../web/src/lib/analysis/grading.js";
 import {
   TURN_DCFR,
   TURN_MENU,
   TURN_RAISE_CAP,
   TURN_RIVER_MENU,
   TURN_RIVER_RAISE_CAP,
-} from "../../../frontend/src/lib/analysis/turn.js";
+} from "../../../web/src/lib/analysis/turn.js";
 
 const BB_DEF =
   "TT-22,AJs-A2s,KJs-K5s,QJs-Q8s,JTs-J8s,T9s-T7s,98s-96s,87s-85s,76s-75s,65s-64s,54s,AJo-A8o,KJo-K9o,QJo-Q9o,JTo-J9o,T9o";

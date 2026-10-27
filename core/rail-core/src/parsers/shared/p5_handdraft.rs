@@ -1,5 +1,5 @@
 //! The draft -> PHF builder of Ignition / Bodog / Bovada and ACR / WPN
-//! (`frontend/src/lib/parsers/shared/p5-handdraft.ts`, R0.10b).
+//! (`web/src/lib/parsers/shared/p5-handdraft.ts`, R0.10b).
 //!
 //! The third sibling of [`super::p2_handbuilder`] (which derives the whole
 //! settlement) and [`super::p6_handbuilder`] (which derives it and checks it
@@ -921,8 +921,7 @@ mod tests {
     use super::*;
     use crate::phf::money::{CHIPS, USD};
 
-    const SOURCE: &str =
-        include_str!("../../../../../frontend/src/lib/parsers/shared/p5-handdraft.ts");
+    const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/shared/p5-handdraft.ts");
 
     #[test]
     fn literals_are_the_typescript_source() {

@@ -37,9 +37,9 @@ import {
   type FlopEntry,
   type FlopProfile,
   type LibraryFetch,
-} from "../../frontend/src/lib/analysis/index.js";
-import { chartLibrary, loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { cardCode, cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
+} from "../../web/src/lib/analysis/index.js";
+import { chartLibrary, loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { cardCode, cardIndex } from "../../web/src/lib/equity/evaluator.js";
 import {
   canonicalFlops,
   chunkHeader,
@@ -61,16 +61,16 @@ import {
   representativeCoverage,
   straightPairs,
   type FlopChunk,
-} from "../../frontend/src/lib/solver/index.js";
-import { buildContext } from "../../frontend/src/lib/stats/context.js";
-import { NINE_SCRIPT_POSITIONS, scriptHand, seatOf, type HandScript, type ScriptAct } from "../../frontend/src/lib/training/handText.js";
-import { lineActs } from "../../frontend/src/lib/training/preflop.js";
+} from "../../web/src/lib/solver/index.js";
+import { buildContext } from "../../web/src/lib/stats/context.js";
+import { NINE_SCRIPT_POSITIONS, scriptHand, seatOf, type HandScript, type ScriptAct } from "../../web/src/lib/training/handText.js";
+import { lineActs } from "../../web/src/lib/training/preflop.js";
 import { jobHeader, solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
 import { fullLibrary } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 /* ------------------------------------------------------------ the set - */
@@ -601,7 +601,7 @@ describe("the analysis reading the library", () => {
 
 describe("the library's lines on every table", () => {
   const CHARTS9: ChartSet = loadCharts(
-    JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
+    JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
   );
 
   it("plays every 6-max and full-ring line on its own set, heads-up to the flop", () => {

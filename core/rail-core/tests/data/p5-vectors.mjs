@@ -1,5 +1,5 @@
 // Writes p5-vectors.json: what the TypeScript ACR / WPN and Ignition parsers
-// (`frontend/src/lib/parsers/{acrwpn,ignition}.ts`) and their shared builder
+// (`web/src/lib/parsers/{acrwpn,ignition}.ts`) and their shared builder
 // (`shared/p5-handdraft.ts`) make of texts and drafts the corpus does not
 // have, for `rail_core::parsers` to replay (docs/RAIL-PLAN.md R0.10b).
 //
@@ -58,13 +58,13 @@ const bundle = await esbuild.build({
   stdin: {
     contents: `
       export { acrwpnParser, ignitionParser, convertAny, detectSite }
-        from "./frontend/src/lib/parsers/index.ts";
-      export { wpnDialect } from "./frontend/src/lib/parsers/acrwpn.ts";
+        from "./web/src/lib/parsers/index.ts";
+      export { wpnDialect } from "./web/src/lib/parsers/acrwpn.ts";
       export { p5BuildHand, p5DraftToStandardText }
-        from "./frontend/src/lib/parsers/shared/p5-handdraft.ts";
-      export { ParseSkip } from "./frontend/src/lib/phf/detect.ts";
-      export { USD, EUR, CHIPS } from "./frontend/src/lib/phf/types.ts";
-      export { decodeSource } from "./frontend/src/components/converter/inputs.ts";
+        from "./web/src/lib/parsers/shared/p5-handdraft.ts";
+      export { ParseSkip } from "./web/src/lib/phf/detect.ts";
+      export { USD, EUR, CHIPS } from "./web/src/lib/phf/types.ts";
+      export { decodeSource } from "./web/src/components/converter/inputs.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
     `,
     resolveDir: ROOT,

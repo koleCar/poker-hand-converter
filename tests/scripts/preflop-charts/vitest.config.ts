@@ -1,7 +1,7 @@
 // The preflop chart generator is not part of `npm test`: it runs for minutes
 // and writes the committed chart set. Run it with `npm run charts:generate`
 // from `tests/` (see docs/CHARTS.md). Vitest is only the runner here, as for
-// the solver benchmark: it resolves the frontend's extensionless imports
+// the solver benchmark: it resolves the web's extensionless imports
 // without a build step.
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";

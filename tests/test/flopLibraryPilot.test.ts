@@ -11,8 +11,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { analyzeHand, FLOP_PROFILE, memoryLibrary } from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
+import { analyzeHand, FLOP_PROFILE, memoryLibrary } from "../../web/src/lib/analysis/index.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
 import {
   chunkHeader,
   decodeChunk,
@@ -22,12 +22,12 @@ import {
   SOLVER_VERSION,
   type FlopChunk,
   type FlopManifest,
-} from "../../frontend/src/lib/solver/index.js";
-import { scriptHand, type ScriptAct } from "../../frontend/src/lib/training/handText.js";
-import { lineActs } from "../../frontend/src/lib/training/preflop.js";
+} from "../../web/src/lib/solver/index.js";
+import { scriptHand, type ScriptAct } from "../../web/src/lib/training/handText.js";
+import { lineActs } from "../../web/src/lib/training/preflop.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot", CHARTS.id, FLOP_PROFILE.tree);
 const PRESENT = existsSync(join(DIR, "manifest.json"));

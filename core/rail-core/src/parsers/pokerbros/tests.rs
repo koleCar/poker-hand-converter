@@ -5,7 +5,7 @@
 
 use super::*;
 
-const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/pokerbros.ts");
+const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/pokerbros.ts");
 
 #[test]
 fn patterns_are_the_typescript_source() {

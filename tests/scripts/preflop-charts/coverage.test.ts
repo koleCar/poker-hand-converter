@@ -17,20 +17,20 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { analyzeHand } from "../../../frontend/src/lib/analysis/index.js";
+import { analyzeHand } from "../../../web/src/lib/analysis/index.js";
 import {
   CHART_SETS,
   chartLibrary,
   DEFAULT_CHART_SET,
   loadCharts,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+} from "../../../web/src/lib/charts/index.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import { weplayFiles } from "../../test/support/corpus.js";
 import { ggCorpusFiles } from "../../test/support/psggCorpus.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const load = (id: string) => loadCharts(JSON.parse(readFileSync(join(DATA, `${id}.json`), "utf8")));
 
 async function parse(files: { name: string; text: string }[]): Promise<PhfHand[]> {

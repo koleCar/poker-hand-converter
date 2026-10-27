@@ -5,7 +5,7 @@
  * the web's library renders it too. Each surface keeps its own data layer and
  * implements `HandsSource` over it: the app over Tauri commands into its local
  * store (`app/src/lib/handsSource.ts`), the web over Supabase
- * (`frontend/src/lib/db/handsSource.ts`, `library_page` / `library_facets`).
+ * (`web/src/lib/db/handsSource.ts`, `library_page` / `library_facets`).
  * The shapes are the app's store DTOs (`hands::HandRowDto`, `FacetsDto`), with
  * the few fields only one surface has made optional.
  */

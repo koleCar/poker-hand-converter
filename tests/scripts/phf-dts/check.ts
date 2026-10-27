@@ -1,7 +1,7 @@
 /**
  * The TypeScript declarations generated from the Rust PHF model
  * (`core/rail-core-wasm/types/phf.d.ts`, docs/RAIL-PLAN.md R0.4) declare exactly
- * the types of `frontend/src/lib/phf/types.ts`.
+ * the types of `web/src/lib/phf/types.ts`.
  *
  * Type-level only: `npm run phf:dts-check` type-checks this file with `tsc` and
  * nothing runs. Each `same<...>()` line fails to compile when the two sides are
@@ -22,7 +22,7 @@
  * declarations, so it cannot tell whether a field the types allow ever occurs -
  * the golden round trip (`cargo test`) covers the values.
  */
-import type * as Ts from "../../../frontend/src/lib/phf/types";
+import type * as Ts from "../../../web/src/lib/phf/types";
 import type * as Rs from "../../../core/rail-core-wasm/types/phf";
 
 /** `true` when A and B are identical types, not merely mutually assignable. */

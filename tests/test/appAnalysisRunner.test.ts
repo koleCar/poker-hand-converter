@@ -24,7 +24,7 @@ import type { StoreHandRow } from "../../app/src/analysis/rows";
 import { AnalysisRunner, PAGE, type PendingDto, type RunnerCounts, type RunnerDeps, type RunnerGate } from "../../app/src/analysis/runner";
 import { BASE, createWorker, OFFLINE_MS, type FetchOutcome, type WorkerRequest, type WorkerResponse } from "../../app/src/analysis/worker";
 import { fetchOutcomeOfError, Stopped, workerAnalyser } from "../../app/src/analysis/workerClient";
-import { FlopLibraryLoader } from "../../frontend/src/lib/analysis/index";
+import { FlopLibraryLoader } from "../../web/src/lib/analysis/index";
 
 const V = "analysis/34";
 

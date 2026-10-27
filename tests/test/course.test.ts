@@ -1,5 +1,5 @@
 /**
- * The Learn tab (L1, `frontend/src/lib/learn/course.ts` and friends), pinned.
+ * The Learn tab (L1, `web/src/lib/learn/course.ts` and friends), pinned.
  *
  * 1. **The catalogue**: the five tracks in the order of a hand (L1.1); every
  *    lesson id, prerequisite, concept, chart set, seat and flag resolves;
@@ -31,16 +31,16 @@
 
 import { describe, expect, it } from "vitest";
 
-import { boardTexture, toIndices } from "../../frontend/src/lib/analysis/texture.js";
-import { grade } from "../../frontend/src/lib/analysis/grading.js";
-import { FLAG_CODES, GRADES, type OptionAnalysis } from "../../frontend/src/lib/analysis/types.js";
-import { CHART_SETS } from "../../frontend/src/lib/charts/index.js";
-import { cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
-import { CONCEPT_IDS, WIDGET_IDS, type WidgetPreset } from "../../frontend/src/lib/learn/concepts.js";
-import { FLOP_LIBRARY_ENABLED, FLOP_LINES } from "../../frontend/src/lib/analysis/flopLibrary.js";
-import { FLOP_BET_SPOTS } from "../../frontend/src/lib/learn/flopBets.js";
+import { boardTexture, toIndices } from "../../web/src/lib/analysis/texture.js";
+import { grade } from "../../web/src/lib/analysis/grading.js";
+import { FLAG_CODES, GRADES, type OptionAnalysis } from "../../web/src/lib/analysis/types.js";
+import { CHART_SETS } from "../../web/src/lib/charts/index.js";
+import { cardIndex } from "../../web/src/lib/equity/evaluator.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
+import { CONCEPT_IDS, WIDGET_IDS, type WidgetPreset } from "../../web/src/lib/learn/concepts.js";
+import { FLOP_LIBRARY_ENABLED, FLOP_LINES } from "../../web/src/lib/analysis/flopLibrary.js";
+import { FLOP_BET_SPOTS } from "../../web/src/lib/learn/flopBets.js";
 import {
   CALC_KINDS,
   CLASSIFY_KINDS,
@@ -71,10 +71,10 @@ import {
   writtenLessons,
   type GeneratedExerciseDef,
   type LessonId,
-} from "../../frontend/src/lib/learn/course.js";
-import { checkHolds, MATH } from "../../frontend/src/lib/learn/lessons/checks.js";
-import { LESSON_BODIES, LESSON_OUTLINES, REFERENCE_BODIES } from "../../frontend/src/lib/learn/lessons/index.js";
-import { plainText, refLinks, type LessonBlock, type LessonBody, type MathCheck } from "../../frontend/src/lib/learn/lessons/types.js";
+} from "../../web/src/lib/learn/course.js";
+import { checkHolds, MATH } from "../../web/src/lib/learn/lessons/checks.js";
+import { LESSON_BODIES, LESSON_OUTLINES, REFERENCE_BODIES } from "../../web/src/lib/learn/lessons/index.js";
+import { plainText, refLinks, type LessonBlock, type LessonBody, type MathCheck } from "../../web/src/lib/learn/lessons/types.js";
 import {
   CLOSE_MAX,
   RAISER_FAVOURED,
@@ -89,9 +89,9 @@ import {
   potTrackingScript,
   profileBucket,
   PROFILE_BUCKETS,
-} from "../../frontend/src/lib/learn/practice.js";
-import { scriptHand } from "../../frontend/src/lib/training/handText.js";
-import { COMBO_PRESETS, MATCHUP_PRESETS, RANGE_TEXT } from "../../frontend/src/lib/learn/presets.js";
+} from "../../web/src/lib/learn/practice.js";
+import { scriptHand } from "../../web/src/lib/training/handText.js";
+import { COMBO_PRESETS, MATCHUP_PRESETS, RANGE_TEXT } from "../../web/src/lib/learn/presets.js";
 import {
   addLocalCards,
   applyResult,
@@ -108,13 +108,13 @@ import {
   reviewLocalCard,
   TESTED_OUT,
   type ProgressMap,
-} from "../../frontend/src/lib/learn/progress.js";
-import { globMatch, lessonForArea, patternScore, recommend } from "../../frontend/src/lib/learn/recommend.js";
-import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES } from "../../frontend/src/lib/training/preflop.js";
-import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../frontend/src/lib/training/river.js";
-import { LAB_PRESET_IDS } from "../../frontend/src/lib/training/labPresets.js";
-import { marginOfError, sampleNeeded } from "../../frontend/src/lib/learn/math.js";
-import { MIN_CHANCES, POOL_STATS, POOL_TOPIC_STATS, poolOf, poolReads, poolStat } from "../../frontend/src/lib/learn/pool.js";
+} from "../../web/src/lib/learn/progress.js";
+import { globMatch, lessonForArea, patternScore, recommend } from "../../web/src/lib/learn/recommend.js";
+import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES } from "../../web/src/lib/training/preflop.js";
+import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../web/src/lib/training/river.js";
+import { LAB_PRESET_IDS } from "../../web/src/lib/training/labPresets.js";
+import { marginOfError, sampleNeeded } from "../../web/src/lib/learn/math.js";
+import { MIN_CHANCES, POOL_STATS, POOL_TOPIC_STATS, poolOf, poolReads, poolStat } from "../../web/src/lib/learn/pool.js";
 
 const NOW = new Date("2026-10-06T10:00:00Z");
 

@@ -3,7 +3,7 @@
  * `PlayersSource` it implements - the desktop app over its local store
  * (`rail_store::players`, `app/src/lib/playersSource.ts`), the web over its
  * server summaries (`players_list` / `player_profile`,
- * `frontend/src/lib/db/playersSource.ts`). The shapes are the app's
+ * `web/src/lib/db/playersSource.ts`). The shapes are the app's
  * commands' DTOs (`app/src-tauri/src/players.rs`), which the app's `ipc.ts`
  * re-exports.
  *

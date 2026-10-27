@@ -18,11 +18,11 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs
 import { join } from "node:path";
 import { it } from "vitest";
 
-import * as analysis from "../../../frontend/src/lib/analysis/index.js";
-import * as charts from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
+import * as analysis from "../../../web/src/lib/analysis/index.js";
+import * as charts from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
+import { handFacts } from "../../../web/src/lib/stats/derive.js";
 
 const FILE = process.env.CALLERS_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
@@ -41,7 +41,7 @@ it("measures the opponents' own statistics on a stored library", { timeout: 24 *
     console.log("CALLERS_HANDS and FLOPLIB_DIR must both be set; nothing to do");
     return;
   }
-  const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+  const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
   const sets = charts.CHART_SETS.map((spec) => charts.loadCharts(JSON.parse(readFileSync(join(DATA, `${spec.id}.json`), "utf8"))));
   const single = sets.find((s) => s.id === charts.DEFAULT_CHART_SET)!;
   const library = charts.chartLibrary([single, ...sets.filter((s) => s !== single)]);
