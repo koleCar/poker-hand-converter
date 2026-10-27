@@ -165,8 +165,7 @@ mod tests {
     use super::*;
     use crate::phf::is_hi_lo_label;
 
-    const SOURCE: &str =
-        include_str!("../../../../../web/src/lib/parsers/shared/variant-lock.ts");
+    const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/shared/variant-lock.ts");
 
     #[test]
     fn every_pattern_is_the_typescript_source_verbatim() {

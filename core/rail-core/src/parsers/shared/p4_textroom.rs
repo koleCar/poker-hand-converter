@@ -256,8 +256,7 @@ mod tests {
     use super::*;
     use crate::phf::money::{EUR, USD};
 
-    const SOURCE: &str =
-        include_str!("../../../../../web/src/lib/parsers/shared/p4-textroom.ts");
+    const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/shared/p4-textroom.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {
