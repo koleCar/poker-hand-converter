@@ -1,5 +1,5 @@
 //! The draft -> PHF builder of Winamax and the Chico network
-//! (`frontend/src/lib/parsers/shared/p6-handbuilder.ts`, R0.10a).
+//! (`web/src/lib/parsers/shared/p6-handbuilder.ts`, R0.10a).
 //!
 //! Both rooms state a hand the same way - a seat list, an ordered action
 //! stream in "chips added" form, and a settlement block - so each site parser
@@ -1012,7 +1012,7 @@ mod tests {
     use crate::phf::money::{CHIPS, EUR};
 
     const SOURCE: &str =
-        include_str!("../../../../../frontend/src/lib/parsers/shared/p6-handbuilder.ts");
+        include_str!("../../../../../web/src/lib/parsers/shared/p6-handbuilder.ts");
 
     #[test]
     fn literals_are_the_typescript_source() {

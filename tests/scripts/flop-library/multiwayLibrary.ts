@@ -39,9 +39,9 @@
  * pot's size and the stack-to-pot ratio do not have to match.
  */
 
-import type { ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { isChartLibrary, pickChartSet, preflopSpotFromHand } from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+import type { ChartSet } from "../../../web/src/lib/charts/index.js";
+import { isChartLibrary, pickChartSet, preflopSpotFromHand } from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import {
   canonicalBoard,
   comboHi,
@@ -55,8 +55,8 @@ import {
   rangesAt,
   type FlopChunk,
   type SolvedNode,
-} from "../../../frontend/src/lib/solver/index.js";
-import type { StatsContext } from "../../../frontend/src/lib/stats/context.js";
+} from "../../../web/src/lib/solver/index.js";
+import type { StatsContext } from "../../../web/src/lib/stats/context.js";
 import {
   categoryReader,
   FLOP_PROFILE,
@@ -76,7 +76,7 @@ import {
   type NarrowingModel,
   type NarrowInput,
   type StreetAct,
-} from "../../../frontend/src/lib/analysis/index.js";
+} from "../../../web/src/lib/analysis/index.js";
 
 /** The model id: `mwlib:flop-m1`. */
 export const MULTIWAY_LIBRARY_MODEL = `mwlib:${FLOP_PROFILE.tree}`;

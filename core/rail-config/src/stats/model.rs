@@ -36,7 +36,7 @@ pub struct StatDef {
 }
 
 /// A string in every language the app and the web speak (`LOCALES` of
-/// `frontend/src/lib/i18n/types.ts` and of `app/src/i18n/types.ts`).
+/// `web/src/lib/i18n/types.ts` and of `app/src/i18n/types.ts`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Text {

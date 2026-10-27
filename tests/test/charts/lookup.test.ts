@@ -21,13 +21,13 @@ import {
   type ChartLookup,
   type PreflopActionInput,
   type PreflopSpot,
-} from "../../../frontend/src/lib/charts/index.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import { positionRing, type PhfHand, type Position } from "../../../frontend/src/lib/phf/types.js";
-import { HAND_CLASSES } from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/charts/index.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import { positionRing, type PhfHand, type Position } from "../../../web/src/lib/phf/types.js";
+import { HAND_CLASSES } from "../../../web/src/lib/solver/index.js";
 import { ggFiles } from "../support/corpus.js";
 
-const FILE = join(import.meta.dirname, "../../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json");
+const FILE = join(import.meta.dirname, "../../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json");
 const charts = loadCharts(JSON.parse(readFileSync(FILE, "utf8")));
 const SIX: Position[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 

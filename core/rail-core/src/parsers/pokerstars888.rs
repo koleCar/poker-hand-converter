@@ -1,5 +1,5 @@
 //! `888poker`: 888poker and its skins - Pacific Poker, LuckyAcePoker.com,
-//! Cassava (`frontend/src/lib/parsers/pokerstars888.ts`; the file name is the
+//! Cassava (`web/src/lib/parsers/pokerstars888.ts`; the file name is the
 //! one the TypeScript parser was commissioned under).
 //!
 //! The PartyGaming skeleton in 888's vocabulary: a `#Game No :` preamble, a
@@ -504,7 +504,7 @@ impl SiteParser for Poker888Parser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/pokerstars888.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/pokerstars888.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

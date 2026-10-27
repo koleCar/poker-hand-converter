@@ -3,7 +3,7 @@
  * (`UiStrings.intlLocale`). Presentation only: no arithmetic.
  *
  * One `Intl.NumberFormat` per locale and options, shared with the web's own
- * statistics screens (`frontend/src/components/stats/format.ts` re-exports
+ * statistics screens (`web/src/components/stats/format.ts` re-exports
  * these), so a page builds each formatter once.
  */
 

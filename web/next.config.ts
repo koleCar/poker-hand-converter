@@ -6,13 +6,13 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 /**
  * Next.js configuration.
  *
- * ## Why the root directory is still `frontend`
+ * ## Why the App Router lives under `src/`
  *
- * `tests/test/*.ts` imports `../../frontend/src/lib/phf/serialize.js` and a
+ * `tests/test/*.ts` imports `../../web/src/lib/phf/serialize.js` and a
  * dozen more relative paths, and 3114 tests across 435 fixtures hang off them.
- * Moving the app to a sibling directory, or hoisting `src/` a level, would
- * break every one of them. So the App Router lives at `frontend/src/app/`,
- * which Next resolves natively, and `frontend/src/lib/**` did not move a byte.
+ * Hoisting `src/` a level would break every one of them. So the App Router
+ * lives at `web/src/app/`, which Next resolves natively. (The folder was
+ * `frontend/` until R0.14 renamed it.)
  *
  * ## Redirects
  *
@@ -34,7 +34,7 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
  * which is this folder unless told otherwise, so in development the root is the
  * repository. The production build keeps its default root (this folder), so
  * its output and file tracing are what they were before the package existed.
- * On Vercel the root directory stays `frontend`; the build needs the
+ * On Vercel the root directory is `web` (R0.14); the build needs the
  * repository's other files, which Vercel includes by default ("Include files
  * outside the root directory in the Build Step", docs/WEB.md).
  */

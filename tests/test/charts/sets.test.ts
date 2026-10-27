@@ -33,9 +33,9 @@ import {
   isOpenLimpNode,
   MAX_SELF_LOSS,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
-import { walkLine } from "../../../frontend/src/lib/analysis/reports.js";
-import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/charts/index.js";
+import { walkLine } from "../../../web/src/lib/analysis/reports.js";
+import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../web/src/lib/solver/index.js";
 import { chartSet, fileOf } from "./support.js";
 
 const H = NUM_CLASSES;

@@ -1,5 +1,5 @@
 // Writes reliability-vectors.json: the web's sample reliability
-// (`frontend/src/lib/stats/reliability.ts`, applied by `display.ts`'s
+// (`web/src/lib/stats/reliability.ts`, applied by `display.ts`'s
 // `statReliability`) for `rail_stats::reliability` to replay
 // (docs/RAIL-PLAN.md R2.5, `tests/reliability.rs`).
 //
@@ -42,10 +42,10 @@ const esbuild = require("esbuild");
 const bundle = await esbuild.build({
   stdin: {
     contents: `
-      export { COUNTER_KEYS, MONEY_KEYS } from "./frontend/src/lib/stats/types.ts";
-      export { compileStats, showStat, statRate } from "./frontend/src/lib/stats/display.ts";
-      export { OPACITY_FLOOR, WILSON_Z, sampleReliability, wilson } from "./frontend/src/lib/stats/reliability.ts";
-      export { wilsonInterval } from "./frontend/src/lib/analysis/reports.ts";
+      export { COUNTER_KEYS, MONEY_KEYS } from "./web/src/lib/stats/types.ts";
+      export { compileStats, showStat, statRate } from "./web/src/lib/stats/display.ts";
+      export { OPACITY_FLOOR, WILSON_Z, sampleReliability, wilson } from "./web/src/lib/stats/reliability.ts";
+      export { wilsonInterval } from "./web/src/lib/analysis/reports.ts";
     `,
     resolveDir: ROOT,
     loader: "ts",

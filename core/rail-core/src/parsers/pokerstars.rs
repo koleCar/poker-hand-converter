@@ -1,4 +1,4 @@
-//! `pokerstars`: PokerStars (`frontend/src/lib/parsers/pokerstars.ts`).
+//! `pokerstars`: PokerStars (`web/src/lib/parsers/pokerstars.ts`).
 //!
 //! The reference dialect every other room imitates: cash and tournament,
 //! Zoom, Home Games, play money, every currency, antes, run-it-twice, side

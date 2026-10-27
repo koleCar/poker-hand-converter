@@ -1,5 +1,5 @@
 // Caller-range study (analysis/19): the shipped fit (`population/1` in
-// frontend/src/lib/analysis/population.ts), on every shown hand, and the
+// web/src/lib/analysis/population.ts), on every shown hand, and the
 // fitted ranges as 13x13 grids:
 //   CALLERS_OUT=/local/shown.jsonl WEIGHT=1 node fit.mjs
 import { rows, NAMES, combos } from "./lib.mjs";

@@ -6,7 +6,7 @@
  *   app's groups, as a query and as a saved filter.
  * - The row of chips each source gets (`handGroups`): tags and notes only
  *   where kept, the searches and the order only where the source has them.
- * - The web's source (`frontend/src/lib/db/handsSource.ts`) against a faked
+ * - The web's source (`web/src/lib/db/handsSource.ts`) against a faked
  *   `rpc`: what it asks `library_page` / `library_facets` for, and the rows
  *   and counts it hands the screen.
  * - The list and the filter row rendered to markup (React from the web's
@@ -31,7 +31,7 @@ import { replayerEn } from "@rail/ui/strings/replayer.en";
 import { replayerHr } from "@rail/ui/strings/replayer.hr";
 
 const rpc = vi.fn();
-vi.mock("../../frontend/src/lib/db/client.js", () => ({ rpc: (...args: unknown[]) => rpc(...args) }));
+vi.mock("../../web/src/lib/db/client.js", () => ({ rpc: (...args: unknown[]) => rpc(...args) }));
 
 const NOW = new Date(2026, 9, 14, 15, 30);
 
@@ -200,7 +200,7 @@ describe("the web's source", () => {
   beforeEach(() => rpc.mockReset());
 
   it("asks library_page with the screen's filter, its versions and the cursor", async () => {
-    const { webHandsSource } = await import("../../frontend/src/lib/db/handsSource.js");
+    const { webHandsSource } = await import("../../web/src/lib/db/handsSource.js");
     rpc.mockResolvedValueOnce({
       rows: [{ ...WEB_ROW, siteName: undefined, positionalNames: undefined, anonymization: "positional" }],
       next: { value: "2026-10-14T12:00:00+00:00", id: WEB_ROW.handKey },
@@ -228,7 +228,7 @@ describe("the web's source", () => {
   });
 
   it("names the rooms of the counts and has no tags or notes", async () => {
-    const { webHandsSource } = await import("../../frontend/src/lib/db/handsSource.js");
+    const { webHandsSource } = await import("../../web/src/lib/db/handsSource.js");
     rpc.mockResolvedValueOnce({
       total: 3,
       library: 10,
@@ -249,7 +249,7 @@ describe("the web's source", () => {
   });
 
   it("passes the library's other filters as they are, counts the names, and says it has them", async () => {
-    const { webHandsSource } = await import("../../frontend/src/lib/db/handsSource.js");
+    const { webHandsSource } = await import("../../web/src/lib/db/handsSource.js");
     rpc.mockResolvedValueOnce({ rows: [], next: null });
     rpc.mockResolvedValueOnce({ total: 1, anonymizations: [{ value: "positional", count: 1 }] });
     const source = webHandsSource("x");
@@ -270,7 +270,7 @@ describe("the web's source", () => {
   });
 
   it("passes live arrivals to the list", async () => {
-    const { notifyHandsChanged, webHandsSource } = await import("../../frontend/src/lib/db/handsSource.js");
+    const { notifyHandsChanged, webHandsSource } = await import("../../web/src/lib/db/handsSource.js");
     const listener = vi.fn();
     const stop = webHandsSource("x").onChanged?.(listener);
     notifyHandsChanged();

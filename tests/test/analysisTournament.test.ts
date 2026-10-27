@@ -19,15 +19,15 @@ import {
   type DecisionAnalysis,
   type HandAnalysis,
   type TournamentSettings,
-} from "../../frontend/src/lib/analysis/index.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/analysis/index.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { shippedNodeKey } from "../../packages/ui/charts/nodeKey.js";
 import { preflopFields } from "../../app/src/analysis/rows";
-import { decisionRow } from "../../frontend/src/lib/db/analysisRows.js";
+import { decisionRow } from "../../web/src/lib/db/analysisRows.js";
 import { fullLibrary } from "./charts/support.js";
 import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles, readTree, type CorpusFile } from "./support/psggCorpus.js";

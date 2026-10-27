@@ -13,9 +13,9 @@ import {
   loadCharts,
   type ChartLibrary,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
+} from "../../../web/src/lib/charts/index.js";
 
-export const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+export const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 
 export const fileOf = (id: string) => join(DATA, `${id}.json`);
 

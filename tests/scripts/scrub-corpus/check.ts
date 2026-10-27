@@ -5,8 +5,8 @@
 // replayer cannot handle.
 import { createReadStream, readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
-import { toStandardText } from "../../../frontend/src/lib/phf/serialize.js";
-import { buildReplay } from "../../../frontend/src/lib/replay.js";
+import { toStandardText } from "../../../web/src/lib/phf/serialize.js";
+import { buildReplay } from "../../../web/src/lib/replay.js";
 
 const [corpusPath, scrubbedPath] = process.argv.slice(2);
 const originals = new Map<number, any>();

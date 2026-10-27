@@ -1,4 +1,4 @@
-/* The web's token rules (`frontend/stylelint.config.js`), for the package that
+/* The web's token rules (`web/stylelint.config.js`), for the package that
  * now holds the token layer:
  *
  *   1. no primitive tokens (`--n-800`) outside `tokens/`;

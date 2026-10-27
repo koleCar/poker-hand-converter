@@ -37,8 +37,8 @@ import {
   type BetMenu,
   type BuiltSubgame,
   type TurnSpot,
-} from "../../../frontend/src/lib/solver/index.js";
-import { cardCode, cardIndex } from "../../../frontend/src/lib/equity/index.js";
+} from "../../../web/src/lib/solver/index.js";
+import { cardCode, cardIndex } from "../../../web/src/lib/equity/index.js";
 
 const MENU: BetMenu = { bet: [0.75], raise: [], allIn: true };
 // A two-tone turn: diamonds and clubs are off the board, so they are interchangeable.

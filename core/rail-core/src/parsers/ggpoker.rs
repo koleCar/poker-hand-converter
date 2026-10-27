@@ -1,4 +1,4 @@
-//! `ggpoker`: GGPoker (`frontend/src/lib/parsers/ggpoker.ts`).
+//! `ggpoker`: GGPoker (`web/src/lib/parsers/ggpoker.ts`).
 //!
 //! GG's export is the text the standard format was modelled on, so the
 //! `standard` parser already reads a plain GG cash hand - and on those bytes

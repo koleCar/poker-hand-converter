@@ -26,9 +26,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { categoryReader, coarseChain, readingChain, type CategoryChain } from "../../../frontend/src/lib/analysis/flopLibrary.js";
-import { grade } from "../../../frontend/src/lib/analysis/grading.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
+import { categoryReader, coarseChain, readingChain, type CategoryChain } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { grade } from "../../../web/src/lib/analysis/grading.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
 import {
   comboHi,
   comboLo,
@@ -38,7 +38,7 @@ import {
   mapFlop,
   rangesAt,
   type FlopChunk,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 export interface PairMetrics {
   /** Mapped vs truth. */

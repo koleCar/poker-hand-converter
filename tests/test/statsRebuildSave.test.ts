@@ -1,13 +1,13 @@
 /**
  * The statistics rebuild's writes (docs/RAIL-PLAN.md R4.4, finding F1):
- * `frontend/src/lib/db/statsSave.ts`, against a fake `save_hand_stats` that
+ * `web/src/lib/db/statsSave.ts`, against a fake `save_hand_stats` that
  * refuses a whole call when one of its rows breaks a constraint, as the
  * database does.
  */
 
 import { describe, expect, it } from "vitest";
 
-import { isRowRefusal, saveRowsByHand, type SaveError } from "../../frontend/src/lib/db/statsSave";
+import { isRowRefusal, saveRowsByHand, type SaveError } from "../../web/src/lib/db/statsSave";
 
 type Row = { hand_key: string; seat: number };
 

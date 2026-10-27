@@ -19,8 +19,8 @@ import { ShareNamesToggle } from "../../../components/share/ShareNamesToggle";
  *
  * ## What this replaced
  *
- * `frontend/api/share-meta.ts` plus the User-Agent rewrite in
- * `frontend/vercel.json`. Both are deleted. That setup served a stripped HTML
+ * `web/api/share-meta.ts` plus the User-Agent rewrite in
+ * `web/vercel.json`. Both are deleted. That setup served a stripped HTML
  * document with per-hand Open Graph tags *only* to requests whose UA matched a
  * crawler regex, and gave humans the SPA with generic tags patched in by an
  * effect after hydration.

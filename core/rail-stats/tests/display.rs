@@ -1,6 +1,6 @@
 //! The display definitions (docs/RAIL-PLAN.md R2.4) against the web's
 //! evaluator: `tests/data/display-vectors.json`, written by
-//! `display-vectors.mjs` from `frontend/src/lib/stats/display.ts` - which
+//! `display-vectors.mjs` from `web/src/lib/stats/display.ts` - which
 //! that script holds to `rates.ts` (the same doubles) and to the web's
 //! `Intl.NumberFormat` (the same text) before writing a case.
 //!

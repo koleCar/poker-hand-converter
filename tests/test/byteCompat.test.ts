@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { splitStandardHands, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { splitStandardHands, toStandardText } from "../../web/src/lib/phf/serialize.js";
 import { convertCashWeplayFile as legacyConvert } from "./legacy/legacyConverter.js";
 import { weplayFiles } from "./support/corpus.js";
 

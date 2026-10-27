@@ -3,7 +3,7 @@
  *
  * ## Adding a site
  *
- * 1. Create `frontend/src/lib/parsers/<site>.ts` exporting a `SiteParser`
+ * 1. Create `web/src/lib/parsers/<site>.ts` exporting a `SiteParser`
  *    (see `docs/PHF-SPEC.md`, "How to write a new site parser", for an
  *    annotated skeleton).
  * 2. Import it here and add one `registerParser` call.

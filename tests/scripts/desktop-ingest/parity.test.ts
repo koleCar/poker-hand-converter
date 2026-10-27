@@ -32,11 +32,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { decodeSource } from "../../../frontend/src/components/converter/inputs.js";
-import { handInsertFromPhf } from "../../../frontend/src/lib/db/mapping.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import { toStandardText } from "../../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+import { decodeSource } from "../../../web/src/components/converter/inputs.js";
+import { handInsertFromPhf } from "../../../web/src/lib/db/mapping.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import { toStandardText } from "../../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import { PINNED_PARSED_AT, ROOT, listInputs } from "../golden/emit.js";
 
 const FIXTURE = join(ROOT, "supabase/tests/database/desktop_ingest_parity.test.sql");

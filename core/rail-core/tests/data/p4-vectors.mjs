@@ -1,5 +1,5 @@
 // Writes p4-vectors.json: what the TypeScript Ongame, Entraction and Unibet
-// parsers (`frontend/src/lib/parsers/{ongame,entraction,unibet}.ts`) and the
+// parsers (`web/src/lib/parsers/{ongame,entraction,unibet}.ts`) and the
 // text-room helpers they share (`shared/p4-textroom.ts`) make of texts the
 // corpus does not have, for `rail_core::parsers` to replay
 // (docs/RAIL-PLAN.md R0.10d).
@@ -56,12 +56,12 @@ const bundle = await esbuild.build({
   stdin: {
     contents: `
       export { ongameParser, entractionParser, unibetParser, convertAny, detectSite }
-        from "./frontend/src/lib/parsers/index.ts";
+        from "./web/src/lib/parsers/index.ts";
       export {
         currencySymbolOf, expandMonth, leadingName, namesByLength, refuseLossyText,
-      } from "./frontend/src/lib/parsers/shared/p4-textroom.ts";
-      export { ParseSkip } from "./frontend/src/lib/phf/detect.ts";
-      export { decodeSource } from "./frontend/src/components/converter/inputs.ts";
+      } from "./web/src/lib/parsers/shared/p4-textroom.ts";
+      export { ParseSkip } from "./web/src/lib/phf/detect.ts";
+      export { decodeSource } from "./web/src/components/converter/inputs.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
     `,
     resolveDir: ROOT,

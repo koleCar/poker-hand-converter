@@ -1,5 +1,5 @@
 //! The PokerStars line grammar as the rooms that cloned it speak it
-//! (`frontend/src/lib/parsers/shared/p3-stars-dialect.ts`): Run It Once and
+//! (`web/src/lib/parsers/shared/p3-stars-dialect.ts`): Run It Once and
 //! PokerBros' PokerStars-family export. Ported with the PokerStars parser
 //! (R0.7) so the two rooms that read it found it in place: PokerBros (R0.8)
 //! and Run It Once (R0.10c).

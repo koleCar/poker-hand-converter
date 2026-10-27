@@ -1,6 +1,6 @@
 //! The formula language of a display definition: a small expression grammar
 //! over counter names, parsed here and evaluated by `rail_stats::display`
-//! (and, identically, by `frontend/src/lib/stats/display.ts`).
+//! (and, identically, by `web/src/lib/stats/display.ts`).
 //!
 //! ```text
 //! expr    := term (("+" | "-") term)*

@@ -16,8 +16,8 @@
  * nothing.
  */
 
-import type { Position } from "../../../frontend/src/lib/phf/types.js";
-import type { StatsContext } from "../../../frontend/src/lib/stats/context.js";
+import type { Position } from "../../../web/src/lib/phf/types.js";
+import type { StatsContext } from "../../../web/src/lib/stats/context.js";
 
 export type LimpGroup = "EP" | "MP" | "LP" | "SB";
 

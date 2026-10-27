@@ -1,5 +1,5 @@
 // Writes p6-vectors.json: what the TypeScript Winamax and Chico parsers
-// (`frontend/src/lib/parsers/{winamax,chico}.ts`) and their shared builder
+// (`web/src/lib/parsers/{winamax,chico}.ts`) and their shared builder
 // (`shared/p6-handbuilder.ts`) make of texts and drafts the corpus does not
 // have, for `rail_core::parsers` to replay (docs/RAIL-PLAN.md R0.10a).
 //
@@ -53,12 +53,12 @@ const bundle = await esbuild.build({
   stdin: {
     contents: `
       export { winamaxParser, chicoParser, convertAny, detectSite }
-        from "./frontend/src/lib/parsers/index.ts";
+        from "./web/src/lib/parsers/index.ts";
       export { buildP6Hand, p6ToStandardText }
-        from "./frontend/src/lib/parsers/shared/p6-handbuilder.ts";
-      export { ParseSkip } from "./frontend/src/lib/phf/detect.ts";
-      export { USD, EUR, CHIPS, parseAmount } from "./frontend/src/lib/phf/types.ts";
-      export { decodeSource } from "./frontend/src/components/converter/inputs.ts";
+        from "./web/src/lib/parsers/shared/p6-handbuilder.ts";
+      export { ParseSkip } from "./web/src/lib/phf/detect.ts";
+      export { USD, EUR, CHIPS, parseAmount } from "./web/src/lib/phf/types.ts";
+      export { decodeSource } from "./web/src/components/converter/inputs.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
     `,
     resolveDir: ROOT,

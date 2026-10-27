@@ -30,7 +30,7 @@ import {
   TURN_MARGIN_POT,
   TURN_REALISATION,
   TURN_REALISATION_POSITION,
-} from "../../../frontend/src/lib/analysis/multiway.js";
+} from "../../../web/src/lib/analysis/multiway.js";
 import { agreement, fitRealisation, type Agreement, type Sample } from "./realisation.js";
 import {
   corpusFiles,

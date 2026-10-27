@@ -149,7 +149,7 @@ site_url = "https://poker-hand-converter.vercel.app"
 # URLs permitted for auth redirects (production + local development).
 # `next dev` serves on 3000; the Vite ports are gone since the Next.js cutover.
 # The app only ever redirects to `/auth/callback` (see `redirectUrl()` in
-# `frontend/src/lib/auth/session.ts`).
+# `web/src/lib/auth/session.ts`).
 #
 # Each entry ends in `**` because the address always carries `?next=...`, and
 # GoTrue glob-matches the *whole* URL: a bare `/auth/callback` entry matches no
@@ -214,7 +214,7 @@ web3 = 30
 #
 # The secret below is Cloudflare's published *always passes* test secret, and
 # pairs with the test site key `1x00000000000000000000AA` in
-# `frontend/.env.example`. It is safe to commit because it protects nothing,
+# `web/.env.example`. It is safe to commit because it protects nothing,
 # which is exactly what a local stack wants. Production uses a real key pair,
 # set in the dashboard (Authentication -> Attack Protection), not here.
 [auth.captcha]

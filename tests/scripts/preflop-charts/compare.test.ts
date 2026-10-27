@@ -15,11 +15,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { generateChartSet, PRODUCTION_ITERATIONS } from "../../../frontend/src/lib/charts/generate.js";
-import { loadCharts } from "../../../frontend/src/lib/charts/format.js";
-import { DEFAULT_EQUITY_BOARDS, DEFAULT_EQUITY_SEED } from "../../../frontend/src/lib/solver/preflopEquity.js";
-import type { RealisationModel } from "../../../frontend/src/lib/solver/preflopModel.js";
-import type { PreflopPosition, PreflopSizing } from "../../../frontend/src/lib/solver/preflopTree.js";
+import { generateChartSet, PRODUCTION_ITERATIONS } from "../../../web/src/lib/charts/generate.js";
+import { loadCharts } from "../../../web/src/lib/charts/format.js";
+import { DEFAULT_EQUITY_BOARDS, DEFAULT_EQUITY_SEED } from "../../../web/src/lib/solver/preflopEquity.js";
+import type { RealisationModel } from "../../../web/src/lib/solver/preflopModel.js";
+import type { PreflopPosition, PreflopSizing } from "../../../web/src/lib/solver/preflopTree.js";
 import { compareSets, type SetComparison } from "./compare.js";
 
 const HERE = import.meta.dirname;
@@ -47,7 +47,7 @@ const show = (name: string, c: SetComparison) =>
   ].join("\n");
 
 it("compares a native short-handed solve with the bigger set read short-handed", () => {
-  const big = loadCharts(JSON.parse(readFileSync(join(HERE, `../../../frontend/src/lib/charts/data/${SET}.json`), "utf8")));
+  const big = loadCharts(JSON.parse(readFileSync(join(HERE, `../../../web/src/lib/charts/data/${SET}.json`), "utf8")));
   const model = big.model as { realisation: RealisationModel; tree: { sizing: PreflopSizing; maxEntrants: number } };
   const players = big.game.positions.slice(big.game.positions.length - PLAYERS) as PreflopPosition[];
   const table = equity();

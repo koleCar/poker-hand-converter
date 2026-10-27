@@ -1,5 +1,5 @@
 /**
- * The leak finder's top three (R5.2, `frontend/src/lib/analysis/topLeaks.ts`,
+ * The leak finder's top three (R5.2, `web/src/lib/analysis/topLeaks.ts`,
  * the overview card `components/analysis/leaks/TopLeaks.tsx`).
  *
  * - Ranking: EV lost in total, confident leaks (A6's medium or high) before
@@ -20,7 +20,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { confidenceOf, groupLeaks, type Leak, type SpotRow } from "../../frontend/src/lib/analysis/leaks.js";
+import { confidenceOf, groupLeaks, type Leak, type SpotRow } from "../../web/src/lib/analysis/leaks.js";
 import {
   EXAMPLES_MAX,
   TOP_LEAKS,
@@ -35,11 +35,11 @@ import {
   topEligible,
   wilson,
   type ExampleCandidate,
-} from "../../frontend/src/lib/analysis/topLeaks.js";
-import { TENTATIVE_MIN_MISTAKES } from "../../frontend/src/lib/training/plan.js";
+} from "../../web/src/lib/analysis/topLeaks.js";
+import { TENTATIVE_MIN_MISTAKES } from "../../web/src/lib/training/plan.js";
 
 const rpc = vi.fn();
-vi.mock("../../frontend/src/lib/db/client.js", async (importOriginal) => ({
+vi.mock("../../web/src/lib/db/client.js", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   rpc: (...args: unknown[]) => rpc(...args),
   currentUserId: () => Promise.resolve("00000000-0000-0000-0000-0000000000a1"),
@@ -51,11 +51,11 @@ const {
   fetchTopLeaks,
   topLeaksFilters,
   topLeaksFromPayload,
-} = await import("../../frontend/src/lib/db/topLeaks.js");
-const { TopLeaks, TopLeaksBody, topOf } = await import("../../frontend/src/components/analysis/leaks/TopLeaks.js");
-const { I18nProvider } = await import("../../frontend/src/lib/i18n/client.js");
-const { topLeaksEn } = await import("../../frontend/src/lib/i18n/ns/analysisLeaks.en.js");
-const { topLeaksHr } = await import("../../frontend/src/lib/i18n/ns/analysisLeaks.hr.js");
+} = await import("../../web/src/lib/db/topLeaks.js");
+const { TopLeaks, TopLeaksBody, topOf } = await import("../../web/src/components/analysis/leaks/TopLeaks.js");
+const { I18nProvider } = await import("../../web/src/lib/i18n/client.js");
+const { topLeaksEn } = await import("../../web/src/lib/i18n/ns/analysisLeaks.en.js");
+const { topLeaksHr } = await import("../../web/src/lib/i18n/ns/analysisLeaks.hr.js");
 
 /* ------------------------------------------------------------- fixtures - */
 

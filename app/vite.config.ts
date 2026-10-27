@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // Tauri sets TAURI_ENV_* for `tauri dev` / `tauri build`
-// (https://v2.tauri.app/start/frontend/vite/).
+// (https://v2.tauri.app/start/web/vite/).
 const platform = process.env.TAURI_ENV_PLATFORM;
 const debug = Boolean(process.env.TAURI_ENV_DEBUG);
 
@@ -17,7 +17,7 @@ export default defineConfig({
     // (R5.4) The web's analysis library, used in place: `src/analysis/
     // library.ts` is the only door (ESLint keeps every other file away).
     alias: {
-      "@rail/web-lib": fileURLToPath(new URL("../frontend/src/lib", import.meta.url)),
+      "@rail/web-lib": fileURLToPath(new URL("../web/src/lib", import.meta.url)),
       // The web's files it brings in import `@rail/ui` as well: resolved to
       // this app's own link, not next to the web (not installed here).
       "@rail/ui": fileURLToPath(new URL("./node_modules/@rail/ui", import.meta.url)),
@@ -34,7 +34,7 @@ export default defineConfig({
     strictPort: true,
     watch: { ignored: ["**/src-tauri/**"] },
     // The shared UI package (packages/ui) and the web's pure library it
-    // builds on (frontend/src/lib) are outside this folder.
+    // builds on (web/src/lib) are outside this folder.
     fs: { allow: [".."] },
   },
   envPrefix: ["VITE_", "TAURI_ENV_"],

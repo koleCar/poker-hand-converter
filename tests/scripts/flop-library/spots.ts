@@ -8,12 +8,12 @@
  * `chartRange` reads both.
  */
 
-import type { ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { walkRanges } from "../../../frontend/src/lib/analysis/rangeWalk.js";
-import { flopPlayersOf, lineSeats, type FlopLine } from "../../../frontend/src/lib/analysis/flopLibrary.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { HEADS_UP_SCRIPT_POSITIONS, NINE_SCRIPT_POSITIONS, scriptHand, scriptMoney, seatOf, type HandScript } from "../../../frontend/src/lib/training/handText.js";
-import { lineActs } from "../../../frontend/src/lib/training/preflop.js";
+import type { ChartSet } from "../../../web/src/lib/charts/index.js";
+import { walkRanges } from "../../../web/src/lib/analysis/rangeWalk.js";
+import { flopPlayersOf, lineSeats, type FlopLine } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
+import { HEADS_UP_SCRIPT_POSITIONS, NINE_SCRIPT_POSITIONS, scriptHand, scriptMoney, seatOf, type HandScript } from "../../../web/src/lib/training/handText.js";
+import { lineActs } from "../../../web/src/lib/training/preflop.js";
 
 export interface LineSpot {
   line: FlopLine;

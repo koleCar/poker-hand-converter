@@ -72,7 +72,7 @@ interface ReplayTableProps {
   focusSeat?: number | null;
   /**
    * Makes every seat a button. The replayer never passes it; the manual-entry
-   * editor (the web's `frontend/src/components/manual/`) does, to pick whose action to enter.
+   * editor (the web's `web/src/components/manual/`) does, to pick whose action to enter.
    */
   onSeatClick?: (seatNo: number) => void;
   /** Makes the board a button, likewise for the editor: it opens the card picker. */

@@ -1,4 +1,4 @@
-//! `ipoker`: the iPoker network (`frontend/src/lib/parsers/ipoker.ts`) -
+//! `ipoker`: the iPoker network (`web/src/lib/parsers/ipoker.ts`) -
 //! Betfair, Titan, Paddy Power, Betclic, Red Star, NetBet and the other
 //! skins, which all export the same XML.
 //!
@@ -650,7 +650,7 @@ impl SiteParser for IPokerParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/ipoker.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/ipoker.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {

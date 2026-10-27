@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand, splitStandardHands } from "../../frontend/src/lib/phf/serialize.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand, splitStandardHands } from "../../web/src/lib/phf/serialize.js";
 import {
   assignPositions,
   hasDeadButton,
@@ -9,8 +9,8 @@ import {
   resolvePositions,
   type PhfHand,
   type Position,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
 import { ggFiles, weplayFiles } from "./support/corpus.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };

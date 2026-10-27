@@ -11,7 +11,7 @@
  *                               CI uploads it as the artefact `rail-core-web`
  *   node web.mjs --from <dir>   install a package from <dir> (CI's artefact)
  *
- * Vercel builds `frontend/` and has no Rust, so the wasm-bindgen output the
+ * Vercel builds `web/` and has no Rust, so the wasm-bindgen output the
  * web runs is committed at {@link OUT}: the four files and a `BUILD.json`
  * with the pinned toolchain and every file's sha-256 (a function of those
  * bytes, written by this script, never by hand).
@@ -40,7 +40,7 @@ import { gzipSync } from "node:zlib";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const PKG = join(ROOT, "core/rail-core-wasm/pkg/web");
-export const OUT = join(ROOT, "frontend/src/lib/wasm/rail-core");
+export const OUT = join(ROOT, "web/src/lib/wasm/rail-core");
 
 /** What wasm-bindgen writes for `--target web`, all of it shipped. */
 export const FILES = ["rail_core_wasm.js", "rail_core_wasm.d.ts", "rail_core_wasm_bg.wasm", "rail_core_wasm_bg.wasm.d.ts"];
@@ -128,12 +128,12 @@ const NOT_CANONICAL =
 /** How to take CI's build, for the messages. */
 function takeCiBuild() {
   const run = process.env.GITHUB_RUN_ID;
-  const download = `gh run download ${run ?? "<run id>"} -n rail-core-web -D frontend/src/lib/wasm/rail-core`;
+  const download = `gh run download ${run ?? "<run id>"} -n rail-core-web -D web/src/lib/wasm/rail-core`;
   return (
     "Take CI's Linux build (the canonical one) and commit it:\n" +
     "  cd tests && npm run wasm:web-from-ci\n" +
     "or, from the repository root:\n" +
-    `  rm -rf frontend/src/lib/wasm/rail-core && ${download}`
+    `  rm -rf web/src/lib/wasm/rail-core && ${download}`
   );
 }
 

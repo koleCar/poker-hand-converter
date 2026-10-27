@@ -41,20 +41,20 @@ import {
   sensitivityGrade,
   worstGrade,
   type HandAnalysis,
-} from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts } from "../../frontend/src/lib/charts/index.js";
-import { decisionFromStored, handAnalysisFromStored, handAnalysisRow } from "../../frontend/src/lib/db/analysisRows.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../frontend/src/lib/stats/context.js";
+} from "../../web/src/lib/analysis/index.js";
+import { loadCharts } from "../../web/src/lib/charts/index.js";
+import { decisionFromStored, handAnalysisFromStored, handAnalysisRow } from "../../web/src/lib/db/analysisRows.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { buildContext } from "../../web/src/lib/stats/context.js";
 import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles, readTree, type CorpusFile } from "./support/psggCorpus.js";
 
 const ROOT = join(import.meta.dirname, "../..");
 const CHARTS = loadCharts(
-  JSON.parse(readFileSync(join(ROOT, "frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 const FILES: CorpusFile[] = [
@@ -531,7 +531,7 @@ describe("the module stays importable from a worker and a test", () => {
     "../equity/multiway",
     "../equity/evaluator",
   ]);
-  const dir = join(import.meta.dirname, "../../frontend/src/lib/analysis");
+  const dir = join(import.meta.dirname, "../../web/src/lib/analysis");
   const sources = readdirSync(dir).filter((name) => name.endsWith(".ts"));
 
   it.each(sources)("%s imports nothing it may not", (name) => {

@@ -12,16 +12,16 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { analyzeAllIn } from "../../frontend/src/lib/equity/allInEv.js";
-import { evaluateOmahaLow } from "../../frontend/src/lib/equity/omaha.js";
-import { replayerHr } from "../../frontend/src/lib/i18n/ns/replayer.hr.js";
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { assignHiLoHalves } from "../../frontend/src/lib/phf/hilo.js";
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { buildReplay } from "../../frontend/src/lib/replay.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
+import { analyzeAllIn } from "../../web/src/lib/equity/allInEv.js";
+import { evaluateOmahaLow } from "../../web/src/lib/equity/omaha.js";
+import { replayerHr } from "../../web/src/lib/i18n/ns/replayer.hr.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { assignHiLoHalves } from "../../web/src/lib/phf/hilo.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { buildReplay } from "../../web/src/lib/replay.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
 
 const SAMPLES = join(import.meta.dirname, "../../fixtures/samples");
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };

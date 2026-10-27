@@ -42,11 +42,11 @@ Implementation:
 
 | File | Contents |
 | --- | --- |
-| `frontend/src/lib/phf/types.ts` | the type system and the money / position helpers |
-| `frontend/src/lib/phf/validate.ts` | the invariant checker |
-| `frontend/src/lib/phf/serialize.ts` | `parseStandardText` / `toStandardText` |
-| `frontend/src/lib/phf/detect.ts` | `SiteParser`, the registry, `convertAny` |
-| `frontend/src/lib/parsers/*.ts` | one file per poker room |
+| `web/src/lib/phf/types.ts` | the type system and the money / position helpers |
+| `web/src/lib/phf/validate.ts` | the invariant checker |
+| `web/src/lib/phf/serialize.ts` | `parseStandardText` / `toStandardText` |
+| `web/src/lib/phf/detect.ts` | `SiteParser`, the registry, `convertAny` |
+| `web/src/lib/parsers/*.ts` | one file per poker room |
 
 ---
 
@@ -916,7 +916,7 @@ Three things to notice:
 
 ### 8.1 The contract
 
-Nineteen parsers are registered in `frontend/src/lib/parsers/index.ts`, covering
+Nineteen parsers are registered in `web/src/lib/parsers/index.ts`, covering
 more rooms than that — Ignition also reads Bodog and Bovada, Chico four skins.
 Read one close to your room's dialect before starting.
 
@@ -989,7 +989,7 @@ card deals). More code, but no lossy text intermediate.
 ### 8.3 Annotated skeleton
 
 ```ts
-// frontend/src/lib/parsers/examplesite.ts
+// web/src/lib/parsers/examplesite.ts
 /**
  * Example Poker parser.
  *
@@ -1126,7 +1126,7 @@ export const exampleParser: SiteParser = {
 Register it:
 
 ```ts
-// frontend/src/lib/parsers/index.ts
+// web/src/lib/parsers/index.ts
 import { exampleParser } from "./examplesite";
 registerParser(exampleParser);
 ```

@@ -9,7 +9,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { EquityInputError, equity, plan } from "../../frontend/src/lib/equity/index.js";
+import { EquityInputError, equity, plan } from "../../web/src/lib/equity/index.js";
 
 const h = (cards: string) => cards.split(" ");
 

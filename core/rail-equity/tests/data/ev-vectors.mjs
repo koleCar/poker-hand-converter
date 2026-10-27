@@ -1,5 +1,5 @@
 // Writes ev-vectors.json: what the TypeScript equity engine
-// (`frontend/src/lib/equity`) answers for requests and hands it has never
+// (`web/src/lib/equity`) answers for requests and hands it has never
 // seen, for `rail_equity` to replay (docs/RAIL-PLAN.md R2.2).
 //
 //     cd tests && npm ci && npm run golden:emit     (esbuild; testdata/golden-full/)
@@ -54,8 +54,8 @@ const bundle = await esbuild.build({
       export {
         analyzeAllIn, equity, plan, EquityInputError, equityVsRange, equityVsRanges,
         parseRange, rangeShare, strongestOfRange,
-      } from "./frontend/src/lib/equity/index.ts";
-      export { handEvRow, handStatsRows } from "./frontend/src/lib/db/statsRows.ts";
+      } from "./web/src/lib/equity/index.ts";
+      export { handEvRow, handStatsRows } from "./web/src/lib/db/statsRows.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
       export { analysisDoc } from "./tests/scripts/golden/ev.ts";
     `,

@@ -1,6 +1,6 @@
 # Unibet Poker hand history format
 
-Status: **a Unibet parser now ships** (`frontend/src/lib/parsers/unibet.ts`), built against the
+Status: **a Unibet parser now ships** (`web/src/lib/parsers/unibet.ts`), built against the
 5-file corpus in `fixtures/samples/unibet/`.
 
 An earlier revision of this document opened "no parser has shipped for this network yet, and there
@@ -49,7 +49,7 @@ what was searched for and not found.
 
 ## 2. Detection signature
 
-**A Unibet parser now ships** (`frontend/src/lib/parsers/unibet.ts`), so the "proposed" framing
+**A Unibet parser now ships** (`web/src/lib/parsers/unibet.ts`), so the "proposed" framing
 below is historical — it is kept because the reasoning still explains *why* the shipped signature
 is shaped the way it is. Two things the implementation added that this doc originally did not have:
 

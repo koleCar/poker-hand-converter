@@ -45,17 +45,17 @@ import {
   parseSessionQuery,
   sessionFilterOf,
   sessionQueryString,
-} from "../../frontend/src/components/analysis/session/sessionQuery.js";
+} from "../../web/src/components/analysis/session/sessionQuery.js";
 import {
   PICKER_DAYS,
   reviewFromPayload,
   serverFilter,
   sessionsFromPayload,
   webSessionReviewSource,
-} from "../../frontend/src/lib/db/sessionReview.js";
+} from "../../web/src/lib/db/sessionReview.js";
 
 const rpc = vi.fn();
-vi.mock("../../frontend/src/lib/db/client.js", () => ({
+vi.mock("../../web/src/lib/db/client.js", () => ({
   rpc: (...args: unknown[]) => rpc(...args),
   currentUserId: () => Promise.resolve("00000000-0000-0000-0000-0000000000a1"),
 }));

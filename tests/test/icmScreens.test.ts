@@ -13,16 +13,16 @@ import { describe, expect, it } from "vitest";
 
 import { DictProvider } from "../../app/src/i18n/index";
 import { HandAnalysisView } from "../../app/src/screens/analysis/HandAnalysis";
-import { analyzeHand, type DecisionAnalysis, type HandAnalysis } from "../../frontend/src/lib/analysis/index";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize";
-import type { PhfHand } from "../../frontend/src/lib/phf/types";
+import { analyzeHand, type DecisionAnalysis, type HandAnalysis } from "../../web/src/lib/analysis/index";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize";
+import type { PhfHand } from "../../web/src/lib/phf/types";
 import { reviewUiEn } from "../../packages/ui/strings/review.en";
 import { reviewUiHr } from "../../packages/ui/strings/review.hr";
 
-const { I18nProvider } = await import("../../frontend/src/lib/i18n/client.js");
-const { IcmPanel } = await import("../../frontend/src/components/analysis/IcmPanel.js");
-const { leaksEn } = await import("../../frontend/src/lib/i18n/ns/analysisLeaks.en.js");
-const { leaksHr } = await import("../../frontend/src/lib/i18n/ns/analysisLeaks.hr.js");
+const { I18nProvider } = await import("../../web/src/lib/i18n/client.js");
+const { IcmPanel } = await import("../../web/src/components/analysis/IcmPanel.js");
+const { leaksEn } = await import("../../web/src/lib/i18n/ns/analysisLeaks.en.js");
+const { leaksHr } = await import("../../web/src/lib/i18n/ns/analysisLeaks.hr.js");
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 

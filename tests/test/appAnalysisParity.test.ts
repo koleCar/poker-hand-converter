@@ -45,20 +45,20 @@ import { beforeAll, describe, expect, it } from "vitest";
 import type { PageResult } from "../../app/src/analysis/engine";
 import type { StoreHandRow } from "../../app/src/analysis/rows";
 import { createWorker, type FetchOutcome, type WorkerRequest, type WorkerResponse } from "../../app/src/analysis/worker";
-import { analyzeHand, FLOP_PROFILE, FlopLibraryLoader, villainKey, type VillainStatsMap } from "../../frontend/src/lib/analysis/index";
+import { analyzeHand, FLOP_PROFILE, FlopLibraryLoader, villainKey, type VillainStatsMap } from "../../web/src/lib/analysis/index";
 import {
   ensureChartSets,
   loadChartLibrary,
   rareLineChartSets,
   requiredChartSets,
   type ChartLibrary,
-} from "../../frontend/src/lib/charts/index";
-import { analyseStoredHands, type HandAnalysisInsert } from "../../frontend/src/lib/db/analysisRows";
-import { convertAny } from "../../frontend/src/lib/parsers/index";
-import type { PhfHand } from "../../frontend/src/lib/phf/types";
-import { scriptText, type ScriptAct } from "../../frontend/src/lib/training/handText";
-import { lineActs } from "../../frontend/src/lib/training/preflop";
-import type { RailCore } from "../../frontend/src/lib/wasm/core";
+} from "../../web/src/lib/charts/index";
+import { analyseStoredHands, type HandAnalysisInsert } from "../../web/src/lib/db/analysisRows";
+import { convertAny } from "../../web/src/lib/parsers/index";
+import type { PhfHand } from "../../web/src/lib/phf/types";
+import { scriptText, type ScriptAct } from "../../web/src/lib/training/handText";
+import { lineActs } from "../../web/src/lib/training/preflop";
+import type { RailCore } from "../../web/src/lib/wasm/core";
 import { decodedText, loadWebCore, PINNED_PARSED_AT } from "./support/webConversion";
 
 const ROOT = join(import.meta.dirname, "../..");

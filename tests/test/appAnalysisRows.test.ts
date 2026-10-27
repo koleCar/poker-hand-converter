@@ -16,8 +16,8 @@ import { describe, expect, it } from "vitest";
 
 import { bestAction, heroPositionOf, leakColumns, preflopFields, roundNumeric, storeRow, trimPhf } from "../../app/src/analysis/rows";
 import { classIndex } from "../../packages/ui/charts/model";
-import type { DecisionAnalysisInsert, HandAnalysisInsert } from "../../frontend/src/lib/db/analysisRows";
-import type { PhfHand } from "../../frontend/src/lib/phf/types";
+import type { DecisionAnalysisInsert, HandAnalysisInsert } from "../../web/src/lib/db/analysisRows";
+import type { PhfHand } from "../../web/src/lib/phf/types";
 
 /** Postgres' numeric rounding of a JSON number, by another route: Intl over the decimal string. */
 function postgres(value: number, scale: number): number {

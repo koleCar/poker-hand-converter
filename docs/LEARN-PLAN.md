@@ -58,8 +58,8 @@ calculators at runtime, or is plain arithmetic the tests recompute.**
 
 Five tracks, in the order of a hand (principle 9), with no basics track
 (principle 8). Lesson ids are the `LessonId` union in
-`frontend/src/lib/learn/course.ts`. Titles are in the dictionary
-(`course.titles`); outlines and bodies are in `frontend/src/lib/learn/lessons/`.
+`web/src/lib/learn/course.ts`. Titles are in the dictionary
+(`course.titles`); outlines and bodies are in `web/src/lib/learn/lessons/`.
 
 ### Restructure from L1 (shipped in L1.1, see §7)
 

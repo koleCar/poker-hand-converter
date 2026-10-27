@@ -1,4 +1,4 @@
-//! Money per seat: `frontend/src/lib/stats/money.ts`.
+//! Money per seat: `web/src/lib/stats/money.ts`.
 //!
 //! The identity the engine is pinned to (docs/STATS-SPEC.md §7):
 //! `Σ net === houseIntoPot(hand) - totalFees(hand.results.fees)`.

@@ -26,13 +26,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "vitest";
 
-import { loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { LAB_PRESET_IDS, LAB_PRESETS, labWorlds, viewAt } from "../../../frontend/src/lib/training/lab.js";
-import { riverSetup } from "../../../frontend/src/lib/training/river.js";
-import { seeded } from "../../../frontend/src/lib/training/rng.js";
+import { loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import { LAB_PRESET_IDS, LAB_PRESETS, labWorlds, viewAt } from "../../../web/src/lib/training/lab.js";
+import { riverSetup } from "../../../web/src/lib/training/river.js";
+import { seeded } from "../../../web/src/lib/training/rng.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 const RIVERS = Number(process.env.LAB_RIVERS ?? 40);

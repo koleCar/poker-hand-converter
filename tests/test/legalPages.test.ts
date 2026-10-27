@@ -2,7 +2,7 @@
  * The terms and the privacy policy (Rail R6.5): `docs/legal/*.md` served at
  * `/terms` and `/privacy`.
  *
- * - the module the pages import is exactly what `frontend/scripts/
+ * - the module the pages import is exactly what `web/scripts/
  *   legal-docs.mjs` makes from the documents (edit a document, run the
  *   script - dev and build do);
  * - each document opens with the draft notice, the Croatian text has the same
@@ -17,21 +17,21 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 // @ts-expect-error - a plain ES module script, no declarations
-import { generateLegalModule } from "../../frontend/scripts/legal-docs.mjs";
+import { generateLegalModule } from "../../web/scripts/legal-docs.mjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { LegalDocument, legalTitle } from "../../frontend/src/components/legal/LegalDocument";
-import { parseBlocks, renderMarkdown } from "../../frontend/src/lib/legal/markdown";
-import { LEGAL_TEXTS } from "../../frontend/src/lib/legal/texts.generated";
-import { en } from "../../frontend/src/lib/i18n/en";
-import { hr } from "../../frontend/src/lib/i18n/hr";
+import { LegalDocument, legalTitle } from "../../web/src/components/legal/LegalDocument";
+import { parseBlocks, renderMarkdown } from "../../web/src/lib/legal/markdown";
+import { LEGAL_TEXTS } from "../../web/src/lib/legal/texts.generated";
+import { en } from "../../web/src/lib/i18n/en";
+import { hr } from "../../web/src/lib/i18n/hr";
 
 const ROOT = join(import.meta.dirname, "../..");
 
 describe("the legal documents", () => {
   it("the pages' module is generated from docs/legal, unchanged", () => {
-    const committed = readFileSync(join(ROOT, "frontend/src/lib/legal/texts.generated.ts"), "utf8");
+    const committed = readFileSync(join(ROOT, "web/src/lib/legal/texts.generated.ts"), "utf8");
     expect(committed).toBe((generateLegalModule as () => string)());
   });
 

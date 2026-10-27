@@ -9,7 +9,7 @@
  * `frames` is the one block that is not read by a component: it is handed to
  * `buildReplay` (`lib/replay.ts`), which writes the captions and action pills
  * onto the frames. Its English lives beside that pure module
- * (`frontend/src/lib/replayStrings.ts`, through `model/replayStrings`)
+ * (`web/src/lib/replayStrings.ts`, through `model/replayStrings`)
  * because the test harness builds frames without a dictionary.
  */
 

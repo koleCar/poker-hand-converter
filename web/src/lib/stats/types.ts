@@ -28,7 +28,7 @@
  *    normalized figure, `net_bb_milli`, is thousandths of a big blind, rounded
  *    once here rather than repeatedly downstream.
  *
- * See `frontend/src/lib/phf/types.ts` for the format this reads, and
+ * See `web/src/lib/phf/types.ts` for the format this reads, and
  * `docs/STATS-SPEC.md` for the definition of every counter below, including
  * every place PokerTracker 4 and Holdem Manager 3 disagree.
  */

@@ -1,4 +1,4 @@
-//! Equity by runout: `frontend/src/lib/equity/enumerate.ts`.
+//! Equity by runout: `web/src/lib/equity/enumerate.ts`.
 //!
 //! Every possible board (exhaustive) or a fixed-seed sample of them (Monte
 //! Carlo), for any number of players and any number of pots; see the

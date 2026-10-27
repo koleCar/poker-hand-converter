@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { potOddsAt } from "../../packages/ui/replayer/potOdds.js";
-import { parseStandardHand, splitStandardHands } from "../../frontend/src/lib/phf/serialize.js";
-import { buildReplay, type ReplayFrame } from "../../frontend/src/lib/replay.js";
+import { parseStandardHand, splitStandardHands } from "../../web/src/lib/phf/serialize.js";
+import { buildReplay, type ReplayFrame } from "../../web/src/lib/replay.js";
 import { ggFiles } from "./support/corpus.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };

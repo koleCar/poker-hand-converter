@@ -1,6 +1,6 @@
 /**
  * Leaks and progress (phase A6, `docs/ANALYSIS-PLAN.md` §6.0 *Leaks*,
- * `frontend/src/lib/analysis/leaks.ts`).
+ * `web/src/lib/analysis/leaks.ts`).
  *
  * The database sums graded decisions per finest spot
  * (`20270201090000_analysis_leaks.sql`, pinned by pgTAP); everything that
@@ -38,8 +38,8 @@ import {
   trendSeries,
   type SpotRow,
   type TrendRow,
-} from "../../frontend/src/lib/analysis/leaks.js";
-import { CONCEPT_IDS } from "../../frontend/src/lib/learn/concepts.js";
+} from "../../web/src/lib/analysis/leaks.js";
+import { CONCEPT_IDS } from "../../web/src/lib/learn/concepts.js";
 
 /** A finest row; the key is built the way `analysis_spot_key` builds it. */
 function row(

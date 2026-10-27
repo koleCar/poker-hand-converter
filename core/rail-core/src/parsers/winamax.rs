@@ -1,5 +1,5 @@
 //! `winamax`: Winamax (winamax.fr / .es / .de)
-//! (`frontend/src/lib/parsers/winamax.ts`, R0.10a). A HUD-priority room.
+//! (`web/src/lib/parsers/winamax.ts`, R0.10a). A HUD-priority room.
 //!
 //! Winamax's own grammar, read into a [`P6Draft`] and built by
 //! [`build_p6_hand`]:
@@ -729,7 +729,7 @@ impl SiteParser for WinamaxParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/winamax.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/winamax.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

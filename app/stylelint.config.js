@@ -1,4 +1,4 @@
-/* The token rules of the web (`frontend/stylelint.config.js`), for the app:
+/* The token rules of the web (`web/stylelint.config.js`), for the app:
  *
  *   1. no primitive tokens (`--n-800`) in `src/`;
  *   2. no raw hex in `src/`.

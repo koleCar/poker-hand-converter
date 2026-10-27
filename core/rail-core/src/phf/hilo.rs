@@ -1,5 +1,5 @@
 //! High-low split: which collect paid which half of the pot
-//! (`frontend/src/lib/phf/hilo.ts`).
+//! (`web/src/lib/phf/hilo.ts`).
 //!
 //! PokerStars' text - the format this project writes - does not say which
 //! half a collect paid, so the halves are a fact the text *implies*: at a

@@ -29,14 +29,14 @@ position after the flop, its realisation measured on its own spots (§1.5,
 150bb (§6.10).
 
 ```
-frontend/src/lib/solver/
+web/src/lib/solver/
   handClasses.ts    169 classes, combo counts, class-level card removal
   preflopEquity.ts  169x169 all-in equity, seeded Monte Carlo
   preflopModel.ts   equity realisation (odds form, roles, class features), rake
   preflopRealisation.ts  realised shares measured on a turn+river solve
   preflopTree.ts    the action abstraction and its cuts, 2-9 seats, any depth
   preflopCfr.ts     DCFR for up to nine players; best response, NashConv
-frontend/src/lib/charts/
+web/src/lib/charts/
   format.ts         CHARTS_VERSION, JSON format, encode/decode, loadCharts
   build.ts          solved game -> chart set (reach, ranges, scenarios, filters)
   generate.ts       one solve -> chart set, as a pure function
@@ -1636,7 +1636,7 @@ set's count for experiments.
 
 `tests/scripts/preflop-charts/sets.ts` lists every set's table, depth, sizes,
 rounds and starting model. `charts:generate` writes
-`frontend/src/lib/charts/data/<id>.json` per set and prints each round's fit,
+`web/src/lib/charts/data/<id>.json` per set and prints each round's fit,
 convergence, the §8 tables, size, and whether the bytes changed. With
 `CHARTS_PARALLEL` above 1 it runs one child process per set (a preflop solve
 is single-threaded), splits `CHARTS_THREADS` between them for the

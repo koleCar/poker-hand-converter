@@ -1,5 +1,5 @@
 /**
- * Your data on the web (Rail R6.5, `frontend/src/lib/account/`,
+ * Your data on the web (Rail R6.5, `web/src/lib/account/`,
  * `components/account/`):
  *
  * - the streaming ZIP writer: deflated and stored entries read back by the
@@ -18,11 +18,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { readZipDirectory, readZipEntry } from "../../frontend/src/components/converter/zipStream.js";
-import { exportAccount, ExportCancelled, exportFileName } from "../../frontend/src/lib/account/export.js";
-import { buildReadme } from "../../frontend/src/lib/account/readme.js";
-import { runAccountDeletion } from "../../frontend/src/lib/account/deletion.js";
-import { BlobSink, crc32, ZipWriter, type ZipSink } from "../../frontend/src/lib/account/zipWriter.js";
+import { readZipDirectory, readZipEntry } from "../../web/src/components/converter/zipStream.js";
+import { exportAccount, ExportCancelled, exportFileName } from "../../web/src/lib/account/export.js";
+import { buildReadme } from "../../web/src/lib/account/readme.js";
+import { runAccountDeletion } from "../../web/src/lib/account/deletion.js";
+import { BlobSink, crc32, ZipWriter, type ZipSink } from "../../web/src/lib/account/zipWriter.js";
 import type {
   Cursor,
   DeleteCallResult,
@@ -30,12 +30,12 @@ import type {
   ExportSource,
   HandsPage,
   RowsPage,
-} from "../../frontend/src/lib/db/accountData.js";
-import { ExportProgressView, formatSize, YourDataPanel } from "../../frontend/src/components/account/YourDataPanel.js";
-import { AccountDeletedNotice, DeletionExplainer } from "../../frontend/src/components/account/DeleteAccountPanel.js";
-import { I18nProvider } from "../../frontend/src/lib/i18n/client.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
+} from "../../web/src/lib/db/accountData.js";
+import { ExportProgressView, formatSize, YourDataPanel } from "../../web/src/components/account/YourDataPanel.js";
+import { AccountDeletedNotice, DeletionExplainer } from "../../web/src/components/account/DeleteAccountPanel.js";
+import { I18nProvider } from "../../web/src/lib/i18n/client.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
 
 const text = (bytes: Uint8Array) => new TextDecoder().decode(bytes);
 

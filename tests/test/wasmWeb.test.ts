@@ -1,7 +1,7 @@
 /**
  * The web converts with the WebAssembly core (docs/RAIL-PLAN.md R4.1).
  *
- * The committed package (`frontend/src/lib/wasm/rail-core/`, which CI holds
+ * The committed package (`web/src/lib/wasm/rail-core/`, which CI holds
  * to a fresh build) is loaded the ways the web loads it, and every web caller
  * that turns text into PHF is checked against the TypeScript parsers, which
  * stay as the fallback and the oracle:
@@ -31,9 +31,9 @@ import {
   typescriptEngine,
   wasmEngine,
   type ConversionEngine,
-} from "../../frontend/src/lib/wasm/engine";
-import { wasmUrl, type RailCore } from "../../frontend/src/lib/wasm/core";
-import type { WorkerRequest, WorkerResponse } from "../../frontend/src/workers/convert.worker";
+} from "../../web/src/lib/wasm/engine";
+import { wasmUrl, type RailCore } from "../../web/src/lib/wasm/core";
+import type { WorkerRequest, WorkerResponse } from "../../web/src/workers/convert.worker";
 import { decodedText, diskFetch, loadWebCore, pipelineRun, plain } from "./support/webConversion";
 
 const SAMPLES = fileURLToPath(new URL("../../fixtures/samples/", import.meta.url));
@@ -71,9 +71,9 @@ function oneSamplePerDirectory(): { name: string; text: string }[] {
 }
 
 /** The engine module with a fresh WebAssembly glue: nothing loaded, nothing chosen. */
-async function freshEngineModule(): Promise<typeof import("../../frontend/src/lib/wasm/engine")> {
+async function freshEngineModule(): Promise<typeof import("../../web/src/lib/wasm/engine")> {
   vi.resetModules();
-  return import("../../frontend/src/lib/wasm/engine");
+  return import("../../web/src/lib/wasm/engine");
 }
 
 let core: RailCore;
@@ -97,7 +97,7 @@ describe("the committed WebAssembly package", () => {
   });
 
   it("is served from next to its loader", () => {
-    expect(wasmUrl().href).toMatch(/\/frontend\/src\/lib\/wasm\/rail-core\/rail_core_wasm_bg\.wasm$/);
+    expect(wasmUrl().href).toMatch(/\/web\/src\/lib\/wasm\/rail-core\/rail_core_wasm_bg\.wasm$/);
   });
 });
 
@@ -235,9 +235,9 @@ describe("the conversion worker", () => {
     };
     vi.stubGlobal("self", scope);
     vi.resetModules();
-    await import("../../frontend/src/workers/convert.worker");
+    await import("../../web/src/workers/convert.worker");
     // The worker module and its pipeline are fresh; so is their engine choice.
-    const engineModule = await import("../../frontend/src/lib/wasm/engine");
+    const engineModule = await import("../../web/src/lib/wasm/engine");
     engineModule.resetConversionEngine();
     scope.onmessage!({ data: request } as MessageEvent<WorkerRequest>);
     await finished;

@@ -17,7 +17,7 @@
  * signs the account in with a one-time token (the service key mints it, as
  * the desktop sign-in does), so the session is fresh for the deletion.
  *
- * The export is the web's own code (`frontend/src/lib/account/export.ts` and
+ * The export is the web's own code (`web/src/lib/account/export.ts` and
  * `zipWriter.ts`) over PostgREST, as the browser runs it, writing the ZIP to
  * a file (then deleted unless RAIL_ACCOUNT_KEEP=1); Node's
  * `CompressionStream` stands in for the browser's. The deletion is the Edge
@@ -31,11 +31,11 @@ import { join } from "node:path";
 
 import { describe, it } from "vitest";
 
-import { exportAccount } from "../../../frontend/src/lib/account/export.js";
-import { buildReadme } from "../../../frontend/src/lib/account/readme.js";
-import { ZipWriter, type ZipSink } from "../../../frontend/src/lib/account/zipWriter.js";
-import type { Cursor, ExportSource } from "../../../frontend/src/lib/db/accountData.js";
-import { en } from "../../../frontend/src/lib/i18n/en.js";
+import { exportAccount } from "../../../web/src/lib/account/export.js";
+import { buildReadme } from "../../../web/src/lib/account/readme.js";
+import { ZipWriter, type ZipSink } from "../../../web/src/lib/account/zipWriter.js";
+import type { Cursor, ExportSource } from "../../../web/src/lib/db/accountData.js";
+import { en } from "../../../web/src/lib/i18n/en.js";
 
 const URL_ = process.env.RAIL_ACCOUNT_URL ?? "";
 const ANON = process.env.RAIL_ACCOUNT_ANON_KEY ?? "";

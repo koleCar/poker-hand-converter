@@ -1,4 +1,4 @@
-//! `fulltilt`: Full Tilt Poker (`frontend/src/lib/parsers/fulltilt.ts`).
+//! `fulltilt`: Full Tilt Poker (`web/src/lib/parsers/fulltilt.ts`).
 //!
 //! Full Tilt is dead (2016), so the format is fixed forever. It is
 //! PokerStars-family in shape but not in wording, and every difference is a

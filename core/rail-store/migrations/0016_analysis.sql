@@ -4,7 +4,7 @@
 -- - `hand_analysis` / `decision_analysis`: what the web keeps in its tables
 --   of the same names (`supabase/migrations/20261228090000_analysis.sql`),
 --   one row per analysed hand and one per hero decision, written by the
---   app's analysis runner (the web's library, `frontend/src/lib/analysis`,
+--   app's analysis runner (the web's library, `web/src/lib/analysis`,
 --   run in a worker of the window over the hands here). Numbers are stored
 --   rounded as the web's numeric columns round them (`rows.ts` in the app),
 --   so a stored row reads back as the web's does. **One version per hand**:

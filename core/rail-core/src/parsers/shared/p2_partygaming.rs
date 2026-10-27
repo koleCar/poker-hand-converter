@@ -1,5 +1,5 @@
 //! Text helpers shared by the two PartyGaming-lineage dialects, 888poker and
-//! partypoker (`frontend/src/lib/parsers/shared/p2-partygaming.ts`), and by
+//! partypoker (`web/src/lib/parsers/shared/p2-partygaming.ts`), and by
 //! the rooms that borrow pieces of them: PokerBros' party-dialect converter
 //! (the date and game patterns, `bracketAmount`, the noise list) and Ongame
 //! (`isoFromPartyDate`, `knownZone`).
@@ -326,7 +326,7 @@ mod tests {
     use super::*;
 
     const SOURCE: &str =
-        include_str!("../../../../../frontend/src/lib/parsers/shared/p2-partygaming.ts");
+        include_str!("../../../../../web/src/lib/parsers/shared/p2-partygaming.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

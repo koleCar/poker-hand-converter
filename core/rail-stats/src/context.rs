@@ -1,4 +1,4 @@
-//! The shared read of a hand every counter walks: `frontend/src/lib/stats/context.ts`.
+//! The shared read of a hand every counter walks: `web/src/lib/stats/context.ts`.
 //!
 //! Two rules from the TypeScript govern it (docs/STATS-SPEC.md §3, §5): facts
 //! come from the action stream, never from `game` (`game.straddles` and

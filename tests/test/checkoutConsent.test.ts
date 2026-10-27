@@ -27,13 +27,13 @@ import {
   NO_CONSENT,
   parseBillingOffer,
   startCheckout,
-} from "../../frontend/src/lib/billing/checkout.js";
-import { ConsentFields, UpgradeChooser } from "../../frontend/src/components/plan/PlanPanel.js";
-import { BillingSuccessView } from "../../frontend/src/components/plan/BillingReturn.js";
-import { I18nProvider } from "../../frontend/src/lib/i18n/client.js";
-import { planEn } from "../../frontend/src/lib/i18n/ns/plan.en.js";
-import { planHr } from "../../frontend/src/lib/i18n/ns/plan.hr.js";
-import { LEGAL_TEXTS } from "../../frontend/src/lib/legal/texts.generated.js";
+} from "../../web/src/lib/billing/checkout.js";
+import { ConsentFields, UpgradeChooser } from "../../web/src/components/plan/PlanPanel.js";
+import { BillingSuccessView } from "../../web/src/components/plan/BillingReturn.js";
+import { I18nProvider } from "../../web/src/lib/i18n/client.js";
+import { planEn } from "../../web/src/lib/i18n/ns/plan.en.js";
+import { planHr } from "../../web/src/lib/i18n/ns/plan.hr.js";
+import { LEGAL_TEXTS } from "../../web/src/lib/legal/texts.generated.js";
 import {
   CONSENT_KINDS,
   CONSENT_TEXTS,

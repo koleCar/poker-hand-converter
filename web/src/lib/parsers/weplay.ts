@@ -2,7 +2,7 @@
  * WePlay parser.
  *
  * The normalization in this file is a direct port of the old
- * `frontend/src/lib/converter.ts`. It is deliberately *not* a rewrite: every
+ * `web/src/lib/converter.ts`. It is deliberately *not* a rewrite: every
  * branch below exists because of a real broken hand in `weplay-hh/`, and every
  * one of them has a fixture in `tests/test/fixtures/weplay/`. Ghost antes,
  * phantom river walks, zero-stack actors, short covering all-ins written as

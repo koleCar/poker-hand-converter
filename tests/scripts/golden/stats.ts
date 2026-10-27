@@ -31,9 +31,9 @@
 
 import { createHash } from "node:crypto";
 
-import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
-import { statsRows, type StatsRow } from "../../../frontend/src/lib/stats/mapping.js";
-import { COUNTER_KEYS, MONEY_KEYS, STATS_VERSION } from "../../../frontend/src/lib/stats/types.js";
+import { handFacts } from "../../../web/src/lib/stats/derive.js";
+import { statsRows, type StatsRow } from "../../../web/src/lib/stats/mapping.js";
+import { COUNTER_KEYS, MONEY_KEYS, STATS_VERSION } from "../../../web/src/lib/stats/types.js";
 import { canonicalJson } from "./canonical.js";
 
 /** Bumped whenever the shape of a stats golden changes. */

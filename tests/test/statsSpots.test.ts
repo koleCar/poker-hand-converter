@@ -23,11 +23,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { handFacts } from "../../frontend/src/lib/stats/derive.js";
-import type { HandFacts, SeatCounters } from "../../frontend/src/lib/stats/types.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { handFacts } from "../../web/src/lib/stats/derive.js";
+import type { HandFacts, SeatCounters } from "../../web/src/lib/stats/types.js";
 import { allStatsInvariants } from "./support/statsInvariants.js";
 
 const ROOT = join(import.meta.dirname, "../..");

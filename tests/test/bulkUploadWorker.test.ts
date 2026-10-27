@@ -9,11 +9,11 @@ import { readFileSync } from "node:fs";
 
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-import type { WorkerRequest, WorkerResponse } from "../../frontend/src/workers/convert.worker";
-import { resetConversionEngine, wasmEngine, type ConversionEngine } from "../../frontend/src/lib/wasm/engine";
+import type { WorkerRequest, WorkerResponse } from "../../web/src/workers/convert.worker";
+import { resetConversionEngine, wasmEngine, type ConversionEngine } from "../../web/src/lib/wasm/engine";
 import { diskFetch, loadWebCore, pipelineRun, plain } from "./support/webConversion";
 import { buildZip, file } from "./support/zipWriter";
-import { decodeSource } from "../../frontend/src/components/converter/inputs";
+import { decodeSource } from "../../web/src/components/converter/inputs";
 
 const sample = (path: string) => readFileSync(new URL(`../../fixtures/samples/${path}`, import.meta.url));
 const STARS = sample("pokerstars/28-cash-multi-hand-file-no-blank-separator.txt");
@@ -59,8 +59,8 @@ async function runBulkWorker(request: WorkerRequest, ackDelayMs = 5) {
   vi.stubGlobal("self", scope);
   vi.stubGlobal("fetch", diskFetch([]));
   vi.resetModules();
-  await import("../../frontend/src/workers/convert.worker");
-  const engineModule = await import("../../frontend/src/lib/wasm/engine");
+  await import("../../web/src/workers/convert.worker");
+  const engineModule = await import("../../web/src/lib/wasm/engine");
   engineModule.resetConversionEngine();
   scope.onmessage!({ data: request } as MessageEvent<WorkerRequest>);
   await finished;
@@ -141,8 +141,8 @@ describe("the worker's bulk path", () => {
     vi.stubGlobal("self", scope);
     vi.stubGlobal("fetch", diskFetch([]));
     vi.resetModules();
-    await import("../../frontend/src/workers/convert.worker");
-    (await import("../../frontend/src/lib/wasm/engine")).resetConversionEngine();
+    await import("../../web/src/workers/convert.worker");
+    (await import("../../web/src/lib/wasm/engine")).resetConversionEngine();
     scope.onmessage!({
       data: { type: "bulk", jobId: 6, items: [{ kind: "file", file: file("w.zip", zip), path: "w.zip" }], options: { validate: true }, keepOriginals: false, resume: { done: [], batches: [] }, window: 1 },
     } as MessageEvent<WorkerRequest>);

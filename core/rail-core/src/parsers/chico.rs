@@ -1,5 +1,5 @@
 //! `chico`: the Chico network - BetOnline, PayNoRake, ActionPoker, Gear Poker
-//! (`frontend/src/lib/parsers/chico.ts`, R0.10a).
+//! (`web/src/lib/parsers/chico.ts`, R0.10a).
 //!
 //! One network, several skins: lower-case verbs and `[a b c][d]` brackets
 //! (BetOnline, PayNoRake) or Title-Case verbs with trailing periods (`Calls
@@ -1043,7 +1043,7 @@ impl SiteParser for ChicoParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/chico.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/chico.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

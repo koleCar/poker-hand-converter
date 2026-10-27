@@ -1,5 +1,5 @@
 //! Omaha: exactly two hole cards and exactly three board cards
-//! (`frontend/src/lib/equity/omaha.ts`). The best hand is the maximum over
+//! (`web/src/lib/equity/omaha.ts`). The best hand is the maximum over
 //! every 2-of-hole × 3-of-board combination, each a plain five-card
 //! [`evaluate_masks`]; both halves are prepared as suit masks once.
 //!

@@ -1,9 +1,9 @@
 /**
  * The app's one door to the web's analysis library (docs/RAIL-PLAN.md R5.4).
  *
- * The analysis is `frontend/src/lib/analysis` - the decision walk, the
+ * The analysis is `web/src/lib/analysis` - the decision walk, the
  * preflop charts (`lib/charts`), the solver, the flop library reader - used
- * **in place**: `@rail/web-lib` is an alias of `frontend/src/lib`
+ * **in place**: `@rail/web-lib` is an alias of `web/src/lib`
  * (`vite.config.ts`, `tsconfig.app.json`), not a copy and not a package, so
  * a change merged into the web's library is the app's on its next build and
  * the two grade a hand identically by construction (`tests/test/
@@ -14,7 +14,7 @@
  * TypeScript (`lib/analysis`, `lib/charts`, `lib/solver`, `lib/equity`,
  * `lib/stats`, `lib/phf`, `lib/cards`) and the charts' JSON. Nothing that
  * knows about Supabase or Next comes in: the web's own analysis worker
- * (`frontend/src/workers/analysis.worker.ts`) reads the Supabase URL and the
+ * (`web/src/workers/analysis.worker.ts`) reads the Supabase URL and the
  * rebuild (`lib/db/analysis.ts`) the browser client, so the app has a worker
  * and a runner of its own (`worker.ts`, `runner.ts`) and injects what they
  * took from Supabase: the flop library's files (through Rust, cached on

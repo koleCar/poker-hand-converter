@@ -14,25 +14,25 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createBulkSaver, type SaveProgress } from "../../frontend/src/components/converter/bulkSaver";
-import type { StreamBatch } from "../../frontend/src/components/converter/pipeline";
-import { memoryManifestStore, newManifest } from "../../frontend/src/components/converter/uploadManifest";
-import { promptText } from "../../frontend/src/components/plan/PlanRefusalPrompt";
-import { DatabaseRpcError, rpc } from "../../frontend/src/lib/db/client";
-import { classifyFailure, createUploadApi, UploadError, type IngestRow, type UploadApi, type UploadClient } from "../../frontend/src/lib/db/upload";
+import { createBulkSaver, type SaveProgress } from "../../web/src/components/converter/bulkSaver";
+import type { StreamBatch } from "../../web/src/components/converter/pipeline";
+import { memoryManifestStore, newManifest } from "../../web/src/components/converter/uploadManifest";
+import { promptText } from "../../web/src/components/plan/PlanRefusalPrompt";
+import { DatabaseRpcError, rpc } from "../../web/src/lib/db/client";
+import { classifyFailure, createUploadApi, UploadError, type IngestRow, type UploadApi, type UploadClient } from "../../web/src/lib/db/upload";
 import {
   allowanceOf,
   onPlanRefusal,
   planRefusalOf,
   reportPlanRefusal,
   type PlanRefusal,
-} from "../../frontend/src/lib/entitlements/planRefusal";
-import { en } from "../../frontend/src/lib/i18n/en";
-import { hr } from "../../frontend/src/lib/i18n/hr";
-import type { PhfHand } from "../../frontend/src/lib/phf/types";
+} from "../../web/src/lib/entitlements/planRefusal";
+import { en } from "../../web/src/lib/i18n/en";
+import { hr } from "../../web/src/lib/i18n/hr";
+import type { PhfHand } from "../../web/src/lib/phf/types";
 
 const fakeRpc = vi.fn();
-vi.mock("../../frontend/src/lib/supabase/browser.js", () => {
+vi.mock("../../web/src/lib/supabase/browser.js", () => {
   const client = { rpc: (...args: unknown[]) => fakeRpc(...args) };
   return {
     getBrowserSupabase: () => client,

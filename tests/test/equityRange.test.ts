@@ -20,7 +20,7 @@ import {
   strongestOfRange,
   cardIndex,
   EquityInputError,
-} from "../../frontend/src/lib/equity/index.js";
+} from "../../web/src/lib/equity/index.js";
 
 const sorted = (range: Map<string, number>) => [...range.keys()].sort();
 
@@ -71,7 +71,7 @@ describe("range notation", () => {
   });
 
   it("parses every placeholder range the analysis falls back to", async () => {
-    const { defaultRange } = await import("../../frontend/src/lib/analysis/index.js");
+    const { defaultRange } = await import("../../web/src/lib/analysis/index.js");
     const lines = ["open", "iso", "limp", "call", "3bet", "call-3bet", "4bet", "call-4bet", "check", "unknown"] as const;
     const positions = ["UTG", "HJ", "CO", "BTN", "SB", "BB", null] as const;
     for (const line of lines) {

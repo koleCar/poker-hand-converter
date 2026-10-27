@@ -4,8 +4,8 @@
 
 use rail_stats::{COUNTER_KEYS, DIMENSION_COLUMNS, MONEY_KEYS, STATS_VERSION};
 
-const TYPES_TS: &str = include_str!("../../../frontend/src/lib/stats/types.ts");
-const MAPPING_TS: &str = include_str!("../../../frontend/src/lib/stats/mapping.ts");
+const TYPES_TS: &str = include_str!("../../../web/src/lib/stats/types.ts");
+const MAPPING_TS: &str = include_str!("../../../web/src/lib/stats/mapping.ts");
 
 /// The keys of an object literal `export const <name>... = { key: 0, ... };`.
 fn object_keys(source: &str, name: &str) -> Vec<String> {
@@ -66,6 +66,6 @@ fn the_dimension_columns_are_the_typescripts() {
 fn the_version_is_the_typescripts() {
     assert!(
         TYPES_TS.contains(&format!("export const STATS_VERSION = \"{STATS_VERSION}\"")),
-        "frontend/src/lib/stats/types.ts no longer declares {STATS_VERSION:?}"
+        "web/src/lib/stats/types.ts no longer declares {STATS_VERSION:?}"
     );
 }

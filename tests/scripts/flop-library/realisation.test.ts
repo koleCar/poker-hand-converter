@@ -18,7 +18,7 @@
 import { existsSync } from "node:fs";
 import { it } from "vitest";
 
-import { FLOP_MARGIN_POT, FLOP_REALISATION, flopRealisation } from "../../../frontend/src/lib/analysis/multiway.js";
+import { FLOP_MARGIN_POT, FLOP_REALISATION, flopRealisation } from "../../../web/src/lib/analysis/multiway.js";
 import { agreement, fitRealisation, librarySamples, type Agreement, type Sample } from "./realisation.js";
 
 const DIR = process.env.FLOPLIB_DIR ?? "";

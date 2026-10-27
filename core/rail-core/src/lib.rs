@@ -2,7 +2,7 @@
 //! Rail core: the only code that reads a hand-history file.
 //!
 //! Decoding, detection, the per-room parsers, positions, validation and the
-//! standard-text serializer, ported from `frontend/src/lib/{phf,parsers}`
+//! standard-text serializer, ported from `web/src/lib/{phf,parsers}`
 //! (docs/RAIL-PLAN.md R0.4–R0.10). The TypeScript implementation is the
 //! reference: for every corpus file the Rust output must equal its golden
 //! output (R0.3) before anything here replaces it.
@@ -52,14 +52,14 @@ pub use unrecognized::Unrecognized;
 mod tests {
     use super::PHF_SCHEMA;
 
-    /// Must equal `PHF_SCHEMA` in `frontend/src/lib/phf/types.ts` and the
+    /// Must equal `PHF_SCHEMA` in `web/src/lib/phf/types.ts` and the
     /// `hands.schema_version` the database stores.
     #[test]
     fn schema_matches_typescript() {
-        let types_ts = include_str!("../../../frontend/src/lib/phf/types.ts");
+        let types_ts = include_str!("../../../web/src/lib/phf/types.ts");
         assert!(
             types_ts.contains(&format!("\"{PHF_SCHEMA}\"")),
-            "frontend/src/lib/phf/types.ts no longer declares {PHF_SCHEMA:?}"
+            "web/src/lib/phf/types.ts no longer declares {PHF_SCHEMA:?}"
         );
     }
 

@@ -1,5 +1,5 @@
 //! `acrwpn`: Americas Cardroom / Winning Poker Network (ACR, Black Chip,
-//! True Poker, Ya Poker) (`frontend/src/lib/parsers/acrwpn.ts`, R0.10b). A
+//! True Poker, Ya Poker) (`web/src/lib/parsers/acrwpn.ts`, R0.10b). A
 //! HUD-priority room.
 //!
 //! Two grammars and an anonymized mode out of one file:
@@ -1467,7 +1467,7 @@ impl SiteParser for AcrWpnParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/acrwpn.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/acrwpn.ts");
 
     #[test]
     fn patterns_are_the_typescript_source() {

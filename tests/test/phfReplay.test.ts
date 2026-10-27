@@ -2,15 +2,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand, splitStandardHands } from "../../frontend/src/lib/phf/serialize.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand, splitStandardHands } from "../../web/src/lib/phf/serialize.js";
 import {
   primaryBoard,
   toBigBlinds,
   toDisplayNumber,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { buildReplay, streetAnchors } from "../../frontend/src/lib/replay.js";
+} from "../../web/src/lib/phf/types.js";
+import { buildReplay, streetAnchors } from "../../web/src/lib/replay.js";
 import { ggFiles, weplayFiles } from "./support/corpus.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };

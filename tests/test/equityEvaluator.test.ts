@@ -22,7 +22,7 @@ import {
   mulberry32,
   type HandCategory,
   type RankingTable,
-} from "../../frontend/src/lib/equity/index.js";
+} from "../../web/src/lib/equity/index.js";
 
 /* ------------------------------------------------------------ reference - */
 

@@ -74,7 +74,7 @@ wins. Every site listed here now has a doc.
 
 The shipped parser layer scores candidates with `detect(text) => 0..1` and picks
 the best, rather than matching one boolean regex
-(`frontend/src/lib/phf/detect.ts`). So each site gets a **strong** signal and,
+(`web/src/lib/phf/detect.ts`). So each site gets a **strong** signal and,
 where one exists, a corroborating **weak** signal plus the thing it is most
 likely to be confused with.
 

@@ -20,15 +20,15 @@
 
 import { describe, expect, it } from "vitest";
 
-import { convertAny, detectSite } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+import { convertAny, detectSite } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
 import {
   contributionsFromActions,
   totalFees,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { buildReplay } from "../../frontend/src/lib/replay.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { buildReplay } from "../../web/src/lib/replay.js";
 import {
   decodeCp1252,
   otherSampleSites,

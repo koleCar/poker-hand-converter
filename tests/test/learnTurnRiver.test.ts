@@ -20,15 +20,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { riverCategory } from "../../frontend/src/lib/analysis/index.js";
-import type { SpotRow } from "../../frontend/src/lib/analysis/leaks.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
-import { LESSONS } from "../../frontend/src/lib/learn/course.js";
-import { lessonPotType, lessonSpots, MASTERY_MIN_DECISIONS, masteryFrom, masterySide, passDay } from "../../frontend/src/lib/learn/mastery.js";
-import { CLASS_COMBOS, COMBO_CLASS, comboHi, comboLo, rangesAt } from "../../frontend/src/lib/solver/index.js";
-import { heroNode } from "../../frontend/src/lib/training/flop.js";
-import { runTrainingJob, trainingChartSets } from "../../frontend/src/lib/training/jobs.js";
+import { riverCategory } from "../../web/src/lib/analysis/index.js";
+import type { SpotRow } from "../../web/src/lib/analysis/leaks.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { cardIndex } from "../../web/src/lib/equity/evaluator.js";
+import { LESSONS } from "../../web/src/lib/learn/course.js";
+import { lessonPotType, lessonSpots, MASTERY_MIN_DECISIONS, masteryFrom, masterySide, passDay } from "../../web/src/lib/learn/mastery.js";
+import { CLASS_COMBOS, COMBO_CLASS, comboHi, comboLo, rangesAt } from "../../web/src/lib/solver/index.js";
+import { heroNode } from "../../web/src/lib/training/flop.js";
+import { runTrainingJob, trainingChartSets } from "../../web/src/lib/training/jobs.js";
 import {
   cellTarget,
   chartCells,
@@ -42,14 +42,14 @@ import {
   paintable,
   railPainting,
   type PaintCell,
-} from "../../frontend/src/lib/training/paint.js";
-import { generateRiverSpot, riverSetup } from "../../frontend/src/lib/training/river.js";
-import { seeded } from "../../frontend/src/lib/training/rng.js";
-import { generateSplit, gradeSplit, OVERBET_MIN, SMALL_MAX } from "../../frontend/src/lib/training/split.js";
-import { turnSetup } from "../../frontend/src/lib/training/turn.js";
+} from "../../web/src/lib/training/paint.js";
+import { generateRiverSpot, riverSetup } from "../../web/src/lib/training/river.js";
+import { seeded } from "../../web/src/lib/training/rng.js";
+import { generateSplit, gradeSplit, OVERBET_MIN, SMALL_MAX } from "../../web/src/lib/training/split.js";
+import { turnSetup } from "../../web/src/lib/training/turn.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 /* ---------------------------------------------------------- river setup - */

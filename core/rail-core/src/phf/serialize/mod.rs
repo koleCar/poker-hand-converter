@@ -1,4 +1,4 @@
-//! PHF ⇄ standard text: `frontend/src/lib/phf/serialize.ts` (R0.6).
+//! PHF ⇄ standard text: `web/src/lib/phf/serialize.ts` (R0.6).
 //!
 //! "Standard text" is the GG-style plain text the app has always produced.
 //! PHF is the source of truth, but the text stays first-class because Holdem

@@ -22,8 +22,8 @@ import {
   type BetMenu,
   type BuiltSubgame,
   type FlopSpot,
-} from "../../../frontend/src/lib/solver/index.js";
-import { cardCode, cardIndex } from "../../../frontend/src/lib/equity/index.js";
+} from "../../../web/src/lib/solver/index.js";
+import { cardCode, cardIndex } from "../../../web/src/lib/equity/index.js";
 import { naiveValues } from "../support/solverNaive.js";
 
 const CHECK_ONLY: BetMenu = { bet: [], raise: [], allIn: false };

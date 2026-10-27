@@ -78,23 +78,23 @@ import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import { startBulkRun, type BulkMessage } from "../../../frontend/src/components/converter/bulkRun";
-import type { InputItem } from "../../../frontend/src/components/converter/bulkSource";
-import { createBulkSaver, ingestRowOf, type SaveProgress } from "../../../frontend/src/components/converter/bulkSaver";
-import { newManifest } from "../../../frontend/src/components/converter/uploadManifest";
-import { handKeyOf, toHandRecord } from "../../../frontend/src/lib/db/mapping";
-import { createUploadApi, type UploadClient } from "../../../frontend/src/lib/db/upload";
-import { parseHand } from "../../../frontend/src/lib/phf";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types";
-import { buildReplay } from "../../../frontend/src/lib/replay";
-import { resetConversionEngine } from "../../../frontend/src/lib/wasm/engine";
+import { startBulkRun, type BulkMessage } from "../../../web/src/components/converter/bulkRun";
+import type { InputItem } from "../../../web/src/components/converter/bulkSource";
+import { createBulkSaver, ingestRowOf, type SaveProgress } from "../../../web/src/components/converter/bulkSaver";
+import { newManifest } from "../../../web/src/components/converter/uploadManifest";
+import { handKeyOf, toHandRecord } from "../../../web/src/lib/db/mapping";
+import { createUploadApi, type UploadClient } from "../../../web/src/lib/db/upload";
+import { parseHand } from "../../../web/src/lib/phf";
+import type { PhfHand } from "../../../web/src/lib/phf/types";
+import { buildReplay } from "../../../web/src/lib/replay";
+import { resetConversionEngine } from "../../../web/src/lib/wasm/engine";
 import { ROOT, listInputs } from "../golden/emit";
 
 /* ------------------------------------------------------------------ setup - */
 
 /** The rebuild route's Supabase client: the user it is run as. */
 const route = vi.hoisted(() => ({ client: null as unknown }));
-vi.mock("../../../frontend/src/lib/supabase/server", () => ({
+vi.mock("../../../web/src/lib/supabase/server", () => ({
   getWritableServerSupabase: async () => route.client,
 }));
 
@@ -213,7 +213,7 @@ async function session(user: User): Promise<Session> {
 /** A supabase-js client signed in as `user` - the tab's own kind of client. */
 async function clientFor(user: User): Promise<SupabaseClient> {
   const { createClient } = (await import(
-    "../../../frontend/node_modules/@supabase/supabase-js/dist/index.mjs"
+    "../../../web/node_modules/@supabase/supabase-js/dist/index.mjs"
   )) as { createClient(url: string, key: string, options: unknown): SupabaseClient };
   const client = createClient(URL_, ANON, { auth: { persistSession: false, autoRefreshToken: false } });
   const { error } = await client.auth.setSession(await session(user));
@@ -565,7 +565,7 @@ describeStack("web/app parity (R4.4)", () => {
   });
 
   it("statistics: the web's rebuild route as each user", async () => {
-    const { POST } = await import("../../../frontend/src/app/api/stats/rebuild/route");
+    const { POST } = await import("../../../web/src/app/api/stats/rebuild/route");
     const started = Date.now();
     const stats: Record<string, { processed: number; inserted: number; failed: number }> = {};
     for (const [name, client] of [["app", appClient], ["web", webClient]] as const) {

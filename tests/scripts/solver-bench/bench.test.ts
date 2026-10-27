@@ -21,7 +21,7 @@ import {
   type BetMenu,
   type SolveResult,
   type SpotInput,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 
 const BB_DEF =
   "TT-22,AJs-A2s,KJs-K5s,QJs-Q8s,JTs-J8s,T9s-T7s,98s-96s,87s-85s,76s-75s,65s-64s,54s,AJo-A8o,KJo-K9o,QJo-Q9o,JTo-J9o,T9o";

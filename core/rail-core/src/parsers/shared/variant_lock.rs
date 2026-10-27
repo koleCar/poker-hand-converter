@@ -1,5 +1,5 @@
 //! The per-parser variant allowlist and the canonical game label
-//! (`frontend/src/lib/parsers/shared/variant-lock.ts`).
+//! (`web/src/lib/parsers/shared/variant-lock.ts`).
 //!
 //! A variant goes on a parser's list only once that parser's own fixtures for
 //! it come out clean; short deck is its own entry, tested by spelling before
@@ -166,7 +166,7 @@ mod tests {
     use crate::phf::is_hi_lo_label;
 
     const SOURCE: &str =
-        include_str!("../../../../../frontend/src/lib/parsers/shared/variant-lock.ts");
+        include_str!("../../../../../web/src/lib/parsers/shared/variant-lock.ts");
 
     #[test]
     fn every_pattern_is_the_typescript_source_verbatim() {

@@ -19,7 +19,7 @@ import {
   transfer,
   DEFAULT_ICM_SAMPLES,
   EXACT_BUDGET,
-} from "../../frontend/src/lib/analysis/icm.js";
+} from "../../web/src/lib/analysis/icm.js";
 import {
   MTT_ICM_MAX_LEFT,
   mttPayouts,
@@ -30,8 +30,8 @@ import {
   tournamentKey,
   tournamentKind,
   tournamentModel,
-} from "../../frontend/src/lib/analysis/tournament.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/analysis/tournament.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
 
 /** Harville by brute force: every finishing order, the product of `s_i / (what is left)`. */
 function bruteForce(stacks: number[], prizes: number[]): number[] {

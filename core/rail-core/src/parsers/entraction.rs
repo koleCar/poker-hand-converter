@@ -1,4 +1,4 @@
-//! `entraction`: the Entraction network (`frontend/src/lib/parsers/entraction.ts`)
+//! `entraction`: the Entraction network (`web/src/lib/parsers/entraction.ts`)
 //! - Redbet, Nordicbet and the rest; bought by IGT in 2011 and wound down.
 //!
 //! Column-formatted plain text, `Game # <id> - <game> <limit> <CUR> <sb>/<bb>
@@ -559,7 +559,7 @@ impl SiteParser for EntractionParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/entraction.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/entraction.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {

@@ -16,7 +16,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { analyzeHand } from "../../../frontend/src/lib/analysis/index.js";
+import { analyzeHand } from "../../../web/src/lib/analysis/index.js";
 import {
   CHART_SETS,
   chartLibrary,
@@ -25,10 +25,10 @@ import {
   pickChartSet,
   preflopSpotFromHand,
   type ChartSet,
-} from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+} from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.CHARTS_LIBRARY ?? "";
 
 const bump = (m: Map<string, number>, key: string, by = 1) => m.set(key, (m.get(key) ?? 0) + by);

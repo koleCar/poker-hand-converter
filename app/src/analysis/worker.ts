@@ -3,7 +3,7 @@
  * off the window's thread - a river or turn solve takes up to a second or
  * two, and the window must stay as quick as ever while it runs.
  *
- * The web's worker (`frontend/src/workers/analysis.worker.ts`) reads the
+ * The web's worker (`web/src/workers/analysis.worker.ts`) reads the
  * Supabase URL to fetch the flop library; a worker of the app's webview has
  * no Tauri IPC, so its fetches go to the window ({@link FetchRequest}),
  * which asks Rust (`flop_library_file`: the disk, else the web's public

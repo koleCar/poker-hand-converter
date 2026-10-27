@@ -7,7 +7,7 @@
 //! bytes ─ decode_source ─ convert_any(text, { source_filename, validate: true })
 //! ```
 //!
-//! [`convert_any`] is `convertAny` of `frontend/src/lib/phf/detect.ts`, step
+//! [`convert_any`] is `convertAny` of `web/src/lib/phf/detect.ts`, step
 //! for step: detect on the whole text; split with the best parser; per chunk,
 //! detect again (an export can mix formats) and parse with the best parser
 //! for the chunk; the hi/lo and short-deck backstops; positions; validation.

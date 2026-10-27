@@ -58,15 +58,15 @@ import {
   type NarrowingModel,
   type NarrowInput,
   type StreetStrength,
-} from "../../../frontend/src/lib/analysis/index.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { equityVsRanges } from "../../../frontend/src/lib/equity/multiway.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { comboIndex, NUM_COMBOS } from "../../../frontend/src/lib/solver/index.js";
-import { buildContext, detectBombPot } from "../../../frontend/src/lib/stats/context.js";
+} from "../../../web/src/lib/analysis/index.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import { equityVsRanges } from "../../../web/src/lib/equity/multiway.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { comboIndex, NUM_COMBOS } from "../../../web/src/lib/solver/index.js";
+import { buildContext, detectBombPot } from "../../../web/src/lib/stats/context.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const FOLDS = 5;
 const FLOOR_LL = Math.log(1 / (20 * NUM_COMBOS));

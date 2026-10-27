@@ -1,5 +1,5 @@
 // Writes display-vectors.json: what the web's display definitions
-// (`frontend/src/lib/stats/display.ts` over `config/stats/standard.json`)
+// (`web/src/lib/stats/display.ts` over `config/stats/standard.json`)
 // print for summed counters, for `rail_stats::display` to replay
 // (docs/RAIL-PLAN.md R2.4, `tests/display.rs`).
 //
@@ -43,13 +43,13 @@ const esbuild = require("esbuild");
 const bundle = await esbuild.build({
   stdin: {
     contents: `
-      export { handFacts } from "./frontend/src/lib/stats/derive.ts";
-      export { statsRows } from "./frontend/src/lib/stats/mapping.ts";
-      export { aggregate, rates } from "./frontend/src/lib/stats/rates.ts";
-      export { COUNTER_KEYS, MONEY_KEYS } from "./frontend/src/lib/stats/types.ts";
+      export { handFacts } from "./web/src/lib/stats/derive.ts";
+      export { statsRows } from "./web/src/lib/stats/mapping.ts";
+      export { aggregate, rates } from "./web/src/lib/stats/rates.ts";
+      export { COUNTER_KEYS, MONEY_KEYS } from "./web/src/lib/stats/types.ts";
       export {
         compileStats, evaluate, formatFixed, parseFormula, printFormula, showStat, statRate,
-      } from "./frontend/src/lib/stats/display.ts";
+      } from "./web/src/lib/stats/display.ts";
     `,
     resolveDir: ROOT,
     loader: "ts",

@@ -35,17 +35,17 @@ import { replayerHr } from "@rail/ui/strings/replayer.hr";
 import { reviewUiEn } from "@rail/ui/strings/review.en";
 import { reviewUiHr } from "@rail/ui/strings/review.hr";
 
-import { myChartsQueryString, parseMyChartsQuery } from "../../frontend/src/components/analysis/myCharts/myChartsQuery.js";
+import { myChartsQueryString, parseMyChartsQuery } from "../../web/src/components/analysis/myCharts/myChartsQuery.js";
 import {
   playedFromPayload,
   sessionDecisionsFromPayload,
   shippedNodeOf,
   webPreflopChartsSource,
   webSessionChartsSource,
-} from "../../frontend/src/lib/db/preflopCharts.js";
+} from "../../web/src/lib/db/preflopCharts.js";
 
 const rpc = vi.fn();
-vi.mock("../../frontend/src/lib/db/client.js", () => ({
+vi.mock("../../web/src/lib/db/client.js", () => ({
   rpc: (...args: unknown[]) => rpc(...args),
   currentUserId: () => Promise.resolve("00000000-0000-0000-0000-0000000000a1"),
   requireDb: () => {

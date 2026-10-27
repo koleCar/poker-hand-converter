@@ -8,7 +8,7 @@
 --     cannot move a row to another account or tournament; the guard and the
 --     re-queue are definer and executable by no client role;
 --   * the shape: `tournament_settings_problem` gives `settingsProblem`'s
---     codes (`frontend/src/lib/analysis/tournament.ts`, the same cases in
+--     codes (`web/src/lib/analysis/tournament.ts`, the same cases in
 --     `tests/test/analysisIcm.test.ts`); a write is refused with it; 2 000
 --     tournaments an account, 120 writes per 10 minutes;
 --   * a write (insert, update, delete) deletes the stored analysis of the

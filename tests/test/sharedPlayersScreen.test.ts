@@ -3,7 +3,7 @@
  * data sources - the desktop app's local store and the web's opponent
  * summaries.
  *
- * - The web's source (`frontend/src/lib/db/playersSource.ts`) against a faked
+ * - The web's source (`web/src/lib/db/playersSource.ts`) against a faked
  *   `rpc`: what it asks `players_list`, `player_profile` and `player_sites`
  *   for, and what it hands the screen - an opponent's statistics as
  *   `showStat` of the shipped definitions over the server's sums with the
@@ -40,13 +40,13 @@ import { reportsUiHr } from "@rail/ui/strings/reports.hr";
 import { statsUiEn } from "@rail/ui/strings/stats.en";
 import { statsUiHr } from "@rail/ui/strings/stats.hr";
 
-import { parkPlayerFilter, takePlayerFilter } from "../../frontend/src/components/library/playerHandoff.js";
-import { webPlayersSource } from "../../frontend/src/lib/db/playersSource.js";
-import { WEB_DEFINITIONS } from "../../frontend/src/lib/db/reportSource.js";
-import { STANDARD_STATS, emptyCounters, emptyMoney, showStat } from "../../frontend/src/lib/stats/index.js";
+import { parkPlayerFilter, takePlayerFilter } from "../../web/src/components/library/playerHandoff.js";
+import { webPlayersSource } from "../../web/src/lib/db/playersSource.js";
+import { WEB_DEFINITIONS } from "../../web/src/lib/db/reportSource.js";
+import { STANDARD_STATS, emptyCounters, emptyMoney, showStat } from "../../web/src/lib/stats/index.js";
 
 const rpc = vi.fn();
-vi.mock("../../frontend/src/lib/db/client.js", () => ({ rpc: (...args: unknown[]) => rpc(...args) }));
+vi.mock("../../web/src/lib/db/client.js", () => ({ rpc: (...args: unknown[]) => rpc(...args) }));
 
 function strings(locale: "en" | "hr"): UiStrings {
   // Only what the list, the profile and the screen's first render read.

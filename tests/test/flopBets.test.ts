@@ -1,5 +1,5 @@
 /**
- * The committed flop-bet data (Learn L2, `frontend/src/lib/learn/data/flop-bets.json`):
+ * The committed flop-bet data (Learn L2, `web/src/lib/learn/data/flop-bets.json`):
  * written from the full flop library by `npm run floplib:bets`, it may only
  * hold Rail's own numbers. Checked here: it names the committed chart set and
  * the library's tree, covers the library's flops for each line, every row the
@@ -12,13 +12,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { FLOP_PROFILE } from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts } from "../../frontend/src/lib/charts/index.js";
-import { FLOP_BET_SPOTS, FLOP_GROUPS, flopBetRow, flopGroup, groupRows, type FlopBetData } from "../../frontend/src/lib/learn/flopBets.js";
-import { decodeChunk, FLOP_REPRESENTATIVES, type FlopManifest } from "../../frontend/src/lib/solver/index.js";
+import { FLOP_PROFILE } from "../../web/src/lib/analysis/index.js";
+import { loadCharts } from "../../web/src/lib/charts/index.js";
+import { FLOP_BET_SPOTS, FLOP_GROUPS, flopBetRow, flopGroup, groupRows, type FlopBetData } from "../../web/src/lib/learn/flopBets.js";
+import { decodeChunk, FLOP_REPRESENTATIVES, type FlopManifest } from "../../web/src/lib/solver/index.js";
 
-const CHARTS = loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
-const DATA = JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/learn/data/flop-bets.json"), "utf8")) as FlopBetData;
+const CHARTS = loadCharts(JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+const DATA = JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/learn/data/flop-bets.json"), "utf8")) as FlopBetData;
 const PILOT = join(import.meta.dirname, "../scripts/flop-library/pilot", CHARTS.id, FLOP_PROFILE.tree);
 
 describe("the raiser's flop bets by board group (L2)", () => {

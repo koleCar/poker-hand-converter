@@ -1,6 +1,6 @@
 /**
  * What the charts screens (R5.3) ask a surface for. The web implements it
- * over Supabase (`frontend/src/lib/db/preflopCharts.ts`); the desktop app
+ * over Supabase (`web/src/lib/db/preflopCharts.ts`); the desktop app
  * can once it has the analysis (R5.4).
  */
 import type { PlayedCell } from "./compare";

@@ -1,5 +1,5 @@
 //! Encoding recovery for a UTF-16LE file that was read as UTF-8
-//! (`frontend/src/lib/parsers/shared/p5-encoding.ts`).
+//! (`web/src/lib/parsers/shared/p5-encoding.ts`).
 //!
 //! Read as UTF-8, a UTF-16LE file of ASCII text is every character followed by
 //! U+0000, and its `FF FE` byte-order mark is two U+FFFD. Dropping those

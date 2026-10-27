@@ -44,8 +44,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { it, vi } from "vitest";
 
-vi.mock("../../../frontend/src/lib/analysis/rangeWalk.js", async (importOriginal) => {
-  const original = await importOriginal<typeof import("../../../frontend/src/lib/analysis/rangeWalk.js")>();
+vi.mock("../../../web/src/lib/analysis/rangeWalk.js", async (importOriginal) => {
+  const original = await importOriginal<typeof import("../../../web/src/lib/analysis/rangeWalk.js")>();
   if (process.env.OVERCALL_CHART_ORDER !== "1") return original;
   type Options = NonNullable<Parameters<typeof original.preflopRangeOf>[5]>;
   const chartOrder = (options: Options | undefined) => (options ? { ...options, populationOrder: false } : options);
@@ -76,14 +76,14 @@ import {
   type NarrowInput,
   type ResponderContext,
   type ResponderFrequency,
-} from "../../../frontend/src/lib/analysis/index.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
-import { equityVsRanges } from "../../../frontend/src/lib/equity/multiway.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { buildContext } from "../../../frontend/src/lib/stats/context.js";
+} from "../../../web/src/lib/analysis/index.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
+import { equityVsRanges } from "../../../web/src/lib/equity/multiway.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { buildContext } from "../../../web/src/lib/stats/context.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const GRADES = process.env.OVERCALL_GRADES === "1";
 const PART2 = process.env.OVERCALL_PART2 !== "0";

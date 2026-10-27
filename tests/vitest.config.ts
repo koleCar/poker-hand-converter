@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
-    // The web's dictionaries (`frontend/src/lib/i18n/`) take the replayer's
+    // The web's dictionaries (`web/src/lib/i18n/`) take the replayer's
     // words and the Croatian `plural` from the shared UI package by its name
     // (R2.7a); the web resolves it through its `file:` dependency, the
     // harness here.
@@ -11,7 +11,7 @@ export default defineConfig({
       "@rail/ui": fileURLToPath(new URL("../packages/ui", import.meta.url)),
       // The desktop app's analysis (R5.4) reaches the web's library through
       // this alias (`app/vite.config.ts`); its tests run the app's files here.
-      "@rail/web-lib": fileURLToPath(new URL("../frontend/src/lib", import.meta.url)),
+      "@rail/web-lib": fileURLToPath(new URL("../web/src/lib", import.meta.url)),
       // The app's IPC (R5.4's screens rendered here): Tauri stubbed, the
       // commands answered by each test (`test/support/tauriCore.ts`).
       "@tauri-apps/api/core": fileURLToPath(new URL("./test/support/tauriCore.ts", import.meta.url)),
@@ -19,8 +19,8 @@ export default defineConfig({
       // The shared package's screens rendered to markup (R4.5b,
       // `sharedHandsScreen.test.ts`): React from the web's install, as the
       // web bundles it (the package has none of its own).
-      react: fileURLToPath(new URL("../frontend/node_modules/react", import.meta.url)),
-      "react-dom": fileURLToPath(new URL("../frontend/node_modules/react-dom", import.meta.url)),
+      react: fileURLToPath(new URL("../web/node_modules/react", import.meta.url)),
+      "react-dom": fileURLToPath(new URL("../web/node_modules/react-dom", import.meta.url)),
     },
   },
   // The web's components rendered to markup (R5.2, `topLeaks.test.ts`): the

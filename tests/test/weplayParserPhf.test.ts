@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { convertAny } from "../../frontend/src/lib/parsers/index.js";
-import { toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import type { ConversionResult } from "../../frontend/src/lib/phf/detect.js";
+import { convertAny } from "../../web/src/lib/parsers/index.js";
+import { toStandardText } from "../../web/src/lib/phf/serialize.js";
+import type { ConversionResult } from "../../web/src/lib/phf/detect.js";
 
 /**
  * Every fixture in `test/fixtures/weplay/` exists because of a real broken hand

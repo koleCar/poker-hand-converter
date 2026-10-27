@@ -1,4 +1,4 @@
-//! `PhfHand` to [`HandFacts`]: `frontend/src/lib/stats/derive.ts`.
+//! `PhfHand` to [`HandFacts`]: `web/src/lib/stats/derive.ts`.
 
 use std::borrow::Cow;
 

@@ -1,6 +1,6 @@
 /**
  * The web's conversion path (docs/RAIL-PLAN.md R4.1) for the tests: the
- * committed WebAssembly package (`frontend/src/lib/wasm/rail-core/`), its
+ * committed WebAssembly package (`web/src/lib/wasm/rail-core/`), its
  * engine and the TypeScript engine, and one run of the converter's pipeline
  * reduced to plain data so two runs compare with `toEqual`.
  */
@@ -8,17 +8,17 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import { decodeSource } from "../../../frontend/src/components/converter/inputs";
-import { runPipeline, type PipelineBatch, type SourceStart } from "../../../frontend/src/components/converter/pipeline";
-import { railCore, type RailCore, type RailCoreGlue } from "../../../frontend/src/lib/wasm/core";
-import type { ConversionEngine } from "../../../frontend/src/lib/wasm/engine";
+import { decodeSource } from "../../../web/src/components/converter/inputs";
+import { runPipeline, type PipelineBatch, type SourceStart } from "../../../web/src/components/converter/pipeline";
+import { railCore, type RailCore, type RailCoreGlue } from "../../../web/src/lib/wasm/core";
+import type { ConversionEngine } from "../../../web/src/lib/wasm/engine";
 
-export const WEB_PACKAGE = new URL("../../../frontend/src/lib/wasm/rail-core/", import.meta.url);
+export const WEB_PACKAGE = new URL("../../../web/src/lib/wasm/rail-core/", import.meta.url);
 export const PINNED_PARSED_AT = "1970-01-01T00:00:00.000Z";
 
 /** The committed module, instantiated from its bytes (no fetch). */
 export async function loadWebCore(): Promise<RailCore> {
-  const glue = (await import("../../../frontend/src/lib/wasm/rail-core/rail_core_wasm.js")) as unknown as RailCoreGlue;
+  const glue = (await import("../../../web/src/lib/wasm/rail-core/rail_core_wasm.js")) as unknown as RailCoreGlue;
   await glue.default({ module_or_path: readFileSync(new URL("rail_core_wasm_bg.wasm", WEB_PACKAGE)) });
   return railCore(glue);
 }

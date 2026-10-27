@@ -3,8 +3,8 @@
  * of the app should use: `convertAny`.
  *
  * Adding support for a new poker room means writing one file in
- * `frontend/src/lib/parsers/<site>.ts` that exports a `SiteParser`, and adding
- * one `registerParser` call in `frontend/src/lib/parsers/index.ts`. Nothing
+ * `web/src/lib/parsers/<site>.ts` that exports a `SiteParser`, and adding
+ * one `registerParser` call in `web/src/lib/parsers/index.ts`. Nothing
  * else in the codebase changes.
  */
 

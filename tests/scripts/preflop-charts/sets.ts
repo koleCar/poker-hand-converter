@@ -1,7 +1,7 @@
 /**
  * Every committed chart set and how it is generated (docs/CHARTS.md §6, §10).
  *
- * The runtime registry (`frontend/src/lib/charts/registry.ts`) lists the same
+ * The runtime registry (`web/src/lib/charts/registry.ts`) lists the same
  * ids with their table and depth; everything a set's numbers depend on
  * (sizes, rounds, the starting realisation model) is here and is recorded in
  * the set's own `model`.
@@ -32,7 +32,7 @@
  *   sizes and pipeline at 150bb.
  */
 
-import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../frontend/src/lib/solver/preflopTree.js";
+import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../web/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;

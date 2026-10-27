@@ -76,15 +76,15 @@ import { join } from "node:path";
 
 import { describe, it } from "vitest";
 
-import { decodeSource } from "../../../frontend/src/components/converter/inputs.js";
-import { handKeyOf } from "../../../frontend/src/lib/db/mapping.js";
-import { handEvRow, handStatsRows } from "../../../frontend/src/lib/db/statsRows.js";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { ANALYSIS_VERSION } from "../../../frontend/src/lib/analysis/types.js";
-import { loadCharts } from "../../../frontend/src/lib/charts/index.js";
+import { decodeSource } from "../../../web/src/components/converter/inputs.js";
+import { handKeyOf } from "../../../web/src/lib/db/mapping.js";
+import { handEvRow, handStatsRows } from "../../../web/src/lib/db/statsRows.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { ANALYSIS_VERSION } from "../../../web/src/lib/analysis/types.js";
+import { loadCharts } from "../../../web/src/lib/charts/index.js";
 import { shippedNodeKey } from "../../../packages/ui/charts/nodeKey.js";
-import { STATS_VERSION } from "../../../frontend/src/lib/stats/types.js";
+import { STATS_VERSION } from "../../../web/src/lib/stats/types.js";
 import { PINNED_PARSED_AT, ROOT, listInputs } from "../golden/emit.js";
 
 const USER = "00000000-0000-0000-0000-00000000e290";
@@ -313,7 +313,7 @@ function analysisSql(): string {
  * id; then the backfill, timed.
  */
 function chartFactsSql(): string {
-  const set = loadCharts(JSON.parse(readFileSync(join(ROOT, "frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+  const set = loadCharts(JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
   const byActor = new Map<string, { line: string; reach: number }[]>();
   for (const node of set.nodes.values()) {
     if (!shippedNodeKey(set.id, node.line)) continue;

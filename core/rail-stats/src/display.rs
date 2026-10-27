@@ -22,7 +22,7 @@
 //! rounded half away from zero, a minus sign on any negative value. Not
 //! `toFixed`, which rounds the exact binary value: `(-0.15).toFixed(1)` is
 //! "-0.1", the web prints "-0.2". `tests/display.rs` holds this module and
-//! `frontend/src/lib/stats/display.ts` to the same vectors, and the vectors'
+//! `web/src/lib/stats/display.ts` to the same vectors, and the vectors'
 //! generator holds those to `rates.ts` and `Intl`.
 //!
 //! **No value** (`None`, `null` in TypeScript): a division by zero, `pct`
@@ -309,7 +309,7 @@ fn increment(digits: &str) -> String {
 /// `maximumFractionDigits` both `decimals`, no grouping): the shortest
 /// round-trip decimal ([`JsNumber::to_js_string`]) rounded half away from
 /// zero, in plain notation, with a minus sign whenever the value is negative
-/// (-0 included). `formatFixed` in `frontend/src/lib/stats/display.ts`.
+/// (-0 included). `formatFixed` in `web/src/lib/stats/display.ts`.
 pub fn format_fixed(value: JsNumber, decimals: u32) -> String {
     let negative = value.is_sign_negative();
     let shortest = value.abs().to_js_string();

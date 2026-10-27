@@ -63,14 +63,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { analyzeHand, gradePreflop, type DecisionAnalysis, type Grade } from "../../../frontend/src/lib/analysis/index.js";
-import { grade } from "../../../frontend/src/lib/analysis/grading.js";
-import { modelCaveat } from "../../../frontend/src/lib/analysis/reference.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { CLASS_COMBOS } from "../../../frontend/src/lib/solver/handClasses.js";
+import { analyzeHand, gradePreflop, type DecisionAnalysis, type Grade } from "../../../web/src/lib/analysis/index.js";
+import { grade } from "../../../web/src/lib/analysis/grading.js";
+import { modelCaveat } from "../../../web/src/lib/analysis/reference.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { CLASS_COMBOS } from "../../../web/src/lib/solver/handClasses.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const OLD = process.env.PRECISION_OLD ?? "";
 const HANDS = process.env.PRECISION_HANDS ?? "";
 /** A class "plays" an action from this frequency on (for the indifference gaps). */

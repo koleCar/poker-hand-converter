@@ -3,7 +3,7 @@
 # somebody's tracker database — ran solely when a human remembered to run it.
 #
 # Everything here must be able to run with no secrets. The suite drives the real
-# fixture corpus off disk and the frontend builds into an offline converter when
+# fixture corpus off disk and the web builds into an offline converter when
 # Supabase is unconfigured, so nothing in CI needs to reach the network.
 
 name: CI
@@ -37,7 +37,7 @@ jobs:
           cache: npm
           cache-dependency-path: |
             tests/package-lock.json
-            frontend/package-lock.json
+            web/package-lock.json
 
       - run: npm ci
         working-directory: tests
@@ -46,7 +46,7 @@ jobs:
       # render `packages/ui` with React from the web's install
       # (tests/vitest.config.ts aliases it there).
       - run: npm ci
-        working-directory: frontend
+        working-directory: web
 
       - name: Vitest over the real corpus
         run: npm test
@@ -96,7 +96,7 @@ jobs:
           fi
           echo "Goldens are fresh."
 
-  frontend:
+  web:
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
     steps:
@@ -106,15 +106,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: web/package-lock.json
 
       - run: npm ci
-        working-directory: frontend
+        working-directory: web
 
       # Errors fail the build; the four known react-hooks / react-refresh
       # warnings are deliberate and explained in eslint.config.js.
       - run: npm run lint
-        working-directory: frontend
+        working-directory: web
 
       # The token layering from #11 is only worth anything if it is enforced:
       # no primitive ramp (`--n-800`) and no raw hex in `src/`. The token layer
@@ -123,21 +123,21 @@ jobs:
       # UI package's since R2.6; the `ui` job lints them.
       - name: Lint stylesheets
         run: npm run lint:css
-        working-directory: frontend
+        working-directory: web
 
       - name: Typecheck
         run: npx tsc -b
-        working-directory: frontend
+        working-directory: web
 
       # Catches anything tsc's project references miss — a bad asset import, a
       # worker URL the bundler cannot resolve.
       - name: Build
         run: npm run build
-        working-directory: frontend
+        working-directory: web
 
   # The shared UI package (docs/RAIL-PLAN.md R2.6): tokens and the components
   # the web and the desktop app both render, consumed as source (`file:` links
-  # from frontend/ and app/), so there is nothing to build here. Both consumer
+  # from web/ and app/), so there is nothing to build here. Both consumer
   # jobs typecheck and bundle it again under their own settings; this job
   # holds it to its own rules - ESLint (no Supabase, Tauri or Next imports, no
   # user-facing literals, the web's pure library only through model/),
@@ -412,7 +412,7 @@ jobs:
           test "$windows" -eq 3
           cargo run --locked -q -p rail-hud-sim -- verify --room pokerstars --out "$out" --hands 20
 
-      # The generated declarations against frontend/src/lib/phf/types.ts,
+      # The generated declarations against web/src/lib/phf/types.ts,
       # type by type (tests/scripts/phf-dts/check.ts). Since R4.1 types.ts
       # re-exports the generated types, so this holds it to doing so. The
       # same on every OS.
@@ -625,7 +625,7 @@ jobs:
   # cache is cold or the version moves.
   #
   # Since R4.1 the web converts with this core, and Vercel (no Rust) ships the
-  # `--target web` build committed at frontend/src/lib/wasm/rail-core/. That
+  # `--target web` build committed at web/src/lib/wasm/rail-core/. That
   # copy is *this job's* build: the linker lays the module out differently on
   # macOS, so only a Linux x86_64 build can be committed (tests/scripts/wasm/
   # web.mjs). The job uploads its build as `rail-core-web` (with BUILD.json,
@@ -725,8 +725,8 @@ jobs:
       - name: Generated types match the migrations
         run: |
           supabase gen types typescript --local --schema public > "$RUNNER_TEMP/database.types.ts"
-          if ! diff -u frontend/src/lib/db/database.types.ts "$RUNNER_TEMP/database.types.ts"; then
-            echo "::error file=frontend/src/lib/db/database.types.ts::Stale. Regenerate with: supabase gen types typescript --local --schema public > frontend/src/lib/db/database.types.ts"
+          if ! diff -u web/src/lib/db/database.types.ts "$RUNNER_TEMP/database.types.ts"; then
+            echo "::error file=web/src/lib/db/database.types.ts::Stale. Regenerate with: supabase gen types typescript --local --schema public > web/src/lib/db/database.types.ts"
             exit 1
           fi
 
@@ -757,14 +757,14 @@ jobs:
           cache: npm
           cache-dependency-path: |
             tests/package-lock.json
-            frontend/package-lock.json
+            web/package-lock.json
 
       # The harness runs the web's own modules (the saver, the rebuild route)
       # with the web's dependencies (supabase-js, next).
       - run: npm ci
         working-directory: tests
       - run: npm ci
-        working-directory: frontend
+        working-directory: web
 
       - uses: supabase/setup-cli@v1
         with:

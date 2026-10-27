@@ -22,11 +22,11 @@
 
 import { describe, expect, it } from "vitest";
 
-import type { SpotRow } from "../../frontend/src/lib/analysis/leaks.js";
-import type { OptionAnalysis } from "../../frontend/src/lib/analysis/types.js";
-import { LESSONS, TRACKS, TRACK_IDS, lessonsIn, readsFlopLibrary, requiredExercises, type LessonId } from "../../frontend/src/lib/learn/course.js";
-import { CLEAN_FREQ, cleanPerfect, costliest, exampleWhy, perfectMargin, referenceOption, type ExampleCandidate } from "../../frontend/src/lib/learn/examples.js";
-import { MASTERY_MIN_DECISIONS, masteryFrom } from "../../frontend/src/lib/learn/mastery.js";
+import type { SpotRow } from "../../web/src/lib/analysis/leaks.js";
+import type { OptionAnalysis } from "../../web/src/lib/analysis/types.js";
+import { LESSONS, TRACKS, TRACK_IDS, lessonsIn, readsFlopLibrary, requiredExercises, type LessonId } from "../../web/src/lib/learn/course.js";
+import { CLEAN_FREQ, cleanPerfect, costliest, exampleWhy, perfectMargin, referenceOption, type ExampleCandidate } from "../../web/src/lib/learn/examples.js";
+import { MASTERY_MIN_DECISIONS, masteryFrom } from "../../web/src/lib/learn/mastery.js";
 import {
   CAPSTONE_COUNT,
   DOSE_REVIEWS,
@@ -45,8 +45,8 @@ import {
   placementOutcome,
   testOutResults,
   type MixedItem,
-} from "../../frontend/src/lib/learn/mixed.js";
-import { generateCalc, generateClassify } from "../../frontend/src/lib/learn/practice.js";
+} from "../../web/src/lib/learn/mixed.js";
+import { generateCalc, generateClassify } from "../../web/src/lib/learn/practice.js";
 import {
   TESTED_OUT,
   applyResult,
@@ -61,8 +61,8 @@ import {
   settledAt,
   testedOutAt,
   type ProgressMap,
-} from "../../frontend/src/lib/learn/progress.js";
-import { RECHECK_MAX_GROUPS, recheckGroups, recheckNudge } from "../../frontend/src/lib/learn/recheck.js";
+} from "../../web/src/lib/learn/progress.js";
+import { RECHECK_MAX_GROUPS, recheckGroups, recheckNudge } from "../../web/src/lib/learn/recheck.js";
 
 const NOW = new Date("2026-10-08T10:00:00Z");
 

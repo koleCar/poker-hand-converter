@@ -11,7 +11,7 @@ ones share a parser) and `hh-formats/<site>.md` (per-site detail).
 
 ## 1. Where we are
 
-**19 registered parsers** in `frontend/src/lib/parsers/index.ts` — 18 real sites
+**19 registered parsers** in `web/src/lib/parsers/index.ts` — 18 real sites
 plus `standard` for our own canonical output. **2595 tests pass** (23 files, 1
 skipped) against the research corpus.
 
@@ -135,7 +135,7 @@ over-counts grinder-heavy ones.
 parser except WPT Global, which is unobtainable by construction. The one
 remaining lever on real-world coverage is therefore not another parser — it is
 the failure-recording path (`ConversionFailure` in
-`frontend/src/lib/phf/detect.ts`), which turns real user uploads into evidence.
+`web/src/lib/phf/detect.ts`), which turns real user uploads into evidence.
 Once it has traffic it should outrank every estimate above: those measure the
 market, failure records measure *our* users.
 

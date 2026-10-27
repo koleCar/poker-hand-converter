@@ -84,21 +84,21 @@ import {
   type HandAnalysis,
   type MultiWalk,
   type RiverCallEv,
-} from "../../frontend/src/lib/analysis/index.js";
-import { rakeOf } from "../../frontend/src/lib/analysis/river.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
-import { cardCode, equity, equityVsRange, equityVsRanges, evaluate, type WeightedCombo } from "../../frontend/src/lib/equity/index.js";
-import { en } from "../../frontend/src/lib/i18n/en.js";
-import { hr } from "../../frontend/src/lib/i18n/hr.js";
-import { conceptsForDecision, FLAG_CONCEPTS } from "../../frontend/src/lib/learn/links.js";
-import { allFold, alpha, mdf, mdfSplit as learnMdfSplit, multiwayBluffEv } from "../../frontend/src/lib/learn/math.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
-import { comboHi, comboIndex, comboLo, NUM_COMBOS, parseCards } from "../../frontend/src/lib/solver/index.js";
-import { buildContext } from "../../frontend/src/lib/stats/context.js";
+} from "../../web/src/lib/analysis/index.js";
+import { rakeOf } from "../../web/src/lib/analysis/river.js";
+import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { cardCode, equity, equityVsRange, equityVsRanges, evaluate, type WeightedCombo } from "../../web/src/lib/equity/index.js";
+import { en } from "../../web/src/lib/i18n/en.js";
+import { hr } from "../../web/src/lib/i18n/hr.js";
+import { conceptsForDecision, FLAG_CONCEPTS } from "../../web/src/lib/learn/links.js";
+import { allFold, alpha, mdf, mdfSplit as learnMdfSplit, multiwayBluffEv } from "../../web/src/lib/learn/math.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { comboHi, comboIndex, comboLo, NUM_COMBOS, parseCards } from "../../web/src/lib/solver/index.js";
+import { buildContext } from "../../web/src/lib/stats/context.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

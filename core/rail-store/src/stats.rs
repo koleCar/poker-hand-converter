@@ -10,7 +10,7 @@
 //!   give back the engine's `StatsRow` exactly (`tests/stats.rs`).
 //! - **`player_rollups`** (site, player, scope, segment): the sums of the
 //!   current generation's seat rows with `aggregate`'s default exclusions
-//!   (`frontend/src/lib/stats/rates.ts`: bomb pots left out, EV-cashout
+//!   (`web/src/lib/stats/rates.ts`: bomb pots left out, EV-cashout
 //!   hands left out of the money, `money_hands` counted). **`hero_rollups`**
 //!   (segment, position, UTC day, kind): the hero's rows, nothing excluded,
 //!   kept apart by [`kind_of`] so a report can apply any of `aggregate`'s

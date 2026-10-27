@@ -2,7 +2,7 @@
 // `npm test`: it needs a local export of someone's hands and the full
 // library on disk. Run it with `npm run floplib:measure` from `tests/` (see
 // README.md). Vitest is only the runner here, as for the chart scripts: it
-// resolves the frontend's extensionless imports without a build step.
+// resolves the web's extensionless imports without a build step.
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 

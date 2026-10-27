@@ -1,5 +1,5 @@
 //! What a hand's player names are worth as identities:
-//! `frontend/src/lib/db/anonymization.ts` (`detectAnonymization`), and
+//! `web/src/lib/db/anonymization.ts` (`detectAnonymization`), and
 //! docs/DATABASE.md "Player identity and anonymized rooms".
 //!
 //! | value | the names are | rooms |

@@ -54,7 +54,7 @@ import { comboClass, expandToken, formatBrackets, formatCombos, formatRange, par
 import { inChartScope, ownChartDecisions, ownChartDeviations, type SessionPreflopDecision } from "@rail/ui/charts/sessionSource";
 import type { ReviewHand, SessionReview } from "@rail/ui/review/model";
 
-import { CHART_SETS, handClassOf } from "../../frontend/src/lib/charts/index.js";
+import { CHART_SETS, handClassOf } from "../../web/src/lib/charts/index.js";
 import { chartSet } from "./charts/support.js";
 
 const percents = (text: string): Uint8Array => {

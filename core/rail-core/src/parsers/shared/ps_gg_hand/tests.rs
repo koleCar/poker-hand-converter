@@ -7,7 +7,7 @@ use super::*;
 use crate::phf::money::{EUR, USD};
 
 const SOURCE: &str =
-    include_str!("../../../../../../frontend/src/lib/parsers/shared/ps-gg-hand.ts");
+    include_str!("../../../../../../web/src/lib/parsers/shared/ps-gg-hand.ts");
 
 /// Every pattern above as the TypeScript writes it: `/literal/flags`, or the
 /// body of a `String.raw` template.

@@ -26,11 +26,11 @@ import {
   ignitionParser,
   ParseSkip,
   type SiteParser,
-} from "../../frontend/src/lib/parsers/index.js";
-import { wpnDialect, type WpnDialect } from "../../frontend/src/lib/parsers/acrwpn.js";
-import { p5RecoverEncoding } from "../../frontend/src/lib/parsers/shared/p5-encoding.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { type PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/parsers/index.js";
+import { wpnDialect, type WpnDialect } from "../../web/src/lib/parsers/acrwpn.js";
+import { p5RecoverEncoding } from "../../web/src/lib/parsers/shared/p5-encoding.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { type PhfHand } from "../../web/src/lib/phf/types.js";
 import { sampleFiles, type CorpusFile } from "./support/psggCorpus.js";
 import { allInvariants } from "./support/psggInvariants.js";
 

@@ -10,8 +10,8 @@
  * prints them (`report.test.ts`).
  */
 
-import type { ChartSet } from "../../../frontend/src/lib/charts/format.js";
-import { CLASS_COMBOS } from "../../../frontend/src/lib/solver/handClasses.js";
+import type { ChartSet } from "../../../web/src/lib/charts/format.js";
+import { CLASS_COMBOS } from "../../../web/src/lib/solver/handClasses.js";
 
 /** Per action, share of the actor's range at a node (combo- and reach-weighted). */
 export function split(charts: ChartSet, line: string): Record<string, number> | null {

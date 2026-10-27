@@ -7,7 +7,7 @@
  * converter already decoded, in batches of 100 hands re-joined with a blank
  * line, through `lib/wasm/engine.ts` - so this holds *that* path to the one
  * it replaced: for every corpus file the converter's pipeline with the
- * WebAssembly engine (the committed package `frontend/src/lib/wasm/rail-core/`,
+ * WebAssembly engine (the committed package `web/src/lib/wasm/rail-core/`,
  * which CI checks is a fresh build) gives the same source starts, batches,
  * hands, failures (fingerprints, confidences, raw text) as with the TypeScript
  * engine, and so does one whole-file `convert` (the single-hand box).
@@ -17,7 +17,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { typescriptEngine, wasmEngine } from "../../../frontend/src/lib/wasm/engine.js";
+import { typescriptEngine, wasmEngine } from "../../../web/src/lib/wasm/engine.js";
 import { ROOT, listInputs } from "../golden/emit.js";
 import { decodedText, loadWebCore, pipelineRun, plain } from "../../test/support/webConversion.js";
 

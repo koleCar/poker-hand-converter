@@ -9,7 +9,7 @@
  * artefact `rail-core-web` (the four files and BUILD.json). This finds the
  * newest `CI` run of this branch at this commit, downloads that artefact with
  * the GitHub CLI and installs it through `web.mjs --from`, which checks
- * BUILD.json against the bytes. Then commit `frontend/src/lib/wasm/rail-core/`;
+ * BUILD.json against the bytes. Then commit `web/src/lib/wasm/rail-core/`;
  * CI rebuilds and compares on the next push.
  *
  * `--run <id>` takes a specific run instead (any commit - make sure its core
@@ -67,4 +67,4 @@ try {
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
-console.log("wasm:web-from-ci: commit frontend/src/lib/wasm/rail-core/");
+console.log("wasm:web-from-ci: commit web/src/lib/wasm/rail-core/");

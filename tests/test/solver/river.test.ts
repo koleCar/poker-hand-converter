@@ -22,8 +22,8 @@ import {
   SolverInputError,
   type BetMenu,
   type RiverSpot,
-} from "../../../frontend/src/lib/solver/index.js";
-import { cardIndex } from "../../../frontend/src/lib/equity/index.js";
+} from "../../../web/src/lib/solver/index.js";
+import { cardIndex } from "../../../web/src/lib/equity/index.js";
 import { naiveValues } from "../support/solverNaive.js";
 
 const BOARD = ["Qs", "Jh", "7d", "4c", "2s"];

@@ -1,4 +1,4 @@
-//! The hand validator: `validateHand` of `frontend/src/lib/phf/validate.ts`.
+//! The hand validator: `validateHand` of `web/src/lib/phf/validate.ts`.
 //!
 //! A hand history is user-supplied data from a room we do not control, and
 //! rooms do emit broken hands. The checks, in the TypeScript's order: seating

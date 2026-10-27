@@ -1,4 +1,4 @@
-//! Postflop counters: `frontend/src/lib/stats/postflop.ts`.
+//! Postflop counters: `web/src/lib/stats/postflop.ts`.
 //!
 //! Streets seen (a denominator, not an opportunity: an all-in player sees
 //! every street), the continuation-bet chain (a turn cbet needs the flop cbet

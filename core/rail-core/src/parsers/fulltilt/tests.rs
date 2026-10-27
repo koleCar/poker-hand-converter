@@ -6,7 +6,7 @@
 use super::*;
 use crate::detect::ConvertOptions;
 
-const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/fulltilt.ts");
+const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/fulltilt.ts");
 
 const LITERALS: &[&str] = &[
     r"/^Full Tilt Poker Game #(\d+):\s*(.*)$/",

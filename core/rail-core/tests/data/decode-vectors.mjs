@@ -1,5 +1,5 @@
 // Writes decode-vectors.json: what the converter's `decodeSource`
-// (frontend/src/components/converter/inputs.ts) makes of edge-case byte
+// (web/src/components/converter/inputs.ts) makes of edge-case byte
 // strings, for `rail_core::decode` to replay (docs/RAIL-PLAN.md R0.5).
 //
 //     node core/rail-core/tests/data/decode-vectors.mjs     (Node >= 23.6)
@@ -14,7 +14,7 @@
 import { writeFileSync } from "node:fs";
 
 const { decodeSource } = await import(
-  new URL("../../../../frontend/src/components/converter/inputs.ts", import.meta.url)
+  new URL("../../../../web/src/components/converter/inputs.ts", import.meta.url)
 );
 
 let seed = 0x0dec0de5;

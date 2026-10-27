@@ -1,10 +1,10 @@
 /* Inter, bundled, plus the two metric-matched fallbacks: the web's
- * `frontend/src/styles/fonts.css` from its first @font-face on (`Inter`
+ * `web/src/styles/fonts.css` from its first @font-face on (`Inter`
  * unquoted, as the app's stylelint wants: the same family), so
  * text measures the same in the app as on the web (the replayer sizes its
  * type off the felt and drops seats and chrome by what fits, R2.7a).
  *
- * The files are the web's (`frontend/public/fonts/`), copied to `public/fonts/`
+ * The files are the web's (`web/public/fonts/`), copied to `public/fonts/`
  * with the font's licence (`OFL.txt`, SIL Open Font License 1.1, which allows
  * bundling it with software as long as the licence travels with it). Vite
  * copies `public/` into the build as it is, so `/fonts/...` resolves in the

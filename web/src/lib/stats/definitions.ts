@@ -5,7 +5,7 @@
  * `definitions.json` next to this file is a byte-for-byte copy of
  * `config/stats/standard.json`, the one source the desktop app and the HUD
  * read too (`rail_config::stats::SHIPPED_STATS`). It is a copy because the web
- * is built from `frontend/` alone; `tests/test/statDisplay.test.ts` fails when
+ * is built from `web/` alone; `tests/test/statDisplay.test.ts` fails when
  * the two differ (copy the file over and commit both).
  *
  * Strings shown to users come from the definition itself (`label`, `name`,

@@ -1,5 +1,5 @@
 // Writes serialize-vectors.json: what the TypeScript standard-text reader
-// and writer (`frontend/src/lib/phf/serialize.ts`) make of every golden hand
+// and writer (`web/src/lib/phf/serialize.ts`) make of every golden hand
 // and of hands the corpus does not have, for `rail_core::phf::serialize` to
 // replay (docs/RAIL-PLAN.md R0.6).
 //
@@ -51,7 +51,7 @@ const bundle = await esbuild.build({
         splitStandardHands,
         toStandardText,
         toStandardTextFile,
-      } from "./frontend/src/lib/phf/serialize.ts";
+      } from "./web/src/lib/phf/serialize.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
     `,
     resolveDir: ROOT,

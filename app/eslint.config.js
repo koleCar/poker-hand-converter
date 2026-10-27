@@ -5,7 +5,7 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 /**
- * The web's "no bare user-facing literal" rule (`frontend/eslint.config.js`),
+ * The web's "no bare user-facing literal" rule (`web/eslint.config.js`),
  * the same two selectors: JSX text with words in it, and a string literal on
  * an attribute that is shown or read aloud. Copy lives in `src/i18n/`.
  */
@@ -96,7 +96,7 @@ export default defineConfig([
         {
           patterns: [
             {
-              group: ["@rail/web-lib", "@rail/web-lib/*", "**/frontend/src/**"],
+              group: ["@rail/web-lib", "@rail/web-lib/*", "**/web/src/**"],
               message: "The web's library is the app's through `src/analysis/library.ts` and `leakWords.ts` only (R5.4).",
             },
           ],

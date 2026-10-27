@@ -1,4 +1,4 @@
-//! `runitonce`: Run It Once Poker (`frontend/src/lib/parsers/runitonce.ts`).
+//! `runitonce`: Run It Once Poker (`web/src/lib/parsers/runitonce.ts`).
 //!
 //! RIO (2019-2022, closed) wrote a close PokerStars clone, and the body of a
 //! hand is read by [`parse_stars_family_body`]. What is RIO's own is the

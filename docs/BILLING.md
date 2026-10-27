@@ -461,9 +461,9 @@ A web page alone is not a durable medium; keep the receipt step.
 
 ### The terms and the wording change
 
-- **The checkbox wording** lives in `frontend/src/lib/i18n/ns/plan.en.ts` and
+- **The checkbox wording** lives in `web/src/lib/i18n/ns/plan.en.ts` and
   `plan.hr.ts` (`billing.consent`). A change is a new version: bump
-  `CHECKOUT_CONSENT_VERSION` (`frontend/src/lib/billing/checkout.ts`), add the
+  `CHECKOUT_CONSENT_VERSION` (`web/src/lib/billing/checkout.ts`), add the
   version and its hashes to `CONSENT_TEXTS`
   (`supabase/functions/_shared/billing/consent.ts`; Vitest `checkoutConsent`
   prints the hashes it expects), keep the old version a day, and **deploy

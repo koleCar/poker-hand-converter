@@ -13,10 +13,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { FLOP_PROFILE, turnRealisation } from "../../frontend/src/lib/analysis/index.js";
-import { toIndices } from "../../frontend/src/lib/analysis/texture.js";
-import { cardCode, equityVsRange } from "../../frontend/src/lib/equity/index.js";
-import { comboHi, comboLo, decodeChunk, NUM_COMBOS, rangesAt } from "../../frontend/src/lib/solver/index.js";
+import { FLOP_PROFILE, turnRealisation } from "../../web/src/lib/analysis/index.js";
+import { toIndices } from "../../web/src/lib/analysis/texture.js";
+import { cardCode, equityVsRange } from "../../web/src/lib/equity/index.js";
+import { comboHi, comboLo, decodeChunk, NUM_COMBOS, rangesAt } from "../../web/src/lib/solver/index.js";
 import { nodeEquities, runouts } from "../scripts/flop-library/realisation.js";
 import {
   libraryTurns,

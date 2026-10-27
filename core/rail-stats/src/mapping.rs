@@ -1,4 +1,4 @@
-//! [`HandFacts`] to the flat rows a database stores: `frontend/src/lib/stats/mapping.ts`.
+//! [`HandFacts`] to the flat rows a database stores: `web/src/lib/stats/mapping.ts`.
 
 use serde::Serialize;
 use serde_json::{Map, Value};

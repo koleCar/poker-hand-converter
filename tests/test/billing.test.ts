@@ -1,5 +1,5 @@
 /**
- * Paying for Pro on the web (Rail R6.3, `frontend/src/lib/billing/checkout.ts`,
+ * Paying for Pro on the web (Rail R6.3, `web/src/lib/billing/checkout.ts`,
  * `components/plan/PlanPanel.tsx`, `components/plan/BillingReturn.tsx`):
  *
  * - the offer from `GET billing-checkout` read field by field (anything odd
@@ -22,11 +22,11 @@ import {
   NO_OFFER,
   parseBillingOffer,
   subscriptionRunning,
-} from "../../frontend/src/lib/billing/checkout.js";
-import { parseEntitlements } from "../../frontend/src/lib/db/entitlements.js";
-import { PlanDetails } from "../../frontend/src/components/plan/PlanPanel.js";
-import { BillingCancel, BillingSuccessView } from "../../frontend/src/components/plan/BillingReturn.js";
-import { I18nProvider } from "../../frontend/src/lib/i18n/client.js";
+} from "../../web/src/lib/billing/checkout.js";
+import { parseEntitlements } from "../../web/src/lib/db/entitlements.js";
+import { PlanDetails } from "../../web/src/components/plan/PlanPanel.js";
+import { BillingCancel, BillingSuccessView } from "../../web/src/components/plan/BillingReturn.js";
+import { I18nProvider } from "../../web/src/lib/i18n/client.js";
 
 const OFFER_RAW = {
   available: true,

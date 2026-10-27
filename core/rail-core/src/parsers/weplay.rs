@@ -1,4 +1,4 @@
-//! `weplay`: WePlay (`frontend/src/lib/parsers/weplay.ts`).
+//! `weplay`: WePlay (`web/src/lib/parsers/weplay.ts`).
 //!
 //! WePlay text is first normalized into the app's standard text - the
 //! rewrites of the old converter, every one of them forced by a real broken

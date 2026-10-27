@@ -1,4 +1,4 @@
-//! `coinpoker`: CoinPoker (`frontend/src/lib/parsers/coinpoker.ts`).
+//! `coinpoker`: CoinPoker (`web/src/lib/parsers/coinpoker.ts`).
 //!
 //! A PokerStars-family grammar: the semantics are [`StarsHandDraft`]'s, the
 //! line grammar below is CoinPoker's own. What differs from PokerStars:

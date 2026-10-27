@@ -26,7 +26,7 @@
 
     /* React's types from this package's own devDependencies, also for the
        web's library files `model/` pulls in (which would otherwise look next
-       to themselves, in `frontend/node_modules`, present or not). */
+       to themselves, in `web/node_modules`, present or not). */
     "paths": {
       "react": ["./node_modules/@types/react"],
       "react/*": ["./node_modules/@types/react/*"],

@@ -1,6 +1,6 @@
 //! Money: currency units, reading and printing amounts, buy-ins.
 //!
-//! The functions of the "money" section of `frontend/src/lib/phf/types.ts`,
+//! The functions of the "money" section of `web/src/lib/phf/types.ts`,
 //! with the same names in snake case. The TypeScript does its arithmetic on
 //! JavaScript doubles (`Math.round(Number("0.29") * 100)`); this port performs
 //! the identical IEEE-754 operations through [`JsNumber`], so an amount rounds

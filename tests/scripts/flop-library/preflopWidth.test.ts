@@ -59,8 +59,8 @@ import { join } from "node:path";
 import { it, vi } from "vitest";
 
 // Study only: a candidate changes an opponent's chart or placeholder range (`hook`).
-vi.mock("../../../frontend/src/lib/analysis/rangeWalk.js", async (importOriginal) => {
-  const original = await importOriginal<typeof import("../../../frontend/src/lib/analysis/rangeWalk.js")>();
+vi.mock("../../../web/src/lib/analysis/rangeWalk.js", async (importOriginal) => {
+  const original = await importOriginal<typeof import("../../../web/src/lib/analysis/rangeWalk.js")>();
   return {
     ...original,
     preflopRangeOf: (...args: Parameters<typeof original.preflopRangeOf>) => {
@@ -78,7 +78,7 @@ vi.mock("../../../frontend/src/lib/analysis/rangeWalk.js", async (importOriginal
   };
 });
 
-import { allClasses } from "../../../frontend/src/lib/equity/range.js";
+import { allClasses } from "../../../web/src/lib/equity/range.js";
 import {
   comboRange,
   flopSeats,
@@ -93,15 +93,15 @@ import {
   type NarrowingModel,
   type NarrowInput,
   type StreetStrength,
-} from "../../../frontend/src/lib/analysis/index.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
-import { equityVsRanges } from "../../../frontend/src/lib/equity/multiway.js";
-import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
-import { comboIndex, NUM_COMBOS } from "../../../frontend/src/lib/solver/index.js";
-import { buildContext, type StatsContext } from "../../../frontend/src/lib/stats/context.js";
+} from "../../../web/src/lib/analysis/index.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
+import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../web/src/lib/charts/index.js";
+import { equityVsRanges } from "../../../web/src/lib/equity/multiway.js";
+import type { PhfHand } from "../../../web/src/lib/phf/types.js";
+import { comboIndex, NUM_COMBOS } from "../../../web/src/lib/solver/index.js";
+import { buildContext, type StatsContext } from "../../../web/src/lib/stats/context.js";
 
-const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
+const DATA = join(import.meta.dirname, "../../../web/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const FOLDS = 5;
 const FLOOR_LL = Math.log(1 / (20 * NUM_COMBOS));

@@ -7,7 +7,7 @@
  * translations prepared from the start; the i18n rule of both surfaces): each
  * surface mounts one `UiStringsProvider` with the slices below for the
  * reader's language. The replayer's dictionaries are data in this package,
- * `strings/replayer.{en,hr}.ts` (R2.7a), so the web (`frontend/src/lib/i18n/`)
+ * `strings/replayer.{en,hr}.ts` (R2.7a), so the web (`web/src/lib/i18n/`)
  * and the desktop app (`app/src/i18n/ui.ts`) show the same words; so are
  * the statistic tile's, the statistics table's and the win-rate graph's since
  * R2.7b (`strings/stats.{en,hr}.ts`). The close label comes from each

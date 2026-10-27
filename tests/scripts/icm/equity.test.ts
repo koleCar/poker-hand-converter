@@ -3,7 +3,7 @@
  * each of the 169 hand classes against each other, with card removal -
  * `preflopEquityTable` of `lib/solver` (the chart generator's own table, our
  * own computation) at `PUSH_FOLD_EQUITY_BOARDS` boards - quantised to 16 bits
- * and committed as `frontend/src/lib/analysis/data/pushFoldEquity.ts`.
+ * and committed as `web/src/lib/analysis/data/pushFoldEquity.ts`.
  *
  *     cd tests && npm run icm:equity
  *
@@ -17,10 +17,10 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, it } from "vitest";
 
-import { decodePushFoldEquity, encodePushFoldEquity, PUSH_FOLD_EQUITY_BOARDS, PUSH_FOLD_EQUITY_SEED } from "../../../frontend/src/lib/analysis/pushFold.js";
-import { NUM_CLASSES, preflopEquityTable } from "../../../frontend/src/lib/solver/index.js";
+import { decodePushFoldEquity, encodePushFoldEquity, PUSH_FOLD_EQUITY_BOARDS, PUSH_FOLD_EQUITY_SEED } from "../../../web/src/lib/analysis/pushFold.js";
+import { NUM_CLASSES, preflopEquityTable } from "../../../web/src/lib/solver/index.js";
 
-const OUT = join(import.meta.dirname, "../../../frontend/src/lib/analysis/data/pushFoldEquity.ts");
+const OUT = join(import.meta.dirname, "../../../web/src/lib/analysis/data/pushFoldEquity.ts");
 
 it("writes the push/fold equity table", () => {
   const boards = Number(process.env.ICM_EQUITY_BOARDS ?? PUSH_FOLD_EQUITY_BOARDS);

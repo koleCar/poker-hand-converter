@@ -1,6 +1,6 @@
 /**
  * Generates the committed preflop chart sets,
- * `frontend/src/lib/charts/data/<id>.json` (configs in `sets.ts`).
+ * `web/src/lib/charts/data/<id>.json` (configs in `sets.ts`).
  *
  *     cd tests && npm run charts:generate                       # every set
  *     CHARTS_SETS=nlhe-cash-9max-100bb npm run charts:generate  # one set
@@ -37,28 +37,28 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { it } from "vitest";
 
-import { generateChartSet, PRODUCTION_ITERATIONS, type GenerateResult } from "../../../frontend/src/lib/charts/generate.js";
-import { loadCharts, serializeCharts } from "../../../frontend/src/lib/charts/format.js";
-import { nodeReaches } from "../../../frontend/src/lib/charts/build.js";
+import { generateChartSet, PRODUCTION_ITERATIONS, type GenerateResult } from "../../../web/src/lib/charts/generate.js";
+import { loadCharts, serializeCharts } from "../../../web/src/lib/charts/format.js";
+import { nodeReaches } from "../../../web/src/lib/charts/build.js";
 import {
   generateRealisedChartSet,
   PRODUCTION_MEASURE,
   PRODUCTION_ROUND_ITERATIONS,
-} from "../../../frontend/src/lib/charts/realisation.js";
+} from "../../../web/src/lib/charts/realisation.js";
 import {
   DEFAULT_EQUITY_BOARDS,
   DEFAULT_EQUITY_SEED,
   preflopEquityTable,
   type PreflopEquityTable,
-} from "../../../frontend/src/lib/solver/preflopEquity.js";
-import { CHARTS1_REALISATION, STANDARD_RAKE, type RakeProfile, type RealisationModel } from "../../../frontend/src/lib/solver/preflopModel.js";
+} from "../../../web/src/lib/solver/preflopEquity.js";
+import { CHARTS1_REALISATION, STANDARD_RAKE, type RakeProfile, type RealisationModel } from "../../../web/src/lib/solver/preflopModel.js";
 import { cachedRun, workerPool } from "./pool.js";
 import { report } from "./report.js";
 import { SET_CONFIGS, setConfig, type SetConfig } from "./sets.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "../../..");
-const DATA = join(ROOT, "frontend/src/lib/charts/data");
+const DATA = join(ROOT, "web/src/lib/charts/data");
 const SETS = (process.env.CHARTS_SETS ?? SET_CONFIGS.map((c) => c.id).join(","))
   .split(",")
   .map((s) => s.trim())

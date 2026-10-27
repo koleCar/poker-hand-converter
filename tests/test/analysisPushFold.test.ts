@@ -11,7 +11,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { icm } from "../../frontend/src/lib/analysis/icm.js";
+import { icm } from "../../web/src/lib/analysis/icm.js";
 import {
   callValues,
   decodePushFoldEquity,
@@ -21,10 +21,10 @@ import {
   solvePushFold,
   PUSH_FOLD_EQUITY_BOARDS,
   type PushFoldGame,
-} from "../../frontend/src/lib/analysis/pushFold.js";
-import { PUSH_FOLD_EQUITY_META } from "../../frontend/src/lib/analysis/data/pushFoldEquity.js";
-import { equityVsRange } from "../../frontend/src/lib/equity/index.js";
-import { classByName, COMPAT, HAND_CLASSES, NUM_CLASSES } from "../../frontend/src/lib/solver/index.js";
+} from "../../web/src/lib/analysis/pushFold.js";
+import { PUSH_FOLD_EQUITY_META } from "../../web/src/lib/analysis/data/pushFoldEquity.js";
+import { equityVsRange } from "../../web/src/lib/equity/index.js";
+import { classByName, COMPAT, HAND_CLASSES, NUM_CLASSES } from "../../web/src/lib/solver/index.js";
 
 const N = NUM_CLASSES;
 const E = decodePushFoldEquity();

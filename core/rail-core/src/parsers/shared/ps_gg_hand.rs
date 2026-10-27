@@ -1,5 +1,5 @@
 //! Shared machinery for the PokerStars-family text grammars
-//! (`frontend/src/lib/parsers/shared/ps-gg-hand.ts`).
+//! (`web/src/lib/parsers/shared/ps-gg-hand.ts`).
 //!
 //! PokerStars invented the `Seat N: name ($x in chips)` / `*** FLOP *** [..]` /
 //! `*** SUMMARY ***` shape and GGPoker is a dialect of it. The *semantics* are

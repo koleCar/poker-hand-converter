@@ -1,6 +1,6 @@
 /**
  * Sample reliability (docs/RAIL-PLAN.md R2.5, docs/STATS-SPEC.md §13) on the
- * TypeScript side: `frontend/src/lib/stats/reliability.ts` and
+ * TypeScript side: `web/src/lib/stats/reliability.ts` and
  * `display.ts`'s `statReliability`.
  *
  * - **Parity.** `core/rail-stats/tests/data/reliability-vectors.json` holds,
@@ -17,15 +17,15 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { showStat, type DisplaySums } from "../../frontend/src/lib/stats/display.js";
-import { STANDARD_STATS } from "../../frontend/src/lib/stats/definitions.js";
+import { showStat, type DisplaySums } from "../../web/src/lib/stats/display.js";
+import { STANDARD_STATS } from "../../web/src/lib/stats/definitions.js";
 import {
   OPACITY_FLOOR,
   WILSON_Z,
   sampleReliability,
   wilson,
-} from "../../frontend/src/lib/stats/reliability.js";
-import { COUNTER_KEYS, MONEY_KEYS, type SeatCounters, type SeatMoney } from "../../frontend/src/lib/stats/types.js";
+} from "../../web/src/lib/stats/reliability.js";
+import { COUNTER_KEYS, MONEY_KEYS, type SeatCounters, type SeatMoney } from "../../web/src/lib/stats/types.js";
 
 const ROOT = join(import.meta.dirname, "../..");
 type Json = Record<string, any>;

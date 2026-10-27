@@ -32,7 +32,7 @@ The schema is defined by four migrations:
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
 
-The client layer that talks to them is `frontend/src/lib/db/`. Nothing else in
+The client layer that talks to them is `web/src/lib/db/`. Nothing else in
 the app touches Supabase.
 
 - [Threat model](#threat-model-read-this-first)
@@ -874,7 +874,7 @@ malformed analysis version, another account, anon.
 
 Phase A1 of `docs/ANALYSIS-PLAN.md` (`20261228090000_analysis.sql`), with the
 grade-aware reports of A2b (`20270104090000_analysis_grades.sql`). The engine
-is `frontend/src/lib/analysis` (pure TypeScript, run over the corpus by
+is `web/src/lib/analysis` (pure TypeScript, run over the corpus by
 `tests/test/analysisCorpus.test.ts`); these tables hold its answer. Since
 `analysis/2` the grade columns are filled for preflop decisions graded against
 the charts (`source = 'chart'`); postflop rows are still heuristic.
@@ -1142,7 +1142,7 @@ and anon.
 graded). **`tournament_settings`** - one row per tournament a user described:
 `site` (lower-cased, as `hands.site`) and `tournament_id` (as
 `hands.tournament_id`) are the key with `owner_id`, and `settings` a JSON
-object (`TournamentSettings` in `frontend/src/lib/analysis/tournament.ts`:
+object (`TournamentSettings` in `web/src/lib/analysis/tournament.ts`:
 `kind` sng / spin / mtt, `payouts` in percent, `entrants`, `startingStack`,
 `playersLeft` points `{at, left}`), at most 64 KiB. **Written directly** by
 the owner under RLS (one owner-only policy per command; nothing for `anon`),
@@ -1350,7 +1350,7 @@ rebuild and `save_hand_stats` on desktop rows.
 
 `20270609090000_hand_origin_upload.sql` and `20270609091000_web_bulk_upload.sql`
 (Rail R4.2). The converter saves a drop of any size while it converts it
-(`frontend/src/components/converter/bulkSaver.ts`), through **`ingest_hands`
+(`web/src/components/converter/bulkSaver.ts`), through **`ingest_hands`
 from the account's web source** rather than `save_hands`:
 
 - `save_hands` spends the web's **global** `hands_insert` budget (25 000 rows
@@ -1656,7 +1656,7 @@ Pro within the grace; canceled -> Pro to the period end; otherwise Free.
 | Own chart sets, tournament settings | Written directly under RLS (`preflop_chart_sets`, R5.5's `tournament_settings`), so a before-insert-or-update row trigger, `entitlement_row_guard('analysis')`, named to fire before each table's own guard. Deleting one's own row stays allowed. |
 
 A refusal is SQLSTATE `PT402`, which PostgREST answers as **HTTP 402**, with a
-fixed English sentence (Croatian in `frontend/src/lib/i18n/serverErrors.ts`),
+fixed English sentence (Croatian in `web/src/lib/i18n/serverErrors.ts`),
 the feature (or `hand_cap`) as the HINT, and for the cap a JSON DETAIL
 `{"cap", "stored", "attempted"}`. A caller with no user and no client role
 (the service role, plain SQL) passes the guard; `anon` is refused.
@@ -1833,7 +1833,7 @@ account), `retain` (kept, for the reason given).
 
 ### Export
 
-The browser builds the ZIP (`frontend/src/lib/account/`): an Edge Function
+The browser builds the ZIP (`web/src/lib/account/`): an Edge Function
 has a wall-clock limit and ~256 MB of memory, a 1 000 000-hand account is
 gigabytes of JSON, and a stored copy would be one more place holding the data.
 No copy is stored on the server, temporarily or otherwise.
@@ -1951,7 +1951,7 @@ Run it after **any** change to the policies, to `save_hands`, or to
 `create_share`. It is the cheapest regression test in the project.
 
 ```bash
-cd frontend  # .env.local has the URL and anon key
+cd web  # .env.local has the URL and anon key
 URL=$(grep NEXT_PUBLIC_SUPABASE_URL .env.local | cut -d'"' -f2)
 KEY=$(grep NEXT_PUBLIC_SUPABASE_ANON_KEY .env.local | cut -d'"' -f2)
 TAG=$(openssl rand -hex 4)
@@ -2012,7 +2012,7 @@ Three representations are stored on purpose:
 
 | Column | What it is | Why it exists |
 | --- | --- | --- |
-| `phf jsonb` | The canonical PHF v1 document (`frontend/src/lib/phf/types.ts`) | Source of truth. The replayer reads this. |
+| `phf jsonb` | The canonical PHF v1 document (`web/src/lib/phf/types.ts`) | Source of truth. The replayer reads this. |
 | `standard_text text` | GG-style rendering, derived from `phf`. **Null on desktop rows** (R1.8, Q4): readers render it from `phf` (`storedStandardText` in `lib/db/mapping.ts`) | Holdem Manager import is byte-sensitive; storing the render means we never re-serialize, and never risk a serializer change silently altering an old export. |
 | `source_text text` | The original site text. Null on desktop rows: the originals stay on the user's disk (Q4) | So a hand can be **re-converted** after a parser bug is fixed, without asking the user for the file again. |
 
@@ -2114,7 +2114,7 @@ table is the backlog for "which site do we support next".
 | `anonymiser_version` | The anonymiser that produced `raw_text` (`rail-anon/1`). Required on a desktop row; `null` means verbatim. |
 | `guessed_site`, `guess_confidence` | For a file no parser claims: the core's guess - a detector below the threshold, or a known format's signature (`bossmedia`, `merge`). Separate from `detected_site`, which names the parser that refused a hand and groups `unparsed_gaps`. |
 
-Mirrors the `ConversionFailure` interface in `frontend/src/lib/phf/detect.ts`
+Mirrors the `ConversionFailure` interface in `web/src/lib/phf/detect.ts`
 exactly, plus `status` / `notes` / counters, plus the R0.11 registry fields
 the desktop app sends (`docs/unsupported-formats.md`).
 
@@ -2214,7 +2214,7 @@ claims. Only `positional` is destructive enough to justify blanking.
 
 ### How the value is derived
 
-`frontend/src/lib/db/anonymization.ts`, per hand, in this order:
+`web/src/lib/db/anonymization.ts`, per hand, in this order:
 
 1. **Site registry** — `ignition` → `positional`, `ggpoker` → `opaque-id`.
 2. **Parser warning codes** — a hand carrying `numeric-player-ids` is
@@ -2329,7 +2329,7 @@ who does not own it should copy this shape rather than invent a second one.**
 It is a **deny-list**, deliberately: `meta` is versioned by the PHF schema and a
 new *rendering* key upstream must keep working without a migration. The trade is
 that a new *sensitive* key needs a line in that function — so the rule for
-`frontend/src/lib/phf/types.ts` is that anything user-identifying goes into
+`web/src/lib/phf/types.ts` is that anything user-identifying goes into
 `meta` only if it is added to the deny-list in the same change.
 
 What stays exposed: `standardText` and the redacted `phf` still carry the
@@ -2347,15 +2347,15 @@ member who sees it, so `views` measured "times pasted", not "times read".
 `read_share` is now `stable` and writes nothing; `record_share_view` is
 `volatile` and does nothing else.
 
-Since the Next.js cutover (#26) the consumer is `frontend/src/app/h/[slug]/`,
+Since the Next.js cutover (#26) the consumer is `web/src/app/h/[slug]/`,
 an RSC whose `generateMetadata` and page body both call `read_share` through one
 React `cache()` — so the tags and the page are one round trip and neither
 counts. The counter is a client beacon (`RecordShareView.tsx`) with a
 `sessionStorage` guard, which a crawler does not run. The edge function that
-used to serve UA-sniffed tags, `frontend/api/share-meta.ts`, is deleted.
+used to serve UA-sniffed tags, `web/api/share-meta.ts`, is deleted.
 
 Consequence for callers: `read_share` returns the count **before** your view.
-`resolveShare()` in `frontend/src/lib/db/shares.ts` fires `record_share_view`
+`resolveShare()` in `web/src/lib/db/shares.ts` fires `record_share_view`
 fire-and-forget after a successful read, so the view is never counted for a slug
 that did not resolve and the page never waits on a counter.
 
@@ -2760,12 +2760,12 @@ The endpoint runs the whole file in one transaction and returns `[]` with HTTP
 
 ### Regenerate the client types
 
-`frontend/src/lib/db/database.types.ts` is generated from the migrations and
+`web/src/lib/db/database.types.ts` is generated from the migrations and
 every Supabase client is `SupabaseClient<Database>`, so a renamed table, column
 or function is a type error. After adding a migration, apply it locally and run:
 
 ```bash
-supabase gen types typescript --local --schema public > frontend/src/lib/db/database.types.ts
+supabase gen types typescript --local --schema public > web/src/lib/db/database.types.ts
 ```
 
 CI ("Migrations and pgTAP") regenerates it from a fresh database with the same
@@ -2807,7 +2807,7 @@ Then run a real round trip through the **anon** key, not the PAT — the PAT is 
 superuser and proves nothing about RLS:
 
 ```bash
-# frontend/.env.local has the values; `supabase projects api-keys --project-ref riybwcfnclphacnfawiq` prints them
+# web/.env.local has the values; `supabase projects api-keys --project-ref riybwcfnclphacnfawiq` prints them
 curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/rpc/unparsed_summary" \
   -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $NEXT_PUBLIC_SUPABASE_ANON_KEY"
 ```
@@ -2981,7 +2981,7 @@ set status = 'triaged',
 where fingerprint in ('…');
 ```
 
-**4. Write the parser** in `frontend/src/lib/parsers/`, using the `raw_text`
+**4. Write the parser** in `web/src/lib/parsers/`, using the `raw_text`
 samples as fixtures. Register it with `registerParser()`.
 
 **5. Close the loop.** After the release, set `status = 'parser-written'` for the

@@ -1,4 +1,4 @@
-//! `pokerbros`: PokerBros (`frontend/src/lib/parsers/pokerbros.ts`).
+//! `pokerbros`: PokerBros (`web/src/lib/parsers/pokerbros.ts`).
 //!
 //! PokerBros has no published native export; every file is third-party
 //! converter output, and the two real files are the *same hand* in two

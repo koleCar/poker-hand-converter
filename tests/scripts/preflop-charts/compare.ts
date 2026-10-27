@@ -10,8 +10,8 @@
  * difference, weighted by the smaller set's reach and range.
  */
 
-import { CLASS_COMBOS } from "../../../frontend/src/lib/solver/handClasses.js";
-import type { ChartSet } from "../../../frontend/src/lib/charts/format.js";
+import { CLASS_COMBOS } from "../../../web/src/lib/solver/handClasses.js";
+import type { ChartSet } from "../../../web/src/lib/charts/format.js";
 
 export interface SetComparison {
   /** Nodes of the smaller set; those the bigger set also has. */

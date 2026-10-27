@@ -1,5 +1,5 @@
 //! One exact hand against two or more weighted ranges at once:
-//! `frontend/src/lib/equity/multiway.ts`.
+//! `web/src/lib/equity/multiway.ts`.
 //!
 //! The hero's share is what a showdown against the whole field pays: all of
 //! the pot when strictly best, `1 / (1 + k)` of it when tied with `k`

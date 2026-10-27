@@ -19,16 +19,16 @@ Implementation:
 
 | File | Contents |
 | --- | --- |
-| `frontend/src/lib/stats/types.ts` | the counter set, `STATS_VERSION`, the structural rulebook |
-| `frontend/src/lib/stats/context.ts` | the shared read of a hand: decisions, aggressors, flags |
-| `frontend/src/lib/stats/derive.ts` | `handFacts(hand)` — the entry point |
-| `frontend/src/lib/stats/preflop.ts` | every preflop counter |
-| `frontend/src/lib/stats/postflop.ts` | streets seen, the cbet chain, donks, check-raises |
-| `frontend/src/lib/stats/showdown.ts` | WWSF, WTSD, W$SD |
-| `frontend/src/lib/stats/money.ts` | `won` / `contributed` / `net` / `rake_paid` |
-| `frontend/src/lib/stats/mapping.ts` | the flat row and the checked-in column list |
-| `frontend/src/lib/stats/rates.ts` | summing rows, and rates at read time |
-| `frontend/src/lib/stats/display.ts` | the display definitions of `config/stats/` evaluated (§13) |
+| `web/src/lib/stats/types.ts` | the counter set, `STATS_VERSION`, the structural rulebook |
+| `web/src/lib/stats/context.ts` | the shared read of a hand: decisions, aggressors, flags |
+| `web/src/lib/stats/derive.ts` | `handFacts(hand)` — the entry point |
+| `web/src/lib/stats/preflop.ts` | every preflop counter |
+| `web/src/lib/stats/postflop.ts` | streets seen, the cbet chain, donks, check-raises |
+| `web/src/lib/stats/showdown.ts` | WWSF, WTSD, W$SD |
+| `web/src/lib/stats/money.ts` | `won` / `contributed` / `net` / `rake_paid` |
+| `web/src/lib/stats/mapping.ts` | the flat row and the checked-in column list |
+| `web/src/lib/stats/rates.ts` | summing rows, and rates at read time |
+| `web/src/lib/stats/display.ts` | the display definitions of `config/stats/` evaluated (§13) |
 | `tests/test/statsDerive.test.ts` | the corpus-wide property suite |
 | `tests/test/statsSpots.test.ts` | one pinned hand per hard case |
 | `tests/test/support/statsInvariants.ts` | the invariants, as pure functions |
@@ -73,7 +73,7 @@ Rows carry `made` and `opp`; `rates.ts` divides at read time.
 
 ## 2. The import rule
 
-**`frontend/src/lib/stats/**` may import only `lib/phf/types`,
+**`web/src/lib/stats/**` may import only `lib/phf/types`,
 `lib/phf/validate` and `lib/cards`.** No Supabase, no React, no `window`, no
 `process`.
 
@@ -603,7 +603,7 @@ module layout mirrors the TypeScript file for file:
 `rail_stats::rows_for(&hand)` is `statsRows(handFacts(hand))`.
 
 **The TypeScript stays the oracle** until the web moves to the Rust core
-(R4.x). A change of meaning lands in `frontend/src/lib/stats` first, with its
+(R4.x). A change of meaning lands in `web/src/lib/stats` first, with its
 spot fixture and its version bump, and regenerates the stats goldens
 (`npm run golden:emit` in `tests/`, `testdata/golden-stats/`); the Rust port
 then sees it as a failing diff. The Rust tests are:
@@ -644,7 +644,7 @@ golden-tested. What a screen or the HUD **shows** is data (amendment A11,
 docs/RAIL-PLAN.md R2.4): `config/stats/standard.json`, checked by
 `config/stats/stats.schema.json`, read by the desktop app and the HUD in Rust
 (`rail_config::stats` parses and validates, `rail_stats::display` evaluates)
-and by the web (`frontend/src/lib/stats/display.ts`, over `definitions.json`,
+and by the web (`web/src/lib/stats/display.ts`, over `definitions.json`,
 a checked copy). A new displayed statistic is a definition there, not a
 division in a component (guideline §14; `tests/test/statDisplay.test.ts`
 scans for the latter).

@@ -13,8 +13,8 @@ import {
   resolveRunout,
   totalFees,
   type PhfHand,
-} from "../../../frontend/src/lib/phf/types.js";
-import { parseStandardHand, toStandardText } from "../../../frontend/src/lib/phf/serialize.js";
+} from "../../../web/src/lib/phf/types.js";
+import { parseStandardHand, toStandardText } from "../../../web/src/lib/phf/serialize.js";
 
 /** One minor unit of slack, the same tolerance the validator uses. */
 const TOLERANCE = 1;

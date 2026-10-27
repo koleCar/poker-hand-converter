@@ -1,5 +1,5 @@
 //! `standard`: the app's own standard text, read back in
-//! (`frontend/src/lib/parsers/standard.ts`).
+//! (`web/src/lib/parsers/standard.ts`).
 //!
 //! Re-uploading a file this app produced has to work - users download the
 //! converted text, import it into a tracker, and drop the same file back in -
@@ -99,7 +99,7 @@ mod tests {
         assert_eq!(parser.detect("x\u{2028}GG Hand #1: y"), 250);
         assert_eq!(parser.detect(" Poker Hand #1: y"), 0);
         assert_eq!(parser.detect("poker hand #1: y"), 0);
-        let source = include_str!("../../../../frontend/src/lib/parsers/standard.ts");
+        let source = include_str!("../../../../web/src/lib/parsers/standard.ts");
         for pattern in [r"/^Poker Hand #/m", r"/^(?:PokerStars|GG) Hand #/m"] {
             assert!(source.contains(pattern), "{pattern}");
         }

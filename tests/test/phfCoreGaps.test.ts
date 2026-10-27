@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
 import {
   CHIPS,
   EUR,
@@ -12,9 +12,9 @@ import {
   parseAmountStrict,
   seatOutOfPot,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { buildReplay } from "../../frontend/src/lib/replay.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { buildReplay } from "../../web/src/lib/replay.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 

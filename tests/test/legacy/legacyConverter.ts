@@ -1,5 +1,5 @@
 /**
- * FROZEN COPY of `frontend/src/lib/converter.ts` as it stood before the PHF
+ * FROZEN COPY of `web/src/lib/converter.ts` as it stood before the PHF
  * rewrite (commit e5a078a).
  *
  * Do not "fix" anything in here. Its only job is to be the reference the

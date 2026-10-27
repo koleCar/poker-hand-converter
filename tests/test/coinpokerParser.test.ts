@@ -25,11 +25,11 @@ import {
   detectSite,
   getParsers,
   ParseSkip,
-} from "../../frontend/src/lib/parsers/index.js";
-import { looksLikeCoinPoker } from "../../frontend/src/lib/parsers/coinpoker.js";
-import { toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { assignPositions, toBigBlinds, type PhfHand } from "../../frontend/src/lib/phf/types.js";
+} from "../../web/src/lib/parsers/index.js";
+import { looksLikeCoinPoker } from "../../web/src/lib/parsers/coinpoker.js";
+import { toStandardText } from "../../web/src/lib/phf/serialize.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { assignPositions, toBigBlinds, type PhfHand } from "../../web/src/lib/phf/types.js";
 import {
   blindSpots,
   chipConservation,

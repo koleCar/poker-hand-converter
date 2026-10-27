@@ -5,7 +5,7 @@
 
 use super::*;
 
-const SOURCE: &str = include_str!("../../../../../frontend/src/lib/parsers/pokerstars.ts");
+const SOURCE: &str = include_str!("../../../../../web/src/lib/parsers/pokerstars.ts");
 
 const LITERALS: &[&str] = &[
     r"/^PokerStars(?: ([A-Za-z ]+?))? (?:Hand|Game) #(\d+):\s*(?:\{([^}]*)\}\s*)?(.*)$/",

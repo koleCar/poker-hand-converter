@@ -154,7 +154,7 @@ and IPC design are in [`docs/RAIL-PLAN.md` §3](docs/RAIL-PLAN.md#3-target-archi
 
 ### 5.1 Rail core (`core/`, Rust — Phase 0)
 
-The parser, today's `frontend/src/lib/{phf,parsers}`, ported to Rust crate by
+The parser, today's `web/src/lib/{phf,parsers}`, ported to Rust crate by
 crate. It is compiled natively into the desktop app and to WebAssembly for the
 web. One file goes through:
 
@@ -612,7 +612,7 @@ the room list is re-checked before every release (the manual workflow
 "Release checklist" fails on any allowed room checked more than 90 days ago:
 `npm run hud:policy-check` in `tests/`).
 
-### 5.7 Web (`frontend/` → `web/`, Next.js 15)
+### 5.7 Web (`web/` → `web/`, Next.js 15)
 
 Live today; described in full in [`docs/WEB.md`](docs/WEB.md). In the target
 picture it shows the same Hands, Reports and Players screens and replayer as the
@@ -698,13 +698,13 @@ Today, and where each part is going (the move is a planned step,
 
 | Today | Target | Contents |
 | --- | --- | --- |
-| `frontend/src/lib/{phf,parsers}` | `core/rail-core` | Parsers, PHF model, validation, serializer |
-| `frontend/src/lib/stats`, `lib/equity` | `core/rail-stats`, `core/rail-equity` | Statistics and all-in EV |
+| `web/src/lib/{phf,parsers}` | `core/rail-core` | Parsers, PHF model, validation, serializer |
+| `web/src/lib/stats`, `lib/equity` | `core/rail-stats`, `core/rail-equity` | Statistics and all-in EV |
 | — | `core/rail-store`, `core/rail-watch`, `core/rail-sync` | SQLite, file watcher, sync |
 | `app/` (R1.1) | `app/` | Tauri desktop app: `src-tauri/` (Rust, in the workspace) and `src/` (React) |
 | `hud/` (R3.1, R3.2) | `hud/` | The HUD process `rail-hud` (overlays, Windows and macOS), its channel to the app `rail-hud-ipc`, the table simulator `rail-hud-sim` |
-| `frontend/` | `web/` | Next.js web app (Vercel root directory moves with it) |
-| `packages/ui/` (R2.6) | `packages/ui/` | Shared UI package `@rail/ui`: design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay, command palette. Source consumed by `frontend/` and `app/` through `file:` links; the web's own screens stay in `frontend/src/components` |
+| `web/` | `web/` | Next.js web app (Vercel root directory moves with it) |
+| `packages/ui/` (R2.6) | `packages/ui/` | Shared UI package `@rail/ui`: design tokens, cards, chips, the replayer, stat tile and table, dialog, overlay, command palette. Source consumed by `web/` and `app/` through `file:` links; the web's own screens stay in `web/src/components` |
 | `supabase/` | `supabase/` | Migrations, RLS, pgTAP tests |
 | `config/sites.json` (R0.12) | `config/` | `sites.json` and its schema; `stats/` |
 | `fixtures/`, `gg-hh/`, `weplay-hh/`, `tests/test/fixtures/` | `testdata/` | Real corpus and goldens (moved with a byte-hash check) |
@@ -718,7 +718,7 @@ Today, and where each part is going (the move is a planned step,
 ### Web app (works today)
 
 ```bash
-cd frontend
+cd web
 npm install
 cp .env.example .env.local   # Supabase URL and anon key; optional
 npm run dev                  # http://localhost:3000
@@ -768,18 +768,18 @@ cargo build -p rail-core -p rail-core-wasm -p rail-config -p rail-stats -p rail-
 fails, rather than skips, without the full goldens; it also derives every
 golden hand's statistics rows with `rail-stats` and compares them with the
 TypeScript engine's (`testdata/golden-stats/`, R2.1). After a change to
-`frontend/src/lib/stats`, commit the regenerated `testdata/golden-stats/`
+`web/src/lib/stats`, commit the regenerated `testdata/golden-stats/`
 and regenerate the stats mutation vectors with
 `node core/rail-stats/tests/data/stats-vectors.mjs`. Likewise all-in EV
 (R2.2): `cargo test -p rail-equity` compares every golden hand's EV row and
 analysis with `testdata/golden-ev/`; after a change to
-`frontend/src/lib/equity`, commit the regenerated `testdata/golden-ev/` and
+`web/src/lib/equity`, commit the regenerated `testdata/golden-ev/` and
 run `node core/rail-equity/tests/data/ev-vectors.mjs`. After a change to
-`config/stats/standard.json` or `frontend/src/lib/stats/display.ts` (R2.4),
-copy the file to `frontend/src/lib/stats/definitions.json` and run
+`config/stats/standard.json` or `web/src/lib/stats/display.ts` (R2.4),
+copy the file to `web/src/lib/stats/definitions.json` and run
 `node core/rail-stats/tests/data/display-vectors.mjs`; `cargo test -p
 rail-stats --test display` replays it. After that, or a change to
-`frontend/src/lib/stats/reliability.ts` (R2.5), run
+`web/src/lib/stats/reliability.ts` (R2.5), run
 `node core/rail-stats/tests/data/reliability-vectors.mjs`; `cargo test -p
 rail-stats --test reliability` replays it. After changing the model,
 regenerate its TypeScript declarations with
@@ -880,7 +880,7 @@ cargo install wasm-bindgen-cli --version 0.2.129 --locked   # once; must match C
 cd tests
 npm run wasm:build           # core/rail-core-wasm/pkg/nodejs/ (gitignored); fails over 1.5 MB gzipped
 npm run wasm:build -- web    # the ES-module target the web loads (R4.1)
-npm run wasm:web-from-ci     # after a core change: install CI's Linux build into frontend/src/lib/wasm/rail-core/ (the committed copy)
+npm run wasm:web-from-ci     # after a core change: install CI's Linux build into web/src/lib/wasm/rail-core/ (the committed copy)
 npm run wasm:shadow          # 556 files: WASM = TypeScript, also on the web's path; prints throughputs
 ```
 
@@ -980,7 +980,7 @@ NSIS installer.
 
 `packages/ui/` is `@rail/ui`: the design tokens and the components the web and
 the app both render (cards, chips, the replayer, stat tile and table, dialog,
-overlay, command palette). It is source, not a build: `frontend/` and `app/`
+overlay, command palette). It is source, not a build: `web/` and `app/`
 depend on it as `file:../packages/ui`, so their `npm install` links it and
 their bundlers compile it. Its own checks:
 
@@ -1099,7 +1099,7 @@ before its first look for tables; `--policy <file>` works standalone too, to
 try a stricter list by hand. The app looks for a new list shortly after
 start and every 6 hours (30 minutes after a failure), and the HUD screen's
 "Look for an update now"; a debug build reads `RAIL_WEB_URL` (e.g.
-`http://localhost:3000` with `npm run dev` in `frontend/`, which publishes
+`http://localhost:3000` with `npm run dev` in `web/`, which publishes
 `/sites.json` from `config/sites.json`).
 
 **Capturing real table titles** (Windows; the procedure for each room is
@@ -1187,7 +1187,7 @@ Carried over from the web app, each with a lint rule or test behind it
 (details in [`docs/WEB.md`](docs/WEB.md#rules-that-are-load-bearing)):
 
 - **The pure layer may not import the framework.** Nothing under
-  `frontend/src/lib/{phf,parsers,replay,cards,format,stats}` imports `next/*`,
+  `web/src/lib/{phf,parsers,replay,cards,format,stats}` imports `next/*`,
   `server-only` or `process.env`; the test harness imports those files directly.
 - **Never normalise the fixture trees.** `.gitattributes` marks them binary so
   CRLF, UTF-16LE and Windows-1252 bytes survive; the byte-exactness tests depend

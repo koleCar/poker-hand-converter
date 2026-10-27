@@ -16,15 +16,15 @@
 
 import { describe, expect, it } from "vitest";
 
-import { chicoParser, convertAny, detectSite, winamaxParser } from "../../frontend/src/lib/parsers/index.js";
-import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+import { chicoParser, convertAny, detectSite, winamaxParser } from "../../web/src/lib/parsers/index.js";
+import { parseStandardHand, toStandardText } from "../../web/src/lib/phf/serialize.js";
 import {
   contributionsFromActions,
   totalFees,
   type PhfHand,
-} from "../../frontend/src/lib/phf/types.js";
-import { validateHand } from "../../frontend/src/lib/phf/validate.js";
-import { buildReplay } from "../../frontend/src/lib/replay.js";
+} from "../../web/src/lib/phf/types.js";
+import { validateHand } from "../../web/src/lib/phf/validate.js";
+import { buildReplay } from "../../web/src/lib/replay.js";
 import {
   CHICO_CONFIRMED_SKINS,
   CHICO_INFERRED_SKINS,

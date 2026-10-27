@@ -69,7 +69,7 @@
         "tables": { "$ref": "#/$defs/tables" },
         "hud": { "$ref": "#/$defs/hud" },
         "anonymisation": {
-          "description": "What player names in this client's files are (docs/DATABASE.md, Player identity and anonymized rooms): the site-level default of frontend/src/lib/db/anonymization.ts. null when no parser reads the files.",
+          "description": "What player names in this client's files are (docs/DATABASE.md, Player identity and anonymized rooms): the site-level default of web/src/lib/db/anonymization.ts. null when no parser reads the files.",
           "enum": ["none", "positional", "opaque-id", null]
         },
         "docs": {

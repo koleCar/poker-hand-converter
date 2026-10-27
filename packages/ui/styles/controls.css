@@ -4,7 +4,7 @@
  * from before the package existed, worn by the replayer's transport, its
  * overlays and nearly every screen of the web, and moved here unchanged (R2.6)
  * so the desktop app gets the same buttons. The web imports this sheet from
- * `frontend/src/styles/app.css`, in the cascade position it always had.
+ * `web/src/styles/app.css`, in the cascade position it always had.
  * Import it after `replayer/replayer.css`, as the web does: where the two meet
  * at equal specificity (`.chip-btn.is-active` against
  * `.rp__transport .chip-btn`), the control's state has to win. */

@@ -25,11 +25,11 @@
 
 import { describe, expect, it } from "vitest";
 
-import { analyzeHand, chartLineOf, gradeRank, type DecisionAnalysis, type HandAnalysis } from "../../frontend/src/lib/analysis/index.js";
-import { liveNames, postedLimp, preflopSpotFromHand } from "../../frontend/src/lib/charts/index.js";
-import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
-import { buildContext } from "../../frontend/src/lib/stats/context.js";
-import type { PhfAction, PhfHand, Position } from "../../frontend/src/lib/phf/types.js";
+import { analyzeHand, chartLineOf, gradeRank, type DecisionAnalysis, type HandAnalysis } from "../../web/src/lib/analysis/index.js";
+import { liveNames, postedLimp, preflopSpotFromHand } from "../../web/src/lib/charts/index.js";
+import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
+import { buildContext } from "../../web/src/lib/stats/context.js";
+import type { PhfAction, PhfHand, Position } from "../../web/src/lib/phf/types.js";
 import { fullLibrary } from "./charts/support.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };

@@ -16,10 +16,10 @@ import {
   isOpenLimpNode,
   loadCharts,
   serializeCharts,
-} from "../../../frontend/src/lib/charts/index.js";
-import { decodeBase64, encodeBase64 } from "../../../frontend/src/lib/charts/base64.js";
-import { encodeEv, encodeFreq } from "../../../frontend/src/lib/charts/format.js";
-import { buildPreflopTree, NINE_MAX, NUM_CLASSES, preflopEquityTable } from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/charts/index.js";
+import { decodeBase64, encodeBase64 } from "../../../web/src/lib/charts/base64.js";
+import { encodeEv, encodeFreq } from "../../../web/src/lib/charts/format.js";
+import { buildPreflopTree, NINE_MAX, NUM_CLASSES, preflopEquityTable } from "../../../web/src/lib/solver/index.js";
 
 const SMALL = {
   players: ["BTN", "SB", "BB"] as const,

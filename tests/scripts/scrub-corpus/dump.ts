@@ -3,8 +3,8 @@
 // line: {id, file, anonymization, phf}.
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import { detectAnonymization } from "../../../frontend/src/lib/db/anonymization.js";
+import { convertAny } from "../../../web/src/lib/parsers/index.js";
+import { detectAnonymization } from "../../../web/src/lib/db/anonymization.js";
 
 const ROOT = join(import.meta.dirname, "../../..");
 const OUT = process.argv[2];

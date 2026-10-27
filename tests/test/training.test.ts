@@ -1,5 +1,5 @@
 /**
- * Training (phase A7, `docs/ANALYSIS-PLAN.md` §7, `frontend/src/lib/training`).
+ * Training (phase A7, `docs/ANALYSIS-PLAN.md` §7, `web/src/lib/training`).
  *
  * - **The scheduler** on the same table of cases as the database's
  *   `drill_next` (`supabase/tests/database/analysis_training.test.sql`), so
@@ -19,11 +19,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { analyzeHand, grade, opponentRanges, removalFactors, type DecisionAnalysis } from "../../frontend/src/lib/analysis/index.js";
-import { handClassOf, loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
+import { analyzeHand, grade, opponentRanges, removalFactors, type DecisionAnalysis } from "../../web/src/lib/analysis/index.js";
+import { handClassOf, loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { fullLibrary } from "./charts/support.js";
-import { comboHi, comboLo, HAND_CLASSES, rangesAt } from "../../frontend/src/lib/solver/index.js";
-import { cardCode, cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
+import { comboHi, comboLo, HAND_CLASSES, rangesAt } from "../../web/src/lib/solver/index.js";
+import { cardCode, cardIndex } from "../../web/src/lib/equity/evaluator.js";
 import {
   BORDERLINE_FLOOR,
   INITIAL_EASE,
@@ -61,10 +61,10 @@ import {
   type DrillDecision,
   type HandScript,
   type RiverTrainerSpot,
-} from "../../frontend/src/lib/training/index.js";
+} from "../../web/src/lib/training/index.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
 );
 
 /** The analysis' own verdict on one decision of a hand, from a full run. */
@@ -362,8 +362,8 @@ describe("river spots", () => {
 
 describe("river dealing weights", () => {
   it("are the solve's reach at the node, and exclude the board", async () => {
-    const { solveRiverSpot, walkRanges } = await import("../../frontend/src/lib/analysis/index.js");
-    const { buildContext } = await import("../../frontend/src/lib/stats/context.js");
+    const { solveRiverSpot, walkRanges } = await import("../../web/src/lib/analysis/index.js");
+    const { buildContext } = await import("../../web/src/lib/stats/context.js");
     const spot = generateRiverSpot(CHARTS, { seat: "oop" }, 3);
     if (!spot) throw new Error("no spot");
     const hand = scriptHand({ ...spot.script, river: [{ position: spot.hero, type: "check" }] });

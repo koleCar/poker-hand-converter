@@ -1,4 +1,4 @@
-//! The stored EV row: `handEvRow` of `frontend/src/lib/db/statsRows.ts`.
+//! The stored EV row: `handEvRow` of `web/src/lib/db/statsRows.ts`.
 //!
 //! One row per hand with a hero, applicable or not: a hand without an
 //! all-in (or one the engine cannot evaluate) still gets a row, with

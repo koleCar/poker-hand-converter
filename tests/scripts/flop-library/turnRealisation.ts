@@ -26,10 +26,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { FLOP_LINES, FLOP_LINES_9MAX, FLOP_PROFILE } from "../../../frontend/src/lib/analysis/flopLibrary.js";
-import { flopRealisationCategory } from "../../../frontend/src/lib/analysis/multiway.js";
-import { pruned, toCombos } from "../../../frontend/src/lib/analysis/river.js";
-import { toIndices } from "../../../frontend/src/lib/analysis/texture.js";
+import { FLOP_LINES, FLOP_LINES_9MAX, FLOP_PROFILE } from "../../../web/src/lib/analysis/flopLibrary.js";
+import { flopRealisationCategory } from "../../../web/src/lib/analysis/multiway.js";
+import { pruned, toCombos } from "../../../web/src/lib/analysis/river.js";
+import { toIndices } from "../../../web/src/lib/analysis/texture.js";
 import {
   TURN_ALLIN_THRESHOLD,
   TURN_CHECK_EVERY,
@@ -37,7 +37,7 @@ import {
   TURN_DCFR,
   TURN_MIN_BET,
   TURN_PROFILE,
-} from "../../../frontend/src/lib/analysis/turn.js";
+} from "../../../web/src/lib/analysis/turn.js";
 import {
   comboHi,
   comboLo,
@@ -50,7 +50,7 @@ import {
   type BetMenu,
   type FlopChunk,
   type SolveResult,
-} from "../../../frontend/src/lib/solver/index.js";
+} from "../../../web/src/lib/solver/index.js";
 import { nodeEquities, runouts, SAMPLE_EVERY, MIN_SHARE, type Sample } from "./realisation.js";
 
 /** A flop ending this share of either player's flop range reaches (or more) is a turn spot. */

@@ -1,5 +1,5 @@
 // Writes wpcp-vectors.json: what the TypeScript WePlay and CoinPoker parsers
-// (`frontend/src/lib/parsers/{weplay,coinpoker}.ts`) make of texts the corpus
+// (`web/src/lib/parsers/{weplay,coinpoker}.ts`) make of texts the corpus
 // does not have, for `rail_core::parsers` to replay (docs/RAIL-PLAN.md R0.7b),
 // plus the pre-PHF converter's output the byte-compatibility test measures
 // against.
@@ -49,12 +49,12 @@ const esbuild = require("esbuild");
 const bundle = await esbuild.build({
   stdin: {
     contents: `
-      export { weplayParser, normalizeWeplayChunk } from "./frontend/src/lib/parsers/weplay.ts";
-      export { coinpokerParser } from "./frontend/src/lib/parsers/coinpoker.ts";
-      export { convertAny } from "./frontend/src/lib/parsers/index.ts";
-      export { ParseSkip } from "./frontend/src/lib/phf/detect.ts";
-      export { splitStandardHands, toStandardText } from "./frontend/src/lib/phf/serialize.ts";
-      export { decodeSource } from "./frontend/src/components/converter/inputs.ts";
+      export { weplayParser, normalizeWeplayChunk } from "./web/src/lib/parsers/weplay.ts";
+      export { coinpokerParser } from "./web/src/lib/parsers/coinpoker.ts";
+      export { convertAny } from "./web/src/lib/parsers/index.ts";
+      export { ParseSkip } from "./web/src/lib/phf/detect.ts";
+      export { splitStandardHands, toStandardText } from "./web/src/lib/phf/serialize.ts";
+      export { decodeSource } from "./web/src/components/converter/inputs.ts";
       export { canonicalJson } from "./tests/scripts/golden/canonical.ts";
       export { convertCashWeplayFile as legacyConvert } from "./tests/test/legacy/legacyConverter.ts";
     `,

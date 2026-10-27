@@ -1,5 +1,5 @@
 //! `unibet`: Unibet Poker's own plain-text export
-//! (`frontend/src/lib/parsers/unibet.ts`), not its iPoker skin.
+//! (`web/src/lib/parsers/unibet.ts`), not its iPoker skin.
 //!
 //! Two header generations, one body grammar:
 //!
@@ -1351,7 +1351,7 @@ impl SiteParser for UnibetParser {
 mod tests {
     use super::*;
 
-    const SOURCE: &str = include_str!("../../../../frontend/src/lib/parsers/unibet.ts");
+    const SOURCE: &str = include_str!("../../../../web/src/lib/parsers/unibet.ts");
 
     #[test]
     fn patterns_and_messages_are_the_typescript_source() {
