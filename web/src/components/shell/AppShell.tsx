@@ -24,15 +24,16 @@ import { ProBadge } from "../plan/ProLock";
  * that used to live in `routes/router.tsx` is gone, and with it the click
  * handler that re-implemented modifier-key and middle-click semantics.
  */
-export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | "learn";
+export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | "solver" | "learn";
 
 /**
- * Learn (L1) is a tab for everyone, like the forum and the converter: the
- * course works signed out, with progress kept in the browser. It goes last,
- * so a signed-out visitor sees three tabs (forum, convert, learn) and a
- * signed-in player with hands six; on a phone the strip already scrolls
- * sideways and keeps the current tab in view (see the effect below), so a
- * sixth tab costs one more swipe, not a second row (`docs/LEARN-PLAN.md`).
+ * The Solver library (`/solver`) goes last and is offered to anyone signed
+ * in, hands or not: it reads the flop library, nothing of the account. It
+ * took Learn's place in the bar; the course's pages (`/learn/**`) still work
+ * from a link and keep the `learn` tab id, but the bar no longer offers them.
+ * A signed-out visitor sees two tabs (forum, convert) and a signed-in player
+ * with hands six; on a phone the strip already scrolls sideways and keeps the
+ * current tab in view (see the effect below).
  */
 const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> = [
   { id: "forum", label: (en) => en.nav.forum, path: paths.home() },
@@ -40,11 +41,14 @@ const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> =
   { id: "library", label: (en) => en.nav.library, path: paths.library() },
   { id: "stats", label: (en) => en.nav.stats, path: paths.stats() },
   { id: "analysis", label: (en) => en.nav.analysis, path: paths.analysis() },
-  { id: "learn", label: (en) => en.nav.learn, path: paths.learn() },
+  { id: "solver", label: (en) => en.nav.solver, path: paths.solver() },
 ];
 
 /** Tabs offered to everyone, with or without a library. */
-const OPEN_TABS: readonly ShellTab[] = ["forum", "convert", "learn"];
+const OPEN_TABS: readonly ShellTab[] = ["forum", "convert"];
+
+/** Tabs offered to anyone signed in, with or without a library. */
+const SIGNED_IN_TABS: readonly ShellTab[] = ["solver"];
 
 interface AppShellProps {
   /** Null on routes with no tab (e.g. 404). */
@@ -62,6 +66,8 @@ interface AppShellProps {
    * statistics.
    */
   showHistoryTab: boolean;
+  /** Whether someone is signed in: the Solver library is offered then. */
+  signedIn: boolean;
   dbConfigured: boolean;
   storedCount: number | null;
   /** Tabs whose feature the account's plan lacks (R6.2): marked Pro. Empty while enforcement is off. */
@@ -72,15 +78,20 @@ interface AppShellProps {
 export function AppShell({
   tab,
   showHistoryTab,
+  signedIn,
   dbConfigured,
   storedCount,
   lockedTabs = [],
   children,
 }: AppShellProps) {
   const en = useDict();
-  // The forum and the converter are for everyone; the library and statistics
-  // wait until there is something in them.
-  const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
+  // The forum and the converter are for everyone; the Solver library for
+  // anyone signed in; the library and statistics wait until there is
+  // something in them.
+  const tabs = TABS.filter(
+    (entry) =>
+      OPEN_TABS.includes(entry.id) || (signedIn && SIGNED_IN_TABS.includes(entry.id)) || (showHistoryTab && !SIGNED_IN_TABS.includes(entry.id)),
+  );
   const navRef = useRef<HTMLElement | null>(null);
 
   // On a phone the tab strip scrolls sideways (five tabs do not fit 375px);

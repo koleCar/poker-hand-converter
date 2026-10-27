@@ -464,6 +464,18 @@ export class FlopLibraryLoader implements FlopLibrary {
     return (this.manifests.get(set)?.size ?? 0) > 0;
   }
 
+  /**
+   * What a set's manifest lists, loading it first (the Solver library tab
+   * browses it). Empty when the set has no manifest yet. Never throws.
+   */
+  async listed(set: string): Promise<Array<{ line: string; flop: string }>> {
+    if (!(await this.ready(set))) return [];
+    return [...(this.manifests.get(set) ?? [])].map((key) => {
+      const cut = key.indexOf("/");
+      return { line: key.slice(0, cut), flop: key.slice(cut + 1) };
+    });
+  }
+
   has(set: string, line: string, flop: string): boolean {
     return this.manifests.get(set)?.has(`${line}/${flop}`) ?? false;
   }

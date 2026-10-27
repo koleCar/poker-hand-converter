@@ -1,0 +1,286 @@
+/* The Solver library (`/solver`): table and line pickers, the solved flops,
+   one decision with its actions, the 13×13 grid and a hand's combos. The grid
+   itself is the chart browser's (`analysis.module.css`). */
+
+.browser {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+  max-inline-size: 24rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.field select {
+  inline-size: 100%;
+}
+
+.notice {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.notice h2,
+.notice p {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------ the flops */
+
+.flops {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.flopsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.chip {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.chipOn {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+  background: var(--surface-inset);
+}
+
+.flopList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  max-block-size: 9.5rem;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.flopButton {
+  padding: 3px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  cursor: pointer;
+}
+
+.flopButton:hover {
+  border-color: var(--border-hover);
+}
+
+.flopOn {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 2px var(--accent-border);
+}
+
+/* ------------------------------------------------------- one decision */
+
+.decision {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.spot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.board {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.history {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.stepWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-tertiary);
+}
+
+.step {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.step:disabled {
+  cursor: default;
+  font-weight: var(--font-weight-semibold);
+}
+
+.toAct {
+  margin: 0;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+  gap: var(--space-2);
+  max-inline-size: 58rem;
+}
+
+.action {
+  position: relative;
+  display: grid;
+  padding: var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.action:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.action:disabled {
+  cursor: default;
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+/* The share of the range taking the action, as a bar along the button's foot. */
+.actionBar {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  block-size: 4px;
+}
+
+.actionText {
+  display: grid;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bets and raises: the largest size in the action colour, smaller ones lighter. */
+.lighter0 {
+  opacity: 1;
+}
+
+.lighter1 {
+  opacity: 0.72;
+}
+
+.lighter2 {
+  opacity: 0.5;
+}
+
+/* ------------------------------------------------------------ the grid */
+
+.cell {
+  position: relative;
+  grid-template-rows: auto;
+}
+
+.cell .cellFill {
+  position: absolute;
+  inset-inline: 1px;
+  inset-block-end: 1px;
+  display: flex;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.cellFill > span {
+  display: block;
+  block-size: 100%;
+}
+
+.cell > :first-child {
+  position: relative;
+  z-index: 1;
+}
+
+.combos {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.combos th,
+.combos td {
+  padding: 2px var(--space-1);
+  border-block-end: 1px solid var(--border-subtle);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.combos th[scope="row"],
+.combos thead th:first-child {
+  text-align: start;
+}
+
+.comboText {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.red {
+  color: var(--danger-fg);
+}
+
+.comboOut {
+  color: var(--text-tertiary);
+}

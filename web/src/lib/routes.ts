@@ -84,6 +84,21 @@ export const paths = {
     return query ? `/analysis/charts?${query}` : "/analysis/charts";
   },
   /**
+   * The Solver library tab: the flop library's solves, one decision at a
+   * time. Signed in only, so not in the sitemap. `?set=`, `?line=`, `?flop=`
+   * and `?node=` pick the view. A top-level segment, so `solver` is a
+   * reserved username (`20271020090000_solver_route.sql`).
+   */
+  solver: (view?: { set?: string; line?: string; flop?: string; node?: number }) => {
+    const params = new URLSearchParams();
+    if (view?.set) params.set("set", view.set);
+    if (view?.line) params.set("line", view.line);
+    if (view?.flop) params.set("flop", view.flop);
+    if (view?.node) params.set("node", String(view.node));
+    const query = params.toString();
+    return query ? `/solver?${query}` : "/solver";
+  },
+  /**
    * The Learn tab (Learn L1, `docs/LEARN-PLAN.md`): the course map. Public and
    * indexable: the course reads no account data on the server (a learner's
    * progress is read in the browser). A top-level segment, so `learn` is a

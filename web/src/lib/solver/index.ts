@@ -18,6 +18,7 @@
  * flop.ts         flop+turn+river games and solves, suit isomorphism on both deals (A5b)
  * flopSet.ts      the 1,755 canonical flops, the library's ~100 representatives, the mapping
  * flopLibrary.ts  FLOPLIB_VERSION: the library's chunk format, encode / decode
+ * explore.ts      one chunk node at a time: mix and EV per class and combo (the Solver library tab)
  * lock.ts         the exploit lab (Learn L4): lock a node, best-respond, gain and risk
  * ```
  *
@@ -163,6 +164,17 @@ export {
   type FlopManifest,
   type FlopManifestEntry,
 } from "./flopLibrary";
+export {
+  classCombos,
+  ExploreError,
+  exploreHistory,
+  exploreNode,
+  type ExploreAction,
+  type ExploreClass,
+  type ExploreCombo,
+  type ExploreNode,
+  type ExploreStep,
+} from "./explore";
 export { OFF_TREE_DISTANCE, pseudoHarmonic, translateSize, type Translation } from "./translation";
 export { spotHash, spotKey, type SpotKeyParts } from "./spotKey";
 

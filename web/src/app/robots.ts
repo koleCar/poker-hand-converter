@@ -11,7 +11,8 @@ import { canonicalUrl, paths } from "../lib/routes";
  * capability URL whose enumeration resistance is the whole security model, and
  * a rule that only works if the crawler found it through us is not a rule.
  *
- * `/library`, `/stats`, `/players`, `/analysis` and `/auth` are one account's own screens behind RLS.
+ * `/library`, `/stats`, `/players`, `/analysis` and `/auth` are one account's own screens behind RLS,
+ * and `/solver` is for signed-in players only.
  * There is nothing on them for a signed-out crawler and nothing worth spending
  * crawl budget on — except `/analysis/learn`, the concept library, and
  * `/analysis/charts`, the preflop chart browser, which read no account data
@@ -27,7 +28,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: ["/", paths.analysisLearn(), paths.analysisCharts()],
       // `/embed/` duplicates `/p/` without its context; `/api/` is machinery.
-      disallow: ["/h/", "/embed/", "/api/", paths.library(), paths.stats(), paths.players(), paths.analysis(), "/auth/"],
+      disallow: ["/h/", "/embed/", "/api/", paths.library(), paths.stats(), paths.players(), paths.analysis(), paths.solver(), "/auth/"],
     },
     sitemap: canonicalUrl("/sitemap.xml"),
   };
