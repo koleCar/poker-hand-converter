@@ -1223,6 +1223,8 @@ of each decision and risks are in [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md).
 | --- | --- |
 | What are we building and why? | [`docs/RAIL_GUIDELINE.md`](docs/RAIL_GUIDELINE.md) |
 | In what order, with what steps, and what is still undecided? | [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) |
+| How does each feature work for a player? | [`docs/GUIDE.md`](docs/GUIDE.md) |
+| How does each part work inside? | [`core/`](core/README.md), [`app/`](app/README.md), [`hud/`](hud/README.md), [`web/`](web/README.md), [`packages/ui/`](packages/ui/README.md), [`supabase/`](supabase/README.md), [`tests/`](tests/README.md) |
 | How does the web app work today? | [`docs/WEB.md`](docs/WEB.md) |
 | What is a hand, exactly? How do I write a parser? | [`docs/PHF-SPEC.md`](docs/PHF-SPEC.md) |
 | What does each statistic mean, and where do PT4 and HM3 disagree? | [`docs/STATS-SPEC.md`](docs/STATS-SPEC.md) |
