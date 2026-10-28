@@ -22,60 +22,96 @@ const bb = (value: number) => {
   const tenth = Math.round(value * 10) / 10;
   return `${num(tenth, tenth % 1 !== 0 ? 1 : 0)} bb`;
 };
+const size = (value: number) => {
+  const tenth = Math.round(value * 10) / 10;
+  return num(tenth, tenth % 1 !== 0 ? 1 : 0);
+};
 /** 1 kombinacija, 2 kombinacije, 5 kombinacija. */
 const combos = (count: number) => `${num(count)} ${plural(count, "kombinacija", "kombinacije", "kombinacija")}`;
+const tableName = (players: number) => (players === 2 ? "Heads-up" : players === 9 ? "9-max" : "6-max");
 
 export const solverHr: Dict["solver"] = {
   heading: "Solver library",
-  intro:
-    "Railovi vlastiti flop solvovi. Odaberi stol, preflop liniju i flop, pa prođi kroz odluke na flopu: za svaku ruku vidiš koliko često solver bira koju akciju i koliko svaka akcija vrijedi.",
+  intro: "Railovi vlastiti solvovi: složi preflop liniju igrača po igrača, odaberi flop i prođi kroz odluke na flopu.",
   unavailable: "Solver library nije postavljen na ovom serveru.",
-  table: "Stol",
-  setName: (players: number, stackBb: number) =>
-    `${players === 2 ? "Heads-up" : players === 9 ? "9-max" : "6-max"} ${num(stackBb)} bb`,
-  setEmpty: "Solvovi za ovaj stol još nisu objavljeni.",
-  line: "Preflop linija",
-  pots: { srp: "single-raised pot", "3bp": "3-bet pot", "4bp": "4-bet pot", limped: "limpani pot" },
-  lineName: (oop: string, ip: string, pot: string) => `${ip} protiv ${oop} · ${pot}`,
-  flop: "Flop",
-  flopCount: (count: number) => `${num(count)} ${plural(count, "solvani flop", "solvana flopa", "solvanih flopova")}`,
-  textures: {
-    all: "Svi",
-    rainbow: "Rainbow",
-    twoTone: "Two-tone",
-    monotone: "Monotone",
-    paired: "Upareni",
-    trips: "Trips",
-  },
-  flopsLabel: "Solvani flopovi",
   loading: "Učitavanje…",
   loadError: "Ovaj solve se nije mogao učitati. Pokušaj ponovno za trenutak.",
   retry: "Pokušaj ponovno",
-  board: "Board",
-  toAct: (position: string) => `Na potezu: ${position}`,
-  pot: (pot: number, toCall: number) => (toCall > 0 ? `Pot ${bb(pot)}, ${bb(toCall)} za call` : `Pot ${bb(pot)}`),
-  history: "Dosadašnje odluke",
-  start: "Flop",
-  step: (position: string, action: string) => `${position} ${action}`,
+
+  settings: {
+    title: "Stol",
+    change: "Promijeni",
+    players: "Igrači",
+    depth: "Dubina stacka",
+    done: "Gotovo",
+    cash: "Cash",
+    summary: (players: number, stackBb: number) => `${tableName(players)} · ${num(stackBb)} bb`,
+    playersName: tableName,
+    depthName: (stackBb: number) => `${num(stackBb)} bb`,
+  },
+
+  preflop: {
+    label: "Preflop linija",
+    stack: size,
+    action: (action: string, toBb: number) =>
+      action === "raise"
+        ? `Raise ${size(toBb)}`
+        : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
+    rewind: (position: string) => `Natrag na odluku: ${position}`,
+    toAct: "na potezu",
+    folded: (winner: string) => `Svi foldaju do ${winner}: flopa nema.`,
+    multiway: (players: string) => `Multiway flop (${players}): knjižnica solva samo heads-up flopove.`,
+    allin: "All-in prije flopa: nema flopa za solvati.",
+    notSolved: (oop: string, ip: string) => `${ip} protiv ${oop}: ova linija još nije u solver libraryju.`,
+    setEmpty: "Flop solvovi za ovaj stol još nisu objavljeni.",
+  },
+
+  flop: {
+    pick: "Odaberi flop",
+    change: "Promijeni flop",
+    title: "Odaberi flop",
+    clear: "Očisti",
+    random: "Nasumični solvani flop",
+    missing: "Odabrani flop ne postoji.",
+    hint: "Odaberi tri karte.",
+    slot: "Prazno",
+    solved: (count: number) =>
+      `${num(count)} ${plural(count, "solvani flop", "solvana flopa", "solvanih flopova")} na ovoj liniji`,
+    card: (card: string, picked: boolean) => `${card}${picked ? ", odabrana" : ""}`,
+  },
+
+  panel: {
+    overview: "Pregled",
+    actions: "Akcije",
+    hand: "Ruka",
+    board: "Board",
+    pot: (pot: number, toCall: number) => (toCall > 0 ? `Pot ${bb(pot)} · ${bb(toCall)} za call` : `Pot ${bb(pot)}`),
+    toAct: (position: string) => `Na potezu: ${position}`,
+    history: "Odluke na flopu",
+    start: "Flop",
+    step: (position: string, action: string) => `${position} ${action}`,
+    follow: (label: string) => `Odigraj ${label}`,
+    ends: {
+      fold: "Ruka je gotova.",
+      street: "Dijeli se turn: knjižnica čuva samo odluke na flopu.",
+    },
+  },
+
   action: (kind: string, sizePot: number, amount: number) =>
     kind === "bet"
       ? `Bet ${pct(sizePot)}`
       : kind === "raise"
-        ? `Raise ${bb(amount)}`
+        ? `Raise ${size(amount)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[kind] ?? kind,
-  actionsLabel: "Akcije",
-  total: (label: string, share: number, count: number) => `${label} ${pct1(share)} · ${combos(Math.round(count))}`,
   share: (share: number, count: number) => `${pct1(share)} · ${combos(Math.round(count))}`,
-  follow: (label: string) => `Odigraj ${label}`,
-  ends: {
-    fold: "Ruka je gotova.",
-    street: "Dijeli se turn: knjižnica čuva samo odluke na flopu.",
-  },
-  gridLabel: (position: string) => `${position}: solverov mix za svih 169 ruku`,
+  shareOnly: pct1,
+  combosCount: (count: number) => combos(Math.round(count)),
+  gridLabel: (position: string) => `${position}: strategija za svih 169 ruku`,
   cellLabel: (hand: string, parts: string[], absent: boolean) => `${hand}: ${absent ? "nije u rasponu" : parts.join(", ")}`,
   part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
-  detailEmpty: "Pređi mišem ili odaberi ruku da vidiš njezine kombinacije.",
+  detailEmpty: "Pređi mišem ili odaberi ruku da vidiš koliko vrijedi koja akcija.",
   reaches: (reach: number, count: number) => `${num(reach, 1)} od ${combos(count)} dolazi do ove odluke.`,
+  reachesShare: (share: number) => `Do ove odluke dolazi s ${pct1(share)} svojih kombinacija.`,
   absent: "Ovdje nije u rasponu.",
   combo: "Kombinacija",
   weight: "Težina",
@@ -83,9 +119,11 @@ export const solverHr: Dict["solver"] = {
   value: (value: number) => `EV ${signedBb(value)}`,
   freq: pct1,
   signedBb,
+  evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
   rangeValue: (reach: number, value: number) =>
     `${num(reach, 1)} kombinacija dolazi do ove odluke · EV raspona ${signedBb(value)}`,
   solvedTo: (exploitability: number, iterations: number) =>
     `Solvano do ${num(exploitability, 2)} % pota exploitabilityja u ${num(iterations)} iteracija.`,
-  rangeNote: "Ćelija blijedi što manje te ruke dolazi do odluke. Karte su u bojama samog solvea.",
+  chartNote: "Preflop: Railovi vlastiti chartovi. Ćelija blijedi što manje te ruke dolazi do odluke.",
+  flopNote: "Ćelija blijedi što manje te ruke dolazi do odluke. Kombinacije su u bojama odabranog flopa.",
 };

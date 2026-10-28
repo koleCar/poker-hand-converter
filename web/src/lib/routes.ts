@@ -85,8 +85,9 @@ export const paths = {
   },
   /**
    * The Solver library tab: the flop library's solves, one decision at a
-   * time. Public and in the sitemap, like the chart browser. `?set=`,
-   * `?line=`, `?flop=` and `?node=` pick the view. A top-level segment, so `solver` is a
+   * time. Public and in the sitemap, like the chart browser. `?set=` a
+   * table, `?line=` the preflop line (the charts' letters), `?flop=` the flop
+   * as picked and `?node=` the flop decision pick the view. A top-level segment, so `solver` is a
    * reserved username (`20271020090000_solver_route.sql`).
    */
   solver: (view?: { set?: string; line?: string; flop?: string; node?: number }) => {

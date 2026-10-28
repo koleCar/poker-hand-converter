@@ -169,11 +169,13 @@ export {
   ExploreError,
   exploreHistory,
   exploreNode,
+  pickedFlop,
   type ExploreAction,
   type ExploreClass,
   type ExploreCombo,
   type ExploreNode,
   type ExploreStep,
+  type PickedFlop,
 } from "./explore";
 export { OFF_TREE_DISTANCE, pseudoHarmonic, translateSize, type Translation } from "./translation";
 export { spotHash, spotKey, type SpotKeyParts } from "./spotKey";
