@@ -57,6 +57,7 @@ export const solverEn = {
         ? `Raise ${size(toBb)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     rewind: (position: string) => `Back to ${position}'s decision`,
+    foldTo: (position: string) => `Everyone before ${position} folds`,
     toAct: "to act",
     folded: (winner: string) => `Everyone folds to ${winner}: there is no flop.`,
     multiway: (players: string) => `A multiway flop (${players}): the library solves heads-up flops only.`,

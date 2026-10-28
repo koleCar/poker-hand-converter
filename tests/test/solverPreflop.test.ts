@@ -64,6 +64,43 @@ describe("the preflop line", () => {
   });
 });
 
+describe("a later seat's options (everyone before it folds)", () => {
+  const set = charts("nlhe-cash-6max-100bb");
+  const lines = flopLinesFor(6);
+  const ahead = (line: string) =>
+    Object.fromEntries(preflopState(set, line, lines).seats.map((seat) => [seat.position, seat.ahead?.line ?? null]));
+
+  it("folds the seats in between, up to the big blind's walk", () => {
+    // Unopened: each later seat is reached by folds alone; folding to the big blind ends the hand.
+    expect(ahead("")).toEqual({ UTG: null, HJ: "f", CO: "ff", BTN: "fff", SB: "ffff", BB: null });
+    // After an open, the big blind faces it once everyone else folds; the opener has acted.
+    expect(ahead("r")).toEqual({ UTG: null, HJ: null, CO: "rf", BTN: "rff", SB: "rfff", BB: "rffff" });
+  });
+
+  it("stops at a seat that has acted", () => {
+    // UTG opens, HJ 3-bets, CO to act: the seats behind get theirs, the folds stop at UTG.
+    expect(ahead("rr")).toEqual({ UTG: null, HJ: null, CO: null, BTN: "rrf", SB: "rrff", BB: "rrfff" });
+    // The big blind facing the small blind's limp cannot fold (it checks): nobody is ahead of it.
+    expect(Object.values(ahead("ffffc")).every((line) => line === null)).toBe(true);
+  });
+
+  it("lands on the seat's own decision, and picking an option plays the folds", () => {
+    for (const line of ["", "r", "ff", "rr", "fr"]) {
+      for (const seat of preflopState(set, line, lines).seats) {
+        if (!seat.ahead) continue;
+        expect(seat.ahead.node.actor).toBe(seat.position);
+        expect(preflopState(set, seat.ahead.line, lines).node?.actor).toBe(seat.position);
+      }
+    }
+    const btn = preflopState(set, "", lines).seats.find((seat) => seat.position === "BTN")!.ahead!;
+    const raise = btn.node.options.find((option) => option.action === "raise")!;
+    const after = preflopState(set, btn.line + raise.code, lines);
+    expect(after.seats.filter((seat) => seat.folded).map((seat) => seat.position)).toEqual(["UTG", "HJ", "CO"]);
+    expect(after.node?.actor).toBe("SB");
+    expect(after.node?.facing).toEqual({ position: "BTN", toBb: raise.toBb });
+  });
+});
+
 describe("the picked flop", () => {
   it("finds the canonical key and reads the chunk's cards back in the picked suits", () => {
     for (const flop of [["Ks", "7h", "2d"], ["Ah", "Ad", "9c"], ["Qc", "Jc", "Tc"], ["8d", "8h", "3d"], ["5s", "4c", "4s"]]) {

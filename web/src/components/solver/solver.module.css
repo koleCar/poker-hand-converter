@@ -151,6 +151,15 @@
   color: var(--text-tertiary);
 }
 
+/* A later seat's options: what it could do if every seat before it folded. */
+.seatAhead {
+  color: var(--text-tertiary);
+}
+
+.seatAhead:hover {
+  color: var(--text-primary);
+}
+
 .settings {
   display: grid;
   gap: var(--space-4);

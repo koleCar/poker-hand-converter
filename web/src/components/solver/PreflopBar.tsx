@@ -83,6 +83,20 @@ export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBar
                     </button>
                   ))}
                 </div>
+              ) : seat.ahead ? (
+                <div className={styles.seatOptions}>
+                  {seat.ahead.node.options.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      className={`${styles.seatOption} ${styles.seatAhead}`}
+                      title={t.preflop.foldTo(seat.position)}
+                      onClick={() => onLine(seat.ahead!.line + option.code)}
+                    >
+                      {t.preflop.action(option.action, option.toBb)}
+                    </button>
+                  ))}
+                </div>
               ) : (
                 <div className={styles.seatOptions}>
                   <span className={styles.seatWaiting} aria-hidden="true">

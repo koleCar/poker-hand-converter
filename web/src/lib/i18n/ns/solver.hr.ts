@@ -58,6 +58,7 @@ export const solverHr: Dict["solver"] = {
         ? `Raise ${size(toBb)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     rewind: (position: string) => `Natrag na odluku: ${position}`,
+    foldTo: (position: string) => `Svi prije pozicije ${position} foldaju`,
     toAct: "na potezu",
     folded: (winner: string) => `Svi foldaju do ${winner}: flopa nema.`,
     multiway: (players: string) => `Multiway flop (${players}): knjižnica solva samo heads-up flopove.`,
