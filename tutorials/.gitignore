@@ -1,0 +1,11 @@
+# Regenerated, never committed (the repository is public):
+# the isolated Supabase stack's working copy and its keys,
+/.stack/
+# demo hand files, the demo name lists and the demo accounts' sessions,
+/.demo/
+# screenshots and their manifests, the fonts copied from web/public,
+/public/captures/
+/public/fonts/
+/public/brand/
+# and the rendered videos and stills.
+/out/
