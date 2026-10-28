@@ -119,8 +119,29 @@ it("fits the realisation model on the flop library", () => {
     );
   }
 
-  const fit = fitRealisation(spots, samples, cachedEquity(), committed, "charts/10-floplib-fit");
-  fit.model.source = "fitted to the flop library's flop+turn+river solves of the charts' own heads-up ranges (raked; rake scaled back out); 4-bet pots keep charts/2's fit";
+  // A raised pot type whose lines all have the raiser on the same side cannot
+  // tell position from initiative: fitPotType pins the initiative edge to 1 and
+  // the position edge takes the product (or the ratio), which the model would
+  // then apply to the other orientation too (heads-up 3-bet and 4-bet pots).
+  // Those keep the committed fit, like pot types with no line at all.
+  const fitted = new Set<PotType>();
+  const kept = new Set<PotType>();
+  for (const potType of new Set(spots.map((s) => s.potType))) {
+    const sides = new Set(spots.filter((s) => s.potType === potType).flatMap((s) => s.roles.filter((r) => r.endsWith("Agg"))));
+    (potType === "limped" || sides.size === 2 ? fitted : kept).add(potType);
+  }
+  for (const potType of kept) console.log(`${potType}: the raiser is on one side in every line - keeping the committed fit`);
+  const use = spots.map((s, k) => (fitted.has(s.potType) ? k : -1)).filter((k) => k >= 0);
+  const fit = fitRealisation(
+    use.map((k) => spots[k]),
+    use.map((k) => samples[k]),
+    cachedEquity(),
+    committed,
+    "charts/10-floplib-fit",
+  );
+  fit.model.source =
+    `fitted to the flop library's flop+turn+river solves of the charts' own heads-up ranges (raked; rake scaled back out): ` +
+    `${[...fitted].join(", ")}; every other pot type keeps the set's committed fit`;
   for (const report of fit.reports) {
     console.log(
       `\n${report.potType}: share RMSE fitted ${report.rmse.fitted.toFixed(3)}, charts/1 ${report.rmse.charts1.toFixed(3)}, equity ${report.rmse.equity.toFixed(3)}; ` +
