@@ -688,7 +688,8 @@ Closing the window keeps Rail running in the tray (the menu bar on macOS);
 The first launch opens **Welcome to Rail**: "Three steps to your first HUD".
 
 1. **Sign in.** **Sign in in your browser** opens Rail's sign-in page in your
-   default browser, where your password manager and Google sign-in work.
+   default browser, where your password manager works (and Google sign-in,
+   where it is enabled).
    Sign in there if needed, then confirm **Sign in to Rail**. The browser asks
    to open Rail; allow it, and the app is signed in with a sign-in of its own
    (your browser stays signed in). The link works for ten minutes. Or choose

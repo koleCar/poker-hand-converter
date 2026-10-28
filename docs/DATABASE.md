@@ -2,7 +2,10 @@
 
 Supabase project `riybwcfnclphacnfawiq` (`poker converter`). Postgres 17.
 
-The schema is defined by four migrations:
+The schema is defined by the 69 migrations in `supabase/migrations/`
+(2026-10-27), applied in timestamp order; each explains itself in its header,
+and [`supabase/README.md`](../supabase/README.md) groups them. The ones this
+document refers to most:
 
 | Migration | What it does |
 | --- | --- |
@@ -29,8 +32,11 @@ The schema is defined by four migrations:
 | `20271006090000_account_export.sql`, `20271006100000_account_deletion.sql` | Rail R6.5: the account's data. `account_data_inventory` (every place that holds an account's rows: export and deletion decided per row; pgTAP fails on a table missing from it); the owner-only export readers (`export_my_manifest`, `export_my_profile`, `export_my_hands`, `export_my_rows`, `export_my_sealed`); the deletion's request and steps (`begin_account_deletion` as the user, then `account_deletion_state` / `_mark`, `account_storage_objects`, `erase_account_content`, `erase_account_hands` for the Edge Function `account-delete`); the moderation log's erasure exception. See [Your data](#your-data-export-and-deletion). Not applied to production. |
 | `20271013090000_billing_consents.sql` | Rail R6.3 addendum: the consent recorded before Stripe Checkout opens (the terms; the request that Pro start at once and the acknowledgement about the right of withdrawal). `billing_consents` (sealed, evidence: only the session id - once - and the owner - cleared on deletion - can change), `billing_record_consent()`, `billing_consent_set_session()`, all service role only; exported to the account (`billing/consents.ndjson`), kept without the owner on deletion. See [Stripe Billing (R6.3)](#stripe-billing-r63). Not applied to production. |
 
-Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
-`hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
+The migrations not listed above (`share_spoilers`, `omaha_hand_class`,
+`hand_stats`, `hand_stats_prune`, the statistics, analysis, Learn, report,
+charts, ICM and billing ones, and the four from before the PHF baseline)
+carry their own reasoning in their headers; most have a section
+below.
 
 The client layer that talks to them is `web/src/lib/db/`. Nothing else in
 the app touches Supabase.
@@ -72,7 +78,7 @@ There are exactly three kinds of caller:
 | --- | --- | --- |
 | **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`), and `read_shared_analysis(surface, id, version)` — a hand's analysis, only where its owner shared it and the hand is already public to the caller. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
-| **`service_role`** | Us, from the dashboard or the Management API; and two Edge Functions with the runtime's own key: `desktop-handoff` (R1.7) and `account-delete` (R6.5) | Everything. Triage, cleanup, backfills. `desktop-handoff` uses it for exactly one call: minting a one-time sign-in token for the account whose JWT called it ([Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff)). `account-delete` deletes the account whose JWT called it, after that account started the deletion itself ([Your data](#your-data-export-and-deletion)). |
+| **`service_role`** | Us, from the dashboard or the Management API; and the Edge Functions with the runtime's own key: `desktop-handoff` (R1.7), the billing functions (R6.3: `billing-checkout`, `billing-portal`, `billing-cancel`, `billing-webhook`) and `account-delete` (R6.5) | Everything. Triage, cleanup, backfills. `desktop-handoff` uses it for exactly one call: minting a one-time sign-in token for the account whose JWT called it ([Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff)). The billing functions call the service-role-only `billing_*` functions ([Stripe Billing (R6.3)](#stripe-billing-r63)). `account-delete` deletes the account whose JWT called it, after that account started the deletion itself ([Your data](#your-data-export-and-deletion)). |
 
 The rules the schema holds to:
 
@@ -82,7 +88,7 @@ The rules the schema holds to:
 | 2 | A client can never choose the owner | `save_hands` writes `auth.uid()` explicitly and ignores the payload's `owner_id`; the normalizing trigger overwrites it again; the RLS `with check` rejects the row regardless. Three independent guards, because the payload goes through `jsonb_populate_recordset` and is fully attacker-controlled. |
 | 3 | Dedupe is per library | `(owner_id, hand_key)`, not `hand_key`. A global key would tell the second uploader of a hand "duplicate" and then show them nothing — the row they collided with is not theirs to read. |
 | 4 | Anon may **never** write anything | `save_hands`, `create_share` and `record_conversion_failures` are revoked from `anon` *and* raise an explicit "you must be signed in" error, so the client gets a sentence instead of `42501`. |
-| 5 | No client role holds an `UPDATE` or `DELETE` grant, on any table, ever | Rewritten for the forum (F8), not dropped. Edits, deletes and changed votes exist now, and every one is a narrow `security definer` function: actor from `auth.uid()`, ownership checked explicitly, a whitelisted column set, a `moderation_actions` row in the same transaction, and `enforce_rate_limit`. **A definer function fails closed when a column is added; an UPDATE policy fails open** — it lets the caller set every granted column (`score`, `hot_rank`, `author_id`) until its `with check` is amended. Deletes are soft everywhere. |
+| 5 | No client role holds an `UPDATE` or `DELETE` grant on a table that holds content, counters or anything server-derived | Rewritten for the forum (F8), not dropped. Edits, deletes and changed votes exist now, and every one is a narrow `security definer` function: actor from `auth.uid()`, ownership checked explicitly, a whitelisted column set, a `moderation_actions` row in the same transaction, and `enforce_rate_limit`. **A definer function fails closed when a column is added; an UPDATE policy fails open** — it lets the caller set every granted column (`score`, `hot_rank`, `author_id`) until its `with check` is amended. Forum deletes are soft. **The exceptions** are a user's own settings-like rows that nothing server-computed depends on: `preflop_chart_sets` (R5.3) and `tournament_settings` (R5.5) grant `authenticated` `UPDATE` and `DELETE` under owner-only policies, with `before` guard triggers that check the shape and limits and keep an update's id and owner; and in Storage an owner may delete their own opt-in originals in the `hand-uploads` bucket (R4.2, `hand_uploads_owner_delete`; no update). |
 | 6 | Counters move only inside `security definer` functions | Share views and failure occurrences *have* to increment, but a general `UPDATE` grant would also let a caller rewrite hands. |
 | 7 | A share slug is a capability URL, and works for anyone | `shares` has no grants and no policies at all. `read_share(slug)` is the only door, takes an exact slug, and is `security definer` — so it deliberately reads past the owner policy on `hands`. That *is* the feature: send someone a link and they replay the hand with no account. |
 | 7a | A capability URL means the **payload** is the boundary | There is no authentication step left to tighten once the slug is out, so the only control is what the function returns. `read_share` names every output key; it never does `select to_jsonb(row)`. See [Share resolution](#share-resolution-read_share--record_share_view). |
