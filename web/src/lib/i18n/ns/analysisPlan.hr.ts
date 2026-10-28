@@ -80,8 +80,8 @@ export const planHr = {
     read: "Pročitaj",
     train: (target: number, what: string) =>
       `Odigraj ${num(target)} ${plural(target, "situaciju", "situacije", "situacija")} u treneru: ${what}`,
-    trainPreflop: (family: string, seat: string | null, vs: string | null) =>
-      [family, seat ? `s pozicije ${seat}` : null, vs ? `kad raisea ${vs}` : null].filter(Boolean).join(", "),
+    trainPreflop: (family: string, seat: string | null, vs: string | null, headsUp = false) =>
+      [family, seat ? `s pozicije ${seat}` : null, vs ? `kad raisea ${vs}` : null, headsUp ? "heads-up" : null].filter(Boolean).join(", "),
     trainRiver: (role: string | null, side: string | null, pot: string | null) => {
       const parts = [role ? roles[role] : null, side ? sides[side] : null, pot ? pots[pot] : null].filter(Boolean);
       return parts.length > 0 ? `river, ${parts.join(", ")}` : "bilo koji river";

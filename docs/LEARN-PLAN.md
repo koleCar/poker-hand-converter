@@ -118,7 +118,7 @@ theory with no number.
 
 | Kind | What | Graded by | L1 |
 |---|---|---|---|
-| `chart-quiz` | preflop trainer spots by family, seat, raiser and chart set (6/9-max, 40–200bb, limped) | the charts, through `analyzeHand` | yes |
+| `chart-quiz` | preflop trainer spots by family, seat, raiser and chart set (6/9-max and heads-up, 40–200bb, limped) | the charts, through `analyzeHand` | yes |
 | `solver-spot` | river spots (A7) and **turn spots** (new, `lib/training/turn.ts`), optionally "the villain checked" or "bet" (in position), and for the turn the flop line before it (checked through, or a bet called; L3); **flop spots** from the flop library (L2, `lib/training/flop.ts`): facing a check, a bet or a raise, any seat, a line filter | the river / turn solve, the flop library's chunk, through `analyzeHand` | river, turn; flop in L2 |
 | `calc` | a number to work out (pot odds, draw equity by exact enumeration, EV trees, combos, alpha/MDF, SPR, grades, steal and big-blind prices, bb/100, all-in EV, multiway folds; the 95% interval on a stat over n chances, or the chances it needs, L4), answered before the calculator reveals it | `math.ts`, exact equity, `grade()` | yes |
 | `classify` | sort a board or hand: suits, pairing, connectedness, high card, dynamism, hand class; range advantage, nut advantage and turn-card shifts on the concept library's illustrative ranges | `texture.ts`, `madeHand`/`draws`, `rangeVsRange`, `nutShare` | yes |

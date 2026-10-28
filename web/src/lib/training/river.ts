@@ -26,7 +26,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { followLine, solveRiverSpot, walkLine, walkRanges, type RiverAct, type RiverSolve } from "../analysis";
+import { flopPlayersOf, followLine, solveRiverSpot, walkLine, walkRanges, type RiverAct, type RiverSolve } from "../analysis";
 import { cardCode } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import { comboHi, comboLo, NUM_COMBOS, rangesAt, type ActionKind } from "../solver";
@@ -34,14 +34,13 @@ import { buildContext } from "../stats/context";
 import {
   handUpTo,
   lastHeroDecision,
-  POSTFLOP_ORDER,
   scriptHand,
   scriptMoney,
   seatOf,
   type HandScript,
   type ScriptAct,
 } from "./handText";
-import { lineActs, type DealBias } from "./preflop";
+import { HEADS_UP_SEATS, lineActs, PREFLOP_SEATS, trainerSet, type DealBias } from "./preflop";
 import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
 
 export const RIVER_POTS = ["srp", "3bp", "limped"] as const;
@@ -54,6 +53,8 @@ export interface RiverLine {
   id: string;
   pot: RiverPot;
   line: string;
+  /** The table the key is spelled over, in preflop order: the heads-up sets' `SB, BB`; 6-max when absent. */
+  seats?: readonly ChartPosition[];
 }
 
 /**
@@ -75,6 +76,21 @@ export const RIVER_LINES: readonly RiverLine[] = [
   { id: "btn-bb-3bet", pot: "3bp", line: "fffrfrc" },
   { id: "sb-bb-3bet", pot: "3bp", line: "ffffrrc" },
   { id: "sb-limp", pot: "limped", line: "ffffck" },
+];
+
+/**
+ * The heads-up sets' lines (`charts/8`, `charts/9`; the flop library's
+ * `FLOP_LINES_HU` without the 4-bet pot): the small blind's open called, its
+ * 3-bet pot, the limp checked and the limp raised and called. The small
+ * blind is the button, so the big blind is out of position on every one.
+ * Their ids say `hu-`, so a kept answer (`trainer_results.spot`,
+ * `<line id>:<hero seat>`) never reads as a 6-max line's.
+ */
+export const RIVER_LINES_HU: readonly RiverLine[] = [
+  { id: "hu-sb-bb", pot: "srp", line: "rc", seats: HEADS_UP_SEATS },
+  { id: "hu-sb-limp-raise", pot: "srp", line: "crc", seats: HEADS_UP_SEATS },
+  { id: "hu-sb-bb-3bet", pot: "3bp", line: "rrc", seats: HEADS_UP_SEATS },
+  { id: "hu-sb-limp", pot: "limped", line: "ck", seats: HEADS_UP_SEATS },
 ];
 
 /** One flop or turn line, by who acts: `o` out of position, `i` in position. */
@@ -123,6 +139,12 @@ export const RIVER_ROLES = ["pfr", "caller"] as const;
 export type RiverRole = (typeof RIVER_ROLES)[number];
 
 export interface RiverSpotOptions {
+  /**
+   * Chart set id: the default (6-max) set when absent, or a heads-up set
+   * (`RIVER_LINES_HU`): the set the preflop is dealt from. The ranges are
+   * the analysis' own, from the set it picks for the hand.
+   */
+  set?: string | null;
   pot?: RiverPot | "any";
   seat?: RiverSeat | "any";
   /** Only lines where the hero raised preflop last (`pfr`) or called (`caller`); a limped pot is neither. */
@@ -197,9 +219,9 @@ export interface RiverTrainerSpot {
   exploitabilityPct: number;
 }
 
-/** The lines the chart set can play: every raise and call on the line is in its tree. */
+/** The lines the chart set can play: its table's lines (heads-up or 6-max), every raise and call in its tree. */
 export function riverLines(charts: ChartSet, pot: RiverPot | "any" = "any"): RiverLine[] {
-  return RIVER_LINES.filter((line) => {
+  return (charts.game.players === 2 ? RIVER_LINES_HU : RIVER_LINES).filter((line) => {
     if (pot !== "any" && line.pot !== pot) return false;
     try {
       lineActs(charts, line.line);
@@ -210,20 +232,19 @@ export function riverLines(charts: ChartSet, pot: RiverPot | "any" = "any"): Riv
   });
 }
 
-/** The two players who see the flop on a line, out of position first. */
-export function flopPlayers(line: string): [ChartPosition, ChartPosition] {
-  const { steps } = walkLine(line);
-  const folded = new Set(steps.filter((s) => s.code === "f").map((s) => s.position));
-  const live = (["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const).filter((p) => !folded.has(p));
-  if (live.length !== 2) throw new RangeError(`line ${line} is not heads-up to the flop`);
-  live.sort((a, b) => POSTFLOP_ORDER.indexOf(a) - POSTFLOP_ORDER.indexOf(b));
-  return [live[0], live[1]];
+/**
+ * The two players who see the flop on a line, out of position first: the
+ * blinds first, then the rest in preflop order (6-max unless `seats` is
+ * given); heads-up the big blind, the small blind being the button.
+ */
+export function flopPlayers(line: string, seats: readonly ChartPosition[] = PREFLOP_SEATS): [ChartPosition, ChartPosition] {
+  return flopPlayersOf(line, seats);
 }
 
 /** The last raiser on a preflop line, or null for a limped pot. */
-export function raiserOf(line: string): ChartPosition | null {
+export function raiserOf(line: string, seats: readonly ChartPosition[] = PREFLOP_SEATS): ChartPosition | null {
   let last: ChartPosition | null = null;
-  for (const step of walkLine(line).steps) if (step.code === "r" || step.code === "a") last = step.position;
+  for (const step of walkLine(line, seats).steps) if (step.code === "r" || step.code === "a") last = step.position;
   return last;
 }
 
@@ -247,8 +268,8 @@ export function riverSeatings(filter: Pick<RiverSpotOptions, "pot" | "seat" | "r
   const out: RiverSeating[] = [];
   for (const line of lines) {
     if (filter.pot && filter.pot !== "any" && line.pot !== filter.pot) continue;
-    const [oop, ip] = flopPlayers(line.line);
-    const raiser = raiserOf(line.line);
+    const [oop, ip] = flopPlayers(line.line, line.seats);
+    const raiser = raiserOf(line.line, line.seats);
     for (const seat of RIVER_SEATS) {
       if (filter.seat && filter.seat !== "any" && seat !== filter.seat) continue;
       const hero = seat === "ip" ? ip : oop;
@@ -261,6 +282,9 @@ export function riverSeatings(filter: Pick<RiverSpotOptions, "pot" | "seat" | "r
 }
 
 export const round2 = (value: number) => Math.round(value * 100) / 100;
+
+/** A line's table in a script: its seats when it names them (heads-up), else nothing (6-max). */
+export const scriptSeats = (line: Pick<RiverLine, "seats">): Pick<HandScript, "seats"> => (line.seats ? { seats: line.seats } : {});
 
 /** A street pattern as script actions, sized against the pot; a bet too big for the stacks becomes a check. */
 export function patternActs(
@@ -336,6 +360,8 @@ export function riverDealingWeights(solve: Pick<RiverSolve, "result" | "hero">, 
 
 /** A river solved for a seed's line, seat and board, before anything is dealt to the hero. */
 export interface RiverSetup {
+  /** The chart set the preflop was dealt from. */
+  set: string;
   line: RiverLine;
   seat: RiverSeat;
   hero: ChartPosition;
@@ -361,7 +387,9 @@ export interface RiverSetup {
  * same spot it did before the split existed.
  */
 export function riverSetup(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: number): RiverSetup | null {
-  const lines = riverLines(charts, options.pot ?? "any");
+  // The set the preflop is dealt from; `charts` (the library) is what the walk and the solve read, as the analysis does.
+  const set = trainerSet(charts, options.set);
+  const lines = riverLines(set, options.pot ?? "any");
   if (lines.length === 0) return null;
   let line: RiverLine;
   let seat: RiverSeat;
@@ -377,17 +405,17 @@ export function riverSetup(charts: ChartSet, options: RiverSpotOptions, rng: Rng
     line = pickOne(lines, rng);
     seat = wantSeat !== "any" ? wantSeat : rng() < 0.5 ? "ip" : "oop";
   }
-  const [oop, ip] = flopPlayers(line.line);
+  const [oop, ip] = flopPlayers(line.line, line.seats);
   const hero = seat === "ip" ? ip : oop;
   const villain = seat === "ip" ? oop : ip;
-  const raiser = raiserOf(line.line);
+  const raiser = raiserOf(line.line, line.seats);
   const initiative = raiser === null ? "none" : raiser === ip ? "ip" : "oop";
 
   const deck = shuffled(rng);
   const board = deck.slice(0, 5).map(cardCode);
-  const preflop = lineActs(charts, line.line);
-  const stackBb = charts.game.stackBb;
-  const base: HandScript = { id: `TR${seed.toString(36)}`, hero, heroCards: null, stackBb, preflop, board };
+  const preflop = lineActs(set, line.line);
+  const stackBb = set.game.stackBb;
+  const base: HandScript = { id: `TR${seed.toString(36)}`, hero, heroCards: null, ...scriptSeats(line), stackBb, preflop, board };
 
   // Flop and turn, sized against the pot as it stands.
   const afterPre = scriptMoney(base);
@@ -405,8 +433,8 @@ export function riverSetup(charts: ChartSet, options: RiverSpotOptions, rng: Rng
   // walk records them at the river's first action (before narrowing by it),
   // so the hand it reads carries a placeholder first river action.
   const hand = scriptHand({ ...toRiver, river: [{ position: oop, type: "check" }] });
-  const heroSeat = seatOf(hero);
-  const villainSeat = seatOf(villain);
+  const heroSeat = seatOf(hero, line.seats);
+  const villainSeat = seatOf(villain, line.seats);
   const walk = walkRanges(hand, buildContext(hand), heroSeat, villainSeat, charts);
   if (!walk.ok || !walk.riverStart) return null;
 
@@ -432,14 +460,14 @@ export function riverSetup(charts: ChartSet, options: RiverSpotOptions, rng: Rng
     charts,
     model: walk.model,
     key: {
-      players: 6,
+      players: set.game.players,
       stackBucket: `${stackBb}bb`,
       preflopLine: line.pot,
       positions: heroFirst ? [hero, villain] : [villain, hero],
     },
   });
   if (!solve.ok) return null;
-  return { line, seat, hero, villain, board, toRiver, heroFirst, potBb, stack, villainSeat, solve, sources: walk.sources, model: walk.model };
+  return { set: set.id, line, seat, hero, villain, board, toRiver, heroFirst, potBb, stack, villainSeat, solve, sources: walk.sources, model: walk.model };
 }
 
 function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: number): RiverTrainerSpot | null {
@@ -490,7 +518,7 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
   return {
     kind: "river",
     seed,
-    set: charts.id,
+    set: setup.set,
     lineId: line.id,
     pot: line.pot,
     hero,

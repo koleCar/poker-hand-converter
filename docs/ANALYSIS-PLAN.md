@@ -6362,3 +6362,89 @@ Each phase appends what it learned that changed the plan.
       node in the population order) may be the place, but with the shown
       isolators already at PIT −0.020 it would have to be a change in
       shape, not width.
+- 2026-10-28 — Heads-up tables in the trainer and the study plan. No
+  migration; no `ANALYSIS_VERSION` change (no stored grade moves).
+  - **Why.** The open item of the `charts/8` entry (2026-10-18): the
+    trainer and the study plan did not deal heads-up spots. The owner's
+    corpus has 117 two-handed hands (of 5,448) with 103 graded preflop
+    decisions on the heads-up sets and 41 graded postflop, and their leaks
+    led to 6-max drills: the preflop trainer kept to tables of three or
+    more (`TRAINER_SETS`), the plan's set check (`SET_ID`) took only
+    `nlhe-cash-<n>max-*` ids, so a heads-up area's trainer fell back to the
+    default 6-max table, and a heads-up leak shared its id with the 6-max
+    blinds' (the big blind against the small blind's open was
+    `preflop~vs-open~vs-raise~BB~SB` on both tables). Heads-up `familiesOf`
+    also filed every node as `bvb` only (the "folded to the blinds" prefix
+    is empty on two seats), so a heads-up 3-bet or 4-bet spot was not in its
+    family.
+  - **What was done.**
+    - *Preflop trainer*: every chart set, the heads-up ones included
+      (`TRAINER_SETS`); seats `SB, BB` (`trainerSeats`), the families
+      without squeeze (`trainerFamilies`), a family the new table lacks
+      dropped. A heads-up node is filed by its scenario (`vs-open`, the
+      small blind's limp raised as `vs-open` too, the big blind behind the
+      completion `vs-limp`, `vs-3bet`, `vs-4bet`) and also `bvb`. The table
+      reads "Heads-up · 100 bb · cash" (English and Croatian).
+    - *Leaks*: a heads-up chart row is tagged `hu` as a full-ring one is
+      `9max` (`HEADS_UP_TABLE`; ids end in `~hu`, dropped with the seat at
+      the seat level and above), worded "(heads-up)".
+    - *Study plan*: `SET_ID` takes `nlhe-cash-hu-*`; a heads-up area deals
+      on the heads-up set its leaks were graded on (the 100bb one when they
+      name none or another table's); heads-up, the big blind against the
+      open is `vs-open` (not 6-max's `bvb`) and the big blind's option
+      `vs-limp`; the task says "heads-up". A task reference
+      (`preflop/vs-open/BB/vs-SB/nlhe-cash-hu-100bb`) fits the database's
+      `train` check (`nlhe-cash-hu-150bb` is 18 of the 20 characters a part
+      may have).
+    - *River and turn*: a `set` option and the heads-up lines
+      (`RIVER_LINES_HU`: the open called `rc`, the limp raised and called
+      `crc`, the 3-bet pot `rrc`, the limp checked `ck`; the 4-bet pot left
+      out as the river trainer's pots stop at 3-bet). The preflop is dealt
+      from the heads-up set; the walk and the solve read the chart library
+      as the analysis does, so the one-grader rule holds. Line ids start
+      `hu-`, so a kept answer (`trainer_results.spot`) never reads as a
+      6-max line. The Train tab's river offers 6-max 100bb and both
+      heads-up depths (`RIVER_TRAINER_SETS`; one `?set=` for both
+      trainers, a table the river has no lines for deals 6-max's).
+    - *Flop*: a `set` option, the lines of the set's table
+      (`flopLinesFor`): the heads-up 100bb chunks (`analysis/36`). The
+      heads-up 150bb set has no manifest in the bucket, so the library
+      `has` none of its flops and it deals nothing (the gate every missing
+      set has); no code changes when its upload lands.
+    - *Worker*: `trainingChartSets` loads the set of a river, turn or flop
+      job and of every answer (the analysis picks the heads-up set for a
+      two-handed hand, so it must be in the library).
+  - **Measured** (Node-side, the owner's 5,448 hands from the local export,
+    heads-up = two dealt in: 117 hands, analysed with the chart library,
+    turn solves off; their rows grouped by the leak finder on their own):
+    - 103 graded preflop decisions, all 32 of their finest rows tagged
+      `hu`; 41 graded postflop. 13 leaks: preflop 8, river 5.
+    - **All 4 preflop focus areas (8 leaks) now deal on a heads-up set**,
+      none before: the small blind first in (15 mistakes, high confidence)
+      → `rfi` SB on 100bb; the big blind against the open (8, medium) →
+      `vs-open` BB vs SB on 100bb; the big blind's option (3, medium) →
+      `vs-limp` BB on 100bb; one leak merged to the street (1 mistake) →
+      any family on 150bb, where it was met.
+    - The 2 river areas (5 leaks) still link to the 6-max river lines: a
+      postflop leak row carries no chart set (`analysis_leak_chart_set` is
+      `''` off the charts), so the leak finder cannot tell a heads-up river
+      from the 6-max blinds' one.
+    - On the whole sample the counts can differ: a thin heads-up situation
+      merges up like any other, and loses its tag at the seat level.
+  - **Tests.** `tests/test/trainingHeadsUp.test.ts`: both heads-up sets deal
+    every family as two-handed hands graded from the same set; the tag, the
+    plan's target, its task reference and the trainer's address carry a
+    heads-up leak to a heads-up spot; heads-up river and turn spots graded
+    exactly as the analysis grades them; heads-up flop spots on a chunk
+    solved in the test (small tree), none on the 150bb set.
+  - **Open.**
+    - Postflop heads-up leaks to a heads-up river drill: the leak rows
+      would need the table for postflop decisions (a migration on
+      `analysis_leak_rows` / `analysis_leaks`), not done here.
+    - No screen offers a heads-up flop yet: the Train tab has no flop mode
+      (`trainer_results.mode` allows preflop, river and drill only, so a
+      flop mode is a migration), and Learn's flop cards are 6-max; a
+      heads-up flop lesson is a curriculum call (`docs/LEARN-PLAN.md`).
+    - A plan's trainer task counts preflop answers by family and seat
+      (`trainerMatch`; `trainer_results` keeps no set), so 6-max answers in
+      the same family and seat count toward a heads-up task.

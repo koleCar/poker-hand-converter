@@ -19,14 +19,13 @@ import { useDict } from "../../../lib/i18n/client";
 import { dealPreflopSpot, dealRiverSpot, gradeSpotAnswer } from "../../../lib/trainer";
 import {
   DEAL_BIASES,
-  PREFLOP_FAMILIES,
-  ALL_PREFLOP_SEATS,
-  PREFLOP_SEATS,
   RIVER_POTS,
   RIVER_ROLES,
   RIVER_SEATS,
   handUpTo,
   nextSeed,
+  trainerFamilies,
+  trainerSeats,
   type GradedAnswer,
   type TrainerAnswer,
   type TrainerSpot,
@@ -38,7 +37,7 @@ import { AnswerBar, type AnswerOption } from "./AnswerBar";
 import { AnswerResult } from "./AnswerResult";
 import { useTrainerKeys } from "./trainerKeys";
 import { lastAction } from "./spotPosition";
-import { TRAINER_SETS, type TrainState } from "./trainState";
+import { RIVER_TRAINER_SETS, riverSetOf, TRAINER_SETS, type TrainState } from "./trainState";
 import own from "./train.module.css";
 
 /** Seeds tried before saying no spot matches. */
@@ -70,7 +69,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
   const settings =
     mode === "preflop"
       ? { set: state.set, family: state.family, seat: state.seat, vs: state.vs, bias: state.deal }
-      : { pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
+      : { set: riverSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
   const settingsKey = JSON.stringify(settings);
   const requestKey = `${mode}|${settingsKey}|${round}`;
 
@@ -340,37 +339,32 @@ function Settings({
   onChange: (patch: Partial<TrainState>) => void;
 }) {
   const t = useDict().analysis.train.settings;
-  // The chosen set's seats (A2c: 6-max or 9-max); the river trainer is 6-max 100bb.
+  // The chosen set's seats and families (A2c: 6-max, 9-max or heads-up); the river trainer deals 6-max 100bb or heads-up.
   const spec = CHART_SETS.find((s) => s.id === state.set) ?? CHART_SETS.find((s) => s.id === DEFAULT_CHART_SET);
-  const seats = spec?.players === 9 ? ALL_PREFLOP_SEATS : PREFLOP_SEATS;
+  const seats = trainerSeats(spec?.players ?? 6);
+  const families = trainerFamilies(spec?.players ?? 6);
+  const sets = mode === "preflop" ? TRAINER_SETS : RIVER_TRAINER_SETS;
   return (
     <div className={own.settings} role="group" aria-label={t.label}>
       <label className="field">
         <span className="field__label">{t.table}</span>
-        {mode === "preflop" ? (
-          <select
-            value={state.set}
-            onChange={(event) => {
-              const set = event.target.value;
-              const next = CHART_SETS.find((s) => s.id === set);
-              const nine = next?.players === 9;
-              // A seat the new table lacks is dropped.
-              const keep = (seat: TrainState["seat"]) =>
-                seat && (nine ? ALL_PREFLOP_SEATS : PREFLOP_SEATS).includes(seat) ? seat : null;
-              onChange({ set, seat: keep(state.seat), vs: keep(state.vs) });
-            }}
-          >
-            {TRAINER_SETS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {t.tableValue(s.players, s.stackBb, Boolean(s.straddle))}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <select value={DEFAULT_CHART_SET} onChange={() => undefined}>
-            <option value={DEFAULT_CHART_SET}>{t.tableValue(6, 100)}</option>
-          </select>
-        )}
+        <select
+          value={mode === "preflop" ? state.set : riverSetOf(state.set)}
+          onChange={(event) => {
+            const set = event.target.value;
+            const players = CHART_SETS.find((s) => s.id === set)?.players ?? 6;
+            // A seat or a family the new table lacks is dropped.
+            const keep = (seat: TrainState["seat"]) => (seat && trainerSeats(players).includes(seat) ? seat : null);
+            const family = state.family === "random" || trainerFamilies(players).includes(state.family) ? state.family : "random";
+            onChange({ set, family, seat: keep(state.seat), vs: keep(state.vs) });
+          }}
+        >
+          {sets.map((s) => (
+            <option key={s.id} value={s.id}>
+              {t.tableValue(s.players, s.stackBb, Boolean(s.straddle))}
+            </option>
+          ))}
+        </select>
       </label>
       {mode === "preflop" ? (
         <>
@@ -384,7 +378,7 @@ function Settings({
                 onChange(family === "rfi" ? { family, vs: null } : { family });
               }}
             >
-              {(["random", ...PREFLOP_FAMILIES] as const).map((family) => (
+              {(["random", ...families] as const).map((family) => (
                 <option key={family} value={family}>
                   {t.families[family]}
                 </option>

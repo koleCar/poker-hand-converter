@@ -48,7 +48,7 @@
 
 import { positionRing } from "../phf/types";
 import type { ChartPosition } from "../charts";
-import { NINE_TABLE_ORDER, seatsOfSet, TABLE_ORDER, walkLine } from "./reports";
+import { HEADS_UP_TABLE_ORDER, NINE_TABLE_ORDER, seatsOfSet, TABLE_ORDER, walkLine } from "./reports";
 
 /* ------------------------------------------------------------ constants - */
 
@@ -123,14 +123,21 @@ export interface SpotAttrs {
   /**
    * `"9max"` for a preflop chart spot on a full-ring set (A2d), whose seats
    * share names with 6-max's but are other seats (9-max's UTG is three seats
-   * further from the button). Absent for 6-max and postflop, so their ids are
-   * what they were.
+   * further from the button); `"hu"` for one on a heads-up set (`charts/8`),
+   * whose small blind is the button and whose big blind defends against
+   * any two cards' worth of opens - not the 6-max blinds' spot. Absent for
+   * 6-max and postflop, so their ids are what they were.
    */
-  table?: typeof NINE_MAX_TABLE;
+  table?: LeakTable;
 }
 
 /** The table tag of a full-ring chart spot (`SpotAttrs.table`, the last part of its ids). */
 export const NINE_MAX_TABLE = "9max";
+/** The table tag of a heads-up chart spot (`SpotAttrs.table`, the last part of its ids). */
+export const HEADS_UP_TABLE = "hu";
+/** Every table tag a leak id can end in. */
+export const LEAK_TABLES = [NINE_MAX_TABLE, HEADS_UP_TABLE] as const;
+export type LeakTable = (typeof LEAK_TABLES)[number];
 
 /** Whether a chart set id is a full-ring set (`nlhe-cash-9max-100bb`). */
 export const isNineMaxSet = (set: string | null | undefined): boolean => !!set && /-9max-/.test(set);
@@ -202,12 +209,12 @@ function lineVillain(line: string, seats: readonly ChartPosition[]): string | nu
 export function spotAttrs(row: SpotRow): SpotAttrs {
   let hero = row.position || NONE;
   let villain = NONE;
-  let nine = false;
+  let table: LeakTable | null = null;
   // A chart grade carries its line; the UTG open's line is empty, and is still a chart node.
   if (row.street === "preflop" && (row.line !== "" || row.scenario === "unopened")) {
     // The row's own set names its table (A2d); rows without one, the line's walk.
     const seats = row.set ? seatsOfSet(row.set) : lineSeats(row.line, row.position);
-    nine = seats === NINE_TABLE_ORDER;
+    table = seats === NINE_TABLE_ORDER ? NINE_MAX_TABLE : seats === HEADS_UP_TABLE_ORDER ? HEADS_UP_TABLE : null;
     const walked = walkLine(row.line, seats);
     if (walked.next) hero = walked.next;
     villain = lineVillain(row.line, seats) ?? NONE;
@@ -220,7 +227,7 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
     villain,
     taken: row.taken,
     best: row.best,
-    ...(nine ? { table: NINE_MAX_TABLE } : {}),
+    ...(table ? { table } : {}),
   };
 }
 
@@ -240,19 +247,20 @@ export function atLevel(attrs: SpotAttrs, level: number): SpotAttrs {
 }
 
 const tablePart = (a: SpotAttrs) => (a.table ? [a.table] : []);
-/** A situation: the attributes without what was done there (a full-ring spot ends in `~9max`). */
+/** A situation: the attributes without what was done there (a full-ring spot ends in `~9max`, a heads-up one in `~hu`). */
 export const situationKey = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain, ...tablePart(a)].join("~");
-/** A leak's id: stable across reloads and filters, safe in a URL (a full-ring spot ends in `~9max`). */
+/** A leak's id: stable across reloads and filters, safe in a URL (a full-ring spot ends in `~9max`, a heads-up one in `~hu`). */
 export const leakId = (a: SpotAttrs) =>
   [a.street, a.scenario, a.family, a.hero, a.villain, a.taken, a.best, ...tablePart(a)].join("~");
 
 /** The parts of a leak id, or null for anything that is not one. */
 export function parseLeakId(id: string): SpotAttrs | null {
   const parts = id.split("~");
-  if (parts.length !== 7 && !(parts.length === 8 && parts[7] === NINE_MAX_TABLE)) return null;
+  const table = parts[7] as LeakTable | undefined;
+  if (parts.length !== 7 && !(parts.length === 8 && LEAK_TABLES.includes(table as LeakTable))) return null;
   if (parts.some((part) => !/^[A-Za-z0-9+*-]{1,40}$/.test(part))) return null;
   const [street, scenario, family, hero, villain, taken, best] = parts;
-  return { street, scenario, family, hero, villain, taken, best, ...(parts[7] ? { table: NINE_MAX_TABLE } : {}) };
+  return { street, scenario, family, hero, villain, taken, best, ...(table ? { table } : {}) };
 }
 
 /** A row is part of some leak when its move was not the reference's, or was at the wrong size. */
