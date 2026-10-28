@@ -1,3 +1,4 @@
+import { shownPercent } from "../../format";
 import { plural } from "../plural";
 import type { Dict } from "../types";
 
@@ -10,8 +11,8 @@ const num = (value: number, digits = 0) =>
   value.toLocaleString("hr-HR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const pct = (value: number) => `${num(Math.round(value * 100))} %`;
 const pct1 = (value: number) => {
-  const p = value * 100;
-  return p > 0 && p < 10 ? `${num(Math.round(p * 10) / 10, 1)} %` : `${num(Math.round(p))} %`;
+  const shown = shownPercent(value);
+  return `${shown.bound ?? ""}${num(shown.value, shown.digits)} %`;
 };
 const signedBb = (value: number) => {
   const rounded = Math.round(value * 100) / 100;
@@ -58,6 +59,7 @@ export const solverHr: Dict["solver"] = {
         ? `Raise ${size(toBb)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     rewind: (position: string) => `Natrag na odluku: ${position}`,
+    foldTo: (position: string) => `Svi prije pozicije ${position} foldaju`,
     toAct: "na potezu",
     folded: (winner: string) => `Svi foldaju do ${winner}: flopa nema.`,
     multiway: (players: string) => `Multiway flop (${players}): knjižnica solva samo heads-up flopove.`,

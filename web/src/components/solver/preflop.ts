@@ -9,6 +9,9 @@
  *   ─▶ a decision still to make (the chart node, its options)
  *      or the end: everyone folded to one player, a multiway flop, an all-in,
  *      or a heads-up flop - on a library line (`sameLine`) or not
+ *   ─▶ for each seat still to act this round: the decision it would face if
+ *      every seat before it folds (`SeatState.ahead`), so a later seat's
+ *      option can be picked straight away, as a solver's viewer allows
  * ```
  *
  * Pure: no React, no fetch. Positions and amounts come from the chart set,
@@ -34,6 +37,14 @@ export interface SeatState {
   inBb: number;
   folded: boolean;
   acts: SeatAct[];
+  /**
+   * The decision this seat would face if the seat to act and every seat
+   * between them fold: the line to that node and its options (picking one
+   * appends its code). Only for seats that have not acted yet; null when the
+   * folds never reach the seat (the hand ends, a seat that has acted is next,
+   * or a seat on the way cannot fold).
+   */
+  ahead: { line: string; node: ChartNode } | null;
 }
 
 export type PreflopEnd =
@@ -60,7 +71,7 @@ export function preflopState(charts: ChartSet, line: string, lines: readonly Flo
   const stack = charts.game.stackBb;
   const seats: SeatState[] = positions.map((position) => {
     const blind = BLINDS[position] ?? 0;
-    return { position, stackBb: stack - blind, inBb: blind, folded: false, acts: [] };
+    return { position, stackBb: stack - blind, inBb: blind, folded: false, acts: [], ahead: null };
   });
   const seatOf = (position: ChartPosition) => seats.find((seat) => seat.position === position)!;
 
@@ -83,7 +94,10 @@ export function preflopState(charts: ChartSet, line: string, lines: readonly Flo
 
   const potBb = seats.reduce((sum, seat) => sum + seat.inBb, 0);
   const node = charts.nodes.get(walked) ?? null;
-  if (node) return { line: walked, seats, node, end: null, potBb };
+  if (node) {
+    foldAhead(charts, walked, node, seats);
+    return { line: walked, seats, node, end: null, potBb };
+  }
 
   const live = seats.filter((seat) => !seat.folded).map((seat) => seat.position);
   let end: PreflopEnd;
@@ -95,4 +109,27 @@ export function preflopState(charts: ChartSet, line: string, lines: readonly Flo
     end = { kind: "flop", players: [live[0], live[1]], line: solved };
   }
   return { line: walked, seats, node: null, end, potBb };
+}
+
+/**
+ * Folds from the node to act onwards, giving each seat that has not acted
+ * yet the node it reaches (`SeatState.ahead`). Stops where a seat that has
+ * acted is next to decide - folding it is a choice of its own, not the
+ * "everyone in between folds" a later pick assumes - or where nobody else
+ * acts.
+ */
+function foldAhead(charts: ChartSet, line: string, node: ChartNode, seats: SeatState[]): void {
+  let at = node;
+  let walked = line;
+  for (let step = 0; step < seats.length; step += 1) {
+    const fold = at.options.find((option) => option.action === "fold");
+    if (!fold) return;
+    walked += fold.code;
+    const next = charts.nodes.get(walked);
+    if (!next) return;
+    const seat = seats.find((candidate) => candidate.position === next.actor)!;
+    if (seat.acts.length > 0 || seat.ahead) return;
+    seat.ahead = { line: walked, node: next };
+    at = next;
+  }
 }

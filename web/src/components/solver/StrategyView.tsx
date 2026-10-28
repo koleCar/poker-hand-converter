@@ -57,7 +57,7 @@ export interface StrategyModel {
   note: string;
 }
 
-/** Below this an action reads as 0.0%: left out of a cell's spoken mix. */
+/** Below this an action rounds to nothing (it reads `<0.1%`): left out of a cell's spoken mix. */
 const SHOWN_FREQ = 0.0005;
 
 /**
