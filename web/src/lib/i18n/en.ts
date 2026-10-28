@@ -44,10 +44,12 @@ import { planEn } from "./ns/plan.en";
 import { planNoticeEn } from "./ns/planNotice.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
+import { solverEn } from "./ns/solver.en";
 
 export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
+  solver: solverEn,
   analysis: analysisEn,
   learn: learnEn,
   legal: legalEn,
@@ -67,6 +69,10 @@ export const en = {
   },
 
   meta: {
+    solver: {
+      title: "Solver library — Rail's flop solves | Rail",
+      description: "Rail's own flop solves, one decision at a time: every hand's mix and EV on every solved flop.",
+    },
     home: {
       title: "Rail — poker hand replayer & hand history converter",
       description:
@@ -187,6 +193,7 @@ export const en = {
     players: "Players",
     analysis: "Analysis",
     learn: "Learn",
+    solver: "Solver library",
   },
 
   home: {

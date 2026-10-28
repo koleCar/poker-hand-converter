@@ -22,6 +22,7 @@ import { planHr } from "./ns/plan.hr";
 import { planNoticeHr } from "./ns/planNotice.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
+import { solverHr } from "./ns/solver.hr";
 import type { Dict } from "./types";
 
 import { plural } from "./plural";
@@ -32,6 +33,7 @@ const num = (value: number) => value.toLocaleString("hr-HR");
 
 export const hr: Dict = {
   stats: statsHr,
+  solver: solverHr,
   analysis: analysisHr,
   learn: learnHr,
   legal: legalHr,
@@ -51,6 +53,10 @@ export const hr: Dict = {
   },
 
   meta: {
+    solver: {
+      title: "Solver library — Railovi flop solvovi | Rail",
+      description: "Railovi vlastiti flop solvovi, odluku po odluku: mix i EV svake ruke na svakom solvanom flopu.",
+    },
     home: {
       title: "Rail — replayer pokerskih ruku i konverter hand historyja",
       description:
@@ -169,6 +175,7 @@ export const hr: Dict = {
     players: "Igrači",
     analysis: "Analiza",
     learn: "Učenje",
+    solver: "Solver library",
   },
 
   home: {
