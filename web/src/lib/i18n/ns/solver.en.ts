@@ -1,3 +1,5 @@
+import { shownPercent } from "../../format";
+
 /**
  * Strings for the Solver library tab (`/solver`), English. Spread into
  * `en.ts` as `solver`; `solver.hr.ts` is the same shape.
@@ -6,10 +8,10 @@
 const num = (value: number, digits = 0) =>
   value.toLocaleString("en-GB", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const pct = (value: number) => `${num(Math.round(value * 100))}%`;
-/** A share to one decimal under 10%, whole above: "4.5%", "52%". */
+/** A share as `shownPercent` rounds it: "4.5%", "52%", "95.5%", "<0.1%", ">99.9%". */
 const pct1 = (value: number) => {
-  const p = value * 100;
-  return p > 0 && p < 10 ? `${num(Math.round(p * 10) / 10, 1)}%` : `${num(Math.round(p))}%`;
+  const shown = shownPercent(value);
+  return `${shown.bound ?? ""}${num(shown.value, shown.digits)}%`;
 };
 /** An EV, signed, to two decimals: "+1.25 bb", "−0.40 bb". */
 const signedBb = (value: number) => {

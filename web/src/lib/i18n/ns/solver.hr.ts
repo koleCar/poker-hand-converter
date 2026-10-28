@@ -1,3 +1,4 @@
+import { shownPercent } from "../../format";
 import { plural } from "../plural";
 import type { Dict } from "../types";
 
@@ -10,8 +11,8 @@ const num = (value: number, digits = 0) =>
   value.toLocaleString("hr-HR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const pct = (value: number) => `${num(Math.round(value * 100))} %`;
 const pct1 = (value: number) => {
-  const p = value * 100;
-  return p > 0 && p < 10 ? `${num(Math.round(p * 10) / 10, 1)} %` : `${num(Math.round(p))} %`;
+  const shown = shownPercent(value);
+  return `${shown.bound ?? ""}${num(shown.value, shown.digits)} %`;
 };
 const signedBb = (value: number) => {
   const rounded = Math.round(value * 100) / 100;
