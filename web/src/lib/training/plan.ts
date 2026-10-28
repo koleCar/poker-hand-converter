@@ -40,7 +40,9 @@
 
 import {
   ANY,
+  HEADS_UP_TABLE,
   MIN_COMPARE_SPOT,
+  NINE_MAX_TABLE,
   NONE,
   confidenceOf,
   groupLeaks,
@@ -131,7 +133,7 @@ export interface AreaWhere {
   family: string;
   hero: string;
   villain: string;
-  /** `"9max"`: a full-ring chart spot (A2d, `SpotAttrs.table`). */
+  /** `"9max"`: a full-ring chart spot (A2d, `SpotAttrs.table`); `"hu"`: a heads-up one. */
   table?: string;
 }
 
@@ -209,15 +211,17 @@ const whereOf = (leak: Leak): AreaWhere => ({
   ...(leak.attrs.table ? { table: leak.attrs.table } : {}),
 });
 
-/** An area's id: its situation at the level it settled (a full-ring area ends in `~9max`). */
+/** An area's id: its situation at the level it settled (a full-ring area ends in `~9max`, a heads-up one in `~hu`). */
 export const areaId = (where: AreaWhere) =>
   [where.street, where.scenario, where.family, where.hero, where.villain, ...(where.table ? [where.table] : [])].join("~");
 
 const known = (part: string) => part !== ANY && part !== NONE;
 const seatOf = (part: string): ChartPosition | null =>
   known(part) && (ALL_PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
-/** A chart set id as the trainer takes it (`nlhe-cash-9max-100bb`). */
-const SET_ID = /^nlhe-cash-[0-9]max-[0-9]{2,3}bb$/;
+/** A chart set id as the trainer takes it (`nlhe-cash-9max-100bb`, `nlhe-cash-hu-100bb`). */
+const SET_ID = /^nlhe-cash-([0-9]max|hu)-[0-9]{2,3}bb$/;
+/** The heads-up set an area tagged heads-up deals from when its leaks name none. */
+const HEADS_UP_SET = "nlhe-cash-hu-100bb";
 
 /**
  * The set an area's trainer deals from (A2d): the chart set its leaks were
@@ -244,15 +248,19 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     const seat = seatOf(where.hero);
     const vs = seatOf(where.villain);
     // On the set the area was met on; a 9-max seat with no set, on the trainer's default table, would not exist.
-    const deal = set && SET_ID.test(set) ? { set } : {};
+    // A heads-up area (`~hu`) stays heads-up: its seats are the blinds of a two-handed table.
+    const headsUp = where.table === HEADS_UP_TABLE;
+    const own = set && SET_ID.test(set) && (!headsUp || /-hu-/.test(set)) ? set : null;
+    const deal = own ? { set: own } : headsUp ? { set: HEADS_UP_SET } : {};
     let family: PreflopFamily;
     switch (where.scenario) {
       case "unopened":
         family = "rfi";
         break;
       case "vs-open":
-        // The big blind against the small blind's open is the charts' blind-vs-blind family.
-        family = seat === "BB" && vs === "SB" ? "bvb" : "vs-open";
+        // The big blind against the small blind's open is the charts' blind-vs-blind family
+        // (heads-up every pot is, so there the open is its own family: `familiesOf`).
+        family = seat === "BB" && vs === "SB" && !headsUp ? "bvb" : "vs-open";
         break;
       case "squeeze":
         family = "squeeze";
@@ -271,7 +279,8 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
       case "bb-option":
         // The big blind behind the small blind's completion is blind vs blind;
         // behind anyone else's limp (the villain is the first limper), a limped pot.
-        family = vs && vs !== "SB" ? "vs-limp" : "bvb";
+        // Heads-up the completion is the only limp: the `vs-limp` node of the heads-up set.
+        family = headsUp || (vs && vs !== "SB") ? "vs-limp" : "bvb";
         break;
       default:
         // Merged up to the family: the family's trainer, any seat the parts still name.
@@ -794,7 +803,7 @@ export function parseFocus(value: unknown): FocusArea[] {
       family: str(w.family, PART, ANY),
       hero: str(w.hero, PART, ANY),
       villain: str(w.villain, PART, ANY),
-      ...(w.table === "9max" ? { table: "9max" } : {}),
+      ...(w.table === NINE_MAX_TABLE || w.table === HEADS_UP_TABLE ? { table: w.table } : {}),
     };
     if (!where.street) return [];
     const leaks = Array.isArray(r.leaks)

@@ -34,7 +34,7 @@ import type { PhfHand } from "../phf/types";
 import { comboHi, comboLo, NUM_COMBOS } from "../solver";
 import { buildContext } from "../stats/context";
 import { handUpTo, lastHeroDecision, scriptHand, scriptMoney, seatOf, type HandScript, type ScriptAct } from "./handText";
-import { lineActs, type DealBias } from "./preflop";
+import { lineActs, trainerSet, type DealBias } from "./preflop";
 import {
   MAX_ATTEMPTS,
   MIN_VILLAIN_FREQ,
@@ -50,6 +50,7 @@ import {
   riverLines,
   riverSeatings,
   round2,
+  scriptSeats,
   shuffled,
   type FlopLineFilter,
   type RiverLine,
@@ -61,6 +62,8 @@ import {
 import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
 
 export interface TurnSpotOptions {
+  /** Chart set id: the default (6-max) set when absent, or a heads-up set (the river trainer's lines, `RiverSpotOptions.set`). */
+  set?: string | null;
   pot?: RiverPot | "any";
   seat?: RiverSeat | "any";
   role?: RiverRole | "any";
@@ -100,6 +103,8 @@ export interface TurnTrainerSpot {
 
 /** A turn solved for a seed's line, seat and board, before anything is dealt to the hero. */
 export interface TurnSetup {
+  /** The chart set the preflop was dealt from. */
+  set: string;
   line: RiverLine;
   seat: RiverSeat;
   hero: ChartPosition;
@@ -121,7 +126,9 @@ export interface TurnSetup {
  * category (Learn L2). Null when the attempt does not reach a solve.
  */
 export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: number): TurnSetup | null {
-  const lines = riverLines(charts, options.pot ?? "any");
+  // The set the preflop is dealt from; `charts` (the library) is what the walk and the solve read, as the analysis does.
+  const set = trainerSet(charts, options.set);
+  const lines = riverLines(set, options.pot ?? "any");
   if (lines.length === 0) return null;
   const wantSeat = filterSeat(options);
   let line: RiverLine;
@@ -136,18 +143,18 @@ export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, 
     line = pickOne(lines, rng);
     seat = wantSeat !== "any" ? wantSeat : rng() < 0.5 ? "ip" : "oop";
   }
-  const [oop, ip] = flopPlayers(line.line);
+  const [oop, ip] = flopPlayers(line.line, line.seats);
   const hero = seat === "ip" ? ip : oop;
   const villain = seat === "ip" ? oop : ip;
-  const raiser = raiserOf(line.line);
+  const raiser = raiserOf(line.line, line.seats);
   const initiative = raiser === null ? "none" : raiser === ip ? "ip" : "oop";
 
   const deck = shuffled(rng);
   const boardIdx = deck.slice(0, 4);
   const board = boardIdx.map(cardCode);
-  const preflop = lineActs(charts, line.line);
-  const stackBb = charts.game.stackBb;
-  const base: HandScript = { id: `TT${seed.toString(36)}`, hero, heroCards: null, stackBb, preflop, board };
+  const preflop = lineActs(set, line.line);
+  const stackBb = set.game.stackBb;
+  const base: HandScript = { id: `TT${seed.toString(36)}`, hero, heroCards: null, ...scriptSeats(line), stackBb, preflop, board };
 
   const afterPre = scriptMoney(base);
   const flop = patternActs(
@@ -167,8 +174,8 @@ export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, 
   // Both ranges as the turn comes; the walk records them at the turn's first
   // action, so the hand it reads carries a placeholder one.
   const walked = scriptHand({ ...toTurn, turn: [{ position: oop, type: "check" }] });
-  const heroSeat = seatOf(hero);
-  const villainSeat = seatOf(villain);
+  const heroSeat = seatOf(hero, line.seats);
+  const villainSeat = seatOf(villain, line.seats);
   const walk = walkRanges(walked, buildContext(walked), heroSeat, villainSeat, charts);
   if (!walk.ok || !walk.turnStart) return null;
 
@@ -193,14 +200,14 @@ export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, 
     // The villain's check carries no size; the hero's answer adds the act the grade re-reads.
     acts: [],
     key: {
-      players: 6,
+      players: set.game.players,
       stackBucket: `${stackBb}bb`,
       preflopLine: line.pot,
       positions: heroFirst ? [hero, villain] : [villain, hero],
     },
   });
   if (!solve.ok) return null;
-  return { line, seat, hero, villain, board, toTurn, heroFirst, stack, solve, sources: walk.sources, model: walk.model };
+  return { set: set.id, line, seat, hero, villain, board, toTurn, heroFirst, stack, solve, sources: walk.sources, model: walk.model };
 }
 
 function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: number): TurnTrainerSpot | null {
@@ -239,7 +246,7 @@ function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: num
   return {
     kind: "turn",
     seed,
-    set: charts.id,
+    set: setup.set,
     lineId: line.id,
     pot: line.pot,
     hero,

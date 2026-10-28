@@ -39,6 +39,19 @@ export type DealBias = (typeof DEAL_BIASES)[number];
 export const PREFLOP_SEATS: readonly ChartPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 /** Every seat a chart set can have, 9-max's included (A2c): what a `seat` / `vs` parameter may name. */
 export const ALL_PREFLOP_SEATS: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+/** The heads-up sets' seats (`charts/8`, `charts/9`): the small blind is the button. */
+export const HEADS_UP_SEATS: readonly ChartPosition[] = ["SB", "BB"];
+
+/** The seats a trainer can pin at a table of `players` (the chart set's size). */
+export function trainerSeats(players: number): readonly ChartPosition[] {
+  if (players === 2) return HEADS_UP_SEATS;
+  return players > 6 ? ALL_PREFLOP_SEATS : PREFLOP_SEATS;
+}
+
+/** The families a table of `players` deals: heads-up has nobody to squeeze. */
+export function trainerFamilies(players: number): readonly PreflopFamily[] {
+  return players === 2 ? PREFLOP_FAMILIES.filter((family) => family !== "squeeze") : PREFLOP_FAMILIES;
+}
 
 /**
  * The set to deal from: `id` in a library (loaded by the caller), else
@@ -67,8 +80,32 @@ export const BORDERLINE_FLOOR = 0.1;
 /** `borderline`: EV gap (bb) at which two options count as close. */
 export const CLOSE_EV_BB = 0.5;
 
-/** The families a node belongs to: the chart browser's categories (`chartSpots.ts`). */
+/** A heads-up node's own family, by its scenario (`familiesOf`). */
+const HEADS_UP_FAMILY: Partial<Record<string, PreflopFamily>> = {
+  rfi: "rfi",
+  "vs-open": "vs-open",
+  "vs-iso": "vs-open",
+  "vs-limp": "vs-limp",
+  "vs-3bet": "vs-3bet",
+  "vs-4bet": "vs-4bet",
+  "vs-allin": "vs-4bet",
+};
+
+/**
+ * The families a node belongs to: the chart browser's categories (`chartSpots.ts`).
+ *
+ * Heads-up (`charts/8`) every pot is the blinds', so every node is also
+ * `bvb`, and its scenario names its own family besides: the big blind
+ * against the open is `vs-open`, and so is the small blind's limp raised
+ * (the analysis calls a limper facing a raise `vs-open`); the big blind
+ * behind the completion is `vs-limp`. So a study plan's "BB vs SB open"
+ * (`bvb`) and "SB vs a 3-bet" (`vs-3bet`) both deal on the heads-up set.
+ */
 export function familiesOf(node: ChartNode): PreflopFamily[] {
+  if (node.seats.length === 2) {
+    const family = HEADS_UP_FAMILY[node.scenario];
+    return family ? [family, "bvb"] : ["bvb"];
+  }
   // Folded to the blinds (on a straddle set: to the blinds and the straddler, its seats' last three).
   const blinds = node.seats[node.seats.length - 1] === "BB" ? 2 : 3;
   if (node.line.startsWith("f".repeat(node.seats.length - blinds))) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];

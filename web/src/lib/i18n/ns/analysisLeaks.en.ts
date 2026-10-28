@@ -63,7 +63,7 @@ interface Where {
   family: string;
   hero: string;
   villain: string;
-  /** `"9max"`: a full-ring chart spot (A2d), named with its table. */
+  /** `"9max"`: a full-ring chart spot (A2d); `"hu"`: a heads-up one. Named with its table. */
   table?: string;
 }
 
@@ -88,10 +88,11 @@ function title(kind: LeakKind, where: Where): string {
 const roleWords = { pfr: "as the preflop raiser", caller: "as the preflop caller", limped: "in a limped pot" } as Record<string, string>;
 const facingWords = { first: "first to act", "vs-bet": "facing a bet", "vs-raise": "facing a raise" } as Record<string, string>;
 
-/** "BB vs BTN open", "CO first in"; a full-ring spot says so: "UTG first in (9-max)". */
+/** "BB vs BTN open", "CO first in"; a full-ring or heads-up spot says so: "UTG first in (9-max)", "BB vs SB open (heads-up)". */
 function context(where: Where): string {
   const text = spotContext(where);
-  return where.table === "9max" && known(where.hero) ? `${text} (9-max)` : text;
+  if (!known(where.hero)) return text;
+  return where.table === "9max" ? `${text} (9-max)` : where.table === "hu" ? `${text} (heads-up)` : text;
 }
 
 /** "BB vs BTN open", "CO first in", "as the preflop raiser, in position, first to act". */

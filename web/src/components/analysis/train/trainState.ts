@@ -26,18 +26,31 @@ import {
 import type { TrainerTarget } from "../../../lib/training/plan";
 
 /**
- * The sets the preflop trainer deals from: every table of three or more. The
- * heads-up set (`charts/8`) grades hands but has no trainer seats yet; a
- * link to it opens the default set.
+ * The sets the preflop trainer deals from: every chart set, the heads-up
+ * ones (`charts/8`, `charts/9`) included - their seats are the small blind
+ * (the button) and the big blind (`trainerSeats`).
  */
-export const TRAINER_SETS = CHART_SETS.filter((spec) => spec.players > 2);
+export const TRAINER_SETS = CHART_SETS;
+
+/**
+ * The sets the river trainer deals from: the default 6-max set and the
+ * heads-up sets (`RIVER_LINES_HU`). The table is one setting for both
+ * trainers (`TrainState.set`); a table the river has no lines for deals
+ * the default set's.
+ */
+export const RIVER_TRAINER_SETS = CHART_SETS.filter((spec) => spec.id === DEFAULT_CHART_SET || spec.players === 2);
+
+/** The set the river trainer deals from at a table: the table's own when it has river lines, else the default. */
+export function riverSetOf(set: string): string {
+  return RIVER_TRAINER_SETS.some((spec) => spec.id === set) ? set : DEFAULT_CHART_SET;
+}
 
 export const TRAIN_MODES = ["preflop", "river", "drills"] as const;
 export type TrainMode = (typeof TRAIN_MODES)[number];
 
 export interface TrainState {
   mode: TrainMode;
-  /** Preflop: the chart set (table and depth, A2c). */
+  /** The chart set (table and depth, A2c); the river trainer's when it has lines there (`riverSetOf`). */
   set: string;
   family: PreflopFamily | "random";
   seat: ChartPosition | null;
@@ -118,6 +131,7 @@ export function trainQuery(state: TrainState): string {
     if (state.vs) params.set("vs", state.vs);
   }
   if (state.mode === "river") {
+    if (riverSetOf(state.set) !== DEFAULT_TRAIN_STATE.set) params.set("set", state.set);
     if (state.pot !== DEFAULT_TRAIN_STATE.pot) params.set("pot", state.pot);
     if (state.side !== DEFAULT_TRAIN_STATE.side) params.set("side", state.side);
     if (state.role !== DEFAULT_TRAIN_STATE.role) params.set("role", state.role);

@@ -61,11 +61,15 @@ export type TrainingResponse =
 
 /**
  * The chart sets a job needs loaded besides the library's default (A2c): the
- * set a preflop spot is dealt from, and graded against.
+ * set a spot is dealt from (a preflop spot, or a heads-up flop, turn or
+ * river), and graded against - the analysis picks the heads-up set for a
+ * two-handed hand, so it must be in the library.
  */
 export function trainingChartSets(request: TrainingRequest): string[] {
-  if (request.type === "preflop") return request.options.set ? [request.options.set] : [];
-  if (request.type === "answer" && request.spot.kind === "preflop") return [request.spot.set];
+  if (request.type === "preflop" || request.type === "river" || request.type === "turn" || request.type === "flop") {
+    return request.options.set ? [request.options.set] : [];
+  }
+  if (request.type === "answer") return [request.spot.set];
   if (request.type === "paint" && request.options.source === "chart" && request.options.set) return [request.options.set];
   return [];
 }
@@ -99,7 +103,10 @@ export interface ChunkLoader extends FlopLibrary {
  */
 export async function prepareFlopLibrary(request: TrainingRequest, charts: ChartSet, loader: ChunkLoader | null): Promise<FlopLibrary | null> {
   if (!loader || !needsFlopLibrary(request)) return null;
-  const set = request.type === "answer" && request.spot.kind === "flop" ? request.spot.set : charts.id;
+  // The set whose manifest the job reads: an answer's spot's, a flop job's own (a heads-up set), else the default.
+  let set = charts.id;
+  if (request.type === "answer" && request.spot.kind === "flop") set = request.spot.set;
+  else if (request.type === "flop" && request.options.set) set = request.options.set;
   try {
     await loader.ready(set);
     const want = trainingChunk(request, charts, loader);

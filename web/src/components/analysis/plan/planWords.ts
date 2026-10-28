@@ -37,7 +37,7 @@ export function usePlanWords() {
   const trainerWhat = useCallback(
     (target: TrainerTarget) =>
       target.mode === "preflop"
-        ? t.tasks.trainPreflop(settings.families[target.family] ?? target.family, target.seat, target.vs)
+        ? t.tasks.trainPreflop(settings.families[target.family] ?? target.family, target.seat, target.vs, !!target.set && /-hu-/.test(target.set))
         : t.tasks.trainRiver(
             target.role === "any" ? null : target.role,
             target.side === "any" ? null : target.side,

@@ -4,7 +4,8 @@
  * graded exactly as the analysis grades a real hand's flop there.
  *
  * ```
- * a line of FLOP_LINES and a flop the library holds (`flopPlan`)
+ * a line of the set's table (`flopLinesFor`: 6-max, or the heads-up sets' FLOP_LINES_HU)
+ *   and a flop the library holds (`flopPlan`)
  *   ─▶ the chunk, with its suits relabelled at random (the same canonical flop: exact, never mapped)
  *   ─▶ the line's flop actions before the hero's decision, drawn from the solve's own frequencies (`heroNode`)
  *   ─▶ the hero's combo drawn from the hero's range at the node
@@ -23,7 +24,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { chartLineOf, FLOP_LINES, sameLine, LIBRARY_MODEL, type FlopLibrary, type FlopLine } from "../analysis";
+import { chartLineOf, flopLinesFor, lineSeats, sameLine, LIBRARY_MODEL, type FlopLibrary, type FlopLine } from "../analysis";
 import { cardCode, cardIndex } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import {
@@ -39,7 +40,7 @@ import {
   type SolveResult,
 } from "../solver";
 import { handUpTo, lastHeroDecision, scriptHand, seatOf, type HandScript, type ScriptAct } from "./handText";
-import { lineActs, type DealBias } from "./preflop";
+import { lineActs, trainerSet, type DealBias } from "./preflop";
 import {
   MAX_ATTEMPTS,
   MIN_VILLAIN_FREQ,
@@ -48,6 +49,7 @@ import {
   riverDealingWeights,
   riverSeatings,
   round2,
+  scriptSeats,
   type RiverLine,
   type RiverMenuItem,
   type RiverPot,
@@ -66,11 +68,18 @@ import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
 export type FlopFacing = "check" | "bet" | "raise" | "any";
 
 export interface FlopSpotOptions {
+  /**
+   * Chart set id: the default (6-max 100bb) set when absent, or another set
+   * the library holds - the heads-up 100bb set (`FLOP_LINES_HU`). A set
+   * whose manifest is not in the bucket (heads-up 150bb, still being
+   * solved) holds no flop, so it deals nothing.
+   */
+  set?: string | null;
   pot?: RiverPot | "any";
   seat?: RiverSeat | "any";
   role?: RiverRole | "any";
   facing?: FlopFacing;
-  /** One line of `FLOP_LINES` by id (`btn-bb`); any that fits when absent. */
+  /** One of the set's lines by id (`btn-bb`; heads-up `sb-bb`); any that fits when absent. */
   line?: string;
   bias?: DealBias;
 }
@@ -108,8 +117,17 @@ export interface FlopTrainerSpot {
 
 /* ------------------------------------------------------------ the plan - */
 
-/** The trainer deals the 6-max lines only (`FLOP_LINES`), none a 4-bet pot; the river trainer's pots stop at 3-bet. */
-const asRiverLine = (line: FlopLine): RiverLine => ({ id: line.id, pot: line.pot === "4bp" ? "3bp" : line.pot, line: line.key });
+/**
+ * A library line as the river trainer's: the river trainer's pots stop at
+ * 3-bet, so a 4-bet pot (heads-up's `sb-bb-4bet`) files as one; a line
+ * of another table than 6-max carries its seats.
+ */
+const asRiverLine = (line: FlopLine): RiverLine => ({
+  id: line.id,
+  pot: line.pot === "4bp" ? "3bp" : line.pot,
+  line: line.key,
+  ...(line.players !== 6 ? { seats: lineSeats(line) } : {}),
+});
 
 /** The seat a flop filter pins: facing a check is in position by definition. */
 export function flopFilterSeat(options: Pick<FlopSpotOptions, "seat" | "facing">): RiverSeat | "any" {
@@ -131,9 +149,19 @@ export function analysisReadsLine(charts: ChartSet, line: FlopLine): boolean {
   let ok = readable.get(key);
   if (ok === undefined) {
     try {
-      const [oop, ip] = flopPlayers(line.key);
-      const hand = scriptHand({ id: "LINE", hero: oop, heroCards: null, stackBb: charts.game.stackBb, preflop: lineActs(charts, line.key), board: ["2c", "7d", "Kh"], flop: [] });
-      const seats = [seatOf(oop), seatOf(ip)];
+      const table = asRiverLine(line);
+      const [oop, ip] = flopPlayers(line.key, table.seats);
+      const hand = scriptHand({
+        id: "LINE",
+        hero: oop,
+        heroCards: null,
+        ...scriptSeats(table),
+        stackBb: charts.game.stackBb,
+        preflop: lineActs(charts, line.key),
+        board: ["2c", "7d", "Kh"],
+        flop: [],
+      });
+      const seats = [seatOf(oop, table.seats), seatOf(ip, table.seats)];
       const placed = chartLineOf(hand, seats, charts)?.line;
       ok = placed !== undefined && sameLine(line.key, placed);
     } catch {
@@ -144,12 +172,13 @@ export function analysisReadsLine(charts: ChartSet, line: FlopLine): boolean {
   return ok;
 }
 
-/** The (line, seat) pairs a filter allows on the chart set, whatever the library holds. */
+/** The (line, seat) pairs a filter allows on the chart set (`options.set`), whatever the library holds. */
 export function flopSeatings(charts: ChartSet, options: FlopSpotOptions) {
-  const lines = FLOP_LINES.filter((line) => {
+  const set = trainerSet(charts, options.set);
+  const lines = flopLinesFor(set.game.players).filter((line) => {
     if (options.line && line.id !== options.line) return false;
     if (options.pot && options.pot !== "any" && line.pot !== options.pot) return false;
-    return analysisReadsLine(charts, line);
+    return analysisReadsLine(set, line);
   }).map(asRiverLine);
   return riverSeatings({ pot: options.pot, seat: flopFilterSeat(options), role: options.role }, lines);
 }
@@ -174,11 +203,12 @@ export interface FlopPlan {
  * when the library holds nothing the filter allows.
  */
 export function planFlop(charts: ChartSet, library: Pick<FlopLibrary, "has">, options: FlopSpotOptions, rng: Rng): FlopPlan | null {
-  const seatings = flopSeatings(charts, options).filter((s) => libraryFlops(library, charts.id, s.line.id).length > 0);
+  const set = trainerSet(charts, options.set).id;
+  const seatings = flopSeatings(charts, options).filter((s) => libraryFlops(library, set, s.line.id).length > 0);
   if (seatings.length === 0) return null;
   const seating = pickOne(seatings, rng);
-  const flop = pickOne(libraryFlops(library, charts.id, seating.line.id), rng);
-  return { set: charts.id, line: seating.line, seat: seating.seat, hero: seating.hero, villain: seating.villain, flop };
+  const flop = pickOne(libraryFlops(library, set, seating.line.id), rng);
+  return { set, line: seating.line, seat: seating.seat, hero: seating.hero, villain: seating.villain, flop };
 }
 
 /** The chunk a seed's spot (or split) is dealt from, for the worker to load first. */
@@ -283,7 +313,7 @@ export function stepAct(result: SolveResult, step: TreeStep, position: ChartPosi
 
 function attempt(charts: ChartSet, plan: FlopPlan, chunk: FlopChunk, options: FlopSpotOptions, rng: Rng, seed: number): FlopTrainerSpot | null {
   const result = chunk.result;
-  const [oop, ip] = flopPlayers(plan.line.line);
+  const [oop, ip] = flopPlayers(plan.line.line, plan.line.seats);
   const heroIdx: 0 | 1 = plan.seat === "oop" ? 0 : 1;
   const walked = heroNode(result, heroIdx, options.facing, rng);
   if (!walked) return null;
@@ -296,7 +326,7 @@ function attempt(charts: ChartSet, plan: FlopPlan, chunk: FlopChunk, options: Fl
   const flop = walked.steps.map((step) => stepAct(result, step, step.player === 0 ? oop : ip));
   const preflop = lineActs(charts, plan.line.line);
   const stackBb = charts.game.stackBb;
-  const script0: HandScript = { id: `TF${seed.toString(36)}`, hero: plan.hero, heroCards: null, stackBb, preflop, board, flop };
+  const script0: HandScript = { id: `TF${seed.toString(36)}`, hero: plan.hero, heroCards: null, ...scriptSeats(plan.line), stackBb, preflop, board, flop };
 
   const weights = riverDealingWeights({ result, hero: heroIdx }, walked.node, options.bias ?? "range");
   const i = pickWeighted(weights, rng);
@@ -353,13 +383,14 @@ function planChunk(charts: ChartSet, library: FlopLibrary, plan: FlopPlan): Flop
  * allows, its chunk is not loaded, or no attempt reached a node. Deterministic.
  */
 export function generateFlopSpot(charts: ChartSet, library: FlopLibrary, options: FlopSpotOptions, seed: number): FlopTrainerSpot | null {
+  const set = trainerSet(charts, options.set);
   const rng = seeded(seed);
-  const plan = planFlop(charts, library, options, rng);
+  const plan = planFlop(set, library, options, rng);
   if (!plan) return null;
-  const chunk = planChunk(charts, library, plan);
+  const chunk = planChunk(set, library, plan);
   if (!chunk) return null;
   for (let tries = 0; tries < MAX_ATTEMPTS; tries += 1) {
-    const spot = attempt(charts, plan, chunk, options, rng, seed);
+    const spot = attempt(set, plan, chunk, options, rng, seed);
     if (spot) return spot;
   }
   return null;
@@ -367,9 +398,10 @@ export function generateFlopSpot(charts: ChartSet, library: FlopLibrary, options
 
 /** The chunk of a plan, for the split generator (`split.ts`). */
 export function plannedChunk(charts: ChartSet, library: FlopLibrary, options: FlopSpotOptions, rng: Rng): { plan: FlopPlan; chunk: FlopChunk } | null {
-  const plan = planFlop(charts, library, options, rng);
+  const set = trainerSet(charts, options.set);
+  const plan = planFlop(set, library, options, rng);
   if (!plan) return null;
-  const chunk = planChunk(charts, library, plan);
+  const chunk = planChunk(set, library, plan);
   return chunk ? { plan, chunk } : null;
 }
 

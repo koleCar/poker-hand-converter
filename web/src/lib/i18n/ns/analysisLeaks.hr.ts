@@ -60,7 +60,7 @@ interface Where {
   family: string;
   hero: string;
   villain: string;
-  /** `"9max"`: situacija s full-ring charta (A2d), imenovana sa stolom. */
+  /** `"9max"`: situacija s full-ring charta (A2d); `"hu"`: s heads-up charta. Imenovana sa stolom. */
   table?: string;
 }
 
@@ -86,10 +86,11 @@ const facingWords = { first: "prvi na potezu", "vs-bet": "protiv beta", "vs-rais
 
 const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
-/** "BB protiv BTN opena", "CO prvi ulazi"; full ring to kaže: "UTG prvi ulazi (9-max)". */
+/** "BB protiv BTN opena", "CO prvi ulazi"; full ring i heads-up to kažu: "UTG prvi ulazi (9-max)", "BB protiv SB opena (heads-up)". */
 function context(where: Where): string {
   const text = spotContext(where);
-  return where.table === "9max" && known(where.hero) ? `${text} (9-max)` : text;
+  if (!known(where.hero)) return text;
+  return where.table === "9max" ? `${text} (9-max)` : where.table === "hu" ? `${text} (heads-up)` : text;
 }
 
 /** "BB protiv BTN opena", "CO prvi ulazi", "Kao preflop raiser, u poziciji, prvi na potezu". */
