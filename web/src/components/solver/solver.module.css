@@ -1,132 +1,364 @@
-/* The Solver library (`/solver`): table and line pickers, the solved flops,
-   one decision with its actions, the 13×13 grid and a hand's combos. The grid
-   itself is the chart browser's (`analysis.module.css`). */
+/* The Solver library (`/solver`), edge to edge: the preflop bar on top, then
+   the 13×13 grid with the actions and the picked hand beside it (under it on
+   a narrow screen), and the flop picker's dialog. */
 
-.browser {
+.page {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-4);
+  gap: var(--space-2);
   min-inline-size: 0;
 }
 
-.controls {
+.pageHead {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
 }
 
-.field {
-  display: grid;
-  gap: var(--space-1);
-  flex: 1 1 14rem;
-  min-inline-size: 0;
-  max-inline-size: 24rem;
+.pageHead h1 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.pageHead p {
+  margin: 0;
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
 }
 
-.field select {
-  inline-size: 100%;
+.solver {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  min-inline-size: 0;
 }
 
-.notice {
+.message {
   display: grid;
   gap: var(--space-2);
   justify-items: start;
+  margin: 0;
   padding: var(--space-4);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-2);
   background: var(--surface-inset);
 }
 
-.notice h2,
-.notice p {
+.message p {
   margin: 0;
 }
 
-/* ------------------------------------------------------------ the flops */
+/* -------------------------------------------------------- the preflop bar */
 
-.flops {
-  display: grid;
+.bar {
+  display: flex;
   gap: var(--space-2);
   min-inline-size: 0;
+  overflow-x: auto;
+  padding-block-end: 2px;
 }
 
-.flopsHead {
+.tableCard {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  flex: none;
+  inline-size: 10rem;
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.tableKind {
+  color: var(--text-secondary);
+}
+
+.seats {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-3);
+  flex: 1 0 auto;
+  gap: var(--space-2);
 }
 
-.chips {
+.seat {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-1);
+  flex: 1 0 7rem;
+  min-inline-size: 7rem;
+  max-inline-size: 11rem;
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.seatActing {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 1px var(--accent-border);
+}
+
+.seatFolded {
+  opacity: 0.6;
+}
+
+.seatHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.seatHead span {
+  color: var(--text-secondary);
+}
+
+.seatOptions {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+}
+
+.seatOption {
+  padding: 2px var(--space-1);
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.seatOption:hover {
+  background: var(--surface-hover);
+}
+
+.seatOption:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.seatTaken {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+  font-weight: var(--font-weight-semibold);
+}
+
+.seatWaiting {
+  color: var(--text-tertiary);
+}
+
+.settings {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: min(22rem, 80vw);
+  padding: var(--space-2) 0;
+}
+
+.segmentGroup {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.segmentGroup legend {
+  margin-block-end: var(--space-2);
+  font-weight: var(--font-weight-semibold);
+}
+
+.segments {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
 }
 
-.chip {
-  padding: 2px var(--space-2);
+.segment {
+  padding: var(--space-1) var(--space-3);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-
-.chipOn {
-  border-color: var(--accent-border);
   color: var(--text-primary);
-  background: var(--surface-inset);
-}
-
-.flopList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  max-block-size: 9.5rem;
-  overflow-y: auto;
-  padding: 2px;
-}
-
-.flopButton {
-  padding: 3px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-1);
-  background: var(--surface-inset);
+  font: inherit;
   cursor: pointer;
 }
 
-.flopButton:hover {
-  border-color: var(--border-hover);
-}
-
-.flopOn {
+.segmentOn {
   border-color: var(--accent-border);
-  box-shadow: 0 0 0 2px var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
 }
 
-/* ------------------------------------------------------- one decision */
+.settingsFoot {
+  display: flex;
+  justify-content: flex-end;
+  padding-block-start: var(--space-2);
+}
 
-.decision {
+/* ------------------------------------------------- the grid and the panel */
+
+.strategy {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
+  align-items: start;
   min-inline-size: 0;
 }
 
-.spot {
+@media (min-width: 900px) {
+  /* The grid as large as the window's height allows, the panel right beside it taking the rest. */
+  .strategy {
+    grid-template-columns: minmax(0, max(28rem, calc((100dvh - 19rem) * 1.3))) minmax(17rem, 40rem);
+  }
+
+  .panel {
+    position: sticky;
+    inset-block-start: var(--space-3);
+  }
+}
+
+.gridWrap {
+  min-inline-size: 0;
+}
+
+/* As wide as the column, and no taller than the window lets the whole grid show. */
+.grid {
+  display: grid;
+  gap: 2px;
+  inline-size: 100%;
+  max-inline-size: max(28rem, calc((100dvh - 19rem) * 1.3));
+}
+
+.gridRow {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.gridCellWrap {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.cell {
+  position: relative;
+  inline-size: 100%;
+  min-inline-size: 0;
+  aspect-ratio: 1.3;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+.cellFill {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  display: flex;
+}
+
+.cellFill > span {
+  display: block;
+  block-size: 100%;
+}
+
+.cellName,
+.cellEv {
+  position: absolute;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px var(--surface-scrim);
+}
+
+.cellName {
+  inset-block-start: 3px;
+  inset-inline-start: 4px;
+  font-size: clamp(0.5rem, 1.05vw, 1rem);
+  font-weight: var(--font-weight-semibold);
+}
+
+.cellEv {
+  inset-block-end: 3px;
+  inset-inline-end: 4px;
+  font-size: clamp(0.45rem, 0.75vw, 0.75rem);
+}
+
+/* A phone's cell is a few millimetres: the name only; the EV is in the detail. */
+@media (max-width: 600px) {
+  .cellEv {
+    display: none;
+  }
+}
+
+.cellFaint {
+  opacity: 0.4;
+}
+
+.cellShown {
+  box-shadow: inset 0 0 0 2px var(--text-primary);
+}
+
+/* Bets and raises: the largest size in the raise colour, smaller ones in the bet ramp. */
+.lighter0 {
+  background: var(--chart-raise);
+}
+
+.lighter1 {
+  background: var(--chart-bet-medium);
+}
+
+.lighter2 {
+  background: var(--chart-bet-small);
+}
+
+.panel {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  min-inline-size: 0;
+}
+
+.panelBlock {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.overview {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.overview p,
+.handBlock p {
+  margin: 0;
+}
+
+.boardRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2) var(--space-4);
-}
-
-.board {
-  display: inline-flex;
-  align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
 }
 
@@ -135,7 +367,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-1);
-  font-size: var(--font-size-sm);
 }
 
 .stepWrap {
@@ -160,21 +391,16 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.toAct {
-  margin: 0;
-}
-
-.actions {
+.actionBoxes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(7rem, 100%), 1fr));
   gap: var(--space-2);
-  max-inline-size: 58rem;
 }
 
-.action {
-  position: relative;
+.actionBox {
   display: grid;
-  padding: var(--space-2);
+  grid-template-rows: auto 1fr;
+  padding: 0;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-2);
   background: var(--surface-inset);
@@ -185,71 +411,80 @@
   overflow: hidden;
 }
 
-.action:hover:not(:disabled) {
+.actionBox:hover:not(:disabled) {
   border-color: var(--border-hover);
 }
 
-.action:disabled {
+.actionBox:disabled {
   cursor: default;
 }
 
-.action:focus-visible {
+.actionBox:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 1px;
 }
 
-/* The share of the range taking the action, as a bar along the button's foot. */
-.actionBar {
-  position: absolute;
-  inset-block-end: 0;
-  inset-inline-start: 0;
-  block-size: 4px;
+.actionBoxHead {
+  padding: var(--space-1) var(--space-2);
 }
 
-.actionText {
+.actionBoxLabel {
+  font-weight: var(--font-weight-semibold);
+  text-shadow: 0 1px 2px var(--surface-scrim);
+}
+
+.actionBoxBody {
   display: grid;
   gap: 2px;
-  font-size: var(--font-size-sm);
+  padding: var(--space-2);
   font-variant-numeric: tabular-nums;
 }
 
-/* Bets and raises: the largest size in the action colour, smaller ones lighter. */
-.lighter0 {
-  opacity: 1;
+.actionBoxShare {
+  font-size: var(--font-size-xl, 1.5rem);
+  line-height: 1.1;
 }
 
-.lighter1 {
-  opacity: 0.72;
-}
-
-.lighter2 {
-  opacity: 0.5;
-}
-
-/* ------------------------------------------------------------ the grid */
-
-.cell {
-  position: relative;
-  grid-template-rows: auto;
-}
-
-.cell .cellFill {
-  position: absolute;
-  inset-inline: 1px;
-  inset-block-end: 1px;
+.shareBar {
   display: flex;
-  border-radius: 1px;
+  block-size: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
   overflow: hidden;
 }
 
-.cellFill > span {
+.shareBar > span {
   display: block;
   block-size: 100%;
 }
 
-.cell > :first-child {
-  position: relative;
-  z-index: 1;
+.handHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--font-size-md, 1rem);
+}
+
+.handActions {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.handActions li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.combosWrap {
+  max-block-size: 20rem;
+  overflow: auto;
 }
 
 .combos {
@@ -272,6 +507,10 @@
   text-align: start;
 }
 
+.comboOut {
+  color: var(--text-tertiary);
+}
+
 .comboText {
   font-family: var(--font-family-mono);
   font-weight: var(--font-weight-semibold);
@@ -281,6 +520,152 @@
   color: var(--danger-fg);
 }
 
-.comboOut {
-  color: var(--text-tertiary);
+/* ------------------------------------------------------- the flop picker */
+
+/* Wider and taller than the overlay's default: the deck is four rows of thirteen. */
+.pickerDialog.pickerDialog {
+  max-inline-size: min(48rem, calc(100vw - 1rem));
+  max-block-size: min(56rem, calc(100dvh - 1rem));
+}
+
+.picker {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.pickerTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.slots {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.slotEmpty,
+.slotCard {
+  display: grid;
+  place-items: center;
+  inline-size: 3.2rem;
+  block-size: 4.4rem;
+  border-radius: var(--radius-2);
+}
+
+.slotEmpty {
+  border: 2px dashed var(--border-default);
+}
+
+.slotCard {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pickerTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pickerHint,
+.pickerError {
+  margin: 0;
+}
+
+.pickerHint {
+  color: var(--text-secondary);
+}
+
+.deck {
+  display: grid;
+  gap: 4px;
+}
+
+.deckRow {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.deckCard {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  place-items: center;
+  aspect-ratio: 0.72;
+  min-inline-size: 0;
+  padding: 2px 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-1);
+  color: var(--text-on-accent);
+  font: inherit;
+  font-weight: var(--font-weight-bold, 700);
+  cursor: pointer;
+}
+
+.deckCard:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.deckCard:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.deckOn {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--accent-border);
+}
+
+.deckRank {
+  font-size: clamp(0.8rem, 2.6vw, 1.35rem);
+  line-height: 1;
+}
+
+.deckSuit {
+  font-size: clamp(0.55rem, 1.6vw, 0.85rem);
+  line-height: 1;
+}
+
+.suitS {
+  background: var(--chart-fold);
+}
+
+.suitH {
+  background: var(--danger-fg);
+}
+
+.suitD {
+  background: var(--info-fg);
+}
+
+.suitC {
+  background: var(--success-fg);
+}
+
+.solvedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  max-block-size: 10rem;
+  padding: 2px;
+  overflow-y: auto;
+}
+
+.solvedFlop {
+  padding: 3px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  cursor: pointer;
+}
+
+.solvedFlop:hover {
+  border-color: var(--border-hover);
 }

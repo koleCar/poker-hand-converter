@@ -67,6 +67,8 @@ interface AppShellProps {
   storedCount: number | null;
   /** Tabs whose feature the account's plan lacks (R6.2): marked Pro. Empty while enforcement is off. */
   lockedTabs?: readonly ShellTab[];
+  /** The content runs edge to edge with a small margin (the Solver library), not in the centred column. */
+  wide?: boolean;
   children: ReactNode;
 }
 
@@ -76,6 +78,7 @@ export function AppShell({
   dbConfigured,
   storedCount,
   lockedTabs = [],
+  wide = false,
   children,
 }: AppShellProps) {
   const en = useDict();
@@ -141,7 +144,7 @@ export function AppShell({
 
       {!dbConfigured ? <p className="shell__offline-banner">{en.shell.offlineBanner}</p> : null}
 
-      <main className="shell__main">{children}</main>
+      <main className={`shell__main${wide ? " shell__main--wide" : ""}`}>{children}</main>
 
       {/* R6.5: the terms, the privacy policy and the takedown path, from every page. */}
       <footer className="shell__footer">

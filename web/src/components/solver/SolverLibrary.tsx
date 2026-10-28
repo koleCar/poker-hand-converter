@@ -1,34 +1,30 @@
 /**
- * The Solver library (`/solver`): the flop library's solves, browsed one
- * decision at a time, the way a solver's viewer shows a spot.
+ * The Solver library (`/solver`): Rail's own solves, browsed the way a
+ * solver's viewer shows them.
  *
  * ```
- * a table (a chart set the library holds) ─▶ its manifest: the solved lines and flops
- *   ─▶ a line and a flop ─▶ the chunk (`FlopLibraryLoader.load`, the analysis' own reader)
- *   ─▶ a decision (`exploreNode`): the actions, the 13×13 mix and EV, a hand's combos (`classCombos`)
- *   ─▶ an action ─▶ the next decision, until the flop's betting is over
+ * a table (players × stack depth the library holds)
+ *   ─▶ the preflop line, seat by seat (PreflopBar): each decision is the chart node's grid (lib/charts)
+ *   ─▶ the line ends heads-up on a library line ─▶ a flop (FlopPicker; any suits, the library files canonical flops)
+ *   ─▶ the chunk (`FlopLibraryLoader.load`, the analysis' own reader) ─▶ a flop decision (`exploreNode`)
+ *   ─▶ an action ─▶ the next flop decision, until the flop's betting is over
  * ```
  *
  * Public, like the preflop chart browser: nothing here reads an account. The
- * chunks are the public bucket's, the same files the analysis grades with. The table, line, flop and decision live in the
+ * chunks are the public bucket's, the same files the analysis grades with.
+ * The table, the preflop line, the flop and the flop decision live in the
  * address bar (`?set=…&line=…&flop=…&node=…`), so a link lands on the same
- * view. Cards are shown in the solve's canonical suits.
+ * view.
  */
 
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
-import {
-  flopLibraryBase,
-  flopLinesFor,
-  flopPlayersOf,
-  FlopLibraryLoader,
-  lineSeats,
-} from "../../lib/analysis/flopLibrary";
-import { isRedSuit, SUIT_SYMBOL, type Suit } from "../../lib/cards";
-import { CHART_SETS } from "../../lib/charts";
+import { flopLibraryBase, flopLinesFor, FlopLibraryLoader } from "../../lib/analysis/flopLibrary";
+import { preflopChartSet } from "../../lib/chartSet";
+import { CHART_SETS, type ChartNode, type ChartSet } from "../../lib/charts";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import {
@@ -37,14 +33,20 @@ import {
   exploreNode,
   flopCards,
   flopFeatures,
-  type ExploreAction,
-  type ExploreNode,
+  pickedFlop,
   type FlopChunk,
+  type PickedFlop,
 } from "../../lib/solver";
 import { SUPABASE_URL } from "../../lib/supabase/config";
-import { GRID_CELLS } from "../analysis/chartSpots";
+import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
+import { FlopPicker } from "./FlopPicker";
+import { PreflopBar, type TableOption } from "./PreflopBar";
+import { preflopState, type PreflopState } from "./preflop";
+import { actionColours, StrategyView, type StrategyModel } from "./StrategyView";
 import styles from "./solver.module.css";
+
+type Dict = ReturnType<typeof useDict>["solver"];
 
 /** The chart sets the flop library is solved for, in the order offered. A set without a manifest yet says so. */
 export const SOLVER_SETS = [
@@ -55,19 +57,10 @@ export const SOLVER_SETS = [
   "nlhe-cash-hu-150bb",
 ] as const;
 
-/** Below this an action reads as 0.0%: left out of a cell's spoken mix. */
-const SHOWN_FREQ = 0.0005;
-
-type Texture = "rainbow" | "twoTone" | "monotone" | "paired" | "trips";
-const TEXTURES: readonly Texture[] = ["rainbow", "twoTone", "monotone", "paired", "trips"];
-
-function textureOf(flop: string): Texture {
-  const cls = flopFeatures(flopCards(flop)).cls;
-  if (cls === "t-r") return "trips";
-  if (cls.startsWith("p-")) return "paired";
-  if (cls === "u-m") return "monotone";
-  return cls === "u-r" ? "rainbow" : "twoTone";
-}
+const TABLES: readonly TableOption[] = SOLVER_SETS.map((id) => {
+  const spec = CHART_SETS.find((s) => s.id === id)!;
+  return { id, players: spec.players, stackBb: spec.stackBb };
+});
 
 /** High card first, then the next: how a player scans a list of flops. */
 function byRanks(a: string, b: string): number {
@@ -85,38 +78,12 @@ function libraryLoader(): FlopLibraryLoader | null {
   return loader;
 }
 
-/** The colour of an action: bets and raises darken with size, so two sizes never look alike. */
-function actionClasses(actions: readonly ExploreAction[]): string[] {
-  const aggressive = actions
-    .map((action, a) => ({ action, a }))
-    .filter(({ action }) => action.kind === "bet" || action.kind === "raise")
-    .sort((x, y) => x.action.amount - y.action.amount);
-  const shade = new Map(aggressive.map(({ a }, rank) => [a, aggressive.length - 1 - rank]));
-  return actions.map((action, a) => {
-    switch (action.kind) {
-      case "fold":
-        return analysis.actFold;
-      case "check":
-        return analysis.actCheck;
-      case "call":
-        return analysis.actCall;
-      case "allin":
-        return analysis.actAllin;
-      default:
-        return `${analysis.actRaise} ${styles[`lighter${Math.min(2, shade.get(a) ?? 0)}`] ?? ""}`;
-    }
-  });
-}
-
-type Entries = { set: string; status: "loading" } | { set: string; status: "ready"; byLine: Map<string, string[]> };
-type Loaded =
-  | { key: string; status: "loading" }
-  | { key: string; status: "ready"; chunk: FlopChunk }
-  | { key: string; status: "error" };
+type Loaded<T> = { key: string; status: "loading" } | { key: string; status: "ready"; value: T } | { key: string; status: "error" };
 
 interface SolverLibraryProps {
   initialSet: string | null;
   initialLine: string | null;
+  /** The picked flop, six characters (`Ks7h2d`), any suits. */
   initialFlop: string | null;
   initialNode: number | null;
 }
@@ -133,417 +100,298 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode }: SolverLi
   const [setId, setSetId] = useState<string>(
     initialSet && (SOLVER_SETS as readonly string[]).includes(initialSet) ? initialSet : SOLVER_SETS[0],
   );
-  const [line, setLine] = useState<string | null>(initialLine);
-  const [flop, setFlop] = useState<string | null>(initialFlop);
+  const [line, setLine] = useState(initialLine ?? "");
+  const [flop, setFlop] = useState<string[] | null>(initialFlop ? flopCards(initialFlop) : null);
   const [node, setNode] = useState(initialNode ?? 0);
-  const [texture, setTexture] = useState<Texture | null>(null);
-  const [entries, setEntries] = useState<Entries>({ set: "", status: "loading" });
-  const [loaded, setLoaded] = useState<Loaded>({ key: "", status: "loading" });
+  const [picker, setPicker] = useState(false);
+  /** The line whose automatic flop prompt was closed: it does not come back for that line. */
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  const [charts, setCharts] = useState<Loaded<ChartSet>>({ key: "", status: "loading" });
+  const [entries, setEntries] = useState<Loaded<Map<string, string[]>>>({ key: "", status: "loading" });
+  const [chunk, setChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
   const [attempt, setAttempt] = useState(0);
 
-  const spec = CHART_SETS.find((s) => s.id === setId)!;
-  const lines = flopLinesFor(spec.players);
+  const table = TABLES.find((x) => x.id === setId)!;
+  const lines = flopLinesFor(table.players);
 
-  // The set's manifest: which lines and flops are solved.
+  // The table's preflop charts and its flop manifest.
   useEffect(() => {
     let live = true;
+    void preflopChartSet(setId)
+      .then((value) => {
+        if (live) setCharts(value ? { key: setId, status: "ready", value } : { key: setId, status: "error" });
+      })
+      .catch(() => {
+        if (live) setCharts({ key: setId, status: "error" });
+      });
     void libraryLoader()!
       .listed(setId)
       .then((listed) => {
         if (!live) return;
         const byLine = new Map<string, string[]>();
-        for (const { line: id, flop: key } of listed) byLine.set(id, [...(byLine.get(id) ?? []), key]);
-        for (const flops of byLine.values()) flops.sort(byRanks);
-        setEntries({ set: setId, status: "ready", byLine });
+        for (const entry of listed) byLine.set(entry.line, [...(byLine.get(entry.line) ?? []), entry.flop]);
+        for (const keys of byLine.values()) keys.sort(byRanks);
+        setEntries({ key: setId, status: "ready", value: byLine });
       });
     return () => {
       live = false;
     };
   }, [setId]);
 
-  const byLine = entries.set === setId && entries.status === "ready" ? entries.byLine : null;
-  const solvedLines = byLine ? lines.filter((l) => (byLine.get(l.id)?.length ?? 0) > 0) : [];
-  const lineId = byLine ? (solvedLines.find((l) => l.id === line) ?? solvedLines[0])?.id ?? null : null;
-  const flops = (lineId && byLine?.get(lineId)) || [];
-  const flopKey = flop && flops.includes(flop) ? flop : (flops[0] ?? null);
-  const chunkKey = lineId && flopKey ? `${setId}/${lineId}/${flopKey}` : "";
+  const chartSet = charts.key === setId && charts.status === "ready" ? charts.value : null;
+  const manifest = entries.key === setId && entries.status === "ready" ? entries.value : null;
+  const state = useMemo(() => (chartSet ? preflopState(chartSet, line, lines) : null), [chartSet, line, lines]);
+  const end = state?.end ?? null;
+  const libraryLine = end?.kind === "flop" ? end.line : null;
+  const solved = useMemo(() => (libraryLine && manifest?.get(libraryLine.id)) || [], [libraryLine, manifest]);
+  const picked: PickedFlop | null = useMemo(() => (flop ? pickedFlop(flop) : null), [flop]);
+  const flopKey = picked && solved.includes(picked.key) ? picked.key : null;
+  const chunkKey = libraryLine && flopKey ? `${setId}/${libraryLine.id}/${flopKey}` : "";
 
-  // The chunk of the chosen line and flop.
+  // The chunk of the line and the flop.
   useEffect(() => {
-    if (!chunkKey || !lineId || !flopKey) return;
+    if (!chunkKey || !libraryLine || !flopKey) return;
     let live = true;
     void libraryLoader()!
-      .load(setId, lineId, flopKey)
-      .then((chunk) => {
-        if (live) setLoaded(chunk ? { key: chunkKey, status: "ready", chunk } : { key: chunkKey, status: "error" });
+      .load(setId, libraryLine.id, flopKey)
+      .then((value) => {
+        if (live) setChunk(value ? { key: chunkKey, status: "ready", value } : { key: chunkKey, status: "error" });
       });
     return () => {
       live = false;
     };
-  }, [chunkKey, setId, lineId, flopKey, attempt]);
+  }, [chunkKey, setId, libraryLine, flopKey, attempt]);
 
-  const chunk = loaded.key === chunkKey && loaded.status === "ready" ? loaded.chunk : null;
-  const nodeIndex = chunk && chunk.result.nodes[node]?.kind === "action" ? node : 0;
+  const solve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
+  const nodeIndex = solve && solve.result.nodes[node]?.kind === "action" ? node : 0;
 
   // The view in the address bar, so a link lands here.
   useEffect(() => {
-    if (!lineId || !flopKey) return;
-    router.replace(paths.solver({ set: setId, line: lineId, flop: flopKey, node: nodeIndex }), { scroll: false });
-  }, [router, setId, lineId, flopKey, nodeIndex]);
+    if (!state) return;
+    router.replace(
+      paths.solver({ set: setId, line: state.line, flop: flopKey && flop ? flop.join("") : undefined, node: flopKey ? nodeIndex : 0 }),
+      { scroll: false },
+    );
+  }, [router, setId, state, flop, flopKey, nodeIndex]);
 
-  const shownFlops = texture ? flops.filter((f) => textureOf(f) === texture) : flops;
+  // A line that ends on a solved flop line with no flop yet asks for one, once.
+  const lineKey = `${setId}|${line}`;
+  const pickerOpen = solved.length > 0 && (picker || (!flopKey && dismissed !== lineKey));
+  const closePicker = () => {
+    setPicker(false);
+    setDismissed(lineKey);
+  };
+
+  const goLine = (next: string) => {
+    setLine(next);
+    setFlop(null);
+    setNode(0);
+  };
+
+  let body: ReactNode;
+  if (!state || !manifest) {
+    body = <p className={analysis.muted}>{t.loading}</p>;
+  } else if (state.node) {
+    const model = preflopModel(state.node, state, goLine, t);
+    body = <StrategyView model={model} overview={<PreflopOverview node={state.node} t={t} />} />;
+  } else if (end?.kind === "folded") {
+    body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
+  } else if (end?.kind === "allin") {
+    body = <p className={styles.message}>{t.preflop.allin}</p>;
+  } else if (end?.kind === "multiway") {
+    body = <p className={styles.message}>{t.preflop.multiway(end.players.join(", "))}</p>;
+  } else if (end?.kind === "flop" && solved.length === 0) {
+    body = (
+      <p className={styles.message}>
+        {manifest.size === 0 ? t.preflop.setEmpty : t.preflop.notSolved(end.players[0], end.players[1])}
+      </p>
+    );
+  } else if (!flopKey) {
+    body = (
+      <div className={styles.message}>
+        <button type="button" className="btn btn--primary" onClick={() => setPicker(true)}>
+          {t.flop.pick}
+        </button>
+      </div>
+    );
+  } else if (chunk.key === chunkKey && chunk.status === "error") {
+    body = (
+      <div className={styles.message}>
+        <p>{t.loadError}</p>
+        <button type="button" className="btn btn--sm" onClick={() => setAttempt((n) => n + 1)}>
+          {t.retry}
+        </button>
+      </div>
+    );
+  } else if (solve && picked && flop) {
+    body = (
+      <StrategyView
+        model={flopModel(solve, nodeIndex, picked, setNode, t)}
+        overview={<FlopOverview chunk={solve} index={nodeIndex} board={flop} onGo={setNode} onChange={() => setPicker(true)} t={t} />}
+      />
+    );
+  } else {
+    body = <p className={analysis.muted}>{t.loading}</p>;
+  }
 
   return (
-    <div className={styles.browser}>
-      <div className={styles.controls}>
-        <label className={styles.field}>
-          <span>{t.table}</span>
-          <select
-            value={setId}
-            onChange={(event) => {
-              setSetId(event.target.value);
-              setNode(0);
-            }}
-          >
-            {SOLVER_SETS.map((id) => {
-              const s = CHART_SETS.find((c) => c.id === id)!;
-              return (
-                <option key={id} value={id}>
-                  {t.setName(s.players, s.stackBb)}
-                </option>
-              );
-            })}
-          </select>
-        </label>
-        <label className={styles.field}>
-          <span>{t.line}</span>
-          <select
-            value={lineId ?? ""}
-            disabled={solvedLines.length === 0}
-            onChange={(event) => {
-              setLine(event.target.value);
-              setNode(0);
-            }}
-          >
-            {solvedLines.map((l) => {
-              const [oop, ip] = flopPlayersOf(l.key, lineSeats(l));
-              return (
-                <option key={l.id} value={l.id}>
-                  {t.lineName(oop, ip, t.pots[l.pot] ?? l.pot)}
-                </option>
-              );
-            })}
-          </select>
-        </label>
-      </div>
-
-      {!byLine ? (
-        <p className={analysis.muted}>{t.loading}</p>
-      ) : solvedLines.length === 0 ? (
-        <p className={analysis.muted}>{t.setEmpty}</p>
-      ) : (
-        <>
-          <section className={styles.flops} aria-label={t.flopsLabel}>
-            <div className={styles.flopsHead}>
-              <strong>{t.flop}</strong>
-              <span className={analysis.muted}>{t.flopCount(flops.length)}</span>
-              <div className={styles.chips} role="group">
-                {[null, ...TEXTURES].map((x) => (
-                  <button
-                    key={x ?? "all"}
-                    type="button"
-                    className={`${styles.chip} ${texture === x ? styles.chipOn : ""}`}
-                    aria-pressed={texture === x}
-                    onClick={() => setTexture(x)}
-                  >
-                    {x ? t.textures[x] : t.textures.all}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className={styles.flopList}>
-              {shownFlops.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`${styles.flopButton} ${key === flopKey ? styles.flopOn : ""}`}
-                  aria-pressed={key === flopKey}
-                  aria-label={key}
-                  onClick={() => {
-                    setFlop(key);
-                    setNode(0);
-                  }}
-                >
-                  <CardRow cards={flopCards(key)} size="xs" />
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {loaded.key === chunkKey && loaded.status === "error" ? (
-            <div className={styles.notice}>
-              <p>{t.loadError}</p>
-              <button type="button" className="btn btn--sm" onClick={() => setAttempt((n) => n + 1)}>
-                {t.retry}
-              </button>
-            </div>
-          ) : chunk ? (
-            <Decision chunk={chunk} index={nodeIndex} onGo={setNode} />
-          ) : (
-            <p className={analysis.muted}>{t.loading}</p>
-          )}
-        </>
-      )}
+    <div className={styles.solver}>
+      <PreflopBar
+        tables={TABLES}
+        table={table}
+        onTable={(id) => {
+          setSetId(id);
+          goLine("");
+        }}
+        state={state}
+        onLine={goLine}
+      />
+      {body}
+      {pickerOpen ? (
+        <FlopPicker
+          open
+          onClose={closePicker}
+          solved={solved}
+          current={flopKey ? flop : null}
+          onPick={(cards) => {
+            setFlop(cards);
+            setNode(0);
+            closePicker();
+          }}
+        />
+      ) : null}
     </div>
   );
 }
 
-function Decision({ chunk, index, onGo }: { chunk: FlopChunk; index: number; onGo: (node: number) => void }) {
-  const t = useDict().solver;
-  const view = useMemo(() => exploreNode(chunk, index), [chunk, index]);
-  const history = useMemo(() => exploreHistory(chunk, index), [chunk, index]);
-  const colours = actionClasses(view.actions);
-  const labels = view.actions.map((a) => t.action(a.kind, a.sizePot, a.amount));
+/* ------------------------------------------------------------ the models - */
 
+function preflopModel(node: ChartNode, state: PreflopState, goLine: (line: string) => void, t: Dict): StrategyModel {
+  const classes = node.range.length;
+  const totals = actionTotals(node);
+  const colours = actionColours(node.options.map((o) => ({ kind: o.action, amount: o.toBb })));
+  return {
+    id: `pre|${state.line}`,
+    actor: node.actor,
+    actions: node.options.map((option, a) => ({
+      key: option.code,
+      label: t.preflop.action(option.action, option.toBb),
+      colour: colours[a],
+      share: totals[a].share,
+      combos: totals[a].combos,
+      ends: null,
+      onPick: () => goLine(state.line + option.code),
+    })),
+    classes: GRID_CELLS.map((cell) => {
+      const k = cell.index;
+      const freq = node.options.map((_, a) => node.freq[a * classes + k]);
+      const ev = node.options.map((_, a) => node.ev[a * classes + k]);
+      const range = node.range[k];
+      return {
+        state: range < OFF_RANGE_WEIGHT ? "faint" : "in",
+        fill: Math.min(1, range),
+        freq,
+        ev,
+        value: freq.reduce((sum, f, a) => sum + f * ev[a], 0),
+        reach: t.reachesShare(range),
+      };
+    }),
+    note: t.chartNote,
+  };
+}
+
+function flopModel(chunk: FlopChunk, index: number, picked: PickedFlop, onGo: (node: number) => void, t: Dict): StrategyModel {
+  const view = exploreNode(chunk, index);
+  const colours = actionColours(view.actions);
+  return {
+    id: `flop|${chunk.header.line}|${chunk.header.flop}|${index}`,
+    actor: view.position,
+    actions: view.actions.map((action, a) => ({
+      key: action.label,
+      label: t.action(action.kind, action.sizePot, action.amount),
+      colour: colours[a],
+      share: view.totals[a].share,
+      combos: view.totals[a].combos,
+      ends: action.ends ? t.panel.ends[action.ends] : null,
+      onPick: () => {
+        if (action.child >= 0) onGo(action.child);
+      },
+    })),
+    classes: GRID_CELLS.map((cell) => {
+      const c = view.classes[cell.index];
+      return {
+        state: c.combos === 0 ? "absent" : c.weight === 0 ? "faint" : "in",
+        fill: c.combos > 0 ? Math.min(1, c.weight / c.combos) : 0,
+        freq: c.freq,
+        ev: c.ev,
+        value: c.value,
+        reach: t.reaches(c.weight, c.combos),
+      };
+    }),
+    combos: (k) =>
+      classCombos(chunk, index, k).map((combo) => ({
+        ...combo,
+        cards: `${picked.toPicked(combo.cards.slice(0, 2))}${picked.toPicked(combo.cards.slice(2, 4))}`,
+      })),
+    note: `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${t.flopNote}`,
+  };
+}
+
+/* --------------------------------------------------------- the overviews - */
+
+function PreflopOverview({ node, t }: { node: ChartNode; t: Dict }) {
   return (
-    <section className={styles.decision}>
-      <div className={styles.spot}>
-        <div className={styles.board}>
-          <span className={analysis.muted}>{t.board}</span>
-          <CardRow cards={chunk.result.board} size="sm" />
-        </div>
-        <nav className={styles.history} aria-label={t.history}>
-          <button type="button" className={styles.step} disabled={index === 0} onClick={() => onGo(0)}>
-            {t.start}
-          </button>
-          {history.map((step) => (
-            <span key={step.node} className={styles.stepWrap}>
-              <span aria-hidden="true">›</span>
-              <button type="button" className={styles.step} onClick={() => onGo(step.node)}>
-                {t.step(step.position, t.action(step.action.kind, step.action.sizePot, step.action.amount))}
-              </button>
-            </span>
-          ))}
-        </nav>
-        <p className={styles.toAct}>
-          <strong>{t.toAct(view.position)}</strong> <span className={analysis.muted}>{t.pot(view.pot, view.toCall)}</span>
-        </p>
-      </div>
-
-      <div className={styles.actions} role="group" aria-label={t.actionsLabel}>
-        {view.actions.map((action, a) => (
-          <button
-            key={action.label}
-            type="button"
-            className={styles.action}
-            disabled={action.child < 0}
-            title={action.ends ? t.ends[action.ends] : t.follow(labels[a])}
-            onClick={() => action.child >= 0 && onGo(action.child)}
-          >
-            <span className={`${styles.actionBar} ${colours[a]}`} style={{ inlineSize: `${Math.max(2, view.totals[a].share * 100)}%` }} />
-            <span className={styles.actionText}>
-              <strong>{labels[a]}</strong>
-              <span>{t.share(view.totals[a].share, view.totals[a].combos)}</span>
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <Grid key={`${chunk.header.line}/${chunk.header.flop}/${index}`} chunk={chunk} view={view} labels={labels} colours={colours} />
-
-      <p className={analysis.muted}>
-        {t.rangeValue(view.reach, view.value)} · {t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)}
+    <div className={styles.overview}>
+      <p className={styles.overviewTitle}>
+        <strong>{t.panel.toAct(node.actor)}</strong>{" "}
+        <span className={analysis.muted}>{t.panel.pot(node.potBb, Math.max(0, node.toMatchBb - node.inBb))}</span>
       </p>
-    </section>
+      <p className={analysis.muted}>{t.preflop.label}</p>
+    </div>
   );
 }
 
-function Grid({
+function FlopOverview({
   chunk,
-  view,
-  labels,
-  colours,
+  index,
+  board,
+  onGo,
+  onChange,
+  t,
 }: {
   chunk: FlopChunk;
-  view: ExploreNode;
-  labels: string[];
-  colours: string[];
+  index: number;
+  board: readonly string[];
+  onGo: (node: number) => void;
+  onChange: () => void;
+  t: Dict;
 }) {
-  const t = useDict().solver;
-  const [focusIndex, setFocusIndex] = useState(0);
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [picked, setPicked] = useState<number | null>(null);
-  const buttons = useRef<Array<HTMLButtonElement | null>>([]);
-  const shown = hovered ?? picked;
-  const detail = shown === null ? null : view.classes[shown];
-  const combos = useMemo(
-    () => (shown === null ? [] : classCombos(chunk, view.index, shown)),
-    [chunk, view.index, shown],
-  );
-  // How full a cell is drawn: the share of the class's combos that reach the decision.
-  const fill = (k: number) => {
-    const c = view.classes[k];
-    return c.combos > 0 ? Math.min(1, c.weight / c.combos) : 0;
-  };
-
-  const move = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const row = Math.floor(index / 13);
-    const col = index % 13;
-    const next =
-      event.key === "ArrowRight"
-        ? row * 13 + Math.min(12, col + 1)
-        : event.key === "ArrowLeft"
-          ? row * 13 + Math.max(0, col - 1)
-          : event.key === "ArrowDown"
-            ? Math.min(12, row + 1) * 13 + col
-            : event.key === "ArrowUp"
-              ? Math.max(0, row - 1) * 13 + col
-              : null;
-    if (next === null) return;
-    event.preventDefault();
-    setFocusIndex(next);
-    setPicked(next);
-    buttons.current[next]?.focus();
-  };
-
+  const view = exploreNode(chunk, index);
+  const history = exploreHistory(chunk, index);
   return (
-    <div className={analysis.chart}>
-      <ul className={analysis.chartLegend} aria-label={t.actionsLabel}>
-        {view.actions.map((action, a) => (
-          <li key={action.label}>
-            <span className={`${analysis.swatch} ${colours[a]}`} aria-hidden="true" />
-            {t.total(labels[a], view.totals[a].share, view.totals[a].combos)}
-          </li>
-        ))}
-      </ul>
-
-      <div className={analysis.chartBody}>
-        <div className={analysis.grid} role="grid" aria-label={t.gridLabel(view.position)}>
-          {Array.from({ length: 13 }, (_, row) => (
-            <div key={row} role="row" className={analysis.gridRow}>
-              {GRID_CELLS.slice(row * 13, row * 13 + 13).map((cell, col) => {
-                const index = row * 13 + col;
-                const data = view.classes[index];
-                const absent = data.combos === 0;
-                const faint = !absent && data.weight === 0;
-                const name = t.cellLabel(
-                  cell.name,
-                  data.freq.map((freq, a) => t.part(labels[a], freq)).filter((_, a) => data.freq[a] >= SHOWN_FREQ),
-                  absent,
-                );
-                return (
-                  <div key={cell.name} role="gridcell" className={analysis.gridCellWrap}>
-                    <button
-                      ref={(element) => {
-                        buttons.current[index] = element;
-                      }}
-                      type="button"
-                      tabIndex={index === focusIndex ? 0 : -1}
-                      className={`${analysis.gridCell} ${styles.cell}${absent || faint ? ` ${analysis.offRange}` : ""}${
-                        index === shown ? ` ${analysis.shownCell}` : ""
-                      }`}
-                      aria-label={name}
-                      aria-pressed={index === picked}
-                      onClick={() => {
-                        setFocusIndex(index);
-                        setPicked(index === picked ? null : index);
-                      }}
-                      onFocus={() => setFocusIndex(index)}
-                      onKeyDown={(event) => move(event, index)}
-                      onPointerEnter={() => setHovered(index)}
-                      onPointerLeave={() => setHovered((current) => (current === index ? null : current))}
-                    >
-                      <span className={analysis.cellName}>{cell.name}</span>
-                      {absent ? null : (
-                        <span className={styles.cellFill} aria-hidden="true" style={{ blockSize: `${Math.max(12, fill(index) * 100)}%` }}>
-                          {data.freq.map((freq, a) =>
-                            freq > 0 ? <span key={a} className={colours[a]} style={{ inlineSize: `${freq * 100}%` }} /> : null,
-                          )}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-
-        <div className={analysis.chartDetail} aria-live="polite">
-          {detail ? (
-            <>
-              <p className={analysis.chartDetailHead}>
-                <strong>{GRID_CELLS[detail.index].name}</strong> {detail.combos > 0 ? t.value(detail.value) : null}
-              </p>
-              <p className={analysis.muted}>{detail.combos === 0 ? t.absent : t.reaches(detail.weight, detail.combos)}</p>
-              {detail.combos > 0 ? (
-                <>
-                  <ul className={analysis.detailList}>
-                    {view.actions.map((action, a) => (
-                      <li key={action.label}>
-                        <span className={`${analysis.swatch} ${colours[a]}`} aria-hidden="true" />
-                        <span>{labels[a]}</span>
-                        <span className={analysis.num}>{t.freq(detail.freq[a])}</span>
-                        <span className={analysis.num}>{t.signedBb(detail.ev[a])}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <table className={styles.combos}>
-                    <thead>
-                      <tr>
-                        <th scope="col">{t.combo}</th>
-                        <th scope="col">{t.weight}</th>
-                        {labels.map((label) => (
-                          <th key={label} scope="col">
-                            {label}
-                          </th>
-                        ))}
-                        <th scope="col">{t.ev}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {combos.map((c) => (
-                        <tr key={c.cards} className={c.weight === 0 ? styles.comboOut : ""}>
-                          <th scope="row">
-                            <ComboText cards={c.cards} />
-                          </th>
-                          <td className={analysis.num}>{t.freq(c.weight)}</td>
-                          {c.freq.map((f, a) => (
-                            <td key={a} className={analysis.num}>
-                              {t.freq(f)}
-                            </td>
-                          ))}
-                          <td className={analysis.num}>{t.signedBb(c.value)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              ) : null}
-            </>
-          ) : (
-            <p className={analysis.muted}>{t.detailEmpty}</p>
-          )}
-          <p className={analysis.muted}>{t.rangeNote}</p>
-        </div>
+    <div className={styles.overview}>
+      <div className={styles.boardRow}>
+        <CardRow cards={[...board]} size="sm" />
+        <button type="button" className="btn btn--sm" onClick={onChange}>
+          {t.flop.change}
+        </button>
       </div>
-    </div>
-  );
-}
-
-/** Two cards as text, `K♠Q♦`: compact enough for a table row, the glyph naming the suit. */
-function ComboText({ cards }: { cards: string }) {
-  return (
-    <span className={styles.comboText}>
-      {[cards.slice(0, 2), cards.slice(2, 4)].map((card) => {
-        const suit = card[1] as Suit;
-        return (
-          <span key={card} className={isRedSuit(suit) ? styles.red : undefined}>
-            {card[0]}
-            {SUIT_SYMBOL[suit]}
+      <p className={styles.overviewTitle}>
+        <strong>{t.panel.toAct(view.position)}</strong> <span className={analysis.muted}>{t.panel.pot(view.pot, view.toCall)}</span>
+      </p>
+      <nav className={styles.history} aria-label={t.panel.history}>
+        <button type="button" className={styles.step} disabled={index === 0} onClick={() => onGo(0)}>
+          {t.panel.start}
+        </button>
+        {history.map((step) => (
+          <span key={step.node} className={styles.stepWrap}>
+            <span aria-hidden="true">›</span>
+            <button type="button" className={styles.step} onClick={() => onGo(step.node)}>
+              {t.panel.step(step.position, t.action(step.action.kind, step.action.sizePot, step.action.amount))}
+            </button>
           </span>
-        );
-      })}
-    </span>
+        ))}
+      </nav>
+    </div>
   );
 }

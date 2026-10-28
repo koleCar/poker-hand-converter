@@ -3,7 +3,7 @@ import { ServerFrame } from "../../components/shell/ServerFrame";
 import { SolverLibrary } from "../../components/solver/SolverLibrary";
 import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
-import styles from "../../components/learn/learn.module.css";
+import styles from "../../components/solver/solver.module.css";
 
 /**
  * The Solver library tab: the flop library's solves, one decision at a time.
@@ -11,9 +11,10 @@ import styles from "../../components/learn/learn.module.css";
  * **Public and indexable**, like `/analysis/charts`: the solves are our own
  * data and the page reads no account, so a signed-out reader and a crawler
  * see what a signed-in player sees. `sitemap.ts` lists it and the canonical
- * URL drops the query, which picks the view
- * (`?set=` a table, `?line=` a library line, `?flop=` a canonical flop,
- * `?node=` a decision of its solve); anything malformed is the first of each.
+ * URL drops the query, which picks the view (`?set=` a table, `?line=` the
+ * preflop line in the charts' letters, `?flop=` the flop as picked, any suits,
+ * `?node=` a decision of its solve); anything malformed is the start of each.
+ * Edge to edge (`ServerFrame wide`): the grid is the page.
  */
 
 interface PageProps {
@@ -21,7 +22,7 @@ interface PageProps {
 }
 
 const SET_RE = /^nlhe-cash-(hu|\d{1,2}max)-\d{1,3}bb$/;
-const LINE_RE = /^[a-z0-9-]{2,24}$/;
+const LINE_RE = /^[fkcra]{1,24}$/;
 const FLOP_RE = /^([2-9TJQKA][cdhs]){3}$/;
 const NODE_RE = /^\d{1,4}$/;
 
@@ -43,11 +44,11 @@ export default async function SolverPage({ searchParams }: PageProps) {
   const node = valid(first(query.node), NODE_RE);
   const t = en.solver;
   return (
-    <ServerFrame tab="solver">
+    <ServerFrame tab="solver" wide>
       <div className={styles.page}>
         <header className={styles.pageHead}>
-          <h1 className={styles.title}>{t.heading}</h1>
-          <p className={styles.lead}>{t.intro}</p>
+          <h1>{t.heading}</h1>
+          <p>{t.intro}</p>
         </header>
         <SolverLibrary
           initialSet={valid(first(query.set), SET_RE)}

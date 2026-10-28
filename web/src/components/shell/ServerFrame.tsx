@@ -13,6 +13,10 @@ import type { ShellTab } from "./AppShell";
  * this side. The page itself stays server HTML — which, for the forum and for
  * profiles, is the whole point.
  */
-export function ServerFrame({ tab = null, children }: { tab?: ShellTab | null; children: ReactNode }) {
-  return <AppFrame tab={tab}>{() => children}</AppFrame>;
+export function ServerFrame({ tab = null, wide = false, children }: { tab?: ShellTab | null; wide?: boolean; children: ReactNode }) {
+  return (
+    <AppFrame tab={tab} wide={wide}>
+      {() => children}
+    </AppFrame>
+  );
 }

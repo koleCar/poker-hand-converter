@@ -17,16 +17,18 @@
  * the actor's own (`rangesAt`): the chart range times their own choices on
  * the way to the node, so a class's weight is how many of its combos still
  * get here. Amounts and EVs are in big blinds (the library solves in bb).
- * Cards are in the chunk's canonical suits (`header.flop`).
+ * Cards are in the chunk's canonical suits (`header.flop`); `pickedFlop`
+ * relabels them into the suits of the flop a player picked.
  *
  * Pure: no fetch, no React.
  */
 
-import { cardCode } from "../equity";
+import { cardCode, cardIndex } from "../equity";
 import type { ActionKind } from "./betting";
 import { comboHi, comboLo } from "./combos";
 import type { FlopChunk } from "./flopLibrary";
 import { classOfCombo, NUM_CLASSES } from "./handClasses";
+import { canonicalBoard } from "./isomorphism";
 import { rangesAt } from "./solve";
 
 export interface ExploreAction {
@@ -237,4 +239,31 @@ export function exploreHistory(chunk: FlopChunk, index: number): ExploreStep[] {
     steps.push({ node: parent, position: chunk.header.players[node.player], action: actionsOf(chunk, parent)[nodes[at].parentEdge] });
   }
   return steps.reverse();
+}
+
+export interface PickedFlop {
+  /** The canonical key the library files the flop under (`flopKey`). */
+  key: string;
+  /** A card of the chunk (canonical suits) in the picked flop's suits. */
+  toPicked: (card: string) => string;
+}
+
+/**
+ * A flop as a player picked it: the library's key for it, and the suit
+ * relabelling from the chunk back to the picked suits (the solve is the same
+ * up to suits, so a combo reads the same in either spelling).
+ */
+export function pickedFlop(cards: readonly string[]): PickedFlop {
+  const { board, perm } = canonicalBoard(cards);
+  const back: number[] = [];
+  perm.forEach((to, from) => {
+    back[to] = from;
+  });
+  return {
+    key: board.join(""),
+    toPicked: (card) => {
+      const index = cardIndex(card);
+      return cardCode((index & ~3) | back[index & 3]);
+    },
+  };
 }

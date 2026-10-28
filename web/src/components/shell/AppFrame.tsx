@@ -89,13 +89,15 @@ interface AppFrameProps {
    * enforcement is off.
    */
   feature?: Feature | null;
+  /** Edge to edge (`AppShell.wide`). */
+  wide?: boolean;
   children: (context: AppFrameContext) => ReactNode;
 }
 
 /** The Pro feature each tab is, unless the screen says otherwise. */
 const TAB_FEATURE: Partial<Record<ShellTab, Feature>> = { analysis: "analysis", learn: "learn" };
 
-export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature, children }: AppFrameProps) {
+export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature, wide = false, children }: AppFrameProps) {
   const router = useRouter();
   const entitlements = useEntitlements();
   const screenFeature = feature === undefined ? (tab ? (TAB_FEATURE[tab] ?? null) : null) : feature;
@@ -253,6 +255,7 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
       // number can never be left sitting in the bar for the next visitor.
       storedCount={auth.isSignedIn ? storedCount : null}
       lockedTabs={lockedTabs}
+      wide={wide}
     >
       {/* Rendered while the answer is still unknown — the tabs have their own
           loading states, and unmounting once `settled` says no keeps the

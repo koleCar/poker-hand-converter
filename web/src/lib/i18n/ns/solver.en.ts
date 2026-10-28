@@ -22,59 +22,95 @@ const bb = (value: number) => {
   const tenth = Math.round(value * 10) / 10;
   return `${num(tenth, tenth % 1 !== 0 ? 1 : 0)} bb`;
 };
+/** A size without the unit, as on a solver's buttons: "2.5", "13". */
+const size = (value: number) => {
+  const tenth = Math.round(value * 10) / 10;
+  return num(tenth, tenth % 1 !== 0 ? 1 : 0);
+};
+const tableName = (players: number) => (players === 2 ? "Heads-up" : players === 9 ? "9-max" : "6-max");
 
 export const solverEn = {
   heading: "Solver library",
-  intro:
-    "Rail's own flop solves. Pick a table, a preflop line and a flop, then walk the flop's decisions: every hand shows how often the solver takes each action and what each action is worth.",
+  intro: "Rail's own solves: build the preflop line seat by seat, pick a flop, and walk the flop's decisions.",
   unavailable: "The solver library is not set up on this server.",
-  table: "Table",
-  setName: (players: number, stackBb: number) =>
-    `${players === 2 ? "Heads-up" : players === 9 ? "9-max" : "6-max"} ${num(stackBb)} bb`,
-  setEmpty: "This table's solves are not published yet.",
-  line: "Preflop line",
-  pots: { srp: "single-raised pot", "3bp": "3-bet pot", "4bp": "4-bet pot", limped: "limped pot" } as Record<string, string>,
-  lineName: (oop: string, ip: string, pot: string) => `${ip} vs ${oop} · ${pot}`,
-  flop: "Flop",
-  flopCount: (count: number) => `${num(count)} solved ${count === 1 ? "flop" : "flops"}`,
-  textures: {
-    all: "All",
-    rainbow: "Rainbow",
-    twoTone: "Two-tone",
-    monotone: "Monotone",
-    paired: "Paired",
-    trips: "Trips",
-  },
-  flopsLabel: "Solved flops",
   loading: "Loading…",
   loadError: "This solve could not be loaded. Try again in a moment.",
   retry: "Try again",
-  board: "Board",
-  toAct: (position: string) => `${position} to act`,
-  pot: (pot: number, toCall: number) => (toCall > 0 ? `Pot ${bb(pot)}, ${bb(toCall)} to call` : `Pot ${bb(pot)}`),
-  history: "Decisions so far",
-  start: "Flop",
-  step: (position: string, action: string) => `${position} ${action}`,
+
+  settings: {
+    title: "Table",
+    change: "Change",
+    players: "Players",
+    depth: "Stack depth",
+    done: "Done",
+    cash: "Cash",
+    summary: (players: number, stackBb: number) => `${tableName(players)} · ${num(stackBb)} bb`,
+    playersName: tableName,
+    depthName: (stackBb: number) => `${num(stackBb)} bb`,
+  },
+
+  preflop: {
+    label: "Preflop line",
+    stack: size,
+    action: (action: string, toBb: number) =>
+      action === "raise"
+        ? `Raise ${size(toBb)}`
+        : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
+    rewind: (position: string) => `Back to ${position}'s decision`,
+    toAct: "to act",
+    folded: (winner: string) => `Everyone folds to ${winner}: there is no flop.`,
+    multiway: (players: string) => `A multiway flop (${players}): the library solves heads-up flops only.`,
+    allin: "All-in before the flop: there is no flop to solve.",
+    notSolved: (oop: string, ip: string) => `${ip} vs ${oop}: this line is not in the solver library yet.`,
+    setEmpty: "This table's flop solves are not published yet.",
+  },
+
+  flop: {
+    pick: "Pick a flop",
+    change: "Change flop",
+    title: "Pick a flop",
+    clear: "Clear",
+    random: "Random solved flop",
+    missing: "The selected flop does not exist.",
+    hint: "Pick three cards.",
+    slot: "Empty",
+    solved: (count: number) => `${num(count)} solved ${count === 1 ? "flop" : "flops"} on this line`,
+    card: (card: string, picked: boolean) => `${card}${picked ? ", picked" : ""}`,
+  },
+
+  panel: {
+    overview: "Overview",
+    actions: "Actions",
+    hand: "Hand",
+    board: "Board",
+    pot: (pot: number, toCall: number) => (toCall > 0 ? `Pot ${bb(pot)} · ${bb(toCall)} to call` : `Pot ${bb(pot)}`),
+    toAct: (position: string) => `${position} to act`,
+    history: "Decisions on the flop",
+    start: "Flop",
+    step: (position: string, action: string) => `${position} ${action}`,
+    follow: (label: string) => `Play ${label}`,
+    ends: {
+      fold: "The hand is over.",
+      street: "The turn is dealt: the library keeps the flop's decisions only.",
+    },
+  },
+
   action: (kind: string, sizePot: number, amount: number) =>
     kind === "bet"
       ? `Bet ${pct(sizePot)}`
       : kind === "raise"
-        ? `Raise ${bb(amount)}`
+        ? `Raise ${size(amount)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[kind] ?? kind,
-  actionsLabel: "Actions",
-  total: (label: string, share: number, combos: number) => `${label} ${pct1(share)} · ${num(Math.round(combos))} combos`,
   share: (share: number, combos: number) => `${pct1(share)} · ${num(Math.round(combos))} combos`,
-  follow: (label: string) => `Play ${label}`,
-  ends: {
-    fold: "The hand is over.",
-    street: "The turn is dealt: the library keeps the flop's decisions only.",
-  },
-  gridLabel: (position: string) => `${position}: the solver's mix for all 169 hands`,
+  shareOnly: pct1,
+  combosCount: (combos: number) => `${num(Math.round(combos))} combos`,
+  gridLabel: (position: string) => `${position}: the strategy for all 169 hands`,
   cellLabel: (hand: string, parts: string[], absent: boolean) =>
     `${hand}: ${absent ? "not in the range" : parts.join(", ")}`,
   part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
-  detailEmpty: "Hover or pick a hand to see its combos.",
+  detailEmpty: "Hover or pick a hand to see what each action is worth.",
   reaches: (reach: number, combos: number) => `${num(reach, 1)} of ${num(combos)} combos reach this decision.`,
+  reachesShare: (share: number) => `Reaches this decision with ${pct1(share)} of its combos.`,
   absent: "Not in the range here.",
   combo: "Combo",
   weight: "Weight",
@@ -82,8 +118,10 @@ export const solverEn = {
   value: (value: number) => `EV ${signedBb(value)}`,
   freq: pct1,
   signedBb,
+  evShort: (value: number) => num(Math.round(value * 100) / 100 || 0, 2),
   rangeValue: (reach: number, value: number) => `${num(reach, 1)} combos reach this decision · range EV ${signedBb(value)}`,
-  solvedTo: (pct: number, iterations: number) =>
-    `Solved to ${num(pct, 2)}% of the pot exploitability in ${num(iterations)} iterations.`,
-  rangeNote: "A cell fades where less of the hand reaches the decision. Cards are in the solve's own suits.",
+  solvedTo: (exploitability: number, iterations: number) =>
+    `Solved to ${num(exploitability, 2)}% of the pot exploitability in ${num(iterations)} iterations.`,
+  chartNote: "Preflop: Rail's own charts. Cells fade where less of the hand reaches the decision.",
+  flopNote: "A cell fades where less of the hand reaches the decision. Combos are shown in the suits of the picked flop.",
 } as const;

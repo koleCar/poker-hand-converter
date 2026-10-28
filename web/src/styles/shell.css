@@ -16,6 +16,12 @@
   flex: 1;
 }
 
+/* Edge to edge, a small margin (the Solver library): its grid is the screen. */
+.shell__main--wide {
+  width: 100%;
+  padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
+}
+
 .route-fallback {
   min-height: 60vh;
 }
@@ -368,6 +374,10 @@
 
   .shell__main {
     padding: 24px max(24px, env(safe-area-inset-left)) 72px max(24px, env(safe-area-inset-right));
+  }
+
+  .shell__main--wide {
+    padding: 12px max(12px, env(safe-area-inset-left)) 72px max(12px, env(safe-area-inset-right));
   }
 
   .shell__offline-banner {
