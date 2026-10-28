@@ -14,6 +14,7 @@
     "floplib": "node scripts/flop-library/cli.mjs",
     "charts:library": "vitest run --config scripts/preflop-charts/vitest.config.ts library",
     "charts:precision": "vitest run --config scripts/preflop-charts/vitest.config.ts precision",
+    "charts:refit-floplib": "vitest run --config scripts/preflop-charts/vitest.config.ts refitFlopLibrary",
     "floplib:measure": "vitest run --config scripts/flop-library/vitest.config.ts measure",
     "floplib:realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/realisation",
     "floplib:turn-realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/turnRealisation",
