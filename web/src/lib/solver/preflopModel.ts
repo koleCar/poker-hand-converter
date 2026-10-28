@@ -51,7 +51,8 @@
  *
  * **Rake.** Taken only when a flop is dealt ("no flop, no drop"), as a
  * percentage of the *final* pot up to a cap; the final pot is estimated as
- * `flop pot x RAKE_POT_GROWTH[potType]`.
+ * `flop pot x RAKE_POT_GROWTH[potType]` (a `RakeProfile` may carry its own
+ * `potGrowth` instead, for an experiment).
  */
 
 import { NUM_COMBOS } from "./combos";
@@ -211,6 +212,12 @@ export interface RakeProfile {
   percent: number;
   capBb: number;
   noFlopNoDrop: boolean;
+  /**
+   * Final pot / flop pot per pot type, in place of `RAKE_POT_GROWTH` (an
+   * experiment: a growth measured on the flop library's played-out solves).
+   * Absent on every committed profile.
+   */
+  potGrowth?: Readonly<Record<PotType, number>>;
 }
 
 /** The standard profile the charts are solved with: 5%, capped at 3bb, no flop no drop. */
@@ -237,19 +244,25 @@ export function flopRake(potBb: number, potType: PotType, rake: Readonly<RakePro
   if (rake.percent <= 0) {
     return 0;
   }
-  const final = potBb * RAKE_POT_GROWTH[potType];
+  const final = potBb * (rake.potGrowth ?? RAKE_POT_GROWTH)[potType];
   return Math.min(final * rake.percent, rake.capBb, potBb);
 }
 
-/** The model as recorded in a chart set: the form, every coefficient, the rake growth. */
-export function realisationAssumptions(model: RealisationModel = CHARTS1_REALISATION) {
+/**
+ * The model as recorded in a chart set: the form, every coefficient, the rake
+ * growth (`RAKE_POT_GROWTH`, or a profile's own `potGrowth`).
+ */
+export function realisationAssumptions(
+  model: RealisationModel = CHARTS1_REALISATION,
+  rakePotGrowth: Readonly<Record<PotType, number>> = RAKE_POT_GROWTH,
+) {
   return {
     form: "odds: share = e*w_i / (e*w_i + (1-e)*w_j); log w = bias[potType][role] + Σ coef·feature(class)",
     name: model.name,
     source: model.source,
     features: [...REALISATION_FEATURES],
     potTypes: model.potTypes,
-    rakePotGrowth: { ...RAKE_POT_GROWTH },
+    rakePotGrowth: { ...rakePotGrowth },
     multiway: "share_p = x_p + (1 - Σx)/n, x_p = Π_q s_pq",
   };
 }

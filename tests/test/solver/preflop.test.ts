@@ -39,6 +39,8 @@ import {
   potAt,
   preflopEquityTable,
   PreflopSolver,
+  RAKE_POT_GROWTH,
+  realisationAssumptions,
   roleWeights,
   shareMatrix,
   STANDARD_RAKE,
@@ -193,6 +195,17 @@ describe("realisation model", () => {
     expect(flopRake(45, "4bet", STANDARD_RAKE)).toBe(2.5875);
     expect(flopRake(200, "allin", STANDARD_RAKE)).toBe(3);
     expect(flopRake(200, "allin", NO_RAKE)).toBe(0);
+  });
+
+  it("takes a profile's own pot growth in place of RAKE_POT_GROWTH", () => {
+    const potGrowth = { ...RAKE_POT_GROWTH, srp: 3.2, "3bet": 2.28 };
+    const measured = { ...STANDARD_RAKE, potGrowth };
+    expect(flopRake(5.5, "srp", measured)).toBeCloseTo(5.5 * 3.2 * 0.05, 12);
+    expect(flopRake(20.5, "3bet", measured)).toBeCloseTo(20.5 * 2.28 * 0.05, 12);
+    expect(flopRake(45, "4bet", measured)).toBe(flopRake(45, "4bet", STANDARD_RAKE));
+    expect(flopRake(30, "3bet", measured)).toBe(3);
+    expect(realisationAssumptions().rakePotGrowth).toEqual(RAKE_POT_GROWTH);
+    expect(realisationAssumptions(undefined, potGrowth).rakePotGrowth).toEqual(potGrowth);
   });
 });
 

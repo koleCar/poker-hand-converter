@@ -25,7 +25,7 @@
  * Environment (for experiments; the committed sets use the defaults):
  * `CHARTS_SETS`, `CHARTS_PARALLEL`, `CHARTS_ITERATIONS`, `CHARTS_BOARDS`,
  * `CHARTS_OUT` (one set only), `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`,
- * `CHARTS_MEASURE_BOARDS`, `CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_FIT_FROM`, `CHARTS_RAKE`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
+ * `CHARTS_MEASURE_BOARDS`, `CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_FIT_FROM`, `CHARTS_RAKE`, `CHARTS_RAKE_GROWTH`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
  * realisation spots instead of reading `.cache/realisation-*.json` (keyed by
  * the jobs, not by the code).
  */
@@ -51,7 +51,14 @@ import {
   preflopEquityTable,
   type PreflopEquityTable,
 } from "../../../web/src/lib/solver/preflopEquity.js";
-import { CHARTS1_REALISATION, STANDARD_RAKE, type RakeProfile, type RealisationModel } from "../../../web/src/lib/solver/preflopModel.js";
+import {
+  CHARTS1_REALISATION,
+  RAKE_POT_GROWTH,
+  STANDARD_RAKE,
+  type PotType,
+  type RakeProfile,
+  type RealisationModel,
+} from "../../../web/src/lib/solver/preflopModel.js";
 import { cachedRun, workerPool } from "./pool.js";
 import { report } from "./report.js";
 import { SET_CONFIGS, setConfig, type SetConfig } from "./sets.js";
@@ -94,9 +101,36 @@ const THREADS = Number(process.env.CHARTS_THREADS ?? availableParallelism());
  */
 function rakeOverride(): RakeProfile | undefined {
   const spec = process.env.CHARTS_RAKE;
+  const growth = rakeGrowthOverride();
+  if (!spec && !growth) return undefined;
+  let rake: RakeProfile = STANDARD_RAKE;
+  if (spec) {
+    const [percent, capBb] = spec.split(":").map(Number);
+    rake = { ...STANDARD_RAKE, name: percent === 0 ? "none" : `${percent * 100}%-cap${capBb}bb-nfnd`, percent, capBb };
+  }
+  if (growth) {
+    const label = (["limped", "srp", "3bet", "4bet"] as const).map((t) => growth[t]).join("/");
+    rake = { ...rake, name: `${rake.name}-growth${label}`, potGrowth: growth };
+  }
+  return rake;
+}
+
+/**
+ * `CHARTS_RAKE_GROWTH=<limped>:<srp>:<3bet>:<4bet>` (an experiment, ANALYSIS-PLAN
+ * §10 2026-10-28): a `reuseFit` set raked with this final pot / flop pot per
+ * pot type instead of `RAKE_POT_GROWTH` (all-in pots keep 1) - e.g. the growth
+ * measured on the flop library (`rakePotGrowth` in `charts:refit-floplib`'s
+ * output). Recorded in the set as `model.rake.potGrowth` (and the rake's name).
+ */
+function rakeGrowthOverride(): Readonly<Record<PotType, number>> | undefined {
+  const spec = process.env.CHARTS_RAKE_GROWTH;
   if (!spec) return undefined;
-  const [percent, capBb] = spec.split(":").map(Number);
-  return { ...STANDARD_RAKE, name: percent === 0 ? "none" : `${percent * 100}%-cap${capBb}bb-nfnd`, percent, capBb };
+  const values = spec.split(":").map(Number);
+  if (values.length !== 4 || values.some((v) => !Number.isFinite(v) || v <= 0)) {
+    throw new Error(`CHARTS_RAKE_GROWTH=${spec}: expected four positive numbers <limped>:<srp>:<3bet>:<4bet>`);
+  }
+  const [limped, srp, threeBet, fourBet] = values;
+  return { limped, srp, "3bet": threeBet, "4bet": fourBet, allin: RAKE_POT_GROWTH.allin };
 }
 
 function cachedEquity(): PreflopEquityTable {
@@ -143,6 +177,9 @@ function committedFit(config: SetConfig): { model: RealisationModel; record: Rec
 }
 
 async function generateSet(config: SetConfig, threads: number): Promise<void> {
+  if (process.env.CHARTS_RAKE_GROWTH && !config.reuseFit) {
+    throw new Error(`CHARTS_RAKE_GROWTH applies to a reuseFit set only; ${config.id} is measured and fitted`);
+  }
   const out = SETS.length === 1 && process.env.CHARTS_OUT ? process.env.CHARTS_OUT : join(DATA, `${config.id}.json`);
   const rounds = config.reuseFit ? 0 : Number(process.env.CHARTS_ROUNDS ?? config.rounds);
   const started = performance.now();

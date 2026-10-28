@@ -281,8 +281,8 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
         ],
         actionNodes: tree.actionNodes,
       },
-      rake: { ...rake, potGrowth: realisationAssumptions(realisation).rakePotGrowth },
-      realisation: realisationAssumptions(realisation),
+      rake: { ...rake, potGrowth: realisationAssumptions(realisation, rake.potGrowth).rakePotGrowth },
+      realisation: realisationAssumptions(realisation, rake.potGrowth),
       ...(options.realisationFit === undefined ? {} : { realisationFit: options.realisationFit }),
       cardRemoval: cardRemoval
         ? "hero-opponent exact at class level (m[i][j]/1225); opponent-opponent ignored"

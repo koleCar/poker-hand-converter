@@ -19,7 +19,14 @@ import {
 } from "../../../web/src/lib/charts/index.js";
 import { decodeBase64, encodeBase64 } from "../../../web/src/lib/charts/base64.js";
 import { encodeEv, encodeFreq } from "../../../web/src/lib/charts/format.js";
-import { buildPreflopTree, NINE_MAX, NUM_CLASSES, preflopEquityTable } from "../../../web/src/lib/solver/index.js";
+import {
+  buildPreflopTree,
+  NINE_MAX,
+  NUM_CLASSES,
+  preflopEquityTable,
+  RAKE_POT_GROWTH,
+  STANDARD_RAKE,
+} from "../../../web/src/lib/solver/index.js";
 
 const SMALL = {
   players: ["BTN", "SB", "BB"] as const,
@@ -53,6 +60,20 @@ describe("chart generator", () => {
     const two = generateChartSet({ ...SMALL, iterations: 30, sizing: { open: 2.2 } }).charts;
     expect(one.model.hash).not.toBe(two.model.hash);
     expect((two.model as Record<string, any>).tree.sizing.open).toBe(2.2);
+  });
+
+  it("records a rake profile's own pot growth, and only then", () => {
+    const standard = generateChartSet({ ...SMALL, iterations: 30 }).charts.model as Record<string, any>;
+    expect(Object.keys(standard.rake)).toEqual(["name", "percent", "capBb", "noFlopNoDrop", "potGrowth"]);
+    expect(standard.rake.potGrowth).toEqual(RAKE_POT_GROWTH);
+    expect(standard.realisation.rakePotGrowth).toEqual(RAKE_POT_GROWTH);
+    const potGrowth = { limped: 3.6, srp: 3.2, "3bet": 2.3, "4bet": 1.15, allin: 1 };
+    const rake = { ...STANDARD_RAKE, name: "5%-cap3bb-nfnd-growth3.6/3.2/2.3/1.15", potGrowth };
+    const measured = generateChartSet({ ...SMALL, iterations: 30, rake }).charts.model as Record<string, any>;
+    expect(measured.rake).toEqual(rake);
+    expect(measured.realisation.rakePotGrowth).toEqual(potGrowth);
+    expect(measured.hash).not.toBe(standard.hash);
+    expect(measured.convergence.rakeBbPerHand).toBeGreaterThan(standard.convergence.rakeBbPerHand);
   });
 });
 

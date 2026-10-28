@@ -476,6 +476,15 @@ average — it decides how often the cap binds). A 5.5bb SRP pays ~0.48bb, a
 hand (`model.convergence.rakeBbPerHand`), plus the small gap from ignoring
 card removal between opponents (§2).
 
+The flop library's flop+turn+river solves, raked the same way and played out,
+take more: a 5.5bb SRP pays ~0.87bb, a 20.5bb 3-bet pot ~2.35bb, the 2bb
+limped pot ~0.36bb - a growth of ~3.2, ~2.3 and ~3.6 instead of 1.75, 1.4 and
+2 (`charts:refit-floplib` records it as `realisationFit.rakePotGrowth`). An
+experiment solves a `reuseFit` set with such a growth:
+`CHARTS_RAKE_GROWTH=<limped>:<srp>:<3bet>:<4bet>` sets the rake profile's own
+`potGrowth`, recorded in `model.rake` (name and `potGrowth`) and
+`model.realisation.rakePotGrowth`. The committed sets keep `RAKE_POT_GROWTH`.
+
 ## 5. The solver
 
 `preflopCfr.ts`: **Discounted CFR** (Brown & Sandholm 2019; α=1.5, β=0, γ=2,
@@ -1663,7 +1672,8 @@ checked in `tests/test/charts/realisation.test.ts`). Overrides for
 experiments: `CHARTS_ITERATIONS`, `CHARTS_BOARDS`, `CHARTS_OUT`,
 `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`, `CHARTS_MEASURE_BOARDS`,
 `CHARTS_MEASURE_SEED`, `CHARTS_REFIT`, `CHARTS_FIT_FROM` (a `reuseFit` set
-solved with the fit of another file), `CHARTS_RAKE`, `CHARTS_THREADS`,
+solved with the fit of another file), `CHARTS_RAKE`, `CHARTS_RAKE_GROWTH`
+(§4.4), `CHARTS_THREADS`,
 `CHARTS_SETS`, `CHARTS_PARALLEL`. Not part of `npm test`.
 
 Any change to a constant, size, cut or the engine changes the numbers; the
