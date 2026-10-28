@@ -516,8 +516,16 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.red {
+.comboSuitH {
   color: var(--danger-fg);
+}
+
+.comboSuitD {
+  color: var(--info-fg);
+}
+
+.comboSuitC {
+  color: var(--success-fg);
 }
 
 /* ------------------------------------------------------- the flop picker */
