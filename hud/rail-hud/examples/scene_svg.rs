@@ -203,25 +203,28 @@ impl Profile {
     fn sums(&self) -> Result<Sums, String> {
         let h = self.hands;
         let rate = |opp: i64, permille: i64| opp * permille / 1000;
-        let vpip_opp = h * 96 / 100;
-        let three_bet_opp = h * 14 / 100;
-        let f3b_opp = h * 4 / 100;
-        let cbet_opp = h * 9 / 100;
+        let vpip_chances = h * 96 / 100;
+        let three_bet_chances = h * 14 / 100;
+        let f3b_chances = h * 4 / 100;
+        let cbet_chances = h * 9 / 100;
         let actions = h * 60 / 100;
         let aggressive = rate(actions, self.aggression);
         let mut sums = Sums::default();
         for (name, value) in [
             ("hands", h),
-            ("vpip_opp", vpip_opp),
-            ("vpip", rate(vpip_opp, self.vpip)),
-            ("pfr_opp", vpip_opp),
-            ("pfr", rate(vpip_opp, self.pfr)),
-            ("three_bet_opp", three_bet_opp),
-            ("three_bet", rate(three_bet_opp, self.three_bet)),
-            ("fold_to_three_bet_opp", f3b_opp),
-            ("fold_to_three_bet", rate(f3b_opp, self.fold_to_three_bet)),
-            ("cbet_flop_opp", cbet_opp),
-            ("cbet_flop", rate(cbet_opp, self.cbet)),
+            ("vpip_opp", vpip_chances),
+            ("vpip", rate(vpip_chances, self.vpip)),
+            ("pfr_opp", vpip_chances),
+            ("pfr", rate(vpip_chances, self.pfr)),
+            ("three_bet_opp", three_bet_chances),
+            ("three_bet", rate(three_bet_chances, self.three_bet)),
+            ("fold_to_three_bet_opp", f3b_chances),
+            (
+                "fold_to_three_bet",
+                rate(f3b_chances, self.fold_to_three_bet),
+            ),
+            ("cbet_flop_opp", cbet_chances),
+            ("cbet_flop", rate(cbet_chances, self.cbet)),
             ("bet_flop", aggressive),
             ("call_flop", actions - aggressive),
         ] {
