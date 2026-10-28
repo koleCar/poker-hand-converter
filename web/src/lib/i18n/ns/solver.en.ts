@@ -27,11 +27,6 @@ export const solverEn = {
   heading: "Solver library",
   intro:
     "Rail's own flop solves. Pick a table, a preflop line and a flop, then walk the flop's decisions: every hand shows how often the solver takes each action and what each action is worth.",
-  signedOut: {
-    title: "Sign in to open the solver library",
-    body: "The solver library is for signed-in players. Sign in and every solved flop is one click away.",
-    cta: "Sign in",
-  },
   unavailable: "The solver library is not set up on this server.",
   table: "Table",
   setName: (players: number, stackBb: number) =>

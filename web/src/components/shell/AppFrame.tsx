@@ -247,7 +247,6 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
     <AppShell
       tab={tab}
       showHistoryTab={historyOpen}
-      signedIn={auth.isSignedIn}
       dbConfigured={isSupabaseConfigured}
       // The chip counts "hands in your library", so it is meaningless without
       // one. Derived rather than cleared on sign-out, so the last account's

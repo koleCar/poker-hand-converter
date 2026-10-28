@@ -8,8 +8,10 @@ import styles from "../../components/learn/learn.module.css";
 /**
  * The Solver library tab: the flop library's solves, one decision at a time.
  *
- * **Signed in only**, so `noindex` and out of the sitemap: the component
- * tells a signed-out visitor to sign in. The query picks the view
+ * **Public and indexable**, like `/analysis/charts`: the solves are our own
+ * data and the page reads no account, so a signed-out reader and a crawler
+ * see what a signed-in player sees. `sitemap.ts` lists it and the canonical
+ * URL drops the query, which picks the view
  * (`?set=` a table, `?line=` a library line, `?flop=` a canonical flop,
  * `?node=` a decision of its solve); anything malformed is the first of each.
  */
@@ -29,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: en.meta.solver.title,
     description: en.meta.solver.description,
     alternates: { canonical: paths.solver() },
-    robots: { index: false, follow: false },
+    openGraph: { title: en.meta.solver.title, description: en.meta.solver.description, url: paths.solver() },
   };
 }
 

@@ -29,11 +29,6 @@ export const solverHr: Dict["solver"] = {
   heading: "Solver library",
   intro:
     "Railovi vlastiti flop solvovi. Odaberi stol, preflop liniju i flop, pa prođi kroz odluke na flopu: za svaku ruku vidiš koliko često solver bira koju akciju i koliko svaka akcija vrijedi.",
-  signedOut: {
-    title: "Prijavi se da otvoriš solver library",
-    body: "Solver library je za prijavljene igrače. Prijavi se i svaki solvani flop udaljen je jedan klik.",
-    cta: "Prijava",
-  },
   unavailable: "Solver library nije postavljen na ovom serveru.",
   table: "Stol",
   setName: (players: number, stackBb: number) =>

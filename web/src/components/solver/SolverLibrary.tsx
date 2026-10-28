@@ -9,9 +9,8 @@
  *   ─▶ an action ─▶ the next decision, until the flop's betting is over
  * ```
  *
- * Signed in only (the page says so to a signed-out visitor), though nothing
- * here reads the account: the chunks are the public bucket's, the same files
- * the analysis grades with. The table, line, flop and decision live in the
+ * Public, like the preflop chart browser: nothing here reads an account. The
+ * chunks are the public bucket's, the same files the analysis grades with. The table, line, flop and decision live in the
  * address bar (`?set=…&line=…&flop=…&node=…`), so a link lands on the same
  * view. Cards are shown in the solve's canonical suits.
  */
@@ -28,7 +27,6 @@ import {
   FlopLibraryLoader,
   lineSeats,
 } from "../../lib/analysis/flopLibrary";
-import { useAuth } from "../../lib/auth";
 import { isRedSuit, SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { CHART_SETS } from "../../lib/charts";
 import { useDict } from "../../lib/i18n/client";
@@ -125,19 +123,6 @@ interface SolverLibraryProps {
 
 export function SolverLibrary(props: SolverLibraryProps) {
   const t = useDict().solver;
-  const auth = useAuth();
-  if (auth.status === "loading") return <p className={analysis.muted}>{t.loading}</p>;
-  if (!auth.isSignedIn) {
-    return (
-      <section className={styles.notice}>
-        <h2>{t.signedOut.title}</h2>
-        <p>{t.signedOut.body}</p>
-        <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
-          {t.signedOut.cta}
-        </button>
-      </section>
-    );
-  }
   if (!libraryLoader()) return <p className={analysis.muted}>{t.unavailable}</p>;
   return <Browser {...props} />;
 }

@@ -27,13 +27,13 @@ import { ProBadge } from "../plan/ProLock";
 export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | "solver" | "learn";
 
 /**
- * The Solver library (`/solver`) goes last and is offered to anyone signed
- * in, hands or not: it reads the flop library, nothing of the account. It
- * took Learn's place in the bar; the course's pages (`/learn/**`) still work
- * from a link and keep the `learn` tab id, but the bar no longer offers them.
- * A signed-out visitor sees two tabs (forum, convert) and a signed-in player
- * with hands six; on a phone the strip already scrolls sideways and keeps the
- * current tab in view (see the effect below).
+ * The Solver library (`/solver`) is a tab for everyone, like the forum and the
+ * converter: it reads the flop library, nothing of anyone's account. It goes
+ * last and took Learn's place in the bar; the course's pages (`/learn/**`)
+ * still work from a link and keep the `learn` tab id, but the bar no longer
+ * offers them. A signed-out visitor sees three tabs (forum, convert, solver)
+ * and a signed-in player with hands six; on a phone the strip already scrolls
+ * sideways and keeps the current tab in view (see the effect below).
  */
 const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> = [
   { id: "forum", label: (en) => en.nav.forum, path: paths.home() },
@@ -45,10 +45,7 @@ const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> =
 ];
 
 /** Tabs offered to everyone, with or without a library. */
-const OPEN_TABS: readonly ShellTab[] = ["forum", "convert"];
-
-/** Tabs offered to anyone signed in, with or without a library. */
-const SIGNED_IN_TABS: readonly ShellTab[] = ["solver"];
+const OPEN_TABS: readonly ShellTab[] = ["forum", "convert", "solver"];
 
 interface AppShellProps {
   /** Null on routes with no tab (e.g. 404). */
@@ -66,8 +63,6 @@ interface AppShellProps {
    * statistics.
    */
   showHistoryTab: boolean;
-  /** Whether someone is signed in: the Solver library is offered then. */
-  signedIn: boolean;
   dbConfigured: boolean;
   storedCount: number | null;
   /** Tabs whose feature the account's plan lacks (R6.2): marked Pro. Empty while enforcement is off. */
@@ -78,20 +73,15 @@ interface AppShellProps {
 export function AppShell({
   tab,
   showHistoryTab,
-  signedIn,
   dbConfigured,
   storedCount,
   lockedTabs = [],
   children,
 }: AppShellProps) {
   const en = useDict();
-  // The forum and the converter are for everyone; the Solver library for
-  // anyone signed in; the library and statistics wait until there is
-  // something in them.
-  const tabs = TABS.filter(
-    (entry) =>
-      OPEN_TABS.includes(entry.id) || (signedIn && SIGNED_IN_TABS.includes(entry.id)) || (showHistoryTab && !SIGNED_IN_TABS.includes(entry.id)),
-  );
+  // The forum, the converter and the Solver library are for everyone; the
+  // library and statistics wait until there is something in them.
+  const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
   const navRef = useRef<HTMLElement | null>(null);
 
   // On a phone the tab strip scrolls sideways (five tabs do not fit 375px);
