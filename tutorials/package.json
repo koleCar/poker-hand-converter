@@ -1,0 +1,32 @@
+{
+  "name": "rail-tutorials",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Feature tutorial videos for Rail: real screenshots of the app on a local stack with demo data, animated with Remotion. See README.md.",
+  "type": "module",
+  "scripts": {
+    "stack": "node scripts/stack.ts",
+    "demo-data": "node scripts/demo-data.ts",
+    "capture": "node capture/run.ts",
+    "assets": "node scripts/assets.ts",
+    "studio": "node scripts/assets.ts && remotion studio src/index.ts",
+    "render": "node scripts/render.ts",
+    "still": "node scripts/render.ts --still",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.533",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "remotion": "4.0.533"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.18",
+    "playwright": "1.63.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

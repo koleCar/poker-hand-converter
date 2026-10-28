@@ -169,6 +169,30 @@ jobs:
         run: npm run typecheck
         working-directory: packages/ui
 
+  # The feature tutorial videos (tutorials/, Remotion): the compositions,
+  # their scripts and the capture code typecheck. Nothing is captured or
+  # rendered here - that needs a local stack with demo data (tutorials/README.md).
+  tutorials:
+    name: Tutorials (typecheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tutorials/package-lock.json
+
+      - run: npm ci
+        working-directory: tutorials
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: tutorials
+
   # The Rust workspace: Rail core, the desktop crates and the HUD
   # (docs/RAIL-PLAN.md R0.1). Every pull request builds on macOS and Windows
   # (guideline §14), and Linux is the cheapest runner for the WebAssembly build

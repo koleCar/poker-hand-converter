@@ -1,0 +1,10 @@
+/* The frame's base: Rail's dark surface and Inter, as the app's shell sets them. */
+html,
+body {
+  margin: 0;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
