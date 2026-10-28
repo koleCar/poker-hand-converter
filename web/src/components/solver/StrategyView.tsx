@@ -15,7 +15,7 @@
 "use client";
 
 import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { isRedSuit, SUIT_SYMBOL, type Suit } from "../../lib/cards";
+import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
 import { useDict } from "../../lib/i18n/client";
 import type { ExploreCombo } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
@@ -272,14 +272,24 @@ function Grid({ model, overview }: { model: StrategyModel; overview: ReactNode }
   );
 }
 
-/** Two cards as text, `K♠Q♦`: compact enough for a table row, the glyph naming the suit. */
+/**
+ * Two cards as text, `K♠Q♦`: compact enough for a table row, the glyph naming the suit.
+ * Four colours like the board's cards: at text size ♦ and ♥ are hard to tell apart in one red.
+ */
+const SUIT_TEXT_CLASS: Record<Suit, string | undefined> = {
+  s: undefined,
+  h: styles.comboSuitH,
+  d: styles.comboSuitD,
+  c: styles.comboSuitC,
+};
+
 export function ComboText({ cards }: { cards: string }) {
   return (
     <span className={styles.comboText}>
       {[cards.slice(0, 2), cards.slice(2, 4)].map((card) => {
         const suit = card[1] as Suit;
         return (
-          <span key={card} className={isRedSuit(suit) ? styles.red : undefined}>
+          <span key={card} className={SUIT_TEXT_CLASS[suit]}>
             {card[0]}
             {SUIT_SYMBOL[suit]}
           </span>
