@@ -163,7 +163,7 @@ export async function fetchDrillsBySpot(): Promise<Map<string, { items: number; 
 /* -------------------------------------------------------------- trainer - */
 
 export interface TrainerResultInput {
-  mode: "preflop" | "river" | "drill";
+  mode: "preflop" | "flop" | "river" | "drill";
   family: string;
   spot: string;
   position: string | null;

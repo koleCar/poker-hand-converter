@@ -7,22 +7,35 @@
  * family, seat and the raiser faced (`vs`), on the river the hero's preflop
  * role (`role`) and side. A trainer target (`lib/training/plan.ts`) becomes an
  * address through {@link targetQuery}.
+ *
+ * The flop trainer (§10, 2026-10-28) deals from Rail's flop library on the
+ * sets it is solved for ({@link FLOP_TRAINER_SETS}), filtered like the river
+ * by pot, side and preflop role, and by what the hero faces (`facing`).
  */
 
+import { FLOP_LIBRARY_SETS } from "../../../lib/analysis/flopLibrary";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../../lib/charts";
 import {
   ALL_PREFLOP_SEATS,
   DEAL_BIASES,
+  FLOP_FACINGS,
   PREFLOP_FAMILIES,
   RIVER_POTS,
   RIVER_ROLES,
   RIVER_SEATS,
   type DealBias,
+  type FlopFacing,
+  type FlopSpotOptions,
   type PreflopFamily,
+  type PreflopSpotOptions,
   type RiverPot,
   type RiverRole,
   type RiverSeat,
+  type RiverSpotOptions,
+  type TrainerAnswer,
+  type TrainerSpot,
 } from "../../../lib/training";
+import type { TrainerResultInput } from "../../../lib/db/training";
 import type { TrainerTarget } from "../../../lib/training/plan";
 
 /**
@@ -45,12 +58,25 @@ export function riverSetOf(set: string): string {
   return RIVER_TRAINER_SETS.some((spec) => spec.id === set) ? set : DEFAULT_CHART_SET;
 }
 
-export const TRAIN_MODES = ["preflop", "river", "drills"] as const;
+/**
+ * The sets the flop trainer deals from: the ones the flop library is solved
+ * for (`FLOP_LIBRARY_SETS`), in its order. A set whose manifest is not in the
+ * bucket yet (heads-up 150bb) is offered and deals nothing: the manifest is
+ * the gate, so it deals the day its chunks are uploaded.
+ */
+export const FLOP_TRAINER_SETS = FLOP_LIBRARY_SETS.map((id) => CHART_SETS.find((spec) => spec.id === id)!);
+
+/** The set the flop trainer deals from at a table: the table's own when the library is solved for it, else the default. */
+export function flopSetOf(set: string): string {
+  return FLOP_TRAINER_SETS.some((spec) => spec.id === set) ? set : DEFAULT_CHART_SET;
+}
+
+export const TRAIN_MODES = ["preflop", "flop", "river", "drills"] as const;
 export type TrainMode = (typeof TRAIN_MODES)[number];
 
 export interface TrainState {
   mode: TrainMode;
-  /** The chart set (table and depth, A2c); the river trainer's when it has lines there (`riverSetOf`). */
+  /** The chart set (table and depth, A2c); the river and flop trainers' when they deal there (`riverSetOf`, `flopSetOf`). */
   set: string;
   family: PreflopFamily | "random";
   seat: ChartPosition | null;
@@ -59,8 +85,10 @@ export interface TrainState {
   deal: DealBias;
   pot: RiverPot | "any";
   side: RiverSeat | "any";
-  /** River: only as the preflop raiser or the caller. */
+  /** River and flop: only as the preflop raiser or the caller. */
   role: RiverRole | "any";
+  /** Flop: only facing a check, a bet or a raise. */
+  facing: FlopFacing;
   /** Drills: only these finest spot keys (a leak). */
   spots: string[] | null;
   /** Drills: every drill, not only the due ones. */
@@ -79,6 +107,7 @@ export const DEFAULT_TRAIN_STATE: TrainState = {
   pot: "any",
   side: "any",
   role: "any",
+  facing: "any",
   spots: null,
   all: false,
   inaccurate: false,
@@ -114,6 +143,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     pot: oneOf(first(query.pot), [...RIVER_POTS, "any"] as const, DEFAULT_TRAIN_STATE.pot),
     side: oneOf(first(query.side), [...RIVER_SEATS, "any"] as const, DEFAULT_TRAIN_STATE.side),
     role: oneOf(first(query.role), [...RIVER_ROLES, "any"] as const, DEFAULT_TRAIN_STATE.role),
+    facing: oneOf(first(query.facing), [...FLOP_FACINGS, "any"] as const, DEFAULT_TRAIN_STATE.facing),
     spots: spots.length > 0 ? spots : null,
     all: first(query.all) === "1",
     inaccurate: first(query.inaccurate) === "1",
@@ -130,12 +160,14 @@ export function trainQuery(state: TrainState): string {
     if (state.seat) params.set("seat", state.seat);
     if (state.vs) params.set("vs", state.vs);
   }
-  if (state.mode === "river") {
-    if (riverSetOf(state.set) !== DEFAULT_TRAIN_STATE.set) params.set("set", state.set);
+  if (state.mode === "river" || state.mode === "flop") {
+    const set = state.mode === "river" ? riverSetOf(state.set) : flopSetOf(state.set);
+    if (set !== DEFAULT_TRAIN_STATE.set) params.set("set", state.set);
     if (state.pot !== DEFAULT_TRAIN_STATE.pot) params.set("pot", state.pot);
     if (state.side !== DEFAULT_TRAIN_STATE.side) params.set("side", state.side);
     if (state.role !== DEFAULT_TRAIN_STATE.role) params.set("role", state.role);
   }
+  if (state.mode === "flop" && state.facing !== DEFAULT_TRAIN_STATE.facing) params.set("facing", state.facing);
   if (state.mode !== "drills" && state.deal !== DEFAULT_TRAIN_STATE.deal) params.set("deal", state.deal);
   if (state.mode === "drills") {
     if (state.spots) params.set("spots", state.spots.join(","));
@@ -143,6 +175,41 @@ export function trainQuery(state: TrainState): string {
     if (state.inaccurate) params.set("inaccurate", "1");
   }
   return params.toString();
+}
+
+/** A trainer that deals spots (every mode but the drills). */
+export type SpotMode = Exclude<TrainMode, "drills">;
+
+/** What a spot trainer deals from: its settings in the state, the table its own (`riverSetOf`, `flopSetOf`). */
+export function spotOptions(mode: "preflop", state: TrainState): PreflopSpotOptions;
+export function spotOptions(mode: "river", state: TrainState): RiverSpotOptions;
+export function spotOptions(mode: "flop", state: TrainState): FlopSpotOptions;
+export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptions | RiverSpotOptions | FlopSpotOptions;
+export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptions | RiverSpotOptions | FlopSpotOptions {
+  if (mode === "preflop") return { set: state.set, family: state.family, seat: state.seat, vs: state.vs, bias: state.deal };
+  if (mode === "river") return { set: riverSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
+  return { set: flopSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, facing: state.facing, bias: state.deal };
+}
+
+/**
+ * The `trainer_results` row a graded answer is kept as: the mode is the
+ * spot's street; the family the preflop family, else the pot type; the spot
+ * the chart line, else the line id (a flop's library line). Null for a turn
+ * spot, which no trainer mode deals (Learn's own).
+ */
+export function trainerResultOf(spot: TrainerSpot, answer: TrainerAnswer, handClass: string | null): TrainerResultInput | null {
+  if (spot.kind === "turn") return null;
+  return {
+    mode: spot.kind,
+    family: spot.kind === "preflop" ? spot.family : spot.pot,
+    spot: spot.kind === "preflop" ? spot.line : spot.lineId,
+    position: spot.hero,
+    handClass,
+    grade: answer.grade,
+    evLossBb: answer.evLoss,
+    evLossPot: answer.evLossPot,
+    score: answer.score,
+  };
 }
 
 /** The address "Drill this" opens for a leak's spot keys. */

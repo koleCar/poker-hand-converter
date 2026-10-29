@@ -189,6 +189,19 @@ export function sameLine(libraryKey: string, placedKey: string): boolean {
 }
 
 /**
+ * The chart sets the library is solved for, most common first (the Solver
+ * library's tables, the flop trainer's). A set is live once its manifest is
+ * in the bucket: the heads-up 150bb set has none yet, so it holds no flop.
+ */
+export const FLOP_LIBRARY_SETS = [
+  "nlhe-cash-6max-100bb",
+  "nlhe-cash-6max-150bb",
+  "nlhe-cash-9max-100bb",
+  "nlhe-cash-hu-100bb",
+  "nlhe-cash-hu-150bb",
+] as const;
+
+/**
  * The library's lines for a chart set's table size (7-9 handed play on the
  * full-ring sets, two-handed on the heads-up sets).
  */

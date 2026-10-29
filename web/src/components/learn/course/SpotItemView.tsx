@@ -129,7 +129,8 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
             return;
           }
           onAnswer({ correct: d.grade === "perfect" || d.grade === "good", grade: d.grade });
-          // The trainer history keeps preflop and river answers (its modes); turn and flop spots are Learn's own.
+          // The trainer history keeps preflop and river answers here; turn spots and the lessons' flop spots are
+          // Learn's own (the Train tab's flop mode keeps its own flop answers).
           if (!signedIn || spot.kind === "turn" || spot.kind === "flop") return;
           recordTrainerResults([
             {

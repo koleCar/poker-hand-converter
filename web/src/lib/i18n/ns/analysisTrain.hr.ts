@@ -27,9 +27,9 @@ const potNames: Record<string, string> = {
 export const trainHr = {
   heading: "Vježbaj",
   intro:
-    "Vježbaj protiv iste reference po kojoj se ocjenjuju tvoje ruke: preflop charta, river solveova i tvojih vlastitih grešaka, dok ne budu točne. Svaki odgovor ocijenjen je točno onako kako bi ga ocijenila analiza.",
+    "Vježbaj protiv iste reference po kojoj se ocjenjuju tvoje ruke: preflop charta, Railove knjižnice flopova, river solveova i tvojih vlastitih grešaka, dok ne budu točne. Svaki odgovor ocijenjen je točno onako kako bi ga ocijenila analiza.",
   modesLabel: "Što vježbaš",
-  modes: { preflop: "Preflop", river: "River", drills: "Tvoje greške" } as Record<string, string>,
+  modes: { preflop: "Preflop", flop: "Flop", river: "River", drills: "Tvoje greške" } as Record<string, string>,
 
   settings: {
     label: "Postavke trenera",
@@ -59,10 +59,15 @@ export const trainHr = {
     anyRaiser: "Bilo koje pozicije",
     role: "Tvoja uloga preflop",
     roles: { any: "Svejedno", pfr: "Raiseao si zadnji", caller: "Callao si" } as Record<string, string>,
+    facing: "Pred tobom je",
+    facings: { any: "Bilo što", check: "Check", bet: "Bet", raise: "Raise" } as Record<string, string>,
   },
 
   dealing: "Dijelim…",
   solving: "Rješavam river…",
+  loadingFlop: "Učitavam flop…",
+  noFlopSpot:
+    "Nijedan flop ne odgovara ovim postavkama. Probaj drugi pot, poziciju ili ono što je pred tobom — ili drugi stol: Railova knjižnica flopova za neke se još rješava.",
   grading: "Ocjenjujem…",
   failed: (message: string) => `Trener nije uspio podijeliti situaciju: ${message}`,
   noSpot: "Nijedna situacija ne odgovara ovim postavkama. Probaj drugu poziciju ili situaciju.",
@@ -124,7 +129,7 @@ export const trainHr = {
     row: (answers: number, score: number | null, evLoss: number) =>
       `${num(answers)} ${plural(answers, "odgovor", "odgovora", "odgovora")}${score === null ? "" : ` · score ${num(score, 1)}`} · izgubljeno ${bb(evLoss)}`,
     none: "Još nema spremljenih odgovora.",
-    modes: { preflop: "Preflop", river: "River", drill: "Tvoje greške" } as Record<string, string>,
+    modes: { preflop: "Preflop", flop: "Flop", river: "River", drill: "Tvoje greške" } as Record<string, string>,
   },
 
   drills: {

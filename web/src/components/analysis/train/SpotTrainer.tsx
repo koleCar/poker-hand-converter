@@ -1,11 +1,14 @@
 /**
- * The preflop trainer and the river spot trainer: deal a spot, show it on the
- * felt, take an answer, grade it with the analysis, show why, deal the next.
+ * The preflop trainer and the flop and river spot trainers: deal a spot, show
+ * it on the felt, take an answer, grade it with the analysis, show why, deal
+ * the next.
  *
  * Dealing and grading run in the trainer's worker (`lib/trainer.ts`): a river
  * spot solves a river, and a river answer solves it again inside
- * `analyzeHand`. Every state change waits on a promise, never on an effect's
- * own body: the request key (`mode | settings | round`) says which deal an
+ * `analyzeHand`; a flop spot reads one chunk of Rail's flop library, and its
+ * answer is graded by `analyzeHand` from the same chunk (as Learn L2's flop
+ * exercises are). Every state change waits on a promise, never on an
+ * effect's own body: the request key (`mode | settings | round`) says which deal an
  * answer belongs to, so a slow deal for old settings cannot overwrite a new one.
  */
 
@@ -16,9 +19,10 @@ import { CHART_SETS, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "..
 import { preflopChartSet } from "../../../lib/chartSet";
 import { recordTrainerResults } from "../../../lib/db/training";
 import { useDict } from "../../../lib/i18n/client";
-import { dealPreflopSpot, dealRiverSpot, gradeSpotAnswer } from "../../../lib/trainer";
+import { dealFlopSpot, dealPreflopSpot, dealRiverSpot, gradeSpotAnswer } from "../../../lib/trainer";
 import {
   DEAL_BIASES,
+  FLOP_FACINGS,
   RIVER_POTS,
   RIVER_ROLES,
   RIVER_SEATS,
@@ -32,12 +36,23 @@ import {
 } from "../../../lib/training";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
+import { numberFormat, useIntlLocale } from "../../stats/format";
 import { lineSteps } from "../chartSpots";
 import { AnswerBar, type AnswerOption } from "./AnswerBar";
 import { AnswerResult } from "./AnswerResult";
 import { useTrainerKeys } from "./trainerKeys";
 import { lastAction } from "./spotPosition";
-import { RIVER_TRAINER_SETS, riverSetOf, TRAINER_SETS, type TrainState } from "./trainState";
+import {
+  FLOP_TRAINER_SETS,
+  flopSetOf,
+  RIVER_TRAINER_SETS,
+  riverSetOf,
+  spotOptions,
+  TRAINER_SETS,
+  trainerResultOf,
+  type SpotMode,
+  type TrainState,
+} from "./trainState";
 import own from "./train.module.css";
 
 /** Seeds tried before saying no spot matches. */
@@ -47,7 +62,7 @@ type Dealt = { key: string; seed: number; spot: TrainerSpot | null; error: strin
 type Answered = { key: string; picked: number; graded: GradedAnswer | null; error: string | null; saved: boolean };
 
 interface SpotTrainerProps {
-  mode: "preflop" | "river";
+  mode: SpotMode;
   state: TrainState;
   onChange: (patch: Partial<TrainState>) => void;
   /** A graded answer, for the session score. */
@@ -61,16 +76,13 @@ interface SpotTrainerProps {
 export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp, onSaved }: SpotTrainerProps) {
   const en = useDict();
   const t = en.analysis.train;
+  const locale = useIntlLocale();
   const [round, setRound] = useState(0);
   const [dealt, setDealt] = useState<Dealt | null>(null);
   const [answered, setAnswered] = useState<Answered | null>(null);
   const [charts, setCharts] = useState<ChartSet | null>(null);
 
-  const settings =
-    mode === "preflop"
-      ? { set: state.set, family: state.family, seat: state.seat, vs: state.vs, bias: state.deal }
-      : { set: riverSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
-  const settingsKey = JSON.stringify(settings);
+  const settingsKey = JSON.stringify(spotOptions(mode, state));
   const requestKey = `${mode}|${settingsKey}|${round}`;
 
   // Deal for the current settings and round.
@@ -82,7 +94,12 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
       for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
         const seed = nextSeed();
         lastSeed = seed;
-        const spot = mode === "preflop" ? await dealPreflopSpot(options, seed) : await dealRiverSpot(options, seed);
+        const spot =
+          mode === "preflop"
+            ? await dealPreflopSpot(options, seed)
+            : mode === "flop"
+              ? await dealFlopSpot(options, seed)
+              : await dealRiverSpot(options, seed);
         if (spot) return { seed, spot };
       }
       return { seed: lastSeed, spot: null };
@@ -153,20 +170,9 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
             score: d.score ?? 0,
           };
           onAnswer(result);
-          if (!signedIn) return;
-          recordTrainerResults([
-            {
-              mode,
-              family: spot.kind === "preflop" ? spot.family : spot.pot,
-              spot: spot.kind === "preflop" ? spot.line : spot.lineId,
-              position: spot.hero,
-              handClass: d.facts.handClass,
-              grade: d.grade,
-              evLossBb: result.evLoss,
-              evLossPot: result.evLossPot,
-              score: result.score,
-            },
-          ])
+          const row = trainerResultOf(spot, result, d.facts.handClass);
+          if (!signedIn || !row) return;
+          recordTrainerResults([row])
             .then(() => {
               setAnswered((prev) => (prev && prev.key === key ? { ...prev, saved: true } : prev));
               onSaved();
@@ -179,7 +185,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
           );
         });
     },
-    [spot, answer, requestKey, onAnswer, signedIn, mode, onSaved],
+    [spot, answer, requestKey, onAnswer, signedIn, onSaved],
   );
 
   const graded = answer?.graded ?? null;
@@ -221,7 +227,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
           </button>
         </div>
       ) : null}
-      {current && !current.error && !spot ? <p className="notice notice--warn">{t.noSpot}</p> : null}
+      {current && !current.error && !spot ? <p className="notice notice--warn">{mode === "flop" ? t.noFlopSpot : t.noSpot}</p> : null}
 
       <section className={`card ${own.spot}`} aria-labelledby="train-spot" aria-busy={dealing}>
         <h3 id="train-spot" className={own.spotHead}>
@@ -229,7 +235,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
         </h3>
         {dealing ? (
           <p className={own.status} role="status">
-            {mode === "river" ? t.solving : t.dealing}
+            {mode === "river" ? t.solving : mode === "flop" ? t.loadingFlop : t.dealing}
           </p>
         ) : null}
         {spot && shownHand ? (
@@ -258,6 +264,15 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
               <p className={own.note}>
                 {t.rangesNote}
                 {spot.sources.hero === "placeholder" || spot.sources.villain === "placeholder" ? ` ${t.placeholderNote}` : ""}
+              </p>
+            ) : null}
+            {spot.kind === "flop" ? (
+              <p className={own.note}>
+                {en.course.spot.flopNote(
+                  en.course.spot.lineName(spot.lineId),
+                  numberFormat(locale, { maximumFractionDigits: 0 }).format(spot.iterations),
+                  numberFormat(locale, { maximumFractionDigits: 2 }).format(spot.exploitabilityPct),
+                )}
               </p>
             ) : null}
           </>
@@ -334,22 +349,23 @@ function Settings({
   state,
   onChange,
 }: {
-  mode: "preflop" | "river";
+  mode: SpotMode;
   state: TrainState;
   onChange: (patch: Partial<TrainState>) => void;
 }) {
   const t = useDict().analysis.train.settings;
-  // The chosen set's seats and families (A2c: 6-max, 9-max or heads-up); the river trainer deals 6-max 100bb or heads-up.
+  // The chosen set's seats and families (A2c: 6-max, 9-max or heads-up); the river trainer deals 6-max 100bb or
+  // heads-up, the flop trainer the sets the flop library is solved for.
   const spec = CHART_SETS.find((s) => s.id === state.set) ?? CHART_SETS.find((s) => s.id === DEFAULT_CHART_SET);
   const seats = trainerSeats(spec?.players ?? 6);
   const families = trainerFamilies(spec?.players ?? 6);
-  const sets = mode === "preflop" ? TRAINER_SETS : RIVER_TRAINER_SETS;
+  const sets = mode === "preflop" ? TRAINER_SETS : mode === "flop" ? FLOP_TRAINER_SETS : RIVER_TRAINER_SETS;
   return (
     <div className={own.settings} role="group" aria-label={t.label}>
       <label className="field">
         <span className="field__label">{t.table}</span>
         <select
-          value={mode === "preflop" ? state.set : riverSetOf(state.set)}
+          value={mode === "preflop" ? state.set : mode === "flop" ? flopSetOf(state.set) : riverSetOf(state.set)}
           onChange={(event) => {
             const set = event.target.value;
             const players = CHART_SETS.find((s) => s.id === set)?.players ?? 6;
@@ -448,6 +464,18 @@ function Settings({
               ))}
             </select>
           </label>
+          {mode === "flop" ? (
+            <label className="field">
+              <span className="field__label">{t.facing}</span>
+              <select value={state.facing} onChange={(event) => onChange({ facing: event.target.value as TrainState["facing"] })}>
+                {(["any", ...FLOP_FACINGS] as const).map((facing) => (
+                  <option key={facing} value={facing}>
+                    {t.facings[facing]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
         </>
       )}
       <label className="field">

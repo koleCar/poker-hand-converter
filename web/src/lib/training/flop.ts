@@ -67,6 +67,9 @@ import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
  */
 export type FlopFacing = "check" | "bet" | "raise" | "any";
 
+/** The facings a filter can pin (the trainer's setting; `any` besides). */
+export const FLOP_FACINGS = ["check", "bet", "raise"] as const;
+
 export interface FlopSpotOptions {
   /**
    * Chart set id: the default (6-max 100bb) set when absent, or another set

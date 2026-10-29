@@ -103,6 +103,7 @@ export {
 export { riverSetup, type RiverSetup } from "./river";
 export { generateTurnSpot, turnAnswer, turnSetup, type TurnSetup, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
 export {
+  FLOP_FACINGS,
   flopAnswer,
   flopChunkFor,
   flopFilterSeat,
