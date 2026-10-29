@@ -1,6 +1,6 @@
 /**
  * Strings for the trainer (phase A7), English: `/analysis/train` — the
- * preflop trainer, the river spot trainer and drills of your own mistakes —
+ * preflop trainer, the flop and river spot trainers and drills of your own mistakes —
  * plus the drill counts on the overview and on Leaks. Spread into
  * `analysis.en.ts` as `analysis.train`; `analysisTrain.hr.ts` is the same
  * shape. Seats stay UTG, HJ, CO, BTN, SB, BB in both languages.
@@ -25,9 +25,9 @@ const potNames: Record<string, string> = {
 export const trainEn = {
   heading: "Train",
   intro:
-    "Practise against the reference your hands are graded by: the preflop charts, river solves, and your own mistakes, until they are right. Every answer is graded exactly as the analysis would grade it.",
+    "Practise against the reference your hands are graded by: the preflop charts, Rail's flop library, river solves, and your own mistakes, until they are right. Every answer is graded exactly as the analysis would grade it.",
   modesLabel: "What to practise",
-  modes: { preflop: "Preflop", river: "River", drills: "Your mistakes" } as Record<string, string>,
+  modes: { preflop: "Preflop", flop: "Flop", river: "River", drills: "Your mistakes" } as Record<string, string>,
 
   settings: {
     label: "Trainer settings",
@@ -57,10 +57,15 @@ export const trainEn = {
     anyRaiser: "Any seat",
     role: "Your role preflop",
     roles: { any: "Either", pfr: "You raised last", caller: "You called" } as Record<string, string>,
+    facing: "You face",
+    facings: { any: "Anything", check: "A check", bet: "A bet", raise: "A raise" } as Record<string, string>,
   },
 
   dealing: "Dealing…",
   solving: "Solving the river…",
+  loadingFlop: "Loading the flop…",
+  noFlopSpot:
+    "No flop matches these settings. Try another pot, position or what you face — or another table: Rail's flop library is still being solved for some.",
   grading: "Grading…",
   failed: (message: string) => `The trainer could not deal a spot: ${message}`,
   noSpot: "No spot matches these settings. Try another seat or spot.",
@@ -122,7 +127,7 @@ export const trainEn = {
     row: (answers: number, score: number | null, evLoss: number) =>
       `${num(answers)} ${answers === 1 ? "answer" : "answers"}${score === null ? "" : ` · score ${num(score, 1)}`} · ${bb(evLoss)} lost`,
     none: "No trainer answers kept yet.",
-    modes: { preflop: "Preflop", river: "River", drill: "Your mistakes" } as Record<string, string>,
+    modes: { preflop: "Preflop", flop: "Flop", river: "River", drill: "Your mistakes" } as Record<string, string>,
   },
 
   drills: {

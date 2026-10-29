@@ -6448,3 +6448,61 @@ Each phase appends what it learned that changed the plan.
     - A plan's trainer task counts preflop answers by family and seat
       (`trainerMatch`; `trainer_results` keeps no set), so 6-max answers in
       the same family and seat count toward a heads-up task.
+- 2026-10-29 — A flop mode in the Train tab. Migration
+  `20271028090000_trainer_flop_mode.sql` (must be applied to prod after
+  merge); no `ANALYSIS_VERSION` change (no stored grade moves).
+  - **Why.** The open item of the 2026-10-28 entry: no screen offered a
+    heads-up flop, because the Train tab had no flop mode and
+    `trainer_results.mode` took only preflop, river and drill. Learn L2's
+    flop exercises already dealt and graded library flops
+    (`lib/training/flop.ts`), so the trainer had everything but the screen
+    and the row.
+  - **What was done.**
+    - *Mode*: `TRAIN_MODES` is preflop, flop, river, drills. The flop mode
+      offers the sets the library is solved for (`FLOP_LIBRARY_SETS`, now
+      one list in `flopLibrary.ts` that the Solver library's tables read
+      too): 6-max 100bb and 150bb, 9-max 100bb, heads-up 100bb and 150bb.
+      Heads-up 150bb is offered and deals nothing until its manifest is in
+      the bucket (the library's `has` gate, no special code); the "no flop"
+      notice says some tables are still being solved. Filters: pot, side,
+      preflop role (as the river) and what the hero faces (check, bet,
+      raise, `?facing=`); a table the library has no set for deals 6-max
+      100bb (`flopSetOf`).
+    - *Dealing and grading*: the worker's existing `flop` job
+      (`generateFlopSpot`) deals from one chunk and the answer is graded by
+      `gradeSpotAnswer` → `analyzeHand` with the same chunk loaded, the one
+      grader rule as Learn's flop cards. `spotOptions(mode, state)` builds
+      each mode's deal options in one place. The spot shows the library
+      note (line, iterations, exploitability); feedback is the river
+      trainer's `AnswerResult` without the range study, which only rebuilds
+      river and turn solves (it said "could not rebuild" on every flop,
+      Learn's flop cards included).
+    - *Kept answers*: signed in, a flop answer is a `trainer_results` row
+      with mode `flop`, family the pot type, spot the library line id, the
+      hero's seat, hand class, grade, EV loss and score
+      (`trainerResultOf`, one builder for every mode); `trainer_summary`
+      shows it as its own row ("Flop" / "Flop"). Learn's flop cards still
+      keep nothing (Learn's own).
+    - *Database*: the mode check takes `flop`; nothing else changes.
+      `record_trainer_results` (security definer, empty search_path,
+      `auth.uid()`, ≤50 rows, `enforce_rate_limit`, the R6.2 entitlement
+      gate) never names a mode, so it is not re-created; grants, RLS
+      (select-own) and the export are untouched. Additive: the new check
+      is a superset of the old.
+  - **Tested.** `tests/test/trainingFlopMode.test.ts`: the mode's address
+    round trip and its defaults; the job reads the chosen set's manifest
+    and an empty bucket (heads-up 150bb's case) deals nothing on every
+    table; on the committed pilot chunks a dealt spot is graded by the
+    solver from its own chunk (`facts.flop.source = library`, never mapped)
+    and its row passes the table's checks. pgTAP
+    `trainer_flop_mode.test.sql`: the check takes `flop` and still refuses
+    junk, no client writes, RLS select-own, the writer keeps its gate, a
+    flop row is the caller's own and counted as its own mode, anon cannot
+    write. The trainer, heads-up, Learn flop and study-plan suites pass.
+  - **Open.**
+    - The study plan has no flop trainer target (`TRAIN_TARGET` is
+      preflop and river), and postflop leaks still link to river drills.
+    - The analysis sheet shows the same "could not rebuild" study for a
+      real hand's library-graded flop decision; a flop study read from the
+      chunk would replace it there and here.
+    - Learn has no heads-up flop lesson (a curriculum call).

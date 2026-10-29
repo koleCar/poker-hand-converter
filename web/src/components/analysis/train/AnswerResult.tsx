@@ -106,7 +106,8 @@ export function AnswerResult({ decision, hand, chartNode = null, children, solve
           <ChartGrid key={chartNode.line} node={chartNode} highlight={decision.facts.handClass} />
         </div>
       ) : null}
-      {decision.source === "solver" ? (
+      {/* The range study re-solves a river or turn; a flop graded from the library has no study to rebuild. */}
+      {decision.source === "solver" && decision.street !== "flop" ? (
         <div className={own.study}>
           <h4 className={styles.subhead}>{r.rangeHeading}</h4>
           <RiverStudy

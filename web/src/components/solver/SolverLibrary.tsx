@@ -22,7 +22,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
-import { flopLibraryBase, flopLinesFor, FlopLibraryLoader } from "../../lib/analysis/flopLibrary";
+import { flopLibraryBase, flopLinesFor, FlopLibraryLoader, FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
 import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, type ChartNode, type ChartSet } from "../../lib/charts";
 import { useDict } from "../../lib/i18n/client";
@@ -49,13 +49,7 @@ import styles from "./solver.module.css";
 type Dict = ReturnType<typeof useDict>["solver"];
 
 /** The chart sets the flop library is solved for, in the order offered. A set without a manifest yet says so. */
-export const SOLVER_SETS = [
-  "nlhe-cash-6max-100bb",
-  "nlhe-cash-6max-150bb",
-  "nlhe-cash-9max-100bb",
-  "nlhe-cash-hu-100bb",
-  "nlhe-cash-hu-150bb",
-] as const;
+export const SOLVER_SETS = FLOP_LIBRARY_SETS;
 
 const TABLES: readonly TableOption[] = SOLVER_SETS.map((id) => {
   const spec = CHART_SETS.find((s) => s.id === id)!;

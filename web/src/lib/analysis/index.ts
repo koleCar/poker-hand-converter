@@ -272,6 +272,7 @@ export {
   FLOP_LINES,
   FLOP_LINES_9MAX,
   FLOP_LINES_HU,
+  FLOP_LIBRARY_SETS,
   flopLinesFor,
   postflopFirst,
   lineSeats,

@@ -1,11 +1,14 @@
 /**
  * The trainer (`/analysis/train`, `docs/ANALYSIS-PLAN.md` §7, phase A7).
  *
- * Three trainers under one sub-nav entry:
+ * Four trainers under one sub-nav entry:
  *
  * - **Preflop**: a chart node by family and seat, a hand dealt into it (as
  *   the range holds it, or tilted toward the close decisions), graded from
  *   the charts exactly as the analysis grades a real hand;
+ * - **Flop**: a heads-up flop from Rail's flop library on a table it is
+ *   solved for, the hero dealt a combo from their range at the node, graded
+ *   from the same chunk (as Learn L2's flop exercises are);
  * - **River**: a heads-up river from a chart line, a board and common flop
  *   and turn lines, solved on demand, the hero dealt a combo from their range
  *   at the node, graded by the solve;
@@ -15,7 +18,7 @@
  * The mode and settings live in the address (`trainState.ts`), so "Drill
  * this" on a leak is a link. The session score is per trainer and per page
  * visit; signed in, every graded answer is also kept (`trainer_results`).
- * Preflop and river work signed out (the charts are public); drills are your
+ * Preflop, flop and river work signed out (the charts and the library are public); drills are your
  * own hands and need an account.
  */
 
@@ -44,6 +47,7 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
   const [state, setState] = useState<TrainState>(() => parseTrainState(initialQuery));
   const [sessions, setSessions] = useState<Record<TrainMode, SessionStats>>(() => ({
     preflop: emptySession(),
+    flop: emptySession(),
     river: emptySession(),
     drills: emptySession(),
   }));
