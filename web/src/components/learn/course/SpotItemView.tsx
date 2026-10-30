@@ -212,7 +212,7 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
         </p>
       ) : null}
       {answered?.error ? <p className="notice notice--error">{c.failed(answered.error)}</p> : null}
-      {graded?.decision ? <AnswerResult decision={graded.decision} hand={graded.hand} chartNode={chartNode} solveTurn={false} /> : null}
+      {graded?.decision ? <AnswerResult decision={graded.decision} hand={graded.hand} chartNode={chartNode} solveTurn={false} flopStudy={graded.study ?? null} /> : null}
     </div>
   );
 }

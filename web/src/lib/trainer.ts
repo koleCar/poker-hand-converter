@@ -136,6 +136,6 @@ export async function gradeSpotAnswer(spot: TrainerSpot, menuIndex: number): Pro
   sequence += 1;
   const response = await ask({ type: "answer", jobId: sequence, spot, menuIndex });
   return unwrap(response, (r) =>
-    r.type === "graded" ? { hand: r.hand, actionIndex: r.actionIndex, decision: r.decision } : undefined,
+    r.type === "graded" ? { hand: r.hand, actionIndex: r.actionIndex, decision: r.decision, study: r.study ?? null } : undefined,
   );
 }

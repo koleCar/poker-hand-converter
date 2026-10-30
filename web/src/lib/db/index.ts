@@ -71,6 +71,7 @@ export {
   runAnalysis,
   studyRiver,
   studyTurn,
+  studyFlop,
   type AnalysisBreakdownGroup,
   type AnalysisBreakdownRow,
   type AnalysisCoverage,

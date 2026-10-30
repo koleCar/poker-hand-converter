@@ -15,6 +15,10 @@
  * Nothing here is stored (§3.4): the button re-runs the same walk and the
  * same deterministic solve the grade came from (`studyRiver` / `studyTurn`,
  * in the analysis worker), so the hero's own row equals the stored options.
+ * A flop decision graded from the flop library (A5b) is not re-solved: its
+ * study is read from the chunk the grade read (`studyFlop`, or handed in by
+ * the trainer, which graded the answer from that chunk), in the real
+ * board's combos. A flop with no chunk says the spot could not be rebuilt.
  *
  * Accessibility follows `ChartGrid`: one tab stop with arrow keys, every cell
  * a button named in words, a polite live region for the detail, and colour
@@ -28,7 +32,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { villainsOfFacts } from "../../lib/analysis/analyze";
 import type { DecisionAnalysis } from "../../lib/analysis/types";
 import type { RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
-import { studyRiver, studyTurn } from "../../lib/db";
+import { studyFlop, studyRiver, studyTurn } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import type { PhfHand } from "../../lib/phf/types";
 import styles from "./analysis.module.css";
@@ -73,36 +77,46 @@ interface RiverStudyProps {
   hand: PhfHand;
   /** Open (and solve) at once: the trainer shows the whole range after every answer. */
   initialOpen?: boolean;
-  /** The street of the decision: the river (A4) or the turn (A5a). */
-  street?: "river" | "turn";
+  /** The street of the decision: the river (A4), the turn (A5a) or a library flop (A5b). */
+  street?: "river" | "turn" | "flop";
   /**
    * A river study: narrow into the river through the solved turn, as the
    * analysis does (default), or by the heuristic all the way, as the river
    * trainer's spots are built.
    */
   solveTurn?: boolean;
+  /**
+   * A study already read (the trainer's flop answers: the worker that graded
+   * the answer read it from the same chunk). Null: there is none, the spot
+   * could not be rebuilt. Absent: ask the analysis worker.
+   */
+  study?: Study | null;
 }
 
 /** The study's strings: the river's, with the turn's own where they differ. */
-export function useStudyStrings(street: "river" | "turn") {
+export function useStudyStrings(street: "river" | "turn" | "flop") {
   const analysis = useDict().analysis;
+  if (street === "flop") return { ...analysis.river, ...analysis.turn, ...analysis.flop };
   return street === "turn" ? { ...analysis.river, ...analysis.turn } : analysis.river;
 }
 
 /** The button and, once asked for, the study itself. */
-export function RiverStudy({ decision, hand, initialOpen = false, street = "river", solveTurn = true }: RiverStudyProps) {
+export function RiverStudy({ decision, hand, initialOpen = false, street = "river", solveTurn = true, study }: RiverStudyProps) {
   const t = useStudyStrings(street);
+  const given: Loaded | null = study === undefined ? null : study ? { status: "ready", study } : { status: "missing" };
   const [open, setOpen] = useState(initialOpen);
-  const [loaded, setLoaded] = useState<Loaded>({ status: initialOpen ? "loading" : "idle" });
-  const started = useRef(false);
+  const [loaded, setLoaded] = useState<Loaded>(given ?? { status: initialOpen ? "loading" : "idle" });
+  const started = useRef(given !== null);
 
   const load = () => {
     started.current = true;
     // analysis/20: the opponents' statistics the stored grade read, not today's.
     const villains = decision.facts.villain ? villainsOfFacts(hand, decision.facts.villain) : null;
-    (street === "turn"
-      ? studyTurn(hand, decision.actionIndex, { villains })
-      : studyRiver(hand, decision.actionIndex, { turn: solveTurn, villains }))
+    (street === "flop"
+      ? studyFlop(hand, decision.actionIndex)
+      : street === "turn"
+        ? studyTurn(hand, decision.actionIndex, { villains })
+        : studyRiver(hand, decision.actionIndex, { turn: solveTurn, villains }))
       .then((study) => {
         if (study && "options" in study) setLoaded({ status: "ready", study });
         else setLoaded({ status: "missing" });
@@ -170,7 +184,7 @@ function StudyBody({ study }: { study: Study }) {
   const t = useStudyStrings(study.street ?? "river");
   const labels = useLabels(study.options);
   const classes = useMemo(() => actionClasses(study.options), [study.options]);
-  const groups = study.street === "turn" ? (["made", "draws", "nothing"] as const) : (["made", "missed", "nothing"] as const);
+  const groups = (study.street ?? "river") === "river" ? (["made", "missed", "nothing"] as const) : (["made", "draws", "nothing"] as const);
 
   return (
     <div className={own.body}>

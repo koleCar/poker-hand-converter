@@ -142,6 +142,7 @@ import { heroSpots, type Spot } from "./walk";
 import { gradePushFold, type PushFoldGrade } from "./pushFoldGrade";
 import { tournamentKey, type TournamentSettings, type TournamentSettingsMap } from "./tournament";
 import {
+  flopStudyAt,
   gradeFlop,
   libraryEntry,
   libraryModel,
@@ -1134,6 +1135,34 @@ export function turnStudy(
   const found = turn.line(spot);
   if (!("solve" in found)) return found;
   return turnStudyAt(found.solve, found.node);
+}
+
+/**
+ * The study view of one hero flop decision graded from the flop library
+ * (A5b): the hero's whole range at the node, read from the chunk the grade
+ * read - no solving. The same entry `analyzeHand` grades from
+ * (`libraryEntry`: the hand's line, its flop mapped to the chunk's canonical
+ * flop or representative, the charts' ranges, the real pot), the same node
+ * (`gradeFlop`'s line), so the hero's own row equals the stored options.
+ * Display only: nothing here is stored, and the grade does not move.
+ *
+ * Null when the action is not a heads-up hero flop decision, or the library
+ * has no chunk for it (not loaded, another line, multiway, a depth the chunk
+ * was not solved for): the decision kept the heuristic, and the sheet says
+ * it could not rebuild the spot. `options.flopLibrary` must hold the chunk
+ * already (the worker's loader, `prefetch`).
+ */
+export function flopStudy(hand: PhfHand, actionIndex: number, options: AnalyzeOptions = {}): RiverStudy | null {
+  const context = buildContext(hand);
+  const hero = heroSeatOf(context);
+  if (hero === null || handSkip(hand, context, hero) !== null || !options.flopLibrary) return null;
+  const spot = heroSpots(context, hero).find((s) => s.action.index === actionIndex);
+  if (!spot || spot.street !== "flop" || spot.opponents.length !== 1) return null;
+  const heroCards = toSafeIndices(context.players.get(hero)?.holeCards ?? []);
+  if (!heroCards || heroCards.length !== 2) return null;
+  const entry = libraryEntry(hand, context, hero, options.charts ?? null, options.flopLibrary);
+  if (!entry.ok) return null;
+  return flopStudyAt(entry, actionIndex, [heroCards[0], heroCards[1]]);
 }
 
 /**

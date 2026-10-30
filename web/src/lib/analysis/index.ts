@@ -134,7 +134,7 @@ export {
   THIN_BEHIND,
   heuristicFlags,
 } from "./heuristics";
-export { analyzeHand, heroSeatOf, riverStudy, turnStudy, villainsOfFacts, type AnalyzeOptions } from "./analyze";
+export { analyzeHand, flopStudy, heroSeatOf, riverStudy, turnStudy, villainsOfFacts, type AnalyzeOptions } from "./analyze";
 export {
   BLUFF_ZONE,
   CHECK_AIR,
@@ -280,6 +280,7 @@ export {
   flopBucket,
   FlopLibraryLoader,
   flopPlayersOf,
+  flopStudyAt,
   gradeFlop,
   LIBRARY_MODEL,
   libraryEntry,

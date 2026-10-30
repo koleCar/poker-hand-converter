@@ -799,7 +799,8 @@ export interface StudyRow {
 
 /** The study view of a solved node, the river's or the turn's (§6.1). */
 export interface RiverStudy {
-  street: "river" | "turn";
+  /** "flop": read from a flop library chunk (`flopStudyAt`), not re-solved. */
+  street: "river" | "turn" | "flop";
   path: string;
   pot: number;
   toCall: number;
@@ -850,7 +851,7 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
 export function studyAt<K extends string>(
   solve: StudySolve,
   nodeIndex: number,
-  street: "river" | "turn",
+  street: "river" | "turn" | "flop",
   list: readonly { key: K; group: string }[],
   categoryOf: (hole: readonly [number, number], board: readonly number[]) => K,
 ): RiverStudy {

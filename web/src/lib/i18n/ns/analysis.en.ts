@@ -1285,6 +1285,22 @@ export const analysisEn = {
     evNote: "EV in big blinds, net from the start of the turn, with the pot counted as winnable.",
   },
 
+  /**
+   * The flop study (A5b): read from the flop library chunk the grade read,
+   * not re-solved. What differs from `turn` (its categories: made hands,
+   * draws, nothing) and `river` (everything else).
+   */
+  flop: {
+    study: "Study the flop",
+    loading: "Reading the flop library…",
+    failed: (message: string) => `The flop study did not load: ${message}`,
+    note: "The library solve behind the grade, read in your browser: every hand of your range at this decision on this board, and what the solver does with it. Where the library holds a similar flop rather than this one, hands are read by category.",
+    spot: (path: string) => (path ? `Flop after ${path.split("-").join(", ")}` : "Flop, first decision"),
+    solved: (iterations: number, exploitability: number) =>
+      `Solved ahead of time for Rail's flop library in ${num(iterations)} iterations to within ${num(exploitability, 2)}% of the pot, from the preflop charts' ranges; scaled to this hand's pot.`,
+    evNote: "EV in big blinds, net from the start of the flop, with the pot counted as winnable.",
+  },
+
   /** The 13×13 chart viewer and the chart browser at `/analysis/charts`. */
   charts: {
     heading: "Preflop charts",

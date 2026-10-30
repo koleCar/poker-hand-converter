@@ -399,7 +399,7 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
                   key={`${decision.street}-${decision.actionIndex}`}
                   decision={decision}
                   hand={hand}
-                  street={decision.street === "turn" ? "turn" : "river"}
+                  street={decision.street === "turn" ? "turn" : decision.street === "flop" ? "flop" : "river"}
                 />
               ) : null
             ) : (
