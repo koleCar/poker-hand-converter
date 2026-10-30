@@ -44,7 +44,7 @@ interface AnswerResultProps {
   /**
    * A flop answer's range study, read by the trainer's worker from the flop
    * library chunk it graded the answer from (`GradedAnswer.study`); null when
-   * it read none (the study says the spot could not be rebuilt). Absent (a
+   * it read none (the study says the library has none for it). Absent (a
    * drill of a real hand's decision): a flop the library graded asks the
    * analysis worker for it, like the hand view; any other flop shows none.
    */

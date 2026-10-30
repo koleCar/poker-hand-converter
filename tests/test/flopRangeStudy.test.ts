@@ -17,9 +17,12 @@
  *    fetches the chunk once for the grade and the study, in the analysis
  *    worker's path (`prefetch`) and in the trainer's (`prepareFlopLibrary`,
  *    where the answer comes back with its study).
- * 3. **The fallback**: no study (the sheet says the spot could not be
- *    rebuilt) for a multiway flop, a flop the library has no chunk for, no
+ * 3. **The fallback**: no study (the sheet says the library has none for
+ *    the spot) for a multiway flop, a flop the library has no chunk for, no
  *    library, or a decision that is not on the flop.
+ * 4. **The grade does not move**: reading the study leaves the hand's whole
+ *    analysis as it was, and a trainer answer (graded and studied in one
+ *    job) keeps the analysis' own grade of the same hand.
  */
 
 import { existsSync, readFileSync } from "node:fs";
@@ -231,6 +234,37 @@ describe.runIf(sameCharts)("the flop study from the library (pilot)", () => {
     expect(shown).toBeGreaterThan(0);
     // Each chunk fetched once, however many deals and answers read it.
     expect(new Set(chunkFetches()).size).toBe(chunkFetches().length);
+  });
+
+  it("leaves the grade as it was: the study is display only", async () => {
+    const exactHand = btnHand(["Ts", "7h", "4d"], ["Ah", "Th"], betTo);
+    const mappedHand = btnHand(["Ts", "7h", "3d"], ["Ah", "Th"], betTo);
+    for (const hand of [exactHand, mappedHand]) {
+      const before = analyzeHand(structuredClone(hand), { charts: CHARTS, turn: false, flopLibrary: library });
+      const decision = before.decisions.find((d) => d.street === "flop")!;
+      expect(decision.facts.flop?.source).toBe("library");
+      expect(flopStudy(hand, decision.actionIndex, { charts: CHARTS, flopLibrary: library })).not.toBeNull();
+      const after = analyzeHand(structuredClone(hand), { charts: CHARTS, turn: false, flopLibrary: library });
+      expect(after).toEqual(before);
+    }
+
+    // A trainer answer, every option of the menu: the same grade the analysis gives the answered hand.
+    const { loader } = diskLoader();
+    let compared = 0;
+    for (const seed of [11, 222]) {
+      const deal: TrainingRequest = { type: "flop", jobId: 1, options: { pot: "srp", role: "pfr", seat: "ip", facing: "check" }, seed };
+      const dealt = runTrainingJob(deal, CHARTS, await prepareFlopLibrary(deal, CHARTS, loader));
+      if (dealt.type !== "spot" || !dealt.spot || dealt.spot.kind !== "flop") continue;
+      for (let menuIndex = 0; menuIndex < dealt.spot.menu.length; menuIndex += 1) {
+        const answer: TrainingRequest = { type: "answer", jobId: 2, spot: dealt.spot, menuIndex };
+        const graded = runTrainingJob(answer, CHARTS, await prepareFlopLibrary(answer, CHARTS, loader));
+        if (graded.type !== "graded") throw new Error(`seed ${seed}: not graded`);
+        const own = analyzeHand(structuredClone(graded.hand), { charts: CHARTS, only: graded.actionIndex, turn: false, flopLibrary: loader });
+        expect(graded.decision).toEqual(own.decisions.find((d) => d.actionIndex === graded.actionIndex));
+        compared += 1;
+      }
+    }
+    expect(compared).toBeGreaterThan(0);
   });
 
   it("is not added to an answer that is not a library flop", async () => {

@@ -1149,7 +1149,7 @@ export function turnStudy(
  * Null when the action is not a heads-up hero flop decision, or the library
  * has no chunk for it (not loaded, another line, multiway, a depth the chunk
  * was not solved for): the decision kept the heuristic, and the sheet says
- * it could not rebuild the spot. `options.flopLibrary` must hold the chunk
+ * the library has no study for it. `options.flopLibrary` must hold the chunk
  * already (the worker's loader, `prefetch`).
  */
 export function flopStudy(hand: PhfHand, actionIndex: number, options: AnalyzeOptions = {}): RiverStudy | null {

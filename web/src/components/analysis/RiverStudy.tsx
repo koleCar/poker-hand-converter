@@ -18,7 +18,7 @@
  * A flop decision graded from the flop library (A5b) is not re-solved: its
  * study is read from the chunk the grade read (`studyFlop`, or handed in by
  * the trainer, which graded the answer from that chunk), in the real
- * board's combos. A flop with no chunk says the spot could not be rebuilt.
+ * board's combos. A flop with no chunk says the library has no study for it.
  *
  * Accessibility follows `ChartGrid`: one tab stop with arrow keys, every cell
  * a button named in words, a polite live region for the detail, and colour
@@ -30,7 +30,7 @@
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { villainsOfFacts } from "../../lib/analysis/analyze";
-import type { DecisionAnalysis } from "../../lib/analysis/types";
+import type { DecisionAnalysis, FlopFacts } from "../../lib/analysis/types";
 import type { RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
 import { studyFlop, studyRiver, studyTurn } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
@@ -87,8 +87,8 @@ interface RiverStudyProps {
   solveTurn?: boolean;
   /**
    * A study already read (the trainer's flop answers: the worker that graded
-   * the answer read it from the same chunk). Null: there is none, the spot
-   * could not be rebuilt. Absent: ask the analysis worker.
+   * the answer read it from the same chunk). Null: there is none (the library
+   * had no chunk for it), said as such. Absent: ask the analysis worker.
    */
   study?: Study | null;
 }
@@ -156,7 +156,7 @@ export function RiverStudy({ decision, hand, initialOpen = false, street = "rive
       ) : null}
       {open && loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}
       {open && loaded.status === "missing" ? <p className="notice notice--warn">{t.unavailable}</p> : null}
-      {open && loaded.status === "ready" ? <StudyBody study={loaded.study} /> : null}
+      {open && loaded.status === "ready" ? <StudyBody study={loaded.study} flop={decision.facts.flop ?? null} /> : null}
     </div>
   );
 }
@@ -180,8 +180,9 @@ function MixBar({ row, classes, labels }: { row: StudyRow; classes: string[]; la
   );
 }
 
-function StudyBody({ study }: { study: Study }) {
+function StudyBody({ study, flop }: { study: Study; flop: FlopFacts | null }) {
   const t = useStudyStrings(study.street ?? "river");
+  const dict = useDict();
   const labels = useLabels(study.options);
   const classes = useMemo(() => actionClasses(study.options), [study.options]);
   const groups = (study.street ?? "river") === "river" ? (["made", "missed", "nothing"] as const) : (["made", "draws", "nothing"] as const);
@@ -294,6 +295,9 @@ function StudyBody({ study }: { study: Study }) {
         </ul>
       </section>
 
+      {study.street === "flop" && flop ? (
+        <p className={styles.muted}>{dict.analysis.flop.source(dict.course.spot.lineName(flop.line), flop.flop, flop.mapped)}</p>
+      ) : null}
       <p className={styles.muted}>{t.solved(study.iterations, study.exploitabilityPct)}</p>
       <p className={styles.muted}>{t.evNote}</p>
     </div>
