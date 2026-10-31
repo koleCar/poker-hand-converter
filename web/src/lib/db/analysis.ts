@@ -439,16 +439,28 @@ export async function studyTurn(
   return (await studyStreet(phf, actionIndex, "turn", true, options.villains ?? null)) as RiverStudy | TurnFailure | null;
 }
 
+/**
+ * The flop study (A5b) for one hero flop decision graded from the flop
+ * library: read from the chunk the grade read (the worker's loader fetches
+ * it once and keeps it), never solved. Null when the library has no chunk
+ * for the decision (multiway, another line), and on the main-thread
+ * fallback, which grades without the library too.
+ */
+export async function studyFlop(phf: PhfHand, actionIndex: number): Promise<RiverStudy | null> {
+  return (await studyStreet(phf, actionIndex, "flop", false, null)) as RiverStudy | null;
+}
+
 async function studyStreet(
   phf: PhfHand,
   actionIndex: number,
-  street: "river" | "turn",
+  street: "river" | "turn" | "flop",
   turn: boolean,
   villains: VillainStatsMap | null,
 ): Promise<RiverStudy | RiverFailure | TurnFailure | null> {
   if (viewWorker === undefined) viewWorker = newWorker();
   if (!viewWorker) {
     await new Promise((resolve) => setTimeout(resolve, 0));
+    if (street === "flop") return null;
     const charts = await preflopChartsFor([phf]);
     return street === "turn"
       ? turnStudy(structuredClone(phf), actionIndex, { charts, villains })

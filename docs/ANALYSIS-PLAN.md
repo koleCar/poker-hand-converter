@@ -6506,3 +6506,31 @@ Each phase appends what it learned that changed the plan.
       real hand's library-graded flop decision; a flop study read from the
       chunk would replace it there and here.
     - Learn has no heads-up flop lesson (a curriculum call).
+- 2026-10-31 — A flop range study read from the flop library. No
+  migration; no `ANALYSIS_VERSION` change (display only, no grade moves).
+  - **Why.** The open item of the 2026-10-29 entry: a library-graded flop
+    decision showed "could not rebuild" in the analysis sheet, and the
+    Train tab's and Learn's flop answers hid the range study.
+  - **What was done.**
+    - `flopStudyAt` (`lib/analysis/flopLibrary.ts`) reads the hero's whole
+      range at the node `gradeFlop` reaches, from the same entry
+      (`libraryEntry`: exact or suit-permuted chunk combo for combo, a
+      mapped flop by category on the real board); categories are the turn
+      study's. `flopStudy` (`analyze.ts`) wraps it for one hand decision.
+    - The analysis worker answers `street: "flop"` study requests from the
+      chunk its loader already fetched for the grade; the main-thread
+      fallback has no library and says so.
+    - A trainer flop answer comes back with its study (`GradedAnswer.study`,
+      read from the chunk the answer was graded from), shown in the Train
+      tab and in Learn's flop cards.
+    - The study names its source: the library line and the solved flop, and
+      whether it was read by category from a mapped flop. A flop with no
+      chunk (multiway, another line, no library) says the library has no
+      study for it.
+  - **Tested.** `tests/test/flopRangeStudy.test.ts`: exact, suit-permuted
+    and mapped flops on the pilot chunks; the hero's row equals the stored
+    options; null where the grade did not read the library; one chunk fetch
+    for grade and study; trainer answers carry it, and the grade is
+    unchanged.
+  - **Open.** The heads-up 150bb set has no manifest in the bucket yet, so
+    its flops have no study until it is uploaded.

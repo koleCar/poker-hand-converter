@@ -13,13 +13,14 @@
  * - `lab`: an exploit-lab item, a river with an opponent tendency locked (`generateLab`, Learn L4);
  * - `answer`: the spot's hand with the answer appended, graded by the
  *   analysis (`gradeAnswer`; a turn spot with the turn solve on, a flop spot
- *   with the flop library).
+ *   with the flop library). A flop answer the library graded comes back with
+ *   its range study (`flopStudy`), read from the same loaded chunk.
  *
  * Flop jobs read one chunk of the library: the caller loads it first
  * (`trainingChunk` names it) and passes the library in.
  */
 
-import type { DecisionAnalysis, FlopLibrary } from "../analysis";
+import { flopStudy, type DecisionAnalysis, type FlopLibrary, type RiverStudy } from "../analysis";
 import type { ChartSet } from "../charts";
 import type { PhfHand } from "../phf/types";
 import { flopAnswer, flopChunkFor, generateFlopSpot, type FlopSpotOptions, type FlopTrainerSpot } from "./flop";
@@ -49,6 +50,13 @@ export interface GradedAnswer {
   actionIndex: number;
   /** The analysis' verdict on the answer; null when it has none (a bug, shown as such). */
   decision: DecisionAnalysis | null;
+  /**
+   * A flop answer graded from the flop library: the hero's whole range at
+   * the node, read from the chunk the grade read (no fetch, no solve). Null
+   * or absent on every other answer; a river or turn study is re-solved on
+   * request instead.
+   */
+  study?: RiverStudy | null;
 }
 
 export type TrainingResponse =
@@ -160,5 +168,10 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
     turn: request.spot.kind === "turn",
     flopLibrary: request.spot.kind === "flop" ? flopLibrary : null,
   });
-  return { type: "graded", jobId, hand: answer.hand, actionIndex: answer.actionIndex, decision };
+  // The flop's range study from the chunk the grade just read: display only, the grade is `decision`.
+  const study =
+    request.spot.kind === "flop" && flopLibrary && decision?.source === "solver" && decision.facts.flop?.source === "library"
+      ? flopStudy(structuredClone(answer.hand), answer.actionIndex, { charts, flopLibrary })
+      : null;
+  return { type: "graded", jobId, hand: answer.hand, actionIndex: answer.actionIndex, decision, study };
 }

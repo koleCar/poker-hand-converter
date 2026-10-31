@@ -79,11 +79,13 @@ import {
   mapAct,
   optionsAt,
   streetActs,
+  studyAt,
   TRANSLATED_DISTANCE,
+  type RiverStudy,
   type StreetAct,
 } from "./river";
 import { draws, madeHand, toIndices } from "./texture";
-import { TURN_DCFR, TURN_MENU, TURN_RIVER_MENU } from "./turn";
+import { TURN_CATEGORIES, TURN_DCFR, TURN_MENU, TURN_RIVER_MENU, turnCategory } from "./turn";
 import type { Approximation, FlopFacts, OptionAnalysis } from "./types";
 
 /**
@@ -1314,4 +1316,36 @@ export function gradeFlop(entry: FlopEntry, actionIndex: number, heroCards: read
     freqDiff: round4(graded.freqDiff),
     score: round2(graded.score),
   };
+}
+
+/* ------------------------------------------------------------ study - */
+
+/**
+ * The study view of the hero's flop decision with action index
+ * `actionIndex`, read from the entry (no solving): the node `gradeFlop`
+ * reaches (the same `followSolvedLine`), the hero's whole range there as the
+ * chunk plays it. The entry is already in the hand's own combos, suits and
+ * pot (`libraryEntry`: combo for combo when the chunk is the hand's
+ * canonical flop, whatever its suits; by category on a representative), so
+ * the grid shows the real board's combos. Categories are the turn study's
+ * (made hands, draws, nothing), which read a three-card board the same way.
+ * Null where `gradeFlop` would not grade: the decision is not on the flop,
+ * the line leaves the tree, or the hero's combo is not in the entry.
+ */
+export function flopStudyAt(entry: FlopEntry, actionIndex: number, heroCards: readonly [number, number]): RiverStudy | null {
+  const at = entry.acts.findIndex((a) => a.index === actionIndex);
+  if (at < 0) return null;
+  const solve = lineSolve(entry);
+  const found = followSolvedLine(solve, entry.acts.slice(0, at), "flop");
+  if (!found.ok || entry.result.nodes[found.node]?.kind !== "action") return null;
+  const heroCombo = comboIndex(heroCards[0], heroCards[1]);
+  const heroHand = entry.result.hands[solve.hero].indexOf(heroCombo);
+  if (heroHand < 0) return null;
+  return studyAt(
+    { result: entry.result, hero: solve.hero, heroCombo, heroHand, input: { board: entry.board, heroCards } },
+    found.node,
+    "flop",
+    TURN_CATEGORIES,
+    turnCategory,
+  );
 }

@@ -15,7 +15,8 @@
  *   every quarter second or so in between, so the bar moves within a page.
  * - `study`: one hand's river or turn decision, re-solved for the study grid
  *   (`riverStudy` / `turnStudy`). The same solve the stored grade came from,
- *   bit for bit.
+ *   bit for bit. A flop decision graded from the flop library is read from
+ *   its chunk instead (`flopStudy`), fetched once by the loader below.
  * - `hand`: one hand analysed for the hand view when it has no stored row at
  *   the current version — off the main thread, since it may solve a river.
  *
@@ -29,6 +30,7 @@
 import {
   analyzeHand,
   flopLibraryBase,
+  flopStudy,
   FLOP_LIBRARY_ENABLED,
   FlopLibraryLoader,
   riverStudy,
@@ -60,8 +62,8 @@ export interface StudyRequest {
   jobId: number;
   phf: PhfHand;
   actionIndex: number;
-  /** Which street's solve; the river when absent. */
-  street?: "river" | "turn";
+  /** Which street's solve (the flop: its library chunk); the river when absent. */
+  street?: "river" | "turn" | "flop";
   /** A river study: narrow through the solved turn (default) or the heuristic (the river trainer's spots). */
   turn?: boolean;
   /** The opponents' statistics the stored row was analysed with (analysis/20). */
@@ -137,7 +139,9 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
       const library = await libraryFor(set, [request.phf]);
       const villains = request.villains ?? null;
       const study =
-        request.street === "turn"
+        request.street === "flop"
+          ? flopStudy(request.phf, request.actionIndex, { charts: set, flopLibrary: library })
+          : request.street === "turn"
           ? turnStudy(request.phf, request.actionIndex, { charts: set, flopLibrary: library, villains })
           : riverStudy(request.phf, request.actionIndex, { charts: set, turn: request.turn ?? true, flopLibrary: library, villains });
       self.postMessage({ type: "studied", jobId, study } satisfies AnalysisWorkerResponse);

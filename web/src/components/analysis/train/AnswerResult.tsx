@@ -13,6 +13,7 @@
 
 import type { ReactNode } from "react";
 import { bestOption } from "../../../lib/analysis/reference";
+import type { RiverStudy as Study } from "../../../lib/analysis/river";
 import type { DecisionAnalysis, OptionAnalysis } from "../../../lib/analysis/types";
 import type { ChartNode } from "../../../lib/charts";
 import { useDict } from "../../../lib/i18n/client";
@@ -40,6 +41,21 @@ interface AnswerResultProps {
    * rivers on the heuristic narrowing, so its study does too.
    */
   solveTurn?: boolean;
+  /**
+   * A flop answer's range study, read by the trainer's worker from the flop
+   * library chunk it graded the answer from (`GradedAnswer.study`); null when
+   * it read none (the study says the library has none for it). Absent (a
+   * drill of a real hand's decision): a flop the library graded asks the
+   * analysis worker for it, like the hand view; any other flop shows none.
+   */
+  flopStudy?: Study | null;
+}
+
+/** Whether the answer has a range study: a river or turn solve, or a flop graded from the flop library. */
+export function hasRangeStudy(decision: DecisionAnalysis, flopStudy: Study | null | undefined): boolean {
+  if (decision.source !== "solver") return false;
+  if (decision.street !== "flop") return true;
+  return flopStudy !== undefined || decision.facts.flop?.source === "library";
 }
 
 export function useOptionLabel() {
@@ -47,7 +63,7 @@ export function useOptionLabel() {
   return (option: OptionAnalysis) => s.option(option.action, option.sizeBb, option.allIn, option.sizePot);
 }
 
-export function AnswerResult({ decision, hand, chartNode = null, children, solveTurn = true }: AnswerResultProps) {
+export function AnswerResult({ decision, hand, chartNode = null, children, solveTurn = true, flopStudy }: AnswerResultProps) {
   const t = useDict().analysis;
   const r = t.train.result;
   const label = useOptionLabel();
@@ -106,8 +122,8 @@ export function AnswerResult({ decision, hand, chartNode = null, children, solve
           <ChartGrid key={chartNode.line} node={chartNode} highlight={decision.facts.handClass} />
         </div>
       ) : null}
-      {/* The range study re-solves a river or turn; a flop graded from the library has no study to rebuild. */}
-      {decision.source === "solver" && decision.street !== "flop" ? (
+      {/* A river or turn study is re-solved on request; a library flop's was read from its chunk with the grade. */}
+      {hasRangeStudy(decision, flopStudy) ? (
         <div className={own.study}>
           <h4 className={styles.subhead}>{r.rangeHeading}</h4>
           <RiverStudy
@@ -115,8 +131,9 @@ export function AnswerResult({ decision, hand, chartNode = null, children, solve
             decision={decision}
             hand={hand}
             initialOpen
-            street={decision.street === "turn" ? "turn" : "river"}
+            street={decision.street === "turn" ? "turn" : decision.street === "flop" ? "flop" : "river"}
             solveTurn={solveTurn}
+            study={decision.street === "flop" ? flopStudy : undefined}
           />
         </div>
       ) : null}

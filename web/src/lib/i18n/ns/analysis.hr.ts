@@ -1247,6 +1247,23 @@ export const analysisHr: Dict["analysis"] = {
     evNote: "EV u big blindovima, neto od početka turna, s potom koji se može osvojiti.",
   },
 
+  flop: {
+    study: "Prouči flop",
+    loading: "Čitam knjižnicu flopova…",
+    failed: (message: string) => `Proučavanje flopa nije se učitalo: ${message}`,
+    unavailable:
+      "Za ovaj spot nema proučavanja raspona: čita se iz Railove knjižnice flopova, a ona ovdje nema rješenje za njega (druga linija, multiway pot, flop koji još nije pokriven ili knjižnica nije dostupna).",
+    source: (line: string, flop: string, mapped: boolean) =>
+      mapped
+        ? `Linija knjižnice ${line}, pročitano s riješenog flopa ${flop}, najbližeg iste teksture: ruke se na tvojem boardu čitaju po kategoriji.`
+        : `Linija knjižnice ${line}, riješeno na ovom flopu (${flop}), kombinacija po kombinacija.`,
+    note: "Rješenje iz knjižnice iza ocjene, pročitano u tvojem pregledniku: svaka ruka tvojeg raspona u ovoj odluci na ovom boardu i što solver s njom radi. Gdje knjižnica ima sličan flop umjesto ovoga, ruke se čitaju po kategoriji.",
+    spot: (path: string) => (path ? `Flop nakon ${path.split("-").join(", ")}` : "Flop, prva odluka"),
+    solved: (iterations: number, exploitability: number) =>
+      `Riješeno unaprijed za Railovu knjižnicu flopova u ${num(iterations)} iteracija do ${num(exploitability, 2)} % pota od ravnoteže, iz raspona preflop chartova; skalirano na pot ove ruke.`,
+    evNote: "EV u big blindovima, neto od početka flopa, s potom koji se može osvojiti.",
+  },
+
   charts: {
     heading: "Preflop chartovi",
     intro:
