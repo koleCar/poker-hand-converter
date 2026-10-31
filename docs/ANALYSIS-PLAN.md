@@ -6556,14 +6556,24 @@ Each phase appends what it learned that changed the plan.
     (85.4%) - a little behind the heads-up 100bb set's 17.0%, 7.83%,
     82.1%, 69.3% (2026-10-26), the deeper stacks spreading the EVs.
   - **Measured** (5,448 stored hands, the local library: the four live
-    sets against the same plus the heads-up 150bb set):
+    sets against the same plus the heads-up 150bb set; the before side
+    reproduces the 2026-10-26 entry's after side, 247 and 6,623):
     - `floplib:measure`: hero flop decisions graded from the library 247 →
       **267** of 1,266 (mapped 226 → 245, exact 21 → 22); the 20 new ones
       (19 hands) Perfect 12, Good 7, Mistake 1, together 1.8 bb of EV
       loss; no decision graded before changed. They are the 20 the
       2026-10-18 coverage count put on a 150bb heads-up line within
       `SPR_TOLERANCE` (sb-bb 11, sb-limp 7, 3-bet 1, limp-raise 1).
-    - CENSUS_PLACEHOLDER
+    - `floplib:census` (turn solves on, four shards, `CENSUS_BEFORE`
+      decision for decision): heads-up flops with no grade 414 → 394
+      (120-170bb postflop no grade 98 → 78); the 20 above are the only
+      flop moves. Turn: 2 Good → Perfect, 1 Inaccurate → Good, 1
+      Inaccurate → Perfect, 2 Perfect → Good, 1 Perfect → Inaccurate, 12
+      same grade with other approximation flags (their ranges now start
+      from the heads-up 150bb chunk); river: 1 Good → Perfect, 1
+      Inaccurate → Good, 3 Perfect → Good, 6 flags only. No decision
+      gained or lost a reason (`river-unreached` stays 3).
+      All graded 6,623 → **6,643 (83.0%)** of 8,005.
   - **Shipped.** `ANALYSIS_VERSION` → `analysis/37` (stored analyses re-run
     and read the new chunks). The census's default `CENSUS_SETS` now
     includes the heads-up 150bb set; the Learn "waits for the flop
