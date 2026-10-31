@@ -215,6 +215,8 @@ export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptio
 export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptions | RiverSpotOptions | FlopSpotOptions {
   if (mode === "preflop") return { set: state.set, family: state.family, seat: state.seat, vs: state.vs, bias: state.deal };
   if (mode === "river") return { set: riverSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
+  // The hero's seat and the line only when the table has them (a preflop seat carried over may not see a flop).
+  const hero = state.seat && flopSeatsAt(state.set).includes(state.seat) ? state.seat : null;
   const line = state.line && flopLinesAt(state.set).some((l) => l.id === state.line) ? state.line : null;
   return {
     set: flopSetOf(state.set),
@@ -222,8 +224,8 @@ export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptio
     seat: state.side,
     role: state.role,
     facing: state.facing,
-    hero: state.seat && flopSeatsAt(state.set).includes(state.seat) ? state.seat : null,
-    line,
+    ...(hero ? { hero } : {}),
+    ...(line ? { line } : {}),
     bias: state.deal,
   };
 }
