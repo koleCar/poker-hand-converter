@@ -65,7 +65,7 @@ export const trainEn = {
   solving: "Solving the river…",
   loadingFlop: "Loading the flop…",
   noFlopSpot:
-    "No flop matches these settings. Try another pot, position or what you face — or another table: Rail's flop library is still being solved for some.",
+    "No flop matches these settings. Try another pot, position or what you face — or another table.",
   grading: "Grading…",
   failed: (message: string) => `The trainer could not deal a spot: ${message}`,
   noSpot: "No spot matches these settings. Try another seat or spot.",

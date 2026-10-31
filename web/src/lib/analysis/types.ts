@@ -274,8 +274,14 @@ import type { Position, Street } from "../phf/types";
  *               placed on that set are graded from its solves like the
  *               other sets' (ANALYSIS-PLAN §10 2026-10-26, the heads-up
  *               100bb flop library).
+ *   analysis/37 The heads-up 150bb flop library is live: the five heads-up
+ *               lines × 100 flops of `nlhe-cash-hu-150bb` (`FLOP_LINES_HU`)
+ *               in the `flop-library` bucket, so flops of heads-up tables
+ *               placed on that set are graded from its solves like the
+ *               other sets' (ANALYSIS-PLAN §10 2026-10-31, the heads-up
+ *               150bb flop library).
  */
-export const ANALYSIS_VERSION = "analysis/36" as const;
+export const ANALYSIS_VERSION = "analysis/37" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
