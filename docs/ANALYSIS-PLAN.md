@@ -6588,3 +6588,99 @@ Each phase appends what it learned that changed the plan.
       medians.
     - Why one river decision lost its grade at `analysis/36`
       (`river-unreached`), still not looked into.
+- 2026-10-31 — A flop trainer target in the study plan. Migration
+  `20271031090000_study_plan_flop_target.sql` (must be applied to prod
+  after merge); no `ANALYSIS_VERSION` change (no stored grade moves).
+  - **Why.** The open item of the 2026-10-29 entry: the study plan had no
+    flop trainer target (`TRAIN_TARGET` was preflop and river), so a flop
+    focus area got no trainer task at all (`trainerTarget` returned null
+    for the flop), while the Train tab has dealt library flops since
+    2026-10-29 and kept them as `trainer_results` rows of mode `flop`.
+  - **What was done.**
+    - *Target*: `TRAIN_TARGET.flop = 15` a week per area: no solve to wait
+      for (the chunk is read from the library), but a board, a range and up
+      to five options, so between the preflop's 20 one-click spots and the
+      river's 10 solves.
+    - *Mapping* (`trainerTarget` → `flopTarget`): a flop area's scenario
+      (`<role>-<side>-<facing>`) and seat pick the library lines where the
+      hero sat in that seat, role and side (`flopTargetSeatings`: the
+      table's `flopLinesFor` lines as river lines, filtered like
+      `flopSeatings` and by the hero's seat). What the hero faced picks the
+      node: `vs-bet` → `facing=bet`, `vs-raise` → `raise`, first in position
+      → `check`, first out of position → the hero's first decision. A flop
+      leak row carries no table and no line (`analysis_leak_chart_set` is
+      `''` off the charts, the 2026-10-28 open item), so the table is the
+      first library table that has such a line: 6-max 100bb, then 9-max
+      100bb (a seat only it has, `LJ`), then heads-up 100bb (the small blind
+      in position, which no 6-max or full-ring line has); a set the area
+      names (none today) or a heads-up tag would go first. The line is named
+      when exactly one fits (the small blind's limp `sb-limp`, the cutoff
+      calling the button's 3-bet `co-btn-3bet`, the lojack's open `lj-bb`),
+      else every line that fits is dealt. A multiway area and a seat no
+      library line holds (`UTG` as the caller, `UTG+1`) keep no trainer, as
+      before; turn and river mappings are unchanged.
+    - *Counting* (`trainerMatch`): mode `flop`, family the pot type when
+      every line shares one (`trainer_results.family`; the heads-up 4-bet
+      pot files as `3bp`, the trainer's own filing), position the hero's
+      seat, spots the `<line id>:<seat>` pairs the target deals (the river's
+      shape). Chosen to stay consistent with preflop and river: **not by
+      table** (a line id names the same pot on every table, so a 6-max
+      `btn-bb` answer counts towards a full-ring `btn-bb` task;
+      `trainer_results` keeps no set), and not by what the hero faced (a row
+      keeps no node).
+    - *Task reference*: `flop/<set>/<pot>/<side>/<role>/<seat>/<facing>[/<line>]`
+      (`flop/nlhe-cash-6max-100bb/any/oop/caller/BB/bet`), read back by
+      `parseTrainerRef`, and from a stored focus snapshot by `parseFocus`
+      (whitelisted: a line the table does not have is dropped).
+    - *Train tab*: the flop mode filters by the hero's seat (the preflop
+      trainer's `seat`, `?seat=`, offered as the seats that see a flop on
+      the table's lines) and by one library line (`?line=`, "Preflop line",
+      named by `lineName`). A seat or line the table does not have is not a
+      filter (a preflop seat carried over to the flop mode deals as any).
+      `targetQuery` opens the mode with the table, seat, role, side, facing
+      and line set. `lineName` now names the heads-up 4-bet and limp-raised
+      pots (it read `SB–BB–4BET` and `SB–RAISE limped pot`).
+    - *Words* (English and Croatian): the plan's task sentence
+      (`trainFlop`: "flop, as BB, as the preflop caller, out of position,
+      facing a bet"), the seat and line filters, the empty-flop notice.
+    - *Database*: `study_tasks.match_mode` takes `flop`; `save_study_plan`
+      (re-created from `20270317090000_learn_progress.sql`'s, the last one)
+      takes a `flop` filter and a flop reference (six or seven parts of at
+      most 20 characters). Security definer, empty search_path,
+      `auth.uid()`, every task validated before anything is written,
+      `enforce_rate_limit` and grants unchanged; the R6.2 entitlement gate is
+      put back with `entitlement_gates_apply()`. `study_plan` (the reader)
+      counts by `r.mode = t.match_mode` and the family / position / spots
+      filters whatever the mode, so it is not touched. Additive: the new
+      check is a superset of the old. `database.types.ts` regenerated with
+      CLI 2.75.0 against a fresh local stack: unchanged (check constraints
+      and function bodies are not in the types).
+  - **Tested.** `tests/test/studyPlanFlop.test.ts`: the mapping (the big
+    blind defending, what the hero faced, a named line, full ring and
+    heads-up tables, merged areas, multiway and line-less seats → no
+    trainer), every counted pair is one the target deals; the reference
+    round trip and the database's shape, `rpcTask`'s filter, a snapshot
+    round trip and a tampered one; the link's address and deal options,
+    seats and lines a table lacks; line names apart on every table in both
+    languages; and on the committed pilot chunks, a spot dealt from the
+    task's link is the area's line and seat and its row is counted by the
+    task's filter (not from the other seat, not as a river answer).
+    `studyPlan.test.ts` updated (the flop no longer maps to null). pgTAP
+    `study_plan_flop_target.test.sql` (16): the check, grants, RLS, the
+    writer's definer / search_path / gate / execute grants; a plan with two
+    flop tasks written and read back; flop answers counted by line and seat,
+    a river answer on the same line and another account's not; malformed
+    references, modes and spots refused; anon refused. On a fresh local
+    stack with every migration: it, `analysis_study_plan` (54),
+    `learn_progress` (50) and `entitlements` (68) pass.
+  - **Open.**
+    - The table of a flop area is a guess from its seat, role and side: the
+      leak rows keep no chart set for postflop decisions, so a heads-up
+      big-blind leak is dealt on 6-max lines (the same open item as the
+      river's, 2026-10-28: a migration on the leak rows).
+    - A flop area does not know whether its decisions were graded from the
+      library (`facts.flop.source`) or its pot type: a single-raised and a
+      3-bet pot with the same seat, role and side are one area, and both
+      lines are dealt.
+    - Not measured on the owner's corpus (how many flop focus areas now get
+      a trainer task).

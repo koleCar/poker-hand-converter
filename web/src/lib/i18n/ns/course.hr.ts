@@ -427,8 +427,19 @@ export const courseHr = {
     raised: (villain: string, to: number) => `${villain} raisea na ${String(Math.round(to * 100) / 100).replace(".", ",")} bb.`,
     lineName: (id: string) => {
       const parts = id.split("-");
-      const seats = parts.filter((p) => p !== "3bet" && p !== "limp").map((p) => p.toUpperCase());
-      return `${seats.join("–")}${parts.includes("3bet") ? ", 3-bet pot" : parts.includes("limp") ? ", limpani pot" : ""}`;
+      const seats = parts.filter((p) => !["3bet", "4bet", "limp", "raise"].includes(p)).map((p) => p.toUpperCase());
+      // Limpovi u knjižnici su mali blind protiv velikog (`sb-limp`, heads-up `sb-limp-raise`).
+      if (seats.length === 1) seats.push("BB");
+      const pot = parts.includes("3bet")
+        ? ", 3-bet pot"
+        : parts.includes("4bet")
+          ? ", 4-bet pot"
+          : parts.includes("limp")
+            ? parts.includes("raise")
+              ? ", limpani pot s raiseom"
+              : ", limpani pot"
+            : "";
+      return `${seats.join("–")}${pot}`;
     },
     turnNote:
       "Situacija na turnu: Rail rješava turn i grubi river (bet od 75 % pota ili all-in), isto rješenje kojim analiza ocjenjuje turnove. Traje sekundu-dvije.",

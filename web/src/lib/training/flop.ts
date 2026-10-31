@@ -83,7 +83,9 @@ export interface FlopSpotOptions {
   role?: RiverRole | "any";
   facing?: FlopFacing;
   /** One of the set's lines by id (`btn-bb`; heads-up `sb-bb`); any that fits when absent. */
-  line?: string;
+  line?: string | null;
+  /** Only where the hero sits in this seat (`BB`); any seat when absent (the study plan's flop target, §10 2026-10-31). */
+  hero?: ChartPosition | null;
   bias?: DealBias;
 }
 
@@ -131,6 +133,11 @@ const asRiverLine = (line: FlopLine): RiverLine => ({
   line: line.key,
   ...(line.players !== 6 ? { seats: lineSeats(line) } : {}),
 });
+
+/** A chart set table's library lines, as the river trainer's lines (no chart set needed: the study plan reads them). */
+export function flopTableLines(players: number): RiverLine[] {
+  return flopLinesFor(players).map(asRiverLine);
+}
 
 /** The seat a flop filter pins: facing a check is in position by definition. */
 export function flopFilterSeat(options: Pick<FlopSpotOptions, "seat" | "facing">): RiverSeat | "any" {
@@ -183,7 +190,9 @@ export function flopSeatings(charts: ChartSet, options: FlopSpotOptions) {
     if (options.pot && options.pot !== "any" && line.pot !== options.pot) return false;
     return analysisReadsLine(set, line);
   }).map(asRiverLine);
-  return riverSeatings({ pot: options.pot, seat: flopFilterSeat(options), role: options.role }, lines);
+  return riverSeatings({ pot: options.pot, seat: flopFilterSeat(options), role: options.role }, lines).filter(
+    (s) => !options.hero || s.hero === options.hero,
+  );
 }
 
 /** The library's flops for a line of a chart set, in the representatives' order. */

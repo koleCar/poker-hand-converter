@@ -185,7 +185,7 @@ describe("trainer targets", () => {
     expect(trainerTarget(where("*", "*", "*", "*"))).toEqual({ mode: "preflop", family: "random", seat: null, vs: null });
   });
 
-  it("maps a river spot to the role and side, and has no trainer for the flop or turn yet", () => {
+  it("maps a river spot to the role and side, a flop spot to the flop trainer, and has no trainer for the turn", () => {
     const where = (street: string, scenario: string) => ({ street, scenario, family: "first", hero: "BTN", villain: "-" });
     expect(trainerTarget(where("river", "pfr-oop-first"))).toEqual({ mode: "river", pot: "any", side: "oop", role: "pfr" });
     expect(trainerTarget(where("river", "limped-ip-vs-bet"))).toEqual({ mode: "river", pot: "limped", side: "ip", role: "any" });
@@ -199,7 +199,17 @@ describe("trainer targets", () => {
       role: "any",
     });
     expect(trainerTarget(where("turn", "pfr-oop-first"))).toBeNull();
-    expect(trainerTarget(where("flop", "caller-ip-vs-bet"))).toBeNull();
+    // §10 2026-10-31: the button calling a 3-bet in position, facing a bet: the flop library's two such lines.
+    expect(trainerTarget(where("flop", "caller-ip-vs-bet"))).toEqual({
+      mode: "flop",
+      set: "nlhe-cash-6max-100bb",
+      pot: "any",
+      side: "ip",
+      role: "caller",
+      seat: "BTN",
+      facing: "bet",
+      line: null,
+    });
   });
 
   it("counts river answers by the (line, seat) pairs a role and side allow", () => {
@@ -219,7 +229,8 @@ describe("trainer targets", () => {
   });
 
   it("writes references the database accepts", () => {
-    const shape = /^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$/;
+    // `save_study_plan`'s check (`20271031090000_study_plan_flop_target.sql`).
+    const shape = /^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,20}){6,7}$/;
     expect(trainerRef({ mode: "preflop", family: "vs-open", seat: "BTN", vs: "CO" })).toBe("preflop/vs-open/BTN/vs-CO");
     expect(trainerRef({ mode: "preflop", family: "rfi", seat: null, vs: null })).toBe("preflop/rfi/any");
     expect(trainerRef({ mode: "river", pot: "any", side: "oop", role: "pfr" })).toBe("river/any/oop/pfr");

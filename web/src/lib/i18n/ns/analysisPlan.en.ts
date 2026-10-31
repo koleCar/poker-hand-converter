@@ -30,6 +30,7 @@ const dayRange = (from: string, toExclusive: string, utc = false) => {
 const roles = { pfr: "as the preflop raiser", caller: "as the preflop caller" } as Record<string, string>;
 const sides = { ip: "in position", oop: "out of position" } as Record<string, string>;
 const pots = { srp: "single-raised pots", "3bp": "3-bet pots", limped: "limped pots" } as Record<string, string>;
+const flopFacings = { check: "after a check", bet: "facing a bet", raise: "facing a raise" } as Record<string, string>;
 
 export const planEn = {
   heading: "Study plan",
@@ -85,6 +86,26 @@ export const planEn = {
     trainRiver: (role: string | null, side: string | null, pot: string | null) => {
       const parts = [role ? roles[role] : null, side ? sides[side] : null, pot ? `in ${pots[pot]}` : null].filter(Boolean);
       return parts.length > 0 ? `river, ${parts.join(", ")}` : "any river";
+    },
+    trainFlop: (
+      role: string | null,
+      side: string | null,
+      pot: string | null,
+      seat: string | null,
+      facing: string | null,
+      line: string | null,
+      headsUp = false,
+    ) => {
+      const parts = [
+        seat ? `as ${seat}` : null,
+        role ? roles[role] : null,
+        side ? sides[side] : null,
+        pot ? `in ${pots[pot]}` : null,
+        facing ? flopFacings[facing] : null,
+        line ? `on ${line}` : null,
+        headsUp ? "heads-up" : null,
+      ].filter(Boolean);
+      return parts.length > 0 ? `flop, ${parts.join(", ")}` : "any flop";
     },
     drill: (target: number) => `Clear ${count(target, "due drill", "due drills")} from this spot`,
     drillAll: (target: number) => `Clear ${count(target, "due drill", "due drills")}`,

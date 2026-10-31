@@ -59,13 +59,16 @@ export const trainEn = {
     roles: { any: "Either", pfr: "You raised last", caller: "You called" } as Record<string, string>,
     facing: "You face",
     facings: { any: "Anything", check: "A check", bet: "A bet", raise: "A raise" } as Record<string, string>,
+    flopSeat: "Your seat",
+    line: "Preflop line",
+    anyLine: "Any line",
   },
 
   dealing: "Dealing…",
   solving: "Solving the river…",
   loadingFlop: "Loading the flop…",
   noFlopSpot:
-    "No flop matches these settings. Try another pot, position or what you face — or another table.",
+    "No flop matches these settings. Try another seat, line, pot, position or what you face — or another table.",
   grading: "Grading…",
   failed: (message: string) => `The trainer could not deal a spot: ${message}`,
   noSpot: "No spot matches these settings. Try another seat or spot.",

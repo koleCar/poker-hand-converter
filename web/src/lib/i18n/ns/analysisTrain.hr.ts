@@ -61,13 +61,16 @@ export const trainHr = {
     roles: { any: "Svejedno", pfr: "Raiseao si zadnji", caller: "Callao si" } as Record<string, string>,
     facing: "Pred tobom je",
     facings: { any: "Bilo što", check: "Check", bet: "Bet", raise: "Raise" } as Record<string, string>,
+    flopSeat: "Tvoje mjesto za stolom",
+    line: "Preflop linija",
+    anyLine: "Bilo koja linija",
   },
 
   dealing: "Dijelim…",
   solving: "Rješavam river…",
   loadingFlop: "Učitavam flop…",
   noFlopSpot:
-    "Nijedan flop ne odgovara ovim postavkama. Probaj drugi pot, poziciju ili ono što je pred tobom — ili drugi stol.",
+    "Nijedan flop ne odgovara ovim postavkama. Probaj drugo mjesto, liniju, pot, poziciju ili ono što je pred tobom — ili drugi stol.",
   grading: "Ocjenjujem…",
   failed: (message: string) => `Trener nije uspio podijeliti situaciju: ${message}`,
   noSpot: "Nijedna situacija ne odgovara ovim postavkama. Probaj drugu poziciju ili situaciju.",

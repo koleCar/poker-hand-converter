@@ -10,10 +10,12 @@
  *
  * The flop trainer (§10, 2026-10-28) deals from Rail's flop library on the
  * sets it is solved for ({@link FLOP_TRAINER_SETS}), filtered like the river
- * by pot, side and preflop role, and by what the hero faces (`facing`).
+ * by pot, side and preflop role, and by what the hero faces (`facing`); since
+ * the study plan's flop target (§10, 2026-10-31) also by the hero's seat
+ * (`seat`, the preflop trainer's setting) and one library line (`line`).
  */
 
-import { FLOP_LIBRARY_SETS } from "../../../lib/analysis/flopLibrary";
+import { FLOP_LIBRARY_SETS, flopLinesFor, flopPlayersOf, lineSeats } from "../../../lib/analysis/flopLibrary";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../../lib/charts";
 import {
   ALL_PREFLOP_SEATS,
@@ -71,6 +73,19 @@ export function flopSetOf(set: string): string {
   return FLOP_TRAINER_SETS.some((spec) => spec.id === set) ? set : DEFAULT_CHART_SET;
 }
 
+/** The library lines the flop trainer offers at a table (`flopLinesFor` of the set it deals from). */
+export function flopLinesAt(set: string) {
+  const players = CHART_SETS.find((spec) => spec.id === flopSetOf(set))?.players ?? 6;
+  return flopLinesFor(players);
+}
+
+/** The seats that see a flop on one of the table's library lines, in preflop order (the flop trainer's seat filter). */
+export function flopSeatsAt(set: string): ChartPosition[] {
+  const lines = flopLinesAt(set);
+  const live = new Set(lines.flatMap((line) => flopPlayersOf(line.key, lineSeats(line))));
+  return lines.length > 0 ? lineSeats(lines[0]).filter((seat) => live.has(seat)) : [];
+}
+
 export const TRAIN_MODES = ["preflop", "flop", "river", "drills"] as const;
 export type TrainMode = (typeof TRAIN_MODES)[number];
 
@@ -89,6 +104,8 @@ export interface TrainState {
   role: RiverRole | "any";
   /** Flop: only facing a check, a bet or a raise. */
   facing: FlopFacing;
+  /** Flop: only this library line of the table (`btn-bb`); null for any. */
+  line: string | null;
   /** Drills: only these finest spot keys (a leak). */
   spots: string[] | null;
   /** Drills: every drill, not only the due ones. */
@@ -108,6 +125,7 @@ export const DEFAULT_TRAIN_STATE: TrainState = {
   side: "any",
   role: "any",
   facing: "any",
+  line: null,
   spots: null,
   all: false,
   inaccurate: false,
@@ -123,6 +141,10 @@ const oneOf = <T extends string>(value: string | undefined, allowed: readonly T[
   value !== undefined && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
 const seatParam = (value: string | undefined) =>
   value && (ALL_PREFLOP_SEATS as readonly string[]).includes(value) ? (value as ChartPosition) : null;
+
+/** A line the flop trainer offers at the address's table, else none. */
+const lineParam = (value: string | undefined, set: string | undefined) =>
+  value && flopLinesAt(set ?? DEFAULT_CHART_SET).some((line) => line.id === value) ? value : null;
 
 export function parseTrainState(query: Record<string, string | string[] | undefined>): TrainState {
   const spotsRaw = first(query.spots);
@@ -144,6 +166,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     side: oneOf(first(query.side), [...RIVER_SEATS, "any"] as const, DEFAULT_TRAIN_STATE.side),
     role: oneOf(first(query.role), [...RIVER_ROLES, "any"] as const, DEFAULT_TRAIN_STATE.role),
     facing: oneOf(first(query.facing), [...FLOP_FACINGS, "any"] as const, DEFAULT_TRAIN_STATE.facing),
+    line: lineParam(first(query.line), first(query.set)),
     spots: spots.length > 0 ? spots : null,
     all: first(query.all) === "1",
     inaccurate: first(query.inaccurate) === "1",
@@ -167,7 +190,11 @@ export function trainQuery(state: TrainState): string {
     if (state.side !== DEFAULT_TRAIN_STATE.side) params.set("side", state.side);
     if (state.role !== DEFAULT_TRAIN_STATE.role) params.set("role", state.role);
   }
-  if (state.mode === "flop" && state.facing !== DEFAULT_TRAIN_STATE.facing) params.set("facing", state.facing);
+  if (state.mode === "flop") {
+    if (state.seat && flopSeatsAt(state.set).includes(state.seat)) params.set("seat", state.seat);
+    if (state.facing !== DEFAULT_TRAIN_STATE.facing) params.set("facing", state.facing);
+    if (state.line && flopLinesAt(state.set).some((line) => line.id === state.line)) params.set("line", state.line);
+  }
   if (state.mode !== "drills" && state.deal !== DEFAULT_TRAIN_STATE.deal) params.set("deal", state.deal);
   if (state.mode === "drills") {
     if (state.spots) params.set("spots", state.spots.join(","));
@@ -188,7 +215,19 @@ export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptio
 export function spotOptions(mode: SpotMode, state: TrainState): PreflopSpotOptions | RiverSpotOptions | FlopSpotOptions {
   if (mode === "preflop") return { set: state.set, family: state.family, seat: state.seat, vs: state.vs, bias: state.deal };
   if (mode === "river") return { set: riverSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
-  return { set: flopSetOf(state.set), pot: state.pot, seat: state.side, role: state.role, facing: state.facing, bias: state.deal };
+  // The hero's seat and the line only when the table has them (a preflop seat carried over may not see a flop).
+  const hero = state.seat && flopSeatsAt(state.set).includes(state.seat) ? state.seat : null;
+  const line = state.line && flopLinesAt(state.set).some((l) => l.id === state.line) ? state.line : null;
+  return {
+    set: flopSetOf(state.set),
+    pot: state.pot,
+    seat: state.side,
+    role: state.role,
+    facing: state.facing,
+    ...(hero ? { hero } : {}),
+    ...(line ? { line } : {}),
+    bias: state.deal,
+  };
 }
 
 /**
@@ -227,6 +266,20 @@ export function targetQuery(target: TrainerTarget): string {
   if (target.mode === "preflop") {
     const set = target.set && TRAINER_SETS.some((spec) => spec.id === target.set) ? target.set : DEFAULT_TRAIN_STATE.set;
     return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "preflop", set, family: target.family, seat: target.seat, vs: target.vs });
+  }
+  if (target.mode === "flop") {
+    // The table, seat, role, side and what the hero faces; the line when the area fits one.
+    return trainQuery({
+      ...DEFAULT_TRAIN_STATE,
+      mode: "flop",
+      set: flopSetOf(target.set),
+      pot: target.pot,
+      side: target.side,
+      role: target.role,
+      seat: target.seat,
+      facing: target.facing,
+      line: target.line,
+    });
   }
   return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "river", pot: target.pot, side: target.side, role: target.role });
 }
