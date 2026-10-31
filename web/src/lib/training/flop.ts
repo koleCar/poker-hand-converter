@@ -73,9 +73,9 @@ export const FLOP_FACINGS = ["check", "bet", "raise"] as const;
 export interface FlopSpotOptions {
   /**
    * Chart set id: the default (6-max 100bb) set when absent, or another set
-   * the library holds - the heads-up 100bb set (`FLOP_LINES_HU`). A set
-   * whose manifest is not in the bucket (heads-up 150bb, still being
-   * solved) holds no flop, so it deals nothing.
+   * the library holds - the heads-up 100bb and 150bb sets (`FLOP_LINES_HU`).
+   * A set whose manifest is not in the bucket holds no flop, so it deals
+   * nothing.
    */
   set?: string | null;
   pot?: RiverPot | "any";

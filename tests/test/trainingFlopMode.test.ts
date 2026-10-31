@@ -9,8 +9,7 @@
  *   default) and its filters survive a round trip; a table the library is
  *   not solved for deals the default set.
  * - **The job**: the mode's options name the set whose manifest is read and
- *   whose charts are loaded; a set with no manifest (heads-up 150bb) deals
- *   nothing.
+ *   whose charts are loaded; a set with no manifest deals nothing.
  * - **A spot and its row**: on the committed pilot chunks, a spot dealt from
  *   the mode's options is graded by the solver, and its row passes the
  *   table's checks.
@@ -88,7 +87,7 @@ describe("the flop mode's job", () => {
   it("reads the table's manifest, and deals nothing on a set the bucket has none for", async () => {
     for (const set of [HU100, HU150, "nlhe-cash-9max-100bb", "nlhe-cash-6max-150bb"]) {
       const asked: string[] = [];
-      // An empty bucket: every manifest is missing, as heads-up 150bb's is.
+      // An empty bucket: every manifest is missing.
       const loader = {
         tree: FLOP_PROFILE.tree,
         has: () => false,

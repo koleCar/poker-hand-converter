@@ -61,8 +61,8 @@ export function riverSetOf(set: string): string {
 /**
  * The sets the flop trainer deals from: the ones the flop library is solved
  * for (`FLOP_LIBRARY_SETS`), in its order. A set whose manifest is not in the
- * bucket yet (heads-up 150bb) is offered and deals nothing: the manifest is
- * the gate, so it deals the day its chunks are uploaded.
+ * bucket is offered and deals nothing: the manifest is the gate, so a set
+ * deals the day its chunks are uploaded (heads-up 150bb, `analysis/37`).
  */
 export const FLOP_TRAINER_SETS = FLOP_LIBRARY_SETS.map((id) => CHART_SETS.find((spec) => spec.id === id)!);
 

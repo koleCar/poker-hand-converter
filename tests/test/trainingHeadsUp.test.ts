@@ -13,8 +13,8 @@
  * - **River and turn**: the heads-up lines (`RIVER_LINES_HU`), dealt as
  *   two-handed hands and graded exactly as the analysis grades them.
  * - **Flop**: the heads-up 100bb library lines, on a chunk solved here with
- *   a small tree (as `flopLibraryHeadsUp.test.ts`); a set with no chunk (the
- *   heads-up 150bb set, still being solved) deals nothing.
+ *   a small tree (as `flopLibraryHeadsUp.test.ts`); a set with no chunk in
+ *   the test's library (here the heads-up 150bb set) deals nothing.
  */
 
 import { readFileSync } from "node:fs";
@@ -327,7 +327,7 @@ describe("heads-up flop spots", () => {
       expect(graded?.options.length).toBe(spot.menu.length);
     }
     expect(dealt).toBeGreaterThan(4);
-    // The 6-max default deals none of these chunks, and a set with no chunk (heads-up 150bb) deals nothing.
+    // The 6-max default deals none of these chunks, and a set with no chunk here (heads-up 150bb) deals nothing.
     expect(generateFlopSpot(library, flops, {}, 1)).toBeNull();
     expect(generateFlopSpot(library, flops, { set: HU150 }, 1)).toBeNull();
   });

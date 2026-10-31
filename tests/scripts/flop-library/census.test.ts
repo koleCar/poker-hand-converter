@@ -33,8 +33,8 @@
  * with `CENSUS_BEFORE=<row files of an earlier census of the same hands>`
  * it also prints how each decision's outcome and grade moved (a version
  * change measured decision for decision).
- * `CENSUS_SETS` (default the four shipped sets, `nlhe-cash-6max-100bb`,
- * `nlhe-cash-9max-100bb`, `nlhe-cash-6max-150bb` and `nlhe-cash-hu-100bb`) limits which flop-library sets the loader may read
+ * `CENSUS_SETS` (default the five shipped sets, `nlhe-cash-6max-100bb`,
+ * `nlhe-cash-9max-100bb`, `nlhe-cash-6max-150bb`, `nlhe-cash-hu-100bb` and `nlhe-cash-hu-150bb`) limits which flop-library sets the loader may read
  * from `FLOPLIB_DIR`, so a set still being solved there is never read.
  */
 
@@ -55,7 +55,7 @@ const OUT = process.env.CENSUS_OUT ?? "";
 const REPORT = (process.env.CENSUS_REPORT ?? "").split(",").filter(Boolean);
 const TURN = process.env.CENSUS_TURN !== "0";
 const [SHARD, SHARDS] = (process.env.CENSUS_SHARD ?? "0/1").split("/").map(Number);
-const SETS = new Set((process.env.CENSUS_SETS ?? "nlhe-cash-6max-100bb,nlhe-cash-9max-100bb,nlhe-cash-6max-150bb,nlhe-cash-hu-100bb").split(",").filter(Boolean));
+const SETS = new Set((process.env.CENSUS_SETS ?? "nlhe-cash-6max-100bb,nlhe-cash-9max-100bb,nlhe-cash-6max-150bb,nlhe-cash-hu-100bb,nlhe-cash-hu-150bb").split(",").filter(Boolean));
 
 /** One hero decision, as the census counts it. No cards, no names. */
 export interface CensusRow {
