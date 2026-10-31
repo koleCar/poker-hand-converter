@@ -70,7 +70,7 @@ export const trainHr = {
   solving: "Rješavam river…",
   loadingFlop: "Učitavam flop…",
   noFlopSpot:
-    "Nijedan flop ne odgovara ovim postavkama. Probaj drugi pot, poziciju ili ono što je pred tobom — ili drugi stol.",
+    "Nijedan flop ne odgovara ovim postavkama. Probaj drugo mjesto, liniju, pot, poziciju ili ono što je pred tobom — ili drugi stol.",
   grading: "Ocjenjujem…",
   failed: (message: string) => `Trener nije uspio podijeliti situaciju: ${message}`,
   noSpot: "Nijedna situacija ne odgovara ovim postavkama. Probaj drugu poziciju ili situaciju.",

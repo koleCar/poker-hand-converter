@@ -50,6 +50,10 @@ import {
   trainerResultOf,
   trainQuery,
 } from "../../web/src/components/analysis/train/trainState.js";
+import { planEn } from "../../web/src/lib/i18n/ns/analysisPlan.en.js";
+import { planHr } from "../../web/src/lib/i18n/ns/analysisPlan.hr.js";
+import { courseEn } from "../../web/src/lib/i18n/ns/course.en.js";
+import { courseHr } from "../../web/src/lib/i18n/ns/course.hr.js";
 import { fullLibrary } from "./charts/support.js";
 
 const SIX = DEFAULT_CHART_SET;
@@ -281,6 +285,33 @@ describe("a flop task's link", () => {
     // A line of another table is not read from an address.
     expect(parseTrainState({ mode: "flop", set: SIX, line: "sb-limp-raise" }).line).toBeNull();
     expect(parseTrainState({ mode: "flop", set: HU100, line: "sb-limp-raise" }).line).toBe("sb-limp-raise");
+  });
+});
+
+/* ----------------------------------------------------------- the words - */
+
+describe("a flop task's words", () => {
+  it("name every line of a table apart, in English and Croatian (the trainer's line filter)", () => {
+    for (const set of [SIX, NINE, HU100]) {
+      for (const lineName of [courseEn.spot.lineName, courseHr.spot.lineName]) {
+        const names = flopLinesAt(set).map((line) => lineName(line.id));
+        expect(new Set(names).size).toBe(names.length);
+        for (const name of names) expect(name).not.toMatch(/RAISE|4BET|LIMP/);
+      }
+    }
+    expect(courseEn.spot.lineName("btn-bb-3bet")).toBe("BTN–BB 3-bet pot");
+    expect(courseEn.spot.lineName("sb-bb-4bet")).toBe("SB–BB 4-bet pot");
+    expect(courseEn.spot.lineName("sb-limp-raise")).toBe("SB–BB limp-raised pot");
+  });
+
+  it("say what the task trains", () => {
+    expect(planEn.tasks.trainFlop("caller", "oop", null, "BB", "bet", null)).toBe(
+      "flop, as BB, as the preflop caller, out of position, facing a bet",
+    );
+    expect(planEn.tasks.trainFlop(null, null, null, null, null, null)).toBe("any flop");
+    expect(planHr.tasks.trainFlop("pfr", "ip", null, "SB", "check", null, true)).toBe(
+      "flop, s pozicije SB, kao preflop raiser, u poziciji, nakon checka, heads-up",
+    );
   });
 });
 
