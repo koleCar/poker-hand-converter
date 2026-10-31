@@ -427,8 +427,19 @@ export const courseEn = {
     raised: (villain: string, to: number) => `${villain} raises to ${Math.round(to * 100) / 100} bb.`,
     lineName: (id: string) => {
       const parts = id.split("-");
-      const seats = parts.filter((p) => p !== "3bet" && p !== "limp").map((p) => p.toUpperCase());
-      return `${seats.join("–")}${parts.includes("3bet") ? " 3-bet pot" : parts.includes("limp") ? " limped pot" : ""}`;
+      const seats = parts.filter((p) => !["3bet", "4bet", "limp", "raise"].includes(p)).map((p) => p.toUpperCase());
+      // The library's limps are the small blind's, against the big blind (`sb-limp`, heads-up `sb-limp-raise`).
+      if (seats.length === 1) seats.push("BB");
+      const pot = parts.includes("3bet")
+        ? " 3-bet pot"
+        : parts.includes("4bet")
+          ? " 4-bet pot"
+          : parts.includes("limp")
+            ? parts.includes("raise")
+              ? " limp-raised pot"
+              : " limped pot"
+            : "";
+      return `${seats.join("–")}${pot}`;
     },
     turnNote: "A turn spot: Rail solves the turn and a coarse river (bet 75% of the pot or all-in), the same solve that grades the analysis' turns. It takes a second or two.",
     ownCards: "Your hand",

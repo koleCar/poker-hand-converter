@@ -38,12 +38,22 @@ export function usePlanWords() {
     (target: TrainerTarget) =>
       target.mode === "preflop"
         ? t.tasks.trainPreflop(settings.families[target.family] ?? target.family, target.seat, target.vs, !!target.set && /-hu-/.test(target.set))
-        : t.tasks.trainRiver(
-            target.role === "any" ? null : target.role,
-            target.side === "any" ? null : target.side,
-            target.pot === "any" ? null : target.pot,
-          ),
-    [t, settings],
+        : target.mode === "flop"
+          ? t.tasks.trainFlop(
+              target.role === "any" ? null : target.role,
+              target.side === "any" ? null : target.side,
+              target.pot === "any" ? null : target.pot,
+              target.seat,
+              target.facing === "any" ? null : target.facing,
+              target.line ? en.course.spot.lineName(target.line) : null,
+              /-hu-/.test(target.set),
+            )
+          : t.tasks.trainRiver(
+              target.role === "any" ? null : target.role,
+              target.side === "any" ? null : target.side,
+              target.pot === "any" ? null : target.pot,
+            ),
+    [t, settings, en],
   );
 
   const date = useCallback(

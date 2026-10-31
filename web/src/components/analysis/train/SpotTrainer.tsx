@@ -44,6 +44,8 @@ import { useTrainerKeys } from "./trainerKeys";
 import { lastAction } from "./spotPosition";
 import {
   FLOP_TRAINER_SETS,
+  flopLinesAt,
+  flopSeatsAt,
   flopSetOf,
   RIVER_TRAINER_SETS,
   riverSetOf,
@@ -353,13 +355,17 @@ function Settings({
   state: TrainState;
   onChange: (patch: Partial<TrainState>) => void;
 }) {
-  const t = useDict().analysis.train.settings;
+  const dict = useDict();
+  const t = dict.analysis.train.settings;
   // The chosen set's seats and families (A2c: 6-max, 9-max or heads-up); the river trainer deals 6-max 100bb or
   // heads-up, the flop trainer the sets the flop library is solved for.
   const spec = CHART_SETS.find((s) => s.id === state.set) ?? CHART_SETS.find((s) => s.id === DEFAULT_CHART_SET);
   const seats = trainerSeats(spec?.players ?? 6);
   const families = trainerFamilies(spec?.players ?? 6);
   const sets = mode === "preflop" ? TRAINER_SETS : mode === "flop" ? FLOP_TRAINER_SETS : RIVER_TRAINER_SETS;
+  // The flop trainer's lines at the table, and the seats that see a flop on one of them.
+  const flopLines = mode === "flop" ? flopLinesAt(state.set) : [];
+  const seatsAtFlop = mode === "flop" ? flopSeatsAt(state.set) : [];
   return (
     <div className={own.settings} role="group" aria-label={t.label}>
       <label className="field">
@@ -372,7 +378,9 @@ function Settings({
             // A seat or a family the new table lacks is dropped.
             const keep = (seat: TrainState["seat"]) => (seat && trainerSeats(players).includes(seat) ? seat : null);
             const family = state.family === "random" || trainerFamilies(players).includes(state.family) ? state.family : "random";
-            onChange({ set, family, seat: keep(state.seat), vs: keep(state.vs) });
+            // A flop line the new table does not solve is dropped too.
+            const line = state.line && flopLinesAt(set).some((l) => l.id === state.line) ? state.line : null;
+            onChange({ set, family, seat: keep(state.seat), vs: keep(state.vs), line });
           }}
         >
           {sets.map((s) => (
@@ -464,6 +472,35 @@ function Settings({
               ))}
             </select>
           </label>
+          {mode === "flop" ? (
+            <>
+              <label className="field">
+                <span className="field__label">{t.flopSeat}</span>
+                <select
+                  value={state.seat && seatsAtFlop.includes(state.seat) ? state.seat : ""}
+                  onChange={(event) => onChange({ seat: (event.target.value || null) as TrainState["seat"] })}
+                >
+                  <option value="">{t.anySeat}</option>
+                  {seatsAtFlop.map((seat) => (
+                    <option key={seat} value={seat}>
+                      {seat}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span className="field__label">{t.line}</span>
+                <select value={state.line ?? ""} onChange={(event) => onChange({ line: event.target.value || null })}>
+                  <option value="">{t.anyLine}</option>
+                  {flopLines.map((line) => (
+                    <option key={line.id} value={line.id}>
+                      {dict.course.spot.lineName(line.id)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : null}
           {mode === "flop" ? (
             <label className="field">
               <span className="field__label">{t.facing}</span>

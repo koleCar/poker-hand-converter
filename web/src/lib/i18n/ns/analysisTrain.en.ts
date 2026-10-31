@@ -59,6 +59,9 @@ export const trainEn = {
     roles: { any: "Either", pfr: "You raised last", caller: "You called" } as Record<string, string>,
     facing: "You face",
     facings: { any: "Anything", check: "A check", bet: "A bet", raise: "A raise" } as Record<string, string>,
+    flopSeat: "Your seat",
+    line: "Preflop line",
+    anyLine: "Any line",
   },
 
   dealing: "Dealing…",

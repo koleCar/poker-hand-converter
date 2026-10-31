@@ -61,6 +61,9 @@ export const trainHr = {
     roles: { any: "Svejedno", pfr: "Raiseao si zadnji", caller: "Callao si" } as Record<string, string>,
     facing: "Pred tobom je",
     facings: { any: "Bilo što", check: "Check", bet: "Bet", raise: "Raise" } as Record<string, string>,
+    flopSeat: "Tvoje mjesto za stolom",
+    line: "Preflop linija",
+    anyLine: "Bilo koja linija",
   },
 
   dealing: "Dijelim…",

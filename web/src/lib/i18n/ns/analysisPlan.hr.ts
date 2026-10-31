@@ -28,6 +28,7 @@ const dayRange = (from: string, toExclusive: string, utc = false) => {
 const roles = { pfr: "kao preflop raiser", caller: "kao onaj koji je callao preflop" } as Record<string, string>;
 const sides = { ip: "u poziciji", oop: "bez pozicije" } as Record<string, string>;
 const pots = { srp: "u potovima s jednim raiseom", "3bp": "u 3-bet potovima", limped: "u limpanim potovima" } as Record<string, string>;
+const flopFacings = { check: "nakon checka", bet: "protiv beta", raise: "protiv raisea" } as Record<string, string>;
 
 export const planHr = {
   heading: "Plan učenja",
@@ -85,6 +86,26 @@ export const planHr = {
     trainRiver: (role: string | null, side: string | null, pot: string | null) => {
       const parts = [role ? roles[role] : null, side ? sides[side] : null, pot ? pots[pot] : null].filter(Boolean);
       return parts.length > 0 ? `river, ${parts.join(", ")}` : "bilo koji river";
+    },
+    trainFlop: (
+      role: string | null,
+      side: string | null,
+      pot: string | null,
+      seat: string | null,
+      facing: string | null,
+      line: string | null,
+      headsUp = false,
+    ) => {
+      const parts = [
+        seat ? `s pozicije ${seat}` : null,
+        role ? roles[role] : null,
+        side ? sides[side] : null,
+        pot ? pots[pot] : null,
+        facing ? flopFacings[facing] : null,
+        line ? `na liniji ${line}` : null,
+        headsUp ? "heads-up" : null,
+      ].filter(Boolean);
+      return parts.length > 0 ? `flop, ${parts.join(", ")}` : "bilo koji flop";
     },
     drill: (target: number) =>
       `Riješi ${num(target)} ${plural(target, "vježbu", "vježbe", "vježbi")} na redu iz ove situacije`,

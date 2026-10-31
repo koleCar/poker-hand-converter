@@ -10,7 +10,8 @@
  *   ─▶ pickFocus: the top three by EV lost, confident ones first; a thin one only
  *      with two mistakes or more, and labelled tentative
  *   ─▶ per area: concepts (leakConcepts), a trainer target (family / seat / opener,
- *      or river role / side), drills due on its spot keys, hands to review
+ *      a flop library line's seat / role / side, or river role / side), drills due
+ *      on its spot keys, hands to review
  *   ─▶ planTasks: the week's checklist
  * too little graded play ─▶ fundamentalsTasks: the basics instead
  * ```
@@ -57,7 +58,9 @@ import {
   type SpotRow,
   type Trend,
 } from "../analysis/leaks";
-import type { ChartPosition } from "../charts";
+import { FLOP_LIBRARY_SETS } from "../analysis/flopLibrary";
+import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../charts";
+import { FLOP_FACINGS, flopFilterSeat, flopTableLines, type FlopFacing } from "./flop";
 import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES, type PreflopFamily } from "./preflop";
 import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS, riverSeatings, type RiverPot, type RiverRole, type RiverSeat } from "./river";
 
@@ -69,8 +72,14 @@ export const PLAN_FOCUS = 3;
 export const TENTATIVE_MIN_MISTAKES = 2;
 /** Fewer graded moves than this and the plan is the fundamentals. */
 export const MIN_PLAN_MOVES = 50;
-/** Trainer spots a week, per area: a river spot takes longer to deal and to think about. */
-export const TRAIN_TARGET: Readonly<Record<"preflop" | "river", number>> = { preflop: 20, river: 10 };
+/**
+ * Trainer spots a week, per area: a river spot takes longer to deal and to
+ * think about. A flop spot sits between: no solve to wait for (the chunk is
+ * read from the library, a second at most), but a board, a range and up to
+ * five options to weigh, so fewer than the preflop's one-click spots and more
+ * than the river's solves.
+ */
+export const TRAIN_TARGET: Readonly<Record<"preflop" | "flop" | "river", number>> = { preflop: 20, flop: 15, river: 10 };
 /** At most this many drills to clear in one task. */
 export const MAX_DRILL_TARGET = 15;
 /** Hands to review per area. */
@@ -155,7 +164,22 @@ export type TrainerTarget =
       /** The chart set to deal from (A2d): the one the player met the area on most; absent, the trainer's default. */
       set?: string | null;
     }
-  | { mode: "river"; pot: RiverPot | "any"; side: RiverSeat | "any"; role: RiverRole | "any" };
+  | { mode: "river"; pot: RiverPot | "any"; side: RiverSeat | "any"; role: RiverRole | "any" }
+  | {
+      mode: "flop";
+      /** The chart set whose library lines it deals (`FLOP_LIBRARY_SETS`). */
+      set: string;
+      pot: RiverPot | "any";
+      side: RiverSeat | "any";
+      role: RiverRole | "any";
+      /** The hero's seat (`BB`); null for any. */
+      seat: ChartPosition | null;
+      facing: FlopFacing;
+      /** One library line id when the area fits exactly one on the table; null for every line that fits. */
+      line: string | null;
+    };
+
+export type FlopTarget = Extract<TrainerTarget, { mode: "flop" }>;
 
 export interface FocusArea {
   /** The situation's key: street~scenario~family~hero~villain. */
@@ -238,10 +262,77 @@ export function areaSet(leaks: readonly Pick<Leak, "sets">[]): string | null {
   return best;
 }
 
+/** A flop line id (`btn-bb`, `sb-limp-raise`), as `trainer_results.spot` takes it. */
+const LINE_ID = /^[a-z0-9][a-z0-9-]{0,39}$/;
+const FLOP_SCENARIO = /^(pfr|caller|limped)-(ip|oop)-(first|vs-bet|vs-raise)$/;
+const FLOP_AREA_FAMILIES: readonly string[] = ["first", "vs-bet", "vs-raise"];
+/** The full-ring table a flop area deals on when its seat is one 6-max lacks. */
+const FULL_RING_SET = "nlhe-cash-9max-100bb";
+
+/** A set's players, null for a set that is not a chart set. */
+const playersOf = (set: string) => CHART_SETS.find((spec) => spec.id === set)?.players ?? null;
+/** Whether a line id is one of a set's library lines. */
+const isFlopLine = (set: string, line: string) =>
+  LINE_ID.test(line) && flopTableLines(playersOf(set) ?? 0).some((l) => l.id === line);
+
+/**
+ * The (line, seat) pairs a flop target deals and counts, from the library's
+ * lines for its table alone (no chart set loaded): `flopSeatings` without
+ * the analysis check, which every library line passes (the trainer applies
+ * it again when it deals).
+ */
+export function flopTargetSeatings(target: Pick<FlopTarget, "set" | "pot" | "side" | "role" | "seat" | "facing" | "line">) {
+  const players = playersOf(target.set);
+  if (players === null) return [];
+  const lines = flopTableLines(players).filter((line) => !target.line || line.id === target.line);
+  return riverSeatings({ pot: target.pot, seat: flopFilterSeat({ seat: target.side, facing: target.facing }), role: target.role }, lines).filter(
+    (s) => !target.seat || s.hero === target.seat,
+  );
+}
+
+/**
+ * A flop area's target (§10, 2026-10-31): the flop trainer on the library's
+ * lines where the hero sat in the area's seat, role and side, facing what
+ * the area faced. A flop leak row carries no table and no line (its chart
+ * set is `''` off the charts), so the table is the first library table that
+ * has such a line - 6-max 100bb, then full ring (a seat only it has, `LJ`),
+ * then heads-up (the small blind in position, which no other table's line
+ * has) - and the line is named only when exactly one fits. Null for a
+ * multiway area and for a spot no library line holds (`UTG` as the caller):
+ * those keep no trainer, as before.
+ */
+function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
+  if (where.scenario.includes("-mw-")) return null;
+  const match = FLOP_SCENARIO.exec(where.scenario);
+  const family = match ? match[3] : FLOP_AREA_FAMILIES.includes(where.family) ? where.family : null;
+  const side: RiverSeat | "any" = match ? (match[2] as RiverSeat) : "any";
+  const role: RiverRole | "any" = match && match[1] !== "limped" ? (match[1] as RiverRole) : "any";
+  const pot: RiverPot | "any" = match && match[1] === "limped" ? "limped" : "any";
+  // First to act out of position is the trainer's own first decision; in position, it is behind a check.
+  const facing: FlopFacing =
+    family === "vs-bet" ? "bet" : family === "vs-raise" ? "raise" : family === "first" && side === "ip" ? "check" : "any";
+  const seat = seatOf(where.hero);
+  const tables = [
+    ...(set && (FLOP_LIBRARY_SETS as readonly string[]).includes(set) ? [set] : []),
+    ...(where.table === HEADS_UP_TABLE ? [HEADS_UP_SET] : []),
+    DEFAULT_CHART_SET,
+    FULL_RING_SET,
+    HEADS_UP_SET,
+  ];
+  for (const table of tables) {
+    const target: FlopTarget = { mode: "flop", set: table, pot, side, role, seat, facing, line: null };
+    const lines = [...new Set(flopTargetSeatings(target).map((s) => s.line.id))];
+    if (lines.length === 0) continue;
+    return { ...target, line: lines.length === 1 ? lines[0] : null };
+  }
+  return null;
+}
+
 /**
  * The trainer that practises an area: preflop the chart family at the seat
- * (and against the raiser), on the river the hero's role and side; null for a
- * street there is no trainer for (the flop and the turn, until A5).
+ * (and against the raiser), on the flop the library lines of the hero's
+ * seat, role and side ({@link flopTarget}), on the river the hero's role
+ * and side; null for a street there is no trainer for (the turn).
  */
 export function trainerTarget(where: AreaWhere, set: string | null = null): TrainerTarget | null {
   if (where.street === "preflop") {
@@ -291,6 +382,7 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     }
     return { mode: "preflop", family, seat, vs: family === "rfi" ? null : vs, ...deal };
   }
+  if (where.street === "flop") return flopTarget(where, set);
   // The river trainer deals heads-up spots: a multiway area (A9) has no trainer.
   if (where.street === "river" && where.scenario.includes("-mw-")) return null;
   if (where.street === "river") {
@@ -309,11 +401,18 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
 
 /**
  * A trainer target as a task reference: `preflop/vs-open/BTN/vs-CO`,
- * `preflop/rfi/UTG/nlhe-cash-9max-100bb` (A2d: the set last), `river/any/oop/pfr`.
+ * `preflop/rfi/UTG/nlhe-cash-9max-100bb` (A2d: the set last), `river/any/oop/pfr`,
+ * `flop/nlhe-cash-6max-100bb/any/oop/caller/BB/bet` (set, pot, side, role,
+ * seat, facing, and the line last when there is one).
  */
 export function trainerRef(target: TrainerTarget): string {
   if (target.mode === "preflop") {
     return ["preflop", target.family, target.seat ?? "any", target.vs ? `vs-${target.vs}` : null, target.set ?? null]
+      .filter(Boolean)
+      .join("/");
+  }
+  if (target.mode === "flop") {
+    return ["flop", target.set, target.pot, target.side, target.role, target.seat ?? "any", target.facing, target.line]
       .filter(Boolean)
       .join("/");
   }
@@ -337,6 +436,18 @@ export function parseTrainerRef(ref: string): TrainerTarget | null {
     if (rest[0] !== undefined && !(rest[0].startsWith("vs-") && seat(rest[0].slice(3)))) return null;
     return { mode: "preflop", family, seat: seat(parts[2]), vs: rest[0] ? seat(rest[0].slice(3)) : null, ...(set ? { set } : {}) };
   }
+  if (parts[0] === "flop" && (parts.length === 7 || parts.length === 8)) {
+    const [, set, potPart, sidePart, rolePart, seatPart, facingPart, line] = parts;
+    if (!(FLOP_LIBRARY_SETS as readonly string[]).includes(set)) return null;
+    const pot = oneOf(potPart, RIVER_POTS);
+    const side = oneOf(sidePart, RIVER_SEATS);
+    const role = oneOf(rolePart, RIVER_ROLES);
+    const facing = oneOf(facingPart, FLOP_FACINGS);
+    if (!pot || !side || !role || !facing) return null;
+    if (seatPart !== "any" && !seat(seatPart)) return null;
+    if (line !== undefined && !isFlopLine(set, line)) return null;
+    return { mode: "flop", set, pot, side, role, seat: seat(seatPart), facing, line: line ?? null };
+  }
   if (parts[0] === "river" && parts.length === 4) {
     const pot = oneOf(parts[1], RIVER_POTS);
     const side = oneOf(parts[2], RIVER_SEATS);
@@ -348,21 +459,37 @@ export function parseTrainerRef(ref: string): TrainerTarget | null {
 }
 
 export interface TrainerMatch {
-  mode: "preflop" | "river";
+  mode: "preflop" | "flop" | "river";
   family: string | null;
   position: string | null;
-  /** River: `<line id>:<hero seat>` (`trainer_results.spot` and `.position`); null for any. */
+  /** River and flop: `<line id>:<hero seat>` (`trainer_results.spot` and `.position`); null for any. */
   spots: string[] | null;
 }
 
 /**
  * Which kept trainer answers count towards a target (`study_plan` counts
  * them): preflop by family and seat, the river by the (line, seat) pairs its
- * role and side allow.
+ * role and side allow, the flop by the (library line, seat) pairs its target
+ * deals - mode `flop`, family the pot type when every pair shares one
+ * (`trainer_results.family`), spot the line id. Not by table, as preflop and
+ * river: a line id names the same pot on every table (a 6-max `btn-bb`
+ * answer counts towards a full-ring `btn-bb` task) and `trainer_results`
+ * keeps no set. Not by what the hero faced either: a row keeps no node.
  */
 export function trainerMatch(target: TrainerTarget): TrainerMatch {
   if (target.mode === "preflop") {
     return { mode: "preflop", family: target.family === "random" ? null : target.family, position: target.seat, spots: null };
+  }
+  if (target.mode === "flop") {
+    const seatings = flopTargetSeatings(target);
+    const pots = [...new Set(seatings.map((s) => s.line.pot))];
+    const all = target.pot === "any" && target.side === "any" && target.role === "any" && !target.seat && !target.line;
+    return {
+      mode: "flop",
+      family: pots.length === 1 ? pots[0] : null,
+      position: target.seat,
+      spots: all || seatings.length === 0 ? null : [...new Set(seatings.map((s) => `${s.line.id}:${s.hero}`))].sort(),
+    };
   }
   const seatings = riverSeatings({ pot: target.pot, seat: target.side, role: target.role });
   const all = target.pot === "any" && target.side === "any" && target.role === "any";
@@ -778,10 +905,23 @@ function parseTrainer(value: unknown): TrainerTarget | null {
     const set = typeof v.set === "string" && SET_ID.test(v.set) ? { set: v.set } : {};
     return { mode: "preflop", family: v.family as PreflopFamily | "random", seat: seat(v.seat), vs: seat(v.vs), ...set };
   }
+  const pick = <T extends string>(x: unknown, allowed: readonly T[]): T | "any" =>
+    typeof x === "string" && (allowed as readonly string[]).includes(x) ? (x as T) : "any";
   if (v.mode === "river") {
-    const pick = <T extends string>(x: unknown, allowed: readonly T[]): T | "any" =>
-      typeof x === "string" && (allowed as readonly string[]).includes(x) ? (x as T) : "any";
     return { mode: "river", pot: pick(v.pot, RIVER_POTS), side: pick(v.side, RIVER_SEATS), role: pick(v.role, RIVER_ROLES) };
+  }
+  if (v.mode === "flop" && typeof v.set === "string" && (FLOP_LIBRARY_SETS as readonly string[]).includes(v.set)) {
+    const set = v.set;
+    return {
+      mode: "flop",
+      set,
+      pot: pick(v.pot, RIVER_POTS),
+      side: pick(v.side, RIVER_SEATS),
+      role: pick(v.role, RIVER_ROLES),
+      seat: seat(v.seat),
+      facing: pick(v.facing, FLOP_FACINGS),
+      line: typeof v.line === "string" && isFlopLine(set, v.line) ? v.line : null,
+    };
   }
   return null;
 }
