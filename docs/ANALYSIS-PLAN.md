@@ -6532,5 +6532,49 @@ Each phase appends what it learned that changed the plan.
     options; null where the grade did not read the library; one chunk fetch
     for grade and study; trainer answers carry it, and the grade is
     unchanged.
-  - **Open.** The heads-up 150bb set has no manifest in the bucket yet, so
-    its flops have no study until it is uploaded.
+- 2026-10-31 — A5b, the heads-up 150bb flop library live, `analysis/37`.
+  No migration.
+  - **The run.** The five heads-up lines (`FLOP_LINES_HU`) × 100
+    representative flops of the heads-up 150bb set (`charts/9`, hash
+    `e9930a6c`, the hash the chart file has today) solved on the owner's
+    machine (~392 core-hours; sb-bb 174, sb-limp 150, limp-raise 41,
+    3-bet 24, 4-bet 4 - inside the 2026-10-18 entry's ~270-380 estimate
+    for the set, just above its top): 500 chunks, 42 MB, every solve
+    stopped by the target, below 1% of the pot (largest 0.99999%,
+    sb-limp-raise 9s4h2h, from the stats files; at most 240 iterations,
+    the 300-iteration cap never reached), peak 2.5 GB resident. Uploaded to
+    the `flop-library` bucket with `upload.sh`; the manifest and **all 500
+    chunks** verified byte for byte from the public URL (501/501
+    identical, two fetches at a time, no failure). A set is live once its
+    manifest is in the bucket (`FlopLibraryLoader.ready`), so nothing
+    registers it in code.
+  - **Validation.** `--validate` has nothing to compare (only
+    representatives are solved). Held out (`--validate --loo`, 230 pairs,
+    each representative read from its nearest other one on the line),
+    medians: strategy TV 17.8% (floor 7.4%), |ΔEV| 8.72% of the pot (floor
+    1.98%), same top action 79.8% (92.3%), same check/call grade 68.6%
+    (85.4%) - a little behind the heads-up 100bb set's 17.0%, 7.83%,
+    82.1%, 69.3% (2026-10-26), the deeper stacks spreading the EVs.
+  - **Measured** (5,448 stored hands, the local library: the four live
+    sets against the same plus the heads-up 150bb set):
+    - `floplib:measure`: hero flop decisions graded from the library 247 →
+      **267** of 1,266 (mapped 226 → 245, exact 21 → 22); the 20 new ones
+      (19 hands) Perfect 12, Good 7, Mistake 1, together 1.8 bb of EV
+      loss; no decision graded before changed. They are the 20 the
+      2026-10-18 coverage count put on a 150bb heads-up line within
+      `SPR_TOLERANCE` (sb-bb 11, sb-limp 7, 3-bet 1, limp-raise 1).
+    - CENSUS_PLACEHOLDER
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/37` (stored analyses re-run
+    and read the new chunks). The census's default `CENSUS_SETS` now
+    includes the heads-up 150bb set; the Learn "waits for the flop
+    library" sentence names it, and the flop trainer's empty-state
+    sentence no longer says the library is still being solved for some
+    tables (English and Croatian). Every set in `FLOP_LIBRARY_SETS` now has
+    a manifest; the flop trainer deals on the heads-up 150bb table with no
+    code change (the manifest is the gate).
+  - **Open.**
+    - The 4-bet and limp-raise lines still carry at most one hand each on
+      the owner's corpus: their solves are checked only by the held-out
+      medians.
+    - Why one river decision lost its grade at `analysis/36`
+      (`river-unreached`), still not looked into.
