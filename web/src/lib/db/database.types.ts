@@ -4516,6 +4516,7 @@ export type Database = {
         Args: { p_owner: string }
         Returns: Json
       }
+      analysis_leak_table_of: { Args: { p_set: string }; Returns: string }
       analysis_leaks: { Args: { p_filters?: Json }; Returns: Json }
       analysis_leaks_scan: { Args: { p_filters?: Json }; Returns: Json }
       analysis_month_of: { Args: { p_at: string }; Returns: string }
