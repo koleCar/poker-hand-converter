@@ -92,6 +92,10 @@ export const solverEn = {
     start: "Flop",
     step: (position: string, action: string) => `${position} ${action}`,
     follow: (label: string) => `Play ${label}`,
+    dealPick: (street: "turn" | "river") => `Pick the ${street} card`,
+    street: (street: "turn" | "river", card: string) => `${street === "turn" ? "Turn" : "River"} ${card}`,
+    isomorphic: "Cards that play the same up to suits are solved once: a missing suit plays as the one shown.",
+    showdown: "The betting is over: the hand goes to showdown.",
     ends: {
       fold: "The hand is over.",
       street: "The turn is dealt: the library keeps the flop's decisions only.",
@@ -126,5 +130,6 @@ export const solverEn = {
   solvedTo: (exploitability: number, iterations: number) =>
     `Solved to ${num(exploitability, 2)}% of the pot exploitability in ${num(iterations)} iterations.`,
   chartNote: "Preflop: Rail's own charts. Cells fade where less of the hand reaches the decision.",
+  fullNote: "Full solve: flop, turn and river (local). ",
   flopNote: "A cell fades where less of the hand reaches the decision. Combos are shown in the suits of the picked flop.",
 } as const;

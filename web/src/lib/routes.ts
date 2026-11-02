@@ -90,11 +90,12 @@ export const paths = {
    * as picked and `?node=` the flop decision pick the view. A top-level segment, so `solver` is a
    * reserved username (`20271020090000_solver_route.sql`).
    */
-  solver: (view?: { set?: string; line?: string; flop?: string; node?: number }) => {
+  solver: (view?: { set?: string; line?: string; flop?: string; node?: number; turn?: string }) => {
     const params = new URLSearchParams();
     if (view?.set) params.set("set", view.set);
     if (view?.line) params.set("line", view.line);
     if (view?.flop) params.set("flop", view.flop);
+    if (view?.turn) params.set("turn", view.turn);
     if (view?.node) params.set("node", String(view.node));
     const query = params.toString();
     return query ? `/solver?${query}` : "/solver";

@@ -93,6 +93,10 @@ export const solverHr: Dict["solver"] = {
     start: "Flop",
     step: (position: string, action: string) => `${position} ${action}`,
     follow: (label: string) => `Odigraj ${label}`,
+    dealPick: (street: "turn" | "river") => `Odaberi kartu za ${street}`,
+    street: (street: "turn" | "river", card: string) => `${street === "turn" ? "Turn" : "River"} ${card}`,
+    isomorphic: "Karte koje se igraju jednako do na boju riješene su jednom: boja koje nema igra se kao prikazana.",
+    showdown: "Klađenje je gotovo: ruka ide na showdown.",
     ends: {
       fold: "Ruka je gotova.",
       street: "Dijeli se turn: knjižnica čuva samo odluke na flopu.",
@@ -127,5 +131,6 @@ export const solverHr: Dict["solver"] = {
   solvedTo: (exploitability: number, iterations: number) =>
     `Solvano do ${num(exploitability, 2)} % pota exploitabilityja u ${num(iterations)} iteracija.`,
   chartNote: "Preflop: Railovi vlastiti chartovi. Ćelija blijedi što manje te ruke dolazi do odluke.",
+  fullNote: "Puni solve: flop, turn i river (lokalno). ",
   flopNote: "Ćelija blijedi što manje te ruke dolazi do odluke. Kombinacije su u bojama odabranog flopa.",
 };
