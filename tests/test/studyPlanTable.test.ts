@@ -8,7 +8,7 @@
  * - **The database's list**: the migration's sets are `CHART_SETS` without
  *   the straddle set, in its order (ties go to the first, as `pickChartSet`).
  * - **The leak finder**: a postflop leak's `sets` count the depths its
- *   decisions were met on (since 2026-11-03 its id carries its table, so one
+ *   decisions were met on (since 2026-11-02 its id carries its table, so one
  *   table: `leakAreaTable.test.ts`).
  * - **The flop**: a heads-up big-blind leak deals the heads-up lines at the
  *   nearest depth, a 6-max one the 6-max lines, a full-ring one the full-ring
@@ -110,7 +110,7 @@ describe("the database's table helper", () => {
 /* ------------------------------------------------------ the leak finder - */
 
 describe("a postflop leak with its table", () => {
-  it("counts the depths it was met on (one table since 2026-11-03: `leakAreaTable.test.ts`)", () => {
+  it("counts the depths it was met on (one table since 2026-11-02: `leakAreaTable.test.ts`)", () => {
     const rows = [
       row("river", "caller-oop-vs-bet", "BB", "fold", "call", 4, HU100, 3),
       row("river", "caller-oop-vs-bet", "BB", "fold", "call", 2, HU150, 1),

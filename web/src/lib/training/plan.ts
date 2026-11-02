@@ -156,7 +156,7 @@ export interface AreaWhere {
   villain: string;
   /**
    * `"9max"`: a full-ring spot (A2d, `SpotAttrs.table`); `"hu"`: a heads-up
-   * one. Preflop from the chart set, postflop (since 2026-11-03) from the
+   * one. Preflop from the chart set, postflop (since 2026-11-02) from the
    * hand's table.
    */
   table?: string;
@@ -231,7 +231,7 @@ export interface FocusArea {
   /** Weeks in a row this area has been a focus (1: new this week). */
   weeks: number;
   /**
-   * Built since postflop spots carry their table (§10, 2026-11-03): its
+   * Built since postflop spots carry their table (§10, 2026-11-02): its
    * situations and id name a heads-up or full-ring flop, turn or river spot
    * by its tag. False (or absent) for a snapshot stored before, whose
    * postflop situations name no table and are read as they were then.
@@ -271,7 +271,7 @@ export const areaId = (where: AreaWhere) =>
 
 /**
  * The id the area had before postflop spots carried their table (§10,
- * 2026-11-03): a flop, turn or river tag dropped. A stored plan's areas
+ * 2026-11-02): a flop, turn or river tag dropped. A stored plan's areas
  * from before go by it, so a heads-up river area that was last week's
  * (untagged, merged) area keeps counting its weeks.
  */
@@ -692,7 +692,7 @@ export function planFocus(input: FocusInput): PlanFocus {
   const picked = pickFocus(focusAreas(input.rows, input.hands));
   if (picked.length === 0) return { kind: "fundamentals", areas: [], reason: "no-leaks" };
   const before = new Map((input.previous?.focus ?? []).map((area) => [area.id, area.weeks]));
-  // Last week's plan from before postflop tables (§10, 2026-11-03): its untagged area is this week's tagged one.
+  // Last week's plan from before postflop tables (§10, 2026-11-02): its untagged area is this week's tagged one.
   const legacy = new Map((input.previous?.focus ?? []).filter((area) => area.postflopTables !== true).map((area) => [area.id, area.weeks]));
   const weeksBefore = (area: FocusArea) => before.get(area.id) ?? (area.where.table ? legacy.get(legacyAreaId(area.where)) : undefined) ?? 0;
   return {

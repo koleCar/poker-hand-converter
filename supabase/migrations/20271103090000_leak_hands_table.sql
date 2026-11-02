@@ -6,7 +6,7 @@
 -- table (`analysis_leak_rows.chart_set`), and from this change the leak
 -- finder tags a postflop spot by it as it tags a preflop chart spot
 -- (`web/src/lib/analysis/leaks.ts`: a heads-up spot's id ends in `~hu`, a
--- full-ring one's in `~9max`; `docs/ANALYSIS-PLAN.md` §10, 2026-11-03). A
+-- full-ring one's in `~9max`; `docs/ANALYSIS-PLAN.md` §10, 2026-11-02). A
 -- heads-up, a 6-max and a 9-max river area with the same seat, role and side
 -- are now three areas. A spot key names no table, though, so the hands
 -- behind a heads-up area, read by its spot keys, were every table's.

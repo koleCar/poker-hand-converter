@@ -1,5 +1,5 @@
 /**
- * A postflop leak area per table (`docs/ANALYSIS-PLAN.md` §10, 2026-11-03):
+ * A postflop leak area per table (`docs/ANALYSIS-PLAN.md` §10, 2026-11-02):
  * since `20271102090000_leak_row_table.sql` a flop, turn or river leak row
  * carries its hand's chart set, and the leak finder now tags a postflop spot
  * by it as it tags a preflop chart spot (`~hu`, `~9max`; 6-max and no set

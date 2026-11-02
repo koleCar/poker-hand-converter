@@ -32,6 +32,7 @@ document refers to most:
 | `20271006090000_account_export.sql`, `20271006100000_account_deletion.sql` | Rail R6.5: the account's data. `account_data_inventory` (every place that holds an account's rows: export and deletion decided per row; pgTAP fails on a table missing from it); the owner-only export readers (`export_my_manifest`, `export_my_profile`, `export_my_hands`, `export_my_rows`, `export_my_sealed`); the deletion's request and steps (`begin_account_deletion` as the user, then `account_deletion_state` / `_mark`, `account_storage_objects`, `erase_account_content`, `erase_account_hands` for the Edge Function `account-delete`); the moderation log's erasure exception. See [Your data](#your-data-export-and-deletion). Not applied to production. |
 | `20271013090000_billing_consents.sql` | Rail R6.3 addendum: the consent recorded before Stripe Checkout opens (the terms; the request that Pro start at once and the acknowledgement about the right of withdrawal). `billing_consents` (sealed, evidence: only the session id - once - and the owner - cleared on deletion - can change), `billing_record_consent()`, `billing_consent_set_session()`, all service role only; exported to the account (`billing/consents.ndjson`), kept without the owner on deletion. See [Stripe Billing (R6.3)](#stripe-billing-r63). Not applied to production. |
 | `20271102090000_leak_row_table.sql` | A postflop leak row carries its hand's table: `analysis_hand_table_set(phf)` (immutable, no table; executable by `authenticated` for the invoker scan, not `anon`) picks the chart set as `pickChartSet` does - players dealt in, the depth nearest the effective stack of the players still in at the flop, within 20% - and the before-insert row trigger `analysis_leak_rows_table_set` (definer, no client) writes it into `analysis_leak_rows.chart_set` for a flop, turn or river row (preflop rows unchanged). `analysis_leaks_scan` reads the same set (re-created, the R6.2 gate put back); `analysis_leak_rows_table_backfill()` (definer, no client) gives stored rows the set and recounts the two leak sum tables. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
+| `20271103090000_leak_hands_table.sql` | The hands behind a leak, on its table: `analysis_leak_table_of(set)` (immutable, no table; executable by `authenticated`, not `anon`) tags a chart set `hu`, `9max` or `other` as the leak finder does (`tableOfSet`), and `analysis_leak_hands` / `analysis_leak_hands_scan` take an optional `leakTable` filter key (`hu`, `9max`, `other`; absent: every table, as before; anything else 22023) - the fast path by the row's `chart_set`, the scan by the set the leak scan reads. Both re-created from `20270825090000` with the same signatures, grants and invoker security; the R6.2 gate put back. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 
 The migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`, the statistics, analysis, Learn, report,
@@ -2649,6 +2650,21 @@ it on the rows stored before and recounted `analysis_leak_totals` and
 The helper's list of sets is `CHART_SETS` without the straddle set
 (`tests/test/studyPlanTable.test.ts` keeps them equal). pgTAP
 `leak_row_table` (34).
+
+**A leak's hands on its table** (`20271103090000`). Since 2026-11-02 the
+leak finder tags a postflop spot by that set as it tags a preflop chart
+spot (`~hu`, `~9max`; 6-max and no set untagged), so a heads-up and a 6-max
+river area with the same seat, role and side are two areas - but a spot key
+names no table, and the hands read by an area's keys were every table's.
+`analysis_leak_hands(filters, ...)` (and its scan) take `filters.leakTable`
+(`hu`, `9max` or `other`): only the decisions whose set
+`analysis_leak_table_of` tags so - the row's `chart_set` on the fast path;
+on the scan `facts.chart.set` for a chart grade and
+`analysis_hand_table_set(phf)` for a postflop decision, as
+`analysis_leaks_scan` reads it. Absent, every table, as before; an older
+database ignores the key (unknown filter keys are not read), so the client
+can send it before the migration is applied. Drills stay per spot key.
+pgTAP `leak_hands_table` (26).
 
 **Cost** (`20270825090000` at a generated 1M-hand account, details in
 docs/RAIL-PLAN.md §15): every listed reader under ~0.4 s on its default

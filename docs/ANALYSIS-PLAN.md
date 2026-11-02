@@ -6765,11 +6765,12 @@ Each phase appends what it learned that changed the plan.
     6-max, full ring and no set keep the old river target.
     `studyPlan`, `studyPlanFlop`, `trainingHeadsUp` and the whole suite pass.
   - **Open.**
-    - A heads-up and a 6-max postflop area with the same seat, role and side
+    - ~~A heads-up and a 6-max postflop area with the same seat, role and side
       are still one area (the leak id has no table): its trainer deals the
       table most of its decisions were met on. Tagging postflop leaks `~hu`
       like preflop would split them, but changes their ids (drills, a stored
-      plan's carried areas).
+      plan's carried areas).~~ Done 2026-11-02 (the next entry,
+      `20271103090000_leak_hands_table.sql`).
     - The pot type: a leak row keeps its hand's `pot_type`, but
       `analysis_leaks` sums over it (the spot rows have no pot), so a
       single-raised and a 3-bet flop area with the same seat, role and side
@@ -6780,3 +6781,96 @@ Each phase appends what it learned that changed the plan.
       so nothing reads it there yet.
     - Not measured on the owner's corpus (the local stack holding it was
       not running): how many postflop rows and areas name a heads-up table.
+- 2026-11-02 — A postflop leak area per table. Migration
+  `20271103090000_leak_hands_table.sql` (must be applied to prod after
+  merge); no `ANALYSIS_VERSION` change (no stored grade moves).
+  - **Why.** The open item of the previous entry: a heads-up, a 6-max and a
+    9-max flop, turn or river area with the same seat, role and side were one
+    area, because a postflop leak id carried no table. The owner plays mostly
+    9-max, some 6-max and heads-up, so one area mixed three games (a 9-max
+    `UTG` is not a 6-max one; heads-up the big blind defends any two cards'
+    worth of opens), and its trainer dealt only the table most of its
+    decisions were met on.
+  - **What was done.**
+    - *Tag*: `spotAttrs` tags a postflop row from its set (the hand's table,
+      `analysis_leak_rows.chart_set` since `20271102090000`) as a preflop chart
+      row is tagged: `~hu` for a heads-up set, `~9max` for a full-ring one
+      (`tableOfSet`, the preflop rule's `seatsOfSet`). 6-max, the straddle set
+      and a row with no set (`''`: hands no set answers, the desktop app's
+      rows) stay untagged, so their ids are what they were. The same format
+      as preflop's, so `parseLeakId`, `parseFocus`, the `?leak=` address and
+      `save_study_plan`'s drill check (`^[A-Za-z0-9*~+-]{1,120}$`; the
+      longest tagged area id is under 50) take it with no change.
+    - *Thin spots* (`tableDropLevel`): preflop the tag still goes with the
+      seat (the seat level, as since 2026-10-28). Postflop it is kept at every
+      level. Dropping it with the seat, as preflop, would merge every thin
+      heads-up spot into the 6-max one at its first lift: heads-up the side
+      already names the seat (out of position is the big blind), so the seat
+      level gathers nothing there. Kept, a thin heads-up spot climbs to the
+      family or the street on its own ("Facing a bet (heads-up)", "Any spot
+      (heads-up)") and its trainer still deals heads-up lines.
+    - *Counting* (`rowOfLeak`): a spot key names no table, so a leak's or an
+      area's mistakes and EV in a period (`comparePeriods`, `leakPeriod` of
+      the top leaks, `areaPeriod` of the retrospective) are its keys' rows in
+      its own situations; before, a heads-up area's key also counted the
+      6-max blinds' decisions (true of preflop `~hu` areas since 2026-10-28
+      too, now fixed with them).
+    - *Hands behind an area*: the leak's hands (Leaks tab) and an area's
+      review hands (the plan's builder) are read with the area's table
+      (`handsTable`: its tag, `other` for an untagged area at a level that
+      still names a table, none above it). `analysis_leak_hands` and its scan
+      take `filters.leakTable` (`hu`, `9max`, `other`) through
+      `analysis_leak_table_of(set)`; see `docs/DATABASE.md`. An old database
+      ignores the key, so the client can ship first.
+    - *Study plan*: an area's `where.table` and id carry the tag; the flop
+      target with no set (a snapshot) deals on the tagged table (`~9max` the
+      full-ring 100bb lines, `~hu` the heads-up ones) and otherwise keeps the
+      old guess; the river and preflop targets are unchanged (they read the
+      area's set). Words (English and Croatian): the leak and area context
+      names the table, inside the seat's bracket postflop ("… facing a bet
+      (BB, heads-up)", "(BB, 9-max)"), and now also when the seat was merged
+      away; no new strings.
+    - *Old data*: a focus snapshot written from now on says so
+      (`postflopTables: true`); one stored before is read as it was then - its
+      retrospective counts every table's rows on its keys and its untagged
+      situations (`legacySituationKey`) - and its area's weeks carry over to
+      the tagged area this week (`legacyAreaId`; a snapshot written after the
+      split never hands a 6-max area's weeks to the heads-up one). Last
+      week's unreviewed hands carry over by the area id only, so a merged
+      area's open hands are not carried into its tagged successor (they are
+      offered again if still among its costliest).
+    - *Database*: `analysis_leak_table_of` (immutable, no table, empty
+      search_path; `authenticated` only, on the entitlements test's
+      pure-helper list); `analysis_leak_hands` and `analysis_leak_hands_scan`
+      re-created from `20270825090000`'s (the last definitions) with the same
+      signatures, invoker, empty search_path, grants and comments, the R6.2
+      gate put back with `entitlement_gates_apply()`. Additive; nothing
+      written. `database.types.ts` regenerated (CLI 2.75.0): the helper.
+  - **Tested.** `tests/test/leakAreaTable.test.ts` (11): the tag per set on
+    every postflop street; heads-up, 6-max and 9-max rows with the same seat,
+    role and side give three leaks and three areas, the river on the heads-up
+    lines or the 6-max ones, the flop on each table's library lines, every
+    reference inside the database's checks; the words in both languages;
+    thin heads-up spots climbing to the family and the street on their own
+    table, preflop still dropping the tag with the seat; an area's numbers
+    from its own table only; untagged and tagged ids parse, rows with no set
+    stay with 6-max, a snapshot stored before keeps its numbers and passes
+    its weeks on, a tagged snapshot round-trips. `studyPlanTable.test.ts`
+    updated (a postflop leak's `sets` are now one table's depths). pgTAP
+    `leak_hands_table.test.sql` (26): security of the helper and both
+    readers (gate, search path, grants), the helper's tags, no `leakTable`
+    as before, each table's hands on the fast path and the scan alike
+    (postflop by the hand's table, preflop by the chart grade's set, off
+    the charts `other`), unknown tables refused on both, one account's
+    hands only, anon refused. On a fresh local stack with every migration
+    all 59 pgTAP files pass (2,051 tests); the Vitest suite and
+    `tsc -b` / lint pass.
+  - **Open.**
+    - Drills stay per spot key (`drill_due_by_spot`, `drill_queue`): a
+      heads-up area's drill task counts and deals the 6-max blinds' drill
+      items on the same key too (preflop `~hu` areas already did). A drill
+      item keeps its hand, so a table filter there is possible; not done.
+    - The top-leaks examples (`analysis_leak_examples`) and Learn's own-hand
+      exercises read by spot keys without a table.
+    - Not measured on the owner's corpus (how many postflop areas split, how
+      many heads-up ones reach a plan).

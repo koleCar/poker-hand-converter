@@ -29,6 +29,12 @@
  *   confidence. So "BB vs UTG open" with 4 hands and "BB vs HJ open" with 6
  *   become one "BB vs an open (other seats)" leak, while "BB vs BTN open" with
  *   60 keeps its own row.
+ * - **Tables.** A heads-up or full-ring spot carries its table (`~hu`,
+ *   `~9max`; 6-max and no set untagged): preflop from the chart set, dropped
+ *   with the seat; postflop from the hand's table (the row's set), kept at
+ *   every level, so a heads-up river never merges into a 6-max one
+ *   ({@link tableDropLevel}). A spot key names no table, so a leak's own
+ *   decisions are its keys in its own situations ({@link rowOfLeak}).
  * - **Ranking**: total EV lost (bb) by default — within one filter set that is
  *   also the order of EV lost per 100 hands, the same denominator divides
  *   every row — or EV lost per time in the spot (how badly the spot is played),
@@ -293,7 +299,7 @@ export const leakId = (a: SpotAttrs) =>
 
 /**
  * A situation key as it was before postflop spots carried their table (§10,
- * 2026-11-03): a postflop tag dropped, a preflop one kept. What a stored
+ * 2026-11-02): a postflop tag dropped, a preflop one kept. What a stored
  * study plan's snapshot (written before) names its situations by.
  */
 export const legacySituationKey = (a: SpotAttrs) => situationKey(a.street === "preflop" ? a : { ...a, table: undefined });
