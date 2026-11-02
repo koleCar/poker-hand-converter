@@ -48,8 +48,10 @@ import {
   confidenceOf,
   groupLeaks,
   leakConcepts,
+  legacySituationKey,
   periodWindows,
   rateZ,
+  rowOfLeak,
   situationKey,
   spotAttrs,
   trendOf,
@@ -152,7 +154,11 @@ export interface AreaWhere {
   family: string;
   hero: string;
   villain: string;
-  /** `"9max"`: a full-ring chart spot (A2d, `SpotAttrs.table`); `"hu"`: a heads-up one. */
+  /**
+   * `"9max"`: a full-ring spot (A2d, `SpotAttrs.table`); `"hu"`: a heads-up
+   * one. Preflop from the chart set, postflop (since 2026-11-03) from the
+   * hand's table.
+   */
   table?: string;
 }
 
@@ -224,6 +230,13 @@ export interface FocusArea {
   trainer: TrainerTarget | null;
   /** Weeks in a row this area has been a focus (1: new this week). */
   weeks: number;
+  /**
+   * Built since postflop spots carry their table (§10, 2026-11-03): its
+   * situations and id name a heads-up or full-ring flop, turn or river spot
+   * by its tag. False (or absent) for a snapshot stored before, whose
+   * postflop situations name no table and are read as they were then.
+   */
+  postflopTables?: boolean;
   /** The hands its review tasks name, as the screen shows them (filled in once the hands are chosen). */
   reviews: ReviewHand[];
 }
@@ -255,6 +268,14 @@ const whereOf = (leak: Leak): AreaWhere => ({
 /** An area's id: its situation at the level it settled (a full-ring area ends in `~9max`, a heads-up one in `~hu`). */
 export const areaId = (where: AreaWhere) =>
   [where.street, where.scenario, where.family, where.hero, where.villain, ...(where.table ? [where.table] : [])].join("~");
+
+/**
+ * The id the area had before postflop spots carried their table (§10,
+ * 2026-11-03): a flop, turn or river tag dropped. A stored plan's areas
+ * from before go by it, so a heads-up river area that was last week's
+ * (untagged, merged) area keeps counting its weeks.
+ */
+export const legacyAreaId = (where: AreaWhere) => areaId(where.street === "preflop" ? where : { ...where, table: undefined });
 
 const known = (part: string) => part !== ANY && part !== NONE;
 const seatOf = (part: string): ChartPosition | null =>
@@ -356,10 +377,9 @@ function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
     family === "vs-bet" ? "bet" : family === "vs-raise" ? "raise" : family === "first" && side === "ip" ? "check" : "any";
   const seat = seatOf(where.hero);
   const own = tableSets(set, FLOP_LIBRARY_SETS);
-  const tables =
-    own.length > 0
-      ? own
-      : [...(where.table === HEADS_UP_TABLE ? [HEADS_UP_SET] : []), DEFAULT_CHART_SET, FULL_RING_SET, HEADS_UP_SET];
+  // No set (rows written before 2026-11-02, or a snapshot): the area's tag first, then the guess.
+  const tagged = where.table === HEADS_UP_TABLE ? [HEADS_UP_SET] : where.table === NINE_MAX_TABLE ? [FULL_RING_SET] : [];
+  const tables = own.length > 0 ? own : where.table ? tagged : [DEFAULT_CHART_SET, FULL_RING_SET, HEADS_UP_SET];
   for (const table of tables) {
     const target: FlopTarget = { mode: "flop", set: table, pot, side, role, seat, facing, line: null };
     const lines = [...new Set(flopTargetSeatings(target).map((s) => s.line.id))];
@@ -604,6 +624,7 @@ export function focusAreas(rows: readonly SpotRow[], hands: number): FocusArea[]
       trainer: trainerTarget(where, set),
       weeks: 1,
       reviews: [],
+      postflopTables: true,
     });
   }
   return areas.sort((a, b) => b.evLossBb - a.evLossBb || (a.id < b.id ? -1 : 1));
@@ -644,7 +665,7 @@ export interface PlanTask {
 
 /** What last week's plan says, for the rollover. */
 export interface PreviousPlan {
-  focus: readonly Pick<FocusArea, "id" | "weeks">[];
+  focus: readonly (Pick<FocusArea, "id" | "weeks"> & Partial<Pick<FocusArea, "postflopTables">>)[];
   tasks: ReadonlyArray<{ kind: TaskKind; ref: string; focus: number | null; done: boolean; handId?: string | null }>;
 }
 
@@ -671,9 +692,12 @@ export function planFocus(input: FocusInput): PlanFocus {
   const picked = pickFocus(focusAreas(input.rows, input.hands));
   if (picked.length === 0) return { kind: "fundamentals", areas: [], reason: "no-leaks" };
   const before = new Map((input.previous?.focus ?? []).map((area) => [area.id, area.weeks]));
+  // Last week's plan from before postflop tables (§10, 2026-11-03): its untagged area is this week's tagged one.
+  const legacy = new Map((input.previous?.focus ?? []).filter((area) => area.postflopTables !== true).map((area) => [area.id, area.weeks]));
+  const weeksBefore = (area: FocusArea) => before.get(area.id) ?? (area.where.table ? legacy.get(legacyAreaId(area.where)) : undefined) ?? 0;
   return {
     kind: "leaks",
-    areas: picked.map((area) => ({ ...area, weeks: (before.get(area.id) ?? 0) + 1 })),
+    areas: picked.map((area) => ({ ...area, weeks: weeksBefore(area) + 1 })),
     reason: null,
   };
 }
@@ -860,19 +884,30 @@ export interface AreaPeriod {
   rate: number | null;
 }
 
-/** One period's numbers for an area: its keys' mistakes and EV, its situations' decisions. */
-export function areaPeriod(area: Pick<FocusArea, "keys" | "situations">, rows: readonly SpotRow[], hands: number): AreaPeriod {
+/**
+ * One period's numbers for an area: its keys' mistakes and EV in its
+ * situations, its situations' decisions. A snapshot stored before postflop
+ * tables (`postflopTables` not set) names untagged postflop situations and
+ * is read as it was then: every table's rows on its keys and situations.
+ */
+export function areaPeriod(
+  area: Pick<FocusArea, "keys" | "situations"> & Partial<Pick<FocusArea, "postflopTables">>,
+  rows: readonly SpotRow[],
+  hands: number,
+): AreaPeriod {
   const keys = new Set(area.keys);
   const situations = new Set(area.situations);
+  const legacy = area.postflopTables !== true;
   let spot = 0;
   let mistakes = 0;
   let ev = 0;
   for (const row of rows) {
-    if (keys.has(row.key)) {
+    const attrs = spotAttrs(row);
+    if (legacy ? keys.has(row.key) : rowOfLeak(keys, situations, row, attrs)) {
       mistakes += row.nonPerfect;
       ev += row.evLossBb;
     }
-    if (situations.has(situationKey(spotAttrs(row)))) spot += row.decisions;
+    if (situations.has(legacy ? legacySituationKey(attrs) : situationKey(attrs))) spot += row.decisions;
   }
   return {
     spot,
@@ -897,7 +932,7 @@ export interface AreaChange {
  * each period for the reader to see.
  */
 export function areaChange(
-  area: Pick<FocusArea, "keys" | "situations">,
+  area: Pick<FocusArea, "keys" | "situations"> & Partial<Pick<FocusArea, "postflopTables">>,
   current: { rows: readonly SpotRow[]; hands: number },
   prior: { rows: readonly SpotRow[]; hands: number },
   minSpot = MIN_COMPARE_SPOT,
@@ -1030,6 +1065,7 @@ export function parseFocus(value: unknown): FocusArea[] {
         trainer: parseTrainer(r.trainer),
         weeks: Math.max(1, Math.round(num(r.weeks)) || 1),
         reviews: parseReviews(r.reviews),
+        postflopTables: r.postflopTables === true,
       },
     ];
   });

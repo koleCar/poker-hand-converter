@@ -127,8 +127,11 @@ export interface SpotAttrs {
    * share names with 6-max's but are other seats (9-max's UTG is three seats
    * further from the button); `"hu"` for one on a heads-up set (`charts/8`),
    * whose small blind is the button and whose big blind defends against
-   * any two cards' worth of opens - not the 6-max blinds' spot. Absent for
-   * 6-max and postflop, so their ids are what they were.
+   * any two cards' worth of opens - not the 6-max blinds' spot. A flop, turn
+   * or river spot is tagged the same way from its hand's table (the row's set,
+   * `20271102090000_leak_row_table.sql`; §10 2026-11-02): a heads-up river and
+   * a full-ring river are other games. Absent for 6-max and for a row that
+   * names no set, so their ids are what they were.
    */
   table?: LeakTable;
 }
@@ -143,6 +146,34 @@ export type LeakTable = (typeof LEAK_TABLES)[number];
 
 /** Whether a chart set id is a full-ring set (`nlhe-cash-9max-100bb`). */
 export const isNineMaxSet = (set: string | null | undefined): boolean => !!set && /-9max-/.test(set);
+
+/** The table tag of a chart set (`"9max"`, `"hu"`), null for 6-max, the straddle set and no set. */
+export function tableOfSet(set: string | null | undefined): LeakTable | null {
+  if (!set) return null;
+  const seats = seatsOfSet(set);
+  return seats === NINE_TABLE_ORDER ? NINE_MAX_TABLE : seats === HEADS_UP_TABLE_ORDER ? HEADS_UP_TABLE : null;
+}
+
+/**
+ * The level (`LEAK_LEVELS` index) from which a spot's table is dropped. A
+ * preflop table goes with the seats it names (the seat level: a 9-max `UTG`
+ * is not a 6-max one, but "first in" is first in). A postflop one is kept one
+ * level longer, through the scenario (the role, the side, what was faced),
+ * and goes at the family: heads-up the side already names the seat (out of
+ * position is the big blind), so dropping the seat there would merge a thin
+ * heads-up spot into the 6-max one at its first lift.
+ */
+export const tableDropLevel = (street: string): number => (street === "preflop" ? 2 : 3);
+
+/**
+ * The table filter a leak's or area's hands are read with (`analysis_leak_hands`'
+ * `leakTable`): its tag, `"other"` (6-max, no set) where an untagged id still
+ * names a table, null above the level the table is dropped at (every table).
+ */
+export function handsTable(attrs: Pick<SpotAttrs, "street" | "table">, level: number): LeakTable | "other" | null {
+  if (level >= tableDropLevel(attrs.street)) return null;
+  return attrs.table ?? "other";
+}
 
 /**
  * The family a scenario belongs to, the level between a scenario and the
@@ -220,6 +251,9 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
     const walked = walkLine(row.line, seats);
     if (walked.next) hero = walked.next;
     villain = lineVillain(row.line, seats) ?? NONE;
+  } else if (row.street !== "preflop") {
+    // Postflop the table is the hand's (the row's set); a row that names none stays untagged.
+    table = tableOfSet(row.set);
   }
   return {
     street: row.street,
@@ -243,17 +277,33 @@ export function atLevel(attrs: SpotAttrs, level: number): SpotAttrs {
     villain: level >= 1 ? ANY : attrs.villain,
     taken: attrs.taken,
     best: attrs.best,
-    // The table goes with the seats it names: once the hero's seat is dropped, so is it.
-    ...(attrs.table && level < 2 ? { table: attrs.table } : {}),
+    // The table goes with the seats it names (preflop) or the role and side (postflop): `tableDropLevel`.
+    ...(attrs.table && level < tableDropLevel(attrs.street) ? { table: attrs.table } : {}),
   };
 }
 
-const tablePart = (a: SpotAttrs) => (a.table ? [a.table] : []);
+const tablePart = (a: Pick<SpotAttrs, "table">) => (a.table ? [a.table] : []);
 /** A situation: the attributes without what was done there (a full-ring spot ends in `~9max`, a heads-up one in `~hu`). */
 export const situationKey = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain, ...tablePart(a)].join("~");
 /** A leak's id: stable across reloads and filters, safe in a URL (a full-ring spot ends in `~9max`, a heads-up one in `~hu`). */
 export const leakId = (a: SpotAttrs) =>
   [a.street, a.scenario, a.family, a.hero, a.villain, a.taken, a.best, ...tablePart(a)].join("~");
+
+/**
+ * A situation key as it was before postflop spots carried their table (§10,
+ * 2026-11-03): a postflop tag dropped, a preflop one kept. What a stored
+ * study plan's snapshot (written before) names its situations by.
+ */
+export const legacySituationKey = (a: SpotAttrs) => situationKey(a.street === "preflop" ? a : { ...a, table: undefined });
+
+/**
+ * Whether a row is one of a leak's decisions: its spot key and its situation.
+ * A spot key names no table, so a heads-up and a 6-max decision on the same
+ * key are told apart by the situation (its table tag).
+ */
+export function rowOfLeak(keys: ReadonlySet<string>, situations: ReadonlySet<string>, row: SpotRow, attrs: SpotAttrs = spotAttrs(row)): boolean {
+  return keys.has(row.key) && situations.has(situationKey(attrs));
+}
 
 /** The parts of a leak id, or null for anything that is not one. */
 export function parseLeakId(id: string): SpotAttrs | null {
@@ -683,11 +733,12 @@ function periodStats(leak: Leak, rows: readonly SpotRow[]) {
   let mistakes = 0;
   let ev = 0;
   for (const row of rows) {
-    if (keys.has(row.key)) {
+    const attrs = spotAttrs(row);
+    if (rowOfLeak(keys, situations, row, attrs)) {
       mistakes += row.nonPerfect;
       ev += row.evLossBb;
     }
-    if (situations.has(situationKey(spotAttrs(row)))) spot += row.decisions;
+    if (situations.has(situationKey(attrs))) spot += row.decisions;
   }
   return { spot, mistakes, evLossBb: round(ev, 3), rate: spot > 0 ? mistakes / spot : null };
 }
