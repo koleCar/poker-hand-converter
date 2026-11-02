@@ -283,7 +283,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'claim_desktop_sign_in',
                 -- pure helpers: no table, or a date of the caller's own rows
                 'analysis_best_action', 'analysis_chosen_action', 'analysis_filter_of', 'analysis_filter_rows_ok',
-                'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_month_of', 'analysis_spot_key',
+                'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_month_of', 'analysis_spot_key',
                 'analysis_street_bit', 'analysis_version_of', 'drill_keys_valid', 'drill_next', 'drill_quality',
                 'preflop_chart_key_ok', 'preflop_chart_node_key', 'preflop_chart_nodes_problem',
                 'preflop_chart_seats', 'preflop_chart_set_table', 'preflop_chart_window', 'preflop_class_index',
