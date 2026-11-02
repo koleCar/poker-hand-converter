@@ -267,7 +267,9 @@ const HEADS_UP_SET = "nlhe-cash-hu-100bb";
 /**
  * The set an area's trainer deals from (A2d): the chart set its leaks were
  * graded on most, so a full-ring 150bb leak is practised on the full-ring
- * 150bb charts. Ties go to the alphabetically first id; null off the charts.
+ * 150bb charts, and a heads-up river leak on the heads-up river lines (a
+ * postflop row's set is its hand's table). Ties go to the alphabetically
+ * first id; null when no leak names a set.
  */
 export function areaSet(leaks: readonly Pick<Leak, "sets">[]): string | null {
   const total = new Map<string, number>();

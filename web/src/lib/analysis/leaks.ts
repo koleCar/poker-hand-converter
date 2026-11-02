@@ -86,8 +86,10 @@ export interface SpotRow {
   key: string;
   /**
    * The chart set the decisions were graded on (A2d,
-   * `20270303090000_analysis_leaks_sets.sql`); null or absent for decisions
-   * not graded from the charts. A spot key can head one row per set.
+   * `20270303090000_analysis_leaks_sets.sql`); for a flop, turn or river
+   * spot the hand's table (`20271102090000_leak_row_table.sql`). Null or
+   * absent for a preflop decision off the charts and a hand no set answers.
+   * A spot key can head one row per set.
    */
   set?: string | null;
   street: string;
@@ -308,7 +310,7 @@ export interface Leak {
   partial: boolean;
   /** Finest spot keys whose decisions this leak is made of (for `analysis_leak_hands`). */
   keys: string[];
-  /** Decisions of this wrong turn per chart set (A2d); empty off the charts. */
+  /** Decisions of this wrong turn per chart set (A2d; postflop, the hands' tables); empty where none names one. */
   sets: Record<string, number>;
   /** Finest situations it covers (more than one: merged), as {@link situationKey}s. */
   situationKeys: string[];
