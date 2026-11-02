@@ -36,7 +36,8 @@
 --     postflop decision, so it still answers what the summaries answer. It is
 --     re-created as it was otherwise; the R6.2 entitlement gate is put back
 --     with `entitlement_gates_apply()`.
---   * Backfill: every stored postflop leak row with no set gets its hand's,
+--   * Backfill (`analysis_leak_rows_table_backfill()`, definer, executable by
+--     no client): every stored postflop leak row with no set gets its hand's,
 --     and the account's two leak sum tables are recounted from its rows (as
 --     `analysis_leak_summaries_rebuild` counts them), one account at a time
 --     under the account's sums lock. Idempotent: a second run finds nothing
@@ -255,12 +256,19 @@ grant execute on function public.analysis_leaks_scan(jsonb) to authenticated;
 -- Per account, under its sums lock: the postflop rows with no set take their
 -- hand's, then the two leak sum tables are recounted from the rows, as
 -- `analysis_leak_summaries_rebuild` counts them (the other summaries do not
--- read the set).
+-- read the set). A function (definer, executable by no client) so the test
+-- can run it again; it returns the rows it set.
 
-do $$
+create or replace function public.analysis_leak_rows_table_backfill()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
 declare
   v_owner uuid;
   v_n     integer;
+  v_all   integer := 0;
 begin
   for v_owner in
     select distinct x.owner_id from public.analysis_leak_rows x
@@ -278,6 +286,7 @@ begin
                           where y.hand_id = h.id and y.street <> 'preflop' and y.chart_set = '')) s
      where x.owner_id = v_owner and x.hand_id = s.id and x.street <> 'preflop' and x.chart_set = '' and s.set <> '';
     get diagnostics v_n = row_count;
+    v_all := v_all + v_n;
     continue when v_n = 0;
 
     delete from public.analysis_leak_totals where owner_id = v_owner;
@@ -306,8 +315,17 @@ begin
     where owner_id = v_owner and grade is not null
     group by 1, 2, 3, 4, 5, 6, 7;
   end loop;
+  return v_all;
 end;
 $$;
+
+comment on function public.analysis_leak_rows_table_backfill() is
+  'Gives every stored postflop leak row with no set its hand''s table and recounts the account''s leak sums '
+  '(20271102090000). Idempotent. Definer; executable by no client.';
+
+revoke all on function public.analysis_leak_rows_table_backfill() from public, anon, authenticated;
+
+select public.analysis_leak_rows_table_backfill();
 
 commit;
 
