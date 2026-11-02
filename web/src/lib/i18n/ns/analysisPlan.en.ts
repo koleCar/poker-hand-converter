@@ -83,8 +83,10 @@ export const planEn = {
     train: (target: number, what: string) => `Play ${count(target, "trainer spot", "trainer spots")}: ${what}`,
     trainPreflop: (family: string, seat: string | null, vs: string | null, headsUp = false) =>
       [family, seat ? `as ${seat}` : null, vs ? `against ${vs}'s raise` : null, headsUp ? "heads-up" : null].filter(Boolean).join(", "),
-    trainRiver: (role: string | null, side: string | null, pot: string | null) => {
-      const parts = [role ? roles[role] : null, side ? sides[side] : null, pot ? `in ${pots[pot]}` : null].filter(Boolean);
+    trainRiver: (role: string | null, side: string | null, pot: string | null, headsUp = false) => {
+      const parts = [role ? roles[role] : null, side ? sides[side] : null, pot ? `in ${pots[pot]}` : null, headsUp ? "heads-up" : null].filter(
+        Boolean,
+      );
       return parts.length > 0 ? `river, ${parts.join(", ")}` : "any river";
     },
     trainFlop: (

@@ -31,6 +31,7 @@ document refers to most:
 | `20270929090000_billing_enforced.sql` | Rail R6.4: `billing_enforced()` - whether paid plans are enforced, for a desktop app with no account (anon-callable definer; the switch only, no user data). See [Plans and entitlements](#plans-and-entitlements). Not applied to production. |
 | `20271006090000_account_export.sql`, `20271006100000_account_deletion.sql` | Rail R6.5: the account's data. `account_data_inventory` (every place that holds an account's rows: export and deletion decided per row; pgTAP fails on a table missing from it); the owner-only export readers (`export_my_manifest`, `export_my_profile`, `export_my_hands`, `export_my_rows`, `export_my_sealed`); the deletion's request and steps (`begin_account_deletion` as the user, then `account_deletion_state` / `_mark`, `account_storage_objects`, `erase_account_content`, `erase_account_hands` for the Edge Function `account-delete`); the moderation log's erasure exception. See [Your data](#your-data-export-and-deletion). Not applied to production. |
 | `20271013090000_billing_consents.sql` | Rail R6.3 addendum: the consent recorded before Stripe Checkout opens (the terms; the request that Pro start at once and the acknowledgement about the right of withdrawal). `billing_consents` (sealed, evidence: only the session id - once - and the owner - cleared on deletion - can change), `billing_record_consent()`, `billing_consent_set_session()`, all service role only; exported to the account (`billing/consents.ndjson`), kept without the owner on deletion. See [Stripe Billing (R6.3)](#stripe-billing-r63). Not applied to production. |
+| `20271102090000_leak_row_table.sql` | A postflop leak row carries its hand's table: `analysis_hand_table_set(phf)` (immutable, no table; executable by `authenticated` for the invoker scan, not `anon`) picks the chart set as `pickChartSet` does - players dealt in, the depth nearest the effective stack of the players still in at the flop, within 20% - and the before-insert row trigger `analysis_leak_rows_table_set` (definer, no client) writes it into `analysis_leak_rows.chart_set` for a flop, turn or river row (preflop rows unchanged). `analysis_leaks_scan` reads the same set (re-created, the R6.2 gate put back); `analysis_leak_rows_table_backfill()` (definer, no client) gives stored rows the set and recounts the two leak sum tables. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 
 The migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`, the statistics, analysis, Learn, report,
@@ -2624,6 +2625,30 @@ its hand's owner, and a hand's time, room, stake and seat do not change.
 recounts all of it - the repair after a write that bypassed the triggers,
 and the migration's backfill. RLS select-own on every table, no client
 write grant.
+
+**A postflop row's chart set** (`20271102090000`). A preflop row's
+`chart_set` is the set its chart grade names (`analysis_leak_chart_set`,
+`''` off the charts). A flop, turn or river row's is its hand's table,
+written by the before-insert row trigger `analysis_leak_rows_table_set`
+(definer, executable by no client; it fires only for a postflop row with
+no set) from `analysis_hand_table_set(hands.phf)`: the chart set
+`pickChartSet` would read the hand on - 2 dealt in heads-up, 3-6 6-max,
+7-9 9-max; the depth nearest the effective stack (the hero against the
+deepest opponent who did not fold preflop), within 20% - or `''` (not NLHE
+cash, a straddle or bomb pot, ten players or more, no hero, a depth no set
+covers). It is read from the hand alone, never from the hand's other
+decisions, so deleting one decision cannot change another's row and a
+rebuild still recounts what the triggers kept. The summary triggers sum
+what the insert returns and the rebuild sums the table, so both carry it
+without being re-created; `analysis_leaks_scan` computes the same set.
+The leak finder (`analysis_leaks`) returns it as each postflop row's `set`
+(one row per spot and table); the study plan deals a flop or river area on
+that table. `analysis_leak_rows_table_backfill()` (definer, no client) set
+it on the rows stored before and recounted `analysis_leak_totals` and
+`analysis_leak_stake_totals` per account under the sums lock; idempotent.
+The helper's list of sets is `CHART_SETS` without the straddle set
+(`tests/test/studyPlanTable.test.ts` keeps them equal). pgTAP
+`leak_row_table` (34).
 
 **Cost** (`20270825090000` at a generated 1M-hand account, details in
 docs/RAIL-PLAN.md §15): every listed reader under ~0.4 s on its default

@@ -4422,6 +4422,7 @@ export type Database = {
         Args: { p_hand_id: string; p_version?: string }
         Returns: Json
       }
+      analysis_hand_table_set: { Args: { p_phf: Json }; Returns: string }
       analysis_hands: {
         Args: {
           p_filters?: Json
@@ -4486,6 +4487,7 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_leak_rows_table_backfill: { Args: never; Returns: number }
       analysis_leak_sample: {
         Args: {
           p_format: string

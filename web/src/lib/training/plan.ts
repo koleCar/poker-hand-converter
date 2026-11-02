@@ -62,7 +62,17 @@ import { FLOP_LIBRARY_SETS } from "../analysis/flopLibrary";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../charts";
 import { FLOP_FACINGS, flopFilterSeat, flopTableLines, type FlopFacing } from "./flop";
 import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES, type PreflopFamily } from "./preflop";
-import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS, riverSeatings, type RiverPot, type RiverRole, type RiverSeat } from "./river";
+import {
+  RIVER_LINES,
+  RIVER_LINES_HU,
+  RIVER_POTS,
+  RIVER_ROLES,
+  RIVER_SEATS,
+  riverSeatings,
+  type RiverPot,
+  type RiverRole,
+  type RiverSeat,
+} from "./river";
 
 /* ------------------------------------------------------------ constants - */
 
@@ -164,7 +174,14 @@ export type TrainerTarget =
       /** The chart set to deal from (A2d): the one the player met the area on most; absent, the trainer's default. */
       set?: string | null;
     }
-  | { mode: "river"; pot: RiverPot | "any"; side: RiverSeat | "any"; role: RiverRole | "any" }
+  | {
+      mode: "river";
+      pot: RiverPot | "any";
+      side: RiverSeat | "any";
+      role: RiverRole | "any";
+      /** A heads-up set (`RIVER_LINES_HU`) when the area was played heads-up; absent, the 6-max lines. */
+      set?: string | null;
+    }
   | {
       mode: "flop";
       /** The chart set whose library lines it deals (`FLOP_LIBRARY_SETS`). */
@@ -250,7 +267,9 @@ const HEADS_UP_SET = "nlhe-cash-hu-100bb";
 /**
  * The set an area's trainer deals from (A2d): the chart set its leaks were
  * graded on most, so a full-ring 150bb leak is practised on the full-ring
- * 150bb charts. Ties go to the alphabetically first id; null off the charts.
+ * 150bb charts, and a heads-up river leak on the heads-up river lines (a
+ * postflop row's set is its hand's table). Ties go to the alphabetically
+ * first id; null when no leak names a set.
  */
 export function areaSet(leaks: readonly Pick<Leak, "sets">[]): string | null {
   const total = new Map<string, number>();
@@ -271,6 +290,27 @@ const FULL_RING_SET = "nlhe-cash-9max-100bb";
 
 /** A set's players, null for a set that is not a chart set. */
 const playersOf = (set: string) => CHART_SETS.find((spec) => spec.id === set)?.players ?? null;
+/** A plain (not straddled) chart set's spec, null for anything else. */
+const specOf = (set: string | null) => (set ? (CHART_SETS.find((spec) => spec.id === set && !spec.straddle) ?? null) : null);
+/** The heads-up sets the river trainer deals heads-up lines from (`RIVER_LINES_HU`); every other table deals the 6-max lines. */
+const RIVER_HEADS_UP_SETS: readonly string[] = CHART_SETS.filter((spec) => spec.players === 2 && !spec.straddle).map((spec) => spec.id);
+
+/**
+ * The sets among `ids` at the table of chart set `set`, the depth nearest
+ * its own first (ties keep `ids`' order); empty when `set` is not a chart
+ * set. A postflop area's set is its hand's table (§10, 2026-11-02): a
+ * heads-up 150bb leak is practised on the heads-up 150bb lines, a 6-max
+ * 200bb one on the 6-max 150bb library.
+ */
+export function tableSets(set: string | null, ids: readonly string[]): string[] {
+  const own = specOf(set);
+  if (!own) return [];
+  return ids
+    .map((id, index) => ({ id, index, spec: specOf(id) }))
+    .filter((x) => x.spec !== null && x.spec.players === own.players)
+    .sort((a, b) => Math.abs(a.spec!.stackBb - own.stackBb) - Math.abs(b.spec!.stackBb - own.stackBb) || a.index - b.index)
+    .map((x) => x.id);
+}
 /** Whether a line id is one of a set's library lines. */
 const isFlopLine = (set: string, line: string) =>
   LINE_ID.test(line) && flopTableLines(playersOf(set) ?? 0).some((l) => l.id === line);
@@ -293,12 +333,15 @@ export function flopTargetSeatings(target: Pick<FlopTarget, "set" | "pot" | "sid
 /**
  * A flop area's target (§10, 2026-10-31): the flop trainer on the library's
  * lines where the hero sat in the area's seat, role and side, facing what
- * the area faced. A flop leak row carries no table and no line (its chart
- * set is `''` off the charts), so the table is the first library table that
- * has such a line - 6-max 100bb, then full ring (a seat only it has, `LJ`),
- * then heads-up (the small blind in position, which no other table's line
- * has) - and the line is named only when exactly one fits. Null for a
- * multiway area and for a spot no library line holds (`UTG` as the caller):
+ * the area faced. The table is the one the area's leaks were played at (a
+ * postflop leak row carries its hand's set since 2026-11-02): that table's
+ * library set nearest the depth, and no other table - a heads-up big-blind
+ * leak is dealt heads-up lines. Rows written before carry none (`''`), and
+ * for them the table is a guess: the first library table that has such a
+ * line - 6-max 100bb, then full ring (a seat only it has, `LJ`), then
+ * heads-up (the small blind in position, which no other table's line has).
+ * The line is named only when exactly one fits. Null for a multiway area
+ * and for a spot no library line of the table holds (`UTG` as the caller):
  * those keep no trainer, as before.
  */
 function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
@@ -312,13 +355,11 @@ function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
   const facing: FlopFacing =
     family === "vs-bet" ? "bet" : family === "vs-raise" ? "raise" : family === "first" && side === "ip" ? "check" : "any";
   const seat = seatOf(where.hero);
-  const tables = [
-    ...(set && (FLOP_LIBRARY_SETS as readonly string[]).includes(set) ? [set] : []),
-    ...(where.table === HEADS_UP_TABLE ? [HEADS_UP_SET] : []),
-    DEFAULT_CHART_SET,
-    FULL_RING_SET,
-    HEADS_UP_SET,
-  ];
+  const own = tableSets(set, FLOP_LIBRARY_SETS);
+  const tables =
+    own.length > 0
+      ? own
+      : [...(where.table === HEADS_UP_TABLE ? [HEADS_UP_SET] : []), DEFAULT_CHART_SET, FULL_RING_SET, HEADS_UP_SET];
   for (const table of tables) {
     const target: FlopTarget = { mode: "flop", set: table, pot, side, role, seat, facing, line: null };
     const lines = [...new Set(flopTargetSeatings(target).map((s) => s.line.id))];
@@ -392,16 +433,20 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     const facing = where.family === "vs-bet" || where.family === "vs-raise" || /-vs-(bet|raise)$/.test(where.scenario);
     const match = /^(pfr|caller|limped)-(ip|oop)-/.exec(where.scenario);
     const side: RiverSeat | "any" = facing ? "ip" : match ? (match[2] as RiverSeat) : "any";
-    if (!match) return { mode: "river", pot: "any", side, role: "any" };
-    if (match[1] === "limped") return { mode: "river", pot: "limped", side, role: "any" };
-    return { mode: "river", pot: "any", side, role: match[1] as RiverRole };
+    // Played heads-up (the area's set, §10 2026-11-02): the heads-up lines at the nearest depth.
+    const own = tableSets(set, RIVER_HEADS_UP_SETS)[0];
+    const deal = own ? { set: own } : {};
+    if (!match) return { mode: "river", pot: "any", side, role: "any", ...deal };
+    if (match[1] === "limped") return { mode: "river", pot: "limped", side, role: "any", ...deal };
+    return { mode: "river", pot: "any", side, role: match[1] as RiverRole, ...deal };
   }
   return null;
 }
 
 /**
  * A trainer target as a task reference: `preflop/vs-open/BTN/vs-CO`,
- * `preflop/rfi/UTG/nlhe-cash-9max-100bb` (A2d: the set last), `river/any/oop/pfr`,
+ * `preflop/rfi/UTG/nlhe-cash-9max-100bb` (A2d: the set last), `river/any/oop/pfr`
+ * (`river/any/oop/caller/nlhe-cash-hu-100bb` heads-up: the set last),
  * `flop/nlhe-cash-6max-100bb/any/oop/caller/BB/bet` (set, pot, side, role,
  * seat, facing, and the line last when there is one).
  */
@@ -416,7 +461,7 @@ export function trainerRef(target: TrainerTarget): string {
       .filter(Boolean)
       .join("/");
   }
-  return ["river", target.pot, target.side, target.role].join("/");
+  return ["river", target.pot, target.side, target.role, target.set ?? null].filter(Boolean).join("/");
 }
 
 /** A task reference read back as its target (the inverse of {@link trainerRef}); null for anything else. */
@@ -448,12 +493,13 @@ export function parseTrainerRef(ref: string): TrainerTarget | null {
     if (line !== undefined && !isFlopLine(set, line)) return null;
     return { mode: "flop", set, pot, side, role, seat: seat(seatPart), facing, line: line ?? null };
   }
-  if (parts[0] === "river" && parts.length === 4) {
+  if (parts[0] === "river" && (parts.length === 4 || parts.length === 5)) {
     const pot = oneOf(parts[1], RIVER_POTS);
     const side = oneOf(parts[2], RIVER_SEATS);
     const role = oneOf(parts[3], RIVER_ROLES);
     if (!pot || !side || !role) return null;
-    return { mode: "river", pot, side, role };
+    if (parts.length === 5 && !RIVER_HEADS_UP_SETS.includes(parts[4])) return null;
+    return { mode: "river", pot, side, role, ...(parts.length === 5 ? { set: parts[4] } : {}) };
   }
   return null;
 }
@@ -491,8 +537,10 @@ export function trainerMatch(target: TrainerTarget): TrainerMatch {
       spots: all || seatings.length === 0 ? null : [...new Set(seatings.map((s) => `${s.line.id}:${s.hero}`))].sort(),
     };
   }
-  const seatings = riverSeatings({ pot: target.pot, seat: target.side, role: target.role });
-  const all = target.pot === "any" && target.side === "any" && target.role === "any";
+  // A heads-up target counts the heads-up lines' answers (`hu-` ids), never a 6-max line's.
+  const headsUp = !!target.set && RIVER_HEADS_UP_SETS.includes(target.set);
+  const seatings = riverSeatings({ pot: target.pot, seat: target.side, role: target.role }, headsUp ? RIVER_LINES_HU : RIVER_LINES);
+  const all = target.pot === "any" && target.side === "any" && target.role === "any" && !headsUp;
   return {
     mode: "river",
     family: null,
@@ -908,7 +956,8 @@ function parseTrainer(value: unknown): TrainerTarget | null {
   const pick = <T extends string>(x: unknown, allowed: readonly T[]): T | "any" =>
     typeof x === "string" && (allowed as readonly string[]).includes(x) ? (x as T) : "any";
   if (v.mode === "river") {
-    return { mode: "river", pot: pick(v.pot, RIVER_POTS), side: pick(v.side, RIVER_SEATS), role: pick(v.role, RIVER_ROLES) };
+    const set = typeof v.set === "string" && RIVER_HEADS_UP_SETS.includes(v.set) ? { set: v.set } : {};
+    return { mode: "river", pot: pick(v.pot, RIVER_POTS), side: pick(v.side, RIVER_SEATS), role: pick(v.role, RIVER_ROLES), ...set };
   }
   if (v.mode === "flop" && typeof v.set === "string" && (FLOP_LIBRARY_SETS as readonly string[]).includes(v.set)) {
     const set = v.set;
