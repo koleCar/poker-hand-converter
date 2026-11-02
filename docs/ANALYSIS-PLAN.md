@@ -6438,9 +6438,10 @@ Each phase appends what it learned that changed the plan.
     exactly as the analysis grades them; heads-up flop spots on a chunk
     solved in the test (small tree), none on the 150bb set.
   - **Open.**
-    - Postflop heads-up leaks to a heads-up river drill: the leak rows
+    - ~~Postflop heads-up leaks to a heads-up river drill: the leak rows
       would need the table for postflop decisions (a migration on
-      `analysis_leak_rows` / `analysis_leaks`), not done here.
+      `analysis_leak_rows` / `analysis_leaks`), not done here.~~ Done
+      2026-11-02 (`20271102090000_leak_row_table.sql`).
     - No screen offers a heads-up flop yet: the Train tab has no flop mode
       (`trainer_results.mode` allows preflop, river and drill only, so a
       flop mode is a migration), and Learn's flop cards are 6-max; a
@@ -6674,13 +6675,108 @@ Each phase appends what it learned that changed the plan.
     stack with every migration: it, `analysis_study_plan` (54),
     `learn_progress` (50) and `entitlements` (68) pass.
   - **Open.**
-    - The table of a flop area is a guess from its seat, role and side: the
+    - ~~The table of a flop area is a guess from its seat, role and side: the
       leak rows keep no chart set for postflop decisions, so a heads-up
       big-blind leak is dealt on 6-max lines (the same open item as the
-      river's, 2026-10-28: a migration on the leak rows).
+      river's, 2026-10-28: a migration on the leak rows).~~ Done 2026-11-02
+      (`20271102090000_leak_row_table.sql`); the guess stays for rows that
+      name no table.
     - A flop area does not know whether its decisions were graded from the
       library (`facts.flop.source`) or its pot type: a single-raised and a
       3-bet pot with the same seat, role and side are one area, and both
       lines are dealt.
     - Not measured on the owner's corpus (how many flop focus areas now get
       a trainer task).
+- 2026-11-02 — A postflop leak row carries its hand's table. Migration
+  `20271102090000_leak_row_table.sql` (must be applied to prod after
+  merge); no `ANALYSIS_VERSION` change (leak-row metadata, no stored grade
+  moves).
+  - **Why.** The open items of the 2026-10-28 and 2026-10-31 entries: a
+    leak row's `chart_set` was `''` for everything not graded off the
+    preflop charts, so the study plan could not tell a heads-up flop or
+    river leak from a 6-max one. A heads-up big-blind river leak was dealt
+    on the 6-max river lines, and a flop area's table was a guess (6-max
+    100bb, then 9-max 100bb, then heads-up 100bb).
+  - **What was done.**
+    - *Where the table comes from*: postflop facts name no set (the river
+      and turn solves and the flop library read the charts but store their
+      own ids, not the set), so the table is read from the hand:
+      `analysis_hand_table_set(phf)` picks the set as `pickChartSet` does
+      for the hero's last preflop decision - the table by the players dealt
+      in (2 heads-up, 3-6 6-max, 7-9 9-max), the depth nearest the effective
+      stack of the hero against the deepest opponent who did not fold
+      preflop, within 20% - and `''` for a hand no set answers (not NLHE
+      cash, a straddle or bomb pot, ten players or more, no hero, a depth
+      outside every band). Not from the hand's preflop decisions' own set:
+      a row would then change when another decision of its hand is deleted,
+      and the rebuild would no longer recount what the triggers kept.
+    - *Database*: a before-insert row trigger on `analysis_leak_rows`
+      (`analysis_leak_rows_table_set`, definer, empty search_path, no client
+      execute; it fires only for a postflop row with no set) writes the set.
+      The summary trigger sums what its insert returns and the rebuild sums
+      the table, so `analysis_leak_totals` and `analysis_leak_stake_totals`
+      carry it with neither re-created. `analysis_leaks_scan` (the leak list
+      under a hand-list filter; re-created from `20270825090000`'s, the R6.2
+      gate put back with `entitlement_gates_apply()`) computes the same
+      set, so the scan and the sums still agree. Preflop rows are unchanged.
+      Grants and RLS unchanged; the helper is executable by `authenticated`
+      (the invoker scan calls it; it reads nothing but its argument, on the
+      entitlements test's pure-helper list), not by `anon`.
+    - *Backfill*: `analysis_leak_rows_table_backfill()` (definer, no
+      client), run by the migration: every stored postflop row with no set
+      takes its hand's, and the account's two leak sum tables are recounted
+      from its rows, one account at a time under its sums lock. Idempotent;
+      no re-analysis needed.
+    - *Leak finder*: `analysis_leaks` returns a postflop row per spot and
+      table; a postflop leak's id is unchanged (no `~hu` tag, unlike
+      preflop), and its `sets` now count the tables it was met on.
+    - *Study plan*: an area's set is still the one most of its decisions
+      were met on (`areaSet`). The flop target deals on that table only
+      (`tableSets`: its library set nearest the depth, so 6-max 200bb deals
+      the 6-max 150bb library) and never falls back to another table - a
+      heads-up big-blind leak gets the heads-up lines, a heads-up button
+      area (no such seat heads-up) gets no trainer. An area whose rows name no
+      set (hands no set answers) keeps the old guess. The river target takes the heads-up set when the area was
+      played heads-up (`set`; the reference gains it last,
+      `river/any/oop/caller/nlhe-cash-hu-100bb`, inside `save_study_plan`'s
+      check, so no writer change), counts the heads-up lines' answers
+      (`hu-` ids), opens the river trainer on that set, and its task says
+      "heads-up" (English and Croatian). 6-max and full-ring river areas keep
+      the 6-max lines and the old reference.
+    - `database.types.ts` regenerated (CLI 2.75.0): the two new functions.
+  - **Tested.** pgTAP `leak_row_table.test.sql` (34): the helper's,
+    trigger's, backfill's and scan's security (definer / invoker, search
+    path, execute grants, the gate), no client write grant; the helper on
+    heads-up 100 and 150bb, 6-max with a deep opponent folded and still in,
+    three-handed, 9-max, and every no-set case; rows written through
+    `save_hand_analysis` carry the hand's set on every postflop street,
+    preflop rows keep theirs; the sums keep a spot per table; the leak list
+    from the sums and from the scan agree; one account does not read
+    another's; the sums equal a rebuild; old rows (trigger off) are
+    backfilled to the same sets and sums, and a second run sets nothing.
+    `entitlements.test.sql`: the helper on the pure-helper list. On a fresh
+    local stack with every migration, all 58 pgTAP files pass (2,025
+    tests). `tests/test/studyPlanTable.test.ts` (12): the migration's set
+    list equals `CHART_SETS` without the straddle set; a postflop leak's id
+    and `sets`; heads-up 100 and 150bb, 6-max, 6-max 200bb and 9-max flop
+    targets, a heads-up area never dealt elsewhere, old rows on the old
+    guess; a heads-up river target's reference, snapshot, address, words and
+    counted lines, a spot dealt from its address counted by its filter;
+    6-max, full ring and no set keep the old river target.
+    `studyPlan`, `studyPlanFlop`, `trainingHeadsUp` and the whole suite pass.
+  - **Open.**
+    - A heads-up and a 6-max postflop area with the same seat, role and side
+      are still one area (the leak id has no table): its trainer deals the
+      table most of its decisions were met on. Tagging postflop leaks `~hu`
+      like preflop would split them, but changes their ids (drills, a stored
+      plan's carried areas).
+    - The pot type: a leak row keeps its hand's `pot_type`, but
+      `analysis_leaks` sums over it (the spot rows have no pot), so a
+      single-raised and a 3-bet flop area with the same seat, role and side
+      are still one area and both lines are dealt; splitting them is a
+      reader and leak-id change, not done here.
+    - The desktop app's own leak rows (`app/src/analysis/rows.ts`,
+      `rail-store`) still give postflop rows `''`; the app has no study plan,
+      so nothing reads it there yet.
+    - Not measured on the owner's corpus (the local stack holding it was
+      not running): how many postflop rows and areas name a heads-up table.
