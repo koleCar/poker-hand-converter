@@ -281,5 +281,7 @@ export function targetQuery(target: TrainerTarget): string {
       line: target.line,
     });
   }
-  return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "river", pot: target.pot, side: target.side, role: target.role });
+  // A heads-up area's river deals the heads-up lines (its set); otherwise the 6-max ones.
+  const set = target.set ? riverSetOf(target.set) : DEFAULT_TRAIN_STATE.set;
+  return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "river", set, pot: target.pot, side: target.side, role: target.role });
 }

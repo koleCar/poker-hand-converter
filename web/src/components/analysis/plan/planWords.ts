@@ -52,6 +52,7 @@ export function usePlanWords() {
               target.role === "any" ? null : target.role,
               target.side === "any" ? null : target.side,
               target.pot === "any" ? null : target.pot,
+              !!target.set && /-hu-/.test(target.set),
             ),
     [t, settings, en],
   );
