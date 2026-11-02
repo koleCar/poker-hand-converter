@@ -7,8 +7,9 @@
  *
  * - **The database's list**: the migration's sets are `CHART_SETS` without
  *   the straddle set, in its order (ties go to the first, as `pickChartSet`).
- * - **The leak finder**: a postflop leak's id is what it was (no table tag);
- *   its `sets` count the tables its decisions were met on.
+ * - **The leak finder**: a postflop leak's `sets` count the depths its
+ *   decisions were met on (since 2026-11-02 its id carries its table, so one
+ *   table: `leakAreaTable.test.ts`).
  * - **The flop**: a heads-up big-blind leak deals the heads-up lines at the
  *   nearest depth, a 6-max one the 6-max lines, a full-ring one the full-ring
  *   lines; a heads-up area is never dealt another table's lines; a row with no
@@ -109,16 +110,16 @@ describe("the database's table helper", () => {
 /* ------------------------------------------------------ the leak finder - */
 
 describe("a postflop leak with its table", () => {
-  it("keeps its id and counts the tables it was met on", () => {
+  it("counts the depths it was met on (one table since 2026-11-02: `leakAreaTable.test.ts`)", () => {
     const rows = [
       row("river", "caller-oop-vs-bet", "BB", "fold", "call", 4, HU100, 3),
-      row("river", "caller-oop-vs-bet", "BB", "fold", "call", 2, SIX, 1),
+      row("river", "caller-oop-vs-bet", "BB", "fold", "call", 2, HU150, 1),
       row("river", "caller-oop-vs-bet", "BB", "call", "call", 30, HU100),
     ];
     const [leak] = groupLeaks(rows, { hands: 100 });
-    expect(leak.id).toBe("river~caller-oop-vs-bet~vs-bet~BB~-~fold~call");
-    expect(leak.attrs.table).toBeUndefined();
-    expect(leak.sets).toEqual({ [HU100]: 4, [SIX]: 2 });
+    expect(leak.id).toBe("river~caller-oop-vs-bet~vs-bet~BB~-~fold~call~hu");
+    expect(leak.attrs.table).toBe("hu");
+    expect(leak.sets).toEqual({ [HU100]: 4, [HU150]: 2 });
     expect(areaSet([leak])).toBe(HU100);
   });
 

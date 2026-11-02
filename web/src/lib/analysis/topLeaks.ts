@@ -41,6 +41,7 @@
 import {
   MIN_COMPARE_SPOT,
   rateZ,
+  rowOfLeak,
   situationKey,
   spotAttrs,
   trendOf,
@@ -169,11 +170,13 @@ export function leakPeriod(leak: Pick<Leak, "keys" | "situationKeys">, rows: rea
   let mistakes = 0;
   let ev = 0;
   for (const row of rows) {
-    if (keys.has(row.key)) {
+    const attrs = spotAttrs(row);
+    // Its key in its own situations: a spot key names no table (a heads-up row on a 6-max leak's key is not its).
+    if (rowOfLeak(keys, situations, row, attrs)) {
       mistakes += row.nonPerfect;
       ev += row.evLossBb;
     }
-    if (situations.has(situationKey(spotAttrs(row)))) spot += row.decisions;
+    if (situations.has(situationKey(attrs))) spot += row.decisions;
   }
   return { spot, mistakes, evLossBb: round(ev, 3), rate: spot > 0 ? mistakes / spot : null };
 }
