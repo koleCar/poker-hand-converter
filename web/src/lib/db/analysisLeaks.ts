@@ -12,7 +12,7 @@
  */
 
 import { ANALYSIS_VERSION } from "../analysis";
-import type { SpotRow, TrendRow } from "../analysis/leaks";
+import type { LeakTable, SpotRow, TrendRow } from "../analysis/leaks";
 import type { OptionAnalysis } from "../analysis/types";
 import { currentUserId, rpc } from "./client";
 import type { AnalysisFilters } from "./analysis";
@@ -133,6 +133,13 @@ export interface LeakHandsPage {
 export interface LeakHandsQuery {
   /** Finest spot keys (`Leak.keys`). */
   keys: string[];
+  /**
+   * Only the decisions on this table (`handsTable`: a leak's or area's tag,
+   * `"other"` for 6-max and no set): a spot key names no table, so a heads-up
+   * area's keys also hold the 6-max blinds' decisions
+   * (`20271103090000_leak_hands_table.sql`). Absent or null: every table.
+   */
+  table?: LeakTable | "other" | null;
   /** Only decisions graded worse than Perfect. Default true. */
   deviations?: boolean;
   sort?: LeakHandSort;
@@ -145,7 +152,7 @@ export async function fetchLeakHands(filters: AnalysisFilters, query: LeakHandsQ
     return { total: 0, rows: [] };
   }
   const payload = await rpc<Row | null>("analysis_leak_hands", {
-    p_filters: withVersion(filters),
+    p_filters: { ...withVersion(filters), ...(query.table ? { leakTable: query.table } : {}) },
     p_keys: query.keys.slice(0, 500),
     p_deviations: query.deviations ?? true,
     p_sort: query.sort ?? "ev_loss",

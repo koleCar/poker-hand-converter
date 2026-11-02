@@ -36,7 +36,7 @@ import {
   type Leak,
   type LeakSort,
 } from "../../../lib/analysis/leaks";
-import { lineSeats } from "../../../lib/analysis/leaks";
+import { handsTable, lineSeats } from "../../../lib/analysis/leaks";
 import { walkLine } from "../../../lib/analysis/reports";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -551,16 +551,18 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
   const t = en.leaks;
   const locale = useIntlLocale();
   const keys = leak.keys.join(",");
+  // Its own table's decisions only: a spot key names no table.
+  const table = handsTable(leak.attrs, leak.level);
   const filterKey = JSON.stringify(filters);
   const [pages, setPages] = useState(1);
   const [data, setData] = useState<{ key: string; total: number; rows: LeakHandRow[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const requestKey = `${keys}|${filterKey}|${pages}`;
+  const requestKey = `${keys}|${table ?? ""}|${filterKey}|${pages}`;
   const loading = data?.key !== requestKey && !error;
 
   useEffect(() => {
     let live = true;
-    fetchLeakHands(JSON.parse(filterKey) as AnalysisFilters, { keys: keys.split(","), limit: HANDS_PAGE * pages })
+    fetchLeakHands(JSON.parse(filterKey) as AnalysisFilters, { keys: keys.split(","), table, limit: HANDS_PAGE * pages })
       .then((page) => {
         if (live) setData({ key: requestKey, total: page.total, rows: page.rows });
       })
@@ -570,7 +572,7 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
     return () => {
       live = false;
     };
-  }, [keys, filterKey, pages, requestKey]);
+  }, [keys, table, filterKey, pages, requestKey]);
 
   const when = (iso: string | null) =>
     iso ? dateFormat(locale, { day: "2-digit", month: "2-digit", year: "2-digit" }).format(new Date(iso)) : "";

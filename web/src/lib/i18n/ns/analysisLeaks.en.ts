@@ -91,7 +91,7 @@ const facingWords = { first: "first to act", "vs-bet": "facing a bet", "vs-raise
 /** "BB vs BTN open", "CO first in"; a full-ring or heads-up spot says so: "UTG first in (9-max)", "BB vs SB open (heads-up)". */
 function context(where: Where): string {
   const text = spotContext(where);
-  // A preflop tag never outlives the seat; a postflop one is kept through the scenario (`tableDropLevel`).
+  // A preflop tag never outlives the seat; a postflop one is kept at every level (`tableDropLevel`).
   const table = where.table === "9max" ? "9-max" : where.table === "hu" ? "heads-up" : null;
   if (!table) return text;
   // A postflop spot already names its seat in brackets: "(BB, heads-up)", not "(BB) (heads-up)".

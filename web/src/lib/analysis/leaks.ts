@@ -157,22 +157,24 @@ export function tableOfSet(set: string | null | undefined): LeakTable | null {
 /**
  * The level (`LEAK_LEVELS` index) from which a spot's table is dropped. A
  * preflop table goes with the seats it names (the seat level: a 9-max `UTG`
- * is not a 6-max one, but "first in" is first in). A postflop one is kept one
- * level longer, through the scenario (the role, the side, what was faced),
- * and goes at the family: heads-up the side already names the seat (out of
- * position is the big blind), so dropping the seat there would merge a thin
- * heads-up spot into the 6-max one at its first lift.
+ * is not a 6-max one, but "first in" is first in, and the charts' families
+ * are the same on every table). A postflop one is never dropped: a heads-up
+ * pot is two ranges as wide as the blinds' and a full-ring one is often
+ * three-handed or more, so a river or a flop on another table is another
+ * game at every level. Heads-up the side already names the seat (out of
+ * position is the big blind), so a thin heads-up spot climbs as far as its
+ * sample needs - to "the river, heads-up" - and never into a 6-max area.
  */
-export const tableDropLevel = (street: string): number => (street === "preflop" ? 2 : 3);
+export const tableDropLevel = (street: string): number => (street === "preflop" ? 2 : LEAK_LEVELS.length);
 
 /**
  * The table filter a leak's or area's hands are read with (`analysis_leak_hands`'
  * `leakTable`): its tag, `"other"` (6-max, no set) where an untagged id still
  * names a table, null above the level the table is dropped at (every table).
  */
-export function handsTable(attrs: Pick<SpotAttrs, "street" | "table">, level: number): LeakTable | "other" | null {
+export function handsTable(attrs: { street: string; table?: string }, level: number): LeakTable | "other" | null {
   if (level >= tableDropLevel(attrs.street)) return null;
-  return attrs.table ?? "other";
+  return attrs.table === NINE_MAX_TABLE || attrs.table === HEADS_UP_TABLE ? attrs.table : "other";
 }
 
 /**
@@ -277,7 +279,7 @@ export function atLevel(attrs: SpotAttrs, level: number): SpotAttrs {
     villain: level >= 1 ? ANY : attrs.villain,
     taken: attrs.taken,
     best: attrs.best,
-    // The table goes with the seats it names (preflop) or the role and side (postflop): `tableDropLevel`.
+    // A preflop table goes with the seats it names; a postflop one stays at every level (`tableDropLevel`).
     ...(attrs.table && level < tableDropLevel(attrs.street) ? { table: attrs.table } : {}),
   };
 }

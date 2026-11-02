@@ -89,7 +89,7 @@ const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1
 /** "BB protiv BTN opena", "CO prvi ulazi"; full ring i heads-up to kažu: "UTG prvi ulazi (9-max)", "BB protiv SB opena (heads-up)". */
 function context(where: Where): string {
   const text = spotContext(where);
-  // A preflop tag never outlives the seat; a postflop one is kept through the scenario (`tableDropLevel`).
+  // A preflop tag never outlives the seat; a postflop one is kept at every level (`tableDropLevel`).
   const table = where.table === "9max" ? "9-max" : where.table === "hu" ? "heads-up" : null;
   if (!table) return text;
   // A postflop spot already names its seat in brackets: "(BB, heads-up)", not "(BB) (heads-up)".
