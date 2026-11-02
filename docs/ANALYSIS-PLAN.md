@@ -6799,8 +6799,8 @@ Each phase appends what it learned that changed the plan.
       and a row with no set (`''`: hands no set answers, the desktop app's
       rows) stay untagged, so their ids are what they were. The same format
       as preflop's, so `parseLeakId`, `parseFocus`, the `?leak=` address and
-      `save_study_plan`'s drill check (`^[A-Za-z0-9*~+-]{1,120}$`; the
-      longest tagged area id is under 50) take it with no change.
+      `save_study_plan`'s drill check (`^[A-Za-z0-9*~+-]{1,120}$`; a
+      tagged area id is at most about 50 characters) take it with no change.
     - *Thin spots* (`tableDropLevel`): preflop the tag still goes with the
       seat (the seat level, as since 2026-10-28). Postflop it is kept at every
       level. Dropping it with the seat, as preflop, would merge every thin
