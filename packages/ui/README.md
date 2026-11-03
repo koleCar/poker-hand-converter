@@ -57,6 +57,8 @@ this README is the working summary.
 | --- | --- |
 | `tokens/` | The one token layer: `primitives.css`, `semantic.css`, `theme-light.css`, `motion.css`, and `density.css` (comfortable / compact, imported by the desktop app only). Each file declares its own `@layer tokens`. |
 | `styles/controls.css` | Global base controls: `.muted`, the `.btn` family, `.icon`, `.chip-btn`; touch sizes under `@media (pointer: coarse)`. |
+| `styles/motion.css` | Global enter motion: `.rail-enter`, `.rail-fade`, `.rail-stagger` (lists, 30 ms apart), `.rail-dims` + `aria-busy` (refetch in place). Skipped under reduced motion. |
+| `loader/` | `RailLoader`: the Rail mark with a light running round the rail. Sizes `inline` / `small` / `section` / `page`; invisible for its first 150 ms; `role="status"` with the surface's own label. Use it for every wait instead of text or a spinner. |
 | `cards/` | `PlayingCard`, `CardRow`, the suit glyphs (`cards.css`). |
 | `chips/` | `Chip` and `FilterChips` (a filter as one row of chips). |
 | `replayer/` | The replayer: `ReplayViewer`, table, seats, bets, pot, board, controls, sheets (hand info, action log, shortcuts), pot odds, settings; the container-query layout in `replayer.css`. |

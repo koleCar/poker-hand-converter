@@ -36,6 +36,7 @@
 @import "@rail/ui/cards/cards.css";
 @import "@rail/ui/replayer/replayer.css";
 @import "@rail/ui/styles/controls.css";
+@import "@rail/ui/styles/motion.css";
 
 :root {
   font-family: var(--font-family-sans);

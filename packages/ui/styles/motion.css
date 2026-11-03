@@ -1,0 +1,83 @@
+/* ===========================================================================
+   ENTER MOTION — the shared "things arrive" classes
+   ===========================================================================
+
+   Global classes (not a module) so any surface can put them on markup it
+   already has, in the web and in the desktop app alike. Imported once by
+   `web/src/index.css` and `app/src/index.css`.
+
+     .rail-enter    — one block arrives: a short fade and a 4px rise.
+     .rail-fade     — opacity only, for a tab panel or a swapped view where
+                      movement would make the page jump.
+     .rail-stagger  — its children arrive one after another, 30ms apart, up to
+                      the 12th; the rest arrive with the 12th. For lists,
+                      cards and table rows. Re-key the container (e.g. on the
+                      filter) to play it again when the items change.
+     .rail-dims     — content that is refetched in place (a filter changed):
+                      while it has `aria-busy="true"` it dims and stops taking
+                      clicks, instead of vanishing behind a loader. Keep the
+                      class on always and toggle the attribute, so the dim
+                      transitions both ways; add an inline RailLoader nearby.
+
+   Durations and easings are the motion tokens. Everything is skipped under
+   `prefers-reduced-motion: reduce` — the content simply appears.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  .rail-enter {
+    animation: rail-enter var(--dur-4) var(--ease-out) both;
+  }
+
+  .rail-fade {
+    animation: rail-fade var(--dur-3) var(--ease-out) both;
+  }
+
+  .rail-stagger > * {
+    animation: rail-enter var(--dur-4) var(--ease-out) both;
+    animation-delay: calc(var(--stagger-i, 12) * 30ms);
+  }
+
+  .rail-stagger > :nth-child(1) { --stagger-i: 0; }
+  .rail-stagger > :nth-child(2) { --stagger-i: 1; }
+  .rail-stagger > :nth-child(3) { --stagger-i: 2; }
+  .rail-stagger > :nth-child(4) { --stagger-i: 3; }
+  .rail-stagger > :nth-child(5) { --stagger-i: 4; }
+  .rail-stagger > :nth-child(6) { --stagger-i: 5; }
+  .rail-stagger > :nth-child(7) { --stagger-i: 6; }
+  .rail-stagger > :nth-child(8) { --stagger-i: 7; }
+  .rail-stagger > :nth-child(9) { --stagger-i: 8; }
+  .rail-stagger > :nth-child(10) { --stagger-i: 9; }
+  .rail-stagger > :nth-child(11) { --stagger-i: 10; }
+  .rail-stagger > :nth-child(12) { --stagger-i: 11; }
+
+  .rail-dims {
+    transition: opacity var(--dur-3) var(--ease-standard);
+  }
+}
+
+.rail-dims[aria-busy="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+@keyframes rail-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rail-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
