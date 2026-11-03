@@ -11,6 +11,10 @@
  *   ─▶ with a full solve (fullSolve.ts, local): a turn card ─▶ the turn's decisions ─▶ a river card ─▶ the river's
  * ```
  *
+ * A flop decision has two tabs: the actor's strategy (StrategyView) and both
+ * ranges side by side (RangesView). The hand filters (HandFilters) sit in the
+ * panel beside either and stay set while the line is walked.
+ *
  * Public, like the preflop chart browser: nothing here reads an account. The
  * chunks are the public bucket's, the same files the analysis grades with.
  * The table, the preflop line, the flop and the flop decision live in the
@@ -34,9 +38,11 @@ import {
   exploreHistory,
   exploreNode,
   flopCards,
+  EMPTY_FILTER,
   flopFeatures,
   pickedFlop,
   type FlopChunk,
+  type HandFilter,
   type PickedFlop,
 } from "../../lib/solver";
 import { SUPABASE_URL } from "../../lib/supabase/config";
@@ -44,8 +50,11 @@ import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT } from "../analysis/chartSpo
 import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
+import { HandFilters } from "./HandFilters";
 import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState, type PreflopState } from "./preflop";
+import { filterMasks, useRangeData } from "./rangeData";
+import { RangesView } from "./RangesView";
 import { actionColours, StrategyView, type StrategyModel } from "./StrategyView";
 import styles from "./solver.module.css";
 
@@ -115,6 +124,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   const [turnChunk, setTurnChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
+  const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
+  const [filter, setFilter] = useState<HandFilter>(EMPTY_FILTER);
 
   const table = TABLES.find((x) => x.id === setId)!;
   const lines = flopLinesFor(table.players);
@@ -197,6 +208,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   const flopSolve = fullSolve?.flop ?? librarySolve;
   const solve = turn ? turnSolve : flopSolve;
   const nodeIndex = solve && solve.result.nodes[node]?.kind === "action" ? node : 0;
+  const rangeData = useRangeData(solve, nodeIndex, picked);
+  const masks = useMemo(() => filterMasks(rangeData, filter), [rangeData, filter]);
   const goNode = (next: number) => {
     setDeal(null);
     setNode(next);
@@ -274,9 +287,22 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     );
   } else if (solve && picked && flop && flopSolve) {
     const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnFile: turn, full: fullSolve };
+    const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
+    const model = flopModel(solve, nodeIndex, picked, goNode, setDeal, Boolean(fullSolve), t, include);
     body = (
       <StrategyView
-        model={flopModel(solve, nodeIndex, picked, goNode, setDeal, Boolean(fullSolve), t)}
+        model={model}
+        toolbar={
+          <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
+            {(["strategy", "ranges"] as const).map((x) => (
+              <button key={x} type="button" role="tab" aria-selected={tab === x} className={styles.viewTab} onClick={() => setTab(x)}>
+                {t.tabs[x]}
+              </button>
+            ))}
+          </div>
+        }
+        main={tab === "ranges" && rangeData ? <RangesView data={rangeData} masks={masks} strategy={model} /> : undefined}
+        filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
         overview={
           <FlopOverview
             where={where}
@@ -376,8 +402,10 @@ function flopModel(
   onDeal: (deal: number) => void,
   full: boolean,
   t: Dict,
+  include?: Uint8Array,
 ): StrategyModel {
-  const view = exploreNode(chunk, index);
+  const view = exploreNode(chunk, index, include);
+  const unfiltered = include ? exploreNode(chunk, index).reach : view.reach;
   const colours = actionColours(view.actions);
   // In a full solve the turn and the river are dealt, not the end of the walk.
   const deals = full && chunk.result.street === "flop" ? true : chunk.result.street === "turn";
@@ -416,11 +444,13 @@ function flopModel(
       };
     }),
     combos: (k) =>
-      classCombos(chunk, index, k).map((combo) => ({
+      classCombos(chunk, index, k, include).map((combo) => ({
         ...combo,
         cards: `${picked.toPicked(combo.cards.slice(0, 2))}${picked.toPicked(combo.cards.slice(2, 4))}`,
       })),
-    note: `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${full ? t.fullNote : ""}${t.flopNote}`,
+    note:
+      (include ? `${view.reach > 0 ? t.filters.note(view.reach, view.reach / unfiltered) : t.filters.none} ` : "") +
+      `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${full ? t.fullNote : ""}${t.flopNote}`,
   };
 }
 

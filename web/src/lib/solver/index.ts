@@ -19,6 +19,7 @@
  * flopSet.ts      the 1,755 canonical flops, the library's ~100 representatives, the mapping
  * flopLibrary.ts  FLOPLIB_VERSION: the library's chunk format, encode / decode
  * explore.ts      one chunk node at a time: mix and EV per class and combo (the Solver library tab)
+ * ranges.ts       both ranges at a node: EV, equity, made hands and draws, the hand filter (the Ranges tab)
  * lock.ts         the exploit lab (Learn L4): lock a node, best-respond, gain and risk
  * ```
  *
@@ -178,6 +179,36 @@ export {
   type ExploreStep,
   type PickedFlop,
 } from "./explore";
+export {
+  buildEquityTable,
+  comboIds,
+  comboText,
+  DRAWS,
+  EMPTY_FILTER,
+  EQ_BANDS,
+  EQ_BUCKETS,
+  eqBand,
+  eqBucket,
+  equityTable,
+  filterActive,
+  filterId,
+  handFeature,
+  handFeatures,
+  MADE_HANDS,
+  nodeRanges,
+  passes,
+  rangeEquity,
+  type Draw,
+  type EqBand,
+  type EqBucket,
+  type EquityTable,
+  type FilterGroup,
+  type HandFeature,
+  type HandFilter,
+  type MadeHand,
+  type NodeRanges,
+  type RangeSide,
+} from "./ranges";
 export { OFF_TREE_DISTANCE, pseudoHarmonic, translateSize, type Translation } from "./translation";
 export { spotHash, spotKey, type SpotKeyParts } from "./spotKey";
 
