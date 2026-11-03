@@ -24,6 +24,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
@@ -215,9 +216,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
     return (
       <div className="stats">
         <Header />
-        <p className="muted" role="status">
-          {t.loading}
-        </p>
+        <RailLoader label={t.loading} showLabel centered />
       </div>
     );
   }
@@ -258,8 +257,8 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
       <Controls state={state} onChange={updateState} />
 
       {loading ? (
-        <p className={reportStyles.busy} role="status">
-          {t.loading}
+        <p className={reportStyles.busy}>
+          <RailLoader size="inline" label={t.loading} showLabel />
         </p>
       ) : null}
 
@@ -267,14 +266,15 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
       {report.graded > 0 && shown.length === 0 ? <p className="card muted">{t.noLeaks}</p> : null}
 
       {shown.length > 0 ? (
-        <section className="card stats-group" aria-labelledby="leaks-list">
+        <section className="card stats-group rail-dims" aria-labelledby="leaks-list" aria-busy={loading}>
           <h3 id="leaks-list" className={reportStyles.cardTitle}>
             {t.heading}
           </h3>
           <p className={reportStyles.muted}>
             {t.total(totalEv, report.hands > 0 ? (totalEv / report.hands) * 100 : 0, shown.length)}
           </p>
-          <ol className={styles.leaks}>
+          {/* Re-keyed on the answered filters and the ranking, so a new list arrives row by row. */}
+          <ol key={`${answer?.key.split("|")[0]}|${state.street ?? ""}|${state.sort}`} className={`${styles.leaks} rail-stagger`}>
             {visible.map((leak) => (
               <LeakItem
                 key={leak.id}
@@ -452,7 +452,7 @@ function LeakItem({
         <ConfidenceTag leak={leak} />
         {count && count.due > 0 ? <span className={styles.drillBadge}>{train.badge(count.due)}</span> : null}
       </p>
-      <div id={panelId} hidden={!open} className={styles.leakPanel}>
+      <div id={panelId} hidden={!open} className={`${styles.leakPanel} rail-fade`}>
         {open ? <LeakDetail leak={leak} filters={filters} drills={count} /> : null}
       </div>
     </li>
@@ -594,10 +594,10 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
       <h5 className={reportStyles.subhead}>{t.hands.heading}</h5>
       <p className={reportStyles.muted}>{t.hands.note}</p>
       {error ? <p className="notice notice--error">{t.hands.failed(error)}</p> : null}
-      {loading && !data ? <p className={reportStyles.muted}>{t.hands.loading}</p> : null}
+      {loading && !data ? <RailLoader size="small" label={t.hands.loading} showLabel /> : null}
       {data && data.rows.length === 0 ? <p className={reportStyles.muted}>{t.hands.empty}</p> : null}
       {data && data.rows.length > 0 ? (
-        <ul className={reportStyles.handList} aria-busy={loading}>
+        <ul className={`${reportStyles.handList} rail-stagger rail-dims`} aria-busy={loading}>
           {data.rows.map((row) => {
             const cards = row.heroCards.join(" ");
             return (
@@ -632,7 +632,7 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
       ) : null}
       {data && data.total > data.rows.length ? (
         <button type="button" className="btn btn--ghost btn--sm" disabled={loading} onClick={() => setPages((value) => value + 1)}>
-          {t.hands.more}
+          {loading ? <RailLoader size="inline" label={t.hands.loading} showLabel delay={0} /> : t.hands.more}
         </button>
       ) : null}
       {data && data.total > 0 ? <p className={reportStyles.muted}>{t.hands.total(data.total)}</p> : null}

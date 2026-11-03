@@ -8,6 +8,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 import { useDict } from "../../../lib/i18n/client";
 import type { CardItem } from "../../../lib/learn/progress";
@@ -64,9 +65,7 @@ export function LockItemView({ card, onAnswer }: { card: LockCard; onAnswer: (an
   }
   if (!dealt) {
     return (
-      <p className={styles.muted} role="status">
-        {c.solving}
-      </p>
+      <RailLoader size="small" label={c.solving} showLabel />
     );
   }
   const item = dealt.item;

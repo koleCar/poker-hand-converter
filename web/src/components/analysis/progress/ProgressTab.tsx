@@ -16,6 +16,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MIN_COMPARE_MOVES, trendSeries, type TrendPoint, type TrendSeries } from "../../../lib/analysis/leaks";
@@ -158,9 +159,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
     return (
       <div className="stats">
         <Header />
-        <p className="muted" role="status">
-          {t.loading}
-        </p>
+        <RailLoader label={t.loading} showLabel centered />
       </div>
     );
   }
@@ -193,15 +192,15 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
       {state.bucket === "session" ? <p className={reportStyles.muted}>{t.sessionNote(trend.gapMinutes)}</p> : null}
 
       {loading ? (
-        <p className={reportStyles.busy} role="status">
-          {t.loading}
+        <p className={reportStyles.busy}>
+          <RailLoader size="inline" label={t.loading} showLabel />
         </p>
       ) : null}
 
       {graded === 0 ? <p className="card muted">{t.noneInScope}</p> : null}
-      {graded > 0 && trend.group === "all" ? <Overall series={series[0]} bucket={trend.bucket} /> : null}
+      {graded > 0 && trend.group === "all" ? <Overall series={series[0]} bucket={trend.bucket} busy={loading} /> : null}
       {graded > 0 && trend.group !== "all" ? (
-        <Multiples series={series} bucket={trend.bucket} group={trend.group} metric={state.metric} />
+        <Multiples series={series} bucket={trend.bucket} group={trend.group} metric={state.metric} busy={loading} />
       ) : null}
     </div>
   );
@@ -334,14 +333,14 @@ function chartPoints(series: TrendSeries, metric: ProgressMetric, words: (point:
   });
 }
 
-function Overall({ series, bucket }: { series: TrendSeries | undefined; bucket: TrendBucket }) {
+function Overall({ series, bucket, busy }: { series: TrendSeries | undefined; bucket: TrendBucket; busy: boolean }) {
   const t = useDict().analysis.progress;
   const words = useBucketWords(bucket);
   if (!series || series.points.length < 2) {
     return <p className="notice notice--info">{t.notEnough}</p>;
   }
   return (
-    <section className="card stats-group">
+    <section className="card stats-group rail-dims" aria-busy={busy}>
       <TrendChart
         name={t.charts.score}
         hint={t.charts.scoreHint}
@@ -368,11 +367,13 @@ function Multiples({
   bucket,
   group,
   metric,
+  busy,
 }: {
   series: TrendSeries[];
   bucket: TrendBucket;
   group: TrendGroup;
   metric: ProgressMetric;
+  busy: boolean;
 }) {
   const en = useDict();
   const t = en.analysis.progress;
@@ -390,12 +391,12 @@ function Multiples({
   const format = metric === "score" ? t.score : metric === "ev" ? t.bb : (value: number) => t.pct(value / 100);
   const hint = metric === "score" ? t.charts.scoreHint : metric === "ev" ? t.charts.evHint : t.charts.offHint;
   return (
-    <section className="card stats-group">
+    <section className="card stats-group rail-dims" aria-busy={busy}>
       <p className={reportStyles.muted}>
         {t.smallMultiplesNote} {hint}.
       </p>
       {shown.length === 0 ? <p className="notice notice--info">{t.notEnough}</p> : null}
-      <div className={styles.multiples}>
+      <div key={`${group}|${metric}`} className={`${styles.multiples} rail-stagger`}>
         {shown.map((entry) => (
           <TrendChart
             key={entry.key}

@@ -130,6 +130,7 @@ export const trainEn = {
     row: (answers: number, score: number | null, evLoss: number) =>
       `${num(answers)} ${answers === 1 ? "answer" : "answers"}${score === null ? "" : ` · score ${num(score, 1)}`} · ${bb(evLoss)} lost`,
     none: "No trainer answers kept yet.",
+    loading: "Loading your trainer history…",
     modes: { preflop: "Preflop", flop: "Flop", river: "River", drill: "Your mistakes" } as Record<string, string>,
   },
 

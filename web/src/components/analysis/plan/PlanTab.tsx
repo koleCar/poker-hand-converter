@@ -25,6 +25,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ANALYSIS_VERSION } from "../../../lib/analysis";
@@ -194,9 +195,7 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
             </button>
           </>
         ) : (
-          <p className="muted" role="status">
-            {loaded ? t.building : t.loading}
-          </p>
+          <RailLoader label={loaded ? t.building : t.loading} showLabel centered />
         )}
       </div>
     );
@@ -328,7 +327,7 @@ function PlanBody({
 
   return (
     <>
-      <section className={`card ${styles.week}`} aria-labelledby="plan-week">
+      <section className={`card ${styles.week} rail-enter`} aria-labelledby="plan-week">
         <div className={styles.weekHead}>
           <h3 id="plan-week">{t.week(bounds.from, bounds.to)}</h3>
           <span className="muted">{t.daysLeft(daysLeft(plan.weekStart, now))}</span>
@@ -338,7 +337,7 @@ function PlanBody({
         {stale ? <p className="notice notice--warn">{t.staleVersion(plan.analysisVersion, ANALYSIS_VERSION)}</p> : null}
         <div className={styles.rebuild}>
           <button type="button" className="btn btn--sm" onClick={onRebuild} disabled={rebuilding} aria-describedby="plan-rebuild-note">
-            {rebuilding ? t.rebuilding : t.rebuild}
+            {rebuilding ? <RailLoader size="inline" label={t.rebuilding} showLabel delay={0} /> : t.rebuild}
           </button>
           <span id="plan-rebuild-note" className="muted">
             {t.builtOn(plan.updatedAt || plan.createdAt)} {t.rebuildNote}
@@ -353,7 +352,7 @@ function PlanBody({
         <section className="card stats-group" aria-labelledby="plan-focus">
           <h3 id="plan-focus">{t.focusHeading}</h3>
           <p className="muted">{t.focusIntro(plan.focus.length)}</p>
-          <ol className={styles.areas}>
+          <ol key={plan.id} className={`${styles.areas} rail-stagger`}>
             {plan.focus.map((area, index) => (
               <AreaItem
                 key={area.id}
@@ -653,11 +652,7 @@ function Retrospective({ plan, previous }: { plan: StoredPlan; previous: StoredP
         <p className="muted">{t.retro.first}</p>
       )}
       {error ? <p className="notice notice--error">{summary.failed(error)}</p> : null}
-      {!ready && !error ? (
-        <p className="muted" role="status">
-          {summary.loading}
-        </p>
-      ) : null}
+      {!ready && !error ? <RailLoader size="small" label={summary.loading} showLabel /> : null}
       {ready && !ready.windows ? <p className="muted">{t.retro.nothing}</p> : null}
       {ready?.windows && ready.current && ready.prior && comparison ? (
         <>
@@ -683,7 +678,7 @@ function Retrospective({ plan, previous }: { plan: StoredPlan; previous: StoredP
           {areas.length > 0 ? (
             <>
               <h4 className={styles.subhead}>{t.retro.areasHeading(fromLastWeek)}</h4>
-              <ul className={styles.changes}>
+              <ul className={`${styles.changes} rail-stagger`}>
                 {areas.map((area) => {
                   const change = areaChange(
                     area,

@@ -13,6 +13,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ChartNode, ChartSet } from "../../../lib/charts";
 import { preflopChartSet } from "../../../lib/chartSet";
@@ -171,9 +172,7 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
   }
   if (!dealt) {
     return (
-      <p className={styles.muted} role="status">
-        {item.k === "chart" ? c.generating : c.solving}
-      </p>
+      <RailLoader size="small" label={item.k === "chart" ? c.generating : c.solving} showLabel />
     );
   }
   if (!spot || !shownHand) {
@@ -181,7 +180,7 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
   }
 
   return (
-    <div className={styles.item}>
+    <div className={`${styles.item} rail-fade`}>
       <div className={own.prompt}>
         <div className={own.hero}>
           <span className={own.heroLabel}>{t.yourHand}</span>
@@ -207,8 +206,8 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
         </p>
       ) : null}
       {answered && !graded && !answered.error ? (
-        <p className={styles.muted} role="status">
-          {c.grading}
+        <p>
+          <RailLoader size="inline" label={c.grading} showLabel />
         </p>
       ) : null}
       {answered?.error ? <p className="notice notice--error">{c.failed(answered.error)}</p> : null}

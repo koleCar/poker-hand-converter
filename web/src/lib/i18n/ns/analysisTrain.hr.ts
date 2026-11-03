@@ -132,6 +132,7 @@ export const trainHr = {
     row: (answers: number, score: number | null, evLoss: number) =>
       `${num(answers)} ${plural(answers, "odgovor", "odgovora", "odgovora")}${score === null ? "" : ` · score ${num(score, 1)}`} · izgubljeno ${bb(evLoss)}`,
     none: "Još nema spremljenih odgovora.",
+    loading: "Učitavam povijest treninga…",
     modes: { preflop: "Preflop", flop: "Flop", river: "River", drill: "Tvoje greške" } as Record<string, string>,
   },
 

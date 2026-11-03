@@ -14,6 +14,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 import { fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { useDict } from "../../../lib/i18n/client";
@@ -69,9 +70,7 @@ export function LessonMastery({ lesson }: { lesson: LessonId }) {
     <section className={styles.masteryBox} aria-live="polite">
       <strong>{tested ? t.titleTested : t.title}</strong>
       {!state ? (
-        <p className={styles.muted} role="status">
-          {t.loading}
-        </p>
+        <RailLoader size="small" label={t.loading} showLabel />
       ) : state.status === "error" ? (
         <p className="notice notice--warn">{t.failed(state.message)}</p>
       ) : (
@@ -100,8 +99,8 @@ function MasteryBody({ mastery }: { mastery: Mastery }) {
   );
   return (
     <>
-      <p className={styles.muted}>{t.since(mastery.since)}</p>
-      <div className={styles.masteryGrid}>
+      <p className={`${styles.muted} rail-fade`}>{t.since(mastery.since)}</p>
+      <div className={`${styles.masteryGrid} rail-fade`}>
         {side(t.before, mastery.before)}
         {side(t.after, mastery.after)}
       </div>

@@ -15,6 +15,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HandAnalysis } from "../../lib/analysis/types";
@@ -127,7 +128,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
     return (
       <div className={styles.handPage}>
         {backLink}
-        {loaded.status === "loading" ? <p className="muted">{t.hand.loading}</p> : null}
+        {loaded.status === "loading" ? <RailLoader size="page" label={t.hand.loading} showLabel centered /> : null}
         {loaded.status === "missing" ? <p className="notice notice--warn">{t.hand.notFound}</p> : null}
         {loaded.status === "error" ? <p className="notice notice--error">{loaded.message}</p> : null}
       </div>
@@ -143,7 +144,7 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
       {backLink}
       {/* Private by default (§8.4): the owner's one switch for every place this hand is public. */}
       <AnalysisShareToggle surface="hand" id={handId} />
-      <section className="card card--flush">
+      <section className="card card--flush rail-fade">
         <ReplayViewer
           key={loaded.hand.meta.handKey}
           hand={loaded.hand}

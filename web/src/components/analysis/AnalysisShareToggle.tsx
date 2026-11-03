@@ -88,7 +88,7 @@ export function AnalysisShareToggle({
   const analysed = state.versions.includes(ANALYSIS_VERSION);
 
   return (
-    <div className={`${styles.box}${className ? ` ${className}` : ""}`}>
+    <div className={`${styles.box} rail-fade${className ? ` ${className}` : ""}`}>
       <label className={styles.row}>
         <input
           type="checkbox"

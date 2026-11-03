@@ -12,6 +12,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 import { fetchDueCards, reviewLessonCard } from "../../../lib/db/learn";
@@ -28,7 +29,12 @@ import { useRecommendations } from "./useCourseSignals";
 import styles from "./course.module.css";
 
 // The items' views (the felt, the trainer, the calculators) load when a dose starts, not with the map.
-const MixedSession = dynamic(() => import("./MixedSession").then((m) => m.MixedSession), { ssr: false });
+const MixedSession = dynamic(() => import("./MixedSession").then((m) => m.MixedSession), { ssr: false, loading: SessionLoading });
+
+/** While the items' views load. */
+function SessionLoading() {
+  return <RailLoader size="small" label={useDict().course.dose.loading} />;
+}
 
 /** The browser's note of the last day a dose was finished. */
 export const LOCAL_DOSE_KEY = "rail.learn.dose.v1";
@@ -107,14 +113,14 @@ export function DailyDose({ recommended }: { recommended: readonly LessonId[] })
     [items, en],
   );
 
-  if (store.mode === "loading") return null;
-
   return (
-    <section className={styles.panel} aria-labelledby="learn-dose">
+    <section className={styles.panel} aria-labelledby="learn-dose" aria-busy={store.mode === "loading"}>
       <h2 id="learn-dose" className={styles.panelHeading}>
         {t.heading}
       </h2>
-      {state.status === "running" ? (
+      {store.mode === "loading" ? (
+        <RailLoader size="small" label={en.course.map.loadingProgress} />
+      ) : state.status === "running" ? (
         sessionItems.length === 0 ? (
           <p className={styles.muted}>{t.nothing}</p>
         ) : (
@@ -135,7 +141,7 @@ export function DailyDose({ recommended }: { recommended: readonly LessonId[] })
           />
         )
       ) : (
-        <>
+        <div className={`${styles.panelBody} rail-fade`}>
           <p className={styles.muted}>{t.intro}</p>
           {reviews === 0 && !lesson ? (
             <p>{t.nothing}</p>
@@ -152,11 +158,17 @@ export function DailyDose({ recommended }: { recommended: readonly LessonId[] })
                 onClick={start}
                 disabled={state.status === "loading"}
               >
-                {state.status === "loading" ? t.loading : doneDay === today ? t.again : t.start}
+                {state.status === "loading" ? (
+                  <RailLoader size="inline" label={t.loading} showLabel delay={0} />
+                ) : doneDay === today ? (
+                  t.again
+                ) : (
+                  t.start
+                )}
               </button>
             </div>
           ) : null}
-        </>
+        </div>
       )}
     </section>
   );

@@ -23,6 +23,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { CHART_SETS, ensureChartSets, type ChartLibrary, type ChartNode } from "../../../lib/charts";
@@ -280,9 +281,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
     return (
       <div className="stats">
         <Header />
-        <p className="muted" role="status">
-          {t.loading}
-        </p>
+        <RailLoader label={t.loading} showLabel centered />
       </div>
     );
   }
@@ -326,28 +325,26 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
 
       {chartsError ? <p className="notice notice--error">{t.chartsFailed(chartsError)}</p> : null}
       {loading ? (
-        <p className={styles.busy} role="status">
-          {t.loading}
+        <p className={styles.busy}>
+          <RailLoader size="inline" label={t.loading} showLabel />
         </p>
       ) : null}
-      {!built && !chartsError ? (
-        <p className="muted" role="status">
-          {t.loadingCharts}
-        </p>
-      ) : null}
+      {!built && !chartsError ? <RailLoader label={t.loadingCharts} showLabel centered /> : null}
       {built && built.unmatched > 0 ? <p className="notice notice--warn">{t.unmatched(built.unmatched)}</p> : null}
 
       {built && report.decisions === 0 ? <p className="card muted">{t.noneInScope}</p> : null}
 
-      {built && report.decisions > 0 && charts ? (
-        <>
-          <StatsSection stats={built.stats} filters={filters} multiTable={multiTable} onHow={() => setHowOpen(true)} />
-          <DefenceSection rows={built.defence} multiTable={multiTable} />
-          <NodesSection nodes={built.nodes} filters={filters} multiSet={built.sets.length > 1} onHow={() => setHowOpen(true)} />
-        </>
-      ) : null}
+      <div className={`${styles.sections} rail-stagger rail-dims`} aria-busy={loading}>
+        {built && report.decisions > 0 && charts ? (
+          <>
+            <StatsSection stats={built.stats} filters={filters} multiTable={multiTable} onHow={() => setHowOpen(true)} />
+            <DefenceSection rows={built.defence} multiTable={multiTable} />
+            <NodesSection nodes={built.nodes} filters={filters} multiSet={built.sets.length > 1} onHow={() => setHowOpen(true)} />
+          </>
+        ) : null}
 
-      <PostflopSection rows={report.postflop} />
+        <PostflopSection rows={report.postflop} />
+      </div>
     </div>
   );
 }
@@ -845,7 +842,7 @@ function NodesSection({
       </div>
       <p className={styles.muted}>{t.nodes.note}</p>
       {visible.length === 0 ? <p className="muted">{t.nodes.noneInCategory}</p> : null}
-      <ul className={styles.nodes}>
+      <ul key={category} className={`${styles.nodes} rail-stagger`}>
         {visible.map((report) => (
           <li key={report.sample.key}>
             <NodeItem report={report} filters={filters} multiSet={multiSet} onHow={onHow} />
@@ -987,10 +984,10 @@ function NodeHands({ nodes, filters, single = false }: { nodes: string[]; filter
       <h4 className={styles.subhead}>{t.hands.heading}</h4>
       <p className={styles.muted}>{t.hands.note}</p>
       {error ? <p className="notice notice--error">{t.hands.failed(error)}</p> : null}
-      {loading && !data ? <p className={styles.muted}>{t.hands.loading}</p> : null}
+      {loading && !data ? <RailLoader size="small" label={t.hands.loading} showLabel /> : null}
       {data && data.rows.length === 0 ? <p className={styles.muted}>{t.hands.empty}</p> : null}
       {data && data.rows.length > 0 ? (
-        <ul className={styles.handList} aria-busy={loading}>
+        <ul className={`${styles.handList} rail-stagger rail-dims`} aria-busy={loading}>
           {data.rows.map((row) => {
             const best = bestOf(row);
             const cards = row.heroCards.join(" ");
@@ -1027,7 +1024,7 @@ function NodeHands({ nodes, filters, single = false }: { nodes: string[]; filter
       ) : null}
       {data && data.total > data.rows.length ? (
         <button type="button" className="btn btn--ghost btn--sm" disabled={loading} onClick={() => setPages((value) => value + 1)}>
-          {t.hands.more}
+          {loading ? <RailLoader size="inline" label={t.hands.loading} showLabel delay={0} /> : t.hands.more}
         </button>
       ) : null}
       {data && data.total > 0 ? <p className={styles.muted}>{t.hands.total(data.total)}</p> : null}

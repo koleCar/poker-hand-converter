@@ -16,6 +16,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
@@ -136,7 +137,7 @@ export function OwnHandsExercise({ meta, def }: { meta: LessonMeta; def: OwnHand
       </>
     );
   }
-  if (found.status === "loading") return <p className={styles.muted} role="status">{t.loading}</p>;
+  if (found.status === "loading") return <RailLoader label={t.loading} showLabel centered />;
   if (found.status === "error") return <p className="notice notice--error">{found.message}</p>;
   if (found.items.length === 0) return <p className={styles.muted}>{t.none}</p>;
 
@@ -153,7 +154,7 @@ export function OwnHandsExercise({ meta, def }: { meta: LessonMeta; def: OwnHand
     );
   }
   return (
-    <div className={styles.session}>
+    <div className={`${styles.session} rail-enter`}>
       <p className={styles.muted}>
         {at + 1} / {found.items.length}
       </p>
@@ -253,7 +254,7 @@ function OwnHand({ candidate, onAnswered, onNext }: { candidate: Candidate; onAn
     <Link href={paths.analysisHand(candidate.handId, `t=a${candidate.actionIndex}`)}>{t.open}</Link>
   );
 
-  if (loaded.status === "loading") return <p className={styles.muted} role="status">{t.loading}</p>;
+  if (loaded.status === "loading") return <RailLoader label={t.loading} showLabel centered />;
   if (loaded.status === "error") return <p className="notice notice--error">{loaded.message}</p>;
   if (loaded.status === "review") {
     return (
@@ -278,7 +279,7 @@ function OwnHand({ candidate, onAnswered, onNext }: { candidate: Candidate; onAn
   }
   if (!spot || !shownHand) return null;
   return (
-    <div className={styles.item}>
+    <div className={`${styles.item} rail-fade`}>
       <div className={own.prompt}>
         <div className={own.hero}>
           <span className={own.heroLabel}>{en.analysis.train.yourHand}</span>

@@ -9,6 +9,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { useDict } from "../../../lib/i18n/client";
@@ -85,7 +86,13 @@ export function PlacementTest() {
       <div className={styles.panel}>
         <h2 className={styles.panelHeading}>{t.pick}</h2>
         <p className={styles.muted}>{t.rules(PLACEMENT_PER_MODULE, f.pct(PLACEMENT_PASS), PLACEMENT_MIN_GRADED)}</p>
-        {store.mode === "local" ? <p className={styles.muted}>{t.signedOut}</p> : null}
+        {store.mode === "loading" ? (
+          <p>
+            <RailLoader size="inline" label={en.course.map.loadingProgress} showLabel />
+          </p>
+        ) : store.mode === "local" ? (
+          <p className={`${styles.muted} rail-fade`}>{t.signedOut}</p>
+        ) : null}
         <ul className={styles.outcomes}>
           {TRACK_IDS.map((track) => (
             <li key={track} className={styles.panelRow}>
@@ -111,7 +118,7 @@ export function PlacementTest() {
           <h2 className={styles.panelHeading}>{t.resultTitle}</h2>
           {result ? (
             <>
-              <ul className={styles.outcomes}>
+              <ul className={`${styles.outcomes} rail-stagger`}>
                 {result.outcomes.map((outcome) => {
                   const first = lessonsIn(outcome.module).find((meta) => meta.written && !lessonDone(store.progress[meta.id]));
                   const marked = result.marked.get(outcome.module) ?? 0;
@@ -142,9 +149,7 @@ export function PlacementTest() {
               </p>
             </>
           ) : (
-            <p className={styles.muted} role="status">
-              {en.course.exercise.grading}
-            </p>
+            <RailLoader size="small" label={en.course.exercise.grading} showLabel />
           )}
           <div className={styles.panelRow}>
             <button type="button" className="btn btn--sm" onClick={() => setRun(null)}>

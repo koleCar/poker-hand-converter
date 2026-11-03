@@ -18,6 +18,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useDict } from "../../../lib/i18n/client";
 import type { CardItem } from "../../../lib/learn/progress";
@@ -103,9 +104,7 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
   }
   if (!dealt) {
     return (
-      <p className={styles.muted} role="status">
-        {card.source === "river" ? c.solving : c.generating}
-      </p>
+      <RailLoader size="small" label={card.source === "river" ? c.solving : c.generating} showLabel />
     );
   }
   const item = dealt.item;
