@@ -423,6 +423,56 @@
   }
 }
 
+/* "Get the app": the desktop app's page (`/download`). An outlined pill in the
+   accent, so it reads as an offer rather than as a status like the chip. */
+.shell__get-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-block-size: 34px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.shell__get-app:hover,
+.shell__get-app[aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.shell__get-app-icon {
+  inline-size: 15px;
+  block-size: 15px;
+  flex: none;
+}
+
+/* Only the arrow where the bar is tight: on a phone, and in the 900-1199px
+   band where six tabs share the row (Croatian, signed in). The word stays for
+   screen readers. */
+@media (max-width: 559px), (min-width: 900px) and (max-width: 1199px) {
+  .shell__get-app {
+    padding: 0;
+    inline-size: 34px;
+    justify-content: center;
+  }
+
+  .shell__get-app-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 /* The notifications bell (F9). */
 .bell {
   position: relative;

@@ -167,6 +167,8 @@ export const paths = {
   saved: () => "/saved",
   mod: () => "/mod",
   takedown: () => "/takedown",
+  /** The desktop app for macOS and Windows: what it does, and the two installers. Public; a reserved username (`20271103100000_download_route.sql`). */
+  download: () => "/download",
   /** The terms of use (R6.5, `docs/legal/TERMS*.md`). Top-level: `terms` is a reserved username. */
   terms: () => "/terms",
   /** The privacy policy (R6.5, `docs/legal/PRIVACY*.md`). Top-level: `privacy` is a reserved username. */

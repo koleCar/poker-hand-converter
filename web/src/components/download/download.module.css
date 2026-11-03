@@ -1,0 +1,155 @@
+/* `/download`: the desktop app's page. Tokens only. */
+
+.page {
+  display: grid;
+  gap: 28px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  padding-top: 12px;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: 1.1;
+}
+
+.lede {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--fg-muted);
+  font-size: var(--font-size-lg);
+  line-height: 1.55;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.option {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.button {
+  min-height: 46px;
+  padding-inline: 20px;
+  gap: 8px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+/* An <a> styled as a button: without this the secondary one is link-blue. */
+.secondary {
+  color: var(--fg);
+}
+
+.icon {
+  inline-size: 18px;
+  block-size: 18px;
+  flex: none;
+}
+
+.detail {
+  color: var(--fg-dim);
+  font-size: var(--font-size-sm);
+}
+
+.free {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: var(--font-size-md);
+}
+
+.promo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-4);
+  box-shadow: var(--shadow-2);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature {
+  gap: 6px;
+}
+
+.feature h2,
+.firstOpen h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.feature p {
+  margin: 0;
+  color: var(--fg-muted);
+  line-height: 1.5;
+}
+
+.firstOpen dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.firstOpen dt {
+  font-weight: var(--font-weight-semibold);
+}
+
+.firstOpen dd {
+  margin: 0;
+  color: var(--fg-muted);
+}
+
+.releases {
+  align-self: start;
+  color: var(--accent);
+  font-size: var(--font-size-md);
+}
+
+@media (max-width: 559px) {
+  .heading {
+    font-size: var(--font-size-3xl);
+  }
+
+  .buttons,
+  .option,
+  .button {
+    width: 100%;
+  }
+
+  .firstOpen dl {
+    grid-template-columns: 1fr;
+  }
+
+  .firstOpen dd {
+    margin-bottom: 6px;
+  }
+}
