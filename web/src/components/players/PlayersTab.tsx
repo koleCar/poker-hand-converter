@@ -37,6 +37,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { PlayerRef } from "@rail/ui/hands/model";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { PlayersScreen } from "@rail/ui/players/PlayersScreen";
 import type { PlayerQuery } from "@rail/ui/players/model";
 import {
@@ -171,6 +172,15 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
   }
 
   if (!auth.isSignedIn) {
+    // The session restoring is not "signed out": the loader, not the gate.
+    if (auth.status === "loading") {
+      return (
+        <div className="stats">
+          {header}
+          <RailLoader label={dict.settings.loading} centered />
+        </div>
+      );
+    }
     return (
       <div className="stats">
         {header}
@@ -210,7 +220,10 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
 
   const status =
     phase.kind === "working" ? (
-      <p className="notice notice--info" role="status" aria-live="polite">
+      <p className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite">
+        <span aria-hidden="true">
+          <RailLoader size="inline" label={t.opponents.reading} delay={0} />
+        </span>
         {t.opponents.reading} {phase.done > 0 ? t.common.hands(phase.done) : ""}
       </p>
     ) : phase.kind === "error" ? (
@@ -262,14 +275,19 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
         emptyText={phase.kind === "working" ? t.opponents.reading : en.empty}
         notesFootnote={en.notesFootnote}
         reloadToken={generation}
-        renderState={(kind, text) => (
-          <div
-            className={kind === "error" ? "notice notice--error" : "card stats-empty"}
-            role={kind === "error" ? "alert" : "status"}
-          >
-            {kind === "error" ? text : <p className="muted">{text}</p>}
-          </div>
-        )}
+        renderState={(kind, text, compact) =>
+          // Nothing to show while opponents are being read is still loading.
+          kind === "loading" || (kind === "empty" && phase.kind === "working") ? (
+            <RailLoader label={text} size={compact ? "small" : "section"} showLabel={!compact} centered />
+          ) : (
+            <div
+              className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
+              role={kind === "error" ? "alert" : "status"}
+            >
+              {kind === "error" ? text : <p className="muted">{text}</p>}
+            </div>
+          )
+        }
       />
     </div>
   );

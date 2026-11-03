@@ -95,14 +95,18 @@ interface StrategyViewProps {
   main?: ReactNode;
   /** The hand filters: the panel's last block then switches between the hand and them. */
   filters?: ReactNode;
+  /** The tab was just switched: the grid (or `main`) fades in as it swaps. */
+  fade?: boolean;
 }
 
-export function StrategyView({ model, overview, toolbar, main, filters }: StrategyViewProps) {
+export function StrategyView({ model, overview, toolbar, main, filters, fade = false }: StrategyViewProps) {
   // Kept across decisions: the panel stays on the filters while the line is walked.
   const [panelTab, setPanelTab] = useState<"hand" | "filters">("hand");
+  // `rail-fade` plays once, when the view first replaces a loader or a message;
+  // walking the tree re-renders it in place and does not replay it.
   return (
-    <div className={`${styles.strategy} ${main ? styles.strategyWide : ""}`}>
-      <Grid key={model.id} model={model} overview={overview} toolbar={toolbar} main={main} filters={filters} panelTab={panelTab} onPanelTab={setPanelTab} />
+    <div className={`${styles.strategy} ${main ? styles.strategyWide : ""} rail-fade`}>
+      <Grid key={model.id} model={model} overview={overview} toolbar={toolbar} main={main} filters={filters} fade={fade} panelTab={panelTab} onPanelTab={setPanelTab} />
     </div>
   );
 }
@@ -113,6 +117,7 @@ function Grid({
   toolbar,
   main,
   filters,
+  fade,
   panelTab,
   onPanelTab,
 }: StrategyViewProps & { panelTab: "hand" | "filters"; onPanelTab: (tab: "hand" | "filters") => void }) {
@@ -152,8 +157,10 @@ function Grid({
     <>
       <div className={styles.gridWrap}>
         {toolbar}
-        {main ?? (
-        <div className={styles.grid} role="grid" aria-label={t.gridLabel(model.actor)}>
+        {main ? (
+          fade ? <div className="rail-fade">{main}</div> : main
+        ) : (
+        <div className={`${styles.grid} ${fade ? "rail-fade" : ""}`} role="grid" aria-label={t.gridLabel(model.actor)}>
           {Array.from({ length: 13 }, (_, row) => (
             <div key={row} role="row" className={styles.gridRow}>
               {GRID_CELLS.slice(row * 13, row * 13 + 13).map((cell, col) => {

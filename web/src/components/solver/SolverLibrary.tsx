@@ -27,6 +27,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { flopLibraryBase, flopLinesFor, FlopLibraryLoader, FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
 import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, type ChartNode, type ChartSet } from "../../lib/charts";
@@ -125,6 +126,12 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
   const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
+  /**
+   * The decision the tab was last switched on: its view fades in (`.rail-fade`).
+   * Walking to another decision does not replay it - that is a click through
+   * a tree, and a fade on every step would read as lag.
+   */
+  const [swappedAt, setSwappedAt] = useState<string | null>(null);
   const [filter, setFilter] = useState<HandFilter>(EMPTY_FILTER);
 
   const table = TABLES.find((x) => x.id === setId)!;
@@ -252,7 +259,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
   let body: ReactNode;
   if (!state || !manifest) {
-    body = <p className={analysis.muted}>{t.loading}</p>;
+    body = <RailLoader label={t.loadingLibrary} showLabel centered />;
   } else if (state.node) {
     const model = preflopModel(state.node, state, goLine, t);
     body = <StrategyView model={model} overview={<PreflopOverview node={state.node} t={t} />} />;
@@ -295,13 +302,25 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         toolbar={
           <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
             {(["strategy", "ranges"] as const).map((x) => (
-              <button key={x} type="button" role="tab" aria-selected={tab === x} className={styles.viewTab} onClick={() => setTab(x)}>
+              <button
+                key={x}
+                type="button"
+                role="tab"
+                aria-selected={tab === x}
+                className={styles.viewTab}
+                onClick={() => {
+                  if (x === tab) return;
+                  setTab(x);
+                  setSwappedAt(model.id);
+                }}
+              >
                 {t.tabs[x]}
               </button>
             ))}
           </div>
         }
         main={tab === "ranges" && rangeData ? <RangesView data={rangeData} masks={masks} strategy={model} /> : undefined}
+        fade={swappedAt === model.id}
         filters={<HandFilters data={rangeData} filter={filter} onFilter={setFilter} colours={model.actions.map((a) => a.colour)} />}
         overview={
           <FlopOverview
@@ -323,7 +342,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       />
     );
   } else {
-    body = <p className={analysis.muted}>{t.loading}</p>;
+    // The flop's (or the turn's) solve is downloading.
+    body = <RailLoader label={t.loadingSolve} showLabel centered />;
   }
 
   return (
