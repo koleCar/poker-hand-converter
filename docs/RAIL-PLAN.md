@@ -11392,8 +11392,9 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
 
 - **Builds**: GitHub Actions, macOS universal (`.dmg`) and Windows (`.msi` or
   NSIS). Public repository, so hosted runners cost nothing.
-  - **Built (2026-11-03)**: `.github/workflows/release.yml`, run by hand
-    with a version: the release checklist, then a universal `.dmg` and an
+  - **Built (2026-11-03)**: `.github/workflows/release.yml`, started by
+    pushing a tag `app-v<version>` (runs from the tagged commit, so from
+    `staging`) or by hand once it is on `main`: the release checklist, then a universal `.dmg` and an
     NSIS installer (HUD sidecar in both, version stamped), published as the
     GitHub Release `app-v<version>` under fixed names `Rail-macOS.dmg` and
     `Rail-Windows-Setup.exe` (+ `SHA256SUMS.txt`). The web's `/download`
