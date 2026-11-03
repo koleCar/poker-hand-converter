@@ -89,7 +89,9 @@ jobs:
     name: Build (${{ matrix.os }})
     needs: [version, checklist]
     strategy:
-      fail-fast: true
+      # One platform failing does not cancel the other: its log is worth
+      # having. Publishing still needs both.
+      fail-fast: false
       matrix:
         include:
           - os: macos-latest

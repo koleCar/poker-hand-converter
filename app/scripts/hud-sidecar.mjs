@@ -16,7 +16,8 @@
 //
 // `universal-apple-darwin` (the release workflow's macOS build) is both Mac
 // architectures, built one by one and joined with `lipo`, which is the file
-// Tauri's universal bundle looks for.
+// Tauri's universal bundle looks for (each slice is also copied under its
+// own triple, for the per-slice compile).
 //
 // The extra config is kept out of tauri.conf.json on purpose: with
 // externalBin there, every `cargo build -p rail-app` (clippy, tests, dev)
@@ -50,7 +51,14 @@ function build(triple) {
 const to = join(app, "src-tauri", "binaries", `rail-hud-${target ?? host}${exe}`);
 mkdirSync(dirname(to), { recursive: true });
 if (target === "universal-apple-darwin") {
-  const slices = ["aarch64-apple-darwin", "x86_64-apple-darwin"].map(build);
+  // Tauri compiles the app once per slice, and each slice's build script
+  // checks for its own `rail-hud-<slice>`; the bundler then takes the joined
+  // `rail-hud-universal-apple-darwin`. So all three are written.
+  const slices = ["aarch64-apple-darwin", "x86_64-apple-darwin"].map((triple) => {
+    const built = build(triple);
+    copyFileSync(built, join(app, "src-tauri", "binaries", `rail-hud-${triple}`));
+    return built;
+  });
   execFileSync("lipo", ["-create", "-output", to, ...slices], { stdio: "inherit" });
 } else {
   copyFileSync(build(target), to);
