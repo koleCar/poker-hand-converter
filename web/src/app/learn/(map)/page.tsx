@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CourseMap } from "../../components/learn/course/CourseMap";
-import { LearnProvider } from "../../components/learn/course/LearnStore";
-import { ServerFrame } from "../../components/shell/ServerFrame";
-import { getDict, getLocale } from "../../lib/i18n/server";
-import { LESSON_IDS, REFERENCE_BY_GROUP, REFERENCE_GROUPS } from "../../lib/learn/course";
-import { lessonOutline } from "../../lib/learn/lessons";
-import { paths } from "../../lib/routes";
-import styles from "../../components/learn/course/course.module.css";
+import { CourseMap } from "../../../components/learn/course/CourseMap";
+import { LearnProvider } from "../../../components/learn/course/LearnStore";
+import { ServerFrame } from "../../../components/shell/ServerFrame";
+import { getDict, getLocale } from "../../../lib/i18n/server";
+import { LESSON_IDS, REFERENCE_BY_GROUP, REFERENCE_GROUPS } from "../../../lib/learn/course";
+import { lessonOutline } from "../../../lib/learn/lessons";
+import { paths } from "../../../lib/routes";
+import styles from "../../../components/learn/course/course.module.css";
 
 /**
  * The Learn tab (`docs/LEARN-PLAN.md`, L1): the course map.

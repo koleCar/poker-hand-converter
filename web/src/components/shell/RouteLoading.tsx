@@ -18,12 +18,21 @@ import { BrandMark } from "./BrandMark";
  * So the boundary draws the bar itself.
  *
  * Why the address decides the tab and the word, rather than a prop per file:
- * which boundary shows is up to the router, not the file tree as one reads
- * it. A boundary in folder X catches a wait for X's *child*, and a navigation
- * that was not prefetched waits in a boundary above the one the destination's
- * folder has — `app/loading.tsx` for most of them. A hard-coded "forum" there
- * would light the wrong tab for every such navigation. When a boundary shows,
- * the URL has already moved to the destination, so `usePathname` names it.
+ * a boundary in folder X also catches a wait for anything below X, and when a
+ * boundary shows the URL has already moved to the destination, so
+ * `usePathname` names the screen whichever boundary caught it. It also keeps
+ * every `loading.tsx` the same one line.
+ *
+ * Where there is deliberately no boundary: above any page that calls
+ * `notFound()`, `redirect()` or `permanentRedirect()` — the root, `/f/**`,
+ * `/u/*`, `/p/*`, the lessons and reference pages, `/analysis/h/*` and the
+ * concept pages. A boundary makes Next send the shell before the page runs,
+ * after which the page can no longer set the status: an unknown thread would
+ * answer 200 instead of 404, and a wrong slug a client-side hop instead of a
+ * 308. Those routes get the app bar's progress line (`NavProgress`) only. The
+ * feed, the course map and the Analysis list keep a loader by living in a
+ * route group (`(home)`, `learn/(map)`, `analysis/(overview)`), whose
+ * boundary wraps that one page and not its siblings.
  *
  * The frame here never holds for the plan (`feature={null}`) and subscribes to
  * nothing live; the screen's own frame does both when it arrives.
