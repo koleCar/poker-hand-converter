@@ -13,6 +13,7 @@ import type { Dict } from "../../lib/i18n/types";
 import { paths } from "../../lib/routes";
 import { MyVotesProvider } from "./MyVotes";
 import { PostCard } from "./PostCard";
+import { NavPending, PendingDims, PendingLoader, PendingScope } from "../shell/NavProgress";
 import styles from "./forum.module.css";
 
 const SORTS: FeedSort[] = ["hot", "new", "top"];
@@ -66,53 +67,62 @@ export function Feed({
 
       {board?.description ? <p className="muted">{board.description}</p> : null}
 
-      <nav className={styles.chips} aria-label={en.forum.allBoards}>
-        <Link href={feedHref(null, sort)} className={styles.chipLink} aria-current={slug === null ? "page" : undefined}>
-          {en.forum.allBoards}
-        </Link>
-        {boards.map((entry) => (
-          <Link
-            key={entry.slug}
-            href={feedHref(entry.slug, sort)}
-            className={styles.chipLink}
-            aria-current={slug === entry.slug ? "page" : undefined}
-          >
-            {entry.name}
+      {/* A board, a sort or a page is a navigation: the list dims while it is on its way. */}
+      <PendingScope>
+        <nav className={styles.chips} aria-label={en.forum.allBoards}>
+          <Link href={feedHref(null, sort)} className={styles.chipLink} aria-current={slug === null ? "page" : undefined}>
+            {en.forum.allBoards}
+            <NavPending mark={false} />
           </Link>
-        ))}
-      </nav>
+          {boards.map((entry) => (
+            <Link
+              key={entry.slug}
+              href={feedHref(entry.slug, sort)}
+              className={styles.chipLink}
+              aria-current={slug === entry.slug ? "page" : undefined}
+            >
+              {entry.name}
+              <NavPending mark={false} />
+            </Link>
+          ))}
+        </nav>
 
-      <nav className={styles.chips} aria-label={en.forum.sorts.hot}>
-        {SORTS.map((value) => (
-          <Link
-            key={value}
-            href={feedHref(slug, value)}
-            className={styles.chipLink}
-            aria-current={sort === value ? "page" : undefined}
-          >
-            {en.forum.sorts[value]}
-          </Link>
-        ))}
-      </nav>
+        <nav className={styles.chips} aria-label={en.forum.sorts.hot}>
+          {SORTS.map((value) => (
+            <Link
+              key={value}
+              href={feedHref(slug, value)}
+              className={styles.chipLink}
+              aria-current={sort === value ? "page" : undefined}
+            >
+              {en.forum.sorts[value]}
+              <NavPending mark={false} />
+            </Link>
+          ))}
+          <PendingLoader label={en.loading.route.feed} />
+        </nav>
 
-      <MyVotesProvider postIds={posts.map((post) => post.publicId)}>
-        <div className={styles.feed}>
-          {posts.length ? posts.map((post) => <PostCard key={post.publicId} post={post} t={en} />) : <p className="muted">{en.forum.empty}</p>}
+        <MyVotesProvider postIds={posts.map((post) => post.publicId)}>
+          <PendingDims className={styles.feed}>
+            {posts.length ? posts.map((post) => <PostCard key={post.publicId} post={post} t={en} />) : <p className="muted">{en.forum.empty}</p>}
+          </PendingDims>
+        </MyVotesProvider>
+
+        <div className={styles.pager}>
+          {page > 1 ? (
+            <Link href={feedHref(slug, sort)} className="btn btn--ghost btn--sm">
+              {en.forum.first}
+              <NavPending mark={false} />
+            </Link>
+          ) : null}
+          {nextHref ? (
+            <Link href={nextHref} className="btn btn--sm" rel="next">
+              {en.forum.next}
+              <NavPending mark={false} />
+            </Link>
+          ) : null}
         </div>
-      </MyVotesProvider>
-
-      <div className={styles.pager}>
-        {page > 1 ? (
-          <Link href={feedHref(slug, sort)} className="btn btn--ghost btn--sm">
-            {en.forum.first}
-          </Link>
-        ) : null}
-        {nextHref ? (
-          <Link href={nextHref} className="btn btn--sm" rel="next">
-            {en.forum.next}
-          </Link>
-        ) : null}
-      </div>
+      </PendingScope>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { useSpot } from "./PostDiscussion";
 import styles from "./forum.module.css";
+import { BusyLabel } from "../shell/BusyLabel";
 
 function scrollWhenPresent(id: string, attempts = 20) {
   const element = document.getElementById(id);
@@ -119,7 +120,9 @@ export function CommentComposer({
       ) : null}
       <div>
         <button type="submit" className="btn btn--primary btn--sm" disabled={busy || !body.trim() || Boolean(blocked)}>
-          {busy ? en.forum.comments.submitting : en.forum.comments.submit}
+          <BusyLabel busy={busy} busyLabel={en.forum.comments.submitting}>
+            {en.forum.comments.submit}
+          </BusyLabel>
         </button>
       </div>
     </form>

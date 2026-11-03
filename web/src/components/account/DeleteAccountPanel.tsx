@@ -22,6 +22,7 @@ import {
 import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
 import { Turnstile } from "../auth/Turnstile";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import styles from "./account.module.css";
 
 /** Set when the account is gone, so the signed-out Settings page can say so. */
@@ -191,9 +192,11 @@ export function DeleteAccountPanel({ username }: { username: string }) {
         {auth.captchaEnabled ? <Turnstile onToken={setCaptchaToken} resetSignal={captchaReset} /> : null}
 
         {phase.kind === "working" ? (
-          <p className="notice notice--info" role="status">
-            {phase.step && phase.step in t.step ? t.step[phase.step as keyof typeof t.step] : t.deleting}
-          </p>
+          <RailLoader
+            size="small"
+            showLabel
+            label={phase.step && phase.step in t.step ? t.step[phase.step as keyof typeof t.step] : t.deleting}
+          />
         ) : null}
         {phase.kind === "error" ? (
           <p className="notice notice--error" role="alert">

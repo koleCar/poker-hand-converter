@@ -28,6 +28,7 @@ import { canonicalUrl, paths } from "../../../../../lib/routes";
 import { readSharedAnalysisAnon } from "../../../../../lib/server/analysisShare";
 import { readComments, readHiddenPostAsViewer, readPollAnon, readPost } from "../../../../../lib/server/forum";
 import { AnalysisShareToggle } from "../../../../../components/analysis/AnalysisShareToggle";
+import { NavPending, PendingDims, PendingLoader, PendingScope } from "../../../../../components/shell/NavProgress";
 import styles from "../../../../../components/forum/forum.module.css";
 
 /**
@@ -267,30 +268,37 @@ export default async function PostPage({ params, searchParams }: { params: Param
             initialPosition={decodePosition(t)}
             anchors={comments.flatMap((comment) => (comment.anchor && !comment.deleted && !comment.removed ? [comment.anchor] : []))}
           >
-            <section id="comments" className="stack">
-              <div className={styles.toolbar}>
-                <h2 className={styles.cardTitle}>{en.forum.comments.heading(post.commentCount)}</h2>
-                <nav className={styles.chips}>
-                  {(["best", "new", "top"] as const).map((value) => (
-                    <Link
-                      key={value}
-                      href={value === "best" ? `${canonicalPath}#comments` : `${canonicalPath}?sort=${value}#comments`}
-                      className={styles.chipLink}
-                      aria-current={commentSort === value ? "page" : undefined}
-                      rel="nofollow"
-                    >
-                      {en.forum.comments.sort[value]}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-              <LiveCommentBanner
-                post={post.publicId}
-                knownSeq={comments.reduce((max, comment) => Math.max(max, comment.seq), 0)}
-              />
-              <CommentComposer post={post.publicId} locked={post.isLocked} />
-              <CommentThread t={en} post={post.publicId} comments={comments} hand={hand} locked={post.isLocked} permalink={permalink} />
-            </section>
+            {/* A sort is a navigation: the thread dims while it is on its way. */}
+            <PendingScope>
+              <section id="comments" className="stack">
+                <div className={styles.toolbar}>
+                  <h2 className={styles.cardTitle}>{en.forum.comments.heading(post.commentCount)}</h2>
+                  <nav className={styles.chips}>
+                    {(["best", "new", "top"] as const).map((value) => (
+                      <Link
+                        key={value}
+                        href={value === "best" ? `${canonicalPath}#comments` : `${canonicalPath}?sort=${value}#comments`}
+                        className={styles.chipLink}
+                        aria-current={commentSort === value ? "page" : undefined}
+                        rel="nofollow"
+                      >
+                        {en.forum.comments.sort[value]}
+                        <NavPending mark={false} />
+                      </Link>
+                    ))}
+                    <PendingLoader label={en.loading.comments} />
+                  </nav>
+                </div>
+                <LiveCommentBanner
+                  post={post.publicId}
+                  knownSeq={comments.reduce((max, comment) => Math.max(max, comment.seq), 0)}
+                />
+                <CommentComposer post={post.publicId} locked={post.isLocked} />
+                <PendingDims>
+                  <CommentThread t={en} post={post.publicId} comments={comments} hand={hand} locked={post.isLocked} permalink={permalink} />
+                </PendingDims>
+              </section>
+            </PendingScope>
           </PostDiscussion>
           )}
         </article>

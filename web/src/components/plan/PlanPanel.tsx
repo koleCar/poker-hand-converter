@@ -32,6 +32,8 @@ import { useDict, useLocale } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { ProBadge } from "./ProLock";
 import styles from "./plan.module.css";
+import { BusyLabel } from "../shell/BusyLabel";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 /**
  * `2026-10-29T08:02:17Z` -> `29 October 2026`, as the settings screen words
@@ -75,10 +77,10 @@ export function PlanPanel() {
       <h2 id="settings-plan" className={styles.heading}>
         {t.heading}
       </h2>
-      {status !== "ready" || !entitlements ? (
-        <p className={status === "loading" ? "muted" : "notice notice--warn"}>
-          {status === "loading" ? t.loading : status === "unavailable" ? t.unavailable : t.loadFailed}
-        </p>
+      {status === "loading" ? (
+        <RailLoader size="small" centered label={t.loading} />
+      ) : status !== "ready" || !entitlements ? (
+        <p className="notice notice--warn">{status === "unavailable" ? t.unavailable : t.loadFailed}</p>
       ) : (
         <PlanDetails entitlements={entitlements} offer={offer} />
       )}
@@ -237,7 +239,9 @@ function ManageButton() {
     <div className={styles.billing}>
       <div className={styles.actions}>
         <button type="button" className="btn btn--ghost" onClick={open} disabled={busy} aria-describedby="plan-manage-hint">
-          {busy ? b.opening : b.manage}
+          <BusyLabel busy={busy} busyLabel={b.opening}>
+            {b.manage}
+          </BusyLabel>
         </button>
       </div>
       <p id="plan-manage-hint" className={styles.small}>
@@ -337,7 +341,9 @@ export function UpgradeChooser({
           disabled={busy || !chosen || !agreed}
           aria-describedby={agreed ? undefined : "plan-consent-required"}
         >
-          {busy ? b.working : t.upgrade}
+          <BusyLabel busy={busy} busyLabel={b.working}>
+            {t.upgrade}
+          </BusyLabel>
         </button>
         {agreed ? null : (
           <span id="plan-consent-required" className={styles.small}>

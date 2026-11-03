@@ -4,7 +4,9 @@ import Link from "next/link";
 import { LanguageSwitch } from "../../components/shell/LanguageSwitch";
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { Turnstile } from "../../components/auth/Turnstile";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { AppFrame } from "../../components/shell/AppFrame";
+import { BusyLabel } from "../../components/shell/BusyLabel";
 import { useAuth } from "../../lib/auth";
 import { setUsername, usernameErrorMessage, type MyProfile } from "../../lib/db/profiles";
 import { useDict, useLocale } from "../../lib/i18n/client";
@@ -67,13 +69,11 @@ function SettingsBody() {
           <UsernameSection profile={profile} onSaved={refresh} />
           <PostingSection profile={profile} />
         </>
+      ) : status === "loading" ? (
+        <RailLoader centered label={en.settings.loading} />
       ) : (
-        <p className={status === "loading" ? "muted" : "notice notice--warn"}>
-          {status === "loading"
-            ? en.settings.loading
-            : status === "unavailable"
-              ? en.settings.unavailable
-              : en.settings.loadFailed}
+        <p className="notice notice--warn">
+          {status === "unavailable" ? en.settings.unavailable : en.settings.loadFailed}
         </p>
       )}
       <PlanPanel />
@@ -236,7 +236,9 @@ function UsernameSection({ profile, onSaved }: { profile: MyProfile; onSaved: ()
             className="btn btn--primary"
             disabled={busy || (locked && !caseOnly)}
           >
-            {busy ? en.settings.username.saving : en.settings.username.save}
+            <BusyLabel busy={busy} busyLabel={en.settings.username.saving}>
+              {en.settings.username.save}
+            </BusyLabel>
           </button>
           <Link href={paths.profile(profile.username)} className="btn btn--ghost">
             {en.settings.username.viewProfile}
@@ -341,7 +343,9 @@ function PasswordSection() {
 
         <div className={styles.actions}>
           <button type="submit" className="btn btn--primary" disabled={busy}>
-            {busy ? words.saving : words.save}
+            <BusyLabel busy={busy} busyLabel={words.saving}>
+              {words.save}
+            </BusyLabel>
           </button>
         </div>
       </form>
@@ -420,7 +424,9 @@ function PostingSection({ profile }: { profile: MyProfile }) {
               disabled={busy || (auth.captchaEnabled && !captchaToken)}
               onClick={() => void resend()}
             >
-              {busy ? en.settings.posting.resending : en.settings.posting.resend}
+              <BusyLabel busy={busy} busyLabel={en.settings.posting.resending}>
+                {en.settings.posting.resend}
+              </BusyLabel>
             </button>
           </div>
         </div>

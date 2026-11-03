@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { MyVotesProvider } from "../../components/forum/MyVotes";
 import { PostCard } from "../../components/forum/PostCard";
 import { AppFrame } from "../../components/shell/AppFrame";
@@ -52,11 +53,13 @@ function SavedList() {
   return (
     <section className="stack">
       <h1 className={styles.postTitle}>{en.social.savedHeading}</h1>
-      {posts === null ? null : posts.length === 0 ? (
+      {posts === null ? (
+        <RailLoader centered label={en.loading.route.saved} />
+      ) : posts.length === 0 ? (
         <p className="muted">{en.social.noSaved}</p>
       ) : (
         <MyVotesProvider postIds={posts.map((post) => post.publicId)}>
-          <div className={styles.feed}>
+          <div className={`${styles.feed} rail-stagger`}>
             {posts.map((post) => (
               <PostCard t={en} key={post.publicId} post={post} />
             ))}

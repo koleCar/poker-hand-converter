@@ -26,6 +26,7 @@ import { useAuth } from "../../lib/auth";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { localizeServerMessage } from "../../lib/i18n/serverErrors";
 import { Turnstile } from "./Turnstile";
+import { BusyLabel } from "../shell/BusyLabel";
 
 type Mode = "sign-in" | "sign-up" | "reset";
 
@@ -231,7 +232,9 @@ export function AuthDialog() {
           ) : null}
 
           <button type="submit" className="btn btn--primary authdlg__submit" disabled={busy}>
-            {busy ? t.working : t.submit[mode]}
+            <BusyLabel busy={busy} busyLabel={t.working}>
+              {t.submit[mode]}
+            </BusyLabel>
           </button>
         </form>
 

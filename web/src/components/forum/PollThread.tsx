@@ -28,6 +28,8 @@ import { CommentComposer } from "./CommentComposer";
 import { CommentThread } from "./CommentThread";
 import { PostDiscussion } from "./PostDiscussion";
 import styles from "./forum.module.css";
+import { BusyLabel } from "../shell/BusyLabel";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 /** Sizes offered for a bet or raise, as a percentage of the pot. */
 const SIZES = [33, 50, 75, 100, 150];
@@ -187,7 +189,9 @@ export function PollThread({
         <div>
           {auth.isSignedIn ? (
             <button type="button" className="btn btn--primary" disabled={!choice || busy || locked} onClick={() => void answer()}>
-              {busy ? en.forum.poll.voting : en.forum.poll.vote}
+              <BusyLabel busy={busy} busyLabel={en.forum.poll.voting}>
+                {en.forum.poll.vote}
+              </BusyLabel>
             </button>
           ) : (
             <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn(en.forum.poll.signIn)}>
@@ -225,7 +229,11 @@ export function PollThread({
         <section id="comments" className="stack">
           <CommentComposer post={post} locked={locked} />
           {comments ? (
-            <CommentThread t={en} post={post} comments={comments} hand={poll.phf} locked={locked} permalink={permalink} />
+            <div className="rail-enter">
+              <CommentThread t={en} post={post} comments={comments} hand={poll.phf} locked={locked} permalink={permalink} />
+            </div>
+          ) : auth.isSignedIn ? (
+            <RailLoader centered label={en.loading.comments} />
           ) : null}
         </section>
       </PostDiscussion>

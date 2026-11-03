@@ -9,6 +9,7 @@ import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./s
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import { ShareNamesToggle } from "./ShareNamesToggle";
 import { Icon } from "@rail/ui/icon/Icon";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 interface ShareHandButtonProps {
   hand: PhfHand;
@@ -258,7 +259,7 @@ export function ShareHandButton({
               {storedHandId && !presetUrl ? <AnalysisShareToggle surface="hand" id={storedHandId} /> : null}
             </>
           ) : busy ? (
-            <p className="share__hint">{t.creating}</p>
+            <RailLoader size="small" showLabel label={t.creating} className="share__hint" />
           ) : null}
         </div>
       ) : null}

@@ -139,7 +139,7 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
   }
 
   return (
-    <section className="card conv-failures">
+    <section className="card conv-failures rail-enter">
       <header className="card__head">
         <div>
           <h3>{t.heading(failures.length, allRefused)}</h3>

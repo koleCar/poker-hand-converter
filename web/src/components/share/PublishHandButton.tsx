@@ -27,6 +27,7 @@ import { paths } from "../../lib/routes";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import styles from "./PublishHandButton.module.css";
 import { Icon } from "@rail/ui/icon/Icon";
+import { BusyLabel } from "../shell/BusyLabel";
 
 const MODES: PublishMode[] = ["pseudonyms", "positions", "as-imported"];
 
@@ -237,7 +238,9 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
                     className="btn btn--primary"
                     disabled={busy || needsConfirm || Boolean(blocked)}
                   >
-                    {busy ? en.publish.submitting : en.publish.submit}
+                    <BusyLabel busy={busy} busyLabel={en.publish.submitting}>
+                      {en.publish.submit}
+                    </BusyLabel>
                   </button>
                   <button type="button" className="btn btn--ghost" onClick={() => setOpen(false)}>
                     {en.publish.cancel}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { RailMark } from "../brand/RailMark";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
+import { NavPending } from "./NavProgress";
 
 interface BrandMarkProps {
   /** The tagline is dropped on the slim share-page header. */
@@ -40,6 +41,8 @@ export function BrandMark({ showTagline = true, className }: BrandMarkProps) {
         </span>
         {showTagline ? <span className="shell__brand-sub">{en.brand.tagline}</span> : null}
       </span>
+      {/* Lights the app bar's progress line; nothing of its own (no bar outside the shell). */}
+      <NavPending mark={false} />
     </Link>
   );
 }

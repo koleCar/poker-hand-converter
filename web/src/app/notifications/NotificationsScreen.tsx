@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { formatPostDate } from "../../components/forum/format";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
@@ -65,10 +66,12 @@ function NotificationsList() {
           </button>
         ) : null}
       </div>
-      {items === null ? null : items.length === 0 ? (
+      {items === null ? (
+        <RailLoader centered label={en.loading.route.notifications} />
+      ) : items.length === 0 ? (
         <p className="muted">{en.social.noNotifications}</p>
       ) : (
-        <ol className={styles.hits}>
+        <ol className={`${styles.hits} rail-stagger`}>
           {items.map((item) => {
             const actor = item.actor?.username ?? en.social.someone;
             const href = item.seq

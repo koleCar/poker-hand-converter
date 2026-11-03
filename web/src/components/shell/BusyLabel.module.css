@@ -1,0 +1,6 @@
+/* A busy button's label (`BusyLabel.tsx`): the inline loader, then the words. */
+.busy {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}

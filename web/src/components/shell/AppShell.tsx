@@ -11,6 +11,7 @@ import { NotificationsBell } from "../forum/NotificationsBell";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 import { LanguageSwitch } from "./LanguageSwitch";
+import { NavPending, NavPendingProvider, NavProgressLine, useNavPendingState } from "./NavProgress";
 import { ProBadge } from "../plan/ProLock";
 
 /**
@@ -86,6 +87,8 @@ export function AppShell({
   // library and statistics wait until there is something in them.
   const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
   const navRef = useRef<HTMLElement | null>(null);
+  // A press on a tab (or the logo) waits for the server; the bar says so.
+  const navPending = useNavPendingState();
 
   // On a phone the tab strip scrolls sideways (five tabs do not fit 375px);
   // keep the current screen's tab in view rather than leaving it off the edge.
@@ -98,62 +101,75 @@ export function AppShell({
   }, [tab, tabs.length]);
 
   return (
-    <div className="shell">
-      <header className="shell__bar">
-        <div className={`shell__bar-inner ${tabs.length > 1 ? "" : "shell__bar-inner--no-tabs"}`}>
-          <BrandMark />
+    <NavPendingProvider report={navPending.report}>
+      <div className="shell">
+        <header className="shell__bar">
+          <div className={`shell__bar-inner ${tabs.length > 1 ? "" : "shell__bar-inner--no-tabs"}`}>
+            <BrandMark />
 
-          {/* One tab is not a choice — rendering it would be a permanently
-              selected label next to the logo. */}
-          {tabs.length > 1 ? (
-            <nav ref={navRef} className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
-              {tabs.map((entry) => (
-                <Link
-                  key={entry.id}
-                  role="tab"
-                  href={entry.path}
-                  aria-selected={tab === entry.id}
-                  className={`shell__tab ${tab === entry.id ? "is-active" : ""}`}
-                >
-                  <span className="shell__tab-label">{entry.label(en)}</span>
-                  {lockedTabs.includes(entry.id) ? (
-                    <>
-                      {" "}
-                      <ProBadge />
-                    </>
-                  ) : null}
-                </Link>
-              ))}
-            </nav>
-          ) : null}
+            {/* One tab is not a choice — rendering it would be a permanently
+                selected label next to the logo. */}
+            {tabs.length > 1 ? (
+              <nav ref={navRef} className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
+                {tabs.map((entry) => (
+                  <Link
+                    key={entry.id}
+                    role="tab"
+                    href={entry.path}
+                    aria-selected={tab === entry.id}
+                    className={`shell__tab ${tab === entry.id ? "is-active" : ""}`}
+                  >
+                    <span className="shell__tab-label">{entry.label(en)}</span>
+                    <NavPending />
+                    {lockedTabs.includes(entry.id) ? (
+                      <>
+                        {" "}
+                        <ProBadge />
+                      </>
+                    ) : null}
+                  </Link>
+                ))}
+              </nav>
+            ) : null}
 
-          <div className="shell__bar-end">
-            <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
-            <NotificationsBell />
-            <LanguageSwitch />
-            <UserMenu />
+            <div className="shell__bar-end">
+              <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
+              <NotificationsBell />
+              <LanguageSwitch />
+              <UserMenu />
+            </div>
           </div>
-        </div>
-      </header>
+          <NavProgressLine pending={navPending.pending} />
+        </header>
 
-      {/* Rendered by the shell, not by each screen, so `requestSignIn()` works
-          from anywhere in the tree. The shared-hand page has no shell and
-          therefore never shows it — a stranger following a link is not
-          someone to put a sign-up form in front of. */}
-      <AuthDialog />
+        {/* Rendered by the shell, not by each screen, so `requestSignIn()` works
+            from anywhere in the tree. The shared-hand page has no shell and
+            therefore never shows it — a stranger following a link is not
+            someone to put a sign-up form in front of. */}
+        <AuthDialog />
 
-      {!dbConfigured ? <p className="shell__offline-banner">{en.shell.offlineBanner}</p> : null}
+        {!dbConfigured ? <p className="shell__offline-banner">{en.shell.offlineBanner}</p> : null}
 
-      <main className={`shell__main${wide ? " shell__main--wide" : ""}`}>{children}</main>
+        <main className={`shell__main${wide ? " shell__main--wide" : ""}`}>{children}</main>
 
-      {/* R6.5: the terms, the privacy policy and the takedown path, from every page. */}
-      <footer className="shell__footer">
-        <nav aria-label={en.legal.links.label} className="shell__footer-links">
-          <Link href={paths.terms()}>{en.legal.links.terms}</Link>
-          <Link href={paths.privacy()}>{en.legal.links.privacy}</Link>
-          <Link href={paths.takedown()}>{en.legal.links.takedown}</Link>
-        </nav>
-      </footer>
-    </div>
+        {/* R6.5: the terms, the privacy policy and the takedown path, from every page. */}
+        <footer className="shell__footer">
+          <nav aria-label={en.legal.links.label} className="shell__footer-links">
+            <Link href={paths.terms()}>
+              {en.legal.links.terms}
+              <NavPending mark={false} />
+            </Link>
+            <Link href={paths.privacy()}>
+              {en.legal.links.privacy}
+              <NavPending mark={false} />
+            </Link>
+            <Link href={paths.takedown()}>
+              {en.legal.links.takedown}
+              <NavPending mark={false} />
+            </Link>
+          </nav>
+        </footer>
+      </div>
+    </NavPendingProvider>
   );
 }

@@ -14,14 +14,16 @@
  */
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDict } from "../../lib/i18n/client";
 import { getBrowserSupabase } from "../../lib/supabase/browser";
 import styles from "./forum.module.css";
+import { BusyLabel } from "../shell/BusyLabel";
 
 export function LiveCommentBanner({ post, knownSeq }: { post: string; knownSeq: number }) {
   const en = useDict();
   const router = useRouter();
+  const [refreshing, startRefresh] = useTransition();
   const [latest, setLatest] = useState(knownSeq);
   const [base, setBase] = useState(knownSeq);
 
@@ -53,8 +55,15 @@ export function LiveCommentBanner({ post, knownSeq }: { post: string; knownSeq: 
     return null;
   }
   return (
-    <button type="button" className={`btn btn--sm ${styles.banner}`} onClick={() => router.refresh()}>
-      {en.social.newComments(fresh)}
+    <button
+      type="button"
+      className={`btn btn--sm ${styles.banner} rail-enter`}
+      disabled={refreshing}
+      onClick={() => startRefresh(() => router.refresh())}
+    >
+      <BusyLabel busy={refreshing} busyLabel={en.loading.comments}>
+        {en.social.newComments(fresh)}
+      </BusyLabel>
     </button>
   );
 }
