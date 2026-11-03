@@ -15,6 +15,7 @@
 @import "@rail/ui/replayer/replayer.css";
 @import "./layout.css";
 @import "@rail/ui/styles/controls.css";
+@import "@rail/ui/styles/motion.css";
 
 .switch {
   display: inline-flex;
