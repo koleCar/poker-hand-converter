@@ -53,9 +53,6 @@ interface ReplayControlsProps {
   playing: boolean;
   speed: number;
   logOpen: boolean;
-  resultOpen: boolean;
-  /** The hand has reached a showdown, so the result sheet has something in it. */
-  resultReady: boolean;
   /**
    * One bar instead of two rows of chips: caption, rail, playback, and nothing
    * else. This is `embed` mode, where the replayer is a block inside somebody
@@ -70,7 +67,6 @@ interface ReplayControlsProps {
   onTogglePlay: () => void;
   onSpeed: (speed: number) => void;
   onToggleLog: () => void;
-  onToggleResult: () => void;
 }
 
 export function ReplayControls({
@@ -83,15 +79,12 @@ export function ReplayControls({
   playing,
   speed,
   logOpen,
-  resultOpen,
-  resultReady,
   compact = false,
   onSeek,
   onStep,
   onTogglePlay,
   onSpeed,
   onToggleLog,
-  onToggleResult,
   extra,
 }: ReplayControlsProps) {
   const words = useUiStrings().replayer.controls;
@@ -264,21 +257,6 @@ export function ReplayControls({
         {compact ? null : (
         <div className="rp__opts">
           {/* Unit and card visibility live behind the gear in the header. */}
-          {resultReady ? (
-            <button
-              type="button"
-              className={`chip-btn ${resultOpen ? "is-active" : ""}`.trim()}
-              aria-pressed={resultOpen}
-              aria-haspopup="dialog"
-              aria-label={words.result}
-              title={words.result}
-              onClick={onToggleResult}
-            >
-              <span aria-hidden="true">🏆</span>
-              {/* Rung 1: the label goes, the icon and the name stay. */}
-              <span className="rp__opt-label">{words.result}</span>
-            </button>
-          ) : null}
           {extra ? (
             <button
               type="button"

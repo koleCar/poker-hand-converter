@@ -111,6 +111,14 @@ export interface ReplayOptions {
    * omitted, which is what the tests and every server-side caller get.
    */
   strings?: ReplayStrings;
+  /**
+   * Open on the dealt hand instead of on an empty table: the blinds and antes
+   * are already in when the replay starts, so the first step is the first
+   * decision. Antes go straight into the middle, where a dealer puts them,
+   * and the blinds stay in front of their seats. Off by default, which is what
+   * the tests and the hand editor's live table get.
+   */
+  openOnDeal?: boolean;
 }
 
 /**
@@ -613,8 +621,11 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
     return swept;
   }
 
+  const openOnDeal = options.openOnDeal === true;
   const tableLabel = hand.table.name ? `${hand.table.name} · ` : "";
-  snapshot("setup", `${tableLabel}${hand.game.label}`, null);
+  if (!openOnDeal) {
+    snapshot("setup", `${tableLabel}${hand.game.label}`, null);
+  }
 
   const postActions = hand.actions.filter((action) => isPostingAction(action.type));
   const playActions = hand.actions.filter((action) => !isPostingAction(action.type));
@@ -623,15 +634,25 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
     const entry = state.get(action.player);
     if (!entry) continue;
     entry.stack -= action.amount;
-    entry.bet += action.amount;
+    if (openOnDeal && (action.type === "ante" || action.type === "bomb-ante")) {
+      pot += action.amount;
+      potContribution.set(
+        action.player,
+        (potContribution.get(action.player) ?? 0) + action.amount,
+      );
+    } else {
+      entry.bet += action.amount;
+    }
     const pill = setPill(entry, (strings) => strings.actionLabel(action, labelMoney));
     if (action.allIn || entry.stack <= 0) {
       entry.allIn = true;
       entry.stack = Math.max(0, entry.stack);
     }
-    snapshot("post", words.acted(action.player, pill), action.player, {
-      actionIndex: action.index,
-    });
+    if (!openOnDeal) {
+      snapshot("post", words.acted(action.player, pill), action.player, {
+        actionIndex: action.index,
+      });
+    }
   }
 
   cardsDealt = true;

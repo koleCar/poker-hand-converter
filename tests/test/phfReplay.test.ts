@@ -264,3 +264,47 @@ describe("buildReplay over a hand with a side pot", () => {
     expect(beat.street).toBe("turn");
   });
 });
+
+describe("buildReplay with openOnDeal", () => {
+  async function weplayFixture(name: string): Promise<PhfHand> {
+    const text = readFileSync(join(import.meta.dirname, "fixtures/weplay", name), "utf8");
+    const result = await convertAny(text, { sourceFilename: name });
+    expect(result.hands).toHaveLength(1);
+    return result.hands[0];
+  }
+
+  it("opens on the dealt hand, antes in the middle and blinds in front", async () => {
+    // Four players post $0.16 antes, then the $0.50 / $1 blinds.
+    const hand = await weplayFixture("summary-hidden-cards.txt");
+    const frames = buildReplay(hand, { openOnDeal: true });
+    const first = frames[0];
+
+    expect(frames.some((frame) => frame.kind === "setup" || frame.kind === "post")).toBe(false);
+    expect(first.kind).toBe("deal");
+    expect(first.actionIndex).toBeNull();
+    expect(first.pot).toBe(0.64);
+    expect(first.potWithBets).toBe(2.14);
+
+    const bets = Object.fromEntries(first.seats.map((seat) => [seat.name, seat.bet]));
+    expect(bets).toEqual({ LukasFlopovski: 0, petit_blaireau: 0.5, kole1992: 1, Phyllis: 0 });
+    // The ante has left the stack, like the blinds.
+    const hero = first.seats.find((seat) => seat.isHero)!;
+    expect(hero.stack).toBe(165.65 - 0.16 - 1);
+    expect(hero.cards).toEqual(["9c", "Js"]);
+
+    // The first step is the first decision.
+    expect(frames[1].kind).toBe("action");
+    expect(frames[1].description).toContain("Phyllis");
+  });
+
+  it("ends the hand on the same frames as the full replay", async () => {
+    const hand = await weplayFixture("summary-hidden-cards.txt");
+    const full = buildReplay(hand);
+    const dealt = buildReplay(hand, { openOnDeal: true });
+    const tail = (frames: typeof full) =>
+      frames
+        .filter((frame) => frame.street !== "preflop")
+        .map(({ kind, street, pot, board, description }) => ({ kind, street, pot, board, description }));
+    expect(tail(dealt)).toEqual(tail(full));
+  });
+});

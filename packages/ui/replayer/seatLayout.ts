@@ -97,29 +97,29 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
   /* 16:9 — desktop, and a phone on its side. Three seats along the bottom and up to four across the top at a full ring. */
   wide: {
     2: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.655, chipAnchor: 0 },
-      { x: 0.5, y: 0.09, ax: 0.5, ay: 0, cx: 0.5, cy: 0.345, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.5, y: 0.03, ax: 0.5, ay: 0, cx: 0.5, cy: 0.3, chipAnchor: 0 },
     ],
     3: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.655, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.328, y: 0.09, ax: 0.5, ay: 0, cx: 0.328, cy: 0.345, chipAnchor: 0 },
       { x: 0.673, y: 0.09, ax: 0.5, ay: 0, cx: 0.673, cy: 0.345, chipAnchor: 0 },
     ],
     4: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.655, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.222, cy: 0.5, chipAnchor: 1 },
-      { x: 0.5, y: 0.09, ax: 0.5, ay: 0, cx: 0.5, cy: 0.345, chipAnchor: 0 },
+      { x: 0.5, y: 0.03, ax: 0.5, ay: 0, cx: 0.5, cy: 0.3, chipAnchor: 0 },
       { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.778, cy: 0.5, chipAnchor: -1 },
     ],
     5: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.66, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.217, cy: 0.5, chipAnchor: 1 },
       { x: 0.328, y: 0.09, ax: 0.5, ay: 0, cx: 0.328, cy: 0.34, chipAnchor: 0 },
       { x: 0.673, y: 0.09, ax: 0.5, ay: 0, cx: 0.673, cy: 0.34, chipAnchor: 0 },
       { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.783, cy: 0.5, chipAnchor: -1 },
     ],
     6: [
-      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.672, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.093, y: 0.771, ax: 0.5, ay: 1, cx: 0.2, cy: 0.62, chipAnchor: 1 },
       { x: 0.01, y: 0.411, ax: 0, ay: 1, cx: 0.2, cy: 0.4, chipAnchor: 1 },
       { x: 0.5, y: 0.03, ax: 0.5, ay: 0, cx: 0.5, cy: 0.3, chipAnchor: 0 },
@@ -127,7 +127,7 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
       { x: 0.907, y: 0.771, ax: 0.5, ay: 1, cx: 0.8, cy: 0.62, chipAnchor: -1 },
     ],
     7: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.155, y: 0.91, ax: 0.5, ay: 1, cx: 0.248, cy: 0.665, chipAnchor: 0 },
       { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.211, cy: 0.5, chipAnchor: 1 },
       { x: 0.328, y: 0.09, ax: 0.5, ay: 0, cx: 0.328, cy: 0.335, chipAnchor: 0 },
@@ -136,17 +136,17 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
       { x: 0.845, y: 0.91, ax: 0.5, ay: 1, cx: 0.752, cy: 0.665, chipAnchor: 0 },
     ],
     8: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.155, y: 0.91, ax: 0.5, ay: 1, cx: 0.248, cy: 0.665, chipAnchor: 0 },
       { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.211, cy: 0.5, chipAnchor: 1 },
-      { x: 0.27, y: 0.09, ax: 0.5, ay: 0, cx: 0.27, cy: 0.335, chipAnchor: 0 },
-      { x: 0.5, y: 0.09, ax: 0.5, ay: 0, cx: 0.5, cy: 0.335, chipAnchor: 0 },
-      { x: 0.73, y: 0.09, ax: 0.5, ay: 0, cx: 0.73, cy: 0.335, chipAnchor: 0 },
+      { x: 0.27, y: 0.06, ax: 0.5, ay: 0, cx: 0.27, cy: 0.315, chipAnchor: 0 },
+      { x: 0.5, y: 0.06, ax: 0.5, ay: 0, cx: 0.5, cy: 0.315, chipAnchor: 0 },
+      { x: 0.73, y: 0.06, ax: 0.5, ay: 0, cx: 0.73, cy: 0.315, chipAnchor: 0 },
       { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.789, cy: 0.5, chipAnchor: -1 },
       { x: 0.845, y: 0.91, ax: 0.5, ay: 1, cx: 0.752, cy: 0.665, chipAnchor: 0 },
     ],
     9: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.67, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.155, y: 0.91, ax: 0.5, ay: 1, cx: 0.242, cy: 0.67, chipAnchor: 0 },
       { x: 0.05, y: 0.605, ax: 0, ay: 0.5, cx: 0.208, cy: 0.605, chipAnchor: 1 },
       { x: 0.05, y: 0.395, ax: 0, ay: 0.5, cx: 0.208, cy: 0.395, chipAnchor: 1 },
@@ -157,13 +157,13 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
       { x: 0.845, y: 0.91, ax: 0.5, ay: 1, cx: 0.758, cy: 0.67, chipAnchor: 0 },
     ],
     10: [
-      { x: 0.5, y: 0.91, ax: 0.5, ay: 1, cx: 0.5, cy: 0.67, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.155, y: 0.91, ax: 0.5, ay: 1, cx: 0.242, cy: 0.67, chipAnchor: 0 },
       { x: 0.05, y: 0.605, ax: 0, ay: 0.5, cx: 0.208, cy: 0.605, chipAnchor: 1 },
       { x: 0.05, y: 0.395, ax: 0, ay: 0.5, cx: 0.208, cy: 0.395, chipAnchor: 1 },
-      { x: 0.27, y: 0.09, ax: 0.5, ay: 0, cx: 0.27, cy: 0.33, chipAnchor: 0 },
-      { x: 0.5, y: 0.09, ax: 0.5, ay: 0, cx: 0.5, cy: 0.33, chipAnchor: 0 },
-      { x: 0.73, y: 0.09, ax: 0.5, ay: 0, cx: 0.73, cy: 0.33, chipAnchor: 0 },
+      { x: 0.27, y: 0.06, ax: 0.5, ay: 0, cx: 0.27, cy: 0.31, chipAnchor: 0 },
+      { x: 0.5, y: 0.06, ax: 0.5, ay: 0, cx: 0.5, cy: 0.31, chipAnchor: 0 },
+      { x: 0.73, y: 0.06, ax: 0.5, ay: 0, cx: 0.73, cy: 0.31, chipAnchor: 0 },
       { x: 0.95, y: 0.395, ax: 1, ay: 0.5, cx: 0.792, cy: 0.395, chipAnchor: -1 },
       { x: 0.95, y: 0.605, ax: 1, ay: 0.5, cx: 0.792, cy: 0.605, chipAnchor: -1 },
       { x: 0.845, y: 0.91, ax: 0.5, ay: 1, cx: 0.758, cy: 0.67, chipAnchor: 0 },
@@ -172,29 +172,29 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
   /* 4:3 — a tablet, a narrow column, a feed card. The same rings as `wide`, pulled in. */
   classic: {
     2: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.659, chipAnchor: 0 },
-      { x: 0.5, y: 0.075, ax: 0.5, ay: 0, cx: 0.5, cy: 0.341, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.5, y: 0.03, ax: 0.5, ay: 0, cx: 0.5, cy: 0.3, chipAnchor: 0 },
     ],
     3: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.659, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.333, y: 0.075, ax: 0.5, ay: 0, cx: 0.333, cy: 0.341, chipAnchor: 0 },
       { x: 0.668, y: 0.075, ax: 0.5, ay: 0, cx: 0.668, cy: 0.341, chipAnchor: 0 },
     ],
     4: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.659, chipAnchor: 0 },
-      { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.236, cy: 0.5, chipAnchor: 1 },
-      { x: 0.5, y: 0.075, ax: 0.5, ay: 0, cx: 0.5, cy: 0.341, chipAnchor: 0 },
-      { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.764, cy: 0.5, chipAnchor: -1 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.03, y: 0.5, ax: 0, ay: 0.5, cx: 0.214, cy: 0.5, chipAnchor: 1 },
+      { x: 0.5, y: 0.03, ax: 0.5, ay: 0, cx: 0.5, cy: 0.3, chipAnchor: 0 },
+      { x: 0.97, y: 0.5, ax: 1, ay: 0.5, cx: 0.786, cy: 0.5, chipAnchor: -1 },
     ],
     5: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.664, chipAnchor: 0 },
-      { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.232, cy: 0.5, chipAnchor: 1 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.03, y: 0.5, ax: 0, ay: 0.5, cx: 0.214, cy: 0.5, chipAnchor: 1 },
       { x: 0.333, y: 0.075, ax: 0.5, ay: 0, cx: 0.333, cy: 0.336, chipAnchor: 0 },
       { x: 0.668, y: 0.075, ax: 0.5, ay: 0, cx: 0.668, cy: 0.336, chipAnchor: 0 },
-      { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.768, cy: 0.5, chipAnchor: -1 },
+      { x: 0.97, y: 0.5, ax: 1, ay: 0.5, cx: 0.786, cy: 0.5, chipAnchor: -1 },
     ],
     6: [
-      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.672, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.107, y: 0.771, ax: 0.5, ay: 1, cx: 0.19, cy: 0.64, chipAnchor: 1 },
       { x: 0.01, y: 0.411, ax: 0, ay: 1, cx: 0.19, cy: 0.4, chipAnchor: 1 },
       { x: 0.5, y: 0.03, ax: 0.5, ay: 0, cx: 0.5, cy: 0.3, chipAnchor: 0 },
@@ -202,46 +202,46 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
       { x: 0.893, y: 0.771, ax: 0.5, ay: 1, cx: 0.81, cy: 0.64, chipAnchor: -1 },
     ],
     7: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.669, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.165, y: 0.925, ax: 0.5, ay: 1, cx: 0.28, cy: 0.669, chipAnchor: 0 },
-      { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.228, cy: 0.5, chipAnchor: 1 },
+      { x: 0.03, y: 0.5, ax: 0, ay: 0.5, cx: 0.214, cy: 0.5, chipAnchor: 1 },
       { x: 0.333, y: 0.075, ax: 0.5, ay: 0, cx: 0.333, cy: 0.331, chipAnchor: 0 },
       { x: 0.668, y: 0.075, ax: 0.5, ay: 0, cx: 0.668, cy: 0.331, chipAnchor: 0 },
-      { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.772, cy: 0.5, chipAnchor: -1 },
+      { x: 0.97, y: 0.5, ax: 1, ay: 0.5, cx: 0.786, cy: 0.5, chipAnchor: -1 },
       { x: 0.835, y: 0.925, ax: 0.5, ay: 1, cx: 0.72, cy: 0.669, chipAnchor: 0 },
     ],
     8: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.669, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
       { x: 0.165, y: 0.925, ax: 0.5, ay: 1, cx: 0.28, cy: 0.669, chipAnchor: 0 },
-      { x: 0.05, y: 0.5, ax: 0, ay: 0.5, cx: 0.228, cy: 0.5, chipAnchor: 1 },
+      { x: 0.03, y: 0.5, ax: 0, ay: 0.5, cx: 0.214, cy: 0.5, chipAnchor: 1 },
       { x: 0.277, y: 0.075, ax: 0.5, ay: 0, cx: 0.28, cy: 0.331, chipAnchor: 0 },
       { x: 0.5, y: 0.075, ax: 0.5, ay: 0, cx: 0.5, cy: 0.331, chipAnchor: 0 },
       { x: 0.723, y: 0.075, ax: 0.5, ay: 0, cx: 0.72, cy: 0.331, chipAnchor: 0 },
-      { x: 0.95, y: 0.5, ax: 1, ay: 0.5, cx: 0.772, cy: 0.5, chipAnchor: -1 },
+      { x: 0.97, y: 0.5, ax: 1, ay: 0.5, cx: 0.786, cy: 0.5, chipAnchor: -1 },
       { x: 0.835, y: 0.925, ax: 0.5, ay: 1, cx: 0.72, cy: 0.669, chipAnchor: 0 },
     ],
     9: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.674, chipAnchor: 0 },
-      { x: 0.165, y: 0.925, ax: 0.5, ay: 1, cx: 0.272, cy: 0.674, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.165, y: 0.925, ax: 0.5, ay: 1, cx: 0.272, cy: 0.68, chipAnchor: 0 },
       { x: 0.05, y: 0.615, ax: 0, ay: 0.5, cx: 0.224, cy: 0.615, chipAnchor: 1 },
       { x: 0.05, y: 0.385, ax: 0, ay: 0.5, cx: 0.224, cy: 0.385, chipAnchor: 1 },
-      { x: 0.333, y: 0.075, ax: 0.5, ay: 0, cx: 0.333, cy: 0.326, chipAnchor: 0 },
-      { x: 0.668, y: 0.075, ax: 0.5, ay: 0, cx: 0.668, cy: 0.326, chipAnchor: 0 },
+      { x: 0.333, y: 0.075, ax: 0.5, ay: 0, cx: 0.333, cy: 0.32, chipAnchor: 0 },
+      { x: 0.668, y: 0.075, ax: 0.5, ay: 0, cx: 0.668, cy: 0.32, chipAnchor: 0 },
       { x: 0.95, y: 0.385, ax: 1, ay: 0.5, cx: 0.776, cy: 0.385, chipAnchor: -1 },
       { x: 0.95, y: 0.615, ax: 1, ay: 0.5, cx: 0.776, cy: 0.615, chipAnchor: -1 },
-      { x: 0.835, y: 0.925, ax: 0.5, ay: 1, cx: 0.728, cy: 0.674, chipAnchor: 0 },
+      { x: 0.835, y: 0.925, ax: 0.5, ay: 1, cx: 0.728, cy: 0.68, chipAnchor: 0 },
     ],
     10: [
-      { x: 0.5, y: 0.925, ax: 0.5, ay: 1, cx: 0.5, cy: 0.674, chipAnchor: 0 },
-      { x: 0.165, y: 0.925, ax: 0.5, ay: 1, cx: 0.272, cy: 0.674, chipAnchor: 0 },
+      { x: 0.5, y: 0.956, ax: 0.5, ay: 1, cx: 0.5, cy: 0.665, chipAnchor: 0 },
+      { x: 0.165, y: 0.925, ax: 0.5, ay: 1, cx: 0.272, cy: 0.68, chipAnchor: 0 },
       { x: 0.05, y: 0.615, ax: 0, ay: 0.5, cx: 0.224, cy: 0.615, chipAnchor: 1 },
       { x: 0.05, y: 0.385, ax: 0, ay: 0.5, cx: 0.224, cy: 0.385, chipAnchor: 1 },
-      { x: 0.277, y: 0.075, ax: 0.5, ay: 0, cx: 0.277, cy: 0.326, chipAnchor: 0 },
-      { x: 0.5, y: 0.075, ax: 0.5, ay: 0, cx: 0.5, cy: 0.326, chipAnchor: 0 },
-      { x: 0.723, y: 0.075, ax: 0.5, ay: 0, cx: 0.723, cy: 0.326, chipAnchor: 0 },
+      { x: 0.277, y: 0.075, ax: 0.5, ay: 0, cx: 0.277, cy: 0.32, chipAnchor: 0 },
+      { x: 0.5, y: 0.075, ax: 0.5, ay: 0, cx: 0.5, cy: 0.32, chipAnchor: 0 },
+      { x: 0.723, y: 0.075, ax: 0.5, ay: 0, cx: 0.723, cy: 0.32, chipAnchor: 0 },
       { x: 0.95, y: 0.385, ax: 1, ay: 0.5, cx: 0.776, cy: 0.385, chipAnchor: -1 },
       { x: 0.95, y: 0.615, ax: 1, ay: 0.5, cx: 0.776, cy: 0.615, chipAnchor: -1 },
-      { x: 0.835, y: 0.925, ax: 0.5, ay: 1, cx: 0.728, cy: 0.674, chipAnchor: 0 },
+      { x: 0.835, y: 0.925, ax: 0.5, ay: 1, cx: 0.728, cy: 0.68, chipAnchor: 0 },
     ],
   },
   /* 2:3 — a phone held upright. The flanks carry most of the table and the board folds to two rows to leave them room. */
@@ -252,14 +252,14 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
     ],
     3: [
       { x: 0.5, y: 0.95, ax: 0.5, ay: 1, cx: 0.5, cy: 0.714, chipAnchor: 0 },
-      { x: 0.02, y: 0.5, ax: 0, ay: 0.5, cx: 0.263, cy: 0.5, chipAnchor: 1 },
-      { x: 0.98, y: 0.5, ax: 1, ay: 0.5, cx: 0.737, cy: 0.5, chipAnchor: -1 },
+      { x: 0.01, y: 0.5, ax: 0, ay: 0.5, cx: 0.253, cy: 0.5, chipAnchor: 1 },
+      { x: 0.99, y: 0.5, ax: 1, ay: 0.5, cx: 0.747, cy: 0.5, chipAnchor: -1 },
     ],
     4: [
       { x: 0.5, y: 0.95, ax: 0.5, ay: 1, cx: 0.5, cy: 0.714, chipAnchor: 0 },
-      { x: 0.02, y: 0.5, ax: 0, ay: 0.5, cx: 0.263, cy: 0.5, chipAnchor: 1 },
+      { x: 0.01, y: 0.5, ax: 0, ay: 0.5, cx: 0.253, cy: 0.5, chipAnchor: 1 },
       { x: 0.5, y: 0.05, ax: 0.5, ay: 0, cx: 0.5, cy: 0.286, chipAnchor: 0 },
-      { x: 0.98, y: 0.5, ax: 1, ay: 0.5, cx: 0.737, cy: 0.5, chipAnchor: -1 },
+      { x: 0.99, y: 0.5, ax: 1, ay: 0.5, cx: 0.747, cy: 0.5, chipAnchor: -1 },
     ],
     5: [
       { x: 0.5, y: 0.95, ax: 0.5, ay: 1, cx: 0.5, cy: 0.717, chipAnchor: 0 },
@@ -319,7 +319,7 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
       { x: 0.98, y: 0.747, ax: 1, ay: 0.5, cx: 0.752, cy: 0.747, chipAnchor: -1 },
     ],
   },
-  /* 1:1 — a small embed. Badge seats: the plate is legible, the hand is not, and the result sheet carries the cards. */
+  /* 1:1 — a small embed. Badge seats: the plate is legible, the hand is not. */
   compact: {
     2: [
       { x: 0.5, y: 0.96, ax: 0.5, ay: 1, cx: 0.5, cy: 0.729, chipAnchor: 0 },
@@ -398,8 +398,8 @@ export const SEAT_SLOTS: Record<TableShape, Record<number, SeatSlot[]>> = {
 
 /**
  * How small a stage has to get before it stops being a table with a ratio and
- * starts being a token. Below this the seats are badges: the plate is legible,
- * the hand is not, and the result sheet carries the cards instead.
+ * starts being a token. Below this the seats are badges: the plate is legible
+ * and the hand is not.
  *
  * Both conditions are needed. A 560x280 feed strip is not compact — it is a
  * wide table that happens to be short, and squaring it off would throw away

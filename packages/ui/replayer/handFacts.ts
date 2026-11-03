@@ -39,6 +39,30 @@ export function stakesLabel(hand: PhfHand): string {
 }
 
 /**
+ * The header's stakes crumb: the blinds, and the ante beside them when the
+ * table plays one (`"$1/$2 ante $0.36"`). An ante changes every pot-odds and
+ * stack-to-pot figure in the hand, so it belongs next to the blinds rather than
+ * one tap away in the info sheet.
+ */
+export function headerStakesLabel(hand: PhfHand, t: ReplayerStrings): string {
+  const stakes = stakesLabel(hand);
+  const { game } = hand;
+  if (game.ante <= 0 || game.bombPot) {
+    return stakes;
+  }
+  switch (game.anteModel) {
+    case "big-blind-ante":
+      return `${stakes} ${t.facts.bbAnte(money(hand, game.ante))}`;
+    case "button-ante":
+      return `${stakes} ${t.facts.btnAnte(money(hand, game.ante))}`;
+    case "posted-per-player":
+      return `${stakes} ${t.facts.headerAnte(money(hand, game.ante))}`;
+    default:
+      return stakes;
+  }
+}
+
+/**
  * Everything unusual about how the money went in, as short chips.
  *
  * This is where most of what the PHF migration unlocked finally surfaces:

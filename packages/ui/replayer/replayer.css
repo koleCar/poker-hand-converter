@@ -620,10 +620,13 @@
 
 /* ----------------------------------------------------------- the middle */
 
+/* A touch above the middle: the hero's hole cards are drawn larger than
+   anyone else's, so the felt between the board and the bottom seat is where
+   a bet is shortest of room. */
 .rp__center {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: calc(50% - 1.5 * var(--u));
   translate: -50% -50%;
   display: flex;
   flex-direction: column;
@@ -791,7 +794,7 @@
 }
 
 /* A compact box cannot show a readable hand at all, so it does not pretend to:
-   the fan stays shut and the result sheet carries the cards. */
+   the fan stays shut. */
 .rp[data-shape="compact"] .pseat--shown {
   --fan: var(--fan-down);
 }
@@ -1132,14 +1135,6 @@
   inline-size: min(26rem, 52%);
 }
 
-.rp[data-tier="lg"] .rp-ov--result .ov__panel {
-  /* Along the bottom, against the transport: the board and the winning seat
-     are what the reader is looking at, and they are above it. */
-  margin-block-start: auto;
-  block-size: fit-content;
-  max-block-size: min(70%, 17rem);
-}
-
 .rp[data-tier="lg"] .rp-ov--info .ov__panel,
 .rp[data-tier="lg"] .rp-ov--settings .ov__panel,
 .rp[data-tier="lg"] .rp-ov--keys .ov__panel {
@@ -1147,10 +1142,6 @@
   inline-size: min(26rem, 80%);
   block-size: fit-content;
   max-block-size: 100%;
-}
-
-.rp__sheet-fee {
-  color: var(--text-tertiary);
 }
 
 .rp__sheet-list {
@@ -1201,92 +1192,6 @@
 .rp__log-item--award button {
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-}
-
-/* ---- showdown / result */
-
-.rp__result-list {
-  gap: 0.25rem;
-  padding: 0.5rem;
-}
-
-.rp__result-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.1875rem 0.625rem;
-  padding: 0.3125rem 0.625rem;
-  border-radius: var(--radius-3);
-  background: var(--surface-base);
-  border: 1px solid var(--border-subtle);
-  border-inline-start: 3px solid var(--border-default);
-  font-size: 0.75rem;
-}
-
-.rp__result-row.is-winner {
-  border-inline-start-color: var(--success-fg);
-  background: var(--success-bg);
-}
-
-.rp__result-who {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-inline-size: 0;
-  grid-area: 1 / 1;
-}
-
-.rp__result-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: var(--font-weight-semibold);
-}
-
-.rp__result-cards {
-  grid-area: 1 / 2;
-  justify-self: end;
-}
-
-.rp__result-desc {
-  grid-area: 2 / 1;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.rp__result-amount {
-  grid-area: 2 / 2;
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--font-weight-bold);
-  color: var(--profit-fg);
-  justify-self: end;
-}
-
-.rp__result-list .pseat__pos {
-  font-size: 0.625rem;
-  color: var(--text-primary);
-  background: var(--pos-bg-early);
-  border-color: var(--border-default);
-}
-
-/* A result row with room lays its four cells out in one line. Keyed off
-   `data-tier` on the root and not off a container query, because the sheet is
-   a top-layer `<dialog>` parented on the root: it is not inside the stage's
-   container any more, and it is not inside its box either. */
-.rp[data-tier="lg"] .rp__result-row {
-  grid-template-columns: minmax(7rem, 14rem) auto minmax(0, 1fr) auto;
-}
-
-.rp[data-tier="lg"] .rp__result-cards {
-  grid-area: auto;
-  justify-self: start;
-}
-
-.rp[data-tier="lg"] .rp__result-desc,
-.rp[data-tier="lg"] .rp__result-amount {
-  grid-area: auto;
 }
 
 /* --------------------------------------------------------------- transport */
