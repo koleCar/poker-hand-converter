@@ -238,7 +238,7 @@ export function ChartsScreen({
             </button>
           ))}
         </div>
-        <div id="charts-panel" role="tabpanel" aria-labelledby={`charts-tab-${tab}`}>
+        <div key={tab} id="charts-panel" role="tabpanel" aria-labelledby={`charts-tab-${tab}`} className="rail-fade">
           {tab === "edit" ? (
             <>
               <ChartEditor
@@ -372,7 +372,7 @@ function Library({
         {full ? <p className={styles.warning}>{t.library.limit(LIMITS.sets)}</p> : null}
         {list.items.length === 0 ? <p className={styles.muted}>{t.library.empty}</p> : null}
         {list.items.length > 0 ? (
-          <ul className={styles.sets}>
+          <ul className={`${styles.sets} rail-stagger`}>
             {list.items.map((item) => (
               <li key={item.id}>
                 <button

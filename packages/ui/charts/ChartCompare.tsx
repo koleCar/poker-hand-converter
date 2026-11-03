@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "../cards/PlayingCard";
 import { errorText } from "../hands/model";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
 import { dateFormat, numberFormat } from "../stats/format";
 import { ChartGrid } from "./ChartGrid";
 import { compareChart, type ChartComparison, type Deviation } from "./compare";
@@ -101,22 +102,24 @@ export function ChartCompare({ set, source, renderHandLink, onFill, period: peri
         ))}
       </div>
       <p className={styles.muted}>{t.compare.scope}</p>
-      {loaded.status === "loading" ? <p className={styles.muted}>{t.compare.loading}</p> : null}
+      {loaded.status === "loading" ? <RailLoader size="small" label={t.compare.loading} showLabel centered /> : null}
       {loaded.status === "error" ? (
         <p className={styles.warning} role="alert">
           {t.error(loaded.message)}
         </p>
       ) : null}
       {loaded.status === "ready" && comparison ? (
-        <CompareView
-          set={set}
-          data={loaded.data}
-          comparison={comparison}
-          query={query}
-          source={source}
-          renderHandLink={renderHandLink}
-          onFill={onFill}
-        />
+        <div className="rail-dims" aria-busy={loaded.key !== key}>
+          <CompareView
+            set={set}
+            data={loaded.data}
+            comparison={comparison}
+            query={query}
+            source={source}
+            renderHandLink={renderHandLink}
+            onFill={onFill}
+          />
+        </div>
       ) : null}
     </section>
   );
@@ -358,12 +361,12 @@ function NodeDetail({
             {t.compare.detail.examples}: {t.compare.detail.examplesFor(CLASS_NAMES[examples.for.cls], t.compare.detail.did[examples.for.action])}
           </h4>
           {examples.error ? <p className={styles.warning}>{t.error(examples.error)}</p> : null}
-          {examples.hands === null ? <p className={styles.muted}>{t.compare.loading}</p> : null}
+          {examples.hands === null ? <RailLoader size="small" label={t.compare.loading} showLabel /> : null}
           {examples.hands && examples.hands.length === 0 && !examples.error ? (
             <p className={styles.muted}>{t.compare.detail.noExamples}</p>
           ) : null}
           {examples.hands && examples.hands.length > 0 ? (
-            <ol className={styles.exampleList}>
+            <ol className={`${styles.exampleList} rail-stagger`}>
               {examples.hands.map((hand) => {
                 const at = hand.playedAt ? when.format(new Date(hand.playedAt)) : "—";
                 return (

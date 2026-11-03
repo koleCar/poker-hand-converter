@@ -17,6 +17,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { CardRow } from "../cards/PlayingCard";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
+import { useListEnter } from "../loader/useListEnter";
 import { handFormat, signedMoney, stakes, unitOf, type HandFormat } from "./format";
 import styles from "./HandList.module.css";
 import type { HandRow } from "./model";
@@ -46,6 +48,11 @@ interface HandListProps {
    * list (the desktop's density setting): the height is read again.
    */
   densityKey?: unknown;
+  /**
+   * Names the list shown (its filter): a new value lets the rows in view
+   * arrive again (`.rail-stagger`); a reload of the same list does not.
+   */
+  enterKey?: unknown;
 }
 
 export function HandList({
@@ -59,6 +66,7 @@ export function HandList({
   onLoadMore,
   orderLabel,
   densityKey,
+  enterKey,
 }: HandListProps) {
   const strings = useUiStrings();
   const t = strings.hands;
@@ -69,6 +77,7 @@ export function HandList({
   const [ROW_HEIGHT, setRowHeight] = useState(FALLBACK_ROW);
   // A row to focus once it is rendered (keyboard moves).
   const focusKey = useRef<string | null>(null);
+  const enter = useListEnter(enterKey);
 
   const measure = useCallback(() => {
     const node = scrollRef.current;
@@ -195,7 +204,11 @@ export function HandList({
     <div
       ref={scrollRef}
       className={styles.scroll}
-      onScroll={measure}
+      onScroll={(event) => {
+        measure();
+        // The reader scrolled (not the list going back to the top): rows just appear.
+        if (event.currentTarget.scrollTop > 0) enter.stop();
+      }}
       role="grid"
       aria-label={t.listLabel(orderLabel)}
       aria-rowcount={total !== null ? total + 1 : -1}
@@ -230,7 +243,11 @@ export function HandList({
           {t.columns.marks}
         </span>
       </div>
-      <div className={styles.body} style={{ height: (rows.length + (hasMore ? 1 : 0)) * ROW_HEIGHT }}>
+      <div
+        key={enter.enterKey}
+        className={`${styles.body} ${enter.staggerClass}`}
+        style={{ height: (rows.length + (hasMore ? 1 : 0)) * ROW_HEIGHT }}
+      >
         <div ref={probeRef} className={styles.probe} aria-hidden="true" />
         {rows.slice(first, last).map((row, offset) => {
           const index = first + offset;
@@ -250,7 +267,9 @@ export function HandList({
         })}
         {hasMore ? (
           <div className={styles.more} style={{ top: rows.length * ROW_HEIGHT }} role="row">
-            <span role="gridcell">{loadingMore ? t.loadingMore : null}</span>
+            <span role="gridcell">
+              {loadingMore ? <RailLoader size="inline" label={t.loadingMore} showLabel /> : null}
+            </span>
           </div>
         ) : null}
       </div>
