@@ -3,6 +3,7 @@
  * `useHand` over the app's `DataSource`, and under it the hand's tags and
  * note. "Open on the web" is a placeholder until tags and notes sync.
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useHand } from "@rail/ui/data";
 import { Icon } from "@rail/ui/icon/Icon";
@@ -74,13 +75,11 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
               </>
             }
           />
+        ) : state.status === "loading" ? (
+          <RailLoader label={t.loading} showLabel centered />
         ) : (
           <p className={styles.status} role="status">
-            {state.status === "loading"
-              ? t.loading
-              : state.status === "missing"
-                ? t.missing
-                : t.failed(state.error.message)}
+            {state.status === "missing" ? t.missing : t.failed(state.error.message)}
           </p>
         )}
       </div>

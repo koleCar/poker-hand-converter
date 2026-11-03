@@ -11,6 +11,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useMemo, useState } from "react";
 import { CHART_SETS, CHARTS_VERSION, DEFAULT_CHART_SET, type ChartSet } from "../../lib/charts";
 import { preflopChartSet } from "../../lib/chartSet";
@@ -57,7 +58,9 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
   }, [setId]);
 
   const loaded: Loaded = result.id === setId ? result : { id: setId, status: "loading" };
-  const charts = loaded.status === "ready" ? loaded.charts : null;
+  // While another set loads, the last one stays on screen, dimmed, instead of blanking.
+  const switching = loaded.status === "loading" && result.status === "ready";
+  const charts = loaded.status === "ready" ? loaded.charts : result.status === "ready" ? result.charts : null;
   const node = charts ? (charts.nodes.get(line) ?? charts.nodes.get("") ?? null) : null;
   const shownCategory: SpotCategory = category ?? (node ? categoriesOf(node)[0] : "rfi");
   const spots = useMemo(() => (charts ? nodesIn(charts, shownCategory) : []), [charts, shownCategory]);
@@ -91,11 +94,11 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
         <span>{t.caveat}</span>
       </div>
 
-      {loaded.status === "loading" ? <p className="muted">{t.loading}</p> : null}
+      {loaded.status === "loading" && !switching ? <RailLoader label={t.loading} showLabel centered /> : null}
       {loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}
 
       {charts && node ? (
-        <>
+        <div className={`${styles.browser} rail-dims`} aria-busy={switching}>
           <div className={styles.filters}>
             <label className="field">
               <span className="field__label">{t.table}</span>
@@ -136,9 +139,11 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
               </select>
             </label>
           </div>
-          <ChartGrid key={`${node.line}|${initialHand ?? ""}`} node={node} highlight={initialHand} />
+          <div key={`${charts.id}|${node.line}|${initialHand ?? ""}`} className="rail-fade">
+            <ChartGrid node={node} highlight={initialHand} />
+          </div>
           <p className={styles.muted}>{t.set(charts.id, `${charts.version} · ${CHARTS_VERSION}`)}</p>
-        </>
+        </div>
       ) : null}
     </div>
   );

@@ -4,6 +4,7 @@
  * signed in, sign out. `children` adds actions next to Sign in (the first-run
  * screen's "Use offline").
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import type { ReactNode } from "react";
 
 import { useT } from "../i18n";
@@ -38,7 +39,7 @@ export function AccountPanel({
   const failure = error ? <p className={styles.error}>{d.failed(error)}</p> : null;
 
   if (account === null) {
-    return <p className={styles.muted}>{error ? d.failed(error) : d.loading}</p>;
+    return <p className={styles.muted}>{error ? d.failed(error) : <RailLoader size="inline" label={d.loading} showLabel />}</p>;
   }
 
   switch (account.state) {

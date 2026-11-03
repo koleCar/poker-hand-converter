@@ -37,7 +37,7 @@ export function DrillsDue({ generation }: { generation: number }) {
   const due = summary.due + summary.candidates;
   const today = summary.dueToday + summary.candidates;
   return (
-    <section className={`card ${own.dueCard}`} aria-labelledby="drills-due">
+    <section className={`card ${own.dueCard} rail-enter`} aria-labelledby="drills-due">
       <h3 id="drills-due" className={own.spotHead}>
         {t.heading}
       </h3>

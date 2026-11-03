@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { paths } from "../../lib/routes";
 import { useDict } from "../../lib/i18n/client";
@@ -83,6 +84,7 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const en = useDict();
+  const pathname = usePathname();
   // The forum, the converter and the Solver library are for everyone; the
   // library and statistics wait until there is something in them.
   const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
@@ -133,6 +135,30 @@ export function AppShell({
             ) : null}
 
             <div className="shell__bar-end">
+              {/* The desktop app's page, from every screen. On a phone the word
+                  steps aside and the arrow stays; it keeps its name either way. */}
+              <Link
+                href={paths.download()}
+                className="shell__get-app"
+                title={en.download.getAppLabel}
+                aria-current={pathname === paths.download() ? "page" : undefined}
+              >
+                <svg
+                  className="shell__get-app-icon"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M10 3v10M5.5 8.8 10 13.3l4.5-4.5M4 17h12" />
+                </svg>
+                <span className="shell__get-app-label">{en.download.getApp}</span>
+                <NavPending mark={false} />
+              </Link>
               <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
               <NotificationsBell />
               <LanguageSwitch />
@@ -157,15 +183,15 @@ export function AppShell({
           <nav aria-label={en.legal.links.label} className="shell__footer-links">
             <Link href={paths.terms()}>
               {en.legal.links.terms}
-              <NavPending mark={false} />
+                <NavPending mark={false} />
             </Link>
             <Link href={paths.privacy()}>
               {en.legal.links.privacy}
-              <NavPending mark={false} />
+                <NavPending mark={false} />
             </Link>
             <Link href={paths.takedown()}>
               {en.legal.links.takedown}
-              <NavPending mark={false} />
+                <NavPending mark={false} />
             </Link>
           </nav>
         </footer>

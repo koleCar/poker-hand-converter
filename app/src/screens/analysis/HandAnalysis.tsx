@@ -102,7 +102,7 @@ export function HandAnalysisView({
               : h.noGrade}
         </p>
         <h2 className={styles.subheading}>{h.decisions}</h2>
-        <ol className={styles.decisions}>
+        <ol className={`${styles.decisions} rail-stagger`}>
           {a.decisions.map((d) => (
             <DecisionRow
               key={d.order}

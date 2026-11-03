@@ -18,6 +18,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
@@ -337,11 +338,7 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
         </dl>
       ) : null}
 
-      {!ready ? (
-        <p className={own.status} role="status">
-          {d.syncing}
-        </p>
-      ) : null}
+      {!ready ? <RailLoader label={d.syncing} showLabel centered /> : null}
 
       {ready && ready.queue.length === 0 ? (
         <div className="card stats-empty">
@@ -371,11 +368,7 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
               {position + 1} / {ready?.queue.length ?? 0}
             </span>
           </h3>
-          {!current ? (
-            <p className={own.status} role="status">
-              {d.loading}
-            </p>
-          ) : null}
+          {!current ? <RailLoader label={d.loading} showLabel centered /> : null}
           {current && current.status !== "ready" ? (
             <div className="notice notice--warn">
               <p>{current.status === "gone" ? d.handGone : current.status === "not-analysed" ? d.notAnalysed : current.message}</p>
@@ -385,7 +378,7 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
             </div>
           ) : null}
           {spot && shownHand ? (
-            <>
+            <div className={`${own.spotBody} rail-fade`}>
               <div className={own.prompt}>
                 <div className={own.hero}>
                   <span className={own.heroLabel}>{t.yourHand}</span>
@@ -411,7 +404,7 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
                 />
               </div>
               <AnswerBar options={options} picked={answer?.picked ?? null} disabled={Boolean(answer)} onPick={pick} />
-            </>
+            </div>
           ) : null}
         </section>
       ) : null}

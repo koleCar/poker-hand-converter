@@ -494,6 +494,15 @@
   font-size: var(--font-size-sm);
 }
 
+/* The loaded profile under the head: the section's own column, dimmed
+   while another game kind loads (`.rail-dims`). */
+.profileBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));

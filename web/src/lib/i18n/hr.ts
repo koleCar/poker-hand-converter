@@ -15,6 +15,7 @@ import { chromeHr } from "./ns/chrome.hr";
 import { converterHr } from "./ns/converter.hr";
 import { courseHr } from "./ns/course.hr";
 import { desktopHr } from "./ns/desktop.hr";
+import { downloadHr } from "./ns/download.hr";
 import { learnHr } from "./ns/learn.hr";
 import { legalHr } from "./ns/legal.hr";
 import { loadingHr } from "./ns/loading.hr";
@@ -44,6 +45,7 @@ export const hr: Dict = {
   manual: manualHr,
   chrome: chromeHr,
   desktop: desktopHr,
+  download: downloadHr,
   plan: planHr,
   planNotice: planNoticeHr,
   yourData: yourDataHr,

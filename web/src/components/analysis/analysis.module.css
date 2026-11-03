@@ -86,6 +86,14 @@
   gap: var(--space-4);
 }
 
+/* A card's content once it has loaded, in the card's own rhythm (`.card` gap). */
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-inline-size: 0;
+}
+
 /* Two columns once a card can hold its table; the street table spans both. */
 @media (min-width: 760px) {
   .cards {

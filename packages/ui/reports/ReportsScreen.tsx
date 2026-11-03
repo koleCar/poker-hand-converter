@@ -33,6 +33,7 @@ import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
 import type { StatGroup as DefinitionGroup } from "../model/stats";
 import { StatTable } from "../stats/StatTable";
 import { StatValue } from "../stats/StatValue";
@@ -143,6 +144,9 @@ export function ReportsScreen({
   const shownUnit = unit === "money" && money ? "money" : "bb";
   const filtered = activeGroups(filter) > 0;
 
+  // Another filter's report on its way: the previous one stays, dimmed.
+  const refetching = state.loading && report !== null;
+
   let body;
   if (state.error !== null && report === null) {
     body = renderState("error", r.storeError(state.error));
@@ -172,6 +176,7 @@ export function ReportsScreen({
             {r.count(report.graph.hands)}
           </span>
         ) : null}
+        {refetching ? <RailLoader size="inline" label={r.loading} /> : null}
       </header>
       <FilterBar
         filter={filter}
@@ -196,6 +201,7 @@ export function ReportsScreen({
           {r.evPending(report.graph.allInEv.pending)}
         </p>
       ) : null}
+      <div className={`${styles.results} rail-dims`} aria-busy={refetching}>
       {body}
       {report && definitions && (report.summary.hands > 0 || report.graph.hands > 0) ? (
         <Breakdown
@@ -210,6 +216,7 @@ export function ReportsScreen({
           situationsLock={situationsLocked ? situationsLock : undefined}
         />
       ) : null}
+      </div>
       {footer ? footer(query, report) : null}
     </div>
   );
@@ -256,7 +263,7 @@ function ReportBody({
   return (
     <>
       <section className={styles.summary} aria-label={r.summary.label}>
-        <dl className={styles.tiles}>
+        <dl className={`${styles.tiles} rail-stagger`}>
           <div className={styles.tile}>
             <dt>{r.summary.hands}</dt>
             <dd>{countIn(ui.intlLocale, summary.hands)}</dd>

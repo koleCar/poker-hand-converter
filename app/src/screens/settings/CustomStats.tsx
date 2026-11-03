@@ -13,6 +13,7 @@
  * computed here (guideline §14): every number and every problem is the Rust
  * side's.
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { Dialog } from "@rail/ui/dialog/Dialog";
 import type { StatDefinition, StatGroup, StatTone, StatUnit } from "@rail/ui/model/stats";
@@ -724,7 +725,7 @@ export function CustomStats() {
       <p className={styles.body}>{c.body}</p>
       <RecomputeNotice status={recompute} className={styles.hint} />
       {error ? <p className={styles.error}>{c.loadFailed(error)}</p> : null}
-      {list === null && !error ? <p className={styles.hint}>{c.loading}</p> : null}
+      {list === null && !error ? <p className={styles.hint}><RailLoader size="inline" label={c.loading} showLabel /></p> : null}
       {list && list.stats.length === 0 ? <p className={styles.hint}>{c.empty}</p> : null}
       {list && list.stats.length > 0 ? (
         <table className={styles.table}>

@@ -252,6 +252,13 @@
   align-items: center;
 }
 
+/* A panel's heading with the inline loader beside it while it reads again. */
+.stats-head-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .stats-breakdown__note {
   font-size: var(--font-size-sm);
 }

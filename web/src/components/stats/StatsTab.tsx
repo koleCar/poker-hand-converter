@@ -34,6 +34,7 @@ import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
 import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
 import type { Report } from "@rail/ui/reports/model";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   fetchStatsCoverage,
@@ -208,6 +209,15 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   }
 
   if (!auth.isSignedIn) {
+    // The session restoring is not "signed out": the loader, not the gate.
+    if (auth.status === "loading") {
+      return (
+        <div className="stats">
+          <Header />
+          <RailLoader label={dict.settings.loading} centered />
+        </div>
+      );
+    }
     return (
       <div className="stats">
         <Header />
@@ -285,14 +295,19 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
         emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
         reloadToken={generation}
-        renderState={(kind, text) => (
-          <div
-            className={kind === "error" ? "notice notice--error" : "card stats-empty"}
-            role={kind === "error" ? "alert" : "status"}
-          >
-            {kind === "error" ? text : <p className="muted">{text}</p>}
-          </div>
-        )}
+        renderState={(kind, text) =>
+          // Nothing to show while a catch-up rebuild runs is still loading.
+          kind === "loading" || (kind === "empty" && rebuild.status === "running") ? (
+            <RailLoader label={text} showLabel centered />
+          ) : (
+            <div
+              className={kind === "error" ? "notice notice--error rail-fade" : "card stats-empty rail-fade"}
+              role={kind === "error" ? "alert" : "status"}
+            >
+              {kind === "error" ? text : <p className="muted">{text}</p>}
+            </div>
+          )
+        }
         afterSummary={(report) => <Tiles report={report} />}
         // (R6.4) The situation tabs say why instead of an error (the full
         // lock with the upgrade is the footer's).
@@ -369,9 +384,14 @@ function CoverageBar({
   if (rebuild.status === "running") {
     const target = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
     const done = rebuild.progress.processed;
+    const text = en.running(target > 0 ? Math.min(done, target) : done, target);
+    // The paragraph is the live region; the mark beside it is only the look.
     return (
-      <p className="notice notice--info stats-coverage" role="status" aria-live="polite">
-        {en.running(target > 0 ? Math.min(done, target) : done, target)}
+      <p className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite">
+        <span aria-hidden="true">
+          <RailLoader size="inline" label={text} delay={0} />
+        </span>{" "}
+        {text}
       </p>
     );
   }

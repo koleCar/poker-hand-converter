@@ -111,22 +111,6 @@ export function spoilersRevealed(frame: ReplayFrame, awardAt: number): boolean {
   return awardAt >= 0 && frame.index >= awardAt;
 }
 
-/**
- * Whether the showdown sheet has anything in it yet.
- *
- * Lives here rather than beside the sheet so the viewer can ask before it
- * decides to mount it — and so the sheet's module keeps exporting nothing but
- * a component.
- */
-export function hasShowdownResult(hand: PhfHand, frame: ReplayFrame): boolean {
-  if (frame.street !== "showdown") {
-    return false;
-  }
-  const showdown = hand.results.wentToShowdown;
-  return frame.seats.some((seat) =>
-    showdown ? seat.cards !== null || seat.winAmount > 0 : seat.winAmount > 0,
-  );
-}
 
 /* --------------------------------------------------------- spoken labels - */
 

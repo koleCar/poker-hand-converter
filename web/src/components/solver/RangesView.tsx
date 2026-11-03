@@ -18,7 +18,8 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useDict } from "../../lib/i18n/client";
 import { DRAWS, EQ_BANDS, EQ_BUCKETS, filterId, MADE_HANDS, comboIds, type FilterGroup } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
@@ -118,7 +119,9 @@ export function RangesView({ data, masks, strategy }: { data: RangeData; masks: 
     return (mode === "ev" || mode === "eqr") && !ranges.sides[p].ev ? "equity" : mode;
   };
 
-  const rows: Array<{ label: string; left: string; right: string; a: number; b: number; note?: string }> = [
+  // Equity is worked out a moment after the click: the inline loader until then.
+  const equityLoading = <RailLoader size="inline" label={t.ranges.equityLoading} />;
+  const rows: Array<{ label: string; left: ReactNode; right: ReactNode; a: number; b: number; note?: string }> = [
     {
       label: t.ranges.combos,
       left: t.ranges.cellValue.range(views[0].combos),
@@ -140,8 +143,8 @@ export function RangesView({ data, masks, strategy }: { data: RangeData; masks: 
     },
     {
       label: t.ranges.equity,
-      left: views[0].equity === null ? "…" : t.ranges.share(views[0].equity),
-      right: views[1].equity === null ? "…" : t.ranges.share(views[1].equity),
+      left: views[0].equity === null ? equityLoading : t.ranges.share(views[0].equity),
+      right: views[1].equity === null ? equityLoading : t.ranges.share(views[1].equity),
       a: views[0].equity ?? 0,
       b: views[1].equity ?? 0,
     },
@@ -249,7 +252,7 @@ function hoverLine(data: RangeData, views: Pair<SideView>, p: 0 | 1, k: number, 
   );
 }
 
-function CompareRow({ label, left, right, a, b, note }: { label: string; left: string; right: string; a: number; b: number; note?: string }) {
+function CompareRow({ label, left, right, a, b, note }: { label: string; left: ReactNode; right: ReactNode; a: number; b: number; note?: string }) {
   const total = Math.max(0, a) + Math.max(0, b);
   const share = total > 0 ? Math.max(0, a) / total : 0.5;
   return (

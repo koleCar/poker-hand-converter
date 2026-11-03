@@ -22,6 +22,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { bestOption, betterAlternative } from "../../lib/analysis/reference";
@@ -314,8 +315,12 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
         </Link>
       </div>
       {open && error ? <p className="notice notice--error">{t.charts.failed(error)}</p> : null}
-      {open && !error && !charts ? <p className={styles.hint}>{t.charts.loading}</p> : null}
-      {open && node ? <ChartGrid key={ref.line} node={node} highlight={decision.facts.handClass} /> : null}
+      {open && !error && !charts ? <RailLoader size="small" label={t.charts.loading} showLabel /> : null}
+      {open && node ? (
+        <div className="rail-fade">
+          <ChartGrid key={ref.line} node={node} highlight={decision.facts.handClass} />
+        </div>
+      ) : null}
     </div>
   );
 }

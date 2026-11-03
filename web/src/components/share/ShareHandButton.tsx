@@ -8,6 +8,7 @@ import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import { ShareNamesToggle } from "./ShareNamesToggle";
+import { ShareToForum } from "./ShareToForum";
 import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 
@@ -261,6 +262,9 @@ export function ShareHandButton({
           ) : busy ? (
             <RailLoader size="small" showLabel label={t.creating} className="share__hint" />
           ) : null}
+
+          {/* The hand as a forum thread with the author's comment. */}
+          {!presetUrl ? <ShareToForum hand={hand} storedHandId={storedHandId} /> : null}
         </div>
       ) : null}
     </div>

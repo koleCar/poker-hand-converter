@@ -35,7 +35,8 @@ export const solverHr: Dict["solver"] = {
   heading: "Solver library",
   intro: "Railovi vlastiti solvovi: složi preflop liniju igrača po igrača, odaberi flop i prođi kroz odluke na flopu.",
   unavailable: "Solver library nije postavljen na ovom serveru.",
-  loading: "Učitavanje…",
+  loadingLibrary: "Učitavam solver library…",
+  loadingSolve: "Učitavam solve…",
   loadError: "Ovaj solve se nije mogao učitati. Pokušaj ponovno za trenutak.",
   retry: "Pokušaj ponovno",
 
@@ -146,6 +147,7 @@ export const solverHr: Dict["solver"] = {
     combos: "Kombinacije",
     ev: "EV",
     equity: "Equity",
+    equityLoading: "Računam equity…",
     eqr: "EQR",
     groups: { made: "Ruke", draw: "Drawovi", eq: "EQ grupe", band: "EQ grupe – detaljno" },
     groupPick: "Kategorije za usporedbu",

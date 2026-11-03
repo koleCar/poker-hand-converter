@@ -13,6 +13,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { fetchDueCards, reviewLessonCard } from "../../../lib/db/learn";
 import { useDict } from "../../../lib/i18n/client";
 import { reviewLocalCard, type Card } from "../../../lib/learn/progress";
@@ -85,11 +86,11 @@ export function ReviewQueue() {
     [card, store.mode, t],
   );
 
-  if (queue.status === "loading") return <p className={styles.muted} role="status">{t.loading}</p>;
+  if (queue.status === "loading") return <RailLoader label={t.loading} showLabel centered />;
   if (queue.status === "error") return <p className="notice notice--error">{queue.message}</p>;
   if (queue.cards.length === 0) {
     return (
-      <div className={styles.note}>
+      <div className={`${styles.note} rail-enter`}>
         <p>{t.empty}</p>
         <Link href={paths.learn()} className="btn btn--sm">
           {en.course.lesson.back}
@@ -108,7 +109,7 @@ export function ReviewQueue() {
     );
   }
   return (
-    <div className={styles.session}>
+    <div className={`${styles.session} rail-enter`}>
       <p className={styles.muted}>
         {t.due(queue.cards.length - at)} · {t.fromLesson(en.course.titles[card.lesson] ?? card.lesson)}
       </p>

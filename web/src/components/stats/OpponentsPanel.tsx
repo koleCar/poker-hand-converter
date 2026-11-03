@@ -31,6 +31,7 @@ import {
   type StatsFilters,
   type StatsOpponents,
 } from "../../lib/db";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useDict } from "../../lib/i18n/client";
 import { getParser } from "../../lib/phf";
 import { emptyMoney, rates } from "../../lib/stats";
@@ -118,22 +119,34 @@ export function OpponentsPanel({
   }, []);
 
   const requestKey = JSON.stringify({ ...filters, minHands } satisfies OpponentFilters);
+  /**
+   * The question the rows on screen answer (filter, sample floor, search).
+   * While the one asked differs, the table dims with a loader by the heading
+   * rather than emptying; a live re-read or a finished rebuild is not a new
+   * question and does not dim it.
+   */
+  const asked = `${search.trim()}|${requestKey}`;
+  const [answered, setAnswered] = useState<string | null>(null);
+  const pending = answered !== asked;
 
   useEffect(() => {
     if (!enabled) {
       return;
     }
     let live = true;
+    const question = `${search.trim()}|${requestKey}`;
     const handle = window.setTimeout(() => {
       fetchStatsOpponents(JSON.parse(requestKey) as OpponentFilters, search.trim()).then(
         (next) => {
           if (live) {
             setData(next);
+            setAnswered(question);
           }
         },
         (failure: unknown) => {
           if (live) {
             setPhase({ kind: "error", message: failure instanceof Error ? failure.message : String(failure) });
+            setAnswered(question);
           }
         },
       );
@@ -181,7 +194,10 @@ export function OpponentsPanel({
 
   const status =
     phase.kind === "working" ? (
-      <p className="notice notice--info" role="status" aria-live="polite">
+      <p className="notice notice--info stats-coverage rail-fade" role="status" aria-live="polite">
+        <span aria-hidden="true">
+          <RailLoader size="inline" label={phase.label} delay={0} />
+        </span>
         {phase.label} {phase.done > 0 ? t.common.hands(phase.done) : ""}
       </p>
     ) : phase.kind === "error" ? (
@@ -215,7 +231,10 @@ export function OpponentsPanel({
   return (
     <section className="card stats-group">
       <div className="card__head stats-breakdown__head">
-        <h3>{en.heading}</h3>
+        <div className="stats-head-title">
+          <h3>{en.heading}</h3>
+          {pending && data ? <RailLoader size="inline" label={en.loading} /> : null}
+        </div>
         <div className="stats-matrix__controls">
           <label className="field">
             <span className="field__label">{en.findPlayer}</span>
@@ -241,7 +260,7 @@ export function OpponentsPanel({
 
       {status}
 
-      <div className="stats-table-wrap">
+      <div className="stats-table-wrap rail-dims" aria-busy={pending && data !== null}>
         <table className="stats-table">
           <thead>
             <tr>
@@ -259,7 +278,15 @@ export function OpponentsPanel({
               ) : null}
             </tr>
           </thead>
-          <tbody>
+          {/* Keyed by the answered question: new rows arrive in turn, a live re-read does not replay it. */}
+          <tbody key={answered ?? ""} className="rail-stagger">
+            {data === null && phase.kind !== "error" ? (
+              <tr>
+                <td colSpan={11}>
+                  <RailLoader label={en.loading} centered />
+                </td>
+              </tr>
+            ) : null}
             {rows.map((row) => {
               const r = rates({ counters: row.counters, money: emptyMoney(), moneyHands: 0 });
               const room = getParser(row.site)?.name ?? row.site;

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
+import { RailLoader } from "../loader/RailLoader";
 import styles from "./CommandPalette.module.css";
 import { fuzzyMatch } from "./fuzzy";
 
@@ -234,7 +235,13 @@ export function CommandPalette({
         spellCheck={false}
       />
       {items.length === 0 ? (
-        <p className={styles.empty}>{busy && busyText ? busyText : emptyText}</p>
+        busy && busyText ? (
+          <p className={styles.empty}>
+            <RailLoader size="inline" label={busyText} showLabel />
+          </p>
+        ) : (
+          <p className={styles.empty}>{emptyText}</p>
+        )
       ) : (
         <div ref={listRef} id={listId} role="listbox" aria-label={label} className={styles.list}>
           {groups.map((group) => {
@@ -274,7 +281,11 @@ export function CommandPalette({
               </div>
             );
           })}
-          {busy && busyText ? <p className={styles.busy}>{busyText}</p> : null}
+          {busy && busyText ? (
+            <p className={styles.busy}>
+              <RailLoader size="inline" label={busyText} showLabel />
+            </p>
+          ) : null}
         </div>
       )}
       {resultsText ? (

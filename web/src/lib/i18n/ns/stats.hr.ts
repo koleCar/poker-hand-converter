@@ -194,6 +194,7 @@ export const statsHr: Dict["stats"] = {
 
   sessions: {
     heading: "Sesije",
+    loading: "Učitavam sesije…",
     breakLongerThan: "Pauza dulja od",
     gap: (minutes: number) =>
       minutes < 60
@@ -217,6 +218,7 @@ export const statsHr: Dict["stats"] = {
 
   opponents: {
     heading: "Protivnici",
+    loading: "Učitavam protivnike…",
     offBody:
       "HUD za svakog regulara protiv kojeg si igrao/la i koliko dobivaš ili gubiš protiv svakog od njih. Sprema po jedan redak za svakog protivnika u svakoj ruci — otprilike šest puta više prostora nego tvoja vlastita statistika — pa je isključen dok ga ne uključiš. Ako ga kasnije isključiš, ti se redci brišu; tvoje ruke i tvoje brojke u svakom slučaju ostaju netaknute.",
     turnOn: "Uključi statistiku protivnika",

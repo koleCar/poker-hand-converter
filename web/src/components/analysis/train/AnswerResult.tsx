@@ -77,7 +77,7 @@ export function AnswerResult({ decision, hand, chartNode = null, children, solve
 
   if (!graded) {
     return (
-      <section className={`card ${own.result}`} aria-live="polite">
+      <section className={`card ${own.result} rail-enter`} aria-live="polite">
         <p className="notice notice--warn">{r.notGraded(decision.reason ? (t.reasons[decision.reason] ?? decision.reason) : "—")}</p>
         {children}
       </section>
@@ -85,7 +85,7 @@ export function AnswerResult({ decision, hand, chartNode = null, children, solve
   }
 
   return (
-    <section className={`card ${own.result}`} aria-labelledby="train-result">
+    <section className={`card ${own.result} rail-enter`} aria-labelledby="train-result">
       <div className={own.verdict} aria-live="polite">
         <h3 id="train-result" className={own.verdictHead}>
           <span className={`${styles.gradeTag} ${decision.grade ? styles[decision.grade] : ""} ${own.verdictGrade}`}>

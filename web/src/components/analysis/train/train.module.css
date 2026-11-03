@@ -118,6 +118,13 @@
   min-inline-size: 0;
 }
 
+/* A dealt spot under the card's head (a wrapper, so a new deal fades in). */
+.spotBody {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
 .spotHead {
   display: flex;
   flex-wrap: wrap;

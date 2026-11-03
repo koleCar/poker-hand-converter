@@ -17,6 +17,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 
 import { handFormat } from "../hands/format";
 import { useUiStrings } from "../i18n";
+import { useListEnter } from "../loader/useListEnter";
 import type { PlayerRef, PlayerRow } from "./model";
 import styles from "./Players.module.css";
 
@@ -36,6 +37,7 @@ export function PlayerTable({
   more,
   onMore,
   densityKey,
+  enterKey,
 }: {
   rows: PlayerRow[];
   selected: PlayerRef | null;
@@ -48,6 +50,8 @@ export function PlayerTable({
   onMore: () => void;
   /** Changes when the surface changes the row height without resizing the list (the desktop's density). */
   densityKey?: unknown;
+  /** Names the list shown (its query): a new value lets the rows in view arrive again. */
+  enterKey?: unknown;
 }) {
   const strings = useUiStrings();
   const p = strings.players;
@@ -58,6 +62,7 @@ export function PlayerTable({
   const [view, setView] = useState({ top: 0, height: 600 });
   // A row to focus once it is rendered (keyboard moves).
   const focusKey = useRef<string | null>(null);
+  const enter = useListEnter(enterKey);
 
   const measure = useCallback(() => {
     const node = scrollRef.current;
@@ -151,7 +156,11 @@ export function PlayerTable({
       <div
         ref={scrollRef}
         className={styles.grid}
-        onScroll={measure}
+        onScroll={(event) => {
+          measure();
+          // The reader scrolled (not the list going back to the top): rows just appear.
+          if (event.currentTarget.scrollTop > 0) enter.stop();
+        }}
         role="grid"
         aria-label={p.listLabel}
         aria-rowcount={rows.length + 1}
@@ -168,7 +177,11 @@ export function PlayerTable({
           </span>
           <span role="columnheader">{p.columns.lastSeen}</span>
         </div>
-        <div className={styles.gridBody} style={{ height: rows.length * rowHeight }}>
+        <div
+          key={enter.enterKey}
+          className={`${styles.gridBody} ${enter.staggerClass}`}
+          style={{ height: rows.length * rowHeight }}
+        >
           {rows.slice(first, last).map((row, offset) => {
             const index = first + offset;
             const key = keyOf(row);

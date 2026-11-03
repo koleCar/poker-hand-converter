@@ -124,6 +124,7 @@ export const courseHr = {
 
   map: {
     heading: "Učenje",
+    loadingProgress: "Učitavam tvoj napredak…",
     intro:
       "Tečaj cash pokera redom kojim se igra ruka: preflop, flop situaciju po situaciju, turn, river, a zatim iskorištavanje. Svaka lekcija uči jednu ideju, pusti te da predvidiš prije nego što ti pokaže, i završava vježbom koju generiraju i ocjenjuju Railovi vlastiti chartovi, solver i kalkulatori — a kad si prijavljen, i tvojim vlastitim rukama.",
     introPanel: {
@@ -651,6 +652,7 @@ export const courseHr = {
     run: "Zaključaj i riješi",
     another: "Drugi river",
     running: "Rješavam river i najbolji odgovor…",
+    loading: "Učitavam laboratorij…",
     numbers: "Koliko procjena vrijedi, u bb po riveru iz ovih raspona",
     gain: "Dobitak u odnosu na Railovu osnovu protiv ovog protivnika",
     riskEq: "Trošak ako protivnik zapravo igra kao solve",

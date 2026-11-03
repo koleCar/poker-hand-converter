@@ -6,14 +6,26 @@
  * is `auth.uid()` on the server; nothing here says who is acting.
  */
 
-import type { ForumComment, PollChoice, PollState } from "../forum/types";
-import { rpc } from "./client";
+import type { BoardRef, ForumComment, PollChoice, PollState } from "../forum/types";
+import { requireDb, rpc } from "./client";
 
 export interface VoteCounts {
   upvotes: number;
   downvotes: number;
   score: number;
   myVote: -1 | 0 | 1;
+}
+
+/** The boards a post can go to, open ones only, in the forum's own order. */
+export async function listOpenBoards(): Promise<BoardRef[]> {
+  const { data, error } = await requireDb()
+    .from("boards")
+    .select("slug, name")
+    .eq("is_locked", false)
+    .order("sort_order")
+    .order("name");
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 export function createPost(input: { board: string; title: string; body: string; hand?: string | null }) {

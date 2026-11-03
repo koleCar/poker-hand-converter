@@ -62,7 +62,6 @@ export const replayerEn = {
     speed: "Playback speed",
     speedCycle: (speed: string) => `Playback speed, ${speed} times. Activate for the next speed.`,
     speedOption: (speed: string) => `${speed} times speed`,
-    result: "Result",
     log: "Action log",
     logTitle: "Action log (L)",
     logShort: "Log",
@@ -169,28 +168,11 @@ export const replayerEn = {
     /** GG's short deck: the one blind of an ante-only table, on the button. */
     buttonBlind: (amount: string) => `Button blind ${amount}`,
     ante: (ante: string) => `Ante ${ante}`,
+    headerAnte: (ante: string) => `ante ${ante}`,
     straddle: (amount: string) => `Straddle ${amount}`,
     straddles: (count: number, amounts: string) => `${count} straddles ${amounts}`,
     tableShape: (max: number) => `${max}-max`,
     tableShapeDealt: (max: number, dealtIn: number) => `${max}-max · ${dealtIn} dealt in`,
-  },
-
-  showdown: {
-    showdownTitle: "Showdown",
-    resultTitle: "Result",
-    pot: (amount: string) => `Pot ${amount}`,
-    split: " · split",
-    cashedOut: (risk: string) => `cashed out · risk ${risk}`,
-    mucked: "mucked",
-    folded: "folded",
-    feeLabels: {
-      rake: "rake",
-      jackpot: "jackpot",
-      bingo: "bingo",
-      fortune: "fortune",
-      tax: "tax",
-      other: "other",
-    },
   },
 
   table: {

@@ -13,6 +13,7 @@
  */
 import { useEffect, useMemo, useRef, type ReactNode, type Ref } from "react";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
 import { FilterBar, handGroups } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
 import { HandList } from "./HandList";
@@ -104,6 +105,11 @@ export function HandsScreen({
     countLine = filtered && total !== null ? t.countOf(facets.total, total) : t.count(facets.total);
   }
 
+  // Another filter's first page on its way: the rows shown are the previous
+  // filter's, dimmed, with the loader by the count (a reload of the same
+  // filter keeps its rows as they are).
+  const refetching = list.loading && list.rows.length > 0 && list.rowsKey !== JSON.stringify(query);
+
   const row = selected === null ? null : (list.rows.find((candidate) => candidate.handKey === selected) ?? null);
 
   let body;
@@ -126,6 +132,7 @@ export function HandsScreen({
         onLoadMore={list.loadMore}
         orderLabel={t.filters.sorts[filter.sort]}
         densityKey={densityKey}
+        enterKey={list.rowsKey}
       />
     );
   }
@@ -139,6 +146,7 @@ export function HandsScreen({
             {countLine}
           </span>
         ) : null}
+        {refetching ? <RailLoader size="inline" label={t.loading} /> : null}
       </header>
       {status}
       <FilterBar
@@ -152,7 +160,9 @@ export function HandsScreen({
       />
       {notice}
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>
-        <div className={styles.list}>{body}</div>
+        <div className={`${styles.list} rail-dims`} aria-busy={refetching}>
+          {body}
+        </div>
         {selected !== null ? (
           <div className={styles.panel} ref={panelRef}>
             {renderPanel(selected, row, list)}

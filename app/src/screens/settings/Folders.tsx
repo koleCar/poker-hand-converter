@@ -7,6 +7,7 @@
  * app reports a change (`useWatcherStatus`: imports, backfill progress -
  * R1.6); every change goes through the commands in `folder_settings.rs`.
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 
 import { Dialog } from "@rail/ui/dialog/Dialog";
@@ -228,7 +229,7 @@ export function Folders() {
               {d.search.close}
             </button>
           </div>
-          {search.phase === "searching" && <p className={styles.muted}>{d.search.searching}</p>}
+          {search.phase === "searching" && <p className={styles.muted}><RailLoader size="inline" label={d.search.searching} showLabel /></p>}
           {search.phase === "failed" && <p className={styles.error}>{d.search.failed(search.reason)}</p>}
           {search.phase === "shown" && search.rows.length === 0 && (
             <p className={styles.muted}>
@@ -275,7 +276,7 @@ export function Folders() {
       )}
 
       {failure !== null && <p className={styles.error}>{loadError ? d.loadFailed(failure) : d.notRunning(failure)}</p>}
-      {!status && failure === null && <p className={styles.muted}>{d.loading}</p>}
+      {!status && failure === null && <p className={styles.muted}><RailLoader size="inline" label={d.loading} showLabel /></p>}
       {status && status.sources.length === 0 && failure === null && <p className={styles.muted}>{d.empty}</p>}
       {status && status.sources.length > 0 && (
         <ul className={styles.list} aria-label={d.list}>

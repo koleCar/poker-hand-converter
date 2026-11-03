@@ -20,6 +20,7 @@
 "use client";
 
 import Link from "next/link";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ChartSet } from "@rail/ui/charts/model";
 import { ownChartDeviations } from "@rail/ui/charts/sessionSource";
@@ -156,14 +157,18 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
           {ui.review.coverage.run}
         </Link>
       }
-      renderState={(kind, text) => (
-        <div
-          className={kind === "error" ? "notice notice--error" : "card stats-empty"}
-          role={kind === "error" ? "alert" : "status"}
-        >
-          {kind === "error" ? text : <p className="muted">{text}</p>}
-        </div>
-      )}
+      renderState={(kind, text) =>
+        kind === "loading" ? (
+          <RailLoader label={text} showLabel centered />
+        ) : (
+          <div
+            className={kind === "error" ? "notice notice--error" : "card stats-empty"}
+            role={kind === "error" ? "alert" : "status"}
+          >
+            {kind === "error" ? text : <p className="muted">{text}</p>}
+          </div>
+        )
+      }
     />
   );
 }

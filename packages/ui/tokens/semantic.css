@@ -154,6 +154,9 @@
        restyle profit and loss without dragging every success toast with it. */
     --profit-fg: var(--st-success-500);
     --loss-fg: var(--st-danger-500);
+    /* All-in EV on a results graph: the trackers' yellow, a series rather than
+       a warning. */
+    --ev-fg: var(--st-warning-500);
 
     /* ======================================================= status =========
        fg / bg / border triples. In the dark theme the background is the status

@@ -35,7 +35,10 @@ export const solverEn = {
   heading: "Solver library",
   intro: "Rail's own solves: build the preflop line seat by seat, pick a flop, and walk the flop's decisions.",
   unavailable: "The solver library is not set up on this server.",
-  loading: "Loading…",
+  /** The loader while the table's charts and the library's list of flops arrive. */
+  loadingLibrary: "Loading the solver library…",
+  /** The loader while a flop's (or a turn's) solve downloads. */
+  loadingSolve: "Loading the solve…",
   loadError: "This solve could not be loaded. Try again in a moment.",
   retry: "Try again",
 
@@ -145,6 +148,8 @@ export const solverEn = {
     combos: "Combos",
     ev: "EV",
     equity: "Equity",
+    /** The loader in the equity row while it is worked out (a moment, off the click). */
+    equityLoading: "Working out equity…",
     eqr: "EQR",
     groups: { made: "Hands", draw: "Draws", eq: "EQ buckets", band: "EQ buckets – advanced" },
     groupPick: "Categories to compare",

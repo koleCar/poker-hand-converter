@@ -31,6 +31,8 @@
   border-radius: var(--radius);
   box-shadow: var(--shadow-2);
   text-align: left;
+  max-height: min(80vh, 680px);
+  overflow-y: auto;
 }
 
 .share__panel-head {
@@ -110,6 +112,62 @@
   border-color: color-mix(in srgb, var(--danger-fg) 26%, transparent);
 }
 
+/* "Post to the forum": a button that opens a short form under the link. */
+.share__forum {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.share__forum-open {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.share__forum-heading {
+  font-size: 13.5px;
+}
+
+.share__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.share__field input,
+.share__field select,
+.share__field textarea {
+  font-size: 13px;
+  padding: 7px 9px;
+}
+
+.share__field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.share__field legend {
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.share__forum-mode {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg);
+}
+
 /* On narrow screens the popover becomes a bottom sheet so it never clips. */
 @media (max-width: 560px) {
   .share__panel {
@@ -118,6 +176,8 @@
     width: 100%;
     border-radius: var(--radius) var(--radius) 0 0;
     padding-bottom: max(14px, env(safe-area-inset-bottom));
+    max-height: 90dvh;
+    overflow-y: auto;
   }
 }
 

@@ -23,6 +23,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HandFilter } from "@rail/ui/hands/model";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { fetchReportSessions, type StatsSessions } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
@@ -64,18 +65,32 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
   const [all, setAll] = useState(false);
   const key = JSON.stringify(filter);
   const reviewFilter = useMemo(() => sessionFilterOf(filter), [filter]);
+  /**
+   * The filter and break the data on screen answers. While it differs from
+   * the ones asked for, the table dims (the old rows stay, with a loader by
+   * the heading) instead of blanking. A live re-read (`refreshToken`) is not
+   * part of it: hands streaming in should not grey the panel every batch.
+   */
+  const asked = `${gap}|${key}`;
+  const [answered, setAnswered] = useState<string | null>(null);
+  const pending = answered !== asked;
 
   useEffect(() => {
     let live = true;
+    const question = `${gap}|${key}`;
     fetchReportSessions(JSON.parse(key) as HandFilter, gap).then(
       (next) => {
         if (live) {
           setData(next);
           setError(null);
+          setAnswered(question);
         }
       },
       (failure: unknown) => {
-        if (live) setError(failure instanceof Error ? failure.message : String(failure));
+        if (live) {
+          setError(failure instanceof Error ? failure.message : String(failure));
+          setAnswered(question);
+        }
       },
     );
     return () => {
@@ -110,15 +125,19 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
   }, [data]);
 
   if (!data || data.sessions.length === 0) {
+    if (pending) return <RailLoader label={en.loading} centered />;
     return error ? <p className="notice notice--error">{error}</p> : null;
   }
 
   const rows = all ? data.sessions : data.sessions.slice(0, SHOWN);
 
   return (
-    <section className="card stats-group">
+    <section className="card stats-group rail-enter">
       <div className="card__head stats-breakdown__head">
-        <h3>{en.heading}</h3>
+        <div className="stats-head-title">
+          <h3>{en.heading}</h3>
+          {pending ? <RailLoader size="inline" label={en.loading} /> : null}
+        </div>
         <label className="field field--narrow">
           <span className="field__label">{en.breakLongerThan}</span>
           <select value={gap} onChange={(event) => setGap(Number(event.target.value))}>
@@ -132,7 +151,7 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
       </div>
 
       {line ? (
-        <figure className="stats-bankroll">
+        <figure className="stats-bankroll rail-dims" aria-busy={pending}>
           <figcaption className="muted">
             {en.bankrollCaption(data.sessions.length)}{" "}
             <strong className={line.end >= 0 ? "stats-up" : "stats-down"}>{show(line.end)}</strong>
@@ -144,7 +163,7 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
         </figure>
       ) : null}
 
-      <div className="stats-table-wrap">
+      <div className="stats-table-wrap rail-dims" aria-busy={pending}>
         <table className="stats-table">
           <thead>
             <tr>
@@ -157,7 +176,8 @@ export function SessionsPanel({ filter, refreshToken }: { filter: HandFilter; re
               <th scope="col">{en.reviewHead}</th>
             </tr>
           </thead>
-          <tbody>
+          {/* Keyed by the answered filter: new rows arrive in turn, a live re-read does not replay it. */}
+          <tbody key={answered ?? ""} className="rail-stagger">
             {rows.map((session) => {
               const result = value(session);
               const bb100 =

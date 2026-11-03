@@ -1,3 +1,4 @@
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 
 import { useT } from "../../i18n";
@@ -25,7 +26,7 @@ export function About() {
     <section className={styles.section}>
       <h2 className={styles.heading}>{a.heading}</h2>
       {error && <p className={styles.error}>{error}</p>}
-      {!error && (!core || !app) && <p className={styles.muted}>{t.settings.loading}</p>}
+      {!error && (!core || !app) && <p className={styles.muted}><RailLoader size="inline" label={t.settings.loading} showLabel /></p>}
       {core && app && (
         <dl className={styles.facts}>
           <dt>{a.version}</dt>

@@ -996,6 +996,7 @@ export const analysisEn = {
 
   breakdown: {
     heading: "Breakdown",
+    loading: "Loading the breakdown…",
     splitBy: "Split by",
     groups: {
       street: "Street",
@@ -1050,6 +1051,7 @@ export const analysisEn = {
 
   list: {
     heading: "Hands",
+    loading: "Loading hands…",
     total: (count: number) => hands(count),
     when: "Played",
     hand: "Hand",

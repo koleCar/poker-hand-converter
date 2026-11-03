@@ -147,6 +147,14 @@
   align-items: start;
 }
 
+/* The report and its breakdowns: dimmed together while another filter's
+   report is on its way (`.rail-dims`). */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 .panel {
   display: flex;
   flex-direction: column;

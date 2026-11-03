@@ -14,6 +14,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { ChartsScreen } from "@rail/ui/charts/ChartsScreen";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import type { ChartHandLinkProps } from "@rail/ui/charts/ChartCompare";
 import { encodePosition } from "@rail/ui/replayer/position";
 import { useAuth } from "../../../lib/auth";
@@ -92,14 +93,18 @@ export function MyChartsTab({ initialQuery }: { initialQuery: Record<string, str
         onNavigate({ selected: to.selected, view: to.view, situation: to.situation ?? null, period: to.period ?? query.period })
       }
       renderHandLink={renderHandLink}
-      renderState={(kind, text) => (
-        <div
-          className={kind === "error" ? "notice notice--error" : "card stats-empty"}
-          role={kind === "error" ? "alert" : "status"}
-        >
-          {kind === "error" ? text : <p className="muted">{text}</p>}
-        </div>
-      )}
+      renderState={(kind, text) =>
+        kind === "loading" ? (
+          <RailLoader label={text} showLabel centered />
+        ) : (
+          <div
+            className={kind === "error" ? "notice notice--error" : "card stats-empty"}
+            role={kind === "error" ? "alert" : "status"}
+          >
+            {kind === "error" ? text : <p className="muted">{text}</p>}
+          </div>
+        )
+      }
     />
   );
 }

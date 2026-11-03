@@ -13,11 +13,11 @@
  *   2. speed chips        -> cycling button   `.rp__speed`
  *   3. street labels      -> initials         `.rp__streets`
  *   4. log                -> overlay          always, now
- *   5. showdown strip     -> sheet            always, now
+ *   5. showdown strip     -> gone; the felt shows the hands
  *   6. hand meta          -> info sheet       `.rp__meta`   <- #58
  *   7. seat name          -> position badge   `@container rpfelt`
  *
- * Rungs 4 and 5 are unconditional since the sheets rebuild: a transcript whose
+ * Rung 4 is unconditional since the sheets rebuild: a transcript whose
  * length the hand decides can never be in the layout flow of a box that may
  * not scroll. Rung 7 is the one rung that belongs to the *felt* rather than to
  * the chrome, so it stays a container query on `rpfelt` in the stylesheet —

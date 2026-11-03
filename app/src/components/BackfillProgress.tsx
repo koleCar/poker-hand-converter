@@ -1,3 +1,4 @@
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useT } from "../i18n";
 import type { Backfill } from "../lib/ipc";
 import { liveNumberFormat } from "../i18n/format";
@@ -24,7 +25,9 @@ export function BackfillProgress({ backfill, label }: { backfill: Backfill; labe
   return (
     <div className={styles.progress}>
       <div className={styles.line}>
-        <span className={styles.title}>{d.title(percent)}</span>
+        <span className={styles.title}>
+          <RailLoader size="inline" label={label} delay={0} /> {d.title(percent)}
+        </span>
         <span className={styles.muted}>{left === null ? d.estimating : d.left(left)}</span>
       </div>
       <progress className={styles.bar} max={100} value={percent} aria-label={label} />

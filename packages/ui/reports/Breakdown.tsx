@@ -24,6 +24,7 @@ import { FORMAT_ORDER, POSITION_ORDER, POT_TYPE_ORDER, SIZE_ORDER } from "../han
 import { stakeLabel } from "../hands/format";
 import type { HandFacets } from "../hands/model";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
 import type { StatDefinition } from "../model/stats";
 import { StatValue } from "../stats/StatValue";
 import { textLocale } from "./definitions";
@@ -228,7 +229,14 @@ export function Breakdown({
           </button>
         ))}
       </div>
-      <div id={`${panelId}-panel`} role="tabpanel" aria-labelledby={`${panelId}-${tab}`} className={styles.panel}>
+      <div
+        key={tab}
+        id={`${panelId}-panel`}
+        role="tabpanel"
+        aria-labelledby={`${panelId}-${tab}`}
+        className={`${styles.panel} rail-fade`}
+        aria-busy={rows === null && loading}
+      >
         {situationsLock !== undefined && situationsLock !== null && needsBreakdowns(tab) ? (
           situationsLock
         ) : hidden ? (
@@ -236,9 +244,7 @@ export function Breakdown({
             {b.handClassHidden}
           </p>
         ) : rows === null ? (
-          <p className={styles.muted} role="status" aria-busy={loading}>
-            {b.computing}
-          </p>
+          <RailLoader size="small" label={b.computing} showLabel centered />
         ) : rows.length === 0 ? (
           <p className={styles.muted}>{b.empty}</p>
         ) : (

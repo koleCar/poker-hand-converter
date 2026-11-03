@@ -5,31 +5,30 @@
  *
  * ## The chart palette
  *
- * Three series, and the assignment is deliberate rather than decorative:
+ * Four series, in the colours every tracker (PokerTracker, Hold'em Manager)
+ * has taught players to read without a legend:
  *
- *   total          --text-primary   ink
- *   showdown       --loss-fg        red
- *   non-showdown   --accent-fg      blue
+ *   total          --profit-fg    green
+ *   all-in EV      --ev-fg        yellow, dashed
+ *   showdown       --accent-fg    blue
+ *   non-showdown   --loss-fg      red
  *
- * The **total line is ink, not a fourth hue**, because it is not a fourth
- * category — it is the sum of the other two, so painting it as a peer would
- * claim a relationship that is not there. It is also what makes the palette
- * colour-blind safe: the only two hues left are red and blue, which separate at
- * ΔE 24.6 under protanopia and 35.7 under tritanopia (measured, not judged).
- * The obvious alternative, PokerTracker's green total, would have put red
- * against green — ΔE 7.4 under deuteranopia, inside the band that is only legal
- * with a second encoding channel.
+ * Inheriting the convention beats inventing a "better" palette: a player who
+ * has looked at a graph before reads this one at a glance. Green against red
+ * is the weak pair under deuteranopia, so neither hue is the only channel —
+ * the legend is always on screen with each line's end value, all-in EV is
+ * dashed, and the table view carries every number.
  *
- * **Red for showdown and blue for non-showdown is PokerTracker's convention**,
- * and it is worth inheriting: it is the pairing every player who has read a
- * graph before already knows. The red is `--loss-fg` because that token exists
- * precisely so a chart can use a signed-number red without dragging every error
- * toast along with it (see the note on `--profit-fg` / `--loss-fg` in
- * `packages/ui/tokens/semantic.css`); here it means "showdown", not "bad", and the legend
- * is always on screen saying so.
+ * The green and red are `--profit-fg` / `--loss-fg`, and the yellow `--ev-fg`,
+ * because those tokens exist precisely so a chart can use them without
+ * dragging every status toast along with it (see `packages/ui/tokens/semantic.css`); here they name
+ * a series, not good and bad.
  *
- * All four resolve through semantic tokens, so the light theme re-points them
- * with everything else and the chart never needs a second palette.
+ * `--metric` is the neutral ink line for a chart of one series that is not
+ * winnings (the web's `TrendChart.tsx`).
+ *
+ * All of them resolve through semantic tokens, so the light theme re-points
+ * them with everything else and the chart never needs a second palette.
  */
 
 /* ------------------------------------------------------------- the chart */
@@ -84,20 +83,24 @@
 }
 
 .stats-chart__line--total {
+  stroke: var(--profit-fg);
+}
+
+.stats-chart__line--metric {
   stroke: var(--text-primary);
 }
 
 .stats-chart__line--showdown {
-  stroke: var(--loss-fg);
+  stroke: var(--accent-fg);
 }
 
 .stats-chart__line--nonShowdown {
-  stroke: var(--accent-fg);
+  stroke: var(--loss-fg);
 }
 
 /* Dashed: a counterfactual, not money that moved. */
 .stats-chart__line--allInEv {
-  stroke: var(--text-secondary);
+  stroke: var(--ev-fg);
   stroke-dasharray: 5 4;
 }
 
@@ -110,19 +113,23 @@
 }
 
 .stats-chart__dot--total {
+  fill: var(--profit-fg);
+}
+
+.stats-chart__dot--metric {
   fill: var(--text-primary);
 }
 
 .stats-chart__dot--showdown {
-  fill: var(--loss-fg);
-}
-
-.stats-chart__dot--nonShowdown {
   fill: var(--accent-fg);
 }
 
+.stats-chart__dot--nonShowdown {
+  fill: var(--loss-fg);
+}
+
 .stats-chart__dot--allInEv {
-  fill: var(--text-secondary);
+  fill: var(--ev-fg);
 }
 
 .stats-chart__crosshair {
@@ -199,21 +206,21 @@
 }
 
 .stats-key--total {
-  background: var(--text-primary);
+  background: var(--profit-fg);
 }
 
 .stats-key--showdown {
-  background: var(--loss-fg);
+  background: var(--accent-fg);
 }
 
 .stats-key--nonShowdown {
-  background: var(--accent-fg);
+  background: var(--loss-fg);
 }
 
 .stats-key--allInEv {
   background: repeating-linear-gradient(
     to right,
-    var(--fg-dim) 0 3px,
+    var(--ev-fg) 0 3px,
     transparent 3px 6px
   );
 }

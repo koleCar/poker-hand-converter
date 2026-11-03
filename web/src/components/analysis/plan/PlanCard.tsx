@@ -44,7 +44,7 @@ export function PlanCard({ generation }: { generation: number }) {
 
   if (!plan) {
     return (
-      <section className={`card ${styles.card}`} aria-labelledby={id}>
+      <section className={`card ${styles.card} rail-enter`} aria-labelledby={id}>
         <h3 id={id}>{t.card.heading}</h3>
         <div className={styles.cardRow}>
           <p className="muted">{t.card.none}</p>
@@ -60,7 +60,7 @@ export function PlanCard({ generation }: { generation: number }) {
   const names = plan.kind === "fundamentals" ? t.card.fundamentals : plan.focus.map((area) => words.area(area).heading).join("; ");
   const share = Math.round(Math.min(1, progress.share) * 100);
   return (
-    <section className={`card ${styles.card}`} aria-labelledby={id}>
+    <section className={`card ${styles.card} rail-enter`} aria-labelledby={id}>
       <h3 id={id}>{t.card.heading}</h3>
       <p>{t.card.focus(names)}</p>
       <div className={styles.cardRow}>

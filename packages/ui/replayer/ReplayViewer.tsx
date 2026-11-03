@@ -43,7 +43,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import type { ReactNode } from "react";
 import { useUiStrings } from "../i18n";
@@ -60,10 +59,9 @@ import { potOddsAt } from "./potOdds";
 import { PotOddsBox } from "./PotOddsBox";
 import { shapeFor, type TableShape } from "./seatLayout";
 import { ShortcutSheet } from "./ShortcutSheet";
-import { ShowdownStrip } from "./ShowdownStrip";
 import { durationToken, easingToken } from "./motionTokens";
 import { tierFor, type ReplayTier } from "./dropLadder";
-import { gameLabel, stakesLabel } from "./handFacts";
+import { gameLabel, headerStakesLabel, stakesLabel } from "./handFacts";
 import {
   encodePosition,
   frameIndexForPosition,
@@ -81,7 +79,7 @@ import {
   unitOf,
   type ReplaySettings,
 } from "./replaySettings";
-import { createAmountFormatter, firstAwardIndex, hasShowdownResult } from "./tableMath";
+import { createAmountFormatter, firstAwardIndex } from "./tableMath";
 import { Icon } from "../icon/Icon";
 
 export type ReplayMode = "full" | "embed" | "card";
@@ -243,29 +241,6 @@ const REDUCED_HOLD = 1.2;
 const CROSSFADE_FROM = 0.45;
 
 /**
- * Remembers that the result sheet has already presented itself for this hand.
- *
- * `sessionStorage`, so it survives a scrub back and forth and a re-open in the
- * same sitting but does not follow the reader into next week — the sheet
- * should still introduce itself the first time they open the hand again.
- */
-function resultSheetSeen(handKey: string): boolean {
-  try {
-    return window.sessionStorage.getItem(`phc.replayer.result.${handKey}`) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function markResultSheetSeen(handKey: string): void {
-  try {
-    window.sessionStorage.setItem(`phc.replayer.result.${handKey}`, "1");
-  } catch {
-    // Private mode: the sheet presents itself once per render session instead.
-  }
-}
-
-/**
  * `useLayoutEffect` on the client, `useEffect` on the server.
  *
  * The measurement has to land before paint or a phone shows one frame of the
@@ -385,11 +360,6 @@ function writeStored(key: string, value: string): void {
  * it is here so a caller that is switching between the three modes has one
  * component to switch on.
  */
-/** A store that never changes: `useSyncExternalStore` then reports server vs client. */
-function subscribeNever(): () => void {
-  return () => {};
-}
-
 export function ReplayViewer(props: ReplayViewerProps) {
   if (props.mode === "card") {
     return (
@@ -426,7 +396,10 @@ function ReplayStage({
   const en = useUiStrings();
   const t = en.replayer;
   // Captions and action pills are written in the reader's language.
-  const frames = useMemo(() => buildReplay(hand, { strings: t.frames }), [hand, t]);
+  const frames = useMemo(
+    () => buildReplay(hand, { strings: t.frames, openOnDeal: true }),
+    [hand, t],
+  );
   const anchors = useMemo(() => streetAnchors(frames), [frames]);
   // Several anchors can land on one frame (two comments on the same action);
   // the rail shows one pip per frame with the total.
@@ -476,13 +449,12 @@ function ReplayStage({
   );
   const [settings, setSettings] = useState<ReplaySettings>(loadReplaySettings);
 
-  // The four Tier-2 overlays. Held here rather than inside each sheet so the
+  // The Tier-2 overlays. Held here rather than inside each sheet so the
   // key handler can tell when one of them owns the keyboard.
   const [logOpen, setLogOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
-  const [resultOpen, setResultOpen] = useState(false);
 
   const format = useMemo(
     () =>
@@ -531,37 +503,11 @@ function ReplayStage({
     return active;
   }, [logFrames, frame.index]);
 
-  const resultReady = hasShowdownResult(hand, frame);
-
-  // The sheet presents itself once, when the replay first reaches a showdown
-  // it has something to say about, and then never again for this hand in this
-  // session. Decided during the render that notices the change rather than in
-  // an effect, which would paint one frame of the answer before covering it.
-  //
-  // Not before hydration, though. "Seen" lives in sessionStorage, which the
-  // server cannot read, so a link straight to the showdown (`?t=end`) would
-  // open the sheet in one render and not the other and hydration would throw
-  // the tree away. Holding the decision until the client has taken over costs
-  // nothing on the normal path — nobody reaches a showdown in the first frame
-  // unless the URL sent them there — and on that path it opens a beat later.
-  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false);
-  const [wasReady, setWasReady] = useState(false);
-  if (hydrated && wasReady !== resultReady) {
-    setWasReady(resultReady);
-    // Never in an embed: a sheet that presents itself unasked is a modal
-    // `<dialog>` over somebody else's page, opened by a replayer the reader may
-    // only have scrolled past.
-    if (!embed && resultReady && !resultSheetSeen(hand.meta.handKey)) {
-      markResultSheetSeen(hand.meta.handKey);
-      setResultOpen(true);
-    }
-  }
-  const showResult = !embed && resultReady && resultOpen;
   // Only the *modal* sheets take the keyboard. The log is deliberately not one
   // of them: it is a transcript you read while stepping, so swallowing the
   // arrow keys would make the panel you opened to follow the hand the reason
   // you cannot follow it. See `OverlayProps.modal`.
-  const modalOverlayOpen = infoOpen || settingsOpen || keysOpen || showResult;
+  const modalOverlayOpen = infoOpen || settingsOpen || keysOpen;
 
   const step = useCallback(
     (delta: number) => {
@@ -919,7 +865,7 @@ function ReplayStage({
         <div className="rp__header">
           <div className="rp__meta">
             {site ? <span>{site}</span> : null}
-            <span>{stakesLabel(hand)}</span>
+            <span>{headerStakesLabel(hand, t)}</span>
             <span>{gameLabel(hand, t)}</span>
           </div>
           <div className="rp__header-actions">
@@ -983,9 +929,6 @@ function ReplayStage({
         playing={playing}
         speed={speed}
         logOpen={logOpen}
-        resultOpen={showResult}
-        // An embed has no sheets, so it has nothing to offer a result button.
-        resultReady={!embed && resultReady}
         compact={embed}
         onSeek={seek}
         onStep={step}
@@ -996,7 +939,6 @@ function ReplayStage({
           if (!logOpen) sheet?.onOpenChange(false);
           setLogOpen((current) => !current);
         }}
-        onToggleResult={() => setResultOpen((current) => !current)}
         extra={
           sheet && !embed
             ? {
@@ -1028,18 +970,6 @@ function ReplayStage({
       */}
       {embed ? null : (
         <>
-          <ShowdownStrip
-            hand={hand}
-            frame={frame}
-            awardAt={awardAt}
-            settings={settings}
-            mask={mask}
-            format={format}
-            open={showResult}
-            onClose={() => setResultOpen(false)}
-            anchor={stageRef}
-          />
-
           <ActionLogSheet
             frames={logFrames}
             activeIndex={activeLogIndex}

@@ -37,6 +37,7 @@ import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
 import { courseEn } from "./ns/course.en";
 import { desktopEn } from "./ns/desktop.en";
+import { downloadEn } from "./ns/download.en";
 import { learnEn } from "./ns/learn.en";
 import { legalEn } from "./ns/legal.en";
 import { loadingEn } from "./ns/loading.en";
@@ -60,6 +61,7 @@ export const en = {
   manual: manualEn,
   chrome: chromeEn,
   desktop: desktopEn,
+  download: downloadEn,
   plan: planEn,
   planNotice: planNoticeEn,
   yourData: yourDataEn,

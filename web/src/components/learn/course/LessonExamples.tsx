@@ -15,6 +15,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { fetchAnalysisHands, fetchHandAnalysis } from "../../../lib/db";
@@ -120,18 +121,16 @@ function OwnExamples({ example }: { example: OwnExample }) {
           </button>
         </div>
       ) : found.status === "loading" ? (
-        <p className={styles.muted} role="status">
-          {t.loading}
-        </p>
+        <RailLoader size="small" label={t.loading} showLabel />
       ) : found.status === "error" ? (
         <p className="notice notice--warn">{t.failed(found.message)}</p>
       ) : !found.worst && !found.perfect ? (
         <p className={styles.muted}>{t.none}</p>
       ) : (
-        <>
+        <div className={`${styles.panelBody} rail-stagger`}>
           {found.worst ? <OwnExample title={t.costliest} row={found.worst} /> : null}
           {found.perfect ? <OwnExample title={t.perfect} row={found.perfect} /> : null}
-        </>
+        </div>
       )}
     </section>
   );

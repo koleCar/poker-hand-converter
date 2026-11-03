@@ -16,6 +16,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { comparePeriods, leakKind, periodWindows, type LeakChange, type PeriodComparison, type Trend } from "../../../lib/analysis/leaks";
@@ -119,12 +120,12 @@ export function WhatChanged({ scopeKey, generation }: { scopeKey: string; genera
       </div>
 
       {error ? <p className="notice notice--error">{t.failed(error)}</p> : null}
-      {loading && !comparison ? (
-        <p className="muted" role="status">
-          {t.loading}
-        </p>
+      {loading && !comparison ? <RailLoader label={t.loading} showLabel centered /> : null}
+      {comparison && windows ? (
+        <div className={`${styles.summaryBody} rail-dims`} aria-busy={loading}>
+          <Body key={loaded?.key} comparison={comparison} windows={windows} days={days} leakHref={leakHref} />
+        </div>
       ) : null}
-      {comparison && windows ? <Body comparison={comparison} windows={windows} days={days} leakHref={leakHref} /> : null}
     </section>
   );
 }
@@ -192,7 +193,7 @@ function Body({
           {comparison.improved.length === 0 ? (
             <p className="muted">{t.improvedNone}</p>
           ) : (
-            <ul className={styles.changeList}>
+            <ul className={`${styles.changeList} rail-stagger`}>
               {comparison.improved.slice(0, 3).map((change) => (
                 <ChangeItem key={change.leak.id} change={change} href={leakHref(change.leak.id)} />
               ))}
@@ -204,7 +205,7 @@ function Body({
           {comparison.focus.length === 0 ? (
             <p className="muted">{t.workNone}</p>
           ) : (
-            <ul className={styles.changeList}>
+            <ul className={`${styles.changeList} rail-stagger`}>
               {comparison.focus.map((change) => (
                 <ChangeItem key={change.leak.id} change={change} href={leakHref(change.leak.id)} cost />
               ))}

@@ -209,6 +209,7 @@ export const statsEn = {
 
   sessions: {
     heading: "Sessions",
+    loading: "Loading sessions…",
     breakLongerThan: "A break longer than",
     gap: (minutes: number) =>
       minutes < 60 ? `${minutes} minutes` : `${minutes / 60} ${minutes === 60 ? "hour" : "hours"}`,
@@ -230,6 +231,7 @@ export const statsEn = {
 
   opponents: {
     heading: "Opponents",
+    loading: "Loading opponents…",
     offBody:
       "A HUD on every regular you have played, and what you win or lose against each. It stores a row per opponent per hand — roughly six times the space your own statistics take — so it is off until you turn it on. Turning it off later deletes those rows; your hands and your own numbers are untouched either way.",
     turnOn: "Turn on opponent statistics",

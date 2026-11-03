@@ -1,3 +1,4 @@
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 
 import { useT } from "../i18n";
@@ -61,7 +62,7 @@ export function RawTextDialog({ hand, onClose }: { hand: RefusedHand; onClose: (
         <dt>{d.parser}</dt>
         <dd>{hand.detectedSite ? d.parserVersion(hand.detectedSite, hand.parserVersion) : d.noParser}</dd>
       </dl>
-      {text === null && failure === null && <p className={styles.muted}>{d.textLoading}</p>}
+      {text === null && failure === null && <p className={styles.muted}><RailLoader size="inline" label={d.textLoading} showLabel /></p>}
       {failure !== null && <p className={styles.error}>{failure}</p>}
       {text !== null && (
         <pre className={styles.text} tabIndex={0} aria-label={d.textLabel}>

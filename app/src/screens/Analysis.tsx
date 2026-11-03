@@ -40,8 +40,17 @@ import { ANALYSIS_TABS, parseView, tabOf, viewParam, type AnalysisView } from ".
 const EMPTY_FILTER: SessionQuery["filter"] = {} as SessionQuery["filter"];
 
 export function Analysis() {
-  const t = useT();
   const view = parseView(useRouteParam());
+  // Another section (a tab, a hand's grades) fades in, as another screen does.
+  return (
+    <div key={view.kind} className="rail-fade">
+      <AnalysisSection view={view} />
+    </div>
+  );
+}
+
+function AnalysisSection({ view }: { view: AnalysisView }) {
+  const t = useT();
   const tablesOpen = useTablesOpen();
   const hidden = hiddenDuringPlay("analysis", tablesOpen);
   const reload = useRowsWritten();

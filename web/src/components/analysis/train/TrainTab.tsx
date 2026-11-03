@@ -113,7 +113,7 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
       </nav>
 
       <div className={own.layout}>
-        <div className={own.main}>
+        <div key={mode} className={`${own.main} rail-fade`}>
           {mode === "drills" ? (
             !isDatabaseConfigured ? (
               <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>

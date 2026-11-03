@@ -34,11 +34,6 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
-  transition: opacity 120ms ease;
-}
-
-.stale {
-  opacity: 0.6;
 }
 
 .notice,
@@ -71,6 +66,10 @@
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--space-2) var(--space-4);
+
+  /* Still a way to walk on while the session asked for loads (the body is
+     `.rail-dims`, which stops clicks). */
+  pointer-events: auto;
 }
 
 .pickerField {

@@ -73,7 +73,10 @@ export function App() {
       {/* The first-run screen belongs to Settings (where it is reached later). */}
       {/* A10 (R3.10): the sidebar and the palette leave out a screen that helps with play while a table is open. */}
       <Sidebar current={route === SETUP ? "settings" : route} tablesOpen={tablesOpen} />
-      <main className={styles.main}>
+      {/* Another screen (a click, Cmd/Ctrl + 1-7, the palette) fades in on a
+          fresh <main> at its top (`.rail-fade`, opacity only, skipped under
+          reduced motion); one that reads first shows its loader. */}
+      <main key={route} className={`${styles.main} rail-fade`}>
         {/* A new language mounts the screen again: every number and date
             on it is formatted in that language (`i18n/format.ts`). */}
         {screenHiddenDuringPlay(route, tablesOpen) ? (
