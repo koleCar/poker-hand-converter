@@ -7,7 +7,7 @@
 #
 # Not part of CI on purpose: it depends on today's date, so it would turn red
 # by itself 90 days after a check, on a pull request that has nothing to do
-# with it. The release workflow (§12, not built yet) should call this job.
+# with it. The release workflow (release.yml) calls this job first.
 
 name: Release checklist
 

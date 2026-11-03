@@ -1,0 +1,200 @@
+# The desktop app's release (docs/RAIL-PLAN.md §12): builds the installers
+# and publishes them as a GitHub Release of this repository, which is where
+# the web's /download page links (web/src/lib/download.ts).
+#
+# Two ways to start it:
+#
+#   - push a tag `app-v<version>` (e.g. `git tag app-v0.1.0 <commit>` and
+#     `git push origin app-v0.1.0`): the workflow runs as it is in the tagged
+#     commit, so a release can be cut from `staging`. A version with a
+#     suffix (`0.2.0-beta.1`) is a pre-release;
+#   - Actions -> Release (desktop app) -> Run workflow, with the version.
+#     GitHub offers this only once the workflow is on the default branch.
+#
+# It
+#   1. runs the release checklist's compliance item (release-checklist.yml),
+#   2. builds a universal macOS .dmg (Apple silicon + Intel) and a Windows
+#      NSIS installer (per-user, no admin rights), with the HUD sidecar in
+#      both, the version stamped into the bundle,
+#   3. tags the commit `app-v<version>` (unless the tag started it) and
+#      publishes the release with both
+#      files under FIXED names - Rail-macOS.dmg and Rail-Windows-Setup.exe -
+#      so `releases/latest/download/<name>` always serves the newest one.
+#
+# A pre-release is not "latest": /download keeps serving the previous full
+# release until a normal one is published.
+#
+# Not signed yet (P3 Apple Developer ID + notarisation, P4 Windows signing):
+# the macOS bundle is ad-hoc signed like the PR builds, and /download tells
+# people how to open it the first time. Signing belongs here, with its
+# secrets in a GitHub environment, never in PR builds.
+
+name: Release (desktop app)
+
+on:
+  push:
+    tags: ["app-v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 0.1.0 (tagged app-v<version>)"
+        required: true
+      prerelease:
+        description: "Pre-release (not served by /download)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-app
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      prerelease: ${{ steps.v.outputs.prerelease }}
+    steps:
+      - id: v
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PRERELEASE: ${{ inputs.prerelease }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then
+            version="${REF_NAME#app-v}"
+            if [[ "$version" == *-* ]]; then prerelease=true; else prerelease=false; fi
+          else
+            version="$INPUT_VERSION"
+            prerelease="${INPUT_PRERELEASE:-false}"
+          fi
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::version must look like 0.1.0 or 0.1.0-beta.1, got '$version'"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+          echo "Rail $version (pre-release: $prerelease)"
+
+  checklist:
+    name: Release checklist
+    uses: ./.github/workflows/release-checklist.yml
+
+  build:
+    name: Build (${{ matrix.os }})
+    needs: [version, checklist]
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: macos-latest
+            target: universal-apple-darwin
+            rust_targets: aarch64-apple-darwin x86_64-apple-darwin
+            bundles: dmg
+            built: target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            asset: Rail-macOS.dmg
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            rust_targets: x86_64-pc-windows-msvc
+            bundles: nsis
+            built: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            asset: Rail-Windows-Setup.exe
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      # The public anon key the desktop sign-in compiles in (see ci.yml's app job).
+      RAIL_SUPABASE_ANON_KEY: ${{ vars.RAIL_SUPABASE_ANON_KEY }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      # rust-toolchain.toml pins the toolchain; this adds the targets to it.
+      - name: Rust targets
+        run: rustup target add ${{ matrix.rust_targets }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.target }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+        working-directory: app
+
+      - name: HUD sidecar
+        run: npm run hud:sidecar -- --target ${{ matrix.target }}
+        working-directory: app
+
+      # The workspace's release profile (thin LTO, one codegen unit), unlike
+      # the PR builds. The second --config stamps the version into the bundle.
+      - name: Bundle
+        run: >
+          npm run tauri -- build --ci
+          --target ${{ matrix.target }}
+          --bundles ${{ matrix.bundles }}
+          --config src-tauri/tauri.hud.conf.json
+          --config "{\"version\":\"$VERSION\"}"
+        working-directory: app
+
+      - name: Fixed asset name
+        run: |
+          shopt -s nullglob
+          files=(${{ matrix.built }})
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "::error::expected one bundle, found ${#files[@]}: ${files[*]}"
+            exit 1
+          fi
+          mkdir -p dist-release
+          cp "${files[0]}" "dist-release/${{ matrix.asset }}"
+          ls -l dist-release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.asset }}
+          path: dist-release/${{ matrix.asset }}
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    name: Publish the release
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: dist-release
+
+      - name: SHA-256
+        run: |
+          cd dist-release
+          sha256sum Rail-macOS.dmg Rail-Windows-Setup.exe > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Tag and publish
+        run: |
+          flags=(--target "$GITHUB_SHA" --title "Rail $VERSION" --generate-notes)
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); else flags+=(--latest); fi
+          gh release create "app-v$VERSION" "${flags[@]}" \
+            dist-release/Rail-macOS.dmg \
+            dist-release/Rail-Windows-Setup.exe \
+            dist-release/SHA256SUMS.txt

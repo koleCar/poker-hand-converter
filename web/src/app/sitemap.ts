@@ -11,6 +11,7 @@ import { recentPublishedHands } from "../lib/server/published";
  * The home page, the converter, the Learn tab and its written lessons
  * (`/learn/**`), the concept library (`/analysis/learn/**`),
  * the preflop chart browser (`/analysis/charts`), the Solver library (`/solver`),
+ * the desktop app's page (`/download`),
  * every forum thread and every published hand (`/p/:id`) — the whole set of
  * pages that are public, stable and the same for everybody.
  * Published hands are the content F7 exists to create; they are listed from
@@ -83,6 +84,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: canonicalUrl(paths.solver()),
       changeFrequency: "weekly",
       priority: 0.6,
+    },
+    {
+      url: canonicalUrl(paths.download()),
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     ...CONCEPT_IDS.map((id) => ({
       url: canonicalUrl(paths.analysisConcept(id)),
