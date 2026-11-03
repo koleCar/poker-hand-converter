@@ -28,6 +28,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { villainsOfFacts } from "../../lib/analysis/analyze";
 import type { DecisionAnalysis, FlopFacts } from "../../lib/analysis/types";
@@ -149,14 +150,14 @@ export function RiverStudy({ decision, hand, initialOpen = false, street = "rive
           {open ? t.hideStudy : t.study}
         </button>
       </div>
-      {open && loaded.status === "loading" ? (
-        <p className={styles.hint} role="status">
-          {t.loading}
-        </p>
-      ) : null}
+      {open && loaded.status === "loading" ? <RailLoader size="small" label={t.loading} showLabel /> : null}
       {open && loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}
       {open && loaded.status === "missing" ? <p className="notice notice--warn">{t.unavailable}</p> : null}
-      {open && loaded.status === "ready" ? <StudyBody study={loaded.study} flop={decision.facts.flop ?? null} /> : null}
+      {open && loaded.status === "ready" ? (
+        <div className="rail-fade">
+          <StudyBody study={loaded.study} flop={decision.facts.flop ?? null} />
+        </div>
+      ) : null}
     </div>
   );
 }

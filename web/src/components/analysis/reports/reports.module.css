@@ -85,6 +85,13 @@
   flex: 1 1 9rem;
 }
 
+/* The result sections, in the screen's own rhythm (`.stats` gap): dims while new filters load. */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .busy {
   margin: 0;
   color: var(--text-secondary);

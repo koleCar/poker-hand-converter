@@ -14,6 +14,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "../../../lib/auth";
@@ -53,13 +54,19 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
         : rec.reason === "flag" && rec.flag
           ? t.map.recommendedFlag(rec.count ?? 0, en.analysis.flags[rec.flag] ?? rec.flag)
           : t.map.recommended;
-    return <span className={styles.recommended}>{text}</span>;
+    return <span className={`${styles.recommended} rail-fade`}>{text}</span>;
   };
 
   return (
     <div className={styles.map}>
       <div className={styles.mapBar}>
-        <p>{store.mode === "loading" ? " " : tested > 0 ? t.map.progressTested(mastered, tested, written.length) : t.map.progress(mastered, written.length)}</p>
+        {store.mode === "loading" ? (
+          <p>
+            <RailLoader size="inline" label={t.map.loadingProgress} showLabel />
+          </p>
+        ) : (
+          <p className="rail-fade">{tested > 0 ? t.map.progressTested(mastered, tested, written.length) : t.map.progress(mastered, written.length)}</p>
+        )}
         <p>
           {store.due !== null && store.due > 0 ? (
             <Link href={paths.learnReview()} className="btn btn--sm btn--primary">
@@ -74,7 +81,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
       </div>
 
       {store.mode === "local" ? (
-        <div className={styles.note}>
+        <div className={`${styles.note} rail-fade`}>
           <p>{t.map.localNote}</p>
           {auth.configured ? (
             <button type="button" className="btn btn--sm" onClick={() => auth.requestSignIn()}>
@@ -84,7 +91,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
         </div>
       ) : null}
       {store.mode === "account" && store.localLessons > 0 ? (
-        <div className={styles.note} role="status">
+        <div className={`${styles.note} rail-fade`} role="status">
           <p>{t.map.merge.body(store.localLessons)}</p>
           <div className={styles.noteActions}>
             <button
@@ -113,8 +120,8 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
         </Link>
         <span className={styles.muted}>{t.map.placementHint}</span>
       </p>
-      {recs.size > 0 ? <p className={styles.muted}>{t.map.recommendedNote}</p> : null}
-      {rechecks.size > 0 ? <p className={styles.muted}>{t.map.recheckNote}</p> : null}
+      {recs.size > 0 ? <p className={`${styles.muted} rail-fade`}>{t.map.recommendedNote}</p> : null}
+      {rechecks.size > 0 ? <p className={`${styles.muted} rail-fade`}>{t.map.recheckNote}</p> : null}
 
       {TRACK_IDS.map((track) => (
         <section key={track} className={styles.track} aria-labelledby={`track-${track}`}>
@@ -151,7 +158,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
                           <span className={styles.lessonTags}>
                             {meta.written ? (
                               store.mode === "loading" ? null : (
-                                <span className={styles.status} data-status={status}>
+                                <span className={`${styles.status} rail-fade`} data-status={status}>
                                   {t.map.status[status]}
                                 </span>
                               )
@@ -160,7 +167,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
                             )}
                             {badge(recs.get(meta.id))}
                             {rechecks.has(meta.id) ? (
-                              <span className={styles.recheck}>
+                              <span className={`${styles.recheck} rail-fade`}>
                                 {t.map.recheck(rechecks.get(meta.id)?.before ?? 0, rechecks.get(meta.id)?.after ?? 0)}
                               </span>
                             ) : null}

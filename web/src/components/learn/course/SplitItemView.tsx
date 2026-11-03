@@ -13,6 +13,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useId, useState } from "react";
 import { useDict } from "../../../lib/i18n/client";
 import { useFormats } from "../controls";
@@ -75,9 +76,7 @@ export function SplitItemView({ card, onAnswer }: { card: SplitCard; onAnswer: (
   }
   if (!dealt) {
     return (
-      <p className={styles.muted} role="status">
-        {c.solving}
-      </p>
+      <RailLoader size="small" label={c.solving} showLabel />
     );
   }
   const item = dealt.item;

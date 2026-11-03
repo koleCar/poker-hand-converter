@@ -22,6 +22,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -256,7 +257,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     return (
       <div className="stats">
         <Header />
-        <p className="muted">{t.tab.loading}</p>
+        <RailLoader label={t.tab.loading} showLabel centered />
       </div>
     );
   }
@@ -307,6 +308,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
 
       {overview ? (
         <Overview
+          busy={status === "loading"}
           overview={overview}
           onShowBad={() => {
             updateState({ grade: "bad", sort: "ev_loss", page: 0 });
@@ -688,13 +690,13 @@ function ScopeBar({
 
 /* ------------------------------------------------------------- overview - */
 
-function Overview({ overview, onShowBad }: { overview: AnalysisOverview; onShowBad: () => void }) {
+function Overview({ overview, onShowBad, busy }: { overview: AnalysisOverview; onShowBad: () => void; busy: boolean }) {
   const t = useDict().analysis;
   const count = countIn(useIntlLocale());
   const share = (part: number) => (overview.hands > 0 ? `${(part / overview.hands) * 100}%` : "0%");
 
   return (
-    <div className={styles.cards}>
+    <div className={`${styles.cards} rail-stagger rail-dims`} aria-busy={busy}>
       <GradesCard overview={overview} onShowBad={onShowBad} />
 
       <section className="card stats-group">
@@ -933,17 +935,18 @@ function BreakdownPanel({ scopeKey, generation }: { scopeKey: string; generation
         </div>
       </div>
       {error ? <p className="notice notice--error">{error}</p> : null}
-      {data && anyGraded ? (
-        <>
-          <h4 className={styles.subhead}>{t.gradesTitle}</h4>
-          <GradeTable rows={data.rows} first={t.groups[shown]} label={label} />
-        </>
-      ) : null}
+      {!data && !error ? <RailLoader label={t.loading} showLabel centered /> : null}
       {data ? (
-        <>
+        <div className={`${styles.panelBody} rail-dims`} aria-busy={data.group !== group && !error}>
+          {anyGraded ? (
+            <>
+              <h4 className={styles.subhead}>{t.gradesTitle}</h4>
+              <GradeTable rows={data.rows} first={t.groups[shown]} label={label} />
+            </>
+          ) : null}
           <h4 className={styles.subhead}>{t.flagsTitle}</h4>
           <StreetTable rows={data.rows} first={t.groups[shown]} label={label} showHands />
-        </>
+        </div>
       ) : null}
     </section>
   );
@@ -1008,6 +1011,7 @@ function HandsPanel({
     <section className="card stats-group" id={HANDS_ID}>
       <div className="card__head">
         <h3>{t.list.heading}</h3>
+        {loading && answeredKey !== null ? <RailLoader size="inline" label={t.list.loading} /> : null}
         <p className="muted">{t.list.total(total)}</p>
       </div>
 
@@ -1080,11 +1084,13 @@ function HandsPanel({
 
       {error ? <p className="notice notice--error">{error}</p> : null}
 
-      {!loading && rows.length === 0 ? (
+      {answeredKey === null ? (
+        <RailLoader label={t.list.loading} showLabel centered />
+      ) : !loading && rows.length === 0 ? (
         <p className="muted">{t.list.empty}</p>
       ) : (
-        <div className="stats-table-wrap">
-          <table className="stats-table" aria-busy={loading}>
+        <div className="stats-table-wrap rail-dims" aria-busy={loading}>
+          <table className="stats-table">
             <thead>
               <tr>
                 <th scope="col">{t.list.hand}</th>
@@ -1107,7 +1113,7 @@ function HandsPanel({
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody key={answeredKey} className="rail-stagger">
               {rows.map((row) => {
                 const cards = row.heroCards.join(" ");
                 return (

@@ -6,7 +6,9 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import dynamic from "next/dynamic";
+import { useDict } from "../../lib/i18n/client";
 import type { WidgetPreset } from "../../lib/learn/concepts";
 import type { RangeId } from "../../lib/learn/presets";
 import { BetMath } from "./BetMath";
@@ -16,7 +18,11 @@ import { SampleSize } from "./SampleSize";
 import { BluffCatcher, GradeExplorer, MultiwayCalc, SprCalculator, ValueBet } from "./SimpleCalcs";
 
 /** The exploit lab talks to the trainer worker and carries the solver's types: loaded only where a page opens it. */
-const ExploitLab = dynamic(() => import("./ExploitLab").then((m) => m.ExploitLab), { ssr: false });
+const ExploitLab = dynamic(() => import("./ExploitLab").then((m) => m.ExploitLab), { ssr: false, loading: LabLoading });
+
+function LabLoading() {
+  return <RailLoader label={useDict().course.lab.loading} showLabel centered />;
+}
 
 export function ConceptWidget({ preset }: { preset: WidgetPreset }) {
   const { pot = 10, bet = 5, stack = 100, share = 0.5 } = preset;

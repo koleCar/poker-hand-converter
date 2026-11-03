@@ -750,6 +750,13 @@
   font-size: var(--font-size-lg);
 }
 
+/* The panel's content once it has loaded (a wrapper, so it can fade in). */
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
 .panelRow {
   display: flex;
   flex-wrap: wrap;

@@ -7,6 +7,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 import { GRADES } from "../../../lib/analysis/types";
 import { fetchTrainerSummary, type TrainerModeSummary } from "../../../lib/db/training";
@@ -96,16 +97,17 @@ export function TrainerHistory({ refresh }: { refresh: number }) {
     };
   }, [refresh]);
 
-  if (rows === null) return null;
   return (
-    <section className={`card ${own.session}`} aria-labelledby="train-history">
+    <section className={`card ${own.session}`} aria-labelledby="train-history" aria-busy={rows === null}>
       <h3 id="train-history" className={own.spotHead}>
         {t.heading(HISTORY_DAYS)}
       </h3>
-      {rows.filter((row) => row.recent > 0).length === 0 ? (
+      {rows === null ? (
+        <RailLoader size="small" label={t.loading} />
+      ) : rows.filter((row) => row.recent > 0).length === 0 ? (
         <p className={own.muted}>{t.none}</p>
       ) : (
-        <ul className={own.history}>
+        <ul className={`${own.history} rail-stagger`}>
           {rows
             .filter((row) => row.recent > 0)
             .map((row) => (

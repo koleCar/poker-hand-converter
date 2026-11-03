@@ -969,6 +969,7 @@ export const analysisHr: Dict["analysis"] = {
 
   breakdown: {
     heading: "Raščlamba",
+    loading: "Učitavam raščlambu…",
     splitBy: "Podijeli po",
     groups: {
       street: "Streetu",
@@ -1023,6 +1024,7 @@ export const analysisHr: Dict["analysis"] = {
 
   list: {
     heading: "Ruke",
+    loading: "Učitavam ruke…",
     total: (count: number) => hands(count),
     when: "Odigrano",
     hand: "Ruka",

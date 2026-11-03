@@ -71,7 +71,7 @@ export function MixedSession({
   const graded = answers.filter((a) => a !== undefined && a !== null).length;
 
   return (
-    <div className={styles.session}>
+    <div className={`${styles.session} rail-fade`}>
       <p className={styles.muted}>
         {t.exercise.progress(at + 1, items.length)} · {t.exercise.score(right, graded)} · {t.review.fromLesson(t.titles[current.lesson] ?? current.lesson)}
         {current.tag ? <span className={styles.tag}>{current.tag}</span> : null}

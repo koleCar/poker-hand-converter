@@ -27,6 +27,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
@@ -183,19 +184,18 @@ export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d
           <p className="notice notice--error">{t.failed(failed.message)}</p>
         )
       ) : null}
-      {loading && !shown ? (
-        <p className="muted" role="status">
-          {t.loading}
-        </p>
-      ) : null}
+      {loading && !shown ? <RailLoader label={t.loading} showLabel centered /> : null}
       {shown?.report ? (
-        <TopLeaksBody
-          report={shown.report}
-          top={shown.top}
-          examples={shownExamples}
-          scope={JSON.parse(scopeKey) as AnalysisFilters}
-          backQuery={backQuery}
-        />
+        <div className={`${styles.body} rail-dims`} aria-busy={loading}>
+          <TopLeaksBody
+            key={shown.key}
+            report={shown.report}
+            top={shown.top}
+            examples={shownExamples}
+            scope={JSON.parse(scopeKey) as AnalysisFilters}
+            backQuery={backQuery}
+          />
+        </div>
       ) : null}
     </section>
   );
@@ -234,7 +234,7 @@ export function TopLeaksBody({
       <p className={`muted ${styles.rule}`}>{t.rule}</p>
       {sample.graded > 0 && top.length === 0 ? <p className="muted">{t.none}</p> : null}
       {top.length > 0 ? (
-        <ol className={styles.list}>
+        <ol className={`${styles.list} rail-stagger`}>
           {top.map((entry) => (
             <TopLeakItem
               key={entry.leak.id}
@@ -371,12 +371,12 @@ function ExampleHands({
     <div className={styles.examples}>
       <h5 className={styles.examplesHead}>{t.examples}</h5>
       {error ? <p className="notice notice--error">{t.examplesFailed(error)}</p> : null}
-      {loading ? <p className="muted">{t.examplesLoading}</p> : null}
+      {loading ? <RailLoader size="small" label={t.examplesLoading} showLabel /> : null}
       {!loading && !error && picked.length === 0 ? <p className="muted">{t.examplesNone}</p> : null}
       {picked.length > 0 ? (
         <>
           <p className="muted">{t.examplesNote}</p>
-          <ul className={reportStyles.handList}>
+          <ul className={`${reportStyles.handList} rail-stagger`}>
             {picked.map((row) => {
               const cards = row.heroCards.join(" ");
               const at = `t=${encodePosition({ kind: "action", actionIndex: row.actionIndex })}`;

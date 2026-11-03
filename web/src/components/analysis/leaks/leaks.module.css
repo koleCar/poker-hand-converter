@@ -297,6 +297,12 @@
   gap: var(--space-2);
 }
 
+/* The comparison under the head: dims while the next period loads. */
+.summaryBody {
+  display: grid;
+  gap: var(--space-2);
+}
+
 .summaryHead {
   display: flex;
   flex-wrap: wrap;

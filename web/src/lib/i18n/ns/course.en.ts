@@ -123,6 +123,7 @@ export const courseEn = {
 
   map: {
     heading: "Learn",
+    loadingProgress: "Loading your progress…",
     intro:
       "A course in cash-game poker in the order of a hand: preflop, the flop situation by situation, the turn, the river, then exploits. Every lesson teaches one idea, lets you predict before it shows you, and ends with practice generated and graded by Rail's own charts, solver and calculators — and, signed in, with your own hands.",
     introPanel: {
@@ -649,6 +650,7 @@ export const courseEn = {
     run: "Lock and solve",
     another: "Another river",
     running: "Solving the river and the best response…",
+    loading: "Loading the lab…",
     numbers: "What the read is worth, in bb per river from these ranges",
     gain: "Gain over Rail's baseline against this opponent",
     riskEq: "Cost if the opponent really plays like the solve",

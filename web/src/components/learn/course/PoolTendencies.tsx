@@ -13,6 +13,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { fetchStatsOpponents, isDatabaseConfigured } from "../../../lib/db";
@@ -60,9 +61,9 @@ export function PoolTendencies({ topic }: { topic: PoolTopic }) {
 
   let body: ReactNode;
   if (!isDatabaseConfigured) body = <p className={styles.muted}>{t.noDatabase}</p>;
-  else if (store.mode === "loading") body = null;
+  else if (store.mode === "loading") body = <RailLoader size="small" label={t.loading} />;
   else if (!signedIn) body = <p className={styles.muted}>{t.signIn}</p>;
-  else if (state.kind === "loading") body = <p className={styles.muted} role="status">{t.loading}</p>;
+  else if (state.kind === "loading") body = <RailLoader size="small" label={t.loading} showLabel />;
   else if (state.kind === "error") body = <p className="notice notice--warn">{t.failed(state.message)}</p>;
   else if (state.pool.players === 0) {
     body = (
@@ -83,7 +84,7 @@ export function PoolTendencies({ topic }: { topic: PoolTopic }) {
           {t.summary(f.num(pool.players, 0), f.num(pool.hands, 0))} {state.capped ? t.capped(f.num(MAX_OPPONENTS, 0)) : ""}
           {state.opaque > 0 ? ` ${t.opaque(f.num(state.opaque, 0))}` : ""}
         </p>
-        <div className={styles.tableWrap}>
+        <div className={`${styles.tableWrap} rail-fade`}>
           <table className={styles.optionTable}>
             <tbody>
               {POOL_TOPIC_STATS[topic].map((id) => {

@@ -14,6 +14,7 @@
 
 "use client";
 
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../../lib/charts";
 import { preflopChartSet } from "../../../lib/chartSet";
@@ -235,13 +236,9 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
         <h3 id="train-spot" className={own.spotHead}>
           {t.spotHeading}
         </h3>
-        {dealing ? (
-          <p className={own.status} role="status">
-            {mode === "river" ? t.solving : mode === "flop" ? t.loadingFlop : t.dealing}
-          </p>
-        ) : null}
+        {dealing ? <RailLoader label={mode === "river" ? t.solving : mode === "flop" ? t.loadingFlop : t.dealing} showLabel centered /> : null}
         {spot && shownHand ? (
-          <>
+          <div className={`${own.spotBody} rail-fade`}>
             <div className={own.prompt}>
               <div className={own.hero}>
                 <span className={own.heroLabel}>{t.yourHand}</span>
@@ -277,13 +274,13 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
                 )}
               </p>
             ) : null}
-          </>
+          </div>
         ) : null}
       </section>
 
       {answer && !graded && !answer.error ? (
-        <p className={own.status} role="status">
-          {t.grading}
+        <p className={own.status}>
+          <RailLoader size="inline" label={t.grading} showLabel />
         </p>
       ) : null}
       {answer?.error ? <p className="notice notice--error">{t.failed(answer.error)}</p> : null}
