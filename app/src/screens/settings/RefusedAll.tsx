@@ -4,6 +4,7 @@
  * reason opens its most recent hands, each with its raw text; and "Try
  * again after an update" for those an older parser version refused.
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useState } from "react";
 
 import { RefusedTable, RetryRefused } from "../../components/RefusedTable";
@@ -67,7 +68,7 @@ export function RefusedAll() {
       </h2>
       <p className={styles.hint}>{d.lead}</p>
       {error && <p className={styles.error}>{d.loadFailed(error)}</p>}
-      {!summary && !error && <p className={styles.muted}>{d.loading}</p>}
+      {!summary && !error && <p className={styles.muted}><RailLoader size="inline" label={d.loading} showLabel /></p>}
       {summary && summary.total === 0 && <p className={styles.muted}>{d.none}</p>}
       {summary && summary.total > 0 && (
         <>
@@ -93,7 +94,7 @@ export function RefusedAll() {
           {reason !== null && (
             <section className={styles.panel} aria-label={d.ofReason(reason)}>
               {listError && <p className={styles.error}>{d.loadFailed(listError)}</p>}
-              {!list && !listError && <p className={styles.muted}>{d.loading}</p>}
+              {!list && !listError && <p className={styles.muted}><RailLoader size="inline" label={d.loading} showLabel /></p>}
               {list && list.entries.length === 0 && <p className={styles.muted}>{d.none}</p>}
               {list && list.entries.length > 0 && (
                 <>

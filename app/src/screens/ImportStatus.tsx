@@ -1,3 +1,4 @@
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { Fragment, useState } from "react";
 
 import { BackfillProgress } from "../components/BackfillProgress";
@@ -67,7 +68,7 @@ export function ImportStatus() {
       </div>
       {!inApp && <p className={styles.muted}>{d.unavailable}</p>}
       {inApp && failure && <p className={styles.error}>{d.notRunning(failure)}</p>}
-      {inApp && !failure && !status && <p className={styles.muted}>{d.loading}</p>}
+      {inApp && !failure && !status && <p className={styles.muted}><RailLoader size="inline" label={d.loading} showLabel /></p>}
       {status?.running && (
         <p className={status.paused ? styles.warning : styles.muted}>{status.paused ? d.paused : d.running}</p>
       )}

@@ -1,3 +1,4 @@
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 
 import { ScreenHeader } from "../components/ScreenHeader";
@@ -90,10 +91,10 @@ export function Today() {
             {d.storeError(failure)}
           </p>
         )}
-        {inApp && !failure && !status && <p className={styles.muted}>{d.loading}</p>}
+        {inApp && !failure && !status && <p className={styles.muted}><RailLoader size="inline" label={d.loading} showLabel /></p>}
         {status && !status.error && (
           <>
-            <dl className={styles.tiles}>
+            <dl className={`${styles.tiles} rail-stagger`}>
               {tiles.map(([label, value]) => (
                 <div key={label} className={styles.tile}>
                   <dt className={styles.label}>{label}</dt>

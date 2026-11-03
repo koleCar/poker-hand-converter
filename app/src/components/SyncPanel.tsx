@@ -6,6 +6,7 @@
  * large backlog, and the answer to "upload this computer's hands to the new
  * account?". (R6.4) Held by the plan: why, and "Upgrade to Pro".
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useT } from "../i18n";
 import { ipc, type SyncStatus } from "../lib/ipc";
 import { liveDateFormat, liveNumberFormat } from "../i18n/format";
@@ -45,7 +46,7 @@ export function SyncPanel({
   const d = t.sync;
 
   if (sync === undefined) {
-    return <p className={styles.muted}>{error ? d.failedAction(error) : d.loading}</p>;
+    return <p className={styles.muted}>{error ? d.failedAction(error) : <RailLoader size="inline" label={d.loading} showLabel />}</p>;
   }
   if (sync === null) {
     return <p className={styles.muted}>{d.off}</p>;

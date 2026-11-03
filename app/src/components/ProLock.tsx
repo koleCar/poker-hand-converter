@@ -9,6 +9,7 @@
  * not checked yet or the offline grace period is over - "Check again".
  * "Upgrade" opens the web's Plan panel, where Pro is bought (R6.3).
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useT, type Dict } from "../i18n";
 import { liveDateFormat } from "../i18n/format";
 import type { EntitlementsStatus, PlanFeature } from "../lib/ipc";
@@ -101,7 +102,7 @@ export function PlanPanel() {
   const p = useT().plan;
   const plan = useEntitlements();
   if (plan.status === null) {
-    return <p className={styles.muted}>{plan.error ?? p.settings.loading}</p>;
+    return <p className={styles.muted}>{plan.error ?? <RailLoader size="inline" label={p.settings.loading} showLabel />}</p>;
   }
   const when = (ms: number) => WHEN.format(ms);
   const effective = plan.status.effective;

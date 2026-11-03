@@ -6,6 +6,7 @@
  * table. Shown on first launch (`settings.firstRunDone`), reachable later
  * from Settings (`#/setup`).
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useState } from "react";
 
 import { AccountPanel } from "../components/AccountPanel";
@@ -145,7 +146,7 @@ export function FirstRun() {
             <p className={styles.success}>{d.added(added)}</p>
           ) : (
             <>
-              {!discovery && !error && <p className={styles.muted}>{d.searching}</p>}
+              {!discovery && !error && <p className={styles.muted}><RailLoader size="inline" label={d.searching} showLabel /></p>}
               {discovery && rows.length > 0 && (
                 <>
                   {discovery.folders.length > 0 && (

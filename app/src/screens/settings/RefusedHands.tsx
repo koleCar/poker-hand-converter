@@ -1,3 +1,4 @@
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useState } from "react";
 
 import { RefusedTable, RetryRefused } from "../../components/RefusedTable";
@@ -37,7 +38,7 @@ export function RefusedHands({ id, path, panelId }: { id: number; path: string; 
 
   return (
     <section id={panelId} className={styles.panel} aria-label={d.refusedHeading(path)}>
-      {!data && !error && <p className={styles.muted}>{d.refusedLoading}</p>}
+      {!data && !error && <p className={styles.muted}><RailLoader size="inline" label={d.refusedLoading} showLabel /></p>}
       {error && <p className={styles.error}>{d.refusedFailed(error)}</p>}
       {data && data.entries.length === 0 && <p className={styles.muted}>{d.refusedEmpty}</p>}
       {data && data.entries.length > 0 && (

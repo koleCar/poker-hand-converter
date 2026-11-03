@@ -7,6 +7,7 @@
  * toggle (the last 30 days of play, or all time). The web's card also links
  * to its full leak report, which the app does not have.
  */
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useMemo, useState } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 
@@ -125,7 +126,11 @@ export function TopLeaks({
           {w.top.failed(loaded.message)}
         </StateMessage>
       ) : (
-        <TopLeaksBody report={loaded.report} top={loaded.top} examples={loaded.examples} period={period} />
+        // Another period on its way: the previous one's list stays, dimmed (rows
+        // written by the background run read again without dimming).
+        <div className={`${styles.leaksBody} rail-dims`} aria-busy={!loaded.key.startsWith(`${period}|`)}>
+          <TopLeaksBody report={loaded.report} top={loaded.top} examples={loaded.examples} period={period} />
+        </div>
       )}
     </section>
   );
@@ -155,7 +160,7 @@ export function TopLeaksBody({
       <p className={styles.muted}>{w.top.rule}</p>
       {sample.graded > 0 && top.length === 0 ? <p className={styles.muted}>{w.top.none}</p> : null}
       {top.length > 0 ? (
-        <ol className={styles.decisions}>
+        <ol className={`${styles.decisions} rail-stagger`}>
           {top.map((entry) => (
             <TopLeakItem key={entry.leak.id} entry={entry} examples={examples?.get(entry.leak.id) ?? null} loading={!examples} period={period} />
           ))}
@@ -224,7 +229,7 @@ function TopLeakItem({
         </span>
       </p>
       <h4 className={styles.examplesHead}>{w.top.examples}</h4>
-      {loading ? <p className={styles.muted}>{w.top.examplesLoading}</p> : null}
+      {loading ? <p className={styles.muted}><RailLoader size="inline" label={w.top.examplesLoading} showLabel /></p> : null}
       {!loading && picked.length === 0 ? <p className={styles.muted}>{w.top.examplesNone}</p> : null}
       {picked.length > 0 ? (
         <>
