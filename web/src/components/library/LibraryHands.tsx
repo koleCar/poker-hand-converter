@@ -33,6 +33,7 @@ import { EMPTY_FILTER, type FilterState } from "@rail/ui/hands/filter";
 import { HandsScreen } from "@rail/ui/hands/HandsScreen";
 import type { HandRow } from "@rail/ui/hands/model";
 import { Icon } from "@rail/ui/icon/Icon";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { useAuth } from "../../lib/auth";
 import { isDatabaseConfigured, latestDesktopSync, rebuildStats, saveHand, type DesktopSync } from "../../lib/db";
@@ -186,7 +187,7 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
   const status =
     auth.isSignedIn && syncing && desktopSync ? (
       <p
-        className={liveStyles.syncing}
+        className={`${liveStyles.syncing} rail-fade`}
         title={t.syncingTitle(new Date(desktopSync.lastIngestAt).toLocaleString(locale))}
       >
         <span className={liveStyles.dot} aria-hidden="true" />
@@ -204,10 +205,12 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
     );
   } else if (!auth.isSignedIn) {
     // Signed out, the filters and the list would both be furniture around
-    // nothing. `loading` is excluded so a returning reader does not see the
-    // gate flash before their session restores.
+    // nothing. While the session restores it is the loader instead, so a
+    // returning reader does not see the gate flash.
     screen =
-      auth.status === "loading" ? null : (
+      auth.status === "loading" ? (
+        <RailLoader label={en.settings.loading} centered />
+      ) : (
         <section className="card">
           <h2>{t.heading}</h2>
           <p className="muted">{t.privateToAccount}</p>
@@ -240,11 +243,18 @@ export function LibraryHands({ refreshToken, onHandsSaved, arrival = null }: Lib
           emptyText={t.empty}
           reloadToken={refreshToken}
           panelRef={panelRef}
-          renderState={(kind, text) => (
-            <div className={kind === "error" ? "notice notice--error" : "empty"} role={kind === "error" ? "alert" : "status"}>
-              {text}
-            </div>
-          )}
+          renderState={(kind, text) =>
+            kind === "loading" ? (
+              <RailLoader label={text} centered />
+            ) : (
+              <div
+                className={kind === "error" ? "notice notice--error rail-fade" : "empty rail-fade"}
+                role={kind === "error" ? "alert" : "status"}
+              >
+                {text}
+              </div>
+            )
+          }
           renderPanel={(handKey, row) => <StoredHandPanel handKey={handKey} row={row} onClose={close} />}
         />
       </section>
@@ -267,13 +277,17 @@ function StoredHandPanel({ handKey, row, onClose }: { handKey: string; row: Hand
   const state = useHand(handKey);
   if (state.status !== "ready") {
     return (
-      <div className={styles.panelStatus} role="status">
-        {state.status === "loading" ? t.loadingHand : t.loadHandFailed}
+      <div className={styles.panelStatus}>
+        {state.status === "loading" ? (
+          <RailLoader label={t.loadingHand} showLabel />
+        ) : (
+          <p role="alert">{t.loadHandFailed}</p>
+        )}
       </div>
     );
   }
   return (
-    <div className={styles.panel}>
+    <div className={`${styles.panel} rail-fade`}>
       <ReplayViewer
         key={handKey}
         hand={state.hand}
@@ -380,7 +394,7 @@ function ConverterHand({ onHandsSaved }: { onHandsSaved: () => void }) {
                 aria-label={en.converter.save.button}
                 title={saving ? en.converter.save.saving : en.converter.save.button}
               >
-                <Icon name="save" />
+                {saving ? <RailLoader size="inline" label={en.converter.save.saving} delay={0} /> : <Icon name="save" />}
               </button>
             ) : null}
           </>

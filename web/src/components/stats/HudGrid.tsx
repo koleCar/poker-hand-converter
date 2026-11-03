@@ -124,8 +124,10 @@ export function HudGrid({
   const one = fixedIn(locale, 1);
   const s = (id: string) => sample(id, sums);
 
+  // The cards arrive one after another when the report first lands; a new
+  // filter updates them in place (the grid stays mounted), so it plays once.
   return (
-    <div className="stats-hud">
+    <div className="stats-hud rail-stagger">
       {/* ------------------------------------------------------- headline */}
       <section className="stats-headline card">
         <div className="stats-headline__main">

@@ -83,7 +83,8 @@ export function LiveStrip({ uploads, desktop, newHands, onRefresh }: LiveStripPr
     <>
       <div ref={region} className={styles.srOnly} aria-live="polite" role="status" />
       {empty ? null : (
-        <section className={styles.strip} aria-label={t.region}>
+        // The strip arrives (rail-enter); a line that joins it later fades in.
+        <section className={`${styles.strip} rail-enter`} aria-label={t.region}>
           {uploads.map((upload) => {
             const percent =
               upload.total && upload.state !== "done"
@@ -91,7 +92,7 @@ export function LiveStrip({ uploads, desktop, newHands, onRefresh }: LiveStripPr
                 : null;
             const text = uploadText(t, upload);
             return (
-              <div key={upload.id} className={styles.line} title={t.elsewhere}>
+              <div key={upload.id} className={`${styles.line} rail-fade`} title={t.elsewhere}>
                 <span
                   className={`${styles.dot} ${upload.state === "done" ? styles.dotDone : upload.state === "saving" ? "" : styles.dotWarn}`}
                   aria-hidden="true"
@@ -113,13 +114,13 @@ export function LiveStrip({ uploads, desktop, newHands, onRefresh }: LiveStripPr
             );
           })}
           {desktop ? (
-            <div className={styles.line}>
+            <div className={`${styles.line} rail-fade`}>
               <span className={styles.dot} aria-hidden="true" />
               <span className={styles.text}>{t.desktopSyncing(desktop.hands)}</span>
             </div>
           ) : null}
           {newHands !== null && onRefresh ? (
-            <button type="button" className={`btn btn--sm ${styles.fresh}`} onClick={onRefresh}>
+            <button type="button" className={`btn btn--sm ${styles.fresh} rail-fade`} onClick={onRefresh}>
               {t.newHands(newHands)}
             </button>
           ) : null}
