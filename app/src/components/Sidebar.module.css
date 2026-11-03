@@ -79,3 +79,57 @@
   font-family: inherit;
   font-size: var(--font-size-xs);
 }
+
+/* Who is signed in (R1.7), pushed to the sidebar's foot. */
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.account:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.avatar {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  background: var(--surface-inset);
+}
+
+.avatarOn {
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
+/* Signed in, but the last refresh did not reach the server. */
+.offline {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--surface-sunken);
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
