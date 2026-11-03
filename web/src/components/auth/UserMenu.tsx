@@ -17,6 +17,8 @@ import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
+import { BusyLabel } from "../shell/BusyLabel";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 export function UserMenu() {
   const en = useDict();
@@ -53,7 +55,11 @@ export function UserMenu() {
   }
 
   if (auth.status === "loading") {
-    return <span className="usermenu__placeholder" aria-hidden="true" />;
+    return (
+      <span className="usermenu__placeholder">
+        <RailLoader size="inline" label={en.loading.generic} />
+      </span>
+    );
   }
 
   if (!auth.isSignedIn) {
@@ -143,7 +149,9 @@ export function UserMenu() {
               }
             }}
           >
-            {busy ? en.chrome.menu.signingOut : en.chrome.menu.signOut}
+            <BusyLabel busy={busy} busyLabel={en.chrome.menu.signingOut}>
+              {en.chrome.menu.signOut}
+            </BusyLabel>
           </button>
         </div>
       ) : null}

@@ -18,6 +18,7 @@ import { desktopHr } from "./ns/desktop.hr";
 import { downloadHr } from "./ns/download.hr";
 import { learnHr } from "./ns/learn.hr";
 import { legalHr } from "./ns/legal.hr";
+import { loadingHr } from "./ns/loading.hr";
 import { manualHr } from "./ns/manual.hr";
 import { planHr } from "./ns/plan.hr";
 import { planNoticeHr } from "./ns/planNotice.hr";
@@ -48,6 +49,7 @@ export const hr: Dict = {
   plan: planHr,
   planNotice: planNoticeHr,
   yourData: yourDataHr,
+  loading: loadingHr,
 
   brand: {
     name: "Rail",

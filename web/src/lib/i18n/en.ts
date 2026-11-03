@@ -40,6 +40,7 @@ import { desktopEn } from "./ns/desktop.en";
 import { downloadEn } from "./ns/download.en";
 import { learnEn } from "./ns/learn.en";
 import { legalEn } from "./ns/legal.en";
+import { loadingEn } from "./ns/loading.en";
 import { manualEn } from "./ns/manual.en";
 import { planEn } from "./ns/plan.en";
 import { planNoticeEn } from "./ns/planNotice.en";
@@ -64,6 +65,7 @@ export const en = {
   plan: planEn,
   planNotice: planNoticeEn,
   yourData: yourDataEn,
+  loading: loadingEn,
 
   brand: {
     name: "Rail",

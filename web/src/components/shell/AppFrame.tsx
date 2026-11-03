@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { hasPendingHand } from "../converter/handoff";
 import { AppShell, type ShellTab } from "./AppShell";
 import { markSignInOffered, useAuth, wasSignInOffered } from "../../lib/auth";
@@ -18,6 +19,7 @@ import { LiveStrip } from "../live/LiveStrip";
 import { ProLock } from "../plan/ProLock";
 import type { Feature } from "../../lib/db/entitlements";
 import { useEntitlements } from "../../lib/entitlements/context";
+import { useDict } from "../../lib/i18n/client";
 import { useHandArrivals } from "../live/useHandArrivals";
 import { useOtherUploads } from "../live/useLiveActivity";
 
@@ -97,6 +99,22 @@ interface AppFrameProps {
 /** The Pro feature each tab is, unless the screen says otherwise. */
 const TAB_FEATURE: Partial<Record<ShellTab, Feature>> = { analysis: "analysis", learn: "learn" };
 
+/**
+ * The last stored-hand count this tab read, and for whom.
+ *
+ * Every route mounts its own `AppFrame` (and a `loading.tsx` boundary mounts
+ * one more in between), so without this each navigation started from "count
+ * unknown": the library, statistics and analysis tabs dropped out of the bar
+ * and came back a beat later, on every tab press. Starting from the last
+ * answer keeps the bar still; the count is still re-read on mount.
+ *
+ * Written only in the browser (the `countHands` callback), so a server render
+ * never sees one visitor's number while rendering another's page, and the
+ * first render after a full page load is the server's (`null`): no hydration
+ * mismatch.
+ */
+let lastCount: { user: string; count: number } | null = null;
+
 export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature, wide = false, children }: AppFrameProps) {
   const router = useRouter();
   const entitlements = useEntitlements();
@@ -110,15 +128,22 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
     return tabFeature !== undefined && entitlements.locked(tabFeature);
   });
   const [refreshToken, setRefreshToken] = useState(0);
-  const [storedCount, setStoredCount] = useState<number | null>(null);
   const auth = useAuth();
+  const en = useDict();
+  const countUser = auth.isSignedIn ? (auth.user?.id ?? null) : null;
+  const [storedCount, setStoredCount] = useState<number | null>(() =>
+    lastCount && countUser && lastCount.user === countUser ? lastCount.count : null,
+  );
 
   const refreshCount = useCallback(() => {
-    if (!isSupabaseConfigured || !auth.isSignedIn) {
+    if (!isSupabaseConfigured || !countUser) {
       return;
     }
-    void countHands().then(setStoredCount);
-  }, [auth.isSignedIn]);
+    void countHands().then((count) => {
+      lastCount = { user: countUser, count };
+      setStoredCount(count);
+    });
+  }, [countUser]);
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
 
@@ -263,7 +288,11 @@ export function AppFrame({ tab, redirectWhenEmpty = false, live = false, feature
       {holdForRedirect || !liveUser ? null : (
         <LiveStrip uploads={otherUploads} desktop={shownDesktop} newHands={unseenHands} onRefresh={showUnseen} />
       )}
-      {holdForRedirect || screenPending ? null : screenLocked && screenFeature ? (
+      {holdForRedirect || screenPending ? (
+        // Waiting on the plan (once per page load) or on the bounce to the
+        // converter: say so rather than leave the page blank under the bar.
+        <RailLoader size="page" centered label={en.loading.generic} />
+      ) : screenLocked && screenFeature ? (
         <ProLock feature={screenFeature} />
       ) : (
         children({ refreshToken, onHandsSaved, arrival: currentArrival })

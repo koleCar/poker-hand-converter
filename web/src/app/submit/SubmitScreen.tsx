@@ -13,6 +13,7 @@ import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
+import { BusyLabel } from "../../components/shell/BusyLabel";
 
 interface Attached {
   publicId: string;
@@ -224,7 +225,9 @@ function SubmitForm({
         ) : null}
         <div>
           <button type="submit" className="btn btn--primary" disabled={busy || Boolean(blocked)}>
-            {busy ? en.forum.submit.submitting : en.forum.submit.submit}
+            <BusyLabel busy={busy} busyLabel={en.forum.submit.submitting}>
+              {en.forum.submit.submit}
+            </BusyLabel>
           </button>
         </div>
       </form>

@@ -945,7 +945,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
       </section>
 
       {showProgress ? (
-        <section className="card conv-progress" aria-live="polite">
+        <section className="card conv-progress rail-enter" aria-live="polite">
           <div className="conv-progress__head">
             <strong>
               {reading

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { AppFrame } from "../../components/shell/AppFrame";
+import { BusyLabel } from "../../components/shell/BusyLabel";
 import { formatPostDate } from "../../components/forum/format";
 import { useAuth } from "../../lib/auth";
 import { forumErrorMessage } from "../../lib/db/forum";
@@ -71,10 +73,13 @@ function ModBody() {
           </button>
         ))}
       </nav>
-      {tab === "reports" ? <Reports onDenied={() => setDenied(true)} /> : null}
-      {tab === "spam" ? <Spam onDenied={() => setDenied(true)} /> : null}
-      {tab === "users" ? <Users /> : null}
-      {tab === "admin" ? <Admin /> : null}
+      {/* Keyed on the tab, so a switch fades the new panel in. */}
+      <div key={tab} className="rail-fade">
+        {tab === "reports" ? <Reports onDenied={() => setDenied(true)} /> : null}
+        {tab === "spam" ? <Spam onDenied={() => setDenied(true)} /> : null}
+        {tab === "users" ? <Users /> : null}
+        {tab === "admin" ? <Admin /> : null}
+      </div>
     </section>
   );
 }
@@ -122,12 +127,12 @@ function Reports({ onDenied }: { onDenied: () => void }) {
     }
   }
 
-  if (items === null) return null;
+  if (items === null) return <RailLoader centered label={en.loading.route.mod} />;
   return (
     <div className="stack">
       {error ? <p className="notice notice--error">{error}</p> : null}
       {items.length === 0 ? <p className="muted">{en.moderation.noReports}</p> : null}
-      <ol className={styles.hits}>
+      <ol className={`${styles.hits} rail-stagger`}>
         {items.map((item) => {
           const href = subjectHref(item);
           return (
@@ -202,12 +207,12 @@ function Spam({ onDenied }: { onDenied: () => void }) {
     }
   }
 
-  if (items === null) return null;
+  if (items === null) return <RailLoader centered label={en.loading.route.mod} />;
   return (
     <div className="stack">
       {error ? <p className="notice notice--error">{error}</p> : null}
       {items.length === 0 ? <p className="muted">{en.moderation.noSpam}</p> : null}
-      <ol className={styles.hits}>
+      <ol className={`${styles.hits} rail-stagger`}>
         {items.map((item) => (
           <li key={`${item.type}-${item.publicId}-${item.seq ?? 0}`} className={styles.card}>
             <div className={styles.cardBody}>
@@ -245,16 +250,20 @@ function Users() {
   const [reason, setReason] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [looking, setLooking] = useState(false);
 
   async function lookup(event?: FormEvent) {
     event?.preventDefault();
     setError(null);
     setMessage(null);
+    setLooking(true);
     try {
       setUser(await modUser(name));
       setOverlap(await voteOverlap(name));
     } catch (err) {
       setError(forumErrorMessage(err));
+    } finally {
+      setLooking(false);
     }
   }
 
@@ -273,14 +282,16 @@ function Users() {
     <div className="stack">
       <form className={styles.searchForm} onSubmit={(event) => void lookup(event)}>
         <input value={name} onChange={(event) => setName(event.target.value)} placeholder={en.moderation.usernamePlaceholder} />
-        <button type="submit" className="btn btn--sm">
-          {en.moderation.lookup}
+        <button type="submit" className="btn btn--sm" disabled={looking}>
+          <BusyLabel busy={looking} busyLabel={en.loading.generic}>
+            {en.moderation.lookup}
+          </BusyLabel>
         </button>
       </form>
       {error ? <p className="notice notice--error">{error}</p> : null}
       {message ? <p className="notice notice--info">{message}</p> : null}
       {user ? (
-        <div className="card stack">
+        <div className="card stack rail-dims" aria-busy={looking}>
           <p className={styles.cardTitle}>
             <Link href={paths.profile(user.username)}>{user.username}</Link>
             {en.moderation.userLine(en.moderation.roles[user.role], user.karma)}

@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { exportAccount, ExportCancelled, exportFileName, type ExportProgress } from "../../lib/account/export";
 import { buildReadme } from "../../lib/account/readme";
 import { BlobSink, writableSink, ZipWriter, type ZipSink } from "../../lib/account/zipWriter";
@@ -48,7 +49,7 @@ type SavePicker = (options: {
 /** The progress lines, for the running export. Exported for the tests. */
 export function ExportProgressView({ progress, t, intl }: { progress: ExportProgress | null; t: Dict["yourData"]["data"]; intl: string }) {
   if (!progress || progress.phase === "manifest" || progress.phase === "profile") {
-    return <p className="muted" role="status">{t.counting}</p>;
+    return <RailLoader size="small" showLabel label={t.counting} />;
   }
   const share =
     progress.phase === "hands"

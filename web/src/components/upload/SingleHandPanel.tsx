@@ -30,6 +30,7 @@ import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
 import { Icon } from "@rail/ui/icon/Icon";
+import { BusyLabel } from "../shell/BusyLabel";
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
@@ -172,7 +173,9 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
               disabled={!text.trim() || busy}
               onClick={() => void loadFromText(text, null)}
             >
-              {busy ? t.reading : t.replayIt}
+              <BusyLabel busy={busy} busyLabel={t.reading}>
+                {t.replayIt}
+              </BusyLabel>
             </button>
             <button
               type="button"

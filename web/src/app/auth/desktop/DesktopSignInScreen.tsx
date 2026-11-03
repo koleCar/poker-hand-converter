@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { AppFrame } from "../../../components/shell/AppFrame";
 import { useAuth } from "../../../lib/auth";
 import {
@@ -94,7 +95,7 @@ function DesktopSignIn() {
     return (
       <section className={`card ${styles.card}`} aria-labelledby="desktop-heading">
         {heading}
-        <p className="muted">{d.checking}</p>
+        <RailLoader size="small" showLabel centered label={d.checking} />
       </section>
     );
   }

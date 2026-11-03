@@ -13,6 +13,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { AppFrame } from "../shell/AppFrame";
 import { subscriptionRunning } from "../../lib/billing/checkout";
 import { useEntitlements } from "../../lib/entitlements/context";
@@ -75,7 +76,7 @@ export function BillingSuccessView({ running, slow }: { running: boolean; slow: 
       ) : slow ? (
         <p className="notice notice--warn">{b.slow}</p>
       ) : (
-        <p className="muted">{b.waiting}</p>
+        <RailLoader size="small" showLabel label={b.waiting} />
       )}
       <div className={styles.actions}>
         <Link href={paths.settingsPlan()} className="btn btn--primary">

@@ -20,12 +20,24 @@ import { unreadNotificationCount } from "../../lib/db/social";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { getBrowserSupabase } from "../../lib/supabase/browser";
+import { NavPending } from "../shell/NavProgress";
+
+/**
+ * The last count this tab showed, and for whom. Every route mounts its own
+ * bar, so without it the badge vanished and came back on every navigation.
+ * Written only from an effect (the browser), never during a server render.
+ */
+let lastUnread: { user: string; count: number } | null = null;
 
 export function NotificationsBell() {
   const en = useDict();
   const auth = useAuth();
   const userId = auth.isSignedIn ? (auth.user?.id ?? null) : null;
-  const [unread, setUnread] = useState(0);
+  const [unread, setUnread] = useState(() => (lastUnread && lastUnread.user === userId ? lastUnread.count : 0));
+
+  useEffect(() => {
+    if (userId) lastUnread = { user: userId, count: unread };
+  }, [userId, unread]);
 
   useEffect(() => {
     if (!userId) {
@@ -86,6 +98,7 @@ export function NotificationsBell() {
   return (
     <Link href={paths.notifications()} className="bell" aria-label={en.social.bell(unread)} title={en.social.bell(unread)}>
       <span aria-hidden="true">🔔</span>
+      <NavPending mark={false} />
       {unread > 0 ? <span className="bell__count">{unread > 99 ? "99+" : unread}</span> : null}
     </Link>
   );

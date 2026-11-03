@@ -1,0 +1,71 @@
+/* The bar's navigation feedback (`NavProgress.tsx`). Both pieces wait 150ms
+ * before they show, like the loader, so a cached navigation draws nothing. */
+
+/* A 2px line along the bottom edge of the app bar (`.shell__bar` is sticky,
+ * so it is the containing block). The runner is a short segment of accent
+ * crossing it once a cycle. */
+.line {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -1px;
+  block-size: 2px;
+  overflow: hidden;
+  pointer-events: none;
+  animation: nav-appear var(--dur-4) var(--ease-out) 150ms both;
+}
+
+.runner {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 30%;
+  border-radius: 999px;
+  background: var(--accent-fg);
+}
+
+/* The pressed tab: a short accent bar under its label, so it is clear which
+ * one the click went to while the old screen is still showing. */
+.pendingMark {
+  position: absolute;
+  inset-inline: 35%;
+  inset-block-end: 3px;
+  block-size: 2px;
+  border-radius: 999px;
+  background: var(--accent-fg);
+  pointer-events: none;
+  animation: nav-appear var(--dur-4) var(--ease-out) 150ms both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .runner {
+    animation: nav-run 1.1s var(--ease-standard) infinite;
+  }
+}
+
+/* Nothing travels: the whole line is lit, fainter. */
+@media (prefers-reduced-motion: reduce) {
+  .runner {
+    inline-size: 100%;
+    opacity: 0.6;
+  }
+}
+
+@keyframes nav-appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nav-run {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(340%);
+  }
+}

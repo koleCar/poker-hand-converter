@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Feed, parseFeedParams } from "../components/forum/Feed";
-import { ServerFrame } from "../components/shell/ServerFrame";
-import { getDict } from "../lib/i18n/server";
-import { paths } from "../lib/routes";
-import { readBoards, readFeed } from "../lib/server/forum";
+import { Feed, parseFeedParams } from "../../components/forum/Feed";
+import { ServerFrame } from "../../components/shell/ServerFrame";
+import { getDict } from "../../lib/i18n/server";
+import { paths } from "../../lib/routes";
+import { readBoards, readFeed } from "../../lib/server/forum";
 
 /**
  * `/` — the forum, every board.

@@ -229,7 +229,7 @@ export function ResultsPanel({
   const stopped = sources.some((source) => source.status === "cancelled");
 
   return (
-    <section className="card conv-results">
+    <section className="card conv-results rail-enter">
       <header className="card__head conv-results__head">
         <div>
           <h3>{t.heading(totals.hands, stopped)}</h3>
@@ -312,7 +312,7 @@ export function ResultsPanel({
 
       {/* Per file. A table would be unreadable at 390px, so each file is a row
           that wraps into a block instead of scrolling sideways. */}
-      <ul className="conv-source-list">
+      <ul className="conv-source-list rail-stagger">
         {sources.slice(0, SOURCE_ROWS).map((source) => {
           const isOpen = openSource === source.id;
           const tone = source.problem
@@ -413,7 +413,7 @@ export function ResultsPanel({
       {totals.hands > 0 ? (
         <div className="conv-hands">
           <h4 className="conv-hands__title">{t.convertedHands}</h4>
-          <ul className="conv-hand-list">
+          <ul className="conv-hand-list rail-stagger">
             {visibleHands.map(({ hand, key }) => (
               <HandRowItem
                 key={key}

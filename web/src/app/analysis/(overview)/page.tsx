@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { AnalysisScreen } from "./AnalysisScreen";
-import { getDict } from "../../lib/i18n/server";
-import { paths } from "../../lib/routes";
+import { AnalysisScreen } from "../AnalysisScreen";
+import { getDict } from "../../../lib/i18n/server";
+import { paths } from "../../../lib/routes";
 
 /**
  * The Analysis tab (`docs/ANALYSIS-PLAN.md` §6.0).

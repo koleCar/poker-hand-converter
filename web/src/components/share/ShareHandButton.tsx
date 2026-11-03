@@ -10,6 +10,7 @@ import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import { ShareNamesToggle } from "./ShareNamesToggle";
 import { ShareToForum } from "./ShareToForum";
 import { Icon } from "@rail/ui/icon/Icon";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
 
 interface ShareHandButtonProps {
   hand: PhfHand;
@@ -259,7 +260,7 @@ export function ShareHandButton({
               {storedHandId && !presetUrl ? <AnalysisShareToggle surface="hand" id={storedHandId} /> : null}
             </>
           ) : busy ? (
-            <p className="share__hint">{t.creating}</p>
+            <RailLoader size="small" showLabel label={t.creating} className="share__hint" />
           ) : null}
 
           {/* The hand as a forum thread with the author's comment. */}

@@ -191,6 +191,8 @@
 }
 
 .shell__tab {
+  /* Positions the pending mark under the label (`NavProgress.module.css`). */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;

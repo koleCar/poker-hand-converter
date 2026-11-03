@@ -173,7 +173,9 @@
 
 /* Holds the bar's width steady while the stored session is being read. */
 .usermenu__placeholder {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 84px;
   height: 30px;
 }
