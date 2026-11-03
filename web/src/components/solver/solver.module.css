@@ -713,3 +713,508 @@
 .dealCard:focus-visible {
   outline: 2px solid var(--accent, currentColor);
 }
+
+/* ------------------------------------------------ the tabs of a decision */
+
+.viewTabs,
+.panelTabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-block-end: var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.panelTabs {
+  margin-block-end: 0;
+}
+
+.viewTab,
+.panelTab {
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-block-end: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.viewTab[aria-selected="true"],
+.panelTab[aria-selected="true"] {
+  border-block-end-color: var(--accent-border);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.viewTab:focus-visible,
+.panelTab:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+/* The Ranges tab takes more of the width: two grids and the comparison between them. */
+@media (min-width: 900px) {
+  .strategyWide {
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 26rem);
+  }
+}
+
+/* --------------------------------------------------------- the Ranges tab */
+
+.ranges {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.ranges p {
+  margin: 0;
+}
+
+.rangesTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+@media (min-width: 1100px) {
+  .rangesTop {
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 15rem) minmax(0, 1fr);
+  }
+}
+
+.rangeSide {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.rangeHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.toAct {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-regular, 400);
+}
+
+.modeSelect {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+.rangeGrid {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 1px;
+  inline-size: 100%;
+}
+
+.rangeCell {
+  aspect-ratio: 1.15;
+  cursor: default;
+}
+
+.rangeCell .cellName {
+  inset-block-start: 2px;
+  inset-inline-start: 2px;
+  font-size: clamp(0.45rem, 0.62vw, 0.75rem);
+}
+
+.rangeCell .cellEv {
+  inset-block-end: 2px;
+  inset-inline-end: 2px;
+  font-size: clamp(0.4rem, 0.5vw, 0.62rem);
+}
+
+/* One column per combo, as tall as its reach. */
+.comboFill {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.comboFill > span {
+  display: block;
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.sideA {
+  background: var(--chart-check);
+}
+
+.sideB {
+  background: var(--chart-call);
+}
+
+.compare {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.compareList {
+  display: grid;
+  gap: var(--space-2);
+  max-block-size: 22rem;
+  overflow-y: auto;
+}
+
+.compareRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 2px var(--space-1);
+}
+
+.compareRow > :last-child:not(.compareBar) {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.compareLabel {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.compareWin {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.compareBar {
+  grid-column: 1 / -1;
+  display: flex;
+  block-size: 6px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--surface-inset);
+}
+
+.compareA {
+  background: var(--chart-check);
+}
+
+.compareB {
+  background: var(--chart-call);
+}
+
+.compareNote {
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.rangeHover {
+  min-block-size: 1.4em;
+  font-size: var(--font-size-sm);
+}
+
+.equityChart {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.chartHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.legendSwatch {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border-radius: 50%;
+}
+
+.chartBox {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(10rem, 16rem) auto;
+  gap: var(--space-1);
+}
+
+.chartY {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.chartX {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.chartSvg {
+  inline-size: 100%;
+  block-size: 100%;
+  border-inline-start: 1px solid var(--border-default);
+  border-block-end: 1px solid var(--border-default);
+  overflow: visible;
+}
+
+.chartGrid {
+  stroke: var(--border-subtle);
+  stroke-width: 1;
+}
+
+.lineA {
+  stroke: var(--chart-check);
+}
+
+.lineB {
+  stroke: var(--chart-call);
+}
+
+/* ------------------------------------------------------------ the filters */
+
+.filters {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.filters p {
+  margin: 0;
+}
+
+.filterTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.segment {
+  padding: 2px var(--space-3);
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.segment[aria-pressed="true"] {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-pill);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+  font: inherit;
+  font-size: var(--font-size-xs, 0.75rem);
+  cursor: pointer;
+}
+
+.chipOut {
+  border-color: var(--danger-fg);
+  background: transparent;
+  color: var(--danger-fg);
+}
+
+.suitRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.suitGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.suitToggle {
+  min-inline-size: 1.9rem;
+  padding: 2px var(--space-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.suitToggle[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+}
+
+.suitTextH {
+  color: var(--danger-fg);
+}
+
+.suitTextD {
+  color: var(--info-fg);
+}
+
+.suitTextC {
+  color: var(--success-fg);
+}
+
+.filterGroups {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.filterGroup {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.filterHead {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.filterRows {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filterRow {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.filterPick {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(6.5rem, 9rem) 3.2rem minmax(4rem, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.filterPick:hover {
+  background: var(--surface-hover);
+}
+
+.filterPick:focus-visible,
+.filterAbove:focus-visible,
+.suitToggle:focus-visible,
+.segment:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.filterOn {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+}
+
+.filterOff {
+  border-color: var(--danger-fg);
+  text-decoration: line-through;
+}
+
+/* Picked in the other list (include while excluding, or the reverse). */
+.filterOther {
+  opacity: 0.6;
+}
+
+.filterName {
+  white-space: nowrap;
+}
+
+.filterBar {
+  display: flex;
+  block-size: 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.filterBar > span {
+  display: block;
+  block-size: 100%;
+}
+
+.filterAbove {
+  padding: 0 var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.filterAbove:hover {
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}

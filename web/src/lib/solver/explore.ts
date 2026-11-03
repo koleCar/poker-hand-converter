@@ -134,8 +134,12 @@ function actionsOf(chunk: FlopChunk, index: number): ExploreAction[] {
   });
 }
 
-/** The node's actions, the actor's 169 classes and the range's totals. */
-export function exploreNode(chunk: FlopChunk, index: number): ExploreNode {
+/**
+ * The node's actions, the actor's 169 classes and the range's totals.
+ * `include` (per actor hand, the solve's order) keeps only the hands a filter
+ * lets through (`ranges.ts`): the rest count as outside the range.
+ */
+export function exploreNode(chunk: FlopChunk, index: number, include?: ArrayLike<number>): ExploreNode {
   const { result, header } = chunk;
   const node = actionNode(chunk, index);
   const player = node.player as 0 | 1;
@@ -156,6 +160,7 @@ export function exploreNode(chunk: FlopChunk, index: number): ExploreNode {
   let all = 0;
   let value = 0;
   for (let i = 0; i < size; i += 1) {
+    if (include && !include[i]) continue;
     const k = classOfCombo(hands[i]);
     const r = reach[i];
     combos[k] += 1;
@@ -206,8 +211,8 @@ export function exploreNode(chunk: FlopChunk, index: number): ExploreNode {
   };
 }
 
-/** One class's combos at the node, most reaching first. */
-export function classCombos(chunk: FlopChunk, index: number, classIndex: number): ExploreCombo[] {
+/** One class's combos at the node, most reaching first (those `include` lets through, as in `exploreNode`). */
+export function classCombos(chunk: FlopChunk, index: number, classIndex: number, include?: ArrayLike<number>): ExploreCombo[] {
   const { result } = chunk;
   const node = actionNode(chunk, index);
   const player = node.player as 0 | 1;
@@ -218,7 +223,7 @@ export function classCombos(chunk: FlopChunk, index: number, classIndex: number)
   const out: ExploreCombo[] = [];
   for (let i = 0; i < size; i += 1) {
     const combo = hands[i];
-    if (classOfCombo(combo) !== classIndex) continue;
+    if (classOfCombo(combo) !== classIndex || (include && !include[i])) continue;
     const freq: number[] = [];
     const ev: number[] = [];
     let value = 0;

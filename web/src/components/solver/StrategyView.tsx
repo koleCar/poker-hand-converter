@@ -86,15 +86,36 @@ export function actionColours(actions: ReadonlyArray<{ kind: string; amount: num
   });
 }
 
-export function StrategyView({ model, overview }: { model: StrategyModel; overview: ReactNode }) {
+interface StrategyViewProps {
+  model: StrategyModel;
+  overview: ReactNode;
+  /** Above the grid: the tabs of a flop decision. */
+  toolbar?: ReactNode;
+  /** In the grid's place: another tab's view (the Ranges tab). */
+  main?: ReactNode;
+  /** The hand filters: the panel's last block then switches between the hand and them. */
+  filters?: ReactNode;
+}
+
+export function StrategyView({ model, overview, toolbar, main, filters }: StrategyViewProps) {
+  // Kept across decisions: the panel stays on the filters while the line is walked.
+  const [panelTab, setPanelTab] = useState<"hand" | "filters">("hand");
   return (
-    <div className={styles.strategy}>
-      <Grid key={model.id} model={model} overview={overview} />
+    <div className={`${styles.strategy} ${main ? styles.strategyWide : ""}`}>
+      <Grid key={model.id} model={model} overview={overview} toolbar={toolbar} main={main} filters={filters} panelTab={panelTab} onPanelTab={setPanelTab} />
     </div>
   );
 }
 
-function Grid({ model, overview }: { model: StrategyModel; overview: ReactNode }) {
+function Grid({
+  model,
+  overview,
+  toolbar,
+  main,
+  filters,
+  panelTab,
+  onPanelTab,
+}: StrategyViewProps & { panelTab: "hand" | "filters"; onPanelTab: (tab: "hand" | "filters") => void }) {
   const t = useDict().solver;
   const [focusIndex, setFocusIndex] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -125,9 +146,13 @@ function Grid({ model, overview }: { model: StrategyModel; overview: ReactNode }
     buttons.current[next]?.focus();
   };
 
+  const showFilters = Boolean(filters) && panelTab === "filters";
+
   return (
     <>
       <div className={styles.gridWrap}>
+        {toolbar}
+        {main ?? (
         <div className={styles.grid} role="grid" aria-label={t.gridLabel(model.actor)}>
           {Array.from({ length: 13 }, (_, row) => (
             <div key={row} role="row" className={styles.gridRow}>
@@ -177,6 +202,7 @@ function Grid({ model, overview }: { model: StrategyModel; overview: ReactNode }
             </div>
           ))}
         </div>
+        )}
       </div>
 
       <aside className={styles.panel}>
@@ -210,6 +236,28 @@ function Grid({ model, overview }: { model: StrategyModel; overview: ReactNode }
           </div>
         </section>
 
+        {filters ? (
+          <div className={styles.panelTabs} role="tablist" aria-label={t.filters.title}>
+            {(["hand", "filters"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={panelTab === tab}
+                className={styles.panelTab}
+                onClick={() => onPanelTab(tab)}
+              >
+                {tab === "hand" ? t.filters.hand : t.filters.title}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        {showFilters ? (
+          <section className={styles.panelBlock} aria-label={t.filters.title}>
+            {filters}
+          </section>
+        ) : (
         <section className={`${styles.panelBlock} ${styles.handBlock}`} aria-live="polite" aria-label={t.panel.hand}>
           {detail ? (
             <>
@@ -267,6 +315,7 @@ function Grid({ model, overview }: { model: StrategyModel; overview: ReactNode }
           )}
           <p className={analysis.muted}>{model.note}</p>
         </section>
+        )}
       </aside>
     </>
   );
