@@ -24,7 +24,9 @@ interface PageProps {
 const SET_RE = /^nlhe-cash-(hu|\d{1,2}max)-\d{1,3}bb$/;
 const LINE_RE = /^[fkcra]{1,24}$/;
 const FLOP_RE = /^([2-9TJQKA][cdhs]){3}$/;
-const NODE_RE = /^\d{1,4}$/;
+const NODE_RE = /^\d{1,5}$/;
+/** A full solve's turn file (`X-B1.82-C~Kd`), local only. */
+const TURN_RE = /^[A-Za-z0-9._-]{1,60}~[2-9TJQKA][cdhs]$/;
 
 export async function generateMetadata(): Promise<Metadata> {
   const en = await getDict();
@@ -55,6 +57,7 @@ export default async function SolverPage({ searchParams }: PageProps) {
           initialLine={valid(first(query.line), LINE_RE)}
           initialFlop={valid(first(query.flop), FLOP_RE)}
           initialNode={node ? Number(node) : null}
+          initialTurn={valid(first(query.turn), TURN_RE)}
         />
       </div>
     </ServerFrame>

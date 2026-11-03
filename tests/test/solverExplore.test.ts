@@ -13,11 +13,13 @@ import { describe, expect, it } from "vitest";
 import { FLOP_PROFILE } from "../../web/src/lib/analysis/index.js";
 import {
   classCombos,
+  dealtCards,
   decodeChunk,
   ExploreError,
   exploreHistory,
   exploreNode,
   NUM_CLASSES,
+  solveTurn,
   type FlopChunk,
   type FlopManifest,
 } from "../../web/src/lib/solver/index.js";
@@ -112,5 +114,49 @@ describe.runIf(PRESENT)("exploring the pilot's chunks", () => {
     expect(chance).toBeGreaterThan(0);
     expect(() => exploreNode(chunk, chance)).toThrow(ExploreError);
     expect(() => exploreNode(chunk, chunk.result.nodes.length)).toThrow(ExploreError);
+  });
+});
+
+describe("exploring a solve that deals a street (a full solve's turn file)", () => {
+  // A small turn solve: its rivers are deals inside the result, as in `floplib:full`'s turn files.
+  const result = solveTurn(
+    {
+      board: ["Qs", "Jh", "7s", "4h"],
+      ranges: ["QQ,77,AQs,KQs,QJs,JTs,98s,A5s,65s,KJo", "KK,JJ,44,AQo,KJs,T9s,86s,AK,A4s"],
+      pot: 10,
+      stack: 30,
+      menus: [
+        { bet: [0.75], raise: [], allIn: true },
+        { bet: [0.75], raise: [], allIn: true },
+      ],
+      raiseCap: 1,
+    },
+    { maxIterations: 20, targetExploitability: 0 },
+  );
+  const chunk = { header: { players: ["BB", "BTN"] }, result } as unknown as FlopChunk;
+
+  it("points an action that ends the turn at the deal, and the deal at each river's first decision", () => {
+    const checkBack = exploreNode(chunk, exploreNode(chunk, 0).actions.find((a) => a.kind === "check")!.child)
+      .actions.find((a) => a.kind === "check")!;
+    expect(checkBack.child).toBe(-1);
+    expect(checkBack.ends).toBe("street");
+    expect(result.nodes[checkBack.deal].kind).toBe("chance");
+    const rivers = dealtCards(chunk, checkBack.deal);
+    expect(rivers.length).toBeGreaterThan(0);
+    for (const river of rivers) {
+      expect(result.nodes[river.node].street).toBe("river");
+      expect(river.card).not.toMatch(/^(Qs|Jh|7s|4h)$/);
+    }
+    expect(() => dealtCards(chunk, 0)).toThrow(ExploreError);
+  });
+
+  it("walks the history back over the river's deal, naming the card", () => {
+    const deal = exploreNode(chunk, exploreNode(chunk, 0).actions.find((a) => a.kind === "check")!.child)
+      .actions.find((a) => a.kind === "check")!.deal;
+    const river = dealtCards(chunk, deal)[0];
+    const history = exploreHistory(chunk, river.node);
+    expect(history.map((s) => s.action.kind)).toEqual(["check", "check"]);
+    expect(history[1].card).toBe(river.card);
+    expect(history[0].card).toBeUndefined();
   });
 });

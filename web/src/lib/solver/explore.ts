@@ -45,6 +45,8 @@ export interface ExploreAction {
   child: number;
   /** Why there is no next decision: the hand is over, or the flop's betting is (the turn is not stored). */
   ends: "fold" | "street" | null;
+  /** The chance node dealing the next street's card, or -1 (a full solve's turn file holds its rivers: `dealtCards`). */
+  deal: number;
 }
 
 export interface ExploreClass {
@@ -98,6 +100,8 @@ export interface ExploreStep {
   node: number;
   position: string;
   action: ExploreAction;
+  /** The card dealt right after this action, when it ended a street of the solve. */
+  card?: string;
 }
 
 /** Thrown for a node index that is not a decision of the chunk. */
@@ -116,6 +120,7 @@ function actionsOf(chunk: FlopChunk, index: number): ExploreAction[] {
     const to = node.children[a];
     const next = to >= 0 ? nodes[to] : null;
     const child = next && next.kind === "action" ? to : -1;
+    const deal = next && next.kind === "chance" ? to : -1;
     return {
       kind: action.kind,
       label: node.labels[a],
@@ -124,6 +129,7 @@ function actionsOf(chunk: FlopChunk, index: number): ExploreAction[] {
       frequency: node.frequency[a] ?? 0,
       child,
       ends: child >= 0 ? null : action.kind === "fold" ? "fold" : "street",
+      deal,
     };
   });
 }
@@ -234,11 +240,31 @@ export function exploreHistory(chunk: FlopChunk, index: number): ExploreStep[] {
   actionNode(chunk, index);
   const steps: ExploreStep[] = [];
   for (let at = index; nodes[at].parent >= 0; at = nodes[at].parent) {
-    const parent = nodes[at].parent;
+    let parent = nodes[at].parent;
+    let card: string | undefined;
+    // A deal (the river in a full solve's turn file) sits between two decisions.
+    if (nodes[parent].kind === "chance") {
+      card = nodes[parent].labels[nodes[at].parentEdge];
+      at = parent;
+      parent = nodes[at].parent;
+      if (parent < 0) break;
+    }
     const node = actionNode(chunk, parent);
-    steps.push({ node: parent, position: chunk.header.players[node.player], action: actionsOf(chunk, parent)[nodes[at].parentEdge] });
+    const step: ExploreStep = { node: parent, position: chunk.header.players[node.player], action: actionsOf(chunk, parent)[nodes[at].parentEdge] };
+    if (card) step.card = card;
+    steps.push(step);
   }
   return steps.reverse();
+}
+
+/** The cards a chance node deals and the decision each leads to (-1: none, e.g. all-in). */
+export function dealtCards(chunk: FlopChunk, chance: number): Array<{ card: string; node: number }> {
+  const node = chunk.result.nodes[chance];
+  if (!node || node.kind !== "chance") throw new ExploreError(`node ${chance} is not a deal`);
+  return node.labels.map((card, e) => {
+    const to = node.children[e];
+    return { card, node: to >= 0 && chunk.result.nodes[to].kind === "action" ? to : -1 };
+  });
 }
 
 export interface PickedFlop {

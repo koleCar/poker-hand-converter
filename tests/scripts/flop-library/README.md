@@ -53,6 +53,21 @@ nlhe-cash-hu-100bb`); the analysis already maps a heads-up hand to its line
 (`chunkFor`). The 100bb set is uploaded and live since `analysis/36`, the
 150bb set since `analysis/37`.
 
+**A full solve of one job (flop, turn and river kept).** The library keeps
+only the flop. `npm run floplib:full -- --line btn-bb --flop 7s5s3h` (options
+`--set`, `--target` % pot, default 0.3, `--max-iterations`, `--out`, default
+`~/Projects/rail-fullsolve-out`)
+solves the same job on the same tree and writes the flop as a chunk plus one
+solve blob per flop line and turn card (the turn with its rivers) and a
+`manifest.json` (`full.ts`). Local only, a few hundred MB per flop: in
+development `/solver` reads it from `web/public/full-solve` (a git-ignored
+link to the out directory, or `NEXT_PUBLIC_FULL_SOLVE_BASE`) and then deals
+the turn and the river (`components/solver/fullSolve.ts`).
+
+```bash
+ln -s ~/Projects/rail-fullsolve-out web/public/full-solve
+```
+
 **Resumable.** Each solve runs in its own process and writes its chunk and a
 stats file (`<flop>.json`: iterations, exploitability, time, memory)
 atomically when it finishes. A job whose chunk exists is done; Ctrl-C kills

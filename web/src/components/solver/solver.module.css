@@ -686,3 +686,30 @@
 .solvedFlop:hover {
   border-color: var(--border-hover);
 }
+
+.dealRow {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.dealCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.dealCard {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-1);
+}
+
+.dealCard:hover,
+.dealCard:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+}

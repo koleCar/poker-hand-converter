@@ -167,6 +167,7 @@ export {
 export {
   classCombos,
   ExploreError,
+  dealtCards,
   exploreHistory,
   exploreNode,
   pickedFlop,

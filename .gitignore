@@ -46,3 +46,6 @@ pnpm-debug.log*
 # The HUD sidecar copied in for a bundle (`npm run hud:sidecar`, R3.2):
 # rail-hud-<target triple>, built from hud/rail-hud.
 /app/src-tauri/binaries/
+
+# A local full solve (npm run floplib:full), linked for /solver in development
+web/public/full-solve
