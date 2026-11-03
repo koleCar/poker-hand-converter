@@ -80,9 +80,9 @@ describe("Croatian counts", () => {
   });
 
   it("agree the verb with the count", () => {
-    expect(hr.sync.today.waiting(1)).toBe("1 ruka čeka sinkronizaciju.");
-    expect(hr.sync.today.waiting(3)).toBe("3 ruke čekaju sinkronizaciju.");
-    expect(hr.sync.today.waiting(12)).toBe("12 ruku čeka sinkronizaciju.");
+    expect(hr.sync.offline(1)).toBe("Izvan mreže. 1 ruka čeka; Rail je sam šalje kad se veza vrati.");
+    expect(hr.sync.offline(3)).toBe("Izvan mreže. 3 ruke čekaju; Rail ih sam šalje kad se veza vrati.");
+    expect(hr.sync.offline(12)).toBe("Izvan mreže. 12 ruku čeka; Rail ih sam šalje kad se veza vrati.");
     expect(hr.firstRun.folders.found(1)).toBe("Rail je na ovom računalu pronašao 1 mapu.");
     expect(hr.firstRun.folders.found(2)).toBe("Rail je na ovom računalu pronašao 2 mape.");
     expect(hr.refused.total(5)).toBe("Odbijeno je 5 ruku.");
@@ -90,7 +90,7 @@ describe("Croatian counts", () => {
 
   it("and English says one hand, not one hands", () => {
     expect([1, 2, 1204].map(en.hands.count)).toEqual(["1 hand", "2 hands", "1,204 hands"]);
-    expect(en.sync.today.waiting(1)).toBe("1 hand waits to sync.");
+    expect(en.sync.offline(1)).toBe("Offline. 1 hand waits; Rail sends it by itself when the connection is back.");
     expect(en.players.count(1)).toBe("1 opponent");
     expect(en.palette.results(1)).toBe("1 result");
   });

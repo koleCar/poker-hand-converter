@@ -62,6 +62,10 @@ export const hr: Dict = {
     settings: "Postavke",
     search: "Traži…",
     searchLabel: "Traži ili pokreni naredbu",
+    account: "Račun",
+    signIn: "Prijava",
+    signingIn: "Prijava u tijeku…",
+    offline: "izvan mreže",
   },
 
   placeholder: "Još nije napravljeno.",
@@ -112,7 +116,6 @@ export const hr: Dict = {
     unsupported: "Nepodržani formati",
     outbox: "Čeka sinkronizaciju",
     storeFile: "Spremljeno u",
-    account: "Postavke računa",
     session: {
       current: "Trenutna sesija",
       last: "Zadnja sesija",
@@ -357,17 +360,6 @@ export const hr: Dict = {
       normal: "1 MB/s (zadano)",
       fast: "4 MB/s",
       none: "Bez ograničenja",
-    },
-    today: {
-      upToDate: "Sinkronizirano s webom.",
-      syncing: (sent, total) => `Sinkronizacija s webom: ${n(sent)} od ${odRuku(total)}.`,
-      waiting: (count) => `${cap(ruku(count))} ${plural(count, "čeka", "čekaju", "čeka")} sinkronizaciju.`,
-      offline: "Izvan mreže: ruke se sinkroniziraju kad se veza vrati.",
-      paused: "Sinkronizacija je pauzirana.",
-      question: "Sinkronizacija čeka tvoj odgovor.",
-      problem: "Sinkronizacija ima problem.",
-      plan: "Sinkronizacija traži Rail Pro.",
-      details: "Postavke sinkronizacije",
     },
     failedAction: (reason) => `Nije uspjelo: ${reason}`,
     planRequired: (waiting) =>
@@ -1114,18 +1106,6 @@ export const hr: Dict = {
         "Rail je u popisu već uključen, a ova poruka ne nestaje? Ukloni Rail iz popisa gumbom minus i ponovno ga uključi: macOS može čuvati dopuštenje za stariju kopiju Raila.",
       granted: "Dopuštenje Pristupačnost je dano: HUD vidi tvoje stolove.",
       noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent.",
-    },
-    today: {
-      off: "HUD: nije pokrenut",
-      starting: "HUD: pokreće se…",
-      locked: "HUD: traži Rail Pro",
-      none: "HUD: nema otvorenog stola",
-      permission: "HUD: treba dopuštenje Pristupačnost",
-      noClient: "HUD na macOS-u: nije pokrenut nijedan podržani poker klijent",
-      tables: (count) => `HUD: na ${n(count)} ${plural(count, "stolu", "stola", "stolova")}`,
-      refused: (count, rooms) =>
-        `bez njega: ${n(count)} ${plural(count, "stol", "stola", "stolova")} (${rooms}: nije dopušteno)`,
-      details: "Detalji HUD-a",
     },
   },
 

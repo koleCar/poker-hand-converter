@@ -46,6 +46,10 @@ export const en = {
     settings: "Settings",
     search: "Search…",
     searchLabel: "Search or run a command",
+    account: "Account",
+    signIn: "Sign in",
+    signingIn: "Signing in…",
+    offline: "offline",
   },
 
   placeholder: "Not built yet.",
@@ -97,7 +101,6 @@ export const en = {
     unsupported: "Unsupported formats",
     outbox: "Waiting to sync",
     storeFile: "Stored in",
-    account: "Account settings",
     session: {
       current: "Current session",
       last: "Last session",
@@ -348,18 +351,6 @@ export const en = {
       normal: "1 MB/s (default)",
       fast: "4 MB/s",
       none: "No limit",
-    },
-    today: {
-      upToDate: "Synced with the web.",
-      syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${hands(total)} with the web.`,
-      waiting: (count: number) => `${hands(count)} ${count === 1 ? "waits" : "wait"} to sync.`,
-      offline: "Offline: hands sync when the connection is back.",
-      paused: "Sync is paused.",
-      question: "Sync waits for your answer.",
-      problem: "Sync has a problem.",
-      /** (R6.4) */
-      plan: "Sync needs Rail Pro.",
-      details: "Sync settings",
     },
     failedAction: (reason: string) => `That did not work: ${reason}`,
     /** (R6.4) The account's plan does not include desktop sync. */
@@ -1127,18 +1118,6 @@ export const en = {
         "Rail is already switched on in the list and this does not go away? Remove Rail from the list with the minus button and switch it on again: macOS can keep the permission for an older copy of Rail.",
       granted: "Accessibility permission granted: the HUD can see your tables.",
       noClient: "HUD on macOS: no supported poker client running.",
-    },
-    today: {
-      off: "HUD: not running",
-      starting: "HUD: starting…",
-      locked: "HUD: needs Rail Pro",
-      none: "HUD: no table open",
-      permission: "HUD: needs the Accessibility permission",
-      noClient: "HUD on macOS: no supported poker client running",
-      tables: (count: number) => (count === 1 ? "HUD: on 1 table" : `HUD: on ${n(count)} tables`),
-      refused: (count: number, rooms: string) =>
-        `${count === 1 ? "1 table" : `${n(count)} tables`} without it (${rooms}: not allowed)`,
-      details: "HUD details",
     },
   },
 

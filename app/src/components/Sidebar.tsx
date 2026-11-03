@@ -1,10 +1,12 @@
 import { useT } from "../i18n";
 import { offeredScreens } from "../lib/duringPlay";
 import { SCREENS, screenHref, type Screen } from "../lib/router";
+import { useAccount } from "../lib/useAccount";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
 
-/** The screens; (A10, R3.10) while a poker table is open, without those that help with play. */
+/** The screens; (A10, R3.10) while a poker table is open, without those that
+ * help with play. At the foot, who is signed in (R1.7). */
 export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: boolean }) {
   const t = useT();
   return (
@@ -35,6 +37,39 @@ export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: 
           </li>
         ))}
       </ul>
+      <AccountFoot />
     </nav>
+  );
+}
+
+/** A profile icon with the signed-in email (or a sign-in prompt), a click
+ * away from the account in Settings; nothing when this build has no account
+ * service. */
+function AccountFoot() {
+  const t = useT();
+  const { account } = useAccount();
+  if (!account || account.state === "notConfigured") {
+    return null;
+  }
+  const signedIn = account.state === "signedIn";
+  const text = signedIn ? account.email : account.state === "signingIn" ? t.nav.signingIn : t.nav.signIn;
+  const title = signedIn
+    ? account.online
+      ? t.account.signedInAs(account.email)
+      : `${t.account.signedInAs(account.email)} · ${t.nav.offline}`
+    : account.state === "signingIn"
+      ? t.account.signingInShort
+      : t.account.notSignedIn;
+  return (
+    <a className={styles.account} href={screenHref("settings")} title={title} aria-label={`${t.nav.account}: ${title}`}>
+      <span className={signedIn ? `${styles.avatar} ${styles.avatarOn}` : styles.avatar} aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </svg>
+        {signedIn && !account.online && <span className={styles.offline} />}
+      </span>
+      <span className={styles.email}>{text}</span>
+    </a>
   );
 }
