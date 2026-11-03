@@ -166,8 +166,7 @@ async function capture(base, out) {
 
   // Two of the replayer's sheets. Waited for as open dialogs, not as visible
   // boxes, and tried up to three times (R2.8: under load a sheet sometimes
-  // missed its first wait on either build; the end's result sheet may not
-  // open at all - closed when it did).
+  // missed its first wait on either build).
   for (let attempt = 1; attempt <= 3; attempt++) {
     const { context, page } = await open(1280, 900, "dark");
     const sheet = page.locator("dialog.ov[open]").first();
@@ -176,14 +175,6 @@ async function capture(base, out) {
       await page.getByRole("button", { name: /^Replay$/ }).first().click();
       await page.locator(".rp").first().waitFor({ timeout: 60000 });
       await page.getByRole("button", { name: "Jump to end" }).first().click();
-      const resultSheet = await sheet
-        .waitFor({ state: "attached", timeout: 5000 })
-        .then(() => true)
-        .catch(() => false);
-      if (resultSheet) {
-        await page.keyboard.press("Escape");
-        await sheet.waitFor({ state: "detached" });
-      }
       await page.getByRole("button", { name: "Hand info" }).first().click();
       await sheet.waitFor({ state: "attached" });
       await shot(page, "dark-replayer-info-sheet", false);

@@ -155,7 +155,6 @@ export const replayerHr: ReplayerStrings = {
     speed: "Brzina reprodukcije",
     speedCycle: (speed) => `Brzina reprodukcije ${speed}×. Aktiviraj za sljedeću brzinu.`,
     speedOption: (speed) => `Brzina ${speed}×`,
-    result: "Rezultat",
     log: "Popis akcija",
     logTitle: "Popis akcija (L)",
     logShort: "Akcije",
@@ -261,30 +260,13 @@ export const replayerHr: ReplayerStrings = {
     btnAnte: (ante) => `BTN ante ${ante}`,
     buttonBlind: (amount) => `Button blind ${amount}`,
     ante: (ante) => `Ante ${ante}`,
+    headerAnte: (ante) => `ante ${ante}`,
     straddle: (amount) => `Straddle ${amount}`,
     straddles: (count, amounts) =>
       `${num(count)} ${plural(count, "straddle", "straddlea", "straddleova")} ${amounts}`,
     tableShape: (max) => `${max}-max`,
     tableShapeDealt: (max, dealtIn) =>
       `${max}-max · ${num(dealtIn)} ${plural(dealtIn, "igrač", "igrača", "igrača")} u ruci`,
-  },
-
-  showdown: {
-    showdownTitle: "Showdown",
-    resultTitle: "Rezultat",
-    pot: (amount) => `Pot ${amount}`,
-    split: " · podijeljeni pot",
-    cashedOut: (risk) => `cash out · rizik ${risk}`,
-    mucked: "muck",
-    folded: "fold",
-    feeLabels: {
-      rake: "rake",
-      jackpot: "jackpot",
-      bingo: "bingo",
-      fortune: "fortune",
-      tax: "porez",
-      other: "ostalo",
-    },
   },
 
   table: {

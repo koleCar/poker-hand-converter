@@ -72,7 +72,6 @@ export interface ReplayerStrings {
     speed: string;
     speedCycle: (speed: string) => string;
     speedOption: (speed: string) => string;
-    result: string;
     log: string;
     logTitle: string;
     logShort: string;
@@ -172,27 +171,12 @@ export interface ReplayerStrings {
     btnAnte: (ante: string) => string;
     buttonBlind: (amount: string) => string;
     ante: (ante: string) => string;
+    /** The ante beside the stakes in the header: `$1/$2 ante $0.36`. */
+    headerAnte: (ante: string) => string;
     straddle: (amount: string) => string;
     straddles: (count: number, amounts: string) => string;
     tableShape: (max: number) => string;
     tableShapeDealt: (max: number, dealtIn: number) => string;
-  };
-  showdown: {
-    showdownTitle: string;
-    resultTitle: string;
-    pot: (amount: string) => string;
-    split: string;
-    cashedOut: (risk: string) => string;
-    mucked: string;
-    folded: string;
-    feeLabels: {
-      rake: string;
-      jackpot: string;
-      bingo: string;
-      fortune: string;
-      tax: string;
-      other: string;
-    };
   };
   table: {
     logo: string;
