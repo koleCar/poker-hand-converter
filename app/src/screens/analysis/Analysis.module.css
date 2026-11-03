@@ -194,6 +194,13 @@
   max-width: 64rem;
 }
 
+/* The loaded list under the head, dimmed while another period loads. */
+.leaksBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
 .leaksHead {
   display: flex;
   flex-wrap: wrap;

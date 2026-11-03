@@ -25,6 +25,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { countIn } from "../hands/format";
 import type { FacetCount, PlayerRef } from "../hands/model";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
 import type { Definition } from "../reports/model";
 import {
   PLAYER_COLOURS,
@@ -111,6 +112,9 @@ export function PlayersScreen({
   const [limit, setLimit] = useState(PAGE);
   const [defaultKind, setDefaultKind] = useState<GameKind | null>(null);
   const [list, setList] = useState<PlayerList | null>(null);
+  // The query (without its length) the list shown answers: a new one dims it
+  // while it loads and lets its rows arrive again; "show more" and arrivals do neither.
+  const [listKey, setListKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sites, setSites] = useState<PlayerSite[]>([]);
@@ -172,6 +176,7 @@ export function PlayersScreen({
     [debounced, query.site, kind, query.colours, query.labels, query.noted, limit, hasColours, hasLabels],
   );
   const askKey = JSON.stringify(ask);
+  const shapeKey = JSON.stringify({ ...ask, limit: 0 });
 
   useEffect(() => {
     let current = true;
@@ -188,6 +193,7 @@ export function PlayersScreen({
           return;
         }
         setList(value);
+        setListKey(JSON.stringify({ ...asked, limit: 0 }));
         setError(null);
       })
       .catch((reason: unknown) => {
@@ -218,6 +224,8 @@ export function PlayersScreen({
     countLine = filtered ? p.countOf(list.matching, list.players) : p.count(list.players);
   }
 
+  const refetching = loading && list !== null && list.rows.length > 0 && listKey !== shapeKey;
+
   let body;
   if (error !== null && list === null) {
     body = renderState("error", p.storeError(error));
@@ -231,6 +239,7 @@ export function PlayersScreen({
         selected={selected}
         showColours={hasColours}
         densityKey={densityKey}
+        enterKey={listKey}
         onSelect={(row) => onSelect({ site: row.site, player: row.player })}
         onOpen={() =>
           // Enter on a row: into the profile (rendered by then, or on the next frame).
@@ -252,6 +261,7 @@ export function PlayersScreen({
             {countLine}
           </span>
         ) : null}
+        {refetching ? <RailLoader size="inline" label={p.loading} /> : null}
       </header>
 
       <div className={styles.toolbar} role="toolbar" aria-label={f.label}>
@@ -359,7 +369,9 @@ export function PlayersScreen({
       {notice}
 
       <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>
-        <div className={styles.list}>{body}</div>
+        <div className={`${styles.list} rail-dims`} aria-busy={refetching}>
+          {body}
+        </div>
         {selected !== null ? (
           <div className={styles.panel} ref={panelRef}>
             <PlayerProfile

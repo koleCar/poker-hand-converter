@@ -22,6 +22,7 @@ import { CardRow } from "../cards/PlayingCard";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
 import { errorText } from "../hands/model";
 import { useUiStrings } from "../i18n";
+import { RailLoader } from "../loader/RailLoader";
 import { dateFormat, numberFormat } from "../stats/format";
 import {
   shippedChartDeviations,
@@ -286,8 +287,8 @@ export function SessionReviewView({
   const missing = Math.max(0, review.coverage.hands - review.coverage.analysed);
 
   return (
-    <div className={`${styles.body}${stale ? ` ${styles.stale}` : ""}`}>
-      <Picker review={review} sessions={sessions} query={query} onQuery={onQuery} />
+    <div className={`${styles.body} rail-dims`} aria-busy={stale}>
+      <Picker review={review} sessions={sessions} query={query} onQuery={onQuery} stale={stale} />
       {filtered ? <FilterLine query={query} onQuery={onQuery} /> : null}
 
       {review.ongoing ? (
@@ -358,11 +359,14 @@ function Picker({
   sessions,
   query,
   onQuery,
+  stale,
 }: {
   review: SessionReview;
   sessions: readonly SessionListItem[] | null;
   query: SessionQuery;
   onQuery: (query: SessionQuery) => void;
+  /** The session asked for is on its way. */
+  stale: boolean;
 }) {
   const ui = useUiStrings();
   const r = ui.review;
@@ -417,6 +421,7 @@ function Picker({
         </button>
       </div>
       <p className={styles.muted}>{r.picker.gap(review.gapMinutes)}</p>
+      {stale ? <RailLoader size="inline" label={r.loading} /> : null}
     </div>
   );
 }
@@ -439,7 +444,7 @@ function Summary({ review }: { review: SessionReview }) {
 
   return (
     <section className={styles.summary} aria-label={r.summary.label}>
-      <dl className={styles.tiles}>
+      <dl className={`${styles.tiles} rail-stagger`}>
         <div className={`${styles.tile} ${styles.tileWide}`}>
           <dt>{r.summary.when}</dt>
           <dd className={styles.when}>
@@ -529,7 +534,7 @@ function ListSection({
       </div>
       {empty !== null ? <p className={styles.muted}>{empty}</p> : null}
       {section.items.length > 0 ? (
-        <ol className={styles.list}>
+        <ol className={`${styles.list} rail-stagger`}>
           {section.items.map((item) => (
             <li key={item.handId}>
               <Row item={item} own={own !== null} dayTime={dayTime} renderHandLink={renderHandLink} />

@@ -66,6 +66,8 @@ export function PlayerProfile({
   const players = useUiStrings().players;
   const t = players.profile;
   const [profile, setProfile] = useState<Profile | null>(null);
+  // The game kind the profile shown is for: another one dims it while it loads.
+  const [profileKind, setProfileKind] = useState<GameKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const headingId = useId();
   // The profile's own game kind (R2.8): the list's until the reader picks
@@ -80,6 +82,7 @@ export function PlayerProfile({
       .then((value) => {
         if (!current) return;
         setProfile(value);
+        setProfileKind(shownKind);
         setError(null);
       })
       .catch((reason: unknown) => {
@@ -124,14 +127,16 @@ export function PlayerProfile({
           : profile.seen === null
             ? renderState("empty", t.notOpponent, true)
             : (
-              <ProfileBody
-                source={source}
-                profile={profile}
-                definitions={definitions}
-                notesFootnote={notesFootnote}
-                onHandsWith={onHandsWith}
-                onNotes={onNotes}
-              />
+              <div className={`${styles.profileBody} rail-dims`} aria-busy={profileKind !== shownKind}>
+                <ProfileBody
+                  source={source}
+                  profile={profile}
+                  definitions={definitions}
+                  notesFootnote={notesFootnote}
+                  onHandsWith={onHandsWith}
+                  onNotes={onNotes}
+                />
+              </div>
             )}
     </section>
   );
@@ -175,7 +180,7 @@ export function ProfileBody({
 
   return (
     <>
-      <dl className={styles.facts}>
+      <dl className={`${styles.facts} rail-stagger`}>
         <div className={styles.fact}>
           <dt>{t.together}</dt>
           <dd>

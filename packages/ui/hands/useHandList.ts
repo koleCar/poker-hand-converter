@@ -28,6 +28,8 @@ export interface HandList {
   loadingMore: boolean;
   error: string | null;
   facets: HandFacets | null;
+  /** The filter whose first page `rows` are (a reload of it keeps the value): the list's enter key. */
+  rowsKey: string | null;
   loadMore: () => void;
   /** Read the first page and the counts again (the surface knows the hands changed). */
   reload: () => void;
@@ -50,6 +52,7 @@ export function useHandList(source: HandsSource, query: HandFilter): HandList {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [facets, setFacets] = useState<HandFacets | null>(null);
+  const [rowsKey, setRowsKey] = useState<string | null>(null);
   // Which query the state belongs to: an answer for an older one is dropped.
   const generation = useRef(0);
   const queryKey = JSON.stringify(query);
@@ -67,6 +70,7 @@ export function useHandList(source: HandsSource, query: HandFilter): HandList {
         if (generation.current !== mine) return;
         setRows(page.rows);
         setNext(page.next);
+        setRowsKey(queryKey);
         setError(null);
       })
       .catch((reason: unknown) => {
@@ -167,5 +171,5 @@ export function useHandList(source: HandsSource, query: HandFilter): HandList {
     setRows((current) => current.map((row) => (row.handKey === handKey ? { ...row, ...change } : row)));
   }, []);
 
-  return { rows, hasMore: next !== null, loading, loadingMore, error, facets, loadMore, reload, updateRow };
+  return { rows, hasMore: next !== null, loading, loadingMore, error, facets, rowsKey, loadMore, reload, updateRow };
 }
