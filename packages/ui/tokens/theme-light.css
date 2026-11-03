@@ -143,6 +143,10 @@
 
     --profit-fg: var(--st-success-700);
     --loss-fg: var(--st-danger-700);
+    /* --st-warning-700 is brown, not yellow, and the -500 is 1.93:1 on white.
+       A goldenrod between them still reads yellow at 3.25:1, over the 3:1 a
+       graphic needs. */
+    --ev-fg: #b8860b;
 
     /* ----------------------------------------------------------- status
        Same hues, read from the other end of each ramp: the tint becomes the

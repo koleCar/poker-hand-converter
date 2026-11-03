@@ -227,14 +227,14 @@ export function TrendChart({ name, hint, points, format, formatTick = format, fr
           {bandPath ? <path className={styles.band} d={bandPath} /> : null}
 
           {segments.map((segment, index) => (
-            <polyline key={`s${index}`} className="stats-chart__line stats-chart__line--total" points={segment} />
+            <polyline key={`s${index}`} className="stats-chart__line stats-chart__line--metric" points={segment} />
           ))}
 
           {points.map((entry, index) =>
             entry.value === null ? null : (
               <circle
                 key={`p${entry.key}`}
-                className={entry.thin ? styles.thinDot : "stats-chart__dot stats-chart__dot--total"}
+                className={entry.thin ? styles.thinDot : "stats-chart__dot stats-chart__dot--metric"}
                 cx={xAt(index)}
                 cy={yAt(entry.value)}
                 r={active === index ? 5 : 3.5}

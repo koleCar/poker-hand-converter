@@ -151,6 +151,25 @@ Enforced by `eslint.config.js`, `stylelint.config.js` and `tsc`; reasons in
    package is a move of `@import` lines, never a reordering. Never use
    `@import "…" layer(tokens)`: the Next build turns it into an invalid media
    query and the page renders unstyled.
+7. **Results graphs use the trackers' colours.** Any graph of a player's
+   results, on either surface, draws its series in the colours PokerTracker
+   and Hold'em Manager have taught players to read, through these tokens and
+   no others:
+
+   | Series | Colour | Token | Class suffix |
+   |---|---|---|---|
+   | Winnings (total) | green | `--profit-fg` | `--total` |
+   | All-in EV | yellow, dashed | `--ev-fg` | `--allInEv` |
+   | Showdown winnings | blue | `--accent-fg` | `--showdown` |
+   | Non-showdown winnings | red | `--loss-fg` | `--nonShowdown` |
+
+   Reuse the classes in `stats/winrate-graph.css` (`stats-chart__line--*`,
+   `stats-chart__dot--*`, `stats-key--*`) rather than restating the colours.
+   A series means the same thing on every graph: never paint something that is
+   not winnings green, or reuse blue and red for anything but showdown and
+   non-showdown. A graph of one metric that is not money (`TrendChart`) uses
+   the neutral `--metric` ink. Green and red never carry the meaning alone:
+   keep the legend with end values on screen and the table view.
 
 ---
 
