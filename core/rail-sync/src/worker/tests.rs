@@ -782,7 +782,13 @@ async fn refused_hands_are_kept_with_their_reason_and_not_resent() {
     let url = serve(Arc::clone(&server)).await;
     let dir = scratch("refused");
     let store = Store::open(dir.join("rail.db")).unwrap();
-    import(&store, &files[..4]);
+    // Hold'em only: refused Omaha hands are not shown (03 is PLO).
+    let holdem: Vec<PathBuf> = files[..5]
+        .iter()
+        .filter(|file| !file.to_string_lossy().contains("plo"))
+        .cloned()
+        .collect();
+    import(&store, &holdem);
     let hands = usize::try_from(store.status().unwrap().hands).unwrap();
     let now = rail_store::time::now_ms() + 1;
     let all: Vec<String> = store
@@ -1478,4 +1484,16 @@ async fn hud_layouts_follow_the_account() {
     assert_eq!(layout_puts, 4, "save, edit, edit, delete: {puts:?}");
     laptop.stop().await;
     desktop.stop().await;
+}
+
+#[test]
+fn an_omaha_hand_from_the_web_is_told_apart_without_reading_it() {
+    for variant in ["omaha", "omaha5", "omaha6"] {
+        assert!(is_omaha(
+            &json!({"game": {"variant": variant}, "broken": true})
+        ));
+    }
+    assert!(!is_omaha(&json!({"game": {"variant": "holdem"}})));
+    assert!(!is_omaha(&json!({"game": {}})));
+    assert!(!is_omaha(&json!("not a hand")));
 }

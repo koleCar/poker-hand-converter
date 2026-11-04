@@ -29,7 +29,8 @@ import type { Shown } from "@rail/ui/model/stats";
 import { Breakdown } from "@rail/ui/reports/Breakdown";
 import { HandMatrix } from "@rail/ui/reports/HandMatrix";
 import { BREAKDOWN_COLUMNS, type Report, type ReportSource, type StatGroup } from "@rail/ui/reports/model";
-import { ReportsScreen, biggestFormat } from "@rail/ui/reports/ReportsScreen";
+import { ReportsScreen } from "@rail/ui/reports/ReportsScreen";
+import { hasBothKinds } from "@rail/ui/hands/gameKind";
 import { handsUiEn } from "@rail/ui/strings/hands.en";
 import { handsUiHr } from "@rail/ui/strings/hands.hr";
 import { reportsUiEn } from "@rail/ui/strings/reports.en";
@@ -287,8 +288,8 @@ describe("the web's ReportSource over the summaries", () => {
     expect(facets.stakes[0]).toMatchObject({ value: "USD:200", currencySymbol: "$", smallBlind: 100, bigBlind: 200 });
     expect(facets.stakes[1]).toMatchObject({ value: "chips", currencySymbol: null });
     expect(facets).toMatchObject({ total: 150, library: 200, potTypes: [], tags: [] });
-    expect(biggestFormat(facets)).toBeNull();
-    expect(biggestFormat({ ...facets, formats: [{ value: "cash", count: 10 }, { value: "tournament", count: 30 }] })).toBe("tournament");
+    expect(hasBothKinds(facets)).toBe(false);
+    expect(hasBothKinds({ ...facets, formats: [{ value: "cash", count: 10 }, { value: "tournament", count: 30 }] })).toBe(true);
   });
 
   it("lists every shipped definition", () => {
