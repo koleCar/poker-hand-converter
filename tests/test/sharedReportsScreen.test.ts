@@ -316,11 +316,17 @@ describe("the opponents panel beside the screen", () => {
     expect(opponentsScope({}).partial).toBe(false);
   });
 
-  it("never drops the game to every format: several chip formats keep the first", () => {
+  it("never drops the game to every format: several chip formats are the tournaments' kind", () => {
     expect(opponentsScope({ formats: ["tournament", "sng", "spin"] })).toEqual({
-      filters: { gameFormat: "tournament" },
+      filters: { gameKind: "tournament" },
+      partial: false,
+    });
+    // Narrower than every chip format: the tournaments' kind, said to be wider.
+    expect(opponentsScope({ formats: ["sng", "spin"] })).toEqual({
+      filters: { gameKind: "tournament" },
       partial: true,
     });
+    expect(opponentsScope({ formats: ["cash"] })).toEqual({ filters: { gameFormat: "cash" }, partial: false });
   });
 });
 

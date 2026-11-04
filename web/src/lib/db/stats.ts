@@ -19,6 +19,7 @@
  *     and a rate in a test cannot disagree.
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import {
   STATS_VERSION,
   emptyCounters,
@@ -151,6 +152,8 @@ export interface StatsFilters {
   variant?: string;
   limitType?: string;
   gameFormat?: string;
+  /** One kind of game: cash, or every tournament format (`stats_opponents` reads it). */
+  gameKind?: GameKind;
   currency?: string;
   bigBlind?: number;
   positions?: string[];

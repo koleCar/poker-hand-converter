@@ -15,8 +15,10 @@
  * (`seat`, the preflop trainer's setting) and one library line (`line`).
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { FLOP_LIBRARY_SETS, flopLinesFor, flopPlayersOf, lineSeats } from "../../../lib/analysis/flopLibrary";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../../lib/charts";
+import { KIND_KEY, parseKind } from "../analysisKind";
 import {
   ALL_PREFLOP_SEATS,
   DEAL_BIASES,
@@ -112,6 +114,8 @@ export interface TrainState {
   all: boolean;
   /** Drills: Inaccurate moves too. */
   inaccurate: boolean;
+  /** Drills: one kind of game's (cash or the tournaments), never both; null decides (`analysisKind.ts`). */
+  kind: GameKind | null;
 }
 
 export const DEFAULT_TRAIN_STATE: TrainState = {
@@ -129,6 +133,7 @@ export const DEFAULT_TRAIN_STATE: TrainState = {
   spots: null,
   all: false,
   inaccurate: false,
+  kind: null,
 };
 
 /** A spot key's shape (`analysis_spot_key`), as the database validates it. */
@@ -170,6 +175,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     spots: spots.length > 0 ? spots : null,
     all: first(query.all) === "1",
     inaccurate: first(query.inaccurate) === "1",
+    kind: parseKind(query),
   };
 }
 
@@ -200,6 +206,7 @@ export function trainQuery(state: TrainState): string {
     if (state.spots) params.set("spots", state.spots.join(","));
     if (state.all) params.set("all", "1");
     if (state.inaccurate) params.set("inaccurate", "1");
+    if (state.kind) params.set(KIND_KEY, state.kind);
   }
   return params.toString();
 }

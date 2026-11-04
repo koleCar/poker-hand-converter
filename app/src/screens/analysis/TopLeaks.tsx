@@ -8,8 +8,12 @@
  * 30 before), your actions in the spot against the target's as two bars,
  * and up to five example hands as a table whose rows open the hand in the
  * replayer's window. A period toggle (the last 30 days of play, or all
- * time). The web's longer explanations are the elements' titles.
+ * time), and the Cash | Tournaments switch: one kind of game's leaks at a
+ * time, never both (`lib/gameKind.ts`). The web's longer explanations are
+ * the elements' titles.
  */
+import type { GameKind } from "@rail/ui/hands/gameKind";
+import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
@@ -34,6 +38,7 @@ import {
   type TopPeriod,
   type Trend,
 } from "../../analysis/leakWords";
+import { useAppKind } from "../../lib/gameKind";
 import { fetchLeakExamples, fetchTopLeaks, topOf, type LeakExampleRow, type TopLeaksReport, type TopLeakView } from "../../lib/leaksSource";
 import { screenHref } from "../../lib/router";
 import styles from "./Analysis.module.css";
@@ -94,18 +99,21 @@ export function TopLeaks({
 }) {
   const w = useLeakWords();
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
-  const key = `${period}|${reload}`;
+  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
+  const kinds = useAppKind(askedKind, !hidden, reload);
+  const gameKind = kinds.kind;
+  const key = `${period}|${gameKind ?? ""}|${reload}`;
 
   useEffect(() => {
-    if (hidden) return;
+    if (hidden || gameKind === null) return;
     let live = true;
     void (async () => {
       try {
-        const report = await fetchTopLeaks({}, period);
+        const report = await fetchTopLeaks({ gameKind }, period);
         const top = topOf(report);
         if (live) setLoaded({ status: "ready", key, report, top, examples: null });
         const examples = await fetchLeakExamples(
-          {},
+          { gameKind },
           top.map(({ leak }) => ({ id: leak.id, keys: leak.keys })),
           period === "30d" ? report.current : null,
           EXAMPLES_FETCH,
@@ -118,11 +126,12 @@ export function TopLeaks({
     return () => {
       live = false;
     };
-  }, [hidden, period, key]);
+  }, [hidden, period, gameKind, key]);
 
   return (
     <section className={styles.leaks} aria-label={w.top.heading}>
       <div className={styles.leaksHead}>
+        <KindSwitch kind={gameKind} counts={kinds.counts} onChange={setAskedKind} />
         <div className={styles.segmented} role="group" aria-label={w.top.period}>
           {TOP_PERIODS.map((value) => (
             <button key={value} type="button" className={styles.segment} aria-pressed={period === value} onClick={() => onPeriod(value)}>
@@ -141,9 +150,9 @@ export function TopLeaks({
           {w.top.failed(loaded.message)}
         </StateMessage>
       ) : (
-        // Another period on its way: the previous one's list stays, dimmed (rows
-        // written by the background run read again without dimming).
-        <div className={`${styles.leaksBody} rail-dims`} aria-busy={!loaded.key.startsWith(`${period}|`)}>
+        // Another period or kind on its way: the previous list stays, dimmed
+        // (rows written by the background run read again without dimming).
+        <div className={`${styles.leaksBody} rail-dims`} aria-busy={!loaded.key.startsWith(`${period}|${gameKind ?? ""}|`)}>
           <TopLeaksBody report={loaded.report} top={loaded.top} examples={loaded.examples} period={period} />
         </div>
       )}

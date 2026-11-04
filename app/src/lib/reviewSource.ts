@@ -6,12 +6,15 @@
  * (`session_preflop`, `review_hands`) for "off your own chart".
  *
  * The store's rows carry the stakes' blinds; the label is written here, as
- * the Hands screen writes it. The filter's groups are not applied (the
- * review reads every hand, bomb pots out, as the web's does with no filter).
+ * the Hands screen writes it. Of the filter's groups only the kind of game
+ * its formats name is applied (cash, or every tournament format: never both
+ * kinds in one session, the owner's rule of 2026-11-04); the rest are not
+ * (the review reads every hand of the kind, bomb pots out).
  */
 import type { SessionChartsSource } from "@rail/ui/charts/sessionSource";
 import type { TableSize } from "@rail/ui/charts/model";
 import { stakes } from "@rail/ui/hands/format";
+import { kindOf } from "@rail/ui/hands/gameKind";
 import type { ReviewHand, SessionListItem, SessionReview, SessionReviewSource } from "@rail/ui/review/model";
 
 import { ANALYSIS_VERSION } from "../analysis/library";
@@ -47,16 +50,18 @@ function hands(map: unknown): Record<string, ReviewHand> {
 
 export const storeReviewSource: SessionReviewSource = {
   async review(query, limit): Promise<SessionReview> {
-    const review = (await ipc.sessionReview(ANALYSIS_VERSION, query.at, query.gapMinutes, limit)) as unknown as SessionReview;
+    const kind = kindOf(query.filter.formats ?? []);
+    const review = (await ipc.sessionReview(ANALYSIS_VERSION, query.at, query.gapMinutes, limit, kind)) as unknown as SessionReview;
     return { ...review, hands: hands(review.hands) };
   },
 
   async sessions(query): Promise<SessionListItem[]> {
+    const kind = kindOf(query.filter.formats ?? []);
     const since = new Date(Date.now() - PICKER_DAYS * 86_400_000).toISOString();
-    const recent = await ipc.reviewSessions(query.gapMinutes, since, PICKER_MAX);
+    const recent = await ipc.reviewSessions(query.gapMinutes, since, PICKER_MAX, kind);
     // The window's oldest may begin before it: left out, as the web leaves it.
     if (recent.length >= 2) return recent.slice(0, -1);
-    return ipc.reviewSessions(query.gapMinutes, null, PICKER_MAX);
+    return ipc.reviewSessions(query.gapMinutes, null, PICKER_MAX, kind);
   },
 };
 

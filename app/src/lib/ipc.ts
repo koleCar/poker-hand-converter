@@ -449,6 +449,8 @@ export type {
   StakeFacet,
 } from "@rail/ui/hands/model";
 import type { FacetCount, HandFacets, HandFilter, HandRow } from "@rail/ui/hands/model";
+/** The hands' kinds of game (`cash`, `tournament`): not the Players screen's `GameKind`. */
+import type { GameKind as HandsGameKind } from "@rail/ui/hands/gameKind";
 
 /** `hands::CursorDto`: where the next page starts. */
 export interface HandCursor {
@@ -484,6 +486,19 @@ export type { Breakdowns, Graph, GraphBucket, Report, StatGroup, Units } from "@
 import type { Breakdowns, Report, StatGroup, Units } from "@rail/ui/reports/model";
 
 /** `reports::SessionDto`: the latest session. */
+/** One kind of game's latest session, as Live's switch sees it. */
+export interface KindSide {
+  hands: number;
+  current: boolean;
+}
+
+/** What Live reads: the kind shown, both kinds' sides, and the shown kind's session. */
+export interface Today {
+  kind: HandsGameKind;
+  kinds: Record<HandsGameKind, KindSide>;
+  session: Session | null;
+}
+
 export interface Session {
   startedAt: string;
   endedAt: string;
@@ -1060,6 +1075,8 @@ export interface ChartExampleDto {
 /** `review::LeakFiltersDto` (R5.4): the top three's scope. */
 export interface LeakFiltersDto {
   gameFormat?: string | null;
+  /** One kind of game: cash, or every tournament format. */
+  gameKind?: HandsGameKind | null;
   position?: string | null;
   potType?: string | null;
 }
@@ -1218,7 +1235,8 @@ export const ipc = {
   /** The report over a filter (the Hands filter's report groups); `points`: the graph's buckets. */
   report: (filter: HandFilter, points: number) => invoke<Report>("report", { filter, points }),
   reportBreakdowns: (filter: HandFilter) => invoke<Breakdowns>("report_breakdowns", { filter }),
-  today: () => invoke<{ session: Session | null }>("today"),
+  /** Live: one kind of game's latest session (`kind` null: the one being played, else the one with more hands). */
+  today: (kind: HandsGameKind | null) => invoke<Today>("today", { kind }),
   /** Players (R2.7c). */
   playersList: (query: PlayerQuery) => invoke<PlayerList>("players_list", { query }),
   playerProfile: (site: string, player: string, kind: GameKind) =>
@@ -1304,12 +1322,12 @@ export const ipc = {
     invoke<number>("tournament_settings_save", { key, settings }),
   tournamentSettingsDelete: (key: string) => invoke<boolean>("tournament_settings_delete", { key }),
   /** (R5.4) The session review over the store: `SessionReview`'s shape, each hand with its `smallBlind`. */
-  sessionReview: (version: string, at: string | null, gapMinutes: number, limit: number) =>
-    invoke<Record<string, unknown>>("session_review", { version, at, gapMinutes, limit }),
-  reviewSessions: (gapMinutes: number, since: string | null, limit: number) =>
+  sessionReview: (version: string, at: string | null, gapMinutes: number, limit: number, kind: HandsGameKind | null) =>
+    invoke<Record<string, unknown>>("session_review", { version, at, gapMinutes, limit, kind }),
+  reviewSessions: (gapMinutes: number, since: string | null, limit: number, kind: HandsGameKind | null) =>
     invoke<{ startedAt: string; endedAt: string; hands: number; tables: number; netBbMilli: number | null }[]>(
       "review_sessions",
-      { gapMinutes, since, limit },
+      { gapMinutes, since, limit, kind },
     ),
   sessionPreflop: (version: string, startedAt: string, endedAt: string) =>
     invoke<SessionPreflopDto[]>("session_preflop", { version, startedAt, endedAt }),

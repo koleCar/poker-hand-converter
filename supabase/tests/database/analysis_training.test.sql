@@ -93,9 +93,9 @@ select ok(
   and has_function_privilege('authenticated', 'public.drill_quality(text)', 'execute')
   and has_function_privilege('authenticated', 'public.drill_next(integer, integer, numeric, integer, integer)', 'execute')
   and has_function_privilege('authenticated', 'public.drill_keys_valid(text[])', 'execute')
-  and has_function_privilege('authenticated', 'public.drill_queue(text, text[], boolean, integer)', 'execute')
-  and has_function_privilege('authenticated', 'public.drill_summary(text, timestamptz)', 'execute')
-  and has_function_privilege('authenticated', 'public.drill_due_by_spot(text, timestamptz)', 'execute')
+  and has_function_privilege('authenticated', 'public.drill_queue(text, text[], boolean, integer, text)', 'execute')
+  and has_function_privilege('authenticated', 'public.drill_summary(text, timestamptz, text)', 'execute')
+  and has_function_privilege('authenticated', 'public.drill_due_by_spot(text, timestamptz, text)', 'execute')
   and has_function_privilege('authenticated', 'public.trainer_summary(integer)', 'execute'),
   'authenticated may execute all of them (the helpers too: invoker readers call them as their caller)');
 select ok(
@@ -105,9 +105,9 @@ select ok(
   and not has_function_privilege('anon', 'public.drill_quality(text)', 'execute')
   and not has_function_privilege('anon', 'public.drill_next(integer, integer, numeric, integer, integer)', 'execute')
   and not has_function_privilege('anon', 'public.drill_keys_valid(text[])', 'execute')
-  and not has_function_privilege('anon', 'public.drill_queue(text, text[], boolean, integer)', 'execute')
-  and not has_function_privilege('anon', 'public.drill_summary(text, timestamptz)', 'execute')
-  and not has_function_privilege('anon', 'public.drill_due_by_spot(text, timestamptz)', 'execute')
+  and not has_function_privilege('anon', 'public.drill_queue(text, text[], boolean, integer, text)', 'execute')
+  and not has_function_privilege('anon', 'public.drill_summary(text, timestamptz, text)', 'execute')
+  and not has_function_privilege('anon', 'public.drill_due_by_spot(text, timestamptz, text)', 'execute')
   and not has_function_privilege('anon', 'public.trainer_summary(integer)', 'execute'),
   'anon may execute none of them');
 

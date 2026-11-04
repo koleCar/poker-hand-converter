@@ -480,3 +480,10 @@
   color: var(--text-link);
   font-size: var(--font-size-sm);
 }
+
+/* The Cash | Tournaments switch (`KindSwitch`), at the header's end. */
+.kinds {
+  display: flex;
+  gap: var(--space-1);
+  margin-inline-start: auto;
+}

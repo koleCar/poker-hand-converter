@@ -55,6 +55,8 @@ import {
 import type { AnalysisFilters } from "../../../lib/db/analysis";
 import { fetchNodeActions, fetchNodeHands, type NodeActionsReport, type NodeHandRow } from "../../../lib/db/analysisReports";
 import { useAuth } from "../../../lib/auth";
+import { useAnalysisKind, type AnalysisKind } from "../analysisKind";
+import { KindField } from "../KindField";
 import { useDict } from "../../../lib/i18n/client";
 import type { ConceptId } from "../../../lib/learn/concepts";
 import { paths } from "../../../lib/routes";
@@ -137,7 +139,11 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
   const [chartsError, setChartsError] = useState<string | null>(null);
   const [howOpen, setHowOpen] = useState(false);
 
-  const filters = useMemo(() => reportsFilters(state), [state]);
+  // One kind of game, never both (`analysisKind.ts`): nothing is read until it is known.
+  const kinds = useAnalysisKind(state.kind, isDatabaseConfigured && auth.isSignedIn, refreshToken);
+  const shownState = useMemo(() => ({ ...state, kind: kinds.kind }), [state, kinds.kind]);
+  const kindReady = kinds.kind !== null;
+  const filters = useMemo(() => reportsFilters(shownState), [shownState]);
   const filterKey = JSON.stringify(filters);
 
   const writeAddress = useCallback((next: ReportsState, set: string | null) => {
@@ -182,7 +188,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
 
   const requestKey = `${filterKey}|${refreshToken}|${attempt}`;
   useEffect(() => {
-    if (!isDatabaseConfigured || !auth.isSignedIn) return;
+    if (!isDatabaseConfigured || !auth.isSignedIn || !kindReady) return;
     let live = true;
     Promise.all([fetchAnalysisCoverage(), fetchNodeActions(JSON.parse(filterKey) as AnalysisFilters)])
       .then(([coverage, report]) => {
@@ -201,7 +207,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
     return () => {
       live = false;
     };
-  }, [auth.isSignedIn, filterKey, requestKey]);
+  }, [auth.isSignedIn, kindReady, filterKey, requestKey]);
 
   const loading = answer?.key !== requestKey;
   const status = answer?.status ?? "loading";
@@ -318,7 +324,7 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
       </div>
       <HowToRead open={howOpen} />
 
-      <FilterBar state={state} facets={report.facets} onChange={updateState} />
+      <FilterBar state={shownState} kinds={kinds} facets={report.facets} onChange={updateState} />
       {setsWithDecisions.length > 1 ? (
         <SetFilter sets={setsWithDecisions} value={activeSet} onChange={updateSet} />
       ) : null}
@@ -408,10 +414,13 @@ function HowToRead({ open }: { open: boolean }) {
 /** The report filters (dates, room, stake, seat); shared with Leaks and Progress (A6), which take the same keys. */
 export function FilterBar({
   state,
+  kinds,
   facets,
   onChange,
 }: {
   state: ReportsState;
+  /** The kind shown and the kinds' hands (`useAnalysisKind`). */
+  kinds: AnalysisKind;
   facets: NodeActionsReport["facets"];
   onChange: (patch: Partial<ReportsState>) => void;
 }) {
@@ -420,6 +429,7 @@ export function FilterBar({
   const any = state.from || state.to || state.room || state.stake || state.position;
   return (
     <div className={styles.filters} role="group" aria-label={t.ariaLabel}>
+      <KindField kinds={kinds} onChange={(kind) => onChange({ kind })} />
       <label className="field">
         <span className="field__label">{t.from}</span>
         <input
@@ -474,7 +484,7 @@ export function FilterBar({
         </select>
       </label>
       {any ? (
-        <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange(EMPTY_REPORTS_STATE)}>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange({ ...EMPTY_REPORTS_STATE, kind: state.kind })}>
           {t.clear}
         </button>
       ) : null}

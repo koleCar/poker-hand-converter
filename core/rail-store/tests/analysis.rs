@@ -922,7 +922,7 @@ fn the_session_review_reads_the_webs_sessions_and_lists() {
     // The picker: every session, newest first.
     let listed = store
         .reader()
-        .review_sessions(30, None, 10_000)
+        .review_sessions(30, None, 10_000, None)
         .expect("sessions");
     let bounds: Vec<(String, String, usize)> = listed
         .iter()
@@ -941,6 +941,31 @@ fn the_session_review_reads_the_webs_sessions_and_lists() {
         .collect();
     assert_eq!(bounds, want);
 
+    // One kind of game at a time: each kind's sessions hold that kind's hands
+    // only, and the two kinds' hold every hand between them.
+    let hands_of = |kind: Option<&str>| -> i64 {
+        store
+            .reader()
+            .review_sessions(30, None, 10_000, kind)
+            .expect("sessions")
+            .iter()
+            .map(|s| s.hands)
+            .sum()
+    };
+    assert_eq!(
+        hands_of(Some(rail_store::game_kind::CASH))
+            + hands_of(Some(rail_store::game_kind::TOURNAMENT)),
+        hands_of(None),
+        "cash and tournament sessions hold every hand between them"
+    );
+    assert!(
+        store
+            .reader()
+            .review_sessions(30, None, 10, Some("both"))
+            .is_err(),
+        "an unknown kind is refused"
+    );
+
     // Each session from any instant in it, with its neighbours' instants.
     let last_ms =
         rail_store::time::ms_from_iso(&expected.last().expect("a session").1).expect("ms");
@@ -950,6 +975,7 @@ fn the_session_review_reads_the_webs_sessions_and_lists() {
         limit: 20,
         version: V1.to_owned(),
         now_ms,
+        kind: None,
     };
     for (i, (start, end, keys)) in expected.iter().enumerate().step_by(7) {
         let review = store
@@ -1409,6 +1435,7 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
     let format = saved[0].format.clone();
     let filters = LeakFilters {
         game_format: Some(format.clone()),
+        game_kind: None,
         position: Some("BTN".to_owned()),
         pot_type: Some("3-bet".to_owned()),
     };
@@ -1417,6 +1444,34 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
     let want = expected_sample(&saved, &keep);
     assert!(want.graded > 0, "the filters keep some rows");
     assert_sample(&filtered.sample, &want, "filtered");
+    // A kind of game: its formats only, never the other kind's.
+    for kind in [
+        rail_store::game_kind::CASH,
+        rail_store::game_kind::TOURNAMENT,
+    ] {
+        let by_kind = LeakFilters {
+            game_kind: Some(kind.to_owned()),
+            ..LeakFilters::default()
+        };
+        let of_kind = reader.top_leaks(V1, &by_kind, "all").expect("top");
+        let formats = rail_store::game_kind::formats(kind).expect("a kind");
+        let in_kind = |s: &Saved| formats.contains(&s.format.as_str());
+        assert_sample(&of_kind.sample, &expected_sample(&saved, &in_kind), kind);
+    }
+    let outside = LeakFilters {
+        game_format: Some("cash".to_owned()),
+        game_kind: Some(rail_store::game_kind::TOURNAMENT.to_owned()),
+        ..LeakFilters::default()
+    };
+    assert_eq!(
+        reader
+            .top_leaks(V1, &outside, "all")
+            .expect("top")
+            .sample
+            .graded,
+        0,
+        "a format outside its kind: none"
+    );
     // Another version has no rows.
     let none = reader.top_leaks("analysis/1", &all, "all").expect("top");
     assert_eq!(none.last, None);

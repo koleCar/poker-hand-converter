@@ -32,6 +32,8 @@ import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { addAnswer, emptySession, type SessionStats, type TrainerAnswer } from "../../../lib/training";
 import { AnalysisNav } from "../AnalysisNav";
+import { useAnalysisKind } from "../analysisKind";
+import { KindField } from "../KindField";
 import { DrillTrainer } from "./DrillTrainer";
 import { SessionPanel, TrainerHistory } from "./SessionPanel";
 import { SpotTrainer } from "./SpotTrainer";
@@ -66,6 +68,8 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
   }, []);
 
   const mode = state.mode;
+  // The drills are your own hands: one kind of game's at a time (`analysisKind.ts`).
+  const kinds = useAnalysisKind(state.kind, signedIn && mode === "drills");
   const onAnswer = useCallback(
     (answer: TrainerAnswer) => {
       setSessions((current) => ({ ...current, [mode]: addAnswer(current[mode], answer) }));
@@ -125,7 +129,18 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
                 </button>
               </div>
             ) : (
-              <DrillTrainer key="drills" state={state} onChange={updateState} onAnswer={onAnswer} onHelp={onHelp} onSaved={onSaved} />
+              <>
+                <KindField kinds={kinds} onChange={(kind) => updateState({ kind })} />
+                <DrillTrainer
+                  key="drills"
+                  state={state}
+                  kind={kinds.kind}
+                  onChange={updateState}
+                  onAnswer={onAnswer}
+                  onHelp={onHelp}
+                  onSaved={onSaved}
+                />
+              </>
             )
           ) : (
             <SpotTrainer

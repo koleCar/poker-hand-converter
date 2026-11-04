@@ -52,6 +52,7 @@ pub mod background;
 pub mod batch;
 pub mod custom;
 pub mod error;
+pub mod game_kind;
 pub mod hand_list;
 pub mod hud;
 pub mod import;
