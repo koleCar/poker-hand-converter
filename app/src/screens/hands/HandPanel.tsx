@@ -1,7 +1,9 @@
 /**
  * The open hand: the shared replayer (`ReplayViewer`, the web's) fed by
  * `useHand` over the app's `DataSource`, and under it the hand's tags and
- * note. "Open on the web" is a placeholder until tags and notes sync.
+ * note. The replayer is the dense one (a panel, not a page), with the share
+ * link beside full screen. "Open on the web" is a placeholder until tags and
+ * notes sync.
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
@@ -16,6 +18,7 @@ import { screenHref } from "../../lib/router";
 import { useTablesOpen } from "../../lib/useTablesOpen";
 import { viewParam } from "../analysis/view";
 import styles from "./HandPanel.module.css";
+import { ShareHand } from "./ShareHand";
 
 /** How long typing pauses before the note is saved. */
 const NOTE_DEBOUNCE_MS = 700;
@@ -52,6 +55,8 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
             onClose={onClose}
             urlSync={false}
             potOdds={!noPotOdds}
+            dense
+            headerEnd={<ShareHand handKey={handKey} hand={state.hand} />}
             headerExtra={
               <>
                 {noAnalysis ? null : (

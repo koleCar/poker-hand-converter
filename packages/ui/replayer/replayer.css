@@ -1376,6 +1376,149 @@
   justify-content: space-between;
 }
 
+/* ------------------------------------------------------------------ dense */
+
+/* `data-dense`: a replayer in a small box that is not a phone — the desktop
+   app's hand panel, used with a mouse. Everything the chrome gives up goes to
+   the stage, which redraws larger; see `ReplayViewerProps.dense`. */
+
+/* A mouse-sized target, in the header and the transport alike. */
+.rp[data-dense] {
+  --rp-hit: 2rem;
+}
+
+.rp[data-dense] .rp__header {
+  padding-block: 0;
+}
+
+.rp[data-dense] .rp__header .btn--icon .icon {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.rp[data-dense] .rp__transport {
+  gap: 0.125rem;
+  padding: 0.125rem 0.5rem 0.375rem;
+}
+
+.rp[data-dense] .rp__caption {
+  min-block-size: 1.125rem;
+  font-size: 0.6875rem;
+  line-height: 1.125rem;
+}
+
+/* The rail stays a full target tall, which is now a small one. */
+.rp[data-dense] .rp__scrub {
+  block-size: 1.5rem;
+}
+
+.rp[data-dense] .rp__tick {
+  block-size: 0.625rem;
+}
+
+/* One row: playback, the streets' initials and the speed, nothing wraps. */
+.rp[data-dense] .rp__buttons {
+  flex-wrap: nowrap;
+  gap: 0.375rem;
+}
+
+.rp[data-dense] .rp__playback,
+.rp[data-dense] .rp__streets,
+.rp[data-dense] .rp__speed,
+.rp[data-dense] .rp__opts {
+  gap: 0.125rem;
+}
+
+.rp[data-dense] .rp__transport .btn--icon,
+.rp[data-dense] .rp__transport .btn--play {
+  font-size: 0.6875rem;
+}
+
+.rp[data-dense] .rp__transport .chip-btn {
+  padding: 0.125rem 0.375rem;
+  font-size: 0.625rem;
+}
+
+/* Below `sm` the street chips are gone (keys `1`-`5`), and six small targets
+   fit one row: the playback group does not take a row of its own. */
+.rp[data-dense][data-tier="sm"] .rp__playback {
+  flex: 0 1 auto;
+  justify-content: flex-start;
+}
+
+/* The pot: one pill, read at a glance, not the loudest thing on the felt. */
+.rp[data-dense] .rp__felt {
+  --fs-pot: clamp(0.6875rem, 3.4 * var(--u), 1.0625rem);
+  --fs-pot-label: clamp(0.5rem, 1.9 * var(--u), 0.625rem);
+  /* The board, a fifth larger: the middle of a wide or classic felt has the
+     room, and a two-row portrait board is narrower still. */
+  --board-card: calc(var(--card-u) * var(--u) * 1.2);
+}
+
+.rp[data-dense] .rp__pot {
+  padding: calc(0.25 * var(--u)) calc(1.6 * var(--u));
+  box-shadow: 0 1px 6px rgb(0 0 0 / 30%);
+}
+
+/* A smaller pill needs less of the middle, and the middle sits a little
+   higher: hero's larger cards grow up towards the board. */
+.rp[data-dense] .rp__pots {
+  block-size: calc(var(--pot-u) * var(--u) * 0.75);
+}
+
+.rp[data-dense] .rp__center {
+  top: calc(50% - 3 * var(--u));
+  gap: calc(1.5 * var(--u));
+}
+
+/* Cards that have been turned over, and hero's (after, so hero wins when it is
+   both). Face-down backs stay their size: they carry nothing to read. Taller
+   cards grow upwards, away from the rail; the stacks beside the seats
+   (`sideChipSlots`) are what keep them off the chips. */
+.rp[data-dense] .rp__felt .pseat--shown {
+  --seat-card: calc(var(--seat-w) * 0.5);
+}
+
+.rp[data-dense] .rp__felt .pseat--hero {
+  --seat-card: calc(var(--seat-w) * 0.6);
+}
+
+/* Pot odds: the headline numbers only, in the corner. The "x into y" line is
+   the caption's sentence over again. */
+.rp[data-dense] .rp__odds {
+  inset-block-start: 0.25rem;
+  inset-inline-start: 0.25rem;
+  gap: 0;
+  min-inline-size: 0;
+  max-inline-size: none;
+  padding: 0.1875rem 0.375rem;
+  font-size: 0.625rem;
+  line-height: 1.25;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 30%);
+}
+
+.rp[data-dense] .rp__odds-title {
+  font-size: 0.5625rem;
+}
+
+.rp[data-dense] .rp__odds-line {
+  display: none;
+}
+
+.rp[data-dense] .rp__odds-main {
+  gap: 0.375rem;
+  white-space: nowrap;
+}
+
+.rp[data-dense] .rp__odds-value {
+  font-size: 0.8125rem;
+}
+
+.rp[data-dense] .rp__odds-row {
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
 /* ------------------------------------------------------------- seat tiers */
 
 /* Density is a property of the box, not of the device. `dense` drops the

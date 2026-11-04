@@ -1,0 +1,70 @@
+/* The share panel: under the share button, over everything (portalled to
+   the body; see ShareHand.tsx). */
+
+.panel {
+  position: fixed;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: min(22rem, calc(100vw - 1rem));
+  padding: var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.hint {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.url {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-xs);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ok,
+.warn,
+.error {
+  font-size: var(--font-size-xs);
+}
+
+.ok {
+  color: var(--success-fg);
+}
+
+.warn {
+  color: var(--text-secondary);
+}
+
+.error {
+  color: var(--danger-fg);
+}

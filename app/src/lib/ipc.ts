@@ -1151,6 +1151,10 @@ export const ipc = {
   handsFind: (query: string, limit: number) => invoke<HandRow[]>("hands_find", { query, limit }),
   /** A hand's PHF as JSON text; `null` when the store has no such hand. */
   handPhf: (handKey: string) => invoke<string | null>("hand_phf", { handKey }),
+  /** A web share link for the hand (`share.rs`); errors as `ShareErrorCode`s or a sentence. */
+  handShare: (handKey: string, title: string | null) => invoke<HandShare>("hand_share", { handKey, title }),
+  /** Open a share link made here in the default browser. */
+  shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
   handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
@@ -1371,6 +1375,15 @@ function onAppEvent<T = unknown>(name: string, onChange: (payload: T) => void): 
 }
 
 /** A rejected `invoke` carries the command's `Err(String)`. */
+/** A share link made by `hand_share`. */
+export interface HandShare {
+  slug: string;
+  url: string;
+}
+
+/** The errors `hand_share` answers with a code rather than a sentence. */
+export type ShareErrorCode = "signedOut" | "rateLimited" | "unavailable" | "missing";
+
 export function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }

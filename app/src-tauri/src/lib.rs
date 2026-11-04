@@ -89,6 +89,7 @@ pub mod quarantine;
 pub mod reports;
 pub mod review;
 pub mod settings;
+pub mod share;
 pub mod stats;
 pub mod strings;
 pub mod sync;
@@ -332,6 +333,8 @@ pub fn run() {
         hands::hands_by_key,
         hands::hands_find,
         hands::hand_phf,
+        share::hand_share,
+        share::share_open,
         hands::hand_annotations,
         hands::hand_set_note,
         hands::hand_add_tag,
@@ -453,6 +456,8 @@ pub fn run() {
         hands::hands_by_key,
         hands::hands_find,
         hands::hand_phf,
+        share::hand_share,
+        share::share_open,
         hands::hand_annotations,
         hands::hand_set_note,
         hands::hand_add_tag,
