@@ -89,7 +89,7 @@ describe("what is locked", () => {
     expect(ROUTE_FEATURE).toEqual({ analysis: "analysis", players: "reportsFull" });
     expect(ROUTE_FEATURE.reports).toBeUndefined();
     expect(ROUTE_FEATURE.hands).toBeUndefined();
-    expect(ROUTE_FEATURE.today).toBeUndefined();
+    expect(ROUTE_FEATURE.live).toBeUndefined();
   });
 });
 

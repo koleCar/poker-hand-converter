@@ -66,7 +66,7 @@ export function FirstRun() {
     ipc
       .setFirstRunDone(true)
       .catch(() => undefined)
-      .finally(() => go("today"));
+      .finally(() => go("live"));
   };
 
   const toggle = (path: string, checked: boolean) =>

@@ -701,7 +701,7 @@ The first launch opens **Welcome to Rail**: "Three steps to your first HUD".
    manually...**. Then choose what to do with the hands already there:
    **import everything** or **only new hands**, and **Watch N folders**.
 3. **Open a table.** Play as usual: Rail reads each hand as the room writes
-   it, and **Today** shows them arriving.
+   it, and **Live** shows them arriving.
 
 Rail's list of default folders is still being checked on real installs, so if
 your room saves elsewhere, add the folder yourself.
@@ -715,7 +715,7 @@ detection fails, switch it on or off, watch subfolders, use polling (for
 network drives), or remove it (its hands stay).
 
 A large first import shows its progress (bytes, files, hands, time left) in
-the tray, on Today and on the folder's card. **Pause import** is in the tray.
+the tray and on the folder's card (Settings, Folders). **Pause import** is in the tray.
 A hand is imported only once it is complete, and nothing of the hand in play
 is ever read.
 
@@ -732,7 +732,7 @@ hands you saved on the web or synced from another computer.
 - **Settings, Account** shows "Syncing 120 of 4 000 hands", up to date,
   offline or paused, the hands the server refused (by reason, with **Try
   again**), **Sync now**, **Pause sync** and an upload limit for a large
-  backlog. Today and the tray show one line.
+  backlog. The tray shows one line.
 - Offline, Rail keeps working and syncs when it reconnects. Sync slows while
   tables are open.
 - If you sign in with a different account than the one this computer's hands
@@ -753,7 +753,7 @@ The desktop app's screens, in the sidebar (Cmd / Ctrl + 1 to 7 to switch):
 
 | Screen | What it shows |
 | --- | --- |
-| **Today** | The current session (a break over 30 minutes ends it): result in money and big blinds, hands, hands per hour, key statistics, its biggest pots; the import status; and which tables have the HUD. |
+| **Live** | The session being played (a break over 30 minutes ends it): its graph (winnings, all-in EV, showdown, non-showdown) with the result in money and big blinds, hands and hands per hour; its key statistics by short name, the full name and target range on hover; its hands, newest first, ten to a page. With no session on, what starts one and the last session. |
 | **Hands** | The same hand list, filter chips, saved filters and replayer as the web's [library](#library), over the hands on this computer; a tag and a note per hand. |
 | **Reports** | The same report as the web's [Stats](#stats), with its own saved filters, in big blinds or money. |
 | **Players** | Opponents of rooms that print screen names, with their profile; plus a **colour tag**, **labels** and a **note** per player, which the HUD can show. |
@@ -820,7 +820,7 @@ tables without it, each with the reason in plain words (for example
 "GGPoker's rules do not allow a HUD."), the room's policy page and the date it
 was read,
 plus **Why can't I enable the HUD here?** and **Look for an update now**.
-Today and the tray say the same in one line ("HUD: on 2 tables").
+The tray says the same in one line ("HUD: on 2 tables").
 
 ### macOS permission
 

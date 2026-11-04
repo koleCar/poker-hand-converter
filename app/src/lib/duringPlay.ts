@@ -23,7 +23,7 @@ export const PLAY_HELP: readonly PlayHelp[] = ["analysis", "solver", "equity", "
  * play. Every route must say (the type makes a new screen choose).
  */
 export const SCREEN_HELP: Readonly<Record<Route, PlayHelp | null>> = {
-  today: null,
+  live: null,
   hands: null,
   reports: null,
   players: null,

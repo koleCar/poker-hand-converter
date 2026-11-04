@@ -21,7 +21,7 @@ import {
 } from "../../app/src/lib/duringPlay.js";
 
 /** The sidebar's screens (`app/src/lib/router.ts`'s `SCREENS`; that module needs React, which this harness does not install). */
-const SCREENS = ["today", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
+const SCREENS = ["live", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
 
 const APP_SRC = join(__dirname, "../../app/src");
 
@@ -44,7 +44,7 @@ describe("A10: no help during play", () => {
 
   it("classifies every route: (R5.4) the analysis is analysis, the rest give no help", () => {
     expect(Object.keys(SCREEN_HELP).sort()).toEqual(
-      ["analysis", "hands", "hud", "players", "reports", "settings", "setup", "today"].sort(),
+      ["analysis", "hands", "hud", "live", "players", "reports", "settings", "setup"].sort(),
     );
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
       const analysis = route === "analysis";

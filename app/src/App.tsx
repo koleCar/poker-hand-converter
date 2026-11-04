@@ -18,7 +18,7 @@ import { Players } from "./screens/Players";
 import { playerParam } from "./screens/players/param";
 import { Reports } from "./screens/Reports";
 import { Settings } from "./screens/settings/Settings";
-import { Today } from "./screens/Today";
+import { Live } from "./screens/Live";
 import { useTablesOpen } from "./lib/useTablesOpen";
 
 // (R5.4) The analysis screens are loaded when first opened: their code (the
@@ -35,7 +35,7 @@ function AnalysisScreen() {
 }
 
 const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
-  today: Today,
+  live: Live,
   hands: Hands,
   reports: Reports,
   players: Players,
