@@ -46,6 +46,13 @@ export const handsUiHr: typeof handsUiEn = {
   positionalNames: "Bez imena",
   positionalNamesTitle:
     "Ova soba skriva imena igrača iza oznaka mjesta koje se mijenjaju svake ruke, pa se ruka ne može naći po imenu igrača.",
+  kinds: {
+    label: "Vrsta igre",
+    cash: "Cash",
+    tournament: "Turniri",
+    defaulted: (kind) =>
+      `Prikazujem samo: ${kind}. Turnirski žetoni i cash ne zbrajaju se u jedan rezultat. Promijeni to prekidačem gore.`,
+  },
   filters: {
     label: "Filteri",
     clearAll: "Očisti sve",
