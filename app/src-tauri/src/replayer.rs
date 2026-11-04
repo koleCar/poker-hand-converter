@@ -39,6 +39,16 @@ pub const REPLAYER_CLOSED_EVENT: &str = "replayer-closed";
 /// window, such as the hand's analysis), as `#/...`.
 pub const OPEN_ROUTE_EVENT: &str = "open-route";
 
+/// The window's first size, in logical pixels: the web's replayer at its
+/// width, so the felt is the same wide table (a stage at least 1.54 times as
+/// wide as it is tall; `seatLayout.shapeFor`), with the chips in front of the
+/// seats.
+const DEFAULT_SIZE: (f64, f64) = (1040.0, 760.0);
+
+/// The smallest the window goes: still the wide table, large enough that
+/// the names, stacks and bets read.
+const MIN_SIZE: (f64, f64) = (760.0, 560.0);
+
 /// The hand the window shows (or is being built to show).
 #[derive(Debug, Default)]
 pub struct ReplayerState {
@@ -92,8 +102,8 @@ pub async fn replayer_open(
         WebviewUrl::App(REPLAYER_ROUTE.into()),
     )
     .title("Rail")
-    .inner_size(600.0, 820.0)
-    .min_inner_size(420.0, 560.0)
+    .inner_size(DEFAULT_SIZE.0, DEFAULT_SIZE.1)
+    .min_inner_size(MIN_SIZE.0, MIN_SIZE.1)
     .resizable(true)
     .visible(false)
     .focused(focus)

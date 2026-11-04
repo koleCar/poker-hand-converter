@@ -254,6 +254,7 @@ fn main() {
         limit: 20,
         version: VERSION.to_owned(),
         now_ms: i64::MAX / 4,
+        kind: None,
     };
     report(
         "session review, the latest session",
@@ -261,7 +262,9 @@ fn main() {
             reader.session_review(&review_query(None)).expect("review");
         }),
     );
-    let sessions = reader.review_sessions(30, None, 100_000).expect("sessions");
+    let sessions = reader
+        .review_sessions(30, None, 100_000, None)
+        .expect("sessions");
     let biggest = sessions.iter().max_by_key(|s| s.hands).expect("a session");
     println!(
         "{} sessions; the biggest {} hands",
@@ -288,7 +291,9 @@ fn main() {
     report(
         "the picker, every session",
         &times(runs.min(3), || {
-            reader.review_sessions(30, None, 200).expect("sessions");
+            reader
+                .review_sessions(30, None, 200, None)
+                .expect("sessions");
         }),
     );
     let compare = |period: &str| rail_store::review::CompareQuery {

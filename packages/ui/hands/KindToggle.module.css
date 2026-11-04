@@ -4,3 +4,10 @@
   align-self: center;
   margin-inline-start: auto;
 }
+
+/* The plain switch (`KindSwitch.tsx`) where a screen places it itself. */
+.switch {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}

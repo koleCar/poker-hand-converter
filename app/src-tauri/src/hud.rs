@@ -36,7 +36,8 @@
 //!   a commit.
 //! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
 //!   client rotates the table on a room, or not, or as `sites.json` says)
-//!   and [`hud_reset_seat_positions`] write the store and tell the HUD
+//!   [`hud_set_seat_position`] (a panel dragged in the HUD screen's
+//!   preview) and [`hud_reset_seat_positions`] write the store and tell the HUD
 //!   (`settings_changed`, `layout_changed`), which reads them again.
 //! - **Permissions** (R3.11, macOS): the HUD reads window titles through
 //!   the Accessibility API, and every health answer says when that
@@ -1042,6 +1043,29 @@ pub async fn hud_set_preferred_seat(
         .and_then(|writer| writer.set_hud_preferred_seat(&site, preferred))
         .map_err(|error| error.to_string())?;
     hud.settings_written();
+    Ok(())
+}
+
+/// Put one seat's panel where the user dragged it in the HUD screen's
+/// preview: its centre in thousandths of the table's client area, for one
+/// room and table size - the same row a drag at a real table writes
+/// (R3.6), so the HUD lays the panel there at once.
+#[tauri::command]
+pub async fn hud_set_seat_position(
+    store: State<'_, StoreState>,
+    hud: State<'_, HudState>,
+    site: String,
+    size: u32,
+    slot: u32,
+    x: u32,
+    y: u32,
+) -> Result<(), String> {
+    let store = store.store.as_ref().ok_or("the store is not open")?;
+    store
+        .writer()
+        .and_then(|writer| writer.set_hud_seat_position(&site, size, slot, x, y))
+        .map_err(|error| error.to_string())?;
+    hud.layouts_written();
     Ok(())
 }
 

@@ -87,6 +87,9 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
     assignments: clone(data.hudEditor.assignments),
     notes: clone(data.annotations),
     words: {} as Record<string, { colour: string | null; note: string; labels: string[] }>,
+    /** Panels the user dragged: `site|size|slot` -> centre, thousandths. */
+    seats: {} as Record<string, [number, number]>,
+    preferred: {} as Record<string, boolean | null>,
   };
 
   /* --------------------------------------------------------- events - */
@@ -254,7 +257,15 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
       const plate = plates[slot]!;
       // `rail_hud::layout::place_panels`: the first side of the plate (outward
       // first, then sliding along it) clear of the table and of the panels placed.
-      const rect = placeBeside(slots[slot]!, plate, w, h);
+      const placed = state.seats[`${site}|${slots.length}|${slot}`];
+      const rect = placed
+        ? {
+            x: Math.round(Math.min(Math.max((placed[0] * width) / 1000 - w / 2, 0), width - w)),
+            y: Math.round(Math.min(Math.max((placed[1] * height) / 1000 - h / 2, 0), height - h)),
+            w,
+            h,
+          }
+        : placeBeside(slots[slot]!, plate, w, h);
       const { x, y } = rect;
       taken.push(rect);
       items.push({ kind: 'fill', rect, radius: 5, color: PANEL });
@@ -292,7 +303,7 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
         bold: false,
         align: 'center',
       });
-      panels.push({ slot, rect, stats: cells.map((c) => c.stat), placedByUser: false, stackBb: stackOf(seat) });
+      panels.push({ slot, rect, stats: cells.map((c) => c.stat), placedByUser: Boolean(placed), stackBb: stackOf(seat) });
     });
     return {
       width,
@@ -324,7 +335,23 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
     }
     return status;
   };
-  const editorState = () => ({ ...clone(data.hudEditor), designs: clone(state.designs), assignments: clone(state.assignments) });
+  const editorState = () => {
+    const positions = new Map<string, { site: string; size: number; panels: number }>();
+    for (const key of Object.keys(state.seats)) {
+      const [site, size] = key.split('|');
+      const at = `${site}|${size}`;
+      const row = positions.get(at) ?? { site: site!, size: Number(size), panels: 0 };
+      row.panels += 1;
+      positions.set(at, row);
+    }
+    return {
+      ...clone(data.hudEditor),
+      designs: clone(state.designs),
+      assignments: clone(state.assignments),
+      positions: [...positions.values()],
+      roomSettings: data.hudEditor.rooms.map((room) => ({ site: room.id, preferredSeat: state.preferred[room.id] ?? null })),
+    };
+  };
 
   type HandsFilter = {
     sites?: string[];
@@ -538,8 +565,20 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
       return { ok: true, refused: {} };
     },
     hud_preview: (a) => preview(a.design as HudDesign, String(a.site), Number(a.size)),
-    hud_reset_seat_positions: () => 1,
-    hud_set_preferred_seat: () => null,
+    hud_set_seat_position: (a) => {
+      state.seats[`${String(a.site)}|${Number(a.size)}|${Number(a.slot)}`] = [Number(a.x), Number(a.y)];
+      return null;
+    },
+    hud_reset_seat_positions: (a) => {
+      const prefix = a.size === null ? `${String(a.site)}|` : `${String(a.site)}|${Number(a.size)}|`;
+      const gone = Object.keys(state.seats).filter((key) => key.startsWith(prefix));
+      for (const key of gone) delete state.seats[key];
+      return gone.length;
+    },
+    hud_set_preferred_seat: (a) => {
+      state.preferred[String(a.site)] = (a.preferred as boolean | null) ?? null;
+      return null;
+    },
 
     // The hand analysis stays idle (its runner asks the gate before anything).
     // A day of use: the background run may go (it finds nothing left to do). Elsewhere it stays paused.
