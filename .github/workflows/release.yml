@@ -33,7 +33,9 @@
 # `releases/latest/download/latest.json`. The release is created as a draft,
 # filled, then published, so the manifest never points at missing files.
 # Losing the private key means the installed apps can no longer verify an
-# update: they would need a manual install of a build with a new key.
+# update: they would need a manual install of a build with a new key. The
+# key (generated 2026-11-04, key id 541B579507D0F3BB) is kept by the owner
+# outside the repository.
 #
 # Not signed yet (P3 Apple Developer ID + notarisation, P4 Windows signing):
 # the macOS bundle is ad-hoc signed like the PR builds, and /download tells
