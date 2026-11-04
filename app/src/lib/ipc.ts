@@ -1268,6 +1268,9 @@ export const ipc = {
     invoke<HudAssigned>("hud_assign", { site, size, format, layout }),
   hudPreview: (design: HudDesign, site: string, size: number) =>
     invoke<HudPreview>("hud_preview", { design, site, size }),
+  /** A panel dragged in the preview: its centre, thousandths of the table's client area. */
+  hudSetSeatPosition: (site: string, size: number, slot: number, x: number, y: number) =>
+    invoke<null>("hud_set_seat_position", { site, size, slot, x, y }),
   /** R3.6's: dragged panels back to the layout's places (`size` null: every size). */
   hudResetSeatPositions: (site: string, size: number | null) =>
     invoke<number>("hud_reset_seat_positions", { site, size }),
