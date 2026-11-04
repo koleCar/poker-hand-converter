@@ -62,6 +62,12 @@ interface ReplayControlsProps {
    * still reachable by keyboard, which is the drop ladder's own rule.
    */
   compact?: boolean;
+  /**
+   * The dense replayer (`ReplayViewerProps.dense`): one row, the speed as one
+   * cycling button and the streets as initials at every width, and no log
+   * button (`L` still opens it). A host sheet's button stays.
+   */
+  dense?: boolean;
   onSeek: (index: number) => void;
   onStep: (delta: number) => void;
   onTogglePlay: () => void;
@@ -80,6 +86,7 @@ export function ReplayControls({
   speed,
   logOpen,
   compact = false,
+  dense = false,
   onSeek,
   onStep,
   onTogglePlay,
@@ -91,7 +98,8 @@ export function ReplayControls({
   const intlLocale = useUiStrings().intlLocale;
   const speedText = (value: number) => value.toLocaleString(intlLocale);
   const last = frames.length - 1;
-  const initials = streetsAreInitials(tier);
+  const initials = dense || streetsAreInitials(tier);
+  const cycled = dense || speedIsCycled(tier);
 
   const cycleSpeed = () => {
     const at = SPEEDS.indexOf(speed);
@@ -225,7 +233,7 @@ export function ReplayControls({
         )}
 
         {/* Rung 2: five chips, or one button that cycles through the same five. */}
-        {compact ? null : speedIsCycled(tier) ? (
+        {compact ? null : cycled ? (
           <div className="rp__speed">
             <button
               type="button"
@@ -254,7 +262,7 @@ export function ReplayControls({
           </div>
         )}
 
-        {compact ? null : (
+        {compact || (dense && !extra) ? null : (
         <div className="rp__opts">
           {/* Unit and card visibility live behind the gear in the header. */}
           {extra ? (
@@ -271,6 +279,7 @@ export function ReplayControls({
               <span className="rp__opt-label">{extra.label}</span>
             </button>
           ) : null}
+          {dense ? null : (
           <button
             type="button"
             className={`chip-btn ${logOpen ? "is-active" : ""}`.trim()}
@@ -283,6 +292,7 @@ export function ReplayControls({
             <span aria-hidden="true">☰</span>
             <span className="rp__opt-label">{words.logShort}</span>
           </button>
+          )}
         </div>
         )}
       </div>

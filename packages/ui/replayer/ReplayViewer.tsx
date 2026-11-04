@@ -107,6 +107,8 @@ interface ReplayViewerProps {
   onOpen?: () => void;
   /** Rendered first in the header's icon row — the share button in practice. */
   headerExtra?: React.ReactNode;
+  /** Rendered just before the full-screen button (the desktop app's share). */
+  headerEnd?: React.ReactNode;
   /** See the module comment. Defaults to the standalone replayer. */
   mode?: ReplayMode;
   /** Where to open. Resolved lossy-tolerantly; see `frameIndexForPosition`. */
@@ -149,6 +151,15 @@ interface ReplayViewerProps {
    * to true.
    */
   potOdds?: boolean;
+  /**
+   * A replayer in a small box that is not a phone: the desktop app's hand
+   * panel. The chrome gives its height back to the felt (smaller targets,
+   * one transport row, no log button — `L` still opens the log), the pot
+   * and the pot odds shrink, hero's and the board's cards grow, and bet
+   * stacks sit beside the top and bottom seats (`sideChipSlots`). Published
+   * as `data-dense`; defaults to false.
+   */
+  dense?: boolean;
   ref?: React.Ref<ReplayViewerHandle>;
 }
 
@@ -379,6 +390,7 @@ function ReplayStage({
   site,
   onClose,
   headerExtra,
+  headerEnd,
   mode = "full",
   initialPosition,
   focusSeat = null,
@@ -387,6 +399,7 @@ function ReplayStage({
   marks,
   sheet,
   potOdds = true,
+  dense = false,
   ref,
 }: ReplayViewerProps) {
   const embed = mode === "embed";
@@ -828,6 +841,8 @@ function ReplayStage({
       // — `--rp-block: 100%` — because everything else that would need to
       // change is already a container query off the stage or off `data-tier`.
       data-mode={mode}
+      // The dense replayer; see `ReplayViewerProps.dense`.
+      data-dense={dense ? "true" : undefined}
       // One attribute the whole subtree's motion hangs off, so "does this
       // animate" is answered once, in one place, by one CSS rule.
       data-motion={motion}
@@ -888,6 +903,7 @@ function ReplayStage({
               open={settingsOpen}
               onOpenChange={setSettingsOpen}
             />
+            {headerEnd}
             {fullscreenButton}
             {onClose ? (
               <button
@@ -915,6 +931,7 @@ function ReplayStage({
           mask={mask}
           format={format}
           focusSeat={focusSeat}
+          dense={dense}
         />
         {odds ? <PotOddsBox odds={odds} format={format} /> : null}
       </div>
@@ -930,6 +947,7 @@ function ReplayStage({
         speed={speed}
         logOpen={logOpen}
         compact={embed}
+        dense={dense}
         onSeek={seek}
         onStep={step}
         onTogglePlay={togglePlay}
