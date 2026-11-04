@@ -45,7 +45,8 @@ function newer(a: HandRow, b: HandRow): boolean {
   return at === bt ? a.handKey > b.handKey : at > bt;
 }
 
-export function useHandList(source: HandsSource, query: HandFilter): HandList {
+/** `ready` false: only the counts are read (the screen is still choosing the filter from them). */
+export function useHandList(source: HandsSource, query: HandFilter, ready = true): HandList {
   const [rows, setRows] = useState<HandRow[]>([]);
   const [next, setNext] = useState<HandCursor | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,13 @@ export function useHandList(source: HandsSource, query: HandFilter): HandList {
   useEffect(() => {
     const mine = ++generation.current;
     const filter = JSON.parse(queryKey) as HandFilter;
+    source
+      .facets(filter)
+      .then((value) => {
+        if (generation.current === mine) setFacets(value);
+      })
+      .catch(() => undefined);
+    if (!ready) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a new filter starts loading
     setLoading(true);
     source
@@ -82,13 +90,7 @@ export function useHandList(source: HandsSource, query: HandFilter): HandList {
       .finally(() => {
         if (generation.current === mine) setLoading(false);
       });
-    source
-      .facets(filter)
-      .then((value) => {
-        if (generation.current === mine) setFacets(value);
-      })
-      .catch(() => undefined);
-  }, [source, queryKey, reloads]);
+  }, [source, queryKey, reloads, ready]);
 
   const loadMore = useCallback(() => {
     if (!next || loadingMore || loading) {

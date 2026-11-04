@@ -44,6 +44,13 @@ export const handsUiEn = {
   positionalNames: "Anon",
   positionalNamesTitle:
     "This room hides player names behind seat labels that change every hand, so the hand cannot be found by a player's name.",
+  kinds: {
+    label: "Game type",
+    cash: "Cash",
+    tournament: "Tournaments",
+    defaulted: (kind: string) =>
+      `Showing ${kind} only: tournament chips and cash do not add up to one result. Switch with the toggle above.`,
+  },
   filters: {
     label: "Filters",
     clearAll: "Clear all",

@@ -15,8 +15,6 @@ export const reportsUiHr: typeof reportsUiEn = {
   storeError: (reason) => `Izvještaj se nije učitao: ${reason}`,
   noMatch: "Nijedna tvoja ruka ne odgovara ovim filterima.",
   count: (count) => ruku(count),
-  defaultFormat: (format) =>
-    `Prikazujem samo: ${format}. Turnirski žetoni i cash ne zbrajaju se u jedan rezultat. Promijeni to čipom Igra.`,
   summary: {
     label: "Sažetak",
     hands: "Ruke",
