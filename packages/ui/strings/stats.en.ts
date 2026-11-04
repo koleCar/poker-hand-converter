@@ -67,5 +67,15 @@ export const statsUiEn = {
     notComputedHint: "Needs equity over the runout",
     mixedCurrency:
       "This sample spans more than one currency, so the cash series is withheld and only the big-blind ones are drawn. Adding dollars to euros produces a curve with no unit; big blinds are a unit of the game and combine correctly.",
+    zoom: {
+      label: "Zoom",
+      in: "Zoom in",
+      out: "Zoom out",
+      reset: "Show all",
+      hint: "Drag across the graph to zoom in · Ctrl/⌘ + scroll or pinch to zoom · double-click to show all",
+      /** The window shown, its ends and the sample already formatted. */
+      range: (from: string, to: string, total: string) => `Hands ${from}–${to} of ${total}`,
+      navigator: "The whole sample: drag the window to move along it",
+    },
   },
 } as const;

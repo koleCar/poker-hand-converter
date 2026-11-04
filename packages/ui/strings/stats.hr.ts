@@ -61,5 +61,14 @@ export const statsUiHr = {
     notComputedHint: "Treba equity kroz runout",
     mixedCurrency:
       "Ovaj uzorak obuhvaća više valuta, pa je serija u novcu izostavljena i crtaju se samo one u big blindovima. Dolari zbrojeni s eurima daju krivulju bez jedinice; big blindovi su jedinica igre i zbrajaju se ispravno.",
+    zoom: {
+      label: "Zum",
+      in: "Približi",
+      out: "Udalji",
+      reset: "Prikaži sve",
+      hint: "Povuci preko grafa za približavanje · Ctrl/⌘ + scroll ili pinch za zum · dvoklik prikazuje sve",
+      range: (from: string, to: string, total: string) => `Ruke ${from}–${to} od ${total}`,
+      navigator: "Cijeli uzorak: povuci prozor za pomicanje",
+    },
   },
 };

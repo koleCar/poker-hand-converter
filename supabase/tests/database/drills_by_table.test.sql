@@ -90,8 +90,8 @@ select ok(
 select ok(
   (select bool_and(position('analysis_leak_table_of' in pg_get_functiondef(f)) = 0
                    and position('public.require_entitlement(''analysis'')' in pg_get_functiondef(f)) > 0)
-   from unnest(array['public.drill_queue(text, text[], boolean, integer)'::regprocedure,
-                     'public.drill_due_by_spot(text, timestamptz)'::regprocedure]) f),
+   from unnest(array['public.drill_queue(text, text[], boolean, integer, text)'::regprocedure,
+                     'public.drill_due_by_spot(text, timestamptz, text)'::regprocedure]) f),
   'drill_queue and drill_due_by_spot are untouched (no table, still gated)');
 select is(
   (select count(*)::int from information_schema.role_table_grants

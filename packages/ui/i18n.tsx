@@ -291,6 +291,20 @@ export interface WinrateGraphStrings {
   noAllInsHint: string;
   notComputedHint: string;
   mixedCurrency: string;
+  zoom: {
+    /** The zoom buttons' group. */
+    label: string;
+    in: string;
+    out: string;
+    /** Back to every hand. */
+    reset: string;
+    /** How to zoom with a pointer. */
+    hint: string;
+    /** "Hands 120–480 of 1,200", the numbers already formatted. */
+    range: (from: string, to: string, total: string) => string;
+    /** The overview strip under a zoomed graph. */
+    navigator: string;
+  };
 }
 
 /**
