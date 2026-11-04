@@ -6866,11 +6866,94 @@ Each phase appends what it learned that changed the plan.
     all 59 pgTAP files pass (2,051 tests); the Vitest suite and
     `tsc -b` / lint pass.
   - **Open.**
-    - Drills stay per spot key (`drill_due_by_spot`, `drill_queue`): a
+    - ~~Drills stay per spot key (`drill_due_by_spot`, `drill_queue`): a
       heads-up area's drill task counts and deals the 6-max blinds' drill
       items on the same key too (preflop `~hu` areas already did). A drill
-      item keeps its hand, so a table filter there is possible; not done.
-    - The top-leaks examples (`analysis_leak_examples`) and Learn's own-hand
-      exercises read by spot keys without a table.
+      item keeps its hand, so a table filter there is possible; not done.~~
+      Done 2026-11-04 (the next entry, `20271104090000_drills_by_table.sql`).
+    - ~~The top-leaks examples (`analysis_leak_examples`) and Learn's own-hand
+      exercises read by spot keys without a table.~~ Done 2026-11-04 for the
+      examples and Learn's own-area exercise (the next entry); a lesson's
+      own spot patterns still name no table.
     - Not measured on the owner's corpus (how many postflop areas split, how
       many heads-up ones reach a plan).
+- 2026-11-04 — Drills, top-leak examples and Learn's area hands on the area's
+  table. Migration `20271104090000_drills_by_table.sql` (must be applied to
+  prod after merge); no `ANALYSIS_VERSION` change (no grade moves).
+  - **Why.** The open items of the previous entry: since 2026-11-02 a
+    heads-up, a 6-max and a 9-max area with the same seat, role and side are
+    three areas, but a spot key names no table, so the readers that go by
+    spot key alone - the drills (`drill_due_by_spot`, `drill_queue`), the
+    top leaks' examples (`analysis_leak_examples`) and Learn's own-hand
+    exercise - counted and dealt the 6-max blinds' decisions on a heads-up
+    area's keys (and preflop `~hu` areas' since 2026-10-28).
+  - **What was done.**
+    - *A decision's table*: a drill item and an example keep their hand, so
+      their table is their leak row's set (`analysis_leak_rows.chart_set`:
+      the hand's table postflop since `20271102090000`, the chart grade's set
+      preflop), tagged by `analysis_leak_table_of` (`hu`, `9max`, `other`) as
+      the hands behind a leak are read since `20271103090000`; the client
+      side is the same `handsTable` (the area's tag, `other` for an untagged
+      area at a level that still names a table, none above it).
+    - *Database*: two new invoker readers, `drill_due_by_spot_tables`
+      (`drill_due_by_spot`'s rows, each with `tables`: items and due per
+      table, drilled items and Mistakes not drilled yet alike; the key's own
+      counts computed as before) and `drill_queue_on_table` (`drill_queue` on
+      one table, each item saying its table). New functions, not a changed
+      answer or a sixth argument: `drill_due_by_spot` and `drill_queue` stay
+      byte for byte what the owner-first regression tests compare, and their
+      signatures what every grant, gate and test names. Both are gated
+      (added to `entitlement_gates`, the gate written in by
+      `entitlement_gates_apply()`), empty search_path, `authenticated` only.
+      `analysis_leak_examples` takes an optional `table` per leak (absent or
+      null: every table; anything else refused), re-created from
+      `20270818090000` with the same signature and grants, the gate put back.
+      Nothing written. See `docs/DATABASE.md`.
+    - *Client*: `fetchDrillsBySpot` reads the per-table rows and
+      `drillsOn(drills, keys, table)` sums an area's on its table; a row with
+      no split (an older database) counts whole, as before. The study plan's
+      drill task (`planTasks`) is set from the area's own table's due drills,
+      and the plan's live "due now" count and its link use the same table;
+      the Leaks tab's per-leak count and "Drill this" too. The drills address
+      carries `table` with `spots` (`dueDrillQuery`, `drillQuery`;
+      `parseTrainState` drops a table without keys or an unknown one), and
+      the drill trainer deals from `drill_queue_on_table` when it has one.
+      The top leaks ask each leak's examples on its table. Learn's own-hands
+      exercise with an empty spot list (the learner's own costliest area)
+      reads that area's hands on its table (`analysis_leak_hands`'
+      `leakTable`). Each new call falls back to the old reader on a database
+      without the migration (PGRST202), and an older
+      `analysis_leak_examples` ignores the key, so the client can ship first.
+      No new words.
+    - `database.types.ts` regenerated (CLI 2.75.0): the two new functions.
+  - **Tested.** pgTAP `drills_by_table.test.sql` (29): the two new readers'
+    and the re-created one's security (invoker, empty search path, the gate,
+    the gate list, execute grants, anon refused), `drill_queue` and
+    `drill_due_by_spot` untouched, no client write grant; per-table counts
+    on heads-up 100 and 150bb, 6-max, 9-max and a hand no set answers, a
+    Mistake not drilled yet counted on its table, the tables summing to the
+    key, the new reader's rows without `tables` equal to `drill_due_by_spot`;
+    each table's queue, unknown and missing tables refused, `drill_queue`
+    still every table's; examples with no, a null and each table, unknown
+    and non-string tables refused; one account's rows only.
+    `entitlements.test.sql`: the gate list counts 45 analysis functions. On a
+    fresh local stack with every migration all 61 pgTAP files pass (2,082
+    tests). `tests/test/drillsByTable.test.ts` (11): `drillsOn` per table,
+    every table and an old row; the per-spot rows read with and without a
+    split; three areas on one key each given their own table's drill task,
+    and every table's on an old database; the address round trip and its
+    refusals; the queue and counts calling the new readers and falling back
+    on PGRST202 only; the examples sending each leak's table. The Vitest
+    suite and `tsc -b` / lint pass.
+  - **Open.**
+    - Learn's lesson exercises and examples by a lesson's own spot patterns
+      (`rowMatches`; `OwnHandsExercise` with spots, `LessonExamples`) still
+      read every table: a lesson names no table. Reading them on the
+      learner's most-played table, or one per pattern, is a content choice,
+      not done here.
+    - A drill task stored before this change keeps its target (counted on
+      every table); its link and live count now read the area's table, so a
+      heads-up task may show fewer due than its target until the next plan.
+    - The pot type (the first 2026-11-02 entry's "Open") still merges single-raised and
+      3-bet postflop areas; drills follow the area, so they merge too.
+    - Not measured on the owner's corpus.
