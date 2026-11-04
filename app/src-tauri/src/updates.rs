@@ -446,55 +446,74 @@ fn start_download<R: Runtime>(app: &AppHandle<R>, state: &UpdatesState) -> Resul
     Ok(())
 }
 
-/// Install the downloaded package and restart into it.
-fn install<R: Runtime>(app: &AppHandle<R>, state: &UpdatesState) -> Result<(), String> {
+/// Install the downloaded package and restart into it, off the main thread.
+///
+/// A sync command runs on the main thread, and the install is slow there:
+/// on Windows it writes the installer to disk, stops the HUD sidecar and the
+/// background work (seconds), then starts the installer - all before the
+/// process exits. Done on the main thread, the window stops answering
+/// meanwhile and Windows offers to close it ("Rail is not responding"),
+/// which kills the update half way. So the command only takes the package,
+/// says "installing" and answers; the install runs on a blocking thread and
+/// reports a failure as [`Phase::Failed`].
+fn start_install<R: Runtime>(app: &AppHandle<R>, state: &UpdatesState) -> Result<(), String> {
     if let Some(blocker) = install_blocker() {
         return Err(format!(
             "this copy of Rail cannot update itself ({blocker:?})"
         ));
     }
-    let (update, package) =
-        state.with(
-            |inner| match (&inner.phase, &inner.update, &inner.package) {
-                (Some(Phase::Ready { .. }), Some(update), Some(package)) => {
-                    Ok((update.clone(), Arc::clone(package)))
-                }
-                _ => Err("there is no downloaded update to install".to_owned()),
-            },
-        )?;
-    let version = update.version.clone();
-    set_phase(
-        app,
-        state,
-        Phase::Installing {
-            version: version.clone(),
-        },
-    );
-    log::info!("updates: installing {version}");
+    // Taken and marked "installing" under one lock: a second click finds a
+    // busy phase, not a second installer.
+    let (update, package) = state.with(|inner| {
+        let taken = match (&inner.phase, &inner.update, &inner.package) {
+            (Some(Phase::Ready { .. }), Some(update), Some(package)) => {
+                (update.clone(), Arc::clone(package))
+            }
+            _ => return Err("there is no downloaded update to install".to_owned()),
+        };
+        inner.phase = Some(Phase::Installing {
+            version: taken.0.version.clone(),
+        });
+        Ok(taken)
+    })?;
+    notify(app, state);
+    log::info!("updates: installing {}", update.version);
 
+    let app = app.clone();
+    tauri::async_runtime::spawn_blocking(move || install(&app, &update, &package));
+    Ok(())
+}
+
+/// Install the package and restart into it. Blocks: on a background thread
+/// only (see [`start_install`]).
+fn install<R: Runtime>(app: &AppHandle<R>, update: &Update, package: &[u8]) {
+    let version = update.version.clone();
     // Windows: the hook set in `check` stops the background work, then the
     // installer starts and this process exits inside `install`.
-    match update.install(package.as_slice()) {
+    match update.install(package) {
         Ok(()) => {
             // macOS: the bundle was replaced; the restart runs the new one
-            // (and the exit event stops the background work first).
+            // (and the exit event stops the background work first). From a
+            // thread other than the main one it asks the event loop to exit
+            // and restarts there.
             log::info!("updates: {version} installed, restarting");
             app.restart();
         }
         Err(error) => {
             let kind = classify(&error);
             log::error!("updates: the install of {version} failed: {error}");
-            set_phase(
-                app,
-                state,
-                Phase::Failed {
-                    stage: Stage::Install,
-                    kind,
-                    reason: error.to_string(),
-                    version: Some(version),
-                },
-            );
-            Err(error.to_string())
+            if let Some(state) = app.try_state::<UpdatesState>() {
+                set_phase(
+                    app,
+                    &state,
+                    Phase::Failed {
+                        stage: Stage::Install,
+                        kind,
+                        reason: error.to_string(),
+                        version: Some(version),
+                    },
+                );
+            }
         }
     }
 }
@@ -543,14 +562,15 @@ pub fn update_download<R: Runtime>(
     Ok(status(&app, &state))
 }
 
-/// "Install and restart". On success the app restarts (macOS) or exits for
-/// the installer (Windows), so the answer is only ever an error.
+/// "Install and restart": starts the install and answers at once; the
+/// window hears "installing", then the app restarts (macOS) or exits for the
+/// installer (Windows), or the phase turns to a failed install.
 #[tauri::command]
 pub fn update_install<R: Runtime>(
     app: AppHandle<R>,
     state: State<'_, UpdatesState>,
 ) -> Result<(), String> {
-    install(&app, &state)
+    start_install(&app, &state)
 }
 
 /// The setting: check by itself (on by default).
