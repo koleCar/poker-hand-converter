@@ -62,7 +62,11 @@
 //!   with the server and kept for the offline grace period; once paid plans
 //!   are enforced, a Free (or signed-out) app does not start the HUD, does
 //!   not run the analysis, locks the full reports and holds sync. While
-//!   enforcement is off (today) everything is open.
+//!   enforcement is off (today) everything is open;
+//! - updates ([`updates`]): Settings, Updates checks the release's
+//!   `latest.json` (by itself too, while the setting is on), downloads and
+//!   verifies the package, and installs it and restarts on the user's click
+//!   (`tauri-plugin-updater`, called from Rust only).
 
 use std::sync::Mutex;
 
@@ -94,6 +98,7 @@ pub mod stats;
 pub mod strings;
 pub mod sync;
 pub mod tray;
+pub mod updates;
 pub mod watch;
 
 /// The main window's label (`tauri.conf.json`).
@@ -111,6 +116,25 @@ pub fn show_main_window<R: Runtime>(app: &AppHandle<R>) {
     let _ = window.unminimize();
     let _ = window.show();
     let _ = window.set_focus();
+}
+
+/// Stop the background work the store waits for: the HUD first (its
+/// overlays go at once, and on Windows its `.exe` must be free for an
+/// update's installer), then the sync worker, the watcher and the statistics
+/// pass. On exit, and before an update's installer takes over.
+pub fn stop_background<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(hud) = app.try_state::<hud::HudState>() {
+        hud.stop();
+    }
+    if let Some(sync) = app.try_state::<sync::SyncState>() {
+        sync.stop();
+    }
+    if let Some(watcher) = app.try_state::<watch::WatcherState>() {
+        watcher.stop();
+    }
+    if let Some(stats) = app.try_state::<stats::StatsState>() {
+        stats.stop();
+    }
 }
 
 fn log_plugin<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
@@ -248,6 +272,9 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // (R3.10) The remote sites.json: a look shortly after start, then every
     // few hours; a new copy reaches the HUD, the popup and the window.
     policy::spawn(app);
+    // Updates: the automatic check, shortly after start and every few hours.
+    app.manage(updates::UpdatesState::default());
+    updates::spawn(app);
 
     // The window is created hidden (`visible: false`) so a login start can
     // stay in the tray.
@@ -279,7 +306,11 @@ pub fn run() {
         ))
         // The folder picker of the first-run screen (and the dev panel's
         // file picker), called from Rust only.
-        .plugin(tauri_plugin_dialog::init());
+        .plugin(tauri_plugin_dialog::init())
+        // Updates (`updates.rs`): the release's `latest.json`, the package
+        // verified with the public key in tauri.conf.json. Called from Rust
+        // only; the window has no updater permission.
+        .plugin(tauri_plugin_updater::Builder::new().build());
 
     #[cfg(debug_assertions)]
     let builder = builder.invoke_handler(tauri::generate_handler![
@@ -291,6 +322,12 @@ pub fn run() {
         commands::set_locale,
         commands::set_start_at_login,
         commands::set_first_run_done,
+        updates::update_status,
+        updates::update_check,
+        updates::update_download,
+        updates::update_install,
+        updates::set_check_for_updates,
+        updates::update_open_download_page,
         commands::store_status,
         watch::watcher_status,
         watch::set_import_paused,
@@ -413,6 +450,12 @@ pub fn run() {
         commands::set_locale,
         commands::set_start_at_login,
         commands::set_first_run_done,
+        updates::update_status,
+        updates::update_check,
+        updates::update_download,
+        updates::update_install,
+        updates::set_check_for_updates,
+        updates::update_open_download_page,
         commands::store_status,
         watch::watcher_status,
         watch::set_import_paused,
@@ -547,23 +590,8 @@ pub fn run() {
         .expect("the Tauri app could not be built");
 
     app.run(|app, event| match event {
-        // The HUD first (its overlays go at once), then the watcher, the
-        // sync worker and the statistics pass: the store waits for their
-        // writer handles.
-        tauri::RunEvent::Exit => {
-            if let Some(hud) = app.try_state::<hud::HudState>() {
-                hud.stop();
-            }
-            if let Some(sync) = app.try_state::<sync::SyncState>() {
-                sync.stop();
-            }
-            if let Some(watcher) = app.try_state::<watch::WatcherState>() {
-                watcher.stop();
-            }
-            if let Some(stats) = app.try_state::<stats::StatsState>() {
-                stats.stop();
-            }
-        }
+        // The store waits for the background work's writer handles.
+        tauri::RunEvent::Exit => stop_background(app),
         // macOS: a click on the Dock icon while the window is hidden.
         #[cfg(target_os = "macos")]
         tauri::RunEvent::Reopen { .. } => show_main_window(app),

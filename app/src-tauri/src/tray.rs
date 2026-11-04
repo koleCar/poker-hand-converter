@@ -115,7 +115,15 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
                 crate::show_main_window(tray.app_handle());
             }
         });
-    if let Some(icon) = app.default_window_icon() {
+    // macOS: the Rail mark alone as a template image, which the system
+    // recolours for a light or dark menu bar (a full-colour app tile reads as
+    // a foreign object up there). Windows: the app icon, whose dark tile keeps
+    // the mark visible on a light or dark taskbar.
+    if cfg!(target_os = "macos") {
+        tray = tray
+            .icon(tauri::include_image!("icons/tray-template.png"))
+            .icon_as_template(true);
+    } else if let Some(icon) = app.default_window_icon() {
         tray = tray.icon(icon.clone());
     }
     tray.build(app)?;

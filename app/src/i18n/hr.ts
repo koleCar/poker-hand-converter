@@ -68,6 +68,8 @@ export const hr: Dict = {
     signIn: "Prijava",
     signingIn: "Prijava u tijeku…",
     offline: "izvan mreže",
+    updateAvailable: (version) => `Novo: Rail ${version}`,
+    updateReady: (version) => `Instaliraj Rail ${version}`,
   },
 
   placeholder: "Još nije napravljeno.",
@@ -646,6 +648,52 @@ export const hr: Dict = {
       startAtLoginHint: "Rail se pokreće u traci sustava, spreman za uvoz, bez otvaranja ovog prozora.",
     },
 
+    updates: {
+      heading: "Ažuriranja",
+      current: (version) => `Imaš Rail ${version}.`,
+      lastChecked: (time) => `Zadnja provjera: ${time}.`,
+      notChecked: "Još nije provjereno otkad je Rail pokrenut.",
+      check: "Provjeri ažuriranja",
+      checking: "Provjeravam…",
+      upToDate: "Rail je ažuran.",
+      available: (version) => `Dostupan je Rail ${version}.`,
+      published: (date) => `Objavljeno ${date}`,
+      whatsNew: "Što je novo",
+      download: "Preuzmi ažuriranje",
+      downloadHint: "Rail normalno radi dok se preuzima. Instalira se tek kad ti kažeš.",
+      downloading: (version) => `Preuzimam Rail ${version}…`,
+      progress: (done, total, percent) => `${done} od ${total} MB (${percent} %)`,
+      progressUnknown: (done) => `${done} MB`,
+      ready: (version) => `Rail ${version} je preuzet i provjeren.`,
+      install: "Instaliraj i ponovno pokreni",
+      installHint:
+        "Rail se na trenutak zatvori i ponovno otvori u novoj verziji. Ruke, mape i postavke ostaju kakve jesu.",
+      tablesOpen: "Otvoren je poker stol: HUD nestaje dok se Rail ponovno pokreće. Bolje između sesija.",
+      installing: (version) => `Instaliram Rail ${version}…`,
+      automatic: "Automatski provjeravaj ažuriranja",
+      automaticHint:
+        "Malo nakon pokretanja Raila, zatim svakih nekoliko sati. Rail samo provjerava: preuzima i instalira tek na tvoj klik.",
+      failed: {
+        check: "Provjera ažuriranja nije uspjela.",
+        download: "Preuzimanje nije završilo.",
+        install: "Ažuriranje se nije moglo instalirati.",
+      },
+      kinds: {
+        network: "Rail nije mogao doći do poslužitelja s ažuriranjima; provjeri vezu i pokušaj ponovno.",
+        noRelease: "Podaci o ažuriranju još nisu objavljeni.",
+        noBuild: "Najnovije izdanje nema paket za ovo računalo.",
+        signature: "Potpis paketa se nije poklopio pa ga Rail nije koristio.",
+        other: (reason) => reason,
+      },
+      tryAgain: "Pokušaj ponovno",
+      downloadPage: "Preuzmi s web stranice",
+      blockers: {
+        devBuild: "Razvojni build: može provjeriti i preuzeti, ali ažuriranja instalira samo build iz izdanja.",
+        readOnlyLocation:
+          "Rail je pokrenut s disk imagea ili s mjesta samo za čitanje. Premjesti Rail u mapu Applications i otvori ga odande da bi se ažurirao ovdje, ili preuzmi novu verziju s web stranice.",
+      },
+    },
+
     about: {
       heading: "O aplikaciji",
       version: "Verzija",
@@ -894,6 +942,7 @@ export const hr: Dict = {
       statistics: "Vlastite statistike",
       appearance: "Izgled i jezik",
       startup: "Pokretanje",
+      updates: "Ažuriranja",
       about: "O aplikaciji",
     },
     commands: "Naredbe",
@@ -917,7 +966,7 @@ export const hr: Dict = {
       density: "gustoća zbijeno prozračno retci razmak density compact",
       language: "jezik engleski english hrvatski language",
       refused: "odbijene karantena greške nečitljive refused",
-      settings: "postavke opcije settings",
+      settings: "postavke opcije settings ažuriranje nadogradnja verzija update",
     },
     hints: {
       move: "kretanje",

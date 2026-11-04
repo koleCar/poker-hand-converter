@@ -175,8 +175,10 @@ impl Reader {
                 |row| row.get(0),
             )?;
             let mut stmt = conn.prepare_cached(
-                "SELECT reason, count(*) AS n FROM sync_rejected GROUP BY reason
-                 ORDER BY n DESC, reason",
+                "SELECT r.reason, count(*) AS n FROM sync_rejected r
+                 JOIN hands h ON h.hand_key = r.hand_key
+                 WHERE h.variant NOT LIKE 'omaha%'
+                 GROUP BY r.reason ORDER BY n DESC, r.reason",
             )?;
             let rejected = stmt
                 .query_map([], |row| {
@@ -213,11 +215,15 @@ impl Reader {
     }
 
     /// Hands the server refused, newest first (for a list in the UI).
+    /// Omaha hands are left out, as in the counts: Omaha is not worked out
+    /// yet, and its refusals are not something the player can act on.
     pub fn sync_rejected(&self, limit: u32) -> Result<Vec<Rejection>> {
         self.with(|conn| {
             let mut stmt = conn.prepare_cached(
-                "SELECT hand_key, reason, field FROM sync_rejected
-                 ORDER BY rejected_at DESC, hand_key LIMIT ?1",
+                "SELECT r.hand_key, r.reason, r.field FROM sync_rejected r
+                 JOIN hands h ON h.hand_key = r.hand_key
+                 WHERE h.variant NOT LIKE 'omaha%'
+                 ORDER BY r.rejected_at DESC, r.hand_key LIMIT ?1",
             )?;
             let rows = stmt.query_map([limit], |row| {
                 Ok(Rejection {

@@ -11406,6 +11406,26 @@ web's package taken from CI (`npm run wasm:web-from-ci`).
   PR builds.
 - **Updates**: Tauri updater with its own signing key; feed on GitHub Releases
   (or the Rail domain); channels `beta` and `stable`.
+  - **Built (2026-11-04)**: Settings, Updates (`app/src-tauri/src/updates.rs`,
+    `tauri-plugin-updater` 2.11.0, called from Rust only): "Check for
+    updates", and by itself shortly after start and every 6 hours while the
+    setting `checkForUpdates` is on (default); a found version shows its
+    notes and a "Download update" button, the download its progress, then
+    "Install and restart" (macOS: the new `Rail.app` replaces this one, then a
+    restart; Windows: the NSIS installer in passive mode, after the HUD,
+    sync, the watcher and the statistics pass are stopped). Nothing
+    downloads or installs without a click; the sidebar shows a quiet
+    "Update" link while one is waiting. A debug build and a macOS copy run
+    from the disk image cannot install and say so, with the web's
+    `/download` as the way out. The feed is the latest full release's
+    `latest.json` (`releases/latest/download/latest.json`), so pre-releases
+    are never offered (the `beta` channel is not built). The release
+    workflow signs the packages (`Rail-macOS.app.tar.gz`, the Windows
+    installer) with the updater key from the secrets
+    `TAURI_SIGNING_PRIVATE_KEY` / `_PASSWORD`, the public half in
+    `tauri.conf.json`, and publishes the release from a draft once
+    `latest.json` is in it. 0.1.0 has no updater: its users install the
+    first release after it by hand.
 - **Crash reports**: Sentry, opt-in only, no hand data in reports.
 - **Release checklist**: compliance re-check (R3.0) for every room with
   `hud.allowed = true`; golden diff green; performance gate green; migrations

@@ -17,8 +17,9 @@
  * Every number is the surface's `ReportSource`'s (the desktop's store, the
  * web's server summaries), in the R2.4 `Shown` shape; money is refused as
  * the web always refused it (chips with cash: no result; two currencies: big
- * blinds only). On a library that mixes game formats the report opens on
- * the format with the most hands.
+ * blinds only). On a library with both cash and tournaments the report
+ * shows one kind - the Cash / Tournaments toggle's, else the one with more
+ * hands (`hands/gameKind.ts`) - so there is always a result and a graph.
  *
  * The desktop app's screen (R2.7b, `app/src/screens/Reports.tsx` before
  * R4.5c), lifted out of it: the filter, the tab and where they live (the
@@ -31,6 +32,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { FilterBar, REPORT_GROUPS } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
+import { pinKind } from "../hands/gameKind";
+import { KindToggle } from "../hands/KindToggle";
 import type { HandFacets, HandFilter } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
@@ -48,13 +51,6 @@ export { isTab, type Tab };
 
 const DEFINITION_GROUPS: DefinitionGroup[] = ["results", "preflop", "postflop", "showdown"];
 
-/** The game format with the most hands, when the library holds more than one. */
-export function biggestFormat(facets: HandFacets): string | null {
-  const formats = facets.formats.filter((format) => format.value !== "" && format.count > 0);
-  if (formats.length < 2) return null;
-  return [...formats].sort((a, b) => b.count - a.count)[0]?.value ?? null;
-}
-
 /** The money view's currency, when the sample has one. */
 function moneyOf(units: Units): WinrateGraphMoney | null {
   if (units.mixedKind || units.mixedCurrency || units.currency === null || units.minorUnits === null) {
@@ -69,7 +65,7 @@ export interface ReportsScreenProps {
   source: ReportSource;
   /** The definitions every `stats` list is matched to; `null` while they load. */
   definitions: readonly Definition[] | null;
-  /** The reader's filter; `null` until they set one (the screen then opens on the biggest format). */
+  /** The reader's filter; `null` until they set one. */
   chosen: FilterState | null;
   onChoose: (filter: FilterState) => void;
   tab: Tab;
@@ -119,18 +115,17 @@ export function ReportsScreen({
   const ui = useUiStrings();
   const r = ui.reports;
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
-  // A library with tournaments and cash opens on the format with the most
-  // hands (the web's old `defaultScope`), and says so: the chips' counts decide.
-  const defaultFormat = chosen === null && facetsSeen ? biggestFormat(facetsSeen) : null;
-  const filter = useMemo(
-    () => chosen ?? (defaultFormat ? { ...EMPTY_FILTER, formats: [defaultFormat] } : EMPTY_FILTER),
-    [chosen, defaultFormat],
-  );
+  // Cash and tournaments never add up: a filter that does not pick one kind
+  // shows the one with more hands, and says so (the Game chip's counts,
+  // which leave its own choice out, decide).
+  const pinned = useMemo(() => pinKind(chosen ?? EMPTY_FILTER, facetsSeen), [chosen, facetsSeen]);
+  const filter = pinned.filter;
+  const defaultKind = pinned.defaulted;
   const query = useMemo(() => toQuery(filter), [filter]);
-  // The first report waits for the counts that pick its format.
-  const state = useReport(source, query, chosen !== null || facetsSeen !== null, reloadToken);
+  // The first report waits for the counts that pick its kind.
+  const state = useReport(source, query, facetsSeen !== null, reloadToken);
   const { report, facets, wantBreakdowns } = state;
-  if (facets !== null && facetsSeen === null) {
+  if (facets !== null && facets !== facetsSeen) {
     setFacetsSeen(facets);
   }
   const [unit, setUnit] = useState<"bb" | "money">("bb");
@@ -177,6 +172,7 @@ export function ReportsScreen({
           </span>
         ) : null}
         {refetching ? <RailLoader size="inline" label={r.loading} /> : null}
+        <KindToggle filter={filter} facets={facetsSeen} onChange={onChoose} />
       </header>
       <FilterBar
         filter={filter}
@@ -186,11 +182,7 @@ export function ReportsScreen({
         screen="reports"
         saved={source.savedFilters}
       />
-      {defaultFormat !== null ? (
-        <p className={styles.notice}>
-          {r.defaultFormat((ui.hands.filters.formats as Record<string, string>)[defaultFormat] ?? defaultFormat)}
-        </p>
-      ) : null}
+      {defaultKind !== null ? <p className={styles.notice}>{ui.hands.kinds.defaulted(ui.hands.kinds[defaultKind])}</p> : null}
       {notice}
       {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (

@@ -8,17 +8,23 @@
  * `HandsSource`; the filter, the chosen hand and where they live (the app's
  * route, the web's state) are the surface's too.
  *
+ * On a library with both cash and tournaments the list shows one kind - the
+ * Cash / Tournaments toggle's, else the one with more hands
+ * (`gameKind.ts`); the filter the surface keeps is narrowed when it is read.
+ *
  * The desktop app's screen (R2.7a, `app/src/screens/Hands.tsx` before
  * R4.5b), lifted out of it.
  */
-import { useEffect, useMemo, useRef, type ReactNode, type Ref } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { FilterBar, handGroups } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
+import { pinKind } from "./gameKind";
 import { HandList } from "./HandList";
+import { KindToggle } from "./KindToggle";
 import styles from "./Hands.module.css";
-import type { HandRow, HandsSource } from "./model";
+import type { HandFacets, HandRow, HandsSource } from "./model";
 import { useHandList, type HandList as HandListState } from "./useHandList";
 
 export interface HandsScreenProps {
@@ -57,7 +63,7 @@ export interface HandsScreenProps {
 
 export function HandsScreen({
   source,
-  filter,
+  filter: chosen,
   onFilterChange,
   selected,
   onSelect,
@@ -76,9 +82,17 @@ export function HandsScreen({
   fill = false,
 }: HandsScreenProps) {
   const t = useUiStrings().hands;
+  // Cash and tournaments never add up: a filter that does not pick one kind
+  // shows the one with more hands (the Game chip's counts, which leave its
+  // own choice out, decide; the first page waits for them).
+  const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
+  const filter = useMemo(() => pinKind(chosen, facetsSeen).filter, [chosen, facetsSeen]);
   // A date preset is resolved when the filter is set ("last 7 days" from now).
   const query = useMemo(() => toQuery(filter), [filter]);
-  const list = useHandList(source, query);
+  const list = useHandList(source, query, facetsSeen !== null);
+  if (list.facets !== null && list.facets !== facetsSeen) {
+    setFacetsSeen(list.facets);
+  }
   const groups = useMemo(() => handGroups(source.features), [source.features]);
   const searchFields = useMemo(
     () => ({
@@ -147,6 +161,7 @@ export function HandsScreen({
           </span>
         ) : null}
         {refetching ? <RailLoader size="inline" label={t.loading} /> : null}
+        <KindToggle filter={filter} facets={facets} onChange={onFilterChange} />
       </header>
       {status}
       <FilterBar

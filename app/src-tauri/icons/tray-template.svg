@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    The macOS menu-bar icon: the small-size RailMark (heavier stroke, thicker
+    board) in black on transparent. macOS uses it as a template image, so the
+    system recolours it for a light or dark menu bar. Rendered to
+    tray-template.png (44px, the @2x of a 22pt menu-bar slot) with
+    `npx tauri icon src-tauri/icons/tray-template.svg -o <tmp> -p 44`.
+  -->
+  <ellipse cx="16" cy="16" rx="13" ry="7.5" fill="none" stroke="#000" stroke-width="3.5" />
+  <rect x="11.5" y="14.25" width="9" height="3.5" rx="1.75" fill="#000" />
+</svg>

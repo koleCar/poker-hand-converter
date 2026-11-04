@@ -78,6 +78,11 @@ pub struct Settings {
     /// again at any time. A file from before R1.4 lacks the field, so that
     /// install sees the screen once.
     pub first_run_done: bool,
+    /// Settings, Updates: look for a newer Rail by itself, shortly after
+    /// start and then every few hours (`updates.rs`). It only looks;
+    /// downloading and installing are always the user's click. On by
+    /// default, so a file from before it checks too.
+    pub check_for_updates: bool,
 }
 
 impl Default for Settings {
@@ -89,6 +94,7 @@ impl Default for Settings {
             locale: Locale::default(),
             start_at_login: false,
             first_run_done: false,
+            check_for_updates: true,
         }
     }
 }
@@ -340,7 +346,8 @@ mod tests {
                 "density": "comfortable",
                 "locale": "en",
                 "startAtLogin": false,
-                "firstRunDone": false
+                "firstRunDone": false,
+                "checkForUpdates": true
             })
         );
     }
@@ -353,6 +360,19 @@ mod tests {
         assert!(!store.get().first_run_done, "a file from before R1.4");
         store.update(|s| s.first_run_done = true).expect("save");
         assert!(Store::load(dir.file()).0.get().first_run_done);
+    }
+
+    #[test]
+    fn checking_for_updates_round_trips_and_defaults_to_on() {
+        let dir = TempDir::new();
+        write_atomic(&dir.file(), br#"{"version":1,"theme":"dark"}"#).expect("write");
+        let (mut store, _) = Store::load(dir.file());
+        assert!(
+            store.get().check_for_updates,
+            "a file from before the setting"
+        );
+        store.update(|s| s.check_for_updates = false).expect("save");
+        assert!(!Store::load(dir.file()).0.get().check_for_updates);
     }
 
     #[test]

@@ -16,8 +16,6 @@ export const reportsUiEn = {
   storeError: (reason: string) => `The report did not load: ${reason}`,
   noMatch: "None of your hands matches these filters.",
   count: (count: number) => hands(count),
-  defaultFormat: (format: string) =>
-    `Showing ${format} only: tournament chips and cash do not add up to one result. Change it with the Game chip.`,
   summary: {
     label: "Summary",
     hands: "Hands",

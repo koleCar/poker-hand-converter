@@ -74,6 +74,11 @@ keyring = { version = "=3.6.3", features = ["apple-native", "windows-native"] }
 open = "=5.3.3"
 url = "=2.5.8"
 tauri-plugin-autostart = "=2.5.1"
+# Settings, Updates: the check against the release's `latest.json`, the
+# download (verified with the minisign public key in tauri.conf.json) and
+# the install. Called from Rust only (`updates.rs`); no plugin permission for
+# the window.
+tauri-plugin-updater = "=2.11.0"
 # `tauri` 2.11.5 asks for its own sub-crates with caret requirements, so a
 # fresh resolve pulls the 2.12 line of these, which does not compile against
 # tauri 2.11 (`Error::UnexpectedMenuKind` and friends). They are listed only

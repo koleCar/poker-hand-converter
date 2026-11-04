@@ -207,6 +207,40 @@
   font-size: var(--font-size-xs);
 }
 
+/* A newer Rail (Settings, Updates): above the account, and pushed to the
+   foot with it (the first of the two takes the auto margin). */
+.update {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  margin-bottom: calc(-1 * var(--space-4));
+  padding: var(--space-2) var(--space-3);
+  overflow: hidden;
+  border-radius: var(--radius-2);
+  color: var(--accent-fg);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.update:hover {
+  background: var(--surface-hover);
+}
+
+.updateDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  /* On the icons' centre line, so it stays put when the sidebar collapses. */
+  margin: 0 6px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+}
+
+.update + .account {
+  margin-top: 0;
+}
+
 /* Who is signed in (R1.7), pushed to the sidebar's foot. */
 .account {
   display: flex;
