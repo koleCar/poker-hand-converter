@@ -10,15 +10,12 @@
  */
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
-import { FORMAT_ORDER, POSITION_ORDER, SIZE_ORDER } from "../hands/filter";
+import { POSITION_ORDER } from "../hands/filter";
 import { handFormat, stakeLabel } from "../hands/format";
 import type { PlayerRef } from "../hands/model";
 import { useUiStrings } from "../i18n";
-import type { StatDefinition, StatGroup as DefinitionGroup } from "../model/stats";
 import { GroupTable } from "../reports/Breakdown";
-import { statRows, textLocale } from "../reports/definitions";
 import type { Definition, StatGroup } from "../reports/model";
-import { StatTable } from "../stats/StatTable";
 import {
   PLAYER_COLOURS,
   reasonText,
@@ -29,10 +26,10 @@ import {
   type PlayersSource,
   type Together,
 } from "./model";
+import { PlayerStats } from "./PlayerStats";
 import styles from "./Players.module.css";
 
-const DEFINITION_GROUPS: DefinitionGroup[] = ["preflop", "postflop", "showdown", "results"];
-const TABS = ["position", "stake", "size", "format"] as const;
+const TABS = ["position", "stake"] as const;
 type Tab = (typeof TABS)[number];
 /** How long typing pauses before the note is saved. */
 const NOTE_DEBOUNCE_MS = 700;
@@ -94,31 +91,45 @@ export function PlayerProfile({
   }, [source, site, player, shownKind]);
 
   const kinds: GameKind[] = ["all", "cash", "chips"];
+  const together = profile?.seen ? profile.seen.cash.hands + profile.seen.chips.hands : null;
   return (
     <section className={styles.profile} aria-labelledby={headingId} tabIndex={-1}>
       <div className={styles.profileHead}>
-        <div>
+        <div className={styles.profileWho}>
           <h2 id={headingId} className={styles.profileName}>
             {player}
           </h2>
           <p className={styles.muted}>{profile?.siteName ?? site}</p>
         </div>
-        <button type="button" className="btn btn--icon" aria-label={t.close} title={t.close} onClick={onClose}>
-          ×
-        </button>
-      </div>
-      <div className={styles.segmented} role="group" aria-label={t.kind} title={t.kindHint}>
-        {kinds.map((value) => (
-          <button
-            key={value}
-            type="button"
-            className={`chip-btn${shownKind === value ? " is-active" : ""}`}
-            aria-pressed={shownKind === value}
-            onClick={() => setOwnKind(value)}
-          >
-            {players.kinds[value]}
+        <div className={styles.profileActions}>
+          <div className={styles.segmented} role="group" aria-label={t.kind} title={t.kindHint}>
+            {kinds.map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={`chip-btn${shownKind === value ? " is-active" : ""}`}
+                aria-pressed={shownKind === value}
+                onClick={() => setOwnKind(value)}
+              >
+                {players.kinds[value]}
+              </button>
+            ))}
+          </div>
+          {together !== null ? (
+            <button
+              type="button"
+              className={`btn btn--sm ${styles.handsWith}`}
+              title={t.handsWith(together)}
+              onClick={() => onHandsWith({ site, player })}
+            >
+              {t.handsButton(together)}
+              <span aria-hidden="true"> →</span>
+            </button>
+          ) : null}
+          <button type="button" className="btn btn--icon" aria-label={t.close} title={t.close} onClick={onClose}>
+            ×
           </button>
-        ))}
+        </div>
       </div>
       {error !== null
         ? renderState("error", t.failed(error), true)
@@ -133,7 +144,6 @@ export function PlayerProfile({
                   profile={profile}
                   definitions={definitions}
                   notesFootnote={notesFootnote}
-                  onHandsWith={onHandsWith}
                   onNotes={onNotes}
                 />
               </div>
@@ -148,19 +158,16 @@ export function ProfileBody({
   profile,
   definitions,
   notesFootnote,
-  onHandsWith,
   onNotes,
 }: {
   source: PlayersSource;
   profile: Profile;
   definitions: readonly Definition[];
   notesFootnote: string | null;
-  onHandsWith: (player: PlayerRef) => void;
   onNotes: (notes: PlayerNotes) => void;
 }) {
   const all = useUiStrings();
   const t = all.players.profile;
-  const locale = textLocale(all.intlLocale);
   const { bigBlinds, count, playedAt } = useMemo(() => handFormat(all.intlLocale), [all.intlLocale]);
   const seen = profile.seen;
   if (seen === null) return null;
@@ -169,14 +176,11 @@ export function ProfileBody({
     <div className={styles.fact}>
       <dt>{label}</dt>
       <dd className={kind.netBbMilli > 0 ? styles.up : kind.netBbMilli < 0 ? styles.down : ""}>
-        {kind.moneyHands === 0 ? t.noHands : t.resultLine(bigBlinds(kind.netBbMilli), kind.moneyHands)}
+        {kind.moneyHands === 0 ? t.noHands : `${bigBlinds(kind.netBbMilli)} bb`}
       </dd>
     </div>
   );
-  // Theirs to show: not the hero-only all-in EV, and no money (an
-  // opponent's report is in big blinds, as the web's).
-  const anyPlayer = (definition: StatDefinition) =>
-    definition.players === "any" && definition.format.unit !== "money";
+  const both = seen.cash.hands > 0 && seen.chips.hands > 0;
 
   return (
     <>
@@ -185,17 +189,16 @@ export function ProfileBody({
           <dt>{t.together}</dt>
           <dd>
             {count(together)}
-            <span className={styles.muted}>
-              {" "}
-              {[
-                seen.cash.hands > 0 ? t.togetherCash(seen.cash.hands) : null,
-                seen.chips.hands > 0 ? t.togetherChips(seen.chips.hands) : null,
-              ]
-                .filter((part) => part !== null)
-                .join(" · ")}
-            </span>
+            {both ? (
+              <span className={styles.muted}>
+                {" "}
+                {[t.togetherCash(seen.cash.hands), t.togetherChips(seen.chips.hands)].join(" · ")}
+              </span>
+            ) : null}
           </dd>
         </div>
+        {seen.cash.hands > 0 ? result(both ? `${t.yourResult} · ${t.resultCash}` : t.yourResult, seen.cash) : null}
+        {seen.chips.hands > 0 ? result(both ? `${t.yourResult} · ${t.resultChips}` : t.yourResult, seen.chips) : null}
         <div className={styles.fact}>
           <dt>{t.firstSeen}</dt>
           <dd>{playedAt(seen.firstPlayedAt)}</dd>
@@ -205,54 +208,75 @@ export function ProfileBody({
           <dd>{playedAt(seen.lastPlayedAt)}</dd>
         </div>
       </dl>
-      <div className={styles.resultBlock}>
-        <h3 className={styles.subhead}>{t.result}</h3>
-        <dl className={styles.facts}>
-          {seen.cash.hands > 0 ? result(t.resultCash, seen.cash) : null}
-          {seen.chips.hands > 0 ? result(t.resultChips, seen.chips) : null}
-        </dl>
-      </div>
-      <button
-        type="button"
-        className={`btn ${styles.handsWith}`}
-        onClick={() => onHandsWith({ site: profile.site, player: profile.player })}
-      >
-        {t.handsWith(together)}
-      </button>
 
+      <WordsDisclosure
+        source={source}
+        profile={profile}
+        notesFootnote={notesFootnote}
+        onNotes={onNotes}
+      />
+
+      <div>
+        <div className={styles.statsHead}>
+          <h3 className={styles.subhead}>{t.stats}</h3>
+          <span className={styles.muted}>{t.statsSample(seen.hands)}</span>
+        </div>
+        {profile.mixedKind ? <p className={styles.warning}>{t.mixedKind}</p> : null}
+        <PlayerStats profile={profile} definitions={definitions} />
+        <p className={styles.footnoteLine}>{t.statsLegend}</p>
+      </div>
+
+      <Breakdown profile={profile} definitions={definitions} />
+    </>
+  );
+}
+
+/**
+ * The colour, labels and note behind a disclosure, closed by default: its
+ * summary line shows what is there (the colour, the labels, the note's start)
+ * so the words stay at hand without leading the profile.
+ */
+function WordsDisclosure({
+  source,
+  profile,
+  notesFootnote,
+  onNotes,
+}: {
+  source: PlayersSource;
+  profile: Profile;
+  notesFootnote: string | null;
+  onNotes: (notes: PlayerNotes) => void;
+}) {
+  const p = useUiStrings().players;
+  const t = p.profile;
+  const [notes, setNotes] = useState(profile.notes);
+  const empty = notes.colour === null && notes.labels.length === 0 && notes.note.trim() === "";
+  return (
+    <details className={styles.wordsDisclosure}>
+      <summary className={styles.wordsSummary}>
+        <span className={styles.wordsTitle}>{t.words}</span>
+        {notes.colour !== null ? (
+          <span className={styles.swatch} data-colour={notes.colour} title={p.colours[notes.colour]} aria-label={p.colourOf(p.colours[notes.colour])} />
+        ) : null}
+        {notes.labels.map((label) => (
+          <span key={label} className={styles.label}>
+            {label}
+          </span>
+        ))}
+        <span className={styles.wordsPreview}>{empty ? t.wordsEmpty : notes.note.split("\n")[0]}</span>
+      </summary>
       <PlayerWords
         source={source}
         site={profile.site}
         player={profile.player}
         initial={profile.notes}
-        onNotes={onNotes}
+        onNotes={(value) => {
+          setNotes(value);
+          onNotes(value);
+        }}
         footnote={notesFootnote}
       />
-
-      <div>
-        <h3 className={styles.subhead}>{t.stats}</h3>
-        <p className={styles.muted}>{t.sample(seen.hands)}</p>
-        {profile.mixedKind ? <p className={styles.warning}>{t.mixedKind}</p> : null}
-        <div className={styles.statGroups}>
-          {DEFINITION_GROUPS.map((group) => (
-            <StatTable
-              key={group}
-              caption={all.reports.stats.groups[group]}
-              showCaption
-              rows={statRows(
-                definitions,
-                profile.stats,
-                locale,
-                (definition) => definition.group === group && anyPlayer(definition),
-              )}
-            />
-          ))}
-        </div>
-        <p className={styles.muted}>{t.statsNote}</p>
-      </div>
-
-      <Breakdown profile={profile} definitions={definitions} />
-    </>
+    </details>
   );
 }
 
@@ -509,14 +533,6 @@ function Breakdown({ profile, definitions }: { profile: Profile; definitions: re
         const sample = profile.stakes.find((stake) => stake.key === row.key);
         return (sample ? stakeLabel({ ...sample, value: sample.key, count: 0 }) : null) ?? row.key;
       };
-      break;
-    case "size":
-      rows = [...profile.bySize].sort((a, b) => rank(SIZE_ORDER, a.key) - rank(SIZE_ORDER, b.key));
-      label = (row) => (f.sizes as Record<string, string>)[row.key] ?? row.key;
-      break;
-    case "format":
-      rows = [...profile.byFormat].sort((a, b) => rank(FORMAT_ORDER, a.key) - rank(FORMAT_ORDER, b.key));
-      label = (row) => (f.formats as Record<string, string>)[row.key] ?? row.key;
       break;
   }
 

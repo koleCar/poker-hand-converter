@@ -139,7 +139,8 @@ export function PlayersScreen({
   useEffect(() => {
     source
       .sites()
-      .then(setSites)
+      // Hands typed in by hand ("manual") are not a room to pick opponents from.
+      .then((value) => setSites(value.filter((site) => site.value !== "manual" && site.name.toLowerCase() !== "manual")))
       .catch(() => undefined);
   }, [source, reloadToken]);
 

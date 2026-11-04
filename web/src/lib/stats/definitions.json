@@ -269,6 +269,28 @@
       "hud": "panel"
     },
     {
+      "id": "call_three_bet",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "C3B", "hr": "C3B" },
+      "name": { "en": "Call 3-bet", "hr": "Call 3-beta" },
+      "description": {
+        "en": "Called after opening and facing a 3-bet, over the same spots as fold to 3-bet.",
+        "hr": "Call nakon otvaranja, protiv 3-beta, nad istim situacijama kao fold na 3-bet."
+      },
+      "formula": "pct(call_three_bet, fold_to_three_bet_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 20, "tone": "very-low" },
+        { "below": 30, "tone": "low" },
+        { "below": 45, "tone": "normal" },
+        { "below": 55, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
       "id": "four_bet",
       "group": "preflop",
       "players": "any",
@@ -308,6 +330,28 @@
         { "tone": "very-high" }
       ],
       "hud": "popup"
+    },
+    {
+      "id": "five_bet",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "5B", "hr": "5B" },
+      "name": { "en": "5-bet", "hr": "5-bet" },
+      "description": {
+        "en": "Re-raised a 4-bet when given the chance.",
+        "hr": "Reraise na 4-bet kad je imao priliku."
+      },
+      "formula": "pct(five_bet, five_bet_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 5, "tone": "very-low" },
+        { "below": 10, "tone": "low" },
+        { "below": 20, "tone": "normal" },
+        { "below": 30, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
     },
     {
       "id": "squeeze",
@@ -374,6 +418,50 @@
         { "tone": "very-high" }
       ],
       "hud": "popup"
+    },
+    {
+      "id": "call_steal",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "CvSt", "hr": "CvSt" },
+      "name": { "en": "Call steal", "hr": "Call steala" },
+      "description": {
+        "en": "Called a steal attempt from the blinds, over the same spots as fold to steal.",
+        "hr": "Call na pokušaj steala iz blindova, nad istim situacijama kao fold na steal."
+      },
+      "formula": "pct(call_steal, fold_to_steal_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 10, "tone": "very-low" },
+        { "below": 20, "tone": "low" },
+        { "below": 35, "tone": "normal" },
+        { "below": 45, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "three_bet_vs_steal",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "3BvSt", "hr": "3BvSt" },
+      "name": { "en": "3-bet vs steal", "hr": "3-bet na steal" },
+      "description": {
+        "en": "Re-raised a steal attempt from the blinds, over the same spots as fold to steal.",
+        "hr": "Reraise na pokušaj steala iz blindova, nad istim situacijama kao fold na steal."
+      },
+      "formula": "pct(three_bet_vs_steal, fold_to_steal_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 5, "tone": "very-low" },
+        { "below": 9, "tone": "low" },
+        { "below": 14, "tone": "normal" },
+        { "below": 20, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
     },
     {
       "id": "saw_flop",
@@ -508,6 +596,28 @@
       "hud": "popup"
     },
     {
+      "id": "fold_to_cbet_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "FCBR", "hr": "FCBR" },
+      "name": { "en": "Fold to river continuation bet", "hr": "Fold na cbet na riveru" },
+      "description": {
+        "en": "Folded to the preflop aggressor's third continuation bet, on the river.",
+        "hr": "Fold na treći continuation bet preflop agresora, na riveru."
+      },
+      "formula": "pct(fold_to_cbet_river, fold_to_cbet_river_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 30, "tone": "very-low" },
+        { "below": 40, "tone": "low" },
+        { "below": 55, "tone": "normal" },
+        { "below": 65, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
       "id": "raise_cbet_flop",
       "group": "postflop",
       "players": "any",
@@ -528,6 +638,50 @@
         { "tone": "very-high" }
       ],
       "hud": "popup"
+    },
+    {
+      "id": "raise_cbet_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "RCBT", "hr": "RCBT" },
+      "name": { "en": "Raise turn continuation bet", "hr": "Raise na cbet na turnu" },
+      "description": {
+        "en": "Raised a turn continuation bet, over the same spots as fold to it.",
+        "hr": "Raise na cbet na turnu, nad istim situacijama kao fold na njega."
+      },
+      "formula": "pct(raise_cbet_turn, fold_to_cbet_turn_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 11, "tone": "normal" },
+        { "below": 16, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "raise_cbet_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "RCBR", "hr": "RCBR" },
+      "name": { "en": "Raise river continuation bet", "hr": "Raise na cbet na riveru" },
+      "description": {
+        "en": "Raised a river continuation bet, over the same spots as fold to it.",
+        "hr": "Raise na cbet na riveru, nad istim situacijama kao fold na njega."
+      },
+      "formula": "pct(raise_cbet_river, fold_to_cbet_river_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 11, "tone": "normal" },
+        { "below": 16, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
     },
     {
       "id": "donk_flop",
@@ -552,6 +706,50 @@
       "hud": "popup"
     },
     {
+      "id": "donk_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "DonkT", "hr": "DonkT" },
+      "name": { "en": "Donk bet turn", "hr": "Donk bet na turnu" },
+      "description": {
+        "en": "Led into the previous street's aggressor on the turn before they acted.",
+        "hr": "Bet u agresora s prethodne ulice na turnu prije nego što je on odigrao."
+      },
+      "formula": "pct(donk_turn, donk_turn_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 4, "tone": "very-low" },
+        { "below": 8, "tone": "low" },
+        { "below": 15, "tone": "normal" },
+        { "below": 25, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "donk_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "DonkR", "hr": "DonkR" },
+      "name": { "en": "Donk bet river", "hr": "Donk bet na riveru" },
+      "description": {
+        "en": "Led into the previous street's aggressor on the river before they acted.",
+        "hr": "Bet u agresora s prethodne ulice na riveru prije nego što je on odigrao."
+      },
+      "formula": "pct(donk_river, donk_river_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 4, "tone": "very-low" },
+        { "below": 8, "tone": "low" },
+        { "below": 15, "tone": "normal" },
+        { "below": 25, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
       "id": "check_raise_flop",
       "group": "postflop",
       "players": "any",
@@ -572,6 +770,44 @@
         { "tone": "very-high" }
       ],
       "hud": "popup"
+    },
+    {
+      "id": "check_raise_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "XRT", "hr": "XRT" },
+      "name": { "en": "Check-raise turn", "hr": "Check-raise na turnu" },
+      "description": { "en": "Checked, then raised a bet on the turn.", "hr": "Check, pa raise na bet na turnu." },
+      "formula": "pct(check_raise_turn, check_raise_turn_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 11, "tone": "normal" },
+        { "below": 16, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "check_raise_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "XRR", "hr": "XRR" },
+      "name": { "en": "Check-raise river", "hr": "Check-raise na riveru" },
+      "description": { "en": "Checked, then raised a bet on the river.", "hr": "Check, pa raise na bet na riveru." },
+      "formula": "pct(check_raise_river, check_raise_river_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 11, "tone": "normal" },
+        { "below": 16, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
     },
     {
       "id": "aggression_factor",
@@ -599,6 +835,72 @@
       "hud": "popup"
     },
     {
+      "id": "aggression_factor_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFF", "hr": "AFF" },
+      "name": { "en": "Aggression factor, flop", "hr": "Faktor agresije na flopu" },
+      "description": {
+        "en": "Flop bets and raises divided by flop calls.",
+        "hr": "Betovi i raiseovi na flopu podijeljeni s callovima na flopu."
+      },
+      "formula": "sum(bet_flop, raise_flop) / call_flop",
+      "format": { "unit": "ratio", "decimals": 2 },
+      "sample": { "of": "sum(bet_flop, raise_flop, call_flop)", "min": 50 },
+      "bands": [
+        { "below": 1, "tone": "very-low" },
+        { "below": 2, "tone": "low" },
+        { "below": 3.5, "tone": "normal" },
+        { "below": 5, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "aggression_factor_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFT", "hr": "AFT" },
+      "name": { "en": "Aggression factor, turn", "hr": "Faktor agresije na turnu" },
+      "description": {
+        "en": "Turn bets and raises divided by turn calls.",
+        "hr": "Betovi i raiseovi na turnu podijeljeni s callovima na turnu."
+      },
+      "formula": "sum(bet_turn, raise_turn) / call_turn",
+      "format": { "unit": "ratio", "decimals": 2 },
+      "sample": { "of": "sum(bet_turn, raise_turn, call_turn)", "min": 50 },
+      "bands": [
+        { "below": 1, "tone": "very-low" },
+        { "below": 2, "tone": "low" },
+        { "below": 3.5, "tone": "normal" },
+        { "below": 5, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "aggression_factor_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFR", "hr": "AFR" },
+      "name": { "en": "Aggression factor, river", "hr": "Faktor agresije na riveru" },
+      "description": {
+        "en": "River bets and raises divided by river calls.",
+        "hr": "Betovi i raiseovi na riveru podijeljeni s callovima na riveru."
+      },
+      "formula": "sum(bet_river, raise_river) / call_river",
+      "format": { "unit": "ratio", "decimals": 2 },
+      "sample": { "of": "sum(bet_river, raise_river, call_river)", "min": 50 },
+      "bands": [
+        { "below": 1, "tone": "very-low" },
+        { "below": 2, "tone": "low" },
+        { "below": 3.5, "tone": "normal" },
+        { "below": 5, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
       "id": "aggression_frequency",
       "group": "postflop",
       "players": "any",
@@ -619,6 +921,72 @@
         { "tone": "very-high" }
       ],
       "hud": "panel"
+    },
+    {
+      "id": "aggression_frequency_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFqF", "hr": "AFqF" },
+      "name": { "en": "Aggression frequency, flop", "hr": "Učestalost agresije na flopu" },
+      "description": {
+        "en": "Flop bets and raises as a share of every flop bet, raise, call and fold.",
+        "hr": "Betovi i raiseovi na flopu kao udio svih betova, raiseova, callova i foldova na flopu."
+      },
+      "formula": "pct(sum(bet_flop, raise_flop), sum(bet_flop, raise_flop, call_flop, fold_flop))",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 25, "tone": "very-low" },
+        { "below": 35, "tone": "low" },
+        { "below": 50, "tone": "normal" },
+        { "below": 60, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "aggression_frequency_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFqT", "hr": "AFqT" },
+      "name": { "en": "Aggression frequency, turn", "hr": "Učestalost agresije na turnu" },
+      "description": {
+        "en": "Turn bets and raises as a share of every turn bet, raise, call and fold.",
+        "hr": "Betovi i raiseovi na turnu kao udio svih betova, raiseova, callova i foldova na turnu."
+      },
+      "formula": "pct(sum(bet_turn, raise_turn), sum(bet_turn, raise_turn, call_turn, fold_turn))",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 25, "tone": "very-low" },
+        { "below": 35, "tone": "low" },
+        { "below": 50, "tone": "normal" },
+        { "below": 60, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "aggression_frequency_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFqR", "hr": "AFqR" },
+      "name": { "en": "Aggression frequency, river", "hr": "Učestalost agresije na riveru" },
+      "description": {
+        "en": "River bets and raises as a share of every river bet, raise, call and fold.",
+        "hr": "Betovi i raiseovi na riveru kao udio svih betova, raiseova, callova i foldova na riveru."
+      },
+      "formula": "pct(sum(bet_river, raise_river), sum(bet_river, raise_river, call_river, fold_river))",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 25, "tone": "very-low" },
+        { "below": 35, "tone": "low" },
+        { "below": 50, "tone": "normal" },
+        { "below": 60, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "none"
     },
     {
       "id": "wwsf",
