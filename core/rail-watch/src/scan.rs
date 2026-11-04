@@ -92,10 +92,32 @@ pub fn walk(root: &Path, recursive: bool) -> io::Result<Walk> {
 
 /// [`walk`] with the files chosen by [`is_candidate_for`] `glob`.
 pub fn walk_matching(root: &Path, recursive: bool, glob: Option<&str>) -> io::Result<Walk> {
+    walk_matching_until(root, recursive, glob, &|| false)
+}
+
+/// How many directory entries a walk reads between two looks at its `stop`.
+const STOP_CHECK_EVERY: usize = 256;
+
+/// [`walk_matching`] that gives up when `stop` says so (looked at for every
+/// folder and every [`STOP_CHECK_EVERY`] entries) with an
+/// [`io::ErrorKind::Interrupted`] error. A folder of hundreds of thousands
+/// of hand histories takes a long while to walk, and the app's exit must
+/// not wait for it.
+pub fn walk_matching_until(
+    root: &Path,
+    recursive: bool,
+    glob: Option<&str>,
+    stop: &dyn Fn() -> bool,
+) -> io::Result<Walk> {
+    let stopped = || io::Error::new(io::ErrorKind::Interrupted, "the walk was stopped");
     let mut walk = Walk::default();
     let mut stack = vec![root.to_path_buf()];
     let mut first = true;
+    let mut seen = 0usize;
     while let Some(dir) = stack.pop() {
+        if stop() {
+            return Err(stopped());
+        }
         let entries = match fs::read_dir(&dir) {
             Ok(entries) => entries,
             Err(error) if first => return Err(error),
@@ -106,6 +128,10 @@ pub fn walk_matching(root: &Path, recursive: bool, glob: Option<&str>) -> io::Re
         };
         first = false;
         for entry in entries {
+            seen += 1;
+            if seen.is_multiple_of(STOP_CHECK_EVERY) && stop() {
+                return Err(stopped());
+            }
             let entry = match entry {
                 Ok(entry) => entry,
                 Err(error) => {
@@ -365,6 +391,37 @@ mod tests {
         );
         assert_eq!(names(walk(&root, false).expect("walk")), ["a.txt"]);
         assert!(walk(&root.join("missing"), true).is_err());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    /// A walk asked to stop ends at once, with `Interrupted` (the watcher's
+    /// exit does not wait for a rescan of a large folder).
+    #[test]
+    fn a_walk_stops_when_asked() {
+        let root =
+            std::env::temp_dir().join(format!("rail-watch-walk-stop-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        for dir in 0..4 {
+            let dir = root.join(format!("d{dir}"));
+            fs::create_dir_all(&dir).expect("dir");
+            for file in 0..(STOP_CHECK_EVERY + 1) {
+                fs::write(dir.join(format!("{file}.txt")), "x").expect("file");
+            }
+        }
+        let error = walk_matching_until(&root, true, None, &|| true).expect_err("stopped");
+        assert_eq!(error.kind(), io::ErrorKind::Interrupted);
+        // Stopped in the middle of a folder, not only between folders.
+        let looks = std::cell::Cell::new(0);
+        let stop = || {
+            looks.set(looks.get() + 1);
+            looks.get() > 2
+        };
+        let error = walk_matching_until(&root, true, None, &stop).expect_err("stopped");
+        assert_eq!(error.kind(), io::ErrorKind::Interrupted);
+        assert_eq!(looks.get(), 3);
+        // Never asked: the whole walk.
+        let all = walk_matching_until(&root, true, None, &|| false).expect("walk");
+        assert_eq!(all.files.len(), 4 * (STOP_CHECK_EVERY + 1));
         let _ = fs::remove_dir_all(&root);
     }
 }

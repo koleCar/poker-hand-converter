@@ -575,7 +575,12 @@ fn run(
                 // Ended first, the link closed after: a `shutdown` queued by
                 // `stop` gets written while the HUD is given its grace.
                 let exit = running.end(config.shutdown_grace);
-                if let Some(link) = lock(&shared.link).take() {
+                // Taken out first, the guard dropped here: `on_event` reads
+                // `status()`, which locks `link` too - a guard still held in
+                // the `if let` deadlocked this thread, then `stop` (the app's
+                // exit) and every status read with it.
+                let link = lock(&shared.link).take();
+                if let Some(link) = link {
                     shared.set(|state| state.dropped += link.dropped());
                     link.close();
                     on_event(Event::Disconnected {
