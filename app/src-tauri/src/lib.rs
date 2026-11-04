@@ -83,6 +83,7 @@ pub mod dev;
 pub mod entitlements;
 pub mod folder_settings;
 pub mod folders;
+pub mod hand_time;
 pub mod hands;
 pub mod hud;
 pub mod hud_editor;

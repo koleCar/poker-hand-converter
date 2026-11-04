@@ -244,10 +244,22 @@ export interface RefusedHand {
   reason: string;
   message: string;
   detectedSite: string | null;
+  /** The room's name for `detectedSite` ("WePlay"), when a parser recognised it. */
+  siteName: string | null;
+  /** When the hand was played, as its header wrote it; `null` when unreadable. */
+  handTime: HandTime | null;
   /** The version of the parser that refused it (`0`: none did). */
   parserVersion: string;
   /** ms since the epoch. */
   lastSeen: number;
+}
+
+/** `hand_time::HandTime`: a refused hand's date and time on the room's own clock. */
+export interface HandTime {
+  /** `YYYY-MM-DDTHH:MM`, as the room wrote it (not converted). */
+  at: string;
+  /** The zone the header names ("UTC", "ET"), if any. */
+  zone: string | null;
 }
 
 /** `quarantine::Retryable`: refused by an older parser version (R1.6). */

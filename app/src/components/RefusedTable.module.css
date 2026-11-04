@@ -1,4 +1,8 @@
+/* Positioned, so the visually hidden header text is laid out against this
+   box: against the page instead, it sat below the fold of the scrolling main
+   column and gave the window a second scrollbar. */
 .scroll {
+  position: relative;
   overflow-x: auto;
 }
 
@@ -28,10 +32,29 @@
   white-space: nowrap;
 }
 
-.mono {
+/* The file's name on one line, cut with an ellipsis; the title has the path. */
+.file {
+  max-width: 12ch;
+  overflow: hidden;
   font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
-  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--text-tertiary);
+}
+
+/* The code, then the message under it: one column, so the message has room. */
+.reason {
+  min-width: 24ch;
+}
+
+.message {
+  display: block;
+  margin-top: var(--space-0-5);
+  color: var(--text-secondary);
 }
 
 .nowrap {

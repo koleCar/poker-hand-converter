@@ -1,4 +1,7 @@
+/* Positioned, so the visually hidden header text is laid out against the
+   table and not the page (where it gave the window a second scrollbar). */
 .table {
+  position: relative;
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);

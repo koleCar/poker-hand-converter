@@ -295,6 +295,11 @@ pub struct RefusedHand {
     reason: String,
     message: String,
     detected_site: Option<String>,
+    /// The room's name for `detected_site` (`WePlay`), when a parser
+    /// recognised the hand.
+    site_name: Option<String>,
+    /// When the hand was played, as its header wrote it.
+    hand_time: Option<crate::hand_time::HandTime>,
     /// The version of the parser that refused it (`0`: none did).
     parser_version: String,
     /// ms since the epoch.
@@ -309,6 +314,8 @@ impl From<rail_store::read::QuarantineEntry> for RefusedHand {
             stage: entry.stage,
             reason: entry.reason,
             message: entry.message,
+            site_name: entry.detected_site.as_deref().map(crate::hands::site_name),
+            hand_time: crate::hand_time::hand_time(&entry.header),
             detected_site: entry.detected_site,
             parser_version: entry.parser_version,
             last_seen: entry.last_seen,
