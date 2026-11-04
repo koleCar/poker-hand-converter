@@ -145,7 +145,6 @@ export const en = {
     },
     empty: {
       title: "No session in progress",
-      text: "Sit down at a table on a supported poker client. The first hand Rail imports starts a session here, and the graph, statistics and hands fill in as you play.",
       watching: (count: number) => (count === 1 ? "Watching 1 hand-history folder" : `Watching ${n(count)} hand-history folders`),
       paused: "Import is paused",
       noFolders: "No hand-history folders are watched yet.",
@@ -153,8 +152,6 @@ export const en = {
       last: "Last session",
       range: (from: string, to: string) => `${from} – ${to}`,
       reports: "Open in Reports",
-      rule: (minutes: number) =>
-        `A session is a run of hands with no break longer than ${minutes} minutes, across every table.`,
     },
   },
 
