@@ -158,3 +158,67 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Settings, Updates: a quiet button beside the version ("Check for
+   updates", "Try again"), the step's block and its download bar. */
+.quietButton {
+  flex: none;
+  align-self: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.quietButton:hover {
+  border-color: var(--border-strong, var(--border-default));
+  background: var(--surface-hover);
+}
+
+.quietButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.notice {
+  color: var(--success-fg);
+  font-size: var(--font-size-sm);
+}
+
+.warning {
+  color: var(--warning-fg);
+  font-size: var(--font-size-sm);
+}
+
+.update {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.bar {
+  width: 100%;
+  height: var(--space-2);
+  accent-color: var(--accent-bg);
+}
+
+.notes summary {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.notesText {
+  max-height: 200px;
+  margin-top: var(--space-2);
+  overflow-y: auto;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}

@@ -24,6 +24,17 @@
 # A pre-release is not "latest": /download keeps serving the previous full
 # release until a normal one is published.
 #
+# In-app updates (app/src-tauri/src/updates.rs): the build also signs an
+# updater package per platform with the updater key (minisign; secrets
+# TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD, the
+# public half in tauri.conf.json) - Rail-macOS.app.tar.gz (the universal
+# Rail.app) and the Windows installer itself - and the release carries
+# `latest.json`, the manifest the app reads from
+# `releases/latest/download/latest.json`. The release is created as a draft,
+# filled, then published, so the manifest never points at missing files.
+# Losing the private key means the installed apps can no longer verify an
+# update: they would need a manual install of a build with a new key.
+#
 # Not signed yet (P3 Apple Developer ID + notarisation, P4 Windows signing):
 # the macOS bundle is ad-hoc signed like the PR builds, and /download tells
 # people how to open it the first time. Signing belongs here, with its
@@ -94,28 +105,52 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # `updater`/`updater_asset`: the signed package the in-app update
+          # downloads (its `.sig` beside it). macOS: the .app as a tarball
+          # (the `app` bundle the dmg is made from). Windows: the installer
+          # itself, so only its signature is new.
           - os: macos-latest
             target: universal-apple-darwin
             rust_targets: aarch64-apple-darwin x86_64-apple-darwin
-            bundles: dmg
+            bundles: app,dmg
             built: target/universal-apple-darwin/release/bundle/dmg/*.dmg
             asset: Rail-macOS.dmg
+            updater: target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz
+            updater_asset: Rail-macOS.app.tar.gz
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             rust_targets: x86_64-pc-windows-msvc
             bundles: nsis
             built: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
             asset: Rail-Windows-Setup.exe
+            updater: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            updater_asset: Rail-Windows-Setup.exe
     runs-on: ${{ matrix.os }}
     env:
       VERSION: ${{ needs.version.outputs.version }}
       # The public anon key the desktop sign-in compiles in (see ci.yml's app job).
       RAIL_SUPABASE_ANON_KEY: ${{ vars.RAIL_SUPABASE_ANON_KEY }}
+      # The updater key: `tauri build` signs the updater package with it.
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
     defaults:
       run:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+
+      # Without the key there is no update for the installed apps: stop
+      # before the long build rather than publish a release they cannot take.
+      - name: Updater key
+        run: |
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "::error::the TAURI_SIGNING_PRIVATE_KEY secret is not set (see the comment at the top of this file)"
+            exit 1
+          fi
+          if grep -q UPDATER_PUBLIC_KEY_NOT_SET app/src-tauri/tauri.conf.json; then
+            echo "::error::tauri.conf.json has no updater public key (plugins.updater.pubkey)"
+            exit 1
+          fi
 
       # rust-toolchain.toml pins the toolchain; this adds the targets to it.
       - name: Rust targets
@@ -139,14 +174,15 @@ jobs:
         working-directory: app
 
       # The workspace's release profile (thin LTO, one codegen unit), unlike
-      # the PR builds. The second --config stamps the version into the bundle.
+      # the PR builds. The second --config stamps the version into the bundle
+      # and asks for the signed updater package.
       - name: Bundle
         run: >
           npm run tauri -- build --ci
           --target ${{ matrix.target }}
           --bundles ${{ matrix.bundles }}
           --config src-tauri/tauri.hud.conf.json
-          --config "{\"version\":\"$VERSION\"}"
+          --config "{\"version\":\"$VERSION\",\"bundle\":{\"createUpdaterArtifacts\":true}}"
         working-directory: app
 
       - name: Fixed asset name
@@ -159,12 +195,21 @@ jobs:
           fi
           mkdir -p dist-release
           cp "${files[0]}" "dist-release/${{ matrix.asset }}"
+          updater=(${{ matrix.updater }})
+          if [ "${#updater[@]}" -ne 1 ] || [ ! -f "${updater[0]}.sig" ]; then
+            echo "::error::expected one signed updater package, found ${#updater[@]}: ${updater[*]}"
+            exit 1
+          fi
+          if [ "${updater[0]}" != "${files[0]}" ]; then
+            cp "${updater[0]}" "dist-release/${{ matrix.updater_asset }}"
+          fi
+          cp "${updater[0]}.sig" "dist-release/${{ matrix.updater_asset }}.sig"
           ls -l dist-release
 
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.asset }}
-          path: dist-release/${{ matrix.asset }}
+          path: dist-release/
           retention-days: 7
           if-no-files-found: error
 
@@ -189,14 +234,47 @@ jobs:
       - name: SHA-256
         run: |
           cd dist-release
-          sha256sum Rail-macOS.dmg Rail-Windows-Setup.exe > SHA256SUMS.txt
+          sha256sum Rail-macOS.dmg Rail-Windows-Setup.exe Rail-macOS.app.tar.gz > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
+      # A draft first: the notes are generated, `latest.json` is made from
+      # them and added, and only then is the release published - the app
+      # never reads a manifest whose files are not there yet.
       - name: Tag and publish
         run: |
-          flags=(--target "$GITHUB_SHA" --title "Rail $VERSION" --generate-notes)
-          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); else flags+=(--latest); fi
-          gh release create "app-v$VERSION" "${flags[@]}" \
+          tag="app-v$VERSION"
+          gh release create "$tag" --draft --target "$GITHUB_SHA" --title "Rail $VERSION" --generate-notes \
             dist-release/Rail-macOS.dmg \
             dist-release/Rail-Windows-Setup.exe \
+            dist-release/Rail-macOS.app.tar.gz \
             dist-release/SHA256SUMS.txt
+
+          gh release view "$tag" --json body --jq .body > dist-release/notes.md
+          python3 - "$VERSION" "$GH_REPO" dist-release <<'PY'
+          import json, sys, datetime, pathlib
+          version, repo, folder = sys.argv[1], sys.argv[2], pathlib.Path(sys.argv[3])
+          base = f"https://github.com/{repo}/releases/download/app-v{version}"
+          def entry(asset):
+              return {"url": f"{base}/{asset}", "signature": (folder / f"{asset}.sig").read_text().strip()}
+          mac, win = entry("Rail-macOS.app.tar.gz"), entry("Rail-Windows-Setup.exe")
+          # `{os}-{arch}-{bundle}` first, `{os}-{arch}` as the fallback the
+          # updater also looks for; the macOS package is universal.
+          platforms = {
+              "darwin-aarch64-app": mac, "darwin-aarch64": mac,
+              "darwin-x86_64-app": mac, "darwin-x86_64": mac,
+              "windows-x86_64-nsis": win, "windows-x86_64": win,
+          }
+          manifest = {
+              "version": version,
+              "notes": (folder / "notes.md").read_text().strip(),
+              "pub_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "platforms": platforms,
+          }
+          (folder / "latest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+          cat dist-release/latest.json
+          gh release upload "$tag" dist-release/latest.json
+
+          flags=(--draft=false)
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); else flags+=(--latest); fi
+          gh release edit "$tag" "${flags[@]}"

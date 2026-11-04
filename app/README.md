@@ -64,7 +64,7 @@ domain is chosen):
 
 | What | Where |
 | --- | --- |
-| `settings.json` (theme, density, language, start at login, first run done) | OS config directory; written atomically (`settings.rs`) |
+| `settings.json` (theme, density, language, start at login, first run done, check for updates) | OS config directory; written atomically (`settings.rs`) |
 | `rail.log` (rotated) | OS log directory |
 | `rail.db` (hands, statistics, folders, refused hands, notes, HUD layouts, outbox) | OS local data directory; schema in [`core/rail-store/SCHEMA.md`](../core/rail-store/SCHEMA.md) |
 | `policy/sites.json` (last good room list from the web) | OS local data directory (`policy.rs`) |
@@ -104,6 +104,7 @@ One module per concern; most are thin commands over a core crate.
 | `popup.rs` | The HUD popup (R3.8): opens a small window beside a clicked panel without taking the keyboard from the table; reads what it shows from the store |
 | `analysis.rs` | The hand analysis' Rust half (R5.4): the gate, pending hands, saving rows, the opponents' counters, the flop library's files (disk, else the web's public bucket) |
 | `review.rs` | Readers for the analysis screens (R5.4): session review, own charts' comparison, top leaks |
+| `updates.rs` | Settings, Updates: check the release's `latest.json` (by hand, and every few hours while the setting is on), download and verify the signed package with progress events (`updates-changed`), install and restart; stops the background work before the Windows installer runs |
 | `dev.rs` | Debug builds only: run the core on a picked file (the developer panel in Settings) |
 
 `capabilities/default.json` grants the main window and the popups
@@ -136,7 +137,7 @@ the app's executable, where `hud.rs` starts it.
 | `lib/router.ts` | Hash routes: `today`, `hands`, `reports`, `players`, `analysis`, `hud`, `settings`, plus `setup` (first run, not in the sidebar); one optional parameter (`#/hands/<hand key>`) |
 | `lib/ipc.ts` | The IPC boundary (below) |
 | `lib/*Source.ts`, `lib/dataSource.ts` | The app's implementations of the shared screens' sources (`HandsSource`, `ReportSource`, `PlayersSource`, `SessionReviewSource`, `PreflopChartsSource`) over `ipc` |
-| `lib/use*.ts` | Hooks over Rust state and events: account, sync, watcher, entitlements, HUD compliance, tables open, statistic definitions |
+| `lib/use*.ts` | Hooks over Rust state and events: account, sync, watcher, entitlements, HUD compliance, tables open, statistic definitions, updates |
 | `lib/duringPlay.ts` | A10: which screens help with play and are hidden while a table is open |
 | `lib/hudCompliance.ts` | Words the HUD's attach refusals and the room list (the decisions are Rust's) |
 | `lib/appearance.ts`, `public/appearance.js` | Theme and density painted before the first frame |

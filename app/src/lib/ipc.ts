@@ -30,6 +30,40 @@ export interface Settings {
   startAtLogin: boolean;
   /** The first-run screen was finished or skipped (R1.4). */
   firstRunDone: boolean;
+  /** Settings, Updates: look for a newer Rail by itself (`updates.rs`). */
+  checkForUpdates: boolean;
+}
+
+/** `updates::Stage`: which update step failed. */
+export type UpdateStage = "check" | "download" | "install";
+
+/** `updates::FailKind`. */
+export type UpdateFailKind = "network" | "noRelease" | "noBuild" | "signature" | "other";
+
+/** `updates::Phase`: where the update stands. */
+export type UpdatePhase =
+  | { state: "idle" }
+  | { state: "checking" }
+  | { state: "upToDate" }
+  | { state: "available"; version: string; notes: string | null; dateMs: number | null }
+  | { state: "downloading"; version: string; downloaded: number; total: number | null }
+  | { state: "ready"; version: string; notes: string | null }
+  | { state: "installing"; version: string }
+  | { state: "failed"; stage: UpdateStage; kind: UpdateFailKind; reason: string; version: string | null };
+
+/** `updates::InstallBlocker`: why this copy cannot install an update itself. */
+export type UpdateInstallBlocker = "devBuild" | "readOnlyLocation";
+
+/** `updates::UpdateStatus`. */
+export interface UpdateStatus {
+  /** This build's version. */
+  current: string;
+  phase: UpdatePhase;
+  /** The last check that got an answer, ms since the epoch. */
+  lastCheckedMs: number | null;
+  /** The setting: check by itself. */
+  automatic: boolean;
+  installBlocker: UpdateInstallBlocker | null;
 }
 
 /** `folders::FoundFolder`: a room's default folder found here (R1.4). */
@@ -1132,6 +1166,15 @@ export const ipc = {
   /** Upload this computer's hands to the account signed in now, or keep them apart. */
   syncAnswerAccount: (upload: boolean) => invoke<SyncStatus>("sync_answer_account", { upload }),
   syncRetryRejected: () => invoke<SyncStatus>("sync_retry_rejected"),
+  /** Settings, Updates: where it stands; check; download (progress as events); install and restart. */
+  updateStatus: () => invoke<UpdateStatus>("update_status"),
+  updateCheck: () => invoke<UpdateStatus>("update_check"),
+  updateDownload: () => invoke<UpdateStatus>("update_download"),
+  /** Answers only with an error: on success the app restarts (macOS) or exits for the installer (Windows). */
+  updateInstall: () => invoke<null>("update_install"),
+  setCheckForUpdates: (enabled: boolean) => invoke<UpdateStatus>("set_check_for_updates", { enabled }),
+  /** The web's /download page in the default browser. */
+  updateOpenDownloadPage: () => invoke<null>("update_open_download_page"),
   /** (R6.4) The plan: what the app may use, the last check; check again; the web's upgrade page. */
   entitlementsStatus: () => invoke<EntitlementsStatus>("entitlements_status"),
   entitlementsCheckNow: () => invoke<void>("entitlements_check_now"),
@@ -1310,6 +1353,11 @@ export function onAccountChanged(onChange: () => void): () => void {
 /** (R6.4) Call `onChange` whenever what the plan allows changed. */
 export function onEntitlementsChanged(onChange: () => void): () => void {
   return onAppEvent("entitlements-changed", onChange);
+}
+
+/** Settings, Updates: the update's status, on every change (download progress at most a few times a second). */
+export function onUpdatesChanged(onChange: (status: UpdateStatus) => void): () => void {
+  return onAppEvent<UpdateStatus>("updates-changed", onChange);
 }
 
 /** (R3.8) The HUD popup was moved to another panel: read it again. */

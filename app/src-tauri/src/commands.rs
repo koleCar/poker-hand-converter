@@ -20,6 +20,21 @@ impl SettingsState {
         let mut store = self.0.lock().unwrap_or_else(PoisonError::into_inner);
         f(&mut store)
     }
+
+    /// The settings as they are now.
+    pub fn get(&self) -> Settings {
+        self.with(|store| store.get().clone())
+    }
+
+    /// Change and save the settings; the saved settings, or why not.
+    pub fn update(&self, change: impl FnOnce(&mut Settings)) -> Result<Settings, String> {
+        self.with(|store| {
+            store
+                .update(change)
+                .cloned()
+                .map_err(|error| error.to_string())
+        })
+    }
 }
 
 /// What the core in this build is: the link between the shell and

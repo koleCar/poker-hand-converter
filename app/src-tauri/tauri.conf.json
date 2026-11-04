@@ -51,6 +51,15 @@
     }
   },
   "plugins": {
+    "updater": {
+      "pubkey": "UPDATER_PUBLIC_KEY_NOT_SET",
+      "endpoints": [
+        "https://github.com/koleCar/poker-hand-converter/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    },
     "deep-link": {
       "desktop": {
         "schemes": ["rail"]
