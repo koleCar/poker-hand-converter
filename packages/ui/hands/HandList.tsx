@@ -40,6 +40,8 @@ interface HandListProps {
   onSelect: (handKey: string) => void;
   /** Enter on a row: the reader wants the replayer. */
   onOpen: (handKey: string) => void;
+  /** A click opens too, not only Enter (the desktop: the replayer's own window). */
+  openOnClick?: boolean;
   onLoadMore: () => void;
   /** The list's order, in words, for its accessible name ("Newest first"). */
   orderLabel: string;
@@ -63,6 +65,7 @@ export function HandList({
   selected,
   onSelect,
   onOpen,
+  openOnClick = false,
   onLoadMore,
   orderLabel,
   densityKey,
@@ -260,7 +263,14 @@ export function HandList({
               selected={row.handKey === selected}
               tabbable={index === tabbable}
               format={format}
-              onSelect={onSelect}
+              onSelect={
+                openOnClick
+                  ? (handKey: string) => {
+                      onSelect(handKey);
+                      onOpen(handKey);
+                    }
+                  : onSelect
+              }
               onKeyDown={onKeyDown}
             />
           );

@@ -32,9 +32,14 @@ interface HandPanelProps {
   onClose: () => void;
   /** The note or tags changed: the list row shows it. */
   onAnnotated: (handKey: string, annotations: HandAnnotations) => void;
+  /**
+   * A link to another screen (the hand's analysis) goes here instead of
+   * this page's address: the replayer window hands it to the main window.
+   */
+  onNavigate?: (href: string) => void;
 }
 
-export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: HandPanelProps) {
+export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated, onNavigate }: HandPanelProps) {
   const dict = useT();
   const t = dict.hands.panel;
   const state = useHand(handKey);
@@ -43,6 +48,7 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
   const noPotOdds = hiddenDuringPlay("potOdds", tablesOpen);
   // (R5.4) Nor the way into the hand's analysis.
   const noAnalysis = hiddenDuringPlay("analysis", tablesOpen);
+  const analysisHref = screenHref("analysis", viewParam({ kind: "hand", key: handKey, actionIndex: null, back: null }));
 
   return (
     <section className={styles.panel} aria-label={t.label}>
@@ -62,8 +68,16 @@ export function HandPanel({ handKey, row, knownTags, onClose, onAnnotated }: Han
                 {noAnalysis ? null : (
                   <a
                     className="btn btn--sm"
-                    href={screenHref("analysis", viewParam({ kind: "hand", key: handKey, actionIndex: null, back: null }))}
+                    href={analysisHref}
                     title={dict.analysis.hand.openTitle}
+                    onClick={
+                      onNavigate
+                        ? (event) => {
+                            event.preventDefault();
+                            onNavigate(analysisHref);
+                          }
+                        : undefined
+                    }
                   >
                     {dict.analysis.hand.open}
                   </a>
