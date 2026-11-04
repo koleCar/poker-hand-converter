@@ -1,12 +1,35 @@
 {
   "format": "rail-stats-golden/1",
-  "hands": [],
+  "hands": [
+    {
+      "handId": "HD71496614",
+      "index": 0,
+      "phf": "7dfeab65a5ed229bdc861d091c3cb2c9ad105d2db97324590b1923ec205e39b4",
+      "rows": "4d0e7ef25f538cd557c28e1311c390fa7c97f54d7fc5889bdcc209168f4d1228",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        8
+      ]
+    }
+  ],
   "input": {
     "bytes": 631,
     "path": "tests/test/fixtures/weplay/bb-only-walk.txt",
     "sha256": "33f938feeb034d4d99ae44edbb41926470277508832aa0f83690c21bb1ba4d29"
   },
-  "rows": 0,
+  "rows": 5,
   "statsVersion": "stats/2",
-  "totals": {}
+  "totals": {
+    "contributed": 50,
+    "hands": 5,
+    "limp_opp": 4,
+    "pfr_opp": 4,
+    "rfi_opp": 4,
+    "steal_opp": 2,
+    "vpip_opp": 4,
+    "won": 50
+  }
 }

@@ -11,7 +11,7 @@ import { weplayFiles } from "./support/corpus.js";
  * Holdem Manager and PokerTracker import the text this app produces, and they
  * are byte sensitive. `test/legacy/legacyConverter.ts` is a frozen copy of the
  * old implementation; every hand it emitted must still come out identical
- * unless the difference is one of the three reviewed cases below.
+ * unless the difference is one of the four reviewed cases below.
  *
  * ACCEPTED DIFFERENCES
  *
@@ -30,9 +30,18 @@ import { weplayFiles } from "./support/corpus.js";
  * 3. `time-bank-line` - `X: activates time bank` is a UI event with no GG
  *    equivalent; it used to be copied into the output and is now dropped like
  *    every other non-poker line.
+ *
+ * 4. `post-fold-empty-show` - WePlay lets a player who folded flash a hand at
+ *    the showdown, written `X: shows [] (a pair of Jacks)`: no cards. The old
+ *    converter copied the line, which put a folded player at the showdown; it
+ *    is now dropped, as the summary already dropped that player's reveal.
  */
 
-type DiffClass = "duplicate-hole-cards-block" | "straddle-raise-amount" | "time-bank-line";
+type DiffClass =
+  | "duplicate-hole-cards-block"
+  | "straddle-raise-amount"
+  | "time-bank-line"
+  | "post-fold-empty-show";
 
 function classify(oldText: string, newText: string): DiffClass | null {
   const a = oldText.split("\n");
@@ -45,6 +54,9 @@ function classify(oldText: string, newText: string): DiffClass | null {
   }
   if (onlyOld.every((line) => /activates time bank/.test(line)) && onlyNew.length === 0) {
     return "time-bank-line";
+  }
+  if (onlyOld.every((line) => /: shows \[\s*\]/.test(line)) && onlyNew.length === 0) {
+    return "post-fold-empty-show";
   }
   if (
     /: posts straddle /.test(oldText) &&

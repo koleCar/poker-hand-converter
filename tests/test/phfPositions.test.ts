@@ -136,6 +136,30 @@ Seat 1: A folded before Flop (didn't bet)
 Seat 4: B (small blind) folded before Flop
 Seat 5: C (big blind) collected ($3)`;
 
+const DEAD_SMALL_BLIND = `Poker Hand #DS1: Hold'em No Limit ($1/$2) - 2026/02/17 05:56:01
+Table 'DS' 6-max Seat #5 is the button
+Seat 1: A ($200 in chips)
+Seat 2: B ($200 in chips)
+Seat 3: C ($200 in chips)
+Seat 4: D ($200 in chips)
+Seat 5: E ($200 in chips)
+A: posts big blind $2
+*** HOLE CARDS ***
+Dealt to B [As Kd]
+B: folds
+C: folds
+D: folds
+E: folds
+*** SHOWDOWN ***
+A collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0
+Seat 1: A (big blind) collected ($2)
+Seat 2: B folded before Flop (didn't bet)
+Seat 3: C folded before Flop (didn't bet)
+Seat 4: D folded before Flop (didn't bet)
+Seat 5: E (button) folded before Flop (didn't bet)`;
+
 const SEATED_NOT_DEALT_IN = `Poker Hand #SO1: Hold'em No Limit ($1/$2) - 2026/02/17 05:56:01
 Table 'SO' 6-max Seat #4 is the button
 Seat 1: A ($200 in chips)
@@ -206,6 +230,23 @@ describe("assignPositions (from the hand itself)", () => {
     expect(Object.values(positionsOf(hand))).not.toContain("BTN");
     // The button itself is not lost - it was never a position.
     expect(hand.table.buttonSeat).toBe(3);
+  });
+
+  it("resolves a dead small blind: the button right behind the big blind stays the button", () => {
+    // Nobody posted the small blind and nobody sits between the button and the
+    // big blind. Stepping back one seat from the big blind would make the
+    // button the small blind; the ring is instead one longer with the small
+    // blind slot dropped, the dead button's mirror image.
+    const hand = parse(DEAD_SMALL_BLIND);
+    expect(positionsOf(hand)).toEqual({ 1: "BB", 2: "UTG", 3: "HJ", 4: "CO", 5: "BTN" });
+    expect(Object.values(positionsOf(hand))).not.toContain("SB");
+  });
+
+  it("still steps back from the big blind when a seat sits between it and the button", () => {
+    // Seat 5 sits between the button (seat 4) and the big blind but did not
+    // post: that seat is the small blind's, whatever it did.
+    const hand = parse(DEAD_SMALL_BLIND.replace("Seat #5 is the button", "Seat #4 is the button"));
+    expect(positionsOf(hand)).toEqual({ 5: "SB", 1: "BB", 2: "UTG", 3: "CO", 4: "BTN" });
   });
 
   it("does not call a live button dead", () => {

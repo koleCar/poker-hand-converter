@@ -102,10 +102,51 @@ describe("WePlay parser, hard-won edge cases", () => {
     expect(result.reasons).toContain("zero-stack-actor");
   });
 
-  it("records a BB-only walk as a failure", async () => {
+  it("parses a walk with a dead small blind", async () => {
+    // The fixture keeps its old name: these hands used to be refused as
+    // `bb-only-walk`. Nobody sits between the button and the big blind.
     const result = await convert("bb-only-walk.txt");
-    expect(result.hands).toHaveLength(0);
-    expect(result.reasons).toContain("bb-only-walk");
+    expect(result.failures).toEqual([]);
+    expect(result.hands).toHaveLength(1);
+    const positions = Object.fromEntries(
+      result.hands[0].players.map((player) => [player.name, player.position]),
+    );
+    expect(positions).toEqual({
+      JTs98o: "BB",
+      simke1133: "UTG",
+      kole1992: "HJ",
+      cosmicmind: "CO",
+      blazzze: "BTN",
+    });
+  });
+
+  it("parses a played hand with a dead small blind and a post-fold flash", async () => {
+    // Hand #91876609: Seat 5 is the button and Seat 1 the big blind, so no
+    // small blind. The big blind folds and then `shows []`, which is no reveal.
+    const result = await convert("dead-small-blind.txt");
+    expect(result.failures).toEqual([]);
+    expect(result.hands).toHaveLength(1);
+    const [hand] = result.hands;
+    const positions = Object.fromEntries(
+      hand.players.map((player) => [player.name, player.position]),
+    );
+    expect(positions).toEqual({
+      Geezy1313: "BB",
+      kole1992: "UTG",
+      Elgringo: "HJ",
+      MeryAce: "CO",
+      Balazs96: "BTN",
+    });
+    expect(result.text).toContain("kole1992: raises $2.40 to $4.40");
+    expect(result.text).toContain("MeryAce: raises $13.76 to $55.96 and is all-in");
+    expect(result.text).not.toContain("shows []");
+    expect(
+      hand.actions.some((action) => action.player === "Geezy1313" && action.type === "show"),
+    ).toBe(false);
+    const geezy = hand.results.players.find((player) => player.player === "Geezy1313");
+    expect(geezy?.wentToShowdown).toBe(false);
+    expect(geezy?.net).toBe(-716);
+    expect(hand.results.heroNet).toBe(-5632);
   });
 
   it("records a short all-in small blind as a failure", async () => {

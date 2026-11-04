@@ -59,5 +59,5 @@ fn every_corpus_file_decodes_as_the_core_decodes_it() {
     }
     println!("{files} files, {splits} splits at a hand's first byte");
     assert!(failures.is_empty(), "{}", failures.join("\n"));
-    assert_eq!(files, 556);
+    assert_eq!(files, 557);
 }

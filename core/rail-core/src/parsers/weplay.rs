@@ -35,7 +35,7 @@ use crate::phf::PhfHand;
 use crate::phf::serialize::{StandardContext, parse_standard_hand};
 
 /// `WEPLAY_PARSER_VERSION`.
-pub const WEPLAY_PARSER_VERSION: &str = "2.0.0";
+pub const WEPLAY_PARSER_VERSION: &str = "2.1.0";
 
 /// `AMOUNT`.
 const AMOUNT: &str = r"(?:\$|€|£)?(\d+(?:\.\d+)?)";
@@ -62,6 +62,7 @@ static RAISE_LINE: LazyLock<Regex> = amount_regex_lazy!(
 static STREET_MARKER: LazyLock<Regex> =
     crate::js_regex_lazy!(r"^\*\*\* (?:FIRST |SECOND )?(?:FLOP|TURN|RIVER)\b", "");
 static SHOWS_HIDDEN: LazyLock<Regex> = crate::js_regex_lazy!(r"^(.+?): shows \[.*#.*\].*$", "");
+static SHOWS_EMPTY: LazyLock<Regex> = crate::js_regex_lazy!(r"^.+?: shows \[\s*\]", "");
 static SEAT_LINE: LazyLock<Regex> =
     crate::js_regex_lazy!(r"^Seat\s+\d+:\s+(.+?)\s+\((.+) in chips\)$", "");
 static PLAYER_ACTION: LazyLock<Regex> = crate::js_regex_lazy!(
@@ -100,8 +101,6 @@ static BLIND_AMOUNT: LazyLock<Regex> =
     amount_regex_lazy!(r": posts (?:small|big) blind ${AMOUNT}", "");
 static POST_AMOUNT: LazyLock<Regex> = amount_regex_lazy!(r": posts ${AMOUNT}", "");
 static BET_AMOUNT: LazyLock<Regex> = amount_regex_lazy!(r": bets ${AMOUNT}", "");
-static HAS_BIG_BLIND: LazyLock<Regex> = crate::js_regex_lazy!(r": posts big blind ", "i");
-static HAS_SMALL_BLIND: LazyLock<Regex> = crate::js_regex_lazy!(r": posts small blind ", "i");
 static SHORT_SB: LazyLock<Regex> =
     amount_regex_lazy!(r": posts small blind ${AMOUNT} and is all-in", "gi");
 static SHORT_BB: LazyLock<Regex> =
@@ -283,8 +282,13 @@ fn parse_header_stakes(header: &str, money: &Money) -> Option<(JsNumber, JsNumbe
 }
 
 /// `normalizeShowsLine`: a showdown reveal with a hidden `##` card is no
-/// reveal.
+/// reveal, and `X: shows [] (…)` - a folded player flashing a hand after the
+/// fact - is dropped (the empty line is skipped), as the summary already drops
+/// that player's `showed [..]`.
 fn normalize_shows_line(line: &str) -> String {
+    if SHOWS_EMPTY.is_match(line) {
+        return String::new();
+    }
     match SHOWS_HIDDEN.captures(line) {
         Some(c) => format!("{}: doesn't show hand", &c[1]),
         None => line.to_owned(),
@@ -427,12 +431,10 @@ fn early_skip(chunk: &str, header: &str, money: &Money) -> Option<ParseSkip> {
         ));
     }
 
-    if HAS_BIG_BLIND.is_match(chunk) && !HAS_SMALL_BLIND.is_match(chunk) {
-        return Some(refuse(
-            SkipReason::BbOnlyWalk,
-            "Big blind posted without a small blind (BB-only walk).",
-        ));
-    }
+    // A big blind without a small blind is a dead small blind (the seat
+    // between the button and the big blind is empty), not a broken hand: it is
+    // played out like any other and positioned from the button
+    // (`assign_positions`).
 
     if let Some((small_blind, big_blind)) = parse_header_stakes(header, money) {
         for c in SHORT_SB.captures_iter(chunk) {

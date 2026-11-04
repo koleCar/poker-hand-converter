@@ -618,6 +618,9 @@ function classify(oldText, newText) {
   if (onlyOld.every((line) => /activates time bank/.test(line)) && onlyNew.length === 0) {
     return "time-bank-line";
   }
+  if (onlyOld.every((line) => /: shows \[\s*\]/.test(line)) && onlyNew.length === 0) {
+    return "post-fold-empty-show";
+  }
   if (
     /: posts straddle /.test(oldText) &&
     onlyOld.every((line) => /: raises /.test(line)) &&

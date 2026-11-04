@@ -738,7 +738,7 @@ mod tests {
         }
         fn parse_a(raw: &str) -> Result<PhfHand, ParseError> {
             if raw.contains("skip") {
-                return Err(ParseSkip::new(SkipReason::BbOnlyWalk, "walk").into());
+                return Err(ParseSkip::new(SkipReason::GhostAnte, "ghost").into());
             }
             Ok(test_support::hand())
         }
@@ -764,7 +764,7 @@ mod tests {
             failures,
             [
                 (Some(1), Some("b"), "parser-error"),
-                (Some(2), Some("a"), "bb-only-walk")
+                (Some(2), Some("a"), "ghost-ante")
             ]
         );
         assert_eq!(

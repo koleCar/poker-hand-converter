@@ -1246,7 +1246,7 @@ stored rows.
 Reason codes currently emitted: `unknown-site`, `no-hands`, `split-failed`,
 `parser-error`, `unsupported-variant`, `unsupported-hi-lo`,
 `tournament-unsupported`,
-`tournament-in-cash-mode`, `bomb-pot`, `all-in-or-fold-table`, `bb-only-walk`,
+`tournament-in-cash-mode`, `bomb-pot`, `all-in-or-fold-table`,
 `short-allin-small-blind`, `short-allin-big-blind`, `short-allin-call`,
 `zero-stack-actor`, `ghost-ante`, `unseated-actor`, `no-seat-block`,
 `uncalled-exceeds-commitment`, `turn-without-flop`, `river-without-turn`,

@@ -4,7 +4,7 @@
 //! reference until the web app reads the generated declarations instead
 //! (docs/RAIL-PLAN.md R0.4, R4.1). Every JSON name, every string tag and every
 //! "absent versus `null`" distinction is the same as there; the golden
-//! round-trip test (`tests/golden_roundtrip.rs`) holds all 8 422 corpus hands
+//! round-trip test (`tests/golden_roundtrip.rs`) holds all 8 511 corpus hands
 //! to it byte for byte, and the declarations generated from these types
 //! (`core/rail-core-wasm/types/phf.d.ts`) are compared with `types.ts` by
 //! `npm run phf:dts-check` in `tests/`.

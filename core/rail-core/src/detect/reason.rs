@@ -51,7 +51,6 @@ coded_enum! {
     SkipReason {
         AllInOrFoldTable = "all-in-or-fold-table",
         AmbiguousAmount = "ambiguous-amount",
-        BbOnlyWalk = "bb-only-walk",
         BoardMismatch = "board-mismatch",
         BoardSize = "board-size",
         BombPot = "bomb-pot",

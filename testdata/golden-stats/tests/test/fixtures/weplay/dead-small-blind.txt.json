@@ -1,0 +1,61 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD91876609",
+      "index": 0,
+      "phf": "41eb0901b04be548ccfa1aa4e4b6da9a68e435eb592bc2805187fd005d7211d1",
+      "rows": "eccf8a45174dc01ba9a21133d11e30d7dfcb215bc82ebc6d01d3758ac544bda1",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1493,
+    "path": "tests/test/fixtures/weplay/dead-small-blind.txt",
+    "sha256": "2ed1650bb694e59fa9c2f84c4fcc479b74bd329d5ce5843cf6c59ffea8f4de4f"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call": 3,
+    "cold_call_opp": 3,
+    "contributed": 12932,
+    "five_bet": 1,
+    "five_bet_opp": 2,
+    "flop_seen": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -775,
+    "net_bb_milli": -3875,
+    "pfr": 3,
+    "pfr_opp": 5,
+    "raise_vs_three_bet": 1,
+    "rake_paid": 775,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze": 1,
+    "squeeze_opp": 3,
+    "three_bet": 1,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 5,
+    "vpip_opp": 5,
+    "won": 12157,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

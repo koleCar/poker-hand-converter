@@ -25,7 +25,7 @@
 //!
 //! `tests/data/decode-vectors.json` (written by `decode-vectors.mjs`, which
 //! runs the TypeScript) holds the edge cases the corpus lacks; the unit tests
-//! replay it, and `tests/golden_decode.rs` checks all 556 corpus files.
+//! replay it, and `tests/golden_decode.rs` checks all 557 corpus files.
 
 use std::fmt;
 

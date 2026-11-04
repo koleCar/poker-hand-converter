@@ -274,6 +274,41 @@ fn positions_resolve_a_dead_button_from_the_posted_blinds_and_name_no_button() {
 }
 
 #[test]
+fn positions_resolve_a_dead_small_blind_the_button_right_behind_the_big_blind_stays_the_button() {
+    let hand = positioned("DEAD_SMALL_BLIND");
+    expect_positions(
+        &hand,
+        &[
+            (1, Some("BB")),
+            (2, Some("UTG")),
+            (3, Some("HJ")),
+            (4, Some("CO")),
+            (5, Some("BTN")),
+        ],
+    );
+    assert!(
+        positions_of(&hand)
+            .iter()
+            .all(|(_, p)| p.as_deref() != Some("SB"))
+    );
+}
+
+#[test]
+fn positions_still_step_back_from_the_big_blind_when_a_seat_sits_between_it_and_the_button() {
+    let hand = positioned("DEAD_SMALL_BLIND_SEAT_BETWEEN");
+    expect_positions(
+        &hand,
+        &[
+            (5, Some("SB")),
+            (1, Some("BB")),
+            (2, Some("UTG")),
+            (3, Some("CO")),
+            (4, Some("BTN")),
+        ],
+    );
+}
+
+#[test]
 fn positions_do_not_call_a_live_button_dead() {
     let hand = positioned("SEATED_NOT_DEALT_IN");
     assert!(!has_dead_button(&hand, None));
