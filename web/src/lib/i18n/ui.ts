@@ -36,7 +36,6 @@ function uiStrings(locale: Locale): UiStrings {
     winrateGraph: {
       ...dict.stats.graph,
       hands: dict.stats.common.hands,
-      handsHead: dict.stats.common.handsHead,
       bb: dict.stats.common.bb,
     },
     hands: locale === "hr" ? handsUiHr : handsUiEn,

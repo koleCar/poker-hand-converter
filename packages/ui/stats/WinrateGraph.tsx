@@ -134,8 +134,7 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
   const date = dateFormat(locale, { dateStyle: "medium" });
   /** The money view, when asked for and possible. */
   const inMoney = unit === "money" && money !== null ? money : null;
-  /** A figure as the table prints it, and as the legend and tooltip do. */
-  const plain = (value: number) => (inMoney ? inMoney.format(value) : bb.format(value));
+  /** A figure as the legend and tooltip print it. */
   const labelled = (value: number) => (inMoney ? inMoney.format(value) : t.bb(bb.format(value)));
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(860);
@@ -416,35 +415,6 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
         <p className="notice notice--info">{t.mixedCurrency}</p>
       ) : null}
 
-      {/* A table view exists for every chart. It is also the only readout that
-          survives a screen reader, a print-out and forced-colors mode. */}
-      <details className="stats-chart__table">
-        <summary>{t.showNumbers}</summary>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">{t.handsHead}</th>
-              <th scope="col">{t.series.total.label}</th>
-              <th scope="col">{t.series.showdown.label}</th>
-              <th scope="col">{t.series.nonShowdown.label}</th>
-              <th scope="col">{t.from}</th>
-              <th scope="col">{t.to}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {graph.buckets.map((bucket, index) => (
-              <tr key={bucket.bucket}>
-                <td>{count(bucket.cumHands)}</td>
-                <td>{plain(model.series[0].values[index + 1])}</td>
-                <td>{plain(model.series[1].values[index + 1])}</td>
-                <td>{plain(model.series[2].values[index + 1])}</td>
-                <td>{bucket.firstPlayedAt ? date.format(new Date(bucket.firstPlayedAt)) : "—"}</td>
-                <td>{bucket.lastPlayedAt ? date.format(new Date(bucket.lastPlayedAt)) : "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </details>
     </div>
   );
 }

@@ -61,8 +61,5 @@ export const statsUiHr = {
     notComputedHint: "Treba equity kroz runout",
     mixedCurrency:
       "Ovaj uzorak obuhvaća više valuta, pa je serija u novcu izostavljena i crtaju se samo one u big blindovima. Dolari zbrojeni s eurima daju krivulju bez jedinice; big blindovi su jedinica igre i zbrajaju se ispravno.",
-    showNumbers: "Prikaži brojke",
-    from: "Od",
-    to: "Do",
   },
 };
