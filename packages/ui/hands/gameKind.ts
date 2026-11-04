@@ -31,6 +31,34 @@ export function kindOf(formats: readonly string[]): GameKind | null {
   return kinds.size === 1 ? [...kinds][0] : null;
 }
 
+/** A kind's formats, whole: cash, or every chip format. */
+export function kindFormats(kind: GameKind): string[] {
+  return kind === "cash" ? ["cash"] : [...CHIP_FORMATS];
+}
+
+/** Whether `formats` are exactly one kind's, whole (the kind switch's choice, not a narrower one). */
+export function isKindFormats(formats: readonly string[] | undefined): boolean {
+  const kind = kindOf(formats ?? []);
+  if (kind === null) return false;
+  const whole = kindFormats(kind);
+  return whole.length === (formats ?? []).length && whole.every((format) => formats?.includes(format));
+}
+
+/**
+ * `formats` held to `kind`: kept when every one is of that kind (a narrower
+ * choice within it stays), else the kind's whole formats - never both kinds,
+ * never "every format".
+ */
+export function pinFormats(formats: readonly string[] | undefined, kind: GameKind): string[] {
+  const chosen = formats ?? [];
+  return chosen.length > 0 && chosen.every((format) => kindOfFormat(format) === kind) ? [...chosen] : kindFormats(kind);
+}
+
+/** The kind a screen opens on: the one with more hands, cash on a tie. */
+export function defaultKind(counts: Record<GameKind, number>): GameKind {
+  return counts.tournament > counts.cash ? "tournament" : "cash";
+}
+
 /** Hands of each kind, as the Game chip counts them (its own choice left out). */
 export function kindCounts(facets: HandFacets | null): Record<GameKind, number> {
   const counts: Record<GameKind, number> = { cash: 0, tournament: 0 };

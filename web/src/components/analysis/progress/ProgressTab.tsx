@@ -37,6 +37,7 @@ import {
   type TrendReport,
 } from "../../../lib/db/analysisLeaks";
 import { useAuth } from "../../../lib/auth";
+import { useAnalysisKind } from "../analysisKind";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { dateFormat, useIntlLocale } from "../../stats/format";
@@ -74,7 +75,11 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
   const [data, setData] = useState<{ coverage: AnalysisCoverage | null; trend: TrendReport | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
 
-  const filters = useMemo(() => reportsFilters(state), [state]);
+  // One kind of game, never both (`analysisKind.ts`): nothing is read until it is known.
+  const kinds = useAnalysisKind(state.kind, isDatabaseConfigured && auth.isSignedIn, refreshToken);
+  const shownState = useMemo(() => ({ ...state, kind: kinds.kind }), [state, kinds.kind]);
+  const kindReady = kinds.kind !== null;
+  const filters = useMemo(() => reportsFilters(shownState), [shownState]);
   const filterKey = JSON.stringify(filters);
 
   const updateState = useCallback((patch: Partial<ProgressState>) => {
@@ -89,7 +94,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
 
   const requestKey = `${filterKey}|${state.bucket}|${state.group}|${refreshToken}|${attempt}`;
   useEffect(() => {
-    if (!isDatabaseConfigured || !auth.isSignedIn) return;
+    if (!isDatabaseConfigured || !auth.isSignedIn || !kindReady) return;
     let live = true;
     Promise.all([fetchAnalysisCoverage(), fetchTrend(JSON.parse(filterKey) as AnalysisFilters, state.bucket, state.group)])
       .then(([coverage, trend]) => {
@@ -108,7 +113,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
     return () => {
       live = false;
     };
-  }, [auth.isSignedIn, filterKey, state.bucket, state.group, requestKey]);
+  }, [auth.isSignedIn, kindReady, filterKey, state.bucket, state.group, requestKey]);
 
   const loading = answer?.key !== requestKey;
   const status = answer?.status ?? "loading";
@@ -187,7 +192,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
       <Header sample={graded > 0 ? t.sample(graded, buckets, t.controls.bucketsPlural[trend.bucket] ?? trend.bucket) : undefined} />
       <p className="notice notice--info">{t.intro}</p>
 
-      <FilterBar state={state} facets={trend.facets} onChange={updateState} />
+      <FilterBar state={shownState} kinds={kinds} facets={trend.facets} onChange={updateState} />
       <Controls state={state} onChange={updateState} />
       {state.bucket === "session" ? <p className={reportStyles.muted}>{t.sessionNote(trend.gapMinutes)}</p> : null}
 

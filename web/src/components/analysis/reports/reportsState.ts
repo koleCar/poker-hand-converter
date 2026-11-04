@@ -1,6 +1,6 @@
 /**
  * The Reports filters, as they live in the address bar: date range, room,
- * stake and the hero's seat — the same keys the Analysis tab's reports take
+ * stake, the hero's seat and the kind of game — the same keys the Analysis tab's reports take
  * (`analysis_scope`), so a link to a report is the report.
  *
  * Parsing is a whitelist, like the hands list's (`listState.ts`): anything
@@ -8,7 +8,9 @@
  * dropped, and a stale bookmark degrades to the whole library.
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import type { AnalysisFilters } from "../../../lib/db/analysis";
+import { KIND_KEY, parseKind } from "../analysisKind";
 
 export interface ReportsState {
   /** `YYYY-MM-DD`, inclusive. */
@@ -19,9 +21,14 @@ export interface ReportsState {
   /** `<currency>:<big blind in minor units>`. */
   stake: string | null;
   position: string | null;
+  /**
+   * Cash or tournaments - one kind, never both (`analysisKind.ts`). Null in
+   * an address that names none: the screen decides (`useAnalysisKind`).
+   */
+  kind: GameKind | null;
 }
 
-export const EMPTY_REPORTS_STATE: ReportsState = { from: null, to: null, room: null, stake: null, position: null };
+export const EMPTY_REPORTS_STATE: ReportsState = { from: null, to: null, room: null, stake: null, position: null, kind: null };
 
 /** The seats the charts cover, in table order: 6-max's, and 9-max's own seats among them (A2c). */
 export const REPORT_POSITIONS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
@@ -66,6 +73,7 @@ export function parseReportsState(
     room: room && ROOM_RE.test(room) ? room : null,
     stake: stake && STAKE_RE.test(stake) ? stake : null,
     position: position && (REPORT_POSITIONS as readonly string[]).includes(position) ? position : null,
+    kind: parseKind(source),
   };
 }
 
@@ -76,6 +84,7 @@ export function reportsQuery(state: ReportsState): string {
   if (state.room) params.set(KEYS.room, state.room);
   if (state.stake) params.set(KEYS.stake, state.stake);
   if (state.position) params.set(KEYS.position, state.position);
+  if (state.kind) params.set(KIND_KEY, state.kind);
   return params.toString();
 }
 
@@ -97,6 +106,7 @@ export function reportsFilters(state: ReportsState): AnalysisFilters {
     filters.bigBlind = Number(bigBlind);
   }
   if (state.position) filters.position = state.position;
+  if (state.kind) filters.gameKind = state.kind;
   return filters;
 }
 

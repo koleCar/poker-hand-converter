@@ -32,6 +32,7 @@ use rusqlite::{Connection, OptionalExtension, params};
 use serde_json::{Map, Value, json};
 
 use crate::error::{Error, Result};
+use crate::game_kind::{self, segment_test};
 use crate::hand_list::segments;
 use crate::read::Reader;
 use crate::time::{iso_from_ms, ms_from_iso};
@@ -59,6 +60,10 @@ pub struct ReviewQuery {
     pub version: String,
     /// Now, ms (whether the latest session has ended).
     pub now_ms: i64,
+    /// One kind of game ([`crate::game_kind`]: `cash` or `tournament`): the
+    /// walk reads that kind's hands only, so a cash evening split by a
+    /// tournament is two cash sessions. `None`: every hand.
+    pub kind: Option<String>,
 }
 
 /// One of the hero's hands as the walk reads it.
@@ -71,18 +76,28 @@ struct HeroHand {
 /// The hero's hands before (`backwards`) or after `from`, `CHUNK` at a time.
 /// (Hands sharing an instant with a chunk's last one may be skipped: a gap
 /// of 0, which moves no bound - the web's walk does the same.)
-fn chunk(conn: &Connection, from: &str, backwards: bool) -> Result<Vec<HeroHand>> {
+fn chunk(
+    conn: &Connection,
+    from: &str,
+    backwards: bool,
+    formats: Option<&str>,
+) -> Result<Vec<HeroHand>> {
+    let kind = segment_test("segment_id", 3);
     let sql = if backwards {
-        "SELECT played_at FROM hand_list
-         WHERE played_at < ?1 AND played_at > '' AND hero_net IS NOT NULL AND (kind & 1) = 0
-         ORDER BY played_at DESC, hand_key DESC LIMIT ?2"
+        format!(
+            "SELECT played_at FROM hand_list
+             WHERE played_at < ?1 AND played_at > '' AND hero_net IS NOT NULL AND (kind & 1) = 0 AND {kind}
+             ORDER BY played_at DESC, hand_key DESC LIMIT ?2"
+        )
     } else {
-        "SELECT played_at FROM hand_list
-         WHERE played_at > ?1 AND hero_net IS NOT NULL AND (kind & 1) = 0
-         ORDER BY played_at, hand_key LIMIT ?2"
+        format!(
+            "SELECT played_at FROM hand_list
+             WHERE played_at > ?1 AND hero_net IS NOT NULL AND (kind & 1) = 0 AND {kind}
+             ORDER BY played_at, hand_key LIMIT ?2"
+        )
     };
-    let mut stmt = conn.prepare_cached(sql)?;
-    let rows = stmt.query_map(params![from, CHUNK], |row| row.get::<_, String>(0))?;
+    let mut stmt = conn.prepare_cached(&sql)?;
+    let rows = stmt.query_map(params![from, CHUNK, formats], |row| row.get::<_, String>(0))?;
     let mut out = Vec::new();
     for row in rows {
         let played_at = row?;
@@ -99,12 +114,13 @@ fn bounds(
     conn: &Connection,
     anchor: &HeroHand,
     gap_ms: i64,
+    formats: Option<&str>,
 ) -> Result<(HeroHand, HeroHand, Option<HeroHand>, Option<HeroHand>)> {
     let mut start = anchor.clone();
     let mut previous = None;
     let mut from = anchor.played_at.clone();
     'back: loop {
-        let rows = chunk(conn, &from, true)?;
+        let rows = chunk(conn, &from, true, formats)?;
         let Some(last) = rows.last() else { break };
         let last = last.played_at.clone();
         let full = i64::try_from(rows.len()).unwrap_or(0) >= CHUNK;
@@ -124,7 +140,7 @@ fn bounds(
     let mut next = None;
     let mut from = anchor.played_at.clone();
     'forward: loop {
-        let rows = chunk(conn, &from, false)?;
+        let rows = chunk(conn, &from, false, formats)?;
         let Some(last) = rows.last() else { break };
         let last = last.played_at.clone();
         let full = i64::try_from(rows.len()).unwrap_or(0) >= CHUNK;
@@ -145,27 +161,32 @@ fn bounds(
 
 /// The anchor hand: the latest at or before `at`, else the first after it;
 /// without `at`, the latest.
-fn anchor(conn: &Connection, at: Option<&str>) -> Result<Option<HeroHand>> {
+fn anchor(conn: &Connection, at: Option<&str>, formats: Option<&str>) -> Result<Option<HeroHand>> {
     let read = |sql: &str, arg: &str| -> Result<Option<HeroHand>> {
         Ok(conn
             .prepare_cached(sql)?
-            .query_row([arg], |row| row.get::<_, String>(0))
+            .query_row(params![arg, formats], |row| row.get::<_, String>(0))
             .optional()?
             .and_then(|played_at| ms_from_iso(&played_at).map(|ms| HeroHand { played_at, ms })))
     };
-    let before = "SELECT played_at FROM hand_list
-         WHERE played_at > '' AND played_at <= ?1 AND hero_net IS NOT NULL AND (kind & 1) = 0
-         ORDER BY played_at DESC, hand_key DESC LIMIT 1";
-    let after = "SELECT played_at FROM hand_list
-         WHERE played_at > ?1 AND hero_net IS NOT NULL AND (kind & 1) = 0
-         ORDER BY played_at, hand_key LIMIT 1";
+    let kind = segment_test("segment_id", 2);
+    let before = format!(
+        "SELECT played_at FROM hand_list
+         WHERE played_at > '' AND played_at <= ?1 AND hero_net IS NOT NULL AND (kind & 1) = 0 AND {kind}
+         ORDER BY played_at DESC, hand_key DESC LIMIT 1"
+    );
+    let after = format!(
+        "SELECT played_at FROM hand_list
+         WHERE played_at > ?1 AND hero_net IS NOT NULL AND (kind & 1) = 0 AND {kind}
+         ORDER BY played_at, hand_key LIMIT 1"
+    );
     match at {
-        Some(at) => match read(before, at)? {
+        Some(at) => match read(&before, at)? {
             Some(hand) => Ok(Some(hand)),
-            None => read(after, at),
+            None => read(&after, at),
         },
         // '~' sorts after every ISO instant.
-        None => read(before, "~"),
+        None => read(&before, "~"),
     }
 }
 
@@ -187,15 +208,22 @@ struct SessionHand {
     minor_units: i64,
 }
 
-fn session_hands(conn: &Connection, start: &str, end: &str) -> Result<Vec<SessionHand>> {
-    let mut stmt = conn.prepare_cached(
+fn session_hands(
+    conn: &Connection,
+    start: &str,
+    end: &str,
+    formats: Option<&str>,
+) -> Result<Vec<SessionHand>> {
+    let mut stmt = conn.prepare_cached(&format!(
         "SELECT hand_key, played_at, segment_id, hero_position, hero_cards, hero_net,
                 hero_net_bb_milli, board, pot_type, kind, currency, currency_symbol, minor_units
          FROM hand_list
          WHERE played_at >= ?1 AND played_at <= ?2 AND hero_net IS NOT NULL AND (kind & 1) = 0
+           AND {}
          ORDER BY played_at, hand_key",
-    )?;
-    let rows = stmt.query_map([start, end], |row| {
+        segment_test("segment_id", 3)
+    ))?;
+    let rows = stmt.query_map(params![start, end, formats], |row| {
         Ok(SessionHand {
             hand_key: row.get(0)?,
             played_at: row.get(1)?,
@@ -439,24 +467,26 @@ fn review(conn: &Connection, query: &ReviewQuery) -> Result<Value> {
             "worst": [], "chartDeviations": [], "pots": [], "hands": {},
         })
     };
-    let Some(mut anchor_hand) = anchor(conn, query.at.as_deref())? else {
+    let formats = game_kind::formats_json(None, query.kind.as_deref())?;
+    let formats = formats.as_deref();
+    let Some(mut anchor_hand) = anchor(conn, query.at.as_deref(), formats)? else {
         return Ok(empty(Value::Null));
     };
     let mut ongoing = Value::Null;
-    let mut found = bounds(conn, &anchor_hand, gap_ms)?;
+    let mut found = bounds(conn, &anchor_hand, gap_ms, formats)?;
     if query.at.is_none() && query.now_ms - found.1.ms <= gap_ms {
         // The latest session may still be going on: named, not reviewed.
         ongoing = json!({"startedAt": found.0.played_at, "endedAt": found.1.played_at});
         match found.2.clone() {
             Some(previous) => {
                 anchor_hand = previous;
-                found = bounds(conn, &anchor_hand, gap_ms)?;
+                found = bounds(conn, &anchor_hand, gap_ms, formats)?;
             }
             None => return Ok(empty(ongoing)),
         }
     }
     let (start, end, previous, next) = found;
-    let hands = session_hands(conn, &start.played_at, &end.played_at)?;
+    let hands = session_hands(conn, &start.played_at, &end.played_at, formats)?;
     let dims = segments(conn)?;
     let format_of = |segment: i64| dims.get(&segment).map_or("", |d| d.format.as_str());
 
@@ -778,24 +808,28 @@ impl Reader {
     }
 
     /// The sessions (bomb pots out) whose last hand is at or after `since`
-    /// (ISO; `None`: every one), newest first, at most `limit`.
+    /// (ISO; `None`: every one), newest first, at most `limit`; of one kind
+    /// of game's hands when `kind` is given ([`crate::game_kind`]).
     pub fn review_sessions(
         &self,
         gap_minutes: i64,
         since: Option<&str>,
         limit: usize,
+        kind: Option<&str>,
     ) -> Result<Vec<SessionItem>> {
         let gap_ms = gap_minutes.saturating_mul(60_000);
+        let formats = game_kind::formats_json(None, kind)?;
         self.with(|conn| {
             let dims = segments(conn)?;
-            let mut stmt = conn.prepare_cached(
+            let mut stmt = conn.prepare_cached(&format!(
                 "SELECT l.played_at, l.hero_net_bb_milli, l.segment_id, l.kind, h.table_name
                  FROM hand_list l JOIN hands h ON h.hand_key = l.hand_key
                  WHERE l.played_at >= ?1 AND l.played_at > '' AND l.hero_net IS NOT NULL
-                   AND (l.kind & 1) = 0
+                   AND (l.kind & 1) = 0 AND {}
                  ORDER BY l.played_at DESC, l.hand_key DESC",
-            )?;
-            let mut rows = stmt.query([since.unwrap_or("")])?;
+                segment_test("l.segment_id", 2)
+            ))?;
+            let mut rows = stmt.query(params![since.unwrap_or(""), formats])?;
             let mut out: Vec<SessionItem> = Vec::new();
             let mut open: Option<(SessionItem, i64, BTreeSet<String>, bool, bool)> = None;
             let close = |(mut item, _, tables, cash, chips): (

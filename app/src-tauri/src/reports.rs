@@ -485,10 +485,33 @@ pub struct SessionDto {
     biggest_pots: Vec<HandRowDto>,
 }
 
-/// What Today shows beyond the import status.
+/// One kind of game's latest session, as Live's Cash | Tournaments switch
+/// sees it: its hands, and whether it is being played.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct KindSideDto {
+    hands: u64,
+    current: bool,
+}
+
+/// Both kinds' sides.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct KindsDto {
+    cash: KindSideDto,
+    tournament: KindSideDto,
+}
+
+/// What Live shows beyond the import status: one kind of game's latest
+/// session, never cash and tournament hands together (the owner's rule,
+/// 2026-11-04).
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TodayDto {
+    /// The kind shown: the one asked for, else the one being played, else
+    /// (both or neither) the one with more hands in its latest session.
+    kind: &'static str,
+    kinds: KindsDto,
     session: Option<SessionDto>,
 }
 
@@ -635,19 +658,65 @@ pub fn build_breakdowns(
     })
 }
 
-/// Today's latest session at `now_ms`.
-pub fn build_today(reader: &rail_store::Reader, now_ms: i64) -> Result<TodayDto, String> {
+/// Live's latest session of one kind of game at `now_ms`: `kind` (`cash`,
+/// `tournament`) as asked, else as [`TodayDto::kind`] says.
+pub fn build_today(
+    reader: &rail_store::Reader,
+    now_ms: i64,
+    kind: Option<&str>,
+) -> Result<TodayDto, String> {
+    use rail_store::game_kind::{CASH, TOURNAMENT};
     let display = display()?;
-    let Some(session) = reader
-        .latest_session(SESSION_GAP_MINUTES, TODAY_POTS)
-        .map_err(text)?
-    else {
-        return Ok(TodayDto { session: None });
+    let is_current = |session: &rail_store::report::Session| {
+        rail_store::time::ms_from_iso(&session.ended_at)
+            .is_some_and(|ended| now_ms - ended <= SESSION_GAP_MINUTES * 60_000)
+    };
+    let latest = |kind: &str| {
+        reader
+            .latest_session_of_kind(SESSION_GAP_MINUTES, TODAY_POTS, Some(kind))
+            .map_err(text)
+    };
+    let (cash, tournament) = (latest(CASH)?, latest(TOURNAMENT)?);
+    let side = |session: &Option<rail_store::report::Session>| {
+        session
+            .as_ref()
+            .map_or_else(KindSideDto::default, |s| KindSideDto {
+                hands: s.hands,
+                current: is_current(s),
+            })
+    };
+    let kinds = KindsDto {
+        cash: side(&cash),
+        tournament: side(&tournament),
+    };
+    let shown: &'static str = match kind.map(str::trim).filter(|k| !k.is_empty()) {
+        Some(CASH) => CASH,
+        Some(TOURNAMENT) => TOURNAMENT,
+        Some(other) => return Err(format!("Unknown game kind: {other}")),
+        None if kinds.cash.current != kinds.tournament.current => {
+            if kinds.cash.current {
+                CASH
+            } else {
+                TOURNAMENT
+            }
+        }
+        None if kinds.tournament.hands > kinds.cash.hands => TOURNAMENT,
+        None => CASH,
+    };
+    let session = if shown == CASH { cash } else { tournament };
+    let Some(session) = session else {
+        return Ok(TodayDto {
+            kind: shown,
+            kinds,
+            session: None,
+        });
     };
     // The session's statistics: its date range, which holds exactly its
-    // hands (a session has no gap inside it). `~` sorts after every
-    // character a `played_at` holds, so the last hand is inside the bound.
+    // hands of its kind (a session has no gap inside it): the kind's
+    // segments. `~` sorts after every character a `played_at` holds, so the
+    // last hand is inside the bound.
     let hero = rail_store::HeroFilter {
+        segments: Some(reader.kind_segments(shown).map_err(text)?),
         from: Some(session.started_at.clone()),
         to: Some(format!("{}~", session.ended_at)),
         ..rail_store::HeroFilter::default()
@@ -663,9 +732,10 @@ pub fn build_today(reader: &rail_store::Reader, now_ms: i64) -> Result<TodayDto,
             biggest.push(row.clone().into());
         }
     }
-    let current = rail_store::time::ms_from_iso(&session.ended_at)
-        .is_some_and(|ended| now_ms - ended <= SESSION_GAP_MINUTES * 60_000);
+    let current = is_current(&session);
     Ok(TodayDto {
+        kind: shown,
+        kinds,
         session: Some(SessionDto {
             current,
             gap_minutes: SESSION_GAP_MINUTES,
@@ -734,9 +804,15 @@ pub async fn report_breakdowns(
     build_breakdowns(open(&store)?.reader(), &filter.into())
 }
 
+/// Live's session of one kind of game (`kind`: `cash`, `tournament`; null:
+/// the one being played, else the one with more hands).
 #[tauri::command]
-pub async fn today(store: State<'_, StoreState>) -> Result<TodayDto, String> {
-    build_today(open(&store)?.reader(), rail_store::time::now_ms())
+pub async fn today(store: State<'_, StoreState>, kind: Option<String>) -> Result<TodayDto, String> {
+    build_today(
+        open(&store)?.reader(),
+        rail_store::time::now_ms(),
+        kind.as_deref(),
+    )
 }
 
 #[cfg(test)]

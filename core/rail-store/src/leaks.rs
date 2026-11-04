@@ -8,8 +8,9 @@
 //! period (all time, or the last 30 days of play), the last 30 days of play
 //! and the 30 before, counted back from the last UTC day with a graded hand.
 //! The web's own pure modules group and rank them (`groupLeaks`,
-//! `rankTopLeaks`, in the window). Filters: the hand's format, the hero's
-//! seat and the pot type. Sums are returned as summed; the window rounds
+//! `rankTopLeaks`, in the window). Filters: the hand's format or kind of
+//! game (cash, or the tournaments: [`crate::game_kind`]), the hero's seat and
+//! the pot type. Sums are returned as summed; the window rounds
 //! them as the web's `numeric` sums are rounded.
 
 use rusqlite::{Connection, params};
@@ -22,8 +23,17 @@ use crate::time::{iso_from_ms, ms_from_iso};
 #[derive(Debug, Clone, Default)]
 pub struct LeakFilters {
     pub game_format: Option<String>,
+    /// One kind of game ([`crate::game_kind`]): `cash` or `tournament`.
+    pub game_kind: Option<String>,
     pub position: Option<String>,
     pub pot_type: Option<String>,
+}
+
+impl LeakFilters {
+    /// The formats in scope, as the JSON array `SCOPE`'s `?2` binds.
+    fn formats(&self) -> Result<Option<String>> {
+        crate::game_kind::formats_json(self.game_format.as_deref(), self.game_kind.as_deref())
+    }
 }
 
 /// One finest spot's sums.
@@ -84,12 +94,12 @@ pub struct LeakExample {
     pub ev_loss_pot: f64,
 }
 
-/// The leak rows (`r`) in scope: `?1` version, `?2` format, `?3` seat, `?4`
+/// The leak rows (`r`) in scope: `?1` version, `?2` formats (a JSON array), `?3` seat, `?4`
 /// pot type, `?5` / `?6` the first and last UTC day (inclusive; a hand
 /// without a time is in all time only).
 const SCOPE: &str = "
     WHERE r.analysis_version = ?1
-      AND (?2 IS NULL OR r.game_format = ?2)
+      AND (?2 IS NULL OR r.game_format IN (SELECT value FROM json_each(?2)))
       AND (?3 IS NULL OR r.hero_position = ?3)
       AND (?4 IS NULL OR r.pot_type = ?4)
       AND (?5 IS NULL OR r.played_at >= ?5)
@@ -102,9 +112,10 @@ fn sample(
     from: Option<&str>,
     to: Option<&str>,
 ) -> Result<LeakSample> {
+    let formats = filters.formats()?;
     let args = params![
         version,
-        filters.game_format,
+        formats,
         filters.position,
         filters.pot_type,
         from,
@@ -171,6 +182,7 @@ impl Reader {
         if period != "30d" && period != "all" {
             return Err(Error::OutOfRange("period"));
         }
+        let formats = filters.formats()?;
         self.with(|conn| {
             let none: Option<&str> = None;
             let last: Option<String> = conn
@@ -181,7 +193,7 @@ impl Reader {
                 .query_row(
                     params![
                         version,
-                        filters.game_format,
+                        formats,
                         filters.position,
                         filters.pot_type,
                         none,
@@ -242,6 +254,7 @@ impl Reader {
         let keys_json =
             serde_json::to_string(keys).map_err(|error| Error::Corrupt(error.to_string()))?;
         let (from, to) = (days.map(|d| d.0), days.map(|d| d.1));
+        let formats = filters.formats()?;
         self.with(|conn| {
             let mut stmt = conn.prepare_cached(&format!(
                 "SELECT r.hand_key, r.ord, r.action_index, r.played_at, h.site, h.currency,
@@ -261,7 +274,7 @@ impl Reader {
             let rows = stmt.query_map(
                 params![
                     version,
-                    filters.game_format,
+                    formats,
                     filters.position,
                     filters.pot_type,
                     from,

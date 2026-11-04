@@ -20,6 +20,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { CardRow } from "../cards/PlayingCard";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
+import { isKindFormats, kindFormats, kindOf, type GameKind } from "../hands/gameKind";
+import { KindSwitch } from "../hands/KindSwitch";
 import { errorText } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
@@ -99,6 +101,13 @@ export interface SessionReviewScreenProps {
    * words - no list descriptions, a compact session picker).
    */
   layout?: ReviewLayout;
+  /**
+   * The Cash | Tournaments switch (the owner's rule, 2026-11-04: one kind
+   * of game at a time): given, the switch is shown, with these counts (null
+   * while unknown). The kind is the query's formats', which the surface keeps
+   * to one kind (`pinFormats`).
+   */
+  kindCounts?: Record<GameKind, number> | null;
 }
 
 export type ReviewLayout = "cards" | "table";
@@ -135,6 +144,7 @@ export function SessionReviewScreen({
   reloadToken = 0,
   intro = true,
   layout = "cards",
+  kindCounts,
 }: SessionReviewScreenProps) {
   const r = useUiStrings().review;
   const key = keyOf(query);
@@ -225,6 +235,13 @@ export function SessionReviewScreen({
         {intro ? <p className={styles.intro}>{r.intro}</p> : null}
       </header>
       {notice}
+      {kindCounts !== undefined && !hiddenDuringPlay ? (
+        <KindSwitch
+          kind={kindOf(query.filter.formats ?? [])}
+          counts={kindCounts}
+          onChange={(kind) => onQuery({ ...query, at: null, filter: { ...query.filter, formats: kindFormats(kind) } })}
+        />
+      ) : null}
       {body}
     </div>
   );
@@ -286,7 +303,10 @@ export function SessionReviewView({
     () => selectWorthALook({ worst: review.worst, deviations, pots: review.pots, hands }, cap),
     [review, deviations, hands, cap],
   );
-  const filtered = Object.values(query.filter).some((value) => (Array.isArray(value) ? value.length > 0 : value != null));
+  // The kind switch's whole kind is not a filter (the switch shows it).
+  const filtered = Object.entries(query.filter).some(([group, value]) =>
+    group === "formats" && isKindFormats(query.filter.formats) ? false : Array.isArray(value) ? value.length > 0 : value != null,
+  );
   const session = review.session;
 
   if (session === null) {
@@ -368,7 +388,15 @@ function FilterLine({ query, onQuery }: { query: SessionQuery; onQuery: (query: 
   return (
     <p className={styles.muted}>
       {r.picker.filtered}{" "}
-      <button type="button" className="btn btn--sm btn--ghost" onClick={() => onQuery({ ...query, at: null, filter: {} })}>
+      <button
+        type="button"
+        className="btn btn--sm btn--ghost"
+        onClick={() => {
+          // The kind stays: clearing the filter never shows both kinds together.
+          const kind = kindOf(query.filter.formats ?? []);
+          onQuery({ ...query, at: null, filter: kind ? { formats: kindFormats(kind) } : {} });
+        }}
+      >
         {r.picker.clearFilter}
       </button>
     </p>

@@ -608,19 +608,21 @@ fn session_pass(
     gap_minutes: i64,
     limit: usize,
     pots: Option<usize>,
+    formats: Option<&str>,
 ) -> Result<Vec<Session>> {
     let all = segments(conn)?;
     let gap_ms = gap_minutes.saturating_mul(60_000);
     let mut found: Vec<OpenSession> = Vec::new();
     {
-        let mut stmt = conn.prepare_cached(
+        let mut stmt = conn.prepare_cached(&format!(
             "SELECT played_at, segment_id, hero_net, hero_net_bb_milli, kind, currency,
                     currency_symbol, minor_units
              FROM hand_list
-             WHERE hero_net IS NOT NULL AND played_at > ''
+             WHERE hero_net IS NOT NULL AND played_at > '' AND {}
              ORDER BY played_at DESC, hand_key DESC",
-        )?;
-        let mut rows = stmt.query([])?;
+            crate::game_kind::segment_test("segment_id", 1)
+        ))?;
+        let mut rows = stmt.query([formats])?;
         let mut open: Option<OpenSession> = None;
         while let Some(row) = rows.next()? {
             let played_at = row.get_ref(0)?.as_str().map_err(rusqlite::Error::from)?;
@@ -663,14 +665,19 @@ fn session_pass(
     }
     found
         .into_iter()
-        .map(|session| close_session(conn, session, pots))
+        .map(|session| close_session(conn, session, pots, formats))
         .collect()
 }
 
 /// A session's money under the refusals and, when `pots` is asked for, its
 /// tables and biggest pots (the same rows, by date range, with `hands` and
 /// `hand_stats`: a few milliseconds per hundred hands).
-fn close_session(conn: &Connection, session: OpenSession, pots: Option<usize>) -> Result<Session> {
+fn close_session(
+    conn: &Connection,
+    session: OpenSession,
+    pots: Option<usize>,
+    formats: Option<&str>,
+) -> Result<Session> {
     let units = session.tally.units();
     let mut closed = Session {
         started_at: session.oldest,
@@ -685,16 +692,17 @@ fn close_session(conn: &Connection, session: OpenSession, pots: Option<usize>) -
     let Some(pots) = pots else {
         return Ok(closed);
     };
-    let mut stmt = conn.prepare_cached(
+    let mut stmt = conn.prepare_cached(&format!(
         "SELECT l.hand_key, l.played_at, d.total_pot, h.big_blind, h.table_name
          FROM hand_list l
          JOIN hand_stats d ON d.hand_key = l.hand_key
          JOIN hands h ON h.hand_key = l.hand_key
-         WHERE l.played_at >= ?1 AND l.played_at <= ?2 AND l.hero_net IS NOT NULL",
-    )?;
+         WHERE l.played_at >= ?1 AND l.played_at <= ?2 AND l.hero_net IS NOT NULL AND {}",
+        crate::game_kind::segment_test("l.segment_id", 3)
+    ))?;
     let mut tables: Vec<String> = Vec::new();
     let mut ranked: Vec<(i64, i64, String, String)> = Vec::new();
-    let mut rows = stmt.query(params![closed.started_at, closed.ended_at])?;
+    let mut rows = stmt.query(params![closed.started_at, closed.ended_at, formats])?;
     while let Some(row) = rows.next()? {
         let played_at: String = row.get(1)?;
         if ms_from_iso(&played_at).is_none() {
@@ -936,17 +944,41 @@ impl Reader {
         limit: usize,
         pots: Option<usize>,
     ) -> Result<Vec<Session>> {
+        self.sessions_of_kind(gap_minutes, limit, pots, None)
+    }
+
+    /// [`Reader::sessions`] of one kind of game's hands
+    /// ([`crate::game_kind`]: `cash` or `tournament`; `None`: every hand).
+    /// A cash evening split by a tournament is then two cash sessions.
+    pub fn sessions_of_kind(
+        &self,
+        gap_minutes: i64,
+        limit: usize,
+        pots: Option<usize>,
+        kind: Option<&str>,
+    ) -> Result<Vec<Session>> {
         if gap_minutes < 0 {
             return Err(Error::OutOfRange("session gap"));
         }
-        self.with(|conn| session_pass(conn, gap_minutes, limit, pots))
+        let formats = crate::game_kind::formats_json(None, kind)?;
+        self.with(|conn| session_pass(conn, gap_minutes, limit, pots, formats.as_deref()))
     }
 
     /// The latest session ([`Reader::sessions`]' first), with its tables
     /// and `pots` biggest pots.
     pub fn latest_session(&self, gap_minutes: i64, pots: usize) -> Result<Option<Session>> {
+        self.latest_session_of_kind(gap_minutes, pots, None)
+    }
+
+    /// The latest session of one kind of game ([`Reader::sessions_of_kind`]).
+    pub fn latest_session_of_kind(
+        &self,
+        gap_minutes: i64,
+        pots: usize,
+        kind: Option<&str>,
+    ) -> Result<Option<Session>> {
         Ok(self
-            .sessions(gap_minutes, 1, Some(pots))?
+            .sessions_of_kind(gap_minutes, 1, Some(pots), kind)?
             .into_iter()
             .next())
     }

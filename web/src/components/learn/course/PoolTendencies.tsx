@@ -8,11 +8,15 @@
  * anything into. Where the numbers clear a line plain arithmetic draws (folds
  * to a flop c-bet against what a bluff of a size needs), it points at the
  * lesson and the lab preset for it. Signed out, without a database, or
- * without opponent statistics, it says so instead.
+ * without opponent statistics, it says so instead. One kind of game's pool at
+ * a time - cash or the tournaments, never both - with the Cash | Tournaments
+ * switch (`analysisKind.ts`).
  */
 
 "use client";
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
+import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
@@ -22,6 +26,7 @@ import type { PoolTopic } from "../../../lib/learn/course";
 import { poolOf, poolReads, POOL_TOPIC_STATS, type Pool } from "../../../lib/learn/pool";
 import { paths } from "../../../lib/routes";
 import { useFormats } from "../controls";
+import { useAnalysisKind } from "../../analysis/analysisKind";
 import { useLearn } from "./LearnStore";
 import styles from "./course.module.css";
 
@@ -40,11 +45,14 @@ export function PoolTendencies({ topic }: { topic: PoolTopic }) {
   const store = useLearn();
   const signedIn = store.mode === "account";
   const [state, setState] = useState<State>({ kind: "loading" });
+  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
+  const kinds = useAnalysisKind(askedKind, signedIn);
+  const gameKind = kinds.kind;
 
   useEffect(() => {
-    if (!signedIn) return;
+    if (!signedIn || gameKind === null) return;
     let live = true;
-    fetchStatsOpponents({ minHands: 1 }, "", MAX_OPPONENTS).then(
+    fetchStatsOpponents({ minHands: 1, gameKind }, "", MAX_OPPONENTS).then(
       (report) => {
         if (!live) return;
         const rows = report.rows.map((row) => ({ counters: row.counters as unknown as Record<string, number> }));
@@ -57,7 +65,7 @@ export function PoolTendencies({ topic }: { topic: PoolTopic }) {
     return () => {
       live = false;
     };
-  }, [signedIn]);
+  }, [signedIn, gameKind]);
 
   let body: ReactNode;
   if (!isDatabaseConfigured) body = <p className={styles.muted}>{t.noDatabase}</p>;
@@ -124,6 +132,7 @@ export function PoolTendencies({ topic }: { topic: PoolTopic }) {
   return (
     <div className={styles.pool}>
       <p>{t.intro}</p>
+      {signedIn && isDatabaseConfigured ? <KindSwitch kind={gameKind} counts={kinds.counts} onChange={setAskedKind} /> : null}
       {body}
     </div>
   );
