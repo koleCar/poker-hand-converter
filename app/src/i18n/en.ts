@@ -849,9 +849,17 @@ export const en = {
       close: "Close",
       openInWeb: "Open on the web",
       openInWebSoon: "Opening hands on the web comes with sync of tags and notes.",
+      /** The header button that opens the hand's tags and note. */
+      notes: "Tags and note",
+      notesSummary: (tags: number, note: boolean) =>
+        [tags === 1 ? "1 tag" : tags > 1 ? `${tags} tags` : null, note ? "a note" : null]
+          .filter(Boolean)
+          .join(" and ") || "No tags or note yet",
       tags: "Tags",
       addTag: "Add a tag",
-      tagPlaceholder: "Tag, then Enter",
+      tagPlaceholder: "New tag, or pick one below",
+      knownTags: "Your tags",
+      newTag: (tag: string) => `Add “${tag}”`,
       removeTag: (tag: string) => `Remove tag “${tag}”`,
       tagFailed: (reason: string) => `The tag was not saved: ${reason}`,
       note: "Note",
