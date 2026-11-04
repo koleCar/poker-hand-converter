@@ -160,7 +160,6 @@ export const hr: Dict = {
     },
     empty: {
       title: "Nema sesije u tijeku",
-      text: "Sjedni za stol u podržanom poker klijentu. Prva ruka koju Rail uveze započinje sesiju ovdje, a graf, statistika i ruke pune se dok igraš.",
       watching: (count) => `Prati se ${n(count)} ${plural(count, "mapa", "mape", "mapa")} s rukama`,
       paused: "Uvoz je pauziran",
       noFolders: "Još se ne prati nijedna mapa s rukama.",
@@ -168,8 +167,6 @@ export const hr: Dict = {
       last: "Zadnja sesija",
       range: (from, to) => `${from} – ${to}`,
       reports: "Otvori u Izvještajima",
-      rule: (minutes) =>
-        `Sesija je niz ruku bez stanke dulje od ${minutes} ${plural(minutes, "minute", "minute", "minuta")}, preko svih stolova.`,
     },
   },
 
