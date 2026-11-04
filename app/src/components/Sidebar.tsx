@@ -11,7 +11,7 @@ import styles from "./Sidebar.module.css";
 
 /** One icon per screen: all a collapsed sidebar shows of it. */
 const SCREEN_ICONS: Record<Screen, IconName> = {
-  today: "home",
+  live: "home",
   hands: "cards",
   reports: "barChart",
   players: "users",
