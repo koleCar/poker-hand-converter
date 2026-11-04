@@ -11,7 +11,18 @@ import { useUiStrings } from "../i18n";
 import { DATE_PRESETS, type FilterState } from "./filter";
 import styles from "./FilterBar.module.css";
 import { GroupEditor } from "./GroupEditor";
-import { FLAG_GROUPS, LIST_GROUPS, PANES, isSet, quickFor, useGroupWords, type GroupId, type PaneId } from "./groups";
+import {
+  FLAG_GROUPS,
+  LIST_GROUPS,
+  PANES,
+  isSet,
+  quickFor,
+  selectedOf,
+  useGroupWords,
+  withValues,
+  type GroupId,
+  type PaneId,
+} from "./groups";
 import type { HandFacets } from "./model";
 import { Popover } from "./Popover";
 
@@ -49,15 +60,19 @@ export function useSearchHits(groups: readonly GroupId[], filter: FilterState, f
       const name = words.name(group);
       const list = LIST_GROUPS[group];
       if (list) {
+        const selected = selectedOf(group, filter, facets);
         for (const option of words.options(group, filter, facets)) {
           if (!matches(option.label, name)) continue;
-          const on = filter[list].includes(option.value);
+          const on = selected.includes(option.value);
           hits.push({
             key: `${group}:${option.value}`,
             label: option.label,
             where: name,
             on,
-            apply: (f) => ({ ...f, [list]: on ? f[list].filter((v) => v !== option.value) : [...f[list], option.value] }),
+            apply: (f) => {
+              const now = selectedOf(group, f, facets);
+              return withValues(group, f, on ? now.filter((v) => v !== option.value) : [...now, option.value], facets);
+            },
           });
         }
       }

@@ -21,7 +21,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
-import { PANES, QUICK_FILTERS, clearAll, quickFor, shownSet } from "@rail/ui/hands/groups";
+import { PANES, QUICK_FILTERS, clearAll, clearGroup, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
 import { EMPTY_FILTER, activeGroups, fromSaved, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
 import type { HandFacets, HandRow } from "@rail/ui/hands/model";
@@ -270,6 +270,39 @@ describe("the quick filters and the set groups", () => {
       "format",
     ]);
     expect(clearAll({ ...cash, sort: "pot" }, null)).toEqual({ ...EMPTY_FILTER, formats: ["cash"], sort: "pot" });
+  });
+
+  it("the Game group stays within the toggle's kind: its options, its ×, Clear all (#307)", () => {
+    const mixed: HandFacets = {
+      total: 4,
+      sites: [],
+      formats: [
+        { value: "cash", count: 2 },
+        { value: "sng", count: 1 },
+        { value: "spin", count: 1 },
+      ],
+      variants: [],
+      limits: [],
+      sizes: [],
+      stakes: [],
+      positions: [],
+      potTypes: [],
+      results: [],
+      stacks: [],
+      allIn: [],
+      tags: [],
+      noted: 0,
+    };
+    const spinOnly: FilterState = { ...EMPTY_FILTER, formats: ["spin"], positions: ["BB"] };
+    // × on the Game chip and Clear all go back to the whole of the kind, never to both kinds.
+    expect(clearGroup("format", spinOnly, mixed).formats).toEqual(["sng", "spin"]);
+    expect(clearAll(spinOnly, mixed)).toEqual({ ...EMPTY_FILTER, formats: ["sng", "spin"] });
+    // The whole kind reads as "any" in the editor; a pick narrows within it.
+    const whole = { ...EMPTY_FILTER, formats: ["sng", "spin"] };
+    expect(selectedOf("format", whole, mixed)).toEqual([]);
+    expect(withValues("format", whole, ["spin"], mixed).formats).toEqual(["spin"]);
+    // A pick of the other kind replaces the choice.
+    expect(withValues("format", spinOnly, ["spin", "cash"], mixed).formats).toEqual(["cash"]);
   });
 });
 

@@ -1,0 +1,117 @@
+/* A short table of hands, in the Hands screen's look (`hands/HandList.module.css`):
+   a bordered box, an uppercase header, rows of the density's height, numbers
+   in tabular figures. Not virtualised - a handful of rows. Each row is the
+   surface's link (an `<a>` or a button) laid out as the header's grid, so a
+   click anywhere on it opens the hand. Used by the session review's table
+   layout and the desktop app's top leaks. The columns are the user's
+   (`--spot-columns`, `--spot-min`); semantic tokens only, grades in the
+   analysis's `--grade-*`. */
+
+.table {
+  --spot-columns:
+    3.5rem 6.5rem 3rem 5.25rem minmax(7.5rem, 1fr) minmax(11rem, 1.6fr)
+    7rem 4.5rem 4.5rem 5rem;
+  --spot-min: 64rem;
+
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  font-size: var(--density-table-font, var(--font-size-sm));
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--spot-columns);
+  align-items: center;
+  column-gap: var(--space-3);
+  min-width: var(--spot-min);
+  min-height: var(--density-row, 40px);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.head {
+  min-height: 2rem;
+  background: var(--surface-raised-2);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  min-width: var(--spot-min);
+}
+
+.body > .row {
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.body > .row:last-child {
+  border-bottom: 0;
+}
+
+.body > .row:hover {
+  background: var(--surface-hover);
+}
+
+.body > .row:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.num {
+  text-align: right;
+}
+
+.secondary {
+  color: var(--text-secondary);
+}
+
+.strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.dim {
+  color: var(--text-tertiary);
+}
+
+.won {
+  color: var(--profit-fg);
+}
+
+.lost {
+  color: var(--loss-fg);
+}
+
+.grade {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+}
+
+.grade_perfect { color: var(--grade-perfect); }
+.grade_good { color: var(--grade-good); }
+.grade_inaccurate { color: var(--grade-inaccurate); }
+.grade_mistake { color: var(--grade-mistake); }
+.grade_blunder { color: var(--grade-blunder); }

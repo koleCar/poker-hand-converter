@@ -21,8 +21,12 @@ export function opponentsScope(query: HandFilter): { filters: StatsFilters; part
   };
   const site = one(query.sites);
   if (site) filters.site = site;
-  const format = one(query.formats);
-  if (format) filters.gameFormat = format;
+  // Never no format when some are chosen: no format is every format, cash and
+  // tournaments together. Several (the Tournaments toggle's chip formats):
+  // the first, and `partial` says so.
+  const formats = query.formats ?? [];
+  if (formats.length > 1) partial = true;
+  if (formats[0]) filters.gameFormat = formats[0];
   const stake = one(query.stakes);
   if (stake && stake !== "chips") {
     const [currency, bigBlind] = stake.split(":");

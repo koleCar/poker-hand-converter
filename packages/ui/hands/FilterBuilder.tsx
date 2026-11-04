@@ -249,7 +249,7 @@ export function FilterBuilder({ groups, filter, facets, loadFacets, saved, start
                     type="button"
                     className={styles.iconButton}
                     aria-label={t.remove(words.name(group))}
-                    onClick={() => setDraft((was) => clearGroup(group, was))}
+                    onClick={() => setDraft((was) => clearGroup(group, was, draftFacets))}
                   >
                     <CloseIcon size={12} />
                   </button>

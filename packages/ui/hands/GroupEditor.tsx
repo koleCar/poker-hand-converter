@@ -10,7 +10,18 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerE
 
 import { useUiStrings } from "../i18n";
 import { DATE_PRESETS, type DatePreset, type FilterState } from "./filter";
-import { FLAG_GROUPS, LIST_GROUPS, TEXT_GROUPS, combosOf, rangePercent, useGroupWords, type GroupId, type GroupOption } from "./groups";
+import {
+  FLAG_GROUPS,
+  LIST_GROUPS,
+  TEXT_GROUPS,
+  combosOf,
+  rangePercent,
+  selectedOf,
+  useGroupWords,
+  withValues,
+  type GroupId,
+  type GroupOption,
+} from "./groups";
 import styles from "./FilterBar.module.css";
 import type { HandFacets } from "./model";
 
@@ -56,8 +67,8 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
         <Pills
           label={name}
           options={options}
-          selected={filter[list]}
-          onChange={(next) => onChange({ ...filter, [list]: next })}
+          selected={selectedOf(group, filter, facets)}
+          onChange={(next) => onChange(withValues(group, filter, next, facets))}
         />
       );
   } else if (flag) {

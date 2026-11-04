@@ -208,7 +208,7 @@ function ActiveChip({
         title={t.remove(name)}
         onClick={() => {
           close();
-          onChange(clearGroup(group, filter));
+          onChange(clearGroup(group, filter, facets));
         }}
       >
         <CloseIcon />

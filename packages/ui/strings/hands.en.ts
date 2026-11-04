@@ -48,8 +48,6 @@ export const handsUiEn = {
     label: "Game type",
     cash: "Cash",
     tournament: "Tournaments",
-    defaulted: (kind: string) =>
-      `Showing ${kind} only: tournament chips and cash do not add up to one result. Switch with the toggle above.`,
   },
   filters: {
     label: "Filters",

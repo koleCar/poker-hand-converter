@@ -55,6 +55,29 @@ export function withKind(filter: FilterState, kind: GameKind, facets: HandFacets
   return { ...filter, formats: formats.length > 0 ? formats : CHIP_FORMATS };
 }
 
+/** Whether the formats chosen are the whole of one kind (the toggle's choice, not narrowed by the Game chip). */
+export function isWholeKind(filter: FilterState, facets: HandFacets | null): boolean {
+  const kind = kindOf(filter.formats);
+  if (kind === null) return false;
+  const whole = withKind(filter, kind, facets).formats;
+  return whole.length === filter.formats.length && whole.every((format) => filter.formats.includes(format));
+}
+
+/**
+ * The Game chip's change, kept to one kind: a format of the other kind
+ * replaces the choice (the newest pick decides), and "Any" is the whole of
+ * the kind shown - never both kinds.
+ */
+export function withFormats(filter: FilterState, next: readonly string[], facets: HandFacets | null): FilterState {
+  if (next.length === 0) {
+    const kind = kindOf(filter.formats);
+    return kind === null ? { ...filter, formats: [] } : withKind(filter, kind, facets);
+  }
+  const added = next.find((format) => !filter.formats.includes(format)) ?? next[0] ?? "";
+  const kind = kindOfFormat(added);
+  return { ...filter, formats: next.filter((format) => kindOfFormat(format) === kind) };
+}
+
 /**
  * The filter the screen shows: as chosen when it holds one kind (or the hands
  * hold only one), else narrowed to the kind with more hands - among the
@@ -76,16 +99,4 @@ export function pinKind(
   const kind: GameKind = counts.cash >= counts.tournament ? "cash" : "tournament";
   if (chosen.length === 0) return { filter: withKind(filter, kind, facets), defaulted: kind };
   return { filter: { ...filter, formats: chosen.filter((format) => kindOfFormat(format) === kind) }, defaulted: kind };
-}
-
-/**
- * Whether the formats are exactly one kind as the toggle sets it (Cash, or
- * every chip format the hands have): the toggle already says so, so the
- * filter row shows no Game chip for it, and "Clear all" keeps it.
- */
-export function isWholeKind(filter: FilterState, facets: HandFacets | null): boolean {
-  const kind = kindOf(filter.formats);
-  if (kind === null) return false;
-  const whole = withKind(filter, kind, facets).formats;
-  return whole.length === filter.formats.length && whole.every((format) => filter.formats.includes(format));
 }

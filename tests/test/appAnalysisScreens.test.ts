@@ -24,7 +24,7 @@ import { fetchTopLeaks, spotRow, topOf } from "../../app/src/lib/leaksSource";
 import { reviewHand, storeReviewSource, storeSessionChartsSource } from "../../app/src/lib/reviewSource";
 import { HandAnalysisView, type Loaded } from "../../app/src/screens/analysis/HandAnalysis";
 import { TopLeaksBody } from "../../app/src/screens/analysis/TopLeaks";
-import { describeStatus } from "../../app/src/screens/analysis/status";
+import { describeStatus, progressOf } from "../../app/src/screens/analysis/status";
 import { parseView, tabOf, viewParam, type AnalysisView } from "../../app/src/screens/analysis/view";
 import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../../web/src/lib/analysis/index";
 import { loadCharts } from "../../web/src/lib/charts/index";
@@ -73,19 +73,29 @@ describe("the background run's line", () => {
     version: "analysis/34",
   };
   const lines = (status: RunnerStatus, dict: typeof en) =>
-    describeStatus(status, dict.analysis.status, (n) => String(n)).map((l) => (l.warn ? `!${l.text}` : l.text));
+    describeStatus(status, dict.analysis.status).map((l) => (l.warn ? `!${l.text}` : l.text));
 
-  it("says how far it is and why it waits, in both languages", () => {
-    expect(lines(base, en)).toEqual([
-      "Analysing your hands: 300 of 1,204 hands done.",
-      "2.4 hands a second",
-      "2 hands cannot be analysed (another game, or no hero).",
-    ]);
-    expect(lines(base, hr as typeof en)[0]).toBe("Analiziram tvoje ruke: gotovo 300 od 1.204 ruke.");
+  it("shows a bar while it runs: hands left of how many, and about how long", () => {
+    // Running: the bar says it all, no line beside it.
+    expect(lines(base, en)).toEqual([]);
+    const progress = progressOf(base);
+    expect(progress).toEqual({ done: 300, left: 904, total: 1204, share: 300 / 1204, minutes: 6 });
+    expect(en.analysis.status.left(904, 1204)).toBe("904 of 1,204 hands left");
+    expect(hr.analysis.status.left(904, 1204)).toBe("još 904 od 1.204 ruke");
+    expect(en.analysis.status.eta(6)).toBe("about 6 min");
+    expect(en.analysis.status.eta(0)).toBe("under a minute");
+    expect(en.analysis.status.eta(75)).toBe("about 1 h 15 min");
+    expect(progressOf({ ...base, handsPerSecond: null })?.minutes).toBeNull();
+    // Not running: no bar.
+    expect(progressOf({ ...base, phase: "waiting", reason: "tables" })).toBeNull();
+    expect(progressOf({ ...base, phase: "idle", counts: { ...base.counts!, current: 1204, missing: 0 } })).toBeNull();
+  });
+
+  it("says why it waits, in both languages", () => {
     expect(lines({ ...base, phase: "waiting", reason: "tables" }, en)[0]).toBe("The analysis waits while a poker table is open.");
     expect(lines({ ...base, phase: "waiting", reason: "paused", paused: true }, hr as typeof en)[0]).toBe("Analiza je pauzirana.");
     expect(lines({ ...base, phase: "idle", counts: { ...base.counts!, current: 1204, missing: 0, notAnalysable: 0 } }, en)).toEqual([
-      "Every hand is analysed (1,204 hands).",
+      "All 1,204 hands analysed.",
     ]);
     expect(lines({ ...base, phase: "starting", counts: null }, en)).toEqual(["The analysis starts shortly after Rail opens."]);
     expect(lines({ ...base, library: false }, en).at(-1)).toMatch(/^!The flop library cannot be reached/);
@@ -333,12 +343,12 @@ describe("the top three leaks", () => {
           createElement(TopLeaksBody, { report, top, examples: new Map([[top[0].leak.id, [example]]]), period: "30d" }),
         ),
       );
-      expect(html).toContain(words.sample(66, 120));
       expect(html).toContain(words.rank(1));
       expect(html).toContain(words.rank(2));
-      expect(html).toContain(words.examples);
+      expect(html).toContain(dict.analysis.leaks.examples);
       expect(html).toContain(dict.analysis.hand.grades.mistake);
-      expect(html).toContain(screenHref("analysis", viewParam({ kind: "hand", key: "pokerstars:9", actionIndex: 7, back: "leaks" })).replace(/&/g, "&amp;"));
+      // A row opens the hand in the replayer window; its address is the Hands screen's.
+      expect(html).toContain(`href="${screenHref("hands", "pokerstars:9")}"`);
       expect(html).not.toContain(words.allLeaks);
     }
   });

@@ -116,11 +116,9 @@ export function ReportsScreen({
   const r = ui.reports;
   const [facetsSeen, setFacetsSeen] = useState<HandFacets | null>(null);
   // Cash and tournaments never add up: a filter that does not pick one kind
-  // shows the one with more hands, and says so (the Game chip's counts,
-  // which leave its own choice out, decide).
-  const pinned = useMemo(() => pinKind(chosen ?? EMPTY_FILTER, facetsSeen), [chosen, facetsSeen]);
-  const filter = pinned.filter;
-  const defaultKind = pinned.defaulted;
+  // shows the one with more hands, and the toggle says which (the Game
+  // chip's counts, which leave its own choice out, decide).
+  const filter = useMemo(() => pinKind(chosen ?? EMPTY_FILTER, facetsSeen).filter, [chosen, facetsSeen]);
   const query = useMemo(() => toQuery(filter), [filter]);
   // The first report waits for the counts that pick its kind.
   const state = useReport(source, query, facetsSeen !== null, reloadToken);
@@ -184,7 +182,6 @@ export function ReportsScreen({
         saved={source.savedFilters}
         loadFacets={loadFacets}
       />
-      {defaultKind !== null ? <p className={styles.notice}>{ui.hands.kinds.defaulted(ui.hands.kinds[defaultKind])}</p> : null}
       {notice}
       {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}
       {report && !report.units.mixedKind && report.units.mixedCurrency ? (

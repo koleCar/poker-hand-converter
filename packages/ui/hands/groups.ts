@@ -27,7 +27,7 @@ import {
   type ListGroup,
 } from "./filter";
 import { stakeLabel } from "./format";
-import { isWholeKind } from "./gameKind";
+import { isWholeKind, kindOf, kindOfFormat, withFormats, withKind } from "./gameKind";
 import type { FacetCount, HandFacets, HandSort, MoreFilter } from "./model";
 
 export type GroupId =
@@ -217,8 +217,12 @@ export function isSet(group: GroupId, filter: FilterState): boolean {
   return false;
 }
 
-/** The filter with the group back to "any". */
-export function clearGroup(group: GroupId, filter: FilterState): FilterState {
+/**
+ * The filter with the group back to "any". The Game group's "any" is the
+ * whole of the kind the Cash / Tournaments toggle shows, never both kinds.
+ */
+export function clearGroup(group: GroupId, filter: FilterState, facets: HandFacets | null = null): FilterState {
+  if (group === "format") return withFormats(filter, [], facets);
   const list = LIST_GROUPS[group];
   if (list) return { ...filter, [list]: [] };
   const flag = FLAG_GROUPS[group];
@@ -239,9 +243,28 @@ export function shownSet(groups: readonly GroupId[], filter: FilterState, facets
   return groups.filter((group) => group !== "sort" && isSet(group, filter) && !(group === "format" && wholeKind));
 }
 
-/** Every filter off, the order kept, and the kind when the toggle set it. */
+/** Every filter off, the order kept, and the kind the toggle shows (all of it). */
 export function clearAll(filter: FilterState, facets: HandFacets | null = null): FilterState {
-  return { ...EMPTY_FILTER, sort: filter.sort, formats: isWholeKind(filter, facets) ? filter.formats : [] };
+  const cleared: FilterState = { ...EMPTY_FILTER, sort: filter.sort };
+  const kind = kindOf(filter.formats);
+  return kind === null ? cleared : withKind(cleared, kind, facets);
+}
+
+/**
+ * The values a list group has switched on, as its editor shows them: the
+ * whole of the toggle's kind reads as none (the Game group's "any").
+ */
+export function selectedOf(group: GroupId, filter: FilterState, facets: HandFacets | null): string[] {
+  const list = LIST_GROUPS[group];
+  if (!list) return [];
+  return group === "format" && isWholeKind(filter, facets) ? [] : filter[list];
+}
+
+/** A list group set to these values; the Game group stays within one kind. */
+export function withValues(group: GroupId, filter: FilterState, next: string[], facets: HandFacets | null): FilterState {
+  const list = LIST_GROUPS[group];
+  if (!list) return filter;
+  return group === "format" ? withFormats(filter, next, facets) : { ...filter, [list]: next };
 }
 
 export interface GroupOption {
@@ -329,6 +352,10 @@ export function useGroupWords() {
       }
       // A value with no hands left is not offered; one that is chosen always is.
       values = values.filter((f) => f.count > 0 || group === "tags");
+      // The Game group narrows within the kind the toggle shows: the other
+      // kind's formats are not offered (cash and tournaments never together).
+      const kind = group === "format" ? kindOf(filter.formats) : null;
+      if (kind !== null) values = values.filter((f) => kindOfFormat(f.value) === kind);
       for (const value of filter[list]) {
         if (!values.some((v) => v.value === value)) values = values.concat({ value, count: 0 });
       }
