@@ -2,11 +2,13 @@ import { useT } from "../i18n";
 import { offeredScreens } from "../lib/duringPlay";
 import { SCREENS, screenHref, type Screen } from "../lib/router";
 import { useAccount } from "../lib/useAccount";
+import { useUpdates } from "../lib/useUpdates";
 import { MOD_KEY, openPalette } from "./Palette";
 import styles from "./Sidebar.module.css";
 
 /** The screens; (A10, R3.10) while a poker table is open, without those that
- * help with play. At the foot, who is signed in (R1.7). */
+ * help with play. At the foot, a newer Rail when there is one, and who is
+ * signed in (R1.7). */
 export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: boolean }) {
   const t = useT();
   return (
@@ -37,8 +39,32 @@ export function Sidebar({ current, tablesOpen }: { current: Screen; tablesOpen: 
           </li>
         ))}
       </ul>
+      <UpdateFoot />
       <AccountFoot />
     </nav>
+  );
+}
+
+/** A newer Rail found (or downloaded): a quiet link to Settings, Updates. */
+function UpdateFoot() {
+  const t = useT();
+  const { status } = useUpdates();
+  const phase = status?.phase;
+  if (!phase || (phase.state !== "available" && phase.state !== "ready")) {
+    return null;
+  }
+  // "Install" only where this copy can install it (Settings says why not).
+  const installable = phase.state === "ready" && status?.installBlocker === null;
+  const text = installable ? t.nav.updateReady(phase.version) : t.nav.updateAvailable(phase.version);
+  return (
+    <a
+      className={styles.update}
+      href={screenHref("settings", "updates")}
+      title={phase.state === "ready" ? t.settings.updates.ready(phase.version) : t.settings.updates.available(phase.version)}
+    >
+      <span className={styles.updateDot} aria-hidden="true" />
+      <span className={styles.email}>{text}</span>
+    </a>
   );
 }
 

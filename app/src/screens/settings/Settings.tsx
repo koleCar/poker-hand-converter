@@ -11,6 +11,7 @@ import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
 import { RefusedAll } from "./RefusedAll";
 import styles from "./Settings.module.css";
+import { Updates } from "./Updates";
 
 // Debug builds only: in a production bundle `import.meta.env.DEV` is `false`
 // and the import is dropped, so the panel is not shipped.
@@ -62,6 +63,9 @@ export function Settings() {
             <CustomStats />
           </Anchor>
           <Preferences />
+          <Anchor id="updates">
+            <Updates />
+          </Anchor>
           <Anchor id="about">
             <About />
           </Anchor>
