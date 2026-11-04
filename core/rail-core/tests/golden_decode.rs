@@ -101,7 +101,7 @@ fn every_corpus_file_decodes_as_the_typescript_decoded_it() {
          {assembled} iPoker hands' assembled raw text equal to the Rust split's chunk"
     );
     assert_eq!(
-        files, 556,
+        files, 557,
         "the corpus changed size; update this count with the goldens"
     );
     assert_eq!(assembled, 26, "the iPoker hands of the corpus changed");

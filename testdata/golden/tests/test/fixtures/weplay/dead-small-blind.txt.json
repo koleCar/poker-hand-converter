@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD91876609",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "41eb0901b04be548ccfa1aa4e4b6da9a68e435eb592bc2805187fd005d7211d1",
+      "standardText": "de6d8a1a9ef97011772eb080cc5c3e6d16e0ea93cbfe9539a635f909177026b7",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1493,
+    "path": "tests/test/fixtures/weplay/dead-small-blind.txt",
+    "sha256": "2ed1650bb694e59fa9c2f84c4fcc479b74bd329d5ce5843cf6c59ffea8f4de4f"
+  },
+  "refusals": [],
+  "standardTextFile": "de6d8a1a9ef97011772eb080cc5c3e6d16e0ea93cbfe9539a635f909177026b7",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

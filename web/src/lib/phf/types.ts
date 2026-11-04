@@ -711,14 +711,30 @@ export function assignPositions(hand: PhfHand): void {
     // one longer with the button slot dropped: three live players behind a dead
     // button are SB, BB and CO, not SB, BB and BTN.
     const dead = hasDeadButton(hand, ringSeats);
-    const ring = dead ? positionRing(size + 1).slice(0, size) : positionRing(size);
+    let ring = dead ? positionRing(size + 1).slice(0, size) : positionRing(size);
     // ring[0] is the small blind; find which seat that is.
     let start = -1;
+    const bigBlindIndex = bigBlindSeat === null ? -1 : ringSeats.indexOf(bigBlindSeat);
     if (smallBlindSeat !== null && ringSeats.includes(smallBlindSeat)) {
       start = ringSeats.indexOf(smallBlindSeat);
+    } else if (
+      !dead &&
+      size >= 3 &&
+      bigBlindIndex >= 0 &&
+      hand.table.buttonSeat === ringSeats[(bigBlindIndex - 1 + size) % size]
+    ) {
+      // A dead small blind - nobody posted it and the button sits right behind
+      // the big blind, so the small blind's seat is empty - is the dead
+      // button's mirror image: the ring is one longer with the small blind slot
+      // dropped, and starts at the big blind. Five players with the button
+      // just behind the big blind are BB, UTG, HJ, CO and BTN - the button is
+      // not the small blind.
+      ring = positionRing(size + 1).slice(1);
+      start = bigBlindIndex;
     } else if (bigBlindSeat !== null && ringSeats.includes(bigBlindSeat)) {
-      // No small blind was posted (a walk, or a dead small blind). The big
-      // blind is always ring[1], so step back one to find ring[0].
+      // No small blind was posted, and the button is not right behind the big
+      // blind. The big blind is always ring[1], so step back one to find
+      // ring[0].
       start = (ringSeats.indexOf(bigBlindSeat) - 1 + size) % size;
     } else if (hand.table.buttonSeat !== null && ringSeats.includes(hand.table.buttonSeat)) {
       // Bomb pots post no blinds at all; geometry is all there is.

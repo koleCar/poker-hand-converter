@@ -231,8 +231,8 @@ fn every_golden_hand_and_file_writes_the_golden_standard_text() {
         "standard text: {agree} / {hands} hands, {files_agree} / {files} files agree with the goldens"
     );
     report(&failures, "standard texts differ from the goldens");
-    assert_eq!(hands, 8422, "the corpus changed size");
-    assert_eq!(files, 556, "the corpus changed size");
+    assert_eq!(hands, 8511, "the corpus changed size");
+    assert_eq!(files, 557, "the corpus changed size");
 }
 
 #[test]

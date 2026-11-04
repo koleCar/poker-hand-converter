@@ -16,10 +16,18 @@
   "format": "rail-golden/1",
   "hands": [
     {
+      "handId": "HD72101852",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "4dd377706556ae9703f39267cc12cdeca9ffd86b92ca4e2706b5112d07df8a59",
+      "standardText": "53d896f42e11a56ba843392c2aada21fb031851c6be2242a88de9b10b0fd26c2",
+      "warnings": []
+    },
+    {
       "handId": "HD72101874",
       "index": 1,
       "parser": "weplay",
-      "phf": "23b0e8ea1686028e553931a42374e8b2a8db5e080cf9de7db1efc4fb53ba5aee",
+      "phf": "cb21a260d509e26a47e3a6760d12e8072ccd8186037a4ca6694d2fb8ab7ef9df",
       "standardText": "f0198a9979520dc37fbfd8ae1c4d79023ea495816532423e83249540cdc89dd4",
       "warnings": []
     }
@@ -29,25 +37,14 @@
     "path": "weplay-hh/kole1992/HH20260109 Braga Bomb Pot (3BB-5BB) #1 (#11333801) - $1-$2 - Money 3 No Limit Hold_em.txt",
     "sha256": "23e5e1b675521c88eb0517c419e944ffcc32a8100e3dbce9136d29dac05fbc76"
   },
-  "refusals": [
-    {
-      "fingerprint": "4c7704b08f2e34ec83034e65ae6431984a0ba3c5f8d52ac012cbfff438872bee",
-      "index": 0,
-      "message": "Big blind posted without a small blind (BB-only walk).",
-      "parserVersion": "2.0.0",
-      "permille": 990,
-      "reason": "bb-only-walk",
-      "site": "weplay",
-      "stage": "parse"
-    }
-  ],
-  "standardTextFile": "f0198a9979520dc37fbfd8ae1c4d79023ea495816532423e83249540cdc89dd4",
+  "refusals": [],
+  "standardTextFile": "a54e1f76c7fc7d2a2f0cdf0e3b26d959668f42024dea58f57a5be8a2116527ab",
   "stats": {
     "bySite": {
-      "weplay": 1
+      "weplay": 2
     },
-    "converted": 1,
-    "failed": 1,
+    "converted": 2,
+    "failed": 0,
     "total": 2
   }
 }

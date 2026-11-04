@@ -617,8 +617,8 @@ mod tests {
             "chip-mismatch"
         );
         assert_eq!(
-            FailureReason::from(SkipReason::BbOnlyWalk).as_str(),
-            "bb-only-walk"
+            FailureReason::from(SkipReason::GhostAnte).as_str(),
+            "ghost-ante"
         );
     }
 

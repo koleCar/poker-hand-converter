@@ -408,6 +408,8 @@ All confirmed from real samples.
   subsequent `raises X to Y` uses `X = Y − straddle` (§13.1).
 - No `posts small & big blinds` / dead-blind / post-to-enter line was found.
   *(Whether WePlay supports posting out of turn is unverified.)*
+- **Dead small blind** (§13.14): a hand can have a big blind and no small
+  blind at all, when nobody sits between the button and the big blind.
 
 ---
 
@@ -799,6 +801,11 @@ markers; and deduplicate `Dealt to` by player.
 line for the same player reads `showed [Ac Ah]`. Parse `\[([^\]]*)\]` and treat
 an empty list as "unknown, recover from SUMMARY".
 
+Every occurrence in the corpus (7 by 2026-11-04) is a player who had **already
+folded** flashing the hand afterwards - the SUMMARY says `folded … showed [..]`.
+The parser (2.1.0) drops the line, as it drops a folder's `showed [..]` in the
+SUMMARY: the player did not go to showdown.
+
 ### 13.7 Missing space before `showed` in SUMMARY
 
 ```
@@ -847,6 +854,22 @@ Detect real showdowns via `: shows [`.
 
 Every file starts with `EF BB BF`. `^Weplay Hand #` fails on the first hand of
 every file unless you strip it (or read with `utf-8-sig`).
+
+### 13.14 A big blind with no small blind is a dead small blind
+
+```
+Table 'Lisbon #1'(11855800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Geezy1313 ($170.10 in chips)
+…
+Geezy1313: posts big blind $2
+```
+
+No `posts small blind` line: the seat between the button and the big blind is
+empty, so the button sits right behind the big blind. 102 hands of the corpus
+(2026-11-04) look like this; 83 of them are played out, the rest are walks.
+Until parser 2.0.0 they were all refused as `bb-only-walk`; since 2.1.0 they
+parse, and positions name the button BTN and drop the small blind slot
+(`assignPositions`): five players are BB, UTG, HJ, CO, BTN.
 
 ---
 

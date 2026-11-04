@@ -6,7 +6,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740681",
       "index": 0,
-      "phf": "126b5d878e36cad30c23c63fd37be9d5d84efa5d59f8b329d8f1d5805c0465c0",
+      "phf": "c9bf64e3e487d0e6dca75c827b39c58909cccce822dace97733169bf3219fa23",
       "reason": "no-all-in",
       "row": "46d13dfeadbaf38ea7f2f3166b475e4687d0cff647ccf3728f1f8d724971443b"
     },
@@ -14,7 +14,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740694",
       "index": 1,
-      "phf": "e39e1706a994ebc0d038db0229222b972776f6923dde49882f8365ff73988934",
+      "phf": "ea4595ee282965f305accf14272e73ef2ee51a8284eab96cbf63719ae4ad29a8",
       "reason": "no-all-in",
       "row": "da310e015ebe72e9d5b675490ce0c878ac51b717ebaea046827ece238bd2ccd5"
     },
@@ -22,7 +22,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740700",
       "index": 2,
-      "phf": "26886bfa0756aea65c3726aa942b8bcb0e954cff33d839ac3b2af650d45c6dbf",
+      "phf": "3c8806e12ed1ffdb74a9638ca7d1d6ab1ec6c09c58e3bfd5c6c38e3e366f60df",
       "reason": "no-all-in",
       "row": "fb6e0d43a1341f670ac6f1e5df23d37d3f440a5d50ec1df412ba331a924b80a6"
     },
@@ -30,7 +30,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740714",
       "index": 3,
-      "phf": "3bdfcefa737853f0942743770cd93119fa56249dd8841204c52823fa9c1eaaad",
+      "phf": "6337702e9e9d8c2dba16f6f18858f01204765cfbef8e6b4f094444ebc5c241b2",
       "reason": "no-all-in",
       "row": "7dea9164b5dafc4d0ba15cd428f75655bab6443ead180f7cfb980fd21efd81ea"
     },
@@ -38,7 +38,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740730",
       "index": 4,
-      "phf": "04bbac34e084f8c1b1ea0cf7acb809f2780552a3d72b849c8db5e1e0dc1d648d",
+      "phf": "2180eed3f93ac647b05ea38de8432c993452e72fb68c1c2b0b238d4420963f1e",
       "reason": "no-all-in",
       "row": "65b88d7dccc9b255b3388d2c19ed9359f5cd0f3df31e1b8fbe615d01a8a4e331"
     },
@@ -46,7 +46,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740742",
       "index": 5,
-      "phf": "688a11c502ed9ee236c55c2238133aafd12088945b981fd3be315594ac78aee8",
+      "phf": "5039ad993c14e9e26309144276ebc707715641dc0998669ad9eb99e2dca51e70",
       "reason": "no-all-in",
       "row": "090b7d6236718afdc2ae76c5a827c07f9d18f2db8a7c302c3ab8a27a10af401b"
     },
@@ -54,7 +54,7 @@
       "analysis": "2850da62f71bfee389585025ed596ff0c934666dd668769f41f57e64a9801c40",
       "handId": "HD74740753",
       "index": 6,
-      "phf": "65bec0f87fee858c655c8aed1ebbcffbf93cb45808f9d9a3961116d1b71d352f",
+      "phf": "7de065455665adda281f06c1e96e206f0c2a664a2149611b3e68bd537b41cbb1",
       "reason": null,
       "row": "5c2832a887c2892bdafbf4383317890bb6adaa5ec9b80e8aff6aed43d37f8a3f"
     },
@@ -62,7 +62,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740765",
       "index": 7,
-      "phf": "0a0ba6e3aeb764bd3b19bba946887be16243984d66ba9f9d94bfbfc5f5ecd158",
+      "phf": "82ff7f0697b29c5f248629b1f2e2938c9ad6dadd5137f2c60148515508ebe30c",
       "reason": "no-all-in",
       "row": "099944c21456140cf7541cdb47e43020c8321559db884cc703ae84a052e56b76"
     },
@@ -70,7 +70,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740783",
       "index": 8,
-      "phf": "45f0d946b85ef491b4bf6d81803990887225f3b93104b544f2a3ef9ccb21e59b",
+      "phf": "941be42eee3cfeb0019bfa83fa15a53d62f2c2a5f7d454efd824b26a28ca0f81",
       "reason": "no-all-in",
       "row": "3ebc02030fddafdcb91ef244b9cb11e1fb2362939914c9179e38d72f143b0957"
     },
@@ -78,7 +78,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740789",
       "index": 9,
-      "phf": "bc9385fb34d37e3fa7dde9aab28323b455ea2167efd53e1ba694c8c225586b33",
+      "phf": "283acf39aef2c379b0de4a019e858f6d5694b4aace7357f4dedcb7a0ef48a1a5",
       "reason": "no-all-in",
       "row": "2d9db43b82c74fe50bbc699dc071a536c1cb15249e92d2c745dca7b31273bbea"
     },
@@ -86,7 +86,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740814",
       "index": 10,
-      "phf": "c30f8fdaf3b33f91957b23f367e343d369706ef6ce0980c392a749dc84b6449b",
+      "phf": "ac38b4b35aeea2de65390c63c89b0f6518c917c0e839feb6c6e7dd11acf24777",
       "reason": "no-all-in",
       "row": "528c6a15959586b68aeb8e0980885a08a71e725539d8a8f57b61c7eb0e1811e5"
     },
@@ -94,7 +94,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740849",
       "index": 11,
-      "phf": "5dde812d0427aaab9a9cc553976fd0f9d179e07ab802773dd9197fe69bb8b1fd",
+      "phf": "7bca5472ed20c589c513f8e277132c0fbcb079579757e0b28f9a0f862fd0e932",
       "reason": "no-all-in",
       "row": "2dc9c2eebd4af9b53f2807e029610da0eb19d2edbdcfbfa58e555870886e85f8"
     },
@@ -102,7 +102,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740859",
       "index": 12,
-      "phf": "5c24206f4cabeaf724b5b1ea84d8fc7d0237965f3115c1aa426592ca0f452fb9",
+      "phf": "11d642c6854b12e57b0ca320c83b8d2822fea5ea74ea071803043a26d2581d14",
       "reason": "no-all-in",
       "row": "504ab99d730cb029d66543f385610aff2314b04b052bd90cf56a3ba91ee230e2"
     },
@@ -110,7 +110,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740871",
       "index": 13,
-      "phf": "f3769121a8df2af72bccae77368fc57ac9bfcccf68f6068f066943ecbbfb7b08",
+      "phf": "ea5ad2e4a72060efeb9a46dcb70c1fe5a75f0526d339e44977089889a679abda",
       "reason": "no-all-in",
       "row": "622ae47a9b9038d5c9bd58ccfb2df3cd62f7e4dffefdea7ebcdedd92cd6efd30"
     },
@@ -118,7 +118,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740877",
       "index": 14,
-      "phf": "9f0fc0e92822dc9fa5da0b72c8fbcfa9dd489d604217911e3186e6b3e0cf1349",
+      "phf": "80bc85df8bdf3285a3966622019ed67f8b34818d88221c20bb64d183a4678e15",
       "reason": "no-all-in",
       "row": "8fa067282b9b94fb471a170d606167aa0722000405b8f7aba103f5b701a24a22"
     },
@@ -126,7 +126,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740893",
       "index": 15,
-      "phf": "4bd666f70c758450360db4992d85fa2a92a62447980b6b58b2fbd54f9d2d63d1",
+      "phf": "8b2be2047b56163d109335eb78022bc49a6ec10c6832397014709e8c141c95a6",
       "reason": "no-all-in",
       "row": "5e0a110b8cbe90d8f4d83c8029fd1a133450a4e8aefc3af9c47740f9cbb57dae"
     },
@@ -134,7 +134,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740904",
       "index": 16,
-      "phf": "ef77d17b44776eed4e5f9e933a149d1a3f3b78af663567e565989a2830dcd0cd",
+      "phf": "62d2e75713beb1352cdd06aefa42fa5ca5c3c318c664ffc7a0ead53645d4ec84",
       "reason": "no-all-in",
       "row": "64c5a05e97bed9dcb666ce630f6ca4e37c36485473761e8a4dfc5468a0bf9b6a"
     },
@@ -142,7 +142,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740922",
       "index": 17,
-      "phf": "046e5aa911aefc21083e83c8e28e1b92e6df2b5a8f4f10c82d5eec4b015420f6",
+      "phf": "bb58295c407bedce83a5ed6049d53d872ea27465980a96ab0b47e762a0ab0871",
       "reason": "no-all-in",
       "row": "d19de9e561c078ff2832f75250637fc04ca557141e42622aa186f4719e7c05ad"
     },
@@ -150,7 +150,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74740998",
       "index": 18,
-      "phf": "67ee038e3ccf8c2c77069c46b64ea0df58aa0fe728d4602309cdddc8123a2881",
+      "phf": "5bf19572abf958e19dd86997f6550bee699f562ae6b70676e353013c263bde45",
       "reason": "no-all-in",
       "row": "b435ef54a23ccf86747d0dd01749e7786c948f62564411807a30d9ae0b6a394e"
     },
@@ -158,7 +158,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741007",
       "index": 19,
-      "phf": "06276e436d294e466fffd4085ec68810a13fe5e1c117a08486fff2529541a5be",
+      "phf": "e84ba0c18c59f58046874bcf0a8566dbce0856a0e34ac6ea32049bb9f59d5d7e",
       "reason": "no-all-in",
       "row": "01747768f8c3cbc6485b818fff49628ab53d55a772dd6df1ff2cc848407ea50d"
     },
@@ -166,7 +166,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741022",
       "index": 20,
-      "phf": "e89524248d18c309cd224c843c63617f3688553d1ede20de9089b5b784b16f1a",
+      "phf": "d35cd022019d7808758089681e837679fa6fda6580d6a15f9ec4eefe89ff19d9",
       "reason": "no-all-in",
       "row": "702649d0d983d2bdf329e2f4420da15118e1f7cb03522fba93e48d98a5dc4b27"
     },
@@ -174,7 +174,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741038",
       "index": 21,
-      "phf": "b0e0b94e09b357d7393ea7e24125ce2e00d5416246f3709bc469c5513e24b9c0",
+      "phf": "740983c3f5bcb9307a8c01e43ead7925ccfd380040e705a7ed21c46d1ae3c8a7",
       "reason": "no-all-in",
       "row": "8201408732f670695effd66c8e71295cc983f72f83fff13f5084209522e331e4"
     },
@@ -182,7 +182,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741048",
       "index": 22,
-      "phf": "1462d58236c51bff2e1bafb00290ee3873e3a7b8fe62c6441ae2af93f7048c4e",
+      "phf": "4c54a9a93d30cc4af8378f911f69cc35ddfa4636c5404a0ed2eca2c7b7b2cd7d",
       "reason": "no-all-in",
       "row": "1d795817647eca39547338801408aa2afc016c51380ae7f984d9d7f54326d5ae"
     },
@@ -190,7 +190,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741061",
       "index": 23,
-      "phf": "d2c03d88def85757dcf96c97d6a8b736ea923b89ef1d47a06c6fa98b4e77bd1b",
+      "phf": "89daa5f9a065fc18c575e54145049db1d43b06afe492fc573de18ca716dcb6b1",
       "reason": "no-all-in",
       "row": "f1b66cf25b3c80deff9a2d39f3ce4d31f42b64734a7255e15d0696f8c06428e8"
     },
@@ -198,7 +198,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741079",
       "index": 24,
-      "phf": "1ac9c3fa35d66850765ac0f30cef1eb44c4a3481eaa2c8b3bf2eb039b8040d70",
+      "phf": "14186f4482f15971c02ed23594b03b1e663302a5a660596f9e41389fe210c7ac",
       "reason": "no-all-in",
       "row": "975e64c66860eba1021a96f905a29b26398499d521c70dd684661e95ec0a4310"
     },
@@ -206,7 +206,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741090",
       "index": 25,
-      "phf": "ba4c6a2b29e9e6be2de284ea28beb99fc4b686827e7e173c1c4cb31a933f7387",
+      "phf": "18f75982dd123fa1b2678aef6c7ae83a858290977f36fd073dfa8e2fcdacd4d6",
       "reason": "no-all-in",
       "row": "54c5c320dce3384badeb08ecc408af76bbcab014e403c13f43ab94349e62f21d"
     },
@@ -214,7 +214,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741127",
       "index": 26,
-      "phf": "023e46a02c7d3b393419dd2aba832fd5f58cccde4de9d9ee4c496d535c4df029",
+      "phf": "6f9bd6dcfcec003c94ebdb1b0e467e0fe69566424f506714cfcc634e2deacba8",
       "reason": "no-all-in",
       "row": "e505bf8d4759404e1c8fe737bb8efaa652ebf7bb89cda6d09450ef0c41165a75"
     },
@@ -222,7 +222,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741151",
       "index": 27,
-      "phf": "9313e3c525ad72065af19248301133dc8b4aed53baeb18fb8b0c3249807be0d4",
+      "phf": "c5ca5db07f6b6918ebf6c07dde554f9b45c2e10a59bc11b919c409db3d0ffdfc",
       "reason": "no-all-in",
       "row": "9b1383169acfc19530e445438d5821a1e979b919edccb84aea30b7fe964e3c69"
     },
@@ -230,7 +230,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741176",
       "index": 28,
-      "phf": "160665b5e5807d49531b08c6b8480cde953c0eb9a4b8deabfaaadb4011427cdc",
+      "phf": "0fa64468575393ba6ff078ccf8fc80251e282304a832943a84775228f6b5798b",
       "reason": "no-all-in",
       "row": "ff3b719cfed4dd64cdddea9d6720d53950371827e3da619264070e11c0b77af3"
     },
@@ -238,7 +238,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741189",
       "index": 29,
-      "phf": "1e56e0f4a0ef3d704b786b663a22dd6507ee7762c3003a85851b6e416f7a9808",
+      "phf": "8718a3c626a334fe7759d67d39c6bab3a655858fbaee8a34acd688115ddd1909",
       "reason": "no-all-in",
       "row": "2c50cbeed91b87d266d1dacfbae25adf06e9d928fcd1e58bc4e136f1f6aafa1b"
     },
@@ -246,7 +246,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741202",
       "index": 30,
-      "phf": "3de447b2e49d84be38418f13f4e5c4f4700a088f1925b47bd42f76a19b190b16",
+      "phf": "2c318b73974a88b5406de768e633f8dba06f5aa6e443805fdcf2e57fa1fbd16f",
       "reason": "no-all-in",
       "row": "1329102d0db694fed45559509883a55711cd1a96d3b0dfa5f745e91e0c9cfa1c"
     },
@@ -254,7 +254,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741213",
       "index": 31,
-      "phf": "074ed100c07472259fcd25636dea32e59c2a296cdd3fe6ca25f27a9bdb99dc28",
+      "phf": "acda4fa7fd99164a3c3e3c6ac49645ad0ff9d6f15d79edd34ff476281ad9d1f6",
       "reason": "no-all-in",
       "row": "efe085a174b187b5bdd4dccc8079eb9a7a1a59a6b9b405c2f45ec61bd6e79229"
     },
@@ -262,7 +262,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741234",
       "index": 32,
-      "phf": "beb8f8f09907cf25a7618263df423844f644486c90474c0dfca7231062a51239",
+      "phf": "9e624d545ca37493f8c7e37a301b868d327403d3fb3240911baa15ae8209d053",
       "reason": "no-all-in",
       "row": "bbe08b4c42de8eb9c65b362878d573a4623fed199bd843fbdadba29447dfe9ab"
     },
@@ -270,7 +270,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741262",
       "index": 33,
-      "phf": "5cc0ee1b98e259980108fc46ea04f4ce8ae68861d32ed2adf95155956b944ef1",
+      "phf": "6d6878dcf5370c5544a761244bf8e64a77699f86c4c4e4f293cacf558fcd0350",
       "reason": "no-all-in",
       "row": "310c420817f290ce232f7f9a024faac5d4aa7d73f543d49a9c96e38b122af596"
     },
@@ -278,7 +278,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741278",
       "index": 34,
-      "phf": "f4aabb47de9cf97ec1dc5b748e2f0320ff791137d9ace4ee52f248b8f163ea56",
+      "phf": "9d2ec27cbbc0e28d451182d0b26f2c8566353f0f533789eeef8e2e2af4abc481",
       "reason": "no-all-in",
       "row": "6b977b0b910df21999f79390a7ad8bb9b75d33d4962a31f8edfe46a9410ed3f2"
     },
@@ -286,7 +286,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74741303",
       "index": 35,
-      "phf": "3bbbcfc1e665ffffc63a725e91d97bd5b6a06408a482554d1a97171e188bad59",
+      "phf": "cf783e0f64c55eb7c476c5639fce073fa17683b593bce2e35e6a1b430ef7a600",
       "reason": "no-all-in",
       "row": "b7fb03aa6f2af2399caef78b19386b1166223ff3459ce9521575200f3d8b5097"
     },
@@ -294,7 +294,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742333",
       "index": 36,
-      "phf": "d61e5c30ad1264a6f7157fcf9ab8135552137be858c50462f0213f4cd9476901",
+      "phf": "9b853d6482438b4db50b99fa94f602857e3128aa0925fccb9e271ec3feef0022",
       "reason": "no-all-in",
       "row": "0427a660ad3ebdffe6be3439ef4035355ced3f188c429e31d15e6084e02eae95"
     },
@@ -302,7 +302,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742340",
       "index": 37,
-      "phf": "12fd0f4cfc31df61aa03d3db5c4217f659047f710143c1c2893f7f0f7b0e7763",
+      "phf": "402f94f3d0b49155953de5738b502461a1f62ad016c664e5a502a770a9460439",
       "reason": "no-all-in",
       "row": "a33298578da95e3925dd3a5462bfa32f464fd230d7fe7e0fee4e72a2c3660b7d"
     },
@@ -310,15 +310,23 @@
       "analysis": "a5a7150fc43d399842f8795e10d0c35b4b9c5bd25e3dd654201a7384b87300fa",
       "handId": "HD74742364",
       "index": 38,
-      "phf": "40ef3eaaebf48e800db04459d85bb7e579efe4da4c209f67098ee0aae84665fe",
+      "phf": "f4f75e2660886d722aeb0fa4913eef3dfb135ed726c133a449c2b1c6c7a3351c",
       "reason": null,
       "row": "5d6a114d44d685e2f5a69f79c32c764c78985507fe98e2e857fd4c4b582753fb"
     },
     {
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD74742386",
+      "index": 39,
+      "phf": "9bb093f02cc5dab2b80c188135ab34a776c9aee9aa07cf08e48d21537a0f8226",
+      "reason": "no-all-in",
+      "row": "27c3e79b122716e7e67960d5d15673c721d398961257c6ab3a2183ef71bf4043"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742408",
       "index": 40,
-      "phf": "6221cd7caea1ca4137e6d76a5d8644d79cbb570244bd3f4fc447db340f0db658",
+      "phf": "d420e7f84d284dce38b5fbf438ff79f5dec4e1c95c5e46c2e9eb8f30bf691841",
       "reason": "no-all-in",
       "row": "ec2ba63c39a432a5e691aebd64dab62a2dee23c81d677a2156e135acc9918c35"
     },
@@ -326,7 +334,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742434",
       "index": 41,
-      "phf": "38054f2531edec8b7356683c71abb775efc0657bdf2aa1d5df16ed556e850d51",
+      "phf": "fe19ca8ecef88b8cbc648aee45716e6dba576e3e0455e3274c34db4e098ebfed",
       "reason": "no-all-in",
       "row": "69d970f4a4f8ec465fcf2947b880f6cec5d4618b3a61dd57ddaced46bba93382"
     },
@@ -334,7 +342,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742450",
       "index": 42,
-      "phf": "8d971a01306e540658920261321dc90961924dd04fc40461c810b8f726e48ef0",
+      "phf": "ab78f094eb5c3ba170e21727f3bd90867e439511798db36735cf79b9177d5cf7",
       "reason": "no-all-in",
       "row": "73bd2aa30f05f107754605f082861a11059e35074643c1e6441dfcb7f75415e6"
     },
@@ -342,7 +350,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742456",
       "index": 43,
-      "phf": "f0e2fe1952e7a1a970b37835325d75c730b487a356fa45171e2f64773b88c152",
+      "phf": "e65749d8f73e95e75e12e951ddf0265736b224ee568386663b89296b775b776f",
       "reason": "no-all-in",
       "row": "829970f5517d9fedbf5e410e96054385b92b1c14ad0b06596e86ca84a9abcc9b"
     },
@@ -350,7 +358,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742466",
       "index": 44,
-      "phf": "5f3b08f22a0be72a5323ec508fe308bae77beb4469d7351bfe9e6d1e92ef2f85",
+      "phf": "bd7196d00d9d34b141f2de8ca3a09917ce01c5ef67ec53ccd042013d950dd067",
       "reason": "no-all-in",
       "row": "61aae08ad6773eff1953b35150e6c9d93ca1ee036bc8679c5acad4bad7627ea3"
     },
@@ -358,7 +366,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742481",
       "index": 45,
-      "phf": "3dad7f37f26573308a4312802dbd9ede2735bee06c7326ce63b1f86f76146829",
+      "phf": "30e48de4c877c9f448fef707f17c7c6fa53414c8b35299a6094fa494f0a9d4d3",
       "reason": "no-all-in",
       "row": "9dc8e4cb7e265d86625a9bc308706eb2569dc110d64640c6dbabce678cafa6b0"
     },
@@ -366,7 +374,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742496",
       "index": 46,
-      "phf": "c16dc6429c91444f56769761593b743148b985c633bf2ae8780de5e20f109a0f",
+      "phf": "c7f4331077fb92bd77d2a4f70c635d21577cd8a7eb699aea93046e54183cdb93",
       "reason": "no-all-in",
       "row": "cd3b46664b6bce181ca16ca460f29ca036f64b1e95e41a79ebb00ac42da5e3b8"
     },
@@ -374,7 +382,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742507",
       "index": 47,
-      "phf": "9a049414a322998dcd786d2927c42983967f73a8419121d6b1099bf33634a2fa",
+      "phf": "beda1f57e2c2aebfb3095a77d67c98d20de482048ff1e66d1e70ce50ec205827",
       "reason": "no-all-in",
       "row": "91d96b9bd8c4e6c4edfec26b44e59d9119f21c05fadf58ee450389013403f0ac"
     },
@@ -382,7 +390,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742526",
       "index": 48,
-      "phf": "c8919b6c81465150fe39d94a330e960327b5f348280f21e2a979e783989391ce",
+      "phf": "f49b6004016312385361fa51715e8da4d7481ca2b16d640889abbf513d74d596",
       "reason": "no-all-in",
       "row": "8d2f6997b31268b4edf3dafdc7e1958edc48bf6b3c62280aa81832eb210ea0f9"
     },
@@ -390,7 +398,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742534",
       "index": 49,
-      "phf": "100737bd22a7f0bd66fd44173a4a45956a4b6cbd8e044ae81a1f6175fef65754",
+      "phf": "2ac982ee1d3e98caa7bd9e1273a8c7b33412281c7d1ec7c1af300d0e1b3d4c01",
       "reason": "no-all-in",
       "row": "0c6bd143000bb498c8325157afa8717303d4a7b40cf21e3c7ac061e037ec4492"
     },
@@ -398,7 +406,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742542",
       "index": 50,
-      "phf": "b5eb11f13d98c94f26c0d9695966c0e54e55bfec611790e7235c4ad7c3a98b29",
+      "phf": "1a4bc2652342eef263014fa60474a77f8c7f17eb4cc87bb11bda7692c98d54b7",
       "reason": "no-all-in",
       "row": "ef351947892d3958985aa31ccc1f8563000c83f72271f95c9e276d5b0b5049f9"
     },
@@ -406,7 +414,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742556",
       "index": 51,
-      "phf": "89d27a6560bb8296039559c254d6472145dbe0ef9f496c9aae10ce6602374045",
+      "phf": "f43975961f7ca1edfa377f9e9c183c4abd7b069026880813ffad7aabeca012c7",
       "reason": "no-all-in",
       "row": "456058d72d1b1808281d8fa627b619ffdafe9ebdc7beeb04ed7812a33d8321ad"
     },
@@ -414,7 +422,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742581",
       "index": 52,
-      "phf": "82397bb565e21f7ff3a870df0053923fb8036675b5e6e0b43f013b77730e0b49",
+      "phf": "e46637721be9d84f38f17c2cb41f9e6dbb4d1ac580d7843a6c79bc037bb3e01d",
       "reason": "no-all-in",
       "row": "5213533c443bd2d3e6c73c4dffafeb6968ed76dcace4f6c373e7131a928b6684"
     },
@@ -422,7 +430,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742595",
       "index": 53,
-      "phf": "3991d583659d7e8fa9fb49e30e4853bdd797ea60ec1e2e934d9a1ad5d99a8850",
+      "phf": "465416215cfb497a1de65578ac5d641bdcb36304eaf3f241a503f2600601f4fb",
       "reason": "no-all-in",
       "row": "d8c514203b2f2e269334be9666d5a7fc51bb8ef4168c69f73781d0ca74f80385"
     },
@@ -430,7 +438,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742619",
       "index": 54,
-      "phf": "050c4fe9551ccbd9f68e52d6e5ce2eeb58913bc16090b6ec4b6b1aeaff81ac18",
+      "phf": "9d355e00809322e84270006001784c22b9b24c2004ec687a4c3f51bcb8d0404d",
       "reason": "no-all-in",
       "row": "ef1707e15731a9f8a1d9260da19e25e61adf7b295c305f8857f2d5d2e93b680c"
     },
@@ -438,7 +446,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742647",
       "index": 55,
-      "phf": "4cd129afc3fc0918ea2febd1898b9ec3f89a960a5d8567bd035687edebf96dc8",
+      "phf": "810867b829cf769bd9efc06fd58394001d7cce2b1faa401ebe0545afe184b94d",
       "reason": "no-all-in",
       "row": "ca735f4268a720158a525045583c38316df7d81afd8bddf2fea53499078e9782"
     },
@@ -446,7 +454,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742679",
       "index": 56,
-      "phf": "32a20cf62fb9048792c8c0db1da74f36a3d85d2aa47691ea3fd461e62ee21853",
+      "phf": "645d11dfc350e9fade564060cc39697093d1d84c7c5c382f4a45fa5054f7b637",
       "reason": "no-all-in",
       "row": "66fb9c1cb2e225b08977f766b55871e66f875ba3d7f5d0b0f49cd56e051bae1c"
     },
@@ -454,7 +462,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742702",
       "index": 57,
-      "phf": "0b661ecc4922cf9df6735287072573666ac490215d65b374898ba19c7fe559ae",
+      "phf": "85bfc04acbeda246b12b5007efc269b790a687655eff89e03a0f4f92c2599247",
       "reason": "no-all-in",
       "row": "9e1347b1a92fead0331ab9b26a33f69627455f52bffa60b874f9df481e790ac4"
     },
@@ -462,7 +470,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742731",
       "index": 58,
-      "phf": "3ff5ea411920642bd463c7ecd6b2c9a2464406a4a430bc53e9c2e6020d09f1fe",
+      "phf": "ff1fb2dfd61307f8974385da0e4745667de49e55b1dfe1887bc62ac75a4f2b9e",
       "reason": "no-all-in",
       "row": "87ddddbddc3a8ca1307006cbff41e39cbca32b416aa27135db851db958ed09cc"
     },
@@ -470,7 +478,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742746",
       "index": 59,
-      "phf": "1d29701b5db1d602c4bc28d0d8be2490af5772992763e7c3d5ebfbc09931bfcb",
+      "phf": "ea4af3f67f8b1af98fb566483d4f127b066bba546cf4ca7bed49b892d4ba29f7",
       "reason": "no-all-in",
       "row": "7d189999bed41ed2ee89577b594d3a69c999032c18154049baa5d40dc4013eee"
     },
@@ -478,7 +486,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742768",
       "index": 60,
-      "phf": "e6f3a8f16b2c1f5a49af4c96668bc786f575106e5bd415c2855b7ac7e50b33c6",
+      "phf": "e7fcce4a628a44a5cdd4e0c0456e9e55581685a03d30cc83a349aa6498a8fa8f",
       "reason": "no-all-in",
       "row": "85c5a8f5fae2a57f614270a3cef7cb1bf52ca965a907238c1cd484d673f781ed"
     },
@@ -486,7 +494,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742791",
       "index": 61,
-      "phf": "381b6b6c67e34385f522bfed166f950be4e1a368284bed2ced65c631d6decf29",
+      "phf": "4b8bcf68aa7d58c918dd3192597a8be2d6fee7ad6b5c6e162940c24b40b0d387",
       "reason": "no-all-in",
       "row": "916a3b3b08ace2db1524e78b90026b128cd79b2fd52a2f9202b76a71ad151974"
     },
@@ -494,7 +502,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742802",
       "index": 62,
-      "phf": "0dc1226641917855d9fb31e9a0bca10bd0bd26d084e22e1ca5c266743c238e85",
+      "phf": "ba1e10a36b590f958f94b40f5d1a64499e9cc0bea7a4cc7fd477988d5b3fdb1c",
       "reason": "no-all-in",
       "row": "082e34a3298a845e3bc54242bf4d3004b296f839f153801a97681e29cd91c5dc"
     },
@@ -502,7 +510,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742822",
       "index": 63,
-      "phf": "2c2784768c896d7332b59fba0d34f20ab5c1b92a6d2a20767ef1ddd30803ce08",
+      "phf": "169fbb619e062493fcf1be73121daad65ff44c857b611ceb740d13826f64c252",
       "reason": "no-all-in",
       "row": "c27d9fea2320d90500d06200283b20cb44962398539f4efb742eaa2f134400db"
     },
@@ -510,7 +518,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742826",
       "index": 64,
-      "phf": "c05c40e9fde2c85d214b9bc457ba7e15d2550b927c460ad5160ecb9e6fba4a3a",
+      "phf": "c0e6d29068e596880e97628cfa6d5b1ad0e3a270b177ce26ada5ddb1d4c8a087",
       "reason": "no-all-in",
       "row": "3b6e9e4a3d110cd3b98d03891576010b92670a575baa5b41690763bf0f630fcb"
     },
@@ -518,7 +526,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742841",
       "index": 65,
-      "phf": "aabc35943155e7926e356ef9c42b3a58644b692e42b1f501137e9190b882b90e",
+      "phf": "5b38e2e8b49d322120dca480ee06d3ada48c34846a4e90a115a95bdbc240f3ea",
       "reason": "no-all-in",
       "row": "a2dadfade8508a5f1ade19cf031f773851203dbb14b46b55cded4347d26a4b47"
     },
@@ -526,7 +534,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742852",
       "index": 66,
-      "phf": "bc6ff63f60d8239ea1fa9da93e3a65d3653284cdf938e1fb39a512a00d450c18",
+      "phf": "70535fb9c4515948d3cbe4c72179777121a20b8b513c763664ae204158debb7c",
       "reason": "no-all-in",
       "row": "9bd47f412028ffb656f1cbdadce79e28e023e242d5e6ec756e71f1b9c53b3819"
     },
@@ -534,7 +542,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742862",
       "index": 67,
-      "phf": "f299825c413422f8b29969d33baa6fd2168a08e2a95e8159bece352cfc925dd5",
+      "phf": "6de20c38723e64c16c70805a71e7474e08b3048bd3d2f078c87f76464b54b8cf",
       "reason": "no-all-in",
       "row": "bb465f73ae0d6d9d817e40a568ee012fd43bf5556a9a584caa43bf6ad1c99566"
     },
@@ -542,7 +550,7 @@
       "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
       "handId": "HD74742880",
       "index": 68,
-      "phf": "07b9156d1edff696da95e1d4d97be84bb18eca3c34816f3bbcb917daa528bfd2",
+      "phf": "af336b06d64a20028b9b83de5bab2e8899881d98df29ffbbb1691159cd3f5ad3",
       "reason": "no-all-in",
       "row": "0525025dbef9c8523d40ebb4d4314706477c5ac5e0dc92aace24af022a733a8a"
     }
@@ -554,9 +562,9 @@
   },
   "outcomes": {
     "applicable/exhaustive": 2,
-    "no-all-in": 66
+    "no-all-in": 67
   },
-  "rows": 68,
+  "rows": 69,
   "totals": {
     "ev_net": 1139,
     "ev_net_bb_milli": 22780

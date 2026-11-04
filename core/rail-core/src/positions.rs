@@ -26,6 +26,9 @@ use crate::phf::{
 ///   `ring[1]`; without either (a bomb pot), the button's geometry. A dead
 ///   button names the live seats against a ring one longer with the button
 ///   slot dropped.
+/// - A dead small blind - none posted, and the button right behind the big
+///   blind - is its mirror image: a ring one longer with the small blind slot
+///   dropped, starting at the big blind.
 pub fn assign_positions(hand: &mut PhfHand) {
     let mut small_blind_seat: Option<u32> = None;
     let mut big_blind_seat: Option<u32> = None;
@@ -71,19 +74,32 @@ pub fn assign_positions(hand: &mut PhfHand) {
         place((button_blind_index + 1) % size, &button_blind_ring(size));
     } else if size > 0 {
         let dead = has_dead_button(hand, Some(&ring_seats));
-        let ring = if dead {
+        let mut ring = if dead {
             let mut ring = position_ring(size + 1);
             ring.truncate(size);
             ring
         } else {
             position_ring(size)
         };
+        let big_blind_index = big_blind_seat.and_then(index_of);
         // ring[0] is the small blind; find which seat that is.
         let start = if let Some(index) = small_blind_seat.and_then(index_of) {
             Some(index)
-        } else if let Some(index) = big_blind_seat.and_then(index_of) {
-            // No small blind was posted (a walk, a dead small blind): the big
-            // blind is always ring[1], so step back one.
+        } else if let Some(index) = big_blind_index
+            && !dead
+            && size >= 3
+            && hand.table.button_seat == Some(ring_seats[(index + size - 1) % size])
+        {
+            // A dead small blind: nobody posted it and the button sits right
+            // behind the big blind, so the small blind's seat is empty. The
+            // ring is one longer with the small blind slot dropped, and
+            // starts at the big blind - the button is not the small blind.
+            ring = position_ring(size + 1).split_off(1);
+            Some(index)
+        } else if let Some(index) = big_blind_index {
+            // No small blind was posted, and the button is not right behind
+            // the big blind: the big blind is always ring[1], so step back
+            // one.
             Some((index + size - 1) % size)
         } else {
             // Bomb pots post no blinds at all; geometry is all there is.

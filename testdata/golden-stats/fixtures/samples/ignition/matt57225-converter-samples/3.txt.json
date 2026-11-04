@@ -68,8 +68,8 @@
     {
       "handId": "3534015122",
       "index": 4,
-      "phf": "35c1e547fe947f9d3bfe03c25490e23cce2dafcae271498a6064e830badeb674",
-      "rows": "ce3c51a47ab89f42a71e8c887454db3eb76fc7e10c86632030e53448f11924d0",
+      "phf": "18167f8dc932a63d6ee662fab947c0ceb1d2028fc640d3bd40b29b85b13c4bac",
+      "rows": "a3142cd373cea8be1ee038bd27fd425c72c86411799eabb68aa49273d0892902",
       "seats": [
         4,
         9,
@@ -160,7 +160,7 @@
     "river_seen": 8,
     "squeeze_opp": 15,
     "steal": 1,
-    "steal_opp": 7,
+    "steal_opp": 6,
     "three_bet": 1,
     "three_bet_opp": 32,
     "turn_seen": 9,

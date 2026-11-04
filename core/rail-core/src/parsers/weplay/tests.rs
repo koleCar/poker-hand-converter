@@ -12,6 +12,7 @@ const LITERALS: &[&str] = &[
     r"/(?=^Weplay Hand #\d+:)/gm",
     r"/^\*\*\* (?:FIRST |SECOND )?(?:FLOP|TURN|RIVER)\b/",
     r"/^(.+?): shows \[.*#.*\].*$/",
+    r"/^.+?: shows \[\s*\]/",
     r"/^Seat\s+\d+:\s+(.+?)\s+\((.+) in chips\)$/",
     r"/^(.+?): (?:posts|raises|calls|bets|folds|checks|shows|mucks|doesn't show)/",
     r"/^(.+?) collected /",
@@ -38,8 +39,6 @@ const LITERALS: &[&str] = &[
     r"/posts the ante/i",
     r"/posts (?:small|big) blind/i",
     r"/All-in or Fold/i",
-    r"/: posts big blind /i",
-    r"/: posts small blind /i",
     r"/^[$€£]?0(?:\.0+)?$/",
     r"/[.*+?^${}()|[\]\\]/g",
     r"/^\*\*\* (?:FIRST |SECOND )?FLOP\b/",
@@ -99,7 +98,6 @@ fn patterns_are_the_typescript_source() {
     // The messages of every refusal, verbatim.
     for message in [
         "All-in or Fold table.",
-        "Big blind posted without a small blind (BB-only walk).",
         "Small blind posted all-in for less than the stated blind.",
         "Big blind posted all-in for less than the stated blind.",
         "`A player with a zero stack acted (${name}).`",

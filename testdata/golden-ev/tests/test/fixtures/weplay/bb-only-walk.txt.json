@@ -1,14 +1,25 @@
 {
   "evVersion": "ev/1",
   "format": "rail-ev-golden/1",
-  "hands": [],
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD71496614",
+      "index": 0,
+      "phf": "7dfeab65a5ed229bdc861d091c3cb2c9ad105d2db97324590b1923ec205e39b4",
+      "reason": "no-all-in",
+      "row": "3fac502e35379abe8058062b809b5a8e5e443d7cc761fb21b79c3519c20d36db"
+    }
+  ],
   "input": {
     "bytes": 631,
     "path": "tests/test/fixtures/weplay/bb-only-walk.txt",
     "sha256": "33f938feeb034d4d99ae44edbb41926470277508832aa0f83690c21bb1ba4d29"
   },
-  "outcomes": {},
-  "rows": 0,
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
   "totals": {
     "ev_net": 0,
     "ev_net_bb_milli": 0

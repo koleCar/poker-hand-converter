@@ -155,7 +155,7 @@ fn no_player_name_survives_anywhere_in_the_corpus() {
             .collect::<Vec<_>>()
             .join("\n")
     );
-    assert_eq!(tally.files, 556, "the corpus changed");
+    assert_eq!(tally.files, 557, "the corpus changed");
     assert_eq!(tally.unrecognised_files, 24);
     // Floors, so that a change to the harness that checks nothing fails.
     assert!(tally.checked > 2_000, "{}", tally.checked);

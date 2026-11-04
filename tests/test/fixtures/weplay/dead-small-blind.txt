@@ -1,0 +1,42 @@
+Weplay Hand #91876609:  Hold'em No Limit ($1/$2) - 2026/11/04 8:20:27 UTC
+Table 'Lisbon #1'(11855800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Geezy1313 ($170.10 in chips)
+Seat 2: kole1992 ($208.03 in chips)
+Seat 3: Elgringo ($318.06 in chips)
+Seat 4: MeryAce ($56.32 in chips)
+Seat 5: Balazs96 ($213.84 in chips)
+Geezy1313: posts the ante $0.36
+kole1992: posts the ante $0.36
+Elgringo: posts the ante $0.36
+MeryAce: posts the ante $0.36
+Balazs96: posts the ante $0.36
+Geezy1313: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc As]
+kole1992: raises $4.40 to $4.40
+Elgringo: calls $4.40
+MeryAce: calls $4.40
+Balazs96: calls $4.40
+Geezy1313: raises $4.80 to $6.80
+kole1992: raises $37.80 to $42.20
+Elgringo: folds
+MeryAce: raises $51.56 to $55.96 and is all-in
+Balazs96: folds
+Geezy1313: folds
+kole1992: calls $13.76
+*** FLOP *** [Jc 7d 9s]
+*** TURN *** [Jc 7d 9s] [Js]
+*** RIVER *** [Jc 7d 9s Js] [Kd]
+*** SHOW DOWN ***
+kole1992: shows [Qc As] (a pair of Jacks)
+MeryAce: shows [7h 5h] (two pair, Jacks and Sevens)
+Geezy1313: shows [] (a pair of Jacks)
+MeryAce collected $129.32 from pot
+*** SUMMARY ***
+Total pot $129.32 | Rake $7.75 
+Board [Jc 7d 9s Js Kd]
+Seat 1: Geezy1313 (big blind) folded before Flop showed [Th Jh] and lost with a pair of Jacks
+Seat 2: kole1992 showed [Qc As] and lost with a pair of Jacks
+Seat 3: Elgringo folded before Flop 
+Seat 4: MeryAce showed [7h 5h] and won ($129.32) with two pair, Jacks and Sevens
+Seat 5: Balazs96 (button) folded before Flop

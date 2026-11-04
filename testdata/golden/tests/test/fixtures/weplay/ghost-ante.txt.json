@@ -25,7 +25,7 @@
       "fingerprint": "b447f74fc3a567c0695833ad19c4a54f62703c5f0ec4154c25b9c341895436b1",
       "index": 0,
       "message": "Ante posted by an unseated player (Georg14).",
-      "parserVersion": "2.0.0",
+      "parserVersion": "2.1.0",
       "permille": 990,
       "reason": "ghost-ante",
       "site": "weplay",

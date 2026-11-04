@@ -91,7 +91,7 @@ fn ggpoker() {
     assert_eq!(report.unported_candidates, 0);
 }
 
-/// Whole-file detection over the entire corpus (556 files), restricted to the
+/// Whole-file detection over the entire corpus (557 files), restricted to the
 /// parsers ported so far: every ported parser scores every file exactly as
 /// the golden ranking says - claiming no file of a site not yet ported, and
 /// ranked in the same order. This is what kept the files of later sites from
@@ -131,16 +131,16 @@ fn ported_parsers_rank_every_corpus_file_as_the_goldens_do() {
 
 /// `weplay` (R0.7b): the `weplay-hh/` exports of both accounts, the WePlay
 /// samples and the regression fixtures - cash, tournaments, bomb pots,
-/// straddles, run-it-twice, hidden `##` cards; refusals for BB-only walks,
-/// an uncalled bet over the commitment, a ghost ante, Omaha, a short all-in
+/// straddles, run-it-twice, hidden `##` cards, dead small blinds; refusals
+/// for an uncalled bet over the commitment, a ghost ante, Omaha, a short all-in
 /// small blind, a zero-stack actor, and one hand the validator refuses
 /// (`chip-mismatch`).
 #[test]
 fn weplay() {
     let report = golden::check(Selection::Parsers(&["weplay"]));
-    assert_eq!(report.files, 128, "the set of files `weplay` wins changed");
-    assert_eq!(report.hands, 6726);
-    assert_eq!(report.refusals, 96);
+    assert_eq!(report.files, 129, "the set of files `weplay` wins changed");
+    assert_eq!(report.hands, 6815);
+    assert_eq!(report.refusals, 8);
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }
@@ -395,9 +395,9 @@ fn unibet() {
 #[test]
 fn every_corpus_file_matches_its_golden() {
     let report = golden::check(Selection::All);
-    assert_eq!(report.files, 556, "the corpus changed");
-    assert_eq!(report.hands, 8422);
-    assert_eq!(report.refusals, 196);
+    assert_eq!(report.files, 557, "the corpus changed");
+    assert_eq!(report.hands, 8511);
+    assert_eq!(report.refusals, 108);
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }

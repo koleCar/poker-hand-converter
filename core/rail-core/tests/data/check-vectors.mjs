@@ -143,9 +143,17 @@ function outcome(hand) {
 
 const fixtures = {};
 fixtures.SIMPLE_HAND = parse(literal("phfValidate.test.ts", "SIMPLE_HAND"));
-for (const name of ["HEADS_UP", "DEAD_BUTTON", "SEATED_NOT_DEALT_IN", "BOMB_POT"]) {
+for (const name of ["HEADS_UP", "DEAD_BUTTON", "DEAD_SMALL_BLIND", "SEATED_NOT_DEALT_IN", "BOMB_POT"]) {
   fixtures[name] = parse(literal("phfPositions.test.ts", name));
 }
+// "still steps back from the big blind when a seat sits between it and the
+// button", built the way the test builds it.
+fixtures.DEAD_SMALL_BLIND_SEAT_BETWEEN = parse(
+  literal("phfPositions.test.ts", "DEAD_SMALL_BLIND").replace(
+    "Seat #5 is the button",
+    "Seat #4 is the button",
+  ),
+);
 // "falls back to geometry heads-up too", built the way the test builds it.
 fixtures.BOMB_POT_HEADS_UP = parse(
   literal("phfPositions.test.ts", "BOMB_POT")

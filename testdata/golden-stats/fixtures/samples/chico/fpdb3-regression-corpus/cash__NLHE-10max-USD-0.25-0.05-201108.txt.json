@@ -98,8 +98,8 @@
     {
       "handId": "CHC-900203093",
       "index": 6,
-      "phf": "de3e738ab98d57e3c5e3dc41e5fdbe8e662f39c655741b47c542926d624af167",
-      "rows": "9da6a56b421db7adc7b131ed6447cbfb77a0e5b77bf68f4d03158247b06d17b7",
+      "phf": "dbd44f3534cfbb9b7a4dec539c511f515649a5c1cde7a0b70acca4011e469ac2",
+      "rows": "e7808fd1152d3e341384445ac666e952e07e1fdc3d9faa1aaa427d8e014497ce",
       "seats": [
         0,
         1,
@@ -168,8 +168,8 @@
     {
       "handId": "CHC-900204578",
       "index": 11,
-      "phf": "0c6e7a64a2dbd2d9bdf5a1a0ccbafadb9dbffda827d87776425cbeacda822352",
-      "rows": "64ea12afcf992540c9ff99d866c52b570c7f2893fff43312a046fad38df3931b",
+      "phf": "a5312a7e93881ad3f77733eab959272602d8a3631e7b56782b0e4f60bc87a61b",
+      "rows": "0a00f0621ac266360e76a84c3cb9d109f99f79c85a11dd0a7eb57786c31a42a4",
       "seats": [
         0,
         1,
@@ -309,8 +309,8 @@
     "fold_to_cbet_flop_opp": 3,
     "fold_to_cbet_turn_opp": 1,
     "fold_to_four_bet_opp": 1,
-    "fold_to_steal": 7,
-    "fold_to_steal_opp": 7,
+    "fold_to_steal": 5,
+    "fold_to_steal_opp": 5,
     "fold_to_three_bet_opp": 1,
     "fold_turn": 2,
     "four_bet": 1,
@@ -332,8 +332,8 @@
     "rfi_opp": 52,
     "river_seen": 10,
     "squeeze_opp": 12,
-    "steal": 4,
-    "steal_opp": 17,
+    "steal": 3,
+    "steal_opp": 15,
     "three_bet": 1,
     "three_bet_opp": 54,
     "turn_seen": 14,

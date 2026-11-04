@@ -234,11 +234,74 @@ fn weplay_records_a_zero_stack_actor_as_a_failure() {
     assert!(result.reasons().contains(&"zero-stack-actor"));
 }
 
+fn positions_by_name(hand: &PhfHand) -> BTreeMap<String, Option<Position>> {
+    hand.players
+        .iter()
+        .map(|p| (p.name.clone(), p.position))
+        .collect()
+}
+
 #[test]
-fn weplay_records_a_bb_only_walk_as_a_failure() {
+fn weplay_parses_a_walk_with_a_dead_small_blind() {
+    // The fixture keeps its old name: these hands used to be refused as
+    // `bb-only-walk`. Nobody sits between the button and the big blind.
     let result = fixture_default("bb-only-walk.txt");
-    assert!(result.hands().is_empty());
-    assert!(result.reasons().contains(&"bb-only-walk"));
+    assert!(result.reasons().is_empty());
+    assert_eq!(result.hands().len(), 1);
+    let expected: BTreeMap<String, Option<Position>> = [
+        ("JTs98o", Position::Bb),
+        ("simke1133", Position::Utg),
+        ("kole1992", Position::Hj),
+        ("cosmicmind", Position::Co),
+        ("blazzze", Position::Btn),
+    ]
+    .into_iter()
+    .map(|(name, position)| (name.to_owned(), Some(position)))
+    .collect();
+    assert_eq!(positions_by_name(result.hands()[0]), expected);
+}
+
+#[test]
+fn weplay_parses_a_played_hand_with_a_dead_small_blind_and_a_post_fold_flash() {
+    // Hand #91876609: Seat 5 is the button and Seat 1 the big blind, so no
+    // small blind. The big blind folds and then `shows []`, which is no reveal.
+    let result = fixture_default("dead-small-blind.txt");
+    assert!(result.reasons().is_empty());
+    assert_eq!(result.hands().len(), 1);
+    let hand = result.hands()[0];
+    let expected: BTreeMap<String, Option<Position>> = [
+        ("Geezy1313", Position::Bb),
+        ("kole1992", Position::Utg),
+        ("Elgringo", Position::Hj),
+        ("MeryAce", Position::Co),
+        ("Balazs96", Position::Btn),
+    ]
+    .into_iter()
+    .map(|(name, position)| (name.to_owned(), Some(position)))
+    .collect();
+    assert_eq!(positions_by_name(hand), expected);
+    assert!(result.text.contains("kole1992: raises $2.40 to $4.40"));
+    assert!(
+        result
+            .text
+            .contains("MeryAce: raises $13.76 to $55.96 and is all-in")
+    );
+    assert!(!result.text.contains("shows []"));
+    assert!(
+        !hand
+            .actions
+            .iter()
+            .any(|a| a.player == "Geezy1313" && a.kind == ActionType::Show)
+    );
+    let geezy = hand
+        .results
+        .players
+        .iter()
+        .find(|p| p.player == "Geezy1313")
+        .expect("Geezy1313's result");
+    assert!(!geezy.went_to_showdown);
+    assert_eq!(geezy.net, -716);
+    assert_eq!(hand.results.hero_net, Some(-5632));
 }
 
 #[test]
@@ -1056,7 +1119,15 @@ static LEGACY: LazyLock<Value> = LazyLock::new(|| {
     vectors["legacy"].clone()
 });
 
-/// `classify(oldText, newText)`: the three reviewed kinds of difference.
+/// `/: shows \[\s*\]/`: a post-fold flash with no cards.
+fn is_empty_show(line: &str) -> bool {
+    line.split_once(": shows [").is_some_and(|(_, rest)| {
+        rest.trim_start_matches(|c: char| c.is_whitespace())
+            .starts_with(']')
+    })
+}
+
+/// `classify(oldText, newText)`: the four reviewed kinds of difference.
 fn classify(old_text: &str, new_text: &str) -> Option<&'static str> {
     let a: Vec<&str> = old_text.split('\n').collect();
     let b: Vec<&str> = new_text.split('\n').collect();
@@ -1071,6 +1142,9 @@ fn classify(old_text: &str, new_text: &str) -> Option<&'static str> {
         && only_new.is_empty()
     {
         return Some("time-bank-line");
+    }
+    if only_old.iter().all(|line| is_empty_show(line)) && only_new.is_empty() {
+        return Some("post-fold-empty-show");
     }
     if old_text.contains(": posts straddle ")
         && only_old.iter().all(|line| line.contains(": raises "))

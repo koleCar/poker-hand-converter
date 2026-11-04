@@ -25,7 +25,7 @@
       "fingerprint": "e7eb9e489ffc764e1b816dd56da6492b27f37c671e192fe7f1570bf32728840f",
       "index": 0,
       "message": "Omaha is not supported yet; the hand is kept for a future parser.",
-      "parserVersion": "2.0.0",
+      "parserVersion": "2.1.0",
       "permille": 990,
       "reason": "unsupported-variant",
       "site": "weplay",

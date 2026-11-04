@@ -22,7 +22,7 @@ import {
 import { parseStandardHand } from "../phf/serialize";
 import type { PhfHand } from "../phf/types";
 
-export const WEPLAY_PARSER_VERSION = "2.0.0";
+export const WEPLAY_PARSER_VERSION = "2.1.0";
 
 const HAND_SPLIT_REGEX = /(?=^Weplay Hand #\d+:)/gm;
 const AMOUNT = String.raw`(?:\$|€|£)?(\d+(?:\.\d+)?)`;
@@ -31,6 +31,7 @@ const RAISE_LINE_REGEX = new RegExp(
 );
 const STREET_MARKER_REGEX = /^\*\*\* (?:FIRST |SECOND )?(?:FLOP|TURN|RIVER)\b/;
 const SHOWS_HIDDEN_REGEX = /^(.+?): shows \[.*#.*\].*$/;
+const SHOWS_EMPTY_REGEX = /^.+?: shows \[\s*\]/;
 const SEAT_LINE_REGEX = /^Seat\s+\d+:\s+(.+?)\s+\((.+) in chips\)$/;
 const PLAYER_ACTION_REGEX =
   /^(.+?): (?:posts|raises|calls|bets|folds|checks|shows|mucks|doesn't show)/;
@@ -177,6 +178,12 @@ function parseHeaderStakes(
 }
 
 function normalizeShowsLine(line: string): string {
+  // `X: shows [] (a pair of Jacks)` is a folded player flashing a hand after
+  // the fact: no cards, and no showdown. The line is dropped, as the summary
+  // already drops that player's `showed [..]`.
+  if (SHOWS_EMPTY_REGEX.test(line)) {
+    return "";
+  }
   const match = line.match(SHOWS_HIDDEN_REGEX);
   if (!match) {
     return line;
@@ -309,14 +316,9 @@ function getEarlySkip(chunk: string, header: string, money: MoneyContext): Skip 
     return { reason: "all-in-or-fold-table", message: "All-in or Fold table." };
   }
 
-  const hasBigBlind = /: posts big blind /i.test(chunk);
-  const hasSmallBlind = /: posts small blind /i.test(chunk);
-  if (hasBigBlind && !hasSmallBlind) {
-    return {
-      reason: "bb-only-walk",
-      message: "Big blind posted without a small blind (BB-only walk).",
-    };
-  }
+  // A big blind without a small blind is a dead small blind (the seat between
+  // the button and the big blind is empty), not a broken hand: it is played
+  // out like any other and positioned from the button (`assignPositions`).
 
   const stakes = parseHeaderStakes(header, money);
   if (stakes) {
