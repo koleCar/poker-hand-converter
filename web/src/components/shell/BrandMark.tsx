@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { RailMark } from "../brand/RailMark";
+import { RailMark } from "@rail/ui/brand/RailMark";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { NavPending } from "./NavProgress";

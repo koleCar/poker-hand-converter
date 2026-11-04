@@ -9,7 +9,7 @@ import styles from "./RailLoader.module.css";
  *             (       ▬▬▬▬        )
  *              ╰─────────────────╯
  *
- * It is the same drawing as `web/src/components/brand/RailMark.tsx` (and the
+ * It is the same drawing as `brand/RailMark.tsx` (and the
  * favicon), so waiting looks like the product rather than like a browser. The
  * rail is drawn twice: a faint track, and over it a short arc whose dash offset
  * runs once round the ellipse per cycle. The board bar pulses on the same beat.

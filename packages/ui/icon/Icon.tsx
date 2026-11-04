@@ -69,6 +69,54 @@ const PATHS = {
       <path d="m6 6 12 12" />
     </>
   ),
+  /* The desktop sidebar: its collapse toggle, its search, and one per screen. */
+  sidebar: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </>
+  ),
+  home: <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" />,
+  cards: (
+    <>
+      <rect x="3" y="7" width="12" height="14" rx="2" />
+      <path d="M8 3h11a2 2 0 0 1 2 2v12" />
+    </>
+  ),
+  barChart: (
+    <>
+      <path d="M4 20h16" />
+      <path d="M7 16v-5" />
+      <path d="M12 16V6" />
+      <path d="M17 16V9" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8" r="4" />
+      <path d="M2 21a7 7 0 0 1 14 0" />
+      <path d="M16 4.13a4 4 0 0 1 0 7.75" />
+      <path d="M22 21a7 7 0 0 0-4-6.32" />
+    </>
+  ),
+  trend: (
+    <>
+      <path d="M3 3v18h18" />
+      <path d="m7 15 4-4 3 3 6-6" />
+    </>
+  ),
+  gauge: (
+    <>
+      <path d="m12 14 4-4" />
+      <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof PATHS;

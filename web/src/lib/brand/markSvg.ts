@@ -3,7 +3,7 @@
  * the generated app icons (`app/icon.tsx`, `app/apple-icon.tsx`) and the Open
  * Graph cards, which render through `next/og` and take an `<img>`.
  *
- * Same geometry as `components/brand/RailMark.tsx` at its large size — the rail
+ * Same geometry as `packages/ui/brand/RailMark.tsx` at its large size — the rail
  * and the board — drawn on a felt plate, because an app icon has no ancestor to
  * inherit a colour from and sits on whatever the home screen is.
  */

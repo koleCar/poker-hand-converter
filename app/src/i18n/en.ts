@@ -45,6 +45,8 @@ export const en = {
     hud: "HUD",
     settings: "Settings",
     search: "Search…",
+    collapse: "Collapse sidebar",
+    expand: "Expand sidebar",
     searchLabel: "Search or run a command",
     account: "Account",
     signIn: "Sign in",
