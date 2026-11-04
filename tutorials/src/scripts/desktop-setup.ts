@@ -155,9 +155,9 @@ export const script: Tutorial = {
         {
           shot: 'settings-account',
           focus: 'syncNow',
-          highlight: ['syncNow', 'pauseSync', 'uploadLimit'],
+          highlight: ['syncNow', 'pauseSync'],
           fill: 0.5,
-          caption: 'Sync now, pause sync, and limit the upload speed while a large backlog syncs.',
+          caption: 'Sync now or pause sync.',
           seconds: 4,
         },
         {

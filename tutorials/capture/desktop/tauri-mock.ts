@@ -410,11 +410,6 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
       state.syncPaused = Boolean(a.paused);
       return sync();
     },
-    sync_set_cap: (a) => {
-      const status = scene().sync;
-      if (status) status.cap = (a.cap as number | null) ?? null;
-      return sync();
-    },
     sync_answer_account: () => sync(),
     sync_retry_rejected: () => sync(),
     entitlements_status: () => data.entitlements,

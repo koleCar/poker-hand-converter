@@ -301,7 +301,6 @@ export async function captureDesktopSetup(browser: Browser): Promise<void> {
       syncSpeed: account.getByText(/hands a second/),
       syncNow: account.getByRole('button', { name: 'Sync now' }),
       pauseSync: account.getByRole('button', { name: 'Pause sync' }),
-      uploadLimit: account.locator('label').filter({ hasText: 'Upload speed while a large backlog syncs' }),
     });
 
     /* Settings, Appearance: theme, density, language. */

@@ -2,9 +2,8 @@
  * Sync with the web (R1.9), under Settings, Account: what sync is doing
  * ("Syncing 120 of 4 000 hands", up to date, offline, paused, waiting for an
  * answer after another account signed in), the hands the server refused
- * per reason, and the controls: Sync now, Pause, the upload limit for a
- * large backlog, and the answer to "upload this computer's hands to the new
- * account?". (R6.4) Held by the plan: why, and "Upgrade to Pro".
+ * per reason, and the controls: Sync now, Pause, and the answer to "upload
+ * this computer's hands to the new account?". (R6.4) Held by the plan: why, and "Upgrade to Pro".
  */
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useT } from "../i18n";
@@ -14,14 +13,6 @@ import styles from "./SyncPanel.module.css";
 
 const number = liveNumberFormat();
 const CLOCK = liveDateFormat({ hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
-/** The choices of the upload limit, bytes a second (`null`: none). */
-const CAPS: [key: "slow" | "normal" | "fast" | "none", bytes: number | null][] = [
-  ["slow", 256 * 1024],
-  ["normal", 1024 * 1024],
-  ["fast", 4 * 1024 * 1024],
-  ["none", null],
-];
 
 function clock(ms: number): string {
   return CLOCK.format(ms);
@@ -123,7 +114,6 @@ export function SyncPanel({
   }
   const refused = sync.rejected.reduce((sum, r) => sum + r.count, 0);
   const active = phase.state !== "signedOut" && phase.state !== "accountMismatch" && phase.state !== "declined";
-  const capKey = CAPS.find(([, bytes]) => bytes === sync.cap)?.[0] ?? "normal";
 
   return (
     <div className={styles.panel}>
@@ -222,23 +212,6 @@ export function SyncPanel({
           >
             {sync.paused ? d.resume : d.pause}
           </button>
-          <label className={styles.cap}>
-            <span>{d.capLabel}</span>
-            <select
-              value={capKey}
-              disabled={busy}
-              onChange={(event) => {
-                const bytes = CAPS.find(([key]) => key === event.target.value)?.[1] ?? null;
-                void run(() => ipc.syncSetCap(bytes));
-              }}
-            >
-              {CAPS.map(([key]) => (
-                <option key={key} value={key}>
-                  {d.caps[key]}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       )}
     </div>

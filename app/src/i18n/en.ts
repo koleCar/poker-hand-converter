@@ -345,13 +345,6 @@ export const en = {
     syncNow: "Sync now",
     pause: "Pause sync",
     resume: "Resume sync",
-    capLabel: "Upload speed while a large backlog syncs",
-    caps: {
-      slow: "256 KB/s",
-      normal: "1 MB/s (default)",
-      fast: "4 MB/s",
-      none: "No limit",
-    },
     failedAction: (reason: string) => `That did not work: ${reason}`,
     /** (R6.4) The account's plan does not include desktop sync. */
     planRequired: (waiting: number) =>
