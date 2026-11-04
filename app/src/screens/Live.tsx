@@ -124,7 +124,6 @@ function NoSession({ last }: { last: Session | null }) {
           <h2 id="live-empty" className={styles.emptyTitle}>
             {d.title}
           </h2>
-          <p className={styles.emptyText}>{d.text}</p>
           {status?.running && folders !== null ? (
             folders > 0 ? (
               <p className={styles.chips}>
@@ -157,7 +156,6 @@ function LastSession({ session }: { session: Session }) {
       ? unitOf({ currency: units.currency, currencySymbol: units.symbol ?? "", minorUnits: units.minorUnits })
       : null;
   const tone = (value: number | null) => (value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down);
-  const minutes = minutesBetween(session.startedAt, session.endedAt);
   return (
     <section className={styles.section} aria-labelledby="live-last">
       <h2 id="live-last" className={styles.heading}>
@@ -165,7 +163,7 @@ function LastSession({ session }: { session: Session }) {
       </h2>
       <a className={styles.lastCard} href={screenHref("reports")}>
         <span className={styles.muted}>
-          {`${d.empty.range(DAY_TIME.format(new Date(session.startedAt)), TIME.format(new Date(session.endedAt)))} · ${d.duration(minutes)}`}
+          {d.empty.range(DAY_TIME.format(new Date(session.startedAt)), TIME.format(new Date(session.endedAt)))}
         </span>
         <dl className={styles.lastFigures}>
           <div>
@@ -187,7 +185,6 @@ function LastSession({ session }: { session: Session }) {
         </dl>
         <span className={styles.link}>{d.empty.reports}</span>
       </a>
-      <p className={styles.note}>{d.empty.rule(session.gapMinutes)}</p>
     </section>
   );
 }

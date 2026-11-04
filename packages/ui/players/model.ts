@@ -21,8 +21,17 @@ export type { PlayerRef };
 export const PLAYER_COLOURS = ["red", "orange", "yellow", "green", "blue", "purple"] as const;
 export type PlayerColour = (typeof PLAYER_COLOURS)[number];
 
-/** Which hands a players list counts: all, cash games, tournament chips. */
+/**
+ * Which hands a players query counts: cash games, tournament chips, or both
+ * (`"all"`, only the screen's first, unseen query: it says which kind the
+ * library has more of). Cash and chips never show together.
+ */
 export type GameKind = "all" | "cash" | "chips";
+
+/** A kind the screen shows: the Cash / Tournaments toggle. */
+export type ShownKind = Exclude<GameKind, "all">;
+
+export const SHOWN_KINDS: ShownKind[] = ["cash", "chips"];
 
 /** `players::PlayerQueryDto`. */
 export interface PlayerQuery {

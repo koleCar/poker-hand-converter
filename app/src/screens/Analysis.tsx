@@ -34,6 +34,7 @@ import { useTablesOpen } from "../lib/useTablesOpen";
 import { AnalysisStatus } from "./analysis/AnalysisStatus";
 import styles from "./analysis/Analysis.module.css";
 import { HandAnalysis } from "./analysis/HandAnalysis";
+import { openInReplayer } from "./analysis/openHand";
 import { TopLeaks } from "./analysis/TopLeaks";
 import { ANALYSIS_TABS, parseView, tabOf, viewParam, type AnalysisView } from "./analysis/view";
 
@@ -179,16 +180,20 @@ function Session({
   }, []);
 
   const renderHandLink = useCallback(
-    ({ handId, actionIndex, sessionAt, label, className, children }: HandLinkProps) => (
+    ({ handId, label, className, children }: HandLinkProps) => (
       <a
-        href={handHref(handId, actionIndex, { kind: "session", at: sessionAt, gap: view.gap })}
+        href={screenHref("hands", handId)}
         className={className}
         aria-label={label}
+        onClick={(event) => {
+          event.preventDefault();
+          openInReplayer(handId);
+        }}
       >
         {children}
       </a>
     ),
-    [view.gap],
+    [],
   );
 
   return (
@@ -205,6 +210,8 @@ function Session({
       reloadToken={reload}
       coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
       hiddenDuringPlay={hidden}
+      intro={false}
+      layout="table"
       renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
     />
   );

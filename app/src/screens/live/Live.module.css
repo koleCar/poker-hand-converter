@@ -67,12 +67,6 @@
   color: var(--text-secondary);
 }
 
-.note {
-  margin: 0;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-}
-
 .notice {
   margin: 0;
   color: var(--text-secondary);

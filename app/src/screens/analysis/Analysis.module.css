@@ -45,6 +45,65 @@
   color: var(--warning-fg);
 }
 
+/* The run under way: a thin bar, how many hands are left, about how long. */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1 1 24rem;
+  max-width: 40rem;
+  min-width: 0;
+}
+
+.bar {
+  position: relative;
+  flex: 1 1 auto;
+  block-size: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.barFill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: inherit;
+  background: var(--accent-fg);
+  transition: width 600ms ease;
+}
+
+/* A light running along the filled part, as the Rail loader's does round the rail. */
+.barFill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, white 45%, transparent), transparent);
+  animation: bar-run 1.6s ease-in-out infinite;
+}
+
+@keyframes bar-run {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill { transition: none; }
+  .barFill::after { animation: none; }
+}
+
+.progressText {
+  flex: none;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.buttonSm {
+  padding: 2px var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
 .button {
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--border-default);
@@ -186,64 +245,273 @@
   font-weight: 600;
 }
 
-/* The top three leaks (R5.2's card). */
+/* The top three leaks (R5.2's card): a period toggle, then one card a leak -
+   its rank, name and cost; four figures; your mix against the target's; the
+   example hands' table (`@rail/ui/review/SpotTable.module.css`). */
 .leaks {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  max-width: 64rem;
+  gap: var(--space-4);
+  max-width: 72rem;
 }
 
 /* The loaded list under the head, dimmed while another period loads. */
 .leaksBody {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .leaksHead {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
 }
 
-.periods {
-  display: flex;
-  gap: var(--space-1);
-}
-
-.periods [aria-pressed="true"] {
-  border-color: var(--accent-fg);
-  color: var(--accent-fg);
-}
-
-.leakTitle {
-  font-size: var(--font-size-md);
-  font-weight: 600;
-}
-
-.examplesHead {
-  margin-top: var(--space-2);
+.sampleLine {
+  color: var(--text-tertiary);
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  cursor: help;
 }
 
-.examples {
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.segment {
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: calc(var(--radius-2) - 2px);
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.segment:hover {
+  color: var(--text-primary);
+}
+
+.segment[aria-pressed="true"] {
+  background: var(--surface-raised-2);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px var(--border-default);
+}
+
+.leakList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-4);
   padding: 0;
   list-style: none;
 }
 
-.example {
+.leakCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.leakHeader {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-3) var(--space-4);
+}
+
+.leakRank {
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--radius-pill);
+  background: var(--danger-bg);
+  color: var(--loss-fg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.leakName {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.leakTitle {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-3);
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.leakContext {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.streetChip,
+.tentative {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.6;
+}
+
+.tentative {
+  border-color: var(--warning-border);
+  color: var(--warning-fg);
+  cursor: help;
+}
+
+.leakCost {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.leakCostValue {
+  color: var(--loss-fg);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.leakCostUnit {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.leakCostRange {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.leakStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.leakStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+.leakStat dt {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.leakStat dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.lossText {
+  color: var(--loss-fg);
+}
+
+.upText {
+  color: var(--profit-fg);
+}
+
+.confidenceDots {
+  color: var(--accent-fg);
+  letter-spacing: 1px;
+}
+
+/* You against the target: one stacked bar each, in the chart viewer's fills. */
+.mixes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mixRow {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(8rem, 22rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.mixLabel {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mixBar {
+  display: flex;
+  gap: 2px;
+  block-size: 0.625rem;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.mixPart {
+  flex-basis: 0;
+  min-inline-size: 3px;
+}
+
+.mix_fold { background: color-mix(in srgb, var(--text-secondary) 55%, transparent); }
+.mix_check { background: var(--chart-check); }
+.mix_call { background: var(--chart-call); }
+.mix_bet { background: var(--chart-bet-small); }
+.mix_raise { background: var(--chart-raise); }
+
+.mixWords {
+  min-width: 0;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.examplesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.examplesHead {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
 }
 
 /* R5.5: a tournament push/fold grade's block and its settings form (IcmBlock.tsx). */

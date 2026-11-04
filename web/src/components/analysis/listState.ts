@@ -25,7 +25,12 @@ export interface AnalysisListState {
   grade: string | null;
   position: string | null;
   potType: string | null;
-  gameFormat: string | null;
+  /**
+   * One game format, always (the owner's rule, 2026-11-04: cash and
+   * tournament hands are never combined). Cash unless the address says
+   * otherwise; the tab moves to the format with hands when cash has none.
+   */
+  gameFormat: string;
   sort: AnalysisSort;
   page: number;
 }
@@ -37,7 +42,7 @@ export const EMPTY_LIST_STATE: AnalysisListState = {
   grade: null,
   position: null,
   potType: null,
-  gameFormat: null,
+  gameFormat: "cash",
   sort: "recent",
   page: 0,
 };
@@ -84,7 +89,7 @@ export function parseListState(
     grade: pick(get(KEYS.grade), GRADE_VALUES),
     position: pick(get(KEYS.position), POSITION_VALUES),
     potType: pick(get(KEYS.potType), POT_VALUES),
-    gameFormat: pick(get(KEYS.gameFormat), FORMAT_VALUES),
+    gameFormat: pick(get(KEYS.gameFormat), FORMAT_VALUES) ?? EMPTY_LIST_STATE.gameFormat,
     sort: (pick(get(KEYS.sort), ANALYSIS_SORTS) as AnalysisSort | null) ?? "recent",
     page: Number.isInteger(page) && page > 0 && page < 10_000 ? page : 0,
   };
@@ -99,7 +104,7 @@ export function listQuery(state: AnalysisListState): string {
   if (state.grade) params.set(KEYS.grade, state.grade);
   if (state.position) params.set(KEYS.position, state.position);
   if (state.potType) params.set(KEYS.potType, state.potType);
-  if (state.gameFormat) params.set(KEYS.gameFormat, state.gameFormat);
+  if (state.gameFormat !== EMPTY_LIST_STATE.gameFormat) params.set(KEYS.gameFormat, state.gameFormat);
   if (state.sort !== "recent") params.set(KEYS.sort, state.sort);
   if (state.page > 0) params.set(KEYS.page, String(state.page));
   return params.toString();
@@ -108,7 +113,7 @@ export function listQuery(state: AnalysisListState): string {
 /** What the overview and the breakdown are about: the scope, not the list's own filters. */
 export function scopeFilters(state: AnalysisListState): AnalysisFilters {
   const filters: AnalysisFilters = {};
-  if (state.gameFormat) filters.gameFormat = state.gameFormat;
+  filters.gameFormat = state.gameFormat;
   if (state.position) filters.position = state.position;
   if (state.potType) filters.potType = state.potType;
   return filters;

@@ -265,8 +265,8 @@ export function PlayersTab({ refreshToken = 0, arrival = null }: PlayersTabProps
         definitions={WEB_DEFINITIONS}
         selected={selected}
         onSelect={setSelected}
-        onHandsWith={(player) => {
-          parkPlayerFilter(player);
+        onHandsWith={(player, kind) => {
+          parkPlayerFilter(player, kind);
           router.push(paths.library());
         }}
         title={en.heading}

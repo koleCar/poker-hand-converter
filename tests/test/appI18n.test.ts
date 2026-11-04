@@ -55,6 +55,9 @@ describe("dictionaries", () => {
       "Push", "Sit-and-go",
       // R6.4: the plan's name, and "plan" is Croatian too.
       "Plan", "Rail Pro.",
+      // The Players statistics' rows: poker's names, as the definitions say them in Croatian.
+      "Open raise", "Limp", "Limp-fold", "4-bet", "5-bet", "Squeeze", "Steal", "Continuation bet", "Donk bet",
+      "Check-raise",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

@@ -107,6 +107,23 @@ export const reviewUiEn = {
     noCards: "Cards unknown",
   },
 
+  /** The table layout's column heads (the desktop app). */
+  table: {
+    time: "Time",
+    stakes: "Stakes",
+    position: "Pos",
+    cards: "Cards",
+    board: "Board",
+    decision: "Decision",
+    grade: "Grade",
+    evLoss: "EV lost",
+    pot: "Pot",
+    result: "Result",
+    best: (action: string) => `best ${action}`,
+    preflop: "Preflop",
+    replayer: (cards: string, when: string) => `Open the hand ${cards} from ${when} in the replayer`,
+  },
+
   grades: {
     perfect: "Perfect",
     good: "Good",

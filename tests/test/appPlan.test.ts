@@ -166,8 +166,8 @@ describe("the HUD, the analysis and sync, held by the plan", () => {
       lastError: null,
       version: "analysis/35",
     };
-    expect(describeStatus(waiting, en.analysis.status, String)[0]?.text).toBe(en.analysis.status.waiting.plan);
-    expect(describeStatus(waiting, hr.analysis.status, String)[0]?.text).toBe(hr.analysis.status.waiting.plan);
+    expect(describeStatus(waiting, en.analysis.status)[0]?.text).toBe(en.analysis.status.waiting.plan);
+    expect(describeStatus(waiting, hr.analysis.status)[0]?.text).toBe(hr.analysis.status.waiting.plan);
   });
 
   it("sync held by the plan says so and offers the upgrade, in both languages", () => {

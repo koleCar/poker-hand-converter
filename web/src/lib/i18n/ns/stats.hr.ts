@@ -77,7 +77,6 @@ export const statsHr: Dict["stats"] = {
 
   scope: {
     ariaLabel: "Koje ruke",
-    allFormats: "Svi formati",
     formats: {
       cash: "Cash igre",
       tournament: "Turniri",
@@ -240,7 +239,7 @@ export const statsHr: Dict["stats"] = {
       `Protivničke ruke iz soba koje skrivaju imena između sesija (GGPoker) nisu prikazane, njih ${num(count)} — isti nadimak u dvije sesije mogu biti dvije različite osobe.`,
     positional: "Sobe koje sjedala označavaju pozicijom (Ignition) nikad ne bilježe protivnike.",
     scopeNote:
-      "Ova tablica prati čipove Soba, Igra i Ulozi kad je odabran po jedan; datumi, pozicije i ostali čipovi je ne sužavaju.",
+      "Ova tablica prati čipove Soba i Ulozi kad je odabran po jedan te jedan format igre (prvi od nekoliko), nikad cash i turnire zajedno; datumi, pozicije i ostali čipovi je ne sužavaju.",
     turnOff: "Isključi i obriši statistiku protivnika",
     note: {
       label: "Bilješka (vidiš je samo ti)",
