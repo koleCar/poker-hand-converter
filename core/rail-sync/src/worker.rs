@@ -1511,6 +1511,7 @@ impl<A: SyncAccount> SyncTask<A> {
             let mut skipped = 0u64;
             for ids in missing.chunks(crate::ingest::PHF_IDS_PER_CALL) {
                 for remote in self.client.hands_phf_as(&as_user, ids).await? {
+                    let omaha = is_omaha(&remote.phf);
                     match serde_json::from_value::<rail_core::phf::PhfHand>(remote.phf)
                         .ok()
                         .and_then(|hand| PreparedHand::from_phf(&hand).ok())
@@ -1521,6 +1522,9 @@ impl<A: SyncAccount> SyncTask<A> {
                             }
                             prepared.push(hand);
                         }
+                        // Omaha is not worked out yet: an unreadable Omaha
+                        // hand is logged but not counted for the screen.
+                        None if omaha => log::info!("sync: skipped an Omaha hand from the web"),
                         None => skipped += 1,
                     }
                 }
@@ -1551,6 +1555,15 @@ impl<A: SyncAccount> SyncTask<A> {
             }
         }
     }
+}
+
+/// Whether a pulled hand's PHF names an Omaha variant (`omaha`, `omaha5`,
+/// `omaha6`), read straight from the JSON so it works when the hand itself
+/// does not.
+fn is_omaha(phf: &serde_json::Value) -> bool {
+    phf.pointer("/game/variant")
+        .and_then(serde_json::Value::as_str)
+        .is_some_and(|variant| variant.starts_with("omaha"))
 }
 
 fn source_key(user_id: &str, folder: Option<i64>) -> String {
