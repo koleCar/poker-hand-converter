@@ -1,7 +1,7 @@
 /**
  * The replayer's own window (`src-tauri/src/replayer.rs`): the hand chosen
- * on the Hands screen, in the dense replayer with its tags and note
- * (`HandPanel`). It asks for its hand when it loads and is told each new one
+ * on the Hands screen, in the web's replayer at the web's width, with its
+ * tags and note behind a header button (`HandPanel`). It asks for its hand when it loads and is told each new one
  * after that; the hand's row (for the room's name) and the tags in use are
  * read here. Its close button closes the window; a tag or note changed here
  * is told to the main window, whose list shows it.

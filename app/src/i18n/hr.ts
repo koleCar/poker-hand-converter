@@ -834,9 +834,16 @@ export const hr: Dict = {
       close: "Zatvori",
       openInWeb: "Otvori na webu",
       openInWebSoon: "Otvaranje ruku na webu stiže sa sinkronizacijom oznaka i bilješki.",
+      notes: "Oznake i bilješka",
+      notesSummary: (tags, note) =>
+        [tags === 0 ? null : `${n(tags)} ${plural(tags, "oznaka", "oznake", "oznaka")}`, note ? "bilješka" : null]
+          .filter(Boolean)
+          .join(" i ") || "Još nema oznaka ni bilješke",
       tags: "Oznake",
       addTag: "Dodaj oznaku",
-      tagPlaceholder: "Oznaka, pa Enter",
+      tagPlaceholder: "Nova oznaka ili odaberi ispod",
+      knownTags: "Tvoje oznake",
+      newTag: (tag) => `Dodaj „${tag}”`,
       removeTag: (tag) => `Ukloni oznaku „${tag}”`,
       tagFailed: (reason) => `Oznaka nije spremljena: ${reason}`,
       note: "Bilješka",
