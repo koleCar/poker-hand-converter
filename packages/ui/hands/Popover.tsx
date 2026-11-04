@@ -11,11 +11,17 @@ export function Popover({
   anchor,
   label,
   onClose,
+  align = "start",
+  className,
   children,
 }: {
   anchor: RefObject<HTMLElement | null>;
   label: string;
   onClose: () => void;
+  /** Which edge of the button the panel lines up with. */
+  align?: "start" | "end" | undefined;
+  /** A wider or roomier panel (the "+ Add filter" menu). */
+  className?: string | undefined;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,8 +31,9 @@ export function Popover({
     const box = anchor.current?.getBoundingClientRect();
     if (!box) return;
     const width = ref.current?.offsetWidth ?? 320;
-    setPlace({ top: box.bottom + 6, left: Math.max(8, Math.min(box.left, window.innerWidth - width - 8)) });
-  }, [anchor]);
+    const left = align === "end" ? box.right - width : box.left;
+    setPlace({ top: box.bottom + 6, left: Math.max(8, Math.min(left, window.innerWidth - width - 8)) });
+  }, [anchor, align]);
 
   useEffect(() => {
     const onDown = (event: PointerEvent) => {
@@ -62,7 +69,7 @@ export function Popover({
   return (
     <div
       ref={ref}
-      className={styles.popover}
+      className={className ? `${styles.popover} ${className}` : styles.popover}
       role="dialog"
       aria-label={label}
       style={place ? { top: place.top, left: place.left } : { visibility: "hidden" }}

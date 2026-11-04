@@ -16,7 +16,7 @@
  * The desktop app's screen (R2.7a, `app/src/screens/Hands.tsx` before
  * R4.5b), lifted out of it.
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { FilterBar, handGroups } from "./FilterBar";
@@ -25,7 +25,7 @@ import { pinKind } from "./gameKind";
 import { HandList } from "./HandList";
 import { KindToggle } from "./KindToggle";
 import styles from "./Hands.module.css";
-import type { HandFacets, HandRow, HandsSource } from "./model";
+import type { HandFacets, HandFilter, HandRow, HandsSource } from "./model";
 import { useHandList, type HandList as HandListState } from "./useHandList";
 
 export interface HandsScreenProps {
@@ -108,14 +108,7 @@ export function HandsScreen({
     if (listRef) listRef.current = list;
   });
   const groups = useMemo(() => handGroups(source.features), [source.features]);
-  const searchFields = useMemo(
-    () => ({
-      search: source.features.search,
-      tableName: source.features.more.includes("tableName"),
-      minPot: source.features.more.includes("minPot"),
-    }),
-    [source.features],
-  );
+  const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
   const { reload } = list;
   const firstToken = useRef(reloadToken);
@@ -186,7 +179,7 @@ export function HandsScreen({
         groups={groups}
         saved={source.savedFilters}
         sorts={source.features.sorts}
-        search={searchFields}
+        loadFacets={loadFacets}
       />
       {notice}
       <div className={selected === null || !renderPanel ? styles.body : `${styles.body} ${styles.split}`}>

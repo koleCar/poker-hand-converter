@@ -55,6 +55,8 @@ describe("dictionaries", () => {
       "Push", "Sit-and-go",
       // R6.4: the plan's name, and "plan" is Croatian too.
       "Plan", "Rail Pro.",
+      // The range grid's presets (2026-11 filters): Croatian players say them in English.
+      "Suited", "Broadway",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {
