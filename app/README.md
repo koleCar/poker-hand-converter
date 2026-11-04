@@ -93,7 +93,7 @@ One module per concern; most are thin commands over a core crate.
 | `stats.rs` | The statistics pass (`rail_store::StatsWorker`): all-in EV of preflop all-ins in the background, recomputes after a definition change (R2.11) and swaps them in; paused during backfills and while tables are open |
 | `custom_stats.rs` | The user's own statistics (R2.10): list, live check with a preview on the last 5 000 hands, save, delete |
 | `hands.rs` | The Hands screen (R2.7a): keyset pages, facet counts, PHF for the replayer, notes, tags, saved filters |
-| `reports.rs` | Today and Reports (R2.7b): `stat_definitions`, `report`, `report_breakdowns`, `today` |
+| `reports.rs` | Live and Reports (R2.7b): `stat_definitions`, `report`, `report_breakdowns`, `today` |
 | `players.rs` | The Players screen (R2.7c): list, profile, note, colour tag, labels (local only) |
 | `account.rs` | Desktop sign-in (R1.7): opens `<web>/auth/desktop` in the browser, takes the `rail://auth/callback` deep link, keeps the session (`rail_sync::auth`), keychain |
 | `sync.rs` | The sync worker (`rail_sync::worker`, R1.9): status, Sync now, pause, upload cap, choosing what to do when another account signs in, retrying rejected hands |
@@ -140,7 +140,7 @@ the app's executable, where `hud.rs` starts it.
 | `lib/duringPlay.ts` | A10: which screens help with play and are hidden while a table is open |
 | `lib/hudCompliance.ts` | Words the HUD's attach refusals and the room list (the decisions are Rust's) |
 | `lib/appearance.ts`, `public/appearance.js` | Theme and density painted before the first frame |
-| `screens/` | `Today`, `Hands`, `Reports`, `Players`, `Analysis`, `Hud` (+ `hud/`: status panel, editor, preview), `FirstRun`, `settings/` (Account, Folders, Refused hands, Your statistics, Preferences, About, Your data) |
+| `screens/` | `Live` (+ `live/`: graph, statistics, hands), `Hands`, `Reports`, `Players`, `Analysis`, `Hud` (+ `hud/`: status panel, editor, preview), `FirstRun`, `settings/` (Account, Folders, Refused hands, Your statistics, Preferences, About, Your data) |
 | `components/` | App-only pieces: sidebar, palette, sync and account panels, refused-hands table, `ProLock` |
 | `popup/HudPopup.tsx` | The HUD popup window's content |
 | `analysis/` | The background hand analysis (below) |
@@ -168,7 +168,7 @@ screens say the data is only available in the app. The command groups:
 | Plan | `entitlements_status`, `entitlements_check_now`, `entitlements_open_upgrade` |
 | Statistics | `stats_status`, `stats_rebuild`, `stats_recompute_ev`, `stat_definitions`, `custom_stats_list`, `custom_stat_check`, `custom_stat_save`, `custom_stat_delete` |
 | Hands | `hands_page`, `hands_facets`, `hands_by_key`, `hands_find`, `hand_phf`, `hand_annotations`, `hand_set_note`, `hand_add_tag`, `hand_remove_tag`, `saved_filters`, `save_filter`, `delete_saved_filter` |
-| Today and Reports | `today`, `report`, `report_breakdowns` |
+| Live and Reports | `today`, `report`, `report_breakdowns` |
 | Players | `players_list`, `player_profile`, `player_sites`, `player_labels`, `player_set_note`, `player_set_colour`, `player_add_label`, `player_remove_label` |
 | HUD | `hud_status`, `hud_request_permission`, `hud_policy`, `hud_policy_check`, `hud_open_policy_source`, `hud_reset_seat_positions`, `hud_set_preferred_seat` |
 | HUD popup | `hud_popup`, `hud_popup_close`, `hud_popup_open_in_app` |

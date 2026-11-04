@@ -8,7 +8,7 @@
  */
 import { useSyncExternalStore } from "react";
 
-export const SCREENS = ["today", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
+export const SCREENS = ["live", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
 
 export type Screen = (typeof SCREENS)[number];
 
@@ -17,7 +17,7 @@ export const SETUP = "setup";
 
 export type Route = Screen | typeof SETUP;
 
-export const DEFAULT_SCREEN: Screen = "today";
+export const DEFAULT_SCREEN: Screen = "live";
 
 function isRoute(id: string): id is Route {
   return id === SETUP || (SCREENS as readonly string[]).includes(id);
