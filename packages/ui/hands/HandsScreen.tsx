@@ -3,8 +3,9 @@
  * replayer), on both surfaces (R4.5b): the filter row, the virtualised list
  * (newest first, or in the order chosen), and the hand chosen opened beside
  * the list - or above it where the screen is narrow - in whatever panel the
- * surface draws (`renderPanel`: the desktop's replayer with tags and a note,
- * the web's replayer with share and publish). The data is the surface's
+ * surface draws (`renderPanel`: the web's replayer with share and publish),
+ * or nowhere on the screen (the desktop opens it in the replayer's own
+ * window, `app/src/screens/Hands.tsx`). The data is the surface's
  * `HandsSource`; the filter, the chosen hand and where they live (the app's
  * route, the web's state) are the surface's too.
  *
@@ -34,10 +35,18 @@ export interface HandsScreenProps {
   /** The hand open beside the list (its row key), if any. */
   selected: string | null;
   onSelect: (handKey: string) => void;
-  /** Enter on a row: focus whatever the panel offers (the replayer). */
+  /** Enter on a row (and a click, with `openOnClick`): focus whatever the panel offers (the replayer). */
   onOpen?: (handKey: string) => void;
-  /** The open hand's panel: its list row when loaded, and the list (to update a row). */
-  renderPanel: (handKey: string, row: HandRow | null, list: HandListState) => ReactNode;
+  /** A click on a row opens it too, not only Enter. */
+  openOnClick?: boolean;
+  /**
+   * The open hand's panel beside the list: its list row when loaded, and the
+   * list (to update a row). None: the surface shows the hand elsewhere (the
+   * desktop's replayer window) and the list keeps the whole width.
+   */
+  renderPanel?: (handKey: string, row: HandRow | null, list: HandListState) => ReactNode;
+  /** The list, for a surface without a panel that still updates a row. */
+  listRef?: { current: HandListState | null };
   /** The loading, empty and error states, in the surface's own look. */
   renderState: (kind: "loading" | "empty" | "error", text: string) => ReactNode;
   /** The heading's words, and its level on the surface's page. */
@@ -68,7 +77,9 @@ export function HandsScreen({
   selected,
   onSelect,
   onOpen,
+  openOnClick = false,
   renderPanel,
+  listRef,
   renderState,
   title,
   titleTag: Title = "h1",
@@ -93,6 +104,9 @@ export function HandsScreen({
   if (list.facets !== null && list.facets !== facetsSeen) {
     setFacetsSeen(list.facets);
   }
+  useEffect(() => {
+    if (listRef) listRef.current = list;
+  });
   const groups = useMemo(() => handGroups(source.features), [source.features]);
   const searchFields = useMemo(
     () => ({
@@ -143,6 +157,7 @@ export function HandsScreen({
         selected={selected}
         onSelect={onSelect}
         onOpen={onOpen ?? (() => undefined)}
+        openOnClick={openOnClick}
         onLoadMore={list.loadMore}
         orderLabel={t.filters.sorts[filter.sort]}
         densityKey={densityKey}
@@ -174,11 +189,11 @@ export function HandsScreen({
         search={searchFields}
       />
       {notice}
-      <div className={selected === null ? styles.body : `${styles.body} ${styles.split}`}>
+      <div className={selected === null || !renderPanel ? styles.body : `${styles.body} ${styles.split}`}>
         <div className={`${styles.list} rail-dims`} aria-busy={refetching}>
           {body}
         </div>
-        {selected !== null ? (
+        {selected !== null && renderPanel ? (
           <div className={styles.panel} ref={panelRef}>
             {renderPanel(selected, row, list)}
           </div>

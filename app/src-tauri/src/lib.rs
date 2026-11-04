@@ -90,6 +90,7 @@ pub mod players;
 pub mod policy;
 pub mod popup;
 pub mod quarantine;
+pub mod replayer;
 pub mod reports;
 pub mod review;
 pub mod settings;
@@ -213,6 +214,7 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     let stats = stats::StatsState::start(&store);
     // The HUD popup (R3.8), before the HUD: a click on a panel opens it.
     app.manage(popup::PopupState::default());
+    app.manage(replayer::ReplayerState::default());
     // (R3.10) The HUD policy: the shipped sites.json and the cached remote
     // copy over it, before the HUD (which reads the same cache at start).
     let policy = policy::init(&app.path().app_local_data_dir()?.join("policy"));
@@ -369,6 +371,10 @@ pub fn run() {
         hands::hands_by_key,
         hands::hands_find,
         hands::hand_phf,
+        replayer::replayer_open,
+        replayer::replayer_hand,
+        replayer::replayer_close,
+        replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
         hands::hand_annotations,
@@ -497,6 +503,10 @@ pub fn run() {
         hands::hands_by_key,
         hands::hands_find,
         hands::hand_phf,
+        replayer::replayer_open,
+        replayer::replayer_hand,
+        replayer::replayer_close,
+        replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
         hands::hand_annotations,
@@ -584,6 +594,11 @@ pub fn run() {
                 && window.label().starts_with(popup::POPUP_LABEL_PREFIX)
             {
                 popup::blurred(window.app_handle(), window.label());
+            }
+            if let WindowEvent::Destroyed = event
+                && window.label() == replayer::REPLAYER_WINDOW
+            {
+                replayer::closed(window.app_handle());
             }
         })
         .build(tauri::generate_context!())

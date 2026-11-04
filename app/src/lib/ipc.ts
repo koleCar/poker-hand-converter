@@ -11,7 +11,7 @@ import type {
   StatUnit,
 } from "@rail/ui/model/stats";
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 
 import type { Locale } from "../i18n/types";
 
@@ -1247,6 +1247,17 @@ export const ipc = {
   /** The HUD popup (R3.8): what it shows (`null`: none open), close it, open the player in Rail. */
   hudPopup: () => invoke<HudPopup | null>("hud_popup"),
   hudPopupClose: () => invoke<null>("hud_popup_close"),
+  /**
+   * The replayer's own window (`replayer.rs`): show a hand there, building
+   * the window the first time; `focus` brings it forward with the keyboard.
+   */
+  replayerOpen: (handKey: string, focus: boolean) => invoke<null>("replayer_open", { handKey, focus }),
+  /** The hand the replayer window should show, if one was chosen. */
+  replayerHand: () => invoke<string | null>("replayer_hand"),
+  /** Close the replayer window (its close button). */
+  replayerClose: () => invoke<null>("replayer_close"),
+  /** From the replayer window: the main window comes forward on this screen (`#/...`). */
+  replayerOpenInMain: (href: string) => invoke<null>("replayer_open_in_main", { href }),
   hudPopupOpenInApp: () => invoke<null>("hud_popup_open_in_app"),
   /** The HUD editor (R3.9). */
   hudEditorState: () => invoke<HudEditorState>("hud_editor_state"),
@@ -1397,6 +1408,35 @@ export interface OpenPlayer {
 /** (R3.8) The HUD popup's "Open in Rail". */
 export function onOpenPlayer(onOpen: (player: OpenPlayer) => void): () => void {
   return onAppEvent<OpenPlayer>("hud-open-player", onOpen);
+}
+
+/** The replayer window: show this hand (from `replayerOpen` in the main window). */
+export function onReplayerHand(onHand: (handKey: string) => void): () => void {
+  return onAppEvent<string>("replayer-hand", onHand);
+}
+
+/** The main window: go to this screen (a link in the replayer window). */
+export function onOpenRoute(onRoute: (href: string) => void): () => void {
+  return onAppEvent<string>("open-route", onRoute);
+}
+
+/** The main window: the replayer window closed. */
+export function onReplayerClosed(onClosed: () => void): () => void {
+  return onAppEvent("replayer-closed", onClosed);
+}
+
+/** A hand's tags or note changed in the replayer window (the list shows it). */
+export interface HandAnnotated {
+  handKey: string;
+  annotations: HandAnnotations;
+}
+
+export function emitHandAnnotated(change: HandAnnotated): void {
+  if (inApp) emit("hand-annotated", change).catch(() => undefined);
+}
+
+export function onHandAnnotated(onChange: (change: HandAnnotated) => void): () => void {
+  return onAppEvent<HandAnnotated>("hand-annotated", onChange);
 }
 
 function onAppEvent<T = unknown>(name: string, onChange: (payload: T) => void): () => void {
