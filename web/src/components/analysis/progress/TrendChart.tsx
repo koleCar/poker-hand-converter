@@ -4,8 +4,7 @@
  * the win-rate graph's pattern (`packages/ui/stats/WinrateGraph.tsx`): the
  * viewBox is measured in CSS pixels so a tick is 12px on a phone too, the
  * axis arithmetic is shared (`chartScale.ts`), the classes are the stats
- * chart's, and a table view carries every number for screen readers, print
- * and forced colours.
+ * chart's, and the focused point's numbers are announced for screen readers.
  *
  * Unlike the win-rate graph the x-axis is **buckets** (weeks, months,
  * sessions), evenly spaced: a mean per stretch is not cumulative, and a gap
@@ -29,7 +28,7 @@ export interface TrendChartPoint {
   key: string;
   /** Tick label under the point. */
   label: string;
-  /** The stretch it covers, for the tooltip and the table. */
+  /** The stretch it covers, for the tooltip. */
   range: string;
   value: number | null;
   low: number | null;
@@ -303,37 +302,6 @@ export function TrendChart({ name, hint, points, format, formatTick = format, fr
       <p className={styles.srOnly} aria-live="polite">
         {point ? describe(point) : ""}
       </p>
-
-      <details className="stats-chart__table">
-        <summary>{t.charts.showNumbers}</summary>
-        <div className="stats-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t.charts.when}</th>
-                <th scope="col">{name}</th>
-                <th scope="col">{t.charts.moves}</th>
-                <th scope="col">{t.charts.hands}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {points.map((entry) => (
-                <tr key={`t${entry.key}`}>
-                  <th scope="row">{entry.range}</th>
-                  <td>
-                    {entry.value !== null ? format(entry.value) : "—"}
-                    {entry.low !== null && entry.high !== null ? (
-                      <span className={styles.tableInterval}>{t.charts.interval(entry.low, entry.high)}</span>
-                    ) : null}
-                  </td>
-                  <td>{entry.volume}</td>
-                  <td>{entry.hands}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
     </div>
   );
 }

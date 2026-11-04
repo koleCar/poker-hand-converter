@@ -1,5 +1,5 @@
-/* The win-rate graph (`WinrateGraph.tsx`): its chart, legend, tooltip and
- * table view. Moved from the web's `styles/stats.css` (R2.7b); imported by
+/* The win-rate graph (`WinrateGraph.tsx`): its chart, legend and tooltip.
+ * Moved from the web's `styles/stats.css` (R2.7b); imported by
  * the component, and by the web's analysis charts (`TrendChart.tsx`), which
  * reuse the class names.
  *
@@ -17,7 +17,7 @@
  * has looked at a graph before reads this one at a glance. Green against red
  * is the weak pair under deuteranopia, so neither hue is the only channel —
  * the legend is always on screen with each line's end value, all-in EV is
- * dashed, and the table view carries every number.
+ * and dashed.
  *
  * The green and red are `--profit-fg` / `--loss-fg`, and the yellow `--ev-fg`,
  * because those tokens exist precisely so a chart can use them without
@@ -271,52 +271,8 @@
   color: var(--fg-dim);
 }
 
-/* The numbers behind the graph scroll inside their box where the page is
-   narrower than the table (R4.5d, a phone), never the page itself. */
-.stats-chart__table {
-  max-inline-size: 100%;
-  overflow-x: auto;
-}
-
-.stats-chart__table summary {
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  color: var(--text-link);
-}
-
-/* A finger (R4.5d): the toggle a full 44 px row. */
-@media (pointer: coarse) {
-  .stats-chart__table summary {
-    /* Padding, not a flex box: the summary keeps its disclosure marker. */
-    padding-block: 13px;
-  }
-}
-
-.stats-chart__table table {
-  width: 100%;
-  margin-top: 8px;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-  font-variant-numeric: tabular-nums;
-}
-
-.stats-chart__table th,
-.stats-chart__table td {
-  padding: 4px 8px;
-  text-align: right;
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.stats-chart__table th {
-  color: var(--fg-dim);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  font-size: var(--font-size-2xs);
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-/* Forced colours strip every hue, which is exactly the case the legend and the
-   table view exist for. Give the marks back a system colour so the chart is a
+/* Forced colours strip every hue, which is exactly the case the legend exists
+   for. Give the marks back a system colour so the chart is a
    chart rather than three identical lines. */
 @media (forced-colors: active) {
   .stats-chart__line,
