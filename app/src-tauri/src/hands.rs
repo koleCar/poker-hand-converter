@@ -142,6 +142,9 @@ impl From<FilterDto> for rail_store::ReportFilter {
             positions: dto.positions,
             from: dto.from.filter(|from| !from.is_empty()),
             to: dto.to.filter(|to| !to.is_empty()),
+            // The app's graphs (Live, Reports) are the money: a bomb pot's
+            // result is drawn with the rest. The statistics leave it out.
+            bomb_pots: true,
         }
     }
 }

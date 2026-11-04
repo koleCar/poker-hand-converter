@@ -40,11 +40,136 @@
   gap: 10px;
 }
 
+/* The plot (`WinratePlot.tsx`): the zoom bar, the lines, the strip under a
+   zoomed plot, the axis label. */
+.stats-chart__plot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The tooltip's frame: it sits over the lines, below the zoom bar. */
+.stats-chart__canvas {
+  position: relative;
+}
+
 .stats-chart__svg {
   display: block;
   width: 100%;
   overflow: visible;
   touch-action: pan-y;
+  border-radius: var(--radius-sm);
+}
+
+.stats-chart__svg:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.stats-chart__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 26px;
+}
+
+.stats-chart__range {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-chart__zoom {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.stats-chart__zoom .chip-btn {
+  min-width: 28px;
+}
+
+.stats-chart__zoom .chip-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* The stretch being dragged across: a wash in the total's hue, so it reads as
+   "these hands" rather than as a fifth series. */
+.stats-chart__brush {
+  fill: var(--profit-fg);
+  fill-opacity: 0.12;
+  stroke: var(--profit-fg);
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* A hand landed: one ring out of the total's endpoint, then nothing. */
+.stats-chart__pulse {
+  fill: none;
+  stroke: var(--profit-fg);
+  stroke-width: 2;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stats-chart__pulse {
+    animation: stats-chart-pulse 900ms ease-out 1;
+  }
+}
+
+@keyframes stats-chart-pulse {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(3.5);
+  }
+}
+
+/* The strip under a zoomed plot: the whole sample, the window on it. */
+.stats-chart__nav {
+  display: block;
+  width: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.stats-chart__nav:active {
+  cursor: grabbing;
+}
+
+.stats-chart__nav-track {
+  fill: var(--bg-elev-2);
+}
+
+.stats-chart__nav-line {
+  fill: none;
+  stroke: var(--profit-fg);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.stats-chart__nav-shade {
+  fill: var(--surface-raised);
+  fill-opacity: 0.6;
+}
+
+.stats-chart__nav-window {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-width: 1;
 }
 
 /* Recessive by construction: hairline, solid, one step off the surface. A

@@ -474,6 +474,56 @@ fn graph_buckets_and_the_cache() {
     store.close();
 }
 
+/// With `bomb_pots` the graph is every hand whose money moved: bomb pots
+/// drawn with the rest (the app's Live and Reports graphs), the statistics'
+/// sample unchanged.
+#[test]
+fn the_graph_counts_bomb_pots_when_asked() {
+    let path = copy_of_corpus("report-bomb-pots");
+    let store = Store::open(&path).expect("open");
+    let reader = store.reader();
+    let cash_rows = "FROM hand_list l JOIN segments s ON s.id = l.segment_id \
+                     WHERE l.hero_net IS NOT NULL AND s.game_format = 'cash'";
+    let sum = |sql: String| -> i64 {
+        Connection::open(&path)
+            .expect("open")
+            .query_row(&sql, [], |row| row.get(0))
+            .expect("sum")
+    };
+    let bomb_pots = sum(format!("SELECT count(*) {cash_rows} AND l.kind & 1 = 1"));
+    assert!(bomb_pots > 0, "the corpus has a cash bomb pot");
+    let cash = |bomb_pots: bool| ReportFilter {
+        formats: vec!["cash".to_owned()],
+        bomb_pots,
+        ..ReportFilter::default()
+    };
+    let without = reader.report_graph(&cash(false), 1).expect("graph");
+    let with = reader.report_graph(&cash(true), 1).expect("graph");
+    assert_eq!(
+        with.hands,
+        without.hands + u64::try_from(bomb_pots).expect("count")
+    );
+    let last = with.points.last().expect("point");
+    assert_eq!(last.cum_hands, with.hands);
+    assert_eq!(
+        last.cum_net_bb_milli,
+        sum(format!(
+            "SELECT coalesce(sum(l.hero_net_bb_milli), 0) {cash_rows} AND l.kind & 4 = 0"
+        )),
+        "every hand's big blinds but an EV cashout's"
+    );
+    assert_eq!(
+        last.cum_net_bb_milli,
+        last.cum_sd_bb_milli + last.cum_nsd_bb_milli
+    );
+    // The statistics' sample is the same either way.
+    assert_eq!(
+        reader.report_hero_filter(&cash(true)).expect("filter"),
+        reader.report_hero_filter(&cash(false)).expect("filter"),
+    );
+    store.close();
+}
+
 /// R2.9: the breakdowns' pass split over the pool's connections (`id`
 /// ranges, one thread each) sums to what one connection sums, for every
 /// filter shape; the warm-up reads without changing an answer.

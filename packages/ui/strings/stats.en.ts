@@ -70,5 +70,15 @@ export const statsUiEn = {
     showNumbers: "Show the numbers",
     from: "From",
     to: "To",
+    zoom: {
+      label: "Zoom",
+      in: "Zoom in",
+      out: "Zoom out",
+      reset: "Show all",
+      hint: "Drag across the graph to zoom in · Ctrl/⌘ + scroll or pinch to zoom · double-click to show all",
+      /** The window shown, its ends and the sample already formatted. */
+      range: (from: string, to: string, total: string) => `Hands ${from}–${to} of ${total}`,
+      navigator: "The whole sample: drag the window to move along it",
+    },
   },
 } as const;

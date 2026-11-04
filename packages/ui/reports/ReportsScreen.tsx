@@ -231,7 +231,17 @@ function ReportBody({
   const ui = useUiStrings();
   const r = ui.reports;
   const locale = textLocale(ui.intlLocale);
-  const { summary, units } = report;
+  const { units } = report;
+  // The hands and the result are the graph's end - every hand whose money
+  // moved, bomb pots included - so the figures and the curve agree. The
+  // statistics (bb/100 with them) keep their own sample: bomb pots out.
+  const end = report.graph.buckets[report.graph.buckets.length - 1];
+  const summary = {
+    ...report.summary,
+    hands: Math.max(report.summary.hands, report.graph.hands),
+    net: report.summary.net !== null && end?.cumNet != null ? end.cumNet : report.summary.net,
+    netBbMilli: report.summary.netBbMilli !== null && end ? end.cumNetBbMilli : report.summary.netBbMilli,
+  };
   const moneyUnit =
     units.currency !== null && units.minorUnits !== null
       ? unitOf({ currency: units.currency, currencySymbol: units.symbol ?? "", minorUnits: units.minorUnits })

@@ -4,8 +4,9 @@
  * A charting dependency would be the largest thing in this project — the app
  * ships React and supabase-js and nothing else, and `/h/:slug` is a public
  * landing page where every kilobyte is paid for by a stranger on a phone. What
- * is actually needed here is four polylines, two axes and a crosshair, which is
- * this file. It also means the chart inherits the token palette exactly rather
+ * is actually needed here is four lines, two axes, a crosshair and a zoom,
+ * which is this file and its plot (`WinratePlot.tsx`: the animation, the zoom,
+ * the decimated paths; `graphGeometry.ts`: their arithmetic). It also means the chart inherits the token palette exactly rather
  * than being themed twice, once in CSS and once in a library's config object.
  *
  * ## The three series
@@ -29,6 +30,13 @@
  * counterfactual rather than money that moved, and it is drawn only once some
  * hand in the sample has actually been evaluated.
  *
+ * ## Every hand whose money moved
+ *
+ * Bomb pots included: both surfaces ask for the graph with them
+ * (`ReportFilter::bomb_pots`, the web's `includeBombPots`), so a +120 bb
+ * bomb pot is on the curve as it is in the session's result. The statistics
+ * (VPIP, bb/100...) leave them out, as `aggregate` always has.
+ *
  * ## The x-axis is hands, not time
  *
  * Bucketed server-side with `ntile()` over the hand ordering. A player who took
@@ -38,10 +46,10 @@
  * hands". The dates are in the tooltip, where they belong.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useUiStrings } from "../i18n";
-import { niceStep, ticks } from "./chartScale";
 import { countIn, dateFormat, numberFormat } from "./format";
+import { WinratePlot, type PlotSeries, type SeriesKey } from "./WinratePlot";
 import "./winrate-graph.css";
 
 /**
@@ -106,23 +114,9 @@ interface WinrateGraphProps {
   money?: WinrateGraphMoney | null;
 }
 
-const PAD = { top: 18, right: 22, bottom: 30, left: 56 };
-const HEIGHT = 300;
-
-type SeriesKey = "total" | "showdown" | "nonShowdown" | "allInEv";
-
-interface Series {
-  key: SeriesKey;
+interface Series extends PlotSeries {
   label: string;
   hint: string;
-  /** Cumulative big blinds, one entry per point (including the origin). */
-  values: number[];
-}
-
-interface Point {
-  /** Cumulative hands. */
-  x: number;
-  bucket: WinrateGraphBucket | null;
 }
 
 export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphProps) {
@@ -137,46 +131,22 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
   /** A figure as the table prints it, and as the legend and tooltip do. */
   const plain = (value: number) => (inMoney ? inMoney.format(value) : bb.format(value));
   const labelled = (value: number) => (inMoney ? inMoney.format(value) : t.bb(bb.format(value)));
-  const wrapRef = useRef<HTMLDivElement | null>(null);
-  const [width, setWidth] = useState(860);
-  const [hover, setHover] = useState<number | null>(null);
-
-  /**
-   * The viewBox is measured in CSS pixels rather than fixed with
-   * `preserveAspectRatio`, so one SVG unit is one device-independent pixel at
-   * every width. A fixed viewBox scaled to fit would shrink the axis labels
-   * along with everything else, and a 12px tick becomes 5px on a phone.
-   */
-  useEffect(() => {
-    const element = wrapRef.current;
-    if (!element) {
-      return;
-    }
-    const observer = new ResizeObserver((entries) => {
-      const next = entries[0]?.contentRect.width;
-      if (next && next > 0) {
-        setWidth(Math.max(320, Math.round(next)));
-      }
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+  const [tableOpen, setTableOpen] = useState(false);
 
   const model = useMemo(() => {
     // The origin is prepended rather than returned by the server: every series
     // is cumulative and therefore starts at zero by definition, and a curve
     // that begins at its first bucket's total hides the first bucket's result.
-    const points: Point[] = [{ x: 0, bucket: null }];
-    for (const bucket of graph.buckets) {
-      points.push({ x: bucket.cumHands, bucket });
-    }
+    const xs = Float64Array.from([0, ...graph.buckets.map((bucket) => bucket.cumHands)]);
 
     // Big blinds from thousandths, money from minor units.
     type Pick = (b: WinrateGraphBucket) => number | null | undefined;
     const line = (bbMilli: (b: WinrateGraphBucket) => number, net: Pick) =>
-      inMoney
-        ? [0, ...graph.buckets.map((b) => (net(b) ?? 0) / inMoney.minorUnits)]
-        : [0, ...graph.buckets.map((b) => bbMilli(b) / 1000)];
+      Float64Array.from(
+        inMoney
+          ? [0, ...graph.buckets.map((b) => (net(b) ?? 0) / inMoney.minorUnits)]
+          : [0, ...graph.buckets.map((b) => bbMilli(b) / 1000)],
+      );
     const series: Series[] = [
       {
         key: "total",
@@ -202,177 +172,29 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
         values: line((b) => b.cumEvBbMilli, (b) => b.cumEvNet),
       });
     }
-
-    const all = series.flatMap((s) => s.values);
-    const rawMin = Math.min(0, ...all);
-    const rawMax = Math.max(0, ...all);
-    // A dead-flat sample would otherwise divide by zero; give it a unit range.
-    const span = rawMax - rawMin || 2;
-    const step = niceStep(span, 5);
-    const min = Math.floor(rawMin / step) * step;
-    const max = Math.ceil(rawMax / step) * step;
-
-    return { points, series, min, max: max === min ? min + step : max, step };
+    return { xs, series };
   }, [graph.buckets, graph.allInEv, t, inMoney]);
 
-  const innerW = Math.max(1, width - PAD.left - PAD.right);
-  const innerH = HEIGHT - PAD.top - PAD.bottom;
-  const maxHands = model.points[model.points.length - 1]?.x || 1;
+  const tickFormat = useMemo(() => {
+    const whole = numberFormat(locale, { maximumFractionDigits: 0 });
+    const fine = numberFormat(locale, { maximumFractionDigits: 2 });
+    return (value: number, step: number) => (Number.isInteger(step) ? whole : fine).format(Math.abs(value) < 1e-9 ? 0 : value);
+  }, [locale]);
 
-  const xAt = useCallback(
-    (hands: number) => PAD.left + (hands / maxHands) * innerW,
-    [innerW, maxHands],
-  );
-  const yAt = useCallback(
-    (bb: number) => PAD.top + innerH - ((bb - model.min) / (model.max - model.min)) * innerH,
-    [innerH, model.min, model.max],
-  );
-
-  const onPointer = useCallback(
-    (event: React.PointerEvent<SVGRectElement>) => {
-      const box = event.currentTarget.getBoundingClientRect();
-      const ratio = (event.clientX - box.left) / Math.max(1, box.width);
-      const hands = ratio * maxHands;
-      let best = 0;
-      let bestGap = Infinity;
-      model.points.forEach((point, index) => {
-        const gap = Math.abs(point.x - hands);
-        if (gap < bestGap) {
-          bestGap = gap;
-          best = index;
-        }
-      });
-      setHover(best);
-    },
-    [maxHands, model.points],
-  );
-
-  if (graph.mixedUnitKind) {
-    return (
-      <p className="notice notice--warn">{t.mixedUnitKind}</p>
-    );
-  }
-
-  if (graph.buckets.length < 2) {
-    return (
-      <p className="notice notice--info">{t.notEnough}</p>
-    );
-  }
-
-  const yTicks = ticks(model.min, model.max, model.step);
-  const xStep = niceStep(maxHands, 5);
-  const xTicks = ticks(0, maxHands, xStep).filter((value) => value <= maxHands);
-  const active = hover !== null ? model.points[hover] : null;
-  const activeBucket = active?.bucket ?? null;
-
-  return (
-    <div className="stats-chart" ref={wrapRef}>
-      <svg
-        className="stats-chart__svg"
-        width={width}
-        height={HEIGHT}
-        viewBox={`0 0 ${width} ${HEIGHT}`}
-        role="img"
-        aria-label={t.ariaLabel(graph.hands)}
-      >
-        {/* Gridlines: hairline, solid, one step off the surface. They exist to
-            be read past, so they never get a dash or a second weight. */}
-        {yTicks.map((value) => (
-          <g key={`y${value}`}>
-            <line
-              className={value === 0 ? "stats-chart__zero" : "stats-chart__grid"}
-              x1={PAD.left}
-              x2={width - PAD.right}
-              y1={yAt(value)}
-              y2={yAt(value)}
-            />
-            <text className="stats-chart__tick stats-chart__tick--y" x={PAD.left - 8} y={yAt(value) + 4}>
-              {count(Math.round(value))}
-            </text>
-          </g>
-        ))}
-
-        {xTicks.map((value) => (
-          <text
-            key={`x${value}`}
-            className="stats-chart__tick stats-chart__tick--x"
-            x={xAt(value)}
-            y={HEIGHT - 10}
-          >
-            {count(Math.round(value))}
-          </text>
-        ))}
-
-        {model.series.map((s) => (
-          <polyline
-            key={s.key}
-            className={`stats-chart__line stats-chart__line--${s.key}`}
-            points={s.values.map((value, index) => `${xAt(model.points[index].x)},${yAt(value)}`).join(" ")}
-          />
-        ))}
-
-        {/* Endpoint markers. A ring in the surface colour keeps them legible
-            where two series finish on top of each other. */}
-        {model.series.map((s) => (
-          <circle
-            key={`${s.key}-end`}
-            className={`stats-chart__dot stats-chart__dot--${s.key}`}
-            cx={xAt(maxHands)}
-            cy={yAt(s.values[s.values.length - 1])}
-            r={4}
-          />
-        ))}
-
-        {active ? (
-          <g>
-            <line
-              className="stats-chart__crosshair"
-              x1={xAt(active.x)}
-              x2={xAt(active.x)}
-              y1={PAD.top}
-              y2={PAD.top + innerH}
-            />
-            {model.series.map((s) => (
-              <circle
-                key={`${s.key}-hover`}
-                className={`stats-chart__dot stats-chart__dot--${s.key}`}
-                cx={xAt(active.x)}
-                cy={yAt(s.values[hover ?? 0])}
-                r={4}
-              />
-            ))}
-          </g>
-        ) : null}
-
-        <rect
-          className="stats-chart__hit"
-          x={PAD.left}
-          y={PAD.top}
-          width={innerW}
-          height={innerH}
-          onPointerMove={onPointer}
-          onPointerLeave={() => setHover(null)}
-        />
-      </svg>
-
-      <p className="stats-chart__axis-label">{t.axisLabel}</p>
-
-      {activeBucket ? (
-        <div
-          className="stats-chart__tooltip"
-          style={{
-            // Flip to the left of the crosshair once it is past the middle, so
-            // the panel never runs off the right-hand edge.
-            left: `${xAt(activeBucket.cumHands)}px`,
-            transform:
-              xAt(activeBucket.cumHands) > width / 2 ? "translate(-100%, 0)" : "translate(8px, 0)",
-          }}
-        >
-          <strong>{t.hands(activeBucket.cumHands)}</strong>
+  const tooltip = useCallback(
+    (index: number) => {
+      const bucket = graph.buckets[index - 1];
+      if (!bucket) {
+        return null;
+      }
+      const at = (key: SeriesKey) => model.series.find((s) => s.key === key)?.values[index] ?? 0;
+      return (
+        <>
+          <strong>{t.hands(bucket.cumHands)}</strong>
           <span className="muted">
-            {activeBucket.firstPlayedAt
-              ? `${date.format(new Date(activeBucket.firstPlayedAt))} – ${
-                  activeBucket.lastPlayedAt ? date.format(new Date(activeBucket.lastPlayedAt)) : "?"
+            {bucket.firstPlayedAt
+              ? `${date.format(new Date(bucket.firstPlayedAt))} – ${
+                  bucket.lastPlayedAt ? date.format(new Date(bucket.lastPlayedAt)) : "?"
                 }`
               : t.noDates}
           </span>
@@ -382,12 +204,39 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
                 <dt>
                   <span className={`stats-key stats-key--${s.key}`} /> {s.label}
                 </dt>
-                <dd>{labelled(s.values[hover ?? 0])}</dd>
+                <dd>{labelled(at(s.key))}</dd>
               </div>
             ))}
           </dl>
-        </div>
-      ) : null}
+        </>
+      );
+    },
+    // `labelled` and `date` are rebuilt each render from `locale`, `t` and `inMoney`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [graph.buckets, model, t, locale, inMoney],
+  );
+
+  if (graph.mixedUnitKind) {
+    return <p className="notice notice--warn">{t.mixedUnitKind}</p>;
+  }
+
+  if (graph.buckets.length < 2) {
+    return <p className="notice notice--info">{t.notEnough}</p>;
+  }
+
+  const end = (s: Series) => s.values[s.values.length - 1];
+
+  return (
+    <div className="stats-chart">
+      <WinratePlot
+        xs={model.xs}
+        series={model.series}
+        ariaLabel={t.ariaLabel(graph.hands)}
+        strings={t}
+        formatHands={count}
+        formatTick={tickFormat}
+        tooltip={tooltip}
+      />
 
       {/* The legend is always present: colour alone is never the identity
           channel. It carries the end value of each series too, which is what
@@ -398,7 +247,7 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
           <li key={s.key}>
             <span className={`stats-key stats-key--${s.key}`} />
             <span className="stats-legend__label">{s.label}</span>
-            <span className="stats-legend__value">{labelled(s.values[s.values.length - 1])}</span>
+            <span className="stats-legend__value">{labelled(end(s))}</span>
             <span className="stats-legend__hint">{s.hint}</span>
           </li>
         ))}
@@ -412,38 +261,39 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
         )}
       </ul>
 
-      {graph.mixedCurrency ? (
-        <p className="notice notice--info">{t.mixedCurrency}</p>
-      ) : null}
+      {graph.mixedCurrency ? <p className="notice notice--info">{t.mixedCurrency}</p> : null}
 
       {/* A table view exists for every chart. It is also the only readout that
-          survives a screen reader, a print-out and forced-colors mode. */}
-      <details className="stats-chart__table">
+          survives a screen reader, a print-out and forced-colors mode. Its
+          rows (a thousand on a big sample) are built once it is opened. */}
+      <details className="stats-chart__table" onToggle={(event) => setTableOpen(event.currentTarget.open)}>
         <summary>{t.showNumbers}</summary>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">{t.handsHead}</th>
-              <th scope="col">{t.series.total.label}</th>
-              <th scope="col">{t.series.showdown.label}</th>
-              <th scope="col">{t.series.nonShowdown.label}</th>
-              <th scope="col">{t.from}</th>
-              <th scope="col">{t.to}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {graph.buckets.map((bucket, index) => (
-              <tr key={bucket.bucket}>
-                <td>{count(bucket.cumHands)}</td>
-                <td>{plain(model.series[0].values[index + 1])}</td>
-                <td>{plain(model.series[1].values[index + 1])}</td>
-                <td>{plain(model.series[2].values[index + 1])}</td>
-                <td>{bucket.firstPlayedAt ? date.format(new Date(bucket.firstPlayedAt)) : "—"}</td>
-                <td>{bucket.lastPlayedAt ? date.format(new Date(bucket.lastPlayedAt)) : "—"}</td>
+        {tableOpen ? (
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">{t.handsHead}</th>
+                <th scope="col">{t.series.total.label}</th>
+                <th scope="col">{t.series.showdown.label}</th>
+                <th scope="col">{t.series.nonShowdown.label}</th>
+                <th scope="col">{t.from}</th>
+                <th scope="col">{t.to}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {graph.buckets.map((bucket, index) => (
+                <tr key={bucket.bucket}>
+                  <td>{count(bucket.cumHands)}</td>
+                  <td>{plain(model.series[0].values[index + 1])}</td>
+                  <td>{plain(model.series[1].values[index + 1])}</td>
+                  <td>{plain(model.series[2].values[index + 1])}</td>
+                  <td>{bucket.firstPlayedAt ? date.format(new Date(bucket.firstPlayedAt)) : "—"}</td>
+                  <td>{bucket.lastPlayedAt ? date.format(new Date(bucket.lastPlayedAt)) : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
       </details>
     </div>
   );
