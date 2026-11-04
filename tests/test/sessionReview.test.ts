@@ -506,6 +506,24 @@ describe("the view", () => {
       expect(html).not.toContain(r.notFinished);
     });
 
+    it(`${locale}: the table layout - the Hands screen's columns, one row a hand, fewer words`, () => {
+      const html = view(locale, review, { layout: "table" });
+      for (const head of [r.table.time, r.table.cards, r.table.board, r.table.decision, r.table.grade, r.table.evLoss, r.table.result]) {
+        expect(html).toContain(head);
+      }
+      // The same four hands, each row a link of its own.
+      const links = [...html.matchAll(/href="\/h\/(h\d+)\?t=a(\d*)&at=([^"]+)"/g)].map((m) => `${m[1]}@${m[2]}`);
+      expect(links).toEqual(["h13@15", "h11@4", "h12@9", "h14@"]);
+      expect(html).toContain(r.grades.blunder);
+      // The lists' descriptions are the headings' titles, not lines; no badges, no "more above", the gap a title.
+      expect(html).toContain(`title="${r.lists.worst.description}"`);
+      expect(html).not.toContain(`>${r.lists.worst.description}<`);
+      expect(html).not.toContain(r.badges.pots(4));
+      expect(html).not.toContain(r.lists.more(2));
+      expect(html).toContain(`title="${r.picker.gap(30)}"`);
+      expect(html).toContain(r.picker.latest);
+    });
+
     it(`${locale}: what is not analysed yet, the surface's action beside it`, () => {
       const partial = reviewFromPayload(
         { ...PAYLOAD, analysis: { hands: 4, analysed: 0, graded: 0, notAnalysed: 0 }, worst: [], deviations: [] },

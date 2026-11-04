@@ -981,7 +981,7 @@ export const hr: Dict = {
       label: "Analiza",
       starting: "Analiza počinje malo nakon što se Rail otvori.",
       running: (done: number, total: number) => `Analiziram tvoje ruke: gotovo ${n(done)} od ${ruku(total)}.`,
-      idle: (total: number) => `Sve ruke su analizirane (${ruku(total)}).`,
+      idle: (total: number) => `Analizirano: ${ruku(total)}.`,
       empty: "Još nema ruku za analizu.",
       waiting: {
         paused: "Analiza je pauzirana.",
@@ -993,7 +993,10 @@ export const hr: Dict = {
       },
       offline:
         "Flop biblioteka nije dostupna: flopovi se zasad ocjenjuju bez nje, a te se ruke ponovno analiziraju kad bude dostupna.",
-      pace: (perSecond: string) => `${perSecond} ruku u sekundi`,
+      left: (left: number, total: number) => `još ${n(left)} od ${odRuku(total)}`,
+      eta: (minutes: number) =>
+        minutes < 1 ? "manje od minute" : minutes < 60 ? `oko ${minutes} min` : `oko ${Math.floor(minutes / 60)} h ${minutes % 60} min`,
+      progress: "Napredak analize",
       notAnalysable: (count: number) => `${cap(ruku(count))} se ne može analizirati (druga igra ili nema heroja).`,
       error: (message: string) => `Zadnja stranica nije dovršena: ${message}`,
       pause: "Pauziraj",
@@ -1001,6 +1004,31 @@ export const hr: Dict = {
     },
     session: {
       notAnalysed: "Analizira se u pozadini",
+    },
+    leaks: {
+      per100: "bb / 100",
+      range: (low, high) => `95%: ${low}–${high}`,
+      mistakes: "Greške",
+      mistakesValue: (made, spot, rate) => `${made} od ${spot} (${rate})`,
+      total: "Ukupno izgubljeno",
+      confidence: "Pouzdanost",
+      confidenceLevels: { low: "Niska", medium: "Srednja", high: "Visoka" },
+      trend: "Zadnjih 30 dana",
+      you: "Ti",
+      target: "Cilj",
+      sample: (graded, hands) => `${graded} ocijenjenih odluka · ${hands} ruku`,
+      examples: "Primjeri ruku",
+      columns: {
+        date: "Datum",
+        stakes: "Ulozi",
+        position: "Poz",
+        cards: "Karte",
+        decision: "Odluka",
+        grade: "Ocjena",
+        evLoss: "Izgubljeni EV",
+      },
+      took: (taken, best) => `${taken} · najbolje ${best}`,
+      bb: (value) => `${value} bb`,
     },
     hand: {
       title: "Analiza ruke",

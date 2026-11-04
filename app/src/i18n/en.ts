@@ -994,7 +994,7 @@ export const en = {
       label: "The analysis",
       starting: "The analysis starts shortly after Rail opens.",
       running: (done: number, total: number) => `Analysing your hands: ${n(done)} of ${hands(total)} done.`,
-      idle: (total: number) => `Every hand is analysed (${hands(total)}).`,
+      idle: (total: number) => `All ${hands(total)} analysed.`,
       empty: "No hands to analyse yet.",
       waiting: {
         paused: "The analysis is paused.",
@@ -1005,7 +1005,12 @@ export const en = {
         plan: "The analysis is part of Rail Pro.",
       },
       offline: "The flop library cannot be reached: flops are graded without it for now, and those hands are analysed again once it answers.",
-      pace: (perSecond: string) => `${perSecond} hands a second`,
+      /** The progress bar's count: what is left of the hands to analyse. */
+      left: (left: number, total: number) => `${n(left)} of ${n(total)} hands left`,
+      /** The time the rest should take at the current pace. */
+      eta: (minutes: number) =>
+        minutes < 1 ? "under a minute" : minutes < 60 ? `about ${minutes} min` : `about ${Math.floor(minutes / 60)} h ${minutes % 60} min`,
+      progress: "Analysis progress",
       notAnalysable: (count: number) => `${hands(count)} cannot be analysed (another game, or no hero).`,
       error: (message: string) => `The last page did not finish: ${message}`,
       pause: "Pause",
@@ -1013,6 +1018,32 @@ export const en = {
     },
     session: {
       notAnalysed: "Analysed in the background",
+    },
+    /** The Top leaks tab's own labels (the leak words themselves are the web's). */
+    leaks: {
+      per100: "bb / 100",
+      range: (low: string, high: string) => `95%: ${low}–${high}`,
+      mistakes: "Mistakes",
+      mistakesValue: (made: string, spot: string, rate: string) => `${made} of ${spot} (${rate})`,
+      total: "Lost in all",
+      confidence: "Confidence",
+      confidenceLevels: { low: "Low", medium: "Medium", high: "High" } as Record<string, string>,
+      trend: "Last 30 days",
+      you: "You",
+      target: "Target",
+      sample: (graded: string, hands: string) => `${graded} graded decisions · ${hands} hands`,
+      examples: "Example hands",
+      columns: {
+        date: "Date",
+        stakes: "Stakes",
+        position: "Pos",
+        cards: "Cards",
+        decision: "Decision",
+        grade: "Grade",
+        evLoss: "EV lost",
+      },
+      took: (taken: string, best: string) => `${taken} · best ${best}`,
+      bb: (value: string) => `${value} bb`,
     },
     hand: {
       title: "Hand analysis",

@@ -101,6 +101,123 @@
   flex-basis: 100%;
 }
 
+/* The table layout's picker (the desktop app): previous, the sessions as a
+   select drawn as a button with its own chevron, next - one row. */
+.compactPicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.stepButton {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stepButton:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.stepButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  max-width: 30rem;
+  flex: 0 1 auto;
+}
+
+.select {
+  min-width: 0;
+  max-width: 100%;
+  block-size: 2.25rem;
+  padding: 0 2.25rem 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.chevron {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--space-3);
+  margin-block: auto;
+  inline-size: 0.45rem;
+  block-size: 0.45rem;
+  border-inline-end: 1.5px solid var(--text-secondary);
+  border-block-end: 1.5px solid var(--text-secondary);
+  transform: translateY(-25%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* The table layout's lists: a heading with its count, then the table. */
+.tableSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tableHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.tableHead .pickerField {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 1 auto;
+  margin-inline-start: auto;
+}
+
+.count {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.6;
+}
+
 /* ------------------------------------------------------------- summary */
 
 .summary {

@@ -105,6 +105,22 @@ export const reviewUiHr: typeof reviewUiEn = {
     noCards: "Karte nepoznate",
   },
 
+  table: {
+    time: "Vrijeme",
+    stakes: "Ulozi",
+    position: "Poz",
+    cards: "Karte",
+    board: "Board",
+    decision: "Odluka",
+    grade: "Ocjena",
+    evLoss: "Izgubljeni EV",
+    pot: "Pot",
+    result: "Rezultat",
+    best: (action) => `najbolje ${action}`,
+    preflop: "Preflop",
+    replayer: (cards, when) => `Otvori ruku ${cards} od ${when} u replayeru`,
+  },
+
   grades: {
     perfect: "Savršeno",
     good: "Dobro",
