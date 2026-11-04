@@ -1,5 +1,12 @@
+import type { Entitlements } from "./db/entitlements";
+
 /**
- * Where the desktop app's installers are (`/download`).
+ * Where the desktop app's installers are (`/download`), and who may have them.
+ *
+ * The desktop app is part of Rail Pro: the page's buttons go to the web's own
+ * `/download/<platform>` (`app/download/[platform]/route.ts`), which checks the
+ * account's plan on the server before it redirects to the installer. The
+ * installer's address below never reaches a page.
  *
  * GitHub Releases of this repository: the release workflow
  * (`.github/workflows/release.yml`) publishes every version with the same two
@@ -19,8 +26,37 @@ export const APP_ASSETS = {
 
 export type AppPlatform = keyof typeof APP_ASSETS;
 
+export function isAppPlatform(value: string): value is AppPlatform {
+  return Object.hasOwn(APP_ASSETS, value);
+}
+
+/** The installer itself. Server side only: the route redirects here once the plan allows it. */
 export function appDownloadUrl(platform: AppPlatform): string {
   return `${APP_RELEASES_URL}/latest/download/${APP_ASSETS[platform]}`;
+}
+
+/** What the page's buttons link to: the web's gate in front of the installer. */
+export function appDownloadPath(platform: AppPlatform): string {
+  return `/download/${platform}`;
+}
+
+/**
+ * May this visitor download the desktop app?
+ *
+ *   * `allowed` - signed in, and the plan includes the desktop app (the
+ *     `hud` feature, which only Pro has). While enforcement is off every
+ *     account's plan is Pro, so every signed-in account is allowed.
+ *   * `signin`  - signed out: there is no plan to check.
+ *   * `pro`     - signed in on a plan without it (Free, enforcement on).
+ *   * `unknown` - signed in, but the plan could not be read. Not a download:
+ *     the gate fails closed.
+ */
+export type DownloadAccess = "allowed" | "signin" | "pro" | "unknown";
+
+export function downloadAccess(signedIn: boolean, entitlements: Pick<Entitlements, "features"> | null): DownloadAccess {
+  if (!signedIn) return "signin";
+  if (!entitlements) return "unknown";
+  return entitlements.features.hud ? "allowed" : "pro";
 }
 
 /**

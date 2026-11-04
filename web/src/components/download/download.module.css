@@ -128,10 +128,29 @@
   color: var(--fg-muted);
 }
 
-.releases {
-  align-self: start;
-  color: var(--accent);
+/* In place of the installers until the plan allows them: sign in, upgrade or retry. */
+.gate {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.gateNote {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--fg-muted);
   font-size: var(--font-size-md);
+  /* The "checking" line holds the buttons' height, so the page does not jump. */
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gate .gateNote {
+  min-height: 0;
 }
 
 @media (max-width: 559px) {
