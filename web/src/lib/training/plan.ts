@@ -46,7 +46,9 @@ import {
   NINE_MAX_TABLE,
   NONE,
   confidenceOf,
+  drillsOn,
   groupLeaks,
+  handsTable,
   leakConcepts,
   legacySituationKey,
   periodWindows,
@@ -57,6 +59,7 @@ import {
   trendOf,
   type Confidence,
   type Leak,
+  type SpotDrills,
   type SpotRow,
   type Trend,
 } from "../analysis/leaks";
@@ -706,8 +709,8 @@ export interface TaskInput {
   areas: readonly FocusArea[];
   /** Per area id: the hands behind it, most EV lost first (`analysis_leak_hands`). */
   hands: Readonly<Record<string, readonly string[]>>;
-  /** Per finest spot key: drills and drills due (`drill_due_by_spot`). */
-  drills: ReadonlyMap<string, { items: number; due: number }>;
+  /** Per finest spot key: drills and drills due, and per table (`drill_due_by_spot`). */
+  drills: ReadonlyMap<string, SpotDrills>;
   previous?: PreviousPlan | null;
   /**
    * The lesson that teaches an area (Learn L1, `lib/learn/recommend.ts`'s
@@ -771,8 +774,8 @@ export function planTasks(input: TaskInput): PlanTask[] {
         match: trainerMatch(area.trainer),
       });
     }
-    let due = 0;
-    for (const key of area.keys) due += input.drills.get(key)?.due ?? 0;
+    // On the area's own table (a spot key names none): a heads-up area's drills, not the 6-max blinds'.
+    const due = drillsOn(input.drills, area.keys, handsTable(area.where, area.level)).due;
     if (due > 0) {
       add({ kind: "drill", ref: area.id, target: Math.min(due, MAX_DRILL_TARGET), focus, spotKeys: area.keys });
     }

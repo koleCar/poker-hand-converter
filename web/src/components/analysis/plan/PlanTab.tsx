@@ -30,7 +30,7 @@ import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ANALYSIS_VERSION } from "../../../lib/analysis";
-import { comparePeriods, leakKind } from "../../../lib/analysis/leaks";
+import { comparePeriods, drillsOn, handsTable, leakKind, type SpotDrills } from "../../../lib/analysis/leaks";
 import { DATABASE_NOT_CONFIGURED_MESSAGE, isDatabaseConfigured, isMissingSchemaError } from "../../../lib/db";
 import { fetchLeaks, type LeaksReport } from "../../../lib/db/analysisLeaks";
 import { fetchStudyPlan, setStudyTask, type StoredPlan, type StoredTask } from "../../../lib/db/studyPlan";
@@ -288,7 +288,7 @@ function PlanBody({
   const t = useDict().analysis.plan;
   const [pending, setPending] = useState<{ key: string; ticks: Pending }>({ key: refreshKey, ticks: {} });
   const [tickError, setTickError] = useState<string | null>(null);
-  const [drills, setDrills] = useState<Map<string, { items: number; due: number }> | null>(null);
+  const [drills, setDrills] = useState<Map<string, SpotDrills> | null>(null);
   const ticks = useMemo<Pending>(() => (pending.key === refreshKey ? pending.ticks : {}), [pending, refreshKey]);
 
   // Drills due now, per spot: the live count beside each drill task.
@@ -420,7 +420,7 @@ function Fundamentals({
 }: {
   plan: StoredPlan;
   tasks: StoredTask[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   const t = useDict().analysis.plan;
@@ -459,7 +459,7 @@ function AreaItem({
   index: number;
   areas: readonly FocusArea[];
   tasks: StoredTask[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   const en = useDict();
@@ -511,7 +511,7 @@ function TaskList({
 }: {
   tasks: StoredTask[];
   areas: readonly FocusArea[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   return (
@@ -531,7 +531,7 @@ function TaskRow({
 }: {
   task: StoredTask;
   areas: readonly FocusArea[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   const en = useDict();
@@ -559,12 +559,14 @@ function TaskRow({
       break;
     }
     case "drill": {
-      href = paths.analysisTrain(dueDrillQuery(task.spotKeys));
+      // An area's drills on its own table (a spot key names none), as the plan counted them.
+      const table = area && task.spotKeys ? handsTable(area.where, area.level) : null;
+      href = paths.analysisTrain(dueDrillQuery(task.spotKeys, table));
       action = t.tasks.drillLink;
       let due: number | null = null;
       if (drills) {
         due = 0;
-        if (task.spotKeys) for (const key of task.spotKeys) due += drills.get(key)?.due ?? 0;
+        if (task.spotKeys) due = drillsOn(drills, task.spotKeys, table).due;
         else for (const value of drills.values()) due += value.due;
       }
       detail = `${t.tasks.counted(task.counted, task.target)}${due === null ? "" : ` · ${t.tasks.dueNow(due)}`}`;

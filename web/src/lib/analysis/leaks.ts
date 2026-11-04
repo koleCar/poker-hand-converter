@@ -178,9 +178,46 @@ export const tableDropLevel = (street: string): number => (street === "preflop" 
  * `leakTable`): its tag, `"other"` (6-max, no set) where an untagged id still
  * names a table, null above the level the table is dropped at (every table).
  */
-export function handsTable(attrs: { street: string; table?: string }, level: number): LeakTable | "other" | null {
+export function handsTable(attrs: { street: string; table?: string }, level: number): HandsTable | null {
   if (level >= tableDropLevel(attrs.street)) return null;
   return attrs.table === NINE_MAX_TABLE || attrs.table === HEADS_UP_TABLE ? attrs.table : "other";
+}
+
+/** A table filter: a leak table tag, or `"other"` (6-max, no set). */
+export type HandsTable = LeakTable | "other";
+
+/** Drills on one finest spot key (`drill_due_by_spot`): every table's, and per table. */
+export interface SpotDrills {
+  items: number;
+  due: number;
+  /**
+   * The same per table (`20271104120000_drills_by_table.sql`): a spot key
+   * names no table, so a heads-up area's keys also hold the 6-max blinds'
+   * drills. Absent from an older database's answer.
+   */
+  tables?: Partial<Record<HandsTable, { items: number; due: number }>>;
+}
+
+/**
+ * A leak's or area's drills, summed over its keys on its table (`handsTable`;
+ * null: every table). A row with no per-table split (an older database) counts
+ * whole, as before.
+ */
+export function drillsOn(
+  drills: ReadonlyMap<string, SpotDrills>,
+  keys: readonly string[],
+  table: HandsTable | null,
+): { items: number; due: number } {
+  let items = 0;
+  let due = 0;
+  for (const key of keys) {
+    const row = drills.get(key);
+    if (!row) continue;
+    const part = table && row.tables ? (row.tables[table] ?? { items: 0, due: 0 }) : row;
+    items += part.items;
+    due += part.due;
+  }
+  return { items, due };
 }
 
 /**

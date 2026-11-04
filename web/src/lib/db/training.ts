@@ -9,8 +9,9 @@
 
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import { ANALYSIS_VERSION } from "../analysis";
+import type { HandsTable, SpotDrills } from "../analysis/leaks";
 import type { Grade } from "../analysis/types";
-import { currentUserId, rpc } from "./client";
+import { currentUserId, isMissingSchemaError, rpc } from "./client";
 
 type Row = Record<string, unknown>;
 
@@ -67,6 +68,13 @@ export interface DrillItem {
 export interface DrillQuery {
   /** Finest spot keys (a leak's `keys`); all drills when absent. */
   keys?: string[] | null;
+  /**
+   * Only the drills on this table (`handsTable`: a leak's or area's tag,
+   * `"other"` for 6-max and no set; `drill_queue_on_table`,
+   * `20271104120000_drills_by_table.sql`). Absent or null: every table. An
+   * older database without the function deals every table's, as before.
+   */
+  table?: HandsTable | null;
   /** Only drills due now (default), or every drill in due order. */
   dueOnly?: boolean;
   limit?: number;
@@ -74,15 +82,28 @@ export interface DrillQuery {
   kind?: GameKind | null;
 }
 
+const DRILL_TABLES: readonly HandsTable[] = ["hu", "9max", "other"];
+
 export async function fetchDrillQueue(query: DrillQuery = {}): Promise<DrillItem[]> {
   if (!(await currentUserId())) return [];
-  const payload = await rpc<unknown>("drill_queue", {
+  const args = {
     p_version: ANALYSIS_VERSION,
     p_keys: query.keys && query.keys.length > 0 ? query.keys.slice(0, 500) : undefined,
     p_due_only: query.dueOnly ?? true,
     p_limit: query.limit ?? 20,
     p_kind: query.kind ?? undefined,
-  });
+  };
+  let payload: unknown;
+  if (query.table && DRILL_TABLES.includes(query.table)) {
+    try {
+      payload = await rpc<unknown>("drill_queue_on_table", { ...args, p_table: query.table });
+    } catch (error) {
+      if (!isMissingSchemaError(error)) throw error;
+      payload = await rpc<unknown>("drill_queue", args);
+    }
+  } else {
+    payload = await rpc<unknown>("drill_queue", args);
+  }
   return rows(payload).map((row) => ({
     id: String(row.id ?? ""),
     handId: String(row.handId ?? ""),
@@ -160,17 +181,43 @@ export async function fetchDrillSummary(kind?: GameKind | null): Promise<DrillSu
   };
 }
 
-/** Per finest leak spot: drills and drills due today (undrilled Mistakes count as due). */
-export async function fetchDrillsBySpot(kind?: GameKind | null): Promise<Map<string, { items: number; due: number }>> {
-  const out = new Map<string, { items: number; due: number }>();
-  if (!(await currentUserId())) return out;
-  const payload = await rpc<unknown>("drill_due_by_spot", {
-    p_version: ANALYSIS_VERSION,
-    p_until: endOfToday(),
-    p_kind: kind ?? undefined,
-  });
-  for (const row of rows(payload)) out.set(String(row.key ?? ""), { items: num(row.items), due: num(row.due) });
+/** `drill_due_by_spot`'s rows as a map; a row's `tables` only when the database sent them. */
+export function drillsBySpotFromPayload(payload: unknown): Map<string, SpotDrills> {
+  const out = new Map<string, SpotDrills>();
+  for (const row of rows(payload)) {
+    const spot: SpotDrills = { items: num(row.items), due: num(row.due) };
+    const tables = row.tables;
+    if (tables && typeof tables === "object" && !Array.isArray(tables)) {
+      const split: NonNullable<SpotDrills["tables"]> = {};
+      for (const table of DRILL_TABLES) {
+        const part = (tables as Row)[table];
+        if (part && typeof part === "object") split[table] = { items: num((part as Row).items), due: num((part as Row).due) };
+      }
+      spot.tables = split;
+    }
+    out.set(String(row.key ?? ""), spot);
+  }
   return out;
+}
+
+/**
+ * Per finest leak spot, optionally of one game kind: drills and drills due
+ * today (undrilled Mistakes count as due), and the same per table (`drill_due_by_spot_tables`,
+ * `20271104120000_drills_by_table.sql`; `drillsOn` sums a leak's on its
+ * table). An older database without it answers `drill_due_by_spot`'s, with
+ * no split.
+ */
+export async function fetchDrillsBySpot(kind?: GameKind | null): Promise<Map<string, SpotDrills>> {
+  if (!(await currentUserId())) return new Map();
+  const args = { p_version: ANALYSIS_VERSION, p_until: endOfToday(), p_kind: kind ?? undefined };
+  let payload: unknown;
+  try {
+    payload = await rpc<unknown>("drill_due_by_spot_tables", args);
+  } catch (error) {
+    if (!isMissingSchemaError(error)) throw error;
+    payload = await rpc<unknown>("drill_due_by_spot", args);
+  }
+  return drillsBySpotFromPayload(payload);
 }
 
 /* -------------------------------------------------------------- trainer - */

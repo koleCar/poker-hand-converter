@@ -4770,6 +4770,10 @@ export type Database = {
         Args: { p_kind?: string; p_until?: string; p_version: string }
         Returns: Json
       }
+      drill_due_by_spot_tables: {
+        Args: { p_kind?: string; p_until?: string; p_version: string }
+        Returns: Json
+      }
       drill_keys_valid: { Args: { p_keys: string[] }; Returns: boolean }
       drill_next: {
         Args: {
@@ -4794,6 +4798,17 @@ export type Database = {
           p_keys?: string[]
           p_kind?: string
           p_limit?: number
+          p_version: string
+        }
+        Returns: Json
+      }
+      drill_queue_on_table: {
+        Args: {
+          p_due_only?: boolean
+          p_keys?: string[]
+          p_kind?: string
+          p_limit?: number
+          p_table: string
           p_version: string
         }
         Returns: Json
