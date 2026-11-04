@@ -164,7 +164,7 @@ screens say the data is only available in the app. The command groups:
 | Folders | `discover_folders`, `add_folders`, `pick_folder`, `add_folder`, `set_folder_path`, `set_folder_room`, `set_folder_enabled`, `set_folder_recursive`, `set_folder_poll_only`, `remove_folder`, `folder_rooms`, `folder_quarantine` |
 | Refused hands | `quarantine_summary`, `quarantine_entries`, `quarantine_raw_text`, `retry_refused` |
 | Account | `account_status`, `account_sign_in`, `account_open_sign_in_page`, `account_cancel_sign_in`, `account_sign_out`, `account_open_web_page` |
-| Sync | `sync_status`, `sync_now`, `sync_set_paused`, `sync_set_cap`, `sync_answer_account`, `sync_retry_rejected` |
+| Sync | `sync_status`, `sync_now`, `sync_set_paused`, `sync_answer_account`, `sync_retry_rejected` |
 | Plan | `entitlements_status`, `entitlements_check_now`, `entitlements_open_upgrade` |
 | Statistics | `stats_status`, `stats_rebuild`, `stats_recompute_ev`, `stat_definitions`, `custom_stats_list`, `custom_stat_check`, `custom_stat_save`, `custom_stat_delete` |
 | Hands | `hands_page`, `hands_facets`, `hands_by_key`, `hands_find`, `hand_phf`, `hand_annotations`, `hand_set_note`, `hand_add_tag`, `hand_remove_tag`, `saved_filters`, `save_filter`, `delete_saved_filter` |

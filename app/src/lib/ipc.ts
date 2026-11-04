@@ -1127,8 +1127,6 @@ export const ipc = {
   syncStatus: () => invoke<SyncStatus | null>("sync_status"),
   syncNow: () => invoke<SyncStatus>("sync_now"),
   syncSetPaused: (paused: boolean) => invoke<SyncStatus>("sync_set_paused", { paused }),
-  /** Bytes a second while a large backlog syncs; `null`: no limit. */
-  syncSetCap: (cap: number | null) => invoke<SyncStatus>("sync_set_cap", { cap }),
   /** Upload this computer's hands to the account signed in now, or keep them apart. */
   syncAnswerAccount: (upload: boolean) => invoke<SyncStatus>("sync_answer_account", { upload }),
   syncRetryRejected: () => invoke<SyncStatus>("sync_retry_rejected"),

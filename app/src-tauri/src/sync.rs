@@ -250,15 +250,6 @@ pub fn sync_set_paused(state: State<'_, SyncState>, paused: bool) -> Result<Sync
     Ok(worker.status())
 }
 
-/// The upload cap while a large backlog syncs, bytes a second (`null`: no
-/// cap).
-#[tauri::command]
-pub fn sync_set_cap(state: State<'_, SyncState>, cap: Option<u64>) -> Result<SyncStatus, String> {
-    let worker = worker(&state)?;
-    worker.set_cap(cap).map_err(|error| error.to_string())?;
-    Ok(worker.status())
-}
-
 /// The answer to "upload this computer's hands to the account now signed
 /// in?", for the account signed in now.
 #[tauri::command]

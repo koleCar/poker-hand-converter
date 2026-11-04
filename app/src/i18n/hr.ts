@@ -354,13 +354,6 @@ export const hr: Dict = {
     syncNow: "Sinkroniziraj sada",
     pause: "Pauziraj sinkronizaciju",
     resume: "Nastavi sinkronizaciju",
-    capLabel: "Brzina slanja dok se sinkronizira velik zaostatak",
-    caps: {
-      slow: "256 KB/s",
-      normal: "1 MB/s (zadano)",
-      fast: "4 MB/s",
-      none: "Bez ograničenja",
-    },
     failedAction: (reason) => `Nije uspjelo: ${reason}`,
     planRequired: (waiting) =>
       waiting === 0
