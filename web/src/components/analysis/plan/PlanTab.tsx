@@ -25,16 +25,19 @@
 
 "use client";
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ANALYSIS_VERSION } from "../../../lib/analysis";
-import { comparePeriods, leakKind } from "../../../lib/analysis/leaks";
+import { comparePeriods, drillsOn, handsTable, leakKind, type SpotDrills } from "../../../lib/analysis/leaks";
 import { DATABASE_NOT_CONFIGURED_MESSAGE, isDatabaseConfigured, isMissingSchemaError } from "../../../lib/db";
 import { fetchLeaks, type LeaksReport } from "../../../lib/db/analysisLeaks";
 import { fetchStudyPlan, setStudyTask, type StoredPlan, type StoredTask } from "../../../lib/db/studyPlan";
 import { fetchDrillsBySpot } from "../../../lib/db/training";
 import { useAuth } from "../../../lib/auth";
+import { useAnalysisKind } from "../analysisKind";
+import { KindField } from "../KindField";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import {
@@ -89,6 +92,13 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
   const [rebuilding, setRebuilding] = useState(false);
   const builtFor = useRef<string | null>(null);
   const signedIn = isDatabaseConfigured && auth.isSignedIn;
+  // The plan is for one kind of game, never both (`analysisKind.ts`): the
+  // reader's switch, else the kind the stored plan was built for, else the
+  // visit's or the one with more hands. A plan for another kind (or one from
+  // before the kinds, over every format) is rebuilt for the kind shown.
+  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
+  const kinds = useAnalysisKind(askedKind ?? loaded?.current?.baseline.gameKind ?? null, signedIn, refreshToken);
+  const kind = kinds.kind;
 
   const requestKey = `${week}|${refreshToken}|${attempt}`;
   useEffect(() => {
@@ -117,26 +127,29 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
   // fundamentals plan made for want of graded hands is rebuilt the same way, so
   // the first analysis of a library turns it into a leaks plan without a wait
   // for Monday (when there is still too little, the rebuild changes nothing).
+  const otherKind = Boolean(loaded?.current && kind !== null && loaded.current.baseline.gameKind !== kind);
   const waiting =
     loaded?.current === null ||
+    otherKind ||
     (loaded?.current?.kind === "fundamentals" && loaded.current.baseline.reason !== "no-leaks");
-  const needsBuild = loaded?.status === "ready" && waiting && loaded.key === requestKey;
+  const needsBuild = loaded?.status === "ready" && waiting && loaded.key === requestKey && kind !== null;
   useEffect(() => {
-    if (!needsBuild || !loaded || builtFor.current === week) return;
-    builtFor.current = week;
-    buildPlan(week, loaded.previous)
+    if (!needsBuild || !loaded || kind === null || builtFor.current === `${week}|${kind}`) return;
+    builtFor.current = `${week}|${kind}`;
+    buildPlan(week, loaded.previous, kind)
       .then(() => setAttempt((value) => value + 1))
       .catch((error: unknown) => setBuildError(error instanceof Error ? error.message : String(error)));
-  }, [needsBuild, loaded, week]);
+  }, [needsBuild, loaded, week, kind]);
 
   const rebuild = useCallback(() => {
+    if (kind === null) return;
     setRebuilding(true);
     setBuildError(null);
-    buildPlan(week, loaded?.previous ?? null)
+    buildPlan(week, loaded?.previous ?? null, kind)
       .then(() => setAttempt((value) => value + 1))
       .catch((error: unknown) => setBuildError(error instanceof Error ? error.message : String(error)))
       .finally(() => setRebuilding(false));
-  }, [week, loaded]);
+  }, [week, loaded, kind]);
 
   const retry = useCallback(() => {
     builtFor.current = null;
@@ -181,12 +194,15 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
     );
   }
 
-  const plan = loaded?.current ?? null;
+  // A plan for the other kind is not shown while this kind's is built.
+  const plan = otherKind ? null : (loaded?.current ?? null);
+  const kindField = <KindField kinds={kinds} onChange={setAskedKind} />;
   if (!plan) {
     return (
       <div className="stats">
         <Header />
         <p className={styles.lede}>{t.intro}</p>
+        {kindField}
         {buildError ? (
           <>
             <p className="notice notice--error">{t.saveFailed(buildError)}</p>
@@ -205,6 +221,7 @@ export function PlanTab({ refreshToken = 0 }: { refreshToken?: number }) {
     <div className="stats">
       <Header />
       <p className={styles.lede}>{t.intro}</p>
+      {kindField}
       {buildError ? <p className="notice notice--error">{t.saveFailed(buildError)}</p> : null}
       <PlanBody
         plan={plan}
@@ -271,13 +288,13 @@ function PlanBody({
   const t = useDict().analysis.plan;
   const [pending, setPending] = useState<{ key: string; ticks: Pending }>({ key: refreshKey, ticks: {} });
   const [tickError, setTickError] = useState<string | null>(null);
-  const [drills, setDrills] = useState<Map<string, { items: number; due: number }> | null>(null);
+  const [drills, setDrills] = useState<Map<string, SpotDrills> | null>(null);
   const ticks = useMemo<Pending>(() => (pending.key === refreshKey ? pending.ticks : {}), [pending, refreshKey]);
 
   // Drills due now, per spot: the live count beside each drill task.
   useEffect(() => {
     let live = true;
-    fetchDrillsBySpot()
+    fetchDrillsBySpot(plan.baseline.gameKind)
       .then((map) => {
         if (live) setDrills(map);
       })
@@ -285,7 +302,7 @@ function PlanBody({
     return () => {
       live = false;
     };
-  }, [refreshKey]);
+  }, [refreshKey, plan.baseline.gameKind]);
 
   const tasks = useMemo(
     () =>
@@ -403,7 +420,7 @@ function Fundamentals({
 }: {
   plan: StoredPlan;
   tasks: StoredTask[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   const t = useDict().analysis.plan;
@@ -442,7 +459,7 @@ function AreaItem({
   index: number;
   areas: readonly FocusArea[];
   tasks: StoredTask[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   const en = useDict();
@@ -494,7 +511,7 @@ function TaskList({
 }: {
   tasks: StoredTask[];
   areas: readonly FocusArea[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   return (
@@ -514,7 +531,7 @@ function TaskRow({
 }: {
   task: StoredTask;
   areas: readonly FocusArea[];
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
   const en = useDict();
@@ -542,12 +559,14 @@ function TaskRow({
       break;
     }
     case "drill": {
-      href = paths.analysisTrain(dueDrillQuery(task.spotKeys));
+      // An area's drills on its own table (a spot key names none), as the plan counted them.
+      const table = area && task.spotKeys ? handsTable(area.where, area.level) : null;
+      href = paths.analysisTrain(dueDrillQuery(task.spotKeys, table));
       action = t.tasks.drillLink;
       let due: number | null = null;
       if (drills) {
         due = 0;
-        if (task.spotKeys) for (const key of task.spotKeys) due += drills.get(key)?.due ?? 0;
+        if (task.spotKeys) due = drillsOn(drills, task.spotKeys, table).due;
         else for (const value of drills.values()) due += value.due;
       }
       detail = `${t.tasks.counted(task.counted, task.target)}${due === null ? "" : ` · ${t.tasks.dueNow(due)}`}`;
@@ -604,17 +623,19 @@ function Retrospective({ plan, previous }: { plan: StoredPlan; previous: StoredP
   const [retro, setRetro] = useState<Retro | null>(null);
   const [error, setError] = useState<string | null>(null);
   const previousWeek = previous?.weekStart ?? null;
-  const key = `${plan.id}|${previousWeek ?? ""}`;
+  // The plan's kind of game only (never both kinds' leaks together).
+  const gameKind = plan.baseline.gameKind ?? undefined;
+  const key = `${plan.id}|${previousWeek ?? ""}|${gameKind ?? ""}`;
 
   useEffect(() => {
     let live = true;
     (async () => {
-      const all = await fetchLeaks({});
+      const all = await fetchLeaks({ gameKind });
       const windows = retroWindows(previousWeek, all?.last ?? null);
       if (!windows) return { key, windows: null, current: null, prior: null };
       const [current, prior] = await Promise.all([
-        fetchLeaks({ from: windows.current.from, to: windows.current.to }),
-        fetchLeaks({ from: windows.prior.from, to: windows.prior.to }),
+        fetchLeaks({ gameKind, from: windows.current.from, to: windows.current.to }),
+        fetchLeaks({ gameKind, from: windows.prior.from, to: windows.prior.to }),
       ]);
       return { key, windows, current, prior };
     })()
@@ -627,7 +648,7 @@ function Retrospective({ plan, previous }: { plan: StoredPlan; previous: StoredP
     return () => {
       live = false;
     };
-  }, [key, previousWeek]);
+  }, [key, previousWeek, gameKind]);
 
   // Last week's focus when there was a plan with one; otherwise this week's.
   const fromLastWeek = Boolean(previous && previous.kind === "leaks" && previous.focus.length > 0);

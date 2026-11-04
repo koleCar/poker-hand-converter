@@ -8,7 +8,20 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { EMPTY_FILTER } from "@rail/ui/hands/filter";
-import { hasBothKinds, kindCounts, kindOf, pinKind, withKind } from "@rail/ui/hands/gameKind";
+import {
+  defaultKind,
+  hasBothKinds,
+  isKindFormats,
+  isWholeKind,
+  kindCounts,
+  kindFormats,
+  kindOf,
+  pinFormats,
+  pinKind,
+  withFormats,
+  withKind,
+} from "@rail/ui/hands/gameKind";
+import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { KindToggle } from "@rail/ui/hands/KindToggle";
 import type { HandFacets } from "@rail/ui/hands/model";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
@@ -30,6 +43,30 @@ const facets = (formats: Record<string, number>): HandFacets => ({
   allIn: [],
   tags: [],
   noted: 0,
+});
+
+describe("the Game chip, kept to one kind", () => {
+  const both = facets({ cash: 10, tournament: 5, sng: 3 });
+  const chips = { ...EMPTY_FILTER, formats: ["tournament", "sng"] };
+
+  it("a format of the other kind replaces the choice; never both kinds", () => {
+    expect(withFormats(chips, ["tournament", "sng", "cash"], both).formats).toEqual(["cash"]);
+    expect(withFormats({ ...EMPTY_FILTER, formats: ["cash"] }, ["cash", "spin"], both).formats).toEqual(["spin"]);
+    expect(withFormats(chips, ["sng"], both).formats).toEqual(["sng"]);
+  });
+
+  it("Any is the whole of the kind shown", () => {
+    expect(withFormats({ ...EMPTY_FILTER, formats: ["sng"] }, [], both).formats).toEqual(["tournament", "sng"]);
+    expect(withFormats({ ...EMPTY_FILTER, formats: ["cash"] }, [], both).formats).toEqual(["cash"]);
+    expect(withFormats(EMPTY_FILTER, [], both).formats).toEqual([]);
+  });
+
+  it("knows the toggle's whole kind from a narrowed one", () => {
+    expect(isWholeKind(chips, both)).toBe(true);
+    expect(isWholeKind({ ...EMPTY_FILTER, formats: ["sng"] }, both)).toBe(false);
+    expect(isWholeKind({ ...EMPTY_FILTER, formats: ["cash"] }, both)).toBe(true);
+    expect(isWholeKind(EMPTY_FILTER, both)).toBe(false);
+  });
 });
 
 describe("game kind", () => {
@@ -106,5 +143,45 @@ describe("the Cash / Tournaments toggle, rendered", () => {
     expect(render("en", [], facets({ cash: 10 }))).toBe("");
     expect(render("en", [], null)).toBe("");
     expect(render("en", ["cash"], facets({ cash: 10 }))).toMatch(/disabled=""[^>]*>Tournaments</);
+  });
+});
+
+describe("a screen's own kind (Analysis, Top leaks, Session review, Live)", () => {
+  it("opens on the kind with more hands, cash on a tie", () => {
+    expect(defaultKind({ cash: 10, tournament: 20 })).toBe("tournament");
+    expect(defaultKind({ cash: 20, tournament: 10 })).toBe("cash");
+    expect(defaultKind({ cash: 0, tournament: 0 })).toBe("cash");
+  });
+
+  it("names a kind's whole formats, and knows them", () => {
+    expect(kindFormats("cash")).toEqual(["cash"]);
+    expect(kindFormats("tournament")).toEqual(["tournament", "sng", "spin"]);
+    expect(isKindFormats(["spin", "tournament", "sng"])).toBe(true);
+    expect(isKindFormats(["sng"])).toBe(false);
+    expect(isKindFormats(["cash", "sng"])).toBe(false);
+    expect(isKindFormats(undefined)).toBe(false);
+  });
+
+  it("holds formats to a kind: a narrower choice within it stays, anything else is the kind's whole", () => {
+    expect(pinFormats(["sng"], "tournament")).toEqual(["sng"]);
+    expect(pinFormats(["cash", "sng"], "tournament")).toEqual(["tournament", "sng", "spin"]);
+    expect(pinFormats(undefined, "cash")).toEqual(["cash"]);
+    expect(pinFormats([], "tournament")).toEqual(["tournament", "sng", "spin"]);
+  });
+
+  const render = (kind: "cash" | "tournament" | null, counts: Record<"cash" | "tournament", number> | null) =>
+    renderToStaticMarkup(
+      createElement(
+        UiStringsProvider,
+        { strings: { hands: handsUiEn } as unknown as UiStrings },
+        createElement(KindSwitch, { kind, counts, onChange: () => undefined }),
+      ),
+    );
+
+  it("renders the switch: the kind shown pressed, an empty kind greyed out, nothing pressed while deciding", () => {
+    expect(render("cash", { cash: 5, tournament: 0 })).toMatch(/aria-pressed="true"[^>]*>Cash</);
+    expect(render("cash", { cash: 5, tournament: 0 })).toMatch(/disabled=""[^>]*>Tournaments</);
+    expect(render(null, null)).not.toContain('aria-pressed="true"');
+    expect(render("tournament", null)).not.toContain("disabled");
   });
 });

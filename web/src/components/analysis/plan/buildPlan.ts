@@ -1,6 +1,6 @@
 /**
  * Builds and saves a week's study plan in the browser (phase A8b): the leak
- * finder's rows for the whole library at the current analysis version, the
+ * finder's rows for one kind of game at the current analysis version, the
  * plan's pure logic (`lib/training/plan.ts`), then the hands and drills the
  * chosen areas need, and one `save_study_plan`.
  *
@@ -9,8 +9,9 @@
  * kind and reference).
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { ANALYSIS_VERSION } from "../../../lib/analysis";
-import { handsTable } from "../../../lib/analysis/leaks";
+import { handsTable, type SpotDrills } from "../../../lib/analysis/leaks";
 import { fetchLeakHands, fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { saveStudyPlan, type StoredPlan } from "../../../lib/db/studyPlan";
 import { fetchDrillSummary, fetchDrillsBySpot } from "../../../lib/db/training";
@@ -55,8 +56,14 @@ async function passedLessons(): Promise<Set<LessonId>> {
   );
 }
 
-export async function buildPlan(week: string, previous: StoredPlan | null): Promise<void> {
-  const [report, passed] = await Promise.all([fetchLeaks({}), passedLessons()]);
+/**
+ * The week's plan for one kind of game (cash, or the tournaments): its leaks,
+ * hands and drills are that kind's only, never both kinds' together (the
+ * owner's rule, 2026-11-04). The kind is kept in the plan's baseline.
+ */
+export async function buildPlan(week: string, previous: StoredPlan | null, kind: GameKind): Promise<void> {
+  const scope = { gameKind: kind };
+  const [report, passed] = await Promise.all([fetchLeaks(scope), passedLessons()]);
   const rows = report?.rows ?? [];
   const hands = report?.hands ?? 0;
   const graded = report?.graded ?? 0;
@@ -67,10 +74,10 @@ export async function buildPlan(week: string, previous: StoredPlan | null): Prom
   let tasks: PlanTask[];
   if (focus.kind === "leaks") {
     const [drills, handPages] = await Promise.all([
-      fetchDrillsBySpot().catch(() => new Map<string, { items: number; due: number }>()),
+      fetchDrillsBySpot(kind).catch(() => new Map<string, SpotDrills>()),
       Promise.all(
         areas.map((area) =>
-          fetchLeakHands({}, { keys: area.keys, table: handsTable(area.where, area.level), deviations: true, sort: "ev_loss", limit: HANDS_PER_AREA }).catch(() => ({
+          fetchLeakHands(scope, { keys: area.keys, table: handsTable(area.where, area.level), deviations: true, sort: "ev_loss", limit: HANDS_PER_AREA }).catch(() => ({
             total: 0,
             rows: [],
           })),
@@ -105,7 +112,7 @@ export async function buildPlan(week: string, previous: StoredPlan | null): Prom
     });
     areas = withReviews(areas, tasks, known);
   } else {
-    const summary = await fetchDrillSummary().catch(() => null);
+    const summary = await fetchDrillSummary(kind).catch(() => null);
     const lesson = FUNDAMENTAL_LESSONS.find((id) => !passed.has(id)) ?? null;
     tasks = fundamentalsTasks(summary ? summary.due + summary.candidates : 0, prior, lesson);
   }
@@ -121,6 +128,7 @@ export async function buildPlan(week: string, previous: StoredPlan | null): Prom
       last: report?.last ?? null,
       evLossBb: Math.round(rows.reduce((sum, row) => sum + row.evLossBb, 0) * 1000) / 1000,
       reason: focus.reason,
+      gameKind: kind,
     },
     tasks,
   };

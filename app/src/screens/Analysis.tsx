@@ -18,6 +18,7 @@ import { ChartsScreen } from "@rail/ui/charts/ChartsScreen";
 import type { ChartSet } from "@rail/ui/charts/model";
 import { ownChartDeviations } from "@rail/ui/charts/sessionSource";
 import type { ChartSummary } from "@rail/ui/charts/source";
+import { kindFormats, kindOf, type GameKind } from "@rail/ui/hands/gameKind";
 import { useUiStrings } from "@rail/ui/i18n";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
@@ -28,16 +29,16 @@ import { onAnalysisRows } from "../analysis/service";
 import { storeChartsSource } from "../lib/chartsSource";
 import { hiddenDuringPlay } from "../lib/duringPlay";
 import { inApp } from "../lib/ipc";
+import { useAppKind } from "../lib/gameKind";
 import { storeReviewSource, storeSessionChartsSource } from "../lib/reviewSource";
 import { replaceParam, screenHref, useRouteParam } from "../lib/router";
 import { useTablesOpen } from "../lib/useTablesOpen";
 import { AnalysisStatus } from "./analysis/AnalysisStatus";
 import styles from "./analysis/Analysis.module.css";
 import { HandAnalysis } from "./analysis/HandAnalysis";
+import { openInReplayer } from "./analysis/openHand";
 import { TopLeaks } from "./analysis/TopLeaks";
 import { ANALYSIS_TABS, parseView, tabOf, viewParam, type AnalysisView } from "./analysis/view";
-
-const EMPTY_FILTER: SessionQuery["filter"] = {} as SessionQuery["filter"];
 
 export function Analysis() {
   const view = parseView(useRouteParam());
@@ -132,7 +133,14 @@ function Session({
 }) {
   const t = useT();
   const ui = useUiStrings();
-  const query: SessionQuery = useMemo(() => ({ at: view.at, gapMinutes: view.gap, filter: EMPTY_FILTER }), [view.at, view.gap]);
+  // One kind of game at a time (`lib/gameKind.ts`): the switch's, else the
+  // last shown, else the one with more hands.
+  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
+  const kinds = useAppKind(askedKind, inApp && !hidden, reload);
+  const query: SessionQuery | null = useMemo(
+    () => (kinds.kind === null ? null : { at: view.at, gapMinutes: view.gap, filter: { formats: kindFormats(kinds.kind) } }),
+    [view.at, view.gap, kinds.kind],
+  );
   const [charts, setCharts] = useState<ChartSummary[]>([]);
   const [choice, setChoice] = useState<string>(SHIPPED);
   const [own, setOwn] = useState<{ id: string; set: ChartSet } | null>(null);
@@ -175,24 +183,39 @@ function Session({
   );
 
   const onQuery = useCallback((next: SessionQuery) => {
+    setAskedKind(kindOf(next.filter.formats ?? []));
     replaceParam("analysis", viewParam({ kind: "session", at: next.at, gap: next.gapMinutes }));
   }, []);
 
   const renderHandLink = useCallback(
-    ({ handId, actionIndex, sessionAt, label, className, children }: HandLinkProps) => (
+    ({ handId, label, className, children }: HandLinkProps) => (
       <a
-        href={handHref(handId, actionIndex, { kind: "session", at: sessionAt, gap: view.gap })}
+        href={screenHref("hands", handId)}
         className={className}
         aria-label={label}
+        onClick={(event) => {
+          event.preventDefault();
+          openInReplayer(handId);
+        }}
       >
         {children}
       </a>
     ),
-    [view.gap],
+    [],
   );
+
+  if (query === null) {
+    return (
+      <>
+        {nav}
+        <StateMessage kind="loading">{ui.review.loading}</StateMessage>
+      </>
+    );
+  }
 
   return (
     <SessionReviewScreen
+      kindCounts={kinds.counts}
       source={storeReviewSource}
       deviationSource={deviationSource}
       deviationChoices={deviationChoices}
@@ -205,6 +228,8 @@ function Session({
       reloadToken={reload}
       coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
       hiddenDuringPlay={hidden}
+      intro={false}
+      layout="table"
       renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
     />
   );

@@ -75,6 +75,12 @@ export interface FilterState {
   player: PlayerRef | null;
   /** The searches, as typed: hero cards or a class ("AKs", "TT"), board cards, a name at the table. */
   heroCards: string;
+  /**
+   * Starting-hand classes picked on the range grid ("AA", "AKs", "AKo"):
+   * the hero held one of them. Empty, any. With a class typed into
+   * `heroCards` as well, both must hold.
+   */
+  heroRange: string[];
   board: string;
   playerName: string;
   showdown: boolean | null;
@@ -107,6 +113,7 @@ export const EMPTY_FILTER: FilterState = {
   dateTo: "",
   player: null,
   heroCards: "",
+  heroRange: [],
   board: "",
   playerName: "",
   showdown: null,
@@ -138,6 +145,7 @@ export function parseMinPot(text: string): number | null {
 export function activeSearches(filter: FilterState): number {
   return (
     (filter.heroCards.trim() ? 1 : 0) +
+    (filter.heroRange.length > 0 ? 1 : 0) +
     (filter.board.trim() ? 1 : 0) +
     (filter.playerName.trim() ? 1 : 0) +
     (filter.showdown === null ? 0 : 1) +
@@ -222,7 +230,13 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
     player: filter.player,
   };
   const hero = resolveHeroQuery(filter.heroCards);
-  if (hero.kind === "class") query.heroHandClasses = hero.values;
+  if (filter.heroRange.length > 0) {
+    // The grid's classes, narrowed by a class typed as well (both must hold).
+    const typed = hero.kind === "class" ? new Set(hero.values) : null;
+    query.heroHandClasses = typed ? filter.heroRange.filter((value) => typed.has(value)) : filter.heroRange;
+  } else if (hero.kind === "class") {
+    query.heroHandClasses = hero.values;
+  }
   if (hero.kind === "cards") query.heroCards = hero.values;
   const board = extractCards(filter.board);
   if (board.length > 0) query.board = board;
@@ -291,6 +305,9 @@ export function fromSaved(json: string): FilterState | null {
         ? { site: player.site, player: player.player }
         : null,
     heroCards: text("heroCards"),
+    heroRange: Array.isArray(saved.heroRange)
+      ? saved.heroRange.filter((item): item is string => typeof item === "string" && HAND_CLASSES.has(item))
+      : [],
     board: text("board"),
     playerName: text("playerName"),
     showdown: flag("showdown"),
@@ -302,6 +319,13 @@ export function fromSaved(json: string): FilterState | null {
     sort: typeof sort === "string" && (SORTS as string[]).includes(sort) ? (sort as HandSort) : "newest",
   };
 }
+
+/** The 169 starting-hand classes as the grid writes them: "AA", "AKs", "AKo" (the higher rank first). */
+const HAND_CLASSES: ReadonlySet<string> = new Set(
+  [..."AKQJT98765432"].flatMap((high, i, ranks) =>
+    ranks.slice(i).flatMap((low, j) => (j === 0 ? [high + low] : [`${high}${low}s`, `${high}${low}o`])),
+  ),
+);
 
 /** The filter as saved: the screen's state (the store checks it parses as a filter). */
 export function toSaved(filter: FilterState): string {

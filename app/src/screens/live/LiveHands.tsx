@@ -8,6 +8,7 @@
  * read again whenever its hand count changes, so a new hand appears at the
  * top while the reader stays on their page.
  */
+import { kindFormats, type GameKind } from "@rail/ui/hands/gameKind";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { useEffect, useState } from "react";
 
@@ -27,23 +28,23 @@ const MAX_ROWS = 5000;
 
 const BB = liveNumberFormat({ maximumFractionDigits: 1, minimumFractionDigits: 1 });
 
-/** Every hand since `from`, newest first. */
-async function sessionHands(from: string): Promise<HandRow[]> {
+/** Every hand of `kind` since `from`, newest first. */
+async function sessionHands(from: string, kind: GameKind): Promise<HandRow[]> {
   const rows: HandRow[] = [];
   let after: HandCursor | null = null;
   do {
-    const page = await ipc.handsPage({ from }, after, STORE_PAGE);
+    const page = await ipc.handsPage({ from, formats: kindFormats(kind) }, after, STORE_PAGE);
     rows.push(...page.rows);
     after = page.next;
   } while (after !== null && rows.length < MAX_ROWS);
   return rows;
 }
 
-function useSessionHands(from: string, hands: number): { rows: HandRow[] | null; error: string | null } {
+function useSessionHands(from: string, hands: number, kind: GameKind): { rows: HandRow[] | null; error: string | null } {
   const [state, setState] = useState<{ rows: HandRow[] | null; error: string | null }>({ rows: null, error: null });
   useEffect(() => {
     let live = true;
-    sessionHands(from)
+    sessionHands(from, kind)
       .then((rows) => {
         if (live) setState({ rows, error: null });
       })
@@ -53,7 +54,7 @@ function useSessionHands(from: string, hands: number): { rows: HandRow[] | null;
     return () => {
       live = false;
     };
-  }, [from, hands]);
+  }, [from, hands, kind]);
   return state;
 }
 
@@ -61,10 +62,10 @@ function tone(value: number | null): string {
   return value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down;
 }
 
-export function LiveHands({ session }: { session: Session }) {
+export function LiveHands({ session, kind }: { session: Session; kind: GameKind }) {
   const t = useT();
   const d = t.live.handList;
-  const { rows, error } = useSessionHands(session.startedAt, session.hands);
+  const { rows, error } = useSessionHands(session.startedAt, session.hands, kind);
   const [page, setPage] = useState(1);
 
   let body;

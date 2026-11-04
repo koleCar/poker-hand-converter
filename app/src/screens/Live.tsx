@@ -10,10 +10,17 @@
  * `rail_store::report`); it is live while its newest hand is within that
  * gap of now. Without one the screen says so and shows the last session.
  *
+ * One kind of game at a time, never cash and tournament hands together
+ * (the owner's rule, 2026-11-04): the Cash | Tournaments switch, opening on
+ * the kind being played (else the one with more hands in its latest
+ * session); a cash evening split by a tournament is two cash sessions.
+ *
  * Kept current by the watcher's change events (a hand imported moves it),
  * and once a minute (a session stops being live with time alone). The
  * import status lives in Settings, Folders.
  */
+import type { GameKind } from "@rail/ui/hands/gameKind";
+import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { useCallback, useEffect, useState } from "react";
 
 import { StateMessage } from "../components/StateMessage";
@@ -34,18 +41,29 @@ const DAY_TIME = liveDateFormat({ weekday: "short", day: "numeric", month: "shor
 
 interface SessionState {
   session: Session | null;
+  /** The kind shown and both kinds' hands (null until read). */
+  kind: GameKind | null;
+  counts: Record<GameKind, number> | null;
   loaded: boolean;
   error: string | null;
 }
 
-function useSession(): SessionState {
-  const [state, setState] = useState<SessionState>({ session: null, loaded: false, error: null });
+function useSession(asked: GameKind | null): SessionState {
+  const [state, setState] = useState<SessionState>({ session: null, kind: null, counts: null, loaded: false, error: null });
   const load = useCallback(() => {
     ipc
-      .today()
-      .then((today) => setState({ session: today.session, loaded: true, error: null }))
+      .today(asked)
+      .then((today) =>
+        setState({
+          session: today.session,
+          kind: today.kind,
+          counts: { cash: today.kinds.cash.hands, tournament: today.kinds.tournament.hands },
+          loaded: true,
+          error: null,
+        }),
+      )
       .catch((error: unknown) => setState((was) => ({ ...was, loaded: true, error: errorText(error) })));
-  }, []);
+  }, [asked]);
   useEffect(() => {
     if (!inApp) return;
     load();
@@ -62,7 +80,8 @@ function useSession(): SessionState {
 export function Live() {
   const t = useT();
   const d = t.live;
-  const { session, loaded, error } = useSession();
+  const [askedKind, setAskedKind] = useState<GameKind | null>(null);
+  const { session, kind, counts, loaded, error } = useSession(askedKind);
   const live = session !== null && session.current;
 
   let body;
@@ -72,14 +91,14 @@ export function Live() {
     body = <StateMessage kind="error">{d.error(error)}</StateMessage>;
   } else if (!loaded) {
     body = <StateMessage kind="loading">{d.loading}</StateMessage>;
-  } else if (session === null || !session.current) {
+  } else if (session === null || !session.current || kind === null) {
     body = <NoSession last={session} />;
   } else {
     body = (
       <>
-        <LiveGraph session={session} />
+        <LiveGraph session={session} kind={kind} />
         <LiveStats session={session} />
-        <LiveHands session={session} />
+        <LiveHands session={session} kind={kind} />
       </>
     );
   }
@@ -105,6 +124,9 @@ export function Live() {
             </span>
           </>
         ) : null}
+        {inApp && loaded && kind !== null ? (
+          <KindSwitch kind={kind} counts={counts} onChange={setAskedKind} className={styles.kinds} />
+        ) : null}
       </header>
       {body}
     </div>
@@ -124,7 +146,6 @@ function NoSession({ last }: { last: Session | null }) {
           <h2 id="live-empty" className={styles.emptyTitle}>
             {d.title}
           </h2>
-          <p className={styles.emptyText}>{d.text}</p>
           {status?.running && folders !== null ? (
             folders > 0 ? (
               <p className={styles.chips}>
@@ -157,7 +178,6 @@ function LastSession({ session }: { session: Session }) {
       ? unitOf({ currency: units.currency, currencySymbol: units.symbol ?? "", minorUnits: units.minorUnits })
       : null;
   const tone = (value: number | null) => (value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down);
-  const minutes = minutesBetween(session.startedAt, session.endedAt);
   return (
     <section className={styles.section} aria-labelledby="live-last">
       <h2 id="live-last" className={styles.heading}>
@@ -165,7 +185,7 @@ function LastSession({ session }: { session: Session }) {
       </h2>
       <a className={styles.lastCard} href={screenHref("reports")}>
         <span className={styles.muted}>
-          {`${d.empty.range(DAY_TIME.format(new Date(session.startedAt)), TIME.format(new Date(session.endedAt)))} · ${d.duration(minutes)}`}
+          {d.empty.range(DAY_TIME.format(new Date(session.startedAt)), TIME.format(new Date(session.endedAt)))}
         </span>
         <dl className={styles.lastFigures}>
           <div>
@@ -187,7 +207,6 @@ function LastSession({ session }: { session: Session }) {
         </dl>
         <span className={styles.link}>{d.empty.reports}</span>
       </a>
-      <p className={styles.note}>{d.empty.rule(session.gapMinutes)}</p>
     </section>
   );
 }

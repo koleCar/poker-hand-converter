@@ -8,6 +8,7 @@
  * rebuild and indexing notices, and "hands with this player" into Hands.
  */
 import { useEffect, useState } from "react";
+import { withKind } from "@rail/ui/hands/gameKind";
 import { PlayersScreen } from "@rail/ui/players/PlayersScreen";
 import styles from "@rail/ui/players/Players.module.css";
 
@@ -81,8 +82,9 @@ export function Players() {
       definitions={definitions}
       selected={selected}
       onSelect={(player) => replaceParam("players", player === null ? null : playerParam(player.site, player.player))}
-      onHandsWith={(player) => {
-        requestFilter({ ...EMPTY_FILTER, player });
+      onHandsWith={(player, kind) => {
+        // The profile's kind: Hands opens on it (cash and tournaments never together).
+        requestFilter(withKind({ ...EMPTY_FILTER, player }, kind === "cash" ? "cash" : "tournament", null));
         go("hands");
       }}
       title={t.screens.players.title}

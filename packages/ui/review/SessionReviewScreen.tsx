@@ -20,6 +20,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { CardRow } from "../cards/PlayingCard";
 import { bigBlindsIn, countIn, signedMoney, unitOf } from "../hands/format";
+import { isKindFormats, kindFormats, kindOf, type GameKind } from "../hands/gameKind";
+import { KindSwitch } from "../hands/KindSwitch";
 import { errorText } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
@@ -35,6 +37,7 @@ import {
   type SessionReviewSource,
 } from "./model";
 import styles from "./Review.module.css";
+import table from "./SpotTable.module.css";
 import { bbPer100, minutesBetween, selectWorthALook, type ReviewItem, type ReviewSection } from "./select";
 
 /** Hands shown per list. */
@@ -90,7 +93,24 @@ export interface SessionReviewScreenProps {
   hiddenDuringPlay?: boolean;
   /** A new value reads the session again (hands arrived, an analysis run ended). */
   reloadToken?: unknown;
+  /** The line under the title that says what the review is (default shown). */
+  intro?: boolean;
+  /**
+   * How the lists read: `cards` (default, the web's), or `table` (the
+   * desktop app's: the Hands screen's table, one row a hand, and fewer
+   * words - no list descriptions, a compact session picker).
+   */
+  layout?: ReviewLayout;
+  /**
+   * The Cash | Tournaments switch (the owner's rule, 2026-11-04: one kind
+   * of game at a time): given, the switch is shown, with these counts (null
+   * while unknown). The kind is the query's formats', which the surface keeps
+   * to one kind (`pinFormats`).
+   */
+  kindCounts?: Record<GameKind, number> | null;
 }
+
+export type ReviewLayout = "cards" | "table";
 
 type Loaded =
   | { status: "loading" }
@@ -122,6 +142,9 @@ export function SessionReviewScreen({
   coverageAction,
   hiddenDuringPlay = false,
   reloadToken = 0,
+  intro = true,
+  layout = "cards",
+  kindCounts,
 }: SessionReviewScreenProps) {
   const r = useUiStrings().review;
   const key = keyOf(query);
@@ -200,6 +223,7 @@ export function SessionReviewScreen({
         renderState={renderState}
         coverageAction={coverageAction}
         stale={loaded.key !== key}
+        layout={layout}
       />
     );
   }
@@ -208,9 +232,16 @@ export function SessionReviewScreen({
     <div className={styles.screen} aria-busy={!hiddenDuringPlay && (loaded.status === "loading" || (loaded.status === "ready" && loaded.key !== key))}>
       <header className={styles.top}>
         <Title className={styles.title}>{title}</Title>
-        <p className={styles.intro}>{r.intro}</p>
+        {intro ? <p className={styles.intro}>{r.intro}</p> : null}
       </header>
       {notice}
+      {kindCounts !== undefined && !hiddenDuringPlay ? (
+        <KindSwitch
+          kind={kindOf(query.filter.formats ?? [])}
+          counts={kindCounts}
+          onChange={(kind) => onQuery({ ...query, at: null, filter: { ...query.filter, formats: kindFormats(kind) } })}
+        />
+      ) : null}
       {body}
     </div>
   );
@@ -238,6 +269,7 @@ export interface SessionReviewViewProps {
   stale?: boolean;
   /** Hands shown per list. */
   cap?: number;
+  layout?: ReviewLayout;
 }
 
 /** The loaded review: the picker, the summary and the lists. Pure (the tests render it). */
@@ -258,6 +290,7 @@ export function SessionReviewView({
   coverageAction,
   stale = false,
   cap = REVIEW_SHOWN,
+  layout = "cards",
 }: SessionReviewViewProps) {
   const ui = useUiStrings();
   const r = ui.review;
@@ -270,7 +303,10 @@ export function SessionReviewView({
     () => selectWorthALook({ worst: review.worst, deviations, pots: review.pots, hands }, cap),
     [review, deviations, hands, cap],
   );
-  const filtered = Object.values(query.filter).some((value) => (Array.isArray(value) ? value.length > 0 : value != null));
+  // The kind switch's whole kind is not a filter (the switch shows it).
+  const filtered = Object.entries(query.filter).some(([group, value]) =>
+    group === "formats" && isKindFormats(query.filter.formats) ? false : Array.isArray(value) ? value.length > 0 : value != null,
+  );
   const session = review.session;
 
   if (session === null) {
@@ -288,7 +324,11 @@ export function SessionReviewView({
 
   return (
     <div className={`${styles.body} rail-dims`} aria-busy={stale}>
-      <Picker review={review} sessions={sessions} query={query} onQuery={onQuery} stale={stale} />
+      {layout === "table" ? (
+        <CompactPicker review={review} sessions={sessions} query={query} onQuery={onQuery} stale={stale} />
+      ) : (
+        <Picker review={review} sessions={sessions} query={query} onQuery={onQuery} stale={stale} />
+      )}
       {filtered ? <FilterLine query={query} onQuery={onQuery} /> : null}
 
       {review.ongoing ? (
@@ -312,7 +352,7 @@ export function SessionReviewView({
           {r.coverage.missing(missing, review.coverage.hands)} {coverageAction}
         </p>
       ) : null}
-      {review.coverage.notAnalysed > 0 ? <p className={styles.muted}>{r.coverage.notAnalysed(review.coverage.notAnalysed)}</p> : null}
+      {review.coverage.notAnalysed > 0 && layout === "cards" ? <p className={styles.muted}>{r.coverage.notAnalysed(review.coverage.notAnalysed)}</p> : null}
 
       {sections.map((section) => (
         <ListSection
@@ -334,6 +374,7 @@ export function SessionReviewView({
             ) : null
           }
           graded={review.coverage.graded}
+          layout={layout}
           dayTime={(iso) => (iso ? `${day.format(new Date(iso))} ${time.format(new Date(iso))}` : "—")}
           renderHandLink={(props) => renderHandLink({ ...props, sessionAt: session.startedAt })}
         />
@@ -347,7 +388,15 @@ function FilterLine({ query, onQuery }: { query: SessionQuery; onQuery: (query: 
   return (
     <p className={styles.muted}>
       {r.picker.filtered}{" "}
-      <button type="button" className="btn btn--sm btn--ghost" onClick={() => onQuery({ ...query, at: null, filter: {} })}>
+      <button
+        type="button"
+        className="btn btn--sm btn--ghost"
+        onClick={() => {
+          // The kind stays: clearing the filter never shows both kinds together.
+          const kind = kindOf(query.filter.formats ?? []);
+          onQuery({ ...query, at: null, filter: kind ? { formats: kindFormats(kind) } : {} });
+        }}
+      >
         {r.picker.clearFilter}
       </button>
     </p>
@@ -499,10 +548,12 @@ function ListSection({
   own,
   choice,
   graded,
+  layout,
   dayTime,
   renderHandLink,
 }: {
   section: ReviewSection;
+  layout: ReviewLayout;
   /** The deviations come from the user's own chart of this name. */
   own: string | null;
   /** The surface's choice of deviation source, over the list. */
@@ -523,13 +574,38 @@ function ListSection({
           ? r.deviationSource.empty(own)
           : words.empty;
   }
+  const description = own !== null ? r.deviationSource.description(own) : words.description;
+  if (layout === "table") {
+    return (
+      <section className={styles.tableSection} aria-labelledby={id}>
+        <div className={styles.tableHead}>
+          <h2 id={id} className={styles.cardTitle} title={description}>
+            {words.heading}
+          </h2>
+          {section.items.length > 0 ? <span className={styles.count}>{section.items.length}</span> : null}
+          {choice}
+        </div>
+        {empty !== null ? <p className={styles.muted}>{empty}</p> : null}
+        {section.items.length > 0 ? (
+          <div className={table.table}>
+            <TableHead />
+            <div className={`${table.body} rail-stagger`}>
+              {section.items.map((item) => (
+                <TableRow key={item.handId} item={item} own={own !== null} renderHandLink={renderHandLink} />
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </section>
+    );
+  }
   return (
     <section className={styles.card} aria-labelledby={id}>
       <div className={styles.cardHead}>
         <h2 id={id} className={styles.cardTitle}>
           {words.heading}
         </h2>
-        <p className={styles.muted}>{own !== null ? r.deviationSource.description(own) : words.description}</p>
+        <p className={styles.muted}>{description}</p>
         {choice}
       </div>
       {empty !== null ? <p className={styles.muted}>{empty}</p> : null}
@@ -659,6 +735,182 @@ function Row({
             ))}
           </span>
         ) : null}
+      </>
+    ),
+  });
+}
+
+/**
+ * The table layout's session picker: the previous session, the sessions as
+ * one select styled as a button, the next session - in one row.
+ */
+function CompactPicker({
+  review,
+  sessions,
+  query,
+  onQuery,
+  stale,
+}: {
+  review: SessionReview;
+  sessions: readonly SessionListItem[] | null;
+  query: SessionQuery;
+  onQuery: (query: SessionQuery) => void;
+  stale: boolean;
+}) {
+  const ui = useUiStrings();
+  const r = ui.review;
+  const session = review.session;
+  const day = dateFormat(ui.intlLocale, { weekday: "short", day: "numeric", month: "short" });
+  const time = dateFormat(ui.intlLocale, { hour: "2-digit", minute: "2-digit" });
+  if (!session) return null;
+  const label = (item: { startedAt: string; endedAt: string; hands: number }) =>
+    r.picker.option(
+      day.format(new Date(item.startedAt)),
+      time.format(new Date(item.startedAt)),
+      time.format(new Date(item.endedAt)),
+      item.hands,
+    );
+  const options = sessions ?? [];
+  const listed = options.some((item) => item.startedAt === session.startedAt);
+  const value = query.at === null ? "" : session.startedAt;
+  return (
+    <div className={styles.compactPicker} title={r.picker.gap(review.gapMinutes)}>
+      <button
+        type="button"
+        className={styles.stepButton}
+        disabled={session.previousAt === null}
+        onClick={() => onQuery({ ...query, at: session.previousAt })}
+        aria-label={r.picker.previous}
+        title={r.picker.previous}
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <label className={styles.selectWrap}>
+        <select
+          className={styles.select}
+          aria-label={r.picker.label}
+          value={value}
+          onChange={(event) => onQuery({ ...query, at: event.target.value === "" ? null : event.target.value })}
+        >
+          <option value="">
+            {r.picker.latest} · {label(session)}
+          </option>
+          {listed || query.at === null ? null : <option value={session.startedAt}>{label(session)}</option>}
+          {options.map((item) => (
+            <option key={item.startedAt} value={item.startedAt}>
+              {label(item)}
+            </option>
+          ))}
+        </select>
+        <span className={styles.chevron} aria-hidden="true" />
+      </label>
+      <button
+        type="button"
+        className={styles.stepButton}
+        disabled={session.nextAt === null}
+        onClick={() => onQuery({ ...query, at: session.nextAt })}
+        aria-label={r.picker.next}
+        title={r.picker.next}
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+      {stale ? <RailLoader size="inline" label={r.loading} /> : null}
+    </div>
+  );
+}
+
+function TableHead() {
+  const c = useUiStrings().review.table;
+  return (
+    <div className={`${table.row} ${table.head}`} aria-hidden="true">
+      <span>{c.time}</span>
+      <span>{c.stakes}</span>
+      <span>{c.position}</span>
+      <span>{c.cards}</span>
+      <span>{c.board}</span>
+      <span>{c.decision}</span>
+      <span>{c.grade}</span>
+      <span className={table.num}>{c.evLoss}</span>
+      <span className={table.num}>{c.pot}</span>
+      <span className={table.num}>{c.result}</span>
+    </div>
+  );
+}
+
+/** One hand of a list as a table row; the whole row opens the hand. */
+function TableRow({
+  item,
+  own,
+  renderHandLink,
+}: {
+  item: ReviewItem;
+  own: boolean;
+  renderHandLink: (props: Omit<HandLinkProps, "sessionAt">) => ReactNode;
+}) {
+  const ui = useUiStrings();
+  const r = ui.review;
+  const locale = ui.intlLocale;
+  const hand = item.hand;
+  const decision = item.decision;
+  const one = numberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const day = dateFormat(locale, { weekday: "short", day: "numeric", month: "short" });
+  const time = dateFormat(locale, { hour: "2-digit", minute: "2-digit" });
+  const playedAt = hand?.playedAt ? new Date(hand.playedAt) : null;
+  const cards = hand && hand.heroCards.length > 0 ? hand.heroCards.join(" ") : r.row.noCards;
+  const action = (name: string | null) => (name ? (r.actions[name] ?? name) : "");
+  const grade = decision ? decision.grade : (hand?.grade ?? null);
+  const evLoss = decision ? decision.evLossBb : (hand?.evLossBb ?? null);
+  const pot = item.potBb ?? hand?.potBb ?? null;
+  const net = hand?.netBbMilli ?? null;
+  const best =
+    decision && decision.best && decision.best !== decision.action
+      ? own
+        ? r.deviationSource.best(action(decision.best))
+        : r.table.best(action(decision.best))
+      : null;
+  return renderHandLink({
+    handId: item.handId,
+    actionIndex: decision ? decision.actionIndex : null,
+    label: r.table.replayer(cards, playedAt ? `${day.format(playedAt)} ${time.format(playedAt)}` : "—"),
+    className: table.row,
+    children: (
+      <>
+        <span className={table.secondary}>{playedAt ? time.format(playedAt) : "—"}</span>
+        <span className={table.secondary}>{hand?.stakesLabel ?? ""}</span>
+        <span className={table.strong}>{hand?.position ?? ""}</span>
+        <span>
+          {hand && hand.heroCards.length > 0 ? <CardRow cards={hand.heroCards} size="xs" /> : <span className={table.dim}>—</span>}
+        </span>
+        <span>
+          {hand && hand.board.length > 0 ? <CardRow cards={hand.board} size="xs" /> : <span className={table.dim}>{r.table.preflop}</span>}
+        </span>
+        <span>
+          {decision ? (
+            <>
+              {r.streets[decision.street] ?? decision.street} · {action(decision.action)}
+              {best ? <span className={table.dim}> · {best}</span> : null}
+            </>
+          ) : (
+            <span className={table.dim}>—</span>
+          )}
+        </span>
+        <span>
+          {grade && GRADE_GLYPHS[grade] ? (
+            <span className={`${table.grade} ${table[`grade_${grade}`] ?? ""}`}>
+              <span aria-hidden="true">{GRADE_GLYPHS[grade]}</span>
+              {r.grades[grade] ?? grade}
+            </span>
+          ) : (
+            <span className={table.dim}>—</span>
+          )}
+        </span>
+        <span className={`${table.num} ${evLoss !== null && evLoss > 0 ? table.lost : table.dim}`}>
+          {evLoss !== null && evLoss > 0 ? `−${one.format(evLoss)}` : "—"}
+        </span>
+        <span className={`${table.num} ${table.secondary}`}>{pot !== null ? one.format(pot) : "—"}</span>
+        <span className={`${table.num} ${table.strong} ${net === null || net === 0 ? table.dim : net > 0 ? table.won : table.lost}`}>
+          {net === null ? "—" : bigBlindsIn(locale, net)}
+        </span>
       </>
     ),
   });

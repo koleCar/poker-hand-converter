@@ -13,8 +13,10 @@
  * rather than to an error.
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { ANALYSIS_SORTS, type AnalysisFilters, type AnalysisSort } from "../../lib/db/analysis";
 import { FLAG_CODES, GRADES } from "../../lib/analysis/types";
+import { KIND_KEY, parseKind } from "./analysisKind";
 
 export interface AnalysisListState {
   street: string | null;
@@ -25,7 +27,11 @@ export interface AnalysisListState {
   grade: string | null;
   position: string | null;
   potType: string | null;
-  gameFormat: string | null;
+  /**
+   * Cash or tournaments, never both (the owner's rule, 2026-11-04;
+   * `analysisKind.ts`). Null when the address names none: the tab decides.
+   */
+  kind: GameKind | null;
   sort: AnalysisSort;
   page: number;
 }
@@ -37,7 +43,7 @@ export const EMPTY_LIST_STATE: AnalysisListState = {
   grade: null,
   position: null,
   potType: null,
-  gameFormat: null,
+  kind: null,
   sort: "recent",
   page: 0,
 };
@@ -45,7 +51,6 @@ export const EMPTY_LIST_STATE: AnalysisListState = {
 export const STREET_VALUES = ["preflop", "flop", "turn", "river"] as const;
 export const STATUS_VALUES = ["full", "partial", "not-analysed"] as const;
 export const POT_VALUES = ["limped", "single-raised", "3bet", "4bet+", "walk", "bomb"] as const;
-export const FORMAT_VALUES = ["cash", "tournament", "sng", "spin"] as const;
 export const POSITION_VALUES = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
 const FLAG_VALUES = [...FLAG_CODES, "any"] as readonly string[];
 export const GRADE_VALUES = ["bad", ...GRADES] as readonly string[];
@@ -58,13 +63,18 @@ const KEYS = {
   grade: "grade",
   position: "pos",
   potType: "pot",
-  gameFormat: "fmt",
   sort: "sort",
   page: "page",
 } as const;
 
 function pick(value: string | null | undefined, allowed: readonly string[]): string | null {
   return value && allowed.includes(value) ? value : null;
+}
+
+/** An older address's one format (`fmt`, before the kinds): its kind. */
+function legacyKind(format: string | null): GameKind | null {
+  if (format === "cash") return "cash";
+  return format === "tournament" || format === "sng" || format === "spin" ? "tournament" : null;
 }
 
 /** Reads a query (a `URLSearchParams`, or a plain record from `searchParams`). */
@@ -84,7 +94,7 @@ export function parseListState(
     grade: pick(get(KEYS.grade), GRADE_VALUES),
     position: pick(get(KEYS.position), POSITION_VALUES),
     potType: pick(get(KEYS.potType), POT_VALUES),
-    gameFormat: pick(get(KEYS.gameFormat), FORMAT_VALUES),
+    kind: parseKind(source) ?? legacyKind(get("fmt")),
     sort: (pick(get(KEYS.sort), ANALYSIS_SORTS) as AnalysisSort | null) ?? "recent",
     page: Number.isInteger(page) && page > 0 && page < 10_000 ? page : 0,
   };
@@ -99,7 +109,7 @@ export function listQuery(state: AnalysisListState): string {
   if (state.grade) params.set(KEYS.grade, state.grade);
   if (state.position) params.set(KEYS.position, state.position);
   if (state.potType) params.set(KEYS.potType, state.potType);
-  if (state.gameFormat) params.set(KEYS.gameFormat, state.gameFormat);
+  if (state.kind) params.set(KIND_KEY, state.kind);
   if (state.sort !== "recent") params.set(KEYS.sort, state.sort);
   if (state.page > 0) params.set(KEYS.page, String(state.page));
   return params.toString();
@@ -108,7 +118,7 @@ export function listQuery(state: AnalysisListState): string {
 /** What the overview and the breakdown are about: the scope, not the list's own filters. */
 export function scopeFilters(state: AnalysisListState): AnalysisFilters {
   const filters: AnalysisFilters = {};
-  if (state.gameFormat) filters.gameFormat = state.gameFormat;
+  if (state.kind) filters.gameKind = state.kind;
   if (state.position) filters.position = state.position;
   if (state.potType) filters.potType = state.potType;
   return filters;

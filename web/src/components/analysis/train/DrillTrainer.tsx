@@ -18,6 +18,7 @@
 
 "use client";
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -71,6 +72,8 @@ type Answered = {
 
 interface DrillTrainerProps {
   state: TrainState;
+  /** The kind of game drilled (never both kinds' drills in one deck); null while it is decided. */
+  kind: GameKind | null;
   onChange: (patch: Partial<TrainState>) => void;
   onAnswer: (answer: TrainerAnswer) => void;
   onHelp: () => void;
@@ -78,7 +81,7 @@ interface DrillTrainerProps {
   onSaved: () => void;
 }
 
-export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: DrillTrainerProps) {
+export function DrillTrainer({ state, kind, onChange, onAnswer, onHelp, onSaved }: DrillTrainerProps) {
   const en = useDict();
   const t = en.analysis.train;
   const d = t.drills;
@@ -92,17 +95,19 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
   const [done, setDone] = useState(0);
   const [charts, setCharts] = useState<ChartSet | null>(null);
 
-  const deckKey = JSON.stringify({ spots: state.spots, all: state.all, inaccurate: state.inaccurate, attempt });
+  // A leak's or area's drills on its own table (a spot key names none).
+  const deckKey = JSON.stringify({ spots: state.spots, table: state.spots ? state.table : null, all: state.all, inaccurate: state.inaccurate, kind, attempt });
 
-  // Build the deck: sync, then read the counts and the queue.
+  // Build the deck: sync, then read the counts and the queue (the kind's only).
   useEffect(() => {
+    const want = JSON.parse(deckKey) as { spots: string[] | null; table: TrainState["table"]; all: boolean; inaccurate: boolean; kind: GameKind | null };
+    if (want.kind === null) return;
     let live = true;
-    const want = JSON.parse(deckKey) as { spots: string[] | null; all: boolean; inaccurate: boolean };
     (async () => {
       await syncDrills(want.inaccurate ? "inaccurate" : "mistake");
       const [summary, queue] = await Promise.all([
-        fetchDrillSummary(),
-        fetchDrillQueue({ keys: want.spots, dueOnly: !want.all && !want.spots, limit: QUEUE_SIZE }),
+        fetchDrillSummary(want.kind),
+        fetchDrillQueue({ keys: want.spots, table: want.table, dueOnly: !want.all && !want.spots, limit: QUEUE_SIZE, kind: want.kind }),
       ]);
       return { summary, queue };
     })()
@@ -306,7 +311,7 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
         {state.spots ? (
           <p className={own.leakFilter}>
             <span>{d.leak(state.spots.length)}</span>
-            <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange({ spots: null })}>
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange({ spots: null, table: null })}>
               {d.allDrills}
             </button>
           </p>

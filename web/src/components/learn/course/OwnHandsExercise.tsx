@@ -19,6 +19,7 @@
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { handsTable, type HandsTable } from "../../../lib/analysis/leaks";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
 import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
 import { useAuth } from "../../../lib/auth";
@@ -64,18 +65,21 @@ async function findCandidates(def: OwnHandsDef): Promise<Candidate[]> {
     const report = await fetchLeaks(filters);
     const rows = report?.rows ?? [];
     let keys: string[];
+    // A lesson's spot patterns name no table; the learner's own area does.
+    let table: HandsTable | null = null;
     if (def.spots && def.spots.length > 0) {
       keys = rows.filter((row) => rowMatches(def.spots ?? [], row)).map((row) => row.key);
     } else if (def.spots) {
-      // An empty spot list: the learner's own costliest focus area.
+      // An empty spot list: the learner's own costliest focus area, on its table (a spot key names none).
       const top = pickFocus(focusAreas(rows, report?.hands ?? 0), 1)[0];
       keys = top ? top.keys : [];
+      table = top ? handsTable(top.where, top.level) : null;
     } else {
       keys = rows.map((row) => row.key);
     }
     keys = [...new Set(keys)].slice(0, 500);
     if (keys.length > 0) {
-      const page = await fetchLeakHands(filters, { keys, deviations: true, sort: "ev_loss", limit: def.count });
+      const page = await fetchLeakHands(filters, { keys, table, deviations: true, sort: "ev_loss", limit: def.count });
       for (const row of page.rows) add(row.handId, row.actionIndex);
     }
   }

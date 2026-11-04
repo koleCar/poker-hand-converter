@@ -4,7 +4,7 @@ import type { Dict } from "../types";
 export const downloadHr: Dict["download"] = {
   metaTitle: "Preuzmi aplikaciju Rail za macOS i Windows | Rail",
   metaDescription:
-    "Rail desktop tracker i HUD: uvozi svaku ruku dok igraš, prikazuje statistiku uživo na stolu i sinkronizira se s tvojim računom. Besplatno za macOS i Windows.",
+    "Rail desktop tracker i HUD: uvozi svaku ruku dok igraš, prikazuje statistiku uživo na stolu i sinkronizira se s tvojim računom. Dio Rail Pro plana, za macOS i Windows.",
 
   getApp: "Preuzmi aplikaciju",
   getAppLabel: "Preuzmi desktop aplikaciju Rail",
@@ -43,8 +43,17 @@ export const downloadHr: Dict["download"] = {
     cta: "Preuzmi za Windows",
     detail: "Windows 10 ili 11 · 64-bitni · instalacija bez administratorskih prava",
   },
-  free: "Besplatno preuzimanje. Uvoz, biblioteka, replayer i statistika rade bez računa.",
-  allReleases: "Sve verzije i bilješke o izdanjima",
+  included: "Dio Rail Pro plana. Kad je instalirana, uvoz, biblioteka i replayer rade i bez veze.",
+
+  gate: {
+    checking: "Provjeravam tvoj plan…",
+    signIn: "Prijavi se za preuzimanje",
+    signInReason: "Prijavi se svojim Rail Pro računom za preuzimanje desktop aplikacije.",
+    signInDetail: "Desktop aplikacija dolazi uz Rail Pro.",
+    proBody: "Tvoj plan ne uključuje desktop aplikaciju. Prijeđi na Pro da je preuzmeš.",
+    error: "Nismo uspjeli provjeriti tvoj plan, pa preuzimanje trenutno nije dostupno.",
+    retry: "Pokušaj ponovno",
+  },
 
   firstOpen: {
     heading: "Prvo otvaranje",

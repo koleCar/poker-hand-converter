@@ -1,0 +1,165 @@
+/* The hand's tags and note: a header button and the panel it opens
+   (`@rail/ui/hands/Popover`, which places it under the button). */
+
+.anchor {
+  display: inline-flex;
+}
+
+.anchor > :global(.btn) {
+  position: relative;
+}
+
+/* How many tags, on the button's corner; a dot when there is only a note. */
+.count,
+.dot {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  pointer-events: none;
+}
+
+.count {
+  min-inline-size: 0.875rem;
+  padding: 0 0.1875rem;
+  font-size: 0.5625rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 0.875rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dot {
+  inline-size: 0.4375rem;
+  block-size: 0.4375rem;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  inline-size: min(22rem, calc(100vw - 2rem));
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.noteState {
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.input,
+.note {
+  box-sizing: border-box;
+  inline-size: 100%;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+.input {
+  padding: var(--space-1) var(--space-2);
+}
+
+.note {
+  resize: vertical;
+  min-block-size: 5rem;
+  padding: var(--space-2);
+  line-height: var(--line-height-normal);
+}
+
+/* The hand's own tags. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-1) 0 var(--space-2);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-pill);
+  color: var(--accent-fg);
+  font-size: var(--font-size-sm);
+}
+
+.tag button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 var(--space-1);
+}
+
+/* The tags in use on other hands, one click each; a new one first. */
+.offered {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  max-block-size: 7.5rem;
+  overflow-y: auto;
+}
+
+.pick {
+  padding: 0.0625rem var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.pick:hover,
+.pick:focus-visible {
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
+.pickNew {
+  border-style: dashed;
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
+.footnote {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}

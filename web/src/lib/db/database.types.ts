@@ -4490,7 +4490,7 @@ export type Database = {
       analysis_leak_rows_table_backfill: { Args: never; Returns: number }
       analysis_leak_sample: {
         Args: {
-          p_format: string
+          p_formats: string[]
           p_from: string
           p_owner: string
           p_position: string
@@ -4767,7 +4767,11 @@ export type Database = {
       }
       delete_post: { Args: { p_public_id: string }; Returns: boolean }
       drill_due_by_spot: {
-        Args: { p_until?: string; p_version: string }
+        Args: { p_kind?: string; p_until?: string; p_version: string }
+        Returns: Json
+      }
+      drill_due_by_spot_tables: {
+        Args: { p_kind?: string; p_until?: string; p_version: string }
         Returns: Json
       }
       drill_keys_valid: { Args: { p_keys: string[] }; Returns: boolean }
@@ -4792,13 +4796,25 @@ export type Database = {
         Args: {
           p_due_only?: boolean
           p_keys?: string[]
+          p_kind?: string
           p_limit?: number
           p_version: string
         }
         Returns: Json
       }
+      drill_queue_on_table: {
+        Args: {
+          p_due_only?: boolean
+          p_keys?: string[]
+          p_kind?: string
+          p_limit?: number
+          p_table: string
+          p_version: string
+        }
+        Returns: Json
+      }
       drill_summary: {
-        Args: { p_until?: string; p_version: string }
+        Args: { p_kind?: string; p_until?: string; p_version: string }
         Returns: Json
       }
       edit_comment: {
@@ -4842,6 +4858,7 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: number
       }
+      filter_formats: { Args: { p_filters: Json }; Returns: string[] }
       forum_author_hidden: { Args: { p_author: string }; Returns: boolean }
       forum_best_rank: {
         Args: { p_down: number; p_up: number }
@@ -4881,6 +4898,7 @@ export type Database = {
         Args: { p_body: string; p_kind: string; p_uid: string }
         Returns: string
       }
+      game_kind_formats: { Args: { p_kind: string }; Returns: string[] }
       generate_share_slug: { Args: { p_length?: number }; Returns: string }
       get_hand: { Args: { p_id: string }; Returns: Json }
       get_post: { Args: { p_public_id: string }; Returns: Json }
@@ -5565,6 +5583,7 @@ export type Database = {
         min_grade: string | null
         street: string | null
         flag: string | null
+        formats: string[] | null
       }
     }
   }

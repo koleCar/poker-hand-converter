@@ -33,6 +33,7 @@ pub async fn session_review(
     at: Option<String>,
     gap_minutes: i64,
     limit: usize,
+    kind: Option<String>,
 ) -> Result<Value, String> {
     open(&store)?
         .reader()
@@ -42,6 +43,7 @@ pub async fn session_review(
             limit,
             version,
             now_ms: rail_store::time::now_ms(),
+            kind,
         })
         .map_err(text)
 }
@@ -58,17 +60,23 @@ pub struct SessionItemDto {
 }
 
 /// The sessions whose last hand is at or after `since` (ISO; null: all),
-/// newest first.
+/// newest first; of one kind of game (`cash`, `tournament`) when `kind` is given.
 #[tauri::command]
 pub async fn review_sessions(
     store: State<'_, StoreState>,
     gap_minutes: i64,
     since: Option<String>,
     limit: usize,
+    kind: Option<String>,
 ) -> Result<Vec<SessionItemDto>, String> {
     Ok(open(&store)?
         .reader()
-        .review_sessions(gap_minutes, since.as_deref(), limit.clamp(1, 500))
+        .review_sessions(
+            gap_minutes,
+            since.as_deref(),
+            limit.clamp(1, 500),
+            kind.as_deref(),
+        )
         .map_err(text)?
         .into_iter()
         .map(|s| SessionItemDto {
@@ -275,6 +283,8 @@ pub async fn chart_examples(
 #[serde(rename_all = "camelCase", default)]
 pub struct LeakFiltersDto {
     game_format: Option<String>,
+    /// One kind of game: `cash` or `tournament` (every tournament format).
+    game_kind: Option<String>,
     position: Option<String>,
     pot_type: Option<String>,
 }
@@ -284,6 +294,7 @@ impl From<LeakFiltersDto> for rail_store::leaks::LeakFilters {
         let keep = |v: Option<String>| v.filter(|v| !v.trim().is_empty());
         Self {
             game_format: keep(dto.game_format),
+            game_kind: keep(dto.game_kind),
             position: keep(dto.position).map(|p| p.trim().to_uppercase()),
             pot_type: keep(dto.pot_type),
         }

@@ -19,6 +19,7 @@
 
 "use client";
 
+import { kindOf, pinFormats } from "@rail/ui/hands/gameKind";
 import Link from "next/link";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -36,6 +37,7 @@ import { webSessionReviewSource } from "../../../lib/db/sessionReview";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { AnalysisNav } from "../AnalysisNav";
+import { useAnalysisKind } from "../analysisKind";
 import { fromSessionQuery, parseSessionQuery, sessionQueryString } from "./sessionQuery";
 import "../../../styles/stats.css";
 
@@ -50,8 +52,16 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
   const tab = dict.analysis.tab;
   const ui = useUiStrings();
   const auth = useAuth();
-  const [query, setQuery] = useState<SessionQuery>(() => parseSessionQuery(initialQuery));
+  const [asked, setQuery] = useState<SessionQuery>(() => parseSessionQuery(initialQuery));
   const signedIn = auth.isSignedIn;
+  // One kind of game, never both (`analysisKind.ts`): the link's formats'
+  // kind, else the visit's, else the one with more analysed hands. The query
+  // the screen reads always names that kind's formats.
+  const kinds = useAnalysisKind(kindOf(asked.filter.formats ?? []), isDatabaseConfigured && signedIn, refreshToken);
+  const query = useMemo<SessionQuery | null>(
+    () => (kinds.kind === null ? null : { ...asked, filter: { ...asked.filter, formats: pinFormats(asked.filter.formats, kinds.kind) } }),
+    [asked, kinds.kind],
+  );
   const [charts, setCharts] = useState<ChartSummary[]>([]);
   const [choice, setChoice] = useState<string>(() => readChoice());
   const [own, setOwn] = useState<{ id: string; set: ChartSet } | null>(null);
@@ -103,7 +113,7 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
 
   const renderHandLink = useCallback(
     ({ handId, actionIndex, sessionAt, label, className, children }: HandLinkProps) => {
-      const back = fromSessionQuery({ ...query, at: sessionAt });
+      const back = fromSessionQuery({ ...(query ?? asked), at: sessionAt });
       const position = actionIndex === null ? "" : `t=${encodePosition({ kind: "action", actionIndex })}&`;
       return (
         <Link href={paths.analysisHand(handId, `${position}${back}`)} className={className} aria-label={label}>
@@ -111,7 +121,7 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
         </Link>
       );
     },
-    [query],
+    [query, asked],
   );
 
   if (!isDatabaseConfigured) {
@@ -136,8 +146,21 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
     );
   }
 
+  if (query === null) {
+    return (
+      <div className="stats">
+        <header className="stats__head">
+          <h2>{t.session}</h2>
+        </header>
+        <AnalysisNav current="session" />
+        <RailLoader label={ui.review.loading} showLabel centered />
+      </div>
+    );
+  }
+
   return (
     <SessionReviewScreen
+      kindCounts={kinds.counts}
       source={webSessionReviewSource}
       deviationSource={deviationSource}
       deviationChoices={deviationChoices}

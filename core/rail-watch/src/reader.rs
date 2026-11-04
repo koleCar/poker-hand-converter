@@ -160,6 +160,9 @@ pub struct ImportLimits {
     /// 0: every thread of the pool the read runs on.
     threads: AtomicUsize,
     interrupt: AtomicBool,
+    /// The watcher is stopping for good: a folder walk in progress ends
+    /// early too (a pause lets walks finish; they only note what changed).
+    shutdown: AtomicBool,
     /// Folders whose reads stop early (the watcher's fenced folders).
     stopped: Mutex<HashSet<i64>>,
 }
@@ -193,6 +196,17 @@ impl ImportLimits {
 
     pub fn interrupted(&self) -> bool {
         self.interrupt.load(Ordering::SeqCst)
+    }
+
+    /// Stopping for good: reads stop after the batches they are committing
+    /// ([`Self::interrupt`]) and folder walks stop at once.
+    pub fn shut_down(&self) {
+        self.shutdown.store(true, Ordering::SeqCst);
+        self.interrupt(true);
+    }
+
+    pub fn shutting_down(&self) -> bool {
+        self.shutdown.load(Ordering::SeqCst)
     }
 
     /// Ask the reads of folder `source_id` in progress to stop after the

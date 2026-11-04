@@ -1,3 +1,4 @@
+import { CHIP_FORMATS, kindOf } from "@rail/ui/hands/gameKind";
 import type { HandFilter } from "@rail/ui/hands/model";
 import type { StatsFilters } from "../../lib/db";
 
@@ -21,8 +22,18 @@ export function opponentsScope(query: HandFilter): { filters: StatsFilters; part
   };
   const site = one(query.sites);
   if (site) filters.site = site;
-  const format = one(query.formats);
-  if (format) filters.gameFormat = format;
+  // Never no format when some are chosen: no format is every format, cash and
+  // tournaments together. Several (the Tournaments toggle's chip formats):
+  // their kind (`gameKind`, every chip format), and `partial` says so when
+  // the choice is narrower than all of them.
+  const formats = query.formats ?? [];
+  if (formats.length === 1) filters.gameFormat = formats[0];
+  else if (formats.length > 1) {
+    const kind = kindOf(formats);
+    if (kind) filters.gameKind = kind;
+    else filters.gameFormat = formats[0];
+    if (kind !== "tournament" || formats.length < CHIP_FORMATS.length) partial = true;
+  }
   const stake = one(query.stakes);
   if (stake && stake !== "chips") {
     const [currency, bigBlind] = stake.split(":");

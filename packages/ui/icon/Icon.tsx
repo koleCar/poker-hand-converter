@@ -117,6 +117,13 @@ const PATHS = {
       <path d="M3.34 19a10 10 0 1 1 17.32 0" />
     </>
   ),
+  /* A hand's tags and note (the desktop replayer's header). */
+  tag: (
+    <>
+      <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" />
+      <path d="M7.5 7.5h.01" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof PATHS;

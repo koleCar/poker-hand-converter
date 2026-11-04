@@ -1022,7 +1022,9 @@ impl Watcher {
     }
 
     fn shutdown(&mut self) {
-        self.limits.interrupt(true);
+        // A rescan's walk in progress ends too: the thread joined below may
+        // be in the middle of one.
+        self.limits.shut_down();
         let _ = self.send(Command::Stop);
         if let Some(thread) = self.thread.take() {
             let _ = thread.join();
@@ -1639,9 +1641,16 @@ impl Coordinator {
         if just_watched {
             source.next_scan = now + WATCH_SETTLE_MS;
         }
-        let walk = match scan::walk_matching(&source.path, source.recursive, source.glob.as_deref())
-        {
+        let limits = Arc::clone(&self.limits);
+        let walk = match scan::walk_matching_until(
+            &source.path,
+            source.recursive,
+            source.glob.as_deref(),
+            &|| limits.shutting_down(),
+        ) {
             Ok(walk) => walk,
+            // The watcher is stopping: nothing to record.
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => return,
             Err(error) => {
                 // Not there, or not readable: say so, try at the next rescan.
                 self.unwatch(&source.path, source.watched);
@@ -1826,7 +1835,11 @@ impl Coordinator {
             ) || (matches!(event.kind, EventKind::Create(_)) && path.is_dir());
             if folder_created {
                 // A new subfolder: its files may predate the OS watch on it.
-                if recursive && let Ok(walk) = scan::walk_matching(path, true, glob.as_deref()) {
+                let limits = Arc::clone(&self.limits);
+                let stop = move || limits.shutting_down();
+                if recursive
+                    && let Ok(walk) = scan::walk_matching_until(path, true, glob.as_deref(), &stop)
+                {
                     for (file, _, _) in walk.files {
                         self.mark(file, source_id, false);
                     }

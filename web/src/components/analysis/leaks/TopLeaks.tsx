@@ -20,7 +20,8 @@
  *   own filters (format, seat, pot type) apply to both, and to the examples.
  *
  * The data are the stored leak sums (`analysis_top_leaks`,
- * `analysis_leak_examples`, `20270728090000_leak_summaries.sql`), so a
+ * `analysis_leak_examples`, `20270728090000_leak_summaries.sql`; a leak's
+ * examples on its own table, `20271104120000_drills_by_table.sql`), so a
  * million hands open in well under a second. No AI-written summary: declined
  * for now (ANALYSIS-PLAN A8c).
  */
@@ -32,7 +33,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { encodePosition } from "@rail/ui/replayer/position";
-import { groupLeaks, leakKind } from "../../../lib/analysis/leaks";
+import { groupLeaks, handsTable, leakKind } from "../../../lib/analysis/leaks";
 import {
   EXAMPLES_FETCH,
   TOP_PERIODS,
@@ -120,7 +121,8 @@ export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d
       }
       try {
         const byLeak = await fetchLeakExamples(scope, {
-          leaks: top.map(({ leak }) => ({ id: leak.id, keys: leak.keys })),
+          // Each leak's own table (a spot key names none): a heads-up leak's examples, not the 6-max blinds'.
+          leaks: top.map(({ leak }) => ({ id: leak.id, keys: leak.keys, table: handsTable(leak.attrs, leak.level) })),
           window: period === "30d" ? report.current : null,
           limit: EXAMPLES_FETCH,
         });

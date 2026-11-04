@@ -33,6 +33,7 @@ document refers to most:
 | `20271013090000_billing_consents.sql` | Rail R6.3 addendum: the consent recorded before Stripe Checkout opens (the terms; the request that Pro start at once and the acknowledgement about the right of withdrawal). `billing_consents` (sealed, evidence: only the session id - once - and the owner - cleared on deletion - can change), `billing_record_consent()`, `billing_consent_set_session()`, all service role only; exported to the account (`billing/consents.ndjson`), kept without the owner on deletion. See [Stripe Billing (R6.3)](#stripe-billing-r63). Not applied to production. |
 | `20271102090000_leak_row_table.sql` | A postflop leak row carries its hand's table: `analysis_hand_table_set(phf)` (immutable, no table; executable by `authenticated` for the invoker scan, not `anon`) picks the chart set as `pickChartSet` does - players dealt in, the depth nearest the effective stack of the players still in at the flop, within 20% - and the before-insert row trigger `analysis_leak_rows_table_set` (definer, no client) writes it into `analysis_leak_rows.chart_set` for a flop, turn or river row (preflop rows unchanged). `analysis_leaks_scan` reads the same set (re-created, the R6.2 gate put back); `analysis_leak_rows_table_backfill()` (definer, no client) gives stored rows the set and recounts the two leak sum tables. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 | `20271103090000_leak_hands_table.sql` | The hands behind a leak, on its table: `analysis_leak_table_of(set)` (immutable, no table; executable by `authenticated`, not `anon`) tags a chart set `hu`, `9max` or `other` as the leak finder does (`tableOfSet`), and `analysis_leak_hands` / `analysis_leak_hands_scan` take an optional `leakTable` filter key (`hu`, `9max`, `other`; absent: every table, as before; anything else 22023) - the fast path by the row's `chart_set`, the scan by the set the leak scan reads. Both re-created from `20270825090000` with the same signatures, grants and invoker security; the R6.2 gate put back. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
+| `20271104120000_drills_by_table.sql` | Drills and top-leak examples on a leak's table: new `drill_due_by_spot_tables(version, until)` (`drill_due_by_spot`'s rows with a per-table split, `tables`) and `drill_queue_on_table(version, table, keys, due_only, limit)` (`drill_queue` on one table, `hu` / `9max` / `other`), both invoker, empty search_path, `authenticated` only, added to `entitlement_gates` and gated; `analysis_leak_examples` takes an optional `table` per leak (absent or null: every table, as before; anything else 22023), re-created from `20270818090000` with the same signature and grants, the gate put back. A decision's table is its leak row's `chart_set` (`analysis_leak_table_of`). `drill_due_by_spot` and `drill_queue` unchanged. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 
 The migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`, the statistics, analysis, Learn, report,
@@ -999,7 +1000,10 @@ grade comes from the browser (`lib/training`): a false one only reschedules
 the sender's own drills. Reads are invoker: `drill_queue(version, keys,
 due_only, limit)`, `drill_summary(version, until)` (due now, due by the end of
 the reader's day, and graded Mistakes not drilled yet), `drill_due_by_spot`
-(the Leaks rows' counts) and `trainer_summary(days)`; their helpers
+(the Leaks rows' counts) and `trainer_summary(days)`, and since
+`20271104120000` `drill_due_by_spot_tables` and `drill_queue_on_table` (the
+same on a leak's table; see [Drills and examples on a leak's
+table](#the-analysis-screens-summaries)); their helpers
 `drill_quality`, `drill_next` (SM-2, the same cases as
 `lib/training/schedule.ts`) and `drill_keys_valid` are granted to
 `authenticated` and not to `anon`.
@@ -2580,7 +2584,7 @@ narrow rows and sums kept by statement triggers on `hand_analysis` and
 | `analysis_hand_rows` | one row per `hand_analysis` row: the hand's groups (time, room, format, stake, seat), the analysis columns, and what its decisions add up to (streets, flag codes, graded / chart / node counts, graded grade counts and sums) | `analysis_hands` (every filter), the session trend, facets' first and last |
 | `analysis_month_hands` | analysed hands per (owner, version, UTC month); version `''` = at any version, each hand once | `analysis_coverage`, `hands_needing_analysis_recent` |
 | `analysis_leak_rows` (R5.2's) | one row per decision - **every** decision since `20270825090000`, graded or not - with its hand's day, room, stake, format, seat, pot type, street, status, source, spot key, chart set, grade, score, EV loss (and whether it was none), and for a graded preflop chart decision its node and chosen action | a date range, a room or a stake (the readers' rows path); example hands of the leak list and the chart nodes |
-| `analysis_leak_totals` | graded decisions per (owner, version, format, seat, pot type, spot key, chart set), all time, with distinct hands | `analysis_leaks`, `analysis_leak_sample`, `drill_due_by_spot` |
+| `analysis_leak_totals` | graded decisions per (owner, version, format, seat, pot type, spot key, chart set), all time, with distinct hands | `analysis_leaks`, `analysis_leak_sample`, `drill_due_by_spot`, `drill_due_by_spot_tables` |
 | `analysis_leak_stake_totals` | the same per (owner, version, room, currency, big blind, spot key, chart set) | `analysis_leaks` under a room or stake chip |
 | `analysis_trend_days` | graded decisions of dated hands per (owner, version, UTC day, group: all / street / position / pot type, key) with distinct hands and first / last time | `analysis_trend` week and month |
 | `analysis_overview_hands`, `_decisions`, `_flags`, `_keys` | per (owner, version, format, seat, pot type): hands by status, reason, grade, flagged, approximations; decisions by street, scenario, status, reason, grade, worst flag (facing, defended, MDF, score, EV sums); flags by street, code, severity; hands with a (graded) decision per street, scenario, preflop scenario | `analysis_overview`, `analysis_breakdown`, `analysis_hands`' count |
@@ -2663,8 +2667,36 @@ on the scan `facts.chart.set` for a chart grade and
 `analysis_hand_table_set(phf)` for a postflop decision, as
 `analysis_leaks_scan` reads it. Absent, every table, as before; an older
 database ignores the key (unknown filter keys are not read), so the client
-can send it before the migration is applied. Drills stay per spot key.
-pgTAP `leak_hands_table` (26).
+can send it before the migration is applied. pgTAP `leak_hands_table` (26).
+
+**Drills and examples on a leak's table** (`20271104090000`). The other
+readers by spot key, on the same table: a drill item's table, and an
+example's, is its leak row's set (`analysis_leak_rows.chart_set`, by hand,
+version and ord) tagged by `analysis_leak_table_of`; an item with no leak
+row is `other`.
+
+- `drill_due_by_spot_tables(version, until)` (new): `drill_due_by_spot`'s
+  rows, each with `tables` - `{"hu": {"items", "due"}, "9max": ...,
+  "other": ...}`, only the tables it has, drilled items and Mistakes not
+  drilled yet alike. A row's `key`, `items` and `due` are computed as
+  `drill_due_by_spot` computes them (pgTAP checks the two answers equal
+  with `tables` removed).
+- `drill_queue_on_table(version, table, keys, due_only, limit)` (new):
+  `drill_queue` on one table (`hu`, `9max`, `other`; none or anything else
+  22023), each item also saying its `table`.
+- `analysis_leak_examples(filters, from, to, leaks, limit)`: a leak in
+  `leaks` may say `table` (`hu`, `9max`, `other`; absent or null: every
+  table, as before; anything else 22023). Re-created from `20270818090000`
+  with the same signature, grants and invoker security; an older database
+  ignores the key.
+
+`drill_due_by_spot` and `drill_queue` are unchanged (their answers are what
+the owner-first regression tests compare); the client calls the new ones and
+falls back to them on a database without the migration (PGRST202). Both new
+readers are invoker with an empty search_path, executable by `authenticated`
+only, and gated (`entitlement_gates`, analysis / drills; the R6.2 gate
+written in by `entitlement_gates_apply()`). Nothing written. pgTAP
+`drills_by_table` (29).
 
 **Cost** (`20270825090000` at a generated 1M-hand account, details in
 docs/RAIL-PLAN.md §15): every listed reader under ~0.4 s on its default

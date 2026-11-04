@@ -8,6 +8,7 @@ import { About } from "./About";
 import { Account } from "./Account";
 import { CustomStats } from "./CustomStats";
 import { Folders } from "./Folders";
+import { HudSettings } from "./HudSettings";
 import { Preferences } from "./Preferences";
 import { RefusedAll } from "./RefusedAll";
 import styles from "./Settings.module.css";
@@ -61,6 +62,9 @@ export function Settings() {
           </Anchor>
           <Anchor id="statistics">
             <CustomStats />
+          </Anchor>
+          <Anchor id="hud">
+            <HudSettings />
           </Anchor>
           <Preferences />
           <Anchor id="updates">

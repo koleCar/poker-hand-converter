@@ -21,8 +21,17 @@ export type { PlayerRef };
 export const PLAYER_COLOURS = ["red", "orange", "yellow", "green", "blue", "purple"] as const;
 export type PlayerColour = (typeof PLAYER_COLOURS)[number];
 
-/** Which hands a players list counts: all, cash games, tournament chips. */
+/**
+ * Which hands a players query counts: cash games, tournament chips, or both
+ * (`"all"`, only the screen's first, unseen query: it says which kind the
+ * library has more of). Cash and chips never show together.
+ */
 export type GameKind = "all" | "cash" | "chips";
+
+/** A kind the screen shows: the Cash / Tournaments toggle. */
+export type ShownKind = Exclude<GameKind, "all">;
+
+export const SHOWN_KINDS: ShownKind[] = ["cash", "chips"];
 
 /** `players::PlayerQueryDto`. */
 export interface PlayerQuery {
@@ -115,12 +124,27 @@ export interface PlayerProfile {
   stats: Shown[];
   columns: string[];
   byPosition: StatGroup[];
+  /**
+   * Every definition per position class (`EP`, `MP`, `CO`, `BTN`, `SB`, `BB`),
+   * in the definitions' order: the statistics matrix's columns. The app's
+   * store answers it; a surface without it shows the total column only.
+   */
+  positionStats?: PositionStats[];
   byStake: StatGroup[];
   bySize: StatGroup[];
   byFormat: StatGroup[];
   stakes: StakeSample[];
   lastPlayedAt: string | null;
 }
+
+/** `players::PositionStatsDto`: one position class's statistics. */
+export interface PositionStats {
+  key: string;
+  stats: Shown[];
+}
+
+/** The position classes of the statistics matrix, in its order. */
+export const POSITION_CLASSES = ["EP", "MP", "CO", "BTN", "SB", "BB"] as const;
 
 /** `players::SiteDto`. */
 export interface PlayerSite {

@@ -31,6 +31,34 @@ export function kindOf(formats: readonly string[]): GameKind | null {
   return kinds.size === 1 ? [...kinds][0] : null;
 }
 
+/** A kind's formats, whole: cash, or every chip format. */
+export function kindFormats(kind: GameKind): string[] {
+  return kind === "cash" ? ["cash"] : [...CHIP_FORMATS];
+}
+
+/** Whether `formats` are exactly one kind's, whole (the kind switch's choice, not a narrower one). */
+export function isKindFormats(formats: readonly string[] | undefined): boolean {
+  const kind = kindOf(formats ?? []);
+  if (kind === null) return false;
+  const whole = kindFormats(kind);
+  return whole.length === (formats ?? []).length && whole.every((format) => formats?.includes(format));
+}
+
+/**
+ * `formats` held to `kind`: kept when every one is of that kind (a narrower
+ * choice within it stays), else the kind's whole formats - never both kinds,
+ * never "every format".
+ */
+export function pinFormats(formats: readonly string[] | undefined, kind: GameKind): string[] {
+  const chosen = formats ?? [];
+  return chosen.length > 0 && chosen.every((format) => kindOfFormat(format) === kind) ? [...chosen] : kindFormats(kind);
+}
+
+/** The kind a screen opens on: the one with more hands, cash on a tie. */
+export function defaultKind(counts: Record<GameKind, number>): GameKind {
+  return counts.tournament > counts.cash ? "tournament" : "cash";
+}
+
 /** Hands of each kind, as the Game chip counts them (its own choice left out). */
 export function kindCounts(facets: HandFacets | null): Record<GameKind, number> {
   const counts: Record<GameKind, number> = { cash: 0, tournament: 0 };
@@ -53,6 +81,29 @@ export function withKind(filter: FilterState, kind: GameKind, facets: HandFacets
   const present = (facets?.formats ?? []).filter((f) => f.count > 0).map((f) => f.value);
   const formats = CHIP_FORMATS.filter((format) => present.includes(format));
   return { ...filter, formats: formats.length > 0 ? formats : CHIP_FORMATS };
+}
+
+/** Whether the formats chosen are the whole of one kind (the toggle's choice, not narrowed by the Game chip). */
+export function isWholeKind(filter: FilterState, facets: HandFacets | null): boolean {
+  const kind = kindOf(filter.formats);
+  if (kind === null) return false;
+  const whole = withKind(filter, kind, facets).formats;
+  return whole.length === filter.formats.length && whole.every((format) => filter.formats.includes(format));
+}
+
+/**
+ * The Game chip's change, kept to one kind: a format of the other kind
+ * replaces the choice (the newest pick decides), and "Any" is the whole of
+ * the kind shown - never both kinds.
+ */
+export function withFormats(filter: FilterState, next: readonly string[], facets: HandFacets | null): FilterState {
+  if (next.length === 0) {
+    const kind = kindOf(filter.formats);
+    return kind === null ? { ...filter, formats: [] } : withKind(filter, kind, facets);
+  }
+  const added = next.find((format) => !filter.formats.includes(format)) ?? next[0] ?? "";
+  const kind = kindOfFormat(added);
+  return { ...filter, formats: next.filter((format) => kindOfFormat(format) === kind) };
 }
 
 /**

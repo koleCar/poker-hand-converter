@@ -6,6 +6,7 @@
 
 "use client";
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchDrillSummary, type DrillSummary } from "../../../lib/db/training";
@@ -14,13 +15,14 @@ import { paths } from "../../../lib/routes";
 import { trainQuery, DEFAULT_TRAIN_STATE } from "./trainState";
 import own from "./train.module.css";
 
-export function DrillsDue({ generation }: { generation: number }) {
+/** `kind`: the overview's kind of game - its drills only, never both kinds' together. */
+export function DrillsDue({ generation, kind }: { generation: number; kind: GameKind }) {
   const t = useDict().analysis.train.overview;
   const [summary, setSummary] = useState<DrillSummary | null>(null);
 
   useEffect(() => {
     let live = true;
-    fetchDrillSummary()
+    fetchDrillSummary(kind)
       .then((value) => {
         if (live) setSummary(value);
       })
@@ -30,7 +32,7 @@ export function DrillsDue({ generation }: { generation: number }) {
     return () => {
       live = false;
     };
-  }, [generation]);
+  }, [generation, kind]);
 
   if (!summary || summary.items + summary.candidates === 0) return null;
   // Undrilled Mistakes become drills, due at once, on the trainer's first sync.
@@ -45,7 +47,7 @@ export function DrillsDue({ generation }: { generation: number }) {
         {t.due(due, today)}
         {summary.candidates > 0 ? ` ${t.candidates(summary.candidates)}` : ""}
       </p>
-      <Link href={paths.analysisTrain(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills" }))} className="btn btn--primary btn--sm">
+      <Link href={paths.analysisTrain(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills", kind }))} className="btn btn--primary btn--sm">
         {t.train}
       </Link>
     </section>

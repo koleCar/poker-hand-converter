@@ -169,12 +169,12 @@ select ok(
 select ok(
   has_function_privilege('authenticated', 'public.analysis_top_leaks(jsonb, text)', 'execute')
   and has_function_privilege('authenticated', 'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)', 'execute')
-  and has_function_privilege('authenticated', 'public.analysis_leak_sample(uuid, text, text, text, text, date, date)', 'execute'),
+  and has_function_privilege('authenticated', 'public.analysis_leak_sample(uuid, text, text[], text, text, date, date)', 'execute'),
   '... executable by authenticated');
 select ok(
   not has_function_privilege('anon', 'public.analysis_top_leaks(jsonb, text)', 'execute')
   and not has_function_privilege('anon', 'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)', 'execute')
-  and not has_function_privilege('anon', 'public.analysis_leak_sample(uuid, text, text, text, text, date, date)', 'execute'),
+  and not has_function_privilege('anon', 'public.analysis_leak_sample(uuid, text, text[], text, text, date, date)', 'execute'),
   '... and not by anon');
 select is(
   (select count(*)::int from pg_trigger
