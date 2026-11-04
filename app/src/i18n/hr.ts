@@ -1293,7 +1293,7 @@ export const hr: Dict = {
     remove: "Ukloni",
     display: "Prikaz",
     decimals: "Decimale",
-    decimalsDefault: "Auto",
+    decimalsDefault: "Automatski",
     minSample: "Puna boja od",
     minSampleUnit: "ruku",
     bands: "Pojasevi boja",
