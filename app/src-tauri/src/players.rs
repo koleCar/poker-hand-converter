@@ -231,6 +231,32 @@ pub struct StakeSampleDto {
     big_blind: i64,
 }
 
+/// One position class's statistics (the profile's matrix column).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PositionStatsDto {
+    key: &'static str,
+    /// Every definition (`hands` among them), as the profile's `stats`.
+    stats: Vec<ShownDto>,
+}
+
+/// The position classes of the statistics matrix, in its order.
+pub const POSITION_CLASSES: [&str; 6] = ["EP", "MP", "CO", "BTN", "SB", "BB"];
+
+/// A seat's position class: the early seats, the middle ones, then each late
+/// seat and blind on its own (`None`: no position assigned).
+fn position_class(position: &str) -> Option<&'static str> {
+    match position {
+        "UTG" | "UTG+1" | "UTG+2" => Some("EP"),
+        "MP" | "MP+1" | "LJ" | "HJ" => Some("MP"),
+        "CO" => Some("CO"),
+        "BTN" => Some("BTN"),
+        "SB" => Some("SB"),
+        "BB" => Some("BB"),
+        _ => None,
+    }
+}
+
 /// One opponent's profile.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -251,6 +277,10 @@ pub struct ProfileDto {
     /// [`BREAKDOWN_COLUMNS`]: the statistics of every group row.
     columns: Vec<&'static str>,
     by_position: Vec<GroupDto>,
+    /// Every definition per position class (`EP`, `MP`, `CO`, `BTN`, `SB`,
+    /// `BB`), in `stat_definitions`' order, withheld as `stats`: the
+    /// statistics matrix's columns.
+    position_stats: Vec<PositionStatsDto>,
     by_stake: Vec<GroupDto>,
     by_size: Vec<GroupDto>,
     by_format: Vec<GroupDto>,
@@ -306,17 +336,20 @@ pub fn build_profile(
         mixed_kind: cash && chips,
         ..Units::default()
     };
-    let stats = show_all(display, &all.sums(), &units, None)
-        .into_iter()
-        .zip(&display.stats)
-        .map(|(shown, stat)| {
-            if stat.def.players == Players::Hero || stat.def.format.unit == Unit::Money {
-                shown.withheld()
-            } else {
-                shown
-            }
-        })
-        .collect();
+    let theirs = |totals: &Totals| -> Vec<ShownDto> {
+        show_all(display, &totals.sums(), &units, None)
+            .into_iter()
+            .zip(&display.stats)
+            .map(|(shown, stat)| {
+                if stat.def.players == Players::Hero || stat.def.format.unit == Unit::Money {
+                    shown.withheld()
+                } else {
+                    shown
+                }
+            })
+            .collect()
+    };
+    let stats = theirs(&all);
     let by = |key: &dyn Fn(&rail_stats::Segment) -> String| {
         let mut groups: BTreeMap<String, Totals> = BTreeMap::new();
         for rollup in &rollups {
@@ -347,6 +380,21 @@ pub fn build_profile(
         .positions
         .iter()
         .map(|(position, totals)| totals_row(position.clone(), None, totals, display, &units))
+        .collect();
+    let mut classes: BTreeMap<&'static str, Totals> = BTreeMap::new();
+    for (position, totals) in &pass.positions {
+        if let Some(class) = position_class(position) {
+            classes.entry(class).or_default().add(totals, true);
+        }
+    }
+    let position_stats = POSITION_CLASSES
+        .iter()
+        .filter_map(|class| {
+            classes.get(class).map(|totals| PositionStatsDto {
+                key: class,
+                stats: theirs(totals),
+            })
+        })
         .collect();
     // One hand per cash stake gives its label (the blinds and the unit).
     let mut samples: BTreeMap<String, String> = BTreeMap::new();
@@ -390,6 +438,7 @@ pub fn build_profile(
         stats,
         columns: BREAKDOWN_COLUMNS.to_vec(),
         by_position,
+        position_stats,
         by_stake,
         by_size,
         by_format,

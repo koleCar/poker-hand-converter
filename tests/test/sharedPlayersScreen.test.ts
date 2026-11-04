@@ -339,29 +339,34 @@ describe("the screen, rendered", () => {
             kind: "cash",
             definitions: WEB_DEFINITIONS,
             notesFootnote: "Where the words are kept.",
-            onHandsWith: () => undefined,
             onNotes: () => undefined,
           }),
         );
         const t = p.profile;
         expect(html).toContain(t.together);
         // Cash only: the profile never adds tournament hands to cash ones.
-        expect(html).toContain(t.resultCash);
+        expect(html).toContain(t.yourResult);
         expect(html).not.toContain(t.resultChips);
-        expect(html).toContain(t.handsWith(120));
+        // The words sit behind a closed disclosure whose summary shows them.
+        expect(html).toContain(`<details class=`);
+        expect(html).toContain(t.words);
         expect(html).toContain("Calls too much.");
         expect(html).toContain("Where the words are kept.");
         expect(html.includes(`role="radiogroup"`)).toBe(features.colours);
         expect(html.includes(t.addLabel)).toBe(features.labels);
         expect(html).toContain(t.stats);
-        expect(html).toContain((locale === "en" ? reportsUiEn : reportsUiHr).stats.groups.preflop);
-        for (const tab of Object.values(t.tabs)) expect(html).toContain(tab);
+        for (const section of Object.values(t.sections)) expect(html).toContain(section);
+        expect(html).toContain(`>${t.total}<`);
+        // The breakdown by position and stakes only.
+        expect(html).toContain(t.tabs.position);
+        expect(html).toContain(t.tabs.stake);
+        expect(html).not.toContain(`>${t.tabs.size}<`);
         expect(html).toContain(t.noPosition);
         // All-in EV is the hero's: not in an opponent's statistics.
         const allIn = STANDARD_STATS.find((stat) => stat.def.id === "allin_ev_bb_per_100")!.def;
         expect(html).not.toContain(`>${allIn.name[locale]}<`);
-        const vpip = STANDARD_STATS.find((stat) => stat.def.id === "vpip")!.def;
-        expect(html).toContain(`>${vpip.name[locale]}<`);
+        expect(html).toContain(`>${t.rows.vpip}<`);
+        expect(html).toContain(`>${t.rows.call3Bet}<`);
       });
 
       it(`the list on ${name} source, ${locale}: names, a note's mark, colours only where kept`, () => {
