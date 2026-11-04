@@ -1,5 +1,5 @@
-/* The HUD screen's "At the tables" (R3.10): tables with the HUD, tables
-   without it and why, where the HUD may be used. Tokens only (the app's
+/* Settings, HUD (R3.10): tables with the HUD, tables without it and why,
+   where the HUD may be used and how each room seats the user. Tokens only (the app's
    stylelint rules). */
 
 .card {
@@ -7,7 +7,6 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-5) var(--space-6);
-  margin-bottom: var(--space-5);
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
@@ -180,4 +179,39 @@
 .button:disabled {
   cursor: default;
   opacity: 0.6;
+}
+
+/* An allowed room: its name and policy, then how the client seats the user. */
+.roomRow {
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.roomName {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+}
+
+.seat {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.select {
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
 }

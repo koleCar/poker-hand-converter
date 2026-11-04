@@ -1,5 +1,6 @@
 /**
- * The HUD screen's "At the tables" (docs/RAIL-PLAN.md R3.10; guideline §7,
+ * Settings, HUD - once the HUD screen's "At the tables" (docs/RAIL-PLAN.md
+ * R3.10; guideline §7,
  * compliance mode): which tables the HUD is on, which tables it found and
  * left alone and why - in plain words, with the room's policy page and the
  * date it was read -, "Why can't I enable the HUD here?", where the HUD may
@@ -17,6 +18,10 @@
  * System Settings at the pane, and notices the grant from the status it polls.
  * The user grants it; nothing here changes a setting. Without a supported
  * client the panel says only that none is running, and asks for nothing.
+ *
+ * Each allowed room also has the user's answer to "my client seats me at
+ * the bottom" (R3.6, `hud_set_preferred_seat`): how the HUD lays out the
+ * seats there.
  */
 import { useEffect, useRef, useState } from "react";
 
@@ -36,7 +41,7 @@ import {
   type HudPermission,
   type RefusalWhy,
 } from "../../lib/hudCompliance";
-import { errorText, inApp, ipc, type HudPolicy, type HudStatus, type RoomPolicy } from "../../lib/ipc";
+import { errorText, inApp, ipc, onHudLayoutsChanged, type HudPolicy, type HudStatus, type RoomPolicy } from "../../lib/ipc";
 import type { HudCompliance } from "../../lib/useHudCompliance";
 import styles from "./HudStatusPanel.module.css";
 
@@ -136,6 +141,62 @@ function PermissionCard({ status }: { status: HudStatus }) {
   );
 }
 
+/** (R3.6) The user's answers per room, read from the editor's state. */
+function usePreferredSeats(): {
+  seats: Record<string, boolean | null> | null;
+  set: (site: string, preferred: boolean | null) => void;
+  error: string | null;
+} {
+  const [seats, setSeats] = useState<Record<string, boolean | null> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [generation, setGeneration] = useState(0);
+  useEffect(() => onHudLayoutsChanged(() => setGeneration((n) => n + 1)), []);
+  useEffect(() => {
+    if (!inApp) return;
+    let live = true;
+    ipc
+      .hudEditorState()
+      .then((state) => {
+        if (live) setSeats(Object.fromEntries(state.roomSettings.map((r) => [r.site, r.preferredSeat])));
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [generation]);
+  const set = (site: string, preferred: boolean | null) => {
+    setError(null);
+    setSeats((old) => ({ ...(old ?? {}), [site]: preferred }));
+    ipc
+      .hudSetPreferredSeat(site, preferred)
+      .then(() => setGeneration((n) => n + 1))
+      .catch((e: unknown) => {
+        setError(errorText(e));
+        setGeneration((n) => n + 1);
+      });
+  };
+  return { seats, set, error };
+}
+
+function PreferredSeat({ room, value, onChange }: { room: RoomPolicy; value: boolean | null; onChange: (v: boolean | null) => void }) {
+  const s = useT().hudStatus;
+  return (
+    <label className={styles.seat}>
+      <span className={styles.muted}>{s.preferredSeat}</span>
+      <select
+        className={styles.select}
+        value={value === null ? "auto" : value ? "yes" : "no"}
+        aria-label={`${room.name}: ${s.preferredSeat}`}
+        onChange={(event) => onChange(event.target.value === "auto" ? null : event.target.value === "yes")}
+      >
+        <option value="auto">{s.preferredSeatAuto}</option>
+        <option value="yes">{s.preferredSeatYes}</option>
+        <option value="no">{s.preferredSeatNo}</option>
+      </select>
+    </label>
+  );
+}
+
 function whyText(t: ReturnType<typeof useT>, why: RefusalWhy, name: string): string {
   const w = t.hudStatus.why;
   switch (why) {
@@ -204,6 +265,7 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
   const t = useT();
   const s = t.hudStatus;
   const { status, policy, error, checking, checkNow } = compliance;
+  const seats = usePreferredSeats();
 
   if (!inApp) {
     return (
@@ -304,13 +366,23 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
         ) : (
           <ul className={styles.list}>
             {allowed.map((room) => (
-              <li key={room.id} className={styles.item}>
-                <span className={styles.table}>{room.name}</span>
-                <PolicySource room={room} />
+              <li key={room.id} className={`${styles.item} ${styles.roomRow}`}>
+                <span className={styles.roomName}>
+                  <span className={styles.table}>{room.name}</span>
+                  <PolicySource room={room} />
+                </span>
+                {seats.seats !== null && (
+                  <PreferredSeat
+                    room={room}
+                    value={seats.seats[room.id] ?? null}
+                    onChange={(value) => seats.set(room.id, value)}
+                  />
+                )}
               </li>
             ))}
           </ul>
         )}
+        {seats.error !== null && <p className={styles.muted}>{s.preferredSeatFailed(seats.error)}</p>}
         <details className={styles.explain}>
           <summary className={styles.summary}>{s.notAllowedLead(notAllowed.length)}</summary>
           <ul className={`${styles.list} ${styles.inner}`}>
