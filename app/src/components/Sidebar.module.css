@@ -1,20 +1,141 @@
+/* Full, or collapsed to its icons. Collapsed, nothing moves: every icon keeps
+   its place on the same centre line (34px in), the sidebar only narrows to
+   68px (the icons and 12px either side) and clips the labels. */
 .sidebar {
   display: flex;
+  flex: none;
   flex-direction: column;
   gap: var(--space-6);
+  width: 220px;
   padding: var(--space-6) var(--space-3);
+  overflow: hidden auto;
   background: var(--surface-sunken);
   border-right: 1px solid var(--border-subtle);
 }
 
-/* Large text (20px bold), so the money hue clears 3:1 in both themes (R2.8;
-   at 17px it needed 4.5:1 and had 4.46 in light). */
+.collapsed {
+  width: 68px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sidebar {
+    transition: width var(--dur-4) var(--ease-standard);
+  }
+}
+
+.sidebar .icon {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+/* The lockup and, at its end, the collapse toggle; collapsed, the toggle
+   drops under the mark. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.collapsed .head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
 .brand {
-  padding: 0 var(--space-3);
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* As wide as a collapsed sidebar's content, so the mark sits on the icons'
+   centre line. */
+.markBox {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  width: 44px;
+}
+
+/* A stroked outline in the accent, as on the web's bar. */
+.mark {
+  color: var(--accent-fg);
+}
+
+/* The web's wordmark: lowercase, bold, the `i`'s dot redrawn in the accent. */
+.wordmark {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-tight);
-  color: var(--money-fg);
+  line-height: 1.2;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* The sidebar clips at its padding edge, not its content: hide what would
+   show in the padding. */
+.collapsed .wordmark {
+  visibility: hidden;
+}
+
+.wordmarkI {
+  position: relative;
+  color: transparent;
+}
+
+/* The glyph clipped just below its own dot, leaving the stem. */
+.wordmarkI::before {
+  content: "i";
+  position: absolute;
+  inset: 0;
+  color: var(--text-primary);
+  clip-path: inset(30% 0 0 0);
+}
+
+.wordmarkI::after {
+  content: "";
+  position: absolute;
+  top: -0.02em;
+  left: 50%;
+  width: 0.34em;
+  height: 0.34em;
+  border-radius: 50%;
+  background: var(--accent-fg);
+  transform: translateX(-50%);
+}
+
+.toggle {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+
+.toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.collapsed .toggle {
+  width: 44px;
+}
+
+.label {
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .list {
@@ -27,8 +148,11 @@
 }
 
 .link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
+  overflow: hidden;
   border-radius: var(--radius-2);
   color: var(--text-secondary);
   font-weight: var(--font-weight-medium);
@@ -50,12 +174,14 @@
 }
 
 /* The command palette's button (R2.8). */
+/* Its border takes 1px of the padding, so the icon stays on the centre line. */
 .search {
   display: flex;
+  flex: none;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  gap: var(--space-3);
+  padding: var(--space-2) calc(var(--space-3) - 1px);
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-2);
   background: var(--surface-inset);
@@ -72,6 +198,7 @@
 
 .kbd {
   flex: none;
+  margin-left: auto;
   padding: 0 var(--space-1);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-1);
@@ -86,7 +213,9 @@
   align-items: center;
   gap: var(--space-2);
   margin-top: auto;
-  padding: var(--space-2) var(--space-3);
+  /* The 28px avatar on the icons' centre line. */
+  padding: var(--space-2);
+  overflow: hidden;
   border-radius: var(--radius-2);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);

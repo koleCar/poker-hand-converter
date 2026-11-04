@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { RailMark } from "../brand/RailMark";
+import { RailMark } from "@rail/ui/brand/RailMark";
 import type { Dict } from "../../lib/i18n/types";
 import "../../styles/embed.css";
 

@@ -1,6 +1,7 @@
 .shell {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  /* The sidebar sets its own width: full, or collapsed to its icons. */
+  grid-template-columns: auto minmax(0, 1fr);
   height: 100%;
 }
 

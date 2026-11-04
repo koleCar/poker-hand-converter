@@ -61,6 +61,8 @@ export const hr: Dict = {
     hud: "HUD",
     settings: "Postavke",
     search: "Traži…",
+    collapse: "Sažmi izbornik",
+    expand: "Proširi izbornik",
     searchLabel: "Traži ili pokreni naredbu",
     account: "Račun",
     signIn: "Prijava",
