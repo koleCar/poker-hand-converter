@@ -1,4 +1,3 @@
-import { APP_RELEASES_URL } from "../../lib/download";
 import type { Dict, Locale } from "../../lib/i18n/types";
 import { DownloadButtons } from "./DownloadButtons";
 import styles from "./download.module.css";
@@ -6,7 +5,9 @@ import styles from "./download.module.css";
 /**
  * `/download`: the desktop app in one screen - the promo picture, what the
  * app does, the two installers and what to expect the first time it opens
- * (the builds are not signed yet, docs/RAIL-PLAN.md P3/P4).
+ * (the builds are not signed yet, docs/RAIL-PLAN.md P3/P4). The app is part
+ * of Rail Pro: `DownloadButtons` offers the installers to a Pro account only,
+ * and no link here goes straight to the files.
  *
  * The picture is `public/download/rail-app-promo.<locale>.*`, drawn by
  * `scripts/app-promo/` (a drawing of the app, not a screenshot).
@@ -19,7 +20,7 @@ export function DownloadPage({ en, locale }: { en: Dict; locale: Locale }) {
         <h1 className={styles.heading}>{t.heading}</h1>
         <p className={styles.lede}>{t.lede}</p>
         <DownloadButtons />
-        <p className={styles.free}>{t.free}</p>
+        <p className={styles.free}>{t.included}</p>
       </header>
 
       <picture className={styles.promo}>
@@ -45,9 +46,6 @@ export function DownloadPage({ en, locale }: { en: Dict; locale: Locale }) {
           <dt>{t.windows.name}</dt>
           <dd>{t.firstOpen.windows}</dd>
         </dl>
-        <a className={styles.releases} href={APP_RELEASES_URL}>
-          {t.allReleases}
-        </a>
       </section>
     </article>
   );

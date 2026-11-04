@@ -5,7 +5,7 @@
 export const downloadEn = {
   metaTitle: "Download the Rail app for macOS and Windows | Rail",
   metaDescription:
-    "Rail's desktop tracker and HUD: imports every hand as you play, puts live stats on the table and syncs with your account. Free for macOS and Windows.",
+    "Rail's desktop tracker and HUD: imports every hand as you play, puts live stats on the table and syncs with your account. Part of Rail Pro, for macOS and Windows.",
 
   /** The link in the bar, and its name for a screen reader. */
   getApp: "Get the app",
@@ -45,8 +45,18 @@ export const downloadEn = {
     cta: "Download for Windows",
     detail: "Windows 10 or 11 · 64-bit · installer, no admin rights",
   },
-  free: "Free to download. Import, the library, the replayer and statistics work without an account.",
-  allReleases: "All versions and release notes",
+  included: "Part of Rail Pro. Once installed, import, the library and the replayer work offline too.",
+
+  /** In place of the installers until the account's plan allows them. */
+  gate: {
+    checking: "Checking your plan…",
+    signIn: "Sign in to download",
+    signInReason: "Sign in with your Rail Pro account to download the desktop app.",
+    signInDetail: "The desktop app comes with Rail Pro.",
+    proBody: "Your plan doesn't include the desktop app. Upgrade to Pro to download it.",
+    error: "We couldn't check your plan, so the download is not available right now.",
+    retry: "Try again",
+  },
 
   firstOpen: {
     heading: "Opening it the first time",
