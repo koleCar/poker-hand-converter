@@ -125,6 +125,12 @@ fn refused_hands_leave_the_outbox_with_their_reason_until_tried_again() {
     let dir = scratch_dir("sync-reject");
     let store = Store::open(dir.join("rail.db")).expect("open");
     import_file(&store, &corpus_file(CHICO), &options()).expect("import");
+    // The corpus file is PLO, whose refusals the counts leave out (see
+    // `refused_omaha_hands_are_not_shown`): read them as hold'em here.
+    Connection::open(store.path())
+        .expect("open")
+        .execute("UPDATE hands SET variant = 'holdem'", [])
+        .expect("variant");
     let now = rail_store::time::now_ms();
     let all = keys(&store.reader().outbox_next(now, now, 100).expect("next"));
     let writer = store.writer().expect("writer");
@@ -193,6 +199,36 @@ fn refused_hands_leave_the_outbox_with_their_reason_until_tried_again() {
     assert_integrity(&Connection::open(store.path()).expect("open"));
 }
 
+#[test]
+fn refused_omaha_hands_are_not_shown() {
+    let dir = scratch_dir("sync-reject-omaha");
+    let store = Store::open(dir.join("rail.db")).expect("open");
+    import_file(&store, &corpus_file(CHICO), &options()).expect("import");
+    let now = rail_store::time::now_ms();
+    let all = keys(&store.reader().outbox_next(now, now, 100).expect("next"));
+    let writer = store.writer().expect("writer");
+    let rejected = writer
+        .outbox_reject(
+            all.iter()
+                .take(2)
+                .map(|key| Rejection {
+                    hand_key: key.clone(),
+                    reason: "invalid".into(),
+                    field: None,
+                })
+                .collect(),
+            now,
+        )
+        .expect("reject");
+    assert_eq!(rejected, 2, "still recorded and out of the outbox");
+
+    // Omaha is not worked out yet: its refusals are kept but not shown.
+    let counts = store.reader().sync_counts(now, now).expect("counts");
+    assert!(counts.rejected.is_empty(), "{:?}", counts.rejected);
+    assert!(store.reader().sync_rejected(10).expect("list").is_empty());
+    let next = keys(&store.reader().outbox_next(now, now, 100).expect("next"));
+    assert_eq!(next.len(), all.len() - 2);
+}
 #[test]
 fn another_owner_gets_every_local_hand_queued_again_but_no_pulled_one() {
     let dir = scratch_dir("sync-owner");
