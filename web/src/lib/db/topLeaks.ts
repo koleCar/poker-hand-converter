@@ -13,7 +13,7 @@
  */
 
 import { ANALYSIS_VERSION } from "../analysis";
-import type { SpotRow } from "../analysis/leaks";
+import type { HandsTable, SpotRow } from "../analysis/leaks";
 import type { TopPeriod } from "../analysis/topLeaks";
 import { currentUserId, rpc } from "./client";
 import type { AnalysisFilters } from "./analysis";
@@ -147,8 +147,13 @@ export interface LeakExampleRow {
 }
 
 export interface LeakExamplesQuery {
-  /** Each leak's id and finest spot keys (`Leak.keys`), at most 10 leaks of at most 200 keys. */
-  leaks: Array<{ id: string; keys: string[] }>;
+  /**
+   * Each leak's id and finest spot keys (`Leak.keys`), at most 10 leaks of at
+   * most 200 keys, and its table (`handsTable`; absent or null: every table).
+   * A spot key names no table, so a heads-up leak's keys also hold the 6-max
+   * blinds' decisions (`20271104090000_drills_by_table.sql`).
+   */
+  leaks: Array<{ id: string; keys: string[]; table?: HandsTable | null }>;
   /** UTC days, inclusive; null for all time. */
   window: DayWindow | null;
   /** Decisions per leak (the server takes 1-30). */
@@ -193,7 +198,7 @@ export async function fetchLeakExamples(filters: AnalysisFilters, query: LeakExa
     p_filters: topLeaksFilters(filters),
     p_from: query.window?.from ?? null,
     p_to: query.window?.to ?? null,
-    p_leaks: leaks.map((leak) => ({ id: leak.id, keys: leak.keys.slice(0, 200) })),
+    p_leaks: leaks.map((leak) => ({ id: leak.id, keys: leak.keys.slice(0, 200), ...(leak.table ? { table: leak.table } : {}) })),
     p_limit: query.limit,
   });
   return examplesFromPayload(payload);

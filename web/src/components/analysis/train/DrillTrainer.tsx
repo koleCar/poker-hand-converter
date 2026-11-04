@@ -92,17 +92,18 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
   const [done, setDone] = useState(0);
   const [charts, setCharts] = useState<ChartSet | null>(null);
 
-  const deckKey = JSON.stringify({ spots: state.spots, all: state.all, inaccurate: state.inaccurate, attempt });
+  // A leak's or area's drills on its own table (a spot key names none).
+  const deckKey = JSON.stringify({ spots: state.spots, table: state.spots ? state.table : null, all: state.all, inaccurate: state.inaccurate, attempt });
 
   // Build the deck: sync, then read the counts and the queue.
   useEffect(() => {
     let live = true;
-    const want = JSON.parse(deckKey) as { spots: string[] | null; all: boolean; inaccurate: boolean };
+    const want = JSON.parse(deckKey) as { spots: string[] | null; table: TrainState["table"]; all: boolean; inaccurate: boolean };
     (async () => {
       await syncDrills(want.inaccurate ? "inaccurate" : "mistake");
       const [summary, queue] = await Promise.all([
         fetchDrillSummary(),
-        fetchDrillQueue({ keys: want.spots, dueOnly: !want.all && !want.spots, limit: QUEUE_SIZE }),
+        fetchDrillQueue({ keys: want.spots, table: want.table, dueOnly: !want.all && !want.spots, limit: QUEUE_SIZE }),
       ]);
       return { summary, queue };
     })()
@@ -306,7 +307,7 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
         {state.spots ? (
           <p className={own.leakFilter}>
             <span>{d.leak(state.spots.length)}</span>
-            <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange({ spots: null })}>
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange({ spots: null, table: null })}>
               {d.allDrills}
             </button>
           </p>

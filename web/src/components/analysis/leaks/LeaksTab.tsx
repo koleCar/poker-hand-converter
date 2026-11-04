@@ -19,7 +19,9 @@
  * **"Drill this"** (phase A7) opens the trainer's drills on the leak's spot
  * keys: the Mistakes and Blunders behind it, as "what would you do?". Each
  * row says how many of them are due today (`drill_due_by_spot`; a Mistake
- * not drilled yet counts as due, since the trainer's first sync makes it so).
+ * not drilled yet counts as due, since the trainer's first sync makes it so),
+ * both on the leak's own table (`handsTable`; `drill_due_by_spot`'s `tables`,
+ * `drill_queue_on_table`): a heads-up leak's keys also hold the 6-max blinds'.
  */
 
 "use client";
@@ -37,7 +39,7 @@ import {
   type Leak,
   type LeakSort,
 } from "../../../lib/analysis/leaks";
-import { handsTable, lineSeats } from "../../../lib/analysis/leaks";
+import { drillsOn, handsTable, lineSeats, type SpotDrills } from "../../../lib/analysis/leaks";
 import { walkLine } from "../../../lib/analysis/reports";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -96,7 +98,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
   const [attempt, setAttempt] = useState(0);
   const [howOpen, setHowOpen] = useState(false);
   const [all, setAll] = useState(false);
-  const [drills, setDrills] = useState<Map<string, { items: number; due: number }> | null>(null);
+  const [drills, setDrills] = useState<Map<string, SpotDrills> | null>(null);
   // Only a leak named by the address on arrival is scrolled to; one opened here stays put.
   const arrivedOn = useRef(state.leak);
 
@@ -393,19 +395,10 @@ function useLeakWords() {
   );
 }
 
-/** A leak's drills: how many there are and how many are due today, summed over its spots. */
-function drillCount(leak: Leak, drills: Map<string, { items: number; due: number }> | null) {
+/** A leak's drills: how many there are and how many are due today, summed over its spots on its table. */
+function drillCount(leak: Leak, drills: Map<string, SpotDrills> | null) {
   if (!drills) return null;
-  let items = 0;
-  let due = 0;
-  for (const key of leak.keys) {
-    const row = drills.get(key);
-    if (row) {
-      items += row.items;
-      due += row.due;
-    }
-  }
-  return { items, due };
+  return drillsOn(drills, leak.keys, handsTable(leak.attrs, leak.level));
 }
 
 function LeakItem({
@@ -420,7 +413,7 @@ function LeakItem({
   rank: number;
   open: boolean;
   filters: AnalysisFilters;
-  drills: Map<string, { items: number; due: number }> | null;
+  drills: Map<string, SpotDrills> | null;
   onToggle: () => void;
 }) {
   const t = useDict().analysis.leaks;
@@ -531,7 +524,7 @@ function LeakDetail({
       <LearnLinks concepts={leakConcepts(leak.attrs)} />
 
       <div className={styles.drill}>
-        <Link href={paths.analysisTrain(drillQuery(leak.keys))} className="btn btn--sm" aria-describedby={drills ? drillId : undefined}>
+        <Link href={paths.analysisTrain(drillQuery(leak.keys, handsTable(leak.attrs, leak.level)))} className="btn btn--sm" aria-describedby={drills ? drillId : undefined}>
           {t.detail.drill}
         </Link>
         {drills ? (

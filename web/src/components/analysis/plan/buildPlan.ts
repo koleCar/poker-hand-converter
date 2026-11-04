@@ -10,7 +10,7 @@
  */
 
 import { ANALYSIS_VERSION } from "../../../lib/analysis";
-import { handsTable } from "../../../lib/analysis/leaks";
+import { handsTable, type SpotDrills } from "../../../lib/analysis/leaks";
 import { fetchLeakHands, fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { saveStudyPlan, type StoredPlan } from "../../../lib/db/studyPlan";
 import { fetchDrillSummary, fetchDrillsBySpot } from "../../../lib/db/training";
@@ -67,7 +67,7 @@ export async function buildPlan(week: string, previous: StoredPlan | null): Prom
   let tasks: PlanTask[];
   if (focus.kind === "leaks") {
     const [drills, handPages] = await Promise.all([
-      fetchDrillsBySpot().catch(() => new Map<string, { items: number; due: number }>()),
+      fetchDrillsBySpot().catch(() => new Map<string, SpotDrills>()),
       Promise.all(
         areas.map((area) =>
           fetchLeakHands({}, { keys: area.keys, table: handsTable(area.where, area.level), deviations: true, sort: "ev_loss", limit: HANDS_PER_AREA }).catch(() => ({

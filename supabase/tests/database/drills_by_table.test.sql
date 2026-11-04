@@ -3,15 +3,16 @@
 --
 -- What has to hold:
 --
---   * security: `drill_queue_on_table` is new, invoker, empty search_path,
---     gated (R6.2, listed in `entitlement_gates`), executable by
---     `authenticated` only; the re-created `drill_due_by_spot` and
---     `analysis_leak_examples` stay invoker with an empty search_path and
---     keep their gate and grants; `drill_queue` is untouched; still no client
---     write grant on the drill items or the leak rows;
---   * `drill_due_by_spot`: each key's `items` / `due` as before (every
---     table), and `tables` splitting them per table (drilled and not yet
---     drilled Mistakes alike), summing to the key's;
+--   * security: `drill_due_by_spot_tables` and `drill_queue_on_table` are
+--     new, invoker, empty search_path, gated (R6.2, listed in
+--     `entitlement_gates`), executable by `authenticated` only; the
+--     re-created `analysis_leak_examples` stays invoker with an empty
+--     search_path and keeps its gate and grants; `drill_queue` and
+--     `drill_due_by_spot` are untouched; still no client write grant on the
+--     drill items or the leak rows;
+--   * `drill_due_by_spot_tables`: each key's `key` / `items` / `due` exactly
+--     `drill_due_by_spot`'s (every table), and `tables` splitting them per
+--     table (drilled and not yet drilled Mistakes alike), summing to the key's;
 --   * `drill_queue_on_table`: only that table's items (postflop by the
 --     hand's table, `other` for 6-max and a hand no set answers), each saying
 --     its table; an unknown or missing table refused; `drill_queue` still
@@ -25,7 +26,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(27);
+select plan(29);
 
 insert into auth.users (id, email, email_confirmed_at, created_at) values
   ('00000000-0000-0000-0000-00000013d7a1', 'drilltable.a@example.com', now(), now()),
@@ -69,25 +70,29 @@ select ok(
           and count(*) = 3
    from pg_proc p
    where p.oid in ('public.drill_queue_on_table(text, text, text[], boolean, integer)'::regprocedure,
-                   'public.drill_due_by_spot(text, timestamptz)'::regprocedure,
+                   'public.drill_due_by_spot_tables(text, timestamptz)'::regprocedure,
                    'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)'::regprocedure)),
-  'the new reader and both re-created ones are invoker, empty search_path, and carry the R6.2 gate');
-select ok(
-  exists (select 1 from public.entitlement_gates
-          where function_sig = 'public.drill_queue_on_table(text,text,text[],boolean,integer)' and feature = 'analysis'),
-  '... the new one is listed in entitlement_gates (analysis)');
+  'the two new readers and the re-created one are invoker, empty search_path, and carry the R6.2 gate');
+select is(
+  (select array_agg(function_sig order by function_sig) from public.entitlement_gates
+    where function_sig in ('public.drill_queue_on_table(text,text,text[],boolean,integer)',
+                           'public.drill_due_by_spot_tables(text,timestamp with time zone)') and feature = 'analysis'),
+  array['public.drill_due_by_spot_tables(text,timestamp with time zone)', 'public.drill_queue_on_table(text,text,text[],boolean,integer)'],
+  '... the new ones are listed in entitlement_gates (analysis)');
 select ok(
   has_function_privilege('authenticated', 'public.drill_queue_on_table(text, text, text[], boolean, integer)', 'execute')
-  and has_function_privilege('authenticated', 'public.drill_due_by_spot(text, timestamptz)', 'execute')
+  and has_function_privilege('authenticated', 'public.drill_due_by_spot_tables(text, timestamptz)', 'execute')
   and has_function_privilege('authenticated', 'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)', 'execute')
   and not has_function_privilege('anon', 'public.drill_queue_on_table(text, text, text[], boolean, integer)', 'execute')
-  and not has_function_privilege('anon', 'public.drill_due_by_spot(text, timestamptz)', 'execute')
+  and not has_function_privilege('anon', 'public.drill_due_by_spot_tables(text, timestamptz)', 'execute')
   and not has_function_privilege('anon', 'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)', 'execute'),
   '... executable by authenticated, not by anon');
 select ok(
-  (select position('analysis_leak_table_of' in pg_get_functiondef('public.drill_queue(text, text[], boolean, integer)'::regprocedure)) = 0
-          and position('public.require_entitlement(''analysis'')' in pg_get_functiondef('public.drill_queue(text, text[], boolean, integer)'::regprocedure)) > 0),
-  'drill_queue is untouched (no table, still gated)');
+  (select bool_and(position('analysis_leak_table_of' in pg_get_functiondef(f)) = 0
+                   and position('public.require_entitlement(''analysis'')' in pg_get_functiondef(f)) > 0)
+   from unnest(array['public.drill_queue(text, text[], boolean, integer)'::regprocedure,
+                     'public.drill_due_by_spot(text, timestamptz)'::regprocedure]) f),
+  'drill_queue and drill_due_by_spot are untouched (no table, still gated)');
 select is(
   (select count(*)::int from information_schema.role_table_grants
    where table_schema = 'public' and table_name in ('drill_items', 'analysis_leak_rows', 'decision_analysis')
@@ -175,8 +180,14 @@ select is((public.sync_drill_items('analysis/38') ->> 'inserted')::int, 1, '... 
 
 -- Readers' answers, reduced to what the tests compare.
 create function pg_temp.due_row(p_key text) returns jsonb language sql as $$
-  select r from jsonb_array_elements(public.drill_due_by_spot('analysis/38')) r where r ->> 'key' = p_key;
+  select r from jsonb_array_elements(public.drill_due_by_spot_tables('analysis/38')) r where r ->> 'key' = p_key;
 $$;
+-- The per-table reader with its breakdown taken out: drill_due_by_spot's answer if it counts as that does.
+create function pg_temp.due_untabled() returns jsonb language sql as $$
+  select coalesce(jsonb_agg(r - 'tables' order by r ->> 'key'), '[]'::jsonb)
+  from jsonb_array_elements(public.drill_due_by_spot_tables('analysis/38')) r;
+$$;
+grant execute on function pg_temp.due_untabled() to authenticated;
 create function pg_temp.queue(p_table text, p_keys text[]) returns text[] language sql as $$
   select coalesce(array_agg(right(q ->> 'handId', 1) || ':' || (q ->> 'table') order by q ->> 'handId'), '{}')
   from jsonb_array_elements(public.drill_queue_on_table('analysis/38', p_table, p_keys, false, 50)) q;
@@ -194,7 +205,10 @@ select pg_temp.act_as('00000000-0000-0000-0000-00000013d7a1');
 
 select is(pg_temp.due_row('flop|caller-oop-vs-bet||BB|fold|call') - 'tables',
   '{"key":"flop|caller-oop-vs-bet||BB|fold|call","items":5,"due":5}'::jsonb,
-  'drill_due_by_spot: the key''s counts as before (four drilled, one not yet, every table)');
+  'drill_due_by_spot_tables: the key''s counts over every table (four drilled, one not yet)');
+select is(pg_temp.due_untabled(), public.drill_due_by_spot('analysis/38'),
+  '... every row, without its tables, exactly drill_due_by_spot''s');
+select is(jsonb_array_length(public.drill_due_by_spot('analysis/38')), 2, '... which still has no tables, two keys');
 select is(pg_temp.due_row('flop|caller-oop-vs-bet||BB|fold|call') -> 'tables',
   '{"hu":{"items":3,"due":3},"other":{"items":2,"due":2}}'::jsonb,
   '... split per table: heads-up h1, h2 and the undrilled h6; other the 6-max h3 and h5 (no set)');
@@ -203,7 +217,7 @@ select is(pg_temp.due_row('river|pfr-ip-first||BTN|check|bet') -> 'tables',
 select ok(
   (select bool_and((r ->> 'items')::int = (select coalesce(sum((v ->> 'items')::int), 0) from jsonb_each(r -> 'tables') t(k, v))
                and (r ->> 'due')::int = (select coalesce(sum((v ->> 'due')::int), 0) from jsonb_each(r -> 'tables') t(k, v)))
-   from jsonb_array_elements(public.drill_due_by_spot('analysis/38')) r),
+   from jsonb_array_elements(public.drill_due_by_spot_tables('analysis/38')) r),
   '... every key''s tables sum to its counts');
 
 -- ------------------------------------------------- the queue on a table --

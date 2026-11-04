@@ -17,19 +17,23 @@
 --
 -- What changes:
 --
---   * `drill_due_by_spot` (`20270825090000`'s, the last definition): each
---     row also says `tables`, its items and due per table
---     (`{"hu": {"items": n, "due": n}, ...}`, only the tables it has). The
---     row's own `key`, `items` and `due` are what they were (every table).
---     Signature, grants and comment otherwise unchanged; the R6.2 gate is
---     put back with `entitlement_gates_apply()`.
+--   * `drill_due_by_spot_tables(version, until)`: new, `drill_due_by_spot`
+--     (`20270825090000`'s, the last definition, unchanged and kept) with each
+--     row also saying `tables`, its items and due per table
+--     (`{"hu": {"items": n, "due": n}, ...}`, only the tables it has). A
+--     row's own `key`, `items` and `due` are `drill_due_by_spot`'s (every
+--     table, computed the same way).
 --   * `drill_queue_on_table(version, table, keys, due_only, limit)`: new,
 --     `drill_queue` (`20270818090000`'s, unchanged and kept) restricted to
 --     the drill items on one table (`hu`, `9max` or `other`; anything else
---     refused); each item also says its `table`. A new function rather than
---     a sixth argument on `drill_queue`: an added defaulted argument changes
---     the signature every grant, gate and test names. Invoker, empty
---     search_path, `authenticated` only, gated (`entitlement_gates`, drills).
+--     refused); each item also says its `table`.
+--     New functions rather than a changed answer or a sixth argument: the
+--     old readers' answers stay byte for byte what the regression tests
+--     compare (`owner_first_analysis`, `analysis_screen_summaries`), and an
+--     added defaulted argument would change the signature every grant, gate
+--     and test names. Both are invoker, empty search_path, `authenticated`
+--     only, gated (listed in `entitlement_gates`, drills; the gate written
+--     in by `entitlement_gates_apply()`).
 --   * `analysis_leak_examples` (`20270818090000`'s, the last definition): a
 --     leak in `p_leaks` may say `table` (`hu`, `9max`, `other`; absent or
 --     null: every table, as before); its examples are then that table's
@@ -43,12 +47,13 @@
 begin;
 
 -- ---------------------------------------------------------------------------
--- 1. Drills due per spot, per table too
+-- 1. Drills due per spot and per table
 -- ---------------------------------------------------------------------------
 
--- `20270825090000_analysis_screen_summaries.sql`'s definition, with the
--- per-table breakdown; the key's own counts are computed as before.
-create or replace function public.drill_due_by_spot(p_version text, p_until timestamptz default null)
+-- `drill_due_by_spot` (`20270825090000_analysis_screen_summaries.sql`'s
+-- definition) with the per-table breakdown; the key's own counts are
+-- computed as there. `drill_due_by_spot` itself is unchanged.
+create or replace function public.drill_due_by_spot_tables(p_version text, p_until timestamptz default null)
 returns jsonb
 language plpgsql
 stable
@@ -65,7 +70,7 @@ begin
     raise exception 'You must be signed in to drill your hands.' using errcode = '42501';
   end if;
   if p_version is null or p_version !~ '^analysis/[0-9]+$' then
-    raise exception 'drill_due_by_spot needs an analysis_version.' using errcode = '22023';
+    raise exception 'drill_due_by_spot_tables needs an analysis_version.' using errcode = '22023';
   end if;
 
   with drilled_t as (
@@ -145,12 +150,12 @@ begin
 end;
 $$;
 
-comment on function public.drill_due_by_spot(text, timestamptz) is
-  'Per finest spot key: the caller''s drills at the version and how many are due by "until" (undrilled '
-  'Mistakes count as due), with the same per table (tables: hu, 9max, other; 20271104090000). Invoker.';
+comment on function public.drill_due_by_spot_tables(text, timestamptz) is
+  'drill_due_by_spot with each key''s counts also per table (tables: hu, 9max, other; the drill''s or '
+  'Mistake''s leak row''s set, analysis_leak_table_of). 20271104090000. Invoker.';
 
-revoke all on function public.drill_due_by_spot(text, timestamptz) from public, anon;
-grant execute on function public.drill_due_by_spot(text, timestamptz) to authenticated;
+revoke all on function public.drill_due_by_spot_tables(text, timestamptz) from public, anon;
+grant execute on function public.drill_due_by_spot_tables(text, timestamptz) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 2. The drill queue on one table
@@ -240,6 +245,7 @@ revoke all on function public.drill_queue_on_table(text, text, text[], boolean, 
 grant execute on function public.drill_queue_on_table(text, text, text[], boolean, integer) to authenticated;
 
 insert into public.entitlement_gates (function_sig, feature, note) values
+  ('public.drill_due_by_spot_tables(text,timestamp with time zone)', 'analysis', 'drills'),
   ('public.drill_queue_on_table(text,text,text[],boolean,integer)', 'analysis', 'drills')
 on conflict (function_sig) do update set feature = excluded.feature, note = excluded.note;
 
@@ -357,5 +363,5 @@ grant execute on function public.analysis_leak_examples(jsonb, date, date, jsonb
 
 commit;
 
--- The R6.2 entitlement gate, on the two re-created readers and the new one.
+-- The R6.2 entitlement gate, on the re-created reader and the two new ones.
 select public.entitlement_gates_apply();
