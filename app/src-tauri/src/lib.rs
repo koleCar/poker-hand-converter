@@ -119,23 +119,61 @@ pub fn show_main_window<R: Runtime>(app: &AppHandle<R>) {
     let _ = window.set_focus();
 }
 
+/// How long the exit waits for the sync worker, the watcher and the
+/// statistics pass after the HUD is down.
+const STOP_DEADLINE: std::time::Duration = std::time::Duration::from_secs(3);
+
 /// Stop the background work the store waits for: the HUD first (its
 /// overlays go at once, and on Windows its `.exe` must be free for an
 /// update's installer), then the sync worker, the watcher and the statistics
 /// pass. On exit, and before an update's installer takes over.
+///
+/// Runs on the main thread, so it never waits long: the HUD's stop is
+/// bounded by its shutdown grace, and the rest gets [`STOP_DEADLINE`] on a
+/// thread of its own. A thread can be stuck where no flag reaches it - the
+/// watcher in an `open` of a folder that macOS holds behind a privacy prompt,
+/// or on a network share that stopped answering - and the exit goes on
+/// without it. Nothing is lost by that: every commit is a SQLite
+/// transaction, whole or not at all.
 pub fn stop_background<R: Runtime>(app: &AppHandle<R>) {
+    let started = std::time::Instant::now();
     if let Some(hud) = app.try_state::<hud::HudState>() {
         hud.stop();
     }
-    if let Some(sync) = app.try_state::<sync::SyncState>() {
-        sync.stop();
+    let rest = |app: &AppHandle<R>| {
+        if let Some(sync) = app.try_state::<sync::SyncState>() {
+            sync.stop();
+        }
+        if let Some(watcher) = app.try_state::<watch::WatcherState>() {
+            watcher.stop();
+        }
+        if let Some(stats) = app.try_state::<stats::StatsState>() {
+            stats.stop();
+        }
+    };
+    let (done_tx, done_rx) = std::sync::mpsc::channel();
+    let handle = app.clone();
+    let spawned = std::thread::Builder::new()
+        .name("rail-stop".to_owned())
+        .spawn(move || {
+            rest(&handle);
+            let _ = done_tx.send(());
+        });
+    match spawned {
+        Ok(_) => {
+            if done_rx.recv_timeout(STOP_DEADLINE).is_err() {
+                log::warn!(
+                    "exit: background work still busy after {} s; exiting without it",
+                    STOP_DEADLINE.as_secs()
+                );
+            }
+        }
+        Err(error) => {
+            log::warn!("exit: no stop thread ({error}); stopping here");
+            rest(app);
+        }
     }
-    if let Some(watcher) = app.try_state::<watch::WatcherState>() {
-        watcher.stop();
-    }
-    if let Some(stats) = app.try_state::<stats::StatsState>() {
-        stats.stop();
-    }
+    log::info!("background stopped in {} ms", started.elapsed().as_millis());
 }
 
 fn log_plugin<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {

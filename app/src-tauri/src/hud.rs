@@ -204,6 +204,11 @@ impl Windows {
 struct Shared {
     tables_open: AtomicU32,
     windows: Mutex<Windows>,
+    /// [`HudState::stop`] is running: the events touch nothing of the app's
+    /// windows or tray. `stop` runs on the main thread (the app's exit) and
+    /// waits for the supervisor's thread, while a tray or window call from
+    /// that thread waits for the main thread - the exit never ended.
+    stopping: AtomicBool,
 }
 
 impl Shared {
@@ -549,6 +554,7 @@ impl HudState {
 
     /// Shut the HUD down (on exit, first).
     pub fn stop(&self) {
+        self.shared.stopping.store(true, Ordering::SeqCst);
         if let Some(supervisor) = self.supervisor() {
             supervisor.stop();
             log::info!("hud: stopped");
@@ -722,6 +728,15 @@ fn on_event<R: Runtime>(
     layouts: &LayoutWrites,
     event: Event,
 ) {
+    // The app is exiting: its main thread waits in `HudState::stop` for this
+    // thread, so nothing here may wait for the main thread (the tray's
+    // `set_text`, a popup window) - and nothing is left to update anyway.
+    if shared.stopping.load(Ordering::SeqCst) {
+        if let Event::Disconnected { reason } = event {
+            log::info!("hud: gone ({reason})");
+        }
+        return;
+    }
     match event {
         Event::Connected { pid } => {
             log::debug!("hud: pid {pid} connected");

@@ -179,3 +179,55 @@ fn a_stranger_is_refused() {
     assert_eq!(supervisor.status().starts, 1);
     supervisor.stop();
 }
+
+/// The app's callback reads `status()` on every event (the tray's HUD line),
+/// `Disconnected` included. The supervisor must not hold its own locks while
+/// it calls back: it did, and the HUD going away - a crash, a missed health
+/// answer, or `stop` on the app's exit - deadlocked the supervisor, then the
+/// app's exit (`stop` waits for that thread) and every window asking for the
+/// HUD's status. Run on a thread with a deadline, so a regression fails here
+/// instead of hanging the suite.
+#[test]
+fn the_callback_may_read_the_status_and_stop_still_returns() {
+    use std::sync::{Arc, OnceLock};
+
+    let (done_tx, done_rx) = mpsc::channel();
+    std::thread::spawn(move || {
+        let slot: Arc<OnceLock<Supervisor>> = Arc::new(OnceLock::new());
+        let (tx, rx) = mpsc::channel();
+        let supervisor = {
+            let slot = Arc::clone(&slot);
+            Supervisor::start(config(), move |event| {
+                // What `rail_app::hud::refresh_tray` does.
+                if let Some(supervisor) = slot.get() {
+                    let _ = supervisor.status();
+                }
+                let _ = tx.send(event);
+            })
+            .expect("supervisor")
+        };
+        assert!(slot.set(supervisor).is_ok());
+        let supervisor = slot.get().expect("set");
+
+        // The HUD dies: the callback runs for `Disconnected`, and the HUD is
+        // started again.
+        let first = wait_for(&rx, |e| match e {
+            Event::Connected { pid } => Some(*pid),
+            _ => None,
+        });
+        kill(first);
+        wait_for(&rx, |e| {
+            matches!(e, Event::Disconnected { .. }).then_some(())
+        });
+        wait_for(&rx, |e| matches!(e, Event::Connected { .. }).then_some(()));
+        assert_eq!(supervisor.status().starts, 2);
+
+        // The app's exit: `Disconnected` again, from inside `stop`.
+        supervisor.stop();
+        assert_eq!(supervisor.status().phase, Phase::Stopped);
+        let _ = done_tx.send(());
+    });
+    done_rx
+        .recv_timeout(Duration::from_secs(30))
+        .expect("the supervisor deadlocked in its own callback");
+}
