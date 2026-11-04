@@ -77,3 +77,15 @@ export function pinKind(
   if (chosen.length === 0) return { filter: withKind(filter, kind, facets), defaulted: kind };
   return { filter: { ...filter, formats: chosen.filter((format) => kindOfFormat(format) === kind) }, defaulted: kind };
 }
+
+/**
+ * Whether the formats are exactly one kind as the toggle sets it (Cash, or
+ * every chip format the hands have): the toggle already says so, so the
+ * filter row shows no Game chip for it, and "Clear all" keeps it.
+ */
+export function isWholeKind(filter: FilterState, facets: HandFacets | null): boolean {
+  const kind = kindOf(filter.formats);
+  if (kind === null) return false;
+  const whole = withKind(filter, kind, facets).formats;
+  return whole.length === filter.formats.length && whole.every((format) => filter.formats.includes(format));
+}

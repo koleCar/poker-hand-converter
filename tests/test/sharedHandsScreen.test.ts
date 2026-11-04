@@ -21,6 +21,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
+import { PANES, QUICK_FILTERS, clearAll, quickFor, shownSet } from "@rail/ui/hands/groups";
 import { EMPTY_FILTER, activeGroups, fromSaved, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
 import type { HandFacets, HandRow } from "@rail/ui/hands/model";
@@ -127,6 +128,16 @@ describe("the filter: the web's searches and order", () => {
     expect(activeGroups(filter)).toBe(4);
   });
 
+  it("the range grid: its classes, narrowed by a class typed as well, saved and read back", () => {
+    const range: FilterState = { ...EMPTY_FILTER, heroRange: ["AA", "AKs", "AKo", "72o"] };
+    expect(toQuery(range, NOW).heroHandClasses).toEqual(["AA", "AKs", "AKo", "72o"]);
+    expect(toQuery({ ...range, heroCards: "AK" }, NOW).heroHandClasses).toEqual(["AKs", "AKo"]);
+    expect(toQuery({ ...range, heroCards: "Ah Kh" }, NOW).heroCards).toEqual(["Ah", "Kh"]);
+    expect(activeGroups(range)).toBe(1);
+    expect(fromSaved(toSaved(range))).toEqual(range);
+    expect(fromSaved(JSON.stringify({ heroRange: ["AA", "ZZ", 7, "AK", "KAs"] }))?.heroRange).toEqual(["AA"]);
+  });
+
   it("saves and reads them back, and an older saved filter still reads", () => {
     const filter: FilterState = { ...EMPTY_FILTER, positions: ["BTN"], heroCards: "TT", sort: "oldest", showdown: false };
     expect(fromSaved(toSaved(filter))).toEqual(filter);
@@ -161,15 +172,14 @@ describe("the filter: the web's searches and order", () => {
   });
 });
 
-describe("the chips each source gets", () => {
+describe("the groups each source gets", () => {
   it("the desktop's: tags and notes, no searches, no order, none of the library's other filters", () => {
     const groups = handGroups({ annotations: true, search: false, sorts: [], more: [] });
     expect(groups).toEqual(HAND_GROUPS);
     expect(groups).toContain("tags");
-    expect(groups).not.toContain("search");
-    expect(groups).not.toContain("sort");
-    expect(groups).not.toContain("showdownPositions");
-    expect(groups).not.toContain("anonymization");
+    for (const group of ["heroHand", "board", "playerName", "sort", "showdownPositions", "anonymization"]) {
+      expect(groups).not.toContain(group);
+    }
   });
 
   it("the web's: the order first, the searches, showdown and the other filters; no tags or notes", () => {
@@ -181,18 +191,85 @@ describe("the chips each source gets", () => {
     });
     expect(groups[0]).toBe("sort");
     expect(groups[1]).toBe("date");
-    expect(groups[2]).toBe("search");
-    expect(groups.slice(-4)).toEqual(["showdown", "showdownPositions", "winnerPositions", "anonymization"]);
+    expect(groups.slice(-9)).toEqual([
+      "heroHand",
+      "board",
+      "playerName",
+      "showdown",
+      "tableName",
+      "minPot",
+      "showdownPositions",
+      "winnerPositions",
+      "anonymization",
+    ]);
     expect(groups).not.toContain("tags");
     expect(groups).not.toContain("notes");
   });
 
-  it("a source with only the table or the pot still gets the search sheet", () => {
-    expect(handGroups({ annotations: false, search: false, sorts: [], more: ["minPot"] })).toContain("search");
+  it("a source with only the pot gets the pot, not the card searches", () => {
+    const groups = handGroups({ annotations: false, search: false, sorts: [], more: ["minPot"] });
+    expect(groups).toContain("minPot");
+    expect(groups).not.toContain("heroHand");
   });
 
-  it("Reports keeps its own row", () => {
+  it("Reports keeps its own groups, and of the quick filters only the date's", () => {
     expect(REPORT_GROUPS).toEqual(["date", "site", "stakes", "position", "format", "variant", "limit", "size"]);
+    expect(quickFor(REPORT_GROUPS).map((quick) => quick.id)).toEqual(["week"]);
+  });
+
+  it("every group lives in one pane of the builder", () => {
+    const all = handGroups({
+      annotations: true,
+      search: true,
+      sorts: [],
+      more: ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"],
+    });
+    const inPanes = PANES.flatMap((section) => section.panes.flatMap((pane) => pane.groups));
+    for (const group of all) expect(inPanes.filter((g) => g === group)).toHaveLength(1);
+  });
+});
+
+describe("the quick filters and the set groups", () => {
+  it("a quick filter switches its values on together and off together, keeping the rest", () => {
+    const threeBet = QUICK_FILTERS.find((quick) => quick.id === "threeBet");
+    expect(threeBet).toBeDefined();
+    const on = threeBet!.toggle({ ...EMPTY_FILTER, potTypes: ["limped"] });
+    expect(on.potTypes).toEqual(["limped", "3bet", "4bet+"]);
+    expect(threeBet!.on(on)).toBe(true);
+    expect(threeBet!.toggle(on).potTypes).toEqual(["limped"]);
+  });
+
+  it("a kind the Cash / Tournaments toggle set is no chip, and Clear all keeps it", () => {
+    const both: HandFacets = {
+      total: 3,
+      sites: [],
+      formats: [
+        { value: "cash", count: 2 },
+        { value: "spin", count: 1 },
+      ],
+      variants: [],
+      limits: [],
+      sizes: [],
+      stakes: [],
+      positions: [],
+      potTypes: [],
+      results: [],
+      stacks: [],
+      allIn: [],
+      tags: [],
+      noted: 0,
+    };
+    const cash: FilterState = { ...EMPTY_FILTER, formats: ["cash"], positions: ["BTN"] };
+    expect(shownSet(HAND_GROUPS, cash, both)).toEqual(["position"]);
+    expect(clearAll(cash, both)).toEqual({ ...EMPTY_FILTER, formats: ["cash"] });
+    // Tournaments is every chip format the hands have: only Spin here.
+    expect(shownSet(HAND_GROUPS, { ...EMPTY_FILTER, formats: ["spin"] }, both)).toEqual([]);
+    // Narrowed within a kind, the Game group is a chip again.
+    const narrowed = { ...EMPTY_FILTER, formats: ["sng"] };
+    expect(shownSet(HAND_GROUPS, narrowed, { ...both, formats: [...both.formats, { value: "sng", count: 1 }] })).toEqual([
+      "format",
+    ]);
+    expect(clearAll({ ...cash, sort: "pot" }, null)).toEqual({ ...EMPTY_FILTER, formats: ["cash"], sort: "pot" });
   });
 });
 
@@ -348,7 +425,7 @@ describe("the filter row, rendered", () => {
     noted: 0,
   };
 
-  it("the web's row: the order, the searches, a set group's summary; no saved filters", () => {
+  it("the web's row: a chip per set group, the order, the tools; no saved filters, no counts", () => {
     const html = render(
       "en",
       createElement(FilterBar, {
@@ -360,11 +437,31 @@ describe("the filter row, rendered", () => {
       }),
     );
     expect(html).toContain("Order: Biggest pots first");
-    expect(html).toContain("Search: AKs");
-    expect(html).toContain("Position: BTN");
+    expect(html).toContain("Position: BTN. Change");
+    expect(html).toContain("Hero hand: AKs. Change");
+    expect(html).toContain("Remove the position filter");
+    expect(html).toContain("Add filter");
+    expect(html).toContain("All filters");
     expect(html).toContain("Clear all");
+    expect(html).toContain("Went to showdown");
     expect(html).not.toContain("Saved filters");
     expect(html).not.toContain("Tags");
+    // A group that is not set is not in the row.
+    expect(html).not.toContain("Room");
+  });
+
+  it("a range on the grid says its share of hands", () => {
+    const range = ["AA", "KK", "QQ", "AKs"];
+    const html = render(
+      "en",
+      createElement(FilterBar, {
+        filter: { ...EMPTY_FILTER, heroRange: range },
+        facets,
+        onChange: () => undefined,
+        groups: handGroups({ annotations: false, search: true, sorts: [], more: [] }),
+      }),
+    );
+    expect(html).toContain("Hero hand: Range · 1.7%. Change");
   });
 
   const MORE = ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"] as const;
@@ -377,10 +474,32 @@ describe("the filter row, rendered", () => {
   };
 
   for (const [locale, words] of [
-    ["en", { search: "Search", sd: "Showdown positions", win: "Winning positions", names: "Names", seats: "Seat labels (Ignition)" }],
-    ["hr", { search: "Pretraga", sd: "Pozicije na showdownu", win: "Pozicije koje su dobile", names: "Imena", seats: "Oznake mjesta (Ignition)" }],
+    [
+      "en",
+      {
+        table: "Table name",
+        pot: "Minimum pot",
+        sd: "Showdown positions",
+        win: "Winning positions",
+        names: "Names",
+        seats: "Seat labels (Ignition)",
+        change: "Change",
+      },
+    ],
+    [
+      "hr",
+      {
+        table: "Naziv stola",
+        pot: "Najmanji pot",
+        sd: "Pozicije na showdownu",
+        win: "Pozicije koje su dobile",
+        names: "Imena",
+        seats: "Oznake mjesta (Ignition)",
+        change: "Promijeni",
+      },
+    ],
   ] as const) {
-    it(`the web's other filters as chips, ${locale}: table and pot in the search's summary, positions, names`, () => {
+    it(`the web's other filters as chips, ${locale}: table, pot, positions, names`, () => {
       const html = render(
         locale,
         createElement(FilterBar, {
@@ -389,7 +508,7 @@ describe("the filter row, rendered", () => {
             tableName: "Zeta",
             minPot: "25",
             showdownPositions: ["BB"],
-            winnerPositions: ["BTN", "CO"],
+            winnerPositions: ["CO", "BTN"],
             anonymizations: ["positional"],
           },
           facets: withNames,
@@ -397,14 +516,16 @@ describe("the filter row, rendered", () => {
           groups: handGroups({ annotations: false, search: true, sorts: [], more: [...MORE] }),
         }),
       );
-      expect(html).toContain(`${words.search}: Zeta +1`);
-      expect(html).toContain(`${words.sd}: BB`);
-      expect(html).toContain(`${words.win}: BTN +1`);
-      expect(html).toContain(`${words.names}: ${words.seats}`);
+      expect(html).toContain(`${words.table}: Zeta. ${words.change}`);
+      expect(html).toContain(`${words.pot}: ≥ 25. ${words.change}`);
+      expect(html).toContain(`${words.sd}: BB. ${words.change}`);
+      // In table order, whatever order they were picked in.
+      expect(html).toContain(`${words.win}: CO, BTN. ${words.change}`);
+      expect(html).toContain(`${words.names}: ${words.seats}. ${words.change}`);
     });
   }
 
-  it("the desktop's row has none of them", () => {
+  it("the desktop's row has none of them, and its quick filters", () => {
     const html = render(
       "en",
       createElement(FilterBar, {
@@ -414,12 +535,15 @@ describe("the filter row, rendered", () => {
         groups: handGroups({ annotations: true, search: false, sorts: [], more: [] }),
       }),
     );
-    for (const word of ["Search", "Showdown positions", "Winning positions", "Names"]) {
+    for (const word of ["Showdown positions", "Winning positions", "Names", "Hero hand", "Went to showdown"]) {
       expect(html).not.toContain(word);
+    }
+    for (const word of ["3-bet pots", "All-in", "With a note", "Last 7 days"]) {
+      expect(html).toContain(word);
     }
   });
 
-  it("the desktop's row in Croatian, with saved filters, tags and notes", () => {
+  it("the desktop's row in Croatian, with saved filters", () => {
     const html = render(
       "hr",
       createElement(FilterBar, {
@@ -430,9 +554,30 @@ describe("the filter row, rendered", () => {
       }),
     );
     expect(html).toContain("Spremljeni filteri");
-    expect(html).toContain("Oznake");
-    expect(html).toContain("Bilješke");
+    expect(html).toContain("Dodaj filtar");
+    expect(html).toContain("Svi filteri");
+    expect(html).toContain("S bilješkom");
     expect(html).not.toContain("Redoslijed");
     expect(html).not.toContain("Očisti sve");
+    expect(html).not.toContain("Spremi kao");
+  });
+
+  it("Reports' row: its groups only, the date's quick filter", () => {
+    const html = render(
+      "en",
+      createElement(FilterBar, {
+        filter: { ...EMPTY_FILTER, stakes: ["USD:200"] },
+        facets: {
+          ...facets,
+          stakes: [{ value: "USD:200", count: 2, currency: "USD", currencySymbol: "$", minorUnits: 100, smallBlind: 100, bigBlind: 200 }],
+        },
+        onChange: () => undefined,
+        groups: REPORT_GROUPS,
+        screen: "reports",
+      }),
+    );
+    expect(html).toContain("Stakes: $1/$2. Change");
+    expect(html).toContain("Last 7 days");
+    expect(html).not.toContain("3-bet pots");
   });
 });

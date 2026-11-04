@@ -523,11 +523,15 @@ describe("the screen's first render on each source", () => {
         expect(html).toContain(">Reports<");
         expect(html).toContain(`data-state="loading"`);
         expect(html).toContain(r.loading);
-        for (const group of ["date", "site", "stakes", "position", "format", "variant", "limit", "size"] as const) {
-          expect(html).toContain(h.filters.groups[group]);
-        }
+        // The row (2026-11): no group is set, so no chips - "+ Add filter",
+        // "All filters" and the date's quick filter; the kind the toggle
+        // pinned is no chip either.
+        expect(html).toContain(h.filters.addFilter);
+        expect(html).toContain(h.filters.allFilters);
+        expect(html).toContain(h.filters.quick.week);
+        expect(html).not.toContain(h.filters.edit(h.filters.groups.format, h.filters.formats.cash));
         // The Hands screen's groups a report does not sum by are not offered.
-        expect(html).not.toContain(`>${h.filters.groups.potType}<`);
+        expect(html).not.toContain(h.filters.quick.threeBet);
       });
     }
   }
