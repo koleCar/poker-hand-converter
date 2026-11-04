@@ -157,6 +157,12 @@ analyze public.decision_analysis;
 create temp table undo (fn text primary key, back text[]);
 insert into undo values
   ('analysis_scope', array[
+    -- 20271104090000 (game kinds):
+    $n$  v_formats   text[] := public.filter_formats(p_filters);
+$n$,
+    $o$$o$,
+    $n$(v_formats is null or h.game_format::text = any (v_formats))$n$,
+    $o$(nullif(p_filters ->> 'gameFormat', '') is null or h.game_format::text = p_filters ->> 'gameFormat')$o$,
     $n$AS $function$
 declare
   v_owner     uuid := auth.uid();
@@ -299,12 +305,39 @@ $o$,
     $n$      where a.hand_id = hd.id and a.owner_id = v_owner and a.analysis_version = p_version)$n$,
     $o$      where a.hand_id = hd.id and a.analysis_version = p_version)$o$]),
   ('drill_queue', array[
+    -- 20271104090000 (game kinds):
+    $n$, p_kind text DEFAULT NULL::text)$n$,
+    $o$)$o$,
+    $n$  v_formats text[] := public.game_kind_formats(p_kind);
+$n$,
+    $o$$o$,
+    $n$      and (v_formats is null or exists (
+        select 1 from public.hands h
+        where h.id = di.hand_id and h.owner_id = v_owner and h.game_format::text = any (v_formats)))
+$n$,
+    $o$$o$,
     $n$  v_owner uuid := auth.uid();$n$,
     $o$  v_owner uuid := (select auth.uid());$o$,
     $n$        where d.hand_id = di.hand_id and d.analysis_version = di.analysis_version and d.ord = di.ord
           and d.owner_id = v_owner)$n$,
     $o$        where d.hand_id = di.hand_id and d.analysis_version = di.analysis_version and d.ord = di.ord)$o$]),
   ('drill_summary', array[
+    -- 20271104090000 (game kinds):
+    $n$, p_kind text DEFAULT NULL::text)$n$,
+    $o$)$o$,
+    $n$  v_formats text[] := public.game_kind_formats(p_kind);
+$n$,
+    $o$$o$,
+    $n$        and (v_formats is null or exists (
+          select 1 from public.hands h
+          where h.id = d.hand_id and h.owner_id = v_owner and h.game_format::text = any (v_formats)))
+$n$,
+    $o$$o$,
+    $n$    and (v_formats is null or exists (
+      select 1 from public.hands h
+      where h.id = di.hand_id and h.owner_id = v_owner and h.game_format::text = any (v_formats)))
+$n$,
+    $o$$o$,
     $n$  v_owner uuid := auth.uid();$n$,
     $o$  v_owner uuid := (select auth.uid());$o$,
     $n$      where d.hand_id = di.hand_id and d.analysis_version = di.analysis_version and d.ord = di.ord
@@ -323,6 +356,11 @@ $o$,
     $n$  v_owner uuid := auth.uid();$n$,
     $o$  v_owner uuid := (select auth.uid());$o$]),
   ('analysis_leak_examples', array[
+    -- 20271104090000 (game kinds):
+    $n$  v_formats   text[] := public.filter_formats(p_filters);$n$,
+    $o$  v_format   text := nullif(btrim(coalesce(p_filters ->> 'gameFormat', '')), '');$o$,
+    $n$(v_formats is null or z.game_format = any (v_formats))$n$,
+    $o$(v_format is null or z.game_format = v_format)$o$,
     $n$  v_owner    uuid := auth.uid();$n$,
     $o$  v_owner    uuid := (select auth.uid());$o$,
     $n$        on dd.hand_id = p.hand_id and dd.analysis_version = v_version and dd.ord = p.ord and dd.owner_id = v_owner
@@ -896,7 +934,7 @@ select pg_temp.act_as('00000000-0000-0000-0000-0000000081b1');
 select is(public.analysis_leak_sample('00000000-0000-0000-0000-0000000081a1', 'analysis/7', null, null, null, null, null),
           '{"hands": 0, "graded": 0, "rows": []}'::jsonb,
           'analysis_leak_sample: another account''s owner reads nothing, as before');
-select is((public.analysis_leak_sample('00000000-0000-0000-0000-0000000081b1', 'analysis/7', 'cash', null, null, null, null) ->> 'graded')::int,
+select is((public.analysis_leak_sample('00000000-0000-0000-0000-0000000081b1', 'analysis/7', array['cash'], null, null, null, null) ->> 'graded')::int,
           (pg_temp.old_analysis_leaks('{"analysisVersion":"analysis/7","gameFormat":"cash"}') ->> 'graded')::int,
           'analysis_leak_sample: the caller''s own sample, its graded decisions the leak finder''s');
 

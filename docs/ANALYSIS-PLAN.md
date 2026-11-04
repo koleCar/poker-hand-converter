@@ -6870,7 +6870,7 @@ Each phase appends what it learned that changed the plan.
       heads-up area's drill task counts and deals the 6-max blinds' drill
       items on the same key too (preflop `~hu` areas already did). A drill
       item keeps its hand, so a table filter there is possible; not done.~~
-      Done 2026-11-04 (the next entry, `20271104090000_drills_by_table.sql`).
+      Done 2026-11-04 (the next entry, `20271104120000_drills_by_table.sql`).
     - ~~The top-leaks examples (`analysis_leak_examples`) and Learn's own-hand
       exercises read by spot keys without a table.~~ Done 2026-11-04 for the
       examples and Learn's own-area exercise (the next entry); a lesson's
@@ -6878,7 +6878,7 @@ Each phase appends what it learned that changed the plan.
     - Not measured on the owner's corpus (how many postflop areas split, how
       many heads-up ones reach a plan).
 - 2026-11-04 — Drills, top-leak examples and Learn's area hands on the area's
-  table. Migration `20271104090000_drills_by_table.sql` (must be applied to
+  table. Migration `20271104120000_drills_by_table.sql` (must be applied to
   prod after merge); no `ANALYSIS_VERSION` change (no grade moves).
   - **Why.** The open items of the previous entry: since 2026-11-02 a
     heads-up, a 6-max and a 9-max area with the same seat, role and side are

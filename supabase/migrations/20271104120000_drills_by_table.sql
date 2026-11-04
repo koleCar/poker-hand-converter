@@ -40,6 +40,12 @@
 --     only. Any other value is refused. Signature, grants and comment
 --     otherwise unchanged; the gate is put back.
 --
+-- After `20271104090000_game_kind_filter.sql` (one game kind at a time), so
+-- both new readers take its optional last `p_kind` as `drill_due_by_spot` and
+-- `drill_queue` do there, and `analysis_leak_examples` is that migration's
+-- definition (`filter_formats`) plus the table. (Written as 20271104090000;
+-- renamed when both met on staging, two migrations cannot share a version.)
+--
 -- Not changed: no table, no grade, no `analysis/N`; nothing is written; a
 -- call without a table returns what it returned. Client writes: none.
 -- ===========================================================================
@@ -53,7 +59,7 @@ begin;
 -- `drill_due_by_spot` (`20270825090000_analysis_screen_summaries.sql`'s
 -- definition) with the per-table breakdown; the key's own counts are
 -- computed as there. `drill_due_by_spot` itself is unchanged.
-create or replace function public.drill_due_by_spot_tables(p_version text, p_until timestamptz default null)
+create or replace function public.drill_due_by_spot_tables(p_version text, p_until timestamptz default null, p_kind text default null)
 returns jsonb
 language plpgsql
 stable
@@ -65,6 +71,7 @@ declare
   v_owner uuid := auth.uid();
   v_until timestamptz := coalesce(p_until, now() + interval '1 day');
   v_out   jsonb;
+  v_formats text[] := public.game_kind_formats(p_kind);
 begin
   if v_owner is null then
     raise exception 'You must be signed in to drill your hands.' using errcode = '42501';
@@ -82,6 +89,9 @@ begin
      and z.owner_id = v_owner
     where di.owner_id = v_owner
       and di.analysis_version = p_version
+      and (v_formats is null or exists (
+        select 1 from public.hands h
+        where h.id = di.hand_id and h.owner_id = v_owner and h.game_format::text = any (v_formats)))
       and exists (
         select 1 from public.decision_analysis d
         where d.hand_id = di.hand_id and d.analysis_version = di.analysis_version and d.ord = di.ord
@@ -99,6 +109,7 @@ begin
     select t.spot_key, public.analysis_leak_table_of(t.chart_set) as tbl, sum(t.g_mistake + t.g_blunder) as items
     from public.analysis_leak_totals t
     where t.owner_id = v_owner and t.analysis_version = p_version
+      and (v_formats is null or t.game_format = any (v_formats))
     group by t.spot_key, public.analysis_leak_table_of(t.chart_set)
     union all
     select z.spot_key, public.analysis_leak_table_of(z.chart_set), -count(*)
@@ -107,6 +118,7 @@ begin
       on z.hand_id = x.hand_id and z.analysis_version = p_version and z.action_index = x.action_index
      and z.owner_id = v_owner
     where x.owner_id = v_owner and z.grade in ('mistake', 'blunder')
+      and (v_formats is null or z.game_format = any (v_formats))
     group by z.spot_key, public.analysis_leak_table_of(z.chart_set)
   ),
   -- The key's count as before: summed over its tables, then kept when positive.
@@ -150,12 +162,12 @@ begin
 end;
 $$;
 
-comment on function public.drill_due_by_spot_tables(text, timestamptz) is
+comment on function public.drill_due_by_spot_tables(text, timestamptz, text) is
   'drill_due_by_spot with each key''s counts also per table (tables: hu, 9max, other; the drill''s or '
-  'Mistake''s leak row''s set, analysis_leak_table_of). 20271104090000. Invoker.';
+  'Mistake''s leak row''s set, analysis_leak_table_of). 20271104120000. Invoker.';
 
-revoke all on function public.drill_due_by_spot_tables(text, timestamptz) from public, anon;
-grant execute on function public.drill_due_by_spot_tables(text, timestamptz) to authenticated;
+revoke all on function public.drill_due_by_spot_tables(text, timestamptz, text) from public, anon;
+grant execute on function public.drill_due_by_spot_tables(text, timestamptz, text) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 2. The drill queue on one table
@@ -168,7 +180,8 @@ create or replace function public.drill_queue_on_table(
   p_table    text,
   p_keys     text[]  default null,
   p_due_only boolean default true,
-  p_limit    integer default 20
+  p_limit    integer default 20,
+  p_kind     text    default null
 )
 returns jsonb
 language plpgsql
@@ -181,6 +194,7 @@ declare
   v_owner uuid := auth.uid();
   v_table text := nullif(btrim(coalesce(p_table, '')), '');
   v_out   jsonb;
+  v_formats text[] := public.game_kind_formats(p_kind);
 begin
   if v_owner is null then
     raise exception 'You must be signed in to drill your hands.' using errcode = '42501';
@@ -225,6 +239,9 @@ begin
       and (p_keys is null or di.spot_key = any (p_keys))
       and (not coalesce(p_due_only, true) or di.due_at <= now())
       and public.analysis_leak_table_of(z.chart_set) = v_table
+      and (v_formats is null or exists (
+        select 1 from public.hands h
+        where h.id = di.hand_id and h.owner_id = v_owner and h.game_format::text = any (v_formats)))
       and exists (
         select 1 from public.decision_analysis d
         where d.hand_id = di.hand_id and d.analysis_version = di.analysis_version and d.ord = di.ord
@@ -237,16 +254,16 @@ begin
 end;
 $$;
 
-comment on function public.drill_queue_on_table(text, text, text[], boolean, integer) is
+comment on function public.drill_queue_on_table(text, text, text[], boolean, integer, text) is
   'drill_queue on one table (hu, 9max, other: the item''s leak row''s set, analysis_leak_table_of): the '
-  'caller''s drills at the version, due first. 20271104090000. Invoker.';
+  'caller''s drills at the version, due first. 20271104120000. Invoker.';
 
-revoke all on function public.drill_queue_on_table(text, text, text[], boolean, integer) from public, anon;
-grant execute on function public.drill_queue_on_table(text, text, text[], boolean, integer) to authenticated;
+revoke all on function public.drill_queue_on_table(text, text, text[], boolean, integer, text) from public, anon;
+grant execute on function public.drill_queue_on_table(text, text, text[], boolean, integer, text) to authenticated;
 
 insert into public.entitlement_gates (function_sig, feature, note) values
-  ('public.drill_due_by_spot_tables(text,timestamp with time zone)', 'analysis', 'drills'),
-  ('public.drill_queue_on_table(text,text,text[],boolean,integer)', 'analysis', 'drills')
+  ('public.drill_due_by_spot_tables(text,timestamp with time zone,text)', 'analysis', 'drills'),
+  ('public.drill_queue_on_table(text,text,text[],boolean,integer,text)', 'analysis', 'drills')
 on conflict (function_sig) do update set feature = excluded.feature, note = excluded.note;
 
 -- ---------------------------------------------------------------------------
@@ -265,7 +282,7 @@ AS $function$
 declare
   v_owner    uuid := auth.uid();
   v_version  text := public.analysis_version_of(p_filters);
-  v_format   text := nullif(btrim(coalesce(p_filters ->> 'gameFormat', '')), '');
+  v_formats   text[] := public.filter_formats(p_filters);
   v_position text := nullif(upper(btrim(coalesce(p_filters ->> 'position', ''))), '');
   v_pot      text := nullif(btrim(coalesce(p_filters ->> 'potType', '')), '');
   v_limit    integer := least(greatest(coalesce(p_limit, 15), 1), 30);
@@ -317,7 +334,7 @@ begin
         where z.owner_id = v_owner and z.analysis_version = v_version and z.spot_key = k.spot_key
           and z.grade <> 'perfect'
           and (p_from is null or z.day >= p_from) and (p_to is null or z.day <= p_to)
-          and (v_format is null or z.game_format = v_format)
+          and (v_formats is null or z.game_format = any (v_formats))
           and (v_position is null or z.hero_position = v_position)
           and (v_pot is null or z.pot_type = v_pot)
           and (lk.tbl is null or public.analysis_leak_table_of(z.chart_set) = lk.tbl)

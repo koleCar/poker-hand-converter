@@ -52,6 +52,7 @@ import type { AnalysisFilters } from "../../../lib/db/analysis";
 import { fetchLeakHands, fetchLeaks, type LeakHandRow, type LeaksReport } from "../../../lib/db/analysisLeaks";
 import { fetchDrillsBySpot } from "../../../lib/db/training";
 import { useAuth } from "../../../lib/auth";
+import { useAnalysisKind } from "../analysisKind";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
@@ -102,7 +103,11 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
   // Only a leak named by the address on arrival is scrolled to; one opened here stays put.
   const arrivedOn = useRef(state.leak);
 
-  const filters = useMemo(() => reportsFilters(state), [state]);
+  // One kind of game, never both (`analysisKind.ts`): nothing is read until it is known.
+  const kinds = useAnalysisKind(state.kind, isDatabaseConfigured && auth.isSignedIn, refreshToken);
+  const shownState = useMemo(() => ({ ...state, kind: kinds.kind }), [state, kinds.kind]);
+  const kindReady = kinds.kind !== null;
+  const filters = useMemo(() => reportsFilters(shownState), [shownState]);
   const filterKey = JSON.stringify(filters);
 
   const updateState = useCallback((patch: Partial<LeaksState>) => {
@@ -117,7 +122,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
 
   const requestKey = `${filterKey}|${refreshToken}|${attempt}`;
   useEffect(() => {
-    if (!isDatabaseConfigured || !auth.isSignedIn) return;
+    if (!isDatabaseConfigured || !auth.isSignedIn || !kindReady) return;
     let live = true;
     Promise.all([fetchAnalysisCoverage(), fetchLeaks(JSON.parse(filterKey) as AnalysisFilters)])
       .then(([coverage, report]) => {
@@ -136,14 +141,14 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
     return () => {
       live = false;
     };
-  }, [auth.isSignedIn, filterKey, requestKey]);
+  }, [auth.isSignedIn, kindReady, filterKey, requestKey]);
 
   // Drills per spot: the trainer's counts, for "Drill this". Quiet when the
   // drills are not installed (the trainer's migration) or anything fails.
   useEffect(() => {
-    if (!isDatabaseConfigured || !auth.isSignedIn) return;
+    if (!isDatabaseConfigured || !auth.isSignedIn || kinds.kind === null) return;
     let live = true;
-    fetchDrillsBySpot()
+    fetchDrillsBySpot(kinds.kind)
       .then((map) => {
         if (live) setDrills(map);
       })
@@ -151,7 +156,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
     return () => {
       live = false;
     };
-  }, [auth.isSignedIn, refreshToken]);
+  }, [auth.isSignedIn, kinds.kind, refreshToken]);
 
   const loading = answer?.key !== requestKey;
   const status = answer?.status ?? "loading";
@@ -255,7 +260,12 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
       </div>
       <HowItWorks open={howOpen} />
 
-      <FilterBar state={state} facets={report.facets} onChange={(patch) => updateState({ ...patch, leak: null })} />
+      <FilterBar
+        state={shownState}
+        kinds={kinds}
+        facets={report.facets}
+        onChange={(patch) => updateState({ ...patch, leak: null })}
+      />
       <Controls state={state} onChange={updateState} />
 
       {loading ? (

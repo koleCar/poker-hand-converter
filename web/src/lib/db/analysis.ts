@@ -35,6 +35,7 @@ import {
   type VillainStats,
   type VillainStatsMap,
 } from "../analysis";
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { preflopCharts, preflopChartsFor } from "../chartSet";
 
 export { preflopCharts };
@@ -79,7 +80,14 @@ export interface AnalysisFilters {
   from?: string;
   to?: string;
   site?: string;
+  /** One format; with `gameKind`, one of that kind's (else no hands). */
   gameFormat?: string;
+  /**
+   * One kind of game: cash, or every tournament format together. The screens
+   * always send one (the owner's rule, 2026-11-04: cash and tournament hands
+   * are never combined in a view); absent is every format.
+   */
+  gameKind?: GameKind;
   currency?: string;
   bigBlind?: number;
   position?: string;
@@ -736,6 +744,19 @@ function streetSummary(row: Row): StreetSummary {
     defended: num(row.defended),
     mdf: maybeNum(row.mdf),
   };
+}
+
+/**
+ * Analysed hands of each kind, for the Cash | Tournaments switch: which kind
+ * a screen opens on (the one with more) and which is greyed out (none).
+ */
+export async function fetchAnalysisKindCounts(): Promise<Record<GameKind, number> | null> {
+  const [cash, tournament] = await Promise.all([
+    fetchAnalysisOverview({ gameKind: "cash" }),
+    fetchAnalysisOverview({ gameKind: "tournament" }),
+  ]);
+  if (cash === null || tournament === null) return null;
+  return { cash: cash.hands, tournament: tournament.hands };
 }
 
 export async function fetchAnalysisOverview(filters: AnalysisFilters = {}): Promise<AnalysisOverview | null> {

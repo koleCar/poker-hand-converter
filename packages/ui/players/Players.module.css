@@ -450,7 +450,7 @@
 }
 
 .handsWith {
-  align-self: flex-start;
+  white-space: nowrap;
 }
 
 /* A breakdown table wider than a phone scrolls inside its own box. */
@@ -473,9 +473,23 @@
 
 .profileHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+.profileWho {
+  min-width: 0;
+}
+
+/* The game kind, "hands with this player" and close, on the heading's line. */
+.profileActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 
 .profileName {
@@ -505,7 +519,7 @@
 
 .facts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
   gap: var(--space-3);
   margin: 0;
 }
@@ -522,24 +536,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-.resultBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
 
 .subhead {
   margin-block-end: var(--space-2);
   font-size: var(--font-size-base);
 }
 
-.statGroups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-4) var(--space-6);
-  align-items: start;
-  margin-block: var(--space-3);
-}
 
 .tabs {
   display: flex;
@@ -650,4 +652,232 @@
   .words {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* ------------------------------------------------- notes and tags (closed) */
+
+.wordsDisclosure {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+}
+
+.wordsDisclosure > .words {
+  border: 0;
+  border-block-start: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.wordsSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  list-style: none;
+}
+
+.wordsSummary::-webkit-details-marker {
+  display: none;
+}
+
+.wordsSummary::before {
+  content: "›";
+  display: inline-block;
+  inline-size: 0.75em;
+  color: var(--text-tertiary);
+  transition: transform var(--duration-fast, 120ms) ease;
+}
+
+.wordsDisclosure[open] > .wordsSummary::before {
+  transform: rotate(90deg);
+}
+
+.wordsSummary:hover {
+  color: var(--text-primary);
+}
+
+.wordsTitle {
+  flex: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.wordsPreview {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ statistics */
+
+.statsHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.statsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.footnoteLine {
+  margin: var(--space-2) 0 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+/* The strip: big numbers, their short label under them. */
+.keyStats {
+  display: grid;
+  grid-auto-columns: minmax(3.5rem, 1fr);
+  grid-auto-flow: column;
+  gap: var(--space-2);
+  overflow-x: auto;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+}
+
+.keyStat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.keyStat dd {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.keyStat dt {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.matrices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  gap: var(--space-5) var(--space-6);
+  align-items: start;
+}
+
+.matrixColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.matrix {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--density-table-font, var(--font-size-sm));
+  font-variant-numeric: tabular-nums;
+}
+
+.matrixCaption {
+  padding-block-end: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: start;
+  text-transform: uppercase;
+}
+
+.matrix th,
+.matrix td {
+  padding: 3px var(--space-2);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.matrix thead th {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.matrix tbody tr:hover {
+  background: var(--surface-hover, var(--surface-base));
+}
+
+.matrix .matrixLabel {
+  padding-inline-start: 0;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-regular);
+  text-align: start;
+}
+
+/* The total column stands apart from the positions. */
+.matrix th:nth-child(2),
+.matrix td:nth-child(2) {
+  border-inline-end: 1px solid var(--border-subtle);
+  font-weight: var(--font-weight-semibold);
+}
+
+.matrixHands td,
+.matrixHands th {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.matrix td[data-tone="very-low"] {
+  color: var(--hud-tone-very-low, var(--text-primary));
+}
+
+.matrix td[data-tone="low"] {
+  color: var(--hud-tone-low, var(--text-primary));
+}
+
+.matrix td[data-tone="high"] {
+  color: var(--hud-tone-high, var(--text-primary));
+}
+
+.matrix td[data-tone="very-high"] {
+  color: var(--hud-tone-very-high, var(--text-primary));
+}
+
+/* A thin sample's size beside its value, as Hand2Note's. */
+.matrixSample {
+  margin-inline-start: 2px;
+  color: var(--text-tertiary);
+  font-size: 0.7em;
+  font-weight: var(--font-weight-regular);
+  vertical-align: baseline;
+}
+
+.matrixEmpty {
+  color: transparent;
+}
+
+.matrixPlanned {
+  color: var(--text-tertiary);
+}
+
+.matrixPlannedRow {
+  opacity: 0.45;
+}
+
+.visuallyHidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

@@ -191,7 +191,7 @@ export interface SpotDrills {
   items: number;
   due: number;
   /**
-   * The same per table (`20271104090000_drills_by_table.sql`): a spot key
+   * The same per table (`20271104120000_drills_by_table.sql`): a spot key
    * names no table, so a heads-up area's keys also hold the 6-max blinds'
    * drills. Absent from an older database's answer.
    */

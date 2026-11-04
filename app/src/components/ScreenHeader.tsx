@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 
 import styles from "./ScreenHeader.module.css";
 
-/** A screen's title and one-line description. */
-export function ScreenHeader({ title, lead }: { title: string; lead: string }) {
+/** A screen's title and, when it needs one, a one-line description. */
+export function ScreenHeader({ title, lead }: { title: string; lead?: string }) {
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>{title}</h1>
-      <p className={styles.lead}>{lead}</p>
+      {lead ? <p className={styles.lead}>{lead}</p> : null}
     </header>
   );
 }

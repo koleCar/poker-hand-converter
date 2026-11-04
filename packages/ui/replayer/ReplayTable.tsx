@@ -26,7 +26,6 @@ import {
   SHAPE_METRICS,
   clampSeatCount,
   seatSizeFor,
-  sideChipSlots,
   slotIndex,
   slotsFor,
   type SeatSlot,
@@ -84,11 +83,6 @@ interface ReplayTableProps {
    * real button, so the cards need not be a second tab stop inside the seat.
    */
   onSeatCardsClick?: (seatNo: number) => void;
-  /**
-   * The dense replayer (`ReplayViewer`'s `dense`): bet stacks beside the
-   * top and bottom seats rather than in front of them. See `sideChipSlots`.
-   */
-  dense?: boolean;
 }
 
 interface Placed {
@@ -207,13 +201,12 @@ interface SweepChip {
 }
 
 /** Pairs every seat with the slot it belongs in, hero first. */
-function place(seats: SeatFrameState[], shape: TableShape, dense: boolean): Placed[] {
+function place(seats: SeatFrameState[], shape: TableShape): Placed[] {
   const count = seats.length;
   if (count === 0) {
     return [];
   }
-  const designed = slotsFor(shape, count);
-  const slots = dense ? sideChipSlots(designed, shape, seatSizeFor(shape, count)) : designed;
+  const slots = slotsFor(shape, count);
   const heroIndex = Math.max(
     0,
     seats.findIndex((seat) => seat.isHero),
@@ -238,12 +231,11 @@ export function ReplayTable({
   onSeatClick,
   onBoardClick,
   onSeatCardsClick,
-  dense = false,
 }: ReplayTableProps) {
   const t = useUiStrings().replayer;
   const words = t.table;
   const seatCount = clampSeatCount(frame.seats.length);
-  const placed = useMemo(() => place(frame.seats, shape, dense), [frame.seats, shape, dense]);
+  const placed = useMemo(() => place(frame.seats, shape), [frame.seats, shape]);
   const metrics = SHAPE_METRICS[shape];
   const [seatW, seatH] = seatSizeFor(shape, frame.seats.length);
   // `holeCardCount` has existed in the PHF layer since the rewrite and has
@@ -314,7 +306,7 @@ export function ReplayTable({
     const stepped = prior !== null && frame.index === prior.index + 1;
     const chips =
       stepped && frame.kind === "collect" && frame.pot > prior.pot
-        ? place(prior.seats, shape, dense)
+        ? place(prior.seats, shape)
             .filter((entry) => entry.seat.bet > 0)
             .map((entry) => ({
               key: `${frame.index}-${entry.seat.seatNo}`,

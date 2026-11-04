@@ -1,9 +1,9 @@
-/* The replayer's own window: the hand panel, filling it. */
+/* The replayer's own window: the hand panel, filling it edge to edge as the
+   web's replayer fills its card. */
 
 .window {
   block-size: 100%;
   box-sizing: border-box;
-  padding: var(--space-3);
   background: var(--surface-base);
 }
 

@@ -7,6 +7,7 @@
  * Every call names the `analysis_version` it reads, like every analysis report.
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { ANALYSIS_VERSION } from "../analysis";
 import type { HandsTable, SpotDrills } from "../analysis/leaks";
 import type { Grade } from "../analysis/types";
@@ -70,13 +71,15 @@ export interface DrillQuery {
   /**
    * Only the drills on this table (`handsTable`: a leak's or area's tag,
    * `"other"` for 6-max and no set; `drill_queue_on_table`,
-   * `20271104090000_drills_by_table.sql`). Absent or null: every table. An
+   * `20271104120000_drills_by_table.sql`). Absent or null: every table. An
    * older database without the function deals every table's, as before.
    */
   table?: HandsTable | null;
   /** Only drills due now (default), or every drill in due order. */
   dueOnly?: boolean;
   limit?: number;
+  /** One kind of game's drills (cash, or every tournament format); every drill when absent. */
+  kind?: GameKind | null;
 }
 
 const DRILL_TABLES: readonly HandsTable[] = ["hu", "9max", "other"];
@@ -88,6 +91,7 @@ export async function fetchDrillQueue(query: DrillQuery = {}): Promise<DrillItem
     p_keys: query.keys && query.keys.length > 0 ? query.keys.slice(0, 500) : undefined,
     p_due_only: query.dueOnly ?? true,
     p_limit: query.limit ?? 20,
+    p_kind: query.kind ?? undefined,
   };
   let payload: unknown;
   if (query.table && DRILL_TABLES.includes(query.table)) {
@@ -157,9 +161,14 @@ export interface DrillSummary {
   candidates: number;
 }
 
-export async function fetchDrillSummary(): Promise<DrillSummary | null> {
+/** The drills' counts: one kind of game's when `kind` is given (never both kinds' together on a screen). */
+export async function fetchDrillSummary(kind?: GameKind | null): Promise<DrillSummary | null> {
   if (!(await currentUserId())) return null;
-  const payload = await rpc<Row | null>("drill_summary", { p_version: ANALYSIS_VERSION, p_until: endOfToday() });
+  const payload = await rpc<Row | null>("drill_summary", {
+    p_version: ANALYSIS_VERSION,
+    p_until: endOfToday(),
+    p_kind: kind ?? undefined,
+  });
   if (!payload) return null;
   return {
     items: num(payload.items),
@@ -192,15 +201,15 @@ export function drillsBySpotFromPayload(payload: unknown): Map<string, SpotDrill
 }
 
 /**
- * Per finest leak spot: drills and drills due today (undrilled Mistakes count
- * as due), and the same per table (`drill_due_by_spot_tables`,
- * `20271104090000_drills_by_table.sql`; `drillsOn` sums a leak's on its
+ * Per finest leak spot, optionally of one game kind: drills and drills due
+ * today (undrilled Mistakes count as due), and the same per table (`drill_due_by_spot_tables`,
+ * `20271104120000_drills_by_table.sql`; `drillsOn` sums a leak's on its
  * table). An older database without it answers `drill_due_by_spot`'s, with
  * no split.
  */
-export async function fetchDrillsBySpot(): Promise<Map<string, SpotDrills>> {
+export async function fetchDrillsBySpot(kind?: GameKind | null): Promise<Map<string, SpotDrills>> {
   if (!(await currentUserId())) return new Map();
-  const args = { p_version: ANALYSIS_VERSION, p_until: endOfToday() };
+  const args = { p_version: ANALYSIS_VERSION, p_until: endOfToday(), p_kind: kind ?? undefined };
   let payload: unknown;
   try {
     payload = await rpc<unknown>("drill_due_by_spot_tables", args);

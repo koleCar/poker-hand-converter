@@ -5,8 +5,9 @@ import { getDict, getLocale } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 
 /**
- * The desktop app for macOS and Windows (the bar's "Get the app"). Public and
- * indexable; its share card is the promo picture in the reader's language.
+ * The desktop app for macOS and Windows (the bar's "Get the app" tab). Public and
+ * indexable; its share card is the promo picture in the reader's language. The
+ * installers themselves are for Rail Pro (`[platform]/route.ts`).
  */
 export async function generateMetadata(): Promise<Metadata> {
   const [en, locale] = await Promise.all([getDict(), getLocale()]);
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Download() {
   const [en, locale] = await Promise.all([getDict(), getLocale()]);
   return (
-    <ServerFrame tab={null}>
+    <ServerFrame tab="download">
       <DownloadPage en={en} locale={locale} />
     </ServerFrame>
   );

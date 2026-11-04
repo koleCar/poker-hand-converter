@@ -151,7 +151,7 @@ export interface LeakExamplesQuery {
    * Each leak's id and finest spot keys (`Leak.keys`), at most 10 leaks of at
    * most 200 keys, and its table (`handsTable`; absent or null: every table).
    * A spot key names no table, so a heads-up leak's keys also hold the 6-max
-   * blinds' decisions (`20271104090000_drills_by_table.sql`).
+   * blinds' decisions (`20271104120000_drills_by_table.sql`).
    */
   leaks: Array<{ id: string; keys: string[]; table?: HandsTable | null }>;
   /** UTC days, inclusive; null for all time. */

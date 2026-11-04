@@ -9,6 +9,7 @@
  * ticked by hand (`set_study_task`).
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { parseFocus, rpcTask, type FocusArea, type PlanKind, type PlanTask, type TaskKind } from "../training/plan";
 import { currentUserId, rpc } from "./client";
 
@@ -70,6 +71,8 @@ export interface PlanBaseline {
   evLossBb: number;
   /** Why a fundamentals plan (`planFocus`'s reason). */
   reason: string | null;
+  /** The kind of game the plan was built for; null for a plan from before the kinds (every format). */
+  gameKind: GameKind | null;
 }
 
 function baselineOf(value: unknown): PlanBaseline {
@@ -80,6 +83,7 @@ function baselineOf(value: unknown): PlanBaseline {
     last: str(b.last),
     evLossBb: num(b.evLossBb),
     reason: str(b.reason),
+    gameKind: b.gameKind === "cash" || b.gameKind === "tournament" ? b.gameKind : null,
   };
 }
 

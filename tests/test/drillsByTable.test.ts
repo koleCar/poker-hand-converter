@@ -1,6 +1,6 @@
 /**
  * Drills and top-leak examples on a leak area's table (`docs/ANALYSIS-PLAN.md`
- * §10, 2026-11-04; `20271104090000_drills_by_table.sql`). A spot key names no
+ * §10, 2026-11-04; `20271104120000_drills_by_table.sql`). A spot key names no
  * table, so a heads-up area's keys also hold the 6-max blinds' drills and
  * examples; the readers now take the area's table (`handsTable`).
  *

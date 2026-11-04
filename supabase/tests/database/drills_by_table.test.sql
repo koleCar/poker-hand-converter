@@ -1,5 +1,5 @@
 -- pgTAP: drills and top-leak examples read on a leak area's table
--- (`20271104090000_drills_by_table.sql`).
+-- (`20271104120000_drills_by_table.sql`).
 --
 -- What has to hold:
 --
@@ -69,22 +69,22 @@ select ok(
           and bool_and(position('public.require_entitlement(''analysis'')' in pg_get_functiondef(p.oid)) > 0)
           and count(*) = 3
    from pg_proc p
-   where p.oid in ('public.drill_queue_on_table(text, text, text[], boolean, integer)'::regprocedure,
-                   'public.drill_due_by_spot_tables(text, timestamptz)'::regprocedure,
+   where p.oid in ('public.drill_queue_on_table(text, text, text[], boolean, integer, text)'::regprocedure,
+                   'public.drill_due_by_spot_tables(text, timestamptz, text)'::regprocedure,
                    'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)'::regprocedure)),
   'the two new readers and the re-created one are invoker, empty search_path, and carry the R6.2 gate');
 select is(
   (select array_agg(function_sig order by function_sig) from public.entitlement_gates
-    where function_sig in ('public.drill_queue_on_table(text,text,text[],boolean,integer)',
-                           'public.drill_due_by_spot_tables(text,timestamp with time zone)') and feature = 'analysis'),
-  array['public.drill_due_by_spot_tables(text,timestamp with time zone)', 'public.drill_queue_on_table(text,text,text[],boolean,integer)'],
+    where function_sig in ('public.drill_queue_on_table(text,text,text[],boolean,integer,text)',
+                           'public.drill_due_by_spot_tables(text,timestamp with time zone,text)') and feature = 'analysis'),
+  array['public.drill_due_by_spot_tables(text,timestamp with time zone,text)', 'public.drill_queue_on_table(text,text,text[],boolean,integer,text)'],
   '... the new ones are listed in entitlement_gates (analysis)');
 select ok(
-  has_function_privilege('authenticated', 'public.drill_queue_on_table(text, text, text[], boolean, integer)', 'execute')
-  and has_function_privilege('authenticated', 'public.drill_due_by_spot_tables(text, timestamptz)', 'execute')
+  has_function_privilege('authenticated', 'public.drill_queue_on_table(text, text, text[], boolean, integer, text)', 'execute')
+  and has_function_privilege('authenticated', 'public.drill_due_by_spot_tables(text, timestamptz, text)', 'execute')
   and has_function_privilege('authenticated', 'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)', 'execute')
-  and not has_function_privilege('anon', 'public.drill_queue_on_table(text, text, text[], boolean, integer)', 'execute')
-  and not has_function_privilege('anon', 'public.drill_due_by_spot_tables(text, timestamptz)', 'execute')
+  and not has_function_privilege('anon', 'public.drill_queue_on_table(text, text, text[], boolean, integer, text)', 'execute')
+  and not has_function_privilege('anon', 'public.drill_due_by_spot_tables(text, timestamptz, text)', 'execute')
   and not has_function_privilege('anon', 'public.analysis_leak_examples(jsonb, date, date, jsonb, integer)', 'execute'),
   '... executable by authenticated, not by anon');
 select ok(

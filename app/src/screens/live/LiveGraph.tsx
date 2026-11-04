@@ -8,6 +8,7 @@
  * the session's start as the filter and no end, so a hand that lands moves
  * it. Read again whenever the session's hand count changes.
  */
+import { kindFormats, type GameKind } from "@rail/ui/hands/gameKind";
 import { WinrateGraph, type WinrateGraphMoney } from "@rail/ui/stats/WinrateGraph";
 import { useEffect, useState } from "react";
 
@@ -29,13 +30,13 @@ function moneyOf(units: Units): WinrateGraphMoney | null {
   return { minorUnits, format: (amount: number) => signedMoney(unit, Math.round(amount * minorUnits)) };
 }
 
-/** The session's report, read again when a hand lands. */
-function useSessionReport(startedAt: string, hands: number): { report: Report | null; error: string | null } {
+/** The session's report (its kind of game's hands only), read again when a hand lands. */
+function useSessionReport(startedAt: string, hands: number, kind: GameKind): { report: Report | null; error: string | null } {
   const [state, setState] = useState<{ report: Report | null; error: string | null }>({ report: null, error: null });
   useEffect(() => {
     let live = true;
     ipc
-      .report({ from: startedAt }, GRAPH_POINTS)
+      .report({ from: startedAt, formats: kindFormats(kind) }, GRAPH_POINTS)
       .then((report) => {
         if (live) setState({ report, error: null });
       })
@@ -45,14 +46,14 @@ function useSessionReport(startedAt: string, hands: number): { report: Report | 
     return () => {
       live = false;
     };
-  }, [startedAt, hands]);
+  }, [startedAt, hands, kind]);
   return state;
 }
 
-export function LiveGraph({ session }: { session: Session }) {
+export function LiveGraph({ session, kind }: { session: Session; kind: GameKind }) {
   const t = useT();
   const d = t.live;
-  const { report, error } = useSessionReport(session.startedAt, session.hands);
+  const { report, error } = useSessionReport(session.startedAt, session.hands, kind);
   const [unit, setUnit] = useState<"bb" | "money">("bb");
 
   const units = session.units;

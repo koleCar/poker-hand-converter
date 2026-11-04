@@ -9,6 +9,9 @@
  *
  * Both need a signed-in learner with a database; otherwise they stay empty.
  * Reads only: the leak finder's report and the overview (invoker, under RLS).
+ * One kind of game's hands, never cash and tournaments together: the kind
+ * last shown on an Analysis screen, else the one with more analysed hands
+ * (`analysisKind.ts`).
  */
 
 "use client";
@@ -23,6 +26,7 @@ import { lessonDone } from "../../../lib/learn/progress";
 import { recheckGroups, recheckNudge, type RecheckNudge } from "../../../lib/learn/recheck";
 import { recommend, type Recommendation } from "../../../lib/learn/recommend";
 import { focusAreas, pickFocus } from "../../../lib/training/plan";
+import { useAnalysisKind } from "../../analysis/analysisKind";
 import { useLearn } from "./LearnStore";
 
 /** The lessons the learner is done with (passed or tested out), as a stable key. */
@@ -41,11 +45,12 @@ function useDoneKey(): string {
 export function useRecommendations(): Map<LessonId, Recommendation> {
   const store = useLearn();
   const doneKey = useDoneKey();
+  const gameKind = useAnalysisKind(null, store.mode === "account").kind;
   const [recs, setRecs] = useState<Map<LessonId, Recommendation>>(new Map());
   useEffect(() => {
-    if (store.mode !== "account") return;
+    if (store.mode !== "account" || gameKind === null) return;
     let live = true;
-    Promise.all([fetchLeaks({}), fetchAnalysisOverview({})])
+    Promise.all([fetchLeaks({ gameKind }), fetchAnalysisOverview({ gameKind })])
       .then(([report, overview]) => {
         if (!live || !report) return;
         const areas = pickFocus(focusAreas(report.rows, report.hands), 5);
@@ -59,7 +64,7 @@ export function useRecommendations(): Map<LessonId, Recommendation> {
     return () => {
       live = false;
     };
-  }, [store.mode, doneKey]);
+  }, [store.mode, doneKey, gameKind]);
   return recs;
 }
 
@@ -72,15 +77,16 @@ function useSettledKey(): string {
 export function useRechecks(): Map<LessonId, RecheckNudge> {
   const store = useLearn();
   const groupsKey = useSettledKey();
+  const gameKind = useAnalysisKind(null, store.mode === "account").kind;
   const [nudges, setNudges] = useState<Map<LessonId, RecheckNudge>>(new Map());
   useEffect(() => {
-    if (store.mode !== "account") return;
+    if (store.mode !== "account" || gameKind === null) return;
     const groups = JSON.parse(groupsKey) as ReturnType<typeof recheckGroups>;
     if (groups.length === 0) return;
     let live = true;
     Promise.all(
       groups.map((group) => {
-        const base = group.potType ? { potType: group.potType } : {};
+        const base = group.potType ? { gameKind, potType: group.potType } : { gameKind };
         return Promise.all([fetchLeaks({ ...base, to: group.day }), fetchLeaks({ ...base, from: group.day })]).then(([before, after]) =>
           group.lessons.map((lesson) => recheckNudge(lesson, masteryFrom(LESSONS[lesson], before?.rows ?? [], after?.rows ?? [], group.day))),
         );
@@ -96,6 +102,6 @@ export function useRechecks(): Map<LessonId, RecheckNudge> {
     return () => {
       live = false;
     };
-  }, [store.mode, groupsKey]);
+  }, [store.mode, groupsKey, gameKind]);
   return nudges;
 }

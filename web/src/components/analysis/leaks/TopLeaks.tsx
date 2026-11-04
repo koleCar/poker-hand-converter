@@ -21,7 +21,7 @@
  *
  * The data are the stored leak sums (`analysis_top_leaks`,
  * `analysis_leak_examples`, `20270728090000_leak_summaries.sql`; a leak's
- * examples on its own table, `20271104090000_drills_by_table.sql`), so a
+ * examples on its own table, `20271104120000_drills_by_table.sql`), so a
  * million hands open in well under a second. No AI-written summary: declined
  * for now (ANALYSIS-PLAN A8c).
  */

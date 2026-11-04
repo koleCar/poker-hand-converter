@@ -15,9 +15,11 @@
  * (`seat`, the preflop trainer's setting) and one library line (`line`).
  */
 
+import type { GameKind } from "@rail/ui/hands/gameKind";
 import { FLOP_LIBRARY_SETS, flopLinesFor, flopPlayersOf, lineSeats } from "../../../lib/analysis/flopLibrary";
 import type { HandsTable } from "../../../lib/analysis/leaks";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../../lib/charts";
+import { KIND_KEY, parseKind } from "../analysisKind";
 import {
   ALL_PREFLOP_SEATS,
   DEAL_BIASES,
@@ -118,6 +120,8 @@ export interface TrainState {
   all: boolean;
   /** Drills: Inaccurate moves too. */
   inaccurate: boolean;
+  /** Drills: one kind of game's (cash or the tournaments), never both; null decides (`analysisKind.ts`). */
+  kind: GameKind | null;
 }
 
 export const DEFAULT_TRAIN_STATE: TrainState = {
@@ -136,6 +140,7 @@ export const DEFAULT_TRAIN_STATE: TrainState = {
   table: null,
   all: false,
   inaccurate: false,
+  kind: null,
 };
 
 /** The table filters a drills address may carry (`handsTable`'s values). */
@@ -181,6 +186,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     table: spots.length > 0 ? oneOf<HandsTable | "">(first(query.table), DRILL_TABLES, "") || null : null,
     all: first(query.all) === "1",
     inaccurate: first(query.inaccurate) === "1",
+    kind: parseKind(query),
   };
 }
 
@@ -212,6 +218,7 @@ export function trainQuery(state: TrainState): string {
     if (state.spots && state.table) params.set("table", state.table);
     if (state.all) params.set("all", "1");
     if (state.inaccurate) params.set("inaccurate", "1");
+    if (state.kind) params.set(KIND_KEY, state.kind);
   }
   return params.toString();
 }

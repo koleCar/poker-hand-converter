@@ -286,6 +286,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_leak_table_of',
                 'analysis_month_of', 'analysis_spot_key',
                 'analysis_street_bit', 'analysis_version_of', 'drill_keys_valid', 'drill_next', 'drill_quality',
+                'filter_formats', 'game_kind_formats',
                 'preflop_chart_key_ok', 'preflop_chart_node_key', 'preflop_chart_nodes_problem',
                 'preflop_chart_seats', 'preflop_chart_set_table', 'preflop_chart_window', 'preflop_class_index',
                 'preflop_decision_fields', 'study_week', 'study_week_valid',
@@ -306,7 +307,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
              from (select feature, count(*) as n from public.entitlement_gates group by 1) x),
   'analysis:45 desktop_sync:3 learn:3 reports_full:6',
-  'the gate list: 45 analysis (20271104090000: the drills on a table), 3 desktop sync, 3 learn, 6 full reports');
+  'the gate list: 45 analysis (20271104120000: the drills on a table), 3 desktop sync, 3 learn, 6 full reports');
 
 -- ---------------------------------------------------------- early users --
 

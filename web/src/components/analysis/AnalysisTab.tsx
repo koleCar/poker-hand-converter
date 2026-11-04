@@ -58,11 +58,12 @@ import { GradeIcon } from "./GradeIcon";
 import { TopLeaks } from "./leaks/TopLeaks";
 import { WhatChanged } from "./leaks/WhatChanged";
 import { DrillsDue } from "./train/DrillsDue";
+import { useAnalysisKind, type AnalysisKind } from "./analysisKind";
+import { KindField } from "./KindField";
 import { PlanCard } from "./plan/PlanCard";
 import { LearnLink } from "./LearnLinks";
 import {
   EMPTY_LIST_STATE,
-  FORMAT_VALUES,
   GRADE_VALUES,
   POSITION_VALUES,
   POT_VALUES,
@@ -119,12 +120,13 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
   const [generation, setGeneration] = useState(0);
   const abort = useRef<AbortController | null>(null);
   const autoRan = useRef(false);
-  // Cash and tournament hands are never combined: the tab opens on cash
-  // unless the address names a format, and once, if cash has no hands, moves
-  // to the format with the most.
-  const formatSettled = useRef(Boolean(initialQuery.fmt));
+  // Cash and tournament hands are never combined (`analysisKind.ts`): the
+  // address's kind, else the visit's, else the one with more analysed hands.
+  const kinds = useAnalysisKind(state.kind, isDatabaseConfigured && auth.isSignedIn, refreshToken);
+  const kindReady = kinds.kind !== null;
+  const shownState = useMemo(() => ({ ...state, kind: kinds.kind }), [state, kinds.kind]);
 
-  const scope = useMemo(() => scopeFilters(state), [state]);
+  const scope = useMemo(() => scopeFilters(shownState), [shownState]);
   const scopeKey = JSON.stringify(scope);
 
   // The address bar follows the list, so Back from a hand lands here again.
@@ -144,23 +146,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     setMessage(null);
     try {
       const nextCoverage = await fetchAnalysisCoverage();
-      const asked = JSON.parse(scopeKey) as typeof scope;
-      const nextOverview = await fetchAnalysisOverview(asked);
-      if (!formatSettled.current) {
-        formatSettled.current = true;
-        if (nextOverview !== null && nextOverview.hands === 0) {
-          const others = FORMAT_VALUES.filter((format) => format !== asked.gameFormat);
-          const counts = await Promise.all(
-            others.map((format) => fetchAnalysisOverview({ ...asked, gameFormat: format }).then((o) => o?.hands ?? 0)),
-          );
-          const best = counts.indexOf(Math.max(...counts));
-          if (best >= 0 && counts[best]! > 0) {
-            // The new scope loads again (`load` follows it).
-            updateState({ gameFormat: others[best]!, page: 0 });
-            return nextCoverage;
-          }
-        }
-      }
+      const nextOverview = await fetchAnalysisOverview(JSON.parse(scopeKey) as typeof scope);
       setCoverage(nextCoverage);
       setOverview(nextOverview);
       setGeneration((value) => value + 1);
@@ -175,7 +161,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
       setMessage(error instanceof Error ? error.message : String(error));
       return null;
     }
-  }, [scopeKey, updateState]);
+  }, [scopeKey]);
 
   const startRun = useCallback(
     async (behind: number, recent?: number) => {
@@ -204,7 +190,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
   useEffect(() => () => abort.current?.abort(), []);
 
   useEffect(() => {
-    if (!isDatabaseConfigured || !auth.isSignedIn) {
+    if (!isDatabaseConfigured || !auth.isSignedIn || !kindReady) {
       return;
     }
     void load().then((loaded) => {
@@ -216,7 +202,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
         void startRun(loaded.missing);
       }
     });
-  }, [auth.isSignedIn, load, refreshToken, startRun]);
+  }, [auth.isSignedIn, kindReady, load, refreshToken, startRun]);
 
   if (!isDatabaseConfigured) {
     return (
@@ -324,7 +310,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
       <ReferenceNote />
       {runBar}
 
-      <ScopeBar state={state} onChange={updateState} />
+      <ScopeBar state={state} kinds={kinds} onChange={updateState} />
 
       {overview ? (
         <Overview
@@ -341,13 +327,13 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
 
       <PlanCard generation={generation} />
 
-      <DrillsDue generation={generation} />
+      {kinds.kind ? <DrillsDue generation={generation} kind={kinds.kind} /> : null}
 
       <WhatChanged scopeKey={scopeKey} generation={generation} />
 
       <BreakdownPanel scopeKey={scopeKey} generation={generation} />
 
-      <HandsPanel state={state} onChange={updateState} generation={generation} />
+      <HandsPanel state={shownState} onChange={updateState} generation={generation} />
     </div>
   );
 }
@@ -658,33 +644,19 @@ function RunBar({
 /** The filters the whole screen follows: format, position, pot type. */
 function ScopeBar({
   state,
+  kinds,
   onChange,
 }: {
   state: AnalysisListState;
+  kinds: AnalysisKind;
   onChange: (patch: Partial<AnalysisListState>) => void;
 }) {
   const en = useDict();
   const t = en.analysis.filters;
-  const formats: Partial<Record<string, string>> = { ...en.stats.scope.formats, sng: en.stats.scope.formats["sit-and-go"] };
   return (
     <div className={styles.filters} role="group" aria-label={t.ariaLabel}>
-      <div className="field">
-        <span className="field__label">{t.format}</span>
-        {/* One format at a time: cash and tournament hands are never combined. */}
-        <div className="stats-scope__formats" role="group" aria-label={t.format}>
-          {FORMAT_VALUES.map((format) => (
-            <button
-              key={format}
-              type="button"
-              className={`btn btn--sm${state.gameFormat === format ? " btn--primary" : ""}`}
-              aria-pressed={state.gameFormat === format}
-              onClick={() => onChange({ gameFormat: format, page: 0 })}
-            >
-              {formats[format] ?? format}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* One kind at a time: cash and tournament hands are never combined. */}
+      <KindField kinds={kinds} onChange={(kind) => onChange({ kind, page: 0 })} />
       <label className="field">
         <span className="field__label">{t.position}</span>
         <select value={state.position ?? ""} onChange={(event) => onChange({ position: event.target.value || null, page: 0 })}>
@@ -1098,7 +1070,7 @@ function HandsPanel({
           <button
             type="button"
             className="btn btn--ghost btn--sm"
-            onClick={() => onChange({ ...EMPTY_LIST_STATE, gameFormat: state.gameFormat, position: state.position, potType: state.potType })}
+            onClick={() => onChange({ ...EMPTY_LIST_STATE, kind: state.kind, position: state.position, potType: state.potType })}
           >
             {t.filters.clear}
           </button>

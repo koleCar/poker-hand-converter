@@ -27,7 +27,7 @@
  * are the notices, the empty text and the states' look; the web adds its
  * own panels in the two slots (`afterSummary`, `footer`).
  */
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { FilterBar, REPORT_GROUPS } from "../hands/FilterBar";
 import { EMPTY_FILTER, activeGroups, toQuery, type FilterState } from "../hands/filter";
@@ -127,6 +127,7 @@ export function ReportsScreen({
     setFacetsSeen(facets);
   }
   const [unit, setUnit] = useState<"bb" | "money">("bb");
+  const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
   const situationsLocked = situationsLock !== undefined && situationsLock !== null;
   useEffect(() => {
@@ -179,6 +180,7 @@ export function ReportsScreen({
         groups={REPORT_GROUPS}
         screen="reports"
         saved={source.savedFilters}
+        loadFacets={loadFacets}
       />
       {notice}
       {report?.units.mixedKind ? <p className={styles.warning}>{r.units.mixedKind}</p> : null}

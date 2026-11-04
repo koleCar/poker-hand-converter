@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { paths } from "../../lib/routes";
 import { useDict } from "../../lib/i18n/client";
@@ -26,7 +25,7 @@ import { ProBadge } from "../plan/ProLock";
  * that used to live in `routes/router.tsx` is gone, and with it the click
  * handler that re-implemented modifier-key and middle-click semantics.
  */
-export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | "solver" | "learn";
+export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | "solver" | "learn" | "download";
 
 /**
  * The Solver library (`/solver`) is a tab for everyone, like the forum and the
@@ -36,18 +35,24 @@ export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | 
  * offers them. A signed-out visitor sees three tabs (forum, convert, solver)
  * and a signed-in player with hands six; on a phone the strip already scrolls
  * sideways and keeps the current tab in view (see the effect below).
+ *
+ * "Get the app" (`/download`, the desktop app's page) is the strip's last
+ * entry, for everyone, marked with the download arrow. It used to be a pill
+ * of its own beside the status chip, which the tabs ran into once six of
+ * them shared the row.
  */
-const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> = [
+const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string; download?: true }> = [
   { id: "forum", label: (en) => en.nav.forum, path: paths.home() },
   { id: "convert", label: (en) => en.nav.convert, path: paths.convert() },
   { id: "library", label: (en) => en.nav.library, path: paths.library() },
   { id: "stats", label: (en) => en.nav.stats, path: paths.stats() },
   { id: "analysis", label: (en) => en.nav.analysis, path: paths.analysis() },
   { id: "solver", label: (en) => en.nav.solver, path: paths.solver() },
+  { id: "download", label: (en) => en.download.getApp, path: paths.download(), download: true },
 ];
 
 /** Tabs offered to everyone, with or without a library. */
-const OPEN_TABS: readonly ShellTab[] = ["forum", "convert", "solver"];
+const OPEN_TABS: readonly ShellTab[] = ["forum", "convert", "solver", "download"];
 
 interface AppShellProps {
   /** Null on routes with no tab (e.g. 404). */
@@ -84,7 +89,6 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const en = useDict();
-  const pathname = usePathname();
   // The forum, the converter and the Solver library are for everyone; the
   // library and statistics wait until there is something in them.
   const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
@@ -119,9 +123,13 @@ export function AppShell({
                     role="tab"
                     href={entry.path}
                     aria-selected={tab === entry.id}
-                    className={`shell__tab ${tab === entry.id ? "is-active" : ""}`}
+                    className={`shell__tab ${entry.download ? "shell__tab--app" : ""} ${tab === entry.id ? "is-active" : ""}`}
+                    title={entry.download ? en.download.getAppLabel : undefined}
                   >
-                    <span className="shell__tab-label">{entry.label(en)}</span>
+                    <span className="shell__tab-label">
+                      {entry.download ? <DownloadArrow /> : null}
+                      <span className="shell__tab-text">{entry.label(en)}</span>
+                    </span>
                     <NavPending />
                     {lockedTabs.includes(entry.id) ? (
                       <>
@@ -135,30 +143,6 @@ export function AppShell({
             ) : null}
 
             <div className="shell__bar-end">
-              {/* The desktop app's page, from every screen. On a phone the word
-                  steps aside and the arrow stays; it keeps its name either way. */}
-              <Link
-                href={paths.download()}
-                className="shell__get-app"
-                title={en.download.getAppLabel}
-                aria-current={pathname === paths.download() ? "page" : undefined}
-              >
-                <svg
-                  className="shell__get-app-icon"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path d="M10 3v10M5.5 8.8 10 13.3l4.5-4.5M4 17h12" />
-                </svg>
-                <span className="shell__get-app-label">{en.download.getApp}</span>
-                <NavPending mark={false} />
-              </Link>
               <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
               <NotificationsBell />
               <LanguageSwitch />
@@ -197,5 +181,24 @@ export function AppShell({
         </footer>
       </div>
     </NavPendingProvider>
+  );
+}
+
+/** The download arrow on the "Get the app" tab. */
+function DownloadArrow() {
+  return (
+    <svg
+      className="shell__tab-icon"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M10 3v10M5.5 8.8 10 13.3l4.5-4.5M4 17h12" />
+    </svg>
   );
 }
