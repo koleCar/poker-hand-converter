@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!--
+    The desktop app icon: the Rail mark (web/src/components/brand/RailMark.tsx)
+    on a dark tile. Regenerate every icon in this folder from this file with
+
+      cd app && npx tauri icon src-tauri/icons/app-icon.svg -o <tmp>
+
+    and copy back the files tauri.conf.json lists, plus icon.png.
+
+    The tile follows Apple's macOS icon grid (an 824px body inside the 1024px
+    canvas), so the Dock does not show it larger than every other app; Windows
+    gets the same file. Colours are the favicon's dark scheme: the rail in ink,
+    the board in the accent (a-400, #3ea6ff). The mark is the 32px RailMark drawing
+    scaled 18.75x (600px box), stroke and bar kept in proportion.
+  -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2430" />
+      <stop offset="1" stop-color="#0b0f14" />
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#tile)" />
+  <rect x="100.5" y="100.5" width="823" height="823" rx="184.5" fill="none" stroke="#ffffff" stroke-opacity="0.08" />
+  <ellipse cx="512" cy="512" rx="253" ry="150" fill="none" stroke="#e8eef6" stroke-width="56" />
+  <rect x="427.5" y="484" width="169" height="56" rx="28" fill="#3ea6ff" />
+</svg>
