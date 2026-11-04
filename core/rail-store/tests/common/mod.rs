@@ -1039,11 +1039,20 @@ pub mod older {
     /// `net_bb_milli` a big blind higher in about `per_mille` of the hero's
     /// hands without an all-in (no EV row, none queued), and the list's
     /// hero result with them, as the import wrote it.
+    ///
+    /// "No EV row, none queued" alone does not mean no all-in: a preflop
+    /// all-in whose EV came out not applicable is in neither table, and a
+    /// changed result sends it back to `ev_pending` for the background pass -
+    /// a reader then sees it pending for a moment. So the PHF is read too.
     pub fn money(conn: &Connection, rng: &mut Rng, per_mille: u64) -> BTreeSet<String> {
-        let seats: Vec<(i64, i64, String, Vec<u8>)> = conn
+        /// A hero seat: hand id, seat, hand key, totals, compressed PHF, PHF size.
+        type HeroSeat = (i64, i64, String, Vec<u8>, Vec<u8>, i64);
+        let seats: Vec<HeroSeat> = conn
             .prepare(
-                "SELECT s.hand_id, s.seat, d.hand_key, s.totals FROM seat_stats s
+                "SELECT s.hand_id, s.seat, d.hand_key, s.totals, h.phf, h.phf_size
+                 FROM seat_stats s
                  JOIN hand_stats d ON d.id = s.hand_id
+                 JOIN hands h ON h.hand_key = d.hand_key
                  WHERE s.is_hero = 1
                    AND NOT EXISTS (SELECT 1 FROM ev_rows e WHERE e.hand_key = d.hand_key)
                    AND NOT EXISTS (SELECT 1 FROM ev_pending p WHERE p.hand_key = d.hand_key)
@@ -1051,13 +1060,25 @@ pub mod older {
             )
             .expect("prepare")
             .query_map([], |row| {
-                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+                Ok((
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                    row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
+                ))
             })
             .expect("seats")
             .collect::<Result<_, _>>()
             .expect("rows");
         let mut changed = BTreeSet::new();
-        for (hand, seat, key, blob) in seats {
+        for (hand, seat, key, blob, phf, phf_size) in seats {
+            let phf = super::decompress_phf(&phf, u64::try_from(phf_size).expect("size"))
+                .expect("decompress");
+            if phf.contains("\"allIn\":true") || phf.contains("\"allIn\": true") {
+                continue;
+            }
             if rng.below(1000) >= per_mille || !changed.insert(key.clone()) {
                 continue;
             }
