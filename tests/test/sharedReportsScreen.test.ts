@@ -315,6 +315,13 @@ describe("the opponents panel beside the screen", () => {
     expect(opponentsScope({ from: "2026-10-01T00:00:00.000Z" }).partial).toBe(true);
     expect(opponentsScope({}).partial).toBe(false);
   });
+
+  it("never drops the game to every format: several chip formats keep the first", () => {
+    expect(opponentsScope({ formats: ["tournament", "sng", "spin"] })).toEqual({
+      filters: { gameFormat: "tournament" },
+      partial: true,
+    });
+  });
 });
 
 /* ------------------------------------------------------------ markup - */

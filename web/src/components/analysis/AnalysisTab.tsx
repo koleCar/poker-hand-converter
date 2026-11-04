@@ -119,6 +119,10 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
   const [generation, setGeneration] = useState(0);
   const abort = useRef<AbortController | null>(null);
   const autoRan = useRef(false);
+  // Cash and tournament hands are never combined: the tab opens on cash
+  // unless the address names a format, and once, if cash has no hands, moves
+  // to the format with the most.
+  const formatSettled = useRef(Boolean(initialQuery.fmt));
 
   const scope = useMemo(() => scopeFilters(state), [state]);
   const scopeKey = JSON.stringify(scope);
@@ -140,7 +144,23 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
     setMessage(null);
     try {
       const nextCoverage = await fetchAnalysisCoverage();
-      const nextOverview = await fetchAnalysisOverview(JSON.parse(scopeKey));
+      const asked = JSON.parse(scopeKey) as typeof scope;
+      const nextOverview = await fetchAnalysisOverview(asked);
+      if (!formatSettled.current) {
+        formatSettled.current = true;
+        if (nextOverview !== null && nextOverview.hands === 0) {
+          const others = FORMAT_VALUES.filter((format) => format !== asked.gameFormat);
+          const counts = await Promise.all(
+            others.map((format) => fetchAnalysisOverview({ ...asked, gameFormat: format }).then((o) => o?.hands ?? 0)),
+          );
+          const best = counts.indexOf(Math.max(...counts));
+          if (best >= 0 && counts[best]! > 0) {
+            // The new scope loads again (`load` follows it).
+            updateState({ gameFormat: others[best]!, page: 0 });
+            return nextCoverage;
+          }
+        }
+      }
       setCoverage(nextCoverage);
       setOverview(nextOverview);
       setGeneration((value) => value + 1);
@@ -155,7 +175,7 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
       setMessage(error instanceof Error ? error.message : String(error));
       return null;
     }
-  }, [scopeKey]);
+  }, [scopeKey, updateState]);
 
   const startRun = useCallback(
     async (behind: number, recent?: number) => {
@@ -648,20 +668,23 @@ function ScopeBar({
   const formats: Partial<Record<string, string>> = { ...en.stats.scope.formats, sng: en.stats.scope.formats["sit-and-go"] };
   return (
     <div className={styles.filters} role="group" aria-label={t.ariaLabel}>
-      <label className="field">
+      <div className="field">
         <span className="field__label">{t.format}</span>
-        <select
-          value={state.gameFormat ?? ""}
-          onChange={(event) => onChange({ gameFormat: event.target.value || null, page: 0 })}
-        >
-          <option value="">{en.stats.scope.allFormats}</option>
+        {/* One format at a time: cash and tournament hands are never combined. */}
+        <div className="stats-scope__formats" role="group" aria-label={t.format}>
           {FORMAT_VALUES.map((format) => (
-            <option key={format} value={format}>
+            <button
+              key={format}
+              type="button"
+              className={`btn btn--sm${state.gameFormat === format ? " btn--primary" : ""}`}
+              aria-pressed={state.gameFormat === format}
+              onClick={() => onChange({ gameFormat: format, page: 0 })}
+            >
               {formats[format] ?? format}
-            </option>
+            </button>
           ))}
-        </select>
-      </label>
+        </div>
+      </div>
       <label className="field">
         <span className="field__label">{t.position}</span>
         <select value={state.position ?? ""} onChange={(event) => onChange({ position: event.target.value || null, page: 0 })}>

@@ -50,8 +50,6 @@ export const handsUiHr: typeof handsUiEn = {
     label: "Vrsta igre",
     cash: "Cash",
     tournament: "Turniri",
-    defaulted: (kind) =>
-      `Prikazujem samo: ${kind}. Turnirski žetoni i cash ne zbrajaju se u jedan rezultat. Promijeni to prekidačem gore.`,
   },
   filters: {
     label: "Filteri",
