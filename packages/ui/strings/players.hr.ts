@@ -24,7 +24,6 @@ export const playersUiHr: typeof playersUiEn = {
   searchPlaceholder: "Ime počinje s…",
   kinds: {
     label: "Igra",
-    all: "Sve igre",
     cash: "Cash",
     chips: "Turniri",
   },
@@ -34,10 +33,6 @@ export const playersUiHr: typeof playersUiEn = {
   labelFilter: "Oznaka",
   noted: "S bilješkom",
   clearFilters: "Očisti filtre",
-  defaultKind: (kind) =>
-    `Prikazujem samo: ${kind}. Turnirski žetoni i novac ne zbrajaju se u jedan rezultat. Promijeni gumbima Igra.`,
-  mixedKind:
-    "Ove ruke miješaju turnirske žetone i novac, pa tvoj rezultat protiv pojedinog protivnika nije prikazan. Odaberi Cash ili Turniri.",
   hidden: (count) =>
     `${cap(ruku(count))} protivnika iz soba koje skrivaju korisnička imena (poput GGPokera) ${plural(count, "ulazi", "ulaze", "ulazi")} u tvoju statistiku, ali ${plural(count, "nije", "nisu", "nije")} na popisu: ime ondje traje jednu sesiju, pa ga se ne može pratiti iz sesije u sesiju.`,
   listLabel: "Protivnici, najviše zajedničkih ruku prvo",
@@ -68,8 +63,6 @@ export const playersUiHr: typeof playersUiEn = {
     notOpponent:
       "Ovo ime nije protivnik iz sobe koja prikazuje korisnička imena, pa nema profil i ne prima bilješke.",
     together: "Zajedničke ruke",
-    togetherCash: (count) => `${num(count)} u cash igrama`,
-    togetherChips: (count) => `${num(count)} na turnirima`,
     firstSeen: "Prvi put",
     lastSeen: "Zadnji put",
     result: "Tvoj rezultat protiv tog igrača",
@@ -80,13 +73,11 @@ export const playersUiHr: typeof playersUiEn = {
     noHands: "Nema ruku",
     handsWith: (count) => `Ruke s ovim igračem (${num(count)})`,
     kind: "Igra",
-    kindHint: "Brojevi tog igrača u cash igrama, na turnirima ili u oboje; dok ovdje ne odabereš, vrijedi odabir s popisa.",
+    kindHint: "Brojevi tog igrača u cash igrama ili na turnirima, nikad zajedno; dok ovdje ne odabereš, vrijedi odabir s popisa.",
     stats: "Statistika igrača",
     sample: (count) => `Kroz ${rukuAcc(count)} tog igrača, s tobom ili bez tebe.`,
     statsNote:
       "Ovo su igračevi brojevi iz svake njegove ruke koju je Rail vidio. All-in EV računa se samo za tvoje ruke i ovdje nije prikazan. Vrijednost blijedi dok joj je uzorak malen; zadrži pokazivač na njoj za uzorak i 95 % interval.",
-    mixedKind:
-      "Ruke tog igrača miješaju turnirske žetone i novac, pa su brojevi u big blindovima izostavljeni. Odaberi Cash ili Turniri.",
     breakdown: "Raščlamba",
     tabs: {
       position: "Pozicija",

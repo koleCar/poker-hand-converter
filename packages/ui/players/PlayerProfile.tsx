@@ -22,11 +22,12 @@ import { StatTable } from "../stats/StatTable";
 import {
   PLAYER_COLOURS,
   reasonText,
-  type GameKind,
+  SHOWN_KINDS,
   type PlayerColour,
   type PlayerNotes,
   type PlayerProfile as Profile,
   type PlayersSource,
+  type ShownKind,
   type Together,
 } from "./model";
 import styles from "./Players.module.css";
@@ -54,12 +55,13 @@ export function PlayerProfile({
   source: PlayersSource;
   site: string;
   player: string;
-  kind: GameKind;
+  /** The list's kind; null while the screen finds the kind with more hands. */
+  kind: ShownKind | null;
   definitions: readonly Definition[] | null;
   notesFootnote: string | null;
   renderState: RenderState;
   onClose: () => void;
-  onHandsWith: (player: PlayerRef) => void;
+  onHandsWith: (player: PlayerRef, kind: ShownKind) => void;
   /** The colour, labels or note changed: the list shows it. */
   onNotes: (notes: PlayerNotes) => void;
 }) {
@@ -67,15 +69,16 @@ export function PlayerProfile({
   const t = players.profile;
   const [profile, setProfile] = useState<Profile | null>(null);
   // The game kind the profile shown is for: another one dims it while it loads.
-  const [profileKind, setProfileKind] = useState<GameKind | null>(null);
+  const [profileKind, setProfileKind] = useState<ShownKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const headingId = useId();
   // The profile's own game kind (R2.8): the list's until the reader picks
   // one here, for this player (a new player opens on the list's again).
-  const [ownKind, setOwnKind] = useState<GameKind | null>(null);
+  const [ownKind, setOwnKind] = useState<ShownKind | null>(null);
   const shownKind = ownKind ?? kind;
 
   useEffect(() => {
+    if (shownKind === null) return;
     let current = true;
     source
       .profile(site, player, shownKind)
@@ -93,7 +96,6 @@ export function PlayerProfile({
     };
   }, [source, site, player, shownKind]);
 
-  const kinds: GameKind[] = ["all", "cash", "chips"];
   return (
     <section className={styles.profile} aria-labelledby={headingId} tabIndex={-1}>
       <div className={styles.profileHead}>
@@ -108,7 +110,7 @@ export function PlayerProfile({
         </button>
       </div>
       <div className={styles.segmented} role="group" aria-label={t.kind} title={t.kindHint}>
-        {kinds.map((value) => (
+        {SHOWN_KINDS.map((value) => (
           <button
             key={value}
             type="button"
@@ -122,7 +124,7 @@ export function PlayerProfile({
       </div>
       {error !== null
         ? renderState("error", t.failed(error), true)
-        : profile === null || definitions === null
+        : profile === null || profileKind === null || definitions === null
           ? renderState("loading", t.loading, true)
           : profile.seen === null
             ? renderState("empty", t.notOpponent, true)
@@ -131,6 +133,7 @@ export function PlayerProfile({
                 <ProfileBody
                   source={source}
                   profile={profile}
+                  kind={profileKind}
                   definitions={definitions}
                   notesFootnote={notesFootnote}
                   onHandsWith={onHandsWith}
@@ -146,6 +149,7 @@ export function PlayerProfile({
 export function ProfileBody({
   source,
   profile,
+  kind,
   definitions,
   notesFootnote,
   onHandsWith,
@@ -153,9 +157,11 @@ export function ProfileBody({
 }: {
   source: PlayersSource;
   profile: Profile;
+  /** The game kind the profile was asked for: its hands and result only. */
+  kind: ShownKind;
   definitions: readonly Definition[];
   notesFootnote: string | null;
-  onHandsWith: (player: PlayerRef) => void;
+  onHandsWith: (player: PlayerRef, kind: ShownKind) => void;
   onNotes: (notes: PlayerNotes) => void;
 }) {
   const all = useUiStrings();
@@ -164,15 +170,7 @@ export function ProfileBody({
   const { bigBlinds, count, playedAt } = useMemo(() => handFormat(all.intlLocale), [all.intlLocale]);
   const seen = profile.seen;
   if (seen === null) return null;
-  const together = seen.cash.hands + seen.chips.hands;
-  const result = (label: string, kind: Together) => (
-    <div className={styles.fact}>
-      <dt>{label}</dt>
-      <dd className={kind.netBbMilli > 0 ? styles.up : kind.netBbMilli < 0 ? styles.down : ""}>
-        {kind.moneyHands === 0 ? t.noHands : t.resultLine(bigBlinds(kind.netBbMilli), kind.moneyHands)}
-      </dd>
-    </div>
-  );
+  const shown: Together = kind === "cash" ? seen.cash : seen.chips;
   // Theirs to show: not the hero-only all-in EV, and no money (an
   // opponent's report is in big blinds, as the web's).
   const anyPlayer = (definition: StatDefinition) =>
@@ -183,18 +181,7 @@ export function ProfileBody({
       <dl className={`${styles.facts} rail-stagger`}>
         <div className={styles.fact}>
           <dt>{t.together}</dt>
-          <dd>
-            {count(together)}
-            <span className={styles.muted}>
-              {" "}
-              {[
-                seen.cash.hands > 0 ? t.togetherCash(seen.cash.hands) : null,
-                seen.chips.hands > 0 ? t.togetherChips(seen.chips.hands) : null,
-              ]
-                .filter((part) => part !== null)
-                .join(" · ")}
-            </span>
-          </dd>
+          <dd>{count(shown.hands)}</dd>
         </div>
         <div className={styles.fact}>
           <dt>{t.firstSeen}</dt>
@@ -208,16 +195,20 @@ export function ProfileBody({
       <div className={styles.resultBlock}>
         <h3 className={styles.subhead}>{t.result}</h3>
         <dl className={styles.facts}>
-          {seen.cash.hands > 0 ? result(t.resultCash, seen.cash) : null}
-          {seen.chips.hands > 0 ? result(t.resultChips, seen.chips) : null}
+          <div className={styles.fact}>
+            <dt>{kind === "cash" ? t.resultCash : t.resultChips}</dt>
+            <dd className={shown.netBbMilli > 0 ? styles.up : shown.netBbMilli < 0 ? styles.down : ""}>
+              {shown.moneyHands === 0 ? t.noHands : t.resultLine(bigBlinds(shown.netBbMilli), shown.moneyHands)}
+            </dd>
+          </div>
         </dl>
       </div>
       <button
         type="button"
         className={`btn ${styles.handsWith}`}
-        onClick={() => onHandsWith({ site: profile.site, player: profile.player })}
+        onClick={() => onHandsWith({ site: profile.site, player: profile.player }, kind)}
       >
-        {t.handsWith(together)}
+        {t.handsWith(shown.hands)}
       </button>
 
       <PlayerWords
@@ -232,7 +223,6 @@ export function ProfileBody({
       <div>
         <h3 className={styles.subhead}>{t.stats}</h3>
         <p className={styles.muted}>{t.sample(seen.hands)}</p>
-        {profile.mixedKind ? <p className={styles.warning}>{t.mixedKind}</p> : null}
         <div className={styles.statGroups}>
           {DEFINITION_GROUPS.map((group) => (
             <StatTable

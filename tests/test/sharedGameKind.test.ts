@@ -8,7 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { EMPTY_FILTER } from "@rail/ui/hands/filter";
-import { hasBothKinds, kindCounts, kindOf, pinKind, withKind } from "@rail/ui/hands/gameKind";
+import { hasBothKinds, isWholeKind, kindCounts, kindOf, pinKind, withFormats, withKind } from "@rail/ui/hands/gameKind";
 import { KindToggle } from "@rail/ui/hands/KindToggle";
 import type { HandFacets } from "@rail/ui/hands/model";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
@@ -30,6 +30,30 @@ const facets = (formats: Record<string, number>): HandFacets => ({
   allIn: [],
   tags: [],
   noted: 0,
+});
+
+describe("the Game chip, kept to one kind", () => {
+  const both = facets({ cash: 10, tournament: 5, sng: 3 });
+  const chips = { ...EMPTY_FILTER, formats: ["tournament", "sng"] };
+
+  it("a format of the other kind replaces the choice; never both kinds", () => {
+    expect(withFormats(chips, ["tournament", "sng", "cash"], both).formats).toEqual(["cash"]);
+    expect(withFormats({ ...EMPTY_FILTER, formats: ["cash"] }, ["cash", "spin"], both).formats).toEqual(["spin"]);
+    expect(withFormats(chips, ["sng"], both).formats).toEqual(["sng"]);
+  });
+
+  it("Any is the whole of the kind shown", () => {
+    expect(withFormats({ ...EMPTY_FILTER, formats: ["sng"] }, [], both).formats).toEqual(["tournament", "sng"]);
+    expect(withFormats({ ...EMPTY_FILTER, formats: ["cash"] }, [], both).formats).toEqual(["cash"]);
+    expect(withFormats(EMPTY_FILTER, [], both).formats).toEqual([]);
+  });
+
+  it("knows the toggle's whole kind from a narrowed one", () => {
+    expect(isWholeKind(chips, both)).toBe(true);
+    expect(isWholeKind({ ...EMPTY_FILTER, formats: ["sng"] }, both)).toBe(false);
+    expect(isWholeKind({ ...EMPTY_FILTER, formats: ["cash"] }, both)).toBe(true);
+    expect(isWholeKind(EMPTY_FILTER, both)).toBe(false);
+  });
 });
 
 describe("game kind", () => {

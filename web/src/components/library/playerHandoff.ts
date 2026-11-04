@@ -10,20 +10,24 @@
  * Players page parks, then routes.
  */
 import { EMPTY_FILTER, type FilterState } from "@rail/ui/hands/filter";
+import { withKind } from "@rail/ui/hands/gameKind";
 import type { PlayerRef } from "@rail/ui/hands/model";
+import type { ShownKind } from "@rail/ui/players/model";
 
 const PLAYER_FILTER_KEY = "rail.library.playerFilter";
 /** A parked opponent is honoured for this long (the hand-off, not a later visit). */
 const MAX_AGE_MS = 10 * 60 * 1000;
 
 interface Parked extends PlayerRef {
+  /** The profile's game kind: the library opens on it (cash and tournaments never together). */
+  kind?: ShownKind;
   at: string;
 }
 
 /** Parks `player` for the library's next mount. Returns whether it stuck. */
-export function parkPlayerFilter(player: PlayerRef): boolean {
+export function parkPlayerFilter(player: PlayerRef, kind: ShownKind): boolean {
   try {
-    const parked: Parked = { ...player, at: new Date().toISOString() };
+    const parked: Parked = { ...player, kind, at: new Date().toISOString() };
     sessionStorage.setItem(PLAYER_FILTER_KEY, JSON.stringify(parked));
     return true;
   } catch {
@@ -48,7 +52,10 @@ export function takePlayerFilter(): FilterState | null {
     if (!Number.isFinite(age) || age > MAX_AGE_MS) return null;
     // The web's library filters on a name at the table (`library_page`'s
     // `player`, exact) and the room.
-    return { ...EMPTY_FILTER, sites: [parked.site], playerName: parked.player };
+    const filter: FilterState = { ...EMPTY_FILTER, sites: [parked.site], playerName: parked.player };
+    if (parked.kind === "cash") return withKind(filter, "cash", null);
+    if (parked.kind === "chips") return withKind(filter, "tournament", null);
+    return filter;
   } catch {
     return null;
   }

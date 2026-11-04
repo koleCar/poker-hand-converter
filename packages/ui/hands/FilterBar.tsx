@@ -34,6 +34,7 @@ import {
 } from "./filter";
 import { handFormat, stakeLabel } from "./format";
 import styles from "./FilterBar.module.css";
+import { isWholeKind, kindOf, kindOfFormat, withFormats, withKind } from "./gameKind";
 import type { FacetCount, FilterScreen, HandFacets, HandSort, MoreFilter, SavedFiltersSource } from "./model";
 import { Popover } from "./Popover";
 import { SavedFilters } from "./SavedFilters";
@@ -198,6 +199,10 @@ function useOptions(group: GroupId, filter: FilterState, facets: HandFacets | nu
         ].filter((f) => f.value !== "");
     }
   }
+  // The Game chip narrows within the kind the toggle shows: the other kind's
+  // formats are not offered (cash and tournaments never together).
+  const kind = group === "format" ? kindOf(filter.formats) : null;
+  if (kind !== null) counts = counts.filter((c) => kindOfFormat(c.value) === kind);
   // The values chosen stay listed even when nothing has them now.
   for (const value of filter[list]) {
     if (!counts.some((c) => c.value === value)) {
@@ -250,7 +255,9 @@ export function FilterBar({
   search = ALL_SEARCH,
 }: FilterBarProps) {
   const t = useUiStrings().hands;
-  const active = activeGroups(filter);
+  // The toggle's kind alone is not a filter to clear: Clear all keeps it.
+  const wholeKind = isWholeKind(filter, facets);
+  const active = activeGroups(filter) - (wholeKind ? 1 : 0);
   const player = screen === "hands" ? filter.player : null;
   return (
     <div className={styles.bar} role="toolbar" aria-label={t.filters.label}>
@@ -287,7 +294,11 @@ export function FilterBar({
         <button
           type="button"
           className={styles.clearAll}
-          onClick={() => onChange({ ...EMPTY_FILTER, sort: filter.sort })}
+          onClick={() => {
+            const kind = kindOf(filter.formats);
+            const cleared = { ...EMPTY_FILTER, sort: filter.sort };
+            onChange(kind === null ? cleared : withKind(cleared, kind, facets));
+          }}
         >
           {t.filters.clearAll}
         </button>
@@ -322,7 +333,7 @@ function GroupChip({
 
   // What the chip says when the group is set.
   let summary: string | null = null;
-  if (list && filter[list].length > 0) {
+  if (list && filter[list].length > 0 && !(group === "format" && isWholeKind(filter, facets))) {
     const labels = filter[list].map((value) => options.find((o) => o.value === value)?.label ?? value);
     summary = labels.length === 1 ? (labels[0] ?? "") : t.more(labels[0] ?? "", labels.length - 1);
   } else if (group === "date" && filter.date !== null) {
@@ -356,8 +367,11 @@ function GroupChip({
         <FilterChips
           label={name}
           options={options}
-          selected={filter[list]}
-          onChange={(next) => onChange({ ...filter, [list]: next })}
+          // The whole of the toggle's kind reads as "Any".
+          selected={group === "format" && isWholeKind(filter, facets) ? [] : filter[list]}
+          onChange={(next) =>
+            onChange(group === "format" ? withFormats(filter, next, facets) : { ...filter, [list]: next })
+          }
           clearLabel={t.clear}
         />
       );

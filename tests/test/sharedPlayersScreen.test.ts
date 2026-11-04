@@ -217,13 +217,19 @@ describe("hands with this player, on the web", () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it("parks the opponent for the library, which opens on their room and name, once", () => {
-    expect(parkPlayerFilter({ site: "pokerstars", player: "villain_one" })).toBe(true);
+  it("parks the opponent for the library, which opens on their room, name and the profile's kind, once", () => {
+    expect(parkPlayerFilter({ site: "pokerstars", player: "villain_one" }, "cash")).toBe(true);
     const filter = takePlayerFilter();
     expect(filter?.sites).toEqual(["pokerstars"]);
     expect(filter?.playerName).toBe("villain_one");
     expect(filter?.player).toBeNull();
+    expect(filter?.formats).toEqual(["cash"]);
     expect(takePlayerFilter()).toBeNull();
+  });
+
+  it("a tournament profile opens the library on the chip formats only", () => {
+    parkPlayerFilter({ site: "pokerstars", player: "villain_one" }, "chips");
+    expect(takePlayerFilter()?.formats).toEqual(["tournament", "sng", "spin"]);
   });
 
   it("an old hand-off is ignored", () => {
@@ -318,6 +324,7 @@ describe("the screen, rendered", () => {
         expect(html).toContain(p.loading);
         expect(html).toContain(p.searchPlaceholder);
         expect(html).toContain(p.kinds.cash);
+        expect(html).toContain(p.kinds.chips);
         expect(html).toContain(p.anyRoom);
         expect(html).toContain(p.noted);
         expect(html.includes(`aria-label="${p.colourFilter}"`)).toBe(features.colours);
@@ -329,6 +336,7 @@ describe("the screen, rendered", () => {
           createElement(ProfileBody, {
             source: fakeSource(features),
             profile: APP_PROFILE,
+            kind: "cash",
             definitions: WEB_DEFINITIONS,
             notesFootnote: "Where the words are kept.",
             onHandsWith: () => undefined,
@@ -337,9 +345,10 @@ describe("the screen, rendered", () => {
         );
         const t = p.profile;
         expect(html).toContain(t.together);
+        // Cash only: the profile never adds tournament hands to cash ones.
         expect(html).toContain(t.resultCash);
-        expect(html).toContain(t.resultChips);
-        expect(html).toContain(t.handsWith(126));
+        expect(html).not.toContain(t.resultChips);
+        expect(html).toContain(t.handsWith(120));
         expect(html).toContain("Calls too much.");
         expect(html).toContain("Where the words are kept.");
         expect(html.includes(`role="radiogroup"`)).toBe(features.colours);

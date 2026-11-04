@@ -6,12 +6,14 @@
  * their statistics, their rows by position and stake, your result against
  * them, the user's words, and "hands with this player" into Hands.
  *
+ * One game kind at a time, never both (the owner's rule, 2026-11-04): the
+ * Cash / Tournaments toggle, opening on the kind with more hands - tournament
+ * chips and cash do not add up to one result, as on Hands and Reports.
+ *
  * Who is listed is the surface's store's rule (docs/DATABASE.md "Player
  * identity and anonymized rooms"): a positional room's seat labels never, an
  * opaque room's session tokens counted but not listed. The result is in big
- * blinds only and withheld when the list mixes tournament chips with cash,
- * so on a library with both the screen opens on the kind with more hands, as
- * Reports does.
+ * blinds.
  *
  * The desktop app's screen (R2.7c, `app/src/screens/Players.tsx` before
  * R4.5c), lifted out of it: the open player and where it lives (the app's
@@ -31,11 +33,13 @@ import {
   PLAYER_COLOURS,
   playerKey,
   reasonText,
+  SHOWN_KINDS,
   type GameKind,
   type PlayerList,
   type PlayerQuery,
   type PlayerSite,
   type PlayersSource,
+  type ShownKind,
 } from "./model";
 import { PlayerProfile } from "./PlayerProfile";
 import { PlayerTable } from "./PlayerTable";
@@ -49,7 +53,7 @@ const SEARCH_DEBOUNCE_MS = 120;
 /** At most once per this many ms after an import. */
 const ARRIVAL_THROTTLE_MS = 2000;
 
-type Query = Required<Omit<PlayerQuery, "limit" | "kind">> & { kind: GameKind | null };
+type Query = Required<Omit<PlayerQuery, "limit" | "kind">> & { kind: ShownKind | null };
 
 /** The query, kept while the surface runs (leaving Players and coming back keeps it). */
 let lastQuery: Query = {
@@ -68,8 +72,8 @@ export interface PlayersScreenProps {
   /** The open player (the app's route, the web's page state). */
   selected: PlayerRef | null;
   onSelect: (player: PlayerRef | null) => void;
-  /** "Hands with this player": the surface opens its Hands on them. */
-  onHandsWith: (player: PlayerRef) => void;
+  /** "Hands with this player": the surface opens its Hands on them, in the profile's kind. */
+  onHandsWith: (player: PlayerRef, kind: ShownKind) => void;
   /** The heading's words, and its level on the surface's page. */
   title: string;
   titleTag?: "h1" | "h2";
@@ -110,7 +114,7 @@ export function PlayersScreen({
   const f = strings.hands.filters;
   const [query, setQuery] = useState(lastQuery);
   const [limit, setLimit] = useState(PAGE);
-  const [defaultKind, setDefaultKind] = useState<GameKind | null>(null);
+  const [defaultKind, setDefaultKind] = useState<ShownKind | null>(null);
   const [list, setList] = useState<PlayerList | null>(null);
   // The query (without its length) the list shown answers: a new one dims it
   // while it loads and lets its rows arrive again; "show more" and arrivals do neither.
@@ -161,8 +165,10 @@ export function PlayersScreen({
     };
   }, [source]);
 
-  // The kind shown: the reader's, else (a library with both) the bigger one.
-  const kind: GameKind = query.kind ?? defaultKind ?? "all";
+  // The kind shown: the reader's, else the one with more hands. Until that
+  // is known the screen asks for both once, only for the counts.
+  const shownKind: ShownKind | null = query.kind ?? defaultKind;
+  const kind: GameKind = shownKind ?? "all";
   const ask = useMemo<PlayerQuery>(
     () => ({
       search: debounced,
@@ -188,7 +194,7 @@ export function PlayersScreen({
       .then((value) => {
         if (!current) return;
         // Chips and cash do not add up: open on the kind with more hands.
-        if (asked.kind === "all" && value.mixedKind && query.kind === null && defaultKind === null) {
+        if (asked.kind === "all") {
           setDefaultKind(value.cashHands >= value.chipsHands ? "cash" : "chips");
           return;
         }
@@ -211,7 +217,7 @@ export function PlayersScreen({
     return () => {
       current = false;
     };
-  }, [source, askKey, arrivals, reloadToken, query.kind, defaultKind, hasLabels]);
+  }, [source, askKey, arrivals, reloadToken, hasLabels]);
 
   const filtered =
     debounced.trim() !== "" ||
@@ -251,7 +257,7 @@ export function PlayersScreen({
     );
   }
 
-  const kinds: GameKind[] = ["all", "cash", "chips"];
+  const kindHands = (value: ShownKind) => (list === null ? null : value === "cash" ? list.cashHands : list.chipsHands);
   return (
     <div className={`${styles.screen} ${fill ? styles.fill : styles.page}`}>
       <header className={styles.top}>
@@ -274,12 +280,13 @@ export function PlayersScreen({
           onChange={(event) => update({ search: event.target.value })}
         />
         <div className={styles.segmented} role="group" aria-label={p.kinds.label}>
-          {kinds.map((value) => (
+          {SHOWN_KINDS.map((value) => (
             <button
               key={value}
               type="button"
-              className={`chip-btn${kind === value ? " is-active" : ""}`}
-              aria-pressed={kind === value}
+              className={`chip-btn${shownKind === value ? " is-active" : ""}`}
+              aria-pressed={shownKind === value}
+              disabled={shownKind !== value && kindHands(value) === 0}
               onClick={() => update({ kind: value })}
             >
               {p.kinds[value]}
@@ -361,10 +368,6 @@ export function PlayersScreen({
         ) : null}
       </div>
 
-      {query.kind === null && defaultKind !== null ? (
-        <p className={styles.notice}>{p.defaultKind(p.kinds[defaultKind])}</p>
-      ) : null}
-      {list?.mixedKind ? <p className={styles.warning}>{p.mixedKind}</p> : null}
       {list && list.hiddenHands > 0 ? <p className={styles.notice}>{p.hidden(list.hiddenHands)}</p> : null}
       {notice}
 
@@ -379,7 +382,7 @@ export function PlayersScreen({
               source={source}
               site={selected.site}
               player={selected.player}
-              kind={kind}
+              kind={shownKind}
               definitions={definitions}
               notesFootnote={notesFootnote}
               renderState={renderState}
