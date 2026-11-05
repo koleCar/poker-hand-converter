@@ -4487,6 +4487,7 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_leak_pot_of: { Args: { p_pot_type: string }; Returns: string }
       analysis_leak_rows_table_backfill: { Args: never; Returns: number }
       analysis_leak_sample: {
         Args: {
@@ -4770,6 +4771,10 @@ export type Database = {
         Args: { p_kind?: string; p_until?: string; p_version: string }
         Returns: Json
       }
+      drill_due_by_spot_pots: {
+        Args: { p_kind?: string; p_until?: string; p_version: string }
+        Returns: Json
+      }
       drill_due_by_spot_tables: {
         Args: { p_kind?: string; p_until?: string; p_version: string }
         Returns: Json
@@ -4798,6 +4803,18 @@ export type Database = {
           p_keys?: string[]
           p_kind?: string
           p_limit?: number
+          p_version: string
+        }
+        Returns: Json
+      }
+      drill_queue_on_area: {
+        Args: {
+          p_due_only?: boolean
+          p_keys?: string[]
+          p_kind?: string
+          p_limit?: number
+          p_pot: string
+          p_table: string
           p_version: string
         }
         Returns: Json

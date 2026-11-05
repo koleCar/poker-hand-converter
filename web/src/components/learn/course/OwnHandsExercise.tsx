@@ -19,7 +19,7 @@
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { handsTable, type HandsTable } from "../../../lib/analysis/leaks";
+import { handsTable, type HandsPot, type HandsTable } from "../../../lib/analysis/leaks";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
 import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
 import { useAuth } from "../../../lib/auth";
@@ -32,7 +32,7 @@ import { rowMatches } from "../../../lib/learn/recommend";
 import type { PhfHand } from "../../../lib/phf/types";
 import { paths } from "../../../lib/routes";
 import { asAnswered, gradeDrill, handUpTo } from "../../../lib/training";
-import { focusAreas, pickFocus } from "../../../lib/training/plan";
+import { areaPot, focusAreas, pickFocus } from "../../../lib/training/plan";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { ReplayViewer } from "@rail/ui/replayer/ReplayViewer";
 import { AnswerBar, type AnswerOption } from "../../analysis/train/AnswerBar";
@@ -67,19 +67,21 @@ async function findCandidates(def: OwnHandsDef): Promise<Candidate[]> {
     let keys: string[];
     // A lesson's spot patterns name no table; the learner's own area does.
     let table: HandsTable | null = null;
+    let pot: HandsPot | null = null;
     if (def.spots && def.spots.length > 0) {
       keys = rows.filter((row) => rowMatches(def.spots ?? [], row)).map((row) => row.key);
     } else if (def.spots) {
-      // An empty spot list: the learner's own costliest focus area, on its table (a spot key names none).
+      // An empty spot list: the learner's own costliest focus area, on its table and pot (a spot key names neither).
       const top = pickFocus(focusAreas(rows, report?.hands ?? 0), 1)[0];
       keys = top ? top.keys : [];
       table = top ? handsTable(top.where, top.level) : null;
+      pot = top ? areaPot(top) : null;
     } else {
       keys = rows.map((row) => row.key);
     }
     keys = [...new Set(keys)].slice(0, 500);
     if (keys.length > 0) {
-      const page = await fetchLeakHands(filters, { keys, table, deviations: true, sort: "ev_loss", limit: def.count });
+      const page = await fetchLeakHands(filters, { keys, table, pot, deviations: true, sort: "ev_loss", limit: def.count });
       for (const row of page.rows) add(row.handId, row.actionIndex);
     }
   }

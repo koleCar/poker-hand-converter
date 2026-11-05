@@ -184,11 +184,13 @@ describe("the web's source", () => {
   });
 
   it("counts drills per spot from drill_due_by_spot_tables, or drill_due_by_spot on an older database", async () => {
-    rpc.mockResolvedValueOnce([{ key: KEY, items: 6, due: 3, tables: { hu: { items: 4, due: 2 } } }]);
+    // Since 20271105090000 the per-pot reader first (`leakPotType.test.ts`); without it, the per-table one.
+    rpc.mockRejectedValueOnce(missing()).mockResolvedValueOnce([{ key: KEY, items: 6, due: 3, tables: { hu: { items: 4, due: 2 } } }]);
     expect((await fetchDrillsBySpot()).get(KEY)?.tables).toEqual({ hu: { items: 4, due: 2 } });
     expect(rpc).toHaveBeenLastCalledWith("drill_due_by_spot_tables", expect.objectContaining({ p_version: expect.stringMatching(/^analysis\//) }));
 
-    rpc.mockRejectedValueOnce(missing()).mockResolvedValueOnce([{ key: KEY, items: 6, due: 3 }]);
+    rpc.mockReset();
+    rpc.mockRejectedValueOnce(missing()).mockRejectedValueOnce(missing()).mockResolvedValueOnce([{ key: KEY, items: 6, due: 3 }]);
     expect((await fetchDrillsBySpot()).get(KEY)).toEqual({ items: 6, due: 3 });
     expect(rpc).toHaveBeenLastCalledWith("drill_due_by_spot", expect.anything());
   });

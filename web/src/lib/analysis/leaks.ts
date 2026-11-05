@@ -35,6 +35,11 @@
  *   every level, so a heads-up river never merges into a 6-max one
  *   ({@link tableDropLevel}). A spot key names no table, so a leak's own
  *   decisions are its keys in its own situations ({@link rowOfLeak}).
+ * - **Pots.** A flop, turn or river spot in a 3-bet or 4-bet+ pot carries its
+ *   pot (`~3bp`, `~4bp`, after the table tag; single-raised, limped and
+ *   unknown pots untagged), kept at every level as the postflop table is: a
+ *   3-bet pot's shallow stacks and narrow ranges are another game on every
+ *   street. A spot key names no pot either; {@link rowOfLeak} covers both.
  * - **Ranking**: total EV lost (bb) by default — within one filter set that is
  *   also the order of EV lost per 100 hands, the same denominator divides
  *   every row — or EV lost per time in the spot (how badly the spot is played),
@@ -98,6 +103,13 @@ export interface SpotRow {
    * A spot key can head one row per set.
    */
   set?: string | null;
+  /**
+   * A flop, turn or river spot in a 3-bet (`"3bp"`) or 4-bet+ (`"4bp"`) pot
+   * (`20271105090000_leak_pot_type.sql`; the hand's pot type). Absent for
+   * every other row - single-raised, limped, unknown, preflop - and from an
+   * older database's answer. A spot key and set can head one row per pot.
+   */
+  pot?: string | null;
   street: string;
   scenario: string;
   /** Chart line for chart grades, empty otherwise. */
@@ -140,6 +152,40 @@ export interface SpotAttrs {
    * names no set, so their ids are what they were.
    */
   table?: LeakTable;
+  /**
+   * `"3bp"` / `"4bp"` for a flop, turn or river spot in a 3-bet or 4-bet+
+   * pot (the row's `pot`, §10 2026-11-05; the flop library's own pot names).
+   * Absent for single-raised, limped (its scenario names it already) and
+   * unknown pots, and preflop (the chart line names the pot), so their ids
+   * are what they were. Kept at every level, after the table tag.
+   */
+  pot?: LeakPot;
+}
+
+/** The pot tag of a postflop spot in a 3-bet pot (`SpotAttrs.pot`, the last part of its ids). */
+export const THREE_BET_POT = "3bp";
+/** The pot tag of a postflop spot in a 4-bet-or-more pot. */
+export const FOUR_BET_POT = "4bp";
+/** Every pot tag a leak id can end in. */
+export const LEAK_POTS = [THREE_BET_POT, FOUR_BET_POT] as const;
+export type LeakPot = (typeof LEAK_POTS)[number];
+
+/** A row's pot tag: a postflop row's `pot` when it is one, else null. */
+export const potOfRow = (row: Pick<SpotRow, "street" | "pot">): LeakPot | null =>
+  row.street !== "preflop" && LEAK_POTS.includes(row.pot as LeakPot) ? (row.pot as LeakPot) : null;
+
+/** A pot filter: a leak pot tag, or `"other"` (single-raised, limped, unknown). */
+export type HandsPot = LeakPot | "other";
+
+/**
+ * The pot filter a leak's or area's hands, examples and drills are read with
+ * (`analysis_leak_hands`' `leakPot`): a postflop one's tag, `"other"` for an
+ * untagged one (single-raised, limped, unknown pots), at every level (the tag
+ * is never dropped); null preflop (every pot).
+ */
+export function handsPot(attrs: { street: string; pot?: string }): HandsPot | null {
+  if (attrs.street === "preflop") return null;
+  return attrs.pot === THREE_BET_POT || attrs.pot === FOUR_BET_POT ? attrs.pot : "other";
 }
 
 /** The table tag of a full-ring chart spot (`SpotAttrs.table`, the last part of its ids). */
@@ -196,24 +242,42 @@ export interface SpotDrills {
    * drills. Absent from an older database's answer.
    */
   tables?: Partial<Record<HandsTable, { items: number; due: number }>>;
+  /**
+   * The same per table and pot (`20271105090000_leak_pot_type.sql`): a 3-bet
+   * and a single-raised area share their keys. Absent from an older
+   * database's answer.
+   */
+  pots?: Partial<Record<HandsTable, Partial<Record<HandsPot, { items: number; due: number }>>>>;
 }
 
 /**
  * A leak's or area's drills, summed over its keys on its table (`handsTable`;
- * null: every table). A row with no per-table split (an older database) counts
- * whole, as before.
+ * null: every table) and pot (`handsPot`; null: every pot). A row with no
+ * per-pot split (an older database) counts on its table, and one with no
+ * per-table split whole, as before.
  */
 export function drillsOn(
   drills: ReadonlyMap<string, SpotDrills>,
   keys: readonly string[],
   table: HandsTable | null,
+  pot: HandsPot | null = null,
 ): { items: number; due: number } {
   let items = 0;
   let due = 0;
   for (const key of keys) {
     const row = drills.get(key);
     if (!row) continue;
-    const part = table && row.tables ? (row.tables[table] ?? { items: 0, due: 0 }) : row;
+    let part: { items: number; due: number };
+    if (pot && row.pots) {
+      const cells = table ? [row.pots[table]] : Object.values(row.pots);
+      part = { items: 0, due: 0 };
+      for (const cell of cells) {
+        part.items += cell?.[pot]?.items ?? 0;
+        part.due += cell?.[pot]?.due ?? 0;
+      }
+    } else {
+      part = table && row.tables ? (row.tables[table] ?? { items: 0, due: 0 }) : row;
+    }
     items += part.items;
     due += part.due;
   }
@@ -300,6 +364,7 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
     // Postflop the table is the hand's (the row's set); a row that names none stays untagged.
     table = tableOfSet(row.set);
   }
+  const pot = potOfRow(row);
   return {
     street: row.street,
     scenario: row.scenario,
@@ -309,6 +374,7 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
     taken: row.taken,
     best: row.best,
     ...(table ? { table } : {}),
+    ...(pot ? { pot } : {}),
   };
 }
 
@@ -324,22 +390,34 @@ export function atLevel(attrs: SpotAttrs, level: number): SpotAttrs {
     best: attrs.best,
     // A preflop table goes with the seats it names; a postflop one stays at every level (`tableDropLevel`).
     ...(attrs.table && level < tableDropLevel(attrs.street) ? { table: attrs.table } : {}),
+    // A postflop pot is kept at every level, as the postflop table is.
+    ...(attrs.pot ? { pot: attrs.pot } : {}),
   };
 }
 
-const tablePart = (a: Pick<SpotAttrs, "table">) => (a.table ? [a.table] : []);
-/** A situation: the attributes without what was done there (a full-ring spot ends in `~9max`, a heads-up one in `~hu`). */
-export const situationKey = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain, ...tablePart(a)].join("~");
-/** A leak's id: stable across reloads and filters, safe in a URL (a full-ring spot ends in `~9max`, a heads-up one in `~hu`). */
+/** The tags after an id's parts: the table, then the pot (`~hu~3bp`; the two tag sets never share a value). */
+const tagParts = (a: Pick<SpotAttrs, "table" | "pot">) => [...(a.table ? [a.table] : []), ...(a.pot ? [a.pot] : [])];
+/** A situation: the attributes without what was done there (a full-ring spot ends in `~9max`, a heads-up one in `~hu`, a 3-bet pot's in `~3bp`). */
+export const situationKey = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain, ...tagParts(a)].join("~");
+/** A leak's id: stable across reloads and filters, safe in a URL (a full-ring spot ends in `~9max`, a heads-up one in `~hu`, a 3-bet pot's in `~3bp`). */
 export const leakId = (a: SpotAttrs) =>
-  [a.street, a.scenario, a.family, a.hero, a.villain, a.taken, a.best, ...tablePart(a)].join("~");
+  [a.street, a.scenario, a.family, a.hero, a.villain, a.taken, a.best, ...tagParts(a)].join("~");
 
 /**
  * A situation key as it was before postflop spots carried their table (§10,
- * 2026-11-02): a postflop tag dropped, a preflop one kept. What a stored
- * study plan's snapshot (written before) names its situations by.
+ * 2026-11-02): a postflop tag dropped (the table, and the pot since
+ * 2026-11-05), a preflop one kept. What a stored study plan's snapshot
+ * (written before) names its situations by.
  */
-export const legacySituationKey = (a: SpotAttrs) => situationKey(a.street === "preflop" ? a : { ...a, table: undefined });
+export const legacySituationKey = (a: SpotAttrs) =>
+  situationKey(a.street === "preflop" ? a : { ...a, table: undefined, pot: undefined });
+
+/**
+ * A situation key as it was before postflop spots carried their pot (§10,
+ * 2026-11-05): the table kept, the pot dropped. What a snapshot written
+ * between the two changes names its situations by.
+ */
+export const potlessSituationKey = (a: SpotAttrs) => situationKey({ ...a, pot: undefined });
 
 /**
  * Whether a row is one of a leak's decisions: its spot key and its situation.
@@ -353,11 +431,17 @@ export function rowOfLeak(keys: ReadonlySet<string>, situations: ReadonlySet<str
 /** The parts of a leak id, or null for anything that is not one. */
 export function parseLeakId(id: string): SpotAttrs | null {
   const parts = id.split("~");
-  const table = parts[7] as LeakTable | undefined;
-  if (parts.length !== 7 && !(parts.length === 8 && LEAK_TABLES.includes(table as LeakTable))) return null;
+  if (parts.length < 7 || parts.length > 9) return null;
   if (parts.some((part) => !/^[A-Za-z0-9+*-]{1,40}$/.test(part))) return null;
+  // The tags: a table, a pot, or a table then a pot (their values never overlap).
+  const tags = parts.slice(7);
+  const table = LEAK_TABLES.includes(tags[0] as LeakTable) ? (tags.shift() as LeakTable) : undefined;
+  const pot = LEAK_POTS.includes(tags[0] as LeakPot) ? (tags.shift() as LeakPot) : undefined;
+  if (tags.length > 0) return null;
   const [street, scenario, family, hero, villain, taken, best] = parts;
-  return { street, scenario, family, hero, villain, taken, best, ...(table ? { table } : {}) };
+  // A pot tag is postflop's only.
+  if (pot && street === "preflop") return null;
+  return { street, scenario, family, hero, villain, taken, best, ...(table ? { table } : {}), ...(pot ? { pot } : {}) };
 }
 
 /** A row is part of some leak when its move was not the reference's, or was at the wrong size. */
@@ -454,7 +538,7 @@ interface Built {
 export function groupLeaks(input: readonly SpotRow[], options: GroupOptions): Leak[] {
   const minSample = options.minSample ?? MIN_SPOT_SAMPLE;
   const minEv = options.minEv ?? MIN_LEAK_EV_BB;
-  const order = (row: SpotRow) => `${row.key}\u0000${row.set ?? ""}`;
+  const order = (row: SpotRow) => `${row.key}\u0000${row.set ?? ""}\u0000${potOfRow(row) ?? ""}`;
   const rows = [...input].sort((a, b) => (order(a) < order(b) ? -1 : order(a) > order(b) ? 1 : 0));
 
   // Every graded decision counts towards its situation's frequency, per finest situation.
@@ -837,8 +921,8 @@ export function comparePeriods(current: readonly SpotRow[], prior: readonly Spot
 export function mergeRows(rows: readonly SpotRow[]): SpotRow[] {
   const byKey = new Map<string, SpotRow>();
   for (const row of rows) {
-    // One row per finest spot and chart set (A2d), as the database sums them.
-    const id = `${row.key}\u0000${row.set ?? ""}`;
+    // One row per finest spot, chart set (A2d) and pot (§10 2026-11-05), as the database sums them.
+    const id = `${row.key}\u0000${row.set ?? ""}\u0000${potOfRow(row) ?? ""}`;
     const seen = byKey.get(id);
     if (!seen) {
       byKey.set(id, { ...row });
