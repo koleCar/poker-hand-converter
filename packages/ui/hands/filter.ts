@@ -179,6 +179,14 @@ function localDay(day: string): Date | null {
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
+/**
+ * A custom range's end given as an exact instant (an ISO date and time, as
+ * the Live screen's "last session" hands over) rather than a local day.
+ */
+export function isInstant(value: string): boolean {
+  return value.includes("T") && !Number.isNaN(Date.parse(value));
+}
+
 function addDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
@@ -198,11 +206,15 @@ export function dateRange(filter: FilterState, now: Date): { from: string | null
     case "year":
       return { from: addDays(today, -364).toISOString(), to: null };
     case "custom": {
-      const from = localDay(filter.dateFrom);
+      // An exact instant is kept as it is: the end one second on, since
+      // `to` is exclusive and the last hand was played at that instant.
+      const fromInstant = isInstant(filter.dateFrom) ? new Date(filter.dateFrom) : null;
+      const toInstant = isInstant(filter.dateTo) ? new Date(Date.parse(filter.dateTo) + 1000) : null;
+      const from = fromInstant ?? localDay(filter.dateFrom);
       const to = localDay(filter.dateTo);
       return {
         from: from ? from.toISOString() : null,
-        to: to ? addDays(to, 1).toISOString() : null,
+        to: toInstant ? toInstant.toISOString() : to ? addDays(to, 1).toISOString() : null,
       };
     }
   }

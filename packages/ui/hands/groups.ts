@@ -22,6 +22,7 @@ import {
   RESULT_ORDER,
   SIZE_ORDER,
   STACK_ORDER,
+  isInstant,
   ordered,
   type FilterState,
   type ListGroup,
@@ -288,6 +289,18 @@ export function rangePercent(range: readonly string[]): number {
  * and what a set group says. One hook, so the row, the menu and the builder
  * say the same thing.
  */
+/**
+ * A custom range's end as its chip says it: a local day as typed, an exact
+ * instant (a session's) as a short date and time - the time alone when it
+ * ends on the day it began.
+ */
+function customEnd(value: string, locale: string, start?: string): string {
+  if (!isInstant(value)) return value;
+  const at = new Date(value);
+  const sameDay = start !== undefined && isInstant(start) && new Date(start).toDateString() === at.toDateString();
+  return new Intl.DateTimeFormat(locale, sameDay ? { hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(at);
+}
+
 export function useGroupWords() {
   const strings = useUiStrings();
   const t = strings.hands.filters;
@@ -387,7 +400,7 @@ export function useGroupWords() {
       switch (group) {
         case "date":
           return filter.date === "custom"
-            ? `${filter.dateFrom || "…"} – ${filter.dateTo || "…"}`
+            ? `${customEnd(filter.dateFrom, strings.intlLocale) || "…"} – ${customEnd(filter.dateTo, strings.intlLocale, filter.dateFrom) || "…"}`
             : t.dates[filter.date ?? "custom"];
         case "allIn":
           return filter.allIn ? t.allIn.yes : t.allIn.no;

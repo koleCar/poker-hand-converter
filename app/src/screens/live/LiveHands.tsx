@@ -1,7 +1,9 @@
 /**
  * The Live screen's hands: every hand of the session, newest first, ten to
- * a page - the hero's cards (a link into Hands), the board, the position,
- * the pot and the result, in big blinds with the money under it.
+ * a page - the hero's cards, the board, the position, the pot and the
+ * result in the screen's unit. The whole row opens the hand (a click, or
+ * Enter on the row's link); a hovered row says so with its background, an
+ * accent edge and an arrow at its end.
  *
  * The session's hands are read whole (the store's pages of up to 500,
  * following its cursor; a session is hundreds of hands, not thousands) and
@@ -19,6 +21,7 @@ import { errorText, ipc, type HandCursor, type HandRow, type Session } from "../
 import { go, screenHref } from "../../lib/router";
 import { bigBlinds, signedMoney, unitOf } from "../hands/format";
 import { HANDS_PER_PAGE, pageList } from "./model";
+import type { LiveUnit } from "./units";
 import styles from "./Live.module.css";
 
 /** The store's largest page. */
@@ -62,7 +65,7 @@ function tone(value: number | null): string {
   return value === null || value === 0 ? "" : value > 0 ? styles.up : styles.down;
 }
 
-export function LiveHands({ session, kind }: { session: Session; kind: GameKind }) {
+export function LiveHands({ session, kind, unit }: { session: Session; kind: GameKind; unit: LiveUnit }) {
   const t = useT();
   const d = t.live.handList;
   const { rows, error } = useSessionHands(session.startedAt, session.hands, kind);
@@ -100,11 +103,14 @@ export function LiveHands({ session, kind }: { session: Session; kind: GameKind 
                 <th scope="col" className={styles.number}>
                   {d.columns.result}
                 </th>
+                <th scope="col" className={styles.arrowCell}>
+                  <span className={styles.visuallyHidden}>{d.columns.open}</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {shown.map((row, index) => (
-                <HandLine key={row.handKey} row={row} newest={current === 1 && index === 0} />
+                <HandLine key={row.handKey} row={row} newest={current === 1 && index === 0} unit={unit} />
               ))}
             </tbody>
           </table>
@@ -159,23 +165,25 @@ export function LiveHands({ session, kind }: { session: Session; kind: GameKind 
   }
 
   return (
-    <section className={styles.section} aria-labelledby="live-hands">
-      <h2 id="live-hands" className={styles.heading}>
-        {d.heading}
-      </h2>
+    <section className={styles.section} aria-label={d.label}>
       {body}
     </section>
   );
 }
 
-function HandLine({ row, newest }: { row: HandRow; newest: boolean }) {
+function HandLine({ row, newest, unit }: { row: HandRow; newest: boolean; unit: LiveUnit }) {
   const t = useT();
   const d = t.live.handList;
   const pot = row.bigBlind > 0 ? d.bb(BB.format(row.totalPot / row.bigBlind)) : "—";
-  const result = row.heroNetBbMilli !== null ? d.bb(bigBlinds(row.heroNetBbMilli)) : "—";
-  const money = row.heroNet !== null ? signedMoney(unitOf(row), row.heroNet) : null;
+  const inMoney = unit === "money" && row.heroNet !== null;
+  const result = inMoney
+    ? signedMoney(unitOf(row), row.heroNet as number)
+    : row.heroNetBbMilli !== null
+      ? d.bb(bigBlinds(row.heroNetBbMilli))
+      : "—";
+  const open = () => go("hands", row.handKey);
   return (
-    <tr>
+    <tr className={styles.handRow} onClick={open}>
       <td>
         <span className={styles.handCell}>
           <a
@@ -184,7 +192,8 @@ function HandLine({ row, newest }: { row: HandRow; newest: boolean }) {
             aria-label={d.openHand(row.siteHandId)}
             onClick={(event) => {
               event.preventDefault();
-              go("hands", row.handKey);
+              event.stopPropagation();
+              open();
             }}
           >
             {row.heroCards.length > 0 ? <CardRow cards={row.heroCards} size="xs" /> : "—"}
@@ -199,15 +208,16 @@ function HandLine({ row, newest }: { row: HandRow; newest: boolean }) {
           ) : (
             <span className={styles.muted}>{d.preflop}</span>
           )}
-          {row.allIn ? <span className={styles.allInBadge}>{d.allIn}</span> : null}
         </span>
       </td>
       <td className={styles.position}>{row.heroPosition ?? "—"}</td>
       <td className={`${styles.number} ${styles.muted}`}>{pot}</td>
       <td className={styles.number}>
-        <span className={styles.result}>
-          <span className={tone(row.heroNetBbMilli)}>{result}</span>
-          {money !== null ? <span className={styles.money}>{money}</span> : null}
+        <span className={`${styles.result} ${tone(inMoney ? row.heroNet : row.heroNetBbMilli)}`}>{result}</span>
+      </td>
+      <td className={styles.arrowCell}>
+        <span className={styles.arrow} aria-hidden="true">
+          ›
         </span>
       </td>
     </tr>
