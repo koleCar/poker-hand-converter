@@ -52,6 +52,8 @@ import { countIn, dateFormat, numberFormat } from "./format";
 import { WinratePlot, type PlotSeries, type SeriesKey } from "./WinratePlot";
 import "./winrate-graph.css";
 
+export type { SeriesKey } from "./WinratePlot";
+
 /**
  * ## In the shared package (R2.7b)
  *
@@ -112,6 +114,13 @@ interface WinrateGraphProps {
   unit?: "bb" | "money";
   /** Required for `unit="money"`. */
   money?: WinrateGraphMoney | null;
+  /**
+   * The legend under the plot (the default). The desktop's Live screen puts
+   * its own, one chip per line, in its toolbar instead.
+   */
+  legend?: boolean;
+  /** Lines left out of the plot and its tooltip; never every one of them. */
+  hidden?: ReadonlySet<SeriesKey>;
 }
 
 interface Series extends PlotSeries {
@@ -119,7 +128,7 @@ interface Series extends PlotSeries {
   hint: string;
 }
 
-export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphProps) {
+export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, hidden }: WinrateGraphProps) {
   const strings = useUiStrings();
   const t = strings.winrateGraph;
   const locale = strings.intlLocale;
@@ -170,8 +179,9 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
         values: line((b) => b.cumEvBbMilli, (b) => b.cumEvNet),
       });
     }
-    return { xs, series };
-  }, [graph.buckets, graph.allInEv, t, inMoney]);
+    const shown = hidden ? series.filter((s) => !hidden.has(s.key)) : series;
+    return { xs, series: shown.length > 0 ? shown : series };
+  }, [graph.buckets, graph.allInEv, t, inMoney, hidden]);
 
   const tickFormat = useMemo(() => {
     const whole = numberFormat(locale, { maximumFractionDigits: 0 });
@@ -242,22 +252,24 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
           lines, they would have said on top of each other. What each line
           means is the item's hover tooltip, the way a statistic's definition
           is its label's. */}
-      <ul className="stats-legend">
-        {model.series.map((s) => (
-          <li key={s.key} title={s.hint}>
-            <span className={`stats-key stats-key--${s.key}`} />
-            <span className="stats-legend__label">{s.label}</span>
-            <span className="stats-legend__value">{labelled(end(s))}</span>
-          </li>
-        ))}
-        {model.series.some((s) => s.key === "allInEv") ? null : (
-          <li className="is-pending" title={graph.allInEv ? t.noAllInsHint : t.notComputedHint}>
-            <span className="stats-key stats-key--allInEv" />
-            <span className="stats-legend__label">{t.series.allInEv.label}</span>
-            <span className="stats-legend__value">{graph.allInEv ? t.noAllIns : t.notComputed}</span>
-          </li>
-        )}
-      </ul>
+      {legend ? (
+        <ul className="stats-legend">
+          {model.series.map((s) => (
+            <li key={s.key} title={s.hint}>
+              <span className={`stats-key stats-key--${s.key}`} />
+              <span className="stats-legend__label">{s.label}</span>
+              <span className="stats-legend__value">{labelled(end(s))}</span>
+            </li>
+          ))}
+          {model.series.some((s) => s.key === "allInEv") ? null : (
+            <li className="is-pending" title={graph.allInEv ? t.noAllInsHint : t.notComputedHint}>
+              <span className="stats-key stats-key--allInEv" />
+              <span className="stats-legend__label">{t.series.allInEv.label}</span>
+              <span className="stats-legend__value">{graph.allInEv ? t.noAllIns : t.notComputed}</span>
+            </li>
+          )}
+        </ul>
+      ) : null}
 
       {graph.mixedCurrency ? <p className="notice notice--info">{t.mixedCurrency}</p> : null}
     </div>

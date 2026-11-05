@@ -98,7 +98,81 @@ pub struct HandFilter {
     pub to: Option<String>,
     /// Only hands this opponent was dealt into (R2.7c).
     pub player: Option<PlayerRef>,
+    /// The hero's starting-hand classes (`AA`, `AKs`, `AKo`): any of them.
+    pub hero_classes: Vec<String>,
+    /// Cards the hero held (`Ah`, `Kd`): all of them.
+    pub hero_cards: Vec<String>,
+    /// Cards on the board, any street (`Kd`, `7c`): all of them.
+    pub board: Vec<String>,
+    /// Ranks on the board whatever their suits (`K`, `7`, `5`; a rank twice
+    /// for a pair): all of them (2026-11-05, the owner's "K75").
+    pub board_ranks: Vec<String>,
+    /// A player dealt into the hand, by exact screen name, in any room.
+    pub player_name: Option<String>,
+    /// Only hands that went to showdown (`true`), or only the others.
+    pub showdown: Option<bool>,
+    /// The order: [`SORTS`]; `None` (or an unknown one) is the newest first.
+    pub sort: Option<String>,
 }
+
+/// The list's orders besides the newest first, each as its `ORDER BY`
+/// (ties by time, newest first). The column headers of the list sort.
+pub const SORTS: &[(&str, &str)] = &[
+    ("oldest", "l.played_at ASC, l.hand_key ASC"),
+    (
+        "pot",
+        "(h.big_blind IS NULL OR h.big_blind = 0), CAST(d.total_pot AS REAL) / h.big_blind DESC",
+    ),
+    (
+        "potAsc",
+        "(h.big_blind IS NULL OR h.big_blind = 0), CAST(d.total_pot AS REAL) / h.big_blind ASC",
+    ),
+    (
+        "won",
+        "(l.hero_net_bb_milli IS NULL), l.hero_net_bb_milli DESC",
+    ),
+    (
+        "lost",
+        "(l.hero_net_bb_milli IS NULL), l.hero_net_bb_milli ASC",
+    ),
+    ("stakes", "h.big_blind DESC"),
+    ("stakesAsc", "h.big_blind ASC"),
+    ("position", POSITION_ORDER),
+    ("positionDesc", POSITION_ORDER_DESC),
+];
+
+/// Seats in the order the action goes preflop, early first; no hero last.
+const POSITION_ORDER: &str = "(l.hero_position IS NULL), CASE l.hero_position \
+     WHEN 'UTG' THEN 1 WHEN 'UTG+1' THEN 2 WHEN 'UTG+2' THEN 3 WHEN 'EP' THEN 3 WHEN 'MP' THEN 4 \
+     WHEN 'MP+1' THEN 5 WHEN 'LJ' THEN 6 WHEN 'HJ' THEN 7 WHEN 'CO' THEN 8 WHEN 'BTN' THEN 9 \
+     WHEN 'SB' THEN 10 WHEN 'BB' THEN 11 ELSE 12 END ASC";
+const POSITION_ORDER_DESC: &str = "(l.hero_position IS NULL), CASE l.hero_position \
+     WHEN 'UTG' THEN 1 WHEN 'UTG+1' THEN 2 WHEN 'UTG+2' THEN 3 WHEN 'EP' THEN 3 WHEN 'MP' THEN 4 \
+     WHEN 'MP+1' THEN 5 WHEN 'LJ' THEN 6 WHEN 'HJ' THEN 7 WHEN 'CO' THEN 8 WHEN 'BTN' THEN 9 \
+     WHEN 'SB' THEN 10 WHEN 'BB' THEN 11 ELSE 0 END DESC";
+
+/// The order's `ORDER BY`, `None` for the newest first.
+fn order_of(sort: Option<&str>) -> Option<&'static str> {
+    let sort = sort?;
+    SORTS
+        .iter()
+        .find(|(id, _)| *id == sort)
+        .map(|(_, sql)| *sql)
+}
+
+/// The hero's two cards (`Ah Kd`) as their class (`AKo`), in SQL; `NULL`
+/// for any other number of cards (Omaha) or no cards.
+const HERO_CLASS_SQL: &str = "CASE WHEN length(l.hero_cards) <> 5 THEN NULL \
+     WHEN substr(l.hero_cards, 1, 1) = substr(l.hero_cards, 4, 1) \
+       THEN substr(l.hero_cards, 1, 1) || substr(l.hero_cards, 4, 1) \
+     WHEN instr('AKQJT98765432', substr(l.hero_cards, 1, 1)) < instr('AKQJT98765432', substr(l.hero_cards, 4, 1)) \
+       THEN substr(l.hero_cards, 1, 1) || substr(l.hero_cards, 4, 1) \
+            || CASE WHEN substr(l.hero_cards, 2, 1) = substr(l.hero_cards, 5, 1) THEN 's' ELSE 'o' END \
+     ELSE substr(l.hero_cards, 4, 1) || substr(l.hero_cards, 1, 1) \
+            || CASE WHEN substr(l.hero_cards, 2, 1) = substr(l.hero_cards, 5, 1) THEN 's' ELSE 'o' END END";
+
+/// The board's ranks without suits or spaces (`Kd 7c 5h` as `K75`).
+const BOARD_RANKS_SQL: &str = "replace(replace(replace(replace(replace(l.board, ' ', ''), 's', ''), 'h', ''), 'd', ''), 'c', '')";
 
 /// Where the next page starts: the last row of the page before.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -106,6 +180,9 @@ pub struct HandCursor {
     /// `''` for a hand without a `played_at`.
     pub played_at: String,
     pub hand_key: String,
+    /// For an order other than the newest first: the rows read so far (the
+    /// next page is an offset into that order).
+    pub offset: Option<u32>,
 }
 
 /// One row of the list.
@@ -158,6 +235,7 @@ impl HandRow {
         HandCursor {
             played_at: self.played_at.clone().unwrap_or_default(),
             hand_key: self.hand_key.clone(),
+            offset: None,
         }
     }
 }
@@ -445,7 +523,61 @@ fn clauses(filter: &HandFilter, segments: &HashMap<i64, SegmentDims>, w: &mut Wh
     if let Some(all_in) = filter.all_in {
         w.push(format!("l.all_in = {}", i64::from(all_in)));
     }
+    search_clauses(filter, w);
     Some(())
+}
+
+/// The searches: the hero's hand (classes or cards), the board (cards or
+/// ranks), a player by name, the showdown.
+fn search_clauses(filter: &HandFilter, w: &mut Where) {
+    if !filter.hero_classes.is_empty() {
+        w.in_text(HERO_CLASS_SQL, &filter.hero_classes);
+    }
+    for card in &filter.hero_cards {
+        let p = w.text(&format!(" {} ", card.trim()));
+        w.push(format!(
+            "instr(' ' || coalesce(l.hero_cards, '') || ' ', {p}) > 0"
+        ));
+    }
+    for card in &filter.board {
+        let p = w.text(&format!(" {} ", card.trim()));
+        w.push(format!("instr(' ' || l.board || ' ', {p}) > 0"));
+    }
+    if !filter.board_ranks.is_empty() {
+        // A rank asked for twice (a paired board) must be there twice.
+        let mut wanted: Vec<(String, usize)> = Vec::new();
+        for rank in &filter.board_ranks {
+            let rank = rank.trim().to_uppercase();
+            if rank.len() != 1 {
+                continue;
+            }
+            match wanted.iter_mut().find(|(r, _)| *r == rank) {
+                Some((_, n)) => *n += 1,
+                None => wanted.push((rank, 1)),
+            }
+        }
+        for (rank, n) in wanted {
+            let p = w.text(&rank);
+            w.push(format!(
+                "length({BOARD_RANKS_SQL}) - length(replace({BOARD_RANKS_SQL}, {p}, '')) >= {n}"
+            ));
+        }
+    }
+    if let Some(name) = filter
+        .player_name
+        .as_deref()
+        .map(str::trim)
+        .filter(|name| !name.is_empty())
+    {
+        let p = w.text(name);
+        w.push(format!(
+            "EXISTS (SELECT 1 FROM player_hands ph CROSS JOIN hand_stats hs ON hs.id = ph.hand_id \
+             WHERE hs.hand_key = l.hand_key AND ph.player = {p})"
+        ));
+    }
+    if let Some(showdown) = filter.showdown {
+        w.push(format!("l.showdown = {}", i64::from(showdown)));
+    }
 }
 
 /// The columns of a [`HandRow`], `l` being `hand_list`.
@@ -619,7 +751,15 @@ impl Reader {
                     next: None,
                 });
             }
-            if let Some(after) = after {
+            // The newest first pages by the last row (a hand that arrives
+            // does not move the pages after it); another order by an offset.
+            let order = order_of(filter.sort.as_deref());
+            let skip = if order.is_some() {
+                after.and_then(|after| after.offset).unwrap_or(0)
+            } else {
+                0
+            };
+            if let (None, Some(after)) = (order, after) {
                 let played_at = w.text(&after.played_at);
                 let hand_key = w.text(&after.hand_key);
                 w.push(format!(
@@ -628,13 +768,17 @@ impl Reader {
             }
             // One more than the page: whether there is a next page.
             let n = w.param(Value::Integer(i64::from(limit) + 1));
+            let by = order.map_or_else(
+                || "l.played_at DESC, l.hand_key DESC".to_owned(),
+                |sql| format!("{sql}, l.played_at DESC, l.hand_key DESC"),
+            );
             let sql = format!(
                 "SELECT {ROW_COLUMNS}
                  {from}
                  {ROW_JOINS}
                  WHERE {}
-                 ORDER BY l.played_at DESC, l.hand_key DESC
-                 LIMIT {n}",
+                 ORDER BY {by}
+                 LIMIT {n} OFFSET {skip}",
                 w.sql()
             );
             let mut stmt = conn.prepare_cached(&sql)?;
@@ -644,7 +788,10 @@ impl Reader {
             let more = rows.len() > usize::try_from(limit).unwrap_or(usize::MAX);
             rows.truncate(usize::try_from(limit).unwrap_or(usize::MAX));
             let next = if more {
-                rows.last().map(HandRow::cursor)
+                rows.last().map(|row| HandCursor {
+                    offset: order.map(|_| skip + limit),
+                    ..row.cursor()
+                })
             } else {
                 None
             };
@@ -660,6 +807,8 @@ impl Reader {
             let mut w = Where::default();
             let from = source(filter, &mut w);
             base_clauses(filter, &mut w);
+            // The searches narrow every count (they have none of their own).
+            search_clauses(filter, &mut w);
             // Summed here rather than by a `GROUP BY` over expressions:
             // measured at 500k hands, SQLite's grouping (a sort) took four
             // times the scan.

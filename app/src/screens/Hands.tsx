@@ -128,6 +128,7 @@ export function Hands() {
       openOnClick
       listRef={list}
       title={t.screens.hands.title}
+      hideTitle
       emptyText={t.hands.empty}
       libraryTotal={storeHands}
       densityKey={rowHeight}

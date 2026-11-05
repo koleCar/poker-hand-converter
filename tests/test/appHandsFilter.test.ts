@@ -65,7 +65,8 @@ describe("Hands filter", () => {
       tags: ["river spot"],
       date: "week",
     };
-    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    // All-in is no longer a filter (2026-11-05): a saved one reads back without it.
+    expect(fromSaved(toSaved(filter))).toEqual({ ...filter, allIn: null });
     expect(activeGroups(filter)).toBe(6);
     expect(fromSaved("not json")).toBeNull();
     expect(fromSaved("[1,2]")).toEqual(EMPTY_FILTER);

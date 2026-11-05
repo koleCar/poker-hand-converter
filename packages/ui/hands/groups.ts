@@ -22,6 +22,7 @@ import {
   RESULT_ORDER,
   SIZE_ORDER,
   STACK_ORDER,
+  isInstant,
   ordered,
   type FilterState,
   type ListGroup,
@@ -106,7 +107,6 @@ export const HAND_GROUPS: GroupId[] = [
   "position",
   "potType",
   "result",
-  "format",
   "variant",
   "limit",
   "size",
@@ -129,11 +129,10 @@ export function handGroups(features: {
   if (features.search) {
     groups.push("heroHand", "board", "playerName", "showdown");
   }
+  // (2026-11-05, the owner) Who won the hand is not a filter any more; the
+  // order is the list's column headers, not a group of the row.
   for (const more of features.more) {
-    groups.push(MORE_GROUPS[more]);
-  }
-  if (features.sorts.length > 0) {
-    groups.unshift("sort");
+    if (more !== "winnerPositions") groups.push(MORE_GROUPS[more]);
   }
   return groups;
 }
@@ -143,7 +142,7 @@ export function handGroups(features: {
  * segment's dimensions and the hero's position. A pot type or a stack depth
  * is a breakdown there, not a filter.
  */
-export const REPORT_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "format", "variant", "limit", "size"];
+export const REPORT_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "variant", "limit", "size"];
 
 /* ------------------------------------------------------------ the builder */
 
@@ -167,7 +166,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
     section: "situation",
     panes: [
       { id: "quick", groups: [] },
-      { id: "positions", groups: ["position", "showdownPositions", "winnerPositions"] },
+      { id: "positions", groups: ["position", "showdownPositions"] },
       { id: "action", groups: ["potType", "showdown"] },
     ],
   },
@@ -181,7 +180,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
   {
     section: "context",
     panes: [
-      { id: "game", groups: ["site", "stakes", "format", "variant", "limit", "size"] },
+      { id: "game", groups: ["site", "stakes", "variant", "limit", "size"] },
       { id: "result", groups: ["result", "minPot"] },
       { id: "date", groups: ["date"] },
       { id: "table", groups: ["playerName", "tableName", "anonymization"] },
@@ -286,6 +285,18 @@ export function rangePercent(range: readonly string[]): number {
  * and what a set group says. One hook, so the row, the menu and the builder
  * say the same thing.
  */
+/**
+ * A custom range's end as its chip says it: a local day as typed, an exact
+ * instant (a session's) as a short date and time - the time alone when it
+ * ends on the day it began.
+ */
+function customEnd(value: string, locale: string, start?: string): string {
+  if (!isInstant(value)) return value;
+  const at = new Date(value);
+  const sameDay = start !== undefined && isInstant(start) && new Date(start).toDateString() === at.toDateString();
+  return new Intl.DateTimeFormat(locale, sameDay ? { hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(at);
+}
+
 export function useGroupWords() {
   const strings = useUiStrings();
   const t = strings.hands.filters;
@@ -385,7 +396,7 @@ export function useGroupWords() {
       switch (group) {
         case "date":
           return filter.date === "custom"
-            ? `${filter.dateFrom || "…"} – ${filter.dateTo || "…"}`
+            ? `${customEnd(filter.dateFrom, strings.intlLocale) || "…"} – ${customEnd(filter.dateTo, strings.intlLocale, filter.dateFrom) || "…"}`
             : t.dates[filter.date ?? "custom"];
         case "allIn":
           return filter.allIn ? t.allIn.yes : t.allIn.no;
@@ -423,7 +434,7 @@ const DEFAULT_SEATS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 
 /* ------------------------------------------------------------ quick filters */
 
-export type QuickId = "week" | "threeBet" | "limped" | "allIn" | "showdown" | "won" | "lost" | "noted";
+export type QuickId = "week" | "threeBet" | "showdown" | "won" | "lost" | "noted";
 
 export interface QuickFilter {
   id: QuickId;
@@ -465,8 +476,6 @@ export const QUICK_FILTERS: QuickFilter[] = [
     toggle: (filter) => ({ ...filter, date: filter.date === "week" ? null : "week", dateFrom: "", dateTo: "" }),
   },
   listQuick("threeBet", "potType", "potTypes", ["3bet", "4bet+"]),
-  listQuick("limped", "potType", "potTypes", ["limped"]),
-  flagQuick("allIn", "allIn", "allIn"),
   flagQuick("showdown", "showdown", "showdown"),
   listQuick("won", "result", "results", ["won"]),
   listQuick("lost", "result", "results", ["lost"]),

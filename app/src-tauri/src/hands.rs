@@ -88,6 +88,15 @@ pub struct FilterDto {
     to: Option<String>,
     /// Hands this opponent was dealt into (R2.7c).
     player: Option<PlayerRefDto>,
+    /// The searches (`hand_list::HandFilter`'s).
+    hero_hand_classes: Vec<String>,
+    hero_cards: Vec<String>,
+    board: Vec<String>,
+    board_ranks: Vec<String>,
+    player_name: Option<String>,
+    showdown: Option<bool>,
+    /// The order (`hand_list::SORTS`); absent, the newest first.
+    sort: Option<String>,
 }
 
 /// `PlayerRef`: an opponent's room (site key) and name.
@@ -123,6 +132,13 @@ impl From<FilterDto> for HandFilter {
                     site: player.site,
                     player: player.player,
                 }),
+            hero_classes: dto.hero_hand_classes,
+            hero_cards: dto.hero_cards,
+            board: dto.board,
+            board_ranks: dto.board_ranks,
+            player_name: dto.player_name.filter(|name| !name.trim().is_empty()),
+            showdown: dto.showdown,
+            sort: dto.sort.filter(|sort| sort != "newest"),
         }
     }
 }
@@ -155,6 +171,9 @@ impl From<FilterDto> for rail_store::ReportFilter {
 pub struct CursorDto {
     played_at: String,
     hand_key: String,
+    /// Another order than the newest first: the rows read so far.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    offset: Option<u32>,
 }
 
 impl From<HandCursor> for CursorDto {
@@ -162,6 +181,7 @@ impl From<HandCursor> for CursorDto {
         Self {
             played_at: cursor.played_at,
             hand_key: cursor.hand_key,
+            offset: cursor.offset,
         }
     }
 }
@@ -354,6 +374,7 @@ pub async fn hands_page(
     let after = after.map(|cursor| HandCursor {
         played_at: cursor.played_at,
         hand_key: cursor.hand_key,
+        offset: cursor.offset,
     });
     let page = open(&store)?
         .reader()

@@ -17,7 +17,7 @@ export type DatePreset = "today" | "week" | "month" | "year" | "custom";
 
 export const DATE_PRESETS: DatePreset[] = ["today", "week", "month", "year", "custom"];
 
-export const SORTS: HandSort[] = ["newest", "oldest", "pot", "won", "lost"];
+export const SORTS: HandSort[] = ["newest", "oldest", "pot", "potAsc", "won", "lost", "stakes", "stakesAsc", "position", "positionDesc"];
 
 /** The groups with a list of values. */
 export type ListGroup =
@@ -179,6 +179,14 @@ function localDay(day: string): Date | null {
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
+/**
+ * A custom range's end given as an exact instant (an ISO date and time, as
+ * the Live screen's "last session" hands over) rather than a local day.
+ */
+export function isInstant(value: string): boolean {
+  return value.includes("T") && !Number.isNaN(Date.parse(value));
+}
+
 function addDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
@@ -198,11 +206,15 @@ export function dateRange(filter: FilterState, now: Date): { from: string | null
     case "year":
       return { from: addDays(today, -364).toISOString(), to: null };
     case "custom": {
-      const from = localDay(filter.dateFrom);
+      // An exact instant is kept as it is: the end one second on, since
+      // `to` is exclusive and the last hand was played at that instant.
+      const fromInstant = isInstant(filter.dateFrom) ? new Date(filter.dateFrom) : null;
+      const toInstant = isInstant(filter.dateTo) ? new Date(Date.parse(filter.dateTo) + 1000) : null;
+      const from = fromInstant ?? localDay(filter.dateFrom);
       const to = localDay(filter.dateTo);
       return {
         from: from ? from.toISOString() : null,
-        to: to ? addDays(to, 1).toISOString() : null,
+        to: toInstant ? toInstant.toISOString() : to ? addDays(to, 1).toISOString() : null,
       };
     }
   }
@@ -240,6 +252,10 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (hero.kind === "cards") query.heroCards = hero.values;
   const board = extractCards(filter.board);
   if (board.length > 0) query.board = board;
+  else {
+    const ranks = boardRanks(filter.board);
+    if (ranks.length > 0) query.boardRanks = ranks;
+  }
   if (filter.playerName.trim()) query.playerName = filter.playerName.trim();
   if (filter.showdown !== null) query.showdown = filter.showdown;
   if (filter.tableName.trim()) query.tableName = filter.tableName.trim();
@@ -250,6 +266,17 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (filter.anonymizations.length > 0) query.anonymizations = filter.anonymizations;
   if (filter.sort !== "newest") query.sort = filter.sort;
   return query;
+}
+
+/**
+ * A board typed as ranks alone ("K75", "k 7 5", "T-9-8"): its ranks, a rank
+ * twice for a pair, whatever the suits (the owner's ask, 2026-11-05). Empty
+ * for anything else (cards with suits are `extractCards`'s).
+ */
+export function boardRanks(raw: string): string[] {
+  const text = raw.replace(/10/g, "T").replace(/[\s,;\-/]+/g, "").toUpperCase();
+  if (text.length === 0 || text.length > 5 || !/^[2-9TJQKA]+$/.test(text)) return [];
+  return [...text];
 }
 
 /** A saved filter read back: whatever it lacks is "any", whatever is not a filter is dropped. */
@@ -289,10 +316,12 @@ export function fromSaved(json: string): FilterState | null {
     positions: list("positions"),
     potTypes: list("potTypes"),
     results: list("results"),
-    // The stack depth and the all-in are no longer offered: a saved one is
-    // dropped rather than narrowing the list with no chip to show for it.
+    // The stack depth is no longer offered: a saved one is dropped rather
+    // than narrowing the list with no chip to show for it.
     stacks: [],
     tags: list("tags"),
+    // All-in and the winners' positions are no longer filters (2026-11-05):
+    // a saved filter that set them shows every hand as to those.
     allIn: null,
     hasNote: flag("hasNote"),
     date: typeof date === "string" && (DATE_PRESETS as string[]).includes(date) ? (date as DatePreset) : null,
@@ -316,7 +345,7 @@ export function fromSaved(json: string): FilterState | null {
     tableName: text("tableName"),
     minPot: text("minPot"),
     showdownPositions: list("showdownPositions"),
-    winnerPositions: list("winnerPositions"),
+    winnerPositions: [],
     anonymizations: list("anonymizations"),
     sort: typeof sort === "string" && (SORTS as string[]).includes(sort) ? (sort as HandSort) : "newest",
   };

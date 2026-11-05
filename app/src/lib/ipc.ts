@@ -468,6 +468,8 @@ import type { GameKind as HandsGameKind } from "@rail/ui/hands/gameKind";
 export interface HandCursor {
   playedAt: string;
   handKey: string;
+  /** Another order than the newest first: the rows read so far. */
+  offset?: number;
 }
 
 export interface HandPage {

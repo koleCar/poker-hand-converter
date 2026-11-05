@@ -43,6 +43,8 @@ export interface HandFilter {
   heroCards?: string[];
   heroHandClasses?: string[];
   board?: string[];
+  /** Ranks on the board whatever their suits ("K75"): all of them. */
+  boardRanks?: string[];
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
@@ -62,8 +64,21 @@ export interface HandFilter {
   sort?: HandSort;
 }
 
-/** The list's orders. `newest` is the only one every source has. */
-export type HandSort = "newest" | "oldest" | "pot" | "won" | "lost";
+/**
+ * The list's orders, one per column direction (the column headers sort since
+ * 2026-11-05). `newest` is the only one every source has.
+ */
+export type HandSort =
+  | "newest"
+  | "oldest"
+  | "pot"
+  | "potAsc"
+  | "won"
+  | "lost"
+  | "stakes"
+  | "stakesAsc"
+  | "position"
+  | "positionDesc";
 
 /** Filters a source may offer beyond the common groups (the web library's). */
 export type MoreFilter = "tableName" | "minPot" | "showdownPositions" | "winnerPositions" | "anonymization";
