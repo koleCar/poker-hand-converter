@@ -33,7 +33,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { encodePosition } from "@rail/ui/replayer/position";
-import { groupLeaks, handsTable, leakKind } from "../../../lib/analysis/leaks";
+import { groupLeaks, handsPot, handsTable, leakKind } from "../../../lib/analysis/leaks";
 import {
   EXAMPLES_FETCH,
   TOP_PERIODS,
@@ -122,7 +122,8 @@ export function TopLeaks({ scopeKey, generation, backQuery, initialPeriod = "30d
       try {
         const byLeak = await fetchLeakExamples(scope, {
           // Each leak's own table (a spot key names none): a heads-up leak's examples, not the 6-max blinds'.
-          leaks: top.map(({ leak }) => ({ id: leak.id, keys: leak.keys, table: handsTable(leak.attrs, leak.level) })),
+          // And, postflop, its own pot's: a 3-bet pot leak's examples, not the single-raised pots'.
+          leaks: top.map(({ leak }) => ({ id: leak.id, keys: leak.keys, table: handsTable(leak.attrs, leak.level), pot: handsPot(leak.attrs) })),
           window: period === "30d" ? report.current : null,
           limit: EXAMPLES_FETCH,
         });

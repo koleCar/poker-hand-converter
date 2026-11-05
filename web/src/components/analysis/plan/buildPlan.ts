@@ -19,6 +19,7 @@ import { fetchLessonProgress } from "../../../lib/db/learn";
 import type { LessonId } from "../../../lib/learn/course";
 import { lessonForArea } from "../../../lib/learn/recommend";
 import {
+  areaPot,
   fundamentalsTasks,
   planFocus,
   planTasks,
@@ -77,7 +78,14 @@ export async function buildPlan(week: string, previous: StoredPlan | null, kind:
       fetchDrillsBySpot(kind).catch(() => new Map<string, SpotDrills>()),
       Promise.all(
         areas.map((area) =>
-          fetchLeakHands(scope, { keys: area.keys, table: handsTable(area.where, area.level), deviations: true, sort: "ev_loss", limit: HANDS_PER_AREA }).catch(() => ({
+          fetchLeakHands(scope, {
+            keys: area.keys,
+            table: handsTable(area.where, area.level),
+            pot: areaPot(area),
+            deviations: true,
+            sort: "ev_loss",
+            limit: HANDS_PER_AREA,
+          }).catch(() => ({
             total: 0,
             rows: [],
           })),

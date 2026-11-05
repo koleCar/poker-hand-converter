@@ -79,7 +79,8 @@ describe("a flop area's trainer", () => {
   it("is the flop trainer on the library lines of the hero's seat, role and side", () => {
     // The big blind defending a single-raised pot, facing the c-bet: four openers, one task.
     const bb = trainerTarget(flop("caller-oop-vs-bet", "BB"));
-    expect(bb).toEqual({ mode: "flop", set: SIX, pot: "any", side: "oop", role: "caller", seat: "BB", facing: "bet", line: null });
+    // An untagged area is single-raised since 2026-11-05 (a 3-bet or 4-bet+ pot is its own area).
+    expect(bb).toEqual({ mode: "flop", set: SIX, pot: "srp", side: "oop", role: "caller", seat: "BB", facing: "bet", line: null });
     expect(trainerMatch(bb!)).toEqual({
       mode: "flop",
       family: "srp",
@@ -89,9 +90,10 @@ describe("a flop area's trainer", () => {
   });
 
   it("deals what the hero faced: first out of position, behind a check in position, a bet, a raise", () => {
-    // The small blind's open called, and its 3-bet of the button called.
-    expect(trainerMatch(trainerTarget(flop("pfr-oop-first", "SB"))!).spots).toEqual(["btn-sb-3bet:SB", "sb-bb:SB"]);
-    expect(trainerTarget(flop("pfr-oop-first", "SB"))).toMatchObject({ mode: "flop", set: SIX, line: null, facing: "any" });
+    // The small blind's open called; its 3-bet of the button called is the 3-bet pot area's (§10 2026-11-05).
+    expect(trainerMatch(trainerTarget(flop("pfr-oop-first", "SB"))!).spots).toEqual(["sb-bb:SB"]);
+    expect(trainerTarget(flop("pfr-oop-first", "SB"))).toMatchObject({ mode: "flop", set: SIX, line: "sb-bb", facing: "any" });
+    expect(trainerMatch(trainerTarget({ ...flop("pfr-oop-first", "SB"), pot: "3bp" })!).spots).toEqual(["btn-sb-3bet:SB"]);
     expect(trainerTarget(flop("pfr-ip-first", "BTN"))).toMatchObject({ mode: "flop", facing: "check", side: "ip" });
     expect(trainerTarget(flop("pfr-ip-vs-bet", "BTN"))).toMatchObject({ mode: "flop", facing: "bet" });
     expect(trainerTarget(flop("caller-oop-vs-raise", "BB"))).toMatchObject({ mode: "flop", facing: "raise" });
@@ -109,37 +111,53 @@ describe("a flop area's trainer", () => {
       facing: "any",
       line: "sb-limp",
     });
-    // The cutoff calling the button's 3-bet out of position: `co-btn-3bet` only.
-    expect(trainerTarget(flop("caller-oop-first", "CO"))).toMatchObject({ set: SIX, line: "co-btn-3bet" });
-    const match = trainerMatch(trainerTarget(flop("caller-oop-first", "CO"))!);
+    // The cutoff calling the button's 3-bet out of position (the 3-bet pot area): `co-btn-3bet` only.
+    const coThree = { ...flop("caller-oop-first", "CO"), pot: "3bp" };
+    expect(trainerTarget(coThree)).toMatchObject({ set: SIX, pot: "3bp", line: "co-btn-3bet" });
+    const match = trainerMatch(trainerTarget(coThree)!);
     expect(match).toEqual({ mode: "flop", family: "3bp", position: "CO", spots: ["co-btn-3bet:CO"] });
+    // Single-raised, the cutoff never calls out of position on a library line.
+    expect(trainerTarget(flop("caller-oop-first", "CO"))).toBeNull();
   });
 
   it("finds the table that has the line: full ring for its own seats, heads-up for the small blind in position", () => {
     expect(trainerTarget(flop("pfr-ip-first", "LJ"))).toMatchObject({ mode: "flop", set: NINE, seat: "LJ", line: "lj-bb" });
     // No 6-max or full-ring line has the small blind in position; heads-up, the small blind is the button.
     const sb = trainerTarget(flop("pfr-ip-first", "SB"));
-    expect(sb).toMatchObject({ mode: "flop", set: HU100, seat: "SB", side: "ip", role: "pfr", facing: "check", line: null });
-    expect(trainerMatch(sb!).spots).toEqual(["sb-bb-4bet:SB", "sb-bb:SB"]);
-    // Two pot types (the 4-bet pot files as a 3-bet pot, the river trainer's pots): no family filter.
-    expect(trainerMatch(sb!).family).toBeNull();
+    expect(sb).toMatchObject({ mode: "flop", set: HU100, pot: "srp", seat: "SB", side: "ip", role: "pfr", facing: "check", line: "sb-bb" });
+    expect(trainerMatch(sb!)).toMatchObject({ family: "srp", spots: ["sb-bb:SB"] });
+    // Its 4-bet pot (the `~4bp` area, §10 2026-11-05): the trainer files a 4-bet pot as a 3-bet one, so the line is named.
+    const four = trainerTarget({ ...flop("pfr-ip-first", "SB"), pot: "4bp" });
+    expect(four).toMatchObject({ mode: "flop", set: HU100, pot: "3bp", seat: "SB", line: "sb-bb-4bet" });
+    expect(trainerMatch(four!)).toMatchObject({ family: "3bp", spots: ["sb-bb-4bet:SB"] });
+    // ... and its 3-bet pot the 3-bet line alone, never the 4-bet one the same filter would deal.
+    expect(trainerTarget({ ...flop("pfr-ip-first", "SB"), pot: "3bp" })).toBeNull();
+    expect(trainerTarget({ ...flop("pfr-oop-first", "BB"), pot: "3bp", table: "hu" })).toMatchObject({ set: HU100, line: "sb-bb-3bet" });
   });
 
   it("keeps an area merged past the seat, or past everything but the street", () => {
     expect(trainerTarget(flop("pfr-oop-first", "*"))).toEqual({
       mode: "flop",
       set: SIX,
-      pot: "any",
+      pot: "srp",
       side: "oop",
       role: "pfr",
       seat: null,
       facing: "any",
-      line: null,
+      // Single-raised, the preflop raiser is out of position on one line only: the small blind's open.
+      line: "sb-bb",
     });
     const street = trainerTarget({ street: "flop", scenario: "*", family: "*", hero: "*", villain: "*" });
-    expect(street).toEqual({ mode: "flop", set: SIX, pot: "any", side: "any", role: "any", seat: null, facing: "any", line: null });
-    // Every flop answer counts: no family, seat or spot filter.
-    expect(trainerMatch(street!)).toEqual({ mode: "flop", family: null, position: null, spots: null });
+    expect(street).toEqual({ mode: "flop", set: SIX, pot: "srp", side: "any", role: "any", seat: null, facing: "any", line: null });
+    // Every single-raised flop answer counts (since 2026-11-05: a 3-bet pot is another area's).
+    expect(trainerMatch(street!)).toMatchObject({ mode: "flop", family: "srp", position: null });
+    expect(trainerMatch(street!).spots).toHaveLength(12);
+    expect(trainerMatch({ ...(street as Extract<TrainerTarget, { mode: "flop" }>), pot: "any" })).toEqual({
+      mode: "flop",
+      family: null,
+      position: null,
+      spots: null,
+    });
     expect(trainerTarget({ street: "flop", scenario: "*", family: "vs-raise", hero: "*", villain: "*" })).toMatchObject({ facing: "raise" });
   });
 
@@ -189,7 +207,7 @@ describe("a flop area's task", () => {
   ];
 
   it("writes a reference the database takes, read back as its target", () => {
-    expect(trainerRef(targets[0])).toBe("flop/nlhe-cash-6max-100bb/any/oop/caller/BB/bet");
+    expect(trainerRef(targets[0])).toBe("flop/nlhe-cash-6max-100bb/srp/oop/caller/BB/bet");
     expect(trainerRef(targets[1])).toBe("flop/nlhe-cash-6max-100bb/limped/oop/any/SB/any/sb-limp");
     for (const target of targets) {
       const ref = trainerRef(target);
@@ -240,7 +258,7 @@ describe("a flop area's task", () => {
     expect(TRAIN_TARGET.flop).toBeLessThan(TRAIN_TARGET.preflop);
     expect(rpcTask(train)).toMatchObject({
       kind: "train",
-      ref: "flop/nlhe-cash-6max-100bb/any/oop/caller/BB/bet",
+      ref: "flop/nlhe-cash-6max-100bb/srp/oop/caller/BB/bet",
       target: 15,
       match_mode: "flop",
       match_family: "srp",
@@ -261,16 +279,16 @@ describe("a flop area's task", () => {
 describe("a flop task's link", () => {
   it("opens the flop mode with the table, seat, role, side, facing and line", () => {
     const query = targetQuery(trainerTarget(flop("caller-oop-vs-bet", "BB"))!);
-    expect(query).toBe("mode=flop&side=oop&role=caller&seat=BB&facing=bet");
+    expect(query).toBe("mode=flop&pot=srp&side=oop&role=caller&seat=BB&facing=bet");
     const state = parseTrainState(Object.fromEntries(new URLSearchParams(query)));
-    expect(spotOptions("flop", state)).toEqual({ set: SIX, pot: "any", seat: "oop", role: "caller", facing: "bet", hero: "BB", bias: "borderline" });
+    expect(spotOptions("flop", state)).toEqual({ set: SIX, pot: "srp", seat: "oop", role: "caller", facing: "bet", hero: "BB", bias: "borderline" });
 
     const limp = targetQuery(trainerTarget(flop("limped-oop-first", "SB"))!);
     expect(limp).toBe("mode=flop&pot=limped&side=oop&seat=SB&line=sb-limp");
     expect(spotOptions("flop", parseTrainState(Object.fromEntries(new URLSearchParams(limp))))).toMatchObject({ hero: "SB", line: "sb-limp" });
 
     const hu = targetQuery(trainerTarget(flop("pfr-ip-first", "SB"))!);
-    expect(hu).toBe(`mode=flop&set=${HU100}&side=ip&role=pfr&seat=SB&facing=check`);
+    expect(hu).toBe(`mode=flop&set=${HU100}&pot=srp&side=ip&role=pfr&seat=SB&facing=check&line=sb-bb`);
     expect(trainQuery(parseTrainState(Object.fromEntries(new URLSearchParams(hu))))).toBe(hu);
   });
 

@@ -44,6 +44,7 @@ import {
   MIN_PLAN_MOVES,
   addWeeks,
   areaChange,
+  areaPot,
   daysLeft,
   parseTrainerRef,
   planProgress,
@@ -561,12 +562,14 @@ function TaskRow({
     case "drill": {
       // An area's drills on its own table (a spot key names none), as the plan counted them.
       const table = area && task.spotKeys ? handsTable(area.where, area.level) : null;
-      href = paths.analysisTrain(dueDrillQuery(task.spotKeys, table));
+      // ... and pot (a snapshot stored before postflop pots: every pot, as it was counted).
+      const pot = area && task.spotKeys ? areaPot(area) : null;
+      href = paths.analysisTrain(dueDrillQuery(task.spotKeys, table, pot));
       action = t.tasks.drillLink;
       let due: number | null = null;
       if (drills) {
         due = 0;
-        if (task.spotKeys) due = drillsOn(drills, task.spotKeys, table).due;
+        if (task.spotKeys) due = drillsOn(drills, task.spotKeys, table, pot).due;
         else for (const value of drills.values()) due += value.due;
       }
       detail = `${t.tasks.counted(task.counted, task.target)}${due === null ? "" : ` · ${t.tasks.dueNow(due)}`}`;

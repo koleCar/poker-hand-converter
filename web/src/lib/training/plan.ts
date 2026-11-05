@@ -47,23 +47,30 @@ import {
   NONE,
   confidenceOf,
   drillsOn,
+  FOUR_BET_POT,
   groupLeaks,
+  handsPot,
   handsTable,
   leakConcepts,
+  LEAK_POTS,
   legacySituationKey,
   periodWindows,
+  potlessSituationKey,
   rateZ,
   rowOfLeak,
   situationKey,
   spotAttrs,
+  THREE_BET_POT,
   trendOf,
   type Confidence,
+  type HandsPot,
   type Leak,
+  type LeakPot,
   type SpotDrills,
   type SpotRow,
   type Trend,
 } from "../analysis/leaks";
-import { FLOP_LIBRARY_SETS } from "../analysis/flopLibrary";
+import { FLOP_LIBRARY_SETS, flopLinesFor, type FlopLine } from "../analysis/flopLibrary";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../charts";
 import { FLOP_FACINGS, flopFilterSeat, flopTableLines, type FlopFacing } from "./flop";
 import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES, type PreflopFamily } from "./preflop";
@@ -163,6 +170,12 @@ export interface AreaWhere {
    * hand's table.
    */
   table?: string;
+  /**
+   * `"3bp"` / `"4bp"`: a flop, turn or river area in 3-bet or 4-bet+ pots
+   * (`SpotAttrs.pot`, since 2026-11-05); absent for single-raised, limped
+   * and unknown pots, and preflop.
+   */
+  pot?: string;
 }
 
 /** One wrong turn inside an area. */
@@ -240,6 +253,14 @@ export interface FocusArea {
    * postflop situations name no table and are read as they were then.
    */
   postflopTables?: boolean;
+  /**
+   * Built since postflop spots carry their pot (§10, 2026-11-05): its
+   * situations and id name a 3-bet or 4-bet+ flop, turn or river spot by its
+   * tag, and an untagged postflop area holds single-raised (limped, unknown)
+   * pots only. False (or absent) for a snapshot stored before, whose
+   * postflop situations name no pot and are read as they were then.
+   */
+  postflopPots?: boolean;
   /** The hands its review tasks name, as the screen shows them (filled in once the hands are chosen). */
   reviews: ReviewHand[];
 }
@@ -266,19 +287,45 @@ const whereOf = (leak: Leak): AreaWhere => ({
   hero: leak.attrs.hero,
   villain: leak.attrs.villain,
   ...(leak.attrs.table ? { table: leak.attrs.table } : {}),
+  ...(leak.attrs.pot ? { pot: leak.attrs.pot } : {}),
 });
 
-/** An area's id: its situation at the level it settled (a full-ring area ends in `~9max`, a heads-up one in `~hu`). */
+/** An area's id: its situation at the level it settled (a full-ring area ends in `~9max`, a heads-up one in `~hu`, a 3-bet pot's in `~3bp`). */
 export const areaId = (where: AreaWhere) =>
-  [where.street, where.scenario, where.family, where.hero, where.villain, ...(where.table ? [where.table] : [])].join("~");
+  [
+    where.street,
+    where.scenario,
+    where.family,
+    where.hero,
+    where.villain,
+    ...(where.table ? [where.table] : []),
+    ...(where.pot ? [where.pot] : []),
+  ].join("~");
 
 /**
  * The id the area had before postflop spots carried their table (§10,
- * 2026-11-02): a flop, turn or river tag dropped. A stored plan's areas
- * from before go by it, so a heads-up river area that was last week's
- * (untagged, merged) area keeps counting its weeks.
+ * 2026-11-02): a flop, turn or river tag dropped (the table, and the pot).
+ * A stored plan's areas from before go by it, so a heads-up river area that
+ * was last week's (untagged, merged) area keeps counting its weeks.
  */
-export const legacyAreaId = (where: AreaWhere) => areaId(where.street === "preflop" ? where : { ...where, table: undefined });
+export const legacyAreaId = (where: AreaWhere) =>
+  areaId(where.street === "preflop" ? where : { ...where, table: undefined, pot: undefined });
+
+/**
+ * The id the area had before postflop spots carried their pot (§10,
+ * 2026-11-05): the table kept, the pot dropped. A plan stored between the
+ * two changes goes by it, so a 3-bet pot area that was last week's merged
+ * area keeps counting its weeks.
+ */
+export const potlessAreaId = (where: AreaWhere) => areaId({ ...where, pot: undefined });
+
+/**
+ * The pot filter an area's hands and drills are read with (`handsPot`): a
+ * postflop area's tag, `"other"` for an untagged one; null preflop and for a
+ * snapshot stored before postflop pots (its untagged area held every pot).
+ */
+export const areaPot = (area: Pick<FocusArea, "where"> & Partial<Pick<FocusArea, "postflopPots">>): HandsPot | null =>
+  area.postflopPots === true ? handsPot(area.where) : null;
 
 const known = (part: string) => part !== ANY && part !== NONE;
 const seatOf = (part: string): ChartPosition | null =>
@@ -367,6 +414,13 @@ export function flopTargetSeatings(target: Pick<FlopTarget, "set" | "pot" | "sid
  * The line is named only when exactly one fits. Null for a multiway area
  * and for a spot no library line of the table holds (`UTG` as the caller):
  * those keep no trainer, as before.
+ *
+ * The pot (§10, 2026-11-05): a 3-bet pot area (`~3bp`) deals the table's
+ * 3-bet pot lines, a 4-bet+ one (`~4bp`) its 4-bet pot line (heads-up's
+ * `sb-bb-4bet`, named: the trainer files a 4-bet pot as a 3-bet one), an
+ * untagged one the single-raised lines (a limped scenario the limped ones,
+ * as before). A pot the table has no line for gets no trainer, never another
+ * pot's lines.
  */
 function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
   if (where.scenario.includes("-mw-")) return null;
@@ -374,7 +428,10 @@ function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
   const family = match ? match[3] : FLOP_AREA_FAMILIES.includes(where.family) ? where.family : null;
   const side: RiverSeat | "any" = match ? (match[2] as RiverSeat) : "any";
   const role: RiverRole | "any" = match && match[1] !== "limped" ? (match[1] as RiverRole) : "any";
-  const pot: RiverPot | "any" = match && match[1] === "limped" ? "limped" : "any";
+  // The library line's own pot the area is in, and the trainer's filter that deals it.
+  const linePot: FlopLine["pot"] =
+    match && match[1] === "limped" ? "limped" : where.pot === THREE_BET_POT ? "3bp" : where.pot === FOUR_BET_POT ? "4bp" : "srp";
+  const pot: RiverPot = linePot === "4bp" ? "3bp" : linePot;
   // First to act out of position is the trainer's own first decision; in position, it is behind a check.
   const facing: FlopFacing =
     family === "vs-bet" ? "bet" : family === "vs-raise" ? "raise" : family === "first" && side === "ip" ? "check" : "any";
@@ -386,8 +443,13 @@ function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
   for (const table of tables) {
     const target: FlopTarget = { mode: "flop", set: table, pot, side, role, seat, facing, line: null };
     const lines = [...new Set(flopTargetSeatings(target).map((s) => s.line.id))];
-    if (lines.length === 0) continue;
-    return { ...target, line: lines.length === 1 ? lines[0] : null };
+    // The dealt lines in the area's own pot (a 3-bet pot filter also deals a 4-bet pot line).
+    const library = flopLinesFor(playersOf(table) ?? 0);
+    const own = lines.filter((id) => library.find((line) => line.id === id)?.pot === linePot);
+    if (own.length === 0) continue;
+    // Another pot's line would be dealt too: only one own line can be named, else no trainer here.
+    if (own.length < lines.length && own.length !== 1) continue;
+    return { ...target, line: own.length === 1 ? own[0] : null };
   }
   return null;
 }
@@ -459,9 +521,13 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     // Played heads-up (the area's set, §10 2026-11-02): the heads-up lines at the nearest depth.
     const own = tableSets(set, RIVER_HEADS_UP_SETS)[0];
     const deal = own ? { set: own } : {};
-    if (!match) return { mode: "river", pot: "any", side, role: "any", ...deal };
+    // The area's pot (§10, 2026-11-05): a 3-bet pot area the 3-bet pot lines, an untagged one the
+    // single-raised ones; the river trainer has no 4-bet pot line, so a 4-bet+ area gets no trainer.
+    if (where.pot === FOUR_BET_POT) return null;
+    const pot: RiverPot = where.pot === THREE_BET_POT ? "3bp" : "srp";
+    if (!match) return { mode: "river", pot, side, role: "any", ...deal };
     if (match[1] === "limped") return { mode: "river", pot: "limped", side, role: "any", ...deal };
-    return { mode: "river", pot: "any", side, role: match[1] as RiverRole, ...deal };
+    return { mode: "river", pot, side, role: match[1] as RiverRole, ...deal };
   }
   return null;
 }
@@ -628,6 +694,7 @@ export function focusAreas(rows: readonly SpotRow[], hands: number): FocusArea[]
       weeks: 1,
       reviews: [],
       postflopTables: true,
+      postflopPots: true,
     });
   }
   return areas.sort((a, b) => b.evLossBb - a.evLossBb || (a.id < b.id ? -1 : 1));
@@ -668,7 +735,7 @@ export interface PlanTask {
 
 /** What last week's plan says, for the rollover. */
 export interface PreviousPlan {
-  focus: readonly (Pick<FocusArea, "id" | "weeks"> & Partial<Pick<FocusArea, "postflopTables">>)[];
+  focus: readonly (Pick<FocusArea, "id" | "weeks"> & Partial<Pick<FocusArea, "postflopTables" | "postflopPots">>)[];
   tasks: ReadonlyArray<{ kind: TaskKind; ref: string; focus: number | null; done: boolean; handId?: string | null }>;
 }
 
@@ -697,7 +764,15 @@ export function planFocus(input: FocusInput): PlanFocus {
   const before = new Map((input.previous?.focus ?? []).map((area) => [area.id, area.weeks]));
   // Last week's plan from before postflop tables (§10, 2026-11-02): its untagged area is this week's tagged one.
   const legacy = new Map((input.previous?.focus ?? []).filter((area) => area.postflopTables !== true).map((area) => [area.id, area.weeks]));
-  const weeksBefore = (area: FocusArea) => before.get(area.id) ?? (area.where.table ? legacy.get(legacyAreaId(area.where)) : undefined) ?? 0;
+  // ... and one from before postflop pots (§10, 2026-11-05): its area, merged over the pots, is this week's 3-bet pot one too.
+  const potless = new Map(
+    (input.previous?.focus ?? []).filter((area) => area.postflopTables === true && area.postflopPots !== true).map((area) => [area.id, area.weeks]),
+  );
+  const weeksBefore = (area: FocusArea) =>
+    before.get(area.id) ??
+    (area.where.pot ? potless.get(potlessAreaId(area.where)) : undefined) ??
+    (area.where.table || area.where.pot ? legacy.get(legacyAreaId(area.where)) : undefined) ??
+    0;
   return {
     kind: "leaks",
     areas: picked.map((area) => ({ ...area, weeks: weeksBefore(area) + 1 })),
@@ -774,8 +849,9 @@ export function planTasks(input: TaskInput): PlanTask[] {
         match: trainerMatch(area.trainer),
       });
     }
-    // On the area's own table (a spot key names none): a heads-up area's drills, not the 6-max blinds'.
-    const due = drillsOn(input.drills, area.keys, handsTable(area.where, area.level)).due;
+    // On the area's own table and pot (a spot key names neither): a heads-up area's drills, not the 6-max
+    // blinds'; a 3-bet pot area's, not the single-raised pots'.
+    const due = drillsOn(input.drills, area.keys, handsTable(area.where, area.level), areaPot(area)).due;
     if (due > 0) {
       add({ kind: "drill", ref: area.id, target: Math.min(due, MAX_DRILL_TARGET), focus, spotKeys: area.keys });
     }
@@ -892,25 +968,30 @@ export interface AreaPeriod {
  * situations, its situations' decisions. A snapshot stored before postflop
  * tables (`postflopTables` not set) names untagged postflop situations and
  * is read as it was then: every table's rows on its keys and situations.
+ * One stored before postflop pots (`postflopPots` not set) names its
+ * situations by table only: every pot's rows in them.
  */
 export function areaPeriod(
-  area: Pick<FocusArea, "keys" | "situations"> & Partial<Pick<FocusArea, "postflopTables">>,
+  area: Pick<FocusArea, "keys" | "situations"> & Partial<Pick<FocusArea, "postflopTables" | "postflopPots">>,
   rows: readonly SpotRow[],
   hands: number,
 ): AreaPeriod {
   const keys = new Set(area.keys);
   const situations = new Set(area.situations);
   const legacy = area.postflopTables !== true;
+  const potless = !legacy && area.postflopPots !== true;
+  const situationOf = legacy ? legacySituationKey : potless ? potlessSituationKey : situationKey;
   let spot = 0;
   let mistakes = 0;
   let ev = 0;
   for (const row of rows) {
     const attrs = spotAttrs(row);
-    if (legacy ? keys.has(row.key) : rowOfLeak(keys, situations, row, attrs)) {
+    const inSituation = situations.has(situationOf(attrs));
+    if (legacy ? keys.has(row.key) : potless ? keys.has(row.key) && inSituation : rowOfLeak(keys, situations, row, attrs)) {
       mistakes += row.nonPerfect;
       ev += row.evLossBb;
     }
-    if (situations.has(legacy ? legacySituationKey(attrs) : situationKey(attrs))) spot += row.decisions;
+    if (inSituation) spot += row.decisions;
   }
   return {
     spot,
@@ -935,7 +1016,7 @@ export interface AreaChange {
  * each period for the reader to see.
  */
 export function areaChange(
-  area: Pick<FocusArea, "keys" | "situations"> & Partial<Pick<FocusArea, "postflopTables">>,
+  area: Pick<FocusArea, "keys" | "situations"> & Partial<Pick<FocusArea, "postflopTables" | "postflopPots">>,
   current: { rows: readonly SpotRow[]; hands: number },
   prior: { rows: readonly SpotRow[]; hands: number },
   minSpot = MIN_COMPARE_SPOT,
@@ -1031,6 +1112,7 @@ export function parseFocus(value: unknown): FocusArea[] {
       hero: str(w.hero, PART, ANY),
       villain: str(w.villain, PART, ANY),
       ...(w.table === NINE_MAX_TABLE || w.table === HEADS_UP_TABLE ? { table: w.table } : {}),
+      ...(w.street !== "preflop" && LEAK_POTS.includes(w.pot as LeakPot) ? { pot: w.pot as LeakPot } : {}),
     };
     if (!where.street) return [];
     const leaks = Array.isArray(r.leaks)
@@ -1069,6 +1151,8 @@ export function parseFocus(value: unknown): FocusArea[] {
         weeks: Math.max(1, Math.round(num(r.weeks)) || 1),
         reviews: parseReviews(r.reviews),
         postflopTables: r.postflopTables === true,
+        // A pot flag without the table flag is not one this module writes.
+        postflopPots: r.postflopTables === true && r.postflopPots === true,
       },
     ];
   });
