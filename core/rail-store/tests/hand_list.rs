@@ -1303,3 +1303,299 @@ fn stored_stack(conn: &Connection, hand_key: &str) -> Option<i64> {
     )
     .expect("stack")
 }
+
+/* ------------------------------------------- the builder's PHF facts (19) */
+
+#[derive(Debug, Clone, PartialEq)]
+struct Facts {
+    open: Option<i64>,
+    bet: [Option<i64>; 3],
+    made: [Option<i64>; 3],
+    kicker: [Option<i64>; 3],
+    draws: [i64; 2],
+    players_flop: i64,
+    hero_ip: Option<bool>,
+    vs_seats: String,
+    vs_positions: String,
+    buy_in: Option<i64>,
+    bounty: bool,
+    level: Option<i64>,
+}
+
+fn list_facts(conn: &Connection) -> BTreeMap<String, Facts> {
+    let mut stmt = conn
+        .prepare(
+            "SELECT hand_key, open_tenths, flop_bet_pct, turn_bet_pct, river_bet_pct, flop_made, turn_made,
+                    river_made, flop_kicker, turn_kicker, river_kicker, flop_draws, turn_draws, players_flop,
+                    hero_ip, vs_seats, vs_positions, buy_in_cents, bounty, tour_level FROM hand_list",
+        )
+        .expect("prepare");
+    stmt.query_map([], |row| {
+        Ok((
+            row.get::<_, String>(0)?,
+            Facts {
+                open: row.get(1)?,
+                bet: [row.get(2)?, row.get(3)?, row.get(4)?],
+                made: [row.get(5)?, row.get(6)?, row.get(7)?],
+                kicker: [row.get(8)?, row.get(9)?, row.get(10)?],
+                draws: [row.get(11)?, row.get(12)?],
+                players_flop: row.get(13)?,
+                hero_ip: row.get(14)?,
+                vs_seats: row.get(15)?,
+                vs_positions: row.get(16)?,
+                buy_in: row.get(17)?,
+                bounty: row.get(18)?,
+                level: row.get(19)?,
+            },
+        ))
+    })
+    .expect("query")
+    .collect::<rusqlite::Result<BTreeMap<_, _>>>()
+    .expect("rows")
+}
+
+#[test]
+fn the_builder_facts_are_the_phf_s_and_filter_as_a_scan_does() {
+    let path = copy_of_corpus("list-facts");
+    let store = Store::open(&path).expect("open");
+    let writer = store.writer().expect("writer");
+    background::drain(store.reader(), &writer).expect("drain");
+    drop(writer);
+    let all = all_pages(&store, &HandFilter::default(), 500);
+    let conn = Connection::open(&path).expect("open");
+    let facts = list_facts(&conn);
+    // What the list holds is what the PHF says, hand by hand.
+    for row in &all {
+        let hand = stored_hand(&conn, &row.hand_key);
+        let derived = rail_store::batch::PreparedStats::from_phf(&hand)
+            .list
+            .extras;
+        let stored = &facts[&row.hand_key];
+        let want = Facts {
+            open: derived.open_tenths,
+            bet: derived.bet_pct,
+            made: derived.made,
+            kicker: derived.kicker,
+            draws: derived.draws,
+            players_flop: derived.players_flop,
+            hero_ip: derived.hero_ip,
+            vs_seats: derived.vs_seats.clone(),
+            vs_positions: derived.vs_positions.clone(),
+            buy_in: derived.buy_in_cents,
+            bounty: derived.bounty,
+            level: derived.level,
+        };
+        assert_eq!(stored, &want, "{}", row.hand_key);
+    }
+    let made = |name: &str| {
+        i64::try_from(
+            rail_store::facts::MADE
+                .iter()
+                .position(|m| *m == name)
+                .expect("made"),
+        )
+        .expect("i")
+    };
+    let draw = |name: &str| {
+        1i64 << rail_store::facts::DRAWS
+            .iter()
+            .position(|d| *d == name)
+            .expect("draw")
+    };
+    let f = |row: &HandRow| facts[&row.hand_key].clone();
+    let expect = |filter: &HandFilter, keep: &dyn Fn(&HandRow) -> bool, what: &str, some: bool| {
+        let got = keys(&all_pages(&store, filter, 500));
+        let want: BTreeSet<String> = all
+            .iter()
+            .filter(|row| keep(row))
+            .map(|row| row.hand_key.clone())
+            .collect();
+        if some {
+            assert!(!want.is_empty(), "{what}: the corpus has such hands");
+        }
+        assert_eq!(got, want, "{what}");
+        let counted = store.reader().hand_facets(filter).expect("facets").total;
+        assert_eq!(
+            counted,
+            u64::try_from(want.len()).expect("n"),
+            "{what}: the count"
+        );
+    };
+    let strings = |values: &[&str]| values.iter().map(|v| (*v).to_owned()).collect::<Vec<_>>();
+    expect(
+        &HandFilter {
+            open_min: Some(2.0),
+            open_max: Some(3.0),
+            ..HandFilter::default()
+        },
+        &|row| f(row).open.is_some_and(|t| (20..=30).contains(&t)),
+        "opens to 2-3 bb",
+        true,
+    );
+    expect(
+        &HandFilter {
+            bet_sizes: [strings(&["small", "overbet"]), vec![], vec![]],
+            ..HandFilter::default()
+        },
+        &|row| f(row).bet[0].is_some_and(|p| p <= 33 || p > 125),
+        "a small or overbet flop bet",
+        true,
+    );
+    expect(
+        &HandFilter {
+            made: [
+                strings(&["topPair", "overpair"]),
+                vec![],
+                strings(&["flush", "straight"]),
+            ],
+            ..HandFilter::default()
+        },
+        &|row| {
+            let x = f(row);
+            x.made[0].is_some_and(|m| m == made("topPair") || m == made("overpair"))
+                && x.made[2].is_some_and(|m| m == made("flush") || m == made("straight"))
+        },
+        "top pair or an overpair on the flop, a flush or straight by the river",
+        false,
+    );
+    expect(
+        &HandFilter {
+            made: [strings(&["topPair"]), vec![], vec![]],
+            ..HandFilter::default()
+        },
+        &|row| f(row).made[0] == Some(made("topPair")),
+        "top pair on the flop",
+        true,
+    );
+    expect(
+        &HandFilter {
+            kickers: strings(&["top"]),
+            ..HandFilter::default()
+        },
+        &|row| f(row).kicker.contains(&Some(1)),
+        "a top kicker",
+        true,
+    );
+    expect(
+        &HandFilter {
+            draws: [strings(&["flushDraw", "oesd"]), vec![]],
+            ..HandFilter::default()
+        },
+        &|row| f(row).draws[0] & (draw("flushDraw") | draw("oesd")) != 0,
+        "a flush draw or an OESD on the flop",
+        true,
+    );
+    expect(
+        &HandFilter {
+            vs_positions: strings(&["BB"]),
+            ..HandFilter::default()
+        },
+        &|row| f(row).vs_positions.contains(" BB "),
+        "against the big blind",
+        true,
+    );
+    expect(
+        &HandFilter {
+            position_flop: strings(&["ip"]),
+            ..HandFilter::default()
+        },
+        &|row| f(row).hero_ip == Some(true),
+        "in position on the flop",
+        true,
+    );
+    expect(
+        &HandFilter {
+            players_flop: strings(&["4plus"]),
+            ..HandFilter::default()
+        },
+        &|row| f(row).players_flop >= 4,
+        "four or more on the flop",
+        true,
+    );
+    expect(
+        &HandFilter {
+            bounty: Some(true),
+            ..HandFilter::default()
+        },
+        &|row| f(row).bounty,
+        "a bounty tournament",
+        false,
+    );
+    expect(
+        &HandFilter {
+            levels: strings(&["1-5"]),
+            ..HandFilter::default()
+        },
+        &|row| f(row).level.is_some_and(|l| (1..=5).contains(&l)),
+        "levels 1-5",
+        false,
+    );
+    expect(
+        &HandFilter {
+            buy_in_min: Some(1.0),
+            buy_in_max: Some(10.0),
+            ..HandFilter::default()
+        },
+        &|row| f(row).buy_in.is_some_and(|c| (100..=1000).contains(&c)),
+        "a $1-10 buy-in",
+        false,
+    );
+    // An opponent in the pot by type: their numbers over every hand.
+    type Counts = (i64, i64, i64, i64, i64);
+    let mut numbers: BTreeMap<(String, String), Counts> = BTreeMap::new();
+    {
+        let mut stmt = conn
+            .prepare("SELECT site, player, sum(hands), sum(vpip), sum(vpip_opp), sum(pfr), sum(pfr_opp) FROM player_rollups WHERE scope = '' GROUP BY site, player")
+            .expect("prepare");
+        let mut rows = stmt.query([]).expect("query");
+        while let Some(row) = rows.next().expect("row") {
+            numbers.insert(
+                (row.get(0).expect("site"), row.get(1).expect("player")),
+                (
+                    row.get(2).expect("h"),
+                    row.get(3).expect("v"),
+                    row.get(4).expect("vo"),
+                    row.get(5).expect("p"),
+                    row.get(6).expect("po"),
+                ),
+            );
+        }
+    }
+    let mut opponents: BTreeMap<String, Vec<(String, String, i64)>> = BTreeMap::new();
+    {
+        let mut stmt = conn
+            .prepare("SELECT hs.hand_key, g.site, ph.player, ph.seat FROM player_hands ph JOIN hand_stats hs ON hs.id = ph.hand_id JOIN segments g ON g.id = hs.segment_id")
+            .expect("prepare");
+        let mut rows = stmt.query([]).expect("query");
+        while let Some(row) = rows.next().expect("row") {
+            opponents
+                .entry(row.get(0).expect("key"))
+                .or_default()
+                .push((
+                    row.get(1).expect("site"),
+                    row.get(2).expect("player"),
+                    row.get(3).expect("seat"),
+                ));
+        }
+    }
+    let is_fish = |key: &str| {
+        let seats = &facts[key].vs_seats;
+        opponents.get(key).is_some_and(|list| {
+            list.iter().any(|(site, player, seat)| {
+                seats.contains(&format!(" {seat} "))
+                    && numbers
+                        .get(&(site.clone(), player.clone()))
+                        .is_some_and(|&(h, v, vo, _, _)| h >= 30 && v * 100 >= 40 * vo.max(1))
+            })
+        })
+    };
+    expect(
+        &HandFilter {
+            vs_types: strings(&["fish"]),
+            ..HandFilter::default()
+        },
+        &|row| is_fish(&row.hand_key),
+        "against a fish",
+        false,
+    );
+}

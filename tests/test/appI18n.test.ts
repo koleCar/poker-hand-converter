@@ -62,6 +62,9 @@ describe("dictionaries", () => {
       "Suited", "Broadway",
       // The filter builder's poker words (V1, 2026-11-05).
       "Iso-raise", "Caller", "Rainbow", "Trips", "Straddle", "Run it twice",
+      // The builder's PHF facts (2026-11-05): sizes, made hands, draws, villains, tournaments.
+      "Overbet (> 125%)", "Set", "Top kicker", "Flush draw", "Nut flush draw", "Gutshot", "Fish (VPIP 40+)",
+      "Regular", "Bounty", "Buy-in",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

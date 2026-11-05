@@ -64,6 +64,28 @@ export interface HandFilter {
   grades?: string[];
   evLossMin?: number;
   knownCards?: boolean | null;
+  /** The builder's PHF facts (schema 19; the desktop store's). */
+  openMin?: number;
+  openMax?: number;
+  flopSizes?: string[];
+  turnSizes?: string[];
+  riverSizes?: string[];
+  flopMade?: string[];
+  turnMade?: string[];
+  riverMade?: string[];
+  kickers?: string[];
+  flopDraws?: string[];
+  turnDraws?: string[];
+  vsPositions?: string[];
+  positionFlop?: string[];
+  playersFlop?: string[];
+  vsTypes?: string[];
+  vsVpipMin?: number;
+  vsVpipMax?: number;
+  buyInMin?: number;
+  buyInMax?: number;
+  bounty?: boolean | null;
+  levels?: string[];
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
@@ -219,8 +241,17 @@ export interface SavedFiltersSource {
 }
 
 /** What the screen asks a surface for. */
+/** One session of the hero's, for the date's session picker. */
+export interface HandSession {
+  startedAt: string;
+  endedAt: string;
+  hands: number;
+}
+
 export interface HandsSource {
   page(filter: HandFilter, after: HandCursor | null, limit: number): Promise<HandPage>;
+  /** The latest sessions of one kind of game (the date's session picker), where the source knows them. */
+  sessions?: (kind: "cash" | "tournament" | null) => Promise<HandSession[]>;
   facets(filter: HandFilter): Promise<HandFacets>;
   /**
    * Tells the screen the hands changed (an import, a sync, another tab);

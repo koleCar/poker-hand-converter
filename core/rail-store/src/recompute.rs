@@ -645,7 +645,7 @@ const SEAT_POSITION: usize = 4;
 const SEAT_TOTALS: usize = 9;
 
 /// `hand_list`'s columns, in this order.
-const LIST_COLUMNS: [&str; 19] = [
+const LIST_COLUMNS: [&str; 38] = [
     "played_at",
     "hand_key",
     "site_hand_id",
@@ -665,6 +665,25 @@ const LIST_COLUMNS: [&str; 19] = [
     "currency",
     "minor_units",
     "hero_acts",
+    "open_tenths",
+    "flop_bet_pct",
+    "turn_bet_pct",
+    "river_bet_pct",
+    "flop_made",
+    "turn_made",
+    "river_made",
+    "flop_kicker",
+    "turn_kicker",
+    "river_kicker",
+    "flop_draws",
+    "turn_draws",
+    "players_flop",
+    "hero_ip",
+    "vs_seats",
+    "vs_positions",
+    "buy_in_cents",
+    "bounty",
+    "tour_level",
 ];
 const LIST_SEGMENT: usize = 3;
 const LIST_ALL_IN: usize = 10;
@@ -779,6 +798,25 @@ fn list_values(hand_key: &str, stats: &PreparedStats, segment_id: i64) -> Result
         text(&stats.list.currency),
         int(hand.currency_minor_units),
         int(hero.map_or(0, |seat| crate::stats::hero_acts(&seat.values.counters))),
+        stats.list.extras.open_tenths.map_or(Value::Null, int),
+        stats.list.extras.bet_pct[0].map_or(Value::Null, int),
+        stats.list.extras.bet_pct[1].map_or(Value::Null, int),
+        stats.list.extras.bet_pct[2].map_or(Value::Null, int),
+        stats.list.extras.made[0].map_or(Value::Null, int),
+        stats.list.extras.made[1].map_or(Value::Null, int),
+        stats.list.extras.made[2].map_or(Value::Null, int),
+        stats.list.extras.kicker[0].map_or(Value::Null, int),
+        stats.list.extras.kicker[1].map_or(Value::Null, int),
+        stats.list.extras.kicker[2].map_or(Value::Null, int),
+        int(stats.list.extras.draws[0]),
+        int(stats.list.extras.draws[1]),
+        int(stats.list.extras.players_flop),
+        stats.list.extras.hero_ip.map_or(Value::Null, flag),
+        text(&stats.list.extras.vs_seats),
+        text(&stats.list.extras.vs_positions),
+        stats.list.extras.buy_in_cents.map_or(Value::Null, int),
+        flag(stats.list.extras.bounty),
+        stats.list.extras.level.map_or(Value::Null, int),
     ])
 }
 

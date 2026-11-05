@@ -33,4 +33,6 @@ export const storeHandsSource: HandsSource = {
     builder: true,
   },
   savedFilters,
+  // The date's session picker: the latest 50, a 30-minute break apart.
+  sessions: (kind) => ipc.reviewSessions(30, null, 50, kind),
 };

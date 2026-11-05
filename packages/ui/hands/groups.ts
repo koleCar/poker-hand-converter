@@ -40,6 +40,14 @@ import {
   DAY_PARTS_ORDER,
   LAST_HANDS_ORDER,
   GRADES_ORDER,
+  BET_SIZE_ORDER,
+  MADE_ORDER,
+  KICKER_ORDER,
+  DRAWS_ORDER,
+  POSITION_FLOP_ORDER,
+  PLAYERS_FLOP_ORDER,
+  VS_TYPE_ORDER,
+  LEVELS_ORDER,
   ordered,
   type FilterState,
   type ListGroup,
@@ -93,7 +101,25 @@ export type GroupId =
   | "heroStack"
   | "netRange"
   | "evLoss"
-  | "knownCards";
+  | "knownCards"
+  | "flopSize"
+  | "turnSize"
+  | "riverSize"
+  | "flopMade"
+  | "turnMade"
+  | "riverMade"
+  | "kicker"
+  | "flopDraws"
+  | "turnDraws"
+  | "vsPosition"
+  | "positionFlop"
+  | "playersFlop"
+  | "vsType"
+  | "levels"
+  | "openSize"
+  | "vsVpip"
+  | "buyIn"
+  | "bounty";
 
 /** The groups whose values are a list in the filter. */
 export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
@@ -128,19 +154,37 @@ export const LIST_GROUPS: Partial<Record<GroupId, ListGroup>> = {
   dayParts: "dayParts",
   lastHands: "lastHands",
   grades: "grades",
+  flopSize: "flopSize",
+  turnSize: "turnSize",
+  riverSize: "riverSize",
+  flopMade: "flopMade",
+  turnMade: "turnMade",
+  riverMade: "riverMade",
+  kicker: "kicker",
+  flopDraws: "flopDraws",
+  turnDraws: "turnDraws",
+  vsPosition: "vsPosition",
+  positionFlop: "positionFlop",
+  playersFlop: "playersFlop",
+  vsType: "vsType",
+  levels: "levels",
 };
 
 /** The yes/no groups and the field each one sets. */
-export const FLAG_GROUPS: Partial<Record<GroupId, "allIn" | "hasNote" | "showdown" | "knownCards">> = {
+export const FLAG_GROUPS: Partial<Record<GroupId, "allIn" | "hasNote" | "showdown" | "knownCards" | "bounty">> = {
   allIn: "allIn",
   notes: "hasNote",
   showdown: "showdown",
   knownCards: "knownCards",
+  bounty: "bounty",
 };
 
 /** The typed groups and the field each one sets. */
 export const TEXT_GROUPS: Partial<
-  Record<GroupId, "board" | "playerName" | "tableName" | "minPot" | "heroStack" | "netRange" | "evLoss">
+  Record<
+    GroupId,
+    "board" | "playerName" | "tableName" | "minPot" | "heroStack" | "netRange" | "evLoss" | "openSize" | "vsVpip" | "buyIn"
+  >
 > = {
   board: "board",
   playerName: "playerName",
@@ -149,6 +193,9 @@ export const TEXT_GROUPS: Partial<
   heroStack: "heroStack",
   netRange: "netRange",
   evLoss: "evLoss",
+  openSize: "openSize",
+  vsVpip: "vsVpip",
+  buyIn: "buyIn",
 };
 
 /**
@@ -177,6 +224,24 @@ export const BUILDER_GROUPS: GroupId[] = [
   "netRange",
   "evLoss",
   "knownCards",
+  "flopSize",
+  "turnSize",
+  "riverSize",
+  "flopMade",
+  "turnMade",
+  "riverMade",
+  "kicker",
+  "flopDraws",
+  "turnDraws",
+  "vsPosition",
+  "positionFlop",
+  "playersFlop",
+  "vsType",
+  "levels",
+  "openSize",
+  "vsVpip",
+  "buyIn",
+  "bounty",
 ];
 
 /** Groups a source offers or not (`HandsSource.features.more`). */
@@ -243,13 +308,16 @@ export type PaneId =
   | "positions"
   | "preflop"
   | "line"
+  | "sizing"
   | "hand"
+  | "strength"
   | "board"
   | "players"
   | "stacks"
   | "game"
   | "date"
   | "result"
+  | "tournament"
   | "marks";
 
 export type SectionId = "situation" | "cards" | "players" | "context";
@@ -267,19 +335,35 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
       { id: "positions", groups: ["position", "showdownPositions"] },
       { id: "preflop", groups: ["potType", "preflopDid", "preflopFaced", "preflopRole"] },
       { id: "line", groups: ["streets", "flopLine", "turnLine", "riverLine", "showdown"] },
+      { id: "sizing", groups: ["openSize", "flopSize", "turnSize", "riverSize"] },
     ],
   },
   {
     section: "cards",
     panes: [
       { id: "hand", groups: ["heroHand"] },
+      { id: "strength", groups: ["flopMade", "turnMade", "riverMade", "kicker", "flopDraws", "turnDraws"] },
       { id: "board", groups: ["board", "flopSuits", "flopPairing", "flopHigh", "flopConnect"] },
     ],
   },
   {
     section: "players",
     panes: [
-      { id: "players", groups: ["playerName", "knownCards", "players", "tableName", "anonymization"] },
+      {
+        id: "players",
+        groups: [
+          "vsPosition",
+          "positionFlop",
+          "playersFlop",
+          "vsType",
+          "vsVpip",
+          "playerName",
+          "knownCards",
+          "players",
+          "tableName",
+          "anonymization",
+        ],
+      },
       { id: "stacks", groups: ["stack", "heroStack", "conditions"] },
     ],
   },
@@ -289,6 +373,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
       { id: "game", groups: ["site", "stakes", "variant", "limit", "size"] },
       { id: "date", groups: ["date", "lastHands", "weekdays", "dayParts"] },
       { id: "result", groups: ["result", "netRange", "minPot", "grades", "evLoss"] },
+      { id: "tournament", groups: ["buyIn", "bounty", "levels"] },
       { id: "marks", groups: ["tags", "notes"] },
     ],
   },
@@ -433,6 +518,19 @@ export function useGroupWords() {
       dayParts: t.builder.dayParts,
       lastHands: t.builder.lastHands,
       grades: t.builder.grades,
+      flopSize: t.builder.sizes,
+      turnSize: t.builder.sizes,
+      riverSize: t.builder.sizes,
+      flopMade: t.builder.made,
+      turnMade: t.builder.made,
+      riverMade: t.builder.made,
+      kicker: t.builder.kicker,
+      flopDraws: t.builder.draws,
+      turnDraws: t.builder.draws,
+      positionFlop: t.builder.positionFlop,
+      playersFlop: t.builder.playersFlop,
+      vsType: t.builder.vsType,
+      levels: t.builder.levels,
     };
     const orders: Partial<Record<GroupId, string[]>> = {
       position: POSITION_ORDER,
@@ -486,6 +584,20 @@ export function useGroupWords() {
         case "dayParts":
         case "lastHands":
         case "grades":
+        case "flopSize":
+        case "turnSize":
+        case "riverSize":
+        case "flopMade":
+        case "turnMade":
+        case "riverMade":
+        case "kicker":
+        case "flopDraws":
+        case "turnDraws":
+        case "vsPosition":
+        case "positionFlop":
+        case "playersFlop":
+        case "vsType":
+        case "levels":
           values = (BUILDER_ORDERS[group] ?? []).map((value) => ({ value, count: 1 }));
           break;
         case "position": {
@@ -553,6 +665,12 @@ export function useGroupWords() {
           return `${filter[group].trim()} bb`;
         case "evLoss":
           return `≥ ${filter.evLoss.trim()} bb`;
+        case "openSize":
+          return `${filter.openSize.trim()} bb`;
+        case "vsVpip":
+          return `VPIP ${filter.vsVpip.trim()} %`;
+        case "bounty":
+          return filter.bounty ? t.builder.bountyValues.yes : t.builder.bountyValues.no;
         case "minPot":
           return `≥ ${filter.minPot.trim()}`;
         case "heroHand": {
@@ -597,6 +715,20 @@ const BUILDER_ORDERS: Partial<Record<GroupId, string[]>> = {
   dayParts: DAY_PARTS_ORDER,
   lastHands: LAST_HANDS_ORDER,
   grades: GRADES_ORDER,
+  flopSize: BET_SIZE_ORDER,
+  turnSize: BET_SIZE_ORDER,
+  riverSize: BET_SIZE_ORDER,
+  flopMade: MADE_ORDER,
+  turnMade: MADE_ORDER,
+  riverMade: MADE_ORDER,
+  kicker: KICKER_ORDER,
+  flopDraws: DRAWS_ORDER,
+  turnDraws: DRAWS_ORDER,
+  vsPosition: POSITION_ORDER,
+  positionFlop: POSITION_FLOP_ORDER,
+  playersFlop: PLAYERS_FLOP_ORDER,
+  vsType: VS_TYPE_ORDER,
+  levels: LEVELS_ORDER,
 };
 
 /** The seats a 6-max table has: offered before any hand says otherwise. */

@@ -680,6 +680,45 @@ describe("the filter builder's groups (V1, 2026-11-05)", () => {
     }
   });
 
+  it("asks for the PHF facts (sizes, strength, villains, tournament) as the store names them", () => {
+    const filter: FilterState = {
+      ...EMPTY_FILTER,
+      openSize: "2-3",
+      riverSize: ["overbet"],
+      flopMade: ["topPair", "overpair"],
+      kicker: ["top"],
+      turnDraws: ["flushDraw"],
+      vsPosition: ["BB"],
+      positionFlop: ["ip"],
+      playersFlop: ["2"],
+      vsType: ["fish"],
+      vsVpip: "40+",
+      buyIn: "5-20",
+      bounty: true,
+      levels: ["1-5"],
+    };
+    const query = toQuery(filter, NOW);
+    expect([query.openMin, query.openMax]).toEqual([2, 3]);
+    expect(query.riverSizes).toEqual(["overbet"]);
+    expect(query.flopMade).toEqual(["topPair", "overpair"]);
+    expect(query.kickers).toEqual(["top"]);
+    expect(query.turnDraws).toEqual(["flushDraw"]);
+    expect(query.vsPositions).toEqual(["BB"]);
+    expect(query.positionFlop).toEqual(["ip"]);
+    expect(query.playersFlop).toEqual(["2"]);
+    expect(query.vsTypes).toEqual(["fish"]);
+    expect([query.vsVpipMin, query.vsVpipMax]).toEqual([40, undefined]);
+    expect([query.buyInMin, query.buyInMax]).toEqual([5, 20]);
+    expect(query.bounty).toBe(true);
+    expect(query.levels).toEqual(["1-5"]);
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    expect(activeGroups(filter)).toBe(13);
+    const plain = toQuery(EMPTY_FILTER, NOW);
+    for (const key of ["openMin", "flopSizes", "flopMade", "kickers", "vsTypes", "vsVpipMin", "buyInMin", "bounty", "levels"]) {
+      expect(plain).not.toHaveProperty(key);
+    }
+  });
+
   it("only a source that reads them gets them, each in one pane", () => {
     const desktop = handGroups({ annotations: true, search: true, sorts: [], more: [], builder: true });
     for (const group of BUILDER_GROUPS) expect(desktop).toContain(group);

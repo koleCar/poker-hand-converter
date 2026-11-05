@@ -22,6 +22,7 @@ import { RailLoader } from "../loader/RailLoader";
 import { FilterBar, handGroups } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
 import { kindOf, pinKind } from "./gameKind";
+import { HandSessionsContext } from "./sessions";
 import { HandList } from "./HandList";
 import { KindToggle } from "./KindToggle";
 import toggleStyles from "./KindToggle.module.css";
@@ -179,58 +180,60 @@ export function HandsScreen({
   }
 
   return (
-    <div className={`${styles.screen} ${fill ? styles.fill : styles.page}`}>
-      <header className={styles.top}>
-        <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
-        {countLine !== null ? (
-          <span className={styles.count} aria-live="polite">
-            {countLine}
-          </span>
-        ) : null}
-        {refetching ? <RailLoader size="inline" label={t.loading} /> : null}
-        <span className={styles.spacer} />
-        <div className={toggleStyles.toggle} role="group" aria-label={t.units.label}>
-          <button
-            type="button"
-            className={`chip-btn${shownUnit === "bb" ? " is-active" : ""}`}
-            aria-pressed={shownUnit === "bb"}
-            onClick={() => setUnit("bb")}
-          >
-            {t.units.bb}
-          </button>
-          <button
-            type="button"
-            className={`chip-btn${shownUnit === "money" ? " is-active" : ""}`}
-            aria-pressed={shownUnit === "money"}
-            disabled={!moneyShown}
-            onClick={() => setUnit("money")}
-          >
-            {moneySymbol ?? t.units.money}
-          </button>
-        </div>
-        <KindToggle filter={filter} facets={facets} onChange={onFilterChange} />
-      </header>
-      {status}
-      <FilterBar
-        filter={filter}
-        facets={facets}
-        onChange={onFilterChange}
-        groups={groups}
-        saved={source.savedFilters}
-        sorts={source.features.sorts}
-        loadFacets={loadFacets}
-      />
-      {notice}
-      <div className={selected === null || !renderPanel ? styles.body : `${styles.body} ${styles.split}`}>
-        <div className={`${styles.list} rail-dims`} aria-busy={refetching}>
-          {body}
-        </div>
-        {selected !== null && renderPanel ? (
-          <div className={styles.panel} ref={panelRef}>
-            {renderPanel(selected, row, list)}
+    <HandSessionsContext.Provider value={source.sessions ?? null}>
+      <div className={`${styles.screen} ${fill ? styles.fill : styles.page}`}>
+        <header className={styles.top}>
+          <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
+          {countLine !== null ? (
+            <span className={styles.count} aria-live="polite">
+              {countLine}
+            </span>
+          ) : null}
+          {refetching ? <RailLoader size="inline" label={t.loading} /> : null}
+          <span className={styles.spacer} />
+          <div className={toggleStyles.toggle} role="group" aria-label={t.units.label}>
+            <button
+              type="button"
+              className={`chip-btn${shownUnit === "bb" ? " is-active" : ""}`}
+              aria-pressed={shownUnit === "bb"}
+              onClick={() => setUnit("bb")}
+            >
+              {t.units.bb}
+            </button>
+            <button
+              type="button"
+              className={`chip-btn${shownUnit === "money" ? " is-active" : ""}`}
+              aria-pressed={shownUnit === "money"}
+              disabled={!moneyShown}
+              onClick={() => setUnit("money")}
+            >
+              {moneySymbol ?? t.units.money}
+            </button>
           </div>
-        ) : null}
+          <KindToggle filter={filter} facets={facets} onChange={onFilterChange} />
+        </header>
+        {status}
+        <FilterBar
+          filter={filter}
+          facets={facets}
+          onChange={onFilterChange}
+          groups={groups}
+          saved={source.savedFilters}
+          sorts={source.features.sorts}
+          loadFacets={loadFacets}
+        />
+        {notice}
+        <div className={selected === null || !renderPanel ? styles.body : `${styles.body} ${styles.split}`}>
+          <div className={`${styles.list} rail-dims`} aria-busy={refetching}>
+            {body}
+          </div>
+          {selected !== null && renderPanel ? (
+            <div className={styles.panel} ref={panelRef}>
+              {renderPanel(selected, row, list)}
+            </div>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </HandSessionsContext.Provider>
   );
 }

@@ -379,6 +379,7 @@ span.chipOpen {
 }
 
 .range input,
+.range select,
 .saveForm input,
 .textField input {
   height: 34px;

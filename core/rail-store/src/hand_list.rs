@@ -152,6 +152,38 @@ pub struct HandFilter {
     pub ev_loss_min: Option<f64>,
     /// A villain's cards were seen (`true`), or none were.
     pub known_cards: Option<bool>,
+    /// The open's size raised to, big blinds: from, to.
+    pub open_min: Option<f64>,
+    pub open_max: Option<f64>,
+    /// The hero's first bet or raise on the flop, turn, river as a share of
+    /// the pot: `small` (up to 33 %), `medium` (34-75), `large` (76-125),
+    /// `overbet` (more).
+    pub bet_sizes: [Vec<String>; 3],
+    /// What the hero made on the flop, turn, river ([`crate::facts::MADE`]).
+    pub made: [Vec<String>; 3],
+    /// A top pair's kicker on any street: `top`, `good`, `weak`.
+    pub kickers: Vec<String>,
+    /// What the hero drew to on the flop, turn ([`crate::facts::DRAWS`]).
+    pub draws: [Vec<String>; 2],
+    /// Opponents in the pot at these positions (any of them).
+    pub vs_positions: Vec<String>,
+    /// The hero in position on the flop (`ip`), or out of it (`oop`).
+    pub position_flop: Vec<String>,
+    /// Players who saw the flop: `2`, `3`, `4plus`.
+    pub players_flop: Vec<String>,
+    /// An opponent in the pot of this type (`fish`, `reg`, `unknown`) by
+    /// their numbers over every hand (`player_rollups`).
+    pub vs_types: Vec<String>,
+    /// An opponent in the pot whose VPIP is within, percent.
+    pub vs_vpip_min: Option<f64>,
+    pub vs_vpip_max: Option<f64>,
+    /// A tournament's buy-in, in its currency: from, to.
+    pub buy_in_min: Option<f64>,
+    pub buy_in_max: Option<f64>,
+    /// A bounty tournament (`true`), or not.
+    pub bounty: Option<bool>,
+    /// Blind levels: `1-5`, `6-10`, `11-15`, `16plus`.
+    pub levels: Vec<String>,
 }
 
 /// The hero's actions on the list row (`hand_list.hero_acts`, version 18),
@@ -215,6 +247,184 @@ pub fn act_bit(name: &str) -> Option<i64> {
     ACTS.iter()
         .position(|(id, _)| *id == name)
         .map(|i| 1i64 << i)
+}
+
+/// The builder's clauses over the PHF facts (schema 19, [`crate::facts`]).
+fn facts_clauses(filter: &HandFilter, w: &mut Where) {
+    let ranged = |w: &mut Where, column: &str, min: Option<f64>, max: Option<f64>, scale: i64| {
+        if let Some(min) = min.filter(|v| v.is_finite()) {
+            w.push(format!("{column} >= {min} * {scale}"));
+        }
+        if let Some(max) = max.filter(|v| v.is_finite()) {
+            w.push(format!("{column} <= {max} * {scale}"));
+        }
+    };
+    ranged(w, "l.open_tenths", filter.open_min, filter.open_max, 10);
+    for (column, buckets) in ["l.flop_bet_pct", "l.turn_bet_pct", "l.river_bet_pct"]
+        .iter()
+        .zip(&filter.bet_sizes)
+    {
+        let parts: Vec<String> = buckets
+            .iter()
+            .filter_map(|bucket| match bucket.as_str() {
+                "small" => Some(format!("{column} <= 33")),
+                "medium" => Some(format!("{column} BETWEEN 34 AND 75")),
+                "large" => Some(format!("{column} BETWEEN 76 AND 125")),
+                "overbet" => Some(format!("{column} > 125")),
+                _ => None,
+            })
+            .collect();
+        if !parts.is_empty() {
+            w.push(format!(
+                "({column} IS NOT NULL AND ({}))",
+                parts.join(" OR ")
+            ));
+        }
+    }
+    let code = |name: &str| crate::facts::MADE.iter().position(|m| *m == name);
+    for (column, made) in ["l.flop_made", "l.turn_made", "l.river_made"]
+        .iter()
+        .zip(&filter.made)
+    {
+        let codes: Vec<String> = made
+            .iter()
+            .filter_map(|name| code(name))
+            .map(|i| i.to_string())
+            .collect();
+        if !codes.is_empty() {
+            w.push(format!("{column} IN ({})", codes.join(", ")));
+        }
+    }
+    let kickers: Vec<&str> = filter
+        .kickers
+        .iter()
+        .filter_map(|k| match k.as_str() {
+            "top" => Some("1"),
+            "good" => Some("2"),
+            "weak" => Some("3"),
+            _ => None,
+        })
+        .collect();
+    if !kickers.is_empty() {
+        let list = kickers.join(", ");
+        w.push(format!(
+            "(l.flop_kicker IN ({list}) OR l.turn_kicker IN ({list}) OR l.river_kicker IN ({list}))"
+        ));
+    }
+    let bit = |name: &str| {
+        crate::facts::DRAWS
+            .iter()
+            .position(|d| *d == name)
+            .map(|i| 1i64 << i)
+    };
+    for (column, draws) in ["l.flop_draws", "l.turn_draws"].iter().zip(&filter.draws) {
+        let mask = draws
+            .iter()
+            .filter_map(|name| bit(name))
+            .fold(0i64, |mask, b| mask | b);
+        if mask != 0 {
+            w.push(format!("({column} & {mask}) <> 0"));
+        }
+    }
+    if !filter.vs_positions.is_empty() {
+        let parts: Vec<String> = filter
+            .vs_positions
+            .iter()
+            .map(|position| {
+                let p = w.text(&format!(" {} ", position.trim()));
+                format!("instr(l.vs_positions, {p}) > 0")
+            })
+            .collect();
+        w.push(format!("({})", parts.join(" OR ")));
+    }
+    let sides: Vec<&str> = filter
+        .position_flop
+        .iter()
+        .filter_map(|side| match side.as_str() {
+            "ip" => Some("l.hero_ip = 1"),
+            "oop" => Some("l.hero_ip = 0"),
+            _ => None,
+        })
+        .collect();
+    if !sides.is_empty() {
+        w.push(format!("({})", sides.join(" OR ")));
+    }
+    let flop: Vec<&str> = filter
+        .players_flop
+        .iter()
+        .filter_map(|n| match n.as_str() {
+            "2" => Some("l.players_flop = 2"),
+            "3" => Some("l.players_flop = 3"),
+            "4plus" => Some("l.players_flop >= 4"),
+            _ => None,
+        })
+        .collect();
+    if !flop.is_empty() {
+        w.push(format!("({})", flop.join(" OR ")));
+    }
+    // An opponent in the pot (a named one: `player_hands`) by their numbers.
+    let vpip = "(SELECT sum(r.vpip) * 100.0 / max(sum(r.vpip_opp), 1) FROM player_rollups r
+                 WHERE r.site = g.site AND r.player = ph.player AND r.scope = '')";
+    let pfr = "(SELECT sum(r.pfr) * 100.0 / max(sum(r.pfr_opp), 1) FROM player_rollups r
+                WHERE r.site = g.site AND r.player = ph.player AND r.scope = '')";
+    let hands = "(SELECT coalesce(sum(r.hands), 0) FROM player_rollups r
+                  WHERE r.site = g.site AND r.player = ph.player AND r.scope = '')";
+    let mut conditions: Vec<String> = Vec::new();
+    let types: Vec<String> = filter
+        .vs_types
+        .iter()
+        .filter_map(|kind| match kind.as_str() {
+            "fish" => Some(format!("({hands} >= 30 AND {vpip} >= 40)")),
+            "reg" => Some(format!(
+                "({hands} >= 30 AND {vpip} BETWEEN 15 AND 30 AND {pfr} >= {vpip} * 0.6)"
+            )),
+            "unknown" => Some(format!("{hands} < 30")),
+            _ => None,
+        })
+        .collect();
+    if !types.is_empty() {
+        conditions.push(format!("({})", types.join(" OR ")));
+    }
+    if let Some(min) = filter.vs_vpip_min.filter(|v| v.is_finite()) {
+        conditions.push(format!("{vpip} >= {min}"));
+    }
+    if let Some(max) = filter.vs_vpip_max.filter(|v| v.is_finite()) {
+        conditions.push(format!("{vpip} <= {max}"));
+    }
+    if !conditions.is_empty() {
+        w.push(format!(
+            "EXISTS (SELECT 1 FROM hand_stats hs
+               JOIN player_hands ph ON ph.hand_id = hs.id
+               JOIN segments g ON g.id = hs.segment_id
+             WHERE hs.hand_key = l.hand_key AND instr(l.vs_seats, ' ' || ph.seat || ' ') > 0
+               AND {})",
+            conditions.join(" AND ")
+        ));
+    }
+    ranged(
+        w,
+        "l.buy_in_cents",
+        filter.buy_in_min,
+        filter.buy_in_max,
+        100,
+    );
+    if let Some(bounty) = filter.bounty {
+        w.push(format!("l.bounty = {}", i64::from(bounty)));
+    }
+    let levels: Vec<&str> = filter
+        .levels
+        .iter()
+        .filter_map(|level| match level.as_str() {
+            "1-5" => Some("l.tour_level BETWEEN 1 AND 5"),
+            "6-10" => Some("l.tour_level BETWEEN 6 AND 10"),
+            "11-15" => Some("l.tour_level BETWEEN 11 AND 15"),
+            "16plus" => Some("l.tour_level >= 16"),
+            _ => None,
+        })
+        .collect();
+    if !levels.is_empty() {
+        w.push(format!("({})", levels.join(" OR ")));
+    }
 }
 
 /// The flop's three cards (`l.board`'s first 8 characters: `Kd 7c 5h`).
@@ -878,6 +1088,7 @@ fn builder_clauses(filter: &HandFilter, w: &mut Where) {
             "EXISTS (SELECT 1 FROM hand_analysis a WHERE a.hand_key = l.hand_key AND a.ev_loss_bb >= {min})"
         ));
     }
+    facts_clauses(filter, w);
     if let Some(known) = filter.known_cards {
         let seen = "EXISTS (SELECT 1 FROM hand_stats d JOIN seat_stats s ON s.hand_id = d.id
                      WHERE d.hand_key = l.hand_key AND s.is_hero = 0 AND s.hole_cards <> '')";

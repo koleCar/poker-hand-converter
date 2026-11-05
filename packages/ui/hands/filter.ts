@@ -51,7 +51,21 @@ export type ListGroup =
   | "weekdays"
   | "dayParts"
   | "lastHands"
-  | "grades";
+  | "grades"
+  | "flopSize"
+  | "turnSize"
+  | "riverSize"
+  | "flopMade"
+  | "turnMade"
+  | "riverMade"
+  | "kicker"
+  | "flopDraws"
+  | "turnDraws"
+  | "vsPosition"
+  | "positionFlop"
+  | "playersFlop"
+  | "vsType"
+  | "levels";
 
 const LIST_GROUPS: ListGroup[] = [
   "sites",
@@ -85,6 +99,20 @@ const LIST_GROUPS: ListGroup[] = [
   "dayParts",
   "lastHands",
   "grades",
+  "flopSize",
+  "turnSize",
+  "riverSize",
+  "flopMade",
+  "turnMade",
+  "riverMade",
+  "kicker",
+  "flopDraws",
+  "turnDraws",
+  "vsPosition",
+  "positionFlop",
+  "playersFlop",
+  "vsType",
+  "levels",
 ];
 
 export interface FilterState {
@@ -159,6 +187,32 @@ export interface FilterState {
   evLoss: string;
   /** A villain's cards were seen (`true`), or none were. */
   knownCards: boolean | null;
+  /**
+   * The builder's PHF facts (schema 19): the hero's bet sizes by street
+   * (`small` ... `overbet`), what the hero made and drew to by street, a top
+   * pair's kicker, the opponents in the pot (their positions, the hero's
+   * position on the flop, how many saw it, their type), the tournament.
+   */
+  flopSize: string[];
+  turnSize: string[];
+  riverSize: string[];
+  flopMade: string[];
+  turnMade: string[];
+  riverMade: string[];
+  kicker: string[];
+  flopDraws: string[];
+  turnDraws: string[];
+  vsPosition: string[];
+  positionFlop: string[];
+  playersFlop: string[];
+  vsType: string[];
+  levels: string[];
+  /** Ranges as typed: the open in big blinds, a villain's VPIP in percent, a buy-in in its currency. */
+  openSize: string;
+  vsVpip: string;
+  buyIn: string;
+  /** A bounty tournament (`true`), or not. */
+  bounty: boolean | null;
 }
 
 export const EMPTY_FILTER: FilterState = {
@@ -211,6 +265,24 @@ export const EMPTY_FILTER: FilterState = {
   netRange: "",
   evLoss: "",
   knownCards: null,
+  flopSize: [],
+  turnSize: [],
+  riverSize: [],
+  flopMade: [],
+  turnMade: [],
+  riverMade: [],
+  kicker: [],
+  flopDraws: [],
+  turnDraws: [],
+  vsPosition: [],
+  positionFlop: [],
+  playersFlop: [],
+  vsType: [],
+  levels: [],
+  openSize: "",
+  vsVpip: "",
+  buyIn: "",
+  bounty: null,
 };
 
 /** The builder's action groups, each a group of `hand_list::ACTS` names. */
@@ -232,6 +304,27 @@ export const WEEKDAYS_ORDER = ["1", "2", "3", "4", "5", "6", "7"];
 export const DAY_PARTS_ORDER = ["morning", "afternoon", "evening", "night"];
 export const LAST_HANDS_ORDER = ["100", "500", "1000", "5000"];
 export const GRADES_ORDER = ["blunder", "mistake", "inaccurate", "clean", "notAnalysed"];
+export const BET_SIZE_ORDER = ["small", "medium", "large", "overbet"];
+export const MADE_ORDER = [
+  "fullHouse",
+  "flush",
+  "straight",
+  "set",
+  "trips",
+  "twoPair",
+  "overpair",
+  "topPair",
+  "middlePair",
+  "bottomPair",
+  "underpair",
+  "highCard",
+];
+export const KICKER_ORDER = ["top", "good", "weak"];
+export const DRAWS_ORDER = ["flushDraw", "nutFlushDraw", "oesd", "gutshot", "comboDraw", "backdoorFlush"];
+export const POSITION_FLOP_ORDER = ["ip", "oop"];
+export const PLAYERS_FLOP_ORDER = ["2", "3", "4plus"];
+export const VS_TYPE_ORDER = ["fish", "reg", "unknown"];
+export const LEVELS_ORDER = ["1-5", "6-10", "11-15", "16plus"];
 
 /**
  * A typed range of big blinds: "80-120" (or "80–120", "80 to 120"), "40+"
@@ -295,7 +388,10 @@ export function activeGroups(filter: FilterState): number {
     (filter.date === null ? 0 : 1) +
     (filter.player === null ? 0 : 1) +
     (filter.knownCards === null ? 0 : 1) +
-    ([filter.heroStack, filter.netRange, filter.evLoss].filter((text) => text.trim() !== "").length) +
+    (filter.bounty === null ? 0 : 1) +
+    ([filter.heroStack, filter.netRange, filter.evLoss, filter.openSize, filter.vsVpip, filter.buyIn].filter(
+      (text) => text.trim() !== "",
+    ).length) +
     activeSearches(filter)
   );
 }
@@ -418,6 +514,36 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   const evLoss = parseRange(filter.evLoss).min;
   if (evLoss !== null) query.evLossMin = evLoss;
   if (filter.knownCards !== null) query.knownCards = filter.knownCards;
+  // The PHF facts (schema 19).
+  const lists = {
+    flopSizes: filter.flopSize,
+    turnSizes: filter.turnSize,
+    riverSizes: filter.riverSize,
+    flopMade: filter.flopMade,
+    turnMade: filter.turnMade,
+    riverMade: filter.riverMade,
+    kickers: filter.kicker,
+    flopDraws: filter.flopDraws,
+    turnDraws: filter.turnDraws,
+    vsPositions: filter.vsPosition,
+    positionFlop: filter.positionFlop,
+    playersFlop: filter.playersFlop,
+    vsTypes: filter.vsType,
+    levels: filter.levels,
+  } as const;
+  for (const [key, values] of Object.entries(lists) as [keyof typeof lists, string[]][]) {
+    if (values.length > 0) query[key] = values;
+  }
+  const open = parseRange(filter.openSize);
+  if (open.min !== null) query.openMin = open.min;
+  if (open.max !== null) query.openMax = open.max;
+  const vpip = parseRange(filter.vsVpip);
+  if (vpip.min !== null) query.vsVpipMin = vpip.min;
+  if (vpip.max !== null) query.vsVpipMax = vpip.max;
+  const buyIn = parseRange(filter.buyIn);
+  if (buyIn.min !== null) query.buyInMin = buyIn.min;
+  if (buyIn.max !== null) query.buyInMax = buyIn.max;
+  if (filter.bounty !== null) query.bounty = filter.bounty;
   return query;
 }
 
@@ -520,6 +646,24 @@ export function fromSaved(json: string): FilterState | null {
     netRange: typeof saved.netRange === "string" ? saved.netRange : "",
     evLoss: typeof saved.evLoss === "string" ? saved.evLoss : "",
     knownCards: typeof saved.knownCards === "boolean" ? saved.knownCards : null,
+    flopSize: list("flopSize"),
+    turnSize: list("turnSize"),
+    riverSize: list("riverSize"),
+    flopMade: list("flopMade"),
+    turnMade: list("turnMade"),
+    riverMade: list("riverMade"),
+    kicker: list("kicker"),
+    flopDraws: list("flopDraws"),
+    turnDraws: list("turnDraws"),
+    vsPosition: list("vsPosition"),
+    positionFlop: list("positionFlop"),
+    playersFlop: list("playersFlop"),
+    vsType: list("vsType"),
+    levels: list("levels"),
+    openSize: typeof saved.openSize === "string" ? saved.openSize : "",
+    vsVpip: typeof saved.vsVpip === "string" ? saved.vsVpip : "",
+    buyIn: typeof saved.buyIn === "string" ? saved.buyIn : "",
+    bounty: typeof saved.bounty === "boolean" ? saved.bounty : null,
   };
 }
 
