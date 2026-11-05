@@ -43,6 +43,7 @@ export const en = {
     players: "Players",
     analysis: "Analysis",
     hud: "HUD",
+    import: "Import",
     settings: "Settings",
     search: "Search…",
     collapse: "Collapse sidebar",
@@ -84,10 +85,40 @@ export const en = {
       /** Not shown under the title: the command palette's keywords. */
       lead: "What the HUD's panels show, at which tables, with a preview.",
     },
+    import: {
+      title: "Import",
+      /** Not shown: the command palette's keywords. */
+      lead: "Import hand histories from files or a folder, once.",
+    },
     settings: {
       title: "Settings",
       lead: "Folders, rooms, account and appearance.",
     },
+  },
+
+  /** The Import screen: files or a folder picked by hand, read once. */
+  manualImport: {
+    unavailable: "Import is only available inside the Rail app.",
+    pickFiles: "Choose files…",
+    pickFolder: "Choose a folder…",
+    drop: "or drop files and folders here",
+    dropActive: "Drop to import",
+    hint: "Subfolders included · hands already in Rail are skipped",
+    finding: "Looking for hand histories…",
+    progress: (done: number, total: number) => `${n(done)} / ${n(total)} files`,
+    stop: "Stop",
+    done: "Imported",
+    stopped: "Stopped",
+    failed: (reason: string) => `The import failed: ${reason}`,
+    nothingFound: "No hand histories found there.",
+    inserted: (count: number) => (count === 1 ? "1 new hand" : `${n(count)} new hands`),
+    duplicates: (count: number) => `${n(count)} already in Rail`,
+    refused: (count: number) => `${n(count)} refused`,
+    unrecognized: (count: number) => (count === 1 ? "1 file not recognised" : `${n(count)} files not recognised`),
+    unreadable: (count: number) => (count === 1 ? "1 path could not be read" : `${n(count)} paths could not be read`),
+    openHands: "Open Hands",
+    openRefused: "Refused hands",
+    again: "Import more",
   },
 
   /** The Live screen: the session being played, as it is played. */

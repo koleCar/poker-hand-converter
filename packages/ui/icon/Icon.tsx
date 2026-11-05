@@ -118,6 +118,13 @@ const PATHS = {
     </>
   ),
   /* A hand's tags and note (the desktop replayer's header). */
+  upload: (
+    <>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <path d="m17 8-5-5-5 5" />
+      <path d="M12 3v12" />
+    </>
+  ),
   tag: (
     <>
       <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" />
