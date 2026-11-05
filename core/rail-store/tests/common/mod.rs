@@ -15,10 +15,12 @@ use rusqlite::Connection;
 /// same file store the same PHF.
 pub const PARSED_AT: &str = "2026-10-13T00:00:00.000Z";
 
-/// Back from the latest version to 14 (R3.9's designs and assignments, and
+/// Back from the latest version to 14 (version 18's `hero_acts`, R3.9's designs and assignments, and
 /// the sync marks it added to R3.6's tables).
 pub const DOWN_TO_14: &str =
-    "DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
+    "ALTER TABLE hand_list DROP COLUMN open_tenths; ALTER TABLE hand_list DROP COLUMN flop_bet_pct; ALTER TABLE hand_list DROP COLUMN turn_bet_pct; ALTER TABLE hand_list DROP COLUMN river_bet_pct; ALTER TABLE hand_list DROP COLUMN flop_made; ALTER TABLE hand_list DROP COLUMN turn_made; ALTER TABLE hand_list DROP COLUMN river_made; ALTER TABLE hand_list DROP COLUMN flop_kicker; ALTER TABLE hand_list DROP COLUMN turn_kicker; ALTER TABLE hand_list DROP COLUMN river_kicker; ALTER TABLE hand_list DROP COLUMN flop_draws; ALTER TABLE hand_list DROP COLUMN turn_draws; ALTER TABLE hand_list DROP COLUMN players_flop; ALTER TABLE hand_list DROP COLUMN hero_ip; ALTER TABLE hand_list DROP COLUMN vs_seats; ALTER TABLE hand_list DROP COLUMN vs_positions; ALTER TABLE hand_list DROP COLUMN buy_in_cents; ALTER TABLE hand_list DROP COLUMN bounty; ALTER TABLE hand_list DROP COLUMN tour_level; ALTER TABLE recompute_list DROP COLUMN open_tenths; ALTER TABLE recompute_list DROP COLUMN flop_bet_pct; ALTER TABLE recompute_list DROP COLUMN turn_bet_pct; ALTER TABLE recompute_list DROP COLUMN river_bet_pct; ALTER TABLE recompute_list DROP COLUMN flop_made; ALTER TABLE recompute_list DROP COLUMN turn_made; ALTER TABLE recompute_list DROP COLUMN river_made; ALTER TABLE recompute_list DROP COLUMN flop_kicker; ALTER TABLE recompute_list DROP COLUMN turn_kicker; ALTER TABLE recompute_list DROP COLUMN river_kicker; ALTER TABLE recompute_list DROP COLUMN flop_draws; ALTER TABLE recompute_list DROP COLUMN turn_draws; ALTER TABLE recompute_list DROP COLUMN players_flop; ALTER TABLE recompute_list DROP COLUMN hero_ip; ALTER TABLE recompute_list DROP COLUMN vs_seats; ALTER TABLE recompute_list DROP COLUMN vs_positions; ALTER TABLE recompute_list DROP COLUMN buy_in_cents; ALTER TABLE recompute_list DROP COLUMN bounty; ALTER TABLE recompute_list DROP COLUMN tour_level; 
+     ALTER TABLE hand_list DROP COLUMN hero_acts; ALTER TABLE recompute_list DROP COLUMN hero_acts;
+     DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
      DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
      DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
      ALTER TABLE hud_seat_positions DROP COLUMN cleared;
@@ -29,7 +31,9 @@ pub const DOWN_TO_14: &str =
 /// layouts; R2.11's staging tables and the twins of the rollups, and its
 /// `kv` keys).
 pub const DOWN_FROM_12: &str =
-    "DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
+    "ALTER TABLE hand_list DROP COLUMN open_tenths; ALTER TABLE hand_list DROP COLUMN flop_bet_pct; ALTER TABLE hand_list DROP COLUMN turn_bet_pct; ALTER TABLE hand_list DROP COLUMN river_bet_pct; ALTER TABLE hand_list DROP COLUMN flop_made; ALTER TABLE hand_list DROP COLUMN turn_made; ALTER TABLE hand_list DROP COLUMN river_made; ALTER TABLE hand_list DROP COLUMN flop_kicker; ALTER TABLE hand_list DROP COLUMN turn_kicker; ALTER TABLE hand_list DROP COLUMN river_kicker; ALTER TABLE hand_list DROP COLUMN flop_draws; ALTER TABLE hand_list DROP COLUMN turn_draws; ALTER TABLE hand_list DROP COLUMN players_flop; ALTER TABLE hand_list DROP COLUMN hero_ip; ALTER TABLE hand_list DROP COLUMN vs_seats; ALTER TABLE hand_list DROP COLUMN vs_positions; ALTER TABLE hand_list DROP COLUMN buy_in_cents; ALTER TABLE hand_list DROP COLUMN bounty; ALTER TABLE hand_list DROP COLUMN tour_level; 
+     ALTER TABLE hand_list DROP COLUMN hero_acts;
+     DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
      DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
      DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
      DROP TABLE player_rollups_observed;
@@ -48,7 +52,9 @@ pub const DOWN_FROM_12: &str =
 /// R2.11, and version 11's custom statistics, R2.10, go first, version 10
 /// only dropped an index): what the older-store tests run first.
 pub const DOWN_FROM_9: &str =
-    "DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
+    "ALTER TABLE hand_list DROP COLUMN open_tenths; ALTER TABLE hand_list DROP COLUMN flop_bet_pct; ALTER TABLE hand_list DROP COLUMN turn_bet_pct; ALTER TABLE hand_list DROP COLUMN river_bet_pct; ALTER TABLE hand_list DROP COLUMN flop_made; ALTER TABLE hand_list DROP COLUMN turn_made; ALTER TABLE hand_list DROP COLUMN river_made; ALTER TABLE hand_list DROP COLUMN flop_kicker; ALTER TABLE hand_list DROP COLUMN turn_kicker; ALTER TABLE hand_list DROP COLUMN river_kicker; ALTER TABLE hand_list DROP COLUMN flop_draws; ALTER TABLE hand_list DROP COLUMN turn_draws; ALTER TABLE hand_list DROP COLUMN players_flop; ALTER TABLE hand_list DROP COLUMN hero_ip; ALTER TABLE hand_list DROP COLUMN vs_seats; ALTER TABLE hand_list DROP COLUMN vs_positions; ALTER TABLE hand_list DROP COLUMN buy_in_cents; ALTER TABLE hand_list DROP COLUMN bounty; ALTER TABLE hand_list DROP COLUMN tour_level; 
+     ALTER TABLE hand_list DROP COLUMN hero_acts;
+     DROP TABLE tournament_settings; DROP INDEX hand_stats_tournament_idx;
      DROP TABLE chart_decisions; DROP TABLE analysis_leak_rows; DROP TABLE decision_analysis; DROP TABLE hand_analysis; DROP TABLE chart_sets;
      DROP TABLE hud_layouts; DROP TABLE hud_layout_assignments;
      DROP TABLE player_rollups_observed;

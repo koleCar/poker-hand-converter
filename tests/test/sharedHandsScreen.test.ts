@@ -21,8 +21,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
-import { PANES, QUICK_FILTERS, clearAll, clearGroup, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
-import { EMPTY_FILTER, activeGroups, fromSaved, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
+import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
+import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
 import type { HandFacets, HandRow } from "@rail/ui/hands/model";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
@@ -162,7 +162,8 @@ describe("the filter: the web's searches and order", () => {
     expect(query.winnerPositions).toEqual(["BTN", "CO"]);
     expect(query.anonymizations).toEqual(["positional"]);
     expect(activeGroups(filter)).toBe(5);
-    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    // The winners' positions are no longer a filter (2026-11-05): a saved one reads back without them.
+    expect(fromSaved(toSaved(filter))).toEqual({ ...filter, winnerPositions: [] });
     // A pot that is not a positive number is no filter.
     for (const minPot of ["", "abc", "0", "-3"]) {
       expect(toQuery({ ...EMPTY_FILTER, minPot }, NOW)).not.toHaveProperty("minPot");
@@ -182,16 +183,17 @@ describe("the groups each source gets", () => {
     }
   });
 
-  it("the web's: the order first, the searches, showdown and the other filters; no tags or notes", () => {
+  it("the web's: the searches, showdown and the other filters; no order, no winners' positions, no tags or notes", () => {
     const groups = handGroups({
       annotations: false,
       search: true,
       sorts: ["oldest", "pot"],
       more: ["tableName", "minPot", "showdownPositions", "winnerPositions", "anonymization"],
     });
-    expect(groups[0]).toBe("sort");
-    expect(groups[1]).toBe("date");
-    expect(groups.slice(-9)).toEqual([
+    // The order is the list's column headers, not a group (2026-11-05).
+    expect(groups[0]).toBe("date");
+    expect(groups).not.toContain("sort");
+    expect(groups.slice(-8)).toEqual([
       "heroHand",
       "board",
       "playerName",
@@ -199,7 +201,6 @@ describe("the groups each source gets", () => {
       "tableName",
       "minPot",
       "showdownPositions",
-      "winnerPositions",
       "anonymization",
     ]);
     expect(groups).not.toContain("tags");
@@ -213,7 +214,8 @@ describe("the groups each source gets", () => {
   });
 
   it("Reports keeps its own groups, and of the quick filters only the date's", () => {
-    expect(REPORT_GROUPS).toEqual(["date", "site", "stakes", "position", "format", "variant", "limit", "size"]);
+    // No Game group: Cash | Tournaments is the switch over the screen (2026-11-05).
+    expect(REPORT_GROUPS).toEqual(["date", "site", "stakes", "position", "variant", "limit", "size"]);
     expect(quickFor(REPORT_GROUPS).map((quick) => quick.id)).toEqual(["week"]);
   });
 
@@ -264,11 +266,9 @@ describe("the quick filters and the set groups", () => {
     expect(clearAll(cash, both)).toEqual({ ...EMPTY_FILTER, formats: ["cash"] });
     // Tournaments is every chip format the hands have: only Spin here.
     expect(shownSet(HAND_GROUPS, { ...EMPTY_FILTER, formats: ["spin"] }, both)).toEqual([]);
-    // Narrowed within a kind, the Game group is a chip again.
+    // The Game group is gone (2026-11-05): a narrower kind is no chip either.
     const narrowed = { ...EMPTY_FILTER, formats: ["sng"] };
-    expect(shownSet(HAND_GROUPS, narrowed, { ...both, formats: [...both.formats, { value: "sng", count: 1 }] })).toEqual([
-      "format",
-    ]);
+    expect(shownSet(HAND_GROUPS, narrowed, { ...both, formats: [...both.formats, { value: "sng", count: 1 }] })).toEqual([]);
     expect(clearAll({ ...cash, sort: "pot" }, null)).toEqual({ ...EMPTY_FILTER, formats: ["cash"], sort: "pot" });
   });
 
@@ -392,6 +392,17 @@ describe("the web's source", () => {
 });
 
 describe("the list, rendered", () => {
+  const listProps = (rows: HandRow[]) => ({
+    rows,
+    hasMore: true,
+    loadingMore: false,
+    total: 2,
+    selected: rows[0]?.handKey ?? null,
+    onSelect: () => undefined,
+    onOpen: () => undefined,
+    onLoadMore: () => undefined,
+    orderLabel: "Newest first",
+  });
   const list = (rows: HandRow[]) =>
     createElement(HandList, {
       rows,
@@ -405,19 +416,23 @@ describe("the list, rendered", () => {
       orderLabel: "Newest first",
     });
 
-  it("a desktop row: result in money and big blinds, the all-in EV, showdown, a note, a tag", () => {
+  it("a desktop row: one result in the unit asked for, the all-in EV as its tooltip, the pot, a note, the tags", () => {
     const html = render("en", list([APP_ROW]));
     expect(html).toContain('aria-label="Hands, newest first"');
     expect(html).toContain("PokerStars");
     expect(html).toContain("#1001");
     expect(html).toContain("$0.50/$1<");
     expect(html).toContain("+$12.50");
-    expect(html).toContain("+12.5");
+    expect(html).not.toContain("+12.5 bb");
     expect(html).toContain("EV +8.0");
-    expect(html).toContain("Showdown");
+    expect(html).toContain(" bb<");
     expect(html).toContain('aria-label="Has a note"');
-    expect(html).toContain(">review<");
+    expect(html).toContain('title="review"');
+    expect(html).toMatch(/>#(<!-- -->)?1</);
     expect(html).toContain('aria-selected="true"');
+    const inBb = render("en", createElement(HandList, { ...listProps([APP_ROW]), unit: "bb" }));
+    expect(inBb).toContain("+12.5 bb");
+    expect(inBb).not.toContain("+$12.50");
   });
 
   it("a web row: no big blinds yet, the positional-names mark", () => {
@@ -430,7 +445,7 @@ describe("the list, rendered", () => {
   });
 
   it("in Croatian: the column names and the numbers' grouping", () => {
-    const html = render("hr", list([{ ...APP_ROW, heroNetBbMilli: 1234500 }]));
+    const html = render("hr", createElement(HandList, { ...listProps([{ ...APP_ROW, heroNetBbMilli: 1234500 }]), unit: "bb" }));
     expect(html).toContain("Rezultat");
     expect(html).toContain("Oznake");
     expect(html).toContain("+1.234,5");
@@ -469,7 +484,8 @@ describe("the filter row, rendered", () => {
         sorts: ["pot"],
       }),
     );
-    expect(html).toContain("Order: Biggest pots first");
+    // The order is the list's column headers now, not the row's.
+    expect(html).not.toContain("Order:");
     expect(html).toContain("Position: BTN. Change");
     expect(html).toContain("Hero hand: AKs. Change");
     expect(html).toContain("Remove the position filter");
@@ -552,8 +568,8 @@ describe("the filter row, rendered", () => {
       expect(html).toContain(`${words.table}: Zeta. ${words.change}`);
       expect(html).toContain(`${words.pot}: ≥ 25. ${words.change}`);
       expect(html).toContain(`${words.sd}: BB. ${words.change}`);
-      // In table order, whatever order they were picked in.
-      expect(html).toContain(`${words.win}: CO, BTN. ${words.change}`);
+      // The winners' positions are no longer a filter (2026-11-05).
+      expect(html).not.toContain(words.win);
       expect(html).toContain(`${words.names}: ${words.seats}. ${words.change}`);
     });
   }
@@ -571,9 +587,12 @@ describe("the filter row, rendered", () => {
     for (const word of ["Showdown positions", "Winning positions", "Names", "Hero hand", "Went to showdown"]) {
       expect(html).not.toContain(word);
     }
-    for (const word of ["3-bet pots", "All-in", "With a note", "Last 7 days"]) {
+    for (const word of ["3-bet pots", "With a note", "Last 7 days"]) {
       expect(html).toContain(word);
     }
+    // Fewer quick filters (2026-11-05): no all-in, no limped pots.
+    expect(html).not.toContain("All-in");
+    expect(html).not.toContain("Limped pots");
   });
 
   it("the desktop's row in Croatian, with saved filters", () => {
@@ -612,5 +631,100 @@ describe("the filter row, rendered", () => {
     expect(html).toContain("Stakes: $1/$2. Change");
     expect(html).toContain("Last 7 days");
     expect(html).not.toContain("3-bet pots");
+  });
+});
+
+describe("the filter builder's groups (V1, 2026-11-05)", () => {
+  it("reads typed ranges of big blinds", () => {
+    expect(parseRange("80-120")).toEqual({ min: 80, max: 120 });
+    expect(parseRange("120 – 80")).toEqual({ min: 80, max: 120 });
+    expect(parseRange("-200 to -50")).toEqual({ min: -200, max: -50 });
+    expect(parseRange("40+")).toEqual({ min: 40, max: null });
+    expect(parseRange("<30")).toEqual({ min: null, max: 30 });
+    expect(parseRange("2,5")).toEqual({ min: 2.5, max: null });
+    expect(parseRange("abc")).toEqual({ min: null, max: null });
+  });
+
+  it("asks the store for what is set, nothing else", () => {
+    const filter: FilterState = {
+      ...EMPTY_FILTER,
+      preflopDid: ["threeBet", "fourBet"],
+      flopLine: ["cbetFlop"],
+      flopSuits: ["monotone"],
+      players: ["2"],
+      weekdays: ["6", "7"],
+      lastHands: ["100", "1000"],
+      heroStack: "80-120",
+      netRange: "<-20",
+      evLoss: "2",
+      grades: ["blunder"],
+      knownCards: true,
+    };
+    const query = toQuery(filter, NOW);
+    expect(query.acts).toEqual([["threeBet", "fourBet"], ["cbetFlop"]]);
+    expect(query.flopSuits).toEqual(["monotone"]);
+    expect(query.players).toEqual(["2"]);
+    expect(query.weekdays).toEqual([6, 7]);
+    expect(query.utcOffsetMinutes).toBe(-NOW.getTimezoneOffset());
+    expect(query.lastHands).toBe(1000);
+    expect([query.heroStackMin, query.heroStackMax]).toEqual([80, 120]);
+    expect([query.netMin, query.netMax]).toEqual([undefined, -20]);
+    expect(query.evLossMin).toBe(2);
+    expect(query.grades).toEqual(["blunder"]);
+    expect(query.knownCards).toBe(true);
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    expect(activeGroups(filter)).toBe(11);
+    const plain = toQuery(EMPTY_FILTER, NOW);
+    for (const key of ["acts", "flopSuits", "weekdays", "utcOffsetMinutes", "lastHands", "heroStackMin", "knownCards"]) {
+      expect(plain).not.toHaveProperty(key);
+    }
+  });
+
+  it("asks for the PHF facts (sizes, strength, villains, tournament) as the store names them", () => {
+    const filter: FilterState = {
+      ...EMPTY_FILTER,
+      openSize: "2-3",
+      riverSize: ["overbet"],
+      flopMade: ["topPair", "overpair"],
+      kicker: ["top"],
+      turnDraws: ["flushDraw"],
+      vsPosition: ["BB"],
+      positionFlop: ["ip"],
+      playersFlop: ["2"],
+      vsType: ["fish"],
+      vsVpip: "40+",
+      buyIn: "5-20",
+      bounty: true,
+      levels: ["1-5"],
+    };
+    const query = toQuery(filter, NOW);
+    expect([query.openMin, query.openMax]).toEqual([2, 3]);
+    expect(query.riverSizes).toEqual(["overbet"]);
+    expect(query.flopMade).toEqual(["topPair", "overpair"]);
+    expect(query.kickers).toEqual(["top"]);
+    expect(query.turnDraws).toEqual(["flushDraw"]);
+    expect(query.vsPositions).toEqual(["BB"]);
+    expect(query.positionFlop).toEqual(["ip"]);
+    expect(query.playersFlop).toEqual(["2"]);
+    expect(query.vsTypes).toEqual(["fish"]);
+    expect([query.vsVpipMin, query.vsVpipMax]).toEqual([40, undefined]);
+    expect([query.buyInMin, query.buyInMax]).toEqual([5, 20]);
+    expect(query.bounty).toBe(true);
+    expect(query.levels).toEqual(["1-5"]);
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    expect(activeGroups(filter)).toBe(13);
+    const plain = toQuery(EMPTY_FILTER, NOW);
+    for (const key of ["openMin", "flopSizes", "flopMade", "kickers", "vsTypes", "vsVpipMin", "buyInMin", "bounty", "levels"]) {
+      expect(plain).not.toHaveProperty(key);
+    }
+  });
+
+  it("only a source that reads them gets them, each in one pane", () => {
+    const desktop = handGroups({ annotations: true, search: true, sorts: [], more: [], builder: true });
+    for (const group of BUILDER_GROUPS) expect(desktop).toContain(group);
+    const web = handGroups({ annotations: false, search: true, sorts: [], more: [] });
+    for (const group of BUILDER_GROUPS) expect(web).not.toContain(group);
+    const inPanes = PANES.flatMap((section) => section.panes.flatMap((pane) => pane.groups));
+    for (const group of desktop) expect(inPanes.filter((g) => g === group).length, group).toBe(1);
   });
 });

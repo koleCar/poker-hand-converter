@@ -43,6 +43,49 @@ export interface HandFilter {
   heroCards?: string[];
   heroHandClasses?: string[];
   board?: string[];
+  /** Ranks on the board whatever their suits ("K75"): all of them. */
+  boardRanks?: string[];
+  /** The filter builder's groups (V1, 2026-11-05; the desktop store's). */
+  acts?: string[][];
+  flopSuits?: string[];
+  flopPairing?: string[];
+  flopHigh?: string[];
+  flopConnect?: string[];
+  players?: string[];
+  conditions?: string[];
+  weekdays?: number[];
+  dayParts?: string[];
+  utcOffsetMinutes?: number;
+  lastHands?: number;
+  heroStackMin?: number;
+  heroStackMax?: number;
+  netMin?: number;
+  netMax?: number;
+  grades?: string[];
+  evLossMin?: number;
+  knownCards?: boolean | null;
+  /** The builder's PHF facts (schema 19; the desktop store's). */
+  openMin?: number;
+  openMax?: number;
+  flopSizes?: string[];
+  turnSizes?: string[];
+  riverSizes?: string[];
+  flopMade?: string[];
+  turnMade?: string[];
+  riverMade?: string[];
+  kickers?: string[];
+  flopDraws?: string[];
+  turnDraws?: string[];
+  vsPositions?: string[];
+  positionFlop?: string[];
+  playersFlop?: string[];
+  vsTypes?: string[];
+  vsVpipMin?: number;
+  vsVpipMax?: number;
+  buyInMin?: number;
+  buyInMax?: number;
+  bounty?: boolean | null;
+  levels?: string[];
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
@@ -62,8 +105,21 @@ export interface HandFilter {
   sort?: HandSort;
 }
 
-/** The list's orders. `newest` is the only one every source has. */
-export type HandSort = "newest" | "oldest" | "pot" | "won" | "lost";
+/**
+ * The list's orders, one per column direction (the column headers sort since
+ * 2026-11-05). `newest` is the only one every source has.
+ */
+export type HandSort =
+  | "newest"
+  | "oldest"
+  | "pot"
+  | "potAsc"
+  | "won"
+  | "lost"
+  | "stakes"
+  | "stakesAsc"
+  | "position"
+  | "positionDesc";
 
 /** Filters a source may offer beyond the common groups (the web library's). */
 export type MoreFilter = "tableName" | "minPot" | "showdownPositions" | "winnerPositions" | "anonymization";
@@ -185,8 +241,17 @@ export interface SavedFiltersSource {
 }
 
 /** What the screen asks a surface for. */
+/** One session of the hero's, for the date's session picker. */
+export interface HandSession {
+  startedAt: string;
+  endedAt: string;
+  hands: number;
+}
+
 export interface HandsSource {
   page(filter: HandFilter, after: HandCursor | null, limit: number): Promise<HandPage>;
+  /** The latest sessions of one kind of game (the date's session picker), where the source knows them. */
+  sessions?: (kind: "cash" | "tournament" | null) => Promise<HandSession[]>;
   facets(filter: HandFilter): Promise<HandFacets>;
   /**
    * Tells the screen the hands changed (an import, a sync, another tab);
@@ -206,6 +271,8 @@ export interface HandsFeatures {
   search: boolean;
   /** The orders it can list in, besides newest first. */
   sorts: HandSort[];
+  /** The filter builder's groups (V1): the hero's actions, the texture, ... (the desktop store). */
+  builder?: boolean;
   /**
    * The other filters it has; the screen hides the rest. The position lists,
    * the table and the minimum pot narrow the counts and have none of their

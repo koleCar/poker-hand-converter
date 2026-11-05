@@ -127,6 +127,8 @@ pub struct ListFacts {
     /// `game.unit.code` (`USD`, `CHIPS`): the reports' money refusals
     /// (R2.7b; the web's `hand_stats.currency`).
     pub currency: String,
+    /// The filter builder's facts (schema 19, [`crate::facts`]).
+    pub extras: crate::facts::HandExtras,
 }
 
 /// One kept seat, with everything the writer stores of it computed here, on
@@ -165,25 +167,31 @@ impl PreparedStats {
             showdown: hand.results.went_to_showdown,
             currency_symbol: hand.game.unit.symbol.clone(),
             currency: hand.game.unit.code.clone(),
+            extras: crate::facts::HandExtras::default(),
+        };
+        let rows: Vec<PreparedSeat> = stored
+            .rows
+            .into_iter()
+            .map(|row| {
+                let values = SeatValues::of(&row);
+                PreparedSeat {
+                    scope: rail_stats::rollup_scope(anonymization, &row),
+                    totals: encode_seat(&values),
+                    hole_cards: row.seat.hole_cards.join(" "),
+                    values,
+                    row,
+                }
+            })
+            .collect();
+        let list = ListFacts {
+            extras: crate::facts::derive(hand, &rows),
+            ..list
         };
         Self {
             anonymization,
             list,
             segment: stored.segment,
-            rows: stored
-                .rows
-                .into_iter()
-                .map(|row| {
-                    let values = SeatValues::of(&row);
-                    PreparedSeat {
-                        scope: rail_stats::rollup_scope(anonymization, &row),
-                        totals: encode_seat(&values),
-                        hole_cards: row.seat.hole_cards.join(" "),
-                        values,
-                        row,
-                    }
-                })
-                .collect(),
+            rows,
             ev,
         }
     }

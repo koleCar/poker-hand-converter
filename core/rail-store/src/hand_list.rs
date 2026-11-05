@@ -25,11 +25,13 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+use rail_stats::Counter;
 use rusqlite::types::Value;
 use rusqlite::{Connection, OptionalExtension, Row, params, params_from_iter};
 
 use crate::error::{Error, Result};
 use crate::read::Reader;
+pub use crate::stats::Acts;
 
 /// The most rows one page returns.
 pub const PAGE_MAX: u32 = 500;
@@ -62,7 +64,7 @@ pub struct PlayerRef {
 
 /// What the list shows: every group is "any" when empty, and a hand must
 /// match every group that is not.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct HandFilter {
     /// Site ids (`segments.site`: `hand_key`'s prefix, `pokerstars`).
     pub sites: Vec<String>,
@@ -98,7 +100,407 @@ pub struct HandFilter {
     pub to: Option<String>,
     /// Only hands this opponent was dealt into (R2.7c).
     pub player: Option<PlayerRef>,
+    /// The hero's starting-hand classes (`AA`, `AKs`, `AKo`): any of them.
+    pub hero_classes: Vec<String>,
+    /// Cards the hero held (`Ah`, `Kd`): all of them.
+    pub hero_cards: Vec<String>,
+    /// Cards on the board, any street (`Kd`, `7c`): all of them.
+    pub board: Vec<String>,
+    /// Ranks on the board whatever their suits (`K`, `7`, `5`; a rank twice
+    /// for a pair): all of them (2026-11-05, the owner's "K75").
+    pub board_ranks: Vec<String>,
+    /// A player dealt into the hand, by exact screen name, in any room.
+    pub player_name: Option<String>,
+    /// Only hands that went to showdown (`true`), or only the others.
+    pub showdown: Option<bool>,
+    /// The order: [`SORTS`]; `None` (or an unknown one) is the newest first.
+    pub sort: Option<String>,
+    /// The builder's groups of the hero's actions ([`ACTS`] names): a hand
+    /// matches a group with any of its actions, and every group.
+    pub acts: Vec<Vec<String>>,
+    /// The flop's suits: `rainbow`, `twoTone`, `monotone` (any of them).
+    pub flop_suits: Vec<String>,
+    /// The flop's pairing: `unpaired`, `paired`, `trips`.
+    pub flop_pairing: Vec<String>,
+    /// The flop's highest rank: `A`, `K`, `Q`, `J`, `T`, or `low` (9 or lower).
+    pub flop_high: Vec<String>,
+    /// Whether three cards to a straight are on the flop: `straight`, `noStraight`.
+    pub flop_connect: Vec<String>,
+    /// Players dealt in: `2` ... `6`, `7plus`.
+    pub players: Vec<String>,
+    /// Game conditions, all of them: `straddle`, `ante`, `runItTwice`.
+    pub conditions: Vec<String>,
+    /// Days of the week, 1 Monday ... 7 Sunday, in the reader's time.
+    pub weekdays: Vec<u8>,
+    /// Parts of the day in the reader's time: `night` 0-6, `morning` 6-12,
+    /// `afternoon` 12-18, `evening` 18-24.
+    pub day_parts: Vec<String>,
+    /// The reader's offset from UTC, minutes (for the days and the hours).
+    pub utc_offset_minutes: i32,
+    /// Only the latest this many hands (of every hand in the store).
+    pub last_hands: Option<u32>,
+    /// The hero's starting stack, big blinds: from, to (inclusive).
+    pub hero_stack_min: Option<f64>,
+    pub hero_stack_max: Option<f64>,
+    /// The hero's result, big blinds: from, to (inclusive).
+    pub net_min: Option<f64>,
+    pub net_max: Option<f64>,
+    /// The analysis: `blunder`, `mistake`, `inaccurate` (a decision so
+    /// graded), `clean` (analysed, nothing worse than good), `notAnalysed`.
+    pub grades: Vec<String>,
+    /// EV the analysis says was lost, at least, big blinds.
+    pub ev_loss_min: Option<f64>,
+    /// A villain's cards were seen (`true`), or none were.
+    pub known_cards: Option<bool>,
+    /// The open's size raised to, big blinds: from, to.
+    pub open_min: Option<f64>,
+    pub open_max: Option<f64>,
+    /// The hero's first bet or raise on the flop, turn, river as a share of
+    /// the pot: `small` (up to 33 %), `medium` (34-75), `large` (76-125),
+    /// `overbet` (more).
+    pub bet_sizes: [Vec<String>; 3],
+    /// What the hero made on the flop, turn, river ([`crate::facts::MADE`]).
+    pub made: [Vec<String>; 3],
+    /// A top pair's kicker on any street: `top`, `good`, `weak`.
+    pub kickers: Vec<String>,
+    /// What the hero drew to on the flop, turn ([`crate::facts::DRAWS`]).
+    pub draws: [Vec<String>; 2],
+    /// Opponents in the pot at these positions (any of them).
+    pub vs_positions: Vec<String>,
+    /// The hero in position on the flop (`ip`), or out of it (`oop`).
+    pub position_flop: Vec<String>,
+    /// Players who saw the flop: `2`, `3`, `4plus`.
+    pub players_flop: Vec<String>,
+    /// An opponent in the pot of this type (`fish`, `reg`, `unknown`) by
+    /// their numbers over every hand (`player_rollups`).
+    pub vs_types: Vec<String>,
+    /// An opponent in the pot whose VPIP is within, percent.
+    pub vs_vpip_min: Option<f64>,
+    pub vs_vpip_max: Option<f64>,
+    /// A tournament's buy-in, in its currency: from, to.
+    pub buy_in_min: Option<f64>,
+    pub buy_in_max: Option<f64>,
+    /// A bounty tournament (`true`), or not.
+    pub bounty: Option<bool>,
+    /// Blind levels: `1-5`, `6-10`, `11-15`, `16plus`.
+    pub levels: Vec<String>,
 }
+
+/// The hero's actions on the list row (`hand_list.hero_acts`, version 18),
+/// bit `i` for the `i`-th, by the counters that set it.
+pub const ACTS: &[(&str, Acts)] = &[
+    ("open", Acts::Any(&[Counter::rfi])),
+    ("limp", Acts::Any(&[Counter::limp])),
+    ("iso", Acts::Any(&[Counter::iso])),
+    ("callOpen", Acts::Any(&[Counter::cold_call])),
+    ("threeBet", Acts::Any(&[Counter::three_bet])),
+    ("callThreeBet", Acts::Any(&[Counter::call_three_bet])),
+    (
+        "fourBet",
+        Acts::Any(&[Counter::four_bet, Counter::five_bet]),
+    ),
+    ("squeeze", Acts::Any(&[Counter::squeeze])),
+    ("steal", Acts::Any(&[Counter::steal])),
+    ("foldToThreeBet", Acts::Any(&[Counter::fold_to_three_bet])),
+    ("facedUnopened", Acts::Any(&[Counter::rfi_opp])),
+    ("facedLimp", Acts::Any(&[Counter::iso_opp])),
+    (
+        "facedOpen",
+        Acts::Any(&[Counter::three_bet_opp, Counter::cold_call_opp]),
+    ),
+    (
+        "facedThreeBet",
+        Acts::Any(&[Counter::fold_to_three_bet_opp]),
+    ),
+    ("facedFourBet", Acts::Any(&[Counter::fold_to_four_bet_opp])),
+    ("aggressor", Acts::Any(&[Counter::pfr])),
+    ("caller", Acts::Caller),
+    ("sawFlop", Acts::Any(&[Counter::flop_seen])),
+    ("sawTurn", Acts::Any(&[Counter::turn_seen])),
+    ("sawRiver", Acts::Any(&[Counter::river_seen])),
+    ("cbetFlop", Acts::Any(&[Counter::cbet_flop])),
+    ("checkRaiseFlop", Acts::Any(&[Counter::check_raise_flop])),
+    ("donkFlop", Acts::Any(&[Counter::donk_flop])),
+    (
+        "facingCbetFlop",
+        Acts::Any(&[Counter::fold_to_cbet_flop_opp]),
+    ),
+    ("raiseCbetFlop", Acts::Any(&[Counter::raise_cbet_flop])),
+    ("cbetTurn", Acts::Any(&[Counter::cbet_turn])),
+    (
+        "facingCbetTurn",
+        Acts::Any(&[Counter::fold_to_cbet_turn_opp]),
+    ),
+    ("checkRaiseTurn", Acts::Any(&[Counter::check_raise_turn])),
+    ("donkTurn", Acts::Any(&[Counter::donk_turn])),
+    ("cbetRiver", Acts::Any(&[Counter::cbet_river])),
+    (
+        "facingCbetRiver",
+        Acts::Any(&[Counter::fold_to_cbet_river_opp]),
+    ),
+    ("checkRaiseRiver", Acts::Any(&[Counter::check_raise_river])),
+    ("donkRiver", Acts::Any(&[Counter::donk_river])),
+];
+
+/// The bit of an action's name in `hero_acts`, if it is one.
+pub fn act_bit(name: &str) -> Option<i64> {
+    ACTS.iter()
+        .position(|(id, _)| *id == name)
+        .map(|i| 1i64 << i)
+}
+
+/// The builder's clauses over the PHF facts (schema 19, [`crate::facts`]).
+fn facts_clauses(filter: &HandFilter, w: &mut Where) {
+    let ranged = |w: &mut Where, column: &str, min: Option<f64>, max: Option<f64>, scale: i64| {
+        if let Some(min) = min.filter(|v| v.is_finite()) {
+            w.push(format!("{column} >= {min} * {scale}"));
+        }
+        if let Some(max) = max.filter(|v| v.is_finite()) {
+            w.push(format!("{column} <= {max} * {scale}"));
+        }
+    };
+    ranged(w, "l.open_tenths", filter.open_min, filter.open_max, 10);
+    for (column, buckets) in ["l.flop_bet_pct", "l.turn_bet_pct", "l.river_bet_pct"]
+        .iter()
+        .zip(&filter.bet_sizes)
+    {
+        let parts: Vec<String> = buckets
+            .iter()
+            .filter_map(|bucket| match bucket.as_str() {
+                "small" => Some(format!("{column} <= 33")),
+                "medium" => Some(format!("{column} BETWEEN 34 AND 75")),
+                "large" => Some(format!("{column} BETWEEN 76 AND 125")),
+                "overbet" => Some(format!("{column} > 125")),
+                _ => None,
+            })
+            .collect();
+        if !parts.is_empty() {
+            w.push(format!(
+                "({column} IS NOT NULL AND ({}))",
+                parts.join(" OR ")
+            ));
+        }
+    }
+    let code = |name: &str| crate::facts::MADE.iter().position(|m| *m == name);
+    for (column, made) in ["l.flop_made", "l.turn_made", "l.river_made"]
+        .iter()
+        .zip(&filter.made)
+    {
+        let codes: Vec<String> = made
+            .iter()
+            .filter_map(|name| code(name))
+            .map(|i| i.to_string())
+            .collect();
+        if !codes.is_empty() {
+            w.push(format!("{column} IN ({})", codes.join(", ")));
+        }
+    }
+    let kickers: Vec<&str> = filter
+        .kickers
+        .iter()
+        .filter_map(|k| match k.as_str() {
+            "top" => Some("1"),
+            "good" => Some("2"),
+            "weak" => Some("3"),
+            _ => None,
+        })
+        .collect();
+    if !kickers.is_empty() {
+        let list = kickers.join(", ");
+        w.push(format!(
+            "(l.flop_kicker IN ({list}) OR l.turn_kicker IN ({list}) OR l.river_kicker IN ({list}))"
+        ));
+    }
+    let bit = |name: &str| {
+        crate::facts::DRAWS
+            .iter()
+            .position(|d| *d == name)
+            .map(|i| 1i64 << i)
+    };
+    for (column, draws) in ["l.flop_draws", "l.turn_draws"].iter().zip(&filter.draws) {
+        let mask = draws
+            .iter()
+            .filter_map(|name| bit(name))
+            .fold(0i64, |mask, b| mask | b);
+        if mask != 0 {
+            w.push(format!("({column} & {mask}) <> 0"));
+        }
+    }
+    if !filter.vs_positions.is_empty() {
+        let parts: Vec<String> = filter
+            .vs_positions
+            .iter()
+            .map(|position| {
+                let p = w.text(&format!(" {} ", position.trim()));
+                format!("instr(l.vs_positions, {p}) > 0")
+            })
+            .collect();
+        w.push(format!("({})", parts.join(" OR ")));
+    }
+    let sides: Vec<&str> = filter
+        .position_flop
+        .iter()
+        .filter_map(|side| match side.as_str() {
+            "ip" => Some("l.hero_ip = 1"),
+            "oop" => Some("l.hero_ip = 0"),
+            _ => None,
+        })
+        .collect();
+    if !sides.is_empty() {
+        w.push(format!("({})", sides.join(" OR ")));
+    }
+    let flop: Vec<&str> = filter
+        .players_flop
+        .iter()
+        .filter_map(|n| match n.as_str() {
+            "2" => Some("l.players_flop = 2"),
+            "3" => Some("l.players_flop = 3"),
+            "4plus" => Some("l.players_flop >= 4"),
+            _ => None,
+        })
+        .collect();
+    if !flop.is_empty() {
+        w.push(format!("({})", flop.join(" OR ")));
+    }
+    // An opponent in the pot (a named one: `player_hands`) by their numbers.
+    let vpip = "(SELECT sum(r.vpip) * 100.0 / max(sum(r.vpip_opp), 1) FROM player_rollups r
+                 WHERE r.site = g.site AND r.player = ph.player AND r.scope = '')";
+    let pfr = "(SELECT sum(r.pfr) * 100.0 / max(sum(r.pfr_opp), 1) FROM player_rollups r
+                WHERE r.site = g.site AND r.player = ph.player AND r.scope = '')";
+    let hands = "(SELECT coalesce(sum(r.hands), 0) FROM player_rollups r
+                  WHERE r.site = g.site AND r.player = ph.player AND r.scope = '')";
+    let mut conditions: Vec<String> = Vec::new();
+    let types: Vec<String> = filter
+        .vs_types
+        .iter()
+        .filter_map(|kind| match kind.as_str() {
+            "fish" => Some(format!("({hands} >= 30 AND {vpip} >= 40)")),
+            "reg" => Some(format!(
+                "({hands} >= 30 AND {vpip} BETWEEN 15 AND 30 AND {pfr} >= {vpip} * 0.6)"
+            )),
+            "unknown" => Some(format!("{hands} < 30")),
+            _ => None,
+        })
+        .collect();
+    if !types.is_empty() {
+        conditions.push(format!("({})", types.join(" OR ")));
+    }
+    if let Some(min) = filter.vs_vpip_min.filter(|v| v.is_finite()) {
+        conditions.push(format!("{vpip} >= {min}"));
+    }
+    if let Some(max) = filter.vs_vpip_max.filter(|v| v.is_finite()) {
+        conditions.push(format!("{vpip} <= {max}"));
+    }
+    if !conditions.is_empty() {
+        w.push(format!(
+            "EXISTS (SELECT 1 FROM hand_stats hs
+               JOIN player_hands ph ON ph.hand_id = hs.id
+               JOIN segments g ON g.id = hs.segment_id
+             WHERE hs.hand_key = l.hand_key AND instr(l.vs_seats, ' ' || ph.seat || ' ') > 0
+               AND {})",
+            conditions.join(" AND ")
+        ));
+    }
+    ranged(
+        w,
+        "l.buy_in_cents",
+        filter.buy_in_min,
+        filter.buy_in_max,
+        100,
+    );
+    if let Some(bounty) = filter.bounty {
+        w.push(format!("l.bounty = {}", i64::from(bounty)));
+    }
+    let levels: Vec<&str> = filter
+        .levels
+        .iter()
+        .filter_map(|level| match level.as_str() {
+            "1-5" => Some("l.tour_level BETWEEN 1 AND 5"),
+            "6-10" => Some("l.tour_level BETWEEN 6 AND 10"),
+            "11-15" => Some("l.tour_level BETWEEN 11 AND 15"),
+            "16plus" => Some("l.tour_level >= 16"),
+            _ => None,
+        })
+        .collect();
+    if !levels.is_empty() {
+        w.push(format!("({})", levels.join(" OR ")));
+    }
+}
+
+/// The flop's three cards (`l.board`'s first 8 characters: `Kd 7c 5h`).
+const FLOP_R: [&str; 3] = [
+    "substr(l.board, 1, 1)",
+    "substr(l.board, 4, 1)",
+    "substr(l.board, 7, 1)",
+];
+const FLOP_S: [&str; 3] = [
+    "substr(l.board, 2, 1)",
+    "substr(l.board, 5, 1)",
+    "substr(l.board, 8, 1)",
+];
+/// A rank's index, 1 for an ace ... 13 for a deuce.
+fn rank_index(rank: &str) -> String {
+    format!("instr('AKQJT98765432', {rank})")
+}
+
+/// The list's orders besides the newest first, each as its `ORDER BY`
+/// (ties by time, newest first). The column headers of the list sort.
+pub const SORTS: &[(&str, &str)] = &[
+    ("oldest", "l.played_at ASC, l.hand_key ASC"),
+    (
+        "pot",
+        "(h.big_blind IS NULL OR h.big_blind = 0), CAST(d.total_pot AS REAL) / h.big_blind DESC",
+    ),
+    (
+        "potAsc",
+        "(h.big_blind IS NULL OR h.big_blind = 0), CAST(d.total_pot AS REAL) / h.big_blind ASC",
+    ),
+    (
+        "won",
+        "(l.hero_net_bb_milli IS NULL), l.hero_net_bb_milli DESC",
+    ),
+    (
+        "lost",
+        "(l.hero_net_bb_milli IS NULL), l.hero_net_bb_milli ASC",
+    ),
+    ("stakes", "h.big_blind DESC"),
+    ("stakesAsc", "h.big_blind ASC"),
+    ("position", POSITION_ORDER),
+    ("positionDesc", POSITION_ORDER_DESC),
+];
+
+/// Seats in the order the action goes preflop, early first; no hero last.
+const POSITION_ORDER: &str = "(l.hero_position IS NULL), CASE l.hero_position \
+     WHEN 'UTG' THEN 1 WHEN 'UTG+1' THEN 2 WHEN 'UTG+2' THEN 3 WHEN 'EP' THEN 3 WHEN 'MP' THEN 4 \
+     WHEN 'MP+1' THEN 5 WHEN 'LJ' THEN 6 WHEN 'HJ' THEN 7 WHEN 'CO' THEN 8 WHEN 'BTN' THEN 9 \
+     WHEN 'SB' THEN 10 WHEN 'BB' THEN 11 ELSE 12 END ASC";
+const POSITION_ORDER_DESC: &str = "(l.hero_position IS NULL), CASE l.hero_position \
+     WHEN 'UTG' THEN 1 WHEN 'UTG+1' THEN 2 WHEN 'UTG+2' THEN 3 WHEN 'EP' THEN 3 WHEN 'MP' THEN 4 \
+     WHEN 'MP+1' THEN 5 WHEN 'LJ' THEN 6 WHEN 'HJ' THEN 7 WHEN 'CO' THEN 8 WHEN 'BTN' THEN 9 \
+     WHEN 'SB' THEN 10 WHEN 'BB' THEN 11 ELSE 0 END DESC";
+
+/// The order's `ORDER BY`, `None` for the newest first.
+fn order_of(sort: Option<&str>) -> Option<&'static str> {
+    let sort = sort?;
+    SORTS
+        .iter()
+        .find(|(id, _)| *id == sort)
+        .map(|(_, sql)| *sql)
+}
+
+/// The hero's two cards (`Ah Kd`) as their class (`AKo`), in SQL; `NULL`
+/// for any other number of cards (Omaha) or no cards.
+const HERO_CLASS_SQL: &str = "CASE WHEN length(l.hero_cards) <> 5 THEN NULL \
+     WHEN substr(l.hero_cards, 1, 1) = substr(l.hero_cards, 4, 1) \
+       THEN substr(l.hero_cards, 1, 1) || substr(l.hero_cards, 4, 1) \
+     WHEN instr('AKQJT98765432', substr(l.hero_cards, 1, 1)) < instr('AKQJT98765432', substr(l.hero_cards, 4, 1)) \
+       THEN substr(l.hero_cards, 1, 1) || substr(l.hero_cards, 4, 1) \
+            || CASE WHEN substr(l.hero_cards, 2, 1) = substr(l.hero_cards, 5, 1) THEN 's' ELSE 'o' END \
+     ELSE substr(l.hero_cards, 4, 1) || substr(l.hero_cards, 1, 1) \
+            || CASE WHEN substr(l.hero_cards, 2, 1) = substr(l.hero_cards, 5, 1) THEN 's' ELSE 'o' END END";
+
+/// The board's ranks without suits or spaces (`Kd 7c 5h` as `K75`).
+const BOARD_RANKS_SQL: &str = "replace(replace(replace(replace(replace(l.board, ' ', ''), 's', ''), 'h', ''), 'd', ''), 'c', '')";
 
 /// Where the next page starts: the last row of the page before.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -106,6 +508,9 @@ pub struct HandCursor {
     /// `''` for a hand without a `played_at`.
     pub played_at: String,
     pub hand_key: String,
+    /// For an order other than the newest first: the rows read so far (the
+    /// next page is an offset into that order).
+    pub offset: Option<u32>,
 }
 
 /// One row of the list.
@@ -158,6 +563,7 @@ impl HandRow {
         HandCursor {
             played_at: self.played_at.clone().unwrap_or_default(),
             hand_key: self.hand_key.clone(),
+            offset: None,
         }
     }
 }
@@ -445,7 +851,253 @@ fn clauses(filter: &HandFilter, segments: &HashMap<i64, SegmentDims>, w: &mut Wh
     if let Some(all_in) = filter.all_in {
         w.push(format!("l.all_in = {}", i64::from(all_in)));
     }
+    search_clauses(filter, w);
     Some(())
+}
+
+/// The searches: the hero's hand (classes or cards), the board (cards or
+/// ranks), a player by name, the showdown.
+fn search_clauses(filter: &HandFilter, w: &mut Where) {
+    if !filter.hero_classes.is_empty() {
+        w.in_text(HERO_CLASS_SQL, &filter.hero_classes);
+    }
+    for card in &filter.hero_cards {
+        let p = w.text(&format!(" {} ", card.trim()));
+        w.push(format!(
+            "instr(' ' || coalesce(l.hero_cards, '') || ' ', {p}) > 0"
+        ));
+    }
+    for card in &filter.board {
+        let p = w.text(&format!(" {} ", card.trim()));
+        w.push(format!("instr(' ' || l.board || ' ', {p}) > 0"));
+    }
+    if !filter.board_ranks.is_empty() {
+        // A rank asked for twice (a paired board) must be there twice.
+        let mut wanted: Vec<(String, usize)> = Vec::new();
+        for rank in &filter.board_ranks {
+            let rank = rank.trim().to_uppercase();
+            if rank.len() != 1 {
+                continue;
+            }
+            match wanted.iter_mut().find(|(r, _)| *r == rank) {
+                Some((_, n)) => *n += 1,
+                None => wanted.push((rank, 1)),
+            }
+        }
+        for (rank, n) in wanted {
+            let p = w.text(&rank);
+            w.push(format!(
+                "length({BOARD_RANKS_SQL}) - length(replace({BOARD_RANKS_SQL}, {p}, '')) >= {n}"
+            ));
+        }
+    }
+    if let Some(name) = filter
+        .player_name
+        .as_deref()
+        .map(str::trim)
+        .filter(|name| !name.is_empty())
+    {
+        let p = w.text(name);
+        w.push(format!(
+            "EXISTS (SELECT 1 FROM player_hands ph CROSS JOIN hand_stats hs ON hs.id = ph.hand_id \
+             WHERE hs.hand_key = l.hand_key AND ph.player = {p})"
+        ));
+    }
+    if let Some(showdown) = filter.showdown {
+        w.push(format!("l.showdown = {}", i64::from(showdown)));
+    }
+    builder_clauses(filter, w);
+}
+
+/// The filter builder's groups (V1, 2026-11-05): the hero's actions, the
+/// flop's texture, the players and conditions, the time, the stacks and
+/// results as ranges, the analysis, the cards seen.
+fn builder_clauses(filter: &HandFilter, w: &mut Where) {
+    for group in &filter.acts {
+        let mask = group
+            .iter()
+            .filter_map(|name| act_bit(name))
+            .fold(0i64, |mask, bit| mask | bit);
+        if mask != 0 {
+            w.push(format!("(l.hero_acts & {mask}) <> 0"));
+        }
+    }
+    let flop = "length(l.board) >= 8";
+    let [r1, r2, r3] = FLOP_R;
+    let [s1, s2, s3] = FLOP_S;
+    let any_of = |w: &mut Where, values: &[String], case: &dyn Fn(&str) -> Option<String>| {
+        let parts: Vec<String> = values.iter().filter_map(|value| case(value)).collect();
+        if !parts.is_empty() {
+            w.push(format!("({flop} AND ({}))", parts.join(" OR ")));
+        }
+    };
+    any_of(w, &filter.flop_suits, &|value| match value {
+        "monotone" => Some(format!("{s1} = {s2} AND {s2} = {s3}")),
+        "twoTone" => Some(format!(
+            "NOT ({s1} = {s2} AND {s2} = {s3}) AND ({s1} = {s2} OR {s2} = {s3} OR {s1} = {s3})"
+        )),
+        "rainbow" => Some(format!("{s1} <> {s2} AND {s2} <> {s3} AND {s1} <> {s3}")),
+        _ => None,
+    });
+    any_of(w, &filter.flop_pairing, &|value| match value {
+        "trips" => Some(format!("{r1} = {r2} AND {r2} = {r3}")),
+        "paired" => Some(format!(
+            "NOT ({r1} = {r2} AND {r2} = {r3}) AND ({r1} = {r2} OR {r2} = {r3} OR {r1} = {r3})"
+        )),
+        "unpaired" => Some(format!("{r1} <> {r2} AND {r2} <> {r3} AND {r1} <> {r3}")),
+        _ => None,
+    });
+    let (i1, i2, i3) = (rank_index(r1), rank_index(r2), rank_index(r3));
+    let high = format!("min({i1}, {i2}, {i3})");
+    any_of(w, &filter.flop_high, &|value| match value {
+        "A" | "K" | "Q" | "J" | "T" => {
+            Some(format!("{high} = {}", rank_index(&format!("'{value}'"))))
+        }
+        "low" => Some(format!("{high} >= 6")),
+        _ => None,
+    });
+    // Three different ranks within five (A also low with 2-5): a straight
+    // is possible with two more cards.
+    let low = |i: &str| format!("(CASE WHEN {i} = 1 THEN 14 ELSE {i} END)");
+    let span = format!("max({i1}, {i2}, {i3}) - min({i1}, {i2}, {i3})");
+    let wheel = format!(
+        "max({}, {}, {}) - min({}, {}, {})",
+        low(&i1),
+        low(&i2),
+        low(&i3),
+        low(&i1),
+        low(&i2),
+        low(&i3)
+    );
+    let distinct = format!("{r1} <> {r2} AND {r2} <> {r3} AND {r1} <> {r3}");
+    let straight = format!("({distinct} AND ({span} <= 4 OR {wheel} <= 4))");
+    any_of(w, &filter.flop_connect, &|value| match value {
+        "straight" => Some(straight.clone()),
+        "noStraight" => Some(format!("NOT {straight}")),
+        _ => None,
+    });
+    let hand =
+        |column: &str| format!("(SELECT {column} FROM hand_stats WHERE hand_key = l.hand_key)");
+    let players: Vec<String> = filter
+        .players
+        .iter()
+        .filter_map(|value| match value.as_str() {
+            "7plus" => Some(format!("{} >= 7", hand("player_count"))),
+            n => n
+                .parse::<u8>()
+                .ok()
+                .map(|n| format!("{} = {n}", hand("player_count"))),
+        })
+        .collect();
+    if !players.is_empty() {
+        w.push(format!("({})", players.join(" OR ")));
+    }
+    for condition in &filter.conditions {
+        match condition.as_str() {
+            "straddle" => w.push(format!("{} = 1", hand("has_straddle"))),
+            "runItTwice" => w.push(format!("{} = 1", hand("is_run_it_twice"))),
+            "ante" => w.push(format!(
+                "({} = 1 OR EXISTS (SELECT 1 FROM hands a WHERE a.hand_key = l.hand_key AND a.ante > 0))",
+                hand("is_big_blind_ante")
+            )),
+            _ => {}
+        }
+    }
+    // The reader's local time of a UTC `played_at`.
+    let local = format!(
+        "datetime(l.played_at, '{:+} minutes')",
+        filter.utc_offset_minutes
+    );
+    let days: Vec<String> = filter
+        .weekdays
+        .iter()
+        .filter(|day| (1..=7).contains(*day))
+        .map(|day| format!("'{}'", day % 7))
+        .collect();
+    if !days.is_empty() {
+        w.push(format!(
+            "(l.played_at <> '' AND strftime('%w', {local}) IN ({}))",
+            days.join(", ")
+        ));
+    }
+    let parts: Vec<String> = filter
+        .day_parts
+        .iter()
+        .filter_map(|part| {
+            let (from, to) = match part.as_str() {
+                "night" => (0, 6),
+                "morning" => (6, 12),
+                "afternoon" => (12, 18),
+                "evening" => (18, 24),
+                _ => return None,
+            };
+            Some(format!(
+                "CAST(strftime('%H', {local}) AS INTEGER) BETWEEN {from} AND {}",
+                to - 1
+            ))
+        })
+        .collect();
+    if !parts.is_empty() {
+        w.push(format!("(l.played_at <> '' AND ({}))", parts.join(" OR ")));
+    }
+    if let Some(n) = filter.last_hands.filter(|n| *n > 0) {
+        w.push(format!(
+            "l.played_at >= coalesce((SELECT played_at FROM hand_list ORDER BY played_at DESC, hand_key DESC LIMIT 1 OFFSET {}), '')",
+            n - 1
+        ));
+    }
+    // Big blinds as typed, scaled in SQL (tenths, thousandths of a big blind).
+    if let Some(min) = filter.hero_stack_min.filter(|v| v.is_finite()) {
+        w.push(format!("l.hero_stack_bb_tenths >= {min} * 10"));
+    }
+    if let Some(max) = filter.hero_stack_max.filter(|v| v.is_finite()) {
+        w.push(format!("l.hero_stack_bb_tenths <= {max} * 10"));
+    }
+    if let Some(min) = filter.net_min.filter(|v| v.is_finite()) {
+        w.push(format!("l.hero_net_bb_milli >= {min} * 1000"));
+    }
+    if let Some(max) = filter.net_max.filter(|v| v.is_finite()) {
+        w.push(format!("l.hero_net_bb_milli <= {max} * 1000"));
+    }
+
+    let graded = |rank: i64| {
+        format!(
+            "EXISTS (SELECT 1 FROM decision_analysis g WHERE g.hand_key = l.hand_key AND g.grade_rank = {rank})"
+        )
+    };
+    let analysed = "EXISTS (SELECT 1 FROM hand_analysis a WHERE a.hand_key = l.hand_key AND a.status <> 'not-analysed')";
+    let grades: Vec<String> = filter
+        .grades
+        .iter()
+        .filter_map(|grade| match grade.as_str() {
+            "blunder" => Some(graded(5)),
+            "mistake" => Some(graded(4)),
+            "inaccurate" => Some(graded(3)),
+            "clean" => Some(format!(
+                "({analysed} AND NOT EXISTS (SELECT 1 FROM decision_analysis g WHERE g.hand_key = l.hand_key AND g.grade_rank >= 3))"
+            )),
+            "notAnalysed" => Some(format!("NOT {analysed}")),
+            _ => None,
+        })
+        .collect();
+    if !grades.is_empty() {
+        w.push(format!("({})", grades.join(" OR ")));
+    }
+    if let Some(min) = filter.ev_loss_min.filter(|v| v.is_finite()) {
+        w.push(format!(
+            "EXISTS (SELECT 1 FROM hand_analysis a WHERE a.hand_key = l.hand_key AND a.ev_loss_bb >= {min})"
+        ));
+    }
+    facts_clauses(filter, w);
+    if let Some(known) = filter.known_cards {
+        let seen = "EXISTS (SELECT 1 FROM hand_stats d JOIN seat_stats s ON s.hand_id = d.id
+                     WHERE d.hand_key = l.hand_key AND s.is_hero = 0 AND s.hole_cards <> '')";
+        w.push(if known {
+            seen.to_owned()
+        } else {
+            format!("NOT {seen}")
+        });
+    }
 }
 
 /// The columns of a [`HandRow`], `l` being `hand_list`.
@@ -619,7 +1271,15 @@ impl Reader {
                     next: None,
                 });
             }
-            if let Some(after) = after {
+            // The newest first pages by the last row (a hand that arrives
+            // does not move the pages after it); another order by an offset.
+            let order = order_of(filter.sort.as_deref());
+            let skip = if order.is_some() {
+                after.and_then(|after| after.offset).unwrap_or(0)
+            } else {
+                0
+            };
+            if let (None, Some(after)) = (order, after) {
                 let played_at = w.text(&after.played_at);
                 let hand_key = w.text(&after.hand_key);
                 w.push(format!(
@@ -628,13 +1288,17 @@ impl Reader {
             }
             // One more than the page: whether there is a next page.
             let n = w.param(Value::Integer(i64::from(limit) + 1));
+            let by = order.map_or_else(
+                || "l.played_at DESC, l.hand_key DESC".to_owned(),
+                |sql| format!("{sql}, l.played_at DESC, l.hand_key DESC"),
+            );
             let sql = format!(
                 "SELECT {ROW_COLUMNS}
                  {from}
                  {ROW_JOINS}
                  WHERE {}
-                 ORDER BY l.played_at DESC, l.hand_key DESC
-                 LIMIT {n}",
+                 ORDER BY {by}
+                 LIMIT {n} OFFSET {skip}",
                 w.sql()
             );
             let mut stmt = conn.prepare_cached(&sql)?;
@@ -644,7 +1308,10 @@ impl Reader {
             let more = rows.len() > usize::try_from(limit).unwrap_or(usize::MAX);
             rows.truncate(usize::try_from(limit).unwrap_or(usize::MAX));
             let next = if more {
-                rows.last().map(HandRow::cursor)
+                rows.last().map(|row| HandCursor {
+                    offset: order.map(|_| skip + limit),
+                    ..row.cursor()
+                })
             } else {
                 None
             };
@@ -660,6 +1327,8 @@ impl Reader {
             let mut w = Where::default();
             let from = source(filter, &mut w);
             base_clauses(filter, &mut w);
+            // The searches narrow every count (they have none of their own).
+            search_clauses(filter, &mut w);
             // Summed here rather than by a `GROUP BY` over expressions:
             // measured at 500k hands, SQLite's grouping (a sort) took four
             // times the scan.

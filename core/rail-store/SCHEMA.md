@@ -596,6 +596,7 @@ primary key read backwards, and a page after a cursor is a seek.
 | `kind` | INTEGER | (version 8) the hand's `hero_rollups` kind: bomb pot 1, straddled 2, EV cashout 4 - the reports apply `aggregate`'s exclusions from it |
 | `hero_wtsd` | INTEGER | (version 8) 0 / 1: the hero's `wtsd` counter, the graph's showdown / non-showdown split (`showdown` is the hand's) |
 | `currency`, `minor_units` | TEXT, INTEGER | (version 8) `game.unit.code` and `currency_minor_units`: the reports' money refusals (chips with cash, two currencies) and their sums' unit |
+| `hero_acts` | INTEGER | (version 18) the hero's actions as bits (`hand_list::ACTS`, from the hero seat's counters: opened, 3-bet, faced a 3-bet, saw the turn, c-bet the flop, faced a c-bet, ...): the filter builder's preflop action and line filters, one `&` in SQL. Migration 18 fills it in Rust from the seat rows (`stats::fill_hero_acts`) in its transaction; every list row writes it from then on (the import, a pull, a recompute's `recompute_list`) |
 
 `tests/common` checks, after every write in the store's tests and after every
 kill in the crash test, that the list rows are exactly the `hand_stats` rows

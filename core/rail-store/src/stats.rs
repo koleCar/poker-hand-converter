@@ -655,8 +655,58 @@ pub(crate) const INSERT_SEAT_SQL: &str =
 pub(crate) const INSERT_LIST_SQL: &str = "INSERT INTO hand_list (played_at, hand_key, site_hand_id,
         segment_id, hero_position, hero_cards, hero_net, hero_net_bb_milli, hero_stack_bb_tenths,
         board, all_in, showdown, pot_type, currency_symbol, kind, hero_wtsd, currency,
-        minor_units)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)";
+        minor_units, hero_acts, open_tenths, flop_bet_pct, turn_bet_pct, river_bet_pct, flop_made, turn_made, river_made, flop_kicker, turn_kicker, river_kicker, flop_draws, turn_draws, players_flop, hero_ip, vs_seats, vs_positions, buy_in_cents, bounty, tour_level)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38)";
+
+/// The hero's actions as `hand_list.hero_acts`: bit `i` of
+/// [`crate::hand_list::ACTS`] is set when its counter (or one of them) is.
+pub fn hero_acts(counters: &[u32; COUNTER_COUNT]) -> i64 {
+    let on = |counter: Counter| counters[counter.index()] > 0;
+    let mut bits = 0i64;
+    for (i, (_, acts)) in crate::hand_list::ACTS.iter().enumerate() {
+        let set = match *acts {
+            Acts::Any(list) => list.iter().any(|&counter| on(counter)),
+            Acts::Caller => on(Counter::vpip) && !on(Counter::pfr),
+        };
+        if set {
+            bits |= 1 << i;
+        }
+    }
+    bits
+}
+
+/// What sets one bit of `hero_acts`.
+#[derive(Debug, Clone, Copy)]
+pub enum Acts {
+    /// Any of these counters.
+    Any(&'static [Counter]),
+    /// Put money in preflop without raising.
+    Caller,
+}
+
+/// Version 18's fill: every list row's `hero_acts` from its hero's seat row.
+pub(crate) fn fill_hero_acts(conn: &Connection) -> Result<()> {
+    // By the list's key (played_at, hand_key): an update by the hand alone
+    // would scan the list for every hand.
+    let mut read = conn.prepare(
+        "SELECT l.played_at, l.hand_key, s.totals FROM hand_list l
+         JOIN hand_stats d ON d.hand_key = l.hand_key
+         JOIN seat_stats s ON s.hand_id = d.id AND s.is_hero = 1",
+    )?;
+    let mut write =
+        conn.prepare("UPDATE hand_list SET hero_acts = ?3 WHERE played_at = ?1 AND hand_key = ?2")?;
+    let mut rows = read.query([])?;
+    while let Some(row) = rows.next()? {
+        let played_at: String = row.get(0)?;
+        let hand_key: String = row.get(1)?;
+        let values = decode_seat(&row.get::<_, Vec<u8>>(2)?)?;
+        let acts = hero_acts(&values.counters);
+        if acts != 0 {
+            write.execute(params![played_at, hand_key, acts])?;
+        }
+    }
+    Ok(())
+}
 
 pub(crate) const UPSERT_EV_SQL: &str =
     "INSERT INTO ev_rows (hand_key, seat, ev_version, ev_net, ev_net_bb_milli)
@@ -1052,6 +1102,26 @@ impl Pending {
             hero.is_some_and(|seat| seat.values.counters[Counter::wtsd.index()] > 0),
             stats.list.currency,
             hand.currency_minor_units,
+            hero.map_or(0, |seat| hero_acts(&seat.values.counters)),
+            stats.list.extras.open_tenths,
+            stats.list.extras.bet_pct[0],
+            stats.list.extras.bet_pct[1],
+            stats.list.extras.bet_pct[2],
+            stats.list.extras.made[0],
+            stats.list.extras.made[1],
+            stats.list.extras.made[2],
+            stats.list.extras.kicker[0],
+            stats.list.extras.kicker[1],
+            stats.list.extras.kicker[2],
+            stats.list.extras.draws[0],
+            stats.list.extras.draws[1],
+            stats.list.extras.players_flop,
+            stats.list.extras.hero_ip,
+            stats.list.extras.vs_seats,
+            stats.list.extras.vs_positions,
+            stats.list.extras.buy_in_cents,
+            stats.list.extras.bounty,
+            stats.list.extras.level,
         ])?;
         // The Players list's lines (R2.7c): the hero's result in this hand.
         let sum = HandSum {

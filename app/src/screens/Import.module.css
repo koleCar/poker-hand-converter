@@ -1,0 +1,162 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: var(--space-6);
+}
+
+/* The pickers and the drop target, one dashed box. */
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-6);
+  border: 1.5px dashed var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  text-align: center;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.over {
+  border-color: var(--accent-bg);
+  background: color-mix(in srgb, var(--accent-bg) 8%, var(--surface-raised));
+}
+
+.dropIcon {
+  width: 28px;
+  height: 28px;
+  color: var(--text-tertiary);
+}
+
+.over .dropIcon {
+  color: var(--accent-bg);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.dropText {
+  color: var(--text-secondary);
+}
+
+.hint {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.error {
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+/* While it runs: files read, the bar, the counts. */
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.number {
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--accent-bg);
+  transition: width 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .drop {
+    transition: none;
+  }
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.positive {
+  color: var(--success-fg);
+}
+
+.negative {
+  color: var(--danger-fg);
+}
+
+/* The last import, under the pickers. */
+.result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.resultLabel {
+  font-weight: var(--font-weight-semibold);
+}
+
+.links {
+  display: flex;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.link {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.errors {
+  flex-basis: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}

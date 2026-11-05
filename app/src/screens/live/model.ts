@@ -87,3 +87,75 @@ export function pageList(current: number, total: number): (number | null)[] {
   });
   return out;
 }
+
+/**
+ * How far a value sits from the middle of its target range, in half the
+ * range's width: 0 in the middle, 1 at either end, 3 well outside. A range
+ * open on one side counts every value on that side as in the middle, and
+ * takes a quarter of its one end as the half-width beyond it.
+ */
+export function rangeScore(value: number, range: TargetRange): number {
+  const { low, high } = range;
+  if (low !== null && high !== null) {
+    const half = (high - low) / 2;
+    return half > 0 ? Math.abs(value - (low + high) / 2) / half : 0;
+  }
+  const edge = (low ?? high) as number;
+  const half = Math.max(1, Math.abs(edge) * 0.25);
+  if (low === null) return value <= edge ? 0 : 1 + (value - edge) / half;
+  return value >= edge ? 0 : 1 + (edge - value) / half;
+}
+
+/**
+ * The colour of a value `score` half-widths from the middle of its range
+ * (the owner's brief, 2026-11-05): the profit colour in the middle, a little
+ * warmer at the range's ends, through the warning colour to the loss colour
+ * three half-widths out. Tokens only, mixed by the browser, so both themes
+ * get their own shades.
+ */
+export function rangeColour(score: number): string {
+  const s = Math.max(0, Math.min(3, score));
+  const pct = (value: number) => `${Math.round(value)}%`;
+  if (s <= 1) return `color-mix(in oklab, var(--profit-fg) ${pct(100 - 30 * s)}, var(--warning-fg))`;
+  if (s <= 1.6) return `color-mix(in oklab, var(--profit-fg) ${pct((70 * (1.6 - s)) / 0.6)}, var(--warning-fg))`;
+  return `color-mix(in oklab, var(--warning-fg) ${pct(100 - ((s - 1.6) / 1.4) * 100)}, var(--loss-fg))`;
+}
+
+/** Where a tile's strip draws the target band and the value, in percent of its width. */
+export interface RangeBar {
+  bandLeft: number;
+  bandRight: number;
+  mark: number;
+}
+
+/**
+ * The strip under a statistic: its target band in a window two band-widths
+ * wider on each side, and the value's mark in it (kept just inside the ends).
+ */
+export function rangeBar(value: number, range: TargetRange): RangeBar {
+  const { low, high } = range;
+  const half = low !== null && high !== null ? (high - low) / 2 : Math.max(1, Math.abs((low ?? high) as number) * 0.25);
+  const from = (low ?? (high as number) - 2 * half) - 2 * half;
+  const to = (high ?? (low as number) + 2 * half) + 2 * half;
+  const at = (x: number) => Math.max(2, Math.min(98, ((x - from) / (to - from)) * 100));
+  return {
+    bandLeft: low === null ? 0 : at(low),
+    bandRight: high === null ? 0 : 100 - at(high),
+    mark: at(value),
+  };
+}
+
+/** A win rate's strip: zero in the middle, ±40 per 100 hands at the ends. */
+export function winRateBar(value: number): RangeBar {
+  return { bandLeft: 50, bandRight: 0, mark: Math.max(2, Math.min(98, 50 + (Math.max(-40, Math.min(40, value)) / 40) * 48)) };
+}
+
+/**
+ * The session's result per 100 hands in its money (the toolbar's "$/100"
+ * when the graph is in money). The big-blind rate is the `bb_per_100`
+ * definition's; money has none, so this one is the session's own result
+ * over its hands. `null` without hands.
+ */
+export function perHundred(amount: number, hands: number): number | null {
+  return hands > 0 ? (amount / hands) * 100 : null;
+}

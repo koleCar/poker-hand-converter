@@ -268,13 +268,11 @@ export interface GraphSeriesStrings {
 
 /**
  * The win-rate graph (`stats/WinrateGraph.tsx`): the web's `stats.graph`,
- * with the three `stats.common` words it reads.
+ * with the two `stats.common` words it reads.
  */
 export interface WinrateGraphStrings {
   /** "1,234 hands". */
   hands: (count: number) => string;
-  /** The table view's first column. */
-  handsHead: string;
   /** An amount already formatted, in big blinds: "+12.5 bb". */
   bb: (amount: string) => string;
   series: {
@@ -293,9 +291,20 @@ export interface WinrateGraphStrings {
   noAllInsHint: string;
   notComputedHint: string;
   mixedCurrency: string;
-  showNumbers: string;
-  from: string;
-  to: string;
+  zoom: {
+    /** The zoom buttons' group. */
+    label: string;
+    in: string;
+    out: string;
+    /** Back to every hand. */
+    reset: string;
+    /** How to zoom with a pointer. */
+    hint: string;
+    /** "Hands 120–480 of 1,200", the numbers already formatted. */
+    range: (from: string, to: string, total: string) => string;
+    /** The overview strip under a zoomed graph. */
+    navigator: string;
+  };
 }
 
 /**

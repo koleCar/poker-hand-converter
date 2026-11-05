@@ -1,8 +1,11 @@
 /**
- * The Live screen's statistics: one tile each, its short label (`VPIP`,
- * `3B`, the definition's `label`) over its value. Hovering or focusing a
- * tile shows its full name and, for a percentage, the target range (the
- * definition's "normal" band) and where the value sits against it.
+ * The Live screen's statistics (the owner's variant C, 2026-11-05): one tile
+ * each, its short label (`VPIP`, `3B`, the definition's `label`) over its
+ * value, the value coloured by how far it sits from the middle of its target
+ * range (the definition's "normal" band) - green in the middle, through amber
+ * to red well outside - and a strip under it with the band and the value's
+ * mark. A win rate has no target: its colour is its sign. Hovering or
+ * focusing a tile shows its full name, the target and where the value sits.
  *
  * The tooltip is placed after it renders, against the window: under the
  * tile when it fits, else above, and slid sideways to stay inside, so it is
@@ -16,7 +19,7 @@ import { useLocale, useT } from "../../i18n";
 import { formatLocale } from "../../i18n/format";
 import type { Session } from "../../lib/ipc";
 import { useStatDefinitions } from "../../lib/useStatDefinitions";
-import { LIVE_STATS, placeOf, targetRange, type TargetRange } from "./model";
+import { LIVE_STATS, placeOf, rangeBar, rangeColour, rangeScore, targetRange, winRateBar, type RangeBar, type TargetRange } from "./model";
 import styles from "./Live.module.css";
 
 /** Room kept between the tooltip and the window's edge, and the tile. */
@@ -29,6 +32,9 @@ interface Tile {
   name: string;
   value: string;
   target: string | null;
+  /** The value's colour (a CSS colour), null when it has none. */
+  colour: string | null;
+  bar: RangeBar | null;
 }
 
 function rangeText(range: TargetRange, mark: string): string {
@@ -55,20 +61,29 @@ export function LiveStats({ session }: { session: Session }) {
     if (!definition || !shown) continue;
     const range = targetRange(definition);
     const place = placeOf(shown.tone);
+    const value = shown.value;
+    let colour: string | null = null;
+    let bar: RangeBar | null = null;
+    if (value !== null && range) {
+      colour = rangeColour(rangeScore(value, range));
+      bar = rangeBar(value, range);
+    } else if (value !== null && definition.format.unit === "bb_per_100") {
+      colour = value > 0 ? "var(--profit-fg)" : value < 0 ? "var(--loss-fg)" : null;
+      bar = winRateBar(value);
+    }
     tiles.push({
       id,
       label: definition.label[locale],
       name: definition.name[locale],
       value: shownText(shown, definition.format.unit, mark),
       target: range ? `${d.target(rangeText(range, mark))}${place ? ` · ${d[place]}` : ""}` : null,
+      colour,
+      bar,
     });
   }
 
   return (
-    <section className={styles.section} aria-labelledby="live-stats">
-      <h2 id="live-stats" className={styles.heading}>
-        {d.heading}
-      </h2>
+    <section className={styles.section} aria-label={d.label}>
       <ul className={styles.stats}>
         {tiles.map((tile) => (
           <li key={tile.id}>
@@ -134,7 +149,18 @@ function StatTile({ tile }: { tile: Tile }) {
         }}
       >
         <span className={styles.statLabel}>{tile.label}</span>
-        <span className={styles.statValue}>{tile.value}</span>
+        <span className={styles.statValue} style={tile.colour ? { color: tile.colour } : undefined}>
+          {tile.value}
+        </span>
+        {tile.bar ? (
+          <span className={styles.rangeBar} aria-hidden="true">
+            <span className={styles.rangeBand} style={{ left: `${tile.bar.bandLeft}%`, right: `${tile.bar.bandRight}%` }} />
+            <span
+              className={styles.rangeMark}
+              style={{ left: `${tile.bar.mark}%`, background: tile.colour ?? "var(--text-secondary)" }}
+            />
+          </span>
+        ) : null}
       </button>
       {open ? (
         <div ref={tip} id={tipId} role="tooltip" className={styles.tip} style={place}>

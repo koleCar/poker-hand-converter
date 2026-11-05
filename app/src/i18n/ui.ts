@@ -41,7 +41,6 @@ function uiStrings(
       ...stats.graph,
       notEnough: dict.reports.graph.notEnough,
       hands: stats.hands,
-      handsHead: stats.handsHead,
       bb: stats.bb,
     },
     hands: dict.hands,

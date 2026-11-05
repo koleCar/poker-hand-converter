@@ -9,7 +9,8 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 
 import { useUiStrings } from "../i18n";
-import { DATE_PRESETS, type DatePreset, type FilterState } from "./filter";
+import { DATE_PRESETS, isInstant, type DatePreset, type FilterState } from "./filter";
+import { kindOf } from "./gameKind";
 import {
   FLAG_GROUPS,
   LIST_GROUPS,
@@ -23,7 +24,8 @@ import {
   type GroupOption,
 } from "./groups";
 import styles from "./FilterBar.module.css";
-import type { HandFacets } from "./model";
+import type { HandFacets, HandSession } from "./model";
+import { useHandSessions } from "./sessions";
 
 export interface GroupEditorProps {
   group: GroupId;
@@ -72,7 +74,16 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
         />
       );
   } else if (flag) {
-    const pairs = group === "allIn" ? t.allIn : group === "notes" ? t.notes : t.showdownValues;
+    const pairs =
+      group === "allIn"
+        ? t.allIn
+        : group === "notes"
+          ? t.notes
+          : group === "knownCards"
+            ? t.builder.knownCardsValues
+            : group === "bounty"
+              ? t.builder.bountyValues
+              : t.showdownValues;
     const value = filter[flag];
     body = (
       <Pills
@@ -103,7 +114,8 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
             onChange({ ...filter, date: chosen === "any" ? null : (chosen as DatePreset) });
           }}
         />
-        {filter.date === "custom" ? (
+        <SessionPicker filter={filter} onChange={onChange} />
+        {filter.date === "custom" && !isInstant(filter.dateFrom) ? (
           <div className={styles.range}>
             <label>
               {t.dates.from}
@@ -123,6 +135,12 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
       playerName: { label: t.search.player, hint: t.search.playerHint },
       tableName: { label: t.search.tableName, hint: t.search.tableNameHint },
       minPot: { label: t.search.minPot, hint: t.search.minPotHint, numeric: true },
+      heroStack: { label: t.builder.heroStack, hint: t.builder.rangeHint },
+      netRange: { label: t.builder.netRange, hint: t.builder.netRangeHint },
+      evLoss: { label: t.builder.evLoss, hint: t.builder.evLossHint, numeric: true },
+      openSize: { label: t.builder.openSize, hint: t.builder.rangeHint },
+      vsVpip: { label: t.builder.vsVpip, hint: t.builder.vsVpipHint },
+      buyIn: { label: t.builder.buyIn, hint: t.builder.buyInHint },
     };
     const field = hints[text];
     body = (
@@ -161,6 +179,64 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
 }
 
 /** Toggle pills: any number on (none on is "any"), or exactly one with `single`. */
+/**
+ * One of the hero's latest sessions as the date: its first hand to its last,
+ * exact instants (the kind of game the filter has, or both).
+ */
+function SessionPicker({ filter, onChange }: { filter: FilterState; onChange: (next: FilterState) => void }) {
+  const strings = useUiStrings();
+  const t = strings.hands.filters.builder;
+  const load = useHandSessions();
+  const kind = kindOf(filter.formats);
+  const [sessions, setSessions] = useState<HandSession[] | null>(null);
+  useEffect(() => {
+    if (load === null) return;
+    let live = true;
+    load(kind).then(
+      (found) => {
+        if (live) setSessions(found);
+      },
+      () => {
+        if (live) setSessions([]);
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [load, kind]);
+  if (load === null || sessions === null || sessions.length === 0) return null;
+  const chosen =
+    filter.date === "custom"
+      ? sessions.find((session) => session.startedAt === filter.dateFrom && session.endedAt === filter.dateTo)
+      : undefined;
+  const when = new Intl.DateTimeFormat(strings.intlLocale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return (
+    <div className={styles.range}>
+      <label>
+        {t.session}
+        <select
+          value={chosen ? chosen.startedAt : ""}
+          onChange={(event) => {
+            const session = sessions.find((candidate) => candidate.startedAt === event.target.value);
+            onChange(
+              session
+                ? { ...filter, date: "custom", dateFrom: session.startedAt, dateTo: session.endedAt }
+                : { ...filter, date: null, dateFrom: "", dateTo: "" },
+            );
+          }}
+        >
+          <option value="">{t.sessionAny}</option>
+          {sessions.map((session) => (
+            <option key={session.startedAt} value={session.startedAt}>
+              {t.sessionLabel(when.format(new Date(session.startedAt)), strings.hands.count(session.hands))}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 export function Pills({
   label,
   options,

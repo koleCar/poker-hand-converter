@@ -278,12 +278,6 @@
   stroke-width: 1.5;
 }
 
-.tableInterval {
-  display: block;
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-}
-
 .multiples {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));

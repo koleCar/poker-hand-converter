@@ -12,7 +12,8 @@
 //!   cumulative result in big blinds and in money, split into showdown and
 //!   non-showdown by the hero's `wtsd`, and the all-in EV line (`ev_rows`;
 //!   hands still queued for the background pass count at their result and
-//!   are counted). `aggregate`'s defaults: bomb pots out, an EV cashout's
+//!   are counted). `aggregate`'s defaults: bomb pots out (in when the
+//!   filter's `bomb_pots` says so, as the app's graphs do), an EV cashout's
 //!   money out.
 //! - **Units** ([`Units`]): the web's money refusals - a sample that mixes
 //!   chips with cash has no money and no big blinds; one in two currencies
@@ -92,6 +93,11 @@ pub struct ReportFilter {
     pub from: Option<String>,
     /// Before this instant, exclusive.
     pub to: Option<String>,
+    /// The graph counts bomb pots (the web's `includeBombPots`): a results
+    /// graph is what happened to the money, and a bomb pot's money moved.
+    /// The statistics never count them (`aggregate`'s default), whatever
+    /// this says.
+    pub bomb_pots: bool,
 }
 
 impl ReportFilter {
@@ -475,7 +481,11 @@ fn graph_pass(conn: &Connection, filter: &ReportFilter, points: u32) -> Result<G
         let mut last_currency: Option<(String, i64)> = None;
         while let Some(row) = rows.next()? {
             let kind: i64 = row.get(5)?;
-            let (counted, money) = Exclusions::default().admits(kind);
+            let (counted, money) = Exclusions {
+                bomb_pots: filter.bomb_pots,
+                ..Exclusions::default()
+            }
+            .admits(kind);
             if !counted {
                 continue;
             }

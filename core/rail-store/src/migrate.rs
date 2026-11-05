@@ -101,6 +101,14 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0017_tournament_settings.sql",
         sql: include_str!("../migrations/0017_tournament_settings.sql"),
     },
+    Migration {
+        name: "0018_list_hero_acts.sql",
+        sql: include_str!("../migrations/0018_list_hero_acts.sql"),
+    },
+    Migration {
+        name: "0019_list_builder_facts.sql",
+        sql: include_str!("../migrations/0019_list_builder_facts.sql"),
+    },
 ];
 
 /// What a migration fills in Rust after its SQL, in its transaction (SQL
@@ -108,6 +116,7 @@ pub const MIGRATIONS: &[Migration] = &[
 fn after_sql(version: u32, conn: &Connection) -> Result<()> {
     match version {
         14 => crate::stats::fill_observed(conn),
+        18 => crate::stats::fill_hero_acts(conn),
         _ => Ok(()),
     }
 }

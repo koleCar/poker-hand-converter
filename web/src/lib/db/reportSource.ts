@@ -184,7 +184,11 @@ export function webReportSource(standardFormat: string): ReportSource {
     async report(filter, points): Promise<Report> {
       const [open, graph] = await Promise.all([
         rpc<Row>("report_open", { p_filter: wire(filter) }),
-        rpc<Row>("report_graph", { p_filter: wire(filter), p_points: Math.min(points, WEB_GRAPH_POINTS) }),
+        // The graph is the money, bomb pots included (the app's rule); the statistics leave them out.
+        rpc<Row>("report_graph", {
+          p_filter: { ...wire(filter), includeBombPots: true },
+          p_points: Math.min(points, WEB_GRAPH_POINTS),
+        }),
       ]);
       const units = unitsOf(open);
       const minorUnits = units.mixedCurrency || units.mixedKind ? null : units.minorUnits;

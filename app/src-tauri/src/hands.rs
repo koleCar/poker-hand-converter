@@ -88,6 +88,55 @@ pub struct FilterDto {
     to: Option<String>,
     /// Hands this opponent was dealt into (R2.7c).
     player: Option<PlayerRefDto>,
+    /// The searches (`hand_list::HandFilter`'s).
+    hero_hand_classes: Vec<String>,
+    hero_cards: Vec<String>,
+    board: Vec<String>,
+    board_ranks: Vec<String>,
+    player_name: Option<String>,
+    showdown: Option<bool>,
+    /// The order (`hand_list::SORTS`); absent, the newest first.
+    sort: Option<String>,
+    /// The filter builder's groups (`hand_list::HandFilter`'s, V1).
+    acts: Vec<Vec<String>>,
+    flop_suits: Vec<String>,
+    flop_pairing: Vec<String>,
+    flop_high: Vec<String>,
+    flop_connect: Vec<String>,
+    players: Vec<String>,
+    conditions: Vec<String>,
+    weekdays: Vec<u8>,
+    day_parts: Vec<String>,
+    utc_offset_minutes: i32,
+    last_hands: Option<u32>,
+    hero_stack_min: Option<f64>,
+    hero_stack_max: Option<f64>,
+    net_min: Option<f64>,
+    net_max: Option<f64>,
+    grades: Vec<String>,
+    ev_loss_min: Option<f64>,
+    known_cards: Option<bool>,
+    open_min: Option<f64>,
+    open_max: Option<f64>,
+    flop_sizes: Vec<String>,
+    turn_sizes: Vec<String>,
+    river_sizes: Vec<String>,
+    flop_made: Vec<String>,
+    turn_made: Vec<String>,
+    river_made: Vec<String>,
+    kickers: Vec<String>,
+    flop_draws: Vec<String>,
+    turn_draws: Vec<String>,
+    vs_positions: Vec<String>,
+    position_flop: Vec<String>,
+    players_flop: Vec<String>,
+    vs_types: Vec<String>,
+    vs_vpip_min: Option<f64>,
+    vs_vpip_max: Option<f64>,
+    buy_in_min: Option<f64>,
+    buy_in_max: Option<f64>,
+    bounty: Option<bool>,
+    levels: Vec<String>,
 }
 
 /// `PlayerRef`: an opponent's room (site key) and name.
@@ -123,6 +172,47 @@ impl From<FilterDto> for HandFilter {
                     site: player.site,
                     player: player.player,
                 }),
+            hero_classes: dto.hero_hand_classes,
+            hero_cards: dto.hero_cards,
+            board: dto.board,
+            board_ranks: dto.board_ranks,
+            player_name: dto.player_name.filter(|name| !name.trim().is_empty()),
+            showdown: dto.showdown,
+            sort: dto.sort.filter(|sort| sort != "newest"),
+            acts: dto.acts,
+            flop_suits: dto.flop_suits,
+            flop_pairing: dto.flop_pairing,
+            flop_high: dto.flop_high,
+            flop_connect: dto.flop_connect,
+            players: dto.players,
+            conditions: dto.conditions,
+            weekdays: dto.weekdays,
+            day_parts: dto.day_parts,
+            utc_offset_minutes: dto.utc_offset_minutes,
+            last_hands: dto.last_hands,
+            hero_stack_min: dto.hero_stack_min,
+            hero_stack_max: dto.hero_stack_max,
+            net_min: dto.net_min,
+            net_max: dto.net_max,
+            grades: dto.grades,
+            ev_loss_min: dto.ev_loss_min,
+            known_cards: dto.known_cards,
+            open_min: dto.open_min,
+            open_max: dto.open_max,
+            bet_sizes: [dto.flop_sizes, dto.turn_sizes, dto.river_sizes],
+            made: [dto.flop_made, dto.turn_made, dto.river_made],
+            kickers: dto.kickers,
+            draws: [dto.flop_draws, dto.turn_draws],
+            vs_positions: dto.vs_positions,
+            position_flop: dto.position_flop,
+            players_flop: dto.players_flop,
+            vs_types: dto.vs_types,
+            vs_vpip_min: dto.vs_vpip_min,
+            vs_vpip_max: dto.vs_vpip_max,
+            buy_in_min: dto.buy_in_min,
+            buy_in_max: dto.buy_in_max,
+            bounty: dto.bounty,
+            levels: dto.levels,
         }
     }
 }
@@ -142,6 +232,9 @@ impl From<FilterDto> for rail_store::ReportFilter {
             positions: dto.positions,
             from: dto.from.filter(|from| !from.is_empty()),
             to: dto.to.filter(|to| !to.is_empty()),
+            // The app's graphs (Live, Reports) are the money: a bomb pot's
+            // result is drawn with the rest. The statistics leave it out.
+            bomb_pots: true,
         }
     }
 }
@@ -152,6 +245,9 @@ impl From<FilterDto> for rail_store::ReportFilter {
 pub struct CursorDto {
     played_at: String,
     hand_key: String,
+    /// Another order than the newest first: the rows read so far.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    offset: Option<u32>,
 }
 
 impl From<HandCursor> for CursorDto {
@@ -159,6 +255,7 @@ impl From<HandCursor> for CursorDto {
         Self {
             played_at: cursor.played_at,
             hand_key: cursor.hand_key,
+            offset: cursor.offset,
         }
     }
 }
@@ -351,6 +448,7 @@ pub async fn hands_page(
     let after = after.map(|cursor| HandCursor {
         played_at: cursor.played_at,
         hand_key: cursor.hand_key,
+        offset: cursor.offset,
     });
     let page = open(&store)?
         .reader()

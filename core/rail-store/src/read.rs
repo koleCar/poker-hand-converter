@@ -376,13 +376,13 @@ impl Reader {
             let mut stmt = conn.prepare_cached(&format!(
                 "SELECT q.id, f.path, q.read_offset, q.chunk_index, q.fingerprint, q.stage,
                         q.reason, q.message, q.detected_site, q.parser_version, q.first_seen,
-                        q.last_seen
+                        q.last_seen, substr(q.raw_text, 1, ?3)
                  FROM quarantine q JOIN files f ON f.id = q.file_id
                  WHERE {filter}
                  ORDER BY q.last_seen DESC, q.id DESC
                  LIMIT ?1"
             ))?;
-            let rows = stmt.query_map(params![limit, source_id], quarantine_row)?;
+            let rows = stmt.query_map(params![limit, source_id, HEADER_CHARS], quarantine_row)?;
             Ok(rows.collect::<Result<_, _>>()?)
         })
     }
@@ -400,13 +400,16 @@ impl Reader {
             let mut stmt = conn.prepare_cached(
                 "SELECT q.id, f.path, q.read_offset, q.chunk_index, q.fingerprint, q.stage,
                         q.reason, q.message, q.detected_site, q.parser_version, q.first_seen,
-                        q.last_seen
+                        q.last_seen, substr(q.raw_text, 1, ?4)
                  FROM quarantine q JOIN files f ON f.id = q.file_id
                  WHERE (?2 IS NULL OR f.source_id = ?2) AND (?3 IS NULL OR q.reason = ?3)
                  ORDER BY q.last_seen DESC, q.id DESC
                  LIMIT ?1",
             )?;
-            let rows = stmt.query_map(params![limit, source_id, reason], quarantine_row)?;
+            let rows = stmt.query_map(
+                params![limit, source_id, reason, HEADER_CHARS],
+                quarantine_row,
+            )?;
             Ok(rows.collect::<Result<_, _>>()?)
         })
     }
@@ -549,6 +552,7 @@ fn quarantine_row(row: &Row<'_>) -> rusqlite::Result<QuarantineEntry> {
         parser_version: row.get(9)?,
         first_seen: row.get(10)?,
         last_seen: row.get(11)?,
+        header: row.get(12)?,
     })
 }
 
@@ -672,7 +676,14 @@ pub struct QuarantineEntry {
     pub parser_version: String,
     pub first_seen: i64,
     pub last_seen: i64,
+    /// The first [`HEADER_CHARS`] characters of the raw text: enough for
+    /// the hand's header line (its room, date and time), not the whole hand.
+    pub header: String,
 }
+
+/// How much of a refused hand's raw text the list carries (see
+/// [`QuarantineEntry::header`]).
+pub const HEADER_CHARS: i64 = 400;
 
 /// A hand waiting to be synced.
 #[derive(Debug, Clone, PartialEq, Eq)]

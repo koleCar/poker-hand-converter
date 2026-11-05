@@ -225,8 +225,11 @@ span.chipOpen {
 
 /* --------------------------------------------------------- quick filters */
 
+/* Quick and saved filters, one line that wraps where the window is narrow
+   (variant A, 2026-11-05). */
 .quick {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
@@ -243,9 +246,7 @@ span.chipOpen {
 }
 
 .quick .pills {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-wrap: wrap;
 }
 
 .quick .pill {
@@ -378,6 +379,7 @@ span.chipOpen {
 }
 
 .range input,
+.range select,
 .saveForm input,
 .textField input {
   height: 34px;
@@ -1195,4 +1197,117 @@ button.conditionBody:hover {
     min-height: 44px;
     font-size: 16px;
   }
+}
+
+/* ------------------------------------------------- saved filters (row A) */
+
+.savedRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.savedPill {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  overflow: hidden;
+}
+
+.savedPill:hover {
+  border-color: var(--border-hover);
+}
+
+.savedOn {
+  border-style: solid;
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+}
+
+.savedName {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 100%;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.savedOn .savedName,
+.savedName:hover {
+  color: var(--text-primary);
+}
+
+.savedStar {
+  color: var(--warning-fg);
+}
+
+/* ✎ and ×: shown on the filter in force, and on hover or focus. */
+.savedTool {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.savedTool:last-of-type {
+  margin-inline-end: var(--space-1);
+}
+
+.savedOn .savedTool,
+.savedPill:hover .savedTool,
+.savedPill:focus-within .savedTool {
+  display: inline-flex;
+}
+
+.savedTool:hover {
+  color: var(--text-primary);
+}
+
+.savedAdd {
+  height: 28px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--text-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.savedAdd:hover {
+  text-decoration: underline;
+}
+
+.savedHint {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.savedActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.danger {
+  color: var(--loss-fg);
 }

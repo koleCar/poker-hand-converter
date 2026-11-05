@@ -8,7 +8,7 @@
  */
 import { useSyncExternalStore } from "react";
 
-export const SCREENS = ["live", "hands", "reports", "players", "analysis", "hud", "settings"] as const;
+export const SCREENS = ["live", "hands", "reports", "players", "analysis", "hud", "import", "settings"] as const;
 
 export type Screen = (typeof SCREENS)[number];
 

@@ -21,9 +21,19 @@ import { RailLoader } from "../loader/RailLoader";
 import { useListEnter } from "../loader/useListEnter";
 import { handFormat, signedMoney, stakes, unitOf, type HandFormat } from "./format";
 import styles from "./HandList.module.css";
-import type { HandRow } from "./model";
+import type { HandRow, HandSort } from "./model";
 
 /** Rows rendered above and below the visible ones. */
+/** A sortable column's orders: the first click's, then the other direction's. */
+type SortColumn = "date" | "stakes" | "position" | "pot" | "result";
+const COLUMN_SORTS: Record<SortColumn, readonly [HandSort, HandSort]> = {
+  date: ["newest", "oldest"],
+  stakes: ["stakes", "stakesAsc"],
+  position: ["position", "positionDesc"],
+  pot: ["pot", "potAsc"],
+  result: ["won", "lost"],
+};
+
 const OVERSCAN = 8;
 /** Ask for the next page when the view is this many rows from the end. */
 const PREFETCH_ROWS = 60;
@@ -45,6 +55,12 @@ interface HandListProps {
   onLoadMore: () => void;
   /** The list's order, in words, for its accessible name ("Newest first"). */
   orderLabel: string;
+  /** The order in force, and the ones the source can give: their columns' headers sort. */
+  sort?: HandSort;
+  sorts?: readonly HandSort[];
+  onSort?: (sort: HandSort) => void;
+  /** The results in big blinds or in each hand's money (the screen's switch). */
+  unit?: "bb" | "money";
   /**
    * Changes when the surface changes the row height without resizing the
    * list (the desktop's density setting): the height is read again.
@@ -68,6 +84,10 @@ export function HandList({
   openOnClick = false,
   onLoadMore,
   orderLabel,
+  sort = "newest",
+  sorts = ["newest"],
+  onSort,
+  unit = "money",
   densityKey,
   enterKey,
 }: HandListProps) {
@@ -218,32 +238,22 @@ export function HandList({
       aria-busy={loadingMore}
     >
       <div className={`${styles.row} ${styles.head}`} role="row" aria-rowindex={1}>
-        <span role="columnheader" className={styles.date}>
-          {t.columns.date}
-        </span>
-        <span role="columnheader" className={styles.room}>
-          {t.columns.room}
-        </span>
-        <span role="columnheader" className={styles.stakes}>
-          {t.columns.stakes}
-        </span>
-        <span role="columnheader" className={styles.position}>
-          {t.columns.position}
-        </span>
+        <Header column="date" label={t.columns.date} className={styles.date} sort={sort} sorts={sorts} onSort={onSort} />
+        <Header column="stakes" label={t.columns.stakes} className={styles.stakes} sort={sort} sorts={sorts} onSort={onSort} />
+        <Header column="position" label={t.columns.position} className={styles.position} sort={sort} sorts={sorts} onSort={onSort} />
         <span role="columnheader" className={styles.cards}>
           {t.columns.cards}
         </span>
         <span role="columnheader" className={styles.board}>
           {t.columns.board}
         </span>
-        <span role="columnheader" className={`${styles.num} ${styles.result}`}>
-          {t.columns.result}
-        </span>
-        <span role="columnheader" className={`${styles.num} ${styles.bb}`}>
-          {t.columns.bigBlinds}
-        </span>
+        <Header column="pot" label={t.columns.pot} className={`${styles.num} ${styles.pot}`} sort={sort} sorts={sorts} onSort={onSort} />
+        <Header column="result" label={t.columns.result} className={`${styles.num} ${styles.result}`} sort={sort} sorts={sorts} onSort={onSort} />
         <span role="columnheader" className={styles.marks}>
           {t.columns.marks}
+        </span>
+        <span role="columnheader" className={styles.arrow}>
+          <span className={styles.visuallyHidden}>{t.columns.open}</span>
         </span>
       </div>
       <div
@@ -263,6 +273,7 @@ export function HandList({
               selected={row.handKey === selected}
               tabbable={index === tabbable}
               format={format}
+              unit={unit}
               onSelect={
                 openOnClick
                   ? (handKey: string) => {
@@ -287,6 +298,59 @@ export function HandList({
   );
 }
 
+/**
+ * A column header: a button that sorts by it where the source can (the first
+ * click's order, then the other direction's), plain words where it cannot.
+ */
+function Header({
+  column,
+  label,
+  className,
+  sort,
+  sorts,
+  onSort,
+}: {
+  column: SortColumn;
+  label: string;
+  className: string;
+  sort: HandSort;
+  sorts: readonly HandSort[];
+  onSort: ((sort: HandSort) => void) | undefined;
+}) {
+  const t = useUiStrings().hands;
+  const [first, second] = COLUMN_SORTS[column];
+  const offered = [first, second].filter((value) => sorts.includes(value));
+  const active = sort === first ? "first" : sort === second ? "second" : null;
+  const descending = column === "position" ? active === "second" : active === "first";
+  if (!onSort || offered.length === 0) {
+    return (
+      <span role="columnheader" className={className}>
+        {label}
+      </span>
+    );
+  }
+  const next = active === "first" && sorts.includes(second) ? second : active === "second" && sorts.includes(first) ? first : (offered[0] as HandSort);
+  return (
+    <span
+      role="columnheader"
+      className={className}
+      aria-sort={active === null ? "none" : descending ? "descending" : "ascending"}
+    >
+      <button
+        type="button"
+        className={active === null ? styles.sort : `${styles.sort} ${styles.sorted}`}
+        title={active === null ? t.sortable(label) : t.sortBy(label, descending ? t.descending : t.ascending)}
+        onClick={() => onSort(next)}
+      >
+        {label}
+        <span className={styles.sortMark} aria-hidden="true">
+          {active === null ? "↕" : descending ? "↓" : "↑"}
+        </span>
+      </button>
+    </span>
+  );
+}
+
 interface RowProps {
   row: HandRow;
   index: number;
@@ -295,21 +359,26 @@ interface RowProps {
   selected: boolean;
   tabbable: boolean;
   format: HandFormat;
+  unit: "bb" | "money";
   onSelect: (handKey: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>, index: number, row: HandRow) => void;
 }
 
-function Row({ row, index, top, selected, tabbable, format, onSelect, onKeyDown }: RowProps) {
+function Row({ row, index, top, selected, tabbable, format, unit, onSelect, onKeyDown }: RowProps) {
   const t = useUiStrings().hands;
-  const unit = unitOf(row);
+  const money = unitOf(row);
   const date = format.playedAt(row.playedAt);
   const blinds = stakes(row);
-  const result = row.heroNet === null ? t.noHero : signedMoney(unit, row.heroNet);
-  const tone =
-    row.heroNet === null || row.heroNet === 0 ? styles.even : row.heroNet > 0 ? styles.won : styles.lost;
-  let allIn: string | null = null;
+  const inMoney = unit === "money" && row.heroNet !== null;
+  const value = inMoney ? row.heroNet : row.heroNetBbMilli;
+  const result =
+    value === null ? t.noHero : inMoney ? signedMoney(money, value) : `${format.bigBlinds(value)} bb`;
+  const tone = value === null || value === 0 ? styles.even : value > 0 ? styles.won : styles.lost;
+  const pot = row.bigBlind > 0 ? `${format.pot(row.totalPot / row.bigBlind)} bb` : t.noHero;
+  // An all-in's EV is the result's tooltip, not a mark (2026-11-05).
+  let resultTitle: string | undefined;
   if (row.allIn) {
-    allIn = row.evPending
+    resultTitle = row.evPending
       ? t.allInPending
       : row.evNetBbMilli !== null
         ? t.allInEv(format.bigBlinds(row.evNetBbMilli))
@@ -333,14 +402,11 @@ function Row({ row, index, top, selected, tabbable, format, onSelect, onKeyDown 
       </span>
       <span
         role="gridcell"
-        className={styles.room}
+        className={styles.stakes}
         title={row.siteHandId ? `${row.siteName} ${t.handId(row.siteHandId)}` : row.siteName}
       >
-        {row.siteName}
-        {row.siteHandId ? <small>{t.handId(row.siteHandId)}</small> : null}
-      </span>
-      <span role="gridcell" className={styles.stakes}>
-        {blinds}
+        <span className={styles.stakesValue}>{blinds}</span>
+        <small className={styles.roomName}>{row.siteName}</small>
       </span>
       <span role="gridcell" className={styles.position}>
         {row.heroPosition ?? t.noHero}
@@ -355,19 +421,13 @@ function Row({ row, index, top, selected, tabbable, format, onSelect, onKeyDown 
       <span role="gridcell" className={styles.board}>
         {row.board.length > 0 ? <CardRow cards={row.board} size="xs" /> : <span className={styles.dim}>{t.preflop}</span>}
       </span>
-      <span role="gridcell" className={`${styles.num} ${styles.result} ${tone}`}>
+      <span role="gridcell" className={`${styles.num} ${styles.pot}`}>
+        {pot}
+      </span>
+      <span role="gridcell" className={`${styles.num} ${styles.result} ${tone}`} title={resultTitle}>
         {result}
       </span>
-      <span role="gridcell" className={`${styles.num} ${styles.bb} ${tone}`}>
-        {row.heroNetBbMilli === null ? t.noHero : format.bigBlinds(row.heroNetBbMilli)}
-      </span>
       <span role="gridcell" className={styles.marks}>
-        {allIn !== null ? (
-          <span className={`${styles.mark} ${styles.allIn}`} title={allIn}>
-            {row.evNetBbMilli !== null && !row.evPending ? t.evShort(format.bigBlinds(row.evNetBbMilli)) : t.allIn}
-          </span>
-        ) : null}
-        {row.showdown ? <span className={styles.mark}>{t.showdown}</span> : null}
         {row.positionalNames ? (
           <span className={styles.mark} title={t.positionalNamesTitle}>
             {t.positionalNames}
@@ -378,11 +438,14 @@ function Row({ row, index, top, selected, tabbable, format, onSelect, onKeyDown 
             ✎
           </span>
         ) : null}
-        {row.tags.map((tag) => (
-          <span key={tag} className={`${styles.mark} ${styles.tag}`}>
-            {tag}
+        {row.tags.length > 0 ? (
+          <span className={`${styles.mark} ${styles.tag}`} title={row.tags.join(", ")}>
+            #{row.tags.length}
           </span>
-        ))}
+        ) : null}
+      </span>
+      <span role="gridcell" className={styles.arrow} aria-hidden="true">
+        ›
       </span>
     </div>
   );
