@@ -104,9 +104,15 @@ export function countIn(locale: string, n: number): string {
   return numberIn(locale, {}).format(n);
 }
 
-/** The three, bound to one language. */
+/** A pot in big blinds, unsigned: `142.0`. */
+export function potIn(locale: string, bigBlinds: number): string {
+  return numberIn(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(bigBlinds);
+}
+
+/** The formats, bound to one language. */
 export interface HandFormat {
   bigBlinds: (milli: number) => string;
+  pot: (bigBlinds: number) => string;
   playedAt: (iso: string | null) => string;
   count: (n: number) => string;
 }
@@ -114,6 +120,7 @@ export interface HandFormat {
 export function handFormat(locale: string): HandFormat {
   return {
     bigBlinds: (milli) => bigBlindsIn(locale, milli),
+    pot: (bigBlinds) => potIn(locale, bigBlinds),
     playedAt: (iso) => playedAtIn(locale, iso),
     count: (n) => countIn(locale, n),
   };

@@ -19,9 +19,15 @@ export const storeHandsSource: HandsSource = {
   page: (filter, after: AnyCursor | null, limit) => ipc.handsPage(filter, after as HandCursor | null, limit),
   facets: (filter) => ipc.handsFacets(filter),
   onChanged: (listener) => onStatsDataChanged(listener),
-  // The web library's searches, orders and other filters (table, minimum
-  // pot, showdown and winner positions, names) are not the store's yet: the
-  // shared screen hides them here (R4.5b).
-  features: { annotations: true, search: false, sorts: [], more: [] },
+  // The searches (hero hand, board - cards or ranks -, a player by name,
+  // showdown) and every column's order are the store's since 2026-11-05
+  // (`hand_list::search_clauses`, `hand_list::SORTS`). The web library's
+  // other filters (table, minimum pot, showdown positions, names) are not.
+  features: {
+    annotations: true,
+    search: true,
+    sorts: ["oldest", "pot", "potAsc", "won", "lost", "stakes", "stakesAsc", "position", "positionDesc"],
+    more: [],
+  },
   savedFilters,
 };

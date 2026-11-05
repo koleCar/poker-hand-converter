@@ -21,9 +21,10 @@ import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { FilterBar, handGroups } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
-import { pinKind } from "./gameKind";
+import { kindOf, pinKind } from "./gameKind";
 import { HandList } from "./HandList";
 import { KindToggle } from "./KindToggle";
+import toggleStyles from "./KindToggle.module.css";
 import styles from "./Hands.module.css";
 import type { HandFacets, HandFilter, HandRow, HandsSource } from "./model";
 import { useHandList, type HandList as HandListState } from "./useHandList";
@@ -51,6 +52,11 @@ export interface HandsScreenProps {
   renderState: (kind: "loading" | "empty" | "error", text: string) => ReactNode;
   /** The heading's words, and its level on the surface's page. */
   title: string;
+  /**
+   * Keep the heading for assistive technology only (the desktop, whose
+   * sidebar names the screen: the owner's rule, 2026-11-05).
+   */
+  hideTitle?: boolean;
   titleTag?: "h1" | "h2";
   /** Under the heading: the surface's lines (a sync under way, a rebuild). */
   status?: ReactNode;
@@ -82,6 +88,7 @@ export function HandsScreen({
   listRef,
   renderState,
   title,
+  hideTitle = false,
   titleTag: Title = "h1",
   status,
   notice,
@@ -93,6 +100,8 @@ export function HandsScreen({
   fill = false,
 }: HandsScreenProps) {
   const t = useUiStrings().hands;
+  // Big blinds or each hand's money, for the list's results (as on Live).
+  const [unit, setUnit] = useState<"bb" | "money">("bb");
   // Cash and tournaments never add up: a filter that does not pick one kind
   // shows the one with more hands (the Game chip's counts, which leave its
   // own choice out, decide; the first page waits for them).
@@ -131,6 +140,12 @@ export function HandsScreen({
   // filter keeps its rows as they are).
   const refetching = list.loading && list.rows.length > 0 && list.rowsKey !== JSON.stringify(query);
 
+  // Money where every row has one (cash); a tournament's chips are big blinds only.
+  const moneyShown = kindOf(filter.formats) !== "tournament";
+  const shownUnit = unit === "money" && moneyShown ? "money" : "bb";
+  const symbols = new Set(list.rows.map((candidate) => candidate.currencySymbol).filter((symbol) => symbol !== ""));
+  const moneySymbol = symbols.size === 1 ? [...symbols][0] : null;
+
   const row = selected === null ? null : (list.rows.find((candidate) => candidate.handKey === selected) ?? null);
 
   let body;
@@ -153,6 +168,10 @@ export function HandsScreen({
         openOnClick={openOnClick}
         onLoadMore={list.loadMore}
         orderLabel={t.filters.sorts[filter.sort]}
+        sort={filter.sort}
+        sorts={["newest", ...source.features.sorts]}
+        onSort={(sort) => onFilterChange({ ...chosen, sort })}
+        unit={shownUnit}
         densityKey={densityKey}
         enterKey={list.rowsKey}
       />
@@ -162,13 +181,33 @@ export function HandsScreen({
   return (
     <div className={`${styles.screen} ${fill ? styles.fill : styles.page}`}>
       <header className={styles.top}>
-        <Title className={styles.title}>{title}</Title>
+        <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
         {countLine !== null ? (
           <span className={styles.count} aria-live="polite">
             {countLine}
           </span>
         ) : null}
         {refetching ? <RailLoader size="inline" label={t.loading} /> : null}
+        <span className={styles.spacer} />
+        <div className={toggleStyles.toggle} role="group" aria-label={t.units.label}>
+          <button
+            type="button"
+            className={`chip-btn${shownUnit === "bb" ? " is-active" : ""}`}
+            aria-pressed={shownUnit === "bb"}
+            onClick={() => setUnit("bb")}
+          >
+            {t.units.bb}
+          </button>
+          <button
+            type="button"
+            className={`chip-btn${shownUnit === "money" ? " is-active" : ""}`}
+            aria-pressed={shownUnit === "money"}
+            disabled={!moneyShown}
+            onClick={() => setUnit("money")}
+          >
+            {moneySymbol ?? t.units.money}
+          </button>
+        </div>
         <KindToggle filter={filter} facets={facets} onChange={onFilterChange} />
       </header>
       {status}

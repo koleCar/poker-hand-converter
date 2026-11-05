@@ -754,3 +754,253 @@ fn a_version_6_store_gets_its_list() {
     assert!(upgraded.list == reference.list, "the rebuilt list differs");
     assert!(upgraded.seats == reference.seats);
 }
+
+/* ---------------------------------------------- the column orders (2026-11) */
+
+/// The hero's two cards as their class (`AKs`), `None` for other hands.
+fn class_of(cards: &[String]) -> Option<String> {
+    const RANKS: &str = "AKQJT98765432";
+    let [a, b] = cards else { return None };
+    let (ra, sa) = (a.get(0..1)?, a.get(1..2)?);
+    let (rb, sb) = (b.get(0..1)?, b.get(1..2)?);
+    if ra == rb {
+        return Some(format!("{ra}{rb}"));
+    }
+    let (high, low) = if RANKS.find(ra)? < RANKS.find(rb)? {
+        (ra, rb)
+    } else {
+        (rb, ra)
+    };
+    Some(format!("{high}{low}{}", if sa == sb { "s" } else { "o" }))
+}
+
+fn position_rank(position: Option<&str>) -> i64 {
+    match position {
+        Some("UTG") => 1,
+        Some("UTG+1") => 2,
+        Some("UTG+2" | "EP") => 3,
+        Some("MP") => 4,
+        Some("MP+1") => 5,
+        Some("LJ") => 6,
+        Some("HJ") => 7,
+        Some("CO") => 8,
+        Some("BTN") => 9,
+        Some("SB") => 10,
+        Some("BB") => 11,
+        Some(_) => 12,
+        None => 13,
+    }
+}
+
+fn keys(rows: &[HandRow]) -> BTreeSet<String> {
+    rows.iter().map(|row| row.hand_key.clone()).collect()
+}
+
+#[test]
+fn every_order_lists_the_same_hands_in_its_order() {
+    let path = copy_of_corpus("list-orders");
+    let store = Store::open(&path).expect("open");
+    let all = all_pages(&store, &HandFilter::default(), 500);
+    // Pots in big blinds compared without division: a/b >= c/d as a*d >= c*b.
+    let pot_cmp = |a: &HandRow, b: &HandRow| -> Option<std::cmp::Ordering> {
+        (a.big_blind > 0 && b.big_blind > 0).then(|| {
+            (i128::from(a.total_pot) * i128::from(b.big_blind))
+                .cmp(&(i128::from(b.total_pot) * i128::from(a.big_blind)))
+        })
+    };
+    for (sort, _) in hand_list::SORTS {
+        let filter = HandFilter {
+            sort: Some((*sort).to_owned()),
+            ..HandFilter::default()
+        };
+        // A page size that does not divide the corpus: the offsets join up.
+        let rows = all_pages(&store, &filter, 377);
+        assert_eq!(rows.len(), all.len(), "{sort}: every hand once");
+        assert_eq!(keys(&rows), keys(&all), "{sort}: the same hands");
+        for pair in rows.windows(2) {
+            let (a, b) = (&pair[0], &pair[1]);
+            let ok = match *sort {
+                "oldest" => order_key(a) <= order_key(b),
+                "won" => match (a.hero_net_bb_milli, b.hero_net_bb_milli) {
+                    (Some(x), Some(y)) => x >= y,
+                    (Some(_), None) | (None, None) => true,
+                    (None, Some(_)) => false,
+                },
+                "lost" => match (a.hero_net_bb_milli, b.hero_net_bb_milli) {
+                    (Some(x), Some(y)) => x <= y,
+                    (Some(_), None) | (None, None) => true,
+                    (None, Some(_)) => false,
+                },
+                "pot" => match (a.big_blind > 0, b.big_blind > 0) {
+                    (true, true) => pot_cmp(a, b) != Some(std::cmp::Ordering::Less),
+                    (true, false) | (false, false) => true,
+                    (false, true) => false,
+                },
+                "potAsc" => match (a.big_blind > 0, b.big_blind > 0) {
+                    (true, true) => pot_cmp(a, b) != Some(std::cmp::Ordering::Greater),
+                    (true, false) | (false, false) => true,
+                    (false, true) => false,
+                },
+                "stakes" => a.big_blind >= b.big_blind,
+                "stakesAsc" => a.big_blind <= b.big_blind,
+                "position" => {
+                    position_rank(a.hero_position.as_deref())
+                        <= position_rank(b.hero_position.as_deref())
+                }
+                "positionDesc" => {
+                    let (x, y) = (a.hero_position.is_none(), b.hero_position.is_none());
+                    x <= y
+                        && (x != y
+                            || position_rank(a.hero_position.as_deref())
+                                >= position_rank(b.hero_position.as_deref()))
+                }
+                other => panic!("an order the test does not know: {other}"),
+            };
+            assert!(ok, "{sort}: {} then {}", a.hand_key, b.hand_key);
+        }
+    }
+    // An unknown order is the newest first.
+    let unknown = HandFilter {
+        sort: Some("sideways".to_owned()),
+        ..HandFilter::default()
+    };
+    assert_ordered(&all_pages(&store, &unknown, 500));
+}
+
+#[test]
+fn the_searches_find_what_a_scan_finds() {
+    let path = copy_of_corpus("list-searches");
+    let store = Store::open(&path).expect("open");
+    let all = all_pages(&store, &HandFilter::default(), 500);
+    let expect = |filter: &HandFilter, keep: &dyn Fn(&HandRow) -> bool, what: &str| {
+        let got = keys(&all_pages(&store, filter, 500));
+        let want: BTreeSet<String> = all
+            .iter()
+            .filter(|row| keep(row))
+            .map(|row| row.hand_key.clone())
+            .collect();
+        assert!(!want.is_empty(), "{what}: the corpus has such hands");
+        assert_eq!(got, want, "{what}");
+        let facets = store.reader().hand_facets(filter).expect("facets");
+        assert_eq!(
+            facets.total,
+            u64::try_from(want.len()).expect("n"),
+            "{what}: the count"
+        );
+    };
+
+    let classes = vec!["AA".to_owned(), "AKs".to_owned(), "72o".to_owned()];
+    expect(
+        &HandFilter {
+            hero_classes: classes.clone(),
+            ..HandFilter::default()
+        },
+        &|row| class_of(&row.hero_cards).is_some_and(|class| classes.contains(&class)),
+        "hero classes",
+    );
+
+    let card = all
+        .iter()
+        .find_map(|row| row.hero_cards.first().cloned())
+        .expect("a hero card");
+    expect(
+        &HandFilter {
+            hero_cards: vec![card.clone()],
+            ..HandFilter::default()
+        },
+        &|row| row.hero_cards.contains(&card),
+        "a hero card",
+    );
+
+    let flop = all
+        .iter()
+        .find(|row| row.board.len() >= 3)
+        .expect("a flop")
+        .board[..2]
+        .to_vec();
+    expect(
+        &HandFilter {
+            board: flop.clone(),
+            ..HandFilter::default()
+        },
+        &|row| flop.iter().all(|card| row.board.contains(card)),
+        "board cards",
+    );
+
+    // Ranks whatever the suits: the first flop's ranks (a pair asked twice).
+    let sample = all.iter().find(|row| row.board.len() >= 3).expect("a flop");
+    let ranks: Vec<String> = sample.board[..3]
+        .iter()
+        .map(|card| card[..1].to_owned())
+        .collect();
+    let has_ranks = |row: &HandRow| {
+        let mut left: Vec<String> = row.board.iter().map(|card| card[..1].to_owned()).collect();
+        ranks
+            .iter()
+            .all(|rank| match left.iter().position(|r| r == rank) {
+                Some(i) => {
+                    left.remove(i);
+                    true
+                }
+                None => false,
+            })
+    };
+    expect(
+        &HandFilter {
+            board_ranks: ranks.clone(),
+            ..HandFilter::default()
+        },
+        &has_ranks,
+        "board ranks",
+    );
+
+    expect(
+        &HandFilter {
+            showdown: Some(true),
+            ..HandFilter::default()
+        },
+        &|row| row.showdown,
+        "showdown",
+    );
+    expect(
+        &HandFilter {
+            showdown: Some(false),
+            ..HandFilter::default()
+        },
+        &|row| !row.showdown,
+        "no showdown",
+    );
+
+    // A player by name, in any room: the hands they were dealt into (the
+    // background pass indexes the players first).
+    let writer = store.writer().expect("writer");
+    background::drain(store.reader(), &writer).expect("drain");
+    drop(writer);
+    let conn = Connection::open(&path).expect("open");
+    let (name, dealt): (String, BTreeSet<String>) = {
+        let name: String = conn
+            .query_row(
+                "SELECT player FROM player_hands GROUP BY player ORDER BY count(*) DESC LIMIT 1",
+                [],
+                |row| row.get(0),
+            )
+            .expect("a player");
+        let mut stmt = conn
+            .prepare("SELECT DISTINCT hs.hand_key FROM player_hands ph JOIN hand_stats hs ON hs.id = ph.hand_id WHERE ph.player = ?1")
+            .expect("prepare");
+        let dealt = stmt
+            .query_map([&name], |row| row.get::<_, String>(0))
+            .expect("query")
+            .collect::<rusqlite::Result<BTreeSet<String>>>()
+            .expect("rows");
+        (name, dealt)
+    };
+    expect(
+        &HandFilter {
+            player_name: Some(name),
+            ..HandFilter::default()
+        },
+        &|row| dealt.contains(&row.hand_key),
+        "a player by name",
+    );
+}

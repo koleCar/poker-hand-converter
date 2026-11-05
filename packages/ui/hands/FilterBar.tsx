@@ -1,16 +1,17 @@
 /**
  * The filter row of Hands and Reports (redesigned 2026-11, after the owner's
- * brief: modern, intuitive, no hand counts on every value). One line:
+ * brief: modern, intuitive, no hand counts on every value; the owner's
+ * variant A of 2026-11-05). Two lines. The first holds what is set:
  *
- * - the saved filters (the one in force by name);
  * - one chip per group that is set - "Position BTN, CO" - which opens that
  *   group's editor, and its × takes it off; groups that are not set are not
  *   in the row at all;
  * - "+ Add filter", a searchable menu of every group and value;
- * - the order (where the source sorts), "Save as…", "Clear all" and "All
- *   filters", the builder with every group in panes.
+ * - "Clear all" and "All filters", the builder with every group in panes.
  *
- * Under it, the quick filters: one-click spots over the same groups. The
+ * The second is always in view: the quick filters (one-click spots over the
+ * same groups) and the saved filters (`SavedRow`: apply, edit, delete, save
+ * the filters in force). The order is the list's column headers. The
  * row's groups are the source's (`handGroups`, `REPORT_GROUPS` in
  * `groups.ts`); a group the source cannot filter by is never offered.
  */
@@ -25,7 +26,7 @@ import { GroupEditor, Pills } from "./GroupEditor";
 import { HAND_GROUPS, clearAll, clearGroup, paneOf, quickFor, shownSet, useGroupWords, type GroupId, type PaneId } from "./groups";
 import type { FilterScreen, HandFacets, HandFilter, HandSort, SavedFiltersSource } from "./model";
 import { Popover } from "./Popover";
-import { SaveAs, SavedMenu, useSavedFilters } from "./SavedFilters";
+import { SavedRow, useSavedFilters } from "./SavedFilters";
 
 export { HAND_GROUPS, REPORT_GROUPS, handGroups, type GroupId } from "./groups";
 
@@ -40,6 +41,7 @@ interface FilterBarProps {
   /** Where saved filters are kept; none, no saved filters. */
   saved?: SavedFiltersSource | undefined;
   /** The orders the `sort` group offers besides newest first. */
+  /** Unused since the order moved to the list's column headers (kept for the callers). */
   sorts?: HandSort[];
   /** Counts a filter for the builder's "Show N hands" (and lists its values). */
   loadFacets?: ((query: HandFilter) => Promise<HandFacets>) | undefined;
@@ -71,10 +73,10 @@ export function FilterBar({
   groups = HAND_GROUPS,
   screen = "hands",
   saved,
-  sorts = [],
   loadFacets,
 }: FilterBarProps) {
-  const t = useUiStrings().hands.filters;
+  const words = useUiStrings();
+  const t = words.hands.filters;
   const savedState = useSavedFilters(saved, screen);
   const [builder, setBuilder] = useState<{ pane: PaneId | undefined } | null>(null);
   const filterGroups = useMemo(() => groups.filter((group) => group !== "sort"), [groups]);
@@ -87,12 +89,6 @@ export function FilterBar({
   return (
     <div className={styles.wrap}>
       <div className={styles.bar} role="toolbar" aria-label={t.label}>
-        {saved ? (
-          <>
-            <SavedMenu state={savedState} filter={filter} onApply={onChange} />
-            <span className={styles.divider} aria-hidden="true" />
-          </>
-        ) : null}
         <div className={styles.chips}>
           {player !== null ? (
             // Set from the Players screen ("hands with this player"): it is taken off, not edited.
@@ -118,8 +114,6 @@ export function FilterBar({
           <AddFilter groups={filterGroups} filter={filter} facets={facets} onChange={onChange} onBrowse={openBuilder} />
         </div>
         <div className={styles.tools}>
-          {sorts.length > 0 && groups.includes("sort") ? <SortMenu filter={filter} sorts={sorts} onChange={onChange} /> : null}
-          {saved && active > 0 ? <SaveAs state={savedState} filter={filter} /> : null}
           {active > 0 ? (
             <button type="button" className={styles.textButton} onClick={() => onChange(clearAll(filter, facets))}>
               {t.clearAll}
@@ -131,23 +125,36 @@ export function FilterBar({
           </button>
         </div>
       </div>
-      {quick.length > 0 ? (
+      {quick.length > 0 || saved ? (
         <div className={styles.quick}>
-          <span className={styles.quickLabel} aria-hidden="true">
-            {t.quick.label}
-          </span>
-          <Pills
-            label={t.quick.label}
-            options={quick.map((q) => ({ value: q.id, label: t.quick[q.id] }))}
-            selected={quick.filter((q) => q.on(filter)).map((q) => q.id)}
-            onChange={(next) => {
-              let value = filter;
-              for (const q of quick) {
-                if (q.on(value) !== next.includes(q.id)) value = q.toggle(value);
-              }
-              onChange(value);
-            }}
-          />
+          {quick.length > 0 ? (
+            <>
+              <span className={styles.quickLabel} aria-hidden="true">
+                {t.quick.label}
+              </span>
+              <Pills
+                label={t.quick.label}
+                options={quick.map((q) => ({ value: q.id, label: t.quick[q.id] }))}
+                selected={quick.filter((q) => q.on(filter)).map((q) => q.id)}
+                onChange={(next) => {
+                  let value = filter;
+                  for (const q of quick) {
+                    if (q.on(value) !== next.includes(q.id)) value = q.toggle(value);
+                  }
+                  onChange(value);
+                }}
+              />
+            </>
+          ) : null}
+          {saved ? (
+            <>
+              {quick.length > 0 ? <span className={styles.divider} aria-hidden="true" /> : null}
+              <span className={styles.quickLabel} aria-hidden="true">
+                {words.hands.saved.label}
+              </span>
+              <SavedRow state={savedState} filter={filter} active={active} onApply={onChange} />
+            </>
+          ) : null}
         </div>
       ) : null}
       {builder ? (
@@ -237,42 +244,3 @@ function ActiveChip({
   );
 }
 
-/** The order of the list (not a filter: "Clear all" leaves it). */
-function SortMenu({ filter, sorts, onChange }: { filter: FilterState; sorts: HandSort[]; onChange: (filter: FilterState) => void }) {
-  const t = useUiStrings().hands.filters;
-  const anchor = useRef<HTMLSpanElement>(null);
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
-  const choices: HandSort[] = ["newest", ...sorts.filter((sort) => sort !== "newest")];
-  return (
-    <span ref={anchor} className={styles.anchor}>
-      <button
-        type="button"
-        className={styles.tool}
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        aria-label={t.summary(t.groups.sort, t.sorts[filter.sort])}
-        onClick={() => setOpen((was) => !was)}
-      >
-        <span className={styles.toolText}>{t.sorts[filter.sort]}</span>
-        <span className={styles.caret} aria-hidden="true">
-          ▾
-        </span>
-      </button>
-      {open ? (
-        <Popover anchor={anchor} label={t.groups.sort} onClose={close} align="end">
-          <Pills
-            label={t.groups.sort}
-            single
-            options={choices.map((value) => ({ value, label: t.sorts[value] }))}
-            selected={[filter.sort]}
-            onChange={(next) => {
-              onChange({ ...filter, sort: (next[0] ?? "newest") as HandSort });
-              close();
-            }}
-          />
-        </Popover>
-      ) : null}
-    </span>
-  );
-}

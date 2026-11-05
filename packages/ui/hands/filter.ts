@@ -17,7 +17,7 @@ export type DatePreset = "today" | "week" | "month" | "year" | "custom";
 
 export const DATE_PRESETS: DatePreset[] = ["today", "week", "month", "year", "custom"];
 
-export const SORTS: HandSort[] = ["newest", "oldest", "pot", "won", "lost"];
+export const SORTS: HandSort[] = ["newest", "oldest", "pot", "potAsc", "won", "lost", "stakes", "stakesAsc", "position", "positionDesc"];
 
 /** The groups with a list of values. */
 export type ListGroup =
@@ -252,6 +252,10 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (hero.kind === "cards") query.heroCards = hero.values;
   const board = extractCards(filter.board);
   if (board.length > 0) query.board = board;
+  else {
+    const ranks = boardRanks(filter.board);
+    if (ranks.length > 0) query.boardRanks = ranks;
+  }
   if (filter.playerName.trim()) query.playerName = filter.playerName.trim();
   if (filter.showdown !== null) query.showdown = filter.showdown;
   if (filter.tableName.trim()) query.tableName = filter.tableName.trim();
@@ -262,6 +266,17 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (filter.anonymizations.length > 0) query.anonymizations = filter.anonymizations;
   if (filter.sort !== "newest") query.sort = filter.sort;
   return query;
+}
+
+/**
+ * A board typed as ranks alone ("K75", "k 7 5", "T-9-8"): its ranks, a rank
+ * twice for a pair, whatever the suits (the owner's ask, 2026-11-05). Empty
+ * for anything else (cards with suits are `extractCards`'s).
+ */
+export function boardRanks(raw: string): string[] {
+  const text = raw.replace(/10/g, "T").replace(/[\s,;\-/]+/g, "").toUpperCase();
+  if (text.length === 0 || text.length > 5 || !/^[2-9TJQKA]+$/.test(text)) return [];
+  return [...text];
 }
 
 /** A saved filter read back: whatever it lacks is "any", whatever is not a filter is dropped. */
@@ -303,7 +318,9 @@ export function fromSaved(json: string): FilterState | null {
     results: list("results"),
     stacks: list("stacks"),
     tags: list("tags"),
-    allIn: flag("allIn"),
+    // All-in and the winners' positions are no longer filters (2026-11-05):
+    // a saved filter that set them shows every hand as to those.
+    allIn: null,
     hasNote: flag("hasNote"),
     date: typeof date === "string" && (DATE_PRESETS as string[]).includes(date) ? (date as DatePreset) : null,
     dateFrom: text("dateFrom"),
@@ -326,7 +343,7 @@ export function fromSaved(json: string): FilterState | null {
     tableName: text("tableName"),
     minPot: text("minPot"),
     showdownPositions: list("showdownPositions"),
-    winnerPositions: list("winnerPositions"),
+    winnerPositions: [],
     anonymizations: list("anonymizations"),
     sort: typeof sort === "string" && (SORTS as string[]).includes(sort) ? (sort as HandSort) : "newest",
   };

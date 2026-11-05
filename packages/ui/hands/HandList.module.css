@@ -24,8 +24,8 @@
 .row {
   display: grid;
   grid-template-columns:
-    8.5rem minmax(7rem, 1.2fr) 6.5rem 3.25rem 5.5rem minmax(7.5rem, 1fr)
-    6.5rem 4.25rem minmax(6rem, 1.4fr);
+    8.5rem minmax(7rem, 1fr) 3.5rem 5.5rem minmax(8rem, 1.4fr)
+    5.5rem 6.5rem minmax(4rem, 0.6fr) 1.5rem;
   align-items: center;
   column-gap: var(--space-3);
   height: var(--row);
@@ -40,17 +40,67 @@
   text-overflow: ellipsis;
 }
 
+/* The header as the Live screen's table has it: quiet capitals; a sortable
+   column is a button with its direction beside it (2026-11-05). */
 .head {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--surface-raised-2);
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-tertiary);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.sort:hover,
+.sorted {
+  color: var(--text-primary);
+}
+
+.sortMark {
+  opacity: 0;
+  font-size: var(--font-size-sm);
+}
+
+.sort:hover .sortMark,
+.sort:focus-visible .sortMark {
+  opacity: 0.6;
+}
+
+.sorted .sortMark {
+  opacity: 1;
+  color: var(--accent-fg);
+}
+
+.num .sort {
+  flex-direction: row-reverse;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .body {
@@ -74,8 +124,24 @@
   cursor: pointer;
 }
 
+/* The whole row opens the hand, and says so: a tint, the accent edge, the arrow. */
 .body > .row:hover {
   background: var(--surface-hover);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}
+
+.arrow {
+  color: var(--accent-fg);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+  opacity: 0;
+}
+
+.body > .row:hover .arrow,
+.body > .row:focus-visible .arrow,
+.body > .selected .arrow {
+  opacity: 1;
 }
 
 .body > .row:focus-visible {
@@ -105,13 +171,31 @@
   color: var(--text-secondary);
 }
 
-.room small {
-  margin-left: var(--space-2);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
+/* The stakes over the room, two short lines. */
+.row > .stakes {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
 }
 
-.stakes {
+.stakesValue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.roomName {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  text-overflow: ellipsis;
+}
+
+.head > .stakes {
+  display: block;
+}
+
+.pot {
   color: var(--text-secondary);
 }
 
@@ -152,11 +236,6 @@
   line-height: 1.6;
 }
 
-.allIn {
-  border-color: var(--warning-border);
-  color: var(--warning-fg);
-}
-
 .tag {
   border-color: var(--accent-border);
   color: var(--accent-fg);
@@ -182,7 +261,7 @@
   .row {
     grid-template-columns: auto auto minmax(0, 1fr) auto;
     grid-template-areas:
-      "date stakes room result"
+      "date stakes stakes result"
       "position cards board board";
     row-gap: var(--space-1);
     align-content: center;
@@ -193,15 +272,13 @@
     grid-area: date;
   }
 
-  .room {
-    grid-area: room;
-  }
-
   .stakes {
     grid-area: stakes;
   }
 
-  .marks {
+  .marks,
+  .pot,
+  .arrow {
     display: none;
   }
 
@@ -221,8 +298,4 @@
     grid-area: result;
   }
 
-  /* The result in money says it; a column of big blinds does not fit. */
-  .bb {
-    display: none;
-  }
 }

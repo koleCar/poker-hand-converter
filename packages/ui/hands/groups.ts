@@ -108,8 +108,6 @@ export const HAND_GROUPS: GroupId[] = [
   "potType",
   "result",
   "stack",
-  "allIn",
-  "format",
   "variant",
   "limit",
   "size",
@@ -132,11 +130,10 @@ export function handGroups(features: {
   if (features.search) {
     groups.push("heroHand", "board", "playerName", "showdown");
   }
+  // (2026-11-05, the owner) Who won the hand is not a filter any more; the
+  // order is the list's column headers, not a group of the row.
   for (const more of features.more) {
-    groups.push(MORE_GROUPS[more]);
-  }
-  if (features.sorts.length > 0) {
-    groups.unshift("sort");
+    if (more !== "winnerPositions") groups.push(MORE_GROUPS[more]);
   }
   return groups;
 }
@@ -146,7 +143,7 @@ export function handGroups(features: {
  * segment's dimensions and the hero's position. A pot type or a stack depth
  * is a breakdown there, not a filter.
  */
-export const REPORT_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "format", "variant", "limit", "size"];
+export const REPORT_GROUPS: GroupId[] = ["date", "site", "stakes", "position", "variant", "limit", "size"];
 
 /* ------------------------------------------------------------ the builder */
 
@@ -170,8 +167,8 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
     section: "situation",
     panes: [
       { id: "quick", groups: [] },
-      { id: "positions", groups: ["position", "showdownPositions", "winnerPositions"] },
-      { id: "action", groups: ["potType", "allIn", "showdown", "stack"] },
+      { id: "positions", groups: ["position", "showdownPositions"] },
+      { id: "action", groups: ["potType", "showdown", "stack"] },
     ],
   },
   {
@@ -184,7 +181,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
   {
     section: "context",
     panes: [
-      { id: "game", groups: ["site", "stakes", "format", "variant", "limit", "size"] },
+      { id: "game", groups: ["site", "stakes", "variant", "limit", "size"] },
       { id: "result", groups: ["result", "minPot"] },
       { id: "date", groups: ["date"] },
       { id: "table", groups: ["playerName", "tableName", "anonymization"] },
@@ -438,7 +435,7 @@ const DEFAULT_SEATS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 
 /* ------------------------------------------------------------ quick filters */
 
-export type QuickId = "week" | "threeBet" | "limped" | "allIn" | "showdown" | "won" | "lost" | "noted";
+export type QuickId = "week" | "threeBet" | "showdown" | "won" | "lost" | "noted";
 
 export interface QuickFilter {
   id: QuickId;
@@ -480,8 +477,6 @@ export const QUICK_FILTERS: QuickFilter[] = [
     toggle: (filter) => ({ ...filter, date: filter.date === "week" ? null : "week", dateFrom: "", dateTo: "" }),
   },
   listQuick("threeBet", "potType", "potTypes", ["3bet", "4bet+"]),
-  listQuick("limped", "potType", "potTypes", ["limped"]),
-  flagQuick("allIn", "allIn", "allIn"),
   flagQuick("showdown", "showdown", "showdown"),
   listQuick("won", "result", "results", ["won"]),
   listQuick("lost", "result", "results", ["lost"]),
