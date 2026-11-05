@@ -28,6 +28,9 @@ export const storeHandsSource: HandsSource = {
     search: true,
     sorts: ["oldest", "pot", "potAsc", "won", "lost", "stakes", "stakesAsc", "position", "positionDesc"],
     more: [],
+    // The filter builder's groups (V1, 2026-11-05): the hero's actions, the
+    // flop's texture, players and conditions, time, ranges, the analysis.
+    builder: true,
   },
   savedFilters,
 };

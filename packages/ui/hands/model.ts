@@ -45,6 +45,25 @@ export interface HandFilter {
   board?: string[];
   /** Ranks on the board whatever their suits ("K75"): all of them. */
   boardRanks?: string[];
+  /** The filter builder's groups (V1, 2026-11-05; the desktop store's). */
+  acts?: string[][];
+  flopSuits?: string[];
+  flopPairing?: string[];
+  flopHigh?: string[];
+  flopConnect?: string[];
+  players?: string[];
+  conditions?: string[];
+  weekdays?: number[];
+  dayParts?: string[];
+  utcOffsetMinutes?: number;
+  lastHands?: number;
+  heroStackMin?: number;
+  heroStackMax?: number;
+  netMin?: number;
+  netMax?: number;
+  grades?: string[];
+  evLossMin?: number;
+  knownCards?: boolean | null;
   playerName?: string | null;
   /** Only hands that went to showdown (`true`), or only the others. */
   showdown?: boolean | null;
@@ -221,6 +240,8 @@ export interface HandsFeatures {
   search: boolean;
   /** The orders it can list in, besides newest first. */
   sorts: HandSort[];
+  /** The filter builder's groups (V1): the hero's actions, the texture, ... (the desktop store). */
+  builder?: boolean;
   /**
    * The other filters it has; the screen hides the rest. The position lists,
    * the table and the minimum pot narrow the counts and have none of their

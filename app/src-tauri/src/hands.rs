@@ -97,6 +97,25 @@ pub struct FilterDto {
     showdown: Option<bool>,
     /// The order (`hand_list::SORTS`); absent, the newest first.
     sort: Option<String>,
+    /// The filter builder's groups (`hand_list::HandFilter`'s, V1).
+    acts: Vec<Vec<String>>,
+    flop_suits: Vec<String>,
+    flop_pairing: Vec<String>,
+    flop_high: Vec<String>,
+    flop_connect: Vec<String>,
+    players: Vec<String>,
+    conditions: Vec<String>,
+    weekdays: Vec<u8>,
+    day_parts: Vec<String>,
+    utc_offset_minutes: i32,
+    last_hands: Option<u32>,
+    hero_stack_min: Option<f64>,
+    hero_stack_max: Option<f64>,
+    net_min: Option<f64>,
+    net_max: Option<f64>,
+    grades: Vec<String>,
+    ev_loss_min: Option<f64>,
+    known_cards: Option<bool>,
 }
 
 /// `PlayerRef`: an opponent's room (site key) and name.
@@ -139,6 +158,24 @@ impl From<FilterDto> for HandFilter {
             player_name: dto.player_name.filter(|name| !name.trim().is_empty()),
             showdown: dto.showdown,
             sort: dto.sort.filter(|sort| sort != "newest"),
+            acts: dto.acts,
+            flop_suits: dto.flop_suits,
+            flop_pairing: dto.flop_pairing,
+            flop_high: dto.flop_high,
+            flop_connect: dto.flop_connect,
+            players: dto.players,
+            conditions: dto.conditions,
+            weekdays: dto.weekdays,
+            day_parts: dto.day_parts,
+            utc_offset_minutes: dto.utc_offset_minutes,
+            last_hands: dto.last_hands,
+            hero_stack_min: dto.hero_stack_min,
+            hero_stack_max: dto.hero_stack_max,
+            net_min: dto.net_min,
+            net_max: dto.net_max,
+            grades: dto.grades,
+            ev_loss_min: dto.ev_loss_min,
+            known_cards: dto.known_cards,
         }
     }
 }

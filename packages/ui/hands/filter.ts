@@ -34,7 +34,24 @@ export type ListGroup =
   | "tags"
   | "showdownPositions"
   | "winnerPositions"
-  | "anonymizations";
+  | "anonymizations"
+  | "preflopDid"
+  | "preflopFaced"
+  | "preflopRole"
+  | "streets"
+  | "flopLine"
+  | "turnLine"
+  | "riverLine"
+  | "flopSuits"
+  | "flopPairing"
+  | "flopHigh"
+  | "flopConnect"
+  | "players"
+  | "conditions"
+  | "weekdays"
+  | "dayParts"
+  | "lastHands"
+  | "grades";
 
 const LIST_GROUPS: ListGroup[] = [
   "sites",
@@ -51,6 +68,23 @@ const LIST_GROUPS: ListGroup[] = [
   "showdownPositions",
   "winnerPositions",
   "anonymizations",
+  "preflopDid",
+  "preflopFaced",
+  "preflopRole",
+  "streets",
+  "flopLine",
+  "turnLine",
+  "riverLine",
+  "flopSuits",
+  "flopPairing",
+  "flopHigh",
+  "flopConnect",
+  "players",
+  "conditions",
+  "weekdays",
+  "dayParts",
+  "lastHands",
+  "grades",
 ];
 
 export interface FilterState {
@@ -92,6 +126,39 @@ export interface FilterState {
   winnerPositions: string[];
   anonymizations: string[];
   sort: HandSort;
+  /**
+   * The filter builder's groups (V1, 2026-11-05). The hero's actions, by the
+   * store's names (`hand_list::ACTS`): what hero did and faced preflop, the
+   * preflop role, the streets seen, the line on each street.
+   */
+  preflopDid: string[];
+  preflopFaced: string[];
+  preflopRole: string[];
+  streets: string[];
+  flopLine: string[];
+  turnLine: string[];
+  riverLine: string[];
+  /** The flop's texture: suits, pairing, highest rank, a straight possible. */
+  flopSuits: string[];
+  flopPairing: string[];
+  flopHigh: string[];
+  flopConnect: string[];
+  /** Players dealt in (`2` ... `6`, `7plus`), game conditions (all of them). */
+  players: string[];
+  conditions: string[];
+  /** Days of the week (`1` Monday ... `7` Sunday) and parts of the day, the reader's time. */
+  weekdays: string[];
+  dayParts: string[];
+  /** The latest so many hands (`100`, `500`, ...; the largest chosen). */
+  lastHands: string[];
+  /** The analysis: a decision so graded, analysed and clean, not analysed. */
+  grades: string[];
+  /** Ranges as typed, big blinds: "80-120", "40+", "<30"; EV lost at least. */
+  heroStack: string;
+  netRange: string;
+  evLoss: string;
+  /** A villain's cards were seen (`true`), or none were. */
+  knownCards: boolean | null;
 }
 
 export const EMPTY_FILTER: FilterState = {
@@ -123,7 +190,72 @@ export const EMPTY_FILTER: FilterState = {
   winnerPositions: [],
   anonymizations: [],
   sort: "newest",
+  preflopDid: [],
+  preflopFaced: [],
+  preflopRole: [],
+  streets: [],
+  flopLine: [],
+  turnLine: [],
+  riverLine: [],
+  flopSuits: [],
+  flopPairing: [],
+  flopHigh: [],
+  flopConnect: [],
+  players: [],
+  conditions: [],
+  weekdays: [],
+  dayParts: [],
+  lastHands: [],
+  grades: [],
+  heroStack: "",
+  netRange: "",
+  evLoss: "",
+  knownCards: null,
 };
+
+/** The builder's action groups, each a group of `hand_list::ACTS` names. */
+export const ACT_GROUPS = ["preflopDid", "preflopFaced", "preflopRole", "streets", "flopLine", "turnLine", "riverLine"] as const;
+export const PREFLOP_DID_ORDER = ["open", "limp", "iso", "callOpen", "threeBet", "callThreeBet", "fourBet", "squeeze", "steal", "foldToThreeBet"];
+export const PREFLOP_FACED_ORDER = ["facedUnopened", "facedLimp", "facedOpen", "facedThreeBet", "facedFourBet"];
+export const PREFLOP_ROLE_ORDER = ["aggressor", "caller"];
+export const STREETS_ORDER = ["sawFlop", "sawTurn", "sawRiver"];
+export const FLOP_LINE_ORDER = ["cbetFlop", "facingCbetFlop", "raiseCbetFlop", "checkRaiseFlop", "donkFlop"];
+export const TURN_LINE_ORDER = ["cbetTurn", "facingCbetTurn", "checkRaiseTurn", "donkTurn"];
+export const RIVER_LINE_ORDER = ["cbetRiver", "facingCbetRiver", "checkRaiseRiver", "donkRiver"];
+export const FLOP_SUITS_ORDER = ["rainbow", "twoTone", "monotone"];
+export const FLOP_PAIRING_ORDER = ["unpaired", "paired", "trips"];
+export const FLOP_HIGH_ORDER = ["A", "K", "Q", "J", "T", "low"];
+export const FLOP_CONNECT_ORDER = ["straight", "noStraight"];
+export const PLAYERS_ORDER = ["2", "3", "4", "5", "6", "7plus"];
+export const CONDITIONS_ORDER = ["straddle", "ante", "runItTwice"];
+export const WEEKDAYS_ORDER = ["1", "2", "3", "4", "5", "6", "7"];
+export const DAY_PARTS_ORDER = ["morning", "afternoon", "evening", "night"];
+export const LAST_HANDS_ORDER = ["100", "500", "1000", "5000"];
+export const GRADES_ORDER = ["blunder", "mistake", "inaccurate", "clean", "notAnalysed"];
+
+/**
+ * A typed range of big blinds: "80-120" (or "80–120", "80 to 120"), "40+"
+ * (from), "<30" (up to), one number (from). Negative numbers for results
+ * ("-200 to -50"). Nothing usable, both ends null.
+ */
+export function parseRange(text: string): { min: number | null; max: number | null } {
+  const t = text.trim().replace(/,/g, ".").replace(/\u2212/g, "-");
+  const num = (value: string | undefined) => {
+    const n = Number(value);
+    return value !== undefined && value !== "" && Number.isFinite(n) ? n : null;
+  };
+  const pair = /^(-?\d+(?:\.\d+)?)\s*(?:-|\u2013|to|\.\.)\s*(-?\d+(?:\.\d+)?)$/i.exec(t);
+  if (pair) {
+    const a = num(pair[1]);
+    const b = num(pair[2]);
+    if (a !== null && b !== null) return { min: Math.min(a, b), max: Math.max(a, b) };
+  }
+  const upTo = /^(?:<|\u2264|<=|up to)\s*(-?\d+(?:\.\d+)?)$/i.exec(t);
+  if (upTo) return { min: null, max: num(upTo[1]) };
+  const from = /^(?:>|\u2265|>=)?\s*(-?\d+(?:\.\d+)?)\s*\+?$/.exec(t);
+  if (from) return { min: num(from[1]), max: null };
+  return { min: null, max: null };
+}
 
 /** Seats in table order, as the web's filter lists them. */
 export const POSITION_ORDER = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -162,6 +294,8 @@ export function activeGroups(filter: FilterState): number {
     (filter.hasNote === null ? 0 : 1) +
     (filter.date === null ? 0 : 1) +
     (filter.player === null ? 0 : 1) +
+    (filter.knownCards === null ? 0 : 1) +
+    ([filter.heroStack, filter.netRange, filter.evLoss].filter((text) => text.trim() !== "").length) +
     activeSearches(filter)
   );
 }
@@ -265,6 +399,25 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   if (filter.winnerPositions.length > 0) query.winnerPositions = filter.winnerPositions;
   if (filter.anonymizations.length > 0) query.anonymizations = filter.anonymizations;
   if (filter.sort !== "newest") query.sort = filter.sort;
+  // The builder's groups (V1): only what is set goes, so a source that does
+  // not know them reads the query it always read.
+  const acts = ACT_GROUPS.map((group) => filter[group]).filter((values) => values.length > 0);
+  if (acts.length > 0) query.acts = acts;
+  for (const key of ["flopSuits", "flopPairing", "flopHigh", "flopConnect", "players", "conditions", "dayParts", "grades"] as const) {
+    if (filter[key].length > 0) query[key] = filter[key];
+  }
+  if (filter.weekdays.length > 0) query.weekdays = filter.weekdays.map(Number);
+  if (filter.weekdays.length > 0 || filter.dayParts.length > 0) query.utcOffsetMinutes = -now.getTimezoneOffset();
+  if (filter.lastHands.length > 0) query.lastHands = Math.max(...filter.lastHands.map(Number));
+  const stack = parseRange(filter.heroStack);
+  if (stack.min !== null) query.heroStackMin = stack.min;
+  if (stack.max !== null) query.heroStackMax = stack.max;
+  const net = parseRange(filter.netRange);
+  if (net.min !== null) query.netMin = net.min;
+  if (net.max !== null) query.netMax = net.max;
+  const evLoss = parseRange(filter.evLoss).min;
+  if (evLoss !== null) query.evLossMin = evLoss;
+  if (filter.knownCards !== null) query.knownCards = filter.knownCards;
   return query;
 }
 
@@ -346,6 +499,27 @@ export function fromSaved(json: string): FilterState | null {
     winnerPositions: [],
     anonymizations: list("anonymizations"),
     sort: typeof sort === "string" && (SORTS as string[]).includes(sort) ? (sort as HandSort) : "newest",
+    preflopDid: list("preflopDid"),
+    preflopFaced: list("preflopFaced"),
+    preflopRole: list("preflopRole"),
+    streets: list("streets"),
+    flopLine: list("flopLine"),
+    turnLine: list("turnLine"),
+    riverLine: list("riverLine"),
+    flopSuits: list("flopSuits"),
+    flopPairing: list("flopPairing"),
+    flopHigh: list("flopHigh"),
+    flopConnect: list("flopConnect"),
+    players: list("players"),
+    conditions: list("conditions"),
+    weekdays: list("weekdays"),
+    dayParts: list("dayParts"),
+    lastHands: list("lastHands"),
+    grades: list("grades"),
+    heroStack: typeof saved.heroStack === "string" ? saved.heroStack : "",
+    netRange: typeof saved.netRange === "string" ? saved.netRange : "",
+    evLoss: typeof saved.evLoss === "string" ? saved.evLoss : "",
+    knownCards: typeof saved.knownCards === "boolean" ? saved.knownCards : null,
   };
 }
 

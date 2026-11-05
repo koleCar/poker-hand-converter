@@ -1004,3 +1004,302 @@ fn the_searches_find_what_a_scan_finds() {
         "a player by name",
     );
 }
+
+/* ---------------------------------------------- the filter builder (V1) */
+
+/// Day of the week of a `YYYY-MM-DD...` date, 1 Monday ... 7 Sunday.
+fn weekday(date: &str) -> Option<u8> {
+    let (y, m, d): (i64, i64, i64) = (
+        date.get(0..4)?.parse().ok()?,
+        date.get(5..7)?.parse().ok()?,
+        date.get(8..10)?.parse().ok()?,
+    );
+    // Sakamoto's: 0 Sunday.
+    let t = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    let y = if m < 3 { y - 1 } else { y };
+    let w = (y + y / 4 - y / 100 + y / 400 + t[usize::try_from(m - 1).ok()?] + d).rem_euclid(7);
+    Some(if w == 0 { 7 } else { u8::try_from(w).ok()? })
+}
+
+#[test]
+fn the_builder_filters_find_what_a_scan_finds() {
+    let path = copy_of_corpus("list-builder");
+    let store = Store::open(&path).expect("open");
+    let all = all_pages(&store, &HandFilter::default(), 500);
+    let conn = Connection::open(&path).expect("open");
+    // The hero's actions and the hand's facts, read the long way.
+    let mut acts: BTreeMap<String, i64> = BTreeMap::new();
+    let mut players: BTreeMap<String, i64> = BTreeMap::new();
+    let mut known: BTreeSet<String> = BTreeSet::new();
+    {
+        let mut stmt = conn
+            .prepare("SELECT d.hand_key, d.player_count, s.is_hero, s.totals, s.hole_cards FROM hand_stats d JOIN seat_stats s ON s.hand_id = d.id")
+            .expect("prepare");
+        let mut rows = stmt.query([]).expect("query");
+        while let Some(row) = rows.next().expect("row") {
+            let key: String = row.get(0).expect("key");
+            players.insert(key.clone(), row.get(1).expect("players"));
+            let hero: bool = row.get(2).expect("hero");
+            if hero {
+                let values =
+                    rail_store::stats::decode_seat(&row.get::<_, Vec<u8>>(3).expect("totals"))
+                        .expect("decode");
+                acts.insert(key.clone(), rail_store::stats::hero_acts(&values.counters));
+            } else if !row.get::<_, String>(4).expect("cards").is_empty() {
+                known.insert(key);
+            }
+        }
+    }
+    let expect = |filter: &HandFilter, keep: &dyn Fn(&HandRow) -> bool, what: &str, some: bool| {
+        let got = keys(&all_pages(&store, filter, 500));
+        let want: BTreeSet<String> = all
+            .iter()
+            .filter(|row| keep(row))
+            .map(|row| row.hand_key.clone())
+            .collect();
+        if some {
+            assert!(!want.is_empty(), "{what}: the corpus has such hands");
+        }
+        assert_eq!(got, want, "{what}");
+        let facets = store.reader().hand_facets(filter).expect("facets");
+        assert_eq!(
+            facets.total,
+            u64::try_from(want.len()).expect("n"),
+            "{what}: the count"
+        );
+    };
+
+    // Every action, alone; and two groups together (both must hold).
+    let mut seen_any = 0;
+    for (i, (name, _)) in hand_list::ACTS.iter().enumerate() {
+        let bit = 1i64 << i;
+        let filter = HandFilter {
+            acts: vec![vec![(*name).to_owned()]],
+            ..HandFilter::default()
+        };
+        let has = |row: &HandRow| acts.get(&row.hand_key).is_some_and(|a| a & bit != 0);
+        if all.iter().any(&has) {
+            seen_any += 1;
+        }
+        expect(&filter, &has, name, false);
+    }
+    assert!(seen_any > 20, "the corpus sets {seen_any} of the actions");
+    let both = HandFilter {
+        acts: vec![
+            vec!["threeBet".to_owned(), "fourBet".to_owned()],
+            vec!["sawFlop".to_owned()],
+        ],
+        ..HandFilter::default()
+    };
+    let bit = |name: &str| hand_list::act_bit(name).expect("an action");
+    expect(
+        &both,
+        &|row| {
+            acts.get(&row.hand_key).is_some_and(|a| {
+                a & (bit("threeBet") | bit("fourBet")) != 0 && a & bit("sawFlop") != 0
+            })
+        },
+        "3-bet or 4-bet, and saw the flop",
+        true,
+    );
+
+    // The flop's texture.
+    let flop = |row: &HandRow| -> Option<[(char, char); 3]> {
+        let cards: Vec<(char, char)> = row
+            .board
+            .iter()
+            .take(3)
+            .map(|c| {
+                (
+                    c.chars().next().unwrap_or('?'),
+                    c.chars().nth(1).unwrap_or('?'),
+                )
+            })
+            .collect();
+        (cards.len() == 3).then(|| [cards[0], cards[1], cards[2]])
+    };
+    let rank = |r: char| "AKQJT98765432".find(r).map_or(99, |i| i + 1);
+    expect(
+        &HandFilter {
+            flop_suits: vec!["monotone".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| flop(row).is_some_and(|f| f[0].1 == f[1].1 && f[1].1 == f[2].1),
+        "monotone",
+        true,
+    );
+    expect(
+        &HandFilter {
+            flop_suits: vec!["rainbow".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| flop(row).is_some_and(|f| f[0].1 != f[1].1 && f[1].1 != f[2].1 && f[0].1 != f[2].1),
+        "rainbow",
+        true,
+    );
+    expect(
+        &HandFilter {
+            flop_pairing: vec!["paired".to_owned(), "trips".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| flop(row).is_some_and(|f| f[0].0 == f[1].0 || f[1].0 == f[2].0 || f[0].0 == f[2].0),
+        "paired or trips",
+        true,
+    );
+    expect(
+        &HandFilter {
+            flop_high: vec!["K".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| flop(row).is_some_and(|f| f.iter().map(|c| rank(c.0)).min() == Some(2)),
+        "K-high",
+        true,
+    );
+    expect(
+        &HandFilter {
+            flop_high: vec!["low".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| flop(row).is_some_and(|f| f.iter().map(|c| rank(c.0)).min().is_some_and(|r| r >= 6)),
+        "9-high or lower",
+        true,
+    );
+    let straight = |f: [(char, char); 3]| {
+        let mut r: Vec<usize> = f.iter().map(|c| rank(c.0)).collect();
+        r.sort_unstable();
+        r.dedup();
+        if r.len() < 3 {
+            return false;
+        }
+        let low: Vec<usize> = r.iter().map(|&x| if x == 1 { 14 } else { x }).collect();
+        r[2] - r[0] <= 4 || low.iter().max().unwrap_or(&0) - low.iter().min().unwrap_or(&0) <= 4
+    };
+    expect(
+        &HandFilter {
+            flop_connect: vec!["straight".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| flop(row).is_some_and(straight),
+        "a straight possible",
+        true,
+    );
+
+    // Players dealt in, the latest hands, the stacks and results as ranges.
+    expect(
+        &HandFilter {
+            players: vec!["2".to_owned(), "7plus".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| {
+            players
+                .get(&row.hand_key)
+                .is_some_and(|&n| n == 2 || n >= 7)
+        },
+        "heads-up or 7+",
+        true,
+    );
+    let last: BTreeSet<String> = all
+        .iter()
+        .take(250)
+        .map(|row| row.hand_key.clone())
+        .collect();
+    let cut = all[249].played_at.clone().unwrap_or_default();
+    expect(
+        &HandFilter {
+            last_hands: Some(250),
+            ..HandFilter::default()
+        },
+        &|row| last.contains(&row.hand_key) || row.played_at.clone().unwrap_or_default() == cut,
+        "the latest 250",
+        true,
+    );
+    expect(
+        &HandFilter {
+            hero_stack_min: Some(80.0),
+            hero_stack_max: Some(120.0),
+            ..HandFilter::default()
+        },
+        &|row| {
+            let stack = stored_stack(&conn, &row.hand_key);
+            stack.is_some_and(|tenths| (800..=1200).contains(&tenths))
+        },
+        "80-120 bb",
+        true,
+    );
+    expect(
+        &HandFilter {
+            net_max: Some(-20.0),
+            ..HandFilter::default()
+        },
+        &|row| row.hero_net_bb_milli.is_some_and(|net| net <= -20_000),
+        "lost 20 bb or more",
+        true,
+    );
+    // The days, in UTC (offset 0).
+    expect(
+        &HandFilter {
+            weekdays: vec![6, 7],
+            ..HandFilter::default()
+        },
+        &|row| {
+            row.played_at
+                .as_deref()
+                .and_then(weekday)
+                .is_some_and(|d| d >= 6)
+        },
+        "the weekend",
+        false,
+    );
+    expect(
+        &HandFilter {
+            day_parts: vec!["evening".to_owned()],
+            ..HandFilter::default()
+        },
+        &|row| {
+            row.played_at
+                .as_deref()
+                .and_then(|t| t.get(11..13))
+                .and_then(|h| h.parse::<u32>().ok())
+                .is_some_and(|h| h >= 18)
+        },
+        "the evening",
+        false,
+    );
+    // Cards seen; the analysis (the corpus store has none yet).
+    expect(
+        &HandFilter {
+            known_cards: Some(true),
+            ..HandFilter::default()
+        },
+        &|row| known.contains(&row.hand_key),
+        "villain cards seen",
+        true,
+    );
+    expect(
+        &HandFilter {
+            grades: vec!["notAnalysed".to_owned()],
+            ..HandFilter::default()
+        },
+        &|_| true,
+        "not analysed",
+        true,
+    );
+    expect(
+        &HandFilter {
+            grades: vec!["blunder".to_owned()],
+            ..HandFilter::default()
+        },
+        &|_| false,
+        "a blunder",
+        false,
+    );
+}
+
+fn stored_stack(conn: &Connection, hand_key: &str) -> Option<i64> {
+    conn.query_row(
+        "SELECT hero_stack_bb_tenths FROM hand_list WHERE hand_key = ?1",
+        [hand_key],
+        |row| row.get(0),
+    )
+    .expect("stack")
+}

@@ -21,8 +21,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
-import { PANES, QUICK_FILTERS, clearAll, clearGroup, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
-import { EMPTY_FILTER, activeGroups, fromSaved, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
+import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
+import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
 import type { HandFacets, HandRow } from "@rail/ui/hands/model";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
@@ -631,5 +631,61 @@ describe("the filter row, rendered", () => {
     expect(html).toContain("Stakes: $1/$2. Change");
     expect(html).toContain("Last 7 days");
     expect(html).not.toContain("3-bet pots");
+  });
+});
+
+describe("the filter builder's groups (V1, 2026-11-05)", () => {
+  it("reads typed ranges of big blinds", () => {
+    expect(parseRange("80-120")).toEqual({ min: 80, max: 120 });
+    expect(parseRange("120 – 80")).toEqual({ min: 80, max: 120 });
+    expect(parseRange("-200 to -50")).toEqual({ min: -200, max: -50 });
+    expect(parseRange("40+")).toEqual({ min: 40, max: null });
+    expect(parseRange("<30")).toEqual({ min: null, max: 30 });
+    expect(parseRange("2,5")).toEqual({ min: 2.5, max: null });
+    expect(parseRange("abc")).toEqual({ min: null, max: null });
+  });
+
+  it("asks the store for what is set, nothing else", () => {
+    const filter: FilterState = {
+      ...EMPTY_FILTER,
+      preflopDid: ["threeBet", "fourBet"],
+      flopLine: ["cbetFlop"],
+      flopSuits: ["monotone"],
+      players: ["2"],
+      weekdays: ["6", "7"],
+      lastHands: ["100", "1000"],
+      heroStack: "80-120",
+      netRange: "<-20",
+      evLoss: "2",
+      grades: ["blunder"],
+      knownCards: true,
+    };
+    const query = toQuery(filter, NOW);
+    expect(query.acts).toEqual([["threeBet", "fourBet"], ["cbetFlop"]]);
+    expect(query.flopSuits).toEqual(["monotone"]);
+    expect(query.players).toEqual(["2"]);
+    expect(query.weekdays).toEqual([6, 7]);
+    expect(query.utcOffsetMinutes).toBe(-NOW.getTimezoneOffset());
+    expect(query.lastHands).toBe(1000);
+    expect([query.heroStackMin, query.heroStackMax]).toEqual([80, 120]);
+    expect([query.netMin, query.netMax]).toEqual([undefined, -20]);
+    expect(query.evLossMin).toBe(2);
+    expect(query.grades).toEqual(["blunder"]);
+    expect(query.knownCards).toBe(true);
+    expect(fromSaved(toSaved(filter))).toEqual(filter);
+    expect(activeGroups(filter)).toBe(11);
+    const plain = toQuery(EMPTY_FILTER, NOW);
+    for (const key of ["acts", "flopSuits", "weekdays", "utcOffsetMinutes", "lastHands", "heroStackMin", "knownCards"]) {
+      expect(plain).not.toHaveProperty(key);
+    }
+  });
+
+  it("only a source that reads them gets them, each in one pane", () => {
+    const desktop = handGroups({ annotations: true, search: true, sorts: [], more: [], builder: true });
+    for (const group of BUILDER_GROUPS) expect(desktop).toContain(group);
+    const web = handGroups({ annotations: false, search: true, sorts: [], more: [] });
+    for (const group of BUILDER_GROUPS) expect(web).not.toContain(group);
+    const inPanes = PANES.flatMap((section) => section.panes.flatMap((pane) => pane.groups));
+    for (const group of desktop) expect(inPanes.filter((g) => g === group).length, group).toBe(1);
   });
 });

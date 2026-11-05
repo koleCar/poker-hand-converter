@@ -60,6 +60,8 @@ describe("dictionaries", () => {
       "Check-raise",
       // The range grid's presets (2026-11 filters): Croatian players say them in English.
       "Suited", "Broadway",
+      // The filter builder's poker words (V1, 2026-11-05).
+      "Iso-raise", "Caller", "Rainbow", "Trips", "Straddle", "Run it twice",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

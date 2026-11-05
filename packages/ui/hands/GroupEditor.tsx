@@ -72,7 +72,14 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
         />
       );
   } else if (flag) {
-    const pairs = group === "allIn" ? t.allIn : group === "notes" ? t.notes : t.showdownValues;
+    const pairs =
+      group === "allIn"
+        ? t.allIn
+        : group === "notes"
+          ? t.notes
+          : group === "knownCards"
+            ? t.builder.knownCardsValues
+            : t.showdownValues;
     const value = filter[flag];
     body = (
       <Pills
@@ -123,6 +130,9 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
       playerName: { label: t.search.player, hint: t.search.playerHint },
       tableName: { label: t.search.tableName, hint: t.search.tableNameHint },
       minPot: { label: t.search.minPot, hint: t.search.minPotHint, numeric: true },
+      heroStack: { label: t.builder.heroStack, hint: t.builder.rangeHint },
+      netRange: { label: t.builder.netRange, hint: t.builder.netRangeHint },
+      evLoss: { label: t.builder.evLoss, hint: t.builder.evLossHint, numeric: true },
     };
     const field = hints[text];
     body = (

@@ -645,7 +645,7 @@ const SEAT_POSITION: usize = 4;
 const SEAT_TOTALS: usize = 9;
 
 /// `hand_list`'s columns, in this order.
-const LIST_COLUMNS: [&str; 18] = [
+const LIST_COLUMNS: [&str; 19] = [
     "played_at",
     "hand_key",
     "site_hand_id",
@@ -664,6 +664,7 @@ const LIST_COLUMNS: [&str; 18] = [
     "hero_wtsd",
     "currency",
     "minor_units",
+    "hero_acts",
 ];
 const LIST_SEGMENT: usize = 3;
 const LIST_ALL_IN: usize = 10;
@@ -777,6 +778,7 @@ fn list_values(hand_key: &str, stats: &PreparedStats, segment_id: i64) -> Result
         flag(hero.is_some_and(|seat| seat.values.counters[rail_stats::Counter::wtsd.index()] > 0)),
         text(&stats.list.currency),
         int(hand.currency_minor_units),
+        int(hero.map_or(0, |seat| crate::stats::hero_acts(&seat.values.counters))),
     ])
 }
 
