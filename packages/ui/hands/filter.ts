@@ -268,7 +268,7 @@ export function fromSaved(json: string): FilterState | null {
     const items = saved[key];
     return Array.isArray(items) ? items.filter((item): item is string => typeof item === "string") : [];
   };
-  const flag = (key: "allIn" | "hasNote" | "showdown"): boolean | null => {
+  const flag = (key: "hasNote" | "showdown"): boolean | null => {
     const item = saved[key];
     return typeof item === "boolean" ? item : null;
   };
@@ -289,9 +289,11 @@ export function fromSaved(json: string): FilterState | null {
     positions: list("positions"),
     potTypes: list("potTypes"),
     results: list("results"),
-    stacks: list("stacks"),
+    // The stack depth and the all-in are no longer offered: a saved one is
+    // dropped rather than narrowing the list with no chip to show for it.
+    stacks: [],
     tags: list("tags"),
-    allIn: flag("allIn"),
+    allIn: null,
     hasNote: flag("hasNote"),
     date: typeof date === "string" && (DATE_PRESETS as string[]).includes(date) ? (date as DatePreset) : null,
     dateFrom: text("dateFrom"),

@@ -60,7 +60,7 @@ describe("Hands filter", () => {
       ...EMPTY_FILTER,
       positions: ["BTN", "CO"],
       stakes: ["USD:200"],
-      allIn: true,
+      showdown: true,
       hasNote: false,
       tags: ["river spot"],
       date: "week",
@@ -69,6 +69,7 @@ describe("Hands filter", () => {
     expect(activeGroups(filter)).toBe(6);
     expect(fromSaved("not json")).toBeNull();
     expect(fromSaved("[1,2]")).toEqual(EMPTY_FILTER);
+    expect(fromSaved('{"stacks":["0-40"],"allIn":true}')).toEqual(EMPTY_FILTER);
     expect(fromSaved('{"positions":"BTN","allIn":"yes","date":"someday","tags":["a",3]}')).toEqual({
       ...EMPTY_FILTER,
       tags: ["a"],

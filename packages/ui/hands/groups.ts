@@ -106,8 +106,6 @@ export const HAND_GROUPS: GroupId[] = [
   "position",
   "potType",
   "result",
-  "stack",
-  "allIn",
   "format",
   "variant",
   "limit",
@@ -170,7 +168,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
     panes: [
       { id: "quick", groups: [] },
       { id: "positions", groups: ["position", "showdownPositions", "winnerPositions"] },
-      { id: "action", groups: ["potType", "allIn", "showdown", "stack"] },
+      { id: "action", groups: ["potType", "showdown"] },
     ],
   },
   {

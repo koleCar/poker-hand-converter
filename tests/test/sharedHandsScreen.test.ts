@@ -571,9 +571,10 @@ describe("the filter row, rendered", () => {
     for (const word of ["Showdown positions", "Winning positions", "Names", "Hero hand", "Went to showdown"]) {
       expect(html).not.toContain(word);
     }
-    for (const word of ["3-bet pots", "All-in", "With a note", "Last 7 days"]) {
+    for (const word of ["3-bet pots", "With a note", "Last 7 days"]) {
       expect(html).toContain(word);
     }
+    expect(html).not.toContain("All-in");
   });
 
   it("the desktop's row in Croatian, with saved filters", () => {
