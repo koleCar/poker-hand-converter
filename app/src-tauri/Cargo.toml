@@ -37,6 +37,9 @@ rail-store = { path = "../../core/rail-store" }
 # Today and Reports screens (R2.7b).
 rail-stats = { path = "../../core/rail-stats" }
 rail-watch = { path = "../../core/rail-watch" }
+# The Import screen's pool of import threads (`manual_import.rs`). The
+# version rail-watch pins.
+rayon = "=1.12.0"
 # The desktop account (R1.7): the handoff, GoTrue, the refresh loop.
 rail-sync = { path = "../../core/rail-sync" }
 # The HUD process (R3.2): its supervisor and the channel to it.

@@ -14,6 +14,7 @@ import { go, SETUP, useRoute, type Route } from "./lib/router";
 import { FirstRun } from "./screens/FirstRun";
 import { Hands } from "./screens/Hands";
 import { Hud } from "./screens/Hud";
+import { Import } from "./screens/Import";
 import { Players } from "./screens/Players";
 import { playerParam } from "./screens/players/param";
 import { Reports } from "./screens/Reports";
@@ -41,6 +42,7 @@ const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   players: Players,
   analysis: AnalysisScreen,
   hud: Hud,
+  import: Import,
   settings: Settings,
   [SETUP]: FirstRun,
 };
@@ -73,7 +75,7 @@ export function App() {
       {/* The first-run screen belongs to Settings (where it is reached later). */}
       {/* A10 (R3.10): the sidebar and the palette leave out a screen that helps with play while a table is open. */}
       <Sidebar current={route === SETUP ? "settings" : route} tablesOpen={tablesOpen} />
-      {/* Another screen (a click, Cmd/Ctrl + 1-7, the palette) fades in on a
+      {/* Another screen (a click, Cmd/Ctrl + 1-8, the palette) fades in on a
           fresh <main> at its top (`.rail-fade`, opacity only, skipped under
           reduced motion); one that reads first shows its loader. */}
       <main key={route} className={`${styles.main} rail-fade`}>

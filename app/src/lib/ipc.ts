@@ -1138,6 +1138,39 @@ export interface LeakExampleDto {
   evLossPot: number;
 }
 
+/** `manual_import::Phase`: where the Import screen's import stands. */
+export type ManualImportPhase = "idle" | "finding" | "importing" | "done" | "cancelled" | "failed";
+
+/** `manual_import::ImportStatus`: the current (or last) import by hand. */
+export interface ManualImportStatus {
+  phase: ManualImportPhase;
+  files: number;
+  filesDone: number;
+  bytes: number;
+  bytesDone: number;
+  /** Hands new to the store. */
+  inserted: number;
+  /** Hands the store already had. */
+  duplicates: number;
+  /** Hands refused (quarantine). */
+  refused: number;
+  /** Files no parser reads. */
+  unrecognized: number;
+  /** Files read to their end before. */
+  unchanged: number;
+  /** The first paths that could not be read, with why. */
+  errors: string[];
+  errorCount: number;
+  error: string | null;
+  startedAt: number | null;
+  finishedAt: number | null;
+}
+
+/** Call `onChange` whenever the Import screen's import changed (at most every 200 ms while it runs). */
+export function onManualImportChanged(onChange: () => void): () => void {
+  return onAppEvent("manual-import-changed", onChange);
+}
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -1159,6 +1192,12 @@ export const ipc = {
     invoke<AddedFolder[]>("add_folders", { folders, onlyNew }),
   /** The system folder picker; `null` when cancelled. */
   pickFolder: () => invoke<string | null>("pick_folder"),
+  /** The Import screen: the system file picker, several files; `null` when cancelled. */
+  pickImportFiles: () => invoke<string[] | null>("pick_import_files"),
+  /** Read files and folders (with their subfolders) into the store once. */
+  manualImportStart: (paths: string[]) => invoke<null>("manual_import_start", { paths }),
+  manualImportStatus: () => invoke<ManualImportStatus>("manual_import_status"),
+  manualImportCancel: () => invoke<null>("manual_import_cancel"),
   /** Settings, Folders (R1.5). `pollOnly: null` decides by the volume. */
   addFolder: (path: string, onlyNew: boolean, recursive: boolean, pollOnly: boolean | null) =>
     invoke<AddedOneFolder>("add_folder", { path, onlyNew, recursive, pollOnly }),

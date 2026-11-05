@@ -87,6 +87,7 @@ pub mod hand_time;
 pub mod hands;
 pub mod hud;
 pub mod hud_editor;
+pub mod manual_import;
 pub mod players;
 pub mod policy;
 pub mod popup;
@@ -147,6 +148,9 @@ pub fn stop_background<R: Runtime>(app: &AppHandle<R>) {
         }
         if let Some(watcher) = app.try_state::<watch::WatcherState>() {
             watcher.stop();
+        }
+        if let Some(import) = app.try_state::<manual_import::ManualImportState>() {
+            import.stop();
         }
         if let Some(stats) = app.try_state::<stats::StatsState>() {
             stats.stop();
@@ -285,6 +289,10 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // The custom statistics editor's preview hands (R2.10).
     app.manage(custom_stats::CustomState::default());
     app.manage(watcher);
+    // Import by hand (the Import screen): files or a folder read once.
+    app.manage(manual_import::ManualImportState::new(
+        std::sync::Arc::clone(&sync_slot),
+    ));
 
     commands::reconcile_login_item(app, start_at_login);
     tray::build(app)?;
@@ -375,6 +383,10 @@ pub fn run() {
         folders::discover_folders,
         folders::add_folders,
         folders::pick_folder,
+        manual_import::manual_import_start,
+        manual_import::manual_import_status,
+        manual_import::manual_import_cancel,
+        manual_import::pick_import_files,
         folder_settings::add_folder,
         folder_settings::set_folder_path,
         folder_settings::set_folder_room,
@@ -508,6 +520,10 @@ pub fn run() {
         folders::discover_folders,
         folders::add_folders,
         folders::pick_folder,
+        manual_import::manual_import_start,
+        manual_import::manual_import_status,
+        manual_import::manual_import_cancel,
+        manual_import::pick_import_files,
         folder_settings::add_folder,
         folder_settings::set_folder_path,
         folder_settings::set_folder_room,

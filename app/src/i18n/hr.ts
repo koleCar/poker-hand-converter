@@ -59,6 +59,7 @@ export const hr: Dict = {
     players: "Igrači",
     analysis: "Analiza",
     hud: "HUD",
+    import: "Uvoz",
     settings: "Postavke",
     search: "Traži…",
     collapse: "Sažmi izbornik",
@@ -100,10 +101,39 @@ export const hr: Dict = {
       /** Not shown under the title: the command palette's keywords. */
       lead: "Što pokazuju paneli HUD-a, za kojim stolovima, s pregledom.",
     },
+    import: {
+      title: "Uvoz",
+      /** Not shown: the command palette's keywords. */
+      lead: "Uvezi povijest ruku iz datoteka ili mape, jednokratno.",
+    },
     settings: {
       title: "Postavke",
       lead: "Mape, sobe, račun i izgled.",
     },
+  },
+
+  manualImport: {
+    unavailable: "Uvoz radi samo u aplikaciji Rail.",
+    pickFiles: "Odaberi datoteke…",
+    pickFolder: "Odaberi mapu…",
+    drop: "ili ovdje ispusti datoteke i mape",
+    dropActive: "Ispusti za uvoz",
+    hint: "Uključene su i podmape · ruke koje Rail već ima se preskaču",
+    finding: "Tražim povijest ruku…",
+    progress: (done, total) => `${n(done)} / ${datoteka(total)}`,
+    stop: "Zaustavi",
+    done: "Uvezeno",
+    stopped: "Zaustavljeno",
+    failed: (reason) => `Uvoz nije uspio: ${reason}`,
+    nothingFound: "Tamo nema povijesti ruku.",
+    inserted: (count) => `${n(count)} ${plural(count, "nova ruka", "nove ruke", "novih ruku")}`,
+    duplicates: (count) => `${ruku(count)} već u Railu`,
+    refused: (count) => `${n(count)} ${plural(count, "odbijena", "odbijene", "odbijenih")}`,
+    unrecognized: (count) => `${datoteka(count)} ${plural(count, "nije prepoznata", "nisu prepoznate", "nije prepoznato")}`,
+    unreadable: (count) => `${n(count)} ${plural(count, "putanja se ne može", "putanje se ne mogu", "putanja se ne može")} pročitati`,
+    openHands: "Otvori Ruke",
+    openRefused: "Odbijene ruke",
+    again: "Uvezi još",
   },
 
   live: {

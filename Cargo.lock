@@ -3718,6 +3718,7 @@ dependencies = [
  "rail-store",
  "rail-sync",
  "rail-watch",
+ "rayon",
  "ring",
  "serde",
  "serde_json",
