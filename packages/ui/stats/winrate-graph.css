@@ -369,11 +369,13 @@
   align-items: center;
   gap: 8px;
   font-size: var(--font-size-sm);
+  /* What the line means is the item's tooltip. */
+  cursor: help;
 }
 
 .stats-legend li.is-pending .stats-key {
-  /* Fade the swatch, never the text: the hint under it is small and tertiary
-     already, and any opacity on it drops below 4.5:1 in the light theme (#57). */
+  /* Fade the swatch, never the text: any opacity on the muted label drops it
+     below 4.5:1 in the light theme (#57). */
   opacity: 0.6;
 }
 
@@ -388,12 +390,6 @@
 .stats-legend__value {
   font-variant-numeric: tabular-nums;
   color: var(--fg-muted);
-}
-
-.stats-legend__hint {
-  grid-column: 2 / -1;
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
 }
 
 /* Forced colours strip every hue, which is exactly the case the legend exists

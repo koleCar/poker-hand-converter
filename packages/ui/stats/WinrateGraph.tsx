@@ -239,22 +239,22 @@ export function WinrateGraph({ graph, unit = "bb", money = null }: WinrateGraphP
       {/* The legend is always present: colour alone is never the identity
           channel. It carries the end value of each series too, which is what
           direct end-labels would have said — and which, on three converging
-          lines, they would have said on top of each other. */}
+          lines, they would have said on top of each other. What each line
+          means is the item's hover tooltip, the way a statistic's definition
+          is its label's. */}
       <ul className="stats-legend">
         {model.series.map((s) => (
-          <li key={s.key}>
+          <li key={s.key} title={s.hint}>
             <span className={`stats-key stats-key--${s.key}`} />
             <span className="stats-legend__label">{s.label}</span>
             <span className="stats-legend__value">{labelled(end(s))}</span>
-            <span className="stats-legend__hint">{s.hint}</span>
           </li>
         ))}
         {model.series.some((s) => s.key === "allInEv") ? null : (
-          <li className="is-pending">
+          <li className="is-pending" title={graph.allInEv ? t.noAllInsHint : t.notComputedHint}>
             <span className="stats-key stats-key--allInEv" />
             <span className="stats-legend__label">{t.series.allInEv.label}</span>
             <span className="stats-legend__value">{graph.allInEv ? t.noAllIns : t.notComputed}</span>
-            <span className="stats-legend__hint">{graph.allInEv ? t.noAllInsHint : t.notComputedHint}</span>
           </li>
         )}
       </ul>
