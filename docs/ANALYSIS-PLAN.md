@@ -7106,3 +7106,79 @@ Each phase appends what it learned that changed the plan.
       still does not split an area.
     - Not measured on the owner's corpus (how many postflop areas split, how
       many 3-bet pot areas reach a plan).
+- 2026-11-06 — The desktop app's leak list per table and pot. rail-store
+  migration 20 (`core/rail-store/migrations/0020_leak_row_table.sql`, no
+  schema change, a backfill on open); no Supabase migration, no
+  `ANALYSIS_VERSION` change (leak-row metadata, no grade moves).
+  - **Why.** The open items of the first 2026-11-02 entry ("the desktop
+    app's own leak rows still give postflop rows `''`") and the 2026-11-05
+    entry ("carry no pot, so its leak list stays merged"): the app stores its
+    own leak rows (`app/src/analysis/rows.ts`, `rail-store`'s
+    `analysis_leak_rows`), and its top leaks group them with the web's own
+    `groupLeaks`, but a flop, turn or river row named no table and the
+    store's sums named no pot. So on the desktop a heads-up, a 6-max and a
+    9-max area, and a single-raised, a 3-bet and a 4-bet+ area with the same
+    seat, role and side were one leak, and its examples mixed them.
+  - **What was done.**
+    - *Table*: `handTableSet(phf)` (`rows.ts`) is `analysis_hand_table_set`
+      ported as written (the table by the players dealt in, the depth
+      nearest the effective stack of the hero against the deepest opponent
+      who did not fold preflop, within 20%, ties to the first set; `''` for
+      a hand no set answers: not NLHE cash, a straddle or bomb pot, ten or
+      more players, no single hero, no big blind, a depth outside every
+      band). The engine passes it to `storeRow`, and `leakColumns` gives a
+      postflop row with no set the hand's table, as the web's before-insert
+      trigger does; preflop rows keep their chart set (or `''`).
+    - *Pot*: the store's leak rows already kept the hand's `pot_type`; the
+      reader (`rail_store::leaks`, `top_leaks`) now sums per spot key, set
+      and - flop, turn, river only - pot tag (`3bp` for `3bet`, `4bp` for
+      `4bet+`, none otherwise: `analysis_leak_pot_of`), and the IPC row
+      (`SpotSumsDto.pot`) and `spotRow` hand it on as the web's
+      `analysis_leaks` row's `pot`. The web's `spotAttrs` / `leakId` then tag
+      the areas `~hu`, `~9max`, `~3bp`, `~4bp` exactly as on the web; the
+      words (table and pot in the leak context) come with them, no new
+      strings.
+    - *Examples*: `leak_examples` takes a leak's table and pot
+      (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`, as
+      `analysis_leak_table_of` / `_pot_of` tag them; anything else refused),
+      and the app's top leaks ask each leak's on `handsTable` / `handsPot`,
+      as the web's do. Without them (an older caller): every table and pot.
+    - *Old stores* (rows written before): migration 20 fills them on open,
+      in its transaction (`table_set::fill_leak_table_sets`, the same rule
+      in Rust - in chips, exactly, since the workspace denies float
+      arithmetic - over the stored PHF): every postflop row with no set
+      takes its hand's table; rows whose hand no set answers, or whose PHF
+      cannot be read, keep `''` (untagged, with 6-max, as on the web). One
+      read of each analysed hand with a postflop row; nothing re-analysed,
+      nothing dropped. The pot needs no backfill (the rows had it).
+    - `rail-store/SCHEMA.md`: version 20, the column's meaning, the readers.
+  - **Tested.** `tests/test/appLeakTablePot.test.ts` (8): the set list
+    equals `CHART_SETS` without the straddle set; heads-up 100 and 150bb,
+    three-handed, 6-max, 9-max 100 and 150bb, a deep opponent in and
+    folded, the 20% tie, unstated stacks, and every no-set case; stored rows
+    on heads-up, 6-max, 9-max and no-set hands in single-raised, 3-bet and
+    4-bet+ pots giving every postflop street the hand's table and keeping
+    the pot, preflop rows their chart set; `spotRow` keeping `pot`; the
+    desktop leak list over the store's sums splitting into the untagged,
+    `~3bp`, `~4bp`, `~hu`, `~hu~3bp` and `~9max` areas (no-set rows with
+    6-max), every id parsed back; each leak's examples asked on its table
+    and pot. rail-store: `table_set` unit tests (the same cases in Rust);
+    `the_top_leaks_sum_the_leak_rows_by_spot` now with 3-bet and 4-bet+
+    hands and a heads-up postflop set (a postflop spot one row per pot, a
+    preflop one never split; examples per table and pot, unknown table or
+    pot refused); `migration_20_gives_postflop_leak_rows_their_table` on the
+    corpus (a store taken back to version 19: postflop rows with no set take
+    their hand's table, preflop rows and rows already naming a set keep
+    theirs, a second run sets nothing). `cargo test -p rail-store`, clippy
+    (`-D warnings`, rail-store and rail-app) and fmt pass; the Vitest suite,
+    the app's `tsc -b` and lint pass.
+  - **Open.**
+    - The app still has no study plan, drills or per-area hands reader, so
+      only the top leaks (and their examples) read the split.
+    - The desktop analysis worker computes the table from the PHF it
+      analyses; `appAnalysisParity` leaves `chart_set` out of its
+      comparison (the web's is written by the database), so a web/app
+      equality of the set on the corpus is held by the shared rule and its
+      tests, not compared hand by hand.
+    - Not measured on the owner's desktop store (how many postflop rows the
+      backfill tags, how many areas split).

@@ -56,6 +56,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 
 | 16 | `0016_analysis.sql` | (R5.4) `hand_analysis`, `decision_analysis` (the web's analysis rows for the hands here, written by the app's analysis runner; one version per hand), `analysis_leak_rows` and `chart_decisions` (their narrow rows for the top three and the own charts' comparison) and `chart_sets` (the user's own preflop charts, R5.3, local only); empty, nothing to rebuild: the runner analyses every hand in the background |
 | 17 | `0017_tournament_settings.sql` | (R5.5) `tournament_settings` (the user's payouts, field and players left per tournament, local only) and `hand_stats_tournament_idx` (a tournament's hands, for sending them back to the analysis when its settings change); empty, nothing to rebuild |
+| 20 | `0020_leak_row_table.sql` | no schema change: a flop, turn or river `analysis_leak_rows.chart_set` is now its hand's table (the web's `analysis_hand_table_set`, 20271102090000); **filled in the migration's transaction** for the rows stored before (`table_set::fill_leak_table_sets`: SQL cannot read the compressed PHF; one read of each hand with a postflop row and no set), rows whose hand no set answers keep `''`; nothing re-analysed |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1066,7 +1067,9 @@ table took 7-31 s).
   hero's seat (`hero_position`, sent by the runner as the web's
   `hands.hero_position`), `pot_type`, `spot_key`
   (`analysis_leak_spot_key`: `street|scenario|line|seat|taken|best`),
-  `chart_set` (`analysis_leak_chart_set`, `''` off the charts), `grade`,
+  `chart_set` (preflop `analysis_leak_chart_set`, `''` off the charts;
+  flop, turn and river the hand's table since version 20, `''` when no set
+  answers), `grade`,
   `score`, `ev_loss_bb`, `ev_loss_pot` (0 when none), `action_index`.
   Index (`analysis_version`, `played_at`).
 - `chart_decisions`: one per preflop decision graded on the shipped tree,
@@ -1122,5 +1125,5 @@ runner grades them again with the new settings.
 | `Reader::review_sessions(gap, since, limit)` | the picker's sessions, newest first |
 | `Reader::session_preflop(version, start, end)`, `review_hands(keys, version)` | a session's `chart_decisions`, and the review's rows of given hands (the own charts' deviation source) |
 | `Reader::chart_played(query)`, `chart_examples(query, key, class, action, limit)` | the own charts' comparison over `chart_decisions` (`preflop_chart_played` / `_examples`' rules: a period counted back from the last decision; the chart's format, table and stack range) |
-| `Reader::top_leaks(version, filters, period)` (`rail_store::leaks`) | the top three's sums over `analysis_leak_rows` (the web's `analysis_top_leaks`): per spot key and chart set the decisions, those worse than Perfect, the mistakes, the EV lost and the score's sum and sum of squares, for the period (`30d` or `all`), the last 30 days of play and the 30 before (UTC days back from the last graded hand); filters: format, the hero's seat, pot type |
-| `Reader::leak_examples(version, filters, days, keys, limit)` | the decisions behind one leak (`analysis_leak_examples`): worse than Perfect at any of its spot keys (at most 200), costliest first, at most 30, with the hand's stakes and cards |
+| `Reader::top_leaks(version, filters, period)` (`rail_store::leaks`) | the top three's sums over `analysis_leak_rows` (the web's `analysis_top_leaks`): per spot key and chart set the decisions, those worse than Perfect, the mistakes, the EV lost and the score's sum and sum of squares - a postflop spot also per pot (`pot`: `3bp`, `4bp`, the web's `analysis_leaks`) - for the period (`30d` or `all`), the last 30 days of play and the 30 before (UTC days back from the last graded hand); filters: format, the hero's seat, pot type |
+| `Reader::leak_examples(version, filters, days, keys, scope, limit)` | the decisions behind one leak (`analysis_leak_examples`): worse than Perfect at any of its spot keys (at most 200), on its table and pot (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`; none: every one), costliest first, at most 30, with the hand's stakes and cards |
