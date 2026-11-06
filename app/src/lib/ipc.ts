@@ -1098,7 +1098,10 @@ export interface LeakFiltersDto {
 /** `review::SpotSumsDto`: one finest spot's sums, as summed. */
 export interface SpotSumsDto {
   key: string;
+  /** Preflop: a chart grade's set; flop, turn, river: the hand's table (rail-store migration 20). */
   set: string | null;
+  /** A postflop spot in a 3-bet (`3bp`) or 4-bet+ (`4bp`) pot; absent otherwise. */
+  pot?: string | null;
   decisions: number;
   nonPerfect: number;
   mistakes: number;
@@ -1396,8 +1399,16 @@ export const ipc = {
   /** (R5.4) The leak finder's top three: three samples of spot sums, and a leak's costliest decisions. */
   topLeaks: (version: string, filters: LeakFiltersDto, period: string) =>
     invoke<TopLeaksDto>("top_leaks", { version, filters, period }),
-  leakExamples: (version: string, filters: LeakFiltersDto, days: { from: string; to: string } | null, keys: string[], limit: number) =>
-    invoke<LeakExampleDto[]>("leak_examples", { version, filters, days, keys, limit }),
+  /** A leak's examples on its table (`hu`, `9max`, `other`) and pot (`3bp`, `4bp`, `other`); null: every one. */
+  leakExamples: (
+    version: string,
+    filters: LeakFiltersDto,
+    days: { from: string; to: string } | null,
+    keys: string[],
+    limit: number,
+    table: string | null = null,
+    pot: string | null = null,
+  ) => invoke<LeakExampleDto[]>("leak_examples", { version, filters, days, keys, table, pot, limit }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
