@@ -16,9 +16,11 @@
 //! and preferred seat: 13; the observed part of the opponents' rollups, for
 //! rooms that allow statistics from the user's own hands only: 14; the HUD
 //! editor's designs and assignments, and sync marks on every HUD table:
-//! 15; the hand analysis and the user's own preflop charts: 16). A
+//! 15; the hand analysis and the user's own preflop charts: 16; a postflop leak
+//! row's table: 20). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
-//! sums the seat rows' blobs), in the same transaction.
+//! sums the seat rows' blobs, 20 reads the hands' PHF), in the same
+//! transaction.
 
 use rusqlite::Connection;
 
@@ -109,14 +111,19 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0019_list_builder_facts.sql",
         sql: include_str!("../migrations/0019_list_builder_facts.sql"),
     },
+    Migration {
+        name: "0020_leak_row_table.sql",
+        sql: include_str!("../migrations/0020_leak_row_table.sql"),
+    },
 ];
 
 /// What a migration fills in Rust after its SQL, in its transaction (SQL
-/// cannot read the seat rows' counter blob).
+/// cannot read the seat rows' counter blob, or a compressed PHF).
 fn after_sql(version: u32, conn: &Connection) -> Result<()> {
     match version {
         14 => crate::stats::fill_observed(conn),
         18 => crate::stats::fill_hero_acts(conn),
+        20 => crate::table_set::fill_leak_table_sets(conn),
         _ => Ok(()),
     }
 }
