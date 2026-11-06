@@ -307,6 +307,9 @@ impl From<LeakFiltersDto> for rail_store::leaks::LeakFilters {
 pub struct SpotSumsDto {
     key: String,
     set: Option<String>,
+    /// A postflop spot in a 3-bet (`3bp`) or 4-bet+ (`4bp`) pot; absent otherwise.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pot: Option<String>,
     decisions: i64,
     non_perfect: i64,
     mistakes: i64,
@@ -335,6 +338,7 @@ impl From<rail_store::leaks::LeakSample> for LeakSampleDto {
                 .map(|r| SpotSumsDto {
                     key: r.key,
                     set: r.set,
+                    pot: r.pot,
                     decisions: r.decisions,
                     non_perfect: r.non_perfect,
                     mistakes: r.mistakes,
@@ -413,14 +417,19 @@ pub struct LeakExampleDto {
     ev_loss_pot: f64,
 }
 
-/// The costliest decisions behind one leak (its finest spot keys).
+/// The costliest decisions behind one leak (its finest spot keys), on its
+/// table and pot (`hu` / `9max` / `other`, `3bp` / `4bp` / `other`; none:
+/// every one), as the web's `analysis_leak_examples` reads a leak.
 #[tauri::command]
+#[allow(clippy::too_many_arguments)] // a command's arguments are its IPC payload
 pub async fn leak_examples(
     store: State<'_, StoreState>,
     version: String,
     filters: LeakFiltersDto,
     days: Option<DaysDto>,
     keys: Vec<String>,
+    table: Option<String>,
+    pot: Option<String>,
     limit: usize,
 ) -> Result<Vec<LeakExampleDto>, String> {
     Ok(open(&store)?
@@ -430,6 +439,7 @@ pub async fn leak_examples(
             &filters.into(),
             days.as_ref().map(|d| (d.from.as_str(), d.to.as_str())),
             &keys,
+            &rail_store::leaks::LeakScope { table, pot },
             limit,
         )
         .map_err(text)?

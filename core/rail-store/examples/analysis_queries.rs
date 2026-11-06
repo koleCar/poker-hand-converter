@@ -334,7 +334,7 @@ fn main() {
         "a leak's examples, all time",
         &times(runs, || {
             reader
-                .leak_examples(VERSION, &filters, None, &keys, 30)
+                .leak_examples(VERSION, &filters, None, &keys, &Default::default(), 30)
                 .expect("examples");
         }),
     );

@@ -9,6 +9,8 @@
  */
 export {
   groupLeaks,
+  handsPot,
+  handsTable,
   leakKind,
   type Confidence,
   type Leak,

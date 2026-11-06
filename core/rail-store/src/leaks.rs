@@ -12,6 +12,14 @@
 //! game (cash, or the tournaments: [`crate::game_kind`]), the hero's seat and
 //! the pot type. Sums are returned as summed; the window rounds
 //! them as the web's `numeric` sums are rounded.
+//!
+//! **Tables and pots** (`docs/ANALYSIS-PLAN.md` §10, 2026-11-06): a flop,
+//! turn or river row's `chart_set` is its hand's table (migration 20), and a
+//! spot's sums are per spot key, set and - postflop - pot (`3bp`, `4bp`:
+//! the web's `analysis_leak_pot_of`), so the web's
+//! `spotAttrs` tags the areas `~hu` / `~9max` and `~3bp` / `~4bp` as it does
+//! the web's. A leak's examples are read on its table and pot
+//! ([`LeakScope`]), as `analysis_leak_examples` reads them.
 
 use rusqlite::{Connection, params};
 
@@ -40,8 +48,12 @@ impl LeakFilters {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SpotSums {
     pub key: String,
-    /// The chart set a chart grade came from; `None` off the charts.
+    /// Preflop: the chart set a chart grade came from; flop, turn, river:
+    /// the hand's table (migration 20). `None` when there is none.
     pub set: Option<String>,
+    /// A flop, turn or river spot in a 3-bet (`3bp`) or 4-bet+ (`4bp`) pot;
+    /// `None` otherwise (the web's `analysis_leaks` row's `pot`).
+    pub pot: Option<String>,
     pub decisions: i64,
     pub non_perfect: i64,
     pub mistakes: i64,
@@ -94,6 +106,22 @@ pub struct LeakExample {
     pub ev_loss_pot: f64,
 }
 
+/// The leak finder's pot tag of a row (`analysis_leak_pot_of`, kept only
+/// postflop, as `analysis_leaks` keeps it): `'3bp'`, `'4bp'` or `''`.
+const POT_TAG: &str = "CASE WHEN r.spot_key LIKE 'preflop|%' THEN ''
+          WHEN r.pot_type = '3bet' THEN '3bp' WHEN r.pot_type = '4bet+' THEN '4bp' ELSE '' END";
+
+/// One leak's table and pot, its examples are read on (the web's
+/// `handsTable` / `handsPot`; the tags of `analysis_leak_table_of` and
+/// `analysis_leak_pot_of`; `None`: every table, every pot).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct LeakScope {
+    /// `hu`, `9max` or `other`.
+    pub table: Option<String>,
+    /// `3bp`, `4bp` or `other`.
+    pub pot: Option<String>,
+}
+
 /// The leak rows (`r`) in scope: `?1` version, `?2` formats (a JSON array), `?3` seat, `?4`
 /// pot type, `?5` / `?6` the first and last UTC day (inclusive; a hand
 /// without a time is in all time only).
@@ -127,28 +155,30 @@ fn sample(
         ))?
         .query_row(args, |row| row.get(0))?;
     let mut stmt = conn.prepare_cached(&format!(
-        "SELECT r.spot_key, r.chart_set, count(*),
+        "SELECT r.spot_key, r.chart_set, {POT_TAG} AS pot, count(*),
                 sum(r.grade <> 'perfect'),
                 sum(r.grade IN ('inaccurate', 'mistake', 'blunder')),
                 total(r.ev_loss_bb), total(r.ev_loss_pot),
                 total(r.score), total(r.score * r.score)
          FROM analysis_leak_rows r {SCOPE}
-         GROUP BY r.spot_key, r.chart_set
-         ORDER BY r.spot_key, r.chart_set"
+         GROUP BY r.spot_key, r.chart_set, pot
+         ORDER BY r.spot_key, r.chart_set, pot"
     ))?;
     let rows = stmt
         .query_map(args, |row| {
             let set: String = row.get(1)?;
+            let pot: String = row.get(2)?;
             Ok(SpotSums {
                 key: row.get(0)?,
                 set: (!set.is_empty()).then_some(set),
-                decisions: row.get(2)?,
-                non_perfect: row.get(3)?,
-                mistakes: row.get(4)?,
-                ev_loss_bb: row.get(5)?,
-                ev_loss_pot: row.get(6)?,
-                score_sum: row.get(7)?,
-                score_sq: row.get(8)?,
+                pot: (!pot.is_empty()).then_some(pot),
+                decisions: row.get(3)?,
+                non_perfect: row.get(4)?,
+                mistakes: row.get(5)?,
+                ev_loss_bb: row.get(6)?,
+                ev_loss_pot: row.get(7)?,
+                score_sum: row.get(8)?,
+                score_sq: row.get(9)?,
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
@@ -231,18 +261,34 @@ impl Reader {
     }
 
     /// The decisions behind one leak (`analysis_leak_examples`): worse than
-    /// Perfect at any of its spot keys (at most 200), costliest first, in
-    /// the UTC days and filters given, at most `limit` (30).
+    /// Perfect at any of its spot keys (at most 200), on its table and pot
+    /// (`scope`), costliest first, in the UTC days and filters given, at
+    /// most `limit` (30).
     pub fn leak_examples(
         &self,
         version: &str,
         filters: &LeakFilters,
         days: Option<(&str, &str)>,
         keys: &[String],
+        scope: &LeakScope,
         limit: usize,
     ) -> Result<Vec<LeakExample>> {
         if keys.is_empty() {
             return Ok(Vec::new());
+        }
+        if scope
+            .table
+            .as_deref()
+            .is_some_and(|t| !matches!(t, "hu" | "9max" | "other"))
+        {
+            return Err(Error::OutOfRange("leak table"));
+        }
+        if scope
+            .pot
+            .as_deref()
+            .is_some_and(|p| !matches!(p, "3bp" | "4bp" | "other"))
+        {
+            return Err(Error::OutOfRange("leak pot"));
         }
         if keys.len() > 200 || keys.iter().any(|k| k.split('|').count() != 6) {
             return Err(Error::OutOfRange("leak keys"));
@@ -268,6 +314,12 @@ impl Reader {
                  {SCOPE}
                    AND r.grade <> 'perfect'
                    AND r.spot_key IN (SELECT value FROM json_each(?7))
+                   AND (?9 IS NULL OR (CASE WHEN r.chart_set LIKE '%-hu-%' THEN 'hu'
+                                            WHEN r.chart_set LIKE '%-9max-%' THEN '9max'
+                                            ELSE 'other' END) = ?9)
+                   AND (?10 IS NULL OR (CASE r.pot_type WHEN '3bet' THEN '3bp'
+                                                        WHEN '4bet+' THEN '4bp'
+                                                        ELSE 'other' END) = ?10)
                  ORDER BY r.ev_loss_bb DESC, r.played_at DESC, r.hand_key, r.ord
                  LIMIT ?8"
             ))?;
@@ -280,7 +332,9 @@ impl Reader {
                     from,
                     to,
                     keys_json,
-                    limit
+                    limit,
+                    scope.table,
+                    scope.pot
                 ],
                 |row| {
                     Ok(LeakExample {

@@ -29,7 +29,7 @@ import {
   type TournamentSettingsMap,
   type VillainStatsMap,
 } from "./library";
-import { heroPositionOf, storeRow, trimPhf, type StoreHandRow } from "./rows";
+import { handTableSet, heroPositionOf, storeRow, trimPhf, type StoreHandRow } from "./rows";
 
 /** A hand of a page: its store key and its PHF as stored. */
 export interface PageHand {
@@ -106,7 +106,7 @@ export async function analysePage(
   return {
     rows: batch.rows.map((row) => {
       const phf = byKey.get(row.hand_id);
-      return storeRow(row, row.hand_id, phf ? heroPositionOf(phf) : null, complete.get(row.hand_id) ?? false);
+      return storeRow(row, row.hand_id, phf ? heroPositionOf(phf) : null, complete.get(row.hand_id) ?? false, phf ? handTableSet(phf) : "");
     }),
     failed: batch.failed,
   };

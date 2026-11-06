@@ -137,7 +137,10 @@ function before(
 export interface LeakColumns {
   /** `street|scenario|line|seat|taken|best`. */
   spot_key: string;
-  /** The chart set a chart grade came from; '' otherwise. */
+  /**
+   * Preflop: the chart set a chart grade came from, '' otherwise. Flop, turn,
+   * river: the hand's table ({@link handTableSet}), '' when no set answers.
+   */
   chart_set: string;
   /** The reference's best action; '' without options. */
   best: string;
@@ -160,9 +163,10 @@ function textAt(value: unknown, ...path: string[]): string | null {
  * `analysis_leak_spot_key` and `analysis_leak_chart_set` (R5.2): the line is
  * a chart grade's `facts.chart.line` when it has the shape of one, the seat
  * `facts.position` else the hand's hero position, the best action the
- * highest-EV option's.
+ * highest-EV option's. A flop, turn or river row's set is `tableSet`, the
+ * hand's table ({@link handTableSet}).
  */
-export function leakColumns(decision: DecisionAnalysisInsert, heroPosition: string | null): LeakColumns {
+export function leakColumns(decision: DecisionAnalysisInsert, heroPosition: string | null, tableSet = ""): LeakColumns {
   const facts = decision.facts as unknown;
   const chartLine = textAt(facts, "chart", "line") ?? "";
   const line = decision.source === "chart" && LINE.test(chartLine) ? chartLine : "";
@@ -170,11 +174,92 @@ export function leakColumns(decision: DecisionAnalysisInsert, heroPosition: stri
   const position = SEAT.test(seat) ? seat : "";
   const best = bestAction(decision.options) ?? "";
   const set = textAt(facts, "chart", "set") ?? "";
+  const chartSet = decision.source === "chart" && SET.test(set) ? set : "";
   return {
     spot_key: [decision.street, decision.scenario, line, position, decision.action, best].join("|"),
-    chart_set: decision.source === "chart" && SET.test(set) ? set : "",
+    // A postflop row with no set takes its hand's table, as the web's
+    // `analysis_leak_rows_table_set` trigger fills it (20271102090000).
+    chart_set: decision.street !== "preflop" && chartSet === "" ? tableSet : chartSet,
     best,
   };
+}
+
+/**
+ * The chart sets a hand's table is read on: `CHART_SETS`
+ * (`web/src/lib/charts/registry.ts`) without the straddle set, in its order
+ * (ties go to the first) - the list `analysis_hand_table_set` holds
+ * (`20271102090000_leak_row_table.sql`) and `rail_store::table_set` too.
+ */
+export const HAND_TABLE_SETS: ReadonlyArray<{ id: string; seats: number; depth: number }> = [
+  { id: "nlhe-cash-6max-40bb", seats: 6, depth: 40 },
+  { id: "nlhe-cash-6max-60bb", seats: 6, depth: 60 },
+  { id: "nlhe-cash-6max-100bb", seats: 6, depth: 100 },
+  { id: "nlhe-cash-6max-150bb", seats: 6, depth: 150 },
+  { id: "nlhe-cash-6max-200bb", seats: 6, depth: 200 },
+  { id: "nlhe-cash-9max-100bb", seats: 9, depth: 100 },
+  { id: "nlhe-cash-9max-150bb", seats: 9, depth: 150 },
+  { id: "nlhe-cash-9max-200bb", seats: 9, depth: 200 },
+  { id: "nlhe-cash-hu-100bb", seats: 2, depth: 100 },
+  { id: "nlhe-cash-hu-150bb", seats: 2, depth: 150 },
+];
+
+const isObject = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
+const num = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
+/** `jsonb ->> key` of a scalar: its text, null for JSON null or a missing key. */
+const textOf = (value: unknown): string | null =>
+  value === undefined || value === null ? null : typeof value === "string" ? value : isObject(value) || Array.isArray(value) ? JSON.stringify(value) : String(value);
+
+/**
+ * `analysis_hand_table_set(phf)` (`20271102090000_leak_row_table.sql`),
+ * ported as it is written: the chart set a hand is read on, from the hand
+ * alone - the table by the players dealt in (those with a position: 2
+ * heads-up, 3-6 6-max, 7-9 9-max), the depth nearest the effective stack
+ * (the hero against the deepest opponent who did not fold preflop; a stack
+ * the hand does not state reads 100bb), within 20%. `''` for a hand no set
+ * answers: not NLHE cash, a straddle or bomb pot, ten or more players, no
+ * single hero, no big blind, a depth outside every band. A postflop leak
+ * row's `chart_set`, as the web's before-insert trigger writes it.
+ */
+export function handTableSet(phf: unknown): string {
+  if (!isObject(phf)) return "";
+  const game = isObject(phf.game) ? phf.game : {};
+  const bb = num(game.bigBlind);
+  const cash = game.variant === "holdem" && game.limit === "nl" && game.format === "cash";
+  const players = Array.isArray(phf.players) ? phf.players : [];
+  const acts = (Array.isArray(phf.actions) ? phf.actions : []).filter(isObject);
+  if (!cash || bb === null || !(bb > 0)) return "";
+  if (acts.some((a) => a.type === "straddle" || a.type === "bomb-ante")) return "";
+  const folded = new Set(
+    acts.filter((a) => a.street === "preflop" && a.type === "fold" && textOf(a.seat) !== null).map((a) => textOf(a.seat)),
+  );
+  let k = 0;
+  let heroes = 0;
+  let heroBb: number | null = null;
+  let villainBb: number | null = null;
+  for (const p of players) {
+    if (!isObject(p) || typeof p.position !== "string") continue;
+    k += 1;
+    const stack = num(p.startingStack);
+    const inBb = stack === null ? 100 : stack / bb;
+    if (p.isHero === true) {
+      heroes += 1;
+      heroBb = heroBb === null ? inBb : Math.max(heroBb, inBb);
+    } else {
+      const seat = textOf(p.seat);
+      if (seat === null || !folded.has(seat)) villainBb = villainBb === null ? inBb : Math.max(villainBb, inBb);
+    }
+  }
+  const seats = k === 2 ? 2 : k >= 3 && k <= 6 ? 6 : k >= 7 && k <= 9 ? 9 : null;
+  if (heroes !== 1 || heroBb === null || seats === null) return "";
+  const eff = Math.min(heroBb, villainBb ?? heroBb);
+  let best: { id: string; distance: number } | null = null;
+  for (const set of HAND_TABLE_SETS) {
+    if (set.seats !== seats) continue;
+    const distance = Math.abs(eff - set.depth) / set.depth;
+    if (distance > 0.2 + 1e-9) continue;
+    if (best === null || distance < best.distance) best = { id: set.id, distance };
+  }
+  return best?.id ?? "";
 }
 
 /** A preflop decision as the own charts compare it (R5.3b; `rail_store::PreflopFields`). */
@@ -259,8 +344,12 @@ export function heroPositionOf(phf: PhfHand): string | null {
   return hero?.position ?? null;
 }
 
-/** A writer row (`handAnalysisRow`'s) as the app's store takes it: numbers as the web's columns hold them, the leak columns. */
-export function storeRow(row: HandAnalysisInsert, handKey: string, heroPosition: string | null, flopLibrary: boolean): StoreHandRow {
+/**
+ * A writer row (`handAnalysisRow`'s) as the app's store takes it: numbers as
+ * the web's columns hold them, the leak columns (`tableSet`: the hand's
+ * table, {@link handTableSet}, a postflop row's set).
+ */
+export function storeRow(row: HandAnalysisInsert, handKey: string, heroPosition: string | null, flopLibrary: boolean, tableSet = ""): StoreHandRow {
   const hand: Omit<HandAnalysisInsert, "hand_id"> & { hand_id?: string } = { ...row };
   delete hand.hand_id;
   const decisions = row.decisions;
@@ -281,7 +370,7 @@ export function storeRow(row: HandAnalysisInsert, handKey: string, heroPosition:
       pot_bb: roundNumeric(d.pot_bb, 2),
       pot_odds: roundNumeric(d.pot_odds, 3),
       mdf: roundNumeric(d.mdf, 3),
-      ...leakColumns(d, heroPosition),
+      ...leakColumns(d, heroPosition, tableSet),
       preflop: preflopFields(d),
     })),
   };
