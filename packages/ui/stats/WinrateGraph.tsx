@@ -123,6 +123,10 @@ interface WinrateGraphProps {
   hidden?: ReadonlySet<SeriesKey>;
 }
 
+/** The hands axis of an empty plot: a hundred hands, or the sample if larger. */
+const EMPTY_HANDS = 100;
+const NO_SERIES: readonly PlotSeries[] = [];
+
 interface Series extends PlotSeries {
   label: string;
   hint: string;
@@ -224,12 +228,28 @@ export function WinrateGraph({ graph, unit = "bb", money = null, legend = true, 
     [graph.buckets, model, t, locale, inMoney],
   );
 
+  const emptyXs = useMemo(() => Float64Array.from([0, Math.max(EMPTY_HANDS, graph.hands)]), [graph.hands]);
+
   if (graph.mixedUnitKind) {
     return <p className="notice notice--warn">{t.mixedUnitKind}</p>;
   }
 
   if (graph.buckets.length < 2) {
-    return <p className="notice notice--info">{t.notEnough}</p>;
+    // Too few hands for a curve: the empty plot, so a session that has just
+    // started already has its graph on screen, waiting for the line.
+    return (
+      <div className="stats-chart stats-chart--empty">
+        <WinratePlot
+          xs={emptyXs}
+          series={NO_SERIES}
+          ariaLabel={t.notEnough}
+          strings={t}
+          formatHands={count}
+          formatTick={tickFormat}
+          tooltip={() => null}
+        />
+      </div>
+    );
   }
 
   const end = (s: Series) => s.values[s.values.length - 1];
