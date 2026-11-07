@@ -1829,7 +1829,7 @@ export function buildMockData(now = Date.now()): MockData {
       total: 3,
       retryable: { hands: 0, files: 0 },
     },
-    quarantineEntries: { entries: [], truncated: false },
+    quarantineEntries: { entries: [], truncated: false, total: 0 },
     customStats: {
       stats: [],
       fields: [],

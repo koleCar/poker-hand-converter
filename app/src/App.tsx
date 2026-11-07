@@ -10,12 +10,13 @@ import { StateMessage } from "./components/StateMessage";
 import { useT } from "./i18n";
 import { screenHiddenDuringPlay } from "./lib/duringPlay";
 import { onOpenPlayer } from "./lib/ipc";
-import { go, SETUP, useRoute, type Route } from "./lib/router";
+import { go, REFUSED, SETUP, useRoute, type Route } from "./lib/router";
 import { FirstRun } from "./screens/FirstRun";
 import { Hands } from "./screens/Hands";
 import { Hud } from "./screens/Hud";
 import { Import } from "./screens/Import";
 import { Players } from "./screens/Players";
+import { Refused } from "./screens/Refused";
 import { playerParam } from "./screens/players/param";
 import { Reports } from "./screens/Reports";
 import { Settings } from "./screens/settings/Settings";
@@ -45,6 +46,7 @@ const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   import: Import,
   settings: Settings,
   [SETUP]: FirstRun,
+  [REFUSED]: Refused,
 };
 
 export function App() {
@@ -72,9 +74,9 @@ export function App() {
   const Current = SCREEN_COMPONENTS[route];
   return (
     <div className={styles.shell}>
-      {/* The first-run screen belongs to Settings (where it is reached later). */}
+      {/* The first-run screen and the refused hands belong to Settings (where they are reached). */}
       {/* A10 (R3.10): the sidebar and the palette leave out a screen that helps with play while a table is open. */}
-      <Sidebar current={route === SETUP ? "settings" : route} tablesOpen={tablesOpen} />
+      <Sidebar current={route === SETUP || route === REFUSED ? "settings" : route} tablesOpen={tablesOpen} />
       {/* Another screen (a click, Cmd/Ctrl + 1-8, the palette) fades in on a
           fresh <main> at its top (`.rail-fade`, opacity only, skipped under
           reduced motion); one that reads first shows its loader. */}

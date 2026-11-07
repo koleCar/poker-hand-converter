@@ -5,7 +5,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { inApp, ipc, onManualImportChanged, type ManualImportStatus } from "../lib/ipc";
-import { screenHref } from "../lib/router";
+import { REFUSED, screenHref } from "../lib/router";
 import styles from "./Import.module.css";
 
 /** The current (or last) import, reloaded on every change the app reports. */
@@ -202,7 +202,7 @@ function Result({ status }: { status: ManualImportStatus }) {
           </a>
         )}
         {status.refused > 0 && (
-          <a className={styles.link} href={screenHref("settings", "refused")}>
+          <a className={styles.link} href={screenHref(REFUSED)}>
             {m.openRefused}
           </a>
         )}

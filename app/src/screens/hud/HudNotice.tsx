@@ -3,9 +3,10 @@
  * has something to do: macOS has not given Rail the Accessibility
  * permission it needs to see the tables (R3.11), or the HUD stopped with
  * an error. Everything else about the HUD at the tables - its status, the
- * rooms it may be used at - is in Settings, HUD.
+ * rooms it may be used at - is further down the screen (`#/hud/tables`).
  */
 import { useT } from "../../i18n";
+import { HUD_TABLES, screenHref } from "../../lib/router";
 import { hudState, permissionNeeded } from "../../lib/hudCompliance";
 import type { HudCompliance } from "../../lib/useHudCompliance";
 import styles from "./HudEditor.module.css";
@@ -24,7 +25,7 @@ export function HudNotice({ compliance }: { compliance: HudCompliance }) {
   return (
     <div className={styles.notice} role="status">
       <span>{words}</span>
-      <a className={styles.noticeLink} href="#/settings/hud">
+      <a className={styles.noticeLink} href={screenHref("hud", HUD_TABLES)}>
         {n.open}
       </a>
     </div>

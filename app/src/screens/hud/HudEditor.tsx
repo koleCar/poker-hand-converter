@@ -22,7 +22,7 @@
  *   them at real tables. **Popup** (`PopupEditor`): its sections.
  * - **Tables** (`Assignments`): which design each game, room and size gets.
  *
- * The HUD's status and where it may be used are in Settings, HUD. Nothing
+ * The HUD's status and where it may be used are under it (`HudStatusPanel`). Nothing
  * is computed here (guideline §14): checks, preview and the resolution of
  * assignments are the Rust side's. A sync that brings another computer's
  * rows reloads the screen (`hud-layouts-changed`).

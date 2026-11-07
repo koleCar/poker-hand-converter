@@ -1,51 +1,293 @@
-.sections {
+/* Settings: small labels over cards of rows - the information on the left,
+   the action on the right, one row each. The Refused hands screen and the
+   folder rows share them. Tokens only (the app's stylelint rules). */
+
+.page {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
   max-width: 720px;
 }
 
-.section {
+.group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-5) var(--space-6);
+  gap: var(--space-2);
+}
+
+/* The group's label: small, uppercase, quiet. */
+.groupLabel {
+  margin: 0;
+  padding-left: var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.dangerLabel {
+  color: var(--danger-fg);
+}
+
+/* A section the command palette opens (`#/settings/<id>`, R2.8): focused by
+   script so the keyboard continues from it; it takes no ring of its own (the
+   section is the visible target), and it clears the screen's top padding
+   when scrolled to. */
+.anchor {
+  scroll-margin-block-start: var(--space-6);
+}
+
+.anchor:focus {
+  outline: none;
+}
+
+/* ------------------------------------------------------------- cards, rows */
+
+.card {
+  display: flex;
+  flex-direction: column;
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
 }
 
-.heading {
-  font-size: var(--font-size-lg);
+.card > * + * {
+  border-top: 1px solid var(--border-subtle);
 }
 
-.subheading {
-  margin-top: var(--space-2);
-  font-size: var(--font-size-md);
+/* Label, value, action. */
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: 14px 18px;
+}
+
+/* No label column: the information, then the action. */
+.rowWide {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rowLabel {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.value {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.strong {
+  color: var(--text-primary);
   font-weight: var(--font-weight-semibold);
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.label {
-  color: var(--text-primary);
-}
-
-.hint,
 .muted {
   color: var(--text-tertiary);
   font-size: var(--font-size-sm);
 }
 
 .error {
+  margin: 0;
   color: var(--danger-fg);
   font-size: var(--font-size-sm);
 }
+
+.success {
+  margin: 0;
+  color: var(--success-fg);
+  font-size: var(--font-size-sm);
+}
+
+.warning {
+  margin: 0;
+  color: var(--warning-fg);
+  font-size: var(--font-size-sm);
+}
+
+/* A line under a card: a notice, an error. */
+.note {
+  margin: 0;
+  padding-left: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.mono {
+  overflow: hidden;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dim {
+  opacity: 0.55;
+}
+
+/* A thin bar along the row's bottom edge: sync's sent of total. */
+.progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  overflow: hidden;
+  background: var(--border-subtle);
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: var(--accent-bg);
+  transition: width 300ms ease;
+}
+
+/* ------------------------------------------------------------ badges, pills */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.badge :global(.icon) {
+  inline-size: 13px;
+  block-size: 13px;
+}
+
+.blue {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+/* Pro: the gold of the money tokens. */
+.gold {
+  border-color: var(--money-subtle);
+  background: color-mix(in srgb, var(--money-fg) 12%, transparent);
+  color: var(--money-strong);
+}
+
+.yellow {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.grey {
+  border-color: var(--border-default);
+  background: var(--surface-raised-2);
+  color: var(--text-secondary);
+}
+
+.red {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.dashed {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+/* A small note beside a value ("Offline", "12 refused"). */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-pill);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+button.pill {
+  cursor: pointer;
+}
+
+button.pill:hover {
+  border-color: var(--warning-fg);
+}
+
+/* ------------------------------------------------------------------ account */
+
+.tile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: 14px 18px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+}
+
+.avatarEmpty {
+  background: var(--surface-raised-2);
+  color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------------ controls */
 
 .segmented {
   display: inline-flex;
@@ -62,6 +304,8 @@
   border-radius: var(--radius-1);
   background: transparent;
   color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
   cursor: pointer;
 }
 
@@ -74,16 +318,229 @@
   color: var(--text-on-selected);
 }
 
-.checkbox {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+/* A checkbox drawn as a switch (`role="switch"`): still a checkbox to the keyboard. */
+.switch {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--control-track);
+  cursor: pointer;
+  appearance: none;
+  transition: background 120ms ease;
+}
+
+.switch::before {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  content: "";
+  transition: transform 120ms ease;
+}
+
+.switch:checked {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.switch:checked::before {
+  background: var(--text-on-accent);
+  transform: translateX(16px);
+}
+
+.switch:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.switch:focus-visible,
+.iconButton:focus-visible,
+.menuItem:focus-visible,
+.linkButton:focus-visible,
+.pill:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.dangerButton {
+  border-color: var(--danger-border);
+  color: var(--danger-fg);
+}
+
+.dangerButton:hover:not(:disabled) {
+  border-color: var(--danger-fg);
+  background: var(--danger-bg);
+}
+
+/* The ⋯ button and its menu. */
+.menuWrap {
+  position: relative;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
-.checkbox input {
-  margin-top: var(--space-1);
-  accent-color: var(--accent-bg);
+.iconButton:hover,
+.iconButton[aria-expanded="true"] {
+  border-color: var(--border-default);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.menu {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: var(--space-1);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-2);
+}
+
+.menuItem {
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: var(--surface-hover);
+}
+
+.menuDanger {
+  color: var(--danger-fg);
+}
+
+.linkButton {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ updates */
+
+.banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: 14px 18px;
+  overflow: hidden;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-3);
+}
+
+.bannerIcon {
+  display: inline-flex;
+  color: var(--accent-on-subtle);
+}
+
+.bannerIcon :global(.icon) {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+.notesText {
+  max-height: 200px;
+  margin: var(--space-2) 0 0;
+  overflow-y: auto;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}
+
+/* ----------------------------------------------------------- danger, version */
+
+.dangerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.dangerIcon :global(.icon) {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.version {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-align: center;
+}
+
+/* ----------------------------------------------- the developer panels (DEV) */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.heading {
+  font-size: var(--font-size-lg);
+}
+
+.hint {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.devRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
 }
 
 .facts {
@@ -102,14 +559,8 @@
   overflow-wrap: anywhere;
 }
 
-.mono {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-sm);
-}
-
 .button {
   align-self: flex-start;
-  text-decoration: none;
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--accent-border);
   border-radius: var(--radius-2);
@@ -127,98 +578,7 @@
   cursor: progress;
 }
 
-/* A section the command palette opens (`#/settings/<id>`, R2.8): focused by
-   script so the keyboard continues from it; it takes no ring of its own (the
-   section is the visible target), and it clears the screen's top padding
-   when scrolled to. */
-.anchor {
-  scroll-margin-block-start: var(--space-6);
-}
-
-.anchor:focus,
-.section:focus {
-  outline: none;
-}
-
-/* (R6.5) Account, Your data: the web's export and deletion, and a quiet link. */
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-.linkButton {
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text-link);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* Settings, Updates: a quiet button beside the version ("Check for
-   updates", "Try again"), the step's block and its download bar. */
-.quietButton {
-  flex: none;
-  align-self: center;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  background: var(--surface-inset);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.quietButton:hover {
-  border-color: var(--border-strong, var(--border-default));
-  background: var(--surface-hover);
-}
-
-.quietButton:disabled {
-  opacity: 0.6;
-  cursor: progress;
-}
-
-.notice {
-  color: var(--success-fg);
-  font-size: var(--font-size-sm);
-}
-
-.warning {
-  color: var(--warning-fg);
-  font-size: var(--font-size-sm);
-}
-
-.update {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background: var(--surface-inset);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-2);
-}
-
-.bar {
-  width: 100%;
-  height: var(--space-2);
-  accent-color: var(--accent-bg);
-}
-
-.notes summary {
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-
-.notesText {
-  max-height: 200px;
-  margin-top: var(--space-2);
-  overflow-y: auto;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  white-space: pre-wrap;
+/* A live region takes no room until it has something to say. */
+.live:empty {
+  display: none;
 }

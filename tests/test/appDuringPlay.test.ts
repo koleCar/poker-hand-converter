@@ -44,7 +44,7 @@ describe("A10: no help during play", () => {
 
   it("classifies every route: (R5.4) the analysis is analysis, the rest give no help", () => {
     expect(Object.keys(SCREEN_HELP).sort()).toEqual(
-      ["analysis", "hands", "hud", "import", "live", "players", "reports", "settings", "setup"].sort(),
+      ["analysis", "hands", "hud", "import", "live", "players", "refused", "reports", "settings", "setup"].sort(),
     );
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
       const analysis = route === "analysis";

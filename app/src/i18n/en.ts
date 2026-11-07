@@ -287,6 +287,12 @@ export const en = {
     notSignedIn: "Not signed in: your hands stay on this computer.",
     signingInShort: "Signing in in your browser…",
     signingOut: "Signing out…",
+    /** Settings' account tile. */
+    signInShort: "Sign in",
+    notSignedInShort: "Not signed in",
+    waitingShort: "Finish signing in in your browser",
+    timeLeft: (time: string) => `${time} left`,
+    offlineBadge: "Offline",
     failed: (reason: string) => `That did not work: ${reason}`,
     notices: {
       cancelled: "Signing in was cancelled in the browser.",
@@ -377,6 +383,25 @@ export const en = {
     resume: "Resume sync",
     failedAction: (reason: string) => `That did not work: ${reason}`,
     /** (R6.4) The account's plan does not include desktop sync. */
+    /** Settings' sync row: one short status and one action. */
+    short: {
+      off: "Not in this build",
+      signedOut: "Signed out",
+      paused: "Paused",
+      mismatch: (owner: string) => `Hands synced to ${owner}`,
+      declined: (email: string) => `Kept apart from ${email}`,
+      syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${n(total)}`,
+      upToDate: "Up to date",
+      offline: "Offline",
+      rateLimited: (time: string) => `Limit reached; continues at ${time}`,
+      failed: (time: string) => `Failed; tries again at ${time}`,
+      planRequired: "Part of Rail Pro",
+      refused: (count: number) => `${hands(count)} refused`,
+      upload: "Upload",
+      keepApart: "Keep apart",
+      pause: "Pause",
+      resume: "Resume",
+    },
     planRequired: (waiting: number) =>
       waiting === 0
         ? "Syncing with the web is part of Rail Pro. Your hands stay on this computer."
@@ -409,6 +434,15 @@ export const en = {
     upgrade: "Upgrade to Pro",
     checkAgain: "Check again",
     checking: "Checking…",
+    /** Settings' plan badge: what can be used now. */
+    badge: {
+      open: "All access",
+      pro: "Pro",
+      proOffline: (date: string) => `Pro · offline until ${date}`,
+      free: "Free",
+      reconnect: "Pro · reconnect",
+      none: "No plan",
+    },
     settings: {
       heading: "Plan",
       loading: "Reading your plan…",
@@ -427,6 +461,22 @@ export const en = {
     loading: "Loading…",
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,
     unavailable: "Settings are only available inside the Rail app.",
+    /** The small labels above the groups. */
+    sections: {
+      account: "Account",
+      folders: "Hand histories",
+      statistics: "Your statistics",
+      appearance: "Appearance",
+      updates: "Updates",
+      danger: "Danger zone",
+    },
+    /** The app's version, under everything. */
+    version: (version: string) => `Version ${version}`,
+    danger: {
+      deleteAccount: "Delete my account",
+      delete: "Delete…",
+      openFailed: (reason: string) => `The browser did not open: ${reason}`,
+    },
 
     /** Settings, Folders (R1.5; guideline §3 "Upravljanje mapama"). */
     folders: {
@@ -441,6 +491,15 @@ export const en = {
       findAgain: "Find folders again",
       setup: "Open the setup screen",
       list: "Watched folders",
+      foldersRow: "Folders",
+      find: "Find folders",
+      more: (path: string) => `More for ${path}`,
+      edit: "Edit folder…",
+      editHeading: "Edit folder",
+      change: "Change…",
+      refusedPill: (count: number) => `${n(count)} refused`,
+      notWatched: "Not watched",
+      done: "Done",
 
       search: {
         heading: "Folders Rail found",
@@ -454,6 +513,7 @@ export const en = {
         adding: "Adding…",
         added: (count: number) => (count === 1 ? "Rail is watching 1 more folder." : `Rail is watching ${count} more folders.`),
         close: "Close",
+        watch: "Watch",
       },
 
       room: "Room",
@@ -688,6 +748,10 @@ export const en = {
       published: (date: string) => `Published ${date}`,
       whatsNew: "What's new",
       download: "Download update",
+      downloadShort: "Download",
+      checkNow: "Check now",
+      automaticShort: "Check automatically",
+      upToDateShort: "Up to date",
       downloadHint: "Rail keeps working while it downloads. It installs only when you say so.",
       downloading: (version: string) => `Downloading Rail ${version}…`,
       progress: (done: string, total: string, percent: number) => `${done} of ${total} MB (${percent} %)`,
@@ -863,6 +927,22 @@ export const en = {
     retried: (files: number) =>
       files === 0 ? "Nothing to read again." : files === 1 ? "1 file is being read again." : `${files} files are being read again.`,
     retryFailed: (reason: string) => `Could not read them again: ${reason}`,
+    /** The Refused hands screen (`#/refused`). */
+    olderParser: (count: number) =>
+      count === 1 ? "1 hand was refused by an older parser" : `${n(count)} hands were refused by an older parser`,
+    tryAgain: "Try again",
+    all: "All",
+    reasons: "Reasons",
+    allFolders: "All folders",
+    folder: "Folder",
+    details: "Details",
+    handTime: "Hand time",
+    lastSeen: "Last seen",
+    range: (from: number, to: number, total: number) => `${n(from)}–${n(to)} of ${n(total)}`,
+    pages: "Pages",
+    previous: "Previous page",
+    next: "Next page",
+    page: (page: number) => `Page ${n(page)}`,
   },
 
   /** The Hands screen (R2.7a). */

@@ -200,6 +200,7 @@ export interface QuarantineSummary {
 export interface QuarantineList {
   entries: RefusedHand[];
   truncated: boolean;
+  total: number;
 }
 
 export interface FolderQuarantine {

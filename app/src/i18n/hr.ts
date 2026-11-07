@@ -294,6 +294,11 @@ export const hr: Dict = {
     notSignedIn: "Nema prijave: ruke ostaju na ovom računalu.",
     signingInShort: "Prijava u pregledniku…",
     signingOut: "Odjavljivanje…",
+    signInShort: "Prijavi se",
+    notSignedInShort: "Nisi prijavljen",
+    waitingShort: "Dovrši prijavu u pregledniku",
+    timeLeft: (time) => `još ${time}`,
+    offlineBadge: "Izvan mreže",
     failed: (reason: string) => `Nije uspjelo: ${reason}`,
     notices: {
       cancelled: "Prijava je otkazana u pregledniku.",
@@ -384,6 +389,24 @@ export const hr: Dict = {
     pause: "Pauziraj sinkronizaciju",
     resume: "Nastavi sinkronizaciju",
     failedAction: (reason) => `Nije uspjelo: ${reason}`,
+    short: {
+      off: "Nije u ovoj verziji",
+      signedOut: "Odjavljen",
+      paused: "Pauzirano",
+      mismatch: (owner) => `Ruke su sinkronizirane na ${owner}`,
+      declined: (email) => `Odvojeno od ${email}`,
+      syncing: (sent, total) => `Sinkronizacija ${n(sent)} od ${n(total)}`,
+      upToDate: "Sve je sinkronizirano",
+      offline: "Izvan mreže",
+      rateLimited: (time) => `Ograničenje dosegnuto; nastavlja u ${time}`,
+      failed: (time) => `Nije uspjelo; ponovno u ${time}`,
+      planRequired: "Dio Rail Pro plana",
+      refused: (count) => `${cap(ruku(count))} ${plural(count, "odbijena", "odbijene", "odbijeno")}`,
+      upload: "Prenesi",
+      keepApart: "Drži odvojeno",
+      pause: "Pauziraj",
+      resume: "Nastavi",
+    },
     planRequired: (waiting) =>
       waiting === 0
         ? "Sinkronizacija s webom dio je Rail Pro plana. Tvoje ruke ostaju na ovom računalu."
@@ -412,6 +435,14 @@ export const hr: Dict = {
     upgrade: "Prijeđi na Pro",
     checkAgain: "Provjeri ponovno",
     checking: "Provjera…",
+    badge: {
+      open: "Sve dostupno",
+      pro: "Pro",
+      proOffline: (date) => `Pro · izvan mreže do ${date}`,
+      free: "Free",
+      reconnect: "Pro · spoji se",
+      none: "Nema plana",
+    },
     settings: {
       heading: "Plan",
       loading: "Čitanje plana…",
@@ -430,6 +461,20 @@ export const hr: Dict = {
     loading: "Učitavanje…",
     saveFailed: (reason) => `Promjena nije spremljena: ${reason}`,
     unavailable: "Postavke su dostupne samo unutar aplikacije Rail.",
+    sections: {
+      account: "Račun",
+      folders: "Povijesti ruku",
+      statistics: "Tvoje statistike",
+      appearance: "Izgled",
+      updates: "Ažuriranja",
+      danger: "Opasna zona",
+    },
+    version: (version) => `Verzija ${version}`,
+    danger: {
+      deleteAccount: "Obriši moj račun",
+      delete: "Obriši…",
+      openFailed: (reason) => `Preglednik se nije otvorio: ${reason}`,
+    },
 
     folders: {
       heading: "Mape s rukama",
@@ -443,6 +488,15 @@ export const hr: Dict = {
       findAgain: "Ponovno potraži mape",
       setup: "Otvori ekran za postavljanje",
       list: "Praćene mape",
+      foldersRow: "Mape",
+      find: "Potraži mape",
+      more: (path) => `Više za ${path}`,
+      edit: "Uredi mapu…",
+      editHeading: "Uredi mapu",
+      change: "Promijeni…",
+      refusedPill: (count) => `Odbijeno: ${n(count)}`,
+      notWatched: "Ne prati se",
+      done: "Gotovo",
 
       search: {
         heading: "Mape koje je Rail pronašao",
@@ -456,6 +510,7 @@ export const hr: Dict = {
         adding: "Dodavanje…",
         added: (count) => `Rail sada prati još ${mapa(count)}.`,
         close: "Zatvori",
+        watch: "Prati",
       },
 
       room: "Soba",
@@ -685,6 +740,10 @@ export const hr: Dict = {
       published: (date) => `Objavljeno ${date}`,
       whatsNew: "Što je novo",
       download: "Preuzmi ažuriranje",
+      downloadShort: "Preuzmi",
+      checkNow: "Provjeri sada",
+      automaticShort: "Provjeravaj automatski",
+      upToDateShort: "Ažurno",
       downloadHint: "Rail normalno radi dok se preuzima. Instalira se tek kad ti kažeš.",
       downloading: (version) => `Preuzimam Rail ${version}…`,
       progress: (done, total, percent) => `${done} od ${total} MB (${percent} %)`,
@@ -851,6 +910,20 @@ export const hr: Dict = {
         ? "Nema ničeg za ponovno čitanje."
         : `Ponovno se ${plural(files, "čita", "čitaju", "čita")} ${datoteka(files)}.`,
     retryFailed: (reason) => `Ponovno čitanje nije uspjelo: ${reason}`,
+    olderParser: (count) => `Stariji parser odbio je ${rukuAcc(count)}`,
+    tryAgain: "Pokušaj ponovno",
+    all: "Sve",
+    reasons: "Razlozi",
+    allFolders: "Sve mape",
+    folder: "Mapa",
+    details: "Detalji",
+    handTime: "Vrijeme ruke",
+    lastSeen: "Zadnje viđeno",
+    range: (from, to, total) => `${n(from)}–${n(to)} od ${n(total)}`,
+    pages: "Stranice",
+    previous: "Prethodna stranica",
+    next: "Sljedeća stranica",
+    page: (page) => `Stranica ${n(page)}`,
   },
 
   hands: {

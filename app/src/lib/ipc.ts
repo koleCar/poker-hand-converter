@@ -275,11 +275,13 @@ export interface QuarantineSummary {
   retryable: Retryable;
 }
 
-/** `quarantine::QuarantineList`. */
+/** `quarantine::QuarantineList`: one page of refused hands. */
 export interface QuarantineList {
   entries: RefusedHand[];
-  /** More match than are listed. */
+  /** More match than are listed (after this page). */
   truncated: boolean;
+  /** How many match the filter, on every page. */
+  total: number;
 }
 
 /** `folder_settings::FolderQuarantine`. */
@@ -1216,8 +1218,8 @@ export const ipc = {
   folderQuarantine: (id: number) => invoke<FolderQuarantine>("folder_quarantine", { id }),
   /** Refused hands per reason, app-wide (`sourceId: null`) or of one folder (R1.6). */
   quarantineSummary: (sourceId: number | null) => invoke<QuarantineSummary>("quarantine_summary", { sourceId }),
-  quarantineEntries: (sourceId: number | null, reason: string | null) =>
-    invoke<QuarantineList>("quarantine_entries", { sourceId, reason }),
+  quarantineEntries: (sourceId: number | null, reason: string | null, page?: { offset: number; limit: number }) =>
+    invoke<QuarantineList>("quarantine_entries", { sourceId, reason, offset: page?.offset ?? null, limit: page?.limit ?? null }),
   /** A refused hand's raw text; `null` when it is gone (read again meanwhile). */
   quarantineRawText: (id: number) => invoke<string | null>("quarantine_raw_text", { id }),
   /** Read again what an older parser refused. Returns the files read again. */

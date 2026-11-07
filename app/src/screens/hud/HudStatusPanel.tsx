@@ -1,7 +1,6 @@
 /**
- * Settings, HUD - once the HUD screen's "At the tables" (docs/RAIL-PLAN.md
- * R3.10; guideline §7,
- * compliance mode): which tables the HUD is on, which tables it found and
+ * The HUD screen's "At the tables", under the editor (docs/RAIL-PLAN.md
+ * R3.10; guideline §7, compliance mode): which tables the HUD is on, which tables it found and
  * left alone and why - in plain words, with the room's policy page and the
  * date it was read -, "Why can't I enable the HUD here?", where the HUD may
  * be used, and where the room list in force came from. There is no override:
@@ -271,7 +270,7 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
     return (
       <section className={styles.card} aria-labelledby="hud-status">
         <h2 id="hud-status" className={styles.heading}>
-          {s.heading}
+          {s.tablesHeading}
         </h2>
         <p className={styles.muted}>{s.unavailable}</p>
       </section>
@@ -293,7 +292,7 @@ export function HudStatusPanel({ compliance }: { compliance: HudCompliance }) {
   return (
     <section className={styles.card} aria-labelledby="hud-status">
       <h2 id="hud-status" className={styles.heading}>
-        {s.heading}
+        {s.tablesHeading}
       </h2>
       <p className={styles.state} data-state={state}>
         {state === "running"

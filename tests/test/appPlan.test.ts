@@ -2,7 +2,7 @@
  * (R6.4) The desktop app's plan in its window: the lock in place of a Pro
  * feature in English and Croatian for every reason the Rust side gives
  * (`rail_sync::entitlements`, tested there in every state), what each lock
- * offers (sign in, check again, upgrade), the Settings lines, the HUD's
+ * offers (sign in, check again, upgrade), Settings' plan badge, the HUD's
  * `locked` phase, the analysis waiting for the plan, sync held by it - and
  * that **nothing is locked while enforcement is off**, today's state.
  */
@@ -13,8 +13,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import type { RunnerStatus } from "../../app/src/analysis/runner";
-import { ProLockView, lockReason, planLines } from "../../app/src/components/ProLock";
-import { SyncPanel } from "../../app/src/components/SyncPanel";
+import { ProLockView } from "../../app/src/components/ProLock";
 import { en } from "../../app/src/i18n/en";
 import { hr } from "../../app/src/i18n/hr";
 import { DictProvider } from "../../app/src/i18n/index";
@@ -22,6 +21,7 @@ import { hudState } from "../../app/src/lib/hudCompliance";
 import type { EffectivePlan, EntitlementsStatus, HudStatus, PlanFeature, SyncStatus } from "../../app/src/lib/ipc";
 import { ROUTE_FEATURE, isLocked } from "../../app/src/lib/useEntitlements";
 import { describeStatus } from "../../app/src/screens/analysis/status";
+import { SyncRowView, planBadge } from "../../app/src/screens/settings/Account";
 
 const ALL = { desktopSync: true, hud: true, reportsFull: true, analysis: true, learn: true };
 const NONE = { desktopSync: false, hud: false, reportsFull: false, analysis: false, learn: false };
@@ -122,26 +122,27 @@ describe("the lock, in both languages", () => {
       expect(expired).not.toContain(`>${p.signIn}<`);
     });
 
-    it(`Settings' plan lines, ${locale}`, () => {
+    it(`Settings' plan badge: coloured by what can be used now, with its one action, ${locale}`, () => {
       const when = (ms: number) => new Date(ms).toISOString();
-      expect(planLines(OPEN_OFF, p, when)).toEqual([p.settings.open]);
-      expect(planLines(OPEN_UNKNOWN, p, when)).toEqual([p.settings.open]);
-      expect(planLines(PRO, p, when)).toEqual([
-        p.settings.proUntil(when(AT + 14 * DAY)),
-        p.settings.lastChecked(when(AT)),
-      ]);
-      expect(planLines(FREE, p, when)).toEqual([
-        p.settings.free,
-        p.settings.handsStored(1234, 10000),
-        p.settings.lastChecked(when(AT)),
-      ]);
-      const offline = { ...EXPIRED, check: { ...EXPIRED.check, failing: true } };
-      expect(planLines(offline, p, when)).toEqual([
-        p.settings.free,
-        lockReason(EXPIRED, p),
-        p.settings.lastChecked(when(AT)),
-        p.settings.offline,
-      ]);
+      const b = p.badge;
+      const badge = (plan: EntitlementsStatus) => planBadge(plan, b, when);
+      expect(badge(OPEN_OFF)).toEqual({ tone: "blue", icon: "check", label: b.open, action: null });
+      expect(badge(OPEN_UNKNOWN)).toEqual({ tone: "blue", icon: "check", label: b.open, action: null });
+      // Pro always holds offline until a date; it says so only while the check fails.
+      expect(badge(PRO)).toEqual({ tone: "gold", icon: "star", label: b.pro, action: null });
+      const proOffline = { ...PRO, check: { ...PRO.check, failing: true } };
+      expect(badge(proOffline)).toEqual({
+        tone: "yellow",
+        icon: "cloudOff",
+        label: b.proOffline(when(AT + 14 * DAY)),
+        action: "checkAgain",
+      });
+      expect(badge(FREE)).toEqual({ tone: "grey", icon: "minus", label: b.free, action: "upgrade" });
+      expect(badge(EXPIRED)).toEqual({ tone: "red", icon: "lock", label: b.reconnect, action: "checkAgain" });
+      expect(badge(SIGNED_OUT)).toEqual({ tone: "dashed", icon: null, label: b.none, action: "signIn" });
+      expect(badge(NOT_CHECKED)).toEqual({ tone: "dashed", icon: null, label: b.none, action: "checkAgain" });
+      const unknown = status({ plan: "free", reason: "enforcementUnknown" });
+      expect(badge(unknown)).toEqual({ tone: "dashed", icon: null, label: b.none, action: null });
     });
   }
 });
@@ -193,9 +194,51 @@ describe("the HUD, the analysis and sync, held by the plan", () => {
       ["en", en],
       ["hr", hr],
     ] as const) {
-      const html = render(locale, createElement(SyncPanel, { sync, error: null, busy: false, run: async () => undefined }));
-      expect(html).toContain(dict.sync.planRequired(3));
+      const html = render(locale, createElement(SyncRowView, { sync, error: null, busy: false, run: async () => undefined }));
+      expect(html).toContain(dict.sync.short.planRequired);
       expect(html).toContain(dict.plan.upgrade);
     }
+  });
+
+  it("Settings' sync row: one status, one action, the bar while syncing, the refusals as a pill", () => {
+    const base: SyncStatus = {
+      phase: { state: "syncing" },
+      paused: false,
+      outbox: 2800,
+      live: 0,
+      retrying: 0,
+      sent: 1200,
+      total: 4000,
+      rejected: [],
+      pulled: 0,
+      pullSkipped: 0,
+      lastSyncAt: null,
+      handsPerSecond: null,
+      bytesPerSecond: null,
+      cap: null,
+      capNow: null,
+      tablesOpen: false,
+    };
+    const row = (sync: SyncStatus) =>
+      render("en", createElement(SyncRowView, { sync, error: null, busy: false, run: async () => undefined }));
+    const s = en.sync.short;
+    const syncing = row(base);
+    expect(syncing).toContain(s.syncing(1200, 4000));
+    expect(syncing).toContain('role="progressbar"');
+    expect(syncing).toContain('aria-valuenow="30"');
+    expect(syncing).toContain(`>${s.pause}<`);
+    const refused = row({ ...base, phase: { state: "upToDate" }, rejected: [{ reason: "shape", count: 3 }] });
+    expect(refused).toContain(s.refused(3));
+    expect(refused).toContain(`>${en.sync.tryAgain}<`);
+    expect(refused).not.toContain(`>${s.pause}<`);
+    expect(refused).not.toContain('role="progressbar"');
+    const mismatch = row({
+      ...base,
+      phase: { state: "accountMismatch", ownerEmail: "a@example.invalid", email: "b@example.invalid", localHands: 9 },
+    });
+    expect(mismatch).toContain(s.mismatch("a@example.invalid"));
+    expect(mismatch).toContain(`>${s.upload}<`);
+    expect(mismatch).toContain(`>${s.keepApart}<`);
+    expect(row({ ...base, phase: { state: "paused" }, paused: true })).toContain(`>${s.resume}<`);
   });
 });

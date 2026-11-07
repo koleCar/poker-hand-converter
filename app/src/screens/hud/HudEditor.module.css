@@ -1375,7 +1375,7 @@
   border-radius: var(--radius-2);
 }
 
-/* The HUD screen's notice: something to do in Settings, HUD */
+/* The HUD screen's notice: something to do at the tables (further down) */
 
 .notice {
   display: flex;
@@ -1400,4 +1400,15 @@
 /* What a room only leaves out reads as a note, not a warning. */
 .barProblems .noteText {
   color: var(--text-tertiary);
+}
+
+/* The HUD at the tables (`HudStatusPanel`), under the editor; `#/hud/tables`
+   scrolls to it and focuses it, without a ring of its own. */
+.tables {
+  margin-top: var(--space-5);
+  scroll-margin-block-start: var(--space-6);
+}
+
+.tables:focus {
+  outline: none;
 }
