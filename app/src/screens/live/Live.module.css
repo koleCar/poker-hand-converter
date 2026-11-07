@@ -426,6 +426,12 @@
   box-shadow: inset 3px 0 0 var(--accent-fg);
 }
 
+/* Chosen (Cmd/Ctrl or Shift + click): tinted, like the Hands list. */
+.chosen td,
+.chosen:hover td {
+  background: var(--accent-subtle);
+}
+
 .arrowCell {
   width: 40px;
   text-align: right;

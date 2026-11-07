@@ -861,6 +861,25 @@ export const hr: Dict = {
     empty: "Još nema ruku. Pojavit će se ovdje čim ih Rail uveze iz tvojih mapa s poviješću ruku.",
     rebuilding: (done, total) =>
       `Popis ruku osvježava se nakon nadogradnje: ${n(done)} od ${odRuku(total)}. Popis se puni usput.`,
+    actions: {
+      label: (count) => (count === 1 ? "Ruka" : ruku(count)),
+      replay: (count) => (count === 1 ? "Pogledaj ruku u replayeru" : `Pogledaj ${rukuAcc(count)} u replayeru`),
+      export: (count) => (count === 1 ? "Izvezi ruku u .txt" : `Izvezi ${rukuAcc(count)} u .txt`),
+      fileName: (date) => `Rail ruke ${date}`,
+      exported: (count, path) => `Spremljeno: ${ruku(count)} u ${path}`,
+      missing: (count) => `${ruku(count)} više nije u spremištu, izostavljeno`,
+      exportFailed: (reason) => `Ruke nisu spremljene: ${reason}`,
+      dismiss: "Zatvori",
+    },
+    replayList: {
+      label: "Ruke za replay",
+      position: (at, count) => `${n(at)} od ${n(count)}`,
+      show: "Prikaži ruke",
+      hide: "Sakrij ruke",
+      previous: "Prethodna ruka (↑)",
+      next: "Sljedeća ruka (↓)",
+      noCards: "Bez karata",
+    },
     panel: {
       label: "Ruka",
       choose: "Odaberi ruku s popisa da je ovdje pogledaš u replayeru.",

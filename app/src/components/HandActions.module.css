@@ -1,0 +1,50 @@
+/* What a save from a hand list's menu did (HandActions.tsx): a quiet plate
+   at the window's foot, gone after a few seconds. */
+
+.notice {
+  position: fixed;
+  bottom: var(--space-5);
+  left: 50%;
+  z-index: var(--z-menu);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: min(40rem, calc(100vw - 32px));
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-4);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  transform: translateX(-50%);
+}
+
+.error {
+  border-color: var(--loss-fg);
+}
+
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dismiss {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-3);
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dismiss:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}

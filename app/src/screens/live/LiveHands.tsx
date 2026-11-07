@@ -9,11 +9,18 @@
  * following its cursor; a session is hundreds of hands, not thousands) and
  * read again whenever its hand count changes, so a new hand appears at the
  * top while the reader stays on their page.
+ *
+ * Several hands can be chosen as in the Hands list (Cmd/Ctrl + click one,
+ * Shift + click a run, across pages); a right click replays them or saves
+ * them as a .txt (`components/HandActions`).
  */
 import { kindFormats, type GameKind } from "@rail/ui/hands/gameKind";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
-import { useEffect, useState } from "react";
+import type { MenuPoint } from "@rail/ui/hands/ContextMenu";
+import { useHandSelection, type HandSelection } from "@rail/ui/hands/useHandSelection";
+import { useEffect, useState, type MouseEvent } from "react";
 
+import { useHandActions } from "../../components/HandActions";
 import { StateMessage } from "../../components/StateMessage";
 import { useT } from "../../i18n";
 import { liveNumberFormat } from "../../i18n/format";
@@ -30,6 +37,8 @@ const STORE_PAGE = 500;
 const MAX_ROWS = 5000;
 
 const BB = liveNumberFormat({ maximumFractionDigits: 1, minimumFractionDigits: 1 });
+
+const NO_ROWS: HandRow[] = [];
 
 /** Every hand of `kind` since `from`, newest first. */
 async function sessionHands(from: string, kind: GameKind): Promise<HandRow[]> {
@@ -70,6 +79,8 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
   const d = t.live.handList;
   const { rows, error } = useSessionHands(session.startedAt, session.hands, kind);
   const [page, setPage] = useState(1);
+  const selection = useHandSelection(rows ?? NO_ROWS);
+  const actions = useHandActions();
 
   let body;
   if (rows === null) {
@@ -110,7 +121,14 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
             </thead>
             <tbody>
               {shown.map((row, index) => (
-                <HandLine key={row.handKey} row={row} newest={current === 1 && index === 0} unit={unit} />
+                <HandLine
+                  key={row.handKey}
+                  row={row}
+                  newest={current === 1 && index === 0}
+                  unit={unit}
+                  selection={selection}
+                  onMenu={actions.openMenu}
+                />
               ))}
             </tbody>
           </table>
@@ -119,6 +137,7 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
           <nav className={styles.pager} aria-label={d.pages}>
             <span className={styles.muted}>
               {d.range(first + 1, Math.min(first + HANDS_PER_PAGE, rows.length), rows.length)}
+              {selection.size > 1 ? ` · ${t.hands.chosen(selection.size)}` : null}
             </span>
             <span className={styles.pages}>
               <button
@@ -167,11 +186,24 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
   return (
     <section className={styles.section} aria-label={d.label}>
       {body}
+      {actions.element}
     </section>
   );
 }
 
-function HandLine({ row, newest, unit }: { row: HandRow; newest: boolean; unit: LiveUnit }) {
+function HandLine({
+  row,
+  newest,
+  unit,
+  selection,
+  onMenu,
+}: {
+  row: HandRow;
+  newest: boolean;
+  unit: LiveUnit;
+  selection: HandSelection;
+  onMenu: (handKeys: string[], at: MenuPoint) => void;
+}) {
   const t = useT();
   const d = t.live.handList;
   const pot =
@@ -187,8 +219,27 @@ function HandLine({ row, newest, unit }: { row: HandRow; newest: boolean; unit: 
       ? d.bb(bigBlinds(row.heroNetBbMilli))
       : "—";
   const open = () => go("hands", row.handKey);
+  // A plain click opens the hand; with Cmd/Ctrl or Shift it only chooses.
+  const click = (event: MouseEvent) => {
+    if (!selection.click(row.handKey, event)) open();
+  };
+  // A plain click leaves the screen, so a chosen row was chosen with a modifier.
+  const chosen = selection.checked.has(row.handKey);
   return (
-    <tr className={styles.handRow} onClick={open}>
+    <tr
+      className={chosen ? `${styles.handRow} ${styles.chosen}` : styles.handRow}
+      aria-selected={selection.size > 0 ? chosen : undefined}
+      onClick={click}
+      onMouseDown={(event) => {
+        if (event.shiftKey) event.preventDefault();
+      }}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        const box = event.currentTarget.getBoundingClientRect();
+        const keyboard = event.clientX === 0 && event.clientY === 0;
+        onMenu(selection.forMenu(row.handKey), keyboard ? { x: box.left + 24, y: box.bottom } : { x: event.clientX, y: event.clientY });
+      }}
+    >
       <td>
         <span className={styles.handCell}>
           <a
@@ -198,7 +249,7 @@ function HandLine({ row, newest, unit }: { row: HandRow; newest: boolean; unit: 
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
-              open();
+              click(event);
             }}
           >
             {row.heroCards.length > 0 ? <CardRow cards={row.heroCards} size="xs" /> : "—"}
