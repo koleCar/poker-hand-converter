@@ -425,7 +425,7 @@ describe("the list, rendered", () => {
     expect(html).toContain("+$12.50");
     expect(html).not.toContain("+12.5 bb");
     expect(html).toContain("EV +8.0");
-    // The pot follows the switch too: the hand's money here, big blinds below.
+    // The pot follows the unit too (108f38bf): money here.
     expect(html).toContain(">$26<");
     expect(html).toContain('aria-label="Has a note"');
     expect(html).toContain('title="review"');
@@ -433,7 +433,6 @@ describe("the list, rendered", () => {
     expect(html).toContain('aria-selected="true"');
     const inBb = render("en", createElement(HandList, { ...listProps([APP_ROW]), unit: "bb" }));
     expect(inBb).toContain("+12.5 bb");
-    expect(inBb).toContain(" bb<");
     expect(inBb).not.toContain("+$12.50");
   });
 

@@ -1,6 +1,6 @@
 /**
- * (R6.4) The lock shown in place of a Pro feature, and the plan's lines in
- * Settings, Account.
+ * (R6.4) The lock shown in place of a Pro feature (Settings' plan badge is
+ * `screens/settings/Account.tsx`).
  *
  * Shown only when the app holds the feature back - enforcement on and the
  * effective plan without it (`useEntitlements().locked`); while enforcement
@@ -9,14 +9,10 @@
  * not checked yet or the offline grace period is over - "Check again".
  * "Upgrade" opens the web's Plan panel, where Pro is bought (R6.3).
  */
-import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useT, type Dict } from "../i18n";
-import { liveDateFormat } from "../i18n/format";
 import type { EntitlementsStatus, PlanFeature } from "../lib/ipc";
 import { useEntitlements } from "../lib/useEntitlements";
 import styles from "./ProLock.module.css";
-
-const WHEN = liveDateFormat({ dateStyle: "medium", timeStyle: "short" });
 
 /** Why, in words, from the plan's reason. */
 export function lockReason(status: EntitlementsStatus, p: Dict["plan"]): string {
@@ -95,60 +91,4 @@ export function ProLock({ feature, compact = false }: { feature: PlanFeature; co
       compact={compact}
     />
   );
-}
-
-/** Settings, Account, Plan: what the plan allows and when it was checked. */
-export function PlanPanel() {
-  const p = useT().plan;
-  const plan = useEntitlements();
-  if (plan.status === null) {
-    return <p className={styles.muted}>{plan.error ?? <RailLoader size="inline" label={p.settings.loading} showLabel />}</p>;
-  }
-  const when = (ms: number) => WHEN.format(ms);
-  const effective = plan.status.effective;
-  return (
-    <div className={styles.lines}>
-      {planLines(plan.status, p, when).map((line) => (
-        <p key={line} className={styles.line}>
-          {line}
-        </p>
-      ))}
-      {effective.plan !== "open" ? (
-        <div className={styles.actions}>
-          <button type="button" className={styles.secondary} disabled={plan.checking} onClick={plan.checkNow}>
-            {plan.checking ? p.checking : p.checkAgain}
-          </button>
-          {effective.plan === "free" ? (
-            <button type="button" className={styles.button} onClick={plan.upgrade}>
-              {p.upgrade}
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-/** The plan in a line or two (Settings, Account), given its status. */
-export function planLines(status: EntitlementsStatus, p: Dict["plan"], when: (ms: number) => string): string[] {
-  const effective = status.effective;
-  const lines: string[] = [];
-  if (effective.plan === "open") {
-    lines.push(p.settings.open);
-  } else if (effective.plan === "pro") {
-    lines.push(effective.proUntilMs !== null ? p.settings.proUntil(when(effective.proUntilMs)) : p.settings.pro);
-  } else {
-    lines.push(p.settings.free);
-    if (effective.reason !== "free") lines.push(lockReason(status, p));
-  }
-  if (status.handsStored !== null && status.handCap !== null && effective.plan !== "open") {
-    lines.push(p.settings.handsStored(status.handsStored, status.handCap));
-  }
-  if (status.check.succeededAtMs !== null && effective.plan !== "open") {
-    lines.push(p.settings.lastChecked(when(status.check.succeededAtMs)));
-  }
-  if (status.check.failing && effective.plan !== "open") {
-    lines.push(p.settings.offline);
-  }
-  return lines;
 }

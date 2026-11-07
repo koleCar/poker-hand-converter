@@ -1415,19 +1415,33 @@
 
 /* ------------------------------------------------------------- motion gate */
 
-/* The one rule the whole "only a +1 step animates" contract is enforced by.
+/* The rules the whole "only a +1 step animates" contract is enforced by.
    `data-motion` is `"step"` when the viewer advanced by exactly one frame and
-   `"none"` for everything else — a scrub, a jump, a reverse, a fresh mount, or
-   a reader who asked for reduced motion — and `"none"` renders the destination
-   with the felt inert.
-   One blanket rule rather than an opt-out per animated thing, because the
-   per-thing version is a list that something eventually falls off. It stops at
-   the felt: the transport's hover states and the sheets' entrance are not
-   frame motion and have no business being switched off by where the scrubber
-   happens to be.
+   `"settle"` for everything else — a scrub, a jump, a reverse, a fresh mount,
+   or a reader who asked for reduced motion. Both stop at the felt: the
+   transport's hover states and the sheets' entrance are not frame motion and
+   have no business being switched off by where the scrubber happens to be.
+
+   `"settle"` deliberately does NOT say `animation: none`. Taking an animation
+   away and giving it back is, to the browser, a brand-new animation, so every
+   card already on the table was dealt in again on the first step after a
+   mount or a scrub, and every posted blind was bet out again. Instead the
+   animations are created as usual and `ReplayViewer` finishes them before
+   paint; a finished animation stays finished, so the step that follows only
+   moves what that step changed. Transitions have no such memory and can go.
+
+   `"none"` is the felt with no clock at all — the hand editor's table, which
+   never steps. Nothing on it ever animates, so it can be the blanket rule.
+
    Chips travel under WAAPI, which a stylesheet cannot reach and does not need
    to — a flight is only ever created on a step, and `ReplayViewer` finishes
    any still in the air when the viewer jumps. */
+.rp[data-motion="settle"] .rp__fit *,
+.rp[data-motion="settle"] .rp__fit *::before,
+.rp[data-motion="settle"] .rp__fit *::after {
+  transition: none !important;
+}
+
 .rp[data-motion="none"] .rp__fit *,
 .rp[data-motion="none"] .rp__fit *::before,
 .rp[data-motion="none"] .rp__fit *::after {
@@ -1438,9 +1452,9 @@
 /* --------------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
-  /* Reduced motion is `data-motion="none"` permanently, so it is the rule
-     above that does the work and this is the copy that holds before React has
-     mounted. What goes is *positional* motion only: the travelling chips still
+  /* Reduced motion is `data-motion="settle"` permanently, and this is the
+     rule that switches the felt's animations off for it — before React has
+     mounted and after. What goes is *positional* motion only: the travelling chips still
      render and still fade at the spot they belong to, because the sweep is how
      a reader learns whose chips went in and a pot that is simply gone from the
      middle never says who it went to. The felt also gets a ~100ms opacity

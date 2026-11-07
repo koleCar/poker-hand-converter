@@ -1,0 +1,147 @@
+/* The Refused hands screen: the way back, the reason chips, the folder
+   select and the pages. Its cards and rows are `settings/Settings.module.css`.
+   Tokens only (the app's stylelint rules). */
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text-primary);
+}
+
+.back:focus-visible,
+.chip:focus-visible,
+.select:focus-visible,
+.pageButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 28px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.chip code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+}
+
+.chip:hover {
+  color: var(--text-primary);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.count {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.chip[aria-pressed="true"] .count {
+  color: inherit;
+}
+
+.select {
+  max-width: 320px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+/* The pages, at the bottom right. */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+.pagination > :first-child {
+  margin-right: var(--space-3);
+}
+
+.pageButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pageButton:hover:not(:disabled) {
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.pageButton[aria-current="page"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pageButton:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.gap {
+  padding: 0 var(--space-1);
+  color: var(--text-tertiary);
+}

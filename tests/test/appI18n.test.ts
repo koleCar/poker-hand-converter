@@ -53,8 +53,8 @@ describe("dictionaries", () => {
       "Street", "Fold", "Check", "Call", "Bet", "Raise",
       // R5.5's push/fold words: "push" and "sit-and-go" are Croatian poker too.
       "Push", "Sit-and-go",
-      // R6.4: the plan's name, and "plan" is Croatian too.
-      "Plan", "Rail Pro.",
+      // R6.4: the plan's name, and "plan" is Croatian too; the plans' names on Settings' badge.
+      "Plan", "Rail Pro.", "Pro", "Free",
       // The Players statistics' rows: poker's names, as the definitions say them in Croatian.
       "Open raise", "Limp", "Limp-fold", "4-bet", "5-bet", "Squeeze", "Steal", "Continuation bet", "Donk bet",
       "Check-raise",

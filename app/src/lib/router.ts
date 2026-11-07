@@ -1,7 +1,7 @@
 /**
  * The six screens of guideline §6 and (R5.4) the analysis, as hash routes
- * (`#/hands`), plus the first-run screen (`#/setup`, R1.4), which is not in
- * the sidebar. A hash keeps the router a few lines long and needs nothing
+ * (`#/hands`), plus the first-run screen (`#/setup`, R1.4) and the refused
+ * hands (`#/refused`, R1.6), which are not in the sidebar. A hash keeps the router a few lines long and needs nothing
  * from the Tauri asset protocol. A screen may take one parameter after its
  * name: the Hands screen's open hand (`#/hands/<hand key>`, R2.7a), the
  * analysis' view (`#/analysis/session`, `.../hand/<hand key>`, R5.4).
@@ -15,12 +15,22 @@ export type Screen = (typeof SCREENS)[number];
 /** The first-run screen: shown on first launch, reachable from Settings. */
 export const SETUP = "setup";
 
-export type Route = Screen | typeof SETUP;
+/**
+ * The refused hands (R1.6), reached from Settings, a folder's "refused"
+ * pill and the Import screen; not in the sidebar. Its parameter is a
+ * folder's id (`#/refused/<source id>`): that folder's hands only.
+ */
+export const REFUSED = "refused";
+
+export type Route = Screen | typeof SETUP | typeof REFUSED;
+
+/** The HUD screen's parameter that opens it at the HUD at the tables (`#/hud/tables`). */
+export const HUD_TABLES = "tables";
 
 export const DEFAULT_SCREEN: Screen = "live";
 
 function isRoute(id: string): id is Route {
-  return id === SETUP || (SCREENS as readonly string[]).includes(id);
+  return id === SETUP || id === REFUSED || (SCREENS as readonly string[]).includes(id);
 }
 
 /** The hash after `#/`, split at its first slash. */

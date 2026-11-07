@@ -73,7 +73,7 @@ export default function DevStats() {
           <dd>{s.evTime(status.evComputed, status.evMillis)}</dd>
         </dl>
       )}
-      <div className={styles.row}>
+      <div className={styles.devRow}>
         <button type="button" className={styles.button} onClick={() => run(ipc.statsRebuild, s.rebuildStarted)}>
           {s.rebuildButton}
         </button>

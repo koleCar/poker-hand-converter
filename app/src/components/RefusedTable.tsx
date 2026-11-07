@@ -1,13 +1,15 @@
 import { useState } from "react";
 
 import { useT } from "../i18n";
-import { errorText, ipc, type HandTime, type RefusedHand, type Retryable } from "../lib/ipc";
+import type { HandTime, RefusedHand } from "../lib/ipc";
 import { RawTextDialog } from "./RawTextDialog";
 import { liveDateFormat } from "../i18n/format";
 import styles from "./RefusedTable.module.css";
 
 /** The room's own clock: `HandTime.at` is a wall time, so it is read and shown as UTC (unshifted). */
 const wallTime = liveDateFormat({ dateStyle: "short", timeStyle: "short", timeZone: "UTC" });
+/** When Rail last met the hand: the reader's own clock. */
+const seen = liveDateFormat({ dateStyle: "short", timeStyle: "short" });
 
 /** "17/09/2026, 18:28 UTC": the hand's date and time as the room wrote them. */
 function played(time: HandTime): string {
@@ -24,9 +26,10 @@ function fileName(path: string): string {
 }
 
 /**
- * Refused hands as a table: room, when the hand was played, reason (its code
- * and message), file (its name on one line, the whole path on hover); each
- * with its raw text in a dialog (R1.6).
+ * Refused hands as a table (R1.6): the reason's code as a badge, its
+ * message, the room, when the hand was played, the file (its name on one
+ * line, the whole path on hover), when Rail last met it, and its raw text in
+ * a dialog.
  */
 export function RefusedTable({ entries }: { entries: RefusedHand[] }) {
   const t = useT();
@@ -38,10 +41,12 @@ export function RefusedTable({ entries }: { entries: RefusedHand[] }) {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th scope="col">{d.room}</th>
-              <th scope="col">{d.played}</th>
               <th scope="col">{d.reason}</th>
+              <th scope="col">{d.details}</th>
+              <th scope="col">{d.room}</th>
+              <th scope="col">{d.handTime}</th>
               <th scope="col">{d.file}</th>
+              <th scope="col">{d.lastSeen}</th>
               <th scope="col">
                 <span className={styles.hidden}>{d.text}</span>
               </th>
@@ -50,19 +55,20 @@ export function RefusedTable({ entries }: { entries: RefusedHand[] }) {
           <tbody>
             {entries.map((entry) => (
               <tr key={entry.id}>
+                <td>
+                  <code className={styles.code}>{entry.reason}</code>
+                </td>
+                <td className={styles.message}>{entry.message}</td>
                 <td className={styles.nowrap}>
                   {entry.siteName ?? <span className={styles.muted}>{d.unknown}</span>}
                 </td>
                 <td className={styles.nowrap}>
                   {entry.handTime ? played(entry.handTime) : <span className={styles.muted}>—</span>}
                 </td>
-                <td className={styles.reason}>
-                  <code className={styles.code}>{entry.reason}</code>
-                  <span className={styles.message}>{entry.message}</span>
-                </td>
                 <td className={styles.file} title={entry.file}>
                   {fileName(entry.file)}
                 </td>
+                <td className={styles.nowrap}>{seen.format(entry.lastSeen)}</td>
                 <td>
                   <button
                     type="button"
@@ -80,57 +86,5 @@ export function RefusedTable({ entries }: { entries: RefusedHand[] }) {
       </div>
       {shown && <RawTextDialog hand={shown} onClose={() => setShown(null)} />}
     </>
-  );
-}
-
-/**
- * "Try again after an update" (R1.6): shown when a parser has a newer
- * version than the one that refused some of these hands; reads their files
- * again. `sourceId: null` is every folder.
- */
-export function RetryRefused({
-  sourceId,
-  retryable,
-  onDone,
-}: {
-  sourceId: number | null;
-  retryable: Retryable;
-  onDone: () => void;
-}) {
-  const t = useT();
-  const d = t.refused;
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ text: string; error: boolean } | null>(null);
-
-  const retry = async () => {
-    setBusy(true);
-    setResult(null);
-    try {
-      const files = await ipc.retryRefused(sourceId);
-      setResult({ text: d.retried(files), error: false });
-      onDone();
-    } catch (e: unknown) {
-      setResult({ text: d.retryFailed(errorText(e)), error: true });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className={styles.retry}>
-      {retryable.hands > 0 ? (
-        <>
-          <p className={styles.hint}>{d.retryHint(retryable.hands, retryable.files)}</p>
-          <button type="button" className={styles.button} disabled={busy} onClick={() => void retry()}>
-            {busy ? d.retrying : d.retry}
-          </button>
-        </>
-      ) : (
-        <p className={styles.hint}>{d.upToDate}</p>
-      )}
-      <div aria-live="polite" className={styles.live}>
-        {result && <p className={result.error ? styles.error : styles.success}>{result.text}</p>}
-      </div>
-    </div>
   );
 }
