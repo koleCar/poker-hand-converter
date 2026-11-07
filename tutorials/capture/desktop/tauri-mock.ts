@@ -114,10 +114,11 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
   const checkForRoom = (design: HudDesign, rules: HudRestrictions): DesignProblem[] => {
     const out: DesignProblem[] = [];
     if (rules.noGameStateSwitching) {
-      for (const cell of design.cells) if (cell.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
+      for (const cell of design.cells) if (cell?.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
     }
     if (rules.maxColourThresholds !== null) {
       for (const cell of design.cells) {
+        if (!cell) continue;
         const stat = statOf(cell.stat);
         if (!stat) continue;
         const bands = design.overrides?.[cell.stat]?.bands ?? stat.bands;
@@ -133,8 +134,9 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
 
   const designProblems = (design: HudDesign): DesignProblem[] => {
     const out: DesignProblem[] = [];
-    if (design.cells.length === 0) out.push({ code: 'noCells' });
-    if (design.cells.length > data.hudEditor.limits.maxCells) out.push({ code: 'tooManyCells' });
+    const placed = design.cells.filter((cell) => cell !== null).length;
+    if (placed === 0) out.push({ code: 'noCells' });
+    if (placed > data.hudEditor.limits.maxCells) out.push({ code: 'tooManyCells' });
     if (design.name.length > 60) out.push({ code: 'nameTooLong' });
     return out;
   };
@@ -243,7 +245,9 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
     };
     slots.forEach((_, slot) => {
       const seat = slot + 1;
-      const cells = design.cells.filter((cell) => {
+      // The mock flows the statistics row by row; the real HUD keeps each in its grid slot.
+      const cells = design.cells.filter((cell): cell is NonNullable<typeof cell> => {
+        if (!cell) return false;
         if (!cell.when) return true;
         if (switching) return false;
         const stack = stackOf(seat);

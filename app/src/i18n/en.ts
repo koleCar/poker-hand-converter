@@ -1266,11 +1266,49 @@ export const en = {
     preferredSeatYes: "Yes, it turns the table",
     preferredSeatNo: "No, seats stay numbered",
     preferredSeatFailed: (reason: string) => `Not changed: ${reason}`,
-    notice: {
-      permission: "The HUD cannot see your tables until Rail has the Accessibility permission.",
-      off: (reason: string) => `The HUD is not running: ${reason}`,
-      open: "Open HUD settings",
+    /** The answers to "my client seats me at the bottom", short, after "Seats:" in a room's menu. */
+    seats: (answer: string) => `Seats: ${answer}`,
+    seatsShort: { auto: "as the room says", yes: "me at the bottom", no: "as numbered" },
+    /** The HUD screen's two views (`#/hud`, `#/hud/tables`): the header's pill. */
+    views: { label: "HUD view", editor: "Editor", tables: "At the tables" },
+    /** The header's status pill. */
+    pill: {
+      running: "HUD running",
+      tables: (count: number) => (count === 1 ? "1 table" : `${n(count)} tables`),
+      ready: "HUD ready",
+      noTables: "no tables open",
+      starting: "HUD starting",
+      off: "HUD off",
+      permission: "Needs a permission",
+      fix: "Fix ›",
+      pro: "HUD is part of Pro",
+      upgrade: "Upgrade ›",
+      signIn: "Sign in ›",
+      checkAgain: "Check again ›",
     },
+    /** At the tables: a card per game, its design and the rules that send a table elsewhere. */
+    games: { cash: "Cash", mtt: "Tournaments", spin: "Spins" },
+    panelOf: (design: string) => `The panel of ${design}`,
+    rules: {
+      summary: (count: number, first: string) => (count === 1 ? `1 rule: ${first} ›` : `${n(count)} rules: ${first}, … ›`),
+      add: "+ Rule",
+      label: (game: string) => `Rules: ${game}`,
+      at: "At",
+      use: "use",
+      addRule: "+ Add rule",
+      add1: "Add",
+    },
+    /** At the tables: the rooms, one row each. */
+    rooms: {
+      allowed: "Allowed",
+      notAllowed: "Not allowed",
+      noTable: "No table open",
+      more: (count: number) => (count === 1 ? "1 more room not allowed" : `${n(count)} more rooms not allowed`),
+      fewer: "Show fewer rooms",
+      menu: (room: string) => `${room}: more`,
+      listMenu: "The room list",
+    },
+    permissionInfo: "What the permission is for",
     loading: "Reading the HUD's status…",
     failed: (reason: string) => `The HUD's status could not be read: ${reason}`,
     unavailable: "The HUD's status is only available inside the Rail app.",

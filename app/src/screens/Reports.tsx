@@ -93,6 +93,7 @@ export function Reports() {
       tab={tab}
       onTab={(next) => replaceParam("reports", next)}
       title={t.screens.reports.title}
+      hideTitle
       notice={<RecomputeNotice status={rebuild} filling={r.rebuilding} className={styles.notice} />}
       emptyText={r.empty}
       renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}

@@ -592,7 +592,9 @@ export interface HudDesign {
   preset?: string;
   format: GameFormat;
   columns: number;
-  cells: DesignCell[];
+  /** Rows of the panel's grid; `cells` holds `rows` x `columns` slots, row by row, `null` an empty slot. */
+  rows: number;
+  cells: (DesignCell | null)[];
   overrides?: Record<string, StatOverride>;
   popup: PopupSection[];
   legend: boolean;

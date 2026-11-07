@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
-import { ScreenHeader } from "../../components/ScreenHeader";
+import headerStyles from "../../components/ScreenHeader.module.css";
 import { useT } from "../../i18n";
 import { inApp, ipc } from "../../lib/ipc";
 import { useRouteParam } from "../../lib/router";
@@ -82,7 +82,8 @@ export function Settings() {
 
   return (
     <>
-      <ScreenHeader title={t.screens.settings.title} lead={t.screens.settings.lead} />
+      {/* No header at all (2026-11-07): the first section starts the page; the heading stays for assistive technology. */}
+      <h1 className={headerStyles.visuallyHidden}>{t.screens.settings.title}</h1>
       {inApp ? (
         <div className={styles.page}>
           <Group id="account" label={g.account}>

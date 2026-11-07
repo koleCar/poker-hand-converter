@@ -1,6 +1,6 @@
 /* The HUD screen (R3.9): the editor - the design bar, the panel's grid and
    its options, a cell's settings by the cell, the statistics drawer, the
-   preview and the popup - and the tables' choices (`Assignments`). Tokens
+   preview and the popup. Tokens
    only (the app's stylelint rules). Every control in a row is 32 px tall. */
 
 .editor {
@@ -60,33 +60,6 @@
   }
 }
 
-.subheading {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-}
-
-.inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.toolLabel {
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
-}
-
 .input,
 .select,
 .search,
@@ -133,14 +106,8 @@
   font-size: var(--font-size-xs);
 }
 
-.error,
-.refused {
+.error {
   color: var(--danger-fg);
-}
-
-.noteText {
-  color: var(--warning-fg);
-  font-size: var(--font-size-sm);
 }
 
 .refusedBox,
@@ -179,29 +146,6 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-.iconButton {
-  min-width: 1.75rem;
-  height: 1.75rem;
-  padding: 0 var(--space-2);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  background: transparent;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-2);
-  cursor: pointer;
-}
-
-.iconButton:hover:not(:disabled) {
-  color: var(--text-primary);
-  background: var(--surface-hover);
-  border-color: var(--border-default);
-}
-
-.iconButton:disabled {
-  opacity: 0.4;
-  cursor: default;
 }
 
 .linkButton {
@@ -1417,139 +1361,4 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-/* The tables */
-
-.assignments {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.gameRows,
-.ruleList {
-  display: flex;
-  flex-direction: column;
-  max-width: 56rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-2);
-}
-
-.gameRow,
-.rule {
-  display: grid;
-  grid-template-columns: minmax(12rem, 1fr) auto minmax(14rem, 1.2fr);
-  gap: var(--space-3);
-  align-items: center;
-  padding: var(--space-3) var(--space-4);
-}
-
-.rule {
-  grid-template-columns: minmax(12rem, 1fr) auto minmax(14rem, 1.2fr) auto;
-}
-
-.gameRow + .gameRow,
-.rule + .rule {
-  border-top: 1px solid var(--border-subtle);
-}
-
-@media (max-width: 760px) {
-  .gameRow,
-  .rule {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.gameName {
-  display: flex;
-  flex-direction: column;
-}
-
-.gameTitle {
-  font-weight: var(--font-weight-semibold);
-}
-
-.gameChoice {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.arrow {
-  color: var(--text-tertiary);
-}
-
-.assigned {
-  border-color: var(--accent-border);
-}
-
-.rulesHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: var(--space-2);
-}
-
-.ruleWhere {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.rulePart {
-  padding: var(--space-0-5) var(--space-2);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  background: var(--surface-inset);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-pill);
-}
-
-.newRule {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: flex-end;
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface-inset);
-  border: 1px dashed var(--border-default);
-  border-radius: var(--radius-2);
-}
-
-/* The HUD screen's notice: something to do at the tables (further down) */
-
-.notice {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-5);
-  padding: var(--space-3) var(--space-4);
-  color: var(--warning-fg);
-  font-size: var(--font-size-sm);
-  background: var(--warning-bg);
-  border: 1px solid var(--warning-border);
-  border-radius: var(--radius-2);
-}
-
-.noticeLink {
-  color: var(--text-link);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* The HUD at the tables (`HudStatusPanel`), under the editor; `#/hud/tables`
-   scrolls to it and focuses it, without a ring of its own. */
-.tables {
-  margin-top: var(--space-5);
-  scroll-margin-block-start: var(--space-6);
-}
-
-.tables:focus {
-  outline: none;
 }

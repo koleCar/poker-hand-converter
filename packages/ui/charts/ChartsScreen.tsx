@@ -29,6 +29,11 @@ export interface ChartsScreenProps {
   source: PreflopChartsSource;
   title: string;
   titleTag?: "h1" | "h2";
+  /**
+   * The title for assistive technology only, and no line under it (the
+   * desktop, where the sidebar and the section tabs say where the user is).
+   */
+  hideTitle?: boolean;
   /** Under the title: the surface's own navigation. */
   notice?: ReactNode;
   renderState: (kind: "loading" | "empty" | "error", text: string) => ReactNode;
@@ -79,6 +84,7 @@ export function ChartsScreen({
   source,
   title,
   titleTag: Title = "h1",
+  hideTitle = false,
   notice,
   renderState,
   renderHandLink,
@@ -290,10 +296,14 @@ export function ChartsScreen({
 
   return (
     <div className={styles.screen}>
-      <header className={styles.top}>
-        <Title className={styles.title}>{title}</Title>
-        <p className={styles.intro}>{t.intro}</p>
-      </header>
+      {hideTitle ? (
+        <Title className={styles.visuallyHidden}>{title}</Title>
+      ) : (
+        <header className={styles.top}>
+          <Title className={styles.title}>{title}</Title>
+          <p className={styles.intro}>{t.intro}</p>
+        </header>
+      )}
       {notice}
       {body}
     </div>

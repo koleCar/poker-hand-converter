@@ -783,10 +783,11 @@ const RULES: Record<string, HudRestrictions> = {};
 function checkForRoom(design: HudDesign, rules: HudRestrictions, stats: readonly HudStat[]) {
   const out: HudCheck['problems'] = [];
   if (rules.noGameStateSwitching) {
-    for (const cell of design.cells) if (cell.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
+    for (const cell of design.cells) if (cell?.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
   }
   if (rules.maxColourThresholds !== null) {
     for (const cell of design.cells) {
+      if (!cell) continue;
       const stat = stats.find((s) => s.id === cell.stat);
       if (!stat) continue;
       const bands = design.overrides?.[cell.stat]?.bands ?? stat.bands;

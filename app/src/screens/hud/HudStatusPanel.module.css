@@ -1,40 +1,24 @@
-/* The HUD screen, At the tables (R3.10): tables with the HUD, tables without it and why,
-   where the HUD may be used and how each room seats the user. Tokens only (the app's
-   stylelint rules). */
+/* The HUD screen, At the tables (R3.9, R3.10; the final design of 2026-11-07): the
+   three game cards with their small panels and rules, the one-row cards shown only
+   when needed, and the rooms, one row each, with their ⋯ menus. Every control in a
+   row is 32 px. Tokens only (the app's stylelint rules). */
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 960px;
+}
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5) var(--space-6);
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-3);
   min-width: 0;
-}
-
-.heading {
-  font-size: var(--font-size-lg);
-}
-
-.subheading {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-}
-
-.state {
-  margin: 0;
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.state[data-state="off"] {
-  color: var(--text-secondary);
-}
-
-.lead {
-  margin: 0;
-  color: var(--text-secondary);
 }
 
 .muted {
@@ -43,175 +27,434 @@
   font-size: var(--font-size-sm);
 }
 
-.list {
+.error {
+  margin: 0;
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+/* ------------------------------------------------------------- the games */
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 880px) {
+  .games {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.game {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.gameName {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The design's panel, small, on a strip of felt. */
+.felt {
+  display: grid;
+  place-items: center;
+  min-height: 68px;
+  padding: var(--space-3);
+  border-radius: var(--radius-2);
+  background: radial-gradient(ellipse at center, var(--felt-center), var(--felt-mid) 70%, var(--felt-edge));
+}
+
+.mini {
+  display: grid;
+  gap: 1px var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-1);
+  background: var(--surface-base);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+}
+
+.miniCell {
+  min-width: 2ch;
+  color: var(--text-primary);
+  text-align: start;
+  white-space: nowrap;
+}
+
+/* A select or a button in a row: 32 px. */
+.control {
+  height: 32px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.game > .control {
+  width: 100%;
+}
+
+.control:focus-visible,
+.textButton:focus-visible,
+.rulesLink:focus-visible,
+.iconButton:focus-visible,
+.menuItem:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.note {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.rulesLink,
+.textButton {
+  align-self: flex-start;
+  padding: 0;
+  color: var(--text-link);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  text-align: start;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rulesLink:hover,
+.textButton:hover {
+  text-decoration: underline;
+}
+
+.dim {
+  color: var(--text-tertiary);
+}
+
+/* The rules' popover: one sentence a rule. */
+.rules {
   gap: var(--space-2);
+  width: max-content;
+  max-width: min(44rem, calc(100vw - 16px));
+}
+
+.ruleRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sentence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.word {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.sentence :global(.btn) {
+  height: 32px;
+}
+
+.refusedBox {
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-2);
+}
+
+.refusedBox > p {
+  margin: 0;
+}
+
+.problemList {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-5);
+}
+
+/* ------------------------------------------------------ one-row cards */
+
+.rowCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-5);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+}
+
+.rowMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 32px;
+}
+
+.rowText {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.rowActions {
+  display: inline-flex;
+  flex: none;
+  gap: var(--space-2);
+}
+
+.rowActions :global(.btn) {
+  height: 32px;
+}
+
+.under {
+  margin: 0 0 0 calc(8px + var(--space-3));
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.dot[data-tone="live"] {
+  background: var(--success-fg);
+}
+
+.dot[data-tone="warn"] {
+  background: var(--warning-fg);
+}
+
+/* ------------------------------------------------------------- the rooms */
+
+.roomList {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.item {
+.room {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 6rem 32px;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.roomName {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  justify-self: end;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-pill);
+  background: var(--success-bg);
+  color: var(--success-on-tint);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.badge[data-allowed="false"] {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-on-tint);
+}
+
+.count {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.foot {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+}
+
+.foot > .textButton {
+  align-self: center;
+}
+
+.footEnd {
+  display: inline-flex;
+  gap: var(--space-1);
+  margin-inline-start: auto;
+}
+
+/* ------------------------------------------------ the ⋯ and ⓘ popovers */
+
+.anchor {
+  display: inline-flex;
   min-width: 0;
 }
 
-.table {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-  overflow-wrap: anywhere;
-}
-
-.refused {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  background: var(--warning-bg);
-  border: 1px solid var(--warning-border);
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--text-tertiary);
+  font: inherit;
+  background: none;
+  border: 0;
   border-radius: var(--radius-2);
-}
-
-/* (R3.11) macOS: the Accessibility permission the HUD waits for. */
-.permission {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-5);
-  color: var(--text-secondary);
-  background: var(--warning-bg);
-  border: 1px solid var(--warning-border);
-  border-radius: var(--radius-2);
-}
-
-.permission > p {
-  margin: 0;
-  max-width: 72ch;
-}
-
-.permission > .subheading {
-  color: var(--text-primary);
-}
-
-.granted {
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.refusal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  color: var(--text-primary);
-}
-
-.source {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
-}
-
-.link {
-  color: var(--text-link);
-  font-size: var(--font-size-sm);
-  text-decoration: underline;
-}
-
-.link:focus-visible,
-.button:focus-visible,
-.summary:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
-
-.explain {
-  color: var(--text-secondary);
-}
-
-.explain > p {
-  margin: var(--space-2) 0 0;
-  max-width: 72ch;
-}
-
-.summary {
-  color: var(--text-link);
   cursor: pointer;
 }
 
-.inner {
-  margin-top: var(--space-2);
+.rowText .iconButton {
+  width: 24px;
+  height: 24px;
 }
 
-.rooms {
+.iconButton:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.menu {
+  gap: 0;
+  width: min(20rem, calc(100vw - 16px));
+  padding: var(--space-2);
+}
+
+.info {
+  gap: var(--space-2);
+  width: min(30rem, calc(100vw - 16px));
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.info > p {
+  margin: 0;
+}
+
+.menuBody {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding-top: var(--space-3);
+  gap: var(--space-1);
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  list-style: none;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-2);
+  cursor: pointer;
+}
+
+.menuItem:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.menuItem:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.menuItem[aria-pressed="true"] {
+  color: var(--accent-on-subtle);
+  font-weight: var(--font-weight-semibold);
+}
+
+.seats {
+  display: flex;
+  flex-direction: column;
+}
+
+.seatOptions {
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: var(--space-3);
+}
+
+.menuDim {
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.rule {
+  width: 100%;
+  margin: var(--space-1) 0;
+  border: 0;
   border-top: 1px solid var(--border-subtle);
 }
 
 .notes {
   margin: 0;
-  padding-left: var(--space-5);
+  padding: 0 var(--space-2) 0 var(--space-6);
   color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
 }
 
 .mono {
   font-family: var(--font-family-mono);
   overflow-wrap: anywhere;
-}
-
-.button {
-  padding: var(--space-1) var(--space-3);
-  color: var(--text-primary);
-  background: var(--surface-sunken);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  cursor: pointer;
-}
-
-.button:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-
-/* An allowed room: its name and policy, then how the client seats the user. */
-.roomRow {
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.roomName {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
-  align-items: baseline;
-}
-
-.seat {
-  display: inline-flex;
-  gap: var(--space-2);
-  align-items: center;
-}
-
-.select {
-  padding: var(--space-1) var(--space-2);
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  background: var(--surface-sunken);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-}
-
-.select:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 1px;
 }
