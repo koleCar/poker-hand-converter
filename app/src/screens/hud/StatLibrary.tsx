@@ -1,9 +1,12 @@
 /**
- * The HUD editor's statistics library (R3.9): every statistic a panel may
- * show (never the hero's own, never money), found by name, by group. A
- * chip is dragged onto the panel or into a popup section; a click (or
- * Enter) adds it to the end of the panel. What is on the panel already is
- * ticked; the user's own and the ones that read the cards are marked.
+ * The HUD editor's statistics (R3.9): a drawer beside the editor with every
+ * statistic a panel may show (never the hero's own, never money) - by group
+ * (Preflop, Postflop, Showdown, Results; the user's own under Yours), each
+ * group opened and closed by its name - or, as soon as something is typed,
+ * a list of what matches by abbreviation or name. A chip is dragged onto
+ * the panel or into a popup section; a click (or Enter) adds it to the
+ * panel's first empty slot. What is on the panel already is dimmed; one
+ * that reads the cards (which PokerStars does not allow) is marked.
  */
 import { useState } from "react";
 import type { StatGroup } from "@rail/ui/model/stats";
@@ -13,7 +16,8 @@ import type { HudStat } from "../../lib/ipc";
 import { useDrag } from "./drag";
 import styles from "./HudEditor.module.css";
 
-const GROUPS: readonly StatGroup[] = ["preflop", "postflop", "showdown", "results"];
+type Shelf = StatGroup | "yours";
+const SHELVES: readonly Shelf[] = ["preflop", "postflop", "showdown", "results", "yours"];
 
 export function StatLibrary({
   stats,
@@ -31,21 +35,46 @@ export function StatLibrary({
   const locale = useLocale();
   const { begin, dragging } = useDrag();
   const [query, setQuery] = useState("");
-  const [group, setGroup] = useState<StatGroup | "all">("all");
+  const [open, setOpen] = useState<ReadonlySet<Shelf>>(() => new Set(["preflop"]));
 
   const palette = stats.filter((stat) => !stat.heroOnly && !stat.money);
+  const shelfOf = (stat: HudStat): Shelf => (stat.custom ? "yours" : stat.group);
   const needle = query.trim().toLowerCase();
-  const matches = (stat: HudStat) =>
-    needle === "" ||
-    stat.label[locale].toLowerCase().includes(needle) ||
-    stat.name[locale].toLowerCase().includes(needle) ||
-    stat.id.includes(needle);
-  const shown = palette.filter((stat) => (group === "all" || stat.group === group) && matches(stat));
-  const count = (g: StatGroup | "all") => palette.filter((stat) => (g === "all" || stat.group === g) && matches(stat)).length;
+  const found = palette.filter(
+    (stat) =>
+      stat.label[locale].toLowerCase().includes(needle) ||
+      stat.name[locale].toLowerCase().includes(needle) ||
+      stat.id.includes(needle),
+  );
+
+  const chip = (stat: HudStat, row: boolean) => {
+    const placed = onPanel(stat.id);
+    return (
+      <button
+        type="button"
+        className={[
+          row ? styles.statRow : styles.statChip,
+          placed ? styles.statPlaced : "",
+          stat.cardSplit ? styles.statCards : "",
+          dragging?.kind === "stat" && dragging.id === stat.id ? styles.statDragged : "",
+        ].join(" ")}
+        title={`${stat.name[locale]}${stat.cardSplit ? ` (${h.cards})` : ""}`}
+        aria-label={placed ? `${stat.label[locale]}, ${h.onPanel}` : h.addNamed(stat.label[locale], stat.name[locale])}
+        aria-disabled={placed || full}
+        onPointerDown={(event) => begin(event, { kind: "stat", id: stat.id, label: stat.label[locale] })}
+        onClick={() => {
+          if (!placed && !full) onAdd(stat.id);
+        }}
+      >
+        <span className={styles.statLabel}>{stat.label[locale]}</span>
+        {row ? <span className={styles.statName}>{stat.name[locale]}</span> : null}
+      </button>
+    );
+  };
 
   return (
     <div className={styles.library}>
-      <div className={styles.libraryBar}>
+      <div className={styles.searchWrap}>
         <input
           type="search"
           className={styles.search}
@@ -53,61 +82,66 @@ export function StatLibrary({
           placeholder={h.paletteSearch}
           aria-label={h.paletteSearch}
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && query !== "") {
+              event.preventDefault();
+              setQuery("");
+            }
+          }}
         />
-        <div className={styles.tabs} role="tablist" aria-label={h.palette}>
-          {(["all", ...GROUPS] as const).map((g) => (
-            <button
-              key={g}
-              type="button"
-              role="tab"
-              aria-selected={group === g}
-              className={group === g ? `${styles.tab} ${styles.tabOn}` : styles.tab}
-              onClick={() => setGroup(g)}
-            >
-              {g === "all" ? h.allGroups : t.reports.stats.groups[g]}
-              <span className={styles.tabCount}>{count(g)}</span>
-            </button>
-          ))}
-        </div>
+        {query !== "" ? (
+          <kbd className={styles.escHint} aria-hidden="true">
+            {h.escKey}
+          </kbd>
+        ) : null}
       </div>
-      <ul className={styles.chips} aria-label={h.palette}>
-        {shown.map((stat) => {
-          const placed = onPanel(stat.id);
+
+      {needle !== "" ? (
+        <ul className={styles.found} aria-label={h.palette}>
+          {found.map((stat) => (
+            <li key={stat.id}>{chip(stat, true)}</li>
+          ))}
+          {found.length === 0 ? <li className={styles.hint}>{h.noMatch}</li> : null}
+        </ul>
+      ) : (
+        SHELVES.map((shelf) => {
+          const items = palette.filter((stat) => shelfOf(stat) === shelf);
+          if (items.length === 0) return null;
+          const expanded = open.has(shelf);
+          const name = shelf === "yours" ? h.yoursShelf : t.reports.stats.groups[shelf];
           return (
-            <li key={stat.id}>
+            <section key={shelf} className={styles.shelf}>
               <button
                 type="button"
-                className={[
-                  styles.statChip,
-                  placed ? styles.statChipPlaced : "",
-                  dragging?.kind === "stat" && dragging.id === stat.id ? styles.statChipDragged : "",
-                ].join(" ")}
-                title={stat.description[locale]}
-                aria-label={placed ? `${stat.label[locale]}, ${h.onPanel}` : h.addNamed(stat.label[locale])}
-                aria-disabled={placed || full}
-                onPointerDown={(event) => begin(event, { kind: "stat", id: stat.id, label: stat.label[locale] })}
-                onClick={() => {
-                  if (!placed && !full) onAdd(stat.id);
-                }}
+                className={styles.shelfHead}
+                aria-expanded={expanded}
+                onClick={() =>
+                  setOpen((was) => {
+                    const next = new Set(was);
+                    if (expanded) next.delete(shelf);
+                    else next.add(shelf);
+                    return next;
+                  })
+                }
               >
-                <span className={styles.statChipLabel}>
-                  {placed ? <span className={styles.tick} aria-hidden="true">✓</span> : null}
-                  {stat.label[locale]}
+                <span className={styles.shelfName}>{name}</span>
+                <span className={styles.shelfCount}>{items.length}</span>
+                <span className={styles.shelfArrow} aria-hidden="true">
+                  {expanded ? "▾" : "▸"}
                 </span>
-                <span className={styles.statChipName}>{stat.name[locale]}</span>
-                {stat.custom || stat.cardSplit ? (
-                  <span className={styles.statChipBadges}>
-                    {stat.custom ? <span className={styles.badge}>{h.yours}</span> : null}
-                    {stat.cardSplit ? <span className={styles.badgeWarn}>{h.cards}</span> : null}
-                  </span>
-                ) : null}
               </button>
-            </li>
+              {expanded ? (
+                <ul className={styles.chips} aria-label={name}>
+                  {items.map((stat) => (
+                    <li key={stat.id}>{chip(stat, false)}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
           );
-        })}
-      </ul>
-      {shown.length === 0 ? <p className={styles.hint}>{h.noMatch}</p> : null}
-      <p className={styles.hint}>{h.paletteHint}</p>
+        })
+      )}
+      <p className={styles.drawerHint}>{h.paletteHint}</p>
     </div>
   );
 }

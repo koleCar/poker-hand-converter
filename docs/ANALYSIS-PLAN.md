@@ -6682,9 +6682,11 @@ Each phase appends what it learned that changed the plan.
       (`20271102090000_leak_row_table.sql`); the guess stays for rows that
       name no table.
     - A flop area does not know whether its decisions were graded from the
-      library (`facts.flop.source`) or its pot type: a single-raised and a
+      library (`facts.flop.source`) ~~or its pot type: a single-raised and a
       3-bet pot with the same seat, role and side are one area, and both
-      lines are dealt.
+      lines are dealt.~~ The pot type: done 2026-11-05 (the entry of that
+      day, `20271105090000_leak_pot_type.sql`); the library source is still
+      open.
     - Not measured on the owner's corpus (how many flop focus areas now get
       a trainer task).
 - 2026-11-02 — A postflop leak row carries its hand's table. Migration
@@ -6771,11 +6773,12 @@ Each phase appends what it learned that changed the plan.
       like preflop would split them, but changes their ids (drills, a stored
       plan's carried areas).~~ Done 2026-11-02 (the next entry,
       `20271103090000_leak_hands_table.sql`).
-    - The pot type: a leak row keeps its hand's `pot_type`, but
+    - ~~The pot type: a leak row keeps its hand's `pot_type`, but
       `analysis_leaks` sums over it (the spot rows have no pot), so a
       single-raised and a 3-bet flop area with the same seat, role and side
       are still one area and both lines are dealt; splitting them is a
-      reader and leak-id change, not done here.
+      reader and leak-id change, not done here.~~ Done 2026-11-05 (the
+      2026-11-05 entry, `20271105090000_leak_pot_type.sql`).
     - The desktop app's own leak rows (`app/src/analysis/rows.ts`,
       `rail-store`) still give postflop rows `''`; the app has no study plan,
       so nothing reads it there yet.
@@ -6954,6 +6957,228 @@ Each phase appends what it learned that changed the plan.
     - A drill task stored before this change keeps its target (counted on
       every table); its link and live count now read the area's table, so a
       heads-up task may show fewer due than its target until the next plan.
-    - The pot type (the first 2026-11-02 entry's "Open") still merges single-raised and
-      3-bet postflop areas; drills follow the area, so they merge too.
+    - ~~The pot type (the first 2026-11-02 entry's "Open") still merges single-raised and
+      3-bet postflop areas; drills follow the area, so they merge too.~~
+      Done 2026-11-05 (the next entry, `20271105090000_leak_pot_type.sql`).
     - Not measured on the owner's corpus.
+- 2026-11-05 — A postflop leak area per pot type. Migration
+  `20271105090000_leak_pot_type.sql` (must be applied to prod after merge);
+  no `ANALYSIS_VERSION` change (no grade moves).
+  - **Why.** The open items of the 2026-10-31, the first 2026-11-02 and the
+    2026-11-04 entries: a leak row keeps its hand's `pot_type`, but the leak
+    list summed over it, so a single-raised and a 3-bet (or 4-bet+) flop,
+    turn or river area with the same seat, role, side and table were one
+    area. Its trainer dealt both kinds of line (a single-raised "preflop
+    raiser out of position" river area counted the blinds' 3-bet pots too),
+    and its hands, examples and drills mixed them. A 3-bet pot is another
+    game on every street: a third of the stack-to-pot ratio, both ranges
+    narrow.
+  - **What was done.**
+    - *Tag*: the leak list returns a postflop row per spot, set and pot, and
+      `spotAttrs` tags a row in a 3-bet pot `~3bp`, one in a 4-bet+ pot
+      `~4bp` (the flop library's own pot names, `FlopLine.pot`), after the
+      table tag (`flop~pfr-oop-vs-bet~vs-bet~BB~-~fold~call~hu~3bp`).
+      Single-raised, limped (its scenario already says `limped-`), walk,
+      bomb and unknown pots stay untagged, so their ids are what they were;
+      preflop never carries one (the chart line names the pot). The two tag
+      sets share no value, so `parseLeakId` reads a table, a pot, or a table
+      then a pot unambiguously (anything else, or a pot on a preflop id, is
+      refused); `save_study_plan`'s drill check takes it (the longest area
+      id stays well under 120 characters).
+    - *Thin spots*: the pot tag is kept at every level, as the postflop table
+      tag is (`tableDropLevel`). Merged into the untagged area at some level,
+      a thin 3-bet pot spot would carry 3-bet decisions back into the
+      single-raised area - the merge this change removes - and its trainer
+      could deal neither pot honestly. Kept, a thin 3-bet pot spot climbs to
+      the family or the street on its own ("Any spot (3-bet pot)"), beside
+      the single-raised street-level leak, never into it. 3-bet pots are
+      rarer, so they climb further; that is the sample speaking.
+    - *Counting*: a spot key names no pot, so an area's numbers are its keys
+      in its own situations (`rowOfLeak`, unchanged: the situation key now
+      carries the pot).
+    - *Readers*: `handsPot` (an untagged postflop leak or area is `other`, a
+      tagged one its tag, at every level; preflop none) gives the hands
+      behind a leak or area (`analysis_leak_hands`' `leakPot`), the top
+      leaks' examples (a leak's `pot`), and the drills: the per-spot counts
+      (`drill_due_by_spot_pots`: the per-table rows plus `pots`, summed by
+      `drillsOn(drills, keys, table, pot)`), the queue
+      (`drill_queue_on_area`), the drills address (`drillPot`, with `table`;
+      `pot` is the river and flop trainers' own filter). The Leaks tab's
+      hands, counts and "Drill this", the top leaks' examples, the plan's
+      review hands, drill task, live count and link, and Learn's own-area
+      exercise all read on the pot. Each new call falls back on a database
+      without the migration (PGRST202: the per-table reader, then the old
+      one) and an older reader ignores the new keys, so the client can ship
+      first.
+    - *Room and stake sums*: `analysis_leak_totals` keeps the pot type; the
+      room and stake sums do not. Rather than a new key column (and the
+      summary triggers and rebuild re-created, with a backfill), under a room
+      or stake chip the 3-bet and 4-bet+ postflop rows in scope are read
+      from the leak rows (a partial index holds just them, a minority) and
+      moved out of the untagged row: the same answer, nothing written.
+    - *Study plan*: the flop target deals the area's pot only. A `~3bp` area
+      the table's 3-bet pot lines; a `~4bp` area its 4-bet pot line
+      (heads-up's `sb-bb-4bet`, named, since the trainer files a 4-bet pot
+      as a 3-bet one), and on 6-max or full ring - no 4-bet pot line - no
+      trainer; an untagged area the single-raised lines (a limped scenario
+      the limped ones, as before). Where a pot filter would also deal
+      another pot's line, the area's own line is named, or there is no
+      trainer task, never a wrong one. The river likewise: `~3bp` the 3-bet
+      pot lines (6-max and heads-up), untagged the single-raised ones,
+      `~4bp` no trainer (the river trainer has no 4-bet pot line). So an
+      untagged postflop area's reference now says `srp` (`river/srp/oop/pfr`,
+      `flop/<set>/srp/...`), and some untagged areas whose only lines were
+      3-bet pots (the button calling in position, the cutoff calling out of
+      position) now get none: their 3-bet pot area gets them.
+    - *Words*: the leak and area context names the pot inside the bracket,
+      after the table ("(BB, heads-up, 3-bet pot)", "Any spot (3-bet pot)"),
+      in English and Croatian, with the statistics' pot type labels ("3-bet
+      pot", "4-bet+ pot", the same in both languages). The plan's trainer
+      sentence leaves the pot words out when it names a line (the line names
+      its pot: "on SB–BB 4-bet pot"). No new dictionary strings.
+    - *Old data*: a focus snapshot written from now on says so
+      (`postflopPots: true`). One stored before keeps its numbers: written
+      since postflop tables, its situations name the table only, and its
+      retrospective counts every pot's rows in them (`potlessSituationKey`);
+      written before tables, as before (`legacySituationKey` now drops the
+      pot too). Its area's weeks carry over to the area it split into
+      (`potlessAreaId`, `legacyAreaId`), and its drill task's live count and
+      link read every pot (`areaPot` is null for it). A snapshot written
+      since never hands a single-raised area's weeks to a 3-bet pot one.
+    - *Database*: `analysis_leak_pot_of` (immutable, no table, empty
+      search_path; `authenticated` only, on the entitlements test's
+      pure-helper list); `analysis_leaks`, `analysis_leaks_scan`,
+      `analysis_leak_sample`, `analysis_leak_hands`, `analysis_leak_hands_scan`
+      and `analysis_leak_examples` re-created from their last definitions
+      (`20271104090000`, `20271102090000`, `20271103090000`,
+      `20271104120000`) with the same signatures, invoker security, empty
+      search_path and grants; `drill_due_by_spot_pots` and
+      `drill_queue_on_area` new, gated (added to `entitlement_gates`), the
+      gate put back on all with `entitlement_gates_apply()`. `drill_queue`,
+      `drill_due_by_spot` and the two per-table readers are untouched. An
+      answer with no 3-bet or 4-bet+ postflop row is byte for byte what it
+      was. See `docs/DATABASE.md`. `database.types.ts` regenerated (CLI
+      2.75.0): the three new functions.
+  - **Tested.** pgTAP `leak_pot_type.test.sql` (39): the helper's, the two
+    new readers' and the six re-created ones' security (invoker or
+    immutable, empty search path, the gate, the gate list, execute grants,
+    anon refused), the per-table and old drill readers untouched, no client
+    write grant; the helper's tags; the leak list per set and pot from the
+    sums, the room and stake sums, the rows, the complement, the scan and
+    both top-leak samples alike, a preflop decision in a 3-bet pot untagged,
+    a single-raised answer naming no pot; the hands per pot on the fast path
+    and the scan, with and without `leakTable`; the examples per pot (and
+    table); `drill_due_by_spot_pots` equal to the per-table reader without
+    `pots`, its split, the pots summing to the tables; the queue on each
+    table and pot; unknown and missing pots refused everywhere; one account
+    reads only its own. `entitlements.test.sql`: the gate list counts 47
+    analysis functions, the helper on the pure-helper list. On a fresh local
+    stack with every migration all 63 pgTAP files pass (2,137 tests).
+    `tests/test/leakPotType.test.ts` (16): the tag per pot on every postflop
+    street, never preflop; single-raised, 3-bet, 4-bet+ and heads-up 3-bet
+    rows with one seat, role and side giving four leaks and areas, every id
+    parsed back and inside the drill check; the words in both languages;
+    thin 3-bet spots climbing on their own; an area's numbers from its own
+    pot; old, table, pot and table-and-pot ids parsed, the rest refused; the
+    flop and river targets per pot (3-bet lines, the heads-up 4-bet line
+    named, none for a 6-max 4-bet pot or a 4-bet river, single-raised for
+    untagged), their references inside the database's check and read back;
+    drill tasks per pot and an older database's counts; a snapshot from
+    before keeping its numbers and passing its weeks on, a new one
+    round-tripping; the leak list's `pot`, the hands' `leakPot`, the
+    examples' `pot`, the queue on an area and its fallbacks, the pots split
+    read, the drills address round trip. `studyPlan`, `studyPlanFlop`,
+    `studyPlanTable`, `leakAreaTable` and `drillsByTable` updated (untagged
+    areas deal and count single-raised lines; the per-pot drill reader
+    first). The Vitest suite and `tsc -b` / lint pass for web.
+  - **Open.**
+    - An untagged area built on a database without the migration still
+      holds every pot's decisions, but its trainer now deals single-raised
+      lines only (the migration is applied with the promotion, so this is a
+      window, not a state).
+    - A plan stored before keeps its trainer targets (`river/any/...`,
+      `flop/<set>/any/...`) until the next plan: they still count 3-bet pot
+      answers.
+    - The desktop app's own leak rows (`app/src/analysis/rows.ts`,
+      `rail-store`) carry no pot, so its leak list stays merged; the app
+      has no study plan.
+    - The flop library source (`facts.flop.source`, the 2026-10-31 entry)
+      still does not split an area.
+    - Not measured on the owner's corpus (how many postflop areas split, how
+      many 3-bet pot areas reach a plan).
+- 2026-11-06 — The desktop app's leak list per table and pot. rail-store
+  migration 20 (`core/rail-store/migrations/0020_leak_row_table.sql`, no
+  schema change, a backfill on open); no Supabase migration, no
+  `ANALYSIS_VERSION` change (leak-row metadata, no grade moves).
+  - **Why.** The open items of the first 2026-11-02 entry ("the desktop
+    app's own leak rows still give postflop rows `''`") and the 2026-11-05
+    entry ("carry no pot, so its leak list stays merged"): the app stores its
+    own leak rows (`app/src/analysis/rows.ts`, `rail-store`'s
+    `analysis_leak_rows`), and its top leaks group them with the web's own
+    `groupLeaks`, but a flop, turn or river row named no table and the
+    store's sums named no pot. So on the desktop a heads-up, a 6-max and a
+    9-max area, and a single-raised, a 3-bet and a 4-bet+ area with the same
+    seat, role and side were one leak, and its examples mixed them.
+  - **What was done.**
+    - *Table*: `handTableSet(phf)` (`rows.ts`) is `analysis_hand_table_set`
+      ported as written (the table by the players dealt in, the depth
+      nearest the effective stack of the hero against the deepest opponent
+      who did not fold preflop, within 20%, ties to the first set; `''` for
+      a hand no set answers: not NLHE cash, a straddle or bomb pot, ten or
+      more players, no single hero, no big blind, a depth outside every
+      band). The engine passes it to `storeRow`, and `leakColumns` gives a
+      postflop row with no set the hand's table, as the web's before-insert
+      trigger does; preflop rows keep their chart set (or `''`).
+    - *Pot*: the store's leak rows already kept the hand's `pot_type`; the
+      reader (`rail_store::leaks`, `top_leaks`) now sums per spot key, set
+      and - flop, turn, river only - pot tag (`3bp` for `3bet`, `4bp` for
+      `4bet+`, none otherwise: `analysis_leak_pot_of`), and the IPC row
+      (`SpotSumsDto.pot`) and `spotRow` hand it on as the web's
+      `analysis_leaks` row's `pot`. The web's `spotAttrs` / `leakId` then tag
+      the areas `~hu`, `~9max`, `~3bp`, `~4bp` exactly as on the web; the
+      words (table and pot in the leak context) come with them, no new
+      strings.
+    - *Examples*: `leak_examples` takes a leak's table and pot
+      (`LeakScope`: `hu` / `9max` / `other`, `3bp` / `4bp` / `other`, as
+      `analysis_leak_table_of` / `_pot_of` tag them; anything else refused),
+      and the app's top leaks ask each leak's on `handsTable` / `handsPot`,
+      as the web's do. Without them (an older caller): every table and pot.
+    - *Old stores* (rows written before): migration 20 fills them on open,
+      in its transaction (`table_set::fill_leak_table_sets`, the same rule
+      in Rust - in chips, exactly, since the workspace denies float
+      arithmetic - over the stored PHF): every postflop row with no set
+      takes its hand's table; rows whose hand no set answers, or whose PHF
+      cannot be read, keep `''` (untagged, with 6-max, as on the web). One
+      read of each analysed hand with a postflop row; nothing re-analysed,
+      nothing dropped. The pot needs no backfill (the rows had it).
+    - `rail-store/SCHEMA.md`: version 20, the column's meaning, the readers.
+  - **Tested.** `tests/test/appLeakTablePot.test.ts` (8): the set list
+    equals `CHART_SETS` without the straddle set; heads-up 100 and 150bb,
+    three-handed, 6-max, 9-max 100 and 150bb, a deep opponent in and
+    folded, the 20% tie, unstated stacks, and every no-set case; stored rows
+    on heads-up, 6-max, 9-max and no-set hands in single-raised, 3-bet and
+    4-bet+ pots giving every postflop street the hand's table and keeping
+    the pot, preflop rows their chart set; `spotRow` keeping `pot`; the
+    desktop leak list over the store's sums splitting into the untagged,
+    `~3bp`, `~4bp`, `~hu`, `~hu~3bp` and `~9max` areas (no-set rows with
+    6-max), every id parsed back; each leak's examples asked on its table
+    and pot. rail-store: `table_set` unit tests (the same cases in Rust);
+    `the_top_leaks_sum_the_leak_rows_by_spot` now with 3-bet and 4-bet+
+    hands and a heads-up postflop set (a postflop spot one row per pot, a
+    preflop one never split; examples per table and pot, unknown table or
+    pot refused); `migration_20_gives_postflop_leak_rows_their_table` on the
+    corpus (a store taken back to version 19: postflop rows with no set take
+    their hand's table, preflop rows and rows already naming a set keep
+    theirs, a second run sets nothing). `cargo test -p rail-store`, clippy
+    (`-D warnings`, rail-store and rail-app) and fmt pass; the Vitest suite,
+    the app's `tsc -b` and lint pass.
+  - **Open.**
+    - The app still has no study plan, drills or per-area hands reader, so
+      only the top leaks (and their examples) read the split.
+    - The desktop analysis worker computes the table from the PHF it
+      analyses; `appAnalysisParity` leaves `chart_set` out of its
+      comparison (the web's is written by the database), so a web/app
+      equality of the set on the corpus is held by the shared rule and its
+      tests, not compared hand by hand.
+    - Not measured on the owner's desktop store (how many postflop rows the
+      backfill tags, how many areas split).

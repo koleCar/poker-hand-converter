@@ -7,7 +7,7 @@
  */
 import type { StatDefinition, StatTone } from "@rail/ui/model/stats";
 
-/** The session's statistics, in this order. */
+/** The session's statistics, in this order. The win rates (bb/100, EV bb/100) are in the graph's toolbar, not here. */
 export const LIVE_STATS = [
   "vpip",
   "pfr",
@@ -17,8 +17,6 @@ export const LIVE_STATS = [
   "aggression_frequency",
   "wtsd",
   "wsd",
-  "bb_per_100",
-  "allin_ev_bb_per_100",
 ] as const;
 
 /** Rows in one page of the hands table. */
@@ -143,11 +141,6 @@ export function rangeBar(value: number, range: TargetRange): RangeBar {
     bandRight: high === null ? 0 : 100 - at(high),
     mark: at(value),
   };
-}
-
-/** A win rate's strip: zero in the middle, ±40 per 100 hands at the ends. */
-export function winRateBar(value: number): RangeBar {
-  return { bandLeft: 50, bandRight: 0, mark: Math.max(2, Math.min(98, 50 + (Math.max(-40, Math.min(40, value)) / 40) * 48)) };
 }
 
 /**

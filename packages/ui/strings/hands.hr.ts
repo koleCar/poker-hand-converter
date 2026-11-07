@@ -20,6 +20,7 @@ export const handsUiHr: typeof handsUiEn = {
   count: (shown) => ruku(shown),
   countOf: (matching, total) => `${num(matching)} od ${odRuku(total)}`,
   loadingMore: "Učitavam još…",
+  chosen: (count) => `${num(count)} ${plural(count, "odabrana", "odabrane", "odabranih")}`,
   listLabel: (order) => `Ruke, ${order.toLowerCase()}`,
   columns: {
     date: "Datum",

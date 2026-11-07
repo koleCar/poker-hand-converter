@@ -8,9 +8,11 @@
  * stays a click). While it moves, the spot under the pointer is found from
  * the page: the nearest `[data-zone]` element is a drop zone and its
  * `[data-slot]` children are the places in it - over the right half of a
- * slot the item goes after it. A zone registers what it accepts and what a
- * drop does (`useDropZone`). The keyboard has its own ways (Add buttons,
- * Alt+arrows), so nothing here is the only way to do anything.
+ * slot (the lower half in a `data-axis="y"` zone) the item goes after it; a
+ * slot with `data-row` and `data-col` is a place of a grid (the panel's),
+ * taken as it is. A zone registers what it accepts and what a drop does
+ * (`useDropZone`). The keyboard has its own ways (Add buttons, Alt+arrows),
+ * so nothing here is the only way to do anything.
  */
 import {
   createContext,
@@ -26,16 +28,18 @@ import {
 
 import styles from "./HudEditor.module.css";
 
-/** What is dragged: a statistic from the library, a panel cell, a popup statistic. */
+/** What is dragged: a statistic from the library, a panel cell (by its slot), a popup statistic. */
 export type DragItem =
   | { kind: "stat"; id: string; label: string }
-  | { kind: "cell"; index: number; id: string; label: string }
+  | { kind: "cell"; slot: number; id: string; label: string }
   | { kind: "popup"; id: string; label: string; section: number; index: number };
 
-/** Where it would land: a zone and the index in it. */
+/** Where it would land: a zone and the index in it (a grid's: its row and column). */
 export interface DropSpot {
   zone: string;
   index: number;
+  row?: number;
+  col?: number;
 }
 
 interface Zone {
@@ -88,8 +92,12 @@ function spotAt(x: number, y: number, zones: Map<string, Zone>, item: DragItem):
   const slotEl = hit?.closest<HTMLElement>("[data-slot]");
   if (slotEl && zoneEl.contains(slotEl)) {
     const slot = Number(slotEl.dataset.slot);
+    if (slotEl.dataset.row !== undefined && slotEl.dataset.col !== undefined) {
+      return { zone, index: slot, row: Number(slotEl.dataset.row), col: Number(slotEl.dataset.col) };
+    }
     const rect = slotEl.getBoundingClientRect();
-    return { zone, index: x > rect.left + rect.width / 2 ? slot + 1 : slot };
+    const after = zoneEl.dataset.axis === "y" ? y > rect.top + rect.height / 2 : x > rect.left + rect.width / 2;
+    return { zone, index: after ? slot + 1 : slot };
   }
   return { zone, index: Number(zoneEl.dataset.end ?? 0) };
 }
@@ -122,7 +130,11 @@ export function DragProvider({ children }: { children: ReactNode }) {
       if (!item) return;
       const next = spotAt(x, y, zones.current, item);
       spotRef.current = next;
-      setSpot((old) => (old?.zone === next?.zone && old?.index === next?.index ? old : next));
+      setSpot((old) =>
+        old?.zone === next?.zone && old?.index === next?.index && old?.row === next?.row && old?.col === next?.col
+          ? old
+          : next,
+      );
     };
     // While a drag is held near the top or bottom of what scrolls, scroll it.
     const scroll = () => {

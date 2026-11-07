@@ -151,9 +151,11 @@ fn wide() -> rail_hud::design::HudDesign {
     design.columns = 4;
     design.cells = ["vpip", "pfr", "three_bet", "steal", "pair_raise"]
         .into_iter()
-        .map(|stat| Cell {
-            stat: stat.into(),
-            when: None,
+        .map(|stat| {
+            Some(Cell {
+                stat: stat.into(),
+                when: None,
+            })
         })
         .collect();
     design

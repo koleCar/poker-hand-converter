@@ -205,7 +205,7 @@ describe("a river area on its own table", () => {
 
   it("deals a heads-up leak on the heads-up lines, counted by their ids", () => {
     const oop = trainerTarget(where("river", "caller-oop-first", "BB"), HU100);
-    expect(oop).toEqual({ mode: "river", pot: "any", side: "oop", role: "caller", set: HU100 });
+    expect(oop).toEqual({ mode: "river", pot: "srp", side: "oop", role: "caller", set: HU100 });
     const match = trainerMatch(oop!);
     expect(match.mode).toBe("river");
     expect(match.spots!.length).toBeGreaterThan(0);
@@ -216,15 +216,15 @@ describe("a river area on its own table", () => {
     }
     // Merged to the street, a heads-up area still counts only heads-up answers.
     const street = trainerTarget({ street: "river", scenario: "*", family: "*", hero: "*", villain: "*" }, HU150)!;
-    expect(street).toEqual({ mode: "river", pot: "any", side: "any", role: "any", set: HU150 });
+    expect(street).toEqual({ mode: "river", pot: "srp", side: "any", role: "any", set: HU150 });
     expect(trainerMatch(street).spots!.every((s) => s.startsWith("hu-"))).toBe(true);
   });
 
   it("writes the set into the reference, the snapshot, the address and the words", () => {
     const target = trainerTarget(where("river", "pfr-ip-vs-bet", "SB"), HU150)!;
-    expect(target).toEqual({ mode: "river", pot: "any", side: "ip", role: "pfr", set: HU150 });
+    expect(target).toEqual({ mode: "river", pot: "srp", side: "ip", role: "pfr", set: HU150 });
     const ref = trainerRef(target);
-    expect(ref).toBe(`river/any/ip/pfr/${HU150}`);
+    expect(ref).toBe(`river/srp/ip/pfr/${HU150}`);
     expect(ref).toMatch(REF);
     expect(parseTrainerRef(ref)).toEqual(target);
     // A set the river has no heads-up lines for is not a river reference.
@@ -258,8 +258,8 @@ describe("a river area on its own table", () => {
     const bb = where("river", "caller-oop-first", "BB");
     for (const set of [SIX, SIX200, NINE, null, ""]) {
       const target = trainerTarget(bb, set);
-      expect(target).toEqual({ mode: "river", pot: "any", side: "oop", role: "caller" });
-      expect(trainerRef(target!)).toBe("river/any/oop/caller");
+      expect(target).toEqual({ mode: "river", pot: "srp", side: "oop", role: "caller" });
+      expect(trainerRef(target!)).toBe("river/srp/oop/caller");
       expect(trainerMatch(target!).spots!.some((s) => s.startsWith("hu-"))).toBe(false);
       expect(parseTrainState(Object.fromEntries(new URLSearchParams(targetQuery(target!)))).set).toBe(SIX);
     }

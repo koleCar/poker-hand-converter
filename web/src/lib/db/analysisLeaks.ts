@@ -12,7 +12,7 @@
  */
 
 import { ANALYSIS_VERSION } from "../analysis";
-import type { LeakTable, SpotRow, TrendRow } from "../analysis/leaks";
+import type { HandsPot, LeakTable, SpotRow, TrendRow } from "../analysis/leaks";
 import type { OptionAnalysis } from "../analysis/types";
 import { currentUserId, rpc } from "./client";
 import type { AnalysisFilters } from "./analysis";
@@ -80,6 +80,8 @@ export async function fetchLeaks(filters: AnalysisFilters = {}): Promise<LeaksRe
     rows: rows(payload.rows).map((row) => ({
       key: String(row.key ?? ""),
       set: str(row.set),
+      // A postflop row in a 3-bet or 4-bet+ pot (20271105090000); absent otherwise.
+      ...(str(row.pot) ? { pot: str(row.pot) } : {}),
       street: String(row.street ?? ""),
       scenario: String(row.scenario ?? ""),
       line: String(row.line ?? ""),
@@ -140,6 +142,14 @@ export interface LeakHandsQuery {
    * (`20271103090000_leak_hands_table.sql`). Absent or null: every table.
    */
   table?: LeakTable | "other" | null;
+  /**
+   * Only the decisions in this pot (`handsPot`: a postflop leak's or area's
+   * pot tag, `"other"` for single-raised, limped and unknown pots): a 3-bet
+   * pot area's keys also hold the single-raised pots' decisions
+   * (`20271105090000_leak_pot_type.sql`). Absent or null: every pot. An older
+   * database ignores the key.
+   */
+  pot?: HandsPot | null;
   /** Only decisions graded worse than Perfect. Default true. */
   deviations?: boolean;
   sort?: LeakHandSort;
@@ -152,7 +162,11 @@ export async function fetchLeakHands(filters: AnalysisFilters, query: LeakHandsQ
     return { total: 0, rows: [] };
   }
   const payload = await rpc<Row | null>("analysis_leak_hands", {
-    p_filters: { ...withVersion(filters), ...(query.table ? { leakTable: query.table } : {}) },
+    p_filters: {
+      ...withVersion(filters),
+      ...(query.table ? { leakTable: query.table } : {}),
+      ...(query.pot ? { leakPot: query.pot } : {}),
+    },
     p_keys: query.keys.slice(0, 500),
     p_deviations: query.deviations ?? true,
     p_sort: query.sort ?? "ev_loss",

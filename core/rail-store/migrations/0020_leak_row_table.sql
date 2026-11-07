@@ -1,0 +1,22 @@
+-- rail-store schema, version 20 (2026-11-06; docs/ANALYSIS-PLAN.md §10): a
+-- flop, turn or river leak row carries its hand's table, as the web's have
+-- since `20271102090000_leak_row_table.sql`.
+--
+-- `analysis_leak_rows.chart_set` was the chart set of a preflop chart grade
+-- and '' for everything else, so the app's leak list could not tell a
+-- heads-up or full-ring postflop spot from a 6-max one. From this version the
+-- window writes a postflop row's set as the hand's table (`handTableSet` in
+-- `app/src/analysis/rows.ts`, the web's `analysis_hand_table_set`), '' when
+-- no set answers (not NLHE cash, a straddle or bomb pot, ten or more
+-- players, a depth outside every band).
+--
+-- No column changes, nothing dropped. The rows stored before are filled in
+-- Rust after this SQL, in its transaction (`table_set::fill_leak_table_sets`:
+-- the PHF is compressed, which SQL cannot read): every postflop row with no
+-- set takes its hand's, rows whose hand no set answers keep ''. Preflop rows
+-- are untouched. The grades are not touched either (no re-analysis).
+--
+-- The pot (`~3bp`, `~4bp`) needs nothing stored: the rows already keep the
+-- hand's `pot_type`, and the leak reader (`leaks.rs`) tags by it. This file
+-- holds no statement.
+

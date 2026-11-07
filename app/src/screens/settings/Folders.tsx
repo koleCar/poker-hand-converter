@@ -1,24 +1,27 @@
 /**
- * Settings, Folders (R1.5; guideline §3 "Upravljanje mapama"): the watched
- * folders with their status, and adding (the system picker: local, external
- * and network drives), changing a folder's path or room, switching it on or
- * off, recursive, poll only, removing it (its hands stay), and finding the
- * rooms' folders again. The list is `watcher_status`, refreshed when the
- * app reports a change (`useWatcherStatus`: imports, backfill progress -
- * R1.6); every change goes through the commands in `folder_settings.rs`.
+ * Settings, Hand histories (R1.5; guideline §3 "Upravljanje mapama"): one
+ * card of rows - "Folders" with Find folders and Add a folder…, then a row
+ * per watched folder: its room, its path, its refused hands as a pill that
+ * opens them, and a ⋯ menu (edit, remove). Editing (the path, the room,
+ * watch / subfolders / polling) is a dialog; a backfill in progress shows
+ * under its row (R1.6). The list is `watcher_status`, refreshed when the
+ * app reports a change (`useWatcherStatus`); every change goes through the
+ * commands in `folder_settings.rs`.
  */
-import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { useEffect, useState } from "react";
-
 import { Dialog } from "@rail/ui/dialog/Dialog";
-import { FoundFolderTable, type FoundRow } from "../../components/FoundFolderTable";
+import { Icon } from "@rail/ui/icon/Icon";
+import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+
+import { BackfillProgress } from "../../components/BackfillProgress";
 import { ImportChoice } from "../../components/ImportChoice";
 import { useT } from "../../i18n";
-import { errorText, ipc, type RoomChoice, type WatchSource } from "../../lib/ipc";
-import { screenHref, SETUP } from "../../lib/router";
+import { errorText, ipc, type FoundFolder, type RoomChoice, type WatchSource } from "../../lib/ipc";
+import { go, REFUSED, screenHref, SETUP } from "../../lib/router";
 import { useWatcherStatus } from "../../lib/useWatcherStatus";
-import { FolderCard } from "./FolderCard";
 import styles from "./Folders.module.css";
+import s from "./Settings.module.css";
+import { Toggle } from "./Toggle";
 
 interface Notice {
   text: string;
@@ -27,13 +30,22 @@ interface Notice {
 
 type DialogState =
   | { kind: "add"; path: string; onlyNew: boolean; recursive: boolean; pollOnly: boolean }
+  | { kind: "edit"; id: number }
   | { kind: "move"; source: WatchSource; path: string; onlyNew: boolean }
   | { kind: "remove"; source: WatchSource };
 
 type Search =
   | { phase: "searching" }
   | { phase: "failed"; reason: string }
-  | { phase: "shown"; rows: FoundRow[]; onlyNew: boolean; adding: boolean };
+  | { phase: "shown"; folders: FoundFolder[]; adding: string | null };
+
+/** The room a folder is read as: chosen by hand, found by Rail, or detected per file. */
+function roomName(source: WatchSource, rooms: RoomChoice[], auto: string): string {
+  if (source.siteOverride) {
+    return rooms.find((room) => room.parser === source.siteOverride)?.name ?? source.siteOverride;
+  }
+  return source.siteName ?? auto;
+}
 
 export function Folders() {
   const t = useT();
@@ -108,7 +120,7 @@ export function Folders() {
   };
 
   const confirmDialog = async () => {
-    if (!dialog) {
+    if (!dialog || dialog.kind === "edit") {
       return;
     }
     setDialogBusy(true);
@@ -135,161 +147,159 @@ export function Folders() {
     }
   };
 
-  const findAgain = async () => {
+  const find = async () => {
     setSearch({ phase: "searching" });
     try {
       const discovery = await ipc.discoverFolders();
-      const rows = discovery.folders
-        .filter((found) => !found.watched)
-        .map((found) => ({ path: found.path, found, checked: true }));
-      setSearch({ phase: "shown", rows, onlyNew: false, adding: false });
+      setSearch({ phase: "shown", folders: discovery.folders.filter((found) => !found.watched), adding: null });
     } catch (e: unknown) {
       setSearch({ phase: "failed", reason: errorText(e) });
     }
   };
 
-  const watchFound = async () => {
+  /** Watch one folder Rail found, with the hands already in it. */
+  const watchFound = async (found: FoundFolder) => {
     if (search?.phase !== "shown") {
       return;
     }
-    const chosen = search.rows.filter((row) => row.checked);
-    setSearch({ ...search, adding: true });
+    setSearch({ ...search, adding: found.path });
     try {
-      const added = await ipc.addFolders(
-        chosen.map((row) => ({ path: row.path, site: row.found?.site ?? null })),
-        search.onlyNew,
-      );
+      const added = await ipc.addFolders([{ path: found.path, site: found.site }], false);
       setNotice({ text: d.search.added(added.length), error: false });
-      setSearch(null);
+      setSearch({ ...search, folders: search.folders.filter((row) => row.path !== found.path), adding: null });
       load();
     } catch (e: unknown) {
-      setSearch({ ...search, adding: false });
+      setSearch({ ...search, adding: null });
       setNotice({ text: d.addFailed(errorText(e)), error: true });
     }
   };
 
-  const actionsFor = (source: WatchSource) => ({
-    setEnabled: (enabled: boolean) =>
-      void change(source.id, async () => {
-        await ipc.setFolderEnabled(source.id, enabled);
-        return d.saved;
-      }),
-    setRecursive: (recursive: boolean) =>
-      void change(source.id, async () => {
-        await ipc.setFolderRecursive(source.id, recursive);
-        return d.saved;
-      }),
-    setPollOnly: (pollOnly: boolean) =>
-      void change(source.id, async () => {
-        await ipc.setFolderPollOnly(source.id, pollOnly);
-        return d.saved;
-      }),
-    setRoom: (parser: string | null) =>
-      void change(source.id, async () => d.roomSaved(await ipc.setFolderRoom(source.id, parser))),
-    changePath: () => void changePath(source),
-    remove: () => openDialog({ kind: "remove", source }),
-  });
+  const saved = async (step: Promise<unknown>) => {
+    await step;
+    return d.saved;
+  };
 
   const failure = loadError ?? (status && !status.running ? status.error : null);
-  const chosenCount = search?.phase === "shown" ? search.rows.filter((row) => row.checked).length : 0;
+  const editing = dialog?.kind === "edit" ? (status?.sources.find((source) => source.id === dialog.id) ?? null) : null;
 
   return (
-    <section className={styles.section} aria-labelledby="settings-folders">
-      <div className={styles.toolbar}>
-        <h2 id="settings-folders" className={styles.heading}>
-          {d.heading}
-        </h2>
-        <div className={styles.actions}>
-          <button type="button" className={styles.button} disabled={picking} onClick={() => void add()}>
-            {picking ? d.choosing : d.add}
-          </button>
-          <button
-            type="button"
-            className={styles.secondary}
-            disabled={search?.phase === "searching"}
-            onClick={() => void findAgain()}
-          >
-            {d.findAgain}
-          </button>
+    <>
+      <div className={s.card}>
+        <div className={`${s.row} ${s.rowWide}`}>
+          <span className={s.strong}>{d.foldersRow}</span>
+          <span className={s.actions}>
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={search?.phase === "searching"}
+              onClick={() => void find()}
+            >
+              {d.find}
+            </button>
+            <button type="button" className="btn btn--primary btn--sm" disabled={picking} onClick={() => void add()}>
+              {picking ? d.choosing : d.add}
+            </button>
+          </span>
         </div>
-      </div>
-      <p className={styles.hint}>{d.body}</p>
 
-      <div aria-live="polite" className={styles.live}>
-        {notice && <p className={notice.error ? styles.error : styles.success}>{notice.text}</p>}
+        {failure !== null && (
+          <div className={`${s.row} ${s.rowWide}`}>
+            <p className={s.error}>{loadError ? d.loadFailed(failure) : d.notRunning(failure)}</p>
+          </div>
+        )}
+        {!status && failure === null && (
+          <div className={`${s.row} ${s.rowWide}`}>
+            <RailLoader size="inline" label={d.loading} showLabel />
+          </div>
+        )}
+        {status && status.sources.length === 0 && failure === null && (
+          <div className={`${s.row} ${s.rowWide}`}>
+            <p className={s.muted}>{d.empty}</p>
+          </div>
+        )}
+        {status && status.sources.length > 0 && (
+          <div className={styles.rows} role="list" aria-label={d.list}>
+            {status.sources.map((source) => (
+              <FolderRow
+                key={source.id}
+                source={source}
+                room={roomName(source, rooms, d.roomAuto)}
+                onEdit={() => openDialog({ kind: "edit", id: source.id })}
+                onRemove={() => openDialog({ kind: "remove", source })}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className={s.live} aria-live="polite">
+        {notice && <p className={`${s.note} ${notice.error ? s.error : ""}`}>{notice.text}</p>}
       </div>
 
       {search && (
-        <section className={styles.panel} aria-labelledby="settings-folders-search">
-          <div className={styles.toolbar}>
-            <h3 id="settings-folders-search" className={styles.subheading}>
-              {d.search.heading}
-            </h3>
-            <button type="button" className={styles.link} onClick={() => setSearch(null)}>
-              {d.search.close}
-            </button>
+        <div className={s.card} aria-label={d.search.heading} role="group">
+          <div className={`${s.row} ${s.rowWide}`}>
+            <span className={s.strong}>{d.search.heading}</span>
+            <span className={s.actions}>
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => setSearch(null)}>
+                {d.search.close}
+              </button>
+            </span>
           </div>
-          {search.phase === "searching" && <p className={styles.muted}><RailLoader size="inline" label={d.search.searching} showLabel /></p>}
-          {search.phase === "failed" && <p className={styles.error}>{d.search.failed(search.reason)}</p>}
-          {search.phase === "shown" && search.rows.length === 0 && (
-            <p className={styles.muted}>
-              {d.search.noneNew}{" "}
-              <a className={styles.link} href={screenHref(SETUP)}>
-                {d.setup}
-              </a>
-            </p>
+          {search.phase === "searching" && (
+            <div className={`${s.row} ${s.rowWide}`}>
+              <RailLoader size="inline" label={d.search.searching} showLabel />
+            </div>
           )}
-          {search.phase === "shown" && search.rows.length > 0 && (
-            <>
-              <p className={styles.body}>{d.search.found(search.rows.length)}</p>
-              <FoundFolderTable
-                rows={search.rows}
-                disabled={search.adding}
-                onToggle={(path, checked) =>
-                  setSearch({
-                    ...search,
-                    rows: search.rows.map((row) => (row.path === path ? { ...row, checked } : row)),
-                  })
-                }
-              />
-              {chosenCount > 0 && (
-                <ImportChoice
-                  legend={d.search.existingHeading}
-                  onlyNew={search.onlyNew}
-                  onChange={(onlyNew) => setSearch({ ...search, onlyNew })}
-                  disabled={search.adding}
-                />
-              )}
-              <div className={styles.actions}>
-                <button
-                  type="button"
-                  className={styles.button}
-                  disabled={search.adding || chosenCount === 0}
-                  onClick={() => void watchFound()}
-                >
-                  {search.adding ? d.search.adding : d.search.confirm(chosenCount)}
-                </button>
+          {search.phase === "failed" && (
+            <div className={`${s.row} ${s.rowWide}`}>
+              <p className={s.error}>{d.search.failed(search.reason)}</p>
+            </div>
+          )}
+          {search.phase === "shown" && search.folders.length === 0 && (
+            <div className={`${s.row} ${s.rowWide}`}>
+              <p className={s.muted}>
+                {d.search.noneNew}{" "}
+                <a href={screenHref(SETUP)}>{d.setup}</a>
+              </p>
+            </div>
+          )}
+          {search.phase === "shown" &&
+            search.folders.map((found) => (
+              <div key={found.path} className={s.row}>
+                <span className={styles.room}>{found.name}</span>
+                <span className={s.mono} title={found.path}>
+                  {found.path}
+                </span>
+                <span className={s.actions}>
+                  <button
+                    type="button"
+                    className="btn btn--primary btn--sm"
+                    disabled={search.adding !== null}
+                    onClick={() => void watchFound(found)}
+                  >
+                    {search.adding === found.path ? d.search.adding : d.search.watch}
+                  </button>
+                </span>
               </div>
-            </>
-          )}
-        </section>
+            ))}
+        </div>
       )}
 
-      {failure !== null && <p className={styles.error}>{loadError ? d.loadFailed(failure) : d.notRunning(failure)}</p>}
-      {!status && failure === null && <p className={styles.muted}><RailLoader size="inline" label={d.loading} showLabel /></p>}
-      {status && status.sources.length === 0 && failure === null && <p className={styles.muted}>{d.empty}</p>}
-      {status && status.sources.length > 0 && (
-        <ul className={styles.list} aria-label={d.list}>
-          {status.sources.map((source) => (
-            <FolderCard
-              key={source.id}
-              source={source}
-              rooms={rooms}
-              busy={busyId === source.id}
-              actions={actionsFor(source)}
-            />
-          ))}
-        </ul>
+      {dialog?.kind === "edit" && editing && (
+        <EditFolder
+          source={editing}
+          rooms={rooms}
+          busy={busyId === editing.id}
+          onClose={() => setDialog(null)}
+          onChangePath={() => void changePath(editing)}
+          setEnabled={(on) => void change(editing.id, () => saved(ipc.setFolderEnabled(editing.id, on)))}
+          setRecursive={(on) => void change(editing.id, () => saved(ipc.setFolderRecursive(editing.id, on)))}
+          setPollOnly={(on) => void change(editing.id, () => saved(ipc.setFolderPollOnly(editing.id, on)))}
+          setRoom={(parser) =>
+            void change(editing.id, async () => d.roomSaved(await ipc.setFolderRoom(editing.id, parser)))
+          }
+        />
       )}
 
       {dialog?.kind === "add" && (
@@ -297,7 +307,7 @@ export function Folders() {
           <p className={styles.hint}>{d.addHint}</p>
           <dl className={styles.paths}>
             <dt>{d.folder}</dt>
-            <dd className={styles.mono}>{dialog.path}</dd>
+            <dd>{dialog.path}</dd>
           </dl>
           <ImportChoice
             legend={d.existingHeading}
@@ -343,9 +353,9 @@ export function Folders() {
         <Dialog title={d.moveHeading} onClose={closeDialog}>
           <dl className={styles.paths}>
             <dt>{d.moveFrom}</dt>
-            <dd className={styles.mono}>{dialog.source.path}</dd>
+            <dd>{dialog.source.path}</dd>
             <dt>{d.moveTo}</dt>
-            <dd className={styles.mono}>{dialog.path}</dd>
+            <dd>{dialog.path}</dd>
           </dl>
           <p className={styles.body}>{d.moveBody}</p>
           <ImportChoice
@@ -386,6 +396,227 @@ export function Folders() {
           </div>
         </Dialog>
       )}
-    </section>
+    </>
+  );
+}
+
+/**
+ * One watched folder: its room and path (muted with "Not watched" when
+ * switched off), its state when it cannot be read, its refused hands as a
+ * pill that opens them, and the ⋯ menu; a backfill in progress under it.
+ */
+function FolderRow({
+  source,
+  room,
+  onEdit,
+  onRemove,
+}: {
+  source: WatchSource;
+  room: string;
+  onEdit: () => void;
+  onRemove: () => void;
+}) {
+  const t = useT();
+  const d = t.settings.folders;
+  const off = !source.enabled;
+  const bad = source.state === "unavailable" || source.state === "error";
+  return (
+    <div role="listitem">
+      <div className={s.row}>
+        <span className={`${styles.room} ${off ? s.dim : ""}`}>{room}</span>
+        <span className={`${s.mono} ${off ? s.dim : ""}`} title={source.path}>
+          {source.path}
+        </span>
+        <span className={s.actions}>
+          {off && <span className={s.muted}>{d.notWatched}</span>}
+          {bad && (
+            <span className={s.error} title={source.error ?? undefined}>
+              {t.watch.states[source.state]}
+            </span>
+          )}
+          {source.quarantined > 0 && (
+            <button
+              type="button"
+              className={s.pill}
+              aria-label={d.refusedHeading(source.path)}
+              onClick={() => go(REFUSED, String(source.id))}
+            >
+              {d.refusedPill(source.quarantined)}
+            </button>
+          )}
+          <RowMenu
+            label={d.more(source.path)}
+            items={[
+              { label: d.edit, onSelect: onEdit },
+              { label: d.remove, onSelect: onRemove, danger: true },
+            ]}
+          />
+        </span>
+      </div>
+      {source.backfill && (
+        <div className={styles.backfill}>
+          <BackfillProgress backfill={source.backfill} label={t.backfill.of(source.path)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** A ⋯ button and its small menu; Escape or a click elsewhere closes it. */
+function RowMenu({
+  label,
+  items,
+}: {
+  label: string;
+  items: { label: string; onSelect: () => void; danger?: boolean }[];
+}) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    wrap.current?.querySelector<HTMLButtonElement>("[role=menuitem]")?.focus();
+    const onDown = (event: MouseEvent) => {
+      if (!wrap.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        setOpen(false);
+        button.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey, true);
+    };
+  }, [open]);
+
+  /** ↑ / ↓ move between the items. */
+  const onMenuKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const all = [...(wrap.current?.querySelectorAll<HTMLButtonElement>("[role=menuitem]") ?? [])];
+    const at = all.indexOf(document.activeElement as HTMLButtonElement);
+    const next = event.key === "ArrowDown" ? (at + 1) % all.length : (at - 1 + all.length) % all.length;
+    all[next]?.focus();
+  };
+
+  return (
+    <div ref={wrap} className={s.menuWrap}>
+      <button
+        ref={button}
+        type="button"
+        className={s.iconButton}
+        aria-label={label}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
+        onClick={() => setOpen((was) => !was)}
+      >
+        <Icon name="more" />
+      </button>
+      {open && (
+        <div id={menuId} role="menu" className={s.menu} onKeyDown={onMenuKey}>
+          {items.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              role="menuitem"
+              className={`${s.menuItem} ${item.danger ? s.menuDanger : ""}`}
+              onClick={() => {
+                setOpen(false);
+                item.onSelect();
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A folder's settings (what the folder card used to hold): its path and
+ * "Change…", the room it is read as, and watch / subfolders / polling.
+ * Each change is saved at once.
+ */
+function EditFolder({
+  source,
+  rooms,
+  busy,
+  onClose,
+  onChangePath,
+  setEnabled,
+  setRecursive,
+  setPollOnly,
+  setRoom,
+}: {
+  source: WatchSource;
+  rooms: RoomChoice[];
+  busy: boolean;
+  onClose: () => void;
+  onChangePath: () => void;
+  setEnabled: (enabled: boolean) => void;
+  setRecursive: (recursive: boolean) => void;
+  setPollOnly: (pollOnly: boolean) => void;
+  setRoom: (parser: string | null) => void;
+}) {
+  const d = useT().settings.folders;
+  const id = useId();
+  const roomOptions =
+    source.siteOverride && !rooms.some((choice) => choice.parser === source.siteOverride)
+      ? [...rooms, { parser: source.siteOverride, name: source.siteOverride }]
+      : rooms;
+  return (
+    <Dialog title={d.editHeading} onClose={onClose}>
+      <div className={styles.setting}>
+        <span className={styles.mono}>{source.path}</span>
+        <button type="button" className="btn btn--sm" onClick={onChangePath}>
+          {d.change}
+        </button>
+      </div>
+      <fieldset className={styles.controls} disabled={busy} aria-label={d.settingsOf(source.path)}>
+        <div className={styles.setting}>
+          <label htmlFor={`${id}-room`}>{d.room}</label>
+          <select
+            id={`${id}-room`}
+            className={styles.select}
+            value={source.siteOverride ?? ""}
+            onChange={(event) => setRoom(event.target.value === "" ? null : event.target.value)}
+          >
+            <option value="">{d.roomAuto}</option>
+            {roomOptions.map((choice) => (
+              <option key={choice.parser} value={choice.parser}>
+                {choice.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.setting}>
+          <label htmlFor={`${id}-enabled`}>{d.enabled}</label>
+          <Toggle id={`${id}-enabled`} checked={source.enabled} onChange={setEnabled} />
+        </div>
+        <div className={styles.setting}>
+          <label htmlFor={`${id}-recursive`}>{d.recursive}</label>
+          <Toggle id={`${id}-recursive`} checked={source.recursive} onChange={setRecursive} />
+        </div>
+        <div className={styles.setting}>
+          <label htmlFor={`${id}-poll`}>{d.pollOnly}</label>
+          <Toggle id={`${id}-poll`} checked={source.pollOnly} onChange={setPollOnly} />
+        </div>
+      </fieldset>
+      <div className={styles.dialogActions}>
+        <button type="button" className={styles.button} onClick={onClose}>
+          {d.done}
+        </button>
+      </div>
+    </Dialog>
   );
 }

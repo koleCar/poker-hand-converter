@@ -88,6 +88,7 @@ export function Players() {
         go("hands");
       }}
       title={t.screens.players.title}
+      hideTitle
       notice={notice}
       emptyText={p.empty}
       notesFootnote={p.profile.localOnly}

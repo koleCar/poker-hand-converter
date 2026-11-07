@@ -19,7 +19,7 @@ import { useLocale, useT } from "../../i18n";
 import { formatLocale } from "../../i18n/format";
 import type { Session } from "../../lib/ipc";
 import { useStatDefinitions } from "../../lib/useStatDefinitions";
-import { LIVE_STATS, placeOf, rangeBar, rangeColour, rangeScore, targetRange, winRateBar, type RangeBar, type TargetRange } from "./model";
+import { LIVE_STATS, placeOf, rangeBar, rangeColour, rangeScore, targetRange, type RangeBar, type TargetRange } from "./model";
 import styles from "./Live.module.css";
 
 /** Room kept between the tooltip and the window's edge, and the tile. */
@@ -67,9 +67,6 @@ export function LiveStats({ session }: { session: Session }) {
     if (value !== null && range) {
       colour = rangeColour(rangeScore(value, range));
       bar = rangeBar(value, range);
-    } else if (value !== null && definition.format.unit === "bb_per_100") {
-      colour = value > 0 ? "var(--profit-fg)" : value < 0 ? "var(--loss-fg)" : null;
-      bar = winRateBar(value);
     }
     tiles.push({
       id,

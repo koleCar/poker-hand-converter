@@ -283,7 +283,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 'claim_desktop_sign_in',
                 -- pure helpers: no table, or a date of the caller's own rows
                 'analysis_best_action', 'analysis_chosen_action', 'analysis_filter_of', 'analysis_filter_rows_ok',
-                'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_leak_table_of',
+                'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_leak_table_of', 'analysis_leak_pot_of',
                 'analysis_month_of', 'analysis_spot_key',
                 'analysis_street_bit', 'analysis_version_of', 'drill_keys_valid', 'drill_next', 'drill_quality',
                 'filter_formats', 'game_kind_formats',
@@ -306,8 +306,8 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
 
 select is((select string_agg(feature || ':' || n, ' ' order by feature)
              from (select feature, count(*) as n from public.entitlement_gates group by 1) x),
-  'analysis:45 desktop_sync:3 learn:3 reports_full:6',
-  'the gate list: 45 analysis (20271104120000: the drills on a table), 3 desktop sync, 3 learn, 6 full reports');
+  'analysis:47 desktop_sync:3 learn:3 reports_full:6',
+  'the gate list: 47 analysis (20271105090000: the drills on a pot), 3 desktop sync, 3 learn, 6 full reports');
 
 -- ---------------------------------------------------------- early users --
 

@@ -39,7 +39,7 @@ import {
   type Leak,
   type LeakSort,
 } from "../../../lib/analysis/leaks";
-import { drillsOn, handsTable, lineSeats, type SpotDrills } from "../../../lib/analysis/leaks";
+import { drillsOn, handsPot, handsTable, lineSeats, type SpotDrills } from "../../../lib/analysis/leaks";
 import { walkLine } from "../../../lib/analysis/reports";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -408,7 +408,7 @@ function useLeakWords() {
 /** A leak's drills: how many there are and how many are due today, summed over its spots on its table. */
 function drillCount(leak: Leak, drills: Map<string, SpotDrills> | null) {
   if (!drills) return null;
-  return drillsOn(drills, leak.keys, handsTable(leak.attrs, leak.level));
+  return drillsOn(drills, leak.keys, handsTable(leak.attrs, leak.level), handsPot(leak.attrs));
 }
 
 function LeakItem({
@@ -534,7 +534,7 @@ function LeakDetail({
       <LearnLinks concepts={leakConcepts(leak.attrs)} />
 
       <div className={styles.drill}>
-        <Link href={paths.analysisTrain(drillQuery(leak.keys, handsTable(leak.attrs, leak.level)))} className="btn btn--sm" aria-describedby={drills ? drillId : undefined}>
+        <Link href={paths.analysisTrain(drillQuery(leak.keys, handsTable(leak.attrs, leak.level), handsPot(leak.attrs)))} className="btn btn--sm" aria-describedby={drills ? drillId : undefined}>
           {t.detail.drill}
         </Link>
         {drills ? (
@@ -556,16 +556,18 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
   const keys = leak.keys.join(",");
   // Its own table's decisions only: a spot key names no table.
   const table = handsTable(leak.attrs, leak.level);
+  // ... and, postflop, its own pot's (a 3-bet pot leak's keys also hold the single-raised pots').
+  const pot = handsPot(leak.attrs);
   const filterKey = JSON.stringify(filters);
   const [pages, setPages] = useState(1);
   const [data, setData] = useState<{ key: string; total: number; rows: LeakHandRow[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const requestKey = `${keys}|${table ?? ""}|${filterKey}|${pages}`;
+  const requestKey = `${keys}|${table ?? ""}|${pot ?? ""}|${filterKey}|${pages}`;
   const loading = data?.key !== requestKey && !error;
 
   useEffect(() => {
     let live = true;
-    fetchLeakHands(JSON.parse(filterKey) as AnalysisFilters, { keys: keys.split(","), table, limit: HANDS_PAGE * pages })
+    fetchLeakHands(JSON.parse(filterKey) as AnalysisFilters, { keys: keys.split(","), table, pot, limit: HANDS_PAGE * pages })
       .then((page) => {
         if (live) setData({ key: requestKey, total: page.total, rows: page.rows });
       })
@@ -575,7 +577,7 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
     return () => {
       live = false;
     };
-  }, [keys, table, filterKey, pages, requestKey]);
+  }, [keys, table, pot, filterKey, pages, requestKey]);
 
   const when = (iso: string | null) =>
     iso ? dateFormat(locale, { day: "2-digit", month: "2-digit", year: "2-digit" }).format(new Date(iso)) : "";

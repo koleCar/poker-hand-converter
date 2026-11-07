@@ -42,7 +42,8 @@ export function usePlanWords() {
           ? t.tasks.trainFlop(
               target.role === "any" ? null : target.role,
               target.side === "any" ? null : target.side,
-              target.pot === "any" ? null : target.pot,
+              // A named line names its pot ("SB–BB 4-bet pot"; the trainer files a 4-bet pot as a 3-bet one).
+              target.pot === "any" || target.line ? null : target.pot,
               target.seat,
               target.facing === "any" ? null : target.facing,
               target.line ? en.course.spot.lineName(target.line) : null,

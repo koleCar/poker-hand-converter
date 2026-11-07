@@ -200,6 +200,7 @@ export interface QuarantineSummary {
 export interface QuarantineList {
   entries: RefusedHand[];
   truncated: boolean;
+  total: number;
 }
 
 export interface FolderQuarantine {
@@ -591,7 +592,9 @@ export interface HudDesign {
   preset?: string;
   format: GameFormat;
   columns: number;
-  cells: DesignCell[];
+  /** Rows of the panel's grid; `cells` holds `rows` x `columns` slots, row by row, `null` an empty slot. */
+  rows: number;
+  cells: (DesignCell | null)[];
   overrides?: Record<string, StatOverride>;
   popup: PopupSection[];
   legend: boolean;
@@ -687,6 +690,7 @@ export interface HudEditorState {
   limits: {
     maxCells: number;
     maxColumns: number;
+    maxRows: number;
     maxDecimals: number;
     maxPopupSections: number;
     maxPopupStats: number;
@@ -726,7 +730,15 @@ export interface HudPreview {
   board: PreviewRect;
   heroSlot: number;
   items: PreviewItem[];
-  panels: { slot: number; rect: PreviewRect; stats: string[]; placedByUser: boolean; stackBb: number }[];
+  panels: {
+    slot: number;
+    rect: PreviewRect;
+    stats: string[];
+    /** Where each statistic is drawn (a click there opens its settings). */
+    cells: { stat: string; rect: PreviewRect }[];
+    placedByUser: boolean;
+    stackBb: number;
+  }[];
   legend: PreviewRect | null;
   problems: DesignProblem[];
 }

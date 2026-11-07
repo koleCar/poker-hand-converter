@@ -1,243 +1,218 @@
+import { Icon } from "@rail/ui/icon/Icon";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+import { useId, useState } from "react";
 
 import { percentOf } from "../../components/BackfillProgress";
 import { useT } from "../../i18n";
-import { liveDateFormat, liveNumberFormat } from "../../i18n/format";
-import type { UpdatePhase, UpdateStatus } from "../../lib/ipc";
+import { liveNumberFormat } from "../../i18n/format";
+import type { UpdateStatus } from "../../lib/ipc";
 import { useTablesOpen } from "../../lib/useTablesOpen";
-import { readableNotes, useUpdates } from "../../lib/useUpdates";
+import { readableNotes, useUpdates, type UseUpdates } from "../../lib/useUpdates";
 import styles from "./Settings.module.css";
+import { Toggle } from "./Toggle";
 
-const WHEN = liveDateFormat({ dateStyle: "medium", timeStyle: "short" });
-const DAY = liveDateFormat({ dateStyle: "medium" });
 const MEGABYTES = liveNumberFormat({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 const mb = (bytes: number) => MEGABYTES.format(bytes / (1024 * 1024));
 
 /**
- * Settings, Updates (`updates.rs`): this version, "Check for updates", and
- * for a newer one its notes, the download with its progress, then "Install
- * and restart". Each step is the user's click; the automatic check (the
- * setting below) only looks.
+ * Settings, Updates (`updates.rs`): a newer version as a banner on top -
+ * its notes, the download with its progress, then "Install and restart" -
+ * and under it one row: check automatically, and "Check now". Each step is
+ * the user's click; the automatic check only looks.
  */
 export function Updates() {
   const t = useT();
   const u = t.settings.updates;
-  const { status, error, check, download, install, setAutomatic, openDownloadPage } = useUpdates();
-  const tablesOpen = useTablesOpen();
+  const updates = useUpdates();
+  const { status, error, check, setAutomatic } = updates;
+  const autoId = useId();
 
+  if (!status) {
+    return error ? (
+      <p className={`${styles.note} ${styles.error}`} role="alert">
+        {error}
+      </p>
+    ) : (
+      <RailLoader size="inline" label={t.settings.loading} showLabel />
+    );
+  }
+  const state = status.phase.state;
   return (
-    <section className={styles.section}>
-      <h2 className={styles.heading}>{u.heading}</h2>
-      {!status && !error && (
-        <p className={styles.muted}>
-          <RailLoader size="inline" label={t.settings.loading} showLabel />
-        </p>
-      )}
-      {status && (
-        <>
-          <div className={styles.row}>
-            <span>
-              <span className={styles.label}>{u.current(status.current)}</span>
-              <br />
-              <span className={styles.hint}>
-                {status.lastCheckedMs !== null ? u.lastChecked(WHEN.format(status.lastCheckedMs)) : u.notChecked}
+    <>
+      <Banner status={status} updates={updates} />
+      <div className={styles.card}>
+        <div className={`${styles.row} ${styles.rowWide}`}>
+          <label htmlFor={autoId}>{u.automaticShort}</label>
+          <span className={styles.actions}>
+            {state === "upToDate" && (
+              <span className={styles.muted} role="status">
+                {u.upToDateShort}
               </span>
-            </span>
+            )}
             <button
               type="button"
-              className={styles.quietButton}
+              className="btn btn--ghost btn--sm"
               onClick={check}
-              disabled={busy(status.phase)}
+              disabled={state === "checking" || state === "downloading" || state === "installing"}
             >
-              {status.phase.state === "checking" ? u.checking : u.check}
+              {state === "checking" ? u.checking : u.checkNow}
             </button>
-          </div>
-
-          <PhaseView
-            status={status}
-            tablesOpen={tablesOpen}
-            onDownload={download}
-            onInstall={install}
-            onRetry={check}
-            onDownloadPage={openDownloadPage}
-          />
-
-          <label className={styles.checkbox}>
-            <input
-              type="checkbox"
-              checked={status.automatic}
-              onChange={(event) => setAutomatic(event.target.checked)}
-            />
-            <span>
-              <span className={styles.label}>{u.automatic}</span>
-              <br />
-              <span className={styles.hint}>{u.automaticHint}</span>
-            </span>
-          </label>
-        </>
-      )}
+            <Toggle id={autoId} checked={status.automatic} onChange={setAutomatic} />
+          </span>
+        </div>
+      </div>
       {error && (
-        <p className={styles.error} role="alert">
+        <p className={`${styles.note} ${styles.error}`} role="alert">
           {error}
         </p>
       )}
-    </section>
+    </>
   );
 }
 
-function busy(phase: UpdatePhase): boolean {
-  return phase.state === "checking" || phase.state === "downloading" || phase.state === "installing";
-}
-
-/** What the last step left: nothing to say, up to date, a version to get, its download, the install. */
-function PhaseView({
-  status,
-  tablesOpen,
-  onDownload,
-  onInstall,
-  onRetry,
-  onDownloadPage,
-}: {
-  status: UpdateStatus;
-  tablesOpen: boolean;
-  onDownload: () => void;
-  onInstall: () => void;
-  onRetry: () => void;
-  onDownloadPage: () => void;
-}) {
+/** A newer version: what it is, and its one step (download, install, try again). */
+function Banner({ status, updates }: { status: UpdateStatus; updates: UseUpdates }) {
   const t = useT();
   const u = t.settings.updates;
+  const tablesOpen = useTablesOpen();
   const phase = status.phase;
   const blocker = status.installBlocker;
 
+  let line: string;
+  let below = null;
+  let action = null;
+  let progress: number | null = null;
   switch (phase.state) {
     case "idle":
     case "checking":
+    case "upToDate":
       return null;
 
-    case "upToDate":
-      return (
-        <p className={styles.notice} role="status">
-          {u.upToDate}
-        </p>
-      );
-
     case "available":
-      return (
-        <div className={styles.update} role="status">
-          <p className={styles.label}>
-            <strong>{u.available(phase.version)}</strong>
-            {phase.dateMs !== null && <span className={styles.hint}> {u.published(DAY.format(phase.dateMs))}</span>}
-          </p>
-          <Notes notes={phase.notes} />
-          <div className={styles.buttons}>
-            <button type="button" className={styles.button} onClick={onDownload}>
-              {u.download}
-            </button>
-          </div>
-          <p className={styles.hint}>{u.downloadHint}</p>
-        </div>
+      line = u.available(phase.version);
+      below = <Notes notes={phase.notes} />;
+      action = (
+        <button type="button" className="btn btn--primary btn--sm" onClick={updates.download}>
+          {u.downloadShort}
+        </button>
       );
+      break;
 
     case "downloading": {
       const percent = phase.total ? percentOf(phase.downloaded, phase.total) : null;
-      const label = u.downloading(phase.version);
-      return (
-        <div className={styles.update} role="status">
-          <p className={styles.label}>
-            <RailLoader size="inline" label={label} delay={0} /> {label}
-          </p>
-          <progress
-            className={styles.bar}
-            max={100}
-            value={percent ?? undefined}
-            aria-label={label}
-          />
-          <p className={styles.hint}>
-            {phase.total
-              ? u.progress(mb(phase.downloaded), mb(phase.total), percent ?? 0)
-              : u.progressUnknown(mb(phase.downloaded))}
-          </p>
-        </div>
+      line = u.downloading(phase.version);
+      progress = percent;
+      action = (
+        <span className={styles.muted}>
+          {phase.total
+            ? u.progress(mb(phase.downloaded), mb(phase.total), percent ?? 0)
+            : u.progressUnknown(mb(phase.downloaded))}
+        </span>
       );
+      break;
     }
 
     case "ready":
-      return (
-        <div className={styles.update} role="status">
-          <p className={styles.label}>
-            <strong>{u.ready(phase.version)}</strong>
-          </p>
+      line = u.ready(phase.version);
+      below = (
+        <>
           <Notes notes={phase.notes} />
-          {blocker ? (
-            <>
-              <p className={styles.hint}>{u.blockers[blocker]}</p>
-              <div className={styles.buttons}>
-                <button type="button" className={styles.button} onClick={onDownloadPage}>
-                  {u.downloadPage}
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className={styles.buttons}>
-                <button type="button" className={styles.button} onClick={onInstall}>
-                  {u.install}
-                </button>
-              </div>
-              <p className={styles.hint}>{u.installHint}</p>
-              {tablesOpen && <p className={styles.warning}>{u.tablesOpen}</p>}
-            </>
-          )}
-        </div>
+          {blocker && <p className={styles.muted}>{u.blockers[blocker]}</p>}
+          {!blocker && tablesOpen && <p className={styles.warning}>{u.tablesOpen}</p>}
+        </>
       );
+      action = blocker ? (
+        <button type="button" className="btn btn--primary btn--sm" onClick={updates.openDownloadPage}>
+          {u.downloadPage}
+        </button>
+      ) : (
+        <button type="button" className="btn btn--primary btn--sm" onClick={updates.install}>
+          {u.install}
+        </button>
+      );
+      break;
 
     case "installing":
-      return (
-        <p className={styles.label} role="status">
-          <RailLoader size="inline" label={u.installing(phase.version)} delay={0} /> {u.installing(phase.version)}
-        </p>
-      );
+      line = u.installing(phase.version);
+      action = <RailLoader size="inline" label={line} delay={0} />;
+      break;
 
     case "failed": {
-      const kind = phase.kind === "other" ? u.kinds.other(phase.reason) : u.kinds[phase.kind];
-      return (
-        <div className={styles.update} role="alert">
-          <p className={styles.error}>
-            {u.failed[phase.stage]} {kind}
-          </p>
-          <div className={styles.buttons}>
-            <button
-              type="button"
-              className={styles.quietButton}
-              onClick={phase.stage === "download" ? onDownload : onRetry}
-              // A failed download is tried again; a failed install starts over with a check.
-            >
-              {u.tryAgain}
+      line = u.failed[phase.stage];
+      below = (
+        <>
+          <p className={styles.muted}>{phase.kind === "other" ? u.kinds.other(phase.reason) : u.kinds[phase.kind]}</p>
+          {phase.stage !== "check" && (
+            <button type="button" className={styles.linkButton} onClick={updates.openDownloadPage}>
+              {u.downloadPage}
             </button>
-            {phase.stage !== "check" && (
-              <button type="button" className={styles.linkButton} onClick={onDownloadPage}>
-                {u.downloadPage}
-              </button>
-            )}
-          </div>
-        </div>
+          )}
+        </>
       );
+      action = (
+        // A failed download is tried again; a failed install starts over with a check.
+        <button
+          type="button"
+          className="btn btn--sm"
+          onClick={phase.stage === "download" ? updates.download : updates.check}
+        >
+          {u.tryAgain}
+        </button>
+      );
+      break;
     }
   }
+
+  return (
+    <div className={styles.banner} role={phase.state === "failed" ? "alert" : "status"}>
+      <span className={styles.bannerIcon}>
+        <Icon name="download" />
+      </span>
+      <span className={styles.value}>
+        <span className={styles.strong}>{line}</span>
+        {below}
+      </span>
+      <span className={styles.actions}>{action}</span>
+      {phase.state === "downloading" && (
+        <span
+          className={styles.progress}
+          role="progressbar"
+          aria-label={line}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress ?? undefined}
+        >
+          <span className={styles.progressFill} style={{ width: `${progress ?? 0}%` }} />
+        </span>
+      )}
+    </div>
+  );
 }
 
-/** The release notes, folded away: a click shows them. */
+/** The release notes, folded away: "What's new" shows them. */
 function Notes({ notes }: { notes: string | null }) {
   const t = useT();
-  if (!notes) return null;
-  const text = readableNotes(notes);
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  const text = notes ? readableNotes(notes) : "";
   if (!text) return null;
   return (
-    <details className={styles.notes}>
-      <summary>{t.settings.updates.whatsNew}</summary>
-      <p className={styles.notesText}>{text}</p>
-    </details>
+    <>
+      <button
+        type="button"
+        className={styles.linkButton}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen((was) => !was)}
+      >
+        {t.settings.updates.whatsNew}
+      </button>
+      {open && (
+        <p id={id} className={styles.notesText}>
+          {text}
+        </p>
+      )}
+    </>
   );
 }

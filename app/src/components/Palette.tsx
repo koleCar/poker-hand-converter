@@ -11,7 +11,8 @@
  * - **screens** (each with its Cmd/Ctrl + 1-8 shortcut), the **reports'**
  *   breakdowns (`#/reports/<tab>`, R2.7b), **saved filters** of Hands and
  *   Reports (applied to their screen), the **Settings sections**
- *   (`#/settings/<section>`, the refused hands among them) and the
+ *   (`#/settings/<section>`; the refused hands and the HUD at the tables,
+ *   listed with them, open their own screens) and the
  *   **commands**: pause or resume import, sync now, the theme, the density
  *   and the language - ranked by the package's fuzzy match (`rankItems`:
  *   "gtrep", "tamna", "compact" all find theirs), with words each command
@@ -31,7 +32,7 @@ import { useT, type Dict } from "../i18n";
 import { screenOffered } from "../lib/duringPlay";
 import { adoptSettings, getAppearance, setAppearance } from "../lib/appearance";
 import { inApp, ipc, type Density, type HandRow, type PlayerRow, type SavedFilter, type Theme } from "../lib/ipc";
-import { SCREENS, go, type Screen } from "../lib/router";
+import { HUD_TABLES, REFUSED, SCREENS, go, type Screen } from "../lib/router";
 import { fromSaved, requestFilter, type FilterTarget } from "../screens/hands/filter";
 import { playedAt, stakes } from "../screens/hands/format";
 import { playerParam } from "../screens/players/param";
@@ -49,8 +50,14 @@ const RECENT_MAX = 5;
 const RECENT_KEY = "rail.palette.recent";
 
 /** The Settings sections the palette opens (`#/settings/<section>`; ids in `Settings.tsx`). */
-export const SETTINGS_SECTIONS = ["account", "folders", "refused", "statistics", "hud", "appearance", "startup", "updates", "about"] as const;
+export const SETTINGS_SECTIONS = ["account", "folders", "statistics", "appearance", "startup", "updates"] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
+
+/** Listed as "Settings: ..." too, but on screens of their own: the refused hands, the HUD at the tables. */
+const SETTINGS_ELSEWHERE: Record<"refused" | "hud", () => void> = {
+  refused: () => go(REFUSED),
+  hud: () => go("hud", HUD_TABLES),
+};
 
 /** The platform's modifier as a key cap: ⌘ on a Mac, Ctrl elsewhere. */
 export const MOD_KEY = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "⌘" : "Ctrl";
@@ -240,7 +247,7 @@ function localItems(t: Dict, context: Context, tablesOpen: boolean): PaletteItem
   const other: Locale = appearance.locale === "en" ? "hr" : "en";
   items.push(command(`locale:${other}`, p.command.language, p.keywords.language));
   items.push(command("refused", p.command.refused, p.keywords.refused));
-  for (const section of SETTINGS_SECTIONS) {
+  for (const section of [...SETTINGS_SECTIONS, ...(Object.keys(SETTINGS_ELSEWHERE) as (keyof typeof SETTINGS_ELSEWHERE)[])]) {
     items.push({
       id: `settings:${section}`,
       label: p.section(p.sections[section]),
@@ -364,7 +371,8 @@ function PaletteDialog({ onClose, tablesOpen }: { onClose: () => void; tablesOpe
         keep({ id: item.id });
         break;
       case "settings":
-        go("settings", value);
+        if (value === "refused" || value === "hud") SETTINGS_ELSEWHERE[value]();
+        else go("settings", value);
         keep({ id: item.id });
         break;
       case "filter": {
@@ -434,7 +442,7 @@ function runCommand(command: string): void {
       else setAppearance({ locale: value as Locale });
       break;
     case "refused":
-      go("settings", "refused");
+      go(REFUSED);
       break;
     default:
   }

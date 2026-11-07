@@ -9,7 +9,9 @@
  * the room and table size (`hud_set_seat_position`, the row a drag at a
  * real table writes, R3.6), so the HUD puts it there at every such table.
  * "Put panels back" forgets them (R3.6's reset). The keyboard moves a
- * focused panel with the arrows (Shift: further).
+ * focused panel with the arrows (Shift: further). A click on a number (a
+ * press that does not move the panel), or Enter on a focused panel, opens
+ * that statistic's settings by it (`CellSettings`).
  */
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 
@@ -27,7 +29,8 @@ import {
 import { problemText, statLabel } from "./problems";
 import styles from "./HudEditor.module.css";
 
-const SIZES = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+/** The table sizes offered: heads-up, 6-max, 9-max. */
+const SIZES = [2, 6, 9];
 /** How long edits pause before the preview is drawn again. */
 const PREVIEW_DEBOUNCE_MS = 150;
 /** An arrow key moves a panel this many pixels of the preview (Shift: four times). */
@@ -50,8 +53,10 @@ export function Preview({
   state,
   room,
   size,
+  selected,
   onRoom,
   onSize,
+  onOpenCell,
   onChanged,
   announce,
 }: {
@@ -59,8 +64,11 @@ export function Preview({
   state: HudEditorState;
   room: string;
   size: number;
+  /** The statistic whose settings are open (its numbers are outlined). */
+  selected: string | null;
   onRoom: (room: string) => void;
   onSize: (size: number) => void;
+  onOpenCell: (stat: string, anchor: Element) => void;
   /** The store changed (a panel moved, a reset): read the state again. */
   onChanged: () => void;
   announce: (message: string) => void;
@@ -159,9 +167,26 @@ export function Preview({
     setDragging(null);
     const offset = last.current;
     last.current = null;
-    if (offset && (Math.abs(offset.dx) > 1 || Math.abs(offset.dy) > 1)) keep(s.slot, rect, offset);
+    if (offset && (Math.abs(offset.dx) > 1 || Math.abs(offset.dy) > 1)) {
+      keep(s.slot, rect, offset);
+      return;
+    }
+    // A press that did not move: the number under it opens its settings.
+    if (event.type !== "pointerup") return;
+    const hit = document
+      .elementsFromPoint(event.clientX, event.clientY)
+      .find((el) => el instanceof SVGElement && el.dataset.stat !== undefined);
+    if (hit instanceof SVGElement && hit.dataset.stat) onOpenCell(hit.dataset.stat, hit);
   };
   const onKey = (event: KeyboardEvent<SVGGElement>, slot: number, rect: PreviewRect) => {
+    if (event.key === "Enter") {
+      const first = event.currentTarget.querySelector<SVGElement>("[data-stat]");
+      if (first?.dataset.stat) {
+        event.preventDefault();
+        onOpenCell(first.dataset.stat, first);
+      }
+      return;
+    }
     const step = KEY_STEP_PX * (event.shiftKey ? 4 : 1);
     const delta: Record<string, Offset> = {
       ArrowLeft: { dx: -step, dy: 0 },
@@ -185,30 +210,52 @@ export function Preview({
   return (
     <div className={styles.preview}>
       <div className={styles.previewBar}>
-        <div className={styles.segmented} role="radiogroup" aria-label={h.room}>
+        <div className={styles.pills} role="radiogroup" aria-label={h.room}>
           {state.rooms.map((r) => (
             <button
               key={r.id}
               type="button"
               role="radio"
               aria-checked={r.id === room}
-              className={r.id === room ? `${styles.segment} ${styles.segmentOn}` : styles.segment}
+              className={`chip-btn${r.id === room ? " is-active" : ""}`}
               onClick={() => onRoom(r.id)}
             >
               {r.name}
             </button>
           ))}
         </div>
-        <label className={styles.toolField}>
-          <span className={styles.toolLabel}>{h.seats}</span>
-          <select className={styles.inputSm} value={size} onChange={(event) => onSize(Number(event.target.value))}>
-            {SIZES.map((n) => (
-              <option key={n} value={n}>
-                {h.seatsN(n)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className={styles.pills} role="radiogroup" aria-label={h.seats}>
+          {SIZES.map((n) => (
+            <button
+              key={n}
+              type="button"
+              role="radio"
+              aria-checked={n === size}
+              className={`chip-btn${n === size ? " is-active" : ""}`}
+              onClick={() => onSize(n)}
+            >
+              {h.sizeShort(n)}
+            </button>
+          ))}
+        </div>
+        {dragged > 0 ? (
+          <button
+            type="button"
+            className={`btn btn--ghost ${styles.barEnd}`}
+            title={h.dragged(dragged)}
+            onClick={() => {
+              ipc
+                .hudResetSeatPositions(room, size)
+                .then((gone) => {
+                  announce(h.resetDone(gone));
+                  onChanged();
+                })
+                .catch((reason: unknown) => setNotice(errorText(reason)));
+            }}
+          >
+            {h.resetDragged}
+          </button>
+        ) : null}
       </div>
       {error ? <p className={styles.error}>{h.previewFailed(error)}</p> : null}
       {preview ? (
@@ -282,6 +329,18 @@ export function Preview({
                   {items.map((item, index) => (
                     <Painted key={index} item={item} />
                   ))}
+                  {panel.cells.map((cell) => (
+                    <rect
+                      key={cell.stat}
+                      data-stat={cell.stat}
+                      x={cell.rect.x}
+                      y={cell.rect.y}
+                      width={cell.rect.w}
+                      height={cell.rect.h}
+                      rx={3}
+                      className={cell.stat === selected ? `${styles.cellHit} ${styles.cellHitOn}` : styles.cellHit}
+                    />
+                  ))}
                   <rect
                     x={panel.rect.x - 3}
                     y={panel.rect.y - 3}
@@ -296,28 +355,6 @@ export function Preview({
           </svg>
         </div>
       ) : null}
-      <div className={styles.previewFoot}>
-        <p className={styles.hint}>{h.previewHint(roomName, h.seatsN(size))}</p>
-        <div className={styles.inline}>
-          {dragged > 0 ? <span className={styles.hint}>{h.dragged(dragged)}</span> : null}
-          <button
-            type="button"
-            className="btn btn--sm"
-            disabled={dragged === 0}
-            onClick={() => {
-              ipc
-                .hudResetSeatPositions(room, size)
-                .then((gone) => {
-                  setNotice(h.resetDone(gone));
-                  onChanged();
-                })
-                .catch((reason: unknown) => setNotice(errorText(reason)));
-            }}
-          >
-            {h.resetDragged}
-          </button>
-        </div>
-      </div>
       {preview && preview.problems.length > 0 ? (
         <div
           className={preview.problems.every((p) => p.code === "labels") ? styles.noteBox : styles.refusedBox}

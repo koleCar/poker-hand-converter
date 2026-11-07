@@ -395,6 +395,41 @@ fn stale_refusals_are_read_again() {
             .expect("raw")
             .is_some_and(|text| !text.is_empty())
     );
+
+    // Paged: the pages follow each other in the same order as one list,
+    // and the count is the filter's total.
+    let reader = store.reader();
+    let all = reader.quarantine_filtered(None, None, 1000).expect("all");
+    let total = reader.quarantine_filtered_count(None, None).expect("count");
+    assert_eq!(usize::try_from(total).expect("total"), all.len());
+    assert_eq!(
+        u64::try_from(total).expect("total"),
+        store.status().expect("status").quarantined
+    );
+    let first = reader.quarantine_page(None, None, 0, 5).expect("page 1");
+    let rest = reader.quarantine_page(None, None, 5, 1000).expect("page 2");
+    assert_eq!(first.len(), 5);
+    let paged: Vec<i64> = first.iter().chain(&rest).map(|entry| entry.id).collect();
+    let listed: Vec<i64> = all.iter().map(|entry| entry.id).collect();
+    assert_eq!(paged, listed);
+    assert!(
+        reader
+            .quarantine_page(None, None, 1000, 10)
+            .expect("past the end")
+            .is_empty()
+    );
+    assert_eq!(
+        reader
+            .quarantine_filtered_count(Some(id), Some("truncated-hand"))
+            .expect("count"),
+        1
+    );
+    assert_eq!(
+        reader
+            .quarantine_filtered_count(None, Some("truncated-hand"))
+            .expect("count"),
+        2
+    );
 }
 
 #[test]

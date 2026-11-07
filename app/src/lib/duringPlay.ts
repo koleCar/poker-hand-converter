@@ -33,6 +33,7 @@ export const SCREEN_HELP: Readonly<Record<Route, PlayHelp | null>> = {
   import: null,
   settings: null,
   setup: null,
+  refused: null,
 };
 
 /** Whether `help` is hidden now: always while a poker table is open, never otherwise. */

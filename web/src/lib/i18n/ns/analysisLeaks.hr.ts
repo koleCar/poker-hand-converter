@@ -62,9 +62,13 @@ interface Where {
   villain: string;
   /** `"9max"`: situacija s full-ring charta (A2d); `"hu"`: s heads-up charta. Imenovana sa stolom. */
   table?: string;
+  /** `"3bp"`, `"4bp"`: flop, turn ili river u 3-bet ili 4-bet+ potu. Imenovana s potom. */
+  pot?: string;
 }
 
 const known = (part: string) => part !== ANY && part !== NONE;
+/** The pot of a postflop spot, as the statistics name a pot type (`stats.potTypes`). */
+const potWords = { "3bp": "3-bet pot", "4bp": "4-bet+ pot" } as Record<string, string>;
 
 function title(kind: LeakKind, where: Where): string {
   if (where.street === "preflop") {
@@ -91,9 +95,12 @@ function context(where: Where): string {
   const text = spotContext(where);
   // A preflop tag never outlives the seat; a postflop one is kept at every level (`tableDropLevel`).
   const table = where.table === "9max" ? "9-max" : where.table === "hu" ? "heads-up" : null;
-  if (!table) return text;
+  // A postflop pot tag is kept at every level too: "(BB, heads-up, 3-bet pot)".
+  const pot = where.street !== "preflop" && where.pot ? (potWords[where.pot] ?? null) : null;
+  const tags = [table, pot].filter(Boolean).join(", ");
+  if (!tags) return text;
   // A postflop spot already names its seat in brackets: "(BB, heads-up)", not "(BB) (heads-up)".
-  return text.endsWith(")") && where.street !== "preflop" ? `${text.slice(0, -1)}, ${table})` : `${text} (${table})`;
+  return text.endsWith(")") && where.street !== "preflop" ? `${text.slice(0, -1)}, ${tags})` : `${text} (${tags})`;
 }
 
 /** "BB protiv BTN opena", "CO prvi ulazi", "Kao preflop raiser, u poziciji, prvi na potezu". */

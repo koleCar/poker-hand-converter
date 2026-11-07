@@ -13,7 +13,7 @@
  */
 
 import { ANALYSIS_VERSION } from "../analysis";
-import type { HandsTable, SpotRow } from "../analysis/leaks";
+import type { HandsPot, HandsTable, SpotRow } from "../analysis/leaks";
 import type { TopPeriod } from "../analysis/topLeaks";
 import { currentUserId, rpc } from "./client";
 import type { AnalysisFilters } from "./analysis";
@@ -83,6 +83,8 @@ function sampleOf(value: unknown): LeakSample {
     rows: rows(s.rows).map((row) => ({
       key: String(row.key ?? ""),
       set: str(row.set),
+      // A postflop row in a 3-bet or 4-bet+ pot (20271105090000); absent otherwise.
+      ...(str(row.pot) ? { pot: str(row.pot) } : {}),
       street: String(row.street ?? ""),
       scenario: String(row.scenario ?? ""),
       line: String(row.line ?? ""),
@@ -151,9 +153,12 @@ export interface LeakExamplesQuery {
    * Each leak's id and finest spot keys (`Leak.keys`), at most 10 leaks of at
    * most 200 keys, and its table (`handsTable`; absent or null: every table).
    * A spot key names no table, so a heads-up leak's keys also hold the 6-max
-   * blinds' decisions (`20271104120000_drills_by_table.sql`).
+   * blinds' decisions (`20271104120000_drills_by_table.sql`). Postflop also
+   * its pot (`handsPot`; `20271105090000_leak_pot_type.sql`): a 3-bet pot's
+   * keys also hold the single-raised pots' decisions. An older database
+   * ignores the key.
    */
-  leaks: Array<{ id: string; keys: string[]; table?: HandsTable | null }>;
+  leaks: Array<{ id: string; keys: string[]; table?: HandsTable | null; pot?: HandsPot | null }>;
   /** UTC days, inclusive; null for all time. */
   window: DayWindow | null;
   /** Decisions per leak (the server takes 1-30). */
@@ -198,7 +203,12 @@ export async function fetchLeakExamples(filters: AnalysisFilters, query: LeakExa
     p_filters: topLeaksFilters(filters),
     p_from: query.window?.from ?? null,
     p_to: query.window?.to ?? null,
-    p_leaks: leaks.map((leak) => ({ id: leak.id, keys: leak.keys.slice(0, 200), ...(leak.table ? { table: leak.table } : {}) })),
+    p_leaks: leaks.map((leak) => ({
+      id: leak.id,
+      keys: leak.keys.slice(0, 200),
+      ...(leak.table ? { table: leak.table } : {}),
+      ...(leak.pot ? { pot: leak.pot } : {}),
+    })),
     p_limit: query.limit,
   });
   return examplesFromPayload(payload);

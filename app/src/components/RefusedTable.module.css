@@ -13,48 +13,67 @@
 }
 
 .table th {
-  padding: var(--density-cell-block-loose) var(--space-3);
+  padding: var(--space-3) var(--space-3);
   border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
   text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .table td {
-  padding: var(--density-cell-block-loose) var(--space-3);
+  padding: var(--space-3) var(--space-3);
   border-bottom: 1px solid var(--border-subtle);
-  vertical-align: top;
+  vertical-align: middle;
 }
 
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: 18px;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 18px;
+}
+
+/* The reason's code as a badge. */
 .code {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-pill);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
   font-family: var(--font-family-mono);
   font-size: var(--font-size-xs);
   white-space: nowrap;
 }
 
+.message {
+  min-width: 20ch;
+  color: var(--text-secondary);
+}
+
 /* The file's name on one line, cut with an ellipsis; the title has the path. */
 .file {
-  max-width: 12ch;
+  max-width: 16ch;
   overflow: hidden;
   font-family: var(--font-family-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .muted {
   color: var(--text-tertiary);
-}
-
-/* The code, then the message under it: one column, so the message has room. */
-.reason {
-  min-width: 24ch;
-}
-
-.message {
-  display: block;
-  margin-top: var(--space-0-5);
-  color: var(--text-secondary);
 }
 
 .nowrap {
@@ -78,57 +97,13 @@
   cursor: pointer;
   font: inherit;
   font-size: var(--font-size-sm);
-  text-decoration: underline;
   white-space: nowrap;
 }
 
-.retry {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-3);
+.link:hover {
+  text-decoration: underline;
 }
 
-.hint {
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-}
-
-.error {
-  color: var(--danger-fg);
-  font-size: var(--font-size-sm);
-}
-
-.success {
-  color: var(--success-fg);
-  font-size: var(--font-size-sm);
-}
-
-.live:empty {
-  display: none;
-}
-
-.button {
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--accent-border);
-  border-radius: var(--radius-2);
-  background: var(--accent-bg);
-  color: var(--text-on-accent);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--font-size-sm);
-}
-
-.button:hover {
-  background: var(--accent-bg-hover);
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: progress;
-}
-
-.button:focus-visible,
 .link:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;

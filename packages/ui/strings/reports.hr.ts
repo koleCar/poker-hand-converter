@@ -19,7 +19,6 @@ export const reportsUiHr: typeof reportsUiEn = {
     label: "Sažetak",
     hands: "Ruke",
     result: "Rezultat",
-    netBb: "Big blindovi",
     bb100: "bb/100",
     evBb100: "All-in EV bb/100",
   },

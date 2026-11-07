@@ -287,6 +287,12 @@ export const en = {
     notSignedIn: "Not signed in: your hands stay on this computer.",
     signingInShort: "Signing in in your browser…",
     signingOut: "Signing out…",
+    /** Settings' account tile. */
+    signInShort: "Sign in",
+    notSignedInShort: "Not signed in",
+    waitingShort: "Finish signing in in your browser",
+    timeLeft: (time: string) => `${time} left`,
+    offlineBadge: "Offline",
     failed: (reason: string) => `That did not work: ${reason}`,
     notices: {
       cancelled: "Signing in was cancelled in the browser.",
@@ -377,6 +383,25 @@ export const en = {
     resume: "Resume sync",
     failedAction: (reason: string) => `That did not work: ${reason}`,
     /** (R6.4) The account's plan does not include desktop sync. */
+    /** Settings' sync row: one short status and one action. */
+    short: {
+      off: "Not in this build",
+      signedOut: "Signed out",
+      paused: "Paused",
+      mismatch: (owner: string) => `Hands synced to ${owner}`,
+      declined: (email: string) => `Kept apart from ${email}`,
+      syncing: (sent: number, total: number) => `Syncing ${n(sent)} of ${n(total)}`,
+      upToDate: "Up to date",
+      offline: "Offline",
+      rateLimited: (time: string) => `Limit reached; continues at ${time}`,
+      failed: (time: string) => `Failed; tries again at ${time}`,
+      planRequired: "Part of Rail Pro",
+      refused: (count: number) => `${hands(count)} refused`,
+      upload: "Upload",
+      keepApart: "Keep apart",
+      pause: "Pause",
+      resume: "Resume",
+    },
     planRequired: (waiting: number) =>
       waiting === 0
         ? "Syncing with the web is part of Rail Pro. Your hands stay on this computer."
@@ -409,6 +434,15 @@ export const en = {
     upgrade: "Upgrade to Pro",
     checkAgain: "Check again",
     checking: "Checking…",
+    /** Settings' plan badge: what can be used now. */
+    badge: {
+      open: "All access",
+      pro: "Pro",
+      proOffline: (date: string) => `Pro · offline until ${date}`,
+      free: "Free",
+      reconnect: "Pro · reconnect",
+      none: "No plan",
+    },
     settings: {
       heading: "Plan",
       loading: "Reading your plan…",
@@ -427,6 +461,22 @@ export const en = {
     loading: "Loading…",
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,
     unavailable: "Settings are only available inside the Rail app.",
+    /** The small labels above the groups. */
+    sections: {
+      account: "Account",
+      folders: "Hand histories",
+      statistics: "Your statistics",
+      appearance: "Appearance",
+      updates: "Updates",
+      danger: "Danger zone",
+    },
+    /** The app's version, under everything. */
+    version: (version: string) => `Version ${version}`,
+    danger: {
+      deleteAccount: "Delete my account",
+      delete: "Delete…",
+      openFailed: (reason: string) => `The browser did not open: ${reason}`,
+    },
 
     /** Settings, Folders (R1.5; guideline §3 "Upravljanje mapama"). */
     folders: {
@@ -441,6 +491,15 @@ export const en = {
       findAgain: "Find folders again",
       setup: "Open the setup screen",
       list: "Watched folders",
+      foldersRow: "Folders",
+      find: "Find folders",
+      more: (path: string) => `More for ${path}`,
+      edit: "Edit folder…",
+      editHeading: "Edit folder",
+      change: "Change…",
+      refusedPill: (count: number) => `${n(count)} refused`,
+      notWatched: "Not watched",
+      done: "Done",
 
       search: {
         heading: "Folders Rail found",
@@ -454,6 +513,7 @@ export const en = {
         adding: "Adding…",
         added: (count: number) => (count === 1 ? "Rail is watching 1 more folder." : `Rail is watching ${count} more folders.`),
         close: "Close",
+        watch: "Watch",
       },
 
       room: "Room",
@@ -688,6 +748,10 @@ export const en = {
       published: (date: string) => `Published ${date}`,
       whatsNew: "What's new",
       download: "Download update",
+      downloadShort: "Download",
+      checkNow: "Check now",
+      automaticShort: "Check automatically",
+      upToDateShort: "Up to date",
       downloadHint: "Rail keeps working while it downloads. It installs only when you say so.",
       downloading: (version: string) => `Downloading Rail ${version}…`,
       progress: (done: string, total: string, percent: number) => `${done} of ${total} MB (${percent} %)`,
@@ -863,6 +927,22 @@ export const en = {
     retried: (files: number) =>
       files === 0 ? "Nothing to read again." : files === 1 ? "1 file is being read again." : `${files} files are being read again.`,
     retryFailed: (reason: string) => `Could not read them again: ${reason}`,
+    /** The Refused hands screen (`#/refused`). */
+    olderParser: (count: number) =>
+      count === 1 ? "1 hand was refused by an older parser" : `${n(count)} hands were refused by an older parser`,
+    tryAgain: "Try again",
+    all: "All",
+    reasons: "Reasons",
+    allFolders: "All folders",
+    folder: "Folder",
+    details: "Details",
+    handTime: "Hand time",
+    lastSeen: "Last seen",
+    range: (from: number, to: number, total: number) => `${n(from)}–${n(to)} of ${n(total)}`,
+    pages: "Pages",
+    previous: "Previous page",
+    next: "Next page",
+    page: (page: number) => `Page ${n(page)}`,
   },
 
   /** The Hands screen (R2.7a). */
@@ -874,6 +954,28 @@ export const en = {
     empty: "No hands yet. They appear here as Rail imports them from your hand-history folders.",
     rebuilding: (done: number, total: number) =>
       `Updating the hand list after an upgrade: ${n(done)} of ${hands(total)}. The list fills as it goes.`,
+    /** A hand list's right-click menu (Hands, Live): the chosen hands. */
+    actions: {
+      label: (count: number) => (count === 1 ? "Hand" : hands(count)),
+      replay: (count: number) => (count === 1 ? "Replay hand" : `Replay ${hands(count)}`),
+      export: (count: number) => (count === 1 ? "Export hand to .txt" : `Export ${hands(count)} to .txt`),
+      /** The suggested file name, without ".txt". */
+      fileName: (date: string) => `Rail hands ${date}`,
+      exported: (count: number, path: string) => `Saved ${hands(count)} to ${path}`,
+      missing: (count: number) => `${hands(count)} no longer in your hand store, left out`,
+      exportFailed: (reason: string) => `The hands were not saved: ${reason}`,
+      dismiss: "Dismiss",
+    },
+    /** The replayer window's list of hands (after "Replay" on several). */
+    replayList: {
+      label: "Hands to replay",
+      position: (at: number, count: number) => `${n(at)} of ${n(count)}`,
+      show: "Show the hands",
+      hide: "Hide the hands",
+      previous: "Previous hand (↑)",
+      next: "Next hand (↓)",
+      noCards: "No cards",
+    },
     panel: {
       label: "Hand",
       choose: "Choose a hand from the list to replay it here.",
@@ -1186,11 +1288,49 @@ export const en = {
     preferredSeatYes: "Yes, it turns the table",
     preferredSeatNo: "No, seats stay numbered",
     preferredSeatFailed: (reason: string) => `Not changed: ${reason}`,
-    notice: {
-      permission: "The HUD cannot see your tables until Rail has the Accessibility permission.",
-      off: (reason: string) => `The HUD is not running: ${reason}`,
-      open: "Open HUD settings",
+    /** The answers to "my client seats me at the bottom", short, after "Seats:" in a room's menu. */
+    seats: (answer: string) => `Seats: ${answer}`,
+    seatsShort: { auto: "as the room says", yes: "me at the bottom", no: "as numbered" },
+    /** The HUD screen's two views (`#/hud`, `#/hud/tables`): the header's pill. */
+    views: { label: "HUD view", editor: "Editor", tables: "At the tables" },
+    /** The header's status pill. */
+    pill: {
+      running: "HUD running",
+      tables: (count: number) => (count === 1 ? "1 table" : `${n(count)} tables`),
+      ready: "HUD ready",
+      noTables: "no tables open",
+      starting: "HUD starting",
+      off: "HUD off",
+      permission: "Needs a permission",
+      fix: "Fix ›",
+      pro: "HUD is part of Pro",
+      upgrade: "Upgrade ›",
+      signIn: "Sign in ›",
+      checkAgain: "Check again ›",
     },
+    /** At the tables: a card per game, its design and the rules that send a table elsewhere. */
+    games: { cash: "Cash", mtt: "Tournaments", spin: "Spins" },
+    panelOf: (design: string) => `The panel of ${design}`,
+    rules: {
+      summary: (count: number, first: string) => (count === 1 ? `1 rule: ${first} ›` : `${n(count)} rules: ${first}, … ›`),
+      add: "+ Rule",
+      label: (game: string) => `Rules: ${game}`,
+      at: "At",
+      use: "use",
+      addRule: "+ Add rule",
+      add1: "Add",
+    },
+    /** At the tables: the rooms, one row each. */
+    rooms: {
+      allowed: "Allowed",
+      notAllowed: "Not allowed",
+      noTable: "No table open",
+      more: (count: number) => (count === 1 ? "1 more room not allowed" : `${n(count)} more rooms not allowed`),
+      fewer: "Show fewer rooms",
+      menu: (room: string) => `${room}: more`,
+      listMenu: "The room list",
+    },
+    permissionInfo: "What the permission is for",
     loading: "Reading the HUD's status…",
     failed: (reason: string) => `The HUD's status could not be read: ${reason}`,
     unavailable: "The HUD's status is only available inside the Rail app.",
@@ -1321,8 +1461,6 @@ export const en = {
     name: "Name",
     format: "Made for",
     formats: { cash: "Cash", mtt: "Tournament", spin: "Spin" },
-    presetNote: (name: string) => `Change anything and Rail makes it your own copy of ${name}.`,
-    copyNote: (name: string) => `Your copy of ${name}. Save it to keep it.`,
     editingCopy: (name: string) => `Now editing your own copy of ${name}.`,
     save: "Save",
     saving: "Saving…",
@@ -1339,18 +1477,9 @@ export const en = {
     deleted: "Deleted.",
 
     panel: "Panel",
-    cellCount: (count: number, max: number) => `${count} of ${max} cells`,
-    panelHint:
-      "Drag statistics onto the panel from the library below, or click one there. Drag a cell to move it. With a cell focused, Alt+Left and Alt+Right move it and Delete removes it.",
-    cellsLabel: "The panel's cells",
-    cellLabel: (label: string, index: number) => `${label}, cell ${index}`,
-    cellWhen: "by stack",
-    dropHere: "Drop a statistic",
-    emptyPanel: "Drag a statistic here to start the panel.",
-    removeNamed: (label: string) => `Remove ${label} from the panel`,
-    columns: "Per row",
-    fewerColumns: "One cell fewer per row",
-    moreColumns: "One cell more per row",
+    cellsLabel: (rows: number, columns: number) => `The panel: ${rows} × ${columns} slots`,
+    cellLabel: (label: string, row: number, column: number) =>
+      `${label}, row ${row}, column ${column}: open its settings; Alt+arrows move it, Delete removes it`,
     thresholds: "Colours",
     thresholdsAll: "Every band",
     thresholdsN: (n: number) =>
@@ -1358,43 +1487,26 @@ export const en = {
     legend: "Colour legend",
     labels: "My tags and labels",
     labelsHint: "Where the room allows it: Winamax. Never on PokerStars or ACR, which forbid labelling players.",
-    announceAdded: (label: string, index: number) => `${label} added as cell ${index}.`,
-    announceMoved: (label: string, index: number) => `${label} moved to cell ${index}.`,
+    announceAdded: (label: string, row: number, column: number) => `${label} added at row ${row}, column ${column}.`,
+    announceMoved: (label: string, row: number, column: number) => `${label} moved to row ${row}, column ${column}.`,
     announceRemoved: (label: string) => `${label} removed from the panel.`,
-    full: (max: number) => `The panel holds at most ${max} cells.`,
+    full: (max: number) => `The panel holds at most ${max} statistics.`,
 
     palette: "Statistics",
     paletteSearch: "Find a statistic",
-    paletteHint:
-      "Drag a statistic onto the panel or into a popup section, or click it to add it to the panel. Yours are marked; so is one that reads the cards, which PokerStars does not allow.",
-    allGroups: "All",
-    addNamed: (label: string) => `Add ${label} to the panel`,
+    paletteHint: "Drag onto the panel or the popup",
+    addNamed: (label: string, name: string) => `Add ${label} (${name}) to the panel`,
     onPanel: "on the panel",
-    yours: "yours",
     cards: "reads the cards",
     noMatch: "No statistic matches.",
 
-    cell: "Cell",
-    cellNone: "Click a cell of the panel to set how it shows.",
-    moveEarlier: "Move earlier",
-    moveLater: "Move later",
     remove: "Remove",
-    display: "Display",
     decimals: "Decimals",
     decimalsDefault: "Auto",
     minSample: "Full colour from",
     minSampleUnit: "hands",
     bands: "Colour bands",
-    bandsOwn: "My own",
     bandsNone: "This statistic is not coloured.",
-    bandsHint: "Values below each limit take its colour; the last band holds the rest. Limits go up.",
-    bandBelow: (n: number) => `Band ${n}: below`,
-    bandBelowWord: "below",
-    bandBelowShort: (limit: string) => `< ${limit}`,
-    bandRest: "the rest",
-    bandTone: (n: number) => `Band ${n}: colour`,
-    removeBand: (n: number) => `Remove band ${n}`,
-    addBand: "Add a band",
     tones: {
       "very-low": "Very low",
       low: "Low",
@@ -1402,36 +1514,25 @@ export const en = {
       high: "High",
       "very-high": "Very high",
     },
-    stackLegend: "Stack depth",
     stack: "Only at some depths",
     stackHint: "The panel then changes with the stack: PokerStars and Winamax do not allow that, ACR does.",
     stackBelow: "Below (bb)",
     stackAtLeast: "From (bb)",
 
     popup: "Popup",
-    popupHint: "What a click on a panel shows. Drag statistics between sections or in from the library; click a title to rename it.",
-    popupPlayer: "Player 4",
-    popupHands: "1,213 hands",
-    popupEmpty: "The popup is empty: add a section.",
+    popupPlayer: "Seat 4",
+    popupHands: "1,213 hands ·",
     section: (n: number) => `Section ${n}`,
     sectionTitle: "Title",
     sectionTitleDefault: "Section",
     addSection: "Add a section",
-    addSectionDrop: "Drop here for a new section",
     removeSection: (n: number) => `Remove section ${n}`,
-    sectionUp: (n: number) => `Move section ${n} up`,
-    sectionDown: (n: number) => `Move section ${n} down`,
-    addToSection: "Add",
     addToSectionNamed: (title: string) => `Add a statistic to ${title}`,
     removeFromSection: (label: string) => `Remove ${label}`,
     announcePopupAdded: (label: string, section: string) => `${label} is in ${section}.`,
-    popupShipped: "The popup lists Rail's statistics; yours are on the panel.",
-    popupCount: (count: number, max: number) => `${count} of ${max} statistics.`,
     popupFull: (max: number) => `The popup holds at most ${max} statistics.`,
 
     preview: "Preview",
-    previewHint: (room: string, seats: string) =>
-      `Made-up players, drawn as the HUD draws them. Drag a panel to move it: the HUD puts it there at every ${seats} ${room} table.`,
     room: "Room",
     seats: "Seats",
     seatsN: (n: number) => (n === 2 ? "Heads-up" : `${n}-max`),
@@ -1445,12 +1546,9 @@ export const en = {
     resetDragged: "Put panels back",
     resetDone: (count: number) => (count === 1 ? "1 panel is back in place." : `${count} panels are back in place.`),
 
-    rooms: "Where it may be used",
-    roomOk: (room: string) => `${room}: may be used.`,
     roomRefused: (room: string) => `${room}: may not be used -`,
     roomNotes: (room: string) => `${room}: may be used; there -`,
 
-    assignments: "Tables",
     assignmentsHint:
       "Every table gets its game's design, so there is nothing to set up. Pick another design for a game here, or add a rule for one room or table size: the most specific rule wins.",
     gameRows: { cash: "Cash tables", mtt: "Tournaments and sit-and-gos", spin: "Spins" },
@@ -1470,12 +1568,59 @@ export const en = {
     assignRefused: (room: string) => `Not for ${room}:`,
     assignedProblems: (room: string) => `At ${room} the HUD leaves out:`,
 
+    designMenu: "More for this design",
+    rename: "Rename…",
+    renameTitle: "Rename the design",
+    renameYes: "Rename",
+    renamed: (name: string) => `Renamed to ${name}.`,
+    duplicate: "Duplicate",
+    deleteMenu: "Delete…",
+    discarded: "Changes discarded.",
+    editingNew: (name: string) => `Now editing ${name}, not saved yet.`,
+
+    noRoom: "The panel has no empty slot left and cannot grow.",
+    announceSize: (rows: number, columns: number) => `The panel is ${rows} × ${columns}.`,
+    cannotShrink: "Only an empty last row or column can go.",
+    sizeText: (rows: number, columns: number) =>
+      `${rows === 1 ? "1 row" : `${rows} rows`} by ${columns === 1 ? "1 column" : `${columns} columns`}`,
+    sizeTip: (rows: number, columns: number) => `${rows} × ${columns}`,
+    resizeColumns: "Columns: drag the edge, or use Left and Right",
+    resizeRows: "Rows: drag the edge, or use Up and Down",
+    resizeBoth: (size: string) => `Panel size, ${size}: drag the corner, or use the arrow keys`,
+
+    cellSettings: (label: string) => `${label} settings`,
+    fewerHands: "Ten hands fewer",
+    moreHands: "Ten hands more",
+    bandPresets: {
+      suggested: "Suggested",
+      tighter: "Tighter game",
+      looser: "Looser game",
+      custom: "Custom",
+      customMore: "Custom…",
+    },
+    bandLimit: (n: number) => `Limit ${n}`,
+    resetSuggested: "Reset to suggested",
+    tryValue: "Try a value",
+    stackTo: "to",
+    stackUnit: "bb",
+
+    escKey: "esc",
+    yoursShelf: "Yours",
+
+    popupWinrate: "+14.2 bb/100",
+    announceSectionAdded: "A new section is at the end of the popup.",
+    renameSection: (title: string) => `Rename ${title}`,
+    sectionEarlier: (n: number) => `Move section ${n} earlier`,
+    sectionLater: (n: number) => `Move section ${n} later`,
+
+    sizeShort: (n: number) => (n === 2 ? "HU" : `${n}-max`),
+
     problems: {
       version: "This design was made by a newer Rail.",
       nameTooLong: "The name is too long.",
       noCells: "The panel needs at least one statistic.",
-      tooManyCells: "The panel has too many cells.",
-      columns: "Pick between 1 and 6 cells in a row.",
+      tooManyCells: "The panel has too many statistics.",
+      columns: "The panel is at most 6 columns by 12 rows.",
       tooManyPopup: "The popup has too many sections or statistics.",
       titleTooLong: "A section's title is too long.",
       labels: "your colour tags, labels and notes (the room forbids labelling players)",

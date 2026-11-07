@@ -25,6 +25,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { countIn } from "../hands/format";
+import toggleStyles from "../hands/KindToggle.module.css";
 import type { FacetCount, PlayerRef } from "../hands/model";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
@@ -77,6 +78,12 @@ export interface PlayersScreenProps {
   /** The heading's words, and its level on the surface's page. */
   title: string;
   titleTag?: "h1" | "h2";
+  /**
+   * The title for assistive technology only (the desktop, where the sidebar
+   * names the screen): the header row is then the count on the left and the
+   * Cash | Tournaments switch, moved up from the toolbar, on the right.
+   */
+  hideTitle?: boolean;
   /** Under the filters: the surface's lines (a rebuild, the opponents still being indexed). */
   notice?: ReactNode;
   /** No opponents at all: the surface says where they come from. */
@@ -101,6 +108,7 @@ export function PlayersScreen({
   onHandsWith,
   title,
   titleTag: Title = "h1",
+  hideTitle = false,
   notice,
   emptyText,
   notesFootnote,
@@ -259,16 +267,32 @@ export function PlayersScreen({
   }
 
   const kindHands = (value: ShownKind) => (list === null ? null : value === "cash" ? list.cashHands : list.chipsHands);
+  const kinds = (
+    <KindsSwitch
+      label={p.kinds.label}
+      names={p.kinds}
+      shown={shownKind}
+      hands={kindHands}
+      joined={hideTitle}
+      onChange={(value) => update({ kind: value })}
+    />
+  );
   return (
     <div className={`${styles.screen} ${fill ? styles.fill : styles.page}`}>
-      <header className={styles.top}>
-        <Title className={styles.title}>{title}</Title>
+      <header className={hideTitle ? `${styles.top} ${styles.row}` : styles.top}>
+        <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
         {countLine !== null ? (
           <span className={styles.count} aria-live="polite">
             {countLine}
           </span>
         ) : null}
         {refetching ? <RailLoader size="inline" label={p.loading} /> : null}
+        {hideTitle ? (
+          <>
+            <span className={styles.spacer} />
+            {kinds}
+          </>
+        ) : null}
       </header>
 
       <div className={styles.toolbar} role="toolbar" aria-label={f.label}>
@@ -280,20 +304,7 @@ export function PlayersScreen({
           aria-label={p.search}
           onChange={(event) => update({ search: event.target.value })}
         />
-        <div className={styles.segmented} role="group" aria-label={p.kinds.label}>
-          {SHOWN_KINDS.map((value) => (
-            <button
-              key={value}
-              type="button"
-              className={`chip-btn${shownKind === value ? " is-active" : ""}`}
-              aria-pressed={shownKind === value}
-              disabled={shownKind !== value && kindHands(value) === 0}
-              onClick={() => update({ kind: value })}
-            >
-              {p.kinds[value]}
-            </button>
-          ))}
-        </div>
+        {hideTitle ? null : kinds}
         <label className={styles.select}>
           <span>{p.room}</span>
           <select
@@ -407,6 +418,40 @@ export function PlayersScreen({
           </div>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+/** Cash | Tournaments: chips in the toolbar (the web), or one joined pill in the header row (the desktop). */
+function KindsSwitch({
+  label,
+  names,
+  shown,
+  hands,
+  joined,
+  onChange,
+}: {
+  label: string;
+  names: Record<ShownKind, string>;
+  shown: ShownKind | null;
+  hands: (kind: ShownKind) => number | null;
+  joined: boolean;
+  onChange: (kind: ShownKind) => void;
+}) {
+  return (
+    <div className={joined ? toggleStyles.toggle : styles.segmented} role="group" aria-label={label}>
+      {SHOWN_KINDS.map((value) => (
+        <button
+          key={value}
+          type="button"
+          className={`chip-btn${shown === value ? " is-active" : ""}`}
+          aria-pressed={shown === value}
+          disabled={shown !== value && hands(value) === 0}
+          onClick={() => onChange(value)}
+        >
+          {names[value]}
+        </button>
+      ))}
     </div>
   );
 }

@@ -14,11 +14,13 @@
 //   Players (a profile, colour tag, label, note, hands with them), Analysis
 //   (session review, top leaks), the command palette and the preferences.
 // - `captureHudScreens`: the app's side of the `hud` tutorial (shot ids
-//   `app-...`) - the HUD screen's tables with and without the HUD, the macOS
-//   Accessibility card, the editor (presets, a copy, a statistic dragged
-//   onto the panel, its colours, decimals and sample, the preview per room
-//   and size, the popup's sections, which design each table gets) and the
-//   HUD popup window.
+//   `app-...`) - the HUD screen's two views: At the tables (the header's
+//   status pill, the game cards, the rooms and their ⋯ menus, why there is
+//   no switch, the macOS Accessibility row) and the Editor (a preset, a
+//   statistic dragged from the drawer onto the panel's grid, the user's own
+//   copy, the cell's settings popover, the preview per room and size, the
+//   popup's sections, saving it, a rule at the tables), then the HUD popup
+//   window.
 //
 // Needs the app's Vite server on APP_URL (`startAppServer()`).
 
@@ -709,205 +711,336 @@ export async function captureDesktopApp(browser: Browser): Promise<void> {
 
 /* ============================================================== HUD - */
 
+/** Close whatever popover or menu is open (they all close on Escape). */
+async function closePopover(page: Page): Promise<void> {
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(250);
+}
+
+/** The pointer's drag, as a mouse does it: a few steps, so the editor's drag (`hud/drag.tsx`) follows. */
+async function moveTo(page: Page, target: Locator, steps = 12): Promise<void> {
+  const box = await target.boundingBox();
+  if (!box) throw new Error('drag target is not visible');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps });
+  await page.waitForTimeout(250);
+}
+
 export async function captureHudScreens(browser: Browser, rec: Recorder): Promise<void> {
-  const { context, page, names } = await openApp(browser, 'hud', '#/hud');
+  const { context, page, names } = await openApp(browser, 'hud', '#/hud/tables');
   const shot = (id: string, targets: Record<string, Target>, options: ShotOptions = {}) =>
     take(rec, page, id, targets, { allowNames: names, ...options });
   try {
-    await ready(page, 'The HUD is running.', 1200);
+    await ready(page, 'HUD running', 1200);
 
-    /* At the tables: where the HUD is, and where it is not, and why. */
-    const status = page.locator('section[aria-labelledby="hud-status"]');
-    const refusedList = page.getByRole('list', { name: 'Tables without the HUD' });
+    /* The header: the HUD's state as a pill, Editor | At the tables. */
+    const header = page.locator('main header').first();
+    const pill = (text: string) => header.locator('[data-tone]').filter({ hasText: text }).first();
+    const views = page.getByRole('group', { name: 'HUD view' });
+
+    /* At the tables: which design each game gets, and the rooms. */
+    const card = (format: 'cash' | 'mtt' | 'spin') => page.locator(`section[aria-labelledby="hud-game-${format}"]`);
+    const cash = card('cash');
+    const rooms = page.getByRole('region', { name: 'Where the HUD may be used' });
+    const room = (name: string) => rooms.locator('li').filter({ has: page.locator('span', { hasText: new RegExp(`^${name}$`) }) });
+    await card('cash').getByRole('img').waitFor({ state: 'visible' });
     await shot('app-hud-tables', {
-      statusCard: status,
-      running: page.getByText('The HUD is running.'),
-      attachedList: page.getByRole('list', { name: 'Tables with the HUD' }),
-      waitingTable: page.getByRole('list', { name: 'Tables with the HUD' }).locator('li').filter({ hasText: 'waiting' }),
-      refusedBox: refusedList.locator('xpath=..'),
-      refusedList,
-      refusedRow: refusedList.locator('li[data-why="prohibited"]'),
-      unknownRow: refusedList.locator('li[data-why="unknown"]'),
-      policyLink: refusedList.locator('li[data-why="prohibited"]').getByRole('link'),
-      noOverride: page.getByText(/There is no switch to turn the HUD on here/),
-      whySummary: page.getByText("Why can't I enable the HUD here?"),
+      header,
+      statusPill: pill('HUD running'),
+      viewSwitch: views,
+      games: cash.locator('xpath=..'),
+      cashCard: cash,
+      mttCard: card('mtt'),
+      spinCard: card('spin'),
+      cashPanel: cash.getByRole('img'),
+      cashDesign: cash.locator('select'),
+      cashRules: cash.getByRole('button', { name: /Rule/ }),
+      rooms,
+      starsRow: room('PokerStars'),
+      winamaxRow: room('Winamax'),
+      ggRow: room('GGPoker'),
+      weplayRow: room('WePlay'),
+      moreRooms: rooms.getByRole('button', { name: /more rooms? not allowed$/ }),
     });
 
-    const rooms = page.getByRole('heading', { name: 'Where the HUD may be used' }).locator('xpath=..');
-    await scrollTo(page, page.getByText("Why can't I enable the HUD here?"), 16);
-    await shot('app-hud-rooms', {
-      explain: page.locator('details').filter({ hasText: "Why can't I enable the HUD here?" }).first(),
-      rooms,
-      allowedRooms: rooms.locator('ul').first(),
-      notAllowed: rooms.getByText(/^Not allowed at \d+ rooms/),
-      listSource: rooms.getByText(/^Room list:/),
-      checkNow: page.getByRole('button', { name: 'Look for an update now' }),
+    /* A room's ⋯: its tables, and why a table was left alone. */
+    await rooms.getByRole('button', { name: 'GGPoker: more' }).click();
+    const ggMenu = page.getByRole('dialog', { name: 'GGPoker: more' });
+    await ggMenu.waitFor({ state: 'visible' });
+    await page.waitForTimeout(300);
+    const refused = ggMenu.getByRole('list', { name: 'Tables without the HUD' });
+    await shot('app-hud-room-menu', {
+      ggRow: room('GGPoker'),
+      roomMenu: ggMenu,
+      refusedList: refused,
+      refusedRow: refused.locator('li[data-why="prohibited"]'),
+      noOverride: ggMenu.getByText(/^There is no switch to turn the HUD on here/),
+      policyLink: ggMenu.getByRole('link', { name: 'The policy of GGPoker, on its own site' }),
+      checked: ggMenu.getByText(/^checked /),
     });
+    await closePopover(page);
+
+    await rooms.getByRole('button', { name: 'WePlay: more' }).click();
+    const weplayMenu = page.getByRole('dialog', { name: 'WePlay: more' });
+    await weplayMenu.waitFor({ state: 'visible' });
+    await page.waitForTimeout(300);
+    await shot('app-hud-room-unknown', {
+      weplayRow: room('WePlay'),
+      roomMenu: weplayMenu,
+      unknownRow: weplayMenu.locator('li[data-why="unknown"]'),
+    });
+    await closePopover(page);
+
+    /* The foot of the rooms: why there is no switch (ⓘ), and the room list in force (⋯). */
+    await rooms.getByRole('button', { name: "Why can't I enable the HUD here?" }).click();
+    const why = page.getByRole('dialog', { name: "Why can't I enable the HUD here?" });
+    await why.waitFor({ state: 'visible' });
+    await page.waitForTimeout(300);
+    await shot('app-hud-rooms-why', {
+      rooms,
+      whyButton: rooms.getByRole('button', { name: "Why can't I enable the HUD here?" }),
+      explain: why,
+      unknownIsNo: why.getByText(/unknown counts as no/),
+      stricterOnly: why.getByText(/can only switch a room off/),
+    });
+    await closePopover(page);
+
+    await rooms.getByRole('button', { name: 'The room list' }).click();
+    const list = page.getByRole('dialog', { name: 'The room list' });
+    await list.waitFor({ state: 'visible' });
+    await page.waitForTimeout(300);
+    await shot('app-hud-room-list', {
+      rooms,
+      allowedRooms: rooms.locator('li').filter({ hasText: 'Allowed' }).first().locator('xpath=..'),
+      listMenu: list,
+      checkNow: list.getByRole('button', { name: 'Look for an update now' }),
+      listSource: list.getByText(/^Room list:/),
+    });
+    await closePopover(page);
 
     /* macOS: the Accessibility permission, asked only when it would find tables. */
     await scene(page, 'hudPermission');
-    await ready(page, 'Rail needs the Accessibility permission to see your tables', 600);
-    await scrollTo(page, status, 16);
-    const permission = page.locator('[aria-labelledby="hud-permission"]');
+    await ready(page, 'Needs a permission', 600);
+    const permission = page.locator('[role="status"]').filter({ hasText: 'Rail needs the Accessibility permission' });
+    await permission.getByRole('button', { name: 'What the permission is for' }).click();
+    const permissionInfo = page.getByRole('dialog', { name: 'What the permission is for' });
+    await permissionInfo.waitFor({ state: 'visible' });
+    await page.waitForTimeout(300);
     await shot('app-hud-permission', {
-      statusCard: status,
-      permissionCard: permission,
-      permissionWhy: permission.getByText(/finds a poker table by its window's title/),
-      permissionNot: permission.getByText(/does not record your screen/),
+      statusPill: pill('Needs a permission'),
+      permissionRow: permission,
       permissionButton: permission.getByRole('button', { name: 'Open System Settings' }),
-    });
+      permissionInfo,
+      permissionWhy: permissionInfo.getByText(/finds a poker table by its window's title/),
+      permissionNot: permissionInfo.getByText(/does not record your screen/),
+    }, { uiText: ['Fix ›'] });
+    await closePopover(page);
     await scene(page, 'hud');
-    await ready(page, 'On 3 tables:', 600);
+    await ready(page, 'HUD running', 600);
 
-    /* The editor: a preset, read-only. */
-    const designs = page.getByRole('heading', { name: 'Designs', level: 2 }).locator('xpath=ancestor::section[1]');
-    const picker = page.getByLabel('Design to edit');
-    await scrollTo(page, designs, 16);
-    await shot('app-hud-presets', {
-      designsCard: designs,
+    /* The editor: a design, its panel, the preview, the popup, the statistics. */
+    await views.getByRole('button', { name: 'Editor' }).click();
+    const picker = page.getByRole('combobox', { name: 'Design', exact: true });
+    await picker.waitFor({ state: 'visible' });
+    const designBar = page.getByRole('region', { name: 'Design', exact: true });
+    const formats = designBar.getByRole('radiogroup', { name: 'Made for' });
+    const panelCard = page.getByRole('region', { name: 'Panel', exact: true });
+    const grid = panelCard.getByRole('group', { name: /^The panel: / });
+    const drawer = page.getByRole('complementary', { name: 'Statistics', exact: true });
+    const previewCard = page.getByRole('region', { name: 'Preview', exact: true });
+    await ready(page, 'Colour legend', 800);
+    await shot('app-hud-editor', {
+      viewSwitch: views,
+      designBar,
       designPicker: picker,
-      newFrom: page.getByLabel('New design from'),
-      presetDescription: designs.getByText(/^Ring games:/),
-      readOnly: designs.getByText('A preset cannot be changed: make your own copy to edit it.'),
-      makeCopy: page.getByRole('button', { name: 'Make my copy' }),
-      roomChecks: designs.getByRole('heading', { name: 'Where it may be used' }).locator('xpath=..'),
-    });
-    await picker.selectOption('preset:mtt');
-    await page.waitForTimeout(400);
-    await shot('app-hud-preset-mtt', {
-      designsCard: designs,
-      designPicker: picker,
-      presetDescription: designs.getByText(/^Tournaments and sit-and-gos/),
-    });
-    await picker.selectOption('preset:spin');
-    await page.waitForTimeout(400);
-    const panelCard = page.getByRole('heading', { name: 'Panel', level: 2 }).locator('xpath=ancestor::section[1]');
-    const cells = page.getByRole('list', { name: "The panel's cells" });
-    await shot('app-hud-preset-spin', {
-      designsCard: designs,
-      designPicker: picker,
-      presetDescription: designs.getByText(/^Three-handed hyper-turbos/),
-      roomChecks: designs.getByRole('heading', { name: 'Where it may be used' }).locator('xpath=..'),
-    });
-
-    /* My copy of the cash preset: editable. */
-    await picker.selectOption('preset:cash');
-    await page.waitForTimeout(300);
-    await page.getByRole('button', { name: 'Make my copy' }).click();
-    await ready(page, 'Unsaved changes', 500);
-    await shot('app-hud-copy', {
-      designsCard: designs,
-      name: page.getByLabel('Name', { exact: true }),
-      format: page.getByLabel('Made for'),
-      save: designs.getByRole('button', { name: 'Save', exact: true }),
-      resetToPreset: designs.getByRole('button', { name: 'Reset to Cash' }),
-      unsaved: page.getByText('Unsaved changes'),
-    });
-
-    /* The panel: the statistics, the cells, a statistic dragged in. */
-    await scrollTo(page, panelCard, 16);
-    const statsPalette = panelCard.getByRole('heading', { name: 'Statistics', level: 3 }).locator('xpath=ancestor::section[1]');
-    const steal = statsPalette.locator('span[draggable="true"]').filter({ hasText: /^Steal$/ });
-    const dropHere = cells.getByText('Drop here', { exact: true });
-    // The list narrowed to what is typed.
-    await page.getByPlaceholder('Find a statistic').pressSequentially('steal', { delay: 40 });
-    await page.waitForTimeout(300);
-    await shot('app-hud-panel', {
+      formats,
+      designMenu: designBar.getByRole('button', { name: 'More for this design' }),
+      save: designBar.getByRole('button', { name: 'Save', exact: true }),
       panelCard,
-      statsPalette,
-      search: page.getByPlaceholder('Find a statistic'),
-      panelCells: cells,
-      dropZone: dropHere,
-      stealChip: steal,
-      cellHint: panelCard.getByText(/^Drag a statistic from the list onto the panel/),
-      cellSettings: panelCard.getByText('Pick a cell of the panel to change how it shows.'),
-    });
-    // The drag itself (HTML drag and drop, as a mouse does it). A headless
-    // browser paints no drag image, so the video animates the cursor from
-    // `stealChip` to `dropZone` of `app-hud-panel` and cuts to the result.
-    await steal.dragTo(dropHere);
-    await page.waitForTimeout(400);
-    const added = cells.getByRole('button', { name: /^Steal, cell \d+$/ });
-    await added.waitFor({ state: 'visible', timeout: 5000 });
-    const cellCard = panelCard.getByRole('heading', { name: /^Cell: Steal$/ }).locator('xpath=ancestor::section[1]');
-    await shot('app-hud-dropped', {
-      panelCells: cells,
-      newCell: added,
-      placedChip: statsPalette.locator('li').filter({ has: page.locator('span', { hasText: /^Steal$/ }) }),
-      cellSettings: cellCard,
+      panelGrid: grid,
+      panelOptions: panelCard.getByText('Colours', { exact: true }).locator('xpath=ancestor::div[1]/..'),
+      drawer,
+      preflopShelf: drawer.getByRole('list', { name: 'Preflop' }),
+      previewCard,
     });
 
-    /* The cell's settings: decimals, the sample for full colour, its own colour bands. */
-    await cellCard.getByLabel('Decimals').selectOption('1');
-    await cellCard.getByLabel('Full colour from a sample of').fill('80');
-    await cellCard.getByLabel('Use my own bands').check();
+    /* The presets: Spin, three-handed, a panel of its own. */
+    await picker.selectOption('preset:spin');
+    await page.waitForTimeout(500);
+    await shot('app-hud-preset-spin', {
+      designBar,
+      designPicker: picker,
+      formats,
+      spinFormat: formats.getByRole('radio', { name: 'Spin' }),
+      panelGrid: grid,
+    });
+    await picker.selectOption('preset:cash');
+    await page.waitForTimeout(500);
+
+    /* The statistics drawer: what is typed narrows it. */
+    const search = drawer.getByRole('searchbox', { name: 'Find a statistic' });
+    await search.pressSequentially('steal', { delay: 40 });
+    await page.waitForTimeout(300);
+    const steal = drawer.getByRole('button', { name: /^Add Steal \(/ });
+    await shot('app-hud-panel', {
+      panelGrid: grid,
+      drawer,
+      search,
+      stealRow: steal,
+      rightEdge: panelCard.getByRole('separator', { name: /^Columns:/ }),
+      bottomEdge: panelCard.getByRole('separator', { name: /^Rows:/ }),
+    });
+
+    // The drag (pointer events, as a mouse does it): picked up in the drawer,
+    // it shows the slots just past the panel's edges; held over the first
+    // slot past the bottom edge, it would add a row there.
+    await moveTo(page, steal, 1);
+    await page.mouse.down();
+    const stealBox = await steal.boundingBox();
+    if (!stealBox) throw new Error('hud: Steal is not visible');
+    await page.mouse.move(stealBox.x + stealBox.width / 2 - 20, stealBox.y + stealBox.height / 2, { steps: 4 });
+    const box = panelCard.locator('[data-zone="panel"]');
+    const past = box.locator('[data-slot="-1"][data-row="2"][data-col="0"]');
+    await past.waitFor({ state: 'visible', timeout: 5000 });
+    await moveTo(page, past, 16);
+    await shot('app-hud-drag', {
+      panelGrid: grid,
+      panelBox: box,
+      dropSlot: past,
+      ghost: page.locator('[class*="ghost"]').filter({ hasText: 'Steal' }),
+      stealRow: steal,
+    });
+    await page.mouse.up();
+    await page.waitForTimeout(500);
+
+    /* Dropped: a third row, empty slots beside it, and the user's own copy of the preset. */
+    const added = grid.getByRole('button', { name: /^Steal, row 3, column 1:/ });
+    await added.waitFor({ state: 'visible', timeout: 5000 });
+    await shot('app-hud-dropped', {
+      panelGrid: grid,
+      newCell: added,
+      emptySlot: grid.locator('[data-row="2"][data-col="1"]'),
+      designPicker: picker,
+      unsaved: designBar.locator('[aria-hidden="true"]').filter({ hasText: 'Cash, my copy' }),
+      discard: designBar.getByRole('button', { name: 'Discard' }),
+      save: designBar.getByRole('button', { name: 'Save', exact: true }),
+      placedRow: drawer.getByRole('button', { name: 'Steal, on the panel' }),
+    });
+
+    /* The cell's settings, by the cell: decimals, the sample for full colour, its colour limits. */
+    await added.click();
+    const cellCard = page.getByRole('dialog', { name: 'Steal settings' });
+    await cellCard.waitFor({ state: 'visible' });
+    await cellCard.getByRole('radiogroup', { name: 'Decimals' }).getByRole('radio', { name: '1', exact: true }).click();
+    await cellCard.getByRole('spinbutton', { name: 'Full colour from' }).fill('80');
+    await cellCard.getByRole('radio', { name: /^Tighter game/ }).click();
+    await cellCard.getByLabel('Try a value').fill('41');
     await page.waitForTimeout(500);
     await shot('app-hud-cell-settings', {
       cellSettings: cellCard,
       newCell: added,
-      moveButtons: cellCard.getByRole('button', { name: 'Move earlier' }).locator('xpath=..'),
-      decimals: cellCard.getByLabel('Decimals'),
-      minSample: cellCard.getByLabel('Full colour from a sample of'),
-      bands: cellCard.locator('fieldset').filter({ hasText: 'Colour bands' }),
-      bandsOwn: cellCard.getByText('Use my own bands'),
-      stackDepth: cellCard.locator('fieldset').filter({ hasText: 'Stack depth' }),
+      remove: cellCard.getByRole('button', { name: 'Remove' }),
+      decimals: cellCard.getByRole('radiogroup', { name: 'Decimals' }),
+      minSample: cellCard.getByRole('group', { name: 'Full colour from' }),
+      bands: cellCard.getByRole('radiogroup', { name: 'Colour bands' }),
+      tighter: cellCard.getByRole('radio', { name: /^Tighter game/ }),
+      tryValue: cellCard.getByLabel('Try a value').locator('xpath=..'),
+      stack: cellCard.getByRole('switch', { name: 'Only at some depths' }),
     });
+
+    /* Only at some stack depths: a display that changes with the stack, which some rooms forbid. */
+    await cellCard.getByRole('switch', { name: 'Only at some depths' }).check();
+    await page.waitForTimeout(400);
+    await shot('app-hud-cell-stack', {
+      cellSettings: cellCard,
+      stack: cellCard.getByRole('switch', { name: 'Only at some depths' }),
+      stackRange: cellCard.getByRole('spinbutton', { name: 'From (bb)' }).locator('xpath=..'),
+      stackHint: cellCard.getByText(/^The panel then changes with the stack/),
+    });
+    await cellCard.getByRole('switch', { name: 'Only at some depths' }).uncheck();
+    await page.waitForTimeout(300);
+    await closePopover(page);
 
     /* The live preview, under each room's rules. */
-    const previewCard = page.getByRole('heading', { name: 'Preview', level: 2 }).locator('xpath=ancestor::section[1]');
     await scrollTo(page, previewCard, 16);
-    await page.waitForTimeout(500);
-    const previewTable = previewCard.locator('svg[role="img"]');
+    const table = previewCard.getByRole('group', { name: /^The design at a / });
+    await table.waitFor({ state: 'visible' });
+    await page.waitForTimeout(600);
+    const roomPills = previewCard.getByRole('radiogroup', { name: 'Room' });
+    const seatPills = previewCard.getByRole('radiogroup', { name: 'Seats' });
     await shot('app-hud-preview', {
       previewCard,
-      previewRoom: previewCard.locator('select').nth(0),
-      previewSeats: previewCard.locator('select').nth(1),
-      previewPanel: previewTable,
-      previewHint: previewCard.getByText(/^Made-up players and numbers/),
-      previewVerdict: previewTable.locator('xpath=following-sibling::section[1]'),
-      popupCard: page.getByRole('heading', { name: 'Popup', level: 2 }).locator('xpath=ancestor::section[1]'),
+      previewRoom: roomPills,
+      previewSeats: seatPills,
+      previewTable: table,
+      previewPanel: table.getByRole('button', { name: /^Panel at seat 2:/ }),
+      previewVerdict: previewCard.getByText(/^PokerStars: may/),
     });
-    await previewCard.locator('select').nth(0).selectOption('winamax');
-    await previewCard.locator('select').nth(1).selectOption('9');
-    await page.waitForTimeout(700);
+    await roomPills.getByRole('radio', { name: 'Winamax' }).click();
+    await seatPills.getByRole('radio', { name: '9-max' }).click();
+    await page.waitForTimeout(800);
     await shot('app-hud-preview-winamax', {
       previewCard,
-      previewRoom: previewCard.locator('select').nth(0),
-      previewSeats: previewCard.locator('select').nth(1),
-      previewPanel: previewTable,
-      previewVerdict: previewTable.locator('xpath=following-sibling::section[1]'),
+      previewRoom: roomPills,
+      previewSeats: seatPills,
+      previewTable: table,
+      previewPanel: table.getByRole('button', { name: /^Panel at seat 2:/ }),
     });
 
-    /* The popup's sections. */
-    const popupCard = page.getByRole('heading', { name: 'Popup', level: 2 }).locator('xpath=ancestor::section[1]');
+    /* The popup's sections, drawn as at the table. */
+    const popupCard = page.getByRole('region', { name: 'Popup', exact: true });
     await scrollTo(page, popupCard, 16);
+    const sections = popupCard.locator('section[data-zone]');
     await shot('app-hud-popup-editor', {
       popupCard,
-      popupSections: popupCard.locator('ol').first(),
-      firstSection: popupCard.locator('ol > li').first(),
-      sectionTitle: popupCard.locator('ol > li').first().locator('input').first(),
+      popupHead: popupCard.getByText('Seat 4', { exact: true }).locator('xpath=..'),
+      firstSection: sections.first(),
+      sectionTitle: sections.first().getByRole('button', { name: /^Rename / }),
     });
 
-    /* Save the copy, and give it to PokerStars' cash tables. */
-    await scrollTo(page, designs, 16);
-    await designs.getByRole('button', { name: 'Save', exact: true }).click();
-    await page.waitForTimeout(600);
-    const assignCard = page
-      .getByRole('heading', { name: 'Which design each table gets', level: 2 })
-      .locator('xpath=ancestor::section[1]');
-    const cashAtStars = assignCard.getByLabel('Design for Cash at PokerStars, Every size');
-    await scrollTo(page, assignCard, 16);
-    await cashAtStars.selectOption({ label: 'Cash, my copy' });
-    await page.waitForTimeout(600);
-    await shot('app-hud-assignments', {
-      assignCard,
-      assignHint: assignCard.getByText(/^Pick a design for a room and game/),
-      sizeFilter: assignCard.getByLabel('Table size'),
-      assignMatrix: assignCard.locator('table'),
-      cashAtStars,
-      assignedTag: assignCard.getByText('chosen here'),
-      spinAtWinamax: assignCard.getByLabel('Design for Spin at Winamax, Every size'),
+    /* Save the copy: it takes the preset's place at cash tables. */
+    await scrollTo(page, designBar, 16);
+    await designBar.getByRole('button', { name: 'Save', exact: true }).click();
+    await page.waitForFunction(
+      () => (document.querySelector('select[aria-label="Design"]') as HTMLSelectElement | null)?.value.startsWith('user:'),
+      undefined,
+      { timeout: 5000 },
+    );
+    await page.waitForTimeout(400);
+    await shot('app-hud-saved', {
+      designBar,
+      designPicker: picker,
+      save: designBar.getByRole('button', { name: 'Save', exact: true }),
     });
+
+    /* At the tables again: cash tables get the copy, and a rule keeps Winamax on the preset. */
+    await views.getByRole('button', { name: 'At the tables' }).click();
+    await cash.getByRole('img', { name: 'The panel of Cash, my copy' }).waitFor({ state: 'visible' });
+    await page.waitForTimeout(400);
+    await shot('app-hud-assigned', {
+      cashCard: cash,
+      cashPanel: cash.getByRole('img'),
+      cashDesign: cash.locator('select'),
+      cashRules: cash.getByRole('button', { name: /Rule/ }),
+      mttCard: card('mtt'),
+    });
+    await cash.getByRole('button', { name: /Rule/ }).click();
+    const rules = page.getByRole('dialog', { name: 'Rules: Cash' });
+    await rules.waitFor({ state: 'visible' });
+    await rules.getByRole('button', { name: '+ Add rule' }).click();
+    await rules.getByRole('combobox', { name: 'Room', exact: true }).selectOption('winamax');
+    await rules.getByRole('combobox', { name: 'Game', exact: true }).selectOption('cash');
+    await rules.getByRole('combobox', { name: 'Design', exact: true }).selectOption('cash');
+    await rules.getByRole('button', { name: 'Add', exact: true }).click();
+    await cash.getByRole('button', { name: /^1 rule: / }).waitFor({ state: 'visible', timeout: 5000 });
+    await page.waitForTimeout(400);
+    await shot('app-hud-rules', {
+      cashCard: cash,
+      cashRules: cash.getByRole('button', { name: /^1 rule: / }),
+      rulesPopover: rules,
+      rule: rules.getByRole('combobox', { name: 'Room', exact: true }).locator('xpath=ancestor::div[2]'),
+      addRule: rules.getByRole('button', { name: '+ Add rule' }),
+    });
+    await closePopover(page);
 
     await reportUnknown(page, 'hud');
   } finally {

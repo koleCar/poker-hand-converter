@@ -3,9 +3,10 @@
 //! Spin, layouts per room and number of seats").
 //!
 //! - **A design** ([`HudDesign`]) is what a seat's panel and its popup show:
-//!   the panel's cells in order (a statistic id each - a shipped R2.4
-//!   definition or the user's own R2.10 statistic - laid out `columns` to a
-//!   row), the user's **overrides** keyed by statistic id (colour bands,
+//!   the panel's grid of `rows` x `columns` slots, row by row, each a
+//!   statistic id (a shipped R2.4 definition or the user's own R2.10
+//!   statistic) or empty - the HUD draws the grid as it is, an empty slot
+//!   as blank space - the user's **overrides** keyed by statistic id (colour bands,
 //!   decimals, the sample for full opacity: a layer over the definitions,
 //!   never an edit of `config/stats/`), the popup's sections, the legend,
 //!   the player's words and the number of colour thresholds. A cell may
@@ -58,12 +59,16 @@ use crate::panel::{PanelDesign, PanelStats, StatSlot, Switching};
 pub const SHIPPED_PRESETS: &str = include_str!("../../../config/hud/presets.json");
 
 /// The design format this build writes and reads; a newer design (from a
-/// newer build on another computer) is not read.
-pub const DESIGN_VERSION: u32 = 1;
-/// At most this many cells on a panel.
+/// newer build on another computer) is not read. Version 1 had no empty
+/// slots and no `rows` (its cells flowed `columns` to a row): it is read
+/// as the grid it drew ([`HudDesign`]'s deserialisation).
+pub const DESIGN_VERSION: u32 = 2;
+/// At most this many statistics on a panel.
 pub const MAX_CELLS: usize = 12;
-/// At most this many cells to a row.
+/// At most this many slots to a row.
 pub const MAX_COLUMNS: u32 = 6;
+/// At most this many rows (one column of [`MAX_CELLS`] statistics).
+pub const MAX_ROWS: u32 = 12;
 /// A design's name, characters.
 pub const MAX_NAME: usize = 60;
 /// Popup sections, and statistics in all of them.
@@ -151,7 +156,8 @@ impl StackWhen {
     }
 }
 
-/// One cell of the panel.
+/// One statistic on the panel (an empty slot is `None` in
+/// [`HudDesign::cells`], `null` in the stored form).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Cell {
@@ -198,9 +204,19 @@ pub struct PopupSection {
     pub stats: Vec<String>,
 }
 
-/// A panel and popup design.
+/// A panel and popup design. Stored (version 2):
+///
+/// ```json
+/// { "version": 2, "format": "cash", "columns": 4, "rows": 2,
+///   "cells": [{ "stat": "vpip" }, { "stat": "pfr" }, null, { "stat": "three_bet" },
+///             null, { "stat": "cbet_flop" }, null, null], ... }
+/// ```
+///
+/// Read through [`StoredDesign`]: a version 1 design (no `rows`, no
+/// `null`) becomes the grid it was drawn as - its cells `columns` to a row,
+/// as many rows as they take, the last row's rest empty.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", from = "StoredDesign")]
 pub struct HudDesign {
     /// [`DESIGN_VERSION`].
     pub version: u32,
@@ -212,9 +228,13 @@ pub struct HudDesign {
     pub preset: Option<String>,
     /// The game it is made for (the editor's default assignment).
     pub format: GameFormat,
-    /// Cells to a row.
+    /// Slots to a row.
     pub columns: u32,
-    pub cells: Vec<Cell>,
+    /// Rows of slots.
+    pub rows: u32,
+    /// The slots row by row (`rows` x `columns` of them; fewer: the rest
+    /// are empty); `None` is an empty slot.
+    pub cells: Vec<Option<Cell>>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub overrides: BTreeMap<String, StatOverride>,
     #[serde(default)]
@@ -225,6 +245,69 @@ pub struct HudDesign {
     pub player_labels: bool,
     /// Colour by at most this many thresholds (`None`: every band).
     pub max_colour_thresholds: Option<u32>,
+}
+
+/// [`HudDesign`] as stored, any version this build reads: version 1 has no
+/// `rows` and no empty slot.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct StoredDesign {
+    version: u32,
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    preset: Option<String>,
+    format: GameFormat,
+    columns: u32,
+    #[serde(default)]
+    rows: Option<u32>,
+    cells: Vec<Option<Cell>>,
+    #[serde(default)]
+    overrides: BTreeMap<String, StatOverride>,
+    #[serde(default)]
+    popup: Vec<PopupSection>,
+    legend: bool,
+    player_labels: bool,
+    max_colour_thresholds: Option<u32>,
+}
+
+impl From<StoredDesign> for HudDesign {
+    /// Version 1 read as version 2: its cells flowed `columns` to a row, so
+    /// it is that many columns and as many rows as the cells took. Either
+    /// version's slots are made up to `rows` x `columns` with empty ones
+    /// (a version this build does not read stays as it is: `parse` refuses
+    /// it, `check` says so).
+    fn from(stored: StoredDesign) -> Self {
+        let width = usize::try_from(stored.columns.max(1)).unwrap_or(1);
+        let (version, rows) = match (stored.version, stored.rows) {
+            (1, _) => (
+                DESIGN_VERSION,
+                u32::try_from(stored.cells.len().div_ceil(width).max(1)).unwrap_or(u32::MAX),
+            ),
+            (version, rows) => (version, rows.unwrap_or(0)),
+        };
+        let mut cells = stored.cells;
+        let slots = usize::try_from(rows)
+            .unwrap_or(usize::MAX)
+            .saturating_mul(width);
+        if cells.len() < slots && stored.columns > 0 {
+            cells.resize(slots, None);
+        }
+        Self {
+            version,
+            name: stored.name,
+            preset: stored.preset,
+            format: stored.format,
+            columns: stored.columns,
+            rows,
+            cells,
+            overrides: stored.overrides,
+            popup: stored.popup,
+            legend: stored.legend,
+            player_labels: stored.player_labels,
+            max_colour_thresholds: stored.max_colour_thresholds,
+        }
+    }
 }
 
 impl HudDesign {
@@ -239,13 +322,54 @@ impl HudDesign {
         serde_json::to_string(self).unwrap_or_default()
     }
 
-    /// Every statistic it names: cells, then popup sections.
+    /// The panel's statistics with their slots (row by row), the empty
+    /// slots skipped.
+    pub fn placed(&self) -> impl Iterator<Item = (usize, &Cell)> {
+        self.cells
+            .iter()
+            .enumerate()
+            .filter_map(|(slot, cell)| cell.as_ref().map(|cell| (slot, cell)))
+    }
+
+    /// The panel's statistics, row by row.
+    pub fn panel_cells(&self) -> impl Iterator<Item = &Cell> {
+        self.cells.iter().flatten()
+    }
+
+    /// Every statistic it names: the panel's, then popup sections.
     pub fn stat_ids(&self) -> impl Iterator<Item = &str> {
-        self.cells.iter().map(|c| c.stat.as_str()).chain(
+        self.panel_cells().map(|c| c.stat.as_str()).chain(
             self.popup
                 .iter()
                 .flat_map(|s| s.stats.iter().map(String::as_str)),
         )
+    }
+
+    /// The design with its trailing empty rows and columns cut off (at
+    /// least one of each) and its slots exactly `rows` x `columns`: what is
+    /// saved and what the HUD draws. The editor may hold empty rows and
+    /// columns at the end while the user arranges the panel; they are never
+    /// drawn at a table. Empty slots before the last statistic's row and
+    /// column stay (blank space on the panel).
+    #[must_use]
+    pub fn trimmed(&self) -> Self {
+        let width = usize::try_from(self.columns.max(1)).unwrap_or(1);
+        let (mut last_row, mut last_col) = (0, 0);
+        for (slot, _) in self.placed() {
+            last_row = last_row.max(slot / width);
+            last_col = last_col.max(slot % width);
+        }
+        let (rows, columns) = (last_row + 1, last_col + 1);
+        let mut cells = vec![None; rows * columns];
+        for (slot, cell) in self.placed() {
+            cells[slot / width * columns + slot % width] = Some(cell.clone());
+        }
+        Self {
+            columns: u32::try_from(columns).unwrap_or(1),
+            rows: u32::try_from(rows).unwrap_or(1),
+            cells,
+            ..self.clone()
+        }
     }
 }
 
@@ -387,6 +511,8 @@ pub enum Problem {
     NameTooLong,
     NoCells,
     TooManyCells,
+    /// The grid: columns or rows out of bounds, or more slots than they
+    /// make.
     Columns,
     /// Neither a shipped definition nor one of the user's.
     UnknownStat {
@@ -482,17 +608,22 @@ pub fn check(design: &HudDesign, catalog: &Catalog) -> Vec<Problem> {
     if design.name.chars().count() > MAX_NAME {
         out.push(Problem::NameTooLong);
     }
-    if design.cells.is_empty() {
+    let statistics = design.panel_cells().count();
+    if statistics == 0 {
         out.push(Problem::NoCells);
     }
-    if design.cells.len() > MAX_CELLS {
+    if statistics > MAX_CELLS {
         out.push(Problem::TooManyCells);
     }
-    if !(1..=MAX_COLUMNS).contains(&design.columns) {
+    let slots = usize::try_from(design.rows.saturating_mul(design.columns)).unwrap_or(usize::MAX);
+    if !(1..=MAX_COLUMNS).contains(&design.columns)
+        || !(1..=MAX_ROWS).contains(&design.rows)
+        || design.cells.len() > slots
+    {
         out.push(Problem::Columns);
     }
     let mut seen: Vec<&str> = Vec::new();
-    for cell in &design.cells {
+    for cell in design.panel_cells() {
         if seen.contains(&cell.stat.as_str()) {
             out.push(Problem::DuplicateStat {
                 stat: cell.stat.clone(),
@@ -582,14 +713,14 @@ pub fn check_for_room(
         }
     }
     if rules.no_game_state_switching {
-        for cell in design.cells.iter().filter(|c| c.when.is_some()) {
+        for cell in design.panel_cells().filter(|c| c.when.is_some()) {
             out.push(Problem::GameStateSwitching {
                 stat: cell.stat.clone(),
             });
         }
     }
     if let Some(max) = rules.max_colour_thresholds {
-        for cell in &design.cells {
+        for cell in design.panel_cells() {
             let Some(info) = catalog.info(&cell.stat) else {
                 continue;
             };
@@ -618,14 +749,16 @@ pub fn assignable(problems: &[Problem]) -> bool {
 }
 
 /// The panel the renderer draws for `design` (statistics flagged with what
-/// a room may refuse: card-split, switching). Overrides are the panel's
-/// statistics' (`crate::panel::PanelStats::compile`).
+/// a room may refuse: card-split, switching): its grid without trailing
+/// empty rows and columns ([`HudDesign::trimmed`]), each statistic in its
+/// slot. Overrides are the panel's statistics'
+/// (`crate::panel::PanelStats::compile`).
 pub fn panel_design(design: &HudDesign, catalog: &Catalog) -> PanelDesign {
+    let grid = design.trimmed();
     PanelDesign {
-        stats: design
-            .cells
-            .iter()
-            .map(|cell| StatSlot {
+        stats: grid
+            .placed()
+            .map(|(slot, cell)| StatSlot {
                 id: cell.stat.clone(),
                 card_split: catalog.info(&cell.stat).is_some_and(|i| i.card_split),
                 switching: if cell.when.is_some() {
@@ -634,13 +767,15 @@ pub fn panel_design(design: &HudDesign, catalog: &Catalog) -> PanelDesign {
                     Switching::Fixed
                 },
                 when: cell.when,
+                at: u32::try_from(slot).ok(),
             })
             .collect(),
         max_colour_thresholds: design.max_colour_thresholds,
         avoid_table_graphics: true,
         player_labels: design.player_labels,
         legend: design.legend,
-        columns: Some(design.columns.clamp(1, MAX_COLUMNS)),
+        columns: Some(grid.columns.clamp(1, MAX_COLUMNS)),
+        rows: Some(grid.rows.clamp(1, MAX_ROWS)),
     }
 }
 
@@ -944,7 +1079,9 @@ mod tests {
         let config = config();
         for preset in &presets.presets {
             assert!(check(&preset.design, &catalog).is_empty(), "{}", preset.id);
-            assert!(preset.design.cells.len() >= 4 && preset.design.cells.len() <= 7);
+            let count = preset.design.panel_cells().count();
+            assert!((4..=7).contains(&count));
+            assert_eq!(preset.design.trimmed(), preset.design, "{}", preset.id);
             for site in config.sites.iter().filter(|s| s.hud_permitted()) {
                 let rules = site.hud.restrictions.expect("restrictions");
                 let problems = check_for_room(&preset.design, &rules, &catalog);
@@ -968,7 +1105,8 @@ mod tests {
         }
         let cash = panel_design(&presets.get("cash").expect("cash").design, &catalog);
         let default = PanelDesign::default();
-        assert_eq!(cash.stats, default.stats);
+        let ids = |stats: &[StatSlot]| stats.iter().map(|s| s.id.clone()).collect::<Vec<_>>();
+        assert_eq!(ids(&cash.stats), ids(&default.stats));
         assert_eq!(
             (cash.max_colour_thresholds, cash.player_labels, cash.legend),
             (
@@ -977,7 +1115,7 @@ mod tests {
                 default.legend
             )
         );
-        assert_eq!(cash.columns, Some(3));
+        assert_eq!((cash.columns, cash.rows), (Some(3), Some(2)));
     }
 
     /// The design's own checks, each refusal by its code.
@@ -987,21 +1125,21 @@ mod tests {
         let mut design = Presets::shipped().get("cash").expect("cash").design.clone();
         design.name = "x".repeat(MAX_NAME + 1);
         design.columns = 7;
-        design.cells.push(Cell {
+        design.cells.push(Some(Cell {
             stat: "vpip".into(),
             when: None,
-        });
-        design.cells.push(Cell {
+        }));
+        design.cells.push(Some(Cell {
             stat: "nonsense".into(),
             when: None,
-        });
-        design.cells.push(Cell {
+        }));
+        design.cells.push(Some(Cell {
             stat: "allin_ev_bb_per_100".into(),
             when: Some(StackWhen {
                 below_bb: Some(10),
                 at_least_bb: Some(20),
             }),
-        });
+        }));
         design.popup[0].stats.push("rake_per_100".into());
         design.overrides.insert(
             "pfr".into(),
@@ -1068,18 +1206,19 @@ mod tests {
     fn rooms_refuse_what_they_forbid() {
         let catalog = catalog();
         let mut design = Presets::shipped().get("cash").expect("cash").design.clone();
-        design.cells.push(Cell {
+        design.cells.push(Some(Cell {
             stat: "pair_raise".into(),
             when: None,
-        });
-        design.cells.push(Cell {
+        }));
+        design.cells.push(Some(Cell {
             stat: "open_shove".into(),
             when: Some(StackWhen {
                 below_bb: Some(15),
                 at_least_bb: None,
             }),
-        });
+        }));
         design.max_colour_thresholds = None;
+        design.rows = 3;
         assert!(check(&design, &catalog).is_empty());
         let stars = check_for_room(&design, &rules("pokerstars"), &catalog);
         assert!(stars.contains(&Problem::CardSplit {
@@ -1124,9 +1263,10 @@ mod tests {
         design.cells.pop();
         design.max_colour_thresholds = None;
         design.overrides.clear();
-        for cell in &design.cells {
+        let ids: Vec<String> = design.panel_cells().map(|c| c.stat.clone()).collect();
+        for stat in ids {
             design.overrides.insert(
-                cell.stat.clone(),
+                stat,
                 StatOverride {
                     bands: Some(vec![
                         Band {
@@ -1150,13 +1290,13 @@ mod tests {
         assert!(check_for_room(&design, &rules("pokerstars"), &catalog).is_empty());
         // The renderer's view of it: the flags travel to the panel.
         let mut flagged = design.clone();
-        flagged.cells.push(Cell {
+        flagged.cells.push(Some(Cell {
             stat: "pair_raise".into(),
             when: Some(StackWhen {
                 below_bb: None,
                 at_least_bb: Some(30),
             }),
-        });
+        }));
         let panel = panel_design(&flagged, &catalog);
         let last = panel.stats.last().expect("a slot");
         assert!(last.card_split && last.switching == Switching::ByGameState);
@@ -1253,6 +1393,196 @@ mod tests {
         );
     }
 
+    fn cell(stat: &str) -> Option<Cell> {
+        Some(Cell {
+            stat: stat.into(),
+            when: None,
+        })
+    }
+
+    /// A version 1 design (cells flowing `columns` to a row, no `rows`, no
+    /// empty slot) is read as the grid it was drawn as: version 2, as many
+    /// rows as its cells took, the last row's rest empty.
+    #[test]
+    fn version_one_is_read_as_its_grid() {
+        let old = r#"{"version":1,"name":"Mine","format":"cash","columns":3,
+            "cells":[{"stat":"vpip"},{"stat":"pfr"},{"stat":"three_bet"},{"stat":"steal"}],
+            "popup":[],"legend":true,"playerLabels":false,"maxColourThresholds":2}"#;
+        let design = HudDesign::parse(old).expect("version 1 is read");
+        assert_eq!(design.version, DESIGN_VERSION);
+        assert_eq!((design.columns, design.rows), (3, 2));
+        assert_eq!(
+            design.cells,
+            [
+                cell("vpip"),
+                cell("pfr"),
+                cell("three_bet"),
+                cell("steal"),
+                None,
+                None
+            ]
+        );
+        assert!(check(&design, &Catalog::shipped()).is_empty());
+        // Written back, it is version 2 and reads the same.
+        let json = design.to_json();
+        assert!(
+            json.contains(r#""version":2"#) && json.contains(r#""rows":2"#),
+            "{json}"
+        );
+        assert_eq!(HudDesign::parse(&json), Some(design));
+        // Every shipped preset, as a version 1 file had it, reads too.
+        for preset in Presets::shipped().presets {
+            let mut v1 = serde_json::to_value(&preset.design).expect("json");
+            v1["version"] = 1.into();
+            v1.as_object_mut().expect("object").remove("rows");
+            let read = HudDesign::parse(&v1.to_string()).expect("read");
+            assert_eq!(read, preset.design, "{}", preset.id);
+        }
+    }
+
+    /// Empty slots are kept where they are: a 2 x 4 with gaps round-trips,
+    /// and the renderer gets each statistic's slot and the whole grid.
+    #[test]
+    fn gaps_survive() {
+        let mut design = Presets::shipped().get("cash").expect("cash").design.clone();
+        design.columns = 4;
+        design.rows = 2;
+        design.cells = vec![
+            cell("vpip"),
+            cell("pfr"),
+            None,
+            cell("three_bet"),
+            None,
+            cell("cbet_flop"),
+            cell("aggression_frequency"),
+            None,
+        ];
+        let json = design.to_json();
+        assert!(
+            json.contains(
+                r#""cells":[{"stat":"vpip"},{"stat":"pfr"},null,{"stat":"three_bet"},null,"#
+            ),
+            "{json}"
+        );
+        assert_eq!(HudDesign::parse(&json), Some(design.clone()));
+        assert!(check(&design, &Catalog::shipped()).is_empty());
+        assert_eq!(design.trimmed(), design, "nothing at the end to cut");
+        let panel = panel_design(&design, &Catalog::shipped());
+        assert_eq!((panel.columns, panel.rows), (Some(4), Some(2)));
+        let at: Vec<(&str, Option<u32>)> =
+            panel.stats.iter().map(|s| (s.id.as_str(), s.at)).collect();
+        assert_eq!(
+            at,
+            [
+                ("vpip", Some(0)),
+                ("pfr", Some(1)),
+                ("three_bet", Some(3)),
+                ("cbet_flop", Some(5)),
+                ("aggression_frequency", Some(6)),
+            ]
+        );
+        // Fewer slots than the grid stored: the rest are empty.
+        let short = json.replace(
+            r#"{"stat":"aggression_frequency"},null]"#,
+            r#"{"stat":"aggression_frequency"}]"#,
+        );
+        assert_ne!(short, json);
+        assert_eq!(HudDesign::parse(&short), Some(design));
+    }
+
+    /// Trailing empty rows and columns are the editor's room to arrange
+    /// in: cut off on save and never drawn; gaps before them stay.
+    #[test]
+    fn trailing_empty_rows_and_columns_are_cut() {
+        let mut design = Presets::shipped().get("cash").expect("cash").design.clone();
+        design.columns = 5;
+        design.rows = 3;
+        design.cells = vec![
+            cell("vpip"),
+            None,
+            cell("pfr"),
+            None,
+            None,
+            None,
+            cell("three_bet"),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ];
+        let trimmed = design.trimmed();
+        assert_eq!((trimmed.columns, trimmed.rows), (3, 2));
+        assert_eq!(
+            trimmed.cells,
+            [
+                cell("vpip"),
+                None,
+                cell("pfr"),
+                None,
+                cell("three_bet"),
+                None
+            ]
+        );
+        let panel = panel_design(&design, &Catalog::shipped());
+        assert_eq!((panel.columns, panel.rows), (Some(3), Some(2)));
+        assert_eq!(trimmed.trimmed(), trimmed);
+        // A leading empty row is the user's: kept.
+        design.cells.rotate_right(5);
+        let trimmed = design.trimmed();
+        assert_eq!((trimmed.columns, trimmed.rows), (3, 3));
+        assert_eq!(trimmed.cells[..3], [None, None, None]);
+    }
+
+    /// The grid's checks count statistics, not slots.
+    #[test]
+    fn the_grid_is_checked() {
+        let catalog = Catalog::shipped();
+        let mut design = Presets::shipped().get("cash").expect("cash").design.clone();
+        design.columns = 6;
+        design.rows = 4;
+        design.cells = vec![None; 24];
+        assert_eq!(check(&design, &catalog), [Problem::NoCells]);
+        let ids = [
+            "vpip",
+            "pfr",
+            "three_bet",
+            "fold_to_three_bet",
+            "cbet_flop",
+            "aggression_frequency",
+            "steal",
+            "fold_to_steal",
+            "wtsd",
+            "wsd",
+            "wwsf",
+            "squeeze",
+        ];
+        for (slot, id) in (0..).step_by(2).zip(ids) {
+            design.cells[slot] = cell(id);
+        }
+        assert!(
+            check(&design, &catalog).is_empty(),
+            "12 statistics in 24 slots"
+        );
+        design.cells[23] = cell("four_bet");
+        assert_eq!(check(&design, &catalog), [Problem::TooManyCells]);
+        design.cells[23] = None;
+        design.cells.push(None);
+        assert_eq!(
+            check(&design, &catalog),
+            [Problem::Columns],
+            "more slots than the grid"
+        );
+        design.cells.pop();
+        design.rows = MAX_ROWS + 1;
+        assert_eq!(check(&design, &catalog), [Problem::Columns]);
+        design.rows = 0;
+        assert_eq!(check(&design, &catalog), [Problem::Columns]);
+    }
+
     /// The stored form round-trips; another version is not read.
     #[test]
     fn designs_round_trip() {
@@ -1264,7 +1594,7 @@ mod tests {
         let json = design.to_json();
         assert!(json.contains(r#""when":{"atLeastBb":20}"#), "{json}");
         assert_eq!(HudDesign::parse(&json), Some(design.clone()));
-        let newer = json.replacen(r#""version":1"#, r#""version":2"#, 1);
+        let newer = json.replacen(r#""version":2"#, r#""version":3"#, 1);
         assert_eq!(HudDesign::parse(&newer), None);
         assert_eq!(HudDesign::parse("{"), None);
         let presets = Presets::shipped();

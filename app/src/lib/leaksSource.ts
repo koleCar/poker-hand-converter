@@ -5,6 +5,10 @@
  * in the shape the web's pure modules read - a finest spot's fields from its
  * key, the sums rounded as the web's `numeric` sums are - and the top three
  * worked out by them (`groupLeaks`, `rankTopLeaks`, `leakTrend`), unchanged.
+ * A postflop spot carries its hand's table (`set`) and its pot (`pot`), so
+ * the web's `spotAttrs` splits the areas by table (`~hu`, `~9max`) and pot
+ * (`~3bp`, `~4bp`) here as there; a leak's examples are read on its table
+ * and pot (`handsTable`, `handsPot`), as the web's top leaks read them.
  */
 import { stakes } from "@rail/ui/hands/format";
 
@@ -61,6 +65,7 @@ export function spotRow(sums: SpotSumsDto): SpotRow {
   return {
     key: sums.key,
     set: sums.set,
+    ...(sums.pot ? { pot: sums.pot } : {}),
     street,
     scenario,
     line,
@@ -106,14 +111,15 @@ export async function fetchTopLeaks(filters: LeakFiltersDto, period: TopPeriod):
 /** Each leak's costliest decisions (at most `limit`), in the window given (all time without one). */
 export async function fetchLeakExamples(
   filters: LeakFiltersDto,
-  leaks: ReadonlyArray<{ id: string; keys: string[] }>,
+  /** Each leak's keys, and its table and pot (`handsTable`, `handsPot`; null or absent: every one). */
+  leaks: ReadonlyArray<{ id: string; keys: string[]; table?: string | null; pot?: string | null }>,
   window: { from: string; to: string } | null,
   limit: number,
 ): Promise<Map<string, LeakExampleRow[]>> {
   const out = new Map<string, LeakExampleRow[]>();
   for (const leak of leaks.slice(0, 10)) {
     if (leak.keys.length === 0) continue;
-    const rows = await ipc.leakExamples(ANALYSIS_VERSION, filters, window, leak.keys.slice(0, 200), limit);
+    const rows = await ipc.leakExamples(ANALYSIS_VERSION, filters, window, leak.keys.slice(0, 200), limit, leak.table ?? null, leak.pot ?? null);
     out.set(
       leak.id,
       rows.map((row) => {

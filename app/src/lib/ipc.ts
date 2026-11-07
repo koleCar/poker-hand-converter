@@ -275,11 +275,13 @@ export interface QuarantineSummary {
   retryable: Retryable;
 }
 
-/** `quarantine::QuarantineList`. */
+/** `quarantine::QuarantineList`: one page of refused hands. */
 export interface QuarantineList {
   entries: RefusedHand[];
-  /** More match than are listed. */
+  /** More match than are listed (after this page). */
   truncated: boolean;
+  /** How many match the filter, on every page. */
+  total: number;
 }
 
 /** `folder_settings::FolderQuarantine`. */
@@ -582,7 +584,7 @@ export interface StackWhen {
   atLeastBb?: number;
 }
 
-/** `design::Cell`. */
+/** `design::Cell`: a statistic in a slot of the panel's grid. */
 export interface DesignCell {
   stat: string;
   when?: StackWhen;
@@ -602,14 +604,19 @@ export interface PopupSection {
   stats: string[];
 }
 
-/** `design::HudDesign`: what a panel and its popup show. */
+/**
+ * `design::HudDesign`: what a panel and its popup show. The panel is a grid
+ * of `rows` x `columns` slots, row by row; `null` is an empty slot (blank
+ * at the table). Fewer slots than the grid: the rest are empty.
+ */
 export interface HudDesign {
   version: number;
   name: string;
   preset?: string;
   format: GameFormat;
   columns: number;
-  cells: DesignCell[];
+  rows: number;
+  cells: (DesignCell | null)[];
   overrides?: Record<string, StatOverride>;
   popup: PopupSection[];
   legend: boolean;
@@ -727,6 +734,7 @@ export interface HudEditorState {
   limits: {
     maxCells: number;
     maxColumns: number;
+    maxRows: number;
     maxDecimals: number;
     maxPopupSections: number;
     maxPopupStats: number;
@@ -773,7 +781,15 @@ export interface HudPreview {
   board: PreviewRect;
   heroSlot: number;
   items: PreviewItem[];
-  panels: { slot: number; rect: PreviewRect; stats: string[]; placedByUser: boolean; stackBb: number }[];
+  panels: {
+    slot: number;
+    rect: PreviewRect;
+    stats: string[];
+    /** Where each statistic is drawn (a click there opens its settings). */
+    cells: { stat: string; rect: PreviewRect }[];
+    placedByUser: boolean;
+    stackBb: number;
+  }[];
   legend: PreviewRect | null;
   problems: DesignProblem[];
 }
@@ -1098,7 +1114,10 @@ export interface LeakFiltersDto {
 /** `review::SpotSumsDto`: one finest spot's sums, as summed. */
 export interface SpotSumsDto {
   key: string;
+  /** Preflop: a chart grade's set; flop, turn, river: the hand's table (rail-store migration 20). */
   set: string | null;
+  /** A postflop spot in a 3-bet (`3bp`) or 4-bet+ (`4bp`) pot; absent otherwise. */
+  pot?: string | null;
   decisions: number;
   nonPerfect: number;
   mistakes: number;
@@ -1213,8 +1232,8 @@ export const ipc = {
   folderQuarantine: (id: number) => invoke<FolderQuarantine>("folder_quarantine", { id }),
   /** Refused hands per reason, app-wide (`sourceId: null`) or of one folder (R1.6). */
   quarantineSummary: (sourceId: number | null) => invoke<QuarantineSummary>("quarantine_summary", { sourceId }),
-  quarantineEntries: (sourceId: number | null, reason: string | null) =>
-    invoke<QuarantineList>("quarantine_entries", { sourceId, reason }),
+  quarantineEntries: (sourceId: number | null, reason: string | null, page?: { offset: number; limit: number }) =>
+    invoke<QuarantineList>("quarantine_entries", { sourceId, reason, offset: page?.offset ?? null, limit: page?.limit ?? null }),
   /** A refused hand's raw text; `null` when it is gone (read again meanwhile). */
   quarantineRawText: (id: number) => invoke<string | null>("quarantine_raw_text", { id }),
   /** Read again what an older parser refused. Returns the files read again. */
@@ -1258,6 +1277,12 @@ export const ipc = {
     invoke<HandPage>("hands_page", { filter, after, limit }),
   handsFacets: (filter: HandFilter) => invoke<HandFacets>("hands_facets", { filter }),
   handsByKey: (keys: string[]) => invoke<HandRow[]>("hands_by_key", { keys }),
+  /**
+   * Save hands as one hand-history .txt (`export.rs`) where the reader picks
+   * in the system's dialog; `null` when it was cancelled.
+   */
+  handsExport: (handKeys: string[], fileName: string) =>
+    invoke<HandsExported | null>("hands_export", { handKeys, fileName }),
   /** "Go to hand": by the room's id (a prefix of it) or the hand key. */
   handsFind: (query: string, limit: number) => invoke<HandRow[]>("hands_find", { query, limit }),
   /** A hand's PHF as JSON text; `null` when the store has no such hand. */
@@ -1323,8 +1348,11 @@ export const ipc = {
    * the window the first time; `focus` brings it forward with the keyboard.
    */
   replayerOpen: (handKey: string, focus: boolean) => invoke<null>("replayer_open", { handKey, focus }),
-  /** The hand the replayer window should show, if one was chosen. */
-  replayerHand: () => invoke<string | null>("replayer_hand"),
+  /** Replay several hands: the first, with the list in the window's sidebar. */
+  replayerOpenList: (handKeys: string[], focus: boolean) =>
+    invoke<null>("replayer_open_list", { handKeys, focus }),
+  /** The hand the replayer window should show and its list, if one was chosen. */
+  replayerHand: () => invoke<ReplayerShow | null>("replayer_hand"),
   /** Close the replayer window (its close button). */
   replayerClose: () => invoke<null>("replayer_close"),
   /** From the replayer window: the main window comes forward on this screen (`#/...`). */
@@ -1396,8 +1424,16 @@ export const ipc = {
   /** (R5.4) The leak finder's top three: three samples of spot sums, and a leak's costliest decisions. */
   topLeaks: (version: string, filters: LeakFiltersDto, period: string) =>
     invoke<TopLeaksDto>("top_leaks", { version, filters, period }),
-  leakExamples: (version: string, filters: LeakFiltersDto, days: { from: string; to: string } | null, keys: string[], limit: number) =>
-    invoke<LeakExampleDto[]>("leak_examples", { version, filters, days, keys, limit }),
+  /** A leak's examples on its table (`hu`, `9max`, `other`) and pot (`3bp`, `4bp`, `other`); null: every one. */
+  leakExamples: (
+    version: string,
+    filters: LeakFiltersDto,
+    days: { from: string; to: string } | null,
+    keys: string[],
+    limit: number,
+    table: string | null = null,
+    pot: string | null = null,
+  ) => invoke<LeakExampleDto[]>("leak_examples", { version, filters, days, keys, table, pot, limit }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
@@ -1484,9 +1520,31 @@ export function onOpenPlayer(onOpen: (player: OpenPlayer) => void): () => void {
   return onAppEvent<OpenPlayer>("hud-open-player", onOpen);
 }
 
-/** The replayer window: show this hand (from `replayerOpen` in the main window). */
-export function onReplayerHand(onHand: (handKey: string) => void): () => void {
-  return onAppEvent<string>("replayer-hand", onHand);
+/**
+ * What the replayer window shows: a hand, and the hands it steps through
+ * (empty, or two or more with the hand among them).
+ */
+export interface ReplayerShow {
+  hand: string;
+  list: string[];
+}
+
+/** An export written (`handsExport`). */
+export interface HandsExported {
+  path: string;
+  hands: number;
+  /** Asked for but no longer in the store: left out. */
+  missing: number;
+}
+
+/** The replayer window: show this hand (from `replayerOpen` / `replayerOpenList`). */
+export function onReplayerHand(onHand: (show: ReplayerShow) => void): () => void {
+  return onAppEvent<ReplayerShow>("replayer-hand", onHand);
+}
+
+/** The main window: the replayer window now shows this hand. */
+export function onReplayerShowing(onHand: (handKey: string) => void): () => void {
+  return onAppEvent<string>("replayer-showing", onHand);
 }
 
 /** The main window: go to this screen (a link in the replayer window). */

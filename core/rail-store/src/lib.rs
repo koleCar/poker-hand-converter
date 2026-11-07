@@ -68,6 +68,7 @@ pub mod sources;
 pub mod stats;
 pub mod stats_read;
 pub mod sync;
+pub mod table_set;
 pub mod time;
 pub mod writer;
 

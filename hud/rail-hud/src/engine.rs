@@ -2756,25 +2756,25 @@ mod tests {
         design.name = "Mine".into();
         design.columns = 2;
         design.cells = vec![
-            crate::design::Cell {
+            Some(crate::design::Cell {
                 stat: "vpip".into(),
                 when: None,
-            },
-            crate::design::Cell {
+            }),
+            Some(crate::design::Cell {
                 stat: "pfr".into(),
                 when: None,
-            },
-            crate::design::Cell {
+            }),
+            Some(crate::design::Cell {
                 stat: "pair_raise".into(),
                 when: None,
-            },
-            crate::design::Cell {
+            }),
+            Some(crate::design::Cell {
                 stat: "steal".into(),
                 when: Some(crate::design::StackWhen {
                     below_bb: Some(20),
                     at_least_bb: None,
                 }),
-            },
+            }),
         ];
         design.max_colour_thresholds = None;
         design.overrides.insert(

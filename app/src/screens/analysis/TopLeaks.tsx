@@ -24,6 +24,8 @@ import { useLocale, useT } from "../../i18n";
 import { liveDateFormat, liveNumberFormat } from "../../i18n/format";
 import {
   EXAMPLES_FETCH,
+  handsPot,
+  handsTable,
   leakKind,
   leakSize,
   leaksEn,
@@ -114,7 +116,8 @@ export function TopLeaks({
         if (live) setLoaded({ status: "ready", key, report, top, examples: null });
         const examples = await fetchLeakExamples(
           { gameKind },
-          top.map(({ leak }) => ({ id: leak.id, keys: leak.keys })),
+          // Each leak's own table and pot (a spot key names neither), as the web's top leaks read them.
+          top.map(({ leak }) => ({ id: leak.id, keys: leak.keys, table: handsTable(leak.attrs, leak.level), pot: handsPot(leak.attrs) })),
           period === "30d" ? report.current : null,
           EXAMPLES_FETCH,
         );

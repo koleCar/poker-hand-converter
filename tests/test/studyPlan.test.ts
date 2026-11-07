@@ -187,29 +187,32 @@ describe("trainer targets", () => {
 
   it("maps a river spot to the role and side, a flop spot to the flop trainer, and has no trainer for the turn", () => {
     const where = (street: string, scenario: string) => ({ street, scenario, family: "first", hero: "BTN", villain: "-" });
-    expect(trainerTarget(where("river", "pfr-oop-first"))).toEqual({ mode: "river", pot: "any", side: "oop", role: "pfr" });
+    // An untagged postflop area is single-raised (§10 2026-11-05: a 3-bet or 4-bet+ pot is its own area).
+    expect(trainerTarget(where("river", "pfr-oop-first"))).toEqual({ mode: "river", pot: "srp", side: "oop", role: "pfr" });
     expect(trainerTarget(where("river", "limped-ip-vs-bet"))).toEqual({ mode: "river", pot: "limped", side: "ip", role: "any" });
-    expect(trainerTarget(where("river", "*"))).toEqual({ mode: "river", pot: "any", side: "any", role: "any" });
+    expect(trainerTarget(where("river", "*"))).toEqual({ mode: "river", pot: "srp", side: "any", role: "any" });
     // Only the trainer's in-position hero faces a bet: a spot facing one is practised there.
-    expect(trainerTarget(where("river", "caller-oop-vs-bet"))).toEqual({ mode: "river", pot: "any", side: "ip", role: "caller" });
+    expect(trainerTarget(where("river", "caller-oop-vs-bet"))).toEqual({ mode: "river", pot: "srp", side: "ip", role: "caller" });
     expect(trainerTarget({ street: "river", scenario: "*", family: "vs-bet", hero: "*", villain: "*" })).toEqual({
       mode: "river",
-      pot: "any",
+      pot: "srp",
       side: "ip",
       role: "any",
     });
     expect(trainerTarget(where("turn", "pfr-oop-first"))).toBeNull();
-    // §10 2026-10-31: the button calling a 3-bet in position, facing a bet: the flop library's two such lines.
-    expect(trainerTarget(where("flop", "caller-ip-vs-bet"))).toEqual({
+    // §10 2026-10-31: the button calling a 3-bet in position, facing a bet: the flop library's two such lines -
+    // since 2026-11-05 only for the 3-bet pot area; single-raised, the button never calls in position there.
+    expect(trainerTarget({ ...where("flop", "caller-ip-vs-bet"), pot: "3bp" })).toEqual({
       mode: "flop",
       set: "nlhe-cash-6max-100bb",
-      pot: "any",
+      pot: "3bp",
       side: "ip",
       role: "caller",
       seat: "BTN",
       facing: "bet",
       line: null,
     });
+    expect(trainerTarget(where("flop", "caller-ip-vs-bet"))).toBeNull();
   });
 
   it("counts river answers by the (line, seat) pairs a role and side allow", () => {
@@ -332,7 +335,7 @@ describe("the week's plan", () => {
     expect(tasks.map((task) => `${task.focus}:${task.kind}:${task.ref}:${task.target}`)).toEqual([
       "0:read:thin-value:1",
       "0:read:bet-sizing:1",
-      `0:train:river/any/oop/pfr:${TRAIN_TARGET.river}`,
+      `0:train:river/srp/oop/pfr:${TRAIN_TARGET.river}`,
       `0:drill:${RIVER_AREA}:2`,
       "0:review:h1:1",
       "0:review:h2:1",
@@ -362,14 +365,15 @@ describe("the week's plan", () => {
   it("writes tasks in the shape save_study_plan takes", () => {
     expect(rpcTask(tasks[2])).toEqual({
       kind: "train",
-      ref: "river/any/oop/pfr",
+      // A single-raised area (§10 2026-11-05): the 3-bet pots' out-of-position raisers are another area's.
+      ref: "river/srp/oop/pfr",
       target: TRAIN_TARGET.river,
       focus: 0,
       hand_id: null,
       match_mode: "river",
       match_family: null,
       match_position: null,
-      match_spots: ["btn-bb-3bet:BB", "btn-sb-3bet:SB", "co-bb-3bet:BB", "sb-bb:SB"],
+      match_spots: ["sb-bb:SB"],
       spot_keys: null,
     });
     expect(rpcTask(tasks[3]).spot_keys).toEqual(focus.areas[0].keys);

@@ -4,8 +4,8 @@
  * Hands screen's chips, with the groups a report sums by, and Reports' own
  * saved filters where the surface keeps them - over:
  *
- * - the summary: hands, the result in money and in big blinds, bb/100 and
- *   the all-in EV bb/100;
+ * - the summary: hands, the result in the graph's unit (money or big
+ *   blinds), bb/100 and the all-in EV bb/100;
  * - the win-rate graph (`stats/WinrateGraph`): total, showdown,
  *   non-showdown and all-in EV, cumulative over hands, in big blinds or in
  *   money;
@@ -73,6 +73,12 @@ export interface ReportsScreenProps {
   /** The heading's words, and its level on the surface's page. */
   title: string;
   titleTag?: "h1" | "h2";
+  /**
+   * The title for assistive technology only (the desktop, where the sidebar
+   * names the screen): the header row is then the count on the left and the
+   * Cash | Tournaments toggle on the right.
+   */
+  hideTitle?: boolean;
   /** Under the filters: the surface's lines (a recompute, a rebuild). */
   notice?: ReactNode;
   /** No hands at all, in the surface's words. */
@@ -103,6 +109,7 @@ export function ReportsScreen({
   onTab,
   title,
   titleTag: Title = "h1",
+  hideTitle = false,
   notice,
   emptyText,
   renderState,
@@ -163,14 +170,15 @@ export function ReportsScreen({
 
   return (
     <div className={styles.screen} aria-busy={state.loading}>
-      <header className={styles.top}>
-        <Title className={styles.title}>{title}</Title>
+      <header className={hideTitle ? `${styles.top} ${styles.row}` : styles.top}>
+        <Title className={hideTitle ? styles.visuallyHidden : styles.title}>{title}</Title>
         {report ? (
           <span className={styles.count} aria-live="polite">
             {r.count(report.graph.hands)}
           </span>
         ) : null}
         {refetching ? <RailLoader size="inline" label={r.loading} /> : null}
+        {hideTitle ? <span className={styles.spacer} /> : null}
         <KindToggle filter={filter} facets={facetsSeen} onChange={onChoose} />
       </header>
       <FilterBar
@@ -271,15 +279,16 @@ function ReportBody({
           </div>
           <div className={styles.tile}>
             <dt>{r.summary.result}</dt>
-            <dd className={tone(summary.net)}>
-              {summary.net !== null && moneyUnit ? signedMoney(moneyUnit, summary.net) : "—"}
-            </dd>
-          </div>
-          <div className={styles.tile}>
-            <dt>{r.summary.netBb}</dt>
-            <dd className={tone(summary.netBbMilli)}>
-              {summary.netBbMilli !== null ? bigBlindsIn(ui.intlLocale, summary.netBbMilli) : "—"}
-            </dd>
+            {/* One result, in the graph's unit: money or big blinds. */}
+            {unit === "money" ? (
+              <dd className={tone(summary.net)}>
+                {summary.net !== null && moneyUnit ? signedMoney(moneyUnit, summary.net) : "—"}
+              </dd>
+            ) : (
+              <dd className={tone(summary.netBbMilli)}>
+                {summary.netBbMilli !== null ? `${bigBlindsIn(ui.intlLocale, summary.netBbMilli)} bb` : "—"}
+              </dd>
+            )}
           </div>
           {bb100 ? (
             <div className={styles.tile}>

@@ -48,13 +48,13 @@ describe("dictionaries", () => {
       // The same word in Croatian (R2.10's editor).
       "Formula",
       // The same words in Croatian (R3.9's HUD editor).
-      "Panel", "x (preset)", "x-max",
+      "Panel", "x (preset)", "x-max", "esc",
       // Poker's actions and "street", in Croatian as the web says them (R5.4's grades).
       "Street", "Fold", "Check", "Call", "Bet", "Raise",
       // R5.5's push/fold words: "push" and "sit-and-go" are Croatian poker too.
       "Push", "Sit-and-go",
-      // R6.4: the plan's name, and "plan" is Croatian too.
-      "Plan", "Rail Pro.",
+      // R6.4: the plan's name, and "plan" is Croatian too; the plans' names on Settings' badge.
+      "Plan", "Rail Pro.", "Pro", "Free",
       // The Players statistics' rows: poker's names, as the definitions say them in Croatian.
       "Open raise", "Limp", "Limp-fold", "4-bet", "5-bet", "Squeeze", "Steal", "Continuation bet", "Donk bet",
       "Check-raise",

@@ -131,6 +131,46 @@ const PATHS = {
       <path d="M7.5 7.5h.01" />
     </>
   ),
+  /* The desktop Settings' plan badge, rows and danger zone. */
+  check: <path d="M20 6 9 17l-5-5" />,
+  star: <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z" />,
+  cloudOff: (
+    <>
+      <path d="M17.5 19H9a7 7 0 0 1-6.3-10" />
+      <path d="M8.5 5.4A7 7 0 0 1 15.7 10h1.8a4.5 4.5 0 0 1 3.4 7.5" />
+      <path d="m3 3 18 18" />
+    </>
+  ),
+  minus: <path d="M5 12h14" />,
+  lock: (
+    <>
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M12 15V3" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M3 6h18" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </>
+  ),
+  more: (
+    <>
+      <path d="M5 12h.01" />
+      <path d="M12 12h.01" />
+      <path d="M19 12h.01" />
+    </>
+  ),
+  chevronLeft: <path d="m15 18-6-6 6-6" />,
+  chevronRight: <path d="m9 18 6-6-6-6" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;

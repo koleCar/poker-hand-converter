@@ -17,7 +17,7 @@
 
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import { FLOP_LIBRARY_SETS, flopLinesFor, flopPlayersOf, lineSeats } from "../../../lib/analysis/flopLibrary";
-import type { HandsTable } from "../../../lib/analysis/leaks";
+import type { HandsPot, HandsTable } from "../../../lib/analysis/leaks";
 import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../../lib/charts";
 import { KIND_KEY, parseKind } from "../analysisKind";
 import {
@@ -116,6 +116,12 @@ export interface TrainState {
    * spot key names no table. Null: every table. Only with `spots`.
    */
   table: HandsTable | null;
+  /**
+   * Drills: with a table, only those in this pot too (a postflop leak's or
+   * area's, `handsPot`); a spot key names no pot. Null: every pot. The
+   * address's `drillPot` (`pot` is the river and flop trainers' own filter).
+   */
+  drillPot: HandsPot | null;
   /** Drills: every drill, not only the due ones. */
   all: boolean;
   /** Drills: Inaccurate moves too. */
@@ -138,6 +144,7 @@ export const DEFAULT_TRAIN_STATE: TrainState = {
   line: null,
   spots: null,
   table: null,
+  drillPot: null,
   all: false,
   inaccurate: false,
   kind: null,
@@ -145,6 +152,8 @@ export const DEFAULT_TRAIN_STATE: TrainState = {
 
 /** The table filters a drills address may carry (`handsTable`'s values). */
 const DRILL_TABLES = ["hu", "9max", "other"] as const satisfies readonly HandsTable[];
+/** The pot filters a drills address may carry (`handsPot`'s values). */
+const DRILL_POTS = ["3bp", "4bp", "other"] as const satisfies readonly HandsPot[];
 
 /** A spot key's shape (`analysis_spot_key`), as the database validates it. */
 const SPOT_KEY = /^(preflop|flop|turn|river)\|[a-z0-9][a-z0-9-]{0,39}\|[fkcra]{0,24}\|[A-Z0-9+]{0,8}\|(fold|check|call|bet|raise)\|(fold|check|call|bet|raise)?$/;
@@ -170,6 +179,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
         .filter((key) => SPOT_KEY.test(key))
         .slice(0, MAX_SPOT_KEYS)
     : [];
+  const table = spots.length > 0 ? oneOf<HandsTable | "">(first(query.table), DRILL_TABLES, "") || null : null;
   return {
     mode: oneOf(first(query.mode), TRAIN_MODES, spots.length > 0 ? "drills" : DEFAULT_TRAIN_STATE.mode),
     set: oneOf(first(query.set), TRAINER_SETS.map((spec) => spec.id), DEFAULT_TRAIN_STATE.set),
@@ -183,7 +193,8 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     facing: oneOf(first(query.facing), [...FLOP_FACINGS, "any"] as const, DEFAULT_TRAIN_STATE.facing),
     line: lineParam(first(query.line), first(query.set)),
     spots: spots.length > 0 ? spots : null,
-    table: spots.length > 0 ? oneOf<HandsTable | "">(first(query.table), DRILL_TABLES, "") || null : null,
+    table,
+    drillPot: table ? oneOf<HandsPot | "">(first(query.drillPot), DRILL_POTS, "") || null : null,
     all: first(query.all) === "1",
     inaccurate: first(query.inaccurate) === "1",
     kind: parseKind(query),
@@ -216,6 +227,7 @@ export function trainQuery(state: TrainState): string {
   if (state.mode === "drills") {
     if (state.spots) params.set("spots", state.spots.join(","));
     if (state.spots && state.table) params.set("table", state.table);
+    if (state.spots && state.table && state.drillPot) params.set("drillPot", state.drillPot);
     if (state.all) params.set("all", "1");
     if (state.inaccurate) params.set("inaccurate", "1");
     if (state.kind) params.set(KIND_KEY, state.kind);
@@ -270,15 +282,18 @@ export function trainerResultOf(spot: TrainerSpot, answer: TrainerAnswer, handCl
   };
 }
 
-/** The address "Drill this" opens for a leak's spot keys, on its table (`handsTable`; null: every table). */
-export function drillQuery(keys: readonly string[], table: HandsTable | null = null): string {
-  return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills", all: true, spots: keys.slice(0, MAX_SPOT_KEYS), table });
+/**
+ * The address "Drill this" opens for a leak's spot keys, on its table
+ * (`handsTable`; null: every table) and, postflop, its pot (`handsPot`).
+ */
+export function drillQuery(keys: readonly string[], table: HandsTable | null = null, pot: HandsPot | null = null): string {
+  return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills", all: true, spots: keys.slice(0, MAX_SPOT_KEYS), table, drillPot: table ? pot : null });
 }
 
-/** The address of a study plan's drill task: the due drills of an area (or all of them) on its table, not every drill. */
-export function dueDrillQuery(keys: readonly string[] | null, table: HandsTable | null = null): string {
+/** The address of a study plan's drill task: the due drills of an area (or all of them) on its table and pot, not every drill. */
+export function dueDrillQuery(keys: readonly string[] | null, table: HandsTable | null = null, pot: HandsPot | null = null): string {
   const spots = keys && keys.length > 0 ? keys.slice(0, MAX_SPOT_KEYS) : null;
-  return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills", spots, table: spots ? table : null });
+  return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills", spots, table: spots ? table : null, drillPot: spots && table ? pot : null });
 }
 
 /** The address of a study plan's trainer task: the trainer set to the area's spot. */

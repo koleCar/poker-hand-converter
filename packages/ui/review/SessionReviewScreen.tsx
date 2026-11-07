@@ -83,6 +83,11 @@ export interface SessionReviewScreenProps {
   renderHandLink: (props: HandLinkProps) => ReactNode;
   title: string;
   titleTag?: "h1" | "h2";
+  /**
+   * The title for assistive technology only, and no line under it (the
+   * desktop, where the sidebar and the section tabs say where the user is).
+   */
+  hideTitle?: boolean;
   /** Under the title: the surface's own navigation or lines. */
   notice?: ReactNode;
   /** The loading and error states, in the surface's own look. */
@@ -137,6 +142,7 @@ export function SessionReviewScreen({
   renderHandLink,
   title,
   titleTag: Title = "h1",
+  hideTitle = false,
   notice,
   renderState,
   coverageAction,
@@ -230,10 +236,14 @@ export function SessionReviewScreen({
 
   return (
     <div className={styles.screen} aria-busy={!hiddenDuringPlay && (loaded.status === "loading" || (loaded.status === "ready" && loaded.key !== key))}>
-      <header className={styles.top}>
-        <Title className={styles.title}>{title}</Title>
-        {intro ? <p className={styles.intro}>{r.intro}</p> : null}
-      </header>
+      {hideTitle ? (
+        <Title className={styles.visuallyHidden}>{title}</Title>
+      ) : (
+        <header className={styles.top}>
+          <Title className={styles.title}>{title}</Title>
+          {intro ? <p className={styles.intro}>{r.intro}</p> : null}
+        </header>
+      )}
       {notice}
       {kindCounts !== undefined && !hiddenDuringPlay ? (
         <KindSwitch

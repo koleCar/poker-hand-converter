@@ -34,6 +34,7 @@ document refers to most:
 | `20271102090000_leak_row_table.sql` | A postflop leak row carries its hand's table: `analysis_hand_table_set(phf)` (immutable, no table; executable by `authenticated` for the invoker scan, not `anon`) picks the chart set as `pickChartSet` does - players dealt in, the depth nearest the effective stack of the players still in at the flop, within 20% - and the before-insert row trigger `analysis_leak_rows_table_set` (definer, no client) writes it into `analysis_leak_rows.chart_set` for a flop, turn or river row (preflop rows unchanged). `analysis_leaks_scan` reads the same set (re-created, the R6.2 gate put back); `analysis_leak_rows_table_backfill()` (definer, no client) gives stored rows the set and recounts the two leak sum tables. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 | `20271103090000_leak_hands_table.sql` | The hands behind a leak, on its table: `analysis_leak_table_of(set)` (immutable, no table; executable by `authenticated`, not `anon`) tags a chart set `hu`, `9max` or `other` as the leak finder does (`tableOfSet`), and `analysis_leak_hands` / `analysis_leak_hands_scan` take an optional `leakTable` filter key (`hu`, `9max`, `other`; absent: every table, as before; anything else 22023) - the fast path by the row's `chart_set`, the scan by the set the leak scan reads. Both re-created from `20270825090000` with the same signatures, grants and invoker security; the R6.2 gate put back. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 | `20271104120000_drills_by_table.sql` | Drills and top-leak examples on a leak's table: new `drill_due_by_spot_tables(version, until)` (`drill_due_by_spot`'s rows with a per-table split, `tables`) and `drill_queue_on_table(version, table, keys, due_only, limit)` (`drill_queue` on one table, `hu` / `9max` / `other`), both invoker, empty search_path, `authenticated` only, added to `entitlement_gates` and gated; `analysis_leak_examples` takes an optional `table` per leak (absent or null: every table, as before; anything else 22023), re-created from `20270818090000` with the same signature and grants, the gate put back. A decision's table is its leak row's `chart_set` (`analysis_leak_table_of`). `drill_due_by_spot` and `drill_queue` unchanged. Nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
+| `20271105090000_leak_pot_type.sql` | A postflop leak area per pot type: `analysis_leak_pot_of(pot_type)` (immutable, no table; `authenticated` only) tags a pot `3bp` / `4bp` / `other`; `analysis_leaks`, `analysis_leaks_scan` and `analysis_leak_sample` return a postflop row per spot, set and pot (`pot` on a 3-bet or 4-bet+ row only; under a room or stake those rows are read from the leak rows beside the room and stake sums, partial index `analysis_leak_rows_pot_idx`); `analysis_leak_hands` (+ scan) take `filters.leakPot`, `analysis_leak_examples` a leak's `pot`; new `drill_due_by_spot_pots` and `drill_queue_on_area` (invoker, empty search_path, `authenticated` only, gated). Re-created functions keep signatures and grants; the R6.2 gate put back. No column, no backfill, nothing written. See [The analysis screens' summaries](#the-analysis-screens-summaries). Not applied to production. |
 
 The migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`, the statistics, analysis, Learn, report,
@@ -1003,7 +1004,9 @@ the reader's day, and graded Mistakes not drilled yet), `drill_due_by_spot`
 (the Leaks rows' counts) and `trainer_summary(days)`, and since
 `20271104120000` `drill_due_by_spot_tables` and `drill_queue_on_table` (the
 same on a leak's table; see [Drills and examples on a leak's
-table](#the-analysis-screens-summaries)); their helpers
+table](#the-analysis-screens-summaries)), and since `20271105090000`
+`drill_due_by_spot_pots` and `drill_queue_on_area` (on a leak's table and
+pot); their helpers
 `drill_quality`, `drill_next` (SM-2, the same cases as
 `lib/training/schedule.ts`) and `drill_keys_valid` are granted to
 `authenticated` and not to `anon`.
@@ -2584,8 +2587,8 @@ narrow rows and sums kept by statement triggers on `hand_analysis` and
 | `analysis_hand_rows` | one row per `hand_analysis` row: the hand's groups (time, room, format, stake, seat), the analysis columns, and what its decisions add up to (streets, flag codes, graded / chart / node counts, graded grade counts and sums) | `analysis_hands` (every filter), the session trend, facets' first and last |
 | `analysis_month_hands` | analysed hands per (owner, version, UTC month); version `''` = at any version, each hand once | `analysis_coverage`, `hands_needing_analysis_recent` |
 | `analysis_leak_rows` (R5.2's) | one row per decision - **every** decision since `20270825090000`, graded or not - with its hand's day, room, stake, format, seat, pot type, street, status, source, spot key, chart set, grade, score, EV loss (and whether it was none), and for a graded preflop chart decision its node and chosen action | a date range, a room or a stake (the readers' rows path); example hands of the leak list and the chart nodes |
-| `analysis_leak_totals` | graded decisions per (owner, version, format, seat, pot type, spot key, chart set), all time, with distinct hands | `analysis_leaks`, `analysis_leak_sample`, `drill_due_by_spot`, `drill_due_by_spot_tables` |
-| `analysis_leak_stake_totals` | the same per (owner, version, room, currency, big blind, spot key, chart set) | `analysis_leaks` under a room or stake chip |
+| `analysis_leak_totals` | graded decisions per (owner, version, format, seat, pot type, spot key, chart set), all time, with distinct hands | `analysis_leaks`, `analysis_leak_sample`, `drill_due_by_spot`, `drill_due_by_spot_tables`, `drill_due_by_spot_pots` |
+| `analysis_leak_stake_totals` | the same per (owner, version, room, currency, big blind, spot key, chart set) - no pot type: the leak list reads the 3-bet and 4-bet+ postflop rows beside it (`20271105090000`) | `analysis_leaks` under a room or stake chip |
 | `analysis_trend_days` | graded decisions of dated hands per (owner, version, UTC day, group: all / street / position / pot type, key) with distinct hands and first / last time | `analysis_trend` week and month |
 | `analysis_overview_hands`, `_decisions`, `_flags`, `_keys` | per (owner, version, format, seat, pot type): hands by status, reason, grade, flagged, approximations; decisions by street, scenario, status, reason, grade, worst flag (facing, defended, MDF, score, EV sums); flags by street, code, severity; hands with a (graded) decision per street, scenario, preflop scenario | `analysis_overview`, `analysis_breakdown`, `analysis_hands`' count |
 | `analysis_node_totals` | node decisions with a chosen action per (set, line, scenario, hand class, action); analysed postflop decisions per (street, scenario, action); all time | `analysis_node_actions` |
@@ -2697,6 +2700,41 @@ readers are invoker with an empty search_path, executable by `authenticated`
 only, and gated (`entitlement_gates`, analysis / drills; the R6.2 gate
 written in by `entitlement_gates_apply()`). Nothing written. pgTAP
 `drills_by_table` (29).
+
+**A leak area per pot type** (`20271105090000`). A flop, turn or river spot
+in a 3-bet or 4-bet+ pot is its own leak area (`~3bp`, `~4bp` after the
+table tag; single-raised, limped and unknown pots untagged): the leak rows
+kept the hand's `pot_type` all along, but the leak list summed over it.
+
+- `analysis_leak_pot_of(pot_type)` (immutable, no table; `authenticated`
+  only): `3bp` for `3bet`, `4bp` for `4bet+`, `other` for everything else.
+- `analysis_leaks`, `analysis_leaks_scan` and `analysis_leak_sample` (the
+  top leaks' samples) return a postflop row per spot, set and pot; a row in
+  a 3-bet or 4-bet+ pot also says `pot` (`3bp`, `4bp`), every other row is
+  as before (no key), so an answer with no such row is unchanged. The sums
+  keep the pot type (`analysis_leak_totals.pot_type`); the room and stake
+  sums do not, so under a room or stake chip the 3-bet and 4-bet+ postflop
+  rows in scope are read from the leak rows (partial index
+  `analysis_leak_rows_pot_idx`, just those rows) and moved out of the
+  untagged row. No new column, no backfill, no trigger change.
+- `analysis_leak_hands` (and its scan) take `filters.leakPot` (`3bp`,
+  `4bp`, `other`; absent: every pot; anything else 22023), with or without
+  `leakTable`; `analysis_leak_examples` takes a leak's optional `pot` the
+  same way. An older database ignores both keys.
+- `drill_due_by_spot_pots(version, until, kind)` (new):
+  `drill_due_by_spot_tables`' rows (pgTAP checks them equal with `pots`
+  removed), each also with `pots` - `{"hu": {"3bp": {"items", "due"},
+  "other": ...}, ...}`, per table and pot. `drill_queue_on_area(version,
+  table, pot, keys, due_only, limit, kind)` (new): `drill_queue_on_table`
+  on one pot too (none or anything else 22023), each item saying `table`
+  and `pot`. Both invoker, empty search_path, `authenticated` only, gated
+  (`entitlement_gates`, analysis / drills). `drill_queue`,
+  `drill_due_by_spot` and the two per-table readers are unchanged; the
+  client falls back to them on PGRST202.
+
+Re-created functions keep their signatures, grants and comments; the R6.2
+gate is put back with `entitlement_gates_apply()`. Nothing written. pgTAP
+`leak_pot_type` (39).
 
 **Cost** (`20270825090000` at a generated 1M-hand account, details in
 docs/RAIL-PLAN.md §15): every listed reader under ~0.4 s on its default

@@ -114,10 +114,11 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
   const checkForRoom = (design: HudDesign, rules: HudRestrictions): DesignProblem[] => {
     const out: DesignProblem[] = [];
     if (rules.noGameStateSwitching) {
-      for (const cell of design.cells) if (cell.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
+      for (const cell of design.cells) if (cell?.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
     }
     if (rules.maxColourThresholds !== null) {
       for (const cell of design.cells) {
+        if (!cell) continue;
         const stat = statOf(cell.stat);
         if (!stat) continue;
         const bands = design.overrides?.[cell.stat]?.bands ?? stat.bands;
@@ -131,10 +132,28 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
     return out;
   };
 
+  /** `HudDesign::trimmed`: the grid without its empty last rows and columns (as saved and drawn). */
+  const trimmed = (design: HudDesign): HudDesign => {
+    const width = Math.max(1, design.columns);
+    let rows = 1;
+    let columns = 1;
+    design.cells.forEach((cell, at) => {
+      if (!cell) return;
+      rows = Math.max(rows, Math.floor(at / width) + 1);
+      columns = Math.max(columns, (at % width) + 1);
+    });
+    const cells: HudDesign['cells'] = Array.from({ length: rows * columns }, () => null);
+    design.cells.forEach((cell, at) => {
+      if (cell) cells[Math.floor(at / width) * columns + (at % width)] = cell;
+    });
+    return { ...design, rows, columns, cells };
+  };
+
   const designProblems = (design: HudDesign): DesignProblem[] => {
     const out: DesignProblem[] = [];
-    if (design.cells.length === 0) out.push({ code: 'noCells' });
-    if (design.cells.length > data.hudEditor.limits.maxCells) out.push({ code: 'tooManyCells' });
+    const placed = design.cells.filter((cell) => cell !== null).length;
+    if (placed === 0) out.push({ code: 'noCells' });
+    if (placed > data.hudEditor.limits.maxCells) out.push({ code: 'tooManyCells' });
     if (design.name.length > 60) out.push({ code: 'nameTooLong' });
     return out;
   };
@@ -241,17 +260,22 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
         candidates[0]!
       );
     };
+    // The HUD draws the trimmed grid, each statistic at its row and column (`rail_hud::scene`).
+    const grid = trimmed(design);
+    const { columns, rows } = grid;
+    const placedCells = grid.cells.flatMap((cell, at) =>
+      cell ? [{ cell, row: Math.floor(at / columns), col: at % columns }] : [],
+    );
     slots.forEach((_, slot) => {
       const seat = slot + 1;
-      const cells = design.cells.filter((cell) => {
+      if (placedCells.length === 0) return;
+      // A statistic the stack leaves out leaves its slot blank (nothing moves up).
+      const cells = placedCells.filter(({ cell }) => {
         if (!cell.when) return true;
         if (switching) return false;
         const stack = stackOf(seat);
         return (cell.when.belowBb === undefined || stack < cell.when.belowBb) && (cell.when.atLeastBb === undefined || stack >= cell.when.atLeastBb);
       });
-      if (cells.length === 0) return;
-      const columns = Math.max(1, Math.min(design.columns, cells.length));
-      const rows = Math.ceil(cells.length / columns);
       const w = 2 * pad + columns * cellW + wide;
       const h = 2 * pad + rows * row;
       const plate = plates[slot]!;
@@ -270,7 +294,8 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
       taken.push(rect);
       items.push({ kind: 'fill', rect, radius: 5, color: PANEL });
       const fade = seat === 3 ? 0.7 : 1;
-      cells.forEach((cell, index) => {
+      const drawn: { stat: string; rect: PreviewRect }[] = [];
+      cells.forEach(({ cell, row: r, col: c }, index) => {
         const stat = statOf(cell.stat);
         const bands = design.overrides?.[cell.stat]?.bands ?? stat?.bands ?? [];
         const decimals = design.overrides?.[cell.stat]?.decimals ?? 0;
@@ -282,11 +307,11 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
         const band = bands.find((b) => b.below === undefined || value < b.below);
         const tone = collapse(band ? band.tone : null);
         const color = TONES[tone ?? 'none'];
-        const c = index % columns;
-        const r = Math.floor(index / columns);
+        const cellRect = { x: x + pad + c * cellW, y: y + pad + r * row, w: cellW, h: row };
+        drawn.push({ stat: cell.stat, rect: cellRect });
         items.push({
           kind: 'text',
-          rect: { x: x + pad + c * cellW, y: y + pad + r * row, w: cellW, h: row },
+          rect: cellRect,
           text: value.toFixed(decimals),
           px: 14,
           color: [color[0], color[1], color[2], Math.round(255 * fade)],
@@ -303,7 +328,14 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
         bold: false,
         align: 'center',
       });
-      panels.push({ slot, rect, stats: cells.map((c) => c.stat), placedByUser: Boolean(placed), stackBb: stackOf(seat) });
+      panels.push({
+        slot,
+        rect,
+        stats: cells.map(({ cell }) => cell.stat),
+        cells: drawn,
+        placedByUser: Boolean(placed),
+        stackBb: stackOf(seat),
+      });
     });
     return {
       width,
@@ -544,7 +576,7 @@ export function installTauriMock({ data, scene: firstScene }: { data: MockData; 
     hud_editor_state: () => editorState(),
     hud_design_check: (a) => check(a.design as HudDesign),
     hud_design_save: (a) => {
-      const design = a.design as HudDesign;
+      const design = trimmed(a.design as HudDesign);
       const problems = designProblems(design);
       if (problems.length > 0) return { id: null, problems, refused: {} };
       const id = (a.id as string | null) ?? `design-${state.designs.length + 1}`;

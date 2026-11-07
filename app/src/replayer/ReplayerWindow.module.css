@@ -1,15 +1,178 @@
 /* The replayer's own window: the hand panel, filling it edge to edge as the
-   web's replayer fills its card. */
+   web's replayer fills its card; with several hands, a narrow sidebar of
+   their hero cards on its left. */
 
 .window {
+  display: flex;
   block-size: 100%;
   box-sizing: border-box;
   background: var(--surface-base);
+}
+
+.hand {
+  flex: 1 1 auto;
+  min-width: 0;
+  block-size: 100%;
 }
 
 .empty {
   display: grid;
   place-items: center;
   block-size: 100%;
+  margin: 0;
   color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------ the sidebar */
+
+.sidebar {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-width: 4.75rem;
+  max-width: 9rem;
+  block-size: 100%;
+  border-inline-end: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+}
+
+.sidebarHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-1) var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.count {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hide,
+.step {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.hide:hover,
+.step:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.step:disabled {
+  color: var(--text-tertiary);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.list {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: var(--space-1);
+  overflow-y: auto;
+  list-style: none;
+  overscroll-behavior: contain;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 36px;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-2);
+  background: none;
+  cursor: pointer;
+}
+
+.entry:hover {
+  background: var(--surface-hover);
+}
+
+.entry[aria-current="true"] {
+  background: var(--accent-subtle);
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}
+
+.entry:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.placeholder {
+  display: block;
+  width: 2.75rem;
+  height: 1.25rem;
+  border-radius: var(--radius-1);
+  background: var(--surface-hover);
+}
+
+.noCards {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+/* Hidden: a slim tab at the window's left edge, with the position. */
+.tab {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 1.75rem;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-inline-end: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.tabCount {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

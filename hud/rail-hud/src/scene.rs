@@ -195,6 +195,10 @@ pub struct Scene {
     /// (R3.9) The statistics each seat's panel shows, by slot (their ids,
     /// in the design's order): what a room's rules left of the design.
     pub seat_cells: Vec<(u32, Vec<String>)>,
+    /// (R3.9) Where each statistic is drawn on each seat's panel: slot,
+    /// statistic id, its cell (the editor's preview opens a statistic's
+    /// settings from it).
+    pub cell_rects: Vec<(u32, String, Rect)>,
 }
 
 impl Scene {
@@ -341,16 +345,31 @@ pub fn compose_with(
         .max()
         .unwrap_or(0);
     let cells = u32::try_from(cells).unwrap_or(u32::MAX);
-    // R3.4's panel: two rows of figures. (R3.9) A design's: its columns
+    // R3.4's panel: two rows of figures. (R3.9) A design's grid: exactly
+    // its columns and rows, each statistic in its slot (one left out here
+    // is blank, as an empty slot is); a design without rows: its columns
     // (fewer when it shows fewer cells), as many rows as the cells take.
-    let (columns, rows) = match design.columns {
-        None => (cells.div_ceil(2), 2),
-        Some(columns) => {
+    let (columns, rows) = match (design.columns, design.rows) {
+        (None, _) => (cells.div_ceil(2), 2),
+        (Some(columns), Some(rows)) => (
+            columns.clamp(1, crate::design::MAX_COLUMNS),
+            rows.clamp(1, crate::design::MAX_ROWS),
+        ),
+        (Some(columns), None) => {
             let columns = columns
                 .clamp(1, crate::design::MAX_COLUMNS)
                 .min(cells.max(1));
             (columns, cells.div_ceil(columns).max(1))
         }
+    };
+    let grid_slot = |id: &str| -> Option<u32> {
+        design.rows?;
+        design
+            .stats
+            .iter()
+            .find(|slot| slot.id == id)
+            .and_then(|slot| slot.at)
+            .filter(|at| *at < columns.saturating_mul(rows))
     };
     let labels = design.player_labels && frame.panels.iter().any(|p| p.words.label.is_some());
     let panel = metrics.panel_rows(columns, rows + u32::from(labels));
@@ -478,7 +497,10 @@ pub fn compose_with(
         let row = i32::try_from(metrics.row).unwrap_or(0);
         let cell_w = i32::try_from(metrics.cell).unwrap_or(0);
         let cols = i32::try_from(columns).unwrap_or(1);
-        for (index, cell) in (0_i32..).zip(&cells) {
+        for (flowed, cell) in (0_i32..).zip(&cells) {
+            let index = grid_slot(&cell.id)
+                .and_then(|at| i32::try_from(at).ok())
+                .unwrap_or(flowed);
             let (r, c) = (index / cols, index % cols);
             let text_rect = Rect {
                 x: rect.x + pad + c * cell_w,
@@ -489,6 +511,7 @@ pub fn compose_with(
             let tone = cell
                 .tone
                 .map(|t| collapse_tone(t, design.max_colour_thresholds));
+            scene.cell_rects.push((slot, cell.id.clone(), text_rect));
             scene.items.push(Item::Text {
                 rect: text_rect,
                 text: cell.text.clone(),
@@ -632,6 +655,67 @@ mod tests {
                 Item::Fill { .. } => None,
             })
             .collect()
+    }
+
+    /// (R3.9) A design's 2 x 4 grid with gaps: every panel is four slots
+    /// wide and two rows tall whatever it shows, each statistic in its own
+    /// slot, the empty slots blank; a statistic the stack leaves out leaves
+    /// its slot blank too (nothing moves up).
+    #[test]
+    fn a_grid_with_gaps() {
+        use crate::design::{Catalog, Cell, Presets, panel_design};
+        let some = |stat: &str| {
+            Some(Cell {
+                stat: stat.into(),
+                when: None,
+            })
+        };
+        let mut design = Presets::shipped().get("cash").expect("cash").design.clone();
+        design.columns = 4;
+        design.rows = 2;
+        design.cells = vec![
+            some("vpip"),
+            None,
+            some("pfr"),
+            some("three_bet"),
+            None,
+            some("fold_to_three_bet"),
+            None,
+            None,
+        ];
+        let panel = panel_design(&design, &Catalog::shipped());
+        let mut frame = frame("acr", Some(6), &[1, 2]);
+        frame.panels[1].stats.retain(|c| c.id != "pfr");
+        let scene = compose(&frame, 800, 580, 1000, &panel);
+        let metrics = Metrics::for_client(580, 1000);
+        let (w, h) = metrics.panel_rows(4, 2);
+        assert_eq!(scene.seat_panels.len(), 2, "{:?}", scene.dropped);
+        for (_, rect) in &scene.seat_panels {
+            assert_eq!((rect.width, rect.height), (w, h));
+        }
+        let pad = i32::try_from(metrics.pad).expect("pad");
+        let (cell_w, row) = (
+            i32::try_from(metrics.cell).expect("cell"),
+            i32::try_from(metrics.row).expect("row"),
+        );
+        for (slot, rect) in &scene.seat_panels {
+            let at = |id: &str| {
+                scene
+                    .cell_rects
+                    .iter()
+                    .find(|(s, i, _)| s == slot && i == id)
+                    .map(|(_, _, r)| ((r.x - rect.x - pad) / cell_w, (r.y - rect.y - pad) / row))
+            };
+            assert_eq!(at("vpip"), Some((0, 0)));
+            assert_eq!(at("three_bet"), Some((3, 0)));
+            assert_eq!(at("fold_to_three_bet"), Some((1, 1)));
+            assert_eq!(at("cbet_flop"), None, "not in the design");
+            if *slot == 0 {
+                assert_eq!(at("pfr"), Some((2, 0)));
+            } else {
+                assert_eq!(at("pfr"), None, "left out: its slot stays blank");
+            }
+        }
     }
 
     /// Six panels on a 6-max table: one per seat, each next to its seat's

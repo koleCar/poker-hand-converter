@@ -13,17 +13,23 @@
  * elsewhere brings that window forward; the arrow keys swap the hand in it
  * and keep the keyboard in the list. Closing the window lets go of the
  * hand; a tag or note changed there shows on its row here.
+ *
+ * Several hands can be chosen (Cmd/Ctrl or Shift + click); a right click
+ * replays them - the window steps through them in its sidebar, and the row
+ * of the hand it shows is marked here - or saves them as a .txt
+ * (`components/HandActions`).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HandsScreen } from "@rail/ui/hands/HandsScreen";
 import type { HandList } from "@rail/ui/hands/useHandList";
 
+import { useHandActions } from "../components/HandActions";
 import { RecomputeNotice, useRecompute } from "../components/RecomputeNotice";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { useRowHeight } from "../lib/appearance";
 import { storeHandsSource } from "../lib/handsSource";
-import { inApp, ipc, onHandAnnotated, onReplayerClosed } from "../lib/ipc";
+import { inApp, ipc, onHandAnnotated, onReplayerClosed, onReplayerShowing } from "../lib/ipc";
 import { replaceParam, useRouteParam } from "../lib/router";
 import { EMPTY_FILTER, onFilterRequested, takeRequestedFilter, type FilterState } from "./hands/filter";
 import styles from "./hands/HandsApp.module.css";
@@ -80,9 +86,18 @@ export function Hands() {
     }
   }, []);
 
+  // A hand the window moved to itself (below): it already shows it, and
+  // telling it again could take it back from a later step.
+  const followed = useRef<string | null>(null);
+
   // The hand in the address is the one in the replayer window.
   useEffect(() => {
     if (!inApp || selected === null) return;
+    if (followed.current === selected) {
+      followed.current = null;
+      focusNext.current = true;
+      return;
+    }
     const focus = focusNext.current;
     focusNext.current = true;
     ipc.replayerOpen(selected, focus).catch(() => undefined);
@@ -97,6 +112,20 @@ export function Hands() {
       }),
     [],
   );
+
+  // The window stepped to another hand (its list): that row is marked,
+  // without bringing the window forward.
+  useEffect(
+    () =>
+      onReplayerShowing((handKey) => {
+        if (shown.current === handKey) return;
+        followed.current = handKey;
+        replaceParam("hands", handKey);
+      }),
+    [],
+  );
+
+  const actions = useHandActions();
 
   // A tag or note changed in the window: its row shows it.
   useEffect(
@@ -117,6 +146,7 @@ export function Hands() {
   }
 
   return (
+    <>
     <HandsScreen
       fill
       source={storeHandsSource}
@@ -134,6 +164,9 @@ export function Hands() {
       densityKey={rowHeight}
       notice={<RecomputeNotice status={rebuild} filling={t.hands.rebuilding} className={styles.notice} />}
       renderState={(kind, text) => <StateMessage kind={kind}>{text}</StateMessage>}
+      onRowsMenu={actions.openMenu}
     />
+    {actions.element}
+    </>
   );
 }

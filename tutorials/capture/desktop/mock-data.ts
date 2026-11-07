@@ -783,10 +783,11 @@ const RULES: Record<string, HudRestrictions> = {};
 function checkForRoom(design: HudDesign, rules: HudRestrictions, stats: readonly HudStat[]) {
   const out: HudCheck['problems'] = [];
   if (rules.noGameStateSwitching) {
-    for (const cell of design.cells) if (cell.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
+    for (const cell of design.cells) if (cell?.when) out.push({ code: 'gameStateSwitching', stat: cell.stat });
   }
   if (rules.maxColourThresholds !== null) {
     for (const cell of design.cells) {
+      if (!cell) continue;
       const stat = stats.find((s) => s.id === cell.stat);
       if (!stat) continue;
       const bands = design.overrides?.[cell.stat]?.bands ?? stat.bands;
@@ -1381,7 +1382,7 @@ export function buildMockData(now = Date.now()): MockData {
     checks,
     positions: [{ site: 'pokerstars', size: 6, panels: 1 }],
     roomSettings: hudRooms.map((room) => ({ site: room.id, preferredSeat: null })),
-    limits: { maxCells: 12, maxColumns: 6, maxDecimals: 2, maxPopupSections: 8, maxPopupStats: 40 },
+    limits: { maxCells: 12, maxColumns: 6, maxRows: 12, maxDecimals: 2, maxPopupSections: 8, maxPopupStats: 40 },
   };
 
   /* Players. */
@@ -1829,7 +1830,7 @@ export function buildMockData(now = Date.now()): MockData {
       total: 3,
       retryable: { hands: 0, files: 0 },
     },
-    quarantineEntries: { entries: [], truncated: false },
+    quarantineEntries: { entries: [], truncated: false, total: 0 },
     customStats: {
       stats: [],
       fields: [],

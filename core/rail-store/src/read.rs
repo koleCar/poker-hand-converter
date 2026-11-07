@@ -388,12 +388,26 @@ impl Reader {
     }
 
     /// The quarantine filtered by folder and / or reason code, most recent
-    /// first, without the raw text: the app-wide "Refused hands" view
-    /// (R1.6) lists one reason at a time.
+    /// first, without the raw text: the first `limit` of
+    /// [`Reader::quarantine_page`].
     pub fn quarantine_filtered(
         &self,
         source_id: Option<i64>,
         reason: Option<&str>,
+        limit: u32,
+    ) -> Result<Vec<QuarantineEntry>> {
+        self.quarantine_page(source_id, reason, 0, limit)
+    }
+
+    /// One page of the quarantine filtered by folder and / or reason code:
+    /// `limit` entries after the first `offset`, most recent first, without
+    /// the raw text. The app's "Refused hands" screen (R1.6) pages through
+    /// it; [`Reader::quarantine_filtered_count`] is the total.
+    pub fn quarantine_page(
+        &self,
+        source_id: Option<i64>,
+        reason: Option<&str>,
+        offset: u32,
         limit: u32,
     ) -> Result<Vec<QuarantineEntry>> {
         self.with(|conn| {
@@ -404,13 +418,29 @@ impl Reader {
                  FROM quarantine q JOIN files f ON f.id = q.file_id
                  WHERE (?2 IS NULL OR f.source_id = ?2) AND (?3 IS NULL OR q.reason = ?3)
                  ORDER BY q.last_seen DESC, q.id DESC
-                 LIMIT ?1",
+                 LIMIT ?1 OFFSET ?5",
             )?;
             let rows = stmt.query_map(
-                params![limit, source_id, reason, HEADER_CHARS],
+                params![limit, source_id, reason, HEADER_CHARS, offset],
                 quarantine_row,
             )?;
             Ok(rows.collect::<Result<_, _>>()?)
+        })
+    }
+
+    /// How many refused hands match the filter of [`Reader::quarantine_page`].
+    pub fn quarantine_filtered_count(
+        &self,
+        source_id: Option<i64>,
+        reason: Option<&str>,
+    ) -> Result<i64> {
+        self.with(|conn| {
+            Ok(conn.query_row(
+                "SELECT count(*) FROM quarantine q JOIN files f ON f.id = q.file_id
+                 WHERE (?1 IS NULL OR f.source_id = ?1) AND (?2 IS NULL OR q.reason = ?2)",
+                params![source_id, reason],
+                |row| row.get(0),
+            )?)
         })
     }
 

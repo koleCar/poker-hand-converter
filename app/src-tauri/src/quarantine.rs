@@ -5,8 +5,9 @@
 //! - `quarantine_summary(sourceId?)`: counts per reason code, app-wide or
 //!   for one folder, and how many refused hands an older parser version
 //!   refused ("Try again after an update" would read them again);
-//! - `quarantine_entries(sourceId?, reason?)`: the most recent refused
-//!   hands, filtered by folder and / or reason (no raw text);
+//! - `quarantine_entries(sourceId?, reason?, offset?, limit?)`: a page of refused
+//!   hands, most recent first, filtered by folder and / or reason, with the
+//!   filter's total (no raw text);
 //! - `quarantine_raw_text(id)`: one refused hand's text, for the dialog;
 //! - `retry_refused(sourceId?)`: reset and read again the files holding
 //!   refusals by an older parser version (`Watcher::retry_refused`).
@@ -90,8 +91,37 @@ pub async fn quarantine_summary(
 #[serde(rename_all = "camelCase")]
 pub struct QuarantineList {
     entries: Vec<RefusedHand>,
-    /// More match than are listed.
+    /// More match than are listed (after this page).
     truncated: bool,
+    /// How many match the filter, on every page.
+    total: i64,
+}
+
+/// One page of refused hands, filtered by folder and / or reason: `limit`
+/// (at most [`QUARANTINE_LIMIT`], the default) after the first `offset`
+/// (default 0), most recent first, with the filter's total.
+pub fn page(
+    store: &rail_store::Store,
+    source_id: Option<i64>,
+    reason: Option<&str>,
+    offset: Option<u32>,
+    limit: Option<u32>,
+) -> rail_store::Result<QuarantineList> {
+    let offset = offset.unwrap_or(0);
+    let limit = limit.unwrap_or(QUARANTINE_LIMIT).clamp(1, QUARANTINE_LIMIT);
+    let reader = store.reader();
+    let entries: Vec<RefusedHand> = reader
+        .quarantine_page(source_id, reason, offset, limit)?
+        .into_iter()
+        .map(RefusedHand::from)
+        .collect();
+    let total = reader.quarantine_filtered_count(source_id, reason)?;
+    let listed = i64::from(offset).saturating_add(i64::try_from(entries.len()).unwrap_or(i64::MAX));
+    Ok(QuarantineList {
+        entries,
+        truncated: listed < total,
+        total,
+    })
 }
 
 #[tauri::command]
@@ -99,23 +129,11 @@ pub async fn quarantine_entries(
     store: State<'_, StoreState>,
     source_id: Option<i64>,
     reason: Option<String>,
+    offset: Option<u32>,
+    limit: Option<u32>,
 ) -> Result<QuarantineList, String> {
-    let store = open(&store)?;
-    let entries: Vec<RefusedHand> = store
-        .reader()
-        .quarantine_filtered(source_id, reason.as_deref(), QUARANTINE_LIMIT + 1)
-        .map_err(|error| error.to_string())?
-        .into_iter()
-        .map(RefusedHand::from)
-        .collect();
-    let truncated = entries.len() > usize::try_from(QUARANTINE_LIMIT).unwrap_or(usize::MAX);
-    Ok(QuarantineList {
-        entries: entries
-            .into_iter()
-            .take(usize::try_from(QUARANTINE_LIMIT).unwrap_or(usize::MAX))
-            .collect(),
-        truncated,
-    })
+    page(open(&store)?, source_id, reason.as_deref(), offset, limit)
+        .map_err(|error| error.to_string())
 }
 
 /// One refused hand's raw text (the chunk the core could not read), or
@@ -183,6 +201,16 @@ mod tests {
         assert_eq!(one.total, 1);
         assert_eq!(one.reasons.len(), 1);
         assert_eq!(one.retryable.hands, 0, "refused by today's parser");
+        let listed = page(store, Some(id), None, None, None).expect("page");
+        assert_eq!(
+            (listed.entries.len(), listed.total, listed.truncated),
+            (1, 1, false)
+        );
+        let past = page(store, Some(id), None, Some(1), Some(50)).expect("page");
+        assert_eq!(
+            (past.entries.len(), past.total, past.truncated),
+            (0, 1, false)
+        );
         drop(state);
         let _ = std::fs::remove_dir_all(&dir);
     }

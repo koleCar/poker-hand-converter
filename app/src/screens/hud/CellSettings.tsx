@@ -1,64 +1,107 @@
 /**
- * The settings of the panel cell picked (R3.9): what the statistic is, how
- * many decimals, from how many hands it takes full colour, its colour bands
- * (the definition's, or the user's own - drawn as the strip of colours the
- * HUD uses) and whether it shows only at some stack depths.
+ * A panel cell's settings (R3.9), in a popover by the cell they belong to -
+ * on the panel's grid or on a number of the preview. Rows, the name on the
+ * left and the control on the right: the decimals; from how many hands it
+ * takes full colour (`StatOverride.minSample`); its colour limits as
+ * presets - Suggested (the definition's bands), Tighter game, Looser game -
+ * or Custom (number inputs filled with the preset picked); a value to try
+ * against them; and whether it shows only at some stack depths
+ * (`Cell.when`). Escape or a click elsewhere closes it; Tab stays inside.
  */
-import { useId, useState } from "react";
-import type { StatTone } from "@rail/ui/model/stats";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { useLocale, useT } from "../../i18n";
 import type { DesignBand, DesignCell, HudStat, StatOverride } from "../../lib/ipc";
+import { Toggle } from "../settings/Toggle";
 import styles from "./HudEditor.module.css";
 
-const TONES: readonly StatTone[] = ["very-low", "low", "normal", "high", "very-high"];
+type Preset = "suggested" | "tighter" | "looser";
+const PRESETS: readonly Preset[] = ["suggested", "tighter", "looser"];
 
-/** One band as the form holds it: the limit as typed. */
-interface BandForm {
-  below: string;
-  tone: StatTone;
+/**
+ * Tighter and Looser from Suggested: every limit times 0.87 (a tighter
+ * game: the same play reads looser against it, so every limit comes down
+ * by about an eighth) or times 1.15 (a looser game: up by about a seventh),
+ * rounded to as many decimals as the suggested limit is written with; a
+ * limit that rounds onto the one below it goes one step (a unit of its last
+ * decimal) above it, so the limits still go up. The colours stay the
+ * definition's. Stored as the user's bands (`StatOverride.bands`), which
+ * the Rust side checks like any other.
+ */
+const FACTOR: Record<Exclude<Preset, "suggested">, number> = { tighter: 0.87, looser: 1.15 };
+
+const decimalsOf = (n: number) => {
+  const text = String(n);
+  const dot = text.indexOf(".");
+  return dot < 0 || text.includes("e") ? 0 : text.length - dot - 1;
+};
+const round = (n: number, decimals: number) => Number(n.toFixed(decimals));
+
+function scaled(bands: readonly DesignBand[], factor: number): DesignBand[] {
+  let previous = -Infinity;
+  return bands.map((band) => {
+    if (band.below === undefined) return { ...band };
+    const decimals = decimalsOf(band.below);
+    let below = round(band.below * factor, decimals);
+    if (below <= previous) below = round(previous + 10 ** -decimals, decimals);
+    previous = below;
+    return { ...band, below };
+  });
 }
 
-const formOf = (bands: readonly DesignBand[]): BandForm[] =>
-  bands.map((band) => ({ below: band.below === undefined ? "" : String(band.below), tone: band.tone }));
+const bandsOf = (suggested: readonly DesignBand[], preset: Preset): DesignBand[] =>
+  preset === "suggested" ? suggested.map((band) => ({ ...band })) : scaled(suggested, FACTOR[preset]);
 
-/** The strip of colours: each band's share, its tone, the limits between. */
-function BandStrip({ bands }: { bands: readonly BandForm[] }) {
-  const h = useT().hudEditor;
-  if (bands.length === 0) return <p className={styles.hint}>{h.bandsNone}</p>;
+const same = (a: readonly DesignBand[], b: readonly DesignBand[]) =>
+  a.length === b.length && a.every((band, i) => band.tone === b[i]?.tone && band.below === b[i]?.below);
+
+/** Which preset `own` is (`undefined`: Suggested), or custom. */
+function presetOf(own: readonly DesignBand[] | undefined, suggested: readonly DesignBand[]): Preset | "custom" {
+  if (own === undefined) return "suggested";
+  return PRESETS.find((preset) => suggested.length > 0 && same(own, bandsOf(suggested, preset))) ?? "custom";
+}
+
+const limitsOf = (bands: readonly DesignBand[]) =>
+  bands.filter((band): band is DesignBand & { below: number } => band.below !== undefined).map((band) => band.below);
+
+/** The band a value falls in (`DisplayStat::tone`'s rule: below the first limit it is under). */
+const toneAt = (bands: readonly DesignBand[], value: number) =>
+  bands.find((band) => band.below === undefined || value < band.below)?.tone;
+
+/** The strip of colours: each band's share of the range its limits span. */
+function BandBar({ bands }: { bands: readonly DesignBand[] }) {
+  const limits = limitsOf(bands);
+  const low = Math.min(0, ...limits);
+  const high = (limits.at(-1) ?? 1) * 1.25 || 1;
+  const ends = bands.map((band) => band.below ?? high);
   return (
-    <div className={styles.bandStrip} aria-hidden="true">
-      {bands.map((band, i) => (
-        <div key={i} className={styles.bandPart} data-tone={band.tone}>
-          <span className={styles.bandSwatch} />
-          <span className={styles.bandLimit}>
-            {i === bands.length - 1 ? h.bandRest : band.below === "" ? "…" : h.bandBelowShort(band.below)}
-          </span>
-        </div>
-      ))}
-    </div>
+    <span className={styles.bandBar} aria-hidden="true">
+      {bands.map((band, i) => {
+        const share = Math.max((ends[i] ?? high) - (i === 0 ? low : (ends[i - 1] ?? low)), (high - low) * 0.06);
+        return <span key={i} data-tone={band.tone} style={{ flexGrow: share }} />;
+      })}
+    </span>
   );
 }
 
 export function CellSettings({
-  index,
+  anchor,
   cell,
   stat,
   override,
   maxDecimals,
-  count,
-  onMove,
+  onClose,
   onRemove,
   onCell,
   onOverride,
 }: {
-  index: number;
+  /** What it opens by: a panel cell, a number on the preview. */
+  anchor: Element;
   cell: DesignCell;
   stat: HudStat | undefined;
   override: StatOverride;
   maxDecimals: number;
-  count: number;
-  onMove: (to: number) => void;
+  onClose: () => void;
   onRemove: () => void;
   onCell: (next: DesignCell) => void;
   onOverride: (next: StatOverride) => void;
@@ -66,238 +109,313 @@ export function CellSettings({
   const h = useT().hudEditor;
   const locale = useLocale();
   const id = useId();
-  const [bands, setBands] = useState<BandForm[]>(() => formOf(override.bands ?? stat?.bands ?? []));
-  const own = override.bands !== undefined;
-  const shown = own ? bands : formOf(stat?.bands ?? []);
+  const box = useRef<HTMLDivElement>(null);
+  const [place, setPlace] = useState<{ top: number; left: number } | null>(null);
+  const suggested = stat?.bands ?? [];
+  const own = override.bands;
+  const [custom, setCustom] = useState(() => presetOf(own, suggested) === "custom");
+  const picked = custom ? "custom" : presetOf(own, suggested);
+  const bands = own ?? suggested;
+  const [limitText, setLimitText] = useState<string[]>(() => limitsOf(bands).map(String));
+  const [tried, setTried] = useState("");
+  const sample = override.minSample ?? stat?.minSample ?? 0;
+  const labelText = stat?.label[locale] ?? cell.stat;
 
-  const commitBands = (next: BandForm[]) => {
-    setBands(next);
-    const parsed: DesignBand[] = next.map((band, i) =>
-      i === next.length - 1 || band.below.trim() === ""
-        ? { tone: band.tone }
-        : { below: Number(band.below.replace(",", ".")), tone: band.tone },
-    );
-    onOverride({ ...override, bands: parsed });
+  // By the anchor: to its right when there is room, else to its left, else
+  // under it; kept on screen. Again on every render (the cell may move) and
+  // when the page scrolls or resizes.
+  const position = () => {
+    const el = box.current;
+    if (!el || !anchor.isConnected) return;
+    const a = anchor.getBoundingClientRect();
+    const { offsetWidth: w, offsetHeight: hgt } = el;
+    const gap = 12;
+    const margin = 8;
+    let left = a.right + gap;
+    let top = a.top - 16;
+    if (left + w > window.innerWidth - margin) left = a.left - gap - w;
+    if (left < margin) {
+      left = Math.max(margin, Math.min(a.left, window.innerWidth - w - margin));
+      top = a.bottom + gap;
+    }
+    top = Math.max(margin, Math.min(top, window.innerHeight - hgt - margin));
+    setPlace((old) => (old && old.top === top && old.left === left ? old : { top, left }));
+  };
+  useLayoutEffect(position);
+  useEffect(() => {
+    const again = () => position();
+    window.addEventListener("scroll", again, true);
+    window.addEventListener("resize", again);
+    return () => {
+      window.removeEventListener("scroll", again, true);
+      window.removeEventListener("resize", again);
+    };
+  });
+
+  // Back to what opened it: the cell, or the preview panel the number is on.
+  const close = () => {
+    onClose();
+    const back = anchor.closest<HTMLElement | SVGElement>("button, [tabindex]");
+    back?.focus();
+  };
+  // A click outside closes it (the anchor's own click toggles it).
+  useEffect(() => {
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!box.current?.contains(target) && !anchor.contains(target)) onClose();
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [anchor, onClose]);
+  // Focus moves in once it is placed (to the popover itself: Tab goes on
+  // to its first control).
+  const placed = place !== null;
+  useEffect(() => {
+    if (placed) box.current?.focus();
+  }, [placed]);
+
+  const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const all = [...(box.current?.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled), select") ?? [])];
+    const first = all[0];
+    const last = all.at(-1);
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === box.current)) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  };
+
+  const pick = (preset: Preset | "custom") => {
+    if (preset === "custom") {
+      setCustom(true);
+      const start = bandsOf(suggested, picked === "custom" ? "suggested" : picked);
+      setLimitText(limitsOf(own ?? start).map(String));
+      onOverride({ ...override, bands: own ?? start });
+      return;
+    }
+    setCustom(false);
+    setLimitText(limitsOf(bandsOf(suggested, preset)).map(String));
+    onOverride({ ...override, bands: preset === "suggested" ? undefined : bandsOf(suggested, preset) });
+  };
+  const setLimit = (index: number, text: string) => {
+    const next = limitText.map((value, i) => (i === index ? text : value));
+    setLimitText(next);
+    let at = 0;
+    const edited = bands.map((band) => {
+      if (band.below === undefined) return { tone: band.tone };
+      const value = Number((next[at++] ?? "").replace(",", "."));
+      return { tone: band.tone, below: Number.isFinite(value) ? value : band.below };
+    });
+    onOverride({ ...override, bands: edited });
+  };
+  const setSample = (value: number) => {
+    const n = Math.max(0, Math.round(value));
+    onOverride({ ...override, minSample: n === stat?.minSample ? undefined : n });
   };
 
   const decimalChoices: (number | "default")[] = ["default", ...Array.from({ length: maxDecimals + 1 }, (_, i) => i)];
+  const triedValue = Number(tried.replace(",", "."));
+  const triedTone = tried.trim() !== "" && Number.isFinite(triedValue) ? toneAt(bands, triedValue) : undefined;
+  const coloured = suggested.length > 0 || own !== undefined;
 
   return (
-    <div className={styles.settings}>
-      <header className={styles.inspectorHead}>
-        <div className={styles.inspectorName}>
-          <span className={styles.inspectorLabel}>{stat?.label[locale] ?? cell.stat}</span>
-          <span className={styles.inspectorTitle}>{stat?.name[locale] ?? cell.stat}</span>
-        </div>
-        <div className={styles.iconRow}>
-          <button
-            type="button"
-            className={styles.iconButton}
-            disabled={index === 0}
-            aria-label={h.moveEarlier}
-            title={h.moveEarlier}
-            onClick={() => onMove(index - 1)}
-          >
-            ←
-          </button>
-          <button
-            type="button"
-            className={styles.iconButton}
-            disabled={index >= count - 1}
-            aria-label={h.moveLater}
-            title={h.moveLater}
-            onClick={() => onMove(index + 1)}
-          >
-            →
-          </button>
-          <button type="button" className={`${styles.iconButton} ${styles.iconDanger}`} onClick={onRemove}>
-            {h.remove}
-          </button>
-        </div>
+    <div
+      ref={box}
+      className={styles.popover}
+      role="dialog"
+      tabIndex={-1}
+      aria-label={h.cellSettings(labelText)}
+      style={place ? { top: place.top, left: place.left } : { opacity: 0, pointerEvents: "none" }}
+      onKeyDown={onKey}
+    >
+      <header className={styles.popHead}>
+        <span className={styles.popTitle}>
+          <strong>{labelText}</strong>
+          <span>{stat?.name[locale] ?? ""}</span>
+        </span>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={onRemove}>
+          {h.remove}
+        </button>
       </header>
-      {stat?.description[locale] ? <p className={styles.inspectorText}>{stat.description[locale]}</p> : null}
 
-      <div className={styles.group}>
-        <h4 className={styles.groupLabel}>{h.display}</h4>
-        <div className={styles.inlineField}>
-          <span className={styles.fieldLabel} id={`${id}-dec`}>
-            {h.decimals}
-          </span>
-          <div className={styles.segmented} role="radiogroup" aria-labelledby={`${id}-dec`}>
-            {decimalChoices.map((choice) => {
-              const on = (override.decimals ?? "default") === choice;
-              return (
-                <button
-                  key={choice}
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  className={on ? `${styles.segment} ${styles.segmentOn}` : styles.segment}
-                  onClick={() => onOverride({ ...override, decimals: choice === "default" ? undefined : choice })}
-                >
-                  {choice === "default" ? h.decimalsDefault : choice}
-                </button>
-              );
-            })}
-          </div>
+      <div className={styles.popRow}>
+        <span id={`${id}-dec`}>{h.decimals}</span>
+        <div className={styles.pills} role="radiogroup" aria-labelledby={`${id}-dec`}>
+          {decimalChoices.map((choice) => {
+            const on = (override.decimals ?? "default") === choice;
+            return (
+              <button
+                key={choice}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                className={`chip-btn${on ? " is-active" : ""}`}
+                onClick={() => onOverride({ ...override, decimals: choice === "default" ? undefined : choice })}
+              >
+                {choice === "default" ? h.decimalsDefault : choice}
+              </button>
+            );
+          })}
         </div>
-        <label className={styles.inlineField}>
-          <span className={styles.fieldLabel}>{h.minSample}</span>
-          <span className={styles.withUnit}>
+      </div>
+
+      <div className={styles.popRow}>
+        <span id={`${id}-sample`}>{h.minSample}</span>
+        <div className={styles.stepper} role="group" aria-labelledby={`${id}-sample`}>
+          <button type="button" aria-label={h.fewerHands} onClick={() => setSample(sample - 10)} disabled={sample <= 0}>
+            −
+          </button>
+          <span className={styles.stepValue}>
             <input
               type="number"
               min={0}
-              className={styles.inputNarrow}
-              value={override.minSample ?? ""}
-              placeholder={String(stat?.minSample ?? "")}
+              aria-label={h.minSample}
+              value={sample}
+              onChange={(event) => setSample(Number(event.target.value))}
+            />
+            <span>{h.minSampleUnit}</span>
+          </span>
+          <button type="button" aria-label={h.moreHands} onClick={() => setSample(sample + 10)}>
+            +
+          </button>
+        </div>
+      </div>
+
+      {coloured ? (
+        <div className={styles.presets} role="radiogroup" aria-label={h.bands}>
+          {suggested.length > 0
+            ? PRESETS.map((preset) => {
+                const shown = bandsOf(suggested, preset);
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    role="radio"
+                    aria-checked={picked === preset}
+                    className={picked === preset ? `${styles.preset} ${styles.presetOn}` : styles.preset}
+                    onClick={() => pick(preset)}
+                  >
+                    <span className={styles.radio} aria-hidden="true" />
+                    <span className={styles.presetName}>{h.bandPresets[preset]}</span>
+                    <BandBar bands={shown} />
+                    <span className={styles.presetLimits}>{limitsOf(shown).join(" · ")}</span>
+                  </button>
+                );
+              })
+            : null}
+          {picked === "custom" ? (
+            <div className={`${styles.preset} ${styles.presetOn} ${styles.presetCustom}`}>
+              <div className={styles.customHead}>
+                <span className={styles.radioOn} aria-hidden="true" />
+                <span className={styles.presetName}>{h.bandPresets.custom}</span>
+                <button type="button" className={styles.linkButton} onClick={() => pick("suggested")}>
+                  {h.resetSuggested}
+                </button>
+              </div>
+              <BandBar bands={bands} />
+              <div className={styles.customLimits}>
+                {limitText.map((text, i) => (
+                  <input
+                    key={i}
+                    className={styles.limitInput}
+                    inputMode="decimal"
+                    aria-label={h.bandLimit(i + 1)}
+                    value={text}
+                    onChange={(event) => setLimit(i, event.target.value)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              role="radio"
+              aria-checked={false}
+              className={`${styles.preset} ${styles.presetMore}`}
+              onClick={() => pick("custom")}
+            >
+              {h.bandPresets.customMore}
+            </button>
+          )}
+        </div>
+      ) : (
+        <p className={styles.hint}>{h.bandsNone}</p>
+      )}
+
+      {coloured ? (
+        <div className={styles.popRow}>
+          <label htmlFor={`${id}-try`}>{h.tryValue}</label>
+          <span className={styles.tryValue}>
+            <input
+              id={`${id}-try`}
+              className={styles.limitInput}
+              inputMode="decimal"
+              value={tried}
+              onChange={(event) => setTried(event.target.value)}
+            />
+            <span className={styles.toneChip} data-tone={triedTone} aria-live="polite">
+              {triedTone ? h.tones[triedTone] : "—"}
+            </span>
+          </span>
+        </div>
+      ) : null}
+
+      <div className={styles.popRow}>
+        <label htmlFor={`${id}-stack`} title={h.stackHint}>
+          {h.stack}
+        </label>
+        <Toggle
+          id={`${id}-stack`}
+          checked={cell.when !== undefined}
+          onChange={(on) => onCell(on ? { ...cell, when: { atLeastBb: 20 } } : { stat: cell.stat })}
+        />
+      </div>
+      {cell.when ? (
+        <div className={styles.popRow}>
+          <span className={styles.hintWarn}>{h.stackHint}</span>
+          <span className={styles.stackRange}>
+            <input
+              type="number"
+              min={1}
+              max={1000}
+              className={styles.limitInput}
+              aria-label={h.stackAtLeast}
+              value={cell.when.atLeastBb ?? ""}
               onChange={(event) =>
-                onOverride({
-                  ...override,
-                  minSample: event.target.value === "" ? undefined : Math.max(0, Math.floor(Number(event.target.value))),
+                onCell({
+                  ...cell,
+                  when: { ...cell.when, atLeastBb: event.target.value === "" ? undefined : Number(event.target.value) },
                 })
               }
             />
-            <span className={styles.unit}>{h.minSampleUnit}</span>
+            <span>{h.stackTo}</span>
+            <input
+              type="number"
+              min={1}
+              max={1000}
+              className={styles.limitInput}
+              aria-label={h.stackBelow}
+              value={cell.when.belowBb ?? ""}
+              onChange={(event) =>
+                onCell({
+                  ...cell,
+                  when: { ...cell.when, belowBb: event.target.value === "" ? undefined : Number(event.target.value) },
+                })
+              }
+            />
+            <span>{h.stackUnit}</span>
           </span>
-        </label>
-      </div>
-
-      <div className={styles.group}>
-        <div className={styles.groupHead}>
-          <h4 className={styles.groupLabel}>{h.bands}</h4>
-          <label className={styles.toggle}>
-            <input
-              type="checkbox"
-              checked={own}
-              onChange={(event) => {
-                if (event.target.checked) {
-                  commitBands(bands.length > 0 ? bands : [{ below: "", tone: "normal" }]);
-                } else {
-                  onOverride({ ...override, bands: undefined });
-                  setBands(formOf(stat?.bands ?? []));
-                }
-              }}
-            />
-            <span>{h.bandsOwn}</span>
-          </label>
         </div>
-        <BandStrip bands={shown} />
-        {own ? (
-          <>
-            <p className={styles.hint}>{h.bandsHint}</p>
-            {bands.map((band, i) => {
-              const last = i === bands.length - 1;
-              return (
-                <div key={i} className={styles.bandRow}>
-                  <span className={styles.bandDot} data-tone={band.tone} aria-hidden="true" />
-                  <select
-                    className={styles.inputSm}
-                    value={band.tone}
-                    aria-label={h.bandTone(i + 1)}
-                    onChange={(event) =>
-                      commitBands(bands.map((b, j) => (j === i ? { ...b, tone: event.target.value as StatTone } : b)))
-                    }
-                  >
-                    {TONES.map((tone) => (
-                      <option key={tone} value={tone}>
-                        {h.tones[tone]}
-                      </option>
-                    ))}
-                  </select>
-                  {last ? (
-                    <span className={styles.unit}>{h.bandRest}</span>
-                  ) : (
-                    <span className={styles.withUnit}>
-                      <span className={styles.unit}>{h.bandBelowWord}</span>
-                      <input
-                        className={styles.inputNarrow}
-                        inputMode="decimal"
-                        value={band.below}
-                        aria-label={h.bandBelow(i + 1)}
-                        onChange={(event) =>
-                          commitBands(bands.map((b, j) => (j === i ? { ...b, below: event.target.value } : b)))
-                        }
-                      />
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className={styles.iconButton}
-                    aria-label={h.removeBand(i + 1)}
-                    title={h.removeBand(i + 1)}
-                    disabled={bands.length <= 1}
-                    onClick={() => commitBands(bands.filter((_, j) => j !== i))}
-                  >
-                    ×
-                  </button>
-                </div>
-              );
-            })}
-            <button
-              type="button"
-              className={styles.linkButton}
-              disabled={bands.length >= 5}
-              onClick={() => commitBands([...bands.slice(0, -1), { below: "", tone: "normal" }, ...bands.slice(-1)])}
-            >
-              + {h.addBand}
-            </button>
-          </>
-        ) : null}
-      </div>
-
-      <div className={styles.group}>
-        <div className={styles.groupHead}>
-          <h4 className={styles.groupLabel}>{h.stackLegend}</h4>
-          <label className={styles.toggle}>
-            <input
-              type="checkbox"
-              checked={cell.when !== undefined}
-              aria-describedby={`${id}-stack`}
-              onChange={(event) => onCell(event.target.checked ? { ...cell, when: { belowBb: 20 } } : { stat: cell.stat })}
-            />
-            <span>{h.stack}</span>
-          </label>
-        </div>
-        {cell.when ? (
-          <div className={styles.row}>
-            <label className={styles.inlineField}>
-              <span className={styles.fieldLabel}>{h.stackAtLeast}</span>
-              <input
-                type="number"
-                min={1}
-                max={1000}
-                className={styles.inputNarrow}
-                value={cell.when.atLeastBb ?? ""}
-                onChange={(event) =>
-                  onCell({
-                    ...cell,
-                    when: { ...cell.when, atLeastBb: event.target.value === "" ? undefined : Number(event.target.value) },
-                  })
-                }
-              />
-            </label>
-            <label className={styles.inlineField}>
-              <span className={styles.fieldLabel}>{h.stackBelow}</span>
-              <input
-                type="number"
-                min={1}
-                max={1000}
-                className={styles.inputNarrow}
-                value={cell.when.belowBb ?? ""}
-                onChange={(event) =>
-                  onCell({
-                    ...cell,
-                    when: { ...cell.when, belowBb: event.target.value === "" ? undefined : Number(event.target.value) },
-                  })
-                }
-              />
-            </label>
-          </div>
-        ) : null}
-        <p id={`${id}-stack`} className={styles.hintWarn}>
-          {h.stackHint}
-        </p>
-      </div>
+      ) : null}
     </div>
   );
 }

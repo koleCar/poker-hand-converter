@@ -1240,10 +1240,20 @@ struct Saved {
 
 const LEAK_SPOTS: [(&str, &str); 3] = [
     ("preflop|vs-open|ffffr|BB|fold|call", "nlhe-cash-6max-100bb"),
-    ("flop|ip-pfr||BTN|check|bet", ""),
+    // A postflop row's set is its hand's table (migration 20).
+    ("flop|ip-pfr||BTN|check|bet", "nlhe-cash-hu-100bb"),
     ("river|oop-caller||BB|call|fold", ""),
 ];
 const LEAK_GRADES: [&str; 5] = ["perfect", "good", "inaccurate", "mistake", "blunder"];
+
+/// A saved row's pot tag as `analysis_leaks` returns it: postflop only.
+fn pot_tag_of(s: &Saved) -> String {
+    match (s.spot.starts_with("preflop|"), s.pot.as_str()) {
+        (false, "3bet") => "3bp".to_owned(),
+        (false, "4bet+") => "4bp".to_owned(),
+        _ => String::new(),
+    }
+}
 
 /// The sums the web's `analysis_leaks` returns, from the saved rows.
 #[allow(clippy::float_arithmetic)] // the sums the store adds up
@@ -1251,15 +1261,18 @@ fn expected_sample(
     saved: &[Saved],
     keep: &dyn Fn(&Saved) -> bool,
 ) -> rail_store::leaks::LeakSample {
-    let mut spots: BTreeMap<(String, String), rail_store::leaks::SpotSums> = BTreeMap::new();
+    let mut spots: BTreeMap<(String, String, String), rail_store::leaks::SpotSums> =
+        BTreeMap::new();
     let mut hands = BTreeSet::new();
     for s in saved.iter().filter(|s| keep(s)) {
         hands.insert(s.hand_key.clone());
+        let pot = pot_tag_of(s);
         let sums = spots
-            .entry((s.spot.clone(), s.set.clone()))
+            .entry((s.spot.clone(), s.set.clone(), pot.clone()))
             .or_insert_with(|| rail_store::leaks::SpotSums {
                 key: s.spot.clone(),
                 set: (!s.set.is_empty()).then(|| s.set.clone()),
+                pot: (!pot.is_empty()).then(|| pot.clone()),
                 decisions: 0,
                 non_perfect: 0,
                 mistakes: 0,
@@ -1300,8 +1313,22 @@ fn assert_sample(
     );
     for (g, w) in got.rows.iter().zip(&want.rows) {
         assert_eq!(
-            (&g.key, &g.set, g.decisions, g.non_perfect, g.mistakes),
-            (&w.key, &w.set, w.decisions, w.non_perfect, w.mistakes),
+            (
+                &g.key,
+                &g.set,
+                &g.pot,
+                g.decisions,
+                g.non_perfect,
+                g.mistakes
+            ),
+            (
+                &w.key,
+                &w.set,
+                &w.pot,
+                w.decisions,
+                w.non_perfect,
+                w.mistakes
+            ),
             "{what}"
         );
         for (a, b) in [
@@ -1326,7 +1353,7 @@ fn day_before(day: &str, days: i64) -> String {
 #[test]
 #[allow(clippy::float_arithmetic)] // the saved EV and scores
 fn the_top_leaks_sum_the_leak_rows_by_spot() {
-    use rail_store::leaks::LeakFilters;
+    use rail_store::leaks::{LeakFilters, LeakScope};
     let path = copy_of_corpus("analysis-leaks");
     let store = Store::open(&path).expect("open");
     let conn = Connection::open(&path).expect("open");
@@ -1351,7 +1378,7 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
     let mut rows = Vec::new();
     for (i, (key, played_at, format)) in hands.iter().enumerate() {
         let position = if i % 2 == 0 { "BB" } else { "BTN" };
-        let pot = if i % 4 < 2 { "single-raised" } else { "3-bet" };
+        let pot = ["single-raised", "single-raised", "3bet", "4bet+"][i % 4];
         let mut decisions = Vec::new();
         for ord in 0..2_i64 {
             let n = i + usize::try_from(ord).expect("ord");
@@ -1427,6 +1454,21 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         top.now.graded > 0 && top.was.graded > 0 && top.sample.graded > top.now.graded,
         "the sample spans both windows and more"
     );
+    // A postflop spot is one row per pot (3-bet, 4-bet+, the rest); a preflop
+    // one is never split by its pot.
+    let pots_of = |key: &str| -> BTreeSet<Option<String>> {
+        top.sample
+            .rows
+            .iter()
+            .filter(|r| r.key == key)
+            .map(|r| r.pot.clone())
+            .collect()
+    };
+    assert_eq!(
+        pots_of(LEAK_SPOTS[1].0),
+        BTreeSet::from([None, Some("3bp".to_owned()), Some("4bp".to_owned())])
+    );
+    assert_eq!(pots_of(LEAK_SPOTS[0].0), BTreeSet::from([None]));
     let thirty = reader.top_leaks(V1, &all, "30d").expect("top");
     assert_eq!(thirty.sample, thirty.now);
     assert_eq!(thirty.now, top.now);
@@ -1437,10 +1479,10 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         game_format: Some(format.clone()),
         game_kind: None,
         position: Some("BTN".to_owned()),
-        pot_type: Some("3-bet".to_owned()),
+        pot_type: Some("4bet+".to_owned()),
     };
     let filtered = reader.top_leaks(V1, &filters, "all").expect("top");
-    let keep = |s: &Saved| s.format == format && s.position == "BTN" && s.pot == "3-bet";
+    let keep = |s: &Saved| s.format == format && s.position == "BTN" && s.pot == "4bet+";
     let want = expected_sample(&saved, &keep);
     assert!(want.graded > 0, "the filters keep some rows");
     assert_sample(&filtered.sample, &want, "filtered");
@@ -1499,7 +1541,7 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
             .collect()
     };
     let examples = reader
-        .leak_examples(V1, &all, None, &keys, 100)
+        .leak_examples(V1, &all, None, &keys, &LeakScope::default(), 100)
         .expect("examples");
     assert_eq!(
         examples
@@ -1527,6 +1569,7 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
             &all,
             Some((current.0.as_str(), current.1.as_str())),
             &keys,
+            &LeakScope::default(),
             5,
         )
         .expect("examples");
@@ -1539,30 +1582,201 @@ fn the_top_leaks_sum_the_leak_rows_by_spot() {
         want
     );
 
+    // A leak's table and pot: only its own decisions (a heads-up 3-bet pot
+    // flop leak's, not the 6-max or single-raised ones on the same key).
+    let post = vec![LEAK_SPOTS[1].0.to_owned(), LEAK_SPOTS[2].0.to_owned()];
+    for (table, pot) in [
+        (Some("hu"), Some("3bp")),
+        (Some("other"), Some("other")),
+        (None, Some("4bp")),
+        (Some("hu"), None),
+    ] {
+        let scope = LeakScope {
+            table: table.map(str::to_owned),
+            pot: pot.map(str::to_owned),
+        };
+        let got: BTreeSet<(String, i64)> = reader
+            .leak_examples(V1, &all, None, &post, &scope, 30)
+            .expect("examples")
+            .into_iter()
+            .map(|e| (e.hand_key, e.ord))
+            .collect();
+        let table_of = |s: &Saved| {
+            if s.set.contains("-hu-") {
+                "hu"
+            } else {
+                "other"
+            }
+        };
+        let pot_of = |s: &Saved| match s.pot.as_str() {
+            "3bet" => "3bp",
+            "4bet+" => "4bp",
+            _ => "other",
+        };
+        let mine: Vec<&Saved> = saved
+            .iter()
+            .filter(|s| {
+                s.grade != "perfect"
+                    && post.contains(&s.spot)
+                    && table.is_none_or(|t| table_of(s) == t)
+                    && pot.is_none_or(|p| pot_of(s) == p)
+            })
+            .collect();
+        assert!(!got.is_empty(), "{table:?} {pot:?}");
+        assert_eq!(got.len(), mine.len().min(30), "{table:?} {pot:?}");
+        for key in &got {
+            assert!(
+                mine.iter().any(|s| (&s.hand_key, s.ord) == (&key.0, key.1)),
+                "{table:?} {pot:?}: {key:?}"
+            );
+        }
+    }
+
     // Refusals.
     assert!(matches!(
         reader.top_leaks(V1, &all, "90d"),
         Err(Error::OutOfRange(_))
     ));
     assert!(matches!(
-        reader.leak_examples(V1, &all, None, &["preflop|x".to_owned()], 5),
+        reader.leak_examples(
+            V1,
+            &all,
+            None,
+            &["preflop|x".to_owned()],
+            &LeakScope::default(),
+            5
+        ),
         Err(Error::OutOfRange(_))
     ));
     assert!(matches!(
-        reader.leak_examples(V1, &all, Some(("2026-13-01", "2026-12-31")), &keys, 5),
+        reader.leak_examples(
+            V1,
+            &all,
+            Some(("2026-13-01", "2026-12-31")),
+            &keys,
+            &LeakScope::default(),
+            5
+        ),
         Err(Error::OutOfRange(_))
     ));
     let many = vec![LEAK_SPOTS[1].0.to_owned(); 201];
     assert!(matches!(
-        reader.leak_examples(V1, &all, None, &many, 5),
+        reader.leak_examples(V1, &all, None, &many, &LeakScope::default(), 5),
         Err(Error::OutOfRange(_))
     ));
+    for bad in [
+        LeakScope {
+            table: Some("6max".to_owned()),
+            pot: None,
+        },
+        LeakScope {
+            table: None,
+            pot: Some("srp".to_owned()),
+        },
+    ] {
+        assert!(matches!(
+            reader.leak_examples(V1, &all, None, &keys, &bad, 5),
+            Err(Error::OutOfRange(_))
+        ));
+    }
     assert!(
         reader
-            .leak_examples(V1, &all, None, &[], 5)
+            .leak_examples(V1, &all, None, &[], &LeakScope::default(), 5)
             .expect("none")
             .is_empty()
     );
     drop(writer);
     store.close();
+}
+
+/// Migration 20 on a store analysed before it (version 19): every stored
+/// flop, turn or river leak row with no set takes its hand's table
+/// (`table_set::hand_table_set`, the web's `analysis_hand_table_set`), as the
+/// web migration's backfill does; preflop rows and postflop rows that name
+/// a set keep theirs; a second run sets nothing more.
+#[test]
+fn migration_20_gives_postflop_leak_rows_their_table() {
+    let path = copy_of_corpus("analysis-leak-table");
+    let store = Store::open(&path).expect("open");
+    let conn = Connection::open(&path).expect("open");
+    let hands: Vec<(String, Vec<u8>, i64)> = conn
+        .prepare("SELECT hand_key, phf, phf_size FROM hands ORDER BY hand_key")
+        .expect("prepare")
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+        .expect("query")
+        .collect::<Result<Vec<_>, _>>()
+        .expect("rows")
+        .into_iter()
+        .step_by(7)
+        .collect();
+    assert!(hands.len() > 300, "hands: {}", hands.len());
+    let mut rows = Vec::new();
+    for (i, (key, _, _)) in hands.iter().enumerate() {
+        let mut pre = decision(0, "preflop", Some("good"), json!([]));
+        pre.spot_key = "preflop|vs-open|ffffr|BB|call|call".to_owned();
+        pre.chart_set = "nlhe-cash-6max-100bb".to_owned();
+        let mut flop = decision(1, "flop", Some("mistake"), json!([]));
+        flop.spot_key = "flop|ip-pfr||BTN|check|bet".to_owned();
+        // Written by a build that already set it: kept.
+        flop.chart_set = if i % 10 == 0 {
+            "nlhe-cash-9max-200bb".to_owned()
+        } else {
+            String::new()
+        };
+        let mut river = decision(2, "river", Some("blunder"), json!([]));
+        river.spot_key = "river|oop-caller||BB|call|fold".to_owned();
+        river.chart_set = String::new();
+        rows.push(row(key, V1, true, vec![pre, flop, river]));
+    }
+    let writer = store.writer().expect("writer");
+    for chunk in rows.chunks(50) {
+        writer.save_analysis(chunk.to_vec(), 1_000).expect("save");
+    }
+    drop(writer);
+    store.close();
+    let before = leak_rows(&conn);
+    assert_eq!(before.len(), hands.len() * 3);
+    conn.pragma_update(None, "user_version", 19)
+        .expect("back to 19");
+
+    let store = Store::open(&path).expect("migrated");
+    store.close();
+    let after = leak_rows(&conn);
+    assert_eq!(before.len(), after.len());
+    let mut tables = BTreeSet::new();
+    for (key, phf, size) in &hands {
+        let json = rail_store::batch::decompress_phf(phf, u64::try_from(*size).expect("size"))
+            .expect("phf");
+        let phf: Value = serde_json::from_str(&json).expect("json");
+        let table = rail_store::table_set::hand_table_set(&phf);
+        for ord in 0..3_i64 {
+            let was = &before[&(key.clone(), ord)];
+            let now = &after[&(key.clone(), ord)];
+            let want = if ord == 0 || !was.is_empty() {
+                was.clone()
+            } else {
+                table.clone()
+            };
+            assert_eq!(now, &want, "{key} #{ord}");
+        }
+        tables.insert(table);
+    }
+    // The corpus reaches more than one table.
+    assert!(tables.len() >= 2, "tables: {tables:?}");
+
+    // Again from 19: nothing more to set.
+    conn.pragma_update(None, "user_version", 19)
+        .expect("back to 19");
+    Store::open(&path).expect("migrated").close();
+    assert_eq!(leak_rows(&conn), after);
+}
+
+/// Every leak row's set, by hand and decision.
+fn leak_rows(conn: &Connection) -> BTreeMap<(String, i64), String> {
+    conn.prepare("SELECT hand_key, ord, chart_set FROM analysis_leak_rows")
+        .expect("prepare")
+        .query_map([], |row| Ok(((row.get(0)?, row.get(1)?), row.get(2)?)))
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("rows")
 }

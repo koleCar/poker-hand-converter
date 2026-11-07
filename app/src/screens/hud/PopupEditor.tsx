@@ -1,21 +1,39 @@
 /**
- * The HUD editor's popup (R3.9), drawn like the popup a click on a panel
- * opens: its sections in order, each with the user's title (else its
- * group's name) and its statistics. Statistics are dragged between and
- * within sections, or in from the library; "+" in a section finds one by
- * name; a section moves up and down. Rail's own statistics only (the
- * user's are on the panel), never the hero's own or money (the popup
- * describes an opponent).
+ * The HUD editor's popup (R3.9), drawn as a click on a panel opens it at
+ * the table: dark, monospaced, its sections side by side, each with the
+ * user's title (else its group's name) and its statistics with made-up
+ * numbers. The editing shows on hover or focus only: a section's title
+ * takes a ✎ (click to rename), a dashed "+" under a section finds a
+ * statistic by name, a section moves earlier or later or goes. Statistics
+ * are dragged between and within sections, or in from the library; dropped
+ * on the empty spot after the last section they start a new one. Rail's
+ * own statistics only (the user's are on the panel), never the hero's own
+ * or money (the popup describes an opponent).
  */
 import { useEffect, useRef, useState } from "react";
 
 import { useLocale, useT } from "../../i18n";
+import { liveNumberFormat } from "../../i18n/format";
 import type { HudDesign, HudEditorState, HudStat, PopupSection } from "../../lib/ipc";
 import { useDrag, useDropZone, type DragItem } from "./drag";
 import styles from "./HudEditor.module.css";
 
 const sectionZone = (index: number) => `popup-${index}`;
 const NEW_SECTION_ZONE = "popup-new";
+
+/**
+ * A made-up number for statistic `stat` (the `index`th of the popup): the
+ * middle of one of its bands, so the popup looks like a real one; a
+ * statistic without bands gets a number between 10 and 60. Never anyone's.
+ */
+function madeUp(stat: HudStat | undefined, index: number): number {
+  const limits = (stat?.bands ?? []).flatMap((band) => (band.below === undefined ? [] : [band.below]));
+  if (limits.length === 0) return 10 + ((index * 11) % 50);
+  const at = index % limits.length;
+  const high = limits[at] ?? 1;
+  const low = at === 0 ? 0 : (limits[at - 1] ?? 0);
+  return (low + high) / 2;
+}
 
 export function PopupEditor({
   design,
@@ -33,13 +51,19 @@ export function PopupEditor({
   const locale = useLocale();
   const offered = state.stats.filter((stat) => !stat.custom && !stat.heroOnly && !stat.money);
   const offeredIds = new Set(offered.map((stat) => stat.id));
-  const label = (id: string) => state.stats.find((stat) => stat.id === id)?.label[locale] ?? id;
+  const byId = new Map(state.stats.map((stat) => [stat.id, stat]));
+  const label = (id: string) => byId.get(id)?.label[locale] ?? id;
   const total = design.popup.reduce((sum, section) => sum + section.stats.length, 0);
   const full = total >= state.limits.maxPopupStats;
   const sectionsFull = design.popup.length >= state.limits.maxPopupSections;
   const setSections = (popup: PopupSection[]) => onChange({ ...design, popup });
   const titleOf = (section: PopupSection) =>
     section.title ?? (section.group ? t.reports.stats.groups[section.group] : h.sectionTitleDefault);
+  const number = (id: string, index: number) => {
+    const stat = byId.get(id);
+    const decimals = stat?.unit === "percent" ? 0 : (stat?.decimals ?? 0);
+    return liveNumberFormat({ minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(madeUp(stat, index));
+  };
 
   /** Put `id` into section `to` at `at`, taking it out of where it was dragged from. */
   const place = (item: DragItem, to: number, at: number) => {
@@ -67,6 +91,7 @@ export function PopupEditor({
     if (item?.kind === "popup") popup[item.section]?.stats.splice(item.index, 1);
     popup.push({ stats: item ? [item.id] : [] });
     setSections(popup);
+    announce(h.announceSectionAdded);
   };
 
   useDropZone(
@@ -76,14 +101,15 @@ export function PopupEditor({
   );
 
   return (
-    <div className={styles.popupEditor}>
-      <p className={styles.hint}>{h.popupHint}</p>
-      <div className={styles.popupFrame}>
-        <div className={styles.popupHead}>
-          <span className={styles.popupPlayer}>{h.popupPlayer}</span>
-          <span className={styles.popupHands}>{h.popupHands}</span>
-        </div>
-        {design.popup.length === 0 ? <p className={styles.popupEmpty}>{h.popupEmpty}</p> : null}
+    <div className={styles.popupFrame}>
+      <div className={styles.popupHead}>
+        <span className={styles.popupPlayer}>{h.popupPlayer}</span>
+        <span className={styles.popupHands}>
+          {h.popupHands}
+          <span className={styles.popupWin}>{h.popupWinrate}</span>
+        </span>
+      </div>
+      <div className={styles.popupSections}>
         {design.popup.map((section, index) => (
           <Section
             key={index}
@@ -95,6 +121,7 @@ export function PopupEditor({
             offeredIds={offeredIds}
             full={full}
             label={label}
+            number={number}
             onPlace={(item, at) => place(item, index, at)}
             onChange={(next) => setSections(design.popup.map((s, i) => (i === index ? next : s)))}
             onMove={(to) => {
@@ -106,16 +133,13 @@ export function PopupEditor({
             onRemove={() => setSections(design.popup.filter((_, i) => i !== index))}
           />
         ))}
-        <NewSection disabled={sectionsFull} onClick={() => addSection(null)} />
+        <NewSection disabled={sectionsFull} empty={design.popup.length === 0} onClick={() => addSection(null)} />
       </div>
-      <p className={styles.hint}>
-        {h.popupShipped} {h.popupCount(total, state.limits.maxPopupStats)}
-      </p>
     </div>
   );
 }
 
-function NewSection({ disabled, onClick }: { disabled: boolean; onClick: () => void }) {
+function NewSection({ disabled, empty, onClick }: { disabled: boolean; empty: boolean; onClick: () => void }) {
   const h = useT().hudEditor;
   const { spot, dragging } = useDrag();
   const over = dragging !== null && spot?.zone === NEW_SECTION_ZONE;
@@ -123,11 +147,13 @@ function NewSection({ disabled, onClick }: { disabled: boolean; onClick: () => v
     <button
       type="button"
       data-zone={NEW_SECTION_ZONE}
-      className={over ? `${styles.newSection} ${styles.newSectionOver}` : styles.newSection}
+      className={[styles.newSection, over ? styles.newSectionOver : "", dragging || empty ? styles.newSectionShown : ""].join(" ")}
       disabled={disabled}
+      aria-label={h.addSection}
+      title={h.addSection}
       onClick={onClick}
     >
-      + {dragging ? h.addSectionDrop : h.addSection}
+      +
     </button>
   );
 }
@@ -141,6 +167,7 @@ function Section({
   offeredIds,
   full,
   label,
+  number,
   onPlace,
   onChange,
   onMove,
@@ -154,6 +181,7 @@ function Section({
   offeredIds: ReadonlySet<string>;
   full: boolean;
   label: (id: string) => string;
+  number: (id: string, index: number) => string;
   onPlace: (item: DragItem, at: number) => void;
   onChange: (next: PopupSection) => void;
   onMove: (to: number) => void;
@@ -164,6 +192,7 @@ function Section({
   const zone = sectionZone(index);
   const { spot, dragging, begin } = useDrag();
   const groupName = section.group ? t.reports.stats.groups[section.group] : h.sectionTitleDefault;
+  const [renaming, setRenaming] = useState(false);
 
   useDropZone(
     zone,
@@ -181,49 +210,69 @@ function Section({
     <section
       className={dragging && marker !== null ? `${styles.popupSection} ${styles.popupSectionOver}` : styles.popupSection}
       data-zone={zone}
+      data-axis="y"
       data-end={section.stats.length}
       aria-label={title}
     >
       <div className={styles.popupSectionHead}>
-        <input
-          className={styles.titleInput}
-          value={section.title ?? ""}
-          placeholder={groupName}
-          aria-label={`${h.section(index + 1)}: ${h.sectionTitle}`}
-          maxLength={40}
-          onChange={(event) => onChange({ ...section, title: event.target.value === "" ? undefined : event.target.value })}
-        />
-        <div className={styles.iconRow}>
+        {renaming ? (
+          <input
+            autoFocus
+            className={styles.titleInput}
+            value={section.title ?? ""}
+            placeholder={groupName}
+            aria-label={`${h.section(index + 1)}: ${h.sectionTitle}`}
+            maxLength={40}
+            onChange={(event) => onChange({ ...section, title: event.target.value === "" ? undefined : event.target.value })}
+            onBlur={() => setRenaming(false)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === "Escape") setRenaming(false);
+            }}
+          />
+        ) : (
           <button
             type="button"
-            className={styles.iconButton}
+            className={styles.sectionTitle}
+            aria-label={h.renameSection(title)}
+            onClick={() => setRenaming(true)}
+          >
+            {title}
+            <span className={styles.pencil} aria-hidden="true">
+              ✎
+            </span>
+          </button>
+        )}
+        <span className={styles.sectionTools}>
+          <button
+            type="button"
+            className={styles.sectionTool}
             disabled={index === 0}
-            aria-label={h.sectionUp(index + 1)}
-            title={h.sectionUp(index + 1)}
+            aria-label={h.sectionEarlier(index + 1)}
+            title={h.sectionEarlier(index + 1)}
             onClick={() => onMove(index - 1)}
           >
-            ↑
+            ‹
           </button>
           <button
             type="button"
-            className={styles.iconButton}
+            className={styles.sectionTool}
             disabled={index >= count - 1}
-            aria-label={h.sectionDown(index + 1)}
-            title={h.sectionDown(index + 1)}
+            aria-label={h.sectionLater(index + 1)}
+            title={h.sectionLater(index + 1)}
             onClick={() => onMove(index + 1)}
           >
-            ↓
+            ›
           </button>
           <button
             type="button"
-            className={styles.iconButton}
+            className={styles.sectionTool}
             aria-label={h.removeSection(index + 1)}
             title={h.removeSection(index + 1)}
             onClick={onRemove}
           >
             ×
           </button>
-        </div>
+        </span>
       </div>
       <ul className={styles.popupStats}>
         {section.stats.map((id, i) => (
@@ -234,7 +283,7 @@ function Section({
               styles.popupStat,
               marker === i ? styles.markBefore : "",
               marker === section.stats.length && i === section.stats.length - 1 ? styles.markAfter : "",
-              dragging?.kind === "popup" && dragging.section === index && dragging.index === i ? styles.cellDragged : "",
+              dragging?.kind === "popup" && dragging.section === index && dragging.index === i ? styles.statDragged : "",
             ].join(" ")}
           >
             <span
@@ -243,6 +292,7 @@ function Section({
             >
               {label(id)}
             </span>
+            <span className={styles.popupValue}>{number(id, i + index * 3)}</span>
             <button
               type="button"
               className={styles.popupStatRemove}
@@ -254,19 +304,16 @@ function Section({
             </button>
           </li>
         ))}
-        <li>
-          <StatPicker
-            title={title}
-            disabled={full}
-            options={offered.filter((stat) => !section.stats.includes(stat.id))}
-            onPick={(id) => onChange({ ...section, stats: [...section.stats, id] })}
-          />
-        </li>
       </ul>
+      <StatPicker
+        title={title}
+        disabled={full}
+        options={offered.filter((stat) => !section.stats.includes(stat.id))}
+        onPick={(id) => onChange({ ...section, stats: [...section.stats, id] })}
+      />
     </section>
   );
 }
-
 /** "+": a small search over the statistics a section may still take. */
 function StatPicker({
   title,
@@ -318,7 +365,7 @@ function StatPicker({
         title={h.addToSectionNamed(title)}
         onClick={() => setOpen((v) => !v)}
       >
-        + {h.addToSection}
+        +
       </button>
       {open ? (
         <div className={styles.pickerPop}>
@@ -341,9 +388,9 @@ function StatPicker({
           <ul className={styles.pickerList}>
             {found.slice(0, 40).map((stat) => (
               <li key={stat.id}>
-                <button type="button" className={styles.pickerOption} onClick={() => pick(stat.id)}>
-                  <span className={styles.statChipLabel}>{stat.label[locale]}</span>
-                  <span className={styles.statChipName}>{stat.name[locale]}</span>
+                <button type="button" className={styles.statRow} onClick={() => pick(stat.id)}>
+                  <span className={styles.statLabel}>{stat.label[locale]}</span>
+                  <span className={styles.statName}>{stat.name[locale]}</span>
                 </button>
               </li>
             ))}

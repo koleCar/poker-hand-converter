@@ -152,10 +152,10 @@ describe("a postflop leak per table", () => {
     expect(river.map((area) => area.where.table)).toEqual(["hu", undefined, "9max"]);
     expect(river.map((area) => area.spotDecisions)).toEqual([42, 42, 42]);
     // The heads-up river deals the heads-up lines; 6-max and full ring the 6-max lines (the river has no full-ring lines).
-    expect(river[0].trainer).toEqual({ mode: "river", pot: "any", side: "ip", role: "caller", set: HU100 });
+    expect(river[0].trainer).toEqual({ mode: "river", pot: "srp", side: "ip", role: "caller", set: HU100 });
     expect(trainerMatch(river[0].trainer!).spots!.every((s) => s.startsWith("hu-"))).toBe(true);
-    expect(river[1].trainer).toEqual({ mode: "river", pot: "any", side: "ip", role: "caller" });
-    expect(river[2].trainer).toEqual({ mode: "river", pot: "any", side: "ip", role: "caller" });
+    expect(river[1].trainer).toEqual({ mode: "river", pot: "srp", side: "ip", role: "caller" });
+    expect(river[2].trainer).toEqual({ mode: "river", pot: "srp", side: "ip", role: "caller" });
 
     const flop = focusAreas([...bbFlop(HU150, 9), ...bbFlop(SIX, 6), ...bbFlop(NINE150, 3)], 500);
     expect(flop.map((area) => area.where.table)).toEqual(["hu", undefined, "9max"]);
@@ -232,8 +232,8 @@ describe("a thin postflop spot", () => {
     expect(thinner.map((leak) => leak.id)).toEqual(["river~*~*~*~*~fold~call~hu", "river~*~*~*~*~fold~call"]);
     expect(thinner.map((leak) => leak.level)).toEqual([4, 4]);
     const areas = focusAreas(rows.map((r) => (r.taken === r.best ? { ...r, decisions: 1, hands: 1 } : r)), 100);
-    expect(areas[0].trainer).toEqual({ mode: "river", pot: "any", side: "any", role: "any", set: HU100 });
-    expect(areas[1].trainer).toEqual({ mode: "river", pot: "any", side: "any", role: "any" });
+    expect(areas[0].trainer).toEqual({ mode: "river", pot: "srp", side: "any", role: "any", set: HU100 });
+    expect(areas[1].trainer).toEqual({ mode: "river", pot: "srp", side: "any", role: "any" });
   });
 
   it("keeps the preflop rule: the tag goes with the seat", () => {

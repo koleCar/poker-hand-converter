@@ -12,6 +12,14 @@
  * opens the hand; Enter moves focus into the replayer, whose keys (←/→,
  * space, Home/End) then work.
  *
+ * Several hands (with `selection`, the desktop): Cmd/Ctrl + click adds or
+ * removes a hand, Shift + click or Shift + Up / Down takes a run of them,
+ * Cmd/Ctrl + A every loaded one, Escape goes back to the one focused; none
+ * of these opens a hand. A right click (or the context-menu key) hands the
+ * chosen hands - or the one clicked, when it is not among them - to
+ * `onRowsMenu`. The chosen rows are tinted; the hand open in the replayer
+ * keeps its accent edge.
+ *
  * The desktop app's (R2.7a); in the shared package since R4.5b.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
@@ -19,9 +27,11 @@ import { CardRow } from "../cards/PlayingCard";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { useListEnter } from "../loader/useListEnter";
-import { handFormat, signedMoney, stakes, unitOf, type HandFormat } from "./format";
+import type { MenuPoint } from "./ContextMenu";
+import { handFormat, money as moneyText, signedMoney, stakes, unitOf, type HandFormat } from "./format";
 import styles from "./HandList.module.css";
 import type { HandRow, HandSort } from "./model";
+import type { HandSelection } from "./useHandSelection";
 
 /** Rows rendered above and below the visible ones. */
 /** A sortable column's orders: the first click's, then the other direction's. */
@@ -59,7 +69,7 @@ interface HandListProps {
   sort?: HandSort;
   sorts?: readonly HandSort[];
   onSort?: (sort: HandSort) => void;
-  /** The results in big blinds or in each hand's money (the screen's switch). */
+  /** The pots and results in big blinds or in each hand's money (the screen's switch). */
   unit?: "bb" | "money";
   /**
    * Changes when the surface changes the row height without resizing the
@@ -71,6 +81,10 @@ interface HandListProps {
    * arrive again (`.rail-stagger`); a reload of the same list does not.
    */
   enterKey?: unknown;
+  /** Several hands can be chosen (`useHandSelection`, over these rows). */
+  selection?: HandSelection;
+  /** A right click: the hands to act on, in the list's order, and where. */
+  onRowsMenu?: (handKeys: string[], at: MenuPoint) => void;
 }
 
 export function HandList({
@@ -90,6 +104,8 @@ export function HandList({
   unit = "money",
   densityKey,
   enterKey,
+  selection,
+  onRowsMenu,
 }: HandListProps) {
   const strings = useUiStrings();
   const t = strings.hands;
@@ -165,7 +181,7 @@ export function HandList({
   // Focus the row a keyboard move selected, once it is in the DOM.
   useEffect(() => {
     const key = focusKey.current;
-    if (key === null || key !== selected) return;
+    if (key === null) return;
     const node = scrollRef.current?.querySelector<HTMLElement>(`[data-key="${CSS.escape(key)}"]`);
     if (node) {
       node.focus({ preventScroll: true });
@@ -175,7 +191,8 @@ export function HandList({
 
   const selectedIndex = selected === null ? -1 : rows.findIndex((row) => row.handKey === selected);
 
-  const moveTo = (index: number) => {
+  /** Move to a row: chosen alone and opened, or (`extend`) added to a run of chosen ones. */
+  const moveTo = (index: number, extend = false) => {
     const row = rows[Math.max(0, Math.min(rows.length - 1, index))];
     if (!row) return;
     const node = scrollRef.current;
@@ -189,27 +206,45 @@ export function HandList({
       }
     }
     focusKey.current = row.handKey;
+    if (extend && selection) {
+      // Only the focus moves (the effect above, once the row is in the DOM).
+      selection.extendTo(row.handKey);
+      return;
+    }
+    selection?.only(row.handKey);
     onSelect(row.handKey);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>, index: number, row: HandRow) => {
     const page = Math.max(1, Math.floor(view.height / ROW_HEIGHT) - 2);
+    const extend = event.shiftKey && selection !== undefined;
+    if (selection && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "a") {
+      event.preventDefault();
+      selection.all();
+      return;
+    }
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        moveTo(index + 1);
+        moveTo(index + 1, extend);
         break;
       case "ArrowUp":
         event.preventDefault();
-        moveTo(index - 1);
+        moveTo(index - 1, extend);
         break;
       case "PageDown":
         event.preventDefault();
-        moveTo(index + page);
+        moveTo(index + page, extend);
         break;
       case "PageUp":
         event.preventDefault();
-        moveTo(index - page);
+        moveTo(index - page, extend);
+        break;
+      case "Escape":
+        if (selection && selection.size > 1) {
+          event.preventDefault();
+          selection.only(row.handKey);
+        }
         break;
       case "Enter":
         event.preventDefault();
@@ -234,6 +269,7 @@ export function HandList({
       }}
       role="grid"
       aria-label={t.listLabel(orderLabel)}
+      aria-multiselectable={selection ? true : undefined}
       aria-rowcount={total !== null ? total + 1 : -1}
       aria-busy={loadingMore}
     >
@@ -270,17 +306,23 @@ export function HandList({
               row={row}
               index={index}
               top={index * ROW_HEIGHT}
-              selected={row.handKey === selected}
+              // Chosen: tinted. With nothing chosen, the open hand is.
+              selected={selection && selection.size > 0 ? selection.checked.has(row.handKey) : row.handKey === selected}
+              current={row.handKey === selected}
               tabbable={index === tabbable}
               format={format}
               unit={unit}
-              onSelect={
-                openOnClick
-                  ? (handKey: string) => {
-                      onSelect(handKey);
-                      onOpen(handKey);
+              onSelect={(handKey, event) => {
+                if (selection?.click(handKey, event)) return;
+                onSelect(handKey);
+                if (openOnClick) onOpen(handKey);
+              }}
+              onMenu={
+                onRowsMenu
+                  ? (handKey, at) => {
+                      onRowsMenu(selection ? selection.forMenu(handKey) : [handKey], at);
                     }
-                  : onSelect
+                  : undefined
               }
               onKeyDown={onKeyDown}
             />
@@ -357,14 +399,17 @@ interface RowProps {
   /** Where the row sits in the spacer, px. */
   top: number;
   selected: boolean;
+  /** The hand open (in the replayer): the accent edge. */
+  current: boolean;
   tabbable: boolean;
   format: HandFormat;
   unit: "bb" | "money";
-  onSelect: (handKey: string) => void;
+  onSelect: (handKey: string, event: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }) => void;
+  onMenu: ((handKey: string, at: MenuPoint) => void) | undefined;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>, index: number, row: HandRow) => void;
 }
 
-function Row({ row, index, top, selected, tabbable, format, unit, onSelect, onKeyDown }: RowProps) {
+function Row({ row, index, top, selected, current, tabbable, format, unit, onSelect, onMenu, onKeyDown }: RowProps) {
   const t = useUiStrings().hands;
   const money = unitOf(row);
   const date = format.playedAt(row.playedAt);
@@ -374,7 +419,13 @@ function Row({ row, index, top, selected, tabbable, format, unit, onSelect, onKe
   const result =
     value === null ? t.noHero : inMoney ? signedMoney(money, value) : `${format.bigBlinds(value)} bb`;
   const tone = value === null || value === 0 ? styles.even : value > 0 ? styles.won : styles.lost;
-  const pot = row.bigBlind > 0 ? `${format.pot(row.totalPot / row.bigBlind)} bb` : t.noHero;
+  // The pot follows the screen's switch too: the hand's money, or big blinds.
+  const pot =
+    unit === "money"
+      ? moneyText(money, row.totalPot)
+      : row.bigBlind > 0
+        ? `${format.pot(row.totalPot / row.bigBlind)} bb`
+        : t.noHero;
   // An all-in's EV is the result's tooltip, not a mark (2026-11-05).
   let resultTitle: string | undefined;
   if (row.allIn) {
@@ -386,7 +437,7 @@ function Row({ row, index, top, selected, tabbable, format, unit, onSelect, onKe
   }
   return (
     <div
-      className={`${styles.row} ${selected ? styles.selected : ""}`}
+      className={`${styles.row} ${selected ? styles.selected : ""} ${current ? styles.current : ""}`}
       style={{ top }}
       role="row"
       aria-rowindex={index + 2}
@@ -394,7 +445,22 @@ function Row({ row, index, top, selected, tabbable, format, unit, onSelect, onKe
       aria-label={t.rowLabel(date, row.siteName, blinds, result)}
       tabIndex={tabbable ? 0 : -1}
       data-key={row.handKey}
-      onClick={() => onSelect(row.handKey)}
+      onClick={(event) => onSelect(row.handKey, event)}
+      // Shift + click takes a run of hands, not the text between them.
+      onMouseDown={(event) => {
+        if (event.shiftKey) event.preventDefault();
+      }}
+      onContextMenu={
+        onMenu
+          ? (event) => {
+              event.preventDefault();
+              // The context-menu key gives no pointer: the row's corner.
+              const box = event.currentTarget.getBoundingClientRect();
+              const keyboard = event.clientX === 0 && event.clientY === 0;
+              onMenu(row.handKey, keyboard ? { x: box.left + 24, y: box.bottom } : { x: event.clientX, y: event.clientY });
+            }
+          : undefined
+      }
       onKeyDown={(event) => onKeyDown(event, index, row)}
     >
       <span role="gridcell" className={styles.date}>
