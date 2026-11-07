@@ -7,8 +7,6 @@
 //! the hands are read from the store in the order given, and a hand no
 //! longer in the store is left out and counted.
 
-use std::path::Path;
-
 use rail_core::phf::PhfHand;
 use rail_core::phf::serialize::to_standard_text_file;
 use serde::Serialize;
@@ -35,16 +33,19 @@ pub struct ExportDto {
 
 /// The suggested name, made safe: a plain file name ending in `.txt`.
 fn file_name(suggested: &str) -> String {
-    let name: String = Path::new(suggested.trim())
-        .file_name()
-        .and_then(|name| name.to_str())
+    // The last path part, by either separator: the same on every system
+    // (`Path` would read "a:b" as a drive on Windows).
+    let name: String = suggested
+        .trim()
+        .rsplit(['/', '\\'])
+        .next()
         .unwrap_or_default()
         .chars()
         .filter(|c| !c.is_control() && !matches!(c, '/' | '\\' | ':'))
         .take(120)
         .collect();
     let name = name.trim();
-    if name.is_empty() {
+    if name.is_empty() || name.chars().all(|c| c == '.') {
         "Rail hands.txt".to_owned()
     } else if name.to_ascii_lowercase().ends_with(".txt") {
         name.to_owned()
@@ -136,6 +137,8 @@ mod tests {
         assert_eq!(file_name("../../etc/passwd"), "passwd.txt");
         assert_eq!(file_name("  "), "Rail hands.txt");
         assert_eq!(file_name("a:b"), "ab.txt");
+        assert_eq!(file_name("C:\\Users\\x\\hands.txt"), "hands.txt");
+        assert_eq!(file_name(".."), "Rail hands.txt");
     }
 
     /// A room's file through the converter, out as one exported file, and
