@@ -1,0 +1,100 @@
+/* The "Mark" submenu (MarkPanel.tsx): rows like the menu's own
+   (`@rail/ui/hands/ContextMenu`), a check before each, a field at the foot. */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-block-size: min(26rem, calc(100vh - 32px));
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  inline-size: 100%;
+  min-block-size: 32px;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-3);
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  outline: none;
+  background: var(--surface-hover);
+}
+
+.item:disabled {
+  cursor: progress;
+}
+
+.check {
+  flex: none;
+  inline-size: 1rem;
+  color: var(--accent-fg);
+  text-align: center;
+}
+
+.name {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-block-start: var(--space-1);
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--border-default);
+}
+
+/* Nothing listed above (the field narrowed it to none): no rule over it. */
+.field:first-child {
+  margin-block-start: 0;
+  padding-block-start: 0;
+  border-block-start: 0;
+}
+
+.input {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+.quiet,
+.error {
+  margin: 0;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.quiet {
+  color: var(--text-tertiary);
+}
+
+.error {
+  color: var(--loss-fg);
+}

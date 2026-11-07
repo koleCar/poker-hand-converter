@@ -10,7 +10,7 @@ import { Icon } from "@rail/ui/icon/Icon";
 import { Popover } from "@rail/ui/hands/Popover";
 
 import { useT } from "../../i18n";
-import { errorText, ipc, type HandAnnotations } from "../../lib/ipc";
+import { errorText, ipc, onHandAnnotated, type HandAnnotations } from "../../lib/ipc";
 import styles from "./HandNotes.module.css";
 
 /** How long typing pauses before the note is saved. */
@@ -58,6 +58,15 @@ export function HandNotes({ handKey, knownTags, onAnnotated }: HandNotesProps) {
       current = false;
     };
   }, [handKey]);
+
+  // Marked from a hand list's menu while open here: the tags follow.
+  useEffect(
+    () =>
+      onHandAnnotated((change) => {
+        if (change.handKey === handKey) setTags(change.annotations.tags);
+      }),
+    [handKey],
+  );
 
   // A note being typed when the hand changes or the window closes is saved,
   // not lost.

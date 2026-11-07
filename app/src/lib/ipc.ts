@@ -484,6 +484,12 @@ export interface HandAnnotations {
   tags: string[];
 }
 
+/** A hand list's "Mark" menu (`hands_marks`): the tags in use, the most used first, and the chosen hands' own. */
+export interface HandMarks {
+  known: string[];
+  hands: { handKey: string; tags: string[] }[];
+}
+
 export interface SavedFilter {
   id: number;
   name: string;
@@ -1295,6 +1301,10 @@ export const ipc = {
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
   handRemoveTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_remove_tag", { handKey, tag }),
+  handsMarks: (handKeys: string[]) => invoke<HandMarks>("hands_marks", { handKeys }),
+  /** Put a tag on every hand of `handKeys` (`on`) or take it off; each hand's note and tags after. */
+  handsMark: (handKeys: string[], tag: string, on: boolean) =>
+    invoke<HandAnnotated[]>("hands_mark", { handKeys, tag, on }),
   savedFilters: (screen: FilterScreen = "hands") => invoke<SavedFilter[]>("saved_filters", { screen }),
   saveFilter: (name: string, filter: string, screen: FilterScreen = "hands") =>
     invoke<SavedFilter[]>("save_filter", { name, filter, screen }),

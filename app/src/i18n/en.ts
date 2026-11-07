@@ -959,6 +959,24 @@ export const en = {
       label: (count: number) => (count === 1 ? "Hand" : hands(count)),
       replay: (count: number) => (count === 1 ? "Replay hand" : `Replay ${hands(count)}`),
       export: (count: number) => (count === 1 ? "Export hand to .txt" : `Export ${hands(count)} to .txt`),
+      /** The "Mark" submenu: markers (tags) put on or taken off the chosen hands. */
+      mark: "Mark",
+      markers: {
+        label: "Markers",
+        /** The ready-made markers, by the name stored (`components/markers.ts`). */
+        presets: {
+          Review: "Review",
+          Mistake: "Mistake",
+          Cooler: "Cooler",
+          Bluff: "Bluff",
+          "Hero call": "Hero call",
+        } as Record<string, string>,
+        reviewTitle: "Solved first in the next solver run, unless the spot is solved already",
+        placeholder: "Custom marker",
+        add: (tag: string) => `Add “${tag}”`,
+        loading: "Loading…",
+        failed: (reason: string) => `The marker was not saved: ${reason}`,
+      },
       /** The suggested file name, without ".txt". */
       fileName: (date: string) => `Rail hands ${date}`,
       exported: (count: number, path: string) => `Saved ${hands(count)} to ${path}`,
