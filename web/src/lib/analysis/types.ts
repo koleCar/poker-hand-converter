@@ -682,8 +682,10 @@ export type ChartSkipReason = (typeof CHART_SKIP_REASONS)[number];
  * - `river-off-tree`      the line left the solver's tree: more raises than
  *                         its cap, or an action it has no edge for.
  * - `river-unreached`     the solved strategies (almost) never take this line
- *                         with the narrowed ranges: under 0.5% of a range
- *                         reaches the decision, so its strategy is noise.
+ *                         with the narrowed ranges: under 2% of a range
+ *                         reaches the decision (`MIN_LINE_REACH`) even after
+ *                         every size is remapped to one the solve takes, so
+ *                         its strategy is noise.
  * - `river-solve-failed`  the solver refused the spot (a bug, never a guess).
  */
 export const RIVER_SKIP_REASONS = [
