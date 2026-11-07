@@ -9,11 +9,36 @@
   margin-bottom: var(--space-4);
 }
 
+/* The header row: the tabs on the left, the section's toggle on the right. */
+.navRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.navEnd {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+  padding-bottom: var(--space-1);
+}
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  border-bottom: 1px solid var(--border-subtle);
+  align-self: flex-end;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .tab {

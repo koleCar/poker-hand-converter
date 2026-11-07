@@ -39,6 +39,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The desktop's header row (`hideTitle`): the count left, Cash | Tournaments right, 32 px. */
+.row {
+  align-items: center;
+  min-height: 32px;
+}
+
+.spacer {
+  flex: 1 1 0;
+}
+
 /* ------------------------------------------------------------- toolbar */
 
 .toolbar {

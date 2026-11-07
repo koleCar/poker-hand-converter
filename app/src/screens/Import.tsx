@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Icon } from "@rail/ui/icon/Icon";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 
+import headerStyles from "../components/ScreenHeader.module.css";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { inApp, ipc, onManualImportChanged, type ManualImportStatus } from "../lib/ipc";
@@ -60,7 +61,7 @@ function useDrop(onDrop: (paths: string[]) => void, enabled: boolean): boolean {
  * Import: hand histories picked by hand - files, or a folder with its
  * subfolders - read once into Rail (`manual_import.rs`), without watching
  * them afterwards; watched folders are Settings, Folders. Clean, as the
- * other screens: no title, the pickers and the drop target, then the
+ * other screens: no visible title, the pickers and the drop target, then the
  * import's progress and what it came to.
  */
 export function Import() {
@@ -101,6 +102,8 @@ export function Import() {
 
   return (
     <div className={styles.screen}>
+      {/* No header row: nothing to say before the pickers; the heading stays for assistive technology. */}
+      <h1 className={headerStyles.visuallyHidden}>{t.screens.import.title}</h1>
       {running && status ? (
         <Progress status={status} />
       ) : (

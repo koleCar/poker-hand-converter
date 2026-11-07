@@ -22,6 +22,25 @@
   font-size: var(--font-size-2xl);
 }
 
+/* The desktop's header row (`hideTitle`): the count left, the toggle right, 32 px. */
+.row {
+  align-items: center;
+  min-height: 32px;
+}
+
+.spacer {
+  flex: 1 1 0;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .count {
   color: var(--text-secondary);
   font-size: var(--font-size-sm);

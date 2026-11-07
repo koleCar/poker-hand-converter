@@ -11,7 +11,7 @@ import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useState } from "react";
 
 import { RefusedTable } from "../components/RefusedTable";
-import { ScreenHeader } from "../components/ScreenHeader";
+import { HeaderRow } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { liveNumberFormat } from "../i18n/format";
 import {
@@ -59,13 +59,36 @@ export function Refused() {
   const t = useT();
   const param = useRouteParam();
   const sourceId = param !== null && /^\d+$/.test(param) ? Number(param) : null;
+  const { status } = useWatcherStatus();
+  const sources = (status?.sources ?? []).filter((source) => source.quarantined > 0 || source.id === sourceId);
   return (
     <>
-      <a className={styles.back} href={screenHref("settings", "folders")}>
-        <Icon name="chevronLeft" />
-        {t.nav.settings}
-      </a>
-      <ScreenHeader title={t.refused.heading} />
+      <HeaderRow
+        title={t.refused.heading}
+        start={
+          <a className={styles.back} href={screenHref("settings", "folders")}>
+            <Icon name="chevronLeft" />
+            {t.nav.settings}
+          </a>
+        }
+        end={
+          inApp && (sources.length > 1 || sourceId !== null) ? (
+            <select
+              className={styles.select}
+              aria-label={t.refused.folder}
+              value={sourceId === null ? "" : String(sourceId)}
+              onChange={(event) => replaceParam(REFUSED, event.target.value === "" ? null : event.target.value)}
+            >
+              <option value="">{t.refused.allFolders}</option>
+              {sources.map((source) => (
+                <option key={source.id} value={String(source.id)}>
+                  {sourceLabel(source)}
+                </option>
+              ))}
+            </select>
+          ) : null
+        }
+      />
       {inApp ? (
         // A folder of its own starts again from all reasons and the first page.
         <RefusedHands key={sourceId ?? "all"} sourceId={sourceId} />
@@ -79,7 +102,6 @@ export function Refused() {
 function RefusedHands({ sourceId }: { sourceId: number | null }) {
   const t = useT();
   const d = t.refused;
-  const { status } = useWatcherStatus();
   const [summary, setSummary] = useState<QuarantineSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reason, setReason] = useState<string | null>(null);
@@ -147,8 +169,6 @@ function RefusedHands({ sourceId }: { sourceId: number | null }) {
     setPage(0);
   };
 
-  const sources = (status?.sources ?? []).filter((source) => source.quarantined > 0 || source.id === sourceId);
-
   if (error) return <p className={s.error}>{d.loadFailed(error)}</p>;
   if (!summary) return <RailLoader size="inline" label={d.loading} showLabel />;
 
@@ -194,21 +214,6 @@ function RefusedHands({ sourceId }: { sourceId: number | null }) {
             </button>
           ))}
         </div>
-        {(sources.length > 1 || sourceId !== null) && (
-          <select
-            className={styles.select}
-            aria-label={d.folder}
-            value={sourceId === null ? "" : String(sourceId)}
-            onChange={(event) => replaceParam(REFUSED, event.target.value === "" ? null : event.target.value)}
-          >
-            <option value="">{d.allFolders}</option>
-            {sources.map((source) => (
-              <option key={source.id} value={String(source.id)}>
-                {sourceLabel(source)}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
       {summary.total === 0 ? (

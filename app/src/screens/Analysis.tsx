@@ -19,10 +19,12 @@ import type { ChartSet } from "@rail/ui/charts/model";
 import { ownChartDeviations } from "@rail/ui/charts/sessionSource";
 import type { ChartSummary } from "@rail/ui/charts/source";
 import { kindFormats, kindOf, type GameKind } from "@rail/ui/hands/gameKind";
+import { KindSwitch } from "@rail/ui/hands/KindSwitch";
 import { useUiStrings } from "@rail/ui/i18n";
 import { shippedChartDeviations, type SessionQuery } from "@rail/ui/review/model";
 import { SessionReviewScreen, type HandLinkProps } from "@rail/ui/review/SessionReviewScreen";
 
+import headerStyles from "../components/ScreenHeader.module.css";
 import { StateMessage } from "../components/StateMessage";
 import { useT } from "../i18n";
 import { onAnalysisRows } from "../analysis/service";
@@ -62,13 +64,13 @@ function AnalysisSection({ view }: { view: AnalysisView }) {
   if (view.kind === "hand") {
     return <HandAnalysis handKey={view.key} actionIndex={view.actionIndex} back={view.back} />;
   }
-  const nav = <AnalysisNav current={tabOf(view)} />;
-  if (view.kind === "charts") return <Charts view={view} nav={nav} hidden={hidden} />;
+  const nav = (end?: ReactNode) => <AnalysisNav current={tabOf(view)} end={end} />;
+  if (view.kind === "charts") return <Charts view={view} nav={nav()} hidden={hidden} />;
   if (view.kind === "leaks") {
     return (
       <div>
-        <h1 className={styles.title}>{t.analysis.tabs.leaks}</h1>
-        {nav}
+        <h1 className={styles.visuallyHidden}>{t.analysis.tabs.leaks}</h1>
+        {nav()}
         {hidden ? null : (
           <TopLeaks
             hidden={hidden}
@@ -90,23 +92,30 @@ function useRowsWritten(): number {
   return count;
 }
 
-/** The sections' tabs and the run's status. */
-function AnalysisNav({ current }: { current: AnalysisView["kind"] }) {
+/**
+ * The header row (2026-11-07): the sections' tabs on the left, the
+ * section's own toggle on the right (the session's Cash | Tournaments);
+ * the run's status under it.
+ */
+function AnalysisNav({ current, end }: { current: AnalysisView["kind"]; end?: ReactNode }) {
   const t = useT();
   return (
     <div className={styles.nav}>
-      <nav className={styles.tabs} aria-label={t.analysis.tabsLabel}>
-        {ANALYSIS_TABS.map((tab) => (
-          <a
-            key={tab}
-            className={styles.tab}
-            href={screenHref("analysis", tab)}
-            aria-current={tab === current ? "page" : undefined}
-          >
-            {t.analysis.tabs[tab]}
-          </a>
-        ))}
-      </nav>
+      <div className={styles.navRow}>
+        <nav className={styles.tabs} aria-label={t.analysis.tabsLabel}>
+          {ANALYSIS_TABS.map((tab) => (
+            <a
+              key={tab}
+              className={styles.tab}
+              href={screenHref("analysis", tab)}
+              aria-current={tab === current ? "page" : undefined}
+            >
+              {t.analysis.tabs[tab]}
+            </a>
+          ))}
+        </nav>
+        {end ? <div className={styles.navEnd}>{end}</div> : null}
+      </div>
       <AnalysisStatus />
     </div>
   );
@@ -127,7 +136,7 @@ function Session({
   reload,
 }: {
   view: Extract<AnalysisView, { kind: "session" }>;
-  nav: ReactNode;
+  nav: (end?: ReactNode) => ReactNode;
   hidden: boolean;
   reload: number;
 }) {
@@ -204,10 +213,24 @@ function Session({
     [],
   );
 
+  // The Cash | Tournaments switch, in the header row (the review's own is not shown).
+  const kindSwitch = hidden ? null : (
+    <KindSwitch
+      kind={kinds.kind}
+      counts={kinds.counts}
+      className={headerStyles.toggle}
+      onChange={(kind) =>
+        query === null
+          ? setAskedKind(kind)
+          : onQuery({ ...query, at: null, filter: { ...query.filter, formats: kindFormats(kind) } })
+      }
+    />
+  );
+
   if (query === null) {
     return (
       <>
-        {nav}
+        {nav(kindSwitch)}
         <StateMessage kind="loading">{ui.review.loading}</StateMessage>
       </>
     );
@@ -215,7 +238,6 @@ function Session({
 
   return (
     <SessionReviewScreen
-      kindCounts={kinds.counts}
       source={storeReviewSource}
       deviationSource={deviationSource}
       deviationChoices={deviationChoices}
@@ -224,7 +246,8 @@ function Session({
       onQuery={onQuery}
       renderHandLink={renderHandLink}
       title={t.analysis.tabs.session}
-      notice={nav}
+      hideTitle
+      notice={nav(kindSwitch)}
       reloadToken={reload}
       coverageAction={<span>{t.analysis.session.notAnalysed}</span>}
       hiddenDuringPlay={hidden}
@@ -257,6 +280,7 @@ function Charts({
     <ChartsScreen
       source={storeChartsSource}
       title={t.analysis.tabs.charts}
+      hideTitle
       notice={nav}
       selected={view.set}
       view={view.view}

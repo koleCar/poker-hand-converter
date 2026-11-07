@@ -14,6 +14,166 @@
   max-width: 60ch;
 }
 
+/* ------------------------------------------- the header row (every tab) */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  min-height: 32px;
+  margin-bottom: var(--space-4);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.start,
+.end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.end {
+  margin-inline-start: auto;
+}
+
+/* A joined pill of chip buttons, as Live's Cash | Tournaments: 32 px tall. */
+.toggle {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+}
+
+.toggle :global(.chip-btn) {
+  height: 30px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.toggle :global(.chip-btn) + :global(.chip-btn) {
+  border-inline-start: 1px solid var(--border-default);
+}
+
+.toggle :global(.chip-btn.is-active) {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+  font-weight: var(--font-weight-semibold);
+}
+
+.toggle :global(.chip-btn):focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+/* -------------------------------------------------------- a status pill */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.status[data-tone="live"] {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-on-tint);
+}
+
+.status[data-tone="warn"] {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+}
+
+button.status {
+  cursor: pointer;
+}
+
+button.status:hover {
+  border-color: var(--border-hover);
+}
+
+button.status[data-tone="warn"]:hover {
+  border-color: var(--warning-fg);
+}
+
+button.status:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.meta {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-regular);
+  font-variant-numeric: tabular-nums;
+}
+
+.status[data-tone="warn"] .meta {
+  color: var(--warning-on-tint);
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.dot[data-tone="live"] {
+  background: var(--success-fg);
+  animation: header-pulse 1.8s var(--ease-out) infinite;
+}
+
+.dot[data-tone="warn"] {
+  background: var(--warning-fg);
+}
+
+@keyframes header-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-fg) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--success-fg) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot[data-tone="live"] {
+    animation: none;
+  }
+}
+
 .placeholder {
   display: grid;
   place-items: center;
