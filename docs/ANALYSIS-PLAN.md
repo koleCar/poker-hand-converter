@@ -7265,9 +7265,10 @@ Each phase appends what it learned that changed the plan.
     existing ones). Only aggregate numbers are committed.
   - **Open.**
     - The 5 remaining `turn-unreached` decisions were not looked at one by
-      one; by the argument above none is a size under 2% with a used size
-      beside it, so each is a line both ranges really rarely take (or
-      every size under 2%).
+      one. None is left there by a sized edge under 2% with a size of 2%
+      or more beside it (those are remapped now); each is a check, call or
+      fold the range rarely takes, a node where every size is under 2%, or
+      the product of several edges each above 2%.
     - A remap is a pick of the nearest used size, not of the size whose
       range best matches the real one; on these lines it moved sizes by
       0.27-0.5 pots, which `off-tree-size` already caps.
