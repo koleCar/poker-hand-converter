@@ -690,6 +690,7 @@ export interface HudEditorState {
   limits: {
     maxCells: number;
     maxColumns: number;
+    maxRows: number;
     maxDecimals: number;
     maxPopupSections: number;
     maxPopupStats: number;
@@ -729,7 +730,15 @@ export interface HudPreview {
   board: PreviewRect;
   heroSlot: number;
   items: PreviewItem[];
-  panels: { slot: number; rect: PreviewRect; stats: string[]; placedByUser: boolean; stackBb: number }[];
+  panels: {
+    slot: number;
+    rect: PreviewRect;
+    stats: string[];
+    /** Where each statistic is drawn (a click there opens its settings). */
+    cells: { stat: string; rect: PreviewRect }[];
+    placedByUser: boolean;
+    stackBb: number;
+  }[];
   legend: PreviewRect | null;
   problems: DesignProblem[];
 }

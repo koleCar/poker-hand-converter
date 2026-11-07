@@ -69,6 +69,13 @@ export interface GuardOptions {
    * in the demo hands: accepted where player names are shown.
    */
   allowNames?: string[];
+  /**
+   * Exact strings of the UI's own words that a corpus nickname also spells
+   * (the HUD pill's "Fix ›", where a corpus player is called "Fix"): taken
+   * out of the page's text before the check, so the name is still caught
+   * anywhere else on the screen.
+   */
+  uiText?: string[];
 }
 
 /** Throws when the page shows a name that is not demo data. */
@@ -93,7 +100,8 @@ export async function guardNames(page: Page, where: string, options: GuardOption
     }
     return { text: parts.join('\n'), names };
   }, selectors);
-  const all = `${text}\n${options.extraText ?? ''}`;
+  let all = `${text}\n${options.extraText ?? ''}`;
+  for (const words of options.uiText ?? []) all = all.split(words).join(' ');
   const leaked = scrubbed.filter((name) => containsToken(all, name));
   const allowed = new Set(options.allowNames ?? []);
   const unknown = names.filter((name) => !demo.has(name) && !allowed.has(name) && !NOT_PLAYERS.test(name));
