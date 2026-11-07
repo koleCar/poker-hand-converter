@@ -67,6 +67,9 @@ pub struct StatSlot {
     /// (R3.9) Shown only at these stack depths (the engine decides per
     /// player; `switching` is then [`Switching::ByGameState`]).
     pub when: Option<StackWhen>,
+    /// (R3.9) Its slot in the design's grid, row by row (`columns` to a
+    /// row); `None`: the next slot after the statistics before it.
+    pub at: Option<u32>,
 }
 
 impl StatSlot {
@@ -76,6 +79,7 @@ impl StatSlot {
             card_split: false,
             switching: Switching::Fixed,
             when: None,
+            at: None,
         }
     }
 }
@@ -97,6 +101,11 @@ pub struct PanelDesign {
     /// (R3.9) Cells to a row (the editor's); `None`: two rows of figures,
     /// half the statistics to a row (R3.4's panel).
     pub columns: Option<u32>,
+    /// (R3.9) The editor's grid has this many rows: the panel is drawn
+    /// `columns` x `rows` whatever it shows (a slot left empty, or of a
+    /// statistic the room or the stack leaves out, is blank); `None`: as
+    /// many rows as the statistics shown take.
+    pub rows: Option<u32>,
 }
 
 /// At most this many statistics on a panel (guideline §7: four to six).
@@ -125,6 +134,7 @@ impl Default for PanelDesign {
             player_labels: true,
             legend: true,
             columns: None,
+            rows: None,
         }
     }
 }
@@ -159,6 +169,7 @@ impl PanelDesign {
             player_labels: self.player_labels && !rules.no_player_labels,
             legend: self.legend,
             columns: self.columns,
+            rows: self.rows,
         }
     }
 
@@ -530,6 +541,7 @@ mod tests {
             player_labels: true,
             legend: true,
             columns: None,
+            rows: None,
         };
         let ids = |d: &PanelDesign| d.stats.iter().map(|s| s.id.clone()).collect::<Vec<_>>();
 

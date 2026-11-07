@@ -48,7 +48,7 @@ describe("dictionaries", () => {
       // The same word in Croatian (R2.10's editor).
       "Formula",
       // The same words in Croatian (R3.9's HUD editor).
-      "Panel", "x (preset)", "x-max",
+      "Panel", "x (preset)", "x-max", "esc",
       // Poker's actions and "street", in Croatian as the web says them (R5.4's grades).
       "Street", "Fold", "Check", "Call", "Bet", "Raise",
       // R5.5's push/fold words: "push" and "sit-and-go" are Croatian poker too.

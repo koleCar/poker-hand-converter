@@ -14,9 +14,10 @@
         "hr": "Cash stolovi: koliko je igrač labav i agresivan, kako se brani od 3-beta i kako igra flop."
       },
       "design": {
-        "version": 1,
+        "version": 2,
         "format": "cash",
         "columns": 3,
+        "rows": 2,
         "cells": [
           { "stat": "vpip" },
           { "stat": "pfr" },
@@ -44,9 +45,10 @@
         "hr": "Turniri i sit-and-go: otvaranje, krađa blindova i njihova obrana sve su važniji kako blindovi rastu."
       },
       "design": {
-        "version": 1,
+        "version": 2,
         "format": "mtt",
         "columns": 3,
+        "rows": 2,
         "cells": [
           { "stat": "vpip" },
           { "stat": "pfr" },
@@ -74,9 +76,10 @@
         "hr": "Hyper-turbo za tri igrača: gotovo svaka ruka je krađa ili obrana, malo ruku vidi flop."
       },
       "design": {
-        "version": 1,
+        "version": 2,
         "format": "spin",
         "columns": 3,
+        "rows": 2,
         "cells": [
           { "stat": "vpip" },
           { "stat": "pfr" },
@@ -104,9 +107,10 @@
         "hr": "Ispod 20 velikih blindova panel umjesto flopa i obrane od 3-beta pokazuje krađu i obranu blindova. Mijenja se sa stackom, pa samo na sobama koje to dopuštaju (ACR)."
       },
       "design": {
-        "version": 1,
+        "version": 2,
         "format": "mtt",
         "columns": 3,
+        "rows": 3,
         "cells": [
           { "stat": "vpip" },
           { "stat": "pfr" },

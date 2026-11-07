@@ -584,7 +584,7 @@ export interface StackWhen {
   atLeastBb?: number;
 }
 
-/** `design::Cell`. */
+/** `design::Cell`: a statistic in a slot of the panel's grid. */
 export interface DesignCell {
   stat: string;
   when?: StackWhen;
@@ -604,14 +604,19 @@ export interface PopupSection {
   stats: string[];
 }
 
-/** `design::HudDesign`: what a panel and its popup show. */
+/**
+ * `design::HudDesign`: what a panel and its popup show. The panel is a grid
+ * of `rows` x `columns` slots, row by row; `null` is an empty slot (blank
+ * at the table). Fewer slots than the grid: the rest are empty.
+ */
 export interface HudDesign {
   version: number;
   name: string;
   preset?: string;
   format: GameFormat;
   columns: number;
-  cells: DesignCell[];
+  rows: number;
+  cells: (DesignCell | null)[];
   overrides?: Record<string, StatOverride>;
   popup: PopupSection[];
   legend: boolean;
@@ -729,6 +734,7 @@ export interface HudEditorState {
   limits: {
     maxCells: number;
     maxColumns: number;
+    maxRows: number;
     maxDecimals: number;
     maxPopupSections: number;
     maxPopupStats: number;
@@ -775,7 +781,15 @@ export interface HudPreview {
   board: PreviewRect;
   heroSlot: number;
   items: PreviewItem[];
-  panels: { slot: number; rect: PreviewRect; stats: string[]; placedByUser: boolean; stackBb: number }[];
+  panels: {
+    slot: number;
+    rect: PreviewRect;
+    stats: string[];
+    /** Where each statistic is drawn (a click there opens its settings). */
+    cells: { stat: string; rect: PreviewRect }[];
+    placedByUser: boolean;
+    stackBb: number;
+  }[];
   legend: PreviewRect | null;
   problems: DesignProblem[];
 }

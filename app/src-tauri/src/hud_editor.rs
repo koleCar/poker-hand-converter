@@ -30,7 +30,7 @@ use rail_config::stats::{Band, Group, HudPlace, Text, Tone, Unit};
 use rail_core::js::JsNumber;
 use rail_hud::design::{
     self, ANY, Assignment, Assignments, Catalog, GameFormat, HudDesign, MAX_CELLS, MAX_COLUMNS,
-    MAX_DECIMALS, MAX_POPUP_SECTIONS, MAX_POPUP_STATS, Presets, Problem, StackWhen,
+    MAX_DECIMALS, MAX_POPUP_SECTIONS, MAX_POPUP_STATS, MAX_ROWS, Presets, Problem, StackWhen,
 };
 use rail_hud::layout::{Positions, TableLayout};
 use rail_hud::panel::{PanelStats, StatCell};
@@ -174,6 +174,7 @@ pub struct RoomSettingDto {
 pub struct LimitsDto {
     pub max_cells: usize,
     pub max_columns: u32,
+    pub max_rows: u32,
     pub max_decimals: u32,
     pub max_popup_sections: usize,
     pub max_popup_stats: usize,
@@ -436,6 +437,7 @@ pub fn build_state(reader: &rail_store::Reader) -> Result<EditorStateDto, String
         limits: LimitsDto {
             max_cells: MAX_CELLS,
             max_columns: MAX_COLUMNS,
+            max_rows: MAX_ROWS,
             max_decimals: MAX_DECIMALS,
             max_popup_sections: MAX_POPUP_SECTIONS,
             max_popup_stats: MAX_POPUP_STATS,
@@ -464,13 +466,15 @@ pub struct SaveDto {
     pub refused: BTreeMap<String, Vec<Problem>>,
 }
 
-/// Save `design` as the user's `id` (`None`: a new one). Refused when the
-/// design is broken, or when a room it is assigned to would refuse it.
+/// Save `design` as the user's `id` (`None`: a new one), its trailing
+/// empty rows and columns cut off ([`HudDesign::trimmed`]). Refused when
+/// the design is broken, or when a room it is assigned to would refuse it.
 pub fn save_design(
     store: &rail_store::Store,
     id: Option<&str>,
     design: &HudDesign,
 ) -> Result<SaveDto, String> {
+    let design = &design.trimmed();
     let reader = store.reader();
     let presets = Presets::shipped();
     let catalog = Catalog::new(custom(reader));
@@ -617,6 +621,15 @@ pub struct PreviewDto {
     pub problems: Vec<Problem>,
 }
 
+/// One statistic as a preview panel draws it: where (a click there opens
+/// its settings).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PreviewCellDto {
+    pub stat: String,
+    pub rect: RectDto,
+}
+
 /// One seat's panel in the preview.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -624,6 +637,7 @@ pub struct PanelDto {
     pub slot: u32,
     pub rect: RectDto,
     pub stats: Vec<String>,
+    pub cells: Vec<PreviewCellDto>,
     pub placed_by_user: bool,
     /// The made-up player's stack, big blinds.
     pub stack_bb: u32,
@@ -698,8 +712,7 @@ pub fn preview(
         .map(|seat| {
             let tenths = Some(i64::from(stack_of(seat)) * 10);
             let stats: Vec<StatCell> = design
-                .cells
-                .iter()
+                .panel_cells()
                 .zip(0_u32..)
                 .filter(|(cell, _)| cell.when.is_none_or(|when: StackWhen| when.holds(tenths)))
                 .filter_map(|(cell, index)| {
@@ -803,6 +816,15 @@ pub fn preview(
                 .find(|(s, _)| s == slot)
                 .map(|(_, cells)| cells.clone())
                 .unwrap_or_default(),
+            cells: scene
+                .cell_rects
+                .iter()
+                .filter(|(s, _, _)| s == slot)
+                .map(|(_, stat, rect)| PreviewCellDto {
+                    stat: stat.clone(),
+                    rect: (*rect).into(),
+                })
+                .collect(),
             placed_by_user: scene.placed_by_user.contains(slot),
             stack_bb: stack_of(slot + 1),
         })
@@ -997,10 +1019,10 @@ mod tests {
         card_stat(&store);
         let mut design = cash();
         design.name = "With pairs".into();
-        design.cells.push(design::Cell {
+        design.cells.push(Some(design::Cell {
             stat: "pair_raise".into(),
             when: None,
-        });
+        }));
         let saved = save_design(&store, None, &design).expect("save");
         let id = saved.id.expect("saved");
         assert!(id.starts_with("d-") && id.len() == 34, "{id}");
@@ -1062,10 +1084,10 @@ mod tests {
                 .expect("answer")
                 .ok
         );
-        plain.cells.push(design::Cell {
+        plain.cells.push(Some(design::Cell {
             stat: "pair_raise".into(),
             when: None,
-        });
+        }));
         let again = save_design(&store, Some(&plain_id), &plain).expect("answer");
         assert!(again.id.is_none() && again.refused.contains_key("pokerstars"));
         // Broken: refused with its problems; a preset's id is not the user's.
@@ -1074,6 +1096,32 @@ mod tests {
         let answer = save_design(&store, None, &broken).expect("answer");
         assert!(answer.id.is_none() && answer.problems.contains(&Problem::NoCells));
         assert!(save_design(&store, Some("cash"), &cash()).is_err());
+        // Saved without the empty rows and columns at its end.
+        let mut roomy = cash();
+        roomy.name = "Roomy".into();
+        roomy.columns = 5;
+        roomy.rows = 4;
+        let mut cells = vec![None; 20];
+        cells[0] = Some(design::Cell {
+            stat: "vpip".into(),
+            when: None,
+        });
+        cells[6] = Some(design::Cell {
+            stat: "pfr".into(),
+            when: None,
+        });
+        roomy.cells = cells;
+        let roomy_id = save_design(&store, None, &roomy)
+            .expect("save")
+            .id
+            .expect("id");
+        let stored = load_design(store.reader(), &roomy_id).expect("stored");
+        assert_eq!((stored.columns, stored.rows), (2, 2));
+        assert_eq!(stored.cells[1], None);
+        store
+            .writer()
+            .and_then(|w| w.delete_hud_layout(&roomy_id))
+            .expect("deleted");
         let state = build_state(store.reader()).expect("state");
         assert_eq!(state.designs.len(), 2);
         // Winamax 6-max, ACR tournaments (the stack-depth preset replaced the
@@ -1094,21 +1142,21 @@ mod tests {
         let mut design = cash();
         design.columns = 2;
         design.cells = vec![
-            design::Cell {
+            Some(design::Cell {
                 stat: "vpip".into(),
                 when: None,
-            },
-            design::Cell {
+            }),
+            Some(design::Cell {
                 stat: "pair_raise".into(),
                 when: None,
-            },
-            design::Cell {
+            }),
+            Some(design::Cell {
                 stat: "steal".into(),
                 when: Some(StackWhen {
                     below_bb: Some(20),
                     at_least_bb: None,
                 }),
-            },
+            }),
         ];
         let stars = preview(Some(store.reader()), &design, "pokerstars", 6).expect("preview");
         assert_eq!(stars.panels.len(), 6);
@@ -1125,6 +1173,16 @@ mod tests {
                 "{panel:?}"
             );
             assert!(panel.stats.contains(&"pair_raise".to_owned()));
+            // Each statistic drawn where a click opens its settings: on
+            // the panel, in the order the panel shows them.
+            let drawn: Vec<&str> = panel.cells.iter().map(|c| c.stat.as_str()).collect();
+            assert_eq!(
+                drawn,
+                panel.stats.iter().map(String::as_str).collect::<Vec<_>>()
+            );
+            for cell in &panel.cells {
+                assert!(cell.rect.x >= panel.rect.x && cell.rect.y >= panel.rect.y);
+            }
         }
         assert_eq!(acr.plates.len(), 6);
         assert!(acr.legend.is_some());
