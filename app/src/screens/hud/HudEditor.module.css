@@ -376,9 +376,13 @@
   }
 }
 
+/* Room for the slots just past the panel's right and bottom edges that a
+   drag shows (`.outsideColumn`, `.outsideRow`): a slot and its gap. Inside
+   this box they are drawn whole and take the pointer, not clipped by its
+   scroll or covered by the options beside it. */
 .gridArea {
   overflow-x: auto;
-  padding: 0 var(--space-6) var(--space-6) 0;
+  padding: 0 calc(var(--slot-width) + var(--space-1) * 1.5) calc(var(--control) + var(--space-1) * 1.5) 0;
 }
 
 .panelBox {

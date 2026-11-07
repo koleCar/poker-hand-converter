@@ -892,8 +892,7 @@ export async function captureHudScreens(browser: Browser, rec: Recorder): Promis
 
     // The drag (pointer events, as a mouse does it): picked up in the drawer,
     // it shows the slots just past the panel's edges; held over the first
-    // slot past the bottom edge, it would add a row there. (The slots past
-    // the right edge sit under the panel's options, which take the pointer.)
+    // slot past the bottom edge, it would add a row there.
     await moveTo(page, steal, 1);
     await page.mouse.down();
     const stealBox = await steal.boundingBox();
