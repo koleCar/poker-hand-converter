@@ -425,7 +425,8 @@ describe("the list, rendered", () => {
     expect(html).toContain("+$12.50");
     expect(html).not.toContain("+12.5 bb");
     expect(html).toContain("EV +8.0");
-    expect(html).toContain(" bb<");
+    // The pot follows the unit too (108f38bf): money here.
+    expect(html).toContain(">$26<");
     expect(html).toContain('aria-label="Has a note"');
     expect(html).toContain('title="review"');
     expect(html).toMatch(/>#(<!-- -->)?1</);
