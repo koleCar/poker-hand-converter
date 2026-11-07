@@ -19,7 +19,6 @@ import {
   rangeColour,
   rangeScore,
   targetRange,
-  winRateBar,
 } from "../../app/src/screens/live/model.js";
 import { dateRange, EMPTY_FILTER, isInstant } from "../../packages/ui/hands/filter.js";
 import type { StatDefinition } from "../../web/src/lib/stats/display.js";
@@ -37,6 +36,11 @@ function definition(id: string): StatDefinition {
 describe("Live: the statistics", () => {
   it("shows only shipped statistics", () => {
     for (const id of LIVE_STATS) expect(() => definition(id)).not.toThrow();
+  });
+
+  it("leaves the win rates to the graph", () => {
+    expect(LIVE_STATS).not.toContain("bb_per_100");
+    expect(LIVE_STATS).not.toContain("allin_ev_bb_per_100");
   });
 
   it("takes a percentage's target from its normal band", () => {
@@ -117,8 +121,6 @@ describe("Live: a statistic against its target range", () => {
     expect(bar.bandRight).toBeCloseTo(33.33, 1);
     expect(bar.mark).toBeCloseTo(50);
     expect(rangeBar(500, { low: 45, high: 60 }).mark).toBe(98);
-    expect(winRateBar(0).mark).toBe(50);
-    expect(winRateBar(-400).mark).toBe(2);
   });
 });
 
