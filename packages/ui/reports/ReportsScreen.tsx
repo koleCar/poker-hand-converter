@@ -4,8 +4,8 @@
  * Hands screen's chips, with the groups a report sums by, and Reports' own
  * saved filters where the surface keeps them - over:
  *
- * - the summary: hands, the result in money and in big blinds, bb/100 and
- *   the all-in EV bb/100;
+ * - the summary: hands, the result in the graph's unit (money or big
+ *   blinds), bb/100 and the all-in EV bb/100;
  * - the win-rate graph (`stats/WinrateGraph`): total, showdown,
  *   non-showdown and all-in EV, cumulative over hands, in big blinds or in
  *   money;
@@ -271,15 +271,16 @@ function ReportBody({
           </div>
           <div className={styles.tile}>
             <dt>{r.summary.result}</dt>
-            <dd className={tone(summary.net)}>
-              {summary.net !== null && moneyUnit ? signedMoney(moneyUnit, summary.net) : "—"}
-            </dd>
-          </div>
-          <div className={styles.tile}>
-            <dt>{r.summary.netBb}</dt>
-            <dd className={tone(summary.netBbMilli)}>
-              {summary.netBbMilli !== null ? bigBlindsIn(ui.intlLocale, summary.netBbMilli) : "—"}
-            </dd>
+            {/* One result, in the graph's unit: money or big blinds. */}
+            {unit === "money" ? (
+              <dd className={tone(summary.net)}>
+                {summary.net !== null && moneyUnit ? signedMoney(moneyUnit, summary.net) : "—"}
+              </dd>
+            ) : (
+              <dd className={tone(summary.netBbMilli)}>
+                {summary.netBbMilli !== null ? `${bigBlindsIn(ui.intlLocale, summary.netBbMilli)} bb` : "—"}
+              </dd>
+            )}
           </div>
           {bb100 ? (
             <div className={styles.tile}>

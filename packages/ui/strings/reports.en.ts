@@ -20,7 +20,6 @@ export const reportsUiEn = {
     label: "Summary",
     hands: "Hands",
     result: "Result",
-    netBb: "Big blinds",
     bb100: "bb/100",
     evBb100: "All-in EV bb/100",
   },

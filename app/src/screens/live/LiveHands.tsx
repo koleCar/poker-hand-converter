@@ -1,9 +1,9 @@
 /**
  * The Live screen's hands: every hand of the session, newest first, ten to
- * a page - the hero's cards, the board, the position, the pot and the
- * result in the screen's unit. The whole row opens the hand (a click, or
- * Enter on the row's link); a hovered row says so with its background, an
- * accent edge and an arrow at its end.
+ * a page - the hero's cards, the board, the position, and the pot and the
+ * result both in the screen's unit (big blinds or the hand's money). The
+ * whole row opens the hand (a click, or Enter on the row's link); a hovered
+ * row says so with its background, an accent edge and an arrow at its end.
  *
  * The session's hands are read whole (the store's pages of up to 500,
  * following its cursor; a session is hundreds of hands, not thousands) and
@@ -19,7 +19,7 @@ import { useT } from "../../i18n";
 import { liveNumberFormat } from "../../i18n/format";
 import { errorText, ipc, type HandCursor, type HandRow, type Session } from "../../lib/ipc";
 import { go, screenHref } from "../../lib/router";
-import { bigBlinds, signedMoney, unitOf } from "../hands/format";
+import { bigBlinds, money, signedMoney, unitOf } from "../hands/format";
 import { HANDS_PER_PAGE, pageList } from "./model";
 import type { LiveUnit } from "./units";
 import styles from "./Live.module.css";
@@ -174,7 +174,12 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
 function HandLine({ row, newest, unit }: { row: HandRow; newest: boolean; unit: LiveUnit }) {
   const t = useT();
   const d = t.live.handList;
-  const pot = row.bigBlind > 0 ? d.bb(BB.format(row.totalPot / row.bigBlind)) : "—";
+  const pot =
+    unit === "money"
+      ? money(unitOf(row), row.totalPot)
+      : row.bigBlind > 0
+        ? d.bb(BB.format(row.totalPot / row.bigBlind))
+        : "—";
   const inMoney = unit === "money" && row.heroNet !== null;
   const result = inMoney
     ? signedMoney(unitOf(row), row.heroNet as number)

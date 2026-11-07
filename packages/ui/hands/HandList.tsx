@@ -19,7 +19,7 @@ import { CardRow } from "../cards/PlayingCard";
 import { useUiStrings } from "../i18n";
 import { RailLoader } from "../loader/RailLoader";
 import { useListEnter } from "../loader/useListEnter";
-import { handFormat, signedMoney, stakes, unitOf, type HandFormat } from "./format";
+import { handFormat, money as moneyText, signedMoney, stakes, unitOf, type HandFormat } from "./format";
 import styles from "./HandList.module.css";
 import type { HandRow, HandSort } from "./model";
 
@@ -59,7 +59,7 @@ interface HandListProps {
   sort?: HandSort;
   sorts?: readonly HandSort[];
   onSort?: (sort: HandSort) => void;
-  /** The results in big blinds or in each hand's money (the screen's switch). */
+  /** The pots and results in big blinds or in each hand's money (the screen's switch). */
   unit?: "bb" | "money";
   /**
    * Changes when the surface changes the row height without resizing the
@@ -374,7 +374,13 @@ function Row({ row, index, top, selected, tabbable, format, unit, onSelect, onKe
   const result =
     value === null ? t.noHero : inMoney ? signedMoney(money, value) : `${format.bigBlinds(value)} bb`;
   const tone = value === null || value === 0 ? styles.even : value > 0 ? styles.won : styles.lost;
-  const pot = row.bigBlind > 0 ? `${format.pot(row.totalPot / row.bigBlind)} bb` : t.noHero;
+  // The pot follows the screen's switch too: the hand's money, or big blinds.
+  const pot =
+    unit === "money"
+      ? moneyText(money, row.totalPot)
+      : row.bigBlind > 0
+        ? `${format.pot(row.totalPot / row.bigBlind)} bb`
+        : t.noHero;
   // An all-in's EV is the result's tooltip, not a mark (2026-11-05).
   let resultTitle: string | undefined;
   if (row.allIn) {
