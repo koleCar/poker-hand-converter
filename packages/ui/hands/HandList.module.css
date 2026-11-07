@@ -158,6 +158,16 @@
   box-shadow: inset 3px 0 0 var(--accent-fg);
 }
 
+/* Several chosen (the desktop): each is tinted; the accent edge stays on the
+   hand open in the replayer. */
+.scroll[aria-multiselectable="true"] .body > .selected:not(.current, :hover) {
+  box-shadow: none;
+}
+
+.body > .current {
+  box-shadow: inset 3px 0 0 var(--accent-fg);
+}
+
 .more {
   position: absolute;
   inset-inline: 0;

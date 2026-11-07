@@ -23,12 +23,14 @@ import { FilterBar, handGroups } from "./FilterBar";
 import { activeGroups, toQuery, type FilterState } from "./filter";
 import { kindOf, pinKind } from "./gameKind";
 import { HandSessionsContext } from "./sessions";
+import type { MenuPoint } from "./ContextMenu";
 import { HandList } from "./HandList";
 import { KindToggle } from "./KindToggle";
 import toggleStyles from "./KindToggle.module.css";
 import styles from "./Hands.module.css";
 import type { HandFacets, HandFilter, HandRow, HandsSource } from "./model";
 import { useHandList, type HandList as HandListState } from "./useHandList";
+import { useHandSelection } from "./useHandSelection";
 
 export interface HandsScreenProps {
   source: HandsSource;
@@ -75,6 +77,11 @@ export interface HandsScreenProps {
   panelRef?: Ref<HTMLDivElement>;
   /** Fill the surface's main area (the desktop) or size to the page (the web). */
   fill?: boolean;
+  /**
+   * Several hands can be chosen, and a right click on a row hands the chosen
+   * ones (in the list's order) to the surface's menu (the desktop's).
+   */
+  onRowsMenu?: (handKeys: string[], at: MenuPoint) => void;
 }
 
 export function HandsScreen({
@@ -99,6 +106,7 @@ export function HandsScreen({
   densityKey,
   panelRef,
   fill = false,
+  onRowsMenu,
 }: HandsScreenProps) {
   const t = useUiStrings().hands;
   // Big blinds or each hand's money, for the list's results (as on Live).
@@ -117,6 +125,7 @@ export function HandsScreen({
   useEffect(() => {
     if (listRef) listRef.current = list;
   });
+  const selection = useHandSelection(list.rows);
   const groups = useMemo(() => handGroups(source.features), [source.features]);
   const loadFacets = useCallback((draft: HandFilter) => source.facets(draft), [source]);
 
@@ -134,6 +143,7 @@ export function HandsScreen({
   let countLine: string | null = null;
   if (facets) {
     countLine = filtered && total !== null ? t.countOf(facets.total, total) : t.count(facets.total);
+    if (onRowsMenu && selection.size > 1) countLine = `${countLine} · ${t.chosen(selection.size)}`;
   }
 
   // Another filter's first page on its way: the rows shown are the previous
@@ -175,6 +185,8 @@ export function HandsScreen({
         unit={shownUnit}
         densityKey={densityKey}
         enterKey={list.rowsKey}
+        selection={onRowsMenu ? selection : undefined}
+        onRowsMenu={onRowsMenu}
       />
     );
   }

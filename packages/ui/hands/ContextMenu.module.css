@@ -1,0 +1,45 @@
+/* The right-click menu (ContextMenu.tsx): the filter row's panels' plate,
+   rows like the "+ Add filter" menu's. */
+
+.menu {
+  position: fixed;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 13rem;
+  max-width: min(22rem, calc(100vw - 16px));
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-4);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-2);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-3);
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  outline: none;
+  background: var(--surface-hover);
+}
+
+.item:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}

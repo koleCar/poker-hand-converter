@@ -81,6 +81,7 @@ pub mod custom_stats;
 #[cfg(debug_assertions)]
 pub mod dev;
 pub mod entitlements;
+pub mod export;
 pub mod folder_settings;
 pub mod folders;
 pub mod hand_time;
@@ -423,6 +424,8 @@ pub fn run() {
         hands::hands_find,
         hands::hand_phf,
         replayer::replayer_open,
+        replayer::replayer_open_list,
+        export::hands_export,
         replayer::replayer_hand,
         replayer::replayer_close,
         replayer::replayer_open_in_main,
@@ -560,6 +563,8 @@ pub fn run() {
         hands::hands_find,
         hands::hand_phf,
         replayer::replayer_open,
+        replayer::replayer_open_list,
+        export::hands_export,
         replayer::replayer_hand,
         replayer::replayer_close,
         replayer::replayer_open_in_main,
