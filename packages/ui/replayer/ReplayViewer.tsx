@@ -252,6 +252,16 @@ const CROSSFADE_FROM = 0.45;
  */
 const useMeasureEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
+/** A CSS `animation`, as opposed to a transition or a scripted (WAAPI) flight. */
+function isStylesheetAnimation(animation: Animation): boolean {
+  return "animationName" in animation;
+}
+
+/** An effect with no end — `finish()` throws on one. */
+function loops(animation: Animation): boolean {
+  return animation.effect?.getComputedTiming().iterations === Infinity;
+}
+
 /**
  * Watches the stage and reports which table shape to draw.
  *
@@ -607,13 +617,40 @@ function ReplayStage({
   );
 
   /**
+   * Settle the felt's stylesheet animations, on every commit that is not a step.
+   *
+   * Under `data-motion="settle"` the stylesheet still creates a card's deal-in
+   * and a bet's push-out; this is what makes them land instantly. Finishing
+   * rather than switching them off is the whole point: an animation that was
+   * never removed cannot be re-created, so the next step leaves every card
+   * already on the table where it is instead of dealing it in a second time.
+   *
+   * Every commit, not only frame changes: a setting that brings cards onto a
+   * settled felt ("show known cards") must not deal them in either.
+   *
+   * The looping acting pulse has no end to finish at and is left running. It
+   * is not frame motion — it says whose turn it is — and cancelling it would
+   * leave it off for good on a seat that is still acting after the next step.
+   */
+  useMeasureEffect(() => {
+    const node = stageRef.current;
+    if (motion === "step" || !node || typeof node.getAnimations !== "function") {
+      return;
+    }
+    for (const animation of node.getAnimations({ subtree: true })) {
+      if (isStylesheetAnimation(animation) && !loops(animation)) {
+        animation.finish();
+      }
+    }
+  });
+
+  /**
    * The scrub escape hatch.
    *
-   * `data-motion` stops the *next* animation from starting; this finishes the
-   * ones already under way. Without it a jump lands on a felt that is still
-   * mid-sweep for the frame it left — the attribute cannot retroactively
-   * un-start a 460ms flight — and the two together are what make "render the
-   * destination" true rather than nearly true.
+   * Finishes what was still under way when the viewer jumped. Without it a jump
+   * lands on a felt that is still mid-sweep for the frame it left — nothing can
+   * retroactively un-start a 460ms flight — and with the settle above it is
+   * what makes "render the destination" true rather than nearly true.
    *
    * Before paint, so the finished state is what the reader sees first.
    */
@@ -624,10 +661,14 @@ function ReplayStage({
     }
 
     for (const animation of node.getAnimations({ subtree: true })) {
-      // An infinite effect — the acting pulse — has no end to jump to, and
-      // `finish()` throws rather than saying so. Cancelling is the same thing
-      // for something whose only job is to loop.
-      if (animation.effect?.getComputedTiming().iterations === Infinity) {
+      if (isStylesheetAnimation(animation) && loops(animation)) {
+        // The acting pulse; see the settle above.
+        continue;
+      }
+      // Any other infinite effect has no end to jump to, and `finish()` throws
+      // rather than saying so. Cancelling is the same thing for something
+      // whose only job is to loop.
+      if (loops(animation)) {
         animation.cancel();
       } else {
         animation.finish();
@@ -832,8 +873,11 @@ function ReplayStage({
       // change is already a container query off the stage or off `data-tier`.
       data-mode={mode}
       // One attribute the whole subtree's motion hangs off, so "does this
-      // animate" is answered once, in one place, by one CSS rule.
-      data-motion={motion}
+      // animate" is answered once, in one place. Not "none": that value is the
+      // editor's clockless felt, and switching animations off here is exactly
+      // what made a step deal every card in again (see the motion gate in
+      // replayer.css).
+      data-motion={motion === "step" ? "step" : "settle"}
       data-allin={inRunout ? "true" : undefined}
       // `native` or `overlay`; see useFullscreen. The stylesheet gives either
       // one the whole viewport as its box, and nothing else changes.
