@@ -280,8 +280,16 @@ import type { Position, Street } from "../phf/types";
  *               placed on that set are graded from its solves like the
  *               other sets' (ANALYSIS-PLAN §10 2026-10-31, the heads-up
  *               150bb flop library).
+ *   analysis/38 Following the real line onto a solved tree (river, turn
+ *               and flop library alike), either player's size the solve
+ *               takes under `MIN_LINE_REACH` (2%) is remapped to the
+ *               nearest size it takes at least that often - the hero's own
+ *               earlier sizes too; before, only the opponent's, under 1%.
+ *               Such an edge could only end the line `*-unreached`, so only
+ *               lines that were unreached move, and the streets whose
+ *               ranges start from them (ANALYSIS-PLAN §10 2026-11-07).
  */
-export const ANALYSIS_VERSION = "analysis/37" as const;
+export const ANALYSIS_VERSION = "analysis/38" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
