@@ -1,7 +1,9 @@
 /**
  * A hand list's right-click menu (Hands, Live): the chosen hands replayed
- * in the replayer window - several with their list beside it - or saved as
- * one hand-history .txt (`export.rs`), the text Rail and the web read back.
+ * in the replayer window - several with their list beside it - marked
+ * (`MarkPanel`: markers are tags; "Review" queues the spot for the solver),
+ * or saved as one hand-history .txt (`export.rs`), the text Rail and the
+ * web read back.
  * What a save did is said for a few seconds at the window's foot.
  */
 import { ContextMenu, type MenuPoint } from "@rail/ui/hands/ContextMenu";
@@ -10,6 +12,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useT } from "../i18n";
 import { errorText, ipc } from "../lib/ipc";
 import styles from "./HandActions.module.css";
+import { MarkPanel } from "./MarkPanel";
 
 /** How long a save's message stays, ms. */
 const NOTICE_MS = 6000;
@@ -70,6 +73,7 @@ export function useHandActions(): HandActions {
           onClose={close}
           items={[
             { label: t.replay(menu.keys.length), onSelect: () => replay(menu.keys) },
+            { label: t.mark, submenu: () => <MarkPanel handKeys={menu.keys} /> },
             { label: t.export(menu.keys.length), onSelect: () => save(menu.keys) },
           ]}
         />

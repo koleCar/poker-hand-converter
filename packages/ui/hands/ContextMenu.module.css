@@ -43,3 +43,21 @@
   color: var(--text-tertiary);
   cursor: default;
 }
+
+.item.open {
+  background: var(--surface-hover);
+}
+
+.label {
+  flex: 1;
+}
+
+.chevron {
+  margin-left: var(--space-3);
+  color: var(--text-tertiary);
+}
+
+/* A submenu's panel beside the menu (`submenu`); its own content inside. */
+.panel {
+  min-width: 15rem;
+}

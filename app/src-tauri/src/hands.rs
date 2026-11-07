@@ -11,6 +11,8 @@
 //! - `hand_phf(handKey)`: a hand's PHF (JSON text) for the replayer;
 //! - `hand_annotations`, `hand_set_note`, `hand_add_tag`,
 //!   `hand_remove_tag`: a hand's note and tags (local only for now);
+//! - `hands_marks`, `hands_mark`: the tags of several hands and one tag put on
+//!   or taken off them all (a hand list's "Mark" menu);
 //! - `saved_filters`, `save_filter`, `delete_saved_filter`: a screen's
 //!   saved filters (the filter as the window wrote it, JSON): the Hands
 //!   screen's, or (R2.7b) the Reports screen's, which share the filter row.
@@ -598,6 +600,103 @@ pub async fn hand_remove_tag(
         .and_then(|writer| writer.write(move |tx| hand_list::remove_tag(tx, &key, &tag)))
         .map_err(text)?;
     annotations(store, &hand_key)
+}
+
+/// The most hands one mark command takes.
+const MARK_MAX_HANDS: usize = 10_000;
+
+/// A hand list's "Mark" menu: the tags in use and the chosen hands' own.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HandMarksDto {
+    /// Every tag in use, the most used first.
+    known: Vec<String>,
+    hands: Vec<HandTagsDto>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HandTagsDto {
+    hand_key: String,
+    tags: Vec<String>,
+}
+
+/// A hand after a mark: its note and tags, for its row and the replayer.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HandMarkedDto {
+    hand_key: String,
+    annotations: AnnotationsDto,
+}
+
+fn mark_keys(hand_keys: &[String]) -> Result<(), String> {
+    if hand_keys.len() > MARK_MAX_HANDS {
+        return Err(format!(
+            "at most {MARK_MAX_HANDS} hands can be marked at once"
+        ));
+    }
+    Ok(())
+}
+
+/// The tags in use and the tags of `hand_keys` (the "Mark" menu of a hand list).
+#[tauri::command]
+pub async fn hands_marks(
+    store: State<'_, StoreState>,
+    hand_keys: Vec<String>,
+) -> Result<HandMarksDto, String> {
+    mark_keys(&hand_keys)?;
+    let reader = open(&store)?.reader();
+    let mut known = reader.hand_tags().map_err(text)?;
+    known.sort_by(|a, b| b.count.cmp(&a.count).then_with(|| a.value.cmp(&b.value)));
+    let mut hands = Vec::with_capacity(hand_keys.len());
+    for hand_key in hand_keys {
+        let tags = reader.hand_annotations(&hand_key).map_err(text)?.tags;
+        hands.push(HandTagsDto { hand_key, tags });
+    }
+    Ok(HandMarksDto {
+        known: known.into_iter().map(|tag| tag.value).collect(),
+        hands,
+    })
+}
+
+/// Put `tag` on every hand of `hand_keys` (`on`) or take it off, in one
+/// transaction. Returns each hand's note and tags after it.
+#[tauri::command]
+pub async fn hands_mark(
+    store: State<'_, StoreState>,
+    hand_keys: Vec<String>,
+    tag: String,
+    on: bool,
+) -> Result<Vec<HandMarkedDto>, String> {
+    mark_keys(&hand_keys)?;
+    let store = open(&store)?;
+    let keys = hand_keys.clone();
+    store
+        .writer()
+        .and_then(|writer| {
+            writer.write(move |tx| {
+                let now = rail_store::time::now_ms();
+                for key in &keys {
+                    if on {
+                        hand_list::add_tag(tx, key, &tag, now)?;
+                    } else {
+                        hand_list::remove_tag(tx, key, &tag)?;
+                    }
+                }
+                Ok(())
+            })
+        })
+        .map_err(text)?;
+    hand_keys
+        .into_iter()
+        .map(|hand_key| {
+            let annotations = annotations(store, &hand_key)?;
+            Ok(HandMarkedDto {
+                hand_key,
+                annotations,
+            })
+        })
+        .collect()
 }
 
 fn annotations(store: &rail_store::Store, hand_key: &str) -> Result<AnnotationsDto, String> {
