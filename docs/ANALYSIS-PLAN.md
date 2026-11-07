@@ -7182,3 +7182,92 @@ Each phase appends what it learned that changed the plan.
       tests, not compared hand by hand.
     - Not measured on the owner's desktop store (how many postflop rows the
       backfill tags, how many areas split).
+- 2026-11-07 — Why river decisions end up `river-unreached`: either
+  player's rarely taken size is remapped to one the solve reaches,
+  `analysis/38`. No migration.
+  - **Why.** The open item repeated since 2026-10-20, 10-26 and 10-31: on
+    the owner's corpus 3 river decisions were left ungraded with
+    `river-unreached`, and one of them had lost its grade at `analysis/36`.
+    Nobody had looked at which line or why.
+  - **What `river-unreached` is.** `followSolvedLine` (`river.ts`, shared
+    by the river, the turn and the flop library) walks the real line onto
+    the solved tree and then asks both players' ranges to reach the node:
+    under `MIN_LINE_REACH` (2%) of either range by weight at the start of
+    the street is `*-unreached` (the strategy there is a best response to a
+    sliver, poorly converged). A real size maps by pseudo-harmonic
+    translation to the likelier side; an **opponent's** size the solve
+    took under `MIN_ACTION_FREQ` (1%) was remapped to the nearest size it
+    took at least 1%. The hero's own earlier sizes were never remapped.
+  - **The three decisions** (found with the census rows and a scratch
+    trace of the walk, not committed; all heads-up calls facing a bet):
+    - A single-raised pot, 8-handed: the hero (out of position) overbets
+      1.56 pots (onto the 1.5-pot size, 8.5% of its range), the opponent
+      min-raises. The solve raises over the overbet with 0.5% of its range
+      (75% raise) or 1.7% (all-in): **correctly unreached** - no raise size
+      reaches 2% of that range, and the real min-raise is far from both.
+    - A single-raised pot, 6-max: the hero's own river bet of 0.58 pot
+      translated to the 75% size, which the solved range takes **0.6%** of
+      the time (33% at 37%); the opponent's raise followed and the hero's
+      call was left with 0.6% of its own range. A **mapping gap**: the
+      opponent-only remap never looked at the hero's earlier sizes.
+    - A limped pot, 8-handed (blinds heads-up): the opponent's pot-size
+      bet translated to 75%, taken **1.8%** of the time (150% at 12.7%):
+      above the 1% remap floor, below the 2% reach floor, so it could only
+      end unreached. A **gap between the two thresholds.** This is the one
+      that lost its grade at `analysis/36` (checked by re-running it
+      without the heads-up sets: Perfect then): the heads-up 100bb chunk
+      changed the river ranges, and the bet landed on the 1.8% edge.
+  - **What was done.** A node's `frequency` is weighted by the actor's own
+    reach, so a line's share after an edge is at most the edge's frequency:
+    an edge taken under 2% can only end the line `*-unreached`. The remap
+    in `followSolvedLine` now applies to **either player's** size (the
+    hero's earlier ones too) taken under `MIN_LINE_REACH` (2%, was 1% and
+    the opponent's only), to the nearest size taken at least that often;
+    the gap is the line's `distance` as before (`size-translated`, or
+    `off-tree-size` and the Inaccurate cap past 25% of the pot). Since only
+    an edge under 2% is ever moved, **no line that reached its node
+    changes**; what moves is lines that were unreached, and the streets
+    whose ranges start from them. `MIN_ACTION_FREQ` is gone (the river
+    trainer's own `MIN_VILLAIN_FREQ` stays 1%; its comment says so). The
+    `river-unreached` doc comment in `types.ts` said 0.5%; it says 2% now.
+  - **Tested.** `tests/test/riverLineRemap.test.ts` (5): on a hand-built
+    tree, an opponent's size taken 1.5% is remapped to the nearest size
+    taken at least 2% (0.5 pots away, `distance` 0.5), one taken 3% is kept
+    with its reach, and a street where no size reaches 2% stays
+    `river-unreached`; on a real river solve, the hero's own 60% bet (the
+    75% size, under 1% of its range) is followed as the 33% bet its range
+    takes and reaches the opponent's all-in node, and an exact 33% bet is
+    kept with no distance. The two remap tests fail on the old rule. The
+    Vitest suite (142 files), the web's `tsc -b` and lint pass.
+  - **Measured** (`floplib:census`, 5,448 stored hands, turn solves on,
+    three shards, the five live sets from the local library;
+    `CENSUS_BEFORE` decision for decision; the before side reproduces the
+    2026-10-31 entry's after side: 6,643 of 8,005, `river-unreached` 3,
+    `turn-unreached` 8):
+    - River: 2 `river-unreached` → graded: Perfect 1 (the limped pot's
+      call, 0.12bb from the top option, `off-tree-size`), Inaccurate 1 (the
+      6-max call: the hero's combo is outside its narrowed range and the
+      solve re-raises it; 4.1bb, capped at Inaccurate by `off-tree-size`,
+      the half-strength check says Good, so one class is the limit
+      anyway). Two more river decisions move because their ranges now
+      start from a flop-library line that was `flop-unreached`: 1 Perfect →
+      Inaccurate (0.49bb), 1 flags only. `river-unreached` 3 → **1** (the
+      min-raise over the overbet).
+    - Turn: 2 `turn-unreached` → Perfect 1, Inaccurate 1 (both
+      `off-tree-size`); 1 `turn-unreached` → `turn-off-tree` (reached now,
+      but the rest of the line leaves the tree). `turn-unreached` 8 → 5.
+    - Flop: 2 heads-up flop decisions with no grade → graded from the
+      library, Perfect 1, Good 1 (both `off-tree-size`).
+    - All graded 6,643 → **6,649 (83.1%)** of 8,005. No other decision
+      moved.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/38` (grades move: stored
+    analyses re-run). No wording changes (the reasons and flags are the
+    existing ones). Only aggregate numbers are committed.
+  - **Open.**
+    - The 5 remaining `turn-unreached` decisions were not looked at one by
+      one; by the argument above none is a size under 2% with a used size
+      beside it, so each is a line both ranges really rarely take (or
+      every size under 2%).
+    - A remap is a pick of the nearest used size, not of the size whose
+      range best matches the real one; on these lines it moved sizes by
+      0.27-0.5 pots, which `off-tree-size` already caps.
