@@ -18,6 +18,8 @@ export const handsUiEn = {
   count: (shown: number) => hands(shown),
   countOf: (matching: number, total: number) => `${num(matching)} of ${hands(total)}`,
   loadingMore: "Loading more…",
+  /** Beside the count, when several hands are chosen in the list. */
+  chosen: (count: number) => `${num(count)} selected`,
   listLabel: (order: string) => `Hands, ${order.toLowerCase()}`,
   columns: {
     date: "Date",

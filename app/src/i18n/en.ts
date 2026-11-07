@@ -954,6 +954,28 @@ export const en = {
     empty: "No hands yet. They appear here as Rail imports them from your hand-history folders.",
     rebuilding: (done: number, total: number) =>
       `Updating the hand list after an upgrade: ${n(done)} of ${hands(total)}. The list fills as it goes.`,
+    /** A hand list's right-click menu (Hands, Live): the chosen hands. */
+    actions: {
+      label: (count: number) => (count === 1 ? "Hand" : hands(count)),
+      replay: (count: number) => (count === 1 ? "Replay hand" : `Replay ${hands(count)}`),
+      export: (count: number) => (count === 1 ? "Export hand to .txt" : `Export ${hands(count)} to .txt`),
+      /** The suggested file name, without ".txt". */
+      fileName: (date: string) => `Rail hands ${date}`,
+      exported: (count: number, path: string) => `Saved ${hands(count)} to ${path}`,
+      missing: (count: number) => `${hands(count)} no longer in your hand store, left out`,
+      exportFailed: (reason: string) => `The hands were not saved: ${reason}`,
+      dismiss: "Dismiss",
+    },
+    /** The replayer window's list of hands (after "Replay" on several). */
+    replayList: {
+      label: "Hands to replay",
+      position: (at: number, count: number) => `${n(at)} of ${n(count)}`,
+      show: "Show the hands",
+      hide: "Hide the hands",
+      previous: "Previous hand (↑)",
+      next: "Next hand (↓)",
+      noCards: "No cards",
+    },
     panel: {
       label: "Hand",
       choose: "Choose a hand from the list to replay it here.",

@@ -1277,6 +1277,12 @@ export const ipc = {
     invoke<HandPage>("hands_page", { filter, after, limit }),
   handsFacets: (filter: HandFilter) => invoke<HandFacets>("hands_facets", { filter }),
   handsByKey: (keys: string[]) => invoke<HandRow[]>("hands_by_key", { keys }),
+  /**
+   * Save hands as one hand-history .txt (`export.rs`) where the reader picks
+   * in the system's dialog; `null` when it was cancelled.
+   */
+  handsExport: (handKeys: string[], fileName: string) =>
+    invoke<HandsExported | null>("hands_export", { handKeys, fileName }),
   /** "Go to hand": by the room's id (a prefix of it) or the hand key. */
   handsFind: (query: string, limit: number) => invoke<HandRow[]>("hands_find", { query, limit }),
   /** A hand's PHF as JSON text; `null` when the store has no such hand. */
@@ -1342,8 +1348,11 @@ export const ipc = {
    * the window the first time; `focus` brings it forward with the keyboard.
    */
   replayerOpen: (handKey: string, focus: boolean) => invoke<null>("replayer_open", { handKey, focus }),
-  /** The hand the replayer window should show, if one was chosen. */
-  replayerHand: () => invoke<string | null>("replayer_hand"),
+  /** Replay several hands: the first, with the list in the window's sidebar. */
+  replayerOpenList: (handKeys: string[], focus: boolean) =>
+    invoke<null>("replayer_open_list", { handKeys, focus }),
+  /** The hand the replayer window should show and its list, if one was chosen. */
+  replayerHand: () => invoke<ReplayerShow | null>("replayer_hand"),
   /** Close the replayer window (its close button). */
   replayerClose: () => invoke<null>("replayer_close"),
   /** From the replayer window: the main window comes forward on this screen (`#/...`). */
@@ -1511,9 +1520,31 @@ export function onOpenPlayer(onOpen: (player: OpenPlayer) => void): () => void {
   return onAppEvent<OpenPlayer>("hud-open-player", onOpen);
 }
 
-/** The replayer window: show this hand (from `replayerOpen` in the main window). */
-export function onReplayerHand(onHand: (handKey: string) => void): () => void {
-  return onAppEvent<string>("replayer-hand", onHand);
+/**
+ * What the replayer window shows: a hand, and the hands it steps through
+ * (empty, or two or more with the hand among them).
+ */
+export interface ReplayerShow {
+  hand: string;
+  list: string[];
+}
+
+/** An export written (`handsExport`). */
+export interface HandsExported {
+  path: string;
+  hands: number;
+  /** Asked for but no longer in the store: left out. */
+  missing: number;
+}
+
+/** The replayer window: show this hand (from `replayerOpen` / `replayerOpenList`). */
+export function onReplayerHand(onHand: (show: ReplayerShow) => void): () => void {
+  return onAppEvent<ReplayerShow>("replayer-hand", onHand);
+}
+
+/** The main window: the replayer window now shows this hand. */
+export function onReplayerShowing(onHand: (handKey: string) => void): () => void {
+  return onAppEvent<string>("replayer-showing", onHand);
 }
 
 /** The main window: go to this screen (a link in the replayer window). */
