@@ -116,6 +116,9 @@ interface ZoomState {
 
 const easeOut = (t: number) => 1 - (1 - t) ** 3;
 
+/** The y range either side of zero an empty plot shows. */
+const EMPTY_SPAN = 10;
+
 function reducedNow(): boolean {
   return (
     typeof window !== "undefined" &&
@@ -194,12 +197,18 @@ export function WinratePlot({ xs, series, ariaLabel, strings, formatHands, forma
   }, []);
 
   const target = useMemo<Target>(() => {
-    const [lo, hi] = extentIn(
-      xs,
-      series.map((s) => s.values),
-      view.from,
-      view.to,
-    );
+    // No lines yet (a session that has only just started): an empty frame
+    // around zero, so the graph is already there and the first curve grows
+    // into it rather than replacing a notice.
+    const [lo, hi] =
+      series.length === 0
+        ? [-EMPTY_SPAN, EMPTY_SPAN]
+        : extentIn(
+            xs,
+            series.map((s) => s.values),
+            view.from,
+            view.to,
+          );
     const range = niceRange(lo, hi, win === null);
     return { x0: view.from, x1: view.to, ...range };
   }, [xs, series, view.from, view.to, win]);
@@ -488,13 +497,19 @@ export function WinratePlot({ xs, series, ariaLabel, strings, formatHands, forma
 
   const lastX = xs[xs.length - 1];
   const endVisible = lastX >= frame.x0 - 1e-9 && lastX <= frame.x1 + 1e-9;
-  const active = live && hover !== null && hover > 0 ? hover : null;
+  const active = live && series.length > 0 && hover !== null && hover > 0 ? hover : null;
   const zoomed = win !== null;
   const canZoomIn = view.to - view.from > minSpan + 1e-9;
 
   return (
     <div className="stats-chart__plot" ref={wrapRef}>
-      <div className="stats-chart__toolbar">
+      {/* Nothing to zoom on an empty plot: the toolbar keeps its height, so the
+          plot does not move when the first line arrives. */}
+      <div
+        className="stats-chart__toolbar"
+        style={series.length === 0 ? { visibility: "hidden" } : undefined}
+        aria-hidden={series.length === 0 || undefined}
+      >
         <p className="stats-chart__range" aria-live="polite">
           {zoomed
             ? strings.zoom.range(
