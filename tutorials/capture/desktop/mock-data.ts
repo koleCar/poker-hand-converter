@@ -1382,7 +1382,7 @@ export function buildMockData(now = Date.now()): MockData {
     checks,
     positions: [{ site: 'pokerstars', size: 6, panels: 1 }],
     roomSettings: hudRooms.map((room) => ({ site: room.id, preferredSeat: null })),
-    limits: { maxCells: 12, maxColumns: 6, maxDecimals: 2, maxPopupSections: 8, maxPopupStats: 40 },
+    limits: { maxCells: 12, maxColumns: 6, maxRows: 12, maxDecimals: 2, maxPopupSections: 8, maxPopupStats: 40 },
   };
 
   /* Players. */
