@@ -25,9 +25,10 @@
  * **The real line onto the tree** (§3.3). Checks and calls map to themselves.
  * A bet or raise maps by pseudo-harmonic translation onto the node's sizes,
  * to the likelier side; an all-in (or anything that puts the effective stack
- * in) maps to the all-in. An opponent's size the solve (almost) never uses is
- * remapped to the nearest size it does use, so a translation never lands the
- * hero in a node its strategy never reached. Any size further than 25% of the
+ * in) maps to the all-in. A size (either player's, the hero's earlier ones
+ * too) the solve takes under `MIN_LINE_REACH` of the time is remapped to the
+ * nearest size it does take that often, so a translation never lands the
+ * hero in a node the strategies never reach. Any size further than 25% of the
  * pot from where it was mapped is `off-tree-size` and caps the grade at
  * Inaccurate; nearer but not exact is `size-translated`.
  *
@@ -99,10 +100,13 @@ export const RIVER_MAX_ITERATIONS = 2000;
 export const RIVER_CHECK_EVERY = 10;
 /** Combos under this share of a range's heaviest combo are dropped before solving: they cost time and change nothing. */
 export const PRUNE_SHARE = 0.002;
-/** A line under this share of either range (2%) is noise (`river-unreached`): the strategy there is a best response to a sliver. */
+/**
+ * A line under this share of either range (2%) is noise (`river-unreached`):
+ * the strategy there is a best response to a sliver. Either player's size the
+ * solve takes less often than this is remapped to the nearest one it takes at
+ * least this often (analysis/38; before, only the opponent's, under 1%).
+ */
 export const MIN_LINE_REACH = 0.02;
-/** An opponent's size the solve takes less often than this is remapped to one it uses. */
-export const MIN_ACTION_FREQ = 0.01;
 /** A size mapped further than this (fraction of the pot) is `size-translated`. */
 export const TRANSLATED_DISTANCE = 0.02;
 /** Strength buckets against a range: strong from here… */
@@ -446,13 +450,16 @@ export function followSolvedLine<S extends SolvedStreet>(
     if (!mapped) return fail("off-tree", `no ${act.type} at ${node.path || "the root"}`);
     let edge = mapped.edges[0];
     let gap = mapped.distance;
-    // The opponent's size: one the solve actually uses.
-    if (act.seat !== input.heroSeat && SIZED.has(node.actions[edge].kind) && node.frequency[edge] < MIN_ACTION_FREQ) {
+    // Either player's size: one the solve takes at least `MIN_LINE_REACH` of
+    // the time. `frequency` is weighted by the actor's own reach, so a rarer
+    // edge leaves under that share of the range on the line and can only end
+    // `*-unreached`; remapping it moves no line that reaches its node.
+    if (SIZED.has(node.actions[edge].kind) && node.frequency[edge] < MIN_LINE_REACH) {
       // Measured from the real size, or from the all-in's when it was one.
       const x = mapped.distance === 0 && node.actions[edge].kind === "allin" ? node.actions[edge].sizePot : (act.sizePot ?? 0);
       const used = node.actions
         .map((action, e) => ({ action, e }))
-        .filter(({ action, e }) => SIZED.has(action.kind) && node.frequency[e] >= MIN_ACTION_FREQ)
+        .filter(({ action, e }) => SIZED.has(action.kind) && node.frequency[e] >= MIN_LINE_REACH)
         .sort((a, b) => Math.abs(a.action.sizePot - x) - Math.abs(b.action.sizePot - x) || a.e - b.e);
       if (used.length > 0) {
         edge = used[0].e;

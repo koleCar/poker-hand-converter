@@ -127,7 +127,7 @@ export const PATTERN_WEIGHTS: Record<"ip" | "oop" | "none", Record<"flop" | "tur
 
 /** A bet that would put in more than this share of what is behind is played as a check instead: no all-ins before the river. */
 const MAX_BET_SHARE = 0.6;
-/** The villain's river action is drawn only from actions the solve takes at least this often (the analysis' `MIN_ACTION_FREQ`). */
+/** The villain's river action is drawn only from actions the solve takes at least this often (the analysis remapped sizes under 1% until analysis/38; it now uses `MIN_LINE_REACH`). */
 export const MIN_VILLAIN_FREQ = 0.01;
 /** Attempts before giving up on a seed (a line the solve never reaches, a range emptied by the board). */
 export const MAX_ATTEMPTS = 12;
