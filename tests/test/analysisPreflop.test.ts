@@ -602,3 +602,70 @@ describe("a line too rare for its set, read on a neighbouring depth (analysis/13
     expect(depths("nlhe-cash-hu-150bb")).toEqual([100]);
   });
 });
+
+/* ------------------------------------- uncovered depths (analysis/39) - */
+
+describe("a depth no set of the table covers, graded on the nearest charted one (analysis/39)", () => {
+  /** Everyone `stack` deep; UTG and HJ fold, the cutoff (hero) acts, the rest fold. */
+  const cutoff = (cards: string, action: "raise" | "fold", stack: number) =>
+    action === "raise"
+      ? hand({
+          hero: "Co",
+          cards,
+          stack,
+          lines: ["Utg: folds", "Hj: folds", "Co: raises $1.5 to $2.5", "Btn: folds", "Sb: folds", "Bb: folds"],
+          winner: "Co",
+          pot: 2.5,
+          returned: 1.5,
+        })
+      : hand({
+          hero: "Co",
+          cards,
+          stack,
+          lines: ["Utg: folds", "Hj: folds", "Co: folds", "Btn: raises $1.5 to $2.5", "Sb: folds", "Bb: folds"],
+          winner: "Btn",
+          pot: 2.5,
+          returned: 1.5,
+        });
+
+  it("grades a 6-max 76bb open on the 60bb set, flagged", () => {
+    const decision = pre(analyzeHand(cutoff("Ah Kd", "raise", 76), { charts: fullLibrary(), turn: false }));
+    expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "raise", grade: "perfect" });
+    // 76bb is 20% from neither 60 nor 100; 60 is the nearer by ratio.
+    expect(decision.facts.chart?.set).toBe("nlhe-cash-6max-60bb");
+    expect(decision.approximations).toContain("uncovered-depth");
+    expect(decision.approximations).not.toContain("rare-line-depth");
+  });
+
+  it("caps a bad play there at Inaccurate", () => {
+    const decision = pre(analyzeHand(cutoff("Ah Ad", "fold", 76), { charts: fullLibrary(), turn: false }));
+    expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "fold", grade: "inaccurate" });
+    expect(decision.approximations).toContain("uncovered-depth");
+    // The same fold at a charted depth is a Blunder.
+    expect(pre(analyzeHand(cutoff("Ah Ad", "fold", 100), { charts: fullLibrary(), turn: false })).grade).toBe("blunder");
+  });
+
+  it("reads at most 5/3 of a depth away: 26bb on the 40bb set, 22bb refused", () => {
+    const near = pre(analyzeHand(cutoff("Ah Kd", "raise", 26), { charts: fullLibrary(), turn: false }));
+    expect(near).toMatchObject({ status: "analysed", source: "chart" });
+    expect(near.facts.chart?.set).toBe("nlhe-cash-6max-40bb");
+    expect(near.approximations).toContain("uncovered-depth");
+    const far = pre(analyzeHand(cutoff("Ah Kd", "raise", 22), { charts: fullLibrary(), turn: false }));
+    expect(far).toMatchObject({ status: "not-analysed", reason: "chart-stack-depth" });
+  });
+
+  it("stays refused while the neighbouring sets are not loaded, and names them", () => {
+    // Only the 150bb set: neither neighbour of 76bb (60, 100) is loaded.
+    const only = chartLibrary([chartSet("nlhe-cash-6max-150bb")]);
+    const h = cutoff("Ah Kd", "raise", 76);
+    expect(pre(analyzeHand(structuredClone(h), { charts: only, turn: false })).reason).toBe("chart-stack-depth");
+    expect([...rareLineChartSets(h, only)].sort()).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-6max-60bb"]);
+    // The lookup alone (the flop library's placement) still refuses the depth.
+    const found = preflopSpotFromHand(h, 0);
+    expect(found.ok && lookupPreflop(fullLibrary(), found.spot, null, null)).toMatchObject({ ok: false, reason: "stack-depth" });
+  });
+
+  it("explains the flag in both languages", () => {
+    for (const dict of [en, hr]) expect(dict.analysis.approximations["uncovered-depth"]).toMatch(/Inaccurate|Netočno/);
+  });
+});

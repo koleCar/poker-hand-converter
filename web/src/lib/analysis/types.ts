@@ -288,8 +288,14 @@ import type { Position, Street } from "../phf/types";
  *               Such an edge could only end the line `*-unreached`, so only
  *               lines that were unreached move, and the streets whose
  *               ranges start from them (ANALYSIS-PLAN §10 2026-11-07).
+ *   analysis/39 A hero preflop decision at an effective stack no set of its
+ *               table covers (`chart-stack-depth`) is graded on the nearest
+ *               charted depth below or above, at most 5/3 of a depth step
+ *               away (`MAX_UNCOVERED_RATIO`: a 9-max 60bb spot is read at
+ *               100bb), with `uncovered-depth`, capped at Inaccurate
+ *               (docs/CHARTS.md §7.3, ANALYSIS-PLAN §10 2026-11-08).
  */
-export const ANALYSIS_VERSION = "analysis/38" as const;
+export const ANALYSIS_VERSION = "analysis/39" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -519,6 +525,11 @@ export interface Flag {
  *                       set's depth to be charted there (`rare-line`), and is
  *                       read on the neighbouring depth of the same table that
  *                       charts it (docs/CHARTS.md §7.1). Capped at Inaccurate.
+ * - `uncovered-depth`   (analysis/39) no set of the table covers the spot's
+ *                       effective stack (`stack-depth`), and it is read on the
+ *                       nearest charted depth below or above, at most 5/3 of
+ *                       a depth step away (`MAX_UNCOVERED_RATIO`,
+ *                       docs/CHARTS.md §7.3). Capped at Inaccurate.
  *
  * Multiway (A9):
  *
@@ -608,6 +619,7 @@ export const APPROXIMATIONS = [
   "library-bucketed",
   "limp-tremble",
   "rare-line-depth",
+  "uncovered-depth",
   "multiway-approx",
   "multiway-history",
   "flop-realisation",

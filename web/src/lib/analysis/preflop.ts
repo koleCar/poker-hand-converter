@@ -76,6 +76,32 @@ export const WEAK_CHART_VERSIONS: readonly string[] = [
  */
 const RARE_LINE_DEPTH = { rareLineDepth: true } as const;
 
+/**
+ * Grading also reads a spot at a depth no set of its table covers
+ * (`chart-stack-depth`: 9-max under 80bb, 6-max 72-80bb or under 32bb) on the
+ * nearest charted depth below or above (`uncoveredDepthSets`, analysis/39),
+ * with the `uncovered-depth` approximation and the grade capped at
+ * Inaccurate, as `rare-line-depth` - but only within `MAX_UNCOVERED_RATIO`
+ * of the effective stack: a 9-max 60bb spot is read at 100bb, a 50bb one is
+ * still refused (ANALYSIS-PLAN §10 2026-11-08).
+ */
+const GRADE_LOOKUP = { rareLineDepth: true, uncoveredDepth: true } as const;
+
+/**
+ * The furthest depth step an uncovered spot is graded across, as the ratio
+ * of the set's depth to the effective stack either way: 5/3, the step
+ * between the 60bb and 100bb sets, the widest one measured held out.
+ */
+export const MAX_UNCOVERED_RATIO = 5 / 3;
+
+/** Whether a lookup's uncovered-depth read (if it took one) is within `MAX_UNCOVERED_RATIO`. */
+function uncoveredWithin(lookup: ChartLookup): boolean {
+  if (!lookup.ok) return true;
+  const read = lookup.approximations.find((a) => a.kind === "uncovered-depth");
+  if (!read || !read.realBb || !read.chartBb) return true;
+  return Math.max(read.chartBb / read.realBb, read.realBb / read.chartBb) <= MAX_UNCOVERED_RATIO + 1e-9;
+}
+
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;
 
@@ -130,6 +156,7 @@ function chartApproximations(charts: ChartSet, list: readonly ChartApproximation
     else if (item.kind === "stack-depth") out.add("stack-depth-near");
     else if (item.kind === "sizing" && item.offTree) out.add("off-tree-size");
     else if (item.kind === "rare-line-depth") out.add("rare-line-depth");
+    else if (item.kind === "uncovered-depth") out.add("uncovered-depth");
   }
   return out;
 }
@@ -158,8 +185,11 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   if (!found.heroCards) return refuse("bad-input", "the hero's cards are unknown");
 
   const heroAction = found.heroAction;
-  // A line too rare for its set is read on a neighbouring depth that charts it (analysis/13).
-  let lookup = lookupPreflop(charts, found.spot, found.heroCards, heroAction, RARE_LINE_DEPTH);
+  // A line too rare for its set is read on a neighbouring depth that charts it
+  // (analysis/13); a depth no set covers, on the nearest charted one within
+  // `MAX_UNCOVERED_RATIO` (analysis/39).
+  let lookup = lookupPreflop(charts, found.spot, found.heroCards, heroAction, GRADE_LOOKUP);
+  if (!uncoveredWithin(lookup)) lookup = lookupPreflop(charts, found.spot, found.heroCards, heroAction, RARE_LINE_DEPTH);
   let options: OptionAnalysis[];
   let chosen: number;
 
@@ -169,7 +199,8 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   } else if (lookup.ok || lookup.reason === "action-not-modelled") {
     // The node exists but the hero's action is not one of its edges. Look the
     // node up alone to name what is missing.
-    const bare = lookupPreflop(charts, found.spot, found.heroCards, null, RARE_LINE_DEPTH);
+    let bare = lookupPreflop(charts, found.spot, found.heroCards, null, GRADE_LOOKUP);
+    if (!uncoveredWithin(bare)) bare = lookupPreflop(charts, found.spot, found.heroCards, null, RARE_LINE_DEPTH);
     if (!bare.ok) return refuse(bare.reason, bare.detail);
     const cut = cutReason(bare.node.cut, heroAction.type);
     if (cut) return refuse(cut, `${found.spot.hero} ${heroAction.type}s where the tree has no ${heroAction.type}`);
@@ -199,8 +230,14 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
     options,
     chosen,
     pot: input.potBb,
-    // Off the chart's size, read at another depth, or a poster read as a limper (analysis/24): the reference is near, not exact.
-    capAtInaccurate: approximations.has("off-tree-size") || approximations.has("rare-line-depth") || approximations.has("posted-blind"),
+    // Off the chart's size, read at another depth (a rare line, analysis/13, or
+    // an uncovered depth, analysis/39), or a poster read as a limper
+    // (analysis/24): the reference is near, not exact.
+    capAtInaccurate:
+      approximations.has("off-tree-size") ||
+      approximations.has("rare-line-depth") ||
+      approximations.has("uncovered-depth") ||
+      approximations.has("posted-blind"),
   });
   return {
     ok: true,

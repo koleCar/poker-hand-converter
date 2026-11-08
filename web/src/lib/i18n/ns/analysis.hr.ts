@@ -890,6 +890,8 @@ export const analysisHr: Dict["analysis"] = {
     "limp-tremble": "Limpani pot: chartovi tu sami gotovo ne limpaju, pa pretpostavljaju da limper može imati bilo koju ruku",
     "rare-line-depth":
       "Linija je na ovoj dubini stacka prerijetka da bi bila u chartovima, pa je očitana na najbližoj dubini koja je ima; ocjena nije gora od Netočno",
+    "uncovered-depth":
+      "Nijedan set chartova ne pokriva ovu efektivnu dubinu stacka, pa je spot očitan na najbližoj dubini koja postoji; ocjena nije gora od Netočno",
     "coarse-river": "Turn riješen s grubim riverom ispod njega: jedna veličina beta i all-in",
     "flop-mapped": "Flop očitan s najbližeg riješenog flopa iste teksture, a ne riješen sam",
     "library-bucketed": "Tvoja ruka očitana po kategoriji (gotova ruka i draw) u biblioteci flopova, a ne kombinacija po kombinacija",
