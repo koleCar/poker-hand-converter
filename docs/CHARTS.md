@@ -1214,6 +1214,15 @@ first-in AA band is "raises over 90%" since `charts/10`. Every other band of
 §8 holds unchanged. The flop library has no chunks for this set; its heads-up
 flops are the heuristic's until a set's chunks are solved.
 
+**Coverage** (`analysis/40` against `analysis/39`, the owner's 5,448 stored
+hands, `floplib:census` decision for decision, ANALYSIS-PLAN §10
+2026-11-08/09): `chart-stack-depth` 45 → 24 (20 graded: Perfect 19,
+Inaccurate 1; 11 on the set's own band, 9 as an uncovered neighbour within
+5/3), `chart-rare-line` 46 → 33 (13 9-max 100bb lines read on the 60bb set
+after 150bb: Perfect 11, Inaccurate 2), 9 decisions read at 100bb as an
+uncovered depth now read here (grades kept). Preflop graded 5,213 → 5,246;
+every graded decision 6,717 → 6,750 (84.3%).
+
 ## 7. Lookup
 
 ```ts
