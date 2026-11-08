@@ -14,7 +14,7 @@
 -- What changes:
 --
 --   * `analysis_hand_table_set(phf)`: re-created as `20271102090000` wrote it,
---     with `('nlhe-cash-9max-60bb', 9, 60, 6)` in the set list and the 9-max
+--     with the 9-max 60bb set sixth in the set list and the 9-max
 --     and heads-up sets after it renumbered. No band overlaps the new one
 --     (48-72bb against 9-max 100bb's 80-120bb), so no hand another set
 --     answered changes set. Still immutable, empty search_path, executable by

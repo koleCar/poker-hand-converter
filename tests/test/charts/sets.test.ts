@@ -168,8 +168,9 @@ describe.each(UNSTRADDLED.map((spec) => [spec.id, spec] as const))("%s", (id, sp
     const first = set.nodes.get("") as NonNullable<ReturnType<typeof set.nodes.get>>;
     const open = first.options.findIndex((o) => o.action === "raise");
     expect(first.freq[open * H + classByName("72o")]).toBe(0);
-    // Every class keeps the limp's tremble (0.5%): AA opens all the rest.
-    expect(first.freq[open * H + aa]).toBeGreaterThan(0.95);
+    // Every class keeps the limp's tremble (0.5%): AA opens almost all the rest. UTG traps
+    // with a few limps at an indifferent EV (9-max 100bb 4.7%, 9-max 60bb 5.5%, charts/10).
+    expect(first.freq[open * H + aa]).toBeGreaterThan(0.9);
   });
 
   it("opens wider in later position, and defends the blinds plausibly", () => {
