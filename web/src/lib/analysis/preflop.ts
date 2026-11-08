@@ -78,12 +78,13 @@ const RARE_LINE_DEPTH = { rareLineDepth: true } as const;
 
 /**
  * Grading also reads a spot at a depth no set of its table covers
- * (`chart-stack-depth`: 9-max under 80bb, 6-max 72-80bb or under 32bb) on the
- * nearest charted depth below or above (`uncoveredDepthSets`, analysis/39),
- * with the `uncovered-depth` approximation and the grade capped at
- * Inaccurate, as `rare-line-depth` - but only within `MAX_UNCOVERED_RATIO`
- * of the effective stack: a 9-max 60bb spot is read at 100bb, a 50bb one is
- * still refused (ANALYSIS-PLAN §10 2026-11-08).
+ * (`chart-stack-depth`: 6-max and 9-max 72-80bb, under 32bb on 6-max and 48bb
+ * on 9-max since `charts/10`'s 9-max 60bb set) on the nearest charted depth
+ * below or above (`uncoveredDepthSets`, analysis/39), with the
+ * `uncovered-depth` approximation and the grade capped at Inaccurate, as
+ * `rare-line-depth` - but only within `MAX_UNCOVERED_RATIO` of the effective
+ * stack: a 9-max 40bb spot is read at 60bb, a 6-max 22bb one is still
+ * refused (ANALYSIS-PLAN §10 2026-11-08).
  */
 const GRADE_LOOKUP = { rareLineDepth: true, uncoveredDepth: true } as const;
 
