@@ -7272,3 +7272,9 @@ Each phase appends what it learned that changed the plan.
     - A remap is a pick of the nearest used size, not of the size whose
       range best matches the real one; on these lines it moved sizes by
       0.27-0.5 pots, which `off-tree-size` already caps.
+- 2026-11-08 — The coverage census at `analysis/38` (work in progress).
+  - **Census** (`floplib:census`, 5,448 stored hands, turn solves on, three
+    shards, the five live sets from the local library): 8,005 hero
+    decisions; graded 6,649 (83.1%: exact 6,327, approximate 322), no grade
+    396 (heads-up flops), not analysed 960. Reproduces the 2026-11-07
+    entry's after side (`turn-unreached` 5, `river-unreached` 1).
