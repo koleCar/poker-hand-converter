@@ -74,7 +74,8 @@ describe("the registry", () => {
     expect(CHART_SETS.filter((s) => s.straddle).map((s) => [s.id, s.straddle])).toEqual([
       ["nlhe-cash-6max-100bb-straddle", { position: "UTG", bb: 2 }],
     ]);
-    expect(CHART_SETS.filter((s) => s.players === 9).map((s) => s.stackBb)).toEqual([100, 150, 200]);
+    // charts/10: 9-max 60bb.
+    expect(CHART_SETS.filter((s) => s.players === 9).map((s) => s.stackBb)).toEqual([60, 100, 150, 200]);
     // charts/8 and charts/9: heads-up at 100bb and 150bb.
     expect(CHART_SETS.filter((s) => s.players === 2).map((s) => s.id)).toEqual(["nlhe-cash-hu-100bb", "nlhe-cash-hu-150bb"]);
   });
@@ -128,8 +129,13 @@ describe("the registry", () => {
     expect(pickId(table(6, "BTN", 31))).toBe("stack-depth");
     // Between 60 and 100 nothing is within 20% of 75.
     expect(pickId(table(6, "BTN", 75))).toBe("stack-depth");
-    // 9-max has no short sets.
-    expect(pickId(table(8, "CO", 60))).toBe("stack-depth");
+    // 9-max: 60bb since charts/10, 48-72bb; nothing between 72 and 80, nor under 48.
+    expect(pickId(table(8, "CO", 60))).toBe("nlhe-cash-9max-60bb");
+    expect(pickId(table(9, "UTG", 48))).toBe("nlhe-cash-9max-60bb");
+    expect(pickId(table(7, "BTN", 72))).toBe("nlhe-cash-9max-60bb");
+    expect(pickId(table(9, "CO", 75))).toBe("stack-depth");
+    expect(pickId(table(9, "CO", 80))).toBe("nlhe-cash-9max-100bb");
+    expect(pickId(table(9, "CO", 47))).toBe("stack-depth");
     expect(pickId(table(8, "CO", 180))).toBe("nlhe-cash-9max-200bb");
   });
 

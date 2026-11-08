@@ -7424,3 +7424,94 @@ Each phase appends what it learned that changed the plan.
     - The rest of the 396 heads-up flops and every larger cause need
       solves or models: lines the library does not solve (166), sets it
       has none for (91), multiway checks and bets (611).
+- 2026-11-08/09 — The 9-max 60bb chart set, `charts/10`, and `analysis/40`
+  (docs/CHARTS.md §6.11; `NINE_60` in `tests/scripts/preflop-charts/sets.ts`;
+  migration `20271108090000_table_set_9max_60bb.sql`).
+  - **Why.** The 2026-11-08 census left 45 hero preflop decisions
+    `chart-stack-depth`, 42 of them further than 5/3 from any set - 9-max
+    20-59bb for the most part, where the shallowest 9-max set was 100bb.
+    A 9-max 60bb set covers 48-72bb natively and, within 5/3, 36-47bb as
+    the uncovered neighbour; the opponents' ranges at those depths are read
+    on it too instead of on 100bb.
+  - **The set.** The 6-max 60bb set's sizes and `charts/4`'s limp tree; no
+    committed fit to reuse, so A2c's pipeline: two measure-and-fit rounds
+    from `charts/2`'s fit with the limp tree in the rounds (as the straddle
+    set did), 1,560 turn+river solves a round, then 9,000 iterations
+    (`DEEP_ITERATIONS`). 4 h 51 min on 3 threads under `nice`, peak 1.6 GB.
+    **NashConv 0.063 mbb/hand** (0.32 at 3,000; every seat's best-response
+    gain under 0.02), strategy change 0.0003 at the last checkpoint,
+    heads-up BvB 0.053. 2,936 nodes kept of a 48,652-node tree (1,677
+    behind an open limp), 2 left out as unconverged (reached 1.2e-6 and
+    4.9e-6); the big blind facing a single limp is in from every seat. Fit
+    error single raised 0.035 (`charts/1` 0.053, raw equity 0.076). 6.9 MB,
+    1.7 MB gzip, `model.hash` `0d34b0e8`. Every sanity band of
+    `sets.test.ts` holds but one: AA limps 5.5% UTG first in at the same EV
+    as raising (a trap mix; 9-max 100bb limps it 4.7%), so the first-in AA
+    band is "raises over 90%" (was 95%).
+  - **Nothing else moves.** The other eleven set files are byte for byte
+    staging's (SHA-256 checked before the PR), so no `model.hash` and no
+    flop-library chunk changes; each set keeps its own `version`.
+    `CHARTS_VERSION` → `charts/10`, which `WEAK_CHART_VERSIONS` now lists
+    (the same realisation model: its decisions carry `model`; a test keeps
+    every set version on the list).
+  - **The table helper.** `CHART_SETS` lists the set between the 6-max sets
+    and 9-max 100bb; `analysis_hand_table_set` (Supabase), `HAND_TABLE_SETS`
+    (app) and `rail_store::table_set` (desktop) hold the same list. The
+    migration re-creates the SQL helper with it (immutable, empty
+    search_path, `authenticated` only, as before) and runs the
+    `20271102090000` backfill again, so a stored postflop leak row of a
+    9-max 48-72bb hand gets the set (191 rows on the local test stack). No
+    band overlaps the new one, so no hand changes set. New pgTAP
+    `table_set_9max_60bb.test.sql` (9 tests). The desktop store does not
+    backfill: its rows are re-written by the `analysis/40` rebuild.
+  - **Measured** (`floplib:census`, the same 5,448 hands, turn solves on,
+    three shards, the five live flop sets; the before side is staging,
+    which reproduces the 2026-11-08 entry's after side exactly: 6,717
+    graded, `chart-stack-depth` 45, `uncovered-depth` 68; compared
+    decision for decision with `CENSUS_BEFORE`):
+    - `chart-stack-depth` **45 → 24**: 20 graded - Perfect 19, Inaccurate
+      1 (0.31bb, capped) - 11 on the set's own band (`stack-depth-near` or
+      none), 9 as the uncovered neighbour (`uncovered-depth`, capped); one
+      becomes `chart-cold-call`. The 24 left (14 9-max, 10 6-max) are
+      further than 5/3 from every set of their table (9-max: under 36bb)
+      or reach no node at the neighbour; by the census's dealt-in depth
+      most read "80-120bb" (a deep player who folded preflop).
+    - `chart-rare-line` **46 → 33**: 13 9-max 100bb lines the 150bb set
+      leaves out too are read on the 60bb set (`rare-line-depth`, its
+      neighbour below, tried after 150bb): Perfect 11, Inaccurate 2 (1.83
+      and 2.03bb).
+    - Already graded: 9 9-max decisions that were read at 100bb as an
+      uncovered depth are read on the 60bb set (8 Perfect stay Perfect, 1
+      Inaccurate stays Inaccurate, now out of range and uncapped; one
+      `uncovered-depth` becomes `rare-line-depth`); one 9-max call keeps its
+      flags and goes Perfect → Inaccurate (0.13bb; not read one by one).
+    - Postflop: 43 rows move, almost all approximation flags (opponents'
+      ranges read on their own set instead of `range-neighbour-depth`,
+      fewer placeholders); grades: river Good → Perfect 2, Inaccurate →
+      Perfect 1, Mistake → Perfect 1; turn Inaccurate → Good 1, Perfect →
+      Good 1, Perfect → Inaccurate 1.
+    - Preflop graded **5,213 → 5,246**, all graded **6,717 → 6,750
+      (83.9% → 84.3%)**; preflop grades Perfect 4,698, Good 17,
+      Inaccurate 236, Mistake 210, Blunder 85.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/40` (stored preflop grades
+    move: stored analyses re-run). Tests: `charts/sets.test.ts` (the new
+    set's version, its own fit, 9,000 iterations; the AA band),
+    `charts/registry.test.ts` (9-max 48-72bb on the set, 75bb and 47bb
+    refused, 80bb still 100bb), `analysisRanges.test.ts` (9-max 75bb reads
+    60 then 100bb, 40bb reads 60bb), `analysisPreflop.test.ts` (a 9-max
+    100bb rare line tries 150 then 60bb), `charts/data.test.ts` (`charts/10`,
+    every version weak), `studyPlanTable.test.ts` (reads the new
+    migration's list), `rail_store::table_set` unit tests, pgTAP. The
+    Vitest suite, the web's `tsc -b` and lint, and `cargo test` for
+    `rail-store` pass. Only aggregate numbers are committed.
+  - **Open.**
+    - The migration has to be applied to production before `main` moves
+      (the owner's promotion; `analysis_hand_table_set` must match
+      `CHART_SETS` or 9-max 48-72bb postflop leak rows stay `''`).
+    - The flop library has no chunks for the 9-max 60bb set; its heads-up
+      flops are the heuristic's until a batch solves them.
+    - 24 `chart-stack-depth` left (beyond 5/3 of every set of the table,
+      or no node at the neighbour; not read one by one); 33
+      `chart-rare-line` (9-max lines no neighbour charts).
+    - The one 9-max call Perfect → Inaccurate with unchanged flags was not
+      traced.

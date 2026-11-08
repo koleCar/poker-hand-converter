@@ -52,8 +52,9 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * on the list, and `modelCaveat` names those hands. `charts/4` (A2d, limp
  * trees), `charts/3` (A2c), `charts/5` (A2e, the straddle set), `charts/6`
  * (the 200bb sets solved longer), `charts/7` (the 9-max 150bb set solved
- * longer), `charts/8` and `charts/9` (the heads-up sets) are the same model at other
- * tables, depths and blinds, with the same weakness.
+ * longer), `charts/8` and `charts/9` (the heads-up sets) and `charts/10` (the
+ * 9-max 60bb set) are the same model at other tables, depths and blinds, with
+ * the same weakness.
  */
 export const WEAK_CHART_VERSIONS: readonly string[] = [
   "charts/1",
@@ -65,6 +66,7 @@ export const WEAK_CHART_VERSIONS: readonly string[] = [
   "charts/7",
   "charts/8",
   "charts/9",
+  "charts/10",
 ];
 
 /**
@@ -78,12 +80,13 @@ const RARE_LINE_DEPTH = { rareLineDepth: true } as const;
 
 /**
  * Grading also reads a spot at a depth no set of its table covers
- * (`chart-stack-depth`: 9-max under 80bb, 6-max 72-80bb or under 32bb) on the
- * nearest charted depth below or above (`uncoveredDepthSets`, analysis/39),
- * with the `uncovered-depth` approximation and the grade capped at
- * Inaccurate, as `rare-line-depth` - but only within `MAX_UNCOVERED_RATIO`
- * of the effective stack: a 9-max 60bb spot is read at 100bb, a 50bb one is
- * still refused (ANALYSIS-PLAN §10 2026-11-08).
+ * (`chart-stack-depth`: 6-max and 9-max 72-80bb, under 32bb on 6-max and 48bb
+ * on 9-max since `charts/10`'s 9-max 60bb set) on the nearest charted depth
+ * below or above (`uncoveredDepthSets`, analysis/39), with the
+ * `uncovered-depth` approximation and the grade capped at Inaccurate, as
+ * `rare-line-depth` - but only within `MAX_UNCOVERED_RATIO` of the effective
+ * stack: a 9-max 40bb spot is read at 60bb, a 6-max 22bb one is still
+ * refused (ANALYSIS-PLAN §10 2026-11-08).
  */
 const GRADE_LOOKUP = { rareLineDepth: true, uncoveredDepth: true } as const;
 

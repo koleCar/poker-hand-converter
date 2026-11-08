@@ -593,7 +593,8 @@ describe("a line too rare for its set, read on a neighbouring depth (analysis/13
     const depths = (id: string, bb?: number) => rareLineDepthSets(CHART_SETS, spec(id), bb).map((s) => s.stackBb);
     expect(depths("nlhe-cash-6max-100bb")).toEqual([150, 60]);
     expect(depths("nlhe-cash-6max-100bb", 85)).toEqual([60, 150]);
-    expect(depths("nlhe-cash-9max-100bb")).toEqual([150]);
+    // charts/10: the 9-max 60bb set is the 100bb set's neighbour below, tried after 150bb.
+    expect(depths("nlhe-cash-9max-100bb")).toEqual([150, 60]);
     expect(depths("nlhe-cash-9max-200bb")).toEqual([150]);
     expect(depths("nlhe-cash-6max-40bb")).toEqual([60]);
     expect(depths("nlhe-cash-6max-100bb-straddle")).toEqual([]);

@@ -31,6 +31,8 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { WEAK_CHART_VERSIONS } from "../../../web/src/lib/analysis/preflop";
+
 import {
   CHART_SET_VERSIONS,
   CHARTS_VERSION,
@@ -69,8 +71,10 @@ describe("committed chart set", () => {
     expect(charts.version).toBe("charts/4");
     expect(CHART_SET_VERSIONS).toContain(charts.version);
     // charts/5 (A2e) adds the straddle set, charts/6 and charts/7 re-solve the 200bb and 9-max 150bb sets,
-    // charts/8 and charts/9 add the heads-up sets; this set is still charts/4's.
-    expect(CHARTS_VERSION).toBe("charts/9");
+    // charts/8 and charts/9 add the heads-up sets, charts/10 the 9-max 60bb set; this set is still charts/4's.
+    expect(CHARTS_VERSION).toBe("charts/10");
+    // Every version a set may carry is the same realisation model, with its known weakness (`model`).
+    for (const version of CHART_SET_VERSIONS) expect(WEAK_CHART_VERSIONS).toContain(version);
     expect(charts.id).toBe("nlhe-cash-6max-100bb");
     expect(charts.game.positions).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
     expect(charts.game.stackBb).toBe(100);
