@@ -7498,7 +7498,8 @@ Each phase appends what it learned that changed the plan.
     set's version, its own fit, 9,000 iterations; the AA band),
     `charts/registry.test.ts` (9-max 48-72bb on the set, 75bb and 47bb
     refused, 80bb still 100bb), `analysisRanges.test.ts` (9-max 75bb reads
-    60 then 100bb, 40bb reads 60bb), `charts/data.test.ts` (`charts/10`,
+    60 then 100bb, 40bb reads 60bb), `analysisPreflop.test.ts` (a 9-max
+    100bb rare line tries 150 then 60bb), `charts/data.test.ts` (`charts/10`,
     every version weak), `studyPlanTable.test.ts` (reads the new
     migration's list), `rail_store::table_set` unit tests, pgTAP. The
     Vitest suite, the web's `tsc -b` and lint, and `cargo test` for
