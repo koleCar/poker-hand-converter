@@ -30,13 +30,15 @@
  *   two players, the small blind is the button.
  * - `charts/9` adds the heads-up 150bb set (`headsUp(150)`): the same tree,
  *   sizes and pipeline at 150bb.
+ * - `charts/10` adds the 9-max 60bb set (`NINE_60`, docs/CHARTS.md §6.11):
+ *   A2c's measure-and-fit rounds on the limp tree, then 9,000 iterations.
  */
 
 import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../web/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7" | "charts/8" | "charts/9";
+  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7" | "charts/8" | "charts/9" | "charts/10";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -178,6 +180,25 @@ const headsUp = (stackBb: number, version: "charts/8" | "charts/9"): SetConfig =
  * ratios, two rounds from `charts/2`'s fit, then 9,000 iterations.
  */
 const HEADS_UP = headsUp(100, "charts/8");
+
+/**
+ * `charts/10`: 9-max 60bb (docs/CHARTS.md §6.11), for 9-max hands played
+ * 48-72bb deep, which no 9-max set covered (the shallowest was 100bb). The
+ * 6-max 60bb set's sizes (`STANDARD`: 2.5bb opens, a raise past 40% of the
+ * stack is all-in) and the limp tree of `charts/4` (`LIMPS`). There is no
+ * committed fit to reuse, so the realisation is measured on its own ranges at
+ * 60bb's stack-to-pot ratios, A2c's way (two rounds from `charts/2`'s fit),
+ * with the limp tree in the rounds, as the straddle set did (`charts/5`).
+ * 9,000 iterations (`DEEP_ITERATIONS`): a 9-max limp tree's big blind facing
+ * a single limp needs them (§5.1).
+ */
+const NINE_60: SetConfig = {
+  ...a2c(NINE, 60, STANDARD),
+  version: "charts/10",
+  fitName: "charts/10-solver-fit-9max-60bb",
+  ...LIMPS,
+  iterations: DEEP_ITERATIONS,
+};
 const HEADS_UP_150 = headsUp(150, "charts/9");
 
 /**
@@ -206,6 +227,7 @@ export const SET_CONFIGS: readonly SetConfig[] = [
   STRADDLE,
   HEADS_UP,
   HEADS_UP_150,
+  NINE_60,
 ];
 
 export function setConfig(id: string): SetConfig {

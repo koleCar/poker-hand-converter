@@ -71,6 +71,7 @@ export const CHART_SETS: readonly ChartSetSpec[] = [
   { id: "nlhe-cash-6max-100bb", players: 6, stackBb: 100, load: () => import("./data/nlhe-cash-6max-100bb.json") },
   { id: "nlhe-cash-6max-150bb", players: 6, stackBb: 150, load: () => import("./data/nlhe-cash-6max-150bb.json") },
   { id: "nlhe-cash-6max-200bb", players: 6, stackBb: 200, load: () => import("./data/nlhe-cash-6max-200bb.json") },
+  { id: "nlhe-cash-9max-60bb", players: 9, stackBb: 60, load: () => import("./data/nlhe-cash-9max-60bb.json") },
   { id: "nlhe-cash-9max-100bb", players: 9, stackBb: 100, load: () => import("./data/nlhe-cash-9max-100bb.json") },
   { id: "nlhe-cash-9max-150bb", players: 9, stackBb: 150, load: () => import("./data/nlhe-cash-9max-150bb.json") },
   { id: "nlhe-cash-9max-200bb", players: 9, stackBb: 200, load: () => import("./data/nlhe-cash-9max-200bb.json") },
