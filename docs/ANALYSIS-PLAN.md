@@ -7402,9 +7402,12 @@ Each phase appends what it learned that changed the plan.
     set with the flag; aces folded there capped at Inaccurate (a Blunder
     at 100bb); 26bb read on the 40bb set and 22bb refused (5/3); refused
     while neither neighbour is loaded, `rareLineChartSets` naming both, and
-    the bare lookup still refusing; the sentence in both languages. The
-    Vitest suite, the web's `tsc -b` and lint pass. Only aggregate numbers
-    are committed.
+    the bare lookup still refusing; the sentence in both languages.
+    `charts/headsUp.test.ts`: a heads-up 200bb and 60bb open, refused
+    before, are now read on the 150bb and 100bb heads-up sets; 260bb and
+    50bb stay refused, and never on a 6-max set. The Vitest suite (143
+    files), the web's `tsc -b` and lint pass. Only aggregate numbers are
+    committed.
   - **Open.**
     - 45 `chart-stack-depth` left: 42 further than 5/3 from any set (9-max
       20-59bb above all; a 9-max 60bb chart set would take most), 3
