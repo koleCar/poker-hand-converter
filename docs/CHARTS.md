@@ -1323,6 +1323,30 @@ charts' ranges), the hero, the trainers, or after a preflop all-in.
 decision the loaded sets refuse as `stack-depth`; a set not loaded is
 skipped.
 
+### 7.3 Grading at a depth no set covers (`analysis/39`)
+
+A hero decision whose effective stack no set of its table covers
+(`pickChartSet`'s `stack-depth`: 6-max 72-80bb or under 32bb, 9-max under
+80bb, over 240bb) is graded on the nearest charted depth below or above
+(`uncoveredDepthSets`, the read §7.2 gives the ranges), with the
+`uncovered-depth` approximation and the grade **capped at Inaccurate**, as a
+rare line (§7.1). Only within `MAX_UNCOVERED_RATIO` (5/3, the step between
+the 60bb and 100bb sets) of the effective stack: a 9-max 60bb spot is read
+at 100bb, a 9-max 50bb or a 6-max 22bb one (40bb is 1.8 away) stays
+`stack-depth`. The flop library's placement never reads it (`chartLineOf`
+asks for no option), so a pot placed this way never reads a chunk.
+
+**Held out** (ANALYSIS-PLAN §10 2026-11-08): every hero preflop decision in
+the owner's library graded on its own set, re-graded with that set removed
+from the library so its depth is uncovered and the neighbour answers
+(within 5/3): 4,763 decisions; the neighbour's capped grade equals the own
+set's grade capped the same way for **96.8%**, the same top action 97.1%;
+1.7% are Perfect or Good at the own depth but Inaccurate at the neighbour,
+0.5% Mistake or Blunder at the own depth but Perfect or Good at the
+neighbour. By step: 100 → 150bb 6-max 96.2% (n = 1,995), 9-max 97.9%
+(1,353); 150 → 100bb 6-max 97.4% (500); 100 → 60bb 95.7% (46); 60 → 100bb
+89.2% (37); 60 → 40bb 84.6% (39); heads-up 100 → 150bb 86.2% (65).
+
 ## 8. Results
 
 `charts/1` → `charts/2` (`npm run charts:report` prints these for any set):
