@@ -232,10 +232,7 @@ mod tests {
             hand_table_set(&hand(&[200; 9], &[])),
             "nlhe-cash-9max-100bb"
         );
-        assert_eq!(
-            hand_table_set(&hand(&[120; 9], &[])),
-            "nlhe-cash-9max-60bb"
-        );
+        assert_eq!(hand_table_set(&hand(&[120; 9], &[])), "nlhe-cash-9max-60bb");
         // A deep opponent still in raises the effective stack; folded, he does not.
         let mut deep = vec![400; 1];
         deep.extend([200, 200, 200, 200, 800]);
