@@ -294,8 +294,14 @@ import type { Position, Street } from "../phf/types";
  *               away (`MAX_UNCOVERED_RATIO`: a 9-max 60bb spot is read at
  *               100bb), with `uncovered-depth`, capped at Inaccurate
  *               (docs/CHARTS.md §7.3, ANALYSIS-PLAN §10 2026-11-08).
+ *   analysis/40 `charts/10`: the 9-max 60bb chart set. 7-9 handed spots at
+ *               48-72bb effective are graded on it instead of refused or
+ *               read at 100bb; 9-max spots under 48bb read it as their
+ *               uncovered neighbour, and 9-max 100bb rare lines that the
+ *               150bb set leaves out too try it (docs/CHARTS.md §6.11,
+ *               ANALYSIS-PLAN §10 2026-11-08/09).
  */
-export const ANALYSIS_VERSION = "analysis/39" as const;
+export const ANALYSIS_VERSION = "analysis/40" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
