@@ -10,15 +10,21 @@
  * read again whenever its hand count changes, so a new hand appears at the
  * top while the reader stays on their page.
  *
+ * Every column's header sorts the table by it (a first click the biggest
+ * first - positions from the first to act - a second the other way round,
+ * a third back to the newest first); the order goes back to the first page.
+ *
  * Several hands can be chosen as in the Hands list (Cmd/Ctrl + click one,
  * Shift + click a run, across pages); a right click replays them or saves
  * them as a .txt (`components/HandActions`).
  */
+import { POSITION_ORDER } from "@rail/ui/hands/filter";
 import { kindFormats, type GameKind } from "@rail/ui/hands/gameKind";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import type { MenuPoint } from "@rail/ui/hands/ContextMenu";
 import { useHandSelection, type HandSelection } from "@rail/ui/hands/useHandSelection";
-import { useEffect, useState, type MouseEvent } from "react";
+import { useUiStrings } from "@rail/ui/i18n";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 
 import { useHandActions } from "../../components/HandActions";
 import { StateMessage } from "../../components/StateMessage";
@@ -27,7 +33,7 @@ import { liveNumberFormat } from "../../i18n/format";
 import { errorText, ipc, type HandCursor, type HandRow, type Session } from "../../lib/ipc";
 import { go, screenHref } from "../../lib/router";
 import { bigBlinds, money, signedMoney, unitOf } from "../hands/format";
-import { HANDS_PER_PAGE, pageList } from "./model";
+import { HANDS_PER_PAGE, nextSort, pageList, sortHands, type LiveSort, type LiveSortColumn } from "./model";
 import type { LiveUnit } from "./units";
 import styles from "./Live.module.css";
 
@@ -79,11 +85,20 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
   const d = t.live.handList;
   const { rows, error } = useSessionHands(session.startedAt, session.hands, kind);
   const [page, setPage] = useState(1);
-  const selection = useHandSelection(rows ?? NO_ROWS);
+  const [sort, setSort] = useState<LiveSort | null>(null);
+  const sorted = useMemo(() => (rows === null ? null : sortHands(rows, sort, unit, POSITION_ORDER)), [rows, sort, unit]);
+  const selection = useHandSelection(sorted ?? NO_ROWS);
+  const onSort = (column: LiveSortColumn) => {
+    setSort(nextSort(sort, column));
+    setPage(1);
+  };
+  const header = (column: LiveSortColumn, label: string, className?: string) => (
+    <SortHeader column={column} label={label} className={className} sort={sort} onSort={onSort} />
+  );
   const actions = useHandActions();
 
   let body;
-  if (rows === null) {
+  if (rows === null || sorted === null) {
     body =
       error !== null ? (
         <StateMessage kind="error" compact>
@@ -98,33 +113,30 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
     const pages = Math.max(1, Math.ceil(rows.length / HANDS_PER_PAGE));
     const current = Math.min(page, pages);
     const first = (current - 1) * HANDS_PER_PAGE;
-    const shown = rows.slice(first, first + HANDS_PER_PAGE);
+    const shown = sorted.slice(first, first + HANDS_PER_PAGE);
+    const newestKey = rows[0]?.handKey;
     body = (
       <div className={styles.tableCard}>
         <div className={styles.tableScroll}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th scope="col">{d.columns.hand}</th>
-                <th scope="col">{d.columns.board}</th>
-                <th scope="col">{d.columns.position}</th>
-                <th scope="col" className={styles.number}>
-                  {d.columns.pot}
-                </th>
-                <th scope="col" className={styles.number}>
-                  {d.columns.result}
-                </th>
+                {header("hand", d.columns.hand)}
+                {header("board", d.columns.board)}
+                {header("position", d.columns.position)}
+                {header("pot", d.columns.pot, styles.number)}
+                {header("result", d.columns.result, styles.number)}
                 <th scope="col" className={styles.arrowCell}>
                   <span className={styles.visuallyHidden}>{d.columns.open}</span>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {shown.map((row, index) => (
+              {shown.map((row) => (
                 <HandLine
                   key={row.handKey}
                   row={row}
-                  newest={current === 1 && index === 0}
+                  newest={row.handKey === newestKey}
                   unit={unit}
                   selection={selection}
                   onMenu={actions.openMenu}
@@ -188,6 +200,47 @@ export function LiveHands({ session, kind, unit }: { session: Session; kind: Gam
       {body}
       {actions.element}
     </section>
+  );
+}
+
+/**
+ * A column header: a button that sorts by the column, its direction beside
+ * it (as the Hands list's headers).
+ */
+function SortHeader({
+  column,
+  label,
+  className,
+  sort,
+  onSort,
+}: {
+  column: LiveSortColumn;
+  label: string;
+  className: string | undefined;
+  sort: LiveSort | null;
+  onSort: (column: LiveSortColumn) => void;
+}) {
+  const t = useUiStrings().hands;
+  const active = sort !== null && sort.column === column;
+  const mark = !active ? "↕" : sort.descending ? "↓" : "↑";
+  return (
+    <th
+      scope="col"
+      className={className}
+      aria-sort={!active ? "none" : sort.descending ? "descending" : "ascending"}
+    >
+      <button
+        type="button"
+        className={active ? `${styles.sort} ${styles.sorted}` : styles.sort}
+        title={!active ? t.sortable(label) : t.sortBy(label, sort.descending ? t.descending : t.ascending)}
+        onClick={() => onSort(column)}
+      >
+        {label}
+        <span className={styles.sortMark} aria-hidden="true">
+          {mark}
+        </span>
+      </button>
+    </th>
   );
 }
 

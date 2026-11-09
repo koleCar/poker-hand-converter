@@ -12,15 +12,17 @@ import { describe, expect, it } from "vitest";
 import {
   LIVE_STATS,
   minutesBetween,
+  nextSort,
   pageList,
   perHundred,
   placeOf,
   rangeBar,
   rangeColour,
   rangeScore,
+  sortHands,
   targetRange,
 } from "../../app/src/screens/live/model.js";
-import { dateRange, EMPTY_FILTER, isInstant } from "../../packages/ui/hands/filter.js";
+import { dateRange, EMPTY_FILTER, isInstant, POSITION_ORDER } from "../../packages/ui/hands/filter.js";
 import type { StatDefinition } from "../../web/src/lib/stats/display.js";
 
 const STANDARD = JSON.parse(readFileSync(join(__dirname, "../../config/stats/standard.json"), "utf8")) as {
@@ -82,6 +84,77 @@ describe("Live: the hands table's pages", () => {
     expect(pageList(1, 20)).toEqual([1, 2, 3, 4, null, 20]);
     expect(pageList(10, 20)).toEqual([1, null, 9, 10, 11, null, 20]);
     expect(pageList(20, 20)).toEqual([1, null, 17, 18, 19, 20]);
+  });
+});
+
+describe("Live: the hands table's order", () => {
+  const hand = (id: string, over: Partial<Parameters<typeof sortHands>[0][number]> = {}) => ({
+    id,
+    heroCards: [] as string[],
+    board: [] as string[],
+    heroPosition: null as string | null,
+    totalPot: 0,
+    bigBlind: 100,
+    heroNet: null as number | null,
+    heroNetBbMilli: null as number | null,
+    ...over,
+  });
+  const ids = (rows: { id: string }[]) => rows.map((row) => row.id);
+
+  it("cycles a column: its first direction, the other, then the newest first", () => {
+    expect(nextSort(null, "pot")).toEqual({ column: "pot", descending: true });
+    expect(nextSort({ column: "pot", descending: true }, "pot")).toEqual({ column: "pot", descending: false });
+    expect(nextSort({ column: "pot", descending: false }, "pot")).toBeNull();
+    expect(nextSort(null, "position")).toEqual({ column: "position", descending: false });
+    expect(nextSort({ column: "pot", descending: false }, "result")).toEqual({ column: "result", descending: true });
+  });
+
+  it("keeps the newest first without a sort and between equal hands", () => {
+    const rows = [hand("a", { totalPot: 5 }), hand("b", { totalPot: 9 }), hand("c", { totalPot: 5 })];
+    expect(ids(sortHands(rows, null, "bb", POSITION_ORDER))).toEqual(["a", "b", "c"]);
+    expect(ids(sortHands(rows, { column: "pot", descending: true }, "money", POSITION_ORDER))).toEqual(["b", "a", "c"]);
+    expect(ids(sortHands(rows, { column: "pot", descending: false }, "money", POSITION_ORDER))).toEqual(["a", "c", "b"]);
+  });
+
+  it("puts pairs above unpaired hands and suited above offsuit", () => {
+    const rows = [
+      hand("AKo", { heroCards: ["Ah", "Kd"] }),
+      hand("22", { heroCards: ["2c", "2d"] }),
+      hand("AKs", { heroCards: ["As", "Ks"] }),
+      hand("none"),
+      hand("KK", { heroCards: ["Kc", "Kh"] }),
+      hand("T9s", { heroCards: ["Th", "9h"] }),
+    ];
+    expect(ids(sortHands(rows, { column: "hand", descending: true }, "bb", POSITION_ORDER))).toEqual(["KK", "22", "AKs", "AKo", "T9s", "none"]);
+    expect(ids(sortHands(rows, { column: "hand", descending: false }, "bb", POSITION_ORDER))).toEqual(["T9s", "AKo", "AKs", "22", "KK", "none"]);
+  });
+
+  it("orders boards by street, positions by the order of action", () => {
+    const boards = [hand("flop", { board: ["Ah", "2c", "3d"] }), hand("pre"), hand("river", { board: ["2h", "3c", "4d", "5s", "7h"] })];
+    expect(ids(sortHands(boards, { column: "board", descending: true }, "bb", POSITION_ORDER))).toEqual(["river", "flop", "pre"]);
+    const seats = [hand("bb", { heroPosition: "BB" }), hand("utg", { heroPosition: "UTG" }), hand("none"), hand("btn", { heroPosition: "BTN" })];
+    expect(ids(sortHands(seats, { column: "position", descending: false }, "bb", POSITION_ORDER))).toEqual(["utg", "btn", "bb", "none"]);
+  });
+
+  it("sorts the result in the screen's unit, hands without one last", () => {
+    const rows = [
+      hand("small-bb-big-money", { heroNet: 5000, heroNetBbMilli: 2000 }),
+      hand("none"),
+      hand("big-bb-small-money", { heroNet: 100, heroNetBbMilli: 9000 }),
+      hand("loss", { heroNet: -300, heroNetBbMilli: -3000 }),
+    ];
+    expect(ids(sortHands(rows, { column: "result", descending: true }, "bb", POSITION_ORDER))).toEqual([
+      "big-bb-small-money",
+      "small-bb-big-money",
+      "loss",
+      "none",
+    ]);
+    expect(ids(sortHands(rows, { column: "result", descending: true }, "money", POSITION_ORDER))).toEqual([
+      "small-bb-big-money",
+      "big-bb-small-money",
+      "loss",
+      "none",
+    ]);
   });
 });
 
