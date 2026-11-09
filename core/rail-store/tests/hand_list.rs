@@ -1235,6 +1235,48 @@ fn the_builder_filters_find_what_a_scan_finds() {
         "lost 20 bb or more",
         true,
     );
+    // The pot (2026-11-08): big blinds, or the table's money (cash only).
+    expect(
+        &HandFilter {
+            pot_min: Some(10.0),
+            pot_max: Some(40.0),
+            ..HandFilter::default()
+        },
+        &|row| {
+            row.big_blind > 0 && (10 * row.big_blind..=40 * row.big_blind).contains(&row.total_pot)
+        },
+        "a pot of 10-40 bb",
+        true,
+    );
+    expect(
+        &HandFilter {
+            pot_max: Some(5.0),
+            ..HandFilter::default()
+        },
+        &|row| row.big_blind > 0 && row.total_pot <= 5 * row.big_blind,
+        "a pot under 5 bb",
+        true,
+    );
+    expect(
+        &HandFilter {
+            pot_min: Some(1.0),
+            pot_in_money: true,
+            ..HandFilter::default()
+        },
+        &|row| row.minor_units > 1 && row.total_pot >= row.minor_units,
+        "a pot over 1 in money",
+        true,
+    );
+    expect(
+        &HandFilter {
+            pot_min: Some(0.0),
+            pot_in_money: true,
+            ..HandFilter::default()
+        },
+        &|row| row.minor_units > 1,
+        "any pot in money: cash hands only",
+        false,
+    );
     // The days, in UTC (offset 0).
     expect(
         &HandFilter {

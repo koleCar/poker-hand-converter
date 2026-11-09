@@ -9,7 +9,17 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 
 import { useUiStrings } from "../i18n";
-import { DATE_PRESETS, isInstant, type DatePreset, type FilterState } from "./filter";
+import {
+  DATE_PRESETS,
+  POT_OPS,
+  isInstant,
+  potParts,
+  potText,
+  type DatePreset,
+  type FilterState,
+  type PotOp,
+  type PotUnit,
+} from "./filter";
 import { kindOf } from "./gameKind";
 import {
   FLAG_GROUPS,
@@ -129,6 +139,8 @@ export function GroupEditor({ group, filter, facets, onChange, variant, titled =
         ) : null}
       </div>
     );
+  } else if (group === "potSize") {
+    body = <PotSizeField filter={filter} live={variant === "builder"} onChange={onChange} />;
   } else if (text) {
     const hints: Record<typeof text, { label: string; hint: string; numeric?: boolean }> = {
       board: { label: t.search.board, hint: t.search.boardHint },
@@ -330,6 +342,112 @@ function TextField({
         <button type="submit" className="btn btn--primary btn--sm" disabled={draft === value}>
           {t.apply}
         </button>
+      )}
+    </form>
+  );
+}
+
+/* -------------------------------------------------------------------- pot */
+
+interface PotDraft {
+  unit: PotUnit;
+  op: PotOp;
+  a: string;
+  b: string;
+}
+
+const potDraftOf = (filter: FilterState): PotDraft => ({ unit: filter.potUnit, ...potParts(filter.potSize) });
+
+/**
+ * The pot's size (2026-11-08): big blinds or the table's money, greater
+ * than, less than or between, one or two amounts. Applied as typed in the
+ * builder, with Apply (or Enter) in a popover.
+ */
+function PotSizeField({
+  filter,
+  live,
+  onChange,
+}: {
+  filter: FilterState;
+  live: boolean;
+  onChange: (filter: FilterState) => void;
+}) {
+  const t = useUiStrings().hands.filters;
+  const p = t.builder.pot;
+  const [draft, setDraft] = useState<PotDraft>(() => potDraftOf(filter));
+  // Changed from outside (cleared from the row): the field follows, unless
+  // it is what the draft already says (a "between" with one amount typed).
+  const [seen, setSeen] = useState(`${filter.potUnit} ${filter.potSize}`);
+  const key = `${filter.potUnit} ${filter.potSize}`;
+  if (seen !== key) {
+    setSeen(key);
+    if (draft.unit !== filter.potUnit || potText(draft.op, draft.a, draft.b) !== filter.potSize) {
+      setDraft(potDraftOf(filter));
+    }
+  }
+  const nextOf = (d: PotDraft): FilterState => ({ ...filter, potUnit: d.unit, potSize: potText(d.op, d.a, d.b) });
+  const changed = (next: FilterState) => next.potUnit !== filter.potUnit || next.potSize !== filter.potSize;
+  const update = (patch: Partial<PotDraft>) => {
+    const d = { ...draft, ...patch };
+    setDraft(d);
+    const next = nextOf(d);
+    if (live && changed(next)) onChange(next);
+  };
+  const pending = changed(nextOf(draft));
+  return (
+    <form
+      className={styles.editorStack}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (pending) onChange(nextOf(draft));
+      }}
+    >
+      <Pills
+        label={p.unit}
+        single
+        options={[
+          { value: "bb", label: p.units.bb },
+          { value: "money", label: p.units.money },
+        ]}
+        selected={[draft.unit]}
+        onChange={(next) => update({ unit: next[0] === "money" ? "money" : "bb" })}
+      />
+      <Pills
+        label={p.op}
+        single
+        options={POT_OPS.map((value) => ({ value, label: p.ops[value] }))}
+        selected={[draft.op]}
+        onChange={(next) => update({ op: (POT_OPS as string[]).includes(next[0] ?? "") ? (next[0] as PotOp) : "gt" })}
+      />
+      <div className={styles.range}>
+        <label>
+          {draft.op === "between" ? p.ops.between : p.amount}
+          <input
+            value={draft.a}
+            inputMode="decimal"
+            spellCheck={false}
+            onChange={(event) => update({ a: event.target.value })}
+          />
+        </label>
+        {draft.op === "between" ? (
+          <label>
+            {p.and}
+            <input
+              value={draft.b}
+              inputMode="decimal"
+              spellCheck={false}
+              onChange={(event) => update({ b: event.target.value })}
+            />
+          </label>
+        ) : null}
+      </div>
+      <p className={styles.hint}>{draft.unit === "money" ? p.hintMoney : p.hintBb}</p>
+      {live ? null : (
+        <div>
+          <button type="submit" className="btn btn--primary btn--sm" disabled={!pending}>
+            {t.apply}
+          </button>
+        </div>
       )}
     </form>
   );
