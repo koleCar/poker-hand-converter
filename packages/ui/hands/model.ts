@@ -61,6 +61,10 @@ export interface HandFilter {
   heroStackMax?: number;
   netMin?: number;
   netMax?: number;
+  /** The total pot, from and to: big blinds, or the table's money (cash hands only). */
+  potMin?: number;
+  potMax?: number;
+  potUnit?: "bb" | "money";
   grades?: string[];
   evLossMin?: number;
   knownCards?: boolean | null;

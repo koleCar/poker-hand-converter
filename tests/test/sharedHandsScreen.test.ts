@@ -21,8 +21,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterBar, HAND_GROUPS, REPORT_GROUPS, handGroups } from "@rail/ui/hands/FilterBar";
-import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
-import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
+import { BUILDER_GROUPS, PANES, QUICK_FILTERS, clearAll, clearGroup, potSummary, quickFor, selectedOf, shownSet, withValues } from "@rail/ui/hands/groups";
+import { EMPTY_FILTER, activeGroups, fromSaved, parseRange, potParts, potText, toQuery, toSaved, type FilterState } from "@rail/ui/hands/filter";
 import { HandList } from "@rail/ui/hands/HandList";
 import type { HandFacets, HandRow } from "@rail/ui/hands/model";
 import { UiStringsProvider, type UiStrings } from "@rail/ui/i18n";
@@ -679,6 +679,41 @@ describe("the filter builder's groups (V1, 2026-11-05)", () => {
     for (const key of ["acts", "flopSuits", "weekdays", "utcOffsetMinutes", "lastHands", "heroStackMin", "knownCards"]) {
       expect(plain).not.toHaveProperty(key);
     }
+  });
+
+  it("filters the pot by size, in big blinds or money (2026-11-08)", () => {
+    expect(potText("gt", "20", "")).toBe(">20");
+    expect(potText("lt", "2,5", "")).toBe("<2.5");
+    expect(potText("between", "20", "50")).toBe("20-50");
+    expect(potText("between", "20", "")).toBe("");
+    expect(potText("gt", "abc", "")).toBe("");
+    expect(potParts(">20")).toEqual({ op: "gt", a: "20", b: "" });
+    expect(potParts("<30")).toEqual({ op: "lt", a: "30", b: "" });
+    expect(potParts("50-20")).toEqual({ op: "between", a: "20", b: "50" });
+    expect(potParts("")).toEqual({ op: "gt", a: "", b: "" });
+
+    const bb: FilterState = { ...EMPTY_FILTER, potSize: "20-50" };
+    expect(toQuery(bb, NOW)).toMatchObject({ potMin: 20, potMax: 50, potUnit: "bb" });
+    expect(potSummary(bb)).toBe("20–50 bb");
+    const money: FilterState = { ...EMPTY_FILTER, potSize: ">100", potUnit: "money" };
+    const query = toQuery(money, NOW);
+    expect(query).toMatchObject({ potMin: 100, potUnit: "money" });
+    expect(query).not.toHaveProperty("potMax");
+    expect(potSummary(money)).toBe("> $100");
+    expect(potSummary({ ...EMPTY_FILTER, potSize: "<30" })).toBe("< 30 bb");
+    expect(fromSaved(toSaved(money))).toEqual(money);
+    expect(activeGroups(money)).toBe(1);
+    // Cleared, the unit stays; unset, nothing goes to the store.
+    expect(clearGroup("potSize", money)).toEqual({ ...EMPTY_FILTER, potUnit: "money" });
+    for (const key of ["potMin", "potMax", "potUnit"]) {
+      expect(toQuery({ ...EMPTY_FILTER, potUnit: "money" }, NOW)).not.toHaveProperty(key);
+    }
+    // A filter saved before the group reads as "any", in big blinds.
+    expect(fromSaved(JSON.stringify({ sites: [] }))).toMatchObject({ potSize: "", potUnit: "bb" });
+    // Offered in the builder's Result pane, where the store reads it; not on the web.
+    expect(BUILDER_GROUPS).toContain("potSize");
+    expect(PANES.flatMap((s) => s.panes).find((pane) => pane.id === "result")?.groups).toContain("potSize");
+    expect(handGroups({ annotations: false, search: true, sorts: ["newest"], more: ["minPot"] })).not.toContain("potSize");
   });
 
   it("asks for the PHF facts (sizes, strength, villains, tournament) as the store names them", () => {
