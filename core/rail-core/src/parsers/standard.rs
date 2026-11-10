@@ -68,7 +68,10 @@ impl SiteParser for StandardParser {
             parsed_at: ctx.parsed_at(),
         };
         match parse_standard_hand(raw, &context) {
-            Ok(Some(hand)) => Ok(hand),
+            Ok(Some(mut hand)) => {
+                label_origin(&mut hand);
+                Ok(hand)
+            }
             Ok(None) => Err(ParseError::Bug("Not a standard-format hand.".to_owned())),
             Err(thrown) => Err(ParseError::Bug(thrown.message)),
         }
@@ -86,9 +89,38 @@ impl SiteParser for StandardParser {
     }
 }
 
+/// `GG_CASH_HAND_ID` (`/^HD\d+$/`): GG's own cash hand id.
+fn is_gg_cash_hand_id(id: &str) -> bool {
+    id.strip_prefix("HD")
+        .is_some_and(|digits| !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()))
+}
+
+/// `labelOrigin`: a plain GG cash hand is read by this parser on purpose (see
+/// `parsers/ggpoker.rs`) but is still a GGPoker hand, and the room is what the
+/// user filters and groups by. The hand key stays the bare id, so the stored
+/// `ggpoker:<id>` matches what the GG parser would write for the same hand.
+fn label_origin(hand: &mut PhfHand) {
+    if is_gg_cash_hand_id(&hand.meta.hand_id) {
+        "ggpoker".clone_into(&mut hand.meta.site_id);
+        "GGPoker".clone_into(&mut hand.meta.site_name);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_plain_gg_cash_hand_is_labelled_ggpoker() {
+        assert!(is_gg_cash_hand_id("HD2735958902"));
+        for other in ["HD", "HDx1", "RC2735958902", "2735958902", "hd1", " HD1"] {
+            assert!(!is_gg_cash_hand_id(other), "{other}");
+        }
+        let source = include_str!("../../../../web/src/lib/parsers/standard.ts");
+        assert!(source.contains(r"GG_CASH_HAND_ID = /^HD\d+$/;"));
+        assert!(source.contains(r#"hand.meta.siteId = "ggpoker";"#));
+        assert!(source.contains(r#"hand.meta.siteName = "GGPoker";"#));
+    }
 
     #[test]
     fn claims_its_own_header_and_only_weakly_the_rooms_that_share_it() {

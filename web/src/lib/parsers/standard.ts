@@ -62,6 +62,27 @@ export const standardParser: SiteParser = {
     if (!hand) {
       throw new Error("Not a standard-format hand.");
     }
-    return hand;
+    return labelOrigin(hand);
   },
 };
+
+/**
+ * A plain GG cash hand (`Poker Hand #HD…`) is read by this parser on purpose -
+ * see `parsers/ggpoker.ts` - but it is still a GGPoker hand, and the room is
+ * what the user filters and groups by. `HD` plus digits is GG's own cash id:
+ * GG's other products carry their own prefixes and go to the GG parser, and
+ * the rooms this app normalizes into this format keep their ids (WePlay's `HD`
+ * lives only in the header text), so nothing else reaches here with one.
+ *
+ * The hand key is the bare id either way, so `ggpoker:<id>` is also exactly
+ * what the GG parser stores for the same hand.
+ */
+export const GG_CASH_HAND_ID = /^HD\d+$/;
+
+function labelOrigin(hand: PhfHand): PhfHand {
+  if (GG_CASH_HAND_ID.test(hand.meta.handId)) {
+    hand.meta.siteId = "ggpoker";
+    hand.meta.siteName = "GGPoker";
+  }
+  return hand;
+}
