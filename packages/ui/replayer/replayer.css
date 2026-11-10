@@ -713,6 +713,39 @@
   opacity: 0.9;
 }
 
+/* Run twice from the flop, turn or river: run 2 is only the cards it dealt for
+   itself, so it drops the panel and sits under run 1 as a second row of it.
+   The border stays, transparent, so both panels keep the same box and the
+   columns line up. */
+.rp__board--split {
+  background: none;
+  border-color: transparent;
+  padding-block: 0;
+}
+
+.rp__board-row--second {
+  position: relative;
+}
+
+/* The tag ends just before run 2's first card: over the slots of the shared
+   streets, or left of the board when the hand was run twice from preflop.
+   Out of flow either way, so it never pushes the cards out of their columns. */
+.rp__board-row--second .rp__board-tag {
+  position: absolute;
+  inset-inline-end: calc(
+    100% - var(--lead) * (var(--board-card) + var(--card-u) * var(--u) * 0.1) +
+      var(--card-u) * var(--u) * 0.15
+  );
+  white-space: nowrap;
+}
+
+/* A shared street in run 2's row: holds the column, draws nothing. */
+.rp__board-gap {
+  inline-size: var(--board-card);
+  block-size: calc(var(--board-card) * 1.42);
+  flex: none;
+}
+
 .rp__board-tag {
   font-size: var(--fs-pot-label);
   font-weight: var(--font-weight-bold);
