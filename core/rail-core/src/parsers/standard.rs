@@ -89,8 +89,10 @@ impl SiteParser for StandardParser {
     }
 }
 
-/// `GG_CASH_HAND_ID` (`/^HD\d+$/`): GG's own cash hand id.
-fn is_gg_cash_hand_id(id: &str) -> bool {
+/// `GG_CASH_HAND_ID` (`/^HD\d+$/`): GG's own cash hand id. Public for the
+/// desktop store, whose migration 21 moves the hands an older build filed
+/// under `standard`.
+pub fn is_gg_cash_hand_id(id: &str) -> bool {
     id.strip_prefix("HD")
         .is_some_and(|digits| !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()))
 }
