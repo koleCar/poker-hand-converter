@@ -75,13 +75,13 @@ Three rules from the architecture hold here:
 | `scene.rs` | A frame turned into rectangles and text at physical pixels, under the permit; palette (near-black panels, light blue / off-white / light orange figures), the legend (`-` `=` `+`) |
 | `latency.rs` | The HUD's half of the latency budget: message arrival to rollups re-read |
 | `list.rs` | `--list-windows`: the read-only diagnostic that captures real table titles, redacted |
-| `platform/mod.rs` | The `Platform` trait (find tables, follow, overlay, permission) and table identity |
+| `platform/mod.rs` | The `Platform` trait (find tables, follow, overlay, permission; for table tiling, T1: `monitors` and `place`) and table identity |
 | `platform/matcher.rs` | A room's processes and title regex; the table name read from a title; `table_key` equality (`Table 1` is not `Table 11`) |
 | `platform/tracking.rs` | The platform-free half of following a window (moves, resizes, minimise, z-order, coalescing per window) |
 | `platform/drag.rs` | The platform-free half of dragging a panel: a press that never moves is a click (the popup) |
-| `platform/windows.rs` + `windows/` | `EnumWindows` discovery, layered no-activate overlay owned by the table window (Direct2D, DirectWrite), WinEvent hooks |
-| `platform/macos.rs` + `macos/` | Window-server list for bounds, Accessibility API for titles, non-activating `NSPanel` overlays (Core Graphics, Core Text) on AppKit's main thread, `AXObserver` tracking |
-| `platform/sim.rs` | A fake backend driven by the simulator's events, so the whole data path runs headless on every OS |
+| `platform/windows.rs` + `windows/` | `EnumWindows` discovery, layered no-activate overlay owned by the table window (Direct2D, DirectWrite), WinEvent hooks; monitors (`EnumDisplayMonitors`, `rcWork`) and `place` (`SetWindowPos` with `SWP_ASYNCWINDOWPOS`, never waiting on a client, the client area read back within 300 ms) |
+| `platform/macos.rs` + `macos/` | Window-server list for bounds, Accessibility API for titles, non-activating `NSPanel` overlays (Core Graphics, Core Text) on AppKit's main thread, `AXObserver` tracking; monitors (displays + `NSScreen.visibleFrame`) and `place` (`AXPosition` + `AXSize`, read back; full-screen tables left alone) |
+| `platform/sim.rs` | A fake backend driven by the simulator's events, so the whole data path runs headless on every OS; a chosen monitor set and recorded placements for table tiling |
 | `platform/none.rs` | Systems without a HUD (Linux, CI only): no tables, ever |
 
 ### One hand, from file to panel
@@ -237,8 +237,10 @@ supervisor, headless), `data_path` (segment, own hands only, restart,
 recompute swap, the user's statistics), `in_play` (nothing from the hand in
 play), `supervisor`, then per OS against the simulator's real windows -
 `windows_tables`, `windows_overlay`, `windows_tracking`, `windows_seats`,
-`windows_designs`, `windows_compliance`, `macos_tables`, `macos_overlay`,
-`macos_tracking` - and `twelve_tables` (R3.14's budget: twelve tables posing
+`windows_designs`, `windows_compliance`, `windows_place`, `macos_tables`,
+`macos_overlay`, `macos_tracking`, `macos_place` (T1: monitors, tables
+moved and resized through `place` and read back; on macOS with
+Accessibility) - and `twelve_tables` (R3.14's budget: twelve tables posing
 as PokerStars plus one posing as GGPoker, which must get no overlay).
 
 ```bash

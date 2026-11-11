@@ -10,6 +10,11 @@
 //! simulator's events (R3.1), so the data path runs end to end without any
 //! window API, on every OS and in CI.
 //!
+//! (T1, docs/research/TABLE-TILING.md §4.2) Table tiling's two platform
+//! calls: [`Platform::monitors`] (each monitor's bounds and work area) and
+//! [`Platform::place`] (move and resize a table, the rect it accepted read
+//! back). Nothing calls them yet: the tiling engine is T2.
+//!
 //! Units: positions and sizes are **physical pixels** of the client area
 //! (what the table is drawn in, without the frame), the scale is the
 //! window's monitor's in thousandths (1000 = 100 % = 96 dpi on Windows,
@@ -53,6 +58,81 @@ pub struct Rect {
     pub y: i32,
     pub width: u32,
     pub height: u32,
+}
+
+impl Rect {
+    /// The right edge (exclusive).
+    pub fn right(&self) -> i64 {
+        i64::from(self.x) + i64::from(self.width)
+    }
+
+    /// The bottom edge (exclusive).
+    pub fn bottom(&self) -> i64 {
+        i64::from(self.y) + i64::from(self.height)
+    }
+
+    /// Whether `other` lies wholly inside this rect.
+    pub fn contains(&self, other: &Rect) -> bool {
+        other.x >= self.x
+            && other.y >= self.y
+            && other.right() <= self.right()
+            && other.bottom() <= self.bottom()
+    }
+
+    /// The area two rects share, square pixels.
+    pub fn overlap(&self, other: &Rect) -> u64 {
+        let w = self.right().min(other.right()) - i64::from(self.x.max(other.x));
+        let h = self.bottom().min(other.bottom()) - i64::from(self.y.max(other.y));
+        if w <= 0 || h <= 0 {
+            0
+        } else {
+            u64::try_from(w).unwrap_or(0) * u64::try_from(h).unwrap_or(0)
+        }
+    }
+}
+
+/// (T1) The window rect whose client area is `want`, for a window whose
+/// client area is `client` inside its window rect `outer` now: the frame
+/// (title bar, borders) kept as it is around the new client area. What
+/// both systems hand their move call, which takes the whole window.
+pub fn outer_for(client: &Rect, outer: &Rect, want: &Rect) -> Rect {
+    let left = i64::from(client.x) - i64::from(outer.x);
+    let top = i64::from(client.y) - i64::from(outer.y);
+    let extra_w = i64::from(outer.width) - i64::from(client.width);
+    let extra_h = i64::from(outer.height) - i64::from(client.height);
+    let int = |v: i64| i32::try_from(v).unwrap_or(if v < 0 { i32::MIN } else { i32::MAX });
+    let uint = |v: i64| u32::try_from(v.max(0)).unwrap_or(u32::MAX);
+    Rect {
+        x: int(i64::from(want.x) - left),
+        y: int(i64::from(want.y) - top),
+        width: uint(i64::from(want.width) + extra_w),
+        height: uint(i64::from(want.height) + extra_h),
+    }
+}
+
+/// (T1) A monitor's identity on its system: the `HMONITOR` (Windows), the
+/// `CGDirectDisplayID` (macOS), the simulator's number. Stable while the
+/// display configuration does not change - not across machines, nor on
+/// Windows across a reconnect.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MonitorId(pub u64);
+
+/// (T1) A monitor, in the space and units of [`TableWindow::client`]:
+/// physical pixels, the primary monitor's top-left the origin, y down.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Monitor {
+    pub id: MonitorId,
+    /// The primary monitor (Windows: the taskbar's and the origin's;
+    /// macOS: the main display, the one with the menu bar).
+    pub primary: bool,
+    /// The whole monitor.
+    pub bounds: Rect,
+    /// What windows may use: the bounds less the taskbar (Windows' `rcWork`)
+    /// or the menu bar and the Dock (macOS' `visibleFrame`).
+    pub work_area: Rect,
+    /// Its scale in thousandths (96 dpi = 1000, Retina 2000), as
+    /// [`TableWindow::scale_permille`].
+    pub scale_permille: u32,
 }
 
 /// The process that owns a window.
@@ -390,6 +470,12 @@ pub enum PlatformError {
     Gone(WindowId),
     /// (R3.11) The user has not granted a permission the call needs.
     PermissionNeeded(Permission),
+    /// (T1) The window is in full screen (macOS: a Space of its own): it is
+    /// left where it is.
+    FullScreen(WindowId),
+    /// (T1) The window's thread does not answer (Windows: a hung client):
+    /// nothing was asked of it.
+    NotResponding(WindowId),
     /// The system said no (a permission, a handle).
     Os(String),
 }
@@ -404,6 +490,8 @@ impl fmt::Display for PlatformError {
                 "the Accessibility permission is needed to read window titles \
                  (System Settings, Privacy & Security, Accessibility)"
             ),
+            Self::FullScreen(id) => write!(f, "window {} is in full screen", id.0),
+            Self::NotResponding(id) => write!(f, "window {} is not responding", id.0),
             Self::Os(error) => write!(f, "{error}"),
         }
     }
@@ -496,7 +584,55 @@ pub trait Platform {
     fn follow_times_us(&self) -> Vec<u64> {
         Vec::new()
     }
+
+    /// (T1) The monitors now, the primary first: where tables may be
+    /// placed. Empty where the backend cannot tell (the default).
+    fn monitors(&mut self) -> Vec<Monitor> {
+        Vec::new()
+    }
+
+    /// (T1) Move and resize table window `id` so that its **client area**
+    /// is `want` (the space and units of [`TableWindow::client`]; the
+    /// backend puts the window's own frame around it), and return the
+    /// client area it has afterwards, read back from the system. A
+    /// minimised window is restored first; the window is never activated
+    /// and keeps its place in the z-order. The answer may differ from
+    /// `want` - a client that keeps its aspect ratio or a minimum size, a
+    /// monitor of another scale -: the caller decides what to do about it;
+    /// nothing is retried here. Bounded: a client that does not answer
+    /// cannot hold the caller for long (each backend says how long). The
+    /// move reaches `poll_events` as any other move does.
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        let _ = (id, want);
+        Err(PlatformError::Unsupported("placing windows"))
+    }
 }
+
+/// (T1) Whether a placement has settled, for a backend whose move call
+/// returns before the window has moved (Windows' `SWP_ASYNCWINDOWPOS`):
+/// `samples` are the client areas read since the call, oldest first,
+/// `before` the one before it. Settled when the latest is `want`, or when
+/// it has left `before` and stayed the same for the last [`SETTLE_SAMPLES`]
+/// reads (the client took another size and keeps it). Otherwise the
+/// caller reads again until its deadline, and then takes the latest as it
+/// is (the client refused, or has not answered yet).
+pub fn place_settled(want: &Rect, before: &Rect, samples: &[Rect]) -> bool {
+    let Some(last) = samples.last() else {
+        return false;
+    };
+    if last == want {
+        return true;
+    }
+    samples.len() >= SETTLE_SAMPLES
+        && last != before
+        && samples[samples.len() - SETTLE_SAMPLES..]
+            .iter()
+            .all(|s| s == last)
+}
+
+/// (T1) Equal reads in a row that make a placement settled
+/// ([`place_settled`]).
+pub const SETTLE_SAMPLES: usize = 3;
 
 /// (R3.11) Whether granting a missing permission would make a difference
 /// now: the test-only simulator entry is active, or one of `running` is a
@@ -664,6 +800,91 @@ mod tests {
         assert!(!permission_matters(None, &[], false));
     }
 
+    fn rect(x: i32, y: i32, width: u32, height: u32) -> Rect {
+        Rect {
+            x,
+            y,
+            width,
+            height,
+        }
+    }
+
+    /// (T1) A window rect for a wanted client area keeps the frame around
+    /// it: a Windows frame with borders on every side, a macOS title bar
+    /// only, none at all; negative coordinates (a monitor left of the
+    /// primary) too.
+    #[test]
+    fn the_frame_goes_around_the_wanted_client_area() {
+        // Windows 11 at 150 %: 11 px invisible borders, a 45 px caption.
+        let client = rect(111, 256, 1200, 830);
+        let outer = rect(100, 200, 1222, 897);
+        assert_eq!(
+            outer_for(&client, &outer, &rect(0, 0, 800, 600)),
+            rect(-11, -56, 822, 667)
+        );
+        assert_eq!(
+            outer_for(&client, &outer, &rect(-1920, 40, 640, 480)),
+            rect(-1931, -16, 662, 547)
+        );
+        // macOS: a 28 pt title bar at 2x, no side borders.
+        let client = rect(200, 156, 1280, 960);
+        let outer = rect(200, 100, 1280, 1016);
+        assert_eq!(
+            outer_for(&client, &outer, &rect(0, 56, 1000, 700)),
+            rect(0, 0, 1000, 756)
+        );
+        // Borderless: the window is the client area.
+        let same = rect(5, 5, 300, 200);
+        assert_eq!(
+            outer_for(&same, &same, &rect(9, 9, 10, 10)),
+            rect(9, 9, 10, 10)
+        );
+    }
+
+    /// (T1) Rect arithmetic for monitors and placements.
+    #[test]
+    fn rects_contain_and_overlap() {
+        let work = rect(0, 0, 1920, 1040);
+        assert!(work.contains(&rect(0, 0, 1920, 1040)));
+        assert!(work.contains(&rect(960, 520, 960, 520)));
+        assert!(!work.contains(&rect(961, 520, 960, 520)));
+        assert!(!work.contains(&rect(-1, 0, 10, 10)));
+        assert_eq!(work.overlap(&rect(1820, 1000, 200, 200)), 100 * 40);
+        assert_eq!(work.overlap(&rect(1920, 0, 10, 10)), 0);
+        assert_eq!(rect(-1920, 0, 1920, 1080).right(), 0);
+        assert_eq!(rect(0, -50, 10, 50).bottom(), 0);
+    }
+
+    /// (T1) An asynchronous placement settles when the window is where it
+    /// was asked to be, or where the client keeps it after moving - never
+    /// on reads that have not changed yet.
+    #[test]
+    fn a_placement_settles() {
+        let before = rect(0, 0, 640, 480);
+        let want = rect(100, 100, 800, 600);
+        assert!(!place_settled(&want, &before, &[]));
+        // The window has not moved yet: keep reading.
+        assert!(!place_settled(&want, &before, &[before, before, before]));
+        assert!(!place_settled(
+            &want,
+            &before,
+            &[before, before, before, before, before]
+        ));
+        // There.
+        assert!(place_settled(&want, &before, &[before, want]));
+        assert!(place_settled(&want, &before, &[want]));
+        // A client that keeps its aspect ratio: moved, another size, kept.
+        let kept = rect(100, 100, 800, 560);
+        assert!(!place_settled(&want, &before, &[kept]));
+        assert!(!place_settled(&want, &before, &[before, kept, kept]));
+        assert!(place_settled(&want, &before, &[before, kept, kept, kept]));
+        // Still changing: not yet.
+        let next = rect(100, 100, 790, 560);
+        assert!(!place_settled(&want, &before, &[kept, kept, next]));
+        // Asked to stay where it is: settled at once.
+        assert!(place_settled(&before, &before, &[before]));
+    }
+
     /// The stubs find nothing, so nothing is ever drawn by them. Windows'
     /// and macOS's backends find what matches (nothing, with no matcher -
     /// and without asking for any permission) and, on their own system,
@@ -713,6 +934,21 @@ mod tests {
                 backend.name()
             );
             backend.remove_overlay(WindowId(1));
+            // (T1) Off their own system the native backends know no
+            // monitor and place nothing; `none` keeps the defaults.
+            let native = (cfg!(windows) && backend.name() == "windows")
+                || (cfg!(target_os = "macos") && backend.name() == "macos");
+            if !native {
+                assert!(backend.monitors().is_empty(), "{}", backend.name());
+                assert!(
+                    matches!(
+                        backend.place(WindowId(1), Rect::default()),
+                        Err(PlatformError::Unsupported(_))
+                    ),
+                    "{}",
+                    backend.name()
+                );
+            }
         }
     }
 }
