@@ -1,4 +1,4 @@
--- rail-store schema, version 21 (2026-11-11; docs/research/TABLE-TILING.md
+-- rail-store schema, version 22 (2026-11-11; docs/research/TABLE-TILING.md
 -- §4.5, T3): the user's table tiling and RNG settings, synced like the
 -- HUD's designs.
 --
