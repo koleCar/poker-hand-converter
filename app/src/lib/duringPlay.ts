@@ -29,6 +29,8 @@ export const SCREEN_HELP: Readonly<Record<Route, PlayHelp | null>> = {
   players: null,
   // (R5.4) The session review, the top leaks, the own charts and a hand's grades.
   analysis: "analysis",
+  // The Solver library: every spot's solved strategy.
+  solver: "solver",
   hud: null,
   import: null,
   settings: null,

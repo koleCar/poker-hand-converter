@@ -58,6 +58,7 @@ export const hr: Dict = {
     reports: "Izvještaji",
     players: "Igrači",
     analysis: "Analiza",
+    solver: "Solver",
     hud: "HUD",
     import: "Uvoz",
     settings: "Postavke",
@@ -95,6 +96,11 @@ export const hr: Dict = {
     analysis: {
       title: "Analiza",
       lead: "Tvoje odluke ocijenjene nakon sessiona: pregled sessiona, najveći leakovi, tvoji chartovi.",
+    },
+    solver: {
+      title: "Solver",
+      /** Not shown: the command palette's keywords. */
+      lead: "Railovi solvovi: preflop chartovi, strategija svakog flopa, bilo koji turn i river solvan na licu mjesta.",
     },
     hud: {
       title: "HUD",
@@ -1181,6 +1187,13 @@ export const hr: Dict = {
     },
     hand: {
       title: "Analiza ruke",
+      solver: {
+        label: "Solver",
+        open: "Otvori u Solveru",
+        none: "Za ovu odluku nema solva: Solver drži heads-up flopove linija svojih stolova.",
+        fromFlop: "Tvoja zadnja odluka na flopu:",
+        pick: "Prikaži ovu odluku u Solveru",
+      },
       open: "Analiza",
       openTitle: "Otvori ocjene ove ruke, odluku po odluku",
       back: "Otvori u Rukama",

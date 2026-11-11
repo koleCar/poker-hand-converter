@@ -67,6 +67,8 @@ describe("dictionaries", () => {
       "Regular", "Bounty", "Buy-in",
       // The hand markers (the lists' "Mark" menu): poker words Croatian players say in English.
       "Cooler", "Hero call",
+      // The Solver tab and the analysis' Solver panel: Croatian players say "solver" too.
+      "Solver",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {

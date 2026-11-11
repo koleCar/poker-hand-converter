@@ -36,12 +36,25 @@ function AnalysisScreen() {
   );
 }
 
+// The Solver library (the web's, in place) loads when the tab is first opened too.
+const Solver = lazy(() => import("./screens/Solver").then((m) => ({ default: m.Solver })));
+
+function SolverScreen() {
+  const t = useT();
+  return (
+    <Suspense fallback={<StateMessage kind="loading">{t.analysis.loading}</StateMessage>}>
+      <Solver />
+    </Suspense>
+  );
+}
+
 const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   live: Live,
   hands: Hands,
   reports: Reports,
   players: Players,
   analysis: AnalysisScreen,
+  solver: SolverScreen,
   hud: Hud,
   import: Import,
   settings: Settings,

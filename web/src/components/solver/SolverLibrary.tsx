@@ -28,15 +28,12 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { flopLibraryBase, flopLinesFor, FlopLibraryLoader, FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
+import { flopLinesFor, FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
 import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, type ChartNode, type ChartSet } from "../../lib/charts";
-import { useDict } from "../../lib/i18n/client";
-import { paths } from "../../lib/routes";
 import {
   classCombos,
   dealtCards,
@@ -46,18 +43,19 @@ import {
   EMPTY_FILTER,
   flopFeatures,
   pickedFlop,
+  nodeAt,
   turnDeal,
   type FlopChunk,
   type HandFilter,
   type LiveTurnProgress,
   type PickedFlop,
 } from "../../lib/solver";
-import { SUPABASE_URL } from "../../lib/supabase/config";
 import { actionTotals, GRID_CELLS, OFF_RANGE_WEIGHT } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
 import { HandFilters } from "./HandFilters";
+import { useSolverHost, type SolverDict } from "./host";
 import { liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
 import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState, type PreflopState } from "./preflop";
@@ -66,7 +64,7 @@ import { RangesView } from "./RangesView";
 import { actionColours, StrategyView, type StrategyModel } from "./StrategyView";
 import styles from "./solver.module.css";
 
-type Dict = ReturnType<typeof useDict>["solver"];
+type Dict = SolverDict;
 
 /** The chart sets the flop library is solved for, in the order offered. A set without a manifest yet says so. */
 export const SOLVER_SETS = FLOP_LIBRARY_SETS;
@@ -83,15 +81,6 @@ function byRanks(a: string, b: string): number {
   return rb[0] - ra[0] || rb[1] - ra[1] || rb[2] - ra[2] || a.localeCompare(b);
 }
 
-let loader: FlopLibraryLoader | null | undefined;
-function libraryLoader(): FlopLibraryLoader | null {
-  if (loader === undefined) {
-    const base = flopLibraryBase(SUPABASE_URL);
-    loader = base ? new FlopLibraryLoader(base, (url) => fetch(url)) : null;
-  }
-  return loader;
-}
-
 type Loaded<T> = { key: string; status: "loading" } | { key: string; status: "ready"; value: T } | { key: string; status: "error" };
 
 interface SolverLibraryProps {
@@ -105,23 +94,40 @@ interface SolverLibraryProps {
    * turn's deal node and card (`12~Kd`). `initialNode` is then a decision of that turn.
    */
   initialTurn?: string | null;
+  /**
+   * A flop decision by its path in the solve (`X-B1.82`), in place of
+   * `initialNode`: what a hand's analysis records (`FlopFacts.path`).
+   */
+  initialPath?: string | null;
+  /** Hears the view as it changes - the web keeps it in the address bar, the app in its route. */
+  onView?: (view: SolverView) => void;
+}
+
+/** The view a link (or a route) names: the table, the preflop line, the flop as picked, the decision, the turn. */
+export interface SolverView {
+  set: string;
+  line: string;
+  flop?: string;
+  node: number;
+  turn?: string;
 }
 
 export function SolverLibrary(props: SolverLibraryProps) {
-  const t = useDict().solver;
-  if (!libraryLoader()) return <p className={analysis.muted}>{t.unavailable}</p>;
+  const { t, loader } = useSolverHost();
+  if (!loader) return <p className={analysis.muted}>{t.unavailable}</p>;
   return <Browser {...props} />;
 }
 
-function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn }: SolverLibraryProps) {
-  const t = useDict().solver;
-  const router = useRouter();
+function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, onView }: SolverLibraryProps) {
+  const { t, loader, fullSolveBase } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && (SOLVER_SETS as readonly string[]).includes(initialSet) ? initialSet : SOLVER_SETS[0],
   );
   const [line, setLine] = useState(initialLine ?? "");
   const [flop, setFlop] = useState<string[] | null>(initialFlop ? flopCards(initialFlop) : null);
   const [node, setNode] = useState(initialNode ?? 0);
+  /** A flop decision named by its path, read once the flop's solve is in (`initialPath`). */
+  const [path, setPath] = useState(initialPath ?? null);
   const [picker, setPicker] = useState(false);
   /** The line whose automatic flop prompt was closed: it does not come back for that line. */
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -160,7 +166,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       .catch(() => {
         if (live) setCharts({ key: setId, status: "error" });
       });
-    void libraryLoader()!
+    void loader!
       .listed(setId)
       .then((listed) => {
         if (!live) return;
@@ -172,7 +178,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     return () => {
       live = false;
     };
-  }, [setId]);
+  }, [setId, loader]);
 
   const chartSet = charts.key === setId && charts.status === "ready" ? charts.value : null;
   const manifest = entries.key === setId && entries.status === "ready" ? entries.value : null;
@@ -188,7 +194,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   useEffect(() => {
     if (!chunkKey || !libraryLine || !flopKey) return;
     let live = true;
-    void libraryLoader()!
+    void loader!
       .load(setId, libraryLine.id, flopKey)
       .then((value) => {
         if (live) setChunk(value ? { key: chunkKey, status: "ready", value } : { key: chunkKey, status: "error" });
@@ -196,19 +202,19 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     return () => {
       live = false;
     };
-  }, [chunkKey, setId, libraryLine, flopKey, attempt]);
+  }, [chunkKey, setId, libraryLine, flopKey, attempt, loader]);
 
   // A full solve of the flop, when one is served (local).
   useEffect(() => {
     if (!chunkKey || !libraryLine || !flopKey) return;
     let live = true;
-    void loadFullSolve(setId, "flop-m1", libraryLine.id, flopKey).then((value) => {
+    void loadFullSolve(fullSolveBase, setId, "flop-m1", libraryLine.id, flopKey).then((value) => {
       if (live) setFull({ key: chunkKey, status: "ready", value });
     });
     return () => {
       live = false;
     };
-  }, [chunkKey, setId, libraryLine, flopKey]);
+  }, [chunkKey, setId, libraryLine, flopKey, fullSolveBase]);
   const fullSolve = full.key === chunkKey && full.status === "ready" ? full.value : null;
   const librarySolve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
   /** Without a full solve, turns are solved live from the library's chunk. */
@@ -243,10 +249,14 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
   const flopSolve = fullSolve?.flop ?? librarySolve;
   const solve = turn ? turnSolve : flopSolve;
-  const nodeIndex = solve && solve.result.nodes[node]?.kind === "action" ? node : 0;
+  // A decision named by its path (a hand's analysis) until the walk moves on.
+  const pathNode = path && flopSolve && !turn ? nodeAt(flopSolve.result, path) : -1;
+  const wanted = pathNode >= 0 ? pathNode : node;
+  const nodeIndex = solve && solve.result.nodes[wanted]?.kind === "action" ? wanted : 0;
   const rangeData = useRangeData(solve, nodeIndex, picked);
   const masks = useMemo(() => filterMasks(rangeData, filter), [rangeData, filter]);
   const goNode = (next: number) => {
+    setPath(null);
     setDeal(null);
     setNode(next);
   };
@@ -255,20 +265,17 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     goNode(next);
   };
 
-  // The view in the address bar, so a link lands here.
+  // The view, for the host to keep (the web's address bar), so a link lands here.
   useEffect(() => {
-    if (!state) return;
-    router.replace(
-      paths.solver({
-        set: setId,
-        line: state.line,
-        flop: flopKey && flop ? flop.join("") : undefined,
-        node: flopKey ? nodeIndex : 0,
-        turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
-      }),
-      { scroll: false },
-    );
-  }, [router, setId, state, flop, flopKey, nodeIndex, turn]);
+    if (!state || !onView) return;
+    onView({
+      set: setId,
+      line: state.line,
+      flop: flopKey && flop ? flop.join("") : undefined,
+      node: flopKey ? nodeIndex : 0,
+      turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
+    });
+  }, [onView, setId, state, flop, flopKey, nodeIndex, turn]);
 
   // A line that ends on a solved flop line with no flop yet asks for one, once.
   const lineKey = `${setId}|${line}`;
@@ -283,6 +290,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     setFlop(null);
     setTurn(null);
     setDeal(null);
+    setPath(null);
     setNode(0);
   };
 
@@ -410,6 +418,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             setFlop(cards);
             setTurn(null);
             setDeal(null);
+            setPath(null);
             setNode(0);
             closePicker();
           }}

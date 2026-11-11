@@ -15,7 +15,7 @@
 
 import { useMemo, useState } from "react";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
-import { useDict } from "../../lib/i18n/client";
+import { useSolverDict, type SolverDict } from "./host";
 import {
   comboIds,
   DRAWS,
@@ -30,7 +30,7 @@ import analysis from "../analysis/analysis.module.css";
 import type { RangeData } from "./rangeData";
 import styles from "./solver.module.css";
 
-type Dict = ReturnType<typeof useDict>["solver"];
+type Dict = SolverDict;
 type Mode = "include" | "exclude";
 
 const SUITS: Suit[] = ["s", "h", "d", "c"];
@@ -72,7 +72,7 @@ export function HandFilters({
   /** The actions' colours (`actionColours`), in the node's order. */
   colours: readonly string[];
 }) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   const [mode, setMode] = useState<Mode>("include");
   const picked = filter[mode];
 
