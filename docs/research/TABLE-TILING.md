@@ -278,6 +278,23 @@ The design comes first on the map canvas (Ideas page), as for every screen.
 - **RNG settings:** range, bands, when it rolls, size and opacity.
 - **Re-tile:** a button, plus a tray entry.
 
+**As built (T5, design A):** a sidebar item "Tables" between HUD and Import
+(`app/src/screens/Tables.tsx`), free like the rest of tiling.
+
+- The HUD's `tiling_status` carries the monitors (in layout order, sent
+  on or off once the app has sent its settings) and each tiled table's
+  **outer rect** (frame included), name, monitor, stacked and pinned;
+  places-only changes go at most 4 times a second.
+- The rooms' tiling and RNG verdicts come from `hud_policy`
+  (`tiling` / `rng`: `permitted`, `needsApproval` - a refusal whose notes
+  begin "Not permitted without approval"), so the window repeats no rule.
+- "+ Layout" saves the current arrangement: `capture_layout` →
+  `layout_captured`, one slot per place in thousandths of the monitor's
+  work area, stackable; the layout goes in force at once. Rename and
+  delete are in the layout's ⋯.
+- **Not yet:** drawing and resizing slots by hand (the slot editor), the
+  RNG's range (0 - 99), size and opacity, a per-room RNG switch.
+
 **Storage:**
 
 - Layouts go into the existing `hud_layouts` table under a new kind

@@ -1,7 +1,7 @@
 //! (T3, docs/research/TABLE-TILING.md §4.1, §4.5) Table tiling and the RNG
 //! from the app's side: the user's settings kept in the store, synced, and
 //! sent to the HUD process, which does the tiling (and, from T4, draws the
-//! RNG). No screen yet (T5): the commands are what it will call.
+//! RNG). The Tables screen (T5) calls the commands.
 //!
 //! - **The model** is `rail_hud_ipc::settings` ([`TilingSettings`],
 //!   [`RngSettings`]), shared with the HUD. Every write is validated first
@@ -26,7 +26,7 @@
 //!   per-room switch here; the RNG likewise needs the room's `RngPermit`.
 //!   A switch never allows a room the policy does not.
 
-use rail_hud_ipc::settings::{Invalid, RngSettings, SETTINGS_KEY, TilingSettings};
+use rail_hud_ipc::settings::{Invalid, RngSettings, SETTINGS_KEY, Slot, TilingSettings};
 use rail_store::HudSettingKind;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
@@ -182,6 +182,15 @@ pub async fn set_rng_settings(
 #[tauri::command]
 pub fn retile_tables(hud: State<'_, HudState>) -> bool {
     hud.retile()
+}
+
+/// (T5) "Save current arrangement": the slots of the places the tiled
+/// tables take now (the HUD measures them), for a layout the Tables screen
+/// names and saves with [`set_tiling_settings`]. Empty while tiling is off
+/// or tiles no table.
+#[tauri::command]
+pub async fn capture_tiling_layout(hud: State<'_, HudState>) -> Result<Vec<Slot>, String> {
+    hud.capture_layout().await
 }
 
 /// The tray's "Re-tile tables".

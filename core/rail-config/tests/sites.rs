@@ -383,6 +383,18 @@ fn tiling_and_rng_policies_are_the_proposed_list() {
         ["pokerstars", "acr", "coinpoker", "wpt-global"]
     );
     assert!(permitted(Feature::Rng).is_empty());
+    // (T5) Refusals the room could lift (the app's "Needs room approval"):
+    // Winamax's, both.
+    let approval = |feature| {
+        config
+            .sites
+            .iter()
+            .filter(|site| site.permission(feature).needs_approval())
+            .map(|site| site.id.as_str())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(approval(Feature::Tiling), ["winamax"]);
+    assert_eq!(approval(Feature::Rng), ["winamax"]);
     // Independent of the HUD: two rooms refuse a HUD and allow tiling.
     for id in ["coinpoker", "wpt-global"] {
         let site = config.site(id).expect(id);

@@ -155,6 +155,26 @@ pub struct Permission {
     pub notes: Option<String>,
 }
 
+/// (T5) How a `notes` of a refusal the room could lift begins
+/// (docs/research/TILING-POLICIES.md: Winamax lists the programs it allows
+/// and agrees to others on request).
+pub const APPROVAL_NOTE: &str = "Not permitted without approval";
+
+impl Permission {
+    /// (T5) Prohibited only until the room approves Rail: `allowed: false`
+    /// with notes that begin with [`APPROVAL_NOTE`]. Still no to every
+    /// decision; the app words it apart ("Needs room approval"). Read from
+    /// the notes, not a new field, so an older build still reads a newer
+    /// remote file (its fields are `deny_unknown_fields`).
+    pub fn needs_approval(&self) -> bool {
+        self.allowed == Some(false)
+            && self
+                .notes
+                .as_deref()
+                .is_some_and(|notes| notes.starts_with(APPROVAL_NOTE))
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum SiteKind {
