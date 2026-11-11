@@ -154,8 +154,8 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use rail_hud_ipc::protocol::{
-    AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, LatencyChain, PlayerHands,
-    PlayerRef, RefusalReason, RefusedTable, ScreenRect,
+    AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, LatencyChain, MonitorInfo,
+    PlayerHands, PlayerRef, RefusalReason, RefusedTable, ScreenRect, TiledTable,
 };
 use rail_stats::custom::{CustomDef, CustomSet};
 use rail_stats::display::Display;
@@ -170,8 +170,9 @@ use crate::layout::{Positions, TableLayout};
 use crate::panel::PanelDesign;
 use crate::placer::Worker;
 use crate::platform::{
-    OverlayFrame, PanelWords, Permission, Platform, RNG_SLOT, Rect, RngShown, SeatPanel, Seating,
-    TableEvent, TableMatcher, TableWindow, TagColour, WindowId, permission_matters, table_key,
+    Monitor, OverlayFrame, PanelWords, Permission, Platform, RNG_SLOT, Rect, RngShown, SeatPanel,
+    Seating, TableEvent, TableMatcher, TableWindow, TagColour, WindowId, permission_matters,
+    table_key,
 };
 use crate::scene::Rgba;
 use crate::seats::{self, Rooms};
@@ -347,8 +348,58 @@ fn tiling_options(
     }
 }
 
-/// (T3) What `tiling_status` last said: on, tables, the layout in force.
-type TilingReport = (bool, u32, Option<String>);
+/// (T5) While only the places in `tiling_status` change (a table being
+/// dragged, a stack being laid out), it goes to the app at most this often.
+pub const TILING_STATUS_EVERY: Duration = Duration::from_millis(250);
+
+/// (T3) What `tiling_status` last said: on, tables, the layout in force;
+/// (T5) the monitors and the tables' places.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+struct TilingReport {
+    enabled: bool,
+    tables: u32,
+    layout: Option<String>,
+    monitors: Vec<MonitorInfo>,
+    windows: Vec<TiledTable>,
+}
+
+impl TilingReport {
+    /// Whether `other` differs only in places (the monitors or where the
+    /// tables are): what may wait for [`TILING_STATUS_EVERY`].
+    fn same_but_places(&self, other: &Self) -> bool {
+        self.enabled == other.enabled
+            && self.tables == other.tables
+            && self.layout == other.layout
+            && self.windows.len() == other.windows.len()
+    }
+}
+
+fn screen_rect(rect: &Rect) -> ScreenRect {
+    ScreenRect {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+    }
+}
+
+/// (T5) The monitors in the order layouts name them, for the app.
+fn monitor_infos(monitors: &[Monitor]) -> Vec<MonitorInfo> {
+    crate::tiling::monitor_order(monitors)
+        .into_iter()
+        .enumerate()
+        .map(|(place, i)| {
+            let m = &monitors[i];
+            MonitorInfo {
+                index: u32::try_from(place).unwrap_or(u32::MAX),
+                primary: m.primary,
+                bounds: screen_rect(&m.bounds),
+                work_area: screen_rect(&m.work_area),
+                scale_permille: m.scale_permille,
+            }
+        })
+        .collect()
+}
 
 /// (T2) Tiling while it is on: the tiler, its worker, the policy.
 struct Tiling {
@@ -357,7 +408,8 @@ struct Tiling {
     allowed: Box<dyn Fn(&str) -> bool + Send>,
     simulator_only: bool,
     permit: bool,
-    next_monitors: Instant,
+    /// (T5) The table name of each window it was handed (the title's).
+    names: BTreeMap<WindowId, Option<String>>,
 }
 
 impl Tiling {
@@ -491,7 +543,7 @@ pub struct Hud {
     /// (T3) Panels are drawn (the plan includes the HUD): `false` runs the
     /// HUD for tiling and the RNG only ([`Hud::set_panels`]).
     panels: bool,
-    /// (T3) What `tiling_status` last said.
+    /// (T3) What `tiling_status` last said; (T5) and when.
     tiling_reported: TilingReport,
     /// (T4) Tables showing the RNG alone.
     rng_only: BTreeMap<WindowId, RngOnly>,
@@ -500,6 +552,15 @@ pub struct Hud {
     /// (T4) Where the user put the RNG widget, by (room, table size): its
     /// centre, thousandths of the client area.
     rng_positions: BTreeMap<(String, u32), (u32, u32)>,
+    tiling_reported_at: Option<Instant>,
+    /// (T5) The app has spoken about tiling (`tiling_changed`, sent after
+    /// every handshake) or tiling was switched on here: only then does
+    /// `tiling_status` go out (the monitors, while it is off).
+    tiling_heard: bool,
+    /// (T5) The monitors, read every [`MONITORS_EVERY`] whether tiling is
+    /// on or not (the app's Tables screen draws them).
+    monitors: Vec<Monitor>,
+    next_monitors: Instant,
 }
 
 impl std::fmt::Debug for Hud {
@@ -552,7 +613,11 @@ impl Hud {
             tiling: None,
             rng: None,
             panels: true,
-            tiling_reported: (false, 0, None),
+            tiling_reported: TilingReport::default(),
+            tiling_reported_at: None,
+            tiling_heard: false,
+            monitors: Vec::new(),
+            next_monitors: now,
             rng_only: BTreeMap::new(),
             rolls: BTreeMap::new(),
             rng_positions: BTreeMap::new(),
@@ -677,13 +742,16 @@ impl Hud {
     /// again replaces the configuration (the worker is started anew).
     pub fn enable_tiling(&mut self, config: TilingConfig) -> Result<(), String> {
         self.tiling = None;
+        self.tiling_heard = true;
         let placer = self
             .platform
             .placer()
             .ok_or_else(|| format!("the {} backend cannot place windows", self.platform.name()))?;
         let worker = Worker::start(placer).map_err(|e| format!("the tiling worker: {e}"))?;
         let mut tiler = Tiler::new(config.options);
-        tiler.set_monitors(self.platform.monitors());
+        self.monitors = self.platform.monitors();
+        self.next_monitors = Instant::now() + MONITORS_EVERY;
+        tiler.set_monitors(self.monitors.clone());
         eprintln!(
             "rail-hud: tiling on ({} monitor(s), layout {:?}{})",
             tiler.monitors().len(),
@@ -700,7 +768,7 @@ impl Hud {
             allowed: config.allowed,
             simulator_only: config.simulator_only,
             permit: config.permit,
-            next_monitors: Instant::now() + MONITORS_EVERY,
+            names: BTreeMap::new(),
         });
         self.find_soon = true;
         Ok(())
@@ -733,6 +801,7 @@ impl Hud {
     /// switches at once (the placement worker keeps running). Settings that do not
     /// validate change nothing.
     pub fn apply_tiling_settings(&mut self, settings: &TilingSettings) -> Result<(), String> {
+        self.tiling_heard = true;
         settings
             .validate()
             .map_err(|e| format!("tiling settings refused: {e}"))?;
@@ -1164,24 +1233,102 @@ impl Hud {
         self.panels
     }
 
-    /// (T3) Tiling's state to the app when it changed.
-    fn report_tiling(&mut self, out: &mut dyn FnMut(HudMessage)) {
-        let now: TilingReport = match &self.tiling {
-            Some(tiling) => (
-                true,
-                u32::try_from(tiling.tiler.table_count()).unwrap_or(u32::MAX),
-                tiling.tiler.layout_id().map(str::to_owned),
-            ),
-            None => (false, 0, None),
+    /// (T3) Tiling's state to the app when it changed; (T5) a change of
+    /// places only waits for [`TILING_STATUS_EVERY`] since the last.
+    fn report_tiling(&mut self, now: Instant, out: &mut dyn FnMut(HudMessage)) {
+        if !self.tiling_heard {
+            return;
+        }
+        let report = self.tiling_report();
+        if report == self.tiling_reported {
+            return;
+        }
+        if report.same_but_places(&self.tiling_reported)
+            && self
+                .tiling_reported_at
+                .is_some_and(|at| now < at + TILING_STATUS_EVERY)
+        {
+            return;
+        }
+        self.tiling_reported = report.clone();
+        self.tiling_reported_at = Some(now);
+        out(HudMessage::TilingStatus {
+            enabled: report.enabled,
+            tables: report.tables,
+            layout: report.layout,
+            monitors: report.monitors,
+            windows: report.windows,
+        });
+    }
+
+    /// (T3, T5) Tiling's state now.
+    fn tiling_report(&self) -> TilingReport {
+        let monitors = monitor_infos(&self.monitors);
+        let Some(tiling) = &self.tiling else {
+            return TilingReport {
+                monitors,
+                ..TilingReport::default()
+            };
         };
-        if now != self.tiling_reported {
-            self.tiling_reported = now.clone();
-            let (enabled, tables, layout) = now;
-            out(HudMessage::TilingStatus {
-                enabled,
-                tables,
-                layout,
-            });
+        let order = crate::tiling::monitor_order(&self.monitors);
+        let windows = tiling
+            .tiler
+            .views()
+            .into_iter()
+            .filter(|view| !view.minimized)
+            .map(|view| {
+                let monitor = crate::tiling::monitor_of(&view.outer, &self.monitors)
+                    .and_then(|i| order.iter().position(|&o| o == i))
+                    .unwrap_or(0);
+                TiledTable {
+                    table: tiling.names.get(&view.id).cloned().flatten(),
+                    site: view.site,
+                    rect: screen_rect(&view.outer),
+                    monitor: u32::try_from(monitor).unwrap_or(0),
+                    stacked: view.stacked,
+                    pinned: view.pinned,
+                }
+            })
+            .collect();
+        TilingReport {
+            enabled: true,
+            tables: u32::try_from(tiling.tiler.table_count()).unwrap_or(u32::MAX),
+            layout: tiling.tiler.layout_id().map(str::to_owned),
+            monitors,
+            windows,
+        }
+    }
+
+    /// (T5) "Save current arrangement": a slot per place a table tiling
+    /// manages takes now (none while tiling is off).
+    pub fn capture_layout(&self) -> Vec<rail_hud_ipc::settings::Slot> {
+        let Some(tiling) = &self.tiling else {
+            return Vec::new();
+        };
+        let rects: Vec<Rect> = tiling
+            .tiler
+            .views()
+            .into_iter()
+            .filter(|view| !view.minimized)
+            .map(|view| view.outer)
+            .collect();
+        crate::tiling::capture_slots(&rects, tiling.tiler.monitors())
+    }
+
+    /// (T5) The monitors, when due: kept for `tiling_status`, and handed
+    /// to the tiler (which lays the tables out again when they changed).
+    fn read_monitors(&mut self, now: Instant) {
+        if now < self.next_monitors {
+            return;
+        }
+        self.next_monitors = now + MONITORS_EVERY;
+        let monitors = self.platform.monitors();
+        if monitors.is_empty() || monitors == self.monitors {
+            return;
+        }
+        self.monitors = monitors;
+        if let Some(tiling) = self.tiling.as_mut() {
+            tiling.tiler.set_monitors(self.monitors.clone());
         }
     }
 
@@ -1196,13 +1343,6 @@ impl Hud {
                 eprintln!("rail-hud: tiling: window {}: {error}", done.id.0);
             }
             tiling.tiler.placed(done.id, done.seq, &done.result, now);
-        }
-        if now >= tiling.next_monitors {
-            tiling.next_monitors = now + MONITORS_EVERY;
-            let monitors = self.platform.monitors();
-            if !monitors.is_empty() {
-                tiling.tiler.set_monitors(monitors);
-            }
         }
         for id in tiling.tiler.take_cancels() {
             tiling.worker.cancel(id);
@@ -1220,7 +1360,9 @@ impl Hud {
         };
         let mut seen = Vec::new();
         let compliance = &self.compliance;
+        let mut names = BTreeMap::new();
         for window in found.iter().filter(|w| tiling.takes(w, compliance)) {
+            names.insert(window.id, window.table.clone());
             seen.push(Observed {
                 id: window.id,
                 site: window.site.clone(),
@@ -1230,6 +1372,7 @@ impl Hud {
                 insets: self.platform.frame_insets(window),
             });
         }
+        tiling.names = names;
         let mouse = tiling.mouse(now);
         tiling.tiler.sync(&seen, now, mouse);
     }
@@ -1524,7 +1667,7 @@ impl Hud {
                 if let Err(error) = self.apply_tiling_settings(&settings) {
                     eprintln!("rail-hud: tiling: {error}");
                 }
-                self.report_tiling(out);
+                self.report_tiling(Instant::now(), out);
             }
             AppMessage::RngChanged { settings } => {
                 if let Err(error) = self.apply_rng_settings(settings) {
@@ -1532,6 +1675,10 @@ impl Hud {
                 }
             }
             AppMessage::Retile => self.retile(),
+            AppMessage::CaptureLayout { request } => out(HudMessage::LayoutCaptured {
+                request,
+                slots: self.capture_layout(),
+            }),
             AppMessage::Panels { allowed } => self.set_panels(allowed, out),
             AppMessage::Unknown => {}
         }
@@ -1583,8 +1730,9 @@ impl Hud {
                 self.reread_all(now, out);
             }
         }
+        self.read_monitors(now);
         self.step_tiling(now);
-        self.report_tiling(out);
+        self.report_tiling(now, out);
         self.step_rng(now);
     }
 

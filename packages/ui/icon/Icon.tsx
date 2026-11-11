@@ -117,6 +117,15 @@ const PATHS = {
       <path d="M3.34 19a10 10 0 1 1 17.32 0" />
     </>
   ),
+  /* The desktop app's Tables screen (table tiling): four tiled windows. */
+  tiles: (
+    <>
+      <rect x="3" y="4" width="8" height="7" rx="1" />
+      <rect x="13" y="4" width="8" height="7" rx="1" />
+      <rect x="3" y="13" width="8" height="7" rx="1" />
+      <rect x="13" y="13" width="8" height="7" rx="1" />
+    </>
+  ),
   /* A hand's tags and note (the desktop replayer's header). */
   upload: (
     <>

@@ -23,7 +23,7 @@ use std::path::Path;
 use std::sync::{Arc, OnceLock};
 
 use rail_config::model::{HudRestrictions, SiteKind};
-use rail_config::{Config, MergeNote};
+use rail_config::{Config, Feature, MergeNote, Site};
 use rail_hud::compliance::Compliance;
 use rail_sync::policy::{Check, Policy, PolicyCache, PolicyFetcher, PolicyKeeper};
 use serde::Serialize;
@@ -168,6 +168,38 @@ pub struct RoomPolicyDto {
     /// The remote copy made this entry stricter than this build's own copy
     /// (switched off, or more restricted, after a re-check).
     pub stricter_than_shipped: bool,
+    /// (T5) The client is closed (`operating: false`): nothing to tile.
+    pub closed: bool,
+    /// (T0, T5) Table tiling's policy, separate from the HUD's (the Tables
+    /// screen's rooms).
+    pub tiling: ToolPolicyDto,
+    /// (T0, T5) The RNG's policy.
+    pub rng: ToolPolicyDto,
+}
+
+/// (T5) A room's policy on tiling or the RNG, decided here so the window
+/// never repeats the rules: `rail_config::Site::permits` and
+/// `Permission::needs_approval`.
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ToolPolicyDto {
+    /// `true` allowed, `false` prohibited, `null` unknown (= no).
+    pub allowed: Option<bool>,
+    /// What the HUD decides: a room, allowed.
+    pub permitted: bool,
+    /// Prohibited until the room approves Rail (Winamax).
+    pub needs_approval: bool,
+}
+
+impl ToolPolicyDto {
+    fn of(site: &Site, feature: Feature) -> Self {
+        let permission = site.permission(feature);
+        Self {
+            allowed: permission.allowed,
+            permitted: site.permits(feature),
+            needs_approval: permission.needs_approval(),
+        }
+    }
 }
 
 /// The policy in force, for the HUD screen.
@@ -208,6 +240,9 @@ fn rooms(config: &Config, shipped: Option<&Config>) -> Vec<RoomPolicyDto> {
                     ours.hud.allowed != site.hud.allowed
                         || ours.hud.restrictions != site.hud.restrictions
                 }),
+                closed: site.operating == Some(false),
+                tiling: ToolPolicyDto::of(site, Feature::Tiling),
+                rng: ToolPolicyDto::of(site, Feature::Rng),
             }
         })
         .collect()
@@ -358,6 +393,16 @@ mod tests {
             dto.notes
         );
         assert_eq!(room("ipoker").kind, SiteKind::Network);
+        // (T5) Tiling and the RNG, apart from the HUD: CoinPoker refuses a
+        // HUD and allows tiling; Winamax allows a HUD and needs its
+        // approval for tiling and the RNG.
+        let coin = room("coinpoker");
+        assert!(!coin.permitted && coin.tiling.permitted && !coin.rng.permitted);
+        let winamax = room("winamax");
+        assert!(!winamax.tiling.permitted && winamax.tiling.needs_approval);
+        assert!(winamax.rng.needs_approval);
+        assert!(!room("ggpoker").tiling.needs_approval);
+        assert!(room("fulltilt").closed && !stars.closed);
         let _ = std::fs::remove_dir_all(&dir);
     }
 

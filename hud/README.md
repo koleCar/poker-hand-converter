@@ -241,8 +241,9 @@ Messages:
 | `policy` (the remote `sites.json`, or none) | `table_updated` (latency chain) |
 | `resync`, `health`, `shutdown` | `seat_position_changed` (a dragged panel, for the app to store); (T4) `rng_position_changed` (a dragged RNG widget, per room and table size) |
 | `request_permission` (after the user's click) | `open_popup`, `open_in_app` |
-| (T3) `tiling_changed` (the user's tiling settings, `rail_hud_ipc::settings`; also after every handshake) | (T3) `tiling_status` (on, tables managed, the layout in force) |
+| (T3) `tiling_changed` (the user's tiling settings, `rail_hud_ipc::settings`; also after every handshake) | (T3) `tiling_status` (on, tables managed, the layout in force; T5: the monitors, on or off, and each tiled table's outer rect, name, monitor, stacked, pinned - coalesced to 4 a second while only places change) |
 | (T3) `rng_changed` (the RNG settings; T4 draws it), `retile` (the tray's "Re-tile tables") | |
+| (T5) `capture_layout` (the Tables screen's "Save current arrangement") | (T5) `layout_captured` (one slot per tiled table's place, thousandths of its monitor's work area) |
 | (T3) `panels` (`allowed: false`: the plan holds the HUD back - tiling and the RNG only, no panel attached; after every handshake) | |
 
 ---

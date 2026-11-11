@@ -1302,6 +1302,139 @@ impl Tiler {
             table.retry = Some(again);
         }
     }
+
+    /// (T5) Every table it manages as the app's Tables screen draws it:
+    /// its outer rect (client plus frame), its slot, stacked or pinned; in
+    /// slot order (pinned and unplaced tables last, in the order they
+    /// came).
+    pub fn views(&self) -> Vec<TableView> {
+        let mut views: Vec<(u64, TableView)> = self
+            .tables
+            .iter()
+            .map(|(id, table)| {
+                let stacked = table.slot.is_some_and(|slot| {
+                    self.tables
+                        .iter()
+                        .any(|(other, t)| other != id && t.slot == Some(slot))
+                });
+                (
+                    table.order,
+                    TableView {
+                        id: *id,
+                        site: table.site.clone(),
+                        outer: table.insets.outer(&table.client),
+                        slot: table.slot,
+                        stacked,
+                        pinned: table.pinned,
+                        minimized: table.minimized,
+                    },
+                )
+            })
+            .collect();
+        views.sort_by_key(|(order, view)| (view.slot.unwrap_or(usize::MAX), *order));
+        views.into_iter().map(|(_, view)| view).collect()
+    }
+}
+
+/// (T5) A table as [`Tiler::views`] gives it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableView {
+    pub id: WindowId,
+    pub site: String,
+    /// The outer rect (frame included), pixels: what a slot holds.
+    pub outer: Rect,
+    /// Index into [`Tiler::slots`]; `None` while pinned or not placed.
+    pub slot: Option<usize>,
+    /// Shares its slot with another table.
+    pub stacked: bool,
+    pub pinned: bool,
+    pub minimized: bool,
+}
+
+/// (T5) The monitor `rect` is on: the one holding its centre, else the
+/// nearest to it; an index into `monitors` (`None` without monitors).
+pub fn monitor_of(rect: &Rect, monitors: &[Monitor]) -> Option<usize> {
+    let cx = i64::from(rect.x) + i64::from(rect.width) / 2;
+    let cy = i64::from(rect.y) + i64::from(rect.height) / 2;
+    let distance = |m: &Monitor| {
+        let b = &m.bounds;
+        let dx = (i64::from(b.x) - cx).max(cx - (b.right() - 1)).max(0);
+        let dy = (i64::from(b.y) - cy).max(cy - (b.bottom() - 1)).max(0);
+        dx * dx + dy * dy
+    };
+    (0..monitors.len()).min_by_key(|&i| (distance(&monitors[i]), i))
+}
+
+/// (T5) "Save current arrangement": one play slot per distinct place in
+/// `rects` (outer rects, pixels), on the monitor holding its centre, in
+/// thousandths of that monitor's work area (clipped to it). Places within
+/// a thousandth or so of one another (a stack) give one slot. Each slot
+/// may stack, so a table beyond the slots still finds a place. Ordered by
+/// monitor, then top to bottom, left to right; ids `s1`, `s2`, ...
+pub fn capture_slots(rects: &[Rect], monitors: &[Monitor]) -> Vec<Slot> {
+    let order = monitor_order(monitors);
+    let mut found: Vec<(u32, SlotRect)> = Vec::new();
+    for rect in rects {
+        if rect.width == 0 || rect.height == 0 {
+            continue;
+        }
+        let Some(index) = monitor_of(rect, monitors) else {
+            continue;
+        };
+        let Some(place) = order.iter().position(|&i| i == index) else {
+            continue;
+        };
+        let Some(slot) = thousandths(&monitors[index].work_area, rect) else {
+            continue;
+        };
+        let place = u32::try_from(place).unwrap_or(u32::MAX);
+        let same = |(m, r): &(u32, SlotRect)| {
+            *m == place
+                && r.x.abs_diff(slot.x) <= 2
+                && r.y.abs_diff(slot.y) <= 2
+                && r.width.abs_diff(slot.width) <= 2
+                && r.height.abs_diff(slot.height) <= 2
+        };
+        if !found.iter().any(same) {
+            found.push((place, slot));
+        }
+    }
+    found.sort_by_key(|(m, r)| (*m, r.y, r.x));
+    found
+        .into_iter()
+        .enumerate()
+        .map(|(i, (monitor, rect))| Slot {
+            id: format!("s{}", i + 1),
+            monitor,
+            rect,
+            kind: SlotKind::Play,
+            rooms: None,
+            stack: true,
+        })
+        .collect()
+}
+
+/// `rect` clipped to `work`, in thousandths of it; `None` when nothing of
+/// it is left.
+fn thousandths(work: &Rect, rect: &Rect) -> Option<SlotRect> {
+    if work.width == 0 || work.height == 0 {
+        return None;
+    }
+    let along = |v: i64, origin: i32, size: u32| -> u32 {
+        let off = (v - i64::from(origin)).clamp(0, i64::from(size));
+        let permille = (off * 1000 + i64::from(size) / 2) / i64::from(size);
+        u32::try_from(permille).unwrap_or(1000)
+    };
+    let x0 = along(i64::from(rect.x), work.x, work.width);
+    let y0 = along(i64::from(rect.y), work.y, work.height);
+    let x1 = along(rect.right(), work.x, work.width);
+    let y1 = along(rect.bottom(), work.y, work.height);
+    (x1 > x0 && y1 > y0).then(|| SlotRect {
+        x: x0,
+        y: y0,
+        width: x1 - x0,
+        height: y1 - y0,
+    })
 }
 
 #[cfg(test)]
@@ -2069,5 +2202,115 @@ mod tests {
         world.tiler.set_monitors(vec![two_monitors().remove(0)]);
         world.settle(now);
         assert!(two_monitors()[0].work_area.contains(&world.outer(1)));
+    }
+
+    /// (T5) The views: each table's outer rect where it was placed, its
+    /// slot, and a stack flagged on both of its tables.
+    #[test]
+    fn views_give_outer_rects_and_stacks() {
+        let one = Layout {
+            id: "one".into(),
+            name: "One".into(),
+            slots: vec![Slot {
+                id: "all".into(),
+                monitor: 0,
+                rect: SlotRect {
+                    x: 0,
+                    y: 0,
+                    width: 500,
+                    height: 500,
+                },
+                kind: SlotKind::Play,
+                rooms: None,
+                stack: true,
+            }],
+            auto_switch: Vec::new(),
+        };
+        let mut world = World::new(
+            Options {
+                layouts: vec![one],
+                active: "one".into(),
+                ..Options::default()
+            },
+            two_monitors(),
+        );
+        let now = Instant::now();
+        world.open(1, "pokerstars", FRAME);
+        world.settle(now);
+        let views = world.tiler.views();
+        assert_eq!(views.len(), 1);
+        assert_eq!(views[0].outer, world.outer(1), "client plus frame");
+        assert!(!views[0].stacked && !views[0].pinned);
+        world.open(2, "acr", FRAME);
+        world.settle(now);
+        let views = world.tiler.views();
+        assert_eq!(views.len(), 2);
+        assert!(views.iter().all(|v| v.stacked && v.slot == Some(0)));
+        assert_eq!(views[0].site, "pokerstars", "in the order they came");
+    }
+
+    /// (T5) The monitor a rect is on: its centre's, else the nearest.
+    #[test]
+    fn a_rect_is_on_the_monitor_of_its_centre() {
+        let monitors = two_monitors();
+        assert_eq!(monitor_of(&rect(100, 100, 400, 300), &monitors), Some(0));
+        // Mostly on the right one.
+        assert_eq!(monitor_of(&rect(1800, 100, 800, 300), &monitors), Some(1));
+        // Off every screen: the nearest.
+        assert_eq!(monitor_of(&rect(5000, 100, 100, 100), &monitors), Some(1));
+        assert_eq!(monitor_of(&rect(-900, 100, 100, 100), &monitors), Some(0));
+        assert_eq!(monitor_of(&rect(0, 0, 10, 10), &[]), None);
+    }
+
+    /// (T5) Captured slots: thousandths of each monitor's work area, the
+    /// monitors in layout order, one slot per place (a stack gives one),
+    /// clipped to the work area, valid as a layout.
+    #[test]
+    fn captured_slots_are_thousandths_of_the_work_area() {
+        // The second monitor listed first: layouts still call the primary 0.
+        let monitors = vec![two_monitors()[1].clone(), two_monitors()[0].clone()];
+        let rects = [
+            // The primary's right half, then its left half (a stack of two).
+            rect(960, 0, 960, 520),
+            rect(0, 0, 960, 520),
+            rect(1, 1, 959, 519),
+            // A quarter of the second monitor.
+            rect(1920 + 1280, 700, 1280, 700),
+            // Hanging off the primary's bottom: clipped.
+            rect(0, 900, 480, 400),
+            // Nothing left of it.
+            rect(0, 0, 0, 10),
+        ];
+        let slots = capture_slots(&rects, &monitors);
+        let places: Vec<(u32, (u32, u32, u32, u32))> = slots
+            .iter()
+            .map(|s| (s.monitor, (s.rect.x, s.rect.y, s.rect.width, s.rect.height)))
+            .collect();
+        assert_eq!(
+            places,
+            vec![
+                (0, (0, 0, 500, 500)),
+                (0, (500, 0, 500, 500)),
+                (0, (0, 865, 250, 135)),
+                (1, (500, 500, 500, 500)),
+            ]
+        );
+        assert_eq!(
+            slots.iter().map(|s| s.id.as_str()).collect::<Vec<_>>(),
+            ["s1", "s2", "s3", "s4"]
+        );
+        assert!(slots.iter().all(|s| s.stack && s.kind == SlotKind::Play));
+        let layout = Layout {
+            id: "captured".into(),
+            name: "Captured".into(),
+            slots,
+            auto_switch: Vec::new(),
+        };
+        let settings = rail_hud_ipc::settings::TilingSettings {
+            layouts: vec![layout],
+            ..rail_hud_ipc::settings::TilingSettings::default()
+        };
+        assert_eq!(settings.validate(), Ok(()));
+        assert!(capture_slots(&rects, &[]).is_empty());
     }
 }
