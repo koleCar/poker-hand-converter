@@ -93,7 +93,7 @@ fn frame(site: &str, size: u32, seats: &[u32], rotate_to: Option<u32>) -> Overla
         .permit(site)
         .expect("permitted");
     OverlayFrame {
-        permit,
+        permit: Some(permit),
         status: None,
         debug: None,
         size: Some(size),
@@ -113,6 +113,7 @@ fn frame(site: &str, size: u32, seats: &[u32], rotate_to: Option<u32>) -> Overla
             .collect(),
         legend: Vec::new(),
         design: PanelDesign::default(),
+        rng: None,
     }
 }
 

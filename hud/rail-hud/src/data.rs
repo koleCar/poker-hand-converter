@@ -203,6 +203,21 @@ impl StoreView {
         )
     }
 
+    /// (T4) Where the user put the RNG widget, per room and table size, as
+    /// the app wrote it (`hud_settings` kind `rng`, keys `pos-*`). `None`:
+    /// no store yet.
+    pub fn rng_positions(&mut self) -> Option<Result<Vec<rail_store::RngPosition>, String>> {
+        if !self.ensure_open() {
+            return None;
+        }
+        let reader = self.reader.as_ref()?;
+        Some(
+            reader
+                .hud_rng_positions()
+                .map_err(|error| error.to_string()),
+        )
+    }
+
     /// (R3.9) The user's designs and where each is used, as the app wrote
     /// them (or a sync brought them). `None`: no store yet.
     pub fn hud_designs(&mut self) -> Option<Result<UserDesigns, String>> {

@@ -40,6 +40,15 @@
 //! ([`SimControl::press`]). All of it lives behind a [`SimControl`] that
 //! the test keeps after handing the backend to the engine, and that the
 //! backend's [`Placer`] places through from the tiling worker's thread.
+//!
+//! (T4) **The overlays' pointer, headless.** A test reads the frame and the
+//! scene over a table ([`SimControl::frame`], [`SimControl::scene`]) and
+//! clicks or drags on it ([`SimControl::click`], [`SimControl::drag`]):
+//! the next `poll_events` runs the press, the move and the release through
+//! the overlays' shared [`super::drag::Drag`] over the scene as painted -
+//! what the Windows and macOS overlay threads do with their mouse - and
+//! reports `PanelClicked` / `PanelMoved` as they would, the drop kept on
+//! the overlay until the engine's frame carries it.
 
 #![forbid(unsafe_code)]
 
@@ -54,10 +63,13 @@ use regex::Regex;
 use serde_json::Value;
 
 pub use super::SIM_PROCESS;
+use super::drag::{self, Drag};
 use super::{
     Insets, Monitor, MonitorId, MouseState, OverlayFrame, Placer, Platform, PlatformError,
     ProcessInfo, Rect, TableEvent, TableMatcher, TableWindow, WindowId,
 };
+use crate::layout::Positions;
+use crate::scene::{Scene, compose_with};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct SimTable {
@@ -212,6 +224,13 @@ pub fn scale_at(monitors: &[Monitor], client: &Rect) -> u32 {
         .map_or(1000, |m| m.scale_permille)
 }
 
+/// (T4) An overlay's drops not taken in yet: (drag number, slot, centre).
+type Kept = Vec<(u64, u32, (u32, u32))>;
+
+/// (T4) A test's pointer gesture: table, press, release (`None`: where it
+/// was pressed).
+type Gesture = (u32, (i32, i32), Option<(i32, i32)>);
+
 #[derive(Debug)]
 struct Control {
     monitors: Vec<Monitor>,
@@ -227,6 +246,16 @@ struct Control {
     /// (T2) The mouse: a button down, the last press.
     down: bool,
     last_press: Option<Instant>,
+    /// (T4) Each overlay's frame and its table's client area, as last drawn.
+    frames: BTreeMap<u32, (OverlayFrame, Rect)>,
+    /// (T4) Each overlay's drops the engine has not taken in yet: (drag
+    /// number, slot, centre).
+    kept: BTreeMap<u32, Kept>,
+    /// (T4) Pointer gestures for the next `poll_events`: table, press, and
+    /// where the pointer is released (`None`: where it was pressed).
+    pointer: Vec<Gesture>,
+    /// (T4) Drops so far.
+    drag_seq: u64,
 }
 
 impl Control {
@@ -297,6 +326,41 @@ impl SimControl {
     /// (T2) The button is released.
     pub fn release(&self) {
         self.lock().down = false;
+    }
+
+    /// (T4) The frame drawn over table `number`'s overlay now.
+    pub fn frame(&self, number: u32) -> Option<OverlayFrame> {
+        self.lock()
+            .frames
+            .get(&number)
+            .map(|(frame, _)| frame.clone())
+    }
+
+    /// (T4) What the overlay over table `number` paints now (at 100 %),
+    /// with the drops the engine has not taken in yet.
+    pub fn scene(&self, number: u32) -> Option<Scene> {
+        let control = self.lock();
+        let (frame, client) = control.frames.get(&number)?;
+        Some(compose_with(
+            frame,
+            client.width,
+            client.height,
+            1000,
+            &frame.design,
+            &overrides(control.kept.get(&number)),
+        ))
+    }
+
+    /// (T4) A click at client pixel `at` of table `number`'s overlay, taken
+    /// at the next `poll_events`.
+    pub fn click(&self, number: u32, at: (i32, i32)) {
+        self.lock().pointer.push((number, at, None));
+    }
+
+    /// (T4) A press at client pixel `from` of table `number`'s overlay,
+    /// moved to `to` and released there, taken at the next `poll_events`.
+    pub fn drag(&self, number: u32, from: (i32, i32), to: (i32, i32)) {
+        self.lock().pointer.push((number, from, Some(to)));
     }
 
     /// (T2) Table `number`'s client area now, as the simulator has it.
@@ -392,6 +456,10 @@ impl SimBackend {
                 sites: BTreeMap::new(),
                 down: false,
                 last_press: None,
+                frames: BTreeMap::new(),
+                kept: BTreeMap::new(),
+                pointer: Vec::new(),
+                drag_seq: 0,
             })),
             feed: feed.clone(),
         };
@@ -502,6 +570,85 @@ impl SimBackend {
     fn scale_of(&self, client: &Rect) -> u32 {
         scale_at(&self.control.lock().monitors, client)
     }
+
+    /// (T4) The room table `id` poses as.
+    fn site_of(&self, id: WindowId) -> Option<String> {
+        let number = u32::try_from(id.0).ok()?;
+        let posed = self.control.lock().sites.get(&number).cloned();
+        Some(posed.unwrap_or_else(|| self.site.clone()))
+    }
+
+    /// (T4) The test's pointer gestures since the last poll, through the
+    /// overlays' shared drag over each scene as painted: a press that never
+    /// moved is a click, a drag dropped somewhere it may be is kept and
+    /// reported (as the Windows overlay thread does).
+    fn pointer_events(&mut self) -> Vec<TableEvent> {
+        let mut control = self.control.lock();
+        let gestures = std::mem::take(&mut control.pointer);
+        let mut events = Vec::new();
+        for (number, from, to) in gestures {
+            let Some((frame, client)) = control.frames.get(&number).cloned() else {
+                continue;
+            };
+            let (w, h) = (client.width, client.height);
+            let mut positions = overrides(control.kept.get(&number));
+            let scene = compose_with(&frame, w, h, 1000, &frame.design, &positions);
+            let Some(mut drag) = Drag::press(&scene, from.0, from.1) else {
+                continue;
+            };
+            if let Some(to) = to {
+                drag.moved(to.0, to.1, drag::threshold(1000), w, h);
+            }
+            let id = WindowId(u64::from(number));
+            if drag.is_click() {
+                if let Some(rect) = scene.draggable(drag.slot) {
+                    events.push(TableEvent::PanelClicked {
+                        id,
+                        slot: drag.slot,
+                        panel: Rect {
+                            x: client.x.saturating_add(rect.x),
+                            y: client.y.saturating_add(rect.y),
+                            ..rect
+                        },
+                        scale_permille: 1000,
+                    });
+                }
+                continue;
+            }
+            if let Some(at) = drag.at {
+                positions.insert(drag.slot, at);
+            }
+            let dropped = compose_with(&frame, w, h, 1000, &frame.design, &positions);
+            let Some(at) = drag.release(&dropped) else {
+                continue;
+            };
+            control.drag_seq += 1;
+            let seq = control.drag_seq;
+            control
+                .kept
+                .entry(number)
+                .or_default()
+                .push((seq, drag.slot, at));
+            events.push(TableEvent::PanelMoved {
+                id,
+                size: dropped.size,
+                slot: drag.slot,
+                x: at.0,
+                y: at.1,
+                seq,
+            });
+        }
+        events
+    }
+}
+
+/// (T4) The positions an overlay shows over its frame's: its drops not
+/// taken in yet.
+fn overrides(kept: Option<&Kept>) -> Positions {
+    kept.into_iter()
+        .flatten()
+        .map(|&(_, slot, at)| (slot, at))
+        .collect()
 }
 
 impl Platform for SimBackend {
@@ -565,6 +712,11 @@ impl Platform for SimBackend {
             table.client = window.client;
             table.minimized = window.minimized;
         }
+        if let Ok(number) = u32::try_from(window.id.0)
+            && let Some((_, client)) = self.control.lock().frames.get_mut(&number)
+        {
+            *client = window.client;
+        }
     }
 
     fn poll_events(&mut self) -> Vec<TableEvent> {
@@ -608,12 +760,27 @@ impl Platform for SimBackend {
                 self.tracked.remove(id);
             }
         }
+        events.extend(self.pointer_events());
         events
     }
 
     fn overlay(&mut self, id: WindowId, frame: &OverlayFrame) -> Result<(), PlatformError> {
-        if !self.tracked.contains_key(&id) {
+        let Some(table) = self.tracked.get(&id) else {
             return Err(PlatformError::Gone(id));
+        };
+        // (T4) As the native backends: every permit is the window's room's.
+        if let Some(site) = self.site_of(id)
+            && let Err(error) = frame.permitted_for(&site)
+        {
+            return Err(PlatformError::Os(format!("window {}: {error}", id.0)));
+        }
+        if let Ok(number) = u32::try_from(id.0) {
+            let mut control = self.control.lock();
+            let seen = frame.seating.drags_seen;
+            if let Some(kept) = control.kept.get_mut(&number) {
+                kept.retain(|(seq, _, _)| *seq > seen);
+            }
+            control.frames.insert(number, (frame.clone(), table.client));
         }
         self.overlays.insert(id, frame.clone());
         Ok(())
@@ -621,6 +788,11 @@ impl Platform for SimBackend {
 
     fn remove_overlay(&mut self, id: WindowId) {
         self.overlays.remove(&id);
+        if let Ok(number) = u32::try_from(id.0) {
+            let mut control = self.control.lock();
+            control.frames.remove(&number);
+            control.kept.remove(&number);
+        }
     }
 
     fn monitors(&mut self) -> Vec<Monitor> {

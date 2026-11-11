@@ -32,6 +32,9 @@ rail-store = { path = "../../core/rail-store" }
 rail-stats = { path = "../../core/rail-stats" }
 rail-hud-ipc = { path = "../rail-hud-ipc" }
 regex = "1.13.1"
+# (T4) The RNG overlay's rolls: the operating system's CSPRNG, the version
+# `rail-hud-ipc` already locks for its tokens (no new crate).
+getrandom = "0.3.4"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 

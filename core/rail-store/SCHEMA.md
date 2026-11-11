@@ -1021,15 +1021,24 @@ model `rail_hud_ipc::settings` (`TilingSettings`, `RngSettings`), which the
 app validates before it writes. This crate does not read the JSON. The app
 writes (`WriterHandle::save_hud_setting`) and reads them
 (`Reader::hud_setting`) and sends them to the HUD over the IPC
-(`tiling_changed`, `rng_changed`); the HUD's connection never reads this
-table.
+(`tiling_changed`, `rng_changed`); the HUD's connection reads none of
+these settings rows.
+
+(T4, no migration) **RNG widget positions** live here too: kind `rng`, key
+`pos-<site>-<size>` (`rail_store::rng_position_key`), body
+`{"x": 0-1000, "y": 0-1000}` - where the user dragged a table's RNG widget
+on that room's tables of that size, its centre in thousandths of the client
+area, like a seat's panel. The app writes them from the HUD's
+`rng_position_changed` (`WriterHandle::set_hud_rng_position`); the HUD reads
+them read-only with the seat positions (`Reader::hud_rng_positions`, at
+start and on `layout_changed`). They sync as `rng` rows.
 
 ### `hud_settings`
 
 | Column | Type | |
 | --- | --- | --- |
 | `kind` | TEXT | `tiling` or `rng` (checked) |
-| `key` | TEXT | `default` today (1 - 64 characters, checked) |
+| `key` | TEXT | `default` for the settings; (T4) `pos-<site>-<size>` for an RNG widget position (1 - 64 characters, checked) |
 | `body` | TEXT | the settings as a JSON object (at most 32 KiB, checked by the writer); NULL: cleared (a tombstone) |
 | `updated_at` | INTEGER | ms; last writer wins |
 | `dirty` | INTEGER | 1: written here since the last sync |

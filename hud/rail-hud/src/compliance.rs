@@ -102,6 +102,21 @@ impl Compliance {
         })
     }
 
+    /// (T4) A whole `sites.json` of the caller's in place of the shipped
+    /// one, checked as the shipped one is (`rail_config::load`). **Tests
+    /// only**: the simulator posing as a room the shipped policy does not
+    /// allow yet (no shipped room has `rng.allowed: true`). The binary never
+    /// calls it - no flag reaches it, and `--policy` and the app's remote
+    /// copy stay stricter-only.
+    pub fn from_sites_json(text: &str) -> Result<Self, String> {
+        let config = rail_config::load(text, &parsers()).map_err(|e| e.to_string())?;
+        Ok(Self {
+            config: config.clone(),
+            shipped: config,
+            remote: false,
+        })
+    }
+
     /// The app's remote copy over the shipped one (`None`: the shipped one
     /// alone). A remote file that is refused changes nothing - the policy
     /// in force stays (never looser than the shipped one) - and says why.
@@ -245,9 +260,38 @@ fn matcher_of(site: &Site) -> Option<TableMatcher> {
     })
 }
 
+/// (T4, tests) The shipped policy with `rng.allowed: true` for `sites` -
+/// what no shipped room has yet ([`Compliance::from_sites_json`]).
+#[cfg(test)]
+pub(crate) fn allowing_rng(sites: &[&str]) -> Compliance {
+    let mut config: serde_json::Value =
+        serde_json::from_str(rail_config::SHIPPED).expect("shipped json");
+    for entry in config["sites"].as_array_mut().expect("sites") {
+        if sites.contains(&entry["id"].as_str().unwrap_or_default()) {
+            entry["rng"]["allowed"] = serde_json::Value::Bool(true);
+        }
+    }
+    Compliance::from_sites_json(&config.to_string()).expect("a test policy")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// (T4) A test policy may allow the RNG on a room; the shipped one
+    /// allows it nowhere, and the HUD's own policy stays as shipped.
+    #[test]
+    fn a_test_policy_allows_the_rng() {
+        let shipped = Compliance::shipped().expect("shipped");
+        let test = allowing_rng(&["pokerstars", "ggpoker"]);
+        for site in ["pokerstars", "ggpoker"] {
+            assert!(shipped.rng_permit(site).is_err(), "{site}");
+            assert_eq!(test.rng_permit(site).expect(site).site(), site);
+            assert_eq!(test.decide(site), shipped.decide(site), "{site}");
+        }
+        assert!(test.rng_permit("winamax").is_err());
+        assert!(Compliance::from_sites_json("{}").is_err());
+    }
 
     /// The signed list (R3.0): PokerStars, Winamax and ACR yes; a prohibited
     /// room, an unknown one, a network, a format and an id nobody knows no.
