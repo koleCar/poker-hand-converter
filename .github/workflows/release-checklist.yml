@@ -1,6 +1,7 @@
 # The release checklist's compliance item (docs/RAIL-PLAN.md §12, R3.0,
-# R3.10; guideline §7): every room whose HUD config/sites.json allows, with
-# the page its policy was read from and the date it was read. Fails when any
+# R3.10, table tiling T0; guideline §7): every room whose HUD, table manager
+# (tiling) or RNG config/sites.json allows, with the page its policy was
+# read from and the date it was read. Fails when any
 # of those dates is older than the limit, so a release cannot ship on a
 # stale policy check. Run by hand (Actions -> Release checklist -> Run
 # workflow) on the commit to be released; the table is in the run's summary.

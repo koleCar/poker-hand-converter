@@ -6,10 +6,16 @@
 //! it by R0.12's rules (`rail_config::load_remote`: a remote file can make
 //! a room's policy stricter, never looser; one that does not validate is
 //! refused whole and the shipped copy stays). There is no override.
+//!
+//! (T0) Tiling and the RNG overlay are not a HUD, so `hud.allowed` does not
+//! decide them: each room's `tiling` and `rng` blocks do, under the same
+//! rules (a room, an explicit `true`, unknown is no, a remote copy only
+//! stricter). [`TilingPermit`] and [`RngPermit`] are the yes; nothing uses
+//! them yet (T2 moves windows, T4 draws the RNG).
 
 #![forbid(unsafe_code)]
 
-use rail_config::model::HudRestrictions;
+use rail_config::model::{Feature, HudRestrictions};
 use rail_config::{Config, MergeNote, Site};
 use rail_hud_ipc::protocol::RefusalReason;
 use regex::Regex;
@@ -37,6 +43,36 @@ impl Permit {
     /// What the room's policy forbids.
     pub fn restrictions(&self) -> &HudRestrictions {
         &self.restrictions
+    }
+}
+
+/// (T0) The yes to move and resize one room's table windows: only
+/// [`Compliance::tiling_permit`] makes one, for a room whose `tiling.allowed`
+/// is `true` - whatever its HUD policy says.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TilingPermit {
+    site: String,
+}
+
+impl TilingPermit {
+    /// The `sites.json` room.
+    pub fn site(&self) -> &str {
+        &self.site
+    }
+}
+
+/// (T0) The yes to draw the random number generator over one room's tables:
+/// only [`Compliance::rng_permit`] makes one, for a room whose `rng.allowed`
+/// is `true` - whatever its HUD policy says.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RngPermit {
+    site: String,
+}
+
+impl RngPermit {
+    /// The `sites.json` room.
+    pub fn site(&self) -> &str {
+        &self.site
     }
 }
 
@@ -137,6 +173,41 @@ impl Compliance {
         Ok(Permit {
             site: site.to_owned(),
             restrictions,
+        })
+    }
+
+    /// (T0) May Rail use `feature` (tiling, the RNG) on the room `site`?
+    /// Its own block decides, never `hud`: an explicit `true` on a room;
+    /// `false` is prohibited, `null` unknown (= no).
+    pub fn decide_feature(&self, site: &str, feature: Feature) -> Result<(), RefusalReason> {
+        let Some(entry) = self.config.site(site) else {
+            return Err(RefusalReason::UnknownSite);
+        };
+        if entry.permits(feature) {
+            return Ok(());
+        }
+        Err(match (entry.kind, entry.permission(feature).allowed) {
+            (rail_config::model::SiteKind::Room, Some(false)) => RefusalReason::Prohibited,
+            (rail_config::model::SiteKind::Room, _) => RefusalReason::Unknown,
+            _ => RefusalReason::NotARoom,
+        })
+    }
+
+    /// (T0) [`Self::decide_feature`] for tiling, and with a yes the room's
+    /// [`TilingPermit`].
+    pub fn tiling_permit(&self, site: &str) -> Result<TilingPermit, RefusalReason> {
+        self.decide_feature(site, Feature::Tiling)?;
+        Ok(TilingPermit {
+            site: site.to_owned(),
+        })
+    }
+
+    /// (T0) [`Self::decide_feature`] for the RNG, and with a yes the room's
+    /// [`RngPermit`].
+    pub fn rng_permit(&self, site: &str) -> Result<RngPermit, RefusalReason> {
+        self.decide_feature(site, Feature::Rng)?;
+        Ok(RngPermit {
+            site: site.to_owned(),
         })
     }
 
@@ -338,5 +409,147 @@ mod tests {
         let acr = compliance.permit("acr").expect("acr");
         assert!(acr.restrictions().no_overlap_table_graphics, "kept");
         assert!(acr.restrictions().no_card_split_stats, "added");
+    }
+
+    /// (T0) Unknown is no, for tiling and the RNG alike; a network, a
+    /// format and an id nobody knows are no.
+    #[test]
+    fn unknown_tiling_and_rng_are_no() {
+        let compliance = Compliance::shipped().expect("shipped");
+        // 888poker: tiling `null`; WePlay: both `null`.
+        assert_eq!(
+            compliance.tiling_permit("888poker"),
+            Err(RefusalReason::Unknown)
+        );
+        assert_eq!(
+            compliance.tiling_permit("weplay"),
+            Err(RefusalReason::Unknown)
+        );
+        assert_eq!(compliance.rng_permit("weplay"), Err(RefusalReason::Unknown));
+        // PokerStars: tiling yes, the RNG `null`.
+        assert_eq!(
+            compliance.rng_permit("pokerstars"),
+            Err(RefusalReason::Unknown)
+        );
+        assert_eq!(
+            compliance.tiling_permit("partypoker"),
+            Err(RefusalReason::Prohibited)
+        );
+        assert_eq!(
+            compliance.rng_permit("unibet"),
+            Err(RefusalReason::Prohibited)
+        );
+        assert_eq!(
+            compliance.tiling_permit("ipoker"),
+            Err(RefusalReason::NotARoom)
+        );
+        assert_eq!(
+            compliance.rng_permit("standard"),
+            Err(RefusalReason::NotARoom)
+        );
+        assert_eq!(
+            compliance.tiling_permit("rail-hud-sim"),
+            Err(RefusalReason::UnknownSite)
+        );
+        let stars = compliance.tiling_permit("pokerstars").expect("pokerstars");
+        assert_eq!(stars.site(), "pokerstars");
+    }
+
+    /// (T0) The HUD's policy does not decide tiling: WPT Global and
+    /// CoinPoker refuse a HUD and allow a table manager.
+    #[test]
+    fn a_refused_hud_does_not_refuse_tiling() {
+        let compliance = Compliance::shipped().expect("shipped");
+        for site in ["wpt-global", "coinpoker"] {
+            assert_eq!(
+                compliance.decide(site),
+                Err(RefusalReason::Prohibited),
+                "{site}"
+            );
+            assert_eq!(
+                compliance.tiling_permit(site).map(|p| p.site().to_owned()),
+                Ok(site.to_owned())
+            );
+            assert_eq!(compliance.rng_permit(site), Err(RefusalReason::Prohibited));
+        }
+        // Nor the other way: ACR's HUD is allowed and its RNG unknown.
+        assert_eq!(compliance.decide("acr"), Ok(()));
+        assert!(compliance.tiling_permit("acr").is_ok());
+        assert_eq!(compliance.rng_permit("acr"), Err(RefusalReason::Unknown));
+    }
+
+    /// (T0) A remote copy can switch tiling or the RNG off and never on,
+    /// exactly like the HUD rule, and each block on its own.
+    #[test]
+    fn a_remote_policy_only_makes_tiling_and_rng_stricter() {
+        let mut compliance = Compliance::shipped().expect("shipped");
+        // Stricter: tiling withdrawn on ACR; its HUD stays.
+        let off = remote_with(|v| {
+            site_mut(v, "acr")["tiling"]["allowed"] = serde_json::Value::Bool(false);
+        });
+        compliance.apply_remote(Some(&off)).expect("merged");
+        assert_eq!(
+            compliance.tiling_permit("acr"),
+            Err(RefusalReason::Prohibited)
+        );
+        assert_eq!(compliance.decide("acr"), Ok(()));
+        assert!(compliance.tiling_permit("pokerstars").is_ok());
+
+        // Looser: tiling and the RNG switched on where they are not; the
+        // HUD switched off (stricter) in the same file.
+        let on = remote_with(|v| {
+            let allowance = serde_json::json!({
+                "allowed": true,
+                "source": "https://example.invalid/tools",
+                "checkedAt": "2026-11-12",
+                "notes": null
+            });
+            site_mut(v, "ggpoker")["tiling"] = allowance.clone();
+            site_mut(v, "888poker")["tiling"] = allowance.clone();
+            site_mut(v, "pokerstars")["rng"] = allowance;
+            site_mut(v, "pokerstars")["hud"]["allowed"] = serde_json::Value::Bool(false);
+        });
+        let notes = compliance.apply_remote(Some(&on)).expect("merged");
+        for (id, feature) in [
+            ("ggpoker", Feature::Tiling),
+            ("888poker", Feature::Tiling),
+            ("pokerstars", Feature::Rng),
+        ] {
+            assert!(
+                notes.iter().any(|n| matches!(
+                    n,
+                    MergeNote::LooserPermissionIgnored { id: noted, feature: f, .. }
+                        if noted == id && *f == feature
+                )),
+                "{id} {feature:?}: {notes:?}"
+            );
+        }
+        assert_eq!(
+            compliance.tiling_permit("ggpoker"),
+            Err(RefusalReason::Prohibited)
+        );
+        assert_eq!(
+            compliance.tiling_permit("888poker"),
+            Err(RefusalReason::Unknown)
+        );
+        assert_eq!(
+            compliance.rng_permit("pokerstars"),
+            Err(RefusalReason::Unknown)
+        );
+        assert_eq!(
+            compliance.decide("pokerstars"),
+            Err(RefusalReason::Prohibited)
+        );
+        assert!(
+            compliance.tiling_permit("pokerstars").is_ok(),
+            "a HUD switched off leaves tiling alone"
+        );
+        assert!(
+            compliance.tiling_permit("acr").is_ok(),
+            "the earlier remote is gone"
+        );
+
+        compliance.apply_remote(None).expect("shipped");
+        assert!(compliance.tiling_permit("acr").is_ok());
     }
 }

@@ -12,6 +12,13 @@
 //!   allowed blocks keep **both** blocks' restrictions (R3.4,
 //!   `HudRestrictions::stricter`): a download can add a restriction, never
 //!   drop one ([`MergeNote::LooserRestrictionsIgnored`]).
+//! - **Tiling and the RNG** (T0, `tiling` / `rng`) follow the same order,
+//!   each on its own and independent of `hud`: a looser remote block is
+//!   ignored and the shipped one kept ([`MergeNote::LooserPermissionIgnored`]);
+//!   at equal or stricter level the remote block wins. A remote entry
+//!   without the blocks (a file written before they existed) says nothing
+//!   about them: the shipped blocks stay, as for an entry the remote file
+//!   lacks.
 //! - **Unknown ids are ignored**, not added: an entry id is a key the app
 //!   stores (a folder's site, a layout's room), identity and parser come with
 //!   a release, and a remote-only entry would vanish again with the next
@@ -50,7 +57,7 @@
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 
-use crate::model::{Config, Hud, Processes, Site, Tables};
+use crate::model::{Config, Feature, Hud, Permission, Processes, Site, Tables};
 
 /// How much a HUD policy permits, least first.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -62,7 +69,13 @@ pub enum HudLevel {
 
 impl HudLevel {
     pub fn of(hud: &Hud) -> Self {
-        match hud.allowed {
+        Self::of_allowed(hud.allowed)
+    }
+
+    /// The level of an `allowed` value: `false` < `null` < `true`. The same
+    /// order serves `tiling` and `rng` (T0).
+    pub fn of_allowed(allowed: Option<bool>) -> Self {
+        match allowed {
             Some(false) => Self::Prohibited,
             None => Self::Unknown,
             Some(true) => Self::Allowed,
@@ -93,6 +106,14 @@ pub enum MergeNote {
     IdentityChangeIgnored { id: String, field: &'static str },
     /// The remote file has no entry for this shipped id; it stays as shipped.
     MissingFromRemote { id: String },
+    /// (T0) The remote entry would loosen the room's `tiling` or `rng`
+    /// policy; the shipped block stays.
+    LooserPermissionIgnored {
+        id: String,
+        feature: Feature,
+        shipped: Option<bool>,
+        remote: Option<bool>,
+    },
     /// The remote entry drops or eases a HUD restriction of the shipped
     /// one; the merged entry keeps every restriction of both.
     LooserRestrictionsIgnored { id: String },
@@ -125,6 +146,19 @@ impl std::fmt::Display for MergeNote {
             } => write!(
                 f,
                 "{id}: the remote file says {}, looser than this build's {}; kept {}",
+                level(remote),
+                level(shipped),
+                level(shipped)
+            ),
+            Self::LooserPermissionIgnored {
+                id,
+                feature,
+                shipped,
+                remote,
+            } => write!(
+                f,
+                "{id}: the remote file says {} {}, looser than this build's {}; kept {}",
+                feature.key(),
                 level(remote),
                 level(shipped),
                 level(shipped)
@@ -225,8 +259,38 @@ fn merge_site(shipped: &Config, ours: &Site, theirs: &Site, notes: &mut Vec<Merg
         }
         Ordering::Less => {}
     }
+    merged.tiling = merge_permission(ours, theirs, Feature::Tiling, notes);
+    merged.rng = merge_permission(ours, theirs, Feature::Rng, notes);
     merged.tables = merge_tables(shipped, ours, theirs, notes);
     merged
+}
+
+/// (T0) One of `tiling` / `rng` under the stricter-only rule: the remote
+/// block when it permits no more than the shipped one, else the shipped
+/// block and a note. A remote file without the block says nothing about it:
+/// the shipped block stays.
+fn merge_permission(
+    ours: &Site,
+    theirs: &Site,
+    feature: Feature,
+    notes: &mut Vec<MergeNote>,
+) -> Option<Permission> {
+    let shipped = ours.permission_block(feature);
+    let Some(remote) = theirs.permission_block(feature) else {
+        return shipped.cloned();
+    };
+    let shipped_allowed = ours.permission(feature).allowed;
+    if HudLevel::of_allowed(remote.allowed) > HudLevel::of_allowed(shipped_allowed) {
+        notes.push(MergeNote::LooserPermissionIgnored {
+            id: ours.id.clone(),
+            feature,
+            shipped: shipped_allowed,
+            remote: remote.allowed,
+        });
+        shipped.cloned()
+    } else {
+        Some(remote.clone())
+    }
 }
 
 /// A room's `tables` block under the stricter-only rule for what bears on
@@ -406,6 +470,8 @@ mod tests {
                 checked_at: None,
             },
             hud: hud(allowed),
+            tiling: Some(Permission::default()),
+            rng: Some(Permission::default()),
             anonymisation: Some(Anonymisation::None),
             docs: Vec::new(),
             notes: String::new(),
@@ -474,6 +540,122 @@ mod tests {
                 );
             }
         }
+    }
+
+    fn permission(allowed: Option<bool>) -> Option<Permission> {
+        Some(Permission {
+            allowed,
+            source: allowed.map(|_| "https://example.org/tools".to_owned()),
+            checked_at: allowed.map(|_| "2026-11-11".to_owned()),
+            notes: None,
+        })
+    }
+
+    /// (T0) `tiling` and `rng`, each on its own: the stricter of the two
+    /// blocks, a note exactly when the remote one was looser, and the HUD's
+    /// level never decides them.
+    #[test]
+    fn tiling_and_rng_only_get_stricter() {
+        for feature in Feature::ALL {
+            for shipped in LEVELS {
+                for remote in LEVELS {
+                    let with = |allowed, hud_allowed| {
+                        let mut site = site("pokerstars", "pokerstars", hud_allowed);
+                        match feature {
+                            Feature::Tiling => site.tiling = permission(allowed),
+                            Feature::Rng => site.rng = permission(allowed),
+                        }
+                        site
+                    };
+                    // The HUD goes the other way: refused in the shipped
+                    // file, allowed (and ignored) in the remote one.
+                    let merged = merge_remote(
+                        &config(vec![with(shipped, Some(false))]),
+                        &config(vec![with(remote, Some(true))]),
+                    );
+                    let looser = HudLevel::of_allowed(remote) > HudLevel::of_allowed(shipped);
+                    let site = &merged.config.sites[0];
+                    let expected = if looser { shipped } else { remote };
+                    assert_eq!(
+                        site.permission(feature).allowed,
+                        expected,
+                        "{feature:?}: shipped {shipped:?}, remote {remote:?}"
+                    );
+                    assert_eq!(site.hud.allowed, Some(false));
+                    let other = match feature {
+                        Feature::Tiling => Feature::Rng,
+                        Feature::Rng => Feature::Tiling,
+                    };
+                    assert_eq!(
+                        site.permission(other).allowed,
+                        None,
+                        "the other block is untouched"
+                    );
+                    let mut expected_notes = vec![MergeNote::LooserHudIgnored {
+                        id: "pokerstars".to_owned(),
+                        shipped: Some(false),
+                        remote: Some(true),
+                    }];
+                    if looser {
+                        expected_notes.push(MergeNote::LooserPermissionIgnored {
+                            id: "pokerstars".to_owned(),
+                            feature,
+                            shipped,
+                            remote,
+                        });
+                    }
+                    assert_eq!(merged.notes, expected_notes);
+                    assert_eq!(validate(&merged.config, PARSERS), Vec::new());
+                }
+            }
+        }
+        assert_eq!(
+            MergeNote::LooserPermissionIgnored {
+                id: "acr".into(),
+                feature: Feature::Rng,
+                shipped: None,
+                remote: Some(true),
+            }
+            .to_string(),
+            "acr: the remote file says rng allowed, looser than this build's unknown; kept unknown"
+        );
+    }
+
+    /// A stricter remote block comes whole, with its source, date and
+    /// notes; the HUD block is not touched by it.
+    #[test]
+    fn a_stricter_tiling_block_comes_whole() {
+        let mut shipped = site("pokerstars", "pokerstars", Some(true));
+        shipped.tiling = permission(Some(true));
+        let mut remote = shipped.clone();
+        remote.tiling = Some(Permission {
+            allowed: Some(false),
+            source: Some("https://example.org/new".to_owned()),
+            checked_at: Some("2026-12-01".to_owned()),
+            notes: Some("withdrawn".to_owned()),
+        });
+        let merged = merge_remote(&config(vec![shipped]), &config(vec![remote.clone()]));
+        assert_eq!(merged.config.sites[0].tiling, remote.tiling);
+        assert!(merged.config.sites[0].hud_permitted(), "the HUD stays");
+        assert_eq!(merged.notes, Vec::new());
+    }
+
+    /// A remote entry without the blocks (a file from before T0) says
+    /// nothing about them: the shipped blocks stay, allowed or not, and no
+    /// note.
+    #[test]
+    fn a_remote_entry_without_the_blocks_keeps_the_shipped_ones() {
+        let mut shipped = site("pokerstars", "pokerstars", Some(true));
+        shipped.tiling = permission(Some(true));
+        shipped.rng = permission(Some(false));
+        let mut remote = site("pokerstars", "pokerstars", Some(true));
+        remote.tiling = None;
+        remote.rng = None;
+        let merged = merge_remote(&config(vec![shipped.clone()]), &config(vec![remote]));
+        assert_eq!(merged.config.sites[0].tiling, shipped.tiling);
+        assert_eq!(merged.config.sites[0].rng, shipped.rng);
+        assert!(merged.config.sites[0].tiling_permitted());
+        assert_eq!(merged.notes, Vec::new());
     }
 
     #[test]

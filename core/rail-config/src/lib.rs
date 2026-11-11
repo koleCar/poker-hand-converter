@@ -22,6 +22,10 @@
 //!   [`merge_remote`] it over the shipped one: paths, files and tables may
 //!   change, HUD policy only gets stricter, unknown ids are ignored.
 //! - [`model::Site::hud_permitted`]: compliance mode's one question (R3.10).
+//! - [`model::Site::tiling_permitted`] / [`model::Site::rng_permitted`]: the
+//!   same question for the table manager and the RNG (T0), each its own
+//!   block in `sites.json`, independent of the HUD's; unknown is no, and a
+//!   download can only make them stricter.
 //! - [`stats`]: `config/stats/`, the displayed statistics as data (R2.4):
 //!   [`stats::load_stats`], [`stats::SHIPPED_STATS`], the formula language.
 
@@ -33,8 +37,8 @@ pub mod validate;
 use std::fmt;
 
 pub use merge::{HudLevel, MergeNote, Merged, merge_remote};
-pub use model::{Config, Site};
-pub use validate::{Problem, check_coverage, validate};
+pub use model::{Config, Feature, Permission, Site};
+pub use validate::{Problem, check_coverage, check_policy_blocks, validate};
 
 /// The `version` this build reads.
 pub const VERSION: u32 = 1;
@@ -92,12 +96,13 @@ pub fn parse(text: &str) -> Result<Config, Error> {
     Ok(config)
 }
 
-/// A complete file - the shipped copy: valid, and every parser in `parsers`
-/// has an entry.
+/// A complete file - the shipped copy: valid, every parser in `parsers`
+/// has an entry, and every entry states its `tiling` and `rng` policy.
 pub fn load(text: &str, parsers: &[&str]) -> Result<Config, Error> {
     let config = parse(text)?;
     let mut problems = validate(&config, parsers);
     problems.extend(check_coverage(&config, parsers));
+    problems.extend(check_policy_blocks(&config));
     if problems.is_empty() {
         Ok(config)
     } else {

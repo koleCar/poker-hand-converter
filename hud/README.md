@@ -53,7 +53,8 @@ Three rules from the architecture hold here:
    the app, which writes it.
 3. **Compliance mode lives in the HUD process itself.** It attaches only to
    windows of a room whose `hud.allowed` is `true`; unknown counts as no, and
-   there is no override anywhere.
+   there is no override anywhere. Tiling and the RNG will ask their own
+   `tiling` / `rng` policies the same way.
 
 ---
 
@@ -66,7 +67,7 @@ Three rules from the architecture hold here:
 | `lib.rs` | Command line (`Args`), exit codes, `run`: load the shipped `sites.json`, merge `--policy`, connect to the app, run the engine |
 | `main.rs` | Exits with `rail_hud::main_with(args)`; forbids `unsafe` |
 | `engine.rs` | The one loop: looks for tables every 500 ms (the safety net once hooks follow them), attaches or refuses each window once, matches each `hand_imported` to its window by exact table name, re-reads, redraws, reports health, latency and `tables_open` |
-| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries |
+| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows) and `RngPermit` (draw the RNG over them), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter. Not used by the engine yet (T2, T4) |
 | `data.rs` | The read path: `Reader::hud_totals` over the table's segment, `hud_own_totals` on rooms that allow statistics from your own hands only, the user's own statistics, `PRAGMA data_version` to notice commits without a message |
 | `panel.rs` | What a seat's panel says: the definitions with `hud: panel` (VPIP, PFR, 3B, F3B, CB, AFq), colour band, reliability opacity, hand count; the player's colour, note mark and labels where allowed; `PanelDesign::enforce` applies a room's restrictions |
 | `design.rs` | HUD designs, presets (`config/hud/presets.json`: cash, tournament, Spin, and tournament by stack depth for ACR only), assignments per room / format / table size, `check_for_room` |
@@ -270,8 +271,11 @@ inside the `.app` and the NSIS installer.
 
 - **Unknown is no, and there is no override.** Only a room whose
   `hud.allowed` is `true` gets an overlay; the web's copy of `sites.json`
-  can only switch a room off or add restrictions. The release checklist
-  fails on an allowed room checked more than 90 days ago
+  can only switch a room off or add restrictions. Tiling and the RNG have
+  their own `tiling` / `rng` blocks under the same rules; `hud.allowed`
+  never decides them, so a room that refuses a HUD can still allow a table
+  manager (WPT Global, CoinPoker). The release checklist fails on any
+  allowance (HUD, tiling or RNG) checked more than 90 days ago
   (`npm run hud:policy-check` in [`tests/`](../tests)).
 - **No real-time assistance.** Past hands' statistics only; nothing about
   the hand in play; while a table is open the app hides what could help
@@ -293,6 +297,7 @@ inside the `.app` and the NSIS installer.
 | Processes, IPC, latency budget | [`docs/RAIL-PLAN.md`](../docs/RAIL-PLAN.md) §3.2 - §3.3, R3.2 |
 | Every Phase 3 step as built | [`docs/RAIL-PLAN.md`](../docs/RAIL-PLAN.md) R3.0 - R3.14 |
 | Which rooms allow a HUD, quoted and dated | [`docs/research/HUD-POLICIES.md`](../docs/research/HUD-POLICIES.md) |
+| Which rooms allow a table manager and an RNG, quoted and dated | [`docs/research/TILING-POLICIES.md`](../docs/research/TILING-POLICIES.md) |
 | Capturing a room's table titles | [`docs/research/CAPTURING-TABLES.md`](../docs/research/CAPTURING-TABLES.md) |
 | Checking the HUD on the real clients | [`docs/research/REAL-CLIENT-CHECK.md`](../docs/research/REAL-CLIENT-CHECK.md) |
 | The app side: supervisor wiring, editor, popup, compliance screen | [`app/README.md`](../app/README.md) |
