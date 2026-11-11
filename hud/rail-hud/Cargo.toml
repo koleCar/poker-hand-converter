@@ -19,6 +19,15 @@ path = "src/main.rs"
 [lints]
 workspace = true
 
+# (T4) `test-policy`: `Compliance::from_sites_json`, a whole `sites.json` in
+# place of the shipped one - a policy that may be looser than the shipped
+# file, for the tests only (no shipped room allows the RNG yet). Off by
+# default, so the binary the app ships has no loosening path compiled in;
+# the integration tests turn it on through the self dev-dependency below
+# (a dev-dependency's features reach only test, bench and example builds).
+[features]
+test-policy = []
+
 [dependencies]
 # Compliance mode: the shipped sites.json, merged with a remote copy by
 # R0.12's rules; `hud_permitted()` is the one question.
@@ -182,6 +191,9 @@ objc2-quartz-core = { version = "=0.3.2", default-features = false, features = [
 ] }
 
 [dev-dependencies]
+# (T4) This crate itself with `test-policy` on, for `tests/rng_sim.rs` (a
+# looser test policy); never in a normal or release build.
+rail-hud = { path = ".", features = ["test-policy"] }
 # The end-to-end test (tests/e2e.rs): the simulator's hands through the
 # watcher into a store, the app's side of the channel, this process.
 rail-watch = { path = "../../core/rail-watch" }

@@ -107,7 +107,10 @@ impl Compliance {
     /// only**: the simulator posing as a room the shipped policy does not
     /// allow yet (no shipped room has `rng.allowed: true`). The binary never
     /// calls it - no flag reaches it, and `--policy` and the app's remote
-    /// copy stay stricter-only.
+    /// copy stay stricter-only - and it is not even compiled into it: only
+    /// unit tests and the `test-policy` feature (off by default; the
+    /// integration tests' self dev-dependency turns it on) have it.
+    #[cfg(any(test, feature = "test-policy"))]
     pub fn from_sites_json(text: &str) -> Result<Self, String> {
         let config = rail_config::load(text, &parsers()).map_err(|e| e.to_string())?;
         Ok(Self {

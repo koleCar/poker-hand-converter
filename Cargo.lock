@@ -3800,6 +3800,7 @@ dependencies = [
  "objc2-quartz-core 0.3.2",
  "rail-config",
  "rail-core",
+ "rail-hud",
  "rail-hud-ipc",
  "rail-hud-sim",
  "rail-stats",
