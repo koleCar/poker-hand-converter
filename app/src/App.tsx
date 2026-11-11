@@ -20,6 +20,7 @@ import { Refused } from "./screens/Refused";
 import { playerParam } from "./screens/players/param";
 import { Reports } from "./screens/Reports";
 import { Settings } from "./screens/settings/Settings";
+import { Tables } from "./screens/Tables";
 import { Live } from "./screens/Live";
 import { useTablesOpen } from "./lib/useTablesOpen";
 
@@ -56,6 +57,7 @@ const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   analysis: AnalysisScreen,
   solver: SolverScreen,
   hud: Hud,
+  tables: Tables,
   import: Import,
   settings: Settings,
   [SETUP]: FirstRun,
@@ -90,7 +92,7 @@ export function App() {
       {/* The first-run screen and the refused hands belong to Settings (where they are reached). */}
       {/* A10 (R3.10): the sidebar and the palette leave out a screen that helps with play while a table is open. */}
       <Sidebar current={route === SETUP || route === REFUSED ? "settings" : route} tablesOpen={tablesOpen} />
-      {/* Another screen (a click, Cmd/Ctrl + 1-8, the palette) fades in on a
+      {/* Another screen (a click, Cmd/Ctrl + 1-9, the palette) fades in on a
           fresh <main> at its top (`.rail-fade`, opacity only, skipped under
           reduced motion); one that reads first shows its loader. */}
       <main key={route} className={`${styles.main} rail-fade`}>

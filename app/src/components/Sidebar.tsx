@@ -18,6 +18,7 @@ const SCREEN_ICONS: Record<Screen, IconName> = {
   analysis: "trend",
   solver: "grid",
   hud: "gauge",
+  tables: "tiles",
   import: "upload",
   settings: "settings",
 };

@@ -32,6 +32,7 @@ export const SCREEN_HELP: Readonly<Record<Route, PlayHelp | null>> = {
   // The Solver library: every spot's solved strategy.
   solver: "solver",
   hud: null,
+  tables: null,
   import: null,
   settings: null,
   setup: null,

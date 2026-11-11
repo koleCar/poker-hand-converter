@@ -30,8 +30,9 @@
 //!   (`crate::popup`), and the window hears [`TABLES_OPEN_EVENT`] on the
 //!   edges of `tables_open` - while tables are open it hides its analysis
 //!   (A10), and the popup closes when the last table does;
-//!   `seat_position_changed` (R3.6: the user dragged a panel) is written to
-//!   the store by a thread of its own ([`LayoutWrites`]) - the HUD's
+//!   `seat_position_changed` (R3.6: the user dragged a panel) and (T4)
+//!   `rng_position_changed` (the RNG widget dragged) are written to the
+//!   store by a thread of its own ([`LayoutWrites`]) - the HUD's
 //!   connection is read-only, and the supervisor's callback never waits for
 //!   a commit.
 //! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
@@ -70,8 +71,9 @@
 //!   status stays `locked` - and a plan that includes the HUD later turns
 //!   the panels on (`panels {allowed: true}`) without a restart.
 
+use std::collections::BTreeMap;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::mpsc::{self, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -79,7 +81,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use rail_hud_ipc::protocol::{
     AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, PlayerRef, RefusalReason,
 };
-use rail_hud_ipc::settings::{RngSettings, TilingSettings};
+use rail_hud_ipc::protocol::{MonitorInfo, TiledTable};
+use rail_hud_ipc::settings::{RngSettings, Slot, TilingSettings};
 use rail_hud_ipc::supervisor::{Event, Supervisor, SupervisorConfig};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, Runtime, State};
@@ -220,7 +223,16 @@ pub struct TilingStatusDto {
     pub tables: u32,
     /// The layout in force (`auto`, or a user layout's id).
     pub layout: Option<String>,
+    /// (T5) The monitors, in the order layouts name them (sent whether
+    /// tiling is on or off).
+    pub monitors: Vec<MonitorInfo>,
+    /// (T5) The tables tiling manages, each at its outer rect (frame
+    /// included), physical pixels in the monitors' space.
+    pub windows: Vec<TiledTable>,
 }
+
+/// (T5) How long "Save current arrangement" waits for the HUD's answer.
+const CAPTURE_WAIT: Duration = Duration::from_secs(3);
 
 #[derive(Debug, Default)]
 struct Shared {
@@ -231,6 +243,9 @@ struct Shared {
     /// (T3) The HUD's last `tiling_status` (`None`: none since it
     /// connected).
     tiling: Mutex<Option<TilingStatusDto>>,
+    /// (T5) `capture_layout` requests waiting for the HUD's answer.
+    captures: Mutex<BTreeMap<u64, tokio::sync::oneshot::Sender<Vec<Slot>>>>,
+    next_capture: AtomicU64,
     /// [`HudState::stop`] is running: the events touch nothing of the app's
     /// windows or tray. `stop` runs on the main thread (the app's exit) and
     /// waits for the supervisor's thread, while a tray or window call from
@@ -251,6 +266,12 @@ impl Shared {
 
     fn tiling(&self) -> std::sync::MutexGuard<'_, Option<TilingStatusDto>> {
         self.tiling.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn captures(
+        &self,
+    ) -> std::sync::MutexGuard<'_, BTreeMap<u64, tokio::sync::oneshot::Sender<Vec<Slot>>>> {
+        self.captures.lock().unwrap_or_else(PoisonError::into_inner)
     }
 }
 
@@ -301,7 +322,9 @@ impl HudFeed {
 struct SeatWrite {
     site: String,
     size: u32,
-    slot: u32,
+    /// The seat's slot; (T4) `None`: the RNG widget (`hud_settings` kind
+    /// `rng`, per room and size).
+    slot: Option<u32>,
     x: u32,
     y: u32,
 }
@@ -322,19 +345,27 @@ impl LayoutWrites {
             .name("rail-hud-layouts".to_owned())
             .spawn(move || {
                 while let Ok(write) = rx.recv() {
-                    match writer.set_hud_seat_position(
-                        &write.site,
-                        write.size,
-                        write.slot,
-                        write.x,
-                        write.y,
-                    ) {
+                    let written = match write.slot {
+                        Some(slot) => writer.set_hud_seat_position(
+                            &write.site,
+                            write.size,
+                            slot,
+                            write.x,
+                            write.y,
+                        ),
+                        None => {
+                            writer.set_hud_rng_position(&write.site, write.size, write.x, write.y)
+                        }
+                    };
+                    match written {
                         Ok(()) => {
                             log::info!(
-                                "hud: {} {}-seat panel {} now at ({}, {})",
+                                "hud: {} {}-seat {} now at ({}, {})",
                                 write.site,
                                 write.size,
-                                write.slot,
+                                write
+                                    .slot
+                                    .map_or_else(|| "RNG".to_owned(), |s| format!("panel {s}")),
                                 write.x,
                                 write.y
                             );
@@ -674,6 +705,32 @@ impl HudState {
         true
     }
 
+    /// (T5) "Save current arrangement": the HUD's slots for the places of
+    /// the tables it tiles now (thousandths of each monitor's work area),
+    /// for a user layout the window then saves. Fails when no HUD is
+    /// connected or it does not answer within [`CAPTURE_WAIT`] (an older
+    /// HUD ignores the request).
+    pub async fn capture_layout(&self) -> Result<Vec<Slot>, String> {
+        let supervisor = self
+            .supervisor()
+            .filter(|supervisor| supervisor.is_connected())
+            .ok_or("the HUD is not running")?;
+        let request = self.shared.next_capture.fetch_add(1, Ordering::SeqCst) + 1;
+        let (answer, answered) = tokio::sync::oneshot::channel();
+        self.shared.captures().insert(request, answer);
+        if !supervisor.send(AppMessage::CaptureLayout { request }) {
+            self.shared.captures().remove(&request);
+            return Err("the HUD is not running".into());
+        }
+        match tokio::time::timeout(CAPTURE_WAIT, answered).await {
+            Ok(Ok(slots)) => Ok(slots),
+            _ => {
+                self.shared.captures().remove(&request);
+                Err("the HUD did not answer".into())
+            }
+        }
+    }
+
     /// (T3) Lay every tiled table out again ("Re-tile tables"). Whether the
     /// HUD heard it.
     pub fn retile(&self) -> bool {
@@ -1007,7 +1064,15 @@ fn on_event<R: Runtime>(
             } => layouts.queue(SeatWrite {
                 site,
                 size,
-                slot,
+                slot: Some(slot),
+                x,
+                y,
+            }),
+            // (T4) The RNG widget dragged: its room and size's position.
+            HudMessage::RngPositionChanged { site, size, x, y } => layouts.queue(SeatWrite {
+                site,
+                size,
+                slot: None,
                 x,
                 y,
             }),
@@ -1016,15 +1081,25 @@ fn on_event<R: Runtime>(
                 enabled,
                 tables,
                 layout,
+                monitors,
+                windows,
             } => {
                 let now = TilingStatusDto {
                     enabled,
                     tables,
                     layout,
+                    monitors,
+                    windows,
                 };
                 let changed = shared.tiling().replace(now.clone()) != Some(now);
                 if changed {
                     status_changed(app);
+                }
+            }
+            // (T5) The answer to "Save current arrangement".
+            HudMessage::LayoutCaptured { request, slots } => {
+                if let Some(answer) = shared.captures().remove(&request) {
+                    let _ = answer.send(slots);
                 }
             }
             HudMessage::Unknown => {}
@@ -1360,9 +1435,17 @@ mod tests {
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: 2,
+            slot: Some(2),
             x: 300,
             y: 640,
+        });
+        // (T4) The RNG widget's, as `rng_position_changed` brings it.
+        layouts.queue(SeatWrite {
+            site: "acr".into(),
+            size: 9,
+            slot: None,
+            x: 950,
+            y: 40,
         });
         let deadline = std::time::Instant::now() + Duration::from_secs(10);
         let reader = rail_store::Reader::open(&store.path, 1).expect("reader");
@@ -1378,11 +1461,20 @@ mod tests {
             assert!(std::time::Instant::now() < deadline, "not written");
             std::thread::sleep(Duration::from_millis(20));
         }
+        loop {
+            let found = reader.hud_rng_positions().expect("read");
+            if let [p] = found.as_slice() {
+                assert_eq!((p.site.as_str(), p.size, p.x, p.y), ("acr", 9, 950, 40));
+                break;
+            }
+            assert!(std::time::Instant::now() < deadline, "not written");
+            std::thread::sleep(Duration::from_millis(20));
+        }
         // A position out of range is refused, quietly (logged).
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: 9,
+            slot: Some(9),
             x: 0,
             y: 0,
         });
@@ -1768,6 +1860,8 @@ mod tests {
         hud.apply_plan(false);
         assert!(hud.supervisor().is_none());
         assert_eq!(hud.status().phase, "locked");
+        // (T5) No HUD: nothing to capture a layout from.
+        assert!(tauri::async_runtime::block_on(hud.capture_layout()).is_err());
         // Switched on: it starts, panels off, still `locked`.
         hud.tiling_written(TilingSettings {
             enabled: true,

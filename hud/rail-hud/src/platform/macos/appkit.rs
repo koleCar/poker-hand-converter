@@ -110,6 +110,9 @@
 //! never moved is `TableEvent::PanelClicked` with the panel on the screen
 //! (R3.8's popup). Both go to the engine through
 //! [`crate::platform::tracking::Observed`] - no store work here, ever.
+//! (T4) The RNG widget the same way, as the pseudo-slot
+//! [`crate::platform::RNG_SLOT`]: its plate is one of the scene's click
+//! rectangles.
 //!
 //! **`unsafe`**: each function that needs it allows it for itself, with a
 //! `// SAFETY:` comment per block: reading AppKit's and Core Text's
@@ -1333,12 +1336,10 @@ impl Overlays {
             if !released {
                 return;
             }
-            let Some(&(slot, rect)) = overlay
-                .scene
-                .seat_panels
-                .iter()
-                .find(|(slot, _)| *slot == drag.slot)
-            else {
+            // (T4) A seat's panel, or the RNG widget (its slot `RNG_SLOT`:
+            // a roll).
+            let slot = drag.slot;
+            let Some(rect) = overlay.scene.draggable(slot) else {
                 return;
             };
             overlay.clicks += 1;

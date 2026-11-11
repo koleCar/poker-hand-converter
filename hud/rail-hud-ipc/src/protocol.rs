@@ -8,7 +8,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::settings::{RngSettings, TilingSettings};
+use crate::settings::{RngSettings, Slot, TilingSettings};
 
 /// A player as the store keys their rollups (`player_rollups`): the name as
 /// the room wrote it and the scope - `""`, or for an opaque-id room's
@@ -112,12 +112,19 @@ pub enum AppMessage {
     #[serde(rename_all = "camelCase")]
     TilingChanged { settings: TilingSettings },
     /// (T3) The user's RNG settings, on every change and after every
-    /// handshake; the HUD keeps them (T4 draws the RNG).
+    /// handshake; (T4) the HUD draws the RNG with them over the tables of
+    /// rooms whose policy allows it.
     #[serde(rename_all = "camelCase")]
     RngChanged { settings: RngSettings },
     /// (T3) Lay every tiled table out again, the ones the user moved by
     /// hand too (the tray's "Re-tile tables").
     Retile,
+    /// (T5) "Save current arrangement": the HUD answers with
+    /// [`HudMessage::LayoutCaptured`] and the same `request` - one slot per
+    /// place a tiled table takes now, for a user layout. An older HUD
+    /// ignores it (the app gives up after a moment).
+    #[serde(rename_all = "camelCase")]
+    CaptureLayout { request: u64 },
     /// (T3) Whether the plan includes the HUD's panels. `false` (Free,
     /// with enforcement on): the HUD runs for table tiling and the RNG
     /// only and attaches no panel; `true` (the plan now includes it): it
@@ -228,16 +235,51 @@ pub enum HudMessage {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         design: Option<String>,
     },
+    /// (T4) The user dragged a table's RNG widget: the app remembers it in
+    /// the store (`hud_settings` kind `rng`, key `pos-<site>-<size>`:
+    /// `rail_store::hud`) for the room and the table size, like a seat's
+    /// panel, and the HUD reads it back at its
+    /// next start (and on `layout_changed`). The HUD already shows it there,
+    /// on every table of that room and size.
+    #[serde(rename_all = "camelCase")]
+    RngPositionChanged {
+        /// The `sites.json` room.
+        site: String,
+        /// The table size, 2 - 10.
+        size: u32,
+        /// The widget's centre, thousandths of the table's client area.
+        x: u32,
+        y: u32,
+    },
     /// (T3) Table tiling's state, whenever it changes: on or off, how many
     /// tables it manages, the layout in force (`auto` for the auto grid;
     /// `None` while off or before a table).
+    ///
+    /// (T5) With what the app's Tables screen draws: the monitors (sent
+    /// whether tiling is on or off) and every table tiling manages, each
+    /// at its **outer rect** (the window's frame included - what tiling
+    /// lays edge to edge and a slot holds), in the monitors' space. Sent
+    /// when anything in it changes; while only places change (a table
+    /// dragged), at most every quarter of a second.
     #[serde(rename_all = "camelCase")]
     TilingStatus {
         enabled: bool,
         tables: u32,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         layout: Option<String>,
+        /// (T5) In the order layouts name them (`Slot::monitor`).
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        monitors: Vec<MonitorInfo>,
+        /// (T5) The tables tiling manages, in slot order.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        windows: Vec<TiledTable>,
     },
+    /// (T5) The answer to [`AppMessage::CaptureLayout`]: one slot per
+    /// distinct place of a table tiling manages (stacked tables share
+    /// one), thousandths of its monitor's work area; empty while tiling is
+    /// off or holds no table.
+    #[serde(rename_all = "camelCase")]
+    LayoutCaptured { request: u64, slots: Vec<Slot> },
     /// A message type this build does not know (a newer HUD).
     #[serde(other)]
     Unknown,
@@ -251,6 +293,45 @@ pub struct ScreenRect {
     pub y: i32,
     pub width: u32,
     pub height: u32,
+}
+
+/// (T5) A monitor as tiling sees it: physical pixels, the primary
+/// monitor's top-left the origin, y down (the space of every rect the HUD
+/// sends).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MonitorInfo {
+    /// Its place in the monitor order layouts use (`Slot::monitor`): 0 the
+    /// primary, then left to right.
+    pub index: u32,
+    pub primary: bool,
+    /// The whole monitor.
+    pub bounds: ScreenRect,
+    /// What windows may use (no taskbar, menu bar or Dock).
+    pub work_area: ScreenRect,
+    /// Thousandths (96 dpi = 1000, Retina 2000).
+    pub scale_permille: u32,
+}
+
+/// (T5) A table tiling manages.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TiledTable {
+    /// The `sites.json` room.
+    pub site: String,
+    /// The table name from the window's title.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub table: Option<String>,
+    /// Its outer rect (frame included), physical pixels.
+    pub rect: ScreenRect,
+    /// The monitor holding its centre ([`MonitorInfo::index`]).
+    pub monitor: u32,
+    /// It shares its slot with another table (a stack).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub stacked: bool,
+    /// The user moved it by hand: left where it is until "Re-tile".
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub pinned: bool,
 }
 
 /// Why compliance mode refused a window.
@@ -415,6 +496,44 @@ mod tests {
         AutoSwitch, Layout, LayoutRef, RngBand, RngTriggers, Slot, SlotKind, SlotRect,
     };
 
+    /// (T5) A 1080p primary monitor with a 40 px taskbar.
+    fn monitor_info() -> MonitorInfo {
+        MonitorInfo {
+            index: 0,
+            primary: true,
+            bounds: ScreenRect {
+                x: 0,
+                y: 0,
+                width: 1920,
+                height: 1080,
+            },
+            work_area: ScreenRect {
+                x: 0,
+                y: 0,
+                width: 1920,
+                height: 1040,
+            },
+            scale_permille: 1000,
+        }
+    }
+
+    /// (T5) A stacked table in the monitor's left half.
+    fn tiled_table() -> TiledTable {
+        TiledTable {
+            site: "pokerstars".into(),
+            table: Some("Hygiea".into()),
+            rect: ScreenRect {
+                x: 0,
+                y: 0,
+                width: 960,
+                height: 700,
+            },
+            monitor: 0,
+            stacked: true,
+            pinned: false,
+        }
+    }
+
     /// (T3) Tiling settings with a user layout in force.
     fn tiling_settings() -> TilingSettings {
         TilingSettings {
@@ -530,6 +649,7 @@ mod tests {
                 },
             },
             AppMessage::Retile,
+            AppMessage::CaptureLayout { request: 7 },
             AppMessage::Panels { allowed: false },
             AppMessage::Panels { allowed: true },
         ];
@@ -653,15 +773,29 @@ mod tests {
                 scale_permille: 1000,
                 design: None,
             },
+            HudMessage::RngPositionChanged {
+                site: "pokerstars".into(),
+                size: 9,
+                x: 940,
+                y: 60,
+            },
             HudMessage::TilingStatus {
                 enabled: true,
                 tables: 4,
                 layout: Some("auto".into()),
+                monitors: vec![monitor_info()],
+                windows: vec![tiled_table()],
             },
             HudMessage::TilingStatus {
                 enabled: false,
                 tables: 0,
                 layout: None,
+                monitors: Vec::new(),
+                windows: Vec::new(),
+            },
+            HudMessage::LayoutCaptured {
+                request: 7,
+                slots: tiling_settings().layouts[0].slots.clone(),
             },
         ];
         for message in &hud {
@@ -847,9 +981,36 @@ mod tests {
                 enabled: true,
                 tables: 2,
                 layout: Some("auto".into()),
+                monitors: Vec::new(),
+                windows: Vec::new(),
             })
             .expect("json"),
             r#"{"type":"tiling_status","enabled":true,"tables":2,"layout":"auto"}"#
+        );
+        // (T5) The monitors and the tables, camelCase; a table's flags only
+        // when set.
+        assert_eq!(
+            serde_json::to_string(&HudMessage::TilingStatus {
+                enabled: true,
+                tables: 1,
+                layout: Some("auto".into()),
+                monitors: vec![monitor_info()],
+                windows: vec![tiled_table()],
+            })
+            .expect("json"),
+            r#"{"type":"tiling_status","enabled":true,"tables":1,"layout":"auto","monitors":[{"index":0,"primary":true,"bounds":{"x":0,"y":0,"width":1920,"height":1080},"workArea":{"x":0,"y":0,"width":1920,"height":1040},"scalePermille":1000}],"windows":[{"site":"pokerstars","table":"Hygiea","rect":{"x":0,"y":0,"width":960,"height":700},"monitor":0,"stacked":true}]}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::CaptureLayout { request: 3 }).expect("json"),
+            r#"{"type":"capture_layout","request":3}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&HudMessage::LayoutCaptured {
+                request: 3,
+                slots: Vec::new()
+            })
+            .expect("json"),
+            r#"{"type":"layout_captured","request":3,"slots":[]}"#
         );
         // A settings object with fields left out reads with the defaults.
         let sparse: AppMessage =
@@ -872,7 +1033,9 @@ mod tests {
             HudMessage::TilingStatus {
                 enabled: false,
                 tables: 0,
-                layout: None
+                layout: None,
+                monitors: Vec::new(),
+                windows: Vec::new(),
             }
         );
     }

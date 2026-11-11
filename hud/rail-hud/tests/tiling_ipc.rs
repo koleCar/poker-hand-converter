@@ -11,7 +11,10 @@
 //! - `retile` places a table the user dragged (pinned) back in its slot;
 //! - `tiling_changed` with `enabled: false` stops every move;
 //! - `rng_changed` is kept, and drawn on no room without an `RngPermit`;
-//!   `panels {allowed: false}` attaches nothing while tiling goes on.
+//!   `panels {allowed: false}` attaches nothing while tiling goes on;
+//! - (T5) `tiling_status` carries the monitors (tiling on or off) and each
+//!   tiled table's outer rect, name, monitor and stack; `capture_layout`
+//!   is answered with a slot per place.
 
 use std::time::{Duration, Instant};
 
@@ -20,8 +23,8 @@ use rail_hud::data::StoreView;
 use rail_hud::engine::{Hud, Input, Settings};
 use rail_hud::platform::sim::{SimBackend, SimControl, SimFeed};
 use rail_hud::platform::{Insets, Monitor, MonitorId, Rect, WindowId};
-use rail_hud_ipc::protocol::{AppMessage, HudMessage};
-use rail_hud_ipc::settings::{LayoutRef, RngSettings, TilingSettings};
+use rail_hud_ipc::protocol::{AppMessage, HudMessage, ScreenRect, TiledTable};
+use rail_hud_ipc::settings::{LayoutRef, RngSettings, SlotKind, TilingSettings};
 
 fn rect(x: i32, y: i32, width: u32, height: u32) -> Rect {
     Rect {
@@ -152,6 +155,7 @@ impl Rig {
                     enabled,
                     tables,
                     layout,
+                    ..
                 } => Some((*enabled, *tables, layout.clone())),
                 _ => None,
             })
@@ -184,7 +188,10 @@ fn the_apps_settings_switch_tiling_on_and_off() {
         rig.control.placements().is_empty(),
         "off until the app says"
     );
-    assert!(rig.statuses().is_empty(), "nothing to say while off");
+    assert!(
+        rig.statuses().iter().all(|s| *s == (false, 0, None)),
+        "off: nothing but the monitors"
+    );
 
     // Settings that do not validate change nothing.
     rig.send(AppMessage::TilingChanged {
@@ -331,4 +338,171 @@ fn rng_settings_are_kept_and_panels_can_be_off() {
     rig.run_for(Duration::from_millis(200));
     assert_eq!(rig.hud.attached().len(), 1, "the allowed room attaches");
     assert!(rig.sent.contains(&HudMessage::TablesOpen { count: 1 }));
+}
+
+/// (T5) The last `tiling_status` in full.
+fn last_status(sent: &[HudMessage]) -> Option<&HudMessage> {
+    sent.iter()
+        .rev()
+        .find(|m| matches!(m, HudMessage::TilingStatus { .. }))
+}
+
+/// (T5) What the Tables screen draws: the monitors while tiling is off,
+/// then every tiled table at its outer rect with its name and monitor; a
+/// dragged table pinned; `capture_layout` answered with one slot per
+/// place, valid as a layout; nothing captured while off.
+#[test]
+fn the_status_carries_monitors_and_tables_and_a_layout_can_be_captured() {
+    let mut rig = Rig::new();
+    open(&rig.feed, &rig.control, 1, "pokerstars");
+    open(&rig.feed, &rig.control, 2, "pokerstars");
+    rig.run_for(Duration::from_millis(100));
+    assert!(
+        last_status(&rig.sent).is_none(),
+        "nothing until the app speaks of tiling"
+    );
+    // After a handshake the app always sends its settings: off here.
+    rig.send(AppMessage::TilingChanged {
+        settings: TilingSettings::default(),
+    });
+    rig.run_for(Duration::from_millis(100));
+    let Some(HudMessage::TilingStatus {
+        enabled: false,
+        monitors,
+        windows,
+        ..
+    }) = last_status(&rig.sent)
+    else {
+        panic!("a status while off: {:?}", rig.sent);
+    };
+    assert_eq!(monitors.len(), 1);
+    assert_eq!(monitors[0].index, 0);
+    assert!(monitors[0].primary);
+    assert_eq!(
+        monitors[0].work_area,
+        ScreenRect {
+            x: 0,
+            y: 0,
+            width: 1920,
+            height: 1040
+        }
+    );
+    assert!(windows.is_empty());
+    rig.send(AppMessage::CaptureLayout { request: 1 });
+    assert!(
+        rig.sent.contains(&HudMessage::LayoutCaptured {
+            request: 1,
+            slots: Vec::new()
+        }),
+        "off: nothing to capture"
+    );
+
+    rig.send(AppMessage::TilingChanged {
+        settings: TilingSettings {
+            enabled: true,
+            ..TilingSettings::default()
+        },
+    });
+    assert_eq!(rig.settle(), [1, 2]);
+    rig.run_for(Duration::from_millis(300));
+    let Some(HudMessage::TilingStatus {
+        enabled: true,
+        tables: 2,
+        windows,
+        ..
+    }) = last_status(&rig.sent)
+    else {
+        panic!("a status with the tables: {:?}", rig.sent);
+    };
+    let outer = |n: u32| {
+        let c = rig.control.client_of(n).expect("open");
+        ScreenRect {
+            x: c.x - 1,
+            y: c.y - 31,
+            width: c.width + 2,
+            height: c.height + 32,
+        }
+    };
+    assert_eq!(
+        windows,
+        &vec![
+            TiledTable {
+                site: "pokerstars".into(),
+                table: Some("T1".into()),
+                rect: outer(1),
+                monitor: 0,
+                stacked: false,
+                pinned: false,
+            },
+            TiledTable {
+                site: "pokerstars".into(),
+                table: Some("T2".into()),
+                rect: outer(2),
+                monitor: 0,
+                stacked: false,
+                pinned: false,
+            },
+        ]
+    );
+
+    // Captured: a slot per table, thousandths of the work area.
+    rig.send(AppMessage::CaptureLayout { request: 2 });
+    let slots = rig
+        .sent
+        .iter()
+        .find_map(|m| match m {
+            HudMessage::LayoutCaptured { request: 2, slots } => Some(slots.clone()),
+            _ => None,
+        })
+        .expect("answered");
+    assert_eq!(slots.len(), 2, "{slots:?}");
+    assert!(
+        slots
+            .iter()
+            .all(|s| s.monitor == 0 && s.kind == SlotKind::Play && s.stack)
+    );
+    let layout = rail_hud_ipc::settings::Layout {
+        id: "mine".into(),
+        name: "Mine".into(),
+        slots,
+        auto_switch: Vec::new(),
+    };
+    let saved = TilingSettings {
+        enabled: true,
+        active: LayoutRef::Custom { id: "mine".into() },
+        layouts: vec![layout],
+        ..TilingSettings::default()
+    };
+    assert_eq!(saved.validate(), Ok(()));
+    // In force, the captured layout keeps the tables where they are.
+    rig.send(AppMessage::TilingChanged { settings: saved });
+    rig.settle();
+    rig.run_for(Duration::from_millis(300));
+    let Some(HudMessage::TilingStatus {
+        layout, windows, ..
+    }) = last_status(&rig.sent)
+    else {
+        panic!("a status");
+    };
+    assert_eq!(layout.as_deref(), Some("mine"));
+    assert_eq!(windows.len(), 2);
+
+    // Dragged by the user: pinned in the status.
+    rig.control.press();
+    rig.run_for(Duration::from_millis(250));
+    rig.feed.push_line(
+        r#"{"event":"window","table":2,"title":"T2 - $0.05/$0.10","x":700,"y":400,"width":640,"height":480,"minimized":false}"#,
+    );
+    rig.run_for(Duration::from_millis(150));
+    rig.control.release();
+    rig.run_for(Duration::from_millis(400));
+    let Some(HudMessage::TilingStatus { windows, .. }) = last_status(&rig.sent) else {
+        panic!("a status");
+    };
+    let two = windows
+        .iter()
+        .find(|w| w.table.as_deref() == Some("T2"))
+        .expect("T2");
+    assert!(two.pinned, "{two:?}");
+    assert_eq!((two.rect.x, two.rect.y), (699, 369));
 }

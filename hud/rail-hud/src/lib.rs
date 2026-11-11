@@ -29,6 +29,8 @@
 //! - [`tiling`] and [`placer`] (T2): table tiling - where each table goes
 //!   (platform-free) and the thread that moves them when the mouse is
 //!   quiet; off unless switched on (`--tiling auto` for development).
+//! - [`rng`] (T4): the RNG overlay's rolls (the system's CSPRNG, rejection
+//!   sampling); the engine rolls per table and [`scene`] draws the widget.
 //!
 //! No real-time assistance of any kind (guideline §7): the HUD shows the
 //! players' own statistics from the store, nothing about the hand in play.
@@ -45,6 +47,7 @@ pub mod list;
 pub mod panel;
 pub mod placer;
 pub mod platform;
+pub mod rng;
 pub mod scene;
 pub mod seats;
 pub mod tiling;

@@ -69,6 +69,8 @@ describe("dictionaries", () => {
       "Cooler", "Hero call",
       // The Solver tab and the analysis' Solver panel: Croatian players say "solver" too.
       "Solver",
+      // (T5) The Tables screen: "RNG" is what Croatian players say too.
+      "RNG",
     ]);
     const english = new Map(leaves(en as unknown as Node));
     const untranslated = leaves(hr as unknown as Node).filter(([path, text]) => {
