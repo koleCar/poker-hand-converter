@@ -8,8 +8,12 @@
  *   ─▶ the line ends heads-up on a library line ─▶ a flop (FlopPicker; any suits, the library files canonical flops)
  *   ─▶ the chunk (`FlopLibraryLoader.load`, the analysis' own reader) ─▶ a flop decision (`exploreNode`)
  *   ─▶ an action ─▶ the next flop decision, until the flop's betting is over
- *   ─▶ with a full solve (fullSolve.ts, local): a turn card ─▶ the turn's decisions ─▶ a river card ─▶ the river's
+ *   ─▶ a turn card ─▶ the turn's decisions ─▶ a river card ─▶ the river's
  * ```
+ *
+ * The turn comes from a full solve's turn file when one is served
+ * (fullSolve.ts, local), and otherwise is solved here, in a worker, from the
+ * chunk's ranges at the deal (liveTurn.ts): a few seconds, nothing stored.
  *
  * A flop decision has two tabs: the actor's strategy (StrategyView) and both
  * ranges side by side (RangesView). The hand filters (HandFilters) sit in the
@@ -42,8 +46,10 @@ import {
   EMPTY_FILTER,
   flopFeatures,
   pickedFlop,
+  turnDeal,
   type FlopChunk,
   type HandFilter,
+  type LiveTurnProgress,
   type PickedFlop,
 } from "../../lib/solver";
 import { SUPABASE_URL } from "../../lib/supabase/config";
@@ -52,6 +58,7 @@ import analysis from "../analysis/analysis.module.css";
 import { FlopPicker } from "./FlopPicker";
 import { loadFullSolve, type FullSolve } from "./fullSolve";
 import { HandFilters } from "./HandFilters";
+import { liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
 import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState, type PreflopState } from "./preflop";
 import { filterMasks, useRangeData } from "./rangeData";
@@ -93,7 +100,10 @@ interface SolverLibraryProps {
   /** The picked flop, six characters (`Ks7h2d`), any suits. */
   initialFlop: string | null;
   initialNode: number | null;
-  /** A full solve's turn file stem (`X-X~Kd`): `initialNode` is then a decision of that turn. */
+  /**
+   * The turn being walked: a full solve's turn file stem (`X-X~Kd`), or a live
+   * turn's deal node and card (`12~Kd`). `initialNode` is then a decision of that turn.
+   */
   initialTurn?: string | null;
 }
 
@@ -120,9 +130,12 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   const [chunk, setChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [full, setFull] = useState<Loaded<FullSolve | null>>({ key: "", status: "loading" });
-  /** The turn file being walked (`turn/X-X~Kd.bin`), or null on the flop. */
-  const [turn, setTurn] = useState<string | null>(initialTurn ? `turn/${initialTurn}.bin` : null);
+  /** The turn being walked - a full solve's file (`turn/X-X~Kd.bin`) or a live turn (`live:12~Kd`) - or null on the flop. */
+  const [turn, setTurn] = useState<string | null>(
+    initialTurn ? (parseLiveTurnId(initialTurn) ? `live:${initialTurn}` : `turn/${initialTurn}.bin`) : null,
+  );
   const [turnChunk, setTurnChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
+  const [progress, setProgress] = useState<(LiveTurnProgress & { key: string }) | null>(null);
   /** A street's betting is over and its card is being picked: the deal's node (flop chunk: the turn; turn file: the river). */
   const [deal, setDeal] = useState<number | null>(null);
   const [tab, setTab] = useState<"strategy" | "ranges">("strategy");
@@ -197,21 +210,37 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     };
   }, [chunkKey, setId, libraryLine, flopKey]);
   const fullSolve = full.key === chunkKey && full.status === "ready" ? full.value : null;
+  const librarySolve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
+  /** Without a full solve, turns are solved live from the library's chunk. */
+  const liveBase = full.key === chunkKey && full.status === "ready" && !fullSolve ? librarySolve : null;
+  const live = useMemo(() => (turn?.startsWith("live:") ? parseLiveTurnId(turn.slice(5)) : null), [turn]);
 
-  const turnKey = fullSolve && turn ? `${chunkKey}/${turn}` : "";
+  const turnKey = turn && (live ? liveBase : fullSolve) ? `${chunkKey}/${turn}` : "";
   useEffect(() => {
-    if (!turnKey || !fullSolve || !turn) return;
-    let live = true;
-    void fullSolve.turn(turn).then((value) => {
-      if (live) setTurnChunk(value ? { key: turnKey, status: "ready", value } : { key: turnKey, status: "error" });
-    });
+    if (!turnKey || !turn) return;
+    let alive = true;
+    let request: Promise<FlopChunk | null>;
+    if (live && liveBase) {
+      request = solveTurnLive(chunkKey, liveBase, live.chance, live.card, (p) => {
+        if (alive) setProgress({ ...p, key: turnKey });
+      });
+    } else if (fullSolve) {
+      request = fullSolve.turn(turn);
+    } else return;
+    void request.then(
+      (value) => {
+        if (alive) setTurnChunk(value ? { key: turnKey, status: "ready", value } : { key: turnKey, status: "error" });
+      },
+      () => {
+        if (alive) setTurnChunk({ key: turnKey, status: "error" });
+      },
+    );
     return () => {
-      live = false;
+      alive = false;
     };
-  }, [turnKey, fullSolve, turn]);
+  }, [turnKey, turn, live, liveBase, fullSolve, chunkKey, attempt]);
   const turnSolve = turnChunk.key === turnKey && turnChunk.status === "ready" ? turnChunk.value : null;
 
-  const librarySolve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
   const flopSolve = fullSolve?.flop ?? librarySolve;
   const solve = turn ? turnSolve : flopSolve;
   const nodeIndex = solve && solve.result.nodes[node]?.kind === "action" ? node : 0;
@@ -235,7 +264,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         line: state.line,
         flop: flopKey && flop ? flop.join("") : undefined,
         node: flopKey ? nodeIndex : 0,
-        turn: flopKey && turn ? turn.replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
+        turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
       }),
       { scroll: false },
     );
@@ -293,9 +322,17 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       </div>
     );
   } else if (solve && picked && flop && flopSolve) {
-    const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnFile: turn, full: fullSolve };
+    let turnChance: number | null = null;
+    if (turn && live) turnChance = live.chance;
+    else if (turn && fullSolve) {
+      const entry = fullSolve.manifest.turns.find((x) => x.file === turn);
+      const at = entry ? flopSolve.result.nodes.findIndex((n) => n.kind === "chance" && n.path === entry.flopPath) : -1;
+      turnChance = at >= 0 ? at : null;
+    }
+    const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
-    const model = flopModel(solve, nodeIndex, picked, goNode, setDeal, Boolean(fullSolve), t, include);
+    const source = fullSolve ? t.fullNote : turn ? t.liveNote : "";
+    const model = flopModel(solve, nodeIndex, picked, goNode, setDeal, source, t, include);
     body = (
       <StrategyView
         model={model}
@@ -341,6 +378,10 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         }
       />
     );
+  } else if (live) {
+    // The turn is being solved here.
+    const shown = progress?.key === turnKey ? progress : null;
+    body = <RailLoader label={t.solvingTurn(shown?.iteration ?? 0, shown?.exploitabilityPct ?? null)} showLabel centered />;
   } else {
     // The flop's (or the turn's) solve is downloading.
     body = <RailLoader label={t.loadingSolve} showLabel centered />;
@@ -420,15 +461,16 @@ function flopModel(
   picked: PickedFlop,
   onGo: (node: number) => void,
   onDeal: (deal: number) => void,
-  full: boolean,
+  /** Where the turn comes from, for the note: a full solve's, a live one's, or "" on a library flop. */
+  source: string,
   t: Dict,
   include?: Uint8Array,
 ): StrategyModel {
   const view = exploreNode(chunk, index, include);
   const unfiltered = include ? exploreNode(chunk, index).reach : view.reach;
   const colours = actionColours(view.actions);
-  // In a full solve the turn and the river are dealt, not the end of the walk.
-  const deals = full && chunk.result.street === "flop" ? true : chunk.result.street === "turn";
+  // The turn and the river are dealt, not the end of the walk - unless the flop went all-in (nothing left to solve).
+  const dealable = (deal: number) => deal >= 0 && (chunk.result.street === "turn" || turnDeal(chunk, deal) !== null);
   return {
     id: `flop|${chunk.header.line}|${chunk.header.flop}|${chunk.result.board.join("")}|${index}`,
     actor: view.position,
@@ -440,16 +482,10 @@ function flopModel(
       combos: view.totals[a].combos,
       ends:
         // A deal stays clickable: it opens the card picker.
-        action.ends === "street" && deals && action.deal >= 0
-          ? null
-          : action.ends === "street" && (full || chunk.result.street === "turn")
-            ? t.panel.showdown
-            : action.ends
-              ? t.panel.ends[action.ends]
-              : null,
+        action.ends === "street" ? (dealable(action.deal) ? null : t.panel.showdown) : action.ends ? t.panel.ends[action.ends] : null,
       onPick: () => {
         if (action.child >= 0) onGo(action.child);
-        else if (deals && action.deal >= 0) onDeal(action.deal);
+        else if (dealable(action.deal)) onDeal(action.deal);
       },
     })),
     classes: GRID_CELLS.map((cell) => {
@@ -470,7 +506,7 @@ function flopModel(
       })),
     note:
       (include ? `${view.reach > 0 ? t.filters.note(view.reach, view.reach / unfiltered) : t.filters.none} ` : "") +
-      `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${full ? t.fullNote : ""}${t.flopNote}`,
+      `${t.rangeValue(view.reach, view.value)} · ${t.solvedTo(chunk.result.exploitabilityPct, chunk.result.iterations)} ${source}${t.flopNote}`,
   };
 }
 
@@ -488,11 +524,12 @@ function PreflopOverview({ node, t }: { node: ChartNode; t: Dict }) {
   );
 }
 
-/** Where the walk is: the flop's solve, and in a full solve the turn file being walked. */
+/** Where the walk is: the flop's solve, and on a turn that turn's solve and the flop's deal it came from. */
 interface Where {
   flop: FlopChunk;
   turn: FlopChunk | null;
-  turnFile: string | null;
+  turnChance: number | null;
+  /** A full solve, when one is served: its turn files are picked instead of solving live. */
   full: FullSolve | null;
 }
 
@@ -526,31 +563,31 @@ function FlopOverview({
   const label = (step: { position: string; action: { kind: string; sizePot: number; amount: number } }) =>
     t.panel.step(step.position, t.action(step.action.kind, step.action.sizePot, step.action.amount));
 
-  // On a turn file: the flop's decisions that led to it, then the turn card.
-  const turnEntry = where.turnFile ? where.full?.manifest.turns.find((x) => x.file === where.turnFile) : undefined;
+  // On a turn: the flop's decisions that led to it, then the turn card.
   let flopSteps: Array<{ node: number; text: string }> = [];
-  if (where.turn && turnEntry) {
+  const chance = where.turnChance;
+  if (where.turn && chance !== null) {
     const nodes = where.flop.result.nodes;
-    const chance = nodes.findIndex((n) => n.kind === "chance" && n.path === turnEntry.flopPath);
-    if (chance >= 0) {
-      const last = nodes[chance].parent;
-      flopSteps = [
-        ...exploreHistory(where.flop, last).map((step) => ({ node: step.node, text: label(step) })),
-        { node: last, text: label({ position: where.flop.header.players[nodes[last].player], action: exploreNode(where.flop, last).actions[nodes[chance].parentEdge] }) },
-      ];
-    }
+    const last = nodes[chance].parent;
+    flopSteps = [
+      ...exploreHistory(where.flop, last).map((step) => ({ node: step.node, text: label(step) })),
+      { node: last, text: label({ position: where.flop.header.players[nodes[last].player], action: exploreNode(where.flop, last).actions[nodes[chance].parentEdge] }) },
+    ];
   }
   const river = history.find((step) => step.card)?.card;
   const cards = [...board, ...(where.turn ? [shown(where.turn.result.board[3])] : []), ...(river ? [shown(river)] : [])];
 
   // The card being picked: the turn (a deal of the flop's solve) or a river (a deal inside the turn file).
   let options: Array<{ card: string; go: () => void }> = [];
-  if (deal !== null && where.full) {
-    if (!where.turn) {
+  if (deal !== null) {
+    if (!where.turn && where.full) {
       const path = where.flop.result.nodes[deal]?.path;
       options = where.full.manifest.turns
         .filter((x) => x.flopPath === path)
         .map((x) => ({ card: x.card, go: () => onTurn(x.file, 0) }));
+    } else if (!where.turn) {
+      // No full solve: the picked card's turn is solved here.
+      options = dealtCards(where.flop, deal).map((x) => ({ card: x.card, go: () => onTurn(`live:${liveTurnId(deal, x.card)}`, 0) }));
     } else {
       options = dealtCards(where.turn, deal)
         .filter((x) => x.node >= 0)

@@ -39,6 +39,8 @@ export const solverEn = {
   loadingLibrary: "Loading the solver library…",
   /** The loader while a flop's (or a turn's) solve downloads. */
   loadingSolve: "Loading the solve…",
+  solvingTurn: (iteration: number, exploitability: number | null) =>
+    exploitability === null ? `Solving the turn… ${num(iteration)} iterations` : `Solving the turn… ${num(exploitability, 2)}% of the pot`,
   loadError: "This solve could not be loaded. Try again in a moment.",
   retry: "Try again",
 
@@ -134,6 +136,7 @@ export const solverEn = {
     `Solved to ${num(exploitability, 2)}% of the pot exploitability in ${num(iterations)} iterations.`,
   chartNote: "Preflop: Rail's own charts. Cells fade where less of the hand reaches the decision.",
   fullNote: "Full solve: flop, turn and river (local). ",
+  liveNote: "Turn and river solved here from the flop's ranges: turn 75% and all-in, one raise; river 75% and all-in. ",
   flopNote: "A cell fades where less of the hand reaches the decision. Combos are shown in the suits of the picked flop.",
 
   tabs: { label: "View", strategy: "Strategy + EV", ranges: "Ranges" },
