@@ -1,0 +1,28 @@
+-- rail-store schema, version 21 (2026-11-11): plain GG cash hands are
+-- GGPoker hands, not "Rail standard" ones.
+--
+-- GG's plain cash export (`Poker Hand #HD...`) is read by the `standard`
+-- parser on purpose (it was written against the GG corpus), and until this
+-- build it also stamped those hands with its own site: they were stored as
+-- `standard:HD...` and the Hands screen filed them under "Rail standard".
+-- The parser now labels them `ggpoker`, so a new import keys them
+-- `ggpoker:HD...` - the key the GG parser itself has always written.
+--
+-- No schema change. The hands stored before are moved in Rust after this SQL,
+-- in its transaction (`site_fix::move_gg_cash_hands`: the PHF is compressed,
+-- which SQL cannot read): every `standard` hand whose id is GG's cash id gets
+-- the GGPoker site in its PHF and in `hands.site`, and its new key in every
+-- table that has a `hand_key`. A hand also stored under the new key already
+-- (the same hand imported through the GG parser) keeps that copy; the old one
+-- is dropped, its note and tags moved over where the kept copy has none.
+--
+-- When anything moved, the statistics version is forgotten (as versions 7, 8
+-- and 9 did) and a rows job left running is restarted: the next open
+-- derives every hand's rows again in the background, which regroups the
+-- moved hands' seats, list rows and opponents under GGPoker. A store with no
+-- such hand is left exactly as it was.
+--
+-- Not touched: the user's words on opponents (`players`, `player_labels`),
+-- keyed by (site, name) - GG's names are per-session tokens the Players
+-- screen never labels; and the copies already synced to the server, which
+-- keep their old key there.

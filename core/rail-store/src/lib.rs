@@ -64,6 +64,7 @@ pub mod read;
 pub mod recompute;
 pub mod report;
 pub mod review;
+pub mod site_fix;
 pub mod sources;
 pub mod stats;
 pub mod stats_read;

@@ -1011,6 +1011,25 @@ describe("GGPoker through the pipeline", () => {
     expect(result.hands.length).toBeGreaterThan(50);
   });
 
+  it("files a detected plain GG cash upload under GGPoker, not Rail standard", async () => {
+    // The standard parser reads these on purpose (see "yields the plain cash
+    // dialect"), but the room is what the Hands screen filters by.
+    for (const file of ggCorpusFiles().slice(0, 5)) {
+      const result = await convertAny(file.text, { sourceFilename: file.name });
+      expect(result.failures).toEqual([]);
+      expect(result.hands.length).toBeGreaterThan(0);
+      expect(result.hands.map((hand) => hand.meta.parserId)).toEqual(
+        result.hands.map(() => "standard"),
+      );
+      expect(new Set(result.hands.map((hand) => `${hand.meta.siteId}/${hand.meta.siteName}`))).toEqual(
+        new Set(["ggpoker/GGPoker"]),
+      );
+      for (const hand of result.hands) {
+        expect(hand.meta.handKey).toBe(hand.meta.handId);
+      }
+    }
+  });
+
   it("does not disturb the PokerStars corpus", () => {
     // Fixture 29 is a headerless fragment that nobody claims; every other
     // PokerStars sample has to reach the PokerStars parser, not this one.
