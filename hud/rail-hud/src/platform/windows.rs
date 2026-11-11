@@ -100,6 +100,18 @@
 //!   restored), never on a hung client. A window moved to a monitor of
 //!   another dpi is resized by its client (a per-monitor aware one answers
 //!   `WM_DPICHANGED`): the read-back says what it became.
+//! - **T2 frame and mouse** (table tiling's engine): the frame around a
+//!   table's client area is measured against the **visible** frame - DWM's
+//!   extended frame bounds (`DWMWA_EXTENDED_FRAME_BOUNDS`), without the
+//!   invisible resize borders Windows 10 and 11 add around `GetWindowRect`,
+//!   so tiled tables touch where they look as if they touch
+//!   ([`Platform::frame_insets`]). The tiling worker places through
+//!   [`WindowsPlacer`] (the same `place`, from its own thread) and reads the
+//!   mouse with `GetAsyncKeyState` (no hook, no permission): a button down
+//!   now, and - the low bit, best effort since another process may read it
+//!   first - a press since the last read, taken as a click now. Windows has
+//!   no "time since the last click" without a hook, so the worker samples
+//!   every 25 ms instead (`crate::placer`).
 //!
 //! **Why Direct2D rather than a CPU rasteriser.** Correct text first:
 //! DirectWrite shapes and falls back across fonts the way the rest of
@@ -130,8 +142,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::{
-    Monitor, OverlayFrame, Platform, PlatformError, RawWindow, Rect, TableEvent, TableMatcher,
-    TableWindow, WindowId, table_of,
+    Insets, Monitor, MouseState, OverlayFrame, Placer, Platform, PlatformError, RawWindow, Rect,
+    TableEvent, TableMatcher, TableWindow, WindowId, table_of,
 };
 
 /// (T1) How long `place` waits for a window to take its new place (and,
@@ -549,6 +561,56 @@ impl Platform for WindowsBackend {
             Err(PlatformError::Unsupported("placing windows (Windows only)"))
         }
     }
+
+    /// (T2) The visible frame around the client area (the module's T2
+    /// note); `None` for a minimised window (no client area to measure).
+    fn frame_insets(&mut self, window: &TableWindow) -> Option<Insets> {
+        #[cfg(windows)]
+        {
+            ffi::frame_insets(window.id)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = window;
+            None
+        }
+    }
+
+    /// (T2) [`WindowsPlacer`], on Windows.
+    fn placer(&mut self) -> Option<Box<dyn Placer>> {
+        cfg!(windows).then(|| Box::new(WindowsPlacer) as Box<dyn Placer>)
+    }
+}
+
+/// (T2) The tiling worker's [`Placer`] on Windows: [`Platform::place`]'s
+/// code, which needs nothing of the backend (each call makes its thread
+/// per-monitor aware for itself), and the mouse from `GetAsyncKeyState`.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct WindowsPlacer;
+
+impl Placer for WindowsPlacer {
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        #[cfg(windows)]
+        {
+            ffi::place(id, want)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = (id, want);
+            Err(PlatformError::Unsupported("placing windows (Windows only)"))
+        }
+    }
+
+    fn mouse(&mut self) -> MouseState {
+        #[cfg(windows)]
+        {
+            ffi::mouse()
+        }
+        #[cfg(not(windows))]
+        {
+            MouseState::default()
+        }
+    }
 }
 
 #[cfg(windows)]
@@ -559,7 +621,9 @@ mod ffi {
     use std::collections::HashMap;
 
     use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, POINT, RECT};
-    use windows::Win32::Graphics::Dwm::{DWMWA_CLOAKED, DwmGetWindowAttribute};
+    use windows::Win32::Graphics::Dwm::{
+        DWMWA_CLOAKED, DWMWA_EXTENDED_FRAME_BOUNDS, DwmGetWindowAttribute,
+    };
     use windows::Win32::Graphics::Gdi::{
         ClientToScreen, EnumDisplayMonitors, GetMonitorInfoW, HDC, HMONITOR,
         MONITOR_DEFAULTTONEAREST, MONITORINFO, MonitorFromWindow,
@@ -575,6 +639,9 @@ mod ffi {
         GetWindowDpiAwarenessContext, MDT_EFFECTIVE_DPI, SetProcessDpiAwarenessContext,
         SetThreadDpiAwarenessContext,
     };
+    use windows::Win32::UI::Input::KeyboardAndMouse::{
+        GetAsyncKeyState, VK_LBUTTON, VK_MBUTTON, VK_RBUTTON, VK_XBUTTON1, VK_XBUTTON2,
+    };
     use windows::Win32::UI::WindowsAndMessaging::{
         EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GetAncestor, GetClassNameW,
         GetClientRect, GetWindow, GetWindowLongPtrW, GetWindowRect, GetWindowTextLengthW,
@@ -586,8 +653,8 @@ mod ffi {
 
     use super::super::tracking::{self, Beneath, STACKING_WALK, Stacking};
     use super::super::{
-        DpiAwareness, Monitor, MonitorId, PlatformError, RawWindow, Rect, WindowId, dpi_permille,
-        outer_for, place_settled,
+        DpiAwareness, Insets, Monitor, MonitorId, MouseState, PlatformError, RawWindow, Rect,
+        WindowId, dpi_permille, outer_for, place_settled,
     };
     use super::{PLACE_POLL, PLACE_WAIT};
 
@@ -1182,6 +1249,57 @@ mod ffi {
                 return Ok(now);
             }
             std::thread::sleep(PLACE_POLL);
+        }
+    }
+
+    /// (T2) The visible frame around window `id`'s client area: DWM's
+    /// extended frame bounds (no invisible resize borders), else the window
+    /// rect; `None` while it is minimised or gone.
+    #[allow(unsafe_code)]
+    pub(super) fn frame_insets(id: WindowId) -> Option<Insets> {
+        let _dpi = ThreadDpi::per_monitor_v2();
+        let hwnd = hwnd_of(id);
+        if !is_window(hwnd) || is_iconic(hwnd) {
+            return None;
+        }
+        let client = client_rect(hwnd)?;
+        let mut bounds = RECT::default();
+        let size = u32::try_from(std::mem::size_of::<RECT>()).ok()?;
+        // SAFETY: `DWMWA_EXTENDED_FRAME_BOUNDS` writes one `RECT`; the
+        // pointer is to one and `size` says so. A window DWM does not
+        // compose is an `Err` (the window rect then).
+        let read = unsafe {
+            DwmGetWindowAttribute(
+                hwnd,
+                DWMWA_EXTENDED_FRAME_BOUNDS,
+                std::ptr::from_mut(&mut bounds).cast(),
+                size,
+            )
+        };
+        let visible = if read.is_ok() {
+            rect_of(bounds)
+        } else {
+            window_rect(hwnd)?
+        };
+        Some(Insets::between(&client, &visible))
+    }
+
+    /// (T2) The mouse buttons now (`GetAsyncKeyState`: no hook, no
+    /// permission): one down now (the high bit), and one pressed since the
+    /// last read (the low bit, best effort), taken as a click now.
+    #[allow(unsafe_code)]
+    pub(super) fn mouse() -> MouseState {
+        let mut down = false;
+        let mut pressed = false;
+        for key in [VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, VK_XBUTTON1, VK_XBUTTON2] {
+            // SAFETY: reads a key's state; no pointers.
+            let state = unsafe { GetAsyncKeyState(i32::from(key.0)) };
+            down |= state < 0;
+            pressed |= state & 1 != 0;
+        }
+        MouseState {
+            down,
+            since_click: pressed.then_some(std::time::Duration::ZERO),
         }
     }
 

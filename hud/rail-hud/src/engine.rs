@@ -94,6 +94,19 @@
 //!   Every frame carries the panel statistics' colour bands for the legend.
 //! - `shutdown`, the connection closing or standard input ending (the app is
 //!   gone) end the loop; the overlays are removed.
+//! - **Table tiling** (T2, docs/research/TABLE-TILING.md §4.3): off unless
+//!   [`Hud::enable_tiling`] (development: `--tiling auto`; the app's
+//!   settings arrive over the IPC in T3). Then every look hands the tiler
+//!   (`crate::tiling`) the tables its policy allows - attached or refused
+//!   by the HUD alike: tiling is not a HUD, and `TilingPermit` (T0) is a
+//!   predicate the caller passes ([`TilingConfig::allowed`]) - with each
+//!   window's frame ([`Platform::frame_insets`]); moves, minimises and
+//!   closes from the platform's events follow; the monitors are read again
+//!   every [`MONITORS_EVERY`]. The tiler's moves go to the placement
+//!   worker (`crate::placer`, a thread of its own: the loop never waits on
+//!   a placement, and nothing moves while the mouse is busy), and its
+//!   answers come back at the next tick. Switched off, nothing ever moves
+//!   and the windows stay where they are.
 
 #![forbid(unsafe_code)]
 
@@ -117,11 +130,13 @@ use crate::design::{Assignment, Compiled, DesignSet as Designs, FORCED, GameForm
 use crate::latency::{Latencies, micros};
 use crate::layout::TableLayout;
 use crate::panel::PanelDesign;
+use crate::placer::Worker;
 use crate::platform::{
     OverlayFrame, PanelWords, Permission, Platform, Rect, SeatPanel, Seating, TableEvent,
     TableMatcher, TableWindow, TagColour, WindowId, permission_matters, table_key,
 };
 use crate::seats::{self, Rooms};
+use crate::tiling::{Mouse, Observed, Options as TilingOptions, Tiler};
 
 /// What the loop is fed.
 #[derive(Debug)]
@@ -218,6 +233,72 @@ pub fn debug_line(chain: &LatencyChain) -> String {
     )
 }
 
+/// (T2) How often tiling reads the monitors again (a monitor plugged in or
+/// out, the taskbar moved): the tiler lays the tables out again when they
+/// changed.
+pub const MONITORS_EVERY: Duration = Duration::from_secs(2);
+
+/// (T2) Table tiling switched on ([`Hud::enable_tiling`]).
+pub struct TilingConfig {
+    /// The layouts, the one in force, the rooms' geometry.
+    pub options: TilingOptions,
+    /// Whether tiling may move a room's (`sites.json` id) tables - T0's
+    /// `TilingPermit`, wired by T3. A room it says no to is never handed
+    /// to the tiler, so nothing can move its tables.
+    pub allowed: Box<dyn Fn(&str) -> bool + Send>,
+    /// Only the table simulator's windows (`--tiling auto`, development:
+    /// no policy decides real rooms yet).
+    pub simulator_only: bool,
+}
+
+impl std::fmt::Debug for TilingConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TilingConfig")
+            .field("options", &self.options)
+            .field("simulator_only", &self.simulator_only)
+            .finish_non_exhaustive()
+    }
+}
+
+impl TilingConfig {
+    /// `--tiling auto`: the auto grid over the table simulator's windows
+    /// only, whatever room they pose as - never a real client's.
+    pub fn development() -> Self {
+        Self {
+            options: TilingOptions::default(),
+            allowed: Box::new(|_| true),
+            simulator_only: true,
+        }
+    }
+}
+
+/// (T2) Tiling while it is on: the tiler, its worker, the policy.
+struct Tiling {
+    tiler: Tiler,
+    worker: Worker,
+    allowed: Box<dyn Fn(&str) -> bool + Send>,
+    simulator_only: bool,
+    next_monitors: Instant,
+}
+
+impl Tiling {
+    /// Whether the policy lets tiling move `window`.
+    fn takes(&self, window: &TableWindow) -> bool {
+        (!self.simulator_only
+            || crate::platform::matcher::same_process(
+                crate::platform::SIM_PROCESS,
+                &window.process.name,
+            ))
+            && (self.allowed)(&window.site)
+    }
+
+    /// The mouse as the worker last sampled it: whether a table that moves
+    /// now is the user's doing.
+    fn mouse(&self, now: Instant) -> Mouse {
+        self.worker.guard().activity(now)
+    }
+}
+
 #[derive(Debug)]
 struct Attached {
     window: TableWindow,
@@ -301,6 +382,8 @@ pub struct Hud {
     /// The user's layouts were read from the store (once it opens, and
     /// again on `layout_changed` / `settings_changed`).
     user_layouts_read: bool,
+    /// (T2) Table tiling, when it is on ([`Hud::enable_tiling`]).
+    tiling: Option<Tiling>,
 }
 
 impl std::fmt::Debug for Hud {
@@ -350,6 +433,7 @@ impl Hud {
             find_interval: settings.find_every,
             rooms,
             user_layouts_read: false,
+            tiling: None,
         }
     }
 
@@ -465,6 +549,109 @@ impl Hud {
             .push(TableMatcher::simulator(site.to_owned(), title));
     }
 
+    /// (T2) Switch table tiling on: the tables `config` allows are laid
+    /// out from the next look on. Fails when the backend places nothing
+    /// (no [`Platform::placer`]) or the worker cannot start. Switching on
+    /// again replaces the configuration (the worker is started anew).
+    pub fn enable_tiling(&mut self, config: TilingConfig) -> Result<(), String> {
+        self.tiling = None;
+        let placer = self
+            .platform
+            .placer()
+            .ok_or_else(|| format!("the {} backend cannot place windows", self.platform.name()))?;
+        let worker = Worker::start(placer).map_err(|e| format!("the tiling worker: {e}"))?;
+        let mut tiler = Tiler::new(config.options);
+        tiler.set_monitors(self.platform.monitors());
+        eprintln!(
+            "rail-hud: tiling on ({} monitor(s), layout {:?}{})",
+            tiler.monitors().len(),
+            tiler.options().active,
+            if config.simulator_only {
+                ", the simulator's windows only"
+            } else {
+                ""
+            }
+        );
+        self.tiling = Some(Tiling {
+            tiler,
+            worker,
+            allowed: config.allowed,
+            simulator_only: config.simulator_only,
+            next_monitors: Instant::now() + MONITORS_EVERY,
+        });
+        self.find_soon = true;
+        Ok(())
+    }
+
+    /// (T2) Switch table tiling off: nothing queued is carried out, every
+    /// window stays where it is.
+    pub fn disable_tiling(&mut self) {
+        if self.tiling.take().is_some() {
+            eprintln!("rail-hud: tiling off");
+        }
+    }
+
+    /// (T2) Lay every table out again, the ones the user moved by hand
+    /// too (T3: the tray's "Re-tile").
+    pub fn retile(&mut self) {
+        if let Some(tiling) = &mut self.tiling {
+            tiling.tiler.retile();
+        }
+    }
+
+    /// (T2) The tiler, while tiling is on (tests, diagnostics).
+    pub fn tiler(&self) -> Option<&Tiler> {
+        self.tiling.as_ref().map(|t| &t.tiler)
+    }
+
+    /// (T2) Tiling's answers in, the monitors when due, the tiler's moves
+    /// out to the worker (and moves the user overtook cancelled).
+    fn step_tiling(&mut self, now: Instant) {
+        let Some(tiling) = self.tiling.as_mut() else {
+            return;
+        };
+        for done in tiling.worker.results() {
+            if let Err(error) = &done.result {
+                eprintln!("rail-hud: tiling: window {}: {error}", done.id.0);
+            }
+            tiling.tiler.placed(done.id, done.seq, &done.result, now);
+        }
+        if now >= tiling.next_monitors {
+            tiling.next_monitors = now + MONITORS_EVERY;
+            let monitors = self.platform.monitors();
+            if !monitors.is_empty() {
+                tiling.tiler.set_monitors(monitors);
+            }
+        }
+        for id in tiling.tiler.take_cancels() {
+            tiling.worker.cancel(id);
+        }
+        for m in tiling.tiler.plan() {
+            tiling.worker.place(m);
+        }
+    }
+
+    /// (T2) What a look found, for the tiler: the tables its policy allows,
+    /// each with its frame.
+    fn tile_found(&mut self, found: &[TableWindow], now: Instant) {
+        let Some(tiling) = self.tiling.as_mut() else {
+            return;
+        };
+        let mut seen = Vec::new();
+        for window in found.iter().filter(|w| tiling.takes(w)) {
+            seen.push(Observed {
+                id: window.id,
+                site: window.site.clone(),
+                client: window.client,
+                scale_permille: window.scale_permille,
+                minimized: window.minimized,
+                insets: self.platform.frame_insets(window),
+            });
+        }
+        let mouse = tiling.mouse(now);
+        tiling.tiler.sync(&seen, now, mouse);
+    }
+
     /// Run until told to stop; `out` sends to the app (never blocks).
     pub fn run(&mut self, inputs: &Receiver<Input>, out: &mut dyn FnMut(HudMessage)) -> Exit {
         let exit = loop {
@@ -517,6 +704,7 @@ impl Hud {
                 eprintln!("rail-hud: --perf-report: {error}");
             }
         }
+        self.tiling = None;
         let ids: Vec<WindowId> = self.attached.keys().copied().collect();
         for id in ids {
             self.detach(id);
@@ -788,6 +976,7 @@ impl Hud {
                 self.reread_all(now, out);
             }
         }
+        self.step_tiling(now);
     }
 
     fn find(&mut self, out: &mut dyn FnMut(HudMessage)) {
@@ -831,6 +1020,7 @@ impl Hud {
             }
         };
         let seen: Vec<WindowId> = found.iter().map(|w| w.id).collect();
+        self.tile_found(&found, Instant::now());
         let mut changed = Vec::new();
         for window in found {
             if let Some(attached) = self.attached.get_mut(&window.id) {
@@ -1080,11 +1270,19 @@ impl Hud {
                         a.window.scale_permille = scale_permille;
                         self.platform.follow(&a.window);
                     }
+                    if let Some(tiling) = &mut self.tiling {
+                        let now = Instant::now();
+                        let mouse = tiling.mouse(now);
+                        tiling.tiler.moved(id, client, now, mouse);
+                    }
                 }
                 TableEvent::Minimized { id, minimized } => {
                     if let Some(a) = self.attached.get_mut(&id) {
                         a.window.minimized = minimized;
                         self.platform.follow(&a.window);
+                    }
+                    if let Some(tiling) = &mut self.tiling {
+                        tiling.tiler.minimized(id, minimized);
                     }
                 }
                 TableEvent::Retitled { id, title, table } => {
@@ -1115,6 +1313,9 @@ impl Hud {
                 TableEvent::Closed { id } => {
                     self.detach(id);
                     self.refused.remove(&id);
+                    if let Some(tiling) = &mut self.tiling {
+                        tiling.tiler.gone(id);
+                    }
                 }
                 TableEvent::Appeared => self.find_soon = true,
                 TableEvent::PanelMoved {

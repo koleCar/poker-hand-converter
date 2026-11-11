@@ -30,6 +30,16 @@
 //! otherwise) and puts the table there - restored - as a window manager
 //! would, so the next `poll_events` reports the move. The simulator's own
 //! windows are not moved: a later `window` event of its own wins.
+//!
+//! (T2) **Table tiling's engine, headless.** A table reports the scale of
+//! the monitor its centre is on ([`scale_at`]), as a per-monitor aware
+//! client does; its frame ([`Platform::frame_insets`]) is the test's,
+//! given at 100 % and scaled with it; a test may pose single tables as
+//! other rooms ([`SimControl::pose`]), give one table a client that
+//! refuses sizes ([`SimControl::set_accept_for`]) and press the mouse
+//! ([`SimControl::press`]). All of it lives behind a [`SimControl`] that
+//! the test keeps after handing the backend to the engine, and that the
+//! backend's [`Placer`] places through from the tiling worker's thread.
 
 #![forbid(unsafe_code)]
 
@@ -38,15 +48,15 @@ use std::io::{Read as _, Seek as _, SeekFrom};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use regex::Regex;
 use serde_json::Value;
 
 pub use super::SIM_PROCESS;
 use super::{
-    Monitor, MonitorId, OverlayFrame, Platform, PlatformError, ProcessInfo, Rect, TableEvent,
-    TableMatcher, TableWindow, WindowId,
+    Insets, Monitor, MonitorId, MouseState, OverlayFrame, Placer, Platform, PlatformError,
+    ProcessInfo, Rect, TableEvent, TableMatcher, TableWindow, WindowId,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -145,13 +155,10 @@ pub struct SimBackend {
     site: String,
     tracked: BTreeMap<WindowId, SimTable>,
     overlays: BTreeMap<WindowId, OverlayFrame>,
-    /// (T1) What `monitors` reports.
-    monitors: Vec<Monitor>,
-    /// (T1) Every `place` that reached a table: the window, the client area
-    /// asked for and the one accepted, in order.
-    placements: Vec<Placement>,
-    /// (T1) The client area a placement ends with, from the one asked for.
-    accept: fn(Rect) -> Rect,
+    /// (T1 / T2) What a test sets and reads while the engine owns the
+    /// backend: monitors, placements, the accepted sizes, frames, the
+    /// mouse, rooms posed per table.
+    control: SimControl,
     /// Ends the tailing thread.
     stop: Arc<AtomicBool>,
 }
@@ -186,6 +193,183 @@ pub fn default_monitors() -> Vec<Monitor> {
     }]
 }
 
+/// (T2) The scale of the monitor whose bounds hold the centre of `client`
+/// (the primary's when none does; 1000 without monitors): a simulator
+/// table placed on a 125 % monitor reports 1250, as a per-monitor aware
+/// client on Windows does.
+pub fn scale_at(monitors: &[Monitor], client: &Rect) -> u32 {
+    let cx = i64::from(client.x) + i64::from(client.width / 2);
+    let cy = i64::from(client.y) + i64::from(client.height / 2);
+    monitors
+        .iter()
+        .find(|m| {
+            cx >= i64::from(m.bounds.x)
+                && cx < m.bounds.right()
+                && cy >= i64::from(m.bounds.y)
+                && cy < m.bounds.bottom()
+        })
+        .or_else(|| monitors.iter().find(|m| m.primary))
+        .map_or(1000, |m| m.scale_permille)
+}
+
+#[derive(Debug)]
+struct Control {
+    monitors: Vec<Monitor>,
+    placements: Vec<Placement>,
+    accept: fn(Rect) -> Rect,
+    /// (T2) Per simulator table: a client of another room.
+    accept_for: BTreeMap<u32, fn(Rect) -> Rect>,
+    /// (T2) Every table's frame at 100 %, and per table.
+    insets: Insets,
+    insets_for: BTreeMap<u32, Insets>,
+    /// (T2) The room a table poses as, where not the backend's.
+    sites: BTreeMap<u32, String>,
+    /// (T2) The mouse: a button down, the last press.
+    down: bool,
+    last_press: Option<Instant>,
+}
+
+impl Control {
+    fn insets_of(&self, number: u32, scale_permille: u32) -> Insets {
+        self.insets_for
+            .get(&number)
+            .copied()
+            .unwrap_or(self.insets)
+            .scaled(1000, scale_permille)
+    }
+}
+
+/// (T2) A handle on the sim backend's test controls that stays with the
+/// test after the backend is handed to the engine (and is what its
+/// [`Placer`] places through, from the tiling worker's thread).
+#[derive(Debug, Clone)]
+pub struct SimControl {
+    control: Arc<Mutex<Control>>,
+    feed: SimFeed,
+}
+
+impl SimControl {
+    fn lock(&self) -> std::sync::MutexGuard<'_, Control> {
+        self.control.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// (T1) Every placement so far, in order.
+    pub fn placements(&self) -> Vec<Placement> {
+        self.lock().placements.clone()
+    }
+
+    /// (T1) The client area every placement ends with, from the one asked
+    /// for (a client that keeps its aspect ratio or a minimum size).
+    pub fn set_accept(&self, accept: fn(Rect) -> Rect) {
+        self.lock().accept = accept;
+    }
+
+    /// (T2) As [`SimControl::set_accept`], for simulator table `number`
+    /// only.
+    pub fn set_accept_for(&self, number: u32, accept: fn(Rect) -> Rect) {
+        self.lock().accept_for.insert(number, accept);
+    }
+
+    /// (T2) Every table's frame around its client area, at 100 % (scaled
+    /// with the monitor a table is on).
+    pub fn set_insets(&self, insets: Insets) {
+        self.lock().insets = insets;
+    }
+
+    /// (T2) Table `number`'s frame, at 100 %.
+    pub fn set_insets_for(&self, number: u32, insets: Insets) {
+        self.lock().insets_for.insert(number, insets);
+    }
+
+    /// (T2) Table `number` poses as `site` (another room than the
+    /// backend's).
+    pub fn pose(&self, number: u32, site: &str) {
+        self.lock().sites.insert(number, site.to_owned());
+    }
+
+    /// (T2) A mouse button goes down (a click starts).
+    pub fn press(&self) {
+        let mut control = self.lock();
+        control.down = true;
+        control.last_press = Some(Instant::now());
+    }
+
+    /// (T2) The button is released.
+    pub fn release(&self) {
+        self.lock().down = false;
+    }
+
+    /// (T2) Table `number`'s client area now, as the simulator has it.
+    pub fn client_of(&self, number: u32) -> Option<Rect> {
+        let feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
+        feed.tables.get(&number).map(|t| t.client)
+    }
+
+    /// (T2) Table `number`'s outer rect now: its client area with its frame
+    /// at the scale of the monitor it is on.
+    pub fn outer_of(&self, number: u32) -> Option<Rect> {
+        let client = self.client_of(number)?;
+        let control = self.lock();
+        let scale = scale_at(&control.monitors, &client);
+        Some(control.insets_of(number, scale).outer(&client))
+    }
+
+    /// (T2) The scale of the monitor table `number` is on.
+    pub fn scale_of(&self, number: u32) -> Option<u32> {
+        let client = self.client_of(number)?;
+        Some(scale_at(&self.lock().monitors, &client))
+    }
+
+    /// (T1) The table of window `id` - tracked or not, as long as the
+    /// simulator has it - put where the client accepts, restored.
+    fn place(&self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        let number = u32::try_from(id.0).map_err(|_| PlatformError::Gone(id))?;
+        let accept = {
+            let control = self.lock();
+            control
+                .accept_for
+                .get(&number)
+                .copied()
+                .unwrap_or(control.accept)
+        };
+        let accepted = accept(want);
+        let mut feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
+        let table = feed
+            .tables
+            .get_mut(&number)
+            .ok_or(PlatformError::Gone(id))?;
+        table.client = accepted;
+        table.minimized = false;
+        drop(feed);
+        self.lock()
+            .placements
+            .push(Placement { id, want, accepted });
+        Ok(accepted)
+    }
+
+    fn mouse(&self) -> MouseState {
+        let control = self.lock();
+        MouseState {
+            down: control.down,
+            since_click: control.last_press.map(|at| at.elapsed()),
+        }
+    }
+}
+
+/// (T2) The sim backend's [`Placer`]: its [`SimControl`].
+#[derive(Debug)]
+struct SimPlacer(SimControl);
+
+impl Placer for SimPlacer {
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        self.0.place(id, want)
+    }
+
+    fn mouse(&mut self) -> MouseState {
+        self.0.mouse()
+    }
+}
+
 impl Drop for SimBackend {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::SeqCst);
@@ -197,15 +381,27 @@ impl SimBackend {
     /// returned feed.
     pub fn new(site: impl Into<String>) -> (Self, SimFeed) {
         let feed = SimFeed::default();
+        let control = SimControl {
+            control: Arc::new(Mutex::new(Control {
+                monitors: default_monitors(),
+                placements: Vec::new(),
+                accept: |want| want,
+                accept_for: BTreeMap::new(),
+                insets: Insets::default(),
+                insets_for: BTreeMap::new(),
+                sites: BTreeMap::new(),
+                down: false,
+                last_press: None,
+            })),
+            feed: feed.clone(),
+        };
         (
             Self {
                 feed: feed.clone(),
                 site: site.into(),
                 tracked: BTreeMap::new(),
                 overlays: BTreeMap::new(),
-                monitors: default_monitors(),
-                placements: Vec::new(),
-                accept: |want| want,
+                control,
                 stop: Arc::new(AtomicBool::new(false)),
             },
             feed,
@@ -251,20 +447,26 @@ impl SimBackend {
         &self.overlays
     }
 
+    /// (T2) The test controls, which stay with the test after the backend
+    /// is handed to the engine.
+    pub fn control(&self) -> SimControl {
+        self.control.clone()
+    }
+
     /// (T1) The monitors `monitors` reports from now on.
     pub fn set_monitors(&mut self, monitors: Vec<Monitor>) {
-        self.monitors = monitors;
+        self.control.lock().monitors = monitors;
     }
 
     /// (T1) The client area a placement ends with, from the one asked for
     /// (a client that keeps its aspect ratio or a minimum size).
     pub fn set_accept(&mut self, accept: fn(Rect) -> Rect) {
-        self.accept = accept;
+        self.control.set_accept(accept);
     }
 
     /// (T1) Every placement so far, in order.
-    pub fn placements(&self) -> &[Placement] {
-        &self.placements
+    pub fn placements(&self) -> Vec<Placement> {
+        self.control.placements()
     }
 
     /// What the Windows backend would paint over a window now: its last
@@ -296,6 +498,10 @@ impl SimBackend {
             .tables
             .clone()
     }
+
+    fn scale_of(&self, client: &Rect) -> u32 {
+        scale_at(&self.control.lock().monitors, client)
+    }
 }
 
 impl Platform for SimBackend {
@@ -304,7 +510,8 @@ impl Platform for SimBackend {
     }
 
     /// The simulator's tables whose titles its own regex reads, posing as
-    /// the configured room; `_matchers` (the real rooms') never match them.
+    /// the configured room (or, T2, the one a test posed the table as);
+    /// `_matchers` (the real rooms') never match them.
     fn find_tables(
         &mut self,
         _matchers: &[TableMatcher],
@@ -312,6 +519,7 @@ impl Platform for SimBackend {
         let Some(matcher) = self.matcher() else {
             return Ok(Vec::new()); // no `started` event yet
         };
+        let sites = self.control.lock().sites.clone();
         Ok(self
             .snapshot()
             .into_iter()
@@ -319,7 +527,10 @@ impl Platform for SimBackend {
                 let found = matcher.matches(SIM_PROCESS, &table.title)?;
                 Some(TableWindow {
                     id: WindowId(u64::from(number)),
-                    site: matcher.site.clone(),
+                    site: sites
+                        .get(&number)
+                        .cloned()
+                        .unwrap_or_else(|| matcher.site.clone()),
                     process: ProcessInfo {
                         pid: None,
                         name: SIM_PROCESS.to_owned(),
@@ -327,8 +538,8 @@ impl Platform for SimBackend {
                     title: table.title,
                     table: found.table,
                     size: found.seats.or(table.size),
+                    scale_permille: self.scale_of(&table.client),
                     client: table.client,
-                    scale_permille: 1000,
                     minimized: table.minimized,
                 })
             })
@@ -359,6 +570,7 @@ impl Platform for SimBackend {
     fn poll_events(&mut self) -> Vec<TableEvent> {
         let now = self.snapshot();
         let regex = self.matcher();
+        let monitors = self.control.lock().monitors.clone();
         let mut events = Vec::new();
         for (id, seen) in &mut self.tracked {
             let current = u32::try_from(id.0).ok().and_then(|n| now.get(&n));
@@ -370,7 +582,7 @@ impl Platform for SimBackend {
                 events.push(TableEvent::Moved {
                     id: *id,
                     client: current.client,
-                    scale_permille: 1000,
+                    scale_permille: scale_at(&monitors, &current.client),
                 });
             }
             if current.minimized != seen.minimized {
@@ -412,24 +624,25 @@ impl Platform for SimBackend {
     }
 
     fn monitors(&mut self) -> Vec<Monitor> {
-        self.monitors.clone()
+        self.control.lock().monitors.clone()
     }
 
     /// (T1) The table of window `id` - tracked or not, as long as the
     /// simulator has it - put where the client accepts, restored.
     fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
-        let number = u32::try_from(id.0).map_err(|_| PlatformError::Gone(id))?;
-        let accepted = (self.accept)(want);
-        let mut feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
-        let table = feed
-            .tables
-            .get_mut(&number)
-            .ok_or(PlatformError::Gone(id))?;
-        table.client = accepted;
-        table.minimized = false;
-        drop(feed);
-        self.placements.push(Placement { id, want, accepted });
-        Ok(accepted)
+        self.control.place(id, want)
+    }
+
+    /// (T2) The table's frame as the test set it, at its scale.
+    fn frame_insets(&mut self, window: &TableWindow) -> Option<Insets> {
+        let number = u32::try_from(window.id.0).ok()?;
+        Some(self.control.lock().insets_of(number, window.scale_permille))
+    }
+
+    /// (T2) Placing through the shared controls, the mouse as the test
+    /// presses it.
+    fn placer(&mut self) -> Option<Box<dyn Placer>> {
+        Some(Box::new(SimPlacer(self.control.clone())))
     }
 }
 
@@ -566,12 +779,14 @@ mod tests {
             height: 700,
         };
         assert_eq!(backend.place(WindowId(1), want), Ok(want));
+        // (T2) On the second monitor: its scale, as a per-monitor aware
+        // client reports.
         assert_eq!(
             backend.poll_events(),
             [TableEvent::Moved {
                 id: WindowId(1),
                 client: want,
-                scale_permille: 1000
+                scale_permille: 1250
             }]
         );
         // A client that keeps 4:3 by its width; a minimised table restored.
