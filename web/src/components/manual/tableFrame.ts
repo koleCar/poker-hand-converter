@@ -121,6 +121,7 @@ export function tableFrame(
     potAward: null,
     board: state.board.slice(0, shown),
     boardSecond: [],
+    boardSecondFrom: 0,
     seats,
     actingSeat: acting,
     actionIndex: null,
