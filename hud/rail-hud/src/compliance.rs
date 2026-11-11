@@ -10,8 +10,10 @@
 //! (T0) Tiling and the RNG overlay are not a HUD, so `hud.allowed` does not
 //! decide them: each room's `tiling` and `rng` blocks do, under the same
 //! rules (a room, an explicit `true`, unknown is no, a remote copy only
-//! stricter). [`TilingPermit`] and [`RngPermit`] are the yes; nothing uses
-//! them yet (T2 moves windows, T4 draws the RNG).
+//! stricter). [`TilingPermit`] and [`RngPermit`] are the yes: (T3) the
+//! engine hands the tiler only the tables of rooms with a `TilingPermit`,
+//! and gives the RNG settings out only with the room's `RngPermit`
+//! (`Hud::rng_for`, which T4 draws with).
 
 #![forbid(unsafe_code)]
 

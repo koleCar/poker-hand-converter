@@ -10,7 +10,9 @@
 //! table · 1 not allowed", "HUD off") through [`set_hud`] by
 //! `hud::refresh_tray`. "Pause import" pauses
 //! and resumes the watcher (its text follows, [`set_pause_text`]); it is
-//! enabled when there is something to pause.
+//! enabled when there is something to pause. (T3) "Re-tile tables" lays
+//! every tiled table out again (`tiling::retile_from_tray`), the ones moved
+//! by hand too; with tiling off, or no HUD, it does nothing.
 
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -27,6 +29,7 @@ const SYNC: &str = "sync";
 const HUD: &str = "hud";
 const OPEN: &str = "open";
 const PAUSE_IMPORT: &str = "pause-import";
+const RETILE: &str = "retile";
 const QUIT: &str = "quit";
 
 /// The menu items other code changes, kept as app state.
@@ -37,6 +40,8 @@ pub struct TrayMenu<R: Runtime> {
     hud: MenuItem<R>,
     open: MenuItem<R>,
     pause_import: MenuItem<R>,
+    /// (T3) "Re-tile tables".
+    retile: MenuItem<R>,
     quit: MenuItem<R>,
 }
 
@@ -50,6 +55,7 @@ impl<R: Runtime> std::fmt::Debug for TrayMenu<R> {
             .field("hud", self.hud.id())
             .field("open", self.open.id())
             .field("pause_import", self.pause_import.id())
+            .field("retile", self.retile.id())
             .field("quit", self.quit.id())
             .finish()
     }
@@ -69,6 +75,8 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     // Enabled once the watcher runs with a folder (`watch::refresh_tray`).
     let pause_import =
         MenuItem::with_id(app, PAUSE_IMPORT, text.pause_import, false, None::<&str>)?;
+    // (T3) Table tiling.
+    let retile = MenuItem::with_id(app, RETILE, text.retile_tables, true, None::<&str>)?;
     let quit = MenuItem::with_id(app, QUIT, text.quit, true, None::<&str>)?;
     let menu = Menu::with_items(
         app,
@@ -80,6 +88,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             &PredefinedMenuItem::separator(app)?,
             &open,
             &pause_import,
+            &retile,
             &PredefinedMenuItem::separator(app)?,
             &quit,
         ],
@@ -95,6 +104,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .on_menu_event(|app, event| match event.id().as_ref() {
             OPEN => crate::show_main_window(app),
             PAUSE_IMPORT => crate::watch::toggle_pause(app),
+            RETILE => crate::tiling::retile_from_tray(app),
             QUIT => {
                 log::info!("quit from the tray");
                 app.exit(0);
@@ -135,6 +145,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         hud,
         open,
         pause_import,
+        retile,
         quit,
     });
     Ok(())
@@ -146,7 +157,11 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
 pub fn relabel<R: Runtime>(app: &AppHandle<R>) {
     let text = strings::tray();
     if let Some(menu) = app.try_state::<TrayMenu<R>>() {
-        for (item, label) in [(&menu.open, text.open), (&menu.quit, text.quit)] {
+        for (item, label) in [
+            (&menu.open, text.open),
+            (&menu.retile, text.retile_tables),
+            (&menu.quit, text.quit),
+        ] {
             if let Err(error) = item.set_text(label) {
                 log::debug!("tray relabel: {error}");
             }

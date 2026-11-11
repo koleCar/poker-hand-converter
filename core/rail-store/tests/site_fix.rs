@@ -129,6 +129,9 @@ fn as_an_older_build_stored_it(path: &Path) {
     store.close();
     let conn = Connection::open(path).expect("open");
     assert!(keys(&conn, "ggpoker").is_empty());
+    // Version 22 (T3's `hud_settings`) comes after: rewind it too.
+    conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+        .expect("rewind version 22");
     conn.pragma_update(None, "user_version", 20)
         .expect("version 20");
 }
@@ -210,6 +213,9 @@ fn keeps_the_copy_already_stored_under_ggpoker_and_moves_the_note_to_it() {
     std::fs::copy(corpus_file(GG_A), &copy).expect("copy");
     {
         let conn = Connection::open(&path).expect("open");
+        // Version 22 (T3's `hud_settings`) comes after: rewind it too.
+        conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+            .expect("rewind version 22");
         conn.pragma_update(None, "user_version", 21)
             .expect("version 21");
     }
@@ -224,6 +230,9 @@ fn keeps_the_copy_already_stored_under_ggpoker_and_moves_the_note_to_it() {
     let total: i64 = conn
         .query_row("SELECT count(*) FROM hands", [], |r| r.get(0))
         .expect("count");
+    // Version 22 (T3's `hud_settings`) comes after: rewind it too.
+    conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+        .expect("rewind version 22");
     conn.pragma_update(None, "user_version", 20)
         .expect("version 20");
     drop(conn);
@@ -254,6 +263,9 @@ fn leaves_a_store_without_such_hands_as_it_was() {
     imported(&path);
     let conn = Connection::open(&path).expect("open");
     let before = (snapshot(&conn), table_rows(&conn, "kv"));
+    // Version 22 (T3's `hud_settings`) comes after: rewind it too.
+    conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+        .expect("rewind version 22");
     conn.pragma_update(None, "user_version", 20)
         .expect("version 20");
     drop(conn);

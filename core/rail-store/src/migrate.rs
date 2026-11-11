@@ -120,6 +120,10 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0021_gg_cash_site.sql",
         sql: include_str!("../migrations/0021_gg_cash_site.sql"),
     },
+    Migration {
+        name: "0022_hud_settings.sql",
+        sql: include_str!("../migrations/0022_hud_settings.sql"),
+    },
 ];
 
 /// What a migration fills in Rust after its SQL, in its transaction (SQL

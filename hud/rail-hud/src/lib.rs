@@ -96,10 +96,15 @@ Measuring (R3.7): --latency-report <file> writes every hand's latency chain
 overlays' paints and follows (p50 / p95 / max us), the re-reads, the looks
 for tables and their interval.
 
-Table tiling (T2, development only; the app sends the real settings in T3):
+Table tiling (T2, development only; the app sends the real settings over
+the IPC, T3):
   --tiling auto         lay the table simulator's windows out in the auto
                         grid (never a real client's: no policy decides
                         rooms yet)
+
+The plan (T3): --panels off   attach no panel - tiling and the RNG only (the
+                              Free plan); the app's `panels` message turns
+                              them on
 
 Windows (macOS: the titles need the Accessibility permission):
   --platform native     this system's backend (default)
@@ -140,6 +145,9 @@ pub struct Args {
     /// (T2) `--tiling auto`: the auto grid over the simulator's windows
     /// (development; [`engine::TilingConfig::development`]).
     pub tiling: bool,
+    /// (T3) `--panels off`: no panel is attached (the plan does not include
+    /// the HUD); tiling and the RNG still run.
+    pub panels_off: bool,
 }
 
 impl Args {
@@ -167,6 +175,11 @@ impl Args {
                 "--tiling" => match value("--tiling")?.as_str() {
                     "auto" => parsed.tiling = true,
                     other => return Err(format!("--tiling takes auto, not {other}")),
+                },
+                "--panels" => match value("--panels")?.as_str() {
+                    "off" => parsed.panels_off = true,
+                    "on" => parsed.panels_off = false,
+                    other => return Err(format!("--panels takes on or off, not {other}")),
                 },
                 "--policy" => parsed.policy = Some(PathBuf::from(value("--policy")?)),
                 "--latency-report" => {
@@ -418,6 +431,10 @@ fn run(args: &Args, compliance: Compliance, link: Option<platform::macos::Link>)
     {
         eprintln!("rail-hud: --tiling: {error}");
     }
+    // (T3) Before the first look: nothing attaches.
+    if args.panels_off {
+        hud.set_panels(false, &mut |_| {});
+    }
     eprintln!(
         "rail-hud: running (pid {}, {}, store {})",
         std::process::id(),
@@ -508,6 +525,19 @@ mod tests {
         assert!(!parse(&["--standalone"]).expect("no tiling").tiling);
         assert!(parse(&["--standalone", "--tiling", "grid"]).is_err());
         assert!(parse(&["--standalone", "--tiling"]).is_err());
+        // (T3) Panels off for the Free plan.
+        assert!(
+            parse(&["--standalone", "--panels", "off"])
+                .expect("panels off")
+                .panels_off
+        );
+        assert!(!parse(&["--standalone"]).expect("panels").panels_off);
+        assert!(
+            !parse(&["--standalone", "--panels", "on"])
+                .expect("panels on")
+                .panels_off
+        );
+        assert!(parse(&["--standalone", "--panels", "none"]).is_err());
 
         // The simulator's real windows (native backend, test-only room):
         // both flags, a regex that compiles; with the app's channel too

@@ -1686,6 +1686,7 @@ export const en = {
       `${attached === 0 ? "HUD: no table open" : attached === 1 ? "HUD: 1 table" : `HUD: ${attached} tables`}${
         refused === 0 ? "" : ` · ${refused} not allowed`
       }`,
+    retileTables: "Re-tile tables",
     quit: "Quit Rail",
   },
 } as const;

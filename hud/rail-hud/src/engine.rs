@@ -107,6 +107,23 @@
 //!   a placement, and nothing moves while the mouse is busy), and its
 //!   answers come back at the next tick. Switched off, nothing ever moves
 //!   and the windows stay where they are.
+//! - **The app's tiling settings** (T3): `tiling_changed` switches tiling
+//!   on or off with the user's layouts, rules and per-room switches
+//!   ([`Hud::apply_tiling_settings`], validated again here: a refused
+//!   object changes nothing); `retile` lays every table out again, pinned
+//!   ones too; `rng_changed` is kept for the RNG (T4 draws it, with each
+//!   room's `RngPermit`: [`Hud::rng_for`]); every change of tiling's state
+//!   goes back as `tiling_status`. **Whose windows move**: a room whose
+//!   policy gives a `TilingPermit` (T0, `sites.json` `tiling.allowed`,
+//!   independent of `hud.allowed`; asked again at every look, so a stricter
+//!   remote policy takes effect at once) **and** the user's switch for it
+//!   is on. A room without a permit is never handed to the tiler, whatever
+//!   the user's switch says.
+//! - **Panels off** (T3, the Free plan with enforcement on): `--panels off`
+//!   or `panels {allowed: false}` - the HUD runs for tiling and the RNG
+//!   and attaches no panel (nor refuses one: nothing is drawn, so there is
+//!   nothing to refuse); `panels {allowed: true}` attaches from the next
+//!   look.
 
 #![forbid(unsafe_code)]
 
@@ -124,7 +141,7 @@ use rail_stats::display::Display;
 
 use std::sync::Arc;
 
-use crate::compliance::Compliance;
+use crate::compliance::{Compliance, RngPermit};
 use crate::data::StoreView;
 use crate::design::{Assignment, Compiled, DesignSet as Designs, FORCED, GameFormat, HudDesign};
 use crate::latency::{Latencies, micros};
@@ -137,6 +154,7 @@ use crate::platform::{
 };
 use crate::seats::{self, Rooms};
 use crate::tiling::{Mouse, Observed, Options as TilingOptions, Tiler};
+use rail_hud_ipc::settings::{RngSettings, TilingSettings};
 
 /// What the loop is fed.
 #[derive(Debug)]
@@ -242,13 +260,17 @@ pub const MONITORS_EVERY: Duration = Duration::from_secs(2);
 pub struct TilingConfig {
     /// The layouts, the one in force, the rooms' geometry.
     pub options: TilingOptions,
-    /// Whether tiling may move a room's (`sites.json` id) tables - T0's
-    /// `TilingPermit`, wired by T3. A room it says no to is never handed
-    /// to the tiler, so nothing can move its tables.
+    /// Whether tiling may move a room's (`sites.json` id) tables (T3: the
+    /// user's per-room switch). A room it says no to is never handed to the
+    /// tiler, so nothing can move its tables.
     pub allowed: Box<dyn Fn(&str) -> bool + Send>,
-    /// Only the table simulator's windows (`--tiling auto`, development:
-    /// no policy decides real rooms yet).
+    /// Only the table simulator's windows (`--tiling auto`, development).
     pub simulator_only: bool,
+    /// (T3) The room's policy must give a `TilingPermit` too
+    /// ([`Compliance::tiling_permit`], asked at every look). On for the
+    /// app's settings; off only for development and tests that pose the
+    /// simulator's windows as rooms the policy says no to.
+    pub permit: bool,
 }
 
 impl std::fmt::Debug for TilingConfig {
@@ -256,6 +278,7 @@ impl std::fmt::Debug for TilingConfig {
         f.debug_struct("TilingConfig")
             .field("options", &self.options)
             .field("simulator_only", &self.simulator_only)
+            .field("permit", &self.permit)
             .finish_non_exhaustive()
     }
 }
@@ -268,9 +291,42 @@ impl TilingConfig {
             options: TilingOptions::default(),
             allowed: Box::new(|_| true),
             simulator_only: true,
+            permit: false,
+        }
+    }
+
+    /// (T3) The app's settings: the user's layouts, the one in force, the
+    /// auto grid's rules, close gaps. A room is handed to the tiler only
+    /// when its policy gives a `TilingPermit` (T0) and the user's switch
+    /// for it is on.
+    pub fn from_settings(settings: &TilingSettings) -> Self {
+        let switches = settings.clone();
+        Self {
+            options: tiling_options(settings, BTreeMap::new()),
+            allowed: Box::new(move |site| switches.room_enabled(site)),
+            simulator_only: false,
+            permit: true,
         }
     }
 }
+
+/// (T3) The tiler's options from the app's settings, with the rooms'
+/// geometry kept.
+fn tiling_options(
+    settings: &TilingSettings,
+    rooms: BTreeMap<String, crate::tiling::RoomGeometry>,
+) -> TilingOptions {
+    TilingOptions {
+        layouts: settings.layouts.clone(),
+        active: settings.active.id().to_owned(),
+        rooms,
+        close_gaps: settings.close_gaps,
+        auto_switch: settings.auto_switch.clone(),
+    }
+}
+
+/// (T3) What `tiling_status` last said: on, tables, the layout in force.
+type TilingReport = (bool, u32, Option<String>);
 
 /// (T2) Tiling while it is on: the tiler, its worker, the policy.
 struct Tiling {
@@ -278,17 +334,20 @@ struct Tiling {
     worker: Worker,
     allowed: Box<dyn Fn(&str) -> bool + Send>,
     simulator_only: bool,
+    permit: bool,
     next_monitors: Instant,
 }
 
 impl Tiling {
-    /// Whether the policy lets tiling move `window`.
-    fn takes(&self, window: &TableWindow) -> bool {
+    /// Whether the policy lets tiling move `window`: (T3) the room's
+    /// `TilingPermit` when asked for, and the caller's predicate.
+    fn takes(&self, window: &TableWindow, compliance: &Compliance) -> bool {
         (!self.simulator_only
             || crate::platform::matcher::same_process(
                 crate::platform::SIM_PROCESS,
                 &window.process.name,
             ))
+            && (!self.permit || compliance.tiling_permit(&window.site).is_ok())
             && (self.allowed)(&window.site)
     }
 
@@ -384,6 +443,13 @@ pub struct Hud {
     user_layouts_read: bool,
     /// (T2) Table tiling, when it is on ([`Hud::enable_tiling`]).
     tiling: Option<Tiling>,
+    /// (T3) The app's RNG settings (T4 draws the RNG with them).
+    rng: Option<RngSettings>,
+    /// (T3) Panels are drawn (the plan includes the HUD): `false` runs the
+    /// HUD for tiling and the RNG only ([`Hud::set_panels`]).
+    panels: bool,
+    /// (T3) What `tiling_status` last said.
+    tiling_reported: TilingReport,
 }
 
 impl std::fmt::Debug for Hud {
@@ -434,6 +500,9 @@ impl Hud {
             rooms,
             user_layouts_read: false,
             tiling: None,
+            rng: None,
+            panels: true,
+            tiling_reported: (false, 0, None),
         }
     }
 
@@ -577,6 +646,7 @@ impl Hud {
             worker,
             allowed: config.allowed,
             simulator_only: config.simulator_only,
+            permit: config.permit,
             next_monitors: Instant::now() + MONITORS_EVERY,
         });
         self.find_soon = true;
@@ -602,6 +672,105 @@ impl Hud {
     /// (T2) The tiler, while tiling is on (tests, diagnostics).
     pub fn tiler(&self) -> Option<&Tiler> {
         self.tiling.as_ref().map(|t| &t.tiler)
+    }
+
+    /// (T3) The app's tiling settings (`tiling_changed`): off switches
+    /// tiling off (the windows stay where they are); on switches it on, or,
+    /// when it is on already, takes the new layouts, rules and per-room
+    /// switches at once (the placement worker keeps running). Settings that do not
+    /// validate change nothing.
+    pub fn apply_tiling_settings(&mut self, settings: &TilingSettings) -> Result<(), String> {
+        settings
+            .validate()
+            .map_err(|e| format!("tiling settings refused: {e}"))?;
+        if !settings.enabled {
+            self.disable_tiling();
+            return Ok(());
+        }
+        let config = TilingConfig::from_settings(settings);
+        match self.tiling.as_mut() {
+            Some(tiling) => {
+                let rooms = tiling.tiler.options().rooms.clone();
+                tiling.tiler.set_options(tiling_options(settings, rooms));
+                tiling.allowed = config.allowed;
+                tiling.simulator_only = config.simulator_only;
+                tiling.permit = config.permit;
+                self.find_soon = true;
+                Ok(())
+            }
+            None => self.enable_tiling(config),
+        }
+    }
+
+    /// (T3) The app's RNG settings, as last received (T4 draws them).
+    pub fn rng_settings(&self) -> Option<&RngSettings> {
+        self.rng.as_ref()
+    }
+
+    /// (T3, for T4) The RNG over a table of room `site`: the user's
+    /// settings - on, and on for that room - with the room's `RngPermit`
+    /// (T0, `sites.json` `rng.allowed`, independent of the HUD's policy).
+    /// `None` when any of them says no: nothing is drawn.
+    pub fn rng_for(&self, site: &str) -> Option<(&RngSettings, RngPermit)> {
+        let settings = self.rng.as_ref()?;
+        if !settings.enabled || !settings.room_enabled(site) {
+            return None;
+        }
+        let permit = self.compliance.rng_permit(site).ok()?;
+        Some((settings, permit))
+    }
+
+    /// (T3) Whether panels are drawn. Off: every table is detached (its
+    /// overlay goes), none is attached or refused from now on; tiling and
+    /// the RNG go on. On: tables attach from the next look.
+    pub fn set_panels(&mut self, allowed: bool, out: &mut dyn FnMut(HudMessage)) {
+        if allowed == self.panels {
+            return;
+        }
+        self.panels = allowed;
+        eprintln!(
+            "rail-hud: panels {}",
+            if allowed {
+                "on"
+            } else {
+                "off (tiling and the RNG only)"
+            }
+        );
+        if !allowed {
+            let ids: Vec<WindowId> = self.attached.keys().copied().collect();
+            for id in ids {
+                self.detach(id);
+            }
+            self.refused.clear();
+            self.report_open(out);
+        }
+        self.find_soon = true;
+    }
+
+    /// (T3) Whether panels are drawn ([`Hud::set_panels`]).
+    pub fn panels(&self) -> bool {
+        self.panels
+    }
+
+    /// (T3) Tiling's state to the app when it changed.
+    fn report_tiling(&mut self, out: &mut dyn FnMut(HudMessage)) {
+        let now: TilingReport = match &self.tiling {
+            Some(tiling) => (
+                true,
+                u32::try_from(tiling.tiler.table_count()).unwrap_or(u32::MAX),
+                tiling.tiler.layout_id().map(str::to_owned),
+            ),
+            None => (false, 0, None),
+        };
+        if now != self.tiling_reported {
+            self.tiling_reported = now.clone();
+            let (enabled, tables, layout) = now;
+            out(HudMessage::TilingStatus {
+                enabled,
+                tables,
+                layout,
+            });
+        }
     }
 
     /// (T2) Tiling's answers in, the monitors when due, the tiler's moves
@@ -638,7 +807,8 @@ impl Hud {
             return;
         };
         let mut seen = Vec::new();
-        for window in found.iter().filter(|w| tiling.takes(w)) {
+        let compliance = &self.compliance;
+        for window in found.iter().filter(|w| tiling.takes(w, compliance)) {
             seen.push(Observed {
                 id: window.id,
                 site: window.site.clone(),
@@ -926,6 +1096,20 @@ impl Hud {
                     None => eprintln!("rail-hud: no permission {permission:?} to ask for"),
                 }
             }
+            // (T3) The user's tiling and RNG settings, and the tray's
+            // "Re-tile tables".
+            AppMessage::TilingChanged { settings } => {
+                if let Err(error) = self.apply_tiling_settings(&settings) {
+                    eprintln!("rail-hud: tiling: {error}");
+                }
+                self.report_tiling(out);
+            }
+            AppMessage::RngChanged { settings } => match settings.validate() {
+                Ok(()) => self.rng = Some(settings),
+                Err(error) => eprintln!("rail-hud: RNG settings refused: {error}"),
+            },
+            AppMessage::Retile => self.retile(),
+            AppMessage::Panels { allowed } => self.set_panels(allowed, out),
             AppMessage::Unknown => {}
         }
         None
@@ -977,6 +1161,7 @@ impl Hud {
             }
         }
         self.step_tiling(now);
+        self.report_tiling(out);
     }
 
     fn find(&mut self, out: &mut dyn FnMut(HudMessage)) {
@@ -1054,7 +1239,9 @@ impl Hud {
                 }
                 continue;
             }
-            if self.refused.contains_key(&window.id) {
+            // (T3) Panels off: tiling took the window above; nothing is
+            // attached (nor refused: nothing would be drawn).
+            if !self.panels || self.refused.contains_key(&window.id) {
                 continue;
             }
             match self.compliance.decide(&window.site) {

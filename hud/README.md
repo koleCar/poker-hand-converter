@@ -67,7 +67,7 @@ Three rules from the architecture hold here:
 | `lib.rs` | Command line (`Args`), exit codes, `run`: load the shipped `sites.json`, merge `--policy`, connect to the app, run the engine |
 | `main.rs` | Exits with `rail_hud::main_with(args)`; forbids `unsafe` |
 | `engine.rs` | The one loop: looks for tables every 500 ms (the safety net once hooks follow them), attaches or refuses each window once, matches each `hand_imported` to its window by exact table name, re-reads, redraws, reports health, latency and `tables_open`; when tiling is on (T2), feeds the tiler and its worker |
-| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows) and `RngPermit` (draw the RNG over them), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter. The engine's tiling takes a room predicate (T2); wiring `TilingPermit` into it is T3, the RNG T4 |
+| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows; T3: the engine tiles only rooms with one) and `RngPermit` (draw the RNG over them; T3 hands it out with the RNG settings, `Hud::rng_for`, for T4), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter |
 | `data.rs` | The read path: `Reader::hud_totals` over the table's segment, `hud_own_totals` on rooms that allow statistics from your own hands only, the user's own statistics, `PRAGMA data_version` to notice commits without a message |
 | `panel.rs` | What a seat's panel says: the definitions with `hud: panel` (VPIP, PFR, 3B, F3B, CB, AFq), colour band, reliability opacity, hand count; the player's colour, note mark and labels where allowed; `PanelDesign::enforce` applies a room's restrictions |
 | `design.rs` | HUD designs, presets (`config/hud/presets.json`: cash, tournament, Spin, and tournament by stack depth for ACR only), assignments per room / format / table size, `check_for_room` |
@@ -113,15 +113,16 @@ reads nothing but the store (`tests/in_play.rs`). A restarted HUD shows a
 table's numbers at once from its newest stored hand when that hand is from
 the last 15 minutes.
 
-### Table tiling (T2)
+### Table tiling (T2, T3)
 
-Off unless switched on (`Hud::enable_tiling`; for development
-`--tiling auto`, which tiles the simulator's windows only; the app's settings
-arrive over the IPC in T3). Then:
+Off unless switched on: by the app's settings (T3, `tiling_changed` with
+`enabled: true`; `Hud::apply_tiling_settings`), or for development
+`--tiling auto`, which tiles the simulator's windows only. Then:
 
-1. Every look hands `tiling.rs` the tables whose room the policy allows -
-   attached or refused by the HUD alike, tiling is not a HUD (T0's
-   `TilingPermit` is the predicate T3 passes) - each with its frame. The
+1. Every look hands `tiling.rs` the tables whose room has a `TilingPermit`
+   (T0, asked at every look, so a stricter remote policy applies at once)
+   and whose per-room switch the user left on - attached or refused by the
+   HUD alike, tiling is not a HUD - each with its frame. The
    platform's moves, minimises and closes follow between looks; the
    monitors are read again every 2 s.
 2. A new table takes the first free slot of the layout in force (the auto
@@ -166,6 +167,7 @@ with a token as the first line of standard input. For development:
 | `--latency-report <file>` | Every hand's latency chain, one JSON object a line |
 | `--perf-report <file>` | Paint and follow times, re-reads and looks for tables, written at shutdown |
 | `--tiling auto` | (T2, development) Tile the simulator's windows in the auto grid; never a real client's |
+| `--panels off` | (T3) Attach no panel: tiling and the RNG only (the app passes it when the plan holds the HUD back); the app's `panels` message turns them on |
 | `--list-windows [--process <exe>] [--you <name>] [--try-title <regex>]` | List visible windows with redacted titles (see `--list-windows --help`) |
 
 Exit codes: 0 shut down (or the app is gone), 2 bad arguments, 3 could not
@@ -190,6 +192,7 @@ to be granted again.
 | Module | What it does |
 | --- | --- |
 | `protocol.rs` | The messages, one JSON object each, `type` in snake_case, fields camelCase, `PROTOCOL_VERSION` 1. Unknown types read as `Unknown` and unknown fields are ignored, so additions are not protocol changes |
+| `settings.rs` | (T3) The user's table tiling and RNG settings (`TilingSettings`, `RngSettings`, the layouts): the one model the app stores (`hud_layouts` kinds `tiling` / `rng`), sends and the HUD applies; camelCase, every field defaulted; validation both sides run |
 | `frame.rs` | 4-byte big-endian length, then the JSON; zero-length and oversized frames refused before allocating (`MAX_FRAME` 1 MiB, 1 KiB until the handshake is done) |
 | `auth.rs` | A fresh 256-bit token per HUD process on its standard input; a mutual HMAC-SHA256 challenge-response (`client_hello`, `server_hello`, `client_proof`, `welcome`) with constant-time comparison |
 | `transport.rs` | Unix: a socket `0600` in a fresh `0700` folder; Windows: a named pipe, first instance only, remote clients rejected, DACL for the owner and SYSTEM only |
@@ -207,6 +210,9 @@ Messages:
 | `policy` (the remote `sites.json`, or none) | `table_updated` (latency chain) |
 | `resync`, `health`, `shutdown` | `seat_position_changed` (a dragged panel, for the app to store) |
 | `request_permission` (after the user's click) | `open_popup`, `open_in_app` |
+| (T3) `tiling_changed` (the user's tiling settings, `rail_hud_ipc::settings`; also after every handshake) | (T3) `tiling_status` (on, tables managed, the layout in force) |
+| (T3) `rng_changed` (the RNG settings; kept for T4), `retile` (the tray's "Re-tile tables") | |
+| (T3) `panels` (`allowed: false`: the plan holds the HUD back - tiling and the RNG only, no panel attached; after every handshake) | |
 
 ---
 
