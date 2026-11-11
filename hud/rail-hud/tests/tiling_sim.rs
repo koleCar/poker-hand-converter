@@ -218,6 +218,10 @@ fn twelve_tables_over_two_monitors() {
         },
         allowed: Box::new(|site| site != "ggpoker"),
         simulator_only: false,
+        // The simulator's windows pose as rooms whatever their tiling
+        // policy (Winamax's is no): the engine's mechanics, not the policy
+        // (tests/tiling_ipc.rs holds the permit).
+        permit: false,
     })
     .expect("tiling on");
 

@@ -8,6 +8,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::settings::{RngSettings, TilingSettings};
+
 /// A player as the store keys their rollups (`player_rollups`): the name as
 /// the room wrote it and the scope - `""`, or for an opaque-id room's
 /// villain the session (`<table>@<day>`, rail-store SCHEMA.md "Under which
@@ -103,6 +105,26 @@ pub enum AppMessage {
     /// it.
     #[serde(rename_all = "camelCase")]
     RequestPermission { permission: String },
+    /// (T3) The user's table tiling settings, on every change and after
+    /// every handshake (a restarted HUD gets them too): the HUD switches
+    /// tiling on or off and lays the tables out with them. Whether a room
+    /// may be tiled at all is the HUD's policy, never this.
+    #[serde(rename_all = "camelCase")]
+    TilingChanged { settings: TilingSettings },
+    /// (T3) The user's RNG settings, on every change and after every
+    /// handshake; the HUD keeps them (T4 draws the RNG).
+    #[serde(rename_all = "camelCase")]
+    RngChanged { settings: RngSettings },
+    /// (T3) Lay every tiled table out again, the ones the user moved by
+    /// hand too (the tray's "Re-tile tables").
+    Retile,
+    /// (T3) Whether the plan includes the HUD's panels. `false` (Free,
+    /// with enforcement on): the HUD runs for table tiling and the RNG
+    /// only and attaches no panel; `true` (the plan now includes it): it
+    /// attaches from its next look. The command line's `--panels off` is
+    /// the same before the first look.
+    #[serde(rename_all = "camelCase")]
+    Panels { allowed: bool },
     /// A message type this build does not know (a newer app).
     #[serde(other)]
     Unknown,
@@ -205,6 +227,16 @@ pub enum HudMessage {
         /// user's): the popup shows its sections. Absent from an older HUD.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         design: Option<String>,
+    },
+    /// (T3) Table tiling's state, whenever it changes: on or off, how many
+    /// tables it manages, the layout in force (`auto` for the auto grid;
+    /// `None` while off or before a table).
+    #[serde(rename_all = "camelCase")]
+    TilingStatus {
+        enabled: bool,
+        tables: u32,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        layout: Option<String>,
     },
     /// A message type this build does not know (a newer HUD).
     #[serde(other)]
@@ -379,6 +411,41 @@ pub struct LatencySummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::settings::{
+        AutoSwitch, Layout, LayoutRef, RngBand, RngTriggers, Slot, SlotKind, SlotRect,
+    };
+
+    /// (T3) Tiling settings with a user layout in force.
+    fn tiling_settings() -> TilingSettings {
+        TilingSettings {
+            enabled: true,
+            active: LayoutRef::Custom { id: "two".into() },
+            layouts: vec![Layout {
+                id: "two".into(),
+                name: "Two".into(),
+                slots: vec![Slot {
+                    id: "left".into(),
+                    monitor: 1,
+                    rect: SlotRect {
+                        x: 0,
+                        y: 0,
+                        width: 500,
+                        height: 1000,
+                    },
+                    kind: SlotKind::Play,
+                    rooms: Some(vec!["pokerstars".into()]),
+                    stack: true,
+                }],
+                auto_switch: vec![AutoSwitch {
+                    min_tables: 3,
+                    layout_id: "auto".into(),
+                }],
+            }],
+            auto_switch: Vec::new(),
+            close_gaps: true,
+            per_room: [("winamax".to_owned(), false)].into_iter().collect(),
+        }
+    }
 
     fn round_trip<T>(value: &T) -> T
     where
@@ -435,6 +502,36 @@ mod tests {
             AppMessage::RequestPermission {
                 permission: "accessibility".into(),
             },
+            AppMessage::TilingChanged {
+                settings: TilingSettings::default(),
+            },
+            AppMessage::TilingChanged {
+                settings: tiling_settings(),
+            },
+            AppMessage::RngChanged {
+                settings: RngSettings::default(),
+            },
+            AppMessage::RngChanged {
+                settings: RngSettings {
+                    enabled: true,
+                    min: 0,
+                    max: 99,
+                    bands: vec![RngBand {
+                        up_to: 99,
+                        colour: "#202020".into(),
+                        label: Some("Bluff".into()),
+                    }],
+                    triggers: RngTriggers {
+                        new_hand: false,
+                        click: true,
+                        timer_secs: Some(20),
+                    },
+                    per_room: [("acr".to_owned(), false)].into_iter().collect(),
+                },
+            },
+            AppMessage::Retile,
+            AppMessage::Panels { allowed: false },
+            AppMessage::Panels { allowed: true },
         ];
         for message in &app {
             assert_eq!(&round_trip(message), message);
@@ -555,6 +652,16 @@ mod tests {
                 anchor: ScreenRect::default(),
                 scale_permille: 1000,
                 design: None,
+            },
+            HudMessage::TilingStatus {
+                enabled: true,
+                tables: 4,
+                layout: Some("auto".into()),
+            },
+            HudMessage::TilingStatus {
+                enabled: false,
+                tables: 0,
+                layout: None,
             },
         ];
         for message in &hud {
@@ -704,6 +811,69 @@ mod tests {
             })
             .expect("json"),
             r#"{"type":"open_popup","window":9,"site":"acr","storeSite":"acrwpn","table":"T","player":{"name":"V","scope":"","seat":2},"segment":3,"slot":1,"anchor":{"x":10,"y":-5,"width":80,"height":40},"scalePermille":1250,"design":"cash"}"#
+        );
+    }
+
+    /// (T3) Tiling's and the RNG's messages on the wire: `type` in snake
+    /// case, the settings as stored (camelCase); an older HUD reads them as
+    /// `Unknown` and ignores them.
+    #[test]
+    fn tiling_wire_form() {
+        assert_eq!(
+            serde_json::to_string(&AppMessage::Retile).expect("json"),
+            r#"{"type":"retile"}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::Panels { allowed: false }).expect("json"),
+            r#"{"type":"panels","allowed":false}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::TilingChanged {
+                settings: TilingSettings::default()
+            })
+            .expect("json"),
+            r#"{"type":"tiling_changed","settings":{"enabled":false,"active":{"kind":"auto"},"layouts":[],"autoSwitch":[],"closeGaps":false,"perRoom":{}}}"#
+        );
+        let rng = serde_json::to_string(&AppMessage::RngChanged {
+            settings: RngSettings::default(),
+        })
+        .expect("json");
+        assert!(
+            rng.starts_with(r#"{"type":"rng_changed","settings":{"enabled":false,"min":1,"max":100,"bands":[{"upTo":33,"#),
+            "{rng}"
+        );
+        assert_eq!(
+            serde_json::to_string(&HudMessage::TilingStatus {
+                enabled: true,
+                tables: 2,
+                layout: Some("auto".into()),
+            })
+            .expect("json"),
+            r#"{"type":"tiling_status","enabled":true,"tables":2,"layout":"auto"}"#
+        );
+        // A settings object with fields left out reads with the defaults.
+        let sparse: AppMessage =
+            serde_json::from_str(r#"{"type":"tiling_changed","settings":{"enabled":true}}"#)
+                .expect("sparse settings");
+        assert_eq!(
+            sparse,
+            AppMessage::TilingChanged {
+                settings: TilingSettings {
+                    enabled: true,
+                    ..TilingSettings::default()
+                }
+            }
+        );
+        let older: HudMessage =
+            serde_json::from_str(r#"{"type":"tiling_status","enabled":false,"tables":0}"#)
+                .expect("no layout");
+        assert_eq!(
+            older,
+            HudMessage::TilingStatus {
+                enabled: false,
+                tables: 0,
+                layout: None
+            }
         );
     }
 

@@ -1643,6 +1643,7 @@ export const hr: Dict = {
       `${attached === 0 ? "HUD: nema otvorenog stola" : `HUD: stolovi: ${attached}`}${
         refused === 0 ? "" : ` · nije dopušteno: ${refused}`
       }`,
+    retileTables: "Ponovno složi stolove",
     quit: "Zatvori Rail",
   },
 };

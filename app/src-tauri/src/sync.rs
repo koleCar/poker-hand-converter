@@ -103,6 +103,8 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>, slot: &SyncSlot) {
                 hud.layout_changed();
             }
             let _ = handle.emit(crate::hud_editor::HUD_LAYOUTS_EVENT, ());
+            // (T3) The tiling and RNG settings travel in the same rows.
+            crate::tiling::pulled(&handle);
         });
     }
     app.manage(SyncState { worker, dirty });

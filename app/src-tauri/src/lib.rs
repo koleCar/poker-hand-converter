@@ -101,6 +101,7 @@ pub mod share;
 pub mod stats;
 pub mod strings;
 pub mod sync;
+pub mod tiling;
 pub mod tray;
 pub mod updates;
 pub mod watch;
@@ -461,6 +462,11 @@ pub fn run() {
         hud::hud_set_preferred_seat,
         hud::hud_set_seat_position,
         hud::hud_reset_seat_positions,
+        tiling::get_tiling_settings,
+        tiling::set_tiling_settings,
+        tiling::get_rng_settings,
+        tiling::set_rng_settings,
+        tiling::retile_tables,
         policy::hud_policy,
         policy::hud_policy_check,
         policy::hud_open_policy_source,
@@ -602,6 +608,11 @@ pub fn run() {
         hud::hud_set_preferred_seat,
         hud::hud_set_seat_position,
         hud::hud_reset_seat_positions,
+        tiling::get_tiling_settings,
+        tiling::set_tiling_settings,
+        tiling::get_rng_settings,
+        tiling::set_rng_settings,
+        tiling::retile_tables,
         policy::hud_policy,
         policy::hud_policy_check,
         policy::hud_open_policy_source,

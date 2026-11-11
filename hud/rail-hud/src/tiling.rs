@@ -60,13 +60,11 @@
 use std::collections::BTreeMap;
 use std::time::{Duration, Instant};
 
-use serde::{Deserialize, Serialize};
-
 use crate::platform::{Insets, Monitor, PlatformError, Rect, WindowId};
 
 /// The auto grid's layout id ([`Options::active`], an [`AutoSwitch`]
 /// target).
-pub const AUTO_LAYOUT: &str = "auto";
+pub use rail_hud_ipc::settings::AUTO_LAYOUT;
 
 /// A room's aspect ratio when nothing says otherwise and the window gave
 /// none (it was minimised when first seen).
@@ -105,69 +103,10 @@ pub const TOLERANCE: u32 = 2;
 const MAX_GRID_MONITORS: usize = 4;
 
 // ---------------------------------------------------------------------
-// Layouts as stored (T3: `hud_layouts` kind `tiling`).
+// Layouts as stored (T3: `hud_layouts` kind `tiling`): the model is the
+// app's and the HUD's both, so it lives in `rail_hud_ipc::settings`.
 
-/// A saved arrangement: slots on monitors, and rules that switch to another
-/// layout by the number of tables.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Layout {
-    pub id: String,
-    pub name: String,
-    pub slots: Vec<Slot>,
-    #[serde(default)]
-    pub auto_switch: Vec<AutoSwitch>,
-}
-
-/// A rectangle of a monitor's work area that holds a table (or a stack).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Slot {
-    pub id: String,
-    /// The monitor's place in [`monitor_order`]: 0 the primary, then left
-    /// to right (top to bottom on a tie). Missing: the primary.
-    #[serde(default)]
-    pub monitor: u32,
-    /// Thousandths of the monitor's work area.
-    pub rect: SlotRect,
-    #[serde(default)]
-    pub kind: SlotKind,
-    /// The rooms (`sites.json` ids) it takes; `None`: any.
-    #[serde(default)]
-    pub rooms: Option<Vec<String>>,
-    /// It may hold a stack when every slot is full.
-    #[serde(default)]
-    pub stack: bool,
-}
-
-/// A slot's place, thousandths of the work area (0 - 1000).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SlotRect {
-    pub x: u32,
-    pub y: u32,
-    pub width: u32,
-    pub height: u32,
-}
-
-/// What a slot holds. `action` and `inHand` come later (§4.6).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum SlotKind {
-    #[default]
-    Play,
-    /// A room's lobby window: stored, never given a table.
-    Lobby,
-}
-
-/// From `min_tables` open tables on, layout `layout_id` ([`AUTO_LAYOUT`]
-/// for the auto grid).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AutoSwitch {
-    pub min_tables: u32,
-    pub layout_id: String,
-}
+pub use rail_hud_ipc::settings::{AutoSwitch, Layout, Slot, SlotKind, SlotRect};
 
 // ---------------------------------------------------------------------
 // Rooms and options.
@@ -227,6 +166,9 @@ pub struct Options {
     pub rooms: BTreeMap<String, RoomGeometry>,
     /// A closed table's hole is filled by the last table.
     pub close_gaps: bool,
+    /// (T3) Rules by table count for a layout in force that has none of
+    /// its own - the auto grid above all (the app's `autoSwitch`).
+    pub auto_switch: Vec<AutoSwitch>,
 }
 
 impl Default for Options {
@@ -236,6 +178,7 @@ impl Default for Options {
             active: AUTO_LAYOUT.to_owned(),
             rooms: BTreeMap::new(),
             close_gaps: false,
+            auto_switch: Vec::new(),
         }
     }
 }
@@ -785,6 +728,21 @@ impl Tiler {
         self.tables.keys().copied().collect()
     }
 
+    /// (T3) How many tables it manages (pinned ones too).
+    pub fn table_count(&self) -> usize {
+        self.tables.len()
+    }
+
+    /// (T3) The layout in force: [`AUTO_LAYOUT`] or a user layout's id;
+    /// `None` before the first arrangement.
+    pub fn layout_id(&self) -> Option<&str> {
+        match &self.current {
+            Some(Current::Auto(_)) => Some(AUTO_LAYOUT),
+            Some(Current::Fixed(id)) => Some(id),
+            None => None,
+        }
+    }
+
     /// The auto grid in force, if that is the layout.
     pub fn grid(&self) -> Option<&Grid> {
         match &self.current {
@@ -1012,18 +970,21 @@ impl Tiler {
     }
 
     /// The layout the table count picks: the active one, or the
-    /// auto-switch rule with the largest `min_tables` reached.
+    /// auto-switch rule with the largest `min_tables` reached - the active
+    /// layout's own rules, or (none of its own, the auto grid above all)
+    /// [`Options::auto_switch`].
     fn effective(&self, n: usize) -> Option<&Layout> {
         let n = u32::try_from(n).unwrap_or(u32::MAX);
         let id = self.options.active.as_str();
         let base = self.options.layouts.iter().find(|l| l.id == id);
-        let switched = base.and_then(|layout| {
-            layout
-                .auto_switch
-                .iter()
-                .filter(|rule| rule.min_tables <= n)
-                .max_by_key(|rule| rule.min_tables)
-        });
+        let rules = match base {
+            Some(layout) if !layout.auto_switch.is_empty() => &layout.auto_switch,
+            _ => &self.options.auto_switch,
+        };
+        let switched = rules
+            .iter()
+            .filter(|rule| rule.min_tables <= n)
+            .max_by_key(|rule| rule.min_tables);
         match switched {
             Some(rule) if rule.layout_id == AUTO_LAYOUT => None,
             Some(rule) => self
@@ -1989,6 +1950,7 @@ mod tests {
                 active: "halves".into(),
                 rooms: BTreeMap::new(),
                 close_gaps: true,
+                auto_switch: Vec::new(),
             },
             two_monitors(),
         );
@@ -2040,6 +2002,53 @@ mod tests {
             }
             .takes("pokerstars")
         );
+    }
+
+    /// (T3) The auto grid's own rules ([`Options::auto_switch`]): from
+    /// three tables a user layout, back to the grid below.
+    #[test]
+    fn the_auto_grid_switches_by_its_own_rules() {
+        let whole = Layout {
+            id: "whole".into(),
+            name: "Whole".into(),
+            slots: vec![Slot {
+                id: "all".into(),
+                monitor: 0,
+                rect: SlotRect {
+                    x: 0,
+                    y: 0,
+                    width: 1000,
+                    height: 1000,
+                },
+                kind: SlotKind::Play,
+                rooms: None,
+                stack: true,
+            }],
+            auto_switch: Vec::new(),
+        };
+        let mut world = World::new(
+            Options {
+                layouts: vec![whole],
+                auto_switch: vec![AutoSwitch {
+                    min_tables: 3,
+                    layout_id: "whole".into(),
+                }],
+                ..Options::default()
+            },
+            two_monitors(),
+        );
+        let now = Instant::now();
+        world.open(1, "pokerstars", FRAME);
+        world.open(2, "pokerstars", FRAME);
+        world.settle(now);
+        assert_eq!(world.tiler.layout_id(), Some(AUTO_LAYOUT));
+        world.open(3, "pokerstars", FRAME);
+        world.settle(now);
+        assert_eq!(world.tiler.layout_id(), Some("whole"));
+        assert_eq!(world.tiler.slots().len(), 1, "everyone stacks in it");
+        world.close(3);
+        world.settle(now);
+        assert_eq!(world.tiler.layout_id(), Some(AUTO_LAYOUT));
     }
 
     /// Minimised tables keep their slot and are not placed until restored;

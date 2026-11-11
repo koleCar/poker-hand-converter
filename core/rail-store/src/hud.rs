@@ -23,6 +23,12 @@
 //! - **Assignments** (`hud_layout_assignments`, R3.9): which design a table
 //!   gets per (room or `*`, table size or 0, format or `*`);
 //!   [`Reader::hud_layout_assignments`].
+//! - **Settings** (`hud_settings`, T3, migration 22): the user's table
+//!   tiling and RNG settings, one JSON object per kind
+//!   ([`HudSettingKind`]) and key ([`WriterHandle::save_hud_setting`],
+//!   [`Reader::hud_setting`]); this crate does not read the JSON -
+//!   `rail_hud_ipc::settings` does. The app sends them to the HUD over the
+//!   IPC; the HUD's connection never reads them.
 //! - **Sync** (R3.9): every write here marks its row `dirty`;
 //!   [`Reader::hud_sync_dirty`] lists them as [`HudSyncRow`]s for the sync
 //!   worker, [`WriterHandle::hud_sync_pushed`] clears the mark of rows
@@ -95,6 +101,35 @@ pub const MAX_ID: usize = 64;
 /// The largest design a row takes (bytes of JSON).
 pub const MAX_DESIGN_BYTES: usize = 32 * 1024;
 
+/// (T3) A settings object's kind in `hud_settings`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum HudSettingKind {
+    /// The table tiling settings (`rail_hud_ipc::settings::TilingSettings`).
+    Tiling,
+    /// The RNG settings (`rail_hud_ipc::settings::RngSettings`).
+    Rng,
+}
+
+impl HudSettingKind {
+    pub const ALL: [Self; 2] = [Self::Tiling, Self::Rng];
+
+    /// The name in the store and on the wire.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Tiling => "tiling",
+            Self::Rng => "rng",
+        }
+    }
+
+    /// Its kind of synced row.
+    pub const fn sync_kind(self) -> HudSyncKind {
+        match self {
+            Self::Tiling => HudSyncKind::Tiling,
+            Self::Rng => HudSyncKind::Rng,
+        }
+    }
+}
+
 /// (R3.9) Which table a synced row is of.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum HudSyncKind {
@@ -106,14 +141,20 @@ pub enum HudSyncKind {
     SeatPosition,
     /// `hud_room_settings`: key = the site.
     RoomSetting,
+    /// (T3) `hud_settings` kind `tiling`: key = the settings' key.
+    Tiling,
+    /// (T3) `hud_settings` kind `rng`: key = the settings' key.
+    Rng,
 }
 
 impl HudSyncKind {
-    pub const ALL: [Self; 4] = [
+    pub const ALL: [Self; 6] = [
         Self::Layout,
         Self::Assignment,
         Self::SeatPosition,
         Self::RoomSetting,
+        Self::Tiling,
+        Self::Rng,
     ];
 
     /// The name on the wire (Supabase's `hud_layouts.kind`).
@@ -123,11 +164,22 @@ impl HudSyncKind {
             Self::Assignment => "assignment",
             Self::SeatPosition => "seat_position",
             Self::RoomSetting => "room_setting",
+            Self::Tiling => "tiling",
+            Self::Rng => "rng",
         }
     }
 
     pub fn parse(text: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|kind| kind.as_str() == text)
+    }
+
+    /// (T3) The settings kind it is, if it is one.
+    pub const fn setting(self) -> Option<HudSettingKind> {
+        match self {
+            Self::Tiling => Some(HudSettingKind::Tiling),
+            Self::Rng => Some(HudSettingKind::Rng),
+            _ => None,
+        }
     }
 }
 
@@ -136,7 +188,8 @@ impl HudSyncKind {
 /// - a design: the design's JSON object;
 /// - an assignment: `{"layout": "<id>"}`;
 /// - a seat position: `{"x": 0-1000, "y": 0-1000}`;
-/// - a room setting: `{"preferredSeat": true | false}`.
+/// - a room setting: `{"preferredSeat": true | false}`;
+/// - (T3) tiling or RNG settings: the settings object.
 #[derive(Debug, Clone, PartialEq)]
 pub struct HudSyncRow {
     pub kind: HudSyncKind,
@@ -174,6 +227,16 @@ fn check_assignment(site: &str, size: u32, format: &str) -> Result<()> {
     check_id(site, "a HUD assignment's room")?;
     if !(size == 0 || (2..=10).contains(&size)) || !FORMATS.contains(&format) {
         return Err(Error::OutOfRange("a HUD assignment"));
+    }
+    Ok(())
+}
+
+/// (T3) A settings body: a JSON object of at most [`MAX_DESIGN_BYTES`].
+fn check_setting_body(body: &str) -> Result<()> {
+    if body.len() > MAX_DESIGN_BYTES
+        || !matches!(serde_json::from_str::<Value>(body), Ok(Value::Object(_)))
+    {
+        return Err(Error::OutOfRange("a HUD setting"));
     }
     Ok(())
 }
@@ -308,6 +371,26 @@ impl WriterHandle {
         })
     }
 
+    /// (T3) Save the user's settings of `kind` under `key` (replacing
+    /// them). `body` is a JSON object of at most [`MAX_DESIGN_BYTES`]; this
+    /// crate does not interpret it (the caller validates it,
+    /// `rail_hud_ipc::settings`).
+    pub fn save_hud_setting(&self, kind: HudSettingKind, key: &str, body: &str) -> Result<()> {
+        check_id(key, "a HUD setting's key")?;
+        check_setting_body(body)?;
+        let (key, body) = (key.to_owned(), body.to_owned());
+        self.write(move |tx| {
+            tx.execute(
+                "INSERT INTO hud_settings (kind, key, body, updated_at, dirty)
+                 VALUES (?1, ?2, ?3, ?4, 1)
+                 ON CONFLICT (kind, key) DO UPDATE SET
+                   body = excluded.body, updated_at = excluded.updated_at, dirty = 1",
+                params![kind.as_str(), key, body, crate::time::now_ms()],
+            )?;
+            Ok(())
+        })
+    }
+
     /// (R3.9, sync) The rows sent: their dirty mark goes, unless the row
     /// changed since it was read (another `updated_at`).
     pub fn hud_sync_pushed(&self, rows: Vec<(HudSyncKind, String, i64)>) -> Result<()> {
@@ -396,6 +479,13 @@ fn local_updated_at(tx: &Transaction<'_>, kind: HudSyncKind, key: &str) -> Resul
                 .optional()?,
             None => None,
         },
+        HudSyncKind::Tiling | HudSyncKind::Rng => tx
+            .query_row(
+                "SELECT updated_at FROM hud_settings WHERE kind = ?1 AND key = ?2",
+                params![kind.as_str(), key],
+                |row| row.get(0),
+            )
+            .optional()?,
     };
     Ok(found)
 }
@@ -518,6 +608,29 @@ fn apply(tx: &Transaction<'_>, row: &HudSyncRow) -> Result<bool> {
                 params![row.key, preferred.map(i64::from), at],
             )?;
         }
+        HudSyncKind::Tiling | HudSyncKind::Rng => {
+            if check_id(&row.key, "key").is_err() {
+                return Ok(false);
+            }
+            let text = match body {
+                Some(value @ Value::Object(_)) => {
+                    let text = value.to_string();
+                    if text.len() > MAX_DESIGN_BYTES {
+                        return Ok(false);
+                    }
+                    Some(text)
+                }
+                Some(_) => return Ok(false),
+                None => None,
+            };
+            tx.execute(
+                "INSERT INTO hud_settings (kind, key, body, updated_at, dirty)
+                 VALUES (?1, ?2, ?3, ?4, 0)
+                 ON CONFLICT (kind, key) DO UPDATE SET
+                   body = excluded.body, updated_at = excluded.updated_at, dirty = 0",
+                params![row.kind.as_str(), row.key, text, at],
+            )?;
+        }
     }
     Ok(true)
 }
@@ -553,6 +666,13 @@ fn mark_clean(tx: &Transaction<'_>, kind: HudSyncKind, key: &str, at: i64) -> Re
                     params![site, size, slot, at],
                 )?;
             }
+        }
+        HudSyncKind::Tiling | HudSyncKind::Rng => {
+            tx.execute(
+                "UPDATE hud_settings SET dirty = 0
+                 WHERE kind = ?1 AND key = ?2 AND updated_at = ?3",
+                params![kind.as_str(), key, at],
+            )?;
         }
     }
     Ok(())
@@ -661,6 +781,22 @@ impl Reader {
         })
     }
 
+    /// (T3) The user's settings of `kind` under `key` as stored (JSON),
+    /// with when they were written; `None` when there are none (or they
+    /// were cleared).
+    pub fn hud_setting(&self, kind: HudSettingKind, key: &str) -> Result<Option<(String, i64)>> {
+        self.with(|conn| {
+            Ok(conn
+                .query_row(
+                    "SELECT body, updated_at FROM hud_settings
+                     WHERE kind = ?1 AND key = ?2 AND body IS NOT NULL",
+                    params![kind.as_str(), key],
+                    |row| Ok((row.get(0)?, row.get(1)?)),
+                )
+                .optional()?)
+        })
+    }
+
     /// (R3.9, sync) Every row written here since the last sync, tombstones
     /// included, as the server takes them.
     pub fn hud_sync_dirty(&self) -> Result<Vec<HudSyncRow>> {
@@ -751,6 +887,33 @@ impl Reader {
                     kind: HudSyncKind::RoomSetting,
                     key: site,
                     body: preferred.map(|on| json!({ "preferredSeat": on != 0 })),
+                    updated_at,
+                });
+            }
+            // (T3) The tiling and RNG settings.
+            let mut stmt = conn
+                .prepare("SELECT kind, key, body, updated_at FROM hud_settings WHERE dirty = 1")?;
+            let rows = stmt.query_map([], |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, Option<String>>(2)?,
+                    row.get::<_, i64>(3)?,
+                ))
+            })?;
+            for row in rows {
+                let (kind, key, body, updated_at) = row?;
+                let Some(kind) = HudSyncKind::parse(&kind) else {
+                    continue;
+                };
+                // As for a design: unreadable JSON travels as a string the
+                // other side refuses, never as nothing (a delete there).
+                let body =
+                    body.map(|text| serde_json::from_str(&text).unwrap_or(Value::String(text)));
+                out.push(HudSyncRow {
+                    kind,
+                    key,
+                    body,
                     updated_at,
                 });
             }
@@ -1157,6 +1320,156 @@ mod tests {
         assert_eq!(
             left.iter().map(|r| r.key.as_str()).collect::<Vec<_>>(),
             ["d-1"]
+        );
+        drop(writer);
+        store.close();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (T3) The tiling and RNG settings: saved and read back by kind and
+    /// key, replaced by a second save, refused when not a JSON object or
+    /// too large; synced as kinds `tiling` and `rng` - dirty until pushed,
+    /// the server's newer row applied (a tie or an older one kept), a
+    /// tombstone clears them, a body of the wrong shape is refused.
+    #[test]
+    fn settings_round_trip_and_sync() {
+        let (store, dir) = store("settings");
+        let writer = store.writer().expect("writer");
+        let reader = store.reader();
+        assert_eq!(
+            reader
+                .hud_setting(HudSettingKind::Tiling, "default")
+                .expect("read"),
+            None
+        );
+        writer
+            .save_hud_setting(HudSettingKind::Tiling, "default", r#"{"enabled":true}"#)
+            .expect("save");
+        writer
+            .save_hud_setting(HudSettingKind::Rng, "default", r#"{"min":0,"max":99}"#)
+            .expect("save");
+        std::thread::sleep(std::time::Duration::from_millis(3));
+        writer
+            .save_hud_setting(HudSettingKind::Tiling, "default", r#"{"enabled":false}"#)
+            .expect("replace");
+        let (tiling, at) = reader
+            .hud_setting(HudSettingKind::Tiling, "default")
+            .expect("read")
+            .expect("saved");
+        assert_eq!(tiling, r#"{"enabled":false}"#);
+        assert!(at > 0);
+        assert_eq!(
+            reader
+                .hud_setting(HudSettingKind::Rng, "default")
+                .expect("read")
+                .map(|(body, _)| body),
+            Some(r#"{"min":0,"max":99}"#.to_owned())
+        );
+        for bad in ["[1]", "1", "not json", ""] {
+            assert!(
+                writer
+                    .save_hud_setting(HudSettingKind::Rng, "default", bad)
+                    .is_err(),
+                "{bad:?}"
+            );
+        }
+        let large = format!(r#"{{"pad":"{}"}}"#, "x".repeat(MAX_DESIGN_BYTES));
+        assert!(
+            writer
+                .save_hud_setting(HudSettingKind::Rng, "default", &large)
+                .is_err()
+        );
+        assert!(
+            writer
+                .save_hud_setting(HudSettingKind::Rng, "", "{}")
+                .is_err()
+        );
+
+        // Both are dirty, as their kinds, with their objects.
+        let mut dirty = reader.hud_sync_dirty().expect("dirty");
+        dirty.sort_by(|a, b| (a.kind, &a.key).cmp(&(b.kind, &b.key)));
+        assert_eq!(
+            dirty
+                .iter()
+                .map(|r| (r.kind.as_str(), r.key.as_str(), r.body.clone()))
+                .collect::<Vec<_>>(),
+            [
+                ("tiling", "default", Some(json!({"enabled": false}))),
+                ("rng", "default", Some(json!({"min": 0, "max": 99}))),
+            ]
+        );
+        assert_eq!(HudSyncKind::parse("tiling"), Some(HudSyncKind::Tiling));
+        assert_eq!(
+            HudSyncKind::Rng.setting().map(HudSettingKind::sync_kind),
+            Some(HudSyncKind::Rng)
+        );
+        writer
+            .hud_sync_pushed(
+                dirty
+                    .iter()
+                    .map(|r| (r.kind, r.key.clone(), r.updated_at))
+                    .collect(),
+            )
+            .expect("pushed");
+        assert!(reader.hud_sync_dirty().expect("dirty").is_empty());
+
+        // The account's rows: tiling older (kept), RNG newer (applied), a
+        // new key (applied); refused: not an object, a bad key.
+        let applied = writer
+            .hud_sync_apply(vec![
+                row(
+                    HudSyncKind::Tiling,
+                    "default",
+                    Some(json!({"enabled": true})),
+                    at - 1,
+                ),
+                row(
+                    HudSyncKind::Rng,
+                    "default",
+                    Some(json!({"enabled": true})),
+                    at + 10,
+                ),
+                row(HudSyncKind::Tiling, "other", Some(json!({})), 5),
+                row(HudSyncKind::Rng, "x", Some(json!([1, 2])), at + 10),
+                row(HudSyncKind::Rng, "", Some(json!({})), at + 10),
+            ])
+            .expect("apply");
+        assert_eq!(
+            applied,
+            HudSyncApplied {
+                applied: 2,
+                kept: 1,
+                refused: 2
+            }
+        );
+        assert_eq!(
+            reader
+                .hud_setting(HudSettingKind::Tiling, "default")
+                .expect("read")
+                .map(|(body, _)| body),
+            Some(r#"{"enabled":false}"#.to_owned()),
+            "the newer local row kept"
+        );
+        assert_eq!(
+            reader
+                .hud_setting(HudSettingKind::Rng, "default")
+                .expect("read"),
+            Some((r#"{"enabled":true}"#.to_owned(), at + 10)),
+            "the newer server row applied"
+        );
+        assert!(
+            reader.hud_sync_dirty().expect("dirty").is_empty(),
+            "applied rows are clean"
+        );
+        // A newer tombstone clears them.
+        writer
+            .hud_sync_apply(vec![row(HudSyncKind::Rng, "default", None, at + 20)])
+            .expect("apply");
+        assert_eq!(
+            reader
+                .hud_setting(HudSettingKind::Rng, "default")
+                .expect("read"),
+            None
         );
         drop(writer);
         store.close();

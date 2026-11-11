@@ -57,6 +57,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 16 | `0016_analysis.sql` | (R5.4) `hand_analysis`, `decision_analysis` (the web's analysis rows for the hands here, written by the app's analysis runner; one version per hand), `analysis_leak_rows` and `chart_decisions` (their narrow rows for the top three and the own charts' comparison) and `chart_sets` (the user's own preflop charts, R5.3, local only); empty, nothing to rebuild: the runner analyses every hand in the background |
 | 17 | `0017_tournament_settings.sql` | (R5.5) `tournament_settings` (the user's payouts, field and players left per tournament, local only) and `hand_stats_tournament_idx` (a tournament's hands, for sending them back to the analysis when its settings change); empty, nothing to rebuild |
 | 20 | `0020_leak_row_table.sql` | no schema change: a flop, turn or river `analysis_leak_rows.chart_set` is now its hand's table (the web's `analysis_hand_table_set`, 20271102090000); **filled in the migration's transaction** for the rows stored before (`table_set::fill_leak_table_sets`: SQL cannot read the compressed PHF; one read of each hand with a postflop row and no set), rows whose hand no set answers keep `''`; nothing re-analysed |
+| 22 | `0022_hud_settings.sql` | (T3) `hud_settings`: the user's table tiling and RNG settings (one JSON object per kind and key, synced like the designs); empty, nothing to rebuild |
 
 No migration is reserved for a later step today; each lands as the next
 free number.
@@ -1011,6 +1012,32 @@ Primary key (`site`, `size`, `format`); `STRICT, WITHOUT ROWID`.
 The worker (`rail_sync::worker`, R1.9's) sends the dirty rows every pass and
 takes the account's rows with each pull (Supabase `hud_layouts`,
 `docs/DATABASE.md`).
+
+## Table tiling and the RNG (version 21, T3)
+
+The user's table tiling and RNG settings
+(`docs/research/TABLE-TILING.md` §4.5): one JSON object per kind, the
+model `rail_hud_ipc::settings` (`TilingSettings`, `RngSettings`), which the
+app validates before it writes. This crate does not read the JSON. The app
+writes (`WriterHandle::save_hud_setting`) and reads them
+(`Reader::hud_setting`) and sends them to the HUD over the IPC
+(`tiling_changed`, `rng_changed`); the HUD's connection never reads this
+table.
+
+### `hud_settings`
+
+| Column | Type | |
+| --- | --- | --- |
+| `kind` | TEXT | `tiling` or `rng` (checked) |
+| `key` | TEXT | `default` today (1 - 64 characters, checked) |
+| `body` | TEXT | the settings as a JSON object (at most 32 KiB, checked by the writer); NULL: cleared (a tombstone) |
+| `updated_at` | INTEGER | ms; last writer wins |
+| `dirty` | INTEGER | 1: written here since the last sync |
+
+Primary key (`kind`, `key`); `STRICT, WITHOUT ROWID`. Synced by the same
+calls as the HUD's other rows (`hud_sync_dirty`, `hud_sync_pushed`,
+`hud_sync_apply`), as Supabase `hud_layouts` rows of kinds `tiling` and
+`rng`.
 
 ## The hand analysis (version 16, R5.4)
 
