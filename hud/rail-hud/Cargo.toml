@@ -86,6 +86,9 @@ windows = { version = "=0.61.3", features = [
 # (`block2`, `NSNotification`, `NSOperation` for the observer call's
 # signature); `libc`'s `kqueue` for the clients' exits. `block2` 0.6.2 is
 # in Cargo.lock already (objc2's): again no new crate.
+#
+# (T1) Table tiling's work areas: `NSScreen`'s visible frame (a feature,
+# no new crate).
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "=0.2.190"
 block2 = { version = "=0.6.2", default-features = false, features = ["std"] }
@@ -101,6 +104,7 @@ objc2-app-kit = { version = "=0.3.2", default-features = false, features = [
   "NSPanel",
   "NSResponder",
   "NSRunningApplication",
+  "NSScreen",
   "NSView",
   "NSWindow",
   "NSWorkspace",
@@ -191,6 +195,12 @@ harness = false
 # simulator's tables (AppKit again: its own `main`).
 [[test]]
 name = "macos_tracking"
+harness = false
+
+# (T1) Table tiling's monitors and placing on macOS: the work areas come
+# from `NSScreen` through the AppKit thread (its own `main` again).
+[[test]]
+name = "macos_place"
 harness = false
 
 # (R3.14) Twelve tables: the HUD process over twelve simulator tables and a

@@ -92,6 +92,28 @@
 //!   as the fallback for a client with poor accessibility and never fights
 //!   the observers: what it reports otherwise makes them read the table
 //!   again rather than placing an overlay from a description.
+//! - **T1 `monitors` / `place`** (table tiling, docs/research/TABLE-TILING.md
+//!   §4.2): the monitors are the window server's displays
+//!   (`CGGetActiveDisplayList`, the main one first and primary) with
+//!   AppKit's `NSScreen.visibleFrame` - without the menu bar and the Dock -
+//!   flipped into the top-left space as the work area ([`monitors_of`]);
+//!   `NSScreen` is AppKit's, so it is asked of the AppKit thread over the
+//!   [`Link`] (or read directly on the main thread; a finding-only backend
+//!   off it reports the whole display). Pixels are the display's own:
+//!   points times its scale, as a window on it is reported. `place` needs
+//!   Accessibility, as the find does, and nothing more: the window's
+//!   accessibility element (by its window number), refused in full screen
+//!   ([`PlatformError::FullScreen`]: its own Space, left alone), a
+//!   minimised one brought back first (`AXMinimized`), then `AXPosition`
+//!   and `AXSize` - the frame around the wanted client area, the title bar
+//!   on top ([`window_frame_for`]) - and both read back: the setters return
+//!   once the client has applied them (or after the 0.25 s timeout every
+//!   request here has: a busy client is [`PlatformError::NotResponding`]),
+//!   so the read-back is the client's answer, no waiting needed. Because
+//!   pixels are per display, a pixel rect can name a place on two displays
+//!   of different scales; [`placement_scale`] reads it at the scale of the
+//!   one that holds it, the window's own on a tie. Called on the engine's
+//!   thread like the find (accessibility calls are not AppKit's).
 //!
 //! **`unsafe`** lives in `ffi`, `appkit` and `drive` only (compiled on
 //! macOS), one small function per call with its own `#[allow(unsafe_code)]`
@@ -211,8 +233,20 @@ pub struct AxWindow {
 /// A display: where it is (points) and its backing scale.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Display {
+    /// (T1) The `CGDirectDisplayID`.
+    pub id: u32,
     pub bounds: Frame,
     pub scale_permille: u32,
+}
+
+/// (T1) A screen as AppKit has it (`NSScreen`), thousandths of a point in
+/// **AppKit's** space (the main display's bottom-left the origin, y up):
+/// its whole frame and its visible frame - without the menu bar and the
+/// Dock.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Screen {
+    pub frame: Frame,
+    pub visible: Frame,
 }
 
 /// What one look at the system saw: the window server's windows and their
@@ -780,6 +814,106 @@ pub fn to_appkit(frame: &Frame, main_height: i64) -> Frame {
 /// `scale_permille`, the global top-left space), thousandths of a point.
 pub fn appkit_frame(client: &Rect, scale_permille: u32, main_height: i64) -> Frame {
     to_appkit(&rect_points(client, scale_permille), main_height)
+}
+
+// ---------------------------------------------------------------------
+// T1: monitors and placing a table (docs/research/TABLE-TILING.md §4.2) -
+// plain Rust, unit-tested on every system; `ffi` and `appkit` (macOS) read
+// and set what these decide.
+
+/// (T1) How long `place` waits for a minimised table to be back on screen
+/// (the Dock's animation) before it gives up.
+pub const RESTORE_WAIT: std::time::Duration = std::time::Duration::from_millis(1500);
+
+/// (T1) A frame of AppKit's space back in the global top-left space:
+/// [`to_appkit`] again (the flip is its own inverse).
+pub fn from_appkit(frame: &Frame, main_height: i64) -> Frame {
+    to_appkit(frame, main_height)
+}
+
+/// (T1) The monitors from the displays (the main one first, as
+/// [`displays`] lists them) and AppKit's screens: bounds and work area in
+/// the trait's physical pixels - points times the display's own scale, as
+/// a window on it is reported. A screen is the display whose bounds it
+/// covers (within a point); its visible frame is the work area. Without
+/// AppKit's screens (no AppKit thread) the work area is the whole display.
+pub fn monitors_of(displays: &[Display], screens: &[Screen]) -> Vec<super::Monitor> {
+    let main_height = displays.first().map_or(0, |d| d.bounds.height);
+    displays
+        .iter()
+        .enumerate()
+        .map(|(index, display)| {
+            let work = screens
+                .iter()
+                .find(|s| from_appkit(&s.frame, main_height).close_to(&display.bounds))
+                .map_or(display.bounds, |s| from_appkit(&s.visible, main_height));
+            super::Monitor {
+                id: super::MonitorId(u64::from(display.id)),
+                primary: index == 0,
+                bounds: to_pixels(&display.bounds, display.scale_permille),
+                work_area: to_pixels(&work, display.scale_permille),
+                scale_permille: display.scale_permille,
+            }
+        })
+        .collect()
+}
+
+/// (T1) The scale a wanted client area (the trait's pixels) is read at.
+/// Pixels here are points times the scale of the display a window is on,
+/// so the same pixel rect means a place on each display of another scale:
+/// the display that holds the largest share of the rect read at its own
+/// scale wins - [`monitors_of`]' work areas are read back exactly so -;
+/// on a tie the display the window is on `now` (its frame, points), then
+/// the first (the main one). 1000 without displays.
+pub fn placement_scale(want: &Rect, displays: &[Display], now: &Frame) -> u32 {
+    let current = displays
+        .iter()
+        .map(|d| (d.bounds.overlap(now), d.id))
+        .filter(|(area, _)| *area > 0)
+        .max_by_key(|(area, _)| *area)
+        .map(|(_, id)| id);
+    let share = |display: &Display| {
+        let points = rect_points(want, display.scale_permille);
+        let area = i128::from(points.width) * i128::from(points.height);
+        if area <= 0 {
+            0
+        } else {
+            display.bounds.overlap(&points) * 1000 / area
+        }
+    };
+    displays
+        .iter()
+        .fold(None, |best: Option<(i128, bool, u32)>, d| {
+            let key = (share(d), current == Some(d.id));
+            match best {
+                Some((s, c, _)) if (s, c) >= key => best,
+                _ => Some((key.0, key.1, d.scale_permille)),
+            }
+        })
+        .map_or(1000, |(_, _, scale)| scale)
+}
+
+/// (T1) The window frame (thousandths of a point, the global top-left
+/// space: what `AXPosition` and `AXSize` take) whose client area is `want`
+/// (pixels at `scale_permille`): the title bar `title_bar` on top of it.
+pub fn window_frame_for(want: &Rect, scale_permille: u32, title_bar: i64) -> Frame {
+    let client = rect_points(want, scale_permille);
+    Frame {
+        x: client.x,
+        y: client.y - title_bar,
+        width: client.width,
+        height: client.height + title_bar,
+    }
+}
+
+/// (T1) The client area of a window whose frame is `frame` (points), as
+/// the find reports it: less the title bar, in pixels at the scale of the
+/// display it overlaps most.
+pub fn placed_client(frame: &Frame, title_bar: i64, displays: &[Display]) -> Rect {
+    to_pixels(
+        &client_frame(frame, title_bar),
+        display_scale(frame, displays),
+    )
 }
 
 /// (R3.12) A point of AppKit's screen space (thousandths of a point, y up)
@@ -1849,6 +1983,101 @@ impl Platform for MacosBackend {
     fn follow_times_us(&self) -> Vec<u64> {
         MacosBackend::follow_times_us(self)
     }
+
+    /// (T1) The displays with AppKit's visible frames ([`monitors_of`]):
+    /// asked of the AppKit thread when there is one, read here when this is
+    /// the main thread, else the whole displays (no work area known).
+    fn monitors(&mut self) -> Vec<super::Monitor> {
+        #[cfg(target_os = "macos")]
+        {
+            let screens = match &self.link {
+                Some(link) => link.screens().unwrap_or_default(),
+                None => objc2::MainThreadMarker::new()
+                    .map(appkit::screens)
+                    .unwrap_or_default(),
+            };
+            monitors_of(&ffi::displays(), &screens)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            Vec::new()
+        }
+    }
+
+    /// (T1) Window `id`'s client area to `want` through the Accessibility
+    /// API (the module's T1 note).
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        #[cfg(target_os = "macos")]
+        {
+            self.place_now(id, want)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = (id, want);
+            Err(PlatformError::Unsupported("placing windows (macOS only)"))
+        }
+    }
+}
+
+#[cfg(target_os = "macos")]
+impl MacosBackend {
+    /// (T1) [`Platform::place`] on macOS: the window's accessibility
+    /// element (Accessibility needed); a full-screen window refused; a
+    /// minimised one brought back and waited for - on screen, its frame the
+    /// same on two reads in a row, the Dock's animation over
+    /// ([`RESTORE_WAIT`]); then `AXPosition` and `AXSize` set to the frame
+    /// around `want` ([`window_frame_for`], at [`placement_scale`], the
+    /// title bar as measured now or before) and read back. When the frame
+    /// read back is not the one set, both are set once more: the system
+    /// keeps a window on screen at its old size while it moves (so the
+    /// position can come out shifted), and a client may still be settling;
+    /// what the second read says is the answer.
+    fn place_now(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        let number = u32::try_from(id.0).map_err(|_| PlatformError::Gone(id))?;
+        if !ffi::trusted() {
+            return Err(PlatformError::PermissionNeeded(Permission::Accessibility));
+        }
+        let cg = ffi::cg_window(number).ok_or(PlatformError::Gone(id))?;
+        let element = ffi::window_element(cg.pid, number, &cg.bounds)?;
+        if ffi::ax_window(&element).fullscreen {
+            return Err(PlatformError::FullScreen(id));
+        }
+        if ffi::minimized(&element) {
+            ffi::unminimize(&element, number)?;
+            let deadline = std::time::Instant::now() + RESTORE_WAIT;
+            let mut last = None;
+            loop {
+                let back =
+                    !ffi::minimized(&element) && ffi::cg_window(number).is_some_and(|w| w.onscreen);
+                let frame = back.then(|| ffi::frame_of(&element)).flatten();
+                if frame.is_some() && frame == last {
+                    break;
+                }
+                if std::time::Instant::now() >= deadline {
+                    return Err(PlatformError::NotResponding(id));
+                }
+                last = frame;
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+        }
+        let ax = ffi::ax_window(&element);
+        let now = ax.frame.unwrap_or(cg.bounds);
+        let bar = title_bar(&ax, &now)
+            .or_else(|| known_title_bar(&self.memory, number))
+            .unwrap_or(0);
+        let displays = ffi::displays();
+        let target = window_frame_for(&want, placement_scale(&want, &displays, &now), bar);
+        let set = || -> Result<Frame, PlatformError> {
+            ffi::set_position(&element, number, target.x, target.y)?;
+            ffi::set_size(&element, number, target.width, target.height)?;
+            ffi::frame_of(&element).ok_or(PlatformError::Gone(id))
+        };
+        let mut got = set()?;
+        if !got.close_to(&target) {
+            got = set()?;
+        }
+        Ok(placed_client(&got, bar, &displays))
+    }
 }
 
 impl Drop for MacosBackend {
@@ -1920,10 +2149,12 @@ mod tests {
     }
 
     const RETINA: Display = Display {
+        id: 1,
         bounds: Frame::points(0, 0, 1512, 982),
         scale_permille: 2000,
     };
     const PLAIN: Display = Display {
+        id: 2,
         bounds: Frame::points(1512, 0, 1920, 1080),
         scale_permille: 1000,
     };
@@ -2563,6 +2794,140 @@ mod tests {
         // Flipping twice is the identity.
         let any = Frame::points(-300, 1200, 640, 480);
         assert_eq!(to_appkit(&to_appkit(&any, main_height), main_height), any);
+    }
+
+    /// (T1) Monitors: each display's bounds and AppKit's visible frame
+    /// (menu bar, Dock) flipped back into the top-left space, in pixels at
+    /// the display's own scale; the main display first and primary; the
+    /// whole display without AppKit's screens.
+    #[test]
+    fn monitors_from_displays_and_screens() {
+        let screens = [
+            // The main display: a 33 pt menu bar on top, a 60 pt Dock below.
+            Screen {
+                frame: Frame::points(0, 0, 1512, 982),
+                visible: Frame::points(0, 60, 1512, 889),
+            },
+            // A 1x display to its right, tops aligned: AppKit's y is
+            // negative (below the main display's bottom); a 25 pt menu bar.
+            Screen {
+                frame: Frame::points(1512, -98, 1920, 1080),
+                visible: Frame::points(1512, -98, 1920, 1055),
+            },
+        ];
+        let monitors = monitors_of(&[RETINA, PLAIN], &screens);
+        assert_eq!(monitors.len(), 2);
+        let (main, right) = (&monitors[0], &monitors[1]);
+        assert_eq!(
+            (main.id.0, main.primary, main.scale_permille),
+            (1, true, 2000)
+        );
+        assert_eq!(
+            main.bounds,
+            Rect {
+                x: 0,
+                y: 0,
+                width: 3024,
+                height: 1964
+            }
+        );
+        assert_eq!(
+            main.work_area,
+            Rect {
+                x: 0,
+                y: 66,
+                width: 3024,
+                height: 1778
+            }
+        );
+        assert_eq!(
+            (right.id.0, right.primary, right.scale_permille),
+            (2, false, 1000)
+        );
+        assert_eq!(
+            right.work_area,
+            Rect {
+                x: 1512,
+                y: 25,
+                width: 1920,
+                height: 1055
+            }
+        );
+        assert!(main.bounds.contains(&main.work_area));
+        assert!(right.bounds.contains(&right.work_area));
+        // Without AppKit's screens: the whole display.
+        let bare = monitors_of(&[RETINA, PLAIN], &[]);
+        assert_eq!(bare[0].work_area, bare[0].bounds);
+        assert_eq!(bare[1].work_area, bare[1].bounds);
+        assert!(monitors_of(&[], &screens).is_empty());
+        assert_eq!(from_appkit(&screens[1].frame, 982 * MILLI), PLAIN.bounds);
+    }
+
+    /// (T1) Which scale a wanted pixel rect is read at, with a Retina main
+    /// display and a 1x one to its right (whose pixel rects overlap the
+    /// main one's): the display that holds it, else the window's own on a
+    /// tie, else the main one.
+    #[test]
+    fn the_scale_a_placement_is_read_at() {
+        let displays = [RETINA, PLAIN];
+        let on_main = Frame::points(100, 100, 640, 480);
+        let on_right = Frame::points(1700, 100, 640, 480);
+        // Inside the main display's work area at 2x, nowhere at 1x.
+        let left = Rect {
+            x: 100,
+            y: 100,
+            width: 1280,
+            height: 960,
+        };
+        assert_eq!(placement_scale(&left, &displays, &on_right), 2000);
+        // On the right display at 1x; only partly on the main one at 2x.
+        let right = Rect {
+            x: 2500,
+            y: 100,
+            width: 800,
+            height: 600,
+        };
+        assert_eq!(placement_scale(&right, &displays, &on_main), 1000);
+        // Wholly on either, read at its scale: the window's display decides,
+        // then the main one.
+        let both = Rect {
+            x: 2000,
+            y: 100,
+            width: 1000,
+            height: 800,
+        };
+        assert_eq!(placement_scale(&both, &displays, &on_right), 1000);
+        assert_eq!(placement_scale(&both, &displays, &on_main), 2000);
+        assert_eq!(
+            placement_scale(&both, &displays, &Frame::points(-5000, 0, 10, 10)),
+            2000
+        );
+        assert_eq!(placement_scale(&both, &[], &on_main), 1000);
+    }
+
+    /// (T1) The window frame for a wanted client area puts the title bar
+    /// on top of it, and its client area read back is the wanted one.
+    #[test]
+    fn a_placed_frame_and_its_client_area() {
+        let want = Rect {
+            x: 200,
+            y: 156,
+            width: 1280,
+            height: 960,
+        };
+        let frame = window_frame_for(&want, 2000, 28 * MILLI);
+        assert_eq!(frame, Frame::points(100, 50, 640, 508));
+        assert_eq!(placed_client(&frame, 28 * MILLI, &[RETINA, PLAIN]), want);
+        // Borderless, on the 1x display.
+        let want = Rect {
+            x: 1600,
+            y: 40,
+            width: 700,
+            height: 500,
+        };
+        let frame = window_frame_for(&want, 1000, 0);
+        assert_eq!(frame, Frame::points(1600, 40, 700, 500));
+        assert_eq!(placed_client(&frame, 0, &[RETINA, PLAIN]), want);
     }
 
     /// (R3.12) A mouse location in AppKit's space back to the client pixel

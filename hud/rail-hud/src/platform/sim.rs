@@ -20,6 +20,16 @@
 //! The events reach the backend through a [`SimFeed`]: from a file the
 //! simulator's standard output is written to ([`SimBackend::tail`], the
 //! HUD's `--sim-events`), or line by line in tests.
+//!
+//! (T1) **Monitors and placing**, so table tiling runs headless: the
+//! monitors are a set the test chooses ([`SimBackend::set_monitors`]; one
+//! 1920 x 1080 monitor with a 40 px taskbar by default), and
+//! [`Platform::place`] records every placement ([`SimBackend::placements`]),
+//! gives the client area a client would accept ([`SimBackend::set_accept`]:
+//! all of it by default; a room that keeps its aspect ratio, say,
+//! otherwise) and puts the table there - restored - as a window manager
+//! would, so the next `poll_events` reports the move. The simulator's own
+//! windows are not moved: a later `window` event of its own wins.
 
 #![forbid(unsafe_code)]
 
@@ -35,8 +45,8 @@ use serde_json::Value;
 
 pub use super::SIM_PROCESS;
 use super::{
-    OverlayFrame, Platform, PlatformError, ProcessInfo, Rect, TableEvent, TableMatcher,
-    TableWindow, WindowId,
+    Monitor, MonitorId, OverlayFrame, Platform, PlatformError, ProcessInfo, Rect, TableEvent,
+    TableMatcher, TableWindow, WindowId,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -135,8 +145,45 @@ pub struct SimBackend {
     site: String,
     tracked: BTreeMap<WindowId, SimTable>,
     overlays: BTreeMap<WindowId, OverlayFrame>,
+    /// (T1) What `monitors` reports.
+    monitors: Vec<Monitor>,
+    /// (T1) Every `place` that reached a table: the window, the client area
+    /// asked for and the one accepted, in order.
+    placements: Vec<Placement>,
+    /// (T1) The client area a placement ends with, from the one asked for.
+    accept: fn(Rect) -> Rect,
     /// Ends the tailing thread.
     stop: Arc<AtomicBool>,
+}
+
+/// (T1) One placement the sim backend carried out.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Placement {
+    pub id: WindowId,
+    pub want: Rect,
+    pub accepted: Rect,
+}
+
+/// (T1) The sim backend's monitors until a test sets its own: one 1920 x
+/// 1080 monitor at 100 %, a 40 px taskbar at the bottom.
+pub fn default_monitors() -> Vec<Monitor> {
+    vec![Monitor {
+        id: MonitorId(1),
+        primary: true,
+        bounds: Rect {
+            x: 0,
+            y: 0,
+            width: 1920,
+            height: 1080,
+        },
+        work_area: Rect {
+            x: 0,
+            y: 0,
+            width: 1920,
+            height: 1040,
+        },
+        scale_permille: 1000,
+    }]
 }
 
 impl Drop for SimBackend {
@@ -156,6 +203,9 @@ impl SimBackend {
                 site: site.into(),
                 tracked: BTreeMap::new(),
                 overlays: BTreeMap::new(),
+                monitors: default_monitors(),
+                placements: Vec::new(),
+                accept: |want| want,
                 stop: Arc::new(AtomicBool::new(false)),
             },
             feed,
@@ -199,6 +249,22 @@ impl SimBackend {
     /// The last frame drawn over each window (what a test checks).
     pub fn overlays(&self) -> &BTreeMap<WindowId, OverlayFrame> {
         &self.overlays
+    }
+
+    /// (T1) The monitors `monitors` reports from now on.
+    pub fn set_monitors(&mut self, monitors: Vec<Monitor>) {
+        self.monitors = monitors;
+    }
+
+    /// (T1) The client area a placement ends with, from the one asked for
+    /// (a client that keeps its aspect ratio or a minimum size).
+    pub fn set_accept(&mut self, accept: fn(Rect) -> Rect) {
+        self.accept = accept;
+    }
+
+    /// (T1) Every placement so far, in order.
+    pub fn placements(&self) -> &[Placement] {
+        &self.placements
     }
 
     /// What the Windows backend would paint over a window now: its last
@@ -344,6 +410,27 @@ impl Platform for SimBackend {
     fn remove_overlay(&mut self, id: WindowId) {
         self.overlays.remove(&id);
     }
+
+    fn monitors(&mut self) -> Vec<Monitor> {
+        self.monitors.clone()
+    }
+
+    /// (T1) The table of window `id` - tracked or not, as long as the
+    /// simulator has it - put where the client accepts, restored.
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        let number = u32::try_from(id.0).map_err(|_| PlatformError::Gone(id))?;
+        let accepted = (self.accept)(want);
+        let mut feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
+        let table = feed
+            .tables
+            .get_mut(&number)
+            .ok_or(PlatformError::Gone(id))?;
+        table.client = accepted;
+        table.minimized = false;
+        drop(feed);
+        self.placements.push(Placement { id, want, accepted });
+        Ok(accepted)
+    }
 }
 
 #[cfg(test)]
@@ -435,6 +522,96 @@ mod tests {
         );
         assert!(backend.poll_events().is_empty());
         assert!(backend.find_tables(&[]).expect("find").is_empty());
+    }
+
+    /// (T1) The sim backend's monitors are the test's, and a placement is
+    /// recorded, takes what the client accepts, restores a minimised table
+    /// and reaches `poll_events` as a move.
+    #[test]
+    fn placements_are_recorded_and_applied() {
+        let (mut backend, feed) = SimBackend::new("pokerstars");
+        started(&feed);
+        table(&feed, 1, "Hygiea - $0.05/$0.10");
+        table(&feed, 2, "Florence - $0.05/$0.10");
+        assert_eq!(backend.monitors(), default_monitors());
+        let two = vec![
+            default_monitors().remove(0),
+            Monitor {
+                id: MonitorId(2),
+                primary: false,
+                bounds: Rect {
+                    x: 1920,
+                    y: 0,
+                    width: 2560,
+                    height: 1440,
+                },
+                work_area: Rect {
+                    x: 1920,
+                    y: 0,
+                    width: 2560,
+                    height: 1400,
+                },
+                scale_permille: 1250,
+            },
+        ];
+        backend.set_monitors(two.clone());
+        assert_eq!(backend.monitors(), two);
+
+        let found = backend.find_tables(&[]).expect("find");
+        backend.track(&found[0]).expect("track");
+        let want = Rect {
+            x: 1920,
+            y: 0,
+            width: 1280,
+            height: 700,
+        };
+        assert_eq!(backend.place(WindowId(1), want), Ok(want));
+        assert_eq!(
+            backend.poll_events(),
+            [TableEvent::Moved {
+                id: WindowId(1),
+                client: want,
+                scale_permille: 1000
+            }]
+        );
+        // A client that keeps 4:3 by its width; a minimised table restored.
+        backend.set_accept(|want| Rect {
+            height: want.width * 3 / 4,
+            ..want
+        });
+        feed.push_line(
+            &serde_json::json!({"event": "window", "table": 2, "title": "Florence - $0.05/$0.10",
+                "x": 0, "y": 0, "width": 640, "height": 480, "minimized": true})
+            .to_string(),
+        );
+        let accepted = backend.place(WindowId(2), want).expect("placed");
+        assert_eq!(accepted.height, 960);
+        let table = backend
+            .find_tables(&[])
+            .expect("find")
+            .into_iter()
+            .find(|t| t.id == WindowId(2))
+            .expect("table 2");
+        assert_eq!((table.client, table.minimized), (accepted, false));
+        assert_eq!(
+            backend.place(WindowId(9), want),
+            Err(PlatformError::Gone(WindowId(9)))
+        );
+        assert_eq!(
+            backend.placements(),
+            [
+                Placement {
+                    id: WindowId(1),
+                    want,
+                    accepted: want
+                },
+                Placement {
+                    id: WindowId(2),
+                    want,
+                    accepted
+                }
+            ]
+        );
     }
 
     /// A title the simulator's regex does not read is not a table.

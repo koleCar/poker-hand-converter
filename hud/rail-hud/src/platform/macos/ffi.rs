@@ -268,6 +268,7 @@ pub(super) fn displays() -> Vec<Display> {
             let mode = CGDisplayCopyDisplayMode(id);
             let mode = mode.as_deref();
             Display {
+                id,
                 bounds: Frame {
                     x: milli(rect.origin.x),
                     y: milli(rect.origin.y),
@@ -333,7 +334,7 @@ fn size_of(element: &AXUIElement, name: &'static str) -> Option<CGSize> {
 }
 
 /// An element's frame (`AXPosition` + `AXSize`), points.
-fn frame_of(element: &AXUIElement) -> Option<Frame> {
+pub(super) fn frame_of(element: &AXUIElement) -> Option<Frame> {
     let origin = point_of(element, "AXPosition")?;
     let size = size_of(element, "AXSize")?;
     Some(Frame {
@@ -480,6 +481,125 @@ pub(super) fn thread_cpu_us() -> u64 {
     }
     u64::try_from(now.tv_sec).unwrap_or(0) * 1_000_000
         + u64::try_from(now.tv_nsec).unwrap_or(0) / 1000
+}
+
+/// (T1) Process `pid`'s accessibility window whose window-server number is
+/// `window` - or, where the system does not say the number
+/// (`_AXUIElementGetWindow` missing), the first without one whose frame is
+/// `bounds` within a point, as the find pairs them ([`super::pair`]);
+/// `Gone` when the Accessibility API does not list it (closed, or on
+/// another Space), `NotResponding` when the client did not answer.
+pub(super) fn window_element(
+    pid: u32,
+    window: u32,
+    bounds: &Frame,
+) -> Result<CFRetained<AXUIElement>, PlatformError> {
+    let gone = || PlatformError::Gone(crate::platform::WindowId(u64::from(window)));
+    let app = app_element(pid).map_err(|_| gone())?;
+    let elements = window_elements(&app)
+        .map_err(|_| PlatformError::NotResponding(crate::platform::WindowId(u64::from(window))))?;
+    let numbers: Vec<Option<u32>> = elements.iter().map(|e| window_id_of(e)).collect();
+    let by_number = numbers.iter().position(|n| *n == Some(window));
+    let by_frame = || {
+        elements
+            .iter()
+            .zip(&numbers)
+            .position(|(e, n)| n.is_none() && frame_of(e).is_some_and(|f| f.close_to(bounds)))
+    };
+    let index = by_number.or_else(by_frame).ok_or_else(gone)?;
+    elements.into_iter().nth(index).ok_or_else(gone)
+}
+
+/// (T1) Whether the element says it is minimised now (`AXMinimized`).
+pub(super) fn minimized(element: &AXUIElement) -> bool {
+    bool_of(element, "AXMinimized").unwrap_or(false)
+}
+
+/// (T1) A value of thousandths of a point as a `CGFloat` of points.
+#[allow(clippy::float_arithmetic)]
+fn cg_points(value: i64) -> f64 {
+    f64::from(i32::try_from(value).unwrap_or(0)) / 1000.0
+}
+
+/// (T1) An accessibility error as the platform's: the permission revoked,
+/// the window gone, the client too busy to answer in [`AX_TIMEOUT_S`].
+fn ax_failure(error: AXError, window: u32, what: &str) -> PlatformError {
+    let id = crate::platform::WindowId(u64::from(window));
+    if error == AXError::APIDisabled {
+        PlatformError::PermissionNeeded(crate::platform::Permission::Accessibility)
+    } else if error == AXError::InvalidUIElement {
+        PlatformError::Gone(id)
+    } else if error == AXError::CannotComplete {
+        PlatformError::NotResponding(id)
+    } else {
+        PlatformError::Os(format!(
+            "setting {what} of window {window}: error {}",
+            error.0
+        ))
+    }
+}
+
+/// (T1) Set an `AXValue` attribute (`AXPosition`'s `CGPoint`, `AXSize`'s
+/// `CGSize`): the client applies it on its main thread and answers, within
+/// [`AX_TIMEOUT_S`].
+#[allow(unsafe_code)]
+fn set_value<T>(
+    element: &AXUIElement,
+    window: u32,
+    attribute: &'static str,
+    kind: AXValueType,
+    value: &T,
+) -> Result<(), PlatformError> {
+    let pointer = NonNull::from(value).cast::<c_void>();
+    // SAFETY: `kind` names the type `value` is (`set_position` passes a
+    // `CGPoint` with `AXValueType::CGPoint`, `set_size` a `CGSize` with
+    // `AXValueType::CGSize`: the only callers); the function copies it.
+    let value = unsafe { AXValue::new(kind, pointer) }
+        .ok_or_else(|| PlatformError::Os("AXValueCreate".to_owned()))?;
+    let name = CFString::from_static_str(attribute);
+    // SAFETY: the element, the name and the value are alive for the call.
+    let error = unsafe { element.set_attribute_value(&name, &value) };
+    if error == AXError::Success {
+        Ok(())
+    } else {
+        Err(ax_failure(error, window, attribute))
+    }
+}
+
+/// (T1) The window's top-left to (`x`, `y`), thousandths of a point, the
+/// global top-left space.
+pub(super) fn set_position(
+    element: &AXUIElement,
+    window: u32,
+    x: i64,
+    y: i64,
+) -> Result<(), PlatformError> {
+    let at = CGPoint::new(cg_points(x), cg_points(y));
+    set_value(element, window, "AXPosition", AXValueType::CGPoint, &at)
+}
+
+/// (T1) The window's size to `width` x `height`, thousandths of a point.
+pub(super) fn set_size(
+    element: &AXUIElement,
+    window: u32,
+    width: i64,
+    height: i64,
+) -> Result<(), PlatformError> {
+    let size = CGSize::new(cg_points(width), cg_points(height));
+    set_value(element, window, "AXSize", AXValueType::CGSize, &size)
+}
+
+/// (T1) Bring a minimised window back from the Dock (`AXMinimized` false).
+#[allow(unsafe_code)]
+pub(super) fn unminimize(element: &AXUIElement, window: u32) -> Result<(), PlatformError> {
+    let name = CFString::from_static_str("AXMinimized");
+    // SAFETY: the element, the name and the value are alive for the call.
+    let error = unsafe { element.set_attribute_value(&name, CFBoolean::new(false)) };
+    if error == AXError::Success {
+        Ok(())
+    } else {
+        Err(ax_failure(error, window, "AXMinimized"))
+    }
 }
 
 /// (R3.13) A window's title now (`AXTitle`), `None` when it did not answer.
