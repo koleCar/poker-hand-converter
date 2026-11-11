@@ -66,8 +66,8 @@ Three rules from the architecture hold here:
 | --- | --- |
 | `lib.rs` | Command line (`Args`), exit codes, `run`: load the shipped `sites.json`, merge `--policy`, connect to the app, run the engine |
 | `main.rs` | Exits with `rail_hud::main_with(args)`; forbids `unsafe` |
-| `engine.rs` | The one loop: looks for tables every 500 ms (the safety net once hooks follow them), attaches or refuses each window once, matches each `hand_imported` to its window by exact table name, re-reads, redraws, reports health, latency and `tables_open` |
-| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows) and `RngPermit` (draw the RNG over them), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter. Not used by the engine yet (T2, T4) |
+| `engine.rs` | The one loop: looks for tables every 500 ms (the safety net once hooks follow them), attaches or refuses each window once, matches each `hand_imported` to its window by exact table name, re-reads, redraws, reports health, latency and `tables_open`; when tiling is on (T2), feeds the tiler and its worker |
+| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows) and `RngPermit` (draw the RNG over them), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter. The engine's tiling takes a room predicate (T2); wiring `TilingPermit` into it is T3, the RNG T4 |
 | `data.rs` | The read path: `Reader::hud_totals` over the table's segment, `hud_own_totals` on rooms that allow statistics from your own hands only, the user's own statistics, `PRAGMA data_version` to notice commits without a message |
 | `panel.rs` | What a seat's panel says: the definitions with `hud: panel` (VPIP, PFR, 3B, F3B, CB, AFq), colour band, reliability opacity, hand count; the player's colour, note mark and labels where allowed; `PanelDesign::enforce` applies a room's restrictions |
 | `design.rs` | HUD designs, presets (`config/hud/presets.json`: cash, tournament, Spin, and tournament by stack depth for ACR only), assignments per room / format / table size, `check_for_room` |
@@ -76,13 +76,15 @@ Three rules from the architecture hold here:
 | `scene.rs` | A frame turned into rectangles and text at physical pixels, under the permit; palette (near-black panels, light blue / off-white / light orange figures), the legend (`-` `=` `+`) |
 | `latency.rs` | The HUD's half of the latency budget: message arrival to rollups re-read |
 | `list.rs` | `--list-windows`: the read-only diagnostic that captures real table titles, redacted |
-| `platform/mod.rs` | The `Platform` trait (find tables, follow, overlay, permission; for table tiling, T1: `monitors` and `place`) and table identity |
+| `tiling.rs` | Table tiling (T2), platform-free: layouts and slots (serde, camelCase, monitors by order not id), the auto grid (largest tables of every room's aspect, spread over the monitors, edge to edge on outer rects, kept while it still fits), assignment (first free slot, stacking, stable, pins), fit, the one retry of a refused size, auto-switch by table count |
+| `placer.rs` | Tiling's placement worker: a thread of its own that places through the backend's `Placer`, never while a mouse button is down or within 600 ms of a click, the queue coalesced per window |
+| `platform/mod.rs` | The `Platform` trait (find tables, follow, overlay, permission; for table tiling, T1: `monitors` and `place`, T2: `frame_insets` and a `Placer` for the worker - placing and the mouse) and table identity |
 | `platform/matcher.rs` | A room's processes and title regex; the table name read from a title; `table_key` equality (`Table 1` is not `Table 11`) |
 | `platform/tracking.rs` | The platform-free half of following a window (moves, resizes, minimise, z-order, coalescing per window) |
 | `platform/drag.rs` | The platform-free half of dragging a panel: a press that never moves is a click (the popup) |
-| `platform/windows.rs` + `windows/` | `EnumWindows` discovery, layered no-activate overlay owned by the table window (Direct2D, DirectWrite), WinEvent hooks; monitors (`EnumDisplayMonitors`, `rcWork`) and `place` (`SetWindowPos` with `SWP_ASYNCWINDOWPOS`, never waiting on a client, the client area read back within 300 ms) |
-| `platform/macos.rs` + `macos/` | Window-server list for bounds, Accessibility API for titles, non-activating `NSPanel` overlays (Core Graphics, Core Text) on AppKit's main thread, `AXObserver` tracking; monitors (displays + `NSScreen.visibleFrame`) and `place` (`AXPosition` + `AXSize`, read back; full-screen tables left alone) |
-| `platform/sim.rs` | A fake backend driven by the simulator's events, so the whole data path runs headless on every OS; a chosen monitor set and recorded placements for table tiling |
+| `platform/windows.rs` + `windows/` | `EnumWindows` discovery, layered no-activate overlay owned by the table window (Direct2D, DirectWrite), WinEvent hooks; monitors (`EnumDisplayMonitors`, `rcWork`) and `place` (`SetWindowPos` with `SWP_ASYNCWINDOWPOS`, never waiting on a client, the client area read back within 300 ms); T2: the visible frame (DWM's extended frame bounds) and the mouse (`GetAsyncKeyState`) |
+| `platform/macos.rs` + `macos/` | Window-server list for bounds, Accessibility API for titles, non-activating `NSPanel` overlays (Core Graphics, Core Text) on AppKit's main thread, `AXObserver` tracking; monitors (displays + `NSScreen.visibleFrame`) and `place` (`AXPosition` + `AXSize`, read back; full-screen tables left alone); T2: the title bar as the frame, the mouse from Core Graphics' event source state (no permission) |
+| `platform/sim.rs` | A fake backend driven by the simulator's events, so the whole data path runs headless on every OS; a chosen monitor set and recorded placements for table tiling; T2: per-monitor scales, frames, tables posing as other rooms, a client that refuses sizes, a mouse a test presses |
 | `platform/none.rs` | Systems without a HUD (Linux, CI only): no tables, ever |
 
 ### One hand, from file to panel
@@ -110,6 +112,27 @@ has ended, the watcher stores it only once its file is quiet, and the HUD
 reads nothing but the store (`tests/in_play.rs`). A restarted HUD shows a
 table's numbers at once from its newest stored hand when that hand is from
 the last 15 minutes.
+
+### Table tiling (T2)
+
+Off unless switched on (`Hud::enable_tiling`; for development
+`--tiling auto`, which tiles the simulator's windows only; the app's settings
+arrive over the IPC in T3). Then:
+
+1. Every look hands `tiling.rs` the tables whose room the policy allows -
+   attached or refused by the HUD alike, tiling is not a HUD (T0's
+   `TilingPermit` is the predicate T3 passes) - each with its frame. The
+   platform's moves, minimises and closes follow between looks; the
+   monitors are read again every 2 s.
+2. A new table takes the first free slot of the layout in force (the auto
+   grid by default) or stacks; a closed one frees its slot; the grid changes
+   shape only when a better one exists for the new count. Each table's
+   target is the largest client area of its room's aspect whose outer rect
+   fits the slot, centred.
+3. The moves go to `placer.rs`'s thread, which waits for the mouse to be
+   quiet and calls `place`; the answers come back at the next tick. A
+   refused size is kept and centred once; a table the user drags is pinned
+   until a re-tile. The overlays follow the tables as they move.
 
 ### Room restrictions
 
@@ -142,6 +165,7 @@ with a token as the first line of standard input. For development:
 | `--policy <file>` | A stricter `sites.json` merged over the shipped one |
 | `--latency-report <file>` | Every hand's latency chain, one JSON object a line |
 | `--perf-report <file>` | Paint and follow times, re-reads and looks for tables, written at shutdown |
+| `--tiling auto` | (T2, development) Tile the simulator's windows in the auto grid; never a real client's |
 | `--list-windows [--process <exe>] [--you <name>] [--try-title <regex>]` | List visible windows with redacted titles (see `--list-windows --help`) |
 
 Exit codes: 0 shut down (or the app is gone), 2 bad arguments, 3 could not
@@ -238,10 +262,13 @@ supervisor, headless), `data_path` (segment, own hands only, restart,
 recompute swap, the user's statistics), `in_play` (nothing from the hand in
 play), `supervisor`, then per OS against the simulator's real windows -
 `windows_tables`, `windows_overlay`, `windows_tracking`, `windows_seats`,
-`windows_designs`, `windows_compliance`, `windows_place`, `macos_tables`,
+`windows_designs`, `windows_compliance`, `windows_place`, `windows_tiling`
+(T2: three tables tiled on their visible frames), `macos_tables`,
 `macos_overlay`, `macos_tracking`, `macos_place` (T1: monitors, tables
 moved and resized through `place` and read back; on macOS with
-Accessibility) - and `twelve_tables` (R3.14's budget: twelve tables posing
+Accessibility) - `tiling_sim` (T2, headless: twelve tables of two rooms
+over two monitors, stacking, closing, a refused size, a pinned table, the
+mouse held, a refused room never moved) and `twelve_tables` (R3.14's budget: twelve tables posing
 as PokerStars plus one posing as GGPoker, which must get no overlay).
 
 ```bash

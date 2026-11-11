@@ -13,7 +13,13 @@
 //! (T1, docs/research/TABLE-TILING.md §4.2) Table tiling's two platform
 //! calls: [`Platform::monitors`] (each monitor's bounds and work area) and
 //! [`Platform::place`] (move and resize a table, the rect it accepted read
-//! back). Nothing calls them yet: the tiling engine is T2.
+//! back). The tiling engine is T2 (`crate::tiling`, `crate::placer`), which
+//! adds what it needs of a backend: [`Platform::frame_insets`] (the frame
+//! around a table's client area, so tables tile on their outer rects) and
+//! [`Platform::placer`], a [`Placer`] that places windows and reads the
+//! mouse ([`MouseState`]: the safety rule that never moves a table under a
+//! click) from a thread of its own, so twelve placements never hold the
+//! loop.
 //!
 //! Units: positions and sizes are **physical pixels** of the client area
 //! (what the table is drawn in, without the frame), the scale is the
@@ -108,6 +114,114 @@ pub fn outer_for(client: &Rect, outer: &Rect, want: &Rect) -> Rect {
         width: uint(i64::from(want.width) + extra_w),
         height: uint(i64::from(want.height) + extra_h),
     }
+}
+
+/// (T2) The frame a window draws around its client area, physical pixels
+/// on each side: title bar, borders - on Windows the **visible** frame
+/// (DWM's extended frame bounds, without the invisible resize borders), on
+/// macOS the title bar. Table tiling lays the outer rects edge to edge and
+/// sizes the client areas from them, so rooms whose frames differ still
+/// tile without gaps or overlap.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Insets {
+    pub left: u32,
+    pub top: u32,
+    pub right: u32,
+    pub bottom: u32,
+}
+
+impl Insets {
+    /// The outer rect around `client`.
+    pub fn outer(&self, client: &Rect) -> Rect {
+        let int = |v: i64| i32::try_from(v).unwrap_or(if v < 0 { i32::MIN } else { i32::MAX });
+        Rect {
+            x: int(i64::from(client.x) - i64::from(self.left)),
+            y: int(i64::from(client.y) - i64::from(self.top)),
+            width: client.width.saturating_add(self.width()),
+            height: client.height.saturating_add(self.height()),
+        }
+    }
+
+    /// The client area inside `outer`.
+    pub fn client(&self, outer: &Rect) -> Rect {
+        let int = |v: i64| i32::try_from(v).unwrap_or(if v < 0 { i32::MIN } else { i32::MAX });
+        Rect {
+            x: int(i64::from(outer.x) + i64::from(self.left)),
+            y: int(i64::from(outer.y) + i64::from(self.top)),
+            width: outer.width.saturating_sub(self.width()),
+            height: outer.height.saturating_sub(self.height()),
+        }
+    }
+
+    /// Left plus right.
+    pub fn width(&self) -> u32 {
+        self.left.saturating_add(self.right)
+    }
+
+    /// Top plus bottom.
+    pub fn height(&self) -> u32 {
+        self.top.saturating_add(self.bottom)
+    }
+
+    /// Measured at scale `from`, as it is at scale `to` (thousandths;
+    /// rounded): a frame scales with its monitor's dpi (Windows'
+    /// per-monitor frames, macOS's title bar in points).
+    pub fn scaled(&self, from: u32, to: u32) -> Self {
+        if from == to || from == 0 {
+            return *self;
+        }
+        let scale = |v: u32| {
+            let n = u64::from(v) * u64::from(to);
+            let d = u64::from(from);
+            u32::try_from((n + d / 2) / d).unwrap_or(u32::MAX)
+        };
+        Self {
+            left: scale(self.left),
+            top: scale(self.top),
+            right: scale(self.right),
+            bottom: scale(self.bottom),
+        }
+    }
+
+    /// The insets of a window whose client area is `client` inside its
+    /// outer rect `outer` (0 on a side where the client area pokes out).
+    pub fn between(client: &Rect, outer: &Rect) -> Self {
+        let side = |v: i64| u32::try_from(v.max(0)).unwrap_or(0);
+        Self {
+            left: side(i64::from(client.x) - i64::from(outer.x)),
+            top: side(i64::from(client.y) - i64::from(outer.y)),
+            right: side(outer.right() - client.right()),
+            bottom: side(outer.bottom() - client.bottom()),
+        }
+    }
+}
+
+/// (T2) The mouse as the tiling safety rules need it: a table is never
+/// moved while a button is down, nor within
+/// [`crate::placer::QUIET_AFTER_CLICK`] of the last click (anywhere: the
+/// system does not say on which window, and a click near a table is reason
+/// enough to wait). Read without any permission on either system.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct MouseState {
+    /// A mouse button is down now.
+    pub down: bool,
+    /// How long ago the last button went down, when the system says
+    /// (macOS); `None`: it does not (Windows, which has no such query
+    /// without a hook - [`crate::placer`] samples `down` instead, and a
+    /// press since the last sample reads as a click now).
+    pub since_click: Option<std::time::Duration>,
+}
+
+/// (T2) What table tiling's worker thread needs of a backend
+/// ([`Platform::placer`]): placing a window as [`Platform::place`] does,
+/// and the mouse. `Send`: it runs beside the loop, so a placement that
+/// waits for its read-back (300 ms on Windows) never stalls the overlays.
+pub trait Placer: Send {
+    /// As [`Platform::place`].
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError>;
+
+    /// The mouse now: cheap, sampled every few tens of milliseconds.
+    fn mouse(&mut self) -> MouseState;
 }
 
 /// (T1) A monitor's identity on its system: the `HMONITOR` (Windows), the
@@ -606,6 +720,21 @@ pub trait Platform {
         let _ = (id, want);
         Err(PlatformError::Unsupported("placing windows"))
     }
+
+    /// (T2) The frame around `window`'s client area now, at its scale
+    /// (`window.scale_permille`); `None` when the backend cannot tell (the
+    /// default: tiled as if it had none). Cheap: asked at every look for
+    /// each table tiling manages.
+    fn frame_insets(&mut self, window: &TableWindow) -> Option<Insets> {
+        let _ = window;
+        None
+    }
+
+    /// (T2) A [`Placer`] for table tiling's worker thread; `None` where the
+    /// backend places nothing (the default: tiling stays off).
+    fn placer(&mut self) -> Option<Box<dyn Placer>> {
+        None
+    }
 }
 
 /// (T1) Whether a placement has settled, for a backend whose move call
@@ -838,6 +967,40 @@ mod tests {
         assert_eq!(
             outer_for(&same, &same, &rect(9, 9, 10, 10)),
             rect(9, 9, 10, 10)
+        );
+    }
+
+    /// (T2) A frame around a client area: outer and client rects are each
+    /// other's inverse, measured from the two rects, scaled with the dpi.
+    #[test]
+    fn frames_go_around_client_areas() {
+        let frame = Insets {
+            left: 1,
+            top: 31,
+            right: 1,
+            bottom: 1,
+        };
+        let client = rect(-1919, 40, 1200, 830);
+        let outer = frame.outer(&client);
+        assert_eq!(outer, rect(-1920, 9, 1202, 862));
+        assert_eq!(frame.client(&outer), client);
+        assert_eq!(Insets::between(&client, &outer), frame);
+        assert_eq!((frame.width(), frame.height()), (2, 32));
+        // 125 %: 31 px becomes 38.75, rounded.
+        assert_eq!(
+            frame.scaled(1000, 1250),
+            Insets {
+                left: 1,
+                top: 39,
+                right: 1,
+                bottom: 1
+            }
+        );
+        assert_eq!(frame.scaled(1250, 1250), frame);
+        // A client area poking out of its "frame" measures as no border.
+        assert_eq!(
+            Insets::between(&rect(0, 0, 100, 100), &rect(5, 5, 50, 50)),
+            Insets::default()
         );
     }
 

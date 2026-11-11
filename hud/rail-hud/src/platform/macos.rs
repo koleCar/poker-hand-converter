@@ -114,6 +114,15 @@
 //!   of different scales; [`placement_scale`] reads it at the scale of the
 //!   one that holds it, the window's own on a tie. Called on the engine's
 //!   thread like the find (accessibility calls are not AppKit's).
+//! - **T2 frame and mouse** (table tiling's engine): a table's frame is
+//!   its title bar as measured ([`Platform::frame_insets`]: no side or
+//!   bottom border on macOS); the tiling worker places through
+//!   [`MacosPlacer`] - the same placement, from its own thread, with the
+//!   title bars the looks measured - and reads the mouse from Core
+//!   Graphics' combined session state (`CGEventSourceButtonState`,
+//!   `CGEventSourceSecondsSinceLastEventType` for the presses): no
+//!   permission, checked with Accessibility and Input Monitoring both
+//!   refused.
 //!
 //! **`unsafe`** lives in `ffi`, `appkit` and `drive` only (compiled on
 //! macOS), one small function per call with its own `#[allow(unsafe_code)]`
@@ -121,11 +130,12 @@
 //! and unit-tested on every system; off macOS the backend finds nothing.
 
 use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex, PoisonError};
 
 use super::tracking::Geometry;
 use super::{
-    DpiAwareness, OverlayFrame, Permission, Platform, PlatformError, RawWindow, Rect, TableEvent,
-    TableMatcher, TableWindow, WindowId, table_of,
+    DpiAwareness, MouseState, OverlayFrame, Permission, Placer, Platform, PlatformError, RawWindow,
+    Rect, TableEvent, TableMatcher, TableWindow, WindowId, table_of,
 };
 
 #[cfg(target_os = "macos")]
@@ -1513,6 +1523,9 @@ pub struct MacosBackend {
     /// (R3.14) The title bar each table window had when it was last
     /// logged ([`bar_news`]).
     bars_logged: BTreeMap<u32, String>,
+    /// (T2) The title bars measured (window number, thousandths of a
+    /// point), shared with the tiling worker's [`MacosPlacer`].
+    bars: Arc<Mutex<BTreeMap<u32, i64>>>,
     /// (R3.12) The AppKit thread, which owns the overlays; `None`: this
     /// backend draws nothing (not the HUD process's main thread, or a
     /// backend made for finding only).
@@ -1536,6 +1549,7 @@ impl MacosBackend {
             matchers: Vec::new(),
             untitled: BTreeMap::new(),
             bars_logged: BTreeMap::new(),
+            bars: Arc::default(),
             link,
             #[cfg(target_os = "macos")]
             tracker: None,
@@ -1637,6 +1651,12 @@ impl MacosBackend {
     ) -> Vec<TableWindow> {
         remember_bars(&mut self.memory, measured);
         let windows = assemble(snapshot, &mut self.memory);
+        *self.bars.lock().unwrap_or_else(PoisonError::into_inner) = self
+            .memory
+            .iter()
+            .filter(|(_, known)| known.bar_known)
+            .map(|(number, known)| (*number, known.title_bar))
+            .collect();
         untitled_waiting(&windows, &self.memory, &mut self.untitled, now);
         let tables: Vec<TableWindow> = windows
             .iter()
@@ -2017,66 +2037,139 @@ impl Platform for MacosBackend {
             Err(PlatformError::Unsupported("placing windows (macOS only)"))
         }
     }
+
+    /// (T2) The title bar as measured ([`known_title_bar`]) in pixels at
+    /// the window's scale; no side or bottom border. `None` while it is not
+    /// measured.
+    fn frame_insets(&mut self, window: &TableWindow) -> Option<super::Insets> {
+        let bar = self.title_bar_of(window.id)?;
+        Some(super::Insets {
+            top: u32::try_from(pixels(bar, window.scale_permille).max(0)).unwrap_or(0),
+            ..super::Insets::default()
+        })
+    }
+
+    /// (T2) [`MacosPlacer`], on macOS.
+    fn placer(&mut self) -> Option<Box<dyn Placer>> {
+        cfg!(target_os = "macos").then(|| {
+            Box::new(MacosPlacer {
+                bars: Arc::clone(&self.bars),
+            }) as Box<dyn Placer>
+        })
+    }
 }
 
 #[cfg(target_os = "macos")]
 impl MacosBackend {
-    /// (T1) [`Platform::place`] on macOS: the window's accessibility
-    /// element (Accessibility needed); a full-screen window refused; a
-    /// minimised one brought back and waited for - on screen, its frame the
-    /// same on two reads in a row, the Dock's animation over
-    /// ([`RESTORE_WAIT`]); then `AXPosition` and `AXSize` set to the frame
-    /// around `want` ([`window_frame_for`], at [`placement_scale`], the
-    /// title bar as measured now or before) and read back. When the frame
-    /// read back is not the one set, both are set once more: the system
-    /// keeps a window on screen at its old size while it moves (so the
-    /// position can come out shifted), and a client may still be settling;
-    /// what the second read says is the answer.
+    /// (T1) [`Platform::place`] on macOS ([`place_window`]), the title bar
+    /// as this backend last measured it when it cannot be read now.
     fn place_now(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
-        let number = u32::try_from(id.0).map_err(|_| PlatformError::Gone(id))?;
-        if !ffi::trusted() {
-            return Err(PlatformError::PermissionNeeded(Permission::Accessibility));
-        }
-        let cg = ffi::cg_window(number).ok_or(PlatformError::Gone(id))?;
-        let element = ffi::window_element(cg.pid, number, &cg.bounds)?;
-        if ffi::ax_window(&element).fullscreen {
-            return Err(PlatformError::FullScreen(id));
-        }
-        if ffi::minimized(&element) {
-            ffi::unminimize(&element, number)?;
-            let deadline = std::time::Instant::now() + RESTORE_WAIT;
-            let mut last = None;
-            loop {
-                let back =
-                    !ffi::minimized(&element) && ffi::cg_window(number).is_some_and(|w| w.onscreen);
-                let frame = back.then(|| ffi::frame_of(&element)).flatten();
-                if frame.is_some() && frame == last {
-                    break;
-                }
-                if std::time::Instant::now() >= deadline {
-                    return Err(PlatformError::NotResponding(id));
-                }
-                last = frame;
-                std::thread::sleep(std::time::Duration::from_millis(50));
+        let known = u32::try_from(id.0)
+            .ok()
+            .and_then(|number| known_title_bar(&self.memory, number));
+        place_window(id, want, known)
+    }
+}
+
+/// (T1) [`Platform::place`] on macOS: the window's accessibility element
+/// (Accessibility needed); a full-screen window refused; a minimised one
+/// brought back and waited for - on screen, its frame the same on two
+/// reads in a row, the Dock's animation over ([`RESTORE_WAIT`]); then
+/// `AXPosition` and `AXSize` set to the frame around `want`
+/// ([`window_frame_for`], at [`placement_scale`], the title bar as measured
+/// now, else `known_bar`) and read back. When the frame read back is not
+/// the one set, both are set once more: the system keeps a window on
+/// screen at its old size while it moves (so the position can come out
+/// shifted), and a client may still be settling; what the second read says
+/// is the answer. (T2) A free function: the tiling worker's
+/// [`MacosPlacer`] calls it from its own thread (accessibility calls are
+/// not AppKit's).
+#[cfg(target_os = "macos")]
+fn place_window(id: WindowId, want: Rect, known_bar: Option<i64>) -> Result<Rect, PlatformError> {
+    let number = u32::try_from(id.0).map_err(|_| PlatformError::Gone(id))?;
+    if !ffi::trusted() {
+        return Err(PlatformError::PermissionNeeded(Permission::Accessibility));
+    }
+    let cg = ffi::cg_window(number).ok_or(PlatformError::Gone(id))?;
+    let element = ffi::window_element(cg.pid, number, &cg.bounds)?;
+    if ffi::ax_window(&element).fullscreen {
+        return Err(PlatformError::FullScreen(id));
+    }
+    if ffi::minimized(&element) {
+        ffi::unminimize(&element, number)?;
+        let deadline = std::time::Instant::now() + RESTORE_WAIT;
+        let mut last = None;
+        loop {
+            let back =
+                !ffi::minimized(&element) && ffi::cg_window(number).is_some_and(|w| w.onscreen);
+            let frame = back.then(|| ffi::frame_of(&element)).flatten();
+            if frame.is_some() && frame == last {
+                break;
             }
+            if std::time::Instant::now() >= deadline {
+                return Err(PlatformError::NotResponding(id));
+            }
+            last = frame;
+            std::thread::sleep(std::time::Duration::from_millis(50));
         }
-        let ax = ffi::ax_window(&element);
-        let now = ax.frame.unwrap_or(cg.bounds);
-        let bar = title_bar(&ax, &now)
-            .or_else(|| known_title_bar(&self.memory, number))
-            .unwrap_or(0);
-        let displays = ffi::displays();
-        let target = window_frame_for(&want, placement_scale(&want, &displays, &now), bar);
-        let set = || -> Result<Frame, PlatformError> {
-            ffi::set_position(&element, number, target.x, target.y)?;
-            ffi::set_size(&element, number, target.width, target.height)?;
-            ffi::frame_of(&element).ok_or(PlatformError::Gone(id))
-        };
-        let mut got = set()?;
-        if !got.close_to(&target) {
-            got = set()?;
+    }
+    let ax = ffi::ax_window(&element);
+    let now = ax.frame.unwrap_or(cg.bounds);
+    let bar = title_bar(&ax, &now).or(known_bar).unwrap_or(0);
+    let displays = ffi::displays();
+    let target = window_frame_for(&want, placement_scale(&want, &displays, &now), bar);
+    let set = || -> Result<Frame, PlatformError> {
+        ffi::set_position(&element, number, target.x, target.y)?;
+        ffi::set_size(&element, number, target.width, target.height)?;
+        ffi::frame_of(&element).ok_or(PlatformError::Gone(id))
+    };
+    let mut got = set()?;
+    if !got.close_to(&target) {
+        got = set()?;
+    }
+    Ok(placed_client(&got, bar, &displays))
+}
+
+/// (T2) The tiling worker's [`Placer`] on macOS: [`place_window`] with the
+/// title bars the backend's looks measured (shared, as the worker runs
+/// beside the loop), and the mouse from Core Graphics' event source state
+/// (`CGEventSourceButtonState`, `CGEventSourceSecondsSinceLastEventType`:
+/// no permission - neither Accessibility nor Input Monitoring; checked on
+/// macOS 26 with both refused).
+#[derive(Debug, Clone, Default)]
+pub struct MacosPlacer {
+    bars: Arc<Mutex<BTreeMap<u32, i64>>>,
+}
+
+impl Placer for MacosPlacer {
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        #[cfg(target_os = "macos")]
+        {
+            let known = u32::try_from(id.0).ok().and_then(|number| {
+                self.bars
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .get(&number)
+                    .copied()
+            });
+            place_window(id, want, known)
         }
-        Ok(placed_client(&got, bar, &displays))
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = (id, want, &self.bars);
+            Err(PlatformError::Unsupported("placing windows (macOS only)"))
+        }
+    }
+
+    fn mouse(&mut self) -> MouseState {
+        #[cfg(target_os = "macos")]
+        {
+            ffi::mouse()
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            MouseState::default()
+        }
     }
 }
 

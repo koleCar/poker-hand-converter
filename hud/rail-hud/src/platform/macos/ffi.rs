@@ -29,9 +29,10 @@ use objc2_core_foundation::{
 };
 use objc2_core_graphics::{
     CGDirectDisplayID, CGDisplayBounds, CGDisplayCopyDisplayMode, CGDisplayMode, CGError,
-    CGGetActiveDisplayList, CGMainDisplayID, CGPreflightScreenCaptureAccess,
-    CGWindowListCopyWindowInfo, CGWindowListOption, kCGNullWindowID, kCGWindowBounds,
-    kCGWindowIsOnscreen, kCGWindowLayer, kCGWindowNumber, kCGWindowOwnerName, kCGWindowOwnerPID,
+    CGEventSource, CGEventSourceStateID, CGEventType, CGGetActiveDisplayList, CGMainDisplayID,
+    CGMouseButton, CGPreflightScreenCaptureAccess, CGWindowListCopyWindowInfo, CGWindowListOption,
+    kCGNullWindowID, kCGWindowBounds, kCGWindowIsOnscreen, kCGWindowLayer, kCGWindowNumber,
+    kCGWindowOwnerName, kCGWindowOwnerPID,
 };
 
 use super::{AxWindow, CgWindow, Display, Frame, milli};
@@ -605,4 +606,35 @@ pub(super) fn unminimize(element: &AXUIElement, window: u32) -> Result<(), Platf
 /// (R3.13) A window's title now (`AXTitle`), `None` when it did not answer.
 pub(super) fn title_of(window: &AXUIElement) -> Option<String> {
     string_of(window, "AXTitle")
+}
+
+/// (T2) The mouse for table tiling's safety rules: a button down now
+/// (`CGEventSourceButtonState`) and the time since the last press of any
+/// button (`CGEventSourceSecondsSinceLastEventType`), both of the combined
+/// session state. Neither needs a permission - no Accessibility, no Input
+/// Monitoring: they report the session's state, not its events (checked on
+/// macOS 26 with both refused).
+pub(super) fn mouse() -> crate::platform::MouseState {
+    let state = CGEventSourceStateID::CombinedSessionState;
+    let down = [
+        CGMouseButton::Left,
+        CGMouseButton::Right,
+        CGMouseButton::Center,
+    ]
+    .into_iter()
+    .any(|button| CGEventSource::button_state(state, button));
+    let since_click = [
+        CGEventType::LeftMouseDown,
+        CGEventType::RightMouseDown,
+        CGEventType::OtherMouseDown,
+    ]
+    .into_iter()
+    .filter_map(|kind| {
+        std::time::Duration::try_from_secs_f64(CGEventSource::seconds_since_last_event_type(
+            state, kind,
+        ))
+        .ok()
+    })
+    .min();
+    crate::platform::MouseState { down, since_click }
 }

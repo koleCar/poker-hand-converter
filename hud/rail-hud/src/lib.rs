@@ -26,6 +26,9 @@
 //!   `--latency-report`, a debug build's line on the table);
 //! - [`list`]: `--list-windows`, the diagnostic that captures real table
 //!   titles (redacted) for `sites.json`.
+//! - [`tiling`] and [`placer`] (T2): table tiling - where each table goes
+//!   (platform-free) and the thread that moves them when the mouse is
+//!   quiet; off unless switched on (`--tiling auto` for development).
 //!
 //! No real-time assistance of any kind (guideline §7): the HUD shows the
 //! players' own statistics from the store, nothing about the hand in play.
@@ -40,9 +43,11 @@ pub mod latency;
 pub mod layout;
 pub mod list;
 pub mod panel;
+pub mod placer;
 pub mod platform;
 pub mod scene;
 pub mod seats;
+pub mod tiling;
 
 use std::ffi::OsString;
 use std::io::BufRead as _;
@@ -91,6 +96,11 @@ Measuring (R3.7): --latency-report <file> writes every hand's latency chain
 overlays' paints and follows (p50 / p95 / max us), the re-reads, the looks
 for tables and their interval.
 
+Table tiling (T2, development only; the app sends the real settings in T3):
+  --tiling auto         lay the table simulator's windows out in the auto
+                        grid (never a real client's: no policy decides
+                        rooms yet)
+
 Windows (macOS: the titles need the Accessibility permission):
   --platform native     this system's backend (default)
     the table simulator's real windows as a room's (tests only):
@@ -127,6 +137,9 @@ pub struct Args {
     pub perf_report: Option<PathBuf>,
     /// (R3.10) The app's cached remote `sites.json`.
     pub policy: Option<PathBuf>,
+    /// (T2) `--tiling auto`: the auto grid over the simulator's windows
+    /// (development; [`engine::TilingConfig::development`]).
+    pub tiling: bool,
 }
 
 impl Args {
@@ -151,6 +164,10 @@ impl Args {
                 "--platform" => platform = value("--platform")?,
                 "--sim-events" => parsed.sim_events = Some(PathBuf::from(value("--sim-events")?)),
                 "--sim-site" => sites.push(value("--sim-site")?),
+                "--tiling" => match value("--tiling")?.as_str() {
+                    "auto" => parsed.tiling = true,
+                    other => return Err(format!("--tiling takes auto, not {other}")),
+                },
                 "--policy" => parsed.policy = Some(PathBuf::from(value("--policy")?)),
                 "--latency-report" => {
                     parsed.latency_report = Some(PathBuf::from(value("--latency-report")?));
@@ -396,6 +413,11 @@ fn run(args: &Args, compliance: Compliance, link: Option<platform::macos::Link>)
             }
         }
     }
+    if args.tiling
+        && let Err(error) = hud.enable_tiling(engine::TilingConfig::development())
+    {
+        eprintln!("rail-hud: --tiling: {error}");
+    }
     eprintln!(
         "rail-hud: running (pid {}, {}, store {})",
         std::process::id(),
@@ -477,6 +499,15 @@ mod tests {
         assert_eq!(args.latency_report, Some(PathBuf::from("/t/chain.jsonl")));
         assert!(parse(&["--standalone", "--latency-report"]).is_err());
         assert_eq!(parse(&["--help"]), Err(String::new()));
+        // (T2) Tiling for development: the auto grid only.
+        assert!(
+            parse(&["--standalone", "--tiling", "auto"])
+                .expect("tiling")
+                .tiling
+        );
+        assert!(!parse(&["--standalone"]).expect("no tiling").tiling);
+        assert!(parse(&["--standalone", "--tiling", "grid"]).is_err());
+        assert!(parse(&["--standalone", "--tiling"]).is_err());
 
         // The simulator's real windows (native backend, test-only room):
         // both flags, a regex that compiles; with the app's channel too

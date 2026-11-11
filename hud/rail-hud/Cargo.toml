@@ -88,7 +88,8 @@ windows = { version = "=0.61.3", features = [
 # in Cargo.lock already (objc2's): again no new crate.
 #
 # (T1) Table tiling's work areas: `NSScreen`'s visible frame (a feature,
-# no new crate).
+# no new crate). (T2) Its safety rules read the mouse from Core Graphics'
+# event source state (`CGEventSource`, a feature: no new crate).
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "=0.2.190"
 block2 = { version = "=0.6.2", default-features = false, features = ["std"] }
@@ -141,6 +142,7 @@ objc2-core-graphics = { version = "=0.3.2", default-features = false, features =
   "CGDirectDisplay",
   "CGError",
   "CGEvent",
+  "CGEventSource",
   "CGEventTypes",
   "CGGeometry",
   "CGImage",
