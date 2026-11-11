@@ -35,7 +35,7 @@
       "additionalProperties": false,
       "required": [
         "id", "name", "kind", "parser", "network", "operating", "skins",
-        "paths", "files", "tables", "hud", "anonymisation", "docs", "notes"
+        "paths", "files", "tables", "hud", "tiling", "rng", "anonymisation", "docs", "notes"
       ],
       "properties": {
         "id": {
@@ -68,6 +68,14 @@
         "files": { "$ref": "#/$defs/files" },
         "tables": { "$ref": "#/$defs/tables" },
         "hud": { "$ref": "#/$defs/hud" },
+        "tiling": {
+          "description": "Whether Rail may move and resize this room's table windows (a table manager; T0, docs/research/TILING-POLICIES.md). Independent of hud.",
+          "$ref": "#/$defs/permission"
+        },
+        "rng": {
+          "description": "Whether Rail may draw an on-screen random number generator on this room's tables (T0). Independent of hud and tiling.",
+          "$ref": "#/$defs/permission"
+        },
         "anonymisation": {
           "description": "What player names in this client's files are (docs/DATABASE.md, Player identity and anonymized rooms): the site-level default of web/src/lib/db/anonymization.ts. null when no parser reads the files.",
           "enum": ["none", "positional", "opaque-id", null]
@@ -85,6 +93,8 @@
           "else": {
             "properties": {
               "hud": { "properties": { "allowed": { "not": { "const": true } } } },
+              "tiling": { "properties": { "allowed": { "not": { "const": true } } } },
+              "rng": { "properties": { "allowed": { "not": { "const": true } } } },
               "tables": {
                 "properties": {
                   "process": {
@@ -306,6 +316,25 @@
           "source": { "type": "string", "pattern": "^https://" },
           "checkedAt": { "$ref": "#/$defs/date" },
           "restrictions": { "$ref": "#/$defs/hudRestrictions" }
+        }
+      }
+    },
+    "permission": {
+      "description": "A room's policy on a tool that is not a HUD (tiling, rng). allowed: true only from the room's own https page, dated; false prohibited (or an explicit whitelist that does not name Rail); null unknown, which counts as no. A downloaded file can only make it stricter.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "source", "checkedAt", "notes"],
+      "properties": {
+        "allowed": { "type": ["boolean", "null"] },
+        "source": { "type": ["string", "null"] },
+        "checkedAt": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "if": { "properties": { "allowed": { "const": true } } },
+      "then": {
+        "properties": {
+          "source": { "type": "string", "pattern": "^https://" },
+          "checkedAt": { "$ref": "#/$defs/date" }
         }
       }
     },

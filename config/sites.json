@@ -67,10 +67,23 @@
         },
         "notes": "Permitted with restrictions: the Third Party Tools and Services Policy permits tools that \"monitor and display numerical-based statistics in-game\" from your own play. Its Reference Guide (last updated 21 Sep 2026, linked from the page) adds: stats only from hands the user played (up to 30 observed hands per session to seed a HUD), raw counts / opportunities, colour by at most two raw thresholds, pop-ups allowed; no stats split by card values, no display that changes with game state (position, stacks) or opponent tendencies, no labels or categories, no hand charts, no graph of more than one data point. Read on pokerstars.uk: pokerstars.com is blocked from Croatia. docs/research/HUD-POLICIES.md."
       },
+      "tiling": {
+        "allowed": true,
+        "source": "https://cms.rationalcdn.com/v3/assets/blteecf9626d9a38b03/blt02c85850f029e8fb/tpt-reference-guide.pdf",
+        "checkedAt": "2026-11-11",
+        "notes": "Permitted: the Third Party Tools and Services Policy Reference Guide (last updated 21 Sep 2026) lists \"Tiles tables based on big blind amount\" among permitted utility scripts. A script may not use card values, relative position or any player's action (\"Repositions a table if dealt a premium pair\" is prohibited), so tiling must never react to the hand in play. pokerstars.uk now redirects to poker.betfair.com (blocked from Croatia); the PDF was read directly. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": null,
+        "source": "https://cms.rationalcdn.com/v3/assets/blteecf9626d9a38b03/blt02c85850f029e8fb/tpt-reference-guide.pdf",
+        "checkedAt": "2026-11-11",
+        "notes": "Not established: the Reference Guide does not mention a random number generator. It prohibits tools that \"randomize the size of bets\", randomised decision delays, and any tool that \"reduces the requirement of a human to make decisions\"; whether an on-screen RNG falls under that is unclear. Ask PokerStars support in writing. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/pokerstars.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": ""
     },
@@ -113,10 +126,23 @@
         "restrictions": null,
         "notes": "Prohibited: the Security & Ecology Policy (version 20260313) lists \"solvers, charts, or HUDs\" among prohibited tools; only GG's own Smart HUD / PokerCraft. Also no live files and hashed opponents. Its section 7.2 also bars 3rd-party tools that import or convert hand histories - an import question for the owner (docs/research/HUD-POLICIES.md)."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "https://ggpoker.com/network/security-ecology-policy/",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited: the Security & Ecology Policy (version 20261029) prohibits any external software that \"supports, interacts with, augments, or manipulates a client\"; general-purpose utilities only if they run completely independently. Moving and resizing the client's windows interacts with it. Secondary sources report GGPoker's ban of 15 Oct 2026 naming Jurojin and Intuitive Tables. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://ggpoker.com/network/security-ecology-policy/",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited: the same zero-tolerance rule on auxiliary software; section 2 also bans real-time assistance, defined as any external assistance including software and apps. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "opaque-id",
       "docs": [
         "docs/research/hh-formats/ggpoker.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "Natural8, BestPoker and ClubGG are GG skins with no real sample (docs/unsupported-formats.md); they get entries of their own once a file confirms the grammar."
     },
@@ -171,10 +197,23 @@
         },
         "notes": "Permitted: the poker rules (section 1.2, PDF of 10 Oct 2023 linked from the page) list as authorised software that stores your own statistics and analyses opponent data you collected yourself (\"profiling\"; \"Exemples : HoldemManager, PokerTracker, Xeester\"). Prohibited: solvers, ICM and equity calculators, dynamic ranges, seating scripts, some dynamic Hand2Note features, data mining / sharing. A tool not on the list needs integrity@winamax.com's prior approval - Rail fits the profiling category, but asking is the safe step. winamax.fr only; .es not read."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "https://operator-front-static-cdn.winamax.fr/img/content/poker/2023/20231010_cgu/reglement-poker.pdf",
+        "checkedAt": "2026-11-11",
+        "notes": "Not permitted without approval: the poker rules (section 1.2, PDF of 10 Oct 2023) list the authorised helper programs (odds and starting hands, trackers, hotkey programs such as WinHotKey) and a program not on that list needs the prior agreement of integrity@winamax.com. A table manager is not a listed category. An e-mail to integrity@winamax.com could make this true. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://operator-front-static-cdn.winamax.fr/img/content/poker/2023/20231010_cgu/reglement-poker.pdf",
+        "checkedAt": "2026-11-11",
+        "notes": "Not permitted without approval: an RNG is not on the authorised list of section 1.2, and anything else needs integrity@winamax.com's prior agreement. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/winamax.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": ""
     },
@@ -217,10 +256,23 @@
         "restrictions": null,
         "notes": "Not established. 888poker.com is blocked from Croatia; the Ontario user agreement (5 Aug 2026) permits tracking software showing in-game stats on information you have \"at that specific table\", which may mean the current session only; secondary sources say third-party HUDs are allowed except on SNAP. Live files and the current client not checked."
       },
+      "tiling": {
+        "allowed": null,
+        "source": "https://www.888.ca/security-and-privacy/user-agreement/",
+        "checkedAt": "2026-11-11",
+        "notes": "Not established for 888poker.com (blocked from Croatia). The Ontario user agreement (version 2.0, 5 Aug 2026) permits tools that \"improve your experience without influencing the game itself\", e.g. enhanced display and keyboard shortcuts, which reads as allowing a table manager; but it is a regulated market's agreement, not enough for true. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://www.888.ca/security-and-privacy/user-agreement/",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited on the 888 agreement that could be read (Ontario, 5 Aug 2026): anything not on the Permitted Aids list is a prohibited aid, and an RNG that decides between actions is none of them (the display tools allowed must not influence the game). 888poker.com could not be read from Croatia. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/888poker.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "Parser verified on the 2012-15 files of the corpus."
     },
@@ -263,10 +315,23 @@
         "restrictions": null,
         "notes": "Prohibited: \"the only third-party tools that are permitted\" while the client runs are ten table/caption tools, no HUD among them; Super HUD is named as prohibited. Hand histories come afterwards from MyGame, opponents anonymised, so no live files either."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "https://www.partypoker.com/en/poker/p/safer-poker",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited for Rail: \"the only third-party tools that are permitted\" while the client is open are ten named tools (PartyCaption, StackAndTile, PlaceMint, Table Tamer, StarsHelper, Mosaic 2, IntuitiveTables, Universal Replayer, Jurojin Poker, Slot Poker Pro); any other tool is prohibited while the client runs. Owner, 2026-11-11: Rail does not apply to the list for now. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://www.partypoker.com/en/poker/p/safer-poker",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited for Rail: the same whitelist, which does not name Rail; the page also refuses permission for timing randomisers. Owner, 2026-11-11: Rail does not apply to the list for now. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/partypoker.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "Parser verified on the 2012-15 files of the corpus."
     },
@@ -309,10 +374,23 @@
         "restrictions": null,
         "notes": "Network: per skin. No skin's own policy page could be read (betfair, bet365, Betsson, William Hill: blocked from Croatia or silent on HUDs); secondary sources say iPoker permits third-party HUDs beside its built-in one. Not split: no skin clearly allows one on an official page."
       },
+      "tiling": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Network: per skin, and a network entry never allows. RedStar Poker's own page permits only programs that collect statistics and hand histories (so no there); no other skin's page was read. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Network: per skin. RedStar Poker prohibits software that \"advises or removes the decision process\"; no other skin's page was read. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/ipoker.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "No skin name appears in the files, so the skins cannot be told apart from the text; which skins exist today is for R1.4 / R3.0."
     },
@@ -367,10 +445,23 @@
         },
         "notes": "Permitted with restrictions: policy 4.1.3 accepts \"Hand trackers and Heads Up Display (HUD) type tools\" with numeric stats from your own hands only and no information from the current hand in play. Prohibited: player labelling, data-mined hands, real-time advice, and (4.2.11) tools that change or overlap ACR's own table graphics - HUD panels must not cover them. WPN's other skins not checked."
       },
+      "tiling": {
+        "allowed": true,
+        "source": "https://www.acrpoker.eu/security/",
+        "checkedAt": "2026-11-11",
+        "notes": "Permitted: policy 4.1.7 accepts \"Table arranger tools that tile up tables based on player preferences.\" 4.2.11 still applies: nothing may change or overlap ACR's own table graphics. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": null,
+        "source": "https://www.acrpoker.eu/security/",
+        "checkedAt": "2026-11-11",
+        "notes": "Not established: no policy item names a random number generator. 4.1.0 accepts tools that improve playing performance if they pose no threat to the games' integrity, and 4.2.3 prohibits real-time advice; an RNG is neither named nor excluded. Ask ACR support in writing. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/acr-wpn.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "The data-mined dialect writes numeric ids for names; such hands are opaque-id per hand (warning numeric-player-ids). Black Chip Poker, True Poker and Ya Poker are named as WPN skins in the research and write the same text; they get entries when R1.4 finds their clients."
     },
@@ -413,10 +504,23 @@
         "restrictions": null,
         "notes": "Prohibited since 9 Jun 2026: HUDs and statistical overlays (PokerTracker, Hold'em Manager, Hand2Note, DriveHUD) are banned, only CoinPoker's built-in HUD. The page refuses scripted fetches (403); read through a search engine's copy (policy dated 25 Jun 2026). Also no local hand histories (R1.4)."
       },
+      "tiling": {
+        "allowed": true,
+        "source": "https://coinpoker.com/wp-content/uploads/2026/06/Terms_and_Conditions_2026.pdf",
+        "checkedAt": "2026-11-11",
+        "notes": "Permitted: the Terms and Conditions (2026) define Permitted Tools as tools without gameplay assistance that \"may include table management software, hotkey tools\", subject to the Third-Party Tools & Software Policy. That policy page (https://coinpoker.com/third-party-tools/) answers scripted fetches with 403; secondary reports of it say stacking, tiling and arranging windows is acceptable within reasonable limits. Confidence medium: the owner should read the policy page in a browser. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://coinpoker.com/wp-content/uploads/2026/06/Terms_and_Conditions_2026.pdf",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited: the Terms and Conditions (2026) define Prohibited Software as any tool or overlay giving a direct or indirect gameplay advantage or strategic assistance, naming decision engines and recommendation engines. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/coinpoker.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": ""
     },
@@ -459,10 +563,23 @@
         "restrictions": null,
         "notes": "Prohibited: \"No 3rd party software is allowed at Unibet Poker\"; the poker rules (v3.0, 14 Oct 2024) name hand trackers and HUDs as prohibited programs it detects."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited: \"No 3rd party software is allowed at Unibet Poker\". docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited: \"No 3rd party software is allowed at Unibet Poker\". docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/unibet.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": ""
     },
@@ -512,10 +629,23 @@
         "restrictions": null,
         "notes": "Network: per skin. BetOnline, SportsBetting and TigerGaming refuse scripted fetches (403); a search engine's copy of BetOnline's help centre says own-play trackers are permitted, an older rules page lists them as banned while playing. Not split: no skin's page could be read."
       },
+      "tiling": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Network: per skin, and a network entry never allows. BetOnline, SportsBetting and TigerGaming refuse scripted fetches (403); no skin's policy on table managers could be read. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Network: per skin; no skin's policy could be read. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/chico.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "The first four skin names are printed in real files; Tiger Gaming and SportsBetting.ag Poker only in a parser's source. Which skins operate today is not established."
     },
@@ -562,10 +692,23 @@
         "restrictions": null,
         "notes": "Anonymous names: \"User IDs are hidden. Instead, a number is assigned to each player.\" A HUD has nothing to attach statistics to, and hand histories are downloaded afterwards."
       },
+      "tiling": {
+        "allowed": null,
+        "source": "https://www.ignitioncasino.eu/terms-of-service",
+        "checkedAt": "2026-11-11",
+        "notes": "Network (Ignition, Bovada, Bodog). The terms (latest update 10 Nov 2020) prohibit robots and \"external player assistance programs\" and say nothing about table managers. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": null,
+        "source": "https://www.ignitioncasino.eu/terms-of-service",
+        "checkedAt": "2026-11-11",
+        "notes": "Network. The terms prohibit \"external player assistance programs\" without saying whether an RNG is one. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "positional",
       "docs": [
         "docs/research/hh-formats/ignition-bodog-bovada.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "Brand strings seen in real files: Ignition, Bovada, Bodog, Bodog.com, Bodog.eu, Bodog UK."
     },
@@ -615,10 +758,23 @@
         "restrictions": null,
         "notes": "Not established: no official terms or third-party-software page found on the web; the rules are in the app. The client writes live files (R1.4) and names are persistent in the corpus."
       },
+      "tiling": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Not established: no official terms or third-party-software page on the web; the rules are inside the app. The owner can read the in-app terms or ask support. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Not established: as for tiling. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/weplay.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": ""
     },
@@ -661,10 +817,23 @@
         "restrictions": null,
         "notes": "No desktop client and no live files (mobile-only app with an in-app viewer): nothing for a desktop HUD to attach to. The room's own policy was not looked up."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/pokerbros.md",
+        "checkedAt": "2026-11-11",
+        "notes": "No desktop client (mobile-only app): no table window to arrange. docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/pokerbros.md",
+        "checkedAt": "2026-11-11",
+        "notes": "No desktop client: no table window to draw on. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/pokerbros.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": ""
     },
@@ -706,6 +875,18 @@
         "checkedAt": "2026-10-14",
         "restrictions": null,
         "notes": "Closed: the network shut down in 2016. Import only."
+      },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
       },
       "anonymisation": "none",
       "docs": [
@@ -753,6 +934,18 @@
         "restrictions": null,
         "notes": "Closed: no live site exists. Import only."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/full-tilt.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/full-tilt.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/full-tilt.md",
@@ -798,6 +991,18 @@
         "checkedAt": "2026-10-14",
         "restrictions": null,
         "notes": "Closed: shut down through the mid-2010s. Import only."
+      },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
       },
       "anonymisation": "none",
       "docs": [
@@ -845,6 +1050,18 @@
         "restrictions": null,
         "notes": "Closed: wound down around 2014-15. Import only."
       },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/legacy-networks.md",
@@ -890,6 +1107,18 @@
         "checkedAt": "2026-10-14",
         "restrictions": null,
         "notes": "Closed in 2022. Import only."
+      },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/run-it-once.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/run-it-once.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
       },
       "anonymisation": "none",
       "docs": [
@@ -937,6 +1166,18 @@
         "restrictions": null,
         "notes": "Not a room: Rail's own text format, no client to attach to."
       },
+      "tiling": {
+        "allowed": false,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Not a room: Rail's own text format, no client."
+      },
+      "rng": {
+        "allowed": false,
+        "source": null,
+        "checkedAt": "2026-11-11",
+        "notes": "Not a room: Rail's own text format, no client."
+      },
       "anonymisation": "none",
       "docs": [
         "docs/PHF-SPEC.md"
@@ -982,11 +1223,24 @@
         "restrictions": null,
         "notes": "Prohibited: the terms' Annex A lists \"Using or attempting to use HUDS\" as a prohibited activity. Also writes no hand-history files (no export since June 2026)."
       },
+      "tiling": {
+        "allowed": true,
+        "source": "https://wptglobal.com/terms-and-conditions",
+        "checkedAt": "2026-11-11",
+        "notes": "Permitted: the terms' Annex A item 25 prohibits automated seating, betting or table monitoring software, but \"table organization and resizing tools are permitted\". docs/research/TILING-POLICIES.md."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "https://wptglobal.com/terms-and-conditions",
+        "checkedAt": "2026-11-11",
+        "notes": "Prohibited: Annex A item 6 prohibits third-party software add-ons, including any tool that \"aids in decision making of bet sizing or strategy\", which is what an RNG at the table is for. docs/research/TILING-POLICIES.md."
+      },
       "anonymisation": null,
       "docs": [
         "docs/research/hh-formats/wpt-global.md",
         "docs/unsupported-formats.md",
-        "docs/research/HUD-POLICIES.md"
+        "docs/research/HUD-POLICIES.md",
+        "docs/research/TILING-POLICIES.md"
       ],
       "notes": "No parser: docs/unsupported-formats.md, Formats known without a sample."
     },
@@ -1028,6 +1282,18 @@
         "checkedAt": "2026-10-14",
         "restrictions": null,
         "notes": "Closed: folded into Microgaming's platform. No parser."
+      },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
       },
       "anonymisation": null,
       "docs": [
@@ -1075,6 +1341,18 @@
         "checkedAt": "2026-10-14",
         "restrictions": null,
         "notes": "Closed: the network shut down in 2017. No parser."
+      },
+      "tiling": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to arrange tables of. Import only."
+      },
+      "rng": {
+        "allowed": false,
+        "source": "docs/research/hh-formats/legacy-networks.md",
+        "checkedAt": "2026-11-11",
+        "notes": "Closed: no client to draw on. Import only."
       },
       "anonymisation": null,
       "docs": [
