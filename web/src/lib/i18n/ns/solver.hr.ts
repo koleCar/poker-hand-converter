@@ -37,6 +37,8 @@ export const solverHr: Dict["solver"] = {
   unavailable: "Solver library nije postavljen na ovom serveru.",
   loadingLibrary: "Učitavam solver library…",
   loadingSolve: "Učitavam solve…",
+  solvingTurn: (iteration: number, exploitability: number | null) =>
+    exploitability === null ? `Solvam turn… ${num(iteration)} iteracija` : `Solvam turn… ${num(exploitability, 2)} % pota`,
   loadError: "Ovaj solve se nije mogao učitati. Pokušaj ponovno za trenutak.",
   retry: "Pokušaj ponovno",
 
@@ -133,6 +135,7 @@ export const solverHr: Dict["solver"] = {
     `Solvano do ${num(exploitability, 2)} % pota exploitabilityja u ${num(iterations)} iteracija.`,
   chartNote: "Preflop: Railovi vlastiti chartovi. Ćelija blijedi što manje te ruke dolazi do odluke.",
   fullNote: "Puni solve: flop, turn i river (lokalno). ",
+  liveNote: "Turn i river solvani ovdje iz rangeova s flopa: turn 75 % i all-in, jedan raise; river 75 % i all-in. ",
   flopNote: "Ćelija blijedi što manje te ruke dolazi do odluke. Kombinacije su u bojama odabranog flopa.",
 
   tabs: { label: "Prikaz", strategy: "Strategija + EV", ranges: "Rangeovi" },
