@@ -21,7 +21,7 @@ import {
 } from "../../app/src/lib/duringPlay.js";
 
 /** The sidebar's screens (`app/src/lib/router.ts`'s `SCREENS`; that module needs React, which this harness does not install). */
-const SCREENS = ["live", "hands", "reports", "players", "analysis", "hud", "tables", "import", "settings"] as const;
+const SCREENS = ["live", "hands", "reports", "players", "analysis", "solver", "hud", "tables", "import", "settings"] as const;
 
 const APP_SRC = join(__dirname, "../../app/src");
 
@@ -42,14 +42,14 @@ describe("A10: no help during play", () => {
     expect(hiddenDuringPlay(null, true)).toBe(false);
   });
 
-  it("classifies every route: (R5.4) the analysis is analysis, the rest give no help", () => {
+  it("classifies every route: (R5.4) the analysis is analysis, the Solver a solver, the rest give no help", () => {
     expect(Object.keys(SCREEN_HELP).sort()).toEqual(
-      ["analysis", "hands", "hud", "import", "live", "players", "refused", "reports", "settings", "setup", "tables"].sort(),
+      ["analysis", "hands", "hud", "import", "live", "players", "refused", "reports", "settings", "setup", "solver", "tables"].sort(),
     );
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
-      const analysis = route === "analysis";
-      expect(SCREEN_HELP[route], route).toBe(analysis ? "analysis" : null);
-      expect(screenHiddenDuringPlay(route, true), route).toBe(analysis);
+      const help = route === "analysis" || route === "solver";
+      expect(SCREEN_HELP[route], route).toBe(help ? route : null);
+      expect(screenHiddenDuringPlay(route, true), route).toBe(help);
       expect(screenHiddenDuringPlay(route, false), route).toBe(false);
     }
   });
@@ -90,18 +90,19 @@ describe("A10: no help during play", () => {
     expect(readFileSync(join(APP_SRC, "lib/router.ts"), "utf8")).toContain(
       `export const SCREENS = ${JSON.stringify(SCREENS).replaceAll(",", ", ")} as const;`,
     );
+    const helps = (route: string) => route === "analysis" || route === "solver";
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
-      expect(screenOffered(route, true), route).toBe(route !== "analysis");
+      expect(screenOffered(route, true), route).toBe(!helps(route));
       expect(screenOffered(route, false), route).toBe(true);
     }
-    // (R5.4) The analysis goes while a table is open and comes back when the
-    // tables close; the others keep their order.
-    expect(offeredScreens(SCREENS, true)).toEqual(SCREENS.filter((s) => s !== "analysis"));
+    // (R5.4) The analysis and the Solver go while a table is open and come
+    // back when the tables close; the others keep their order.
+    expect(offeredScreens(SCREENS, true)).toEqual(SCREENS.filter((s) => !helps(s)));
     expect(offeredScreens(SCREENS, false)).toEqual([...SCREENS]);
     // A classification of another screen (a test's) is honoured the same way.
     const help = { ...SCREEN_HELP, reports: "analysis" as const };
     expect(screenOffered("reports", true, help)).toBe(false);
-    expect(offeredScreens(SCREENS, true, help)).toEqual(SCREENS.filter((s) => s !== "reports" && s !== "analysis"));
+    expect(offeredScreens(SCREENS, true, help)).toEqual(SCREENS.filter((s) => s !== "reports" && !helps(s)));
   });
 
   it("(R3.10) the sidebar, the palette's list and its shortcuts all ask the gate", () => {

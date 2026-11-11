@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ServerFrame } from "../../components/shell/ServerFrame";
-import { SolverLibrary } from "../../components/solver/SolverLibrary";
+import { WebSolverLibrary } from "../../components/solver/WebSolverLibrary";
 import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import styles from "../../components/solver/solver.module.css";
@@ -52,7 +52,7 @@ export default async function SolverPage({ searchParams }: PageProps) {
           <h1>{t.heading}</h1>
           <p>{t.intro}</p>
         </header>
-        <SolverLibrary
+        <WebSolverLibrary
           initialSet={valid(first(query.set), SET_RE)}
           initialLine={valid(first(query.line), LINE_RE)}
           initialFlop={valid(first(query.flop), FLOP_RE)}

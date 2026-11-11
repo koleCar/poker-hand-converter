@@ -16,7 +16,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
-import { useDict } from "../../lib/i18n/client";
+import { useSolverDict } from "./host";
 import type { ExploreCombo } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
@@ -121,7 +121,7 @@ function Grid({
   panelTab,
   onPanelTab,
 }: StrategyViewProps & { panelTab: "hand" | "filters"; onPanelTab: (tab: "hand" | "filters") => void }) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   const [focusIndex, setFocusIndex] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(null);

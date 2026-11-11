@@ -18,6 +18,9 @@ export default defineConfig({
     // library.ts` is the only door (ESLint keeps every other file away).
     alias: {
       "@rail/web-lib": fileURLToPath(new URL("../web/src/lib", import.meta.url)),
+      // The web's Solver library (`web/src/components/solver`), host-neutral,
+      // rendered in place: `src/solver/door.ts` is its only door.
+      "@rail/web-solver": fileURLToPath(new URL("../web/src/components/solver", import.meta.url)),
       // The web's files it brings in import `@rail/ui` as well: resolved to
       // this app's own link, not next to the web (not installed here).
       "@rail/ui": fileURLToPath(new URL("./node_modules/@rail/ui", import.meta.url)),

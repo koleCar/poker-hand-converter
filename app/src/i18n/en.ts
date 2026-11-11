@@ -42,6 +42,7 @@ export const en = {
     reports: "Reports",
     players: "Players",
     analysis: "Analysis",
+    solver: "Solver",
     hud: "HUD",
     tables: "Tables",
     import: "Import",
@@ -80,6 +81,11 @@ export const en = {
     analysis: {
       title: "Analysis",
       lead: "Your decisions graded after the session: the session review, your top leaks, your own charts.",
+    },
+    solver: {
+      title: "Solver",
+      /** Not shown: the command palette's keywords. */
+      lead: "Rail's own solves: preflop charts, every flop's strategy, any turn and river solved on the spot.",
     },
     hud: {
       title: "HUD",
@@ -1216,6 +1222,14 @@ export const en = {
     },
     hand: {
       title: "Hand analysis",
+      /** The Solver beside the decisions: the spot of the one picked. */
+      solver: {
+        label: "Solver",
+        open: "Open in Solver",
+        none: "No solve for this decision: the Solver holds heads-up flops of its tables' lines.",
+        fromFlop: "Your last flop decision:",
+        pick: "Show this decision in the Solver",
+      },
       open: "Analysis",
       openTitle: "Open this hand's decision-by-decision grades",
       back: "Open in Hands",

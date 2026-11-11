@@ -67,6 +67,8 @@ describe("dictionaries", () => {
       "Regular", "Bounty", "Buy-in",
       // The hand markers (the lists' "Mark" menu): poker words Croatian players say in English.
       "Cooler", "Hero call",
+      // The Solver tab and the analysis' Solver panel: Croatian players say "solver" too.
+      "Solver",
       // (T5) The Tables screen: "RNG" is what Croatian players say too.
       "RNG",
     ]);

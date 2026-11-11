@@ -13,7 +13,7 @@ import { Overlay } from "@rail/ui/overlay/Overlay";
 import { useState } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { SUIT_SYMBOL, type Suit } from "../../lib/cards";
-import { useDict } from "../../lib/i18n/client";
+import { useSolverDict } from "./host";
 import { flopCards, pickedFlop } from "../../lib/solver";
 import styles from "./solver.module.css";
 
@@ -32,7 +32,7 @@ interface FlopPickerProps {
 }
 
 export function FlopPicker({ open, onClose, solved, current, onPick }: FlopPickerProps) {
-  const t = useDict().solver.flop;
+  const t = useSolverDict().flop;
   const [picked, setPicked] = useState<string[]>(current ? [...current] : []);
   const [missing, setMissing] = useState(false);
 

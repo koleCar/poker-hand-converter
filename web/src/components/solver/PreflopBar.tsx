@@ -11,7 +11,7 @@
 import { Overlay } from "@rail/ui/overlay/Overlay";
 import { useState } from "react";
 import type { ChartNode } from "../../lib/charts";
-import { useDict } from "../../lib/i18n/client";
+import { useSolverDict } from "./host";
 import type { PreflopState } from "./preflop";
 import styles from "./solver.module.css";
 
@@ -30,7 +30,7 @@ interface PreflopBarProps {
 }
 
 export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBarProps) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   const [settings, setSettings] = useState(false);
   const node: ChartNode | null = state?.node ?? null;
 
@@ -130,7 +130,7 @@ export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBar
 }
 
 function TableSettings({ tables, table, onTable }: { tables: readonly TableOption[]; table: TableOption; onTable: (id: string) => void }) {
-  const t = useDict().solver.settings;
+  const t = useSolverDict().settings;
   const counts = [...new Set(tables.map((x) => x.players))].sort((a, b) => a - b);
   const depths = tables.filter((x) => x.players === table.players);
   return (

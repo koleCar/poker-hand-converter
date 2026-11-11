@@ -34,6 +34,8 @@
     "paths": {
       /* (R5.4) The web's analysis library, in place (`src/analysis/library.ts`). */
       "@rail/web-lib/*": ["../web/src/lib/*"],
+      /* The web's Solver library, in place (`src/solver/door.ts`). */
+      "@rail/web-solver/*": ["../web/src/components/solver/*"],
       /* The web's files the library brings in import `@rail/ui` too; from
          `web/` that would resolve next to the web, whose packages this
          app's build does not install - so to this app's own link. */
