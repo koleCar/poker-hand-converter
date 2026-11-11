@@ -30,8 +30,9 @@
 //!   (`crate::popup`), and the window hears [`TABLES_OPEN_EVENT`] on the
 //!   edges of `tables_open` - while tables are open it hides its analysis
 //!   (A10), and the popup closes when the last table does;
-//!   `seat_position_changed` (R3.6: the user dragged a panel) is written to
-//!   the store by a thread of its own ([`LayoutWrites`]) - the HUD's
+//!   `seat_position_changed` (R3.6: the user dragged a panel) and (T4)
+//!   `rng_position_changed` (the RNG widget dragged) are written to the
+//!   store by a thread of its own ([`LayoutWrites`]) - the HUD's
 //!   connection is read-only, and the supervisor's callback never waits for
 //!   a commit.
 //! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
@@ -301,7 +302,9 @@ impl HudFeed {
 struct SeatWrite {
     site: String,
     size: u32,
-    slot: u32,
+    /// The seat's slot; (T4) `None`: the RNG widget (`hud_settings` kind
+    /// `rng`, per room and size).
+    slot: Option<u32>,
     x: u32,
     y: u32,
 }
@@ -322,19 +325,27 @@ impl LayoutWrites {
             .name("rail-hud-layouts".to_owned())
             .spawn(move || {
                 while let Ok(write) = rx.recv() {
-                    match writer.set_hud_seat_position(
-                        &write.site,
-                        write.size,
-                        write.slot,
-                        write.x,
-                        write.y,
-                    ) {
+                    let written = match write.slot {
+                        Some(slot) => writer.set_hud_seat_position(
+                            &write.site,
+                            write.size,
+                            slot,
+                            write.x,
+                            write.y,
+                        ),
+                        None => {
+                            writer.set_hud_rng_position(&write.site, write.size, write.x, write.y)
+                        }
+                    };
+                    match written {
                         Ok(()) => {
                             log::info!(
-                                "hud: {} {}-seat panel {} now at ({}, {})",
+                                "hud: {} {}-seat {} now at ({}, {})",
                                 write.site,
                                 write.size,
-                                write.slot,
+                                write
+                                    .slot
+                                    .map_or_else(|| "RNG".to_owned(), |s| format!("panel {s}")),
                                 write.x,
                                 write.y
                             );
@@ -1007,7 +1018,15 @@ fn on_event<R: Runtime>(
             } => layouts.queue(SeatWrite {
                 site,
                 size,
-                slot,
+                slot: Some(slot),
+                x,
+                y,
+            }),
+            // (T4) The RNG widget dragged: its room and size's position.
+            HudMessage::RngPositionChanged { site, size, x, y } => layouts.queue(SeatWrite {
+                site,
+                size,
+                slot: None,
                 x,
                 y,
             }),
@@ -1360,9 +1379,17 @@ mod tests {
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: 2,
+            slot: Some(2),
             x: 300,
             y: 640,
+        });
+        // (T4) The RNG widget's, as `rng_position_changed` brings it.
+        layouts.queue(SeatWrite {
+            site: "acr".into(),
+            size: 9,
+            slot: None,
+            x: 950,
+            y: 40,
         });
         let deadline = std::time::Instant::now() + Duration::from_secs(10);
         let reader = rail_store::Reader::open(&store.path, 1).expect("reader");
@@ -1378,11 +1405,20 @@ mod tests {
             assert!(std::time::Instant::now() < deadline, "not written");
             std::thread::sleep(Duration::from_millis(20));
         }
+        loop {
+            let found = reader.hud_rng_positions().expect("read");
+            if let [p] = found.as_slice() {
+                assert_eq!((p.site.as_str(), p.size, p.x, p.y), ("acr", 9, 950, 40));
+                break;
+            }
+            assert!(std::time::Instant::now() < deadline, "not written");
+            std::thread::sleep(Duration::from_millis(20));
+        }
         // A position out of range is refused, quietly (logged).
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: 9,
+            slot: Some(9),
             x: 0,
             y: 0,
         });

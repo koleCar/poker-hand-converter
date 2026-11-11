@@ -1916,13 +1916,10 @@ impl Platform for MacosBackend {
     /// made again where the drawing starts (as on Windows).
     fn overlay(&mut self, id: WindowId, frame: &OverlayFrame) -> Result<(), PlatformError> {
         let window = self.tracked.get(&id).ok_or(PlatformError::Gone(id))?;
-        if frame.permit.site() != window.site {
-            return Err(PlatformError::Os(format!(
-                "a frame permitted for {} is not for window {} of {}",
-                frame.permit.site(),
-                id.0,
-                window.site
-            )));
+        // (T4) Every permit the frame carries - the HUD's, the RNG's - is
+        // the window's room's.
+        if let Err(error) = frame.permitted_for(&window.site) {
+            return Err(PlatformError::Os(format!("window {}: {error}", id.0)));
         }
         let Some(link) = &self.link else {
             return Err(PlatformError::Unsupported(

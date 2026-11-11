@@ -67,7 +67,7 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
         .expect("permitted");
     let tones = [Tone::Low, Tone::Normal, Tone::High, Tone::VeryHigh];
     OverlayFrame {
-        permit,
+        permit: Some(permit),
         status: None,
         debug: None,
         size: Some(seats),
@@ -93,6 +93,7 @@ fn frame(site: &str, seats: u32, hands: i64) -> OverlayFrame {
             .collect(),
         legend: Vec::new(),
         design: PanelDesign::default(),
+        rng: None,
     }
 }
 

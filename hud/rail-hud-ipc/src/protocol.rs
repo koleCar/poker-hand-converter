@@ -112,7 +112,8 @@ pub enum AppMessage {
     #[serde(rename_all = "camelCase")]
     TilingChanged { settings: TilingSettings },
     /// (T3) The user's RNG settings, on every change and after every
-    /// handshake; the HUD keeps them (T4 draws the RNG).
+    /// handshake; (T4) the HUD draws the RNG with them over the tables of
+    /// rooms whose policy allows it.
     #[serde(rename_all = "camelCase")]
     RngChanged { settings: RngSettings },
     /// (T3) Lay every tiled table out again, the ones the user moved by
@@ -227,6 +228,22 @@ pub enum HudMessage {
         /// user's): the popup shows its sections. Absent from an older HUD.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         design: Option<String>,
+    },
+    /// (T4) The user dragged a table's RNG widget: the app remembers it in
+    /// the store (`hud_settings` kind `rng`, key `pos-<site>-<size>`:
+    /// `rail_store::hud`) for the room and the table size, like a seat's
+    /// panel, and the HUD reads it back at its
+    /// next start (and on `layout_changed`). The HUD already shows it there,
+    /// on every table of that room and size.
+    #[serde(rename_all = "camelCase")]
+    RngPositionChanged {
+        /// The `sites.json` room.
+        site: String,
+        /// The table size, 2 - 10.
+        size: u32,
+        /// The widget's centre, thousandths of the table's client area.
+        x: u32,
+        y: u32,
     },
     /// (T3) Table tiling's state, whenever it changes: on or off, how many
     /// tables it manages, the layout in force (`auto` for the auto grid;
@@ -652,6 +669,12 @@ mod tests {
                 anchor: ScreenRect::default(),
                 scale_permille: 1000,
                 design: None,
+            },
+            HudMessage::RngPositionChanged {
+                site: "pokerstars".into(),
+                size: 9,
+                x: 940,
+                y: 60,
             },
             HudMessage::TilingStatus {
                 enabled: true,

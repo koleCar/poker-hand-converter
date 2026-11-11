@@ -29,6 +29,16 @@
 //!   [`Reader::hud_setting`]); this crate does not read the JSON -
 //!   `rail_hud_ipc::settings` does. The app sends them to the HUD over the
 //!   IPC; the HUD's connection never reads them.
+//! - **RNG positions** (T4, no migration): where the user dragged a table's
+//!   RNG widget, per room and table size, as `hud_settings` rows of kind
+//!   `rng` under the key `pos-<site>-<size>` ([`rng_position_key`]) with
+//!   `{"x": 0-1000, "y": 0-1000}` - the widget's centre in thousandths of
+//!   the client area, as a seat's panel. Synced as every `rng` row (the
+//!   server takes any slug key). The app writes them
+//!   ([`WriterHandle::set_hud_rng_position`], from the HUD's
+//!   `rng_position_changed`); the HUD reads them with the seat positions
+//!   ([`Reader::hud_rng_positions`], at start and on `layout_changed`) -
+//!   the only `hud_settings` rows its connection reads.
 //! - **Sync** (R3.9): every write here marks its row `dirty`;
 //!   [`Reader::hud_sync_dirty`] lists them as [`HudSyncRow`]s for the sync
 //!   worker, [`WriterHandle::hud_sync_pushed`] clears the mark of rows
@@ -56,6 +66,37 @@ pub struct SeatPosition {
     pub x: u32,
     pub y: u32,
     pub updated_at: i64,
+}
+
+/// (T4) Where the user put a table's RNG widget, per room and table size.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RngPosition {
+    /// The `sites.json` room.
+    pub site: String,
+    /// The table size, 2 - 10.
+    pub size: u32,
+    /// The widget's centre, thousandths of the client width and height.
+    pub x: u32,
+    pub y: u32,
+    pub updated_at: i64,
+}
+
+/// (T4) The prefix of an RNG position's key ([`rng_position_key`]).
+pub const RNG_POSITION_PREFIX: &str = "pos-";
+
+/// (T4) The `hud_settings` key (kind `rng`) of the RNG widget's position on
+/// `site`'s `size`-seat tables: `pos-pokerstars-6`. A slug, as the server
+/// wants every `rng` key, and never the settings' own key (`default`).
+pub fn rng_position_key(site: &str, size: u32) -> String {
+    format!("{RNG_POSITION_PREFIX}{site}-{size}")
+}
+
+/// (T4) The room and table size of an RNG position's key, if it is one.
+pub fn parse_rng_position_key(key: &str) -> Option<(String, u32)> {
+    let rest = key.strip_prefix(RNG_POSITION_PREFIX)?;
+    let (site, size) = rest.rsplit_once('-')?;
+    let size: u32 = size.parse().ok()?;
+    (!site.is_empty() && (2..=10).contains(&size)).then(|| (site.to_owned(), size))
 }
 
 /// The user's per-room HUD settings.
@@ -391,6 +432,25 @@ impl WriterHandle {
         })
     }
 
+    /// (T4) Remember where the user put the RNG widget on `site`'s
+    /// `size`-seat tables (replacing what was there): a `hud_settings` row
+    /// of kind `rng` under [`rng_position_key`], synced as any.
+    pub fn set_hud_rng_position(&self, site: &str, size: u32, x: u32, y: u32) -> Result<()> {
+        // A seat position's bounds at slot 0: a size of 2 - 10, a centre
+        // inside the client area.
+        check_position(size, 0, x, y).map_err(|_| Error::OutOfRange("an RNG position"))?;
+        let key = rng_position_key(site, size);
+        if parse_rng_position_key(&key)
+            .as_ref()
+            .map(|(s, _)| s.as_str())
+            != Some(site)
+        {
+            return Err(Error::OutOfRange("an RNG position's room"));
+        }
+        let body = json!({ "x": x, "y": y }).to_string();
+        self.save_hud_setting(HudSettingKind::Rng, &key, &body)
+    }
+
     /// (R3.9, sync) The rows sent: their dirty mark goes, unless the row
     /// changed since it was read (another `updated_at`).
     pub fn hud_sync_pushed(&self, rows: Vec<(HudSyncKind, String, i64)>) -> Result<()> {
@@ -711,6 +771,45 @@ impl Reader {
             }
             Ok(out)
         })
+    }
+
+    /// (T4) Every RNG widget position the user set, by room and size. A
+    /// row this build cannot read (a body without both numbers in range) is
+    /// skipped.
+    pub fn hud_rng_positions(&self) -> Result<Vec<RngPosition>> {
+        let rows: Vec<(String, String, i64)> = self.with(|conn| {
+            let mut stmt = conn.prepare(
+                "SELECT key, body, updated_at FROM hud_settings
+                 WHERE kind = 'rng' AND key LIKE 'pos-%' AND body IS NOT NULL
+                 ORDER BY key",
+            )?;
+            let rows = stmt.query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?;
+            let mut out = Vec::new();
+            for row in rows {
+                out.push(row?);
+            }
+            Ok(out)
+        })?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|(key, body, updated_at)| {
+                let (site, size) = parse_rng_position_key(&key)?;
+                let body: Value = serde_json::from_str(&body).ok()?;
+                let at = |name: &str| {
+                    body.get(name)
+                        .and_then(Value::as_u64)
+                        .filter(|v| *v <= 1000)
+                        .and_then(|v| u32::try_from(v).ok())
+                };
+                Some(RngPosition {
+                    site,
+                    size,
+                    x: at("x")?,
+                    y: at("y")?,
+                    updated_at,
+                })
+            })
+            .collect())
     }
 
     /// The user's per-room HUD settings, by room (rooms left to
@@ -1321,6 +1420,118 @@ mod tests {
             left.iter().map(|r| r.key.as_str()).collect::<Vec<_>>(),
             ["d-1"]
         );
+        drop(writer);
+        store.close();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (T4) The RNG widget's positions: kept per room and size under
+    /// `rng` keys of their own (the settings' row untouched), replaced by a
+    /// second drag, refused out of range, dirty for sync as kind `rng`,
+    /// and a pulled row read back; the key scheme reads back.
+    #[test]
+    fn rng_positions() {
+        let (store, dir) = store("rng-positions");
+        let writer = store.writer().expect("writer");
+        let reader = store.reader();
+        assert!(reader.hud_rng_positions().expect("read").is_empty());
+        writer
+            .save_hud_setting(HudSettingKind::Rng, "default", r#"{"enabled":true}"#)
+            .expect("settings");
+        writer
+            .set_hud_rng_position("pokerstars", 6, 900, 80)
+            .expect("a position");
+        writer
+            .set_hud_rng_position("wpt-global", 9, 10, 990)
+            .expect("a position");
+        writer
+            .set_hud_rng_position("pokerstars", 6, 870, 60)
+            .expect("replaced");
+        for (site, size, x, y) in [
+            ("pokerstars", 1, 0, 0),
+            ("pokerstars", 11, 0, 0),
+            ("pokerstars", 6, 1001, 0),
+            ("pokerstars", 6, 0, 1001),
+            ("", 6, 0, 0),
+        ] {
+            assert!(
+                writer.set_hud_rng_position(site, size, x, y).is_err(),
+                "{site} {size} {x} {y}"
+            );
+        }
+        let found: Vec<_> = reader
+            .hud_rng_positions()
+            .expect("read")
+            .into_iter()
+            .map(|p| (p.site, p.size, p.x, p.y))
+            .collect();
+        assert_eq!(
+            found,
+            [
+                ("pokerstars".to_owned(), 6, 870, 60),
+                ("wpt-global".to_owned(), 9, 10, 990),
+            ]
+        );
+        assert_eq!(
+            reader
+                .hud_setting(HudSettingKind::Rng, "default")
+                .expect("read")
+                .map(|(body, _)| body),
+            Some(r#"{"enabled":true}"#.to_owned())
+        );
+        let mut dirty: Vec<_> = reader
+            .hud_sync_dirty()
+            .expect("dirty")
+            .into_iter()
+            .filter(|r| r.kind == HudSyncKind::Rng)
+            .map(|r| (r.key, r.body))
+            .collect();
+        dirty.sort_by(|a, b| a.0.cmp(&b.0));
+        assert_eq!(
+            dirty,
+            [
+                ("default".to_owned(), Some(json!({"enabled": true}))),
+                (
+                    "pos-pokerstars-6".to_owned(),
+                    Some(json!({"x": 870, "y": 60}))
+                ),
+                (
+                    "pos-wpt-global-9".to_owned(),
+                    Some(json!({"x": 10, "y": 990}))
+                ),
+            ]
+        );
+        // Another computer's drag arrives with a pull.
+        let applied = writer
+            .hud_sync_apply(vec![HudSyncRow {
+                kind: HudSyncKind::Rng,
+                key: "pos-acr-2".into(),
+                body: Some(json!({"x": 500, "y": 20})),
+                updated_at: crate::time::now_ms() + 1000,
+            }])
+            .expect("applied");
+        assert_eq!(applied.applied, 1);
+        assert!(reader.hud_rng_positions().expect("read").iter().any(|p| (
+            p.site.as_str(),
+            p.size,
+            p.x,
+            p.y
+        ) == ("acr", 2, 500, 20)));
+        assert_eq!(rng_position_key("wpt-global", 10), "pos-wpt-global-10");
+        assert_eq!(
+            parse_rng_position_key("pos-wpt-global-10"),
+            Some(("wpt-global".to_owned(), 10))
+        );
+        for bad in [
+            "default",
+            "pos-",
+            "pos-6",
+            "pos-acr-1",
+            "pos-acr-x",
+            "acr-6",
+        ] {
+            assert_eq!(parse_rng_position_key(bad), None, "{bad}");
+        }
         drop(writer);
         store.close();
         let _ = std::fs::remove_dir_all(&dir);

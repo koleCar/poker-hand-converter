@@ -751,7 +751,7 @@ pub fn preview(
         })
         .collect();
     let frame = OverlayFrame {
-        permit,
+        permit: Some(permit),
         status: None,
         debug: None,
         size: Some(size),
@@ -764,6 +764,7 @@ pub fn preview(
         panels,
         legend: compiled.legend_tones(),
         design: panel.clone(),
+        rng: None,
     };
     let scene = scene::compose(&frame, PREVIEW_WIDTH, PREVIEW_HEIGHT, 1000, &frame.design);
     let table = TableLayout::simulator(size);

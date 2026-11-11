@@ -30,6 +30,14 @@
 //! position - so points come back exactly as the rect divided by the
 //! scale ([`macos`] has the rule).
 //!
+//! (T4, §4.4) The RNG overlay: a frame may carry the table's roll
+//! ([`OverlayFrame::rng`], under the room's [`RngPermit`]); a frame of a
+//! room whose HUD is refused - or of any room while the plan holds the
+//! panels back - carries the roll alone ([`OverlayFrame::rng_only`]: no
+//! HUD [`Permit`], so no panel, status or legend can be drawn). Its widget
+//! is dragged and clicked through the same overlay code as a seat's panel,
+//! under the pseudo-slot [`RNG_SLOT`].
+//!
 //! `unsafe` stays `deny` here (the crate's level) rather than `forbid`: a
 //! `forbid` would bind [`windows`] and [`macos`], whose system wrappers
 //! allow it one function at a time. Every other module below forbids it.
@@ -38,9 +46,10 @@ use std::fmt;
 
 use rail_config::stats::Tone;
 
-use crate::compliance::Permit;
+use crate::compliance::{Permit, RngPermit};
 use crate::layout::{Positions, TableLayout};
 use crate::panel::{PanelDesign, StatCell};
+use crate::scene::Rgba;
 
 pub mod drag;
 pub mod macos;
@@ -399,6 +408,7 @@ pub enum TableEvent {
     Appeared,
     /// The user dragged a seat's panel to a new place (R3.6): remembered
     /// for the room, the table `size` and the `slot` (the visual seat).
+    /// (T4) `slot` [`RNG_SLOT`]: the RNG widget was dragged.
     PanelMoved {
         id: WindowId,
         size: u32,
@@ -415,7 +425,9 @@ pub enum TableEvent {
     },
     /// (R3.8) The user clicked a seat's panel - pressed and released it
     /// without dragging it ([`drag::Drag::is_click`]): the engine asks the
-    /// app for the popup of the player at that slot.
+    /// app for the popup of the player at that slot. (T4) `slot`
+    /// [`RNG_SLOT`]: the RNG widget was clicked (a roll, when the user's
+    /// triggers say so).
     PanelClicked {
         id: WindowId,
         /// The panel's visual seat (R3.6).
@@ -428,6 +440,13 @@ pub enum TableEvent {
     },
 }
 
+/// (T4) The pseudo-slot of the RNG widget: what the overlays' shared drag
+/// ([`drag::Drag`]) picks it up as, what a dragged widget is kept under
+/// ([`Seating::positions`]: the user's place for it on this room and table
+/// size) and what [`TableEvent::PanelMoved`] / [`TableEvent::PanelClicked`]
+/// carry for it. No seat is ever this slot (a table has at most ten).
+pub const RNG_SLOT: u32 = u32::MAX;
+
 /// Where a frame's panels go (R3.6): the room's layout for the table size,
 /// the hero's rotation and the panels the user placed.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -438,19 +457,43 @@ pub struct Seating {
     /// The hero's seat when the room's client rotates the table so the hero
     /// is always in one place; `None`: drawn by seat number.
     pub rotate_to: Option<u32>,
-    /// Panels the user placed, by slot (this room and table size).
+    /// Panels the user placed, by slot (this room and table size); (T4)
+    /// the RNG widget's under [`RNG_SLOT`].
     pub positions: Positions,
     /// The last [`TableEvent::PanelMoved`] (`seq`) the engine took in.
     pub drags_seen: u64,
+}
+
+/// (T4) The table's roll as its RNG widget shows it: one large number in
+/// its band's colour, the band's name under it when the user gave one.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RngShown {
+    /// The room's yes for the RNG (T0, `sites.json` `rng.allowed`,
+    /// independent of its HUD policy): no widget exists without it.
+    pub permit: RngPermit,
+    /// The number rolled.
+    pub value: u32,
+    /// Its band's colour.
+    pub colour: Rgba,
+    /// Its band's name, if the user gave it one.
+    pub label: Option<String>,
+    /// The digits of the range's widest number: the plate keeps its size
+    /// from roll to roll.
+    pub digits: u32,
+    /// The table's rolls so far: a new roll is a new frame (painted again)
+    /// even when it repeats the number.
+    pub seq: u64,
 }
 
 /// What an overlay shows (R3.4): the data; `crate::scene::compose` lays it
 /// out under the permit's restrictions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OverlayFrame {
-    /// Compliance mode's yes for the window's room: no frame exists for a
-    /// room without a HUD.
-    pub permit: Permit,
+    /// Compliance mode's yes for the window's room: no panel, status line
+    /// or legend is drawn for a room without a HUD. (T4) `None` only in an
+    /// RNG-only frame ([`OverlayFrame::rng_only`]), which shows nothing but
+    /// [`OverlayFrame::rng`].
+    pub permit: Option<Permit>,
     /// A line instead of panels: "waiting for first hand", "no store".
     pub status: Option<String>,
     /// (R3.7) **Debug builds only**: the latency of the hand the frame
@@ -473,13 +516,16 @@ pub struct OverlayFrame {
     /// may refuse; `crate::scene::compose` cuts it down to the permit's
     /// restrictions before anything is laid out.
     pub design: PanelDesign,
+    /// (T4) The table's RNG widget, where the room's policy and the user's
+    /// settings allow it.
+    pub rng: Option<RngShown>,
 }
 
 impl OverlayFrame {
     /// A frame with a status line and no panels.
     pub fn status(permit: Permit, size: Option<u32>, status: impl Into<String>) -> Self {
         Self {
-            permit,
+            permit: Some(permit),
             status: Some(status.into()),
             debug: None,
             size,
@@ -487,6 +533,43 @@ impl OverlayFrame {
             panels: Vec::new(),
             legend: Vec::new(),
             design: PanelDesign::default(),
+            rng: None,
+        }
+    }
+
+    /// (T4) A frame with the RNG widget and nothing else, under the RNG's
+    /// permit alone: the room refuses a HUD, or the plan holds the panels
+    /// back.
+    pub fn rng_only(rng: RngShown, size: Option<u32>, seating: Seating) -> Self {
+        Self {
+            permit: None,
+            status: None,
+            debug: None,
+            size,
+            seating,
+            panels: Vec::new(),
+            legend: Vec::new(),
+            design: PanelDesign::default(),
+            rng: Some(rng),
+        }
+    }
+
+    /// (T4) Whether the frame may be drawn over a window of room `site`:
+    /// it carries at least one permit, and every permit it carries is that
+    /// room's - the check each backend makes again where drawing starts.
+    pub fn permitted_for(&self, site: &str) -> Result<(), String> {
+        let sites: Vec<&str> = self
+            .permit
+            .iter()
+            .map(Permit::site)
+            .chain(self.rng.iter().map(|rng| rng.permit.site()))
+            .collect();
+        if sites.is_empty() {
+            return Err("a frame without a permit".to_owned());
+        }
+        match sites.iter().find(|s| **s != site) {
+            Some(other) => Err(format!("a frame permitted for {other} is not for {site}")),
+            None => Ok(()),
         }
     }
 }
