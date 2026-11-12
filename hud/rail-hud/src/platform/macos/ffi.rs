@@ -511,6 +511,19 @@ pub(super) fn window_element(
     elements.into_iter().nth(index).ok_or_else(gone)
 }
 
+/// (T6) Whether the element lets `name` be set
+/// (`AXUIElementIsAttributeSettable`): asked of the system, nothing is
+/// changed. `None` when it did not answer.
+#[allow(unsafe_code)]
+pub(super) fn settable(element: &AXUIElement, name: &'static str) -> Option<bool> {
+    let name = CFString::from_static_str(name);
+    let mut answer: u8 = 0;
+    // SAFETY: `answer` is a valid out pointer to a `Boolean` (an unsigned
+    // char) for the call; the element and the name are alive for it.
+    let error = unsafe { element.is_attribute_settable(&name, NonNull::from(&mut answer)) };
+    (error == AXError::Success).then_some(answer != 0)
+}
+
 /// (T1) Whether the element says it is minimised now (`AXMinimized`).
 pub(super) fn minimized(element: &AXUIElement) -> bool {
     bool_of(element, "AXMinimized").unwrap_or(false)

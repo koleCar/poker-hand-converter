@@ -10,10 +10,29 @@ This is how to look, on a Windows PC with the real clients, and how the
 result becomes `sites.json`; the Mac's differences are in
 [On macOS](#on-macos-r311).
 
-Only rooms whose HUD policy is allowed matter: **PokerStars, Winamax, ACR**
-(R3.0, `docs/research/HUD-POLICIES.md`). Capturing a title is not attaching
-to it: the diagnostic below only reads window titles, as Task Manager does;
-it draws nothing and touches no client.
+Two policies make a room worth capturing, and a room needs its `tables`
+block for either:
+
+| Room | HUD (`hud.allowed`) | Tiling (`tiling.allowed`) | Capture for |
+| --- | --- | --- | --- |
+| PokerStars | true | true | HUD + tiling |
+| ACR | true | true | HUD + tiling |
+| Winamax | true | false | HUD only (never tiled) |
+| WPT Global | false | true | tiling only |
+| CoinPoker | false | true | tiling only |
+
+(R3.0, [`HUD-POLICIES.md`](HUD-POLICIES.md); T0,
+[`TILING-POLICIES.md`](TILING-POLICIES.md).) The RNG is allowed on no room
+yet, so it adds none. A room whose HUD is refused but whose tiling is
+allowed (WPT Global, CoinPoker) still needs its process names and a title
+regex - the tiler finds tables through the same matcher - but no seat
+layouts (no panel is ever drawn there). Every other room (GGPoker,
+partypoker, Unibet, 888poker, ...) is neither captured nor tiled.
+
+Capturing a title is not attaching to it: `--list-windows` only reads
+window titles and rects, as Task Manager does; it draws nothing and touches
+no client. `--tile-check` (below) does move windows, once, and only those
+of a room whose tiling policy is `true`.
 
 **Privacy.** A title can name you: PokerStars-style titles end "Logged in
 as <your name>", and a client may show your name in a tab or a seat. The
@@ -32,6 +51,29 @@ the title's non-ASCII characters (an en dash looks like a hyphen), and -
 once a room has a `tables` block - which room takes it and whether the HUD
 may attach there.
 
+For table tiling (T6) each window also shows:
+
+- `frame:` its **outer rect** - on Windows the visible frame (DWM's
+  extended frame bounds, without the invisible resize borders), on a Mac
+  the whole window - and the **insets** around the client area on each
+  side: exactly what the tiler lays edge to edge;
+- `size:` whether it is **resizable** (Windows: the `WS_THICKFRAME` style;
+  Mac: whether the client lets its size be set) and movable, and its
+  minimum and maximum size where the system says so without asking the
+  client - on Windows only the client knows them (`WM_GETMINMAXINFO`), and
+  the Accessibility API has no such attribute, so `--tile-check` measures a
+  refused size instead;
+- `permits:` for a window a room's `tables` block takes, the room's three
+  answers: HUD, tiling (`TilingPermit`) and RNG (`RngPermit`). Before the
+  room has a block, `--try-title <regex> --room <id>` shows the same
+  answers for each window the candidate regex takes.
+
+```text
+frame:   outer 1216x869 at (0, 0); insets left 8, top 31, right 8, bottom 8 (physical px; the visible frame)
+size:    resizable yes, movable yes; min/max: not readable without a message to the client
+         as wpt-global: HUD refused (the room prohibits it); tiling permitted; RNG refused (the room prohibits it)
+```
+
 Where to get it:
 
 - **From the app**: `rail-hud.exe` is installed beside `Rail.exe` (a pull
@@ -46,6 +88,7 @@ rail-hud --list-windows                                  every window with a tit
 rail-hud --list-windows --process PokerStars.exe         one program's windows
 rail-hud --list-windows --process PokerStars.exe --you MyScreenName --you MyOtherName
 rail-hud --list-windows --process PokerStars.exe --try-title "^(?P<table>.+?) - "
+rail-hud --list-windows --process PokerStars.exe --try-title "^(?P<table>.+?) - " --room pokerstars
 rail-hud --list-windows --help
 ```
 
@@ -66,8 +109,9 @@ same way, or note it - the HUD will need the same.
 
 ## What to capture
 
-For each room (PokerStars, Winamax, ACR), with the client's current version,
-logged in (play money where the room has it is enough and the safest, P6):
+For each room (PokerStars, ACR, Winamax, WPT Global, CoinPoker), with the
+client's current version, logged in (play money where the room has it is
+enough and the safest, P6):
 
 1. **The client**: its version (the client's About box, or the `.exe`'s
    Properties, Details, File version) and the program name in the listing.
@@ -91,6 +135,49 @@ logged in (play money where the room has it is enough and the safest, P6):
    another Windows scale (Settings, Display, Scale) if you have one: the
    dpi lines show whether the client is per-monitor aware (`window` dpi
    equal to the monitor's) or stretched by Windows.
+6. **Table geometry, for tiling** (PokerStars, ACR, WPT Global, CoinPoker;
+   not Winamax, which is never tiled): the `frame:` and `size:` lines of
+   one table of each kind, and the result of `--tile-check` (next section)
+   with four tables open - whether the client kept the aspect ratio it was
+   given, and the smallest size it accepted. This becomes the room's table
+   geometry (aspect ratio, minimum client size, its frame) for the tiler.
+
+## The placement check (tiling rooms only)
+
+`rail-hud --tile-check` tiles one program's table windows **once** with
+Rail's own tiling engine, reads them back and prints, per window, the rect
+asked for and the one the client accepted, the aspect ratio before and
+after, how long the move took, and any size the client refused (it then
+gets one retry, centred in its slot, exactly as the HUD's tiler does). Then
+it exits. It finds the tables by the room's `tables` block, or - before the
+room has one - by a candidate `--try-title` regex for the room named with
+`--room`:
+
+```text
+rail-hud --tile-check --process PokerStars.exe --room pokerstars --try-title "^(?P<table>.+?) - "
+rail-hud --tile-check --process PokerStars.exe --room pokerstars --try-title "..." --layout my-layout.json
+rail-hud --tile-check --restore            puts the windows back where they were
+rail-hud --tile-check --help
+```
+
+- **It refuses** a `--room` whose tiling policy is not `true` (GGPoker,
+  partypoker, Unibet, Winamax, 888poker, ...: exit code 6, nothing looked
+  at), lists without moving any window its matcher takes for such a room,
+  and never moves a window whose program's name looks like such a room's
+  (`GGnet.exe`, `Winamax.exe`), whatever `--room` says.
+- **The mouse rule holds**: nothing moves while a mouse button is down, or
+  within 0.6 s of a click; after 15 s of a busy mouse it stops.
+- `--layout <file>` tiles into a saved layout (the app's JSON: `id`,
+  `name`, `slots` in thousandths of the work area) instead of the auto
+  grid.
+- The windows' places before the check go to a small file in the temp
+  folder (`rail-hud-tile-check.json`: window ids and rects, no titles);
+  `--restore` reads it. A table that was minimised is left restored.
+- Titles in the output are redacted as for `--list-windows` (`--you`, the
+  store's hero names).
+
+On a Mac it needs the terminal's Accessibility permission, as the listing
+does.
 
 ## What to paste back
 
@@ -104,8 +191,14 @@ Hand-history table names, one per table above:
   cash 6-max:        <table name from Table '...'>
   tournament:        <tournament id> <table number>
   after table move:  ...
+Tiling rooms only: --tile-check output with 4 tables (redacted), and
+  whether --tile-check --restore put them back
 Notes: what was not captured and why.
 ```
+
+[`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md#5-tiling-and-the-rng-per-room-t6)
+has the full tiling and RNG check per room and the list of what to send
+back; when you run that check, its "what to send back" covers this too.
 
 ## From the capture to `sites.json`
 
@@ -139,7 +232,12 @@ Whoever turns it into configuration (an R3.3 follow-up, per room):
    captured the same way ([On macOS](#on-macos-r311)) - one regex must read
    both systems' titles, or the room needs a note that they differ;
    `seatLayouts` / `preferredSeat` come from the measurement below ("Seat
-   layouts").
+   layouts") - and stay `null` for a room whose HUD is refused (WPT
+   Global, CoinPoker: tiling only). The table geometry the tiler needs
+   (aspect ratio, minimum client size) comes from `--tile-check`; until
+   `sites.json` has a field for it, the tiler takes each window's own
+   aspect ratio as first seen (`crate::tiling::RoomGeometry`), so it goes
+   into the source text and the PR.
 3. Relax `only_what_was_seen_is_verified` in
    `core/rail-config/tests/sites.rs` for exactly that room's tables, and
    `only_allowed_rooms_are_attached` in `hud/rail-hud/src/compliance.rs`
@@ -201,8 +299,9 @@ wins over `preferredSeat`, which is only the default.
 
 The same diagnostic, the same redaction, the same things to capture - on a
 Mac with the room's macOS client (PokerStars, Winamax and ACR each have
-one; check that a room's macOS client is the one it still ships). What
-differs:
+one; check whether WPT Global and CoinPoker ship one, and that a room's
+macOS client is the one it still ships). `--tile-check` works the same on
+a Mac. What differs:
 
 **The Accessibility permission, for the terminal.** On a Mac a window's
 title is readable by another program only through the Accessibility API
@@ -236,7 +335,9 @@ rail-hud --list-windows --process PokerStars --try-title "^(?P<table>.+?) - "
 same name `ps -axco command` prints. Run the listing without `--process`
 once to see it; it goes into `tables.process.macos`.
 
-**What the lines say on a Mac**: `subrole` instead of `class` (the
+**What the lines say on a Mac**: `frame:` is the whole window and its
+only inset is the title bar (`top`); `size:` says whether the client lets
+its size and position be set. `subrole` instead of `class` (the
 accessibility kind: `AXStandardWindow` for an ordinary window, `AXDialog`,
 `AXFloatingWindow`, ... - a lobby and a table may differ here); the client
 area in pixels **and** points (`1280x960 px ... = 640x480 pt`) with the

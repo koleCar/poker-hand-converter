@@ -775,6 +775,70 @@ pub fn enumerate(wanted: &dyn Fn(&str) -> bool) -> Result<Vec<RawWindow>, Platfo
     Ok(assemble(&snapshot, &mut BTreeMap::new()))
 }
 
+/// (T6) `--list-windows`' tiling details of one window from what the
+/// system said: its whole frame `bounds` (points, the window server's),
+/// its client area in pixels at `scale_permille`, and whether
+/// `AXSize` / `AXPosition` are settable. Plain Rust.
+pub fn details_of(
+    client: &Rect,
+    bounds: &Frame,
+    scale_permille: u32,
+    minimized: bool,
+    resizable: Option<bool>,
+    movable: Option<bool>,
+) -> super::WindowDetails {
+    let outer = (!minimized).then(|| to_pixels(bounds, scale_permille));
+    super::WindowDetails {
+        outer,
+        insets: outer.map(|outer| super::Insets::between(client, &outer)),
+        resizable,
+        movable,
+        // The Accessibility API has no minimum or maximum size attribute.
+        min_size: None,
+        max_size: None,
+    }
+}
+
+/// (T6) The tiling details of `windows` ([`super::WindowDetails`]): the
+/// whole window from the window server (no permission), the frame around
+/// the client area (the title bar, as the HUD measures it), and - with the
+/// Accessibility permission - whether the client lets its size and
+/// position be set (`AXUIElementIsAttributeSettable`: a question to the
+/// system, nothing is changed). Empty off macOS.
+pub fn details(windows: &[RawWindow]) -> BTreeMap<WindowId, super::WindowDetails> {
+    #[cfg(target_os = "macos")]
+    {
+        let trusted = ffi::trusted();
+        windows
+            .iter()
+            .filter_map(|w| {
+                let number = u32::try_from(w.id.0).ok()?;
+                let cg = ffi::cg_window(number)?;
+                let element = trusted
+                    .then(|| ffi::window_element(cg.pid, number, &cg.bounds).ok())
+                    .flatten();
+                let settable = |name| element.as_ref().and_then(|e| ffi::settable(e, name));
+                Some((
+                    w.id,
+                    details_of(
+                        &w.client,
+                        &cg.bounds,
+                        super::dpi_permille(w.monitor_dpi),
+                        w.minimized,
+                        settable("AXSize"),
+                        settable("AXPosition"),
+                    ),
+                ))
+            })
+            .collect()
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = windows;
+        BTreeMap::new()
+    }
+}
+
 // ---------------------------------------------------------------------
 // R3.12: where an overlay goes and whether it is stacked right - plain
 // Rust, unit-tested on every system; `appkit` (macOS) does what it says.

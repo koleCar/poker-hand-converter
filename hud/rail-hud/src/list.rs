@@ -21,6 +21,15 @@
 //! title (it never prompts and never asks for Screen Recording). The
 //! "class" is the accessibility subrole, the scale the screen's backing
 //! scale, "off screen" a window on another Space or of a hidden app.
+//!
+//! **Table tiling** (T6, docs/research/TABLE-TILING.md §5): each window's
+//! outer frame and the insets around its client area - what tiling lays
+//! edge to edge ([`crate::platform::Platform::frame_insets`]) -, whether it
+//! can be resized, its minimum and maximum size where the system says so
+//! without asking the client ([`crate::platform::WindowDetails`]), and for
+//! a window a room takes (its `tables` block, or `--try-title` with
+//! `--room`) whether that room permits the HUD, tiling and the RNG. Still
+//! read-only.
 
 #![forbid(unsafe_code)]
 
@@ -32,9 +41,14 @@ use regex::Regex;
 
 use crate::compliance::Compliance;
 use crate::exit_code;
+use std::collections::BTreeMap;
+
+use rail_hud_ipc::protocol::RefusalReason;
+
 use crate::platform::matcher::{read_title, same_process};
 use crate::platform::{
-    PlatformError, RawWindow, Redactor, TableMatcher, dpi_permille, macos, table_of, windows,
+    PlatformError, RawWindow, Redactor, TableMatcher, WindowDetails, WindowId, dpi_permille, macos,
+    table_of, window_details, windows,
 };
 
 pub const USAGE: &str = "\
@@ -43,6 +57,7 @@ table titles of real poker clients (docs/research/CAPTURING-TABLES.md).
 
   rail-hud --list-windows [--process <exe>]... [--you <name>]...
                           [--store <rail.db>] [--try-title <regex>]
+                          [--room <sites.json id>]
 
   --process <exe>     only this program's windows (PokerStars.exe on Windows,
                       the executable's name on macOS; repeat)
@@ -52,6 +67,13 @@ table titles of real poker clients (docs/research/CAPTURING-TABLES.md).
   --no-store          do not read the app's store
   --try-title <regex> a candidate title regex: what its `table` and `seats`
                       groups read from each title
+  --room <id>         the room --try-title is for (pokerstars, acr, ...):
+                      its HUD, tiling and RNG policy is shown with each
+                      window the regex takes
+
+Each window also shows its outer frame and the insets around the client
+area (what table tiling lays edge to edge), whether it can be resized, and
+for a room's window whether its policy permits the HUD, tiling and the RNG.
 
 Titles are redacted: anything after \"Logged in as\" and your screen names
 become <you>. Read the output before you share it.
@@ -70,6 +92,8 @@ pub struct ListArgs {
     pub store: Option<PathBuf>,
     pub no_store: bool,
     pub try_title: Option<Regex>,
+    /// (T6) The room `--try-title` is for: its policy is shown.
+    pub room: Option<String>,
 }
 
 impl ListArgs {
@@ -97,12 +121,16 @@ impl ListArgs {
                             .map_err(|e| format!("--try-title does not compile: {e}"))?,
                     );
                 }
+                "--room" => parsed.room = Some(value("--room")?),
                 "--help" | "-h" => return Err(String::new()),
                 other => return Err(format!("unknown argument {other} for --list-windows")),
             }
         }
         if parsed.no_store && parsed.store.is_some() {
             return Err("--store and --no-store".to_owned());
+        }
+        if parsed.room.is_some() && parsed.try_title.is_none() {
+            return Err("--room goes with --try-title".to_owned());
         }
         Ok(parsed)
     }
@@ -128,28 +156,22 @@ fn store_names(path: &std::path::Path) -> Result<Vec<String>, String> {
     reader.hero_names().map_err(|e| e.to_string())
 }
 
-/// The process: prints the list, returns the exit code.
-pub fn run(args: Vec<OsString>) -> i32 {
-    let args = match ListArgs::parse(args) {
-        Ok(args) => args,
-        Err(error) => {
-            if !error.is_empty() {
-                eprintln!("rail-hud: {error}");
-            }
-            eprint!("{USAGE}");
-            return if error.is_empty() {
-                exit_code::OK
-            } else {
-                exit_code::USAGE
-            };
-        }
-    };
-    let mut names = args.you.clone();
-    let mut notes = Vec::new();
-    let store = if args.no_store {
+/// The names to redact: `you`, and the hero names of `store` (the app's
+/// store when `None`, none with `no_store`); what was read goes in `notes`.
+/// Shared with `--tile-check` and `--watch-signals`.
+pub fn redaction_names(
+    you: &[String],
+    store: Option<&std::path::Path>,
+    no_store: bool,
+    notes: &mut Vec<String>,
+) -> Vec<String> {
+    let mut names = you.to_vec();
+    let store = if no_store {
         None
     } else {
-        args.store.clone().or_else(default_store)
+        store
+            .map(std::path::Path::to_path_buf)
+            .or_else(default_store)
     };
     if let Some(path) = &store {
         match store_names(path) {
@@ -167,6 +189,27 @@ pub fn run(args: Vec<OsString>) -> i32 {
             )),
         }
     }
+    names
+}
+
+/// The process: prints the list, returns the exit code.
+pub fn run(args: Vec<OsString>) -> i32 {
+    let args = match ListArgs::parse(args) {
+        Ok(args) => args,
+        Err(error) => {
+            if !error.is_empty() {
+                eprintln!("rail-hud: {error}");
+            }
+            eprint!("{USAGE}");
+            return if error.is_empty() {
+                exit_code::OK
+            } else {
+                exit_code::USAGE
+            };
+        }
+    };
+    let mut notes = Vec::new();
+    let names = redaction_names(&args.you, args.store.as_deref(), args.no_store, &mut notes);
     let macos = cfg!(target_os = "macos");
     let windows = match system_windows(&args, &mut notes) {
         Ok(windows) => windows,
@@ -181,19 +224,136 @@ pub fn run(args: Vec<OsString>) -> i32 {
         .map(Compliance::matchers)
         .unwrap_or_default();
     let redactor = Redactor::new(&names);
+    let wanted: Vec<RawWindow> = windows
+        .iter()
+        .filter(|w| shown(w, &args.processes))
+        .cloned()
+        .collect();
+    let details = window_details(&wanted);
     print!(
         "{}",
-        render(
-            &windows,
-            &args,
-            &redactor,
-            &matchers,
-            compliance.as_ref(),
-            &notes,
+        render(&Listing {
+            windows: &windows,
+            args: &args,
+            redactor: &redactor,
+            matchers: &matchers,
+            compliance: compliance.as_ref(),
+            notes: &notes,
             macos,
-        )
+            details: &details,
+        })
     );
     exit_code::OK
+}
+
+/// A window `--list-windows` prints: titled, of one of `processes` (any
+/// when empty).
+fn shown(window: &RawWindow, processes: &[String]) -> bool {
+    !window.title.trim().is_empty()
+        && (processes.is_empty() || processes.iter().any(|p| same_process(p, &window.process)))
+}
+
+/// What one listing is made of.
+#[derive(Debug)]
+pub struct Listing<'a> {
+    pub windows: &'a [RawWindow],
+    pub args: &'a ListArgs,
+    pub redactor: &'a Redactor,
+    pub matchers: &'a [TableMatcher],
+    pub compliance: Option<&'a Compliance>,
+    pub notes: &'a [String],
+    /// The windows are macOS's (subroles, backing scale, Spaces) rather
+    /// than Windows'.
+    pub macos: bool,
+    /// (T6) The windows' frames and sizes ([`window_details`]).
+    pub details: &'a BTreeMap<WindowId, WindowDetails>,
+}
+
+/// (T6) A policy answer as a listing says it.
+pub fn verdict(answer: Result<(), RefusalReason>) -> &'static str {
+    match answer {
+        Ok(()) => "permitted",
+        Err(RefusalReason::Prohibited) => "refused (the room prohibits it)",
+        Err(RefusalReason::Unknown) => "refused (policy unknown, counted as no)",
+        Err(RefusalReason::NotARoom) => "refused (not a room)",
+        Err(RefusalReason::UnknownSite) => "refused (not in sites.json)",
+    }
+}
+
+/// (T6) Room `site`'s three answers: the HUD, tiling ([`TilingPermit`]) and
+/// the RNG ([`RngPermit`]).
+///
+/// [`TilingPermit`]: crate::compliance::TilingPermit
+/// [`RngPermit`]: crate::compliance::RngPermit
+pub fn permits(compliance: &Compliance, site: &str) -> String {
+    format!(
+        "HUD {}; tiling {}; RNG {}",
+        verdict(compliance.decide(site)),
+        verdict(compliance.tiling_permit(site).map(|_| ())),
+        verdict(compliance.rng_permit(site).map(|_| ())),
+    )
+}
+
+/// (T6) A size as `WxH`, or `-`.
+fn size_text(size: Option<(u32, u32)>) -> String {
+    size.map_or_else(|| "-".to_owned(), |(w, h)| format!("{w}x{h}"))
+}
+
+/// (T6) `yes`, `no`, or `?` (the system did not say).
+fn yes_no(value: Option<bool>) -> &'static str {
+    match value {
+        Some(true) => "yes",
+        Some(false) => "no",
+        None => "?",
+    }
+}
+
+/// (T6) The `frame:` and `size:` lines of one window.
+fn frame_lines(out: &mut String, details: Option<&WindowDetails>, macos: bool) {
+    let Some(d) = details else {
+        let _ = writeln!(out, "frame:   not read");
+        return;
+    };
+    if let (Some(o), Some(i)) = (d.outer, d.insets) {
+        let _ = writeln!(
+            out,
+            "frame:   outer {}x{} at ({}, {}); insets left {}, top {}, right {}, bottom {} ({})",
+            o.width,
+            o.height,
+            o.x,
+            o.y,
+            i.left,
+            i.top,
+            i.right,
+            i.bottom,
+            if macos {
+                "px; the title bar"
+            } else {
+                "physical px; the visible frame"
+            }
+        );
+    } else {
+        let _ = writeln!(out, "frame:   not on screen (minimised or hidden)");
+    }
+    let limits = if d.min_size.is_none() && d.max_size.is_none() {
+        if macos {
+            "min/max: not given by the Accessibility API".to_owned()
+        } else {
+            "min/max: not readable without a message to the client".to_owned()
+        }
+    } else {
+        format!(
+            "min {}, max {}",
+            size_text(d.min_size),
+            size_text(d.max_size)
+        )
+    };
+    let _ = writeln!(
+        out,
+        "size:    resizable {}, movable {}; {limits}",
+        yes_no(d.resizable),
+        yes_no(d.movable)
+    );
 }
 
 /// This system's windows: Windows' top-level windows (R3.3), or macOS's
@@ -234,17 +394,18 @@ fn system_windows(
     }
 }
 
-/// The listing (no I/O: the tests feed it windows). `macos`: the windows
-/// are macOS's (subroles, backing scale, Spaces) rather than Windows'.
-pub fn render(
-    windows: &[RawWindow],
-    args: &ListArgs,
-    redactor: &Redactor,
-    matchers: &[TableMatcher],
-    compliance: Option<&Compliance>,
-    notes: &[String],
-    macos: bool,
-) -> String {
+/// The listing (no I/O: the tests feed it windows).
+pub fn render(listing: &Listing<'_>) -> String {
+    let Listing {
+        windows,
+        args,
+        redactor,
+        matchers,
+        compliance,
+        notes,
+        macos,
+        details,
+    } = *listing;
     let wanted = |w: &&RawWindow| {
         args.processes.is_empty() || args.processes.iter().any(|p| same_process(p, &w.process))
     };
@@ -349,6 +510,7 @@ pub fn render(
                 window.awareness.as_str()
             );
         }
+        frame_lines(&mut out, details.get(&window.id), macos);
         if let Some(table) = table_of(window, matchers) {
             let decision = match compliance.map(|c| c.decide(&table.site)) {
                 Some(Ok(())) => "HUD allowed".to_owned(),
@@ -362,6 +524,9 @@ pub fn render(
                 table.table.as_deref().map(|t| redactor.redact(t)),
                 seats(table.size)
             );
+            if let Some(compliance) = compliance {
+                let _ = writeln!(out, "permits: {}", permits(compliance, &table.site));
+            }
         }
         if let Some(pattern) = &args.try_title {
             match read_title(pattern, &window.title) {
@@ -372,6 +537,9 @@ pub fn render(
                         found.table.as_deref().map(|t| redactor.redact(t)),
                         seats(found.seats)
                     );
+                    if let (Some(room), Some(compliance)) = (&args.room, compliance) {
+                        let _ = writeln!(out, "         as {room}: {}", permits(compliance, room));
+                    }
                 }
                 None => {
                     let _ = writeln!(out, "try:     no match");
@@ -389,7 +557,7 @@ fn seats(seats: Option<u32>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::platform::{DpiAwareness, Rect, WindowId};
+    use crate::platform::{DpiAwareness, Insets, Rect};
 
     fn window(process: &str, title: &str) -> RawWindow {
         RawWindow {
@@ -416,6 +584,26 @@ mod tests {
         ListArgs::parse(list.iter().map(OsString::from).collect()).expect("args")
     }
 
+    /// A listing of `windows` with no matcher, policy or details.
+    fn plain<'a>(
+        windows: &'a [RawWindow],
+        args: &'a ListArgs,
+        redactor: &'a Redactor,
+        notes: &'a [String],
+        details: &'a BTreeMap<WindowId, WindowDetails>,
+    ) -> Listing<'a> {
+        Listing {
+            windows,
+            args,
+            redactor,
+            matchers: &[],
+            compliance: None,
+            notes,
+            macos: false,
+            details,
+        }
+    }
+
     #[test]
     fn arguments() {
         let parsed = args(&[
@@ -438,6 +626,10 @@ mod tests {
         assert!(parse(&["--standalone"]).is_err());
         assert!(parse(&["--no-store", "--store", "x"]).is_err());
         assert_eq!(parse(&["--help"]).err(), Some(String::new()));
+        // (T6) A room for the candidate regex, only with one.
+        assert!(parse(&["--room", "pokerstars"]).is_err());
+        let parsed = args(&["--try-title", "^x", "--room", "acr"]);
+        assert_eq!(parsed.room.as_deref(), Some("acr"));
     }
 
     /// The user's names never reach the output; the rest of the title,
@@ -454,20 +646,15 @@ mod tests {
             window("PokerStars.exe", ""),
         ];
         let redactor = Redactor::new(&["secretme".into()]);
-        let listing = render(
-            &windows,
-            &args(&[
-                "--process",
-                "pokerstars.exe",
-                "--try-title",
-                r"^(?P<table>.+?) - \$",
-            ]),
-            &redactor,
-            &[],
-            None,
-            &["a note".to_owned()],
-            false,
-        );
+        let list_args = args(&[
+            "--process",
+            "pokerstars.exe",
+            "--try-title",
+            r"^(?P<table>.+?) - \$",
+        ]);
+        let notes = ["a note".to_owned()];
+        let none = BTreeMap::new();
+        let listing = render(&plain(&windows, &list_args, &redactor, &notes, &none));
         assert!(!listing.to_lowercase().contains("secretme"), "{listing}");
         assert!(listing.contains("2 window(s) with a title (1 without one not shown)"));
         assert!(listing.contains("Logged In as <you>"), "{listing}");
@@ -491,21 +678,163 @@ mod tests {
             "ggpoker",
             Regex::new(r"^(?P<table>.+?) - (?P<seats>\d+)-max").expect("regex"),
         )];
-        let listing = render(
-            &[window("rail-hud-sim.exe", "Miramar - 6-max")],
-            &ListArgs::default(),
-            &Redactor::new(&[]),
-            &matchers,
-            Some(&compliance),
-            &[],
-            false,
-        );
+        let none = BTreeMap::new();
+        let listing = render(&Listing {
+            matchers: &matchers,
+            compliance: Some(&compliance),
+            ..plain(
+                &[window("rail-hud-sim.exe", "Miramar - 6-max")],
+                &ListArgs::default(),
+                &Redactor::new(&[]),
+                &[],
+                &none,
+            )
+        });
         assert!(
             listing.contains(
                 "room:    ggpoker (HUD refused: Prohibited), table Some(\"Miramar\"), seats 6"
             ),
             "{listing}"
         );
+        // (T6) Tiling and the RNG: GGPoker's own `false`s.
+        assert!(
+            listing.contains(
+                "permits: HUD refused (the room prohibits it); tiling refused (the room \
+                 prohibits it); RNG refused (the room prohibits it)"
+            ),
+            "{listing}"
+        );
+        assert!(listing.contains("frame:   not read"), "{listing}");
+    }
+
+    /// (T6) The frame, the insets, resizable; a candidate regex with its
+    /// room's policy: WPT Global refuses a HUD and permits tiling.
+    #[test]
+    fn tiling_details_and_permits() {
+        let compliance = Compliance::shipped().expect("shipped");
+        let table = window("WPTGlobal.exe", "NL 0.05/0.10 - Table 12");
+        let mut minimised = window("WPTGlobal.exe", "Lobby");
+        minimised.id = WindowId(8);
+        minimised.minimized = true;
+        let details = BTreeMap::from([
+            (
+                WindowId(7),
+                WindowDetails {
+                    outer: Some(Rect {
+                        x: 0,
+                        y: 0,
+                        width: 1216,
+                        height: 869,
+                    }),
+                    insets: Some(Insets {
+                        left: 8,
+                        top: 31,
+                        right: 8,
+                        bottom: 8,
+                    }),
+                    resizable: Some(true),
+                    movable: Some(true),
+                    min_size: None,
+                    max_size: None,
+                },
+            ),
+            (
+                WindowId(8),
+                WindowDetails {
+                    resizable: Some(false),
+                    movable: Some(true),
+                    ..WindowDetails::default()
+                },
+            ),
+        ]);
+        let list_args = args(&[
+            "--try-title",
+            r"^NL .+ - (?P<table>Table \d+)$",
+            "--room",
+            "wpt-global",
+        ]);
+        let listing = render(&Listing {
+            compliance: Some(&compliance),
+            ..plain(
+                &[table, minimised],
+                &list_args,
+                &Redactor::new(&[]),
+                &[],
+                &details,
+            )
+        });
+        assert!(
+            listing.contains(
+                "frame:   outer 1216x869 at (0, 0); insets left 8, top 31, right 8, bottom 8 \
+                 (physical px; the visible frame)"
+            ),
+            "{listing}"
+        );
+        assert!(
+            listing.contains(
+                "size:    resizable yes, movable yes; min/max: not readable without a message \
+                 to the client"
+            ),
+            "{listing}"
+        );
+        assert!(listing.contains("frame:   not on screen (minimised or hidden)"));
+        assert!(listing.contains("size:    resizable no, movable yes"));
+        assert!(
+            listing.contains(
+                "         as wpt-global: HUD refused (the room prohibits it); tiling permitted; \
+                 RNG refused (the room prohibits it)"
+            ),
+            "{listing}"
+        );
+        assert_eq!(
+            listing.matches("as wpt-global").count(),
+            1,
+            "the lobby: no match"
+        );
+    }
+
+    /// (T6) macOS: the whole window from the window server, the title bar
+    /// as the inset, at the screen's scale.
+    #[test]
+    fn macos_details() {
+        let client = Rect {
+            x: 20,
+            y: 116,
+            width: 1280,
+            height: 960,
+        };
+        let bounds = macos::Frame {
+            x: 10_000,
+            y: 30_000,
+            width: 640_000,
+            height: 508_000,
+        };
+        let d = macos::details_of(&client, &bounds, 2000, false, Some(true), Some(true));
+        assert_eq!(
+            d.outer,
+            Some(Rect {
+                x: 20,
+                y: 60,
+                width: 1280,
+                height: 1016
+            })
+        );
+        assert_eq!(
+            d.insets,
+            Some(Insets {
+                top: 56,
+                ..Insets::default()
+            })
+        );
+        let gone = macos::details_of(&client, &bounds, 2000, true, None, None);
+        assert_eq!(
+            (gone.outer, gone.insets, gone.resizable),
+            (None, None, None)
+        );
+        let mut out = String::new();
+        frame_lines(&mut out, Some(&d), true);
+        assert!(out.contains("insets left 0, top 56, right 0, bottom 0 (px; the title bar)"));
+        assert!(out.contains("min/max: not given by the Accessibility API"));
     }
 
     /// (R3.11) macOS's windows: the subrole, pixels and points at the
@@ -525,15 +854,18 @@ mod tests {
         let mut away = retina.clone();
         away.cloaked = true;
         away.title = "Florence 03".into();
-        let listing = render(
-            &[retina, away],
-            &ListArgs::default(),
-            &Redactor::new(&["SecretMe".into()]),
-            &[],
-            None,
-            &["Accessibility: granted".to_owned()],
-            true,
-        );
+        let notes = ["Accessibility: granted".to_owned()];
+        let none = BTreeMap::new();
+        let listing = render(&Listing {
+            macos: true,
+            ..plain(
+                &[retina, away],
+                &ListArgs::default(),
+                &Redactor::new(&["SecretMe".into()]),
+                &notes,
+                &none,
+            )
+        });
         assert!(!listing.contains("SecretMe"), "{listing}");
         assert!(
             listing.contains("subrole: \"AXStandardWindow\""),
