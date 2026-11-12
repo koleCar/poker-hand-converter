@@ -903,7 +903,8 @@ export interface TilingSlot {
   id: string;
   monitor: number;
   rect: SlotRect;
-  kind: "play" | "lobby";
+  /** (T7) `action`: an Action Required slot; `other`: a newer build's kind (never given a table). */
+  kind: "play" | "lobby" | "action" | "other";
   rooms: string[] | null;
   stack: boolean;
 }
@@ -1013,6 +1014,8 @@ export interface RoomPolicy {
   tiling: ToolPolicy;
   /** (T0, T5) The RNG's policy. */
   rng: ToolPolicy;
+  /** (T7) The Action Required slot's: `permitted` only with tiling allowed and a turn signal for this system. */
+  actionSlot: ToolPolicy;
 }
 
 /** `policy::ToolPolicyDto` (T5): a room's word on tiling or the RNG, decided on the Rust side. */

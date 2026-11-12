@@ -67,7 +67,7 @@ Three rules from the architecture hold here:
 | `lib.rs` | Command line (`Args`), exit codes, `run`: load the shipped `sites.json`, merge `--policy`, connect to the app, run the engine |
 | `main.rs` | Exits with `rail_hud::main_with(args)`; forbids `unsafe` |
 | `engine.rs` | The one loop: looks for tables every 500 ms (the safety net once hooks follow them), attaches or refuses each window once, matches each `hand_imported` to its window by exact table name, re-reads, redraws, reports health, latency and `tables_open`; when tiling is on (T2), feeds the tiler and its worker; (T4) rolls each table's RNG on its triggers and draws it, beside the panels or alone (RNG-only overlays) |
-| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows; T3: the engine tiles only rooms with one) and `RngPermit` (draw the RNG over them; T3 hands it out with the RNG settings, `Hud::rng_for`, for T4), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter |
+| `compliance.rs` | `hud.allowed` per room from the merged configuration; a remote copy can only make a room stricter; produces the `Permit` every frame carries. Also `tiling.allowed` and `rng.allowed` per room (table tiling T0), each independent of `hud`: `TilingPermit` (move and resize the room's table windows; T3: the engine tiles only rooms with one) and `RngPermit` (draw the RNG over them; T3 hands it out with the RNG settings, `Hud::rng_for`, for T4), same rules - a room, an explicit `true`, unknown is no, a remote copy only stricter; (T7) `ActionPermit` (`actionSlot` and `tiling` allowed, with the client's turn signal for this system: none today) |
 | `data.rs` | The read path: `Reader::hud_totals` over the table's segment, `hud_own_totals` on rooms that allow statistics from your own hands only, the user's own statistics, `PRAGMA data_version` to notice commits without a message |
 | `panel.rs` | What a seat's panel says: the definitions with `hud: panel` (VPIP, PFR, 3B, F3B, CB, AFq), colour band, reliability opacity, hand count; the player's colour, note mark and labels where allowed; `PanelDesign::enforce` applies a room's restrictions |
 | `design.rs` | HUD designs, presets (`config/hud/presets.json`: cash, tournament, Spin, and tournament by stack depth for ACR only), assignments per room / format / table size, `check_for_room` |
@@ -79,7 +79,7 @@ Three rules from the architecture hold here:
 | `list.rs` | `--list-windows`: the read-only diagnostic that captures real table titles, redacted; (T6) each window's outer frame, insets and whether it is resizable, and a room's HUD / tiling / RNG answers (`--try-title` with `--room` before the room has a `tables` block) |
 | `tilecheck.rs` | (T6) `--tile-check`: one program's tables tiled once with the tiling engine and the backend's `place`, read back and reported (asked vs accepted, aspect kept, ms per move, refused sizes); refuses a room whose tiling policy is not `true` and never moves its windows (nor a program that looks like such a room's); `--restore` puts them back |
 | `signals.rs` | (T6, for T7) `--watch-signals`: a read-only, timestamped log of a client's own window signals - Windows' taskbar flash (`HSHELL_FLASH`), foreground, minimise, title and window order (`platform/windows/signals.rs`); macOS's window order |
-| `tiling.rs` | Table tiling (T2), platform-free: layouts and slots (serde, camelCase, monitors by order not id), the auto grid (largest tables of every room's aspect, spread over the monitors, edge to edge on outer rects, kept while it still fits), assignment (first free slot, stacking, stable, pins), fit, the one retry of a refused size, auto-switch by table count |
+| `tiling.rs` | Table tiling (T2), platform-free: layouts and slots (serde, camelCase, monitors by order not id), the auto grid (largest tables of every room's aspect, spread over the monitors, edge to edge on outer rects, kept while it still fits), assignment (first free slot, stacking, stable, pins), fit, the one retry of a refused size, auto-switch by table count; (T7) Action Required slots: turns from the rooms' own signals, queued, held, timed out |
 | `placer.rs` | Tiling's placement worker: a thread of its own that places through the backend's `Placer`, never while a mouse button is down or within 600 ms of a click, the queue coalesced per window |
 | `platform/mod.rs` | The `Platform` trait (find tables, follow, overlay, permission; for table tiling, T1: `monitors` and `place`, T2: `frame_insets` and a `Placer` for the worker - placing and the mouse) and table identity |
 | `platform/matcher.rs` | A room's processes and title regex; the table name read from a title; `table_key` equality (`Table 1` is not `Table 11`) |
@@ -137,6 +137,19 @@ Off unless switched on: by the app's settings (T3, `tiling_changed` with
    quiet and calls `place`; the answers come back at the next tick. A
    refused size is kept and centred once; a table the user drags is pinned
    until a re-tile. The overlays follow the tables as they move.
+
+**Action Required slot (T7).** A user layout may hold slots of kind
+`action`. While the client of a room whose policy gives an `ActionPermit`
+(`sites.json` `actionSlot` and `tiling` allowed, a turn signal for this
+system - **no room today**) signals the user's turn by itself - a taskbar
+flash, the table brought forward (`TableEvent::Signalled`, from
+`Platform::watch_turn_signals`: on Windows the `--watch-signals` hooks on a
+thread of the backend's, started only for such rooms' programs and only
+while the layout has an action slot; no source on macOS) - the table moves
+into a free action slot and back once the signals stop (`tiling.rs`:
+`hold` 10 s after the last, `max` 45 s, `dwell` 1.5 s, `cooldown` 1.5 s;
+turns queue in order; closing, minimising or dragging a table ends its
+turn). Nothing is read inside a table. No "In-Hand" kind.
 
 **Global hotkeys (T7).** The app owns them (`app/src-tauri/src/hotkeys.rs`,
 `tauri-plugin-global-shortcut`: `RegisterHotKey` / Carbon hot keys, no
@@ -327,7 +340,10 @@ draws, RNG-only overlays, new hand / click / timer rolls, drags per room
 and size, panels off), `hotkeys_sim` (T7, headless: each hotkey through
 `dispatch` to the engine - re-tile, next / previous layout, tiling on / off
 moving only permitted rooms' tables; the RNG key inert on the shipped
-policy, the table in front only on a test policy), `tiling_sim` (T2, headless: twelve tables of two rooms
+policy, the table in front only on a test policy), `action_slot_sim` (T7,
+headless, on a test policy that allows PokerStars' slot on its flash: in and
+back, the wrong signal, two turns queued, a table closed in the slot, the
+mouse held, ACR / Winamax / the shipped policy never moved), `tiling_sim` (T2, headless: twelve tables of two rooms
 over two monitors, stacking, closing, a refused size, a pinned table, the
 mouse held, a refused room never moved) and `twelve_tables` (R3.14's budget: twelve tables posing
 as PokerStars plus one posing as GGPoker, which must get no overlay).

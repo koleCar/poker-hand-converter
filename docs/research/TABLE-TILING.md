@@ -332,7 +332,7 @@ The design comes first on the map canvas (Ideas page), as for every screen.
 - Monitor ids differ between machines. A layout whose monitor is missing falls
   back to the primary monitor and scales.
 
-### 4.6 Later: dynamic slots (Action Required, In-Hand)
+### 4.6 Dynamic slots: Action Required (T7, built; no room allows it yet)
 
 These need to know, live, that it is hero's turn or that hero is in the
 hand. Rail deliberately reads nothing about the hand in play today (the HUD
@@ -354,6 +354,44 @@ Recommendation: ship static tiling and the RNG first. Decide on dynamic slots
 only after static tiling runs on real clients and the per-room signals have
 been checked.
 
+**As built (T7, PR B):** the mechanism, behind a policy that says no
+everywhere today.
+
+- **Only "Action Required".** No "In-Hand" kind: moving a table because the
+  user is in the hand reacts to a player's action, which PokerStars'
+  Reference Guide forbids a script to do.
+- **Policy:** `sites.json` `actionSlot` per entry - `allowed` (+ source,
+  date, notes as for `tiling`) and `signal`, the client's own turn signal
+  per system (`flash`, `foreground`, `raised`). `null` on every entry; an
+  allowance needs `tiling` allowed and a signal; a remote copy can only
+  withdraw it and never changes the signal
+  ([`TILING-POLICIES.md`](TILING-POLICIES.md)). The HUD's
+  `Compliance::action_permit` is the yes.
+- **Signal source:** only the room's own windows. Windows: the
+  `--watch-signals` hooks (`HSHELL_FLASH` through the shell hook, the
+  foreground WinEvent, a raise above other programs) on a thread of the
+  backend's, started only for the programs of rooms with an
+  `ActionPermit` and only while the layout in force has an action slot -
+  so today never. macOS: no source (a Dock bounce is invisible to other
+  programs; the window order alone is not a turn signal until T6 shows it
+  is). Nothing is read inside a table, no pixel, no screen capture.
+- **Engine** (`tiling.rs`): a signal of the room's kind starts or extends
+  the table's turn; it moves into a free action slot (one table per slot,
+  its own slot kept) and back when the turn is over - 10 s after the last
+  signal, at most 45 s after the first, never sooner than 1.5 s after it
+  came, and its signals ignored for 1.5 s after it went back (no
+  thrashing). Turns wait in the order they came. A table closed,
+  minimised or moved by the user leaves its turn; a layout change sends
+  every table home; a stricter policy ends turns at the next look. The
+  placement worker's quiet-mouse rule holds for these moves too.
+- **App:** the slot editor's "Action Required" switch per slot, greyed with
+  "No room allows this yet" while `hud_policy` shows no room permitting it;
+  an action slot is drawn dashed and never stacks.
+- **Older builds** cannot read a layout with an `action` slot (they read
+  the whole tiling settings as the defaults); none can be made until a room
+  allows the slot. This build reads a newer kind as `other` (never given a
+  table).
+
 ---
 
 ## 5. Steps
@@ -370,7 +408,7 @@ macOS and Windows.
 | **T4** | RNG widget in `scene.rs` + both overlay backends; CSPRNG; triggers: new hand, click, timer; drag + stored position; RNG-only permit | M | T0, T3 |
 | **T5** | Tables screen in the app: monitor preview, slot editor, layout picker, per-room switches, RNG settings. Canvas design first, owner approves | M | T3 |
 | **T6** | Real clients: capture titles, processes and table geometry (`CAPTURING-TABLES.md`); check tiling + RNG on each room ([`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md)) | — | owner's machines (Windows test machine) |
-| **T7** | Global hotkeys (PR A); dynamic slots from the rooms' own window signals (PR B) | L | T6 for turning any room's dynamic slot on |
+| **T7** | Global hotkeys (PR A); the Action Required slot from the rooms' own window signals (PR B, every room `null`) | L | T6 + the owner's signed verdict for turning any room's slot on |
 
 **T6, the tools (built):** the owner's sitting with the real clients is
 [`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md) §5 - §7. `rail-hud
@@ -415,6 +453,14 @@ client's own window signals (taskbar flash, foreground, window order) for
   "Roll the RNG" greyed while no room allows the RNG.
 - **Not yet on real clients:** whether a client's own hotkeys collide, and
   macOS's behaviour with a full-screen table.
+
+**T7, the Action Required slot (built, PR B):** see §4.6. The mechanism runs
+on the simulator (`tests/action_slot_sim.rs`: in and back, the wrong
+signal, two turns queued, a table closed in the slot, the mouse held, a room
+without the permit); `sites.json` `actionSlot` is `null` on every entry, so
+nothing moves on a real client. Turning a room on needs the owner's signed
+verdict and that room's signal captured in T6
+([`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md) §6).
 
 ## 6. Open questions for the owner
 

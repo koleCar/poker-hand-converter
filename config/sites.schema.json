@@ -35,7 +35,7 @@
       "additionalProperties": false,
       "required": [
         "id", "name", "kind", "parser", "network", "operating", "skins",
-        "paths", "files", "tables", "hud", "tiling", "rng", "anonymisation", "docs", "notes"
+        "paths", "files", "tables", "hud", "tiling", "rng", "actionSlot", "anonymisation", "docs", "notes"
       ],
       "properties": {
         "id": {
@@ -76,6 +76,10 @@
           "description": "Whether Rail may draw an on-screen random number generator on this room's tables (T0). Independent of hud and tiling.",
           "$ref": "#/$defs/permission"
         },
+        "actionSlot": {
+          "description": "Whether tiling may move a table into an Action Required slot while the room's client itself signals it is the user's turn (T7: its own window signals only - a taskbar flash, the table brought forward -, nothing read inside the table), and which signal. Only with tiling allowed; allowed true needs a signal. A downloaded file can only withdraw it, and its signal is always the shipped copy's.",
+          "$ref": "#/$defs/actionSlot"
+        },
         "anonymisation": {
           "description": "What player names in this client's files are (docs/DATABASE.md, Player identity and anonymized rooms): the site-level default of web/src/lib/db/anonymization.ts. null when no parser reads the files.",
           "enum": ["none", "positional", "opaque-id", null]
@@ -95,6 +99,7 @@
               "hud": { "properties": { "allowed": { "not": { "const": true } } } },
               "tiling": { "properties": { "allowed": { "not": { "const": true } } } },
               "rng": { "properties": { "allowed": { "not": { "const": true } } } },
+              "actionSlot": { "properties": { "allowed": { "not": { "const": true } } } },
               "tables": {
                 "properties": {
                   "process": {
@@ -335,6 +340,40 @@
         "properties": {
           "source": { "type": "string", "pattern": "^https://" },
           "checkedAt": { "$ref": "#/$defs/date" }
+        }
+      }
+    },
+    "actionSlot": {
+      "description": "A room's policy on the Action Required slot (T7): a permission plus the client's own turn signal per system (null: none usable there). allowed true needs a signal for at least one system.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "source", "checkedAt", "notes", "signal"],
+      "properties": {
+        "allowed": { "type": ["boolean", "null"] },
+        "source": { "type": ["string", "null"] },
+        "checkedAt": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "notes": { "type": ["string", "null"] },
+        "signal": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["windows", "macos"],
+              "properties": {
+                "windows": { "enum": ["flash", "foreground", "raised", null] },
+                "macos": { "enum": ["flash", "foreground", "raised", null] }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      },
+      "if": { "properties": { "allowed": { "const": true } } },
+      "then": {
+        "properties": {
+          "source": { "type": "string", "pattern": "^https://" },
+          "checkedAt": { "$ref": "#/$defs/date" },
+          "signal": { "type": "object" }
         }
       }
     },

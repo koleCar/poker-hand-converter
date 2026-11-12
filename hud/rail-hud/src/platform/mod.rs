@@ -477,6 +477,15 @@ pub enum TableEvent {
         /// The table's monitor scale, thousandths.
         scale_permille: u32,
     },
+    /// (T7) A table's own window gave one of the signals a client gives by
+    /// itself - its taskbar button flashed, it came to the foreground or
+    /// was raised above other programs - for the Action Required slot.
+    /// Reported only for the programs the engine asked to watch
+    /// ([`Platform::watch_turn_signals`]); nothing inside the table is read.
+    Signalled {
+        id: WindowId,
+        signal: rail_config::SignalKind,
+    },
 }
 
 /// (T4) The pseudo-slot of the RNG widget: what the overlays' shared drag
@@ -871,6 +880,17 @@ pub trait Platform {
     /// cannot tell (the default).
     fn focused_window(&mut self) -> Option<WindowId> {
         None
+    }
+
+    /// (T7) Watch `processes`' windows for the signals a client gives by
+    /// itself on the user's turn, reported as [`TableEvent::Signalled`]
+    /// (empty: stop). The engine asks only for rooms whose policy gives an
+    /// `ActionPermit` and only while the layout in force has an Action
+    /// Required slot - so today never. Read-only: nothing is loaded into a
+    /// client, nothing inside a table is read. The default: no source
+    /// (macOS, where a Dock bounce is invisible to another program).
+    fn watch_turn_signals(&mut self, processes: &[String]) {
+        let _ = processes;
     }
 }
 

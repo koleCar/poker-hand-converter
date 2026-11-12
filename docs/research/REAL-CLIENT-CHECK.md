@@ -526,8 +526,11 @@ A usable signal is one that comes **every** time it is your turn, on that
 table's own window, within about a second, and not otherwise. The policy
 side is separate: PokerStars' guide allows a script to react to the time
 bank showing but not to a player's action, and "Action Required" needs its
-own reading before T7 builds anything
-([`TILING-POLICIES.md`](TILING-POLICIES.md)).
+own reading ([`TILING-POLICIES.md`](TILING-POLICIES.md)). T7 built the
+slot behind `sites.json` `actionSlot`, `null` for every room: a usable
+signal found here becomes that room's `actionSlot.signal` (`flash`,
+`foreground` or `raised`, per system) - with the room's own text and the
+owner's signed verdict, never on the signal alone.
 
 | | Flash on turn | Raise / foreground on turn | False signals | Client setting needed | Usable? |
 | --- | --- | --- | --- | --- | --- |

@@ -180,7 +180,7 @@ use crate::platform::{
 };
 use crate::scene::Rgba;
 use crate::seats::{self, Rooms};
-use crate::tiling::{Mouse, Observed, Options as TilingOptions, Tiler};
+use crate::tiling::{ActionTiming, Mouse, Observed, Options as TilingOptions, Tiler};
 use rail_hud_ipc::settings::{RngSettings, TilingSettings};
 
 /// What the loop is fed.
@@ -329,7 +329,7 @@ impl TilingConfig {
     pub fn from_settings(settings: &TilingSettings) -> Self {
         let switches = settings.clone();
         Self {
-            options: tiling_options(settings, BTreeMap::new()),
+            options: tiling_options(settings, BTreeMap::new(), ActionTiming::default()),
             allowed: Box::new(move |site| switches.room_enabled(site)),
             simulator_only: false,
             permit: true,
@@ -342,6 +342,7 @@ impl TilingConfig {
 fn tiling_options(
     settings: &TilingSettings,
     rooms: BTreeMap<String, crate::tiling::RoomGeometry>,
+    action: ActionTiming,
 ) -> TilingOptions {
     TilingOptions {
         layouts: settings.layouts.clone(),
@@ -349,6 +350,7 @@ fn tiling_options(
         rooms,
         close_gaps: settings.close_gaps,
         auto_switch: settings.auto_switch.clone(),
+        action,
     }
 }
 
@@ -414,6 +416,10 @@ struct Tiling {
     permit: bool,
     /// (T5) The table name of each window it was handed (the title's).
     names: BTreeMap<WindowId, Option<String>>,
+    /// (T7) Each window's room and program, for its turn signals.
+    rooms: BTreeMap<WindowId, (String, String)>,
+    /// (T7) The programs the platform watches for turn signals now.
+    watched: Vec<String>,
 }
 
 impl Tiling {
@@ -565,6 +571,8 @@ pub struct Hud {
     /// on or not (the app's Tables screen draws them).
     monitors: Vec<Monitor>,
     next_monitors: Instant,
+    /// (T7) The Action Required slot's timing ([`Hud::set_action_timing`]).
+    action_timing: ActionTiming,
 }
 
 impl std::fmt::Debug for Hud {
@@ -622,6 +630,7 @@ impl Hud {
             tiling_heard: false,
             monitors: Vec::new(),
             next_monitors: now,
+            action_timing: ActionTiming::default(),
             rng_only: BTreeMap::new(),
             rolls: BTreeMap::new(),
             rng_positions: BTreeMap::new(),
@@ -752,7 +761,9 @@ impl Hud {
             .placer()
             .ok_or_else(|| format!("the {} backend cannot place windows", self.platform.name()))?;
         let worker = Worker::start(placer).map_err(|e| format!("the tiling worker: {e}"))?;
-        let mut tiler = Tiler::new(config.options);
+        let mut options = config.options;
+        options.action = self.action_timing;
+        let mut tiler = Tiler::new(options);
         self.monitors = self.platform.monitors();
         self.next_monitors = Instant::now() + MONITORS_EVERY;
         tiler.set_monitors(self.monitors.clone());
@@ -773,6 +784,8 @@ impl Hud {
             simulator_only: config.simulator_only,
             permit: config.permit,
             names: BTreeMap::new(),
+            rooms: BTreeMap::new(),
+            watched: Vec::new(),
         });
         self.find_soon = true;
         Ok(())
@@ -781,8 +794,45 @@ impl Hud {
     /// (T2) Switch table tiling off: nothing queued is carried out, every
     /// window stays where it is.
     pub fn disable_tiling(&mut self) {
-        if self.tiling.take().is_some() {
+        if let Some(tiling) = self.tiling.take() {
             eprintln!("rail-hud: tiling off");
+            if !tiling.watched.is_empty() {
+                self.platform.watch_turn_signals(&[]);
+            }
+        }
+    }
+
+    /// (T7) The Action Required slot's timing (tests; the defaults
+    /// otherwise), for tiling now and when it is switched on again.
+    pub fn set_action_timing(&mut self, timing: ActionTiming) {
+        self.action_timing = timing;
+        if let Some(tiling) = self.tiling.as_mut() {
+            let mut options = tiling.tiler.options().clone();
+            options.action = timing;
+            tiling.tiler.set_options(options);
+        }
+    }
+
+    /// (T7) Table `id`'s window gave `signal`: a turn, when tiling holds the
+    /// table, the layout in force has an Action Required slot and the
+    /// table's room gives an `ActionPermit` whose signal it is (asked now).
+    /// Any other signal, room or table: nothing.
+    fn turn_signal(&mut self, id: WindowId, signal: rail_config::SignalKind) {
+        let Some(tiling) = self.tiling.as_mut() else {
+            return;
+        };
+        let Some((site, _)) = tiling.rooms.get(&id) else {
+            return;
+        };
+        let permitted = self
+            .compliance
+            .action_permit(site)
+            .is_ok_and(|permit| permit.signal() == signal);
+        if permitted && tiling.tiler.turn(id, Instant::now()) {
+            eprintln!(
+                "rail-hud: window {}: your turn ({site}): to the action slot",
+                id.0
+            );
         }
     }
 
@@ -817,7 +867,10 @@ impl Hud {
         match self.tiling.as_mut() {
             Some(tiling) => {
                 let rooms = tiling.tiler.options().rooms.clone();
-                tiling.tiler.set_options(tiling_options(settings, rooms));
+                let action = tiling.tiler.options().action;
+                tiling
+                    .tiler
+                    .set_options(tiling_options(settings, rooms, action));
                 tiling.allowed = config.allowed;
                 tiling.simulator_only = config.simulator_only;
                 tiling.permit = config.permit;
@@ -1370,6 +1423,8 @@ impl Hud {
         for id in tiling.tiler.take_cancels() {
             tiling.worker.cancel(id);
         }
+        // (T7) Turns over go back, waiting ones take a free action slot.
+        tiling.tiler.step_turns(now);
         for m in tiling.tiler.plan() {
             tiling.worker.place(m);
         }
@@ -1398,6 +1453,40 @@ impl Hud {
         tiling.names = names;
         let mouse = tiling.mouse(now);
         tiling.tiler.sync(&seen, now, mouse);
+        // (T7) The Action Required slot: the rooms whose policy gives an
+        // `ActionPermit` (asked at every look: a stricter remote policy
+        // ends their turns at once), and their programs watched for turn
+        // signals only while the layout in force has such a slot.
+        tiling.rooms = found
+            .iter()
+            .filter(|w| tiling.names.contains_key(&w.id))
+            .map(|w| (w.id, (w.site.clone(), w.process.name.clone())))
+            .collect();
+        let permitted: std::collections::BTreeSet<WindowId> = tiling
+            .rooms
+            .iter()
+            .filter(|(_, (site, _))| compliance.action_permit(site).is_ok())
+            .map(|(id, _)| *id)
+            .collect();
+        tiling.tiler.end_turns_unless(&|id| permitted.contains(&id));
+        let mut watch: Vec<String> = if tiling.tiler.has_action_slot() {
+            permitted
+                .iter()
+                .filter_map(|id| tiling.rooms.get(id).map(|(_, process)| process.clone()))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        watch.sort();
+        watch.dedup();
+        if watch != tiling.watched {
+            eprintln!(
+                "rail-hud: watching {} program(s) for the Action Required slot",
+                watch.len()
+            );
+            self.platform.watch_turn_signals(&watch);
+            tiling.watched = watch;
+        }
     }
 
     /// Run until told to stop; `out` sends to the app (never blocks).
@@ -2138,6 +2227,8 @@ impl Hud {
                     }
                 }
                 TableEvent::Appeared => self.find_soon = true,
+                // (T7) A table's own window signal: perhaps its turn.
+                TableEvent::Signalled { id, signal } => self.turn_signal(id, signal),
                 // (T4) The RNG widget is dragged and clicked as a panel at
                 // its pseudo-slot.
                 TableEvent::PanelMoved {

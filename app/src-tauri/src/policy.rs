@@ -175,6 +175,10 @@ pub struct RoomPolicyDto {
     pub tiling: ToolPolicyDto,
     /// (T0, T5) The RNG's policy.
     pub rng: ToolPolicyDto,
+    /// (T7) The Action Required slot's policy: `permitted` only with
+    /// tiling allowed too and a turn signal for this system (what the HUD
+    /// acts on, `rail_hud::compliance::Compliance::action_permit`).
+    pub action_slot: ToolPolicyDto,
 }
 
 /// (T5) A room's policy on tiling or the RNG, decided here so the window
@@ -196,7 +200,12 @@ impl ToolPolicyDto {
         let permission = site.permission(feature);
         Self {
             allowed: permission.allowed,
-            permitted: site.permits(feature),
+            permitted: match feature {
+                Feature::ActionSlot => site
+                    .action_slot_signal(rail_config::Os::current())
+                    .is_some(),
+                _ => site.permits(feature),
+            },
             needs_approval: permission.needs_approval(),
         }
     }
@@ -243,6 +252,7 @@ fn rooms(config: &Config, shipped: Option<&Config>) -> Vec<RoomPolicyDto> {
                 closed: site.operating == Some(false),
                 tiling: ToolPolicyDto::of(site, Feature::Tiling),
                 rng: ToolPolicyDto::of(site, Feature::Rng),
+                action_slot: ToolPolicyDto::of(site, Feature::ActionSlot),
             }
         })
         .collect()
@@ -402,6 +412,8 @@ mod tests {
         assert!(!winamax.tiling.permitted && winamax.tiling.needs_approval);
         assert!(winamax.rng.needs_approval);
         assert!(!room("ggpoker").tiling.needs_approval);
+        // (T7) The Action Required slot: no room yet.
+        assert!(dto.rooms.iter().all(|r| !r.action_slot.permitted));
         assert!(room("fulltilt").closed && !stars.closed);
         let _ = std::fs::remove_dir_all(&dir);
     }

@@ -560,6 +560,13 @@
   opacity: 1;
 }
 
+/* (T7) An Action Required slot: dashed, no felt. */
+.slot[data-kind="action"] {
+  border: 1px dashed var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+}
+
 .slot:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 1px;

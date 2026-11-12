@@ -258,6 +258,10 @@ struct Control {
     drag_seq: u64,
     /// (T7) The table in front ([`Platform::focused_window`]).
     focused: Option<u32>,
+    /// (T7) Window signals for the next `poll_events`: table, signal.
+    signals: Vec<(u32, rail_config::SignalKind)>,
+    /// (T7) What the engine asked to watch ([`Platform::watch_turn_signals`]).
+    watched: Vec<String>,
 }
 
 impl Control {
@@ -371,6 +375,18 @@ impl SimControl {
         self.lock().focused = number;
     }
 
+    /// (T7) Table `number`'s window gives `signal` by itself (its taskbar
+    /// button flashes, its client brings it forward), reported at the next
+    /// `poll_events` - as a client's own window signals would be.
+    pub fn signal(&self, number: u32, signal: rail_config::SignalKind) {
+        self.lock().signals.push((number, signal));
+    }
+
+    /// (T7) The programs the engine last asked to watch for turn signals.
+    pub fn watched(&self) -> Vec<String> {
+        self.lock().watched.clone()
+    }
+
     /// (T2) Table `number`'s client area now, as the simulator has it.
     pub fn client_of(&self, number: u32) -> Option<Rect> {
         let feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
@@ -469,6 +485,8 @@ impl SimBackend {
                 pointer: Vec::new(),
                 drag_seq: 0,
                 focused: None,
+                signals: Vec::new(),
+                watched: Vec::new(),
             })),
             feed: feed.clone(),
         };
@@ -770,6 +788,18 @@ impl Platform for SimBackend {
             }
         }
         events.extend(self.pointer_events());
+        // (T7) The tables' own window signals, for any table the simulator
+        // has (tiling's tables need not be tracked).
+        let signals = std::mem::take(&mut self.control.lock().signals);
+        events.extend(
+            signals
+                .into_iter()
+                .filter(|(number, _)| now.contains_key(number))
+                .map(|(number, signal)| TableEvent::Signalled {
+                    id: WindowId(u64::from(number)),
+                    signal,
+                }),
+        );
         events
     }
 
@@ -829,6 +859,12 @@ impl Platform for SimBackend {
     /// (T7) The table the test put in front ([`SimControl::focus`]).
     fn focused_window(&mut self) -> Option<WindowId> {
         self.control.lock().focused.map(|n| WindowId(u64::from(n)))
+    }
+
+    /// (T7) Kept for the test ([`SimControl::watched`]); the signals are
+    /// the test's ([`SimControl::signal`]).
+    fn watch_turn_signals(&mut self, processes: &[String]) {
+        processes.clone_into(&mut self.control.lock().watched);
     }
 }
 

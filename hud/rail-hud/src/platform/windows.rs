@@ -325,6 +325,83 @@ pub struct WindowsBackend {
     /// tracked window.
     #[cfg(windows)]
     overlays: Option<overlay::OverlayThread>,
+    /// (T7) The live feed of turn signals, while the engine wants one.
+    #[cfg(windows)]
+    turn_watch: Option<TurnWatch>,
+}
+
+/// (T7) The Action Required slot's turn signals on Windows: `--watch-signals`'
+/// own hooks (`signals::watch_while`: the shell hook's `HSHELL_FLASH`, the
+/// foreground WinEvent, the window order) for the programs the engine named,
+/// on a thread of its own until it is stopped (dropped). Only a flash, the
+/// foreground and a raise above other programs are kept. Read-only.
+#[cfg(windows)]
+#[derive(Debug)]
+struct TurnWatch {
+    processes: Vec<String>,
+    stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    noted: std::sync::Arc<std::sync::Mutex<Vec<(WindowId, rail_config::SignalKind)>>>,
+}
+
+#[cfg(windows)]
+impl TurnWatch {
+    fn start(processes: Vec<String>) -> Option<Self> {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::{Arc, Mutex, PoisonError};
+        let stop = Arc::new(AtomicBool::new(false));
+        let noted: Arc<Mutex<Vec<(WindowId, rail_config::SignalKind)>>> = Arc::default();
+        let (thread_stop, thread_noted, watched) =
+            (Arc::clone(&stop), Arc::clone(&noted), processes.clone());
+        let spawned = std::thread::Builder::new()
+            .name("rail-hud-turn-signals".to_owned())
+            .spawn(move || {
+                let go_on = |_| !thread_stop.load(Ordering::SeqCst);
+                let mut sink = |event: crate::signals::SignalEvent| {
+                    let kind = match event.signal {
+                        crate::signals::Signal::Flash => rail_config::SignalKind::Flash,
+                        crate::signals::Signal::Foreground => rail_config::SignalKind::Foreground,
+                        crate::signals::Signal::TopOfDesktop => rail_config::SignalKind::Raised,
+                        _ => return,
+                    };
+                    if let Some(id) = event.window {
+                        thread_noted
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner)
+                            .push((id, kind));
+                    }
+                };
+                if let Err(error) = signals::watch_while(&watched, &go_on, &mut sink) {
+                    eprintln!("rail-hud: turn signals: {error}");
+                }
+            });
+        match spawned {
+            Ok(_) => Some(Self {
+                processes,
+                stop,
+                noted,
+            }),
+            Err(error) => {
+                eprintln!("rail-hud: no thread for the turn signals: {error}");
+                None
+            }
+        }
+    }
+
+    fn take(&self) -> Vec<(WindowId, rail_config::SignalKind)> {
+        std::mem::take(
+            &mut *self
+                .noted
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
+        )
+    }
+}
+
+#[cfg(windows)]
+impl Drop for TurnWatch {
+    fn drop(&mut self) {
+        self.stop.store(true, std::sync::atomic::Ordering::SeqCst);
+    }
 }
 
 impl WindowsBackend {
@@ -530,14 +607,27 @@ impl Platform for WindowsBackend {
     fn poll_events(&mut self) -> Vec<TableEvent> {
         #[cfg(windows)]
         {
-            let Some(thread) = &self.overlays else {
-                return Vec::new();
+            let mut events = match &self.overlays {
+                Some(thread) => {
+                    let observed = thread.observed();
+                    if observed.is_empty() {
+                        Vec::new()
+                    } else {
+                        super::tracking::events(observed, &mut self.tracked, &self.matchers)
+                    }
+                }
+                None => Vec::new(),
             };
-            let observed = thread.observed();
-            if observed.is_empty() {
-                return Vec::new();
+            // (T7) The turn signals the live feed noted.
+            if let Some(watch) = &self.turn_watch {
+                events.extend(
+                    watch
+                        .take()
+                        .into_iter()
+                        .map(|(id, signal)| TableEvent::Signalled { id, signal }),
+                );
             }
-            super::tracking::events(observed, &mut self.tracked, &self.matchers)
+            events
         }
         #[cfg(not(windows))]
         {
@@ -627,6 +717,29 @@ impl Platform for WindowsBackend {
     /// (T2) [`WindowsPlacer`], on Windows.
     fn placer(&mut self) -> Option<Box<dyn Placer>> {
         cfg!(windows).then(|| Box::new(WindowsPlacer) as Box<dyn Placer>)
+    }
+
+    /// (T7) The live feed of turn signals ([`TurnWatch`]) for `processes`;
+    /// a new list starts it afresh, an empty one stops it.
+    fn watch_turn_signals(&mut self, processes: &[String]) {
+        #[cfg(windows)]
+        {
+            if self
+                .turn_watch
+                .as_ref()
+                .is_some_and(|w| w.processes == processes)
+            {
+                return;
+            }
+            self.turn_watch = None;
+            if !processes.is_empty() {
+                self.turn_watch = TurnWatch::start(processes.to_vec());
+            }
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = processes;
+        }
     }
 
     /// (T7) `GetForegroundWindow`'s top-level window.

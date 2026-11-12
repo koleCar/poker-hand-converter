@@ -10,7 +10,10 @@
  *   it, Delete removes it, Escape lets it go. "+ Slot" adds one without a
  *   pointer.
  * - The selected slot: earlier / later in the fill order, "Stack", the
- *   rooms it takes.
+ *   rooms it takes, and (T7) "Action Required": a table moves there while
+ *   its room's client signals your turn - greyed with the reason while no
+ *   room allows it (`hud_policy`'s `actionSlot`), which is every room
+ *   today. An action slot is drawn dashed and never stacks.
  * - Save over the layout, or as a new one (put in force at once). Every
  *   save is checked as `TilingSettings::validate` checks it.
  *
@@ -24,7 +27,7 @@ import { useT } from "../../i18n";
 import type { HudPolicy, HudStatus, SlotRect, TilingLayout, TilingSettings } from "../../lib/ipc";
 import { PopoverButton } from "../hud/popovers";
 import { useWidth } from "./Monitors";
-import { MAX_NAME } from "./model";
+import { MAX_NAME, actionSlotAllowedAnywhere } from "./model";
 import {
   HANDLES,
   MAX_SLOTS,
@@ -194,15 +197,22 @@ export function SlotEditor({
           >
             ›
           </button>
-          <button
-            type="button"
-            className={`chip-btn${slot.stack ? " is-active" : ""}`}
-            aria-pressed={slot.stack}
-            title={s.stackHint}
-            onClick={() => change(updateSlot(layout, slot.id, { stack: !slot.stack }))}
-          >
-            {s.stack}
-          </button>
+          {slot.kind !== "action" ? (
+            <button
+              type="button"
+              className={`chip-btn${slot.stack ? " is-active" : ""}`}
+              aria-pressed={slot.stack}
+              title={s.stackHint}
+              onClick={() => change(updateSlot(layout, slot.id, { stack: !slot.stack }))}
+            >
+              {s.stack}
+            </button>
+          ) : null}
+          <ActionToggle
+            on={slot.kind === "action"}
+            allowed={actionSlotAllowedAnywhere(policy)}
+            onChange={(on) => change(updateSlot(layout, slot.id, { kind: on ? "action" : "play" }))}
+          />
           <RoomFilter
             policy={policy}
             rooms={slot.rooms ?? []}
@@ -370,12 +380,13 @@ function Surface({
             aria-label={s.slotLabel(index + 1, pct(r.x), pct(r.y), pct(r.width), pct(r.height))}
             className={styles.slot}
             data-selected={on}
+            data-kind={slot.kind}
             style={{ left: px.left, top: px.top, width: px.width, height: px.height }}
             onFocus={() => onSelect(slot.id)}
             onKeyDown={(event) => key(event, slot.id)}
           >
             <span className={styles.slotNumber}>{index + 1}</span>
-            {slot.stack ? (
+            {slot.stack && slot.kind !== "action" ? (
               <span className={styles.slotStack} aria-hidden="true">
                 ⧉
               </span>
@@ -388,6 +399,31 @@ function Surface({
       })}
       {ghost !== null ? <span className={styles.ghost} style={toPixels(ghost, width, height)} aria-hidden="true" /> : null}
     </div>
+  );
+}
+
+/**
+ * (T7) The selected slot as an Action Required slot, or not. Greyed with
+ * the reason while no room allows it; a slot that is one already can be
+ * switched back.
+ */
+function ActionToggle({ on, allowed, onChange }: { on: boolean; allowed: boolean; onChange: (on: boolean) => void }) {
+  const s = useT().tables.editor;
+  const disabled = !allowed && !on;
+  return (
+    <>
+      <button
+        type="button"
+        className={`chip-btn${on ? " is-active" : ""}`}
+        aria-pressed={on}
+        disabled={disabled}
+        title={allowed ? s.actionHint : s.actionNotAllowed}
+        onClick={() => onChange(!on)}
+      >
+        {s.action}
+      </button>
+      {disabled ? <span className={styles.warn}>{s.actionNotAllowed}</span> : null}
+    </>
   );
 }
 

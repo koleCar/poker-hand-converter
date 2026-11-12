@@ -238,6 +238,11 @@ export function rngAllowedAnywhere(policy: HudPolicy): boolean {
   return policy.rooms.some((room) => room.rng.permitted);
 }
 
+/** (T7) Whether any room allows the Action Required slot (none yet; an older Rust side says nothing: no). */
+export function actionSlotAllowedAnywhere(policy: HudPolicy): boolean {
+  return policy.rooms.some((room) => room.actionSlot?.permitted === true);
+}
+
 // ---------------------------------------------------------------------
 // The RNG's bands (`rail_hud_ipc::settings::RngSettings`).
 

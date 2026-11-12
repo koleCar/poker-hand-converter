@@ -64,6 +64,14 @@ pub struct Site {
     /// `tiling`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rng: Option<Permission>,
+    /// (T7, `docs/research/TILING-POLICIES.md`) Whether tiling may move a
+    /// table into an "Action Required" slot while the room's client itself
+    /// signals that it is the user's turn (its own window signals: a
+    /// taskbar flash, the table brought forward - never anything read
+    /// inside the table), and which signal that is ([`Permission::signal`]).
+    /// Only with `tiling` allowed too. `None` as for `tiling`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub action_slot: Option<Permission>,
     pub anonymisation: Option<Anonymisation>,
     pub docs: Vec<String>,
     pub notes: String,
@@ -75,6 +83,7 @@ static UNKNOWN: Permission = Permission {
     source: None,
     checked_at: None,
     notes: None,
+    signal: None,
 };
 
 impl Site {
@@ -91,6 +100,7 @@ impl Site {
         match feature {
             Feature::Tiling => self.tiling.as_ref(),
             Feature::Rng => self.rng.as_ref(),
+            Feature::ActionSlot => self.action_slot.as_ref(),
         }
     }
 
@@ -116,6 +126,64 @@ impl Site {
     pub fn rng_permitted(&self) -> bool {
         self.permits(Feature::Rng)
     }
+
+    /// (T7) May tiling move this room's tables into an "Action Required"
+    /// slot on the client's own turn signal? Only with tiling allowed too,
+    /// and only on a system the block names a signal for: the signal this
+    /// system's client gives, or `None` (no).
+    pub fn action_slot_signal(&self, os: Os) -> Option<SignalKind> {
+        if !(self.permits(Feature::ActionSlot) && self.permits(Feature::Tiling)) {
+            return None;
+        }
+        let signal = self.permission(Feature::ActionSlot).signal.as_ref()?;
+        match os {
+            Os::Windows => signal.windows,
+            Os::Macos => signal.macos,
+        }
+    }
+}
+
+/// (T7) A desktop system, for what differs between them in the file.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Os {
+    Windows,
+    Macos,
+}
+
+impl Os {
+    /// The system this build runs on (macOS for anything but Windows: the
+    /// two the HUD ships for).
+    pub fn current() -> Self {
+        if cfg!(windows) {
+            Self::Windows
+        } else {
+            Self::Macos
+        }
+    }
+}
+
+/// (T7) Which of the client's own window signals means "it is your turn",
+/// per system, as the owner's capture found it
+/// (`docs/research/REAL-CLIENT-CHECK.md` §6). `None` for a system: no
+/// usable signal there.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TurnSignal {
+    pub windows: Option<SignalKind>,
+    pub macos: Option<SignalKind>,
+}
+
+/// (T7) One of the window signals a client gives by itself, seen without
+/// reading anything inside the table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum SignalKind {
+    /// The table's taskbar button flashes (Windows' `HSHELL_FLASH`).
+    Flash,
+    /// The table becomes the foreground window by itself.
+    Foreground,
+    /// The table is raised above every other program's window.
+    Raised,
 }
 
 /// The tools besides the HUD that each room decides on separately (T0).
@@ -126,21 +194,26 @@ pub enum Feature {
     Tiling,
     /// An on-screen random number generator over the room's tables.
     Rng,
+    /// (T7) A dynamic "Action Required" slot: a table moved there while
+    /// the client signals it is the user's turn.
+    ActionSlot,
 }
 
 impl Feature {
-    pub const ALL: [Self; 2] = [Self::Tiling, Self::Rng];
+    pub const ALL: [Self; 3] = [Self::Tiling, Self::Rng, Self::ActionSlot];
 
     /// The `sites.json` key.
     pub fn key(self) -> &'static str {
         match self {
             Self::Tiling => "tiling",
             Self::Rng => "rng",
+            Self::ActionSlot => "actionSlot",
         }
     }
 }
 
-/// A room's policy on a tool that is not a HUD (T0): `tiling` and `rng`.
+/// A room's policy on a tool that is not a HUD (T0): `tiling`, `rng` and
+/// (T7) `actionSlot`.
 /// `allowed: Some(true)` only with a dated `https` source from the room's
 /// own page ([`crate::validate`]); `Some(false)` prohibited; `None`
 /// unknown, which counts as no. A remote file can only make it stricter
@@ -153,6 +226,11 @@ pub struct Permission {
     /// `YYYY-MM-DD`.
     pub checked_at: Option<String>,
     pub notes: Option<String>,
+    /// (T7) `actionSlot` only: the client's own turn signal per system
+    /// (required once it is allowed). Never in a `tiling` or `rng` block.
+    /// The merge always keeps the shipped copy's ([`crate::merge_remote`]).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signal: Option<TurnSignal>,
 }
 
 /// (T5) How a `notes` of a refusal the room could lift begins

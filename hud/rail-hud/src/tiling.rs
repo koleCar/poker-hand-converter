@@ -50,6 +50,21 @@
 //!   table is not settling from a placement of ours, is the user's doing:
 //!   it is pinned, and a placement still queued for it is cancelled.
 //!
+//! - **Action Required** (T7, [`SlotKind::Action`], §4.6): a table whose
+//!   room's client signals the user's turn ([`Tiler::turn`]: the engine
+//!   calls it only for a room with an `ActionPermit`, on that room's own
+//!   signal) moves into a free action slot and keeps its own slot; it goes
+//!   back when the turn is over - [`ActionTiming::hold`] after its last
+//!   signal, at most [`ActionTiming::max`] after the first - but never
+//!   sooner than [`ActionTiming::dwell`] after it came, and a table that
+//!   just went back ignores its signals for [`ActionTiming::cooldown`]. Turns
+//!   wait in the order they came while every action slot is taken (one
+//!   table per slot, never a stack). A table closed, minimised or moved by
+//!   the user leaves its turn; so does every table when the layout changes.
+//!   The placement worker's quiet-mouse rule holds for these moves as for
+//!   any other. There is no "In-Hand" slot (the user being in the hand is a
+//!   player's action, which PokerStars forbids a script to react to).
+//!
 //! Rooms the policy does not allow are never handed to the tiler (the
 //! engine filters them), so nothing here can move them. Lobby slots
 //! ([`SlotKind::Lobby`]) are stored but take no table: Rail finds tables
@@ -169,6 +184,8 @@ pub struct Options {
     /// (T3) Rules by table count for a layout in force that has none of
     /// its own - the auto grid above all (the app's `autoSwitch`).
     pub auto_switch: Vec<AutoSwitch>,
+    /// (T7) How long a table stays in an Action Required slot.
+    pub action: ActionTiming,
 }
 
 impl Default for Options {
@@ -179,8 +196,41 @@ impl Default for Options {
             rooms: BTreeMap::new(),
             close_gaps: false,
             auto_switch: Vec::new(),
+            action: ActionTiming::default(),
         }
     }
+}
+
+/// (T7) An Action Required slot's timing (see the module's documentation).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ActionTiming {
+    /// The turn is over this long after the table's last signal.
+    pub hold: Duration,
+    /// ... and at most this long after its first (a signal that never
+    /// stops).
+    pub max: Duration,
+    /// A table stays at least this long once it came (no in-and-out).
+    pub dwell: Duration,
+    /// A table that went back ignores its signals this long.
+    pub cooldown: Duration,
+}
+
+impl Default for ActionTiming {
+    fn default() -> Self {
+        Self {
+            hold: Duration::from_secs(10),
+            max: Duration::from_secs(45),
+            dwell: Duration::from_millis(1500),
+            cooldown: Duration::from_millis(1500),
+        }
+    }
+}
+
+/// (T7) A table's turn: when its first and its last signal came.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Turn {
+    since: Instant,
+    last: Instant,
 }
 
 // ---------------------------------------------------------------------
@@ -570,11 +620,18 @@ pub struct ResolvedSlot {
 
 impl ResolvedSlot {
     fn takes(&self, site: &str) -> bool {
-        self.kind == SlotKind::Play
-            && self
-                .rooms
-                .as_ref()
-                .is_none_or(|rooms| rooms.iter().any(|r| r == site))
+        self.kind == SlotKind::Play && self.room_filter(site)
+    }
+
+    /// (T7) An Action Required slot that takes `site`'s tables.
+    fn takes_action(&self, site: &str) -> bool {
+        self.kind == SlotKind::Action && self.room_filter(site)
+    }
+
+    fn room_filter(&self, site: &str) -> bool {
+        self.rooms
+            .as_ref()
+            .is_none_or(|rooms| rooms.iter().any(|r| r == site))
     }
 }
 
@@ -628,6 +685,10 @@ struct Table {
     retried: bool,
     /// Changes before this are the client settling after our placement.
     settle_until: Option<Instant>,
+    /// (T7) The Action Required slot it is in for its turn (its own slot,
+    /// `slot`, stays its), and since when.
+    action: Option<usize>,
+    entered: Option<Instant>,
 }
 
 impl Table {
@@ -658,6 +719,10 @@ pub struct Tiler {
     next_order: u64,
     next_seq: u64,
     cancels: Vec<WindowId>,
+    /// (T7) The tables whose turn it is, and until when each table that
+    /// went back ignores its signals.
+    turns: BTreeMap<WindowId, Turn>,
+    cooldown: BTreeMap<WindowId, Instant>,
 }
 
 impl Tiler {
@@ -671,6 +736,8 @@ impl Tiler {
             next_order: 0,
             next_seq: 0,
             cancels: Vec::new(),
+            turns: BTreeMap::new(),
+            cooldown: BTreeMap::new(),
         }
     }
 
@@ -809,6 +876,8 @@ impl Tiler {
                     retry: None,
                     retried: false,
                     settle_until: None,
+                    action: None,
+                    entered: None,
                 },
             );
             changed = true;
@@ -835,10 +904,13 @@ impl Tiler {
         self.observe(id, client, minimized, now, mouse);
     }
 
-    /// Table `id` was minimised or restored.
+    /// Table `id` was minimised or restored (minimised: out of its turn).
     pub fn minimized(&mut self, id: WindowId, minimized: bool) {
         if let Some(table) = self.tables.get_mut(&id) {
             table.minimized = minimized;
+        }
+        if minimized {
+            self.end_turn(id, None);
         }
     }
 
@@ -856,6 +928,13 @@ impl Tiler {
             return;
         };
         table.minimized = minimized;
+        if minimized && table.action.is_some() {
+            self.end_turn(id, None);
+            return;
+        }
+        let Some(table) = self.tables.get_mut(&id) else {
+            return;
+        };
         if minimized || client.width == 0 || client.height == 0 || close(&client, &table.client) {
             if !minimized && client.width > 0 {
                 table.client = client;
@@ -889,6 +968,13 @@ impl Tiler {
         }
         table.pinned = true;
         table.retry = None;
+        // (T7) Out of its turn: the user has it.
+        table.action = None;
+        table.entered = None;
+        self.turns.remove(&id);
+        let Some(table) = self.tables.get_mut(&id) else {
+            return;
+        };
         let freed = table.slot.take();
         if let Some(slot) = freed {
             self.refill(slot);
@@ -910,6 +996,8 @@ impl Tiler {
     }
 
     fn forget(&mut self, id: WindowId) {
+        self.turns.remove(&id);
+        self.cooldown.remove(&id);
         if let Some(table) = self.tables.remove(&id)
             && let Some(slot) = table.slot
         {
@@ -1051,6 +1139,10 @@ impl Tiler {
             order.sort();
             for table in self.tables.values_mut() {
                 table.slot = None;
+                // (T7) Other slots: every table back to its own; the turns
+                // still on take the new layout's action slots, if any.
+                table.action = None;
+                table.entered = None;
             }
             for (_, _, id) in order {
                 self.assign(id);
@@ -1182,7 +1274,7 @@ impl Tiler {
     /// Where table `id` belongs: its room's largest client area in its
     /// slot, the frame at the slot's monitor's scale, centred.
     fn target(&self, table: &Table) -> Option<Rect> {
-        let slot = self.slots.get(table.slot?)?;
+        let slot = self.slots.get(table.action.or(table.slot)?)?;
         let insets = self.insets_on(table, slot.monitor);
         let outer = fit_in(&slot.cell, &insets, table.aspect);
         Some(insets.client(&outer))
@@ -1215,7 +1307,8 @@ impl Tiler {
                 continue;
             };
             let outer_insets = table
-                .slot
+                .action
+                .or(table.slot)
                 .and_then(|s| self.slots.get(s))
                 .map(|s| self.insets_on(table, s.monitor))
                 .unwrap_or_default();
@@ -1264,7 +1357,7 @@ impl Tiler {
         let cell = self
             .tables
             .get(&id)
-            .and_then(|t| t.slot)
+            .and_then(|t| t.action.or(t.slot))
             .and_then(|s| self.slots.get(s))
             .map(|s| (s.cell, s.monitor));
         let insets = cell
@@ -1300,6 +1393,126 @@ impl Tiler {
         let again = insets.client(&outer);
         if !close(&again, accepted) {
             table.retry = Some(again);
+        }
+    }
+
+    /// (T7) Whether the layout in force has an Action Required slot.
+    pub fn has_action_slot(&self) -> bool {
+        self.slots.iter().any(|slot| slot.kind == SlotKind::Action)
+    }
+
+    /// (T7) The Action Required slot table `id` is in for its turn.
+    pub fn action_of(&self, id: WindowId) -> Option<usize> {
+        self.tables.get(&id)?.action
+    }
+
+    /// (T7) The tables whose turn it is (in a slot or waiting for one).
+    pub fn turns(&self) -> Vec<WindowId> {
+        self.turns.keys().copied().collect()
+    }
+
+    /// (T7) Table `id`'s client signals the user's turn (the engine calls
+    /// this only on the room's own signal, under its `ActionPermit`): a
+    /// turn starts, or the one on goes on. Ignored without an action slot,
+    /// for a table it does not manage, one the user moved, a minimised one,
+    /// or one that just went back. Whether it counted.
+    pub fn turn(&mut self, id: WindowId, now: Instant) -> bool {
+        if !self.has_action_slot() {
+            return false;
+        }
+        let Some(table) = self.tables.get(&id) else {
+            return false;
+        };
+        if table.pinned || table.minimized || table.slot.is_none() {
+            return false;
+        }
+        if self.cooldown.get(&id).is_some_and(|until| now < *until) {
+            return false;
+        }
+        self.turns
+            .entry(id)
+            .and_modify(|turn| turn.last = now)
+            .or_insert(Turn {
+                since: now,
+                last: now,
+            });
+        self.step_turns(now);
+        true
+    }
+
+    /// (T7) Turns that are over end (a table in a slot only once it has
+    /// stayed [`ActionTiming::dwell`]); free action slots take the turns
+    /// that wait, in the order they came. On every tick, before
+    /// [`Tiler::plan`].
+    pub fn step_turns(&mut self, now: Instant) {
+        let timing = self.options.action;
+        let over: Vec<WindowId> = self
+            .turns
+            .iter()
+            .filter(|(_, turn)| now >= turn.last + timing.hold || now >= turn.since + timing.max)
+            .map(|(id, _)| *id)
+            .filter(|id| {
+                self.tables
+                    .get(id)
+                    .and_then(|t| t.entered)
+                    .is_none_or(|entered| now >= entered + timing.dwell)
+            })
+            .collect();
+        for id in over {
+            self.end_turn(id, Some(now));
+        }
+        self.cooldown.retain(|_, until| now < *until);
+        // Free action slots, in layout order, to the oldest waiting turns
+        // whose room they take.
+        let mut waiting: Vec<(Instant, WindowId)> = self
+            .turns
+            .iter()
+            .filter(|(id, _)| self.tables.get(id).is_some_and(|t| t.action.is_none()))
+            .map(|(id, turn)| (turn.since, *id))
+            .collect();
+        waiting.sort();
+        for index in 0..self.slots.len() {
+            if self.slots[index].kind != SlotKind::Action
+                || self.tables.values().any(|t| t.action == Some(index))
+            {
+                continue;
+            }
+            let slot = &self.slots[index];
+            let Some(at) = waiting.iter().position(|(_, id)| {
+                self.tables
+                    .get(id)
+                    .is_some_and(|t| !t.pinned && !t.minimized && slot.takes_action(&t.site))
+            }) else {
+                continue;
+            };
+            let (_, id) = waiting.remove(at);
+            if let Some(table) = self.tables.get_mut(&id) {
+                table.action = Some(index);
+                table.entered = Some(now);
+            }
+        }
+    }
+
+    /// (T7) Table `id`'s turn is over (or it may not have one any more):
+    /// back to its own slot; with `now`, it ignores its signals for
+    /// [`ActionTiming::cooldown`].
+    pub fn end_turn(&mut self, id: WindowId, now: Option<Instant>) {
+        self.turns.remove(&id);
+        if let Some(table) = self.tables.get_mut(&id) {
+            let was_in = table.action.take().is_some();
+            table.entered = None;
+            if was_in && let Some(now) = now {
+                self.cooldown.insert(id, now + self.options.action.cooldown);
+            }
+        }
+    }
+
+    /// (T7) Every turn of a table that `keep` no longer allows ends at once
+    /// (a policy made stricter, the room switched off).
+    pub fn end_turns_unless(&mut self, keep: &dyn Fn(WindowId) -> bool) {
+        let ended: Vec<WindowId> = self.turns.keys().copied().filter(|id| !keep(*id)).collect();
+        for id in ended {
+            self.end_turn(id, None);
         }
     }
 
@@ -2084,6 +2297,7 @@ mod tests {
                 rooms: BTreeMap::new(),
                 close_gaps: true,
                 auto_switch: Vec::new(),
+                action: ActionTiming::default(),
             },
             two_monitors(),
         );
@@ -2312,5 +2526,244 @@ mod tests {
         };
         assert_eq!(settings.validate(), Ok(()));
         assert!(capture_slots(&rects, &[]).is_empty());
+    }
+
+    // ----------------------------------------------------------------- T7
+
+    fn slot_at(id: &str, x: u32, y: u32, width: u32, height: u32, kind: SlotKind) -> Slot {
+        Slot {
+            id: id.into(),
+            monitor: 0,
+            rect: SlotRect {
+                x,
+                y,
+                width,
+                height,
+            },
+            kind,
+            rooms: None,
+            stack: true,
+        }
+    }
+
+    /// Two play slots across the top half, one Action Required slot under
+    /// them; the timing short and round.
+    fn action_world() -> World {
+        let layout = Layout {
+            id: "act".into(),
+            name: "Act".into(),
+            slots: vec![
+                slot_at("p1", 0, 0, 500, 500, SlotKind::Play),
+                slot_at("p2", 500, 0, 500, 500, SlotKind::Play),
+                slot_at("a", 250, 500, 500, 500, SlotKind::Action),
+            ],
+            auto_switch: Vec::new(),
+        };
+        World::new(
+            Options {
+                layouts: vec![layout],
+                active: "act".into(),
+                action: ActionTiming {
+                    hold: Duration::from_secs(10),
+                    max: Duration::from_secs(30),
+                    dwell: Duration::from_secs(2),
+                    cooldown: Duration::from_secs(2),
+                },
+                ..Options::default()
+            },
+            two_monitors(),
+        )
+    }
+
+    /// The action slot's index in the world's layout.
+    const ACTION: usize = 2;
+
+    fn step(world: &mut World, now: Instant) {
+        world.tiler.step_turns(now);
+        world.settle(now);
+    }
+
+    /// (T7) A turn: the table moves into the action slot (its own slot kept
+    /// for it), stays while signals come, and goes back once they stop for
+    /// `hold`; then its signals are ignored for `cooldown`.
+    #[test]
+    fn a_turn_moves_a_table_in_and_back() {
+        let mut world = action_world();
+        let t0 = Instant::now();
+        world.open(1, "pokerstars", FRAME);
+        world.open(2, "acr", FRAME);
+        world.settle(t0);
+        assert!(world.tiler.has_action_slot());
+        let home = world.outer(1);
+        assert_eq!(world.tiler.slot_of(WindowId(1)), Some(0));
+
+        assert!(world.tiler.turn(WindowId(1), t0));
+        step(&mut world, t0);
+        assert_eq!(world.tiler.action_of(WindowId(1)), Some(ACTION));
+        assert_eq!(
+            world.tiler.slot_of(WindowId(1)),
+            Some(0),
+            "its own slot kept"
+        );
+        let slot = world.tiler.slots()[ACTION].cell;
+        assert!(
+            slot.contains(&world.outer(1)),
+            "{:?} in {slot:?}",
+            world.outer(1)
+        );
+        // A new table never takes the action slot (it stacks at home).
+        world.open(3, "pokerstars", FRAME);
+        world.settle(t0);
+        assert_eq!(world.tiler.action_of(WindowId(3)), None);
+
+        // Signals keep it there past `hold` from the first.
+        let t = t0 + Duration::from_secs(8);
+        assert!(world.tiler.turn(WindowId(1), t));
+        step(&mut world, t0 + Duration::from_secs(12));
+        assert_eq!(world.tiler.action_of(WindowId(1)), Some(ACTION));
+        // `hold` after the last: back home.
+        let back = t + Duration::from_secs(10);
+        step(&mut world, back);
+        assert_eq!(world.tiler.action_of(WindowId(1)), None);
+        assert_eq!(world.outer(1), home);
+        // Cooldown: a lingering signal is ignored, a later one counts.
+        assert!(!world.tiler.turn(WindowId(1), back + Duration::from_secs(1)));
+        assert!(world.tiler.turn(WindowId(1), back + Duration::from_secs(3)));
+        assert!(world.tiler.action_of(WindowId(1)).is_some());
+    }
+
+    /// (T7) A signal that never stops: out after `max`; a turn that is over
+    /// at once still stays `dwell`.
+    #[test]
+    fn max_and_dwell() {
+        let mut world = action_world();
+        let t0 = Instant::now();
+        world.open(1, "pokerstars", FRAME);
+        world.settle(t0);
+        world.tiler.turn(WindowId(1), t0);
+        for second in 1..30 {
+            world
+                .tiler
+                .turn(WindowId(1), t0 + Duration::from_secs(second));
+        }
+        step(&mut world, t0 + Duration::from_secs(29));
+        assert!(world.tiler.action_of(WindowId(1)).is_some());
+        step(&mut world, t0 + Duration::from_secs(30));
+        assert_eq!(world.tiler.action_of(WindowId(1)), None, "max");
+
+        let t1 = t0 + Duration::from_secs(60);
+        let mut short = action_world();
+        let mut options = short.tiler.options().clone();
+        options.action.hold = Duration::from_millis(100);
+        short.tiler.set_options(options);
+        short.open(1, "pokerstars", FRAME);
+        short.settle(t1);
+        short.tiler.turn(WindowId(1), t1);
+        step(&mut short, t1 + Duration::from_secs(1));
+        assert!(short.tiler.action_of(WindowId(1)).is_some(), "dwell");
+        step(&mut short, t1 + Duration::from_secs(2));
+        assert_eq!(short.tiler.action_of(WindowId(1)), None);
+    }
+
+    /// (T7) Turns at once: one slot, the others wait in the order they
+    /// came and move in when the one before goes back; a table closed in
+    /// the slot lets the next one in at once.
+    #[test]
+    fn turns_queue_for_the_slot() {
+        let mut world = action_world();
+        let t0 = Instant::now();
+        for id in 1..=3 {
+            world.open(id, "pokerstars", FRAME);
+        }
+        world.settle(t0);
+        let home2 = world.outer(2);
+        world.tiler.turn(WindowId(2), t0);
+        world
+            .tiler
+            .turn(WindowId(1), t0 + Duration::from_millis(10));
+        world
+            .tiler
+            .turn(WindowId(3), t0 + Duration::from_millis(20));
+        step(&mut world, t0 + Duration::from_millis(20));
+        assert_eq!(world.tiler.action_of(WindowId(2)), Some(ACTION));
+        assert_eq!(world.tiler.action_of(WindowId(1)), None, "waits");
+        assert_eq!(world.tiler.turns().len(), 3);
+
+        // 2's turn is over: 1 (next in order) moves in, 2 goes home.
+        world.tiler.turn(WindowId(1), t0 + Duration::from_secs(5));
+        world.tiler.turn(WindowId(3), t0 + Duration::from_secs(5));
+        step(&mut world, t0 + Duration::from_secs(10));
+        assert_eq!(world.tiler.action_of(WindowId(2)), None);
+        assert_eq!(world.outer(2), home2);
+        assert_eq!(world.tiler.action_of(WindowId(1)), Some(ACTION));
+
+        // 1 is closed in the slot: 3 moves in at once.
+        world.close(1);
+        world.look(t0 + Duration::from_secs(11));
+        step(&mut world, t0 + Duration::from_secs(11));
+        assert_eq!(world.tiler.action_of(WindowId(3)), Some(ACTION));
+        assert!(!world.tiler.turns().contains(&WindowId(1)));
+        // 3's last signal came at 5 s: over at 15 s, and nothing waits.
+        step(&mut world, t0 + Duration::from_secs(15));
+        assert!(world.tiler.turns().is_empty());
+        assert!(
+            [2, 3]
+                .iter()
+                .all(|id| world.tiler.action_of(WindowId(*id)).is_none())
+        );
+    }
+
+    /// (T7) The user moves the table in the slot: it is theirs (pinned),
+    /// out of its turn, and the next turn takes the slot. A minimised table
+    /// leaves its turn; a layout without an action slot takes no turn, and
+    /// a layout change sends every table home.
+    #[test]
+    fn the_user_and_the_layout_end_turns() {
+        let mut world = action_world();
+        let t0 = Instant::now();
+        world.open(1, "pokerstars", FRAME);
+        world.open(2, "pokerstars", FRAME);
+        world.settle(t0);
+        world.tiler.turn(WindowId(1), t0);
+        world.tiler.turn(WindowId(2), t0 + Duration::from_millis(5));
+        step(&mut world, t0 + Duration::from_millis(5));
+        assert_eq!(world.tiler.action_of(WindowId(1)), Some(ACTION));
+        let later = t0 + Duration::from_secs(3);
+        world
+            .tiler
+            .moved(WindowId(1), rect(3, 3, 640, 480), later, Mouse::Down);
+        assert!(world.tiler.pinned(WindowId(1)));
+        assert_eq!(world.tiler.action_of(WindowId(1)), None);
+        world.windows.get_mut(&WindowId(1)).expect("1").client = rect(3, 3, 640, 480);
+        step(&mut world, later);
+        assert_eq!(world.tiler.action_of(WindowId(2)), Some(ACTION));
+        assert!(!world.tiler.turn(WindowId(1), later), "pinned: no turn");
+
+        world.tiler.minimized(WindowId(2), true);
+        assert_eq!(world.tiler.action_of(WindowId(2)), None);
+        assert!(world.tiler.turns().is_empty());
+        world.tiler.minimized(WindowId(2), false);
+
+        // The auto grid has no action slot: no turn at all.
+        let mut grid = World::new(Options::default(), two_monitors());
+        grid.open(1, "pokerstars", FRAME);
+        grid.settle(t0);
+        assert!(!grid.tiler.has_action_slot());
+        assert!(!grid.tiler.turn(WindowId(1), t0));
+
+        // Another layout: every table home; a withdrawn permit ends turns.
+        let t = later + Duration::from_secs(3);
+        world.tiler.turn(WindowId(2), t);
+        world.tiler.step_turns(t);
+        assert!(world.tiler.action_of(WindowId(2)).is_some());
+        world.tiler.end_turns_unless(&|_| false);
+        assert!(world.tiler.turns().is_empty());
+        assert_eq!(world.tiler.action_of(WindowId(2)), None);
+        world.tiler.turn(WindowId(2), t + Duration::from_secs(5));
+        world.tiler.step_turns(t + Duration::from_secs(5));
+        assert!(world.tiler.action_of(WindowId(2)).is_some());
+        world.tiler.set_options(Options::default());
+        assert_eq!(world.tiler.action_of(WindowId(2)), None);
+        assert!(!world.tiler.has_action_slot());
     }
 }

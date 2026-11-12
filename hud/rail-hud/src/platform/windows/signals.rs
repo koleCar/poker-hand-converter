@@ -331,6 +331,18 @@ pub(super) fn watch(
     duration: Duration,
     sink: &mut dyn FnMut(SignalEvent),
 ) -> Result<(), PlatformError> {
+    watch_while(processes, &|elapsed| elapsed < duration, sink)
+}
+
+/// (T7) [`watch`] for as long as `go_on(time since the start)` says
+/// (asked every [`ORDER_EVERY`]): the HUD's live feed of turn signals for
+/// the Action Required slot (`WindowsBackend::watch_turn_signals`), on a
+/// thread of its own.
+pub(crate) fn watch_while(
+    processes: &[String],
+    go_on: &dyn Fn(Duration) -> bool,
+    sink: &mut dyn FnMut(SignalEvent),
+) -> Result<(), PlatformError> {
     let started = Instant::now();
     let wall = SystemTime::now();
     let at = |instant: Instant| {
@@ -419,7 +431,7 @@ pub(super) fn watch(
                 };
                 note(Some(id), signal);
             }
-            if started.elapsed() >= duration {
+            if !go_on(started.elapsed()) {
                 quit();
             }
         } else {

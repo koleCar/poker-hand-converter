@@ -14,11 +14,15 @@
 //! engine hands the tiler only the tables of rooms with a `TilingPermit`,
 //! and gives the RNG settings out only with the room's `RngPermit`
 //! (`Hud::rng_for`, which T4 draws with).
+//!
+//! (T7) [`ActionPermit`] is the yes to the "Action Required" slot: a
+//! room's `actionSlot` block (allowed, with its client's own turn signal
+//! for this system) **and** its `tiling` allowed. None today.
 
 #![forbid(unsafe_code)]
 
 use rail_config::model::{Feature, HudRestrictions};
-use rail_config::{Config, MergeNote, Site};
+use rail_config::{Config, MergeNote, Os, SignalKind, Site};
 use rail_hud_ipc::protocol::RefusalReason;
 use regex::Regex;
 
@@ -75,6 +79,29 @@ impl RngPermit {
     /// The `sites.json` room.
     pub fn site(&self) -> &str {
         &self.site
+    }
+}
+
+/// (T7) The yes to move one room's tables into an "Action Required" slot
+/// while its client signals the user's turn: only
+/// [`Compliance::action_permit`] makes one, for a room whose `actionSlot`
+/// **and** `tiling` are allowed and whose block names a signal for this
+/// system. It carries that signal: the only one the engine acts on.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ActionPermit {
+    site: String,
+    signal: SignalKind,
+}
+
+impl ActionPermit {
+    /// The `sites.json` room.
+    pub fn site(&self) -> &str {
+        &self.site
+    }
+
+    /// The client's own "your turn" signal on this system.
+    pub fn signal(&self) -> SignalKind {
+        self.signal
     }
 }
 
@@ -228,6 +255,25 @@ impl Compliance {
         self.decide_feature(site, Feature::Rng)?;
         Ok(RngPermit {
             site: site.to_owned(),
+        })
+    }
+
+    /// (T7) May tiling move `site`'s tables into an Action Required slot,
+    /// and on which of its client's signals? `actionSlot` and `tiling`
+    /// both allowed (unknown is no, a remote copy only stricter) and a
+    /// signal named for this system ([`Os::current`]); no shipped room
+    /// has one yet.
+    pub fn action_permit(&self, site: &str) -> Result<ActionPermit, RefusalReason> {
+        self.decide_feature(site, Feature::ActionSlot)?;
+        self.decide_feature(site, Feature::Tiling)?;
+        let signal = self
+            .config
+            .site(site)
+            .and_then(|entry| entry.action_slot_signal(Os::current()))
+            .ok_or(RefusalReason::Unknown)?;
+        Ok(ActionPermit {
+            site: site.to_owned(),
+            signal,
         })
     }
 
@@ -502,6 +548,88 @@ mod tests {
         );
         let stars = compliance.tiling_permit("pokerstars").expect("pokerstars");
         assert_eq!(stars.site(), "pokerstars");
+        // (T7) The Action Required slot: no room, not even one with tiling.
+        for site in [
+            "pokerstars",
+            "acr",
+            "wpt-global",
+            "coinpoker",
+            "ggpoker",
+            "888poker",
+        ] {
+            assert!(compliance.action_permit(site).is_err(), "{site}");
+        }
+        assert_eq!(
+            compliance.action_permit("ipoker"),
+            Err(RefusalReason::NotARoom)
+        );
+    }
+
+    /// (T7) A policy that allows the slot (tests only) gives the permit with
+    /// this system's signal; without tiling, or without a signal for this
+    /// system, no permit; a remote copy cannot give one.
+    #[test]
+    fn the_action_permit() {
+        let with = |site: &str, tiling: bool, signal: serde_json::Value| {
+            let mut config: serde_json::Value =
+                serde_json::from_str(rail_config::SHIPPED).expect("shipped json");
+            let entry = site_mut(&mut config, site);
+            entry["tiling"]["allowed"] = serde_json::Value::Bool(tiling);
+            entry["tiling"]["source"] = "https://example.invalid/tools".into();
+            entry["tiling"]["checkedAt"] = "2026-11-12".into();
+            entry["actionSlot"] = serde_json::json!({
+                "allowed": true,
+                "source": "https://example.invalid/tools",
+                "checkedAt": "2026-11-12",
+                "notes": null,
+                "signal": signal
+            });
+            config.to_string()
+        };
+        let here = if cfg!(windows) { "windows" } else { "macos" };
+        let there = if cfg!(windows) { "macos" } else { "windows" };
+        let allowed = Compliance::from_sites_json(&with(
+            "pokerstars",
+            true,
+            serde_json::json!({ here: "flash", there: null }),
+        ))
+        .expect("valid");
+        let permit = allowed.action_permit("pokerstars").expect("permit");
+        assert_eq!(
+            (permit.site(), permit.signal()),
+            ("pokerstars", SignalKind::Flash)
+        );
+        assert!(allowed.action_permit("acr").is_err());
+        // A signal for the other system only.
+        let elsewhere = Compliance::from_sites_json(&with(
+            "pokerstars",
+            true,
+            serde_json::json!({ here: null, there: "flash" }),
+        ))
+        .expect("valid");
+        assert_eq!(
+            elsewhere.action_permit("pokerstars"),
+            Err(RefusalReason::Unknown)
+        );
+        // Not without tiling (the shipped validator refuses it too).
+        assert!(
+            Compliance::from_sites_json(&with(
+                "pokerstars",
+                false,
+                serde_json::json!({ here: "flash", there: null }),
+            ))
+            .is_err()
+        );
+        // A remote copy saying yes changes nothing.
+        let mut shipped = Compliance::shipped().expect("shipped");
+        shipped
+            .apply_remote(Some(&with(
+                "pokerstars",
+                true,
+                serde_json::json!({ here: "flash", there: null }),
+            )))
+            .expect("merged");
+        assert!(shipped.action_permit("pokerstars").is_err());
     }
 
     /// (T0) The HUD's policy does not decide tiling: WPT Global and

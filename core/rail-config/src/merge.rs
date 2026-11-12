@@ -12,13 +12,15 @@
 //!   allowed blocks keep **both** blocks' restrictions (R3.4,
 //!   `HudRestrictions::stricter`): a download can add a restriction, never
 //!   drop one ([`MergeNote::LooserRestrictionsIgnored`]).
-//! - **Tiling and the RNG** (T0, `tiling` / `rng`) follow the same order,
+//! - **Tiling, the RNG and the Action Required slot** (T0, `tiling` /
+//!   `rng`; T7, `actionSlot`) follow the same order,
 //!   each on its own and independent of `hud`: a looser remote block is
 //!   ignored and the shipped one kept ([`MergeNote::LooserPermissionIgnored`]);
 //!   at equal or stricter level the remote block wins. A remote entry
 //!   without the blocks (a file written before they existed) says nothing
 //!   about them: the shipped blocks stay, as for an entry the remote file
-//!   lacks.
+//!   lacks. (T7) `actionSlot`'s turn `signal` is always the shipped
+//!   copy's: a download can withdraw the slot, never point it elsewhere.
 //! - **Unknown ids are ignored**, not added: an entry id is a key the app
 //!   stores (a folder's site, a layout's room), identity and parser come with
 //!   a release, and a remote-only entry would vanish again with the next
@@ -261,6 +263,7 @@ fn merge_site(shipped: &Config, ours: &Site, theirs: &Site, notes: &mut Vec<Merg
     }
     merged.tiling = merge_permission(ours, theirs, Feature::Tiling, notes);
     merged.rng = merge_permission(ours, theirs, Feature::Rng, notes);
+    merged.action_slot = merge_permission(ours, theirs, Feature::ActionSlot, notes);
     merged.tables = merge_tables(shipped, ours, theirs, notes);
     merged
 }
@@ -289,7 +292,12 @@ fn merge_permission(
         });
         shipped.cloned()
     } else {
-        Some(remote.clone())
+        // (T7) The turn signal comes with a release only: a remote block
+        // can withdraw the slot, never point it at another signal.
+        Some(Permission {
+            signal: ours.permission(feature).signal,
+            ..remote.clone()
+        })
     }
 }
 
@@ -410,8 +418,8 @@ fn same_process(a: &str, b: &str) -> bool {
 mod tests {
     use super::*;
     use crate::model::{
-        Anonymisation, Encoding, Files, HudRestrictions, PathEntry, Paths, Processes, SiteKind,
-        Tables,
+        Anonymisation, Encoding, Files, HudRestrictions, Os, PathEntry, Paths, Processes,
+        SignalKind, SiteKind, Tables, TurnSignal,
     };
     use crate::validate;
 
@@ -472,6 +480,7 @@ mod tests {
             hud: hud(allowed),
             tiling: Some(Permission::default()),
             rng: Some(Permission::default()),
+            action_slot: Some(Permission::default()),
             anonymisation: Some(Anonymisation::None),
             docs: Vec::new(),
             notes: String::new(),
@@ -548,7 +557,79 @@ mod tests {
             source: allowed.map(|_| "https://example.org/tools".to_owned()),
             checked_at: allowed.map(|_| "2026-11-11".to_owned()),
             notes: None,
+            signal: None,
         })
+    }
+
+    /// (T7) An `actionSlot` block with a turn signal.
+    fn action_slot(allowed: Option<bool>, signal: SignalKind) -> Option<Permission> {
+        Some(Permission {
+            signal: Some(TurnSignal {
+                windows: Some(signal),
+                macos: None,
+            }),
+            ..permission(allowed)?
+        })
+    }
+
+    /// (T7) A remote file can withdraw the Action Required slot, never
+    /// allow it, and never point it at another signal - not even at an
+    /// equal level.
+    #[test]
+    fn the_action_slot_only_gets_stricter_and_keeps_its_signal() {
+        let with = |allowed, signal| {
+            let mut site = site("pokerstars", "pokerstars", Some(true));
+            site.tiling = permission(Some(true));
+            site.action_slot = action_slot(allowed, signal);
+            site
+        };
+        // Equal (allowed both): the remote's source and date, the shipped
+        // signal.
+        let merged = merge_remote(
+            &config(vec![with(Some(true), SignalKind::Flash)]),
+            &config(vec![with(Some(true), SignalKind::Raised)]),
+        );
+        let slot = &merged.config.sites[0];
+        assert_eq!(
+            slot.action_slot_signal(Os::Windows),
+            Some(SignalKind::Flash)
+        );
+        assert_eq!(merged.notes, Vec::new());
+        // Withdrawn.
+        let merged = merge_remote(
+            &config(vec![with(Some(true), SignalKind::Flash)]),
+            &config(vec![with(Some(false), SignalKind::Flash)]),
+        );
+        assert_eq!(merged.config.sites[0].action_slot_signal(Os::Windows), None);
+        // Unknown in the shipped file: a remote `true` is ignored.
+        let merged = merge_remote(
+            &config(vec![with(None, SignalKind::Flash)]),
+            &config(vec![with(Some(true), SignalKind::Flash)]),
+        );
+        assert_eq!(merged.config.sites[0].action_slot_signal(Os::Windows), None);
+        assert!(merged.notes.iter().any(|n| matches!(
+            n,
+            MergeNote::LooserPermissionIgnored {
+                feature: Feature::ActionSlot,
+                ..
+            }
+        )));
+        // A remote file that withdraws tiling withdraws the slot with it.
+        let mut no_tiling = with(Some(true), SignalKind::Flash);
+        no_tiling.tiling = permission(Some(false));
+        no_tiling.action_slot = action_slot(Some(false), SignalKind::Flash);
+        let merged = merge_remote(
+            &config(vec![with(Some(true), SignalKind::Flash)]),
+            &config(vec![no_tiling]),
+        );
+        assert_eq!(merged.config.sites[0].action_slot_signal(Os::Windows), None);
+        // No signal for the other system.
+        let shipped = with(Some(true), SignalKind::Foreground);
+        assert_eq!(shipped.action_slot_signal(Os::Macos), None);
+        assert_eq!(
+            shipped.action_slot_signal(Os::Windows),
+            Some(SignalKind::Foreground)
+        );
     }
 
     /// (T0) `tiling` and `rng`, each on its own: the stricter of the two
@@ -564,6 +645,11 @@ mod tests {
                         match feature {
                             Feature::Tiling => site.tiling = permission(allowed),
                             Feature::Rng => site.rng = permission(allowed),
+                            // (T7) Only with tiling allowed and a signal.
+                            Feature::ActionSlot => {
+                                site.tiling = permission(Some(true));
+                                site.action_slot = action_slot(allowed, SignalKind::Flash);
+                            }
                         }
                         site
                     };
@@ -583,7 +669,7 @@ mod tests {
                     );
                     assert_eq!(site.hud.allowed, Some(false));
                     let other = match feature {
-                        Feature::Tiling => Feature::Rng,
+                        Feature::Tiling | Feature::ActionSlot => Feature::Rng,
                         Feature::Rng => Feature::Tiling,
                     };
                     assert_eq!(
@@ -633,6 +719,7 @@ mod tests {
             source: Some("https://example.org/new".to_owned()),
             checked_at: Some("2026-12-01".to_owned()),
             notes: Some("withdrawn".to_owned()),
+            signal: None,
         });
         let merged = merge_remote(&config(vec![shipped]), &config(vec![remote.clone()]));
         assert_eq!(merged.config.sites[0].tiling, remote.tiling);

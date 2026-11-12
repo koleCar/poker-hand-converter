@@ -79,6 +79,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Not established: the Reference Guide does not mention a random number generator. It prohibits tools that \"randomize the size of bets\", randomised decision delays, and any tool that \"reduces the requirement of a human to make decisions\"; whether an on-screen RNG falls under that is unclear. Ask PokerStars support in writing. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established. Tiling is allowed, but the Reference Guide forbids a script that repositions a table on card values, relative position or any player's action (its example: \"Repositions a table if dealt a premium pair\"); moving a table on the client's own your-turn signal is on neither of its lists. Ask PokerStars in writing. Needs the client's own turn signal captured (docs/research/REAL-CLIENT-CHECK.md §6) and the owner's signed verdict before it can be true. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/pokerstars.md",
@@ -137,6 +144,13 @@
         "source": "https://ggpoker.com/network/security-ecology-policy/",
         "checkedAt": "2026-11-11",
         "notes": "Prohibited: the same zero-tolerance rule on auxiliary software; section 2 also bans real-time assistance, defined as any external assistance including software and apps. docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "opaque-id",
       "docs": [
@@ -209,6 +223,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Not permitted without approval: an RNG is not on the authorised list of section 1.2, and anything else needs integrity@winamax.com's prior agreement. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/winamax.md",
@@ -267,6 +288,13 @@
         "source": "https://www.888.ca/security-and-privacy/user-agreement/",
         "checkedAt": "2026-11-11",
         "notes": "Prohibited on the 888 agreement that could be read (Ontario, 5 Aug 2026): anything not on the Permitted Aids list is a prohibited aid, and an RNG that decides between actions is none of them (the display tools allowed must not influence the game). 888poker.com could not be read from Croatia. docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established: neither is this entry's tiling policy. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "none",
       "docs": [
@@ -327,6 +355,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Prohibited for Rail: the same whitelist, which does not name Rail; the page also refuses permission for timing randomisers. Owner, 2026-11-11: Rail does not apply to the list for now. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/partypoker.md",
@@ -385,6 +420,13 @@
         "source": null,
         "checkedAt": "2026-11-11",
         "notes": "Network: per skin. RedStar Poker prohibits software that \"advises or removes the decision process\"; no other skin's page was read. docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established: neither is this entry's tiling policy. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "none",
       "docs": [
@@ -457,6 +499,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Not established: no policy item names a random number generator. 4.1.0 accepts tools that improve playing performance if they pose no threat to the games' integrity, and 4.2.3 prohibits real-time advice; an RNG is neither named nor excluded. Ask ACR support in writing. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established. 4.1.7 accepts table arrangers that tile by the player's preferences; a table moved on the client's own your-turn signal is not addressed. Needs the client's own turn signal captured (docs/research/REAL-CLIENT-CHECK.md §6) and the owner's signed verdict before it can be true. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/acr-wpn.md",
@@ -516,6 +565,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Prohibited: the Terms and Conditions (2026) define Prohibited Software as any tool or overlay giving a direct or indirect gameplay advantage or strategic assistance, naming decision engines and recommendation engines. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established. The Terms name table management software and hotkey tools as permitted; a table moved on the client's own your-turn signal is not addressed, and the third-party tools page could not be read. Needs the client's own turn signal captured (docs/research/REAL-CLIENT-CHECK.md §6) and the owner's signed verdict before it can be true. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/coinpoker.md",
@@ -574,6 +630,13 @@
         "source": "https://www.unibet.co.uk/promotions/poker-promotions/why-play-at-unibet",
         "checkedAt": "2026-11-11",
         "notes": "Prohibited: \"No 3rd party software is allowed at Unibet Poker\". docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "none",
       "docs": [
@@ -641,6 +704,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Network: per skin; no skin's policy could be read. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established: neither is this entry's tiling policy. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/chico.md",
@@ -703,6 +773,13 @@
         "source": "https://www.ignitioncasino.eu/terms-of-service",
         "checkedAt": "2026-11-11",
         "notes": "Network. The terms prohibit \"external player assistance programs\" without saying whether an RNG is one. docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established: neither is this entry's tiling policy. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "positional",
       "docs": [
@@ -770,6 +847,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Not established: as for tiling. docs/research/TILING-POLICIES.md."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established: neither is this entry's tiling policy. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/weplay.md",
@@ -828,6 +912,13 @@
         "source": "docs/research/hh-formats/pokerbros.md",
         "checkedAt": "2026-11-11",
         "notes": "No desktop client: no table window to draw on. docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "none",
       "docs": [
@@ -888,6 +979,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/legacy-networks.md",
@@ -945,6 +1043,13 @@
         "source": "docs/research/hh-formats/full-tilt.md",
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "none",
       "docs": [
@@ -1004,6 +1109,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/legacy-networks.md",
@@ -1061,6 +1173,13 @@
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": "none",
       "docs": [
@@ -1120,6 +1239,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/research/hh-formats/run-it-once.md",
@@ -1178,6 +1304,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Not a room: Rail's own text format, no client."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": "none",
       "docs": [
         "docs/PHF-SPEC.md"
@@ -1234,6 +1367,13 @@
         "source": "https://wptglobal.com/terms-and-conditions",
         "checkedAt": "2026-11-11",
         "notes": "Prohibited: Annex A item 6 prohibits third-party software add-ons, including any tool that \"aids in decision making of bet sizing or strategy\", which is what an RNG at the table is for. docs/research/TILING-POLICIES.md."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established. Annex A item 25 permits table organisation and resizing tools; a table moved on the client's own your-turn signal is not addressed. Needs the client's own turn signal captured (docs/research/REAL-CLIENT-CHECK.md §6) and the owner's signed verdict before it can be true. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": null,
       "docs": [
@@ -1295,6 +1435,13 @@
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
       },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
+      },
       "anonymisation": null,
       "docs": [
         "docs/research/hh-formats/legacy-networks.md",
@@ -1353,6 +1500,13 @@
         "source": "docs/research/hh-formats/legacy-networks.md",
         "checkedAt": "2026-11-11",
         "notes": "Closed: no client to draw on. Import only."
+      },
+      "actionSlot": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": "2026-11-12",
+        "notes": "Not established, and moot: tiling is not allowed here, so no table is moved into an Action Required slot either. docs/research/TILING-POLICIES.md.",
+        "signal": null
       },
       "anonymisation": null,
       "docs": [

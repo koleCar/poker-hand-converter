@@ -98,6 +98,16 @@ describe("config/sites.json", () => {
 
   // T0 (docs/research/TILING-POLICIES.md), proposed for the owner's
   // sign-off; core/rail-config/tests/sites.rs pins the same list.
+  // T7 (docs/research/TILING-POLICIES.md): the Action Required slot is
+  // unknown on every entry, with no turn signal; turning one on needs the
+  // owner's signed verdict and the T6 signal capture.
+  it("allows the Action Required slot nowhere yet", () => {
+    for (const s of shipped().sites as Json[]) {
+      expect([s.id, s.actionSlot.allowed, s.actionSlot.signal]).toEqual([s.id, null, null]);
+      expect(s.actionSlot.notes).toMatch(/TILING-POLICIES\.md/);
+    }
+  });
+
   it("carries the T0 tiling and RNG policies, apart from the HUD's", () => {
     const policies = Object.fromEntries(
       shipped().sites.map((s: Json) => [s.id, [s.tiling.allowed, s.rng.allowed]]),
@@ -219,6 +229,25 @@ describe("config/sites.json", () => {
       (d) => Object.assign(site(d, "ipoker").tiling, { allowed: true, source: "https://x", checkedAt: "2026-11-11" }),
     ],
     ["rng allowed as text", (d) => (site(d, "ggpoker").rng.allowed = "no")],
+    // T7: the Action Required slot's block, with its turn signal.
+    ["an entry without an actionSlot block", (d) => delete site(d, "acr").actionSlot],
+    ["an actionSlot block without its signal", (d) => delete site(d, "acr").actionSlot.signal],
+    ["a signal in a tiling block", (d) => (site(d, "acr").tiling.signal = { windows: "flash", macos: null })],
+    ["a signal nobody knows", (d) => (site(d, "acr").actionSlot.signal = { windows: "blink", macos: null })],
+    [
+      "an actionSlot allowed without a signal",
+      (d) => Object.assign(site(d, "pokerstars").actionSlot, { allowed: true, source: "https://x", checkedAt: "2026-11-12" }),
+    ],
+    [
+      "an actionSlot allowed on a network",
+      (d) =>
+        Object.assign(site(d, "ipoker").actionSlot, {
+          allowed: true,
+          source: "https://x",
+          checkedAt: "2026-11-12",
+          signal: { windows: "flash", macos: null },
+        }),
+    ],
   ];
   for (const [name, edit] of refused) {
     it(`refuses ${name}`, () => {
@@ -243,6 +272,17 @@ describe("config/sites.json", () => {
       verified: true,
       checkedAt: "2026-10-20",
       source: "Observed on a Windows install, 2026-10-20: Winamax 7",
+    });
+    expect(validate(doc)).toBe(true);
+  });
+
+  it("accepts a sourced, dated Action Required slot with a turn signal (T7)", () => {
+    const doc = shipped();
+    Object.assign(site(doc, "pokerstars").actionSlot, {
+      allowed: true,
+      source: "https://example.org/tools",
+      checkedAt: "2026-11-12",
+      signal: { windows: "flash", macos: null },
     });
     expect(validate(doc)).toBe(true);
   });

@@ -34,6 +34,7 @@ import {
   removeBand,
   renameLayout,
   rngAllowedAnywhere,
+  actionSlotAllowedAnywhere,
   rngProblem,
   roomRows,
   setBandColour,
@@ -100,6 +101,7 @@ function room(id: string, name: string, tiling: Partial<RoomPolicy["tiling"]>, e
     closed: false,
     tiling: { allowed: null, permitted: false, needsApproval: false, ...tiling },
     rng: { allowed: null, permitted: false, needsApproval: false },
+    actionSlot: { allowed: null, permitted: false, needsApproval: false },
     ...extra,
   };
 }
@@ -217,6 +219,17 @@ describe("the rooms", () => {
     expect(rngAllowedAnywhere(POLICY)).toBe(false);
     const one = { ...POLICY, rooms: [room("acr", "ACR", {}, { rng: { allowed: true, permitted: true, needsApproval: false } })] };
     expect(rngAllowedAnywhere(one)).toBe(true);
+  });
+
+  // (T7) The slot editor's "Action Required" is greyed while no room
+  // allows the slot - every room today.
+  it("offers the Action Required slot only where a room allows it", () => {
+    expect(actionSlotAllowedAnywhere(POLICY)).toBe(false);
+    const one = { ...POLICY, rooms: [room("acr", "ACR", {}, { actionSlot: { allowed: true, permitted: true, needsApproval: false } })] };
+    expect(actionSlotAllowedAnywhere(one)).toBe(true);
+    // A room listed as allowed but not permitted here (no signal for this system): no.
+    const elsewhere = { ...POLICY, rooms: [room("acr", "ACR", {}, { actionSlot: { allowed: true, permitted: false, needsApproval: false } })] };
+    expect(actionSlotAllowedAnywhere(elsewhere)).toBe(false);
   });
 });
 

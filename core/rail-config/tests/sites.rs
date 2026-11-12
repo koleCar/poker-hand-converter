@@ -331,6 +331,10 @@ const TOOL_POLICIES: &[(&str, Option<bool>, Option<bool>)] = &[
 /// The date of the T0 check.
 const TOOLS_CHECKED_AT: &str = "2026-11-11";
 
+/// (T7) The date the Action Required slot's blocks were written: unknown
+/// (`null`) on every entry, no signal.
+const ACTION_SLOT_CHECKED_AT: &str = "2026-11-12";
+
 #[test]
 fn tiling_and_rng_policies_are_the_proposed_list() {
     let config = load_shipped(&REGISTRATION_ORDER).expect("valid");
@@ -352,7 +356,11 @@ fn tiling_and_rng_policies_are_the_proposed_list() {
             let permission = site.permission_block(feature).expect(&at);
             assert_eq!(
                 permission.checked_at.as_deref(),
-                Some(TOOLS_CHECKED_AT),
+                Some(if feature == Feature::ActionSlot {
+                    ACTION_SLOT_CHECKED_AT
+                } else {
+                    TOOLS_CHECKED_AT
+                }),
                 "{at}"
             );
             assert!(
@@ -383,6 +391,14 @@ fn tiling_and_rng_policies_are_the_proposed_list() {
         ["pokerstars", "acr", "coinpoker", "wpt-global"]
     );
     assert!(permitted(Feature::Rng).is_empty());
+    // (T7) The Action Required slot: unknown everywhere, no signal - turning
+    // a room on needs the owner's signed verdict and the T6 capture.
+    for site in &config.sites {
+        let slot = site.permission(Feature::ActionSlot);
+        assert_eq!((slot.allowed, slot.signal), (None, None), "{}", site.id);
+        assert_eq!(site.action_slot_signal(rail_config::Os::Windows), None);
+        assert_eq!(site.action_slot_signal(rail_config::Os::Macos), None);
+    }
     // (T5) Refusals the room could lift (the app's "Needs room approval"):
     // Winamax's, both.
     let approval = |feature| {
@@ -485,6 +501,7 @@ fn a_remote_file_cannot_switch_tiling_or_the_rng_on() {
         let site = site.as_object_mut().expect("site");
         site.remove("tiling");
         site.remove("rng");
+        site.remove("actionSlot");
     }
     site_mut(&mut old, "acr")["hud"]["allowed"] = json!(false);
     let merged =
@@ -492,8 +509,8 @@ fn a_remote_file_cannot_switch_tiling_or_the_rng_on() {
     for site in &merged.config.sites {
         let ours = shipped.site(&site.id).expect("shipped");
         assert_eq!(
-            (&site.tiling, &site.rng),
-            (&ours.tiling, &ours.rng),
+            (&site.tiling, &site.rng, &site.action_slot),
+            (&ours.tiling, &ours.rng, &ours.action_slot),
             "{}",
             site.id
         );
@@ -509,6 +526,85 @@ fn a_remote_file_cannot_switch_tiling_or_the_rng_on() {
             .count(),
         TOOL_POLICIES.len()
     );
+}
+
+/// (T7) The Action Required slot's block: allowed only on a room that
+/// allows tiling, sourced and dated, with a turn signal; a signal in any
+/// other block is refused; a remote file cannot switch it on.
+#[test]
+fn the_action_slot_block() {
+    let allowed = |signal: Value| {
+        json!({
+            "allowed": true,
+            "source": "https://example.org/terms",
+            "checkedAt": "2026-11-12",
+            "notes": null,
+            "signal": signal
+        })
+    };
+    let flash = json!({ "windows": "flash", "macos": null });
+    // Valid: PokerStars (tiling allowed) with a Windows signal.
+    let mut ok = shipped_value();
+    site_mut(&mut ok, "pokerstars")["actionSlot"] = allowed(flash.clone());
+    assert_eq!(problems(&ok), Vec::<String>::new());
+    let config = load(&ok.to_string(), &REGISTRATION_ORDER).expect("valid");
+    let stars = config.site("pokerstars").expect("pokerstars");
+    assert_eq!(
+        stars.action_slot_signal(rail_config::Os::Windows),
+        Some(rail_config::SignalKind::Flash)
+    );
+    assert_eq!(stars.action_slot_signal(rail_config::Os::Macos), None);
+
+    let refused = |edit: &dyn Fn(&mut Value), expected: &str| {
+        let mut value = shipped_value();
+        edit(&mut value);
+        let found = problems(&value);
+        assert!(
+            found.iter().any(|p| p.contains(expected)),
+            "{expected}: {found:?}"
+        );
+    };
+    refused(
+        &|v| site_mut(v, "pokerstars")["actionSlot"] = allowed(Value::Null),
+        "actionSlot.allowed is true without a signal",
+    );
+    refused(
+        &|v| {
+            site_mut(v, "pokerstars")["actionSlot"] =
+                allowed(json!({ "windows": null, "macos": null }));
+        },
+        "without a signal",
+    );
+    // GGPoker refuses tiling: no slot either.
+    refused(
+        &|v| site_mut(v, "ggpoker")["actionSlot"] = allowed(flash.clone()),
+        "actionSlot.allowed is true without tiling",
+    );
+    refused(
+        &|v| site_mut(v, "acr")["tiling"]["signal"] = flash.clone(),
+        "tiling.signal: only actionSlot has a signal",
+    );
+    refused(
+        &|v| {
+            site_mut(v, "acr")["actionSlot"]["signal"] =
+                json!({ "windows": "blink", "macos": null })
+        },
+        "",
+    );
+
+    // A remote file cannot switch it on.
+    let shipped = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    let merged = load_remote(&shipped, &ok.to_string(), &REGISTRATION_ORDER).expect("valid");
+    let stars = merged.config.site("pokerstars").expect("pokerstars");
+    assert_eq!(stars.action_slot_signal(rail_config::Os::Windows), None);
+    assert_eq!(stars.permission(Feature::ActionSlot).allowed, None);
+    assert!(merged.notes.iter().any(|n| matches!(
+        n,
+        MergeNote::LooserPermissionIgnored {
+            feature: Feature::ActionSlot,
+            ..
+        }
+    )));
 }
 
 /// A permitted room's restrictions block with nothing restricted.
