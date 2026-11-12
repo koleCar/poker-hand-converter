@@ -17,9 +17,10 @@
 //! rooms that allow statistics from the user's own hands only: 14; the HUD
 //! editor's designs and assignments, and sync marks on every HUD table:
 //! 15; the hand analysis and the user's own preflop charts: 16; a postflop leak
-//! row's table: 20). A
+//! row's table: 20; plain GG cash hands moved from `standard` to `ggpoker`:
+//! 21). A
 //! migration may also fill in Rust what its SQL cannot ([`after_sql`]: 14
-//! sums the seat rows' blobs, 20 reads the hands' PHF), in the same
+//! sums the seat rows' blobs, 20 reads the hands' PHF, 21 rewrites it), in the same
 //! transaction.
 
 use rusqlite::Connection;
@@ -115,6 +116,14 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0020_leak_row_table.sql",
         sql: include_str!("../migrations/0020_leak_row_table.sql"),
     },
+    Migration {
+        name: "0021_gg_cash_site.sql",
+        sql: include_str!("../migrations/0021_gg_cash_site.sql"),
+    },
+    Migration {
+        name: "0022_hud_settings.sql",
+        sql: include_str!("../migrations/0022_hud_settings.sql"),
+    },
 ];
 
 /// What a migration fills in Rust after its SQL, in its transaction (SQL
@@ -124,6 +133,7 @@ fn after_sql(version: u32, conn: &Connection) -> Result<()> {
         14 => crate::stats::fill_observed(conn),
         18 => crate::stats::fill_hero_acts(conn),
         20 => crate::table_set::fill_leak_table_sets(conn),
+        21 => crate::site_fix::move_gg_cash_hands(conn).map(|_| ()),
         _ => Ok(()),
     }
 }

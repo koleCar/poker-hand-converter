@@ -64,6 +64,7 @@ pub mod read;
 pub mod recompute;
 pub mod report;
 pub mod review;
+pub mod site_fix;
 pub mod sources;
 pub mod stats;
 pub mod stats_read;
@@ -88,8 +89,9 @@ pub use hand_list::{
     SavedFilter, StakeFacet,
 };
 pub use hud::{
-    HudSyncApplied, HudSyncKind, HudSyncRow, LayoutAssignment, RoomSettings, SeatPosition,
-    StoredLayout,
+    HudSettingKind, HudSyncApplied, HudSyncKind, HudSyncRow, LayoutAssignment, RNG_POSITION_PREFIX,
+    RngPosition, RoomSettings, SeatPosition, StoredLayout, parse_rng_position_key,
+    rng_position_key,
 };
 pub use import::{FileImport, ImportOptions, import_file};
 pub use players::{GameKind, PlayerList, PlayerNotes, PlayerProfile, PlayerQuery, PlayerRow};

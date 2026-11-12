@@ -117,7 +117,9 @@ describe("a line at a depth no set covers, read on the nearest charted depth (an
     expect(depths(spot(6, 95))).toEqual([100, 60]);
     expect(depths(spot(6, 25))).toEqual([40]);
     expect(depths(spot(6, 300))).toEqual([200]);
-    expect(depths(spot(9, 50))).toEqual([100]);
+    // charts/10: 9-max 60bb; 75bb sits between it and 100bb, 40bb below it.
+    expect(depths(spot(9, 75))).toEqual([60, 100]);
+    expect(depths(spot(9, 40))).toEqual([60]);
     expect(depths(spot(9, 300))).toEqual([200]);
     expect(depths(spot(6, 75, true))).toEqual([]);
     // Heads-up: only the heads-up sets, below 80bb the 100bb one, above 180bb the 150bb one.

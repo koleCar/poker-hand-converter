@@ -188,7 +188,8 @@ export function leakColumns(decision: DecisionAnalysisInsert, heroPosition: stri
  * The chart sets a hand's table is read on: `CHART_SETS`
  * (`web/src/lib/charts/registry.ts`) without the straddle set, in its order
  * (ties go to the first) - the list `analysis_hand_table_set` holds
- * (`20271102090000_leak_row_table.sql`) and `rail_store::table_set` too.
+ * (`20271102090000_leak_row_table.sql`; with the 9-max 60bb set since
+ * `20271108090000_table_set_9max_60bb.sql`) and `rail_store::table_set` too.
  */
 export const HAND_TABLE_SETS: ReadonlyArray<{ id: string; seats: number; depth: number }> = [
   { id: "nlhe-cash-6max-40bb", seats: 6, depth: 40 },
@@ -196,6 +197,7 @@ export const HAND_TABLE_SETS: ReadonlyArray<{ id: string; seats: number; depth: 
   { id: "nlhe-cash-6max-100bb", seats: 6, depth: 100 },
   { id: "nlhe-cash-6max-150bb", seats: 6, depth: 150 },
   { id: "nlhe-cash-6max-200bb", seats: 6, depth: 200 },
+  { id: "nlhe-cash-9max-60bb", seats: 9, depth: 60 },
   { id: "nlhe-cash-9max-100bb", seats: 9, depth: 100 },
   { id: "nlhe-cash-9max-150bb", seats: 9, depth: 150 },
   { id: "nlhe-cash-9max-200bb", seats: 9, depth: 200 },

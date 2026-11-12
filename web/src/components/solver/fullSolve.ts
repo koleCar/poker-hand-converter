@@ -34,17 +34,10 @@ export interface FullSolve {
   turn(file: string): Promise<FlopChunk | null>;
 }
 
-export function fullSolveBase(): string | null {
-  const base = process.env.NEXT_PUBLIC_FULL_SOLVE_BASE;
-  if (base) return base.replace(/\/$/, "");
-  return process.env.NODE_ENV === "development" ? "/full-solve" : null;
-}
-
 const solves = new Map<string, Promise<FullSolve | null>>();
 
-/** The full solve of a (set, tree, line, canonical flop), or null when there is none. Cached. */
-export function loadFullSolve(set: string, tree: string, line: string, flop: string): Promise<FullSolve | null> {
-  const base = fullSolveBase();
+/** The full solve of a (set, tree, line, canonical flop) under `base` (`fullSolveBase`), or null when there is none. Cached. */
+export function loadFullSolve(base: string | null, set: string, tree: string, line: string, flop: string): Promise<FullSolve | null> {
   if (!base) return Promise.resolve(null);
   const dir = `${base}/${set}/${tree}/${line}/${flop}`;
   let pending = solves.get(dir);

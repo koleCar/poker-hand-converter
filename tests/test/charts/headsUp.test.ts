@@ -339,7 +339,15 @@ describe("heads-up hands, end to end", () => {
   it("refuses a heads-up depth no set covers, and never reads heads-up on a 6-max set", () => {
     const at = (stack: number) =>
       huHand({ hero: "Sb", cards: "Ah Kd", stack, lines: ["Sb: raises $2 to $2.5", "Bb: folds"], winner: "Sb", pot: 2, returned: 1.5 });
-    expect(pre(at(200))).toMatchObject({ status: "not-analysed", reason: "chart-stack-depth" });
-    expect(pre(at(60))).toMatchObject({ status: "not-analysed", reason: "chart-stack-depth" });
+    // Since analysis/39 grading reads an uncovered depth on the nearest
+    // heads-up depth within 5/3 (`uncovered-depth`): 200bb at 150, 60bb at 100.
+    expect(pre(at(200))).toMatchObject({ status: "analysed", source: "chart" });
+    expect(pre(at(200))?.facts.chart).toMatchObject({ set: "nlhe-cash-hu-150bb" });
+    expect(pre(at(200))?.approximations).toContain("uncovered-depth");
+    expect(pre(at(60))?.facts.chart).toMatchObject({ set: ID });
+    expect(pre(at(60))?.approximations).toContain("uncovered-depth");
+    // Further than that it is still refused, and never read on a 6-max set.
+    expect(pre(at(260))).toMatchObject({ status: "not-analysed", reason: "chart-stack-depth" });
+    expect(pre(at(50))).toMatchObject({ status: "not-analysed", reason: "chart-stack-depth" });
   });
 });

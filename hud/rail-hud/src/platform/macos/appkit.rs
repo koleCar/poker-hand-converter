@@ -110,6 +110,9 @@
 //! never moved is `TableEvent::PanelClicked` with the panel on the screen
 //! (R3.8's popup). Both go to the engine through
 //! [`crate::platform::tracking::Observed`] - no store work here, ever.
+//! (T4) The RNG widget the same way, as the pseudo-slot
+//! [`crate::platform::RNG_SLOT`]: its plate is one of the scene's click
+//! rectangles.
 //!
 //! **`unsafe`**: each function that needs it allows it for itself, with a
 //! `// SAFETY:` comment per block: reading AppKit's and Core Text's
@@ -132,7 +135,7 @@ use objc2::runtime::{AnyObject, NSObjectProtocol, ProtocolObject};
 use objc2::{MainThreadMarker, MainThreadOnly};
 use objc2_app_kit::{
     NSApplication, NSApplicationActivationPolicy, NSBackingStoreType, NSColor, NSEvent,
-    NSEventMask, NSEventModifierFlags, NSEventType, NSPanel, NSView, NSWindow,
+    NSEventMask, NSEventModifierFlags, NSEventType, NSPanel, NSScreen, NSView, NSWindow,
     NSWindowAnimationBehavior, NSWindowCollectionBehavior, NSWindowNumberListOptions,
     NSWindowOrderingMode, NSWindowStyleMask, NSWorkspace,
     NSWorkspaceActiveSpaceDidChangeNotification,
@@ -157,7 +160,7 @@ use super::super::drag::{self, Drag};
 use super::super::tracking::{self, Geometry, Observed, Placed, Plan};
 use super::super::{OverlayFrame, PlatformError, Rect, TableEvent, WindowId};
 use super::{
-    Frame, HitInfo, Mouse, OverlayInfo, Stacking, appkit_frame, client_pixel, ffi, milli,
+    Frame, HitInfo, Mouse, OverlayInfo, Screen, Stacking, appkit_frame, client_pixel, ffi, milli,
     restack_every, stacking,
 };
 use crate::layout::Positions;
@@ -246,6 +249,10 @@ pub(super) enum Command {
         point: (i64, i64),
         below: u32,
         reply: Sender<u32>,
+    },
+    /// (T1) AppKit's screens (`NSScreen`, main-thread only): the work areas.
+    Screens {
+        reply: Sender<Vec<Screen>>,
     },
     Quit,
 }
@@ -400,6 +407,30 @@ impl Link {
             reply,
         })
     }
+
+    /// (T1) AppKit's screens, asked of the AppKit thread.
+    pub(super) fn screens(&self) -> Option<Vec<Screen>> {
+        self.ask(|reply| Command::Screens { reply })
+    }
+}
+
+/// (T1) AppKit's screens now (`NSScreen.screens`): each one's frame and
+/// visible frame - without the menu bar and the Dock -, thousandths of a
+/// point in AppKit's space. On the main thread only (`mtm`).
+pub(super) fn screens(mtm: MainThreadMarker) -> Vec<Screen> {
+    let frame = |r: NSRect| Frame {
+        x: milli(r.origin.x),
+        y: milli(r.origin.y),
+        width: milli(r.size.width),
+        height: milli(r.size.height),
+    };
+    NSScreen::screens(mtm)
+        .iter()
+        .map(|screen| Screen {
+            frame: frame(screen.frame()),
+            visible: frame(screen.visibleFrame()),
+        })
+        .collect()
 }
 
 /// On the main thread (the main dispatch queue): an application-defined
@@ -1002,6 +1033,9 @@ impl Overlays {
                     NSWindow::windowNumberAtPoint_belowWindowWithWindowNumber(at, below, self.mtm);
                 let _ = reply.send(u32::try_from(number).unwrap_or(0));
             }
+            Command::Screens { reply } => {
+                let _ = reply.send(screens(self.mtm));
+            }
             Command::Quit => {}
         }
     }
@@ -1302,12 +1336,10 @@ impl Overlays {
             if !released {
                 return;
             }
-            let Some(&(slot, rect)) = overlay
-                .scene
-                .seat_panels
-                .iter()
-                .find(|(slot, _)| *slot == drag.slot)
-            else {
+            // (T4) A seat's panel, or the RNG widget (its slot `RNG_SLOT`:
+            // a roll).
+            let slot = drag.slot;
+            let Some(rect) = overlay.scene.draggable(slot) else {
                 return;
             };
             overlay.clicks += 1;

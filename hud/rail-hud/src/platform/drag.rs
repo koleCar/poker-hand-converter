@@ -20,6 +20,11 @@
 //!   told ([`super::TableEvent::PanelMoved`]); a press that never moved is
 //!   a click.
 //!
+//! (T4) The RNG widget is picked up, moved and dropped the same way, as
+//! the pseudo-slot [`super::RNG_SLOT`] ([`Scene::grab_at`]: it is drawn
+//! above the panels, so a press on it takes it); its click is a roll, not a
+//! popup - the engine tells them apart by the slot.
+//!
 //! Nothing here touches the store or blocks: the overlay thread runs the
 //! hooks (R3.5) and must never wait.
 
@@ -51,9 +56,10 @@ pub struct Drag {
 }
 
 impl Drag {
-    /// A press at (`x`, `y`): a drag when it is on a seat's panel.
+    /// A press at (`x`, `y`): a drag when it is on a seat's panel or
+    /// (T4) the RNG widget.
     pub fn press(scene: &Scene, x: i32, y: i32) -> Option<Self> {
-        let (slot, panel) = scene.seat_panel_at(x, y)?;
+        let (slot, panel) = scene.grab_at(x, y)?;
         Some(Self {
             slot,
             from: (x, y),
@@ -106,11 +112,8 @@ impl Drag {
         if !scene.placed_by_user.contains(&self.slot) {
             return None;
         }
-        let (_, rect) = scene
-            .seat_panels
-            .iter()
-            .find(|(slot, _)| *slot == self.slot)?;
-        Some(layout::center_permille(rect, scene.width, scene.height))
+        let rect = scene.draggable(self.slot)?;
+        Some(layout::center_permille(&rect, scene.width, scene.height))
     }
 }
 
@@ -126,7 +129,7 @@ mod tests {
     fn frame(site: &str, seats: &[u32]) -> OverlayFrame {
         let compliance = Compliance::shipped().expect("shipped");
         OverlayFrame {
-            permit: compliance.permit(site).expect("permitted"),
+            permit: Some(compliance.permit(site).expect("permitted")),
             status: None,
             debug: None,
             size: Some(6),
@@ -152,6 +155,7 @@ mod tests {
                 .collect(),
             legend: Vec::new(),
             design: PanelDesign::default(),
+            rng: None,
         }
     }
 
@@ -213,6 +217,54 @@ mod tests {
         assert_eq!(threshold(1000), 4);
         assert_eq!(threshold(1500), 6);
         assert_eq!(threshold(0), 4);
+    }
+
+    /// (T4) The RNG widget: a press on it picks it up (not the panel under
+    /// it), a click is a click, a drag keeps its new centre; on an RNG-only
+    /// frame too.
+    #[test]
+    fn the_rng_widget_drags_and_clicks() {
+        use crate::platform::{RNG_SLOT, RngShown};
+        let (w, h) = (800, 580);
+        let compliance = crate::compliance::allowing_rng(&["pokerstars"]);
+        let rng = RngShown {
+            permit: compliance.rng_permit("pokerstars").expect("rng"),
+            value: 42,
+            colour: crate::scene::NORMAL,
+            label: None,
+            digits: 3,
+            seq: 1,
+            scale_pct: 100,
+            opacity_pct: 100,
+        };
+        let mut with_panels = frame("pokerstars", &[1, 2, 3]);
+        with_panels.rng = Some(rng.clone());
+        let only = OverlayFrame::rng_only(rng, Some(6), Seating::default());
+        for frame in [with_panels, only] {
+            let design = PanelDesign::default();
+            let scene = compose(&frame, w, h, 1000, &design);
+            let widget = scene.rng.as_ref().expect("drawn").rect;
+            let (px, py) = middle(&widget);
+            let mut click = Drag::press(&scene, px, py).expect("on the widget");
+            assert_eq!(click.slot, RNG_SLOT);
+            assert_eq!(click.moved(px + 2, py, threshold(1000), w, h), None);
+            assert!(click.is_click());
+            assert_eq!(click.release(&scene), None);
+            let mut drag = Drag::press(&scene, px, py).expect("on the widget");
+            let at = drag
+                .moved(px - 300, py + 200, threshold(1000), w, h)
+                .expect("a drag");
+            let mut overrides = Positions::new();
+            overrides.insert(RNG_SLOT, at);
+            let dragged = compose_with(&frame, w, h, 1000, &design, &overrides);
+            let kept = drag.release(&dragged).expect("kept");
+            let moved = dragged.rng.as_ref().expect("drawn").rect;
+            assert!((moved.x - widget.x + 300).abs() <= 1, "{moved:?}");
+            assert!((moved.y - widget.y - 200).abs() <= 1, "{moved:?}");
+            assert_eq!(kept, layout::center_permille(&moved, w, h));
+            assert!(dragged.placed_by_user.contains(&RNG_SLOT));
+            assert!(!scene.placed_by_user.contains(&RNG_SLOT));
+        }
     }
 
     /// ACR: dragged onto the board, the panel shows (and is kept) at the

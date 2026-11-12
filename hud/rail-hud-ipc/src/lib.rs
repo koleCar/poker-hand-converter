@@ -27,12 +27,19 @@
 //!   connection, check its health, restart it with a backoff when it dies or
 //!   stops answering, and shut it down on exit.
 //! - [`client`]: the HUD's side - read the token, connect, authenticate.
+//! - [`settings`] (T3): the user's table tiling and RNG settings - the
+//!   model the app stores and sends and the HUD applies, with its
+//!   validation.
+//! - [`hotkeys`] (T7): the global hotkeys' bindings (part of the tiling
+//!   settings), their validation and what each one does.
 
 pub mod auth;
 pub mod client;
 pub mod frame;
+pub mod hotkeys;
 pub mod link;
 pub mod protocol;
+pub mod settings;
 pub mod supervisor;
 pub mod transport;
 

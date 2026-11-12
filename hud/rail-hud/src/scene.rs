@@ -43,14 +43,32 @@
 //! takes clicks (it is listed in [`Scene::panels`]), so it goes where the
 //! table has nothing: R3.14 measures each client's controls into the
 //! layout's graphics.
+//!
+//! **The RNG widget (T4, docs/research/TABLE-TILING.md §4.4)**, when the
+//! frame carries a roll ([`OverlayFrame::rng`], under the room's
+//! `RngPermit`): one large bold number in its band's colour on a compact
+//! borderless rounded plate of the panels' near-black, the band's name
+//! small under it when the user gave one. It scales with the table (the
+//! panels' [`Metrics`]) and keeps its size from roll to roll (as wide as
+//! the range's widest number). Its default spot is the table's top-right
+//! corner, slid down the right edge past the table's graphics and the
+//! panels when they are there; where the user dragged it (per room and
+//! table size, [`crate::platform::RNG_SLOT`] in the positions) it goes
+//! wherever inside the client area. A band colour too dark to read on the
+//! plate is lifted towards white just enough ([`readable`]). An RNG-only
+//! frame (no HUD permit: a room that refuses a HUD, or the panels held
+//! back) draws the widget and nothing else - no panel, status line, debug
+//! line or legend.
 
 #![forbid(unsafe_code)]
 
+use rail_config::model::HudRestrictions;
 use rail_config::stats::Tone;
 
+use crate::compliance::Permit;
 use crate::layout::{self, Metrics, Placing, Positions, TableLayout};
 use crate::panel::{PanelDesign, collapse_tone, hands_text, legend_tones};
-use crate::platform::{OverlayFrame, Rect, TagColour};
+use crate::platform::{OverlayFrame, RNG_SLOT, Rect, RngShown, TagColour};
 use crate::seats;
 
 /// A colour with straight (not premultiplied) alpha.
@@ -65,6 +83,23 @@ pub struct Rgba {
 impl Rgba {
     pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
         Self { r, g, b, a: 255 }
+    }
+
+    /// (T4) `#rrggbb`, opaque; `None` for anything else.
+    pub fn from_hex(text: &str) -> Option<Self> {
+        let hex = text.strip_prefix('#')?;
+        if hex.len() != 6 || !hex.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return None;
+        }
+        let part = |at: usize| u8::from_str_radix(hex.get(at..at + 2)?, 16).ok();
+        Some(Self::rgb(part(0)?, part(2)?, part(4)?))
+    }
+
+    /// (T4) Its relative luminance, roughly (sRGB's weights over squared
+    /// channels - gamma 2 for 2.2, in integers): 0 (black) - 65 025 (white).
+    pub fn luminance(self) -> u32 {
+        let sq = |c: u8| u32::from(c) * u32::from(c);
+        (2126 * sq(self.r) + 7152 * sq(self.g) + 722 * sq(self.b)) / 10_000
     }
 
     /// The same colour at `permille` of its opacity.
@@ -97,6 +132,44 @@ pub const VERY_LOW: Rgba = Rgba::rgb(76, 140, 255);
 pub const VERY_HIGH: Rgba = Rgba::rgb(255, 104, 104);
 /// The hand count and figures without a value.
 pub const MUTED: Rgba = Rgba::rgb(160, 168, 180);
+
+/// (T4) The least [`Rgba::luminance`] a band colour keeps on the
+/// near-black plate: 0.12 of white's, about 3:1 against the plate - what
+/// large bold text needs (WCAG AA). The default bands' darkest grey
+/// (`#5c6370`) and a pure red are above it, a pure blue is not.
+pub const MIN_RNG_LUMINANCE: u32 = 7_800;
+
+/// (T4) `colour` as the RNG widget draws it on the plate: unchanged when
+/// it is light enough ([`MIN_RNG_LUMINANCE`]), else mixed towards white
+/// just enough to read (the least such mix, in thousandths).
+pub fn readable(colour: Rgba) -> Rgba {
+    if colour.luminance() >= MIN_RNG_LUMINANCE {
+        return colour;
+    }
+    let mix = |t: u32| {
+        let lift = |c: u8| {
+            let c = u32::from(c);
+            u8::try_from(c + (255 - c) * t / 1000).unwrap_or(u8::MAX)
+        };
+        Rgba {
+            r: lift(colour.r),
+            g: lift(colour.g),
+            b: lift(colour.b),
+            a: colour.a,
+        }
+    };
+    // The least `t` (white is always light enough) by halving.
+    let (mut low, mut high) = (0_u32, 1000_u32);
+    while low < high {
+        let t = (low + high) / 2;
+        if mix(t).luminance() >= MIN_RNG_LUMINANCE {
+            high = t;
+        } else {
+            low = t + 1;
+        }
+    }
+    mix(high)
+}
 
 /// (R3.8) The note mark: a light yellow corner.
 pub const NOTE: Rgba = Rgba::rgb(255, 214, 102);
@@ -199,6 +272,22 @@ pub struct Scene {
     /// statistic id, its cell (the editor's preview opens a statistic's
     /// settings from it).
     pub cell_rects: Vec<(u32, String, Rect)>,
+    /// (T4) The RNG widget, when drawn.
+    pub rng: Option<RngDrawn>,
+}
+
+/// (T4) The RNG widget as drawn.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RngDrawn {
+    /// The plate (it takes clicks and drags).
+    pub rect: Rect,
+    pub value: u32,
+    /// The number's colour (the band's, made [`readable`]).
+    pub colour: Rgba,
+    /// The number's font size, pixels.
+    pub px: u32,
+    /// The band's name, when drawn.
+    pub label: Option<String>,
 }
 
 impl Scene {
@@ -214,6 +303,28 @@ impl Scene {
             .rev()
             .find(|(_, r)| layout::contains(r, x, y))
             .copied()
+    }
+
+    /// What a press at a point (client-relative) picks up: (T4) the RNG
+    /// widget ([`RNG_SLOT`], drawn above the panels), else a seat's panel.
+    pub fn grab_at(&self, x: i32, y: i32) -> Option<(u32, Rect)> {
+        self.rng
+            .as_ref()
+            .filter(|rng| layout::contains(&rng.rect, x, y))
+            .map(|rng| (RNG_SLOT, rng.rect))
+            .or_else(|| self.seat_panel_at(x, y))
+    }
+
+    /// Where the draggable thing at `slot` is drawn: a seat's panel, or
+    /// (T4) the RNG widget at [`RNG_SLOT`].
+    pub fn draggable(&self, slot: u32) -> Option<Rect> {
+        if slot == RNG_SLOT {
+            return self.rng.as_ref().map(|rng| rng.rect);
+        }
+        self.seat_panels
+            .iter()
+            .find(|(s, _)| *s == slot)
+            .map(|(_, rect)| *rect)
     }
 }
 
@@ -247,10 +358,18 @@ pub fn compose_with(
     design: &PanelDesign,
     overrides: &Positions,
 ) -> Scene {
-    let restrictions = frame.permit.restrictions();
+    // (T4) An RNG-only frame has no HUD permit: no panel, status line,
+    // debug line or legend - only the RNG widget, under its own permit.
+    let hud = frame.permit.is_some();
+    let strictest = HudRestrictions::STRICTEST;
+    let restrictions = frame
+        .permit
+        .as_ref()
+        .map_or(&strictest, Permit::restrictions);
+    let players: &[crate::platform::SeatPanel] = if hud { &frame.panels } else { &[] };
     let design = design.enforce(restrictions);
     let metrics = Metrics::for_client(height, scale_permille);
-    let size = seats::table_size(frame.size, frame.panels.iter().filter_map(|p| p.seat));
+    let size = seats::table_size(frame.size, players.iter().filter_map(|p| p.seat));
     let table = frame
         .seating
         .layout
@@ -264,7 +383,7 @@ pub fn compose_with(
         ..Scene::default()
     };
 
-    if let Some(status) = &frame.status {
+    if let Some(status) = frame.status.as_ref().filter(|_| hud) {
         let chars = u32::try_from(status.chars().count()).unwrap_or(u32::MAX);
         let pill = metrics.pill_size(chars);
         if let Some(rect) =
@@ -292,7 +411,7 @@ pub fn compose_with(
     // (R3.7) A debug build's latency line: small, in a corner clear of the
     // table's graphics (bottom left, else top left), never a click target.
     let mut debug_rect = None;
-    if let Some(debug) = &frame.debug {
+    if let Some(debug) = frame.debug.as_ref().filter(|_| hud) {
         let px = (metrics.font * 3 / 4).max(9);
         let chars = u32::try_from(debug.chars().count()).unwrap_or(u32::MAX);
         let (w, h) = (
@@ -338,8 +457,7 @@ pub fn compose_with(
         }
     }
 
-    let cells = frame
-        .panels
+    let cells = players
         .iter()
         .map(|p| p.stats.iter().filter(|c| design.shows(&c.id)).count())
         .max()
@@ -371,13 +489,12 @@ pub fn compose_with(
             .and_then(|slot| slot.at)
             .filter(|at| *at < columns.saturating_mul(rows))
     };
-    let labels = design.player_labels && frame.panels.iter().any(|p| p.words.label.is_some());
+    let labels = design.player_labels && players.iter().any(|p| p.words.label.is_some());
     let panel = metrics.panel_rows(columns, rows + u32::from(labels));
 
     // Each seated player's slot: the room's layout, the hero's rotation.
     let slot_of = |seat: u32| seats::slot_of(&table, seat, frame.seating.rotate_to);
-    let slots: Vec<u32> = frame
-        .panels
+    let slots: Vec<u32> = players
         .iter()
         .filter_map(|p| p.seat.and_then(slot_of))
         .collect();
@@ -428,7 +545,7 @@ pub fn compose_with(
         .filter_map(|(slot, rect)| rect.map(|r| (slot, r))),
     );
 
-    for player in &frame.panels {
+    for player in players {
         let Some(seat) = player.seat else {
             scene.dropped.push(format!("{}: no seat", player.player));
             continue;
@@ -551,6 +668,28 @@ pub fn compose_with(
         }
     }
 
+    // (T4) The RNG widget, above the panels, before the legend (which
+    // keeps clear of it).
+    if let Some(rng) = &frame.rng {
+        let mut taken = scene.panels.clone();
+        taken.extend(debug_rect);
+        let rect = place_rng(
+            rng,
+            &metrics,
+            &table,
+            (width, height),
+            positions.get(&RNG_SLOT).copied(),
+            &taken,
+        );
+        draw_rng(
+            &mut scene,
+            rng,
+            &metrics,
+            rect,
+            positions.contains_key(&RNG_SLOT),
+        );
+    }
+
     // (R3.8) The legend: the colours the panels can show here, once there
     // are panels to read it against.
     if design.legend && !scene.seat_panels.is_empty() {
@@ -595,6 +734,169 @@ pub fn compose_with(
     scene
 }
 
+/// (T4) The RNG widget's measures for `rng` at `metrics`, (T5 follow-up)
+/// times the user's size (`scale_pct`, 50 - 200 %).
+struct RngSize {
+    /// The number's font size, pixels.
+    big: u32,
+    /// The label's font size.
+    small: u32,
+    /// The plate's padding, the label's row, its corner radius.
+    pad: u32,
+    row: u32,
+    radius: u32,
+    /// The plate.
+    width: u32,
+    height: u32,
+}
+
+fn rng_size(rng: &RngShown, metrics: &Metrics) -> RngSize {
+    let pct = rng.scale_pct.clamp(
+        rail_hud_ipc::settings::RNG_SCALE_MIN,
+        rail_hud_ipc::settings::RNG_SCALE_MAX,
+    );
+    let scaled = |v: u32| (v * pct / 100).max(1);
+    let big = scaled(metrics.row * 16 / 10);
+    let small = scaled(metrics.font);
+    let pad = scaled(metrics.pad);
+    let row = scaled(metrics.row);
+    let digits = rng.digits.clamp(1, 5);
+    let number_w = digits * big * 62 / 100;
+    let label_w = rng.label.as_ref().map_or(0, |label| {
+        u32::try_from(label.chars().count()).unwrap_or(u32::MAX) * small * 56 / 100
+    });
+    RngSize {
+        big,
+        small,
+        pad,
+        row,
+        radius: metrics.radius * 2 * pct / 100,
+        width: number_w.max(label_w) + 4 * pad,
+        height: big * 12 / 10 + 2 * pad + rng.label.as_ref().map_or(0, |_| row),
+    }
+}
+
+/// (T4) Where the RNG widget goes: where the user put it (`wanted`, its
+/// centre in thousandths; inside the client area), else the top-right
+/// corner - slid down the right edge, as far as the middle of the table,
+/// to the first place clear of the table's graphics and of what is
+/// `taken` (the panels, the status line, the debug line); the corner
+/// itself when none is.
+fn place_rng(
+    rng: &RngShown,
+    metrics: &Metrics,
+    table: &TableLayout,
+    (width, height): (u32, u32),
+    wanted: Option<(u32, u32)>,
+    taken: &[Rect],
+) -> Rect {
+    let RngSize {
+        width: w,
+        height: h,
+        ..
+    } = rng_size(rng, metrics);
+    if let Some(center) = wanted
+        && let Some(rect) = layout::constrain(
+            width,
+            height,
+            layout::centred_at(width, height, center, (w, h)),
+            None,
+        )
+    {
+        return rect;
+    }
+    let margin = i64::from(metrics.pad);
+    let x = i64::from(width) - i64::from(w) - margin;
+    let at = |y: i64| Rect {
+        x: i32::try_from(x.max(0)).unwrap_or(0),
+        y: i32::try_from(y.max(0)).unwrap_or(0),
+        width: w,
+        height: h,
+    };
+    let graphics = table.graphics(width, height);
+    let step = i64::from((h / 4).max(2));
+    let last = i64::from(height / 2);
+    let mut y = margin;
+    while y <= last {
+        let candidate = at(y);
+        if layout::inside(&candidate, width, height)
+            && !graphics.iter().any(|g| layout::intersects(&candidate, g))
+            && !taken.iter().any(|t| layout::intersects(&candidate, t))
+        {
+            return candidate;
+        }
+        y += step;
+    }
+    at(margin)
+}
+
+/// (T4) Paint the RNG widget at `rect`: the plate, the number, the label;
+/// (T5 follow-up) all of it at the user's opacity (`opacity_pct`,
+/// 30 - 100 %).
+fn draw_rng(scene: &mut Scene, rng: &RngShown, metrics: &Metrics, rect: Rect, by_user: bool) {
+    let RngSize {
+        big,
+        small,
+        pad,
+        row,
+        radius,
+        ..
+    } = rng_size(rng, metrics);
+    let opacity = rng.opacity_pct.clamp(
+        rail_hud_ipc::settings::RNG_OPACITY_MIN,
+        rail_hud_ipc::settings::RNG_OPACITY_MAX,
+    ) * 10;
+    let colour = readable(rng.colour).faded(opacity);
+    scene.items.push(Item::Fill {
+        rect,
+        radius,
+        color: PANEL.faded(opacity),
+    });
+    let label_h = rng.label.as_ref().map_or(0, |_| row);
+    let number = Rect {
+        x: rect.x,
+        y: rect.y.saturating_add(i32::try_from(pad).unwrap_or(0)),
+        width: rect.width,
+        height: rect.height.saturating_sub(2 * pad + label_h),
+    };
+    scene.items.push(Item::Text {
+        rect: number,
+        text: rng.value.to_string(),
+        px: big,
+        color: colour,
+        bold: true,
+        align: Align::Center,
+    });
+    if let Some(label) = &rng.label {
+        scene.items.push(Item::Text {
+            rect: Rect {
+                x: rect.x,
+                y: number
+                    .y
+                    .saturating_add(i32::try_from(number.height).unwrap_or(0)),
+                width: rect.width,
+                height: label_h,
+            },
+            text: label.clone(),
+            px: small,
+            color: colour,
+            bold: false,
+            align: Align::Center,
+        });
+    }
+    scene.panels.push(rect);
+    if by_user {
+        scene.placed_by_user.push(RNG_SLOT);
+    }
+    scene.rng = Some(RngDrawn {
+        rect,
+        value: rng.value,
+        colour,
+        px: big,
+        label: rng.label.clone(),
+    });
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -622,7 +924,7 @@ mod tests {
     fn frame(site: &str, size: Option<u32>, seats: &[u32]) -> OverlayFrame {
         let compliance = Compliance::shipped().expect("shipped");
         OverlayFrame {
-            permit: compliance.permit(site).expect("permitted"),
+            permit: Some(compliance.permit(site).expect("permitted")),
             status: None,
             debug: None,
             size,
@@ -643,6 +945,7 @@ mod tests {
                 .collect(),
             legend: PanelStats::new(&PanelDesign::default()).legend_tones(),
             design: PanelDesign::default(),
+            rng: None,
         }
     }
 
@@ -1122,6 +1425,329 @@ mod tests {
         let scene = compose(&numbered, 800, 580, 1000, &PanelDesign::default());
         assert_eq!(scene.seat_panels.len(), 1);
         assert_eq!(scene.dropped, ["seat 3: not a seat of a 6-seat table"]);
+    }
+
+    /// (T4) A roll of `value` for a pokerstars table (a test policy: no
+    /// shipped room allows the RNG yet).
+    fn rng(value: u32, colour: Rgba, label: Option<&str>) -> RngShown {
+        RngShown {
+            permit: crate::compliance::allowing_rng(&["pokerstars"])
+                .rng_permit("pokerstars")
+                .expect("allowed"),
+            value,
+            colour,
+            label: label.map(str::to_owned),
+            digits: 3,
+            seq: 1,
+            scale_pct: 100,
+            opacity_pct: 100,
+        }
+    }
+
+    /// (T5 follow-up) The user's size scales the whole widget - plate,
+    /// number, label - around the same spot rules, and its opacity fades
+    /// the plate and the number alike; 100 % of both is T4's widget.
+    #[test]
+    fn the_rng_widget_scales_and_fades() {
+        let (w, h) = (800, 580);
+        let colour = Rgba::from_hex("#c5cad3").expect("hex");
+        let drawn = |scale_pct: u32, opacity_pct: u32| {
+            let mut frame = frame("pokerstars", Some(6), &[1, 2, 3, 4, 5, 6]);
+            frame.rng = Some(RngShown {
+                scale_pct,
+                opacity_pct,
+                ..rng(42, colour, Some("call"))
+            });
+            compose(&frame, w, h, 1000, &PanelDesign::default())
+        };
+        let normal = drawn(100, 100);
+        let base = normal.rng.as_ref().expect("drawn");
+        for (pct, other) in [(200, drawn(200, 100)), (50, drawn(50, 100))] {
+            let rng = other.rng.as_ref().expect("drawn");
+            // Within rounding of the integer measures.
+            let near = |got: u32, want: u32| got.abs_diff(want * pct / 100) <= 4;
+            assert!(
+                near(rng.rect.width, base.rect.width),
+                "{pct} %: {:?} vs {:?}",
+                rng.rect,
+                base.rect
+            );
+            assert!(
+                near(rng.rect.height, base.rect.height),
+                "{pct} %: {:?} vs {:?}",
+                rng.rect,
+                base.rect
+            );
+            assert!(
+                near(rng.px, base.px),
+                "{pct} %: {} px vs {} px",
+                rng.px,
+                base.px
+            );
+            assert!(layout::inside(&rng.rect, w, h));
+            // Still the top-right corner by default.
+            let right = rng.rect.x + i32::try_from(rng.rect.width).expect("w");
+            assert_eq!(
+                right,
+                base.rect.x + i32::try_from(base.rect.width).expect("w")
+            );
+        }
+        // Out-of-range values (never valid settings) are held to 50 - 200 %.
+        let huge = drawn(1000, 100);
+        assert_eq!(
+            huge.rng.as_ref().expect("drawn").rect,
+            drawn(200, 100).rng.expect("drawn").rect
+        );
+
+        let plate = |scene: &Scene| {
+            let rect = scene.rng.as_ref().expect("drawn").rect;
+            scene
+                .items
+                .iter()
+                .find_map(|item| match item {
+                    Item::Fill { rect: r, color, .. } if *r == rect => Some(*color),
+                    _ => None,
+                })
+                .expect("the plate")
+        };
+        assert_eq!(plate(&normal), PANEL);
+        assert_eq!(normal.rng.as_ref().expect("drawn").colour, colour);
+        let faint = drawn(100, 40);
+        assert_eq!(
+            plate(&faint).a,
+            u8::try_from(u32::from(PANEL.a) * 40 / 100).expect("a")
+        );
+        let number = faint.rng.as_ref().expect("drawn");
+        assert_eq!(number.colour, colour.faded(400));
+        assert_eq!(number.rect, base.rect, "opacity does not move or size it");
+        // Held to 30 % at least.
+        assert_eq!(
+            plate(&drawn(100, 0)).a,
+            u8::try_from(u32::from(PANEL.a) * 30 / 100).expect("a")
+        );
+    }
+
+    /// (T4) The widget's default spot: the top-right corner, inside the
+    /// client area, clear of the table's graphics, the panels and the
+    /// legend; one large bold number in the band's colour, the label small
+    /// under it; it takes clicks.
+    #[test]
+    fn the_rng_widget_sits_top_right() {
+        let (w, h) = (800, 580);
+        let colour = Rgba::from_hex("#8b929e").expect("hex");
+        let mut frame = frame("pokerstars", Some(6), &[1, 2, 3, 4, 5, 6]);
+        frame.rng = Some(rng(42, colour, Some("call")));
+        let scene = compose(&frame, w, h, 1000, &PanelDesign::default());
+        let drawn = scene.rng.as_ref().expect("drawn");
+        let metrics = Metrics::for_client(h, 1000);
+        let pad = i32::try_from(metrics.pad).expect("pad");
+        let right = drawn.rect.x + i32::try_from(drawn.rect.width).expect("w");
+        assert_eq!(right, 800 - pad, "{:?}", drawn.rect);
+        assert!(drawn.rect.y < 290, "the top half: {:?}", drawn.rect);
+        assert!(layout::inside(&drawn.rect, w, h));
+        for g in layout::table_graphics(w, h, 6) {
+            assert!(!layout::intersects(&drawn.rect, &g), "{g:?}");
+        }
+        for (_, panel) in &scene.seat_panels {
+            assert!(!layout::intersects(&drawn.rect, panel), "{panel:?}");
+        }
+        let (legend, _) = scene.legend.as_ref().expect("a legend");
+        assert!(!layout::intersects(&drawn.rect, legend));
+        assert_eq!(scene.seat_panels.len(), 6, "{:?}", scene.dropped);
+        assert!(scene.panels.contains(&drawn.rect), "it takes clicks");
+        assert!(scene.hit(drawn.rect.x + 2, drawn.rect.y + 2));
+        assert_eq!(
+            scene.grab_at(drawn.rect.x + 2, drawn.rect.y + 2),
+            Some((RNG_SLOT, drawn.rect))
+        );
+        assert_eq!(scene.draggable(RNG_SLOT), Some(drawn.rect));
+        assert!(!scene.placed_by_user.contains(&RNG_SLOT));
+        // The number: large, bold, the band's colour; the label under it.
+        let number = scene
+            .items
+            .iter()
+            .find_map(|item| match item {
+                Item::Text {
+                    text,
+                    px,
+                    color,
+                    bold,
+                    rect,
+                    ..
+                } if text == "42" => Some((*px, *color, *bold, *rect)),
+                _ => None,
+            })
+            .expect("the number");
+        assert_eq!(number.1, colour);
+        assert!(number.2);
+        assert!(number.0 > metrics.font * 2, "{} px", number.0);
+        assert_eq!(drawn.px, number.0);
+        let label = scene
+            .items
+            .iter()
+            .find_map(|item| match item {
+                Item::Text {
+                    text,
+                    px,
+                    rect,
+                    color,
+                    ..
+                } if text == "call" => Some((*px, *rect, *color)),
+                _ => None,
+            })
+            .expect("the label");
+        assert!(label.0 < number.0);
+        assert!(label.1.y >= number.3.y + i32::try_from(number.3.height).expect("h"));
+        assert_eq!(label.2, colour);
+        assert!(layout::intersects(&label.1, &drawn.rect));
+        // Without a label: a shorter plate, no second line.
+        frame.rng = Some(rng(42, colour, None));
+        let plain = compose(&frame, w, h, 1000, &PanelDesign::default());
+        let plain_rect = plain.rng.as_ref().expect("drawn").rect;
+        assert!(plain_rect.height < drawn.rect.height);
+        assert!(!texts(&plain).iter().any(|(t, _)| *t == "call"));
+        // The plate keeps its size whatever the number.
+        frame.rng = Some(rng(7, colour, None));
+        let seven = compose(&frame, w, h, 1000, &PanelDesign::default());
+        assert_eq!(seven.rng.as_ref().expect("drawn").rect, plain_rect);
+    }
+
+    /// (T4) The widget scales with the table (and the monitor's scale), and
+    /// stays clear of the graphics and the panels on every usual client and
+    /// table size.
+    #[test]
+    fn the_rng_widget_scales_and_stays_clear() {
+        let colour = NORMAL;
+        let small = {
+            let mut frame = frame("pokerstars", Some(6), &[]);
+            frame.rng = Some(rng(100, colour, None));
+            compose(&frame, 640, 440, 1000, &PanelDesign::default())
+        };
+        let large = {
+            let mut frame = frame("pokerstars", Some(6), &[]);
+            frame.rng = Some(rng(100, colour, None));
+            compose(&frame, 1600, 1160, 2000, &PanelDesign::default())
+        };
+        let (s, l) = (
+            small.rng.as_ref().expect("small"),
+            large.rng.as_ref().expect("large"),
+        );
+        assert!(l.px > s.px && l.rect.width > s.rect.width && l.rect.height > s.rect.height);
+        for size in [2_u32, 6, 9, 10] {
+            for (w, h, scale) in [(640, 440, 1000), (800, 580, 1000), (1600, 1160, 2000)] {
+                let seats: Vec<u32> = (1..=size).collect();
+                let mut frame = frame("pokerstars", Some(size), &seats);
+                frame.rng = Some(rng(55, colour, Some("bet")));
+                let scene = compose(&frame, w, h, scale, &PanelDesign::default());
+                let rect = scene.rng.as_ref().expect("drawn").rect;
+                assert!(layout::inside(&rect, w, h), "{size} {w}x{h}");
+                for g in layout::table_graphics(w, h, size) {
+                    assert!(!layout::intersects(&rect, &g), "{size} {w}x{h}: {g:?}");
+                }
+                for (_, panel) in &scene.seat_panels {
+                    assert!(!layout::intersects(&rect, panel), "{size} {w}x{h}");
+                }
+            }
+        }
+    }
+
+    /// (T4) Where the user dragged it (this room and size): there, inside
+    /// the client area, whatever it covers.
+    #[test]
+    fn the_rng_widget_where_the_user_put_it() {
+        let (w, h) = (800, 580);
+        let mut frame = frame("pokerstars", Some(6), &[1, 2]);
+        frame.rng = Some(rng(3, NORMAL, None));
+        frame.seating.positions.insert(RNG_SLOT, (500, 540));
+        let scene = compose(&frame, w, h, 1000, &PanelDesign::default());
+        let rect = scene.rng.as_ref().expect("drawn").rect;
+        let (cx, cy) = layout::center_permille(&rect, w, h);
+        assert!(cx.abs_diff(500) <= 1 && cy.abs_diff(540) <= 1, "{cx} {cy}");
+        assert!(scene.placed_by_user.contains(&RNG_SLOT));
+        frame.seating.positions.insert(RNG_SLOT, (1000, 1000));
+        let corner = compose(&frame, w, h, 1000, &PanelDesign::default());
+        let rect = corner.rng.as_ref().expect("drawn").rect;
+        assert!(layout::inside(&rect, w, h), "{rect:?}");
+        assert_eq!(rect.x + i32::try_from(rect.width).expect("w"), 800);
+    }
+
+    /// (T4) An RNG-only frame (the room refuses a HUD, or the panels are
+    /// off): the widget and nothing else - whatever else the frame says;
+    /// a frame without a roll draws no widget.
+    #[test]
+    fn an_rng_only_frame_draws_the_rng_alone() {
+        let full = frame("pokerstars", Some(6), &[1, 2, 3]);
+        let mut only =
+            OverlayFrame::rng_only(rng(64, NORMAL, Some("raise")), Some(6), Seating::default());
+        // Whatever reaches the renderer, nothing of a HUD is drawn.
+        only.panels = full.panels.clone();
+        only.status = Some("waiting for first hand".into());
+        only.debug = Some("latency".into());
+        only.legend = full.legend.clone();
+        let scene = compose(&only, 800, 580, 1000, &PanelDesign::default());
+        let rect = scene.rng.as_ref().expect("drawn").rect;
+        assert!(scene.seat_panels.is_empty() && scene.legend.is_none());
+        assert_eq!(scene.panels, [rect]);
+        assert_eq!(
+            texts(&scene).iter().map(|(t, _)| *t).collect::<Vec<_>>(),
+            ["64", "raise"]
+        );
+        assert_eq!(scene.items.len(), 3, "the plate, the number, the label");
+        // A HUD frame without a roll: no widget.
+        let none = compose(&full, 800, 580, 1000, &PanelDesign::default());
+        assert!(none.rng.is_none());
+        assert_eq!(none.draggable(RNG_SLOT), None);
+        assert!(!texts(&none).iter().any(|(t, _)| *t == "64"));
+    }
+
+    /// (T4) A frame is drawn only over its room's window, and only with a
+    /// permit: the HUD's, the RNG's, or both of the same room.
+    #[test]
+    fn a_frame_is_permitted_for_its_room() {
+        let mut both = frame("pokerstars", Some(6), &[1]);
+        assert_eq!(both.permitted_for("pokerstars"), Ok(()));
+        assert!(both.permitted_for("winamax").is_err());
+        both.rng = Some(rng(1, NORMAL, None));
+        assert_eq!(both.permitted_for("pokerstars"), Ok(()));
+        let mut mixed = frame("winamax", Some(6), &[1]);
+        mixed.rng = both.rng.clone();
+        assert!(mixed.permitted_for("winamax").is_err());
+        assert!(mixed.permitted_for("pokerstars").is_err());
+        let only = OverlayFrame::rng_only(rng(1, NORMAL, None), Some(6), Seating::default());
+        assert_eq!(only.permitted_for("pokerstars"), Ok(()));
+        assert!(only.permitted_for("ggpoker").is_err());
+        let mut none = only.clone();
+        none.rng = None;
+        assert!(none.permitted_for("pokerstars").is_err());
+    }
+
+    /// (T4) Colours: `#rrggbb` read; a band colour too dark for the plate
+    /// lifted towards white just enough, a readable one kept as it is.
+    #[test]
+    fn rng_colours() {
+        assert_eq!(Rgba::from_hex("#5c6370"), Some(Rgba::rgb(0x5c, 0x63, 0x70)));
+        for bad in ["5c6370", "#5c637", "#5c63700", "#5c637g", ""] {
+            assert_eq!(Rgba::from_hex(bad), None, "{bad}");
+        }
+        for kept in ["#5c6370", "#8b929e", "#c5cad3", "#ff0000", "#ffffff"] {
+            let colour = Rgba::from_hex(kept).expect("hex");
+            assert_eq!(readable(colour), colour, "{kept}");
+        }
+        for dark in ["#000000", "#202020", "#0000ff", "#400000"] {
+            let colour = Rgba::from_hex(dark).expect("hex");
+            let lifted = readable(colour);
+            assert!(
+                lifted.luminance() >= MIN_RNG_LUMINANCE,
+                "{dark}: {lifted:?}"
+            );
+            assert!(
+                lifted.luminance() <= MIN_RNG_LUMINANCE + 400,
+                "just enough: {dark}: {lifted:?}"
+            );
+            assert!(lifted.r >= colour.r && lifted.g >= colour.g && lifted.b >= colour.b);
+        }
+        assert_eq!(Rgba::rgb(255, 255, 255).luminance(), 65_025);
+        assert_eq!(Rgba::rgb(0, 0, 0).luminance(), 0);
     }
 
     #[test]

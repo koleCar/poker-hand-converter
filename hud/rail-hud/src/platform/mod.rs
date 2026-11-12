@@ -10,6 +10,17 @@
 //! simulator's events (R3.1), so the data path runs end to end without any
 //! window API, on every OS and in CI.
 //!
+//! (T1, docs/research/TABLE-TILING.md §4.2) Table tiling's two platform
+//! calls: [`Platform::monitors`] (each monitor's bounds and work area) and
+//! [`Platform::place`] (move and resize a table, the rect it accepted read
+//! back). The tiling engine is T2 (`crate::tiling`, `crate::placer`), which
+//! adds what it needs of a backend: [`Platform::frame_insets`] (the frame
+//! around a table's client area, so tables tile on their outer rects) and
+//! [`Platform::placer`], a [`Placer`] that places windows and reads the
+//! mouse ([`MouseState`]: the safety rule that never moves a table under a
+//! click) from a thread of its own, so twelve placements never hold the
+//! loop.
+//!
 //! Units: positions and sizes are **physical pixels** of the client area
 //! (what the table is drawn in, without the frame), the scale is the
 //! window's monitor's in thousandths (1000 = 100 % = 96 dpi on Windows,
@@ -19,6 +30,14 @@
 //! position - so points come back exactly as the rect divided by the
 //! scale ([`macos`] has the rule).
 //!
+//! (T4, §4.4) The RNG overlay: a frame may carry the table's roll
+//! ([`OverlayFrame::rng`], under the room's [`RngPermit`]); a frame of a
+//! room whose HUD is refused - or of any room while the plan holds the
+//! panels back - carries the roll alone ([`OverlayFrame::rng_only`]: no
+//! HUD [`Permit`], so no panel, status or legend can be drawn). Its widget
+//! is dragged and clicked through the same overlay code as a seat's panel,
+//! under the pseudo-slot [`RNG_SLOT`].
+//!
 //! `unsafe` stays `deny` here (the crate's level) rather than `forbid`: a
 //! `forbid` would bind [`windows`] and [`macos`], whose system wrappers
 //! allow it one function at a time. Every other module below forbids it.
@@ -27,9 +46,10 @@ use std::fmt;
 
 use rail_config::stats::Tone;
 
-use crate::compliance::Permit;
+use crate::compliance::{Permit, RngPermit};
 use crate::layout::{Positions, TableLayout};
 use crate::panel::{PanelDesign, StatCell};
+use crate::scene::Rgba;
 
 pub mod drag;
 pub mod macos;
@@ -53,6 +73,189 @@ pub struct Rect {
     pub y: i32,
     pub width: u32,
     pub height: u32,
+}
+
+impl Rect {
+    /// The right edge (exclusive).
+    pub fn right(&self) -> i64 {
+        i64::from(self.x) + i64::from(self.width)
+    }
+
+    /// The bottom edge (exclusive).
+    pub fn bottom(&self) -> i64 {
+        i64::from(self.y) + i64::from(self.height)
+    }
+
+    /// Whether `other` lies wholly inside this rect.
+    pub fn contains(&self, other: &Rect) -> bool {
+        other.x >= self.x
+            && other.y >= self.y
+            && other.right() <= self.right()
+            && other.bottom() <= self.bottom()
+    }
+
+    /// The area two rects share, square pixels.
+    pub fn overlap(&self, other: &Rect) -> u64 {
+        let w = self.right().min(other.right()) - i64::from(self.x.max(other.x));
+        let h = self.bottom().min(other.bottom()) - i64::from(self.y.max(other.y));
+        if w <= 0 || h <= 0 {
+            0
+        } else {
+            u64::try_from(w).unwrap_or(0) * u64::try_from(h).unwrap_or(0)
+        }
+    }
+}
+
+/// (T1) The window rect whose client area is `want`, for a window whose
+/// client area is `client` inside its window rect `outer` now: the frame
+/// (title bar, borders) kept as it is around the new client area. What
+/// both systems hand their move call, which takes the whole window.
+pub fn outer_for(client: &Rect, outer: &Rect, want: &Rect) -> Rect {
+    let left = i64::from(client.x) - i64::from(outer.x);
+    let top = i64::from(client.y) - i64::from(outer.y);
+    let extra_w = i64::from(outer.width) - i64::from(client.width);
+    let extra_h = i64::from(outer.height) - i64::from(client.height);
+    let int = |v: i64| i32::try_from(v).unwrap_or(if v < 0 { i32::MIN } else { i32::MAX });
+    let uint = |v: i64| u32::try_from(v.max(0)).unwrap_or(u32::MAX);
+    Rect {
+        x: int(i64::from(want.x) - left),
+        y: int(i64::from(want.y) - top),
+        width: uint(i64::from(want.width) + extra_w),
+        height: uint(i64::from(want.height) + extra_h),
+    }
+}
+
+/// (T2) The frame a window draws around its client area, physical pixels
+/// on each side: title bar, borders - on Windows the **visible** frame
+/// (DWM's extended frame bounds, without the invisible resize borders), on
+/// macOS the title bar. Table tiling lays the outer rects edge to edge and
+/// sizes the client areas from them, so rooms whose frames differ still
+/// tile without gaps or overlap.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Insets {
+    pub left: u32,
+    pub top: u32,
+    pub right: u32,
+    pub bottom: u32,
+}
+
+impl Insets {
+    /// The outer rect around `client`.
+    pub fn outer(&self, client: &Rect) -> Rect {
+        let int = |v: i64| i32::try_from(v).unwrap_or(if v < 0 { i32::MIN } else { i32::MAX });
+        Rect {
+            x: int(i64::from(client.x) - i64::from(self.left)),
+            y: int(i64::from(client.y) - i64::from(self.top)),
+            width: client.width.saturating_add(self.width()),
+            height: client.height.saturating_add(self.height()),
+        }
+    }
+
+    /// The client area inside `outer`.
+    pub fn client(&self, outer: &Rect) -> Rect {
+        let int = |v: i64| i32::try_from(v).unwrap_or(if v < 0 { i32::MIN } else { i32::MAX });
+        Rect {
+            x: int(i64::from(outer.x) + i64::from(self.left)),
+            y: int(i64::from(outer.y) + i64::from(self.top)),
+            width: outer.width.saturating_sub(self.width()),
+            height: outer.height.saturating_sub(self.height()),
+        }
+    }
+
+    /// Left plus right.
+    pub fn width(&self) -> u32 {
+        self.left.saturating_add(self.right)
+    }
+
+    /// Top plus bottom.
+    pub fn height(&self) -> u32 {
+        self.top.saturating_add(self.bottom)
+    }
+
+    /// Measured at scale `from`, as it is at scale `to` (thousandths;
+    /// rounded): a frame scales with its monitor's dpi (Windows'
+    /// per-monitor frames, macOS's title bar in points).
+    pub fn scaled(&self, from: u32, to: u32) -> Self {
+        if from == to || from == 0 {
+            return *self;
+        }
+        let scale = |v: u32| {
+            let n = u64::from(v) * u64::from(to);
+            let d = u64::from(from);
+            u32::try_from((n + d / 2) / d).unwrap_or(u32::MAX)
+        };
+        Self {
+            left: scale(self.left),
+            top: scale(self.top),
+            right: scale(self.right),
+            bottom: scale(self.bottom),
+        }
+    }
+
+    /// The insets of a window whose client area is `client` inside its
+    /// outer rect `outer` (0 on a side where the client area pokes out).
+    pub fn between(client: &Rect, outer: &Rect) -> Self {
+        let side = |v: i64| u32::try_from(v.max(0)).unwrap_or(0);
+        Self {
+            left: side(i64::from(client.x) - i64::from(outer.x)),
+            top: side(i64::from(client.y) - i64::from(outer.y)),
+            right: side(outer.right() - client.right()),
+            bottom: side(outer.bottom() - client.bottom()),
+        }
+    }
+}
+
+/// (T2) The mouse as the tiling safety rules need it: a table is never
+/// moved while a button is down, nor within
+/// [`crate::placer::QUIET_AFTER_CLICK`] of the last click (anywhere: the
+/// system does not say on which window, and a click near a table is reason
+/// enough to wait). Read without any permission on either system.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct MouseState {
+    /// A mouse button is down now.
+    pub down: bool,
+    /// How long ago the last button went down, when the system says
+    /// (macOS); `None`: it does not (Windows, which has no such query
+    /// without a hook - [`crate::placer`] samples `down` instead, and a
+    /// press since the last sample reads as a click now).
+    pub since_click: Option<std::time::Duration>,
+}
+
+/// (T2) What table tiling's worker thread needs of a backend
+/// ([`Platform::placer`]): placing a window as [`Platform::place`] does,
+/// and the mouse. `Send`: it runs beside the loop, so a placement that
+/// waits for its read-back (300 ms on Windows) never stalls the overlays.
+pub trait Placer: Send {
+    /// As [`Platform::place`].
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError>;
+
+    /// The mouse now: cheap, sampled every few tens of milliseconds.
+    fn mouse(&mut self) -> MouseState;
+}
+
+/// (T1) A monitor's identity on its system: the `HMONITOR` (Windows), the
+/// `CGDirectDisplayID` (macOS), the simulator's number. Stable while the
+/// display configuration does not change - not across machines, nor on
+/// Windows across a reconnect.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MonitorId(pub u64);
+
+/// (T1) A monitor, in the space and units of [`TableWindow::client`]:
+/// physical pixels, the primary monitor's top-left the origin, y down.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Monitor {
+    pub id: MonitorId,
+    /// The primary monitor (Windows: the taskbar's and the origin's;
+    /// macOS: the main display, the one with the menu bar).
+    pub primary: bool,
+    /// The whole monitor.
+    pub bounds: Rect,
+    /// What windows may use: the bounds less the taskbar (Windows' `rcWork`)
+    /// or the menu bar and the Dock (macOS' `visibleFrame`).
+    pub work_area: Rect,
+    /// Its scale in thousandths (96 dpi = 1000, Retina 2000), as
+    /// [`TableWindow::scale_permille`].
+    pub scale_permille: u32,
 }
 
 /// The process that owns a window.
@@ -114,6 +317,45 @@ pub struct RawWindow {
     /// Hidden by the window manager although "visible": on another virtual
     /// desktop, or a suspended app's window (`DWMWA_CLOAKED`).
     pub cloaked: bool,
+}
+
+/// (T6) What `--list-windows` shows of a window for table tiling: its
+/// frame and whether it can be resized, read the same way tiling reads
+/// them and nothing more (no message is sent to the client, nothing inside
+/// the window is read). `None`: the system did not say, or there is no
+/// read-only way to ask.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct WindowDetails {
+    /// The outer rect, physical pixels: Windows' **visible** frame (DWM's
+    /// extended frame bounds, without the invisible resize borders), the
+    /// whole window on macOS (title bar included). What tiling lays edge to
+    /// edge.
+    pub outer: Option<Rect>,
+    /// The frame around the client area: `Insets::between(client, outer)`,
+    /// what [`Platform::frame_insets`] gives the tiler.
+    pub insets: Option<Insets>,
+    /// It can be resized: Windows' `WS_THICKFRAME` style, macOS's `AXSize`
+    /// settable.
+    pub resizable: Option<bool>,
+    /// It can be moved (macOS: `AXPosition` settable; Windows: any window
+    /// can be).
+    pub movable: Option<bool>,
+    /// Its smallest and largest size, physical pixels of the outer rect,
+    /// when the system says so without asking the client.
+    pub min_size: Option<(u32, u32)>,
+    pub max_size: Option<(u32, u32)>,
+}
+
+/// (T6) [`WindowDetails`] of `windows` on this system (Windows, macOS; empty
+/// elsewhere), by id. Read-only.
+pub fn window_details(
+    windows: &[RawWindow],
+) -> std::collections::BTreeMap<WindowId, WindowDetails> {
+    if cfg!(target_os = "macos") {
+        macos::details(windows)
+    } else {
+        self::windows::details(windows)
+    }
 }
 
 /// A window's DPI awareness (how Windows scales it).
@@ -205,6 +447,7 @@ pub enum TableEvent {
     Appeared,
     /// The user dragged a seat's panel to a new place (R3.6): remembered
     /// for the room, the table `size` and the `slot` (the visual seat).
+    /// (T4) `slot` [`RNG_SLOT`]: the RNG widget was dragged.
     PanelMoved {
         id: WindowId,
         size: u32,
@@ -221,7 +464,9 @@ pub enum TableEvent {
     },
     /// (R3.8) The user clicked a seat's panel - pressed and released it
     /// without dragging it ([`drag::Drag::is_click`]): the engine asks the
-    /// app for the popup of the player at that slot.
+    /// app for the popup of the player at that slot. (T4) `slot`
+    /// [`RNG_SLOT`]: the RNG widget was clicked (a roll, when the user's
+    /// triggers say so).
     PanelClicked {
         id: WindowId,
         /// The panel's visual seat (R3.6).
@@ -232,7 +477,23 @@ pub enum TableEvent {
         /// The table's monitor scale, thousandths.
         scale_permille: u32,
     },
+    /// (T7) A table's own window gave one of the signals a client gives by
+    /// itself - its taskbar button flashed, it came to the foreground or
+    /// was raised above other programs - for the Action Required slot.
+    /// Reported only for the programs the engine asked to watch
+    /// ([`Platform::watch_turn_signals`]); nothing inside the table is read.
+    Signalled {
+        id: WindowId,
+        signal: rail_config::SignalKind,
+    },
 }
+
+/// (T4) The pseudo-slot of the RNG widget: what the overlays' shared drag
+/// ([`drag::Drag`]) picks it up as, what a dragged widget is kept under
+/// ([`Seating::positions`]: the user's place for it on this room and table
+/// size) and what [`TableEvent::PanelMoved`] / [`TableEvent::PanelClicked`]
+/// carry for it. No seat is ever this slot (a table has at most ten).
+pub const RNG_SLOT: u32 = u32::MAX;
 
 /// Where a frame's panels go (R3.6): the room's layout for the table size,
 /// the hero's rotation and the panels the user placed.
@@ -244,19 +505,49 @@ pub struct Seating {
     /// The hero's seat when the room's client rotates the table so the hero
     /// is always in one place; `None`: drawn by seat number.
     pub rotate_to: Option<u32>,
-    /// Panels the user placed, by slot (this room and table size).
+    /// Panels the user placed, by slot (this room and table size); (T4)
+    /// the RNG widget's under [`RNG_SLOT`].
     pub positions: Positions,
     /// The last [`TableEvent::PanelMoved`] (`seq`) the engine took in.
     pub drags_seen: u64,
+}
+
+/// (T4) The table's roll as its RNG widget shows it: one large number in
+/// its band's colour, the band's name under it when the user gave one.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RngShown {
+    /// The room's yes for the RNG (T0, `sites.json` `rng.allowed`,
+    /// independent of its HUD policy): no widget exists without it.
+    pub permit: RngPermit,
+    /// The number rolled.
+    pub value: u32,
+    /// Its band's colour.
+    pub colour: Rgba,
+    /// Its band's name, if the user gave it one.
+    pub label: Option<String>,
+    /// The digits of the range's widest number: the plate keeps its size
+    /// from roll to roll.
+    pub digits: u32,
+    /// The table's rolls so far: a new roll is a new frame (painted again)
+    /// even when it repeats the number.
+    pub seq: u64,
+    /// (T5 follow-up) The widget's size, percent of its size at the
+    /// table's scale (`RngSettings::scale`, 50 - 200).
+    pub scale_pct: u32,
+    /// (T5 follow-up) Its opacity, percent (`RngSettings::opacity`,
+    /// 30 - 100): the plate and the number alike.
+    pub opacity_pct: u32,
 }
 
 /// What an overlay shows (R3.4): the data; `crate::scene::compose` lays it
 /// out under the permit's restrictions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OverlayFrame {
-    /// Compliance mode's yes for the window's room: no frame exists for a
-    /// room without a HUD.
-    pub permit: Permit,
+    /// Compliance mode's yes for the window's room: no panel, status line
+    /// or legend is drawn for a room without a HUD. (T4) `None` only in an
+    /// RNG-only frame ([`OverlayFrame::rng_only`]), which shows nothing but
+    /// [`OverlayFrame::rng`].
+    pub permit: Option<Permit>,
     /// A line instead of panels: "waiting for first hand", "no store".
     pub status: Option<String>,
     /// (R3.7) **Debug builds only**: the latency of the hand the frame
@@ -279,13 +570,16 @@ pub struct OverlayFrame {
     /// may refuse; `crate::scene::compose` cuts it down to the permit's
     /// restrictions before anything is laid out.
     pub design: PanelDesign,
+    /// (T4) The table's RNG widget, where the room's policy and the user's
+    /// settings allow it.
+    pub rng: Option<RngShown>,
 }
 
 impl OverlayFrame {
     /// A frame with a status line and no panels.
     pub fn status(permit: Permit, size: Option<u32>, status: impl Into<String>) -> Self {
         Self {
-            permit,
+            permit: Some(permit),
             status: Some(status.into()),
             debug: None,
             size,
@@ -293,6 +587,43 @@ impl OverlayFrame {
             panels: Vec::new(),
             legend: Vec::new(),
             design: PanelDesign::default(),
+            rng: None,
+        }
+    }
+
+    /// (T4) A frame with the RNG widget and nothing else, under the RNG's
+    /// permit alone: the room refuses a HUD, or the plan holds the panels
+    /// back.
+    pub fn rng_only(rng: RngShown, size: Option<u32>, seating: Seating) -> Self {
+        Self {
+            permit: None,
+            status: None,
+            debug: None,
+            size,
+            seating,
+            panels: Vec::new(),
+            legend: Vec::new(),
+            design: PanelDesign::default(),
+            rng: Some(rng),
+        }
+    }
+
+    /// (T4) Whether the frame may be drawn over a window of room `site`:
+    /// it carries at least one permit, and every permit it carries is that
+    /// room's - the check each backend makes again where drawing starts.
+    pub fn permitted_for(&self, site: &str) -> Result<(), String> {
+        let sites: Vec<&str> = self
+            .permit
+            .iter()
+            .map(Permit::site)
+            .chain(self.rng.iter().map(|rng| rng.permit.site()))
+            .collect();
+        if sites.is_empty() {
+            return Err("a frame without a permit".to_owned());
+        }
+        match sites.iter().find(|s| **s != site) {
+            Some(other) => Err(format!("a frame permitted for {other} is not for {site}")),
+            None => Ok(()),
         }
     }
 }
@@ -390,6 +721,12 @@ pub enum PlatformError {
     Gone(WindowId),
     /// (R3.11) The user has not granted a permission the call needs.
     PermissionNeeded(Permission),
+    /// (T1) The window is in full screen (macOS: a Space of its own): it is
+    /// left where it is.
+    FullScreen(WindowId),
+    /// (T1) The window's thread does not answer (Windows: a hung client):
+    /// nothing was asked of it.
+    NotResponding(WindowId),
     /// The system said no (a permission, a handle).
     Os(String),
 }
@@ -404,6 +741,8 @@ impl fmt::Display for PlatformError {
                 "the Accessibility permission is needed to read window titles \
                  (System Settings, Privacy & Security, Accessibility)"
             ),
+            Self::FullScreen(id) => write!(f, "window {} is in full screen", id.0),
+            Self::NotResponding(id) => write!(f, "window {} is not responding", id.0),
             Self::Os(error) => write!(f, "{error}"),
         }
     }
@@ -496,7 +835,90 @@ pub trait Platform {
     fn follow_times_us(&self) -> Vec<u64> {
         Vec::new()
     }
+
+    /// (T1) The monitors now, the primary first: where tables may be
+    /// placed. Empty where the backend cannot tell (the default).
+    fn monitors(&mut self) -> Vec<Monitor> {
+        Vec::new()
+    }
+
+    /// (T1) Move and resize table window `id` so that its **client area**
+    /// is `want` (the space and units of [`TableWindow::client`]; the
+    /// backend puts the window's own frame around it), and return the
+    /// client area it has afterwards, read back from the system. A
+    /// minimised window is restored first; the window is never activated
+    /// and keeps its place in the z-order. The answer may differ from
+    /// `want` - a client that keeps its aspect ratio or a minimum size, a
+    /// monitor of another scale -: the caller decides what to do about it;
+    /// nothing is retried here. Bounded: a client that does not answer
+    /// cannot hold the caller for long (each backend says how long). The
+    /// move reaches `poll_events` as any other move does.
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        let _ = (id, want);
+        Err(PlatformError::Unsupported("placing windows"))
+    }
+
+    /// (T2) The frame around `window`'s client area now, at its scale
+    /// (`window.scale_permille`); `None` when the backend cannot tell (the
+    /// default: tiled as if it had none). Cheap: asked at every look for
+    /// each table tiling manages.
+    fn frame_insets(&mut self, window: &TableWindow) -> Option<Insets> {
+        let _ = window;
+        None
+    }
+
+    /// (T2) A [`Placer`] for table tiling's worker thread; `None` where the
+    /// backend places nothing (the default: tiling stays off).
+    fn placer(&mut self) -> Option<Box<dyn Placer>> {
+        None
+    }
+
+    /// (T7) The window the user is at now - the system's foreground window
+    /// (Windows), the front-most ordinary window of the desktop (macOS) -
+    /// for a hotkey that acts on "the table in front" (the RNG's roll).
+    /// Read only: nothing is activated or raised. `None` where the backend
+    /// cannot tell (the default).
+    fn focused_window(&mut self) -> Option<WindowId> {
+        None
+    }
+
+    /// (T7) Watch `processes`' windows for the signals a client gives by
+    /// itself on the user's turn, reported as [`TableEvent::Signalled`]
+    /// (empty: stop). The engine asks only for rooms whose policy gives an
+    /// `ActionPermit` and only while the layout in force has an Action
+    /// Required slot - so today never. Read-only: nothing is loaded into a
+    /// client, nothing inside a table is read. The default: no source
+    /// (macOS, where a Dock bounce is invisible to another program).
+    fn watch_turn_signals(&mut self, processes: &[String]) {
+        let _ = processes;
+    }
 }
+
+/// (T1) Whether a placement has settled, for a backend whose move call
+/// returns before the window has moved (Windows' `SWP_ASYNCWINDOWPOS`):
+/// `samples` are the client areas read since the call, oldest first,
+/// `before` the one before it. Settled when the latest is `want`, or when
+/// it has left `before` and stayed the same for the last [`SETTLE_SAMPLES`]
+/// reads (the client took another size and keeps it). Otherwise the
+/// caller reads again until its deadline, and then takes the latest as it
+/// is (the client refused, or has not answered yet).
+pub fn place_settled(want: &Rect, before: &Rect, samples: &[Rect]) -> bool {
+    let Some(last) = samples.last() else {
+        return false;
+    };
+    if last == want {
+        return true;
+    }
+    samples.len() >= SETTLE_SAMPLES
+        && last != before
+        && samples[samples.len() - SETTLE_SAMPLES..]
+            .iter()
+            .all(|s| s == last)
+}
+
+/// (T1) Equal reads in a row that make a placement settled
+/// ([`place_settled`]).
+pub const SETTLE_SAMPLES: usize = 3;
 
 /// (R3.11) Whether granting a missing permission would make a difference
 /// now: the test-only simulator entry is active, or one of `running` is a
@@ -664,6 +1086,125 @@ mod tests {
         assert!(!permission_matters(None, &[], false));
     }
 
+    fn rect(x: i32, y: i32, width: u32, height: u32) -> Rect {
+        Rect {
+            x,
+            y,
+            width,
+            height,
+        }
+    }
+
+    /// (T1) A window rect for a wanted client area keeps the frame around
+    /// it: a Windows frame with borders on every side, a macOS title bar
+    /// only, none at all; negative coordinates (a monitor left of the
+    /// primary) too.
+    #[test]
+    fn the_frame_goes_around_the_wanted_client_area() {
+        // Windows 11 at 150 %: 11 px invisible borders, a 45 px caption.
+        let client = rect(111, 256, 1200, 830);
+        let outer = rect(100, 200, 1222, 897);
+        assert_eq!(
+            outer_for(&client, &outer, &rect(0, 0, 800, 600)),
+            rect(-11, -56, 822, 667)
+        );
+        assert_eq!(
+            outer_for(&client, &outer, &rect(-1920, 40, 640, 480)),
+            rect(-1931, -16, 662, 547)
+        );
+        // macOS: a 28 pt title bar at 2x, no side borders.
+        let client = rect(200, 156, 1280, 960);
+        let outer = rect(200, 100, 1280, 1016);
+        assert_eq!(
+            outer_for(&client, &outer, &rect(0, 56, 1000, 700)),
+            rect(0, 0, 1000, 756)
+        );
+        // Borderless: the window is the client area.
+        let same = rect(5, 5, 300, 200);
+        assert_eq!(
+            outer_for(&same, &same, &rect(9, 9, 10, 10)),
+            rect(9, 9, 10, 10)
+        );
+    }
+
+    /// (T2) A frame around a client area: outer and client rects are each
+    /// other's inverse, measured from the two rects, scaled with the dpi.
+    #[test]
+    fn frames_go_around_client_areas() {
+        let frame = Insets {
+            left: 1,
+            top: 31,
+            right: 1,
+            bottom: 1,
+        };
+        let client = rect(-1919, 40, 1200, 830);
+        let outer = frame.outer(&client);
+        assert_eq!(outer, rect(-1920, 9, 1202, 862));
+        assert_eq!(frame.client(&outer), client);
+        assert_eq!(Insets::between(&client, &outer), frame);
+        assert_eq!((frame.width(), frame.height()), (2, 32));
+        // 125 %: 31 px becomes 38.75, rounded.
+        assert_eq!(
+            frame.scaled(1000, 1250),
+            Insets {
+                left: 1,
+                top: 39,
+                right: 1,
+                bottom: 1
+            }
+        );
+        assert_eq!(frame.scaled(1250, 1250), frame);
+        // A client area poking out of its "frame" measures as no border.
+        assert_eq!(
+            Insets::between(&rect(0, 0, 100, 100), &rect(5, 5, 50, 50)),
+            Insets::default()
+        );
+    }
+
+    /// (T1) Rect arithmetic for monitors and placements.
+    #[test]
+    fn rects_contain_and_overlap() {
+        let work = rect(0, 0, 1920, 1040);
+        assert!(work.contains(&rect(0, 0, 1920, 1040)));
+        assert!(work.contains(&rect(960, 520, 960, 520)));
+        assert!(!work.contains(&rect(961, 520, 960, 520)));
+        assert!(!work.contains(&rect(-1, 0, 10, 10)));
+        assert_eq!(work.overlap(&rect(1820, 1000, 200, 200)), 100 * 40);
+        assert_eq!(work.overlap(&rect(1920, 0, 10, 10)), 0);
+        assert_eq!(rect(-1920, 0, 1920, 1080).right(), 0);
+        assert_eq!(rect(0, -50, 10, 50).bottom(), 0);
+    }
+
+    /// (T1) An asynchronous placement settles when the window is where it
+    /// was asked to be, or where the client keeps it after moving - never
+    /// on reads that have not changed yet.
+    #[test]
+    fn a_placement_settles() {
+        let before = rect(0, 0, 640, 480);
+        let want = rect(100, 100, 800, 600);
+        assert!(!place_settled(&want, &before, &[]));
+        // The window has not moved yet: keep reading.
+        assert!(!place_settled(&want, &before, &[before, before, before]));
+        assert!(!place_settled(
+            &want,
+            &before,
+            &[before, before, before, before, before]
+        ));
+        // There.
+        assert!(place_settled(&want, &before, &[before, want]));
+        assert!(place_settled(&want, &before, &[want]));
+        // A client that keeps its aspect ratio: moved, another size, kept.
+        let kept = rect(100, 100, 800, 560);
+        assert!(!place_settled(&want, &before, &[kept]));
+        assert!(!place_settled(&want, &before, &[before, kept, kept]));
+        assert!(place_settled(&want, &before, &[before, kept, kept, kept]));
+        // Still changing: not yet.
+        let next = rect(100, 100, 790, 560);
+        assert!(!place_settled(&want, &before, &[kept, kept, next]));
+        // Asked to stay where it is: settled at once.
+        assert!(place_settled(&before, &before, &[before]));
+    }
+
     /// The stubs find nothing, so nothing is ever drawn by them. Windows'
     /// and macOS's backends find what matches (nothing, with no matcher -
     /// and without asking for any permission) and, on their own system,
@@ -713,6 +1254,21 @@ mod tests {
                 backend.name()
             );
             backend.remove_overlay(WindowId(1));
+            // (T1) Off their own system the native backends know no
+            // monitor and place nothing; `none` keeps the defaults.
+            let native = (cfg!(windows) && backend.name() == "windows")
+                || (cfg!(target_os = "macos") && backend.name() == "macos");
+            if !native {
+                assert!(backend.monitors().is_empty(), "{}", backend.name());
+                assert!(
+                    matches!(
+                        backend.place(WindowId(1), Rect::default()),
+                        Err(PlatformError::Unsupported(_))
+                    ),
+                    "{}",
+                    backend.name()
+                );
+            }
         }
     }
 }

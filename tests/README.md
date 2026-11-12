@@ -174,7 +174,7 @@ Realtime checks refuse any host but a local one).
 | `supabase:perf` | *Local stack.* The web's report functions over a million generated hands of one user |
 | `account:measure` | *Local stack.* Export and deletion of a very large account |
 | `bulk-upload:measure` | The converter's bulk path on a generated zip of ~1M hands: peak memory and throughput (`BULK_HANDS=200000` for a shorter run) |
-| `hud:policy-check` | Every room whose HUD `config/sites.json` allows, with its policy page and date; fails when a check is older than the limit (run by the manual "Release checklist" workflow, not by CI) |
+| `hud:policy-check` | Every allowance `config/sites.json` makes - a room's HUD, table manager (`tiling`) or RNG (`rng`) - with its policy page and date; fails when a check is older than the limit (run by the manual "Release checklist" workflow, not by CI) |
 | `bench:solver`, `bench:turn` | Solver benchmarks |
 | `charts:*` | Generate and inspect the committed preflop chart sets (`web/src/lib/charts/data/`) |
 | `icm:equity` | Writes the committed push/fold equity table |

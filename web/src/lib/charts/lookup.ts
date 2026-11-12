@@ -279,8 +279,10 @@ export interface LookupOptions {
    * A spot at an effective stack no set of its table covers (`stack-depth`)
    * is read on the nearest charted depth below or above it
    * (`uncoveredDepthSets`), with the `uncovered-depth` approximation. Only for
-   * a library, and only for the opponents' preflop ranges (`chartRange`,
-   * analysis/18): grading still refuses the spot.
+   * a library: the preflop ranges (`chartRange`, analysis/18) and, since
+   * analysis/39, grading - within `MAX_UNCOVERED_RATIO` of the effective
+   * stack, capped at Inaccurate (`lib/analysis/preflop.ts`, docs/CHARTS.md
+   * §7.3). The flop library's placement never asks for it.
    */
   uncoveredDepth?: boolean;
 }

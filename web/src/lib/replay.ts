@@ -159,7 +159,18 @@ export interface ReplayFrame {
   /** Set on an `award` frame, null on every other kind. */
   potAward: PotAward | null;
   board: string[];
+  /**
+   * The second runout, the way `board` holds the first: the whole run-2 board
+   * dealt so far, shared cards included. Empty until run 2 has a card of its
+   * own, so a hand run twice on the river shows one board through the turn.
+   */
   boardSecond: string[];
+  /**
+   * How many leading cards both runouts share: 0 when the hand was run twice
+   * from preflop, 3 from the flop, 4 from the turn. The table draws only
+   * `boardSecond` from this index on, under the run-1 cards it replaces.
+   */
+  boardSecondFrom: number;
   seats: SeatFrameState[];
   actingSeat: number | null;
   /**
@@ -211,6 +222,24 @@ function boardSliceFor(street: Street, board: string[]): string[] {
     default:
       return [];
   }
+}
+
+/**
+ * How many leading cards two runouts have in common: the street the hand was
+ * run twice from, counted in cards. Read off the cards rather than off which
+ * runout fields are null, so a parser that repeats the shared streets on
+ * runout 1 still lands on the street the boards actually split.
+ */
+export function sharedRunoutCards(first: string[], second: string[]): number {
+  if (second.length === 0) {
+    return 0;
+  }
+  let shared = 0;
+  while (shared < first.length && shared < second.length && first[shared] === second[shared]) {
+    shared += 1;
+  }
+  // Runs split on a street, never mid-flop.
+  return shared >= 4 ? shared : shared >= 3 ? 3 : 0;
 }
 
 /** Show / muck / collect end the betting and trigger the runout animation. */
@@ -474,6 +503,12 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
 
   const fullBoard = primaryBoard(hand);
   const fullBoardSecond = secondBoard(hand);
+  const secondFrom = sharedRunoutCards(fullBoard, fullBoardSecond);
+  /** Run 2 as far as `street`, or nothing while it is still run 1's board. */
+  const secondSliceFor = (street: Street): string[] => {
+    const cards = boardSliceFor(street, fullBoardSecond);
+    return cards.length > secondFrom ? cards : [];
+  };
 
   /**
    * How the chips already in the middle divide into a main pot and side pots.
@@ -580,6 +615,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       potAward: options.potAward ?? null,
       board: [...board],
       boardSecond: [...boardSecond],
+      boardSecondFrom: secondFrom,
       seats,
       actingSeat: actingPlayer ? (state.get(actingPlayer)?.seatNo ?? null) : null,
       actionIndex: options.actionIndex ?? null,
@@ -675,7 +711,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       }
       currentStreet = action.street;
       board = boardSliceFor(action.street, fullBoard);
-      boardSecond = boardSliceFor(action.street, fullBoardSecond);
+      boardSecond = secondSliceFor(action.street);
       clearLastActions();
       snapshot("street", words.street(action.street, board), null);
     }
@@ -698,7 +734,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       for (const nextStreet of remaining) {
         currentStreet = nextStreet;
         board = boardSliceFor(nextStreet, fullBoard);
-        boardSecond = boardSliceFor(nextStreet, fullBoardSecond);
+        boardSecond = secondSliceFor(nextStreet);
         snapshot("street", words.street(nextStreet, board), null);
       }
       currentStreet = "showdown";
@@ -807,7 +843,7 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
     }
     currentStreet = reached;
     board = boardSliceFor(reached, fullBoard);
-    boardSecond = boardSliceFor(reached, fullBoardSecond);
+    boardSecond = secondSliceFor(reached);
     clearLastActions();
     snapshot("street", words.street(reached, board), null);
   }

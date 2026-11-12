@@ -1591,6 +1591,21 @@ thousandths of the table's client area), `room_setting` (`site`;
 cleared assignment, a reset panel, a room left to its settings - so a delete
 reaches the other computers instead of being lost as a missing row.
 
+**(T3) Two more kinds**, `20271111090000_hud_layouts_tiling.sql`: `tiling`
+and `rng` (key `default`; the user's table tiling and RNG settings as one
+object each, `rail_hud_ipc::settings`, from the local store's
+`hud_settings`, migration 22). The migration widens the table's `kind` check
+and `put_hud_layouts`'s list of kinds (their keys are slugs, as a room's);
+the function is otherwise unchanged, and its `desktop_sync` gate is put back
+with `entitlement_gates_apply()`. Tiling and the RNG are free in the app;
+their sync, like all of the HUD's, is `desktop_sync`.
+
+**(T4) RNG widget positions** need no migration: kind `rng`, key
+`pos-<site>-<size>` (a slug, which `put_hud_layouts` already takes for an
+`rng` key), body `{"x", "y"}` in thousandths of the table's client area -
+where the user dragged a table's RNG widget, per room and table size, like a
+seat's panel.
+
 **Last writer wins by `updated_at`** - the writing computer's clock in
 milliseconds, carried with the row. `put_hud_layouts` upserts each row only
 when it is newer than the stored one and answers which it took; the client
@@ -1615,14 +1630,15 @@ design can never put, say, a card-split statistic on a PokerStars table.
 Nothing in a row is a hand, a player or a statistic's value: designs name
 statistics by id, positions are geometry.
 
-`supabase/tests/database/hud_layouts.test.sql` (35): grants (no client
+`supabase/tests/database/hud_layouts.test.sql` (40): grants (no client
 writes, nothing for anon), RLS, the writer's definer settings; new rows taken,
 an older or equal row refused and said so, a tombstone stored and replaced by
 a newer row; every refusal (not an array, not an object, an unknown kind,
 malformed keys of each kind, a non-object or oversized body, a time before
 2020 or days ahead, one bad row refusing the batch, 500 a call, 5 000 an
 account); two accounts with the same key apart; anon reads and writes
-nothing.
+nothing; (T3) `tiling` and `rng` rows taken, last writer wins for them, a
+malformed key refused, the replaced writer still gated.
 
 ## Plans and entitlements
 

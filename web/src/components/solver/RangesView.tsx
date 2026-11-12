@@ -20,7 +20,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { useDict } from "../../lib/i18n/client";
+import { useSolverDict, type SolverDict } from "./host";
 import { DRAWS, EQ_BANDS, EQ_BUCKETS, filterId, MADE_HANDS, comboIds, type FilterGroup } from "../../lib/solver";
 import { GRID_CELLS } from "../analysis/chartSpots";
 import analysis from "../analysis/analysis.module.css";
@@ -100,7 +100,7 @@ function sideView(data: RangeData, p: 0 | 1, mask: Uint8Array | null): SideView 
 }
 
 export function RangesView({ data, masks, strategy }: { data: RangeData; masks: Pair<Uint8Array> | null; strategy: StrategyModel }) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   // By role, not by seat: the player to act opens on the strategy, the other on EV.
   const [modes, setModes] = useState<{ actor: Mode; other: Mode }>({ actor: "strategy", other: "ev" });
   const [group, setGroup] = useState<Group>("made");
@@ -225,7 +225,7 @@ export function RangesView({ data, masks, strategy }: { data: RangeData; masks: 
   );
 }
 
-function hoverLine(data: RangeData, views: Pair<SideView>, p: 0 | 1, k: number, t: ReturnType<typeof useDict>["solver"]): string {
+function hoverLine(data: RangeData, views: Pair<SideView>, p: 0 | 1, k: number, t: SolverDict): string {
   const hands = data.byClass[p][k];
   const side = data.ranges.sides[p];
   let combos = 0;
@@ -284,7 +284,7 @@ function RangeGrid({
   strategy: StrategyModel;
   onHover: (k: number | null) => void;
 }) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   const side = data.ranges.sides[p];
   const pot = data.ranges.pot;
   const eq = data.equity?.[p] ?? null;
@@ -366,7 +366,7 @@ function RangeGrid({
 
 /** Each range's combos by equity, weakest first, across the share of the range; the filter's combos drawn bold. */
 function EquityChart({ data, views, masks }: { data: RangeData; views: Pair<SideView>; masks: Pair<Uint8Array> | null }) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   const lines = useMemo(() => {
     if (!data.equity) return null;
     return ([0, 1] as const).map((p) => {

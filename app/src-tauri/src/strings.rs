@@ -69,6 +69,8 @@ pub struct Tray {
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
+    /// (T3) Lay every tiled table out again.
+    pub retile_tables: &'static str,
     pub quit: &'static str,
 }
 
@@ -210,6 +212,7 @@ pub const TRAY_EN: Tray = Tray {
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
+    retile_tables: "Re-tile tables",
     quit: "Quit Rail",
 };
 
@@ -247,6 +250,7 @@ pub const TRAY_HR: Tray = Tray {
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",
+    retile_tables: "Ponovno složi stolove",
     quit: "Zatvori Rail",
 };
 
@@ -322,6 +326,8 @@ mod tests {
         // the choice it makes is this one.
         assert_eq!(tray_in(Locale::Hr).quit, "Zatvori Rail");
         assert_eq!(tray_in(Locale::En).quit, "Quit Rail");
+        assert_eq!(tray_in(Locale::En).retile_tables, "Re-tile tables");
+        assert_eq!(tray_in(Locale::Hr).retile_tables, "Ponovno složi stolove");
         assert_eq!(tray().quit, "Quit Rail");
     }
 }

@@ -270,6 +270,16 @@ jobs:
   # minimise / restore, focus restacking, a real click, a table move, the
   # application hidden and shown, a close - and the HUD process following
   # the simulator's tracking script.
+  # And table tiling's T1 (docs/research/TABLE-TILING.md), inside the same
+  # `cargo test`: hud/rail-hud/tests/windows_place.rs and macos_place.rs
+  # (its own `main`) - the monitors and their work areas, simulator tables
+  # moved and resized through `Platform::place` and read back, a minimised
+  # one restored and placed (on macOS with Accessibility, else skipped and
+  # said so).
+  # T2 adds hud/rail-hud/tests/tiling_sim.rs (headless, every OS: the tiling
+  # engine over twelve simulator tables on two fake monitors) and, on
+  # Windows, windows_tiling.rs (three real simulator tables tiled on their
+  # visible frames through the placement worker).
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the

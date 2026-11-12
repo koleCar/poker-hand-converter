@@ -19,6 +19,15 @@ path = "src/main.rs"
 [lints]
 workspace = true
 
+# (T4) `test-policy`: `Compliance::from_sites_json`, a whole `sites.json` in
+# place of the shipped one - a policy that may be looser than the shipped
+# file, for the tests only (no shipped room allows the RNG yet). Off by
+# default, so the binary the app ships has no loosening path compiled in;
+# the integration tests turn it on through the self dev-dependency below
+# (a dev-dependency's features reach only test, bench and example builds).
+[features]
+test-policy = []
+
 [dependencies]
 # Compliance mode: the shipped sites.json, merged with a remote copy by
 # R0.12's rules; `hud_permitted()` is the one question.
@@ -32,6 +41,9 @@ rail-store = { path = "../../core/rail-store" }
 rail-stats = { path = "../../core/rail-stats" }
 rail-hud-ipc = { path = "../rail-hud-ipc" }
 regex = "1.13.1"
+# (T4) The RNG overlay's rolls: the operating system's CSPRNG, the version
+# `rail-hud-ipc` already locks for its tokens (no new crate).
+getrandom = "0.3.4"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 
@@ -86,6 +98,10 @@ windows = { version = "=0.61.3", features = [
 # (`block2`, `NSNotification`, `NSOperation` for the observer call's
 # signature); `libc`'s `kqueue` for the clients' exits. `block2` 0.6.2 is
 # in Cargo.lock already (objc2's): again no new crate.
+#
+# (T1) Table tiling's work areas: `NSScreen`'s visible frame (a feature,
+# no new crate). (T2) Its safety rules read the mouse from Core Graphics'
+# event source state (`CGEventSource`, a feature: no new crate).
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "=0.2.190"
 block2 = { version = "=0.6.2", default-features = false, features = ["std"] }
@@ -101,6 +117,7 @@ objc2-app-kit = { version = "=0.3.2", default-features = false, features = [
   "NSPanel",
   "NSResponder",
   "NSRunningApplication",
+  "NSScreen",
   "NSView",
   "NSWindow",
   "NSWorkspace",
@@ -137,6 +154,7 @@ objc2-core-graphics = { version = "=0.3.2", default-features = false, features =
   "CGDirectDisplay",
   "CGError",
   "CGEvent",
+  "CGEventSource",
   "CGEventTypes",
   "CGGeometry",
   "CGImage",
@@ -173,6 +191,9 @@ objc2-quartz-core = { version = "=0.3.2", default-features = false, features = [
 ] }
 
 [dev-dependencies]
+# (T4) This crate itself with `test-policy` on, for `tests/rng_sim.rs` (a
+# looser test policy); never in a normal or release build.
+rail-hud = { path = ".", features = ["test-policy"] }
 # The end-to-end test (tests/e2e.rs): the simulator's hands through the
 # watcher into a store, the app's side of the channel, this process.
 rail-watch = { path = "../../core/rail-watch" }
@@ -191,6 +212,12 @@ harness = false
 # simulator's tables (AppKit again: its own `main`).
 [[test]]
 name = "macos_tracking"
+harness = false
+
+# (T1) Table tiling's monitors and placing on macOS: the work areas come
+# from `NSScreen` through the AppKit thread (its own `main` again).
+[[test]]
+name = "macos_place"
 harness = false
 
 # (R3.14) Twelve tables: the HUD process over twelve simulator tables and a

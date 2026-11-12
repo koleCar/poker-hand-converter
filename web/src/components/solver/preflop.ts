@@ -24,6 +24,10 @@ import type { ChartAction, ChartNode, ChartPosition, ChartSet } from "../../lib/
 export interface SeatAct {
   /** Index of the letter in the line key: rewinding to it drops this act and everything after. */
   index: number;
+  /** The option's tree code (`f`, `c`, `r`, ...). */
+  code: string;
+  /** The decision the seat faced: its options are the ones it could have picked. */
+  node: ChartNode;
   action: ChartAction;
   /** What the seat has in after the act, bb. */
   toBb: number;
@@ -82,7 +86,7 @@ export function preflopState(charts: ChartSet, line: string, lines: readonly Flo
     const option = node?.options.find((o) => o.code === line[index]);
     if (!node || !option) break;
     const seat = seatOf(node.actor);
-    seat.acts.push({ index, action: option.action, toBb: option.toBb });
+    seat.acts.push({ index, code: option.code, node, action: option.action, toBb: option.toBb });
     if (option.action === "fold") seat.folded = true;
     else {
       seat.inBb = option.toBb;

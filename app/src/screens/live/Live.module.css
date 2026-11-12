@@ -411,6 +411,47 @@
   text-align: right;
 }
 
+/* A sortable header: a button with its direction beside it, as the Hands
+   list's headers (2026-11-09). */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.sort:hover,
+.sorted {
+  color: var(--text-primary);
+}
+
+.sortMark {
+  opacity: 0;
+  font-size: var(--font-size-sm);
+}
+
+.sort:hover .sortMark,
+.sort:focus-visible .sortMark {
+  opacity: 0.6;
+}
+
+.sorted .sortMark {
+  opacity: 1;
+  color: var(--accent-fg);
+}
+
+.table th.number .sort {
+  flex-direction: row-reverse;
+}
+
 /* The whole row opens the hand, and says so when hovered. */
 .handRow {
   cursor: pointer;

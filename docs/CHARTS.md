@@ -1,8 +1,8 @@
-# CHARTS — preflop reference charts, `charts/9`
+# CHARTS — preflop reference charts, `charts/10`
 
-Phases A2a, A2a.1, A2c, A2d and A2e (and `charts/6` / `charts/7`, the 200bb and 9-max 150bb re-solves, and `charts/8` / `charts/9`, heads-up) of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
+Phases A2a, A2a.1, A2c, A2d and A2e (and `charts/6` / `charts/7`, the 200bb and 9-max 150bb re-solves, `charts/8` / `charts/9`, heads-up, and `charts/10`, 9-max 60bb) of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
 Rail's preflop reference for **NLHE cash**: a library of chart sets
-(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb,
+(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 60 / 100 / 150 / 200bb,
 6-max 100bb with a 2bb UTG straddle, and heads-up at 100 / 150bb**, §6),
 each one for every decision point
 of a preflop betting tree and every one of the 169 hand classes, a frequency
@@ -26,7 +26,9 @@ so their big blind facing a single limp converges and is in the set (§5.1);
 heads-up 100bb set: two players, the small blind is the button and in
 position after the flop, its realisation measured on its own spots (§1.5,
 §6.9); `charts/9` the heads-up 150bb set, the same tree and pipeline at
-150bb (§6.10).
+150bb (§6.10). `charts/10` adds the 9-max 60bb set: the 6-max 60bb set's
+sizes and the limp tree, its realisation measured on its own ranges, 9,000
+iterations (§6.11).
 
 ```
 web/src/lib/solver/
@@ -667,7 +669,8 @@ depth, a loader) and decides which one answers a spot (`pickChartSet`):
    5% away is the `stack-depth` approximation, with the set and both depths.
    Strategies are **never interpolated** between two depths: a mix of two
    solutions is a solution of neither. Covered: 32-240bb on 6-max except
-   72-80bb (20% from neither 60 nor 100), 80-240bb on 9-max, 80-180bb
+   72-80bb (20% from neither 60 nor 100), 48-240bb on 9-max except 72-80bb
+   (the 9-max 60bb set since `charts/10`, §6.11), 80-180bb
    heads-up (100bb up to 120bb, where both are 20% away and the shallower
    is kept; 150bb above).
 
@@ -681,10 +684,11 @@ fit (§6.7), with `charts/3` in brackets:
 | `nlhe-cash-6max-100bb` | 752 / 10,361 (281 / 3,825) | 476 | 1,869,915 | 486 KB (171) | 0.094 (0.075) | 14 min |
 | `nlhe-cash-6max-150bb` | 814 / 10,361 (343 / 3,825) | 468 | 1,988,228 | 530 KB (212) | 0.139 (0.121) | 14 min |
 | `nlhe-cash-6max-200bb` (`charts/6`, §5.1) | **829** / 10,361 (`charts/4`: 815) | 469 | 2,033,580 | 538 KB | **0.182** (`charts/4`: 0.332) | 45 min, 9,000 iterations |
+| `nlhe-cash-9max-60bb` (`charts/10`, §6.11) | 2,936 / 48,652 | 1,677 | 6,904,513 | 1,709 KB `gzip -c` | **0.063** | 4 h 51 min with two measurement rounds (3 threads, `nice`), 9,000 iterations |
 | `nlhe-cash-9max-100bb` | 2,705 / 79,131 (1,033 / 28,591) | 1,693 | 6,403,193 | 1,640 KB (570) | 0.313 (0.256) | 110 min |
 | `nlhe-cash-9max-150bb` (`charts/7`, §5.1) | **2,924** / 79,131 (`charts/4`: 2,888) | 1,773 | 6,959,006 | 1,796 KB `gzip -c` (`charts/4`: 1,805) | **0.087** (`charts/4`: 0.270) | 13 h 38 min, 9,000 iterations (shared machine) |
 | `nlhe-cash-9max-200bb` (`charts/6`, §5.1) | **2,841** / 79,131 (`charts/4`: 2,795) | 1,735 | 6,768,378 | 1,731 KB | **0.247** (`charts/4`: 0.439) | 6 h 04 min, 9,000 iterations |
-| **all eight** | | | **30,090,539** (`charts/6`: 30,005,147) | **8.7 MB** | | |
+| **all eight** (before `charts/10`) | | | **30,090,539** (`charts/6`: 30,005,147) | **8.7 MB** | | |
 | `nlhe-cash-6max-100bb-straddle` (`charts/5`, §6.8) | 854 / 4,906 | 492 | 2,022,496 | 539 KB | 0.166 | 43 min with two measurement rounds |
 | `nlhe-cash-hu-100bb` (`charts/8`, §6.9) | 10 / 10 | - | 83,067 | 15 KB | 0.001 | 18 min with two measurement rounds (3 threads), 9,000 iterations |
 | `nlhe-cash-hu-150bb` (`charts/9`, §6.10) | 10 / 10 | - | 81,902 | 14 KB | 0.001 | 17 min with two measurement rounds (3 threads), 9,000 iterations |
@@ -727,7 +731,8 @@ limped-pot frequencies by up to 1.0 (the small blind facing an UTG limp
 folds 26.7% instead of 27.7%). Best-response gains per seat all under
 0.015 mbb/hand.
 
-`CHARTS_VERSION` is `charts/7` (the 9-max 150bb set re-solved, §5.1);
+`CHARTS_VERSION` is `charts/10` since the 9-max 60bb set (§6.11), which
+changes no other set's bytes or `model.hash`; it was `charts/7` here (the 9-max 150bb set re-solved, §5.1);
 `charts/6` re-solved the 200bb sets, and before it `charts/5` (A2e) added
 the straddle set (§6.8). The other five sets above are `charts/4`'s, unchanged byte for byte, each carrying its own `id` (the
 6-max 100bb set on `charts/2`'s fit, the others on their A2c fits). Grades
@@ -825,6 +830,7 @@ big-blind realisation against a button open, by set:
 | 6-max 100bb (charts/2) | 0.037 / 0.055 / 0.082 | 1.20 / 1.05 | 0.83 / 1.12 |
 | 6-max 150bb | 0.038 / 0.053 / 0.084 | 1.21 / 1.04 | 0.83 / 1.13 |
 | 6-max 200bb | 0.039 / 0.056 / 0.085 | 1.19 / 1.04 | 0.83 / 1.13 |
+| 9-max 60bb (`charts/10`, limp tree in the rounds) | 0.035 / 0.053 / 0.076 | 1.20 / 1.05 | 0.84 / 1.11 |
 | 9-max 100bb | 0.038 / 0.054 / 0.081 | 1.22 / 1.05 | 0.83 / 1.12 |
 | 9-max 150bb | 0.039 / 0.055 / 0.083 | 1.22 / 1.05 | 0.83 / 1.12 |
 | 9-max 200bb | 0.041 / 0.056 / 0.084 | 1.20 / 1.05 | 0.84 / 1.12 |
@@ -851,8 +857,8 @@ It moves the limped and 4-bet pots more (limped `P` 1.11 at 40bb, 1.02 at
 - **Ten or more players, antes, cold calls of 3-bets**: as before. **A
   fourth limper** is `multiway` (§1.3); open limps themselves are covered
   since `charts/4`.
-- **Depths**: under 32bb, 72-80bb and over 240bb (6-max); under 80bb and over
-  240bb (9-max).
+- **Depths**: under 32bb, 72-80bb and over 240bb (6-max); under 48bb, 72-80bb
+  and over 240bb (9-max; under 80bb before `charts/10`'s 60bb set).
 
 ### 6.6 Coverage
 
@@ -1149,6 +1155,74 @@ the small blind calls a 150bb shove with QQ+, AK and TT but folds AQo
 (18% calls at 100bb). Same sanity bands as the 100bb set
 (`tests/test/charts/headsUp.test.ts`).
 
+### 6.11 `charts/10`: 9-max 60bb
+
+`nlhe-cash-9max-60bb`, for the 7-9 handed hands played 48-72bb deep, which
+no 9-max set covered (the shallowest was 100bb; the 2026-11-08 census,
+ANALYSIS-PLAN §10, left 42 hero preflop decisions `chart-stack-depth`, 9-max
+20-59bb for the most part). The 6-max 60bb set's sizes (`STANDARD`: 2.5bb
+opens, 3x / 4x 3-bets, a raise that puts more than 40% of the stack in is
+all-in) and `charts/4`'s limp tree (three limpers, the 0.5% tremble, nodes
+behind a limp kept down to 1e-6). There is no committed fit to reuse, so the
+pipeline is A2c's (`generateRealisedChartSet`): two measure-and-fit rounds
+from `charts/2`'s fit, **with the limp tree in the rounds** (as the straddle
+set did, §6.8: the fitted spots are raised pots and the blinds' limped pot,
+which the tremble barely moves), on the thirteen `REALISATION_SPOTS` at
+60bb's stack-to-pot ratios (1,560 turn+river solves a round, every spot
+measured both rounds), then **9,000 iterations** (`DEEP_ITERATIONS`, §5.1:
+the 9-max limp trees' big blind facing a single limp needs them). Config:
+`NINE_60` in `sets.ts`.
+
+| | |
+|---|---|
+| Tree | 48,652 action nodes (9-max 100bb: 79,131); 2,936 kept, 1,677 of them behind an open limp |
+| Iterations | 9,000 (checkpoints every 500), after two 1,500-iteration rounds |
+| NashConv | 7.03 (500) → 2.10 → 1.05 → 0.63 → 0.43 → **0.32** (3,000) → 0.20 (4,000) → 0.14 (5,000) → 0.11 (6,000) → 0.086 (7,000) → 0.073 (8,000) → **0.063 mbb/hand** (9,000) |
+| Best-response gain per position | UTG 0.003, UTG+1 0.019, UTG+2 0.008, LJ 0.004, HJ 0.006, CO 0.005, BTN 0.004, SB 0.009, BB 0.006 mbb/hand |
+| Strategy change, last checkpoint | 0.0003 (mean L1 per node) |
+| Heads-up BvB, 1,000 iterations | 0.053 mbb/hand |
+| Left out as unconverged | 2 (`fffcfrffra`, reached 1.2e-6, 2.4% of the pot; `ffcffcc`, 4.9e-6, 2.2%); the big blind facing a single limp is in the set from every seat |
+| Time | 4 h 51 min wall on 3 threads under `nice` (rounds ~50 min each, the final solve ~10 min per 500 iterations), peak 1.6 GB |
+| Size | 6,904,513 bytes, 1,709 KB `gzip -c`; `model.hash` `0d34b0e8` |
+
+The most converged 9-max set: at 3,000 iterations it was already where the
+9-max 100bb set stopped (0.32 against 0.31), and the 60bb tree is 61% of
+the 100bb one. Fit error (share RMS, fitted / `charts/1` / raw equity),
+final round: limped 0.031 / 0.056 / 0.057, single raised 0.035 / 0.053 /
+0.076, 3-bet 0.036 / 0.052 / 0.072, 4-bet 0.033 / 0.060 / 0.066 - the other
+sets' quality (§6.4). Big blind against a button open, measured R out of /
+in position 0.84 / 1.11 (fitted 0.86 / 1.10).
+
+| Node | 9-max 60bb | 9-max 100bb |
+|---|---|---|
+| RFI UTG / UTG+1 / UTG+2 / LJ / HJ / CO / BTN | 10.5 / 11.5 / 13.0 / 16.5 / 20.3 / 26.3 / 37.5% | 10.3 / 11.5 / 13.6 / 16.0 / 20.4 / 27.2 / 39.6% |
+| SB first in | raise 26.1%, limp 29.4% (continues 55.5%) | raise 18.8%, limp 40.0% (58.8%) |
+| BB vs the button's open | continues 63.3% (call 50.6, 3-bet 12.7) | 62.0% (49.5, 12.5) |
+| BB vs an UTG open | continues 19.9% (call 16.1, 3-bet 3.8) | 19.8% (16.3, 3.5) |
+| Opener vs the button's 3-bet (UTG / CO) | fold 47.0 / 46.1%, 4-bet 17.8 / 19.6% | fold 46.5 / 41.9%, 4-bet 18.4 / 17.3% |
+| BB vs the SB's limp | check 56.2%, raise 43.8% | check 58.4%, raise 41.6% |
+| Button vs an UTG / CO limp | isolates 11.7 / 27.7%, over-limps 13.1 / 4.5% | 11.3 / 30.2%, 14.1 / 2.2% |
+
+What the shallower stack does, from our solver alone: the small blind raises
+more of what it plays and limps less (a 60bb limp-raise leaves less behind),
+the button opens two points tighter, the cutoff folds less to the button's
+3-bet and 4-bets more.
+The cross-set bands hold (`sets.test.ts`: the three earliest seats tighter
+than 6-max 60bb's UTG, the LJ within 4 points of it). AA limps 5.5% UTG first in, at the
+same EV as raising (a trap mix; the 9-max 100bb set limps it 4.7%), so the
+first-in AA band is "raises over 90%" since `charts/10`. Every other band of
+§8 holds unchanged. The flop library has no chunks for this set; its heads-up
+flops are the heuristic's until a set's chunks are solved.
+
+**Coverage** (`analysis/40` against `analysis/39`, the owner's 5,448 stored
+hands, `floplib:census` decision for decision, ANALYSIS-PLAN §10
+2026-11-08/09): `chart-stack-depth` 45 → 24 (20 graded: Perfect 19,
+Inaccurate 1; 11 on the set's own band, 9 as an uncovered neighbour within
+5/3), `chart-rare-line` 46 → 33 (13 9-max 100bb lines read on the 60bb set
+after 150bb: Perfect 11, Inaccurate 2), 9 decisions read at 100bb as an
+uncovered depth now read here (grades kept). Preflop graded 5,213 → 5,246;
+every graded decision 6,717 → 6,750 (84.3%).
+
 ## 7. Lookup
 
 ```ts
@@ -1265,7 +1339,8 @@ Inaccurate 9 - 7 of them capped from a loss of 3-28% of the pot), one becomes
 200 -> 150bb 4, 6-max 150 -> 200bb 2. Every other decision is unchanged.
 Graded 4,727 -> 4,846 (87.7% -> 89.9%); 225.1 -> 230.3 bb lost. The 46
 left are 9-max lines for the most part (43), where the 150bb set leaves the
-line out too and there is no shallower 9-max set.
+line out too and there was no shallower 9-max set (since `charts/10` the
+60bb set is the 9-max 100bb set's neighbour below, tried after 150bb).
 
 ### 7.2 Preflop ranges on a neighbouring depth (`analysis/18`)
 
@@ -1274,9 +1349,10 @@ each player from `preflopClassRange`, which asks `chartRange(...,
 WALK_RANGE_OPTIONS)`: the lookup with `rareLineDepth` (§7.1) and
 `uncoveredDepth` - a spot whose effective stack no set of its table covers
 (`pickChartSet`'s `stack-depth`: 6-max 72-80bb, under 32bb or over 240bb;
-9-max under 80bb or over 240bb) is replayed on the nearest charted depth
-below and the nearest above (`uncoveredDepthSets`, nearest first by depth
-ratio, never further; a 9-max 50bb spot reads the 100bb set). The range
+9-max 72-80bb, under 48bb or over 240bb since `charts/10`, under 80bb
+before) is replayed on the nearest charted depth below and the nearest
+above (`uncoveredDepthSets`, nearest first by depth ratio, never further; a
+9-max 75bb spot reads the 60bb set, then 100bb; a 9-max 40bb one the 60bb set). The range
 carries `range-neighbour-depth`.
 
 **Not for a flat call of a single raise** (a cold call, the big blind's
@@ -1322,6 +1398,30 @@ charts' ranges), the hero, the trainers, or after a preflop all-in.
 **Loading.** `rareLineChartSets` also lists the `uncoveredDepthSets` of a
 decision the loaded sets refuse as `stack-depth`; a set not loaded is
 skipped.
+
+### 7.3 Grading at a depth no set covers (`analysis/39`)
+
+A hero decision whose effective stack no set of its table covers
+(`pickChartSet`'s `stack-depth`: 6-max 72-80bb or under 32bb, 9-max 72-80bb
+or under 48bb - under 80bb before `charts/10` -, over 240bb) is graded on the nearest charted depth below or above
+(`uncoveredDepthSets`, the read §7.2 gives the ranges), with the
+`uncovered-depth` approximation and the grade **capped at Inaccurate**, as a
+rare line (§7.1). Only within `MAX_UNCOVERED_RATIO` (5/3, the step between
+the 60bb and 100bb sets) of the effective stack: a 9-max 40bb spot is read
+at 60bb (before `charts/10` a 9-max 60bb spot was read at 100bb), a 9-max
+35bb or a 6-max 22bb one (40bb is 1.8 away) stays `stack-depth`. The flop library's placement never reads it (`chartLineOf`
+asks for no option), so a pot placed this way never reads a chunk.
+
+**Held out** (ANALYSIS-PLAN §10 2026-11-08): every hero preflop decision in
+the owner's library graded on its own set, re-graded with that set removed
+from the library so its depth is uncovered and the neighbour answers
+(within 5/3): 4,763 decisions; the neighbour's capped grade equals the own
+set's grade capped the same way for **96.8%**, the same top action 97.1%;
+1.7% are Perfect or Good at the own depth but Inaccurate at the neighbour,
+0.5% Mistake or Blunder at the own depth but Perfect or Good at the
+neighbour. By step: 100 → 150bb 6-max 96.2% (n = 1,995), 9-max 97.9%
+(1,353); 150 → 100bb 6-max 97.4% (500); 100 → 60bb 95.7% (46); 60 → 100bb
+89.2% (37); 60 → 40bb 84.6% (39); heads-up 100 → 150bb 86.2% (65).
 
 ## 8. Results
 
@@ -1549,7 +1649,7 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
   Its heads-up blind-versus-blind calibration is the unstraddled
   two-player game at its sizes, not a straddled one (none is two-player).
 - **Out of scope by construction**: antes, every other straddle, heads-up outside 80-180bb, ten or more
-  players, depths under 32bb, 72-80bb and over 240bb (§6.5), a fourth
+  players, depths under 32bb (9-max: 48bb), 72-80bb and over 240bb (§6.5), a fourth
   limper, cold calls of 3-bets, five-way pots, MTT/ICM, players posting a
   big blind out of turn with dead money (a missed small blind with it).
   Since `analysis/24` a live one-big-blind post from another seat that then
@@ -1592,7 +1692,8 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
   whatever the nearer set says.
 - **The 9-max sets are less converged** (NashConv 0.31 mbb/hand at
   100bb against 0.06-0.14 for 6-max at the same 3,000 iterations; at
-  9,000 the 9-max 150bb set 0.087, 200bb 0.25 against 6-max 200bb's 0.18) and bigger, and keep
+  9,000 the 9-max 150bb set 0.087, 200bb 0.25 against 6-max 200bb's 0.18;
+  the 9-max 60bb set, smaller, 0.063 at 9,000, §6.11) and bigger, and keep
   rare nodes out as unconverged (`model.excluded`).
 - **Reports, Leaks and the study plan read every set** since A2d (a set
   filter on Reports; each leak and focus area on the set it was met on);
@@ -1611,6 +1712,7 @@ CHARTS_SETS=nlhe-cash-6max-60bb npm run charts:generate       # one set
 CHARTS_SETS=nlhe-cash-6max-100bb-straddle CHARTS_THREADS=4 npm run charts:generate   # the straddle set, ~43 min (two rounds)
 CHARTS_SETS=nlhe-cash-hu-100bb CHARTS_THREADS=3 npm run charts:generate   # charts/8, the heads-up set, ~18 min (two rounds; the solve takes seconds)
 CHARTS_SETS=nlhe-cash-hu-150bb CHARTS_THREADS=3 npm run charts:generate   # charts/9, heads-up 150bb, ~17 min
+CHARTS_SETS=nlhe-cash-9max-60bb CHARTS_THREADS=3 nice -n 10 npm run charts:generate   # charts/10, 9-max 60bb: two rounds + 9,000 iterations, 4 h 51 min
 npm run charts:report        # the §8 tables for every committed set (CHARTS_FILE=... for one file)
 npm run charts:coverage      # §6.6: graded decisions on the corpora, 6-max 100bb alone vs the library
 npm run charts:compare       # §6.3: a native short-handed solve against a bigger set read short-handed

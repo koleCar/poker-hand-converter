@@ -94,6 +94,61 @@
 //!   Every frame carries the panel statistics' colour bands for the legend.
 //! - `shutdown`, the connection closing or standard input ending (the app is
 //!   gone) end the loop; the overlays are removed.
+//! - **Table tiling** (T2, docs/research/TABLE-TILING.md §4.3): off unless
+//!   [`Hud::enable_tiling`] (development: `--tiling auto`; the app's
+//!   settings arrive over the IPC in T3). Then every look hands the tiler
+//!   (`crate::tiling`) the tables its policy allows - attached or refused
+//!   by the HUD alike: tiling is not a HUD, and `TilingPermit` (T0) is a
+//!   predicate the caller passes ([`TilingConfig::allowed`]) - with each
+//!   window's frame ([`Platform::frame_insets`]); moves, minimises and
+//!   closes from the platform's events follow; the monitors are read again
+//!   every [`MONITORS_EVERY`]. The tiler's moves go to the placement
+//!   worker (`crate::placer`, a thread of its own: the loop never waits on
+//!   a placement, and nothing moves while the mouse is busy), and its
+//!   answers come back at the next tick. Switched off, nothing ever moves
+//!   and the windows stay where they are.
+//! - **The app's tiling settings** (T3): `tiling_changed` switches tiling
+//!   on or off with the user's layouts, rules and per-room switches
+//!   ([`Hud::apply_tiling_settings`], validated again here: a refused
+//!   object changes nothing); `retile` lays every table out again, pinned
+//!   ones too; `rng_changed` is kept for the RNG (T4 draws it, with each
+//!   room's `RngPermit`: [`Hud::rng_for`]); every change of tiling's state
+//!   goes back as `tiling_status`. **Whose windows move**: a room whose
+//!   policy gives a `TilingPermit` (T0, `sites.json` `tiling.allowed`,
+//!   independent of `hud.allowed`; asked again at every look, so a stricter
+//!   remote policy takes effect at once) **and** the user's switch for it
+//!   is on. A room without a permit is never handed to the tiler, whatever
+//!   the user's switch says.
+//! - **Panels off** (T3, the Free plan with enforcement on): `--panels off`
+//!   or `panels {allowed: false}` - the HUD runs for tiling and the RNG
+//!   and attaches no panel (nor refuses one: nothing is drawn, so there is
+//!   nothing to refuse); `panels {allowed: true}` attaches from the next
+//!   look.
+//! - **The RNG overlay** (T4, docs/research/TABLE-TILING.md §4.4): drawn
+//!   over a table only when the user's settings (`rng_changed`) are on, on
+//!   for its room, **and** the room's policy gives an `RngPermit` (T0,
+//!   `sites.json` `rng.allowed`, independent of `hud.allowed`; asked again
+//!   before every frame, [`Hud::rng_for`]). An attached table's frame
+//!   carries it beside the panels; a table the HUD does not attach - its
+//!   room refuses a HUD, or the panels are off - gets an **RNG-only**
+//!   overlay (followed like an attached one, under the RNG's permit alone:
+//!   no panel, no status line, no legend). Each table rolls on its own
+//!   (`crate::rng`: the system's CSPRNG, rejection sampling) when it first
+//!   shows the RNG and then, as the user's triggers say: on a new hand
+//!   there (`hand_imported` for that table - the room writes a hand when
+//!   it ends, so this is close to the next deal, never about the hand in
+//!   play), on a click on the widget ([`TableEvent::PanelClicked`] at
+//!   [`RNG_SLOT`]) and every `timerSecs` (each roll restarts the table's
+//!   timer). A dragged widget ([`TableEvent::PanelMoved`] at [`RNG_SLOT`])
+//!   is remembered per room and table size like a seat's panel, every
+//!   table of that room and size redrawn with it, and the app told
+//!   ([`HudMessage::RngPositionChanged`]) - it writes the store; the HUD
+//!   reads the positions back with the seat positions. The RNG-only tables
+//!   are not counted in `tables_open` (no panel is drawn there).
+//! - **Hotkeys** (T7): the app owns the global keys and sends what they
+//!   mean - `tiling_changed`, `retile`, or `roll_rng`, which rolls the
+//!   table in front ([`Platform::focused_window`]) only where it shows the
+//!   RNG ([`Hud::roll_focused`], under the room's `RngPermit`).
 
 #![forbid(unsafe_code)]
 
@@ -103,25 +158,30 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use rail_hud_ipc::protocol::{
-    AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, LatencyChain, PlayerHands,
-    PlayerRef, RefusalReason, RefusedTable, ScreenRect,
+    AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, LatencyChain, MonitorInfo,
+    PlayerHands, PlayerRef, RefusalReason, RefusedTable, ScreenRect, TiledTable,
 };
 use rail_stats::custom::{CustomDef, CustomSet};
 use rail_stats::display::Display;
 
 use std::sync::Arc;
 
-use crate::compliance::Compliance;
+use crate::compliance::{Compliance, RngPermit};
 use crate::data::StoreView;
 use crate::design::{Assignment, Compiled, DesignSet as Designs, FORCED, GameFormat, HudDesign};
 use crate::latency::{Latencies, micros};
-use crate::layout::TableLayout;
+use crate::layout::{Positions, TableLayout};
 use crate::panel::PanelDesign;
+use crate::placer::Worker;
 use crate::platform::{
-    OverlayFrame, PanelWords, Permission, Platform, Rect, SeatPanel, Seating, TableEvent,
-    TableMatcher, TableWindow, TagColour, WindowId, permission_matters, table_key,
+    Monitor, OverlayFrame, PanelWords, Permission, Platform, RNG_SLOT, Rect, RngShown, SeatPanel,
+    Seating, TableEvent, TableMatcher, TableWindow, TagColour, WindowId, permission_matters,
+    table_key,
 };
+use crate::scene::Rgba;
 use crate::seats::{self, Rooms};
+use crate::tiling::{ActionTiming, Mouse, Observed, Options as TilingOptions, Tiler};
+use rail_hud_ipc::settings::{RngSettings, TilingSettings};
 
 /// What the loop is fed.
 #[derive(Debug)]
@@ -218,6 +278,170 @@ pub fn debug_line(chain: &LatencyChain) -> String {
     )
 }
 
+/// (T2) How often tiling reads the monitors again (a monitor plugged in or
+/// out, the taskbar moved): the tiler lays the tables out again when they
+/// changed.
+pub const MONITORS_EVERY: Duration = Duration::from_secs(2);
+
+/// (T2) Table tiling switched on ([`Hud::enable_tiling`]).
+pub struct TilingConfig {
+    /// The layouts, the one in force, the rooms' geometry.
+    pub options: TilingOptions,
+    /// Whether tiling may move a room's (`sites.json` id) tables (T3: the
+    /// user's per-room switch). A room it says no to is never handed to the
+    /// tiler, so nothing can move its tables.
+    pub allowed: Box<dyn Fn(&str) -> bool + Send>,
+    /// Only the table simulator's windows (`--tiling auto`, development).
+    pub simulator_only: bool,
+    /// (T3) The room's policy must give a `TilingPermit` too
+    /// ([`Compliance::tiling_permit`], asked at every look). On for the
+    /// app's settings; off only for development and tests that pose the
+    /// simulator's windows as rooms the policy says no to.
+    pub permit: bool,
+}
+
+impl std::fmt::Debug for TilingConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TilingConfig")
+            .field("options", &self.options)
+            .field("simulator_only", &self.simulator_only)
+            .field("permit", &self.permit)
+            .finish_non_exhaustive()
+    }
+}
+
+impl TilingConfig {
+    /// `--tiling auto`: the auto grid over the table simulator's windows
+    /// only, whatever room they pose as - never a real client's.
+    pub fn development() -> Self {
+        Self {
+            options: TilingOptions::default(),
+            allowed: Box::new(|_| true),
+            simulator_only: true,
+            permit: false,
+        }
+    }
+
+    /// (T3) The app's settings: the user's layouts, the one in force, the
+    /// auto grid's rules, close gaps. A room is handed to the tiler only
+    /// when its policy gives a `TilingPermit` (T0) and the user's switch
+    /// for it is on.
+    pub fn from_settings(settings: &TilingSettings) -> Self {
+        let switches = settings.clone();
+        Self {
+            options: tiling_options(settings, BTreeMap::new(), ActionTiming::default()),
+            allowed: Box::new(move |site| switches.room_enabled(site)),
+            simulator_only: false,
+            permit: true,
+        }
+    }
+}
+
+/// (T3) The tiler's options from the app's settings, with the rooms'
+/// geometry kept.
+fn tiling_options(
+    settings: &TilingSettings,
+    rooms: BTreeMap<String, crate::tiling::RoomGeometry>,
+    action: ActionTiming,
+) -> TilingOptions {
+    TilingOptions {
+        layouts: settings.layouts.clone(),
+        active: settings.active.id().to_owned(),
+        rooms,
+        close_gaps: settings.close_gaps,
+        auto_switch: settings.auto_switch.clone(),
+        action,
+    }
+}
+
+/// (T5) While only the places in `tiling_status` change (a table being
+/// dragged, a stack being laid out), it goes to the app at most this often.
+pub const TILING_STATUS_EVERY: Duration = Duration::from_millis(250);
+
+/// (T3) What `tiling_status` last said: on, tables, the layout in force;
+/// (T5) the monitors and the tables' places.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+struct TilingReport {
+    enabled: bool,
+    tables: u32,
+    layout: Option<String>,
+    monitors: Vec<MonitorInfo>,
+    windows: Vec<TiledTable>,
+}
+
+impl TilingReport {
+    /// Whether `other` differs only in places (the monitors or where the
+    /// tables are): what may wait for [`TILING_STATUS_EVERY`].
+    fn same_but_places(&self, other: &Self) -> bool {
+        self.enabled == other.enabled
+            && self.tables == other.tables
+            && self.layout == other.layout
+            && self.windows.len() == other.windows.len()
+    }
+}
+
+fn screen_rect(rect: &Rect) -> ScreenRect {
+    ScreenRect {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+    }
+}
+
+/// (T5) The monitors in the order layouts name them, for the app.
+fn monitor_infos(monitors: &[Monitor]) -> Vec<MonitorInfo> {
+    crate::tiling::monitor_order(monitors)
+        .into_iter()
+        .enumerate()
+        .map(|(place, i)| {
+            let m = &monitors[i];
+            MonitorInfo {
+                index: u32::try_from(place).unwrap_or(u32::MAX),
+                primary: m.primary,
+                bounds: screen_rect(&m.bounds),
+                work_area: screen_rect(&m.work_area),
+                scale_permille: m.scale_permille,
+            }
+        })
+        .collect()
+}
+
+/// (T2) Tiling while it is on: the tiler, its worker, the policy.
+struct Tiling {
+    tiler: Tiler,
+    worker: Worker,
+    allowed: Box<dyn Fn(&str) -> bool + Send>,
+    simulator_only: bool,
+    permit: bool,
+    /// (T5) The table name of each window it was handed (the title's).
+    names: BTreeMap<WindowId, Option<String>>,
+    /// (T7) Each window's room and program, for its turn signals.
+    rooms: BTreeMap<WindowId, (String, String)>,
+    /// (T7) The programs the platform watches for turn signals now.
+    watched: Vec<String>,
+}
+
+impl Tiling {
+    /// Whether the policy lets tiling move `window`: (T3) the room's
+    /// `TilingPermit` when asked for, and the caller's predicate.
+    fn takes(&self, window: &TableWindow, compliance: &Compliance) -> bool {
+        (!self.simulator_only
+            || crate::platform::matcher::same_process(
+                crate::platform::SIM_PROCESS,
+                &window.process.name,
+            ))
+            && (!self.permit || compliance.tiling_permit(&window.site).is_ok())
+            && (self.allowed)(&window.site)
+    }
+
+    /// The mouse as the worker last sampled it: whether a table that moves
+    /// now is the user's doing.
+    fn mouse(&self, now: Instant) -> Mouse {
+        self.worker.guard().activity(now)
+    }
+}
+
 #[derive(Debug)]
 struct Attached {
     window: TableWindow,
@@ -244,6 +468,27 @@ struct Attached {
     /// What it shows: a status line or panels (redrawn when the layout or
     /// the user's positions change).
     shown: (Option<String>, Vec<SeatPanel>),
+}
+
+/// (T4) A table the HUD does not attach to (its room refuses a HUD, or
+/// the panels are off) that shows the RNG alone.
+#[derive(Debug)]
+struct RngOnly {
+    window: TableWindow,
+    /// The store's site of the window's room (how a hand finds it).
+    store_site: String,
+    /// The last widget drag of this window the engine took in.
+    drags_seen: u64,
+}
+
+/// (T4) A table's roll.
+#[derive(Debug, Clone, Copy)]
+struct Roll {
+    value: u32,
+    /// Rolls so far at this table.
+    seq: u64,
+    /// When the timer rolls it again (`None`: no timer).
+    next: Option<Instant>,
 }
 
 /// The HUD.
@@ -301,6 +546,33 @@ pub struct Hud {
     /// The user's layouts were read from the store (once it opens, and
     /// again on `layout_changed` / `settings_changed`).
     user_layouts_read: bool,
+    /// (T2) Table tiling, when it is on ([`Hud::enable_tiling`]).
+    tiling: Option<Tiling>,
+    /// (T3) The app's RNG settings (T4 draws the RNG with them).
+    rng: Option<RngSettings>,
+    /// (T3) Panels are drawn (the plan includes the HUD): `false` runs the
+    /// HUD for tiling and the RNG only ([`Hud::set_panels`]).
+    panels: bool,
+    /// (T3) What `tiling_status` last said; (T5) and when.
+    tiling_reported: TilingReport,
+    /// (T4) Tables showing the RNG alone.
+    rng_only: BTreeMap<WindowId, RngOnly>,
+    /// (T4) Each table's roll (attached or RNG-only).
+    rolls: BTreeMap<WindowId, Roll>,
+    /// (T4) Where the user put the RNG widget, by (room, table size): its
+    /// centre, thousandths of the client area.
+    rng_positions: BTreeMap<(String, u32), (u32, u32)>,
+    tiling_reported_at: Option<Instant>,
+    /// (T5) The app has spoken about tiling (`tiling_changed`, sent after
+    /// every handshake) or tiling was switched on here: only then does
+    /// `tiling_status` go out (the monitors, while it is off).
+    tiling_heard: bool,
+    /// (T5) The monitors, read every [`MONITORS_EVERY`] whether tiling is
+    /// on or not (the app's Tables screen draws them).
+    monitors: Vec<Monitor>,
+    next_monitors: Instant,
+    /// (T7) The Action Required slot's timing ([`Hud::set_action_timing`]).
+    action_timing: ActionTiming,
 }
 
 impl std::fmt::Debug for Hud {
@@ -350,6 +622,18 @@ impl Hud {
             find_interval: settings.find_every,
             rooms,
             user_layouts_read: false,
+            tiling: None,
+            rng: None,
+            panels: true,
+            tiling_reported: TilingReport::default(),
+            tiling_reported_at: None,
+            tiling_heard: false,
+            monitors: Vec::new(),
+            next_monitors: now,
+            action_timing: ActionTiming::default(),
+            rng_only: BTreeMap::new(),
+            rolls: BTreeMap::new(),
+            rng_positions: BTreeMap::new(),
         }
     }
 
@@ -465,6 +749,746 @@ impl Hud {
             .push(TableMatcher::simulator(site.to_owned(), title));
     }
 
+    /// (T2) Switch table tiling on: the tables `config` allows are laid
+    /// out from the next look on. Fails when the backend places nothing
+    /// (no [`Platform::placer`]) or the worker cannot start. Switching on
+    /// again replaces the configuration (the worker is started anew).
+    pub fn enable_tiling(&mut self, config: TilingConfig) -> Result<(), String> {
+        self.tiling = None;
+        self.tiling_heard = true;
+        let placer = self
+            .platform
+            .placer()
+            .ok_or_else(|| format!("the {} backend cannot place windows", self.platform.name()))?;
+        let worker = Worker::start(placer).map_err(|e| format!("the tiling worker: {e}"))?;
+        let mut options = config.options;
+        options.action = self.action_timing;
+        let mut tiler = Tiler::new(options);
+        self.monitors = self.platform.monitors();
+        self.next_monitors = Instant::now() + MONITORS_EVERY;
+        tiler.set_monitors(self.monitors.clone());
+        eprintln!(
+            "rail-hud: tiling on ({} monitor(s), layout {:?}{})",
+            tiler.monitors().len(),
+            tiler.options().active,
+            if config.simulator_only {
+                ", the simulator's windows only"
+            } else {
+                ""
+            }
+        );
+        self.tiling = Some(Tiling {
+            tiler,
+            worker,
+            allowed: config.allowed,
+            simulator_only: config.simulator_only,
+            permit: config.permit,
+            names: BTreeMap::new(),
+            rooms: BTreeMap::new(),
+            watched: Vec::new(),
+        });
+        self.find_soon = true;
+        Ok(())
+    }
+
+    /// (T2) Switch table tiling off: nothing queued is carried out, every
+    /// window stays where it is.
+    pub fn disable_tiling(&mut self) {
+        if let Some(tiling) = self.tiling.take() {
+            eprintln!("rail-hud: tiling off");
+            if !tiling.watched.is_empty() {
+                self.platform.watch_turn_signals(&[]);
+            }
+        }
+    }
+
+    /// (T7) The Action Required slot's timing (tests; the defaults
+    /// otherwise), for tiling now and when it is switched on again.
+    pub fn set_action_timing(&mut self, timing: ActionTiming) {
+        self.action_timing = timing;
+        if let Some(tiling) = self.tiling.as_mut() {
+            let mut options = tiling.tiler.options().clone();
+            options.action = timing;
+            tiling.tiler.set_options(options);
+        }
+    }
+
+    /// (T7) Table `id`'s window gave `signal`: a turn, when tiling holds the
+    /// table, the layout in force has an Action Required slot and the
+    /// table's room gives an `ActionPermit` whose signal it is (asked now).
+    /// Any other signal, room or table: nothing.
+    fn turn_signal(&mut self, id: WindowId, signal: rail_config::SignalKind) {
+        let Some(tiling) = self.tiling.as_mut() else {
+            return;
+        };
+        let Some((site, _)) = tiling.rooms.get(&id) else {
+            return;
+        };
+        let permitted = self
+            .compliance
+            .action_permit(site)
+            .is_ok_and(|permit| permit.signal() == signal);
+        if permitted && tiling.tiler.turn(id, Instant::now()) {
+            eprintln!(
+                "rail-hud: window {}: your turn ({site}): to the action slot",
+                id.0
+            );
+        }
+    }
+
+    /// (T2) Lay every table out again, the ones the user moved by hand
+    /// too (T3: the tray's "Re-tile").
+    pub fn retile(&mut self) {
+        if let Some(tiling) = &mut self.tiling {
+            tiling.tiler.retile();
+        }
+    }
+
+    /// (T2) The tiler, while tiling is on (tests, diagnostics).
+    pub fn tiler(&self) -> Option<&Tiler> {
+        self.tiling.as_ref().map(|t| &t.tiler)
+    }
+
+    /// (T3) The app's tiling settings (`tiling_changed`): off switches
+    /// tiling off (the windows stay where they are); on switches it on, or,
+    /// when it is on already, takes the new layouts, rules and per-room
+    /// switches at once (the placement worker keeps running). Settings that do not
+    /// validate change nothing.
+    pub fn apply_tiling_settings(&mut self, settings: &TilingSettings) -> Result<(), String> {
+        self.tiling_heard = true;
+        settings
+            .validate()
+            .map_err(|e| format!("tiling settings refused: {e}"))?;
+        if !settings.enabled {
+            self.disable_tiling();
+            return Ok(());
+        }
+        let config = TilingConfig::from_settings(settings);
+        match self.tiling.as_mut() {
+            Some(tiling) => {
+                let rooms = tiling.tiler.options().rooms.clone();
+                let action = tiling.tiler.options().action;
+                tiling
+                    .tiler
+                    .set_options(tiling_options(settings, rooms, action));
+                tiling.allowed = config.allowed;
+                tiling.simulator_only = config.simulator_only;
+                tiling.permit = config.permit;
+                self.find_soon = true;
+                Ok(())
+            }
+            None => self.enable_tiling(config),
+        }
+    }
+
+    /// (T3) The app's RNG settings, as last received (T4 draws them).
+    pub fn rng_settings(&self) -> Option<&RngSettings> {
+        self.rng.as_ref()
+    }
+
+    /// (T4) The app's RNG settings (`rng_changed`), validated again here
+    /// (a refused object changes nothing): every table's RNG shown, hidden
+    /// or drawn again with them at once. A new range rolls every table
+    /// afresh; otherwise each table keeps its number and its timer starts
+    /// again with the new period.
+    pub fn apply_rng_settings(&mut self, settings: RngSettings) -> Result<(), String> {
+        settings
+            .validate()
+            .map_err(|e| format!("RNG settings refused: {e}"))?;
+        let range_changed = self
+            .rng
+            .as_ref()
+            .is_none_or(|old| (old.min, old.max) != (settings.min, settings.max));
+        let timer = settings.triggers.timer_secs;
+        self.rng = Some(settings);
+        if range_changed {
+            self.rolls.clear();
+        } else {
+            let now = Instant::now();
+            for roll in self.rolls.values_mut() {
+                roll.next = timer.map(|secs| now + Duration::from_secs(u64::from(secs)));
+            }
+        }
+        self.refresh_rng();
+        Ok(())
+    }
+
+    /// (T4) The number table `id` shows now, if it shows the RNG.
+    pub fn rng_value(&self, id: WindowId) -> Option<u32> {
+        self.rolls.get(&id).map(|roll| roll.value)
+    }
+
+    /// (T4) The tables showing the RNG alone (no HUD attached).
+    pub fn rng_only_tables(&self) -> Vec<WindowId> {
+        self.rng_only.keys().copied().collect()
+    }
+
+    /// (T4) The room of an attached or RNG-only window.
+    fn window_site(&self, id: WindowId) -> Option<String> {
+        self.attached
+            .get(&id)
+            .map(|a| a.window.site.clone())
+            .or_else(|| self.rng_only.get(&id).map(|r| r.window.site.clone()))
+    }
+
+    /// (T4) A fresh number for table `id` from the system's CSPRNG; its
+    /// timer starts again. `false` without settings, or when the system's
+    /// source failed (logged; the table keeps its number).
+    fn roll(&mut self, id: WindowId, now: Instant) -> bool {
+        let Some(settings) = self.rng.as_ref() else {
+            return false;
+        };
+        let timer = settings.triggers.timer_secs;
+        match crate::rng::roll(settings.min, settings.max) {
+            Ok(value) => {
+                let roll = self.rolls.entry(id).or_insert(Roll {
+                    value,
+                    seq: 0,
+                    next: None,
+                });
+                roll.value = value;
+                roll.seq += 1;
+                roll.next = timer.map(|secs| now + Duration::from_secs(u64::from(secs)));
+                true
+            }
+            Err(error) => {
+                eprintln!("rail-hud: window {}: no RNG roll: {error}", id.0);
+                false
+            }
+        }
+    }
+
+    /// (T4) A table that shows the RNG and has no number yet rolls one.
+    fn ensure_roll(&mut self, id: WindowId, site: &str) {
+        if !self.rolls.contains_key(&id) && self.rng_for(site).is_some() {
+            self.roll(id, Instant::now());
+        }
+    }
+
+    /// (T4) Table `id`'s RNG widget as its frame carries it: `None` unless
+    /// the user's settings are on for the room, the room's policy gives an
+    /// `RngPermit` and the table has rolled.
+    fn rng_shown(&self, id: WindowId, site: &str) -> Option<RngShown> {
+        let (settings, permit) = self.rng_for(site)?;
+        let roll = self.rolls.get(&id)?;
+        let band = settings.band_for(roll.value);
+        let widest = settings.max.max(settings.min).to_string();
+        Some(RngShown {
+            permit,
+            value: roll.value,
+            colour: band
+                .and_then(|band| Rgba::from_hex(&band.colour))
+                .unwrap_or(crate::scene::NORMAL),
+            label: band.and_then(|band| band.label.clone()),
+            digits: u32::try_from(widest.len()).unwrap_or(5),
+            seq: roll.seq,
+            scale_pct: settings.scale,
+            opacity_pct: settings.opacity,
+        })
+    }
+
+    /// (T4) Draw table `id` again with its roll: an attached table's whole
+    /// frame, an RNG-only table's widget.
+    fn show_rng(&mut self, id: WindowId) {
+        if self.attached.contains_key(&id) {
+            self.repaint(id);
+        } else {
+            self.repaint_rng_only(id);
+        }
+    }
+
+    /// (T4) The RNG widget's place on `site`'s `size`-seat tables, in
+    /// `positions` under [`RNG_SLOT`], when the user put it somewhere.
+    fn with_rng_position(&self, site: &str, size: u32, positions: &mut Positions) {
+        if let Some(at) = self.rng_positions.get(&(site.to_owned(), size)) {
+            positions.insert(RNG_SLOT, *at);
+        }
+    }
+
+    /// (T4) An RNG-only table's frame to the backend: the widget alone,
+    /// under the room's `RngPermit` (asked again here). A table that has
+    /// lost it - the settings off, the room switched off, a stricter
+    /// policy - loses its overlay and is no longer followed.
+    fn repaint_rng_only(&mut self, id: WindowId) {
+        let Some(entry) = self.rng_only.get(&id) else {
+            return;
+        };
+        let site = entry.window.site.clone();
+        self.ensure_roll(id, &site);
+        let Some(rng) = self.rng_shown(id, &site) else {
+            self.drop_rng_only(id);
+            return;
+        };
+        let Some(entry) = self.rng_only.get(&id) else {
+            return;
+        };
+        let size = seats::table_size(entry.window.size, std::iter::empty());
+        let drags_seen = entry.drags_seen;
+        let mut positions = Positions::new();
+        self.with_rng_position(&site, size, &mut positions);
+        let seating = Seating {
+            layout: self.rooms.layout(&site, size),
+            rotate_to: None,
+            positions,
+            drags_seen,
+        };
+        let frame = OverlayFrame::rng_only(rng, Some(size), seating);
+        if let Err(error) = self.platform.overlay(id, &frame) {
+            eprintln!("rail-hud: RNG overlay on window {}: {error}", id.0);
+        }
+    }
+
+    /// (T4) A window the HUD does not attach to, at a look: shown the RNG
+    /// alone when the RNG applies to its room (followed from now on, a
+    /// fresh roll), kept up to date when it is shown already, let go when
+    /// the RNG no longer applies.
+    fn sync_rng_only(&mut self, window: TableWindow) {
+        let id = window.id;
+        if self.rng_for(&window.site).is_none() {
+            self.drop_rng_only(id);
+            return;
+        }
+        if let Some(entry) = self.rng_only.get_mut(&id) {
+            // What the hooks report as it happens, seen again here.
+            let moved = entry.window.client != window.client
+                || entry.window.scale_permille != window.scale_permille
+                || entry.window.minimized != window.minimized;
+            let resized = window.size.is_some() && entry.window.size != window.size;
+            entry.window.title = window.title;
+            entry.window.table = window.table;
+            if window.size.is_some() {
+                entry.window.size = window.size;
+            }
+            if moved {
+                entry.window.client = window.client;
+                entry.window.scale_permille = window.scale_permille;
+                entry.window.minimized = window.minimized;
+                self.platform.follow(&entry.window);
+            }
+            if resized {
+                self.repaint_rng_only(id);
+            }
+            return;
+        }
+        if let Err(error) = self.platform.track(&window) {
+            eprintln!("rail-hud: window {}: {error}", window.id.0);
+            return;
+        }
+        eprintln!(
+            "rail-hud: the RNG alone on window {} ({}, table {:?})",
+            window.id.0, window.site, window.table
+        );
+        let store_site = self.compliance.store_site(&window.site);
+        self.rng_only.insert(
+            id,
+            RngOnly {
+                window,
+                store_site,
+                drags_seen: 0,
+            },
+        );
+        self.repaint_rng_only(id);
+    }
+
+    /// (T4) Stop showing the RNG alone over `id`: its overlay goes, it is
+    /// no longer followed, its roll is forgotten.
+    fn drop_rng_only(&mut self, id: WindowId) {
+        if self.rng_only.remove(&id).is_some() {
+            self.platform.remove_overlay(id);
+            self.platform.untrack(id);
+            self.rolls.remove(&id);
+        }
+    }
+
+    /// (T4) The RNG settings or the policy changed: tables that lost the
+    /// RNG let go, every table drawn again, and a look soon for tables
+    /// that gained it.
+    fn refresh_rng(&mut self) {
+        let gone: Vec<WindowId> = self
+            .rng_only
+            .iter()
+            .filter(|(_, r)| self.rng_for(&r.window.site).is_none())
+            .map(|(id, _)| *id)
+            .collect();
+        for id in gone {
+            self.drop_rng_only(id);
+        }
+        self.repaint_all();
+        self.find_soon = true;
+    }
+
+    /// (T4) The tables, attached or RNG-only, of store site `site` whose
+    /// table name is `table` (a [`table_key`]).
+    fn rng_windows_of(&self, site: &str, table: &str) -> Vec<WindowId> {
+        self.attached
+            .iter()
+            .filter(|(_, a)| a.store_site == site && a.window.table.as_deref() == Some(table))
+            .map(|(id, _)| *id)
+            .chain(
+                self.rng_only
+                    .iter()
+                    .filter(|(_, r)| {
+                        r.store_site == site && r.window.table.as_deref() == Some(table)
+                    })
+                    .map(|(id, _)| *id),
+            )
+            .collect()
+    }
+
+    /// (T4) A hand of `table` (store site `site`) was imported: its table
+    /// rolls, when the user's triggers say so and exactly one table has
+    /// that name (two cannot be told apart). The table rolled, if one did.
+    fn rng_new_hand(&mut self, site: &str, table: Option<&str>) -> Option<WindowId> {
+        let wanted = self
+            .rng
+            .as_ref()
+            .is_some_and(|s| s.enabled && s.triggers.new_hand);
+        let table = table.filter(|_| wanted)?;
+        let [id] = self.rng_windows_of(site, table)[..] else {
+            return None;
+        };
+        let room = self.window_site(id)?;
+        self.rng_for(&room)?;
+        self.roll(id, Instant::now()).then_some(id)
+    }
+
+    /// (T4) The user clicked table `id`'s RNG widget: a roll, when the
+    /// user's triggers say so.
+    fn rng_clicked(&mut self, id: WindowId) {
+        let Some(site) = self.window_site(id) else {
+            return;
+        };
+        let click = self
+            .rng_for(&site)
+            .is_some_and(|(settings, _)| settings.triggers.click);
+        if click && self.roll(id, Instant::now()) {
+            self.show_rng(id);
+        }
+    }
+
+    /// (T4) The user dropped table `id`'s RNG widget at `at` (its centre,
+    /// thousandths): remembered for the room and table size at once, every
+    /// table of that room and size drawn again with it, and the app told -
+    /// it writes the store.
+    fn rng_moved(
+        &mut self,
+        id: WindowId,
+        size: u32,
+        at: (u32, u32),
+        seq: u64,
+        out: &mut dyn FnMut(HudMessage),
+    ) {
+        let site = if let Some(attached) = self.attached.get_mut(&id) {
+            attached.drags_seen = attached.drags_seen.max(seq);
+            attached.window.site.clone()
+        } else if let Some(entry) = self.rng_only.get_mut(&id) {
+            entry.drags_seen = entry.drags_seen.max(seq);
+            entry.window.site.clone()
+        } else {
+            return;
+        };
+        if !(2..=10).contains(&size) || at.0 > 1000 || at.1 > 1000 || self.rng_for(&site).is_none()
+        {
+            self.show_rng(id);
+            return;
+        }
+        eprintln!(
+            "rail-hud: window {}: the RNG of a {size}-seat {site} table moved to ({}, {})",
+            id.0, at.0, at.1
+        );
+        self.rng_positions.insert((site.clone(), size), at);
+        out(HudMessage::RngPositionChanged {
+            site: site.clone(),
+            size,
+            x: at.0,
+            y: at.1,
+        });
+        let attached: Vec<WindowId> = self
+            .attached
+            .iter()
+            .filter(|(other, a)| {
+                **other == id || (a.window.site == site && Self::size_of(a) == size)
+            })
+            .map(|(other, _)| *other)
+            .collect();
+        let alone: Vec<WindowId> = self
+            .rng_only
+            .iter()
+            .filter(|(other, r)| {
+                **other == id
+                    || (r.window.site == site
+                        && seats::table_size(r.window.size, std::iter::empty()) == size)
+            })
+            .map(|(other, _)| *other)
+            .collect();
+        for other in attached {
+            self.repaint(other);
+        }
+        for other in alone {
+            self.repaint_rng_only(other);
+        }
+    }
+
+    /// (T7) The user's hotkey (`roll_rng`): the table in front
+    /// ([`Platform::focused_window`]) rolls, when it shows the RNG - the
+    /// user's settings on for its room **and** the room's `RngPermit`
+    /// ([`Hud::rng_for`]); no other trigger setting is asked (the hotkey is
+    /// its own). Any other window in front, or no RNG there: nothing. The
+    /// table that rolled, if one did.
+    pub fn roll_focused(&mut self) -> Option<WindowId> {
+        let id = self.platform.focused_window()?;
+        let site = self.window_site(id)?;
+        self.rng_for(&site)?;
+        if !self.roll(id, Instant::now()) {
+            return None;
+        }
+        self.show_rng(id);
+        Some(id)
+    }
+
+    /// (T4) Tables whose timer is due roll.
+    fn step_rng(&mut self, now: Instant) {
+        if self.rolls.is_empty() {
+            return;
+        }
+        let due: Vec<WindowId> = self
+            .rolls
+            .iter()
+            .filter(|(_, roll)| roll.next.is_some_and(|next| now >= next))
+            .map(|(id, _)| *id)
+            .collect();
+        for id in due {
+            if self.roll(id, now) {
+                self.show_rng(id);
+            }
+        }
+    }
+
+    /// (T3, for T4) The RNG over a table of room `site`: the user's
+    /// settings - on, and on for that room - with the room's `RngPermit`
+    /// (T0, `sites.json` `rng.allowed`, independent of the HUD's policy).
+    /// `None` when any of them says no: nothing is drawn.
+    pub fn rng_for(&self, site: &str) -> Option<(&RngSettings, RngPermit)> {
+        let settings = self.rng.as_ref()?;
+        if !settings.enabled || !settings.room_enabled(site) {
+            return None;
+        }
+        let permit = self.compliance.rng_permit(site).ok()?;
+        Some((settings, permit))
+    }
+
+    /// (T3) Whether panels are drawn. Off: every table is detached (its
+    /// overlay goes), none is attached or refused from now on; tiling and
+    /// the RNG go on. On: tables attach from the next look.
+    pub fn set_panels(&mut self, allowed: bool, out: &mut dyn FnMut(HudMessage)) {
+        if allowed == self.panels {
+            return;
+        }
+        self.panels = allowed;
+        eprintln!(
+            "rail-hud: panels {}",
+            if allowed {
+                "on"
+            } else {
+                "off (tiling and the RNG only)"
+            }
+        );
+        if !allowed {
+            let ids: Vec<WindowId> = self.attached.keys().copied().collect();
+            for id in ids {
+                self.detach(id);
+            }
+            self.refused.clear();
+            self.report_open(out);
+        }
+        self.find_soon = true;
+    }
+
+    /// (T3) Whether panels are drawn ([`Hud::set_panels`]).
+    pub fn panels(&self) -> bool {
+        self.panels
+    }
+
+    /// (T3) Tiling's state to the app when it changed; (T5) a change of
+    /// places only waits for [`TILING_STATUS_EVERY`] since the last.
+    fn report_tiling(&mut self, now: Instant, out: &mut dyn FnMut(HudMessage)) {
+        if !self.tiling_heard {
+            return;
+        }
+        let report = self.tiling_report();
+        if report == self.tiling_reported {
+            return;
+        }
+        if report.same_but_places(&self.tiling_reported)
+            && self
+                .tiling_reported_at
+                .is_some_and(|at| now < at + TILING_STATUS_EVERY)
+        {
+            return;
+        }
+        self.tiling_reported = report.clone();
+        self.tiling_reported_at = Some(now);
+        out(HudMessage::TilingStatus {
+            enabled: report.enabled,
+            tables: report.tables,
+            layout: report.layout,
+            monitors: report.monitors,
+            windows: report.windows,
+        });
+    }
+
+    /// (T3, T5) Tiling's state now.
+    fn tiling_report(&self) -> TilingReport {
+        let monitors = monitor_infos(&self.monitors);
+        let Some(tiling) = &self.tiling else {
+            return TilingReport {
+                monitors,
+                ..TilingReport::default()
+            };
+        };
+        let order = crate::tiling::monitor_order(&self.monitors);
+        let windows = tiling
+            .tiler
+            .views()
+            .into_iter()
+            .filter(|view| !view.minimized)
+            .map(|view| {
+                let monitor = crate::tiling::monitor_of(&view.outer, &self.monitors)
+                    .and_then(|i| order.iter().position(|&o| o == i))
+                    .unwrap_or(0);
+                TiledTable {
+                    table: tiling.names.get(&view.id).cloned().flatten(),
+                    site: view.site,
+                    rect: screen_rect(&view.outer),
+                    monitor: u32::try_from(monitor).unwrap_or(0),
+                    stacked: view.stacked,
+                    pinned: view.pinned,
+                }
+            })
+            .collect();
+        TilingReport {
+            enabled: true,
+            tables: u32::try_from(tiling.tiler.table_count()).unwrap_or(u32::MAX),
+            layout: tiling.tiler.layout_id().map(str::to_owned),
+            monitors,
+            windows,
+        }
+    }
+
+    /// (T5) "Save current arrangement": a slot per place a table tiling
+    /// manages takes now (none while tiling is off).
+    pub fn capture_layout(&self) -> Vec<rail_hud_ipc::settings::Slot> {
+        let Some(tiling) = &self.tiling else {
+            return Vec::new();
+        };
+        let rects: Vec<Rect> = tiling
+            .tiler
+            .views()
+            .into_iter()
+            .filter(|view| !view.minimized)
+            .map(|view| view.outer)
+            .collect();
+        crate::tiling::capture_slots(&rects, tiling.tiler.monitors())
+    }
+
+    /// (T5) The monitors, when due: kept for `tiling_status`, and handed
+    /// to the tiler (which lays the tables out again when they changed).
+    fn read_monitors(&mut self, now: Instant) {
+        if now < self.next_monitors {
+            return;
+        }
+        self.next_monitors = now + MONITORS_EVERY;
+        let monitors = self.platform.monitors();
+        if monitors.is_empty() || monitors == self.monitors {
+            return;
+        }
+        self.monitors = monitors;
+        if let Some(tiling) = self.tiling.as_mut() {
+            tiling.tiler.set_monitors(self.monitors.clone());
+        }
+    }
+
+    /// (T2) Tiling's answers in, the monitors when due, the tiler's moves
+    /// out to the worker (and moves the user overtook cancelled).
+    fn step_tiling(&mut self, now: Instant) {
+        let Some(tiling) = self.tiling.as_mut() else {
+            return;
+        };
+        for done in tiling.worker.results() {
+            if let Err(error) = &done.result {
+                eprintln!("rail-hud: tiling: window {}: {error}", done.id.0);
+            }
+            tiling.tiler.placed(done.id, done.seq, &done.result, now);
+        }
+        for id in tiling.tiler.take_cancels() {
+            tiling.worker.cancel(id);
+        }
+        // (T7) Turns over go back, waiting ones take a free action slot.
+        tiling.tiler.step_turns(now);
+        for m in tiling.tiler.plan() {
+            tiling.worker.place(m);
+        }
+    }
+
+    /// (T2) What a look found, for the tiler: the tables its policy allows,
+    /// each with its frame.
+    fn tile_found(&mut self, found: &[TableWindow], now: Instant) {
+        let Some(tiling) = self.tiling.as_mut() else {
+            return;
+        };
+        let mut seen = Vec::new();
+        let compliance = &self.compliance;
+        let mut names = BTreeMap::new();
+        for window in found.iter().filter(|w| tiling.takes(w, compliance)) {
+            names.insert(window.id, window.table.clone());
+            seen.push(Observed {
+                id: window.id,
+                site: window.site.clone(),
+                client: window.client,
+                scale_permille: window.scale_permille,
+                minimized: window.minimized,
+                insets: self.platform.frame_insets(window),
+            });
+        }
+        tiling.names = names;
+        let mouse = tiling.mouse(now);
+        tiling.tiler.sync(&seen, now, mouse);
+        // (T7) The Action Required slot: the rooms whose policy gives an
+        // `ActionPermit` (asked at every look: a stricter remote policy
+        // ends their turns at once), and their programs watched for turn
+        // signals only while the layout in force has such a slot.
+        tiling.rooms = found
+            .iter()
+            .filter(|w| tiling.names.contains_key(&w.id))
+            .map(|w| (w.id, (w.site.clone(), w.process.name.clone())))
+            .collect();
+        let permitted: std::collections::BTreeSet<WindowId> = tiling
+            .rooms
+            .iter()
+            .filter(|(_, (site, _))| compliance.action_permit(site).is_ok())
+            .map(|(id, _)| *id)
+            .collect();
+        tiling.tiler.end_turns_unless(&|id| permitted.contains(&id));
+        let mut watch: Vec<String> = if tiling.tiler.has_action_slot() {
+            permitted
+                .iter()
+                .filter_map(|id| tiling.rooms.get(id).map(|(_, process)| process.clone()))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        watch.sort();
+        watch.dedup();
+        if watch != tiling.watched {
+            eprintln!(
+                "rail-hud: watching {} program(s) for the Action Required slot",
+                watch.len()
+            );
+            self.platform.watch_turn_signals(&watch);
+            tiling.watched = watch;
+        }
+    }
+
     /// Run until told to stop; `out` sends to the app (never blocks).
     pub fn run(&mut self, inputs: &Receiver<Input>, out: &mut dyn FnMut(HudMessage)) -> Exit {
         let exit = loop {
@@ -517,9 +1541,14 @@ impl Hud {
                 eprintln!("rail-hud: --perf-report: {error}");
             }
         }
+        self.tiling = None;
         let ids: Vec<WindowId> = self.attached.keys().copied().collect();
         for id in ids {
             self.detach(id);
+        }
+        let ids: Vec<WindowId> = self.rng_only.keys().copied().collect();
+        for id in ids {
+            self.drop_rng_only(id);
         }
     }
 
@@ -633,6 +1662,8 @@ impl Hud {
                 timing,
             } => {
                 let table = table.as_deref().map(table_key).filter(|t| !t.is_empty());
+                // (T4) A new hand at the table: a new roll there.
+                let rolled = self.rng_new_hand(&site, table.as_deref());
                 let targets = table
                     .as_deref()
                     .map(|t| self.windows_of(&site, t))
@@ -658,6 +1689,9 @@ impl Hud {
                         let ids = several.to_vec();
                         self.ambiguous(&ids, table.as_deref().unwrap_or_default());
                     }
+                }
+                if let Some(id) = rolled {
+                    self.show_rng(id);
                 }
                 // What this message made us read is seen.
                 self.store.changed();
@@ -706,7 +1740,8 @@ impl Hud {
                 }
                 self.report_open(out);
                 self.next_find = Instant::now();
-                self.repaint_all();
+                // (T4) The RNG asks the policy again too.
+                self.refresh_rng();
             }
             AppMessage::Health { seq } => out(HudMessage::Health {
                 seq,
@@ -738,6 +1773,28 @@ impl Hud {
                     None => eprintln!("rail-hud: no permission {permission:?} to ask for"),
                 }
             }
+            // (T3) The user's tiling and RNG settings, and the tray's
+            // "Re-tile tables".
+            AppMessage::TilingChanged { settings } => {
+                if let Err(error) = self.apply_tiling_settings(&settings) {
+                    eprintln!("rail-hud: tiling: {error}");
+                }
+                self.report_tiling(Instant::now(), out);
+            }
+            AppMessage::RngChanged { settings } => {
+                if let Err(error) = self.apply_rng_settings(settings) {
+                    eprintln!("rail-hud: {error}");
+                }
+            }
+            AppMessage::Retile => self.retile(),
+            AppMessage::RollRng => {
+                self.roll_focused();
+            }
+            AppMessage::CaptureLayout { request } => out(HudMessage::LayoutCaptured {
+                request,
+                slots: self.capture_layout(),
+            }),
+            AppMessage::Panels { allowed } => self.set_panels(allowed, out),
             AppMessage::Unknown => {}
         }
         None
@@ -788,6 +1845,10 @@ impl Hud {
                 self.reread_all(now, out);
             }
         }
+        self.read_monitors(now);
+        self.step_tiling(now);
+        self.report_tiling(now, out);
+        self.step_rng(now);
     }
 
     fn find(&mut self, out: &mut dyn FnMut(HudMessage)) {
@@ -831,6 +1892,7 @@ impl Hud {
             }
         };
         let seen: Vec<WindowId> = found.iter().map(|w| w.id).collect();
+        self.tile_found(&found, Instant::now());
         let mut changed = Vec::new();
         for window in found {
             if let Some(attached) = self.attached.get_mut(&window.id) {
@@ -864,16 +1926,25 @@ impl Hud {
                 }
                 continue;
             }
-            if self.refused.contains_key(&window.id) {
-                continue;
-            }
-            match self.compliance.decide(&window.site) {
-                Ok(()) => self.attach(window, out),
-                Err(reason) => {
-                    let (id, site, table) = (window.id, window.site, window.table);
-                    self.refuse(id, &site, table, reason, out);
+            // (T3) Panels off: tiling took the window above; nothing is
+            // attached (nor refused: nothing would be drawn).
+            if self.panels && !self.refused.contains_key(&window.id) {
+                match self.compliance.decide(&window.site) {
+                    Ok(()) => {
+                        // (T4) The HUD takes it: its frame carries the RNG.
+                        self.drop_rng_only(window.id);
+                        self.attach(window, out);
+                        continue;
+                    }
+                    Err(reason) => {
+                        let (id, site, table) = (window.id, &window.site, window.table.clone());
+                        self.refuse(id, site, table, reason, out);
+                    }
                 }
             }
+            // (T4) Not attached (refused, or the panels off): the RNG alone,
+            // where it applies.
+            self.sync_rng_only(window);
         }
         let gone: Vec<WindowId> = self
             .attached
@@ -884,6 +1955,18 @@ impl Hud {
         for id in gone {
             self.detach(id);
         }
+        let gone: Vec<WindowId> = self
+            .rng_only
+            .keys()
+            .filter(|id| !seen.contains(id))
+            .copied()
+            .collect();
+        for id in gone {
+            self.drop_rng_only(id);
+        }
+        let (attached, alone) = (&self.attached, &self.rng_only);
+        self.rolls
+            .retain(|id, _| attached.contains_key(id) || alone.contains_key(id));
         self.refused.retain(|id, _| seen.contains(id));
         if changed.is_empty() {
             self.report_open(out);
@@ -1080,14 +2163,36 @@ impl Hud {
                         a.window.scale_permille = scale_permille;
                         self.platform.follow(&a.window);
                     }
+                    if let Some(r) = self.rng_only.get_mut(&id) {
+                        r.window.client = client;
+                        r.window.scale_permille = scale_permille;
+                        self.platform.follow(&r.window);
+                    }
+                    if let Some(tiling) = &mut self.tiling {
+                        let now = Instant::now();
+                        let mouse = tiling.mouse(now);
+                        tiling.tiler.moved(id, client, now, mouse);
+                    }
                 }
                 TableEvent::Minimized { id, minimized } => {
                     if let Some(a) = self.attached.get_mut(&id) {
                         a.window.minimized = minimized;
                         self.platform.follow(&a.window);
                     }
+                    if let Some(r) = self.rng_only.get_mut(&id) {
+                        r.window.minimized = minimized;
+                        self.platform.follow(&r.window);
+                    }
+                    if let Some(tiling) = &mut self.tiling {
+                        tiling.tiler.minimized(id, minimized);
+                    }
                 }
                 TableEvent::Retitled { id, title, table } => {
+                    // (T4) An RNG-only table: its name, for the hands.
+                    if let Some(r) = self.rng_only.get_mut(&id) {
+                        r.window.title.clone_from(&title);
+                        r.window.table.clone_from(&table);
+                    }
                     let moved = self.attached.get_mut(&id).is_some_and(|a| {
                         a.window.title = title;
                         let moved = a.window.table != table;
@@ -1114,9 +2219,29 @@ impl Hud {
                 }
                 TableEvent::Closed { id } => {
                     self.detach(id);
+                    self.drop_rng_only(id);
+                    self.rolls.remove(&id);
                     self.refused.remove(&id);
+                    if let Some(tiling) = &mut self.tiling {
+                        tiling.tiler.gone(id);
+                    }
                 }
                 TableEvent::Appeared => self.find_soon = true,
+                // (T7) A table's own window signal: perhaps its turn.
+                TableEvent::Signalled { id, signal } => self.turn_signal(id, signal),
+                // (T4) The RNG widget is dragged and clicked as a panel at
+                // its pseudo-slot.
+                TableEvent::PanelMoved {
+                    id,
+                    size,
+                    slot: RNG_SLOT,
+                    x,
+                    y,
+                    seq,
+                } => self.rng_moved(id, size, (x, y), seq, out),
+                TableEvent::PanelClicked {
+                    id, slot: RNG_SLOT, ..
+                } => self.rng_clicked(id),
                 TableEvent::PanelMoved {
                     id,
                     size,
@@ -1304,6 +2429,17 @@ impl Hud {
                 eprintln!("rail-hud: the HUD layouts did not read: {error}");
                 self.user_layouts_read = true;
             }
+        }
+        // (T4) Where the user put the RNG widget.
+        match self.store.rng_positions() {
+            None => {}
+            Some(Ok(found)) => {
+                self.rng_positions = found
+                    .into_iter()
+                    .map(|p| ((p.site, p.size), (p.x, p.y)))
+                    .collect();
+            }
+            Some(Err(error)) => eprintln!("rail-hud: the RNG positions did not read: {error}"),
         }
     }
 
@@ -1505,11 +2641,16 @@ impl Hud {
         self.repaint(id);
     }
 
-    /// Every attached window again (a layout or a preferred seat changed).
+    /// Every attached window again (a layout or a preferred seat changed),
+    /// and (T4) every RNG-only one.
     fn repaint_all(&mut self) {
         let ids: Vec<WindowId> = self.attached.keys().copied().collect();
         for id in ids {
             self.repaint(id);
+        }
+        let ids: Vec<WindowId> = self.rng_only.keys().copied().collect();
+        for id in ids {
+            self.repaint_rng_only(id);
         }
     }
 
@@ -1533,12 +2674,20 @@ impl Hud {
                 return;
             }
         };
+        // (T4) The RNG beside the panels, under its own permit.
+        let window_site = attached.window.site.clone();
+        self.ensure_roll(id, &window_site);
+        let rng = self.rng_shown(id, &window_site);
         let design = self.design_of(id);
         let Some(attached) = self.attached.get(&id) else {
             return;
         };
         let site = attached.window.site.as_str();
         let size = Self::size_of(attached);
+        let mut positions = self.rooms.positions(site, size);
+        if rng.is_some() {
+            self.with_rng_position(site, size, &mut positions);
+        }
         let seating = Seating {
             layout: self.rooms.layout(site, size),
             rotate_to: if self.rooms.rotates(site) {
@@ -1546,12 +2695,13 @@ impl Hud {
             } else {
                 None
             },
-            positions: self.rooms.positions(site, size),
+            positions,
             drags_seen: attached.drags_seen,
         };
         let (status, panels) = attached.shown.clone();
         let frame = OverlayFrame {
-            permit,
+            permit: Some(permit),
+            rng,
             // Only ever set in a debug build (`reread`).
             debug: attached.debug.clone().filter(|_| status.is_none()),
             status,

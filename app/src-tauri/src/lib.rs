@@ -66,7 +66,10 @@
 //! - updates ([`updates`]): Settings, Updates checks the release's
 //!   `latest.json` (by itself too, while the setting is on), downloads and
 //!   verifies the package, and installs it and restarts on the user's click
-//!   (`tauri-plugin-updater`, called from Rust only).
+//!   (`tauri-plugin-updater`, called from Rust only);
+//! - (T7) table tiling's global hotkeys ([`hotkeys`],
+//!   `tauri-plugin-global-shortcut`, added in `setup` and called from Rust
+//!   only; no plugin permission for the window).
 
 use std::sync::Mutex;
 
@@ -86,6 +89,7 @@ pub mod folder_settings;
 pub mod folders;
 pub mod hand_time;
 pub mod hands;
+pub mod hotkeys;
 pub mod hud;
 pub mod hud_editor;
 pub mod manual_import;
@@ -101,6 +105,7 @@ pub mod share;
 pub mod stats;
 pub mod strings;
 pub mod sync;
+pub mod tiling;
 pub mod tray;
 pub mod updates;
 pub mod watch;
@@ -303,6 +308,12 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     watch::spawn_tray_refresher(app);
     // (R3.10) The tray's HUD line.
     hud::spawn_tray_refresher(app);
+    // (T7) Table tiling's global hotkeys, bound from the stored settings.
+    let bindings = app
+        .try_state::<hud::HudState>()
+        .map(|hud| hud.table_settings().tiling.hotkeys)
+        .unwrap_or_default();
+    hotkeys::setup(app, &bindings);
 
     // The account (R1.7): after the tray (it sets the account line), and
     // before the window shows, so a link that started the app is handled.
@@ -435,6 +446,8 @@ pub fn run() {
         hands::hand_set_note,
         hands::hand_add_tag,
         hands::hand_remove_tag,
+        hands::hands_marks,
+        hands::hands_mark,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
@@ -459,6 +472,14 @@ pub fn run() {
         hud::hud_set_preferred_seat,
         hud::hud_set_seat_position,
         hud::hud_reset_seat_positions,
+        tiling::get_tiling_settings,
+        tiling::set_tiling_settings,
+        tiling::get_rng_settings,
+        tiling::set_rng_settings,
+        tiling::retile_tables,
+        tiling::capture_tiling_layout,
+        hotkeys::hotkey_status,
+        hotkeys::hotkeys_pause,
         policy::hud_policy,
         policy::hud_policy_check,
         policy::hud_open_policy_source,
@@ -574,6 +595,8 @@ pub fn run() {
         hands::hand_set_note,
         hands::hand_add_tag,
         hands::hand_remove_tag,
+        hands::hands_marks,
+        hands::hands_mark,
         hands::saved_filters,
         hands::save_filter,
         hands::delete_saved_filter,
@@ -598,6 +621,14 @@ pub fn run() {
         hud::hud_set_preferred_seat,
         hud::hud_set_seat_position,
         hud::hud_reset_seat_positions,
+        tiling::get_tiling_settings,
+        tiling::set_tiling_settings,
+        tiling::get_rng_settings,
+        tiling::set_rng_settings,
+        tiling::retile_tables,
+        tiling::capture_tiling_layout,
+        hotkeys::hotkey_status,
+        hotkeys::hotkeys_pause,
         policy::hud_policy,
         policy::hud_policy_check,
         policy::hud_open_policy_source,

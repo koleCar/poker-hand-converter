@@ -280,8 +280,28 @@ import type { Position, Street } from "../phf/types";
  *               placed on that set are graded from its solves like the
  *               other sets' (ANALYSIS-PLAN §10 2026-10-31, the heads-up
  *               150bb flop library).
+ *   analysis/38 Following the real line onto a solved tree (river, turn
+ *               and flop library alike), either player's size the solve
+ *               takes under `MIN_LINE_REACH` (2%) is remapped to the
+ *               nearest size it takes at least that often - the hero's own
+ *               earlier sizes too; before, only the opponent's, under 1%.
+ *               Such an edge could only end the line `*-unreached`, so only
+ *               lines that were unreached move, and the streets whose
+ *               ranges start from them (ANALYSIS-PLAN §10 2026-11-07).
+ *   analysis/39 A hero preflop decision at an effective stack no set of its
+ *               table covers (`chart-stack-depth`) is graded on the nearest
+ *               charted depth below or above, at most 5/3 of a depth step
+ *               away (`MAX_UNCOVERED_RATIO`: a 9-max 60bb spot is read at
+ *               100bb), with `uncovered-depth`, capped at Inaccurate
+ *               (docs/CHARTS.md §7.3, ANALYSIS-PLAN §10 2026-11-08).
+ *   analysis/40 `charts/10`: the 9-max 60bb chart set. 7-9 handed spots at
+ *               48-72bb effective are graded on it instead of refused or
+ *               read at 100bb; 9-max spots under 48bb read it as their
+ *               uncovered neighbour, and 9-max 100bb rare lines that the
+ *               150bb set leaves out too try it (docs/CHARTS.md §6.11,
+ *               ANALYSIS-PLAN §10 2026-11-08/09).
  */
-export const ANALYSIS_VERSION = "analysis/37" as const;
+export const ANALYSIS_VERSION = "analysis/40" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -511,6 +531,11 @@ export interface Flag {
  *                       set's depth to be charted there (`rare-line`), and is
  *                       read on the neighbouring depth of the same table that
  *                       charts it (docs/CHARTS.md §7.1). Capped at Inaccurate.
+ * - `uncovered-depth`   (analysis/39) no set of the table covers the spot's
+ *                       effective stack (`stack-depth`), and it is read on the
+ *                       nearest charted depth below or above, at most 5/3 of
+ *                       a depth step away (`MAX_UNCOVERED_RATIO`,
+ *                       docs/CHARTS.md §7.3). Capped at Inaccurate.
  *
  * Multiway (A9):
  *
@@ -600,6 +625,7 @@ export const APPROXIMATIONS = [
   "library-bucketed",
   "limp-tremble",
   "rare-line-depth",
+  "uncovered-depth",
   "multiway-approx",
   "multiway-history",
   "flop-realisation",
@@ -682,8 +708,10 @@ export type ChartSkipReason = (typeof CHART_SKIP_REASONS)[number];
  * - `river-off-tree`      the line left the solver's tree: more raises than
  *                         its cap, or an action it has no edge for.
  * - `river-unreached`     the solved strategies (almost) never take this line
- *                         with the narrowed ranges: under 0.5% of a range
- *                         reaches the decision, so its strategy is noise.
+ *                         with the narrowed ranges: under 2% of a range
+ *                         reaches the decision (`MIN_LINE_REACH`) even after
+ *                         every size is remapped to one the solve takes, so
+ *                         its strategy is noise.
  * - `river-solve-failed`  the solver refused the spot (a bug, never a guess).
  */
 export const RIVER_SKIP_REASONS = [

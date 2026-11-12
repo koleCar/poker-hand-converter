@@ -30,8 +30,9 @@
 //!   (`crate::popup`), and the window hears [`TABLES_OPEN_EVENT`] on the
 //!   edges of `tables_open` - while tables are open it hides its analysis
 //!   (A10), and the popup closes when the last table does;
-//!   `seat_position_changed` (R3.6: the user dragged a panel) is written to
-//!   the store by a thread of its own ([`LayoutWrites`]) - the HUD's
+//!   `seat_position_changed` (R3.6: the user dragged a panel) and (T4)
+//!   `rng_position_changed` (the RNG widget dragged) are written to the
+//!   store by a thread of its own ([`LayoutWrites`]) - the HUD's
 //!   connection is read-only, and the supervisor's callback never waits for
 //!   a commit.
 //! - **The user's HUD settings** (R3.6): [`hud_set_preferred_seat`] (their
@@ -60,9 +61,19 @@
 //!   `--policy <the cached remote sites.json>` (read before its first look
 //!   for tables), and hears `policy {remote}` on every connection and every
 //!   change - stricter only, merged by the HUD itself.
+//! - **Table tiling and the RNG** (T3, `crate::tiling`): the user's
+//!   settings are kept here ([`HudState::table_settings`]) and sent as
+//!   `tiling_changed` / `rng_changed` on every change and after every
+//!   handshake, with `panels {allowed}`; `retile` from the tray and the
+//!   window; the HUD's `tiling_status` is in [`hud_status`]. They are free:
+//!   when the plan holds the HUD back (R6.4) and tiling or the RNG is on,
+//!   the HUD still starts, with `--panels off` - it attaches no panel, the
+//!   status stays `locked` - and a plan that includes the HUD later turns
+//!   the panels on (`panels {allowed: true}`) without a restart.
 
+use std::collections::BTreeMap;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::mpsc::{self, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -70,6 +81,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use rail_hud_ipc::protocol::{
     AppMessage, AttachedTable, HandTiming, HealthReport, HudMessage, PlayerRef, RefusalReason,
 };
+use rail_hud_ipc::protocol::{MonitorInfo, TiledTable};
+use rail_hud_ipc::settings::{RngSettings, Slot, TilingSettings};
 use rail_hud_ipc::supervisor::{Event, Supervisor, SupervisorConfig};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, Runtime, State};
@@ -77,6 +90,7 @@ use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 use crate::commands::StoreState;
 use crate::stats::StatsState;
 use crate::sync::SyncSlot;
+use crate::tiling::TableSettings;
 
 /// The window event for "show this player" from a HUD popup (R3.8); the
 /// payload is `{site, name, scope}`.
@@ -201,10 +215,37 @@ impl Windows {
     }
 }
 
+/// (T3) What the HUD last said about table tiling (`tiling_status`).
+#[derive(Debug, Default, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct TilingStatusDto {
+    pub enabled: bool,
+    pub tables: u32,
+    /// The layout in force (`auto`, or a user layout's id).
+    pub layout: Option<String>,
+    /// (T5) The monitors, in the order layouts name them (sent whether
+    /// tiling is on or off).
+    pub monitors: Vec<MonitorInfo>,
+    /// (T5) The tables tiling manages, each at its outer rect (frame
+    /// included), physical pixels in the monitors' space.
+    pub windows: Vec<TiledTable>,
+}
+
+/// (T5) How long "Save current arrangement" waits for the HUD's answer.
+const CAPTURE_WAIT: Duration = Duration::from_secs(3);
+
 #[derive(Debug, Default)]
 struct Shared {
     tables_open: AtomicU32,
     windows: Mutex<Windows>,
+    /// (T3) The user's tiling and RNG settings, sent after every handshake.
+    table_settings: Mutex<TableSettings>,
+    /// (T3) The HUD's last `tiling_status` (`None`: none since it
+    /// connected).
+    tiling: Mutex<Option<TilingStatusDto>>,
+    /// (T5) `capture_layout` requests waiting for the HUD's answer.
+    captures: Mutex<BTreeMap<u64, tokio::sync::oneshot::Sender<Vec<Slot>>>>,
+    next_capture: AtomicU64,
     /// [`HudState::stop`] is running: the events touch nothing of the app's
     /// windows or tray. `stop` runs on the main thread (the app's exit) and
     /// waits for the supervisor's thread, while a tray or window call from
@@ -215,6 +256,22 @@ struct Shared {
 impl Shared {
     fn windows(&self) -> std::sync::MutexGuard<'_, Windows> {
         self.windows.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn table_settings(&self) -> std::sync::MutexGuard<'_, TableSettings> {
+        self.table_settings
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn tiling(&self) -> std::sync::MutexGuard<'_, Option<TilingStatusDto>> {
+        self.tiling.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn captures(
+        &self,
+    ) -> std::sync::MutexGuard<'_, BTreeMap<u64, tokio::sync::oneshot::Sender<Vec<Slot>>>> {
+        self.captures.lock().unwrap_or_else(PoisonError::into_inner)
     }
 }
 
@@ -265,7 +322,9 @@ impl HudFeed {
 struct SeatWrite {
     site: String,
     size: u32,
-    slot: u32,
+    /// The seat's slot; (T4) `None`: the RNG widget (`hud_settings` kind
+    /// `rng`, per room and size).
+    slot: Option<u32>,
     x: u32,
     y: u32,
 }
@@ -286,19 +345,27 @@ impl LayoutWrites {
             .name("rail-hud-layouts".to_owned())
             .spawn(move || {
                 while let Ok(write) = rx.recv() {
-                    match writer.set_hud_seat_position(
-                        &write.site,
-                        write.size,
-                        write.slot,
-                        write.x,
-                        write.y,
-                    ) {
+                    let written = match write.slot {
+                        Some(slot) => writer.set_hud_seat_position(
+                            &write.site,
+                            write.size,
+                            slot,
+                            write.x,
+                            write.y,
+                        ),
+                        None => {
+                            writer.set_hud_rng_position(&write.site, write.size, write.x, write.y)
+                        }
+                    };
+                    match written {
                         Ok(()) => {
                             log::info!(
-                                "hud: {} {}-seat panel {} now at ({}, {})",
+                                "hud: {} {}-seat {} now at ({}, {})",
                                 write.site,
                                 write.size,
-                                write.slot,
+                                write
+                                    .slot
+                                    .map_or_else(|| "RNG".to_owned(), |s| format!("panel {s}")),
                                 write.x,
                                 write.y
                             );
@@ -403,6 +470,8 @@ impl HudState {
             Some(Ok(writer)) => LayoutWrites::start(writer, Arc::clone(&sync)),
             _ => LayoutWrites::default(),
         };
+        // (T3) The user's tiling and RNG settings, for every handshake.
+        *shared.table_settings() = crate::tiling::read_store(store);
 
         let on_event = {
             let app = app.clone();
@@ -435,17 +504,44 @@ impl HudState {
     /// HUD not started stays so (the screen shows the lock); **one already
     /// running is never stopped** - a session at the tables is not cut
     /// mid-hand; the plan applies from the app's next start.
+    ///
+    /// (T3) Table tiling and the RNG are free: not allowed, with either on,
+    /// the HUD starts all the same with no panels (`--panels off`; the
+    /// status says `locked`). Allowed later, that HUD draws its panels from
+    /// its next look (`panels {allowed: true}`).
     pub fn apply_plan(&self, allowed: bool) {
-        if self.supervisor().is_some() {
-            if !allowed {
+        if let Some(supervisor) = self.supervisor() {
+            if allowed && self.locked.swap(false, Ordering::SeqCst) {
+                log::info!("hud: the plan includes the HUD now: panels on");
+                supervisor.send(AppMessage::Panels { allowed: true });
+            } else if !allowed && !self.locked.load(Ordering::SeqCst) {
                 log::info!("hud: the plan no longer includes the HUD; it stops at the next start");
             }
             return;
         }
         self.locked.store(!allowed, Ordering::SeqCst);
-        if !allowed {
-            return;
+        if allowed {
+            self.start_pending(false);
+        } else {
+            self.start_for_tiling();
         }
+    }
+
+    /// (T3) The plan holds the HUD back, it has not started, and tiling or
+    /// the RNG is on: start it for them alone (no panels).
+    fn start_for_tiling(&self) {
+        if self.supervisor().is_none()
+            && self.locked.load(Ordering::SeqCst)
+            && self.shared.table_settings().wanted()
+        {
+            log::info!("hud: starting for table tiling and the RNG only (no panels)");
+            self.start_pending(true);
+        }
+    }
+
+    /// Start the HUD prepared at [`HudState::start`] (once); `panels_off`:
+    /// `--panels off` (T3).
+    fn start_pending(&self, panels_off: bool) {
         let Some(pending) = self
             .pending
             .lock()
@@ -454,7 +550,14 @@ impl HudState {
         else {
             return;
         };
-        let Pending { config, on_event } = pending;
+        let Pending {
+            mut config,
+            on_event,
+        } = pending;
+        if panels_off {
+            config.args.push("--panels".into());
+            config.args.push("off".into());
+        }
         match Supervisor::start(config, on_event) {
             Ok(supervisor) => {
                 let _ = self.supervisor.set(Arc::new(supervisor));
@@ -547,6 +650,119 @@ impl HudState {
         }
     }
 
+    /// (T3) The user's tiling and RNG settings as the HUD has them.
+    pub fn table_settings(&self) -> TableSettings {
+        self.shared.table_settings().clone()
+    }
+
+    /// (T3) The user saved tiling settings (stored already): the HUD applies
+    /// them - started for them if the plan held it back - and the sync
+    /// worker sends them now.
+    pub fn tiling_written(&self, settings: TilingSettings) {
+        self.shared.table_settings().tiling = settings.clone();
+        match self.supervisor() {
+            Some(supervisor) => {
+                supervisor.send(AppMessage::TilingChanged { settings });
+            }
+            None => self.start_for_tiling(),
+        }
+        self.wake_sync();
+    }
+
+    /// (T3) The user saved RNG settings (stored already): the HUD keeps
+    /// them, and the sync worker sends them now.
+    pub fn rng_written(&self, settings: RngSettings) {
+        self.shared.table_settings().rng = settings.clone();
+        match self.supervisor() {
+            Some(supervisor) => {
+                supervisor.send(AppMessage::RngChanged { settings });
+            }
+            None => self.start_for_tiling(),
+        }
+        self.wake_sync();
+    }
+
+    /// (T3) A sync pull read the settings again: what changed reaches the
+    /// HUD. Whether anything changed.
+    pub fn settings_pulled(&self, now: TableSettings) -> bool {
+        let before = std::mem::replace(&mut *self.shared.table_settings(), now.clone());
+        if before == now {
+            return false;
+        }
+        match self.supervisor() {
+            Some(supervisor) => {
+                if before.tiling != now.tiling {
+                    supervisor.send(AppMessage::TilingChanged {
+                        settings: now.tiling,
+                    });
+                }
+                if before.rng != now.rng {
+                    supervisor.send(AppMessage::RngChanged { settings: now.rng });
+                }
+            }
+            None => self.start_for_tiling(),
+        }
+        true
+    }
+
+    /// (T5) "Save current arrangement": the HUD's slots for the places of
+    /// the tables it tiles now (thousandths of each monitor's work area),
+    /// for a user layout the window then saves. Fails when no HUD is
+    /// connected or it does not answer within [`CAPTURE_WAIT`] (an older
+    /// HUD ignores the request).
+    pub async fn capture_layout(&self) -> Result<Vec<Slot>, String> {
+        let supervisor = self
+            .supervisor()
+            .filter(|supervisor| supervisor.is_connected())
+            .ok_or("the HUD is not running")?;
+        let request = self.shared.next_capture.fetch_add(1, Ordering::SeqCst) + 1;
+        let (answer, answered) = tokio::sync::oneshot::channel();
+        self.shared.captures().insert(request, answer);
+        if !supervisor.send(AppMessage::CaptureLayout { request }) {
+            self.shared.captures().remove(&request);
+            return Err("the HUD is not running".into());
+        }
+        match tokio::time::timeout(CAPTURE_WAIT, answered).await {
+            Ok(Ok(slots)) => Ok(slots),
+            _ => {
+                self.shared.captures().remove(&request);
+                Err("the HUD did not answer".into())
+            }
+        }
+    }
+
+    /// (T3) Lay every tiled table out again ("Re-tile tables"). Whether the
+    /// HUD heard it.
+    pub fn retile(&self) -> bool {
+        self.send(AppMessage::Retile)
+    }
+
+    /// (T7) A message for the HUD (a hotkey's `retile` / `roll_rng`).
+    /// Whether it was sent (no HUD running: not).
+    pub fn send(&self, message: AppMessage) -> bool {
+        self.supervisor()
+            .is_some_and(|supervisor| supervisor.send(message))
+    }
+
+    /// What a HUD that just connected needs besides the policy: whether it
+    /// draws panels (R6.4: a restarted HUD may have been started without
+    /// them) and (T3) the user's tiling and RNG settings.
+    fn send_state(&self) {
+        let Some(supervisor) = self.supervisor() else {
+            return;
+        };
+        supervisor.send(AppMessage::Panels {
+            allowed: !self.locked.load(Ordering::SeqCst),
+        });
+        let settings = self.table_settings();
+        supervisor.send(AppMessage::TilingChanged {
+            settings: settings.tiling,
+        });
+        supervisor.send(AppMessage::RngChanged {
+            settings: settings.rng,
+        });
+    }
+
     /// (R5.4, A10) The poker tables the HUD has open now: the analysis does
     /// not run while there is one.
     pub fn tables_open(&self) -> u32 {
@@ -565,7 +781,12 @@ impl HudState {
     pub fn status(&self) -> HudStatusDto {
         let windows = self.shared.windows().clone();
         let tables_open = self.shared.tables_open.load(Ordering::SeqCst);
-        let Some(supervisor) = self.supervisor() else {
+        let tiling = self.shared.tiling().clone();
+        let locked = self.locked.load(Ordering::SeqCst);
+        // (T3) Running for tiling and the RNG only: the HUD itself is still
+        // held by the plan.
+        let tiling_only = locked && self.supervisor().is_some();
+        let Some(supervisor) = self.supervisor().filter(|_| !locked) else {
             let error = self
                 .error
                 .lock()
@@ -579,7 +800,7 @@ impl HudState {
                     .is_some();
             // (R6.4) Held by the plan, or about to start (the plan is read
             // right after the account, a moment into the app's start).
-            let phase = match (waiting, self.locked.load(Ordering::SeqCst)) {
+            let phase = match (waiting || tiling_only, locked) {
                 (true, true) => "locked",
                 (true, false) => "starting",
                 _ => "off",
@@ -588,6 +809,7 @@ impl HudState {
                 phase,
                 error,
                 tables_open,
+                tiling,
                 ..HudStatusDto::default()
             };
         };
@@ -614,6 +836,7 @@ impl HudState {
                 .health_age
                 .map(|age| u64::try_from(age.as_millis()).unwrap_or(u64::MAX)),
             dropped: status.dropped,
+            tiling,
         }
     }
 }
@@ -745,6 +968,8 @@ fn on_event<R: Runtime>(
             // file the process read at start).
             if let Some(hud) = app.try_state::<HudState>() {
                 hud.policy_changed(crate::policy::remote());
+                // (T3) Panels or not, and the tiling and RNG settings.
+                hud.send_state();
             }
             refresh_tray(app);
         }
@@ -759,7 +984,8 @@ fn on_event<R: Runtime>(
                 *windows = Windows::default();
                 changed
             };
-            if changed {
+            let tiling_gone = shared.tiling().take().is_some();
+            if changed || tiling_gone {
                 status_changed(app);
             }
             refresh_tray(app);
@@ -844,10 +1070,44 @@ fn on_event<R: Runtime>(
             } => layouts.queue(SeatWrite {
                 site,
                 size,
-                slot,
+                slot: Some(slot),
                 x,
                 y,
             }),
+            // (T4) The RNG widget dragged: its room and size's position.
+            HudMessage::RngPositionChanged { site, size, x, y } => layouts.queue(SeatWrite {
+                site,
+                size,
+                slot: None,
+                x,
+                y,
+            }),
+            // (T3) Tiling's state, for the HUD screen (T5).
+            HudMessage::TilingStatus {
+                enabled,
+                tables,
+                layout,
+                monitors,
+                windows,
+            } => {
+                let now = TilingStatusDto {
+                    enabled,
+                    tables,
+                    layout,
+                    monitors,
+                    windows,
+                };
+                let changed = shared.tiling().replace(now.clone()) != Some(now);
+                if changed {
+                    status_changed(app);
+                }
+            }
+            // (T5) The answer to "Save current arrangement".
+            HudMessage::LayoutCaptured { request, slots } => {
+                if let Some(answer) = shared.captures().remove(&request) {
+                    let _ = answer.send(slots);
+                }
+            }
             HudMessage::Unknown => {}
         },
     }
@@ -991,6 +1251,9 @@ pub struct HudStatusDto {
     reread_p95_us: u64,
     health_age_ms: Option<u64>,
     dropped: u64,
+    /// (T3) Table tiling, as the HUD last said (`None`: not since it
+    /// connected).
+    tiling: Option<TilingStatusDto>,
 }
 
 /// The HUD process's status.
@@ -1178,9 +1441,17 @@ mod tests {
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: 2,
+            slot: Some(2),
             x: 300,
             y: 640,
+        });
+        // (T4) The RNG widget's, as `rng_position_changed` brings it.
+        layouts.queue(SeatWrite {
+            site: "acr".into(),
+            size: 9,
+            slot: None,
+            x: 950,
+            y: 40,
         });
         let deadline = std::time::Instant::now() + Duration::from_secs(10);
         let reader = rail_store::Reader::open(&store.path, 1).expect("reader");
@@ -1196,11 +1467,20 @@ mod tests {
             assert!(std::time::Instant::now() < deadline, "not written");
             std::thread::sleep(Duration::from_millis(20));
         }
+        loop {
+            let found = reader.hud_rng_positions().expect("read");
+            if let [p] = found.as_slice() {
+                assert_eq!((p.site.as_str(), p.size, p.x, p.y), ("acr", 9, 950, 40));
+                break;
+            }
+            assert!(std::time::Instant::now() < deadline, "not written");
+            std::thread::sleep(Duration::from_millis(20));
+        }
         // A position out of range is refused, quietly (logged).
         layouts.queue(SeatWrite {
             site: "acr".into(),
             size: 6,
-            slot: 9,
+            slot: Some(9),
             x: 0,
             y: 0,
         });
@@ -1549,6 +1829,81 @@ mod tests {
             hud.supervisor().is_some() && hud.status().phase != "locked",
             "a running HUD is not stopped"
         );
+        hud.stop();
+        stats.stop();
+        drop(store);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// (T3) Tiling and the RNG are free: with tiling on, a plan without
+    /// the HUD still starts it - with no panels, the status `locked` - and
+    /// a plan with the HUD later keeps that process (panels on). Tiling
+    /// off: held back as before. Saved settings are what a HUD gets.
+    #[test]
+    fn tiling_starts_the_hud_without_panels_on_the_free_plan() {
+        if std::env::var(DISABLE_VAR).is_ok_and(|v| v.eq_ignore_ascii_case("off")) {
+            return;
+        }
+        let dir = std::env::temp_dir().join(format!("rail-app-hud-tiling-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let store = StoreState::open(dir.join(rail_store::FILE_NAME));
+        let stats = StatsState::start(&store);
+        let app = tauri::test::mock_builder()
+            .build(tauri::test::mock_context(tauri::test::noop_assets()))
+            .expect("a mock app");
+        let start = || {
+            HudState::start(
+                app.handle(),
+                &store,
+                stats.clone(),
+                SyncSlot::default(),
+                None,
+            )
+        };
+
+        // Tiling off: the plan holds it back.
+        let hud = start();
+        hud.apply_plan(false);
+        assert!(hud.supervisor().is_none());
+        assert_eq!(hud.status().phase, "locked");
+        // (T5) No HUD: nothing to capture a layout from.
+        assert!(tauri::async_runtime::block_on(hud.capture_layout()).is_err());
+        // Switched on: it starts, panels off, still `locked`.
+        hud.tiling_written(TilingSettings {
+            enabled: true,
+            ..TilingSettings::default()
+        });
+        assert!(hud.supervisor().is_some(), "started for tiling");
+        assert_eq!(hud.status().phase, "locked");
+        assert_eq!(tray_line(&hud.status()), "HUD: needs Rail Pro");
+        assert!(hud.table_settings().tiling.enabled);
+        hud.stop();
+
+        // Saved on: a plan without the HUD starts it at once.
+        crate::tiling::write_tiling(
+            &store
+                .store
+                .as_ref()
+                .expect("store")
+                .writer()
+                .expect("writer"),
+            &TilingSettings {
+                enabled: true,
+                ..TilingSettings::default()
+            },
+        )
+        .expect("saved");
+        let hud = start();
+        assert!(hud.table_settings().tiling.enabled, "read at start");
+        hud.apply_plan(false);
+        assert!(hud.supervisor().is_some());
+        assert_eq!(hud.status().phase, "locked");
+        hud.apply_plan(false);
+        assert_eq!(hud.status().phase, "locked", "still held");
+        // The plan includes the HUD now: the same process, panels on.
+        hud.apply_plan(true);
+        let phase = hud.status().phase;
+        assert!(!matches!(phase, "locked" | "off"), "{phase}");
         hud.stop();
         stats.stop();
         drop(store);

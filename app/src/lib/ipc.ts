@@ -484,6 +484,12 @@ export interface HandAnnotations {
   tags: string[];
 }
 
+/** A hand list's "Mark" menu (`hands_marks`): the tags in use, the most used first, and the chosen hands' own. */
+export interface HandMarks {
+  known: string[];
+  hands: { handKey: string; tags: string[] }[];
+}
+
 export interface SavedFilter {
   id: number;
   name: string;
@@ -838,6 +844,148 @@ export interface HudStatus {
   permissionNeeded: string | null;
   /** (R3.11) Missing, but no supported poker client runs: say so, ask nothing. */
   permissionDeferred: string | null;
+  /** (T3, T5) Table tiling as the HUD last said; `null`: not since it connected. */
+  tiling: TilingStatus | null;
+}
+
+/** `rail_hud_ipc::protocol::ScreenRect`: physical pixels, the primary monitor's top-left the origin. */
+export interface ScreenRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** `rail_hud_ipc::protocol::MonitorInfo` (T5): a monitor as tiling sees it. */
+export interface MonitorInfo {
+  /** Its place in the order layouts name monitors: 0 the primary, then left to right. */
+  index: number;
+  primary: boolean;
+  bounds: ScreenRect;
+  /** Without the taskbar, menu bar or Dock. */
+  workArea: ScreenRect;
+  scalePermille: number;
+}
+
+/** `rail_hud_ipc::protocol::TiledTable` (T5): a table tiling manages, at its outer rect (frame included). */
+export interface TiledTable {
+  site: string;
+  table?: string | null;
+  rect: ScreenRect;
+  /** `MonitorInfo.index`. */
+  monitor: number;
+  /** Shares its slot with another table. */
+  stacked?: boolean;
+  /** Moved by hand: left where it is until "Re-tile". */
+  pinned?: boolean;
+}
+
+/** `hud::TilingStatusDto` (T3, T5): what the HUD last said about tiling. */
+export interface TilingStatus {
+  enabled: boolean;
+  tables: number;
+  /** `auto` or a user layout's id; `null` while off or before a table. */
+  layout: string | null;
+  monitors: MonitorInfo[];
+  windows: TiledTable[];
+}
+
+/** `rail_hud_ipc::settings::SlotRect`: thousandths of a monitor's work area. */
+export interface SlotRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** `rail_hud_ipc::settings::Slot`. */
+export interface TilingSlot {
+  id: string;
+  monitor: number;
+  rect: SlotRect;
+  /** (T7) `action`: an Action Required slot; `other`: a newer build's kind (never given a table). */
+  kind: "play" | "lobby" | "action" | "other";
+  rooms: string[] | null;
+  stack: boolean;
+}
+
+/** `rail_hud_ipc::settings::AutoSwitch`. */
+export interface AutoSwitch {
+  minTables: number;
+  layoutId: string;
+}
+
+/** `rail_hud_ipc::settings::Layout`: a user layout. */
+export interface TilingLayout {
+  id: string;
+  name: string;
+  slots: TilingSlot[];
+  autoSwitch: AutoSwitch[];
+}
+
+/** `rail_hud_ipc::settings::LayoutRef`. */
+export type LayoutRef = { kind: "auto" } | { kind: "custom"; id: string };
+
+/** `rail_hud_ipc::settings::TilingSettings` (T3). */
+export interface TilingSettings {
+  enabled: boolean;
+  active: LayoutRef;
+  layouts: TilingLayout[];
+  autoSwitch: AutoSwitch[];
+  closeGaps: boolean;
+  /** A room not listed is on. */
+  perRoom: Record<string, boolean>;
+  /** (T7) The global hotkeys; none by default. Absent from an older build's row. */
+  hotkeys?: HotkeyBinding[];
+}
+
+/**
+ * `rail_hud_ipc::hotkeys::HotkeyAction` (T7): what a global hotkey does.
+ * A newer build's action reads as `unknown` on the Rust side.
+ */
+export type HotkeyAction = "retile" | "nextLayout" | "previousLayout" | "toggleTiling" | "rollRng" | "unknown";
+
+/** `rail_hud_ipc::hotkeys::HotkeyBinding`: `keys` as `Ctrl+Alt+Shift+Super+KeyR` (modifiers in that order, then a `KeyboardEvent.code`). */
+export interface HotkeyBinding {
+  action: HotkeyAction;
+  keys: string;
+}
+
+/** `hotkeys::HotkeyStatusDto` (T7): a binding and how it stands with the system. */
+export interface HotkeyStatus {
+  action: HotkeyAction;
+  keys: string;
+  /** `taken`: another program holds the keys; `failed`: the system refused them; `paused`: while a key is recorded. */
+  state: "active" | "taken" | "failed" | "paused";
+}
+
+/** `rail_hud_ipc::settings::RngBand`: the numbers up to `upTo` in `colour` (`#rrggbb`). */
+export interface RngBand {
+  upTo: number;
+  colour: string;
+  label?: string | null;
+}
+
+/** `rail_hud_ipc::settings::RngTriggers`. */
+export interface RngTriggers {
+  newHand: boolean;
+  click: boolean;
+  /** Every this many seconds; absent: no timer. */
+  timerSecs?: number | null;
+}
+
+/** `rail_hud_ipc::settings::RngSettings` (T3). */
+export interface RngSettings {
+  enabled: boolean;
+  min: number;
+  max: number;
+  bands: RngBand[];
+  triggers: RngTriggers;
+  perRoom: Record<string, boolean>;
+  /** (T5 follow-up) The widget's size, percent (50 - 200); the Rust side fills in 100 when a stored row has none. */
+  scale?: number;
+  /** (T5 follow-up) Its opacity, percent (30 - 100); 100 when none is stored. */
+  opacity?: number;
 }
 
 /** `rail_config::model::SiteKind`. */
@@ -860,6 +1008,23 @@ export interface RoomPolicy {
   restrictions: HudRestrictions | null;
   /** An update of the room list made it stricter than this version's own copy. */
   stricterThanShipped: boolean;
+  /** (T5) The client is closed. */
+  closed: boolean;
+  /** (T0, T5) Table tiling's policy, separate from the HUD's. */
+  tiling: ToolPolicy;
+  /** (T0, T5) The RNG's policy. */
+  rng: ToolPolicy;
+  /** (T7) The Action Required slot's: `permitted` only with tiling allowed and a turn signal for this system. */
+  actionSlot: ToolPolicy;
+}
+
+/** `policy::ToolPolicyDto` (T5): a room's word on tiling or the RNG, decided on the Rust side. */
+export interface ToolPolicy {
+  allowed: boolean | null;
+  /** A room, allowed: what the HUD acts on. */
+  permitted: boolean;
+  /** Prohibited until the room approves Rail (Winamax). */
+  needsApproval: boolean;
 }
 
 /** `rail_sync::policy::Outcome`: how the last look for a new room list went. */
@@ -1295,6 +1460,10 @@ export const ipc = {
   handSetNote: (handKey: string, note: string) => invoke<HandAnnotations>("hand_set_note", { handKey, note }),
   handAddTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_add_tag", { handKey, tag }),
   handRemoveTag: (handKey: string, tag: string) => invoke<HandAnnotations>("hand_remove_tag", { handKey, tag }),
+  handsMarks: (handKeys: string[]) => invoke<HandMarks>("hands_marks", { handKeys }),
+  /** Put a tag on every hand of `handKeys` (`on`) or take it off; each hand's note and tags after. */
+  handsMark: (handKeys: string[], tag: string, on: boolean) =>
+    invoke<HandAnnotated[]>("hands_mark", { handKeys, tag, on }),
   savedFilters: (screen: FilterScreen = "hands") => invoke<SavedFilter[]>("saved_filters", { screen }),
   saveFilter: (name: string, filter: string, screen: FilterScreen = "hands") =>
     invoke<SavedFilter[]>("save_filter", { name, filter, screen }),
@@ -1340,6 +1509,16 @@ export const ipc = {
   hudPolicy: () => invoke<HudPolicy>("hud_policy"),
   hudPolicyCheck: () => invoke<HudPolicy>("hud_policy_check"),
   hudOpenPolicySource: (site: string) => invoke<null>("hud_open_policy_source", { site }),
+  /** (T3, T5) Table tiling and the RNG: the user's settings, "Re-tile", and the slots of the tables' places now. */
+  getTilingSettings: () => invoke<TilingSettings>("get_tiling_settings"),
+  setTilingSettings: (settings: TilingSettings) => invoke<null>("set_tiling_settings", { settings }),
+  getRngSettings: () => invoke<RngSettings>("get_rng_settings"),
+  setRngSettings: (settings: RngSettings) => invoke<null>("set_rng_settings", { settings }),
+  retileTables: () => invoke<boolean>("retile_tables"),
+  captureTilingLayout: () => invoke<TilingSlot[]>("capture_tiling_layout"),
+  /** (T7) The global hotkeys: how each binding stands, and letting every key go while one is recorded. */
+  hotkeyStatus: () => invoke<HotkeyStatus[]>("hotkey_status"),
+  hotkeysPause: (paused: boolean) => invoke<null>("hotkeys_pause", { paused }),
   /** The HUD popup (R3.8): what it shows (`null`: none open), close it, open the player in Rail. */
   hudPopup: () => invoke<HudPopup | null>("hud_popup"),
   hudPopupClose: () => invoke<null>("hud_popup_close"),
@@ -1496,6 +1675,16 @@ export function onHudLayoutsChanged(onChange: () => void): () => void {
 /** (R3.10) The HUD's tables or refused windows changed. */
 export function onHudStatusChanged(onChange: () => void): () => void {
   return onAppEvent("hud-status-changed", onChange);
+}
+
+/** (T3) A sync brought another computer's tiling or RNG settings. */
+export function onTilingSettingsChanged(onChange: () => void): () => void {
+  return onAppEvent("tiling-settings-changed", onChange);
+}
+
+/** (T7) A hotkey was bound, found taken, or paused: ask `hotkeyStatus` again. */
+export function onHotkeysChanged(onChange: () => void): () => void {
+  return onAppEvent("hotkeys-changed", onChange);
 }
 
 /** (R3.10) The room list in force changed (an update from the web). */

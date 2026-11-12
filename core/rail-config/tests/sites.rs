@@ -9,7 +9,7 @@
 
 use std::path::Path;
 
-use rail_config::model::{Anonymisation, HudRestrictions, SiteKind};
+use rail_config::model::{Anonymisation, Feature, HudRestrictions, SiteKind};
 use rail_config::{
     Error, MergeNote, SHIPPED, check_coverage, load, load_remote, load_shipped, validate,
 };
@@ -298,6 +298,313 @@ fn hud_restrictions_are_the_policies() {
         .flatten()
         .fold(HudRestrictions::NONE, |a, b| a.stricter(&b));
     assert!(HudRestrictions::STRICTEST.at_least_as_strict_as(&all));
+}
+
+/// T0: the table manager and RNG policy of every entry, as proposed in
+/// `docs/research/TILING-POLICIES.md` for the owner's sign-off: (id, tiling,
+/// rng). A change to any of them has to change this list too.
+const TOOL_POLICIES: &[(&str, Option<bool>, Option<bool>)] = &[
+    ("pokerstars", Some(true), None),
+    ("ggpoker", Some(false), Some(false)),
+    ("winamax", Some(false), Some(false)),
+    ("888poker", None, Some(false)),
+    ("partypoker", Some(false), Some(false)),
+    ("ipoker", None, None),
+    ("acr", Some(true), None),
+    ("coinpoker", Some(true), Some(false)),
+    ("unibet", Some(false), Some(false)),
+    ("chico", None, None),
+    ("ignition", None, None),
+    ("weplay", None, None),
+    ("pokerbros", Some(false), Some(false)),
+    ("microgaming", Some(false), Some(false)),
+    ("fulltilt", Some(false), Some(false)),
+    ("ongame", Some(false), Some(false)),
+    ("entraction", Some(false), Some(false)),
+    ("runitonce", Some(false), Some(false)),
+    ("standard", Some(false), Some(false)),
+    ("wpt-global", Some(true), Some(false)),
+    ("bossmedia", Some(false), Some(false)),
+    ("merge", Some(false), Some(false)),
+];
+
+/// The date of the T0 check.
+const TOOLS_CHECKED_AT: &str = "2026-11-11";
+
+/// (T7) The date the Action Required slot's blocks were written: unknown
+/// (`null`) on every entry, no signal.
+const ACTION_SLOT_CHECKED_AT: &str = "2026-11-12";
+
+#[test]
+fn tiling_and_rng_policies_are_the_proposed_list() {
+    let config = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    let shipped: Vec<(&str, Option<bool>, Option<bool>)> = config
+        .sites
+        .iter()
+        .map(|site| {
+            (
+                site.id.as_str(),
+                site.permission(Feature::Tiling).allowed,
+                site.permission(Feature::Rng).allowed,
+            )
+        })
+        .collect();
+    assert_eq!(shipped, TOOL_POLICIES);
+    for site in &config.sites {
+        for feature in Feature::ALL {
+            let at = format!("{} {}", site.id, feature.key());
+            let permission = site.permission_block(feature).expect(&at);
+            assert_eq!(
+                permission.checked_at.as_deref(),
+                Some(if feature == Feature::ActionSlot {
+                    ACTION_SLOT_CHECKED_AT
+                } else {
+                    TOOLS_CHECKED_AT
+                }),
+                "{at}"
+            );
+            assert!(
+                permission
+                    .notes
+                    .as_deref()
+                    .is_some_and(|notes| !notes.trim().is_empty()),
+                "{at}"
+            );
+            // A source that is not a web page is a repository document.
+            if let Some(source) = permission.source.as_deref()
+                && !source.starts_with("https://")
+            {
+                assert!(repo().join(source).is_file(), "{at}: {source}");
+            }
+        }
+    }
+    let permitted = |feature| {
+        config
+            .sites
+            .iter()
+            .filter(|site| site.permits(feature))
+            .map(|site| site.id.as_str())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        permitted(Feature::Tiling),
+        ["pokerstars", "acr", "coinpoker", "wpt-global"]
+    );
+    assert!(permitted(Feature::Rng).is_empty());
+    // (T7) The Action Required slot: unknown everywhere, no signal - turning
+    // a room on needs the owner's signed verdict and the T6 capture.
+    for site in &config.sites {
+        let slot = site.permission(Feature::ActionSlot);
+        assert_eq!((slot.allowed, slot.signal), (None, None), "{}", site.id);
+        assert_eq!(site.action_slot_signal(rail_config::Os::Windows), None);
+        assert_eq!(site.action_slot_signal(rail_config::Os::Macos), None);
+    }
+    // (T5) Refusals the room could lift (the app's "Needs room approval"):
+    // Winamax's, both.
+    let approval = |feature| {
+        config
+            .sites
+            .iter()
+            .filter(|site| site.permission(feature).needs_approval())
+            .map(|site| site.id.as_str())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(approval(Feature::Tiling), ["winamax"]);
+    assert_eq!(approval(Feature::Rng), ["winamax"]);
+    // Independent of the HUD: two rooms refuse a HUD and allow tiling.
+    for id in ["coinpoker", "wpt-global"] {
+        let site = config.site(id).expect(id);
+        assert!(!site.hud_permitted() && site.tiling_permitted(), "{id}");
+    }
+}
+
+/// The validator holds `tiling` and `rng` to the HUD's rules: an allowance
+/// needs an https source and a date, only a room may allow, dates are
+/// dates.
+#[test]
+fn tiling_and_rng_claims_are_dated_and_sourced() {
+    let mut undated = shipped_value();
+    site_mut(&mut undated, "acr")["tiling"]["checkedAt"] = Value::Null;
+    let mut unsourced = shipped_value();
+    site_mut(&mut unsourced, "pokerstars")["tiling"]["source"] = json!("http://x");
+    let mut network = shipped_value();
+    site_mut(&mut network, "ipoker")["rng"] = json!({
+        "allowed": true,
+        "source": "https://example.org/tools",
+        "checkedAt": "2026-11-11",
+        "notes": null
+    });
+    let mut bad_date = shipped_value();
+    site_mut(&mut bad_date, "ggpoker")["rng"]["checkedAt"] = json!("2026-02-30");
+    assert_eq!(
+        problems(&undated),
+        ["acr: tiling.allowed is true without checkedAt"]
+    );
+    assert_eq!(
+        problems(&unsourced),
+        ["pokerstars: tiling.allowed is true without an https source"]
+    );
+    assert_eq!(
+        problems(&network),
+        ["ipoker: only a room can allow rng; split the network first"]
+    );
+    assert_eq!(
+        problems(&bad_date),
+        ["ggpoker: rng.checkedAt \"2026-02-30\" is not YYYY-MM-DD"]
+    );
+    // An unknown field in a block is a shape error.
+    let mut unknown = shipped_value();
+    site_mut(&mut unknown, "acr")["tiling"]["restrictions"] = json!({});
+    assert!(matches!(
+        load(&unknown.to_string(), &REGISTRATION_ORDER),
+        Err(Error::Json(_))
+    ));
+}
+
+/// A remote file can switch tiling or the RNG off, never on, whatever it
+/// says about the HUD; a remote file written before the blocks existed
+/// leaves them as shipped.
+#[test]
+fn a_remote_file_cannot_switch_tiling_or_the_rng_on() {
+    let shipped = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    let mut remote = shipped_value();
+    site_mut(&mut remote, "888poker")["tiling"] = json!({
+        "allowed": true,
+        "source": "https://example.org/terms",
+        "checkedAt": "2026-11-12",
+        "notes": null
+    });
+    site_mut(&mut remote, "acr")["tiling"]["allowed"] = json!(false);
+    let merged =
+        load_remote(&shipped, &remote.to_string(), &REGISTRATION_ORDER).expect("valid remote");
+    assert_eq!(
+        merged.config.site("888poker").expect("888").tiling,
+        shipped.site("888poker").expect("888").tiling
+    );
+    assert!(!merged.config.site("acr").expect("acr").tiling_permitted());
+    assert!(merged.config.site("acr").expect("acr").hud_permitted());
+    assert_eq!(
+        merged.notes,
+        [MergeNote::LooserPermissionIgnored {
+            id: "888poker".to_owned(),
+            feature: Feature::Tiling,
+            shipped: None,
+            remote: Some(true),
+        }]
+    );
+
+    // A file from before T0 (the published copy an older web deploy
+    // serves): valid as a download, says nothing about tiling and the RNG,
+    // so the shipped blocks stay; HUD corrections in it still apply.
+    let mut old = shipped_value();
+    for site in old["sites"].as_array_mut().expect("sites") {
+        let site = site.as_object_mut().expect("site");
+        site.remove("tiling");
+        site.remove("rng");
+        site.remove("actionSlot");
+    }
+    site_mut(&mut old, "acr")["hud"]["allowed"] = json!(false);
+    let merged =
+        load_remote(&shipped, &old.to_string(), &REGISTRATION_ORDER).expect("an older file");
+    for site in &merged.config.sites {
+        let ours = shipped.site(&site.id).expect("shipped");
+        assert_eq!(
+            (&site.tiling, &site.rng, &site.action_slot),
+            (&ours.tiling, &ours.rng, &ours.action_slot),
+            "{}",
+            site.id
+        );
+    }
+    assert!(merged.config.site("acr").expect("acr").tiling_permitted());
+    assert!(!merged.config.site("acr").expect("acr").hud_permitted());
+    assert_eq!(merged.notes, Vec::new());
+    // But the shipped file itself must state both blocks for every entry.
+    assert_eq!(
+        problems(&old)
+            .iter()
+            .filter(|p| p.ends_with("no tiling block"))
+            .count(),
+        TOOL_POLICIES.len()
+    );
+}
+
+/// (T7) The Action Required slot's block: allowed only on a room that
+/// allows tiling, sourced and dated, with a turn signal; a signal in any
+/// other block is refused; a remote file cannot switch it on.
+#[test]
+fn the_action_slot_block() {
+    let allowed = |signal: Value| {
+        json!({
+            "allowed": true,
+            "source": "https://example.org/terms",
+            "checkedAt": "2026-11-12",
+            "notes": null,
+            "signal": signal
+        })
+    };
+    let flash = json!({ "windows": "flash", "macos": null });
+    // Valid: PokerStars (tiling allowed) with a Windows signal.
+    let mut ok = shipped_value();
+    site_mut(&mut ok, "pokerstars")["actionSlot"] = allowed(flash.clone());
+    assert_eq!(problems(&ok), Vec::<String>::new());
+    let config = load(&ok.to_string(), &REGISTRATION_ORDER).expect("valid");
+    let stars = config.site("pokerstars").expect("pokerstars");
+    assert_eq!(
+        stars.action_slot_signal(rail_config::Os::Windows),
+        Some(rail_config::SignalKind::Flash)
+    );
+    assert_eq!(stars.action_slot_signal(rail_config::Os::Macos), None);
+
+    let refused = |edit: &dyn Fn(&mut Value), expected: &str| {
+        let mut value = shipped_value();
+        edit(&mut value);
+        let found = problems(&value);
+        assert!(
+            found.iter().any(|p| p.contains(expected)),
+            "{expected}: {found:?}"
+        );
+    };
+    refused(
+        &|v| site_mut(v, "pokerstars")["actionSlot"] = allowed(Value::Null),
+        "actionSlot.allowed is true without a signal",
+    );
+    refused(
+        &|v| {
+            site_mut(v, "pokerstars")["actionSlot"] =
+                allowed(json!({ "windows": null, "macos": null }));
+        },
+        "without a signal",
+    );
+    // GGPoker refuses tiling: no slot either.
+    refused(
+        &|v| site_mut(v, "ggpoker")["actionSlot"] = allowed(flash.clone()),
+        "actionSlot.allowed is true without tiling",
+    );
+    refused(
+        &|v| site_mut(v, "acr")["tiling"]["signal"] = flash.clone(),
+        "tiling.signal: only actionSlot has a signal",
+    );
+    refused(
+        &|v| {
+            site_mut(v, "acr")["actionSlot"]["signal"] =
+                json!({ "windows": "blink", "macos": null })
+        },
+        "",
+    );
+
+    // A remote file cannot switch it on.
+    let shipped = load_shipped(&REGISTRATION_ORDER).expect("valid");
+    let merged = load_remote(&shipped, &ok.to_string(), &REGISTRATION_ORDER).expect("valid");
+    let stars = merged.config.site("pokerstars").expect("pokerstars");
+    assert_eq!(stars.action_slot_signal(rail_config::Os::Windows), None);
+    assert_eq!(stars.permission(Feature::ActionSlot).allowed, None);
+    assert!(merged.notes.iter().any(|n| matches!(
+        n,
+        MergeNote::LooserPermissionIgnored {
+            feature: Feature::ActionSlot,
+            ..
+        }
+    )));
 }
 
 /// A permitted room's restrictions block with nothing restricted.

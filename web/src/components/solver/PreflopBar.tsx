@@ -1,8 +1,9 @@
 /**
  * The bar above the Solver library's grid, as a solver's viewer has it: the
  * table card (players and stack depth, changed in a dialog) and one card per
- * seat in preflop order. A seat that has acted shows what it did - clicking it
- * goes back to that decision; the seat to act lists its options to pick;
+ * seat in preflop order. A seat that has acted shows every option it had,
+ * the one it took highlighted - clicking that goes back to the decision,
+ * clicking another takes it instead; the seat to act lists its options to pick;
  * the seats after it wait.
  */
 
@@ -11,7 +12,7 @@
 import { Overlay } from "@rail/ui/overlay/Overlay";
 import { useState } from "react";
 import type { ChartNode } from "../../lib/charts";
-import { useDict } from "../../lib/i18n/client";
+import { useSolverDict } from "./host";
 import type { PreflopState } from "./preflop";
 import styles from "./solver.module.css";
 
@@ -30,7 +31,7 @@ interface PreflopBarProps {
 }
 
 export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBarProps) {
-  const t = useDict().solver;
+  const t = useSolverDict();
   const [settings, setSettings] = useState(false);
   const node: ChartNode | null = state?.node ?? null;
 
@@ -56,32 +57,41 @@ export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBar
                 <strong>{seat.position}</strong>
                 <span>{t.preflop.stack(seat.stackBb)}</span>
               </div>
-              {acting && node ? (
+              {seat.acts.length > 0 || (acting && node) ? (
                 <div className={styles.seatOptions}>
-                  {node.options.map((option) => (
-                    <button
-                      key={option.code}
-                      type="button"
-                      className={styles.seatOption}
-                      onClick={() => onLine(state!.line + option.code)}
-                    >
-                      {t.preflop.action(option.action, option.toBb)}
-                    </button>
+                  {seat.acts.map((act, n) => (
+                    <div key={act.index} className={`${styles.seatGroup} ${n > 0 ? styles.seatDecision : ""}`}>
+                      {act.node.options.map((option) => {
+                        const taken = option.code === act.code;
+                        return (
+                          <button
+                            key={option.code}
+                            type="button"
+                            className={`${styles.seatOption} ${taken ? styles.seatTaken : ""}`}
+                            aria-pressed={taken}
+                            title={taken ? t.preflop.rewind(seat.position) : undefined}
+                            onClick={() => onLine(state!.line.slice(0, act.index) + (taken ? "" : option.code))}
+                          >
+                            {t.preflop.action(option.action, option.toBb)}
+                          </button>
+                        );
+                      })}
+                    </div>
                   ))}
-                </div>
-              ) : seat.acts.length > 0 ? (
-                <div className={styles.seatOptions}>
-                  {seat.acts.map((act) => (
-                    <button
-                      key={act.index}
-                      type="button"
-                      className={`${styles.seatOption} ${styles.seatTaken}`}
-                      title={t.preflop.rewind(seat.position)}
-                      onClick={() => onLine(state!.line.slice(0, act.index))}
-                    >
-                      {t.preflop.action(act.action, act.toBb)}
-                    </button>
-                  ))}
+                  {acting && node ? (
+                    <div className={`${styles.seatGroup} ${seat.acts.length > 0 ? styles.seatDecision : ""}`}>
+                      {node.options.map((option) => (
+                        <button
+                          key={option.code}
+                          type="button"
+                          className={styles.seatOption}
+                          onClick={() => onLine(state!.line + option.code)}
+                        >
+                          {t.preflop.action(option.action, option.toBb)}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ) : seat.ahead ? (
                 <div className={styles.seatOptions}>
@@ -130,7 +140,7 @@ export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBar
 }
 
 function TableSettings({ tables, table, onTable }: { tables: readonly TableOption[]; table: TableOption; onTable: (id: string) => void }) {
-  const t = useDict().solver.settings;
+  const t = useSolverDict().settings;
   const counts = [...new Set(tables.map((x) => x.players))].sort((a, b) => a - b);
   const depths = tables.filter((x) => x.players === table.players);
   return (

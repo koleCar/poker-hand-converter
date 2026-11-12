@@ -13,7 +13,7 @@ use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver};
 use std::time::{Duration, Instant};
 
-use rail_hud::platform::{Platform, TableMatcher, TableWindow};
+use rail_hud::platform::{Monitor, Platform, Rect, TableMatcher, TableWindow};
 use regex::Regex;
 use serde_json::Value;
 
@@ -436,6 +436,61 @@ pub fn wait_for<T>(
             Err(_) => std::thread::sleep(Duration::from_millis(100)),
         }
     }
+}
+
+/// (T1) The client area a simulator `window` event reports, physical
+/// pixels (`clientX` / `clientY`: the client area's origin).
+pub fn event_client(event: &Value) -> Rect {
+    let int = |key: &str| {
+        event[key]
+            .as_i64()
+            .and_then(|v| i32::try_from(v).ok())
+            .unwrap_or(i32::MIN)
+    };
+    let uint = |key: &str| {
+        event[key]
+            .as_u64()
+            .and_then(|v| u32::try_from(v).ok())
+            .unwrap_or(0)
+    };
+    Rect {
+        x: int("clientX"),
+        y: int("clientY"),
+        width: uint("width"),
+        height: uint("height"),
+    }
+}
+
+/// (T1) What every backend's monitors must be: at least one, the primary
+/// first and only one primary, each work area a non-empty part of its
+/// monitor, a scale of at least 100 %.
+pub fn check_monitors(monitors: &[Monitor]) -> Result<(), String> {
+    for m in monitors {
+        eprintln!(
+            "  monitor {:#x}{}: bounds {:?}, work area {:?}, scale {}",
+            m.id.0,
+            if m.primary { " (primary)" } else { "" },
+            m.bounds,
+            m.work_area,
+            m.scale_permille
+        );
+    }
+    let first = monitors.first().ok_or("no monitor")?;
+    if !first.primary || monitors.iter().filter(|m| m.primary).count() != 1 {
+        return Err("the primary monitor must be first, and only one".into());
+    }
+    for m in monitors {
+        if m.work_area.width == 0 || m.work_area.height == 0 || !m.bounds.contains(&m.work_area) {
+            return Err(format!("monitor {:#x}: work area not inside it", m.id.0));
+        }
+        if m.scale_permille < 1000 {
+            return Err(format!("monitor {:#x}: scale {}", m.id.0, m.scale_permille));
+        }
+    }
+    if first.work_area == first.bounds {
+        eprintln!("  note: the primary monitor's work area is all of it (no taskbar or menu bar)");
+    }
+    Ok(())
 }
 
 /// `rail-hud` as a child, its standard error read line by line.

@@ -89,6 +89,16 @@ const PATHS = {
       <path d="M8 3h11a2 2 0 0 1 2 2v12" />
     </>
   ),
+  /** The Solver: a strategy grid. */
+  grid: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M3 15h18" />
+      <path d="M9 3v18" />
+      <path d="M15 3v18" />
+    </>
+  ),
   barChart: (
     <>
       <path d="M4 20h16" />
@@ -115,6 +125,15 @@ const PATHS = {
     <>
       <path d="m12 14 4-4" />
       <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+    </>
+  ),
+  /* The desktop app's Tables screen (table tiling): four tiled windows. */
+  tiles: (
+    <>
+      <rect x="3" y="4" width="8" height="7" rx="1" />
+      <rect x="13" y="4" width="8" height="7" rx="1" />
+      <rect x="3" y="13" width="8" height="7" rx="1" />
+      <rect x="13" y="13" width="8" height="7" rx="1" />
     </>
   ),
   /* A hand's tags and note (the desktop replayer's header). */

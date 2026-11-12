@@ -1,9 +1,10 @@
 /**
  * The release checklist's compliance item (guideline §7; docs/RAIL-PLAN.md
- * §12, R3.0, R3.10): every room whose HUD `config/sites.json` allows, with the
- * page its policy was read from and the date it was read - and a failure when
- * any of those dates is older than the limit, so a release cannot ship on a
- * stale policy check.
+ * §12, R3.0, R3.10; table tiling T0): every room whose HUD, table manager
+ * (`tiling`) or random number generator (`rng`) `config/sites.json` allows,
+ * with the page that policy was read from and the date it was read - and a
+ * failure when any of those dates is older than the limit, so a release
+ * cannot ship on a stale policy check.
  *
  *   npm run hud:policy-check                      # limit 90 days, today
  *   npm run hud:policy-check -- --max-age-days 60
@@ -12,10 +13,11 @@
  * In GitHub Actions (`.github/workflows/release-checklist.yml`, run by hand
  * before a release) the table also goes to the job summary.
  *
- * Re-checking a room: read its page again (docs/research/HUD-POLICIES.md has
- * the checklist), update `hud.source` / `hud.checkedAt` / `hud.notes` (or
- * switch `hud.allowed` off), and merge. The web then publishes the new file
- * (`/sites.json`) and the apps take it - stricter only - without a release.
+ * Re-checking a room: read its page again (docs/research/HUD-POLICIES.md and
+ * docs/research/TILING-POLICIES.md have the checklists), update the block's
+ * `source` / `checkedAt` / `notes` (or switch `allowed` off), and merge. The
+ * web then publishes the new file (`/sites.json`) and the apps take it -
+ * stricter only - without a release.
  */
 import { appendFileSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -26,6 +28,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** Default age limit, days. */
 export const MAX_AGE_DAYS = 90;
 
+/** The policies a room states, in the order they are listed. */
+export const POLICIES = ["hud", "tiling", "rng", "actionSlot"];
+
 /** A `YYYY-MM-DD` date as UTC midnight, or `null`. */
 function day(text) {
   if (typeof text !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
@@ -34,24 +39,27 @@ function day(text) {
 }
 
 /**
- * Every entry with `hud.allowed === true`: id, name, source, checkedAt, its
- * age in days and the problem with it (`null` when fine).
+ * Every allowance (`allowed === true`) of a HUD, the table manager or the
+ * RNG: id, name, policy, source, checkedAt, its age in days and the problem
+ * with it (`null` when fine). Rooms in file order, each room's policies in
+ * the order of `POLICIES`.
  *
- * @param {{ sites: Array<{ id: string, name: string, kind: string, hud: { allowed: boolean | null, source: string | null, checkedAt: string | null } }> }} config
+ * @param {{ sites: Array<{ id: string, name: string, kind: string, hud?: Policy, tiling?: Policy, rng?: Policy }> }} config
  * @param {string} today `YYYY-MM-DD`
  * @param {number} maxAgeDays
+ * @typedef {{ allowed: boolean | null, source: string | null, checkedAt: string | null }} Policy
  */
 export function review(config, today, maxAgeDays = MAX_AGE_DAYS) {
   const now = day(today);
   if (now === null) throw new Error(`not a date: ${today}`);
-  return config.sites
-    .filter((site) => site.hud?.allowed === true)
-    .map((site) => {
-      const checked = day(site.hud.checkedAt);
+  return config.sites.flatMap((site) =>
+    POLICIES.filter((policy) => site[policy]?.allowed === true).map((policy) => {
+      const block = site[policy];
+      const checked = day(block.checkedAt);
       const age = checked === null ? null : Math.floor((now - checked) / DAY_MS);
       let problem = null;
       if (site.kind !== "room") problem = "not a room";
-      else if (typeof site.hud.source !== "string" || !site.hud.source.startsWith("https://"))
+      else if (typeof block.source !== "string" || !block.source.startsWith("https://"))
         problem = "no https source";
       else if (checked === null) problem = "no checkedAt";
       else if (age < 0) problem = "checkedAt is in the future";
@@ -59,23 +67,25 @@ export function review(config, today, maxAgeDays = MAX_AGE_DAYS) {
       return {
         id: site.id,
         name: site.name,
-        source: site.hud.source ?? null,
-        checkedAt: site.hud.checkedAt ?? null,
+        policy,
+        source: block.source ?? null,
+        checkedAt: block.checkedAt ?? null,
         age,
         problem,
       };
-    });
+    }),
+  );
 }
 
 /** The rows as a Markdown table. */
 export function table(rows) {
   const lines = [
-    "| Room | Policy page | Checked | Age (days) | Status |",
-    "| --- | --- | --- | --- | --- |",
+    "| Room | Policy | Policy page | Checked | Age (days) | Status |",
+    "| --- | --- | --- | --- | --- | --- |",
   ];
   for (const row of rows) {
     lines.push(
-      `| ${row.name} (\`${row.id}\`) | ${row.source ?? "-"} | ${row.checkedAt ?? "-"} | ${row.age ?? "-"} | ${row.problem ?? "ok"} |`,
+      `| ${row.name} (\`${row.id}\`) | ${row.policy} | ${row.source ?? "-"} | ${row.checkedAt ?? "-"} | ${row.age ?? "-"} | ${row.problem ?? "ok"} |`,
     );
   }
   return lines.join("\n");
@@ -111,13 +121,16 @@ function main(argv) {
   const stale = rows.filter((row) => row.problem !== null);
   const verdict =
     rows.length === 0
-      ? "No room allows a HUD: nothing to re-check."
+      ? "No room allows a HUD, tiling or the RNG: nothing to re-check."
       : stale.length === 0
-        ? `All ${rows.length} rooms whose HUD is allowed were checked within ${maxAge} days (today ${today}).`
-        : `${stale.length} of ${rows.length} rooms need their policy re-checked before a release (limit ${maxAge} days, today ${today}).`;
+        ? `All ${rows.length} allowances (HUD, tiling, RNG) were checked within ${maxAge} days (today ${today}).`
+        : `${stale.length} of ${rows.length} allowances need their policy re-checked before a release (limit ${maxAge} days, today ${today}).`;
   console.log(`${text}\n\n${verdict}`);
   if (process.env.GITHUB_STEP_SUMMARY) {
-    appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## HUD policy check\n\n${text}\n\n${verdict}\n`);
+    appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      `## Room policy check (HUD, tiling, RNG)\n\n${text}\n\n${verdict}\n`,
+    );
   }
   return stale.length === 0 ? 0 : 1;
 }

@@ -231,7 +231,10 @@ player's decisions. This is why they come first.
   4 entrants, or a fourth limper), `rare-line`, `action-not-modelled`,
   `straddle`, 10+ players (`players`), and depths no set covers (heads-up:
   80-180bb only)
-  (`limp` only for a set without limp trees).
+  (`limp` only for a set without limp trees). Since `analysis/39` grading
+  reads an uncovered depth on the nearest charted one within 5/3 of the
+  effective stack (`uncovered-depth`, capped at Inaccurate; docs/CHARTS.md
+  §7.3); further than that stays `stack-depth`.
 - **Lookup approximates:** `short-handed` (3–5 handed read as 6-max, 7–8
   handed as 9-max, the earliest seats folded: exact in the model up to
   convergence), and off-tree sizes, by action translation. Since
@@ -768,6 +771,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A8 — learning layer** (A8a: the concept library) | <ul><li>**A8a** — a concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>**A8b** — a study plan built from the leak finder</li><li>**A8c** — the optional AI-written review, grounded on facts</li></ul> | A8a: A1. A8b: A6, A7 |
 | **A9 — multiway** | Approximate grading for 3-way postflop pots, about 9% of decisions in a real library: heuristics + MDF split, and solver-based later if feasible. | A4 |
 | **L1–L4 — the Learn tab** (`docs/LEARN-PLAN.md`) | A top-level course at `/learn`: 62 lessons in tracks and modules, practice generated and graded by the charts, the solver and the concept library's maths, the learner's own hands as the last exercise, lessons recommended from leaks (a `lesson` task in the plan), missed items as SM-2 review cards. L1: catalogue, M0–M3 and M6-L4 written, turn spots; L2–L4: the other modules, `range-split`, `range-paint`, placement, curated hands, flop drills. | A7, A8a, A8b |
+| **MDA1–MDA7 — mass data analysis (MDA)** (`docs/MDA-PLAN.md`) | The pool's frequencies at every decision point of the user's own hands against the charts, the flop library and theory, with intervals; exploits ranked and tied to the hero's own frequency in the matching node. Desktop first (MDA1–MDA5), the web in MDA6. | A3, A5, R5.3, R5.4 |
 | **Later** | MTT/ICM preflop, PLO, exploitative notes from villain stats. | — |
 
 ## 8. Decisions taken (2026-10-02)
@@ -7182,3 +7186,334 @@ Each phase appends what it learned that changed the plan.
       tests, not compared hand by hand.
     - Not measured on the owner's desktop store (how many postflop rows the
       backfill tags, how many areas split).
+- 2026-11-07 — Why river decisions end up `river-unreached`: either
+  player's rarely taken size is remapped to one the solve reaches,
+  `analysis/38`. No migration.
+  - **Why.** The open item repeated since 2026-10-20, 10-26 and 10-31: on
+    the owner's corpus 3 river decisions were left ungraded with
+    `river-unreached`, and one of them had lost its grade at `analysis/36`.
+    Nobody had looked at which line or why.
+  - **What `river-unreached` is.** `followSolvedLine` (`river.ts`, shared
+    by the river, the turn and the flop library) walks the real line onto
+    the solved tree and then asks both players' ranges to reach the node:
+    under `MIN_LINE_REACH` (2%) of either range by weight at the start of
+    the street is `*-unreached` (the strategy there is a best response to a
+    sliver, poorly converged). A real size maps by pseudo-harmonic
+    translation to the likelier side; an **opponent's** size the solve
+    took under `MIN_ACTION_FREQ` (1%) was remapped to the nearest size it
+    took at least 1%. The hero's own earlier sizes were never remapped.
+  - **The three decisions** (found with the census rows and a scratch
+    trace of the walk, not committed; all heads-up calls facing a bet):
+    - A single-raised pot, 8-handed: the hero (out of position) overbets
+      1.56 pots (onto the 1.5-pot size, 8.5% of its range), the opponent
+      min-raises. The solve raises over the overbet with 0.5% of its range
+      (75% raise) or 1.7% (all-in): **correctly unreached** - no raise size
+      reaches 2% of that range, and the real min-raise is far from both.
+    - A single-raised pot, 6-max: the hero's own river bet of 0.58 pot
+      translated to the 75% size, which the solved range takes **0.6%** of
+      the time (33% at 37%); the opponent's raise followed and the hero's
+      call was left with 0.6% of its own range. A **mapping gap**: the
+      opponent-only remap never looked at the hero's earlier sizes.
+    - A limped pot, 8-handed (blinds heads-up): the opponent's pot-size
+      bet translated to 75%, taken **1.8%** of the time (150% at 12.7%):
+      above the 1% remap floor, below the 2% reach floor, so it could only
+      end unreached. A **gap between the two thresholds.** This is the one
+      that lost its grade at `analysis/36` (checked by re-running it
+      without the heads-up sets: Perfect then): the heads-up 100bb chunk
+      changed the river ranges, and the bet landed on the 1.8% edge.
+  - **What was done.** A node's `frequency` is weighted by the actor's own
+    reach, so a line's share after an edge is at most the edge's frequency:
+    an edge taken under 2% can only end the line `*-unreached`. The remap
+    in `followSolvedLine` now applies to **either player's** size (the
+    hero's earlier ones too) taken under `MIN_LINE_REACH` (2%, was 1% and
+    the opponent's only), to the nearest size taken at least that often;
+    the gap is the line's `distance` as before (`size-translated`, or
+    `off-tree-size` and the Inaccurate cap past 25% of the pot). Since only
+    an edge under 2% is ever moved, **no line that reached its node
+    changes**; what moves is lines that were unreached, and the streets
+    whose ranges start from them. `MIN_ACTION_FREQ` is gone (the river
+    trainer's own `MIN_VILLAIN_FREQ` stays 1%; its comment says so). The
+    `river-unreached` doc comment in `types.ts` said 0.5%; it says 2% now.
+  - **Tested.** `tests/test/riverLineRemap.test.ts` (5): on a hand-built
+    tree, an opponent's size taken 1.5% is remapped to the nearest size
+    taken at least 2% (0.5 pots away, `distance` 0.5), one taken 3% is kept
+    with its reach, and a street where no size reaches 2% stays
+    `river-unreached`; on a real river solve, the hero's own 60% bet (the
+    75% size, under 1% of its range) is followed as the 33% bet its range
+    takes and reaches the opponent's all-in node, and an exact 33% bet is
+    kept with no distance. The two remap tests fail on the old rule. The
+    Vitest suite (142 files), the web's `tsc -b` and lint pass.
+  - **Measured** (`floplib:census`, 5,448 stored hands, turn solves on,
+    three shards, the five live sets from the local library;
+    `CENSUS_BEFORE` decision for decision; the before side reproduces the
+    2026-10-31 entry's after side: 6,643 of 8,005, `river-unreached` 3,
+    `turn-unreached` 8):
+    - River: 2 `river-unreached` → graded: Perfect 1 (the limped pot's
+      call, 0.12bb from the top option, `off-tree-size`), Inaccurate 1 (the
+      6-max call: the hero's combo is outside its narrowed range and the
+      solve re-raises it; 4.1bb, capped at Inaccurate by `off-tree-size`,
+      the half-strength check says Good, so one class is the limit
+      anyway). Two more river decisions move because their ranges now
+      start from a flop-library line that was `flop-unreached`: 1 Perfect →
+      Inaccurate (0.49bb), 1 flags only. `river-unreached` 3 → **1** (the
+      min-raise over the overbet).
+    - Turn: 2 `turn-unreached` → Perfect 1, Inaccurate 1 (both
+      `off-tree-size`); 1 `turn-unreached` → `turn-off-tree` (reached now,
+      but the rest of the line leaves the tree). `turn-unreached` 8 → 5.
+    - Flop: 2 heads-up flop decisions with no grade → graded from the
+      library, Perfect 1, Good 1 (both `off-tree-size`).
+    - All graded 6,643 → **6,649 (83.1%)** of 8,005. No other decision
+      moved.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/38` (grades move: stored
+    analyses re-run). No wording changes (the reasons and flags are the
+    existing ones). Only aggregate numbers are committed.
+  - **Open.**
+    - The 5 remaining `turn-unreached` decisions were not looked at one by
+      one. None is left there by a sized edge under 2% with a size of 2%
+      or more beside it (those are remapped now); each is a check, call or
+      fold the range rarely takes, a node where every size is under 2%, or
+      the product of several edges each above 2%.
+    - A remap is a pick of the nearest used size, not of the size whose
+      range best matches the real one; on these lines it moved sizes by
+      0.27-0.5 pots, which `off-tree-size` already caps.
+- 2026-11-08 — The coverage census at `analysis/38`, and a preflop spot at
+  a depth no set covers graded on the nearest charted one, `analysis/39`
+  (fix in `lib/analysis/preflop.ts`; docs/CHARTS.md §7.3; tests in
+  `tests/test/analysisPreflop.test.ts`). No migration.
+  - **Why.** The census had not been re-run since `analysis/24`
+    (2026-10-16); since then the 150bb and heads-up libraries, the
+    heads-up charts, ICM and the line remaps all moved it. Re-count where
+    the hero's decisions go ungraded, take the largest cause that needs no
+    new solve, and read the five `turn-unreached` decisions left open by
+    the 2026-11-07 entry.
+  - **Data.** `floplib:census`, the 5,448 stored hands of the test user
+    (the local stack's hands of 2026-10-01; three test hands added there on
+    11-03 left out, so the hand indices match earlier censuses), turn
+    solves on, three shards (`nice`, ~19 minutes), the five live sets from
+    the local library. The before side reproduces the 2026-11-07 entry's
+    after side (6,649 graded, `turn-unreached` 5, `river-unreached` 1).
+  - **The census** (8,005 hero decisions in 5,339 hands; "no grade" is a
+    heads-up flop analysed with facts and flags but no reference):
+
+    | street | exact | approximate | no grade | not analysed | all |
+    |---|---|---|---|---|---|
+    | preflop | 5,145 → **5,213** | 0 | 0 | 288 → **220** | 5,433 |
+    | flop | 269 (22 exact chunks, 247 mapped) | 199 (`flop-realisation`) | 396 | 407 | 1,271 |
+    | turn | 524 (56 `multiway-history`) | 93 (`turn-realisation`) | 0 | 187 | 804 |
+    | river | 389 (73 `multiway-history`) | 30 (river `multiway-approx`) | 0 | 78 | 497 |
+    | all | 6,327 → **6,395** | 322 | 396 | 960 → **892** | 8,005 |
+
+    Graded 6,649 (83.1%) → **6,717 (83.9%)**.
+  - **Every cause not graded, ranked** (`analysis/38`; decisions):
+
+    | cause | decisions | needs |
+    |---|---|---|
+    | multiway check or bet (`multiway`) | 611 (flop 370, turn 168, river 73) | a multiway solver (#210: not to retry) |
+    | heads-up flop, no chunk (no grade) | 396 | mostly solves, see below |
+    | `chart-stack-depth` | 113 → **45** | nothing for 68: fixed here |
+    | `chart-rare-line` | 46 | longer chart solves (9-max lines the 150bb set leaves out too) |
+    | `multiway-crowded` | 33 | a multiway model |
+    | `chart-cold-call` / `chart-multiway` / `chart-off-tree` / `chart-straddle` | 27 / 26 / 16 / 11 | bigger trees |
+    | tournament (`not-push-fold` 24, `deep` 6, `side-pot` 4, `postflop` 3) | 37 | an ICM model beyond push/fold |
+    | bomb pot on two boards (hand) | 6 | a two-board model |
+    | `turn-unreached` / `river-unreached` | 5 / 1 | nothing sound (below) |
+    | multiway side pot / re-raise; `*-multiway-flop`; `chart-action-not-modelled`; `turn-off-tree` | 5 / 3; 4; 4; 1 | small |
+
+    **The 396 heads-up flops without a grade**, by `libraryEntry`'s miss
+    (a scratch pass over the census rows, not committed): the charts could
+    not place the pot 112 (a player at a depth no set covers 85, rare lines
+    10, other refusals 17); placed on a live set but a line the library
+    does not solve 166 (single-raised pots between two non-blind seats or
+    an open called in position 58, 3-bet pots outside the solved pairs 41,
+    limp-raised 29, limped 28, 4-bet+ 10); placed on a set the library has
+    no solves for 91 (6-max 60bb above all, then 6-max 200bb, the straddle
+    set, 6-max 40bb, 9-max 150 and 200bb; 48 on a line the library solves
+    on the live sets, 43 on others); the stack outside
+    `SPR_TOLERANCE` 14; not heads-up at the library's cut 4; the chunk
+    read but the line `flop-unreached` 7 or `flop-off-tree` 2. All but the
+    last 9 and the 85 need solves.
+  - **The fix: a preflop spot at a depth no set covers.**
+    `chart-stack-depth` was the largest cause left that needs no solve:
+    113 decisions, and their effective stack (the hero against the deepest
+    opponent still in) is mostly 9-max under 80bb (no 9-max set below
+    100bb) or 6-max 72-80bb (20% from neither 60 nor 100bb); by the
+    census's own depth (against every dealt-in stack) 72 of them are
+    80-120bb. Since `analysis/18` the opponents' ranges at such a depth are
+    already read on the nearest charted depth (`uncoveredDepth`); grading
+    refused. It now reads the hero's decision there too
+    (`lookupPreflop(..., { rareLineDepth, uncoveredDepth })`), with a new
+    approximation `uncovered-depth` (EN/HR) and the grade **capped at
+    Inaccurate** as a rare line's (`rare-line-depth`, analysis/13), and
+    only within `MAX_UNCOVERED_RATIO` = 5/3 of the effective stack (the
+    60 → 100bb step): of the 113, 46 are within 4/3, 22 more within 5/3,
+    42 further (9-max 20-59bb for the most part, and short heads-up and
+    three- to five-handed spots under 24bb) and 3 reach no node at the
+    neighbour. The flop library's placement is unchanged (it asks
+    `chartLineOf` for no option), so no flop moves.
+  - **Held out** (a scratch pass, not committed): every hero preflop
+    decision the charts grade on its own set (4,763 of them; rare-line
+    reads left out), re-graded with that set removed from the library, so
+    its depth is uncovered and the neighbour answers within 5/3. The
+    neighbour's capped grade equals the own set's grade capped the same
+    way **96.8%** of the time, with the same top action 97.1%; a Perfect or
+    Good called Inaccurate 1.7%, a Mistake or Blunder called Perfect or
+    Good 0.5%. By step: 6-max 100 → 150bb 96.2% (n = 1,995), 9-max 100 →
+    150bb 97.9% (1,353), 6-max 150 → 100bb 97.4% (500), 9-max 200 → 150bb
+    and 150 → 200bb 97.9% / 100% (189 / 79), 6-max 100 → 60bb 95.7% (46),
+    60 → 100bb 89.2% (37), 60 → 40bb 84.6% (39), heads-up 100 → 150bb
+    86.2% (65). The 60 ↔ 100bb step, the one 9-max under 80bb takes, has
+    the fewest decisions; it agrees 92.8% (77 of 83) with no Mistake read
+    as Perfect.
+  - **Measured** (the census again, `CENSUS_BEFORE` decision for
+    decision): 68 `chart-stack-depth` → graded: **Perfect 57, Inaccurate
+    11** (folds 37, checks 9, calls 11, raises 11; 7.1bb of EV loss in
+    all, the Inaccurate ones 0.01-2.19bb). `chart-stack-depth` 113 → 45.
+    **No other decision moved** (postflop rows identical: the walks
+    already read these ranges this way since `analysis/18`). All graded
+    6,649 → **6,717 (83.9%)**.
+  - **The five `turn-unreached`** (scratch trace of `followSolvedLine`, not
+    committed), one by one - none is wrongly ungraded:
+    - A 4-bet pot, 9-max five-handed: the hero (out of position, low SPR)
+      checks where the solve checks **0.4%** (it jams 80%, bets 20%), then
+      check-raises. The check is the hero's own graded turn decision
+      (Inaccurate); the raise behind it follows a 0.4% edge. Unreached,
+      correctly (a check is never remapped).
+    - A 4-bet pot, 9-max seven-handed: the same shape - the hero checks
+      **1.2%** (the solve jams 98.8%), the opponent jams, the hero calls.
+      The check is graded (Mistake); the call is correctly unreached.
+    - A single-raised pot, 6-max four-handed: the opponent (out of
+      position) bets 77% of the pot where the solve bets **0.7%** (its only
+      size; it checks 99.3%). No size reaches 2%: correctly unreached.
+    - Two single-raised pots (9-max eight-handed, 6-max six-handed): the
+      opponent (out of position) donk-bets half the pot / a third where
+      the solve bets 1.9% + 1.6% / 1.4% + 0.9% over two sizes, checking the
+      rest. **Every size is under 2%**, so the remap has nothing to move
+      to; the bets together are 3.5% / 2.3%, but each subtree is solved
+      against its own sliver, which is what `MIN_LINE_REACH` guards.
+      Merging the sizes would need a turn tree with one donk size (a tree
+      change for every hand), not a remap. Left unreached.
+    - The one `river-unreached` is the min-raise over an overbet the
+      2026-11-07 entry already read (correctly unreached).
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/39` (68 stored preflop
+    grades move: stored analyses re-run). New approximation code
+    `uncovered-depth` with its sentence in English and Croatian; the
+    `LookupOptions.uncoveredDepth` comment says grading reads it now.
+    Charts, solvers and the library are unchanged. Tests
+    (`analysisPreflop.test.ts`, 5): a 6-max 76bb open graded on the 60bb
+    set with the flag; aces folded there capped at Inaccurate (a Blunder
+    at 100bb); 26bb read on the 40bb set and 22bb refused (5/3); refused
+    while neither neighbour is loaded, `rareLineChartSets` naming both, and
+    the bare lookup still refusing; the sentence in both languages.
+    `charts/headsUp.test.ts`: a heads-up 200bb and 60bb open, refused
+    before, are now read on the 150bb and 100bb heads-up sets; 260bb and
+    50bb stay refused, and never on a 6-max set. The Vitest suite (143
+    files), the web's `tsc -b` and lint pass. Only aggregate numbers are
+    committed.
+  - **Open.**
+    - 45 `chart-stack-depth` left: 42 further than 5/3 from any set (9-max
+      20-59bb above all; a 9-max 60bb chart set would take most), 3
+      reaching no node at the neighbour.
+    - The held-out agreement at the 60 ↔ 100bb step rests on 83
+      decisions; the 9-max 100bb set has no shallower neighbour to check
+      its own reading at 60-79bb against.
+    - 85 heads-up flops are not placed because a player is at an uncovered
+      depth; the library's placement still reads only the answering set.
+      Placing them on the neighbour would mostly fail `SPR_TOLERANCE`
+      anyway (the chunk's stack is the set's); not measured.
+    - 9 heads-up flops read their chunk and end `flop-unreached` (7) or
+      `flop-off-tree` (2); not read one by one.
+    - The rest of the 396 heads-up flops and every larger cause need
+      solves or models: lines the library does not solve (166), sets it
+      has none for (91), multiway checks and bets (611).
+- 2026-11-08/09 — The 9-max 60bb chart set, `charts/10`, and `analysis/40`
+  (docs/CHARTS.md §6.11; `NINE_60` in `tests/scripts/preflop-charts/sets.ts`;
+  migration `20271108090000_table_set_9max_60bb.sql`).
+  - **Why.** The 2026-11-08 census left 45 hero preflop decisions
+    `chart-stack-depth`, 42 of them further than 5/3 from any set - 9-max
+    20-59bb for the most part, where the shallowest 9-max set was 100bb.
+    A 9-max 60bb set covers 48-72bb natively and, within 5/3, 36-47bb as
+    the uncovered neighbour; the opponents' ranges at those depths are read
+    on it too instead of on 100bb.
+  - **The set.** The 6-max 60bb set's sizes and `charts/4`'s limp tree; no
+    committed fit to reuse, so A2c's pipeline: two measure-and-fit rounds
+    from `charts/2`'s fit with the limp tree in the rounds (as the straddle
+    set did), 1,560 turn+river solves a round, then 9,000 iterations
+    (`DEEP_ITERATIONS`). 4 h 51 min on 3 threads under `nice`, peak 1.6 GB.
+    **NashConv 0.063 mbb/hand** (0.32 at 3,000; every seat's best-response
+    gain under 0.02), strategy change 0.0003 at the last checkpoint,
+    heads-up BvB 0.053. 2,936 nodes kept of a 48,652-node tree (1,677
+    behind an open limp), 2 left out as unconverged (reached 1.2e-6 and
+    4.9e-6); the big blind facing a single limp is in from every seat. Fit
+    error single raised 0.035 (`charts/1` 0.053, raw equity 0.076). 6.9 MB,
+    1.7 MB gzip, `model.hash` `0d34b0e8`. Every sanity band of
+    `sets.test.ts` holds but one: AA limps 5.5% UTG first in at the same EV
+    as raising (a trap mix; 9-max 100bb limps it 4.7%), so the first-in AA
+    band is "raises over 90%" (was 95%).
+  - **Nothing else moves.** The other eleven set files are byte for byte
+    staging's (SHA-256 checked before the PR), so no `model.hash` and no
+    flop-library chunk changes; each set keeps its own `version`.
+    `CHARTS_VERSION` → `charts/10`, which `WEAK_CHART_VERSIONS` now lists
+    (the same realisation model: its decisions carry `model`; a test keeps
+    every set version on the list).
+  - **The table helper.** `CHART_SETS` lists the set between the 6-max sets
+    and 9-max 100bb; `analysis_hand_table_set` (Supabase), `HAND_TABLE_SETS`
+    (app) and `rail_store::table_set` (desktop) hold the same list. The
+    migration re-creates the SQL helper with it (immutable, empty
+    search_path, `authenticated` only, as before) and runs the
+    `20271102090000` backfill again, so a stored postflop leak row of a
+    9-max 48-72bb hand gets the set (191 rows on the local test stack). No
+    band overlaps the new one, so no hand changes set. New pgTAP
+    `table_set_9max_60bb.test.sql` (9 tests). The desktop store does not
+    backfill: its rows are re-written by the `analysis/40` rebuild.
+  - **Measured** (`floplib:census`, the same 5,448 hands, turn solves on,
+    three shards, the five live flop sets; the before side is staging,
+    which reproduces the 2026-11-08 entry's after side exactly: 6,717
+    graded, `chart-stack-depth` 45, `uncovered-depth` 68; compared
+    decision for decision with `CENSUS_BEFORE`):
+    - `chart-stack-depth` **45 → 24**: 20 graded - Perfect 19, Inaccurate
+      1 (0.31bb, capped) - 11 on the set's own band (`stack-depth-near` or
+      none), 9 as the uncovered neighbour (`uncovered-depth`, capped); one
+      becomes `chart-cold-call`. The 24 left (14 9-max, 10 6-max) are
+      further than 5/3 from every set of their table (9-max: under 36bb)
+      or reach no node at the neighbour; by the census's dealt-in depth
+      most read "80-120bb" (a deep player who folded preflop).
+    - `chart-rare-line` **46 → 33**: 13 9-max 100bb lines the 150bb set
+      leaves out too are read on the 60bb set (`rare-line-depth`, its
+      neighbour below, tried after 150bb): Perfect 11, Inaccurate 2 (1.83
+      and 2.03bb).
+    - Already graded: 9 9-max decisions that were read at 100bb as an
+      uncovered depth are read on the 60bb set (8 Perfect stay Perfect, 1
+      Inaccurate stays Inaccurate, now out of range and uncapped; one
+      `uncovered-depth` becomes `rare-line-depth`); one 9-max call keeps its
+      flags and goes Perfect → Inaccurate (0.13bb; not read one by one).
+    - Postflop: 43 rows move, almost all approximation flags (opponents'
+      ranges read on their own set instead of `range-neighbour-depth`,
+      fewer placeholders); grades: river Good → Perfect 2, Inaccurate →
+      Perfect 1, Mistake → Perfect 1; turn Inaccurate → Good 1, Perfect →
+      Good 1, Perfect → Inaccurate 1.
+    - Preflop graded **5,213 → 5,246**, all graded **6,717 → 6,750
+      (83.9% → 84.3%)**; preflop grades Perfect 4,698, Good 17,
+      Inaccurate 236, Mistake 210, Blunder 85.
+  - **Shipped.** `ANALYSIS_VERSION` → `analysis/40` (stored preflop grades
+    move: stored analyses re-run). Tests: `charts/sets.test.ts` (the new
+    set's version, its own fit, 9,000 iterations; the AA band),
+    `charts/registry.test.ts` (9-max 48-72bb on the set, 75bb and 47bb
+    refused, 80bb still 100bb), `analysisRanges.test.ts` (9-max 75bb reads
+    60 then 100bb, 40bb reads 60bb), `analysisPreflop.test.ts` (a 9-max
+    100bb rare line tries 150 then 60bb), `charts/data.test.ts` (`charts/10`,
+    every version weak), `studyPlanTable.test.ts` (reads the new
+    migration's list), `rail_store::table_set` unit tests, pgTAP. The
+    Vitest suite, the web's `tsc -b` and lint, and `cargo test` for
+    `rail-store` pass. Only aggregate numbers are committed.
+  - **Open.**
+    - The migration has to be applied to production before `main` moves
+      (the owner's promotion; `analysis_hand_table_set` must match
+      `CHART_SETS` or 9-max 48-72bb postflop leak rows stay `''`).
+    - The flop library has no chunks for the 9-max 60bb set; its heads-up
+      flops are the heuristic's until a batch solves them.
+    - 24 `chart-stack-depth` left (beyond 5/3 of every set of the table,
+      or no node at the neighbour; not read one by one); 33
+      `chart-rare-line` (9-max lines no neighbour charts).
+    - The one 9-max call Perfect → Inaccurate with unchanged flags was not
+      traced.
+- 2026-11-12 — Mass data analysis planned (`docs/MDA-PLAN.md`) after a study over the owner's GG and WePlay hands. The pool overfolds turn and river bets; the plan keeps references Rail's own, with the user's own chart sets as the private route for other charts.

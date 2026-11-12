@@ -530,7 +530,7 @@ fn render(
         }
     }
     let frame = OverlayFrame {
-        permit: permit.clone(),
+        permit: Some(permit.clone()),
         status: demo.waiting.then(|| WAITING.to_owned()),
         debug: None,
         size: Some(demo.size),
@@ -543,6 +543,7 @@ fn render(
         panels,
         legend: stats.legend_tones(),
         design: design.clone(),
+        rng: None,
     };
     let scene = scene::compose(&frame, WIDTH, HEIGHT, SCALE_PERMILLE, &design);
     if !scene.dropped.is_empty() {

@@ -49,6 +49,7 @@ import {
   VS_TYPE_ORDER,
   LEVELS_ORDER,
   ordered,
+  parseRange,
   type FilterState,
   type ListGroup,
 } from "./filter";
@@ -101,6 +102,7 @@ export type GroupId =
   | "heroStack"
   | "netRange"
   | "evLoss"
+  | "potSize"
   | "knownCards"
   | "flopSize"
   | "turnSize"
@@ -223,6 +225,7 @@ export const BUILDER_GROUPS: GroupId[] = [
   "heroStack",
   "netRange",
   "evLoss",
+  "potSize",
   "knownCards",
   "flopSize",
   "turnSize",
@@ -372,7 +375,7 @@ export const PANES: { section: SectionId; panes: { id: PaneId; groups: GroupId[]
     panes: [
       { id: "game", groups: ["site", "stakes", "variant", "limit", "size"] },
       { id: "date", groups: ["date", "lastHands", "weekdays", "dayParts"] },
-      { id: "result", groups: ["result", "netRange", "minPot", "grades", "evLoss"] },
+      { id: "result", groups: ["result", "netRange", "potSize", "minPot", "grades", "evLoss"] },
       { id: "tournament", groups: ["buyIn", "bounty", "levels"] },
       { id: "marks", groups: ["tags", "notes"] },
     ],
@@ -401,6 +404,7 @@ export function isSet(group: GroupId, filter: FilterState): boolean {
   if (text) return filter[text].trim() !== "";
   if (group === "date") return filter.date !== null;
   if (group === "heroHand") return filter.heroCards.trim() !== "" || filter.heroRange.length > 0;
+  if (group === "potSize") return filter.potSize.trim() !== "";
   return false;
 }
 
@@ -418,6 +422,8 @@ export function clearGroup(group: GroupId, filter: FilterState, facets: HandFace
   if (text) return { ...filter, [text]: "" };
   if (group === "date") return { ...filter, date: null, dateFrom: "", dateTo: "" };
   if (group === "heroHand") return { ...filter, heroCards: "", heroRange: [] };
+  // The unit stays as chosen: it is how the player thinks of pots.
+  if (group === "potSize") return { ...filter, potSize: "" };
   return filter;
 }
 
@@ -673,6 +679,8 @@ export function useGroupWords() {
           return filter.bounty ? t.builder.bountyValues.yes : t.builder.bountyValues.no;
         case "minPot":
           return `≥ ${filter.minPot.trim()}`;
+        case "potSize":
+          return potSummary(filter);
         case "heroHand": {
           const parts: string[] = [];
           if (filter.heroRange.length > 0) {
@@ -694,6 +702,17 @@ export function useGroupWords() {
 
     return { name: (group: GroupId) => t.groups[group], options, summary };
   }, [t, variants, strings.intlLocale]);
+}
+
+/** The pot's range as its chip says it: "> 20 bb", "< $50", "20–50 bb". */
+export function potSummary(filter: FilterState): string {
+  const { min, max } = parseRange(filter.potSize);
+  const money = filter.potUnit === "money";
+  const amount = (n: number) => (money ? `$${n}` : `${n} bb`);
+  if (min !== null && max !== null) return money ? `$${min}–${max}` : `${min}–${max} bb`;
+  if (min !== null) return `> ${amount(min)}`;
+  if (max !== null) return `< ${amount(max)}`;
+  return filter.potSize.trim();
 }
 
 /** The builder's list groups' values, in their order. */

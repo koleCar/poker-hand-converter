@@ -92,7 +92,8 @@ const where = (street: string, scenario: string, hero: string): AreaWhere => ({
 
 describe("the database's table helper", () => {
   it("knows exactly the plain chart sets, in CHART_SETS' order", () => {
-    const sql = readFileSync(join(import.meta.dirname, "../../supabase/migrations/20271102090000_leak_row_table.sql"), "utf8");
+    // The last definition (20271102090000's, re-created with the 9-max 60bb set).
+    const sql = readFileSync(join(import.meta.dirname, "../../supabase/migrations/20271108090000_table_set_9max_60bb.sql"), "utf8");
     const listed = [...sql.matchAll(/\('(nlhe-cash-[a-z0-9-]+)', (\d+), (\d+), (\d+)\)/g)].map((m) => ({
       id: m[1],
       players: Number(m[2]),

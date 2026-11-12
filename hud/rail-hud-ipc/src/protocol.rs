@@ -8,6 +8,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::settings::{RngSettings, Slot, TilingSettings};
+
 /// A player as the store keys their rollups (`player_rollups`): the name as
 /// the room wrote it and the scope - `""`, or for an opaque-id room's
 /// villain the session (`<table>@<day>`, rail-store SCHEMA.md "Under which
@@ -103,6 +105,38 @@ pub enum AppMessage {
     /// it.
     #[serde(rename_all = "camelCase")]
     RequestPermission { permission: String },
+    /// (T3) The user's table tiling settings, on every change and after
+    /// every handshake (a restarted HUD gets them too): the HUD switches
+    /// tiling on or off and lays the tables out with them. Whether a room
+    /// may be tiled at all is the HUD's policy, never this.
+    #[serde(rename_all = "camelCase")]
+    TilingChanged { settings: TilingSettings },
+    /// (T3) The user's RNG settings, on every change and after every
+    /// handshake; (T4) the HUD draws the RNG with them over the tables of
+    /// rooms whose policy allows it.
+    #[serde(rename_all = "camelCase")]
+    RngChanged { settings: RngSettings },
+    /// (T3) Lay every tiled table out again, the ones the user moved by
+    /// hand too (the tray's "Re-tile tables").
+    Retile,
+    /// (T5) "Save current arrangement": the HUD answers with
+    /// [`HudMessage::LayoutCaptured`] and the same `request` - one slot per
+    /// place a tiled table takes now, for a user layout. An older HUD
+    /// ignores it (the app gives up after a moment).
+    #[serde(rename_all = "camelCase")]
+    CaptureLayout { request: u64 },
+    /// (T3) Whether the plan includes the HUD's panels. `false` (Free,
+    /// with enforcement on): the HUD runs for table tiling and the RNG
+    /// only and attaches no panel; `true` (the plan now includes it): it
+    /// attaches from its next look. The command line's `--panels off` is
+    /// the same before the first look.
+    #[serde(rename_all = "camelCase")]
+    Panels { allowed: bool },
+    /// (T7) The user's hotkey: roll the RNG on the table in front (the
+    /// system's foreground window), when it shows the RNG - the user's RNG
+    /// settings on for its room **and** the room's `RngPermit`; otherwise
+    /// nothing. An older HUD ignores it.
+    RollRng,
     /// A message type this build does not know (a newer app).
     #[serde(other)]
     Unknown,
@@ -206,6 +240,51 @@ pub enum HudMessage {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         design: Option<String>,
     },
+    /// (T4) The user dragged a table's RNG widget: the app remembers it in
+    /// the store (`hud_settings` kind `rng`, key `pos-<site>-<size>`:
+    /// `rail_store::hud`) for the room and the table size, like a seat's
+    /// panel, and the HUD reads it back at its
+    /// next start (and on `layout_changed`). The HUD already shows it there,
+    /// on every table of that room and size.
+    #[serde(rename_all = "camelCase")]
+    RngPositionChanged {
+        /// The `sites.json` room.
+        site: String,
+        /// The table size, 2 - 10.
+        size: u32,
+        /// The widget's centre, thousandths of the table's client area.
+        x: u32,
+        y: u32,
+    },
+    /// (T3) Table tiling's state, whenever it changes: on or off, how many
+    /// tables it manages, the layout in force (`auto` for the auto grid;
+    /// `None` while off or before a table).
+    ///
+    /// (T5) With what the app's Tables screen draws: the monitors (sent
+    /// whether tiling is on or off) and every table tiling manages, each
+    /// at its **outer rect** (the window's frame included - what tiling
+    /// lays edge to edge and a slot holds), in the monitors' space. Sent
+    /// when anything in it changes; while only places change (a table
+    /// dragged), at most every quarter of a second.
+    #[serde(rename_all = "camelCase")]
+    TilingStatus {
+        enabled: bool,
+        tables: u32,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        layout: Option<String>,
+        /// (T5) In the order layouts name them (`Slot::monitor`).
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        monitors: Vec<MonitorInfo>,
+        /// (T5) The tables tiling manages, in slot order.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        windows: Vec<TiledTable>,
+    },
+    /// (T5) The answer to [`AppMessage::CaptureLayout`]: one slot per
+    /// distinct place of a table tiling manages (stacked tables share
+    /// one), thousandths of its monitor's work area; empty while tiling is
+    /// off or holds no table.
+    #[serde(rename_all = "camelCase")]
+    LayoutCaptured { request: u64, slots: Vec<Slot> },
     /// A message type this build does not know (a newer HUD).
     #[serde(other)]
     Unknown,
@@ -219,6 +298,45 @@ pub struct ScreenRect {
     pub y: i32,
     pub width: u32,
     pub height: u32,
+}
+
+/// (T5) A monitor as tiling sees it: physical pixels, the primary
+/// monitor's top-left the origin, y down (the space of every rect the HUD
+/// sends).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MonitorInfo {
+    /// Its place in the monitor order layouts use (`Slot::monitor`): 0 the
+    /// primary, then left to right.
+    pub index: u32,
+    pub primary: bool,
+    /// The whole monitor.
+    pub bounds: ScreenRect,
+    /// What windows may use (no taskbar, menu bar or Dock).
+    pub work_area: ScreenRect,
+    /// Thousandths (96 dpi = 1000, Retina 2000).
+    pub scale_permille: u32,
+}
+
+/// (T5) A table tiling manages.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TiledTable {
+    /// The `sites.json` room.
+    pub site: String,
+    /// The table name from the window's title.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub table: Option<String>,
+    /// Its outer rect (frame included), physical pixels.
+    pub rect: ScreenRect,
+    /// The monitor holding its centre ([`MonitorInfo::index`]).
+    pub monitor: u32,
+    /// It shares its slot with another table (a stack).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub stacked: bool,
+    /// The user moved it by hand: left where it is until "Re-tile".
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub pinned: bool,
 }
 
 /// Why compliance mode refused a window.
@@ -379,6 +497,84 @@ pub struct LatencySummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::hotkeys::{HotkeyAction, HotkeyBinding};
+    use crate::settings::{
+        AutoSwitch, Layout, LayoutRef, RngBand, RngTriggers, Slot, SlotKind, SlotRect,
+    };
+
+    /// (T5) A 1080p primary monitor with a 40 px taskbar.
+    fn monitor_info() -> MonitorInfo {
+        MonitorInfo {
+            index: 0,
+            primary: true,
+            bounds: ScreenRect {
+                x: 0,
+                y: 0,
+                width: 1920,
+                height: 1080,
+            },
+            work_area: ScreenRect {
+                x: 0,
+                y: 0,
+                width: 1920,
+                height: 1040,
+            },
+            scale_permille: 1000,
+        }
+    }
+
+    /// (T5) A stacked table in the monitor's left half.
+    fn tiled_table() -> TiledTable {
+        TiledTable {
+            site: "pokerstars".into(),
+            table: Some("Hygiea".into()),
+            rect: ScreenRect {
+                x: 0,
+                y: 0,
+                width: 960,
+                height: 700,
+            },
+            monitor: 0,
+            stacked: true,
+            pinned: false,
+        }
+    }
+
+    /// (T3) Tiling settings with a user layout in force.
+    fn tiling_settings() -> TilingSettings {
+        TilingSettings {
+            enabled: true,
+            active: LayoutRef::Custom { id: "two".into() },
+            layouts: vec![Layout {
+                id: "two".into(),
+                name: "Two".into(),
+                slots: vec![Slot {
+                    id: "left".into(),
+                    monitor: 1,
+                    rect: SlotRect {
+                        x: 0,
+                        y: 0,
+                        width: 500,
+                        height: 1000,
+                    },
+                    kind: SlotKind::Play,
+                    rooms: Some(vec!["pokerstars".into()]),
+                    stack: true,
+                }],
+                auto_switch: vec![AutoSwitch {
+                    min_tables: 3,
+                    layout_id: "auto".into(),
+                }],
+            }],
+            auto_switch: Vec::new(),
+            close_gaps: true,
+            per_room: [("winamax".to_owned(), false)].into_iter().collect(),
+            hotkeys: vec![HotkeyBinding {
+                action: HotkeyAction::NextLayout,
+                keys: "Ctrl+Alt+ArrowRight".into(),
+            }],
+        }
+    }
 
     fn round_trip<T>(value: &T) -> T
     where
@@ -435,6 +631,40 @@ mod tests {
             AppMessage::RequestPermission {
                 permission: "accessibility".into(),
             },
+            AppMessage::TilingChanged {
+                settings: TilingSettings::default(),
+            },
+            AppMessage::TilingChanged {
+                settings: tiling_settings(),
+            },
+            AppMessage::RngChanged {
+                settings: RngSettings::default(),
+            },
+            AppMessage::RngChanged {
+                settings: RngSettings {
+                    enabled: true,
+                    min: 0,
+                    max: 99,
+                    bands: vec![RngBand {
+                        up_to: 99,
+                        colour: "#202020".into(),
+                        label: Some("Bluff".into()),
+                    }],
+                    triggers: RngTriggers {
+                        new_hand: false,
+                        click: true,
+                        timer_secs: Some(20),
+                    },
+                    per_room: [("acr".to_owned(), false)].into_iter().collect(),
+                    scale: 140,
+                    opacity: 70,
+                },
+            },
+            AppMessage::Retile,
+            AppMessage::RollRng,
+            AppMessage::CaptureLayout { request: 7 },
+            AppMessage::Panels { allowed: false },
+            AppMessage::Panels { allowed: true },
         ];
         for message in &app {
             assert_eq!(&round_trip(message), message);
@@ -555,6 +785,30 @@ mod tests {
                 anchor: ScreenRect::default(),
                 scale_permille: 1000,
                 design: None,
+            },
+            HudMessage::RngPositionChanged {
+                site: "pokerstars".into(),
+                size: 9,
+                x: 940,
+                y: 60,
+            },
+            HudMessage::TilingStatus {
+                enabled: true,
+                tables: 4,
+                layout: Some("auto".into()),
+                monitors: vec![monitor_info()],
+                windows: vec![tiled_table()],
+            },
+            HudMessage::TilingStatus {
+                enabled: false,
+                tables: 0,
+                layout: None,
+                monitors: Vec::new(),
+                windows: Vec::new(),
+            },
+            HudMessage::LayoutCaptured {
+                request: 7,
+                slots: tiling_settings().layouts[0].slots.clone(),
             },
         ];
         for message in &hud {
@@ -704,6 +958,102 @@ mod tests {
             })
             .expect("json"),
             r#"{"type":"open_popup","window":9,"site":"acr","storeSite":"acrwpn","table":"T","player":{"name":"V","scope":"","seat":2},"segment":3,"slot":1,"anchor":{"x":10,"y":-5,"width":80,"height":40},"scalePermille":1250,"design":"cash"}"#
+        );
+    }
+
+    /// (T3) Tiling's and the RNG's messages on the wire: `type` in snake
+    /// case, the settings as stored (camelCase); an older HUD reads them as
+    /// `Unknown` and ignores them.
+    #[test]
+    fn tiling_wire_form() {
+        assert_eq!(
+            serde_json::to_string(&AppMessage::Retile).expect("json"),
+            r#"{"type":"retile"}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::RollRng).expect("json"),
+            r#"{"type":"roll_rng"}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::Panels { allowed: false }).expect("json"),
+            r#"{"type":"panels","allowed":false}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::TilingChanged {
+                settings: TilingSettings::default()
+            })
+            .expect("json"),
+            r#"{"type":"tiling_changed","settings":{"enabled":false,"active":{"kind":"auto"},"layouts":[],"autoSwitch":[],"closeGaps":false,"perRoom":{},"hotkeys":[]}}"#
+        );
+        let rng = serde_json::to_string(&AppMessage::RngChanged {
+            settings: RngSettings::default(),
+        })
+        .expect("json");
+        assert!(
+            rng.starts_with(r#"{"type":"rng_changed","settings":{"enabled":false,"min":1,"max":100,"bands":[{"upTo":33,"#),
+            "{rng}"
+        );
+        assert_eq!(
+            serde_json::to_string(&HudMessage::TilingStatus {
+                enabled: true,
+                tables: 2,
+                layout: Some("auto".into()),
+                monitors: Vec::new(),
+                windows: Vec::new(),
+            })
+            .expect("json"),
+            r#"{"type":"tiling_status","enabled":true,"tables":2,"layout":"auto"}"#
+        );
+        // (T5) The monitors and the tables, camelCase; a table's flags only
+        // when set.
+        assert_eq!(
+            serde_json::to_string(&HudMessage::TilingStatus {
+                enabled: true,
+                tables: 1,
+                layout: Some("auto".into()),
+                monitors: vec![monitor_info()],
+                windows: vec![tiled_table()],
+            })
+            .expect("json"),
+            r#"{"type":"tiling_status","enabled":true,"tables":1,"layout":"auto","monitors":[{"index":0,"primary":true,"bounds":{"x":0,"y":0,"width":1920,"height":1080},"workArea":{"x":0,"y":0,"width":1920,"height":1040},"scalePermille":1000}],"windows":[{"site":"pokerstars","table":"Hygiea","rect":{"x":0,"y":0,"width":960,"height":700},"monitor":0,"stacked":true}]}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&AppMessage::CaptureLayout { request: 3 }).expect("json"),
+            r#"{"type":"capture_layout","request":3}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&HudMessage::LayoutCaptured {
+                request: 3,
+                slots: Vec::new()
+            })
+            .expect("json"),
+            r#"{"type":"layout_captured","request":3,"slots":[]}"#
+        );
+        // A settings object with fields left out reads with the defaults.
+        let sparse: AppMessage =
+            serde_json::from_str(r#"{"type":"tiling_changed","settings":{"enabled":true}}"#)
+                .expect("sparse settings");
+        assert_eq!(
+            sparse,
+            AppMessage::TilingChanged {
+                settings: TilingSettings {
+                    enabled: true,
+                    ..TilingSettings::default()
+                }
+            }
+        );
+        let older: HudMessage =
+            serde_json::from_str(r#"{"type":"tiling_status","enabled":false,"tables":0}"#)
+                .expect("no layout");
+        assert_eq!(
+            older,
+            HudMessage::TilingStatus {
+                enabled: false,
+                tables: 0,
+                layout: None,
+                monitors: Vec::new(),
+                windows: Vec::new(),
+            }
         );
     }
 

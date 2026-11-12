@@ -1736,6 +1736,9 @@ fn migration_20_gives_postflop_leak_rows_their_table() {
     store.close();
     let before = leak_rows(&conn);
     assert_eq!(before.len(), hands.len() * 3);
+    // Version 21's table goes too (back to 19).
+    conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+        .expect("version 21's table");
     conn.pragma_update(None, "user_version", 19)
         .expect("back to 19");
 
@@ -1765,6 +1768,9 @@ fn migration_20_gives_postflop_leak_rows_their_table() {
     assert!(tables.len() >= 2, "tables: {tables:?}");
 
     // Again from 19: nothing more to set.
+    // Version 21's table goes too (back to 19).
+    conn.execute_batch("DROP TABLE IF EXISTS hud_settings")
+        .expect("version 21's table");
     conn.pragma_update(None, "user_version", 19)
         .expect("back to 19");
     Store::open(&path).expect("migrated").close();

@@ -145,6 +145,12 @@ pub struct HandFilter {
     /// The hero's result, big blinds: from, to (inclusive).
     pub net_min: Option<f64>,
     pub net_max: Option<f64>,
+    /// The hand's total pot: from, to (inclusive). In big blinds, or with
+    /// `pot_in_money` in the table's currency (`$25`), which leaves out the
+    /// tournaments' chips (2026-11-08, the owner's ask).
+    pub pot_min: Option<f64>,
+    pub pot_max: Option<f64>,
+    pub pot_in_money: bool,
     /// The analysis: `blunder`, `mistake`, `inaccurate` (a decision so
     /// graded), `clean` (analysed, nothing worse than good), `notAnalysed`.
     pub grades: Vec<String>,
@@ -247,6 +253,35 @@ pub fn act_bit(name: &str) -> Option<i64> {
     ACTS.iter()
         .position(|(id, _)| *id == name)
         .map(|i| 1i64 << i)
+}
+
+/// The pot's size (2026-11-08): `hand_stats.total_pot` (minor units, as the
+/// big blind) over the big blind, or over the currency's minor units for an
+/// amount of money. A hand with no big blind, or chips when money is asked
+/// for, does not match. Read for the rows `hand_list` has already narrowed.
+fn pot_clauses(filter: &HandFilter, w: &mut Where) {
+    let min = filter.pot_min.filter(|v| v.is_finite());
+    let max = filter.pot_max.filter(|v| v.is_finite());
+    if min.is_none() && max.is_none() {
+        return;
+    }
+    let (unit, known) = if filter.pot_in_money {
+        ("pd.currency_minor_units", "pd.currency_minor_units > 1")
+    } else {
+        ("ph.big_blind", "ph.big_blind > 0")
+    };
+    let mut parts = vec![known.to_owned()];
+    if let Some(min) = min {
+        parts.push(format!("pd.total_pot >= {min} * {unit}"));
+    }
+    if let Some(max) = max {
+        parts.push(format!("pd.total_pot <= {max} * {unit}"));
+    }
+    w.push(format!(
+        "EXISTS (SELECT 1 FROM hand_stats pd JOIN hands ph ON ph.hand_key = pd.hand_key
+                 WHERE pd.hand_key = l.hand_key AND {})",
+        parts.join(" AND ")
+    ));
 }
 
 /// The builder's clauses over the PHF facts (schema 19, [`crate::facts`]).
@@ -1059,6 +1094,7 @@ fn builder_clauses(filter: &HandFilter, w: &mut Where) {
     if let Some(max) = filter.net_max.filter(|v| v.is_finite()) {
         w.push(format!("l.hero_net_bb_milli <= {max} * 1000"));
     }
+    pot_clauses(filter, w);
 
     let graded = |rank: i64| {
         format!(

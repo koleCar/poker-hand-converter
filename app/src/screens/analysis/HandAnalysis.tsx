@@ -6,8 +6,11 @@
  * left for the background run to store). Reached from Hands ("Analysis" in a
  * hand's panel) and from the session review's and the charts' lists, at the
  * decision they name. An analysis screen: hidden while a table is open (A10).
+ *
+ * Split view: the decisions on the left, the Solver on the right at the
+ * decision picked (`SolverPanel`), the one the hand was opened at first.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDataSource } from "@rail/ui/data";
 import type { PhfHand } from "@rail/ui/model/phf";
 
@@ -18,14 +21,24 @@ import type { DecisionAnalysis, HandAnalysis as Analysis } from "../../analysis/
 import { bestAction } from "../../analysis/rows";
 import { handAnalysisOf } from "../../analysis/service";
 import { go, screenHref } from "../../lib/router";
+import { solverSpotOf } from "../../solver/spot";
 import styles from "./Analysis.module.css";
 import { IcmBlock } from "./IcmBlock";
+import { SolverPanel } from "./SolverPanel";
 
 export type Loaded =
   | { status: "loading" }
   | { status: "missing" }
   | { status: "error"; message: string }
-  | { status: "ready"; analysis: Analysis; stored: boolean; /** (R5.5) When the hand was played: a players-left point is kept at it. */ playedAt?: string | null };
+  | {
+      status: "ready";
+      analysis: Analysis;
+      stored: boolean;
+      /** (R5.5) When the hand was played: a players-left point is kept at it. */
+      playedAt?: string | null;
+      /** The hand itself: the Solver follows its line to a turn or river decision. */
+      hand?: PhfHand;
+    };
 
 const TWO = liveNumberFormat({ minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const ONE = liveNumberFormat({ minimumFractionDigits: 0, maximumFractionDigits: 1 });
@@ -55,7 +68,7 @@ export function HandAnalysis({
           return;
         }
         const result = await handAnalysisOf(handKey, phf as never);
-        if (live) setLoaded(result ? { status: "ready", ...result, playedAt: phf.playedAt ?? null } : { status: "missing" });
+        if (live) setLoaded(result ? { status: "ready", ...result, playedAt: phf.playedAt ?? null, hand: phf } : { status: "missing" });
       } catch (error) {
         if (live) setLoaded({ status: "error", message: error instanceof Error ? error.message : String(error) });
       }
@@ -81,6 +94,16 @@ export function HandAnalysisView({
   loaded: Loaded;
 }) {
   const h = useT().analysis.hand;
+  const decisions = loaded.status === "ready" ? loaded.analysis.decisions : null;
+  const hand = loaded.status === "ready" ? loaded.hand : undefined;
+  /** The decision the Solver shows: picked on the left; at first the one the hand was opened at, else the first the Solver has. */
+  const [picked, setPicked] = useState<number | null>(null);
+  const selected = useMemo(() => {
+    if (!decisions) return null;
+    const at = picked ?? actionIndex;
+    return decisions.find((d) => d.actionIndex === at) ?? decisions.find((d) => solverSpotOf(decisions, d, hand)) ?? decisions[0] ?? null;
+  }, [decisions, picked, actionIndex, hand]);
+  const spot = useMemo(() => (decisions && selected ? solverSpotOf(decisions, selected, hand) : null), [decisions, selected, hand]);
   const bb = (value: number | null) => (value === null ? "–" : h.bb(TWO.format(value)));
   const percent = (value: number) => `${ONE.format(value * 100)} %`;
 
@@ -92,35 +115,40 @@ export function HandAnalysisView({
     const a = loaded.analysis;
     const word = (map: Record<string, string>, key: string | null) => (key ? (map[key] ?? key) : "");
     body = (
-      <>
-        {!loaded.stored && <p className={styles.note}>{h.notStored}</p>}
-        <p className={styles.summary}>
-          {a.status === "not-analysed"
-            ? h.notAnalysed(a.reason ?? "")
-            : a.grade
-              ? h.summary(word(h.grades, a.grade), bb(a.evLoss))
-              : h.noGrade}
-        </p>
-        <h2 className={styles.subheading}>{h.decisions}</h2>
-        <ol className={`${styles.decisions} rail-stagger`}>
-          {a.decisions.map((d) => (
-            <DecisionRow
-              key={d.order}
-              decision={d}
-              open={d.actionIndex === actionIndex}
-              bb={bb}
-              percent={percent}
-              word={word}
-              playedAt={loaded.playedAt ?? null}
-            />
-          ))}
-        </ol>
-      </>
+      <div className={styles.split}>
+        <div className={styles.splitDecisions}>
+          {!loaded.stored && <p className={styles.note}>{h.notStored}</p>}
+          <p className={styles.summary}>
+            {a.status === "not-analysed"
+              ? h.notAnalysed(a.reason ?? "")
+              : a.grade
+                ? h.summary(word(h.grades, a.grade), bb(a.evLoss))
+                : h.noGrade}
+          </p>
+          <h2 className={styles.subheading}>{h.decisions}</h2>
+          <ol className={`${styles.decisions} rail-stagger`}>
+            {a.decisions.map((d) => (
+              <DecisionRow
+                key={d.order}
+                decision={d}
+                open={d.actionIndex === actionIndex}
+                selected={d === selected}
+                onSelect={() => setPicked(d.actionIndex)}
+                bb={bb}
+                percent={percent}
+                word={word}
+                playedAt={loaded.playedAt ?? null}
+              />
+            ))}
+          </ol>
+        </div>
+        <SolverPanel spot={spot} />
+      </div>
     );
   }
 
   return (
-    <section className={styles.hand} aria-labelledby="hand-analysis-title">
+    <section className={`${styles.hand} ${styles.handWide}`} aria-labelledby="hand-analysis-title">
       <div className={styles.handHead}>
         <h1 id="hand-analysis-title" className={styles.title}>
           {h.title}
@@ -144,6 +172,8 @@ export function HandAnalysisView({
 function DecisionRow({
   decision: d,
   open,
+  selected,
+  onSelect,
   bb,
   percent,
   word,
@@ -151,6 +181,9 @@ function DecisionRow({
 }: {
   decision: DecisionAnalysis;
   open: boolean;
+  /** Shown in the Solver beside the list. */
+  selected: boolean;
+  onSelect: () => void;
   playedAt: string | null;
   bb: (value: number | null) => string;
   percent: (value: number) => string;
@@ -160,8 +193,11 @@ function DecisionRow({
   const h = t.analysis.hand;
   const best = bestAction(d.options);
   return (
-    <li className={open ? `${styles.decision} ${styles.focused}` : styles.decision} data-action-index={d.actionIndex}>
-      <div className={styles.decisionHead}>
+    <li
+      className={[styles.decision, open ? styles.focused : "", selected ? styles.selected : ""].filter(Boolean).join(" ")}
+      data-action-index={d.actionIndex}
+    >
+      <button type="button" className={styles.decisionHead} aria-pressed={selected} title={h.solver.pick} onClick={onSelect}>
         <span className={styles.street}>{word(h.streets, d.street)}</span>
         <span>
           <span className={styles.muted}>{h.action} </span>
@@ -192,7 +228,7 @@ function DecisionRow({
           {h.source}: {word(h.sources, d.source)}
         </span>
         {d.flags.length > 0 && <span className={styles.muted}>{h.notes(d.flags.length)}</span>}
-      </div>
+      </button>
       {d.options.length > 0 && (
         <details className={styles.options} open={open}>
           <summary>{h.options}</summary>

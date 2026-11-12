@@ -323,6 +323,17 @@ export function ReplayTable({
   const boardCards = Array.from({ length: 5 }, (_, index) => frame.board[index] ?? null);
   const boardRows =
     metrics.boardRows === 2 ? [boardCards.slice(0, 3), boardCards.slice(3)] : [boardCards];
+  // Run 2 in the same rows as run 1. A row made only of shared streets says
+  // nothing run 1 does not, so it is dropped (the flop row of a two-row board
+  // when the hand was run twice on the turn or river).
+  const secondFrom = frame.boardSecondFrom;
+  const secondSlots = Array.from({ length: 5 }, (_, index) => ({
+    index,
+    code: frame.boardSecond[index] ?? null,
+  }));
+  const secondRows = (
+    metrics.boardRows === 2 ? [secondSlots.slice(0, 3), secondSlots.slice(3)] : [secondSlots]
+  ).filter((row) => row.some((slot) => slot.index >= secondFrom));
 
   return (
     // The letterbox. Its ratio is the shape's, its size comes from the stage
@@ -421,20 +432,46 @@ export function ReplayTable({
               ))}
             </div>
             {hasSecondBoard ? (
-              <div className="rp__board rp__board--second" role="group" aria-label={words.secondRunout}>
-                <div className="rp__board-row">
-                  <span className="rp__board-tag">{words.runTwo}</span>
-                  {frame.boardSecond.map((code, index) => (
-                    <PlayingCard
-                      key={`b2-${index}-${code}`}
-                      code={code}
-                      size="xl"
-                      dealIndex={index}
-                      dealX={boardAim.x}
-                      dealY={boardAim.y}
-                    />
-                  ))}
-                </div>
+              <div
+                className={`rp__board rp__board--second ${secondFrom > 0 ? "rp__board--split" : ""}`.trim()}
+                role="group"
+                aria-label={words.secondRunout}
+              >
+                {/* Only the cards run 2 dealt for itself are drawn, each under
+                    the run-1 card it replaces; the streets both runs share stay
+                    as invisible slots so the columns line up. */}
+                {secondRows.map((row, rowIndex) => {
+                  const lead = row.filter((slot) => slot.index < secondFrom).length;
+                  return (
+                    <div
+                      className="rp__board-row rp__board-row--second"
+                      key={`b2-row-${row[0]?.index ?? 0}`}
+                      style={{ "--lead": lead } as React.CSSProperties}
+                    >
+                      {rowIndex === 0 ? (
+                        <span className="rp__board-tag" aria-hidden="true">
+                          {words.runTwo}
+                        </span>
+                      ) : null}
+                      {row.map(({ index, code }) =>
+                        index < secondFrom ? (
+                          <span key={`b2-shared-${index}`} className="rp__board-gap" aria-hidden="true" />
+                        ) : code ? (
+                          <PlayingCard
+                            key={`b2-${index}-${code}`}
+                            code={code}
+                            size="xl"
+                            dealIndex={index - secondFrom}
+                            dealX={boardAim.x}
+                            dealY={boardAim.y}
+                          />
+                        ) : (
+                          <span key={`b2-slot-${index}`} className="rp__board-slot" aria-hidden="true" />
+                        ),
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ) : null}
           </div>

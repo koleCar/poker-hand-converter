@@ -1,4 +1,5 @@
--- pgTAP: the HUD's designs and layouts, synced -- `20270602090000_hud_layouts.sql`.
+-- pgTAP: the HUD's designs and layouts, synced -- `20270602090000_hud_layouts.sql`,
+-- and (T3) the table tiling and RNG settings -- `20271111090000_hud_layouts_tiling.sql`.
 --
 -- What has to hold:
 --
@@ -11,14 +12,17 @@
 --   * a batch is validated whole (kinds, keys per kind, bodies, times), at
 --     most 500 rows a call and 5,000 an account;
 --   * one user's rows never reach another's reads or writes, even with the
---     same key; anon reads and writes nothing.
+--     same key; anon reads and writes nothing;
+--   * (T3) the kinds `tiling` and `rng` (a slug key, an object body) are
+--     taken by the table and the writer, last writer wins as for the rest;
+--     the writer is still gated (`desktop_sync`) after its replacement.
 
 begin;
 
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(35);
+select plan(40);
 
 -- ------------------------------------------------------------------ setup --
 
@@ -153,6 +157,41 @@ select throws_ok(
   $$select public.put_hud_layouts((select jsonb_agg(jsonb_build_object(
       'kind', 'layout', 'key', 'd-' || g, 'updatedAt', pg_temp.at(0))) from generate_series(1, 501) g))$$,
   '53400', null, 'at most 500 rows a call');
+
+-- ------------------------------------------------------ T3: tiling, rng --
+
+select is(
+  public.put_hud_layouts(jsonb_build_array(
+    jsonb_build_object('kind', 'tiling', 'key', 'default',
+      'body', '{"enabled":true,"active":{"kind":"auto"},"perRoom":{"winamax":false}}'::jsonb,
+      'updatedAt', pg_temp.at(1000)),
+    jsonb_build_object('kind', 'rng', 'key', 'default',
+      'body', '{"enabled":false,"min":1,"max":100}'::jsonb, 'updatedAt', pg_temp.at(1000))
+  )),
+  '[{"key": "default", "kind": "tiling", "applied": true},
+    {"key": "default", "kind": "rng", "applied": true}]'::jsonb,
+  'tiling and RNG settings are taken');
+select is(
+  public.put_hud_layouts(jsonb_build_array(
+    jsonb_build_object('kind', 'tiling', 'key', 'default', 'body', '{"enabled":false}'::jsonb,
+      'updatedAt', pg_temp.at(999)),
+    jsonb_build_object('kind', 'rng', 'key', 'default', 'body', '{"enabled":true}'::jsonb,
+      'updatedAt', pg_temp.at(2000))
+  )),
+  '[{"key": "default", "kind": "tiling", "applied": false},
+    {"key": "default", "kind": "rng", "applied": true}]'::jsonb,
+  '... last writer wins for them too');
+select ok(
+  (select (body ->> 'enabled')::boolean from public.hud_layouts where kind = 'tiling' and key = 'default')
+  and (select (body ->> 'enabled')::boolean from public.hud_layouts where kind = 'rng' and key = 'default'),
+  '... as stored');
+select throws_ok($$select public.put_hud_layouts(jsonb_build_array(jsonb_build_object(
+  'kind', 'tiling', 'key', 'My Layout', 'body', '{}'::jsonb, 'updatedAt', pg_temp.at(0))))$$,
+  '22023', null, 'a malformed tiling key');
+select ok(
+  position('public.require_entitlement(''desktop_sync'')' in
+    pg_get_functiondef('public.put_hud_layouts(jsonb)'::regprocedure)) > 0,
+  'the replaced writer is still gated (desktop_sync)');
 
 -- ------------------------------------------------------------- B, anon --
 

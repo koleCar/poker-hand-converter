@@ -12,6 +12,9 @@ export default defineConfig({
       // The desktop app's analysis (R5.4) reaches the web's library through
       // this alias (`app/vite.config.ts`); its tests run the app's files here.
       "@rail/web-lib": fileURLToPath(new URL("../web/src/lib", import.meta.url)),
+      // Its Solver tab and the analysis' split view render the web's Solver
+      // library in place the same way (`app/src/solver/door.ts`).
+      "@rail/web-solver": fileURLToPath(new URL("../web/src/components/solver", import.meta.url)),
       // The app's IPC (R5.4's screens rendered here): Tauri stubbed, the
       // commands answered by each test (`test/support/tauriCore.ts`).
       "@tauri-apps/api/core": fileURLToPath(new URL("./test/support/tauriCore.ts", import.meta.url)),

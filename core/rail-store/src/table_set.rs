@@ -1,5 +1,6 @@
 //! A hand's table for its postflop leak rows (migration 20; the web's
-//! `analysis_hand_table_set`, `supabase/migrations/20271102090000_leak_row_table.sql`).
+//! `analysis_hand_table_set`, `supabase/migrations/20271102090000_leak_row_table.sql`;
+//! its set list last in `20271108090000_table_set_9max_60bb.sql`).
 //!
 //! The window computes a postflop leak row's `chart_set` when it analyses a
 //! hand (`handTableSet` in `app/src/analysis/rows.ts`); this is the same rule
@@ -29,6 +30,7 @@ pub const TABLE_SETS: &[(&str, u32, i128)] = &[
     ("nlhe-cash-6max-100bb", 6, 100),
     ("nlhe-cash-6max-150bb", 6, 150),
     ("nlhe-cash-6max-200bb", 6, 200),
+    ("nlhe-cash-9max-60bb", 9, 60),
     ("nlhe-cash-9max-100bb", 9, 100),
     ("nlhe-cash-9max-150bb", 9, 150),
     ("nlhe-cash-9max-200bb", 9, 200),
@@ -230,6 +232,7 @@ mod tests {
             hand_table_set(&hand(&[200; 9], &[])),
             "nlhe-cash-9max-100bb"
         );
+        assert_eq!(hand_table_set(&hand(&[120; 9], &[])), "nlhe-cash-9max-60bb");
         // A deep opponent still in raises the effective stack; folded, he does not.
         let mut deep = vec![400; 1];
         deep.extend([200, 200, 200, 200, 800]);
@@ -253,6 +256,8 @@ mod tests {
         assert_eq!(hand_table_set(&hand(&[200; 10], &[])), "");
         assert_eq!(hand_table_set(&hand(&[600, 600], &[])), "");
         assert_eq!(hand_table_set(&hand(&[20; 6], &[])), "");
+        // 75bb 9-max: 20% from neither 60bb nor 100bb.
+        assert_eq!(hand_table_set(&hand(&[150; 9], &[])), "");
         let mut tournament = hand(&[200; 6], &[]);
         tournament["game"]["format"] = json!("tournament");
         assert_eq!(hand_table_set(&tournament), "");

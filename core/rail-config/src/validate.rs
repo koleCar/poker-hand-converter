@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use std::fmt;
 
 use crate::VERSION;
-use crate::model::{Config, PathEntry, SeatLayout, Site, SiteKind};
+use crate::model::{Config, Feature, PathEntry, SeatLayout, Site, SiteKind};
 
 /// One thing wrong with a file.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,6 +75,25 @@ pub fn check_coverage(config: &Config, parsers: &[&str]) -> Vec<Problem> {
         .collect()
 }
 
+/// (T0) The shipped file states every room's `tiling` and `rng` policy; only
+/// a downloaded file may lack the blocks (it was written before them, and
+/// the merge keeps the shipped ones).
+pub fn check_policy_blocks(config: &Config) -> Vec<Problem> {
+    config
+        .sites
+        .iter()
+        .flat_map(|site| {
+            Feature::ALL
+                .into_iter()
+                .filter(|feature| site.permission_block(*feature).is_none())
+                .map(|feature| Problem {
+                    site: Some(site.id.clone()),
+                    message: format!("no {} block", feature.key()),
+                })
+        })
+        .collect()
+}
+
 fn check_site(site: &Site, parsers: &[&str], report: &mut impl FnMut(String)) {
     if !is_id(&site.id) {
         report(format!("id {:?} is not [a-z0-9][a-z0-9-]*", site.id));
@@ -99,6 +118,9 @@ fn check_site(site: &Site, parsers: &[&str], report: &mut impl FnMut(String)) {
         }
     }
     check_hud(site, report);
+    for feature in Feature::ALL {
+        check_permission(site, feature, report);
+    }
     for (os, entries) in [
         ("windows", &site.paths.windows),
         ("macos", &site.paths.macos),
@@ -141,6 +163,52 @@ fn check_hud(site: &Site, report: &mut impl FnMut(String)) {
         if hud.restrictions.is_none() {
             report("hud.allowed is true without restrictions".to_owned());
         }
+    }
+}
+
+/// (T0) `tiling` / `rng`: the same rules as `hud.allowed` - only a room
+/// may allow, and an allowance is dated and sourced from an `https` page.
+fn check_permission(site: &Site, feature: Feature, report: &mut impl FnMut(String)) {
+    let key = feature.key();
+    let permission = site.permission(feature);
+    if let Some(date) = &permission.checked_at
+        && !is_date(date)
+    {
+        report(format!("{key}.checkedAt {date:?} is not YYYY-MM-DD"));
+    }
+    if permission.allowed == Some(true) {
+        if site.kind != SiteKind::Room {
+            report(format!(
+                "only a room can allow {key}; split the network first"
+            ));
+        }
+        if !permission
+            .source
+            .as_deref()
+            .is_some_and(|source| source.starts_with("https://") && source.len() > 8)
+        {
+            report(format!("{key}.allowed is true without an https source"));
+        }
+        if permission.checked_at.is_none() {
+            report(format!("{key}.allowed is true without checkedAt"));
+        }
+    }
+    // (T7) The turn signal belongs to `actionSlot`, which needs one (and
+    // tiling) to be allowed.
+    if feature == Feature::ActionSlot {
+        if permission.allowed == Some(true) {
+            if permission
+                .signal
+                .is_none_or(|s| s.windows.is_none() && s.macos.is_none())
+            {
+                report(format!("{key}.allowed is true without a signal"));
+            }
+            if site.permission(Feature::Tiling).allowed != Some(true) {
+                report(format!("{key}.allowed is true without tiling"));
+            }
+        }
+    } else if permission.signal.is_some() {
+        report(format!("{key}.signal: only actionSlot has a signal"));
     }
 }
 

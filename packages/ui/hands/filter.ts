@@ -13,6 +13,9 @@
 import { extractCards, resolveHeroQuery } from "../model/cards";
 import type { HandFilter, HandSort, PlayerRef } from "./model";
 
+/** The pot filter's unit: big blinds, or the table's money (`$`). */
+export type PotUnit = "bb" | "money";
+
 export type DatePreset = "today" | "week" | "month" | "year" | "custom";
 
 export const DATE_PRESETS: DatePreset[] = ["today", "week", "month", "year", "custom"];
@@ -185,6 +188,12 @@ export interface FilterState {
   heroStack: string;
   netRange: string;
   evLoss: string;
+  /**
+   * The pot's size as a range ("20-50", ">100", "<30"), in big blinds or in
+   * the table's currency (`money`: cash hands only) - 2026-11-08.
+   */
+  potSize: string;
+  potUnit: PotUnit;
   /** A villain's cards were seen (`true`), or none were. */
   knownCards: boolean | null;
   /**
@@ -264,6 +273,8 @@ export const EMPTY_FILTER: FilterState = {
   heroStack: "",
   netRange: "",
   evLoss: "",
+  potSize: "",
+  potUnit: "bb",
   knownCards: null,
   flopSize: [],
   turnSize: [],
@@ -360,6 +371,35 @@ export const LIMIT_ORDER = ["nl", "pl", "fl"];
 export const SIZE_ORDER = ["hu", "6max", "full"];
 export const ANONYMIZATION_ORDER = ["none", "opaque-id", "positional"];
 
+/** The pot editor's comparisons: greater than, less than, between. */
+export type PotOp = "gt" | "lt" | "between";
+export const POT_OPS: PotOp[] = ["gt", "lt", "between"];
+
+/** The pot's range as the editor shows it: a comparison and one or two amounts. */
+export function potParts(text: string): { op: PotOp; a: string; b: string } {
+  const { min, max } = parseRange(text);
+  if (min !== null && max !== null) return { op: "between", a: String(min), b: String(max) };
+  if (max !== null) return { op: "lt", a: String(max), b: "" };
+  if (min !== null) return { op: "gt", a: String(min), b: "" };
+  return { op: "gt", a: "", b: "" };
+}
+
+/** The editor's comparison as the range it saves (">20", "<30", "20-50"); "" while an amount is missing. */
+export function potText(op: PotOp, a: string, b: string): string {
+  const amount = (value: string) => {
+    const t = value.trim().replace(",", ".");
+    const n = Number(t);
+    return t !== "" && Number.isFinite(n) && n >= 0 ? String(n) : null;
+  };
+  const x = amount(a);
+  if (op === "between") {
+    const y = amount(b);
+    return x !== null && y !== null ? `${x}-${y}` : "";
+  }
+  if (x === null) return "";
+  return op === "gt" ? `>${x}` : `<${x}`;
+}
+
 /** A typed minimum pot as a number, or null ("", "abc", 0 and below). */
 export function parseMinPot(text: string): number | null {
   const value = Number(text.trim().replace(",", "."));
@@ -389,7 +429,7 @@ export function activeGroups(filter: FilterState): number {
     (filter.player === null ? 0 : 1) +
     (filter.knownCards === null ? 0 : 1) +
     (filter.bounty === null ? 0 : 1) +
-    ([filter.heroStack, filter.netRange, filter.evLoss, filter.openSize, filter.vsVpip, filter.buyIn].filter(
+    ([filter.heroStack, filter.netRange, filter.evLoss, filter.potSize, filter.openSize, filter.vsVpip, filter.buyIn].filter(
       (text) => text.trim() !== "",
     ).length) +
     activeSearches(filter)
@@ -511,6 +551,12 @@ export function toQuery(filter: FilterState, now: Date = new Date()): HandFilter
   const net = parseRange(filter.netRange);
   if (net.min !== null) query.netMin = net.min;
   if (net.max !== null) query.netMax = net.max;
+  const pot = parseRange(filter.potSize);
+  if (pot.min !== null || pot.max !== null) {
+    if (pot.min !== null) query.potMin = pot.min;
+    if (pot.max !== null) query.potMax = pot.max;
+    query.potUnit = filter.potUnit;
+  }
   const evLoss = parseRange(filter.evLoss).min;
   if (evLoss !== null) query.evLossMin = evLoss;
   if (filter.knownCards !== null) query.knownCards = filter.knownCards;
@@ -645,6 +691,8 @@ export function fromSaved(json: string): FilterState | null {
     heroStack: typeof saved.heroStack === "string" ? saved.heroStack : "",
     netRange: typeof saved.netRange === "string" ? saved.netRange : "",
     evLoss: typeof saved.evLoss === "string" ? saved.evLoss : "",
+    potSize: typeof saved.potSize === "string" ? saved.potSize : "",
+    potUnit: saved.potUnit === "money" ? "money" : "bb",
     knownCards: typeof saved.knownCards === "boolean" ? saved.knownCards : null,
     flopSize: list("flopSize"),
     turnSize: list("turnSize"),

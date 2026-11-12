@@ -75,6 +75,43 @@
 //!   back to where the table was when it looked, and the two cannot fight.
 //!   [`Platform::follow`] with what the backend has not seen yet asks the
 //!   overlay thread to look again.
+//! - **T1 `monitors` / `place`** (table tiling, docs/research/TABLE-TILING.md
+//!   §4.2): the monitors from `EnumDisplayMonitors` + `GetMonitorInfoW`
+//!   (`rcMonitor`, `rcWork`: the work area without the taskbar) and
+//!   `GetDpiForMonitor`, on a per-monitor-aware (v2) thread, so physical
+//!   pixels as everywhere here; the primary first. `place` moves another
+//!   process's window **without ever waiting on it**: a window that does
+//!   not answer (`IsHungAppWindow`) is refused; a minimised or maximised
+//!   one is restored with `ShowWindowAsync(SW_SHOWNOACTIVATE)`, and the
+//!   move is `SetWindowPos` with `SWP_NOACTIVATE | SWP_NOZORDER |
+//!   SWP_ASYNCWINDOWPOS` - posted to the window's thread, so our call
+//!   returns at once (the loop thread shares no input queue with a poker
+//!   client: only the overlay thread's owned windows do). The window rect
+//!   handed over is the wanted client area with the window's own frame
+//!   around it as it is now ([`super::outer_for`]). **Read-back,
+//!   deterministic**: the client area is read every [`PLACE_POLL`] until
+//!   [`super::place_settled`] says so - it is the wanted one, or it moved
+//!   and kept another size for three reads (a client that keeps its aspect
+//!   ratio) - or [`PLACE_WAIT`] has passed, and that last read is the
+//!   answer (a client that has not handled the move by then reports its
+//!   old place; the move still reaches `poll_events` through the hooks
+//!   when it comes). So a placement holds the loop for at most
+//!   [`PLACE_WAIT`] (plus as long again while a minimised window is
+//!   restored), never on a hung client. A window moved to a monitor of
+//!   another dpi is resized by its client (a per-monitor aware one answers
+//!   `WM_DPICHANGED`): the read-back says what it became.
+//! - **T2 frame and mouse** (table tiling's engine): the frame around a
+//!   table's client area is measured against the **visible** frame - DWM's
+//!   extended frame bounds (`DWMWA_EXTENDED_FRAME_BOUNDS`), without the
+//!   invisible resize borders Windows 10 and 11 add around `GetWindowRect`,
+//!   so tiled tables touch where they look as if they touch
+//!   ([`Platform::frame_insets`]). The tiling worker places through
+//!   [`WindowsPlacer`] (the same `place`, from its own thread) and reads the
+//!   mouse with `GetAsyncKeyState` (no hook, no permission): a button down
+//!   now, and - the low bit, best effort since another process may read it
+//!   first - a press since the last read, taken as a click now. Windows has
+//!   no "time since the last click" without a hook, so the worker samples
+//!   every 25 ms instead (`crate::placer`).
 //!
 //! **Why Direct2D rather than a CPU rasteriser.** Correct text first:
 //! DirectWrite shapes and falls back across fonts the way the rest of
@@ -105,9 +142,20 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::{
-    OverlayFrame, Platform, PlatformError, RawWindow, Rect, TableEvent, TableMatcher, TableWindow,
-    WindowId, table_of,
+    Insets, Monitor, MouseState, OverlayFrame, Placer, Platform, PlatformError, RawWindow, Rect,
+    TableEvent, TableMatcher, TableWindow, WindowDetails, WindowId, table_of,
 };
+
+#[cfg(windows)]
+pub mod signals;
+
+/// (T1) How long `place` waits for a window to take its new place (and,
+/// before that, for a minimised one to be restored) before it answers with
+/// where the window is.
+pub const PLACE_WAIT: std::time::Duration = std::time::Duration::from_millis(300);
+
+/// (T1) How often `place` reads the window while it waits.
+pub const PLACE_POLL: std::time::Duration = std::time::Duration::from_millis(5);
 
 #[cfg(windows)]
 pub mod drive;
@@ -198,6 +246,54 @@ pub fn enumerate() -> Result<Vec<RawWindow>, PlatformError> {
     }
 }
 
+/// (T6) The tiling details of `windows` for `--list-windows`
+/// ([`WindowDetails`]): the visible frame (DWM's extended frame bounds, as
+/// [`Platform::frame_insets`] measures it), the insets around the client
+/// area, and whether the style lets the user resize it (`WS_THICKFRAME`).
+/// Read-only: no message goes to the client, so its minimum and maximum
+/// sizes (`WM_GETMINMAXINFO`, which only the client answers) stay unknown -
+/// `--tile-check` measures a refused size instead. Empty off Windows.
+pub fn details(windows: &[RawWindow]) -> BTreeMap<WindowId, WindowDetails> {
+    #[cfg(windows)]
+    {
+        windows
+            .iter()
+            .map(|w| (w.id, ffi::details(w.id, w.minimized)))
+            .collect()
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = windows;
+        BTreeMap::new()
+    }
+}
+
+/// (T6) `--watch-signals` on Windows (`crate::signals`): the shell hook,
+/// the foreground / minimise / title WinEvents and the window order of
+/// `processes`' windows for `duration`, each signal handed to `sink` as it
+/// comes. Read-only. Windows only.
+pub fn watch_signals(
+    processes: &[String],
+    duration: std::time::Duration,
+    sink: &mut dyn FnMut(crate::signals::SignalEvent),
+) -> Result<(), PlatformError> {
+    #[cfg(windows)]
+    {
+        signals::watch(processes, duration, sink)
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = (processes, duration, sink);
+        Err(PlatformError::Unsupported(
+            "watching signals (Windows only)",
+        ))
+    }
+}
+
+/// (T6) The `WS_THICKFRAME` bit of a window style (`GWL_STYLE`): the user
+/// can resize the window by its border.
+pub const WS_THICKFRAME: u32 = 0x0004_0000;
+
 /// Make this process per-monitor DPI aware (v2), so that every window
 /// API it calls speaks physical pixels and its overlays (R3.4) are not
 /// stretched. Call before any window is made; an error means the
@@ -229,6 +325,83 @@ pub struct WindowsBackend {
     /// tracked window.
     #[cfg(windows)]
     overlays: Option<overlay::OverlayThread>,
+    /// (T7) The live feed of turn signals, while the engine wants one.
+    #[cfg(windows)]
+    turn_watch: Option<TurnWatch>,
+}
+
+/// (T7) The Action Required slot's turn signals on Windows: `--watch-signals`'
+/// own hooks (`signals::watch_while`: the shell hook's `HSHELL_FLASH`, the
+/// foreground WinEvent, the window order) for the programs the engine named,
+/// on a thread of its own until it is stopped (dropped). Only a flash, the
+/// foreground and a raise above other programs are kept. Read-only.
+#[cfg(windows)]
+#[derive(Debug)]
+struct TurnWatch {
+    processes: Vec<String>,
+    stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    noted: std::sync::Arc<std::sync::Mutex<Vec<(WindowId, rail_config::SignalKind)>>>,
+}
+
+#[cfg(windows)]
+impl TurnWatch {
+    fn start(processes: Vec<String>) -> Option<Self> {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::{Arc, Mutex, PoisonError};
+        let stop = Arc::new(AtomicBool::new(false));
+        let noted: Arc<Mutex<Vec<(WindowId, rail_config::SignalKind)>>> = Arc::default();
+        let (thread_stop, thread_noted, watched) =
+            (Arc::clone(&stop), Arc::clone(&noted), processes.clone());
+        let spawned = std::thread::Builder::new()
+            .name("rail-hud-turn-signals".to_owned())
+            .spawn(move || {
+                let go_on = |_| !thread_stop.load(Ordering::SeqCst);
+                let mut sink = |event: crate::signals::SignalEvent| {
+                    let kind = match event.signal {
+                        crate::signals::Signal::Flash => rail_config::SignalKind::Flash,
+                        crate::signals::Signal::Foreground => rail_config::SignalKind::Foreground,
+                        crate::signals::Signal::TopOfDesktop => rail_config::SignalKind::Raised,
+                        _ => return,
+                    };
+                    if let Some(id) = event.window {
+                        thread_noted
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner)
+                            .push((id, kind));
+                    }
+                };
+                if let Err(error) = signals::watch_while(&watched, &go_on, &mut sink) {
+                    eprintln!("rail-hud: turn signals: {error}");
+                }
+            });
+        match spawned {
+            Ok(_) => Some(Self {
+                processes,
+                stop,
+                noted,
+            }),
+            Err(error) => {
+                eprintln!("rail-hud: no thread for the turn signals: {error}");
+                None
+            }
+        }
+    }
+
+    fn take(&self) -> Vec<(WindowId, rail_config::SignalKind)> {
+        std::mem::take(
+            &mut *self
+                .noted
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
+        )
+    }
+}
+
+#[cfg(windows)]
+impl Drop for TurnWatch {
+    fn drop(&mut self) {
+        self.stop.store(true, std::sync::atomic::Ordering::SeqCst);
+    }
 }
 
 impl WindowsBackend {
@@ -434,14 +607,27 @@ impl Platform for WindowsBackend {
     fn poll_events(&mut self) -> Vec<TableEvent> {
         #[cfg(windows)]
         {
-            let Some(thread) = &self.overlays else {
-                return Vec::new();
+            let mut events = match &self.overlays {
+                Some(thread) => {
+                    let observed = thread.observed();
+                    if observed.is_empty() {
+                        Vec::new()
+                    } else {
+                        super::tracking::events(observed, &mut self.tracked, &self.matchers)
+                    }
+                }
+                None => Vec::new(),
             };
-            let observed = thread.observed();
-            if observed.is_empty() {
-                return Vec::new();
+            // (T7) The turn signals the live feed noted.
+            if let Some(watch) = &self.turn_watch {
+                events.extend(
+                    watch
+                        .take()
+                        .into_iter()
+                        .map(|(id, signal)| TableEvent::Signalled { id, signal }),
+                );
             }
-            super::tracking::events(observed, &mut self.tracked, &self.matchers)
+            events
         }
         #[cfg(not(windows))]
         {
@@ -455,13 +641,10 @@ impl Platform for WindowsBackend {
     /// made again where the drawing starts.
     fn overlay(&mut self, id: WindowId, frame: &OverlayFrame) -> Result<(), PlatformError> {
         let window = self.tracked.get(&id).ok_or(PlatformError::Gone(id))?;
-        if frame.permit.site() != window.site {
-            return Err(PlatformError::Os(format!(
-                "a frame permitted for {} is not for window {} of {}",
-                frame.permit.site(),
-                id.0,
-                window.site
-            )));
+        // (T4) Every permit the frame carries - the HUD's, the RNG's - is
+        // the window's room's.
+        if let Err(error) = frame.permitted_for(&window.site) {
+            return Err(PlatformError::Os(format!("window {}: {error}", id.0)));
         }
         #[cfg(windows)]
         {
@@ -489,6 +672,118 @@ impl Platform for WindowsBackend {
     fn follow_times_us(&self) -> Vec<u64> {
         WindowsBackend::follow_times_us(self)
     }
+
+    /// (T1) Every monitor, the primary first.
+    fn monitors(&mut self) -> Vec<Monitor> {
+        #[cfg(windows)]
+        {
+            ffi::monitors()
+        }
+        #[cfg(not(windows))]
+        {
+            Vec::new()
+        }
+    }
+
+    /// (T1) Window `id`'s client area to `want`, asynchronously, read back
+    /// (the module's T1 note). Any live top-level window: the engine hands
+    /// it table windows only.
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        #[cfg(windows)]
+        {
+            ffi::place(id, want)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = (id, want);
+            Err(PlatformError::Unsupported("placing windows (Windows only)"))
+        }
+    }
+
+    /// (T2) The visible frame around the client area (the module's T2
+    /// note); `None` for a minimised window (no client area to measure).
+    fn frame_insets(&mut self, window: &TableWindow) -> Option<Insets> {
+        #[cfg(windows)]
+        {
+            ffi::frame_insets(window.id)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = window;
+            None
+        }
+    }
+
+    /// (T2) [`WindowsPlacer`], on Windows.
+    fn placer(&mut self) -> Option<Box<dyn Placer>> {
+        cfg!(windows).then(|| Box::new(WindowsPlacer) as Box<dyn Placer>)
+    }
+
+    /// (T7) The live feed of turn signals ([`TurnWatch`]) for `processes`;
+    /// a new list starts it afresh, an empty one stops it.
+    fn watch_turn_signals(&mut self, processes: &[String]) {
+        #[cfg(windows)]
+        {
+            if self
+                .turn_watch
+                .as_ref()
+                .is_some_and(|w| w.processes == processes)
+            {
+                return;
+            }
+            self.turn_watch = None;
+            if !processes.is_empty() {
+                self.turn_watch = TurnWatch::start(processes.to_vec());
+            }
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = processes;
+        }
+    }
+
+    /// (T7) `GetForegroundWindow`'s top-level window.
+    fn focused_window(&mut self) -> Option<WindowId> {
+        #[cfg(windows)]
+        {
+            ffi::foreground()
+        }
+        #[cfg(not(windows))]
+        {
+            None
+        }
+    }
+}
+
+/// (T2) The tiling worker's [`Placer`] on Windows: [`Platform::place`]'s
+/// code, which needs nothing of the backend (each call makes its thread
+/// per-monitor aware for itself), and the mouse from `GetAsyncKeyState`.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct WindowsPlacer;
+
+impl Placer for WindowsPlacer {
+    fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        #[cfg(windows)]
+        {
+            ffi::place(id, want)
+        }
+        #[cfg(not(windows))]
+        {
+            let _ = (id, want);
+            Err(PlatformError::Unsupported("placing windows (Windows only)"))
+        }
+    }
+
+    fn mouse(&mut self) -> MouseState {
+        #[cfg(windows)]
+        {
+            ffi::mouse()
+        }
+        #[cfg(not(windows))]
+        {
+            MouseState::default()
+        }
+    }
 }
 
 #[cfg(windows)]
@@ -499,9 +794,12 @@ mod ffi {
     use std::collections::HashMap;
 
     use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, POINT, RECT};
-    use windows::Win32::Graphics::Dwm::{DWMWA_CLOAKED, DwmGetWindowAttribute};
+    use windows::Win32::Graphics::Dwm::{
+        DWMWA_CLOAKED, DWMWA_EXTENDED_FRAME_BOUNDS, DwmGetWindowAttribute,
+    };
     use windows::Win32::Graphics::Gdi::{
-        ClientToScreen, MONITOR_DEFAULTTONEAREST, MonitorFromWindow,
+        ClientToScreen, EnumDisplayMonitors, GetMonitorInfoW, HDC, HMONITOR,
+        MONITOR_DEFAULTTONEAREST, MONITORINFO, MonitorFromWindow,
     };
     use windows::Win32::System::Threading::{
         OpenProcess, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
@@ -514,16 +812,25 @@ mod ffi {
         GetWindowDpiAwarenessContext, MDT_EFFECTIVE_DPI, SetProcessDpiAwarenessContext,
         SetThreadDpiAwarenessContext,
     };
+    use windows::Win32::UI::Input::KeyboardAndMouse::{
+        GetAsyncKeyState, VK_LBUTTON, VK_MBUTTON, VK_RBUTTON, VK_XBUTTON1, VK_XBUTTON2,
+    };
     use windows::Win32::UI::WindowsAndMessaging::{
-        EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GetAncestor, GetClassNameW,
-        GetClientRect, GetWindow, GetWindowLongPtrW, GetWindowRect, GetWindowTextLengthW,
-        GetWindowTextW, GetWindowThreadProcessId, IsIconic, IsWindow, IsWindowVisible,
-        WS_EX_TOPMOST,
+        EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GWL_STYLE, GetAncestor,
+        GetClassNameW, GetClientRect, GetForegroundWindow, GetWindow, GetWindowLongPtrW,
+        GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
+        IsHungAppWindow, IsIconic, IsWindow, IsWindowVisible, IsZoomed, MONITORINFOF_PRIMARY,
+        SW_SHOWNOACTIVATE, SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOZORDER, SetWindowPos,
+        ShowWindowAsync, WS_EX_TOPMOST,
     };
     use windows::core::{BOOL, PWSTR};
 
     use super::super::tracking::{self, Beneath, STACKING_WALK, Stacking};
-    use super::super::{DpiAwareness, PlatformError, RawWindow, Rect, WindowId};
+    use super::super::{
+        DpiAwareness, Insets, Monitor, MonitorId, MouseState, PlatformError, RawWindow, Rect,
+        WindowDetails, WindowId, dpi_permille, outer_for, place_settled,
+    };
+    use super::{PLACE_POLL, PLACE_WAIT};
 
     pub(super) fn enumerate() -> Result<Vec<RawWindow>, PlatformError> {
         let _dpi = ThreadDpi::per_monitor_v2();
@@ -881,6 +1188,21 @@ mod ffi {
         (window, monitor_dpi, awareness)
     }
 
+    /// (T7) The foreground window's top-level window (a child or an owned
+    /// pop-up of a table counts as the table); `None` when there is none
+    /// (the desktop, a lock screen).
+    #[allow(unsafe_code)]
+    pub(super) fn foreground() -> Option<WindowId> {
+        // SAFETY: reads which window is in front; no pointers.
+        let hwnd = unsafe { GetForegroundWindow() };
+        if hwnd.0.is_null() {
+            return None;
+        }
+        // SAFETY: reads a relation; a stale handle gives null.
+        let root = unsafe { GetAncestor(hwnd, GA_ROOT) };
+        Some(id_of(if root.0.is_null() { hwnd } else { root }))
+    }
+
     /// Whether the handle names a window that exists.
     #[allow(unsafe_code)]
     pub(super) fn is_window(hwnd: HWND) -> bool {
@@ -931,6 +1253,283 @@ mod ffi {
             cloaked: is_cloaked(hwnd),
             visible: is_visible(hwnd),
         })
+    }
+
+    /// A `RECT` (left, top, right, bottom) as a [`Rect`].
+    fn rect_of(r: RECT) -> Rect {
+        Rect {
+            x: r.left,
+            y: r.top,
+            width: u32::try_from(r.right.saturating_sub(r.left)).unwrap_or(0),
+            height: u32::try_from(r.bottom.saturating_sub(r.top)).unwrap_or(0),
+        }
+    }
+
+    /// (T1) The window rect (frame included) in screen coordinates.
+    #[allow(unsafe_code)]
+    fn window_rect(hwnd: HWND) -> Option<Rect> {
+        let mut r = RECT::default();
+        // SAFETY: `r` is a valid out pointer; a stale handle is an `Err`.
+        unsafe { GetWindowRect(hwnd, &mut r) }.ok()?;
+        Some(rect_of(r))
+    }
+
+    /// `EnumDisplayMonitors`' callback: pushes each monitor into the
+    /// `Vec<HMONITOR>` whose address is `lparam`.
+    #[allow(unsafe_code)]
+    extern "system" fn collect_monitor(
+        monitor: HMONITOR,
+        _: HDC,
+        _: *mut RECT,
+        lparam: LPARAM,
+    ) -> BOOL {
+        let handles =
+            std::ptr::with_exposed_provenance_mut::<Vec<HMONITOR>>(lparam.0.cast_unsigned());
+        // SAFETY: as in `collect`: `monitors` passes the address of a live
+        // `Vec<HMONITOR>` it owns exclusively until `EnumDisplayMonitors`
+        // returns, which calls this synchronously on the same thread.
+        unsafe { (*handles).push(monitor) };
+        BOOL(1)
+    }
+
+    /// (T1) Every monitor, the primary first, in physical pixels.
+    #[allow(unsafe_code)]
+    pub(super) fn monitors() -> Vec<Monitor> {
+        let _dpi = ThreadDpi::per_monitor_v2();
+        let mut handles: Vec<HMONITOR> = Vec::new();
+        let lparam = LPARAM(
+            std::ptr::from_mut(&mut handles)
+                .expose_provenance()
+                .cast_signed(),
+        );
+        // SAFETY: no device context and no clip (every monitor of the
+        // desktop); `collect_monitor` only pushes into `handles`, which
+        // outlives the call.
+        let listed = unsafe { EnumDisplayMonitors(None, None, Some(collect_monitor), lparam) };
+        if !listed.as_bool() {
+            return Vec::new();
+        }
+        let mut out: Vec<Monitor> = handles.into_iter().filter_map(monitor_of).collect();
+        // Stable: the system's order otherwise.
+        out.sort_by_key(|m| !m.primary);
+        out
+    }
+
+    /// One monitor's rects, flags and effective dpi.
+    #[allow(unsafe_code)]
+    fn monitor_of(monitor: HMONITOR) -> Option<Monitor> {
+        let mut info = MONITORINFO {
+            cbSize: u32::try_from(std::mem::size_of::<MONITORINFO>()).ok()?,
+            ..MONITORINFO::default()
+        };
+        // SAFETY: `info` is a valid in/out `MONITORINFO` whose `cbSize`
+        // says so; a monitor that is gone is a failure.
+        if !unsafe { GetMonitorInfoW(monitor, &raw mut info) }.as_bool() {
+            return None;
+        }
+        let mut x = 0u32;
+        let mut y = 0u32;
+        // SAFETY: `x` and `y` are valid out pointers for the call.
+        let read = unsafe {
+            GetDpiForMonitor(
+                monitor,
+                MDT_EFFECTIVE_DPI,
+                std::ptr::from_mut(&mut x),
+                std::ptr::from_mut(&mut y),
+            )
+        };
+        Some(Monitor {
+            id: MonitorId(u64::try_from(monitor.0.addr()).unwrap_or(0)),
+            primary: info.dwFlags & MONITORINFOF_PRIMARY != 0,
+            bounds: rect_of(info.rcMonitor),
+            work_area: rect_of(info.rcWork),
+            scale_permille: dpi_permille(if read.is_ok() { x } else { 0 }),
+        })
+    }
+
+    /// Whether its thread has not answered messages for a while
+    /// (`IsHungAppWindow`: 5 s).
+    #[allow(unsafe_code)]
+    fn is_hung(hwnd: HWND) -> bool {
+        // SAFETY: reads a flag; no pointers.
+        unsafe { IsHungAppWindow(hwnd) }.as_bool()
+    }
+
+    #[allow(unsafe_code)]
+    fn is_zoomed(hwnd: HWND) -> bool {
+        // SAFETY: reads a flag; a stale handle reads as not maximised.
+        unsafe { IsZoomed(hwnd) }.as_bool()
+    }
+
+    /// (T1) Restore a minimised or maximised window to its normal place
+    /// without activating it; posted to the window's thread, never waited
+    /// on.
+    #[allow(unsafe_code)]
+    fn restore_async(hwnd: HWND) {
+        // SAFETY: no pointers; a stale handle does nothing.
+        let _ = unsafe { ShowWindowAsync(hwnd, SW_SHOWNOACTIVATE) };
+    }
+
+    /// (T1) Ask the window's thread to move and size the window to `to`
+    /// (screen coordinates, frame included), not activated, its z-order
+    /// kept; posted, never waited on.
+    #[allow(unsafe_code)]
+    fn move_async(hwnd: HWND, to: &Rect) -> Result<(), PlatformError> {
+        let width = i32::try_from(to.width).unwrap_or(i32::MAX);
+        let height = i32::try_from(to.height).unwrap_or(i32::MAX);
+        // SAFETY: no pointers; a stale handle is an `Err`.
+        unsafe {
+            SetWindowPos(
+                hwnd,
+                None,
+                to.x,
+                to.y,
+                width,
+                height,
+                SWP_NOACTIVATE | SWP_NOZORDER | SWP_ASYNCWINDOWPOS,
+            )
+        }
+        .map_err(|e| PlatformError::Os(format!("SetWindowPos: {e}")))
+    }
+
+    /// (T1) Window `id`'s client area to `want`, read back (the module's
+    /// T1 note): at most [`PLACE_WAIT`] for a minimised or maximised
+    /// window to be restored, then at most [`PLACE_WAIT`] for the move.
+    pub(super) fn place(id: WindowId, want: Rect) -> Result<Rect, PlatformError> {
+        let _dpi = ThreadDpi::per_monitor_v2();
+        let hwnd = hwnd_of(id);
+        if !is_window(hwnd) || !is_top_level(hwnd) {
+            return Err(PlatformError::Gone(id));
+        }
+        if is_hung(hwnd) {
+            return Err(PlatformError::NotResponding(id));
+        }
+        // Restored, asked again when the state changes: a window minimised
+        // from maximised comes back maximised first.
+        let deadline = std::time::Instant::now() + PLACE_WAIT;
+        let mut asked = None;
+        loop {
+            let state = (is_iconic(hwnd), is_zoomed(hwnd));
+            if state == (false, false) {
+                break;
+            }
+            if !is_window(hwnd) {
+                return Err(PlatformError::Gone(id));
+            }
+            if std::time::Instant::now() >= deadline {
+                return Err(PlatformError::NotResponding(id));
+            }
+            if asked != Some(state) {
+                restore_async(hwnd);
+                asked = Some(state);
+            }
+            std::thread::sleep(PLACE_POLL);
+        }
+        let gone = || PlatformError::Gone(id);
+        let before = client_rect(hwnd).ok_or_else(gone)?;
+        let outer = window_rect(hwnd).ok_or_else(gone)?;
+        move_async(hwnd, &outer_for(&before, &outer, &want))?;
+        let deadline = std::time::Instant::now() + PLACE_WAIT;
+        let mut samples = Vec::new();
+        loop {
+            let now = client_rect(hwnd).ok_or_else(gone)?;
+            samples.push(now);
+            if place_settled(&want, &before, &samples) || std::time::Instant::now() >= deadline {
+                return Ok(now);
+            }
+            std::thread::sleep(PLACE_POLL);
+        }
+    }
+
+    /// (T2) The visible frame around window `id`'s client area: DWM's
+    /// extended frame bounds (no invisible resize borders), else the window
+    /// rect; `None` while it is minimised or gone.
+    pub(super) fn frame_insets(id: WindowId) -> Option<Insets> {
+        let _dpi = ThreadDpi::per_monitor_v2();
+        let hwnd = hwnd_of(id);
+        if !is_window(hwnd) || is_iconic(hwnd) {
+            return None;
+        }
+        let client = client_rect(hwnd)?;
+        Some(Insets::between(&client, &visible_frame(hwnd)?))
+    }
+
+    /// (T6) `--list-windows`' details of window `id`: the visible frame
+    /// and the insets as [`frame_insets`] measures them (none while it is
+    /// minimised: an iconic window has no frame on screen), and whether
+    /// its style lets the user resize it. Only reads; no message is sent.
+    pub(super) fn details(id: WindowId, minimized: bool) -> WindowDetails {
+        let _dpi = ThreadDpi::per_monitor_v2();
+        let hwnd = hwnd_of(id);
+        if !is_window(hwnd) {
+            return WindowDetails::default();
+        }
+        let style = window_style(hwnd);
+        let outer = (!minimized).then(|| visible_frame(hwnd)).flatten();
+        let client = (!minimized).then(|| client_rect(hwnd)).flatten();
+        WindowDetails {
+            outer,
+            insets: client
+                .zip(outer)
+                .map(|(client, outer)| Insets::between(&client, &outer)),
+            resizable: Some(style & super::WS_THICKFRAME != 0),
+            // Any window can be moved with `SetWindowPos`.
+            movable: Some(true),
+            min_size: None,
+            max_size: None,
+        }
+    }
+
+    /// (T6) The window's style bits (`GWL_STYLE`); 0 for a stale handle.
+    #[allow(unsafe_code)]
+    fn window_style(hwnd: HWND) -> u32 {
+        // SAFETY: reads a window long; a stale handle gives 0.
+        let style = unsafe { GetWindowLongPtrW(hwnd, GWL_STYLE) };
+        // The style is a 32-bit value in a pointer-sized long.
+        u32::try_from(style & 0xFFFF_FFFF).unwrap_or(0)
+    }
+
+    /// The visible frame of `hwnd`, screen coordinates: DWM's extended
+    /// frame bounds (no invisible resize borders), else the window rect.
+    #[allow(unsafe_code)]
+    fn visible_frame(hwnd: HWND) -> Option<Rect> {
+        let mut bounds = RECT::default();
+        let size = u32::try_from(std::mem::size_of::<RECT>()).ok()?;
+        // SAFETY: `DWMWA_EXTENDED_FRAME_BOUNDS` writes one `RECT`; the
+        // pointer is to one and `size` says so. A window DWM does not
+        // compose is an `Err` (the window rect then).
+        let read = unsafe {
+            DwmGetWindowAttribute(
+                hwnd,
+                DWMWA_EXTENDED_FRAME_BOUNDS,
+                std::ptr::from_mut(&mut bounds).cast(),
+                size,
+            )
+        };
+        if read.is_ok() {
+            Some(rect_of(bounds))
+        } else {
+            window_rect(hwnd)
+        }
+    }
+
+    /// (T2) The mouse buttons now (`GetAsyncKeyState`: no hook, no
+    /// permission): one down now (the high bit), and one pressed since the
+    /// last read (the low bit, best effort), taken as a click now.
+    #[allow(unsafe_code)]
+    pub(super) fn mouse() -> MouseState {
+        let mut down = false;
+        let mut pressed = false;
+        for key in [VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, VK_XBUTTON1, VK_XBUTTON2] {
+            // SAFETY: reads a key's state; no pointers.
+            let state = unsafe { GetAsyncKeyState(i32::from(key.0)) };
+            down |= state < 0;
+            pressed |= state & 1 != 0;
+        }
+        MouseState {
+            down,
+            since_click: pressed.then_some(std::time::Duration::ZERO),
+        }
     }
 
     /// The WinEvent numbers the platform-free half hooks are the

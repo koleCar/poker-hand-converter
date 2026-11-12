@@ -26,6 +26,17 @@
 //!   `--latency-report`, a debug build's line on the table);
 //! - [`list`]: `--list-windows`, the diagnostic that captures real table
 //!   titles (redacted) for `sites.json`.
+//! - [`tiling`] and [`placer`] (T2): table tiling - where each table goes
+//!   (platform-free) and the thread that moves them when the mouse is
+//!   quiet; off unless switched on (`--tiling auto` for development).
+//! - [`rng`] (T4): the RNG overlay's rolls (the system's CSPRNG, rejection
+//!   sampling); the engine rolls per table and [`scene`] draws the widget.
+//! - [`tilecheck`] and [`signals`] (T6): the owner's tools for the real
+//!   clients - `--tile-check`, one placement of a program's tables with
+//!   the tiling engine, refused for any room whose tiling policy is not
+//!   `true`; `--watch-signals`, a read-only log of the window signals a
+//!   room gives (taskbar flash, foreground, window order) for T7's
+//!   dynamic slots.
 //!
 //! No real-time assistance of any kind (guideline §7): the HUD shows the
 //! players' own statistics from the store, nothing about the hand in play.
@@ -40,9 +51,14 @@ pub mod latency;
 pub mod layout;
 pub mod list;
 pub mod panel;
+pub mod placer;
 pub mod platform;
+pub mod rng;
 pub mod scene;
 pub mod seats;
+pub mod signals;
+pub mod tilecheck;
+pub mod tiling;
 
 use std::ffi::OsString;
 use std::io::BufRead as _;
@@ -70,6 +86,9 @@ pub mod exit_code {
     pub const LINK_LOST: i32 = 4;
     /// The shipped configuration did not load (a broken build).
     pub const CONFIG: i32 = 5;
+    /// (T6) A diagnostic refused to act or found nothing to act on
+    /// (`--tile-check` for a room whose tiling policy is not `true`).
+    pub const REFUSED: i32 = 6;
 }
 
 const USAGE: &str = "\
@@ -91,6 +110,16 @@ Measuring (R3.7): --latency-report <file> writes every hand's latency chain
 overlays' paints and follows (p50 / p95 / max us), the re-reads, the looks
 for tables and their interval.
 
+Table tiling (T2, development only; the app sends the real settings over
+the IPC, T3):
+  --tiling auto         lay the table simulator's windows out in the auto
+                        grid (never a real client's: no policy decides
+                        rooms yet)
+
+The plan (T3): --panels off   attach no panel - tiling and the RNG only (the
+                              Free plan); the app's `panels` message turns
+                              them on
+
 Windows (macOS: the titles need the Accessibility permission):
   --platform native     this system's backend (default)
     the table simulator's real windows as a room's (tests only):
@@ -104,6 +133,13 @@ Windows (macOS: the titles need the Accessibility permission):
 Capturing real table titles (redacted; see --list-windows --help):
 
   rail-hud --list-windows [--process <exe>] [--you <name>] ...
+
+Checking tiling on a real client (T6; see --tile-check --help), and
+recording its window signals (see --watch-signals --help):
+
+  rail-hud --tile-check --process <exe> [--room <id> --try-title <regex>]
+  rail-hud --tile-check --restore
+  rail-hud --watch-signals --process <exe> [--seconds <n>]
 ";
 
 /// The command line.
@@ -127,6 +163,12 @@ pub struct Args {
     pub perf_report: Option<PathBuf>,
     /// (R3.10) The app's cached remote `sites.json`.
     pub policy: Option<PathBuf>,
+    /// (T2) `--tiling auto`: the auto grid over the simulator's windows
+    /// (development; [`engine::TilingConfig::development`]).
+    pub tiling: bool,
+    /// (T3) `--panels off`: no panel is attached (the plan does not include
+    /// the HUD); tiling and the RNG still run.
+    pub panels_off: bool,
 }
 
 impl Args {
@@ -151,6 +193,15 @@ impl Args {
                 "--platform" => platform = value("--platform")?,
                 "--sim-events" => parsed.sim_events = Some(PathBuf::from(value("--sim-events")?)),
                 "--sim-site" => sites.push(value("--sim-site")?),
+                "--tiling" => match value("--tiling")?.as_str() {
+                    "auto" => parsed.tiling = true,
+                    other => return Err(format!("--tiling takes auto, not {other}")),
+                },
+                "--panels" => match value("--panels")?.as_str() {
+                    "off" => parsed.panels_off = true,
+                    "on" => parsed.panels_off = false,
+                    other => return Err(format!("--panels takes on or off, not {other}")),
+                },
                 "--policy" => parsed.policy = Some(PathBuf::from(value("--policy")?)),
                 "--latency-report" => {
                     parsed.latency_report = Some(PathBuf::from(value("--latency-report")?));
@@ -240,6 +291,12 @@ impl Args {
 pub fn main_with(args: Vec<OsString>) -> i32 {
     if args.iter().any(|a| a == "--list-windows") {
         return list::run(args);
+    }
+    if args.iter().any(|a| a == "--tile-check") {
+        return tilecheck::run(args);
+    }
+    if args.iter().any(|a| a == "--watch-signals") {
+        return signals::run(args);
     }
     let args = match Args::parse(args) {
         Ok(args) => args,
@@ -396,6 +453,15 @@ fn run(args: &Args, compliance: Compliance, link: Option<platform::macos::Link>)
             }
         }
     }
+    if args.tiling
+        && let Err(error) = hud.enable_tiling(engine::TilingConfig::development())
+    {
+        eprintln!("rail-hud: --tiling: {error}");
+    }
+    // (T3) Before the first look: nothing attaches.
+    if args.panels_off {
+        hud.set_panels(false, &mut |_| {});
+    }
     eprintln!(
         "rail-hud: running (pid {}, {}, store {})",
         std::process::id(),
@@ -477,6 +543,28 @@ mod tests {
         assert_eq!(args.latency_report, Some(PathBuf::from("/t/chain.jsonl")));
         assert!(parse(&["--standalone", "--latency-report"]).is_err());
         assert_eq!(parse(&["--help"]), Err(String::new()));
+        // (T2) Tiling for development: the auto grid only.
+        assert!(
+            parse(&["--standalone", "--tiling", "auto"])
+                .expect("tiling")
+                .tiling
+        );
+        assert!(!parse(&["--standalone"]).expect("no tiling").tiling);
+        assert!(parse(&["--standalone", "--tiling", "grid"]).is_err());
+        assert!(parse(&["--standalone", "--tiling"]).is_err());
+        // (T3) Panels off for the Free plan.
+        assert!(
+            parse(&["--standalone", "--panels", "off"])
+                .expect("panels off")
+                .panels_off
+        );
+        assert!(!parse(&["--standalone"]).expect("panels").panels_off);
+        assert!(
+            !parse(&["--standalone", "--panels", "on"])
+                .expect("panels on")
+                .panels_off
+        );
+        assert!(parse(&["--standalone", "--panels", "none"]).is_err());
 
         // The simulator's real windows (native backend, test-only room):
         // both flags, a regex that compiles; with the app's channel too

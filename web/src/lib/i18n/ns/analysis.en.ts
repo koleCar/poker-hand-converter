@@ -919,6 +919,8 @@ export const analysisEn = {
     "limp-tremble": "A limped pot: the charts barely limp there themselves, so they assume the limper may hold any hand",
     "rare-line-depth":
       "The line is too rare at this stack depth to be charted, so it is read on the nearest depth that charts it; graded no worse than Inaccurate",
+    "uncovered-depth":
+      "No chart set covers this effective stack, so the spot is read on the nearest charted depth; graded no worse than Inaccurate",
     "multiway-approx":
       "Approximate multiway grade: a flop, turn or river call against a fold, by showdown EV on narrowed ranges; players to act call or fold about as often as stored hands show (the model picks which hands), raising is not compared; capped at Mistake",
     "flop-realisation":
@@ -1194,6 +1196,8 @@ export const analysisEn = {
   river: {
     study: "Study the river",
     hideStudy: "Hide the study",
+    /** Beside the study button: the Solver library at this decision, on its street (the turn and river solved there live). */
+    openSolver: "Open in the Solver library",
     loading: "Solving the river…",
     failed: (message: string) => `The river study did not load: ${message}`,
     unavailable: "The solver could not rebuild this spot.",
