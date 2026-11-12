@@ -5219,6 +5219,7 @@ export type Database = {
       }
       mod_user: { Args: { p_username: string }; Returns: Json }
       mod_vote_overlap_for: { Args: { p_username: string }; Returns: Json }
+      move_gg_cash_hands: { Args: { p_owner?: string }; Returns: number }
       my_account_deletion: { Args: never; Returns: Json }
       my_comment_votes: { Args: { p_post_public_id: string }; Returns: Json }
       my_entitlements: { Args: never; Returns: Json }
