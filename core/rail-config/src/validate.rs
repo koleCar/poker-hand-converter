@@ -193,6 +193,23 @@ fn check_permission(site: &Site, feature: Feature, report: &mut impl FnMut(Strin
             report(format!("{key}.allowed is true without checkedAt"));
         }
     }
+    // (T7) The turn signal belongs to `actionSlot`, which needs one (and
+    // tiling) to be allowed.
+    if feature == Feature::ActionSlot {
+        if permission.allowed == Some(true) {
+            if permission
+                .signal
+                .is_none_or(|s| s.windows.is_none() && s.macos.is_none())
+            {
+                report(format!("{key}.allowed is true without a signal"));
+            }
+            if site.permission(Feature::Tiling).allowed != Some(true) {
+                report(format!("{key}.allowed is true without tiling"));
+            }
+        }
+    } else if permission.signal.is_some() {
+        report(format!("{key}.signal: only actionSlot has a signal"));
+    }
 }
 
 fn check_path(os: &str, entry: &PathEntry, report: &mut impl FnMut(String)) {

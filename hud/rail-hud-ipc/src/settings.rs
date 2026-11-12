@@ -161,7 +161,11 @@ pub struct SlotRect {
     pub height: u32,
 }
 
-/// What a slot holds. `action` and `inHand` come later (§4.6).
+/// What a slot holds.
+///
+/// (T7) There is no "In-Hand" kind, on purpose: moving a table because the
+/// user is in the hand reacts to a player's action, which PokerStars'
+/// Reference Guide forbids a script to do (docs/research/TILING-POLICIES.md).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum SlotKind {
@@ -169,6 +173,16 @@ pub enum SlotKind {
     Play,
     /// A room's lobby window: stored, never given a table.
     Lobby,
+    /// (T7) "Action Required": a table moves here while its room's client
+    /// signals that it is the user's turn, and back to its own slot after;
+    /// only for a room whose policy allows it (`sites.json` `actionSlot`,
+    /// none today). Never a table's own slot.
+    Action,
+    /// A kind of a newer build: stored, never given a table. (Builds
+    /// before T7 cannot read a layout with an `action` slot at all: they
+    /// read the whole tiling settings as the defaults.)
+    #[serde(other)]
+    Other,
 }
 
 /// From `min_tables` open tables on, layout `layout_id` ([`AUTO_LAYOUT`]
@@ -707,6 +721,26 @@ mod tests {
         let older: OlderTiling = serde_json::from_str(&text).expect("older reads");
         assert!(older.enabled && older.close_gaps);
         assert_eq!(older.per_room.get("winamax"), Some(&false));
+    }
+
+    /// (T7) The slot kinds on the wire: `action` for the Action Required
+    /// slot; a newer build's kind reads as `Other` rather than refusing
+    /// the whole settings object.
+    #[test]
+    fn slot_kinds() {
+        let mut t = tiling();
+        t.layouts[0].slots[1].kind = SlotKind::Action;
+        let text = serde_json::to_string(&t).expect("json");
+        assert!(text.contains(r#""kind":"action""#), "{text}");
+        assert_eq!(
+            serde_json::from_str::<TilingSettings>(&text).expect("back"),
+            t
+        );
+        assert_eq!(t.validate(), Ok(()));
+        let newer = text.replace(r#""kind":"action""#, r#""kind":"inHand""#);
+        let read: TilingSettings = serde_json::from_str(&newer).expect("reads");
+        assert_eq!(read.layouts[0].slots[1].kind, SlotKind::Other);
+        assert_eq!(read.validate(), Ok(()));
     }
 
     #[test]

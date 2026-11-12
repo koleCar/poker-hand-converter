@@ -26,6 +26,9 @@
 //!   same question for the table manager and the RNG (T0), each its own
 //!   block in `sites.json`, independent of the HUD's; unknown is no, and a
 //!   download can only make them stricter.
+//! - [`model::Site::action_slot_signal`] (T7): the Action Required slot -
+//!   its `actionSlot` block and `tiling` allowed, and the client's own turn
+//!   signal for the system; `null` on every entry today.
 //! - [`stats`]: `config/stats/`, the displayed statistics as data (R2.4):
 //!   [`stats::load_stats`], [`stats::SHIPPED_STATS`], the formula language.
 
@@ -37,7 +40,7 @@ pub mod validate;
 use std::fmt;
 
 pub use merge::{HudLevel, MergeNote, Merged, merge_remote};
-pub use model::{Config, Feature, Permission, Site};
+pub use model::{Config, Feature, Os, Permission, SignalKind, Site, TurnSignal};
 pub use validate::{Problem, check_coverage, check_policy_blocks, validate};
 
 /// The `version` this build reads.

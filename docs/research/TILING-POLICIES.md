@@ -287,6 +287,47 @@ Once: no client exists (their research docs, as in `HUD-POLICIES.md`).
 
 Rail's own text format, not a room.
 
+## The Action Required slot (T7) - `actionSlot`, `null` everywhere
+
+T7 adds a third block per entry, `actionSlot`: may tiling move a table
+into an "Action Required" slot while the room's client **itself** signals
+that it is the user's turn, and on which signal (`signal`: per system,
+`flash` - the taskbar button flashes -, `foreground` or `raised`; `null`:
+none usable). The engine uses nothing else: no pixel reading, no screen
+capture, nothing read inside the table - only the client's own window
+signals (`rail-hud --watch-signals`, REAL-CLIENT-CHECK.md §6).
+
+Rules, enforced by the loader and the schema: `allowed: true` only on a
+room, with an `https` source and a date (as for `tiling` and `rng`),
+**only where `tiling` is `true` too**, and only with a signal for at least
+one system; a `signal` in any other block is refused. A downloaded copy can
+only withdraw the slot (stricter-only, like every block), and the signal
+is always the shipped copy's - a download cannot point the slot at another
+signal. There is **no "In-Hand" slot**: moving a table because the user is
+in the hand reacts to a player's action, which PokerStars' Reference Guide
+forbids a script to do.
+
+Written 2026-11-12. **Every entry is `null` (unknown, so no) with
+`signal: null`**, because nothing below has been checked yet:
+
+| Entry | `actionSlot` | What must be settled before it can be `true` |
+| --- | --- | --- |
+| pokerstars | null | The Reference Guide forbids repositioning a table on card values, relative position or any player's action ("Repositions a table if dealt a premium pair"); a table moved on the client's own your-turn signal is on neither list. Ask PokerStars in writing; capture the signal (§6). |
+| acr | null | 4.1.7 accepts table arrangers that tile by player preference; moving on the turn signal is not addressed. Capture the signal (§6); ask ACR if in doubt. |
+| wpt-global | null | Annex A item 25 permits table organisation and resizing tools; moving on the turn signal is not addressed. Capture the signal (§6). |
+| coinpoker | null | The Terms name table management software and hotkey tools as permitted; the third-party tools page could not be read. Read it in a browser; capture the signal (§6). |
+| 888poker, ipoker, chico, ignition, weplay | null | Their tiling policy is not established either. |
+| ggpoker, winamax, partypoker, unibet, pokerbros, closed rooms, standard | null | Moot: tiling itself is not allowed (or there is no desktop client). |
+
+**Turning any room on** needs, in this order: the room's own text read and
+quoted here (or its written answer), the client's turn signal captured on
+each system with `rail-hud --watch-signals` (REAL-CLIENT-CHECK.md §6: the
+signal comes **every** time it is the user's turn, on that table's window,
+within about a second, and not otherwise), and **the owner's signed
+verdict** - then the block (`allowed`, `source`, `checkedAt`, `notes`,
+`signal`) and the pins in `core/rail-config/tests/sites.rs` and
+`tests/test/sitesConfig.test.ts` change in one reviewed diff.
+
 ## What the verdicts mean for the build
 
 - T2 (tiling) acts on a window only with a `TilingPermit`; T4 draws the RNG
@@ -298,6 +339,11 @@ Rail's own text format, not a room.
   room, stakes, number of tables - is what the yes covers.
 - On ACR the RNG widget, if ever allowed, must keep off the client's table
   graphics like the HUD's panels.
+- (T7) The Action Required slot moves a table only with an `ActionPermit`
+  (`actionSlot` and `tiling` allowed, a signal for this system): today no
+  room, so the slot can be drawn in a layout only once one does (the
+  editor greys it with "No room allows this yet") and the HUD watches no
+  client's signals.
 
 ## Re-check before every release (plan section 12)
 

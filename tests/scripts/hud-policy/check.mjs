@@ -29,7 +29,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export const MAX_AGE_DAYS = 90;
 
 /** The policies a room states, in the order they are listed. */
-export const POLICIES = ["hud", "tiling", "rng"];
+export const POLICIES = ["hud", "tiling", "rng", "actionSlot"];
 
 /** A `YYYY-MM-DD` date as UTC midnight, or `null`. */
 function day(text) {
