@@ -378,3 +378,239 @@
 .danger {
   color: var(--danger-fg);
 }
+
+/* ------------------------------------------------------ the slot editor */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 22px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-sunken);
+}
+
+.editorBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: stretch;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+}
+
+.editorBar :global(.chip-btn) {
+  height: 28px;
+}
+
+.nameInput {
+  width: 12rem;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.slotTitle {
+  min-width: 4.5rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The work area the slots are drawn on; the grid shows while Snap is on. */
+.surface {
+  position: relative;
+  box-sizing: content-box;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+
+.surface[data-snap="true"] {
+  background-image:
+    linear-gradient(to right, var(--line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-soft) 1px, transparent 1px);
+  background-size: var(--grid-x) var(--grid-y);
+}
+
+.slot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid var(--felt-rail-hi);
+  border-radius: var(--radius-1);
+  background: radial-gradient(ellipse at center, var(--felt-center), var(--felt-mid) 75%, var(--felt-edge));
+  color: var(--felt-text);
+  opacity: 0.85;
+  cursor: move;
+}
+
+.slot[data-selected="true"] {
+  z-index: 1;
+  outline: 2px solid var(--border-focus);
+  outline-offset: -1px;
+  opacity: 1;
+}
+
+.slot:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.slotNumber {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.slotStack {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  color: var(--felt-text-muted);
+  font-size: var(--font-size-xs);
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--border-focus);
+  border-radius: 2px;
+  background: var(--surface-raised);
+}
+
+.handle[data-pos="n"],
+.handle[data-pos="s"] {
+  left: calc(50% - 5px);
+  cursor: ns-resize;
+}
+
+.handle[data-pos="e"],
+.handle[data-pos="w"] {
+  top: calc(50% - 5px);
+  cursor: ew-resize;
+}
+
+.handle[data-pos="n"],
+.handle[data-pos="ne"],
+.handle[data-pos="nw"] {
+  top: -5px;
+}
+
+.handle[data-pos="s"],
+.handle[data-pos="se"],
+.handle[data-pos="sw"] {
+  bottom: -5px;
+}
+
+.handle[data-pos="e"],
+.handle[data-pos="ne"],
+.handle[data-pos="se"] {
+  right: -5px;
+}
+
+.handle[data-pos="w"],
+.handle[data-pos="nw"],
+.handle[data-pos="sw"] {
+  left: -5px;
+}
+
+.handle[data-pos="ne"],
+.handle[data-pos="sw"] {
+  cursor: nesw-resize;
+}
+
+.handle[data-pos="nw"],
+.handle[data-pos="se"] {
+  cursor: nwse-resize;
+}
+
+.ghost {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px dashed var(--border-focus);
+  border-radius: var(--radius-1);
+  background: var(--surface-selected);
+  pointer-events: none;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------- switch by table count */
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.rules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--space-2));
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.rule[data-active="true"] {
+  background: var(--surface-selected);
+}
+
+.rule .number {
+  width: 4rem;
+}
+
+.ruleText {
+  white-space: nowrap;
+}
+
+.select {
+  flex: 0 1 12rem;
+  min-width: 6rem;
+}
+
+.inForce {
+  padding: 1px var(--space-2);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-pill);
+  background: var(--success-bg);
+  color: var(--success-on-tint);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.ruleRemove {
+  margin-inline-start: auto;
+}

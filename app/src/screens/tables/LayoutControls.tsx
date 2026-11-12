@@ -1,28 +1,33 @@
 /**
  * (T5) The user's layouts, beside the layout picker:
  *
- * - **+ Layout**: a name and "Save current arrangement" - the HUD measures
- *   where the tiled tables are now (`capture_tiling_layout`, a slot per
- *   place, thousandths of each display's work area) and the layout is saved
- *   and put in force, so nothing moves. Drawing slots by hand is a later
- *   step.
- * - **⋯** on the layout in force: rename it, delete it (the auto grid takes
- *   over, and the rules that switched to it go).
+ * - **+ Layout**: a name, then "Save current arrangement" - the HUD
+ *   measures where the tiled tables are now (`capture_tiling_layout`, a
+ *   slot per place, thousandths of each display's work area) and the layout
+ *   is saved and put in force, so nothing moves - or "Draw slots": the slot
+ *   editor opens on an empty layout of that name.
+ * - **⋯** on the layout in force: edit its slots, duplicate it, rename it,
+ *   delete it (the auto grid takes over, and the rules that switched to it
+ *   go).
  */
 import { useState } from "react";
 
 import { useT } from "../../i18n";
 import { errorText, ipc, type TilingLayout, type TilingSettings } from "../../lib/ipc";
 import { MoreMenu, PopoverButton } from "../hud/popovers";
+import type { EditorTarget } from "./SlotEditor";
 import { MAX_LAYOUTS, MAX_NAME, addLayout, cleanName, deleteLayout, newLayoutName, renameLayout } from "./model";
+import { blankLayout, duplicateLayout, uniqueName } from "./slots";
 import styles from "./Tables.module.css";
 
 export function LayoutAdd({
   settings,
   onSave,
+  onEdit,
 }: {
   settings: TilingSettings;
   onSave: (next: TilingSettings) => Promise<boolean>;
+  onEdit: (target: EditorTarget) => void;
 }) {
   const s = useT().tables;
   return (
@@ -32,7 +37,7 @@ export function LayoutAdd({
       className={`btn btn--sm btn--ghost ${styles.headerButton}`}
       popoverClassName={styles.popover}
     >
-      {(close) => <AddForm settings={settings} onSave={onSave} close={close} />}
+      {(close) => <AddForm settings={settings} onSave={onSave} onEdit={onEdit} close={close} />}
     </PopoverButton>
   );
 }
@@ -40,10 +45,12 @@ export function LayoutAdd({
 function AddForm({
   settings,
   onSave,
+  onEdit,
   close,
 }: {
   settings: TilingSettings;
   onSave: (next: TilingSettings) => Promise<boolean>;
+  onEdit: (target: EditorTarget) => void;
   close: () => void;
 }) {
   const s = useT().tables;
@@ -68,6 +75,12 @@ function AddForm({
       .catch((e: unknown) => setMessage(errorText(e)))
       .finally(() => setBusy(false));
   };
+  const draw = () => {
+    const clean = cleanName(name);
+    if (clean === null || full) return;
+    onEdit({ layout: blankLayout(settings, clean), existing: false });
+    close();
+  };
   return (
     <form
       className={styles.form}
@@ -86,6 +99,9 @@ function AddForm({
         <button type="submit" className="btn btn--sm btn--primary" disabled={blocked !== null || busy || cleanName(name) === null}>
           {busy ? s.saving : s.saveArrangement}
         </button>
+        <button type="button" className="btn btn--sm" disabled={full || cleanName(name) === null} onClick={draw}>
+          {s.drawSlots}
+        </button>
       </div>
     </form>
   );
@@ -95,15 +111,17 @@ export function LayoutMenu({
   layout,
   settings,
   onSave,
+  onEdit,
 }: {
   layout: TilingLayout;
   settings: TilingSettings;
   onSave: (next: TilingSettings) => void;
+  onEdit: (target: EditorTarget) => void;
 }) {
   const s = useT().tables;
   return (
     <MoreMenu label={s.layoutMenu(layout.name)}>
-      {(close) => <LayoutMenuBody layout={layout} settings={settings} onSave={onSave} close={close} />}
+      {(close) => <LayoutMenuBody layout={layout} settings={settings} onSave={onSave} onEdit={onEdit} close={close} />}
     </MoreMenu>
   );
 }
@@ -112,17 +130,49 @@ function LayoutMenuBody({
   layout,
   settings,
   onSave,
+  onEdit,
   close,
 }: {
   layout: TilingLayout;
   settings: TilingSettings;
   onSave: (next: TilingSettings) => void;
+  onEdit: (target: EditorTarget) => void;
   close: () => void;
 }) {
   const s = useT().tables;
   const [name, setName] = useState(layout.name);
+  const [problem, setProblem] = useState<string | null>(null);
   return (
     <div className={styles.form}>
+      <div className={styles.formActions}>
+        <button
+          type="button"
+          className="btn btn--sm"
+          onClick={() => {
+            onEdit({ layout, existing: true });
+            close();
+          }}
+        >
+          {s.editSlots}
+        </button>
+        <button
+          type="button"
+          className="btn btn--sm btn--ghost"
+          disabled={settings.layouts.length >= MAX_LAYOUTS}
+          onClick={() => {
+            const copy = duplicateLayout(settings, layout.id, uniqueName(settings.layouts, s.copyName(layout.name)));
+            if (copy === null) return;
+            if (!copy.ok) {
+              setProblem(s.editor.problem[copy.problem]);
+              return;
+            }
+            onSave(copy.settings);
+            close();
+          }}
+        >
+          {s.duplicate}
+        </button>
+      </div>
       <form
         className={styles.inline}
         onSubmit={(event) => {
@@ -137,6 +187,7 @@ function LayoutMenuBody({
           {s.save}
         </button>
       </form>
+      {problem !== null ? <p className={styles.error}>{problem}</p> : null}
       <button
         type="button"
         className={`btn btn--sm btn--ghost ${styles.danger}`}

@@ -3,8 +3,10 @@
  * design A of 2026-11-11). One header row - tiling's state as a pill, then
  * the layout in force, "+ Layout", "Re-tile" and the switch - over the
  * displays drawn to scale with the tiled tables on them, and two cards:
- * the rooms (tiling allowed or not, the user's switch per room) and the RNG
- * (its switch, colour bands, when it rolls).
+ * the rooms (tiling allowed or not, the user's switch per room) with the
+ * rules that switch the layout by table count, and the RNG (its switch,
+ * colour bands, when it rolls). The slot editor ("Draw slots", a layout's
+ * "Edit slots") takes the displays' place while it is open.
  *
  * Free: table tiling and the RNG need no plan (`entitlements.rs`), so no
  * lock here. Whether a room may be tiled or show the RNG is the Rust side's
@@ -22,10 +24,12 @@ import { hudState } from "../lib/hudCompliance";
 import { errorText, inApp, ipc, type HudStatus, type TilingSettings } from "../lib/ipc";
 import { useHudCompliance } from "../lib/useHudCompliance";
 import { Toggle } from "./settings/Toggle";
+import { AutoSwitchCard } from "./tables/AutoSwitchCard";
 import { LayoutAdd, LayoutMenu } from "./tables/LayoutControls";
 import { Monitors } from "./tables/Monitors";
 import { RngCard } from "./tables/RngCard";
 import { RoomsCard } from "./tables/RoomsCard";
+import { SlotEditor, type EditorTarget } from "./tables/SlotEditor";
 import { activeId, chooseLayout } from "./tables/model";
 import { useTableSettings } from "./tables/useTableSettings";
 import styles from "./tables/Tables.module.css";
@@ -36,6 +40,7 @@ export function Tables() {
   const compliance = useHudCompliance();
   const settings = useTableSettings();
   const [retileError, setRetileError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<EditorTarget | null>(null);
   const { tiling, rng } = settings;
   const { status, policy } = compliance;
 
@@ -82,8 +87,8 @@ export function Tables() {
         end={
           <>
             <PillSwitch label={s.layouts} options={options} value={active} onChange={(id) => save(chooseLayout(tiling, id))} />
-            {custom !== null ? <LayoutMenu layout={custom} settings={tiling} onSave={save} /> : null}
-            <LayoutAdd settings={tiling} onSave={settings.saveTiling} />
+            {custom !== null ? <LayoutMenu layout={custom} settings={tiling} onSave={save} onEdit={setEditing} /> : null}
+            <LayoutAdd settings={tiling} onSave={settings.saveTiling} onEdit={setEditing} />
             <button type="button" className={`btn btn--sm ${styles.headerButton}`} title={s.retileHint} disabled={!tiling.enabled} onClick={retile}>
               {s.retile}
             </button>
@@ -93,9 +98,24 @@ export function Tables() {
       />
       <div className={styles.view}>
         {error !== null ? <p className={styles.error}>{s.saveFailed(error)}</p> : null}
-        <Monitors status={status} policy={policy} />
+        {editing !== null ? (
+          <SlotEditor
+            key={`${editing.layout.id}:${String(editing.existing)}`}
+            settings={tiling}
+            status={status}
+            policy={policy}
+            target={editing}
+            onSave={settings.saveTiling}
+            onClose={() => setEditing(null)}
+          />
+        ) : (
+          <Monitors status={status} policy={policy} />
+        )}
         <div className={styles.cards}>
-          <RoomsCard policy={policy} settings={tiling} status={status} onSave={save} />
+          <div className={styles.column}>
+            <RoomsCard policy={policy} settings={tiling} status={status} onSave={save} />
+            <AutoSwitchCard settings={tiling} status={status} onSave={save} />
+          </div>
           <RngCard policy={policy} rng={rng} onSave={settings.saveRng} />
         </div>
       </div>

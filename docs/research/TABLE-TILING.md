@@ -292,8 +292,24 @@ The design comes first on the map canvas (Ideas page), as for every screen.
   `layout_captured`, one slot per place in thousandths of the monitor's
   work area, stackable; the layout goes in force at once. Rename and
   delete are in the layout's ⋯.
-- **Not yet:** drawing and resizing slots by hand (the slot editor), the
-  RNG's range (0 - 99), size and opacity, a per-room RNG switch.
+- **Slot editor (T5 follow-up):** "+ Layout" → "Draw slots", or a
+  layout's ⋯ → "Edit slots" / "Duplicate". The editor takes the
+  displays' place: one display's work area to its shape (a 1920×1080
+  stand-in until the HUD reports monitors), drag to draw, move, resize
+  with handles, snap to a 1/24 grid and the other slots' edges, the fill
+  order shown as numbers (‹ › to reorder), "Stack" and a room filter per
+  slot, arrows / Shift + arrows / Delete on the keyboard. Slots are
+  stored as `SlotRect` thousandths; overlaps are allowed, as
+  `settings.rs` allows them. "Save" overwrites, "Save as new" adds a
+  layout and puts it in force. `app/src/screens/tables/slots.ts` mirrors
+  `Layout::validate` / `TilingSettings::validate`.
+- **Switch by table count:** "N or more tables → layout", written to
+  `TilingSettings.autoSwitch`; the rule the open tables reach is marked.
+  The engine reads the layout in force's own `Layout.autoSwitch` first
+  when it has any; the app never writes those, and a layout that comes
+  with its own shows a line offering to drop them.
+- **Not yet:** the RNG's range (0 - 99), size and opacity, a per-room RNG
+  switch.
 
 **Storage:**
 

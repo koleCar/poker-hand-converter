@@ -21,7 +21,7 @@ const INSET = 1;
 const PADDING = 44;
 
 /** The width of `ref`'s element, followed. */
-function useWidth(ref: RefObject<HTMLElement | null>): number {
+export function useWidth(ref: RefObject<HTMLElement | null>): number {
   const [width, setWidth] = useState(0);
   useEffect(() => {
     const element = ref.current;
