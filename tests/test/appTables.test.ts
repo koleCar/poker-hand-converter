@@ -43,6 +43,19 @@ import {
   setTimer,
   splitBand,
 } from "../../app/src/screens/tables/model.js";
+import {
+  RNG_OPACITY_MAX,
+  RNG_OPACITY_MIN,
+  RNG_SCALE_MAX,
+  RNG_SCALE_MIN,
+  rngOpacity,
+  rngRoomOn,
+  rngScale,
+  setRngOpacity,
+  setRngRoomOn,
+  setRngScale,
+  verdictOf,
+} from "../../app/src/screens/tables/model.js";
 
 const rect = (x: number, y: number, width: number, height: number) => ({ x, y, width, height });
 
@@ -327,5 +340,65 @@ describe("layouts", () => {
     expect(gone.layouts).toEqual([]);
     expect(gone.active).toEqual({ kind: "auto" });
     expect(gone.autoSwitch).toEqual([{ minTables: 9, layoutId: "auto" }]);
+  });
+});
+
+describe("the RNG per room (T5 follow-up)", () => {
+  const allowRng = { rng: { allowed: true, permitted: true, needsApproval: false } };
+
+  it("reads each room's RNG verdict from the policy, approval from its own flag", () => {
+    expect(verdictOf(room("a", "A", {}, allowRng), "rng")).toBe("allowed");
+    expect(verdictOf(room("w", "W", {}, { rng: { allowed: false, permitted: false, needsApproval: true } }), "rng")).toBe("approval");
+    expect(verdictOf(room("g", "G", { allowed: true, permitted: true }), "rng")).toBe("notAllowed");
+    expect(verdictOf(room("g", "G", { allowed: true, permitted: true }))).toBe("allowed");
+  });
+
+  it("stores only the rooms switched off, and the row carries the switch", () => {
+    const off = setRngRoomOn(rng(), "acr", false);
+    expect(off.perRoom).toEqual({ acr: false });
+    expect(rngRoomOn(off, "acr")).toBe(false);
+    expect(rngRoomOn(off, "pokerstars")).toBe(true);
+    expect(setRngRoomOn(off, "acr", true).perRoom).toEqual({});
+    const rows = roomRows(POLICY, tiling(), null, off).shown;
+    expect(rows.find((r) => r.id === "acr")).toMatchObject({ rngVerdict: "notAllowed", rngOn: false });
+    expect(rows.find((r) => r.id === "pokerstars")).toMatchObject({ rngVerdict: "notAllowed", rngOn: true });
+    // Without the RNG settings: on.
+    expect(roomRows(POLICY, tiling(), null).shown.every((r) => r.rngOn)).toBe(true);
+  });
+
+  it("lists a room the RNG may show on even when tiling may not move it", () => {
+    const policy = { ...POLICY, rooms: [...POLICY.rooms, room("chico", "Chico", { allowed: false }, allowRng)] };
+    const { shown, folded } = roomRows(policy, tiling(), null, rng());
+    expect(shown.map((r) => r.id)).toEqual(["pokerstars", "acr", "chico"]);
+    expect(shown[2]).toMatchObject({ verdict: "notAllowed", rngVerdict: "allowed" });
+    expect(folded.map((r) => r.id)).not.toContain("chico");
+  });
+});
+
+describe("the RNG's size and opacity (T5 follow-up)", () => {
+  it("reads 100 % when a row has neither", () => {
+    expect(rngScale(rng())).toBe(100);
+    expect(rngOpacity(rng())).toBe(100);
+    expect(rngProblem(rng())).toBeNull();
+  });
+
+  it("keeps a slider's value whole and in range", () => {
+    expect(setRngScale(rng(), 149.6).scale).toBe(150);
+    expect(setRngScale(rng(), 10).scale).toBe(RNG_SCALE_MIN);
+    expect(setRngScale(rng(), 900).scale).toBe(RNG_SCALE_MAX);
+    expect(setRngOpacity(rng(), 0).opacity).toBe(RNG_OPACITY_MIN);
+    expect(setRngOpacity(rng(), 101).opacity).toBe(RNG_OPACITY_MAX);
+    const r = rng();
+    expect(setRngScale(r, Number.NaN)).toBe(r);
+    expect(rngProblem(setRngOpacity(setRngScale(rng(), 200), 30))).toBeNull();
+  });
+
+  it("refuses what RngSettings::validate refuses", () => {
+    expect(rngProblem({ ...rng(), scale: RNG_SCALE_MIN - 1 })).toBe("scale");
+    expect(rngProblem({ ...rng(), scale: RNG_SCALE_MAX + 1 })).toBe("scale");
+    expect(rngProblem({ ...rng(), scale: 100.5 })).toBe("scale");
+    expect(rngProblem({ ...rng(), opacity: RNG_OPACITY_MIN - 1 })).toBe("opacity");
+    expect(rngProblem({ ...rng(), opacity: RNG_OPACITY_MAX + 1 })).toBe("opacity");
+    expect(rngProblem({ ...rng(), scale: RNG_SCALE_MIN, opacity: RNG_OPACITY_MIN })).toBeNull();
   });
 });

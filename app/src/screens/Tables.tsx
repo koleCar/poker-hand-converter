@@ -3,9 +3,9 @@
  * design A of 2026-11-11). One header row - tiling's state as a pill, then
  * the layout in force, "+ Layout", "Re-tile" and the switch - over the
  * displays drawn to scale with the tiled tables on them, and two cards:
- * the rooms (tiling allowed or not, the user's switch per room) with the
- * rules that switch the layout by table count, and the RNG (its switch,
- * colour bands, when it rolls). The slot editor ("Draw slots", a layout's
+ * the rooms (tiling allowed or not, the user's tiling and RNG switches per
+ * room) with the rules that switch the layout by table count, and the RNG
+ * (its switch, colour bands, when it rolls, size and opacity). The slot editor ("Draw slots", a layout's
  * "Edit slots") takes the displays' place while it is open.
  *
  * Free: table tiling and the RNG need no plan (`entitlements.rs`), so no
@@ -113,7 +113,14 @@ export function Tables() {
         )}
         <div className={styles.cards}>
           <div className={styles.column}>
-            <RoomsCard policy={policy} settings={tiling} status={status} onSave={save} />
+            <RoomsCard
+              policy={policy}
+              settings={tiling}
+              rng={rng}
+              status={status}
+              onSave={save}
+              onSaveRng={(next) => void settings.saveRng(next)}
+            />
             <AutoSwitchCard settings={tiling} status={status} onSave={save} />
           </div>
           <RngCard policy={policy} rng={rng} onSave={settings.saveRng} />

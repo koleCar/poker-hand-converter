@@ -159,7 +159,9 @@ until the user switches it on in the app (`rng_changed`).
 - **The widget.** One large bold number in its band's colour (lifted
   towards white only when too dark to read on the plate), the band's name
   small under it, on a compact near-black rounded plate that scales with
-  the table. Top-right corner by default, clear of the table's graphics and
+  the table, times the user's size (`scale`, 50 - 200 %), all of it at the
+  user's opacity (`opacity`, 30 - 100 %; both 100 when a stored row has
+  neither). Top-right corner by default, clear of the table's graphics and
   the panels; dragged like a panel (pseudo-slot `RNG_SLOT`), remembered per
   room and table size for every table of that room and size, and told to
   the app (`rng_position_changed`), which stores it as a `hud_settings` row

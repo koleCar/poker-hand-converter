@@ -483,6 +483,12 @@ pub struct RngShown {
     /// The table's rolls so far: a new roll is a new frame (painted again)
     /// even when it repeats the number.
     pub seq: u64,
+    /// (T5 follow-up) The widget's size, percent of its size at the
+    /// table's scale (`RngSettings::scale`, 50 - 200).
+    pub scale_pct: u32,
+    /// (T5 follow-up) Its opacity, percent (`RngSettings::opacity`,
+    /// 30 - 100): the plate and the number alike.
+    pub opacity_pct: u32,
 }
 
 /// What an overlay shows (R3.4): the data; `crate::scene::compose` lays it
