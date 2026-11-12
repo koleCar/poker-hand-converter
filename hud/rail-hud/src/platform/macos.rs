@@ -2118,6 +2118,23 @@ impl Platform for MacosBackend {
             }) as Box<dyn Placer>
         })
     }
+
+    /// (T7) The front-most ordinary (layer 0) window on screen, from the
+    /// window server's lists - no permission, nothing activated. The
+    /// overlays float above layer 0, so they never count.
+    fn focused_window(&mut self) -> Option<WindowId> {
+        let ordinary: std::collections::BTreeSet<u32> = cg_windows()
+            .ok()?
+            .into_iter()
+            .filter(|w| w.layer == 0 && w.onscreen)
+            .map(|w| w.id)
+            .collect();
+        onscreen_order()
+            .ok()?
+            .into_iter()
+            .find(|id| ordinary.contains(id))
+            .map(|id| WindowId(u64::from(id)))
+    }
 }
 
 #[cfg(target_os = "macos")]

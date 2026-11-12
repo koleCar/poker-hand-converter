@@ -7,9 +7,10 @@
 //!
 //! - [`TilingSettings`]: off by default; the layout in force ([`LayoutRef`]:
 //!   the auto grid or one of the user's [`Layout`]s), auto-switch rules for
-//!   the auto grid, close gaps, and a per-room switch (on unless the user
-//!   turned a room off). Whether a room may be tiled at all is the policy's
-//!   (T0's `TilingPermit`), never this.
+//!   the auto grid, close gaps, a per-room switch (on unless the user
+//!   turned a room off) and (T7) the global hotkeys
+//!   ([`crate::hotkeys`]). Whether a room may be tiled at all is the
+//!   policy's (T0's `TilingPermit`), never this.
 //! - [`RngSettings`]: off by default; the range (1 - 100), colour bands,
 //!   when it rolls, per room, the widget's size and opacity.
 //!
@@ -23,6 +24,8 @@ use std::collections::BTreeMap;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
+
+use crate::hotkeys::HotkeyBinding;
 
 /// The auto grid's layout id ([`LayoutRef::Auto`], an [`AutoSwitch`]
 /// target). No user layout may take it.
@@ -292,6 +295,10 @@ pub struct TilingSettings {
     /// on. The room's policy decides first: a switch never allows a room
     /// the policy does not.
     pub per_room: BTreeMap<String, bool>,
+    /// (T7) The user's global hotkeys ([`crate::hotkeys`]); none by
+    /// default. Missing (an older peer's settings): none. An older app
+    /// build that saves these settings drops them (it does not know them).
+    pub hotkeys: Vec<HotkeyBinding>,
 }
 
 impl TilingSettings {
@@ -323,6 +330,7 @@ impl TilingSettings {
             return invalid(format!("the active layout {id:?} does not exist"));
         }
         check_rooms(self.per_room.keys(), "a room")?;
+        crate::hotkeys::check(&self.hotkeys)?;
         check_size(self, "the tiling settings")
     }
 }
@@ -538,6 +546,10 @@ mod tests {
             }],
             close_gaps: true,
             per_room: [("winamax".to_owned(), false)].into_iter().collect(),
+            hotkeys: vec![HotkeyBinding {
+                action: crate::hotkeys::HotkeyAction::Retile,
+                keys: "Ctrl+Alt+KeyR".into(),
+            }],
         }
     }
 
@@ -665,6 +677,38 @@ mod tests {
         assert_eq!(older.per_room.get("acr"), Some(&false));
     }
 
+    /// (T7) The hotkeys travel with the tiling settings: a T6 row (none)
+    /// reads with none, a newer one round-trips, and what an older build
+    /// keeps of it is everything but them.
+    #[test]
+    fn hotkeys_round_trip() {
+        let old = r#"{"enabled":true,"active":{"kind":"auto"},"layouts":[],"autoSwitch":[],"closeGaps":false,"perRoom":{"acr":false}}"#;
+        let t: TilingSettings = serde_json::from_str(old).expect("reads");
+        assert!(t.hotkeys.is_empty() && t.enabled && !t.room_enabled("acr"));
+        assert_eq!(t.validate(), Ok(()));
+
+        let t = tiling();
+        let text = serde_json::to_string(&t).expect("json");
+        assert!(
+            text.contains(r#""hotkeys":[{"action":"retile","keys":"Ctrl+Alt+KeyR"}]"#),
+            "{text}"
+        );
+        assert_eq!(
+            serde_json::from_str::<TilingSettings>(&text).expect("back"),
+            t
+        );
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        struct OlderTiling {
+            enabled: bool,
+            close_gaps: bool,
+            per_room: BTreeMap<String, bool>,
+        }
+        let older: OlderTiling = serde_json::from_str(&text).expect("older reads");
+        assert!(older.enabled && older.close_gaps);
+        assert_eq!(older.per_room.get("winamax"), Some(&false));
+    }
+
     #[test]
     fn tiling_validation() {
         assert_eq!(tiling().validate(), Ok(()));
@@ -696,6 +740,16 @@ mod tests {
         refused(&|t| {
             t.per_room.insert("x".repeat(MAX_ID + 1), true);
         });
+        // (T7) Hotkeys: the same keys twice, an action twice, keys that
+        // would hijack typing.
+        refused(&|t| {
+            t.hotkeys.push(HotkeyBinding {
+                action: crate::hotkeys::HotkeyAction::ToggleTiling,
+                keys: "Ctrl+Alt+KeyR".into(),
+            });
+        });
+        refused(&|t| t.hotkeys.push(t.hotkeys[0].clone()));
+        refused(&|t| t.hotkeys[0].keys = "KeyR".into());
         refused(&|t| {
             t.layouts = (0..=MAX_LAYOUTS)
                 .map(|i| Layout {

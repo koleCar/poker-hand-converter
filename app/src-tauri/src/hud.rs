@@ -734,8 +734,14 @@ impl HudState {
     /// (T3) Lay every tiled table out again ("Re-tile tables"). Whether the
     /// HUD heard it.
     pub fn retile(&self) -> bool {
+        self.send(AppMessage::Retile)
+    }
+
+    /// (T7) A message for the HUD (a hotkey's `retile` / `roll_rng`).
+    /// Whether it was sent (no HUD running: not).
+    pub fn send(&self, message: AppMessage) -> bool {
         self.supervisor()
-            .is_some_and(|supervisor| supervisor.send(AppMessage::Retile))
+            .is_some_and(|supervisor| supervisor.send(message))
     }
 
     /// What a HUD that just connected needs besides the policy: whether it

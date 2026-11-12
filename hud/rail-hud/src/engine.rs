@@ -145,6 +145,10 @@
 //!   ([`HudMessage::RngPositionChanged`]) - it writes the store; the HUD
 //!   reads the positions back with the seat positions. The RNG-only tables
 //!   are not counted in `tables_open` (no panel is drawn there).
+//! - **Hotkeys** (T7): the app owns the global keys and sends what they
+//!   mean - `tiling_changed`, `retile`, or `roll_rng`, which rolls the
+//!   table in front ([`Platform::focused_window`]) only where it shows the
+//!   RNG ([`Hud::roll_focused`], under the room's `RngPermit`).
 
 #![forbid(unsafe_code)]
 
@@ -1172,6 +1176,23 @@ impl Hud {
         }
     }
 
+    /// (T7) The user's hotkey (`roll_rng`): the table in front
+    /// ([`Platform::focused_window`]) rolls, when it shows the RNG - the
+    /// user's settings on for its room **and** the room's `RngPermit`
+    /// ([`Hud::rng_for`]); no other trigger setting is asked (the hotkey is
+    /// its own). Any other window in front, or no RNG there: nothing. The
+    /// table that rolled, if one did.
+    pub fn roll_focused(&mut self) -> Option<WindowId> {
+        let id = self.platform.focused_window()?;
+        let site = self.window_site(id)?;
+        self.rng_for(&site)?;
+        if !self.roll(id, Instant::now()) {
+            return None;
+        }
+        self.show_rng(id);
+        Some(id)
+    }
+
     /// (T4) Tables whose timer is due roll.
     fn step_rng(&mut self, now: Instant) {
         if self.rolls.is_empty() {
@@ -1677,6 +1698,9 @@ impl Hud {
                 }
             }
             AppMessage::Retile => self.retile(),
+            AppMessage::RollRng => {
+                self.roll_focused();
+            }
             AppMessage::CaptureLayout { request } => out(HudMessage::LayoutCaptured {
                 request,
                 slots: self.capture_layout(),

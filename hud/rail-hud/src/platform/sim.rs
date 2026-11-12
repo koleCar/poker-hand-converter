@@ -256,6 +256,8 @@ struct Control {
     pointer: Vec<Gesture>,
     /// (T4) Drops so far.
     drag_seq: u64,
+    /// (T7) The table in front ([`Platform::focused_window`]).
+    focused: Option<u32>,
 }
 
 impl Control {
@@ -363,6 +365,12 @@ impl SimControl {
         self.lock().pointer.push((number, from, Some(to)));
     }
 
+    /// (T7) The user is at table `number` now (`None`: at another
+    /// program): what [`Platform::focused_window`] answers.
+    pub fn focus(&self, number: Option<u32>) {
+        self.lock().focused = number;
+    }
+
     /// (T2) Table `number`'s client area now, as the simulator has it.
     pub fn client_of(&self, number: u32) -> Option<Rect> {
         let feed = self.feed.0.lock().unwrap_or_else(PoisonError::into_inner);
@@ -460,6 +468,7 @@ impl SimBackend {
                 kept: BTreeMap::new(),
                 pointer: Vec::new(),
                 drag_seq: 0,
+                focused: None,
             })),
             feed: feed.clone(),
         };
@@ -815,6 +824,11 @@ impl Platform for SimBackend {
     /// presses it.
     fn placer(&mut self) -> Option<Box<dyn Placer>> {
         Some(Box::new(SimPlacer(self.control.clone())))
+    }
+
+    /// (T7) The table the test put in front ([`SimControl::focus`]).
+    fn focused_window(&mut self) -> Option<WindowId> {
+        self.control.lock().focused.map(|n| WindowId(u64::from(n)))
     }
 }
 

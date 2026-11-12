@@ -82,6 +82,13 @@ tauri-plugin-autostart = "=2.5.1"
 # the install. Called from Rust only (`updates.rs`); no plugin permission for
 # the window.
 tauri-plugin-updater = "=2.11.0"
+# (T7) Global hotkeys for table tiling (re-tile, next / previous layout,
+# tiling on / off, roll the RNG): `RegisterHotKey` on Windows, Carbon's
+# `RegisterEventHotKey` on macOS - neither needs a permission (no
+# Accessibility, no Input Monitoring). 2.3.2 is the last release for tauri
+# 2.10 / 2.11 (2.4 needs 2.12). Called from Rust only (`hotkeys.rs`); no
+# plugin permission for the window.
+tauri-plugin-global-shortcut = "=2.3.2"
 # `tauri` 2.11.5 asks for its own sub-crates with caret requirements, so a
 # fresh resolve pulls the 2.12 line of these, which does not compile against
 # tauri 2.11 (`Error::UnexpectedMenuKind` and friends). They are listed only

@@ -17,6 +17,8 @@
 //!   `rng_changed` on every write, and both again after every handshake, so
 //!   a restarted HUD has them; `retile` from [`retile_tables`] and the
 //!   tray's "Re-tile tables".
+//! - (T7) **Hotkeys**: the bindings in the tiling settings are bound with
+//!   the system after every save and pull (`crate::hotkeys`).
 //! - **Free**: tiling and the RNG need no plan. Where the plan holds the
 //!   HUD's panels back (R6.4, Free with enforcement on), the HUD process
 //!   still starts when either is on, with no panels (`--panels off`).
@@ -130,7 +132,7 @@ pub fn write_rng(writer: &rail_store::WriterHandle, settings: &RngSettings) -> R
     write_one(writer, HudSettingKind::Rng, settings)
 }
 
-fn writer(store: &StoreState) -> Result<rail_store::WriterHandle, String> {
+pub(crate) fn writer(store: &StoreState) -> Result<rail_store::WriterHandle, String> {
     store
         .store
         .as_ref()
@@ -148,12 +150,15 @@ pub fn get_tiling_settings(store: State<'_, StoreState>) -> TilingSettings {
 /// Save the table tiling settings (refused when they do not validate), then
 /// the HUD applies them and the sync worker sends them.
 #[tauri::command]
-pub async fn set_tiling_settings(
+pub async fn set_tiling_settings<R: Runtime>(
+    app: AppHandle<R>,
     store: State<'_, StoreState>,
     hud: State<'_, HudState>,
     settings: TilingSettings,
 ) -> Result<(), String> {
     write_tiling(&writer(&store)?, &settings)?;
+    // (T7) The hotkeys as saved, bound with the system.
+    crate::hotkeys::apply_bindings(&app, &settings.hotkeys);
     hud.tiling_written(settings);
     Ok(())
 }
@@ -213,10 +218,14 @@ pub fn pulled<R: Runtime>(app: &AppHandle<R>) {
     else {
         return;
     };
-    if hud.settings_pulled(read_store(&store))
-        && let Err(error) = app.emit(SETTINGS_EVENT, ())
-    {
-        log::debug!("{SETTINGS_EVENT}: {error}");
+    let now = read_store(&store);
+    let hotkeys = now.tiling.hotkeys.clone();
+    if hud.settings_pulled(now) {
+        // (T7) Another computer's hotkeys, bound here too.
+        crate::hotkeys::apply_bindings(app, &hotkeys);
+        if let Err(error) = app.emit(SETTINGS_EVENT, ()) {
+            log::debug!("{SETTINGS_EVENT}: {error}");
+        }
     }
 }
 
@@ -241,6 +250,11 @@ mod tests {
             enabled: true,
             close_gaps: true,
             per_room: [("winamax".to_owned(), false)].into_iter().collect(),
+            // (T7) The hotkeys travel with them.
+            hotkeys: vec![rail_hud_ipc::hotkeys::HotkeyBinding {
+                action: rail_hud_ipc::hotkeys::HotkeyAction::Retile,
+                keys: "Ctrl+Alt+KeyR".into(),
+            }],
             ..TilingSettings::default()
         };
         write_tiling(&w, &tiling).expect("saved");
@@ -274,6 +288,13 @@ mod tests {
         )
         .expect_err("refused");
         assert!(error.contains("gone"), "{error}");
+        // (T7) The same keys for two actions.
+        let mut twice = tiling.clone();
+        twice.hotkeys.push(rail_hud_ipc::hotkeys::HotkeyBinding {
+            action: rail_hud_ipc::hotkeys::HotkeyAction::ToggleTiling,
+            keys: "Ctrl+Alt+KeyR".into(),
+        });
+        assert!(write_tiling(&w, &twice).is_err());
         assert!(
             write_rng(
                 &w,

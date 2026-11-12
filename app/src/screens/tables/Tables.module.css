@@ -714,3 +714,33 @@
 .ruleRemove {
   margin-inline-start: auto;
 }
+
+/* ------------------------------------------------------------- (T7) hotkeys */
+
+.hotkey {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.hotkeyName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotkey[data-disabled="true"] .hotkeyName {
+  color: var(--text-tertiary);
+}
+
+.keycap {
+  justify-content: center;
+  min-width: 6.5rem;
+  height: 28px;
+  font-variant-numeric: tabular-nums;
+}

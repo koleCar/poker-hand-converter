@@ -5,7 +5,8 @@
  * displays drawn to scale with the tiled tables on them, and two cards:
  * the rooms (tiling allowed or not, the user's tiling and RNG switches per
  * room) with the rules that switch the layout by table count, and the RNG
- * (its switch, colour bands, when it rolls, size and opacity). The slot editor ("Draw slots", a layout's
+ * (its switch, colour bands, when it rolls, size and opacity) with (T7) the
+ * global hotkeys. The slot editor ("Draw slots", a layout's
  * "Edit slots") takes the displays' place while it is open.
  *
  * Free: table tiling and the RNG need no plan (`entitlements.rs`), so no
@@ -25,6 +26,7 @@ import { errorText, inApp, ipc, type HudStatus, type TilingSettings } from "../l
 import { useHudCompliance } from "../lib/useHudCompliance";
 import { Toggle } from "./settings/Toggle";
 import { AutoSwitchCard } from "./tables/AutoSwitchCard";
+import { HotkeysCard } from "./tables/HotkeysCard";
 import { LayoutAdd, LayoutMenu } from "./tables/LayoutControls";
 import { Monitors } from "./tables/Monitors";
 import { RngCard } from "./tables/RngCard";
@@ -123,7 +125,10 @@ export function Tables() {
             />
             <AutoSwitchCard settings={tiling} status={status} onSave={save} />
           </div>
-          <RngCard policy={policy} rng={rng} onSave={settings.saveRng} />
+          <div className={styles.column}>
+            <RngCard policy={policy} rng={rng} onSave={settings.saveRng} />
+            <HotkeysCard settings={tiling} policy={policy} onSave={settings.saveTiling} />
+          </div>
         </div>
       </div>
     </>

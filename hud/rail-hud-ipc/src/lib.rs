@@ -30,10 +30,13 @@
 //! - [`settings`] (T3): the user's table tiling and RNG settings - the
 //!   model the app stores and sends and the HUD applies, with its
 //!   validation.
+//! - [`hotkeys`] (T7): the global hotkeys' bindings (part of the tiling
+//!   settings), their validation and what each one does.
 
 pub mod auth;
 pub mod client;
 pub mod frame;
+pub mod hotkeys;
 pub mod link;
 pub mod protocol;
 pub mod settings;

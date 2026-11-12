@@ -138,6 +138,15 @@ Off unless switched on: by the app's settings (T3, `tiling_changed` with
    refused size is kept and centred once; a table the user drags is pinned
    until a re-tile. The overlays follow the tables as they move.
 
+**Global hotkeys (T7).** The app owns them (`app/src-tauri/src/hotkeys.rs`,
+`tauri-plugin-global-shortcut`: `RegisterHotKey` / Carbon hot keys, no
+permission), stored in `TilingSettings.hotkeys`
+(`rail_hud_ipc::hotkeys`); none bound by default. A key reaches the HUD as
+what it means - `tiling_changed` (another layout, tiling on or off),
+`retile`, or `roll_rng` (the table in front, `Platform::focused_window`,
+rolls only where the room gives an `RngPermit`: none today) - so every
+window still goes through the permits above. No key acts inside a table.
+
 ### The RNG overlay (T4)
 
 A random number on each table, for mixing decisions
@@ -231,6 +240,7 @@ to be granted again.
 | --- | --- |
 | `protocol.rs` | The messages, one JSON object each, `type` in snake_case, fields camelCase, `PROTOCOL_VERSION` 1. Unknown types read as `Unknown` and unknown fields are ignored, so additions are not protocol changes |
 | `settings.rs` | (T3) The user's table tiling and RNG settings (`TilingSettings`, `RngSettings`, the layouts): the one model the app stores (`hud_layouts` kinds `tiling` / `rng`), sends and the HUD applies; camelCase, every field defaulted; validation both sides run |
+| `hotkeys.rs` | (T7) The global hotkeys' bindings (`TilingSettings.hotkeys`: an action and `Ctrl+Alt+Shift+Super+<code>` keys), their validation (no key that hijacks typing, each action and each combination once) and `dispatch`: what a key does with the settings in force |
 | `frame.rs` | 4-byte big-endian length, then the JSON; zero-length and oversized frames refused before allocating (`MAX_FRAME` 1 MiB, 1 KiB until the handshake is done) |
 | `auth.rs` | A fresh 256-bit token per HUD process on its standard input; a mutual HMAC-SHA256 challenge-response (`client_hello`, `server_hello`, `client_proof`, `welcome`) with constant-time comparison |
 | `transport.rs` | Unix: a socket `0600` in a fresh `0700` folder; Windows: a named pipe, first instance only, remote clients rejected, DACL for the owner and SYSTEM only |
@@ -249,7 +259,8 @@ Messages:
 | `resync`, `health`, `shutdown` | `seat_position_changed` (a dragged panel, for the app to store); (T4) `rng_position_changed` (a dragged RNG widget, per room and table size) |
 | `request_permission` (after the user's click) | `open_popup`, `open_in_app` |
 | (T3) `tiling_changed` (the user's tiling settings, `rail_hud_ipc::settings`; also after every handshake) | (T3) `tiling_status` (on, tables managed, the layout in force; T5: the monitors, on or off, and each tiled table's outer rect, name, monitor, stacked, pinned - coalesced to 4 a second while only places change) |
-| (T3) `rng_changed` (the RNG settings; T4 draws it), `retile` (the tray's "Re-tile tables") | |
+| (T3) `rng_changed` (the RNG settings; T4 draws it), `retile` (the tray's "Re-tile tables"; T7: its hotkey) | |
+| (T7) `roll_rng` (a hotkey: roll the table in front, where its room allows the RNG) | |
 | (T5) `capture_layout` (the Tables screen's "Save current arrangement") | (T5) `layout_captured` (one slot per tiled table's place, thousandths of its monitor's work area) |
 | (T3) `panels` (`allowed: false`: the plan holds the HUD back - tiling and the RNG only, no panel attached; after every handshake) | |
 
@@ -313,7 +324,10 @@ play), `supervisor`, then per OS against the simulator's real windows -
 moved and resized through `place` and read back; on macOS with
 Accessibility) - `rng_sim` (T4, headless, on a test policy that allows the RNG: where it
 draws, RNG-only overlays, new hand / click / timer rolls, drags per room
-and size, panels off), `tiling_sim` (T2, headless: twelve tables of two rooms
+and size, panels off), `hotkeys_sim` (T7, headless: each hotkey through
+`dispatch` to the engine - re-tile, next / previous layout, tiling on / off
+moving only permitted rooms' tables; the RNG key inert on the shipped
+policy, the table in front only on a test policy), `tiling_sim` (T2, headless: twelve tables of two rooms
 over two monitors, stacking, closing, a refused size, a pinned table, the
 mouse held, a refused room never moved) and `twelve_tables` (R3.14's budget: twelve tables posing
 as PokerStars plus one posing as GGPoker, which must get no overlay).

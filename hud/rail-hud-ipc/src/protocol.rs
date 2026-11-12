@@ -132,6 +132,11 @@ pub enum AppMessage {
     /// the same before the first look.
     #[serde(rename_all = "camelCase")]
     Panels { allowed: bool },
+    /// (T7) The user's hotkey: roll the RNG on the table in front (the
+    /// system's foreground window), when it shows the RNG - the user's RNG
+    /// settings on for its room **and** the room's `RngPermit`; otherwise
+    /// nothing. An older HUD ignores it.
+    RollRng,
     /// A message type this build does not know (a newer app).
     #[serde(other)]
     Unknown,
@@ -492,6 +497,7 @@ pub struct LatencySummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::hotkeys::{HotkeyAction, HotkeyBinding};
     use crate::settings::{
         AutoSwitch, Layout, LayoutRef, RngBand, RngTriggers, Slot, SlotKind, SlotRect,
     };
@@ -563,6 +569,10 @@ mod tests {
             auto_switch: Vec::new(),
             close_gaps: true,
             per_room: [("winamax".to_owned(), false)].into_iter().collect(),
+            hotkeys: vec![HotkeyBinding {
+                action: HotkeyAction::NextLayout,
+                keys: "Ctrl+Alt+ArrowRight".into(),
+            }],
         }
     }
 
@@ -651,6 +661,7 @@ mod tests {
                 },
             },
             AppMessage::Retile,
+            AppMessage::RollRng,
             AppMessage::CaptureLayout { request: 7 },
             AppMessage::Panels { allowed: false },
             AppMessage::Panels { allowed: true },
@@ -960,6 +971,10 @@ mod tests {
             r#"{"type":"retile"}"#
         );
         assert_eq!(
+            serde_json::to_string(&AppMessage::RollRng).expect("json"),
+            r#"{"type":"roll_rng"}"#
+        );
+        assert_eq!(
             serde_json::to_string(&AppMessage::Panels { allowed: false }).expect("json"),
             r#"{"type":"panels","allowed":false}"#
         );
@@ -968,7 +983,7 @@ mod tests {
                 settings: TilingSettings::default()
             })
             .expect("json"),
-            r#"{"type":"tiling_changed","settings":{"enabled":false,"active":{"kind":"auto"},"layouts":[],"autoSwitch":[],"closeGaps":false,"perRoom":{}}}"#
+            r#"{"type":"tiling_changed","settings":{"enabled":false,"active":{"kind":"auto"},"layouts":[],"autoSwitch":[],"closeGaps":false,"perRoom":{},"hotkeys":[]}}"#
         );
         let rng = serde_json::to_string(&AppMessage::RngChanged {
             settings: RngSettings::default(),
