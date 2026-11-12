@@ -277,6 +277,8 @@ export interface PickedFlop {
   key: string;
   /** A card of the chunk (canonical suits) in the picked flop's suits. */
   toPicked: (card: string) => string;
+  /** The relabelling the other way: `perm[s]` is the chunk's suit for the picked suit `s` (`permuteCard`). */
+  perm: readonly number[];
 }
 
 /**
@@ -292,6 +294,7 @@ export function pickedFlop(cards: readonly string[]): PickedFlop {
   });
   return {
     key: board.join(""),
+    perm,
     toPicked: (card) => {
       const index = cardIndex(card);
       return cardCode((index & ~3) | back[index & 3]);

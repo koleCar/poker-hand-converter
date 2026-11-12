@@ -29,6 +29,7 @@
 "use client";
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { villainsOfFacts } from "../../lib/analysis/analyze";
 import type { DecisionAnalysis, FlopFacts } from "../../lib/analysis/types";
@@ -92,6 +93,8 @@ interface RiverStudyProps {
    * had no chunk for it), said as such. Absent: ask the analysis worker.
    */
   study?: Study | null;
+  /** The Solver library at this decision (`paths.solver`), linked beside the button. */
+  solverHref?: string | null;
 }
 
 /** The study's strings: the river's, with the turn's own where they differ. */
@@ -102,7 +105,7 @@ export function useStudyStrings(street: "river" | "turn" | "flop") {
 }
 
 /** The button and, once asked for, the study itself. */
-export function RiverStudy({ decision, hand, initialOpen = false, street = "river", solveTurn = true, study }: RiverStudyProps) {
+export function RiverStudy({ decision, hand, initialOpen = false, street = "river", solveTurn = true, study, solverHref }: RiverStudyProps) {
   const t = useStudyStrings(street);
   const given: Loaded | null = study === undefined ? null : study ? { status: "ready", study } : { status: "missing" };
   const [open, setOpen] = useState(initialOpen);
@@ -149,6 +152,11 @@ export function RiverStudy({ decision, hand, initialOpen = false, street = "rive
         <button type="button" className="btn btn--sm" aria-expanded={open} onClick={toggle}>
           {open ? t.hideStudy : t.study}
         </button>
+        {solverHref ? (
+          <Link className={styles.learnInline} href={solverHref}>
+            {t.openSolver}
+          </Link>
+        ) : null}
       </div>
       {open && loaded.status === "loading" ? <RailLoader size="small" label={t.loading} showLabel /> : null}
       {open && loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}

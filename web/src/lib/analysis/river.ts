@@ -356,11 +356,14 @@ export interface Mapped {
 
 const SIZED = new Set(["bet", "raise", "allin"]);
 
+/** What mapping an action onto a tree reads of it. */
+export type LineAct = Pick<StreetAct, "type" | "to" | "allIn" | "sizePot">;
+
 /**
  * The edge(s) a real action takes at `node`. A sized action returns its
  * translation's edges, likelier first; `null` when the node has no such edge.
  */
-export function mapAct(node: SolvedNode, act: StreetAct, stack: number): Mapped | null {
+export function mapAct(node: SolvedNode, act: LineAct, stack: number): Mapped | null {
   const kinds = node.actions.map((action) => action.kind);
   if (act.type === "check" || act.type === "call" || act.type === "fold") {
     const edge = kinds.indexOf(act.type);
@@ -415,6 +418,37 @@ export type LineFailure<S extends SolvedStreet> = {
 };
 
 /**
+ * The edge a real action takes on a line through a solved tree, and how far
+ * its size was mapped (fraction of the pot); null when the node has no such
+ * action. The translation's likeliest edge (`mapAct`), except that either
+ * player's size is one the solve takes at least `MIN_LINE_REACH` of the time.
+ * Shared by the grades (`followSolvedLine`) and the Solver library's links
+ * (`lib/solver/walk.ts`), so a link lands where the grade read.
+ */
+export function lineEdge(node: SolvedNode, act: LineAct, stack: number): { edge: number; gap: number } | null {
+  const mapped = mapAct(node, act, stack);
+  if (!mapped) return null;
+  let edge = mapped.edges[0];
+  let gap = mapped.distance;
+  // `frequency` is weighted by the actor's own reach, so a rarer edge leaves
+  // under that share of the range on the line and can only end `*-unreached`;
+  // remapping it moves no line that reaches its node.
+  if (SIZED.has(node.actions[edge].kind) && node.frequency[edge] < MIN_LINE_REACH) {
+    // Measured from the real size, or from the all-in's when it was one.
+    const x = mapped.distance === 0 && node.actions[edge].kind === "allin" ? node.actions[edge].sizePot : (act.sizePot ?? 0);
+    const used = node.actions
+      .map((action, e) => ({ action, e }))
+      .filter(({ action, e }) => SIZED.has(action.kind) && node.frequency[e] >= MIN_LINE_REACH)
+      .sort((a, b) => Math.abs(a.action.sizePot - x) - Math.abs(b.action.sizePot - x) || a.e - b.e);
+    if (used.length > 0) {
+      edge = used[0].e;
+      gap = Math.abs(used[0].action.sizePot - x);
+    }
+  }
+  return { edge, gap };
+}
+
+/**
  * Follows the river's actions before the hero's decision through the solved
  * tree. `acts` are the river decisions before it, in order.
  */
@@ -446,26 +480,9 @@ export function followSolvedLine<S extends SolvedStreet>(
     if (!node || node.kind !== "action" || node.player !== player) {
       return fail("off-tree", `no decision for ${act.type} at ${node?.path ?? "?"}`);
     }
-    const mapped = mapAct(node, act, input.stackBb);
-    if (!mapped) return fail("off-tree", `no ${act.type} at ${node.path || "the root"}`);
-    let edge = mapped.edges[0];
-    let gap = mapped.distance;
-    // Either player's size: one the solve takes at least `MIN_LINE_REACH` of
-    // the time. `frequency` is weighted by the actor's own reach, so a rarer
-    // edge leaves under that share of the range on the line and can only end
-    // `*-unreached`; remapping it moves no line that reaches its node.
-    if (SIZED.has(node.actions[edge].kind) && node.frequency[edge] < MIN_LINE_REACH) {
-      // Measured from the real size, or from the all-in's when it was one.
-      const x = mapped.distance === 0 && node.actions[edge].kind === "allin" ? node.actions[edge].sizePot : (act.sizePot ?? 0);
-      const used = node.actions
-        .map((action, e) => ({ action, e }))
-        .filter(({ action, e }) => SIZED.has(action.kind) && node.frequency[e] >= MIN_LINE_REACH)
-        .sort((a, b) => Math.abs(a.action.sizePot - x) - Math.abs(b.action.sizePot - x) || a.e - b.e);
-      if (used.length > 0) {
-        edge = used[0].e;
-        gap = Math.abs(used[0].action.sizePot - x);
-      }
-    }
+    const taken = lineEdge(node, act, input.stackBb);
+    if (!taken) return fail("off-tree", `no ${act.type} at ${node.path || "the root"}`);
+    const { edge, gap } = taken;
     distance = Math.max(distance, gap);
     const next = node.children[edge];
     if (next < 0) return fail("off-tree", `the line ends at ${node.labels[edge]}`);

@@ -87,16 +87,18 @@ export const paths = {
    * The Solver library tab: the flop library's solves, one decision at a
    * time. Public and in the sitemap, like the chart browser. `?set=` a
    * table, `?line=` the preflop line (the charts' letters), `?flop=` the flop
-   * as picked and `?node=` the flop decision pick the view. A top-level segment, so `solver` is a
-   * reserved username (`20271020090000_solver_route.sql`).
+   * as picked and `?node=` the flop decision pick the view; `?walk=` is a hand's line to a
+   * decision on any street (`lib/analysis/solverWalk.ts`), what the analysis links with. A
+   * top-level segment, so `solver` is a reserved username (`20271020090000_solver_route.sql`).
    */
-  solver: (view?: { set?: string; line?: string; flop?: string; node?: number; turn?: string }) => {
+  solver: (view?: { set?: string; line?: string; flop?: string; node?: number; turn?: string; walk?: string }) => {
     const params = new URLSearchParams();
     if (view?.set) params.set("set", view.set);
     if (view?.line) params.set("line", view.line);
     if (view?.flop) params.set("flop", view.flop);
     if (view?.turn) params.set("turn", view.turn);
     if (view?.node) params.set("node", String(view.node));
+    if (view?.walk) params.set("walk", view.walk);
     const query = params.toString();
     return query ? `/solver?${query}` : "/solver";
   },

@@ -13,7 +13,8 @@ import styles from "../../components/solver/solver.module.css";
  * see what a signed-in player sees. `sitemap.ts` lists it and the canonical
  * URL drops the query, which picks the view (`?set=` a table, `?line=` the
  * preflop line in the charts' letters, `?flop=` the flop as picked, any suits,
- * `?node=` a decision of its solve); anything malformed is the start of each.
+ * `?node=` a decision of its solve, `?walk=` a hand's line to a decision on
+ * any street); anything malformed is the start of each.
  * Edge to edge (`ServerFrame wide`): the grid is the page.
  */
 
@@ -25,6 +26,8 @@ const SET_RE = /^nlhe-cash-(hu|\d{1,2}max)-\d{1,3}bb$/;
 const LINE_RE = /^[fkcra]{1,24}$/;
 const FLOP_RE = /^([2-9TJQKA][cdhs]){3}$/;
 const NODE_RE = /^\d{1,5}$/;
+/** A hand's line to a decision (`lib/analysis/solverWalk.ts`): actions and cards joined by `-`. */
+const WALK_RE = /^(?:[fxc]|[br]\d{1,4}a?|[2-9TJQKA][cdhs])(?:-(?:[fxc]|[br]\d{1,4}a?|[2-9TJQKA][cdhs])){0,39}$/;
 /** A turn: a full solve's file (`X-B1.82-C~Kd`, local only) or a live turn's deal node and card (`12~Kd`). */
 const TURN_RE = /^[A-Za-z0-9._-]{1,60}~[2-9TJQKA][cdhs]$/;
 
@@ -58,6 +61,7 @@ export default async function SolverPage({ searchParams }: PageProps) {
           initialFlop={valid(first(query.flop), FLOP_RE)}
           initialNode={node ? Number(node) : null}
           initialTurn={valid(first(query.turn), TURN_RE)}
+          initialWalk={valid(first(query.walk), WALK_RE)}
         />
       </div>
     </ServerFrame>

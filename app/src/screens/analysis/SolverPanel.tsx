@@ -43,6 +43,7 @@ export function SolverPanel({ spot }: { spot: SolverSpot | null }) {
               initialNode={spot.node}
               initialTurn={spot.turn}
               initialPath={spot.path}
+              initialWalk={spot.walk}
               onView={onView}
             />
           </SolverHostProvider>
