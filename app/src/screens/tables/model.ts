@@ -148,16 +148,23 @@ export type RoomVerdict = "allowed" | "notAllowed" | "approval";
 export interface RoomRow {
   id: string;
   name: string;
+  /** Tiling's verdict. */
   verdict: RoomVerdict;
   /** Its tables open now (the tiled ones, else the HUD's). */
   tables: number;
-  /** The user's switch (on unless switched off). */
+  /** The user's tiling switch (on unless switched off). */
   on: boolean;
+  /** (T5 follow-up) The RNG's verdict (`hud_policy`'s `rng`). */
+  rngVerdict: RoomVerdict;
+  /** The user's RNG switch for the room (on unless switched off). */
+  rngOn: boolean;
 }
 
-export function verdictOf(room: RoomPolicy): RoomVerdict {
-  if (room.tiling.permitted) return "allowed";
-  return room.tiling.needsApproval ? "approval" : "notAllowed";
+/** A room's verdict for tiling (`tool` "tiling") or the RNG ("rng"), as the Rust side decided it. */
+export function verdictOf(room: RoomPolicy, tool: "tiling" | "rng" = "tiling"): RoomVerdict {
+  const policy = room[tool];
+  if (policy.permitted) return "allowed";
+  return policy.needsApproval ? "approval" : "notAllowed";
 }
 
 /** Whether the user lets tiling move this room's tables (`TilingSettings::room_enabled`). */
@@ -173,9 +180,22 @@ export function setRoomOn(settings: TilingSettings, site: string, on: boolean): 
   return { ...settings, perRoom };
 }
 
+/** (T5 follow-up) Whether the user wants the RNG on this room's tables (`RngSettings::room_enabled`). */
+export function rngRoomOn(rng: RngSettings, site: string): boolean {
+  return rng.perRoom[site] ?? true;
+}
+
+/** The user's RNG switch for a room: on is the default, so it is stored only when off. The room's policy still decides first. */
+export function setRngRoomOn(rng: RngSettings, site: string, on: boolean): RngSettings {
+  const perRoom = { ...rng.perRoom };
+  if (on) delete perRoom[site];
+  else perRoom[site] = false;
+  return { ...rng, perRoom };
+}
+
 /**
- * The rooms card: the rooms tiling may move, then the others with a table
- * open now (those it may not move: approval first, then by name); every
+ * The rooms card: the rooms tiling may move or the RNG may show on, then
+ * the others with a table open now (approval first, then by name); every
  * other room folds into "N more rooms not allowed". Rail's own format and
  * closed clients are not rooms anyone plays: left out.
  */
@@ -183,6 +203,7 @@ export function roomRows(
   policy: HudPolicy,
   settings: TilingSettings,
   status: HudStatus | null,
+  rng: RngSettings | null = null,
 ): { shown: RoomRow[]; folded: RoomRow[] } {
   const tiled = new Map<string, number>();
   for (const table of status?.tiling?.windows ?? []) tiled.set(table.site, (tiled.get(table.site) ?? 0) + 1);
@@ -199,10 +220,13 @@ export function roomRows(
         verdict: verdictOf(room),
         tables: tiled.get(room.id) ?? open.get(room.id) ?? 0,
         on: roomOn(settings, room.id),
+        rngVerdict: verdictOf(room, "rng"),
+        rngOn: rng === null ? true : rngRoomOn(rng, room.id),
       }),
     );
-  const allowed = rows.filter((row) => row.verdict === "allowed");
-  const rest = rows.filter((row) => row.verdict !== "allowed");
+  const isAllowed = (row: RoomRow) => row.verdict === "allowed" || row.rngVerdict === "allowed";
+  const allowed = rows.filter(isAllowed);
+  const rest = rows.filter((row) => !isAllowed(row));
   const withTables = rest
     .filter((row) => row.tables > 0)
     .sort((a, b) => Number(b.verdict === "approval") - Number(a.verdict === "approval") || a.name.localeCompare(b.name));
@@ -227,6 +251,36 @@ export const MAX_LABEL = 24;
 export const MAX_TIMER_SECS = 3600;
 /** The timer a fresh "Every N s" starts with. */
 export const DEFAULT_TIMER_SECS = 10;
+/** (T5 follow-up) The widget's size, percent (`RNG_SCALE_MIN` - `RNG_SCALE_MAX`). */
+export const RNG_SCALE_MIN = 50;
+export const RNG_SCALE_MAX = 200;
+/** Its opacity, percent (`RNG_OPACITY_MIN` - `RNG_OPACITY_MAX`). */
+export const RNG_OPACITY_MIN = 30;
+export const RNG_OPACITY_MAX = 100;
+/** Both, when the settings have neither (`RNG_DEFAULT_PCT`). */
+export const RNG_DEFAULT_PCT = 100;
+
+/** The widget's size, percent: the stored one (100 when an older build stored none). */
+export function rngScale(rng: RngSettings): number {
+  return rng.scale ?? RNG_DEFAULT_PCT;
+}
+
+/** The widget's opacity, percent (100 when none is stored). */
+export function rngOpacity(rng: RngSettings): number {
+  return rng.opacity ?? RNG_DEFAULT_PCT;
+}
+
+/** The widget's size set to `pct`, a whole percent kept within 50 - 200. */
+export function setRngScale(rng: RngSettings, pct: number): RngSettings {
+  if (!Number.isFinite(pct)) return rng;
+  return { ...rng, scale: clamp(Math.round(pct), RNG_SCALE_MIN, RNG_SCALE_MAX) };
+}
+
+/** The widget's opacity set to `pct`, a whole percent kept within 30 - 100. */
+export function setRngOpacity(rng: RngSettings, pct: number): RngSettings {
+  if (!Number.isFinite(pct)) return rng;
+  return { ...rng, opacity: clamp(Math.round(pct), RNG_OPACITY_MIN, RNG_OPACITY_MAX) };
+}
 
 /** A new band's colour: the next of these not in use (neutral, as the defaults). */
 const BAND_COLOURS = ["#5c6370", "#8b929e", "#c5cad3", "#3e7cb1", "#5aa469", "#d1a03f", "#c0504d", "#8e6bbf", "#4fa3a5", "#e8eef6"];
@@ -331,7 +385,7 @@ export function isHexColour(text: string): boolean {
 }
 
 /** Why `RngSettings::validate` would refuse it (one of these), or `null`. */
-export type RngProblem = "range" | "bandCount" | "outside" | "order" | "colour" | "label" | "lastEnd" | "timer";
+export type RngProblem = "range" | "bandCount" | "outside" | "order" | "colour" | "label" | "lastEnd" | "timer" | "scale" | "opacity";
 
 /** `RngSettings::validate`'s checks, in its order (the rooms' ids and the size are the app's to check). */
 export function rngProblem(rng: RngSettings): RngProblem | null {
@@ -349,6 +403,10 @@ export function rngProblem(rng: RngSettings): RngProblem | null {
   if (floor !== rng.max) return "lastEnd";
   const secs = rng.triggers.timerSecs;
   if (secs !== undefined && secs !== null && !(secs >= 1 && secs <= MAX_TIMER_SECS)) return "timer";
+  const scale = rngScale(rng);
+  if (!Number.isInteger(scale) || scale < RNG_SCALE_MIN || scale > RNG_SCALE_MAX) return "scale";
+  const opacity = rngOpacity(rng);
+  if (!Number.isInteger(opacity) || opacity < RNG_OPACITY_MIN || opacity > RNG_OPACITY_MAX) return "opacity";
   return null;
 }
 

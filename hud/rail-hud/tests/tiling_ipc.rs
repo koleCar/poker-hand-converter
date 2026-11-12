@@ -312,6 +312,25 @@ fn rng_settings_are_kept_and_panels_can_be_off() {
     // one yet (PokerStars: unknown; CoinPoker: no), whatever the settings.
     assert!(rig.hud.rng_for("pokerstars").is_none());
     assert!(rig.hud.rng_for("coinpoker").is_none());
+    // (T5 follow-up) The user's switch per room on, and a new size and
+    // opacity, change nothing of that: the policy decides first.
+    let switched = RngSettings {
+        per_room: [
+            ("pokerstars".to_owned(), true),
+            ("coinpoker".to_owned(), true),
+        ]
+        .into_iter()
+        .collect(),
+        scale: 200,
+        opacity: 30,
+        ..rng.clone()
+    };
+    rig.send(AppMessage::RngChanged {
+        settings: switched.clone(),
+    });
+    assert_eq!(rig.hud.rng_settings(), Some(&switched));
+    assert!(rig.hud.rng_for("pokerstars").is_none());
+    assert!(rig.hud.rng_for("coinpoker").is_none());
 
     rig.send(AppMessage::Panels { allowed: false });
     assert!(!rig.hud.panels());

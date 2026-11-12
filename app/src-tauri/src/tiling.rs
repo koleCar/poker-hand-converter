@@ -253,6 +253,9 @@ mod tests {
                 colour: "#336699".into(),
                 label: Some("Go".into()),
             }],
+            // (T5 follow-up) The widget's size and opacity travel too.
+            scale: 160,
+            opacity: 55,
             ..RngSettings::default()
         };
         write_rng(&w, &rng).expect("saved");
@@ -287,6 +290,15 @@ mod tests {
         w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"min":5,"max":1}"#)
             .expect("raw");
         assert_eq!(read_store(&store).rng, RngSettings::default());
+        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"opacity":5}"#)
+            .expect("raw");
+        assert_eq!(read_store(&store).rng, RngSettings::default());
+        // (T5 follow-up) A T4 row (no size, no opacity) reads with both at 100 %.
+        w.save_hud_setting(HudSettingKind::Rng, SETTINGS_KEY, r#"{"enabled":true}"#)
+            .expect("raw");
+        let old = read_store(&store).rng;
+        assert!(old.enabled);
+        assert_eq!((old.scale, old.opacity), (100, 100));
 
         let opened = store.store.as_ref().expect("store");
         let kinds: Vec<&str> = opened

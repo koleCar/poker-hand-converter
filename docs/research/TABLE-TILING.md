@@ -308,8 +308,18 @@ The design comes first on the map canvas (Ideas page), as for every screen.
   The engine reads the layout in force's own `Layout.autoSwitch` first
   when it has any; the app never writes those, and a layout that comes
   with its own shows a line offering to drop them.
-- **Not yet:** the RNG's range (0 - 99), size and opacity, a per-room RNG
-  switch.
+- **RNG per room, size and opacity (T5 follow-up):** the rooms card has
+  a second switch per room, "RNG" (`RngSettings.perRoom`), greyed with
+  the reason where `hud_policy`'s `rng` refuses ("Needs room approval",
+  from the sites.json notes prefix, else "Not allowed by <room>") - today
+  every room; the HUD still asks the room's `RngPermit` first, whatever
+  the switch says. `RngSettings.scale` (50 - 200 %) and `opacity`
+  (30 - 100 %), both 100 by default and when a stored row has neither,
+  are sliders under the RNG card with a live preview; the HUD draws the
+  widget with them (`scene.rs`).
+- **Not yet:** the RNG's range (0 - 99) in the app. An older app build
+  that saves the RNG settings drops `scale` and `opacity` (it does not
+  know them), so they go back to 100 %.
 
 **Storage:**
 

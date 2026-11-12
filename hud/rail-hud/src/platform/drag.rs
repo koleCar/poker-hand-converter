@@ -234,6 +234,8 @@ mod tests {
             label: None,
             digits: 3,
             seq: 1,
+            scale_pct: 100,
+            opacity_pct: 100,
         };
         let mut with_panels = frame("pokerstars", &[1, 2, 3]);
         with_panels.rng = Some(rng.clone());

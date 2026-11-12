@@ -492,3 +492,42 @@ fn panels_off_shows_the_rng_alone() {
     assert!(rig.frame(1).is_none());
     assert_eq!(rig.hud.rng_value(WindowId(1)), None);
 }
+
+/// (T5 follow-up) The user's size and opacity reach every table's widget
+/// at once - a larger plate, fainter - without a new roll.
+#[test]
+fn size_and_opacity_redraw_the_widget() {
+    let mut rig = Rig::new(allowing_rng(&["pokerstars", "ggpoker"]));
+    open(&rig.feed, &rig.control, 1, "pokerstars");
+    open(&rig.feed, &rig.control, 2, "ggpoker");
+    rig.send(AppMessage::RngChanged { settings: on() });
+    rig.step();
+    let before: Vec<Rect> = [1, 2]
+        .iter()
+        .map(|&n| {
+            rig.control
+                .scene(n)
+                .and_then(|s| s.rng)
+                .expect("drawn")
+                .rect
+        })
+        .collect();
+    let seqs = [rig.seq(1), rig.seq(2)];
+    rig.send(AppMessage::RngChanged {
+        settings: RngSettings {
+            scale: 150,
+            opacity: 50,
+            ..on()
+        },
+    });
+    rig.step();
+    for (i, n) in [1_u32, 2].into_iter().enumerate() {
+        let rng = rig.frame(n).and_then(|f| f.rng).expect("rng");
+        assert_eq!((rng.scale_pct, rng.opacity_pct), (150, 50));
+        let drawn = rig.control.scene(n).and_then(|s| s.rng).expect("drawn");
+        assert!(drawn.rect.width > before[i].width * 13 / 10, "{drawn:?}");
+        assert!(drawn.rect.height > before[i].height * 13 / 10, "{drawn:?}");
+        assert!(drawn.colour.a < 200, "fainter: {drawn:?}");
+    }
+    assert_eq!([rig.seq(1), rig.seq(2)], seqs, "not a new roll");
+}

@@ -734,19 +734,46 @@ pub fn compose_with(
     scene
 }
 
-/// (T4) The RNG widget's number size and plate for `rng` at `metrics`:
-/// (number px, label px, plate width, plate height).
-fn rng_size(rng: &RngShown, metrics: &Metrics) -> (u32, u32, u32, u32) {
-    let big = metrics.row * 16 / 10;
-    let small = metrics.font;
+/// (T4) The RNG widget's measures for `rng` at `metrics`, (T5 follow-up)
+/// times the user's size (`scale_pct`, 50 - 200 %).
+struct RngSize {
+    /// The number's font size, pixels.
+    big: u32,
+    /// The label's font size.
+    small: u32,
+    /// The plate's padding, the label's row, its corner radius.
+    pad: u32,
+    row: u32,
+    radius: u32,
+    /// The plate.
+    width: u32,
+    height: u32,
+}
+
+fn rng_size(rng: &RngShown, metrics: &Metrics) -> RngSize {
+    let pct = rng.scale_pct.clamp(
+        rail_hud_ipc::settings::RNG_SCALE_MIN,
+        rail_hud_ipc::settings::RNG_SCALE_MAX,
+    );
+    let scaled = |v: u32| (v * pct / 100).max(1);
+    let big = scaled(metrics.row * 16 / 10);
+    let small = scaled(metrics.font);
+    let pad = scaled(metrics.pad);
+    let row = scaled(metrics.row);
     let digits = rng.digits.clamp(1, 5);
     let number_w = digits * big * 62 / 100;
     let label_w = rng.label.as_ref().map_or(0, |label| {
         u32::try_from(label.chars().count()).unwrap_or(u32::MAX) * small * 56 / 100
     });
-    let width = number_w.max(label_w) + 4 * metrics.pad;
-    let height = big * 12 / 10 + 2 * metrics.pad + rng.label.as_ref().map_or(0, |_| metrics.row);
-    (big, small, width, height)
+    RngSize {
+        big,
+        small,
+        pad,
+        row,
+        radius: metrics.radius * 2 * pct / 100,
+        width: number_w.max(label_w) + 4 * pad,
+        height: big * 12 / 10 + 2 * pad + rng.label.as_ref().map_or(0, |_| row),
+    }
 }
 
 /// (T4) Where the RNG widget goes: where the user put it (`wanted`, its
@@ -763,7 +790,11 @@ fn place_rng(
     wanted: Option<(u32, u32)>,
     taken: &[Rect],
 ) -> Rect {
-    let (_, _, w, h) = rng_size(rng, metrics);
+    let RngSize {
+        width: w,
+        height: h,
+        ..
+    } = rng_size(rng, metrics);
     if let Some(center) = wanted
         && let Some(rect) = layout::constrain(
             width,
@@ -799,17 +830,29 @@ fn place_rng(
     at(margin)
 }
 
-/// (T4) Paint the RNG widget at `rect`: the plate, the number, the label.
+/// (T4) Paint the RNG widget at `rect`: the plate, the number, the label;
+/// (T5 follow-up) all of it at the user's opacity (`opacity_pct`,
+/// 30 - 100 %).
 fn draw_rng(scene: &mut Scene, rng: &RngShown, metrics: &Metrics, rect: Rect, by_user: bool) {
-    let (big, small, _, _) = rng_size(rng, metrics);
-    let colour = readable(rng.colour);
+    let RngSize {
+        big,
+        small,
+        pad,
+        row,
+        radius,
+        ..
+    } = rng_size(rng, metrics);
+    let opacity = rng.opacity_pct.clamp(
+        rail_hud_ipc::settings::RNG_OPACITY_MIN,
+        rail_hud_ipc::settings::RNG_OPACITY_MAX,
+    ) * 10;
+    let colour = readable(rng.colour).faded(opacity);
     scene.items.push(Item::Fill {
         rect,
-        radius: metrics.radius * 2,
-        color: PANEL,
+        radius,
+        color: PANEL.faded(opacity),
     });
-    let pad = metrics.pad;
-    let label_h = rng.label.as_ref().map_or(0, |_| metrics.row);
+    let label_h = rng.label.as_ref().map_or(0, |_| row);
     let number = Rect {
         x: rect.x,
         y: rect.y.saturating_add(i32::try_from(pad).unwrap_or(0)),
@@ -1396,7 +1439,92 @@ mod tests {
             label: label.map(str::to_owned),
             digits: 3,
             seq: 1,
+            scale_pct: 100,
+            opacity_pct: 100,
         }
+    }
+
+    /// (T5 follow-up) The user's size scales the whole widget - plate,
+    /// number, label - around the same spot rules, and its opacity fades
+    /// the plate and the number alike; 100 % of both is T4's widget.
+    #[test]
+    fn the_rng_widget_scales_and_fades() {
+        let (w, h) = (800, 580);
+        let colour = Rgba::from_hex("#c5cad3").expect("hex");
+        let drawn = |scale_pct: u32, opacity_pct: u32| {
+            let mut frame = frame("pokerstars", Some(6), &[1, 2, 3, 4, 5, 6]);
+            frame.rng = Some(RngShown {
+                scale_pct,
+                opacity_pct,
+                ..rng(42, colour, Some("call"))
+            });
+            compose(&frame, w, h, 1000, &PanelDesign::default())
+        };
+        let normal = drawn(100, 100);
+        let base = normal.rng.as_ref().expect("drawn");
+        for (pct, other) in [(200, drawn(200, 100)), (50, drawn(50, 100))] {
+            let rng = other.rng.as_ref().expect("drawn");
+            // Within rounding of the integer measures.
+            let near = |got: u32, want: u32| got.abs_diff(want * pct / 100) <= 4;
+            assert!(
+                near(rng.rect.width, base.rect.width),
+                "{pct} %: {:?} vs {:?}",
+                rng.rect,
+                base.rect
+            );
+            assert!(
+                near(rng.rect.height, base.rect.height),
+                "{pct} %: {:?} vs {:?}",
+                rng.rect,
+                base.rect
+            );
+            assert!(
+                near(rng.px, base.px),
+                "{pct} %: {} px vs {} px",
+                rng.px,
+                base.px
+            );
+            assert!(layout::inside(&rng.rect, w, h));
+            // Still the top-right corner by default.
+            let right = rng.rect.x + i32::try_from(rng.rect.width).expect("w");
+            assert_eq!(
+                right,
+                base.rect.x + i32::try_from(base.rect.width).expect("w")
+            );
+        }
+        // Out-of-range values (never valid settings) are held to 50 - 200 %.
+        let huge = drawn(1000, 100);
+        assert_eq!(
+            huge.rng.as_ref().expect("drawn").rect,
+            drawn(200, 100).rng.expect("drawn").rect
+        );
+
+        let plate = |scene: &Scene| {
+            let rect = scene.rng.as_ref().expect("drawn").rect;
+            scene
+                .items
+                .iter()
+                .find_map(|item| match item {
+                    Item::Fill { rect: r, color, .. } if *r == rect => Some(*color),
+                    _ => None,
+                })
+                .expect("the plate")
+        };
+        assert_eq!(plate(&normal), PANEL);
+        assert_eq!(normal.rng.as_ref().expect("drawn").colour, colour);
+        let faint = drawn(100, 40);
+        assert_eq!(
+            plate(&faint).a,
+            u8::try_from(u32::from(PANEL.a) * 40 / 100).expect("a")
+        );
+        let number = faint.rng.as_ref().expect("drawn");
+        assert_eq!(number.colour, colour.faded(400));
+        assert_eq!(number.rect, base.rect, "opacity does not move or size it");
+        // Held to 30 % at least.
+        assert_eq!(
+            plate(&drawn(100, 0)).a,
+            u8::try_from(u32::from(PANEL.a) * 30 / 100).expect("a")
+        );
     }
 
     /// (T4) The widget's default spot: the top-right corner, inside the

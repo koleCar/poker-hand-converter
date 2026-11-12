@@ -959,6 +959,10 @@ export interface RngSettings {
   bands: RngBand[];
   triggers: RngTriggers;
   perRoom: Record<string, boolean>;
+  /** (T5 follow-up) The widget's size, percent (50 - 200); the Rust side fills in 100 when a stored row has none. */
+  scale?: number;
+  /** (T5 follow-up) Its opacity, percent (30 - 100); 100 when none is stored. */
+  opacity?: number;
 }
 
 /** `rail_config::model::SiteKind`. */

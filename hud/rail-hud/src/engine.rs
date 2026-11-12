@@ -925,6 +925,8 @@ impl Hud {
             label: band.and_then(|band| band.label.clone()),
             digits: u32::try_from(widest.len()).unwrap_or(5),
             seq: roll.seq,
+            scale_pct: settings.scale,
+            opacity_pct: settings.opacity,
         })
     }
 

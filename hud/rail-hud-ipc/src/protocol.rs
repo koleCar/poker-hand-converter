@@ -646,6 +646,8 @@ mod tests {
                         timer_secs: Some(20),
                     },
                     per_room: [("acr".to_owned(), false)].into_iter().collect(),
+                    scale: 140,
+                    opacity: 70,
                 },
             },
             AppMessage::Retile,
