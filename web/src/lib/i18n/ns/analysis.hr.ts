@@ -1162,6 +1162,7 @@ export const analysisHr: Dict["analysis"] = {
   river: {
     study: "Prouči river",
     hideStudy: "Sakrij proučavanje",
+    openSolver: "Otvori u Solver libraryju",
     loading: "Rješavam river…",
     failed: (message: string) => `Proučavanje rivera nije se učitalo: ${message}`,
     unavailable: "Solver nije mogao ponovno složiti ovu situaciju.",

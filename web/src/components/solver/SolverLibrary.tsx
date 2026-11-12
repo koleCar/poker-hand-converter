@@ -32,6 +32,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { flopLinesFor, FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
+import { followWalk, parseWalk, type WalkStep } from "../../lib/analysis/solverWalk";
 import { preflopChartSet } from "../../lib/chartSet";
 import { CHART_SETS, type ChartNode, type ChartSet } from "../../lib/charts";
 import {
@@ -99,6 +100,12 @@ interface SolverLibraryProps {
    * `initialNode`: what a hand's analysis records (`FlopFacts.path`).
    */
   initialPath?: string | null;
+  /**
+   * A hand's line to a decision (`lib/analysis/solverWalk.ts`), in place of
+   * `initialNode` and `initialTurn`: followed through the flop's solve, and
+   * on to the turn it deals and that turn's river, as far as the trees go.
+   */
+  initialWalk?: string | null;
   /** Hears the view as it changes - the web keeps it in the address bar, the app in its route. */
   onView?: (view: SolverView) => void;
 }
@@ -118,7 +125,7 @@ export function SolverLibrary(props: SolverLibraryProps) {
   return <Browser {...props} />;
 }
 
-function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, onView }: SolverLibraryProps) {
+function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView }: SolverLibraryProps) {
   const { t, loader, fullSolveBase } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && (SOLVER_SETS as readonly string[]).includes(initialSet) ? initialSet : SOLVER_SETS[0],
@@ -128,6 +135,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   const [node, setNode] = useState(initialNode ?? 0);
   /** A flop decision named by its path, read once the flop's solve is in (`initialPath`). */
   const [path, setPath] = useState(initialPath ?? null);
+  /** A hand's line being followed (`initialWalk`): the turn and the decision are read off it until the walk moves on. */
+  const [walk, setWalk] = useState<WalkStep[] | null>(() => parseWalk(initialWalk));
   const [picker, setPicker] = useState(false);
   /** The line whose automatic flop prompt was closed: it does not come back for that line. */
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -137,7 +146,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   const [attempt, setAttempt] = useState(0);
   const [full, setFull] = useState<Loaded<FullSolve | null>>({ key: "", status: "loading" });
   /** The turn being walked - a full solve's file (`turn/X-X~Kd.bin`) or a live turn (`live:12~Kd`) - or null on the flop. */
-  const [turn, setTurn] = useState<string | null>(
+  const [pickedTurn, setTurn] = useState<string | null>(
     initialTurn ? (parseLiveTurnId(initialTurn) ? `live:${initialTurn}` : `turn/${initialTurn}.bin`) : null,
   );
   const [turnChunk, setTurnChunk] = useState<Loaded<FlopChunk>>({ key: "", status: "loading" });
@@ -215,10 +224,25 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       live = false;
     };
   }, [chunkKey, setId, libraryLine, flopKey, fullSolveBase]);
-  const fullSolve = full.key === chunkKey && full.status === "ready" ? full.value : null;
+  const fullReady = full.key === chunkKey && full.status === "ready";
+  const fullSolve = fullReady ? full.value : null;
   const librarySolve = chunk.key === chunkKey && chunk.status === "ready" ? chunk.value : null;
   /** Without a full solve, turns are solved live from the library's chunk. */
-  const liveBase = full.key === chunkKey && full.status === "ready" && !fullSolve ? librarySolve : null;
+  const liveBase = fullReady && !fullSolve ? librarySolve : null;
+  const flopSolve = fullSolve?.flop ?? librarySolve;
+
+  // A hand's line: followed on the flop's solve, then onto the turn its deal deals - a full solve's file, or solved live.
+  const flopWalk = useMemo(() => (walk && flopSolve && picked ? followWalk(flopSolve, walk, picked.perm) : null), [walk, flopSolve, picked]);
+  const walkTurn = useMemo(() => {
+    if (!flopWalk?.card || flopWalk.deal === null || !flopSolve || !fullReady) return null;
+    if (fullSolve) {
+      const at = flopSolve.result.nodes[flopWalk.deal].path;
+      return fullSolve.manifest.turns.find((x) => x.flopPath === at && x.card === flopWalk.card)?.file ?? null;
+    }
+    // An all-in on the flop: nothing left to solve.
+    return turnDeal(flopSolve, flopWalk.deal) ? `live:${liveTurnId(flopWalk.deal, flopWalk.card)}` : null;
+  }, [flopWalk, flopSolve, fullReady, fullSolve]);
+  const turn = walk ? walkTurn : pickedTurn;
   const live = useMemo(() => (turn?.startsWith("live:") ? parseLiveTurnId(turn.slice(5)) : null), [turn]);
 
   const turnKey = turn && (live ? liveBase : fullSolve) ? `${chunkKey}/${turn}` : "";
@@ -246,28 +270,52 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     };
   }, [turnKey, turn, live, liveBase, fullSolve, chunkKey, attempt]);
   const turnSolve = turnChunk.key === turnKey && turnChunk.status === "ready" ? turnChunk.value : null;
+  const turnWalk = useMemo(
+    () => (walk && turn && turnSolve && flopWalk?.card ? followWalk(turnSolve, flopWalk.rest, flopWalk.perm) : null),
+    [walk, turn, turnSolve, flopWalk],
+  );
+  /** The walk is still waiting on a solve: the flop's, the full solve's word on the turn, or the turn's. */
+  const walkPending = walk !== null && (!flopWalk || (flopWalk.card !== null && !fullReady) || (turn !== null && !turnWalk));
+  const walkEnd = walk && !walkPending ? (turn ? turnWalk : flopWalk) : null;
 
-  const flopSolve = fullSolve?.flop ?? librarySolve;
   const solve = turn ? turnSolve : flopSolve;
   // A decision named by its path (a hand's analysis) until the walk moves on.
   const pathNode = path && flopSolve && !turn ? nodeAt(flopSolve.result, path) : -1;
-  const wanted = pathNode >= 0 ? pathNode : node;
+  const wanted = walkEnd ? walkEnd.node : pathNode >= 0 ? pathNode : node;
   const nodeIndex = solve && solve.result.nodes[wanted]?.kind === "action" ? wanted : 0;
+  // A walk that ends at a deal opens its card picker - the turn's only when there is a turn to solve.
+  const walkDeal = walkEnd?.deal ?? null;
+  const shownDeal = walkEnd
+    ? walkDeal !== null && (turn || (flopSolve && turnDeal(flopSolve, walkDeal))) ? walkDeal : null
+    : deal;
   const rangeData = useRangeData(solve, nodeIndex, picked);
   const masks = useMemo(() => filterMasks(rangeData, filter), [rangeData, filter]);
+  /** The walk's view becomes the browser's own once the reader moves from it. */
+  const settle = () => {
+    if (!walk) return;
+    setTurn(turn);
+    setNode(nodeIndex);
+    setDeal(shownDeal);
+    setWalk(null);
+  };
   const goNode = (next: number) => {
+    settle();
     setPath(null);
     setDeal(null);
     setNode(next);
   };
   const goFlop = (next: number) => {
-    setTurn(null);
     goNode(next);
+    setTurn(null);
+  };
+  const goDeal = (next: number) => {
+    settle();
+    setDeal(next);
   };
 
   // The view, for the host to keep (the web's address bar), so a link lands here.
   useEffect(() => {
-    if (!state || !onView) return;
+    if (!state || !onView || walkPending) return;
     onView({
       set: setId,
       line: state.line,
@@ -275,7 +323,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       node: flopKey ? nodeIndex : 0,
       turn: flopKey && turn ? turn.replace(/^live:/, "").replace(/^turn\//, "").replace(/\.bin$/, "") : undefined,
     });
-  }, [onView, setId, state, flop, flopKey, nodeIndex, turn]);
+  }, [onView, setId, state, flop, flopKey, nodeIndex, turn, walkPending]);
 
   // A line that ends on a solved flop line with no flop yet asks for one, once.
   const lineKey = `${setId}|${line}`;
@@ -286,6 +334,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   };
 
   const goLine = (next: string) => {
+    setWalk(null);
     setLine(next);
     setFlop(null);
     setTurn(null);
@@ -340,7 +389,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     const where: Where = { flop: flopSolve, turn: turn ? solve : null, turnChance, full: fullSolve };
     const include = masks ? masks[solve.result.nodes[nodeIndex].player] : undefined;
     const source = fullSolve ? t.fullNote : turn ? t.liveNote : "";
-    const model = flopModel(solve, nodeIndex, picked, goNode, setDeal, source, t, include);
+    const model = flopModel(solve, nodeIndex, picked, goNode, goDeal, source, t, include);
     body = (
       <StrategyView
         model={model}
@@ -373,12 +422,12 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
             index={nodeIndex}
             board={flop}
             picked={picked}
-            deal={deal}
+            deal={shownDeal}
             onGo={goNode}
             onFlop={goFlop}
             onTurn={(file, next) => {
-              setTurn(file);
               goNode(next);
+              setTurn(file);
             }}
             onChange={() => setPicker(true)}
             t={t}
@@ -415,6 +464,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
           solved={solved}
           current={flopKey ? flop : null}
           onPick={(cards) => {
+            setWalk(null);
             setFlop(cards);
             setTurn(null);
             setDeal(null);

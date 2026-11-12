@@ -30,7 +30,15 @@ export type Loaded =
   | { status: "loading" }
   | { status: "missing" }
   | { status: "error"; message: string }
-  | { status: "ready"; analysis: Analysis; stored: boolean; /** (R5.5) When the hand was played: a players-left point is kept at it. */ playedAt?: string | null };
+  | {
+      status: "ready";
+      analysis: Analysis;
+      stored: boolean;
+      /** (R5.5) When the hand was played: a players-left point is kept at it. */
+      playedAt?: string | null;
+      /** The hand itself: the Solver follows its line to a turn or river decision. */
+      hand?: PhfHand;
+    };
 
 const TWO = liveNumberFormat({ minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const ONE = liveNumberFormat({ minimumFractionDigits: 0, maximumFractionDigits: 1 });
@@ -60,7 +68,7 @@ export function HandAnalysis({
           return;
         }
         const result = await handAnalysisOf(handKey, phf as never);
-        if (live) setLoaded(result ? { status: "ready", ...result, playedAt: phf.playedAt ?? null } : { status: "missing" });
+        if (live) setLoaded(result ? { status: "ready", ...result, playedAt: phf.playedAt ?? null, hand: phf } : { status: "missing" });
       } catch (error) {
         if (live) setLoaded({ status: "error", message: error instanceof Error ? error.message : String(error) });
       }
@@ -87,14 +95,15 @@ export function HandAnalysisView({
 }) {
   const h = useT().analysis.hand;
   const decisions = loaded.status === "ready" ? loaded.analysis.decisions : null;
+  const hand = loaded.status === "ready" ? loaded.hand : undefined;
   /** The decision the Solver shows: picked on the left; at first the one the hand was opened at, else the first the Solver has. */
   const [picked, setPicked] = useState<number | null>(null);
   const selected = useMemo(() => {
     if (!decisions) return null;
     const at = picked ?? actionIndex;
-    return decisions.find((d) => d.actionIndex === at) ?? decisions.find((d) => solverSpotOf(decisions, d)) ?? decisions[0] ?? null;
-  }, [decisions, picked, actionIndex]);
-  const spot = useMemo(() => (decisions && selected ? solverSpotOf(decisions, selected) : null), [decisions, selected]);
+    return decisions.find((d) => d.actionIndex === at) ?? decisions.find((d) => solverSpotOf(decisions, d, hand)) ?? decisions[0] ?? null;
+  }, [decisions, picked, actionIndex, hand]);
+  const spot = useMemo(() => (decisions && selected ? solverSpotOf(decisions, selected, hand) : null), [decisions, selected, hand]);
   const bb = (value: number | null) => (value === null ? "–" : h.bb(TWO.format(value)));
   const percent = (value: number) => `${ONE.format(value * 100)} %`;
 

@@ -8,18 +8,23 @@
  *   (its chart key), the flop - the hand's own, in its suits, unless the
  *   library read a representative flop - and the decision's path in the
  *   solve.
- * - A turn or river decision: the hero's last such flop decision before it.
+ * - A turn or river decision, with the hand at hand: the hand's line to it
+ *   (`solverLinkOf`), which the Solver follows onto the turn it solves live
+ *   and that turn's river. Without the hand, the hero's last flop decision
+ *   the library graded before it.
  *
  * Anything else (multiway, a depth or line the library does not hold, a flop
  * not graded by the library) has no spot.
  */
 import type { DecisionAnalysis } from "../analysis/library";
-import { CHART_SETS, flopLinesFor } from "./door";
+import { CHART_SETS, flopLinesFor, solverLinkOf } from "./door";
 import type { SolverStart } from "./param";
 
 export interface SolverSpot extends SolverStart {
   /** A flop decision's path in the solve (`X-B1.82`); null preflop. */
   path: string | null;
+  /** The hand's line to the decision (`?walk=`), in place of `path`; null without the hand. */
+  walk: string | null;
   /** Shown for a later street: the spot is the hero's last flop decision, not this one. */
   fromFlop: boolean;
   /** Changes with the spot: the panel starts over when it does. */
@@ -32,7 +37,7 @@ function setOf(decisions: readonly DecisionAnalysis[]): string | null {
   return null;
 }
 
-function flopSpot(d: DecisionAnalysis, set: string): Omit<SolverSpot, "fromFlop" | "id"> | null {
+function flopSpot(d: DecisionAnalysis, set: string): Omit<SolverSpot, "fromFlop" | "id" | "walk"> | null {
   const facts = d.facts.flop;
   if (!facts) return null;
   const players = CHART_SETS.find((s) => s.id === set)?.players;
@@ -50,11 +55,17 @@ function flopSpot(d: DecisionAnalysis, set: string): Omit<SolverSpot, "fromFlop"
   };
 }
 
-export function solverSpotOf(decisions: readonly DecisionAnalysis[], decision: DecisionAnalysis): SolverSpot | null {
+export function solverSpotOf(decisions: readonly DecisionAnalysis[], decision: DecisionAnalysis, hand?: unknown): SolverSpot | null {
   const set = setOf(decisions);
   if (!set) return null;
-  const done = (spot: Omit<SolverSpot, "fromFlop" | "id"> | null, fromFlop: boolean): SolverSpot | null =>
-    spot ? { ...spot, fromFlop, id: [spot.set, spot.line, spot.flop, spot.path].join("|") } : null;
+  const done = (spot: Omit<SolverSpot, "fromFlop" | "id" | "walk"> | null, fromFlop: boolean, walk: string | null = null): SolverSpot | null =>
+    spot ? { ...spot, walk, fromFlop, id: [spot.set, spot.line, spot.flop, spot.path, walk].join("|") } : null;
+
+  if (hand && decision.street !== "preflop") {
+    // The web's PHF: the app's own model is the same shape (`handAnalysisOf` passes it the same way).
+    const link = solverLinkOf(decisions, decision, hand as Parameters<typeof solverLinkOf>[2]);
+    if (link) return done({ set: link.set, line: link.line, flop: link.flop, node: null, turn: null, path: null }, !link.exact, link.walk || null);
+  }
 
   if (decision.street === "preflop") {
     const chart = decision.facts.chart;

@@ -26,6 +26,7 @@ import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { bestOption, betterAlternative } from "../../lib/analysis/reference";
+import { solverLinkOf } from "../../lib/analysis/solverWalk";
 import { ANALYSIS_VERSION, type DecisionAnalysis, type HandAnalysis, type OptionAnalysis } from "../../lib/analysis/types";
 import type { ChartSet } from "../../lib/charts";
 import { preflopChartSet } from "../../lib/chartSet";
@@ -211,7 +212,7 @@ export function AnalysisSheet({ analysis, frame, seek, fresh, hand, readOnly = f
         </section>
       ) : null}
 
-      {selected ? <DecisionDetail key={selected.order} decision={selected} hand={hand} readOnly={readOnly} /> : null}
+      {selected ? <DecisionDetail key={selected.order} decision={selected} decisions={decisions} hand={hand} readOnly={readOnly} /> : null}
     </div>
   );
 }
@@ -325,7 +326,18 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
   );
 }
 
-function DecisionDetail({ decision, hand, readOnly = false }: { decision: DecisionAnalysis; hand?: PhfHand; readOnly?: boolean }) {
+function DecisionDetail({
+  decision,
+  decisions,
+  hand,
+  readOnly = false,
+}: {
+  decision: DecisionAnalysis;
+  /** The hand's decisions: the Solver link reads the table and the flop off any of them. */
+  decisions: readonly DecisionAnalysis[];
+  hand?: PhfHand;
+  readOnly?: boolean;
+}) {
   const t = useSheetStrings(readOnly);
   const s = t.sheet;
   const facts = decision.facts;
@@ -368,6 +380,8 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
   }
 
   const graded = decision.grade !== null && decision.options.length > 0;
+  // The Solver library at this decision: the flop's node, or the turn's and the river's, solved there live.
+  const solverLink = hand && decision.source === "solver" ? solverLinkOf(decisions, decision, hand) : null;
 
   return (
     <>
@@ -405,6 +419,7 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
                   decision={decision}
                   hand={hand}
                   street={decision.street === "turn" ? "turn" : decision.street === "flop" ? "flop" : "river"}
+                  solverHref={solverLink ? paths.solver(solverLink) : null}
                 />
               ) : null
             ) : (

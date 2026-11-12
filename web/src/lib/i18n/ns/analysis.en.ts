@@ -1196,6 +1196,8 @@ export const analysisEn = {
   river: {
     study: "Study the river",
     hideStudy: "Hide the study",
+    /** Beside the study button: the Solver library at this decision, on its street (the turn and river solved there live). */
+    openSolver: "Open in the Solver library",
     loading: "Solving the river…",
     failed: (message: string) => `The river study did not load: ${message}`,
     unavailable: "The solver could not rebuild this spot.",

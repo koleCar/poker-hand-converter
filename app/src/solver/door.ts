@@ -15,3 +15,4 @@ export { solverHr } from "@rail/web-lib/i18n/ns/solver.hr";
 export { FlopLibraryLoader, flopLinesFor, type LibraryFetch } from "@rail/web-lib/analysis/flopLibrary";
 export { CHART_SETS } from "@rail/web-lib/charts";
 export { pickedFlop } from "@rail/web-lib/solver";
+export { solverLinkOf } from "@rail/web-lib/analysis/solverWalk";
