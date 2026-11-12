@@ -628,6 +628,18 @@ impl Platform for WindowsBackend {
     fn placer(&mut self) -> Option<Box<dyn Placer>> {
         cfg!(windows).then(|| Box::new(WindowsPlacer) as Box<dyn Placer>)
     }
+
+    /// (T7) `GetForegroundWindow`'s top-level window.
+    fn focused_window(&mut self) -> Option<WindowId> {
+        #[cfg(windows)]
+        {
+            ffi::foreground()
+        }
+        #[cfg(not(windows))]
+        {
+            None
+        }
+    }
 }
 
 /// (T2) The tiling worker's [`Placer`] on Windows: [`Platform::place`]'s
@@ -692,11 +704,11 @@ mod ffi {
     };
     use windows::Win32::UI::WindowsAndMessaging::{
         EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GWL_STYLE, GetAncestor,
-        GetClassNameW, GetClientRect, GetWindow, GetWindowLongPtrW, GetWindowRect,
-        GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsHungAppWindow, IsIconic,
-        IsWindow, IsWindowVisible, IsZoomed, MONITORINFOF_PRIMARY, SW_SHOWNOACTIVATE,
-        SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOZORDER, SetWindowPos, ShowWindowAsync,
-        WS_EX_TOPMOST,
+        GetClassNameW, GetClientRect, GetForegroundWindow, GetWindow, GetWindowLongPtrW,
+        GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
+        IsHungAppWindow, IsIconic, IsWindow, IsWindowVisible, IsZoomed, MONITORINFOF_PRIMARY,
+        SW_SHOWNOACTIVATE, SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOZORDER, SetWindowPos,
+        ShowWindowAsync, WS_EX_TOPMOST,
     };
     use windows::core::{BOOL, PWSTR};
 
@@ -1061,6 +1073,21 @@ mod ffi {
             DpiAwareness::Unknown
         };
         (window, monitor_dpi, awareness)
+    }
+
+    /// (T7) The foreground window's top-level window (a child or an owned
+    /// pop-up of a table counts as the table); `None` when there is none
+    /// (the desktop, a lock screen).
+    #[allow(unsafe_code)]
+    pub(super) fn foreground() -> Option<WindowId> {
+        // SAFETY: reads which window is in front; no pointers.
+        let hwnd = unsafe { GetForegroundWindow() };
+        if hwnd.0.is_null() {
+            return None;
+        }
+        // SAFETY: reads a relation; a stale handle gives null.
+        let root = unsafe { GetAncestor(hwnd, GA_ROOT) };
+        Some(id_of(if root.0.is_null() { hwnd } else { root }))
     }
 
     /// Whether the handle names a window that exists.

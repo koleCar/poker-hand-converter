@@ -230,8 +230,11 @@ fn place(&mut self, id: WindowId, want: Rect) -> Result<Rect, PlatformError>; //
 **Layout switching:**
 
 - Automatic rules by table count (`autoSwitch: [{ minTables: 3, layout }]`).
-- A global hotkey per layout through Tauri's global-shortcut plugin. This
-  comes later, together with the other hotkeys.
+- (T7, built) Global hotkeys, through Tauri's global-shortcut plugin in
+  the app: next / previous layout (the auto grid, then the user's layouts,
+  round; a rule by table count still wins), re-tile, tiling on / off and
+  roll the RNG on the table in front - window management only, nothing
+  that acts inside a table. See §5, T7.
 
 ### 4.4 RNG overlay
 
@@ -367,7 +370,7 @@ macOS and Windows.
 | **T4** | RNG widget in `scene.rs` + both overlay backends; CSPRNG; triggers: new hand, click, timer; drag + stored position; RNG-only permit | M | T0, T3 |
 | **T5** | Tables screen in the app: monitor preview, slot editor, layout picker, per-room switches, RNG settings. Canvas design first, owner approves | M | T3 |
 | **T6** | Real clients: capture titles, processes and table geometry (`CAPTURING-TABLES.md`); check tiling + RNG on each room ([`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md)) | — | owner's machines (Windows test machine) |
-| **T7** | Later, after T6: global hotkeys; dynamic slots from the rooms' own window signals | L | T6 |
+| **T7** | Global hotkeys (PR A); dynamic slots from the rooms' own window signals (PR B) | L | T6 for turning any room's dynamic slot on |
 
 **T6, the tools (built):** the owner's sitting with the real clients is
 [`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md) §5 - §7. `rail-hud
@@ -379,6 +382,39 @@ what the client accepted (refused for any room whose tiling is not `true`;
 `--restore` puts the windows back); `rail-hud --watch-signals` logs a
 client's own window signals (taskbar flash, foreground, window order) for
 §4.6. The captures themselves are the owner's.
+
+**T7, global hotkeys (built, PR A):**
+
+- **Where:** the app, through `tauri-plugin-global-shortcut` 2.3.2
+  (`app/src-tauri/src/hotkeys.rs`): `RegisterHotKey` on Windows, Carbon's
+  `RegisterEventHotKey` on macOS - no permission on either (a key-event tap
+  in the HUD would need Accessibility or Input Monitoring), and the app is
+  the process that owns the settings, the store, the IPC and the window.
+- **Actions:** re-tile, next layout, previous layout, tiling on / off,
+  roll the RNG on the table in front. Each comes to what the Tables screen
+  already sends (`tiling_changed`, `retile`) or `roll_rng`
+  (`rail_hud_ipc::hotkeys::dispatch`), so the HUD's permits decide every
+  window: the tiler holds only rooms with a `TilingPermit`; the roll needs
+  the table's `RngPermit` (no room has one: the key is inert). Focus
+  cycling through the tables was left out: on Windows another program can
+  only bring a window forward under the foreground-lock rules, which want
+  checking on the real clients first.
+- **Bindings:** `TilingSettings.hotkeys`, `[{ action, keys }]` with keys as
+  `Ctrl+Alt+Shift+Super+<KeyboardEvent.code>`; synced with the tiling
+  settings; validated on both sides (each action and combination once; a
+  key other than F1 - F24 needs Ctrl, Alt or Super; no lone Ctrl / Cmd +
+  A C Q S V W X Y Z; no Alt+F4). An action of a newer build reads as
+  `unknown`, kept and never run. **None bound by default**: a global key
+  is taken from every program, the poker clients' own hotkeys included.
+- **Taken keys:** reported per binding (`hotkey_status`: active, taken,
+  failed, paused) and shown on the card; the others still work. Windows
+  refuses a combination another program registered; macOS only one held
+  exclusively.
+- **App:** a "Hotkeys" card on the Tables screen: click a binding, press
+  the keys (every key is let go while recording), Esc cancels, × clears;
+  "Roll the RNG" greyed while no room allows the RNG.
+- **Not yet on real clients:** whether a client's own hotkeys collide, and
+  macOS's behaviour with a full-screen table.
 
 ## 6. Open questions for the owner
 

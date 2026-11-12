@@ -934,6 +934,28 @@ export interface TilingSettings {
   closeGaps: boolean;
   /** A room not listed is on. */
   perRoom: Record<string, boolean>;
+  /** (T7) The global hotkeys; none by default. Absent from an older build's row. */
+  hotkeys?: HotkeyBinding[];
+}
+
+/**
+ * `rail_hud_ipc::hotkeys::HotkeyAction` (T7): what a global hotkey does.
+ * A newer build's action reads as `unknown` on the Rust side.
+ */
+export type HotkeyAction = "retile" | "nextLayout" | "previousLayout" | "toggleTiling" | "rollRng" | "unknown";
+
+/** `rail_hud_ipc::hotkeys::HotkeyBinding`: `keys` as `Ctrl+Alt+Shift+Super+KeyR` (modifiers in that order, then a `KeyboardEvent.code`). */
+export interface HotkeyBinding {
+  action: HotkeyAction;
+  keys: string;
+}
+
+/** `hotkeys::HotkeyStatusDto` (T7): a binding and how it stands with the system. */
+export interface HotkeyStatus {
+  action: HotkeyAction;
+  keys: string;
+  /** `taken`: another program holds the keys; `failed`: the system refused them; `paused`: while a key is recorded. */
+  state: "active" | "taken" | "failed" | "paused";
 }
 
 /** `rail_hud_ipc::settings::RngBand`: the numbers up to `upTo` in `colour` (`#rrggbb`). */
@@ -1491,6 +1513,9 @@ export const ipc = {
   setRngSettings: (settings: RngSettings) => invoke<null>("set_rng_settings", { settings }),
   retileTables: () => invoke<boolean>("retile_tables"),
   captureTilingLayout: () => invoke<TilingSlot[]>("capture_tiling_layout"),
+  /** (T7) The global hotkeys: how each binding stands, and letting every key go while one is recorded. */
+  hotkeyStatus: () => invoke<HotkeyStatus[]>("hotkey_status"),
+  hotkeysPause: (paused: boolean) => invoke<null>("hotkeys_pause", { paused }),
   /** The HUD popup (R3.8): what it shows (`null`: none open), close it, open the player in Rail. */
   hudPopup: () => invoke<HudPopup | null>("hud_popup"),
   hudPopupClose: () => invoke<null>("hud_popup_close"),
@@ -1652,6 +1677,11 @@ export function onHudStatusChanged(onChange: () => void): () => void {
 /** (T3) A sync brought another computer's tiling or RNG settings. */
 export function onTilingSettingsChanged(onChange: () => void): () => void {
   return onAppEvent("tiling-settings-changed", onChange);
+}
+
+/** (T7) A hotkey was bound, found taken, or paused: ask `hotkeyStatus` again. */
+export function onHotkeysChanged(onChange: () => void): () => void {
+  return onAppEvent("hotkeys-changed", onChange);
 }
 
 /** (R3.10) The room list in force changed (an update from the web). */

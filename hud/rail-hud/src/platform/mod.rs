@@ -863,6 +863,15 @@ pub trait Platform {
     fn placer(&mut self) -> Option<Box<dyn Placer>> {
         None
     }
+
+    /// (T7) The window the user is at now - the system's foreground window
+    /// (Windows), the front-most ordinary window of the desktop (macOS) -
+    /// for a hotkey that acts on "the table in front" (the RNG's roll).
+    /// Read only: nothing is activated or raised. `None` where the backend
+    /// cannot tell (the default).
+    fn focused_window(&mut self) -> Option<WindowId> {
+        None
+    }
 }
 
 /// (T1) Whether a placement has settled, for a backend whose move call
