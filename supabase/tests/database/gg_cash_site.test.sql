@@ -39,11 +39,13 @@ $$;
 
 create function pg_temp.stats(p_hand uuid) returns void language sql as $$
   insert into public.hand_stats (hand_id, owner_id, stats_version, seat, hand_key, site_id, site_hand_id, played_at,
-                                 game_format, currency, currency_minor_units, small_blind, big_blind, player, is_hero, position, hands, net)
+                                 game_format, currency, currency_minor_units, small_blind, big_blind, player, is_hero, position, hands,
+                                 won, contributed, net)
   select h.id, h.owner_id, 'stats/2', s.seat, h.hand_key, h.site, h.site_hand_id, h.played_at,
-         h.game_format, h.currency, h.currency_minor_units, h.small_blind, h.big_blind, s.player, s.seat = 1, s.pos, 1, s.net
+         h.game_format, h.currency, h.currency_minor_units, h.small_blind, h.big_blind, s.player, s.seat = 1, s.pos, 1,
+         s.won, s.contributed, s.won - s.contributed
   from public.hands h
-  cross join (values (1, 'Hero', 'BTN', 150), (2, 'v1', 'BB', -150)) as s(seat, player, pos, net)
+  cross join (values (1, 'Hero', 'BTN', 300, 150), (2, 'v1', 'BB', 0, 150)) as s(seat, player, pos, won, contributed)
   where h.id = p_hand;
 $$;
 
@@ -126,7 +128,13 @@ select is((select site from public.player_notes where owner_id = '00000000-0000-
           'standard', 'a note on a player of no moved hand stays');
 
 -- 3. Every owner, then again
-select is(public.move_gg_cash_hands(), 1, 'every owner: B''s hand moves');
+-- Every owner's remaining GG cash hands (on a fresh database: B's one; a
+-- database with other fixtures may hold more).
+create temp table gg_left as
+select count(*)::int as n from public.hands h
+ where h.site = 'standard' and h.site_hand_id ~ '^HD[0-9]+$'
+   and not exists (select 1 from public.hands d where d.owner_id = h.owner_id and d.hand_key = 'ggpoker:' || h.site_hand_id);
+select is(public.move_gg_cash_hands(), (select n from pg_temp.gg_left), 'every owner: every remaining hand moves');
 select is((select hand_key from public.hands where owner_id = '00000000-0000-0000-0000-00000000a6b1'),
           'ggpoker:HD200', '... under its new key');
 select is(public.move_gg_cash_hands(), 0, 'a second run moves nothing');
