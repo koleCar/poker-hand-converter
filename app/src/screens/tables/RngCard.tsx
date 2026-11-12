@@ -224,7 +224,7 @@ function BandButton({
 }
 
 /** A whole number, saved on Enter or leaving the field (kept in range). */
-function NumberField({
+export function NumberField({
   label,
   value,
   min,

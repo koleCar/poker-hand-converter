@@ -664,6 +664,23 @@ mod tests {
         assert_eq!(t.validate(), Ok(()));
     }
 
+    /// (T5 follow-up) What the app's slot editor and auto-switch list save
+    /// (`app/src/screens/tables/slots.ts`, captured from the screen): a
+    /// drawn layout on a second monitor with a room filter, overlapping
+    /// slots, whole thousandths, the rules unsorted - it reads and
+    /// validates here as it did there.
+    #[test]
+    fn the_editors_json_validates() {
+        let json = r#"{"enabled":true,"active":{"kind":"custom","id":"layout-2"},"layouts":[{"id":"layout-1","name":"Halves","slots":[{"id":"s1","monitor":0,"rect":{"x":0,"y":0,"width":500,"height":1000},"kind":"play","rooms":null,"stack":true},{"id":"s2","monitor":0,"rect":{"x":500,"y":0,"width":500,"height":1000},"kind":"play","rooms":null,"stack":false},{"id":"s3","monitor":1,"rect":{"x":542,"y":166,"width":458,"height":834},"kind":"play","rooms":["pokerstars"],"stack":true}],"autoSwitch":[]},{"id":"layout-2","name":"Layout 2","slots":[{"id":"s1","monitor":0,"rect":{"x":0,"y":0,"width":600,"height":500},"kind":"play","rooms":null,"stack":true},{"id":"s3","monitor":0,"rect":{"x":400,"y":0,"width":600,"height":1000},"kind":"play","rooms":null,"stack":true}],"autoSwitch":[]}],"autoSwitch":[{"minTables":4,"layoutId":"auto"},{"minTables":2,"layoutId":"layout-1"}],"closeGaps":false,"perRoom":{}}"#;
+        let t: TilingSettings = serde_json::from_str(json).expect("reads");
+        assert_eq!(t.validate(), Ok(()));
+        assert_eq!(
+            t.layouts[0].slots[2].rooms.as_deref(),
+            Some(&["pokerstars".to_owned()][..])
+        );
+        assert_eq!(t.auto_switch[1].min_tables, 2);
+    }
+
     #[test]
     fn rng_validation() {
         let refused = |change: &dyn Fn(&mut RngSettings)| {
