@@ -771,6 +771,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A8 — learning layer** (A8a: the concept library) | <ul><li>**A8a** — a concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>**A8b** — a study plan built from the leak finder</li><li>**A8c** — the optional AI-written review, grounded on facts</li></ul> | A8a: A1. A8b: A6, A7 |
 | **A9 — multiway** | Approximate grading for 3-way postflop pots, about 9% of decisions in a real library: heuristics + MDF split, and solver-based later if feasible. | A4 |
 | **L1–L4 — the Learn tab** (`docs/LEARN-PLAN.md`) | A top-level course at `/learn`: 62 lessons in tracks and modules, practice generated and graded by the charts, the solver and the concept library's maths, the learner's own hands as the last exercise, lessons recommended from leaks (a `lesson` task in the plan), missed items as SM-2 review cards. L1: catalogue, M0–M3 and M6-L4 written, turn spots; L2–L4: the other modules, `range-split`, `range-paint`, placement, curated hands, flop drills. | A7, A8a, A8b |
+| **MDA1–MDA7 — mass data analysis (MDA)** (`docs/MDA-PLAN.md`) | The pool's frequencies at every decision point of the user's own hands against the charts, the flop library and theory, with intervals; exploits ranked and tied to the hero's own frequency in the matching node. Desktop first (MDA1–MDA5), the web in MDA6. | A3, A5, R5.3, R5.4 |
 | **Later** | MTT/ICM preflop, PLO, exploitative notes from villain stats. | — |
 
 ## 8. Decisions taken (2026-10-02)
@@ -7515,3 +7516,4 @@ Each phase appends what it learned that changed the plan.
       `chart-rare-line` (9-max lines no neighbour charts).
     - The one 9-max call Perfect → Inaccurate with unchanged flags was not
       traced.
+- 2026-11-12 — Mass data analysis planned (`docs/MDA-PLAN.md`) after a study over the owner's GG and WePlay hands. The pool overfolds turn and river bets; the plan keeps references Rail's own, with the user's own chart sets as the private route for other charts.
