@@ -150,6 +150,17 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.seatGroup {
+  display: grid;
+  gap: 2px;
+}
+
+/* A later decision of the same seat (it raised, then faced a re-raise). */
+.seatDecision {
+  padding-block-start: var(--space-1);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
 .seatWaiting {
   color: var(--text-tertiary);
 }

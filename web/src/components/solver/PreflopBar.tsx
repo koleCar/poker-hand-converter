@@ -1,8 +1,9 @@
 /**
  * The bar above the Solver library's grid, as a solver's viewer has it: the
  * table card (players and stack depth, changed in a dialog) and one card per
- * seat in preflop order. A seat that has acted shows what it did - clicking it
- * goes back to that decision; the seat to act lists its options to pick;
+ * seat in preflop order. A seat that has acted shows every option it had,
+ * the one it took highlighted - clicking that goes back to the decision,
+ * clicking another takes it instead; the seat to act lists its options to pick;
  * the seats after it wait.
  */
 
@@ -56,32 +57,41 @@ export function PreflopBar({ tables, table, onTable, state, onLine }: PreflopBar
                 <strong>{seat.position}</strong>
                 <span>{t.preflop.stack(seat.stackBb)}</span>
               </div>
-              {acting && node ? (
+              {seat.acts.length > 0 || (acting && node) ? (
                 <div className={styles.seatOptions}>
-                  {node.options.map((option) => (
-                    <button
-                      key={option.code}
-                      type="button"
-                      className={styles.seatOption}
-                      onClick={() => onLine(state!.line + option.code)}
-                    >
-                      {t.preflop.action(option.action, option.toBb)}
-                    </button>
+                  {seat.acts.map((act, n) => (
+                    <div key={act.index} className={`${styles.seatGroup} ${n > 0 ? styles.seatDecision : ""}`}>
+                      {act.node.options.map((option) => {
+                        const taken = option.code === act.code;
+                        return (
+                          <button
+                            key={option.code}
+                            type="button"
+                            className={`${styles.seatOption} ${taken ? styles.seatTaken : ""}`}
+                            aria-pressed={taken}
+                            title={taken ? t.preflop.rewind(seat.position) : undefined}
+                            onClick={() => onLine(state!.line.slice(0, act.index) + (taken ? "" : option.code))}
+                          >
+                            {t.preflop.action(option.action, option.toBb)}
+                          </button>
+                        );
+                      })}
+                    </div>
                   ))}
-                </div>
-              ) : seat.acts.length > 0 ? (
-                <div className={styles.seatOptions}>
-                  {seat.acts.map((act) => (
-                    <button
-                      key={act.index}
-                      type="button"
-                      className={`${styles.seatOption} ${styles.seatTaken}`}
-                      title={t.preflop.rewind(seat.position)}
-                      onClick={() => onLine(state!.line.slice(0, act.index))}
-                    >
-                      {t.preflop.action(act.action, act.toBb)}
-                    </button>
-                  ))}
+                  {acting && node ? (
+                    <div className={`${styles.seatGroup} ${seat.acts.length > 0 ? styles.seatDecision : ""}`}>
+                      {node.options.map((option) => (
+                        <button
+                          key={option.code}
+                          type="button"
+                          className={styles.seatOption}
+                          onClick={() => onLine(state!.line + option.code)}
+                        >
+                          {t.preflop.action(option.action, option.toBb)}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ) : seat.ahead ? (
                 <div className={styles.seatOptions}>
