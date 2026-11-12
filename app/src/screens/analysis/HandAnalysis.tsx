@@ -104,6 +104,11 @@ export function HandAnalysisView({
     return decisions.find((d) => d.actionIndex === at) ?? decisions.find((d) => solverSpotOf(decisions, d, hand)) ?? decisions[0] ?? null;
   }, [decisions, picked, actionIndex, hand]);
   const spot = useMemo(() => (decisions && selected ? solverSpotOf(decisions, selected, hand) : null), [decisions, selected, hand]);
+  /** The hero's cards, marked in the Solver's grid where they act. */
+  const hero = useMemo(() => {
+    const facts = selected?.facts;
+    return facts && facts.holeCards.length === 2 && facts.position ? { cards: facts.holeCards.join(""), position: facts.position } : null;
+  }, [selected]);
   const bb = (value: number | null) => (value === null ? "–" : h.bb(TWO.format(value)));
   const percent = (value: number) => `${ONE.format(value * 100)} %`;
 
@@ -142,7 +147,7 @@ export function HandAnalysisView({
             ))}
           </ol>
         </div>
-        <SolverPanel spot={spot} />
+        <SolverPanel spot={spot} hero={hero} />
       </div>
     );
   }

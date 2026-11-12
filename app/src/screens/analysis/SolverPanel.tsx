@@ -9,13 +9,13 @@ import { useCallback, useRef } from "react";
 
 import { useT } from "../../i18n";
 import { go } from "../../lib/router";
-import { SolverHostProvider, SolverLibrary, type SolverView } from "../../solver/door";
+import { SolverHostProvider, SolverLibrary, type SolverView, type StrategyHero } from "../../solver/door";
 import { useSolverHost } from "../../solver/host";
 import { solverParam } from "../../solver/param";
 import type { SolverSpot } from "../../solver/spot";
 import styles from "./Analysis.module.css";
 
-export function SolverPanel({ spot }: { spot: SolverSpot | null }) {
+export function SolverPanel({ spot, hero = null }: { spot: SolverSpot | null; hero?: StrategyHero | null }) {
   const s = useT().analysis.hand.solver;
   const host = useSolverHost();
   const view = useRef<SolverView | null>(null);
@@ -45,6 +45,7 @@ export function SolverPanel({ spot }: { spot: SolverSpot | null }) {
               initialPath={spot.path}
               initialWalk={spot.walk}
               onView={onView}
+              hero={hero}
             />
           </SolverHostProvider>
         </>
