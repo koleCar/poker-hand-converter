@@ -319,6 +319,45 @@ pub struct RawWindow {
     pub cloaked: bool,
 }
 
+/// (T6) What `--list-windows` shows of a window for table tiling: its
+/// frame and whether it can be resized, read the same way tiling reads
+/// them and nothing more (no message is sent to the client, nothing inside
+/// the window is read). `None`: the system did not say, or there is no
+/// read-only way to ask.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct WindowDetails {
+    /// The outer rect, physical pixels: Windows' **visible** frame (DWM's
+    /// extended frame bounds, without the invisible resize borders), the
+    /// whole window on macOS (title bar included). What tiling lays edge to
+    /// edge.
+    pub outer: Option<Rect>,
+    /// The frame around the client area: `Insets::between(client, outer)`,
+    /// what [`Platform::frame_insets`] gives the tiler.
+    pub insets: Option<Insets>,
+    /// It can be resized: Windows' `WS_THICKFRAME` style, macOS's `AXSize`
+    /// settable.
+    pub resizable: Option<bool>,
+    /// It can be moved (macOS: `AXPosition` settable; Windows: any window
+    /// can be).
+    pub movable: Option<bool>,
+    /// Its smallest and largest size, physical pixels of the outer rect,
+    /// when the system says so without asking the client.
+    pub min_size: Option<(u32, u32)>,
+    pub max_size: Option<(u32, u32)>,
+}
+
+/// (T6) [`WindowDetails`] of `windows` on this system (Windows, macOS; empty
+/// elsewhere), by id. Read-only.
+pub fn window_details(
+    windows: &[RawWindow],
+) -> std::collections::BTreeMap<WindowId, WindowDetails> {
+    if cfg!(target_os = "macos") {
+        macos::details(windows)
+    } else {
+        self::windows::details(windows)
+    }
+}
+
 /// A window's DPI awareness (how Windows scales it).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DpiAwareness {

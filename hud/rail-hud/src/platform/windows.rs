@@ -143,8 +143,11 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::{
     Insets, Monitor, MouseState, OverlayFrame, Placer, Platform, PlatformError, RawWindow, Rect,
-    TableEvent, TableMatcher, TableWindow, WindowId, table_of,
+    TableEvent, TableMatcher, TableWindow, WindowDetails, WindowId, table_of,
 };
+
+#[cfg(windows)]
+pub mod signals;
 
 /// (T1) How long `place` waits for a window to take its new place (and,
 /// before that, for a minimised one to be restored) before it answers with
@@ -242,6 +245,54 @@ pub fn enumerate() -> Result<Vec<RawWindow>, PlatformError> {
         ))
     }
 }
+
+/// (T6) The tiling details of `windows` for `--list-windows`
+/// ([`WindowDetails`]): the visible frame (DWM's extended frame bounds, as
+/// [`Platform::frame_insets`] measures it), the insets around the client
+/// area, and whether the style lets the user resize it (`WS_THICKFRAME`).
+/// Read-only: no message goes to the client, so its minimum and maximum
+/// sizes (`WM_GETMINMAXINFO`, which only the client answers) stay unknown -
+/// `--tile-check` measures a refused size instead. Empty off Windows.
+pub fn details(windows: &[RawWindow]) -> BTreeMap<WindowId, WindowDetails> {
+    #[cfg(windows)]
+    {
+        windows
+            .iter()
+            .map(|w| (w.id, ffi::details(w.id, w.minimized)))
+            .collect()
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = windows;
+        BTreeMap::new()
+    }
+}
+
+/// (T6) `--watch-signals` on Windows (`crate::signals`): the shell hook,
+/// the foreground / minimise / title WinEvents and the window order of
+/// `processes`' windows for `duration`, each signal handed to `sink` as it
+/// comes. Read-only. Windows only.
+pub fn watch_signals(
+    processes: &[String],
+    duration: std::time::Duration,
+    sink: &mut dyn FnMut(crate::signals::SignalEvent),
+) -> Result<(), PlatformError> {
+    #[cfg(windows)]
+    {
+        signals::watch(processes, duration, sink)
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = (processes, duration, sink);
+        Err(PlatformError::Unsupported(
+            "watching signals (Windows only)",
+        ))
+    }
+}
+
+/// (T6) The `WS_THICKFRAME` bit of a window style (`GWL_STYLE`): the user
+/// can resize the window by its border.
+pub const WS_THICKFRAME: u32 = 0x0004_0000;
 
 /// Make this process per-monitor DPI aware (v2), so that every window
 /// API it calls speaks physical pixels and its overlays (R3.4) are not
@@ -640,18 +691,19 @@ mod ffi {
         GetAsyncKeyState, VK_LBUTTON, VK_MBUTTON, VK_RBUTTON, VK_XBUTTON1, VK_XBUTTON2,
     };
     use windows::Win32::UI::WindowsAndMessaging::{
-        EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GetAncestor, GetClassNameW,
-        GetClientRect, GetWindow, GetWindowLongPtrW, GetWindowRect, GetWindowTextLengthW,
-        GetWindowTextW, GetWindowThreadProcessId, IsHungAppWindow, IsIconic, IsWindow,
-        IsWindowVisible, IsZoomed, MONITORINFOF_PRIMARY, SW_SHOWNOACTIVATE, SWP_ASYNCWINDOWPOS,
-        SWP_NOACTIVATE, SWP_NOZORDER, SetWindowPos, ShowWindowAsync, WS_EX_TOPMOST,
+        EnumWindows, GA_ROOT, GW_HWNDNEXT, GW_OWNER, GWL_EXSTYLE, GWL_STYLE, GetAncestor,
+        GetClassNameW, GetClientRect, GetWindow, GetWindowLongPtrW, GetWindowRect,
+        GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsHungAppWindow, IsIconic,
+        IsWindow, IsWindowVisible, IsZoomed, MONITORINFOF_PRIMARY, SW_SHOWNOACTIVATE,
+        SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOZORDER, SetWindowPos, ShowWindowAsync,
+        WS_EX_TOPMOST,
     };
     use windows::core::{BOOL, PWSTR};
 
     use super::super::tracking::{self, Beneath, STACKING_WALK, Stacking};
     use super::super::{
         DpiAwareness, Insets, Monitor, MonitorId, MouseState, PlatformError, RawWindow, Rect,
-        WindowId, dpi_permille, outer_for, place_settled,
+        WindowDetails, WindowId, dpi_permille, outer_for, place_settled,
     };
     use super::{PLACE_POLL, PLACE_WAIT};
 
@@ -1252,7 +1304,6 @@ mod ffi {
     /// (T2) The visible frame around window `id`'s client area: DWM's
     /// extended frame bounds (no invisible resize borders), else the window
     /// rect; `None` while it is minimised or gone.
-    #[allow(unsafe_code)]
     pub(super) fn frame_insets(id: WindowId) -> Option<Insets> {
         let _dpi = ThreadDpi::per_monitor_v2();
         let hwnd = hwnd_of(id);
@@ -1260,6 +1311,48 @@ mod ffi {
             return None;
         }
         let client = client_rect(hwnd)?;
+        Some(Insets::between(&client, &visible_frame(hwnd)?))
+    }
+
+    /// (T6) `--list-windows`' details of window `id`: the visible frame
+    /// and the insets as [`frame_insets`] measures them (none while it is
+    /// minimised: an iconic window has no frame on screen), and whether
+    /// its style lets the user resize it. Only reads; no message is sent.
+    pub(super) fn details(id: WindowId, minimized: bool) -> WindowDetails {
+        let _dpi = ThreadDpi::per_monitor_v2();
+        let hwnd = hwnd_of(id);
+        if !is_window(hwnd) {
+            return WindowDetails::default();
+        }
+        let style = window_style(hwnd);
+        let outer = (!minimized).then(|| visible_frame(hwnd)).flatten();
+        let client = (!minimized).then(|| client_rect(hwnd)).flatten();
+        WindowDetails {
+            outer,
+            insets: client
+                .zip(outer)
+                .map(|(client, outer)| Insets::between(&client, &outer)),
+            resizable: Some(style & super::WS_THICKFRAME != 0),
+            // Any window can be moved with `SetWindowPos`.
+            movable: Some(true),
+            min_size: None,
+            max_size: None,
+        }
+    }
+
+    /// (T6) The window's style bits (`GWL_STYLE`); 0 for a stale handle.
+    #[allow(unsafe_code)]
+    fn window_style(hwnd: HWND) -> u32 {
+        // SAFETY: reads a window long; a stale handle gives 0.
+        let style = unsafe { GetWindowLongPtrW(hwnd, GWL_STYLE) };
+        // The style is a 32-bit value in a pointer-sized long.
+        u32::try_from(style & 0xFFFF_FFFF).unwrap_or(0)
+    }
+
+    /// The visible frame of `hwnd`, screen coordinates: DWM's extended
+    /// frame bounds (no invisible resize borders), else the window rect.
+    #[allow(unsafe_code)]
+    fn visible_frame(hwnd: HWND) -> Option<Rect> {
         let mut bounds = RECT::default();
         let size = u32::try_from(std::mem::size_of::<RECT>()).ok()?;
         // SAFETY: `DWMWA_EXTENDED_FRAME_BOUNDS` writes one `RECT`; the
@@ -1273,12 +1366,11 @@ mod ffi {
                 size,
             )
         };
-        let visible = if read.is_ok() {
-            rect_of(bounds)
+        if read.is_ok() {
+            Some(rect_of(bounds))
         } else {
-            window_rect(hwnd)?
-        };
-        Some(Insets::between(&client, &visible))
+            window_rect(hwnd)
+        }
     }
 
     /// (T2) The mouse buttons now (`GetAsyncKeyState`: no hook, no

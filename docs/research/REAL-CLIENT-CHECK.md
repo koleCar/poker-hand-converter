@@ -1,10 +1,17 @@
-# Real-client check: the HUD on PokerStars, Winamax and ACR
+# Real-client check: the HUD, table tiling and the RNG
 
 Phase 3 ends when the HUD runs on 12 tables at once, on Windows and macOS,
 within the latency budget, and only on rooms whose HUD policy allows it
 (docs/RAIL-PLAN.md, Phase 3 exit; R3.14). CI checks this on the table
 simulator. This page is the owner's procedure for the real clients: what to
 have ready, what to check on each room and system, and what to send back.
+
+Sections 0 - 4 are the HUD's. Table tiling and the RNG (T6,
+[`TABLE-TILING.md`](TABLE-TILING.md)) are [section 5](#5-tiling-and-the-rng-per-room-t6),
+the window signals T7's dynamic slots would need are
+[section 6](#6-window-signals-for-dynamic-slots-t7), and
+[section 7](#7-tiling-and-signals-what-to-send-back) is what to send back
+for both.
 
 The rooms are the three whose `hud.allowed` is `true` (R3.0,
 [`HUD-POLICIES.md`](HUD-POLICIES.md)): **PokerStars, Winamax, ACR**. Test
@@ -295,3 +302,279 @@ What happens with it:
 
 When every room passes on both systems, Phase 3's exit criterion is met on
 real clients and the plan's Phase 3 summary records the date.
+
+---
+
+## 5. Tiling and the RNG, per room (T6)
+
+Table tiling moves and resizes a room's table windows; the RNG draws a
+number over them. Each has its own policy per room, separate from the HUD's
+([`TILING-POLICIES.md`](TILING-POLICIES.md), `config/sites.json`):
+
+| Room | Tiling | RNG | What to check |
+| --- | --- | --- | --- |
+| PokerStars | true | null | the whole of 5.2; RNG: R0 only |
+| ACR | true | null | the whole of 5.2; RNG: R0 only |
+| WPT Global | true | false | the whole of 5.2 (no HUD there: no panels to follow); RNG: R0 |
+| CoinPoker | true | false | the whole of 5.2 (no HUD there); RNG: R0 |
+| Winamax, GGPoker, partypoker, Unibet | false | false | only T13: nothing moves |
+
+One sitting per machine does all of it: about 45 minutes per room and
+system, plus 15 minutes for section 6. Play money, sitting out or folding,
+is enough everywhere (P6).
+
+### 5.1 Before you start
+
+- [ ] Everything in [section 0](#0-before-you-start) that is not the HUD's:
+      the machine's display setup noted, the client installed and its
+      version noted, a Rail build from `staging`.
+- [ ] **`rail-hud` in a terminal**: beside `Rail.exe` / in
+      `Rail.app/Contents/MacOS/`, or `cargo build --release -p rail-hud`.
+      On a Mac the terminal needs the Accessibility permission
+      ([`CAPTURING-TABLES.md`](CAPTURING-TABLES.md#on-macos-r311)).
+- [ ] **For T6 - T12 only**: the room's `tables` block merged into
+      `staging` and built (T1 - T5 produce what that block needs, so the
+      first sitting may stop after T5 and the second do the rest).
+- [ ] If you have them: a second monitor, and a display scale other than
+      100 % on one of the two (Windows: Settings, Display, Scale).
+
+### 5.2 The checks
+
+Copy this block once per room and system and tick each box. Paste the
+outputs it asks for **after reading them through** (they are redacted, but
+check for your screen name anyway; add `--you <name>` if it shows).
+
+```text
+Room: ______   System: Windows / macOS   Client version: ______
+Displays: ______ (scale)   ______ (scale)   Rail build: ______
+Program name (--list-windows): ______
+```
+
+**T1. The windows, as the tiler sees them.** Open 4 tables (two kinds if the
+room has them: cash and a tournament) and the lobby.
+- [ ] `rail-hud --list-windows --process <exe>`: each table has a `frame:`
+      line (outer rect and insets) and a `size:` line (resizable). Paste it.
+- [ ] Note whether a table's `resizable` is `no` (the client then only
+      takes positions, never sizes).
+
+**T2. The title regex.** Write one with a `table` group (as in
+[`CAPTURING-TABLES.md`](CAPTURING-TABLES.md#from-the-capture-to-sitesjson)).
+- [ ] `rail-hud --list-windows --process <exe> --try-title "<regex>" --room <id>`:
+      every table shows `try: table "..."` and
+      `as <id>: ... tiling permitted`; the lobby and every other window
+      `try: no match`.
+
+**T3. One placement, auto grid.** With the 4 tables open and the mouse
+left alone:
+- [ ] `rail-hud --tile-check --process <exe> --room <id> --try-title "<regex>"`
+      (without `--room` / `--try-title` once the room has its block).
+      Every table is `placed`; none `FAILED`. Paste the whole output.
+- [ ] By eye: the tables sit edge to edge, no overlap, no gap you can see,
+      nothing under the taskbar / menu bar / Dock.
+- [ ] Note from the output: `SIZE REFUSED` lines (the size the client kept),
+      `aspect ... CHANGED`, and the slowest move in ms.
+- [ ] `rail-hud --tile-check --restore`: every table back where it was.
+
+**T4. Many tables.** Open as many tables as you can, at least 9 (12 if the
+room lets you).
+- [ ] `--tile-check` again: all placed; note the smallest size the client
+      accepted (a `SIZE REFUSED` line here is the room's minimum size).
+      Paste the summary line and any `SIZE REFUSED` lines.
+- [ ] `--tile-check --restore`.
+
+**T5. A saved layout from a file (optional).** Save as `two.json`:
+`{"id":"two","name":"Two","slots":[{"id":"a","rect":{"x":0,"y":0,"width":500,"height":1000}},{"id":"b","rect":{"x":500,"y":0,"width":500,"height":1000}}]}`
+- [ ] With 2 tables: `--tile-check ... --layout two.json`: one table per
+      half of the screen. `--restore`.
+
+The rest needs the room's `tables` block in the build (5.1).
+
+**T6. The Tables screen, auto grid.** In Rail: Tables, switch "Table
+tiling" on, the room's "Tile <room>" on, layout "Auto grid".
+- [ ] Open 4 tables one after another: each new one lands in a free cell;
+      the grid is edge to edge.
+- [ ] PokerStars and ACR: the HUD's panels follow the tables as they move
+      and sit at their seats afterwards.
+- [ ] The Tables screen's display preview shows the 4 tables where they
+      are.
+
+**T7. A saved layout.**
+- [ ] Arrange the tables by hand, then "+ Layout", "Save current
+      arrangement". Close every table and open them again: they go to the
+      saved places.
+- [ ] Switch back to "Auto grid": they are tiled again.
+
+**T8. Closing and opening (gaps).** Auto grid, 4 tables.
+- [ ] Close one: no table is left half off the screen; either the others
+      stay where they are or the grid re-forms with larger tables - note
+      which. No table jumps back and forth.
+- [ ] Open a new one: it takes the free cell; no other table moves unless
+      the grid's shape changed (e.g. from 4 to 5 tables).
+
+**T9. The mouse rule (misclicks cost money).**
+- [ ] Hold the left button down on a table's felt (do not release) while
+      another table opens (or press "Re-tile" in the tray with the other
+      hand): nothing moves while the button is down, and the new table is
+      placed only after you let go (about 0.6 s later).
+- [ ] Drag a tiled table somewhere by its title bar: it stays where you
+      drop it (the Tables screen marks it "Moved by hand"); "Re-tile" puts
+      it back in the grid.
+- [ ] During a hand, act at a table (a check or a fold button) while a new
+      table opens: the table you click is never moved under the pointer.
+
+**T10. Two monitors** (skip without one).
+- [ ] With 8 or more tables the auto grid uses both monitors; tables do not
+      straddle the edge between them.
+- [ ] Drag a table to the other monitor, then "Re-tile": it goes back into
+      the grid.
+
+**T11. Mixed scaling** (skip without two scales; Windows mainly).
+- [ ] With one monitor at 100 % and the other at 125 % or more: the tables
+      on each are edge to edge and the right size (not one scale's size on
+      the other monitor).
+- [ ] `--tile-check` lists both monitors with their scales; paste its
+      `monitor` lines and one table per monitor.
+
+**T12. A minimised table.**
+- [ ] Minimise one tiled table: the others do not move.
+- [ ] Restore it from the taskbar / Dock: it goes back to its cell.
+- [ ] macOS: put one table in full screen: tiling leaves it alone; leave
+      full screen: it is tiled again.
+
+**T13. Rooms that refuse tiling stay untouched** (any of Winamax, GGPoker,
+partypoker, Unibet that you have installed).
+- [ ] Open two of its tables with tiling on: they never move; the Tables
+      screen lists the room as not allowed.
+- [ ] `rail-hud --tile-check --process <its exe> --room <its id> --try-title ".*"`
+      refuses at once (exit code 6, "tiling refused"): nothing moves.
+
+**RNG.** The RNG is allowed on no room yet (`rng.allowed` is `null` for
+PokerStars and ACR - a question to their support is open - and `false`
+elsewhere):
+- [ ] **R0.** Switch the RNG on in the Tables screen: no table of any room
+      shows a number. (When a room's `rng.allowed` becomes `true`, its
+      check is: the number shows in the table's corner, rolls on a new
+      hand, on a click and on the timer as set, can be dragged and keeps
+      its place, and on ACR never covers the table's graphics.)
+
+### 5.3 Results
+
+**pass**, **fail** (with a note), or **n/a** (with why):
+
+| | T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8 | T9 | T10 | T11 | T12 | T13 | R0 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| PokerStars, Windows | | | | | | | | | | | | | | |
+| PokerStars, macOS | | | | | | | | | | | | | | |
+| ACR, Windows | | | | | | | | | | | | | | |
+| ACR, macOS | | | | | | | | | | | | | | |
+| WPT Global, Windows | | | | | | | | | | | | | | |
+| WPT Global, macOS | | | | | | | | | | | | | | |
+| CoinPoker, Windows | | | | | | | | | | | | | | |
+| CoinPoker, macOS | | | | | | | | | | | | | | |
+| Refused rooms (T13) | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | | |
+
+---
+
+## 6. Window signals for dynamic slots (T7)
+
+T7's dynamic slots (Action Required: a table moves to a slot while it is
+your turn) need to know it is your turn **without reading the table**. The
+only acceptable source is what the client itself does with its windows
+([`TABLE-TILING.md`](TABLE-TILING.md) §4.6): many Windows clients flash the
+taskbar button or bring the table to the front on your turn. This section
+records, per room, whether such a signal exists and is reliable. Nothing
+here changes what Rail does today.
+
+`rail-hud --watch-signals` logs, with timestamps, for one program's windows
+only: on Windows the taskbar flash (`FLASH`, the shell's `HSHELL_FLASH`),
+the foreground window (`FOREGROUND`), the window order (`TOP-OF-DESKTOP`: a
+table raised above every other program; `front-of-client`), minimise and
+title changes; on macOS the window order only (a Dock bounce cannot be seen
+by another program - note it by eye). It moves nothing and reads nothing
+inside a table.
+
+Per room and system (Windows first; macOS if the room has a Mac client):
+
+1. **The client's own settings.** Look in its options for anything like
+   "flash the taskbar / bring the table to front / play a sound when it is
+   my turn". Note each one's name and default, and leave them at their
+   defaults for the first run.
+2. **Two tables, the client in the background.** Sit at two tables, then
+   click on another program (a text editor) so the client is not in front.
+3. Run, with a clock in view:
+   `rail-hud --watch-signals --process <exe> --seconds 600 --you <name>`
+4. Play about 20 hands. Each time it is your turn, note the time (to the
+   second) and the table; act a few seconds later. Also note other things
+   that happened: a new hand dealt while you were folded, a chat line, a
+   tournament break or table move, a pop-up.
+5. Run it again with the client's "flash / bring to front" options switched
+   on (if it has them), for 10 hands.
+6. Paste the log (it ends with a tally) after reading it through.
+
+What to record per run (`yes` / `no` / `sometimes`):
+
+```text
+Room: ______   System: ______   Client version: ______   Settings: defaults / changed: ______
+Your turn -> FLASH on that table's window:              ___  (delay, seconds: ___)
+Your turn -> FOREGROUND / TOP-OF-DESKTOP on that table: ___  (delay: ___)
+A signal when it was NOT your turn (which, when):        ___
+The signal stops when you act / time out:                ___
+macOS: the Dock icon bounced on your turn (by eye):      ___
+```
+
+A usable signal is one that comes **every** time it is your turn, on that
+table's own window, within about a second, and not otherwise. The policy
+side is separate: PokerStars' guide allows a script to react to the time
+bank showing but not to a player's action, and "Action Required" needs its
+own reading before T7 builds anything
+([`TILING-POLICIES.md`](TILING-POLICIES.md)).
+
+| | Flash on turn | Raise / foreground on turn | False signals | Client setting needed | Usable? |
+| --- | --- | --- | --- | --- | --- |
+| PokerStars, Windows | | | | | |
+| ACR, Windows | | | | | |
+| WPT Global, Windows | | | | | |
+| CoinPoker, Windows | | | | | |
+| PokerStars, macOS | n/a | | | | |
+| ACR, macOS | n/a | | | | |
+
+---
+
+## 7. Tiling and signals: what to send back
+
+In a pull-request comment, or a file under `docs/research/` added in a
+pull request, per room and system - read every line first; the outputs are
+redacted, but your screen name must not appear anywhere:
+
+1. **The header block** of 5.2 (room, system, client version, displays,
+   program name).
+2. **T1**: the `--list-windows --process <exe>` output with 4 tables and
+   the lobby open.
+3. **T2**: the regex you settled on, and the `--try-title` output that shows
+   it taking every table and no other window.
+4. **The hand histories' table names** for those tables (only what follows
+   `Table '`), as in [`CAPTURING-TABLES.md`](CAPTURING-TABLES.md#what-to-paste-back),
+   if the room's HUD is allowed (PokerStars, ACR).
+5. **T3 and T4**: the full `--tile-check` output with 4 tables, and the
+   summary plus any `SIZE REFUSED` lines with the most tables; whether
+   `--restore` worked.
+6. **T11**: the `monitor` lines and one table per monitor, if you have two
+   scales.
+7. **The results table** of 5.3, and a note for every fail and n/a.
+8. **Section 6**: the record block per run and the `--watch-signals` log
+   with its tally.
+9. Screenshots only where a note needs one, every name blurred.
+
+What happens with it:
+
+- Items 1 - 4 become the room's `tables` block in `config/sites.json`
+  (processes per system, the title regex, `verified`, a source line
+  "Observed on ..."), the simulator's title format in
+  `hud/rail-hud-sim/rooms.json`, and the tests that pin them.
+- Items 5 - 6 give the room's table geometry for the tiler: its aspect ratio
+  (when the client keeps its own), its minimum client size, and its frame;
+  they go into the source text now and into a `tables.geometry` field when
+  `sites.json` has one.
+- A fail in T3 - T12 becomes a tiling fix before the room's tiling is
+  switched on for users; a fail in T13 or R0 stops the release.
+- Item 8 decides whether T7's dynamic slots are possible on that room.

@@ -31,6 +31,12 @@
 //!   quiet; off unless switched on (`--tiling auto` for development).
 //! - [`rng`] (T4): the RNG overlay's rolls (the system's CSPRNG, rejection
 //!   sampling); the engine rolls per table and [`scene`] draws the widget.
+//! - [`tilecheck`] and [`signals`] (T6): the owner's tools for the real
+//!   clients - `--tile-check`, one placement of a program's tables with
+//!   the tiling engine, refused for any room whose tiling policy is not
+//!   `true`; `--watch-signals`, a read-only log of the window signals a
+//!   room gives (taskbar flash, foreground, window order) for T7's
+//!   dynamic slots.
 //!
 //! No real-time assistance of any kind (guideline §7): the HUD shows the
 //! players' own statistics from the store, nothing about the hand in play.
@@ -50,6 +56,8 @@ pub mod platform;
 pub mod rng;
 pub mod scene;
 pub mod seats;
+pub mod signals;
+pub mod tilecheck;
 pub mod tiling;
 
 use std::ffi::OsString;
@@ -78,6 +86,9 @@ pub mod exit_code {
     pub const LINK_LOST: i32 = 4;
     /// The shipped configuration did not load (a broken build).
     pub const CONFIG: i32 = 5;
+    /// (T6) A diagnostic refused to act or found nothing to act on
+    /// (`--tile-check` for a room whose tiling policy is not `true`).
+    pub const REFUSED: i32 = 6;
 }
 
 const USAGE: &str = "\
@@ -122,6 +133,13 @@ Windows (macOS: the titles need the Accessibility permission):
 Capturing real table titles (redacted; see --list-windows --help):
 
   rail-hud --list-windows [--process <exe>] [--you <name>] ...
+
+Checking tiling on a real client (T6; see --tile-check --help), and
+recording its window signals (see --watch-signals --help):
+
+  rail-hud --tile-check --process <exe> [--room <id> --try-title <regex>]
+  rail-hud --tile-check --restore
+  rail-hud --watch-signals --process <exe> [--seconds <n>]
 ";
 
 /// The command line.
@@ -273,6 +291,12 @@ impl Args {
 pub fn main_with(args: Vec<OsString>) -> i32 {
     if args.iter().any(|a| a == "--list-windows") {
         return list::run(args);
+    }
+    if args.iter().any(|a| a == "--tile-check") {
+        return tilecheck::run(args);
+    }
+    if args.iter().any(|a| a == "--watch-signals") {
+        return signals::run(args);
     }
     let args = match Args::parse(args) {
         Ok(args) => args,

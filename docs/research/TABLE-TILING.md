@@ -343,6 +343,17 @@ macOS and Windows.
 | **T6** | Real clients: capture titles, processes and table geometry (`CAPTURING-TABLES.md`); check tiling + RNG on each room ([`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md)) | — | owner's machines (Windows test machine) |
 | **T7** | Later, after T6: global hotkeys; dynamic slots from the rooms' own window signals | L | T6 |
 
+**T6, the tools (built):** the owner's sitting with the real clients is
+[`REAL-CLIENT-CHECK.md`](REAL-CLIENT-CHECK.md) §5 - §7. `rail-hud
+--list-windows` also prints each window's outer frame, its insets and
+whether it is resizable, and a room's HUD / tiling / RNG answers (with
+`--try-title --room` before the room has a `tables` block); `rail-hud
+--tile-check` tiles one program's tables once with this engine and reports
+what the client accepted (refused for any room whose tiling is not `true`;
+`--restore` puts the windows back); `rail-hud --watch-signals` logs a
+client's own window signals (taskbar flash, foreground, window order) for
+§4.6. The captures themselves are the owner's.
+
 ## 6. Open questions for the owner
 
 1. **Policy verdicts.** Tiling and the RNG on partypoker are `false` unless

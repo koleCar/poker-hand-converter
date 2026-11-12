@@ -76,7 +76,9 @@ Three rules from the architecture hold here:
 | `scene.rs` | A frame turned into rectangles and text at physical pixels, under the permit; palette (near-black panels, light blue / off-white / light orange figures), the legend (`-` `=` `+`); (T4) the RNG widget, and RNG-only frames that draw nothing else |
 | `rng.rs` | (T4) The RNG overlay's rolls: the system's CSPRNG (`getrandom`), rejection sampling onto the user's range (no modulo bias), each table on its own |
 | `latency.rs` | The HUD's half of the latency budget: message arrival to rollups re-read |
-| `list.rs` | `--list-windows`: the read-only diagnostic that captures real table titles, redacted |
+| `list.rs` | `--list-windows`: the read-only diagnostic that captures real table titles, redacted; (T6) each window's outer frame, insets and whether it is resizable, and a room's HUD / tiling / RNG answers (`--try-title` with `--room` before the room has a `tables` block) |
+| `tilecheck.rs` | (T6) `--tile-check`: one program's tables tiled once with the tiling engine and the backend's `place`, read back and reported (asked vs accepted, aspect kept, ms per move, refused sizes); refuses a room whose tiling policy is not `true` and never moves its windows (nor a program that looks like such a room's); `--restore` puts them back |
+| `signals.rs` | (T6, for T7) `--watch-signals`: a read-only, timestamped log of a client's own window signals - Windows' taskbar flash (`HSHELL_FLASH`), foreground, minimise, title and window order (`platform/windows/signals.rs`); macOS's window order |
 | `tiling.rs` | Table tiling (T2), platform-free: layouts and slots (serde, camelCase, monitors by order not id), the auto grid (largest tables of every room's aspect, spread over the monitors, edge to edge on outer rects, kept while it still fits), assignment (first free slot, stacking, stable, pins), fit, the one retry of a refused size, auto-switch by table count |
 | `placer.rs` | Tiling's placement worker: a thread of its own that places through the backend's `Placer`, never while a mouse button is down or within 600 ms of a click, the queue coalesced per window |
 | `platform/mod.rs` | The `Platform` trait (find tables, follow, overlay, permission; for table tiling, T1: `monitors` and `place`, T2: `frame_insets` and a `Placer` for the worker - placing and the mouse) and table identity |
@@ -199,11 +201,14 @@ with a token as the first line of standard input. For development:
 | `--perf-report <file>` | Paint and follow times, re-reads and looks for tables, written at shutdown |
 | `--tiling auto` | (T2, development) Tile the simulator's windows in the auto grid; never a real client's |
 | `--panels off` | (T3) Attach no panel: tiling and the RNG only (the app passes it when the plan holds the HUD back); the app's `panels` message turns them on |
-| `--list-windows [--process <exe>] [--you <name>] [--try-title <regex>]` | List visible windows with redacted titles (see `--list-windows --help`) |
+| `--list-windows [--process <exe>] [--you <name>] [--try-title <regex> [--room <id>]]` | List visible windows with redacted titles, frames and the rooms' answers (see `--list-windows --help`) |
+| `--tile-check --process <exe> [--room <id> --try-title <regex>] [--layout auto\|<file>]` | (T6) Tile that program's tables once and report what the client accepted; only rooms whose tiling policy is `true`; `--tile-check --restore` puts them back (see `--tile-check --help`) |
+| `--watch-signals --process <exe> [--seconds <n>]` | (T6) Log the client's own window signals with timestamps, read-only (see `--watch-signals --help`) |
 
 Exit codes: 0 shut down (or the app is gone), 2 bad arguments, 3 could not
 join the app, 4 the connection broke, 5 the shipped configuration did not
-load.
+load, 6 (`--tile-check`) nothing was moved: the room's policy refused it, no
+table window was found, or every window found was refused.
 
 ### Permissions
 
