@@ -38,8 +38,8 @@ export const trainerHr = {
   reset: "Vrati zadano",
   sections: { spot: "Spot", play: "Trening", show: "Prikaz" },
   table: "Stol",
-  tableValue: (players: number, stack: number, straddle = false) =>
-    `${players === 2 ? "Heads-up" : `${players}-max`} ${num(stack)}bb${straddle ? " straddle" : ""}`,
+  tableValue: (players: number, stack: number, straddle = false, ante = false) =>
+    `${players === 2 ? "Heads-up" : `${players}-max`} ${num(stack)}bb${straddle ? " straddle" : ante ? " ante" : ""}`,
   family: "Situacija",
   families: {
     random: "Bilo koja",
@@ -112,6 +112,10 @@ export const trainerHr = {
   loadingFlop: "Učitavam flop…",
   grading: "Ocjenjujem…",
   noSpot: "Nijedan spot ne odgovara ovim postavkama. Olabavi jednu i pokušaj ponovno.",
+  unavailable: {
+    flop: "Flop spotovi trebaju flop knjižnicu solvanu na GTO Wizard rangeovima; još je nema.",
+    set: "Ovaj stol još nije prepisan iz GTO Wizarda: nema se što dijeliti. Odaberi drugi stol u postavkama.",
+  },
   failed: (message: string) => `Nešto je pošlo po zlu: ${message}`,
   retry: "Pokušaj ponovno",
 

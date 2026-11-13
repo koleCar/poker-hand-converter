@@ -25,7 +25,7 @@ import { focusTarget, HANDS_PER_AREA, trainableAreas } from "./focus";
 import { useTrainerHost, type FocusState } from "./host";
 import { SettingsSheet } from "./SettingsSheet";
 import { HandPlayer } from "./HandPlayer";
-import { HAND_MODES, PLAYS, playOptions, spotOptions, targetSettings, TRAINER_MODES, type StreetMode, type TrainerSettings } from "./settings";
+import { HAND_MODES, PLAYS, playOptions, spotOptions, targetSettings, TRAINER_MODES, unavailable, type StreetMode, type TrainerSettings } from "./settings";
 import { SpotPlayer, type TableStatus } from "./SpotPlayer";
 import styles from "./trainer.module.css";
 
@@ -82,8 +82,10 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
   const canPlayHands = Boolean(host.playStart && host.playGrade && host.playAnswer);
   // A whole hand (T2) when the host can play one and the mode starts one; spots otherwise.
   const handMode = settings.play === "hand" && canPlayHands && HAND_MODES.includes(settings.mode);
-  const playRequest = useMemo(() => (handMode && plan ? playOptions(plan.mode, plan.settings) : null), [handMode, plan]);
-  const spotRequest = useMemo(() => (!handMode && plan ? spotOptions(plan.mode, plan.settings) : null), [handMode, plan]);
+  // Nothing to deal (no flop library, a set not transcribed yet): said, never dealt from something else.
+  const blocked = plan ? unavailable(plan.mode, plan.settings, handMode) : null;
+  const playRequest = useMemo(() => (handMode && plan && !blocked ? playOptions(plan.mode, plan.settings) : null), [handMode, plan, blocked]);
+  const spotRequest = useMemo(() => (!handMode && plan && !blocked ? spotOptions(plan.mode, plan.settings) : null), [handMode, plan, blocked]);
   // Several tables in spot mode only (T5); a whole hand is one table.
   const tables = handMode ? 1 : Number(settings.tables) || 1;
 
@@ -198,6 +200,11 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
           {plan === null ? (
             <div className={styles.loading}>
               <RailLoader label={t.focus.loading} showLabel centered />
+            </div>
+          ) : null}
+          {blocked ? (
+            <div className={styles.notice}>
+              <p>{blocked === "flop" ? t.unavailable.flop : t.unavailable.set}</p>
             </div>
           ) : null}
           {handMode && playRequest ? (

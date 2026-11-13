@@ -7,13 +7,17 @@
  * areas the sample vouches for, costliest first, {@link HANDS_PER_AREA}
  * hands each, then round again. With no area it can deal (no account, no
  * analysed hands, only turn or multiway leaks), it deals {@link GENERAL}:
- * the spots players most often misplay. Pure.
+ * the spots players most often misplay. An area or spot that cannot be dealt
+ * yet - a flop with no flop library, a table not transcribed from GTO Wizard
+ * yet - is left out ({@link targetDealable}). Pure.
  */
 
 import { FOUR_BET_POT, HEADS_UP_TABLE, THREE_BET_POT } from "../../lib/analysis/leaks";
 import type { RiverPot, RiverRole, RiverSeat } from "../../lib/training";
 import type { AreaWhere, FocusArea, TrainerTarget } from "../../lib/training/plan";
 import { pickFocus } from "../../lib/training/plan";
+import { FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
+import { CHART_SETS } from "../../lib/charts";
 
 /**
  * A turn spot to practise (the study plan has no turn trainer, so its
@@ -55,6 +59,17 @@ export function areaTarget(area: FocusArea): FocusTarget | null {
   return area.trainer ?? turnTarget(area.where);
 }
 
+/**
+ * Whether a target can be dealt now: a flop target needs a published flop
+ * library, a target naming a set (a leak's table) that set transcribed. One
+ * that cannot is left out of "For you" rather than dealt on another set.
+ */
+export function targetDealable(target: FocusTarget): boolean {
+  if (target.mode === "flop" && FLOP_LIBRARY_SETS.length === 0) return false;
+  const set = "set" in target ? target.set : null;
+  return !set || CHART_SETS.some((spec) => spec.id === set);
+}
+
 /** Hands dealt from one area before the next. */
 export const HANDS_PER_AREA = 6;
 /** At most this many areas in the rotation. */
@@ -62,7 +77,10 @@ export const MAX_FOCUS_AREAS = 5;
 
 /** The areas "For you" works through: the surest costliest first, each with a trainer. */
 export function trainableAreas(areas: readonly FocusArea[]): FocusArea[] {
-  const withTrainer = areas.filter((area) => areaTarget(area) !== null);
+  const withTrainer = areas.filter((area) => {
+    const target = areaTarget(area);
+    return target !== null && targetDealable(target);
+  });
   const picked = pickFocus(withTrainer, MAX_FOCUS_AREAS);
   return picked.length > 0 ? picked : withTrainer.slice(0, MAX_FOCUS_AREAS);
 }
@@ -73,7 +91,7 @@ export function trainableAreas(areas: readonly FocusArea[]): FocusArea[] {
  * 3-bet in position, the in-position c-bet as the raiser, the out-of-position
  * defence on the flop, and river bluff-catching.
  */
-export const GENERAL: readonly TrainerTarget[] = [
+const ALL_GENERAL: readonly TrainerTarget[] = [
   { mode: "preflop", family: "vs-open", seat: "BB", vs: "BTN" },
   { mode: "flop", set: "nlhe-cash-6max-100bb", pot: "srp", side: "ip", role: "pfr", seat: null, facing: "check", line: null },
   { mode: "preflop", family: "vs-3bet", seat: "BTN", vs: null },
@@ -81,6 +99,9 @@ export const GENERAL: readonly TrainerTarget[] = [
   { mode: "preflop", family: "vs-open", seat: "SB", vs: "BTN" },
   { mode: "river", pot: "srp", side: "ip", role: "any" },
 ];
+
+/** {@link ALL_GENERAL} as far as it can be dealt now (no flop spot while no flop library is published). */
+export const GENERAL: readonly TrainerTarget[] = ALL_GENERAL.filter(targetDealable);
 
 /** Which target the `n`th hand of "For you" is dealt from (areas first, else the general list). */
 export function focusTarget(areas: readonly FocusArea[], areaIndex: number): { area: FocusArea | null; target: FocusTarget } {

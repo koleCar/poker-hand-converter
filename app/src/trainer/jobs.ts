@@ -15,4 +15,4 @@ export {
   type TrainingResponse,
 } from "@rail/web-lib/training/jobs";
 export { ensureChartSets, loadChartLibrary, type ChartLibrary } from "@rail/web-lib/charts";
-export { FlopLibraryLoader, type LibraryFetch } from "@rail/web-lib/analysis/flopLibrary";
+export { FLOP_LIBRARY_LIVE, FlopLibraryLoader, type LibraryFetch } from "@rail/web-lib/analysis/flopLibrary";

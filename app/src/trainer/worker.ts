@@ -11,6 +11,7 @@
 import type { FetchOutcome } from "../analysis/worker";
 import {
   ensureChartSets,
+  FLOP_LIBRARY_LIVE,
   FlopLibraryLoader,
   isPlayJob,
   loadChartLibrary,
@@ -76,7 +77,8 @@ export function createTrainerWorker(scope: Scope): void {
     const fail = () => Promise.reject(new Error(outcome.kind));
     return { ok: false, status, arrayBuffer: fail, json: fail };
   };
-  const loader = new FlopLibraryLoader(BASE, fetcher);
+  // As the web's trainer worker: no loader while no flop library is published (none solved on the GTO Wizard sets yet).
+  const loader = FLOP_LIBRARY_LIVE ? new FlopLibraryLoader(BASE, fetcher) : null;
 
   scope.onmessage = (event) => {
     const request = event.data;

@@ -158,7 +158,7 @@ export function SettingsSheet({
             <Chips
               label={t.table}
               value={set}
-              options={setsFor(mode).map((spec) => ({ value: spec.id, label: t.tableValue(spec.players, spec.stackBb, Boolean(spec.straddle)) }))}
+              options={setsFor(mode).map((spec) => ({ value: spec.id, label: t.tableValue(spec.players, spec.stackBb, Boolean(spec.straddle), Boolean(spec.ante)) }))}
               onChange={(value) => onChange({ set: value, line: null })}
             />
             {mode === "preflop" ? (
