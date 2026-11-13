@@ -737,3 +737,13 @@
   min-block-size: 220px;
   text-align: center;
 }
+
+.dd input {
+  block-size: 28px;
+  padding: 0 var(--space-1);
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  color-scheme: dark light;
+}

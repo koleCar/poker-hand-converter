@@ -18,7 +18,7 @@
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { MIN_COMPARE_MOVES, trendSeries, type TrendPoint, type TrendSeries } from "../../../lib/analysis/leaks";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -185,14 +185,10 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
   }
 
   const graded = series.reduce((sum, entry) => sum + entry.graded, 0);
-  const buckets = new Set(trend.rows.map((row) => row.start)).size;
 
   return (
     <div className="stats">
-      <Header sample={graded > 0 ? t.sample(graded, buckets, t.controls.bucketsPlural[trend.bucket] ?? trend.bucket) : undefined} />
-      <p className="notice notice--info">{t.intro}</p>
-
-      <FilterBar state={shownState} kinds={kinds} facets={trend.facets} onChange={updateState} />
+      <Header tools={<FilterBar state={shownState} kinds={kinds} facets={trend.facets} onChange={updateState} />} />
       <Controls state={state} onChange={updateState} />
       {state.bucket === "session" ? <p className={reportStyles.muted}>{t.sessionNote(trend.gapMinutes)}</p> : null}
 
@@ -237,17 +233,8 @@ function TryAgain({ onClick }: { onClick: () => void }) {
   );
 }
 
-function Header({ sample }: { sample?: string }) {
-  const t = useDict().analysis.progress;
-  return (
-    <>
-      <header className="stats__head">
-        <h2>{t.heading}</h2>
-        {sample ? <span className="stats__sample">{sample}</span> : null}
-      </header>
-      <AnalysisNav current="progress" />
-    </>
-  );
+function Header({ tools }: { tools?: ReactNode }) {
+  return <AnalysisNav current="progress">{tools}</AnalysisNav>;
 }
 
 function Controls({ state, onChange }: { state: ProgressState; onChange: (patch: Partial<ProgressState>) => void }) {

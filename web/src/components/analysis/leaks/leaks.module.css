@@ -392,3 +392,138 @@
     fill: GrayText;
   }
 }
+
+/* ---- redesign (2026-11): leak rows as bars ---- */
+
+.leaksList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leakRow {
+  display: flex;
+  flex-direction: column;
+}
+
+.leakLine {
+  display: grid;
+  grid-template-columns: 18px 8px minmax(180px, 1.3fr) minmax(100px, 1fr) 130px 16px 72px 96px 12px;
+  align-items: center;
+  gap: var(--space-3);
+  inline-size: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.leakRow[data-open] .leakLine {
+  background: var(--surface-hover);
+}
+
+.leakRank {
+  inline-size: 18px;
+  flex: none;
+}
+
+.leakNames {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-inline-size: 0;
+}
+
+.leakCount {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.leakDue {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.leakValue {
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.leakChevron {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-lg);
+  transition: transform var(--dur-2) var(--ease-standard);
+}
+
+.leakChevron[data-open] {
+  transform: rotate(90deg);
+}
+
+.leakPanelNew {
+  margin: 2px 6px 10px 42px;
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-4);
+  background: var(--surface-inset);
+}
+
+.detailNew {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detailTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.mixBars {
+  display: flex;
+  flex: 1 1 320px;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.mixLine {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mixKeys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  padding-inline-start: 148px;
+}
+
+@media (max-width: 760px) {
+  .leakLine {
+    grid-template-columns: 18px 8px minmax(0, 1fr) 16px 84px 12px;
+  }
+
+  .leakBar,
+  .leakCount,
+  .leakDue {
+    display: none;
+  }
+
+  .leakPanelNew {
+    margin-inline-start: 6px;
+  }
+
+  .mixKeys {
+    padding-inline-start: 0;
+  }
+}

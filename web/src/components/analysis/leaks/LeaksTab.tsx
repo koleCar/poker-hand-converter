@@ -28,7 +28,7 @@
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   LEAK_SORTS,
   LEAK_STREETS,
@@ -37,7 +37,6 @@ import {
   leakKind,
   sortLeaks,
   type Leak,
-  type LeakSort,
 } from "../../../lib/analysis/leaks";
 import { drillsOn, handsPot, handsTable, lineSeats, type SpotDrills } from "../../../lib/analysis/leaks";
 import { walkLine } from "../../../lib/analysis/reports";
@@ -66,9 +65,9 @@ import { reportsFilters } from "../reports/reportsState";
 import analysisStyles from "../analysis.module.css";
 import reportStyles from "../reports/reports.module.css";
 import { drillQuery } from "../train/trainState";
-import { ConfidenceTag } from "./ConfidenceTag";
 import { leaksQuery, parseLeaksState, type LeaksState } from "./leaksState";
 import styles from "./leaks.module.css";
+import an from "../ui/an.module.css";
 import "../../../styles/stats.css";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
@@ -245,27 +244,29 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
 
   return (
     <div className="stats">
-      <Header sample={t.sample(report.graded, report.hands)} />
-      <div className={`notice notice--info ${reportStyles.intro}`}>
-        <span>{t.intro}</span>
-        <button
-          type="button"
-          className="btn btn--sm btn--ghost"
-          aria-expanded={howOpen}
-          aria-controls={HOW_ID}
-          onClick={() => setHowOpen((open) => !open)}
-        >
-          {t.how.toggle}
-        </button>
-      </div>
+      <Header
+        tools={
+          <>
+            <FilterBar
+              state={shownState}
+              kinds={kinds}
+              facets={report.facets}
+              onChange={(patch) => updateState({ ...patch, leak: null })}
+            />
+            <button
+              type="button"
+              className={an.chip}
+              aria-expanded={howOpen}
+              aria-controls={HOW_ID}
+              onClick={() => setHowOpen((open) => !open)}
+            >
+              {t.how.toggle}
+            </button>
+          </>
+        }
+      />
       <HowItWorks open={howOpen} />
 
-      <FilterBar
-        state={shownState}
-        kinds={kinds}
-        facets={report.facets}
-        onChange={(patch) => updateState({ ...patch, leak: null })}
-      />
       <Controls state={state} onChange={updateState} />
 
       {loading ? (
@@ -278,15 +279,12 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
       {report.graded > 0 && shown.length === 0 ? <p className="card muted">{t.noLeaks}</p> : null}
 
       {shown.length > 0 ? (
-        <section className="card stats-group rail-dims" aria-labelledby="leaks-list" aria-busy={loading}>
-          <h3 id="leaks-list" className={reportStyles.cardTitle}>
-            {t.heading}
-          </h3>
-          <p className={reportStyles.muted}>
+        <section className={`${an.card} rail-dims`} style={{ padding: 8, gap: 2 }} aria-label={t.heading} aria-busy={loading}>
+          <p className={`${an.cardHead} ${an.xs} ${an.dim}`} style={{ padding: "6px 12px 8px", margin: 0 }}>
             {t.total(totalEv, report.hands > 0 ? (totalEv / report.hands) * 100 : 0, shown.length)}
           </p>
           {/* Re-keyed on the answered filters and the ranking, so a new list arrives row by row. */}
-          <ol key={`${answer?.key.split("|")[0]}|${state.street ?? ""}|${state.sort}`} className={`${styles.leaks} rail-stagger`}>
+          <ol key={`${answer?.key.split("|")[0]}|${state.street ?? ""}|${state.sort}`} className={`${styles.leaksList} rail-stagger`}>
             {visible.map((leak) => (
               <LeakItem
                 key={leak.id}
@@ -295,12 +293,13 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
                 open={state.leak === leak.id}
                 filters={filters}
                 drills={drills}
+                max={Math.max(0, ...shown.map((entry) => entry.evLossBb))}
                 onToggle={() => updateState({ leak: state.leak === leak.id ? null : leak.id })}
               />
             ))}
           </ol>
           {shown.length > PREVIEW ? (
-            <button type="button" className="btn btn--ghost btn--sm" onClick={() => setAll((value) => !value)}>
+            <button type="button" className="btn btn--ghost btn--sm" style={{ alignSelf: "center" }} onClick={() => setAll((value) => !value)}>
               {all ? t.showFewer : t.showAll(shown.length)}
             </button>
           ) : null}
@@ -336,17 +335,8 @@ function TryAgain({ onClick }: { onClick: () => void }) {
   );
 }
 
-function Header({ sample }: { sample?: string }) {
-  const t = useDict().analysis.leaks;
-  return (
-    <>
-      <header className="stats__head">
-        <h2>{t.heading}</h2>
-        {sample ? <span className="stats__sample">{sample}</span> : null}
-      </header>
-      <AnalysisNav current="leaks" />
-    </>
-  );
+function Header({ tools }: { tools?: ReactNode }) {
+  return <AnalysisNav current="leaks">{tools}</AnalysisNav>;
 }
 
 function HowItWorks({ open }: { open: boolean }) {
@@ -366,28 +356,33 @@ function HowItWorks({ open }: { open: boolean }) {
 function Controls({ state, onChange }: { state: LeaksState; onChange: (patch: Partial<LeaksState>) => void }) {
   const t = useDict().analysis.leaks;
   return (
-    <div className={reportStyles.filters} role="group" aria-label={t.heading}>
-      <label className="field">
-        <span className="field__label">{t.controls.street}</span>
-        <select value={state.street ?? ""} onChange={(event) => onChange({ street: event.target.value || null, leak: null })}>
-          <option value="">{t.controls.anyStreet}</option>
-          {LEAK_STREETS.map((street) => (
-            <option key={street} value={street}>
-              {t.streets[street]}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span className="field__label">{t.controls.sort}</span>
-        <select value={state.sort} onChange={(event) => onChange({ sort: event.target.value as LeakSort })}>
-          {LEAK_SORTS.map((sort) => (
-            <option key={sort} value={sort}>
-              {t.controls.sorts[sort]}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className={an.sub} role="group" aria-label={t.heading}>
+      <div className={an.tools}>
+        <button type="button" className={an.chip} aria-pressed={state.street === null} onClick={() => onChange({ street: null, leak: null })}>
+          {t.controls.anyStreet}
+        </button>
+        {LEAK_STREETS.map((street) => (
+          <button
+            key={street}
+            type="button"
+            className={an.chip}
+            aria-pressed={state.street === street}
+            onClick={() => onChange({ street: state.street === street ? null : street, leak: null })}
+          >
+            <i className={an.dot} style={{ background: STREET_COLOURS[street] ?? "var(--text-secondary)" }} aria-hidden="true" />
+            {t.streets[street]}
+          </button>
+        ))}
+      </div>
+      <span className={an.grow} />
+      <span className={`${an.xs} ${an.dim}`}>{t.controls.sort}</span>
+      <div className={an.seg} role="group" aria-label={t.controls.sort}>
+        {LEAK_SORTS.map((sort) => (
+          <button key={sort} type="button" aria-pressed={state.sort === sort} onClick={() => onChange({ sort })}>
+            {t.controls.sorts[sort]}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -417,6 +412,7 @@ function LeakItem({
   open,
   filters,
   drills,
+  max,
   onToggle,
 }: {
   leak: Leak;
@@ -424,6 +420,8 @@ function LeakItem({
   open: boolean;
   filters: AnalysisFilters;
   drills: Map<string, SpotDrills> | null;
+  /** The list's largest EV loss: the bars' full length. */
+  max: number;
   onToggle: () => void;
 }) {
   const t = useDict().analysis.leaks;
@@ -431,31 +429,36 @@ function LeakItem({
   const words = useLeakWords()(leak);
   const panelId = useId();
   const count = drillCount(leak, drills);
+  const level = { low: 1, medium: 2, high: 3 } as const;
   return (
-    <li id={`leak-${leak.id}`} className={styles.leak} data-open={open || undefined}>
+    <li id={`leak-${leak.id}`} className={styles.leakRow} data-open={open || undefined}>
       <h4 className={styles.leakHeading}>
-        <button type="button" className={styles.leakToggle} aria-expanded={open} aria-controls={panelId} onClick={onToggle}>
-          <span aria-hidden="true" className={reportStyles.chevron}>
-            {open ? "▾" : "▸"}
-          </span>
-          <span className={styles.rank}>{t.rank(rank)}</span>
-          <span className={styles.leakName}>
-            <span className={styles.leakTitle}>{words.title}</span>
-            <span className={styles.leakContext}>
+        <button type="button" className={`${an.lrow} ${styles.leakLine}`} aria-expanded={open} aria-controls={panelId} onClick={onToggle}>
+          <span className={`${an.xs} ${an.dim} ${styles.leakRank}`}>{rank}</span>
+          <i className={an.dot} style={{ background: STREET_COLOURS[leak.attrs.street] ?? "var(--text-secondary)" }} aria-hidden="true" />
+          <span className={styles.leakNames}>
+            <span className={an.strong}>{words.title}</span>
+            <span className={`${an.xs} ${an.dim}`}>
               {words.context} · {words.street}
             </span>
           </span>
-          <span className={styles.leakEv}>{t.evLost(leak.evLossBb)}</span>
+          <span className={`${an.hbar} ${styles.leakBar}`} aria-hidden="true">
+            <i style={{ inlineSize: `${max > 0 ? (leak.evLossBb / max) * 100 : 0}%` }} />
+          </span>
+          <span className={`${an.xs} ${an.dim} ${styles.leakCount}`}>{t.spotTimes(leak.mistakes, leak.spotDecisions)}</span>
+          <span className={an.conf} title={t.confidence[leak.confidence]} aria-label={t.confidence[leak.confidence]}>
+            {[1, 2, 3].map((n) => (
+              <i key={n} data-on={n <= level[leak.confidence]} />
+            ))}
+          </span>
+          <span className={styles.leakDue}>{count && count.due > 0 ? <span className={`${an.chip} ${an.chipOn}`}>{train.badge(count.due)}</span> : null}</span>
+          <span className={`${an.strong} ${an.neg} ${styles.leakValue}`}>{t.evLost(leak.evLossBb)}</span>
+          <span aria-hidden="true" className={styles.leakChevron} data-open={open || undefined}>
+            ›
+          </span>
         </button>
       </h4>
-      <p className={styles.leakStats}>
-        <span>{t.per100(leak.per100)}</span>
-        <span>{t.spotTimes(leak.mistakes, leak.spotDecisions)}</span>
-        <span>{t.perMistake(leak.perMistake)}</span>
-        <ConfidenceTag leak={leak} />
-        {count && count.due > 0 ? <span className={styles.drillBadge}>{train.badge(count.due)}</span> : null}
-      </p>
-      <div id={panelId} hidden={!open} className={`${styles.leakPanel} rail-fade`}>
+      <div id={panelId} hidden={!open} className={`${styles.leakPanelNew} rail-fade`}>
         {open ? <LeakDetail leak={leak} filters={filters} drills={count} /> : null}
       </div>
     </li>
@@ -475,61 +478,38 @@ function LeakDetail({
   const train = useDict().analysis.train.leak;
   const drillId = useId();
   return (
-    <div className={reportStyles.detail}>
-      <p className={styles.describe}>
-        {t.detail.describe(t.context(leak.attrs), t.streetsIn[leak.attrs.street] ?? leak.attrs.street, leak.mistakes, leak.spotDecisions, leak.evLossBb)}
-      </p>
+    <div className={styles.detailNew}>
+      {leak.confidence === "low" ? <p className="notice notice--warn">{t.detail.lowNote}</p> : null}
+      <div className={styles.detailTop}>
+        <MixBars you={leak.taken} reference={leak.best} youLabel={t.detail.youDid} refLabel={t.detail.referenceDoes} />
+        <div className={an.kpis} style={{ columnGap: 24 }}>
+          <dl className={an.kpi}>
+            <dt>{t.columns.evLost}</dt>
+            <dd className={an.neg} style={{ fontSize: 18 }}>
+              {t.bb(leak.evLossBb)}
+            </dd>
+          </dl>
+          <dl className={an.kpi}>
+            <dt>{t.columns.spot}</dt>
+            <dd style={{ fontSize: 18 }}>{leak.spotDecisions}</dd>
+          </dl>
+          <dl className={an.kpi}>
+            <dt>{t.columns.mistakes}</dt>
+            <dd style={{ fontSize: 18 }}>{leak.mistakes}</dd>
+          </dl>
+          <dl className={an.kpi}>
+            <dt>{t.detail.perMistake(leak.perMistake)}</dt>
+            <dd className={an.xs} style={{ fontSize: 12, fontWeight: 500 }}>
+              {t.detail.per100(leak.per100)}
+            </dd>
+          </dl>
+        </div>
+      </div>
       {leak.level > 0 ? (
-        <p className={reportStyles.muted}>
+        <p className={`${an.xs} ${an.dim}`}>
           {t.detail.merged(leak.situationKeys.length)} {leak.partial ? t.detail.partial : null}
         </p>
       ) : null}
-      {leak.confidence === "low" ? <p className="notice notice--warn">{t.detail.lowNote}</p> : null}
-
-      <div className={styles.mixes}>
-        <div>
-          <h5 className={styles.mixHead}>{t.detail.youDid}</h5>
-          <p>{t.detail.mix(leak.taken)}</p>
-        </div>
-        <div>
-          <h5 className={styles.mixHead}>{t.detail.referenceDoes}</h5>
-          <p>{t.detail.mix(leak.best)}</p>
-        </div>
-      </div>
-      <p className={reportStyles.muted}>
-        {t.detail.best(leak.attrs.best)} {t.detail.mixNote}
-      </p>
-
-      <dl className={styles.numbers}>
-        <div>
-          <dt>{t.columns.evLost}</dt>
-          <dd>
-            {t.bb(leak.evLossBb)} <span className={reportStyles.interval}>{t.detail.per100(leak.per100)}</span>
-          </dd>
-        </div>
-        <div>
-          <dt>{t.columns.spot}</dt>
-          <dd>
-            {leak.spotDecisions} <span className={reportStyles.interval}>{t.detail.perSpot(leak.perSpot)}</span>
-          </dd>
-        </div>
-        <div>
-          <dt>{t.columns.mistakes}</dt>
-          <dd>
-            {leak.mistakes}{" "}
-            <span className={reportStyles.interval}>
-              {t.detail.perMistake(leak.perMistake)} · {t.detail.seriousNote(leak.serious)}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt>{t.columns.confidence}</dt>
-          <dd>
-            <ConfidenceTag leak={leak} />{" "}
-            <span className={reportStyles.interval}>{t.confidenceHint(leak.spotDecisions, leak.mistakes)}</span>
-          </dd>
-        </div>
-      </dl>
 
       <LearnLinks concepts={leakConcepts(leak.attrs)} />
 
@@ -545,6 +525,74 @@ function LeakDetail({
       </div>
 
       <LeakHands leak={leak} filters={filters} />
+    </div>
+  );
+}
+
+/** One colour per street, for the leak rows' dots. */
+const STREET_COLOURS: Record<string, string> = {
+  preflop: "var(--text-secondary)",
+  flop: "var(--accent)",
+  turn: "var(--chart-check)",
+  river: "var(--ev-fg)",
+};
+
+const MIX_COLOURS: Record<keyof Leak["taken"], string> = {
+  fold: "var(--chart-fold)",
+  check: "var(--chart-check)",
+  call: "var(--chart-call)",
+  bet: "var(--chart-bet-medium)",
+  raise: "var(--chart-raise)",
+};
+
+/** What you did and what the reference does here, as two stacked bars with the gap per action. */
+function MixBars({
+  you,
+  reference,
+  youLabel,
+  refLabel,
+}: {
+  you: Leak["taken"];
+  reference: Leak["best"];
+  youLabel: string;
+  refLabel: string;
+}) {
+  const t = useDict().analysis.leaks;
+  const keys = (Object.keys(MIX_COLOURS) as Array<keyof Leak["taken"]>).filter((key) => you[key] + reference[key] > 0);
+  const total = (mix: Leak["taken"]) => keys.reduce((sum, key) => sum + mix[key], 0) || 1;
+  const yt = total(you);
+  const rt = total(reference);
+  const bar = (mix: Leak["taken"], whole: number) => (
+    <span className={an.mbar} style={{ flex: 1, blockSize: 14 }}>
+      {keys.map((key) =>
+        mix[key] > 0 ? <i key={key} style={{ inlineSize: `${(mix[key] / whole) * 100}%`, background: MIX_COLOURS[key] }} /> : null,
+      )}
+    </span>
+  );
+  return (
+    <div className={styles.mixBars}>
+      <div className={styles.mixLine}>
+        <span className={`${an.xs} ${an.dim}`}>{youLabel}</span>
+        {bar(you, yt)}
+      </div>
+      <div className={styles.mixLine}>
+        <span className={`${an.xs} ${an.dim}`}>{refLabel}</span>
+        {bar(reference, rt)}
+      </div>
+      <div className={styles.mixKeys}>
+        {keys.map((key) => {
+          const gap = Math.round((you[key] / yt - reference[key] / rt) * 100);
+          return (
+            <span key={key} className={an.xs}>
+              <i className={an.dot} style={{ background: MIX_COLOURS[key], borderRadius: 2 }} aria-hidden="true" /> {t.actions[key] ?? key}{" "}
+              <b style={{ color: Math.abs(gap) >= 10 ? "var(--grade-mistake)" : "var(--text-secondary)" }}>
+                {gap > 0 ? "+" : gap < 0 ? "−" : "±"}
+                {Math.abs(gap)}%
+              </b>
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 }
