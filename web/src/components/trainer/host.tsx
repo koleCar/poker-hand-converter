@@ -46,6 +46,8 @@ export interface TrainerHost {
    * range study and its Learn links. Absent: none.
    */
   study?(graded: GradedAnswer, spot: TrainerSpot): ReactNode;
+  /** More in the side column under the session's figures (the web's study plan card). */
+  aside?: ReactNode;
   /** What sits beside the modes (the web's link to the drills of your own mistakes). */
   extraModes?: ReactNode;
 }

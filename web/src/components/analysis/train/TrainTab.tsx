@@ -27,6 +27,8 @@ import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { addAnswer, emptySession, type SessionStats, type TrainerAnswer } from "../../../lib/training";
 import { AnalysisNav } from "../AnalysisNav";
+import { PlanCard } from "../plan/PlanCard";
+import an from "../ui/an.module.css";
 import { useAnalysisKind } from "../analysisKind";
 import { KindField } from "../KindField";
 import { DrillTrainer } from "./DrillTrainer";
@@ -34,7 +36,6 @@ import { SessionPanel, TrainerHistory } from "./SessionPanel";
 import { TrainerKeySheet } from "./TrainerKeySheet";
 import { parseTrainState, trainQuery, type TrainState } from "./trainState";
 import { WebTrainer } from "./WebTrainer";
-import trainer from "../../trainer/trainer.module.css";
 import own from "./train.module.css";
 import "../../../styles/stats.css";
 
@@ -49,8 +50,14 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
   const drills = isDrillsQuery(initialQuery);
   return (
     <div className="stats">
-      <AnalysisNav current="train" />
-      {drills ? <DrillsView key="drills" initialQuery={initialQuery} /> : <WebTrainer key="trainer" query={initialQuery} />}
+      {drills ? (
+        <DrillsView key="drills" initialQuery={initialQuery} />
+      ) : (
+        <>
+          <AnalysisNav current="train" />
+          <WebTrainer key="trainer" query={initialQuery} />
+        </>
+      )}
     </div>
   );
 }
@@ -83,17 +90,19 @@ function DrillsView({ initialQuery }: { initialQuery: Record<string, string | st
 
   return (
     <>
-      <nav className={trainer.modes} aria-label={dict.trainer.modesLabel}>
-        <Link href={paths.analysisTrain()} className={trainer.modeLink}>
-          {dict.trainer.modes.focus}
-        </Link>
-        <span className={trainer.mode} aria-current="page" data-current>
-          {t.modes.drills}
-        </span>
-        <button type="button" className={trainer.mode} aria-haspopup="dialog" aria-keyshortcuts="?" onClick={() => setKeysOpen(true)}>
+      <AnalysisNav current="train">
+        <div className={an.tools} role="group" aria-label={dict.trainer.modesLabel}>
+          <Link href={paths.analysisTrain()} className={an.chip}>
+            {dict.trainer.modes.focus}
+          </Link>
+          <span className={`${an.chip} ${an.chipOn}`} aria-current="page">
+            {t.modes.drills}
+          </span>
+        </div>
+        <button type="button" className={an.chip} aria-haspopup="dialog" aria-keyshortcuts="?" onClick={() => setKeysOpen(true)}>
           {t.keys.button}
         </button>
-      </nav>
+      </AnalysisNav>
 
       <div className={own.layout}>
         <div className={`${own.main} rail-fade`}>
@@ -123,6 +132,7 @@ function DrillsView({ initialQuery }: { initialQuery: Record<string, string | st
         </div>
         <aside className={own.side}>
           <SessionPanel stats={session} onReset={() => setSession(emptySession())} />
+          {isDatabaseConfigured && auth.isSignedIn ? <PlanCard generation={kept} /> : null}
           {isDatabaseConfigured && auth.isSignedIn ? <TrainerHistory refresh={kept} /> : null}
         </aside>
       </div>

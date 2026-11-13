@@ -7,6 +7,7 @@ import { CONCEPT_GROUPS, CONCEPTS, conceptsIn } from "../../../lib/learn/concept
 import { conceptText } from "../../../lib/learn/content";
 import { paths } from "../../../lib/routes";
 import styles from "../../../components/learn/learn.module.css";
+import an from "../../../components/analysis/ui/an.module.css";
 
 /**
  * The concept library's index (`docs/ANALYSIS-PLAN.md` §6.0 *Learn*).
@@ -38,11 +39,8 @@ export default async function LearnIndexPage() {
   return (
     <ServerFrame tab="analysis">
       <div className={styles.page}>
-        <header className={styles.pageHead}>
-          <h1 className={styles.title}>{t.index.heading}</h1>
-          <AnalysisNav current="learn" />
-          <p className={styles.lead}>{t.index.intro}</p>
-        </header>
+        <h1 className={an.srOnly}>{t.index.heading}</h1>
+        <AnalysisNav current="learn" />
         {CONCEPT_GROUPS.map((group) => (
           <section key={group} className={styles.group} aria-labelledby={`group-${group}`}>
             <h2 id={`group-${group}`} className={styles.groupTitle}>

@@ -396,6 +396,7 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
             {t.session.reset}
           </button>
           <p className={styles.keys}>{t.keys}</p>
+          {host.aside}
         </aside>
       </div>
 

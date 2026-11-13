@@ -131,9 +131,6 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
   if (!auth.isSignedIn) {
     return (
       <div className="stats">
-        <header className="stats__head">
-          <h2>{t.session}</h2>
-        </header>
         <AnalysisNav current="session" />
         <div className="card stats-empty">
           <h3>{tab.signInHeading}</h3>
@@ -149,9 +146,6 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
   if (query === null) {
     return (
       <div className="stats">
-        <header className="stats__head">
-          <h2>{t.session}</h2>
-        </header>
         <AnalysisNav current="session" />
         <RailLoader label={ui.review.loading} showLabel centered />
       </div>
@@ -173,6 +167,9 @@ export function SessionReviewTab({ initialQuery, refreshToken = 0 }: SessionRevi
       renderHandLink={renderHandLink}
       title={t.session}
       titleTag="h2"
+      hideTitle
+      intro={false}
+      layout="table"
       notice={<AnalysisNav current="session" />}
       reloadToken={refreshToken}
       coverageAction={

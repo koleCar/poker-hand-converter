@@ -34,6 +34,7 @@ import { ChartGrid } from "../ChartGrid";
 import { LearnLinks } from "../LearnLinks";
 import { RiverStudy } from "../RiverStudy";
 import { useAnalysisKind } from "../analysisKind";
+import { PlanCard } from "../plan/PlanCard";
 import { hasRangeStudy } from "./AnswerResult";
 import { trainerResultOf, trainQuery, DEFAULT_TRAIN_STATE } from "./trainState";
 import own from "../../trainer/trainer.module.css";
@@ -54,6 +55,8 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
   const locale = useIntlLocale();
   const auth = useAuth();
   const signedIn = isDatabaseConfigured && auth.isSignedIn;
+  // Answers kept: the plan card counts them (its trainer tasks).
+  const [kept, setKept] = useState(0);
   const [initial] = useState(() => initialSettings(query, typeof window === "undefined" ? null : readStored()));
 
   // One kind of game's leaks: wait for the kind before reading them.
@@ -92,7 +95,10 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
       record: signedIn
         ? (spot, answer, handClass) => {
             const row = trainerResultOf(spot, answer, handClass);
-            if (row) recordTrainerResults([row]).catch(() => undefined);
+            if (row)
+              recordTrainerResults([row])
+                .then(() => setKept((value) => value + 1))
+                .catch(() => undefined);
           }
         : undefined,
       onSettings: (settings) => {
@@ -106,13 +112,14 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
         window.history.replaceState(window.history.state, "", `${paths.analysisTrain()}${search ? `?${search}` : ""}`);
       },
       study: (graded, spot) => <WebStudy graded={graded} spot={spot} />,
+      aside: signedIn ? <PlanCard generation={kept} /> : null,
       extraModes: signedIn ? (
         <Link href={paths.analysisTrain(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "drills" }))} className={own.modeLink}>
           {dict.analysis.train.modes.drills}
         </Link>
       ) : null,
     }),
-    [dict, locale, focus, signedIn],
+    [dict, locale, focus, signedIn, kept],
   );
 
   return (

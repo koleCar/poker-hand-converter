@@ -9,6 +9,7 @@ import { leaksHr, progressHr, summaryHr, topLeaksHr } from "./analysisLeaks.hr";
 import { trainHr } from "./analysisTrain.hr";
 import { shareHr } from "./analysisShare.hr";
 import { planHr } from "./analysisPlan.hr";
+import { uiHr } from "./analysisUi.hr";
 
 /**
  * Strings for the Analysis tab and the replayer's Analysis sheet, Croatian.
@@ -1339,6 +1340,7 @@ export const analysisHr: Dict["analysis"] = {
 
   share: shareHr,
   plan: planHr,
+  ui: uiHr,
 
   /** Činjenice o ruci riječima, za trenerov "tvoja ruka ovdje" (`components/trainer`). */
   handFacts: { hand: handPhrase, draws, blockers },

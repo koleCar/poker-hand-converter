@@ -18,7 +18,7 @@
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { MIN_COMPARE_MOVES, trendSeries, type TrendPoint, type TrendSeries } from "../../../lib/analysis/leaks";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -47,6 +47,8 @@ import { reportsFilters } from "../reports/reportsState";
 import reportStyles from "../reports/reports.module.css";
 import { PROGRESS_METRICS, parseProgressState, progressQuery, type ProgressMetric, type ProgressState } from "../leaks/leaksState";
 import styles from "../leaks/leaks.module.css";
+import an from "../ui/an.module.css";
+import { WhatChanged } from "../leaks/WhatChanged";
 import { TrendChart, type TrendChartPoint } from "./TrendChart";
 import "../../../styles/stats.css";
 
@@ -185,14 +187,10 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
   }
 
   const graded = series.reduce((sum, entry) => sum + entry.graded, 0);
-  const buckets = new Set(trend.rows.map((row) => row.start)).size;
 
   return (
     <div className="stats">
-      <Header sample={graded > 0 ? t.sample(graded, buckets, t.controls.bucketsPlural[trend.bucket] ?? trend.bucket) : undefined} />
-      <p className="notice notice--info">{t.intro}</p>
-
-      <FilterBar state={shownState} kinds={kinds} facets={trend.facets} onChange={updateState} />
+      <Header tools={<FilterBar state={shownState} kinds={kinds} facets={trend.facets} onChange={updateState} />} />
       <Controls state={state} onChange={updateState} />
       {state.bucket === "session" ? <p className={reportStyles.muted}>{t.sessionNote(trend.gapMinutes)}</p> : null}
 
@@ -207,6 +205,7 @@ export function ProgressTab({ initialQuery, refreshToken = 0 }: ProgressTabProps
       {graded > 0 && trend.group !== "all" ? (
         <Multiples series={series} bucket={trend.bucket} group={trend.group} metric={state.metric} busy={loading} />
       ) : null}
+      {kinds.kind ? <WhatChanged scopeKey={JSON.stringify({ gameKind: kinds.kind })} generation={refreshToken} /> : null}
     </div>
   );
 }
@@ -237,55 +236,40 @@ function TryAgain({ onClick }: { onClick: () => void }) {
   );
 }
 
-function Header({ sample }: { sample?: string }) {
-  const t = useDict().analysis.progress;
-  return (
-    <>
-      <header className="stats__head">
-        <h2>{t.heading}</h2>
-        {sample ? <span className="stats__sample">{sample}</span> : null}
-      </header>
-      <AnalysisNav current="progress" />
-    </>
-  );
+function Header({ tools }: { tools?: ReactNode }) {
+  return <AnalysisNav current="progress">{tools}</AnalysisNav>;
 }
 
 function Controls({ state, onChange }: { state: ProgressState; onChange: (patch: Partial<ProgressState>) => void }) {
   const t = useDict().analysis.progress.controls;
   return (
-    <div className={styles.controls} role="group" aria-label={t.bucket}>
-      <label className="field">
-        <span className="field__label">{t.bucket}</span>
-        <select value={state.bucket} onChange={(event) => onChange({ bucket: event.target.value as TrendBucket })}>
-          {TREND_BUCKETS.map((bucket) => (
-            <option key={bucket} value={bucket}>
-              {t.buckets[bucket]}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span className="field__label">{t.group}</span>
-        <select value={state.group} onChange={(event) => onChange({ group: event.target.value as TrendGroup })}>
-          {TREND_GROUPS.map((group) => (
-            <option key={group} value={group}>
-              {t.groups[group]}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className={an.sub} role="group" aria-label={t.bucket}>
       {state.group !== "all" ? (
-        <label className="field">
-          <span className="field__label">{t.metric}</span>
-          <select value={state.metric} onChange={(event) => onChange({ metric: event.target.value as ProgressMetric })}>
-            {PROGRESS_METRICS.map((metric) => (
-              <option key={metric} value={metric}>
-                {t.metrics[metric]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className={an.seg} role="group" aria-label={t.metric}>
+          {PROGRESS_METRICS.map((metric) => (
+            <button key={metric} type="button" aria-pressed={state.metric === metric} onClick={() => onChange({ metric })}>
+              {t.metrics[metric]}
+            </button>
+          ))}
+        </div>
       ) : null}
+      <span className={an.grow} />
+      <span className={`${an.xs} ${an.dim}`}>{t.bucket}</span>
+      <div className={an.seg} role="group" aria-label={t.bucket}>
+        {TREND_BUCKETS.map((bucket) => (
+          <button key={bucket} type="button" aria-pressed={state.bucket === bucket} onClick={() => onChange({ bucket })}>
+            {t.buckets[bucket]}
+          </button>
+        ))}
+      </div>
+      <span className={`${an.xs} ${an.dim}`}>{t.group}</span>
+      <div className={an.seg} role="group" aria-label={t.group}>
+        {TREND_GROUPS.map((group) => (
+          <button key={group} type="button" aria-pressed={state.group === group} onClick={() => onChange({ group })}>
+            {t.groups[group]}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

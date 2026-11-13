@@ -23,9 +23,11 @@
 
 "use client";
 
+import { KindSwitch } from "@rail/ui/hands/KindSwitch";
+
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { CHART_SETS, ensureChartSets, type ChartLibrary, type ChartNode } from "../../../lib/charts";
 import {
   POSTFLOP_ROLES,
@@ -56,7 +58,6 @@ import type { AnalysisFilters } from "../../../lib/db/analysis";
 import { fetchNodeActions, fetchNodeHands, type NodeActionsReport, type NodeHandRow } from "../../../lib/db/analysisReports";
 import { useAuth } from "../../../lib/auth";
 import { useAnalysisKind, type AnalysisKind } from "../analysisKind";
-import { KindField } from "../KindField";
 import { useDict } from "../../../lib/i18n/client";
 import type { ConceptId } from "../../../lib/learn/concepts";
 import { paths } from "../../../lib/routes";
@@ -80,6 +81,7 @@ import {
   type ReportsState,
 } from "./reportsState";
 import styles from "./reports.module.css";
+import an from "../ui/an.module.css";
 import "../../../styles/stats.css";
 
 /** The migration the screen needs, named in the not-installed notice. An identifier, not prose. */
@@ -309,22 +311,24 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
 
   return (
     <div className="stats">
-      <Header sample={t.sample(report.decisions, report.hands)} />
-      <div className={`notice notice--info ${styles.intro}`}>
-        <span>{t.intro}</span>
-        <button
-          type="button"
-          className="btn btn--sm btn--ghost"
-          aria-expanded={howOpen}
-          aria-controls={HOW_ID}
-          onClick={() => setHowOpen((open) => !open)}
-        >
-          {t.how.toggle}
-        </button>
-      </div>
+      <Header
+        tools={
+          <>
+            <FilterBar state={shownState} kinds={kinds} facets={report.facets} onChange={updateState} />
+            <button
+              type="button"
+              className={an.chip}
+              aria-expanded={howOpen}
+              aria-controls={HOW_ID}
+              onClick={() => setHowOpen((open) => !open)}
+            >
+              {t.how.toggle}
+            </button>
+          </>
+        }
+      />
       <HowToRead open={howOpen} />
 
-      <FilterBar state={shownState} kinds={kinds} facets={report.facets} onChange={updateState} />
       {setsWithDecisions.length > 1 ? (
         <SetFilter sets={setsWithDecisions} value={activeSet} onChange={updateSet} />
       ) : null}
@@ -381,17 +385,8 @@ function TryAgain({ onClick }: { onClick: () => void }) {
   );
 }
 
-function Header({ sample }: { sample?: string }) {
-  const t = useDict().analysis;
-  return (
-    <>
-      <header className="stats__head">
-        <h2>{t.reports.heading}</h2>
-        {sample ? <span className="stats__sample">{sample}</span> : null}
-      </header>
-      <AnalysisNav current="reports" />
-    </>
-  );
+function Header({ tools }: { tools?: ReactNode }) {
+  return <AnalysisNav current="reports">{tools}</AnalysisNav>;
 }
 
 function HowToRead({ open }: { open: boolean }) {
@@ -425,13 +420,14 @@ export function FilterBar({
   onChange: (patch: Partial<ReportsState>) => void;
 }) {
   const t = useDict().analysis.reports.filters;
+  const any = useDict().analysis.ui.scope.any;
   const day = (iso: string | null) => (iso ? iso.slice(0, 10) : undefined);
-  const any = state.from || state.to || state.room || state.stake || state.position;
+  const set = state.from || state.to || state.room || state.stake || state.position;
   return (
-    <div className={styles.filters} role="group" aria-label={t.ariaLabel}>
-      <KindField kinds={kinds} onChange={(kind) => onChange({ kind })} />
-      <label className="field">
-        <span className="field__label">{t.from}</span>
+    <div className={an.tools} role="group" aria-label={t.ariaLabel}>
+      <KindSwitch kind={kinds.kind} counts={kinds.counts} onChange={(kind) => onChange({ kind })} />
+      <label className={an.dd}>
+        {t.from}
         <input
           type="date"
           value={state.from ?? ""}
@@ -440,8 +436,8 @@ export function FilterBar({
           onChange={(event) => onChange({ from: event.target.value || null })}
         />
       </label>
-      <label className="field">
-        <span className="field__label">{t.to}</span>
+      <label className={an.dd}>
+        {t.to}
         <input
           type="date"
           value={state.to ?? ""}
@@ -450,10 +446,10 @@ export function FilterBar({
           onChange={(event) => onChange({ to: event.target.value || null })}
         />
       </label>
-      <label className="field">
-        <span className="field__label">{t.room}</span>
+      <label className={an.dd}>
+        {t.room}
         <select value={state.room ?? ""} onChange={(event) => onChange({ room: event.target.value || null })}>
-          <option value="">{t.anyRoom}</option>
+          <option value="">{any}</option>
           {facets.sites.map((site) => (
             <option key={site.site} value={site.site}>
               {t.stakeOption(getParser(site.site)?.name ?? site.site, site.hands)}
@@ -461,10 +457,10 @@ export function FilterBar({
           ))}
         </select>
       </label>
-      <label className="field">
-        <span className="field__label">{t.stake}</span>
+      <label className={an.dd}>
+        {t.stake}
         <select value={state.stake ?? ""} onChange={(event) => onChange({ stake: event.target.value || null })}>
-          <option value="">{t.anyStake}</option>
+          <option value="">{any}</option>
           {facets.stakes.map((stake) => (
             <option key={stakeKey(stake.currency, stake.bigBlind)} value={stakeKey(stake.currency, stake.bigBlind)}>
               {t.stakeOption(stakeLabel(stake, t.unknownStake), stake.hands)}
@@ -472,10 +468,10 @@ export function FilterBar({
           ))}
         </select>
       </label>
-      <label className="field">
-        <span className="field__label">{t.position}</span>
+      <label className={an.dd}>
+        {t.position}
         <select value={state.position ?? ""} onChange={(event) => onChange({ position: event.target.value || null })}>
-          <option value="">{t.anyPosition}</option>
+          <option value="">{any}</option>
           {REPORT_POSITIONS.map((position) => (
             <option key={position} value={position}>
               {position}
@@ -483,8 +479,8 @@ export function FilterBar({
           ))}
         </select>
       </label>
-      {any ? (
-        <button type="button" className="btn btn--ghost btn--sm" onClick={() => onChange({ ...EMPTY_REPORTS_STATE, kind: state.kind })}>
+      {set ? (
+        <button type="button" className={an.linkBtn} onClick={() => onChange({ ...EMPTY_REPORTS_STATE, kind: state.kind })}>
           {t.clear}
         </button>
       ) : null}
