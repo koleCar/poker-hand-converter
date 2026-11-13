@@ -43,7 +43,7 @@ import { useEffect } from "react";
 import { getBrowserSupabase } from "../../lib/supabase/browser";
 import { SUPABASE_URL } from "../../lib/supabase/config";
 
-/** `https://riybwcfnclphacnfawiq.supabase.co` → `sb-riybwcfnclphacnfawiq-auth-token`. */
+/** `https://tlprpfebsuerqqktklrx.supabase.co` → `sb-tlprpfebsuerqqktklrx-auth-token`. */
 function legacyKey(): string | null {
   const ref = SUPABASE_URL?.match(/^https?:\/\/([^.]+)\./)?.[1];
   return ref ? `sb-${ref}-auth-token` : null;
