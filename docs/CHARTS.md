@@ -1,4 +1,73 @@
-# CHARTS — preflop reference charts, `charts/10`
+# CHARTS — preflop reference charts, `charts/11`
+
+## 0. `charts/11`: GTO Wizard solutions, transcribed (2026-11-13)
+
+**Every chart set Rail ships is a GTO Wizard preflop solution, transcribed.**
+Rail's own generated sets (`charts/1`-`charts/10`, the rest of this document)
+are deleted from `web/src/lib/charts/data/`; the generator (`generate.ts`,
+`build.ts`, `realisation.ts`, `tests/scripts/preflop-charts/generate.test.ts`)
+stays for its tests and research, but nothing ships its output. Sections 1-10
+describe that generator and its sets; read them as history. What holds now:
+
+- **Sets.** The owner's list (`PLANNED_CHART_SETS` in `registry.ts`):
+  6-max classic (NL100 rake, with cold calls, 2.5x open) and 6-max ante (1/6 bb
+  from every seat, NL100, no cold calls, 2.5x) at 40 / 60 / 100 / 150 / 200bb;
+  heads-up (NL100, General, 2.5x) at 100 / 150bb; 9-max classic at 100bb
+  (NL50) and 150 / 200bb (live 10% rake); 9-max ante (chip EV, button cold
+  calls) at 60 / 100 / 150 / 200bb; and the 6-max straddle set, GTO Wizard's
+  "Straddle + Ante" (a 2bb straddle by the first seat left of the big blind,
+  with an ante). There is no 9-max 60bb set without an ante and no 6-max
+  straddle without one. `CHART_SETS` lists the sets transcribed so far - one
+  line each - and **a set not transcribed is absent**: there is no fallback
+  to another set or to old data. On 2026-11-13 that is the 6-max 100bb ante
+  set alone.
+- **Converter.** `tests/scripts/preflop-charts/gtow.test.ts` turns a capture
+  (`~/Projects/gtow-dumps/<id>.json`: `{ id, gametype, depth, errors, dump }`,
+  or a bare dump) into `data/<id>.json`. Its `SETS` table has a row per
+  planned set: seats (9-max: GTO Wizard's `UTG1`, `UTG2` are Rail's `UTG+1`,
+  `UTG+2`; heads-up: its `BTN` is Rail's `SB`), stack, ante, straddle, the
+  `model.source` text, and the game type (`TODO` until captured; a capture's
+  own game type fills it). Codes F/C/X/R/all-in become `f`/`c`/`k`/`r`/`a`;
+  EVs become Rail's "net from the start of the hand" (minus the ante and what
+  the actor has in); a decision with several raise sizes keeps **one** `r`:
+  the sizes' frequencies summed, EVs frequency-weighted, at the most frequent
+  size, its subtree only (`model.merged` lists each merge). A set's `version`
+  is `gtow/1`; `model` holds `source`, `gametype`, `transcribed`,
+  `evConvention`, `merged`, `hash` - no Rail tree, realisation or rake.
+- **Kinds and which set answers** (`pickChartSet`, §6.2's table and depth
+  rules unchanged within a kind). A straddled hand reads a straddle set (with
+  or without an ante of its own - the owner accepted that approximation);
+  a hand where **every seat dealt in posted the same ante** reads an ante set
+  whose ante is within 25% of it (`ANTE_SIZE_TOLERANCE`: GTO Wizard's 0.166
+  answers WePlay's $0.16 at $1 and $0.36 at $2); any other hand reads a
+  classic set. A big-blind ante (one poster), uneven antes or another size is
+  refused (`ante`); so is a hand whose table, depth and kind has no
+  transcribed set (`players`, `stack-depth`) - never a set of another kind.
+  The neighbouring-depth reads (§7.1-7.3) stay within the kind and the ante.
+  A graded ante hand loses the `antes` approximation (`chartsModelAnte`).
+- **Lookup** (`walkNodes` in `lookup.ts`). A transcribed set has no Rail tree,
+  so the real actions are replayed on the set's own nodes: a fold, check or
+  call takes that option (a call the node lacks is `limp`, `cold-call` or
+  `off-tree`); a raise takes the node's raise or all-in nearest the real size
+  as a fraction of the pot (ante as dead money), recorded as `sizing`; a line
+  the set does not hold is `rare-line`. A set with `model.tree` (the
+  generator's, in tests) still walks Rail's tree.
+- **No solve on the old ranges.** The flop library in the `flop-library`
+  bucket, the Learn flop-bet table and the test pilot were solved on Rail's
+  ranges: `PUBLISHED_FLOP_LIBRARY` / `FLOP_LIBRARY_SETS` are empty (the loader
+  fetches nothing, the analysis gets no library, the Solver shows preflop
+  only, the flop drills wait), `rail_sync::floplib::PUBLISHED_SETS` likewise,
+  and the flop-bet data and pilot chunks are deleted. Nothing was deleted
+  from Supabase. `analysis/41` marks the change.
+
+Adding a set: drop its capture in `~/Projects/gtow-dumps/<id>.json`, run
+`cd tests && GTOW_SET=<id> npx vitest run --config
+scripts/preflop-charts/vitest.config.ts gtow` (or `GTOW_SET=all`), add its
+line to `CHART_SETS`, bump `ANALYSIS_VERSION` and run the tests.
+
+---
+
+*The rest of this document describes Rail's own generator (`charts/1`-`charts/10`), whose sets no longer ship.*
 
 Phases A2a, A2a.1, A2c, A2d and A2e (and `charts/6` / `charts/7`, the 200bb and 9-max 150bb re-solves, `charts/8` / `charts/9`, heads-up, and `charts/10`, 9-max 60bb) of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
 Rail's preflop reference for **NLHE cash**: a library of chart sets

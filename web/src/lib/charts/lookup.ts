@@ -48,6 +48,8 @@ import {
   isChartLibrary,
   type ChartLibrary,
   type ChartSetSpec,
+  anteMismatch,
+  chartSetKind,
   pickChartSet,
   STACK_NOTE_TOLERANCE,
   STACK_TOLERANCE,
@@ -74,7 +76,15 @@ export interface PreflopSpot {
   actions: readonly PreflopActionInput[];
   /** Starting stacks in bb, by position. Missing stacks are taken as 100bb. */
   stacksBb?: Partial<Record<Position, number>>;
+  /** Somebody posted an ante (any kind: every seat, a big-blind ante, ...). */
   ante?: boolean;
+  /**
+   * Every seat dealt in posted the same ante: its size, bb (`anteOf` in
+   * `fromHand.ts`). An ante set answers such a hand when its ante is the
+   * same (`anteMismatch`); an ante without it (a big-blind ante, uneven
+   * antes) no set answers (`ante`).
+   */
+  anteBb?: number;
   /** Somebody straddled. */
   straddle?: boolean;
   /**
@@ -290,7 +300,8 @@ export interface LookupOptions {
 /**
  * The sets a `rare-line` spot answered by `spec` may be read on instead
  * (`LookupOptions.rareLineDepth`): the same table and straddle, the nearest
- * charted depth below and the nearest above - never further, so a 100bb line
+ * charted depth below and the nearest above (of the same kind: classic,
+ * straddle or ante, and the same ante) - never further, so a 100bb line
  * is read at 60 or 150bb, never at 40 or 200 - nearest first by depth ratio to
  * `effectiveBb`.
  */
@@ -300,7 +311,11 @@ export function rareLineDepthSets(
   effectiveBb: number = spec.stackBb,
 ): ChartSetSpec[] {
   const same = specs.filter(
-    (s) => s.players === spec.players && (s.straddle?.bb ?? 0) === (spec.straddle?.bb ?? 0) && s.stackBb !== spec.stackBb,
+    (s) =>
+      s.players === spec.players &&
+      (s.straddle?.bb ?? 0) === (spec.straddle?.bb ?? 0) &&
+      (s.ante ?? 0) === (spec.ante ?? 0) &&
+      s.stackBb !== spec.stackBb,
   );
   const below = same.filter((s) => s.stackBb < spec.stackBb).sort((a, b) => b.stackBb - a.stackBb)[0];
   const above = same.filter((s) => s.stackBb > spec.stackBb).sort((a, b) => a.stackBb - b.stackBb)[0];
@@ -318,7 +333,10 @@ export function rareLineDepthSets(
  */
 export function uncoveredDepthSets(specs: readonly ChartSetSpec[], spot: PreflopSpot): ChartSetSpec[] {
   if (spot.straddle) return [];
-  const plain = specs.filter((s) => !s.straddle);
+  // The spot's own kind: an ante from every seat reads the ante sets of that ante, no ante the classic sets.
+  const plain = spot.ante
+    ? specs.filter((s) => chartSetKind(s) === "ante" && anteMismatch(s.ante ?? null, spot) === null)
+    : specs.filter((s) => chartSetKind(s) === "classic");
   const k = spot.positions.length;
   const seats = plain.map((s) => s.players).filter((n) => (k === 2 ? n === 2 : n >= k && n > 2));
   if (k < 2 || !seats.length) return [];
@@ -344,10 +362,9 @@ export function lookupPreflop(
   options: LookupOptions = {},
 ): ChartLookup {
   if (isChartLibrary(charts)) {
-    // A straddle no set models is refused as one, ahead of everything else.
+    // A straddle or an ante no set models is refused as one, ahead of everything else.
     const pick = pickChartSet(charts.specs, spot);
-    if (!pick.ok && pick.reason === "straddle") return miss("straddle", pick.detail);
-    if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
+    if (!pick.ok && (pick.reason === "straddle" || pick.reason === "ante")) return miss(pick.reason, pick.detail);
     if (!pick.ok && pick.reason === "stack-depth" && options.uncoveredDepth) {
       return readAtUncoveredDepth(charts, spot, hand, heroAction) ?? miss(pick.reason, pick.detail);
     }
@@ -358,10 +375,12 @@ export function lookupPreflop(
     if (found.ok || found.reason !== "rare-line" || !options.rareLineDepth) return found;
     return readAtNeighbouringDepth(charts, pick.spec, pick.effectiveBb, spot, hand, heroAction) ?? found;
   }
-  // One set: it answers only the straddle it models (none, or its own).
+  // One set: it answers only the straddle and the ante it models (none, or its own).
   const mismatch = straddleMismatch(charts.game.straddle ?? null, charts.game.positions.length, spot);
   if (mismatch) return miss("straddle", mismatch);
-  if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
+  // A straddle set answers a straddled hand with or without an ante (`pickChartSet`).
+  const anteMiss = charts.game.straddle ? null : anteMismatch(charts.game.ante ?? null, spot);
+  if (anteMiss) return miss("ante", anteMiss);
   return lookupInSet(charts, spot, hand, heroAction);
 }
 
@@ -449,7 +468,6 @@ function lookupInSet(
   heroAction?: PreflopActionInput | null,
   checkDepth = true,
 ): ChartLookup {
-  const tree = chartTree(charts);
   const approximations: ChartApproximation[] = [];
 
   // Positions onto the chart's seats.
@@ -493,7 +511,11 @@ function lookupInSet(
     });
   }
 
+  // A transcribed set (no Rail tree in its model) is walked on its own nodes.
+  if (!hasRailTree(charts)) return walkNodes(charts, spot, rename, line, hero, approximations, hand, heroAction);
+
   // Replay.
+  const tree = chartTree(charts);
   const real = new Map<ChartPosition, number>();
   real.set("SB", 0.5);
   real.set("BB", 1);
@@ -574,6 +596,160 @@ function lookupInSet(
     chosen = chart.options.findIndex((o) => o.code === step.code);
   }
 
+  return answer(charts, chart, hand, chosen, approximations, unmodelled);
+}
+
+/** Whether the set records the Rail tree it was solved on (`model.tree`): Rail's generated sets do, a transcribed one does not. */
+export function hasRailTree(charts: ChartSet): boolean {
+  return (charts.model as { tree?: unknown }).tree !== undefined;
+}
+
+/**
+ * `lookupInSet` on a set with no Rail tree - a GTO Wizard transcription
+ * (`charts/11`): the real actions replayed on the set's own nodes. Each
+ * node is a decision of the solution, keyed by its line, with its options
+ * and their sizes, so the walk needs no tree:
+ *
+ * - **Folds, checks and calls** take the node's option of that kind. A call
+ *   the node does not offer is a limp (no raise yet), a cold call of a
+ *   re-raise (`cold-call`) or off the solution (`off-tree`).
+ * - **Raises** take the node's raise or all-in nearest the real size as a
+ *   fraction of the pot (the ante is dead money in both), recorded as a
+ *   `sizing` approximation, `offTree` beyond `OFF_TREE_DISTANCE`.
+ * - A line the solution goes on with but the set does not hold (not
+ *   transcribed, or merged away with a raise size) is `rare-line`; a player
+ *   acting where the solution has someone else to act is `off-tree`.
+ */
+function walkNodes(
+  charts: ChartSet,
+  spot: PreflopSpot,
+  rename: (p: Position) => ChartPosition | null,
+  start: string,
+  hero: ChartPosition,
+  approximations: ChartApproximation[],
+  hand?: string | readonly string[] | null,
+  heroAction?: PreflopActionInput | null,
+): ChartLookup {
+  const straddle = charts.game.straddle ?? null;
+  const real = new Map<ChartPosition, number>([
+    ["SB", 0.5],
+    ["BB", 1],
+  ]);
+  let realToMatch = 1;
+  if (straddle) {
+    real.set(straddle.position, straddle.bb);
+    realToMatch = straddle.bb;
+  }
+  const dead = (charts.game.ante ?? 0) * charts.game.positions.length;
+  const absent = (line: string) =>
+    miss("rare-line", `line ${JSON.stringify(line)} is not in the transcribed solution`);
+
+  let line = start;
+  for (let k = 0; k < start.length; k += 1) {
+    const at = charts.nodes.get(start.slice(0, k));
+    if (!at?.options.some((o) => o.code === "f")) return absent(start.slice(0, k));
+  }
+  for (const action of spot.actions) {
+    const position = rename(action.position);
+    if (!position) return miss("bad-input", `unknown position ${action.position}`);
+    const node = charts.nodes.get(line);
+    if (!node) return absent(line);
+    if (node.actor !== position) {
+      return miss("off-tree", `${action.position} acts out of the solution's order (expected ${node.actor})`);
+    }
+    const step = stepOnNode(node, action, real, realToMatch, position, dead);
+    if (!step.ok) return step.miss;
+    if (step.approximation) approximations.push(step.approximation);
+    realToMatch = step.realToMatch;
+    line += step.code;
+  }
+
+  const chart = charts.nodes.get(line);
+  if (!chart) return absent(line);
+  if (chart.actor !== hero) {
+    return miss("off-tree", `the solution has no decision for ${spot.hero} here (next to act: ${chart.actor})`);
+  }
+  const unmodelled: ("call" | "limp")[] = [];
+  if (!chart.options.some((o) => o.action === "call") && chart.toMatchBb > chart.inBb) {
+    unmodelled.push(chart.facing ? "call" : "limp");
+  }
+  let chosen: number | null = null;
+  if (heroAction) {
+    const step = stepOnNode(chart, heroAction, real, realToMatch, hero, dead);
+    if (!step.ok) return miss("action-not-modelled", step.miss.ok ? "" : step.miss.detail);
+    if (step.approximation) approximations.push(step.approximation);
+    chosen = chart.options.findIndex((o) => o.code === step.code);
+  }
+  return answer(charts, chart, hand, chosen, approximations, unmodelled);
+}
+
+/** One real action on a transcribed node (`walkNodes`): the option it takes, or why none. */
+function stepOnNode(
+  node: ChartNode,
+  action: PreflopActionInput,
+  real: Map<ChartPosition, number>,
+  realToMatch: number,
+  position: ChartPosition,
+  dead: number,
+): Step {
+  const fail = (reason: ChartMissReason, detail: string): Step => ({ ok: false, miss: miss(reason, detail) });
+  const option = (kind: ChartAction) => node.options.find((o) => o.action === kind);
+  const done = (code: string, to = realToMatch): Step => ({ ok: true, code, child: -1, realToMatch: to, approximation: null });
+  if (action.type === "fold") return option("fold") ? done("f") : fail("off-tree", `${position} folds where it cannot`);
+  if (action.type === "check") return option("check") ? done("k") : fail("off-tree", `${position} checks facing a bet`);
+  const realIn = real.get(position) ?? 0;
+  if (action.type === "call") {
+    if (!option("call")) {
+      if (!node.facing) return fail("limp", `${position} limps; the solution has no limp here`);
+      if (node.cold && node.scenario !== "vs-open") return fail("cold-call", `${position} cold-calls a re-raise`);
+      return fail("off-tree", `${position} calls where the solution has no call`);
+    }
+    real.set(position, Math.max(realIn, realToMatch));
+    return done("c");
+  }
+  const raises = node.options.filter((o) => o.action === "raise" || o.action === "allin");
+  if (!raises.length) return fail("off-tree", `${position} raises where the solution cannot`);
+  const to = action.toBb;
+  if (to === undefined || !(to > realToMatch)) return fail("bad-input", `${position}'s raise has no size above ${realToMatch}bb`);
+  let realPot = dead;
+  for (const v of real.values()) realPot += v;
+  const fraction = (raiseTo: number, toMatch: number, pot: number, inBb: number) => (raiseTo - toMatch) / (pot + (toMatch - inBb));
+  const realFraction = fraction(to, realToMatch, realPot, realIn);
+  let best = raises[0];
+  let distance = Infinity;
+  for (const candidate of raises) {
+    const d = Math.abs(fraction(candidate.toBb, node.toMatchBb, node.potBb, node.inBb) - realFraction);
+    // A real all-in prefers the all-in option at an equal distance.
+    if (d < distance - 1e-12 || (Math.abs(d - distance) <= 1e-12 && action.allIn && candidate.action === "allin")) {
+      best = candidate;
+      distance = d;
+    }
+  }
+  real.set(position, to);
+  const approximation: ChartApproximation | null =
+    Math.abs(to - best.toBb) > 0.01
+      ? {
+          kind: "sizing",
+          detail: `${position} raised to ${round2(to)}bb; the chart's size is ${round2(best.toBb)}bb`,
+          position,
+          realBb: round2(to),
+          chartBb: best.toBb,
+          distance: Math.round(distance * 1000) / 1000,
+          offTree: distance > OFF_TREE_DISTANCE,
+        }
+      : null;
+  return { ok: true, code: best.code, child: -1, realToMatch: to, approximation };
+}
+
+/** The answer at a node: the hero's class, its options, what was chosen. */
+function answer(
+  charts: ChartSet,
+  chart: ChartNode,
+  hand: string | readonly string[] | null | undefined,
+  chosen: number | null,
+  approximations: ChartApproximation[],
+  unmodelled: ("call" | "limp")[],
+): ChartLookup {
   const k = hand == null ? -1 : handClassOf(hand);
   if (hand != null && k < 0) return miss("bad-input", `not a hand: ${String(hand)}`);
   const options: ChartOption[] = [];

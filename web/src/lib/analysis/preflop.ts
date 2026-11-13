@@ -30,6 +30,7 @@ import {
   handClassOf,
   isChartLibrary,
   lookupPreflop,
+  anteMismatch,
   pickChartSet,
   preflopSpotFromHand,
   straddleMismatch,
@@ -270,6 +271,26 @@ export function chartsModelStraddle(hand: PhfHand, heroSeat: number, charts: Cha
   if (!found.ok || !found.spot.straddle) return false;
   if (isChartLibrary(charts)) return pickChartSet(charts.specs, found.spot).ok;
   return straddleMismatch(charts.game.straddle ?? null, charts.game.positions.length, found.spot) === null;
+}
+
+/**
+ * Whether the charts model this hand's ante (`charts/11`): the hero's first
+ * preflop spot is one an ante set answers (every seat posted the set's
+ * ante), or a straddle set that carries an ante answers its straddle. Such a
+ * hand is graded preflop on that set, so it does not carry the hand-level
+ * `antes` approximation.
+ */
+export function chartsModelAnte(hand: PhfHand, heroSeat: number, charts: ChartSet | null): boolean {
+  if (!charts) return false;
+  const found = preflopSpotFromHand(hand, 0, heroSeat);
+  if (!found.ok || !found.spot.ante) return false;
+  if (isChartLibrary(charts)) {
+    const pick = pickChartSet(charts.specs, found.spot);
+    return pick.ok && (pick.spec.ante ?? 0) > 0;
+  }
+  if (!charts.game.ante) return false;
+  if (charts.game.straddle) return straddleMismatch(charts.game.straddle, charts.game.positions.length, found.spot) === null;
+  return anteMismatch(charts.game.ante, found.spot) === null;
 }
 
 /* ---------------------------------------------------------------- ranges - */
