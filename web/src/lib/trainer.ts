@@ -7,7 +7,7 @@
  * janky on a river, but a trainer that never deals would be worse.
  */
 
-import { flopLibraryBase, FLOP_LIBRARY_ENABLED, FlopLibraryLoader } from "./analysis/flopLibrary";
+import { flopLibraryBase, FLOP_LIBRARY_LIVE, FlopLibraryLoader } from "./analysis/flopLibrary";
 import { ensureChartSets } from "./charts";
 import { preflopCharts } from "./chartSet";
 import { SUPABASE_URL } from "./supabase/config";
@@ -35,7 +35,7 @@ let sequence = 0;
  * Whether the Learn flop drills can run here (L2): the flag is on and a
  * Supabase URL names the public bucket the library's chunks are fetched from.
  */
-export const FLOP_DRILLS_AVAILABLE = FLOP_LIBRARY_ENABLED && flopLibraryBase(SUPABASE_URL) !== null;
+export const FLOP_DRILLS_AVAILABLE = FLOP_LIBRARY_LIVE && flopLibraryBase(SUPABASE_URL) !== null;
 
 /** The main-thread fallback's own flop library loader (the worker keeps its own). */
 let mainLoader: FlopLibraryLoader | null | undefined;
@@ -58,7 +58,7 @@ async function ask(request: TrainingRequest): Promise<TrainingResponse> {
     await ensureChartSets(library, trainingChartSets(request));
     if (mainLoader === undefined) {
       const base = flopLibraryBase(SUPABASE_URL);
-      mainLoader = FLOP_LIBRARY_ENABLED && base ? new FlopLibraryLoader(base, (url) => fetch(url)) : null;
+      mainLoader = FLOP_LIBRARY_LIVE && base ? new FlopLibraryLoader(base, (url) => fetch(url)) : null;
     }
     const flop = await prepareFlopLibrary(request, library, mainLoader);
     return runTrainingJob(request, library, flop);

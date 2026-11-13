@@ -61,6 +61,8 @@ fn temp_dir(name: &str) -> PathBuf {
 
 const CHUNK: &str = "nlhe-cash-6max-100bb/flop-m1/ffffr/2c3d4h.bin";
 const MANIFEST: &str = "nlhe-cash-6max-100bb/flop-m1/manifest.json";
+/// The set the tests read as if it were published.
+const TEST_SETS: &[&str] = &["nlhe-cash-6max-100bb"];
 
 fn bytes(outcome: FileOutcome) -> (Vec<u8>, bool) {
     match outcome {
@@ -108,8 +110,9 @@ fn the_bucket_url_is_https_or_this_computer() {
 async fn a_chunk_is_fetched_once_and_kept() {
     let (origin, seen) = server(vec![(200, vec![1, 2, 3])]).await;
     let dir = temp_dir("chunk");
-    let cache =
-        FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    let cache = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url")))
+        .expect("cache")
+        .with_sets(TEST_SETS);
     assert_eq!(
         bytes(cache.file(CHUNK).await.expect("file")),
         (vec![1, 2, 3], false)
@@ -125,7 +128,9 @@ async fn a_chunk_is_fetched_once_and_kept() {
     );
     assert_eq!(cache.disk_usage(), (3, 1));
     // Offline (no bucket at all), what is on disk still answers.
-    let offline = FlopLibraryCache::new(&dir, None).expect("cache");
+    let offline = FlopLibraryCache::new(&dir, None)
+        .expect("cache")
+        .with_sets(TEST_SETS);
     assert_eq!(
         bytes(offline.file(CHUNK).await.expect("file")),
         (vec![1, 2, 3], true)
@@ -150,8 +155,9 @@ async fn missing_files_and_failures_are_not_kept() {
     ])
     .await;
     let dir = temp_dir("failures");
-    let cache =
-        FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    let cache = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url")))
+        .expect("cache")
+        .with_sets(TEST_SETS);
     assert_eq!(cache.file(CHUNK).await, Ok(FileOutcome::Absent));
     assert_eq!(cache.file(CHUNK).await, Ok(FileOutcome::Absent));
     assert_eq!(cache.file(CHUNK).await, Ok(FileOutcome::Transient(429)));
@@ -161,7 +167,9 @@ async fn missing_files_and_failures_are_not_kept() {
         (vec![9], false)
     );
     // Nothing listens any more: offline.
-    let gone = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    let gone = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url")))
+        .expect("cache")
+        .with_sets(TEST_SETS);
     assert_eq!(
         gone.file("nlhe-cash-6max-100bb/flop-m1/ffffr/5c6d7h.bin")
             .await,
@@ -181,8 +189,9 @@ async fn a_manifest_is_fetched_again_when_old_and_kept_for_offline() {
     ])
     .await;
     let dir = temp_dir("manifest");
-    let cache =
-        FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    let cache = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url")))
+        .expect("cache")
+        .with_sets(TEST_SETS);
     assert_eq!(
         bytes(cache.file(MANIFEST).await.expect("file")),
         (b"[1]".to_vec(), false)
@@ -224,13 +233,36 @@ async fn a_manifest_is_fetched_again_when_old_and_kept_for_offline() {
 async fn reachable_keeps_the_manifest() {
     let (origin, _) = server(vec![(200, b"{}".to_vec())]).await;
     let dir = temp_dir("reachable");
-    let cache =
-        FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    let cache = FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url")))
+        .expect("cache")
+        .with_sets(TEST_SETS);
     assert!(cache.reachable(MANIFEST).await);
     assert!(!cache.reachable(CHUNK).await, "only a manifest is a probe");
     assert_eq!(
         bytes(cache.file(MANIFEST).await.expect("file")),
         (b"{}".to_vec(), true)
     );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[tokio::test]
+async fn an_unpublished_set_is_neither_read_nor_fetched() {
+    assert!(
+        PUBLISHED_SETS.is_empty(),
+        "no library is read since analysis/41"
+    );
+    let (origin, seen) = server(vec![(200, vec![1, 2, 3])]).await;
+    let dir = temp_dir("unpublished");
+    let cache =
+        FlopLibraryCache::new(&dir, Some(bucket_url(&origin).expect("url"))).expect("cache");
+    assert_eq!(cache.file(CHUNK).await, Ok(FileOutcome::Absent));
+    assert_eq!(cache.file(MANIFEST).await, Ok(FileOutcome::Absent));
+    assert!(cache.reachable(MANIFEST).await);
+    // A file already on disk is not read either.
+    let local = cache.local(CHUNK);
+    std::fs::create_dir_all(local.parent().expect("parent")).expect("dir");
+    std::fs::write(&local, [7]).expect("write");
+    assert_eq!(cache.file(CHUNK).await, Ok(FileOutcome::Absent));
+    assert!(seen.lock().expect("log").is_empty());
     let _ = std::fs::remove_dir_all(&dir);
 }

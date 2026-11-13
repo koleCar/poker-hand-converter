@@ -15,7 +15,10 @@
  * `analysis/21`) and the 6-max 150bb set (12 lines, since `analysis/25`)
  * beside it, and the heads-up 100bb and 150bb sets (the five
  * `FLOP_LINES_HU`, since `analysis/36` and `analysis/37`); a set is live
- * once its manifest is there. The analysis reads the library only when it is
+ * once its manifest is there. **Since `analysis/41` none is read**: that
+ * library was solved on Rail's own preflop ranges, and the ranges are GTO
+ * Wizard's now (`PUBLISHED_FLOP_LIBRARY` is empty until a library is solved
+ * on them). The analysis reads the library only when it is
  * handed one (`AnalyzeOptions.flopLibrary`); the worker hands it one while the
  * flag is on and a Supabase URL is configured. Tests hand it the pilot's
  * chunks or a small solve of their own.
@@ -192,17 +195,27 @@ export function sameLine(libraryKey: string, placedKey: string): boolean {
 
 /**
  * The chart sets the library is solved for, most common first (the Solver
- * library's tables, the flop trainer's). A set is live once its manifest is
- * in the bucket; all five have one (the heads-up 150bb set since
- * `analysis/37`).
+ * library's tables, the flop trainer's), each with the chart set's
+ * `model.hash` its chunks were solved from. Only these sets' manifests are
+ * fetched (`FlopLibraryLoader`): a set not listed is an empty library.
+ *
+ * **Empty since `analysis/41`.** The library in the bucket was solved on
+ * Rail's own preflop ranges (`ecad38d0` and the other `charts/10` hashes);
+ * the ranges are GTO Wizard's now, so none of it is read - grading takes its
+ * "no library" path, the Solver shows preflop only, the flop drills wait.
+ * A set solved on a GTO Wizard set goes here with that set's hash.
  */
-export const FLOP_LIBRARY_SETS = [
-  "nlhe-cash-6max-100bb",
-  "nlhe-cash-6max-150bb",
-  "nlhe-cash-9max-100bb",
-  "nlhe-cash-hu-100bb",
-  "nlhe-cash-hu-150bb",
-] as const;
+export const PUBLISHED_FLOP_LIBRARY: readonly { set: string; hash: string }[] = [];
+
+/** The ids of `PUBLISHED_FLOP_LIBRARY`, in its order. */
+export const FLOP_LIBRARY_SETS: readonly string[] = PUBLISHED_FLOP_LIBRARY.map((entry) => entry.set);
+
+/**
+ * Whether there is a flop library to read at all: the flag is on and some
+ * set is published. Off (`analysis/41`), the analysis is handed no library
+ * (its "no library" path), the flop drills say they are unavailable.
+ */
+export const FLOP_LIBRARY_LIVE: boolean = FLOP_LIBRARY_ENABLED && FLOP_LIBRARY_SETS.length > 0;
 
 /**
  * The library's lines for a chart set's table size (7-9 handed play on the
@@ -343,6 +356,11 @@ export interface LoaderOptions {
   concurrency?: number;
   /** Waits between tries (tests pass one that does not wait). */
   sleep?: (ms: number) => Promise<void>;
+  /**
+   * The sets whose manifests may be fetched (default `FLOP_LIBRARY_SETS`):
+   * any other set is an empty library, never asked of the bucket.
+   */
+  sets?: readonly string[];
 }
 
 /** The longest a `Retry-After` is honoured: a later hand tries again anyway. */
@@ -385,6 +403,7 @@ export class FlopLibraryLoader implements FlopLibrary {
   private readonly baseDelayMs: number;
   private readonly concurrency: number;
   private readonly sleep: (ms: number) => Promise<void>;
+  private readonly sets: readonly string[];
   /** Per set id: the (line/flop) keys its manifest lists; empty when it has none. */
   private readonly manifests = new Map<string, Set<string>>();
   private readonly chunks = new Map<string, FlopChunk | null>();
@@ -402,6 +421,7 @@ export class FlopLibraryLoader implements FlopLibrary {
     this.baseDelayMs = options.baseDelayMs ?? 250;
     this.concurrency = Math.max(1, options.concurrency ?? 2);
     this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+    this.sets = options.sets ?? FLOP_LIBRARY_SETS;
   }
 
   private url(path: string): string {
@@ -458,6 +478,8 @@ export class FlopLibraryLoader implements FlopLibrary {
    * caller fetches it again rather than reading the set as empty for good.
    */
   async ready(set: string): Promise<boolean> {
+    // A set not published (`FLOP_LIBRARY_SETS`) is never fetched: nothing of it is read.
+    if (!this.sets.includes(set)) return false;
     let pending = this.loading.get(set);
     if (!pending) {
       const keys = new Set<string>();
