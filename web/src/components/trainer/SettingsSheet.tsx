@@ -7,14 +7,19 @@
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChartPosition } from "../../lib/charts";
 import { DEAL_BIASES, FLOP_FACINGS, PLAY_FAMILIES, RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../lib/training";
 import { useTrainerHost } from "./host";
 import {
+  BUTTONS,
   DEFAULT_SETTINGS,
+  INPUTS,
   PAUSES,
   PLAYS,
+  RANGES,
+  TABLES,
+  TIMEBANKS,
   familiesAt,
   flopLinesAt,
   flopSeatsAt,
@@ -23,6 +28,7 @@ import {
   setsFor,
   type TrainerSettings,
 } from "./settings";
+import { drillSettings, readDrills, saveDrills, withDrill, type Drill } from "./drills";
 import styles from "./trainer.module.css";
 
 interface ChipsProps<T extends string> {
@@ -67,6 +73,12 @@ export function SettingsSheet({
 }) {
   const { t } = useTrainerHost();
   const panel = useRef<HTMLDivElement>(null);
+  const [drills, setDrills] = useState<Drill[]>(() => (typeof window === "undefined" ? [] : readDrills()));
+  const [name, setName] = useState("");
+  const keep = (list: Drill[]) => {
+    setDrills(list);
+    saveDrills(list);
+  };
   useEffect(() => {
     if (open) panel.current?.focus();
   }, [open]);
@@ -105,6 +117,40 @@ export function SettingsSheet({
             </button>
           </span>
         </div>
+
+        <section className={styles.sheetSection}>
+          <h3>{t.drills.heading}</h3>
+          {drills.length === 0 ? <p className={styles.muted}>{t.drills.none}</p> : null}
+          <ul className={styles.drills}>
+            {drills.map((drill) => (
+              <li key={drill.id}>
+                <button type="button" className={styles.chip} aria-label={t.drills.open(drill.name)} onClick={() => onChange(drillSettings(drill))}>
+                  {drill.name}
+                </button>
+                <button type="button" className={styles.linkButton} aria-label={t.drills.remove(drill.name)} onClick={() => keep(drills.filter((d) => d.id !== drill.id))}>
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+          <form
+            className={styles.drillForm}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!name.trim()) return;
+              keep(withDrill(drills, name, settings, `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`));
+              setName("");
+            }}
+          >
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>{t.drills.name}</span>
+              <input className={styles.input} value={name} maxLength={60} placeholder={t.drills.placeholder} onChange={(event) => setName(event.target.value)} />
+            </label>
+            <button type="submit" className={styles.chip} disabled={!name.trim()}>
+              {t.drills.save}
+            </button>
+          </form>
+        </section>
 
         {mode !== "focus" ? (
           <section className={styles.sheetSection}>
@@ -192,6 +238,37 @@ export function SettingsSheet({
             options={DEAL_BIASES.map((value) => ({ value, label: t.deals[value] ?? value }))}
             onChange={(deal) => onChange({ deal })}
           />
+          {!hand ? (
+            <Chips
+              label={t.inputLabel}
+              value={settings.input}
+              options={INPUTS.map((value) => ({ value, label: t.inputs[value] ?? value }))}
+              onChange={(input) => onChange({ input })}
+            />
+          ) : null}
+          <Chips
+            label={t.buttonsLabel}
+            value={settings.buttons}
+            options={BUTTONS.map((value) => ({ value, label: t.buttonsValues[value] ?? value }))}
+            onChange={(buttons) => onChange({ buttons })}
+          />
+          <Chips
+            label={t.timebankLabel}
+            value={settings.timebank}
+            options={TIMEBANKS.map((value) => ({ value, label: t.timebanks[value] ?? value }))}
+            onChange={(timebank) => onChange({ timebank })}
+          />
+          {!hand ? (
+            <>
+              <Chips
+                label={t.tablesLabel}
+                value={settings.tables}
+                options={TABLES.map((value) => ({ value, label: value }))}
+                onChange={(tables) => onChange({ tables })}
+              />
+              {settings.tables !== "1" ? <p className={styles.muted}>{t.tablesNote}</p> : null}
+            </>
+          ) : null}
           <Chips
             label={t.pause}
             value={settings.pause}
@@ -202,6 +279,12 @@ export function SettingsSheet({
 
         <section className={styles.sheetSection}>
           <h3>{t.sections.show}</h3>
+          <Chips
+            label={t.rangePanel}
+            value={settings.range}
+            options={RANGES.map((value) => ({ value, label: t.ranges[value] ?? value }))}
+            onChange={(range) => onChange({ range })}
+          />
           <Chips
             label={t.strategy}
             value={settings.strategy ? "on" : "off"}

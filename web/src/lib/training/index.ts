@@ -274,6 +274,7 @@ export {
   advance,
   answerPlay,
   gradePlay,
+  playRange,
   startHand,
   toAct,
   type PlayDecision,
@@ -284,3 +285,4 @@ export {
   type PlayStep,
   type PlayStreet,
 } from "./play";
+export { chartRange, decisionRange, spotRange, studyRange, type RangeCell, type RangeView } from "./rangeView";

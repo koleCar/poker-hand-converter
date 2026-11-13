@@ -90,12 +90,13 @@ describe("trainer settings", () => {
 
 describe("For you", () => {
   const area = (id: string, evLossBb: number, trainer: FocusArea["trainer"], confidence: FocusArea["confidence"] = "high") =>
-    ({ id, evLossBb, trainer, confidence, mistakes: 10 }) as unknown as FocusArea;
+    ({ id, evLossBb, trainer, confidence, mistakes: 10, where: { street: "river", scenario: "caller-mw-oop-first", family: "", hero: "BB", villain: "BTN" } }) as unknown as FocusArea;
 
   it("works through the areas it can deal, the costliest first, and only those", () => {
     const areas = [
       area("a", 9, { mode: "preflop", family: "vs-open", seat: "BB", vs: "BTN" }),
-      area("turn", 8, null),
+      // A multiway river: no trainer deals it.
+      area("multiway", 8, null),
       area("b", 5, { mode: "river", pot: "srp", side: "ip", role: "any" }),
     ];
     const picked = trainableAreas(areas);

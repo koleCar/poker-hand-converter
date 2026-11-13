@@ -119,13 +119,44 @@ to a fold or the showdown (`lib/training/play.ts`, `components/trainer/HandPlaye
   vs blind, vs 4-bet (`PLAY_FAMILIES`: no squeezes or limpers, which put a
   third player in the pot).
 
-## 5. Not in this version (next phases)
+## 5. T3–T5 (2026-11-13)
 
-- **T3 — the range panel live.** The hero's range grid and equity beside the
-  felt while answering (as GTO Wizard's right panel), off by default
-  (it gives the answer away).
-- **T4 — drills.** Saved presets ("BB vs BTN SRP flop") in a list, as
-  GTO Wizard's *My drills*; the app keeps answers (a local `trainer_results`).
-- **T5 — modes.** Frequency input, grouped difficulty, multi-table, timebank.
-- Turn leaks get a trainer target (today `trainerTarget` has none for the
-  turn, so "For you" skips them).
+- **T3, the range panel** (settings → Show → "Range while answering": off /
+  range only / range and strategy; off by default, since the strategy gives
+  the answer away). A 13×13 grid of the hero's range at the node, each class
+  shaded by how much of it reaches the node and, with the strategy, split
+  into the reference's actions; the hero's class ringed; each action's share
+  of the range under it. Read from the reference the answer is graded by
+  (`lib/training/rangeView.ts`): the chart node preflop, the library chunk on
+  the flop (`flopStudy`), the turn solve (`turnStudy`), the river solve
+  (`riverStudy`). After the answer the strategy always shows.
+- **T4, saved drills.** Settings → My drills: the current settings saved
+  under a name, opened with one click, deleted (`components/trainer/drills.ts`,
+  this browser's or this computer's storage, 30 at most). The app keeps its
+  answers too: the last 200 on this computer, the last ten beside the
+  session (`app/src/trainer/History.tsx`); the web keeps them in the account
+  (`trainer_results`) as before.
+- **T5, ways to train** (settings → Training):
+  - *Answer with a mix*: a slider per action (5% steps) instead of one
+    action; graded against the reference's mix for the hand
+    (`lib/training/frequency.ts`): accuracy = 1 − total variation distance,
+    EV lost = Σ share × (best EV − EV), the grade from the accuracy
+    (≥90% Perfect, ≥75% Good, ≥55% Inaccurate, ≥35% Mistake).
+  - *One button per action*: a bet's or a raise's sizes behind one button,
+    credited with the size the reference prefers for the hand.
+  - *Time to answer*: 7 / 15 / 25 s; out of time, a check where there is
+    one, else a fold - graded like any answer.
+  - *Tables*: 1–4 at once (spots only), two per row on a wide screen, each
+    dealing and grading on its own; the keys go to the first table waiting
+    for an answer, then N to the first answered one.
+- **Turn leaks in For you.** The study plan has no turn trainer target, so
+  the Trainer reads a turn area's spot itself (`focus.ts`, `turnTarget`): its
+  role and side from the scenario, a spot facing a bet practised in
+  position, its pot (no multiway, no 4-bet pot), a heads-up area on the
+  heads-up set.
+
+## 6. Not in this version
+
+- The app's answers are not synced to the account (no study plan in the app).
+- A whole hand has no mix input and no multi-table.
+- Saved drills are per device, not per account.

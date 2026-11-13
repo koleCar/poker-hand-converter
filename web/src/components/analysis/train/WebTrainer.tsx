@@ -30,6 +30,8 @@ import {
   gradePlayAnswer,
   gradeSpotAnswer,
   playAnswer,
+  playRangeView,
+  spotRangeView,
   startPlay,
 } from "../../../lib/trainer";
 import type { GradedAnswer, TrainerSpot } from "../../../lib/training";
@@ -103,6 +105,8 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
       playStart: startPlay,
       playGrade: gradePlayAnswer,
       playAnswer,
+      range: spotRangeView,
+      playRange: playRangeView,
       focus,
       record: signedIn
         ? (spot, answer, handClass) => {

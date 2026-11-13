@@ -28,6 +28,7 @@ import type {
   TurnSpotOptions,
 } from "./training";
 import type { PlayOptions, PlayStep } from "./training/play";
+import type { RangeView } from "./training/rangeView";
 
 let worker: Worker | null | undefined;
 let sequence = 0;
@@ -163,4 +164,18 @@ export async function playAnswer(step: PlayStep, menuIndex: number): Promise<Pla
   sequence += 1;
   const response = await ask({ type: "play-answer", jobId: sequence, step, menuIndex });
   return unwrap(response, (r) => (r.type === "play" ? r.step : undefined));
+}
+
+/** The hero's range at a dealt spot's decision (the range panel), or null when the reference has none. */
+export async function spotRangeView(spot: TrainerSpot): Promise<RangeView | null> {
+  sequence += 1;
+  const response = await ask({ type: "range", jobId: sequence, spot });
+  return unwrap(response, (r) => (r.type === "range" ? r.view : undefined));
+}
+
+/** The hero's range at a whole hand's current decision. */
+export async function playRangeView(step: PlayStep): Promise<RangeView | null> {
+  sequence += 1;
+  const response = await ask({ type: "play-range", jobId: sequence, step });
+  return unwrap(response, (r) => (r.type === "range" ? r.view : undefined));
 }

@@ -33,7 +33,7 @@ import {
   type RiverSpotOptions,
   type TurnSpotOptions,
 } from "../../lib/training";
-import type { TrainerTarget } from "../../lib/training/plan";
+import type { FocusTarget } from "./focus";
 import { PLAY_FAMILIES, type PlayOptions } from "../../lib/training/play";
 
 /** `focus`: spots from the player's own leaks; the others deal one street. */
@@ -49,6 +49,22 @@ export const PAUSES = ["always", "mistakes"] as const;
 export const PLAYS = ["spot", "hand"] as const;
 export type Play = (typeof PLAYS)[number];
 /** The modes a whole hand starts from: preflop, the flop, or a leak's spot (at its street, a river's from the flop). */
+/** The range panel while answering: none, the range's shape only, or how the reference plays it (gives the answer away). */
+export const RANGES = ["off", "range", "strategy"] as const;
+export type RangePanel = (typeof RANGES)[number];
+/** Seconds to answer; "0": no clock. Out of time: a check where there is one, else a fold. */
+export const TIMEBANKS = ["0", "7", "15", "25"] as const;
+export type Timebank = (typeof TIMEBANKS)[number];
+/** Every size its own button, or one button per kind (credited with the size the reference prefers for the hand). */
+export const BUTTONS = ["all", "simple"] as const;
+export type Buttons = (typeof BUTTONS)[number];
+/** Answer with one action, or with a mix: each action's share of the time. */
+export const INPUTS = ["action", "frequency"] as const;
+export type Input = (typeof INPUTS)[number];
+/** Tables at once (one spot each). */
+export const TABLES = ["1", "2", "3", "4"] as const;
+export type Tables = (typeof TABLES)[number];
+
 export const HAND_MODES: readonly TrainerMode[] = ["focus", "preflop", "flop"];
 export type Pause = (typeof PAUSES)[number];
 
@@ -81,6 +97,11 @@ export interface TrainerSettings {
   strategy: boolean;
   /** After an answer: the hand's facts (equity, pot odds, made hand, draws). */
   facts: boolean;
+  range: RangePanel;
+  timebank: Timebank;
+  buttons: Buttons;
+  input: Input;
+  tables: Tables;
 }
 
 export const DEFAULT_SETTINGS: TrainerSettings = {
@@ -99,6 +120,11 @@ export const DEFAULT_SETTINGS: TrainerSettings = {
   pause: "always",
   strategy: true,
   facts: true,
+  range: "off",
+  timebank: "0",
+  buttons: "all",
+  input: "action",
+  tables: "1",
 };
 
 /** The sets each street deals from (the river and turn trainers: the 6-max default and heads-up). */
@@ -187,7 +213,13 @@ export function spotOptions(mode: StreetMode, s: TrainerSettings): SpotRequest {
  * the spot fields change; how the trainer behaves (pause, shown panels, the
  * deal bias) stays the player's.
  */
-export function targetSettings(target: TrainerTarget, base: TrainerSettings): { mode: StreetMode; settings: TrainerSettings } {
+export function targetSettings(target: FocusTarget, base: TrainerSettings): { mode: StreetMode; settings: TrainerSettings } {
+  if (target.mode === "turn") {
+    return {
+      mode: "turn",
+      settings: { ...base, set: target.set ?? DEFAULT_CHART_SET, pot: target.pot, side: target.side, role: target.role, facing: "any" },
+    };
+  }
   if (target.mode === "preflop") {
     return {
       mode: "preflop",
@@ -248,6 +280,11 @@ export function parseSettings(raw: Record<string, unknown> | null | undefined): 
     pause: oneOf(r.pause, PAUSES, d.pause),
     strategy: flag(r.strategy, d.strategy),
     facts: flag(r.facts, d.facts),
+    range: oneOf(r.range, RANGES, d.range),
+    timebank: oneOf(r.timebank, TIMEBANKS, d.timebank),
+    buttons: oneOf(r.buttons, BUTTONS, d.buttons),
+    input: oneOf(r.input, INPUTS, d.input),
+    tables: oneOf(r.tables, TABLES, d.tables),
   };
 }
 
