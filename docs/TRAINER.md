@@ -155,8 +155,21 @@ to a fold or the showdown (`lib/training/play.ts`, `components/trainer/HandPlaye
   position, its pot (no multiway, no 4-bet pot), a heads-up area on the
   heads-up set.
 
+### The app's answers in the account (2026-11-13)
+
+Every graded spot answer in the desktop app is kept in the account like the
+web's (`trainer_results`, so the study plan counts it): the row is built by
+the shared `components/trainer/results.ts`, put in an outbox on this
+computer (`app/src/trainer/outbox.ts`, 1 000 at most) and sent fifty at a
+time through Rust (`trainer_results_record` → `record_trainer_results` with
+the account's token, `rail_sync::ingest::trainer`, every row held to the
+table's checks first). A wait - signed out, the plan, the rate limit, no
+account in the build, the server unreachable - keeps the rows for the next
+answer, the next opening of the Trainer or the next sign-in; a refusal
+drops that batch. Turn answers and whole-hand answers are not kept, as on
+the web (the table has no turn mode).
+
 ## 6. Not in this version
 
-- The app's answers are not synced to the account (no study plan in the app).
 - A whole hand has no mix input and no multi-table.
 - Saved drills are per device, not per account.

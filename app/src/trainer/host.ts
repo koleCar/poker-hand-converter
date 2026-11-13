@@ -6,7 +6,7 @@
  * web groups them), and the settings kept in this window's storage. Answers
  * are not kept: the app has no trainer history yet.
  */
-import { createElement, useMemo } from "react";
+import { createElement, useEffect, useMemo } from "react";
 
 import { fetchOutcomeOfError } from "../analysis/workerClient";
 import type { FetchOutcome } from "../analysis/worker";
@@ -14,9 +14,11 @@ import { useLocale } from "../i18n";
 import { INTL_LOCALE } from "../i18n/types";
 import type { GameKind } from "@rail/ui/hands/gameKind";
 import { fetchTopLeaks } from "../lib/leaksSource";
-import { errorText, inApp, ipc } from "../lib/ipc";
+import { errorText, inApp, ipc, onAccountChanged } from "../lib/ipc";
+import { enqueue, flushOutbox } from "./outbox";
 import {
   focusAreas,
+  trainerResultRow,
   parseSettings,
   settingsFields,
   trainerEn,
@@ -194,10 +196,35 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       range,
       playRange,
       kept: keep,
+      // Every graded spot answer goes to the account (the outbox keeps it until it is kept).
+      record: (spot, answer, handClass) => {
+        const row = trainerResultRow(spot, answer, handClass);
+        if (!row) return;
+        enqueue({
+          mode: row.mode,
+          family: row.family,
+          spot: row.spot.slice(0, 200),
+          position: row.position,
+          hand_class: row.handClass,
+          grade: row.grade,
+          ev_loss_bb: row.evLossBb,
+          ev_loss_pot: Number.isFinite(row.evLossPot) ? row.evLossPot : 1,
+          score: row.score,
+        });
+        void flushOutbox();
+      },
       aside: createElement(HistoryPanel),
       focus: () => focus(kind),
       onSettings: keepSettings,
     }),
     [locale, kind],
   );
+}
+
+/** Answers waiting from earlier go when the Trainer opens and when the account signs in. */
+export function useOutboxFlush(): void {
+  useEffect(() => {
+    void flushOutbox();
+    return onAccountChanged(() => void flushOutbox());
+  }, []);
 }

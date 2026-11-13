@@ -106,6 +106,7 @@ pub mod stats;
 pub mod strings;
 pub mod sync;
 pub mod tiling;
+pub mod trainer;
 pub mod tray;
 pub mod updates;
 pub mod watch;
@@ -442,6 +443,7 @@ pub fn run() {
         replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
+        trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
         hands::hand_add_tag,
@@ -591,6 +593,7 @@ pub fn run() {
         replayer::replayer_open_in_main,
         share::hand_share,
         share::share_open,
+        trainer::trainer_results_record,
         hands::hand_annotations,
         hands::hand_set_note,
         hands::hand_add_tag,

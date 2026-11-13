@@ -1454,6 +1454,8 @@ export const ipc = {
   handPhf: (handKey: string) => invoke<string | null>("hand_phf", { handKey }),
   /** A web share link for the hand (`share.rs`); errors as `ShareErrorCode`s or a sentence. */
   handShare: (handKey: string, title: string | null) => invoke<HandShare>("hand_share", { handKey, title }),
+  /** (Trainer) Keep graded answers in the account (`record_trainer_results`, at most 50); how many were kept. */
+  trainerResultsRecord: (rows: TrainerResultDto[]) => invoke<number>("trainer_results_record", { rows }),
   /** Open a share link made here in the default browser. */
   shareOpen: (slug: string) => invoke<null>("share_open", { slug }),
   handAnnotations: (handKey: string) => invoke<HandAnnotations>("hand_annotations", { handKey }),
@@ -1782,6 +1784,22 @@ function onAppEvent<T = unknown>(name: string, onChange: (payload: T) => void): 
 }
 
 /** A rejected `invoke` carries the command's `Err(String)`. */
+/** One graded trainer answer as the account keeps it (`rail_sync::ingest::TrainerResultRow`). */
+export interface TrainerResultDto {
+  mode: "preflop" | "flop" | "river" | "drill";
+  family: string;
+  spot: string;
+  position: string | null;
+  hand_class: string | null;
+  grade: string;
+  ev_loss_bb: number;
+  ev_loss_pot: number;
+  score: number;
+}
+
+/** The errors `trainer_results_record` answers with a code: the answers wait and go later. */
+export const TRAINER_SYNC_WAIT = ["signedOut", "rateLimited", "plan", "unavailable", "unreachable"] as const;
+
 /** A share link made by `hand_share`. */
 export interface HandShare {
   slug: string;
