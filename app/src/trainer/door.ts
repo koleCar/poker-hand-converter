@@ -14,4 +14,4 @@ export { parseSettings, settingsFields, type SpotRequest, type TrainerSettings }
 export { trainerEn } from "@rail/web-lib/i18n/ns/trainer.en";
 export { trainerHr } from "@rail/web-lib/i18n/ns/trainer.hr";
 export { focusAreas } from "@rail/web-lib/training/plan";
-export type { GradedAnswer, TrainerSpot, TrainingRequest, TrainingResponse } from "@rail/web-lib/training";
+export type { GradedAnswer, PlayOptions, PlayStep, TrainerSpot, TrainingRequest, TrainingResponse } from "@rail/web-lib/training";

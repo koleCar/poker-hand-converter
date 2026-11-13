@@ -36,7 +36,8 @@ import { Feedback, Verdict } from "./Feedback";
 import { focusTarget, HANDS_PER_AREA, trainableAreas } from "./focus";
 import { useTrainerHost, type FocusState } from "./host";
 import { SettingsSheet } from "./SettingsSheet";
-import { spotOptions, targetSettings, TRAINER_MODES, type StreetMode, type TrainerSettings } from "./settings";
+import { HandPlayer } from "./HandPlayer";
+import { HAND_MODES, PLAYS, playOptions, spotOptions, targetSettings, TRAINER_MODES, type StreetMode, type TrainerSettings } from "./settings";
 import { ActionStrip, SpotFelt } from "./SpotFelt";
 import styles from "./trainer.module.css";
 
@@ -75,6 +76,8 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
     (patch: Partial<TrainerSettings>) => {
       setSettings((current) => {
         const next = { ...current, ...patch };
+        // A whole hand starts preflop or on the flop: a turn or river spot mode becomes the flop.
+        if (next.play === "hand" && !HAND_MODES.includes(next.mode)) next.mode = "flop";
         host.onSettings?.(next);
         return next;
       });
@@ -107,7 +110,10 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
     return { mode: shaped.mode, settings: shaped.settings, area };
   }, [settings, focus.status, areas, areaIndex]);
 
-  const requestJson = plan ? JSON.stringify(spotOptions(plan.mode, plan.settings)) : null;
+  // A whole hand (T2) when the host can play one and the mode starts one; one spot otherwise.
+  const handMode = settings.play === "hand" && Boolean(host.playStart && host.playGrade && host.playAnswer) && HAND_MODES.includes(settings.mode);
+  const playRequest = useMemo(() => (handMode && plan ? playOptions(plan.mode, plan.settings) : null), [handMode, plan]);
+  const requestJson = plan && !handMode ? JSON.stringify(spotOptions(plan.mode, plan.settings)) : null;
   const requestKey = requestJson ? `${requestJson}|${round}` : null;
 
   useEffect(() => {
@@ -204,6 +210,14 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || sheet) return;
+      if (handMode) {
+        // A whole hand has its own keys (`HandPlayer`); S still opens the settings.
+        if (event.key.toLowerCase() === "s" && !(event.target as HTMLElement | null)?.isContentEditable) {
+          setSheet(true);
+          event.preventDefault();
+        }
+        return;
+      }
       const target = event.target as HTMLElement | null;
       if (target && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))) return;
       const key = event.key.toLowerCase();
@@ -235,9 +249,20 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answer, graded, spot, buttons, pick, next, sheet]);
+  }, [answer, graded, spot, buttons, pick, next, sheet, handMode]);
 
-  const dealing = plan !== null && current === null;
+  const dealing = plan !== null && current === null && !handMode;
+  const scored = useCallback((answer: TrainerAnswer) => setSession((stats) => addAnswer(stats, answer)), []);
+  const handDone = useCallback(() => {
+    // "For you" works through an area a few hands at a time.
+    if (settings.mode !== "focus") return;
+    inArea.current += 1;
+    if (inArea.current >= Math.ceil(HANDS_PER_AREA / 2)) {
+      inArea.current = 0;
+      setAreaIndex((i) => i + 1);
+    }
+  }, [settings.mode]);
+  const canPlayHands = Boolean(host.playStart && host.playGrade && host.playAnswer);
   const accuracy = sessionAccuracy(session);
   const mode = plan?.mode ?? null;
   const area = plan?.area ?? null;
@@ -247,7 +272,7 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
     <div className={styles.trainer}>
       <div className={styles.top}>
         <nav className={styles.modes} aria-label={t.modesLabel}>
-          {TRAINER_MODES.map((id) => (
+          {TRAINER_MODES.filter((id) => settings.play !== "hand" || !canPlayHands || HAND_MODES.includes(id)).map((id) => (
             <button
               key={id}
               type="button"
@@ -261,6 +286,15 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
           ))}
           {host.extraModes}
         </nav>
+        {canPlayHands ? (
+          <div className={styles.playSwitch} role="group" aria-label={t.play.label}>
+            {PLAYS.map((id) => (
+              <button key={id} type="button" className={styles.mode} aria-pressed={settings.play === id} onClick={() => change({ play: id })}>
+                {t.play[id]}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <button type="button" className={styles.settingsButton} onClick={() => setSheet(true)} aria-keyshortcuts="S">
           {summary ? <span className={styles.summary}>{summary}</span> : null}
           <span className={styles.gear} aria-hidden="true">
@@ -277,7 +311,15 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
 
       <div className={styles.layout}>
         <div className={styles.play}>
-          {current?.error ? (
+          {handMode && playRequest ? (
+            <HandPlayer request={playRequest} settings={plan?.settings ?? settings} onScored={scored} onHandDone={handDone} />
+          ) : null}
+          {handMode && plan === null ? (
+            <div className={styles.loading}>
+              <RailLoader label={t.focus.loading} showLabel centered />
+            </div>
+          ) : null}
+          {!handMode && current?.error ? (
             <div className={styles.notice}>
               <p>{t.failed(current.error)}</p>
               <button type="button" className={styles.linkButton} onClick={next}>
@@ -285,9 +327,9 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
               </button>
             </div>
           ) : null}
-          {current && !current.error && !spot ? <p className={styles.notice}>{t.noSpot}</p> : null}
+          {!handMode && current && !current.error && !spot ? <p className={styles.notice}>{t.noSpot}</p> : null}
 
-          {dealing || plan === null ? (
+          {!handMode && (dealing || plan === null) ? (
             <div className={styles.loading}>
               <RailLoader
                 label={plan === null ? t.focus.loading : mode === "flop" ? t.loadingFlop : mode === "turn" || mode === "river" ? t.solving : t.dealing}
@@ -297,7 +339,7 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
             </div>
           ) : null}
 
-          {spot && felt && !dealing ? (
+          {!handMode && spot && felt && !dealing ? (
             <div className={`${styles.spot} rail-fade`}>
               <ActionStrip items={felt.strip} />
               <SpotFelt
@@ -330,14 +372,14 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
             </div>
           ) : null}
 
-          {answer && !graded && !answer.error ? (
+          {!handMode && answer && !graded && !answer.error ? (
             <p className={styles.status}>
               <RailLoader size="inline" label={t.grading} showLabel />
             </p>
           ) : null}
-          {answer?.error ? <p className={styles.notice}>{t.failed(answer.error)}</p> : null}
+          {!handMode && answer?.error ? <p className={styles.notice}>{t.failed(answer.error)}</p> : null}
 
-          {graded && spot ? (
+          {!handMode && graded && spot ? (
             <div className={styles.after}>
               <div className={styles.nextRow}>
                 {holding ? (

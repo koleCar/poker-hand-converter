@@ -15,6 +15,7 @@
  * session.ts   a session's score: Perfect…Blunder counts, streaks, EV lost
  * lab.ts       the exploit lab (Learn L4): a river with an opponent tendency locked, the best response
  * jobs.ts      the trainer worker's requests and answers, and the function that does them
+ * play.ts      a whole hand (T2): the opponent played by the reference, every hero decision graded
  * plan.ts      the study plan (A8b): focus areas from the leak finder, the week's checklist, the retrospective
  * ```
  *
@@ -268,3 +269,18 @@ export {
   type TrainerMatch,
   type TrainerTarget,
 } from "./plan";
+export {
+  PLAY_FAMILIES,
+  advance,
+  answerPlay,
+  gradePlay,
+  startHand,
+  toAct,
+  type PlayDecision,
+  type PlayLibrary,
+  type PlayOptions,
+  type PlayOver,
+  type PlayState,
+  type PlayStep,
+  type PlayStreet,
+} from "./play";

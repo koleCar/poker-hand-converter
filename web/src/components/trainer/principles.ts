@@ -31,11 +31,26 @@ export type PrincipleKey =
   | "river-vs-bet"
   | "river-vs-raise";
 
-export function principleOf(spot: TrainerSpot, decision: DecisionAnalysis): PrincipleKey | null {
-  if (spot.kind === "preflop") {
-    if (spot.family === "vs-open" && spot.hero === "SB") return "vs-open-sb";
-    if (spot.family === "vs-open" && spot.hero === "BB") return "vs-open-bb";
-    return spot.family;
+/** A preflop decision's family, read off the analysis' scenario (a whole hand's decisions have no dealt family). */
+const SCENARIO_FAMILY: Partial<Record<string, PrincipleKey>> = {
+  unopened: "rfi",
+  "vs-open": "vs-open",
+  squeeze: "squeeze",
+  "vs-3bet": "vs-3bet",
+  "vs-3bet-cold": "vs-3bet",
+  "vs-4bet": "vs-4bet",
+  "vs-limp": "vs-limp",
+  "bb-option": "bvb",
+};
+
+/** The rule of thumb for a decision: a dealt spot's family, else what the analysis read the spot as. */
+export function principleOf(spot: TrainerSpot | null, decision: DecisionAnalysis): PrincipleKey | null {
+  if (decision.street === "preflop") {
+    const family = spot?.kind === "preflop" ? spot.family : (SCENARIO_FAMILY[decision.facts.preflopScenario ?? ""] ?? null);
+    const hero = spot?.kind === "preflop" ? spot.hero : decision.facts.position;
+    if (family === "vs-open" && hero === "SB") return "vs-open-sb";
+    if (family === "vs-open" && hero === "BB") return "vs-open-bb";
+    return family;
   }
   const facing = decision.facts.facing;
   const raiser = decision.facts.role === "pfr";

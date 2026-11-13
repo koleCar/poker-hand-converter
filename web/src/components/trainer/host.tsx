@@ -14,6 +14,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import type { Dict } from "../../lib/i18n/types";
 import type { GradedAnswer, TrainerAnswer, TrainerSpot } from "../../lib/training";
+import type { PlayOptions, PlayStep } from "../../lib/training/play";
 import type { FocusArea } from "../../lib/training/plan";
 import type { SpotRequest, TrainerSettings } from "./settings";
 
@@ -35,6 +36,14 @@ export interface TrainerHost {
   deal(request: SpotRequest, seed: number): Promise<TrainerSpot | null>;
   /** Grade an answer with the analysis itself (the trainer worker). */
   grade(spot: TrainerSpot, menuIndex: number): Promise<GradedAnswer>;
+  /**
+   * A whole hand (T2): a new one played on to the hero's first decision, an
+   * answer graded, an answer played on to the next decision or the end. All
+   * three or none: without them the Trainer offers one spot only.
+   */
+  playStart?(options: PlayOptions, seed: number): Promise<PlayStep | null>;
+  playGrade?(step: PlayStep, menuIndex: number): Promise<GradedAnswer>;
+  playAnswer?(step: PlayStep, menuIndex: number): Promise<PlayStep | null>;
   /** The player's leaks. Asked once when "For you" opens. */
   focus(): Promise<FocusState>;
   /** A graded answer, to keep (the web's `trainer_results`); absent: kept nowhere. */
@@ -43,9 +52,10 @@ export interface TrainerHost {
   onSettings?(settings: TrainerSettings): void;
   /**
    * More of the answer's study under the feedback: the web's whole chart or
-   * range study and its Learn links. Absent: none.
+   * range study and its Learn links. Absent: none. `spot` is null for a
+   * whole hand's decision (no dealt chart spot: the range study only).
    */
-  study?(graded: GradedAnswer, spot: TrainerSpot): ReactNode;
+  study?(graded: GradedAnswer, spot: TrainerSpot | null): ReactNode;
   /** More in the side column under the session's figures (the web's study plan card). */
   aside?: ReactNode;
   /** What sits beside the modes (the web's link to the drills of your own mistakes). */

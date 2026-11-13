@@ -27,6 +27,7 @@ import type {
   TrainingResponse,
   TurnSpotOptions,
 } from "./training";
+import type { PlayOptions, PlayStep } from "./training/play";
 
 let worker: Worker | null | undefined;
 let sequence = 0;
@@ -53,13 +54,14 @@ async function ask(request: TrainingRequest): Promise<TrainingResponse> {
   if (!worker) {
     // Yield first so a "dealing…" line can paint.
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const { prepareFlopLibrary, runTrainingJob, trainingChartSets } = await import("./training/jobs");
+    const { isPlayJob, prepareFlopLibrary, runPlayJob, runTrainingJob, trainingChartSets } = await import("./training/jobs");
     const library = await preflopCharts();
     await ensureChartSets(library, trainingChartSets(request));
     if (mainLoader === undefined) {
       const base = flopLibraryBase(SUPABASE_URL);
       mainLoader = FLOP_LIBRARY_ENABLED && base ? new FlopLibraryLoader(base, (url) => fetch(url)) : null;
     }
+    if (isPlayJob(request)) return runPlayJob(request, library, mainLoader);
     const flop = await prepareFlopLibrary(request, library, mainLoader);
     return runTrainingJob(request, library, flop);
   }
@@ -138,4 +140,27 @@ export async function gradeSpotAnswer(spot: TrainerSpot, menuIndex: number): Pro
   return unwrap(response, (r) =>
     r.type === "graded" ? { hand: r.hand, actionIndex: r.actionIndex, decision: r.decision, study: r.study ?? null } : undefined,
   );
+}
+
+/** A whole hand (T2): a new one played on to the hero's first decision, or null when the options deal none. */
+export async function startPlay(options: PlayOptions, seed: number): Promise<PlayStep | null> {
+  sequence += 1;
+  const response = await ask({ type: "play-start", jobId: sequence, options, seed });
+  return unwrap(response, (r) => (r.type === "play" ? r.step : undefined));
+}
+
+/** A whole hand's answer graded by the analysis. */
+export async function gradePlayAnswer(step: PlayStep, menuIndex: number): Promise<GradedAnswer> {
+  sequence += 1;
+  const response = await ask({ type: "play-grade", jobId: sequence, step, menuIndex });
+  return unwrap(response, (r) =>
+    r.type === "graded" ? { hand: r.hand, actionIndex: r.actionIndex, decision: r.decision, study: r.study ?? null } : undefined,
+  );
+}
+
+/** A whole hand's answer played on: the opponent's moves and the streets after it, to the next decision or the end. */
+export async function playAnswer(step: PlayStep, menuIndex: number): Promise<PlayStep | null> {
+  sequence += 1;
+  const response = await ask({ type: "play-answer", jobId: sequence, step, menuIndex });
+  return unwrap(response, (r) => (r.type === "play" ? r.step : undefined));
 }
