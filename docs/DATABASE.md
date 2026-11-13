@@ -2820,12 +2820,16 @@ two filters plus a sort", not by reflexively indexing every column.
 | `hands_owner_library_idx` (`(owner_id)` including the library's group columns) | `library_facets`' counts read the owner's hands index-only instead of every column (`20270804090000`). |
 | `hand_stats_owner_hero_cover_idx` (`(owner_id, stats_version, hand_id) include (seat, net_bb_milli, pot_type, starting_stack_bb_tenths) where is_hero`) | The hero's row by hand within the owner's range: the library's counts (index only) and pages, `hands_needing_stats` (`20270804090000`). |
 | `hands_owner_created_idx` (`(owner_id, created_at, id)`) | The desktop pull's keyset, `hands_since` (R1.9): one range scan per page, the row comparison `(created_at, id) > cursor` included. |
-| `hands_site_played_idx`, `hands_hero_played_idx`, `hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`, `hands_tournament_idx` | Composite `(filter column, played_at desc)`. Every one of these is "filter by a low-cardinality column, then sort by time". A single-column index would force a sort of the whole matching set; the composite serves filter and order in one scan. The hero / class / stakes / tournament ones are partial (`WHERE … IS NOT NULL`) because the null side is never filtered on. |
-| `hands_showdown_idx` | `showdownOnly`. Partial on the selective side, so it is far smaller than indexing a skewed boolean. |
 | `hands_owner_table_idx` (`(owner_id, table_name) where table_name is not null`) | The library's table-name search: the caller's distinct table names by a skip scan, then the hands by name (`20270818090000`). Replaced `hands_table_trgm`, a global trigram index no reader could use under RLS ([rule 6](#owner-first-a-readers-work-is-the-callers-rows)). |
 | `library_hand_counts_key`, `library_hero_counts_key` (unique, owner first) | `library_facets` and `library_count` read an owner's (version's) counts by range. |
-| `hands_hero_position_played_idx` | "Hero was on the button", the most common position filter, plus the default sort. Partial on `hero_position IS NOT NULL`. |
 | `hands_showdown_positions_gin`, `hands_winner_positions_gin` | Overlap (`&&`) filters. Selective: a showdown involves 0–2 seats and a pot usually has one winner. |
+
+Dropped in `20271113100000`: the baseline's global `(filter column, played_at desc)`
+indexes (`hands_site_played_idx`, `hands_hero_played_idx`, `hands_hero_position_played_idx`,
+`hands_class_played_idx`, `hands_stakes_played_idx`, `hands_format_played_idx`,
+`hands_tournament_idx`, `hands_fast_fold_idx`, `hands_showdown_idx`). Readers filter on the owner
+first, so they never used them. Also dropped: `hand_stats_hero_idx` and
+`hand_stats_owner_hand_key_idx`, which were superseded.
 
 Deliberately **not** indexed:
 
