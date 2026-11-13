@@ -43,6 +43,7 @@ import type { PhfHand } from "../phf/types";
 import { STATS_VERSION } from "../stats";
 import { currentUserId, rpc } from "./client";
 import { fetchStatsOpponents } from "./stats";
+import { handOfRow, type StoredHandRow } from "./storedHand";
 import { VillainCounters, type VillainCountersRow, type VillainPlayer } from "./villainCounters";
 import { fetchTournamentSettings } from "./tournamentSettings";
 import {
@@ -543,17 +544,20 @@ export async function runAnalysis(
       exhausted = true;
       return;
     }
-    let hands: Array<{ id: string; phf: PhfHand }>;
+    // A row is its PHF, or (20271114090000) its standard text and the
+    // columns it is restored from: parsed here, before the pool sees it.
+    type PageRow = StoredHandRow & { id: string };
+    let rowsRead: PageRow[];
     if (recent === null) {
-      const page: Array<{ id: string; phf: PhfHand }> | null = await rpc("hands_needing_analysis", {
+      const page: PageRow[] | null = await rpc("hands_needing_analysis", {
         p_version: ANALYSIS_VERSION,
         p_after: after ?? undefined,
         p_limit: want,
       });
-      hands = page ?? [];
-      if (hands.length > 0) after = hands[hands.length - 1].id;
+      rowsRead = page ?? [];
+      if (rowsRead.length > 0) after = rowsRead[rowsRead.length - 1].id;
     } else {
-      const page: Array<{ id: string; played_at: string | null; phf: PhfHand }> | null = await rpc(
+      const page: Array<PageRow & { played_at: string | null }> | null = await rpc(
         "hands_needing_analysis_recent",
         {
           p_version: ANALYSIS_VERSION,
@@ -562,15 +566,19 @@ export async function runAnalysis(
           p_limit: want,
         },
       );
-      const rowsRead = page ?? [];
-      if (rowsRead.length > 0) {
-        beforePlayed = rowsRead[rowsRead.length - 1].played_at;
-        beforeId = rowsRead[rowsRead.length - 1].id;
+      const recentRows = page ?? [];
+      if (recentRows.length > 0) {
+        beforePlayed = recentRows[recentRows.length - 1].played_at;
+        beforeId = recentRows[recentRows.length - 1].id;
       }
-      hands = rowsRead.map(({ id, phf }) => ({ id, phf }));
+      rowsRead = recentRows;
     }
-    fetched += hands.length;
-    if (hands.length < want || (recent !== null && fetched >= recent)) exhausted = true;
+    const parsed = await Promise.all(rowsRead.map(async (row) => ({ id: row.id, phf: await handOfRow(row) })));
+    // A text this build cannot read back is left out of the run (it stays
+    // "not analysed", and a later build tries again).
+    const hands = parsed.filter((item): item is { id: string; phf: PhfHand } => item.phf !== null);
+    fetched += rowsRead.length;
+    if (rowsRead.length < want || (recent !== null && fetched >= recent)) exhausted = true;
     for (let i = 0; i < hands.length; i += CHUNK) queue.push(hands.slice(i, i + CHUNK));
   };
   const next = async (): Promise<AnalyseRequest["page"] | null> => {

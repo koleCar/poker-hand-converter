@@ -284,6 +284,7 @@ select is((select array_agg(distinct p.proname::text order by p.proname::text) f
                 -- pure helpers: no table, or a date of the caller's own rows
                 'analysis_best_action', 'analysis_chosen_action', 'analysis_filter_of', 'analysis_filter_rows_ok',
                 'analysis_filter_sums_ok', 'analysis_grade_rank', 'analysis_hand_table_set', 'analysis_leak_table_of', 'analysis_leak_pot_of',
+                'analysis_trimmed_phf',
                 'analysis_month_of', 'analysis_spot_key',
                 'analysis_street_bit', 'analysis_version_of', 'drill_keys_valid', 'drill_next', 'drill_quality',
                 'filter_formats', 'game_kind_formats',

@@ -36,6 +36,36 @@ fn a_row_carries_the_phf_without_its_raw_text() {
     assert!(IngestRow::new("weplay:8", &pretty).is_ok());
 }
 
+/// A real hand goes with the standard text it reads back from; a document
+/// that is not a whole hand goes without one (and keeps its PHF).
+#[test]
+fn a_row_carries_its_verified_standard_text() {
+    let path =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/samples/weplay");
+    let file = std::fs::read_dir(&path)
+        .unwrap()
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file())
+        .min()
+        .unwrap();
+    let bytes = std::fs::read(file).unwrap();
+    let Some(Ok(result)) = rail_core::convert(&bytes, "weplay.txt").result else {
+        panic!("the WePlay sample converts");
+    };
+    let hand = &result.hands[0].hand;
+    let phf = serde_json::to_string(hand).unwrap();
+    let key = format!("weplay:{}", hand.meta.hand_key);
+    let real = IngestRow::new(&key, &phf).unwrap();
+    let value: Value = serde_json::from_str(&real.json).unwrap();
+    let text = value["standard_text"].as_str().expect("a standard text");
+    assert!(text.starts_with("Poker Hand #"), "GG-format text: {text}");
+    assert_eq!(value["phf"]["meta"]["rawText"], "");
+
+    let value: Value = serde_json::from_str(&row("9").json).unwrap();
+    assert!(value.get("standard_text").is_none());
+}
+
 #[test]
 fn unreadable_and_oversized_rows_are_refused() {
     assert_eq!(IngestRow::new("k", "not json"), Err(RowError::Unreadable));

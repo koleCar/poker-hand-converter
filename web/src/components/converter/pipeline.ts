@@ -23,6 +23,7 @@
 
 import type { ConversionFailure, ConvertOptions } from "../../lib/phf/detect";
 import type { PhfHand } from "../../lib/phf/types";
+import { ingestPhfOf, parserOf, storableText } from "../../lib/db/storedHand";
 import { conversionEngine, type ConversionEngine } from "../../lib/wasm/engine";
 import type { BulkSource } from "./bulkSource";
 
@@ -56,6 +57,12 @@ export interface SourceStart {
 export interface PipelineBatch {
   sourceId: string;
   hands: PhfHand[];
+  /**
+   * The bulk path's (`runSourceStream`): per hand, its standard text when it
+   * reads back as the hand as `ingest_hands` takes it (`storableText`), else
+   * null (20271114090000). Absent elsewhere.
+   */
+  standardTexts?: Array<string | null>;
   failures: ConversionFailure[];
   /** Hands of this source processed so far, including this batch. */
   done: number;
@@ -84,6 +91,8 @@ interface SourceHandlers {
   isCancelled(): boolean;
   /** Awaited before each conversion call: the bulk path's backpressure. */
   beforeBatch?(): Promise<void>;
+  /** Completes a batch before `onBatch` (the bulk path's standard texts). */
+  prepare?(batch: PipelineBatch): Promise<PipelineBatch>;
 }
 
 /**
@@ -115,11 +124,8 @@ async function convertSource(
     if (skipBatches < 1) {
       await handlers.beforeBatch?.();
       const result = await conv.convert(source.text, opts);
-      handlers.onBatch(
-        { sourceId: source.id, hands: result.hands, failures: result.failures, done: 1, total: 1 },
-        0,
-        true,
-      );
+      const batch: PipelineBatch = { sourceId: source.id, hands: result.hands, failures: result.failures, done: 1, total: 1 };
+      handlers.onBatch(handlers.prepare ? await handlers.prepare(batch) : batch, 0, true);
     }
     handlers.onSourceEnd(source.id);
     return true;
@@ -146,11 +152,8 @@ async function convertSource(
     const batchText = chunks.slice(i, i + BATCH_SIZE).join("\n\n");
     const result = await conv.convert(batchText, opts);
     const done = Math.min(i + BATCH_SIZE, chunks.length);
-    handlers.onBatch(
-      { sourceId: source.id, hands: result.hands, failures: result.failures, done, total: chunks.length },
-      i / BATCH_SIZE,
-      done === chunks.length,
-    );
+    const batch: PipelineBatch = { sourceId: source.id, hands: result.hands, failures: result.failures, done, total: chunks.length };
+    handlers.onBatch(handlers.prepare ? await handlers.prepare(batch) : batch, i / BATCH_SIZE, done === chunks.length);
     await yieldToLoop();
   }
 
@@ -231,6 +234,7 @@ export async function runSourceStream(
   engine?: ConversionEngine,
 ): Promise<ConversionEngine["kind"]> {
   const conv = engine ?? (await conversionEngine());
+  const parse = parserOf(conv);
   for await (const source of sources) {
     if (handlers.isCancelled()) {
       break;
@@ -249,6 +253,13 @@ export async function runSourceStream(
         onSourceEnd: (sourceId) => handlers.onSourceEnd(sourceId, source.key),
         isCancelled: handlers.isCancelled,
         beforeBatch: handlers.waitForRoom,
+        // (20271114090000) Each hand's standard text, checked against the
+        // hand by the same engine: the saver sends it, and the server keeps
+        // it instead of the PHF.
+        prepare: async (batch) => ({
+          ...batch,
+          standardTexts: await Promise.all(batch.hands.map((hand) => storableText(ingestPhfOf(hand), parse))),
+        }),
       },
       handlers.skipBatches(source.key),
     );

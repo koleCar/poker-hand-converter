@@ -159,9 +159,11 @@ select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, s
   '42501', null, 'the direct path cannot write an upload row (insert policy)');
 
 reset role;
-select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, standard_text, site)
+-- (20271114090000) An upload row may carry a standard text (the bulk save
+-- sends a verified one); a writer that does not vouch for it keeps the PHF.
+select lives_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, standard_text, site)
                    values ('00000000-0000-0000-0000-00000042a001', 'upload', 'weplay:41', pg_temp.phf('41'), 'text', 'weplay') $$,
-  '23514', null, 'no writer stores an upload row with standard text');
+  'an upload row may carry a standard text');
 select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, site, source_text)
                    values ('00000000-0000-0000-0000-00000042a001', 'upload', 'weplay:42', pg_temp.phf('42'), 'weplay', 'raw') $$,
   '23514', null, '... or with source text');

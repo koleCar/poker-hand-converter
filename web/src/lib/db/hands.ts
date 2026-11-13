@@ -7,6 +7,7 @@ import { toStandardText } from "../phf/serialize";
 import type { PhfHand } from "../phf/types";
 import { currentUserId, isDatabaseConfigured, requireDb, requireUserId, rpc } from "./client";
 import { handInsertFromPhf, handKeyOf, toHandRecord, toHandSummary, type HandInsert } from "./mapping";
+import { handOfRow, storableText, type StoredHandRow } from "./storedHand";
 import type {
   HandFilterForm,
   HandFilters,
@@ -110,7 +111,12 @@ export async function saveHands(
       continue;
     }
     seen.add(key);
-    rows.push(handInsertFromPhf(hand, standardText ?? toStandardText(hand)));
+    const text = standardText ?? toStandardText(hand);
+    // (20271114090000) The row is stored as its text - no PHF - when the
+    // text reads back as the hand; otherwise the PHF stays and the text is
+    // not stored (readers render one from the PHF).
+    const verified = (await storableText(hand, undefined, text)) !== null;
+    rows.push({ ...handInsertFromPhf(hand, text), text_verified: verified });
   }
   result.received = rows.length;
 
@@ -203,7 +209,8 @@ export async function searchHands(
 }
 
 /**
- * Full stored hand including its PHF document.
+ * Full stored hand including its PHF document - parsed from its standard text
+ * when the row is stored as text (20271114090000).
  *
  * Null when the id is unknown **or belongs to somebody else** — RLS makes the
  * two indistinguishable, which is the right answer to a guessed uuid.
@@ -213,7 +220,15 @@ export async function getHand(id: string): Promise<HandRecord | null> {
     return null;
   }
   const row = await rpc<Record<string, unknown> | null>("get_hand", { p_id: id });
-  return row ? toHandRecord(row) : null;
+  if (!row) {
+    return null;
+  }
+  // A text-only row (20271114090000): its text, parsed and restored.
+  const phf = row.phf ? (row.phf as PhfHand) : await handOfRow(row as unknown as StoredHandRow);
+  if (!phf) {
+    throw new Error("This hand is stored as text that this version cannot read back.");
+  }
+  return toHandRecord({ ...row, phf });
 }
 
 /**

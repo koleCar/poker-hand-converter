@@ -100,7 +100,12 @@ describe("the worker's bulk path", () => {
         .filter((r) => r.type === "bulk-batch" && r.sourceId === id)
         .map((r) => {
           if (r.type !== "bulk-batch") throw new Error();
-          const { type: _t, jobId: _j, key: _k, index: _i, last: _l, ...batch } = r;
+          const { type: _t, jobId: _j, key: _k, index: _i, last: _l, standardTexts, ...batch } = r;
+          // (20271114090000) One verified standard text (or null) per hand.
+          expect(standardTexts).toHaveLength(batch.hands.length);
+          if (name.endsWith("weplay.txt")) {
+            expect(standardTexts?.every((text) => typeof text === "string" && text.startsWith("Poker Hand #"))).toBe(true);
+          }
           return { ...batch, sourceId: "source" };
         });
       const expected = await pipelineRun(wasm, name, decoded(bytes));

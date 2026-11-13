@@ -1511,13 +1511,16 @@ impl<A: SyncAccount> SyncTask<A> {
             let mut skipped = 0u64;
             for ids in missing.chunks(crate::ingest::PHF_IDS_PER_CALL) {
                 for remote in self.client.hands_phf_as(&as_user, ids).await? {
-                    let omaha = is_omaha(&remote.phf);
-                    match serde_json::from_value::<rail_core::phf::PhfHand>(remote.phf)
+                    let remote_key = remote.hand_key.clone();
+                    // A text-only row (20271114090000) is parsed here.
+                    let phf = remote.into_phf().unwrap_or(serde_json::Value::Null);
+                    let omaha = is_omaha(&phf);
+                    match serde_json::from_value::<rail_core::phf::PhfHand>(phf)
                         .ok()
                         .and_then(|hand| PreparedHand::from_phf(&hand).ok())
                     {
                         Some(hand) => {
-                            if hand.hand_key != remote.hand_key {
+                            if hand.hand_key != remote_key {
                                 log::warn!("sync: a pulled hand's key differs from the server's");
                             }
                             prepared.push(hand);

@@ -19,4 +19,5 @@ pub mod entitlements;
 pub mod floplib;
 pub mod ingest;
 pub mod policy;
+pub mod stored_text;
 pub mod worker;

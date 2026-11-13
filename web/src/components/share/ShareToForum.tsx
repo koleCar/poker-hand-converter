@@ -93,7 +93,7 @@ export function ShareToForum({ hand, storedHandId }: { hand: PhfHand; storedHand
     try {
       const handId = storedHandId ?? (await saveHand(hand, toStandardText(hand))).id;
       if (!handId) throw new Error(t.notSaved);
-      publicId = (await publishHand(handId, mode, title)).publicId;
+      publicId = (await publishHand(handId, mode, title, hand)).publicId;
     } catch (err) {
       setError(publishErrorMessage(err));
       setBusy(false);

@@ -83,6 +83,7 @@ import type { InputItem } from "../../../web/src/components/converter/bulkSource
 import { createBulkSaver, ingestRowOf, type SaveProgress } from "../../../web/src/components/converter/bulkSaver";
 import { newManifest } from "../../../web/src/components/converter/uploadManifest";
 import { handKeyOf, toHandRecord } from "../../../web/src/lib/db/mapping";
+import { handOfRow, type StoredHandRow } from "../../../web/src/lib/db/storedHand";
 import { createUploadApi, type UploadClient } from "../../../web/src/lib/db/upload";
 import { parseHand } from "../../../web/src/lib/phf";
 import type { PhfHand } from "../../../web/src/lib/phf/types";
@@ -443,11 +444,13 @@ describeStack("web/app parity (R4.4)", () => {
           saver.addSource(m.source);
         } else if (m.type === "bulk-batch") {
           const { type: _type, jobId: _job, ...batch } = m;
-          for (const hand of batch.hands) {
+          for (const [i, hand] of batch.hands.entries()) {
             const key = handKeyOf(hand);
             keyFiles.set(key, (keyFiles.get(key) ?? new Set<string>()).add(sourcePaths.get(batch.sourceId) ?? batch.sourceId));
             const byFile = converted.get(key) ?? new Map<string, string>();
-            byFile.set(String(hand.meta.originalFilename), JSON.stringify(ingestRowOf(hand).phf));
+            // As sent: the PHF, and the verified text that replaces it on the server (20271114090000).
+            const row = ingestRowOf(hand, batch.standardTexts?.[i] ?? null);
+            byFile.set(String(hand.meta.originalFilename), JSON.stringify({ phf: row.phf, text: row.standard_text ?? null }));
             converted.set(key, byFile);
           }
           saver.addBatch(batch);
@@ -522,7 +525,9 @@ describeStack("web/app parity (R4.4)", () => {
       if (error || !data) {
         throw new Error(`get_hand ${key}: ${error?.message ?? "no row"}`);
       }
-      const record = toHandRecord(data as Record<string, unknown>);
+      // As getHand reads it: a text-only row (20271114090000) parsed and restored.
+      const row = data as Record<string, unknown>;
+      const record = toHandRecord({ ...row, phf: row.phf ?? (await handOfRow(row as unknown as StoredHandRow)) });
       const { id: _id, createdAt: _created, ...rest } = record;
       const parsed = parseHand(record.standardText);
       return {
@@ -634,7 +639,7 @@ select 'wide ' || jsonb_build_object('owner', owner_id, 'hands', count(distinct 
     const lines = await psql(`
 begin;
 create temporary table control as
-  select (select id from public.hands where ${compared} order by hand_key limit 1) as hand_id,
+  select (select id from public.hands where ${compared} and phf is not null order by hand_key limit 1) as hand_id,
          (select hand_id from public.hand_stats where ${compared} order by hand_key, seat limit 1) as stats_hand,
          (select hand_id from public.hand_stats where ${compared} order by hand_key desc, seat limit 1) as gone_hand,
          (select hand_id from public.hand_stats_ev where ${compared} order by hand_key limit 1) as ev_hand;
@@ -759,42 +764,55 @@ ${tail}`;
   }
 
   // The web's conversion of every copy of a hand the corpus has in more than one file.
-  const alternatives = [...copies].flatMap(([key, byFile]) => [...byFile].map(([file, phf]) => ({ k: key, f: file, p: JSON.parse(phf) as unknown })));
+  // As the server stores it: the text, or the PHF when there is none (20271114090000).
+  const alternatives = [...copies].flatMap(([key, byFile]) =>
+    [...byFile].map(([file, sent]) => {
+      const { phf, text } = JSON.parse(sent) as { phf: unknown; text: string | null };
+      return { k: key, f: file, p: text === null ? phf : null, t: text };
+    }),
+  );
   return `
-create temporary table copies (hand_key text, file text, phf jsonb);
-insert into copies select x ->> 'k', x ->> 'f', x -> 'p' from jsonb_array_elements($c$${JSON.stringify(alternatives)}$c$::jsonb) as x;
+create temporary table copies (hand_key text, file text, phf jsonb, standard_text text);
+insert into copies select x ->> 'k', x ->> 'f', nullif(x -> 'p', 'null'::jsonb), x ->> 't'
+  from jsonb_array_elements($c$${JSON.stringify(alternatives)}$c$::jsonb) as x;
 
 create temporary table hands_a as select * from public.hands where owner_id = '${app}';
 create temporary table hands_w as select * from public.hands where owner_id = '${web}';
 
--- A hand whose two stored rows came from different files of the corpus.
+-- A hand whose two stored rows came from different files of the corpus
+-- (source_filename is the PHF's meta.originalFilename; a text-only row has no PHF).
 create temporary table split as
-select a.hand_key, a.phf -> 'meta' ->> 'originalFilename' as file, a.phf
+select a.hand_key, a.source_filename as file,
+       jsonb_build_object('phf', jsonb_set(a.phf, '{meta,parsedAt}', '"${MASK_TIME}"'), 'text', a.standard_text) as stored
   from hands_a a join hands_w w using (hand_key)
- where a.phf -> 'meta' ->> 'originalFilename' is distinct from w.phf -> 'meta' ->> 'originalFilename';
+ where a.source_filename is distinct from w.source_filename;
 select 'split ' || jsonb_build_object('handKey', hand_key, 'file', file)::text from split order by hand_key;
 -- ... is compared with the web's conversion of the file the app read it from.
+create temporary table copies_stored as
+select c.hand_key, c.file,
+       jsonb_build_object('phf', jsonb_set(c.phf, '{meta,parsedAt}', '"${MASK_TIME}"'), 'text', c.standard_text) as stored
+  from copies c;
 select 'splitdiff ' || jsonb_build_object('handKey', s.hand_key, 'file', s.file,
-         'app', jsonb_set(s.phf, '{meta,parsedAt}', '"${MASK_TIME}"')::text,
-         'web', (select jsonb_set(c.phf, '{meta,parsedAt}', '"${MASK_TIME}"')::text from copies c
-                  where c.hand_key = s.hand_key and c.file = s.file limit 1))::text
+         'app', s.stored::text,
+         'web', (select c.stored::text from copies_stored c
+                  where c.hand_key = s.hand_key and c.file is not distinct from s.file limit 1))::text
   from split s
- where not exists (select 1 from copies c
-                    where c.hand_key = s.hand_key and c.file = s.file
-                      and jsonb_set(c.phf, '{meta,parsedAt}', '"${MASK_TIME}"')::text
-                        = jsonb_set(s.phf, '{meta,parsedAt}', '"${MASK_TIME}"')::text);
+ where not exists (select 1 from copies_stored c
+                    where c.hand_key = s.hand_key and c.file is not distinct from s.file
+                      and c.stored::text = s.stored::text);
 
 select 'count ' || jsonb_build_object('app', (select count(*) from hands_a), 'web', (select count(*) from hands_w))::text;
 
+-- A row is its PHF or its (verified) standard text, never both (20271114090000); never source text.
 select 'shape ' || jsonb_build_object('handKey', hand_key, 'side', side, 'origin', origin,
          'standard', standard_text is not null, 'source', source_text is not null)::text
   from (select 'app' as side, * from hands_a union all select 'web', * from hands_w) h
  where origin::text <> case side when 'app' then 'desktop' else 'upload' end
-    or standard_text is not null or source_text is not null;
+    or (standard_text is not null) = (phf is not null) or source_text is not null;
 
 select 'parsedAt ' || jsonb_build_object('handKey', hand_key, 'side', side, 'value', phf -> 'meta' -> 'parsedAt')::text
   from (select 'app' as side, * from hands_a union all select 'web', * from hands_w) h
- where coalesce(phf -> 'meta' ->> 'parsedAt', '') !~ '${PARSED_AT.source}';
+ where phf is not null and coalesce(phf -> 'meta' ->> 'parsedAt', '') !~ '${PARSED_AT.source}';
 
 -- A row as compared: the columns that may differ removed, the PHF's moment of conversion masked.
 create temporary table ${t} (tbl text, side text, hand_key text, key text, j jsonb);
