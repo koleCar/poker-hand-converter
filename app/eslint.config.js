@@ -90,15 +90,15 @@ export default defineConfig([
   // top leaks' ranking and words), which name exactly what the app uses of it.
   {
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/analysis/library.ts", "src/analysis/leakWords.ts", "src/solver/door.ts"],
+    ignores: ["src/analysis/library.ts", "src/analysis/leakWords.ts", "src/solver/door.ts", "src/trainer/door.ts", "src/trainer/jobs.ts"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
           patterns: [
             {
-              group: ["@rail/web-lib", "@rail/web-lib/*", "@rail/web-solver", "@rail/web-solver/*", "**/web/src/**"],
-              message: "The web's library is the app's through `src/analysis/library.ts` and `leakWords.ts` only (R5.4), its Solver library through `src/solver/door.ts`.",
+              group: ["@rail/web-lib", "@rail/web-lib/*", "@rail/web-solver", "@rail/web-solver/*", "@rail/web-trainer", "@rail/web-trainer/*", "**/web/src/**"],
+              message: "The web's library is the app's through `src/analysis/library.ts` and `leakWords.ts` only (R5.4), its Solver library through `src/solver/door.ts`, its Trainer through `src/trainer/door.ts` and `jobs.ts`.",
             },
           ],
         },

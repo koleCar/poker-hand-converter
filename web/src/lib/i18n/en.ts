@@ -47,11 +47,13 @@ import { planNoticeEn } from "./ns/planNotice.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 import { solverEn } from "./ns/solver.en";
+import { trainerEn } from "./ns/trainer.en";
 
 export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
   solver: solverEn,
+  trainer: trainerEn,
   analysis: analysisEn,
   learn: learnEn,
   legal: legalEn,

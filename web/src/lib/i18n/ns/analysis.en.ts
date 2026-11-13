@@ -1393,5 +1393,7 @@ export const analysisEn = {
   /** The study plan (phase A8b): `analysisPlan.en.ts`. */
   plan: planEn,
 
+  /** A hand's facts in words, for the trainer's "your hand here" (`components/trainer`). */
+  handFacts: { hand: handPhrase, draws, blockers },
   explain,
 } as const;

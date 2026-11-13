@@ -59,6 +59,7 @@ export const hr: Dict = {
     players: "Igrači",
     analysis: "Analiza",
     solver: "Solver",
+    trainer: "Trener",
     hud: "HUD",
     tables: "Stolovi",
     import: "Uvoz",
@@ -102,6 +103,11 @@ export const hr: Dict = {
       title: "Solver",
       /** Not shown: the command palette's keywords. */
       lead: "Railovi solvovi: preflop chartovi, strategija svakog flopa, bilo koji turn i river solvan na licu mjesta.",
+    },
+    trainer: {
+      title: "Trener",
+      /** Not shown: the command palette's keywords. */
+      lead: "Vježbaj spotove protiv reference: prvo tvoji leakovi, ili bilo koji preflop, flop, turn ili river spot, ocijenjen, sa strategijom za ruku i objašnjenjem zašto.",
     },
     hud: {
       title: "HUD",
