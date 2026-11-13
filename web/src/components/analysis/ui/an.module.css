@@ -52,7 +52,7 @@
 
 .tabOn {
   background: var(--surface-selected);
-  color: var(--text-primary);
+  color: var(--text-on-selected);
 }
 
 .iconLink {
@@ -225,7 +225,7 @@
 
 .seg button[aria-pressed="true"] {
   background: var(--surface-selected);
-  color: var(--text-primary);
+  color: var(--text-on-selected);
 }
 
 .chip {
@@ -766,7 +766,7 @@
 
 .segLink[aria-current="page"] {
   background: var(--surface-selected);
-  color: var(--text-primary);
+  color: var(--text-on-selected);
 }
 
 .srOnly {
@@ -776,4 +776,11 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* On a highlighted row the tertiary grey drops under 4.5:1 in the light theme. */
+.lrow:hover .dim,
+.lrow[aria-expanded="true"] .dim,
+.hrow:hover .dim {
+  color: var(--text-secondary);
 }

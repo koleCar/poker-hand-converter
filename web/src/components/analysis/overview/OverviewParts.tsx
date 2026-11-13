@@ -158,6 +158,12 @@ export function OverviewHead({
 /* --------------------------------------------------------------- heatmap - */
 
 type Axis = "position" | "pot_type";
+/**
+ * How far the darkest cell mixes towards the loss colour. Past ~60% the
+ * cell's text drops under 4.5:1 in the light theme (measured: 60% 4.9:1,
+ * 80% 3.2:1), so the scale stops there.
+ */
+const HEAT_MAX = 50;
 type Metric = "ev" | "score" | "mistakes";
 
 interface HeatLoaded {
@@ -325,7 +331,7 @@ export function EvHeatmap({
                       background:
                         k === null
                           ? "var(--surface-inset)"
-                          : `color-mix(in srgb, var(--loss-fg) ${Math.round(8 + k * 72)}%, var(--surface-inset))`,
+                          : `color-mix(in srgb, var(--loss-fg) ${Math.round(8 + k * HEAT_MAX)}%, var(--surface-inset))`,
                     }}
                     onClick={() =>
                       onPick(
@@ -630,17 +636,31 @@ export function TopLeaksMini({ scopeKey, generation }: { scopeKey: string; gener
   const locale = useIntlLocale();
   const fixed2 = numberFormat(locale, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
   const [top, setTop] = useState<ReturnType<typeof rankTopLeaks> | null>(null);
+  // The last 30 days first; a player who has not played lately sees all time instead, said so.
+  const [allTime, setAllTime] = useState(false);
 
   useEffect(() => {
     let live = true;
-    fetchTopLeaks(JSON.parse(scopeKey), "30d")
-      .then((report) => {
-        if (!live) return;
-        setTop(report ? rankTopLeaks(groupLeaks(report.sample.rows, { hands: report.sample.hands })) : []);
-      })
-      .catch(() => {
-        if (live) setTop([]);
-      });
+    const scope = JSON.parse(scopeKey);
+    const rank = (report: Awaited<ReturnType<typeof fetchTopLeaks>>) =>
+      report ? rankTopLeaks(groupLeaks(report.sample.rows, { hands: report.sample.hands })) : [];
+    (async () => {
+      const recent = rank(await fetchTopLeaks(scope, "30d"));
+      if (recent.length > 0) {
+        if (live) {
+          setTop(recent);
+          setAllTime(false);
+        }
+        return;
+      }
+      const all = rank(await fetchTopLeaks(scope, "all"));
+      if (live) {
+        setTop(all);
+        setAllTime(true);
+      }
+    })().catch(() => {
+      if (live) setTop([]);
+    });
     return () => {
       live = false;
     };
@@ -653,6 +673,7 @@ export function TopLeaksMini({ scopeKey, generation }: { scopeKey: string; gener
     <section className={styles.card}>
       <div className={styles.cardHead}>
         <h3 className={styles.ttl}>{t.topLeaks}</h3>
+        {allTime ? <span className={`${styles.xs} ${styles.dim}`}>{t.allTime}</span> : null}
         <span className={styles.grow} />
         <Link href={paths.analysisLeaks()} className={`${styles.xs}`} style={{ color: "var(--text-link)" }}>
           {t.allLeaks}

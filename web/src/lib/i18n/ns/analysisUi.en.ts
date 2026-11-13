@@ -73,6 +73,7 @@ export const uiEn = {
   charts: { label: "Whose charts", rail: "Rail", mine: "Mine" },
   side: {
     topLeaks: "Top leaks",
+    allTime: "all time",
     allLeaks: "All leaks",
     drills: "Drills due",
     now: "now",
