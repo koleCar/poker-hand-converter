@@ -12,8 +12,10 @@ import type { FetchOutcome } from "../analysis/worker";
 import {
   ensureChartSets,
   FlopLibraryLoader,
+  isPlayJob,
   loadChartLibrary,
   prepareFlopLibrary,
+  runPlayJob,
   runTrainingJob,
   trainingChartSets,
   type ChartLibrary,
@@ -95,6 +97,10 @@ export function createTrainerWorker(scope: Scope): void {
       });
       const library = await charts;
       await ensureChartSets(library, trainingChartSets(request));
+      if (isPlayJob(request)) {
+        scope.postMessage(await runPlayJob(request, library, loader));
+        return;
+      }
       const flop = await prepareFlopLibrary(request, library, loader);
       scope.postMessage(runTrainingJob(request, library, flop));
     } catch (error) {

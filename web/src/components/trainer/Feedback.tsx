@@ -60,7 +60,7 @@ function bestIndex(decision: DecisionAnalysis): number | null {
   return best;
 }
 
-export function Feedback({ decision, spot, settings }: { decision: DecisionAnalysis; spot: TrainerSpot; settings: TrainerSettings }) {
+export function Feedback({ decision, spot, settings }: { decision: DecisionAnalysis; spot: TrainerSpot | null; settings: TrainerSettings }) {
   const { t, locale } = useTrainerHost();
   const label = useOptionText();
   const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;

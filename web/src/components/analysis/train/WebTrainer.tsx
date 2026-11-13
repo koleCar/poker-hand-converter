@@ -22,7 +22,16 @@ import { useAuth } from "../../../lib/auth";
 import { useDict } from "../../../lib/i18n/client";
 import { conceptsForDecision } from "../../../lib/learn/links";
 import { paths } from "../../../lib/routes";
-import { dealFlopSpot, dealPreflopSpot, dealRiverSpot, dealTurnSpot, gradeSpotAnswer } from "../../../lib/trainer";
+import {
+  dealFlopSpot,
+  dealPreflopSpot,
+  dealRiverSpot,
+  dealTurnSpot,
+  gradePlayAnswer,
+  gradeSpotAnswer,
+  playAnswer,
+  startPlay,
+} from "../../../lib/trainer";
 import type { GradedAnswer, TrainerSpot } from "../../../lib/training";
 import { focusAreas } from "../../../lib/training/plan";
 import { TrainerHostProvider, type FocusState, type TrainerHost } from "../../trainer/host";
@@ -91,6 +100,9 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
               ? dealTurnSpot(request.options, seed)
               : dealRiverSpot(request.options, seed),
       grade: gradeSpotAnswer,
+      playStart: startPlay,
+      playGrade: gradePlayAnswer,
+      playAnswer,
       focus,
       record: signedIn
         ? (spot, answer, handClass) => {
@@ -130,10 +142,10 @@ export function WebTrainer({ query }: { query: Record<string, string | string[] 
 }
 
 /** The web's deeper study of an answer: the whole chart (preflop) or range (postflop), and what to read. */
-function WebStudy({ graded, spot }: { graded: GradedAnswer; spot: TrainerSpot }) {
+function WebStudy({ graded, spot }: { graded: GradedAnswer; spot: TrainerSpot | null }) {
   const decision = graded.decision;
   const [charts, setCharts] = useState<ChartSet | null>(null);
-  const set = spot.kind === "preflop" ? spot.set : null;
+  const set = spot?.kind === "preflop" ? spot.set : null;
   useEffect(() => {
     if (!set) return;
     let live = true;
@@ -145,7 +157,7 @@ function WebStudy({ graded, spot }: { graded: GradedAnswer; spot: TrainerSpot })
     };
   }, [set]);
   if (!decision || decision.grade === null) return null;
-  const node: ChartNode | null = spot.kind === "preflop" && charts && charts.id === spot.set ? (charts.nodes.get(spot.line) ?? null) : null;
+  const node: ChartNode | null = spot?.kind === "preflop" && charts && charts.id === spot.set ? (charts.nodes.get(spot.line) ?? null) : null;
   return (
     <>
       {decision.source === "chart" && node ? (

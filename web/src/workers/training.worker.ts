@@ -15,7 +15,7 @@
 import { flopLibraryBase, FLOP_LIBRARY_ENABLED, FlopLibraryLoader } from "../lib/analysis";
 import { ensureChartSets, loadChartLibrary, type ChartLibrary } from "../lib/charts";
 import { SUPABASE_URL } from "../lib/supabase/config";
-import { prepareFlopLibrary, runTrainingJob, trainingChartSets, type TrainingRequest, type TrainingResponse } from "../lib/training/jobs";
+import { isPlayJob, prepareFlopLibrary, runPlayJob, runTrainingJob, trainingChartSets, type TrainingRequest, type TrainingResponse } from "../lib/training/jobs";
 
 /** The chart library; each set (table and depth, A2c) loads the first time a job needs it. */
 let charts: Promise<ChartLibrary> | null = null;
@@ -40,6 +40,10 @@ self.onmessage = async (event: MessageEvent<TrainingRequest>) => {
     });
     const library = await charts;
     await ensureChartSets(library, trainingChartSets(request));
+    if (isPlayJob(request)) {
+      self.postMessage(await runPlayJob(request, library, loader()));
+      return;
+    }
     const flop = await prepareFlopLibrary(request, library, loader());
     self.postMessage(runTrainingJob(request, library, flop));
   } catch (error) {

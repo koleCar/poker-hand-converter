@@ -88,12 +88,39 @@ drills of the player's own hands, unchanged.
 `analysis`) covers `/analysis/train`; in the app `ROUTE_FEATURE.trainer =
 "analysis"`. No new entitlement feature: the trainer is part of the analysis.
 
-## 4. Not in this version (next phases)
+## 4. T2 — the whole hand (2026-11-13)
 
-- **T2 — full hand.** Play on after the answer: the opponent's move sampled
-  from the reference, the next street dealt (preflop chart → library flop →
-  live turn → river), graded at every hero decision; "pause after" then
-  means a street or a mistake.
+"One spot | Whole hand" beside the modes. A whole hand is the hero against
+one opponent (as GTO Wizard's *GTO opponent*), from preflop (Preflop, or a
+preflop leak in For you) or from the flop (Flop, or a flop or river leak),
+to a fold or the showdown (`lib/training/play.ts`, `components/trainer/HandPlayer.tsx`):
+
+- **The opponent plays the reference.** At its decision the analysis runs
+  from its seat with its cards (`only` that decision) and its move is drawn
+  from the frequencies for that exact hand; everyone else folds. Off the
+  reference (no grade for its spot) it checks or calls, and the hand says so.
+- **Its cards fit its line.** Preflop: drawn from its range after its own
+  actions on the chart line (`opponentRanges`; not acted yet: any two). From
+  the flop: both hands from the preflop ranges the analysis' walk reads.
+- **Every hero decision is a trainer answer.** The buttons are the
+  analysis' options for the hero's hand there; the answer is graded by the
+  analysis on the hand with it appended, with the same feedback as a spot.
+  The flop library's chunks load as the hand reaches them (`analyse`: run,
+  record what was asked, load it, run again). Turns are graded by the turn
+  solve, rivers on the heuristic-narrowed ranges (as the river trainer).
+- **Played on in the background.** While the feedback is read the worker
+  already plays the opponent and deals the next street; "Continue" (`N`)
+  usually shows it at once (a turn solve can take a few seconds).
+- **The end:** the result in bb, the opponent's cards at a showdown, and the
+  hand's decisions with their grades and the EV lost over the hand.
+- Where the hero's next decision has no reference (a flop the library has
+  not solved, an off-tree line), the hand stops there and says so.
+- Families a hand can start from preflop: first in, vs open, vs 3-bet, blind
+  vs blind, vs 4-bet (`PLAY_FAMILIES`: no squeezes or limpers, which put a
+  third player in the pot).
+
+## 5. Not in this version (next phases)
+
 - **T3 — the range panel live.** The hero's range grid and equity beside the
   felt while answering (as GTO Wizard's right panel), off by default
   (it gives the answer away).

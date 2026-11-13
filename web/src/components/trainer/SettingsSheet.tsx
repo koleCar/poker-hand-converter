@@ -9,11 +9,12 @@
 
 import { useEffect, useRef } from "react";
 import type { ChartPosition } from "../../lib/charts";
-import { DEAL_BIASES, FLOP_FACINGS, RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../lib/training";
+import { DEAL_BIASES, FLOP_FACINGS, PLAY_FAMILIES, RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../lib/training";
 import { useTrainerHost } from "./host";
 import {
   DEFAULT_SETTINGS,
   PAUSES,
+  PLAYS,
   familiesAt,
   flopLinesAt,
   flopSeatsAt,
@@ -82,6 +83,8 @@ export function SettingsSheet({
     ...seats.map((seat) => ({ value: seat as string, label: seat as string })),
   ];
   const postflop = mode === "flop" || mode === "turn" || mode === "river";
+  // A whole hand starts from a heads-up line, and on the flop from its root: what is faced is played out.
+  const hand = settings.play === "hand";
 
   return (
     <div className={styles.sheetLayer} onKeyDown={(event) => event.key === "Escape" && onClose()}>
@@ -117,7 +120,12 @@ export function SettingsSheet({
                 <Chips
                   label={t.family}
                   value={settings.family}
-                  options={[{ value: "random", label: t.families.random }, ...familiesAt(set).map((f) => ({ value: f, label: t.families[f] ?? f }))]}
+                  options={[
+                    { value: "random", label: t.families.random },
+                    ...familiesAt(set)
+                      .filter((f) => !hand || PLAY_FAMILIES.includes(f))
+                      .map((f) => ({ value: f, label: t.families[f] ?? f })),
+                  ]}
                   onChange={(family) => onChange(family === "rfi" ? { family, vs: null } : { family })}
                 />
                 <Chips
@@ -141,12 +149,14 @@ export function SettingsSheet({
                 <Chips label={t.pot} value={settings.pot} options={anyOf(RIVER_POTS, t.pots)} onChange={(pot) => onChange({ pot })} />
                 <Chips label={t.side} value={settings.side} options={anyOf(RIVER_SEATS, t.sides)} onChange={(side) => onChange({ side })} />
                 <Chips label={t.role} value={settings.role} options={anyOf(RIVER_ROLES, t.roles)} onChange={(role) => onChange({ role })} />
+                {hand && mode === "flop" ? null : (
                 <Chips
                   label={t.facing}
                   value={mode !== "flop" && settings.facing === "raise" ? "any" : settings.facing}
                   options={anyOf(mode === "flop" ? FLOP_FACINGS : (["check", "bet"] as const), t.facings)}
                   onChange={(facing) => onChange({ facing })}
                 />
+                )}
               </>
             ) : null}
             {mode === "flop" ? (
@@ -170,6 +180,12 @@ export function SettingsSheet({
 
         <section className={styles.sheetSection}>
           <h3>{t.sections.play}</h3>
+          <Chips
+            label={t.play.label}
+            value={settings.play}
+            options={PLAYS.map((value) => ({ value, label: t.play[value] }))}
+            onChange={(play) => onChange({ play })}
+          />
           <Chips
             label={t.deal}
             value={settings.deal}

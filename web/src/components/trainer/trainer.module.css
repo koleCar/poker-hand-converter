@@ -870,3 +870,75 @@
   color: var(--accent-on-subtle);
   font-weight: var(--font-weight-medium);
 }
+
+/* ---------------------------------------------------------- whole hand */
+
+.playSwitch {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-0-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.result {
+  font-variant-numeric: tabular-nums;
+}
+
+.verdict[data-result="won"] {
+  --grade-color: var(--profit-fg);
+}
+
+.verdict[data-result="lost"] {
+  --grade-color: var(--loss-fg);
+}
+
+.verdict[data-result] .result {
+  color: var(--grade-color, var(--text-primary));
+}
+
+.handLog {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.handLog li {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.handLogStreet {
+  color: var(--text-tertiary);
+}
+
+.handLog li > :nth-child(3),
+.handLog li > :nth-child(4) {
+  white-space: nowrap;
+}
+
+.handLog li[data-grade="perfect"] .handLogGrade {
+  color: var(--grade-perfect);
+}
+
+.handLog li[data-grade="good"] .handLogGrade {
+  color: var(--grade-good);
+}
+
+.handLog li[data-grade="inaccurate"] .handLogGrade {
+  color: var(--grade-inaccurate);
+}
+
+.handLog li[data-grade="mistake"] .handLogGrade {
+  color: var(--grade-mistake);
+}
+
+.handLog li[data-grade="blunder"] .handLogGrade {
+  color: var(--grade-blunder);
+}

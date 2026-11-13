@@ -5,6 +5,14 @@
  * spot is dealt and graded identically in the app and on the web. Nothing
  * here imports React: the worker bundles only this.
  */
-export { prepareFlopLibrary, runTrainingJob, trainingChartSets, type TrainingRequest, type TrainingResponse } from "@rail/web-lib/training/jobs";
+export {
+  isPlayJob,
+  prepareFlopLibrary,
+  runPlayJob,
+  runTrainingJob,
+  trainingChartSets,
+  type TrainingRequest,
+  type TrainingResponse,
+} from "@rail/web-lib/training/jobs";
 export { ensureChartSets, loadChartLibrary, type ChartLibrary } from "@rail/web-lib/charts";
 export { FlopLibraryLoader, type LibraryFetch } from "@rail/web-lib/analysis/flopLibrary";

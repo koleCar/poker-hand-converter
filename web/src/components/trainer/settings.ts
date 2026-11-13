@@ -34,6 +34,7 @@ import {
   type TurnSpotOptions,
 } from "../../lib/training";
 import type { TrainerTarget } from "../../lib/training/plan";
+import { PLAY_FAMILIES, type PlayOptions } from "../../lib/training/play";
 
 /** `focus`: spots from the player's own leaks; the others deal one street. */
 export const TRAINER_MODES = ["focus", "preflop", "flop", "turn", "river"] as const;
@@ -43,10 +44,18 @@ export type StreetMode = Exclude<TrainerMode, "focus">;
 export const STREET_MODES: readonly StreetMode[] = ["preflop", "flop", "turn", "river"];
 
 export const PAUSES = ["always", "mistakes"] as const;
+
+/** One decision a spot, or the whole hand played on to the end (T2, `lib/training/play.ts`). */
+export const PLAYS = ["spot", "hand"] as const;
+export type Play = (typeof PLAYS)[number];
+/** The modes a whole hand starts from: preflop, the flop, or a leak's spot (at its street, a river's from the flop). */
+export const HAND_MODES: readonly TrainerMode[] = ["focus", "preflop", "flop"];
 export type Pause = (typeof PAUSES)[number];
 
 export interface TrainerSettings {
   mode: TrainerMode;
+  /** One spot or the whole hand. */
+  play: Play;
   /** The chart set: table and depth. A postflop mode deals on its own nearest table ({@link setFor}). */
   set: string;
   /** Preflop: the chart family. */
@@ -76,6 +85,7 @@ export interface TrainerSettings {
 
 export const DEFAULT_SETTINGS: TrainerSettings = {
   mode: "focus",
+  play: "spot",
   set: DEFAULT_CHART_SET,
   family: "random",
   seat: null,
@@ -224,6 +234,7 @@ export function parseSettings(raw: Record<string, unknown> | null | undefined): 
     value === true || value === "1" || value === "on" ? true : value === false || value === "0" || value === "off" ? false : fallback;
   return {
     mode: oneOf(r.mode, TRAINER_MODES, d.mode),
+    play: oneOf(r.play, PLAYS, d.play),
     set,
     family: oneOf(r.family, [...PREFLOP_FAMILIES, "random"] as const, d.family),
     seat: seatOf(r.seat),
@@ -251,4 +262,21 @@ export function settingsFields(s: TrainerSettings): Record<string, string> {
     else if (value !== null) out[key] = value;
   }
   return out;
+}
+
+/**
+ * What a whole hand is dealt from: preflop the chart spot's settings (a
+ * family a whole hand cannot start from - a squeeze, limpers - as any), the
+ * flop the library line's (from the root: what the hero faces is played out,
+ * not chosen). A river leak's hand starts on the flop of its kind of line.
+ */
+export function playOptions(mode: StreetMode, s: TrainerSettings): PlayOptions {
+  const preflop = spotOptions("preflop", s);
+  const flop = spotOptions("flop", { ...s, facing: "any" });
+  const family = preflop.kind === "preflop" && preflop.options.family !== "random" && !PLAY_FAMILIES.includes(preflop.options.family) ? "random" : undefined;
+  return {
+    start: mode === "preflop" ? "preflop" : "flop",
+    preflop: preflop.kind === "preflop" ? { ...preflop.options, ...(family ? { family } : {}) } : { family: "random" },
+    flop: flop.kind === "flop" ? flop.options : {},
+  };
 }

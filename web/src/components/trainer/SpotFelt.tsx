@@ -19,7 +19,7 @@ function bbText(value: number, locale: string): string {
   return tenth.toLocaleString(locale, { maximumFractionDigits: 1 });
 }
 
-export function ActionStrip({ items }: { items: StripItem[] }) {
+export function ActionStrip({ items, now = true }: { items: StripItem[]; /** The hero is to act: the strip ends on "your move". */ now?: boolean }) {
   const { t, locale } = useTrainerHost();
   return (
     <ol className={styles.strip} aria-label={t.yourMove}>
@@ -44,9 +44,11 @@ export function ActionStrip({ items }: { items: StripItem[] }) {
           </li>
         ),
       )}
-      <li className={styles.stripNow} aria-current="step">
-        {t.yourMove}
-      </li>
+      {now ? (
+        <li className={styles.stripNow} aria-current="step">
+          {t.yourMove}
+        </li>
+      ) : null}
     </ol>
   );
 }
@@ -56,11 +58,14 @@ export function SpotFelt({
   cards,
   toCallBb,
   overlay,
+  shown,
 }: {
   felt: Felt;
   cards: readonly string[];
   toCallBb: number;
   overlay?: ReactNode;
+  /** An opponent's cards turned over (a whole hand's showdown). */
+  shown?: { position: string; cards: readonly string[] } | null;
 }) {
   const { t, locale } = useTrainerHost();
   const seats = aroundHero(felt.seats);
@@ -93,6 +98,13 @@ export function SpotFelt({
             data-folded={seat.folded || undefined}
             data-acting={seat.acting || undefined}
           >
+            {!seat.hero && shown && shown.position === seat.position ? (
+              <span className={styles.heroCards}>
+                {shown.cards.map((card) => (
+                  <PlayingCard key={card} code={card} size="md" />
+                ))}
+              </span>
+            ) : null}
             {seat.hero ? (
               <span className={styles.heroCards}>
                 {cards.map((card) => (
