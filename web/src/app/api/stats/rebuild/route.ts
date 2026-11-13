@@ -8,6 +8,7 @@ import {
 import { EV_VERSION } from "../../../../lib/equity";
 import type { PhfHand } from "../../../../lib/phf/types";
 import { saveRowsByHand } from "../../../../lib/db/statsSave";
+import { handOfRow, typescriptParser, type StoredHandRow } from "../../../../lib/db/storedHand";
 import { STATS_VERSION } from "../../../../lib/stats";
 import { getWritableServerSupabase } from "../../../../lib/supabase/server";
 
@@ -134,11 +135,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (error) {
         throw error;
       }
-      const page = (data ?? []) as unknown as Array<{ id: string; phf: PhfHand }>;
+      const page = (data ?? []) as unknown as Array<StoredHandRow & { id: string }>;
 
       const rows: HandStatsInsert[] = [];
       const evRows: HandEvInsert[] = [];
-      for (const { phf } of page) {
+      for (const row of page) {
+        // A text-only row (20271114090000) is parsed here, with the
+        // TypeScript parsers: no `.wasm` to fetch on the server.
+        let phf: PhfHand | null;
+        try {
+          phf = await handOfRow(row, typescriptParser);
+        } catch {
+          phf = null;
+        }
+        if (!phf) {
+          slice.failed += 1;
+          continue;
+        }
         let derived: HandStatsInsert[];
         try {
           derived = handStatsRows(phf, { includeVillains });

@@ -13,7 +13,8 @@
 --     hand key in two libraries is two rows;
 --   * every bad row is rejected on its own with a reason, in input order,
 --     while the good rows of the same batch are stored;
---   * a desktop row has no standard or source text and an empty
+--   * a desktop row has no source text (it may have a standard text since
+--     20271114090000) and an empty
 --     `meta.rawText`, from any writer; a web row keeps its standard text; the
 --     direct path cannot write a desktop row;
 --   * the per-account budget holds (10 minutes and day), desktop rows do not
@@ -247,9 +248,10 @@ select throws_ok(format($$ select public.ingest_hands(%L, '{}') $$, (select id f
 select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, site)
                    values ('00000000-0000-0000-0000-0000000e2a01', 'desktop', 'weplay:30', pg_temp.phf('30'), 'weplay') $$,
   '42501', null, 'the direct path cannot write a desktop row (insert policy)');
-select throws_ok($$ select public.save_hands(jsonb_build_array(jsonb_build_object(
-                     'hand_key', 'weplay:31', 'phf', pg_temp.phf('31'), 'site', 'weplay'))) $$,
-  '23514', null, 'a web row without standard text is refused');
+-- (20271114090000) A web row may go without standard text: it is its PHF.
+select is((public.save_hands(jsonb_build_array(jsonb_build_object(
+             'hand_key', 'weplay:31', 'phf', pg_temp.phf('31'), 'site', 'weplay'))) ->> 'inserted')::int,
+  1, 'a web row without standard text is stored, with its PHF');
 select is((public.save_hands(jsonb_build_array(jsonb_build_object(
              'hand_key', 'weplay:32', 'phf', pg_temp.phf('32'), 'site', 'weplay',
              'standard_text', 'Poker Hand #32', 'origin', 'desktop'))) ->> 'inserted')::int,
@@ -257,9 +259,11 @@ select is((public.save_hands(jsonb_build_array(jsonb_build_object(
 select is((select origin::text from public.hands where hand_key = 'weplay:32'), 'web', '... and writes a web row');
 
 reset role;
-select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, standard_text, site)
+-- (20271114090000) A desktop row may carry a standard text; a writer that
+-- does not vouch for it (this direct insert) keeps the PHF too.
+select lives_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, standard_text, site)
                    values ('00000000-0000-0000-0000-0000000e2a01', 'desktop', 'weplay:33', pg_temp.phf('33'), 'text', 'weplay') $$,
-  '23514', null, 'no writer stores a desktop row with standard text');
+  'a desktop row may carry a standard text');
 select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, site)
                    values ('00000000-0000-0000-0000-0000000e2a01', 'desktop', 'weplay:34',
                            jsonb_set(pg_temp.phf('34'), '{meta,rawText}', '"Weplay Hand #34"'), 'weplay') $$,
@@ -272,8 +276,8 @@ select throws_ok($$ insert into public.hands (owner_id, origin, hand_key, phf, s
 
 select is((select hits from public.ingest_rate_limit where bucket = 'desktop_ingest:00000000-0000-0000-0000-0000000e2a01'),
   19, 'every received row is charged to the account''s bucket');
-select is((select hits from public.ingest_rate_limit where bucket = 'hands_insert'), 1,
-  'desktop rows do not spend the web''s global budget (one web row did)');
+select is((select hits from public.ingest_rate_limit where bucket = 'hands_insert'), 2,
+  'desktop rows do not spend the web''s global budget (two web rows did)');
 
 update public.ingest_rate_limit set hits = 149999
  where bucket = 'desktop_ingest:00000000-0000-0000-0000-0000000e2a01';

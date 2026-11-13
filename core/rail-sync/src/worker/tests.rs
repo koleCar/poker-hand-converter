@@ -35,6 +35,8 @@ struct ServerHand {
     user: String,
     key: String,
     phf: Value,
+    /// A text-only row (20271114090000): `phf` is null.
+    text: Option<String>,
     origin: &'static str,
 }
 
@@ -242,7 +244,18 @@ impl Server {
                     .rows_of(&user)
                     .into_iter()
                     .filter(|h| ids.contains(&h.id))
-                    .map(|h| json!({"hand_key": h.key, "phf": h.phf}))
+                    .map(|h| {
+                        json!({
+                            "hand_key": h.key,
+                            "phf": h.phf,
+                            "standard_text": h.text,
+                            "site": h.key.split(':').next().unwrap_or(""),
+                            "parser_version": null,
+                            "source_filename": null,
+                            "source_text": null,
+                            "created_at": "2026-11-13T10:00:00.123456+00:00",
+                        })
+                    })
                     .collect();
                 (200, Value::Array(rows).to_string())
             }
@@ -275,7 +288,13 @@ impl Server {
                     seq,
                     user: user.to_owned(),
                     key: key.clone(),
-                    phf: row["phf"].clone(),
+                    // The server keeps a sent text and drops the PHF.
+                    phf: if row["standard_text"].is_string() {
+                        Value::Null
+                    } else {
+                        row["phf"].clone()
+                    },
+                    text: row["standard_text"].as_str().map(str::to_owned),
                     origin: "desktop",
                 });
                 out.push(json!({"handKey": key, "status": "inserted"}));
@@ -392,6 +411,75 @@ impl SyncAccount for FakeAccount {
         self.refreshes.fetch_add(1, Ordering::SeqCst);
         Ok(())
     }
+}
+
+/// A hand the server keeps as its standard text (20271114090000) is pulled
+/// as that text, parsed and restored: the same hand as the one sent.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_pull_reads_a_text_only_hand_back() {
+    let mut files: Vec<PathBuf> = std::fs::read_dir(repo().join("fixtures/samples/weplay"))
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.is_file())
+        .collect();
+    files.sort();
+    let source_dir = scratch("pull-text-source");
+    let source = Store::open(source_dir.join("rail.db")).unwrap();
+    import(&source, &files[..2]);
+    let now = rail_store::time::now_ms() + 1;
+    let remote = source.reader().outbox_next(now, now, 1000).unwrap();
+    assert!(!remote.is_empty());
+    let server = Arc::new(Server::default());
+    let mut sent = Vec::new();
+    for entry in &remote {
+        let mut phf: Value = serde_json::from_str(&entry.phf).unwrap();
+        phf["meta"]["rawText"] = Value::from("");
+        let text = crate::stored_text::verified_standard_text(&phf).expect("WePlay reads back");
+        let seq = u64::from(server.seq.fetch_add(1, Ordering::SeqCst));
+        server.hands.lock().unwrap().push(ServerHand {
+            id: format!("30000000-0000-4000-8000-{seq:012x}"),
+            seq,
+            user: "a".into(),
+            key: entry.hand_key.clone(),
+            phf: Value::Null,
+            text: Some(text),
+            origin: "upload",
+        });
+        sent.push((entry.hand_key.clone(), phf));
+    }
+    let url = serve(Arc::clone(&server)).await;
+    let dir = scratch("pull-text");
+    let store = Store::open(dir.join("rail.db")).unwrap();
+    let rig = Rig::start(
+        Arc::clone(&server),
+        &url,
+        store,
+        dir,
+        FakeAccount::signed_in("a"),
+        config(),
+    );
+    let status = rig
+        .until("pulled", |s| {
+            s.phase == SyncPhase::UpToDate && s.outbox == 0 && s.pulled > 0
+        })
+        .await;
+    assert_eq!(status.pulled, u64::try_from(sent.len()).unwrap());
+    assert_eq!(status.pull_skipped, 0);
+    for (key, phf) in &sent {
+        let stored = rig.store().reader().hand_phf(key).unwrap().expect("pulled");
+        let stored: Value = serde_json::from_str(&stored).unwrap();
+        let mut sent_phf = phf.clone();
+        // The source text is not synced; the store's copy has none either.
+        sent_phf["meta"]["originalFilename"] = stored["meta"]["originalFilename"].clone();
+        sent_phf["meta"]["parserVersion"] = stored["meta"]["parserVersion"].clone();
+        assert_eq!(
+            crate::stored_text::phf_diffs(&sent_phf, &stored),
+            Vec::<String>::new(),
+            "{key}"
+        );
+        assert_eq!(stored["meta"]["siteId"], "weplay");
+    }
+    rig.stop().await;
 }
 
 // -------------------------------------------------------------- harness --
@@ -1135,6 +1223,7 @@ async fn the_pull_stores_the_accounts_other_hands_once_without_queueing_them() {
             user: "a".into(),
             key: entry.hand_key.clone(),
             phf: serde_json::from_str(&entry.phf).unwrap(),
+            text: None,
             origin: if i % 2 == 0 { "web" } else { "desktop" },
         });
     }

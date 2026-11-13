@@ -41,6 +41,7 @@
 import type { ConversionFailure } from "../../lib/phf/detect";
 import type { PhfHand } from "../../lib/phf/types";
 import { handKeyOf } from "../../lib/db/mapping";
+import { ingestPhfOf } from "../../lib/db/storedHand";
 import { UploadError, type IngestRow, type UploadApi } from "../../lib/db/upload";
 import { allowanceOf } from "../../lib/entitlements/planRefusal";
 import type { SourceInfo } from "./bulkRun";
@@ -167,12 +168,18 @@ export const MAX_QUEUED_ORIGINAL_BYTES = 32 * 1024 * 1024;
 export const MAX_FAILURES_PER_UPLOAD = 2_000;
 const FAILURES_PER_CALL = 200;
 
-/** The PHF as `ingest_hands` takes it: no original text (A2, Q4). */
-export function ingestRowOf(hand: PhfHand): IngestRow {
-  return {
-    hand_key: handKeyOf(hand),
-    phf: { ...hand, meta: { ...hand.meta, rawText: "" } },
-  };
+/**
+ * The PHF as `ingest_hands` takes it: no original text (A2, Q4); with its
+ * standard text when the conversion checked that it reads back as the hand
+ * (`StreamBatch.standardTexts`, 20271114090000) - the server then keeps the
+ * text instead of the PHF.
+ */
+export function ingestRowOf(hand: PhfHand, standardText: string | null = null): IngestRow {
+  const row: IngestRow = { hand_key: handKeyOf(hand), phf: ingestPhfOf(hand) };
+  if (standardText) {
+    row.standard_text = standardText;
+  }
+  return row;
 }
 
 export function createBulkSaver(options: SaverOptions): BulkSaver {
@@ -628,8 +635,8 @@ export function createBulkSaver(options: SaverOptions): BulkSaver {
 
     addBatch(batch) {
       owed += 1;
-      for (const hand of batch.hands) {
-        const row = ingestRowOf(hand);
+      for (const [i, hand] of batch.hands.entries()) {
+        const row = ingestRowOf(hand, batch.standardTexts?.[i] ?? null);
         queue.push({ kind: "row", key: batch.key, row, bytes: JSON.stringify(row).length });
       }
       queuedHands += batch.hands.length;

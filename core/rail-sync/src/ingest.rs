@@ -3,12 +3,16 @@
 //! with the account's token. The sync worker that drains the outbox with
 //! them is R1.9.
 //!
-//! **What is sent (Q4, 2026-10-13).** A hand is `{hand_key, phf}` and
-//! nothing else: the PHF with `meta.rawText` emptied (the original files stay
-//! on the user's disk), no standard text (the web derives it), no search
-//! columns (the server derives every one from the PHF; migration
+//! **What is sent (Q4, 2026-10-13).** A hand is `{hand_key, phf}` and,
+//! since `20271114090000_text_storage.sql`, its `standard_text`: the PHF with
+//! `meta.rawText` emptied (the original files stay on the user's disk), no
+//! search columns (the server derives every one from the PHF; migration
 //! `20270428090000_desktop_ingest.sql`). The server refuses a row that still
-//! carries its raw text, so [`IngestRow::from_outbox`] empties it.
+//! carries its raw text, so [`IngestRow::from_outbox`] empties it. The text
+//! is sent only when it reads back as the same hand
+//! ([`crate::stored_text::verified_standard_text`]); the server then stores
+//! the text and drops the PHF. A hand whose text does not read back is sent
+//! without one and keeps its PHF.
 //!
 //! **Batches.** At most [`MAX_BATCH_HANDS`] hands and [`MAX_BATCH_BYTES`] of
 //! JSON per call (the server's limits are 500 and 8 MiB). Request bodies go
@@ -37,16 +41,19 @@ pub const MAX_BATCH_HANDS: usize = 500;
 pub const MAX_BATCH_BYTES: usize = 4 * 1024 * 1024;
 /// One hand's PHF as sent (the server's `too-large` limit, 256 KiB).
 pub const MAX_PHF_BYTES: usize = 256 * 1024;
+/// One hand's standard text (`hands_standard_size`: 200 000 characters); a
+/// longer one is not sent, and the hand keeps its PHF.
+pub const MAX_TEXT_BYTES: usize = 200_000;
 
 const TIMEOUT: Duration = Duration::from_secs(60);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 
-/// One hand, ready to send: its key and its PHF as compact JSON with
-/// `meta.rawText` empty.
+/// One hand, ready to send: its key, its PHF as compact JSON with
+/// `meta.rawText` empty, and its verified standard text when it has one.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IngestRow {
     hand_key: String,
-    /// `{"hand_key":..,"phf":..}`, serialized once.
+    /// `{"hand_key":..,"phf":..,"standard_text":..}`, serialized once.
     json: String,
 }
 
@@ -81,14 +88,22 @@ impl IngestRow {
             .ok_or(RowError::Unreadable)?;
         // Q4: the original text stays on this machine.
         meta.insert("rawText".to_owned(), Value::String(String::new()));
+        let text = crate::stored_text::verified_standard_text(&phf);
         let phf = serde_json::to_string(&phf).map_err(|_| RowError::Unreadable)?;
         if phf.len() > MAX_PHF_BYTES {
             return Err(RowError::TooLarge(phf.len()));
         }
         let key = serde_json::to_string(hand_key).map_err(|_| RowError::Unreadable)?;
+        let json = match text.filter(|text| text.len() <= MAX_TEXT_BYTES) {
+            Some(text) => {
+                let text = serde_json::to_string(&text).map_err(|_| RowError::Unreadable)?;
+                format!(r#"{{"hand_key":{key},"phf":{phf},"standard_text":{text}}}"#)
+            }
+            None => format!(r#"{{"hand_key":{key},"phf":{phf}}}"#),
+        };
         Ok(Self {
             hand_key: hand_key.to_owned(),
-            json: format!(r#"{{"hand_key":{key},"phf":{phf}}}"#),
+            json,
         })
     }
 
