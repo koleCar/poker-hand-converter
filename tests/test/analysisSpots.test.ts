@@ -31,6 +31,7 @@ import {
 import { loadCharts } from "../../web/src/lib/charts/index.js";
 import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 
@@ -43,7 +44,7 @@ const CTX = { siteId: "standard", siteName: "standard", originalFilename: null }
  * `analysisPreflop.test.ts` pins the chart grades.
  */
 const CHARTS = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const analyzeHand = (hand: PhfHand) => analyzeWith(hand, { charts: CHARTS });
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

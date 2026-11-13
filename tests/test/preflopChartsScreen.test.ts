@@ -367,12 +367,14 @@ describe("the web", () => {
   });
 
   it("copies Rail's chart into a situation as whole percents", async () => {
-    const node = await shippedNodeOf("nlhe-cash-6max-100bb", "rfi:BTN");
+    // The transcribed 6-max 100bb ante set (the only set shipped on 2026-11-13; its seats are the plain table's).
+    const node = await shippedNodeOf("nlhe-cash-6max-100bb-ante", "rfi:BTN");
     expect(node).not.toBeNull();
     expect(node!.freq.raise[classIndex("AA")]).toBeGreaterThanOrEqual(95);
     expect(node!.freq.raise[classIndex("72o")]).toBeLessThanOrEqual(5);
     for (let i = 0; i < 169; i += 1) expect(node!.freq.raise[i] + node!.freq.call[i] + node!.freq.allin[i]).toBeLessThanOrEqual(100);
-    expect(await shippedNodeOf("nlhe-cash-hu-100bb", "vs-limp:BB:UTG")).toBeNull();
+    // No cold calls nor limps in that solution: nothing behind a limper.
+    expect(await shippedNodeOf("nlhe-cash-6max-100bb-ante", "vs-limp:BB:UTG")).toBeNull();
   });
 });
 

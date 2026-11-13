@@ -18,9 +18,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { FLOP_LIBRARY_ENABLED } from "../../../lib/analysis/flopLibrary";
+import { FLOP_LIBRARY_LIVE } from "../../../lib/analysis/flopLibrary";
 import { useDict } from "../../../lib/i18n/client";
-import { countsTowardsPass, isPlanned, readsFlopLibrary, type ExerciseDef, type GeneratedExerciseDef, type LessonMeta } from "../../../lib/learn/course";
+import { countsTowardsPass, isPlanned, readsFlopLibrary, waitsForCharts, type ExerciseDef, type GeneratedExerciseDef, type LessonMeta } from "../../../lib/learn/course";
 import { generateCalc, generateClassify, needed, passes } from "../../../lib/learn/practice";
 import { cardFor, exerciseResult, type NewCard } from "../../../lib/learn/progress";
 import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
@@ -80,7 +80,8 @@ function ExerciseBody({ meta, def }: { meta: LessonMeta; def: ExerciseDef }) {
     );
   }
   if (def.kind === "own-hands") return <OwnHandsExercise meta={meta} def={def} />;
-  if (readsFlopLibrary(def) && !FLOP_LIBRARY_ENABLED) {
+  if (waitsForCharts(def)) return <p className="notice notice--warn">{t.chartsMissing}</p>;
+  if (readsFlopLibrary(def) && !FLOP_LIBRARY_LIVE) {
     return <p className="notice notice--warn">{t.flopOff}</p>;
   }
   if (readsFlopLibrary(def) && !FLOP_DRILLS_AVAILABLE) {

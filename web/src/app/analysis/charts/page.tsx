@@ -23,7 +23,7 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const SET_RE = /^nlhe-cash-\d{1,2}max-\d{1,3}bb$/;
+const SET_RE = /^nlhe-cash-(hu|\d{1,2}max)-\d{1,3}bb(-ante|-straddle)?$/;
 const LINE_RE = /^(-|[fkcra]{1,24})$/;
 const HAND_RE = /^([AKQJT2-9])([AKQJT2-9])([so])?$/;
 

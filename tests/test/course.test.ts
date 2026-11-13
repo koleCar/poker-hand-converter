@@ -34,7 +34,7 @@ import { describe, expect, it } from "vitest";
 import { boardTexture, toIndices } from "../../web/src/lib/analysis/texture.js";
 import { grade } from "../../web/src/lib/analysis/grading.js";
 import { FLAG_CODES, GRADES, type OptionAnalysis } from "../../web/src/lib/analysis/types.js";
-import { CHART_SETS } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, PLANNED_CHART_SETS } from "../../web/src/lib/charts/index.js";
 import { cardIndex } from "../../web/src/lib/equity/evaluator.js";
 import { en } from "../../web/src/lib/i18n/en.js";
 import { hr } from "../../web/src/lib/i18n/hr.js";
@@ -68,6 +68,7 @@ import {
   moduleCode,
   readsFlopLibrary,
   requiredExercises,
+  waitsForCharts,
   writtenLessons,
   type GeneratedExerciseDef,
   type LessonId,
@@ -209,8 +210,9 @@ describe("the course catalogue", () => {
     }
   });
 
-  it("defines exercises the engine can deal: real chart sets, seats, families and river filters", () => {
-    const sets = new Set(CHART_SETS.map((spec) => spec.id));
+  it("defines exercises the engine can deal: planned chart sets, seats, families and river filters", () => {
+    // A set not transcribed yet is a planned one; its exercise waits for it (charts/11).
+    const sets = new Set(PLANNED_CHART_SETS);
     for (const meta of courseOrder()) {
       expect(meta.exercises.length, meta.id).toBeGreaterThan(0);
       const ids = meta.exercises.map((def) => def.id);
@@ -267,9 +269,28 @@ describe("the course catalogue", () => {
     }
   });
 
-  it("gives every written lesson at least one exercise that counts towards passing it, with the flop library on", () => {
+  it("gives every written lesson at least one exercise that counts towards passing it, with the flop library on and its charts transcribed", () => {
     expect(FLOP_LIBRARY_ENABLED).toBe(true);
-    for (const meta of writtenLessons()) expect(requiredExercises(meta, FLOP_LIBRARY_ENABLED).length, meta.id).toBeGreaterThan(0);
+    for (const meta of writtenLessons()) {
+      const counting = meta.exercises.filter((def) => countsTowardsPass(def, true) || waitsForCharts(def));
+      expect(counting.length, meta.id).toBeGreaterThan(0);
+    }
+  });
+
+  it("waits for a chart set not transcribed yet, and does not count it towards passing", () => {
+    const shipped = new Set(CHART_SETS.map((spec) => spec.id));
+    let waiting = 0;
+    for (const lesson of courseOrder()) {
+      for (const def of lesson.exercises) {
+        const set = (def as { set?: string }).set;
+        expect(waitsForCharts(def), `${lesson.id}/${def.id}`).toBe(typeof set === "string" && !shipped.has(set));
+        if (waitsForCharts(def)) {
+          waiting += 1;
+          expect(countsTowardsPass(def, true), `${lesson.id}/${def.id}`).toBe(false);
+        }
+      }
+    }
+    if (CHART_SETS.length < PLANNED_CHART_SETS.length) expect(waiting).toBeGreaterThan(0);
   });
 
   it("counts flop spots and flop splits only with the flop library on (L2)", () => {

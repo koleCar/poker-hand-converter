@@ -38,9 +38,10 @@ import { prepareFlopLibrary, runTrainingJob, type TrainingRequest } from "../../
 import { lineActs } from "../../web/src/lib/training/preflop.js";
 import type { DecisionAnalysis } from "../../web/src/lib/analysis/types.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const ROOT = join(import.meta.dirname, "../scripts/flop-library/pilot");
 const DIR = join(ROOT, CHARTS.id, FLOP_PROFILE.tree);
@@ -108,6 +109,11 @@ function expectRealBoard(study: RiverStudy, board: readonly string[]) {
 }
 
 describe.runIf(sameCharts)("the flop study from the library (pilot)", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!sameCharts) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const library = memoryLibrary(chunks());
   const chunk = chunks().find((c) => c.header.line === "btn-bb" && c.header.flop === "Ts7h4d")!;
   const betTo = chunk.result.nodes.find((n) => n.path === "X")!.actions.find((a) => a.kind === "bet")!.to;

@@ -45,8 +45,8 @@ export const trainerEn = {
   reset: "Reset",
   sections: { spot: "Spot", play: "Training", show: "Show" },
   table: "Table",
-  tableValue: (players: number, stack: number, straddle = false) =>
-    `${players === 2 ? "Heads-up" : `${players}-max`} ${num(stack)}bb${straddle ? " straddle" : ""}`,
+  tableValue: (players: number, stack: number, straddle = false, ante = false) =>
+    `${players === 2 ? "Heads-up" : `${players}-max`} ${num(stack)}bb${straddle ? " straddle" : ante ? " ante" : ""}`,
   family: "Situation",
   families: {
     random: "Any",
@@ -119,6 +119,10 @@ export const trainerEn = {
   loadingFlop: "Loading the flop…",
   grading: "Grading…",
   noSpot: "No spot matches these settings. Loosen one and try again.",
+  unavailable: {
+    flop: "Flop spots need a flop library solved on the GTO Wizard ranges; there is none yet.",
+    set: "This table is not transcribed from GTO Wizard yet: nothing to deal from it. Pick another table in the settings.",
+  },
   failed: (message: string) => `Something went wrong: ${message}`,
   retry: "Try again",
 

@@ -22,6 +22,11 @@ const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot/nlhe-cash-6
 const CHUNK = join(DIR, "btn-bb/Ts7h4d.bin");
 
 describe.runIf(existsSync(CHUNK))("the flop realisation measurement", { timeout: 300_000 }, () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!existsSync(CHUNK)) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const chunk = decodeChunk(readFileSync(CHUNK));
 
   it("measures exact equities against the node's range", () => {

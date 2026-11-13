@@ -25,6 +25,7 @@ import {
   settingsFields,
   spotOptions,
   targetSettings,
+  unavailable,
   type TrainerSettings,
 } from "../../web/src/components/trainer/settings.js";
 import { initialSettings } from "../../web/src/components/analysis/train/trainerQuery.js";
@@ -63,16 +64,38 @@ describe("trainer settings", () => {
   });
 
   it("gives each street the options its generator reads, on a table it deals from", () => {
-    const s: TrainerSettings = { ...DEFAULT_SETTINGS, set: "nlhe-cash-9max-100bb", family: "rfi", seat: "UTG", vs: "BB", side: "ip", facing: "raise" };
+    const ANTE = "nlhe-cash-6max-100bb-ante";
+    const s: TrainerSettings = { ...DEFAULT_SETTINGS, set: ANTE, family: "rfi", seat: "UTG", vs: "BB", side: "ip", facing: "raise" };
     const preflop = spotOptions("preflop", s);
     // First in nobody has raised: no raiser to face.
-    expect(preflop).toEqual({ kind: "preflop", options: { set: "nlhe-cash-9max-100bb", family: "rfi", seat: "UTG", vs: null, bias: "borderline" } });
+    expect(preflop).toEqual({ kind: "preflop", options: { set: ANTE, family: "rfi", seat: "UTG", vs: null, bias: "borderline" } });
     // The river and turn trainers deal the default 6-max set or a heads-up one; a raise is the flop's only.
     const river = spotOptions("river", s);
     expect(river.kind).toBe("river");
     expect(river.options).toMatchObject({ set: DEFAULT_CHART_SET, seat: "ip", facing: "any" });
     expect(spotOptions("turn", s).options).toMatchObject({ set: DEFAULT_CHART_SET, facing: "any" });
     expect(spotOptions("flop", s).options).toMatchObject({ facing: "raise" });
+    expect(unavailable("preflop", s)).toBeNull();
+    expect(unavailable("river", s)).toBeNull();
+  });
+
+  it("says a set not transcribed yet, or a flop with no flop library, is not available, and deals nothing else", () => {
+    // A study plan's link to the 9-max set (planned, not transcribed): kept, and unavailable on every street.
+    const s = parseSettings({ mode: "preflop", set: "nlhe-cash-9max-100bb" });
+    expect(s.set).toBe("nlhe-cash-9max-100bb");
+    expect(spotOptions("preflop", s).options).toMatchObject({ set: "nlhe-cash-9max-100bb" });
+    expect(spotOptions("river", s).options).toMatchObject({ set: "nlhe-cash-9max-100bb" });
+    for (const mode of ["preflop", "turn", "river"] as const) expect(unavailable(mode, s)).toBe("set");
+    // A heads-up turn leak while no heads-up set is transcribed: the heads-up set, unavailable - never the 6-max lines.
+    const hu = targetSettings({ mode: "turn", pot: "srp", side: "ip", role: "any", set: "nlhe-cash-hu-100bb" }, DEFAULT_SETTINGS);
+    expect(spotOptions("turn", hu.settings).options).toMatchObject({ set: "nlhe-cash-hu-100bb" });
+    expect(unavailable("turn", hu.settings)).toBe("set");
+    // An unknown id is still the default.
+    expect(parseSettings({ set: "nlhe-cash-7max-100bb" }).set).toBe(DEFAULT_SETTINGS.set);
+    // No flop library is published: the flop, and a whole hand from it, wait; a whole hand from preflop deals.
+    expect(unavailable("flop", DEFAULT_SETTINGS)).toBe("flop");
+    expect(unavailable("river", DEFAULT_SETTINGS, true)).toBe("flop");
+    expect(unavailable("preflop", DEFAULT_SETTINGS, true)).toBeNull();
   });
 
   it("turns a leak's trainer target into the street and the spot, keeping how the player trains", () => {

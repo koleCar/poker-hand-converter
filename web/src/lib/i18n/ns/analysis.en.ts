@@ -783,7 +783,7 @@ export const analysisEn = {
   reference: {
     title: "Preflop is graded against our charts, the turn and river against our solver",
     body:
-      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own preflop charts (6-max at 40–200 bb, full ring at 100–200 bb, heads-up at 100 and 150 bb) wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade. Multiway pots get facts against every opponent's range, and a call or fold facing a bet gets an approximate grade, labelled as such.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's preflop charts — GTO Wizard solutions, transcribed, with an ante wherever the hand had one from every seat — wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade. Multiway pots get facts against every opponent's range, and a call or fold facing a bet gets an approximate grade, labelled as such.",
     model:
       "The charts (charts/2) value a flop with the flop checked, so they still under-rate a few hands that win through implied odds: UTG folds 22–55, 54s–87s and A5s, and the button almost never flats a cutoff open. Grades against playing those lean harsh.",
     browse: "Browse the charts",
@@ -1318,15 +1318,16 @@ export const analysisEn = {
   charts: {
     heading: "Preflop charts",
     intro:
-      "Rail's own reference for No-Limit Hold'em cash — six-handed from 40 to 200 big blinds deep, full ring from 100 to 200 — computed by our solver, never copied from anyone's charts. Pick a table and a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
-    caveatTitle: "A model, with a known weakness",
+      "Rail's reference for No-Limit Hold'em cash: GTO Wizard preflop solutions, transcribed — classic, with an ante from every seat, and with a straddle, at the tables and depths captured so far. Pick a table and a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
+    caveatTitle: "Transcribed, with one raise per decision",
     caveat:
-      "These charts (charts/4) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh. Limped pots are in: the reference rarely limps itself outside the small blind, so behind a limp it assumes the limper may hold any hand.",
+      "Each set is a GTO Wizard solution, its game type, rake and sizes named on the set. Where the solution has several raise sizes at a decision, Rail keeps one raise: the sizes' frequencies added, their EVs averaged, at the most frequent size. Lines the solution leaves out, and tables or depths not captured yet, have no chart: such a decision is not graded.",
     loading: "Loading the charts…",
     failed: (message: string) => `The charts did not load: ${message}`,
     table: "Table and depth",
     /** A chart set: "6-max, 100bb". */
-    setOption: (players: number, stackBb: number, straddle = false) => `${players === 2 ? "Heads-up" : `${players}-max`}, ${stackBb}bb${straddle ? ", straddle" : ""}`,
+    setOption: (players: number, stackBb: number, straddle = false, ante = false) =>
+      `${players === 2 ? "Heads-up" : `${players}-max`}, ${stackBb}bb${straddle ? ", straddle" : ""}${ante && !straddle ? ", ante" : ""}`,
     category: "Scenario",
     spot: "Spot",
     categories: {

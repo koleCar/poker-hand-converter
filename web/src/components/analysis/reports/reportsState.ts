@@ -35,7 +35,7 @@ export const REPORT_POSITIONS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN
 
 /** The Reports screen's chart set filter (A2d), in the address bar as `set`; absent is every set. */
 export const REPORT_SET_KEY = "set";
-const SET_RE = /^nlhe-cash-[0-9]max-[0-9]{2,3}bb$/;
+const SET_RE = /^nlhe-cash-([0-9]max|hu)-[0-9]{2,3}bb(-ante|-straddle)?$/;
 
 /** The `set` parameter, or null for "all sets". */
 export function parseReportSet(source: URLSearchParams | Record<string, string | string[] | undefined>): string | null {

@@ -7,7 +7,14 @@
  * (`npm run floplib:bets`); `tests/test/flopBets.test.ts` recomputes every row
  * the committed pilot holds from its chunks, and every group from the rows.
  *
- * Pure: no React, no fetch. The lesson's widget imports the small JSON.
+ * Pure: no React, no fetch.
+ *
+ * **No data since `analysis/41`.** The rows were Rail's flop library on
+ * Rail's own preflop ranges (chart hash `ecad38d0`); the ranges are GTO
+ * Wizard's now and that library is not read, so the committed data is gone
+ * and `FLOP_BET_DATA` is null: the widget says the numbers wait for a
+ * library solved on the current ranges. Bring the JSON back (written by the
+ * script from such a library) and import it here.
  */
 
 import { flopCards, type FlopChunk } from "../solver";
@@ -86,6 +93,9 @@ export function groupRows(rows: readonly FlopBetRow[]): FlopGroupRow[] {
     return [{ group, flops: inGroup.length, bet: mean((r) => r.bet), big: mean((r) => r.big) }];
   });
 }
+
+/** The committed data the widget shows, or null while there is none (see the header). */
+export const FLOP_BET_DATA: FlopBetData | null = null;
 
 /** The committed data's shape. */
 export interface FlopBetData {

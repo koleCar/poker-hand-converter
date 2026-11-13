@@ -11,7 +11,7 @@
  */
 
 import { FLOP_LIBRARY_SETS, flopLinesFor, flopPlayersOf, lineSeats } from "../../lib/analysis/flopLibrary";
-import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../lib/charts";
+import { CHART_SETS, DEFAULT_CHART_SET, PLANNED_CHART_SETS, type ChartPosition } from "../../lib/charts";
 import {
   ALL_PREFLOP_SEATS,
   DEAL_BIASES,
@@ -137,9 +137,34 @@ export function setsFor(mode: TrainerMode) {
   return mode === "flop" ? FLOP_SETS : SOLVED_SETS;
 }
 
-/** The set a mode deals from at the chosen table: the table's own when it has one, else the default. */
+/** Whether a set is transcribed (`CHART_SETS`): one that is not has nothing to deal. */
+export function isTranscribed(set: string): boolean {
+  return CHART_SETS.some((spec) => spec.id === set);
+}
+
+/**
+ * The set a mode deals from at the chosen table: the table's own when it has
+ * one, else the default. A set not transcribed yet (a leak's or a link's) stays
+ * itself: the Trainer says it is not available ({@link unavailable}), it never
+ * deals another set in its place.
+ */
 export function setFor(mode: TrainerMode, set: string): string {
+  if (!isTranscribed(set)) return set;
   return setsFor(mode).some((spec) => spec.id === set) ? set : DEFAULT_CHART_SET;
+}
+
+/** Why the Trainer cannot deal: no flop library published (`flop`), or the set not transcribed yet (`set`). */
+export type Unavailable = "flop" | "set";
+
+/**
+ * Whether a street mode (a whole hand when `hand`: from the flop unless the
+ * mode is preflop) can deal at these settings: a flop needs a published flop
+ * library (none is, until one is solved on the GTO Wizard sets), every mode a
+ * set `CHART_SETS` holds. Null when it can.
+ */
+export function unavailable(mode: StreetMode, s: TrainerSettings, hand = false): Unavailable | null {
+  if ((mode === "flop" || (hand && mode !== "preflop")) && FLOP_SETS.length === 0) return "flop";
+  return isTranscribed(setFor(mode, s.set)) ? null : "set";
 }
 
 export function playersOf(set: string): number {
@@ -261,7 +286,8 @@ const seatOf = (value: unknown) =>
 export function parseSettings(raw: Record<string, unknown> | null | undefined): TrainerSettings {
   const r = raw ?? {};
   const d = DEFAULT_SETTINGS;
-  const set = oneOf(r.set, CHART_SETS.map((spec) => spec.id), d.set);
+  // A planned set not transcribed yet is kept (a study plan's link to it): the Trainer says it is not available.
+  const set = oneOf(r.set, [...new Set([...CHART_SETS.map((spec) => spec.id), ...PLANNED_CHART_SETS])], d.set);
   const flag = (value: unknown, fallback: boolean) =>
     value === true || value === "1" || value === "on" ? true : value === false || value === "0" || value === "off" ? false : fallback;
   return {

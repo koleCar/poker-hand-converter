@@ -185,11 +185,15 @@ export function leakColumns(decision: DecisionAnalysisInsert, heroPosition: stri
 }
 
 /**
- * The chart sets a hand's table is read on: `CHART_SETS`
- * (`web/src/lib/charts/registry.ts`) without the straddle set, in its order
- * (ties go to the first) - the list `analysis_hand_table_set` holds
- * (`20271102090000_leak_row_table.sql`; with the 9-max 60bb set since
+ * The tables and depths a hand's postflop leak rows are filed under, in
+ * order (ties go to the first) - the list `analysis_hand_table_set` holds
+ * (`20271102090000_leak_row_table.sql`; with the 9-max 60bb bucket since
  * `20271108090000_table_set_9max_60bb.sql`) and `rail_store::table_set` too.
+ * It was `CHART_SETS` without the straddle set until `charts/11`; since the
+ * sets are GTO Wizard transcriptions arriving one by one (and ante sets
+ * beside the classic ones), it is a fixed table-and-depth bucket instead,
+ * named like the classic sets: the leak list reads only its table
+ * (`tableOfSet`), and an ante hand files under its table and depth too.
  */
 export const HAND_TABLE_SETS: ReadonlyArray<{ id: string; seats: number; depth: number }> = [
   { id: "nlhe-cash-6max-40bb", seats: 6, depth: 40 },
@@ -275,11 +279,11 @@ export interface PreflopFields {
 
 const DECISION_ACTIONS = new Set(["fold", "check", "call", "raise", "bet"]);
 
-/** A shipped set's table (`preflop_chart_set_table`): plain cash sets, and the push/fold game's tables (R5.5). */
+/** A shipped set's table (`preflop_chart_set_table`, `20271113090000`): plain and ante cash sets, and the push/fold game's tables (R5.5). */
 function setTable(set: string | null): number | null {
   if (set === null) return null;
-  if (/^nlhe-cash-6max-[0-9]{1,3}bb$/.test(set) || set === "icm-pushfold-6max") return 6;
-  if (/^nlhe-cash-9max-[0-9]{1,3}bb$/.test(set) || set === "icm-pushfold-9max") return 9;
+  if (/^nlhe-cash-6max-[0-9]{1,3}bb(-ante)?$/.test(set) || set === "icm-pushfold-6max") return 6;
+  if (/^nlhe-cash-9max-[0-9]{1,3}bb(-ante)?$/.test(set) || set === "icm-pushfold-9max") return 9;
   if (/^nlhe-cash-hu-[0-9]{1,3}bb$/.test(set) || set === "icm-pushfold-hu") return 2;
   return null;
 }

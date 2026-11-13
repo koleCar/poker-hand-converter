@@ -74,8 +74,10 @@ describe("a whole hand from preflop", () => {
       }
       const over = step.over!;
       expect(over).not.toBeNull();
-      // Never more than a stack either way.
-      expect(Math.abs(over.heroNetBb)).toBeLessThanOrEqual(state.script.stackBb + 1e-9);
+      // Never more than a stack lost; won, at most the opponent's stack and the blinds that folded (the GTO Wizard set's
+      // small blind jams over a button open: it wins the button's 100bb and the big blind's 1bb).
+      expect(-over.heroNetBb).toBeLessThanOrEqual(state.script.stackBb + 1e-9);
+      expect(over.heroNetBb).toBeLessThanOrEqual(state.script.stackBb + 1.5 + 1e-9);
       // The winner of a fold gains, the folder loses what it put in (nothing, folding first in).
       if (over.reason === "fold" && over.winner === "hero") expect(over.heroNetBb).toBeGreaterThanOrEqual(0);
       if (over.reason === "fold" && over.winner === "villain") expect(over.heroNetBb).toBeLessThanOrEqual(0);

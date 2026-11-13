@@ -79,9 +79,10 @@ import {
   parseRange,
 } from "../../web/src/lib/solver/index.js";
 import { buildContext } from "../../web/src/lib/stats/context.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";

@@ -34,6 +34,7 @@ import { topLeaksEn } from "../../web/src/lib/i18n/ns/analysisLeaks.en";
 import { topLeaksHr } from "../../web/src/lib/i18n/ns/analysisLeaks.hr";
 import { screenHref } from "../../app/src/lib/router";
 import { setInvokeHandler } from "./support/tauriCore";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const ROOT = join(import.meta.dirname, "../..");
 
@@ -105,7 +106,7 @@ describe("the background run's line", () => {
 
 /** A corpus hand the web's library grades preflop. */
 async function gradedHand(): Promise<HandAnalysis> {
-  const charts = loadCharts(JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")));
+  const charts = loadCharts(JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")));
   for (const dir of ["fixtures/samples/pokerstars", "fixtures/samples/ggpoker", "gg-hh"]) {
     for (const name of readdirSync(join(ROOT, dir)).sort()) {
       if (!name.endsWith(".txt")) continue;
@@ -240,7 +241,7 @@ describe("the app's sources for the shared screens", () => {
     expect(await storeChartsSource.load("c-1")).toMatchObject({ id: "c-1", name: "Mine", tableSize: 6 });
     answers.chart_set_load = null;
     await expect(storeChartsSource.load("gone")).rejects.toThrow("not-found");
-    expect(storeChartsSource.shippedSets().some((s) => s.id === "nlhe-cash-6max-100bb" && s.tableSize === 6 && s.depthBb === 100)).toBe(true);
+    expect(storeChartsSource.shippedSets().some((s) => s.id === "nlhe-cash-6max-100bb-ante" && s.tableSize === 6 && s.depthBb === 100)).toBe(true);
     expect(storeChartsSource.shippedSets().some((s) => s.id.endsWith("-straddle"))).toBe(false);
 
     answers.chart_played = { from: "2026-07-26", to: "2026-10-23", cells: [{ key: "vs-open:BB:BTN", cls: 21, action: "call", decisions: 4, evLossBb: 1.5 }] };

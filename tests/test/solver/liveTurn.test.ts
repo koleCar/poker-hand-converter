@@ -48,6 +48,11 @@ function dealAfter(c: FlopChunk, labels: string[]): number {
 }
 
 describe.runIf(PRESENT)("a live turn from a pilot chunk", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!PRESENT) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const c = chunk("btn-bb", "AsKh7d");
 
   it("keeps the flop's pot after check-check, and grows it by both bets after bet-call", () => {

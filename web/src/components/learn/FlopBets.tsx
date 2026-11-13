@@ -1,29 +1,34 @@
 /**
- * How often the preflop raiser bets the flop, by board group, over Rail's own
- * flop library (Learn L2, *flop bets by board type*). The rows are the
- * committed data (`lib/learn/data/flop-bets.json`, written from the library's
- * chunks and checked against the pilot's by the tests), averaged per group at
- * runtime (`groupRows`). Rail's solves only, labelled as such.
+ * How often the preflop raiser bets the flop, by board group, over the flop
+ * library (Learn L2, *flop bets by board type*): rows written from the
+ * library's chunks (`npm run floplib:bets`), averaged per group at runtime
+ * (`groupRows`). Since `analysis/41` there are none - the library was solved
+ * on Rail's own preflop ranges, gone for GTO Wizard's - so the widget says
+ * the numbers wait for a library solved on the current ranges
+ * (`FLOP_BET_DATA` is null until then).
  */
 
 "use client";
 
 import { useMemo, useState } from "react";
 import { useDict } from "../../lib/i18n/client";
-import { FLOP_BET_SPOTS, groupRows, type FlopBetData, type FlopBetLine } from "../../lib/learn/flopBets";
-import data from "../../lib/learn/data/flop-bets.json";
+import { FLOP_BET_DATA, FLOP_BET_SPOTS, groupRows, type FlopBetData, type FlopBetLine } from "../../lib/learn/flopBets";
 import { useFormats } from "./controls";
 import "../../styles/stats.css";
 import styles from "./learn.module.css";
 
-const DATA = data as FlopBetData;
+export function FlopBets({ line }: { line?: string }) {
+  const t = useDict().course.flopBets;
+  if (!FLOP_BET_DATA) return <p className="notice notice--warn">{t.none}</p>;
+  return <FlopBetsTable data={FLOP_BET_DATA} initial={line} />;
+}
 
-export function FlopBets({ line: initial }: { line?: string }) {
+function FlopBetsTable({ data: DATA, initial }: { data: FlopBetData; initial?: string }) {
   const t = useDict().course.flopBets;
   const f = useFormats();
   const start = FLOP_BET_SPOTS.find((s) => s.line === initial)?.line ?? FLOP_BET_SPOTS[0].line;
   const [line, setLine] = useState<FlopBetLine>(start);
-  const rows = useMemo(() => groupRows(DATA.lines[line] ?? []), [line]);
+  const rows = useMemo(() => groupRows(DATA.lines[line] ?? []), [DATA, line]);
   const flops = (DATA.lines[line] ?? []).length;
 
   return (

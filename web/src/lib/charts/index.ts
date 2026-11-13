@@ -8,23 +8,28 @@
  * realisation.ts charts/2: measure realisation with the postflop solver, fit, rounds
  * lookup.ts     a real preflop line -> node, options, approximations (or a reason)
  * fromHand.ts   PhfHand -> the PreflopSpot of one hero decision; the sets a hand needs
- * registry.ts   charts/3: the library of sets (table x depth), which one answers a spot, lazy loading
+ * registry.ts   the library of sets (table x depth x kind), which one answers a spot, lazy loading
  * base64.ts     the blob encoding, without Buffer or atob
- * data/         the committed chart sets, one JSON per table and depth, generated - never edited by hand
+ * data/         the committed chart sets, one JSON per table, depth and kind, transcribed - never edited by hand
  * ```
  *
  * **Import rule: the same as `lib/solver`, plus `lib/solver` itself.** This
  * module may import only `lib/phf/types`, `lib/cards`, `lib/equity` and
  * `lib/solver`: it runs under plain Node in `tests/test` and in a Web Worker.
  *
- * The charts are ours: computed by `lib/solver`'s preflop DCFR with an
- * equity-realisation model fitted to `lib/solver`'s own postflop solves,
- * never copied from any published chart.
+ * The charts are GTO Wizard's (`charts/11`): every committed set is a GTO
+ * Wizard preflop solution, transcribed by
+ * `tests/scripts/preflop-charts/gtow.test.ts` (sizes merged where Rail's
+ * one-raise-per-decision line needs it, docs/CHARTS.md §6). Rail's own
+ * generator (`generate.ts`, `build.ts`, `realisation.ts`: `lib/solver`'s
+ * preflop DCFR with a realisation model fitted to its postflop solves)
+ * stays for its tests and research, but none of its sets ships.
  */
 
 export {
   CHART_SET_VERSIONS,
   CHARTS_VERSION,
+  GTOW_CHARTS_VERSION,
   ChartFormatError,
   isOpenLimpNode,
   loadCharts,
@@ -83,6 +88,7 @@ export {
 export {
   chartTree,
   handClassOf,
+  hasRailTree,
   lookupPreflop,
   rareLineDepthSets,
   STACK_NOTE_TOLERANCE,
@@ -94,12 +100,16 @@ export {
   type LookupOptions,
   type PreflopActionInput,
   type PreflopSpot,
+  uncapturedLine,
   uncoveredDepthSets,
 } from "./lookup";
-export { liveNames, postedLimp, preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";
+export { anteOf, liveNames, postedLimp, preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";
 export {
+  ANTE_SIZE_TOLERANCE,
+  anteMismatch,
   CHART_SETS,
   chartLibrary,
+  chartSetKind,
   DEFAULT_CHART_SET,
   effectiveStackBb,
   ensureChartSets,
@@ -107,16 +117,19 @@ export {
   loadChartLibrary,
   loadChartSet,
   pickChartSet,
+  PLANNED_CHART_SETS,
+  PREFERRED_CHART_SET,
+  setsOfKind,
   STRADDLE_SIZE_TOLERANCE,
   straddleMismatch,
   type ChartLibrary,
+  type ChartSetKind,
   type ChartSetPick,
   type ChartSetSpec,
 } from "./registry";
 
-/** The committed 6-max 100bb cash set alone, loaded on demand (~0.7 MB of JSON). */
+/** The library's default set alone (`DEFAULT_CHART_SET`), loaded on demand. */
 export async function loadDefaultCharts() {
-  const { loadCharts } = await import("./format");
-  const data = await import("./data/nlhe-cash-6max-100bb.json");
-  return loadCharts(data.default ?? data);
+  const { loadChartSet, DEFAULT_CHART_SET } = await import("./registry");
+  return loadChartSet(DEFAULT_CHART_SET);
 }

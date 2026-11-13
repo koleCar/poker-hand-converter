@@ -54,6 +54,10 @@ export const solverEn = {
     summary: (players: number, stackBb: number) => `${tableName(players)} · ${num(stackBb)} bb`,
     playersName: tableName,
     depthName: (stackBb: number) => `${num(stackBb)} bb`,
+    format: "Format",
+    classic: "Classic",
+    ante: "Ante",
+    straddle: "Straddle",
   },
 
   preflop: {
@@ -64,13 +68,15 @@ export const solverEn = {
         ? `Raise ${size(toBb)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     rewind: (position: string) => `Back to ${position}'s decision`,
+    show: (position: string) => `Show ${position}'s range here`,
     foldTo: (position: string) => `Everyone before ${position} folds`,
     toAct: "to act",
     folded: (winner: string) => `Everyone folds to ${winner}: there is no flop.`,
     multiway: (players: string) => `A multiway flop (${players}): the library solves heads-up flops only.`,
     allin: "All-in before the flop: there is no flop to solve.",
+    uncaptured: "This line is not transcribed from GTO Wizard yet.",
     notSolved: (oop: string, ip: string) => `${ip} vs ${oop}: this line is not in the solver library yet.`,
-    setEmpty: "This table's flop solves are not published yet.",
+    setEmpty: "Preflop only: there is no postflop solve for these ranges yet.",
   },
 
   flop: {
@@ -140,7 +146,8 @@ export const solverEn = {
   rangeValue: (reach: number, value: number) => `${num(reach, 1)} combos reach this decision · range EV ${signedBb(value)}`,
   solvedTo: (exploitability: number, iterations: number) =>
     `Solved to ${num(exploitability, 2)}% of the pot exploitability in ${num(iterations)} iterations.`,
-  chartNote: "Preflop: Rail's own charts. Cells fade where less of the hand reaches the decision.",
+  chartNote:
+    "Preflop: a GTO Wizard solution, transcribed. Where it has several raise sizes, they show as one raise at the most frequent size. Cells fade where less of the hand reaches the decision.",
   fullNote: "Full solve: flop, turn and river (local). ",
   liveNote: "Turn and river solved here from the flop's ranges: turn 75% and all-in, one raise; river 75% and all-in. ",
   flopNote: "A cell fades where less of the hand reaches the decision. Combos are shown in the suits of the picked flop.",

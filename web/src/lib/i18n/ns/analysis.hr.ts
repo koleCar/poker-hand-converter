@@ -758,7 +758,7 @@ export const analysisHr: Dict["analysis"] = {
   reference: {
     title: "Preflop se ocjenjuje prema našim chartovima, turn i river prema našem solveru",
     body:
-      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb, heads-up 100 i 150 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu, turnu ili riveru približnu ocjenu, označenu kao takvu.",
+      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim preflop chartovima — GTO Wizard rješenjima, prenesenima, s anteom gdje ga je ruka imala od svakog igrača — gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu, turnu ili riveru približnu ocjenu, označenu kao takvu.",
     model:
       "Chartovi (charts/2) flop vrednuju uz checkan flop, pa još podcjenjuju nekoliko ruku koje dobivaju kroz implied odds: UTG folda 22–55, 54s–87s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     browse: "Pregledaj chartove",
@@ -1273,14 +1273,15 @@ export const analysisHr: Dict["analysis"] = {
   charts: {
     heading: "Preflop chartovi",
     intro:
-      "Railova vlastita referenca za No-Limit Hold'em cash — šest igrača od 40 do 200 big blindova duboko, puni stol od 100 do 200 — izračunata našim solverom, nikad prepisana iz tuđih chartova. Odaberi stol i situaciju: svaka ruka pokazuje koliko često referenca igra svaku akciju, a kad prijeđeš mišem preko ruke ili je fokusiraš, vidiš koliko svaka akcija vrijedi.",
-    caveatTitle: "Model, s poznatom slabošću",
+      "Railova referenca za No-Limit Hold'em cash: GTO Wizard preflop rješenja, prenesena — klasično, s anteom svakog igrača i sa straddleom, za stolove i dubine prenesene dosad. Odaberi stol i situaciju: svaka ruka pokazuje koliko često referenca igra svaku akciju, a kad prijeđeš mišem preko ruke ili je fokusiraš, vidiš koliko svaka akcija vrijedi.",
+    caveatTitle: "Preneseno, s jednim raiseom po odluci",
     caveat:
-      "Ovi chartovi (charts/4) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge. Limpani potovi su uključeni: referenca sama rijetko limpa izvan small blinda, pa iza limpa pretpostavlja da limper može imati bilo koju ruku.",
+      "Svaki set je GTO Wizard rješenje, a tip igre, rake i veličine navedeni su uz set. Gdje rješenje u odluci ima više veličina raisea, Rail zadržava jedan raise: frekvencije veličina zbrojene, EV-ovi usrednjeni, na najčešćoj veličini. Linije koje rješenje izostavlja te stolovi i dubine koji još nisu preneseni nemaju chart: takva odluka se ne ocjenjuje.",
     loading: "Učitavam chartove…",
     failed: (message: string) => `Chartovi se nisu učitali: ${message}`,
     table: "Stol i dubina",
-    setOption: (players: number, stackBb: number, straddle = false) => `${players === 2 ? "Heads-up" : `${players}-max`}, ${stackBb} bb${straddle ? ", straddle" : ""}`,
+    setOption: (players: number, stackBb: number, straddle = false, ante = false) =>
+      `${players === 2 ? "Heads-up" : `${players}-max`}, ${stackBb} bb${straddle ? ", straddle" : ""}${ante && !straddle ? ", ante" : ""}`,
     category: "Scenarij",
     spot: "Situacija",
     categories: {

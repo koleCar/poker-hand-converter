@@ -33,16 +33,23 @@
  * converges (docs/CHARTS.md §5.1), `charts/7` the same for the 9-max 150bb
  * set, `charts/8` the heads-up 100bb set (the small blind is the button,
  * docs/CHARTS.md §6.9), `charts/9` the heads-up 150bb set, `charts/10` the
- * 9-max 60bb set (docs/CHARTS.md §6.11). Each set carries
- * the version of the generator that made it and its own `id`. A regenerated set
- * with new numbers changes `model.hash`, and the analysis version
+ * 9-max 60bb set (docs/CHARTS.md §6.11). `charts/11` replaced every one of
+ * them: the library is GTO Wizard preflop solutions, transcribed
+ * (`GTOW_CHARTS_VERSION`, `tests/scripts/preflop-charts/gtow.test.ts`), with
+ * ante sets beside the classic ones (`game.ante`). Rail's generator
+ * (`generate.ts`, `build.ts`) still writes `CHARTS_VERSION` sets, but none
+ * ships. Each set carries the version that made it and its own `id`. A new
+ * transcription changes `model.hash`, and the analysis version
  * (`ANALYSIS_VERSION`) is what tells stored grades apart.
  */
 
 import { NUM_CLASSES } from "../solver/handClasses";
 import { decodeBase64, encodeBase64 } from "./base64";
 
-export const CHARTS_VERSION = "charts/10";
+export const CHARTS_VERSION = "charts/11";
+
+/** The `version` of a set transcribed from a GTO Wizard solution (every shipped set since `charts/11`). */
+export const GTOW_CHARTS_VERSION = "gtow/1";
 
 /**
  * Versions a chart set file may carry. Each set records the generator that
@@ -51,7 +58,10 @@ export const CHARTS_VERSION = "charts/10";
  * own table and depth; the limp trees are `charts/4`'s, the straddle set
  * `charts/5`'s, the two 200bb sets `charts/6`'s, the 9-max 150bb set
  * `charts/7`'s, the heads-up 100bb set `charts/8`'s, the heads-up 150bb set
- * `charts/9`'s, the 9-max 60bb set `charts/10`'s. `CHARTS_VERSION` names the library (`registry.ts`).
+ * `charts/9`'s, the 9-max 60bb set `charts/10`'s. Since `charts/11` every
+ * shipped set is a GTO Wizard transcription (`GTOW_CHARTS_VERSION`); the
+ * generator's versions stay readable for its own tests. `CHARTS_VERSION`
+ * names the library (`registry.ts`).
  */
 export const CHART_SET_VERSIONS: readonly string[] = [
   "charts/2",
@@ -63,6 +73,8 @@ export const CHART_SET_VERSIONS: readonly string[] = [
   "charts/8",
   "charts/9",
   "charts/10",
+  "charts/11",
+  GTOW_CHARTS_VERSION,
 ];
 
 /** Seat names as the stats engine assigns them (`positionRing`): 6-max, 9-max, or heads-up (`SB`, `BB`). */
@@ -152,6 +164,11 @@ export interface ChartSetJson {
     stackBb: number;
     /** A straddle set (A2e): who posts it (the first seat left of the big blind) and its size in bb. */
     straddle?: { position: ChartPosition; bb: number };
+    /**
+     * An ante set: what every seat posts before the deal, bb - dead money, in
+     * `potBb` but not in a seat's `inBb`. `stackBb` is the stack before it.
+     */
+    ante?: number;
   };
   /** Every assumption and the measured convergence; free-form but stable. */
   model: Record<string, unknown> & { hash: string };

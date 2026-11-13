@@ -12,7 +12,7 @@
  * bundled.
  */
 
-import { flopLibraryBase, FLOP_LIBRARY_ENABLED, FlopLibraryLoader } from "../lib/analysis";
+import { flopLibraryBase, FLOP_LIBRARY_LIVE, FlopLibraryLoader } from "../lib/analysis";
 import { ensureChartSets, loadChartLibrary, type ChartLibrary } from "../lib/charts";
 import { SUPABASE_URL } from "../lib/supabase/config";
 import { isPlayJob, prepareFlopLibrary, runPlayJob, runTrainingJob, trainingChartSets, type TrainingRequest, type TrainingResponse } from "../lib/training/jobs";
@@ -26,7 +26,7 @@ let flopLibrary: FlopLibraryLoader | null | undefined;
 function loader(): FlopLibraryLoader | null {
   if (flopLibrary === undefined) {
     const base = flopLibraryBase(SUPABASE_URL);
-    flopLibrary = FLOP_LIBRARY_ENABLED && base ? new FlopLibraryLoader(base, (url) => fetch(url)) : null;
+    flopLibrary = FLOP_LIBRARY_LIVE && base ? new FlopLibraryLoader(base, (url) => fetch(url)) : null;
   }
   return flopLibrary;
 }

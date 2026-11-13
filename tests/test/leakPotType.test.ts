@@ -64,6 +64,11 @@ const { drillQuery, dueDrillQuery, parseTrainState, trainQuery } = await import(
 const SIX = "nlhe-cash-6max-100bb";
 const HU100 = "nlhe-cash-hu-100bb";
 const KEY = "flop|pfr-oop-vs-bet||BB|fold|call";
+/** Since charts/11 the flop trainer waits for a library on the transcribed sets, the heads-up river for the heads-up sets. */
+const { FLOP_LIBRARY_SETS } = await import("../../web/src/lib/analysis/flopLibrary.js");
+const { CHART_SETS } = await import("../../web/src/lib/charts/index.js");
+const FLOP_LIVE = FLOP_LIBRARY_SETS.length > 0;
+const HU_SHIPPED = CHART_SETS.some((spec) => spec.id === HU100);
 
 /** `save_study_plan`'s checks: a drill task's reference (the area id) and a train task's. */
 const DRILL_REF = /^[A-Za-z0-9*~+-]{1,120}$/;
@@ -225,7 +230,7 @@ describe("ids", () => {
 /* ------------------------------------------------------------ the plan - */
 
 describe("the study plan on a pot", () => {
-  it("deals a 3-bet pot area the table's 3-bet pot lines, a 4-bet+ one its 4-bet line or nothing", () => {
+  it.runIf(FLOP_LIVE && HU_SHIPPED)("deals a 3-bet pot area the table's 3-bet pot lines, a 4-bet+ one its 4-bet line or nothing", () => {
     const where = { street: "flop", scenario: "pfr-oop-vs-bet", family: "vs-bet", hero: "BB", villain: "-" };
     const three = trainerTarget({ ...where, pot: "3bp" }, SIX);
     expect(three).toEqual({ mode: "flop", set: SIX, pot: "3bp", side: "oop", role: "pfr", seat: "BB", facing: "bet", line: null });
@@ -249,7 +254,7 @@ describe("the study plan on a pot", () => {
     expect(trainerTarget({ ...where, pot: "3bp" })).toEqual({ mode: "river", pot: "3bp", side: "ip", role: "pfr" });
     expect(trainerTarget(where)).toEqual({ mode: "river", pot: "srp", side: "ip", role: "pfr" });
     expect(trainerTarget({ ...where, pot: "4bp" })).toBeNull();
-    expect(trainerTarget({ ...where, pot: "3bp" }, HU100)).toEqual({ mode: "river", pot: "3bp", side: "ip", role: "pfr", set: HU100 });
+    if (HU_SHIPPED) expect(trainerTarget({ ...where, pot: "3bp" }, HU100)).toEqual({ mode: "river", pot: "3bp", side: "ip", role: "pfr", set: HU100 });
     expect(trainerRef(trainerTarget({ ...where, pot: "3bp" })!)).toBe("river/3bp/ip/pfr");
   });
 

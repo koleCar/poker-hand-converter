@@ -64,6 +64,8 @@ export interface HandScript {
   seats?: readonly ScriptPosition[];
   /** A straddle (the straddle chart set, A2e): who posts it, the first seat left of the big blind, and how much, bb. */
   straddle?: { position: ScriptPosition; bb: number };
+  /** An ante from every seat (an ante chart set, `charts/11`), bb: dead money before the blinds. */
+  ante?: number;
   hero: ScriptPosition;
   /** The hero's hole cards, e.g. `["Ah", "Kd"]`; null deals them face down. */
   heroCards: readonly [string, string] | null;
@@ -143,6 +145,15 @@ function write(script: HandScript): Lines {
     high = Math.max(high, totals[position]);
     lines.push(`${nameOf(script, position)}: posts ${word} blind ${money(amount)}`);
   };
+  if (script.ante) {
+    // Dead money: off every stack and into the pot, not part of a seat's street total.
+    const amount = cents(script.ante);
+    for (const position of bySeat) {
+      behind[position] -= amount;
+      pot += amount;
+      lines.push(`${nameOf(script, position)}: posts the ante ${money(amount)}`);
+    }
+  }
   post("SB", 50, "small");
   post("BB", 100, "big");
   if (script.straddle) {

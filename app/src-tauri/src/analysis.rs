@@ -44,7 +44,9 @@ use crate::stats::StatsState;
 /// The store's `kv` key for the user's pause.
 const PAUSED_KEY: &str = "analysis.paused";
 
-/// The set whose manifest the reachability probe fetches.
+/// The set whose manifest the reachability probe fetches - none while no set
+/// is published (`rail_sync::floplib::PUBLISHED_SETS`): the probe then
+/// answers yes without asking the bucket.
 const PROBE_MANIFEST: &str = "nlhe-cash-6max-100bb/flop-m1/manifest.json";
 
 /// The analysis' state: the user's pause and the flop library on disk.

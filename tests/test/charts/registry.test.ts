@@ -1,9 +1,10 @@
 /**
- * The chart library (`charts/3`, A2c; `lib/charts/registry.ts`): which set
- * answers a spot, how a smaller table is read on a bigger set, what the
- * lookup records about the choice, and real hands from the corpora - 9-, 8-
- * and 7-handed WePlay tables, deep and short stacks - landing on the right
- * set and node.
+ * The chart library (`lib/charts/registry.ts`, `charts/11`): which set
+ * answers a spot - over the owner's whole planned list, by kind (classic,
+ * ante, straddle), table and depth - how a smaller table is read on a bigger
+ * set, what the lookup records, and real hands from the corpora landing on a
+ * set of their own kind or refused by name. Lookups read the transcribed
+ * sets and the test fixtures (`support.ts`).
  */
 
 import { readFileSync } from "node:fs";
@@ -16,6 +17,7 @@ import {
   CHART_SETS,
   chartLibrary,
   DEFAULT_CHART_SET,
+  PLANNED_CHART_SETS,
   effectiveStackBb,
   ensureChartSets,
   isChartLibrary,
@@ -32,7 +34,7 @@ import { convertAny } from "../../../web/src/lib/parsers/index.js";
 import { positionRing, type PhfHand, type Position } from "../../../web/src/lib/phf/types.js";
 import { weplayFiles } from "../support/corpus.js";
 import { ggCorpusFiles } from "../support/psggCorpus.js";
-import { chartSet, fileOf, fullLibrary } from "./support.js";
+import { chartSet, fileOf, fullLibrary, SIX_MAX_100, TEST_CHART_SETS } from "./support.js";
 
 const act = (position: Position, type: PreflopActionInput["type"], toBb?: number): PreflopActionInput =>
   toBb === undefined ? { position, type } : { position, type, toBb };
@@ -46,10 +48,28 @@ function table(k: number, hero: Position, stack = 100, extra: Partial<PreflopSpo
   return { positions: ring, hero, actions, stacksBb, ...extra };
 }
 
-const pickId = (spot: PreflopSpot) => {
-  const pick = pickChartSet(CHART_SETS, spot);
+/**
+ * Every planned set as a spec (no data: picking a set reads only the
+ * registry), so the table and depth rules are tested over the owner's whole
+ * list whatever is transcribed so far.
+ */
+const PLANNED: ChartSetSpec[] = PLANNED_CHART_SETS.map((id) => {
+  const m = /^nlhe-cash-(hu|\d)(?:max)?-(\d+)bb(-ante|-straddle)?$/.exec(id)!;
+  return {
+    id,
+    players: m[1] === "hu" ? 2 : Number(m[1]),
+    stackBb: Number(m[2]),
+    ...(m[3] === "-ante" ? { ante: 0.166 } : {}),
+    ...(m[3] === "-straddle" ? { straddle: { position: "UTG" as const, bb: 2 }, ante: 0.166 } : {}),
+    load: () => Promise.reject(new Error("not loaded")),
+  };
+});
+
+const pickId = (spot: PreflopSpot, specs: readonly ChartSetSpec[] = PLANNED) => {
+  const pick = pickChartSet(specs, spot);
   return pick.ok ? pick.spec.id : pick.reason;
 };
+const anted = (spot: PreflopSpot, anteBb = 0.16): PreflopSpot => ({ ...spot, ante: true, anteBb });
 
 function ok(result: ChartLookup) {
   if (!result.ok) throw new Error(`expected a node, got ${result.reason}: ${result.detail}`);
@@ -57,27 +77,25 @@ function ok(result: ChartLookup) {
 }
 
 describe("the registry", () => {
-  it("lists every committed set once, 6-max and 9-max, with the default 6-max 100bb", () => {
+  it("lists only planned sets, each once, its id naming its table, depth and kind", () => {
     const ids = CHART_SETS.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain(DEFAULT_CHART_SET);
     for (const spec of CHART_SETS) {
+      expect(PLANNED_CHART_SETS).toContain(spec.id);
       const table = spec.players === 2 ? "hu" : `${spec.players}max`;
-      expect(spec.id).toBe(`nlhe-cash-${table}-${spec.stackBb}bb${spec.straddle ? "-straddle" : ""}`);
+      const kind = spec.straddle ? "-straddle" : spec.ante ? "-ante" : "";
+      expect(spec.id).toBe(`nlhe-cash-${table}-${spec.stackBb}bb${kind}`);
       const set = chartSet(spec.id);
       expect(set.id).toBe(spec.id);
       expect(set.game.positions).toHaveLength(spec.players);
-      expect(set.game.stackBb).toBe(spec.stackBb);
+      expect(set.game.stackBb - (set.game.ante ?? 0)).toBeCloseTo(spec.stackBb, 6);
     }
-    expect(CHART_SETS.filter((s) => s.players === 6 && !s.straddle).map((s) => s.stackBb)).toEqual([40, 60, 100, 150, 200]);
-    // charts/5 (A2e): one straddle set, 6-max 100bb, a 2bb straddle from UTG.
-    expect(CHART_SETS.filter((s) => s.straddle).map((s) => [s.id, s.straddle])).toEqual([
-      ["nlhe-cash-6max-100bb-straddle", { position: "UTG", bb: 2 }],
-    ]);
-    // charts/10: 9-max 60bb.
-    expect(CHART_SETS.filter((s) => s.players === 9).map((s) => s.stackBb)).toEqual([60, 100, 150, 200]);
-    // charts/8 and charts/9: heads-up at 100bb and 150bb.
-    expect(CHART_SETS.filter((s) => s.players === 2).map((s) => s.id)).toEqual(["nlhe-cash-hu-100bb", "nlhe-cash-hu-150bb"]);
+    // The owner's list: no 9-max 60bb without an ante, no 6-max straddle without one.
+    expect(PLANNED_CHART_SETS).not.toContain("nlhe-cash-9max-60bb");
+    expect(PLANNED.filter((s) => s.players === 6 && !s.ante).map((s) => s.stackBb)).toEqual([40, 60, 100, 150, 200]);
+    expect(PLANNED.filter((s) => s.players === 9 && !s.ante).map((s) => s.stackBb)).toEqual([100, 150, 200]);
+    expect(PLANNED.filter((s) => s.players === 9 && s.ante).map((s) => s.stackBb)).toEqual([60, 100, 150, 200]);
   });
 
   it("reads heads-up on the heads-up set, 3-6 players on a 6-max set and 7-9 on a 9-max set; refuses ten", () => {
@@ -89,54 +107,36 @@ describe("the registry", () => {
     expect(pickId(table(9, "UTG+2"))).toBe("nlhe-cash-9max-100bb");
     expect(pickId(table(2, "SB"))).toBe("nlhe-cash-hu-100bb");
     expect(pickId(table(2, "BB", 119))).toBe("nlhe-cash-hu-100bb");
-    // Two heads-up depths: the nearest within 20% (80-180bb), further is refused, never read on a bigger table.
     expect(pickId(table(2, "SB", 121))).toBe("nlhe-cash-hu-150bb");
     expect(pickId(table(2, "SB", 79))).toBe("stack-depth");
     expect(pickId(table(2, "SB", 181))).toBe("stack-depth");
-    expect(pickChartSet(CHART_SETS.filter((s) => s.players > 2), table(2, "SB"))).toMatchObject({ ok: false, reason: "players" });
+    expect(pickChartSet(PLANNED.filter((s) => s.players > 2), table(2, "SB"))).toMatchObject({ ok: false, reason: "players" });
     expect(pickId(table(10, "MP"))).toBe("players");
+    // Antes: the ante sets, 6-max and 9-max; heads-up has none.
+    expect(pickId(anted(table(6, "CO")))).toBe("nlhe-cash-6max-100bb-ante");
+    expect(pickId(anted(table(8, "CO")))).toBe("nlhe-cash-9max-100bb-ante");
+    expect(pickId(anted(table(2, "SB")))).toBe("players");
   });
 
-  it("picks the nearest heads-up depth: 100bb up to 120bb, 150bb from there to 180bb", () => {
-    // Relative distance: 120bb is 20% from both, and the shallower (listed first) keeps it.
-    expect(pickId(table(2, "SB", 120))).toBe("nlhe-cash-hu-100bb");
-    expect(pickId(table(2, "BB", 120.5))).toBe("nlhe-cash-hu-150bb");
-    expect(pickId(table(2, "SB", 150))).toBe("nlhe-cash-hu-150bb");
-    expect(pickId(table(2, "SB", 180))).toBe("nlhe-cash-hu-150bb");
-    // The effective stack: a 300bb button against a 140bb big blind is a 140bb hand.
-    const spot = table(2, "SB", 300);
-    spot.stacksBb = { SB: 300, BB: 140 };
-    expect(pickId(spot)).toBe("nlhe-cash-hu-150bb");
-    // Within 5% is exact; further is the stack-depth note with both depths.
-    const library = fullLibrary();
-    expect(ok(lookupPreflop(library, table(2, "SB", 145), "AA")).approximations).toEqual([]);
-    expect(ok(lookupPreflop(library, table(2, "SB", 130), "AA")).approximations).toMatchObject([
-      { kind: "stack-depth", realBb: 130, chartBb: 150 },
-    ]);
-    expect(ok(lookupPreflop(library, table(2, "SB", 130), "AA")).set.id).toBe("nlhe-cash-hu-150bb");
-  });
-
-  it("picks the nearest depth within 20%, never interpolating", () => {
+  it("picks the nearest depth within 20%, never interpolating, within a kind", () => {
     expect(pickId(table(6, "BTN", 119))).toBe("nlhe-cash-6max-100bb");
     expect(pickId(table(6, "BTN", 121))).toBe("nlhe-cash-6max-150bb");
-    expect(pickId(table(6, "BTN", 171))).toBe("nlhe-cash-6max-150bb");
     expect(pickId(table(6, "BTN", 172))).toBe("nlhe-cash-6max-200bb");
-    expect(pickId(table(6, "BTN", 240))).toBe("nlhe-cash-6max-200bb");
     expect(pickId(table(6, "BTN", 241))).toBe("stack-depth");
     expect(pickId(table(6, "BTN", 47))).toBe("nlhe-cash-6max-40bb");
     expect(pickId(table(6, "BTN", 49))).toBe("nlhe-cash-6max-60bb");
-    expect(pickId(table(6, "BTN", 32))).toBe("nlhe-cash-6max-40bb");
     expect(pickId(table(6, "BTN", 31))).toBe("stack-depth");
-    // Between 60 and 100 nothing is within 20% of 75.
     expect(pickId(table(6, "BTN", 75))).toBe("stack-depth");
-    // 9-max: 60bb since charts/10, 48-72bb; nothing between 72 and 80, nor under 48.
-    expect(pickId(table(8, "CO", 60))).toBe("nlhe-cash-9max-60bb");
-    expect(pickId(table(9, "UTG", 48))).toBe("nlhe-cash-9max-60bb");
-    expect(pickId(table(7, "BTN", 72))).toBe("nlhe-cash-9max-60bb");
-    expect(pickId(table(9, "CO", 75))).toBe("stack-depth");
+    // 9-max: no 60bb set without an ante, so a short 9-max hand without one gets no chart; with one, the ante set.
+    expect(pickId(table(8, "CO", 60))).toBe("stack-depth");
+    expect(pickId(anted(table(8, "CO", 60)))).toBe("nlhe-cash-9max-60bb-ante");
     expect(pickId(table(9, "CO", 80))).toBe("nlhe-cash-9max-100bb");
-    expect(pickId(table(9, "CO", 47))).toBe("stack-depth");
     expect(pickId(table(8, "CO", 180))).toBe("nlhe-cash-9max-200bb");
+    expect(pickId(anted(table(6, "BTN", 150)))).toBe("nlhe-cash-6max-150bb-ante");
+    // A straddle reads the straddle set whatever its ante.
+    const straddled = (spot: PreflopSpot) => ({ ...spot, straddle: true, straddles: [{ position: "UTG" as const, toBb: 2 }] });
+    expect(pickId(straddled(table(6, "BTN")))).toBe("nlhe-cash-6max-100bb-straddle");
+    expect(pickId(anted(straddled(table(6, "BTN"))))).toBe("nlhe-cash-6max-100bb-straddle");
   });
 
   it("judges depth by the effective stack: the hero against the deepest opponent still in", () => {
@@ -145,43 +145,29 @@ describe("the registry", () => {
     expect(effectiveStackBb(spot)).toBe(150);
     expect(pickId(spot)).toBe("nlhe-cash-6max-150bb");
   });
+
+  it("gives a hand no chart when its set is not transcribed: never one of another kind", () => {
+    const transcribed = (spot: PreflopSpot) => pickId(spot, CHART_SETS);
+    for (const spot of [table(6, "CO"), table(8, "CO"), table(2, "SB"), anted(table(6, "CO", 200)), anted(table(6, "CO"), 0.5), table(6, "CO", 100, { ante: true })]) {
+      const pick = pickChartSet(CHART_SETS, spot);
+      if (!pick.ok) continue;
+      expect(Boolean(pick.spec.ante), transcribed(spot)).toBe(Boolean(spot.ante));
+    }
+    expect(transcribed(table(6, "CO", 100, { ante: true }))).toBe("ante");
+  });
 });
 
-describe("lookup through the library", () => {
+describe("lookup through the library (the transcribed sets and the test fixtures)", () => {
   const library = fullLibrary();
 
-  it("is a chart set itself: its own fields are the default set's", () => {
+  it("is a chart set itself: its own fields are its first set's", () => {
     expect(isChartLibrary(library)).toBe(true);
-    expect(library.id).toBe(DEFAULT_CHART_SET);
+    expect(library.id).toBe(SIX_MAX_100);
     expect(library.nodes.get("")?.actor).toBe("UTG");
-    expect(isChartLibrary(chartSet(DEFAULT_CHART_SET))).toBe(false);
+    expect(isChartLibrary(chartSet(SIX_MAX_100))).toBe(false);
   });
 
-  it("answers a 9-handed spot from the 9-max set, exactly", () => {
-    const r = ok(lookupPreflop(library, table(9, "UTG"), "AA"));
-    expect(r.set.id).toBe("nlhe-cash-9max-100bb");
-    expect(r.node.line).toBe("");
-    expect(r.node.actor).toBe("UTG");
-    expect(r.approximations).toEqual([]);
-    // AA opens all but its limp (the tremble and a trap, charts/4).
-    expect(r.options.find((o) => o.action === "raise")?.freq).toBeGreaterThan(0.9);
-  });
-
-  it("reads 8- and 7-handed as 9-max with the earliest seats folded", () => {
-    const eight = ok(lookupPreflop(library, table(8, "UTG"), "AKo"));
-    expect(eight.set.id).toBe("nlhe-cash-9max-100bb");
-    expect(eight.node.line).toBe("f");
-    expect(eight.node.actor).toBe("UTG+1");
-    expect(eight.approximations).toEqual([
-      { kind: "short-handed", detail: "8 players dealt in: read as 9-max with UTG folded" },
-    ]);
-    const seven = ok(lookupPreflop(library, table(7, "LJ"), "AKo"));
-    expect(seven.node.line).toBe("fff");
-    expect(seven.node.actor).toBe("LJ");
-    expect(seven.approximations[0].detail).toBe("7 players dealt in: read as 9-max with UTG, UTG+1 folded");
-  });
-
-  it("answers deep and short stacks from their own depth, and notes the distance", () => {
+  it("answers deep stacks from their own depth, and notes the distance", () => {
     const deep = ok(lookupPreflop(library, table(6, "BTN", 150), "A5s"));
     expect(deep.set.id).toBe("nlhe-cash-6max-150bb");
     expect(deep.approximations).toEqual([]);
@@ -190,10 +176,12 @@ describe("lookup through the library", () => {
     expect(between.approximations).toEqual([
       expect.objectContaining({ kind: "stack-depth", set: "nlhe-cash-6max-150bb", realBb: 135, chartBb: 150 }),
     ]);
-    const short = ok(lookupPreflop(library, table(6, "CO", 40), "KQo"));
-    expect(short.set.id).toBe("nlhe-cash-6max-40bb");
-    expect(short.options.find((o) => o.action === "raise")?.sizeBb).toBe(2.2);
     expect(lookupPreflop(library, table(6, "CO", 75), "KQo")).toMatchObject({ ok: false, reason: "stack-depth" });
+  });
+
+  it("reads an anted hand on the ante set and an unanted one on the classic set", () => {
+    expect(ok(lookupPreflop(library, anted(table(6, "CO")), "AKo")).set.id).toBe("nlhe-cash-6max-100bb-ante");
+    expect(ok(lookupPreflop(library, table(6, "CO"), "AKo")).set.id).toBe(SIX_MAX_100);
   });
 
   it("refuses straddles by name, reads heads-up only on the heads-up set, and says when a set is not loaded", () => {
@@ -202,25 +190,23 @@ describe("lookup through the library", () => {
     expect(hu.set.id).toBe("nlhe-cash-hu-100bb");
     expect(hu.node).toMatchObject({ line: "", actor: "SB", scenario: "rfi" });
     expect(hu.approximations).toEqual([]);
-    // One set on its own: a 6-max set never reads heads-up, the heads-up set nothing else.
-    expect(lookupPreflop(chartSet(DEFAULT_CHART_SET), table(2, "SB"), "AA")).toMatchObject({ ok: false, reason: "players" });
+    expect(lookupPreflop(chartSet(SIX_MAX_100), table(2, "SB"), "AA")).toMatchObject({ ok: false, reason: "players" });
     expect(lookupPreflop(chartSet("nlhe-cash-hu-100bb"), table(3, "BTN"), "AA")).toMatchObject({ ok: false, reason: "players" });
-    const partial = chartLibrary([chartSet(DEFAULT_CHART_SET)]);
-    expect(lookupPreflop(partial, table(9, "UTG"), "AA")).toMatchObject({ ok: false, reason: "unavailable" });
+    const partial = chartLibrary([chartSet(SIX_MAX_100)], TEST_CHART_SETS);
+    expect(lookupPreflop(partial, table(2, "SB"), "AA")).toMatchObject({ ok: false, reason: "unavailable" });
     expect(lookupPreflop(partial, table(6, "UTG"), "AA").ok).toBe(true);
   });
 
   it("loads the sets a library lacks on demand", async () => {
-    // The app's loaders are dynamic imports of the JSON; these read the same files.
-    const specs: ChartSetSpec[] = CHART_SETS.map((spec) => ({
+    const specs: ChartSetSpec[] = TEST_CHART_SETS.map((spec) => ({
       ...spec,
       load: async () => JSON.parse(readFileSync(fileOf(spec.id), "utf8")),
     }));
-    const partial = chartLibrary([chartSet(DEFAULT_CHART_SET)], specs);
+    const partial = chartLibrary([chartSet(SIX_MAX_100)], specs);
     expect(partial.sets.size).toBe(1);
-    await ensureChartSets(partial, ["nlhe-cash-9max-100bb", "nlhe-cash-9max-100bb"]);
-    expect([...partial.sets.keys()].sort()).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-9max-100bb"]);
-    expect(ok(lookupPreflop(partial, table(9, "UTG"), "AA")).set.id).toBe("nlhe-cash-9max-100bb");
+    await ensureChartSets(partial, ["nlhe-cash-hu-100bb", "nlhe-cash-hu-100bb"]);
+    expect([...partial.sets.keys()].sort()).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-hu-100bb"]);
+    expect(ok(lookupPreflop(partial, table(2, "SB"), "AA")).set.id).toBe("nlhe-cash-hu-100bb");
   });
 });
 
@@ -270,87 +256,24 @@ describe("real hands from the corpora", () => {
     return out;
   }
 
-  it("puts 8- and 7-handed WePlay decisions on the 9-max sets, at the seat their distance from the button names", () => {
-    const all = decisions(weplay);
-    const fullRing = all.filter((d) => d.spot.positions.length >= 7 && d.lookup.ok);
-    expect(fullRing.length).toBeGreaterThan(500);
-    for (const { spot, lookup } of fullRing) {
-      if (!lookup.ok) continue;
-      expect(lookup.set.game.positions).toHaveLength(9);
-      const ring = positionRing(spot.positions.length).slice(2);
-      const nine = lookup.set.game.positions.filter((p) => p !== "SB" && p !== "BB");
-      const k = ring.indexOf(spot.hero);
-      expect(lookup.node.actor).toBe(k < 0 ? spot.hero : nine[nine.length - ring.length + k]);
-      if (spot.positions.length < 9) expect(lookup.approximations.map((a) => a.kind)).toContain("short-handed");
-    }
-  });
-
-  it("covers deep WePlay and GG decisions from the 150 and 200bb sets", () => {
-    const deep = [...decisions(weplay), ...decisions(gg)].filter((d) => d.lookup.ok && d.lookup.set.game.stackBb >= 150);
-    expect(deep.length).toBeGreaterThan(300);
-    for (const { spot, lookup } of deep) {
-      if (!lookup.ok) continue;
-      const effective = effectiveStackBb(spot);
-      expect(Math.abs(effective - lookup.set.game.stackBb) / lookup.set.game.stackBb).toBeLessThanOrEqual(0.2 + 1e-9);
-    }
-  });
-
-  it("refuses only what no set covers", () => {
-    const reasons = new Map<string, number>();
+  it("reads every decision on a set of its own kind, or refuses it by name", () => {
     const all = [...decisions(weplay), ...decisions(gg)];
-    for (const { lookup } of all) {
+    const reasons = new Map<string, number>();
+    for (const { spot, lookup } of all) {
       const key = lookup.ok ? "ok" : lookup.reason;
       reasons.set(key, (reasons.get(key) ?? 0) + 1);
+      if (!lookup.ok) continue;
+      // An anted hand on an ante set (or the straddle set), any other on a classic one.
+      expect(Boolean(lookup.set.game.ante), lookup.set.id).toBe(Boolean(spot.ante) || Boolean(lookup.set.game.straddle));
+      if (spot.ante && !lookup.set.game.straddle) expect(spot.anteBb).toBeDefined();
+      const effective = effectiveStackBb(spot);
+      const depth = lookup.set.game.stackBb;
+      const shifted = lookup.approximations.some((a) => a.kind === "uncovered-depth" || a.kind === "rare-line-depth");
+      if (!shifted) expect(Math.abs(effective - depth) / depth).toBeLessThanOrEqual(0.2 + 1e-9);
     }
     expect(reasons.get("unavailable") ?? 0).toBe(0);
-    // A fifth entrant is `multiway`, never `bad-input` (the open issue of A2b).
     expect(reasons.get("bad-input") ?? 0).toBeLessThanOrEqual(1);
-    // Coverage on the corpora (docs/ANALYSIS-PLAN.md §10, A2c): most decisions get a node.
-    expect((reasons.get("ok") ?? 0) / all.length).toBeGreaterThan(0.6);
-  });
-
-  it("puts real decisions behind a limp on the limp tree (charts/4)", () => {
-    // Every hero decision with a limp from a seat other than the blinds before it, no raise yet or after one.
-    const limped = [...decisions(weplay), ...decisions(gg)].filter(({ spot }) => {
-      for (const a of spot.actions) {
-        if (a.type === "raise") return false;
-        if (a.type === "call" && a.position !== "SB" && a.position !== "BB") return true;
-      }
-      return false;
-    });
-    expect(limped.length).toBeGreaterThan(300);
-    const reasons = new Map<string, number>();
-    for (const { spot, lookup } of limped) {
-      reasons.set(lookup.ok ? "ok" : lookup.reason, (reasons.get(lookup.ok ? "ok" : lookup.reason) ?? 0) + 1);
-      if (!lookup.ok) continue;
-      // The node is a limped pot, its limpers the real ones (on the set's seats).
-      expect(lookup.node.limpers.length).toBeGreaterThan(0);
-      expect(lookup.node.limpers.some((p) => p !== "SB" && p !== "BB")).toBe(true);
-      const limpers = spot.actions.filter((a) => a.type === "call").length;
-      expect(lookup.node.limpers.length).toBeLessThanOrEqual(limpers);
-      expect(lookup.chosen).not.toBeNull();
-    }
-    // Nothing is refused as an open limp any more; the rest are other reasons (depth, table, a fourth limper).
-    expect(reasons.get("limp") ?? 0).toBe(0);
-    expect((reasons.get("ok") ?? 0) / limped.length).toBeGreaterThan(0.7);
-  });
-
-  it("names every set a hand needs, and grades an 8-handed hand from the 9-max set", () => {
-    const eightHanded = weplay.find((hand) => {
-      const s = preflopSpotFromHand(hand, 0);
-      return (
-        s.ok &&
-        s.spot.positions.length === 8 &&
-        effectiveStackBb(s.spot) > 90 &&
-        effectiveStackBb(s.spot) < 110 &&
-        lookupPreflop(library, s.spot, s.heroCards, s.heroAction).ok
-      );
-    });
-    if (!eightHanded) throw new Error("no 8-handed 100bb hand in the WePlay corpus");
-    expect(requiredChartSets(eightHanded)).toContain("nlhe-cash-9max-100bb");
-    const analysis = analyzeHand(structuredClone(eightHanded), { charts: library });
-    const graded = analysis.decisions.filter((d) => d.street === "preflop" && d.source === "chart");
-    expect(graded.length).toBeGreaterThan(0);
-    for (const d of graded) expect(d.facts.chart?.set).toBe("nlhe-cash-9max-100bb");
+    // The corpora's hands have no antes: 2-6 handed ones are read on the classic fixtures, 7-9 handed refused.
+    expect(reasons.get("ok") ?? 0).toBeGreaterThan(300);
   });
 });

@@ -5,8 +5,10 @@
  * pinned by pgTAP `leak_row_table.test.sql`), and the plan deals the area's
  * trainer on that table.
  *
- * - **The database's list**: the migration's sets are `CHART_SETS` without
- *   the straddle set, in its order (ties go to the first, as `pickChartSet`).
+ * - **The database's list**: the migration's sets are the table-and-depth
+ *   buckets (`HAND_TABLE_SETS`), in order (ties go to the first); no longer
+ *   `CHART_SETS` since charts/11, which holds only the transcribed sets.
+ *   Cases needing a heads-up set or the flop library wait for them.
  * - **The leak finder**: a postflop leak's `sets` count the depths its
  *   decisions were met on (since 2026-11-02 its id carries its table, so one
  *   table: `leakAreaTable.test.ts`).
@@ -25,6 +27,8 @@ import { describe, expect, it } from "vitest";
 
 import { groupLeaks, type SpotRow } from "../../web/src/lib/analysis/leaks.js";
 import { CHART_SETS, DEFAULT_CHART_SET } from "../../web/src/lib/charts/index.js";
+import { HAND_TABLE_SETS } from "../../app/src/analysis/rows.js";
+import { FLOP_LIBRARY_SETS } from "../../web/src/lib/analysis/flopLibrary.js";
 import { generateRiverSpot } from "../../web/src/lib/training/index.js";
 import { RIVER_LINES_HU } from "../../web/src/lib/training/river.js";
 import {
@@ -47,6 +51,14 @@ import { planHr } from "../../web/src/lib/i18n/ns/analysisPlan.hr.js";
 import { fullLibrary } from "./charts/support.js";
 
 const SIX = DEFAULT_CHART_SET;
+/**
+ * Since charts/11 the trainer's tables are the transcribed sets (`CHART_SETS`)
+ * and the flop library's (`FLOP_LIBRARY_SETS`, empty until one is solved on
+ * GTO Wizard's ranges): a case needing a table not shipped yet waits for it.
+ */
+const shipped = (...ids: string[]) => ids.every((id) => CHART_SETS.some((spec) => spec.id === id));
+const FLOP_LIVE = FLOP_LIBRARY_SETS.length > 0;
+const HU_SHIPPED = shipped("nlhe-cash-hu-100bb", "nlhe-cash-hu-150bb");
 const SIX150 = "nlhe-cash-6max-150bb";
 const SIX200 = "nlhe-cash-6max-200bb";
 const NINE = "nlhe-cash-9max-100bb";
@@ -55,7 +67,7 @@ const HU100 = "nlhe-cash-hu-100bb";
 const HU150 = "nlhe-cash-hu-150bb";
 
 /** `save_study_plan`'s checks on a train task. */
-const REF = /^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,20}){6,7}$/;
+const REF = /^(preflop|river)(\/[A-Za-z0-9+-]{1,30}){0,5}$|^flop(\/[A-Za-z0-9+-]{1,30}){6,7}$/;
 const MATCH_SPOT = /^[a-z0-9][a-z0-9-]{0,39}:[A-Z0-9+]{1,8}$/;
 
 function row(street: string, scenario: string, position: string, taken: string, best: string, decisions: number, set: string | null, evLossBb = 0): SpotRow {
@@ -91,7 +103,7 @@ const where = (street: string, scenario: string, hero: string): AreaWhere => ({
 /* ------------------------------------------------------------ the list - */
 
 describe("the database's table helper", () => {
-  it("knows exactly the plain chart sets, in CHART_SETS' order", () => {
+  it("knows exactly the table-and-depth buckets, in order (no longer CHART_SETS since charts/11)", () => {
     // The last definition (20271102090000's, re-created with the 9-max 60bb set).
     const sql = readFileSync(join(import.meta.dirname, "../../supabase/migrations/20271108090000_table_set_9max_60bb.sql"), "utf8");
     const listed = [...sql.matchAll(/\('(nlhe-cash-[a-z0-9-]+)', (\d+), (\d+), (\d+)\)/g)].map((m) => ({
@@ -100,11 +112,11 @@ describe("the database's table helper", () => {
       stackBb: Number(m[3]),
       n: Number(m[4]),
     }));
-    const plain = CHART_SETS.filter((spec) => !spec.straddle);
-    expect(listed.map(({ id, players, stackBb }) => ({ id, players, stackBb }))).toEqual(
-      plain.map(({ id, players, stackBb }) => ({ id, players, stackBb })),
-    );
-    expect(listed.map((x) => x.n)).toEqual(plain.map((_, i) => i + 1));
+    const buckets = HAND_TABLE_SETS.map(({ id, seats, depth }) => ({ id, players: seats, stackBb: depth }));
+    expect(listed.map(({ id, players, stackBb }) => ({ id, players, stackBb }))).toEqual(buckets);
+    expect(listed.map((x) => x.n)).toEqual(buckets.map((_, i) => i + 1));
+    // Every classic set shipped is a bucket.
+    for (const spec of CHART_SETS.filter((s) => !s.straddle && !s.ante)) expect(buckets.map((b) => b.id)).toContain(spec.id);
   });
 });
 
@@ -124,7 +136,8 @@ describe("a postflop leak with its table", () => {
     expect(areaSet([leak])).toBe(HU100);
   });
 
-  it("orders a table's sets by depth from the area's own", () => {
+  // Waits for the heads-up, 6-max 150bb and 9-max 100bb sets.
+  it.runIf(shipped(HU100, HU150, SIX150, "nlhe-cash-9max-100bb"))("orders a table's sets by depth from the area's own", () => {
     expect(tableSets(HU150, [SIX, SIX150, NINE, HU100, HU150])).toEqual([HU150, HU100]);
     expect(tableSets(SIX200, [SIX, SIX150, NINE, HU100, HU150])).toEqual([SIX150, SIX]);
     expect(tableSets(NINE150, [SIX, SIX150, NINE, HU100, HU150])).toEqual([NINE]);
@@ -136,7 +149,8 @@ describe("a postflop leak with its table", () => {
 
 /* ------------------------------------------------------------- the flop - */
 
-describe("a flop area on its own table", () => {
+// Waits for a flop library solved on GTO Wizard's ranges (and the tables it covers).
+describe.runIf(FLOP_LIVE && HU_SHIPPED)("a flop area on its own table", () => {
   it("deals a heads-up big-blind leak on the heads-up lines, at the nearest depth", () => {
     const bb = where("flop", "caller-oop-vs-bet", "BB");
     for (const [set, deal] of [
@@ -204,7 +218,8 @@ describe("a flop area on its own table", () => {
 describe("a river area on its own table", () => {
   const library = fullLibrary();
 
-  it("deals a heads-up leak on the heads-up lines, counted by their ids", () => {
+  // Waits for the heads-up sets.
+  it.runIf(HU_SHIPPED)("deals a heads-up leak on the heads-up lines, counted by their ids", () => {
     const oop = trainerTarget(where("river", "caller-oop-first", "BB"), HU100);
     expect(oop).toEqual({ mode: "river", pot: "srp", side: "oop", role: "caller", set: HU100 });
     const match = trainerMatch(oop!);
@@ -221,7 +236,7 @@ describe("a river area on its own table", () => {
     expect(trainerMatch(street).spots!.every((s) => s.startsWith("hu-"))).toBe(true);
   });
 
-  it("writes the set into the reference, the snapshot, the address and the words", () => {
+  it.runIf(HU_SHIPPED)("writes the set into the reference, the snapshot, the address and the words", () => {
     const target = trainerTarget(where("river", "pfr-ip-vs-bet", "SB"), HU150)!;
     expect(target).toEqual({ mode: "river", pot: "srp", side: "ip", role: "pfr", set: HU150 });
     const ref = trainerRef(target);
@@ -239,7 +254,7 @@ describe("a river area on its own table", () => {
     expect(planEn.tasks.trainRiver("pfr", "ip", null)).not.toContain("heads-up");
   });
 
-  it("is dealt where the task counts it", () => {
+  it.runIf(HU_SHIPPED)("is dealt where the task counts it", () => {
     const target = trainerTarget(where("river", "caller-oop-first", "BB"), HU100)!;
     const options = spotOptions("river", parseTrainState(Object.fromEntries(new URLSearchParams(targetQuery(target)))));
     const counted = new Set(trainerMatch(target).spots);

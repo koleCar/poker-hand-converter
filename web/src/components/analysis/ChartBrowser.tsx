@@ -105,7 +105,7 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
               <select value={setId} onChange={(event) => chooseSet(event.target.value)}>
                 {CHART_SETS.map((spec) => (
                   <option key={spec.id} value={spec.id}>
-                    {t.setOption(spec.players, spec.stackBb, Boolean(spec.straddle))}
+                    {t.setOption(spec.players, spec.stackBb, Boolean(spec.straddle), Boolean(spec.ante))}
                   </option>
                 ))}
               </select>

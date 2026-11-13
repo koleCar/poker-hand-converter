@@ -237,9 +237,11 @@ describe("the daily dose", () => {
       "thin-value": { status: "passed", exercises: {}, startedAt: "", passedAt: NOW.toISOString() },
     };
     expect(doseLesson(progress, ["thin-value", "bluff-catching"], true)).toBe("bluff-catching");
-    expect(doseLesson(progress, [], true)).toBe("positions-and-opening-ranges");
-    const tested = applyResult({}, { lesson: "positions-and-opening-ranges", exercise: TESTED_OUT, correct: 4, total: 4, passed: true }, NOW);
-    expect(doseLesson(tested, [], true)).toBe("open-sizing");
+    // The first lessons in course order with something to draw (a lesson whose charts are not transcribed yet has none, charts/11).
+    const open = TRACK_IDS.flatMap((track) => TRACKS[track].flatMap((module) => lessonsIn(module))).filter((meta) => drawable(meta, true).length > 0);
+    expect(doseLesson(progress, [], true)).toBe(open[0].id);
+    const tested = applyResult({}, { lesson: open[0].id, exercise: TESTED_OUT, correct: 4, total: 4, passed: true }, NOW);
+    expect(doseLesson(tested, [], true)).toBe(open[1].id);
     const item = newItem("bluff-catching", 9, true)!;
     expect(item.lesson).toBe("bluff-catching");
     expect(requiredExercises(LESSONS["bluff-catching"], true).map((d) => d.id)).toContain(item.card.exercise);

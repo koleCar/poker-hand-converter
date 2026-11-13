@@ -512,7 +512,7 @@ function SetFilter({
           <option value="">{t.reports.sets.all(sets.length)}</option>
           {sets.map((entry) => {
             const spec = CHART_SETS.find((s) => s.id === entry.set);
-            const name = spec ? t.charts.setOption(spec.players, spec.stackBb, Boolean(spec.straddle)) : entry.set;
+            const name = spec ? t.charts.setOption(spec.players, spec.stackBb, Boolean(spec.straddle), Boolean(spec.ante)) : entry.set;
             return (
               <option key={entry.set} value={entry.set}>
                 {t.reports.sets.option(name, count(entry.decisions))}
@@ -879,7 +879,7 @@ function NodeItem({
   const t = en.reports;
   const spot = useSpotLabel()(report.node);
   const spec = CHART_SETS.find((s) => s.id === report.sample.set);
-  const label = multiSet && spec ? t.sets.nodeTag(spot, en.charts.setOption(spec.players, spec.stackBb, Boolean(spec.straddle))) : spot;
+  const label = multiSet && spec ? t.sets.nodeTag(spot, en.charts.setOption(spec.players, spec.stackBb, Boolean(spec.straddle), Boolean(spec.ante))) : spot;
   const [open, setOpen] = useState(false);
   // The line the summary quotes: the widest gap among the actions that
   // deviate, so "Deviates" never sits next to a gap that does not.
