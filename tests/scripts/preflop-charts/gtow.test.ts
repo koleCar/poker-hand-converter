@@ -317,12 +317,14 @@ export function convertGtow(spec: GtowSet, dump: Record<string, DumpNode>, trans
     const actor = seat(node.active);
     if (!spec.positions.includes(actor)) throw new Error(`${key}: seat ${node.active} is not one of ${spec.positions.join(", ")} (add it to rename)`);
     const voluntary = history.some((h) => h.pos === actor && letter(h.act).code !== "f");
+    // By the raises faced, as the stats engine counts them (`ChartScenario`): an open jam is still an open,
+    // a 5-bet or more `vs-allin`.
     let scenario: ChartScenario;
-    if (lastRaise && letter(lastRaise.act).code === "a") scenario = "vs-allin";
-    else if (raises.length === 0) scenario = limpers.length ? "vs-limp" : "rfi";
+    if (raises.length === 0) scenario = limpers.length ? "vs-limp" : "rfi";
     else if (raises.length === 1) scenario = limpers.includes(actor) ? "vs-iso" : callers.length ? "squeeze" : "vs-open";
     else if (raises.length === 2) scenario = "vs-3bet";
-    else scenario = "vs-4bet";
+    else if (raises.length === 3) scenario = "vs-4bet";
+    else scenario = "vs-allin";
 
     const me = node.players.find((p) => seat(p.pos) === actor)!;
     const inBb = Number(me.on);

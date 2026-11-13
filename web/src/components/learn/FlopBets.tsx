@@ -28,7 +28,7 @@ function FlopBetsTable({ data: DATA, initial }: { data: FlopBetData; initial?: s
   const f = useFormats();
   const start = FLOP_BET_SPOTS.find((s) => s.line === initial)?.line ?? FLOP_BET_SPOTS[0].line;
   const [line, setLine] = useState<FlopBetLine>(start);
-  const rows = useMemo(() => groupRows(DATA.lines[line] ?? []), [line]);
+  const rows = useMemo(() => groupRows(DATA.lines[line] ?? []), [DATA, line]);
   const flops = (DATA.lines[line] ?? []).length;
 
   return (

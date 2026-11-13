@@ -423,6 +423,8 @@ export function flopTargetSeatings(target: Pick<FlopTarget, "set" | "pot" | "sid
  * pot's lines.
  */
 function flopTarget(where: AreaWhere, set: string | null): FlopTarget | null {
+  // No flop library is published (analysis/41): no flop drill to send the learner to.
+  if (!FLOP_LIBRARY_SETS.length) return null;
   if (where.scenario.includes("-mw-")) return null;
   const match = FLOP_SCENARIO.exec(where.scenario);
   const family = match ? match[3] : FLOP_AREA_FAMILIES.includes(where.family) ? where.family : null;
