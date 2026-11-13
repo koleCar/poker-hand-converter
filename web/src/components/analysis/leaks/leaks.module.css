@@ -455,7 +455,7 @@
 }
 
 .leakChevron {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: var(--font-size-lg);
   transition: transform var(--dur-2) var(--ease-standard);
 }
