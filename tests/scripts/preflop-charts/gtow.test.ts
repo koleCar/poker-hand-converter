@@ -264,8 +264,9 @@ function convertFile(spec: GtowSet, path: string, part: string | undefined, tran
   if (gametype === TODO) throw new Error(`${spec.id}: no game type - fill in its row in SETS, or capture it with one`);
   if (file?.gametype && file.gametype !== gametype) throw new Error(`${spec.id}: the row says ${gametype}, the capture ${file.gametype}`);
   const depth = file?.depth === undefined ? null : Number(file.depth);
-  if (depth !== null && Number.isFinite(depth) && Math.abs(depth - (spec.stackBb - spec.ante)) > 1e-6) {
-    throw new Error(`${spec.id}: the capture is ${depth}bb deep, the row ${spec.stackBb - spec.ante}bb`);
+  // GTO Wizard's depth is the stack at the start of the hand, ante included (`40.166`), like the row's `stackBb`.
+  if (depth !== null && Number.isFinite(depth) && Math.abs(depth - spec.stackBb) > 1e-6) {
+    throw new Error(`${spec.id}: the capture is ${depth}bb deep, the row ${spec.stackBb}bb`);
   }
   const errors = file?.errors?.length ?? 0;
   const set = convertGtow({ ...spec, gametype }, dump, transcribed);
