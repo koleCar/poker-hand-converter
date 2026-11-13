@@ -7,7 +7,8 @@
  *
  * - **The address**: the mode, its table (the library's sets, else the
  *   default) and its filters survive a round trip; a table the library is
- *   not solved for deals the default set.
+ *   not solved for deals the default set - every table since `analysis/41`,
+ *   when the library on Rail's old ranges stopped being read.
  * - **The job**: the mode's options name the set whose manifest is read and
  *   whose charts are loaded; a set with no manifest deals nothing.
  * - **A spot and its row**: on the committed pilot chunks, a spot dealt from
@@ -48,21 +49,20 @@ describe("the flop mode's address", () => {
     expect(parseTrainState({ mode: "flop" }).mode).toBe("flop");
   });
 
-  it("offers the tables the flop library is solved for, and deals the default elsewhere", () => {
+  it("offers the tables the flop library is solved for - none since analysis/41 - and deals the default elsewhere", () => {
     expect(FLOP_TRAINER_SETS.map((spec) => spec.id)).toEqual([...FLOP_LIBRARY_SETS]);
-    expect(FLOP_TRAINER_SETS.map((spec) => spec.players)).toEqual([6, 6, 9, 2, 2]);
-    for (const id of FLOP_LIBRARY_SETS) expect(flopSetOf(id)).toBe(id);
-    expect(flopSetOf("nlhe-cash-6max-40bb")).toBe(DEFAULT_CHART_SET);
-    expect(flopSetOf("nlhe-cash-9max-150bb")).toBe(DEFAULT_CHART_SET);
+    expect(FLOP_TRAINER_SETS).toEqual([]);
+    for (const id of [HU100, "nlhe-cash-6max-100bb", "nlhe-cash-6max-40bb", "nlhe-cash-9max-150bb"]) expect(flopSetOf(id)).toBe(DEFAULT_CHART_SET);
   });
 
   it("keeps its table and filters through a round trip, defaults left out", () => {
-    const state: TrainState = { ...DEFAULT_TRAIN_STATE, mode: "flop", set: HU100, pot: "3bp", side: "oop", role: "caller", facing: "bet", deal: "range" };
+    const state: TrainState = { ...DEFAULT_TRAIN_STATE, mode: "flop", pot: "3bp", side: "oop", role: "caller", facing: "bet", deal: "range" };
     const query = trainQuery(state);
-    expect(query).toBe(`mode=flop&set=${HU100}&pot=3bp&side=oop&role=caller&facing=bet&deal=range`);
+    expect(query).toBe("mode=flop&pot=3bp&side=oop&role=caller&facing=bet&deal=range");
     expect(parseTrainState(Object.fromEntries(new URLSearchParams(query)))).toEqual(state);
     expect(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "flop" })).toBe("mode=flop");
-    // A table the library is not solved for is the default set's, so it is left out.
+    // A table the library is not solved for (every one, since analysis/41) is the default set's, so it is left out.
+    expect(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "flop", set: HU100 })).toBe("mode=flop");
     expect(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "flop", set: "nlhe-cash-6max-40bb" })).toBe("mode=flop");
     // The facing filter is the flop's own; an unknown one reads as any.
     expect(trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "river", facing: "raise" })).toBe("mode=river");
@@ -77,11 +77,12 @@ const flopRequest = (state: TrainState, seed = 7): TrainingRequest => ({ type: "
 describe("the flop mode's job", () => {
   it("deals on the table's set, with the river's filters and what the hero faces", () => {
     const state: TrainState = { ...DEFAULT_TRAIN_STATE, mode: "flop", set: HU100, pot: "srp", side: "ip", role: "pfr", facing: "check" };
-    expect(spotOptions("flop", state)).toEqual({ set: HU100, pot: "srp", seat: "ip", role: "pfr", facing: "check", bias: "borderline" });
+    // No table has a flop library since analysis/41: every one deals the default set's.
+    expect(spotOptions("flop", state)).toEqual({ set: DEFAULT_CHART_SET, pot: "srp", seat: "ip", role: "pfr", facing: "check", bias: "borderline" });
     expect(spotOptions("flop", { ...state, set: "nlhe-cash-6max-60bb" }).set).toBe(DEFAULT_CHART_SET);
     const request = flopRequest(state);
     expect(needsFlopLibrary(request)).toBe(true);
-    expect(trainingChartSets(request)).toEqual([HU100]);
+    expect(trainingChartSets(request)).toEqual([DEFAULT_CHART_SET]);
   });
 
   it("reads the table's manifest, and deals nothing on a set the bucket has none for", async () => {
@@ -100,7 +101,8 @@ describe("the flop mode's job", () => {
       };
       const request = flopRequest({ ...DEFAULT_TRAIN_STATE, mode: "flop", set });
       const prepared = await prepareFlopLibrary(request, library, loader);
-      expect(asked).toEqual([set]);
+      // Every table reads the default set's manifest (no table has a library of its own since analysis/41).
+      expect(asked).toEqual([DEFAULT_CHART_SET]);
       const response = runTrainingJob(request, library, prepared);
       expect(response.type === "spot" && response.spot).toBeNull();
     }
@@ -114,6 +116,11 @@ const manifest = existsSync(join(PILOT, "manifest.json")) ? (JSON.parse(readFile
 const sameCharts = manifest !== null && manifest.charts.hash === library.sets.get(DEFAULT_CHART_SET)!.model.hash;
 
 describe.runIf(sameCharts)("a flop answer kept by the mode", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!sameCharts) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const flops = memoryLibrary(manifest!.entries.map((entry) => decodeChunk(readFileSync(join(PILOT, entry.path)))));
 
   it("is graded from the chunk it was dealt from, and kept as a row the table's checks pass", async () => {

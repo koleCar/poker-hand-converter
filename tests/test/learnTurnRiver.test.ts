@@ -47,9 +47,10 @@ import { generateRiverSpot, riverSetup } from "../../web/src/lib/training/river.
 import { seeded } from "../../web/src/lib/training/rng.js";
 import { generateSplit, gradeSplit, OVERBET_MIN, SMALL_MAX } from "../../web/src/lib/training/split.js";
 import { turnSetup } from "../../web/src/lib/training/turn.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 
 /* ---------------------------------------------------------- river setup - */

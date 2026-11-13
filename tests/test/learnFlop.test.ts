@@ -28,9 +28,10 @@ import { gradeAnswer } from "../../web/src/lib/training/grade.js";
 import { prepareFlopLibrary, runTrainingJob, trainingChunk } from "../../web/src/lib/training/jobs.js";
 import { seeded } from "../../web/src/lib/training/rng.js";
 import { generateSplit, gradeSplit, rightGroups, SPLIT_PASS, splitTable } from "../../web/src/lib/training/split.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot", CHARTS.id, FLOP_PROFILE.tree);
 const PRESENT = existsSync(join(DIR, "manifest.json"));
@@ -51,11 +52,23 @@ describe("the loader under concurrent jobs (L2)", () => {
       await new Promise((resolve) => setTimeout(resolve, 20));
       const manifest = { entries: url.endsWith("manifest.json") ? [{ line: "btn-bb", flop: "Ts7h4d" }] : [] };
       return { ok: true, json: async () => manifest, arrayBuffer: async () => new ArrayBuffer(0) };
-    });
+      // A set published for this loader only: none is since analysis/41.
+    }, undefined, { sets: [CHARTS.id] });
     const [a, b] = await Promise.all([loader.ready(CHARTS.id), loader.ready(CHARTS.id)]);
     expect([a, b]).toEqual([true, true]);
     expect(loader.has(CHARTS.id, "btn-bb", "Ts7h4d")).toBe(true);
     expect(fetches).toBe(1);
+  });
+
+  it("fetches nothing for a set no flop library is published for (analysis/41)", async () => {
+    let fetches = 0;
+    const loader = new FlopLibraryLoader("mem:", async () => {
+      fetches += 1;
+      return { ok: true, json: async () => ({ entries: [{ line: "btn-bb", flop: "Ts7h4d" }] }), arrayBuffer: async () => new ArrayBuffer(0) };
+    });
+    expect(await loader.ready(CHARTS.id)).toBe(false);
+    expect(await loader.listed(CHARTS.id)).toEqual([]);
+    expect(fetches).toBe(0);
   });
 });
 
@@ -66,6 +79,11 @@ describe("which library lines the drills deal (L2)", () => {
 });
 
 describe.runIf(sameCharts)("flop spots from the library (L2)", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!sameCharts) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const library = memoryLibrary(chunks());
 
   it("deal only the library's lines and flops, deterministically", () => {
@@ -155,6 +173,11 @@ describe.runIf(sameCharts)("flop spots from the library (L2)", () => {
 });
 
 describe.runIf(sameCharts)("the range split (L2)", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!sameCharts) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const all = chunks();
   const library = memoryLibrary(all);
 

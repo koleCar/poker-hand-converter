@@ -43,9 +43,10 @@ import { conceptsForDecision } from "../../web/src/lib/learn/links.js";
 import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { comboHi, comboLo, NUM_COMBOS, parseCards, parseRange, rangesAt } from "../../web/src/lib/solver/index.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";
@@ -156,7 +157,10 @@ describe("turn grades with known answers", { timeout: 180_000 }, () => {
     const call = decisionOn(analyse(hand), "turn", "call");
     expect(call.source).toBe("solver");
     expect(freqOf(call, "fold")).toBeLessThan(0.01);
-    expect(call.grade === "perfect" || call.grade === "good").toBe(true);
+    // The solver continues with all of it; on the GTO Wizard ranges it raises nearly always,
+    // so the flat call gives up a little EV against the raise - never a Blunder.
+    expect(freqOf(call, "call") + freqOf(call, "raise")).toBeGreaterThan(0.99);
+    expect(call.grade).not.toBe("blunder");
     expect(call.facts.turn!.equity).toBeGreaterThan(0.8);
   });
 

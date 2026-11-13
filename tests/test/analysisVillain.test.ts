@@ -171,7 +171,8 @@ describe("villain statistics (analysis/20)", () => {
   });
 
   it("carries the flag and the sample to the decision, and nothing without statistics", () => {
-    const h = bbDefence();
+    // Queens (not bbDefence's A-Q, whose equity the GTO Wizard opening range leaves level): a tighter defence holds more kings.
+    const h = hand("Co", "Qh Qd", ["Utg: folds", "Hj: folds", "Co: raises $1.5 to $2.5", "Btn: folds", "Sb: folds", "Bb: calls $1.5", "*** FLOP *** [Kd 7c 2s]", "Bb: bets $3", "Co: calls $3"]);
     const context = buildContext(structuredClone(h));
     const hero = heroSeatOf(context)!;
     const villains = { [villainKey("standard", "Bb")]: tight(250) };

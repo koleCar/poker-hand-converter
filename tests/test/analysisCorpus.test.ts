@@ -51,10 +51,11 @@ import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { buildContext } from "../../web/src/lib/stats/context.js";
 import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles, readTree, type CorpusFile } from "./support/psggCorpus.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const ROOT = join(import.meta.dirname, "../..");
 const CHARTS = loadCharts(
-  JSON.parse(readFileSync(join(ROOT, "web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 
 const FILES: CorpusFile[] = [

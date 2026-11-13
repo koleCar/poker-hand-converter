@@ -38,13 +38,26 @@ import {
   type DecisionAnalysis,
   type PopulationLine,
 } from "../../web/src/lib/analysis/index.js";
-import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, rareLineChartSets, uncoveredDepthSets, type PreflopSpot } from "../../web/src/lib/charts/index.js";
+import { chartLibrary, PLANNED_CHART_SETS, rareLineChartSets, uncoveredDepthSets, type ChartSetSpec, type PreflopSpot } from "../../web/src/lib/charts/index.js";
 import { en } from "../../web/src/lib/i18n/en.js";
 import { hr } from "../../web/src/lib/i18n/hr.js";
 import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
 import { buildContext } from "../../web/src/lib/stats/context.js";
-import { chartSet, fullLibrary } from "./charts/support.js";
+import { chartSet, fullLibrary, SIX_MAX_100, TEST_CHART_SETS } from "./charts/support.js";
+
+/** Every planned set as a spec, no data (which sets a spot may read depends on the specs alone). */
+const PLANNED: ChartSetSpec[] = PLANNED_CHART_SETS.map((id) => {
+  const m = /^nlhe-cash-(hu|\d)(?:max)?-(\d+)bb(-ante|-straddle)?$/.exec(id)!;
+  return {
+    id,
+    players: m[1] === "hu" ? 2 : Number(m[1]),
+    stackBb: Number(m[2]),
+    ...(m[3] === "-ante" ? { ante: 0.166 } : {}),
+    ...(m[3] === "-straddle" ? { straddle: { position: "UTG" as const, bb: 2 }, ante: 0.166 } : {}),
+    load: () => Promise.reject(new Error("not loaded")),
+  };
+});
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";
@@ -112,16 +125,24 @@ describe("a line at a depth no set covers, read on the nearest charted depth (an
       const positions = (players === 6 ? ["UTG", "HJ", "CO", "BTN", "SB", "BB"] : ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"]) as PreflopSpot["positions"];
       return { positions, hero: "BTN", actions: [], stacksBb: Object.fromEntries(positions.map((p) => [p, bb])), straddle };
     };
-    const depths = (s: PreflopSpot) => uncoveredDepthSets(CHART_SETS, s).map((x) => x.stackBb);
+    // Over the owner's whole planned list (picking reads only the specs).
+    const depths = (s: PreflopSpot) => uncoveredDepthSets(PLANNED, s).map((x) => x.stackBb);
     expect(depths(spot(6, 75))).toEqual([60, 100]);
     expect(depths(spot(6, 95))).toEqual([100, 60]);
     expect(depths(spot(6, 25))).toEqual([40]);
     expect(depths(spot(6, 300))).toEqual([200]);
-    // charts/10: 9-max 60bb; 75bb sits between it and 100bb, 40bb below it.
-    expect(depths(spot(9, 75))).toEqual([60, 100]);
-    expect(depths(spot(9, 40))).toEqual([60]);
+    // 9-max has no 60bb set without an ante: 75bb and 40bb read only 100bb above.
+    expect(depths(spot(9, 75))).toEqual([100]);
+    expect(depths(spot(9, 40))).toEqual([100]);
     expect(depths(spot(9, 300))).toEqual([200]);
     expect(depths(spot(6, 75, true))).toEqual([]);
+    // An ante from every seat stays on the ante sets of that ante.
+    expect(depths({ ...spot(9, 40), ante: true, anteBb: 0.16 })).toEqual([60]);
+    expect(uncoveredDepthSets(PLANNED, { ...spot(6, 75), ante: true, anteBb: 0.16 }).map((x) => x.id)).toEqual([
+      "nlhe-cash-6max-60bb-ante",
+      "nlhe-cash-6max-100bb-ante",
+    ]);
+    expect(depths({ ...spot(6, 75), ante: true })).toEqual([]);
     // Heads-up: only the heads-up sets, below 80bb the 100bb one, above 180bb the 150bb one.
     const hu = (bb: number): PreflopSpot => ({ positions: ["SB", "BB"], hero: "SB", actions: [], stacksBb: { SB: bb, BB: bb } });
     expect(depths(hu(60))).toEqual([100]);
@@ -179,12 +200,12 @@ describe("a line at a depth no set covers, read on the nearest charted depth (an
 
   it("lists the neighbouring sets for loading, and reads nothing it has not loaded", () => {
     const h = threeBet();
-    const only = chartLibrary([chartSet(DEFAULT_CHART_SET)]);
-    expect(rareLineChartSets(h, only)).toEqual(["nlhe-cash-6max-100bb", "nlhe-cash-6max-60bb"]);
-    // With only the 100bb set loaded, the 60bb read is skipped and the 100bb one answers.
+    const only = chartLibrary([chartSet(SIX_MAX_100)], TEST_CHART_SETS);
+    // 75bb: no 6-max 60bb set among the test sets, so only the 100bb one above.
+    expect(rareLineChartSets(h, only)).toEqual(["nlhe-cash-6max-100bb"]);
     const read = chartRange(h, seatOf(h, "Btn"), firstPostflop(h), only, WALK_RANGE_OPTIONS);
     expect(read?.approx).toEqual(["range-neighbour-depth"]);
-    const none = chartLibrary([chartSet("nlhe-cash-9max-100bb")]);
+    const none = chartLibrary([chartSet("nlhe-cash-hu-100bb")], TEST_CHART_SETS);
     expect(chartRange(h, seatOf(h, "Btn"), firstPostflop(h), none, WALK_RANGE_OPTIONS)).toBeNull();
   });
 });
@@ -367,8 +388,8 @@ describe("the population order of opponents' chart ranges (analysis/31)", () => 
     expect(ordered.get("A5s")!).toBeGreaterThan(ordered.get("K4o")!);
     expect(ordered.get("72o")!).toBeLessThan(0.05);
     // A hand outside the chart's range gets some weight; one the chart opens at full weight keeps most of it.
-    expect(chart.get("A5o") ?? 0).toBe(0);
-    expect(ordered.get("A5o")!).toBeGreaterThan(0.05);
+    expect(chart.get("A4o") ?? 0).toBe(0);
+    expect(ordered.get("A4o")!).toBeGreaterThan(0.05);
     // Offsuit broadways the chart opens at full weight lose most of it.
     expect(ordered.get("KTo")!).toBeLessThan(0.6);
     expect(ordered.get("AKs")!).toBeGreaterThan(0.9);

@@ -23,7 +23,9 @@
  *
  * Both read the flop library from the same files: the committed pilot
  * (`tests/scripts/flop-library/pilot/`), served as the bucket would serve it
- * (a file it does not hold is a 404). The corpus seldom reaches a pilot
+ * (a file it does not hold is a 404). Since `analysis/41` neither reads any:
+ * the pilot is gone with Rail's own ranges and no set is published
+ * (`FLOP_LIBRARY_SETS`), so the parity holds with no flop library at all. The corpus seldom reaches a pilot
  * flop, so a few heads-up hands on the pilot's lines and flops are scripted
  * (the trainer's standard text, converted by each path's own converter).
  * The opponents' statistics: none, then one map handed to both.
@@ -403,12 +405,13 @@ describe("web/app analysis parity", () => {
         graded += a.decisions.filter((d) => d.grade !== null).length;
         fromLibrary += a.decisions.filter((d) => d.street === "flop" && d.source === "solver").length;
       }
-      // The comparison covered graded decisions on every street, the flop library's among them.
+      // The comparison covered every decision. Since analysis/41 the shipped charts are the GTO Wizard sets
+      // transcribed so far (the 6-max 100bb ante set; the corpus has no antes), so few decisions are graded,
+      // and no flop library is published: neither path fetches a file, no flop is graded from a library.
       expect(decisions).toBeGreaterThan(HANDS.length);
-      expect(graded).toBeGreaterThan(HANDS.length / 2);
-      expect(fromLibrary).toBeGreaterThan(5);
-      expect(app.fetched.some((path) => path.endsWith("manifest.json"))).toBe(true);
-      expect(app.fetched.some((path) => path.endsWith(".bin"))).toBe(true);
+      expect(graded).toBeGreaterThan(0);
+      expect(fromLibrary).toBe(0);
+      expect(app.fetched).toEqual([]);
       console.log(
         `app/web analysis parity: ${HANDS.length} hands (${corpusHands} from the corpus${ALL ? ", all of it" : `, every ${STRIDE}th`}), ${decisions} decisions, ${graded} graded, ${fromLibrary} flop decisions from the library: identical; web path ${((t1 - t0) / 1000).toFixed(1)} s, app path ${((t2 - t1) / 1000).toFixed(1)} s`,
       );
@@ -450,9 +453,9 @@ describe("web/app analysis parity", () => {
         expect(appRow(a), hand.key).toEqual(webRow(web.get(hand.key)!));
         expect(a.flop_library).toBe(false);
       }
-      // And differently from online where the library answers a flop: why it is analysed again.
+      // Online grades the same since analysis/41: no flop library is published, so nothing answers a flop.
       const online = await appWorker().analyse(hands, null, true);
-      expect(hands.some((hand) => JSON.stringify(appRow(online.get(hand.key)!)) !== JSON.stringify(appRow(mine.get(hand.key)!)))).toBe(true);
+      for (const hand of hands) expect(appRow(online.get(hand.key)!), hand.key).toEqual(appRow(mine.get(hand.key)!));
       // Sanity: the engine on the trimmed PHF is the same engine.
       expect(analyzeHand(webStored(hands[0].web), { charts }).version).toBe(web.get(hands[0].key)?.analysis_version);
     },

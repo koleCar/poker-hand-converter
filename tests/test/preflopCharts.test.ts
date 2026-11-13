@@ -55,7 +55,7 @@ import { inChartScope, ownChartDecisions, ownChartDeviations, type SessionPreflo
 import type { ReviewHand, SessionReview } from "@rail/ui/review/model";
 
 import { CHART_SETS, handClassOf } from "../../web/src/lib/charts/index.js";
-import { chartSet } from "./charts/support.js";
+import { chartSet, TEST_CHART_SETS } from "./charts/support.js";
 
 const percents = (text: string): Uint8Array => {
   const parsed = parseRange(text);
@@ -332,11 +332,14 @@ describe("Rail JSON and a situation's text", () => {
 
 /* --------------------------------------------------------- situation keys - */
 
-const PLAIN_SETS = CHART_SETS.map((s) => s.id).filter((id) => seatsOfShippedSet(id) !== null);
+/** The transcribed sets and the test fixtures (charts/11), every one but a straddle set plain (an ante set has its table's seats). */
+const PLAIN_SETS = TEST_CHART_SETS.map((s) => s.id).filter((id) => seatsOfShippedSet(id) !== null);
 
 describe("situation keys of the shipped trees", () => {
   it("reads the plain sets and not the straddle set", () => {
-    expect(PLAIN_SETS).toHaveLength(CHART_SETS.length - 1);
+    expect(PLAIN_SETS).toEqual(TEST_CHART_SETS.map((s) => s.id).filter((id) => !id.endsWith("-straddle")));
+    expect(seatsOfShippedSet("nlhe-cash-6max-100bb-ante")).toEqual(seatsOfShippedSet("nlhe-cash-6max-100bb"));
+    expect(seatsOfShippedSet("nlhe-cash-9max-60bb-ante")?.tableSize).toBe(9);
     expect(seatsOfShippedSet("nlhe-cash-6max-100bb-straddle")).toBeNull();
     expect(shippedNodeKey("nlhe-cash-6max-100bb", "fffrf")).toBe("vs-open:BB:BTN");
     expect(shippedNodeKey("nlhe-cash-6max-100bb", "")).toBe("rfi:UTG");
@@ -368,17 +371,19 @@ describe("situation keys of the shipped trees", () => {
         continue;
       }
       keyed += 1;
+      // The converter names scenarios by the raises faced, as the key does (an open jam is an open, a 5-bet `vs-allin`).
       expect(key.scenario, `${id} ${node.line}`).toBe(node.scenario);
       expect(key.hero).toBe(node.actor);
       expect(key.vs).toBe(node.scenario === "rfi" ? null : node.scenario === "vs-limp" ? node.limpers[0] : node.facing!.position);
       expect(node.cold, `${id} ${node.line}`).toBe(false);
-      expect(isPlausible(key, table.tableSize), `${id} ${node.line}`).toBe(true);
+      // A 6-bet jam (the solutions go deeper than Rail's trees did) keys a situation the vocabulary calls implausible.
+      if ((node.line.match(/[ra]/g) ?? []).length <= 4) expect(isPlausible(key, table.tableSize), `${id} ${node.line}`).toBe(true);
     }
     expect(keyed).toBeGreaterThan(5);
   });
 
-  it("covers every RFI, vs-open and 3-bet key of the 6-max and 9-max tables at 100bb", () => {
-    for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-9max-100bb"]) {
+  it("covers every RFI, vs-open and 3-bet key of the 6-max tables at 100bb (9-max: once transcribed)", () => {
+    for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-6max-100bb-ante", ...(CHART_SETS.some((s) => s.id === "nlhe-cash-9max-100bb") ? ["nlhe-cash-9max-100bb"] : [])]) {
       const table = seatsOfShippedSet(id)!;
       const keys = new Set([...chartSet(id).nodes.values()].map((n) => nodeKeyOfLine(n.line, table.seats)).filter(Boolean).map((k) => formatNodeKey(k!)));
       for (const key of nodeKeysFor(table.tableSize)) {
@@ -395,11 +400,7 @@ describe("situation keys of the shipped trees", () => {
     for (const [, set, line, key] of cases) {
       expect(shippedNodeKey(set, line), `${set} ${line}`).toBe(key === "null" ? null : key.slice(1, -1));
     }
-    // Every keyed node of the 6-max 100bb and heads-up sets is among them.
-    const listed = new Set(cases.map(([, set, line]) => `${set}|${line}`));
-    for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-hu-100bb"]) {
-      for (const node of chartSet(id).nodes.values()) expect(listed.has(`${id}|${node.line}`), `${id} ${node.line}`).toBe(true);
-    }
+    // The cases were Rail's own sets' lines (charts/10); the GTO Wizard sets' lines are keyed by the same rule, checked above.
   });
 });
 
@@ -545,7 +546,8 @@ describe("the session review's own-chart deviations", () => {
 describe("seats", () => {
   it("are the shipped sets' preflop order", () => {
     expect(chartSet("nlhe-cash-6max-100bb").game.positions).toEqual(TABLE_POSITIONS[6]);
-    expect(chartSet("nlhe-cash-9max-100bb").game.positions).toEqual(TABLE_POSITIONS[9]);
+    if (CHART_SETS.some((s) => s.id === "nlhe-cash-9max-100bb")) expect(chartSet("nlhe-cash-9max-100bb").game.positions).toEqual(TABLE_POSITIONS[9]);
+    expect(chartSet("nlhe-cash-6max-100bb-ante").game.positions).toEqual(TABLE_POSITIONS[6]);
     expect(chartSet("nlhe-cash-hu-100bb").game.positions).toEqual(TABLE_POSITIONS[2]);
   });
 });

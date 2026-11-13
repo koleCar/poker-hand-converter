@@ -21,7 +21,7 @@ import { HAND_TABLE_SETS, handTableSet, leakColumns, storeRow } from "../../app/
 import type { SpotSumsDto } from "../../app/src/lib/ipc";
 import { fetchLeakExamples, fetchTopLeaks, spotRow } from "../../app/src/lib/leaksSource";
 import { groupLeaks, handsPot, handsTable, parseLeakId } from "../../web/src/lib/analysis/leaks";
-import { CHART_SETS } from "../../web/src/lib/charts/registry";
+import { CHART_SETS, PLANNED_CHART_SETS } from "../../web/src/lib/charts/registry";
 import type { DecisionAnalysisInsert, HandAnalysisInsert } from "../../web/src/lib/db/analysisRows";
 import { setInvokeHandler } from "./support/tauriCore";
 
@@ -41,11 +41,18 @@ function hand(stacks: Array<number | null>, folds: number[] = [], game: Record<s
   };
 }
 
+/** The leak rows' table buckets (a fixed table-and-depth list since charts/11): the classic planned sets, plus the 9-max 60bb bucket. */
+const BUCKETS = [
+  ...[40, 60, 100, 150, 200].map((depth) => ({ id: `nlhe-cash-6max-${depth}bb`, seats: 6, depth })),
+  ...[60, 100, 150, 200].map((depth) => ({ id: `nlhe-cash-9max-${depth}bb`, seats: 9, depth })),
+  ...[100, 150].map((depth) => ({ id: `nlhe-cash-hu-${depth}bb`, seats: 2, depth })),
+];
+
 describe("a hand's table (analysis_hand_table_set)", () => {
-  it("holds the web's set list: CHART_SETS without the straddle set, in order", () => {
-    expect(HAND_TABLE_SETS.map((s) => [s.id, s.seats, s.depth])).toEqual(
-      CHART_SETS.filter((s) => !s.straddle).map((s) => [s.id, s.players, s.stackBb]),
-    );
+  it("holds the table-and-depth buckets: every classic planned set, and every classic set shipped", () => {
+    expect(HAND_TABLE_SETS.map((s) => [s.id, s.seats, s.depth])).toEqual(BUCKETS.map((s) => [s.id, s.seats, s.depth]));
+    for (const id of PLANNED_CHART_SETS.filter((x) => !/-(ante|straddle)$/.test(x))) expect(HAND_TABLE_SETS.map((s) => s.id)).toContain(id);
+    for (const spec of CHART_SETS.filter((s) => !s.straddle && !s.ante)) expect(HAND_TABLE_SETS.map((s) => s.id)).toContain(spec.id);
   });
 
   it("reads the table by the players dealt in and the depth by the effective stack", () => {

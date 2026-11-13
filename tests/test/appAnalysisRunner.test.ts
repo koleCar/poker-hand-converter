@@ -311,7 +311,8 @@ describe("the analysis worker", () => {
         throw new Error("offline");
       },
       undefined,
-      { sleep: () => Promise.resolve() },
+      // A set published for this loader only: none is since analysis/41, and then nothing is fetched at all.
+      { sleep: () => Promise.resolve(), sets: ["nlhe-cash-6max-100bb"] },
     );
     expect(await loader.ready("nlhe-cash-6max-100bb")).toBe(false);
     expect(calls).toBe(4);

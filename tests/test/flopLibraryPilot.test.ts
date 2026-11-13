@@ -25,9 +25,10 @@ import {
 } from "../../web/src/lib/solver/index.js";
 import { scriptHand, type ScriptAct } from "../../web/src/lib/training/handText.js";
 import { lineActs } from "../../web/src/lib/training/preflop.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot", CHARTS.id, FLOP_PROFILE.tree);
 const PRESENT = existsSync(join(DIR, "manifest.json"));
@@ -39,6 +40,11 @@ function load(): { manifest: FlopManifest; chunks: FlopChunk[] } {
 }
 
 describe.runIf(PRESENT)("the committed pilot", () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!PRESENT) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   it("decodes, and says what it was solved from", () => {
     const { manifest, chunks } = load();
     expect(manifest.version).toBe(FLOPLIB_VERSION);

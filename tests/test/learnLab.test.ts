@@ -23,9 +23,10 @@ import { describe, expect, it } from "vitest";
 import { loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { clairvoyanceGame, exploitLab, groupShareOf, lockedStrategy, Solver } from "../../web/src/lib/solver/index.js";
 import { generateLab, gradeLab, LAB_PRESETS, LAB_TOLERANCE, type LabItem } from "../../web/src/lib/training/lab.js";
+import { fileOf as chartFile } from "./charts/support.js";
 
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(join(import.meta.dirname, "../../web/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 
 describe("the lock", () => {

@@ -31,6 +31,11 @@ import {
 const CHUNK = join(import.meta.dirname, "../scripts/flop-library/pilot/nlhe-cash-6max-100bb", FLOP_PROFILE.tree, "btn-bb/Ts7h4d.bin");
 
 describe.runIf(existsSync(CHUNK))("the turn realisation measurement", { timeout: 300_000 }, () => {
+  // needs the flop-library pilot chunks, deleted with Rail's own ranges (analysis/41): none are solved on the GTO Wizard ranges yet.
+  if (!existsSync(CHUNK)) {
+    it.skip("waits for a flop library on the GTO Wizard ranges", () => {});
+    return;
+  }
   const chunk = decodeChunk(readFileSync(CHUNK));
   const turns = libraryTurns(chunk, "nlhe-cash-6max-100bb");
   // The smallest tree: a flop raise called, the least behind.
