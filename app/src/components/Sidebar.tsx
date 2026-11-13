@@ -17,6 +17,7 @@ const SCREEN_ICONS: Record<Screen, IconName> = {
   players: "users",
   analysis: "trend",
   solver: "grid",
+  trainer: "star",
   hud: "gauge",
   tables: "tiles",
   import: "upload",

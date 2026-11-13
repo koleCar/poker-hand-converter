@@ -43,6 +43,7 @@ export const en = {
     players: "Players",
     analysis: "Analysis",
     solver: "Solver",
+    trainer: "Trainer",
     hud: "HUD",
     tables: "Tables",
     import: "Import",
@@ -86,6 +87,11 @@ export const en = {
       title: "Solver",
       /** Not shown: the command palette's keywords. */
       lead: "Rail's own solves: preflop charts, every flop's strategy, any turn and river solved on the spot.",
+    },
+    trainer: {
+      title: "Trainer",
+      /** Not shown: the command palette's keywords. */
+      lead: "Practise spots against the reference: your own leaks first, or any preflop, flop, turn or river spot, graded, with the strategy for the hand and why.",
     },
     hud: {
       title: "HUD",

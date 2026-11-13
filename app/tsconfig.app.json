@@ -36,6 +36,8 @@
       "@rail/web-lib/*": ["../web/src/lib/*"],
       /* The web's Solver library, in place (`src/solver/door.ts`). */
       "@rail/web-solver/*": ["../web/src/components/solver/*"],
+      /* The web's Trainer, in place (`src/trainer/door.ts`). */
+      "@rail/web-trainer/*": ["../web/src/components/trainer/*"],
       /* The web's files the library brings in import `@rail/ui` too; from
          `web/` that would resolve next to the web, whose packages this
          app's build does not install - so to this app's own link. */

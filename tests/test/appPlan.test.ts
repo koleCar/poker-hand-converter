@@ -85,8 +85,8 @@ describe("what is locked", () => {
     expect(isLocked(learnFree, "hud")).toBe(true);
   });
 
-  it("the screens that are Pro: Analysis and Players (Reports locks only its situation tabs)", () => {
-    expect(ROUTE_FEATURE).toEqual({ analysis: "analysis", players: "reportsFull" });
+  it("the screens that are Pro: Analysis, the Trainer and Players (Reports locks only its situation tabs)", () => {
+    expect(ROUTE_FEATURE).toEqual({ analysis: "analysis", trainer: "analysis", players: "reportsFull" });
     expect(ROUTE_FEATURE.reports).toBeUndefined();
     expect(ROUTE_FEATURE.hands).toBeUndefined();
     expect(ROUTE_FEATURE.live).toBeUndefined();

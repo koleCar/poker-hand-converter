@@ -1395,5 +1395,7 @@ export const analysisEn = {
   plan: planEn,
   ui: uiEn,
 
+  /** A hand's facts in words, for the trainer's "your hand here" (`components/trainer`). */
+  handFacts: { hand: handPhrase, draws, blockers },
   explain,
 } as const;
