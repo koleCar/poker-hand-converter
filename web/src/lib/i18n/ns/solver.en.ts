@@ -74,6 +74,7 @@ export const solverEn = {
     folded: (winner: string) => `Everyone folds to ${winner}: there is no flop.`,
     multiway: (players: string) => `A multiway flop (${players}): the library solves heads-up flops only.`,
     allin: "All-in before the flop: there is no flop to solve.",
+    uncaptured: "This line is not transcribed from GTO Wizard yet.",
     notSolved: (oop: string, ip: string) => `${ip} vs ${oop}: this line is not in the solver library yet.`,
     setEmpty: "Preflop only: there is no postflop solve for these ranges yet.",
   },

@@ -164,7 +164,17 @@ export type ChartLookup =
       /** Real options the tree removed at this node (`node.cut`). */
       unmodelled: ("call" | "limp")[];
     }
-  | { ok: false; reason: ChartMissReason; detail: string };
+  | {
+      ok: false;
+      reason: ChartMissReason;
+      detail: string;
+      /**
+       * A `rare-line` that is a gap of a partial capture (`model.missing`), not
+       * a line the solution leaves out: no other set stands in for it (no
+       * neighbouring or uncovered depth), the spot simply has no chart yet.
+       */
+      uncaptured?: true;
+    };
 
 const trees = new WeakMap<ChartSet, PreflopTree>();
 
@@ -372,7 +382,7 @@ export function lookupPreflop(
     const set = charts.sets.get(pick.spec.id);
     if (!set) return miss("unavailable", `chart set ${pick.spec.id} is not loaded`);
     const found = lookupInSet(set, spot, hand, heroAction);
-    if (found.ok || found.reason !== "rare-line" || !options.rareLineDepth) return found;
+    if (found.ok || found.reason !== "rare-line" || found.uncaptured || !options.rareLineDepth) return found;
     return readAtNeighbouringDepth(charts, pick.spec, pick.effectiveBb, spot, hand, heroAction) ?? found;
   }
   // One set: it answers only the straddle and the ante it models (none, or its own).
@@ -442,6 +452,8 @@ function readAtUncoveredDepth(
     const set = library.sets.get(other.id);
     if (!set) continue;
     const found = lookupInSet(set, spot, hand, heroAction, false);
+    // A line the nearest set has not captured yet is no chart, not a reason to read a further depth.
+    if (!found.ok && found.uncaptured) return found;
     if (!found.ok) continue;
     return {
       ...found,
@@ -599,6 +611,17 @@ function lookupInSet(
   return answer(charts, chart, hand, chosen, approximations, unmodelled);
 }
 
+/**
+ * The gap of a partial capture (`model.missing`, the converter's) that `line`
+ * is at or after, or null: such a line has no chart until it is captured.
+ */
+export function uncapturedLine(charts: Pick<ChartSet, "model">, line: string): string | null {
+  const missing = (charts.model as { missing?: unknown }).missing;
+  if (!Array.isArray(missing)) return null;
+  for (const gap of missing) if (typeof gap === "string" && line.startsWith(gap)) return gap;
+  return null;
+}
+
 /** Whether the set records the Rail tree it was solved on (`model.tree`): Rail's generated sets do, a transcribed one does not. */
 export function hasRailTree(charts: ChartSet): boolean {
   return (charts.model as { tree?: unknown }).tree !== undefined;
@@ -641,8 +664,17 @@ function walkNodes(
     realToMatch = straddle.bb;
   }
   const dead = (charts.game.ante ?? 0) * charts.game.positions.length;
-  const absent = (line: string) =>
-    miss("rare-line", `line ${JSON.stringify(line)} is not in the transcribed solution`);
+  const absent = (line: string): ChartLookup => {
+    const gap = uncapturedLine(charts, line);
+    return gap === null
+      ? miss("rare-line", `line ${JSON.stringify(line)} is not in the transcribed solution`)
+      : {
+          ok: false,
+          reason: "rare-line",
+          detail: `line ${JSON.stringify(line)} is not captured from GTO Wizard yet (the capture lacks ${JSON.stringify(gap)} and what follows)`,
+          uncaptured: true,
+        };
+  };
 
   let line = start;
   for (let k = 0; k < start.length; k += 1) {

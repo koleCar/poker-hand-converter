@@ -20,7 +20,8 @@ describe that generator and its sets; read them as history. What holds now:
   straddle without one. `CHART_SETS` lists the sets transcribed so far - one
   line each - and **a set not transcribed is absent**: there is no fallback
   to another set or to old data. On 2026-11-13 that is the 6-max 100bb ante
-  set alone.
+  set and the 6-max 100bb classic set (`analysis/42`), the latter from a
+  partial capture (below).
 - **Converter.** `tests/scripts/preflop-charts/gtow.test.ts` turns a capture
   (`~/Projects/gtow-dumps/<id>.json`: `{ id, gametype, depth, errors, dump }`,
   or a bare dump) into `data/<id>.json`. Its `SETS` table has a row per
@@ -33,7 +34,18 @@ describe that generator and its sets; read them as history. What holds now:
   the sizes' frequencies summed, EVs frequency-weighted, at the most frequent
   size, its subtree only (`model.merged` lists each merge). A set's `version`
   is `gtow/1`; `model` holds `source`, `gametype`, `transcribed`,
-  `evConvention`, `merged`, `hash` - no Rail tree, realisation or rake.
+  `evConvention`, `merged`, `missing`, `hash` - no Rail tree, realisation or
+  rake.
+- **Partial captures.** The crawler skips decisions reached less than 1e-5
+  of the time by design (those are `rare-line`s, as in any set). A decision
+  it failed to read (its `errors`) or had not reached yet (its `queue`) is a
+  gap: absent with its subtree and listed by Rail line in `model.missing`. A
+  hand reaching a gap gets no chart - a `rare-line` flagged `uncaptured`,
+  which is never read on a neighbouring or uncovered depth - the Solver says
+  the line is not transcribed yet, and the trainers deal nothing there. The
+  6-max 100bb classic set misses `ffff` (everything blind vs blind after folds
+  to the small blind) and five rare lines (`rfrffr`, `rfccfrf`, `rfccrfa`,
+  `rfcfrrf`, `ffrrffrra`) until they are captured.
 - **Kinds and which set answers** (`pickChartSet`, §6.2's table and depth
   rules unchanged within a kind). A straddled hand reads a straddle set (with
   or without an ante of its own - the owner accepted that approximation);

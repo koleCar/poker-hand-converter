@@ -39,6 +39,12 @@
  * subtree after it the most frequent size's. The sizes merged are listed in
  * `model.merged`.
  *
+ * **Partial captures.** A decision the capture could not read (one of its
+ * `errors`) or had not reached yet (still in its `queue`) is absent with
+ * everything after it, and its Rail line listed in `model.missing`: a
+ * hand reaching it gets no chart (the lookup's `missing-node`), never
+ * another set's numbers. Capture it and convert again to fill the gap.
+ *
  * **Antes and straddles.** An ante set (`ante`, bb from every seat) records
  * `game.ante`; its `stackBb` is the stack at the start of the hand, ante
  * included (`100.166`: 100bb behind once the ante is in, as GTO Wizard deals
@@ -226,8 +232,10 @@ interface DumpFile {
   gametype?: string;
   /** Stack depth in big blinds, as the capture names it. */
   depth?: number | string;
-  /** Spots the capture could not read; logged, never fatal. */
+  /** Spots the capture could not read; logged, never fatal (their lines land in `model.missing`). */
   errors?: unknown[];
+  /** Spots a partial capture had still to read; ignored, as `errors` (what they leave out is `model.missing`). */
+  queue?: unknown[];
   dump: Record<string, DumpNode>;
 }
 
@@ -269,17 +277,21 @@ function convertFile(spec: GtowSet, path: string, part: string | undefined, tran
     throw new Error(`${spec.id}: the capture is ${depth}bb deep, the row ${spec.stackBb}bb`);
   }
   const errors = file?.errors?.length ?? 0;
-  const set = convertGtow({ ...spec, gametype }, dump, transcribed);
+  // A partial capture's gaps: the spots it could not read and those still queued (`[path, reach]`).
+  const gaps = [...(file?.errors ?? []), ...(file?.queue ?? [])].map((g) => (Array.isArray(g) ? g[0] : g)).filter((g): g is string => typeof g === "string");
+  const set = convertGtow({ ...spec, gametype }, dump, transcribed, gaps);
   const out = fileURLToPath(new URL(`../../../web/src/lib/charts/data/${spec.id}.json`, import.meta.url));
   writeFileSync(out, serializeCharts(set));
   const loaded = loadCharts(JSON.parse(readFileSync(out, "utf8")));
   expect(loaded.nodes.size).toBe(set.nodes.length);
   const merges = (set.model.merged as string[] | undefined)?.length ?? 0;
-  return `${spec.id}: ${set.nodes.length} nodes (${Object.keys(dump).length} in the dump, ${merges} merged raises${errors ? `, ${errors} capture errors` : ""}) → ${out}`;
+  const missing = (set.model.missing as string[] | undefined) ?? [];
+  const gapNote = missing.length ? `, missing ${missing.map((l) => l || "(root)").join(" ")}` : "";
+  return `${spec.id}: ${set.nodes.length} nodes (${Object.keys(dump).length} in the dump, ${merges} merged raises${errors ? `, ${errors} capture errors` : ""}${gapNote}) → ${out}`;
 }
 
 /** The chart set of one GTO Wizard solution (pure: the dump in, the JSON out). */
-export function convertGtow(spec: GtowSet, dump: Record<string, DumpNode>, transcribed: string): ChartSetJson {
+export function convertGtow(spec: GtowSet, dump: Record<string, DumpNode>, transcribed: string, gaps: readonly string[] = []): ChartSetJson {
   const rename = { ...DEFAULT_RENAME, ...spec.rename };
   const seat = (pos: string) => (rename[pos] ?? pos) as ChartPosition;
   const order = classOrder();
@@ -387,6 +399,11 @@ export function convertGtow(spec: GtowSet, dump: Record<string, DumpNode>, trans
     nodes.push(json);
   }
   nodes.sort((a, b) => a.line.length - b.line.length || (a.line < b.line ? -1 : a.line > b.line ? 1 : 0));
+  // The capture's gaps (GTO Wizard paths) as Rail lines: decisions the walk reached that the dump lacks. A
+  // decision below the capture's reach floor (1e-5) is not a gap: it is left out by design (`rare-line`).
+  const missing = [...new Set(gaps.filter((key) => !dump[key] && lineOf.has(key)).map((key) => lineOf.get(key)!))].sort(
+    (a, b) => a.length - b.length || (a < b ? -1 : a > b ? 1 : 0),
+  );
 
   const body = JSON.stringify(nodes);
   return {
@@ -408,6 +425,8 @@ export function convertGtow(spec: GtowSet, dump: Record<string, DumpNode>, trans
       transcribed,
       evConvention: spec.ante ? "net from the start of the hand (ante and blinds included)" : "net from the start of the hand (blinds included)",
       ...(merged.length ? { merged } : {}),
+      // Not captured yet, with everything after them: a hand reaching one gets no chart (`missing-node`).
+      ...(missing.length ? { missing } : {}),
       hash: createHash("sha256").update(body).digest("hex").slice(0, 8),
     },
     nodes,

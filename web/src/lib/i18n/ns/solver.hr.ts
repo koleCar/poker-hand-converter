@@ -72,6 +72,7 @@ export const solverHr: Dict["solver"] = {
     folded: (winner: string) => `Svi foldaju do ${winner}: flopa nema.`,
     multiway: (players: string) => `Multiway flop (${players}): knjižnica solva samo heads-up flopove.`,
     allin: "All-in prije flopa: nema flopa za solvati.",
+    uncaptured: "Ova linija još nije prepisana iz GTO Wizarda.",
     notSolved: (oop: string, ip: string) => `${ip} protiv ${oop}: ova linija još nije u solver libraryju.`,
     setEmpty: "Samo preflop: za ove rangeove još nema postflop solvea.",
   },

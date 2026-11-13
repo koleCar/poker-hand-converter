@@ -100,6 +100,7 @@ export {
   type LookupOptions,
   type PreflopActionInput,
   type PreflopSpot,
+  uncapturedLine,
   uncoveredDepthSets,
 } from "./lookup";
 export { anteOf, liveNames, postedLimp, preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";

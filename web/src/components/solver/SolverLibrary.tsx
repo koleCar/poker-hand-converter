@@ -370,6 +370,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={shown} t={t} />} />;
   } else if (end?.kind === "folded") {
     body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
+  } else if (end?.kind === "uncaptured") {
+    body = <p className={styles.message}>{t.preflop.uncaptured}</p>;
   } else if (end?.kind === "allin") {
     body = <p className={styles.message}>{t.preflop.allin}</p>;
   } else if (end?.kind === "multiway") {

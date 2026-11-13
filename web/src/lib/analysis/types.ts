@@ -309,8 +309,14 @@ import type { Position, Street } from "../phf/types";
  *               graded on the ante sets and lose the `antes` approximation.
  *               The flop library, solved on Rail's ranges, is not read
  *               (`FLOP_LIBRARY_SETS` is empty): the flop is heuristic.
+ *   analysis/42 The GTO Wizard 6-max 100bb classic set (a partial capture):
+ *               6-max hands without an ante at 80-120bb effective are graded
+ *               on it instead of refused. Its capture lacks a few subtrees
+ *               (`model.missing`: blind vs blind after folds to the small
+ *               blind, and five rare lines); a hand reaching one gets no
+ *               chart (`rare-line`) and is never read on another set.
  */
-export const ANALYSIS_VERSION = "analysis/41" as const;
+export const ANALYSIS_VERSION = "analysis/42" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

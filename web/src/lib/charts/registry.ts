@@ -79,6 +79,7 @@ export const STACK_NOTE_TOLERANCE = 0.05;
 // Only sets transcribed from GTO Wizard (`gtow.test.ts`, whose `SETS` lists
 // every set Rail is to ship); one line per set captured so far.
 export const CHART_SETS: readonly ChartSetSpec[] = [
+  { id: "nlhe-cash-6max-100bb", players: 6, stackBb: 100, load: () => import("./data/nlhe-cash-6max-100bb.json") },
   { id: "nlhe-cash-6max-100bb-ante", players: 6, stackBb: 100, ante: 0.166, load: () => import("./data/nlhe-cash-6max-100bb-ante.json") },
 ];
 

@@ -8,7 +8,8 @@
  *   ─▶ walk it node by node: each letter is the actor's option at that node
  *   ─▶ a decision still to make (the chart node, its options)
  *      or the end: everyone folded to one player, a multiway flop, an all-in,
- *      or a heads-up flop - on a library line (`sameLine`) or not
+ *      or a heads-up flop - on a library line (`sameLine`) or not - or a
+ *      decision a partial capture lacks (`model.missing`, `uncaptured`)
  *   ─▶ for each seat still to act this round: the decision it would face if
  *      every seat before it folds (`SeatState.ahead`), so a later seat's
  *      option can be picked straight away, as a solver's viewer allows
@@ -24,7 +25,7 @@
  */
 
 import { sameLine, type FlopLine } from "../../lib/analysis/flopLibrary";
-import type { ChartAction, ChartNode, ChartPosition, ChartSet } from "../../lib/charts";
+import { uncapturedLine, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../../lib/charts";
 
 export interface SeatAct {
   /** Index of the letter in the line key: rewinding to it drops this act and everything after. */
@@ -79,7 +80,9 @@ export type PreflopEnd =
   | { kind: "flop"; players: [ChartPosition, ChartPosition]; line: FlopLine | null }
   | { kind: "multiway"; players: ChartPosition[] }
   | { kind: "allin" }
-  | { kind: "folded"; winner: ChartPosition };
+  | { kind: "folded"; winner: ChartPosition }
+  /** A decision the solution has that the set's capture lacks yet (`model.missing`): nothing to show past it. */
+  | { kind: "uncaptured" };
 
 export interface PreflopState {
   /** The line as walked: a malformed tail is cut off. */
@@ -141,7 +144,8 @@ export function preflopState(charts: ChartSet, line: string, lines: readonly Flo
 
   const live = seats.filter((seat) => !seat.folded).map((seat) => seat.position);
   let end: PreflopEnd;
-  if (live.length === 1) end = { kind: "folded", winner: live[0] };
+  if (uncapturedLine(charts, walked) !== null) end = { kind: "uncaptured" };
+  else if (live.length === 1) end = { kind: "folded", winner: live[0] };
   else if (allIn) end = { kind: "allin" };
   else if (live.length > 2) end = { kind: "multiway", players: live };
   else {
