@@ -62,7 +62,7 @@ import { PreflopBar, type TableOption } from "./PreflopBar";
 import { preflopState, type PreflopState } from "./preflop";
 import { filterMasks, useRangeData } from "./rangeData";
 import { RangesView } from "./RangesView";
-import { actionColours, StrategyView, type StrategyModel } from "./StrategyView";
+import { actionColours, StrategyView, type StrategyHero, type StrategyModel } from "./StrategyView";
 import styles from "./solver.module.css";
 
 type Dict = SolverDict;
@@ -108,6 +108,8 @@ interface SolverLibraryProps {
   initialWalk?: string | null;
   /** Hears the view as it changes - the web keeps it in the address bar, the app in its route. */
   onView?: (view: SolverView) => void;
+  /** The hero's hand, when the view comes from one of their decisions: marked in the grid where they act. */
+  hero?: StrategyHero | null;
 }
 
 /** The view a link (or a route) names: the table, the preflop line, the flop as picked, the decision, the turn. */
@@ -125,7 +127,7 @@ export function SolverLibrary(props: SolverLibraryProps) {
   return <Browser {...props} />;
 }
 
-function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView }: SolverLibraryProps) {
+function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
   const { t, loader, fullSolveBase } = useSolverHost();
   const [setId, setSetId] = useState<string>(
     initialSet && (SOLVER_SETS as readonly string[]).includes(initialSet) ? initialSet : SOLVER_SETS[0],
@@ -348,7 +350,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     body = <RailLoader label={t.loadingLibrary} showLabel centered />;
   } else if (state.node) {
     const model = preflopModel(state.node, state, goLine, t);
-    body = <StrategyView model={model} overview={<PreflopOverview node={state.node} t={t} />} />;
+    body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={state.node} t={t} />} />;
   } else if (end?.kind === "folded") {
     body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
   } else if (end?.kind === "allin") {
@@ -393,6 +395,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     body = (
       <StrategyView
         model={model}
+        hero={hero}
         toolbar={
           <div className={styles.viewTabs} role="tablist" aria-label={t.tabs.label}>
             {(["strategy", "ranges"] as const).map((x) => (

@@ -10,6 +10,7 @@
  */
 export { SolverHostProvider, type SolverDict, type SolverHost } from "@rail/web-solver/host";
 export { SolverLibrary, SOLVER_SETS, type SolverView } from "@rail/web-solver/SolverLibrary";
+export type { StrategyHero } from "@rail/web-solver/StrategyView";
 export { solverEn } from "@rail/web-lib/i18n/ns/solver.en";
 export { solverHr } from "@rail/web-lib/i18n/ns/solver.hr";
 export { FlopLibraryLoader, flopLinesFor, type LibraryFetch } from "@rail/web-lib/analysis/flopLibrary";

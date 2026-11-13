@@ -269,6 +269,9 @@
 
 .cell {
   position: relative;
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease;
   inline-size: 100%;
   min-inline-size: 0;
   aspect-ratio: 1.3;
@@ -298,6 +301,9 @@
 .cellFill > span {
   display: block;
   block-size: 100%;
+  transition:
+    inline-size 0.35s var(--ease-out),
+    opacity 0.2s ease;
 }
 
 .cellName,
@@ -333,8 +339,29 @@
   opacity: 0.4;
 }
 
-.cellShown {
-  box-shadow: inset 0 0 0 2px var(--text-primary);
+.cellHover {
+  z-index: 2;
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 2px var(--text-primary),
+    0 8px 20px var(--surface-scrim);
+}
+
+.cellPicked {
+  box-shadow: inset 0 0 0 2px var(--border-focus);
+}
+
+/* The hero's hand: a dot in the corner. */
+.cellHero::after {
+  content: "";
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-end: 4px;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--surface-scrim);
 }
 
 /* Bets and raises: the largest size in the raise colour, smaller ones in the bet ramp. */
@@ -421,10 +448,12 @@
 }
 
 .actionBox {
+  position: relative;
   display: grid;
-  grid-template-rows: auto 1fr;
-  padding: 0;
-  border: 1px solid var(--border-default);
+  align-content: start;
+  gap: 2px;
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border: 0;
   border-radius: var(--radius-2);
   background: var(--surface-inset);
   color: var(--text-primary);
@@ -432,13 +461,23 @@
   text-align: start;
   cursor: pointer;
   overflow: hidden;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 
-.actionBox:hover:not(:disabled) {
-  border-color: var(--border-hover);
+.actionBox:hover,
+.actionBoxOn {
+  background: var(--surface-hover);
+  transform: translateY(-2px);
 }
 
-.actionBox:disabled {
+.actionBoxOff {
+  opacity: 0.45;
+}
+
+.actionBox[aria-disabled="true"] {
   cursor: default;
 }
 
@@ -447,91 +486,307 @@
   outline-offset: 1px;
 }
 
-.actionBoxHead {
-  padding: var(--space-1) var(--space-2);
-}
-
 .actionBoxLabel {
-  font-weight: var(--font-weight-semibold);
-  text-shadow: 0 1px 2px var(--surface-scrim);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
 }
 
-.actionBoxBody {
-  display: grid;
-  gap: 2px;
-  padding: var(--space-2);
-  font-variant-numeric: tabular-nums;
+.actionDot {
+  flex: none;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
 }
 
 .actionBoxShare {
-  font-size: var(--font-size-xl, 1.5rem);
-  line-height: 1.1;
+  font-size: var(--font-size-3xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
-.shareBar {
-  display: flex;
-  block-size: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-inset);
-  overflow: hidden;
+.actionBoxCombos {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
 }
 
-.shareBar > span {
+.actionTrack {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 3px;
+  background: var(--border-subtle);
+}
+
+.actionTrack > span {
   display: block;
   block-size: 100%;
+  transform-origin: left;
+  animation: strategy-grow 0.8s var(--ease-out);
+}
+
+@keyframes strategy-grow {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 .handHead {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--space-2);
-  font-size: var(--font-size-md, 1rem);
 }
 
-.handActions {
+.handName {
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.02em;
+}
+
+.youTag,
+.tileYou {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--text-primary);
+  color: var(--surface-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.handValue {
+  margin-inline-start: auto;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mixBar {
+  display: flex;
+  block-size: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.mixBar > span {
+  display: block;
+  block-size: 100%;
+  transition: inline-size 0.4s var(--ease-out);
+}
+
+.evRows {
   display: grid;
-  gap: 2px;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-xs);
+}
+
+.evRows li {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.evRows li > :last-child {
+  text-align: end;
+}
+
+.evBest {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.evRows li.evBest {
+  color: var(--text-primary);
+}
+
+.evBar {
+  position: relative;
+  block-size: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.evBar > span:last-child {
+  position: absolute;
+  inset-block: 0;
+  border-radius: var(--radius-pill);
+  transition:
+    inset-inline-start 0.4s var(--ease-out),
+    inline-size 0.4s var(--ease-out);
+}
+
+.evZero {
+  position: absolute;
+  inset-block: -3px;
+  inline-size: 1px;
+  background: var(--border-strong);
+}
+
+/* One tile per combo: two, three or four across for suited, pairs and offsuit. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(var(--tile-columns, 2), minmax(0, 1fr));
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.handActions li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: var(--space-2);
+.tile {
+  position: relative;
+  block-size: 4.75rem;
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  overflow: hidden;
+  animation: strategy-pop 0.3s ease both;
+  transition: box-shadow 0.15s ease;
 }
 
-.combosWrap {
-  max-block-size: 20rem;
-  overflow: auto;
+.tile:hover {
+  box-shadow: 0 0 0 2px var(--text-primary);
 }
 
-.combos {
+@keyframes strategy-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.tileHero {
+  box-shadow: 0 0 0 2px var(--text-primary);
+}
+
+.tileFaint {
+  opacity: 0.45;
+}
+
+/* The combo's mix, bottom-up, as tall as its weight. */
+.tileFill {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  transition: block-size 0.5s var(--ease-out);
+}
+
+.tileFill > span {
+  display: block;
   inline-size: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-xs, 0.75rem);
+  transition: block-size 0.5s var(--ease-out);
+}
+
+.tileCards {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+  padding: 2px 6px;
+  border-radius: var(--radius-1);
+  background: var(--surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+.tileYou {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-end: var(--space-2);
+  font-size: 0.625rem;
+}
+
+.tileTop {
+  position: absolute;
+  inset-block-end: var(--space-2);
+  inset-inline-start: var(--space-2);
+  display: grid;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 3px var(--surface-scrim);
+}
+
+.tileTop small {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0;
+  opacity: 0.9;
+}
+
+/* A combo the board (or a filter) takes out: hatched, so the blockers show. */
+.tileOff {
+  background: repeating-linear-gradient(135deg, var(--surface-inset) 0 6px, var(--surface-raised) 6px 12px);
+}
+
+.tileOff .tileCards {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.tileOffText {
+  position: absolute;
+  inset-block-end: var(--space-2);
+  inset-inline-start: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.tileInfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-block-size: 1.5rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
 }
 
-.combos th,
-.combos td {
-  padding: 2px var(--space-1);
-  border-block-end: 1px solid var(--border-subtle);
-  text-align: end;
-  white-space: nowrap;
+.tileInfo strong {
+  color: var(--text-primary);
 }
 
-.combos th[scope="row"],
-.combos thead th:first-child {
-  text-align: start;
+.tilePart {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 
-.comboOut {
-  color: var(--text-tertiary);
+.tileEv {
+  margin-inline-start: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .cellFill > span,
+  .actionBox,
+  .mixBar > span,
+  .evBar > span:last-child,
+  .tileFill,
+  .tileFill > span {
+    transition: none;
+  }
+
+  .actionTrack > span,
+  .tile {
+    animation: none;
+  }
+
+  .cellHover {
+    transform: none;
+  }
 }
 
 .comboText {
@@ -941,7 +1196,7 @@
 }
 
 .compareNote {
-  font-size: var(--font-size-xs, 0.75rem);
+  font-size: var(--font-size-xs);
 }
 
 .rangeHover {
@@ -991,7 +1246,7 @@
   flex-direction: column;
   justify-content: space-between;
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs, 0.75rem);
+  font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
   text-align: end;
 }
@@ -1001,7 +1256,7 @@
   display: flex;
   justify-content: space-between;
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs, 0.75rem);
+  font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1085,7 +1340,7 @@
   background: var(--accent-subtle);
   color: var(--accent-on-subtle);
   font: inherit;
-  font-size: var(--font-size-xs, 0.75rem);
+  font-size: var(--font-size-xs);
   cursor: pointer;
 }
 
