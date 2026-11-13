@@ -5,7 +5,7 @@
  */
 import type { SolverView } from "./door";
 
-const SET_RE = /^nlhe-cash-(hu|\d{1,2}max)-\d{1,3}bb$/;
+const SET_RE = /^nlhe-cash-(hu|\d{1,2}max)-\d{1,3}bb(-ante|-straddle)?$/;
 const LINE_RE = /^[fkcra]{1,24}$/;
 const FLOP_RE = /^([2-9TJQKA][cdhs]){3}$/;
 const NODE_RE = /^\d{1,5}$/;

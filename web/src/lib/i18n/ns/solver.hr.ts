@@ -52,6 +52,10 @@ export const solverHr: Dict["solver"] = {
     summary: (players: number, stackBb: number) => `${tableName(players)} · ${num(stackBb)} bb`,
     playersName: tableName,
     depthName: (stackBb: number) => `${num(stackBb)} bb`,
+    format: "Format",
+    classic: "Klasično",
+    ante: "Ante",
+    straddle: "Straddle",
   },
 
   preflop: {
@@ -62,13 +66,14 @@ export const solverHr: Dict["solver"] = {
         ? `Raise ${size(toBb)}`
         : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     rewind: (position: string) => `Natrag na odluku: ${position}`,
+    show: (position: string) => `Prikaži range za ${position} ovdje`,
     foldTo: (position: string) => `Svi prije pozicije ${position} foldaju`,
     toAct: "na potezu",
     folded: (winner: string) => `Svi foldaju do ${winner}: flopa nema.`,
     multiway: (players: string) => `Multiway flop (${players}): knjižnica solva samo heads-up flopove.`,
     allin: "All-in prije flopa: nema flopa za solvati.",
     notSolved: (oop: string, ip: string) => `${ip} protiv ${oop}: ova linija još nije u solver libraryju.`,
-    setEmpty: "Flop solvovi za ovaj stol još nisu objavljeni.",
+    setEmpty: "Samo preflop: za ove rangeove još nema postflop solvea.",
   },
 
   flop: {
@@ -139,7 +144,8 @@ export const solverHr: Dict["solver"] = {
     `${num(reach, 1)} kombinacija dolazi do ove odluke · EV raspona ${signedBb(value)}`,
   solvedTo: (exploitability: number, iterations: number) =>
     `Solvano do ${num(exploitability, 2)} % pota exploitabilityja u ${num(iterations)} iteracija.`,
-  chartNote: "Preflop: Railovi vlastiti chartovi. Ćelija blijedi što manje te ruke dolazi do odluke.",
+  chartNote:
+    "Preflop: GTO Wizard rješenje, preneseno. Gdje ima više veličina raisea, prikazane su kao jedan raise najčešće veličine. Ćelija blijedi što manje te ruke dolazi do odluke.",
   fullNote: "Puni solve: flop, turn i river (lokalno). ",
   liveNote: "Turn i river solvani ovdje iz rangeova s flopa: turn 75 % i all-in, jedan raise; river 75 % i all-in. ",
   flopNote: "Ćelija blijedi što manje te ruke dolazi do odluke. Kombinacije su u bojama odabranog flopa.",

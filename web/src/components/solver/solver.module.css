@@ -103,15 +103,29 @@
   box-shadow: 0 0 0 1px var(--accent-border);
 }
 
-.seatFolded {
-  opacity: 0.6;
+/* A decision a later seat would face if everyone before it folded. */
+.seatLater {
+  border-style: dashed;
 }
 
+/* The card's head: clicking it shows that decision in the grid. */
 .seatHead {
   display: flex;
   justify-content: space-between;
   gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
   font-variant-numeric: tabular-nums;
+  text-align: start;
+  cursor: pointer;
+}
+
+.seatHead:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .seatHead span {
@@ -150,22 +164,7 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.seatGroup {
-  display: grid;
-  gap: 2px;
-}
-
-/* A later decision of the same seat (it raised, then faced a re-raise). */
-.seatDecision {
-  padding-block-start: var(--space-1);
-  border-block-start: 1px solid var(--border-subtle);
-}
-
-.seatWaiting {
-  color: var(--text-tertiary);
-}
-
-/* A later seat's options: what it could do if every seat before it folded. */
+/* Options not taken: a later seat's (if every seat before it folded), or a past decision's others. */
 .seatAhead {
   color: var(--text-tertiary);
 }

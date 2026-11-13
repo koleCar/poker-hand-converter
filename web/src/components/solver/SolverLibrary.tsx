@@ -1,10 +1,13 @@
 /**
- * The Solver library (`/solver`): Rail's own solves, browsed the way a
- * solver's viewer shows them.
+ * The Solver library (`/solver`): the preflop chart sets (GTO Wizard
+ * solutions, transcribed) and the flop library solved on them, browsed the
+ * way a solver's viewer shows them.
  *
  * ```
- * a table (players × stack depth the library holds)
- *   ─▶ the preflop line, seat by seat (PreflopBar): each decision is the chart node's grid (lib/charts)
+ * a table (format × players × stack depth: every set `CHART_SETS` holds)
+ *   ─▶ the preflop line, a card per decision (PreflopBar): each decision is the chart node's grid (lib/charts);
+ *      a past decision's card shows its grid again
+ *   ─▶ preflop only where the flop library has no solve on the set (none since analysis/41)
  *   ─▶ the line ends heads-up on a library line ─▶ a flop (FlopPicker; any suits, the library files canonical flops)
  *   ─▶ the chunk (`FlopLibraryLoader.load`, the analysis' own reader) ─▶ a flop decision (`exploreNode`)
  *   ─▶ an action ─▶ the next flop decision, until the flop's betting is over
@@ -31,10 +34,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CardRow } from "@rail/ui/cards/PlayingCard";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
-import { flopLinesFor, FLOP_LIBRARY_SETS } from "../../lib/analysis/flopLibrary";
+import { flopLinesFor } from "../../lib/analysis/flopLibrary";
 import { followWalk, parseWalk, type WalkStep } from "../../lib/analysis/solverWalk";
 import { preflopChartSet } from "../../lib/chartSet";
-import { CHART_SETS, type ChartNode, type ChartSet } from "../../lib/charts";
+import { CHART_SETS, chartSetKind, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../lib/charts";
 import {
   classCombos,
   dealtCards,
@@ -59,7 +62,7 @@ import { HandFilters } from "./HandFilters";
 import { useSolverHost, type SolverDict } from "./host";
 import { liveTurnId, parseLiveTurnId, solveTurnLive } from "./liveTurn";
 import { PreflopBar, type TableOption } from "./PreflopBar";
-import { preflopState, type PreflopState } from "./preflop";
+import { preflopState } from "./preflop";
 import { filterMasks, useRangeData } from "./rangeData";
 import { RangesView } from "./RangesView";
 import { actionColours, StrategyView, type StrategyHero, type StrategyModel } from "./StrategyView";
@@ -67,13 +70,19 @@ import styles from "./solver.module.css";
 
 type Dict = SolverDict;
 
-/** The chart sets the flop library is solved for, in the order offered. A set without a manifest yet says so. */
-export const SOLVER_SETS = FLOP_LIBRARY_SETS;
+/**
+ * The chart sets offered, in `CHART_SETS`' order: every set Rail ships. A set
+ * the flop library has no manifest for (none since analysis/41) is preflop
+ * only, and says so where a line reaches the flop.
+ */
+export const SOLVER_SETS: readonly string[] = CHART_SETS.map((spec) => spec.id);
 
-const TABLES: readonly TableOption[] = SOLVER_SETS.map((id) => {
-  const spec = CHART_SETS.find((s) => s.id === id)!;
-  return { id, players: spec.players, stackBb: spec.stackBb };
-});
+const TABLES: readonly TableOption[] = CHART_SETS.map((spec) => ({
+  id: spec.id,
+  players: spec.players,
+  stackBb: spec.stackBb,
+  format: chartSetKind(spec),
+}));
 
 /** High card first, then the next: how a player scans a list of flops. */
 function byRanks(a: string, b: string): number {
@@ -122,15 +131,16 @@ export interface SolverView {
 }
 
 export function SolverLibrary(props: SolverLibraryProps) {
-  const { t, loader } = useSolverHost();
-  if (!loader) return <p className={analysis.muted}>{t.unavailable}</p>;
+  const { t } = useSolverHost();
+  if (!SOLVER_SETS.length) return <p className={analysis.muted}>{t.unavailable}</p>;
+  // Without a flop library reader the preflop charts still show: every line is preflop only.
   return <Browser {...props} />;
 }
 
 function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTurn, initialPath, initialWalk, onView, hero = null }: SolverLibraryProps) {
   const { t, loader, fullSolveBase } = useSolverHost();
   const [setId, setSetId] = useState<string>(
-    initialSet && (SOLVER_SETS as readonly string[]).includes(initialSet) ? initialSet : SOLVER_SETS[0],
+    initialSet && SOLVER_SETS.includes(initialSet) ? initialSet : SOLVER_SETS.includes(DEFAULT_CHART_SET) ? DEFAULT_CHART_SET : SOLVER_SETS[0],
   );
   const [line, setLine] = useState(initialLine ?? "");
   const [flop, setFlop] = useState<string[] | null>(initialFlop ? flopCards(initialFlop) : null);
@@ -163,6 +173,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
    */
   const [swappedAt, setSwappedAt] = useState<string | null>(null);
   const [filter, setFilter] = useState<HandFilter>(EMPTY_FILTER);
+  /** A past preflop decision the grid shows instead of the line's own (its line), set by clicking its card. */
+  const [viewing, setViewing] = useState<string | null>(null);
 
   const table = TABLES.find((x) => x.id === setId)!;
   const lines = flopLinesFor(table.players);
@@ -177,8 +189,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
       .catch(() => {
         if (live) setCharts({ key: setId, status: "error" });
       });
-    void loader!
-      .listed(setId)
+    void (loader ? loader.listed(setId) : Promise.resolve([] as Array<{ line: string; flop: string }>))
       .then((listed) => {
         if (!live) return;
         const byLine = new Map<string, string[]>();
@@ -203,9 +214,10 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
   // The chunk of the line and the flop.
   useEffect(() => {
-    if (!chunkKey || !libraryLine || !flopKey) return;
+    // A chunk is only ever named from the reader's own manifest.
+    if (!chunkKey || !libraryLine || !flopKey || !loader) return;
     let live = true;
-    void loader!
+    void loader
       .load(setId, libraryLine.id, flopKey)
       .then((value) => {
         if (live) setChunk(value ? { key: chunkKey, status: "ready", value } : { key: chunkKey, status: "error" });
@@ -336,6 +348,7 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
   };
 
   const goLine = (next: string) => {
+    setViewing(null);
     setWalk(null);
     setLine(next);
     setFlop(null);
@@ -345,12 +358,16 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
     setNode(0);
   };
 
+  const looked = viewing !== null ? (state?.cards.find((c) => c.kind === "past" && c.line === viewing)?.node ?? null) : null;
+
   let body: ReactNode;
   if (!state || !manifest) {
     body = <RailLoader label={t.loadingLibrary} showLabel centered />;
-  } else if (state.node) {
-    const model = preflopModel(state.node, state, goLine, t);
-    body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={state.node} t={t} />} />;
+  } else if (looked ?? state.node) {
+    // A past decision looked back at, else the one to make. Picking an action on it rewrites the line from there.
+    const shown = looked ?? state.node!;
+    const model = preflopModel(shown, looked ? viewing! : state.line, goLine, t);
+    body = <StrategyView model={model} hero={hero} overview={<PreflopOverview node={shown} t={t} />} />;
   } else if (end?.kind === "folded") {
     body = <p className={styles.message}>{t.preflop.folded(end.winner)}</p>;
   } else if (end?.kind === "allin") {
@@ -458,6 +475,8 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
         }}
         state={state}
         onLine={goLine}
+        viewing={looked ? viewing : null}
+        onView={setViewing}
       />
       {body}
       {pickerOpen ? (
@@ -483,12 +502,12 @@ function Browser({ initialSet, initialLine, initialFlop, initialNode, initialTur
 
 /* ------------------------------------------------------------ the models - */
 
-function preflopModel(node: ChartNode, state: PreflopState, goLine: (line: string) => void, t: Dict): StrategyModel {
+function preflopModel(node: ChartNode, line: string, goLine: (line: string) => void, t: Dict): StrategyModel {
   const classes = node.range.length;
   const totals = actionTotals(node);
   const colours = actionColours(node.options.map((o) => ({ kind: o.action, amount: o.toBb })));
   return {
-    id: `pre|${state.line}`,
+    id: `pre|${line}`,
     actor: node.actor,
     actions: node.options.map((option, a) => ({
       key: option.code,
@@ -497,7 +516,7 @@ function preflopModel(node: ChartNode, state: PreflopState, goLine: (line: strin
       share: totals[a].share,
       combos: totals[a].combos,
       ends: null,
-      onPick: () => goLine(state.line + option.code),
+      onPick: () => goLine(line + option.code),
     })),
     classes: GRID_CELLS.map((cell) => {
       const k = cell.index;
