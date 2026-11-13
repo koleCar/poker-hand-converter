@@ -89,10 +89,10 @@ export function ChartBrowser({ initialSet = null, initialLine, initialHand }: Ch
 
   return (
     <div className={styles.browser}>
-      <div className={`notice notice--warn ${styles.reference}`}>
-        <strong>{t.caveatTitle}</strong>
-        <span>{t.caveat}</span>
-      </div>
+      <details className={styles.caveat}>
+        <summary>{t.caveatTitle}</summary>
+        <p>{t.caveat}</p>
+      </details>
 
       {loaded.status === "loading" && !switching ? <RailLoader label={t.loading} showLabel centered /> : null}
       {loaded.status === "error" ? <p className="notice notice--error">{t.failed(loaded.message)}</p> : null}

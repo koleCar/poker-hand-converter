@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { ChartsSource } from "../../../components/analysis/ChartsSource";
 import { AnalysisNav } from "../../../components/analysis/AnalysisNav";
 import { ChartBrowser } from "../../../components/analysis/ChartBrowser";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { getDict } from "../../../lib/i18n/server";
 import { paths } from "../../../lib/routes";
-import styles from "../../../components/learn/learn.module.css";
+import an from "../../../components/analysis/ui/an.module.css";
 
 /**
  * The preflop chart browser (phase A2b, `docs/ANALYSIS-PLAN.md` §6.1 *Study*).
@@ -51,12 +52,11 @@ export default async function ChartsPage({ searchParams }: PageProps) {
   const t = en.analysis.charts;
   return (
     <ServerFrame tab="analysis">
-      <div className={styles.page}>
-        <header className={styles.pageHead}>
-          <h1 className={styles.title}>{t.heading}</h1>
-          <AnalysisNav current="charts" />
-          <p className={styles.lead}>{t.intro}</p>
-        </header>
+      <div className={an.page}>
+        <h1 className={an.srOnly}>{t.heading}</h1>
+        <AnalysisNav current="charts">
+          <ChartsSource current="rail" />
+        </AnalysisNav>
         <ChartBrowser
           initialSet={set && SET_RE.test(set) ? set : null}
           initialLine={line && LINE_RE.test(line) ? line : null}
