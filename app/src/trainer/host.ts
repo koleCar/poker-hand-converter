@@ -23,6 +23,8 @@ import {
   trainerHr,
   type FocusState,
   type GradedAnswer,
+  type PlayOptions,
+  type PlayStep,
   type TrainerHost,
   type TrainerSettings,
   type TrainerSpot,
@@ -109,6 +111,25 @@ async function grade(spot: TrainerSpot, menuIndex: number): Promise<GradedAnswer
   return { hand: response.hand, actionIndex: response.actionIndex, decision: response.decision, study: response.study ?? null };
 }
 
+async function playStart(options: PlayOptions, seed: number): Promise<PlayStep | null> {
+  const response = await ask({ type: "play-start", options, seed });
+  if (response.type === "error") throw new Error(response.message);
+  return response.type === "play" ? response.step : null;
+}
+
+async function playGrade(step: PlayStep, menuIndex: number): Promise<GradedAnswer> {
+  const response = await ask({ type: "play-grade", step, menuIndex });
+  if (response.type === "error") throw new Error(response.message);
+  if (response.type !== "graded") throw new Error(`unexpected ${response.type} from the trainer`);
+  return { hand: response.hand, actionIndex: response.actionIndex, decision: response.decision, study: null };
+}
+
+async function playAnswer(step: PlayStep, menuIndex: number): Promise<PlayStep | null> {
+  const response = await ask({ type: "play-answer", step, menuIndex });
+  if (response.type === "error") throw new Error(response.message);
+  return response.type === "play" ? response.step : null;
+}
+
 /** "For you" from the store: every analysed hand of one kind of game, grouped into focus areas. */
 async function focus(kind: GameKind | null): Promise<FocusState> {
   if (!inApp) return { status: "signed-out" };
@@ -124,6 +145,9 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       locale: INTL_LOCALE[locale],
       deal,
       grade,
+      playStart,
+      playGrade,
+      playAnswer,
       focus: () => focus(kind),
       onSettings: keepSettings,
     }),
