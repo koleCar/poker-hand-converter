@@ -59,6 +59,7 @@ export function SpotFelt({
   toCallBb,
   overlay,
   shown,
+  compact = false,
 }: {
   felt: Felt;
   cards: readonly string[];
@@ -66,6 +67,8 @@ export function SpotFelt({
   overlay?: ReactNode;
   /** An opponent's cards turned over (a whole hand's showdown). */
   shown?: { position: string; cards: readonly string[] } | null;
+  /** One of several tables: smaller cards. */
+  compact?: boolean;
 }) {
   const { t, locale } = useTrainerHost();
   const seats = aroundHero(felt.seats);
@@ -79,7 +82,7 @@ export function SpotFelt({
         {felt.board.length > 0 ? (
           <span className={styles.board}>
             {felt.board.map((card) => (
-              <PlayingCard key={card} code={card} size="md" />
+              <PlayingCard key={card} code={card} size={compact ? "sm" : "md"} />
             ))}
           </span>
         ) : null}
@@ -108,7 +111,7 @@ export function SpotFelt({
             {seat.hero ? (
               <span className={styles.heroCards}>
                 {cards.map((card) => (
-                  <PlayingCard key={card} code={card} size="lg" />
+                  <PlayingCard key={card} code={card} size={compact ? "sm" : "lg"} />
                 ))}
               </span>
             ) : null}

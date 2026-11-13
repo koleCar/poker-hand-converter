@@ -15,6 +15,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import type { Dict } from "../../lib/i18n/types";
 import type { GradedAnswer, TrainerAnswer, TrainerSpot } from "../../lib/training";
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
+import type { RangeView } from "../../lib/training/rangeView";
 import type { FocusArea } from "../../lib/training/plan";
 import type { SpotRequest, TrainerSettings } from "./settings";
 
@@ -27,6 +28,19 @@ export type FocusState =
   | { status: "signed-out" }
   | { status: "ready"; areas: FocusArea[] }
   | { status: "error"; message: string };
+
+/** One answer, kept on the device (the app's history, T4). */
+export interface KeptAnswer {
+  /** ISO time. */
+  at: string;
+  street: string;
+  /** The hero's cards. */
+  cards: string[];
+  /** The answer as its button read. */
+  label: string;
+  grade: string;
+  evLoss: number;
+}
 
 export interface TrainerHost {
   t: TrainerDict;
@@ -44,6 +58,11 @@ export interface TrainerHost {
   playStart?(options: PlayOptions, seed: number): Promise<PlayStep | null>;
   playGrade?(step: PlayStep, menuIndex: number): Promise<GradedAnswer>;
   playAnswer?(step: PlayStep, menuIndex: number): Promise<PlayStep | null>;
+  /** The hero's range at a spot's decision (the range panel, T3), and at a whole hand's. Absent: no panel. */
+  range?(spot: TrainerSpot): Promise<RangeView | null>;
+  playRange?(step: PlayStep): Promise<RangeView | null>;
+  /** Every graded answer, spot or whole hand, for a history kept on the device (the app's). */
+  kept?(answer: KeptAnswer): void;
   /** The player's leaks. Asked once when "For you" opens. */
   focus(): Promise<FocusState>;
   /** A graded answer, to keep (the web's `trainer_results`); absent: kept nowhere. */

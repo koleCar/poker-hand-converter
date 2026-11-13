@@ -55,6 +55,7 @@ import {
   type ScriptPosition,
 } from "./handText";
 import { dealPreflop, lineAggressor, lineActs, trainerSet, type PreflopFamily, type PreflopSpotOptions } from "./preflop";
+import { decisionRange, type RangeView } from "./rangeView";
 import { scriptSeats } from "./river";
 import { pickOne, pickWeighted, seeded, type Rng } from "./rng";
 
@@ -516,4 +517,15 @@ export async function answerPlay(step: PlayStep, menuIndex: number, charts: Char
   const next = { ...state, script: withAct(state.script, street, optionAct(state.script, state.hero, option)) };
   if (library) await library.ready(state.set);
   return advance(next, charts, library);
+}
+
+/** The hero's range at the hand's current decision (the range panel, T3). */
+export async function playRange(step: PlayStep, charts: ChartSet, library: PlayLibrary | null): Promise<RangeView | null> {
+  const { state, decision } = step;
+  if (!decision) return null;
+  const probe = decisionHand(state, state.hero, standIn(state.script, state.hero));
+  if (library) await library.ready(state.set);
+  // Preflop the chart node the analysis read; after it the street's study (its chunk loaded first).
+  const analysed = await analyse(probe.hand, probe.index, charts, decision.street, library);
+  return decisionRange(probe.hand, probe.index, decision.street, charts, library?.library ?? null, analysed);
 }

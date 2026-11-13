@@ -33,7 +33,17 @@ export function useOptionText() {
   return (option: OptionAnalysis) => t.words.option(option.action, option.sizeBb, option.allIn, option.sizePot);
 }
 
-export function Verdict({ decision }: { decision: DecisionAnalysis }) {
+export function Verdict({
+  decision,
+  note = null,
+  compact = false,
+}: {
+  decision: DecisionAnalysis;
+  /** A line of its own: a mix's accuracy, "out of time". */
+  note?: string | null;
+  /** One of several tables: the grade and what it cost only. */
+  compact?: boolean;
+}) {
   const { t } = useTrainerHost();
   const label = useOptionText();
   const chosen = decision.chosen !== null ? decision.options[decision.chosen] : null;
@@ -45,9 +55,9 @@ export function Verdict({ decision }: { decision: DecisionAnalysis }) {
         <span aria-hidden="true">{decision.grade ? GLYPH[decision.grade] : ""}</span>
         {decision.grade ? (t.words.grades[decision.grade] ?? decision.grade) : ""}
       </span>
-      {chosen ? <span>{t.you(label(chosen))}</span> : null}
+      {note ? <span>{note}</span> : chosen && !compact ? <span>{t.you(label(chosen))}</span> : null}
       <span className={styles.verdictLoss}>{decision.evLoss && decision.evLoss > 0.005 ? t.evLost(decision.evLoss) : t.noLoss}</span>
-      {!playable && best !== null && best !== decision.chosen ? <span>{t.best(label(decision.options[best]))}</span> : null}
+      {!compact && !playable && best !== null && best !== decision.chosen ? <span>{t.best(label(decision.options[best]))}</span> : null}
     </div>
   );
 }
@@ -60,7 +70,18 @@ function bestIndex(decision: DecisionAnalysis): number | null {
   return best;
 }
 
-export function Feedback({ decision, spot, settings }: { decision: DecisionAnalysis; spot: TrainerSpot | null; settings: TrainerSettings }) {
+export function Feedback({
+  decision,
+  spot,
+  settings,
+  mix = null,
+}: {
+  decision: DecisionAnalysis;
+  spot: TrainerSpot | null;
+  settings: TrainerSettings;
+  /** A mix answer: the player's share per option, beside the reference's. */
+  mix?: number[] | null;
+}) {
   const { t, locale } = useTrainerHost();
   const label = useOptionText();
   const pct = (value: number) => `${Math.round(value * 100).toLocaleString(locale)}%`;
@@ -88,7 +109,7 @@ export function Feedback({ decision, spot, settings }: { decision: DecisionAnaly
       {settings.strategy ? (
         <section className={styles.block} aria-label={t.strategyHeading}>
           <h3 className={styles.blockHead}>{t.strategyHeading}</h3>
-          <ul className={styles.options}>
+          <ul className={styles.options} data-mix={mix ? true : undefined}>
             {decision.options.map((option, index) => (
               <li
                 key={index}
@@ -102,6 +123,11 @@ export function Feedback({ decision, spot, settings }: { decision: DecisionAnaly
                   <span style={{ inlineSize: `${Math.max(0, Math.min(1, option.freq)) * 100}%` }} />
                 </span>
                 <span className={styles.optionFreq}>{pct(option.freq)}</span>
+                {mix ? (
+                  <span className={styles.optionMix} title={t.mixYours}>
+                    {pct(mix[index] ?? 0)}
+                  </span>
+                ) : null}
                 <span className={styles.optionEv} title={t.evHeading}>
                   {ev(option.ev)}
                 </span>

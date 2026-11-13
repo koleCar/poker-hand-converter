@@ -18,17 +18,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import { nextSeed, STREAK_GRADES, type GradedAnswer, type TrainerAnswer } from "../../lib/training";
 import type { PlayOptions, PlayStep } from "../../lib/training/play";
+import type { RangeView } from "../../lib/training/rangeView";
+import { ActionButtons, groupChoices, groupForKey, TimebankBar, useTimebank, type Choice } from "./Decision";
 import { feltOf } from "./felt";
 import { Feedback, Verdict } from "./Feedback";
 import { useTrainerHost } from "./host";
 import type { TrainerSettings } from "./settings";
+import { RangeGrid } from "./RangeGrid";
 import { ActionStrip, SpotFelt } from "./SpotFelt";
 import styles from "./trainer.module.css";
 
 const DEAL_TRIES = 4;
 const AUTO_NEXT_MS = 1600;
 const GLYPH: Record<string, string> = { perfect: "★", good: "✓", inaccurate: "?!", mistake: "?", blunder: "??" };
-const LETTER: Record<string, string> = { fold: "F", check: "C", call: "C", allin: "A" };
 
 interface Answered {
   picked: number;
@@ -109,7 +111,7 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
     return null;
   }, [decision, over]);
 
-  const buttons = useMemo(
+  const buttons = useMemo<Choice[]>(
     () =>
       (decision?.menu ?? []).map((option) => ({
         label: t.words.option(option.action, option.sizeBb, option.allIn, option.sizePot),
@@ -118,6 +120,22 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
       })),
     [decision, t],
   );
+  const groups = useMemo(() => groupChoices(buttons, settings.buttons), [buttons, settings.buttons]);
+  // The range panel (T3), read for each decision when asked for.
+  const [range, setRange] = useState<{ step: PlayStep; view: RangeView | null } | null>(null);
+  const wantsRange = settings.range !== "off" && Boolean(host.playRange);
+  useEffect(() => {
+    if (!step?.decision || !wantsRange || !host.playRange) return;
+    let live = true;
+    const at = step;
+    host
+      .playRange(at)
+      .then((view) => live && setRange({ step: at, view }))
+      .catch(() => live && setRange({ step: at, view: null }));
+    return () => {
+      live = false;
+    };
+  }, [step, wantsRange, host]);
 
   const graded = answered?.graded ?? null;
   const verdict = graded?.decision ?? null;
@@ -136,6 +154,14 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
           if (!d || d.grade === null) return;
           onScored({ grade: d.grade, evLoss: d.evLoss ?? 0, evLossPot: d.evLossPot ?? 0, score: d.score ?? 0 });
           setLog((rows) => [...rows, { street: decision.street, label: buttons[index]?.label ?? "", decision: d }]);
+          host.kept?.({
+            at: new Date().toISOString(),
+            street: decision.street,
+            cards: [...decision.cards],
+            label: buttons[index]?.label ?? "",
+            grade: d.grade,
+            evLoss: d.evLoss ?? 0,
+          });
           if (settings.pause === "mistakes" && STREAK_GRADES.includes(d.grade)) setHolding(true);
         })
         .catch((e: unknown) => {
@@ -144,6 +170,27 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
     },
     [step, decision, answered, host, onScored, buttons, settings.pause],
   );
+
+  /** A group of sizes (one button per action): the size the reference prefers for this hand. */
+  const pickGroup = useCallback(
+    (g: number) => {
+      const group = groups[g];
+      if (!group || !decision) return;
+      let best = group[0];
+      for (const index of group) if ((decision.menu[index]?.freq ?? 0) > (decision.menu[best]?.freq ?? 0)) best = index;
+      pick(best);
+    },
+    [groups, decision, pick],
+  );
+
+  // The clock: out of time, a check where there is one, else a fold.
+  const seconds = Number(settings.timebank) || 0;
+  const timeout = useCallback(() => {
+    const check = groups.findIndex((group) => buttons[group[0]]?.tone === "check");
+    const fold = groups.findIndex((group) => buttons[group[0]]?.tone === "fold");
+    pickGroup(check >= 0 ? check : Math.max(0, fold));
+  }, [groups, buttons, pickGroup]);
+  const left = useTimebank(seconds, Boolean(decision) && !answered, timeout);
 
   const proceed = useCallback(() => {
     setHolding(false);
@@ -187,22 +234,15 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
         return;
       }
       if (!decision || answered) return;
-      const digit = Number.parseInt(key, 10);
-      if (digit >= 1 && digit <= buttons.length) {
-        pick(digit - 1);
-        event.preventDefault();
-        return;
-      }
-      const alias = key === "f" ? ["fold"] : key === "c" || key === "x" ? ["check", "call"] : key === "a" ? ["allin"] : [];
-      const index = buttons.findIndex((button) => button.alias !== null && alias.includes(button.alias));
-      if (index >= 0) {
-        pick(index);
+      const g = groupForKey(buttons, groups, key);
+      if (g >= 0) {
+        pickGroup(g);
         event.preventDefault();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [over, answered, graded, waiting, decision, buttons, pick, proceed, newHand]);
+  }, [over, answered, graded, waiting, decision, buttons, groups, pickGroup, proceed, newHand]);
 
   if (error) {
     return (
@@ -238,26 +278,20 @@ function OneHand({ request, settings, onScored, onHandDone, newHand }: HandPlaye
       />
 
       {decision ? (
-        <div className={styles.buttons} role="group" aria-label={t.yourMove}>
-          {buttons.map((button, index) => {
-            const keys = [String(index + 1), button.alias ? LETTER[button.alias] : null].filter(Boolean) as string[];
-            return (
-              <button
-                key={index}
-                type="button"
-                className={styles.action}
-                data-action={button.tone}
-                data-picked={answered?.picked === index || undefined}
-                disabled={Boolean(answered)}
-                aria-keyshortcuts={keys.join(" ")}
-                onClick={() => pick(index)}
-              >
-                <span>{button.label}</span>
-                <kbd aria-hidden="true">{keys[0]}</kbd>
-              </button>
-            );
-          })}
-        </div>
+        <ActionButtons choices={buttons} groups={groups} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pickGroup} />
+      ) : null}
+      {decision && !answered ? <TimebankBar left={left} seconds={seconds} /> : null}
+      {decision && wantsRange ? (
+        <section className={styles.block} aria-label={t.rangeHeading}>
+          <h3 className={styles.blockHead}>{t.rangeHeading}</h3>
+          {range === null || range.step !== step ? (
+            <RailLoader size="inline" label={t.rangeLoading} showLabel />
+          ) : range.view ? (
+            <RangeGrid view={range.view} strategy={settings.range === "strategy" || Boolean(answered)} />
+          ) : (
+            <p className={styles.muted}>{t.rangeNone}</p>
+          )}
+        </section>
       ) : null}
 
       {answered && !graded && !answered.error ? (

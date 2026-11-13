@@ -6,7 +6,7 @@
  * web groups them), and the settings kept in this window's storage. Answers
  * are not kept: the app has no trainer history yet.
  */
-import { useMemo } from "react";
+import { createElement, useMemo } from "react";
 
 import { fetchOutcomeOfError } from "../analysis/workerClient";
 import type { FetchOutcome } from "../analysis/worker";
@@ -23,6 +23,8 @@ import {
   trainerHr,
   type FocusState,
   type GradedAnswer,
+  type KeptAnswer,
+  type RangeView,
   type PlayOptions,
   type PlayStep,
   type TrainerHost,
@@ -32,6 +34,7 @@ import {
   type TrainingResponse,
 } from "./door";
 import type { TrainerWorkerRequest, TrainerWorkerResponse } from "./worker";
+import { TrainerHistory as HistoryPanel } from "./History";
 
 const STORAGE_KEY = "rail.trainer.settings";
 
@@ -130,6 +133,46 @@ async function playAnswer(step: PlayStep, menuIndex: number): Promise<PlayStep |
   return response.type === "play" ? response.step : null;
 }
 
+async function range(spot: TrainerSpot): Promise<RangeView | null> {
+  const response = await ask({ type: "range", spot });
+  if (response.type === "error") throw new Error(response.message);
+  return response.type === "range" ? response.view : null;
+}
+
+async function playRange(step: PlayStep): Promise<RangeView | null> {
+  const response = await ask({ type: "play-range", step });
+  if (response.type === "error") throw new Error(response.message);
+  return response.type === "range" ? response.view : null;
+}
+
+/** The app's answer history (T4): the last answers, on this computer. */
+const HISTORY_KEY = "rail.trainer.history";
+export const HISTORY_MAX = 200;
+const historyListeners = new Set<() => void>();
+
+export function readHistory(): KeptAnswer[] {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(HISTORY_KEY) ?? "[]") as unknown;
+    return Array.isArray(raw) ? (raw as KeptAnswer[]).filter((a) => a && typeof a.grade === "string").slice(0, HISTORY_MAX) : [];
+  } catch {
+    return [];
+  }
+}
+
+function keep(answer: KeptAnswer): void {
+  try {
+    window.localStorage.setItem(HISTORY_KEY, JSON.stringify([answer, ...readHistory()].slice(0, HISTORY_MAX)));
+  } catch {
+    // A webview without storage: no history.
+  }
+  historyListeners.forEach((listener) => listener());
+}
+
+export function onHistory(listener: () => void): () => void {
+  historyListeners.add(listener);
+  return () => historyListeners.delete(listener);
+}
+
 /** "For you" from the store: every analysed hand of one kind of game, grouped into focus areas. */
 async function focus(kind: GameKind | null): Promise<FocusState> {
   if (!inApp) return { status: "signed-out" };
@@ -148,6 +191,10 @@ export function useAppTrainerHost(kind: GameKind | null): TrainerHost {
       playStart,
       playGrade,
       playAnswer,
+      range,
+      playRange,
+      kept: keep,
+      aside: createElement(HistoryPanel),
       focus: () => focus(kind),
       onSettings: keepSettings,
     }),

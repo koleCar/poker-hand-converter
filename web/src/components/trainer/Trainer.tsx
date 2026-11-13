@@ -18,59 +18,28 @@
 
 import { RailLoader } from "@rail/ui/loader/RailLoader";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  addAnswer,
-  emptySession,
-  nextSeed,
-  sessionAccuracy,
-  STREAK_GRADES,
-  type GradedAnswer,
-  type SessionStats,
-  type TrainerAnswer,
-  type TrainerSpot,
-} from "../../lib/training";
+import { addAnswer, emptySession, sessionAccuracy, type SessionStats, type TrainerAnswer } from "../../lib/training";
 import type { FocusArea } from "../../lib/training/plan";
 import { leakKind } from "../../lib/analysis/leaks";
-import { feltOf } from "./felt";
-import { Feedback, Verdict } from "./Feedback";
 import { focusTarget, HANDS_PER_AREA, trainableAreas } from "./focus";
 import { useTrainerHost, type FocusState } from "./host";
 import { SettingsSheet } from "./SettingsSheet";
 import { HandPlayer } from "./HandPlayer";
 import { HAND_MODES, PLAYS, playOptions, spotOptions, targetSettings, TRAINER_MODES, type StreetMode, type TrainerSettings } from "./settings";
-import { ActionStrip, SpotFelt } from "./SpotFelt";
+import { SpotPlayer, type TableStatus } from "./SpotPlayer";
 import styles from "./trainer.module.css";
-
-/** Seeds tried before saying no spot matches. */
-const DEAL_TRIES = 3;
-/** How long a right answer stays on screen before the next hand, when the trainer waits only after mistakes. */
-const AUTO_NEXT_MS = 1600;
-
-type Dealt = { key: string; spot: TrainerSpot | null; error: string | null };
-type Answered = { key: string; picked: number; graded: GradedAnswer | null; error: string | null };
-
-interface Button {
-  label: string;
-  tone: string;
-  alias: "fold" | "check" | "call" | "allin" | null;
-}
-
-const LETTER: Record<string, string> = { fold: "F", check: "C", call: "C", allin: "A" };
 
 export function Trainer({ initial }: { initial: TrainerSettings }) {
   const host = useTrainerHost();
   const { t } = host;
   const [settings, setSettings] = useState<TrainerSettings>(initial);
   const [sheet, setSheet] = useState(false);
-  const [round, setRound] = useState(0);
-  const [dealt, setDealt] = useState<Dealt | null>(null);
-  const [answered, setAnswered] = useState<Answered | null>(null);
   const [session, setSession] = useState<SessionStats>(emptySession);
   const [focus, setFocus] = useState<FocusState>({ status: "loading" });
   const [areaIndex, setAreaIndex] = useState(0);
-  /** Hands answered in the current area of "For you". */
+  /** Answers (spots) or hands in the current area of "For you". */
   const inArea = useRef(0);
-  const [holding, setHolding] = useState(false);
+  const [statuses, setStatuses] = useState<TableStatus[]>([]);
 
   const change = useCallback(
     (patch: Partial<TrainerSettings>) => {
@@ -110,161 +79,69 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
     return { mode: shaped.mode, settings: shaped.settings, area };
   }, [settings, focus.status, areas, areaIndex]);
 
-  // A whole hand (T2) when the host can play one and the mode starts one; one spot otherwise.
-  const handMode = settings.play === "hand" && Boolean(host.playStart && host.playGrade && host.playAnswer) && HAND_MODES.includes(settings.mode);
+  const canPlayHands = Boolean(host.playStart && host.playGrade && host.playAnswer);
+  // A whole hand (T2) when the host can play one and the mode starts one; spots otherwise.
+  const handMode = settings.play === "hand" && canPlayHands && HAND_MODES.includes(settings.mode);
   const playRequest = useMemo(() => (handMode && plan ? playOptions(plan.mode, plan.settings) : null), [handMode, plan]);
-  const requestJson = plan && !handMode ? JSON.stringify(spotOptions(plan.mode, plan.settings)) : null;
-  const requestKey = requestJson ? `${requestJson}|${round}` : null;
+  const spotRequest = useMemo(() => (!handMode && plan ? spotOptions(plan.mode, plan.settings) : null), [handMode, plan]);
+  // Several tables in spot mode only (T5); a whole hand is one table.
+  const tables = handMode ? 1 : Number(settings.tables) || 1;
 
-  useEffect(() => {
-    if (!requestJson || !requestKey) return;
-    let live = true;
-    const request = JSON.parse(requestJson);
-    (async () => {
-      for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
-        const spot = await host.deal(request, nextSeed());
-        if (spot) return spot;
+  const counted = useCallback(
+    (step: number) => {
+      // "For you" works through an area a few answers (or hands) at a time.
+      if (settings.mode !== "focus") return;
+      inArea.current += 1;
+      if (inArea.current >= step) {
+        inArea.current = 0;
+        setAreaIndex((i) => i + 1);
       }
-      return null;
-    })()
-      .then((spot) => live && setDealt({ key: requestKey, spot, error: null }))
-      .catch((error: unknown) => live && setDealt({ key: requestKey, spot: null, error: error instanceof Error ? error.message : String(error) }));
-    return () => {
-      live = false;
-    };
-  }, [requestJson, requestKey, host]);
-
-  const current = dealt && dealt.key === requestKey ? dealt : null;
-  const spot = current?.spot ?? null;
-  const answer = answered && answered.key === requestKey ? answered : null;
-  const graded = answer?.graded ?? null;
-  const decision = graded?.decision ?? null;
-  const felt = useMemo(() => (spot ? feltOf(spot.hand, spot.kind === "preflop" ? [] : spot.board) : null), [spot]);
-
-  const buttons = useMemo<Button[]>(() => {
-    if (!spot) return [];
-    if (spot.kind === "preflop") {
-      return spot.menu.map((item) => ({
-        label: t.words.chartAction(item.action, item.toBb),
-        tone: item.action,
-        alias: item.action === "fold" || item.action === "call" || item.action === "check" || item.action === "allin" ? item.action : null,
-      }));
-    }
-    return spot.menu.map((item) => {
-      const action = item.kind === "allin" ? (spot.toCallBb > 0 ? "raise" : "bet") : item.kind;
-      const sized = item.kind === "bet" || item.kind === "raise" || item.kind === "allin";
-      return {
-        label: t.words.option(action, sized ? item.to : undefined, item.kind === "allin", item.kind === "bet" ? item.sizePot : undefined),
-        tone: item.kind,
-        alias: item.kind === "fold" || item.kind === "check" || item.kind === "call" || item.kind === "allin" ? item.kind : null,
-      };
-    });
-  }, [spot, t]);
-
-  const next = useCallback(() => {
-    setHolding(false);
-    setRound((value) => value + 1);
-  }, []);
-
-  const pick = useCallback(
-    (index: number) => {
-      if (!spot || answer || !requestKey) return;
-      const key = requestKey;
-      setAnswered({ key, picked: index, graded: null, error: null });
-      host
-        .grade(spot, index)
-        .then((result) => {
-          setAnswered((prev) => (prev && prev.key === key ? { ...prev, graded: result } : prev));
-          const d = result.decision;
-          if (!d || d.grade === null) return;
-          const scored: TrainerAnswer = { grade: d.grade, evLoss: d.evLoss ?? 0, evLossPot: d.evLossPot ?? 0, score: d.score ?? 0 };
-          setSession((stats) => addAnswer(stats, scored));
-          host.record?.(spot, scored, d.facts.handClass);
-          if (settings.mode === "focus") {
-            inArea.current += 1;
-            if (inArea.current >= HANDS_PER_AREA) {
-              inArea.current = 0;
-              setAreaIndex((i) => i + 1);
-            }
-          }
-          if (settings.pause === "mistakes" && STREAK_GRADES.includes(d.grade)) setHolding(true);
-        })
-        .catch((error: unknown) => {
-          setAnswered((prev) => (prev && prev.key === key ? { ...prev, error: error instanceof Error ? error.message : String(error) } : prev));
-        });
     },
-    [spot, answer, requestKey, host, settings.mode, settings.pause],
+    [settings.mode],
   );
+  const scored = useCallback(
+    (answer: TrainerAnswer) => {
+      setSession((stats) => addAnswer(stats, answer));
+      if (!handMode) counted(HANDS_PER_AREA);
+    },
+    [handMode, counted],
+  );
+  const handDone = useCallback(() => counted(Math.ceil(HANDS_PER_AREA / 2)), [counted]);
 
-  // A right answer moves on by itself when the trainer waits only after mistakes.
-  const holdRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (!holding) return;
-    holdRef.current = window.setTimeout(next, AUTO_NEXT_MS);
-    return () => {
-      if (holdRef.current !== null) window.clearTimeout(holdRef.current);
-    };
-  }, [holding, next]);
+  // Keys go to one table: the first waiting for an answer, else the first answered (for "next").
+  const statusOf = useCallback(
+    (index: number) => (status: TableStatus) =>
+      setStatuses((current) => {
+        if (current[index] === status) return current;
+        const next = [...current];
+        next[index] = status;
+        return next;
+      }),
+    [],
+  );
+  const reporters = useMemo(() => Array.from({ length: 4 }, (_, i) => statusOf(i)), [statusOf]);
+  const live = statuses.slice(0, tables);
+  const waiting = live.findIndex((status) => status === "waiting");
+  const answeredAt = live.findIndex((status) => status === "answered");
+  const keysFor = (index: number): "answer" | "next" | null =>
+    waiting >= 0 ? (index === waiting ? "answer" : null) : index === answeredAt ? "next" : null;
 
-  // Keys: 1–9 the buttons in order, F fold, C check or call, A all-in, N / Enter next, S settings.
+  // S opens the settings, whatever the mode.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || sheet) return;
-      if (handMode) {
-        // A whole hand has its own keys (`HandPlayer`); S still opens the settings.
-        if (event.key.toLowerCase() === "s" && !(event.target as HTMLElement | null)?.isContentEditable) {
-          setSheet(true);
-          event.preventDefault();
-        }
-        return;
-      }
       const target = event.target as HTMLElement | null;
       if (target && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))) return;
-      const key = event.key.toLowerCase();
-      if (key === "s") {
+      if (event.key.toLowerCase() === "s") {
         setSheet(true);
-        event.preventDefault();
-        return;
-      }
-      if (answer) {
-        if ((key === "n" || key === "enter") && (graded || answer.error)) {
-          next();
-          event.preventDefault();
-        }
-        return;
-      }
-      if (!spot) return;
-      const digit = Number.parseInt(key, 10);
-      if (digit >= 1 && digit <= buttons.length) {
-        pick(digit - 1);
-        event.preventDefault();
-        return;
-      }
-      const alias = key === "f" ? ["fold"] : key === "c" || key === "x" ? ["check", "call"] : key === "a" ? ["allin"] : [];
-      const index = buttons.findIndex((button) => button.alias !== null && alias.includes(button.alias));
-      if (index >= 0) {
-        pick(index);
         event.preventDefault();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answer, graded, spot, buttons, pick, next, sheet, handMode]);
+  }, [sheet]);
 
-  const dealing = plan !== null && current === null && !handMode;
-  const scored = useCallback((answer: TrainerAnswer) => setSession((stats) => addAnswer(stats, answer)), []);
-  const handDone = useCallback(() => {
-    // "For you" works through an area a few hands at a time.
-    if (settings.mode !== "focus") return;
-    inArea.current += 1;
-    if (inArea.current >= Math.ceil(HANDS_PER_AREA / 2)) {
-      inArea.current = 0;
-      setAreaIndex((i) => i + 1);
-    }
-  }, [settings.mode]);
-  const canPlayHands = Boolean(host.playStart && host.playGrade && host.playAnswer);
   const accuracy = sessionAccuracy(session);
-  const mode = plan?.mode ?? null;
   const area = plan?.area ?? null;
   const summary = plan && settings.mode !== "focus" ? spotSummary(plan.mode, plan.settings, t) : null;
 
@@ -304,99 +181,42 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
         </button>
       </div>
 
-      {settings.mode === "focus" ? <FocusBar state={focus} area={area} onNext={() => {
+      {settings.mode === "focus" ? (
+        <FocusBar
+          state={focus}
+          area={area}
+          onNext={() => {
             inArea.current = 0;
             setAreaIndex((i) => i + 1);
-          }} hasAreas={areas.length > 0} /> : null}
+          }}
+          hasAreas={areas.length > 0}
+        />
+      ) : null}
 
-      <div className={styles.layout}>
+      <div className={styles.layout} data-tables={tables > 1 ? tables : undefined}>
         <div className={styles.play}>
-          {handMode && playRequest ? (
-            <HandPlayer request={playRequest} settings={plan?.settings ?? settings} onScored={scored} onHandDone={handDone} />
-          ) : null}
-          {handMode && plan === null ? (
+          {plan === null ? (
             <div className={styles.loading}>
               <RailLoader label={t.focus.loading} showLabel centered />
             </div>
           ) : null}
-          {!handMode && current?.error ? (
-            <div className={styles.notice}>
-              <p>{t.failed(current.error)}</p>
-              <button type="button" className={styles.linkButton} onClick={next}>
-                {t.retry}
-              </button>
-            </div>
+          {handMode && playRequest ? (
+            <HandPlayer request={playRequest} settings={plan?.settings ?? settings} onScored={scored} onHandDone={handDone} />
           ) : null}
-          {!handMode && current && !current.error && !spot ? <p className={styles.notice}>{t.noSpot}</p> : null}
-
-          {!handMode && (dealing || plan === null) ? (
-            <div className={styles.loading}>
-              <RailLoader
-                label={plan === null ? t.focus.loading : mode === "flop" ? t.loadingFlop : mode === "turn" || mode === "river" ? t.solving : t.dealing}
-                showLabel
-                centered
-              />
-            </div>
-          ) : null}
-
-          {!handMode && spot && felt && !dealing ? (
-            <div className={`${styles.spot} rail-fade`}>
-              <ActionStrip items={felt.strip} />
-              <SpotFelt
-                felt={felt}
-                cards={spot.cards}
-                toCallBb={spot.toCallBb}
-                overlay={decision && decision.grade ? <Verdict decision={decision} /> : null}
-              />
-              <div className={styles.buttons} role="group" aria-label={t.yourMove}>
-                {buttons.map((button, index) => {
-                  const keys = [String(index + 1), button.alias ? LETTER[button.alias] : null].filter(Boolean) as string[];
-                  const option = decision?.chosen === index ? "chosen" : undefined;
-                  return (
-                    <button
-                      key={index}
-                      type="button"
-                      className={styles.action}
-                      data-action={button.tone}
-                      data-picked={answer?.picked === index || option ? true : undefined}
-                      disabled={Boolean(answer)}
-                      aria-keyshortcuts={keys.join(" ")}
-                      onClick={() => pick(index)}
-                    >
-                      <span>{button.label}</span>
-                      <kbd aria-hidden="true">{keys[0]}</kbd>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : null}
-
-          {!handMode && answer && !graded && !answer.error ? (
-            <p className={styles.status}>
-              <RailLoader size="inline" label={t.grading} showLabel />
-            </p>
-          ) : null}
-          {!handMode && answer?.error ? <p className={styles.notice}>{t.failed(answer.error)}</p> : null}
-
-          {!handMode && graded && spot ? (
-            <div className={styles.after}>
-              <div className={styles.nextRow}>
-                {holding ? (
-                  <>
-                    <span className={styles.muted}>{t.autoNext}</span>
-                    <button type="button" className={styles.linkButton} onClick={() => setHolding(false)}>
-                      {t.stay}
-                    </button>
-                  </>
-                ) : null}
-                <button type="button" className={styles.next} onClick={next} aria-keyshortcuts="N Enter">
-                  {t.next}
-                  <kbd aria-hidden="true">N</kbd>
-                </button>
-              </div>
-              {decision ? <Feedback decision={decision} spot={spot} settings={plan?.settings ?? settings} /> : null}
-              {host.study ? host.study(graded, spot) : null}
+          {!handMode && spotRequest && plan ? (
+            <div className={styles.tables} data-count={tables}>
+              {Array.from({ length: tables }, (_, i) => (
+                <SpotPlayer
+                  key={i}
+                  request={spotRequest}
+                  mode={plan.mode}
+                  settings={plan.settings}
+                  keys={keysFor(i)}
+                  compact={tables > 1}
+                  onScored={scored}
+                  onStatus={reporters[i]}
+                />
+              ))}
             </div>
           ) : null}
         </div>
@@ -420,9 +240,7 @@ export function Trainer({ initial }: { initial: TrainerSettings }) {
             </div>
             <div>
               <dt>{t.session.evLost}</dt>
-              <dd data-loss={session.evLoss > 0 || undefined}>
-                {t.lostBb(session.evLoss)}
-              </dd>
+              <dd data-loss={session.evLoss > 0 || undefined}>{t.lostBb(session.evLoss)}</dd>
             </div>
           </dl>
           {session.answers > 0 ? (

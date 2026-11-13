@@ -9,9 +9,9 @@
  * keeps every other app file away from both aliases.
  */
 export { Trainer } from "@rail/web-trainer/Trainer";
-export { TrainerHostProvider, type FocusState, type TrainerDict, type TrainerHost } from "@rail/web-trainer/host";
+export { TrainerHostProvider, type FocusState, type KeptAnswer, type TrainerDict, type TrainerHost } from "@rail/web-trainer/host";
 export { parseSettings, settingsFields, type SpotRequest, type TrainerSettings } from "@rail/web-trainer/settings";
 export { trainerEn } from "@rail/web-lib/i18n/ns/trainer.en";
 export { trainerHr } from "@rail/web-lib/i18n/ns/trainer.hr";
 export { focusAreas } from "@rail/web-lib/training/plan";
-export type { GradedAnswer, PlayOptions, PlayStep, TrainerSpot, TrainingRequest, TrainingResponse } from "@rail/web-lib/training";
+export type { GradedAnswer, PlayOptions, PlayStep, RangeView, TrainerSpot, TrainingRequest, TrainingResponse } from "@rail/web-lib/training";

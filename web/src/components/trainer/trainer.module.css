@@ -942,3 +942,259 @@
 .handLog li[data-grade="blunder"] .handLogGrade {
   color: var(--grade-blunder);
 }
+
+/* ------------------------------------------------------------- range (T3) */
+
+.range {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rangeGrid {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+  max-inline-size: 30rem;
+}
+
+.rangeCell {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  color: var(--text-primary);
+  font-size: clamp(0.45rem, 1.6cqi, 0.65rem);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+
+.rangeCell[data-hero] {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -1px;
+  opacity: 1 !important;
+}
+
+.rangeLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-xs);
+}
+
+.rangeLegend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.rangeSwatch {
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------- timebank (T5) */
+
+.timebank {
+  position: relative;
+  block-size: 1.2rem;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.timebankFill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--accent-bg);
+  transition: inline-size 100ms linear;
+}
+
+.timebank[data-low] .timebankFill {
+  background: var(--loss-fg);
+}
+
+.timebankText {
+  position: relative;
+  display: block;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2rem;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------- mix (T5) */
+
+.mix {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+}
+
+.mix p {
+  margin: 0;
+}
+
+.mixRow {
+  --tone: var(--chart-raise);
+
+  display: grid;
+  grid-template-columns: minmax(0, 8rem) minmax(0, 1fr) 3rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.mixRow[data-action="fold"] {
+  --tone: var(--chart-fold);
+}
+
+.mixRow[data-action="check"] {
+  --tone: var(--chart-check);
+}
+
+.mixRow[data-action="call"] {
+  --tone: var(--chart-call);
+}
+
+.mixRow[data-action="allin"] {
+  --tone: var(--chart-allin);
+}
+
+.mixRow input {
+  accent-color: var(--tone);
+}
+
+.mixValue {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.mixFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.mixFoot [data-off] {
+  color: var(--warning-fg);
+}
+
+.options[data-mix] .option {
+  grid-template-columns: minmax(6rem, auto) minmax(3rem, 1fr) 3rem 3rem 4rem;
+}
+
+.optionMix {
+  color: var(--accent-fg);
+  text-align: end;
+}
+
+/* ------------------------------------------------------- tables (T5) */
+
+.tables {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@container (min-width: 760px) {
+  .tables[data-count="2"],
+  .tables[data-count="3"],
+  .tables[data-count="4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.spot[data-compact] {
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.spot[data-compact][data-keys] {
+  border-color: var(--accent-border);
+}
+
+.spot[data-compact] .felt {
+  min-block-size: 11rem;
+}
+
+.spot[data-compact] .verdict {
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.loading[data-compact] {
+  min-block-size: 12rem;
+}
+
+/* ------------------------------------------------------- drills (T4) */
+
+.drills {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drills li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.drillForm {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+.input {
+  inline-size: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+.input:focus-visible {
+  border-color: var(--border-focus);
+  outline: none;
+}
+
+.chip:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* ------------------------------------------------------- history (T4) */
+
+.recent {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-xs);
+}
+
+.recent li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
