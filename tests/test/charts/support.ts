@@ -31,6 +31,41 @@ export const FIXTURES = join(import.meta.dirname, "../fixtures/charts");
 /** The committed file of a set, else its fixture. */
 export const fileOf = (id: string) => (existsSync(join(DATA, `${id}.json`)) ? join(DATA, `${id}.json`) : join(FIXTURES, `${id}.json`));
 
+/**
+ * A fixture's file, whatever is committed: tests pinned to one transcription's
+ * own numbers and sizes (the NL500 6-max 100bb fixture: UTG opens to 2bb, the
+ * small blind's completion) read it, so a newer capture of the same id - the
+ * NL100 6-max 100bb set, 2.5x opens, its blind vs blind still to capture -
+ * does not move them.
+ */
+export const fixtureFile = (id: string) => join(FIXTURES, `${id}.json`);
+
+const fixtures = new Map<string, ChartSet>();
+
+/** One fixture by id, never the committed set of that id ({@link fixtureFile}). */
+export function fixtureSet(id: string): ChartSet {
+  let set = fixtures.get(id);
+  if (!set) {
+    set = loadCharts(JSON.parse(readFileSync(fixtureFile(id), "utf8")));
+    fixtures.set(id, set);
+  }
+  return set;
+}
+
+/**
+ * A library over the fixtures alone (6-max 100bb and 150bb, heads-up 100bb),
+ * every set loaded, the 6-max 100bb one first: for tests of the analysis'
+ * mechanics on spots a committed set lacks yet (blind vs blind) or numbers
+ * pinned to the fixtures.
+ */
+export function fixtureLibrary(): ChartLibrary {
+  const specs: ChartSetSpec[] = FIXTURE_SETS.map((f) => ({
+    ...f,
+    load: () => Promise.resolve(JSON.parse(readFileSync(fixtureFile(f.id), "utf8")) as unknown),
+  }));
+  return chartLibrary(specs.map((s) => fixtureSet(s.id)), specs);
+}
+
 const cache = new Map<string, ChartSet>();
 
 /** One set by id: committed, else a test fixture. */

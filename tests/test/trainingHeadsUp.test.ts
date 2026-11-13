@@ -45,7 +45,7 @@ import { focusAreas, parseFocus, parseTrainerRef, trainerRef, trainerTarget } fr
 import { parseTrainState, riverSetOf, targetQuery, trainQuery, DEFAULT_TRAIN_STATE } from "../../web/src/components/analysis/train/trainState.js";
 import { solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
-import { fullLibrary } from "./charts/support.js";
+import { fixtureSet, fullLibrary } from "./charts/support.js";
 import { fileOf as chartFile } from "./charts/support.js";
 
 const HU100 = "nlhe-cash-hu-100bb";
@@ -97,8 +97,8 @@ describe("heads-up preflop spots", () => {
     expect(families.c).toEqual(["vs-limp", "bvb"]);
     expect(families.rr).toEqual(["vs-3bet", "bvb"]);
     expect(families.rrr).toEqual(["vs-4bet", "bvb"]);
-    // The 6-max blinds keep theirs.
-    const sixMax = library.nodes.get("ffffr")!;
+    // The 6-max blinds keep theirs (the NL500 fixture's: the shipped 6-max set has not captured blind vs blind yet).
+    const sixMax = fixtureSet("nlhe-cash-6max-100bb").nodes.get("ffffr")!;
     expect(familiesOf(sixMax)).toEqual(["bvb"]);
     // Against the raiser asked for.
     for (const node of trainerNodes(set(HU100), "vs-3bet", "SB", "BB")) expect(node.line).toBe("rr");

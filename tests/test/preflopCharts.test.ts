@@ -54,7 +54,7 @@ import { comboClass, expandToken, formatBrackets, formatCombos, formatRange, par
 import { inChartScope, ownChartDecisions, ownChartDeviations, type SessionPreflopDecision } from "@rail/ui/charts/sessionSource";
 import type { ReviewHand, SessionReview } from "@rail/ui/review/model";
 
-import { CHART_SETS, handClassOf } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, handClassOf, uncapturedLine } from "../../web/src/lib/charts/index.js";
 import { chartSet, TEST_CHART_SETS } from "./charts/support.js";
 
 const percents = (text: string): Uint8Array => {
@@ -386,7 +386,11 @@ describe("situation keys of the shipped trees", () => {
     for (const id of ["nlhe-cash-6max-100bb", "nlhe-cash-6max-100bb-ante", ...(CHART_SETS.some((s) => s.id === "nlhe-cash-9max-100bb") ? ["nlhe-cash-9max-100bb"] : [])]) {
       const table = seatsOfShippedSet(id)!;
       const keys = new Set([...chartSet(id).nodes.values()].map((n) => nodeKeyOfLine(n.line, table.seats)).filter(Boolean).map((k) => formatNodeKey(k!)));
+      // A partial capture without blind vs blind (the 6-max 100bb set's `ffff`, `model.missing`) has no small blind
+      // first in, nor the big blind facing it, until that subtree is captured.
+      const noBlindVsBlind = uncapturedLine(chartSet(id), "ffff") !== null;
       for (const key of nodeKeysFor(table.tableSize)) {
+        if (noBlindVsBlind && (key.hero === "SB" || key.vs === "SB")) continue;
         if (key.scenario === "rfi" || key.scenario === "vs-open") expect(keys.has(formatNodeKey(key)), `${id} ${formatNodeKey(key)}`).toBe(true);
       }
     }

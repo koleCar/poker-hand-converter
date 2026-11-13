@@ -28,10 +28,12 @@ import { gradeAnswer } from "../../web/src/lib/training/grade.js";
 import { prepareFlopLibrary, runTrainingJob, trainingChunk } from "../../web/src/lib/training/jobs.js";
 import { seeded } from "../../web/src/lib/training/rng.js";
 import { generateSplit, gradeSplit, rightGroups, SPLIT_PASS, splitTable } from "../../web/src/lib/training/split.js";
-import { fileOf as chartFile } from "./charts/support.js";
+import { fixtureFile } from "./charts/support.js";
 
+// The flop library's lines on the NL500 6-max 100bb fixture: they include blind vs blind (`sb-bb`), which the
+// shipped NL100 set has not captured yet (`model.missing`).
 const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
+  JSON.parse(readFileSync(fixtureFile("nlhe-cash-6max-100bb"), "utf8")),
 );
 const DIR = join(import.meta.dirname, "../scripts/flop-library/pilot", CHARTS.id, FLOP_PROFILE.tree);
 const PRESENT = existsSync(join(DIR, "manifest.json"));

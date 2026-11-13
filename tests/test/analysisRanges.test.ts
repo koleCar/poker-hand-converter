@@ -388,8 +388,9 @@ describe("the population order of opponents' chart ranges (analysis/31)", () => 
     expect(ordered.get("A5s")!).toBeGreaterThan(ordered.get("K4o")!);
     expect(ordered.get("72o")!).toBeLessThan(0.05);
     // A hand outside the chart's range gets some weight; one the chart opens at full weight keeps most of it.
-    expect(chart.get("A4o") ?? 0).toBe(0);
-    expect(ordered.get("A4o")!).toBeGreaterThan(0.05);
+    // (A3o: the GTO Wizard NL100 cutoff opens A4o 8% of the time, A3o never.)
+    expect(chart.get("A3o") ?? 0).toBe(0);
+    expect(ordered.get("A3o")!).toBeGreaterThan(0.05);
     // Offsuit broadways the chart opens at full weight lose most of it.
     expect(ordered.get("KTo")!).toBeLessThan(0.6);
     expect(ordered.get("AKs")!).toBeGreaterThan(0.9);

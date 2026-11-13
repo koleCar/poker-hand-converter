@@ -20,7 +20,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { analyzeHand, grade, opponentRanges, removalFactors, type DecisionAnalysis } from "../../web/src/lib/analysis/index.js";
-import { CHART_SETS, handClassOf, loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, handClassOf, loadCharts, uncapturedLine, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { fullLibrary } from "./charts/support.js";
 import { comboHi, comboLo, HAND_CLASSES, rangesAt } from "../../web/src/lib/solver/index.js";
 import { cardCode, cardIndex } from "../../web/src/lib/equity/evaluator.js";
@@ -186,7 +186,10 @@ describe("trainer hands", () => {
 describe("preflop dealing", () => {
   it("has spots in every family but limped pots (the GTO Wizard solutions limp only from the small blind: blind versus blind)", () => {
     expect(trainerNodes(CHARTS, "vs-limp")).toEqual([]);
-    for (const family of PREFLOP_FAMILIES.filter((f) => f !== "vs-limp")) {
+    // Blind vs blind waits for its capture (the 6-max 100bb set's `ffff`, `model.missing`): nothing to deal, no other set's.
+    const noBlindVsBlind = uncapturedLine(CHARTS, "ffff") !== null;
+    if (noBlindVsBlind) expect(trainerNodes(CHARTS, "bvb")).toEqual([]);
+    for (const family of PREFLOP_FAMILIES.filter((f) => f !== "vs-limp" && !(noBlindVsBlind && f === "bvb"))) {
       expect(trainerNodes(CHARTS, family).length, family).toBeGreaterThan(0);
     }
     expect(trainerNodes(CHARTS, "rfi", "BTN").map((n) => n.line)).toEqual(["fff"]);

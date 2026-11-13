@@ -26,9 +26,11 @@ import { convertAny } from "../../../web/src/lib/parsers/index.js";
 import { positionRing, type PhfHand, type Position } from "../../../web/src/lib/phf/types.js";
 import { HAND_CLASSES } from "../../../web/src/lib/solver/index.js";
 import { ggFiles } from "../support/corpus.js";
-import { fileOf as chartFile, SIX_MAX_100 } from "./support.js";
+import { fixtureFile, SIX_MAX_100 } from "./support.js";
 
-const FILE = chartFile(SIX_MAX_100);
+// The lookup's mechanics are pinned to one transcription's sizes and lines: the NL500 6-max 100bb fixture
+// (the shipped NL100 set opens 2.5x everywhere and its blind vs blind is still to capture).
+const FILE = fixtureFile(SIX_MAX_100);
 const charts = loadCharts(JSON.parse(readFileSync(FILE, "utf8")));
 const SIX: Position[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 
@@ -44,7 +46,7 @@ function ok(result: ChartLookup) {
   return result;
 }
 
-// The classic 6-max 100bb set (a GTO Wizard transcription; a test fixture until the NL100 capture ships, `support.ts`):
+// The NL500 6-max 100bb fixture (a GTO Wizard transcription kept as test data, `support.ts`):
 // UTG and HJ open to 2bb, the CO to 2.3, the button to 2.5, the small blind to 3 (or limps); no limps elsewhere.
 describe("synthetic lines", () => {
   it("finds RFI, vs-open, squeeze, vs-3bet and vs-4bet nodes", () => {

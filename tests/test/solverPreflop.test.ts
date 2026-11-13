@@ -12,10 +12,10 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { flopLinesFor } from "../../web/src/lib/analysis/index.js";
-import { CHART_SETS, loadCharts, type ChartSet } from "../../web/src/lib/charts/index.js";
+import { CHART_SETS, loadCharts, uncapturedLine, type ChartSet } from "../../web/src/lib/charts/index.js";
 import { canonicalBoard, flopKey, pickedFlop } from "../../web/src/lib/solver/index.js";
 import { preflopState } from "../../web/src/components/solver/preflop.js";
-import { fileOf as chartFile } from "./charts/support.js";
+import { fileOf as chartFile, fixtureSet } from "./charts/support.js";
 
 const charts = (id: string): ChartSet =>
   loadCharts(JSON.parse(readFileSync(chartFile(`${id}`), "utf8")));
@@ -39,9 +39,13 @@ describe("the preflop line", () => {
     });
 
     it(`${id}: every library line walks to its own heads-up flop`, () => {
+      // A partial capture's gap (the 6-max 100bb set's blind vs blind, `model.missing`) ends there, not on a flop.
+      const gapped = lines.filter((line) => uncapturedLine(set, line.key) !== null);
+      for (const line of gapped) expect(preflopState(set, line.key, lines).end).toEqual({ kind: "uncaptured" });
+      const captured = lines.filter((line) => !gapped.includes(line));
       // The ante solution has no cold calls: a line with a small blind's flat is not in it (walked lines only).
-      const own = ante ? lines.filter((line) => preflopState(set, line.key, lines).line === line.key) : lines;
-      expect(own.length).toBeGreaterThan(ante ? 3 : lines.length - 1);
+      const own = ante ? captured.filter((line) => preflopState(set, line.key, lines).line === line.key) : captured;
+      expect(own.length).toBeGreaterThan(ante ? 3 : captured.length - 1);
       for (const line of own) {
         const state = preflopState(set, line.key, lines);
         expect(state.line).toBe(line.key);
@@ -66,14 +70,16 @@ describe("the preflop line", () => {
   }
 
   it("ends a line where everyone folds to one player", () => {
-    const set = charts("nlhe-cash-6max-100bb");
+    // The NL500 fixture: the shipped set's blind vs blind (after folds to the small blind) is still to capture.
+    const set = fixtureSet("nlhe-cash-6max-100bb");
     const state = preflopState(set, "fffff", flopLinesFor(6));
     expect(state.end).toEqual({ kind: "folded", winner: "BB" });
   });
 });
 
 describe("a later seat's options (everyone before it folds)", () => {
-  const set = charts("nlhe-cash-6max-100bb");
+  // The NL500 fixture: these walk through the small blind's decisions, which the shipped set has not captured yet.
+  const set = fixtureSet("nlhe-cash-6max-100bb");
   const lines = flopLinesFor(6);
   const ahead = (line: string) =>
     Object.fromEntries(preflopState(set, line, lines).seats.map((seat) => [seat.position, seat.ahead?.line ?? null]));

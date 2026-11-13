@@ -10,7 +10,6 @@
  * than naming one.
  */
 
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -38,7 +37,6 @@ import {
   chartLibrary,
   handClassOf,
   PLANNED_CHART_SETS,
-  loadCharts,
   lookupPreflop,
   preflopSpotFromHand,
   rareLineChartSets,
@@ -50,13 +48,13 @@ import { en } from "../../web/src/lib/i18n/en.js";
 import { hr } from "../../web/src/lib/i18n/hr.js";
 import { conceptsForDecision } from "../../web/src/lib/learn/links.js";
 import { parseStandardHand } from "../../web/src/lib/phf/serialize.js";
-import { chartSet, fullLibrary, SIX_MAX_100, TEST_CHART_SETS } from "./charts/support.js";
+import { fixtureLibrary, fixtureSet, SIX_MAX_100 } from "./charts/support.js";
 import type { PhfHand } from "../../web/src/lib/phf/types.js";
-import { fileOf as chartFile } from "./charts/support.js";
-
-const CHARTS: ChartSet = loadCharts(
-  JSON.parse(readFileSync(chartFile("nlhe-cash-6max-100bb"), "utf8")),
-);
+// The NL500 6-max 100bb fixture (`charts/support.ts`): the clear-cut cases here are pinned to its sizes (UTG opens
+// to 2bb), its blind vs blind and its rare lines; the shipped NL100 set opens 2.5x and has not captured blind vs blind yet.
+const CHARTS: ChartSet = fixtureSet(SIX_MAX_100);
+const FIXTURES = fixtureLibrary();
+const fullLibrary = () => FIXTURES;
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";
 
@@ -599,7 +597,7 @@ describe("a line too rare for its set, read on a neighbouring depth (analysis/13
   });
 
   it("stays refused while the neighbouring sets are not loaded, and names them", () => {
-    const only = chartLibrary([chartSet(SIX_MAX_100)], TEST_CHART_SETS);
+    const only = chartLibrary([fixtureSet(SIX_MAX_100)], FIXTURES.specs);
     const h = jammed();
     expect(pre(analyzeHand(structuredClone(h), { charts: only, turn: false })).reason).toBe("chart-rare-line");
     expect(rareLineChartSets(h, only)).toEqual(["nlhe-cash-6max-150bb"]);
@@ -685,7 +683,7 @@ describe("a depth no set of the table covers, graded on the nearest charted one 
 
   it("stays refused while the neighbouring sets are not loaded, and names them", () => {
     // Only the 150bb set: 76bb's neighbour (100bb; no 60bb among the test sets) is not loaded.
-    const only = chartLibrary([chartSet("nlhe-cash-6max-150bb")], TEST_CHART_SETS);
+    const only = chartLibrary([fixtureSet("nlhe-cash-6max-150bb")], FIXTURES.specs);
     const h = cutoff("Ah Kd", "raise", 76);
     expect(pre(analyzeHand(structuredClone(h), { charts: only, turn: false })).reason).toBe("chart-stack-depth");
     expect([...rareLineChartSets(h, only)].sort()).toEqual(["nlhe-cash-6max-100bb"]);

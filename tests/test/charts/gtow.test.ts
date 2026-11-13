@@ -30,10 +30,11 @@ import {
   PLANNED_CHART_SETS,
   preflopSpotFromHand,
   requiredChartSets,
+  uncapturedLine,
   type PreflopSpot,
 } from "../../../web/src/lib/charts/index.js";
 import { convertAny } from "../../../web/src/lib/parsers/index.js";
-import { chartSet } from "./support";
+import { chartSet, fixtureSet, TEST_CHART_SETS } from "./support";
 
 const ANTE_SET = "nlhe-cash-6max-100bb-ante";
 const SIX = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
@@ -239,5 +240,50 @@ describe("the Solver's bar on the ante set", () => {
       "ahead:BTN:fff",
       "ahead:SB:ffff",
     ]);
+  });
+});
+
+describe("a partial capture: the 6-max 100bb classic set", () => {
+  const CLASSIC = "nlhe-cash-6max-100bb";
+  const set = chartSet(CLASSIC);
+  const lines = flopLinesFor(6);
+  // Everything after folds to the small blind, and five rare lines, are still to capture.
+  const GAPS = ["ffff", "rfrffr", "rfccfrf", "rfccrfa", "rfcfrrf", "ffrrffrra"];
+
+  it("is registered and lists its gaps by Rail line, none of them in the set", () => {
+    expect(CHART_SETS.find((s) => s.id === CLASSIC)).toMatchObject({ players: 6, stackBb: 100 });
+    expect(set.model.missing).toEqual(GAPS);
+    for (const gap of GAPS) {
+      expect(set.nodes.has(gap)).toBe(false);
+      expect(uncapturedLine(set, gap)).toBe(gap);
+      // The decision before it is there, with the option that leads to it.
+      expect(set.nodes.get(gap.slice(0, -1))?.options.some((o) => o.code === gap.at(-1))).toBe(true);
+    }
+    for (const line of set.nodes.keys()) expect(uncapturedLine(set, line)).toBeNull();
+    expect(uncapturedLine(set, "ffffc")).toBe("ffff");
+    expect(uncapturedLine(chartSet(ANTE_SET), "ffff")).toBeNull();
+  });
+
+  it("gives a hand reaching a gap no chart, and never reads it on another set", () => {
+    // The library holds the 6-max 150bb fixture too: a neighbouring depth a rare line could be read on.
+    const library = chartLibrary([set, ...TEST_CHART_SETS.filter((s) => s.id !== CLASSIC).map((s) => (s.id === ANTE_SET ? chartSet(s.id) : fixtureSet(s.id)))], TEST_CHART_SETS);
+    expect(library.sets.has("nlhe-cash-6max-150bb")).toBe(true);
+    for (const hero of ["SB", "BB"] as const) {
+      const actions = hero === "SB" ? spot("SB").actions : [...spot("SB").actions, { position: "SB" as const, type: "raise" as const, toBb: 3 }];
+      const found = lookupPreflop(library, spot(hero, { actions }), "AKs", null, { rareLineDepth: true, uncoveredDepth: true });
+      expect(found).toMatchObject({ ok: false, reason: "rare-line", uncaptured: true });
+      if (!found.ok) expect(found.detail).toMatch(/not captured from GTO Wizard yet/);
+    }
+    // A spot before the gap still reads: the button's open.
+    expect(lookupPreflop(library, spot("BTN"), "AKs")).toMatchObject({ ok: true, node: { line: "fff", actor: "BTN" } });
+  });
+
+  it("ends the Solver's line where the capture stops, instead of dealing a flop", () => {
+    const state = preflopState(set, "ffff", lines);
+    expect(state.node).toBeNull();
+    expect(state.end).toEqual({ kind: "uncaptured" });
+    // The button's decision still lays out the seats folds reach, up to the gap.
+    const btn = preflopState(set, "fff", lines);
+    expect(btn.cards.map((c) => `${c.kind}:${c.node.actor}`)).toEqual(["past:UTG", "past:HJ", "past:CO", "current:BTN"]);
   });
 });

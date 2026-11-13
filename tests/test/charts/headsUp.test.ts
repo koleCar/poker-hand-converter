@@ -15,7 +15,7 @@ import { hasRailTree, requiredChartSets, type ChartSet } from "../../../web/src/
 import { parseStandardHand } from "../../../web/src/lib/phf/serialize.js";
 import type { PhfHand } from "../../../web/src/lib/phf/types.js";
 import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../web/src/lib/solver/index.js";
-import { chartSet, fullLibrary, SIX_MAX_100, TEST_CHART_SETS } from "./support.js";
+import { chartSet, fixtureSet, fullLibrary, SIX_MAX_100, TEST_CHART_SETS } from "./support.js";
 
 import {
   buildPreflopTree,
@@ -201,8 +201,8 @@ describe.each(HU_SETS)("the heads-up set $id", ({ id, stackBb }) => {
     const bb = continues(set, "r");
     expect(bb).toBeGreaterThan(0.5);
     expect(bb).toBeLessThan(0.9);
-    // Far wider than the 6-max small blind first in.
-    const sixMax = chartSet(SIX_MAX_100);
+    // Far wider than the 6-max small blind first in (the NL500 fixture's: the shipped set has not captured it yet).
+    const sixMax = fixtureSet(SIX_MAX_100);
     expect(sb).toBeGreaterThan(continues(sixMax, "ffff") + 0.1);
     // AA never folds.
     for (const node of set.nodes.values()) {
