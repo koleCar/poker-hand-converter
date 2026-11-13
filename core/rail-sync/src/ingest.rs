@@ -700,10 +700,12 @@ mod hud;
 mod plan;
 mod pull;
 mod share;
+mod trainer;
 
 pub use hud::{HUD_ROWS_PER_PAGE, HUD_ROWS_PER_PUT, PutOutcome};
 pub use pull::{PHF_IDS_PER_CALL, RemoteHand, RemoteKey};
 pub use share::{ShareRequest, is_share_slug};
+pub use trainer::{TRAINER_ROWS_PER_CALL, TrainerResultRow};
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]

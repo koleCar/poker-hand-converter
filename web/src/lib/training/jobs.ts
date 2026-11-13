@@ -31,6 +31,8 @@ import { dealPreflop, preflopAnswer, trainerSet, type PreflopSpotOptions, type P
 import { generateRiverSpot, riverAnswer, type RiverSpotOptions, type RiverTrainerSpot } from "./river";
 import { generateSplit, type SplitItem, type SplitOptions } from "./split";
 import { generateTurnSpot, turnAnswer, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
+import { answerPlay, gradePlay, playRange, startHand, type PlayOptions, type PlayStep } from "./play";
+import { spotRange, type RangeView } from "./rangeView";
 
 export type TrainerSpot = PreflopTrainerSpot | RiverTrainerSpot | TurnTrainerSpot | FlopTrainerSpot;
 
@@ -42,7 +44,14 @@ export type TrainingRequest =
   | { type: "split"; jobId: number; options: SplitOptions; seed: number }
   | { type: "paint"; jobId: number; options: PaintOptions; seed: number }
   | { type: "lab"; jobId: number; options: LabOptions; seed: number }
-  | { type: "answer"; jobId: number; spot: TrainerSpot; menuIndex: number };
+  | { type: "answer"; jobId: number; spot: TrainerSpot; menuIndex: number }
+  /** A whole hand (T2, `play.ts`): a new one, an answer graded, an answer played on. */
+  | { type: "play-start"; jobId: number; options: PlayOptions; seed: number }
+  | { type: "play-grade"; jobId: number; step: PlayStep; menuIndex: number }
+  | { type: "play-answer"; jobId: number; step: PlayStep; menuIndex: number }
+  /** The hero's range at a decision (the range panel, T3): a dealt spot's, or a whole hand's current one. */
+  | { type: "range"; jobId: number; spot: TrainerSpot }
+  | { type: "play-range"; jobId: number; step: PlayStep };
 
 export interface GradedAnswer {
   /** The spot's hand with the answer appended. */
@@ -65,6 +74,8 @@ export type TrainingResponse =
   | { type: "paint"; jobId: number; item: PaintItem | null }
   | { type: "lab"; jobId: number; item: LabItem | null }
   | ({ type: "graded"; jobId: number } & GradedAnswer)
+  | { type: "play"; jobId: number; step: PlayStep | null }
+  | { type: "range"; jobId: number; view: RangeView | null }
   | { type: "error"; jobId: number; message: string };
 
 /**
@@ -78,13 +89,23 @@ export function trainingChartSets(request: TrainingRequest): string[] {
     return request.options.set ? [request.options.set] : [];
   }
   if (request.type === "answer") return [request.spot.set];
+  if (request.type === "play-start") {
+    const set = request.options.start === "flop" ? request.options.flop.set : request.options.preflop.set;
+    return set ? [set] : [];
+  }
+  if (request.type === "play-grade" || request.type === "play-answer" || request.type === "play-range") return [request.step.state.set];
+  if (request.type === "range") return [request.spot.set];
   if (request.type === "paint" && request.options.source === "chart" && request.options.set) return [request.options.set];
   return [];
 }
 
 /** Whether a job reads the flop library. */
 export function needsFlopLibrary(request: TrainingRequest): boolean {
-  return request.type === "flop" || (request.type === "split" && request.options.street === "flop") || (request.type === "answer" && request.spot.kind === "flop");
+  return (
+    request.type === "flop" ||
+    (request.type === "split" && request.options.street === "flop") ||
+    ((request.type === "answer" || request.type === "range") && request.spot.kind === "flop")
+  );
 }
 
 /**
@@ -95,7 +116,9 @@ export function trainingChunk(request: TrainingRequest, charts: ChartSet, librar
   if (request.type === "flop" || (request.type === "split" && request.options.street === "flop")) {
     return flopChunkFor(charts, library, request.options, request.seed);
   }
-  if (request.type === "answer" && request.spot.kind === "flop") return { set: request.spot.set, line: request.spot.lineId, flop: request.spot.flop };
+  if ((request.type === "answer" || request.type === "range") && request.spot.kind === "flop") {
+    return { set: request.spot.set, line: request.spot.lineId, flop: request.spot.flop };
+  }
   return null;
 }
 
@@ -113,7 +136,7 @@ export async function prepareFlopLibrary(request: TrainingRequest, charts: Chart
   if (!loader || !needsFlopLibrary(request)) return null;
   // The set whose manifest the job reads: an answer's spot's, a flop job's own (a heads-up set), else the default.
   let set = charts.id;
-  if (request.type === "answer" && request.spot.kind === "flop") set = request.spot.set;
+  if ((request.type === "answer" || request.type === "range") && request.spot.kind === "flop") set = request.spot.set;
   else if (request.type === "flop" && request.options.set) set = request.options.set;
   try {
     await loader.ready(set);
@@ -140,6 +163,7 @@ export function answerHand(spot: TrainerSpot, menuIndex: number): { hand: PhfHan
  */
 export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopLibrary: FlopLibrary | null = null): TrainingResponse {
   const { jobId } = request;
+  if (isPlayJob(request)) throw new RangeError("a whole hand runs through runPlayJob");
   if (request.type === "preflop") {
     return { type: "spot", jobId, spot: dealPreflop(charts, request.options, request.seed) };
   }
@@ -163,6 +187,8 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
   if (request.type === "lab") {
     return { type: "lab", jobId, item: generateLab(charts, request.options, request.seed) };
   }
+  if (request.type === "range") return { type: "range", jobId, view: spotRange(request.spot, charts, flopLibrary) };
+  if (request.type !== "answer") throw new RangeError("unknown job");
   const answer = answerHand(request.spot, request.menuIndex);
   const decision = gradeAnswer(answer.hand, answer.actionIndex, charts, {
     turn: request.spot.kind === "turn",
@@ -174,4 +200,26 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
       ? flopStudy(structuredClone(answer.hand), answer.actionIndex, { charts, flopLibrary })
       : null;
   return { type: "graded", jobId, hand: answer.hand, actionIndex: answer.actionIndex, decision, study };
+}
+
+/** A whole-hand job (T2): it loads flop library chunks as the hand reaches them, so it runs async. */
+export function isPlayJob(
+  request: TrainingRequest,
+): request is Extract<TrainingRequest, { type: "play-start" | "play-grade" | "play-answer" | "play-range" }> {
+  return request.type === "play-start" || request.type === "play-grade" || request.type === "play-answer" || request.type === "play-range";
+}
+
+/** Does one whole-hand job (`play.ts`), with the flop library's loader when there is one. */
+export async function runPlayJob(
+  request: Extract<TrainingRequest, { type: "play-start" | "play-grade" | "play-answer" | "play-range" }>,
+  charts: ChartSet,
+  loader: ChunkLoader | null,
+): Promise<TrainingResponse> {
+  const { jobId } = request;
+  const library = loader ? { library: loader, ready: (set: string) => loader.ready(set), load: (set: string, line: string, flop: string) => loader.load(set, line, flop) } : null;
+  if (request.type === "play-start") return { type: "play", jobId, step: await startHand(request.options, charts, library, request.seed) };
+  if (request.type === "play-answer") return { type: "play", jobId, step: await answerPlay(request.step, request.menuIndex, charts, library) };
+  if (request.type === "play-range") return { type: "range", jobId, view: await playRange(request.step, charts, library) };
+  const graded = await gradePlay(request.step, request.menuIndex, charts, library);
+  return { type: "graded", jobId, hand: graded.hand, actionIndex: graded.actionIndex, decision: graded.decision, study: null };
 }

@@ -49,6 +49,18 @@ function SolverScreen() {
   );
 }
 
+// The Trainer (the web's, in place) loads when the tab is first opened too.
+const Trainer = lazy(() => import("./screens/Trainer").then((m) => ({ default: m.Trainer })));
+
+function TrainerScreen() {
+  const t = useT();
+  return (
+    <Suspense fallback={<StateMessage kind="loading">{t.analysis.loading}</StateMessage>}>
+      <Trainer />
+    </Suspense>
+  );
+}
+
 const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   live: Live,
   hands: Hands,
@@ -56,6 +68,7 @@ const SCREEN_COMPONENTS: Record<Route, () => JSX.Element> = {
   players: Players,
   analysis: AnalysisScreen,
   solver: SolverScreen,
+  trainer: TrainerScreen,
   hud: Hud,
   tables: Tables,
   import: Import,

@@ -74,6 +74,7 @@ export const uiHr: Dict["analysis"]["ui"] = {
   charts: { label: "Čiji chartovi", rail: "Rail", mine: "Moji" },
   side: {
     topLeaks: "Najveći leakovi",
+    allTime: "cijelo vrijeme",
     allLeaks: "Svi leakovi",
     drills: "Drillovi na redu",
     now: "sada",

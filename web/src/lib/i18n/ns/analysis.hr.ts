@@ -1343,5 +1343,7 @@ export const analysisHr: Dict["analysis"] = {
   plan: planHr,
   ui: uiHr,
 
+  /** Činjenice o ruci riječima, za trenerov "tvoja ruka ovdje" (`components/trainer`). */
+  handFacts: { hand: handPhrase, draws, blockers },
   explain,
 };

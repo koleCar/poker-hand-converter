@@ -21,7 +21,7 @@ import {
 } from "../../app/src/lib/duringPlay.js";
 
 /** The sidebar's screens (`app/src/lib/router.ts`'s `SCREENS`; that module needs React, which this harness does not install). */
-const SCREENS = ["live", "hands", "reports", "players", "analysis", "solver", "hud", "tables", "import", "settings"] as const;
+const SCREENS = ["live", "hands", "reports", "players", "analysis", "solver", "trainer", "hud", "tables", "import", "settings"] as const;
 
 const APP_SRC = join(__dirname, "../../app/src");
 
@@ -42,13 +42,14 @@ describe("A10: no help during play", () => {
     expect(hiddenDuringPlay(null, true)).toBe(false);
   });
 
-  it("classifies every route: (R5.4) the analysis is analysis, the Solver a solver, the rest give no help", () => {
+  it("classifies every route: (R5.4) the analysis is analysis, the Solver and the Trainer a solver, the rest give no help", () => {
     expect(Object.keys(SCREEN_HELP).sort()).toEqual(
-      ["analysis", "hands", "hud", "import", "live", "players", "refused", "reports", "settings", "setup", "solver", "tables"].sort(),
+      ["analysis", "hands", "hud", "import", "live", "players", "refused", "reports", "settings", "setup", "solver", "tables", "trainer"].sort(),
     );
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
-      const help = route === "analysis" || route === "solver";
-      expect(SCREEN_HELP[route], route).toBe(help ? route : null);
+      const help = route === "analysis" || route === "solver" || route === "trainer";
+      // The Trainer shows the reference's strategy for a hand: the Solver's kind of help.
+      expect(SCREEN_HELP[route], route).toBe(help ? (route === "trainer" ? "solver" : route) : null);
       expect(screenHiddenDuringPlay(route, true), route).toBe(help);
       expect(screenHiddenDuringPlay(route, false), route).toBe(false);
     }
@@ -90,7 +91,7 @@ describe("A10: no help during play", () => {
     expect(readFileSync(join(APP_SRC, "lib/router.ts"), "utf8")).toContain(
       `export const SCREENS = ${JSON.stringify(SCREENS).replaceAll(",", ", ")} as const;`,
     );
-    const helps = (route: string) => route === "analysis" || route === "solver";
+    const helps = (route: string) => route === "analysis" || route === "solver" || route === "trainer";
     for (const route of Object.keys(SCREEN_HELP) as (keyof typeof SCREEN_HELP)[]) {
       expect(screenOffered(route, true), route).toBe(!helps(route));
       expect(screenOffered(route, false), route).toBe(true);

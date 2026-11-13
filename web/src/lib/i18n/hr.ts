@@ -25,6 +25,7 @@ import { planNoticeHr } from "./ns/planNotice.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import { solverHr } from "./ns/solver.hr";
+import { trainerHr } from "./ns/trainer.hr";
 import type { Dict } from "./types";
 
 import { plural } from "./plural";
@@ -36,6 +37,7 @@ const num = (value: number) => value.toLocaleString("hr-HR");
 export const hr: Dict = {
   stats: statsHr,
   solver: solverHr,
+  trainer: trainerHr,
   analysis: analysisHr,
   learn: learnHr,
   legal: legalHr,

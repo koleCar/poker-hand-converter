@@ -1,25 +1,20 @@
 /**
- * The trainer (`/analysis/train`, `docs/ANALYSIS-PLAN.md` §7, phase A7).
+ * The trainer (`/analysis/train`, `docs/TRAINER.md`).
  *
- * Four trainers under one sub-nav entry:
+ * Two views under one sub-nav entry:
  *
- * - **Preflop**: a chart node by family and seat, a hand dealt into it (as
- *   the range holds it, or tilted toward the close decisions), graded from
- *   the charts exactly as the analysis grades a real hand;
- * - **Flop**: a heads-up flop from Rail's flop library on a table it is
- *   solved for, the hero dealt a combo from their range at the node, graded
- *   from the same chunk (as Learn L2's flop exercises are);
- * - **River**: a heads-up river from a chart line, a board and common flop
- *   and turn lines, solved on demand, the hero dealt a combo from their range
- *   at the node, graded by the solve;
- * - **Your mistakes**: drills of your own Mistakes and Blunders, scheduled by
- *   spaced repetition.
+ * - **The Trainer** (`components/trainer`, on the web through
+ *   `WebTrainer`): a spot on a table, the moves as buttons, the grade, the
+ *   strategy for the hand and why; "For you" deals from your own leaks,
+ *   Preflop / Flop / Turn / River one street each. The same component is the
+ *   desktop app's Trainer screen.
+ * - **Your mistakes** (`?mode=drills`): drills of your own Mistakes and
+ *   Blunders, scheduled by spaced repetition (A7); "Drill this" on a leak
+ *   links here with the leak's spot keys.
  *
- * The mode and settings live in the address (`trainState.ts`), so "Drill
- * this" on a leak is a link. The session score is per trainer and per page
- * visit; signed in, every graded answer is also kept (`trainer_results`).
- * Preflop, flop and river work signed out (the charts and the library are public); drills are your
- * own hands and need an account.
+ * Signed in, every graded answer is kept (`trainer_results`); the drills
+ * are your own hands and need an account. A Pro feature: the Analysis tab's
+ * plan gate (`AppFrame`, feature `analysis`) covers this page.
  */
 
 "use client";
@@ -38,30 +33,49 @@ import { useAnalysisKind } from "../analysisKind";
 import { KindField } from "../KindField";
 import { DrillTrainer } from "./DrillTrainer";
 import { SessionPanel, TrainerHistory } from "./SessionPanel";
-import { SpotTrainer } from "./SpotTrainer";
 import { TrainerKeySheet } from "./TrainerKeySheet";
-import { TRAIN_MODES, parseTrainState, trainQuery, type TrainMode, type TrainState } from "./trainState";
+import { parseTrainState, trainQuery, type TrainState } from "./trainState";
+import { WebTrainer } from "./WebTrainer";
 import own from "./train.module.css";
 import "../../../styles/stats.css";
 
+const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
+
+/** Whether an address opens the drills of your own mistakes (a leak's "Drill this", the plan's drill task). */
+export function isDrillsQuery(query: Record<string, string | string[] | undefined>): boolean {
+  return first(query.mode) === "drills" || Boolean(first(query.spots));
+}
+
 export function TrainTab({ initialQuery }: { initialQuery: Record<string, string | string[] | undefined> }) {
-  const analysis = useDict().analysis;
+  const drills = isDrillsQuery(initialQuery);
+  return (
+    <div className="stats">
+      {drills ? (
+        <DrillsView key="drills" initialQuery={initialQuery} />
+      ) : (
+        <>
+          <AnalysisNav current="train" />
+          <WebTrainer key="trainer" query={initialQuery} />
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Your mistakes: drills of your own Mistakes and Blunders (A7), with their own session panel. */
+function DrillsView({ initialQuery }: { initialQuery: Record<string, string | string[] | undefined> }) {
+  const dict = useDict();
+  const analysis = dict.analysis;
   const t = analysis.train;
   const auth = useAuth();
-  const [state, setState] = useState<TrainState>(() => parseTrainState(initialQuery));
-  const [sessions, setSessions] = useState<Record<TrainMode, SessionStats>>(() => ({
-    preflop: emptySession(),
-    flop: emptySession(),
-    river: emptySession(),
-    drills: emptySession(),
-  }));
+  const [state, setState] = useState<TrainState>(() => ({ ...parseTrainState(initialQuery), mode: "drills" }));
+  const [session, setSession] = useState<SessionStats>(emptySession);
   const [keysOpen, setKeysOpen] = useState(false);
   const [kept, setKept] = useState(0);
-  const signedIn = isDatabaseConfigured && auth.isSignedIn;
 
   const updateState = useCallback((patch: Partial<TrainState>) => {
     setState((current) => {
-      const next = { ...current, ...patch };
+      const next = { ...current, ...patch, mode: "drills" as const };
       if (typeof window !== "undefined") {
         window.history.replaceState(window.history.state, "", paths.analysisTrain(trainQuery(next)));
       }
@@ -69,36 +83,21 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
     });
   }, []);
 
-  const mode = state.mode;
-  // The drills are your own hands: one kind of game's at a time (`analysisKind.ts`).
-  const kinds = useAnalysisKind(state.kind, signedIn && mode === "drills");
-  const onAnswer = useCallback(
-    (answer: TrainerAnswer) => {
-      setSessions((current) => ({ ...current, [mode]: addAnswer(current[mode], answer) }));
-    },
-    [mode],
-  );
+  const kinds = useAnalysisKind(state.kind, isDatabaseConfigured && auth.isSignedIn);
+  const onAnswer = useCallback((answer: TrainerAnswer) => setSession((current) => addAnswer(current, answer)), []);
   const onHelp = useCallback(() => setKeysOpen(true), []);
   const onSaved = useCallback(() => setKept((value) => value + 1), []);
 
   return (
-    <div className="stats">
+    <>
       <AnalysisNav current="train">
-        <div className={an.tools} role="group" aria-label={t.modesLabel}>
-          {TRAIN_MODES.map((id) => (
-            <Link
-              key={id}
-              href={paths.analysisTrain(trainQuery({ ...state, mode: id, spots: id === "drills" ? state.spots : null }))}
-              className={`${an.chip} ${mode === id ? an.chipOn : ""}`}
-              aria-current={mode === id ? "page" : undefined}
-              onClick={(event) => {
-                event.preventDefault();
-                updateState({ mode: id, spots: id === "drills" ? state.spots : null });
-              }}
-            >
-              {t.modes[id]}
-            </Link>
-          ))}
+        <div className={an.tools} role="group" aria-label={dict.trainer.modesLabel}>
+          <Link href={paths.analysisTrain()} className={an.chip}>
+            {dict.trainer.modes.focus}
+          </Link>
+          <span className={`${an.chip} ${an.chipOn}`} aria-current="page">
+            {t.modes.drills}
+          </span>
         </div>
         <button type="button" className={an.chip} aria-haspopup="dialog" aria-keyshortcuts="?" onClick={() => setKeysOpen(true)}>
           {t.keys.button}
@@ -106,52 +105,39 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
       </AnalysisNav>
 
       <div className={own.layout}>
-        <div key={mode} className={`${own.main} rail-fade`}>
-          {mode === "drills" ? (
-            !isDatabaseConfigured ? (
-              <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
-            ) : !auth.isSignedIn ? (
-              <div className="card stats-empty">
-                <p className="muted">{t.result.signInToKeep}</p>
-                <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
-                  {analysis.tab.signIn}
-                </button>
-              </div>
-            ) : (
-              <>
-                <KindField kinds={kinds} onChange={(kind) => updateState({ kind })} />
-                <DrillTrainer
-                  key="drills"
-                  state={state}
-                  kind={kinds.kind}
-                  onChange={updateState}
-                  onAnswer={onAnswer}
-                  onHelp={onHelp}
-                  onSaved={onSaved}
-                />
-              </>
-            )
+        <div className={`${own.main} rail-fade`}>
+          {!isDatabaseConfigured ? (
+            <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+          ) : !auth.isSignedIn ? (
+            <div className="card stats-empty">
+              <p className="muted">{t.result.signInToKeep}</p>
+              <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
+                {analysis.tab.signIn}
+              </button>
+            </div>
           ) : (
-            <SpotTrainer
-              key={mode}
-              mode={mode}
-              state={state}
-              onChange={updateState}
-              onAnswer={onAnswer}
-              signedIn={signedIn}
-              onHelp={onHelp}
-              onSaved={onSaved}
-            />
+            <>
+              <KindField kinds={kinds} onChange={(kind) => updateState({ kind })} />
+              <DrillTrainer
+                key="drills"
+                state={state}
+                kind={kinds.kind}
+                onChange={updateState}
+                onAnswer={onAnswer}
+                onHelp={onHelp}
+                onSaved={onSaved}
+              />
+            </>
           )}
         </div>
         <aside className={own.side}>
-          <SessionPanel stats={sessions[mode]} onReset={() => setSessions((current) => ({ ...current, [mode]: emptySession() }))} />
-          {signedIn ? <PlanCard generation={kept} /> : null}
-          {signedIn ? <TrainerHistory refresh={kept} /> : null}
+          <SessionPanel stats={session} onReset={() => setSession(emptySession())} />
+          {isDatabaseConfigured && auth.isSignedIn ? <PlanCard generation={kept} /> : null}
+          {isDatabaseConfigured && auth.isSignedIn ? <TrainerHistory refresh={kept} /> : null}
         </aside>
       </div>
 
       <TrainerKeySheet open={keysOpen} onClose={() => setKeysOpen(false)} />
-    </div>
+    </>
   );
 }
