@@ -59,7 +59,11 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   inline-size: 100%;
-  block-size: 100%;
+  /* No `block-size: 100%`: the dialog's own height is `fit-content` unless it
+     is anchored, so a percentage here is cyclic. Blink treats it as `auto`;
+     WebKit (the desktop app's webview) resolves it to zero and the panel
+     collapses to its border. The flex row's default stretch fills the dialog
+     instead, in both engines, and still honours the dialog's max-block-size. */
   min-block-size: 0;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-4);
