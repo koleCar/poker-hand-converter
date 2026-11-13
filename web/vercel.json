@@ -3,7 +3,8 @@
   "framework": "nextjs",
   "git": {
     "deploymentEnabled": {
-      "staging": false
+      "staging": false,
+      "prestaging": false
     }
   }
 }

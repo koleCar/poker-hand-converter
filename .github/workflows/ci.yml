@@ -8,8 +8,12 @@
 
 name: CI
 
+# Only PRs into `staging` and `main` run the gate (CLAUDE.md, "Branches"):
+# agents land work on `prestaging` with no CI, and the whole batch is checked
+# once, by the PR that promotes it to `staging`.
 on:
   pull_request:
+    branches: [staging, main]
   push:
     branches: [main]
 
