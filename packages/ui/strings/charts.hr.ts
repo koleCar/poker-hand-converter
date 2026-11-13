@@ -117,7 +117,7 @@ export const chartsUiHr: typeof chartsUiEn = {
     copyFrom: "Kopiraj iz druge situacije",
     copy: "Kopiraj",
     copyRail: "Kreni od Railovog charta",
-    copyRailHelp: "Railovi vlastiti chartovi iz solvera (ničiji drugi). Odaberi dubinu stacka.",
+    copyRailHelp: "Railovi chartovi: GTO Wizard preflop rješenja, prenesena. Odaberi dubinu stacka.",
     railSetLabel: "Railov chart",
     railSet: (table, depth) => `${table} ${num(depth)} bb`,
     railMissing: "Railov chart nema tu situaciju na toj dubini.",

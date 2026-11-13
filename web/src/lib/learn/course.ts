@@ -22,6 +22,7 @@
 
 import type { FlagCode } from "../analysis/types";
 import type { ChartPosition } from "../charts";
+import { CHART_SETS } from "../charts/registry";
 import type { LabPreset } from "../training/labPresets";
 import type { DealBias, PreflopFamily } from "../training/preflop";
 import type { RiverPot, RiverRole, RiverSeat } from "../training/river";
@@ -416,13 +417,23 @@ export function readsFlopLibrary(def: ExerciseDef): boolean {
 }
 
 /**
+ * Whether an exercise deals from a chart set that is not transcribed yet
+ * (`charts/11`: only the GTO Wizard sets in `CHART_SETS` ship): it waits for
+ * it, and does not count towards passing its lesson until then.
+ */
+export function waitsForCharts(def: ExerciseDef): boolean {
+  const set = (def as { set?: unknown }).set;
+  return typeof set === "string" && !CHART_SETS.some((spec) => spec.id === set);
+}
+
+/**
  * Whether an exercise counts towards passing its lesson: every generated
  * exercise Rail can grade today. Own hands and planned widgets do not; flop
  * spots and flop splits count while the flop library is on
  * (`FLOP_LIBRARY_ENABLED`, since `analysis/8`).
  */
 export function countsTowardsPass(def: ExerciseDef, flopLibrary = false): def is GeneratedExerciseDef {
-  if (def.kind === "own-hands" || isPlanned(def)) return false;
+  if (def.kind === "own-hands" || isPlanned(def) || waitsForCharts(def)) return false;
   if (readsFlopLibrary(def)) return flopLibrary;
   return true;
 }

@@ -75,7 +75,7 @@ export const en = {
   meta: {
     solver: {
       title: "Solver library — Rail's flop solves | Rail",
-      description: "Rail's own flop solves, one decision at a time: every hand's mix and EV on every solved flop.",
+      description: "Preflop solutions from GTO Wizard, transcribed, one decision at a time: every hand's mix and EV at every decision.",
     },
     home: {
       title: "Rail — poker hand replayer & hand history converter",
@@ -170,7 +170,7 @@ export const en = {
     charts: {
       title: "Preflop charts: 6-max and 9-max cash, every hand's mix and EV | Rail",
       description:
-        "Rail's own preflop charts for 6-max (40-200 bb) and 9-max (100-200 bb) cash: opens, 3-bets, 4-bets, squeezes and blind versus blind, with the frequency and EV of every action for all 169 hands.",
+        "Preflop charts for 6-max and 9-max cash, GTO Wizard solutions transcribed: opens, 3-bets, 4-bets, squeezes and blind versus blind, with the frequency and EV of every action for all 169 hands.",
     },
     notFound: {
       title: "Page not found | Rail",

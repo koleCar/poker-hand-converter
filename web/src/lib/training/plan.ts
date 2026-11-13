@@ -331,7 +331,7 @@ const known = (part: string) => part !== ANY && part !== NONE;
 const seatOf = (part: string): ChartPosition | null =>
   known(part) && (ALL_PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
 /** A chart set id as the trainer takes it (`nlhe-cash-9max-100bb`, `nlhe-cash-hu-100bb`). */
-const SET_ID = /^nlhe-cash-([0-9]max|hu)-[0-9]{2,3}bb$/;
+const SET_ID = /^nlhe-cash-([0-9]max|hu)-[0-9]{2,3}bb(-ante)?$/;
 /** The heads-up set an area tagged heads-up deals from when its leaks name none. */
 const HEADS_UP_SET = "nlhe-cash-hu-100bb";
 

@@ -21,9 +21,12 @@ use serde_json::Value;
 use crate::batch::decompress_phf;
 use crate::error::{Error, Result};
 
-/// `CHART_SETS` without the straddle set, in its order (ties go to the
-/// first): the web's list, and `HAND_TABLE_SETS` in the app. (id, seats,
-/// depth in big blinds.)
+/// The tables and depths a postflop leak row is filed under, in order (ties
+/// go to the first): the SQL's list, and `HAND_TABLE_SETS` in the app. It was
+/// the web's `CHART_SETS` without the straddle set until `charts/11`; since
+/// the chart sets are GTO Wizard transcriptions arriving one by one, it is a
+/// fixed table-and-depth bucket named like the classic sets (the leak list
+/// reads only its table). (id, seats, depth in big blinds.)
 pub const TABLE_SETS: &[(&str, u32, i128)] = &[
     ("nlhe-cash-6max-40bb", 6, 40),
     ("nlhe-cash-6max-60bb", 6, 60),

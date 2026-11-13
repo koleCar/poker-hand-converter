@@ -285,11 +285,12 @@ export const courseEn = {
     } as Record<string, string>,
     waits: {
       widget: "This exercise needs a widget that is not built yet.",
-      "flop-library": "Waits for flop solves at this depth: Rail's flop library covers heads-up lines at 6-max 100bb and 150bb, 9-max 100bb and heads-up tables at 100bb and 150bb only.",
+      "flop-library": "Waits for flop solves at this depth on GTO Wizard's preflop ranges, which Rail does not have yet.",
       "villain-stats": "Waits for opponent statistics in the analysis.",
       "straddle-charts": "Waits for straddle charts, which Rail does not have yet.",
     } as Record<string, string>,
-    flopOff: "Flop spots need Rail's flop library, which is not switched on yet. This exercise opens when it is.",
+    flopOff: "Flop spots need a flop library solved on GTO Wizard's preflop ranges, which Rail does not have yet. This exercise opens when it does.",
+    chartsMissing: "This exercise deals from preflop charts that are not transcribed from GTO Wizard yet. It opens when they are.",
     flopUnavailable:
       "Flop spots are dealt from Rail's flop library, which this copy of Rail cannot reach (it has no database configured). The exercise works on the hosted site.",
   },
@@ -317,6 +318,7 @@ export const courseEn = {
     } as Record<string, string>,
     source:
       "Rail's own flop library: the 6-max 100bb chart ranges for the line, solved on each flop with bets of 33% and 75% of the pot. “Bets” is the share of the whole range that bets; “bets big” the share that bets 75% or all-in. Each solved flop counts once, so a group's figure is a plain average over its flops.",
+    none: "These numbers come from a flop library solved on the current preflop ranges (GTO Wizard's), which Rail does not have yet. They show here when it does.",
   },
 
   split: {

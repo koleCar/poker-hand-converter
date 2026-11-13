@@ -59,7 +59,7 @@ export const hr: Dict = {
   meta: {
     solver: {
       title: "Solver library — Railovi flop solvovi | Rail",
-      description: "Railovi vlastiti flop solvovi, odluku po odluku: mix i EV svake ruke na svakom solvanom flopu.",
+      description: "Preflop rješenja iz GTO Wizarda, prenesena, odluku po odluku: mix i EV svake ruke u svakoj odluci.",
     },
     home: {
       title: "Rail — replayer pokerskih ruku i konverter hand historyja",
@@ -153,7 +153,7 @@ export const hr: Dict = {
     charts: {
       title: "Preflop chartovi: 6-max i 9-max cash, mix i EV svake ruke | Rail",
       description:
-        "Railovi vlastiti preflop chartovi za 6-max (40-200 bb) i 9-max (100-200 bb) cash: otvaranja, 3-betovi, 4-betovi, squeezeovi i blind protiv blinda, s frekvencijom i EV-om svake akcije za svih 169 ruku.",
+        "Preflop chartovi za 6-max i 9-max cash, prenesena GTO Wizard rješenja: otvaranja, 3-betovi, 4-betovi, squeezeovi i blind protiv blinda, s frekvencijom i EV-om svake akcije za svih 169 ruku.",
     },
     notFound: {
       title: "Stranica nije pronađena | Rail",
