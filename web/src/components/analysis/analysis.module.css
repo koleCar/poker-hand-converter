@@ -1051,3 +1051,20 @@
     min-block-size: 44px;
   }
 }
+
+/* The charts' model caveat, folded (redesign 2026-11): one line until opened. */
+.caveat {
+  align-self: flex-start;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.caveat summary {
+  color: var(--warning-fg);
+  cursor: pointer;
+}
+
+.caveat p {
+  max-inline-size: 72ch;
+  margin: var(--space-2) 0 0;
+}

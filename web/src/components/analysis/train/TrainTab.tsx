@@ -32,6 +32,8 @@ import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { addAnswer, emptySession, type SessionStats, type TrainerAnswer } from "../../../lib/training";
 import { AnalysisNav } from "../AnalysisNav";
+import { PlanCard } from "../plan/PlanCard";
+import an from "../ui/an.module.css";
 import { useAnalysisKind } from "../analysisKind";
 import { KindField } from "../KindField";
 import { DrillTrainer } from "./DrillTrainer";
@@ -81,40 +83,27 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
 
   return (
     <div className="stats">
-      <header className="stats__head">
-        <h2>{t.heading}</h2>
-        <button
-          type="button"
-          className="btn btn--ghost btn--sm"
-          aria-haspopup="dialog"
-          aria-keyshortcuts="?"
-          onClick={() => setKeysOpen(true)}
-        >
+      <AnalysisNav current="train">
+        <div className={an.tools} role="group" aria-label={t.modesLabel}>
+          {TRAIN_MODES.map((id) => (
+            <Link
+              key={id}
+              href={paths.analysisTrain(trainQuery({ ...state, mode: id, spots: id === "drills" ? state.spots : null }))}
+              className={`${an.chip} ${mode === id ? an.chipOn : ""}`}
+              aria-current={mode === id ? "page" : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                updateState({ mode: id, spots: id === "drills" ? state.spots : null });
+              }}
+            >
+              {t.modes[id]}
+            </Link>
+          ))}
+        </div>
+        <button type="button" className={an.chip} aria-haspopup="dialog" aria-keyshortcuts="?" onClick={() => setKeysOpen(true)}>
           {t.keys.button}
         </button>
-      </header>
-      <AnalysisNav current="train" />
-      <p className={own.lede}>{t.intro}</p>
-
-      <nav className={own.modes} aria-label={t.modesLabel}>
-        <ul>
-          {TRAIN_MODES.map((id) => (
-            <li key={id}>
-              <Link
-                href={paths.analysisTrain(trainQuery({ ...state, mode: id, spots: id === "drills" ? state.spots : null }))}
-                className={own.modeLink}
-                aria-current={mode === id ? "page" : undefined}
-                onClick={(event) => {
-                  event.preventDefault();
-                  updateState({ mode: id, spots: id === "drills" ? state.spots : null });
-                }}
-              >
-                {t.modes[id]}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      </AnalysisNav>
 
       <div className={own.layout}>
         <div key={mode} className={`${own.main} rail-fade`}>
@@ -157,6 +146,7 @@ export function TrainTab({ initialQuery }: { initialQuery: Record<string, string
         </div>
         <aside className={own.side}>
           <SessionPanel stats={sessions[mode]} onReset={() => setSessions((current) => ({ ...current, [mode]: emptySession() }))} />
+          {signedIn ? <PlanCard generation={kept} /> : null}
           {signedIn ? <TrainerHistory refresh={kept} /> : null}
         </aside>
       </div>

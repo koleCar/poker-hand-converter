@@ -23,6 +23,7 @@ import { webPreflopChartsSource } from "../../../lib/db/preflopCharts";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
 import { AnalysisNav } from "../AnalysisNav";
+import { ChartsSource } from "../ChartsSource";
 import { myChartsQueryString, parseMyChartsQuery, type MyChartsQuery } from "./myChartsQuery";
 import "../../../styles/stats.css";
 
@@ -64,10 +65,9 @@ export function MyChartsTab({ initialQuery }: { initialQuery: Record<string, str
   if (!auth.isSignedIn) {
     return (
       <div className="stats">
-        <header className="stats__head">
-          <h2>{t.myCharts}</h2>
-        </header>
-        <AnalysisNav current="my-charts" />
+        <AnalysisNav current="my-charts">
+          <ChartsSource current="mine" />
+        </AnalysisNav>
         <div className="card stats-empty">
           <h3>{tab.signInHeading}</h3>
           <p className="muted">{tab.signInBody}</p>
@@ -84,7 +84,12 @@ export function MyChartsTab({ initialQuery }: { initialQuery: Record<string, str
       source={webPreflopChartsSource}
       title={t.myCharts}
       titleTag="h2"
-      notice={<AnalysisNav current="my-charts" />}
+      hideTitle
+      notice={
+        <AnalysisNav current="my-charts">
+          <ChartsSource current="mine" />
+        </AnalysisNav>
+      }
       selected={query.selected}
       view={query.view}
       situation={query.situation}
