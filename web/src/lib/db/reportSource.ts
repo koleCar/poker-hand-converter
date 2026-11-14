@@ -12,9 +12,6 @@
  * the same `Shown` from either surface. Money the server withholds (chips
  * with cash; two currencies) is not a number here: a definition that reads it
  * shows no value.
- *
- * `rawTotals` keeps each report's sums for the web's own panels beside the
- * screen (the HUD tiles read counters, not `Shown`s).
  */
 import type { FacetCount, HandFacets, HandFilter, SiteFacet, StakeFacet } from "@rail/ui/hands/model";
 import type { Shown } from "@rail/ui/model/stats";
@@ -170,14 +167,6 @@ function graphOf(payload: Row): Graph {
   };
 }
 
-/** The sums behind the last report of each filter (the web's HUD tiles beside the screen). */
-const rawTotals = new WeakMap<Report, RawSums>();
-
-/** The sums `report` was shown from, for the web's own panels. */
-export function reportTotals(report: Report): RawSums | null {
-  return rawTotals.get(report) ?? null;
-}
-
 /** The web's source; `standardFormat` names hands in Rail's own text format. */
 export function webReportSource(standardFormat: string): ReportSource {
   return {
@@ -195,7 +184,7 @@ export function webReportSource(standardFormat: string): ReportSource {
       const total = open.total && typeof open.total === "object" ? (open.total as Row) : {};
       const sums = sumsOf(total);
       const groups = open.groups && typeof open.groups === "object" ? (open.groups as Row) : {};
-      const report: Report = {
+      return {
         units,
         summary: {
           hands: num(open.hands),
@@ -214,8 +203,6 @@ export function webReportSource(standardFormat: string): ReportSource {
         bySize: groupsOf(groups.size, minorUnits),
         byFormat: groupsOf(groups.format, minorUnits),
       };
-      rawTotals.set(report, sums);
-      return report;
     },
     async breakdowns(filter): Promise<Breakdowns> {
       const payload = await rpc<Row>("report_situations", { p_filter: wire(filter) });

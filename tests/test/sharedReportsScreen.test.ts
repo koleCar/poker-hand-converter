@@ -41,7 +41,7 @@ import { statsUiEn } from "@rail/ui/strings/stats.en";
 import { statsUiHr } from "@rail/ui/strings/stats.hr";
 
 import { opponentsScope } from "../../web/src/components/stats/opponentsScope.js";
-import { WEB_DEFINITIONS, reportTotals, webReportSource } from "../../web/src/lib/db/reportSource.js";
+import { WEB_DEFINITIONS, sumsOf, webReportSource } from "../../web/src/lib/db/reportSource.js";
 import { STANDARD_STATS, emptyCounters, emptyMoney, showStat, statById } from "../../web/src/lib/stats/index.js";
 
 const rpc = vi.fn();
@@ -180,10 +180,10 @@ describe("the web's ReportSource over the summaries", () => {
     expect(report.summary.stats).toHaveLength(STANDARD_STATS.length);
     expect(shownOf(report, "vpip").text).toBe("23.0");
     expect(shownOf(report, "vpip").sample).toBe(200);
-    const totals = reportTotals(report);
-    expect(totals?.counters.three_bet).toBe(9);
+    const totals = sumsOf(OPEN.total);
+    expect(totals.counters.three_bet).toBe(9);
     expect(shownOf(report, "bb_per_100")).toEqual(
-      showStat(statById(STANDARD_STATS, "bb_per_100"), totals!, 100),
+      showStat(statById(STANDARD_STATS, "bb_per_100"), totals, 100),
     );
     expect(shownOf(report, "allin_ev_bb_per_100").value).toBeCloseTo((12000 / 1000 / 198) * 100, 10);
     expect(report.summary).toMatchObject({ hands: 200, moneyHands: 198, net: 2000, netBbMilli: 10000, evNetBbMilli: 12000 });

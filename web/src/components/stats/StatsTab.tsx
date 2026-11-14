@@ -7,11 +7,12 @@
  * summary, the win-rate graph (with its all-in EV line, in big blinds or
  * money), every statistic by group and the breakdowns - by position, stake,
  * table size, room and game, and by pot type, stack depth, starting hand
- * (the 13 x 13 grid), players dealt in and street. Around it, this page's
- * own: the four ways of having nothing to show, the coverage line and its
- * rebuild, live arrivals, and its panels over the same filter - the HUD
- * tiles under the summary, the sessions and the opponents after the
- * breakdowns.
+ * (the 13 x 13 grid), players dealt in and street. It is laid out as the
+ * desktop's Reports: no visible title (the bar already says Statistics), one
+ * header row with the hand count on the left and Cash | Tournaments on the
+ * right. Around it, this page's own: the four ways of having nothing to show,
+ * the coverage line and its rebuild, live arrivals, and its panels over the
+ * same filter - the sessions and the opponents after the breakdowns.
  *
  * Four ways of having nothing to show, and one rule running through all of
  * them: **say which nothing it is.** A blank screen is the same pixels
@@ -33,8 +34,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FilterState } from "@rail/ui/hands/filter";
 import type { HandFilter } from "@rail/ui/hands/model";
 import { ReportsScreen, type Tab } from "@rail/ui/reports/ReportsScreen";
-import type { Report } from "@rail/ui/reports/model";
 import { RailLoader } from "@rail/ui/loader/RailLoader";
+import reportStyles from "@rail/ui/reports/Reports.module.css";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   fetchStatsCoverage,
@@ -44,13 +45,12 @@ import {
   type RebuildProgress,
   type StatsCoverage,
 } from "../../lib/db";
-import { reportTotals, WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
+import { WEB_DEFINITIONS, webReportSource } from "../../lib/db/reportSource";
 import { useAuth } from "../../lib/auth";
 import { useEntitlements } from "../../lib/entitlements/context";
 import { useDict } from "../../lib/i18n/client";
 import { ProLock } from "../plan/ProLock";
 import type { ArrivalBatch } from "../../lib/live/arrivals";
-import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { opponentsScope } from "./opponentsScope";
 import { SessionsPanel } from "./SessionsPanel";
@@ -292,6 +292,7 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
         onTab={setTab}
         title={en.heading}
         titleTag="h2"
+        hideTitle
         notice={<CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />}
         emptyText={rebuild.status === "running" ? en.loading : `${en.emptyHeading}. ${en.emptyBody}`}
         reloadToken={generation}
@@ -308,7 +309,6 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
             </div>
           )
         }
-        afterSummary={(report) => <Tiles report={report} />}
         // (R6.4) The situation tabs say why instead of an error (the full
         // lock with the upgrade is the footer's).
         situationsLock={fullLocked ? <p className="muted">{dict.plan.lock.body.reports_full}</p> : undefined}
@@ -332,30 +332,10 @@ export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   );
 }
 
-/** The HUD tiles (the web's own panel) over the report's sums. */
-function Tiles({ report }: { report: Report }) {
-  const totals = reportTotals(report);
-  if (!totals) return null;
-  return (
-    <HudGrid
-      counters={totals.counters}
-      money={report.units.mixedKind ? null : totals.money}
-      moneyHands={totals.moneyHands}
-      currency={report.units.mixedCurrency || report.units.mixedKind ? null : report.units.currency}
-      currencyMinorUnits={report.units.mixedCurrency || report.units.mixedKind ? null : report.units.minorUnits}
-      mixedCurrency={report.units.mixedCurrency}
-      mixedUnitKind={report.units.mixedKind}
-    />
-  );
-}
-
+/** The states' heading: for assistive technology only, like the report's own (`hideTitle`). */
 function Header() {
   const en = useDict().stats.tab;
-  return (
-    <header className="stats__head">
-      <h2>{en.heading}</h2>
-    </header>
-  );
+  return <h2 className={reportStyles.visuallyHidden}>{en.heading}</h2>;
 }
 
 type RebuildState =

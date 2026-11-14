@@ -101,113 +101,7 @@
   padding: 1px 5px;
 }
 
-.stats-hud {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* ------------------------------------------------------------- headline */
-
-.stats-headline {
-  gap: 16px;
-}
-
-.stats-headline__main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stats-headline__label {
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-/* The one hero figure on the screen. Proportional figures on purpose: at this
-   size `tabular-nums` gives every digit the width of a zero and the number
-   reads loose. Tabular is for the columns further down. */
-.stats-headline__value {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: var(--font-size-5xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-tight);
-}
-
-.stats-headline__value.is-up {
-  color: var(--profit-fg);
-}
-
-.stats-headline__value.is-down {
-  color: var(--loss-fg);
-}
-
-/* A win rate under the sample floor is still the best estimate there is, so it
-   is shown — but it is not a fact yet, and the eye should know that before it
-   reads the digits. */
-.stats-headline__value.is-provisional {
-  /* 0.8, not lower: the unit beside the number is small text and has to
-     keep 4.5:1 through the fade (#57). */
-  opacity: 0.8;
-}
-
-.stats-headline__unit {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
-  color: var(--fg-muted);
-  letter-spacing: var(--letter-spacing-normal);
-}
-
-.stats-headline__note {
-  margin: 2px 0 0;
-  font-size: var(--font-size-sm);
-  color: var(--fg-muted);
-  max-width: 62ch;
-}
-
-.stats-headline__refusal {
-  margin: 0;
-}
-
-.stats-headline__side {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0;
-}
-
-.stats-headline__side dt {
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.stats-headline__side dd {
-  margin: 2px 0 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  font-variant-numeric: tabular-nums;
-}
-
-@media (min-width: 720px) {
-  .stats-headline {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
-    align-items: start;
-  }
-
-  .stats-headline__refusal {
-    grid-column: 1 / -1;
-  }
-}
-
-/* ------------------------------------------------------------ the tiles */
+/* ------------------------------------------------------------ groups */
 
 .stats-group {
   gap: 12px;
@@ -215,34 +109,6 @@
 
 .stats-group h3 {
   font-size: var(--font-size-xl);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
-  gap: 10px;
-}
-
-.stats-inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin: 0;
-  padding-top: 2px;
-}
-
-.stats-inline dt {
-  font-size: var(--font-size-xs);
-  color: var(--fg-dim);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.stats-inline dd {
-  margin: 2px 0 0;
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  font-variant-numeric: tabular-nums;
 }
 
 /* ------------------------------------------------------------ breakdown */
